@@ -13,6 +13,8 @@ jobs:
           node-version: '22'
       - name: Verify census against published lists
         run: node --test scripts/test-aichi-energy-audit.cjs
+      - name: Verify exact Shadow Rider Hood natural access
+        run: node --test scripts/test-hood-natural-access.cjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
