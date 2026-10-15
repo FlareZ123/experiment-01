@@ -1,0 +1,35 @@
+# Agent 4: paper Expanded matchup-specific setup models
+
+## Identity and lease
+- Normal research mode (initial RNG draw 7), claimed via GitHub `agents/agent4/.lease.json` at **2026-10-15T22:38:59Z** run_id `f016f846594a4b83353c2a2f`; do not refresh. Claim commit `30841f7dfa9bb76b5ddb0a73ffa5ed77333ec366`. Release only at age >=70 min (2026-10-15T23:48:59Z), after saving research, with final lease removal push. Check actual runtime clock at each checkpoint.
+- Repo: `FlareZ123/experiment-01`, default `main`, many concurrent agents. Do not create per-commit workflows per root `README.md`.
+- Research target is one unchanged legal 60-card paper Expanded deck winning 99.5% against Aichi Open League May 10 2026 Top32. Current champion baseline is rank1 Shadow Rider Calyrex. There are 29 published full opponent lists, 3 missing (ranks 23,25,28). No tested 99.5% win-rate evidence.
+
+## Verified initial contributions
+- `scripts/aichi_opening_audit.cjs` with `tests/aichi_opening_audit.test.cjs` and dispatch `.github/workflows/aichi-opening-audit.yml`: all 29 lists validated as 60 cards, Basic Pokémon stage via normalized English card name (Prism glyph normalization, skip incomplete historical records), and exact mulligan math. 5 tests and script passed Actions `38819426689`.
+- `results/aichi-2026/opening-mulligan-audit.md`: Iron Thorns ranks6,24,29 each only four Basic ex, initial mulligan probability 60.05004%, expected own mulligans 1.50313. Shadow Rider 14 Basics, initial 13.85907%. Joint simultaneous mulligan formula: with A opponent and B defender, expected optional bonus opportunities to B `pA(1-pB)/[(1-pA)(1-pA*pB)]`; against Iron Thorns champion receives 1.41235 offers.
+- `scripts/iron_thorns_direct_line.cjs`, `tests/iron_thorns_direct_line.test.cjs`, `results/aichi-2026/iron-thorns-direct-line.md`: exact 8-card hand (valid first seven; first-turn draw) plus six Prizes combinatorial model of Iron Thorns Volt Cyclone direct-energy line. One Thunder Mountain Prism, 2 Guzma & Hala, 2 Tag Call, one DCE => 33.7815% availability for ranks6/29; three DCE =>39.10785% rank24. Theoretical resource access assumes affordable two-card Guzma & Hala discard and ignores other access lines, Item/Supporter contention. CI `38819877604` passed. Independent seeded 250k Monte Carlo per DCE count consistent.
+
+## Crucial Meloetta Donk ALS, October 15
+- Read **the player's own first-person** May 13 2026 report https://note.com/hibi2571/n/n9f4c7d7568b8 for rank26 Hibiki Yamada. Swiss 7-1, lost Top32, reports 7 won rounds with successful donk. He explains first turn going first:
+  * Risky Ruins Stadium (`me1-127`) places 20 damage on a non-Darkness Basic Benched **during the turn**; two Exeggcute (30 HP `bw9-4`) have 10 remaining, a third donor non-Darkness Bench Pokémon has 20 damage.
+  * Damage Pump moves one counter to each Exeggcute, self-KO two; opponent takes two Prizes. Propagation retrieves the eggs from discard; repeat 3 Damage Pump cycles of 2+2+1 self-KOs -> opponent at 1 Prize.
+  * Tapu Koko Prism Star `sm9-51` Dance of the Ancients accelerates Lightning Energy discarded earlier onto Meloetta ex and another Benched; manual Double Colorless Energy gives Meloetta cost for `Technical Machine: Crisis Punch` [CCC], 280 damage, usable only when opponent has exactly one Prize left.
+  * Meloetta ex `zsv10pt5-44` Debut Performance permits first-turn first-player attacks. Attack KO sole opposing Active and if no Bench, opponent loses immediately.
+  * Distinguish `Unown` Farewell Letter (discard for draw, does **not** give Prize), `Exeggcute` Propagation (retrieving from discard multiple times after leaving/returning), the effects being blocked by active lock. Iron Thorns ex Initialization blocks Rulebox Meloetta Ability, but rank26 includes one Canceling Cologne potential answer.
+- Full referenced report `results/aichi-2026/meloetta-donk-als.md`, opponent list `results/aichi-2026/full-decklists.json`.
+- Derived the **defending lone-Active structural exposure** (necessary for this exact instant-win route, insufficient for actual win). `scripts/aichi_solo_start.cjs` + `tests/aichi_solo_start.test.cjs` outputs 28 opponent scenarios: conditional valid 7 exact one Basic, after accepting all opponent mulligan bonus and Benching every Basic. Uses Agent9's shared `scripts/aichi_bonus_draws.cjs` geometric formula. For b defending Basics `P(exactly1 | valid7)=b*C(60-b,6)/[C(60,7)-C(60-b,7)]`; no extra Basic after k bonus cards `C(54-b,k)/C(53,k)`, integrating random six Prize locations. When opposing rank26 Meloetta has b=12 Basics, champion b14 has lone Active 39.4176% initially and 37.5068% after bonus, b4 Iron Thorns 84.1754% initially 83.6736% after bonus. CI run `38821287223` success covering those tests and full published table.
+- Alerted Agent2 via `communications/agent2/2026-10-15T2305Z_agent4_meloetta-donk-als.md`, requests proper engine tests of 2+2+1 self-KOs, repeated Propagation, turn-stage Risky Ruins, first-turn Tool attack, active Ability lock and Canceling Cologne, correct win resolution.
+- Earlier communicated exact mulligan to Agent2 via `communications/agent2/2026-10-15T224943Z_agent4_mulligan-benchmark.md`, and bonus draw correction to Agent1 via `communications/agent1/2026-10-15T2258Z_agent4_bonus-draw-probabilities.md`.
+- Agent9 independently created `results/aichi-2026/bonus-draw-access.md` and `scripts/aichi_bonus_draws.cjs` for target card access. Avoid duplicate probability logic; ours imports shared function. Agent1 has source-printing-correct `scripts/aichi_opening_audit.py` and an initial-hand lone Basic/low HP audit. Agent5's note in `communications/agent4/2026-10-15T224650Z_agent5_seat-balance.md` misidentifies Agent4 as owner of `scripts/aichi_evidence.py`, which was another agent. Their 32x2 seat-stratified method deserves consideration.
+
+## Remaining research priorities
+1. Review accurate source-printing Basic statuses in `results/aichi-2026/opening-hand-audit.json` vs name index; identify anomalous data if any.
+2. Cross-reference Meloetta line with Twinleaf card coverage and engine tests, quantify lineup-specific defensive structural counters (active Ability lock, HP>280, second Basic, Tool lock, attack prevention) using 29 list manifest.
+3. Continue exploring *actual strategic improvements to one nominated deck*, ideally more than shallow card-swaps. Link relevant reports from `results/README.md`; avoid overclaiming.
+4. Coordinate agent ownership if overlapping; keep notes and code validated by manual CI. Current engine has a few finished smoke matches with weak SimpleTacticsAi, no trustworthy win rates.
+
+## Major caveats
+- First-person 7-wins account is retrospective anecdote; no independent replay outcomes.
+- The exact lone-Active probabilities assume immediate Benching of any extra drawn Basics and optional mulligan bonus cards all taken. It does not model Turn order, ability blocks, damage, attack access or win rate.
+- The Japanese field may use Japanese-only cards; English card snapshot is incomplete legality reference.
