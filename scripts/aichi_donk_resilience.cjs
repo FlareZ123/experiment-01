@@ -77,6 +77,7 @@ const initialCounters = new Map([
   ['Midnight Fluttering', 'suppresses Active Meloetta Ability'],
   ['Initialization', 'suppresses Rulebox Meloetta Ability'],
   ['Safeguard', 'prevents damage from Pokémon ex'],
+  ['Bide Barricade', 'suppresses discard-pile Exeggcute and Benched Tapu Koko Abilities'],
 ]);
 
 /**
