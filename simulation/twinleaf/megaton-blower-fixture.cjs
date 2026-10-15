@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { initializeCards } = require('./headless.cjs');
+const { installMegatonBlowerHook } = require('./megaton-blower-hook.cjs');
 
 /**
  * Run a constructed legal-target state for Megaton Blower's attached card
@@ -69,11 +70,26 @@ if (require.main === module) {
   assert.equal(upstream.specialEnergyCount, 0);
   assert.equal(upstream.stadiumCount, 0);
   assert.equal(upstream.ownToolStillAttached, true);
+  const restore = installMegatonBlowerHook();
+  let patched;
+  try {
+    patched = probeMegaton();
+  } finally {
+    restore();
+  }
+  assert.deepEqual(patched.toolCounts, [0, 0]);
+  assert.equal(patched.specialEnergyCount, 0);
+  assert.equal(patched.stadiumCount, 0);
+  assert.equal(patched.ownToolStillAttached, true);
+  assert.deepEqual(
+    patched.opponentDiscard,
+    ['Speed Lightning Energy', 'Stealthy Hood', 'Stealthy Hood']
+  );
   console.log(JSON.stringify({
-    kind: 'megaton-blower-source-implementation-reproduction',
+    kind: 'megaton-blower-upstream-defect-and-hooked-regression',
     pinnedEngine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     upstream,
-    warning: 'Upstream omitted both opponent Tools; compatibility hook required.'
+    patched
   }, null, 2));
 }
 module.exports = { probeMegaton };
