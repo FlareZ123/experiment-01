@@ -33,3 +33,5 @@ jobs:
         run: node simulation/twinleaf/apex-phantom-dive.cjs
       - name: Check upstream copied-attack selection policy
         run: node simulation/twinleaf/apex-policy-choice.cjs
+      - name: Test optional Regidrago Bench Prize resolver
+        run: node simulation/twinleaf/regidrago-prize-window-test.cjs
