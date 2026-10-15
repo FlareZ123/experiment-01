@@ -15,6 +15,8 @@ def field():
 def batch():
     return {
         "schema_version": 2,
+        "engine_slots": [{"id": 101, "name": "research-A"},
+                         {"id": 202, "name": "research-B"}],
         "candidate_deck_sha256": "a" * 64,
         "field_manifest_sha256": hashlib.sha256(field().encode()).hexdigest(),
         "engine_revision": "engine",
@@ -89,6 +91,8 @@ class RawContractTests(unittest.TestCase):
             lambda g: g.__setitem__("seat", "first"),
             lambda g: g["first_turn"].__setitem__("firstTurnSlot", 0),
             lambda g: g["first_turn"].__setitem__("firstDrawLogName", "research-A"),
+            lambda g: g["first_turn"].__setitem__("firstTurnPlayerId", 101),
+            lambda g: g["first_turn"].__setitem__("firstTurnPlayerName", "research-A"),
             lambda g: g["first_turn"].__setitem__("verifiedByDrawLog", False),
         ]
         for edit in edits:
