@@ -14,10 +14,12 @@ const {State} = engine('game/store/state/state');
 const {Player} = engine('game/store/state/player');
 const {PokemonCardList} = engine('game/store/state/pokemon-card-list');
 const {TrainerEffect, PlayItemEffect} = engine('game/store/effects/play-card-effects');
+const {AttackEffect} = engine('game/store/effects/game-effects');
 const {PokemonRanger} = engine('sets/07-x-and-y/set-steam-siege/pokemon-ranger');
 const {Channeler} = engine('sets/08-sun-and-moon/set-unified-minds/channeler');
 const {Vileplume} = engine('sets/07-x-and-y/set-ancient-origins/vileplume');
 const {QuickBall} = engine('sets/09-sword-and-shield/set-sword-and-shield/quick-ball');
+const {Budew} = engine('sets/10-scarlet-and-violet/set-prismatic-evolution/budew');
 
 /** @returns {{state:InstanceType<typeof State>,a:InstanceType<typeof Player>,b:InstanceType<typeof Player>}} */
 function emptyBoard() {
@@ -84,4 +86,30 @@ test('Ranger does not disable an enabled Vileplume Ability-based Item lock', () 
   const store = {reduceEffect: (_state, _effect) => _state};
   const item = new PlayItemEffect(a, new QuickBall());
   assert.throws(() => vileplume.reduceEffect(store, state, item));
+});
+
+
+test('Real Itchy Pollen reducer applies the player lock that Channeler clears', () => {
+  const {state, a, b} = emptyBoard();
+  const budew = new Budew();
+  a.active.cards.push(budew);
+  const attack = new AttackEffect(a, b, budew.attacks[0]);
+  const store = {
+    reduceEffect(currentState, effect) {
+      assert.equal(effect.constructor.name, 'PlayLockEffect');
+      effect.applyEffect();
+      return currentState;
+    }
+  };
+  assert.equal(b.cannotPlayItemCards, false);
+  budew.reduceEffect(store, state, attack);
+  assert.equal(b.cannotPlayItemCards, true);
+  assert.equal(b.playLocksTurnsRemaining, 1);
+  b.bench.push(new PokemonCardList());
+  b.switchPokemon(b.bench[0]);
+  assert.equal(b.cannotPlayItemCards, true);
+  const channeler = new Channeler();
+  channeler.reduceEffect(null, state, new TrainerEffect(b, channeler));
+  assert.equal(b.cannotPlayItemCards, false);
+  assert.equal(b.playLocksTurnsRemaining, 0);
 });
