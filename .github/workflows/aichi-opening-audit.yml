@@ -1,0 +1,25 @@
+name: Aichi opening-hand audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Unit tests
+        run: node --test tests/aichi_opening_audit.test.cjs
+      - name: Audit published Aichi lists
+        run: node scripts/aichi_opening_audit.cjs > aichi-opening-audit.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aichi-opening-audit
+          path: aichi-opening-audit.md
