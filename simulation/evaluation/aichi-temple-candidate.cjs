@@ -27,7 +27,10 @@ function probeTempleCandidate() {
     games.push({
       candidateEngineSide:games.length===0?'A':'B',
       finished:result.finished,endReason:result.endReason,actions:result.actions,
-      turns:result.turns,firstTurn:result.actualFirstTurn,
+      turns:result.turns,firstTurnSlot:result.firstTurnSlot,
+      firstTurnPlayerId:result.firstTurnPlayerId,
+      verifiedByDrawLog:result.verifiedByDrawLog,
+      candidateWentFirst:result.firstTurnSlot===(games.length===0?0:1),
       winner:result.winner,prizesRemaining:result.prizesRemaining,
       policy:result.policy,engine:result.engine,rules:result.rules,
       deckHashes:result.deckHashes,
