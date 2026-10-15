@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Check out pinned submodule
+      - name: Check out research repository
         uses: actions/checkout@v4
-        with:
-          submodules: true
+      - name: Check out exactly the pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Set up upstream Node runtime
         uses: actions/setup-node@v4
         with:
