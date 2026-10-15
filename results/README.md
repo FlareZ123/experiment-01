@@ -20,6 +20,10 @@
 - The source event is Japanese Expanded. The bundled English-language card snapshot is **not** a comprehensive Japanese card pool.
 - [Verified published opponent lists](aichi-2026/ingestion.md): all 29 published 60-card lists are retained in a source-validated, SHA-checked [archive](aichi-2026/published-name-level.json.gz.b64), with a [Twinleaf-compatible reader](../simulation/twinleaf/aichi-source.cjs). Exact card printings remain unresolved.
 
+
+- [Shadow Rider's dual-axis lock overlap](aichi-2026/champion-axes-observation.md) identifies 8 of 29 published lists with both a possible Item lock and a possible Underworld Door suppressor.
+- [Shadow Rider lock-exposure breakdown](aichi-2026/shadow-rider-lock-exposure.md) records its 17 Item slots and candidate-specific ability dependencies.
+
 ## Evidence state
 
 No simulator-based wins or matchup trials have been verified. **There is no measured win rate, and the 99.5% objective remains unmet.** Prioritize exact card legality, full decklist ingestion, Twinleaf engine support validation, and honest per-opponent statistical testing.
