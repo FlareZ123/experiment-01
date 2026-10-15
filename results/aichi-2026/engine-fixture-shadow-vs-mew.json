@@ -1,0 +1,68 @@
+{
+  "schema_version": "exploratory-engine-game-v0",
+  "status": "completed-engine-policy-fixture-not-competitive-evidence",
+  "run_url": "https://github.com/FlareZ123/experiment-01/actions/runs/38821525656",
+  "workflow_head_sha": "92f4b826270627e1e6d155bc933c89e954702672",
+  "engine_revision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "manifest_sha256": "653ed6620d742f1f011d729557265e6173902b5fa87c8b4830f886f7be585173",
+  "candidate_source_rank": 1,
+  "candidate_source_sha256": "77d91942a34e18fe5dc076eddba2e54602004dede2b0bc44786eefa6ddc94086",
+  "opponent_source_rank": 5,
+  "opponent_archetype": "Mew Genesect",
+  "opponent_player": "Yamato Nakano",
+  "source_deck_form": "published Aichi Top 32 English display, substitutions controlled by shared resolver",
+  "source_url": "https://www.limitlesstcg.com/tournaments/566/decklists",
+  "permissions": {
+    "allowEquivalentBasicEnergies": true,
+    "allowBasicEnergyMirrorPrintings": true,
+    "allowJapanesePromoHooks": true
+  },
+  "shared_resolver": "simulation/twinleaf/resolve-field.cjs",
+  "game_policy": "Twinleaf SimpleTacticsAi/defaultStateScores; not proven competitive",
+  "first_player_side_verified": false,
+  "seed_protocol": {
+    "seedBase": 2026101505,
+    "oppRankMultiplier": 20003,
+    "iFactor": 2,
+    "seatOffset": "A=0,B=1"
+  },
+  "games": [
+    {
+      "seed": 2026201520,
+      "candidate_engine_side": "A",
+      "actual_first_player_side": null,
+      "engine_winner_index": 0,
+      "champion_won": true,
+      "actions": 130,
+      "turns": 22,
+      "end_reason": "engine-game-end",
+      "deck_hashes": [
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311",
+        "3467f7297dac361df88c17893811a5b8f41d2ad9a469a13b8881f629bce1c193"
+      ]
+    },
+    {
+      "seed": 2026201521,
+      "candidate_engine_side": "B",
+      "actual_first_player_side": null,
+      "engine_winner_index": 1,
+      "champion_won": true,
+      "actions": 211,
+      "turns": 38,
+      "end_reason": "engine-game-end",
+      "deck_hashes": [
+        "3467f7297dac361df88c17893811a5b8f41d2ad9a469a13b8881f629bce1c193",
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311"
+      ]
+    }
+  ],
+  "observed_two_game_wins": 2,
+  "one_sided_binomial_95pct_lower_given_iid": 0.22360679774997907,
+  "limitations": [
+    "Only two complete engine games",
+    "Actual first-turn seat attribution unavailable",
+    "Decision policy strength unvalidated",
+    "Important card behavior and print substitutions not fully independently verified",
+    "Fixed opponent field has three unpublished 60-card lists"
+  ]
+}
