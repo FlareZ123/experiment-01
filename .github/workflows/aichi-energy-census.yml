@@ -1,0 +1,21 @@
+name: Aichi published-field Energy census
+on:
+  workflow_dispatch:
+
+jobs:
+  energy-census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify census against published lists
+        run: node --test scripts/test-aichi-energy-audit.cjs
+      - name: Print audit summary
+        run: node scripts/aichi_energy_audit.cjs > energy-census.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aichi-energy-census
+          path: energy-census.json
