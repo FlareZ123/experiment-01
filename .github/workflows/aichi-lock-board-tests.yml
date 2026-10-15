@@ -24,3 +24,4 @@ jobs:
         run: npm run compile
       - run: node simulation/twinleaf/temple-wobbuffet-board.cjs
       - run: node simulation/twinleaf/temple-energy-board.cjs
+      - run: node simulation/twinleaf/wobbuffet-pivot.cjs
