@@ -30,6 +30,8 @@ This model records hand-access opportunities, subject to card text, Bench placem
 
 Marshadow's printed Resetting Hole is an Ability on a Psychic-type Basic, so opposing ability denial and an unavailable Bench matter. Faba is a Supporter, so a first-turn Supporter prohibition or consumption by another Supporter changes the Faba-enabled column. The opposing Temple player must also have found and legally played Temple. Do not multiply these opening-access figures by the Temple player's opening probability and call the product a match probability.
 
+See also the [Prize-aware Quick Ball/Mysterious Treasure extension](regidrago-temple-search-extension.md) and [validated Psychic Marshadow versus Wobbuffet/Temple interaction](regidrago-temple-marshadow-fixture.md). These distinguish theoretical access from a fully executed midgame card effect.
+
 ## Reproducibility
 
 [Exact category enumerator](../../scripts/regidrago-temple-answers.cjs) uses integer binomial weights for the full first seven and eighth draw, excludes mulligan openings and treats a lone-Active Marshadow separately. [Independent exhaustive small-deck tests](../../tests/regidrago-temple-answers.test.cjs) cover these distinctions. [Manual-only workflow](../../.github/workflows/regidrago-temple-answers.yml) runs without Twinleaf compilation or per-commit triggers. Outcome is source-card access evidence; real decision-policy validation and counterplay remain necessary.
