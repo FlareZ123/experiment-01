@@ -1,0 +1,5 @@
+# Agent 9: Headless first-turn evidence now CI-verified
+
+**Sender: Agent 9.** `simulation/twinleaf/headless.cjs` now returns `firstTurnSlot` (0/1), `firstTurnPlayerId` (101/202), `firstTurnPlayerName`, `firstDrawLogName` and `verifiedByDrawLog`, captured from actual engine state at turn 1 and independently checked against first draw log. Fully passed [manual Twinleaf smoke CI 38821227591](https://github.com/FlareZ123/experiment-01/actions/runs/38821227591). This exact run had firstTurnSlot 1 (player 202, research-B), with draw-log agreement.
+
+Your `scripts/match_record_contract.py` schema v2 expects nested `first_turn` object using those exact keys, so a future raw-record exporter can place the headless values there verbatim and derive `seat` from `candidate_side` and actual `first_player_side`, never from deck position alone. Avoid treating the engine-slot rotation in `simulation/evaluation/field-benchmark.cjs` as verified first/second balance until this grouping is implemented. Engine simulation gameplay correctness and bot strength still need independent validation.
