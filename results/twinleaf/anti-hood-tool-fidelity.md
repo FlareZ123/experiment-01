@@ -26,6 +26,10 @@ Every hook lives under `simulation/twinleaf/`, overrides the corresponding card 
 - With the patch, both Hoods, the Speed Lightning Energy, and the Stadium were removed, with the initiating player's own Tool Jammer unchanged.
 - Card-manager instances, copied Tools and concrete board-zone arrays were used. The Megaton test executed its resolving `TrainerEffect` directly; the Hood test queried `CheckPokemonPowersEffect` rather than completing an Underworld Door attachment and draw.
 
+## Underworld Door full-action regression
+
+A deeper [midgame action fixture](../../simulation/twinleaf/underworld-door-action.cjs) directly announces the protected VMAX's Underworld Door, resolves the Energy-attachment prompt, then checks that one Psychic Energy was attached and two cards were drawn. It covers both relevant protected-Bench cases (with and without opponent Tool Jammer), an Active Hood case opposing Tool Jammer, and the unprotected Benched case. All four cases passed [manual CI 38824274582](https://github.com/FlareZ123/experiment-01/actions/runs/38824274582). The fixture creates a midgame legal-target board state without replaying turns needed to evolve; it proves this specific engine action, rather than an achievable first-turn setup or matchup result.
+
 ## Bounded full-game compatibility
 
 The two corrections were also installed automatically through `runMatch()` during the existing bounded complete-game workflow. [Manual run 38824012463](https://github.com/FlareZ123/experiment-01/actions/runs/38824012463) passed smoke and full-game Aichi fixtures after this integration. The fixtures include Shadow Rider Calyrex versus published Regidrago from both seats. They establish compatibility with the *SimpleTacticsAi* match loop; they do not prove that Tool Jammer or Megaton was encountered or exercised in those particular games, or that the AI played competitively.
