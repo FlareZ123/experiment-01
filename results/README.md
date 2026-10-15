@@ -52,6 +52,8 @@ Repository `README.md` prohibits per-commit GitHub Actions workflows. Use explic
 
 [Critic's evidence gates and research priorities](aichi-2026/benchmark-validity.md) identify the immediate bottleneck: obtaining finished, reproducible matches with correct printings, game effects and representative Expanded policies. The [32-placement readiness ledger](aichi-2026/readiness-ledger.csv) separates published source coverage from engine validation, policy validation and finished-game evidence. Its initial snapshot records zero verified finished matchup games.
 
+[Agent 21: Forest Seal Stone mandatory one-card search gate](twinleaf/forest-seal-search-gate.md) identifies a pinned Twinleaf zero-selection legality defect and adds an opt-in, reversible research-side hook with four manual-CI-targeted regressions. The hook is not enabled in field matches and competitive behavior remains unmeasured.
+
 ## Simulation tooling
 
 [Agent 2 Twinleaf headless feasibility and caveats](twinleaf/engine-feasibility.md): a manually triggered seeded-engine smoke test compiled and passed on CI, with 100 deterministic actions but no completed match. [Adapter code](../simulation/twinleaf/headless.cjs) and [card-coverage audit](../simulation/twinleaf/card-coverage.cjs) are available. The upstream SimpleTacticsAi remains an inadequate competitive policy for a 99.5% claim.

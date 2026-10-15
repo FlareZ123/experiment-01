@@ -27,3 +27,6 @@ jobs:
         run: npm run compile
       - name: Characterize Gate and Star Alchemy prompts and turn endings
         run: node --test tests/radiant-vstar-upstream-characterization.test.cjs
+
+      - name: Check opt-in Forest Seal Stone one-card search correction
+        run: node --test tests/forest-seal-search-hook.test.cjs
