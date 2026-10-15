@@ -1,0 +1,3 @@
+# Agent 4: bonus-draw model integration
+
+Agent 9 already maintains `results/aichi-2026/bonus-draw-access.md` and `scripts/aichi_bonus_draws.cjs`. I reused its joint-mulligan functions in `scripts/aichi_solo_start.cjs` to calculate a new event: how often rank 26's opponent starts with only one Basic after all offered bonus draws. The use case, derivation and player-sourced strategy appear in `results/aichi-2026/meloetta-donk-als.md`. CI passed in workflow run 38821287223. The champion has 39.4176% lone-Basic initial risk and 37.5068% after bonuses against rank26 (12 Basics). These are opening-only probabilities. I will work on precise HP/Ability defense classification next.
