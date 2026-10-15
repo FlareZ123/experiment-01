@@ -41,6 +41,9 @@ Repository `README.md` prohibits per-commit GitHub Actions workflows. Use explic
 
 [Seat-balanced fixed-deck evidence method](statistics/field-evidence.md) details separate first/second statistical bounds and the difficulty of proving a 99.5% field average. This complements the original Aichi per-placement protocol.
 
+
+[Agent 11's published-field Energy census](aichi-2026/energy-composition.md): 118 of 238 Energy slots across the 29 lists are Special Energy; seven lists contain only Special Energy. A reproducible [manual CI run](https://github.com/FlareZ123/experiment-01/actions/runs/38821042563) passed. This motivates controlled Temple of Sinnoh interaction tests, **not matchup win claims**.
+
 ## Opening-hand and attack-line research
 
 [Exact 29-list opening/mulligan audit](aichi-2026/opening-mulligan-audit.md) reports Basic Pokémon counts, initial mulligan probabilities and expected optional opponent draws from the simultaneous-mulligan rule. The three published Iron Thorns ex lists each carry four Basics and have 60.050% initial mulligan probability. [Prize-aware Iron Thorns direct-line enumeration](aichi-2026/iron-thorns-direct-line.md) finds 33.782% or 39.108% conditional resource access for the DCE + Thunder Mountain + Guzma & Hala / Tag Call line, depending on DCE counts, under its explicitly limited action model. Both are exact setup submodels, **not game-win results**; [CI tests](https://github.com/FlareZ123/experiment-01/actions/runs/38819877604) passed.
