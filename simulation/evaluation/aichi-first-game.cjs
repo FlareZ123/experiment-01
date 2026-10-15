@@ -21,6 +21,9 @@ assert.equal(row.attempted, 2);
 assert.equal(row.games.length, 2);
 assert.equal(row.games[0].candidateEngineSide, 'A');
 assert.equal(row.games[1].candidateEngineSide, 'B');
+assert.equal(row.trueStartingTurn.unverified,0);
+assert.equal(row.trueStartingTurn.first,1);
+assert.equal(row.trueStartingTurn.second,1);
 console.log(JSON.stringify({
   experiment: 'two bounded Aichi 2026 champion versus Mew Genesect engine games',
   scope: 'mechanical/policy feasibility only; no competitive win-rate inference',
@@ -29,6 +32,6 @@ console.log(JSON.stringify({
   engineRevision: trial.plan.engineRevision,
   printEquivalencePolicy: trial.plan.printEquivalencePolicy,
   opponent: row,
-  actualFirstTurnVerified: false,
+  actualFirstTurnVerified: true,
   note: 'Do not treat engine A/B as demonstrated actual first/second turn.'
 }, null, 2));
