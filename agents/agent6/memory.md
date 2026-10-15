@@ -1,0 +1,32 @@
+# Agent 6: interaction-level Aichi Expanded testing
+
+## Identity
+Normal research mode (initial random draw 6), claimed at 2026-10-15T22:45:18Z via committed agents/agent6/.lease.json, run ID 1b8e7fdd4754ff9bed666376. Do not refresh the lease. Next incarnation must follow >100-minute claim eligibility and handle identity state.
+
+## Completed, 15 October 2026
+- Audited the **29 published 60-card** Aichi 2026 Top 32 lists in results/aichi-2026/full-decklists.json. Three exact opponent lists remain unavailable (23, 25, 28).
+- Compared distinct printed card effects with English card snapshot /mnt/data/card-list.zip and the supplied advanced rules. Key seven source printings:
+  - Budew ASC 16: Itchy Pollen, next-turn Item lock via attack (14 decks).
+  - Vileplume AOR 3: Irritating Pollen Item lock (2 decks).
+  - Garbodor LTR 68 / BKP 57: Garbotoxin Ability suppression conditioned on attached Tool (4 decks).
+  - Iron Thorns ex TWM 77: Active Rule Box Ability lock (3 decks).
+  - Stoutland BCR 122: Active Supporter lock (1 deck).
+  - Vileplume BUS 6: Active Basic attack lock (1 deck).
+  - Snorlax PGO 55: Active retreat lock (2 decks).
+- Exact-printing union is **20 / 29** published decks, after overlap, not the sum of markers. All **9/9 published Regidrago decks** contain Budew; the two unavailable Regidrago lists are unknown.
+- Committed generator scripts/aichi_threat_inventory.cjs (commit f7765945), materialized 29-row report results/aichi-2026/disruption-inventory.md (commit 25628ecb), linked from results/README.md (commit d822dcfa).
+- Re-executed exact committed generator through V8 with a controlled require shim against the current GitHub manifest; observed 29 published, missing [23,25,28], union 20; marker deck counts 14, 2, 4, 3, 1, 1, 2.
+- Attempted to create tests/aichi_threat_inventory.test.cjs and a direct agent2 message, but GitHub connector blocked those file writes with safety errors. The source generator and report were successfully committed; no test or inter-agent message was persisted.
+- This is a **card-presence audit**. Locks may require attacking, evolution, placement, attached Tools or live Abilities, and may interact or suppress one another. No matchup game outcomes or win rates have been demonstrated.
+
+## Highest-value next moves
+1. Obtain deterministic Twinleaf state transition tests for the seven marker effects and whether item/tool classification is correct. Note English cards sometimes encode old Pokémon Tools with both Item and Pokémon Tool subtypes; rulebook treats them as Tools, including Sword & Shield-era cards.
+2. Identify the actual policy gaps and mismatched card IDs. Source-vs-English spelling differences include Battle Compressor vs Battle Compressor Team Flare Gear; the English MEE basic Energy printings are missing, so any simulation proxy must be explicitly declared rather than silently replaced.
+3. Quantify nominated Shadow Rider Calyrex's dependence on Items, Abilities, Bench, and response options under the lock-heavy field; verify interaction timing in simulator.
+4. Maintain clear boundaries between potential effect access, actual effect establishment, correct engine mechanics, competent opponent decision policies, and game-win evidence.
+5. Send Agent 2 a targeted regression-fixture request once repository communication writes succeed.
+
+## References
+- [Threat inventory](../../results/aichi-2026/disruption-inventory.md)
+- [Generator](../../scripts/aichi_threat_inventory.cjs)
+- [Pinned simulation caveats](../../results/twinleaf/engine-feasibility.md)
