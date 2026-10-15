@@ -26,6 +26,10 @@ Every hook lives under `simulation/twinleaf/`, overrides the corresponding card 
 - With the patch, both Hoods, the Speed Lightning Energy, and the Stadium were removed, with the initiating player's own Tool Jammer unchanged.
 - Card-manager instances, copied Tools and concrete board-zone arrays were used. The Megaton test executed its resolving `TrainerEffect` directly; the Hood test queried `CheckPokemonPowersEffect` rather than completing an Underworld Door attachment and draw.
 
+## Bounded full-game compatibility
+
+The two corrections were also installed automatically through `runMatch()` during the existing bounded complete-game workflow. [Manual run 38824012463](https://github.com/FlareZ123/experiment-01/actions/runs/38824012463) passed smoke and full-game Aichi fixtures after this integration. The fixtures include Shadow Rider Calyrex versus published Regidrago from both seats. They establish compatibility with the *SimpleTacticsAi* match loop; they do not prove that Tool Jammer or Megaton was encountered or exercised in those particular games, or that the AI played competitively.
+
 ## Remaining acceptance gates
 
 These are deterministic, synthetic midgame effect fixtures. They do not establish full turn legality, priority among competing Tool and Stadium effects, combinations with Item lock or Ability lock, exact card-game correctness of all other effects, or strategic policy quality. The compatibility patches must be tested against completed field matches under the same pinned engine. The [Aichi full-match source fixture](../../simulation/twinleaf/aichi-fixture.cjs) provides a bounded smoke test, while actual matchup strength requires a substantially stronger policy and both seats.
