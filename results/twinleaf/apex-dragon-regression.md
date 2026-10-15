@@ -35,12 +35,32 @@ The generic resolver is expected to select **Rolling Iron** from these three, re
 
 An [opt-in proof-of-concept resolver](../../simulation/twinleaf/regidrago-prize-window-resolver.cjs) looks for a 60-damage Bench knockout window, then prefers Phantom Dive if it is an unblocked Apex Dragon copy candidate; [its dedicated contract](../../simulation/twinleaf/regidrago-prize-window-test.cjs) compares it with the upstream selection. The heuristic deliberately excludes Benched Pokémon with printed powers or Tools, but is **not** a generally faithful simulator of damage-counter immunity, other cards' prevention effects, tradeoffs or follow-up turns. It has not been shown to improve actual games and is not integrated into the shared headless evaluator.
 
+## Pinned-game action and Energy validation
+
+A subsequent [normal `AttackAction` check](../../simulation/twinleaf/apex-attack-action.cjs) injects Regidrago VSTAR Active and a Dragon Pokémon in discard with populated Prize zones. One Grass + one Grass attachment alone **fails** the cost check; adding Fire makes the declared Apex Dragon attack legal, and the selected copied Tail Snap deals 20 damage. [Manual CI 38823858094](https://github.com/FlareZ123/experiment-01/actions/runs/38823858094) passed. This is a legal attack-cost action on an established board, not proof that a complete match can establish that board.
+
+[Two Double Dragon Energy and Temple of Sinnoh](../../simulation/twinleaf/apex-double-dragon-temple.cjs) were checked against the same paid attack path: one Double Dragon Energy fails to pay three typed Energy; two allow copying and dealing 20 damage; two under Temple of Sinnoh ASR provide two Colorless and fail the typed payment. [CI 38824490529](https://github.com/FlareZ123/experiment-01/actions/runs/38824490529) passed. This supports the effect component of Agent 13's [experimental Temple Shadow Rider candidate](../aichi-2026/candidate-temple-shadow-rider.md) without showing that its full list improves match outcomes.
+
+## Timeless-GX and synthetic Prize-state correction
+
+[Direct Apex Dragon to Dialga-GX Timeless-GX](../../simulation/twinleaf/apex-timeless-gx.cjs) with normal pinned `Store` prompts correctly deals **150 damage**, sets `usedGX=true`, and arms the extra-turn marker `usedTurnSkip=true`. The corrected [CI 38825272410](https://github.com/FlareZ123/experiment-01/actions/runs/38825272410) passed.
+
+**Important false-failure postmortem:** Three earlier versions failed their final `usedGX` assertion. Those fixtures gave both synthetic players *zero Prize cards*. On prompt resolution, pinned `checkWinner` interpreted both as having taken all Prizes, entered Sudden Death, and `initiateSuddenDeath` reset both players' `usedGX` fields. Instrumentation showed Dialga's copied attack handler had correctly set the marker before the reset. Adding six nonempty Prize slots to each player's state resolved the failure, without changing Twinleaf. This demonstrates how an invalid injected game state can imitate an engine copy-handling defect. The report was shared with Agent 7, whose separate nested Mimikyu Copycat research originally exposed the apparent issue. Their documented *non-GX copied attack eligibility* discrepancy remains separately unresolved.
+
+## Policy investigation and a pending counterexample
+
+[The upstream copied-attack choice contract](../../simulation/twinleaf/apex-policy-choice.cjs) passed in [CI 38823251506](https://github.com/FlareZ123/experiment-01/actions/runs/38823251506): it selects Rolling Iron from a Goodra, Dragapult, Kyurem discard set by printed 200 damage and longer printed cost, ignoring Phantom Dive's six Bench counters.
+
+[The opt-in Bench Prize prompt resolver](../../simulation/twinleaf/regidrago-prize-window-resolver.cjs) selects Phantom Dive over Rolling Iron on a controlled Bench target while leaving the upstream resolver in place otherwise; its [isolated contract](../../simulation/twinleaf/regidrago-prize-window-test.cjs) passed [CI 38823614407](https://github.com/FlareZ123/experiment-01/actions/runs/38823614407). A more demanding [normal-action board comparison](../../simulation/twinleaf/regidrago-prize-window-interaction.cjs) uses active Mimikyu PAL Safeguard and a low-HP Budew Bench target to test actual Prize collection. The first CI attempt failed because the fixture appended Budew as a **sixth** Bench slot and then selected slot zero for its damage counter prompt. A corrected fixture places Budew into the existing first Bench slot. Its current run remains pending validation; neither policy is competitively calibrated.
+
+[Actual rank10 vs rank1 source-bot decision tracing](../../simulation/twinleaf/regidrago-fullgame-diagnostic.cjs) was also initiated as a separate manual-only reproducible workflow, to diagnose zero Apex Dragon usage across real matches.
+
 ## Required next proof gates
 
-1. Force a **legal attack action** from an established Regidrago VSTAR with Grass + Grass + Fire and a Dragon discard target, not only direct reducer invocation.
+1. Extend validated paid Apex Dragon from an injected board into organically established real matches, and verify opening/evolution/attachment sequencing.
 2. Determine why the full-game `SimpleTacticsAi` failed to evolve, promote, fuel and/or choose Apex Dragon in the actual rank-10 source list. Count failed or dominated action proposals.
 3. Compare existing and candidate copied-attack decision policies on identical states and seeds. Include a state where Phantom Dive enables an extra Bench Prize and one where Rolling Iron's protection is more valuable.
-4. Validate copy-of-copy, GX turn skip, KO resolution and restrictive effects separately. Agent 7's [Mimikyu Copycat audit](mimikyu-apex-copycat-audit.md) already documents another source-level discrepancy affecting the Shadow Rider counter-line.
+4. Complete nested copy-of-copy, prize resolution and restrictive-effect tests, with fully populated Prize zones in injected fixtures. Agent 7's [Mimikyu Copycat audit](mimikyu-apex-copycat-audit.md) already documents another source-level discrepancy affecting the Shadow Rider counter-line.
 5. Only then consider per-match game evidence. Neither these isolated passes nor a copied-attack prompt improvement supports a match-win-rate claim.
 
-**Status:** Verified isolated effect path; full-game viability, policy competence, match strength and 99.5% objective remain unvalidated.
+**Status:** Several isolated effect and paid-attack paths pass; four-game decision traces and the staged Prize policy test are awaiting conclusions. Full-game strategic viability, policy competence, match strength and the 99.5% objective remain unvalidated.
