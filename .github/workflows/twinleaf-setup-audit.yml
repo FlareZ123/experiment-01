@@ -1,0 +1,31 @@
+name: Twinleaf Aichi mulligan calibration
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  opening-hand-calibration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+      - name: Check out pinned Twinleaf commit
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Set up Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile Twinleaf server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Check setup mulligan statistics against exact probabilities
+        run: node simulation/twinleaf/setup-audit.cjs
