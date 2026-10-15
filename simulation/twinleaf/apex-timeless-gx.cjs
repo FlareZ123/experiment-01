@@ -29,17 +29,23 @@ function directApexGx() {
   const originalDialgaReducer = dialga.reduceEffect;
   dialga.reduceEffect = function (store, state, effect) {
     if (effect instanceof AttackEffect) {
-      delegatedEvents.push({
+      const entry = {
         name: effect.attack.name,
         attackIndex: this.attacks.indexOf(effect.attack),
         cardContext: this.fullName,
-        beforeGX: effect.player.usedGX
-      });
+        beforeGX: effect.player.usedGX,
+        sameOriginalPlayer: effect.player === player,
+        sameStatePlayer: effect.player === state.players[0]
+      };
+      delegatedEvents.push(entry);
+      const result = originalDialgaReducer.call(this, store, state, effect);
+      entry.afterGX = effect.player.usedGX;
+      entry.stateGXAfter = state.players[0].usedGX;
+      entry.originalGXAfter = player.usedGX;
+      return result;
     }
     const result = originalDialgaReducer.call(this, store, state, effect);
-    if (effect instanceof AttackEffect) {
-      delegatedEvents[delegatedEvents.length - 1].afterGX = effect.player.usedGX;
-    }
+
     return result;
   };
   const store = new Store({ onStateChange() {} });
@@ -64,7 +70,11 @@ function directApexGx() {
     usedGX: player.usedGX,
     extraTurnArmed: Boolean(player.usedTurnSkip),
     printedAttack: regidrago.attacks[0].name,
-    delegatedEvents
+    delegatedEvents,
+    originalIsStatePlayer: player === state.players[0],
+    originalIsStorePlayer: player === store.state.players[0],
+    statePlayerGX: state.players[0].usedGX,
+    storePlayerGX: store.state.players[0].usedGX
   };
   clearCopyAttackSessionsForTests();
 
