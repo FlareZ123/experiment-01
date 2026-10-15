@@ -86,7 +86,8 @@ test('Player Ceremony applies closest available draw count with one card', () =>
 test('Player Ceremony cannot draw if deck is empty', () => {
   const f = fixture(0);
   const use = new UseStadiumEffect(f.player, f.ceremony);
-  assert.throws(() => f.ceremony.reduceEffect(f.store, f.state, use), /CANNOT_USE_STADIUM/);
+  assert.throws(() => f.ceremony.reduceEffect(f.store, f.state, use),
+    {message: 'CANNOT_USE_STADIUM'});
   assert.equal(f.player.hand.cards.length, 0);
   assert.equal(f.player.stadiumUsedTurn, 0);
   assert.equal(f.events.length, 0);
