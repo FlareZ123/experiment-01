@@ -19,6 +19,8 @@ jobs:
         run: node tests/radiant-eternatus-opening.test.cjs
       - name: Forest Seal Stone exact and independent-shuffle tests
         run: node tests/radiant-fss-extension.test.cjs
+      - name: Verify published Iron Thorns field locks the Gate Ability
+        run: node --test tests/aichi_iron_thorns_gate_lock.test.cjs
       - name: Produce machine-readable exact audit
         run: |
           node scripts/radiant-eternatus-opening.cjs > radiant-direct.json
