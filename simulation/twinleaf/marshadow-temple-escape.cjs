@@ -25,7 +25,7 @@ function probe() {
   const state=new State();state.players=[a,b];state.phase=GamePhase.PLAYER_TURN;
   state.activePlayer=1;state.turn=3;
   const store=new Store({onStateChange(){}});store.state=state;
-  const powers=new CheckPokemonPowersEffect(b,bench);
+  const powers=new CheckPokemonPowersEffect(b,marshadow);
   store.reduceEffect(state,powers);
   assert.ok(powers.powers.some(p=>p.name==='Resetting Hole'),'Psychic exemption must hold');
   const energy=()=>{const e=new CheckProvidedEnergyEffect(b,b.active);
