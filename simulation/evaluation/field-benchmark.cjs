@@ -219,6 +219,10 @@ function evaluatePlan(plan, options) {
     engineRevision: plan.engineRevision, source: plan.source,
     seedBase, gamesPerSeat, maxActions,
     policy: 'Twinleaf SimpleTacticsAi; competence unvalidated',
+    engineSlotProtocol: 'candidate alternates Twinleaf player A/B; actual first turn unobserved',
+    startingTurnBalanceVerified: false,
+    simultaneousFieldConfidenceCertified: false,
+    confidenceLimitations: 'per-opponent lower95 pools engine slots without verified starting-turn strata or simultaneous field adjustment',
     scope: 'engine simulation only; no demonstrated competitive paper Expanded win rate',
     opponents: results
   };

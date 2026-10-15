@@ -45,7 +45,7 @@ test('32 ranks and missing cards are never dropped', () => {
   assert.equal(blocked.opponents[0].status,'candidate-unresolved');
 });
 
-test('balanced seats and reproducible trials', () => {
+test('balanced engine slots do not certify first/second turn; reproducible trials', () => {
   const plan=buildPlan(manifest,pool,1);
   const run=()=>evaluatePlan(plan,{gamesPerSeat:2,seedBase:43,
     runMatch:()=>({finished:true,winner:0})});
@@ -55,6 +55,10 @@ test('balanced seats and reproducible trials', () => {
   assert.equal(first.opponents[0].losses,2);
   assert.equal(first.opponents[0].attempted,4);
   assert.equal(first.opponents[0].status,'simulated');
+  assert.equal(first.startingTurnBalanceVerified, false);
+  assert.equal(first.simultaneousFieldConfidenceCertified, false);
+  assert.match(first.engineSlotProtocol, /actual first turn unobserved/);
+  assert.match(first.confidenceLimitations, /simultaneous field adjustment/);
 });
 
 test('draw, incomplete match and exception are accounted',()=>{
