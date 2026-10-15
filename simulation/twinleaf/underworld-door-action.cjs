@@ -10,7 +10,7 @@ const { installToolJammerHook } = require('./tool-jammer-hook.cjs');
  * announce PowerEffect, resolve its Energy-attachment prompt and verify both
  * attachment and the two-card draw. Full-turn setup rules are outside scope.
  *
- * @param {{hood:boolean,jammer:boolean,active:boolean,garbodorPrint?:'BKP'|'LTR',garbodorTool?:boolean}} options
+ * @param {{hood:boolean,jammer:boolean,active:boolean,garbodorPrint?:'BKP'|'LTR',garbodorTool?:boolean,stadium?:string}} options
  * @returns {{allowed:boolean, attached:number, drawn:number, handCount:number}}
  */
 function underworldDoorAction(options) {
@@ -45,6 +45,8 @@ function underworldDoorAction(options) {
     locker.active.cards.push(get('Iron Thorns ex TWM'));
     if (options.jammer) locker.active.tools.push(get('Tool Jammer BST'));
   }
+
+  if (options.stadium) locker.stadium.cards.push(get(options.stadium));
 
   const player = new Player();
   player.id = 202;
@@ -112,7 +114,9 @@ function runTest() {
     {hood:true,jammer:false,active:false,garbodorPrint:'LTR',allowed:true},
     {hood:false,jammer:false,active:false,garbodorPrint:'BKP',allowed:false},
     {hood:false,jammer:false,active:false,garbodorPrint:'LTR',allowed:false},
-    {hood:false,jammer:false,active:false,garbodorPrint:'BKP',garbodorTool:false,allowed:true}
+    {hood:false,jammer:false,active:false,garbodorPrint:'BKP',garbodorTool:false,allowed:true},
+    {hood:true,jammer:false,active:false,stadium:'Path to the Peak CRE',allowed:false},
+    {hood:true,jammer:true,active:false,stadium:'Jamming Tower TWM',allowed:false}
   ];
   const restore = installToolJammerHook();
   try {
