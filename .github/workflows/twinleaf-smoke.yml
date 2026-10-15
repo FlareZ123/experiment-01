@@ -29,6 +29,8 @@ jobs:
         run: npm run compile
       - name: Verify Forest Seal Stone Power bypasses Ability lock
         run: node simulation/twinleaf/forest-seal-ability-check.cjs
+      - name: Check Forest Seal Stone on board
+        run: node simulation/twinleaf/forest-seal-board-check.cjs
       - name: Verify first-turn attribution contracts
         run: node --test tests/turn_order_evidence.test.cjs
       - name: Regress Ranger/Channeler versus attack-origin and Ability-origin Item lock
