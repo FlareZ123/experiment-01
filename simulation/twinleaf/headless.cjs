@@ -5,6 +5,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const {observeFirstTurn, summarizeTurnOrder} = require('./turn-order-evidence.cjs');
 const {installToolJammerHook} = require('./tool-jammer-hook.cjs');
+const {installMegatonBlowerHook} = require('./megaton-blower-hook.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -140,9 +141,11 @@ function runMatch(request) {
   Math.random = random;
   let restoreBotHooks;
   let restoreToolJammerHook;
+  let restoreMegatonBlowerHook;
   try {
     initializeCards();
     restoreToolJammerHook = installToolJammerHook();
+    restoreMegatonBlowerHook = installMegatonBlowerHook();
     const { registerPlayersCeremony, PLAYERS_CEREMONY_PRINT } = require('./card-patches.cjs');
     if (request.deckA.includes(PLAYERS_CEREMONY_PRINT) || request.deckB.includes(PLAYERS_CEREMONY_PRINT)) {
       registerPlayersCeremony();
@@ -297,6 +300,7 @@ function runMatch(request) {
     };
   } finally {
     if (restoreBotHooks) restoreBotHooks();
+    if (restoreMegatonBlowerHook) restoreMegatonBlowerHook();
     if (restoreToolJammerHook) restoreToolJammerHook();
     Math.random = originalRandom;
   }
