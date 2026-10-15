@@ -28,3 +28,5 @@ jobs:
           npm run compile
       - name: Probe one complete game with a firm 1200-action limit
         run: node simulation/twinleaf/completion-fixture.cjs
+      - name: Probe real Aichi decks from both seats
+        run: node simulation/twinleaf/aichi-fixture.cjs
