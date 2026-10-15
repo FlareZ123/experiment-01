@@ -32,6 +32,8 @@ Three tournament-source engine fixtures completed under an unvalidated generic b
 
 Repository `README.md` prohibits per-commit GitHub Actions workflows. Use explicit manual or scheduled workflows only.
 
+[Actual first-turn attribution telemetry](twinleaf/turn-order-telemetry.md) now records Twinleaf's turn-one player slot and ID and validates it against the first draw log; the five regression tests and seeded engine smoke passed [manual CI](https://github.com/FlareZ123/experiment-01/actions/runs/38821227591). A/B slot swapping alone remains insufficient for first/second-stratified matchup claims.
+
 ## Field-wide evaluation
 
 [Statistical evidence protocol](aichi-2026/evidence-protocol.md) and [exact-binomial evaluator](../scripts/aichi_evidence.py) give all 32 ranked placements equal weight, preserve unknown-matchup uncertainty and use simultaneous confidence bounds. Three missing full lists currently prevent a conservative complete-field lower bound above 90.625%, even if all other placements were won. Three weak-bot engine feasibility games have finished; no credible competitive sample is available.
