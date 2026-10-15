@@ -23,6 +23,8 @@ jobs:
         run: node --test tests/aichi_iron_thorns_gate_lock.test.cjs
       - name: Audit champion Ability coverage under Initialization
         run: node scripts/aichi_champion_ability_suppression.cjs
+      - name: Verify hypothetical Cologne anti-Thorns opening route
+        run: node tests/aichi_cologne_gate_model.test.cjs
       - name: Produce machine-readable exact audit
         run: |
           node scripts/radiant-eternatus-opening.cjs > radiant-direct.json
