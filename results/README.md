@@ -4,6 +4,9 @@
 
 [Shadow Rider Calyrex, Aichi 2026 champion, 60 cards](aichi-2026/benchmark-shadow-rider.md), first evaluation candidate. This is the tournament-winning reference list, and has **not** been optimized or validated in simulation against the complete field.
 
+
+[Exact Aichi mulligan bonus distribution and Shadow Rider V setup access](aichi-2026/bonus-draw-access.md): four-Basic Iron Thorns decks offer at least one optional opponent draw 56.42% of the time; taking all offers raises the champion's target-card setup access from 36.62% to 41.40%. Exact combinatorics, not match wins; [five tests passed on manual CI](https://github.com/FlareZ123/experiment-01/actions/runs/38820327961).
+
 ## Opponent field
 
 [All 32 Aichi 2026 Top 32 placements, source audit, and methodology](aichi-2026/README.md)
