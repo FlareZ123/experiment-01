@@ -1,0 +1,16 @@
+name: Aichi Budew direct-opening audit
+
+on:
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/aichi_budew_opening.test.cjs
+      - run: node scripts/aichi_budew_opening.cjs
