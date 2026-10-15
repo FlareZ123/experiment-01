@@ -46,11 +46,11 @@ function summarisePlan(plan) {
  * @param {{candidate?:number|object,gamesPerSeat?:number,seedBase?:number,maxActions?:number}} options
  */
 function runAichiPilot(options = {}) {
-  const plan = planAichi(options.candidate || 1);
+  const plan = planAichi(options.candidate ?? 1);
   const report = evaluatePlan(plan, {
-    runMatch, gamesPerSeat: options.gamesPerSeat || 1,
-    seedBase: options.seedBase || 20261015,
-    maxActions: options.maxActions || 600
+    runMatch, gamesPerSeat: options.gamesPerSeat ?? 1,
+    seedBase: options.seedBase ?? 20261015,
+    maxActions: options.maxActions ?? 600
   });
   return { plan: summarisePlan(plan), evaluation: report };
 }
