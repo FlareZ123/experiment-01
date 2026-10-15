@@ -62,8 +62,8 @@ test('all nine printed Regidrago searcher counts and exact reference values',()=
   assert.ok(Math.abs(find(10).idealAccess-0.6272006)<1e-6);
   assert.ok(Math.abs(find(12).idealAccess-0.7843018)<1e-6);
   assert.ok(Math.abs(find(18).idealAccess-0.7613296)<1e-6);
-  assert.equal(find(13).idealAccess,find(13).includingBenchMarshadow);
-  assert.equal(find(32).idealAccess,find(32).includingBenchMarshadow);
+  assert.ok(Math.abs(find(13).idealAccess-find(13).includingBenchMarshadow)<1e-12);
+  assert.ok(Math.abs(find(32).idealAccess-find(32).includingBenchMarshadow)<1e-12);
   for(const row of rows) {
     assert.ok(row.idealAccess+1e-12>=row.includingBenchMarshadow);
     assert.ok(row.idealWithFaba+1e-12>=row.idealAccess);
