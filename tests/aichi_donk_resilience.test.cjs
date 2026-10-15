@@ -38,6 +38,11 @@ test('known printed solo-Active defense classes distinguish HP and Abilities', (
     abilities:[{name:"Emperor's Eyes"}],
   });
   assert.equal(empoleon.activeProtection.length,0);
+  const wobbuffet = classifyBasic({
+    name:'Wobbuffet',subtypes:['Basic'],hp:'110',
+    abilities:[{name:'Bide Barricade'}],
+  });
+  assert.equal(wobbuffet.activeProtection.length,1);
 });
 
 test('real Aichi set/number references resolve 29 full lists without fallback', () => {
@@ -54,6 +59,8 @@ test('real Aichi set/number references resolve 29 full lists without fallback', 
   assert.equal(rows.length,28);
   assert.equal(rows.find(row=>row.rank===6).abilityDependent,4);
   assert.equal(rows.find(row=>row.rank===18).hpSafe,1);
-  assert.ok(rows.find(row=>row.rank===7).abilityDependent>=3);
+  assert.equal(rows.find(row=>row.rank===7).abilityDependent,6);
+  assert.equal(rows.find(row=>row.rank===10).abilityDependent,1);
+  assert.equal(rows.find(row=>row.rank===21).abilityDependent,1);
   assert.ok(Math.abs(rows.find(row=>row.rank===1).plainVulnerabilityPost - 0.3750679602308215)<1e-12);
 });
