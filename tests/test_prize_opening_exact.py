@@ -2,8 +2,12 @@
 
 import itertools
 import unittest
+import sys
+from pathlib import Path
 from fractions import Fraction
 from math import comb
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 
 from prize_opening_exact import radiant_gate, singleton_and_all_rescuers_prized
 
