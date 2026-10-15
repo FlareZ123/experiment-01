@@ -8,9 +8,9 @@ let installed = null;
 /**
  * Optional, narrowly scoped research-only compatibility hook.
  *
- * Mimikyu GRI 58's Copycat permits any opponent's last non-GX attack,
- * including Apex Dragon, even though Twinleaf's generic prefab rejects
- * attacks carrying its internal copycatAttack marker.
+ * For the specific Mimikyu GRI 58 vs Regidrago VSTAR SIT 136 line,
+ * printed Copycat permits non-GX Apex Dragon. Twinleaf's generic prefab
+ * otherwise rejects Apex Dragon due to its internal copycatAttack flag.
  *
  * This hook temporarily clears only that metadata flag during the entry to
  * the copied-last-attack handler. It restores the original attack object in
@@ -39,8 +39,11 @@ function installMimikyuNonGxCopycatHook() {
     }
 
     const opponent = StateUtils.getOpponent(state, effect.player);
-    const attack = state.playerLastAttack?.[opponent.id]?.attack;
-    if (!attack?.copycatAttack || attack.gxAttack) {
+    const previous = state.playerLastAttack?.[opponent.id];
+    const attack = previous?.attack;
+    if (previous?.sourceCard?.name !== 'Regidrago VSTAR'
+        || attack?.name !== 'Apex Dragon'
+        || !attack.copycatAttack || attack.gxAttack) {
       return original.call(this, store, state, effect);
     }
 
