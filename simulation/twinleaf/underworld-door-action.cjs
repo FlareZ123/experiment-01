@@ -10,7 +10,7 @@ const { installToolJammerHook } = require('./tool-jammer-hook.cjs');
  * announce PowerEffect, resolve its Energy-attachment prompt and verify both
  * attachment and the two-card draw. Full-turn setup rules are outside scope.
  *
- * @param {{hood:boolean,jammer:boolean,active:boolean}} options
+ * @param {{hood:boolean,jammer:boolean,active:boolean,garbodorPrint?:'BKP'|'LTR',garbodorTool?:boolean}} options
  * @returns {{allowed:boolean, attached:number, drawn:number, handCount:number}}
  */
 function underworldDoorAction(options) {
@@ -33,8 +33,18 @@ function underworldDoorAction(options) {
   };
   const locker = new Player();
   locker.id = 101;
-  locker.active.cards.push(get('Iron Thorns ex TWM'));
-  if (options.jammer) locker.active.tools.push(get('Tool Jammer BST'));
+  if (options.garbodorPrint) {
+    locker.active.cards.push(get('Shadow Rider Calyrex V CRE'));
+    const garbodorSlot = new PokemonCardList();
+    garbodorSlot.cards.push(get('Trubbish BKP'), get('Garbodor ' + options.garbodorPrint));
+    if (options.garbodorTool !== false) {
+      garbodorSlot.tools.push(get('Stealthy Hood UNB'));
+    }
+    locker.bench.push(garbodorSlot);
+  } else {
+    locker.active.cards.push(get('Iron Thorns ex TWM'));
+    if (options.jammer) locker.active.tools.push(get('Tool Jammer BST'));
+  }
 
   const player = new Player();
   player.id = 202;
@@ -97,7 +107,12 @@ function runTest() {
     {hood:true,jammer:false,active:false,allowed:true},
     {hood:true,jammer:true,active:false,allowed:true},
     {hood:true,jammer:true,active:true,allowed:false},
-    {hood:false,jammer:true,active:false,allowed:false}
+    {hood:false,jammer:true,active:false,allowed:false},
+    {hood:true,jammer:false,active:false,garbodorPrint:'BKP',allowed:true},
+    {hood:true,jammer:false,active:false,garbodorPrint:'LTR',allowed:true},
+    {hood:false,jammer:false,active:false,garbodorPrint:'BKP',allowed:false},
+    {hood:false,jammer:false,active:false,garbodorPrint:'LTR',allowed:false},
+    {hood:false,jammer:false,active:false,garbodorPrint:'BKP',garbodorTool:false,allowed:true}
   ];
   const restore = installToolJammerHook();
   try {
