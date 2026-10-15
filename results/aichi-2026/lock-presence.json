@@ -1,0 +1,383 @@
+{
+  "coverage": "Exact-print presence only; availability of effects is not measured",
+  "totalPublished": 29,
+  "placementsWithKnownLock": 24,
+  "entries": [
+    {
+      "set": "ASC",
+      "number": "16",
+      "name": "Budew",
+      "kind": "Item",
+      "activation": "attack",
+      "scope": "opponent next turn",
+      "precondition": "Itchy Pollen attack resolves",
+      "decks": 14,
+      "slots": 19,
+      "matches": [
+        {
+          "rank": 2,
+          "archetype": "Vileplume Control",
+          "copies": 1
+        },
+        {
+          "rank": 8,
+          "archetype": "Absol Garbodor",
+          "copies": 1
+        },
+        {
+          "rank": 10,
+          "archetype": "Regidrago",
+          "copies": 2
+        },
+        {
+          "rank": 12,
+          "archetype": "Regidrago",
+          "copies": 1
+        },
+        {
+          "rank": 13,
+          "archetype": "Regidrago",
+          "copies": 1
+        },
+        {
+          "rank": 14,
+          "archetype": "Regidrago",
+          "copies": 1
+        },
+        {
+          "rank": 15,
+          "archetype": "Lopunny Vileplume",
+          "copies": 2
+        },
+        {
+          "rank": 16,
+          "archetype": "Absol Garbodor",
+          "copies": 2
+        },
+        {
+          "rank": 18,
+          "archetype": "Regidrago",
+          "copies": 1
+        },
+        {
+          "rank": 20,
+          "archetype": "Regidrago",
+          "copies": 2
+        },
+        {
+          "rank": 21,
+          "archetype": "Regidrago",
+          "copies": 1
+        },
+        {
+          "rank": 22,
+          "archetype": "Absol Garbodor",
+          "copies": 1
+        },
+        {
+          "rank": 27,
+          "archetype": "Regidrago",
+          "copies": 1
+        },
+        {
+          "rank": 32,
+          "archetype": "Regidrago",
+          "copies": 2
+        }
+      ]
+    },
+    {
+      "set": "AOR",
+      "number": "3",
+      "name": "Vileplume",
+      "kind": "Item",
+      "activation": "passive Ability",
+      "scope": "both players",
+      "precondition": "Stage 2 in play with Ability active",
+      "decks": 2,
+      "slots": 4,
+      "matches": [
+        {
+          "rank": 2,
+          "archetype": "Vileplume Control",
+          "copies": 2
+        },
+        {
+          "rank": 15,
+          "archetype": "Lopunny Vileplume",
+          "copies": 2
+        }
+      ]
+    },
+    {
+      "set": "BUS",
+      "number": "6",
+      "name": "Vileplume",
+      "kind": "Basic attacks",
+      "activation": "passive Ability",
+      "scope": "opponent",
+      "precondition": "Stage 2 Active with Ability active",
+      "decks": 1,
+      "slots": 1,
+      "matches": [
+        {
+          "rank": 15,
+          "archetype": "Lopunny Vileplume",
+          "copies": 1
+        }
+      ]
+    },
+    {
+      "set": "LTR",
+      "number": "68",
+      "name": "Garbodor",
+      "kind": "Abilities",
+      "activation": "passive Ability",
+      "scope": "both players",
+      "precondition": "Stage 1 holding Tool with Ability active",
+      "decks": 2,
+      "slots": 4,
+      "matches": [
+        {
+          "rank": 8,
+          "archetype": "Absol Garbodor",
+          "copies": 2
+        },
+        {
+          "rank": 16,
+          "archetype": "Absol Garbodor",
+          "copies": 2
+        }
+      ]
+    },
+    {
+      "set": "BKP",
+      "number": "57",
+      "name": "Garbodor",
+      "kind": "Abilities",
+      "activation": "passive Ability",
+      "scope": "both players",
+      "precondition": "Stage 1 holding Tool with Ability active",
+      "decks": 3,
+      "slots": 5,
+      "matches": [
+        {
+          "rank": 11,
+          "archetype": "Absol Garbodor",
+          "copies": 2
+        },
+        {
+          "rank": 16,
+          "archetype": "Absol Garbodor",
+          "copies": 1
+        },
+        {
+          "rank": 22,
+          "archetype": "Absol Garbodor",
+          "copies": 2
+        }
+      ]
+    },
+    {
+      "set": "BCR",
+      "number": "122",
+      "name": "Stoutland",
+      "kind": "Supporters",
+      "activation": "passive Ability",
+      "scope": "opponent",
+      "precondition": "Stage 2 Active with Ability active",
+      "decks": 1,
+      "slots": 1,
+      "matches": [
+        {
+          "rank": 2,
+          "archetype": "Vileplume Control",
+          "copies": 1
+        }
+      ]
+    },
+    {
+      "set": "TWM",
+      "number": "77",
+      "name": "Iron Thorns ex",
+      "kind": "Rule Box Abilities",
+      "activation": "passive Ability",
+      "scope": "both players except Future",
+      "precondition": "Basic Active with Ability active",
+      "decks": 3,
+      "slots": 12,
+      "matches": [
+        {
+          "rank": 6,
+          "archetype": "Iron Thorns",
+          "copies": 4
+        },
+        {
+          "rank": 24,
+          "archetype": "Iron Thorns",
+          "copies": 4
+        },
+        {
+          "rank": 29,
+          "archetype": "Iron Thorns",
+          "copies": 4
+        }
+      ]
+    },
+    {
+      "set": "PGO",
+      "number": "55",
+      "name": "Snorlax",
+      "kind": "retreat",
+      "activation": "passive Ability",
+      "scope": "opponent Active",
+      "precondition": "Basic Active with Ability active",
+      "decks": 2,
+      "slots": 5,
+      "matches": [
+        {
+          "rank": 3,
+          "archetype": "Snorlax Stall",
+          "copies": 3
+        },
+        {
+          "rank": 7,
+          "archetype": "Snorlax Stall",
+          "copies": 2
+        }
+      ]
+    },
+    {
+      "set": "SVI",
+      "number": "96",
+      "name": "Klefki",
+      "kind": "Basic Abilities",
+      "activation": "passive Ability",
+      "scope": "both players",
+      "precondition": "Basic Active with Ability active",
+      "decks": 2,
+      "slots": 2,
+      "matches": [
+        {
+          "rank": 4,
+          "archetype": "Raichu Electrode Combo",
+          "copies": 1
+        },
+        {
+          "rank": 17,
+          "archetype": "Raichu Electrode Combo",
+          "copies": 1
+        }
+      ]
+    },
+    {
+      "set": "PHF",
+      "number": "36",
+      "name": "Wobbuffet",
+      "kind": "non-Psychic Abilities",
+      "activation": "passive Ability",
+      "scope": "both players",
+      "precondition": "Basic Active with Ability active",
+      "decks": 3,
+      "slots": 5,
+      "matches": [
+        {
+          "rank": 7,
+          "archetype": "Snorlax Stall",
+          "copies": 3
+        },
+        {
+          "rank": 10,
+          "archetype": "Regidrago",
+          "copies": 1
+        },
+        {
+          "rank": 21,
+          "archetype": "Regidrago",
+          "copies": 1
+        }
+      ]
+    },
+    {
+      "set": "CRE",
+      "number": "148",
+      "name": "Path to the Peak",
+      "kind": "Rule Box Abilities",
+      "activation": "Stadium",
+      "scope": "both players",
+      "precondition": "Stadium in play",
+      "decks": 7,
+      "slots": 8,
+      "matches": [
+        {
+          "rank": 5,
+          "archetype": "Mew Genesect",
+          "copies": 2
+        },
+        {
+          "rank": 9,
+          "archetype": "Absol Electrode",
+          "copies": 1
+        },
+        {
+          "rank": 12,
+          "archetype": "Regidrago",
+          "copies": 1
+        },
+        {
+          "rank": 15,
+          "archetype": "Lopunny Vileplume",
+          "copies": 1
+        },
+        {
+          "rank": 20,
+          "archetype": "Regidrago",
+          "copies": 1
+        },
+        {
+          "rank": 21,
+          "archetype": "Regidrago",
+          "copies": 1
+        },
+        {
+          "rank": 27,
+          "archetype": "Regidrago",
+          "copies": 1
+        }
+      ]
+    },
+    {
+      "set": "PRC",
+      "number": "140",
+      "name": "Silent Lab",
+      "kind": "Basic Abilities",
+      "activation": "Stadium",
+      "scope": "both players",
+      "precondition": "Stadium in play",
+      "decks": 4,
+      "slots": 5,
+      "matches": [
+        {
+          "rank": 9,
+          "archetype": "Absol Electrode",
+          "copies": 2
+        },
+        {
+          "rank": 13,
+          "archetype": "Regidrago",
+          "copies": 1
+        },
+        {
+          "rank": 15,
+          "archetype": "Lopunny Vileplume",
+          "copies": 1
+        },
+        {
+          "rank": 32,
+          "archetype": "Regidrago",
+          "copies": 1
+        }
+      ]
+    }
+  ]
+}
