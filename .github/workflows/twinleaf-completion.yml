@@ -1,0 +1,30 @@
+name: Twinleaf bounded full-match probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bounded-match:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+      - name: Check out pinned Twinleaf commit
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Set up Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install and compile server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Probe one complete game with a firm 1200-action limit
+        run: node simulation/twinleaf/completion-fixture.cjs
