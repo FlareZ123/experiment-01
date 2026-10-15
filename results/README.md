@@ -24,6 +24,7 @@
 - [Ranked opponent manifest](aichi-2026/field.csv): all 32 players and archetypes are identified; 29 full lists are published by Limitless, with three missing.
 - 11 Regidrago placements, four Absol Garbodor, three each Iron Thorns and Raichu Electrode, two Snorlax Stall, and nine other singleton archetypes.
 - [Seven-effect disruption exposure inventory](aichi-2026/disruption-inventory.md): exact-printing candidates for Item, Ability, Supporter, attack, and retreat locks across the 29 published decks; 20 contain at least one selected effect, with no claims of successful establishment or wins.
+- [Rank-25 Raichu pilot scout](aichi-2026/rank25-source-scout.md) preserves the identified player's first-person Swiss record and reported lock-response planning, with a separate adversarial-policy checklist. The precise 60 cards remain unavailable, so rank 25 stays untested.
 - The source event is Japanese Expanded. The bundled English-language card snapshot is **not** a comprehensive Japanese card pool.
 - [Verified published opponent lists](aichi-2026/ingestion.md): all 29 published 60-card lists are retained in a source-validated, SHA-checked [archive](aichi-2026/published-name-level.json.gz.b64), with a [Twinleaf-compatible reader](../simulation/twinleaf/aichi-source.cjs). The [primary full manifest](aichi-2026/full-decklists.json) retains all 989 source printing rows; this name-only archive serves as an independent cross-check.
 
