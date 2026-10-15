@@ -29,3 +29,5 @@ jobs:
         run: node simulation/twinleaf/megaton-blower-fixture.cjs
       - name: Test protected Underworld Door attachment and draw
         run: node simulation/twinleaf/underworld-door-action.cjs
+      - name: Test Canceling Cologne restores Climactic Gate prompt
+        run: node simulation/twinleaf/cologne-gate-fixture.cjs
