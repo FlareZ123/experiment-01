@@ -19,7 +19,7 @@ function loadBasicIndex(directory) {
   for (const file of fs.readdirSync(directory).sort()) {
     if (!file.endsWith('.json')) continue;
     for (const card of JSON.parse(fs.readFileSync(path.join(directory, file), 'utf8'))) {
-      if (card.supertype !== 'Pokémon') continue;
+      if (card.supertype !== 'Pokémon' || !Array.isArray(card.subtypes)) continue;
       const name = normalizeName(card.name);
       const basic = card.subtypes.includes('Basic');
       if (index.has(name) && index.get(name) !== basic) index.set(name, null);
