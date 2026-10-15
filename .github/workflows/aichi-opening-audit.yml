@@ -17,10 +17,14 @@ jobs:
           node-version: '22'
       - name: Unit tests
         run: node --test tests/aichi_opening_audit.test.cjs
+      - name: Optional bonus draw exact-model tests
+        run: node --test tests/aichi_bonus_draws.test.cjs
       - name: Iron Thorns direct-line tests
         run: node --test tests/iron_thorns_direct_line.test.cjs
       - name: Audit published Aichi lists
         run: node scripts/aichi_opening_audit.cjs > aichi-opening-audit.md
+      - name: Bonus draw access by Aichi opponent
+        run: node scripts/aichi_bonus_draws.cjs > aichi-bonus-draws.md
       - name: Iron Thorns direct-line exact model
         run: node scripts/iron_thorns_direct_line.cjs > iron-thorns-direct-line.json
       - uses: actions/upload-artifact@v4
@@ -28,4 +32,5 @@ jobs:
           name: aichi-opening-audit
           path: |
             aichi-opening-audit.md
+            aichi-bonus-draws.md
             iron-thorns-direct-line.json
