@@ -13,6 +13,16 @@ function normalizeNumber(value) {
 }
 
 /**
+ * Map a published diamond-glyph rendering to the literal name used by
+ * Twinleaf. Resolve only against a matching set/number and PRISM_STAR tag.
+ * @param {string} name Source card name, preserved in the final report.
+ * @returns {string}
+ */
+function prismAlias(name) {
+  return name.replace(/\s*[♢◇]\s*$/u, ' Prism Star');
+}
+
+/**
  * @param {any} card Upstream Twinleaf card object.
  * @param {any} Card Base Twinleaf Card class.
  * @returns {string[]} Weak signals only, not a judgment of semantic correctness.
@@ -37,6 +47,8 @@ function implementationSignals(card, Card) {
  */
 function reportCoverage(manifest) {
   const { Card } = require(path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output/game/store/card/card'));
+  const { CardTag } = require(path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types'));
+
   const cards = initializeCards().getAllCards();
   const byName = new Map();
   for (const card of cards) {
@@ -47,6 +59,7 @@ function reportCoverage(manifest) {
   const missingRows = [];
   const alternateRows = [];
   let exactRows = 0;
+  let exactAliasedRows = 0;
   let totalRows = 0;
   for (const deck of manifest.decks) {
     const rows = [];
@@ -54,12 +67,16 @@ function reportCoverage(manifest) {
     for (const item of deck.cards) {
       count += item.count;
       totalRows += 1;
-      const candidates = byName.get(item.name) || [];
+      const normalizedName = prismAlias(item.name);
+      const aliasCandidates = normalizedName === item.name ? [] :
+        (byName.get(normalizedName) || []).filter(card => card.tags.includes(CardTag.PRISM_STAR));
+      const candidates = [...(byName.get(item.name) || []), ...aliasCandidates];
       const matches = candidates.filter(card =>
         String(card.set).toUpperCase() === String(item.printing?.set || '').toUpperCase() &&
         normalizeNumber(card.setNumber) === normalizeNumber(item.printing?.number)
       );
-      const status = matches.length === 1 ? 'exact' :
+      const status = matches.length === 1 ?
+        (normalizedName === item.name ? 'exact' : 'exact-alias') :
         matches.length > 1 ? 'ambiguous-exact' :
           candidates.length ? 'alternate-only' : 'missing-name';
       const row = {
@@ -67,6 +84,7 @@ function reportCoverage(manifest) {
         count: item.count,
         requested: item.printing || null,
         status,
+        alias: normalizedName === item.name ? null : normalizedName,
         exact: matches.map(c => ({ fullName: c.fullName, signals: implementationSignals(c, Card) })),
         alternatives: status === 'exact' ? [] : candidates.map(c => ({
           fullName: c.fullName, set: c.set, number: c.setNumber,
@@ -74,6 +92,7 @@ function reportCoverage(manifest) {
         }))
       };
       if (status === 'exact') exactRows += 1;
+      if (status === 'exact-alias') exactAliasedRows += 1;
       if (status === 'alternate-only' || status === 'ambiguous-exact') {
         alternateRows.push({ rank: deck.rank, ...row });
       } else if (status === 'missing-name') {
@@ -86,7 +105,7 @@ function reportCoverage(manifest) {
     }
     decks.push({
       rank: deck.rank,
-      resolved: rows.every(row => row.status === 'exact'),
+      resolved: rows.every(row => row.status === 'exact' || row.status === 'exact-alias'),
       rows
     });
   }
@@ -97,6 +116,7 @@ function reportCoverage(manifest) {
     publishedDecks: decks.length,
     requestedPrintingRows: totalRows,
     exactRows,
+    exactAliasedRows,
     alternateOnlyRows: alternateRows.length,
     missingNameRows: missingRows.length,
     unresolvedRanks: decks.filter(deck => !deck.resolved).map(deck => deck.rank),
@@ -121,6 +141,7 @@ if (require.main === module) {
     publishedDecks: report.publishedDecks,
     requestedPrintingRows: report.requestedPrintingRows,
     exactRows: report.exactRows,
+    exactAliasedRows: report.exactAliasedRows,
     alternateOnlyRows: report.alternateOnlyRows,
     missingNameRows: report.missingNameRows,
     unresolvedRanks: report.unresolvedRanks,
@@ -130,4 +151,4 @@ if (require.main === module) {
   console.log(JSON.stringify(summary, null, 2));
 }
 
-module.exports = { reportCoverage, reportManifestFile, normalizeNumber, implementationSignals };
+module.exports = { reportCoverage, reportManifestFile, normalizeNumber, prismAlias, implementationSignals };
