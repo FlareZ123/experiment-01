@@ -35,6 +35,7 @@ function registerPlayersCeremony() {
       this.setNumber = '127';
       this.name = "Player's Ceremony";
       this.fullName = PRINT;
+      this.researchPatched = true;
       this.text = "Once during each player's turn, that player may draw 2 cards. If they do, that player's turn ends.";
       this.cardImage = 'assets/cardback.png';
     }
