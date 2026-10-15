@@ -2,6 +2,7 @@
 
 const { normalizeNumber } = require('../twinleaf/card-coverage.cjs');
 const { createHash } = require('node:crypto');
+const { basicEnergyEquivalents } = require('./basic-energy-equivalents.cjs');
 
 const ENGINE_REVISION = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 
@@ -81,10 +82,12 @@ function exactPrintingIndex(cardPool) {
  * same-name replacement is permitted.
  * @param {object} deck Manifest entry.
  * @param {Map<string,string[]>} index Exact printing index.
+ * @param {Map<string,string>} equivalents Verified canonical Basic Energy alternatives.
  */
-function resolveDeck(deck, index) {
+function resolveDeck(deck, index, equivalents = new Map()) {
   const cards = [];
   const unresolved = [];
+  const substitutions = [];
   let total = 0;
   for (const row of deck.cards) {
     if (!Number.isInteger(row.count) || row.count <= 0 ||
@@ -97,6 +100,13 @@ function resolveDeck(deck, index) {
     const choices = index.get(key) || [];
     if (choices.length === 1) {
       for (let i = 0; i < row.count; i += 1) cards.push(choices[0]);
+    } else if (choices.length === 0 && equivalents.has(row.name)) {
+      const canonical = equivalents.get(row.name);
+      for (let i = 0; i < row.count; i += 1) cards.push(canonical);
+      substitutions.push({
+        name: row.name, count: row.count, originalPrinting: row.printing,
+        enginePrinting: canonical, equivalence: 'ordinary-basic-energy-identical-type'
+      });
     } else {
       unresolved.push({
         name: row.name, count: row.count, printing: row.printing,
@@ -106,7 +116,7 @@ function resolveDeck(deck, index) {
     }
   }
   if (total !== 60) throw new Error('Rank ' + deck.rank + ' has ' + total + ' cards, expected 60.');
-  return { cards: unresolved.length === 0 ? cards : null, unresolved };
+  return { cards: unresolved.length === 0 ? cards : null, unresolved, substitutions };
 }
 
 /**
@@ -115,8 +125,9 @@ function resolveDeck(deck, index) {
  * @param {object} manifest Published Aichi manifest.
  * @param {Array<object>} cardPool Twinleaf card objects.
  * @param {number|object} candidateRank Published rank or an external 60-card candidate object.
+ * @param {{allowBasicEnergyEquivalent?:boolean}} options Opt-in print-equivalence policy.
  */
-function buildPlan(manifest, cardPool, candidateRank = 1) {
+function buildPlan(manifest, cardPool, candidateRank = 1, options = {}) {
   if (!Array.isArray(manifest.decks)) throw new Error('Invalid field manifest.');
   const indexed = new Map(manifest.decks.map(deck => [deck.rank, deck]));
   if (indexed.size !== manifest.decks.length) throw new Error('Duplicate ranks in manifest.');
@@ -124,7 +135,8 @@ function buildPlan(manifest, cardPool, candidateRank = 1) {
   const candidate = custom ? { ...candidateRank, rank: 'custom' } : indexed.get(candidateRank);
   if (!candidate) throw new Error('Candidate rank has no published decklist.');
   const index = exactPrintingIndex(cardPool);
-  const candidateResolved = resolveDeck(candidate, index);
+  const equivalents = options.allowBasicEnergyEquivalent ? basicEnergyEquivalents(cardPool) : new Map();
+  const candidateResolved = resolveDeck(candidate, index, equivalents);
   const opponents = [];
   for (let rank = 1; rank <= 32; rank += 1) {
     const deck = indexed.get(rank);
@@ -132,11 +144,12 @@ function buildPlan(manifest, cardPool, candidateRank = 1) {
       opponents.push({ rank, status: 'missing-published-list', cards: null });
       continue;
     }
-    const resolved = resolveDeck(deck, index);
+    const resolved = resolveDeck(deck, index, equivalents);
     opponents.push({
       rank, player: deck.player, archetype: deck.archetype,
       status: resolved.cards ? 'ready' : 'unresolved-printings',
-      cards: resolved.cards, unresolved: resolved.unresolved
+      cards: resolved.cards, unresolved: resolved.unresolved,
+      substitutions: resolved.substitutions
     });
   }
   const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -145,6 +158,7 @@ function buildPlan(manifest, cardPool, candidateRank = 1) {
   return {
     source: manifest.source,
     engineRevision: ENGINE_REVISION, manifestDigest: digest(manifest),
+    printEquivalencePolicy: options.allowBasicEnergyEquivalent ? 'ordinary-basic-energy-only' : 'exact-only',
     candidateRank: custom ? null : candidateRank,
     candidateLabel: custom ? candidateRank.label || 'custom fixed 60-card list' : candidate.player,
     candidateDigest: digest([...fingerprintSource].sort()),
@@ -174,6 +188,7 @@ function evaluatePlan(plan, options) {
       rank: opponent.rank, player: opponent.player || null,
       archetype: opponent.archetype || null,
       status: opponent.status, plannedGames: 2 * gamesPerSeat,
+      opponentSubstitutions: opponent.substitutions || [],
       attempted: 0, completed: 0, wins: 0, losses: 0, draws: 0,
       unfinished: 0, errors: [], lower95: null
     };
@@ -217,6 +232,8 @@ function evaluatePlan(plan, options) {
     candidateRank: plan.candidateRank, candidateLabel: plan.candidateLabel,
     candidateDigest: plan.candidateDigest, manifestDigest: plan.manifestDigest,
     engineRevision: plan.engineRevision, source: plan.source,
+    printEquivalencePolicy: plan.printEquivalencePolicy,
+    candidateSubstitutions: plan.candidate.substitutions,
     seedBase, gamesPerSeat, maxActions,
     policy: 'Twinleaf SimpleTacticsAi; competence unvalidated',
     engineSlotProtocol: 'candidate alternates Twinleaf player A/B; actual first turn unobserved',
