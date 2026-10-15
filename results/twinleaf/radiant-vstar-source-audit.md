@@ -30,13 +30,13 @@ The shuffle prompt and `EndTurnEffect` are located **after** this return. Conseq
 
 Printed Star Alchemy card text on Forest Seal Stone: “During your turn, you may search your deck for a card and put it into your hand. Then, shuffle your deck. (You can't use more than 1 VSTAR Power in a game.)”
 
-The pinned `ForestSealStone.reduceEffect` sets `player.usedVSTAR = true`, then creates `ChooseCardsPrompt` over the deck with `{ min: 0, max: 1, allowCancel: false }` and an empty category filter. The supplied rulebook section H states an unrestricted search for any card **must pick** the specified number, when cards are available. In a deck containing at least one card, offering/accepting zero is inconsistent with that selection rule. This is an **interface/configuration gap visible in source**. The actual compiled generic \`ChooseCardsPrompt.validate([])\` returns \`true\` for this nonempty-deck case in the linked CI test, so the configuration admits the invalid choice.
+The pinned `ForestSealStone.reduceEffect` sets `player.usedVSTAR = true`, then creates `ChooseCardsPrompt` over the deck with `{ min: 0, max: 1, allowCancel: false }` and an empty category filter. The supplied rulebook section H states an unrestricted search for any card **must pick** the specified number, when cards are available. In a deck containing at least one card, offering/accepting zero is inconsistent with that selection rule. This is an **interface/configuration gap visible in source**. The actual compiled generic `ChooseCardsPrompt.validate([])` returns `true` for this nonempty-deck case in the linked CI test, so the configuration admits the invalid choice.
 
 **Requested test:** With a nonempty deck and unused VSTAR power, use Forest Seal Stone on a Pokémon V, activate Star Alchemy, and check that choosing zero is rejected; with the deck empty, verify the correct rule-dependent handling. Also test that the VSTAR marker cannot be used a second time.
 
 ## Compiled-engine reproduction
 
-Manual-only [GitHub Actions run 38823263120](https://github.com/FlareZ123/experiment-01/actions/runs/38823263120) completed successfully using pinned upstream Node 20.19.0, \`npm ci\`, \`npm run compile\`, then the three [characterization tests](../../tests/radiant-vstar-upstream-characterization.test.cjs). The tests use actual compiled card, prompt and effect classes plus a narrow synthetic StoreLike callback test double. They do **not** show exploit frequency under the current automatic player policy or prove a match-level failure.
+Manual-only [GitHub Actions run 38823263120](https://github.com/FlareZ123/experiment-01/actions/runs/38823263120) completed successfully using pinned upstream Node 20.19.0, `npm ci`, `npm run compile`, then the three [characterization tests](../../tests/radiant-vstar-upstream-characterization.test.cjs). The tests use actual compiled card, prompt and effect classes plus a narrow synthetic StoreLike callback test double. They do **not** show exploit frequency under the current automatic player policy or prove a match-level failure.
 
 ## 3. Additional lower-confidence questions, not asserted bugs
 
