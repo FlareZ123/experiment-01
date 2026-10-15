@@ -118,7 +118,8 @@ function runAichiPilot(options = {}) {
     runMatch, gamesPerSeat: options.gamesPerSeat ?? 1,
     seedBase: options.seedBase ?? 20261015,
     maxActions: options.maxActions ?? 600,
-    selectedRanks: options.selectedRanks
+    selectedRanks: options.selectedRanks,
+    captureTrace: options.captureTrace === true
   });
   return { plan: summarisePlan(plan), evaluation: report };
 }
