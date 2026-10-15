@@ -53,3 +53,6 @@ The published event decklist is not a sufficient engine test. Before a reported 
 ## New opening-hand evidence
 
 [Champion forced Bench-entry starter probabilities](opening-opportunity-cost.md) quantify a 9.731780% chance that an accepted opening offers only Radiant Eternatus/Tapu Lele-GX as Basic starters. This is an exact initial-hand result, not a win-rate claim.
+
+
+[Bonus-draw access under opponent mulligans](bonus-draw-access.md) extends the opening audit with an exact joint mulligan distribution and accepted-hand card-access probabilities across 29 published placements. The strongest contrast is vs four-Basic Iron Thorns (Shadow Rider V setup access 36.62% before bonuses, 41.40% if all are drawn). This is not a win-rate estimate.
