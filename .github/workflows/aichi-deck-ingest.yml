@@ -27,11 +27,12 @@ jobs:
           path: results/aichi-2026/published-name-level.json
           if-no-files-found: error
           retention-days: 30
-      - name: Publish validated data on review branch
+      - name: Persist validated JSON on current main
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git switch -c "agent3/aichi-verified-$GITHUB_RUN_ID"
+          git fetch origin main
+          git switch -C agent3-generated FETCH_HEAD
           git add results/aichi-2026/published-name-level.json
-          git commit -m "Agent 3: Preserve source-validated Aichi opponent decks"
-          git push origin "HEAD:refs/heads/agent3/aichi-verified-$GITHUB_RUN_ID"
+          git commit -m "Agent 3: Preserve verified Aichi decklists"
+          git push origin HEAD:refs/heads/main
