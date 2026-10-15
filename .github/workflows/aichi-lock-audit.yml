@@ -1,0 +1,48 @@
+name: Audit Aichi printed lock threats
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_results:
+        description: Publish validated lock matrix
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  lock-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compute exact-print lock occurrence matrix
+        run: node scripts/aichi_lock_matrix.cjs > results/aichi-2026/lock-presence.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aichi-lock-matrix
+          path: results/aichi-2026/lock-presence.json
+          retention-days: 30
+      - name: Save verified matrix to repository
+        if: inputs.commit_results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/aichi-2026/lock-presence.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Agent 1: Save validated Aichi exact-print lock matrix"
+            for attempt in 1 2 3 4 5; do
+              if git push origin HEAD:main; then
+                break
+              fi
+              if [ "$attempt" -eq 5 ]; then
+                exit 1
+              fi
+              git fetch origin main
+              git rebase origin/main
+            done
+          fi
