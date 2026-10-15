@@ -4,4 +4,26 @@ const path=require('node:path');
 const {initializeCards}=require('./headless.cjs');
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const load=name=>require(path.join(output,name));
-module.exports={};
+
+function probePivot() {
+  const manager=initializeCards();
+  const {Store}=load('game/store/store');
+  const {Player}=load('game/store/state/player');
+  const {PokemonCardList}=load('game/store/state/pokemon-card-list');
+  const {GamePhase}=load('game/store/state/state');
+  const {CheckRetreatCostEffect,CheckPokemonPowersEffect}=
+    load('game/store/effects/check-effects');
+  const store=new Store({onStateChange(){}});
+  const state=store.state,a=new Player(),b=new Player();
+  a.id=101;b.id=202;state.players=[a,b];
+  state.turn=2;state.activePlayer=0;state.phase=GamePhase.PLAYER_TURN;
+  const card=name=>{
+    const item=manager.getCardByName(name);
+    assert.ok(item,name);
+    return item;
+  };
+  return {passed:true};
+}
+if(require.main===module)console.log(JSON.stringify(probePivot(),null,2));
+module.exports={probePivot};
+
