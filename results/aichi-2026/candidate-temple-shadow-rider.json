@@ -1,0 +1,353 @@
+{
+  "rank": 0,
+  "player": "Agent 13 research candidate",
+  "archetype": "Shadow Rider Calyrex / Temple of Sinnoh / Wobbuffet",
+  "category_counts": {
+    "Pokémon": 18,
+    "Trainer": 31,
+    "Energy": 11
+  },
+  "cards": [
+    {
+      "category": "Pokémon",
+      "count": 4,
+      "name": "Shadow Rider Calyrex V",
+      "printing": {
+        "set": "CRE",
+        "number": "74",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 3,
+      "name": "Shadow Rider Calyrex VMAX",
+      "printing": {
+        "set": "CRE",
+        "number": "75",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "name": "Lillie's Clefairy ex",
+      "printing": {
+        "set": "JTG",
+        "number": "56",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Tapu Lele-GX",
+      "printing": {
+        "set": "GRI",
+        "number": "60",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Trevenant & Dusknoir-GX",
+      "printing": {
+        "set": "SMP",
+        "number": "217",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Latias ex",
+      "printing": {
+        "set": "SSP",
+        "number": "76",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Dialga-GX",
+      "printing": {
+        "set": "UPR",
+        "number": "100",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Mimikyu",
+      "printing": {
+        "set": "GRI",
+        "number": "58",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Girafarig",
+      "printing": {
+        "set": "LOT",
+        "number": "94",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Marshadow",
+      "printing": {
+        "set": "UNB",
+        "number": "81",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Radiant Eternatus",
+      "printing": {
+        "set": "CRZ",
+        "number": "105",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Lillie's Determination",
+      "printing": {
+        "set": "MEG",
+        "number": "119",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Iono",
+      "printing": {
+        "set": "PAL",
+        "number": "185",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Teammates",
+      "printing": {
+        "set": "PRC",
+        "number": "141",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Raihan",
+      "printing": {
+        "set": "EVS",
+        "number": "152",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Acerola",
+      "printing": {
+        "set": "BUS",
+        "number": "112",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Guzma",
+      "printing": {
+        "set": "BUS",
+        "number": "115",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "name": "Mysterious Treasure",
+      "printing": {
+        "set": "FLI",
+        "number": "113",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "name": "Fog Crystal",
+      "printing": {
+        "set": "CRE",
+        "number": "140",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 3,
+      "name": "VS Seeker",
+      "printing": {
+        "set": "PHF",
+        "number": "109",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Quick Ball",
+      "printing": {
+        "set": "FST",
+        "number": "237",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Hisuian Heavy Ball",
+      "printing": {
+        "set": "ASR",
+        "number": "146",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Battle Compressor",
+      "printing": {
+        "set": "PHF",
+        "number": "92",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Field Blower",
+      "printing": {
+        "set": "GRI",
+        "number": "125",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Night Stretcher",
+      "printing": {
+        "set": "ASC",
+        "number": "196",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Unfair Stamp",
+      "printing": {
+        "set": "TWM",
+        "number": "165",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Float Stone",
+      "printing": {
+        "set": "BKT",
+        "number": "137",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Forest Seal Stone",
+      "printing": {
+        "set": "SIT",
+        "number": "156",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Sky Field",
+      "printing": {
+        "set": "ROS",
+        "number": "89",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Dimension Valley",
+      "printing": {
+        "set": "PHF",
+        "number": "93",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Energy",
+      "count": 11,
+      "name": "Psychic Energy",
+      "printing": {
+        "set": "MEE",
+        "number": "13",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Wobbuffet",
+      "printing": {
+        "set": "PHF",
+        "number": "36",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Temple of Sinnoh",
+      "printing": {
+        "set": "ASR",
+        "number": "155",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Pokémon Ranger",
+      "printing": {
+        "set": "STS",
+        "number": "104",
+        "language": "en"
+      }
+    }
+  ],
+  "label": "Temple Shadow Rider v1: fixed 60-card hypothesis"
+}
