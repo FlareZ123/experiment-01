@@ -25,3 +25,5 @@ jobs:
           npm run compile
       - name: Test Hood position with Iron Thorns and Tool Jammer
         run: node simulation/twinleaf/hood-vs-thorns.cjs
+      - name: Test Megaton Blower Tool removal and compatibility hook
+        run: node simulation/twinleaf/megaton-blower-fixture.cjs
