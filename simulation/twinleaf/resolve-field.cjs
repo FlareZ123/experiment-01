@@ -5,9 +5,10 @@ const path = require('node:path');
 const { reportCoverage } = require('./card-coverage.cjs');
 const { initializeCards } = require('./headless.cjs');
 const { registerPlayersCeremony, PLAYERS_CEREMONY_PRINT } = require('./card-patches.cjs');
+const { resolveVerifiedBasicMirror } = require('./energy-print-bridge.cjs');
 
 const serverOutput = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
-const { EnergyType, Format } = require(path.join(serverOutput, 'game/store/card/card-types'));
+const { EnergyType, CardType, Format } = require(path.join(serverOutput, 'game/store/card/card-types'));
 const { DeckAnalyser } = require(path.join(serverOutput, 'game/cards/deck-analyser'));
 
 /**
@@ -17,6 +18,7 @@ const { DeckAnalyser } = require(path.join(serverOutput, 'game/cards/deck-analys
  * @typedef {object} ResolutionOptions
  * @property {boolean} allowEquivalentBasicEnergies Allow same-name, same-set
  *   basic Energy when source and engine printing numbers differ.
+ * @property {boolean} allowBasicEnergyMirrorPrintings Permit verified MEE ordinary Basic Energy -> SVE Basic Energy replacements.
  * @property {boolean} allowJapanesePromoHooks Register 127/S-P Player's Ceremony
  *   research card, which does not exist in pinned upstream.
  */
@@ -27,7 +29,8 @@ const { DeckAnalyser } = require(path.join(serverOutput, 'game/cards/deck-analys
  * @returns {object} Complete lists and unresolved items per placement.
  */
 function resolveManifest(manifest, options = {}) {
-  const { allowEquivalentBasicEnergies = false, allowJapanesePromoHooks = false } = options;
+  const { allowEquivalentBasicEnergies = false, allowBasicEnergyMirrorPrintings = false,
+    allowJapanesePromoHooks = false } = options;
   const manager = initializeCards();
   const native = reportCoverage(manifest);
   const resolved = [];
@@ -68,6 +71,11 @@ function resolveManifest(manifest, options = {}) {
           name = candidates[0].fullName;
           reason = 'same-set-basic-energy-number-mismatch';
         }
+      }
+
+      if (!name && allowBasicEnergyMirrorPrintings) {
+        name = resolveVerifiedBasicMirror(item, manager, { EnergyType, CardType }) || undefined;
+        if (name) reason = 'verified-mee-to-sve-basic-energy-print-mirror';
       }
 
       if (!name && allowJapanesePromoHooks &&
@@ -114,7 +122,7 @@ function resolveManifest(manifest, options = {}) {
     source: manifest.source,
     caveat: 'Deck ID resolution is not paper legality or verified card-effect correctness.',
     engineRevision: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    permissions: { allowEquivalentBasicEnergies, allowJapanesePromoHooks },
+    permissions: { allowEquivalentBasicEnergies, allowBasicEnergyMirrorPrintings, allowJapanesePromoHooks },
     resolvedDecks: resolved.filter(deck => deck.playableUnderEngine).length,
     totalPublishedDecks: resolved.length,
     decks: resolved
@@ -130,6 +138,7 @@ if (require.main === module) {
   const filePath = path.resolve(__dirname, '../../results/aichi-2026/full-decklists.json');
   const results = resolveManifestFile(filePath, {
     allowEquivalentBasicEnergies: true,
+    allowBasicEnergyMirrorPrintings: true,
     allowJapanesePromoHooks: true
   });
   console.log(JSON.stringify({
@@ -143,6 +152,7 @@ if (require.main === module) {
     mapped: results.decks.map(d => ({
       rank: d.rank, resolved: d.playableUnderEngine,
       basicEnergyRowsRemapped: d.modifications.filter(m => m.reason === 'same-set-basic-energy-number-mismatch').length,
+      basicMirrorRows: d.modifications.filter(m => m.reason === 'verified-mee-to-sve-basic-energy-print-mirror').length,
       prismGlyphRows: d.modifications.filter(m => m.reason === 'prism-glyph-name-alias').length,
       promoHooks: d.modifications.filter(m => m.reason === 'research-only-japanese-promo-implementation').length,
       verifiedAmbiguityFixes: d.modifications.filter(m => m.reason === 'verified-prc60-omega-barrier-disambiguation').length
