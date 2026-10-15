@@ -49,3 +49,7 @@ For its 14 ordinary Basic Pokémon, exact hypergeometric opening calculations gi
 The Aichi event used Japanese Expanded. The repository's `resources/INDEX.md` explicitly warns that `resources/cards/en` is an English snapshot and **not** a complete Japanese Expanded pool. The tournament page labels Palace Book, Player's Ceremony and other cards as unreleased in the English-language display. Treat English-data absences as **coverage gaps**, pending regional legality verification.
 
 The published event decklist is not a sufficient engine test. Before a reported win rate can be treated as meaningful, establish region-specific card legality, card IDs/printings and errata, actual Twinleaf support, strong game-playing policies, first-turn rules, mulligans/prize effects, matching 60-card opponent lists, sample sizes, confidence intervals, and per-placement outcomes. Inaccessible matchups must be explicitly identified. **The 99.5% target is unverified.**
+
+## New opening-hand evidence
+
+[Champion forced Bench-entry starter probabilities](opening-opportunity-cost.md) quantify a 9.731780% chance that an accepted opening offers only Radiant Eternatus/Tapu Lele-GX as Basic starters. This is an exact initial-hand result, not a win-rate claim.
