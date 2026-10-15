@@ -21,6 +21,7 @@ function installToolJammerHook() {
   ));
   const { ToolEffect } = require(path.join(output, 'game/store/effects/play-card-effects'));
   const { StateUtils } = require(path.join(output, 'game/store/state-utils'));
+  const { IS_TOOL_BLOCKED } = require(path.join(output, 'game/store/prefabs/prefabs'));
   const { GameError } = require(path.join(output, 'game/game-error'));
   const { GameMessage } = require(path.join(output, 'game/game-message'));
   const original = ToolJammer.prototype.reduceEffect;
@@ -29,6 +30,9 @@ function installToolJammerHook() {
     if (effect instanceof ToolEffect && effect.card.name !== 'Tool Jammer') {
       for (const wearer of state.players) {
         if (!wearer.active.tools.includes(this)) continue;
+        // A disabled Tool Jammer cannot suppress another Tool.
+        // Checking this same Tool triggers only the upstream branch and is non-recursive.
+        if (IS_TOOL_BLOCKED(store, state, wearer, this)) continue;
         const opponent = StateUtils.getOpponent(state, wearer);
         if (effect.player === opponent && opponent.active.tools.includes(effect.card)) {
           throw new GameError(GameMessage.BLOCKED_BY_EFFECT);
