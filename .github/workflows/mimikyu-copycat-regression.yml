@@ -31,3 +31,5 @@ jobs:
         run: npm run compile
       - name: Validate copycat metadata bug and research-side hook
         run: node --test tests/mimikyu_apex_copycat.test.cjs
+      - name: Validate nested Copycat to Apex Dragon to Timeless-GX effects
+        run: node simulation/twinleaf/mimikyu-apex-integration.cjs
