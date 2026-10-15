@@ -1,0 +1,1154 @@
+{
+  "purpose": "Coverage of bundled English card data against displayed Japanese event printings; not a legality verdict.",
+  "original_source": "https://www.limitlesstcg.com/tournaments/566/decklists",
+  "deck_count": 29,
+  "total_card_rows": 989,
+  "total_card_slots": 1740,
+  "status_rows": {
+    "matched": 923,
+    "name_disagrees": 22,
+    "set_absent": 39,
+    "number_absent": 5
+  },
+  "status_card_slots": {
+    "matched": 1561,
+    "name_disagrees": 45,
+    "set_absent": 125,
+    "number_absent": 9
+  },
+  "by_deck": [
+    {
+      "rank": 1,
+      "player": "Yasunori Kato",
+      "card_slot_status": {
+        "matched": 48,
+        "name_disagrees": 1,
+        "set_absent": 11
+      }
+    },
+    {
+      "rank": 2,
+      "player": "Takahiro Ando",
+      "card_slot_status": {
+        "matched": 59,
+        "set_absent": 1
+      }
+    },
+    {
+      "rank": 3,
+      "player": "Haruto Miki",
+      "card_slot_status": {
+        "matched": 57,
+        "set_absent": 3
+      }
+    },
+    {
+      "rank": 4,
+      "player": "Shu Hosoda",
+      "card_slot_status": {
+        "matched": 52,
+        "name_disagrees": 8
+      }
+    },
+    {
+      "rank": 5,
+      "player": "Yamato Nakano",
+      "card_slot_status": {
+        "matched": 60
+      }
+    },
+    {
+      "rank": 6,
+      "player": "Kazuma Kashi",
+      "card_slot_status": {
+        "matched": 57,
+        "number_absent": 2,
+        "set_absent": 1
+      }
+    },
+    {
+      "rank": 7,
+      "player": "Hiroto Fuji",
+      "card_slot_status": {
+        "matched": 54,
+        "number_absent": 3,
+        "name_disagrees": 3
+      }
+    },
+    {
+      "rank": 8,
+      "player": "Yusuke Kobayashi",
+      "card_slot_status": {
+        "matched": 51,
+        "name_disagrees": 2,
+        "set_absent": 7
+      }
+    },
+    {
+      "rank": 9,
+      "player": "Shun Ito",
+      "card_slot_status": {
+        "matched": 57,
+        "name_disagrees": 1,
+        "set_absent": 2
+      }
+    },
+    {
+      "rank": 10,
+      "player": "Haruku Yoshioka",
+      "card_slot_status": {
+        "matched": 53,
+        "name_disagrees": 1,
+        "set_absent": 6
+      }
+    },
+    {
+      "rank": 11,
+      "player": "Wataru Yano",
+      "card_slot_status": {
+        "matched": 52,
+        "set_absent": 8
+      }
+    },
+    {
+      "rank": 12,
+      "player": "Risa Sato",
+      "card_slot_status": {
+        "matched": 54,
+        "set_absent": 6
+      }
+    },
+    {
+      "rank": 13,
+      "player": "Hiromu Sasaki",
+      "card_slot_status": {
+        "matched": 51,
+        "name_disagrees": 2,
+        "set_absent": 7
+      }
+    },
+    {
+      "rank": 14,
+      "player": "Manaya Asano",
+      "card_slot_status": {
+        "matched": 53,
+        "name_disagrees": 1,
+        "set_absent": 6
+      }
+    },
+    {
+      "rank": 15,
+      "player": "Ryotaro Nozawa",
+      "card_slot_status": {
+        "matched": 58,
+        "set_absent": 2
+      }
+    },
+    {
+      "rank": 16,
+      "player": "Takumi Matsumoto",
+      "card_slot_status": {
+        "matched": 50,
+        "name_disagrees": 3,
+        "set_absent": 7
+      }
+    },
+    {
+      "rank": 17,
+      "player": "Yuya Yamano",
+      "card_slot_status": {
+        "matched": 52,
+        "name_disagrees": 8
+      }
+    },
+    {
+      "rank": 18,
+      "player": "Hayato Omuro",
+      "card_slot_status": {
+        "matched": 56,
+        "set_absent": 4
+      }
+    },
+    {
+      "rank": 19,
+      "player": "Mark Takahashi",
+      "card_slot_status": {
+        "matched": 49,
+        "name_disagrees": 2,
+        "set_absent": 9
+      }
+    },
+    {
+      "rank": 20,
+      "player": "Satoru Imamura",
+      "card_slot_status": {
+        "matched": 53,
+        "name_disagrees": 1,
+        "set_absent": 6
+      }
+    },
+    {
+      "rank": 21,
+      "player": "Shun Nakajima",
+      "card_slot_status": {
+        "matched": 52,
+        "name_disagrees": 1,
+        "set_absent": 7
+      }
+    },
+    {
+      "rank": 22,
+      "player": "Haruya Mori",
+      "card_slot_status": {
+        "matched": 50,
+        "name_disagrees": 2,
+        "set_absent": 8
+      }
+    },
+    {
+      "rank": 24,
+      "player": "Ryoya Fujii",
+      "card_slot_status": {
+        "matched": 56,
+        "number_absent": 2,
+        "set_absent": 2
+      }
+    },
+    {
+      "rank": 26,
+      "player": "Hibiki Yamada",
+      "card_slot_status": {
+        "matched": 54,
+        "name_disagrees": 4,
+        "set_absent": 2
+      }
+    },
+    {
+      "rank": 27,
+      "player": "Yuya Nagatsuma",
+      "card_slot_status": {
+        "matched": 53,
+        "name_disagrees": 1,
+        "set_absent": 6
+      }
+    },
+    {
+      "rank": 29,
+      "player": "Kohei Hamamichi",
+      "card_slot_status": {
+        "matched": 56,
+        "name_disagrees": 1,
+        "number_absent": 2,
+        "set_absent": 1
+      }
+    },
+    {
+      "rank": 30,
+      "player": "Koki Takeda",
+      "card_slot_status": {
+        "matched": 53,
+        "name_disagrees": 2,
+        "set_absent": 5
+      }
+    },
+    {
+      "rank": 31,
+      "player": "Yuhi Yokoyama",
+      "card_slot_status": {
+        "matched": 58,
+        "set_absent": 2
+      }
+    },
+    {
+      "rank": 32,
+      "player": "Kaito Higuchi",
+      "card_slot_status": {
+        "matched": 53,
+        "name_disagrees": 1,
+        "set_absent": 6
+      }
+    }
+  ],
+  "unresolved_rows": [
+    {
+      "rank": 1,
+      "player": "Yasunori Kato",
+      "category": "Trainer",
+      "count": 1,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 1,
+      "player": "Yasunori Kato",
+      "category": "Energy",
+      "count": 11,
+      "name": "Psychic Energy",
+      "source_set": "MEE",
+      "source_number": "13",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 2,
+      "player": "Takahiro Ando",
+      "category": "Energy",
+      "count": 1,
+      "name": "Grass Energy",
+      "source_set": "MEE",
+      "source_number": "9",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 3,
+      "player": "Haruto Miki",
+      "category": "Trainer",
+      "count": 1,
+      "name": "Player's Ceremony",
+      "source_set": "SP",
+      "source_number": "127",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 3,
+      "player": "Haruto Miki",
+      "category": "Energy",
+      "count": 2,
+      "name": "Water Energy",
+      "source_set": "MEE",
+      "source_number": "11",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 4,
+      "player": "Shu Hosoda",
+      "category": "Trainer",
+      "count": 4,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 4,
+      "player": "Shu Hosoda",
+      "category": "Energy",
+      "count": 4,
+      "name": "Unit Energy LPM",
+      "source_set": "UPR",
+      "source_number": "138",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Unit Energy LightningPsychicMetal"
+      ],
+      "candidate_ids": [
+        "sm5-138"
+      ]
+    },
+    {
+      "rank": 6,
+      "player": "Kazuma Kashi",
+      "category": "Trainer",
+      "count": 1,
+      "name": "Palace Book",
+      "source_set": "SMP",
+      "source_number": "NAN25",
+      "status": "number_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 6,
+      "player": "Kazuma Kashi",
+      "category": "Trainer",
+      "count": 1,
+      "name": "Palace Belt",
+      "source_set": "BWP",
+      "source_number": "153",
+      "status": "number_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 6,
+      "player": "Kazuma Kashi",
+      "category": "Trainer",
+      "count": 1,
+      "name": "Player's Ceremony",
+      "source_set": "SP",
+      "source_number": "127",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 7,
+      "player": "Hiroto Fuji",
+      "category": "Trainer",
+      "count": 3,
+      "name": "Palace Book",
+      "source_set": "SMP",
+      "source_number": "NAN25",
+      "status": "number_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 7,
+      "player": "Hiroto Fuji",
+      "category": "Trainer",
+      "count": 2,
+      "name": "Robo Substitute",
+      "source_set": "PHF",
+      "source_number": "102",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Robo Substitute Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-102"
+      ]
+    },
+    {
+      "rank": 7,
+      "player": "Hiroto Fuji",
+      "category": "Trainer",
+      "count": 1,
+      "name": "Target Whistle",
+      "source_set": "PHF",
+      "source_number": "106",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Target Whistle Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-106"
+      ]
+    },
+    {
+      "rank": 8,
+      "player": "Yusuke Kobayashi",
+      "category": "Trainer",
+      "count": 2,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 8,
+      "player": "Yusuke Kobayashi",
+      "category": "Energy",
+      "count": 5,
+      "name": "Darkness Energy",
+      "source_set": "MEE",
+      "source_number": "15",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 8,
+      "player": "Yusuke Kobayashi",
+      "category": "Energy",
+      "count": 2,
+      "name": "Lightning Energy",
+      "source_set": "MEE",
+      "source_number": "12",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 9,
+      "player": "Shun Ito",
+      "category": "Trainer",
+      "count": 1,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 9,
+      "player": "Shun Ito",
+      "category": "Energy",
+      "count": 2,
+      "name": "Darkness Energy",
+      "source_set": "MEE",
+      "source_number": "15",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 10,
+      "player": "Haruku Yoshioka",
+      "category": "Trainer",
+      "count": 1,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 10,
+      "player": "Haruku Yoshioka",
+      "category": "Energy",
+      "count": 4,
+      "name": "Grass Energy",
+      "source_set": "MEE",
+      "source_number": "9",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 10,
+      "player": "Haruku Yoshioka",
+      "category": "Energy",
+      "count": 2,
+      "name": "Fire Energy",
+      "source_set": "MEE",
+      "source_number": "10",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 11,
+      "player": "Wataru Yano",
+      "category": "Energy",
+      "count": 8,
+      "name": "Darkness Energy",
+      "source_set": "MEE",
+      "source_number": "15",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 12,
+      "player": "Risa Sato",
+      "category": "Energy",
+      "count": 4,
+      "name": "Grass Energy",
+      "source_set": "MEE",
+      "source_number": "9",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 12,
+      "player": "Risa Sato",
+      "category": "Energy",
+      "count": 2,
+      "name": "Fire Energy",
+      "source_set": "MEE",
+      "source_number": "10",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 13,
+      "player": "Hiromu Sasaki",
+      "category": "Trainer",
+      "count": 2,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 13,
+      "player": "Hiromu Sasaki",
+      "category": "Energy",
+      "count": 4,
+      "name": "Grass Energy",
+      "source_set": "MEE",
+      "source_number": "9",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 13,
+      "player": "Hiromu Sasaki",
+      "category": "Energy",
+      "count": 3,
+      "name": "Fire Energy",
+      "source_set": "MEE",
+      "source_number": "10",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 14,
+      "player": "Manaya Asano",
+      "category": "Trainer",
+      "count": 1,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 14,
+      "player": "Manaya Asano",
+      "category": "Energy",
+      "count": 4,
+      "name": "Grass Energy",
+      "source_set": "MEE",
+      "source_number": "9",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 14,
+      "player": "Manaya Asano",
+      "category": "Energy",
+      "count": 2,
+      "name": "Fire Energy",
+      "source_set": "MEE",
+      "source_number": "10",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 15,
+      "player": "Ryotaro Nozawa",
+      "category": "Energy",
+      "count": 2,
+      "name": "Grass Energy",
+      "source_set": "MEE",
+      "source_number": "9",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 16,
+      "player": "Takumi Matsumoto",
+      "category": "Trainer",
+      "count": 3,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 16,
+      "player": "Takumi Matsumoto",
+      "category": "Energy",
+      "count": 7,
+      "name": "Darkness Energy",
+      "source_set": "MEE",
+      "source_number": "15",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 17,
+      "player": "Yuya Yamano",
+      "category": "Trainer",
+      "count": 4,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 17,
+      "player": "Yuya Yamano",
+      "category": "Energy",
+      "count": 4,
+      "name": "Unit Energy LPM",
+      "source_set": "UPR",
+      "source_number": "138",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Unit Energy LightningPsychicMetal"
+      ],
+      "candidate_ids": [
+        "sm5-138"
+      ]
+    },
+    {
+      "rank": 18,
+      "player": "Hayato Omuro",
+      "category": "Energy",
+      "count": 2,
+      "name": "Grass Energy",
+      "source_set": "MEE",
+      "source_number": "9",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 18,
+      "player": "Hayato Omuro",
+      "category": "Energy",
+      "count": 2,
+      "name": "Fire Energy",
+      "source_set": "MEE",
+      "source_number": "10",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 19,
+      "player": "Mark Takahashi",
+      "category": "Trainer",
+      "count": 2,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 19,
+      "player": "Mark Takahashi",
+      "category": "Energy",
+      "count": 3,
+      "name": "Lightning Energy",
+      "source_set": "MEE",
+      "source_number": "12",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 19,
+      "player": "Mark Takahashi",
+      "category": "Energy",
+      "count": 3,
+      "name": "Fighting Energy",
+      "source_set": "MEE",
+      "source_number": "14",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 19,
+      "player": "Mark Takahashi",
+      "category": "Energy",
+      "count": 3,
+      "name": "Darkness Energy",
+      "source_set": "MEE",
+      "source_number": "15",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 20,
+      "player": "Satoru Imamura",
+      "category": "Trainer",
+      "count": 1,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 20,
+      "player": "Satoru Imamura",
+      "category": "Energy",
+      "count": 4,
+      "name": "Grass Energy",
+      "source_set": "MEE",
+      "source_number": "9",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 20,
+      "player": "Satoru Imamura",
+      "category": "Energy",
+      "count": 2,
+      "name": "Fire Energy",
+      "source_set": "MEE",
+      "source_number": "10",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 21,
+      "player": "Shun Nakajima",
+      "category": "Trainer",
+      "count": 1,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 21,
+      "player": "Shun Nakajima",
+      "category": "Energy",
+      "count": 4,
+      "name": "Grass Energy",
+      "source_set": "MEE",
+      "source_number": "9",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 21,
+      "player": "Shun Nakajima",
+      "category": "Energy",
+      "count": 3,
+      "name": "Fire Energy",
+      "source_set": "MEE",
+      "source_number": "10",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 22,
+      "player": "Haruya Mori",
+      "category": "Trainer",
+      "count": 2,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 22,
+      "player": "Haruya Mori",
+      "category": "Energy",
+      "count": 5,
+      "name": "Darkness Energy",
+      "source_set": "MEE",
+      "source_number": "15",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 22,
+      "player": "Haruya Mori",
+      "category": "Energy",
+      "count": 3,
+      "name": "Lightning Energy",
+      "source_set": "MEE",
+      "source_number": "12",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 24,
+      "player": "Ryoya Fujii",
+      "category": "Trainer",
+      "count": 2,
+      "name": "Palace Book",
+      "source_set": "SMP",
+      "source_number": "NAN25",
+      "status": "number_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 24,
+      "player": "Ryoya Fujii",
+      "category": "Trainer",
+      "count": 2,
+      "name": "Player's Ceremony",
+      "source_set": "SP",
+      "source_number": "127",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 26,
+      "player": "Hibiki Yamada",
+      "category": "Trainer",
+      "count": 4,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 26,
+      "player": "Hibiki Yamada",
+      "category": "Energy",
+      "count": 2,
+      "name": "Lightning Energy",
+      "source_set": "MEE",
+      "source_number": "12",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 27,
+      "player": "Yuya Nagatsuma",
+      "category": "Trainer",
+      "count": 1,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 27,
+      "player": "Yuya Nagatsuma",
+      "category": "Energy",
+      "count": 4,
+      "name": "Grass Energy",
+      "source_set": "MEE",
+      "source_number": "9",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 27,
+      "player": "Yuya Nagatsuma",
+      "category": "Energy",
+      "count": 2,
+      "name": "Fire Energy",
+      "source_set": "MEE",
+      "source_number": "10",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 29,
+      "player": "Kohei Hamamichi",
+      "category": "Trainer",
+      "count": 1,
+      "name": "Target Whistle",
+      "source_set": "PHF",
+      "source_number": "106",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Target Whistle Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-106"
+      ]
+    },
+    {
+      "rank": 29,
+      "player": "Kohei Hamamichi",
+      "category": "Trainer",
+      "count": 2,
+      "name": "Palace Belt",
+      "source_set": "BWP",
+      "source_number": "153",
+      "status": "number_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 29,
+      "player": "Kohei Hamamichi",
+      "category": "Trainer",
+      "count": 1,
+      "name": "Player's Ceremony",
+      "source_set": "SP",
+      "source_number": "127",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 30,
+      "player": "Koki Takeda",
+      "category": "Trainer",
+      "count": 2,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 30,
+      "player": "Koki Takeda",
+      "category": "Energy",
+      "count": 5,
+      "name": "Psychic Energy",
+      "source_set": "MEE",
+      "source_number": "13",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 31,
+      "player": "Yuhi Yokoyama",
+      "category": "Energy",
+      "count": 2,
+      "name": "Psychic Energy",
+      "source_set": "MEE",
+      "source_number": "13",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 32,
+      "player": "Kaito Higuchi",
+      "category": "Trainer",
+      "count": 1,
+      "name": "Battle Compressor",
+      "source_set": "PHF",
+      "source_number": "92",
+      "status": "name_disagrees",
+      "candidate_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "candidate_ids": [
+        "xy4-92"
+      ]
+    },
+    {
+      "rank": 32,
+      "player": "Kaito Higuchi",
+      "category": "Energy",
+      "count": 4,
+      "name": "Grass Energy",
+      "source_set": "MEE",
+      "source_number": "9",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    },
+    {
+      "rank": 32,
+      "player": "Kaito Higuchi",
+      "category": "Energy",
+      "count": 2,
+      "name": "Fire Energy",
+      "source_set": "MEE",
+      "source_number": "10",
+      "status": "set_absent",
+      "candidate_names": [],
+      "candidate_ids": []
+    }
+  ]
+}
