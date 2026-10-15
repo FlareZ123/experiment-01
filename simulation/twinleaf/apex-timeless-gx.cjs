@@ -19,6 +19,7 @@ function directApexGx() {
   assert.ok(regidrago && dialga && target);
   const { Store } = load('game/store/store');
   const { Player } = load('game/store/state/player');
+  const { CardList } = load('game/store/state/card-list');
   const { GamePhase } = load('game/store/state/state');
   const { AttackEffect } = load('game/store/effects/game-effects');
   const { ResolvePromptAction } = load('game/store/actions/resolve-prompt-action');
@@ -55,6 +56,14 @@ function directApexGx() {
   const opponent = new Player();
   opponent.id = 202;
   state.players = [player, opponent];
+  // Nonempty Prize zones prevent sudden-death reset of the GX-use marker.
+  for (const side of state.players) {
+    side.prizes = Array.from({ length: 6 }, () => {
+      const prize = new CardList();
+      prize.cards.push(manager.getCardByName('Dratini OBF'));
+      return prize;
+    });
+  }
   state.phase = GamePhase.ATTACK;
   state.turn = 4;
   state.activePlayer = 0;
