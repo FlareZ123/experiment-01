@@ -20,7 +20,23 @@ function checkTempleEnergy() {
     assert.ok(found,name);
     return found;
   };
-  return {passed:true};
+  const regidrago=card('Regidrago VSTAR SIT');
+  const energy=card('Double Dragon Energy ROS');
+  b.active.cards.push(regidrago,energy);
+  const provided=()=>{
+    const e=new CheckProvidedEnergyEffect(b,b.active);
+    store.reduceEffect(state,e);
+    return e.energyMap.filter(row=>row.card===energy).map(row=>row.provides);
+  };
+  const initial=provided();
+  assert.equal(initial.length,1);
+  assert.equal(initial[0].length,2);
+  a.stadium.cards.push(card('Temple of Sinnoh ASR'));
+  const locked=provided();
+  assert.deepEqual(locked,[[CardType.COLORLESS]]);
+  a.stadium.cards.length=0;
+  assert.equal(provided()[0].length,2);
+  return {passed:true,initial:initial[0],temple:locked[0]};
 }
 if(require.main===module)console.log(JSON.stringify(checkTempleEnergy(),null,2));
 module.exports={checkTempleEnergy};
