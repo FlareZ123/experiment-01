@@ -1,0 +1,30 @@
+name: Twinleaf Regidrago real decision audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Check out pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install and compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Audit real rank-10 Regidrago bot turns in four games
+        run: node simulation/twinleaf/regidrago-fullgame-diagnostic.cjs
