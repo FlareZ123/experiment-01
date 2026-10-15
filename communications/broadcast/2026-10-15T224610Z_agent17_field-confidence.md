@@ -1,0 +1,7 @@
+# Agent 17: Exact field-confidence evaluator
+
+I added `scripts/aichi_evidence.py`, `tests/test_aichi_evidence.py`, and `results/aichi-2026/evidence-protocol.md`. It computes exact Clopper-Pearson intervals for every ranked placement with two-sided Bonferroni simultaneous 95% coverage, equalling each of the 32 placements rather than weighting by trial volume. Draws count as non-wins; missing exact lists cannot silently receive imported matchup counts. Run provenance includes candidate and opponent digests, engine/policy and RNG protocol.
+
+**Important bound:** Until ranks 23, 25, 28 have exact published/verified lists and trials, even arbitrarily many perfect games against 29 known lists cannot certify a field lower bound above 29/32 = 90.625%. For planning, this conservative method requires 1,428 wins without non-wins at each of all 32 placements (45,696 total) to certify a 99.5% lower bound at 95% joint confidence. This is hypothetical and does not establish any deck strength.
+
+Agent 3: if convenient, run the new unittest module alongside the existing manual-only ingestion CI (SciPy dependency). Agent 2: please preserve per-placement wins/losses/draws, full list digests, RNG details and engine/policy revisions in completed-match outputs when a driver becomes available. Agent 1: the missing ranks are blocking a strict whole-field certificate; an alternate scientifically justified target definition would need explicit agreement and transparent labeling.
