@@ -1,6 +1,7 @@
 'use strict';
 
 const { normalizeNumber } = require('../twinleaf/card-coverage.cjs');
+const { createHash } = require('node:crypto');
 
 const ENGINE_REVISION = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 
@@ -60,10 +61,17 @@ function winProbabilityLowerBound(wins, trials, confidence = 0.95) {
 function exactPrintingIndex(cardPool) {
   const index = new Map();
   for (const card of cardPool) {
-    const key = [card.name, String(card.set).toUpperCase(),
-      normalizeNumber(card.setNumber)].join('\u0000');
-    if (!index.has(key)) index.set(key, []);
-    index.get(key).push(card.fullName);
+    const names = [card.name];
+    if (card.tags?.includes('Prism Star') && card.name.endsWith(' Prism Star')) {
+      names.push(card.name.replace(/ Prism Star$/u, ' ♢'));
+      names.push(card.name.replace(/ Prism Star$/u, ' ◇'));
+    }
+    for (const name of names) {
+      const key = [name, String(card.set).toUpperCase(),
+        normalizeNumber(card.setNumber)].join('\u0000');
+      if (!index.has(key)) index.set(key, []);
+      index.get(key).push(card.fullName);
+    }
   }
   return index;
 }
@@ -103,16 +111,17 @@ function resolveDeck(deck, index) {
 
 /**
  * All 32 placements are retained, including three currently unpublished lists.
- * A candidate must be a published field rank in this initial protocol.
+ * A candidate can be a published field rank or a supplied fixed 60-card list.
  * @param {object} manifest Published Aichi manifest.
  * @param {Array<object>} cardPool Twinleaf card objects.
- * @param {number} candidateRank Rank of candidate deck.
+ * @param {number|object} candidateRank Published rank or an external 60-card candidate object.
  */
 function buildPlan(manifest, cardPool, candidateRank = 1) {
   if (!Array.isArray(manifest.decks)) throw new Error('Invalid field manifest.');
   const indexed = new Map(manifest.decks.map(deck => [deck.rank, deck]));
   if (indexed.size !== manifest.decks.length) throw new Error('Duplicate ranks in manifest.');
-  const candidate = indexed.get(candidateRank);
+  const custom = typeof candidateRank === 'object' && candidateRank !== null;
+  const candidate = custom ? { ...candidateRank, rank: 'custom' } : indexed.get(candidateRank);
   if (!candidate) throw new Error('Candidate rank has no published decklist.');
   const index = exactPrintingIndex(cardPool);
   const candidateResolved = resolveDeck(candidate, index);
@@ -130,10 +139,16 @@ function buildPlan(manifest, cardPool, candidateRank = 1) {
       cards: resolved.cards, unresolved: resolved.unresolved
     });
   }
+  const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
+  const fingerprintSource = candidateResolved.cards || candidate.cards.map(row =>
+    [row.name, row.count, row.printing?.set, row.printing?.number].join(':'));
   return {
     source: manifest.source,
-    engineRevision: ENGINE_REVISION,
-    candidateRank, candidate: candidateResolved, opponents
+    engineRevision: ENGINE_REVISION, manifestDigest: digest(manifest),
+    candidateRank: custom ? null : candidateRank,
+    candidateLabel: custom ? candidateRank.label || 'custom fixed 60-card list' : candidate.player,
+    candidateDigest: digest([...fingerprintSource].sort()),
+    candidate: candidateResolved, opponents
   };
 }
 
@@ -199,8 +214,10 @@ function evaluatePlan(plan, options) {
     results.push(row);
   }
   return {
-    candidateRank: plan.candidateRank, engineRevision: plan.engineRevision,
-    source: plan.source, seedBase, gamesPerSeat, maxActions,
+    candidateRank: plan.candidateRank, candidateLabel: plan.candidateLabel,
+    candidateDigest: plan.candidateDigest, manifestDigest: plan.manifestDigest,
+    engineRevision: plan.engineRevision, source: plan.source,
+    seedBase, gamesPerSeat, maxActions,
     policy: 'Twinleaf SimpleTacticsAi; competence unvalidated',
     scope: 'engine simulation only; no demonstrated competitive paper Expanded win rate',
     opponents: results
