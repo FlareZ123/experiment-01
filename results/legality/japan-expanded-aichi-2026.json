@@ -1,0 +1,224 @@
+{
+  "title": "Japan Expanded banned cards, Aichi 2026 historical snapshot",
+  "valid_for_event": "2026-05-10",
+  "official_page_last_updated": "2026-02-19",
+  "source_url": "https://www.pokemon-card.com/rules/regulation/index.html",
+  "medicham_ban_effective": "2026-02-20",
+  "classification_warning": "English ability and attack matching is a narrow audit proxy for specified Japanese card identities, not proof of all Japanese printing variants or comprehensive legality.",
+  "banned_identities": [
+    {
+      "english_name": "Lysandre's Trump Card",
+      "japanese_name": "フラダリの奥の手",
+      "selector": {
+        "type": "trainer_name"
+      }
+    },
+    {
+      "english_name": "Forest of Giant Plants",
+      "japanese_name": "巨大植物の森",
+      "selector": {
+        "type": "trainer_name"
+      }
+    },
+    {
+      "english_name": "Maxie's Hidden Ball Trick",
+      "japanese_name": "マツブサの隠し玉",
+      "selector": {
+        "type": "trainer_name"
+      }
+    },
+    {
+      "english_name": "Delinquent",
+      "japanese_name": "こわいおねえさん",
+      "selector": {
+        "type": "trainer_name"
+      }
+    },
+    {
+      "english_name": "Jessie & James",
+      "japanese_name": "ムサシとコジロウ",
+      "selector": {
+        "type": "trainer_name"
+      }
+    },
+    {
+      "english_name": "Reset Stamp",
+      "japanese_name": "リセットスタンプ",
+      "selector": {
+        "type": "trainer_name"
+      }
+    },
+    {
+      "english_name": "Red Card",
+      "japanese_name": "レッドカード",
+      "selector": {
+        "type": "trainer_name"
+      }
+    },
+    {
+      "english_name": "Chip-Chip Ice Axe",
+      "japanese_name": "ザクザクピッケル",
+      "selector": {
+        "type": "trainer_name"
+      }
+    },
+    {
+      "english_name": "Island Challenge Amulet",
+      "japanese_name": "しまめぐりのあかし",
+      "selector": {
+        "type": "trainer_name"
+      }
+    },
+    {
+      "english_name": "Ghetsis",
+      "japanese_name": "ゲーチス",
+      "selector": {
+        "type": "trainer_name"
+      }
+    },
+    {
+      "english_name": "Lt. Surge's Strategy",
+      "japanese_name": "マチスの作戦",
+      "selector": {
+        "type": "trainer_name"
+      }
+    },
+    {
+      "english_name": "Puzzle of Time",
+      "japanese_name": "時のパズル",
+      "selector": {
+        "type": "trainer_name"
+      }
+    },
+    {
+      "english_name": "Hex Maniac",
+      "japanese_name": "オカルトマニア",
+      "selector": {
+        "type": "trainer_name"
+      }
+    },
+    {
+      "english_name": "Scoop Up Net",
+      "japanese_name": "回収ネット",
+      "selector": {
+        "type": "trainer_name"
+      }
+    },
+    {
+      "english_name": "Flapple",
+      "japanese_name": "アップリュー",
+      "japanese_printing": "S2",
+      "selector": {
+        "type": "ability",
+        "value": "Apple Drop"
+      }
+    },
+    {
+      "english_name": "Archeops",
+      "japanese_name": "アーケオス",
+      "japanese_printing": "BW2",
+      "selector": {
+        "type": "ability",
+        "value": "Ancient Power"
+      }
+    },
+    {
+      "english_name": "Unown",
+      "japanese_name": "アンノーン",
+      "japanese_printing": "SM8",
+      "selector": {
+        "type": "ability",
+        "value": "DAMAGE"
+      }
+    },
+    {
+      "english_name": "Unown",
+      "japanese_name": "アンノーン",
+      "japanese_printing": "SM8",
+      "selector": {
+        "type": "ability",
+        "value": "HAND"
+      }
+    },
+    {
+      "english_name": "Marshadow",
+      "japanese_name": "マーシャドー",
+      "japanese_printing": "SM3+",
+      "selector": {
+        "type": "ability",
+        "value": "Let Loose"
+      }
+    },
+    {
+      "english_name": "Flabébé",
+      "japanese_name": "フラベベ",
+      "japanese_printing": "SM6",
+      "selector": {
+        "type": "ability",
+        "value": "Evolutionary Advantage"
+      }
+    },
+    {
+      "english_name": "Mismagius",
+      "japanese_name": "ムウマージ",
+      "japanese_printing": "SM10",
+      "selector": {
+        "type": "ability",
+        "value": "Mysterious Message"
+      }
+    },
+    {
+      "english_name": "Oranguru",
+      "japanese_name": "ヤレユータン",
+      "japanese_printing": "SM5S",
+      "selector": {
+        "type": "attack",
+        "value": "Resource Management"
+      }
+    },
+    {
+      "english_name": "Shaymin-EX",
+      "japanese_name": "シェイミEX",
+      "japanese_printing": "XY6",
+      "selector": {
+        "type": "ability",
+        "value": "Set Up"
+      }
+    },
+    {
+      "english_name": "Milotic",
+      "japanese_name": "ミロカロス",
+      "japanese_printing": "XY2",
+      "selector": {
+        "type": "ability",
+        "value": "Energy Grace"
+      }
+    },
+    {
+      "english_name": "Sableye",
+      "japanese_name": "ヤミラミ",
+      "japanese_printing": "BW4",
+      "selector": {
+        "type": "attack",
+        "value": "Junk Hunt"
+      }
+    },
+    {
+      "english_name": "Duskull",
+      "japanese_name": "ヨマワル",
+      "japanese_printing": "SM11a",
+      "selector": {
+        "type": "ability",
+        "value": "Spiritborne Evolution"
+      }
+    },
+    {
+      "english_name": "Medicham V",
+      "japanese_name": "チャーレムV",
+      "japanese_printing": "S7R",
+      "selector": {
+        "type": "pokemon_name"
+      }
+    }
+  ]
+}

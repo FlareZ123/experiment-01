@@ -1,0 +1,25 @@
+name: Aichi published field threat audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aichi-published-threat-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate field presence and co-occurrence
+        run: node --test tests/field_threat_audit.test.cjs
+      - name: Emit auditable JSON report
+        run: node scripts/field_threat_audit.cjs
