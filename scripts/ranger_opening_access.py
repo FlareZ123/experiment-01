@@ -13,8 +13,9 @@ def opening_access(ranger_copies: int, *, lele: int = 2,
                    opening: int = 7, prizes: int = 6) -> dict:
     """Compute disjoint direct-hand and Wonder Tag access probabilities.
 
-    The Wonder Tag route requires an opening Lele plus another Basic to
-    start Active, no Ranger already in hand, and an unprized Ranger.
+    The Wonder Tag route requires an opening Lele plus a distinct Basic
+    to start Active (another Lele also qualifies), no Ranger already in
+    hand, and an unprized Ranger.
     Neither Ability availability nor Supporter/play sequencing is proven.
     Probabilities are conditional on a valid seven-card Basic opening.
     """
@@ -54,7 +55,7 @@ def opening_access(ranger_copies: int, *, lele: int = 2,
                         comb(other_basics, b) * comb(other, n))
                 if r:
                     direct += ways
-                elif l and b:
+                elif l and (b or l >= 2):
                     wonder += ways * available_after_prizes
 
     return {
