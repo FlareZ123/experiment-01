@@ -13,8 +13,8 @@ def _hash(value):
 
 
 def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
-    """Summarize engine-normalized games, recording failures separately."""
-    if batch.get("schema_version") != 1:
+    """Summarize games only after verifying engine-first-turn and draw-log agreement."""
+    if batch.get("schema_version") != 2:
         raise ValueError("Unknown schema version")
     keys = ("candidate_deck_sha256", "field_manifest_sha256", "engine_revision",
             "research_revision", "candidate_policy_revision",
@@ -45,6 +45,22 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
         seeds.add((rank, seat, seed))
         if side not in ("A", "B"):
             raise ValueError("Candidate engine seat must be A or B")
+        order = g.get("first_turn")
+        if not isinstance(order, dict):
+            raise ValueError("Missing engine first-turn observation")
+        slot = order.get("firstTurnSlot")
+        name = order.get("firstTurnPlayerName")
+        draw = order.get("firstDrawLogName")
+        first_id = order.get("firstTurnPlayerId")
+        if (type(slot) is not int or slot not in (0, 1) or
+                type(first_id) is not int or not isinstance(name, str) or
+                not name or name != draw or order.get("verifiedByDrawLog") is not True):
+            raise ValueError("First turn lacks internally consistent engine and draw-log proof")
+        first_side = "A" if slot == 0 else "B"
+        if g.get("first_player_side") != first_side:
+            raise ValueError("Declared first-player side contradicts engine turn slot")
+        if seat != ("first" if side == first_side else "second"):
+            raise ValueError("Candidate turn order contradicts engine first-player side")
         deck = g["opponent_deck_sha256"]
         if not _hash(deck) or not _hash(g["trace_sha256"]):
             raise ValueError("Missing deck or trace SHA-256")
