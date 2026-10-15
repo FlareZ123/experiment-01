@@ -75,3 +75,30 @@ test('draw, incomplete match and exception are accounted',()=>{
   assert.equal(row.status,'incomplete');
   assert.equal(row.lower95,null);
 });
+
+test('Prism Star source glyph resolves only for correctly tagged printing', () => {
+  const printing = {
+    name: 'Thunder Mountain Prism Star', set: 'LOT', setNumber: '191',
+    fullName: 'Thunder Mountain Prism Star LOT 191', tags: ['Prism Star']
+  };
+  const entry = { rank: 99, cards: [{ name: 'Thunder Mountain ♢', count: 60,
+    printing: { set: 'LOT', number: '191' } }] };
+  assert.equal(resolveDeck(entry, exactPrintingIndex([printing])).cards.length, 60);
+  assert.equal(resolveDeck(entry, exactPrintingIndex([
+    { ...printing, tags: [] }
+  ])).unresolved[0].reason, 'missing-exact-printing');
+});
+
+test('arbitrary new fixed 60-card candidate has provenance fingerprint', () => {
+  const custom = { label: 'Novel candidate test', cards: deck(1).cards };
+  const plan = buildPlan(manifest, pool, custom);
+  assert.equal(plan.candidateRank, null);
+  assert.equal(plan.candidateLabel, 'Novel candidate test');
+  assert.match(plan.candidateDigest, /^[0-9a-f]{64}$/);
+  assert.match(plan.manifestDigest, /^[0-9a-f]{64}$/);
+  assert.equal(plan.candidate.cards.length, 60);
+  const report = evaluatePlan(plan, { gamesPerSeat: 1,
+    runMatch: () => ({ finished: true, winner: 0 }) });
+  assert.equal(report.candidateDigest, plan.candidateDigest);
+  assert.equal(report.manifestDigest, plan.manifestDigest);
+});
