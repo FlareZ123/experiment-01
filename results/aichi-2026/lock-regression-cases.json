@@ -1,0 +1,202 @@
+{
+  "kind": "manual-reference-cases",
+  "status": "expected mechanics from supplied rulebook and English card text, not executed Twinleaf tests",
+  "source_manifest": "results/aichi-2026/full-decklists.json",
+  "source_doc": "results/aichi-2026/disruption-inventory.md",
+  "rules": [
+    "Advanced Player's Rulebook A-02, A-03, B-01, B-02, B-03, II-A, C-14, C-19"
+  ],
+  "cases": [
+    {
+      "id": "BUD-01",
+      "source": [
+        "Budew ASC 16"
+      ],
+      "given": "Budew's Itchy Pollen attack resolved on the prior turn against Player B. No other locks are active.",
+      "attempts": [
+        {
+          "actor": "B",
+          "action": "play Item from hand (VS Seeker)",
+          "expected": "prohibited"
+        },
+        {
+          "actor": "B",
+          "action": "attach Pokémon Tool from hand (Forest Seal Stone)",
+          "expected": "permitted if normal Tool rules satisfied"
+        }
+      ],
+      "rationale": "Itchy Pollen forbids Item play from hand on the opponent's next turn. Advanced Rulebook B-02 says Pokémon Tools, including older Item-marked printings, are separate from Items."
+    },
+    {
+      "id": "BUD-02",
+      "source": [
+        "Budew ASC 16"
+      ],
+      "given": "The turn on which Player B was restricted by a previous Itchy Pollen has ended. Budew did not use another Itchy Pollen.",
+      "attempts": [
+        {
+          "actor": "B",
+          "action": "play Item on a later turn",
+          "expected": "permitted if no other effect prevents it"
+        }
+      ],
+      "rationale": "The attack restriction applies during the next opponent turn only, not indefinitely."
+    },
+    {
+      "id": "VIL-01",
+      "source": [
+        "Vileplume AOR 3"
+      ],
+      "given": "Player A has Vileplume AOR in play with Irritating Pollen enabled. No other locks are active.",
+      "attempts": [
+        {
+          "actor": "A",
+          "action": "play Item from hand",
+          "expected": "prohibited"
+        },
+        {
+          "actor": "B",
+          "action": "play Item from hand",
+          "expected": "prohibited"
+        },
+        {
+          "actor": "B",
+          "action": "play Supporter from hand",
+          "expected": "permitted if normal rules satisfied"
+        }
+      ],
+      "rationale": "Irritating Pollen applies to both players and affects Items specifically."
+    },
+    {
+      "id": "GAR-01",
+      "source": [
+        "Vileplume AOR 3",
+        "Garbodor LTR 68"
+      ],
+      "given": "Player A has Vileplume AOR with Irritating Pollen. Player B has Garbodor LTR with a Pokémon Tool attached, so Garbotoxin is enabled. No attack-based Item lock is active.",
+      "attempts": [
+        {
+          "actor": "A",
+          "action": "play Item from hand",
+          "expected": "permitted if normal rules satisfied"
+        },
+        {
+          "actor": "B",
+          "action": "play Item from hand",
+          "expected": "permitted if normal rules satisfied"
+        }
+      ],
+      "rationale": "Garbotoxin suppresses the Item-locking Ability. This case must account for priority and simultaneous effects."
+    },
+    {
+      "id": "GAR-02",
+      "source": [
+        "Vileplume AOR 3",
+        "Garbodor LTR 68"
+      ],
+      "given": "Same board as GAR-01, except Garbodor's Pokémon Tool is removed and no other Ability suppression applies.",
+      "attempts": [
+        {
+          "actor": "A",
+          "action": "play Item from hand",
+          "expected": "prohibited"
+        },
+        {
+          "actor": "B",
+          "action": "play Item from hand",
+          "expected": "prohibited"
+        }
+      ],
+      "rationale": "Without the attached Tool, Garbotoxin's condition is unsatisfied and Vileplume's persistent Ability resumes."
+    },
+    {
+      "id": "THO-01",
+      "source": [
+        "Iron Thorns ex TWM 77",
+        "Shadow Rider Calyrex VMAX CRE 75",
+        "Tapu Lele-GX GRI 60"
+      ],
+      "given": "Player A's Iron Thorns ex is Active with Initialization. Player B has Shadow Rider Calyrex VMAX in play and attempts to activate Underworld Door; otherwise legal prerequisites are satisfied.",
+      "attempts": [
+        {
+          "actor": "B",
+          "action": "use Underworld Door",
+          "expected": "prohibited"
+        }
+      ],
+      "rationale": "Iron Thorns ex suppresses Abilities on Rule Box Pokémon in play except Future Pokémon."
+    },
+    {
+      "id": "THO-02",
+      "source": [
+        "Iron Thorns ex TWM 77",
+        "Shadow Rider Calyrex VMAX CRE 75"
+      ],
+      "given": "Player A moves Iron Thorns ex to the Bench. No other Ability suppression is active; Player B has enough Psychic Energy and a legal Benched target.",
+      "attempts": [
+        {
+          "actor": "B",
+          "action": "use Underworld Door",
+          "expected": "permitted"
+        }
+      ],
+      "rationale": "Initialization works only while Iron Thorns ex occupies the Active Spot."
+    },
+    {
+      "id": "STO-01",
+      "source": [
+        "Stoutland BCR 122"
+      ],
+      "given": "Player A's Stoutland is Active with Sentinel enabled. No other prohibitions are active.",
+      "attempts": [
+        {
+          "actor": "B",
+          "action": "play Supporter from hand",
+          "expected": "prohibited"
+        },
+        {
+          "actor": "A",
+          "action": "play Supporter from hand",
+          "expected": "permitted if normal rules satisfied"
+        }
+      ],
+      "rationale": "Sentinel denies Supporters to the opposing player only while Stoutland is Active."
+    },
+    {
+      "id": "VIL-02",
+      "source": [
+        "Vileplume BUS 6"
+      ],
+      "given": "Player A's Vileplume BUS is Active with Disgusting Pollen enabled. Player B's Active is a Basic Pokémon with otherwise sufficient Energy.",
+      "attempts": [
+        {
+          "actor": "B",
+          "action": "announce Basic Pokémon attack",
+          "expected": "prohibited"
+        }
+      ],
+      "rationale": "The Basic attack restriction depends on the defender's Stage and Vileplume's Active position."
+    },
+    {
+      "id": "SNO-01",
+      "source": [
+        "Snorlax PGO 55",
+        "Latias ex SSP 76"
+      ],
+      "given": "Player A's Snorlax is Active with Block enabled. Player B's Active is a Basic Pokémon given no Retreat Cost by Skyliner; Player B has a Benched Pokémon.",
+      "attempts": [
+        {
+          "actor": "B",
+          "action": "perform normal retreat",
+          "expected": "prohibited"
+        },
+        {
+          "actor": "B",
+          "action": "play Switch Item to switch Active with Bench",
+          "expected": "permitted if normal Item rules satisfied"
+        }
+      ],
+      "rationale": "An explicit prohibition on retreat persists even when the Retreat Cost is zero; switching by card effect is a distinct action."
+    }
+  ]
+}
