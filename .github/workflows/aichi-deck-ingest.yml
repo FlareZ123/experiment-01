@@ -1,0 +1,29 @@
+name: Validate Aichi published decks
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install parser dependencies
+        run: python -m pip install 'requests>=2.31,<3' 'beautifulsoup4>=4.12,<5' 'filelock>=3.13,<4'
+      - name: Test parser on deterministic fixtures
+        run: python -m unittest discover -s tests -p 'test_ingest_aichi.py' -v
+      - name: Fetch and validate all 29 published full lists
+        run: python scripts/ingest_aichi.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aichi-published-name-level
+          path: results/aichi-2026/published-name-level.json
+          if-no-files-found: error
+          retention-days: 30
