@@ -35,7 +35,27 @@ function inspectTempleWobbuffet() {
     store.reduceEffect(state,e);
     return e.powers.map(power=>power.name);
   };
-  // Tests inserted in following independent work units.
+
+  const vmax=card('Shadow Rider Calyrex VMAX CRE');
+  const thorns=card('Iron Thorns ex TWM');
+  const wob=card('Wobbuffet PHF');
+  const shadowV=card('Shadow Rider Calyrex V CRE');
+  a.active.cards.push(shadowV);
+  const bench=new PokemonCardList();
+  bench.cards.push(vmax);
+  a.bench.push(bench);
+  b.active.cards.push(thorns);
+
+  const lockedPowers=powers(a,vmax);
+  assert.ok(!lockedPowers.includes('Underworld Door'),
+    'Active Iron Thorns should suppress Rule Box VMAX ability');
+  a.active.cards.splice(0,1,wob);
+  const wobbuffedThorns=powers(b,thorns);
+  const restoredPowers=powers(a,vmax);
+  assert.ok(!wobbuffedThorns.includes('Initialization'),
+    'Active Wobbuffet should disable non-Psychic Iron Thorns ability');
+  assert.ok(restoredPowers.includes('Underworld Door'),
+    'Psychic VMAX ability should remain under Wobbuffet');
   return {passed:true};
 }
 if(require.main===module)console.log(JSON.stringify(inspectTempleWobbuffet(),null,2));
