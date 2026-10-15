@@ -39,3 +39,5 @@ jobs:
         run: node simulation/twinleaf/apex-attack-action.cjs
       - name: Check Double Dragon Energy and Temple of Sinnoh Apex cost
         run: node simulation/twinleaf/apex-double-dragon-temple.cjs
+      - name: Compare copied attack choices on Safeguard and Budew board
+        run: node simulation/twinleaf/regidrago-prize-window-interaction.cjs
