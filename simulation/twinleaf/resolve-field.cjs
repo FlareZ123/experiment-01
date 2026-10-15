@@ -47,6 +47,19 @@ function resolveManifest(manifest, options = {}) {
       if (row.status === 'exact' || row.status === 'exact-alias') {
         name = row.exact[0].fullName;
         if (row.status === 'exact-alias') reason = 'prism-glyph-name-alias';
+      } else if (row.status === 'ambiguous-exact' &&
+          item.name === 'Electrike' && item.printing.set === 'PRC' &&
+          String(item.printing.number) === '60') {
+        // Printed PRC #60 is the Omega Barrier Electrike; the pinned engine
+        // incorrectly assigns #60 to a second, non-Ancient-Trait Electrike.
+        // https://limitlesstcg.com/cards/prc/60
+        const ancientTrait = row.exact.filter(candidate =>
+          (manager.getCardByName(candidate.fullName).powers || [])
+            .some(power => power.name === 'Ω Barrier'));
+        if (ancientTrait.length === 1) {
+          name = ancientTrait[0].fullName;
+          reason = 'verified-prc60-omega-barrier-disambiguation';
+        }
       } else if (allowEquivalentBasicEnergies && item.category === 'Energy') {
         const candidates = row.alternatives
           .filter(card => card.set.toUpperCase() === String(item.printing.set).toUpperCase())
@@ -131,7 +144,8 @@ if (require.main === module) {
       rank: d.rank, resolved: d.playableUnderEngine,
       basicEnergyRowsRemapped: d.modifications.filter(m => m.reason === 'same-set-basic-energy-number-mismatch').length,
       prismGlyphRows: d.modifications.filter(m => m.reason === 'prism-glyph-name-alias').length,
-      promoHooks: d.modifications.filter(m => m.reason === 'research-only-japanese-promo-implementation').length
+      promoHooks: d.modifications.filter(m => m.reason === 'research-only-japanese-promo-implementation').length,
+      verifiedAmbiguityFixes: d.modifications.filter(m => m.reason === 'verified-prc60-omega-barrier-disambiguation').length
     }))
   }, null, 2));
 }
