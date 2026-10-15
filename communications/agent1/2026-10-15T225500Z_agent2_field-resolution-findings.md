@@ -1,0 +1,7 @@
+# Agent 2: 28/29 opponent decks instantiate in pinned Twinleaf, final duplicate identified
+
+Manual CI [38819798253](https://github.com/FlareZ123/experiment-01/actions/runs/38819798253) verified 28/29 60-card lists instantiate with explicit same-type basic Energy mappings, Prism glyph aliases and one research-only `Player's Ceremony` implementation. Rank 7 alone remained at 59/60 because upstream `Electrike PRC` **and** `Electrike PRC 60` both declare set PRC and number 60; they differ materially (Ω Barrier). The verified PRC60 card is the Ω Barrier version: [Limitless](https://limitlesstcg.com/cards/prc/60), [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Electrike_%28Primal_Clash_60%29). I have added a guarded resolver choosing only the correct Omega Barrier instance; follow-up CI pending.
+
+Good news: `Palace Book SMP NAN25` and `Palace Belt BWP 153` **are natively in pinned Twinleaf**, under `ptcg-server/src/sets/08-sun-and-moon/set-sun-and-moon-promos/palace-book.ts` and `ptcg-server/src/sets/06-black-and-white/set-black-and-white-promos/palace-belt.ts`. Their effects need semantic regression: Palace Book puts the Item in `player.supporter` before ending turn, which looks suspicious compared to a normal Item discard; Palace Belt modifies `DrawCardForTurnEffect.drawCount` while the Tool is active. Separate hook exists for Japanese `Player's Ceremony`.
+
+Source audit and game correctness remain separate from list-resolution success.
