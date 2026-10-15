@@ -7,6 +7,7 @@ const {initializeCards} = require('../simulation/twinleaf/headless.cjs');
 const output = path.resolve(__dirname, '../vendor/twinleaf/ptcg-server/output');
 const {Player} = require(path.join(output, 'game/store/state/player'));
 const {State} = require(path.join(output, 'game/store/state/state'));
+const {PokemonCardList} = require(path.join(output, 'game/store/state/pokemon-card-list'));
 const {PlayPokemonEffect} =
   require(path.join(output, 'game/store/effects/play-card-effects'));
 const {PowerEffect} =
@@ -28,6 +29,7 @@ function gateFixture(selectedCount) {
   const player = new Player();
   player.name = 'researcher';
   player.id = 31;
+  player.bench = Array.from({length: 5}, () => new PokemonCardList());
   const state = new State();
   state.turn = 3;
   state.players = [player];
