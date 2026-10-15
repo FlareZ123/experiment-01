@@ -25,6 +25,8 @@ jobs:
         run: node --test tests/iron_thorns_direct_line.test.cjs
       - name: Meloetta lone-Active model tests
         run: node --test tests/aichi_solo_start.test.cjs
+      - name: Printed first-turn defense tests
+        run: node --test tests/aichi_donk_resilience.test.cjs
       - name: Audit published Aichi lists
         run: node scripts/aichi_opening_audit.cjs > aichi-opening-audit.md
       - name: Bonus draw access by Aichi opponent
@@ -33,6 +35,8 @@ jobs:
         run: node scripts/iron_thorns_direct_line.cjs > iron-thorns-direct-line.json
       - name: Meloetta lone-Active setup exposure
         run: node scripts/aichi_solo_start.cjs > meloetta-lone-active.md
+      - name: Print-grounded Meloetta defense audit
+        run: node scripts/aichi_donk_resilience.cjs > meloetta-printed-defense.md
       - uses: actions/upload-artifact@v4
         with:
           name: aichi-opening-audit
@@ -41,3 +45,4 @@ jobs:
             aichi-bonus-draws.md
             iron-thorns-direct-line.json
             meloetta-lone-active.md
+            meloetta-printed-defense.md
