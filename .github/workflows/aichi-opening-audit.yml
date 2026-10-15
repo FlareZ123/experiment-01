@@ -17,9 +17,15 @@ jobs:
           node-version: '22'
       - name: Unit tests
         run: node --test tests/aichi_opening_audit.test.cjs
+      - name: Iron Thorns direct-line tests
+        run: node --test tests/iron_thorns_direct_line.test.cjs
       - name: Audit published Aichi lists
         run: node scripts/aichi_opening_audit.cjs > aichi-opening-audit.md
+      - name: Iron Thorns direct-line exact model
+        run: node scripts/iron_thorns_direct_line.cjs > iron-thorns-direct-line.json
       - uses: actions/upload-artifact@v4
         with:
           name: aichi-opening-audit
-          path: aichi-opening-audit.md
+          path: |
+            aichi-opening-audit.md
+            iron-thorns-direct-line.json
