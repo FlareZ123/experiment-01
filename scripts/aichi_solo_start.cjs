@@ -12,19 +12,8 @@ function loneBasicProbability(basicCount) {
   return basicCount * choose(60 - basicCount, 6) / choose(60, 7) / (1 - invalid);
 }
 
-/**
- * Chance of at least k mulligan-bonus cards offered to B by opponent A.
- * Simultaneous redraws where both players mulligan offer no bonus.
- * @param {number} opponentMulligan
- * @param {number} ownMulligan
- * @param {number} k
- * @returns {number}
- */
-function offeredAtLeast(opponentMulligan, ownMulligan, k) {
-  if (!Number.isInteger(k) || k < 1) throw new RangeError('k must be a positive integer');
-  return (1 - ownMulligan) * opponentMulligan ** k
-    / (1 - opponentMulligan * ownMulligan);
-}
+/** Reuse the shared, already tested simultaneous-mulligan distribution. */
+const { bonusAtLeast: offeredAtLeast } = require('./aichi_bonus_draws.cjs');
 
 /**
  * Chance that k extra cards contain no other Basic, conditioned on exactly
