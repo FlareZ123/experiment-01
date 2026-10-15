@@ -40,7 +40,7 @@ The published deck **without Cologne** has no equivalent in-list effect to suppr
 
 - [BigInt exact enumerator](../../scripts/aichi_cologne_gate_model.cjs) distributes opening, first draw and Prize counts over the ten groups, respecting contention between two uses of the singleton Forest Seal Stone. Its normalized exact integer denominator for valid opening states is `358964655944294400`; access numerator `33833666925378714`; two-VMAX numerator `33051976766639406`.
 - [Independent 600,000-deal shuffle regression](../../tests/aichi_cologne_gate_model.test.cjs) classifies route availability directly from physical card permutations, without calling the exact enumerator's classifier. It found **9.4002%** Cologne+Radiant access, **9.1856%** two-VMAX availability, consistent with the exact results. Fixed seed `34195076`; asserts within 0.2 percentage points.
-- [Manual-only CI workflow](../../.github/workflows/radiant-gate-model.yml) keeps runs reproducible without spending Actions minutes on every research commit.
+- [Manual-only [GitHub Actions run 38824383771](https://github.com/FlareZ123/experiment-01/actions/runs/38824383771) **passed** the exact-vs-shuffle Cologne regression, the champion Ability exposure census, and all previously added Gate tests. The [workflow](../../.github/workflows/radiant-gate-model.yml) runs on demand without spending Actions minutes on every research commit.
 
 ## Decision status
 
