@@ -84,6 +84,42 @@ class RawContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             evaluate_raw_batch(data, field())
 
+    def test_pre_first_turn_failure_preserves_unknown_seat(self):
+        data = batch()
+        failed = game("bad-before-start", 1, "first", 81,
+                      "invalid_deck", None)
+        failed["seat"] = "unverified"
+        failed["first_player_side"] = None
+        failed["first_turn"] = None
+        data["games"] = [failed]
+        result = evaluate_raw_batch(data, field())
+        self.assertEqual(result["finished_games"], 0)
+        self.assertEqual(result["pre_first_turn_failures"], 1)
+        self.assertEqual(result["failures"][0]["seat"], "unverified")
+        self.assertFalse(result["failures"][0]["first_turn_verified"])
+        self.assertFalse(result["arithmetic_threshold_with_no_failures"])
+
+        for edit in (
+            lambda g: g.__setitem__("seat", "first"),
+            lambda g: g.__setitem__("first_player_side", "A"),
+            lambda g: g.__setitem__("status", "completed"),
+            lambda g: g.__setitem__("winner_side", "A"),
+            lambda g: g.__setitem__("first_turn", {}),
+        ):
+            attempt = copy.deepcopy(failed)
+            edit(attempt)
+            with self.subTest(edit=edit), self.assertRaises(ValueError):
+                evaluate_raw_batch({**data, "games": [attempt]}, field())
+
+    def test_verified_failure_keeps_first_turn_attribution(self):
+        data = batch()
+        data["games"] = [game("late-stall", 2, "second", 82,
+                              "policy_stall", None)]
+        result = evaluate_raw_batch(data, field())
+        self.assertEqual(result["pre_first_turn_failures"], 0)
+        self.assertEqual(result["failures"][0]["seat"], "second")
+        self.assertTrue(result["failures"][0]["first_turn_verified"])
+
     def test_first_player_proof_is_required(self):
         template = game("bad-order", 1, "second", 8, "completed", "A")
         edits = [
