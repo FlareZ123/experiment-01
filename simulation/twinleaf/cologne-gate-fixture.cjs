@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { initializeCards } = require('./headless.cjs');
+const { installRadiantGateLockHook } = require('./radiant-gate-lock-hook.cjs');
 
 /**
  * Probe whether one Canceling Cologne applied to an opposing Active Iron Thorns
@@ -79,22 +80,32 @@ function probeGate(useCologne) {
 
 /** @returns {{locked:object,unlocked:object}} Both source-backed cases. */
 function runTest() {
-  const locked = probeGate(false);
-  const unlocked = probeGate(true);
-  assert.equal(locked.initializationVisible, true);
-  assert.equal(locked.gatePrompt, false);
-  assert.equal(locked.radiantBenched, true);
-  assert.equal(unlocked.initializationVisible, false);
-  assert.equal(unlocked.gatePrompt, true);
-  assert.equal(unlocked.radiantBenched, true);
-  return { locked, unlocked };
+  const upstreamLocked = probeGate(false);
+  assert.equal(upstreamLocked.initializationVisible, true);
+  assert.equal(upstreamLocked.gatePrompt, true,
+    'Pinned upstream premature hand-zone check changed: reconsider need for compatibility hook.');
+
+  const restore = installRadiantGateLockHook();
+  try {
+    const locked = probeGate(false);
+    const unlocked = probeGate(true);
+    assert.equal(locked.initializationVisible, true);
+    assert.equal(locked.gatePrompt, false);
+    assert.equal(locked.radiantBenched, true);
+    assert.equal(unlocked.initializationVisible, false);
+    assert.equal(unlocked.gatePrompt, true);
+    assert.equal(unlocked.radiantBenched, true);
+    return { upstreamLocked, corrected: { locked, unlocked } };
+  } finally {
+    restore();
+  }
 }
 
 if (require.main === module) {
   console.log(JSON.stringify({
     kind: 'canceling-cologne-radiant-gate-unlock',
     engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    status: 'midgame prompt availability only; not a fully resolved Gate',
+    status: 'upstream premature Gate trigger plus reversible corrected midgame prompt availability',
     ...runTest()
   }, null, 2));
 }
