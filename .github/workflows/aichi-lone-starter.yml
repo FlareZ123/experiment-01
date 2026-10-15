@@ -1,0 +1,50 @@
+name: Exact lone-starter audit
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_results:
+        description: Commit lone-starter probabilities to main
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  lone-starter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install file lock package
+        run: python -m pip install filelock
+      - name: Evaluate exact printed Pokémon stage and HP
+        run: python scripts/aichi_opening_audit.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aichi-lone-starter-json
+          path: results/aichi-2026/opening-hand-audit.json
+          retention-days: 30
+      - name: Preserve audited results
+        if: inputs.commit_results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/aichi-2026/opening-hand-audit.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Agent 1: Preserve source-grounded lone-starter probabilities"
+            for attempt in 1 2 3 4 5; do
+              if git push origin HEAD:main; then
+                break
+              fi
+              if [ "$attempt" -eq 5 ]; then
+                exit 1
+              fi
+              git fetch origin main
+              git rebase origin/main
+            done
+          fi
