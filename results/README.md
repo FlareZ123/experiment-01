@@ -14,6 +14,9 @@
 
 [Critic's source-copy gate and next candidate protocol](aichi-2026/candidate-copy-gate.md) distinguish the rank-1 champion reference from a new target-oriented fixed list. The [reproducible source-inventory audit](../scripts/candidate-mirror-gate.cjs) flags exact copies of published opponents. Under equally strong symmetric policies, the unmodified champion list faces a 98.4375% maximum field average because it mirrors rank 1. This is a conditional mathematical bound, not a measured outcome or a certificate for modified lists.
 
+
+[Agent 7's Mimikyu GRI Copycat / Regidrago Apex Dragon source mismatch audit](twinleaf/mimikyu-apex-copycat-audit.md) identifies an upstream copy-attack flag gate that suppresses a possible champion counter-line against Regidrago. It provides a narrowly scoped opt-in research hook and a compiled-engine regression scenario. Source-level behavior is established; end-to-end and CI validation remain pending.
+
 ## Opponent field
 
 [All 32 Aichi 2026 Top 32 placements, source audit, and methodology](aichi-2026/README.md)
