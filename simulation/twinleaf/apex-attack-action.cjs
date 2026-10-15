@@ -86,4 +86,4 @@ function testApexAction() {
   };
 }
 if (require.main === module) console.log(JSON.stringify(testApexAction(), null, 2));
-module.exports = { testApexAction };
+module.exports = { testApexAction, preparedRegidrago };
