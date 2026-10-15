@@ -19,7 +19,7 @@
   },
   "shared_resolver": "simulation/twinleaf/resolve-field.cjs",
   "game_policy": "Twinleaf SimpleTacticsAi/defaultStateScores; not proven competitive",
-  "first_player_side_verified": false,
+  "first_player_side_verified": true,
   "seed_protocol": {
     "seedBase": 2026101505,
     "oppRankMultiplier": 20003,
@@ -30,7 +30,7 @@
     {
       "seed": 2026201520,
       "candidate_engine_side": "A",
-      "actual_first_player_side": null,
+      "actual_first_player_side": "B",
       "engine_winner_index": 0,
       "champion_won": true,
       "actions": 130,
@@ -39,12 +39,20 @@
       "deck_hashes": [
         "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311",
         "3467f7297dac361df88c17893811a5b8f41d2ad9a469a13b8881f629bce1c193"
-      ]
+      ],
+      "candidate_actual_turn_position": "second",
+      "first_turn_evidence": {
+        "firstTurnSlot": 1,
+        "firstTurnPlayerId": 202,
+        "firstTurnPlayerName": "research-B",
+        "firstDrawLogName": "research-B",
+        "verifiedByDrawLog": true
+      }
     },
     {
       "seed": 2026201521,
       "candidate_engine_side": "B",
-      "actual_first_player_side": null,
+      "actual_first_player_side": "B",
       "engine_winner_index": 1,
       "champion_won": true,
       "actions": 211,
@@ -53,7 +61,15 @@
       "deck_hashes": [
         "3467f7297dac361df88c17893811a5b8f41d2ad9a469a13b8881f629bce1c193",
         "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311"
-      ]
+      ],
+      "candidate_actual_turn_position": "first",
+      "first_turn_evidence": {
+        "firstTurnSlot": 1,
+        "firstTurnPlayerId": 202,
+        "firstTurnPlayerName": "research-B",
+        "firstDrawLogName": "research-B",
+        "verifiedByDrawLog": true
+      }
     }
   ],
   "observed_two_game_wins": 2,
@@ -64,5 +80,8 @@
     "Decision policy strength unvalidated",
     "Important card behavior and print substitutions not fully independently verified",
     "Fixed opponent field has three unpublished 60-card lists"
-  ]
+  ],
+  "verified_turn_run_url": "https://github.com/FlareZ123/experiment-01/actions/runs/38822196166",
+  "verified_turn_workflow_head_sha": "05ddca161421807e6d3db575b2001ff02b30961e",
+  "first_turn_evidence_policy": "Twinleaf first PLAYER_TURN active slot cross-checked against first draw log"
 }
