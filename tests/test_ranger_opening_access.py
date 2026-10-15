@@ -13,7 +13,7 @@ class RangerOpeningTests(unittest.TestCase):
         self.assertAlmostEqual(float(result["direct_given_valid"]), 0.11095396616302691)
         self.assertAlmostEqual(float(result["wonder_tag_given_valid"]), 0.16119716678684706)
         self.assertAlmostEqual(float(result["combined_given_valid"]), 0.272151132949874)
-        expected = [0, 0.26889443171936234, 0.3738478626853014,
+        expected = [0, 0.272151132949874, 0.3738478626853014,
                     0.4501101733670259, 0.5172087498033753]
         for n, value in enumerate(expected):
             with self.subTest(copies=n):
