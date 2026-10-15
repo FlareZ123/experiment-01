@@ -56,6 +56,13 @@ function inspectTempleWobbuffet() {
     'Active Wobbuffet should disable non-Psychic Iron Thorns ability');
   assert.ok(restoredPowers.includes('Underworld Door'),
     'Psychic VMAX ability should remain under Wobbuffet');
+  const radiant=card('Radiant Eternatus CRZ');
+  const slot=new PokemonCardList();
+  slot.cards.push(radiant);
+  a.bench.push(slot);
+  assert.ok(!powers(a,radiant).includes('Climactic Gate'));
+  a.active.cards.splice(0,1,shadowV);
+  assert.ok(!powers(a,radiant).includes('Climactic Gate'));
   return {passed:true};
 }
 if(require.main===module)console.log(JSON.stringify(inspectTempleWobbuffet(),null,2));
