@@ -11,10 +11,10 @@ class RangerOpeningTests(unittest.TestCase):
     def test_singleton_and_convenient_copy_counts(self):
         result = opening_access(1)
         self.assertAlmostEqual(float(result["direct_given_valid"]), 0.11095396616302691)
-        self.assertAlmostEqual(float(result["wonder_tag_given_valid"]), 0.15794046555633542)
-        self.assertAlmostEqual(float(result["combined_given_valid"]), 0.26889443171936234)
-        expected = [0, 0.26889443171936234, 0.3706189965080421,
-                    0.4472191979431493, 0.5146518822518724]
+        self.assertAlmostEqual(float(result["wonder_tag_given_valid"]), 0.16119716678684706)
+        self.assertAlmostEqual(float(result["combined_given_valid"]), 0.272151132949874)
+        expected = [0, 0.26889443171936234, 0.3738478626853014,
+                    0.4501101733670259, 0.5172087498033753]
         for n, value in enumerate(expected):
             with self.subTest(copies=n):
                 self.assertAlmostEqual(float(opening_access(n)["combined_given_valid"]), value)
@@ -39,7 +39,7 @@ class RangerOpeningTests(unittest.TestCase):
                 continue
             valid += 1
             if "R" in hand or (
-                "L" in hand and "B" in hand
+                "L" in hand and ("B" in hand or hand.count("L") >= 2)
                 and not any(deck[i] == "R" for i in sample[7:])
             ):
                 found += 1
