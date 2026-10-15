@@ -25,6 +25,13 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
         raise ValueError("Incomplete run provenance")
     if not isinstance(batch.get("games"), list):
         raise ValueError("games must be a list")
+    slots = batch.get("engine_slots")
+    if (not isinstance(slots, list) or len(slots) != 2 or
+            any(not isinstance(p, dict) or type(p.get("id")) is not int or
+                not isinstance(p.get("name"), str) or not p["name"] for p in slots) or
+            slots[0]["id"] == slots[1]["id"] or
+            slots[0]["name"] == slots[1]["name"]):
+        raise ValueError("Require distinct engine slot IDs and player names")
 
     published = {p.rank for p in read_manifest(field_csv) if p.published}
     ids, seeds, rank_decks = set(), set(), {}
@@ -53,9 +60,10 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
         draw = order.get("firstDrawLogName")
         first_id = order.get("firstTurnPlayerId")
         if (type(slot) is not int or slot not in (0, 1) or
-                type(first_id) is not int or not isinstance(name, str) or
-                not name or name != draw or order.get("verifiedByDrawLog") is not True):
-            raise ValueError("First turn lacks internally consistent engine and draw-log proof")
+                first_id != slots[slot]["id"] or
+                name != slots[slot]["name"] or name != draw or
+                order.get("verifiedByDrawLog") is not True):
+            raise ValueError("First turn contradicts engine slots or earliest draw log")
         first_side = "A" if slot == 0 else "B"
         if g.get("first_player_side") != first_side:
             raise ValueError("Declared first-player side contradicts engine turn slot")
@@ -81,7 +89,7 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
 
     stats = summarize(SeatRecord(rank, seat, w, n) for (rank, seat), (w, n) in counts.items())
     return {
-        "provenance": {k: batch[k] for k in keys},
+        "provenance": {**{k: batch[k] for k in keys}, "engine_slots": slots},
         "raw_games": len(batch["games"]),
         "finished_games": sum(n for w, n in counts.values()),
         "finished_ties_as_nonwins": ties,
