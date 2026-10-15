@@ -18,9 +18,9 @@ The matchup setup model is explicitly limited: Meloetta ex is Psychic-type and u
 | **Flutter Mane**, 90 HP | TEF 78 | **Midnight Fluttering** suppresses the opponent's Active Pokémon's Ability, preventing first-turn Debut Performance from functioning | Meloetta must be Active to attack; Canceling Cologne is an answer |
 | **Mimikyu**, 70 HP | PAL 97 | **Safeguard** prevents damage from attacks of Pokémon ex and Pokémon V, including a Tool-provided attack used by Meloetta ex | Canceling Cologne may temporarily turn off Safeguard |
 | **Empoleon V**, 210 HP | BST 40 | **Emperor's Eyes** suppresses Abilities of non-Rule Box Basic Pokémon | Crucially, Meloetta ex **has a Rule Box**, so Emperor's Eyes cannot suppress Debut Performance |
-| **Wobbuffet**, 110 HP | PHF 36 | **Bide Barricade** suppresses non-Psychic Pokémon Abilities | Meloetta ex is **Psychic**, so Debut Performance remains available |
+| **Wobbuffet**, 110 HP | PHF 36 | **Bide Barricade** suppresses the Grass-type Exeggcute's Propagation even in the discard pile, and Lightning-type Tapu Koko ◇ on the Bench, disrupting the required self-KO and acceleration lines | Meloetta ex is Psychic, so Debut Performance itself remains available; Canceling Cologne could disable Wobbuffet's lock |
 
-The first five are *potential defensive exceptions* to an ordinary 280-damage immediate KO on a lone Active. The final two are instructive false positives. Actual protection must be judged with full interaction state and opposing counters.
+The first five and Wobbuffet are *potential defensive exceptions* to the single-Active first-turn sequence. Empoleon V is a counterexample because its Rule Box exception leaves Meloetta ex and Tapu Koko ◇ unaffected; Exeggcute's Propagation activates in the discard pile, outside Emperor's Eyes' in-play scope. Wobbuffet's unusual **in-play, hand and discard-pile** suppression is the key distinction. Actual protection must be judged with full interaction state and opposing counters.
 
 ## Quantitative impact on the opening-state model
 
@@ -36,9 +36,11 @@ Selected cases:
 | Rank 3 Snorlax Stall | 11 | 1 Safeguard Mimikyu | 49.446% | **44.951%** |
 | Rank 4 Raichu Electrode Combo | 13 | 1 Mischievous Lock Klefki | 41.279% | **38.104%** |
 | Rank 6 Iron Thorns | 4 | 4 Initialization Iron Thorns ex | 83.674% | **0.000%** |
-| Rank 7 Snorlax Stall | 12 | 3 Safeguard Mimikyu | 45.261% | **33.945%** |
+| Rank 7 Snorlax Stall | 12 | 3 Safeguard Mimikyu and 3 Bide Barricade Wobbuffet | 45.261% | **22.630%** |
+| Rank 10 Regidrago | 15 | 1 Bide Barricade Wobbuffet | 33.946% | **31.683%** |
 | Rank 18 Regidrago | 16 | 1 300-HP Mega Kangaskhan ex | 30.598% | **28.685%** |
 | Rank 19 Raging Bolt | 16 | 1 Midnight Fluttering Flutter Mane | 30.598% | **28.685%** |
+| Rank 21 Regidrago | 14 | 1 Bide Barricade Wobbuffet | 37.507% | **34.828%** |
 | Rank 24 / 29 Iron Thorns | 4 | 4 Initialization Iron Thorns ex | 83.674% | **0.000%** |
 
 The 0% in Iron Thorns refers **only to the class of lone Active Pokémon with no intrinsic defense against the unmodified turn-one plan**. It says nothing about the probability of Meloetta finding **Canceling Cologne** and disabling that Ability. Conversely, starting any lone unprotected Basic is only a necessary *board exposure*, and the attacking deck must still execute an elaborate five-self-KO line, find Energy, establish first-turn attacking permission, and inflict enough damage.
