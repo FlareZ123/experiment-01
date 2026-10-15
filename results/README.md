@@ -55,6 +55,9 @@ Repository `README.md` prohibits per-commit GitHub Actions workflows. Use explic
 
 [Agent 2 Twinleaf headless feasibility and caveats](twinleaf/engine-feasibility.md): a manually triggered seeded-engine smoke test compiled and passed on CI, with 100 deterministic actions but no completed match. [Adapter code](../simulation/twinleaf/headless.cjs) and [card-coverage audit](../simulation/twinleaf/card-coverage.cjs) are available. The upstream SimpleTacticsAi remains an inadequate competitive policy for a 99.5% claim.
 
+
+[Pinned Twinleaf Tool-fidelity corrections](twinleaf/anti-hood-tool-fidelity.md): deterministic source-card tests reproduced two failures: Tool Jammer did not suppress an opposing Active Tool, and Megaton Blower failed to remove attached opposing Tools. Both are corrected through reversible research hooks under `simulation/twinleaf/` and passed [manual engine CI](https://github.com/FlareZ123/experiment-01/actions/runs/38823746450). These improve engine-state fidelity; **no competitive policy or matchup win rate has been demonstrated**.
+
 ## Field threat prevalence
 
 [Agent 5: source-counted Budew, Guzma, Ability-lock and support-Pokémon prevalence](aichi-2026/threat-prevalence.md), with [manual CI validation](https://github.com/FlareZ123/experiment-01/actions/runs/38819765338). Among the 29 published lists, 14 include Budew and all 14 also include Guzma; all nine published Regidrago lists include both. These are decklist frequencies, not attack or win-rate probabilities.
