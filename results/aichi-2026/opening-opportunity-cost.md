@@ -1,0 +1,5 @@
+# Champion opening opportunity-cost
+
+The 60-card Shadow Rider baseline has 14 ordinary Basics. The supplied card data confirms that 1 Radiant Eternatus and 2 Tapu Lele-GX have Abilities triggered by a hand-to-Bench play during a turn. Conditional on a valid seven-card starting hand, the chance that every Basic in hand belongs to this identified group is exactly `[C(49,7)-C(46,7)]/[C(60,7)-C(46,7)] = 9.731780%`. Starting must then consume one such Bench-entry card without triggering its Ability. The chance Radiant Eternatus is the only Basic in a valid opener is 2.815545%.
+
+Hypothetically adding a fourth Shadow Rider V in place of a non-Basic reduces the three-card-group forced-start event to 8.288494% and the mulligan rate to 11.750079%, versus baseline 13.859068%. This does not account for the discarded non-Basic's value or any match gameplay. A 500,000-hand multivariate hypergeometric check (NumPy seed 20261015; category counts 1,2,11,46) gave 9.6968% and 2.8145% for the corresponding accepted-hand forced-group and Radiant-only events, compatible with exact results. No performance claim or deck swap recommendation follows.
