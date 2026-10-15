@@ -11,6 +11,7 @@ function engine(modulePath) {
 }
 
 const {State} = engine('game/store/state/state');
+const {Store} = engine('game/store/store');
 const {Player} = engine('game/store/state/player');
 const {PokemonCardList} = engine('game/store/state/pokemon-card-list');
 const {TrainerEffect, PlayItemEffect} = engine('game/store/effects/play-card-effects');
@@ -112,6 +113,22 @@ test('Real Itchy Pollen reducer applies the player lock that Channeler clears', 
   assert.equal(b.cannotPlayItemCards, true);
   const channeler = new Channeler();
   channeler.reduceEffect(null, state, new TrainerEffect(b, channeler));
+  assert.equal(b.cannotPlayItemCards, false);
+  assert.equal(b.playLocksTurnsRemaining, 0);
+});
+
+
+test('Real Store.reduceEffect propagates Aichi Budew attack Item lock', () => {
+  const {state, a, b} = emptyBoard();
+  const store = new Store({onStateChange() {}});
+  store.state = state;
+  const budew = new BudewASC();
+  a.active.cards.push(budew);
+  budew.reduceEffect(store, state, new AttackEffect(a, b, budew.attacks[0]));
+  assert.equal(b.cannotPlayItemCards, true);
+  assert.equal(b.playLocksTurnsRemaining, 1);
+  const ranger = new PokemonRanger();
+  ranger.reduceEffect(store, state, new TrainerEffect(b, ranger));
   assert.equal(b.cannotPlayItemCards, false);
   assert.equal(b.playLocksTurnsRemaining, 0);
 });
