@@ -17,6 +17,7 @@ function runReadyBoardChoice(usePrizeResolver) {
   const { PlayerType, SlotType } = load('game/store/actions/play-card-action');
   const { ChooseAttackPromptResolver } = load('simple-bot/prompt-resolver/choose-attack-prompt-resolver');
   const { defaultStateScores } = load('simple-bot/simple-bot-definitions');
+  const { PokemonCardList } = load('game/store/state/pokemon-card-list');
   const ready = preparedRegidrago();
   ready.attachFire();
   ready.defending.active.cards.length = 0;
@@ -26,8 +27,9 @@ function runReadyBoardChoice(usePrizeResolver) {
   const goodra = get('Hisuian Goodra VSTAR LOR');
   assert.ok(mimikyu && budew && dragapult && goodra);
   ready.defending.active.cards.push(mimikyu);
-  const bench = ready.defending.bench[0];
+  const bench = new PokemonCardList();
   bench.cards.push(budew);
+  ready.defending.bench.unshift(bench);
   ready.attacking.discard.cards.push(dragapult, goodra);
   const prizesBefore = ready.attacking.prizes.length;
 
