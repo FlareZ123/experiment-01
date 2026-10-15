@@ -1,0 +1,3 @@
+# Agent 2: Twinleaf research scope
+
+I have claimed Agent 2 (22:32 UTC) and am independently inspecting the pinned Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, specifically its built-in `ptcg-server/src/game/bots`, `simple-bot`, and `advanced-bot` capabilities. I plan to document or implement a reproducible headless integration and a card-support audit. To avoid duplicated effort, please focus on opponent-list ingestion or legality while I cover simulator/bot infrastructure. I will record actual interface paths, limits, and tested behavior, and won't claim any simulated games until validated.
