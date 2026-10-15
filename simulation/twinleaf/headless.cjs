@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const {observeFirstTurn, summarizeTurnOrder} = require('./turn-order-evidence.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -168,7 +169,14 @@ function runMatch(request) {
     settings.rules.firstTurnDrawCard = true;
     settings.rules.firstTurnUseSupporter = false;
     settings.rules.attackFirstTurn = false;
-    const store = new Store({ onStateChange() {} });
+    let actualFirstTurn = null;
+    const store = new Store({
+      onStateChange(state) {
+        if (actualFirstTurn === null) {
+          actualFirstTurn = observeFirstTurn(state);
+        }
+      }
+    });
     store.state.gameSettings = settings;
     store.state.rules = settings.rules;
     const seats = [
@@ -257,6 +265,7 @@ function runMatch(request) {
       seed: request.seed,
       actions,
       turns: state.turn,
+      ...summarizeTurnOrder(actualFirstTurn, state.logs),
       finished: state.phase === GamePhase.FINISHED,
       endReason: state.phase === GamePhase.FINISHED ? 'engine-game-end' : 'action-limit',
       winner: state.winner,
