@@ -1,7 +1,8 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-const { runMatch, upstreamSmokeDeck, seededRandom, deckPermutation } = require('./headless.cjs');
+const { runMatch, upstreamSmokeDeck, seededRandom, deckPermutation, initializeCards } = require('./headless.cjs');
+const { registerPlayersCeremony } = require('./card-patches.cjs');
 
 const seed = 20310317;
 const shuffle1 = deckPermutation(60, seededRandom(seed));
@@ -9,6 +10,15 @@ const shuffle2 = deckPermutation(60, seededRandom(seed));
 assert.deepEqual(shuffle1, shuffle2);
 assert.equal(new Set(shuffle1).size, 60);
 assert.deepEqual([...shuffle1].sort((a, b) => a - b), Array.from({ length: 60 }, (_, i) => i));
+
+const manager = initializeCards();
+const ceremonyName = registerPlayersCeremony();
+assert.equal(registerPlayersCeremony(), ceremonyName, 'Research card registration must be idempotent.');
+const ceremony = manager.getCardByName(ceremonyName);
+assert.equal(ceremony.name, "Player's Ceremony");
+assert.equal(ceremony.set, 'SP');
+assert.equal(ceremony.setNumber, '127');
+assert.ok(ceremony.text.includes('draw 2 cards'));
 
 const deck = upstreamSmokeDeck();
 assert.equal(deck.length, 60, 'Curated upstream smoke deck must have exactly 60 cards.');
