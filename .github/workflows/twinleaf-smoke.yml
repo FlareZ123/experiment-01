@@ -31,3 +31,5 @@ jobs:
         run: node simulation/twinleaf/smoke-test.cjs
       - name: Audit all published Aichi printings against Twinleaf card implementations
         run: node simulation/twinleaf/card-coverage.cjs
+      - name: Resolve Aichi opponent decks with explicit, tracked substitutions
+        run: node simulation/twinleaf/resolve-field.cjs
