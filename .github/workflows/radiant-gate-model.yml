@@ -1,0 +1,31 @@
+name: Radiant Eternatus Gate model
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-gate-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Direct Gate exact and independent-shuffle tests
+        run: node tests/radiant-eternatus-opening.test.cjs
+      - name: Forest Seal Stone exact and independent-shuffle tests
+        run: node tests/radiant-fss-extension.test.cjs
+      - name: Produce machine-readable exact audit
+        run: |
+          node scripts/radiant-eternatus-opening.cjs > radiant-direct.json
+          node scripts/radiant-fss-extension.cjs > radiant-vstar-extension.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: radiant-gate-opening
+          path: |
+            radiant-direct.json
+            radiant-vstar-extension.json
