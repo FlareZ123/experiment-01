@@ -67,6 +67,23 @@ function mimikyuApexContract(hooked) {
       sourceCard: regidrago
     };
 
+    const nestedCopyTrace = [];
+    const originalDialgaReducer = dialga.reduceEffect;
+    dialga.reduceEffect = function (delegatedStore, delegatedState, delegatedEffect) {
+      nestedCopyTrace.push({
+        stage: 'dialga-reducer-enter',
+        attack: delegatedEffect.attack?.name,
+        copiedCardName: this.name,
+        visibleAttackNames: this.attacks.map(attack => attack.name)
+      });
+      const output = originalDialgaReducer.call(this, delegatedStore, delegatedState, delegatedEffect);
+      nestedCopyTrace.push({
+        stage: 'dialga-reducer-exit',
+        usedGX: a.usedGX,
+        extraTurn: a.usedTurnSkip
+      });
+      return output;
+    };
     const copycat = new AttackEffect(a, b, mimikyu.attacks[1]);
     copycat.source = a.active;
     mimikyu.reduceEffect(store, state, copycat);
@@ -90,6 +107,15 @@ function mimikyuApexContract(hooked) {
     store.dispatch(new ResolvePromptAction(choice.id, dialga.attacks[2]));
     assert.equal(b.active.damage, 150,
       'Copied Timeless-GX must inflict 150 before Weakness/Resistance');
+    process.stdout.write(JSON.stringify({
+      phase: 'after Timeless-GX prompt resolution',
+      damage: b.active.damage,
+      usedGX: a.usedGX,
+      usedTurnSkip: a.usedTurnSkip,
+      nestedCopyTrace,
+      copiedLastAttack: state.playerLastAttack?.[a.id]?.attack?.name,
+      promptTypes: state.prompts.map(prompt => prompt.constructor.name)
+    }) + '\\n');
     assert.equal(a.usedGX, true, 'Copied GX effect must consume GX marker');
     assert.equal(a.usedTurnSkip, true,
       'Copied Timeless-GX must grant the next turn');
