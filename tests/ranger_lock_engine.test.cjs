@@ -19,7 +19,7 @@ const {PokemonRanger} = engine('sets/07-x-and-y/set-steam-siege/pokemon-ranger')
 const {Channeler} = engine('sets/08-sun-and-moon/set-unified-minds/channeler');
 const {Vileplume} = engine('sets/07-x-and-y/set-ancient-origins/vileplume');
 const {QuickBall} = engine('sets/09-sword-and-shield/set-sword-and-shield/quick-ball');
-const {Budew} = engine('sets/10-scarlet-and-violet/set-prismatic-evolution/budew');
+const {BudewASC} = engine('sets/11-mega-evolution/set-ascended-heroes/other-prints');
 
 /** @returns {{state:InstanceType<typeof State>,a:InstanceType<typeof Player>,b:InstanceType<typeof Player>}} */
 function emptyBoard() {
@@ -91,7 +91,9 @@ test('Ranger does not disable an enabled Vileplume Ability-based Item lock', () 
 
 test('Real Itchy Pollen reducer applies the player lock that Channeler clears', () => {
   const {state, a, b} = emptyBoard();
-  const budew = new Budew();
+  const budew = new BudewASC();
+  assert.equal(budew.fullName, 'Budew ASC');
+  assert.equal(budew.setNumber, '16');
   a.active.cards.push(budew);
   const attack = new AttackEffect(a, b, budew.attacks[0]);
   const store = {
