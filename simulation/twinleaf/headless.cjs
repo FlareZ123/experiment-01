@@ -75,6 +75,39 @@ function deckPermutation(length, random) {
 }
 
 /**
+ * Hook the pinned Twinleaf bot's speculative Simulator to use fair seeded
+ * random arbitration. This changes only the research process at runtime.
+ * It does not edit the vendor submodule. Restore after each match.
+ *
+ * @returns {() => void} Restore upstream module and prototype references.
+ */
+function installFairBotHooks() {
+  const simModule = engine('game/bots/simulator');
+  const originalSimulator = simModule.Simulator;
+  const { BotArbiter, BotFlipMode, BotShuffleMode } = engine('game/bots/bot-arbiter');
+  const originalShuffle = BotArbiter.prototype.shuffle;
+
+  BotArbiter.prototype.shuffle = function fairShuffle(cards) {
+    return deckPermutation(cards.cards.length, Math.random);
+  };
+
+  simModule.Simulator = class FairSimulator extends originalSimulator {
+    constructor(state, options = {}) {
+      super(state, {
+        flipMode: BotFlipMode.RANDOM,
+        shuffleMode: BotShuffleMode.RANDOM,
+        ...options
+      });
+    }
+  };
+
+  return function restore() {
+    simModule.Simulator = originalSimulator;
+    BotArbiter.prototype.shuffle = originalShuffle;
+  };
+}
+
+/**
  * @typedef {object} MatchRequest
  * @property {string[]} deckA Fully resolved Twinleaf fullName strings, exactly 60.
  * @property {string[]} deckB Fully resolved Twinleaf fullName strings, exactly 60.
@@ -102,8 +135,10 @@ function runMatch(request) {
   const random = seededRandom(request.seed);
   const originalRandom = Math.random;
   Math.random = random;
+  let restoreBotHooks;
   try {
     initializeCards();
+    restoreBotHooks = installFairBotHooks();
     const { Store } = engine('game/store/store');
     const { AddPlayerAction } = engine('game/store/actions/add-player-action');
     const { ResolvePromptAction } = engine('game/store/actions/resolve-prompt-action');
@@ -193,6 +228,7 @@ function runMatch(request) {
       engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
     };
   } finally {
+    if (restoreBotHooks) restoreBotHooks();
     Math.random = originalRandom;
   }
 }
@@ -204,4 +240,4 @@ function upstreamSmokeDeck() {
   return HEDRICK_DRAGAPULT_WORLDS_2026.slice();
 }
 
-module.exports = { runMatch, initializeCards, seededRandom, deckPermutation, upstreamSmokeDeck };
+module.exports = { runMatch, initializeCards, seededRandom, deckPermutation, upstreamSmokeDeck, installFairBotHooks };
