@@ -171,10 +171,12 @@ function buildPlan(manifest, cardPool, candidateRank = 1, options = {}) {
  * supplies a runner so the statistics and seat balance can be tested without
  * the simulator. Unfinished games and execution errors remain explicit.
  * @param {ReturnType<typeof buildPlan>} plan
- * @param {{runMatch:(request:object)=>object,gamesPerSeat?:number,seedBase?:number,maxActions?:number}} options
+ * @param {{runMatch:(request:object)=>object,gamesPerSeat?:number,seedBase?:number,
+ *  maxActions?:number,selectedRanks?:number[]}} options
  */
 function evaluatePlan(plan, options) {
-  const { runMatch, gamesPerSeat = 10, seedBase = 20261015, maxActions = 3000 } = options;
+  const { runMatch, gamesPerSeat = 10, seedBase = 20261015,
+    maxActions = 3000, selectedRanks } = options;
   if (typeof runMatch !== 'function') throw new Error('runMatch is required.');
   if (!Number.isInteger(gamesPerSeat) || gamesPerSeat < 1 || gamesPerSeat > 10000) {
     throw new Error('gamesPerSeat must be between 1 and 10000.');
@@ -182,19 +184,28 @@ function evaluatePlan(plan, options) {
   if (!Number.isInteger(seedBase) || seedBase < 0 || seedBase > 0xffffffff) {
     throw new Error('seedBase must be a 32-bit unsigned integer.');
   }
+  if (selectedRanks !== undefined && (!Array.isArray(selectedRanks) ||
+      selectedRanks.some(rank => !Number.isInteger(rank) || rank < 1 || rank > 32) ||
+      new Set(selectedRanks).size !== selectedRanks.length)) {
+    throw new Error('selectedRanks must be a unique list of ranks 1..32.');
+  }
+  const scheduled = selectedRanks ? new Set(selectedRanks) : null;
   const results = [];
   for (const opponent of plan.opponents) {
     const row = {
       rank: opponent.rank, player: opponent.player || null,
       archetype: opponent.archetype || null,
-      status: opponent.status, plannedGames: 2 * gamesPerSeat,
+      status: opponent.status, readinessStatus: opponent.status,
+      plannedGames: !scheduled || scheduled.has(opponent.rank) ? 2 * gamesPerSeat : 0,
       opponentSubstitutions: opponent.substitutions || [],
       attempted: 0, completed: 0, wins: 0, losses: 0, draws: 0,
-      unfinished: 0, errors: [], lower95: null
+      unfinished: 0, errors: [], games: [], lower95: null
     };
     if (!plan.candidate.cards) {
       row.status = 'candidate-unresolved';
       row.unresolvedCandidate = plan.candidate.unresolved;
+    } else if (opponent.status === 'ready' && scheduled && !scheduled.has(opponent.rank)) {
+      row.status = 'not-scheduled';
     } else if (opponent.status === 'ready') {
       for (let i = 0; i < gamesPerSeat; i += 1) {
         for (let candidateSeat = 0; candidateSeat < 2; candidateSeat += 1) {
@@ -207,7 +218,15 @@ function evaluatePlan(plan, options) {
           row.attempted += 1;
           try {
             const game = runMatch(request);
-            if (!game.finished || (game.winner !== 0 && game.winner !== 1 && game.winner !== 3)) {
+            const gameStatus = !game.finished ||
+              (game.winner !== 0 && game.winner !== 1 && game.winner !== 3) ?
+              'unfinished' : 'completed';
+            row.games.push({ seed, candidateEngineSide: candidateSeat === 0 ? 'A' : 'B',
+              actualFirstPlayerSide: null, winnerIndex: game.winner,
+              status: gameStatus, endReason: game.endReason || null,
+              actions: game.actions ?? null, turns: game.turns ?? null,
+              engineDeckHashes: game.deckHashes || null });
+            if (gameStatus === 'unfinished') {
               row.unfinished += 1;
             } else {
               row.completed += 1;
@@ -216,7 +235,11 @@ function evaluatePlan(plan, options) {
               else row.losses += 1;
             }
           } catch (error) {
-            row.errors.push({ seed, message: String(error?.message || error) });
+            const message = String(error?.message || error);
+            row.errors.push({ seed, message });
+            row.games.push({ seed, candidateEngineSide: candidateSeat === 0 ? 'A' : 'B',
+              actualFirstPlayerSide: null, winnerIndex: null,
+              status: 'engine-exception', message });
           }
         }
       }
@@ -235,6 +258,7 @@ function evaluatePlan(plan, options) {
     printEquivalencePolicy: plan.printEquivalencePolicy,
     candidateSubstitutions: plan.candidate.substitutions,
     seedBase, gamesPerSeat, maxActions,
+    selectedRanks: selectedRanks || null,
     policy: 'Twinleaf SimpleTacticsAi; competence unvalidated',
     engineSlotProtocol: 'candidate alternates Twinleaf player A/B; actual first turn unobserved',
     startingTurnBalanceVerified: false,
