@@ -25,6 +25,23 @@ function directApexGx() {
   const { clearCopyAttackSessionsForTests } = load('game/store/prefabs/copy-attack-delegation');
 
   clearCopyAttackSessionsForTests();
+  const delegatedEvents = [];
+  const originalDialgaReducer = dialga.reduceEffect;
+  dialga.reduceEffect = function (store, state, effect) {
+    if (effect instanceof AttackEffect) {
+      delegatedEvents.push({
+        name: effect.attack.name,
+        attackIndex: this.attacks.indexOf(effect.attack),
+        cardContext: this.fullName,
+        beforeGX: effect.player.usedGX
+      });
+    }
+    const result = originalDialgaReducer.call(this, store, state, effect);
+    if (effect instanceof AttackEffect) {
+      delegatedEvents[delegatedEvents.length - 1].afterGX = effect.player.usedGX;
+    }
+    return result;
+  };
   const store = new Store({ onStateChange() {} });
   const state = store.state;
   const player = new Player();
@@ -46,10 +63,12 @@ function directApexGx() {
     copiedDamage: opponent.active.damage,
     usedGX: player.usedGX,
     extraTurnArmed: Boolean(player.usedTurnSkip),
-    printedAttack: regidrago.attacks[0].name
+    printedAttack: regidrago.attacks[0].name,
+    delegatedEvents
   };
   clearCopyAttackSessionsForTests();
 
+  console.log('APEX_GX_DIAGNOSTIC', JSON.stringify(observed));
   assert.equal(observed.copiedDamage, 150, 'Copied Timeless-GX must deal 150');
   assert.equal(observed.usedGX, true, 'Copied Timeless-GX must consume GX attack marker');
   assert.equal(observed.extraTurnArmed, true, 'Copied Timeless-GX must arm extra turn');
