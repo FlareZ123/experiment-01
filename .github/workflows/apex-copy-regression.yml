@@ -35,3 +35,5 @@ jobs:
         run: node simulation/twinleaf/apex-policy-choice.cjs
       - name: Test optional Regidrago Bench Prize resolver
         run: node simulation/twinleaf/regidrago-prize-window-test.cjs
+      - name: Test paid Apex Dragon AttackAction and copied damage
+        run: node simulation/twinleaf/apex-attack-action.cjs
