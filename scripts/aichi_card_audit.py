@@ -25,8 +25,11 @@ def normalize(value: str) -> str:
 def normalize_number(value: str) -> str:
     """Map SM217 or 217 to 217 while preserving numeric suffixes."""
     value = value.upper().strip()
-    number = value.lstrip("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-    return number.lstrip("0") or "0"
+    for prefix in ("SWSH", "SM", "XY", "BW"):
+        if value.startswith(prefix) and value[len(prefix):].isdigit():
+            value = value[len(prefix):]
+            break
+    return value.lstrip("0") or "0"
 
 
 def audit() -> dict:
