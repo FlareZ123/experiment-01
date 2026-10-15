@@ -2,6 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -122,7 +123,7 @@ function installFairBotHooks() {
  * about policy competence or whether all card interactions are implemented.
  *
  * @param {MatchRequest} request Input deck IDs and seed.
- * @returns {{label:string,seed:number,actions:number,turns:number,finished:boolean,winner:number,prizesRemaining:number[],phase:number,policy:string,engine:string}}
+ * @returns {object} Deterministic bounded match summary with trace counts and deck hashes.
  */
 function runMatch(request) {
   if (!Array.isArray(request.deckA) || request.deckA.length !== 60 ||
@@ -188,6 +189,7 @@ function runMatch(request) {
       throw new Error('maxActions must be a positive integer.');
     }
     let actions = 0;
+    const actionCounts = {};
     while (store.state.phase !== GamePhase.FINISHED && actions < maxActions) {
       const state = store.state;
       const pending = state.prompts.find(prompt => prompt.result === undefined);
@@ -215,7 +217,13 @@ function runMatch(request) {
           throw new Error('Policy failed to generate a turn action.');
         }
       }
-      store.dispatch(action);
+      try {
+        store.dispatch(action);
+      } catch (error) {
+        throw new Error('Twinleaf dispatch failed after ' + actions + ' actions (' +
+          action.constructor.name + '): ' + error.message, { cause: error });
+      }
+      actionCounts[action.constructor.name] = (actionCounts[action.constructor.name] || 0) + 1;
       actions += 1;
     }
     const state = store.state;
@@ -225,7 +233,17 @@ function runMatch(request) {
       actions,
       turns: state.turn,
       finished: state.phase === GamePhase.FINISHED,
+      endReason: state.phase === GamePhase.FINISHED ? 'engine-game-end' : 'action-limit',
       winner: state.winner,
+      actionCounts,
+      deckHashes: [request.deckA, request.deckB].map(deck =>
+        crypto.createHash('sha256').update(JSON.stringify(deck)).digest('hex')),
+      rules: {
+        format: 'EXPANDED',
+        firstTurnDrawCard: settings.rules.firstTurnDrawCard,
+        firstTurnUseSupporter: settings.rules.firstTurnUseSupporter,
+        attackFirstTurn: settings.rules.attackFirstTurn
+      },
       prizesRemaining: state.players.map(player => player.prizes.filter(prize => prize.cards.length > 0).length),
       phase: state.phase,
       policy: 'Twinleaf SimpleTacticsAi/defaultStateScores',
