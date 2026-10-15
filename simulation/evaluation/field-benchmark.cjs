@@ -199,7 +199,7 @@ function evaluatePlan(plan, options) {
       plannedGames: !scheduled || scheduled.has(opponent.rank) ? 2 * gamesPerSeat : 0,
       opponentSubstitutions: opponent.substitutions || [],
       attempted: 0, completed: 0, wins: 0, losses: 0, draws: 0,
-      unfinished: 0, errors: [], games: [], lower95: null
+      unfinished: 0, errors: [], games: [], trueStartingTurn: {first:0,second:0,unverified:0}, lower95: null
     };
     if (!plan.candidate.cards) {
       row.status = 'candidate-unresolved';
@@ -221,8 +221,26 @@ function evaluatePlan(plan, options) {
             const gameStatus = !game.finished ||
               (game.winner !== 0 && game.winner !== 1 && game.winner !== 3) ?
               'unfinished' : 'completed';
+            const authenticFirstTurn = (game.verifiedByDrawLog === true &&
+              (game.firstTurnSlot === 0 || game.firstTurnSlot === 1) &&
+              game.firstTurnPlayerId === (game.firstTurnSlot === 0 ? 101 : 202) &&
+              game.firstTurnPlayerName === (game.firstTurnSlot === 0 ? 'research-A' : 'research-B') &&
+              game.firstDrawLogName === game.firstTurnPlayerName);
+            const actualFirstPlayerSide = authenticFirstTurn ?
+              (game.firstTurnSlot === 0 ? 'A' : 'B') : null;
+            const candidateOrder = actualFirstPlayerSide === null ? 'unverified' :
+              actualFirstPlayerSide === (candidateSeat === 0 ? 'A' : 'B') ? 'first' : 'second';
+            row.trueStartingTurn[candidateOrder] += 1;
             row.games.push({ seed, candidateEngineSide: candidateSeat === 0 ? 'A' : 'B',
-              actualFirstPlayerSide: null, winnerIndex: game.winner,
+              actualFirstPlayerSide, candidateOrder,
+              firstTurnEvidence: authenticFirstTurn ? {
+                firstTurnSlot: game.firstTurnSlot,
+                firstTurnPlayerId: game.firstTurnPlayerId,
+                firstTurnPlayerName: game.firstTurnPlayerName,
+                firstDrawLogName: game.firstDrawLogName,
+                verifiedByDrawLog: game.verifiedByDrawLog
+              } : null,
+              winnerIndex: game.winner,
               status: gameStatus, endReason: game.endReason || null,
               actions: game.actions ?? null, turns: game.turns ?? null,
               engineDeckHashes: game.deckHashes || null });
@@ -237,8 +255,9 @@ function evaluatePlan(plan, options) {
           } catch (error) {
             const message = String(error?.message || error);
             row.errors.push({ seed, message });
+            row.trueStartingTurn.unverified += 1;
             row.games.push({ seed, candidateEngineSide: candidateSeat === 0 ? 'A' : 'B',
-              actualFirstPlayerSide: null, winnerIndex: null,
+              actualFirstPlayerSide: null, candidateOrder: 'unverified', winnerIndex: null,
               status: 'engine-exception', message });
           }
         }
@@ -260,8 +279,11 @@ function evaluatePlan(plan, options) {
     seedBase, gamesPerSeat, maxActions,
     selectedRanks: selectedRanks || null,
     policy: 'Twinleaf SimpleTacticsAi; competence unvalidated',
-    engineSlotProtocol: 'candidate alternates Twinleaf player A/B; actual first turn unobserved',
-    startingTurnBalanceVerified: false,
+    engineSlotProtocol: 'candidate alternates engine A/B; true first-turn attributed only when engine turn and draw-log agree',
+    startingTurnBalanceVerified: results.filter(r => r.status === 'simulated').length > 0 &&
+      results.filter(r => r.status === 'simulated').every(r =>
+        r.trueStartingTurn.first > 0 && r.trueStartingTurn.second > 0 &&
+        r.trueStartingTurn.unverified === 0),
     simultaneousFieldConfidenceCertified: false,
     confidenceLimitations: 'per-opponent lower95 pools engine slots without verified starting-turn strata or simultaneous field adjustment',
     scope: 'engine simulation only; no demonstrated competitive paper Expanded win rate',
