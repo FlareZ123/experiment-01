@@ -280,7 +280,8 @@ function evaluatePlan(plan, options) {
     selectedRanks: selectedRanks || null,
     policy: 'Twinleaf SimpleTacticsAi; competence unvalidated',
     engineSlotProtocol: 'candidate alternates engine A/B; true first-turn attributed only when engine turn and draw-log agree',
-    startingTurnBalanceVerified: results.filter(r => r.status === 'simulated').length > 0 &&
+    startingTurnBalanceVerified: false,
+    observedMatchupsHaveBothRealStartingTurns: results.some(r => r.status === 'simulated') &&
       results.filter(r => r.status === 'simulated').every(r =>
         r.trueStartingTurn.first > 0 && r.trueStartingTurn.second > 0 &&
         r.trueStartingTurn.unverified === 0),
