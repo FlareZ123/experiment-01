@@ -14,3 +14,4 @@ jobs:
           node-version: '22'
       - run: node --test tests/aichi_temple_candidate.test.cjs
       - run: python -m unittest tests/test_temple_candidate_legality.py
+      - run: node --test tests/aichi_radiant_candidate_compare.test.cjs
