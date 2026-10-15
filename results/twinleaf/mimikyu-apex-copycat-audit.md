@@ -51,3 +51,10 @@ The opt-in [Mimikyu non-GX Copycat hook](../../simulation/twinleaf/copycat-compa
 The [focused test](../../tests/mimikyu_apex_copycat.test.cjs) constructs pinned-engine `State`, `Player`, `PokemonCardList`, `AttackEffect`, `Mimikyu` and `RegidragoVSTAR` objects and substitutes a narrowly scoped fake store observing delegated `AttackEffect` calls. It checks: original engine prematurely rejects; opt-in wrapper reaches the delegate path and restores metadata; GX flagged predecessor remains rejected; uninstall restores baseline behavior. This **is a reducer-level diagnostic**, and the store double does not verify a complete attack with nested target choice, damage, turn skip or legality.
 
 A [manual-only GitHub Actions workflow](../../.github/workflows/mimikyu-copycat-regression.yml) compiles exactly the pinned submodule and invokes this test. As of this write, an actual CI execution has **not** been confirmed. Full gameplay parity remains open, and this hook must remain optional until a complete stateful test passes.
+
+
+### Pending real-store reproduction
+
+The [nested Copycat/Apex/Timeless-GX fixture](../../simulation/twinleaf/mimikyu-apex-integration.cjs) builds actual pinned Store/State/Player and attack-prompt objects, injects the preceding Apex Dragon and a discarded Dialga-GX, contrasts unpatched and opt-in hooked behavior, and requires 150 damage, usedGX, and usedTurnSkip after selecting Timeless-GX. This test deliberately bypasses ordinary Energy/setup, and **no passing CI run is yet confirmed**.
+
+The [manual workflow](../../.github/workflows/mimikyu-copycat-regression.yml) compiles the exact pinned engine and runs both reducer-level and nested stateful tests. Independently, Agent 12's [Apex Dragon -> Dratini contract](../../simulation/twinleaf/apex-copy-contract.cjs) passed [manual CI 38822490362](https://github.com/FlareZ123/experiment-01/actions/runs/38822490362), supporting the fixture construction pattern.
