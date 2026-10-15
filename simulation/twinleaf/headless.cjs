@@ -190,6 +190,9 @@ function runMatch(request) {
     }
     let actions = 0;
     const actionCounts = {};
+    const actionsBySeat = [{}, {}];
+    const cardsPlayedBySeat = [{}, {}];
+    const attackTrace = [];
     while (store.state.phase !== GamePhase.FINISHED && actions < maxActions) {
       const state = store.state;
       const pending = state.prompts.find(prompt => prompt.result === undefined);
@@ -217,13 +220,35 @@ function runMatch(request) {
           throw new Error('Policy failed to generate a turn action.');
         }
       }
+      const actionName = action.constructor.name;
+      const actingId = pending ? pending.playerId : (action.clientId ?? action.id);
+      const seat = state.players.findIndex(player => player.id === actingId);
+      const playedCard = actionName === 'PlayCardAction' && seat >= 0 ?
+        state.players[seat].hand.cards[action.handIndex]?.name : undefined;
+      const attackInfo = actionName === 'AttackAction' && seat >= 0 ? {
+        turn: state.turn, seat,
+        activePokemon: state.players[seat].active.getPokemonCard()?.name || '',
+        attack: action.name,
+        prizeCountBefore: state.players.map(player => player.prizes.filter(prize => prize.cards.length > 0).length)
+      } : undefined;
       try {
         store.dispatch(action);
       } catch (error) {
         throw new Error('Twinleaf dispatch failed after ' + actions + ' actions (' +
           action.constructor.name + '): ' + error.message, { cause: error });
       }
-      actionCounts[action.constructor.name] = (actionCounts[action.constructor.name] || 0) + 1;
+      actionCounts[actionName] = (actionCounts[actionName] || 0) + 1;
+      if (seat >= 0) {
+        actionsBySeat[seat][actionName] = (actionsBySeat[seat][actionName] || 0) + 1;
+        if (playedCard) {
+          cardsPlayedBySeat[seat][playedCard] = (cardsPlayedBySeat[seat][playedCard] || 0) + 1;
+        }
+      }
+      if (attackInfo) {
+        attackInfo.prizeCountAfter = store.state.players.map(player =>
+          player.prizes.filter(prize => prize.cards.length > 0).length);
+        attackTrace.push(attackInfo);
+      }
       actions += 1;
     }
     const state = store.state;
@@ -236,6 +261,15 @@ function runMatch(request) {
       endReason: state.phase === GamePhase.FINISHED ? 'engine-game-end' : 'action-limit',
       winner: state.winner,
       actionCounts,
+      actionsBySeat,
+      cardsPlayedBySeat,
+      attackTrace,
+      finalState: state.players.map(player => ({
+        deckRemaining: player.deck.cards.length,
+        handSize: player.hand.cards.length,
+        activePokemon: player.active.getPokemonCard()?.name || '',
+        benchedPokemon: player.bench.map(bench => bench.getPokemonCard()?.name).filter(Boolean)
+      })),
       deckHashes: [request.deckA, request.deckB].map(deck =>
         crypto.createHash('sha256').update(JSON.stringify(deck)).digest('hex')),
       rules: {
