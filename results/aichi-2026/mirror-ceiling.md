@@ -20,6 +20,8 @@ For k identical opponent placements, the same logic gives an upper ceiling of `1
 
 The source [Aichi field manifest](field.csv) includes the rank 1 champion's 60-card list among its opponents. Therefore simply submitting that unchanged champion reference as the fixed candidate yields an exact deck mirror against rank 1. Any other copied Top 32 list likewise creates at least one corresponding mirror against itself.
 
+A direct exact-name/count/set/number fingerprint audit of the 29 published field lists finds 29 distinct 60-card specifications. Thus there are no duplicate source printing-level lists within the published portion. This does not establish uniqueness after treating reprints as functional equivalents, and three opponent lists remain unavailable.
+
 This conclusion requires **matched strategy quality/policies** and exchangeable seat/turn sampling. A much stronger candidate-side pilot could outperform an opponent-side player even on identical cards. A simulator that privileges one bot policy or the starting side could also report asymmetric results. Therefore this is **not** an unconditional game-theoretic upper bound against arbitrarily weak fixed opponents; it is a benchmark-design warning and a reason to separate deck strength from player-policy strength.
 
 The result does **not** apply to a new 60-card list merely sharing an archetype, attacker, or 59 cards with a field list: the mathematical mirror symmetry then disappears.
