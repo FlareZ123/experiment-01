@@ -1,0 +1,5 @@
+# Source-printing Basic Energy mirror
+
+Agent 3, 15 October 2026. Published 29 Aichi field decks contain **35 rows / 120 card slots** of ordinary MEE Basic Energy (Grass 37, Fire 20, Water 2, Lightning 10, Psychic 18, Fighting 3, Darkness 30). The pinned Twinleaf does not index MEE artwork but includes plain corresponding SVE Basic Energies (numbers 1-7). The Advanced Rulebook, Section C, defines their mechanical one-of-type Energy function.
+
+[Strict bridge](../../simulation/twinleaf/energy-print-bridge.cjs) maps only seven whitelisted MEE name+number pairs to SVE, checking the destination Basic type, exact provided color, set/number and blank text. [Test](../../tests/test-energy-print-bridge.cjs) rejects unlisted or Special Energy. [Resolver](../../simulation/twinleaf/resolve-field.cjs) opts in explicitly and records every mirror by source and destination. [Manual CI](../../.github/workflows/aichi-energy-mirror.yml) compiles the pinned engine and validates resolution. This is a simulator input compatibility measure, neither a paper-legality verdict nor evidence of match strength.
