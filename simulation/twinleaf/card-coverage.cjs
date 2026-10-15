@@ -49,7 +49,7 @@ function reportCoverage(manifest) {
   const { Card } = require(path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output/game/store/card/card'));
   const { CardTag } = require(path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types'));
 
-  const cards = initializeCards().getAllCards();
+  const cards = initializeCards().getAllCards().filter(card => !card.researchPatched);
   const byName = new Map();
   for (const card of cards) {
     if (!byName.has(card.name)) byName.set(card.name, []);
@@ -117,7 +117,8 @@ function reportCoverage(manifest) {
     requestedPrintingRows: totalRows,
     exactRows,
     exactAliasedRows,
-    alternateOnlyRows: alternateRows.length,
+    alternateOnlyRows: alternateRows.filter(row => row.status === 'alternate-only').length,
+    ambiguousExactRows: alternateRows.filter(row => row.status === 'ambiguous-exact').length,
     missingNameRows: missingRows.length,
     unresolvedRanks: decks.filter(deck => !deck.resolved).map(deck => deck.rank),
     missingRows,
@@ -143,6 +144,7 @@ if (require.main === module) {
     exactRows: report.exactRows,
     exactAliasedRows: report.exactAliasedRows,
     alternateOnlyRows: report.alternateOnlyRows,
+    ambiguousExactRows: report.ambiguousExactRows,
     missingNameRows: report.missingNameRows,
     unresolvedRanks: report.unresolvedRanks,
     missingNames: [...new Set(report.missingRows.map(row => row.name))],
