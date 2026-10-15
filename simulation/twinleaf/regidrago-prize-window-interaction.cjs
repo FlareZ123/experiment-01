@@ -17,7 +17,6 @@ function runReadyBoardChoice(usePrizeResolver) {
   const { PlayerType, SlotType } = load('game/store/actions/play-card-action');
   const { ChooseAttackPromptResolver } = load('simple-bot/prompt-resolver/choose-attack-prompt-resolver');
   const { defaultStateScores } = load('simple-bot/simple-bot-definitions');
-  const { PokemonCardList } = load('game/store/state/pokemon-card-list');
   const ready = preparedRegidrago();
   ready.attachFire();
   ready.defending.active.cards.length = 0;
@@ -27,9 +26,8 @@ function runReadyBoardChoice(usePrizeResolver) {
   const goodra = get('Hisuian Goodra VSTAR LOR');
   assert.ok(mimikyu && budew && dragapult && goodra);
   ready.defending.active.cards.push(mimikyu);
-  const bench = new PokemonCardList();
+  const bench = ready.defending.bench[0];
   bench.cards.push(budew);
-  ready.defending.bench.push(bench);
   ready.attacking.discard.cards.push(dragapult, goodra);
   const prizesBefore = ready.attacking.prizes.length;
 
@@ -57,6 +55,8 @@ function runReadyBoardChoice(usePrizeResolver) {
     chosen: chosen.result.name,
     safeguardDamage: ready.defending.active.damage,
     budewKnockedOut,
+    benchRemainingCard: bench.getPokemonCard()?.fullName || null,
+    benchDamage: bench.damage,
     prizesTaken: prizesBefore - prizesAfter,
     scope: 'Injected established board with active Mimikyu PAL and benched 30HP Budew; one normal AttackAction'
   };
