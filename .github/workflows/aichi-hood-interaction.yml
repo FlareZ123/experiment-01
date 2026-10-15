@@ -1,0 +1,27 @@
+name: Aichi Stealthy Hood versus Initialization
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hood-position:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out pinned Twinleaf commit
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install and compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Test Hood position with Iron Thorns and Tool Jammer
+        run: node simulation/twinleaf/hood-vs-thorns.cjs
