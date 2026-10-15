@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { initializeCards } = require('./headless.cjs');
+const { installToolJammerHook } = require('./tool-jammer-hook.cjs');
 
 /**
  * Probe exact pinned-engine Ability visibility for the Hood / Initialization /
@@ -82,14 +83,25 @@ function runFixture() {
     { hood: false, jammer: true, vmaxActive: true, expected: false }
   ];
 
-  return cases.map(options => {
-    const actual = probeHood(options);
-    assert.equal(
-      actual.hasUnderworldDoor, options.expected,
-      'Underworld Door availability does not match positioned Tool text: ' + JSON.stringify(options)
-    );
-    return { ...options, ...actual };
-  });
+  const upstreamAnomaly = probeHood({ hood: true, jammer: true, vmaxActive: true });
+  assert.equal(upstreamAnomaly.hasUnderworldDoor, true,
+    'Pinned upstream Tool Jammer defect changed: review whether the compatibility hook remains needed.');
+  const restore = installToolJammerHook();
+  try {
+    return {
+      upstreamAnomaly,
+      correctedCases: cases.map(options => {
+        const actual = probeHood(options);
+        assert.equal(
+          actual.hasUnderworldDoor, options.expected,
+          'Underworld Door availability does not match positioned Tool text: ' + JSON.stringify(options)
+        );
+        return { ...options, ...actual };
+      })
+    };
+  } finally {
+    restore();
+  }
 }
 
 if (require.main === module) {
@@ -97,7 +109,7 @@ if (require.main === module) {
     kind: 'pinned-twinleaf-state-level-ability-visibility-test',
     engine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     claims: 'Ability discovery only; no Underworld Door action or completed match',
-    cases: runFixture()
+    results: runFixture()
   }, null, 2));
 }
 
