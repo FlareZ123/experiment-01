@@ -27,3 +27,6 @@ jobs:
         run: npm run compile
       - name: Resolve candidate and run two bounded generic-bot fixtures
         run: node simulation/evaluation/aichi-temple-candidate.cjs
+
+      - name: Verify synthetic Wobbuffet and Iron Thorns board effects
+        run: node simulation/twinleaf/temple-wobbuffet-board.cjs
