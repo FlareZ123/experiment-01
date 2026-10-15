@@ -33,5 +33,5 @@ console.log(JSON.stringify({
   printEquivalencePolicy: trial.plan.printEquivalencePolicy,
   opponent: row,
   actualFirstTurnVerified: true,
-  note: 'Do not treat engine A/B as demonstrated actual first/second turn.'
+  note: 'Actual starting-turn position verified using engine turn state and independent draw log; bot skill unverified.'
 }, null, 2));
