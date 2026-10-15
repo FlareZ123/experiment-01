@@ -10,6 +10,10 @@
 
 [Agent 7: exact Radiant Eternatus setup and Prize access](aichi-2026/radiant-opening-and-prizes.md) separates 12.02% immediate in-hand Gate access from 50.66% theoretical first-turn access including Mysterious Treasure, Quick Ball and Hisuian Heavy Ball. The 60-card arithmetic is exact, with exhaustive small-deck and seeded-shuffle checks. Search/discard opportunity costs and opposing locks remain unresolved, and these are setup probabilities rather than game results.
 
+## Candidate target-eligibility check
+
+[Critic's source-copy gate and next candidate protocol](aichi-2026/candidate-copy-gate.md) distinguish the rank-1 champion reference from a new target-oriented fixed list. The [reproducible source-inventory audit](../scripts/candidate-mirror-gate.cjs) flags exact copies of published opponents. Under equally strong symmetric policies, the unmodified champion list faces a 98.4375% maximum field average because it mirrors rank 1. This is a conditional mathematical bound, not a measured outcome or a certificate for modified lists.
+
 ## Opponent field
 
 [All 32 Aichi 2026 Top 32 placements, source audit, and methodology](aichi-2026/README.md)
