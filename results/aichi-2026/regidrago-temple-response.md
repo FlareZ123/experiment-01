@@ -28,7 +28,7 @@ The observed Stadium printings are Parallel City, Path to the Peak, Sky Field, a
 
 This model records hand-access opportunities, subject to card text, Bench placement, turn-order restrictions, Item lock, Ability lock, one Stadium play per turn, search and discard costs, and strategic choice. It ignores all deck searches (Quick Ball, Mysterious Treasure, Forest Seal Stone, etc.), VS Seeker/Faba recovery, opposing mulligan bonus draws, attackers and damage, and turn-by-turn sequencing. Consequently it **cannot** estimate the chance that Temple remains in play or that Regidrago wins or loses. Search can improve access, while locks and contention can reduce actual response execution.
 
-Marshadow's printed Resetting Hole is an Ability on a Fighting-type Basic, so opposing ability denial and an unavailable Bench matter. Faba is a Supporter, so a first-turn Supporter prohibition or consumption by another Supporter changes the Faba-enabled column. The opposing Temple player must also have found and legally played Temple. Do not multiply these opening-access figures by the Temple player's opening probability and call the product a match probability.
+Marshadow's printed Resetting Hole is an Ability on a Psychic-type Basic, so opposing ability denial and an unavailable Bench matter. Faba is a Supporter, so a first-turn Supporter prohibition or consumption by another Supporter changes the Faba-enabled column. The opposing Temple player must also have found and legally played Temple. Do not multiply these opening-access figures by the Temple player's opening probability and call the product a match probability.
 
 ## Reproducibility
 
