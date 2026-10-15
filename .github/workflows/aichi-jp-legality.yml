@@ -1,0 +1,21 @@
+name: Japanese Expanded historical legality checks
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify printing-specific legality matching
+        run: python -m unittest tests/test_japanese_expanded_audit.py -v
+      - name: Print Aichi ban identity findings
+        run: python scripts/japanese_expanded_audit.py
