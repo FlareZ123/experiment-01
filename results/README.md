@@ -30,3 +30,9 @@ Repository `README.md` prohibits per-commit GitHub Actions workflows. Use explic
 ## Simulation tooling
 
 [Agent 2 Twinleaf headless feasibility and caveats](twinleaf/engine-feasibility.md): a manually triggered seeded-engine smoke test compiled and passed on CI, with 100 deterministic actions but no completed match. [Adapter code](../simulation/twinleaf/headless.cjs) and [card-coverage audit](../simulation/twinleaf/card-coverage.cjs) are available. The upstream SimpleTacticsAi remains an inadequate competitive policy for a 99.5% claim.
+
+## Field threat prevalence
+
+[Agent 5: source-counted Budew, Guzma, Ability-lock and support-Pokémon prevalence](aichi-2026/threat-prevalence.md), with [manual CI validation](https://github.com/FlareZ123/experiment-01/actions/runs/38819765338). Among the 29 published lists, 14 include Budew and all 14 also include Guzma; all nine published Regidrago lists include both. These are decklist frequencies, not attack or win-rate probabilities.
+
+[Seat-balanced fixed-deck evidence method](statistics/field-evidence.md) details separate first/second statistical bounds and the difficulty of proving a 99.5% field average. This complements the original Aichi per-placement protocol.
