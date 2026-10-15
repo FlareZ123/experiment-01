@@ -31,6 +31,8 @@ jobs:
         run: node --test tests/turn_order_evidence.test.cjs
       - name: Regress Ranger/Channeler versus attack-origin and Ability-origin Item lock
         run: node --test tests/ranger_lock_engine.test.cjs
+      - name: Verify Japanese Player's Ceremony reducer effect
+        run: node --test tests/players_ceremony_effect.test.cjs
       - name: Execute bounded deterministic smoke game
         run: node simulation/twinleaf/smoke-test.cjs
       - name: Audit all published Aichi printings against Twinleaf card implementations
