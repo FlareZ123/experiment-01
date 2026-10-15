@@ -9,6 +9,7 @@ const trial = runAichiPilot({
   gamesPerSeat: 1,
   seedBase: 2026101505,
   maxActions: 800,
+  captureTrace: true,
   allowEquivalentBasicEnergies: true,
   allowBasicEnergyMirrorPrintings: true,
   allowJapanesePromoHooks: true
