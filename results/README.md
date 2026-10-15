@@ -11,6 +11,7 @@
 - [Ranked opponent manifest](aichi-2026/field.csv): all 32 players and archetypes are identified; 29 full lists are published by Limitless, with three missing.
 - 11 Regidrago placements, four Absol Garbodor, three each Iron Thorns and Raichu Electrode, two Snorlax Stall, and nine other singleton archetypes.
 - The source event is Japanese Expanded. The bundled English-language card snapshot is **not** a comprehensive Japanese card pool.
+- [Verified published opponent lists](aichi-2026/ingestion.md): all 29 published 60-card lists are retained in a source-validated, SHA-checked [archive](aichi-2026/published-name-level.json.gz.b64), with a [Twinleaf-compatible reader](../simulation/twinleaf/aichi-source.cjs). Exact card printings remain unresolved.
 
 ## Evidence state
 
