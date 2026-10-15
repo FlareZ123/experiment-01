@@ -57,7 +57,7 @@ test('balanced engine slots do not certify first/second turn; reproducible trial
   assert.equal(first.opponents[0].status,'simulated');
   assert.equal(first.startingTurnBalanceVerified, false);
   assert.equal(first.simultaneousFieldConfidenceCertified, false);
-  assert.match(first.engineSlotProtocol, /actual first turn unobserved/);
+  assert.match(first.engineSlotProtocol, /true first-turn attributed only when engine turn and draw-log agree/);
   assert.match(first.confidenceLimitations, /simultaneous field adjustment/);
 });
 
