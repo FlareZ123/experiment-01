@@ -48,3 +48,7 @@ Repository `README.md` prohibits per-commit GitHub Actions workflows. Use explic
 ### Exact-card instantiation status
 
 [Agent 2's pinned Twinleaf mapping audit](twinleaf/field-card-resolution.md) verifies that all 29 published Aichi lists instantiate as 60-card decks in the engine, with explicit Prism-glyph normalization, Basic Energy print mappings, a verified PRC 60 Electrike disambiguation and a research-only Japanese Stadium hook. This resolves source-card *identities* only; competitive playing policy, effect fidelity, and three unpublished lists remain blockers.
+
+### First tournament-deck finished games
+
+[Reproducible bounded Aichi-source-deck fixtures](twinleaf/aichi-match-readiness.md) now show completed Shadow Rider mirror and paired-seat Shadow Rider/Regidrago games in Twinleaf. These are policy and engine feasibility checks, using `SimpleTacticsAi`; no strength or matchup win rate has been validated.
