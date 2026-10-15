@@ -13,9 +13,18 @@ jobs:
           node-version: '22'
       - name: Verify census against published lists
         run: node --test scripts/test-aichi-energy-audit.cjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify Prize-aware Stadium paths
+        run: python -m unittest discover -s tests -p test_aichi_stadium_response.py
+      - name: Emit Stadium response probabilities
+        run: python scripts/aichi_stadium_response.py > aichi-stadium-response.json
       - name: Print audit summary
         run: node scripts/aichi_energy_audit.cjs > energy-census.json
       - uses: actions/upload-artifact@v4
         with:
           name: aichi-energy-census
-          path: energy-census.json
+          path: |
+            energy-census.json
+            aichi-stadium-response.json
