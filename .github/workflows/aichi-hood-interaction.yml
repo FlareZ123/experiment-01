@@ -27,3 +27,5 @@ jobs:
         run: node simulation/twinleaf/hood-vs-thorns.cjs
       - name: Test Megaton Blower Tool removal and compatibility hook
         run: node simulation/twinleaf/megaton-blower-fixture.cjs
+      - name: Test protected Underworld Door attachment and draw
+        run: node simulation/twinleaf/underworld-door-action.cjs
