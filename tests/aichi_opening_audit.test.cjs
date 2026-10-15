@@ -39,3 +39,24 @@ test('Basic status depends on actual Pokémon stage, including Mega ex', () => {
   assert.throws(() => audit([deck], new Map()), /unknown or ambiguous stage/);
   assert.throws(() => audit([{ ...deck, cards: cards.slice(0, 2) }], index), /contains 6 cards/);
 });
+
+test('historical Pokémon lacking subtype metadata do not poison the card-stage index', () => {
+  const fs = require('node:fs');
+  const os = require('node:os');
+  const path = require('node:path');
+  const { loadBasicIndex } = require('../scripts/aichi_opening_audit.cjs');
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'aichi-stage-'));
+  try {
+    fs.writeFileSync(path.join(directory, 'sample.json'), JSON.stringify([
+      { name: 'Ancient card', supertype: 'Pokémon' },
+      { name: 'Modern Basic', supertype: 'Pokémon', subtypes: ['Basic'] },
+      { name: 'Modern Evolved', supertype: 'Pokémon', subtypes: ['Stage 1'] },
+    ]));
+    const index = loadBasicIndex(directory);
+    assert.equal(index.has('Ancient card'), false);
+    assert.equal(index.get('Modern Basic'), true);
+    assert.equal(index.get('Modern Evolved'), false);
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
