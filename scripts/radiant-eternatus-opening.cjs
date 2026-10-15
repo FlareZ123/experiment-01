@@ -72,7 +72,7 @@ function classify(opening, prizes, drawn, groups = GROUPS) {
  * @returns {{includeTurnDraw:boolean,validProbability:number,access:number,twoVmax:number,forcedActive:number,routes:Record<string,number>,twoVmaxRoutes:Record<string,number>,numerators:Record<string,string>,denominator:string}}
  */
 function exactOpening(includeTurnDraw, groups = GROUPS) {
-  if (groups.length !== 6 || groups.some((n) => !Number.isInteger(n) || n < 0) || groups.reduce((a, b) => a + b, 0) !== 60 || groups[ETERNATUS] !== 1 || groups[VMAX] !== 4 || groups[OTHER_BASIC] !== 13) throw new Error('Expected a 60-card list with 1 Radiant Eternatus, 4 VMAX, and 13 other Basics.');
+  if (groups.length !== 6 || groups.some((n) => !Number.isInteger(n) || n < 0) || groups.reduce((a, b) => a + b, 0) !== 60 || groups[ETERNATUS] !== 1 || groups[VMAX] < 2 || groups[OTHER_BASIC] < 1) throw new Error('Expected a 60-card list with 1 Radiant Eternatus, at least 2 VMAX, and at least 1 other Basic.');
   const tally = Object.create(null);
   const add = (key, v) => { tally[key] = (tally[key] || 0n) + v; };
   const emptyDraw = Array(GROUPS.length).fill(0);
