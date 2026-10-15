@@ -7,6 +7,9 @@
 
 [Exact Aichi mulligan bonus distribution and Shadow Rider V setup access](aichi-2026/bonus-draw-access.md): four-Basic Iron Thorns decks offer at least one optional opponent draw 56.42% of the time; taking all offers raises the champion's target-card setup access from 36.62% to 41.40%. Exact combinatorics, not match wins; [five tests passed on manual CI](https://github.com/FlareZ123/experiment-01/actions/runs/38820327961).
 
+
+[Agent 7: exact Radiant Eternatus setup and Prize access](aichi-2026/radiant-opening-and-prizes.md) separates 12.02% immediate in-hand Gate access from 50.66% theoretical first-turn access including Mysterious Treasure, Quick Ball and Hisuian Heavy Ball. The 60-card arithmetic is exact, with exhaustive small-deck and seeded-shuffle checks. Search/discard opportunity costs and opposing locks remain unresolved, and these are setup probabilities rather than game results.
+
 ## Opponent field
 
 [All 32 Aichi 2026 Top 32 placements, source audit, and methodology](aichi-2026/README.md)
