@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const {observeFirstTurn, summarizeTurnOrder} = require('./turn-order-evidence.cjs');
+const {installToolJammerHook} = require('./tool-jammer-hook.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -138,8 +139,10 @@ function runMatch(request) {
   const originalRandom = Math.random;
   Math.random = random;
   let restoreBotHooks;
+  let restoreToolJammerHook;
   try {
     initializeCards();
+    restoreToolJammerHook = installToolJammerHook();
     const { registerPlayersCeremony, PLAYERS_CEREMONY_PRINT } = require('./card-patches.cjs');
     if (request.deckA.includes(PLAYERS_CEREMONY_PRINT) || request.deckB.includes(PLAYERS_CEREMONY_PRINT)) {
       registerPlayersCeremony();
@@ -294,6 +297,7 @@ function runMatch(request) {
     };
   } finally {
     if (restoreBotHooks) restoreBotHooks();
+    if (restoreToolJammerHook) restoreToolJammerHook();
     Math.random = originalRandom;
   }
 }
