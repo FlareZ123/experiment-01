@@ -27,4 +27,9 @@ const run1 = runMatch(request);
 const run2 = runMatch(request);
 assert.deepEqual(run1, run2, 'Same seed and inputs must give identical observable results.');
 assert.ok(run1.actions > 0, 'The engine must advance beyond its initial state.');
+assert.ok([0, 1].includes(run1.firstTurnSlot), 'First player must be actually observed.');
+assert.equal(run1.firstTurnPlayerId, [101, 202][run1.firstTurnSlot]);
+assert.equal(run1.firstTurnPlayerName, run1.firstDrawLogName,
+  'The first-turn engine state must match the first draw log.');
+assert.equal(run1.verifiedByDrawLog, true);
 console.log(JSON.stringify({ kind: 'headless-smoke', note: 'No Aichi field matches or win-rate evidence', result: run1 }, null, 2));
