@@ -1,0 +1,19 @@
+name: Aichi benchmark statistical tests
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test field-completeness and exact confidence calculations
+        run: node --test tests/test-aichi-field-benchmark.cjs
