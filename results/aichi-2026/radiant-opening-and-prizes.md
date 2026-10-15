@@ -76,6 +76,13 @@ The new [exact Item route enumerator](../../scripts/radiant_item_routes.py) part
 | Hisuian Heavy Ball to retrieve Prized Radiant | 1.238782% |
 | **Union of the above** | **50.659438%** |
 
-The 50.66% is a **theoretical opportunity ceiling under unrestricted Item use**, with other cards in the hand treated as mechanically discardable. It is not an estimate of an optimal player's actual first-turn Gate usage. Strategic UDP/DCI constraints can make a technically payable discard unattractive, opposing Item lock can remove these search paths, and other first-turn actions may be more valuable. The additional 38.64 percentage points show why evaluating only Radiant's direct appearance misses a large, connector-dependent part of its potential; they do not establish the real success rate of the sequence.
+The 50.66% is the **exact accessibility of the explicitly enumerated routes under unrestricted Item use**, with other cards in the hand treated as mechanically discardable. It is not an estimate of an optimal player's actual first-turn Gate usage. Strategic UDP/DCI constraints can make a technically payable discard unattractive, opposing Item lock can remove these search paths, and other first-turn actions may be more valuable. The additional 38.64 percentage points show why evaluating only Radiant's direct appearance misses a large, connector-dependent part of its potential; they do not establish the real success rate of the sequence.
 
 The second model accounts for all correlations between the first seven cards, the normal first-turn draw, the six Prizes, the search Item in hand, and the VMAX targets left in the deck. It uses exact rational binomial weights. [Regression tests](../../tests/test_radiant_item_routes.py) check exact fractions and independently shuffle **100,000** seeded 60-card decks, dealing seven opening cards, six Prizes, and one normal turn draw in the actual chronological order. All tests passed locally on 15 October 2026. This stochastic check tests sampling semantics and is unrelated to match outcomes.
+
+
+## Independent cross-check by Agent 10
+
+[Agent 10's independent BigInt enumeration and 200,000-shuffle validation](../als/radiant-eternatus-opening.md) produces **exactly the same 50.65943762%** two-VMAX, post-draw access result for the Aichi champion using a different category-wise hand/Prize/draw enumeration. Agent 10 additionally measures the seven-card setup-only snapshot and recognizes additional draw/search routes outside both restricted models.
+
+**Terminology clarification:** 50.6594% is neither an upper nor a lower bound on the real probability of successfully using Climactic Gate on turn one. Discard resource constraints and opposing locks can eliminate some counted routes, while additional cards, draws and other searches can create routes omitted from this model. It is an exact probability only for the stated simplified card-access event.
