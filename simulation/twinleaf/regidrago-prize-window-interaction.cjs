@@ -60,6 +60,9 @@ function runReadyBoardChoice(usePrizeResolver) {
     benchRemainingCard: bench.getPokemonCard()?.fullName || null,
     benchDamage: bench.damage,
     prizesTaken: prizesBefore - prizesAfter,
+    gamePhase: ready.state.phase,
+    promptsPending: ready.state.prompts.filter(p => p.result === undefined).map(p => p.constructor.name),
+    defenderDiscardCount: ready.defending.discard.cards.length,
     scope: 'Injected established board with active Mimikyu PAL and benched 30HP Budew; one normal AttackAction'
   };
 }
@@ -67,6 +70,7 @@ function runReadyBoardChoice(usePrizeResolver) {
 function compareReadyBoardChoices() {
   const baseline = runReadyBoardChoice(false);
   const experiment = runReadyBoardChoice(true);
+  console.log('PRIZE_WINDOW_DIAGNOSTIC', JSON.stringify({ baseline, experiment }));
   assert.equal(baseline.chosen, 'Rolling Iron');
   assert.equal(experiment.chosen, 'Phantom Dive');
   assert.equal(baseline.safeguardDamage, 0, 'Mimikyu Safeguard must prevent the VSTAR damage');
