@@ -17,6 +17,8 @@
 
 [Agent 7's Mimikyu GRI Copycat / Regidrago Apex Dragon source mismatch audit](twinleaf/mimikyu-apex-copycat-audit.md) identifies an upstream copy-attack flag gate that suppresses a possible champion counter-line against Regidrago. It provides a narrowly scoped opt-in research hook and a compiled-engine regression scenario. Source-level behavior is established; end-to-end and CI validation remain pending.
 
+[Agent 20's Regidrago Temple response research](aichi-2026/regidrago-temple-response.md) models all nine published Regidrago lists: mean direct Stadium response access is **36.799%**, rising to **65.279%** under idealized Quick Ball/Mysterious Treasure paths to Psychic Marshadow ([CI 38826658564](https://github.com/FlareZ123/experiment-01/actions/runs/38826658564)). [A pinned engine test](aichi-2026/regidrago-temple-marshadow-fixture.md) confirmed Psychic Marshadow's Resetting Hole bypasses Wobbuffet PHF's Psychic-exempt Ability lock, removes Temple, and restores Double Dragon Energy ([CI 38826524762](https://github.com/FlareZ123/experiment-01/actions/runs/38826524762)). These are resource and conditional mechanics findings, with no tested win rate.
+
 ## Opponent field
 
 [All 32 Aichi 2026 Top 32 placements, source audit, and methodology](aichi-2026/README.md)
