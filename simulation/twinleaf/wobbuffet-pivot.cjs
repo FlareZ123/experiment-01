@@ -32,6 +32,10 @@ function probePivot() {
   const effect=new CheckRetreatCostEffect(a);
   store.reduceEffect(state,effect);
   assert.deepEqual(effect.cost,[]);
+  a.bench.splice(0,1);
+  const again=new CheckRetreatCostEffect(a);
+  store.reduceEffect(state,again);
+  assert.equal(again.cost.length,2);
   return {passed:true};
 }
 if(require.main===module)console.log(JSON.stringify(probePivot(),null,2));
