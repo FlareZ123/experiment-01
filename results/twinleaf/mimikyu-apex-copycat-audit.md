@@ -10,7 +10,7 @@ The original bundled English printings give:
 2. **Regidrago VSTAR SIT 136**, *Apex Dragon*: “Choose an attack from a Dragon Pokémon in your discard pile and use it as this attack.”
 3. **Dialga-GX UPR 100**, Dragon type, *Timeless-GX*: deals 150 and allows another turn, with the ordinary once-per-game GX constraint.
 
-The actual rank-1 Aichi Shadow Rider Calyrex list contains one Mimikyu GRI 58 and one Dialga-GX UPR 100. Regidrago is the most common archetype among Aichi Top 32 placements, with 11/32 entries and nine accessible full lists.
+The actual rank-1 Aichi Shadow Rider Calyrex list contains one Mimikyu GRI 58 and one Dialga-GX UPR 100. Published rank 30 Lillie's Clefairy also contains Mimikyu GRI 58, so the generic rejection can affect more than the champion's copy line. Regidrago is the most common archetype among Aichi Top 32 placements, with 11/32 entries and nine accessible full lists.
 
 The provided Advanced Player's Rulebook 3.4 section **II-C-18** explains that copying an attack performs its effects/damage while the attack name remains the originally declared attack; the Zoroark *Foul Play* / *Mega Brave* example makes this explicit. *Apex Dragon* is itself a non-GX attack, even if it copied a GX attack's effects. The prior human-concepts document proposes Mimikyu Copycat copying Apex Dragon and then choosing a Dragon Pokémon such as Dialga-GX in Mimikyu's own discard to take a bonus turn. That candidate line must also respect GX usage state, real card access, Energy for Mimikyu's Copycat, and damage/counter rules.
 
