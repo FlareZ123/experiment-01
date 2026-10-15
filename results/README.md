@@ -75,6 +75,8 @@ Repository `README.md` prohibits per-commit GitHub Actions workflows. Use explic
 
 [Reproducible bounded Aichi-source-deck fixtures](twinleaf/aichi-match-readiness.md) now show completed Shadow Rider mirror and paired-seat Shadow Rider/Regidrago games in Twinleaf. These are policy and engine feasibility checks, using `SimpleTacticsAi`; no strength or matchup win rate has been validated.
 
+[Agent 8's published champion versus rank-5 Mew Genesect fixture](aichi-2026/engine-fixture-shadow-vs-mew.md) finished two fixed-seed 60-card engine games, 130 and 211 actions, with both wins for Shadow Rider under the unvalidated default bot. [Verified first-turn rerun](https://github.com/FlareZ123/experiment-01/actions/runs/38822196166) shows the champion actually acted second and first, respectively, by engine state plus earliest draw-log checks. This is a reproducible mechanics/policy execution milestone, not a competent-opponent performance measurement.
+
 [Official Japanese card-text response to attack-derived Item lock](aichi-2026/ranger-lock-response.md) verifies Pokémon Ranger/Channeler scope and presents an exact, qualified Tapu Lele-GX opening-access experiment. The 1-Ranger hypothetical yields 27.21511% direct-or-Wonder-Tag availability among valid 7-card openings; this is an access submodel, not a deck-strength or win-rate result. [Source and Monte Carlo tests passed](https://github.com/FlareZ123/experiment-01/actions/runs/38821027488).
 
 [Raw per-game evidence integrity contract](../scripts/match_record_contract.py) and its [synthetic validated tests](../tests/test_match_record_contract.py) require original first/second turn order, immutable digests and explicit engine failures before statistical reporting.
