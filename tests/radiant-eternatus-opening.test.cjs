@@ -28,18 +28,22 @@ function monteCarlo(includeTurnDraw, iterations, seed) {
       const j = Math.floor(random() * (k + 1));
       [deck[k], deck[j]] = [deck[j], deck[k]];
     }
-    const opening = Array(GROUPS.length).fill(0);
-    const prizes = Array(GROUPS.length).fill(0);
-    const drawn = Array(GROUPS.length).fill(0);
-    for (let i = 0; i < 7; i++) opening[deck[i]]++;
-    for (let i = 7; i < 13; i++) prizes[deck[i]]++;
-    if (includeTurnDraw) drawn[deck[13]]++;
-    if (!opening[0] && !opening[4]) continue;
+    const opening = deck.slice(0, 7);
+    const earlyCards = includeTurnDraw ? [...opening, deck[13]] : opening;
+    const radiantPosition = deck.indexOf(0);
+    const otherBasicStart = opening.includes(4);
+    if (!opening.includes(0) && !otherBasicStart) continue;
     counts.valid++;
-    const result = classify(opening, prizes, drawn);
-    if (result.forcedEternatusActive) counts.forcedActive++;
-    if (result.route) counts.access++;
-    if (result.route && result.twoVmax) counts.twoVmax++;
+    if (opening.includes(0) && !otherBasicStart) counts.forcedActive++;
+
+    const radiantPrized = radiantPosition >= 7 && radiantPosition <= 12;
+    const radiantHeld = radiantPosition <= 6 || (includeTurnDraw && radiantPosition === 13);
+    const radiantInDeck = radiantPosition >= (includeTurnDraw ? 14 : 13);
+    const searched = earlyCards.includes(1) && radiantInDeck;
+    const recovered = earlyCards.includes(2) && radiantPrized;
+    const access = otherBasicStart && (radiantHeld || searched || recovered);
+    if (access) counts.access++;
+    if (access && deck.slice(includeTurnDraw ? 14 : 13).filter((category) => category === 3).length >= 2) counts.twoVmax++;
   }
   return {
     validProbability: counts.valid / iterations,
