@@ -37,3 +37,5 @@ jobs:
         run: node simulation/twinleaf/regidrago-prize-window-test.cjs
       - name: Test paid Apex Dragon AttackAction and copied damage
         run: node simulation/twinleaf/apex-attack-action.cjs
+      - name: Check Double Dragon Energy and Temple of Sinnoh Apex cost
+        run: node simulation/twinleaf/apex-double-dragon-temple.cjs
