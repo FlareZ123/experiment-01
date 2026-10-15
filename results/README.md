@@ -26,6 +26,8 @@
 
 **Rules erratum:** [Forest Seal Stone Star Alchemy remains usable under Path to the Peak](aichi-2026/forest-seal-stone-ruling.md). This corrects a sentence in the older candidate-exposure audit.
 
+- [Typed champion Ability-lock scope matrix](aichi-2026/ability-scope-matrix.md) separates suppression of VMAX, Basic Psychic support, Radiant Pokémon and Tool-granted Star Alchemy.
+
 ## Evidence state
 
 Three tournament-source engine fixtures completed under an unvalidated generic bot; no competitive matchup performance has been validated. **There is no measured win rate, and the 99.5% objective remains unmet.** Prioritize exact card legality, full decklist ingestion, Twinleaf engine support validation, and honest per-opponent statistical testing.
