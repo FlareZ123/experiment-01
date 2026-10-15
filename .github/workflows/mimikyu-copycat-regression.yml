@@ -33,3 +33,6 @@ jobs:
         run: node --test tests/mimikyu_apex_copycat.test.cjs
       - name: Validate nested Copycat to Apex Dragon to Timeless-GX effects
         run: node simulation/twinleaf/mimikyu-apex-integration.cjs
+
+      - name: Characterize stale Copycat attack after intervening pass
+        run: node simulation/twinleaf/mimikyu-stale-attack.cjs
