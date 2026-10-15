@@ -27,6 +27,8 @@ jobs:
         run: node --test tests/aichi_solo_start.test.cjs
       - name: Printed first-turn defense tests
         run: node --test tests/aichi_donk_resilience.test.cjs
+      - name: Validate Stadium and Tool opener calculation
+        run: node --test tests/aichi_stadium_lock_response.test.cjs
       - name: Audit published Aichi lists
         run: node scripts/aichi_opening_audit.cjs > aichi-opening-audit.md
       - name: Bonus draw access by Aichi opponent
