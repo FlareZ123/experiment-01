@@ -29,3 +29,5 @@ jobs:
         run: npm run compile
       - name: Execute bounded deterministic smoke game
         run: node simulation/twinleaf/smoke-test.cjs
+      - name: Audit all published Aichi printings against Twinleaf card implementations
+        run: node simulation/twinleaf/card-coverage.cjs
