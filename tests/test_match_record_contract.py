@@ -14,7 +14,7 @@ def field():
 
 def batch():
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "candidate_deck_sha256": "a" * 64,
         "field_manifest_sha256": hashlib.sha256(field().encode()).hexdigest(),
         "engine_revision": "engine",
@@ -28,9 +28,19 @@ def batch():
 
 
 def game(identifier, rank, seat, seed, status, winner, side="A"):
+    first_side = side if seat == "first" else ("B" if side == "A" else "A")
+    name = "research-" + first_side
     return {
         "game_id": identifier, "rank": rank, "seat": seat, "seed": seed,
         "status": status, "winner_side": winner, "candidate_side": side,
+        "first_player_side": first_side,
+        "first_turn": {
+            "firstTurnSlot": 0 if first_side == "A" else 1,
+            "firstTurnPlayerId": 101 if first_side == "A" else 202,
+            "firstTurnPlayerName": name,
+            "firstDrawLogName": name,
+            "verifiedByDrawLog": True,
+        },
         "opponent_deck_sha256": "b" * 64, "trace_sha256": "c" * 64,
     }
 
@@ -71,6 +81,23 @@ class RawContractTests(unittest.TestCase):
         data["field_manifest_sha256"] = "d" * 64
         with self.assertRaises(ValueError):
             evaluate_raw_batch(data, field())
+
+    def test_first_player_proof_is_required(self):
+        template = game("bad-order", 1, "second", 8, "completed", "A")
+        edits = [
+            lambda g: g.__setitem__("first_player_side", "A"),
+            lambda g: g.__setitem__("seat", "first"),
+            lambda g: g["first_turn"].__setitem__("firstTurnSlot", 0),
+            lambda g: g["first_turn"].__setitem__("firstDrawLogName", "research-A"),
+            lambda g: g["first_turn"].__setitem__("verifiedByDrawLog", False),
+        ]
+        for edit in edits:
+            attempt = copy.deepcopy(template)
+            edit(attempt)
+            data = batch()
+            data["games"] = [attempt]
+            with self.subTest(edit=edit), self.assertRaises(ValueError):
+                evaluate_raw_batch(data, field())
 
 
 if __name__ == "__main__":
