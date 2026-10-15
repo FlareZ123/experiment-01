@@ -1,0 +1,207 @@
+'use strict';
+
+const fs = require('node:fs');
+const path = require('node:path');
+
+/**
+ * Reproducible, in-process Twinleaf experimentation.
+ * This is research-owned glue, not a replacement for card/rules validation.
+ *
+ * IMPORTANT: This module runs one game at a time because it temporarily
+ * controls process-global Math.random to seed upstream random effects.
+ */
+const serverRoot = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server');
+
+/**
+ * @param {string} relativePath Relative path beneath the compiled server output.
+ * @returns {any} The compiled Twinleaf module.
+ */
+function engine(relativePath) {
+  return require(path.join(serverRoot, 'output', relativePath));
+}
+
+/** Populate the exact sets used by the pinned server's normal startup. */
+function initializeCards() {
+  const { CardManager } = engine('game/cards/card-manager');
+  const cardManager = CardManager.getInstance();
+  if (cardManager.getAllCards().length > 0) {
+    return cardManager;
+  }
+  const sets = engine('sets');
+  const startup = fs.readFileSync(path.join(serverRoot, 'start.js'), 'utf8');
+  const setNames = [...startup.matchAll(/^\s*cardManager\.defineSet\(sets\.(\w+)\)\s*;?/gm)]
+    .map(match => match[1]);
+  if (setNames.length === 0) {
+    throw new Error('No sets identified in the pinned Twinleaf startup.');
+  }
+  for (const name of setNames) {
+    if (!Array.isArray(sets[name])) {
+      throw new Error('Startup refers to an unavailable set: ' + name);
+    }
+    cardManager.defineSet(sets[name]);
+  }
+  return cardManager;
+}
+
+/**
+ * @param {number} seed Unsigned 32-bit match seed.
+ * @returns {() => number} Pseudorandom sample in [0, 1).
+ */
+function seededRandom(seed) {
+  let state = seed >>> 0;
+  if (state === 0) state = 0x9e3779b9;
+  return function random() {
+    state ^= state << 13;
+    state ^= state >>> 17;
+    state ^= state << 5;
+    return (state >>> 0) / 0x100000000;
+  };
+}
+
+/**
+ * @param {number} length Size of the deck.
+ * @param {() => number} random Seeded random source.
+ * @returns {number[]} A uniform Fisher-Yates permutation.
+ */
+function deckPermutation(length, random) {
+  const order = Array.from({ length }, (_, index) => index);
+  for (let i = length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    const tmp = order[i];
+    order[i] = order[j];
+    order[j] = tmp;
+  }
+  return order;
+}
+
+/**
+ * @typedef {object} MatchRequest
+ * @property {string[]} deckA Fully resolved Twinleaf fullName strings, exactly 60.
+ * @property {string[]} deckB Fully resolved Twinleaf fullName strings, exactly 60.
+ * @property {number} seed Unsigned 32-bit random seed.
+ * @property {number} [maxActions] Fail-safe bound on all user/bot actions.
+ * @property {string} [label] Experimental label for machine-readable output.
+ */
+
+/**
+ * Simulate both seats with upstream SimpleTacticsAi, resolving setup shuffles
+ * and coin flips from a seeded source. Returning a finished game says nothing
+ * about policy competence or whether all card interactions are implemented.
+ *
+ * @param {MatchRequest} request Input deck IDs and seed.
+ * @returns {{label:string,seed:number,actions:number,turns:number,finished:boolean,winner:number,prizesRemaining:number[],phase:number,policy:string,engine:string}}
+ */
+function runMatch(request) {
+  if (!Array.isArray(request.deckA) || request.deckA.length !== 60 ||
+      !Array.isArray(request.deckB) || request.deckB.length !== 60) {
+    throw new Error('Both decks must contain 60 concrete Twinleaf card fullNames.');
+  }
+  if (!Number.isInteger(request.seed) || request.seed < 0 || request.seed > 0xffffffff) {
+    throw new Error('seed must be an unsigned 32-bit integer.');
+  }
+  const random = seededRandom(request.seed);
+  const originalRandom = Math.random;
+  Math.random = random;
+  try {
+    initializeCards();
+    const { Store } = engine('game/store/store');
+    const { AddPlayerAction } = engine('game/store/actions/add-player-action');
+    const { ResolvePromptAction } = engine('game/store/actions/resolve-prompt-action');
+    const { CoinFlipPrompt } = engine('game/store/prompts/coin-flip-prompt');
+    const { ShuffleDeckPrompt } = engine('game/store/prompts/shuffle-prompt');
+    const { GamePhase } = engine('game/store/state/state');
+    const { Format } = engine('game/store/card/card-types');
+    const { GameSettings } = engine('game/core/game-settings');
+    const { SimpleTacticsAi } = engine('simple-bot/simple-tactics-ai');
+    const definitions = engine('simple-bot/simple-bot-definitions');
+    const { BotFlipMode, BotShuffleMode } = engine('game/bots/bot-arbiter');
+
+    const options = {
+      tactics: definitions.allSimpleTactics,
+      promptResolvers: definitions.allPromptResolvers,
+      scores: definitions.defaultStateScores,
+      arbiter: { flipMode: BotFlipMode.RANDOM, shuffleMode: BotShuffleMode.RANDOM }
+    };
+    const settings = new GameSettings();
+    settings.format = Format.EXPANDED;
+    settings.recordingEnabled = false;
+    settings.rules.firstTurnDrawCard = true;
+    settings.rules.firstTurnUseSupporter = false;
+    settings.rules.attackFirstTurn = false;
+    const store = new Store({ onStateChange() {} });
+    store.state.gameSettings = settings;
+    store.state.rules = settings.rules;
+    const seats = [
+      new SimpleTacticsAi({ id: 101 }, options, request.deckA),
+      new SimpleTacticsAi({ id: 202 }, options, request.deckB)
+    ];
+    store.dispatch(new AddPlayerAction(101, 'research-A', request.deckA));
+    if (store.state.phase === GamePhase.FINISHED) {
+      throw new Error('Player A failed Twinleaf deck validation.');
+    }
+    store.dispatch(new AddPlayerAction(202, 'research-B', request.deckB));
+    if (store.state.phase === GamePhase.FINISHED) {
+      throw new Error('Player B failed Twinleaf deck validation.');
+    }
+
+    const maxActions = request.maxActions === undefined ? 3000 : request.maxActions;
+    if (!Number.isInteger(maxActions) || maxActions < 1) {
+      throw new Error('maxActions must be a positive integer.');
+    }
+    let actions = 0;
+    while (store.state.phase !== GamePhase.FINISHED && actions < maxActions) {
+      const state = store.state;
+      const pending = state.prompts.find(prompt => prompt.result === undefined);
+      let action;
+      if (pending instanceof ShuffleDeckPrompt) {
+        const ownerId = pending.getPerspectivePlayerId();
+        const owner = state.players.find(player => player.id === ownerId);
+        if (!owner) throw new Error('Shuffle has no deck owner.');
+        action = new ResolvePromptAction(pending.id, deckPermutation(owner.deck.cards.length, random));
+      } else if (pending instanceof CoinFlipPrompt) {
+        action = new ResolvePromptAction(pending.id, random() < 0.5);
+      } else if (pending) {
+        const seat = state.players.findIndex(player => player.id === pending.playerId);
+        if (seat === -1) throw new Error('Unknown prompt player: ' + pending.playerId);
+        action = seats[seat].decodeNextAction(state);
+        if (!action) {
+          throw new Error('Policy cannot resolve prompt: ' + pending.constructor.name);
+        }
+      } else {
+        if (state.phase !== GamePhase.PLAYER_TURN) {
+          throw new Error('Unhandled game phase ' + state.phase);
+        }
+        action = seats[state.activePlayer].decodeNextAction(state);
+        if (!action) {
+          throw new Error('Policy failed to generate a turn action.');
+        }
+      }
+      store.dispatch(action);
+      actions += 1;
+    }
+    const state = store.state;
+    return {
+      label: request.label || '',
+      seed: request.seed,
+      actions,
+      turns: state.turn,
+      finished: state.phase === GamePhase.FINISHED,
+      winner: state.winner,
+      prizesRemaining: state.players.map(player => player.prizes.filter(prize => prize.cards.length > 0).length),
+      phase: state.phase,
+      policy: 'Twinleaf SimpleTacticsAi/defaultStateScores',
+      engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
+    };
+  } finally {
+    Math.random = originalRandom;
+  }
+}
+
+/** @returns {string[]} Curated upstream smoke-test deck, not an Aichi list. */
+function upstreamSmokeDeck() {
+  const { HEDRICK_DRAGAPULT_WORLDS_2026 } =
+    engine('advanced-bot/knowledge/decks/hedrick-dragapult-worlds-2026');
+  return HEDRICK_DRAGAPULT_WORLDS_2026.slice();
+}
+
+module.exports = { runMatch, initializeCards, seededRandom, deckPermutation, upstreamSmokeDeck };
