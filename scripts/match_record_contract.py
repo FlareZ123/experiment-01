@@ -13,7 +13,7 @@ def _hash(value):
 
 
 def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
-    """Summarize games only after verifying engine-first-turn and draw-log agreement."""
+    """Verify completed-game turn order; retain honest pre-turn engine failures."""
     if batch.get("schema_version") != 2:
         raise ValueError("Unknown schema version")
     keys = ("candidate_deck_sha256", "field_manifest_sha256", "engine_revision",
@@ -45,30 +45,41 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
         if not isinstance(g["game_id"], str) or not g["game_id"] or g["game_id"] in ids:
             raise ValueError("Duplicate or missing game ID")
         ids.add(g["game_id"])
-        if type(rank) is not int or rank not in range(1, 33) or seat not in ("first", "second"):
-            raise ValueError("Invalid rank or turn order")
+        if type(rank) is not int or rank not in range(1, 33):
+            raise ValueError("Invalid rank")
+        pre_turn_failure = status in FAILURES and winner is None
+        if status != "completed" and not pre_turn_failure:
+            raise ValueError("Failure cannot be a win; unknown status")
         if type(seed) is not int or not 0 <= seed <= 0xffffffff or (rank, seat, seed) in seeds:
             raise ValueError("Invalid or repeated within-cell seed")
         seeds.add((rank, seat, seed))
         if side not in ("A", "B"):
             raise ValueError("Candidate engine seat must be A or B")
         order = g.get("first_turn")
-        if not isinstance(order, dict):
-            raise ValueError("Missing engine first-turn observation")
-        slot = order.get("firstTurnSlot")
-        name = order.get("firstTurnPlayerName")
-        draw = order.get("firstDrawLogName")
-        first_id = order.get("firstTurnPlayerId")
-        if (type(slot) is not int or slot not in (0, 1) or
-                first_id != slots[slot]["id"] or
-                name != slots[slot]["name"] or name != draw or
-                order.get("verifiedByDrawLog") is not True):
-            raise ValueError("First turn contradicts engine slots or earliest draw log")
-        first_side = "A" if slot == 0 else "B"
-        if g.get("first_player_side") != first_side:
-            raise ValueError("Declared first-player side contradicts engine turn slot")
-        if seat != ("first" if side == first_side else "second"):
-            raise ValueError("Candidate turn order contradicts engine first-player side")
+        turn_verified = isinstance(order, dict)
+        if not turn_verified:
+            # Deck rejection and setup failures can precede the first turn.
+            # Such failures must have an unknown seat rather than fabricated proof.
+            if (not pre_turn_failure or seat != "unverified" or
+                    g.get("first_player_side") is not None or order is not None):
+                raise ValueError("Missing first-turn proof requires a pre-turn failure and unverified seat")
+        else:
+            if seat not in ("first", "second"):
+                raise ValueError("Verified first-turn record requires first or second seat")
+            slot = order.get("firstTurnSlot")
+            name = order.get("firstTurnPlayerName")
+            draw = order.get("firstDrawLogName")
+            first_id = order.get("firstTurnPlayerId")
+            if (type(slot) is not int or slot not in (0, 1) or
+                    first_id != slots[slot]["id"] or
+                    name != slots[slot]["name"] or name != draw or
+                    order.get("verifiedByDrawLog") is not True):
+                raise ValueError("First turn contradicts engine slots or earliest draw log")
+            first_side = "A" if slot == 0 else "B"
+            if g.get("first_player_side") != first_side:
+                raise ValueError("Declared first-player side contradicts engine turn slot")
+            if seat != ("first" if side == first_side else "second"):
+                raise ValueError("Candidate turn order contradicts engine first-player side")
         deck = g["opponent_deck_sha256"]
         if not _hash(deck) or not _hash(g["trace_sha256"]):
             raise ValueError("Missing deck or trace SHA-256")
@@ -83,7 +94,8 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
             ties += winner is None
         elif status in FAILURES and winner is None:
             failures.append({"game_id": g["game_id"], "rank": rank,
-                             "seat": seat, "reason": status})
+                             "seat": seat, "reason": status,
+                             "first_turn_verified": turn_verified})
         else:
             raise ValueError("Failure cannot be a win; unknown status")
 
@@ -94,6 +106,7 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
         "finished_games": sum(n for w, n in counts.values()),
         "finished_ties_as_nonwins": ties,
         "failures": failures,
+        "pre_first_turn_failures": sum(not f["first_turn_verified"] for f in failures),
         "statistical_result": stats,
         "arithmetic_threshold_with_no_failures": not failures and stats["statistical_threshold_met"],
         "warning": "Game-rule correctness and playing-policy skill are not established",
