@@ -1,33 +1,33 @@
 rank,player,archetype,published_full_list,exact_printing_engine_mapping,effect_regressions,expanded_policy_validation,candidate_first_finished,candidate_second_finished,game_evidence,checked_at_utc
-1,Yasunori Kato,Shadow Rider Calyrex,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-2,Takahiro Ando,Vileplume Control,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-3,Haruto Miki,Snorlax Stall,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-4,Shu Hosoda,Raichu Electrode Combo,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-5,Yamato Nakano,Mew Genesect,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-6,Kazuma Kashi,Iron Thorns,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-7,Hiroto Fuji,Snorlax Stall,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-8,Yusuke Kobayashi,Absol Garbodor,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-9,Shun Ito,Absol Electrode,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-10,Haruku Yoshioka,Regidrago,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-11,Wataru Yano,Absol Garbodor,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-12,Risa Sato,Regidrago,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-13,Hiromu Sasaki,Regidrago,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-14,Manaya Asano,Regidrago,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-15,Ryotaro Nozawa,Lopunny Vileplume,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-16,Takumi Matsumoto,Absol Garbodor,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-17,Yuya Yamano,Raichu Electrode Combo,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-18,Hayato Omuro,Regidrago,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-19,Mark Takahashi,Raging Bolt,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-20,Satoru Imamura,Regidrago,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-21,Shun Nakajima,Regidrago,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-22,Haruya Mori,Absol Garbodor,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
+1,Yasunori Kato,Shadow Rider Calyrex,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+2,Takahiro Ando,Vileplume Control,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+3,Haruto Miki,Snorlax Stall,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+4,Shu Hosoda,Raichu Electrode Combo,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+5,Yamato Nakano,Mew Genesect,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+6,Kazuma Kashi,Iron Thorns,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+7,Hiroto Fuji,Snorlax Stall,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+8,Yusuke Kobayashi,Absol Garbodor,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+9,Shun Ito,Absol Electrode,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+10,Haruku Yoshioka,Regidrago,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+11,Wataru Yano,Absol Garbodor,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+12,Risa Sato,Regidrago,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+13,Hiromu Sasaki,Regidrago,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+14,Manaya Asano,Regidrago,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+15,Ryotaro Nozawa,Lopunny Vileplume,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+16,Takumi Matsumoto,Absol Garbodor,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+17,Yuya Yamano,Raichu Electrode Combo,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+18,Hayato Omuro,Regidrago,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+19,Mark Takahashi,Raging Bolt,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+20,Satoru Imamura,Regidrago,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+21,Shun Nakajima,Regidrago,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+22,Haruya Mori,Absol Garbodor,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
 23,Yuki Ueno,Regidrago,no,blocked_missing_list,blocked_missing_list,unvalidated,0,0,none,2026-10-15T22:48:00Z
-24,Ryoya Fujii,Iron Thorns,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
+24,Ryoya Fujii,Iron Thorns,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
 25,Kazuki Kumegawa,Raichu Electrode Combo,no,blocked_missing_list,blocked_missing_list,unvalidated,0,0,none,2026-10-15T22:48:00Z
-26,Hibiki Yamada,Meloetta Donk,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-27,Yuya Nagatsuma,Regidrago,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
+26,Hibiki Yamada,Meloetta Donk,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+27,Yuya Nagatsuma,Regidrago,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
 28,Jo Kato,Regidrago,no,blocked_missing_list,blocked_missing_list,unvalidated,0,0,none,2026-10-15T22:48:00Z
-29,Kohei Hamamichi,Iron Thorns,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-30,Koki Takeda,Lillie's Clefairy,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-31,Yuhi Yokoyama,Dusknoir Chimecho,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
-32,Kaito Higuchi,Regidrago,yes,unverified,unverified,unvalidated,0,0,none,2026-10-15T22:48:00Z
+29,Kohei Hamamichi,Iron Thorns,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+30,Koki Takeda,Lillie's Clefairy,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+31,Yuhi Yokoyama,Dusknoir Chimecho,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
+32,Kaito Higuchi,Regidrago,yes,engine_valid_explicit_resolution,unverified,unvalidated,0,0,none,2026-10-15T23:07:00Z
