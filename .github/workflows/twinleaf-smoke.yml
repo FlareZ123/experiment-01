@@ -39,6 +39,8 @@ jobs:
         run: node --test tests/players_ceremony_effect.test.cjs
       - name: Verify Meloetta donk component attack and Stadium effects
         run: node --test tests/meloetta_donk_reducer.test.cjs
+      - name: Verify a staged self-KO awards opponent's final Prize
+        run: node --test tests/meloetta_self_ko.test.cjs
       - name: Execute bounded deterministic smoke game
         run: node simulation/twinleaf/smoke-test.cjs
       - name: Audit all published Aichi printings against Twinleaf card implementations
