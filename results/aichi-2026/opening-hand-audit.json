@@ -1,0 +1,1696 @@
+{
+  "scope": "29 published Aichi 2026 decks, initial uniformly sampled seven-card hands; not a win-rate prediction",
+  "assumptions": "Every printed Basic is an eligible opening Active; excludes mulligan replacement, opponent bonus draws, prize setting and voluntary benching.",
+  "decks": [
+    {
+      "rank": 1,
+      "player": "Yasunori Kato",
+      "archetype": "Shadow Rider Calyrex",
+      "basic_count_known": 14,
+      "basic_hp_at_most_60_known": 0,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Shadow Rider Calyrex V",
+          "count": 3,
+          "hp": 210
+        },
+        {
+          "name": "Lillie's Clefairy ex",
+          "count": 2,
+          "hp": 190
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 2,
+          "hp": 170
+        },
+        {
+          "name": "Trevenant & Dusknoir-GX",
+          "count": 1,
+          "hp": 270
+        },
+        {
+          "name": "Latias ex",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Dialga-GX",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Mimikyu",
+          "count": 1,
+          "hp": 70
+        },
+        {
+          "name": "Girafarig",
+          "count": 1,
+          "hp": 90
+        },
+        {
+          "name": "Marshadow",
+          "count": 1,
+          "hp": 80
+        },
+        {
+          "name": "Radiant Eternatus",
+          "count": 1,
+          "hp": 170
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.1385906808712801,
+        "exactly_one_basic_initial": 0.3395471681346362,
+        "exactly_one_basic_given_valid": 0.3941763347511427,
+        "lone_hp_at_most_60_given_valid": 0.0
+      }
+    },
+    {
+      "rank": 2,
+      "player": "Takahiro Ando",
+      "archetype": "Vileplume Control",
+      "basic_count_known": 14,
+      "basic_hp_at_most_60_known": 10,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Pidgey",
+          "count": 2,
+          "hp": 50
+        },
+        {
+          "name": "Oddish",
+          "count": 2,
+          "hp": 50
+        },
+        {
+          "name": "Lillipup",
+          "count": 2,
+          "hp": 60
+        },
+        {
+          "name": "Bunnelby",
+          "count": 2,
+          "hp": 60
+        },
+        {
+          "name": "Fan Rotom",
+          "count": 1,
+          "hp": 70
+        },
+        {
+          "name": "Relicanth",
+          "count": 1,
+          "hp": 100
+        },
+        {
+          "name": "Mr. Mime",
+          "count": 1,
+          "hp": 70
+        },
+        {
+          "name": "Girafarig",
+          "count": 1,
+          "hp": 90
+        },
+        {
+          "name": "Budew",
+          "count": 1,
+          "hp": 30
+        },
+        {
+          "name": "Jirachi",
+          "count": 1,
+          "hp": 60
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.1385906808712801,
+        "exactly_one_basic_initial": 0.3395471681346362,
+        "exactly_one_basic_given_valid": 0.3941763347511427,
+        "lone_hp_at_most_60_given_valid": 0.2815545248222448
+      }
+    },
+    {
+      "rank": 3,
+      "player": "Haruto Miki",
+      "archetype": "Snorlax Stall",
+      "basic_count_known": 11,
+      "basic_hp_at_most_60_known": 1,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Snorlax",
+          "count": 3,
+          "hp": 150
+        },
+        {
+          "name": "Galarian Stunfisk",
+          "count": 2,
+          "hp": 120
+        },
+        {
+          "name": "Regirock",
+          "count": 1,
+          "hp": 110
+        },
+        {
+          "name": "Mimikyu",
+          "count": 1,
+          "hp": 70
+        },
+        {
+          "name": "Girafarig",
+          "count": 1,
+          "hp": 90
+        },
+        {
+          "name": "Bunnelby",
+          "count": 1,
+          "hp": 60
+        },
+        {
+          "name": "Articuno-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Rotom V",
+          "count": 1,
+          "hp": 190
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.22242114149585926,
+        "exactly_one_basic_initial": 0.3982890208181666,
+        "exactly_one_basic_given_valid": 0.5122168850942925,
+        "lone_hp_at_most_60_given_valid": 0.046565171372208405
+      }
+    },
+    {
+      "rank": 4,
+      "player": "Shu Hosoda",
+      "archetype": "Raichu Electrode Combo",
+      "basic_count_known": 13,
+      "basic_hp_at_most_60_known": 4,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Voltorb",
+          "count": 2,
+          "hp": 60
+        },
+        {
+          "name": "Pikachu",
+          "count": 1,
+          "hp": 60
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 2,
+          "hp": 160
+        },
+        {
+          "name": "Crobat V",
+          "count": 2,
+          "hp": 180
+        },
+        {
+          "name": "Squawkabilly ex",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Eldegoss V",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Gengar & Mimikyu-GX",
+          "count": 1,
+          "hp": 240
+        },
+        {
+          "name": "Klefki",
+          "count": 1,
+          "hp": 70
+        },
+        {
+          "name": "Ditto ♢",
+          "count": 1,
+          "hp": 40
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.1628440500237541,
+        "exactly_one_basic_initial": 0.3614343549307713,
+        "exactly_one_basic_given_valid": 0.43174077057091564,
+        "lone_hp_at_most_60_given_valid": 0.1328433140218202
+      }
+    },
+    {
+      "rank": 5,
+      "player": "Yamato Nakano",
+      "archetype": "Mew Genesect",
+      "basic_count_known": 11,
+      "basic_hp_at_most_60_known": 0,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Mew V",
+          "count": 4,
+          "hp": 180
+        },
+        {
+          "name": "Genesect V",
+          "count": 4,
+          "hp": 190
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Crobat V",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Lillie's Clefairy ex",
+          "count": 1,
+          "hp": 190
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.22242114149585926,
+        "exactly_one_basic_initial": 0.3982890208181666,
+        "exactly_one_basic_given_valid": 0.5122168850942925,
+        "lone_hp_at_most_60_given_valid": 0.0
+      }
+    },
+    {
+      "rank": 6,
+      "player": "Kazuma Kashi",
+      "archetype": "Iron Thorns",
+      "basic_count_known": 4,
+      "basic_hp_at_most_60_known": 0,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Iron Thorns ex",
+          "count": 4,
+          "hp": 230
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.6005003742553344,
+        "exactly_one_basic_initial": 0.33628020958298727,
+        "exactly_one_basic_given_valid": 0.8417535034135825,
+        "lone_hp_at_most_60_given_valid": 0.0
+      }
+    },
+    {
+      "rank": 7,
+      "player": "Hiroto Fuji",
+      "archetype": "Snorlax Stall",
+      "basic_count_known": 12,
+      "basic_hp_at_most_60_known": 1,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Wobbuffet",
+          "count": 3,
+          "hp": 110
+        },
+        {
+          "name": "Mimikyu",
+          "count": 3,
+          "hp": 70
+        },
+        {
+          "name": "Snorlax",
+          "count": 2,
+          "hp": 150
+        },
+        {
+          "name": "Regirock",
+          "count": 2,
+          "hp": 110
+        },
+        {
+          "name": "Electrike",
+          "count": 1,
+          "hp": 50
+        },
+        {
+          "name": "Girafarig",
+          "count": 1,
+          "hp": 90
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.1906466927107365,
+        "exactly_one_basic_initial": 0.381293385421473,
+        "exactly_one_basic_given_valid": 0.4711087012154489,
+        "lone_hp_at_most_60_given_valid": 0.03925905843462075
+      }
+    },
+    {
+      "rank": 8,
+      "player": "Yusuke Kobayashi",
+      "archetype": "Absol Garbodor",
+      "basic_count_known": 10,
+      "basic_hp_at_most_60_known": 1,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Mega Absol ex",
+          "count": 2,
+          "hp": 280
+        },
+        {
+          "name": "Trubbish",
+          "count": 2,
+          "hp": 70
+        },
+        {
+          "name": "Tapu Koko ♢",
+          "count": 1,
+          "hp": 130
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Crobat V",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Squawkabilly ex",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Budew",
+          "count": 1,
+          "hp": 30
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.2586292342975108,
+        "exactly_one_basic_initial": 0.41145560001876713,
+        "exactly_one_basic_given_valid": 0.5549930197596752,
+        "lone_hp_at_most_60_given_valid": 0.055499301975967516
+      }
+    },
+    {
+      "rank": 9,
+      "player": "Shun Ito",
+      "archetype": "Absol Electrode",
+      "basic_count_known": 11,
+      "basic_hp_at_most_60_known": 6,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Unown",
+          "count": 4,
+          "hp": 60
+        },
+        {
+          "name": "Voltorb",
+          "count": 1,
+          "hp": 60
+        },
+        {
+          "name": "Toedscool",
+          "count": 1,
+          "hp": 60
+        },
+        {
+          "name": "Mega Absol ex",
+          "count": 1,
+          "hp": 280
+        },
+        {
+          "name": "Sableye V",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Gengar & Mimikyu-GX",
+          "count": 1,
+          "hp": 240
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Squawkabilly ex",
+          "count": 1,
+          "hp": 160
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.22242114149585926,
+        "exactly_one_basic_initial": 0.3982890208181666,
+        "exactly_one_basic_given_valid": 0.5122168850942925,
+        "lone_hp_at_most_60_given_valid": 0.27939102823325046
+      }
+    },
+    {
+      "rank": 10,
+      "player": "Haruku Yoshioka",
+      "archetype": "Regidrago",
+      "basic_count_known": 15,
+      "basic_hp_at_most_60_known": 2,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Regidrago V",
+          "count": 4,
+          "hp": 220
+        },
+        {
+          "name": "Budew",
+          "count": 2,
+          "hp": 30
+        },
+        {
+          "name": "Dialga-GX",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Koraidon ex",
+          "count": 1,
+          "hp": 230
+        },
+        {
+          "name": "Kyurem",
+          "count": 1,
+          "hp": 130
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Squawkabilly ex",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Latias ex",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Marshadow",
+          "count": 1,
+          "hp": 80
+        },
+        {
+          "name": "Wobbuffet",
+          "count": 1,
+          "hp": 110
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.11750079465173746,
+        "exactly_one_basic_initial": 0.31634829329313935,
+        "exactly_one_basic_given_valid": 0.3584686437970198,
+        "lone_hp_at_most_60_given_valid": 0.04779581917293597
+      }
+    },
+    {
+      "rank": 11,
+      "player": "Wataru Yano",
+      "archetype": "Absol Garbodor",
+      "basic_count_known": 11,
+      "basic_hp_at_most_60_known": 0,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Mega Absol ex",
+          "count": 3,
+          "hp": 280
+        },
+        {
+          "name": "Trubbish",
+          "count": 2,
+          "hp": 70
+        },
+        {
+          "name": "Oranguru V",
+          "count": 2,
+          "hp": 210
+        },
+        {
+          "name": "Latias ex",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Crobat V",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Squawkabilly ex",
+          "count": 1,
+          "hp": 160
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.22242114149585926,
+        "exactly_one_basic_initial": 0.3982890208181666,
+        "exactly_one_basic_given_valid": 0.5122168850942925,
+        "lone_hp_at_most_60_given_valid": 0.0
+      }
+    },
+    {
+      "rank": 12,
+      "player": "Risa Sato",
+      "archetype": "Regidrago",
+      "basic_count_known": 15,
+      "basic_hp_at_most_60_known": 1,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Regidrago V",
+          "count": 4,
+          "hp": 220
+        },
+        {
+          "name": "Dialga-GX",
+          "count": 2,
+          "hp": 180
+        },
+        {
+          "name": "Koraidon ex",
+          "count": 1,
+          "hp": 230
+        },
+        {
+          "name": "Kyurem",
+          "count": 1,
+          "hp": 130
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Crobat V",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Latias ex",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Marshadow",
+          "count": 1,
+          "hp": 80
+        },
+        {
+          "name": "Fezandipiti ex",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Budew",
+          "count": 1,
+          "hp": 30
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.11750079465173746,
+        "exactly_one_basic_initial": 0.31634829329313935,
+        "exactly_one_basic_given_valid": 0.3584686437970198,
+        "lone_hp_at_most_60_given_valid": 0.023897909586467984
+      }
+    },
+    {
+      "rank": 13,
+      "player": "Hiromu Sasaki",
+      "archetype": "Regidrago",
+      "basic_count_known": 11,
+      "basic_hp_at_most_60_known": 1,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Regidrago V",
+          "count": 4,
+          "hp": 220
+        },
+        {
+          "name": "Dialga-GX",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Kyurem",
+          "count": 1,
+          "hp": 130
+        },
+        {
+          "name": "Latias ex",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Squawkabilly ex",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Budew",
+          "count": 1,
+          "hp": 30
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.22242114149585926,
+        "exactly_one_basic_initial": 0.3982890208181666,
+        "exactly_one_basic_given_valid": 0.5122168850942925,
+        "lone_hp_at_most_60_given_valid": 0.046565171372208405
+      }
+    },
+    {
+      "rank": 14,
+      "player": "Manaya Asano",
+      "archetype": "Regidrago",
+      "basic_count_known": 14,
+      "basic_hp_at_most_60_known": 1,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Regidrago V",
+          "count": 4,
+          "hp": 220
+        },
+        {
+          "name": "Dialga-GX",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Kyurem",
+          "count": 1,
+          "hp": 130
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Squawkabilly ex",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Oricorio-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Latias ex",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Marshadow",
+          "count": 1,
+          "hp": 80
+        },
+        {
+          "name": "Sudowoodo",
+          "count": 1,
+          "hp": 100
+        },
+        {
+          "name": "Budew",
+          "count": 1,
+          "hp": 30
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.1385906808712801,
+        "exactly_one_basic_initial": 0.3395471681346362,
+        "exactly_one_basic_given_valid": 0.3941763347511427,
+        "lone_hp_at_most_60_given_valid": 0.02815545248222448
+      }
+    },
+    {
+      "rank": 15,
+      "player": "Ryotaro Nozawa",
+      "archetype": "Lopunny Vileplume",
+      "basic_count_known": 14,
+      "basic_hp_at_most_60_known": 8,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Oddish",
+          "count": 2,
+          "hp": 50
+        },
+        {
+          "name": "Buneary",
+          "count": 2,
+          "hp": 70
+        },
+        {
+          "name": "Pidgey",
+          "count": 2,
+          "hp": 60
+        },
+        {
+          "name": "Bunnelby",
+          "count": 2,
+          "hp": 60
+        },
+        {
+          "name": "Fan Rotom",
+          "count": 2,
+          "hp": 70
+        },
+        {
+          "name": "Budew",
+          "count": 2,
+          "hp": 30
+        },
+        {
+          "name": "Eldegoss V",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Tatsugiri",
+          "count": 1,
+          "hp": 70
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.1385906808712801,
+        "exactly_one_basic_initial": 0.3395471681346362,
+        "exactly_one_basic_given_valid": 0.3941763347511427,
+        "lone_hp_at_most_60_given_valid": 0.22524361985779584
+      }
+    },
+    {
+      "rank": 16,
+      "player": "Takumi Matsumoto",
+      "archetype": "Absol Garbodor",
+      "basic_count_known": 11,
+      "basic_hp_at_most_60_known": 2,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Mega Absol ex",
+          "count": 2,
+          "hp": 280
+        },
+        {
+          "name": "Trubbish",
+          "count": 2,
+          "hp": 70
+        },
+        {
+          "name": "Budew",
+          "count": 2,
+          "hp": 30
+        },
+        {
+          "name": "Crobat V",
+          "count": 2,
+          "hp": 180
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Squawkabilly ex",
+          "count": 1,
+          "hp": 160
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.22242114149585926,
+        "exactly_one_basic_initial": 0.3982890208181666,
+        "exactly_one_basic_given_valid": 0.5122168850942925,
+        "lone_hp_at_most_60_given_valid": 0.09313034274441681
+      }
+    },
+    {
+      "rank": 17,
+      "player": "Yuya Yamano",
+      "archetype": "Raichu Electrode Combo",
+      "basic_count_known": 13,
+      "basic_hp_at_most_60_known": 8,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Unown",
+          "count": 4,
+          "hp": 60
+        },
+        {
+          "name": "Voltorb",
+          "count": 2,
+          "hp": 60
+        },
+        {
+          "name": "Pikachu",
+          "count": 1,
+          "hp": 60
+        },
+        {
+          "name": "Squawkabilly ex",
+          "count": 2,
+          "hp": 160
+        },
+        {
+          "name": "Gengar & Mimikyu-GX",
+          "count": 1,
+          "hp": 240
+        },
+        {
+          "name": "Marshadow",
+          "count": 1,
+          "hp": 80
+        },
+        {
+          "name": "Klefki",
+          "count": 1,
+          "hp": 70
+        },
+        {
+          "name": "Ditto ♢",
+          "count": 1,
+          "hp": 40
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.1628440500237541,
+        "exactly_one_basic_initial": 0.3614343549307713,
+        "exactly_one_basic_given_valid": 0.43174077057091564,
+        "lone_hp_at_most_60_given_valid": 0.2656866280436404
+      }
+    },
+    {
+      "rank": 18,
+      "player": "Hayato Omuro",
+      "archetype": "Regidrago",
+      "basic_count_known": 16,
+      "basic_hp_at_most_60_known": 1,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Regidrago V",
+          "count": 3,
+          "hp": 220
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 2,
+          "hp": 160
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 2,
+          "hp": 170
+        },
+        {
+          "name": "Dialga-GX",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Koraidon ex",
+          "count": 1,
+          "hp": 230
+        },
+        {
+          "name": "Kyurem",
+          "count": 1,
+          "hp": 130
+        },
+        {
+          "name": "Squawkabilly ex",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Latias ex",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Mega Kangaskhan ex",
+          "count": 1,
+          "hp": 300
+        },
+        {
+          "name": "Sudowoodo",
+          "count": 1,
+          "hp": 100
+        },
+        {
+          "name": "Marshadow",
+          "count": 1,
+          "hp": 80
+        },
+        {
+          "name": "Budew",
+          "count": 1,
+          "hp": 30
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.0992228932614672,
+        "exactly_one_basic_initial": 0.2924464222443244,
+        "exactly_one_basic_given_valid": 0.324660140734696,
+        "lone_hp_at_most_60_given_valid": 0.0202912587959185
+      }
+    },
+    {
+      "rank": 19,
+      "player": "Mark Takahashi",
+      "archetype": "Raging Bolt",
+      "basic_count_known": 16,
+      "basic_hp_at_most_60_known": 0,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Raging Bolt ex",
+          "count": 2,
+          "hp": 240
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 2,
+          "hp": 160
+        },
+        {
+          "name": "Arceus & Dialga & Palkia-GX",
+          "count": 1,
+          "hp": 280
+        },
+        {
+          "name": "Sandy Shocks ex",
+          "count": 1,
+          "hp": 220
+        },
+        {
+          "name": "Galarian Moltres V",
+          "count": 1,
+          "hp": 220
+        },
+        {
+          "name": "Ho-Oh-EX",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Tapu Koko ♢",
+          "count": 1,
+          "hp": 130
+        },
+        {
+          "name": "Crobat V",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Squawkabilly ex",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Latias ex",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Marshadow",
+          "count": 1,
+          "hp": 80
+        },
+        {
+          "name": "Sudowoodo",
+          "count": 1,
+          "hp": 100
+        },
+        {
+          "name": "Flutter Mane",
+          "count": 1,
+          "hp": 90
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.0992228932614672,
+        "exactly_one_basic_initial": 0.2924464222443244,
+        "exactly_one_basic_given_valid": 0.324660140734696,
+        "lone_hp_at_most_60_given_valid": 0.0
+      }
+    },
+    {
+      "rank": 20,
+      "player": "Satoru Imamura",
+      "archetype": "Regidrago",
+      "basic_count_known": 14,
+      "basic_hp_at_most_60_known": 2,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Regidrago V",
+          "count": 4,
+          "hp": 220
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 2,
+          "hp": 160
+        },
+        {
+          "name": "Budew",
+          "count": 2,
+          "hp": 30
+        },
+        {
+          "name": "Squawkabilly ex",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Latias ex",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Marshadow",
+          "count": 1,
+          "hp": 80
+        },
+        {
+          "name": "Dialga-GX",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Kyurem",
+          "count": 1,
+          "hp": 130
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.1385906808712801,
+        "exactly_one_basic_initial": 0.3395471681346362,
+        "exactly_one_basic_given_valid": 0.3941763347511427,
+        "lone_hp_at_most_60_given_valid": 0.05631090496444896
+      }
+    },
+    {
+      "rank": 21,
+      "player": "Shun Nakajima",
+      "archetype": "Regidrago",
+      "basic_count_known": 14,
+      "basic_hp_at_most_60_known": 1,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Regidrago V",
+          "count": 3,
+          "hp": 220
+        },
+        {
+          "name": "Dialga-GX",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Koraidon ex",
+          "count": 1,
+          "hp": 230
+        },
+        {
+          "name": "Kyurem",
+          "count": 1,
+          "hp": 130
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Crobat V",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Squawkabilly ex",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Latias ex",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Budew",
+          "count": 1,
+          "hp": 30
+        },
+        {
+          "name": "Marshadow",
+          "count": 1,
+          "hp": 80
+        },
+        {
+          "name": "Wobbuffet",
+          "count": 1,
+          "hp": 110
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.1385906808712801,
+        "exactly_one_basic_initial": 0.3395471681346362,
+        "exactly_one_basic_given_valid": 0.3941763347511427,
+        "lone_hp_at_most_60_given_valid": 0.02815545248222448
+      }
+    },
+    {
+      "rank": 22,
+      "player": "Haruya Mori",
+      "archetype": "Absol Garbodor",
+      "basic_count_known": 12,
+      "basic_hp_at_most_60_known": 2,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Mega Absol ex",
+          "count": 2,
+          "hp": 280
+        },
+        {
+          "name": "Vikavolt V",
+          "count": 2,
+          "hp": 210
+        },
+        {
+          "name": "Trubbish",
+          "count": 1,
+          "hp": 70
+        },
+        {
+          "name": "Trubbish",
+          "count": 1,
+          "hp": 60
+        },
+        {
+          "name": "Crobat V",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Squawkabilly ex",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Tapu Koko ♢",
+          "count": 1,
+          "hp": 130
+        },
+        {
+          "name": "Budew",
+          "count": 1,
+          "hp": 30
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.1906466927107365,
+        "exactly_one_basic_initial": 0.381293385421473,
+        "exactly_one_basic_given_valid": 0.4711087012154489,
+        "lone_hp_at_most_60_given_valid": 0.0785181168692415
+      }
+    },
+    {
+      "rank": 24,
+      "player": "Ryoya Fujii",
+      "archetype": "Iron Thorns",
+      "basic_count_known": 4,
+      "basic_hp_at_most_60_known": 0,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Iron Thorns ex",
+          "count": 4,
+          "hp": 230
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.6005003742553344,
+        "exactly_one_basic_initial": 0.33628020958298727,
+        "exactly_one_basic_given_valid": 0.8417535034135825,
+        "lone_hp_at_most_60_given_valid": 0.0
+      }
+    },
+    {
+      "rank": 26,
+      "player": "Hibiki Yamada",
+      "archetype": "Meloetta Donk",
+      "basic_count_known": 12,
+      "basic_hp_at_most_60_known": 7,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Unown",
+          "count": 4,
+          "hp": 60
+        },
+        {
+          "name": "Exeggcute",
+          "count": 2,
+          "hp": 30
+        },
+        {
+          "name": "Meloetta ex",
+          "count": 1,
+          "hp": 200
+        },
+        {
+          "name": "Tapu Koko ♢",
+          "count": 1,
+          "hp": 130
+        },
+        {
+          "name": "Bunnelby",
+          "count": 1,
+          "hp": 60
+        },
+        {
+          "name": "Squawkabilly ex",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Crobat V",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 1,
+          "hp": 160
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.1906466927107365,
+        "exactly_one_basic_initial": 0.381293385421473,
+        "exactly_one_basic_given_valid": 0.4711087012154489,
+        "lone_hp_at_most_60_given_valid": 0.2748134090423452
+      }
+    },
+    {
+      "rank": 27,
+      "player": "Yuya Nagatsuma",
+      "archetype": "Regidrago",
+      "basic_count_known": 15,
+      "basic_hp_at_most_60_known": 1,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Regidrago V",
+          "count": 4,
+          "hp": 220
+        },
+        {
+          "name": "Dialga-GX",
+          "count": 2,
+          "hp": 180
+        },
+        {
+          "name": "Koraidon ex",
+          "count": 1,
+          "hp": 230
+        },
+        {
+          "name": "Kyurem",
+          "count": 1,
+          "hp": 130
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Crobat V",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Eldegoss V",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Latias ex",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Budew",
+          "count": 1,
+          "hp": 30
+        },
+        {
+          "name": "Marshadow",
+          "count": 1,
+          "hp": 80
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.11750079465173746,
+        "exactly_one_basic_initial": 0.31634829329313935,
+        "exactly_one_basic_given_valid": 0.3584686437970198,
+        "lone_hp_at_most_60_given_valid": 0.023897909586467984
+      }
+    },
+    {
+      "rank": 29,
+      "player": "Kohei Hamamichi",
+      "archetype": "Iron Thorns",
+      "basic_count_known": 4,
+      "basic_hp_at_most_60_known": 0,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Iron Thorns ex",
+          "count": 4,
+          "hp": 230
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.6005003742553344,
+        "exactly_one_basic_initial": 0.33628020958298727,
+        "exactly_one_basic_given_valid": 0.8417535034135825,
+        "lone_hp_at_most_60_given_valid": 0.0
+      }
+    },
+    {
+      "rank": 30,
+      "player": "Koki Takeda",
+      "archetype": "Lillie's Clefairy",
+      "basic_count_known": 16,
+      "basic_hp_at_most_60_known": 3,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Lillie's Clefairy ex",
+          "count": 3,
+          "hp": 190
+        },
+        {
+          "name": "Unown",
+          "count": 3,
+          "hp": 60
+        },
+        {
+          "name": "Latias ex",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Squawkabilly ex",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Crobat V",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Fezandipiti ex",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Empoleon V",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Mimikyu",
+          "count": 1,
+          "hp": 70
+        },
+        {
+          "name": "Dialga-GX",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Minior",
+          "count": 1,
+          "hp": 70
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.0992228932614672,
+        "exactly_one_basic_initial": 0.2924464222443244,
+        "exactly_one_basic_given_valid": 0.324660140734696,
+        "lone_hp_at_most_60_given_valid": 0.060873776387755506
+      }
+    },
+    {
+      "rank": 31,
+      "player": "Yuhi Yokoyama",
+      "archetype": "Dusknoir Chimecho",
+      "basic_count_known": 15,
+      "basic_hp_at_most_60_known": 9,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Duskull",
+          "count": 3,
+          "hp": 60
+        },
+        {
+          "name": "Unown",
+          "count": 3,
+          "hp": 60
+        },
+        {
+          "name": "Koffing",
+          "count": 3,
+          "hp": 60
+        },
+        {
+          "name": "Chimecho",
+          "count": 1,
+          "hp": 70
+        },
+        {
+          "name": "Gengar & Mimikyu-GX",
+          "count": 1,
+          "hp": 240
+        },
+        {
+          "name": "Radiant Alakazam",
+          "count": 1,
+          "hp": 130
+        },
+        {
+          "name": "Bloodmoon Ursaluna ex",
+          "count": 1,
+          "hp": 260
+        },
+        {
+          "name": "Latias ex",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 1,
+          "hp": 170
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.11750079465173746,
+        "exactly_one_basic_initial": 0.31634829329313935,
+        "exactly_one_basic_given_valid": 0.3584686437970198,
+        "lone_hp_at_most_60_given_valid": 0.21508118627821188
+      }
+    },
+    {
+      "rank": 32,
+      "player": "Kaito Higuchi",
+      "archetype": "Regidrago",
+      "basic_count_known": 13,
+      "basic_hp_at_most_60_known": 2,
+      "unresolved_pokemon": [],
+      "basics": [
+        {
+          "name": "Regidrago V",
+          "count": 4,
+          "hp": 220
+        },
+        {
+          "name": "Budew",
+          "count": 2,
+          "hp": 30
+        },
+        {
+          "name": "Dialga-GX",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Kyurem",
+          "count": 1,
+          "hp": 130
+        },
+        {
+          "name": "Tapu Lele-GX",
+          "count": 1,
+          "hp": 170
+        },
+        {
+          "name": "Dedenne-GX",
+          "count": 1,
+          "hp": 160
+        },
+        {
+          "name": "Crobat V",
+          "count": 1,
+          "hp": 180
+        },
+        {
+          "name": "Fezandipiti ex",
+          "count": 1,
+          "hp": 210
+        },
+        {
+          "name": "Latias ex",
+          "count": 1,
+          "hp": 210
+        }
+      ],
+      "probabilities": {
+        "mulligan_initial": 0.1628440500237541,
+        "exactly_one_basic_initial": 0.3614343549307713,
+        "exactly_one_basic_given_valid": 0.43174077057091564,
+        "lone_hp_at_most_60_given_valid": 0.0664216570109101
+      }
+    }
+  ],
+  "fully_resolved": 29
+}
