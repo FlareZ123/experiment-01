@@ -42,3 +42,12 @@ Preserve complete traces and keep this fixture outside `vendor/twinleaf`. As req
 The present completed Aichi engine fixtures use SimpleTacticsAi and have **no representative Regidrago Apex Dragon/Copycat counter-line demonstration**. The source-level discrepancy is a plausible systematic matchup distortion affecting both evaluation of Shadow Rider's current 60 cards and future optimizers that might discard apparently useless Mimikyu/Dialga-GX. The defect is strong enough to prioritize for a stateful fixture before comparing candidate win rates.
 
 **Evidence level:** Exact bundled card text + official advanced rulebook + pinned-engine source. No completed game reproducing the failure or implementing a fix yet. Do not claim engine-corrected results until the stateful before/after test is recorded.
+
+
+## Research-only compatibility candidate and deterministic reducer-level test
+
+The opt-in [Mimikyu non-GX Copycat hook](../../simulation/twinleaf/copycat-compat.cjs) wraps only the actual GRI Mimikyu class's `reduceEffect`. When that specific Pokémon uses Copycat and the opposing player's last declared attack carries the internal `copycatAttack` flag but no `gxAttack` flag, the wrapper temporarily clears the copy flag, delegates to the unmodified Mimikyu handler, and restores the original flag inside a `finally` block. It provides a restore callback and does not mutate the vendored source or globally change other Pokémon's copies.
+
+The [focused test](../../tests/mimikyu_apex_copycat.test.cjs) constructs pinned-engine `State`, `Player`, `PokemonCardList`, `AttackEffect`, `Mimikyu` and `RegidragoVSTAR` objects and substitutes a narrowly scoped fake store observing delegated `AttackEffect` calls. It checks: original engine prematurely rejects; opt-in wrapper reaches the delegate path and restores metadata; GX flagged predecessor remains rejected; uninstall restores baseline behavior. This **is a reducer-level diagnostic**, and the store double does not verify a complete attack with nested target choice, damage, turn skip or legality.
+
+A [manual-only GitHub Actions workflow](../../.github/workflows/mimikyu-copycat-regression.yml) compiles exactly the pinned submodule and invokes this test. As of this write, an actual CI execution has **not** been confirmed. Full gameplay parity remains open, and this hook must remain optional until a complete stateful test passes.
