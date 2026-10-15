@@ -106,3 +106,45 @@ test('arbitrary new fixed 60-card candidate has provenance fingerprint', () => {
   assert.equal(report.candidateDigest, plan.candidateDigest);
   assert.equal(report.manifestDigest, plan.manifestDigest);
 });
+
+test('Basic Energy fallback requires exact type, unmodified text and explicit opt-in', () => {
+  const { basicEnergyEquivalents } = require('../simulation/evaluation/basic-energy-equivalents.cjs');
+  const basic = { name: 'Psychic Energy', set: 'BLW', setNumber: '109',
+    fullName: 'Psychic Energy BLW', superType: 3, energyType: 0,
+    provides: [5], text: '' };
+  const source = { rank: 99, cards: [{name: 'Psychic Energy', count:60,
+    printing: { set:'MEE', number:'13' }}] };
+  const strict = resolveDeck(source, exactPrintingIndex([basic]));
+  assert.equal(strict.cards, null);
+  const equivalence = basicEnergyEquivalents([basic]);
+  const allowed = resolveDeck(source, exactPrintingIndex([basic]), equivalence);
+  assert.equal(allowed.cards.length, 60);
+  assert.equal(allowed.substitutions.length, 1);
+  assert.equal(allowed.substitutions[0].count, 60);
+  assert.equal(allowed.substitutions[0].enginePrinting, basic.fullName);
+  assert.equal(basicEnergyEquivalents([{...basic,energyType:1}]).size, 0);
+  assert.equal(basicEnergyEquivalents([{...basic,provides:[3]}]).size, 0);
+  assert.equal(basicEnergyEquivalents([{...basic,text:'Draw cards'}]).size, 0);
+  assert.equal(basicEnergyEquivalents([{...basic,energyEffect:()=>{}}]).size, 0);
+  assert.equal(basicEnergyEquivalents([{...basic,set:'BASE'}]).size, 0);
+});
+
+test('source printing substitutions appear in the evaluation provenance', () => {
+  const original = { name:'Psychic Energy',set:'BLW',setNumber:'109',
+    fullName:'Psychic Energy BLW',superType:3,energyType:0,provides:[5],text:'' };
+  const deckWithUnavailableArt = {
+    rank: 1, player:'Aichi winner', archetype:'Synthetic',
+    cards:[{name:'Psychic Energy',count:60,printing:{set:'MEE',number:'13'}}]
+  };
+  const plan = buildPlan({source:'test',decks:[deckWithUnavailableArt]},
+    [original], 1, {allowBasicEnergyEquivalent:true});
+  assert.equal(plan.candidate.cards.length,60);
+  assert.equal(plan.opponents[0].status,'ready');
+  assert.equal(plan.candidate.substitutions[0].originalPrinting.set,'MEE');
+  assert.equal(plan.printEquivalencePolicy,'ordinary-basic-energy-only');
+  const record = evaluatePlan(plan,{gamesPerSeat:1,
+    runMatch:()=>({finished:true,winner:0})});
+  assert.equal(record.candidateSubstitutions.length,1);
+  assert.equal(record.opponents[0].opponentSubstitutions.length,1);
+  assert.equal(record.opponents[1].status,'missing-published-list');
+});
