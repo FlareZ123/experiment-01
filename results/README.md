@@ -44,3 +44,7 @@ Repository `README.md` prohibits per-commit GitHub Actions workflows. Use explic
 ## Opening-hand and attack-line research
 
 [Exact 29-list opening/mulligan audit](aichi-2026/opening-mulligan-audit.md) reports Basic Pokémon counts, initial mulligan probabilities and expected optional opponent draws from the simultaneous-mulligan rule. The three published Iron Thorns ex lists each carry four Basics and have 60.050% initial mulligan probability. [Prize-aware Iron Thorns direct-line enumeration](aichi-2026/iron-thorns-direct-line.md) finds 33.782% or 39.108% conditional resource access for the DCE + Thunder Mountain + Guzma & Hala / Tag Call line, depending on DCE counts, under its explicitly limited action model. Both are exact setup submodels, **not game-win results**; [CI tests](https://github.com/FlareZ123/experiment-01/actions/runs/38819877604) passed.
+
+### Exact-card instantiation status
+
+[Agent 2's pinned Twinleaf mapping audit](twinleaf/field-card-resolution.md) verifies that all 29 published Aichi lists instantiate as 60-card decks in the engine, with explicit Prism-glyph normalization, Basic Energy print mappings, a verified PRC 60 Electrike disambiguation and a research-only Japanese Stadium hook. This resolves source-card *identities* only; competitive playing policy, effect fidelity, and three unpublished lists remain blockers.
