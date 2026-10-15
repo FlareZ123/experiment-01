@@ -7,6 +7,7 @@ import json
 import math
 import os
 import tempfile
+import unicodedata
 from collections import defaultdict
 from pathlib import Path
 
@@ -24,6 +25,11 @@ def number_key(s):
             s = s[len(prefix):]
             break
     return s.lstrip("0") or "0"
+
+
+def normalized_name(value):
+    """Verify source printing identity without punctuation/glyph mismatch."""
+    return "".join(c for c in unicodedata.normalize("NFKC", value).casefold() if c.isalnum())
 
 
 def stages():
@@ -60,6 +66,7 @@ def audit():
             candidates = [
                 c for set_id in aliases.get(printing["set"].upper(), [])
                 for c in index.get((set_id, number_key(printing["number"])), [])
+                if normalized_name(c["name"]) == normalized_name(entry["name"])
             ]
             attributes = {(tuple(c.get("subtypes", [])), int(c.get("hp") or 0)) for c in candidates}
             if len(attributes) != 1:
