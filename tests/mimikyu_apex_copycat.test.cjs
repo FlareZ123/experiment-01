@@ -104,6 +104,19 @@ test('opt-in hook preserves the printed no-GX restriction', () => {
   }
 });
 
+test('opt-in hook does not bypass restrictions for other copy-tagged attacks', () => {
+  const restore = installMimikyuNonGxCopycatHook();
+  try {
+    const f = fixture({ name: 'Unrelated Copy Move' });
+    assert.equal(f.mimikyu.reduceEffect(f.store, f.state, f.effect), f.state);
+    assert.deepEqual(f.observed, []);
+    assert.equal(f.previousAttack.copycatAttack, true);
+  } finally {
+    restore();
+    clearCopyAttackSessionsForTests();
+  }
+});
+
 test('after hook restore, original pinned-engine block is reinstated', () => {
   const restore = installMimikyuNonGxCopycatHook();
   restore();
