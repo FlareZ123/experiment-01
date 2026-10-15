@@ -138,6 +138,10 @@ function runMatch(request) {
   let restoreBotHooks;
   try {
     initializeCards();
+    const { registerPlayersCeremony, PLAYERS_CEREMONY_PRINT } = require('./card-patches.cjs');
+    if (request.deckA.includes(PLAYERS_CEREMONY_PRINT) || request.deckB.includes(PLAYERS_CEREMONY_PRINT)) {
+      registerPlayersCeremony();
+    }
     restoreBotHooks = installFairBotHooks();
     const { Store } = engine('game/store/store');
     const { AddPlayerAction } = engine('game/store/actions/add-player-action');
