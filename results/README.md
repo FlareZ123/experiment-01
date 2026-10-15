@@ -18,7 +18,7 @@
 - 11 Regidrago placements, four Absol Garbodor, three each Iron Thorns and Raichu Electrode, two Snorlax Stall, and nine other singleton archetypes.
 - [Seven-effect disruption exposure inventory](aichi-2026/disruption-inventory.md): exact-printing candidates for Item, Ability, Supporter, attack, and retreat locks across the 29 published decks; 20 contain at least one selected effect, with no claims of successful establishment or wins.
 - The source event is Japanese Expanded. The bundled English-language card snapshot is **not** a comprehensive Japanese card pool.
-- [Verified published opponent lists](aichi-2026/ingestion.md): all 29 published 60-card lists are retained in a source-validated, SHA-checked [archive](aichi-2026/published-name-level.json.gz.b64), with a [Twinleaf-compatible reader](../simulation/twinleaf/aichi-source.cjs). Exact card printings remain unresolved.
+- [Verified published opponent lists](aichi-2026/ingestion.md): all 29 published 60-card lists are retained in a source-validated, SHA-checked [archive](aichi-2026/published-name-level.json.gz.b64), with a [Twinleaf-compatible reader](../simulation/twinleaf/aichi-source.cjs). The [primary full manifest](aichi-2026/full-decklists.json) retains all 989 source printing rows; this name-only archive serves as an independent cross-check.
 
 
 - [Shadow Rider's dual-axis lock overlap](aichi-2026/champion-axes-observation.md) identifies 8 of 29 published lists with both a possible Item lock and a possible Underworld Door suppressor.
@@ -26,13 +26,13 @@
 
 ## Evidence state
 
-No simulator-based wins or matchup trials have been verified. **There is no measured win rate, and the 99.5% objective remains unmet.** Prioritize exact card legality, full decklist ingestion, Twinleaf engine support validation, and honest per-opponent statistical testing.
+Three tournament-source engine fixtures completed under an unvalidated generic bot; no competitive matchup performance has been validated. **There is no measured win rate, and the 99.5% objective remains unmet.** Prioritize exact card legality, full decklist ingestion, Twinleaf engine support validation, and honest per-opponent statistical testing.
 
 Repository `README.md` prohibits per-commit GitHub Actions workflows. Use explicit manual or scheduled workflows only.
 
 ## Field-wide evaluation
 
-[Statistical evidence protocol](aichi-2026/evidence-protocol.md) and [exact-binomial evaluator](../scripts/aichi_evidence.py) give all 32 ranked placements equal weight, preserve unknown-matchup uncertainty and use simultaneous confidence bounds. Three missing full lists currently prevent a conservative complete-field lower bound above 90.625%, even if all other placements were won. No gameplay trials have yet been reported.
+[Statistical evidence protocol](aichi-2026/evidence-protocol.md) and [exact-binomial evaluator](../scripts/aichi_evidence.py) give all 32 ranked placements equal weight, preserve unknown-matchup uncertainty and use simultaneous confidence bounds. Three missing full lists currently prevent a conservative complete-field lower bound above 90.625%, even if all other placements were won. Three weak-bot engine feasibility games have finished; no credible competitive sample is available.
 
 ## Shared evaluation readiness
 
