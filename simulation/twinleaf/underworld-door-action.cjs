@@ -53,9 +53,9 @@ function underworldDoorAction(options) {
     player.active = other;
     player.bench.push(vmaxSlot);
   }
-  const psychic = get('Psychic Energy SVE 5');
+  const psychic = get('Psychic Energy SVE');
   player.hand.cards.push(psychic);
-  player.deck.cards.push(get('Psychic Energy SVE 5'), get('Psychic Energy SVE 5'));
+  player.deck.cards.push(get('Psychic Energy SVE'), get('Psychic Energy SVE'));
   const initialDeck = player.deck.cards.length;
 
   const state = new State();
