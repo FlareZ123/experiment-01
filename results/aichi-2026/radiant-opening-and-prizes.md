@@ -61,3 +61,21 @@ This abstract example speaks to the *Gladion*-style singleton-rescue discussion 
 - Excludes opponent mulligans/bonus draws, additional first-turn draw or search, cards played before Gate, evolution, tactical choices, opponent turn-one locks, and tournament rule differences. It is not the probability of actually resolving Gate successfully against all opponents.
 - Does not certify the Japanese printing, legal status, or exact engine implementation of a named card. The source is the event reference and the bundled English card snapshot; Japanese rulings require separate verification.
 - The reusable exact machinery should inform deck-slot tradeoffs and provide unit-test oracles for full-game simulation, where gameplay strength can eventually be measured.
+
+
+## First-turn Item connectivity, with opportunity costs explicitly excluded
+
+The champion list additionally has four **Mysterious Treasure**, one **Quick Ball** and one **Hisuian Heavy Ball**. Radiant Eternatus is a **Dragon-type Basic**. Mysterious Treasure can search Psychic or Dragon Pokémon by discarding another card; Quick Ball can search a Basic by discarding another card; Hisuian Heavy Ball can exchange itself with a face-down Prized Basic Pokémon. The paper game permits Item use during the first turn unless another effect forbids it.
+
+The new [exact Item route enumerator](../../scripts/radiant_item_routes.py) partitions the same accepted-opener sample into mutually exclusive cases: Radiant is already in hand after the first normal draw; Radiant remains in the deck and an Item search is in hand; or Radiant is Prized and Hisuian Heavy Ball is in hand. Every path must leave **at least two Shadow Rider VMAX in the deck**, and a non-Radiant Basic must have occupied the opening Active position.
+
+| Distinct Radiant access channel | Chance conditional on valid opener |
+| --- | ---: |
+| Direct Radiant among the first eight cards | 12.017840% |
+| Mysterious Treasure or Quick Ball to fetch Radiant still in deck | 37.402816% |
+| Hisuian Heavy Ball to retrieve Prized Radiant | 1.238782% |
+| **Union of the above** | **50.659438%** |
+
+The 50.66% is a **theoretical opportunity ceiling under unrestricted Item use**, with other cards in the hand treated as mechanically discardable. It is not an estimate of an optimal player's actual first-turn Gate usage. Strategic UDP/DCI constraints can make a technically payable discard unattractive, opposing Item lock can remove these search paths, and other first-turn actions may be more valuable. The additional 38.64 percentage points show why evaluating only Radiant's direct appearance misses a large, connector-dependent part of its potential; they do not establish the real success rate of the sequence.
+
+The second model accounts for all correlations between the first seven cards, the normal first-turn draw, the six Prizes, the search Item in hand, and the VMAX targets left in the deck. It uses exact rational binomial weights. [Regression tests](../../tests/test_radiant_item_routes.py) check exact fractions and independently shuffle **100,000** seeded 60-card decks, dealing seven opening cards, six Prizes, and one normal turn draw in the actual chronological order. All tests passed locally on 15 October 2026. This stochastic check tests sampling semantics and is unrelated to match outcomes.
