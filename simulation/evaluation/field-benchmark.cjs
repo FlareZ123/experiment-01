@@ -172,11 +172,11 @@ function buildPlan(manifest, cardPool, candidateRank = 1, options = {}) {
  * the simulator. Unfinished games and execution errors remain explicit.
  * @param {ReturnType<typeof buildPlan>} plan
  * @param {{runMatch:(request:object)=>object,gamesPerSeat?:number,seedBase?:number,
- *  maxActions?:number,selectedRanks?:number[]}} options
+ *  maxActions?:number,selectedRanks?:number[],captureTrace?:boolean}} options
  */
 function evaluatePlan(plan, options) {
   const { runMatch, gamesPerSeat = 10, seedBase = 20261015,
-    maxActions = 3000, selectedRanks } = options;
+    maxActions = 3000, selectedRanks, captureTrace = false } = options;
   if (typeof runMatch !== 'function') throw new Error('runMatch is required.');
   if (!Number.isInteger(gamesPerSeat) || gamesPerSeat < 1 || gamesPerSeat > 10000) {
     throw new Error('gamesPerSeat must be between 1 and 10000.');
@@ -243,7 +243,15 @@ function evaluatePlan(plan, options) {
               winnerIndex: game.winner,
               status: gameStatus, endReason: game.endReason || null,
               actions: game.actions ?? null, turns: game.turns ?? null,
-              engineDeckHashes: game.deckHashes || null });
+              engineDeckHashes: game.deckHashes || null,
+              engineTrace: captureTrace ? {
+                attackTrace: game.attackTrace || [],
+                actionCounts: game.actionCounts || {},
+                actionsBySeat: game.actionsBySeat || [],
+                cardsPlayedBySeat: game.cardsPlayedBySeat || [],
+                prizesRemaining: game.prizesRemaining || [],
+                finalState: game.finalState || []
+              } : null });
             if (gameStatus === 'unfinished') {
               row.unfinished += 1;
             } else {
@@ -278,6 +286,7 @@ function evaluatePlan(plan, options) {
     candidateSubstitutions: plan.candidate.substitutions,
     seedBase, gamesPerSeat, maxActions,
     selectedRanks: selectedRanks || null,
+    captureTrace,
     policy: 'Twinleaf SimpleTacticsAi; competence unvalidated',
     engineSlotProtocol: 'candidate alternates engine A/B; true first-turn attributed only when engine turn and draw-log agree',
     startingTurnBalanceVerified: false,
