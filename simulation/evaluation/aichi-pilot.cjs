@@ -11,10 +11,10 @@ const { buildPlan, evaluatePlan } = require('./field-benchmark.cjs');
  *
  * @param {number|object} candidate Published placement rank or custom 60-card deck.
  */
-function planAichi(candidate = 1) {
+function planAichi(candidate = 1, options = {}) {
   const file = path.resolve(__dirname, '../../results/aichi-2026/full-decklists.json');
   const manifest = JSON.parse(fs.readFileSync(file, 'utf8'));
-  return buildPlan(manifest, initializeCards().getAllCards(), candidate);
+  return buildPlan(manifest, initializeCards().getAllCards(), candidate, options);
 }
 
 /** @param {ReturnType<typeof planAichi>} plan */
@@ -24,6 +24,8 @@ function summarisePlan(plan) {
     manifestDigest: plan.manifestDigest,
     candidateRank: plan.candidateRank, candidateLabel: plan.candidateLabel,
     candidateDigest: plan.candidateDigest,
+    printEquivalencePolicy: plan.printEquivalencePolicy,
+    candidateSubstitutions: plan.candidate.substitutions,
     candidateResolved: plan.candidate.cards !== null,
     candidateUnresolved: plan.candidate.unresolved,
     readyRanks: plan.opponents.filter(x => x.status === 'ready').map(x => x.rank),
@@ -46,7 +48,8 @@ function summarisePlan(plan) {
  * @param {{candidate?:number|object,gamesPerSeat?:number,seedBase?:number,maxActions?:number}} options
  */
 function runAichiPilot(options = {}) {
-  const plan = planAichi(options.candidate ?? 1);
+  const plan = planAichi(options.candidate ?? 1,
+    { allowBasicEnergyEquivalent: options.allowBasicEnergyEquivalent === true });
   const report = evaluatePlan(plan, {
     runMatch, gamesPerSeat: options.gamesPerSeat ?? 1,
     seedBase: options.seedBase ?? 20261015,
@@ -56,7 +59,10 @@ function runAichiPilot(options = {}) {
 }
 
 if (require.main === module) {
-  console.log(JSON.stringify(summarisePlan(planAichi()), null, 2));
+  console.log(JSON.stringify({
+    exact: summarisePlan(planAichi()),
+    basicEnergyEquivalence: summarisePlan(planAichi(1, {allowBasicEnergyEquivalent:true}))
+  },null,2));
 }
 
 module.exports = { planAichi, summarisePlan, runAichiPilot };
