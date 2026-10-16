@@ -49,6 +49,8 @@ The [Hood Shield engine smoke archive](aichi-2026/hood-engine-smoke.md) now pres
 
 [Agent 20's pinned-engine simple-bot policy regression](twinleaf/energy-and-temple-policy-gaps.md) finds that the default AttachEnergyTactic ignores Double Dragon Energy because its static `provides` is empty, even though a legal attached card supplies two dynamic Energy (manual CI [38828241565](https://github.com/FlareZ123/experiment-01/actions/runs/38828241565)). The default Ability tactic likewise overlooks a Psychic Marshadow Resetting Hole that would enable Apex Dragon under Temple (CI [38828047225](https://github.com/FlareZ123/experiment-01/actions/runs/38828047225)). This is a tested policy-confidence blocker for generic-bot Regidrago results, not a card-rules or win-rate claim.
 
+[Agent 36's opt-in Double Dragon Energy policy integration](twinleaf/dde-runtime-integration.md) now exposes the existing recovery tactic in the headless runner and field evaluator with explicit provenance. [Pinned-engine manual CI 38833103265](https://github.com/FlareZ123/experiment-01/actions/runs/38833103265) passed the prepared-state legality test and deterministic source-deck replay; however, both tested full source-list modes played **zero** Double Dragon Energy, so no gameplay improvement was observed. The generic policy remains unvalidated.
+
 ## Evidence state
 
 Three tournament-source engine fixtures completed under an unvalidated generic bot; no competitive matchup performance has been validated. **There is no measured win rate, and the 99.5% objective remains unmet.** Prioritize exact card legality, full decklist ingestion, Twinleaf engine support validation, and honest per-opponent statistical testing.
