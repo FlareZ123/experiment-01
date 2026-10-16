@@ -12,7 +12,7 @@ BASIC_REQUIRED = (
 OTHER_REQUIRED = ("Dusclops", "Ace Trainer", "Path to the Peak", "Powerglass")
 
 
-def source_prize_ceiling():
+def source_prize_ceiling(*, require_powerglass_basic_energy=False):
     data = json.loads(SOURCE.read_text(encoding="utf-8"))
     counts = {e["name_en"]: e["count"] for e in data["entries"]}
     assert sum(e["count"] for e in data["entries"]) == 60
@@ -21,6 +21,8 @@ def source_prize_ceiling():
     basics = data["counts"]["Pokémon"] - counts["Dusclops"]
     basic_roles = tuple(counts[name] for name in BASIC_REQUIRED)
     other_roles = tuple(counts[name] for name in OTHER_REQUIRED)
+    if require_powerglass_basic_energy:
+        other_roles += (counts["Basic Psychic Energy"],)
     return combo_prize_cuts(
         basic_roles, other_roles,
         counts["Hisuian Heavy Ball"], basics - sum(basic_roles),
@@ -28,5 +30,9 @@ def source_prize_ceiling():
 
 
 if __name__ == "__main__":
-    for name, probability in source_prize_ceiling().items():
-        print(f"{name}: {float(probability):.9%} ({probability})")
+    for use_energy in (False, True):
+        print("Powerglass Basic Energy required:", use_energy)
+        for name, probability in source_prize_ceiling(
+            require_powerglass_basic_energy=use_energy
+        ).items():
+            print(f"{name}: {float(probability):.9%} ({probability})")
