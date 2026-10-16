@@ -41,7 +41,8 @@ function observedFirstTurn(game) {
  */
 function executeDiagnostic(options) {
   const { campaign, ranks, resolvePair, runMatch, maxActions = 600,
-    policyFlags = {}, researchRevision = 'not-recorded' } = options;
+    policyFlags = {}, researchRevision = 'not-recorded',
+    researchPolicyProfile = 'fixed-core-v1' } = options;
   if (!campaign || ![1, 2].includes(campaign.schemaVersion) ||
       campaign.purpose !== 'exploratory-diagnostic-only' ||
       typeof campaign.planDigest !== 'string' ||
@@ -53,6 +54,9 @@ function executeDiagnostic(options) {
       (campaign.schemaVersion === 2 &&
         campaign.seedProtocol !== 'independent-slots-v2')) {
     throw new Error('Unsupported campaign seed protocol.');
+  }
+  if (!['fixed-core-v1', 'expanded-action-fidelity-probe-v1'].includes(researchPolicyProfile)) {
+    throw new Error('Unrecognized research policy profile.');
   }
   const { planDigest, trials: scheduledTrials, ...metadata } = campaign;
   if (digest({ metadata, trials: scheduledTrials }) !== planDigest) {
@@ -112,6 +116,7 @@ function executeDiagnostic(options) {
   for (const trial of trials) {
     const base = {
       trialId: trial.trialId, planDigest: campaign.planDigest, phase: trial.phase,
+      researchPolicyProfile,
       candidateId: trial.candidateId, candidateDigest: trial.candidateDigest,
       opponentRank: trial.rank, opponentDigest: trial.opponentDigest,
       seed: trial.seed, candidateEngineSlot: trial.candidateEngineSlot
@@ -225,6 +230,7 @@ function executeDiagnostic(options) {
     seedProtocol: campaign.seedProtocol || 'paired-slots-v1',
     candidateRows: campaign.candidateRows, fieldCoverage: campaign.coverage,
     selectedPilotRanks: ranks, maxActions, policyFlags, researchRevision,
+    researchPolicyProfile,
     engineAndPolicyQualified: false, strengthClaimPermitted: false,
     totalScheduled: expected, counts, records,
     caution: 'Terminal games, attack counts and slot swaps cannot establish competitive performance. Game effects, policies, and actual starting-turn balance need independent validation.'
@@ -237,10 +243,30 @@ function executeDiagnostic(options) {
  */
 function main() {
   const { runMatch } = require('../twinleaf/headless.cjs');
+  const { withExpandedActionOptions, EXPANDED_PROFILE } =
+    require('../twinleaf/policy-profiles.cjs');
   const { planAichi } = require('./aichi-pilot.cjs');
   const dir = path.resolve(__dirname, '../../results/aichi-2026');
   const seedProtocol = process.env.AICHI_DIAGNOSTIC_SEED_PROTOCOL ||
     'paired-slots-v1';
+  const researchPolicyProfile = process.env.AICHI_POLICY_PROFILE || 'fixed-core-v1';
+  if (!['fixed-core-v1', EXPANDED_PROFILE].includes(researchPolicyProfile)) {
+    throw new Error('Unsupported Aichi diagnostic policy profile.');
+  }
+  /** @param {object} request */
+  const runWithProfile = request => {
+    if (researchPolicyProfile === 'fixed-core-v1') return runMatch(request);
+    return withExpandedActionOptions(() => {
+      const game = runMatch(request);
+      return {
+        ...game,
+        policy: String(game.policy || 'unspecified') +
+          '+TempleUnlockTactic-v1+ToolAwareAttackTactic-v1' +
+          '+BunnelbyEvolutionTactic-v1+BarrageEvolutionResolver-v1' +
+          '+MandatoryOptionResolver-v1'
+      };
+    });
+  };
   const campaign = loadDefaultCampaign(seedProtocol);
   const source = JSON.parse(fs.readFileSync(path.join(dir, 'full-decklists.json'), 'utf8'));
   const byRank = new Map(source.decks.map(d => [d.rank, d]));
@@ -263,6 +289,7 @@ function main() {
   const output = executeDiagnostic({
     campaign, ranks, maxActions: 600,
     researchRevision: process.env.GITHUB_SHA || 'local-revision-not-recorded',
+    researchPolicyProfile,
     policyFlags: {
       strictPromptValidation: true, forestSealSearchCorrection: true,
       doubleDragonRecovery: true, supporterDecisionCorrection: true,
@@ -281,7 +308,7 @@ function main() {
         blockers: [...mapping.candidate.unresolved, ...(opponent.unresolved || [])]
       };
     },
-    runMatch
+    runMatch: runWithProfile
   });
   process.stdout.write(JSON.stringify(output, null, 2) + '\n');
 }
