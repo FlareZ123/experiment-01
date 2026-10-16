@@ -47,3 +47,16 @@ test('unrelated or non-selection prompts are not captured',()=>{
   action.result=true;
   assert.equal(selectedCardsEvidence(prompt,action,state),null);
 });
+
+
+test('accept object-valued prompt selections from the engine',()=>{
+  const a={fullName:'Guzma BUS 115'};
+  const b={fullName:'Lusamine CIN 96'};
+  const cards={cards:[a,b]};
+  const prompt=new ChooseCardsPrompt();prompt.cards=cards;
+  const action=new ResolvePromptAction();action.result=[a,b];
+  const evidence=selectedCardsEvidence(prompt,action,{players:[{hand:cards}]});
+  assert.deepEqual(evidence.selectedCards,['Guzma BUS 115','Lusamine CIN 96']);
+  assert.equal(evidence.selectedIndices,null);
+  assert.equal(evidence.unmappedSelectedCards,0);
+});
