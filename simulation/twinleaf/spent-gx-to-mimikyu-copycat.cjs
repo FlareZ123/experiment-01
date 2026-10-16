@@ -21,17 +21,20 @@ const load = moduleName => require(path.join(output, moduleName));
 function playRejectedGxThenCopycat(fixDeclHistory) {
   const manager = initializeCards();
   const get = name => manager.getCardByName(name);
+  // Each in-play/discard card below occurs in the published rank-1
+  // Shadow Rider or rank-10 Regidrago 60-card source inventory.
   const names = [
-    'Mimikyu GRI', 'Regidrago VSTAR SIT', 'Dialga-GX UPR',
-    'Dratini OBF', 'Psychic Energy SVE', 'Psychic Energy SVE',
-    'Grass Energy SVE', 'Grass Energy SVE', 'Fire Energy SVE'
+    'Mimikyu GRI', 'Regidrago VSTAR SIT',
+    'Dialga-GX UPR', 'Dialga-GX UPR',
+    'Psychic Energy MEE', 'Psychic Energy MEE',
+    'Grass Energy MEE', 'Grass Energy MEE', 'Fire Energy MEE'
   ];
-  const [mimikyu, regidrago, dialga, dratini, psychic1, psychic2,
-    grass1, grass2, fire] = names.map(get);
-  assert.ok(names.every((name, i) => [
-    mimikyu, regidrago, dialga, dratini, psychic1, psychic2,
-    grass1, grass2, fire
-  ][i]), 'Pinned source print unavailable');
+  const cards = names.map(get);
+  const [mimikyu, regidrago, mimikyuDialga, regidragoDialga,
+    psychic1, psychic2, grass1, grass2, fire] = cards;
+  assert.ok(cards.every(Boolean), 'Pinned source print unavailable');
+  assert.notStrictEqual(mimikyuDialga, regidragoDialga,
+    'Both opposing source inventories need separate Dialga-GX instances');
 
   const {Store} = load('game/store/store');
   const {Player} = load('game/store/state/player');
@@ -59,16 +62,16 @@ function playRejectedGxThenCopycat(fixDeclHistory) {
     b.id = 202;
     b.name = 'Regidrago';
     a.active.cards.push(mimikyu, psychic1, psychic2);
-    a.discard.cards.push(dratini);
+    a.discard.cards.push(mimikyuDialga);
     b.active.cards.push(regidrago, grass1, grass2, fire);
-    b.discard.cards.push(dialga);
+    b.discard.cards.push(regidragoDialga);
     b.usedGX = true;
     state.players = [a, b];
 
     for (const player of state.players) {
       player.prizes = Array.from({length: 6},
-        () => CardList.fromList(['Grass Energy SVE']));
-      player.deck = CardList.fromList(Array(12).fill('Grass Energy SVE'));
+        () => CardList.fromList(['Grass Energy MEE']));
+      player.deck = CardList.fromList(Array(12).fill('Grass Energy MEE'));
     }
     state.activePlayer = 1;
     state.phase = GamePhase.PLAYER_TURN;
@@ -82,7 +85,7 @@ function playRejectedGxThenCopycat(fixDeclHistory) {
     assert.equal(state.playerLastAttack[b.id].attack.name, 'Apex Dragon');
     const first = pendingCopyFor(b);
     assert.ok(first);
-    store.dispatch(new ResolvePromptAction(first.id, dialga.attacks[2]));
+    store.dispatch(new ResolvePromptAction(first.id, regidragoDialga.attacks[2]));
     const retry = pendingCopyFor(b);
     assert.ok(retry && retry.id !== first.id);
     store.dispatch(new ResolvePromptAction(retry.id, null));
@@ -106,8 +109,8 @@ function playRejectedGxThenCopycat(fixDeclHistory) {
     const prompt = pendingCopyFor(a);
     const copycatHasPrompt = Boolean(prompt);
     if (prompt) {
-      assert.ok(prompt.cards.includes(dratini));
-      store.dispatch(new ResolvePromptAction(prompt.id, dratini.attacks[0]));
+      assert.ok(prompt.cards.includes(mimikyuDialga));
+      store.dispatch(new ResolvePromptAction(prompt.id, mimikyuDialga.attacks[1]));
     }
     return {
       priorAttackAfterCancel, priorAttackAfterTurn,
@@ -130,11 +133,11 @@ function compareGxDeniedCounterline() {
   assert.equal(unpatched.damageToRegidrago, 0);
   assert.equal(restored.priorAttackAfterTurn, 'Apex Dragon');
   assert.equal(restored.copycatHasPrompt, true);
-  assert.equal(restored.damageToRegidrago, 20);
+  assert.equal(restored.damageToRegidrago, 80);
   return {
     engine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     unpatched, restored,
-    scope: 'Two actual declared attacks across a turn transition, injected established boards and opt-in Mimikyu compatibility'
+    scope: 'Rank-1 and rank-10 source-inventory printings, two actual AttackActions across a turn transition, injected established boards and opt-in Mimikyu compatibility'
   };
 }
 
