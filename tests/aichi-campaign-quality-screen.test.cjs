@@ -206,3 +206,35 @@ test('v3 schema rejects an unrecognized or falsely labeled protocol', () => {
   f.campaignSchemaVersion = 4;
   assert.throws(() => auditCampaignQuality(f), /unsupported campaign schedule/);
 });
+
+
+test('v3 archive rederives each physical-slot seed when base is preserved', () => {
+  const {deriveSlotSeeds} = require('../scripts/aichi-decorrelated-seeds.cjs');
+  const f = fixture();
+  f.campaignSchemaVersion = 3;
+  f.seedProtocol = 'decorrelated-slots-v3';
+  f.seedBase = 20261016;
+  const seeds = deriveSlotSeeds(f.seedBase, 'pilot', 6, 0);
+  for (const record of f.records) {
+    record.seed = seeds[record.candidateEngineSlot];
+  }
+  const out = auditCampaignQuality(f);
+  assert.equal(out.seedBase, 20261016);
+  assert.equal(out.seedDerivationStatus, 'v3-derived-and-matched');
+  assert.equal(out.winRateEvidence, false);
+  f.records[0].seed += 2;
+  f.records[3].seed += 2;
+  assert.throws(() => auditCampaignQuality(f), /v3 seed differs/);
+  f.records[0].seed -= 2;
+  f.records[3].seed -= 2;
+  f.seedBase = -1;
+  assert.throws(() => auditCampaignQuality(f), /Invalid v3 archive seed base/);
+});
+
+test('a legacy v3 archive without the seed base is clearly marked', () => {
+  const f = fixture();
+  f.campaignSchemaVersion = 3;
+  f.seedProtocol = 'decorrelated-slots-v3';
+  assert.equal(auditCampaignQuality(f).seedDerivationStatus,
+    'v3-base-missing-legacy');
+});
