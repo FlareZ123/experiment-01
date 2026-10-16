@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const { deckPermutation, seededRandom } = require('./headless.cjs');
 const { canonicalUnseenCards } = require('./canonical-unseen-cards.cjs');
+const {evaluateDetachedDeckSamples} = require('./detached-deck-sampling.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 
@@ -20,7 +21,7 @@ const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  * unknown opponent hand/deck/Prize information. None of that is solved here.
  * Therefore this hook is for controlled information-leakage diagnostics only.
  *
- * @param {{seed:number,samples:number,assumeNoKnownDeckOrder:boolean,assumeDeckContentsKnown:boolean}} opts
+ * @param {{seed:number,samples:number,assumeNoKnownDeckOrder:boolean,assumeDeckContentsKnown:boolean,isolateGameState?:boolean,assumeIndexBasedAction?:boolean}} opts
  * @returns {() => void} Restore upstream scoring.
  */
 function installOwnDeckDeterminizationHook(opts) {
@@ -30,13 +31,31 @@ function installOwnDeckDeterminizationHook(opts) {
     'Caller must verify deck membership is known from a prior search (K1).');
   assert.ok(Number.isInteger(opts.samples) && opts.samples >= 1 && opts.samples <= 64);
   assert.ok(Number.isInteger(opts.seed));
+  if (opts.isolateGameState === true) {
+    assert.equal(opts.assumeIndexBasedAction, true,
+      'Detached scoring requires verified index-based action references.');
+  }
 
   const { SimpleTactic } = require(path.join(
     output, 'simple-bot/simple-tactics/simple-tactics'));
   const original = SimpleTactic.prototype.evaluateAction;
+  // Opt-in only: cloning must keep all mutable Card objects out of the live
+  // speculative state. The legacy array-only sampler remains for reproducing
+  // earlier diagnostics and is explicitly unsafe against Card alias leakage.
+  const {deepClone} = opts.isolateGameState === true ?
+    require(path.join(output,'utils')) : {deepClone:null};
+  const {Card} = opts.isolateGameState === true ?
+    require(path.join(output,'game/store/card/card')) : {Card:null};
   SimpleTactic.prototype.evaluateAction = function sampledEvaluateAction(
     state, playerId, action, passTurnScore
   ) {
+    if (opts.isolateGameState === true) {
+      return evaluateDetachedDeckSamples(
+        state,playerId,action,passTurnScore,original,this,deepClone,{
+          samples:opts.samples,seed:opts.seed,permutation:deckPermutation,
+          random:seededRandom,isCard:value=>value instanceof Card
+        });
+    }
     const player = state.players.find(p => p.id === playerId);
     if (!player) return original.call(this, state, playerId, action, passTurnScore);
     const actualDeck = player.deck.cards;
