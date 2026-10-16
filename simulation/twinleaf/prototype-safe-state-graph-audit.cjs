@@ -13,8 +13,8 @@ const output = path.resolve(__dirname,
 const engine = name => require(path.join(output, name));
 
 /**
- * Audit whether a clone preserves identities repeated elsewhere in a real
- * Store state. Walk only own enumerable state data, as pinned deepClone does.
+ * Audit reference topology, array sizes, and primitive own-field values
+ * in a real Store state. Walk only own enumerable data, as pinned deepClone does.
  *
  * @param {object} source Original Store state.
  * @param {object} detached Cloned State under investigation.
@@ -23,18 +23,28 @@ const engine = name => require(path.join(output, name));
 function compareOwnedStateGraph(source, detached) {
   const seen = new WeakMap();
   const unexpected = {sharedReferences:[], repeatedArrayBreaks:[],
-    repeatedObjectBreaks:[], sourcePrototypeAliases:[], missingProperties:[]};
+    repeatedObjectBreaks:[], sourcePrototypeAliases:[], missingProperties:[],
+    valueMismatches:[], arrayLengthMismatches:[]};
   let nodes = 0;
   let arrays = 0;
   /** @param {any} original @param {any} cloned @param {string} location */
   function walk(original,cloned,location) {
-    if (original === null || typeof original !== 'object') return;
+    if (original === null || typeof original !== 'object') {
+      if (!Object.is(original,cloned)) {
+        unexpected.valueMismatches.push(location);
+      }
+      return;
+    }
     if (cloned === null || typeof cloned !== 'object') {
       unexpected.missingProperties.push(location+' (object became primitive)');
       return;
     }
     if (original === cloned) {
       unexpected.sharedReferences.push(location);
+    }
+    if (Array.isArray(original) &&
+        (!Array.isArray(cloned) || original.length !== cloned.length)) {
+      unexpected.arrayLengthMismatches.push(location);
     }
     const previously = seen.get(original);
     if (previously) {
