@@ -71,7 +71,7 @@ function oneSetup(deck0, deck1, seed) {
         const offeredSeat = state.players.findIndex(p => p.id === prompt.playerId);
         if (offeredSeat < 0) throw new Error('Unknown recipient for bonus-card offer.');
         const offeredCounts = prompt.values.map(value => {
-          const match = /^Draw (\\d+) card\\(s\\)$/.exec(value);
+          const match = /^Draw (\d+) card\(s\)$/.exec(value);
           if (!match) throw new Error('Unexpected bonus-card offer option: ' + value);
           return Number(match[1]);
         });
