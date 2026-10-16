@@ -450,7 +450,8 @@ function runMatch(request) {
         (request.supporterDecisionCorrection === true ? '+SupporterDecisionGuard-v1' : '') +
         (request.templeUnlockRecovery === true ? '+TempleUnlockTactic-v1' : '') +
         (request.snorlaxRetreatStartCorrection === true ? '+SnorlaxBlockStartGate-v1' : '') +
-        (request.shadowRiderEnergyPriority === true ? '+ShadowRiderPsychicAttachPriority-v1' : ''),
+        (request.shadowRiderEnergyPriority === true ? '+ShadowRiderPsychicAttachPriority-v1' : '') +
+        (request.leleEntryAbilityLockCorrection === true ? '+LeleEntryAbilityLockGuard-v1' : ''),
       policyRandomIsolation: request.isolatePolicyRandomness === true,
       randomnessProtocol: request.isolatePolicyRandomness === true ?
         'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
