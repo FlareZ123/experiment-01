@@ -44,10 +44,6 @@ function auditK0BunnelbyDetachedSampling() {
     isCard:card=>card instanceof Card,
     sampleUnknownPrizes:true,prizesUnobservedVerified:true
   };
-  const evidence=state=>{
-    const player=state.players.find(side=>side.id===state.players[0].id);
-    return hasBenchEvolutionTarget(player)?1:0;
-  };
   const scores=[];
   for(const source of [accessible,prized]) {
     const before=hiddenPhysicalSnapshot(source.a);
