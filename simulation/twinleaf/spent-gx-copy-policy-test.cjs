@@ -6,6 +6,8 @@ const {initializeCards} = require('./headless.cjs');
 const {preparedRegidrago} = require('./apex-attack-action.cjs');
 const {withSpentGxCopyResolver} =
   require('./spent-gx-copy-prompt-resolver.cjs');
+const {installDeclaredCopyHistoryHook} =
+  require('./copycat-declared-history-hook.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name @returns {any} */
@@ -14,15 +16,19 @@ const load = name => require(path.join(output, name));
 /**
  * @param {boolean} usedGX
  * @param {boolean} useOptInResolver
- * @returns {{choices:string[],damage:number,usedGX:boolean,extraTurn:boolean,pending:string[]}}
+ * @param {boolean} [fixHistory]
+ * @returns {{choices:string[],damage:number,usedGX:boolean,extraTurn:boolean,pending:string[],recordedLastAttack:string}}
  */
-function runChoicePolicy(usedGX, useOptInResolver) {
+function runChoicePolicy(usedGX, useOptInResolver, fixHistory = false) {
   const {AttackAction} = load('game/store/actions/game-actions');
   const {clearCopyAttackSessionsForTests} =
     load('game/store/prefabs/copy-attack-delegation');
   const {SimpleTacticsAi} = load('simple-bot/simple-tactics-ai');
   const definitions = load('simple-bot/simple-bot-definitions');
   clearCopyAttackSessionsForTests();
+  const restoreHistory = fixHistory ?
+    installDeclaredCopyHistoryHook({regidrago:true,mimikyu:false}) : () => {};
+  try {
   const board = preparedRegidrago();
   board.attachFire();
   board.attacking.usedGX = usedGX;
@@ -57,31 +63,45 @@ function runChoicePolicy(usedGX, useOptInResolver) {
     damage: board.defending.active.damage,
     usedGX: board.attacking.usedGX,
     extraTurn: Boolean(board.attacking.usedTurnSkip),
+    recordedLastAttack: board.state.playerLastAttack[board.attacking.id]?.attack?.name,
     pending: board.state.prompts.filter(p => p.result === undefined)
       .map(p => p.constructor.name)
   };
-  clearCopyAttackSessionsForTests();
   return result;
+  } finally {
+    restoreHistory();
+    clearCopyAttackSessionsForTests();
+  }
 }
 
 function evaluatePolicy() {
   const baseline = runChoicePolicy(true, false);
   const corrected = runChoicePolicy(true, true);
+  const historyOnly = runChoicePolicy(true, false, true);
+  const combined = runChoicePolicy(true, true, true);
   const available = runChoicePolicy(false, true);
   assert.deepEqual(baseline.choices, ['Timeless-GX', 'Timeless-GX', 'Timeless-GX']);
   assert.equal(baseline.damage, 0);
   assert.equal(baseline.extraTurn, false);
+  assert.equal(baseline.recordedLastAttack, 'Timeless-GX');
   assert.deepEqual(corrected.choices, ['Shred']);
   assert.equal(corrected.damage, 80);
   assert.equal(corrected.usedGX, true);
   assert.equal(corrected.extraTurn, false);
+  assert.equal(corrected.recordedLastAttack, 'Shred');
+  assert.deepEqual(historyOnly.choices, baseline.choices);
+  assert.equal(historyOnly.damage, 0);
+  assert.equal(historyOnly.recordedLastAttack, 'Apex Dragon');
+  assert.deepEqual(combined.choices, ['Shred']);
+  assert.equal(combined.damage, 80);
+  assert.equal(combined.recordedLastAttack, 'Apex Dragon');
   assert.deepEqual(available.choices, ['Timeless-GX']);
   assert.equal(available.damage, 150);
   assert.equal(available.usedGX, true);
   assert.equal(available.extraTurn, true);
   return {
     engine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    baseline, corrected, available,
+    baseline, corrected, historyOnly, combined, available,
     scope: 'Real AttackAction, injected paid board, prompt policies only, no matchup wins'
   };
 }
