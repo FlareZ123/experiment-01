@@ -70,7 +70,7 @@ test('accessors, symbols, sparse arrays and unreviewed action classes fail', () 
   delete input[Object.getOwnPropertySymbols(input)[0]];
   input.result = new Array(3);
   input.result[0] = 'only';
-  assert.throws(() => captureAction(input), /Nonstandard array slot/);
+  assert.throws(() => captureAction(input), /Nonstandard array/);
   input.result = [];
   const payload = JSON.parse(JSON.stringify(captureAction(input)));
   assert.throws(() => restoreAction(payload, {}), /Unknown action class/);
