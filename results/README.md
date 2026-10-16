@@ -11,6 +11,8 @@
 [Agent 7: exact Radiant Eternatus setup and Prize access](aichi-2026/radiant-opening-and-prizes.md) separates 12.02% immediate in-hand Gate access from 50.66% theoretical first-turn access including Mysterious Treasure, Quick Ball and Hisuian Heavy Ball. The 60-card arithmetic is exact, with exhaustive small-deck and seeded-shuffle checks. Search/discard opportunity costs and opposing locks remain unresolved, and these are setup probabilities rather than game results.
 
 ## Candidate target-eligibility check
+The [Hood Shield engine smoke archive](aichi-2026/hood-engine-smoke.md) now preserves exact source/policy traces from four two-seat Iron Thorns and Absol Garbodor generic-bot games. All ended, but two had **zero candidate attacks**; therefore these outcomes cannot calibrate win strength. The independent [Radiant Gate category test](../tests/aichi_hood_radiant_invariance.test.cjs) passed [manual CI 38828379343](https://github.com/FlareZ123/experiment-01/actions/runs/38828379343), finding exactly the champion's restricted Radiant-access distribution.
+
 
 [Agent 15's Hood Shield Shadow Rider v1](aichi-2026/candidate-hood-shadow-rider.md) is a distinct fixed 60-card counterline hypothesis with 4 V, 4 VMAX, 2 Stealthy Hood, Arven and Ranger. Its [exact restricted T2 access model](../scripts/hood-t2-joint.cjs) finds 7.7143% direct V/VMAX plus drawn-or-Arven-Hood opportunity among legal openers, subject to major omitted search, draw and disruption routes. This is neither a completed gameplay line nor a measured win rate; source, exhaustive combinatorial tests, and dated banlist regression passed [manual CI 38827475499](https://github.com/FlareZ123/experiment-01/actions/runs/38827475499).
 
