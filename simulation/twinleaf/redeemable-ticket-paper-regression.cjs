@@ -59,4 +59,4 @@ function auditTicketPaperOrder(){
   correctedShortDeck:true,restored:true,competitiveWinRateMeasured:false};
 }
 if(require.main===module)console.log(JSON.stringify(auditTicketPaperOrder(),null,2));
-module.exports={auditTicketPaperOrder};
+module.exports={auditTicketPaperOrder,fixture};
