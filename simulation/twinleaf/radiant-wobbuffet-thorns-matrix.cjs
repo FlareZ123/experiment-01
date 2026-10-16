@@ -46,6 +46,10 @@ function probeThornsWobbuffet(wobbuffetActive, colognePlayed) {
     wobbuffetBench.cards.push(wobbuffet);
     ours.bench.push(wobbuffetBench);
   }
+  const vmax = get('Shadow Rider Calyrex VMAX CRE');
+  const vmaxBench = new PokemonCardList();
+  vmaxBench.cards.push(vmax);
+  ours.bench.push(vmaxBench);
   const gateTarget = new PokemonCardList();
   ours.bench.push(gateTarget, new PokemonCardList(), new PokemonCardList());
   const radiant = get('Radiant Eternatus CRZ');
@@ -74,11 +78,15 @@ function probeThornsWobbuffet(wobbuffetActive, colognePlayed) {
   const thornsPowers = new CheckPokemonPowersEffect(theirs, thorns);
   store.reduceEffect(state, thornsPowers);
   const initializationVisible = thornsPowers.powers.some(power => power.name === 'Initialization');
+  const vmaxPowers = new CheckPokemonPowersEffect(ours, vmax);
+  store.reduceEffect(state, vmaxPowers);
+  const underworldDoorVisible = vmaxPowers.powers.some(power => power.name === 'Underworld Door');
   store.reduceEffect(state, new PlayPokemonEffect(ours, radiant, gateTarget));
   return {
     wobbuffetActive,
     colognePlayed,
     initializationVisible,
+    underworldDoorVisible,
     gatePrompt: state.prompts.some(p => p instanceof ConfirmPrompt && p.result === undefined),
     radiantBenched: gateTarget.cards.includes(radiant),
   };
@@ -95,6 +103,8 @@ function inspectThornsWobbuffetMatrix() {
       [false, false, true, false]);
     assert.deepEqual(corrected.map(x => x.gatePrompt),
       [false, false, false, true]);
+    assert.deepEqual(corrected.map(x => x.underworldDoorVisible),
+      [true, true, false, true]);
     assert.ok(corrected.every(x => x.radiantBenched));
     return { upstream, corrected };
   } finally {
