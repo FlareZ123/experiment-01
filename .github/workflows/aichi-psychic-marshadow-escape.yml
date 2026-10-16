@@ -27,3 +27,5 @@ jobs:
         run: npm run compile
       - name: Execute Resetting Hole board interaction
         run: node simulation/twinleaf/marshadow-temple-escape.cjs
+      - name: Probe default bot versus playable response
+        run: node simulation/twinleaf/marshadow-response-policy.cjs
