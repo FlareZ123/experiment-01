@@ -49,7 +49,7 @@ jobs:
       - name: Observe source-state continuity under each clone profile
         run: node simulation/twinleaf/agent1-rank10-continuity.cjs > source-state-continuity-rank10.json
       - name: Report state changes between real actions
-        run: node -e "const x=require('./source-state-continuity-rank10.json'); console.log(JSON.stringify(x.findings.map(y=>({mode:y.mode,actions:y.actions,stateGaps:y.stateChangesBetweenActions,firstGap:y.firstChanges[0]||null}))));"
+        run: node -e "console.log(JSON.stringify(require('./source-state-continuity-rank10.json').findings));"
       - name: Archive source-state continuity diagnostic
         if: always()
         uses: actions/upload-artifact@v4
