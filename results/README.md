@@ -69,6 +69,9 @@ Repository `README.md` prohibits per-commit GitHub Actions workflows. Use explic
 
 [Optional pre-dispatch prompt-result integrity gate](twinleaf/prompt-result-integrity.md) detects bot selections that upstream Store would dispatch without invoking the prompt validator. Seven pure helper tests, a real compiled ShuffleDeckPrompt test and a seeded 118-action strict-prompt engine game passed [manual CI 38828139942](https://github.com/FlareZ123/experiment-01/actions/runs/38828139942). The flag is opt-in; the outcome is unvalidated bot feasibility rather than match-strength evidence.
 
+
+[Agent 16's separated speculative/game RNG protocol](twinleaf/seed-stream-isolation.md) is an opt-in reproducibility correction for headless Twinleaf: per-seat bot simulations cannot consume the real-game shuffle/coin PRNG. Four stream-contract tests and a compiled-engine determinism smoke passed [manual CI 38832858218](https://github.com/FlareZ123/experiment-01/actions/runs/38832858218). This improves controlled comparisons without validating bot competence, information-set fidelity, or any matchup win rate.
+
 ## Simulation tooling
 
 [Agent 2 Twinleaf headless feasibility and caveats](twinleaf/engine-feasibility.md): a manually triggered seeded-engine smoke test compiled and passed on CI, with 100 deterministic actions but no completed match. [Adapter code](../simulation/twinleaf/headless.cjs) and [card-coverage audit](../simulation/twinleaf/card-coverage.cjs) are available. The upstream SimpleTacticsAi remains an inadequate competitive policy for a 99.5% claim.
