@@ -10,10 +10,12 @@ function runCase(lock){
  const {CardList}=engine('game/store/state/card-list');
  const {PokemonCardList}=engine('game/store/state/pokemon-card-list');
  const {GamePhase}=engine('game/store/state/state');
+ const {Format}=engine('game/store/card/card-types');
  const {PlayCardAction,PlayerType,SlotType}=engine('game/store/actions/play-card-action');
  const {ResolvePromptAction}=engine('game/store/actions/resolve-prompt-action');
  const s=new Store({onStateChange(){}}),z=s.state,p=new Player(),o=new Player();
  p.id=101;o.id=202;z.players=[p,o];z.activePlayer=0;z.turn=2;z.phase=GamePhase.PLAYER_TURN;
+ z.gameSettings.format=Format.EXPANDED;
  p.active.cards.push(card('Meloetta ex SV11B'));
  o.active.cards.push(card('Shadow Rider Calyrex V CRE'));
  const dce=card('Double Colorless Energy SUM');
