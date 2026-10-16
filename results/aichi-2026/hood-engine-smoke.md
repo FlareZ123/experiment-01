@@ -4,7 +4,7 @@
 
 ## Scope and reproducibility
 
-The pinned Twinleaf server is `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; custom fixed candidate source manifest digest `8606a0c21ba502e2ac1a0c9d3ec3e2f631a8af1b752446ce3489c08375afb7b1` and field source digest `653ed6620d742f1f011d729557265e6173902b5fa87b1b752446ce3489c08375afb7b1` are traced in the raw archive. Note: the preceding display value for the field digest is **not an independent source of truth**; inspect the JSON for its exact 64-character SHA-256, which also appears in the engine output. The archived `candidateDigest`, field digest, deck hashes, seeds, rules, and first-turn draw verification are intended for reproduction.
+The pinned Twinleaf server is `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; custom fixed candidate source manifest digest `8606a0c21ba502e2ac1a0c9d3ec3e2f631a8af1b752446ce3489c08375afb7b1` and field source digest `653ed6620d742f1f011d729557265e6173902b5fa87c8b4830f886f7be585173` are traced in the raw archive. The archived `candidateDigest`, field digest, deck hashes, seeds, rules, and first-turn draw verification are intended for reproduction.
 
 The candidate resolves as an engine-valid 60-card list under explicit permission for same-set Basic Energy printing equivalence and Japanese promo hooks. All 29 published opponents also resolve under the shared field mapper. Ranks 23, 25, 28 remain missing. No full Japanese legality certificate is claimed.
 
