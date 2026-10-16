@@ -20,6 +20,12 @@ This forms a source-level information leak: a hypothetical draw can reveal which
 
 The fixture uses duplicated Pokémon/Energy cards for controlled contrasts and is **not** a legally constructed 60-card deck or an actual completed game. Its purpose is to isolate an information-set dependency of a bot scoring function. Even if score sensitivity is confirmed, an additional multi-action experiment is needed to show when the bot's eventual *selected action* changes. No winning-performance inference is warranted.
 
+## Source-rank-10 inventory cross-check
+
+The [manual CI 38835278347](https://github.com/FlareZ123/experiment-01/actions/runs/38835278347) passed a source-locked test using the [rank-10 Regidrago 60-card list](../aichi-2026/full-decklists.json) and shared printing resolver. The [executable fixture](../../simulation/twinleaf/hidden-source-deck-policy.cjs) accounts for each copy across Active, hand, six Prizes, discard and remaining deck. The two artificial turn-four states have identical observable zones and deck multiset, with either four Double Dragon Energy plus three Battle VIP Pass or four Regidrago V plus three VSTAR in the unknown next seven draw positions.
+
+With 34 remaining deck cards, the speculative Supporter scores were **152 versus 166**. The corrected one-tactic bot selected **PlayCardAction in both cases**. This independently reproduces forecast score leakage with the *exact published inventory*, but does **not** reproduce action divergence under those particular conditions. The earlier injected 14-card nonlegal-copy-count fixture proves the limited actual action flip. Neither variant certifies a complete game or the policy's win strength.
+
 ## Proposed response
 
 1. Treat generic-bot estimates as informationally uncalibrated until an information-set boundary is tested. Existing completed matches remain mechanics/feasibility fixtures.
