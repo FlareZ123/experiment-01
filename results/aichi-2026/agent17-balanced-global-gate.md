@@ -88,3 +88,11 @@ The telescoping identity `sum_{i=1}^infinity 1/(i*(i+1)) = 1` gives `sum alpha_i
 | 50 | 0.0000196078 | 2,176 games (34 per cell) |
 
 This scheme is a prospective option, not a retrospective correction of existing diagnostic data. If the actual family of hypotheses or a fixed candidate's sampling plan is different, the spending mechanism must be declared before observations. The current missing source lists and policy defects still block any real certification. [Five exact-number synthetic regressions](../../tests/test_aichi_familywise_evidence.py) test the allocations, budget identity and outcome thresholds.
+
+## Candidate identity and globally disjoint sampling checks (16 October)
+
+The adapter now requires a **second external deck fingerprint**, `expected_candidate_deck_sha256`, in addition to the full 32-rank source map. That fingerprint must match `batch.candidate_deck_sha256` exactly, so an otherwise complete batch cannot silently use a different candidate. This is a structural cross-check between a preregistered candidate card inventory and a batch-provided digest; a subsequent replay/engine-deck attestation is still necessary to prove the cards played.
+
+The gate also refuses a repeated numerical RNG seed **anywhere** in the 64-cell dataset, rather than only in the same rank/seat cell. All 640 synthetic control games now have distinct globally assigned seeds. Unique values are **necessary but insufficient** for real independence; reuse of the same underlying RNG streams, correlated policy random sources, shared environment, and adaptively selected runs can still violate the Poisson-binomial test assumptions. Those require audit at the event-trace and RNG-implementation layer.
+
+Three additional regressions test candidate mismatch, malformed exogenous candidate fingerprint, and reused global seed. The extended [manual CI 38869044557](https://github.com/FlareZ123/experiment-01/actions/runs/38869044557) passed the global evidence suite after the stricter requirements.
