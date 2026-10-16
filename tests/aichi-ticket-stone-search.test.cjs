@@ -28,3 +28,4 @@ function enumerate(n,b,h,q){
 }
 
 test('physical miniature deal audit',()=>{ const a=ticketStoneCrobat(9,2,2,2),b=enumerate(9,2,2,2); assert.ok(Math.abs(a.directRoute-b.reduce((x,y)=>x+y,0))<1e-12); });
+test('second deck and invalid dimensions',()=>{ const a=ticketStoneCrobat(10,3,3,2),b=enumerate(10,3,3,2); assert.ok(Math.abs(a.directRoute-b.reduce((x,y)=>x+y,0))<1e-12); assert.throws(()=>ticketStoneCrobat(60,12,7,0),RangeError); });
