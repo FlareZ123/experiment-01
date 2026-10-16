@@ -51,5 +51,7 @@ jobs:
         run: node --test tests/twinleaf-detached-deck-sampling.test.cjs
       - name: Verify detached full-state sampling on the pinned source-ranked deck
         run: node --test tests/twinleaf-detached-own-deck-audit.test.cjs
+      - name: Verify joint K0 deck-and-Prize samples in a pinned Bunnelby Store State
+        run: node --test tests/twinleaf-k0-detached-bunnelby-audit.test.cjs
       - name: Preserve detached scoring contrast in job log
         run: node simulation/twinleaf/detached-own-deck-audit.cjs
