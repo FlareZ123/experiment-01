@@ -28,3 +28,5 @@ jobs:
           npm run compile
       - name: Check source-derived generic and opt-in prompt decisions
         run: node --test tests/apex-spread-copy-resolver.test.cjs
+      - name: Check automatic multi-Prize Bench-counter allocation
+        run: node --test tests/apex-spread-damage-resolver.test.cjs
