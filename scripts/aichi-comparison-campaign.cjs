@@ -66,12 +66,17 @@ function parseField(csv) {
  * Produce an explicit exploratory schedule. Candidate engine slots are not
  * actual first/second turns. Runtime draw-log proof must establish turn order.
  * @param {{field:Array<object>, source:object, candidates:Array<object>,
- *   pilotRanks?:number[], repeats?:number, seedBase?:number}} options
+ *   pilotRanks?:number[], repeats?:number, seedBase?:number,
+ *   seatSeedMode?:'paired-slots-v1'|'independent-slots-v2'}} options
  * @returns {object}
  */
 function buildCampaign(options) {
   const { field, source, candidates, pilotRanks = [...PILOT_RANKS],
-    repeats = 1, seedBase = 20261016 } = options;
+    repeats = 1, seedBase = 20261016,
+    seatSeedMode = 'paired-slots-v1' } = options;
+  if (!['paired-slots-v1', 'independent-slots-v2'].includes(seatSeedMode)) {
+    throw new Error('Unsupported seat seed protocol.');
+  }
   if (!Array.isArray(field) || field.length !== 32 ||
       field.some(f => !Number.isInteger(f.rank) || f.rank < 1 || f.rank > 32) ||
       new Set(field.map(f => f.rank)).size !== 32) {
@@ -136,10 +141,12 @@ function buildCampaign(options) {
       for (let repeat = 0; repeat < repeats; repeat += 1) {
         // Seeds are matched across candidate variants and engine slots.
         // Phase offsets separate exploratory pilot from field-wide follow-up.
-        const seed = seedBase + (phase === 'pilot' ? 100000 : 200000) +
-          row.rank * 1024 + repeat;
+        const seedForRank = seedBase + (phase === 'pilot' ? 100000 : 200000) +
+          row.rank * 1024;
         for (const candidate of candidateRows) {
           for (const candidateEngineSlot of ['A', 'B']) {
+            const seed = seedForRank + (seatSeedMode === 'independent-slots-v2' ?
+              2 * repeat + (candidateEngineSlot === 'B' ? 1 : 0) : repeat);
             trials.push({
               trialId: [phase, row.rank, repeat, candidate.id, candidateEngineSlot]
                 .join(':'),
@@ -154,7 +161,7 @@ function buildCampaign(options) {
     }
   }
   const metadata = {
-    schemaVersion: 1,
+    schemaVersion: seatSeedMode === 'independent-slots-v2' ? 2 : 1,
     purpose: 'exploratory-diagnostic-only',
     engineAndPolicyQualified: false,
     strengthClaimPermitted: false,
@@ -169,11 +176,14 @@ function buildCampaign(options) {
       publishedField: trials.filter(t => t.phase === 'published-field').length
     }
   };
+  if (seatSeedMode === 'independent-slots-v2') {
+    metadata.seedProtocol = seatSeedMode;
+  }
   return { ...metadata, planDigest: hash({ metadata, trials }), trials };
 }
 
 /** @returns {object} Exact checked-in reference plus two research challengers. */
-function loadDefaultCampaign() {
+function loadDefaultCampaign(seatSeedMode = 'paired-slots-v1') {
   const dir = path.join(ROOT, 'results', 'aichi-2026');
   const source = JSON.parse(fs.readFileSync(path.join(dir, 'full-decklists.json'), 'utf8'));
   const field = parseField(fs.readFileSync(path.join(dir, 'field.csv'), 'utf8'));
@@ -185,7 +195,7 @@ function loadDefaultCampaign() {
     const candidate = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
     candidates.push({ id, cards: candidate.cards });
   }
-  return buildCampaign({ field, source, candidates });
+  return buildCampaign({ field, source, candidates, seatSeedMode });
 }
 
 if (require.main === module) {
