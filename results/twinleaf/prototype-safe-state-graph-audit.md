@@ -39,3 +39,21 @@ The audit only covers enumerable own-property references at this point in the ga
 The global Aichi quality gate must continue reporting `unvalidated-simulator-alias` for the pinned profile and `experimental-clone-not-qualified` for the prototype-safe profile. **Zero independent competitive games are qualified by these results.**
 
 Useful follow-up: run the same graph audit on actual source-ranked Game States captured at multiple turn phases and before/after concrete effect-heavy actions, then run action-level differential replay against the physical card text. Conditional rejection or later repair of Array alias cases can be considered if any are observed in reachable States.
+
+## Extension: genuine Tool attack before and after real resolution
+
+[Manual compiled CI 38883258972](https://github.com/FlareZ123/experiment-01/actions/runs/38883258972) passed a second actual Store-state characterization added to the same auditor. This control used staged Meloetta ex SV11B with three Psychic Energy and Technical Machine: Crisis Punch PAF attacking Shadow Rider Calyrex VMAX CRE. The pinned engine resolved three real Wait prompts and recorded **280 defender board damage**. The auditor compared each state *before* and *after* this real attack with a new pinned and prototype-safe Simulator constructed from that state.
+
+| Graph observation | Before attack, pinned | Before, prototype-safe | After attack, pinned | After, prototype-safe |
+| --- | ---: | ---: | ---: | ---: |
+| Source object nodes traversed | 387 | 387 | 525 | 525 |
+| Source Arrays traversed | 284 | 284 | 375 | 375 |
+| Shared source-reference occurrences | 285 | 0 | 288 | 0 |
+| Direct source-prototype aliases | 40 | 0 | 87 | 0 |
+| Repeated Array reference mismatches | 0 | 0 | 0 | 0 |
+| Repeated **non-Array** reference mismatches | 0 | 0 | **2** | **2** |
+| Missing enumerable properties | 0 | 0 | 0 | 0 |
+
+The two post-attack reference mismatches both involve a *single printed attack object* reachable through `state.players[0].discard.cards[0].attacks[0]`, `state.lastAttack`, and `state.playerLastAttack[101].attack`. The live state reuses the attack-object reference; both new Simulator clones represent the attack history as a distinct object from the Card's attack object. This observation is important because merely severing source prototypes and detaching Cards does **not** preserve the whole reachable reference graph after an actual attack. Whether any reducer or bot decision relies on that attack-object identity is **unverified**; many existing reducers use the attack's name instead.
+
+There are no observed repeated-Array breaks in either of these particular real states, while the deliberately repeated synthetic Array still exhibits the generic problem. The counts concern reachable paths in a single selected state, not unique leak mutations or qualified matches. The experiment is a scope-expanding **failed alias-fidelity invariant**, and both clone profiles remain unqualified until actual action and effect implications are established.
