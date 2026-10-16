@@ -62,7 +62,7 @@ function runLine() {
     const p=pending();
     followups.push(p.constructor.name);
     if (p.constructor.name==='WaitPrompt') answer(p,null);
-    if (p.constructor.name==='ShowCardsPrompt') answer(p,true);
+    else if (p.constructor.name==='ShowCardsPrompt') answer(p,true);
     else if (p.constructor.name==='ShuffleDeckPrompt') {
       answer(p,f.a.deck.cards.map((_,i)=>i));
     } else throw new Error('Unexpected Supporter resolution: '+p.constructor.name);
