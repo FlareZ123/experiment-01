@@ -193,6 +193,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [shadowRiderEnergyPriority] Opt-in basic Psychic Energy priority against Active Iron Thorns.
  * @property {boolean} [shadowRiderEnergyAcrossField] Opt-in speculative Psychic priority regardless of opposing Active.
  * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
+ * @property {boolean} [latiasAttackReadyAttachment] Opt-in rank10 source-state Latias Energy completion probe.
  * @property {boolean} [attackBeforeRetreat] Opt-in policy-order sensitivity probe for AttackTactic and RetreatTactic.
  * @property {0|1} [attackBeforeRetreatSeat] Restrict that opt-in probe to one physical seat.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
@@ -317,6 +318,10 @@ function runMatch(request) {
         request.shadowRiderEnergyAcrossField === true) {
       options = require('./shadow-rider-psychic-attach.cjs').withShadowRiderPsychicPriority(
         options, {allOpponents: request.shadowRiderEnergyAcrossField === true});
+    }
+    if (request.latiasAttackReadyAttachment === true) {
+      options = require('./latias-attack-ready-attach.cjs')
+        .withLatiasAttackReadyAttachment(options);
     }
     const settings = new GameSettings();
     settings.format = Format.EXPANDED;
@@ -568,6 +573,7 @@ function runMatch(request) {
       shadowRiderEnergyPriority: request.shadowRiderEnergyPriority === true,
       shadowRiderEnergyAcrossField: request.shadowRiderEnergyAcrossField === true,
       shadowRiderOpeningPivot: request.shadowRiderOpeningPivot === true,
+      latiasAttackReadyAttachment: request.latiasAttackReadyAttachment === true,
       attackBeforeRetreat: request.attackBeforeRetreat === true,
       attackBeforeRetreatSeat: request.attackBeforeRetreatSeat ?? null,
       policy: (request.doubleDragonRecovery === true ?
@@ -581,6 +587,7 @@ function runMatch(request) {
         (request.shadowRiderEnergyPriority === true ? '+ShadowRiderPsychicAttachPriority-v1' : '') +
         (request.shadowRiderEnergyAcrossField === true ? '+ShadowRiderPsychicAttachAcrossField-v1' : '') +
         (request.shadowRiderOpeningPivot === true ? '+SelectedShadowRiderSetupActive-v1' : '') +
+        (request.latiasAttackReadyAttachment === true ? '+LatiasAttackReadyAttachment-v1' : '') +
         (request.attackBeforeRetreat === true ?
           '+AttackBeforeRetreatTactic-v1@' +
             (request.attackBeforeRetreatSeat === undefined ?
