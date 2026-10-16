@@ -20,10 +20,15 @@ const mod = p => require(path.join(output, p));
  */
 function runResponse(removal) {
   const manager = initializeCards();
+  let nextCardId = 1;
   /** @param {string} id */
   const card = id => {
     const c = manager.getCardByName(id);
     assert.ok(c, 'Missing pinned card ' + id);
+    // Real deck setup assigns a unique numeric ID to each card instance.
+    // Synthetic CardManager clones default to id=-1. Without unique IDs,
+    // ChooseCardsPrompt's blocked-card reconstruction rejects every target.
+    c.id = nextCardId++;
     return c;
   };
 
