@@ -5,6 +5,7 @@ const crypto = require('node:crypto');
 const path = require('node:path');
 const {runMatch, initializeCards} = require('./headless.cjs');
 const {withStoreDispatchTranscript} = require('./store-dispatch-transcript.cjs');
+const {withSourceZoneCheckpoint} = require('./source-zone-checkpoint.cjs');
 const {auditAuthenticFork} = require('./source-fork-gate.cjs');
 const {loadDefaultCampaign} = require('../../scripts/aichi-comparison-campaign.cjs');
 
@@ -99,15 +100,29 @@ function main() {
   const {Store} = require(path.resolve(__dirname,
     '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
 
+  const tracedSource = request => {
+    const captured = withStoreDispatchTranscript(Store,
+      () => withSourceZoneCheckpoint(Store, () => runMatch(request),
+        {turn:27,candidateSeat:seat}),{liveStoreOnly:true});
+    return {
+      ...captured,
+      sourceZoneCheckpoint:captured.result.checkpoint,
+      sourceZoneDigest:captured.result.digest,
+      result:captured.result.result
+    };
+  };
   const uninstrumented = runMatch(common);
-  const control = withStoreDispatchTranscript(Store, () => runMatch(common),
-    {liveStoreOnly:true});
+  const control = tracedSource(common);
   assert.deepEqual(control.result, uninstrumented,
     'Recording altered the unchanged source-game observable return');
-  const branch = withStoreDispatchTranscript(Store, () => runMatch(branchRequest),
-    {liveStoreOnly:true});
-  const repeat = withStoreDispatchTranscript(Store, () => runMatch(common),
-    {liveStoreOnly:true});
+  const branch = tracedSource(branchRequest);
+  const repeat = tracedSource(common);
+  assert.deepEqual(control.sourceZoneCheckpoint, branch.sourceZoneCheckpoint,
+    'Hidden hands/decks/Prizes or turn flags diverged before the declared source turn-27 fork');
+  assert.deepEqual(control.sourceZoneCheckpoint, repeat.sourceZoneCheckpoint,
+    'Original control hidden-zone checkpoint changed after alternate policy');
+  assert.equal(control.sourceZoneDigest, branch.sourceZoneDigest);
+  assert.equal(control.sourceZoneDigest, repeat.sourceZoneDigest);
   assert.deepEqual(repeat.result, control.result,
     'Original control changed after alternate-policy invocation');
   assert.deepEqual(repeat.actionTrace, control.actionTrace,
@@ -177,7 +192,7 @@ function main() {
     sourceReplayMechanicsVerified:false,
     decisiveLimitations:[
       'Action parameters and prompt selections may remain nonportable',
-      'Full hidden-zone State checkpoints and replay reconstruction absent',
+      'Single pre-fork source-zone checkpoint captured; full Store/reducer replay absent',
       'No causal opponent-response competence or paper-rule qualification',
       'Both physical seats and independently sampled seeds not covered'
     ],
@@ -189,6 +204,8 @@ function main() {
     identicalControlAfterBranch:true,
     forkAudit,
     sharedAuthenticTurn27Start:originalState,
+    sharedHiddenZoneTurn27Checkpoint:control.sourceZoneCheckpoint,
+    sharedHiddenZoneTurn27Digest:control.sourceZoneDigest,
     recordedCounterline:counterline,
     firstMeaningfulDifference:firstDifference(
       control.result.decisionTrace || [], branch.result.decisionTrace || []),
