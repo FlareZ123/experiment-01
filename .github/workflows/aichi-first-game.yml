@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      pilot_ranks:
+        description: 'One or two comma-separated Aichi diagnostic ranks: 1,2,3,4,5,6,8,10,26'
+        required: false
+        type: string
+        default: '6'
 
 permissions:
   contents: read
@@ -26,21 +31,27 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify terminal-transition and campaign regressions
-        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/printed-basic-energy-audit.test.cjs tests/aichi-basic-covered-passes.test.cjs tests/aichi-benched-basic-pass-triage.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-pass-board-audit.test.cjs tests/aichi-campaign-execute.test.cjs tests/aichi-campaign-seed-v2.test.cjs tests/decision-hand-evidence.test.cjs tests/aichi-opening-decision-audit.test.cjs
+        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/printed-basic-energy-audit.test.cjs tests/aichi-basic-covered-passes.test.cjs tests/aichi-benched-basic-pass-triage.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-pass-board-audit.test.cjs tests/aichi-campaign-execute.test.cjs tests/aichi-campaign-seed-v2.test.cjs tests/decision-hand-evidence.test.cjs tests/aichi-opening-decision-audit.test.cjs tests/aichi-campaign-quality-screen.test.cjs
       - name: Install engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Keep manually requested diagnostics within the CI budget
+        env:
+          AICHI_RANKS: ${{ inputs.pilot_ranks || '6' }}
+        run: node -e "const a=process.env.AICHI_RANKS.split(',').map(s=>s.trim());const valid=new Set(['1','2','3','4','5','6','8','10','26']);if(!a.length||a.length>2||a.some(x=>!valid.has(x))||new Set(a).size!==a.length)throw Error('Choose one or two distinct published pilot ranks')"
       - name: Two Aichi seat trials
         run: node simulation/evaluation/aichi-first-game.cjs
       - name: Run fixed-plan three-candidate rank-6 diagnostic
         env:
-          AICHI_DIAGNOSTIC_RANKS: '6'
+          AICHI_DIAGNOSTIC_RANKS: ${{ inputs.pilot_ranks || '6' }}
           AICHI_DIAGNOSTIC_SEED_PROTOCOL: 'independent-slots-v2'
           AICHI_SHADOW_ENERGY: ${{ inputs.shadow_rider_energy_priority && '1' || '0' }}
         run: node simulation/evaluation/aichi-campaign-execute.cjs > aichi-campaign-diagnostic.json
+      - name: Screen engine diagnostics for attacker inactivity and trace integrity
+        run: node scripts/aichi-campaign-quality-screen.cjs aichi-campaign-diagnostic.json > aichi-quality-screen.json
       - name: Audit first Iron Thorns decisions without inferring wins
         run: node simulation/evaluation/aichi-opening-decision-audit.cjs aichi-campaign-diagnostic.json > aichi-opening-decision-audit.json
       - name: Audit public pass boards without inferring attack legality
@@ -58,6 +69,7 @@ jobs:
           name: aichi-campaign-diagnostic
           path: |
             aichi-campaign-diagnostic.json
+            aichi-quality-screen.json
             aichi-opening-decision-audit.json
             aichi-pass-board-audit.json
             aichi-pass-energy-triage.json
