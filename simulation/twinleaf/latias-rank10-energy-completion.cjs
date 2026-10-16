@@ -30,6 +30,7 @@ function latiasEnergyCompletionContract(attachmentTarget) {
   const {Store} = engine('game/store/store');
   const {Player} = engine('game/store/state/player');
   const {CardList} = engine('game/store/state/card-list');
+  const {PokemonCardList} = engine('game/store/state/pokemon-card-list');
   const {GamePhase} = engine('game/store/state/state');
   const {Format} = engine('game/store/card/card-types');
   const {PlayCardAction,PlayerType,SlotType} =
@@ -65,7 +66,9 @@ function latiasEnergyCompletionContract(attachmentTarget) {
     player.active.cards.push(energy);
     player.active.energies.cards.push(energy);
   }
-  player.bench[0].cards.push(get('Tapu Lele-GX GRI'));
+  const benchSlot = new PokemonCardList();
+  benchSlot.cards.push(get('Tapu Lele-GX GRI'));
+  player.bench.push(benchSlot);
   player.hand.cards.push(get('Psychic Energy MEE'));
   opponent.active.cards.push(get('Koraidon ex TEF'));
   player.stadium.cards.push(get('Sky Field ROS'));
