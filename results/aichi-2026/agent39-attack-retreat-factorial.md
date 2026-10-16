@@ -34,9 +34,39 @@ All four runs completed successfully with complete six-trial rank-10 archives. A
 
 Rank-10 champion B illustrates that altering both bots' tactic order changed the later trajectory from five candidate attacks to ten, even though the setup pivot did nothing to B. This is a deliberate **two-sided policy confound**; the result proves action-policy sensitivity but cannot by itself attribute a candidate advantage or determine whether the opponent's responses remain realistic.
 
+## Candidate-only policy control: two-sided confound demonstrated
+
+After the initial ablation, Agent 39 changed the research runner to support `attackBeforeRetreatCandidateOnly:true`, moving the tactic ordering **only in the candidate's SimpleTacticsAi instance**. The opponent retains its baseline tactic order. The physical candidate seat is derived from each trial's already-frozen A/B identity, and a new executor regression checks the seat map. The chosen policy label in each game explicitly ends in `@seat0` or `@seat1`. The starting-position intervention is unchanged.
+
+| Candidate-only run | Opening pivot | Candidate-only attack priority | Artifact ID / ZIP SHA-256 |
+| --- | --- | --- | --- |
+| [38847516082](https://github.com/FlareZ123/experiment-01/actions/runs/38847516082) | Off | On | 12023359341 / `6f3f066cef4814fb28276718b52eaad907be66a9e5dca0c15eb934e456eebef5` |
+| [38847502406](https://github.com/FlareZ123/experiment-01/actions/runs/38847502406) | On | On | 12024256233 / `db4f10fcd4be340a08323eb93a6950e1a9f73e945f8605b80141018bef2aacaf` |
+
+Both six-game workflows passed, all games terminated with incomplete replay coverage, and both preserved the exact source decks, plan and seeds. The candidate-only attack order controls are *separate experiment arms*; the earlier both-seat arms remain historically reproducible.
+
+| Candidate + slot | Attack-only both seats | Attack-only candidate seat | Pivot + attack both seats | Pivot + attack candidate seat |
+| --- | ---: | ---: | ---: | ---: |
+| Champion A | 0 / 7 | 0 / 7 | 4 / 12 | **7 / 9** |
+| Champion B | 10 / 2 | 10 / 2 | 10 / 2 | 10 / 2 |
+| Hood A | 4 / 8 | 4 / 8 | 6 / 4 | 6 / 4 |
+| Hood B | 8 / 6 | 8 / 6 | 8 / 6 | 8 / 6 |
+| Temple A | 0 / 7 | 0 / 7 | **3 / 9** | **0 / 7** |
+| Temple B | 5 / 5 | 5 / 5 | 5 / 5 | 5 / 5 |
+
+**Critical correction:** The apparent Temple A 0 → 3 attack change in the both-seat combined arm **disappeared when the opponent's tactic order was held constant**. Thus it cannot be claimed as an improvement attributable to the candidate's earlier attack decision. The both-seat arm changed Regidrago's behavior and yielded Mimikyu Filch/Copycat attacks through a diverged board. Champion A's recorded attack and opposing attack totals also changed strongly when only the candidate rather than both bots received the policy. A naive optimizer using attack frequency would have rewarded an opponent-side intervention as though it were a candidate-side advance.
+
+The candidate-only combined Temple A stayed at zero, while the champion and Hood A still attacked under the opening pivot. This narrows the missing Temple attack problem to **additional positioning, Energy allocation, attack-selection, gust, or matchup dependencies**, none of which is established as a single cause by these traces.
+
+### Read-only retreat telemetry noninterference
+
+An intermediate [six-game manual CI run 38847321592](https://github.com/FlareZ123/experiment-01/actions/runs/38847321592), artifact 12023623484, ZIP SHA-256 `c34a7d2c4c53dabafbbec34f8cd4a440c499c18f0d9649400584c895bff86bdd`, repeated the **same both-seat combined policy** after adding public retreat pre/post evidence. Every trial had identical action ordinals, action types, card names, attacks, terminal transition, source identity, first-turn evidence and status compared with run 38846882316 after omitting only new `retreatTransition` properties. The extra evidence captured 4/5/1/2/1/4 accepted retreats for champion A/B, Hood A/B and Temple A/B, respectively. On Temple A, the t3 retreat was definitively **Clefairy ex → Latias ex**, correcting an earlier unsupported inference.
+
+This noninterference check is conditional on six seeded games and pinned engine; it does not certify hidden actions or the correctness of the underlying card implementation.
+
 ## Next evidence gate
 
-1. Use new candidate-slot-only `attackBeforeRetreatCandidateOnly` option in the headless source-locked runner, preserving the baseline opponent's original tactic ordering, then repeat the two attack-priority arms. This restricts the immediate intervention to one evaluated candidate without claiming identical future stochastic histories.
+1. Candidate-only controls have now been run and falsified the apparent Temple attack improvement in the two-sided policy arm. Preserve candidate-seat-only intervention as the default for interpreting future directional policy claims, while retaining both-seat controls for engine mechanics questions.
 2. Verify action-sequence noninterference after the newly added `retreatTransition` public evidence field (read-only pre/post snapshots) by rerunning an existing fixed arm on the same seeds and checking attacks, terminal boards and first-turn proof.
 3. Inspect why some branches attack via Mimikyu despite a different earlier starting Active. In Temple, the opponent's Prime Catcher changed Active positioning by turn 3, so a one-Psychic opening Rider does not imply a ready turn-3 Shadow Mist. `AttackTactic` is a utility-evaluating heuristic. Test full legal alternatives and opportunity costs before any recommendation.
 
