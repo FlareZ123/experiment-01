@@ -13,6 +13,24 @@ const output = path.resolve(__dirname,
 const engine = name => require(path.join(output, name));
 
 /**
+ * Identify the real class prototype without reading instance properties or
+ * invoking getters on card/template objects.
+ * @param {object} value
+ * @returns {Function|null}
+ */
+function inheritedClassConstructor(value) {
+  let proto=Object.getPrototypeOf(value);
+  while(proto!==null) {
+    const descriptor=Object.getOwnPropertyDescriptor(proto,'constructor');
+    if(descriptor && Object.hasOwn(descriptor,'value') &&
+       typeof descriptor.value==='function' &&
+       descriptor.value.prototype===proto) return descriptor.value;
+    proto=Object.getPrototypeOf(proto);
+  }
+  return null;
+}
+
+/**
  * Audit reference topology, array sizes, and primitive own-field values
  * in a real Store state. Walk only own enumerable data, as pinned deepClone does.
  *
@@ -24,7 +42,8 @@ function compareOwnedStateGraph(source, detached) {
   const seen = new WeakMap();
   const unexpected = {sharedReferences:[], repeatedArrayBreaks:[],
     repeatedObjectBreaks:[], sourcePrototypeAliases:[], missingProperties:[],
-    valueMismatches:[], arrayLengthMismatches:[]};
+    valueMismatches:[], arrayLengthMismatches:[],
+    classPrototypeMismatches:[]};
   let nodes = 0;
   let arrays = 0;
   /** @param {any} original @param {any} cloned @param {string} location */
@@ -41,6 +60,10 @@ function compareOwnedStateGraph(source, detached) {
     }
     if (original === cloned) {
       unexpected.sharedReferences.push(location);
+    }
+    if (inheritedClassConstructor(original)!==
+        inheritedClassConstructor(cloned)) {
+      unexpected.classPrototypeMismatches.push(location);
     }
     if (Array.isArray(original) &&
         (!Array.isArray(cloned) || original.length !== cloned.length)) {
