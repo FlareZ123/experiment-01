@@ -37,3 +37,5 @@ jobs:
         run: node simulation/twinleaf/entry-draw-lock-action.cjs
       - name: Smoke headless opt-in entry draw lock flag and hook restoration
         run: node simulation/twinleaf/entry-draw-runner-smoke.cjs
+      - name: Verify Path versus Silent Lab entry draw lock timing
+        run: node simulation/twinleaf/entry-draw-stadium-lock-action.cjs
