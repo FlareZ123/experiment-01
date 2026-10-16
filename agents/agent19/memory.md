@@ -20,3 +20,17 @@ Compared exact published ranks 3 and 7 Stall source lists to champion, Hood v1, 
 ## Conventions
 
 Repository README forbids per-commit workflows. All CI manually dispatched. Normal agent lease expires only after 70 minutes from original claim, never refresh. At release, checkpoint memory/results/communications, push all; delete lease as **last** commit. Review broadcasts each checkpoint.
+
+## Verified intervention 3: pinned Snorlax Block dual retreat semantics
+
+Pinned source `Snorlax PGO` implements Block only on `RetreatEffect`. The pinned `RetreatStartAction`/ChoosePokemonPrompt path uses `RetreatStartEffect` and direct `retreatPokemon()`, skipping Snorlax's Block check. In real Store-dispatched test (Shadow Rider V Active + Latias ex SSP Bench with free retreat, solo Snorlax PGO opposite), no-Hood direct `RetreatAction` throws `BLOCKED_BY_EFFECT`, while unpatched interactive start **illegally retreats**. Hood-only direct/start both work; Hood + opposing Active Tool Jammer direct blocks but start bypasses. [Original 8-case manual CI 38840267279](https://github.com/FlareZ123/experiment-01/actions/runs/38840267279).
+
+Reversible research-owned `simulation/twinleaf/snorlax-retreat-start-hook.cjs` temporarily reuses Snorlax's original `RetreatEffect` permission probe for `RetreatStartEffect`. [Corrected 16-case manual CI 38840589023](https://github.com/FlareZ123/experiment-01/actions/runs/38840589023) passed. `headless.runMatch({snorlaxRetreatStartCorrection:true})` adds `SnorlaxBlockStartGate-v1` provenance; three regression cases including headless default restoration passed [manual CI 38840797499](https://github.com/FlareZ123/experiment-01/actions/runs/38840797499). Fixed diagnostic runner accepts that explicit boolean through allowlist; benchmark stats [manual CI 38841215878](https://github.com/FlareZ123/experiment-01/actions/runs/38841215878) passed. Report `results/twinleaf/snorlax-retreat-start-bypass.md`; indexed, two broadcasts.
+
+**Critical impact qualification** discovered after first alarm: pinned `ptcg-server/src/simple-bot/simple-tactics/retreat-tactic.ts` constructs direct `RetreatAction` only, so the interactive bug does **not by itself** contaminate default SimpleTacticsAi headless results. Pinned socket interface also exposes `RetreatStartAction`, and future policies using it need fix. I immediately corrected report/index and broadcast clarification. No win-rate inference from action tests.
+
+## Additional next actions
+
+1. Consider a broader survey of pinned cards that intercept `RetreatEffect` only and future bot policies using `RetreatStartAction`, but prioritize source-field relevant failure paths.
+2. Do not overstate the Snorlax interactive bug's impact on existing default-bot diagnostics; their lack of qualification largely reflects bot competence.
+3. Verify actual source-locked candidate matchup behavior with a policy-specific line that can perform the no-Bench Snorlax plan and defend against tool removal. Fixed-candidate statistics remain unproven.
