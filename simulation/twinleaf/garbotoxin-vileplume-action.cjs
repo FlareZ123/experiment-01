@@ -12,7 +12,7 @@ const load = modulePath => require(path.join(output, modulePath));
  * Probe the printed Garbotoxin/Stealthy Hood/Irritating Pollen priority matrix
  * by actually trying to play an Item through Twinleaf's Store.
  * The board is a staged midgame; only the Switch is played as an action.
- * @param {{garbodor:boolean,garbodorTool:boolean,vileplumeHood:boolean,activeSeat:0|1}} p
+ * @param {{garbodor:boolean,garbodorTool:boolean,vileplumeHood:boolean,activeSeat:0|1,playHood?:boolean}} p
  */
 function probe(p) {
   const manager = initializeCards();
@@ -68,6 +68,22 @@ function probe(p) {
     player.deck.cards.push(card('Grass Energy MEE'),card('Grass Energy MEE'));
     player.hand.cards.push(card('Switch SVI'));
   }
+  let hoodAction = null;
+  if (p.playHood) {
+    assert.equal(p.activeSeat,0,'Vileplume owner must be the active test seat');
+    const hood=card('Stealthy Hood UNB');
+    a.hand.cards.push(hood);
+    let hoodError=null;
+    try {
+      store.dispatch(new PlayCardAction(a.id,a.hand.cards.indexOf(hood),{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+      }));
+    } catch (e) {
+      hoodError=e.message;
+    }
+    hoodAction={error:hoodError,attached:vileplume.tools.includes(hood),
+      remainsInHand:a.hand.cards.includes(hood)};
+  }
   const current = state.players[p.activeSeat];
   const switchCard = current.hand.cards.find(c => c.name === 'Switch');
   const index = current.hand.cards.indexOf(switchCard);
@@ -82,7 +98,7 @@ function probe(p) {
   const prompts = state.prompts.filter(x => x.result === undefined)
     .map(x => x.constructor.name);
   const switchInHand = current.hand.cards.includes(switchCard);
-  return {...p,error,switchInHand,prompts,
+  return {...p,hoodAction,error,switchInHand,prompts,
     allowed:!error && prompts.includes('ChoosePokemonPrompt')};
 }
 
@@ -92,12 +108,19 @@ function run() {
     {garbodor:false,garbodorTool:false,vileplumeHood:false},
     {garbodor:true,garbodorTool:false,vileplumeHood:false},
     {garbodor:true,garbodorTool:true,vileplumeHood:false},
-    {garbodor:true,garbodorTool:true,vileplumeHood:true}
+    {garbodor:true,garbodorTool:true,vileplumeHood:true},
+    {garbodor:false,garbodorTool:false,vileplumeHood:false,playHood:true},
+    {garbodor:true,garbodorTool:true,vileplumeHood:false,playHood:true}
   ];
-  const rows = combinations.flatMap(p=>[0,1].map(
+  const rows = combinations.flatMap(p=>(p.playHood?[0]:[0,1]).map(
     activeSeat=>probe({...p,activeSeat})));
   for (const row of rows) {
-    const shouldUnlock = row.garbodorTool && !row.vileplumeHood;
+    if (row.playHood) {
+      assert.deepEqual(row.hoodAction,{error:null,attached:true,remainsInHand:false},
+        'Hood must be attachable through Item lock / before Vileplume lock returns');
+    }
+    const shouldUnlock = row.garbodorTool &&
+      !(row.vileplumeHood || row.hoodAction?.attached);
     assert.equal(row.allowed, shouldUnlock,
       'Cross-lock action deviated from printed-effect matrix: '+JSON.stringify(row));
     assert.equal(row.switchInHand, !shouldUnlock,
