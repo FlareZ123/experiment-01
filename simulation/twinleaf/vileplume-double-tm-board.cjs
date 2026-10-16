@@ -69,6 +69,7 @@ function doubleTmBoard() {
   // invented during search. Extra cards make shuffling nontrivial.
   player.deck.cards.push(...evolved,card('Grass Energy MEE'));
   opponent.active.cards.push(card('Shadow Rider Calyrex V CRE'));
+  opponent.deck.cards.push(card('Grass Energy MEE'),card('Grass Energy MEE'));
 
   store.dispatch(new AttackAction(101,'Evolution'));
   const responses=[], beforeTurn=state.turn;
@@ -115,6 +116,7 @@ function doubleTmBoard() {
   }));
   assert.deepEqual(board.map(b=>b.top).filter(Boolean),['Vileplume','Pidgeot ex']);
   assert.equal(countAttackChoices,1,'Barrage should offer one explicit second attack choice');
+  assert.notEqual(state.phase,GamePhase.FINISHED,'Fixture must not end by deck out');
   assert.ok(state.turn>=beforeTurn,'Game turn must not rewind');
   return {
     engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
