@@ -37,13 +37,13 @@ function observedFirstTurn(game) {
  *
  * @param {{campaign:object,ranks:number[],resolvePair:(trial:object)=>object,
  *   runMatch:(request:object)=>object,maxActions?:number,policyFlags?:object,
- *   researchRevision?:string}} options
+ *   researchRevision?:string,expectedEngineRevision:string}} options
  * @returns {object}
  */
 function executeDiagnostic(options) {
   const { campaign, ranks, resolvePair, runMatch, maxActions = 600,
     policyFlags = {}, researchRevision = 'not-recorded',
-    researchPolicyProfile = 'fixed-core-v1' } = options;
+    researchPolicyProfile = 'fixed-core-v1', expectedEngineRevision } = options;
   if (!campaign || ![1, 2, 3].includes(campaign.schemaVersion) ||
       campaign.purpose !== 'exploratory-diagnostic-only' ||
       typeof campaign.planDigest !== 'string' ||
@@ -60,6 +60,10 @@ function executeDiagnostic(options) {
   }
   if (!['fixed-core-v1', 'expanded-action-fidelity-probe-v1'].includes(researchPolicyProfile)) {
     throw new Error('Unrecognized research policy profile.');
+  }
+  if (typeof expectedEngineRevision !== 'string' ||
+      !/^twinleafgg\/[0-9a-f]{40}$/.test(expectedEngineRevision)) {
+    throw new Error('A full pinned Twinleaf engine revision is required for diagnostics.');
   }
   const { planDigest, trials: scheduledTrials, ...metadata } = campaign;
   if (digest({ metadata, trials: scheduledTrials }) !== planDigest) {
@@ -151,9 +155,10 @@ function executeDiagnostic(options) {
       const deckA = candidateA ? pair.candidateCards : pair.opponentCards;
       const deckB = candidateA ? pair.opponentCards : pair.candidateCards;
       const {attackBeforeRetreatCandidateOnly, ...enginePolicyFlags} = policyFlags;
+      const expectedLabel = 'Aichi comparative diagnostic ' + trial.trialId;
       const game = runMatch({
         deckA, deckB, seed: trial.seed, maxActions,
-        label: 'Aichi comparative diagnostic ' + trial.trialId,
+        label: expectedLabel,
         ...enginePolicyFlags,
         ...(attackBeforeRetreatCandidateOnly === true ?
           {attackBeforeRetreatSeat: candidateA ? 0 : 1} : {})
@@ -172,11 +177,49 @@ function executeDiagnostic(options) {
         });
         continue;
       }
-      if (game.rules?.format !== 'EXPANDED') {
+      // Runtime fields are self-reported; this is a consistency check.
+      const echoedPolicyKeys = [
+        'forestSealSearchCorrection', 'doubleDragonRecovery',
+        'templeUnlockRecovery', 'supporterDecisionCorrection',
+        'snorlaxRetreatStartCorrection', 'shadowRiderEnergyPriority',
+        'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
+        'attackBeforeRetreat', 'leleEntryAbilityLockCorrection',
+        'radiantGateLockCorrection'
+      ];
+      const policyMismatch = echoedPolicyKeys.some(key =>
+        Object.hasOwn(enginePolicyFlags, key) &&
+        game[key] !== enginePolicyFlags[key]);
+      const expectedAttackSeat = attackBeforeRetreatCandidateOnly === true ?
+        (candidateA ? 0 : 1) : null;
+      const environmentValid =
+        game.engine === expectedEngineRevision &&
+        game.label === expectedLabel &&
+        game.rules?.format === 'EXPANDED' &&
+        game.rules.firstTurnDrawCard === true &&
+        game.rules.firstTurnUseSupporter === false &&
+        game.rules.attackFirstTurn === false &&
+        (policyFlags.strictPromptValidation !== true ||
+          game.promptValidationMode === 'predispatch-prompt-validate') &&
+        (policyFlags.isolatePolicyRandomness !== true ||
+          (game.policyRandomIsolation === true &&
+           game.randomnessProtocol === 'separate-game-and-per-seat-policy-prng-v1')) &&
+        (expectedAttackSeat === null ||
+          game.attackBeforeRetreatSeat === expectedAttackSeat) &&
+        !policyMismatch;
+      if (!environmentValid) {
         records.push({
           ...base, status: 'unverified-game-environment',
+          expectedEngineRevision, observedEngineRevision: game.engine ?? null,
+          expectedLabel, observedLabel: game.label ?? null,
           observedRules: game.rules ?? null,
-          error: 'Engine did not confirm the Expanded rules format.'
+          expectedPolicyFlags: enginePolicyFlags,
+          observedPolicyFlags: Object.fromEntries(echoedPolicyKeys.map(
+            key => [key, game[key] ?? null])),
+          observedPromptValidationMode: game.promptValidationMode ?? null,
+          observedPolicyRandomIsolation: game.policyRandomIsolation ?? null,
+          observedRandomnessProtocol: game.randomnessProtocol ?? null,
+          observedAttackBeforeRetreatSeat: game.attackBeforeRetreatSeat ?? null,
+          error: 'Engine revision, trial label, rules, or requested policy evidence did not match.'
         });
         continue;
       }
@@ -248,6 +291,7 @@ function executeDiagnostic(options) {
     seedProtocol: campaign.seedProtocol || 'paired-slots-v1',
     candidateRows: campaign.candidateRows, fieldCoverage: campaign.coverage,
     selectedPilotRanks: ranks, maxActions, policyFlags, researchRevision,
+    expectedEngineRevision,
     researchPolicyProfile,
     engineAndPolicyQualified: false, strengthClaimPermitted: false,
     totalScheduled: expected, counts, records,
@@ -303,9 +347,13 @@ function main() {
       allowJapanesePromoHooks: true
     }));
   }
+  const engineRevisions = new Set([...mappings.values()].map(mapping =>
+    mapping.engineRevision));
+  assert.equal(engineRevisions.size, 1, 'Candidate mappings disagree on engine revision.');
+  const expectedEngineRevision = 'twinleafgg/' + [...engineRevisions][0];
   const ranks = (process.env.AICHI_DIAGNOSTIC_RANKS || '1,6').split(',').map(Number);
   const output = executeDiagnostic({
-    campaign, ranks, maxActions: 600,
+    campaign, ranks, maxActions: 600, expectedEngineRevision,
     researchRevision: process.env.GITHUB_SHA || 'local-revision-not-recorded',
     researchPolicyProfile,
     policyFlags: {
