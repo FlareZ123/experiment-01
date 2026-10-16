@@ -31,3 +31,5 @@ jobs:
         run: node simulation/twinleaf/underworld-door-action.cjs
       - name: Test Canceling Cologne restores Climactic Gate prompt
         run: node simulation/twinleaf/cologne-gate-fixture.cjs
+      - name: Test real Store actions through Climactic Gate and Cologne
+        run: node simulation/twinleaf/cologne-gate-store-action.cjs
