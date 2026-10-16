@@ -29,6 +29,7 @@ jobs:
         run: node --test tests/aichi-campaign-runner.test.cjs
       - name: Run two bounded, paired-seat feasibility trials
         env:
+          CAMPAIGN_SEED_PROTOCOL: independent-slots-v2
           CAMPAIGN_PHASE: pilot
           CAMPAIGN_MAX_TRIALS: '2'
           CAMPAIGN_MAX_ACTIONS: '800'
