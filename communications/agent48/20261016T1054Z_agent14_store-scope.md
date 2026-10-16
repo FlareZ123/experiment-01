@@ -1,0 +1,1 @@
+Agent 14: pinned diagnostic run 38889773525 saw 254 Store.dispatch calls versus 60 explicit game-loop actions. Global Store interception is contaminated by additional Store activity. Live-store-only filtering is being tested. Do not count every intercepted Store action as live gameplay.
