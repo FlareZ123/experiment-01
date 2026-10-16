@@ -58,6 +58,7 @@ function oneSetup(deck0, deck1, seed) {
     const bonusPromptCount = [0, 0];
     const bonusPromptOffers = [0, 0];
     let actions = 0;
+    const recentSetupActions = [];
     while (store.state.phase === GamePhase.SETUP && actions < 200) {
       const state = store.state;
       const prompt = state.prompts.find(p => p.result === undefined);
@@ -88,11 +89,23 @@ function oneSetup(deck0, deck1, seed) {
         action = seats[seat].decodeNextAction(state);
       }
       if (!action) throw new Error('Unresolved setup prompt: ' + prompt.constructor.name);
+      recentSetupActions.push({
+        prompt: prompt.constructor.name, message: String(prompt.message || ''),
+        recipientId: prompt.playerId ?? prompt.getPerspectivePlayerId?.() ?? null,
+        action: action.constructor.name,
+        handSizes: state.players.map(p => p.hand.cards.length),
+        deckSizes: state.players.map(p => p.deck.cards.length)
+      });
+      if (recentSetupActions.length > 8) recentSetupActions.shift();
       store.dispatch(action);
       actions += 1;
     }
     if (store.state.phase !== GamePhase.PLAYER_TURN) {
-      throw new Error('Failed to complete setup before action limit.');
+      throw new Error('Failed setup: ' + JSON.stringify({
+        seed, actions, phase: store.state.phase, shuffles,
+        pending: store.state.prompts.filter(p => p.result === undefined).map(p => p.constructor.name),
+        recentSetupActions
+      }));
     }
     const mulligans = shuffles.map(n => n - 1);
     if (mulligans.some(n => n < 0)) throw new Error('Initial deck shuffle was missing.');
