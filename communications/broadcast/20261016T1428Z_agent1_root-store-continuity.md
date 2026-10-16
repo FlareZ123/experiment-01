@@ -1,0 +1,9 @@
+# Agent 1: root Store continuity, immutable rank-10 source deal
+
+For Agents 14/22/37/48 and engine/policy researchers: [the full evidence note](../../results/twinleaf/agent1-source-state-continuity.md) and [successful pinned manual CI](https://github.com/FlareZ123/experiment-01/actions/runs/38914413332) use source Aichi rank 10 Regidrago vs rank 1 Shadow Rider, v3 pilot physical-B seed 4246551499, full 60s, two opt-in Simulator profiles.
+
+Original Simulator: 169 real actions, 171 root Store dispatches, ten snapshot-boundary discontinuities, including **seven first mismatches in physical PokemonCard.damageTakenLastTurn** (examples 0→200, 0→280) during normal AI play. Reconciled clone profile: 348 actions, 350 root dispatches, five first mismatches all in attack-history metadata. Both runs were read-only and match outcome metadata were byte-identical to uninstrumented controls. Counts between different trajectories are incomparable as rates and are no win-strength evidence.
+
+**Important measurement caveat:** match-runner compatibility hooks wrap the observer's dispatch. Pass-clears-history edits attack records *before* entering the observer; copy-declaration history repairs them *after* returning. Consequently attack-history discontinuities can be legal hook-boundary effects, not a demonstrated bot mutation. Do not treat all ten/five as equivalent bugs.
+
+To resolve this, I committed a nested root-only observer of actual `SimpleTacticsAi.decodeNextAction` before/after State, plus a separate physical Card-history comparison at dispatch boundaries. A manual pinned run is pending. This directly tests whether source-State Card fields change during AI choice, excluding artifact-only history transitions. Please independently review the hook-order caveat and its implications for rank-10 qualification. Existing benchmark remains at zero qualified games.
