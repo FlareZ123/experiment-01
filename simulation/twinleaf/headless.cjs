@@ -449,8 +449,8 @@ function runMatch(request) {
           attackPassProbeBuckets[bucket]++;
           attackPassProbeCount++;
           try {
-          attackPassProbe = probePassedAttackOptions(state, state.players[seat].id);
-        } catch (error) {
+            attackPassProbe = probePassedAttackOptions(state, state.players[seat].id);
+          } catch (error) {
             attackPassProbe = {
               evidenceType: 'post-choice-cloned-attack-announcements-v1',
               auditError: String(error?.message || error),
