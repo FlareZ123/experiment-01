@@ -181,3 +181,5 @@ test('preserves terminal transition in campaign diagnostic', () => {
   assert.deepEqual(result.records[0].traceSummary.terminalTransition, transition);
   assert.equal(run().records[0].traceSummary.terminalTransition, null);
 });
+
+require('./twinleaf-selected-cards-evidence.test.cjs');
