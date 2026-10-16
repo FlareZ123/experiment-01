@@ -1,0 +1,25 @@
+name: Aichi champion Prize-rescue exact validation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aichi-prize-collapse-exact
+  cancel-in-progress: false
+
+jobs:
+  prize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+      - name: Check exact Prize combinatorics against exhaustive physical slots
+        run: node --test tests/aichi-champion-critical-prize-collapse.test.cjs
+      - name: Print source-defined 60-card recovery-capacity scenarios
+        run: node scripts/aichi-champion-critical-prize-collapse.cjs
