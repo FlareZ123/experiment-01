@@ -12,7 +12,9 @@ const mod = name => require(path.join(output, name));
  * Prepared-board actual Store-action test. The previous Budew lock is produced
  * by its printed attack reducer. Star Alchemy is resolved via actual Store
  * prompts with the opt-in unlimited-name mandatory search correction.
- * @param {{path?:boolean,rangerPrized?:boolean,supporterSpent?:boolean}} options
+ * @param {{path?:boolean,rangerPrized?:boolean,supporterSpent?:boolean,
+ *   initialization?:boolean,usedVSTAR?:boolean,toolOccupied?:boolean,
+ *   toolLock?:boolean}} options
  */
 function probeStoneRanger(options = {}) {
   const cards = initializeCards();
@@ -67,7 +69,11 @@ function probeStoneRanger(options = {}) {
   }
   budew.reduceEffect(store,state,new AttackEffect(opponent,defender,budew.attacks[0]));
   assert.equal(defender.cannotPlayItemCards,true);
+  if(options.initialization) opponent.active.cards.splice(0,1,card('Iron Thorns ex TWM'));
   if(options.supporterSpent) defender.supporterTurn = state.turn;
+  if(options.usedVSTAR) defender.usedVSTAR = true;
+  if(options.toolOccupied) benchV.tools.push(card('Float Stone BKT'));
+  if(options.toolLock) defender.cannotPlayToolCards = true;
   const play = (c,target) => {
     const index = defender.hand.cards.indexOf(c);
     assert.ok(index >= 0, 'Played card is in hand');
@@ -75,6 +81,16 @@ function probeStoneRanger(options = {}) {
   };
   const pending=()=>state.prompts.find(p=>p.result===undefined);
   const resolve = answer => {const p=pending();assert.ok(p);store.dispatch(new ResolvePromptAction(p.id,answer));};
+  if(options.toolOccupied || options.toolLock) {
+    assert.throws(() => play(stone,{player:PlayerType.BOTTOM_PLAYER,
+      slot:SlotType.BENCH,index:0}));
+    assert.equal(benchV.tools.includes(stone),false);
+    assert.ok(defender.hand.cards.includes(stone));
+    assert.equal(defender.cannotPlayItemCards,true);
+    return {options, stoneAttached:false, starAlchemyVisible:false,
+      rangerPlayed:false,itemLockedAfter:true,usedVSTAR:defender.usedVSTAR,
+      itemPrompt:null, deniedAt:'tool-attachment'};
+  }
   play(stone,{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0});
   assert.ok(benchV.tools.includes(stone),'Stone must legally attach under the Item lock');
   assert.equal(defender.cannotPlayItemCards,true);
@@ -82,6 +98,14 @@ function probeStoneRanger(options = {}) {
   store.reduceEffect(state,powers);
   assert.ok(powers.powers.some(p=>p.name==='Star Alchemy'),
     'Star Alchemy must remain available while Item lock is active');
+  if(options.usedVSTAR) {
+    assert.throws(() => store.reduceEffect(state,
+      new PowerEffect(defender,stone.powers[0],stone,benchV)));
+    assert.equal(pending(),undefined);
+    return {options,stoneAttached:true,starAlchemyVisible:true,
+      rangerPlayed:false,itemLockedAfter:true,usedVSTAR:true,
+      itemPrompt:null,deniedAt:'already-used-vstar'};
+  }
   store.reduceEffect(state,new PowerEffect(defender,stone.powers[0],stone,benchV));
   const select=pending();
   assert.equal(select?.constructor.name,'ChooseCardsPrompt');
@@ -118,13 +142,16 @@ function probeStoneRanger(options = {}) {
 function runFixture() {
   const restore=installForestSealSearchHook();
   try {
-    const rows=[{}, {path:true}, {rangerPrized:true}, {supporterSpent:true}]
+    const rows=[{}, {path:true}, {initialization:true},
+      {rangerPrized:true}, {supporterSpent:true},
+      {usedVSTAR:true}, {toolOccupied:true}, {toolLock:true}]
       .map(probeStoneRanger);
     for(const r of rows){
-      assert.equal(r.stoneAttached,true);
-      assert.equal(r.starAlchemyVisible,true);
-      assert.equal(r.usedVSTAR,true);
-      assert.equal(r.rangerPlayed,!r.options.rangerPrized&&!r.options.supporterSpent);
+      assert.equal(r.stoneAttached,!(r.options.toolOccupied||r.options.toolLock));
+      assert.equal(r.starAlchemyVisible,!(r.options.toolOccupied||r.options.toolLock));
+      assert.equal(r.usedVSTAR,!(r.options.toolOccupied||r.options.toolLock));
+      assert.equal(r.rangerPlayed,!(r.options.rangerPrized||r.options.supporterSpent||
+        r.options.usedVSTAR||r.options.toolOccupied||r.options.toolLock));
       assert.equal(r.itemPrompt,r.rangerPlayed?'ChoosePokemonPrompt':null);
     }
     return {pinned:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
