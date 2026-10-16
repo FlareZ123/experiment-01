@@ -24,12 +24,12 @@ The opt-in branch therefore runs the source-owned [prototype normalizer](../../s
 
 | Test | Execution | Result |
 | --- | --- | --- |
-| [Detached-score pure tests](../../tests/twinleaf-detached-deck-sampling.test.cjs) | Local Node 22.16.0 | 4/4 pass |
+| [Detached-score pure tests](../../tests/twinleaf-detached-deck-sampling.test.cjs) | Local Node 22.16.0 | 5/5 pass |
 | [Pinned-algorithm prototype mechanism tests](../../tests/twinleaf-normalize-deep-clone.test.cjs) | Local Node 22.16.0 | 2/2 pass |
 | [Pinned source-rank-10 Store differential](../../tests/twinleaf-detached-own-deck-audit.test.cjs) | Not executed | Pending real pinned-engine environment |
 | Manual-only [hidden-information workflow](../../.github/workflows/twinleaf-hidden-information.yml) | Dispatch attempted | Trigger blocked by available tool safety controls; **no CI pass** |
 
-The pure detached-score tests cover equivalent permuted deck multisets, hypothetical card damage and card-ID mutation confined to clones, exception propagation without live-state modification, and rejection of a clone sharing cards in the deck or Active zone. The prototype tests reproduce the exact source `Object.create(source)` mechanism on a miniature cyclic, aliased object graph, check restored class methods and internal aliases, and reject deliberately shallow copies.
+The pure detached-score tests cover equivalent permuted deck multisets, hypothetical card damage and card-ID mutation confined to clones, exception propagation without live-state modification, and rejection of a clone sharing cards in the deck, Active zone or a symbol-keyed field. The prototype tests reproduce the exact source `Object.create(source)` mechanism on a miniature cyclic, aliased object graph, check restored class methods and internal aliases, and reject deliberately shallow copies.
 
 The unexecuted [rank-10 audit](../../simulation/twinleaf/detached-own-deck-audit.cjs) is source-inventory-complete for its existing synthetic fixture, uses the actual pinned `PlayCardAction` with index arguments, and additionally snapshots real card `damageTakenLastTurn` fields and live zone references. Its intended verification is equal scores across two hidden-order variants with unchanged live source zones. Until manually run and independently inspected, this **must remain a hypothesis**, even though the isolated helper has passed pure tests.
 
