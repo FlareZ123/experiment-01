@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const {initializeCards} = require('./headless.cjs');
 const {installMimikyuNonGxCopycatHook} = require('./copycat-compat.cjs');
+const {installMimikyuDeclaredHistoryHook} = require('./copycat-declared-history-hook.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
@@ -13,9 +14,10 @@ const engine = name => require(path.join(output, name));
  * Exercises a real AttackAction and its asynchronous ChooseAttackPrompt,
  * keeping six occupied Prizes so the engine does not launch sudden death.
  * Prior Apex Dragon use and Energy are staged; this is no legal-match proof.
+ * @param {boolean} correctHistory Whether to install the opt-in history repair.
  * @returns {object} Attack effects and identity telemetry.
  */
-function declaredCopycatApexContract() {
+function declaredCopycatApexContract(correctHistory = false) {
   const manager = initializeCards();
   const mimikyu = manager.getCardByName('Mimikyu GRI');
   const regidrago = manager.getCardByName('Regidrago VSTAR SIT');
@@ -35,6 +37,7 @@ function declaredCopycatApexContract() {
 
   clearCopyAttackSessionsForTests();
   const restore = installMimikyuNonGxCopycatHook();
+  const restoreHistory = correctHistory ? installMimikyuDeclaredHistoryHook() : () => {};
   try {
     const store = new Store({onStateChange() {}});
     const state = store.state;
@@ -73,7 +76,12 @@ function declaredCopycatApexContract() {
     assert.equal(a.usedTurnSkip, true);
     assert.equal(regidrago.attacks[0].copycatAttack, true);
     const actualLastAttack = state.playerLastAttack[a.id]?.attack?.name;
+    assert.equal(afterDeclaration, 'Copycat',
+      'Printed attack identity must be recorded at declaration');
+    assert.equal(actualLastAttack, correctHistory ? 'Copycat' : 'Timeless-GX',
+      'Real prompt resolution must match the controlled history behavior');
     return {
+      correctedHistory: correctHistory,
       declaredAttack: 'Copycat',
       lastAttackAfterDeclaration: afterDeclaration,
       lastAttackAfterChoice: actualLastAttack,
@@ -84,13 +92,16 @@ function declaredCopycatApexContract() {
       scope: 'Staged real AttackAction with Energy; no full-game/legal-deck evidence'
     };
   } finally {
+    restoreHistory();
     restore();
     clearCopyAttackSessionsForTests();
   }
 }
 
 if (require.main === module) {
-  process.stdout.write(JSON.stringify(declaredCopycatApexContract(), null, 2) + '\n');
+  const baseline = declaredCopycatApexContract(false);
+  const corrected = declaredCopycatApexContract(true);
+  process.stdout.write(JSON.stringify({baseline, corrected}, null, 2) + '\n');
 }
 
 module.exports = {declaredCopycatApexContract};
