@@ -6,17 +6,36 @@ const { executeDiagnostic, observedFirstTurn } =
   require('../simulation/evaluation/aichi-campaign-execute.cjs');
 const { loadDefaultCampaign } = require('../scripts/aichi-comparison-campaign.cjs');
 
+const EXPECTED_ENGINE = 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
+const ECHOED_POLICY_KEYS = [
+  'forestSealSearchCorrection', 'doubleDragonRecovery',
+  'templeUnlockRecovery', 'supporterDecisionCorrection',
+  'snorlaxRetreatStartCorrection', 'shadowRiderEnergyPriority',
+  'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
+  'attackBeforeRetreat', 'attackBeforeRetreatSeat',
+  'leleEntryAbilityLockCorrection', 'radiantGateLockCorrection'
+];
+
 function sampleGame(request, override = {}) {
   return {
     finished: true, winner: 0, firstTurnSlot: 1,
     firstTurnPlayerId: 202, firstTurnPlayerName: 'research-B',
     firstDrawLogName: 'research-B', verifiedByDrawLog: true,
     actions: 30, turns: 3, endReason: 'engine-game-end',
-    engine: 'pinned-test', policy: 'synthetic-unqualified',
+    engine: EXPECTED_ENGINE, label: request.label, policy: 'synthetic-unqualified',
+    promptValidationMode: request.strictPromptValidation === true ?
+      'predispatch-prompt-validate' : 'upstream-unchecked',
+    policyRandomIsolation: request.isolatePolicyRandomness === true,
+    randomnessProtocol: request.isolatePolicyRandomness === true ?
+      'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
+    ...Object.fromEntries(ECHOED_POLICY_KEYS.filter(key =>
+      Object.hasOwn(request, key)).map(key => [key, request[key]])),
     seed: request.seed ?? 0,
     deckHashes: [request.deckA || cards, request.deckB || cards].map(deck =>
       createHash('sha256').update(JSON.stringify(deck)).digest('hex')),
-    rules: {format: 'EXPANDED'}, attackTrace: [{seat: 0, turn: 2}],
+    rules: {format: 'EXPANDED', firstTurnDrawCard: true,
+      firstTurnUseSupporter: false, attackFirstTurn: false},
+    attackTrace: [{seat: 0, turn: 2}],
     actionCounts: { AttackAction: 1 }, ...override
   };
 }
@@ -24,7 +43,7 @@ function sampleGame(request, override = {}) {
 const cards = Array(60).fill('SYNTHETIC CARD');
 function run(options = {}) {
   const campaign = loadDefaultCampaign();
-  return executeDiagnostic({
+  return executeDiagnostic({expectedEngineRevision: EXPECTED_ENGINE,
     campaign, ranks: [6], maxActions: 30,
     policyFlags: options.policyFlags || {},
     resolvePair: trial => ({ candidateDigest: trial.candidateDigest,
@@ -74,7 +93,7 @@ test('incomplete and exception games retain failure classifications', () => {
 
 test('blocked resolution is explicit and never dispatched', () => {
   const campaign = loadDefaultCampaign();
-  const result = executeDiagnostic({
+  const result = executeDiagnostic({expectedEngineRevision: EXPECTED_ENGINE,
     campaign, ranks: [1],
     resolvePair: t => ({ candidateDigest: t.candidateDigest,
       opponentDigest: t.opponentDigest, candidateCards: null,
@@ -86,14 +105,14 @@ test('blocked resolution is explicit and never dispatched', () => {
 });
 
 test('invalid pilot ranks, plan identity mismatches and repeated trials are rejected', () => {
-  assert.throws(() => executeDiagnostic({campaign:loadDefaultCampaign(),ranks:[23],
+  assert.throws(() => executeDiagnostic({expectedEngineRevision: EXPECTED_ENGINE,campaign:loadDefaultCampaign(),ranks:[23],
     resolvePair:()=>null,runMatch:()=>null}), /pilot ranks/);
   const campaign = loadDefaultCampaign();
   const t = campaign.trials.find(t=>t.phase==='pilot');
   campaign.trials.push(t);
-  assert.throws(() => executeDiagnostic({campaign,ranks:[1],
+  assert.throws(() => executeDiagnostic({expectedEngineRevision: EXPECTED_ENGINE,campaign,ranks:[1],
     resolvePair:()=>null,runMatch:()=>null}), /planDigest integrity mismatch/);
-  const output = executeDiagnostic({campaign:loadDefaultCampaign(),ranks:[6],
+  const output = executeDiagnostic({expectedEngineRevision: EXPECTED_ENGINE,campaign:loadDefaultCampaign(),ranks:[6],
     resolvePair: () => ({candidateDigest:'wrong',opponentDigest:'wrong',
       candidateCards:cards,opponentCards:cards}),
     runMatch:()=>{throw new Error('must not run');}});
@@ -133,7 +152,7 @@ test('policy flags cannot override fixed plan decks, seeds or action budgets', (
     {seed: 1}, {deckA: cards}, {maxActions: 1},
     {strictPromptValidation: 'yes'}, null, []
   ]) {
-    assert.throws(() => executeDiagnostic({...base, policyFlags: invalid}), /policyFlags/);
+    assert.throws(() => executeDiagnostic({expectedEngineRevision: EXPECTED_ENGINE,...base, policyFlags: invalid}), /policyFlags/);
   }
 });
 
@@ -190,7 +209,7 @@ require('./twinleaf-selected-cards-evidence.test.cjs');
 test('the opt-in Snorlax interactive-retreat gate is forwarded without altering the frozen trial',()=>{
   const campaign=loadDefaultCampaign();
   let calls=0;
-  const result=executeDiagnostic({
+  const result=executeDiagnostic({expectedEngineRevision: EXPECTED_ENGINE,
     campaign,ranks:[6],policyFlags:{snorlaxRetreatStartCorrection:true},
     resolvePair:t=>({candidateDigest:t.candidateDigest,opponentDigest:t.opponentDigest,
       candidateCards:cards,opponentCards:cards}),
@@ -248,6 +267,7 @@ test('fixed-campaign profile identity is source-attributed and rejects unknown p
   const campaign = loadDefaultCampaign();
   const request = {
     campaign, ranks: [6],
+    expectedEngineRevision: EXPECTED_ENGINE,
     researchPolicyProfile: 'expanded-action-fidelity-probe-v1',
     resolvePair: t => ({
       candidateDigest: t.candidateDigest, opponentDigest: t.opponentDigest,
@@ -261,7 +281,7 @@ test('fixed-campaign profile identity is source-attributed and rejects unknown p
   assert.ok(result.records.every(r =>
     r.researchPolicyProfile === 'expanded-action-fidelity-probe-v1'));
   assert.equal(result.strengthClaimPermitted, false);
-  assert.throws(() => executeDiagnostic({
+  assert.throws(() => executeDiagnostic({expectedEngineRevision: EXPECTED_ENGINE,
     ...request, researchPolicyProfile: 'uncontrolled-profile'
   }), /research policy profile/);
 });
@@ -286,4 +306,54 @@ test('candidate-only attack priority follows actual physical candidate slot', ()
 test('candidate-specific attack ordering is rejected without the base policy', () => {
   assert.throws(() => run({policyFlags:
     {attackBeforeRetreatCandidateOnly: true}}), /requires Attack-before-Retreat/);
+});
+
+
+test('a different engine or scheduled trial label cannot claim completion', () => {
+  for (const override of [
+    {engine: 'twinleafgg/0000000000000000000000000000000000000000'},
+    {label: 'wrong scheduled trial'}
+  ]) {
+    const report = run({runMatch: request => sampleGame(request, override)});
+    assert.equal(report.counts['unverified-game-environment'], 6);
+    assert.equal(report.counts['completed-engine-game'] || 0, 0);
+    assert.equal(report.expectedEngineRevision, EXPECTED_ENGINE);
+  }
+});
+
+test('Expanded first-turn rule drift is rejected independently of format', () => {
+  for (const rules of [
+    {format: 'EXPANDED', firstTurnDrawCard: false, firstTurnUseSupporter: false, attackFirstTurn: false},
+    {format: 'EXPANDED', firstTurnDrawCard: true, firstTurnUseSupporter: true, attackFirstTurn: false},
+    {format: 'EXPANDED', firstTurnDrawCard: true, firstTurnUseSupporter: false, attackFirstTurn: true}
+  ]) {
+    const report = run({runMatch: request => sampleGame(request, {rules})});
+    assert.equal(report.counts['unverified-game-environment'], 6);
+  }
+});
+
+test('requested prompt checks, RNG isolation and policy hooks need echoed evidence', () => {
+  const policyFlags = {
+    strictPromptValidation: true, isolatePolicyRandomness: true,
+    supporterDecisionCorrection: true
+  };
+  for (const override of [
+    {promptValidationMode: 'upstream-unchecked'},
+    {policyRandomIsolation: false},
+    {randomnessProtocol: 'legacy-shared-prng'},
+    {supporterDecisionCorrection: false}
+  ]) {
+    const report = run({policyFlags, runMatch: request => sampleGame(request, override)});
+    assert.equal(report.counts['unverified-game-environment'], 6);
+    assert.equal(report.counts['completed-engine-game'] || 0, 0);
+  }
+  assert.equal(run({policyFlags}).counts['completed-engine-game'], 6);
+});
+
+test('expected pinned engine revision is mandatory', () => {
+  assert.throws(() => executeDiagnostic({
+    expectedEngineRevision: null, campaign: loadDefaultCampaign(), ranks: [6],
+    resolvePair: () => { throw new Error('should not resolve'); },
+    runMatch: () => { throw new Error('should not run'); }
+  }), /pinned Twinleaf engine revision/);
 });
