@@ -51,3 +51,5 @@ jobs:
         run: node simulation/twinleaf/spent-gx-to-mimikyu-copycat.cjs
       - name: Characterize copied-attack session isolation across independent Stores
         run: node simulation/twinleaf/copy-session-cross-store-leak.cjs
+      - name: Probe speculative Simulator copied-session lifetime
+        run: node simulation/twinleaf/copy-session-speculative-simulator.cjs
