@@ -118,8 +118,13 @@ function normalizeDeepClonePrototypes(source,copy) {
       return;
     }
     canonical.set(src,dst);
-    if(Object.getPrototypeOf(dst)===src) {
-      Object.setPrototypeOf(dst,stableClassPrototype(src));
+    // The pinned Simulator may clone an already-detached State a second time.
+    // Its final objects then inherit from intermediate *clones*, rather than
+    // from src directly. Restore the actual source class prototype in both
+    // one-pass and two-pass cases, after the preflight has checked shadowing.
+    const classPrototype=stableClassPrototype(src);
+    if(Object.getPrototypeOf(dst)!==classPrototype) {
+      Object.setPrototypeOf(dst,classPrototype);
     }
     if(Array.isArray(src)){
       assert.ok(Array.isArray(dst),'Array clone was not an array');
