@@ -218,3 +218,30 @@ test('opt-in Double Dragon policy is forwarded and identified without contaminat
   assert.equal(requests.length, 2);
   assert.ok(requests.every(request => !Object.hasOwn(request, 'doubleDragonRecovery')));
 });
+
+
+test('Supporter decision hook is explicit, forwarded and labelled separately', () => {
+  const plan = buildPlan(manifest, pool, 1);
+  const requests = [];
+  const runMatch = request => {
+    requests.push(request);
+    return { finished: true, winner: 0 };
+  };
+  const patched = evaluatePlan(plan, {
+    gamesPerSeat: 1, selectedRanks: [1],
+    supporterDecisionCorrection: true, runMatch
+  });
+  assert.equal(patched.supporterDecisionCorrection, true);
+  assert.match(patched.policy, /SupporterDecisionGuard-v1/);
+  assert.equal(requests.length, 2);
+  assert.ok(requests.every(request => request.supporterDecisionCorrection === true));
+
+  requests.length = 0;
+  const baseline = evaluatePlan(plan, {
+    gamesPerSeat: 1, selectedRanks: [1], runMatch
+  });
+  assert.equal(baseline.supporterDecisionCorrection, false);
+  assert.doesNotMatch(baseline.policy, /SupporterDecisionGuard/);
+  assert.equal(requests.length, 2);
+  assert.ok(requests.every(request => !Object.hasOwn(request, 'supporterDecisionCorrection')));
+});
