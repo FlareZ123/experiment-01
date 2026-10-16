@@ -216,3 +216,48 @@ test('exact source mirror exposes paired-slot pseudoreplication key', () => {
   assert.equal(ordinary.records[0].exactSourceMirror, false);
   assert.equal(ordinary.records[0].potentialReplayAliasKey, null);
 });
+
+test('version 2 uses independent physical-slot seeds shared across candidate inventories', () => {
+  const f = fixture();
+  const v1Digest = f.campaign.planDigest;
+  f.campaign = buildCampaign({
+    field: f.field, source: f.source, candidates: f.candidates,
+    pilotRanks: [1, 2], repeats: 2, seedBase: 20261016,
+    seatSeedMode: 'independent-slots-v2'
+  });
+  assert.equal(f.campaign.schemaVersion, 2);
+  assert.equal(f.campaign.seedProtocol, 'independent-slots-v2');
+  assert.notEqual(f.campaign.planDigest, v1Digest);
+  const rows = f.campaign.trials.filter(t =>
+    t.phase === 'pilot' && t.rank === 1 && t.repeat === 0);
+  assert.deepEqual(rows.map(t => [t.candidateId, t.candidateEngineSlot, t.seed]), [
+    ['reference', 'A', rows[0].seed],
+    ['reference', 'B', rows[0].seed + 1],
+    ['other', 'A', rows[0].seed],
+    ['other', 'B', rows[0].seed + 1]
+  ]);
+  assert.equal(new Set(f.campaign.trials.filter(t =>
+    t.phase === 'pilot' && t.rank === 1).map(t => t.seed)).size, 4);
+  const result = executeCampaign(f, {
+    maxTrials: 4, prepareCandidate: prepare, runMatch: finished
+  });
+  assert.equal(result.seedProtocol, 'independent-slots-v2');
+  assert.equal(result.schemaVersion, 2);
+  assert.deepEqual(result.records.map(r => r.seed),
+    rows.map(r => r.seed));
+  assert.throws(() => buildCampaign({
+    field: f.field, source: f.source, candidates: f.candidates,
+    pilotRanks: [1, 2], seatSeedMode: 'unsafe'
+  }), /protocol/);
+});
+
+test('previously published version 1 campaign digest remains exactly stable', () => {
+  const { loadDefaultCampaign } = require('../scripts/aichi-comparison-campaign.cjs');
+  assert.equal(loadDefaultCampaign().planDigest,
+    'e6a0695e70325b855600c68bfe1e465a44b3bea3dec0abbe9eda96a7f1e62deb');
+  const revised = loadDefaultCampaign('independent-slots-v2');
+  assert.equal(revised.schemaVersion, 2);
+  assert.notEqual(revised.planDigest, loadDefaultCampaign().planDigest);
+  assert.equal(revised.trialCountByPhase.pilot, 54);
+  assert.equal(revised.trialCountByPhase.publishedField, 174);
+});
