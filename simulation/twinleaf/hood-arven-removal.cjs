@@ -159,7 +159,6 @@ function runResponse(removal) {
   // Supporter action during the Arven turn.
   state.turn = 4;
   state.activePlayer = 0;
-  player.supporterTurn = 0;
 
   if (removal === 'Faba') {
     const faba = card('Faba LOT');
