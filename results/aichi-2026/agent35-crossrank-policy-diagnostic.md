@@ -28,6 +28,16 @@ Across the six games, the Vileplume opponent played `Technical Machine: Evolutio
 
 The source rank-2 list contains two Bunnelby and two Technical Machine: Evolution. The repository already has a staged source-realistic bot fixture proving that an experimental Tool-aware/Bunnelby policy can choose the Evolution attack and resolve its prompts: [Bunnelby TM policy replay](../../simulation/twinleaf/bunnelby-tm-policy-replay.cjs). The original fixed-campaign main function bypassed that opt-in policy wrapper, explaining why this needs a whole-game controlled counterfactual.
 
+## Post-decision deck-target evidence in the exact rank-2 turn-56 pass
+
+To distinguish a missing remaining-deck evolution target from a plausible missed attack, Agent 35 added [read-only TM Evolution pass telemetry](../../simulation/twinleaf/tm-evolution-pass-evidence.cjs) and [four pure tests](../../tests/tm-evolution-pass-evidence.test.cjs). [Manual CI run 38846735893](https://github.com/FlareZ123/experiment-01/actions/runs/38846735893) **passed**. Its `aichi-campaign-diagnostic` archive is artifact ID `12023213750`.
+
+**Key observed fact:** the original `pilot:2:0:hood-shield-v1:B` Bunnelby `PassTurnAction`, ordinal 346, turn 56, had **one eligible Bench evolutionary target**. The recorded target was Benched **Gloom**, and the actual ten-card remaining deck contained **Vileplume AOR**. The Active Bunnelby still held Jet Energy and Technical Machine: Evolution. Thus, a *missing evolution card in deck* cannot explain this particular pass. This is an observation about card inventory and payment; a complete legal-action proof must still consider applicable effects and the precise evolution-attack resolution.
+
+**Trace noninterference check:** All six rank-2 trial records repeated with identical source-locked identities and unchanged ordered meaningful action signatures (action ordinal, selected action, played card, attack name) after telemetry was added. The extra evidence was gathered only after the bot selected its pass, so it supplied no decision input. The SHA-256 trace hashes changed because additional read-only fields were recorded, but the physical actions did not change. Only one of the six games produced a TM Evolution-equipped Active pass, this exact Hood/B observation.
+
+**Important distinct concern:** the existing opt-in Bunnelby Evolution tactical gate scans the *true remaining deck* to decide whether it contains evolution targets. Before the first deck search (K0), that knowledge can reveal which cards are Prized. The [separate information-set characterization](../twinleaf/bunnelby-k0-prize-partition-observation.md) documents this source-level issue. It does not imply K0 was active on turn 56.
+
 ## Rank-10 opponent attack observations
 
 Regidrago VSTAR was played in all six opponent traces. `Apex Dragon` was observed in **four of six** games, totaling **ten attacks**. The remaining two opponent trajectories used other attacks, including Koraidon ex and Budew. Recorded Double Dragon Energy plays totaled nine, distributed across five of six games. These events demonstrate partial archetype expression under the current generic bot, without establishing what actions were available but unchosen.
