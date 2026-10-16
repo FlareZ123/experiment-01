@@ -25,5 +25,5 @@ All values condition on a valid initial seven. No bonus draws, search Items or g
 | Temple v1, initial seven | 11.14888% | 8.69453% | **19.84341%** |
 | Temple v1, seven plus 1 draw | 12.82531% | 9.79433% | **22.61964%** |
 | Temple v1, seven plus 2 draws | 14.50175% | 10.83826% | **25.34001%** |
-| 14-Basic, 2-Lele, 1-Ranger hypothetical, seven plus 2 | 14.45029% | 19.37933% | **33.82962%** |
+| 14-Basic, 2-Lele, 1-Ranger hypothetical, seven plus 2 | 14.45029% | 19.85104% | **34.30133%** |
 
