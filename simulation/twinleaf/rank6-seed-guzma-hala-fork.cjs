@@ -144,16 +144,18 @@ function withDamageObserver(fn) {
       const actor=this.state.players[1];
       attack.handAtDamage=actor.hand.cards.map(c=>c.fullName);
       attack.discardAtDamage=actor.discard.cards.map(c=>c.fullName);
-      const prints={
-        hand:actor.hand.cards.map(c=>c.fullName),
-        deck:actor.deck.cards.map(c=>c.fullName),
-        prizes:actor.prizes.flatMap(slot=>slot.cards.map(c=>c.fullName)),
-        discard:actor.discard.cards.map(c=>c.fullName)
+      attack.handNamesAtDamage=actor.hand.cards.map(c=>c.name);
+      attack.discardNamesAtDamage=actor.discard.cards.map(c=>c.name);
+      const cardsByZone={
+        hand:actor.hand.cards,
+        deck:actor.deck.cards,
+        prizes:actor.prizes.flatMap(slot=>slot.cards),
+        discard:actor.discard.cards
       };
       attack.recoveryZoneCounts=Object.fromEntries(
         ['Guzma','VS Seeker','Lusamine'].map(name=>[
-          name,Object.fromEntries(Object.entries(prints).map(([zone,cards])=>[
-            zone,cards.filter(card=>card.startsWith(name+' ')).length
+          name,Object.fromEntries(Object.entries(cardsByZone).map(([zone,cards])=>[
+            zone,cards.filter(card=>card.name===name).length
           ]))
         ]));
     }
@@ -230,10 +232,10 @@ function main() {
     assert.equal(attack.recoveryZoneCounts.Guzma.prizes,2,
       'Two source Guzma must remain Prized');
     for(const name of discardNames){
-      assert.ok(discarded.some(card=>card.startsWith(name+' ')),
-        'Declared discarded card not observed in Store discard: '+name);
-      assert.ok(!retained.some(card=>card.startsWith(name+' ')),
-        'Discarded source card unexpectedly survived in hand: '+name);
+      assert.ok(attack.discardNamesAtDamage.includes(name),
+        'Declared exact-name discarded card missing in Store discard: '+name);
+      assert.ok(!attack.handNamesAtDamage.includes(name),
+        'Discarded exact-name source card survived in hand: '+name);
     }
     return {discardNames,sourceHandAndPrizesIdentical:true,
       announcedAttack:'Volt Cyclone',immediateDefenderDamage:attack.damageAfter,
