@@ -227,8 +227,11 @@ function executeCampaign(inputs, options = {}) {
         observedRules: game.rules || null,
         observedEngineDeckHashes: game.deckHashes || null,
         attackTrace: game.attackTrace || [],
+        actionCounts: game.actionCounts || {},
         actionsBySeat: game.actionsBySeat || [],
         cardsPlayedBySeat: game.cardsPlayedBySeat || [],
+        finalState: game.finalState || null,
+        prizesRemaining: game.prizesRemaining || null,
         note: 'Aggregate engine trace; full replay/action log is not preserved here.'
       });
     } catch (error) {
