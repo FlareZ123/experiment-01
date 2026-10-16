@@ -15,7 +15,7 @@ function runTicketBoard(){
  const s=new Store({onStateChange(){}}),state=s.state;
  const p=new Player(),o=new Player();p.id=101;o.id=202;
  state.players=[p,o];state.activePlayer=0;state.turn=1;state.phase=GamePhase.PLAYER_TURN;
- p.active.cards.push(card('Meloetta ex BLK'));
+ p.active.cards.push(card('Shadow Rider Calyrex V CRE'));
  o.active.cards.push(card('Shadow Rider Calyrex V CRE'));
  const dce=card('Double Colorless Energy SUM');
  const old=[dce,card('Psychic Energy MEE'),card('Lightning Energy MEE'),card('Grass Energy MEE'),card('Fighting Energy MEE'),card('Fire Energy MEE')];
