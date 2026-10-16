@@ -22,7 +22,7 @@ function run(){
  const result=[{card:special,to:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0}}];
  const validates=q.validate(result,z);
  s.dispatch(new ResolvePromptAction(q.id,result));
- return {validates,attachedSpecial:p.active.energies.cards.includes(special)};
+ return {validates,attachedSpecial:p.active.energies.cards.includes(special),activeCards:p.active.cards.map(c=>c.fullName),energies:p.active.energies.cards.map(c=>c.fullName),discard:p.discard.cards.map(c=>c.fullName),opponentEnergies:o.active.energies.cards.map(c=>c.fullName),promptResultCount:q.result?.length ?? null};
 }
 if(require.main===module)console.log(JSON.stringify(run(),null,2));
 module.exports={run};
