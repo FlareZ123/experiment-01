@@ -59,3 +59,16 @@ function assessFieldEvidence(rounds, options={}) {
     logEValue=logSumExp(terms);
     if (firstCrossedAtRound===null && logEValue>=thresholdLog) firstCrossedAtRound=index+1;
   }
+  const games=rounds.length*CELLS_PER_ROUND;
+  return {
+    rounds:rounds.length, games, wins, nonWins:games-wins,
+    nullMean, alpha, logEValue, eValue:Math.exp(logEValue),
+    threshold:1/alpha, currentCrosses:logEValue>=thresholdLog,
+    everCrossed:firstCrossedAtRound!==null, firstCrossedAtRound
+  };
+}
+
+module.exports={
+  FIELD_SIZE, CELLS_PER_ROUND, ZERO_LOSS_WEIGHT, LAMBDAS,
+  countQualifiedWins, assessFieldEvidence
+};
