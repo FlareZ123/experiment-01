@@ -8,6 +8,8 @@ const {severClonePrototypeAliases} =
   require('../simulation/twinleaf/prototype-safe-simulator-hook.cjs');
 const {normalizeDeepClonePrototypes} =
   require('../simulation/twinleaf/normalize-deep-clone.cjs');
+const {makePostSuperAliasRepairClass} =
+  require('../simulation/twinleaf/post-super-alias-repair-hook.cjs');
 
 /**
  * Reproduce the two clone stages from pinned Twinleaf's Simulator design.
@@ -100,4 +102,19 @@ test('source-graph post-construction normalization reunites both attack aliases'
   copiedAttack.damage = 230;
   assert.equal(sourceCard.damageTakenLastTurn, 0);
   assert.equal(sourceCard.attacks[0].damage, 150);
+});
+
+test('post-super repair wrapper reunites histories before the policy reads a Store', () => {
+  const {source, sourceCard} = actualAttackHistoryShape();
+  const Wrapped = makePostSuperAliasRepairClass(SimulatedPinnedConstructor,
+    state => {
+      const detached = pinnedCloneShape(state);
+      severClonePrototypeAliases(state, detached);
+      return detached;
+    });
+  const copy = new Wrapped(source).store.state;
+  const attack = copy.players[0].discard.cards[0].attacks[0];
+  assert.strictEqual(attack, copy.lastAttack);
+  assert.strictEqual(attack, copy.playerLastAttack['101'].attack);
+  assert.notStrictEqual(attack, sourceCard.attacks[0]);
 });
