@@ -109,8 +109,16 @@ function characterizeToolAttackPolicy() {
     'Opt-in tactic must see and select a legal 280-damage Tool attack');
 
   fixture.store.dispatch(correctedAction);
-  assert.equal(fixture.defender.active.damage, 280,
-    'Actual engine must apply Crisis Punch damage in staged state');
+  // Upstream executes attack animation through a WaitPrompt before applying
+  // damage; the action is legal but damage is not immediate on dispatch.
+  const {ResolvePromptAction} = load('game/store/actions/resolve-prompt-action');
+  const pending = fixture.store.state.prompts.find(prompt =>
+    prompt.result === undefined);
+  assert.equal(pending?.constructor.name, 'WaitPrompt',
+    'Accepted Tool attack must schedule the upstream attack-animation prompt');
+  fixture.store.dispatch(new ResolvePromptAction(pending.id, null));
+  assert.equal(fixture.store.state.players[1].active.damage, 280,
+    'Actual engine must apply Crisis Punch damage after animation completes');
 
   return {
     verified: true,
@@ -119,7 +127,8 @@ function characterizeToolAttackPolicy() {
     defaultAttack: defaultAction?.name || null,
     optInAction: correctedAction.constructor.name,
     optInAttack: correctedAction.name,
-    dealtDamage: fixture.defender.active.damage,
+    dealtDamage: fixture.store.state.players[1].active.damage,
+    resolvedAnimationPrompt: pending.constructor.name,
     caveat: 'staged midgame card payment and policy selection, not a full-game win'
   };
 }
