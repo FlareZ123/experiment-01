@@ -67,9 +67,28 @@ function probe(wobLocation, eggLocation, options = {}) {
   } catch (e) {
     error = e.message;
   }
+  const fixtureD = board(wobLocation, eggLocation, options);
+  const { GamePhase } = load('game/store/state/state');
+  const { UseAbilityAction } = load('game/store/actions/game-actions');
+  const { PlayerType, SlotType } = load('game/store/actions/play-card-action');
+  fixtureD.state.phase = GamePhase.PLAYER_TURN;
+  const fromSlot = eggLocation === 'discard' ? SlotType.DISCARD : SlotType.HAND;
+  let dispatchedError = null;
+  try {
+    fixtureD.store.dispatch(new UseAbilityAction(101, 'Propagation', {
+      player: PlayerType.BOTTOM_PLAYER, slot: fromSlot, index: 0
+    }));
+  } catch (e) {
+    dispatchedError = e.message;
+  }
+  const actualState = fixtureD.store.state;
+  const actualOwn = actualState.players[0];
   return {wobLocation, eggLocation, turn:options.turn ?? 2, withKoko:options.withKoko===true,
     stubBlocked:a, truePowerStubBlocked:b,
     directError:error,
+    dispatchedError,
+    dispatchEggInHand:actualOwn.hand.cards.includes(fixtureD.egg),
+    dispatchEggInDiscard:actualOwn.discard.cards.includes(fixtureD.egg),
     eggNowInHand:fixtureC.own.hand.cards.includes(fixtureC.egg),
     eggNowInDiscard:fixtureC.own.discard.cards.includes(fixtureC.egg)};
 }
