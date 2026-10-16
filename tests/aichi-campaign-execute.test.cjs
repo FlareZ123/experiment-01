@@ -13,6 +13,7 @@ const ECHOED_POLICY_KEYS = [
   'snorlaxRetreatStartCorrection', 'shadowRiderEnergyPriority',
   'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
   'attackBeforeRetreat', 'attackBeforeRetreatSeat',
+  'prototypeSafeSimulatorIsolation',
   'leleEntryAbilityLockCorrection', 'radiantGateLockCorrection'
 ];
 
@@ -356,4 +357,21 @@ test('expected pinned engine revision is mandatory', () => {
     resolvePair: () => { throw new Error('should not resolve'); },
     runMatch: () => { throw new Error('should not run'); }
   }), /pinned Twinleaf engine revision/);
+});
+
+test('frozen campaign forwards the experimental clone mode and verifies its echo',()=>{
+  const policyFlags={prototypeSafeSimulatorIsolation:true};
+  let calls=0;
+  const accepted=run({policyFlags,runMatch:request=>{
+    calls++;
+    assert.equal(request.prototypeSafeSimulatorIsolation,true);
+    return sampleGame(request);
+  }});
+  assert.equal(calls,6);
+  assert.equal(accepted.counts['completed-engine-game'],6);
+  assert.equal(accepted.engineAndPolicyQualified,false);
+  const falseEcho=run({policyFlags,runMatch:request=>
+    sampleGame(request,{prototypeSafeSimulatorIsolation:false})});
+  assert.equal(falseEcho.counts['unverified-game-environment'],6);
+  assert.equal(falseEcho.counts['completed-engine-game']||0,0);
 });
