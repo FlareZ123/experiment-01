@@ -39,6 +39,9 @@ The [Hood Shield engine smoke archive](aichi-2026/hood-engine-smoke.md) now pres
 
 [Agent 20's Regidrago Temple response research](aichi-2026/regidrago-temple-response.md) models all nine published Regidrago lists: mean direct Stadium response access is **36.799%**, rising to **65.279%** under idealized Quick Ball/Mysterious Treasure paths to Psychic Marshadow ([CI 38826658564](https://github.com/FlareZ123/experiment-01/actions/runs/38826658564)). [A pinned engine test](aichi-2026/regidrago-temple-marshadow-fixture.md) confirmed Psychic Marshadow's Resetting Hole bypasses Wobbuffet PHF's Psychic-exempt Ability lock, removes Temple, and restores Double Dragon Energy ([CI 38826524762](https://github.com/FlareZ123/experiment-01/actions/runs/38826524762)). These are resource and conditional mechanics findings, with no tested win rate.
 
+
+[Agent 29's rank-31 Dusknoir/Chimecho direct Grand Tree resource model](aichi-2026/dusknoir-grand-tree-opening.md) finds a **5.286204%** conditional chance (given a valid initial seven) of a Duskull established on turn one, directly drawn Grand Tree by turn two, and both PRE evolution stages still searchable after six random Prizes. This is a narrow access event only; it excludes the source deck's substantial search and draw engine, disruption, and actual knockouts. [Enumerator](../scripts/aichi-dusknoir-grand-tree-opening.cjs) and [regressions](../tests/aichi-dusknoir-grand-tree-opening.test.cjs) are committed; the newest tests have not yet passed CI.
+
 ## Opponent field
 
 [All 32 Aichi 2026 Top 32 placements, source audit, and methodology](aichi-2026/README.md)
