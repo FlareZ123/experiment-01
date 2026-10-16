@@ -15,7 +15,7 @@ const load = name => require(path.join(output, name));
  * self-KO nor the Energy attachments are represented as legal turn actions.
  * @param {boolean} withSight
  * @param {boolean} repairedDamage
- * @returns {{withSight:boolean,repairedDamage:boolean,provided:object[],selectionCount:number,damage:number,events:object[],discarded:string[]}}
+ * @returns {{withSight:boolean,repairedDamage:boolean,provided:object[],damagePromptCount:number,allocatedUnitSelections:number,damage:number,events:object[],discarded:string[]}}
  */
 function runMultiEnergy(withSight, repairedDamage) {
   const f = stagedRaichu([
@@ -79,7 +79,9 @@ function runMultiEnergy(withSight, repairedDamage) {
     withSight,
     repairedDamage,
     provided,
-    selectionCount:events.filter(e => e.kind === 'damage-choice').length,
+    damagePromptCount:events.filter(e => e.kind === 'damage-choice').length,
+    allocatedUnitSelections:events.filter(e => e.kind === 'damage-choice')
+      .reduce((total,event) => total + event.damage/30, 0),
     damage:target.damage,
     events,
     discarded:f.a.discard.cards.filter(card => f.attached.some(e => e.id === card.id)).map(card=>card.fullName)
@@ -90,6 +92,7 @@ function runMultiEnergy(withSight, repairedDamage) {
 function verify() {
   const baseline = runMultiEnergy(false,false);
   const corrected = runMultiEnergy(false,true);
+  const baselineSight = runMultiEnergy(true,false);
   const correctedSight = runMultiEnergy(true,true);
   const report = {
     sourceRanks:[4,17],
@@ -98,15 +101,23 @@ function verify() {
     expectedEnergyUnits:6,
     expectedBaseDamage:180,
     expectedSightDamage:210,
-    baseline,corrected,correctedSight
+    baseline,corrected,baselineSight,correctedSight
   };
-  console.log(JSON.stringify(report,null,2));
-  assert.equal(baseline.selectionCount,6,'Each provided Lightning Energy unit must provide one target selection');
-  assert.equal(baseline.damage,180,'Six selections must place 180 attack damage with no modifiers');
-  assert.equal(corrected.selectionCount,6);
+  for (const trial of [baseline,corrected,baselineSight,correctedSight]) {
+    assert.equal(trial.damagePromptCount,1,
+      'Three Energy cards must create one aggregate allocation prompt');
+    assert.equal(trial.allocatedUnitSelections,6,
+      'One 180-damage prompt contains six 30-damage target selections');
+    assert.equal(trial.discarded.length,3,
+      'Reversal, Counter and Unit LPM cards must all be discarded');
+  }
+  assert.equal(baseline.damage,180);
   assert.equal(corrected.damage,180);
-  assert.equal(correctedSight.selectionCount,6);
-  assert.equal(correctedSight.damage,210,'Telescopic Sight must add one +30 modifier per damaged target');
+  assert.equal(baselineSight.damage,180,
+    'Pinned Electro Rain misclassifies its attack as counter placement');
+  assert.equal(correctedSight.damage,210,
+    'Telescopic Sight must add one +30 modifier per damaged target');
+  console.log(JSON.stringify(report,null,2));
   return report;
 }
 
