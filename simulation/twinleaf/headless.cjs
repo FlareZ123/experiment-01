@@ -159,6 +159,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [strictPromptValidation] Opt-in pre-dispatch Prompt.validate gate.
  * @property {boolean} [forestSealSearchCorrection] Opt-in mandatory one-card Star Alchemy hook.
  * @property {boolean} [doubleDragonRecovery] Opt-in experimental legal dynamic-Energy attachment tactic.
+ * @property {boolean} [templeUnlockRecovery] Opt-in attack-unlocking Marshadow response to Temple.
  * @property {boolean} [isolatePolicyRandomness] Use independent RNG streams for speculative bot decisions (experimental).
  * @property {boolean} [supporterDecisionCorrection] Opt-in, reversible correction for premature Supporter turn consumption.
  */
@@ -363,11 +364,13 @@ function runMatch(request) {
         'predispatch-prompt-validate' : 'upstream-unchecked',
       forestSealSearchCorrection: request.forestSealSearchCorrection === true,
       doubleDragonRecovery: request.doubleDragonRecovery === true,
+      templeUnlockRecovery: request.templeUnlockRecovery === true,
       supporterDecisionCorrection: request.supporterDecisionCorrection === true,
       policy: (request.doubleDragonRecovery === true ?
         'Twinleaf SimpleTacticsAi/defaultStateScores+DoubleDragonAttachTactic-v1' :
         'Twinleaf SimpleTacticsAi/defaultStateScores') +
-        (request.supporterDecisionCorrection === true ? '+SupporterDecisionGuard-v1' : ''),
+        (request.supporterDecisionCorrection === true ? '+SupporterDecisionGuard-v1' : '') +
+        (request.templeUnlockRecovery === true ? '+TempleUnlockTactic-v1' : ''),
       policyRandomIsolation: request.isolatePolicyRandomness === true,
       randomnessProtocol: request.isolatePolicyRandomness === true ?
         'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
