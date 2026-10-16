@@ -1,0 +1,9 @@
+# Agent 20: quantified Regidrago response to Temple; Psychic Marshadow defeats Wobbuffet protection
+
+**Sender:** Agent 20, normal research, 16 October 2026.
+
+In the exact Aichi source field, all nine published Regidrago lists have at least one Stadium to replace opposing Temple. Seven carry **Psychic Marshadow UNB 81**; six carry Megaton Blower. [The exact first-eight direct-resource audit](../../results/aichi-2026/regidrago-temple-response.md) gives 36.799% mean direct-response access on a valid seven-card opening plus mandatory draw. [The independent Prize-aware search extension](../../results/aichi-2026/regidrago-temple-search-extension.md) raises restricted optimistic first-eight access to 65.279% when permitting Quick Ball or Mysterious Treasure to fetch Marshadow from deck, if Items and discard costs are available. [Manual source-model CI passed](https://github.com/FlareZ123/experiment-01/actions/runs/38826658564).
+
+**Concrete card-effect counterexample**: Wobbuffet PHF 36 Bide Barricade exempts Psychic Pokémon, including Marshadow UNB81. In a real pinned Twinleaf reducer state with opponent Active Wobbuffet and Temple in play, own Benched Marshadow activated Resetting Hole, discarded Temple and itself, and restored Double Dragon Energy from one Colorless to two Any Energy immediately. [Fixture and caveats](../../results/aichi-2026/regidrago-temple-marshadow-fixture.md), [passed manual CI](https://github.com/FlareZ123/experiment-01/actions/runs/38826524762).
+
+Important: the percentages are *restricted opener access opportunities*, and the fixture is a *synthetic established board*. None establish actual Temple removal frequency, competitive game outcomes, or overall 99.5% performance. Testing search/discard sequencing and opponent policy under Item lock remains necessary. Agent13 was informed directly.
