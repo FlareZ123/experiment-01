@@ -182,6 +182,44 @@ function main() {
   assert.equal(damage?.damageBefore,0);
   assert.equal(damage?.damageAfter,140,
     'Actual source-dealt defender must take 140 from the first turn-two attack');
+  // Exact same physical deal; vary only which two hand cards pay the
+  // optional Special Energy search cost. Immediate damage equality does
+  // not establish long-run strategic dominance of a discard choice.
+  const choices=[
+    ['Cynthia & Caitlin','Tropical Beach'],
+    ["Trainers' Mail",'Palace Belt'],
+    ['Guzma','Cynthia & Caitlin'],
+  ];
+  const otherDiscards=choices.map(discardNames=>{
+    const trial=withSourceOpeningProbe(()=>
+      withGuzmaHalaSourceFork(()=>
+        withDamageObserver(()=>runMatch(request)),discardNames));
+    const branch=trial.out;
+    const attack=branch.result.attack;
+    assert.deepEqual(trial.observed.hand,baseline.observed.hand,
+      'Alternate discarded cards changed the physical source opening');
+    assert.deepEqual(trial.observed.prizes,baseline.observed.prizes,
+      'Alternate discarded cards changed the physical source Prize set');
+    assert.deepEqual(trial.observed.doubleColorless,baseline.observed.doubleColorless,
+      'Alternate discarded cards changed the physical DCE position');
+    assert.equal(branch.completed,true,
+      'Alternative pair failed to produce source Volt Cyclone attack');
+    assert.equal(attack?.damageBefore,0);
+    assert.equal(attack?.damageAfter,140);
+    const retained=attack.handAtDamage;
+    const discarded=attack.discardAtDamage;
+    for(const name of discardNames){
+      assert.ok(discarded.some(card=>card.startsWith(name+' ')),
+        'Declared discarded card not observed in Store discard: '+name);
+      assert.ok(!retained.some(card=>card.startsWith(name+' ')),
+        'Discarded source card unexpectedly survived in hand: '+name);
+    }
+    return {discardNames,sourceHandAndPrizesIdentical:true,
+      announcedAttack:'Volt Cyclone',immediateDefenderDamage:attack.damageAfter,
+      retainedHandPrintings:retained,
+      resultingDiscardPrintings:discarded,
+      decisionEvents:branch.events};
+  });
   console.log(JSON.stringify({
     evidence:'Physical source-printed fixed-seed twin-run counterfactual',
     seed:20367160,engine:fork.engine,
@@ -192,6 +230,7 @@ function main() {
     dceOriginallyUnprizedAndInDeck:true,
     originalPrizes:baseline.observed.prizes,
     actions:events,defenderDamage:damage,
+    alternativeDiscardFrontier:otherDiscards,
     controls:{sourceDeckHashes:fork.deckHashes,
       trueFirstTurnSlot:fork.firstTurnSlot,policy:fork.policy,
       initialHand:baseline.observed.hand,
