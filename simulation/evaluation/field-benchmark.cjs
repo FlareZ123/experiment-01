@@ -174,13 +174,13 @@ function buildPlan(manifest, cardPool, candidateRank = 1, options = {}) {
  * @param {{runMatch:(request:object)=>object,gamesPerSeat?:number,seedBase?:number,
  *  maxActions?:number,selectedRanks?:number[],captureTrace?:boolean,
  *  strictPromptValidation?:boolean,forestSealSearchCorrection?:boolean,
- *  doubleDragonRecovery?:boolean}} options
+ *  doubleDragonRecovery?:boolean,supporterDecisionCorrection?:boolean}} options
  */
 function evaluatePlan(plan, options) {
   const { runMatch, gamesPerSeat = 10, seedBase = 20261015,
     maxActions = 3000, selectedRanks, captureTrace = false,
     strictPromptValidation = false, forestSealSearchCorrection = false,
-    doubleDragonRecovery = false } = options;
+    doubleDragonRecovery = false, supporterDecisionCorrection = false } = options;
   if (typeof runMatch !== 'function') throw new Error('runMatch is required.');
   if (!Number.isInteger(gamesPerSeat) || gamesPerSeat < 1 || gamesPerSeat > 10000) {
     throw new Error('gamesPerSeat must be between 1 and 10000.');
@@ -220,7 +220,8 @@ function evaluatePlan(plan, options) {
             seed, maxActions, label: 'Aichi rank ' + opponent.rank,
             ...(strictPromptValidation ? {strictPromptValidation: true} : {}),
             ...(forestSealSearchCorrection ? {forestSealSearchCorrection: true} : {}),
-            ...(doubleDragonRecovery ? {doubleDragonRecovery: true} : {})
+            ...(doubleDragonRecovery ? {doubleDragonRecovery: true} : {}),
+            ...(supporterDecisionCorrection ? {supporterDecisionCorrection: true} : {})
           };
           row.attempted += 1;
           try {
@@ -297,9 +298,12 @@ function evaluatePlan(plan, options) {
     strictPromptValidation,
     forestSealSearchCorrection,
     doubleDragonRecovery,
-    policy: doubleDragonRecovery ?
-      'Twinleaf SimpleTacticsAi+DoubleDragonAttachTactic-v1; competence unvalidated' :
-      'Twinleaf SimpleTacticsAi; competence unvalidated',
+    supporterDecisionCorrection,
+    policy: (doubleDragonRecovery ?
+      'Twinleaf SimpleTacticsAi+DoubleDragonAttachTactic-v1' :
+      'Twinleaf SimpleTacticsAi') +
+      (supporterDecisionCorrection ? '+SupporterDecisionGuard-v1' : '') +
+      '; competence unvalidated',
     engineSlotProtocol: 'candidate alternates engine A/B; true first-turn attributed only when engine turn and draw-log agree',
     startingTurnBalanceVerified: false,
     observedMatchupsHaveBothRealStartingTurns: results.some(r => r.status === 'simulated') &&
