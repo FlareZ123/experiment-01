@@ -181,7 +181,8 @@ function evaluatePlan(plan, options) {
   const { runMatch, gamesPerSeat = 10, seedBase = 20261015,
     maxActions = 3000, selectedRanks, captureTrace = false,
     strictPromptValidation = false, forestSealSearchCorrection = false,
-    doubleDragonRecovery = false, supporterDecisionCorrection = false,
+    doubleDragonRecovery = false, templeUnlockRecovery = false,
+    supporterDecisionCorrection = false,
     isolatePolicyRandomness = false } = options;
   if (typeof runMatch !== 'function') throw new Error('runMatch is required.');
   if (!Number.isInteger(gamesPerSeat) || gamesPerSeat < 1 || gamesPerSeat > 10000) {
@@ -223,6 +224,7 @@ function evaluatePlan(plan, options) {
             ...(strictPromptValidation ? {strictPromptValidation: true} : {}),
             ...(forestSealSearchCorrection ? {forestSealSearchCorrection: true} : {}),
             ...(doubleDragonRecovery ? {doubleDragonRecovery: true} : {}),
+            ...(templeUnlockRecovery ? {templeUnlockRecovery: true} : {}),
             ...(supporterDecisionCorrection ? {supporterDecisionCorrection: true} : {}),
             ...(isolatePolicyRandomness ? {isolatePolicyRandomness: true} : {})
           };
@@ -301,6 +303,7 @@ function evaluatePlan(plan, options) {
     strictPromptValidation,
     forestSealSearchCorrection,
     doubleDragonRecovery,
+    templeUnlockRecovery,
     supporterDecisionCorrection,
     isolatePolicyRandomness,
     randomnessProtocol: isolatePolicyRandomness ?
@@ -309,6 +312,7 @@ function evaluatePlan(plan, options) {
       'Twinleaf SimpleTacticsAi+DoubleDragonAttachTactic-v1' :
       'Twinleaf SimpleTacticsAi') +
       (supporterDecisionCorrection ? '+SupporterDecisionGuard-v1' : '') +
+      (templeUnlockRecovery ? '+TempleUnlockTactic-v1' : '') +
       '; competence unvalidated',
     engineSlotProtocol: 'candidate alternates engine A/B; true first-turn attributed only when engine turn and draw-log agree',
     startingTurnBalanceVerified: false,
