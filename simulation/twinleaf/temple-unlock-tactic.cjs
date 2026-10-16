@@ -71,4 +71,24 @@ function makeTempleUnlockTactic() {
     }
   };
 }
-module.exports={canUseApex,makeTempleUnlockTactic};
+/**
+ * Insert the narrow Temple-to-Apex response before ordinary Energy attachment
+ * decisions. This deliberately leaves all default policy behavior unchanged
+ * unless selected by the headless match options.
+ * @param {object} options Valid pinned SimpleBotOptions.
+ * @returns {object} Explicitly versioned experimental tactic set.
+ */
+function withTempleUnlockRecovery(options) {
+  const position=options.tactics.findIndex(tactic=>tactic.name==='AttachEnergyTactic');
+  if(position<0) throw new Error('Required AttachEnergyTactic absent');
+  return {
+    ...options,
+    tactics:[
+      ...options.tactics.slice(0,position),
+      makeTempleUnlockTactic(),
+      ...options.tactics.slice(position)
+    ]
+  };
+}
+
+module.exports={canUseApex,makeTempleUnlockTactic,withTempleUnlockRecovery};
