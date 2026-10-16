@@ -50,5 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: aichi-campaign-diagnostic
-          path: |\n            aichi-campaign-diagnostic.json\n            aichi-opening-decision-audit.json
+          path: |
+            aichi-campaign-diagnostic.json
+            aichi-opening-decision-audit.json
           if-no-files-found: warn
