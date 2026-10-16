@@ -259,6 +259,7 @@ function evaluatePlan(plan, options) {
               engineDeckHashes: game.deckHashes || null,
               engineTrace: captureTrace ? {
                 attackTrace: game.attackTrace || [],
+                abilityTrace: game.abilityTrace || [],
                 actionCounts: game.actionCounts || {},
                 actionsBySeat: game.actionsBySeat || [],
                 cardsPlayedBySeat: game.cardsPlayedBySeat || [],
