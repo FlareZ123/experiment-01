@@ -68,16 +68,16 @@ function firstDifference(control, branch) {
 function summarizeCaptureGaps(failures) {
   const groups = new Map();
   for (const failure of failures) {
-    const stepMatch = /^step (\\d+): (.*)$/.exec(failure);
+    const stepMatch = /^step (\d+): (.*)$/.exec(failure);
     const step = stepMatch ? Number(stepMatch[1]) : null;
     const cause = stepMatch ? stepMatch[2] : failure;
-    const missing = /^Nonportable undefined at (\\S+)$/.exec(cause);
-    const prototype = /^Nested parameter at (\\S+) has non-JSON prototype (.+)$/.exec(cause);
+    const missing = /^Nonportable undefined at (\S+)$/.exec(cause);
+    const prototype = /^Nested parameter at (\S+) has non-JSON prototype (.+)$/.exec(cause);
     const category = missing ? 'undefined-value' :
       prototype ? 'non-json-prototype' : 'other';
     const path = missing ? missing[1] :
       prototype ? prototype[1] : cause;
-    const normalizedPath = path.replace(/\\[\\d+\\]/g, '[*]');
+    const normalizedPath = path.replace(/\[\d+\]/g, '[*]');
     const key = category + ':' + normalizedPath;
     const group = groups.get(key) || {
       category, path:normalizedPath, count:0, firstSteps:[], examples:[]
