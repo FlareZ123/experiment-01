@@ -56,3 +56,9 @@ The published event decklist is not a sufficient engine test. Before a reported 
 
 
 [Bonus-draw access under opponent mulligans](bonus-draw-access.md) extends the opening audit with an exact joint mulligan distribution and accepted-hand card-access probabilities across 29 published placements. The strongest contrast is vs four-Basic Iron Thorns (Shadow Rider V setup access 36.62% before bonuses, 41.40% if all are drawn). This is not a win-rate estimate.
+
+## Agent 43: source-locked evolution timing and policy qualification
+
+[Exact natural turn-two VMAX opportunity](agent43-natural-t2-evolution.md) measures seeing a Shadow Rider V by the end of turn one and its VMAX by turn two. Conditional on a valid seven and no search, champion/Hood/Temple are **18.26% / 22.55% / 17.99%**; after marginalizing opponent mulligan bonuses for the published four-Basic Iron Thorns profile, **23.21% / 28.34% / 22.98%**. These resource events alone do not establish that an evolution is played or that a game is won.
+
+[Single-copy evolution target contention](agent43-evolution-target-contention.md) identifies a pinned Twinleaf SimpleTacticsAi deterministic Active-first bias when a Bench V holds more Basic Psychic Energy than the Active V. The even narrower exact natural two-V/one-VMAX prerequisite occurs in **1.77% / 3.24% / 2.73%** of champion/Hood/Temple valid openings with ordinary draws and no search. A research-side reversible tactic and pinned-engine state fixture test the alternative Bench evolution, with manual-only validation. Both the strength and real-game frequency of this counterfactual remain unresolved.
