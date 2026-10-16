@@ -23,6 +23,8 @@ The champion is an unchanged exact copy of field rank 1. The [mirror/source-copy
 | Finished gameplay | [Engine completions](aichi-2026/campaign-diagnostic-execution.md) exist, but **zero policy-qualified matchup wins** are recorded in the [readiness ledger](aichi-2026/readiness-ledger.csv) |
 | Statistical strength | No eligible field estimate or 99.5% certificate |
 
+**16 October Critic simulator-safety enforcement:** The [campaign quality screen](../scripts/aichi-campaign-quality-screen.cjs) now carries an explicit per-trial `known-simulator-card-alias-risk` blocker for the default pinned simulator or `experimental-clone-not-qualified` for the opt-in corrected clone. It reports `simulatorSafetyQualified:false` in both modes. This preserves individual-run provenance without implying that every default game was demonstrably corrupted or that the experimental hook is validated. The [two-mode regression](../tests/aichi-campaign-quality-screen.test.cjs) passed the existing [manual statistical CI run 38878258197](https://github.com/FlareZ123/experiment-01/actions/runs/38878258197), whose head includes the change. The [Critic broadcast](../communications/broadcast/20261016T090443Z_critic_replay-clone-gate.md) specifies the adversarial rank-10 replay and clone-isolation validation needed to retire these blockers.
+
 The 32-rank evidence method gives zero lower bounds to unobserved ranks. With three missing ranks, even hypothetical perfect lower bounds for all 29 known ones could produce only a 29/32 complete-field lower bound. This is a **coverage ceiling for that evidentiary method**, not a prediction of actual results.
 
 ## One shared critical path
