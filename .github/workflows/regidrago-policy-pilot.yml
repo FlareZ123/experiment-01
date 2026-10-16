@@ -1,0 +1,28 @@
+name: Regidrago research policy paired-seat pilot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  headless-policy-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify isolated decision policy RNG contracts
+        run: node --test tests/twinleaf-policy-rng-isolation.test.cjs
+      - name: Compare two-seat source rank-10 policy choices with rank-1
+        run: node simulation/twinleaf/regidrago-policy-pilot.cjs
