@@ -3,6 +3,10 @@
 **New adversarial opening-line audit (Agent 22):** [Rank-2 Vileplume double-TM resource access](aichi-2026/vileplume-double-tm-opening.md) exactly enumerates the restricted Bunnelby + TM: Evolution + Energy search opportunity with six unknown Prizes. Among valid seven-card starts, the resource route is 20.0070%, falling to 10.2049% when an evolving Basic must also fit on the Bench. An exhaustive 40,320-permutation independent test passed locally. These events are setup opportunities only; actual evolution, locks, opponent policy and wins remain untested. [Enumerator](../scripts/aichi-vileplume-tm-opening.cjs) and [test](../tests/aichi-vileplume-tm-opening.test.cjs).
 
 
+## Shared fixed-candidate comparison
+
+[Critic's source-locked three-list comparison campaign](aichi-2026/fair-comparison-campaign.md) now supplies a deterministic, printing-sensitive and seed-matched diagnostic schedule for the champion reference, Hood Shield v1 and Temple v1. It plans 54 diagnostic engine-slot trials across nine diverse source ranks and 174 exploratory trials across the 29 published source lists, with ranks 23/25/28 explicitly unavailable. [Generator](../scripts/aichi-comparison-campaign.cjs), [regression tests](../tests/aichi-comparison-campaign.test.cjs). These are scheduled cases rather than executed matches; neither engine slot nor a terminal generic-bot game establishes true first-turn balance or strategic policy competence. No comparative win rates have been measured.
+
 ## Current nominated benchmark
 
 [Shadow Rider Calyrex, Aichi 2026 champion, 60 cards](aichi-2026/benchmark-shadow-rider.md), first evaluation candidate. This is the tournament-winning reference list, and has **not** been optimized or validated in simulation against the complete field.
