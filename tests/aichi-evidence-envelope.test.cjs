@@ -109,3 +109,33 @@ test('actual reported seed and policy provenance take priority',()=>{
   archive.records[0].effectiveMatchOptions.isolatePolicyRandomness=false;
   assert.throws(()=>createEvidenceEnvelope(inputs,archive,provenance),/provenance conflicts/);
 });
+
+test('v2 independent-seat trial records pass envelope audit and reject protocol spoofing', () => {
+  const {inputs,archive} = fixture();
+  inputs.campaign = buildCampaign({
+    field: inputs.field,source: inputs.source,candidates: inputs.candidates,
+    pilotRanks:[1],seatSeedMode:'independent-slots-v2'
+  });
+  const pilot = inputs.campaign.trials.filter(x=>x.phase==='pilot');
+  for (let i=0;i<archive.records.length;i++) {
+    archive.records[i].seed=pilot[i].seed;
+    archive.records[i].trialId=pilot[i].trialId;
+  }
+  archive.schemaVersion=2;
+  archive.seedProtocol='independent-slots-v2';
+  archive.planDigest=inputs.campaign.planDigest;
+  archive.selectedTrialIds=pilot.map(x=>x.trialId);
+  assert.deepEqual(pilot.map(x=>x.seed),
+    [pilot[0].seed,pilot[0].seed+1]);
+  assert.equal(auditArchive(inputs,archive).completed,2);
+  archive.seedProtocol='paired-slots-v1';
+  assert.throws(()=>auditArchive(inputs,archive),/Invalid, incomplete/);
+  archive.seedProtocol='independent-slots-v2';
+  archive.records[0].status='engine-protocol-mismatch';
+  archive.records[0].winner=null;
+  assert.equal(auditArchive(inputs,archive).failures,1);
+  archive.records[0].status='engine-revision-mismatch';
+  assert.equal(auditArchive(inputs,archive).failures,1);
+  archive.records[0].status='policy-profile-mismatch';
+  assert.equal(auditArchive(inputs,archive).failures,1);
+});
