@@ -39,13 +39,13 @@ on:
         type: string
         default: '6'
       seat_seed_protocol:
-        description: 'Explicitly versioned random-seat seed schedule; v2 remains archive default'
+        description: 'Explicitly versioned random-seat seed schedule; v3 default, v2 for archive replay'
         required: false
         type: choice
         options:
           - independent-slots-v2
           - decorrelated-slots-v3
-        default: independent-slots-v2
+        default: decorrelated-slots-v3
       expanded_action_policy:
         description: 'Experimental Tool attack, Bunnelby Evolution and Temple response profile; not competitive'
         required: false
@@ -99,7 +99,7 @@ jobs:
       - name: Run fixed-plan three-candidate rank-6 diagnostic
         env:
           AICHI_DIAGNOSTIC_RANKS: ${{ inputs.pilot_ranks || '6' }}
-          AICHI_DIAGNOSTIC_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'independent-slots-v2' }}
+          AICHI_DIAGNOSTIC_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
           AICHI_POLICY_PROFILE: ${{ inputs.expanded_action_policy && 'expanded-action-fidelity-probe-v1' || 'fixed-core-v1' }}
           AICHI_SHADOW_ENERGY: ${{ inputs.shadow_rider_energy_priority && '1' || '0' }}
           AICHI_SHADOW_ENERGY_GLOBAL: ${{ inputs.shadow_rider_energy_across_field && '1' || '0' }}

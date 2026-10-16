@@ -11,6 +11,14 @@ on:
         options:
           - simple-default-v0
           - expanded-action-fidelity-probe-v1
+      seat_seed_protocol:
+        description: 'v3 default; explicitly choose v2 only to replay historical diagnostics'
+        required: false
+        type: choice
+        options:
+          - independent-slots-v2
+          - decorrelated-slots-v3
+        default: decorrelated-slots-v3
 
 permissions:
   contents: read
@@ -38,7 +46,7 @@ jobs:
         run: node --test tests/aichi-campaign-runner.test.cjs
       - name: Run six bounded Iron Thorns diagnostic trials
         env:
-          CAMPAIGN_SEED_PROTOCOL: independent-slots-v2
+          CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
           CAMPAIGN_POLICY_PROFILE: ${{ inputs.policy_profile }}
           CAMPAIGN_CAPTURE_DECISIONS: 'true'
           CAMPAIGN_PHASE: pilot
