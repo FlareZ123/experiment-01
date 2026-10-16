@@ -414,3 +414,29 @@ test('actual campaign envelope attests shared profile and terminal-provenance co
   assert.throws(()=>envelopeFromArchive(f,archive,'same-commit'),
     /Trial-level engine/);
 });
+
+
+test('v3 schedules both distinct physical slots through the evidence runner', () => {
+  const { deriveSlotSeeds } = require('../scripts/aichi-decorrelated-seeds.cjs');
+  const f = fixture();
+  f.campaign = buildCampaign({
+    field: f.field, source: f.source, candidates: f.candidates,
+    pilotRanks: [1, 2], repeats: 1, seedBase: 20261016,
+    seatSeedMode: 'decorrelated-slots-v3'
+  });
+  const expected = deriveSlotSeeds(20261016, 'pilot', 1, 0);
+  const result = executeCampaign(f, {
+    maxTrials: 4, prepareCandidate: prepare, runMatch: finished
+  });
+  assert.equal(result.schemaVersion, 3);
+  assert.equal(result.seedProtocol, 'decorrelated-slots-v3');
+  assert.deepEqual(result.records.map(row => row.seed),
+    [expected.A, expected.B, expected.A, expected.B]);
+  assert.ok(result.records.every(row => row.status === 'completed'));
+  assert.equal(result.competitiveWinRateCertified, false);
+  assert.equal(result.rulesAndBotCompetenceCertified, false);
+
+  const baseline = fixture().campaign;
+  assert.equal(baseline.schemaVersion, 1);
+  assert.notEqual(f.campaign.planDigest, baseline.planDigest);
+});
