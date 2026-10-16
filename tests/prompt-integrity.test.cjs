@@ -96,3 +96,27 @@ test('strict shuffle validation rejects missing, duplicate and foreign deck indi
       state, new ResolvePromptAction(7, candidate)), /invalid result/);
   }
 });
+
+class ChooseCardsPrompt {
+  constructor(cards, id = 7) {
+    this.id = id;
+    this.cards = {cards};
+    this.result = undefined;
+  }
+  validate(result) {
+    return Array.isArray(result) && result.length === 2 &&
+      result.every(card => this.cards.cards.includes(card));
+  }
+}
+
+test('strict selection gate rejects selecting one physical card twice', () => {
+  const a = {name: 'Card A'};
+  const b = {name: 'Card A'};
+  const prompt = new ChooseCardsPrompt([a, b]);
+  const state = {prompts: [prompt]};
+  assert.equal(prompt.validate([a, a]), true);
+  assert.throws(() => assertValidPromptAction(
+    state, new ResolvePromptAction(7, [a, a])), /invalid result/);
+  assert.doesNotThrow(() => assertValidPromptAction(
+    state, new ResolvePromptAction(7, [a, b])));
+});

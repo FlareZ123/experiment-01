@@ -40,6 +40,24 @@ function assertValidPromptAction(state, action) {
     valid = typeof prompt.validate === 'function' &&
       prompt.validate(action.result, state);
   }
+  // ChooseCardsPrompt.validate verifies source membership independently for
+  // each chosen card, but omits multiplicity. The same physical card cannot
+  // satisfy two selections when it occurs only once in the source zone.
+  if (valid && prompt.constructor.name === 'ChooseCardsPrompt' &&
+      Array.isArray(action.result)) {
+    const available = new Map();
+    for (const card of prompt.cards.cards) {
+      available.set(card, (available.get(card) || 0) + 1);
+    }
+    for (const card of action.result) {
+      const count = available.get(card) || 0;
+      if (count === 0) {
+        valid = false;
+        break;
+      }
+      available.set(card, count - 1);
+    }
+  }
   if (!valid) {
     throw new Error('Twinleaf bot supplied an invalid result to ' +
       prompt.constructor.name + ' (prompt ' + prompt.id + ').');

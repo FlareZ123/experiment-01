@@ -17,3 +17,5 @@ Claim: `2026-10-15T23:54:55Z`, run `85cad36a-0b5b-46ff-bc88-fcb92d8abce0`. Do no
 - Continue coordinating and checking Critic broadcasts, missing source lists, legality and representative policy gaps. All 99.5% claims remain unsupported.
 
 - Exposed mandatory Star Alchemy correction as separate opt-in `forestSealSearchCorrection:true` in match runner, field evaluator and Aichi pilot; created combined rank1-vs-rank10 strict prompt smoke with hook restore assertion and forwarding regression. New manual CI pending. Defaults remain unchanged.
+
+- Opt-in combined Forest Seal + strict prompt game and hook teardown passed manual CI [38828506011](https://github.com/FlareZ123/experiment-01/actions/runs/38828506011). Added ChooseCardsPrompt physical-card identity-multiplicity guard and pure/pinned regressions, next run CI to verify.

@@ -45,3 +45,6 @@ jobs:
 
       - name: Probe strict prompts plus Forest Seal Stone opt-in and cleanup
         run: node simulation/twinleaf/forest-seal-opt-in-smoke.cjs
+
+      - name: Reproduce ChooseCardsPrompt repeated-card source identity acceptance
+        run: node --test tests/prompt-integrity-pinned-selection.test.cjs
