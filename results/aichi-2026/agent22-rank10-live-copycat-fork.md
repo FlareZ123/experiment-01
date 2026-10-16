@@ -19,6 +19,14 @@
 
 **Consequential response:** after the additional champion turn, opposing Regidrago announced Apex Dragon on turns **29 and 31**. The same newly recorded attack-selection prompts directly identify **Koraidon ex TEF / Kaiser Tackle** as Regidrago's chosen Apex attack on both turns. The alternate **lost** with engine winner seat0, terminal remaining Prizes [rank10=0, champion=4] on turn31. The original control also **lost** with engine winner seat0, terminal Prizes [rank10=1, champion=2] on turn65. The differing final results are deterministic engine diagnostics with different subsequent policies and RNG event consumption, not evidence of win-rate improvement.
 
+## First matched two-player hidden-zone predecision checkpoint
+
+A further independent [compiled manual CI 38910397752](https://github.com/FlareZ123/experiment-01/actions/runs/38910397752), [artifact 12050531517](https://github.com/FlareZ123/experiment-01/actions/runs/38910397752/artifacts/12050531517), revision `bf5cbfc2ebce50ef4537b4e996f679760cb319df`, passed a **strict exact checkpoint comparison** of baseline, alternate, and repeated control at the first true live turn27 decision before the first differing dispatch. The additional `withSourceZoneCheckpoint` observer is applied to the authentic root Store only, after choice of action and without feeding hidden data to the bot.
+
+The detached `source-zone-and-turn-flags-v1` checkpoint includes every indexed card printing in both players' **ordered decks, private hands, six Prize locations, discard piles, Lost Zones, Stadiums, Supporters, Active and Benched slots including attached cards**, plus GX/VSTAR and selected turn flags, the last observed attack, and unresolved-prompt identities. **All three snapshots match exactly**, with SHA-256 `952192b55edacb534eeea4992b67eed34e24fcc69cd48449d4f5aa534ffd4293`. The independent `forkAudit` included in the runner also observed **182 identical earlier live Store dispatches** and first divergence at dispatch183 on turn27; the opponent had 12 postfork dispatches including materially consequential turns29/31.
+
+This **strengthens** the full source-deal fork comparison but is **not** a byte-identical full `State` or `Store` serialization. The Store's prompt callbacks/closures, full temporary effects and internal reducer state remain outside this checksum, and typed replay of all action parameters remains incomplete.
+
 ## Live capture validation and limitations
 
 - The same uninstrumented control and instrumented control produced exactly equal `runMatch` return objects; repeating the instrumented original after the alternate produced a **byte-equal entire original return and live diagnostic dispatch array**.
