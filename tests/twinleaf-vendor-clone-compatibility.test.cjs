@@ -42,3 +42,20 @@ test('ordinary game-shaped objects and readonly Array elements remain supported'
     () => assertVendorCloneCompatibleSource({cards:frozenArray})
   );
 });
+
+test('preflight catches silent losses of named properties on Arrays', () => {
+  const cards = [{name:'Koraidon ex'}];
+  cards.researchMarker = 'source marker';
+  assert.throws(
+    () => assertVendorCloneCompatibleSource({cards}),
+    /drops custom Array own properties/
+  );
+  assert.equal(cards.map(item => item).researchMarker, undefined);
+
+  const nonIndex = [{name:'Koraidon ex'}];
+  nonIndex['00'] = 'not a canonical index';
+  assert.throws(
+    () => assertVendorCloneCompatibleSource({cards:nonIndex}),
+    /drops custom Array own properties/
+  );
+});
