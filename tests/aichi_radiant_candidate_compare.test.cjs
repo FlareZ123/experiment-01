@@ -13,3 +13,5 @@ test('direct Radiant opening model derives both exact deck groups',()=>{
   assert.ok(result.candidate.access>=0 && result.candidate.access<=1);
   assert.ok(result.candidate.twoVmax>=0 && result.candidate.twoVmax<=result.candidate.access);
 });
+
+require('./aichi_hood_radiant_invariance.test.cjs');
