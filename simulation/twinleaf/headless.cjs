@@ -10,6 +10,7 @@ const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 const {installForestSealSearchHook} = require('./forest-seal-search-hook.cjs');
 const {installSupporterDecisionHook} = require('./supporter-decision-hook.cjs');
 const {selectedCardsEvidence, selectedOptionEvidence} = require('./selected-cards-evidence.cjs');
+const {decisionHandEvidence} = require('./decision-hand-evidence.cjs');
 const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.cjs');
 const {publicSnapshot, observeTerminalTransition, advanceActionLineage} = require('./terminal-transition.cjs');
 const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
@@ -332,6 +333,8 @@ function runMatch(request) {
       } : null;
       const selectionInfo = decisionTrace ? selectedCardsEvidence(pending, action, state) : null;
       const optionInfo = decisionTrace ? selectedOptionEvidence(pending, action) : null;
+      const decisionHandBefore = decisionTrace && seat >= 0 ?
+        decisionHandEvidence(state, seat) : null;
       const attackInfo = actionName === 'AttackAction' && seat >= 0 ? {
         turn: state.turn, seat,
         activePokemon: state.players[seat].active.getPokemonCard()?.name || '',
@@ -372,6 +375,7 @@ function runMatch(request) {
           ...(abilityInfo ? { ability: abilityInfo.name } : {}),
           ...(selectionInfo ? { cardSelection: selectionInfo } : {}),
           ...(optionInfo ? { optionSelection: optionInfo } : {}),
+          ...(decisionHandBefore ? { decisionHandBefore } : {}),
           ...(publicBoardBeforePass ? { publicBoardBeforePass } : {}),
           ...(attackInfo ? { attack: attackInfo.attack,
             attacker: attackInfo.activePokemon } : {}),
