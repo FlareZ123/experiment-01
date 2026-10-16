@@ -16,18 +16,36 @@ Iron Thorns's opening hand, by printing: Guzma BUS; Trainers' Mail ROS; Guzma & 
 
 The tested scripted line spends Guzma & Hala as Supporter, optionally discards two other cards, searches its deck for Double Colorless Energy and Wondrous Labyrinth Prism Star, plays Thunder Mountain Prism Star already in hand, attaches DCE to Active Iron Thorns ex and announces Volt Cyclone. All attack tests use exactly that same search, Stadium, attachment, and target. The alternate-pair controller chooses only from the player's own hand and revealed deck-search prompt. A read-only observer checks physical hidden Prizes outside the bot's decision process.
 
-## Four observed legal discard alternatives
+## Exhaustive ten-pair source-dealt discard frontier
 
-[Manual pinned CI 38910066897](https://github.com/FlareZ123/experiment-01/actions/runs/38910066897) **passed** with the authentic source-dealt runner `simulation/twinleaf/rank6-seed-guzma-hala-fork.cjs`. The existing original pair and all three newly added alternatives preserve the full source first hand, six Prize cards, and DCE position and complete the same genuine Store attack for **140 damage**.
+[Manual pinned CI 38911020972](https://github.com/FlareZ123/experiment-01/actions/runs/38911020972) **passed** with the original and all **nine** additional unordered two-card payments drawn from the five spendable first-turn hand cards. [Follow-up CI 38911990792](https://github.com/FlareZ123/experiment-01/actions/runs/38911990792) **passed** with additional exact-name physical hand, discard and recovery-zone assertions. A single common physical source deal was used for every arm. Every alternate payment had the same starting hand, six Prizes and DCE location and completed the same genuine Store Volt Cyclone attack for **140 damage**.
 
-| Pair discarded to Guzma & Hala | Additional cards remaining in hand immediately after damage (plus Wondrous Labyrinth Prism Star) | Verified immediate result |
-| --- | --- | --- |
-| Guzma + Tropical Beach (original control) | Trainers' Mail, Cynthia & Caitlin, Palace Belt | 140 damage |
-| Cynthia & Caitlin + Tropical Beach | **Guzma**, Trainers' Mail, Palace Belt | 140 damage |
-| Trainers' Mail + Palace Belt | **Guzma**, Tropical Beach, Cynthia & Caitlin | 140 damage |
-| Guzma + Cynthia & Caitlin | Trainers' Mail, Tropical Beach, Palace Belt | 140 damage |
+Each row below retains the searched Wondrous Labyrinth Prism Star in hand at the immediate postdamage checkpoint. Guzma & Hala is consumed and Thunder Mountain stays the played Stadium. The *retain* column names the other three resources left in hand from the initial five-card payment pool.
 
-The added observer confirmed that both declared paid cards physically landed in the real Store discard pile and none survived in hand, alongside the played Guzma & Hala. It recorded exact printing identities rather than treating card names as unique object identities. The attacker retained the searched Wondrous Labyrinth in hand at the immediate postdamage checkpoint, while Thunder Mountain remained the played Stadium.
+| Two hand cards discarded | Other three payment-pool cards retained | Damage |
+| --- | --- | ---: |
+| Guzma + Trainers' Mail | Tropical Beach, Cynthia & Caitlin, Palace Belt | 140 |
+| Guzma + Tropical Beach (original fork) | Trainers' Mail, Cynthia & Caitlin, Palace Belt | 140 |
+| Guzma + Cynthia & Caitlin | Trainers' Mail, Tropical Beach, Palace Belt | 140 |
+| Guzma + Palace Belt | Trainers' Mail, Tropical Beach, Cynthia & Caitlin | 140 |
+| Trainers' Mail + Tropical Beach | **Guzma**, Cynthia & Caitlin, Palace Belt | 140 |
+| Trainers' Mail + Cynthia & Caitlin | **Guzma**, Tropical Beach, Palace Belt | 140 |
+| Trainers' Mail + Palace Belt | **Guzma**, Tropical Beach, Cynthia & Caitlin | 140 |
+| Tropical Beach + Cynthia & Caitlin | **Guzma**, Trainers' Mail, Palace Belt | 140 |
+| Tropical Beach + Palace Belt | **Guzma**, Trainers' Mail, Cynthia & Caitlin | 140 |
+| Cynthia & Caitlin + Palace Belt | **Guzma**, Trainers' Mail, Tropical Beach | 140 |
+
+In each of the nine newly replayed branches, the real Store discard contains both *exact card names* paid to Guzma & Hala, while the cards are absent from the actor's hand. The physical-zone observer confirms the same two Guzma remain Prized in all branches. It also confirms that **all three VS Seeker and both Lusamine remained in the physical deck and none were Prized, held or discarded** at the attack checkpoint. These are post-deal research observations, separate from the information the K0 player could legally use when choosing what to discard.
+
+### Recovery and action-channel interpretation
+
+The printed PHF VS Seeker Item can return a Supporter from the discard pile to hand; Lusamine (CIN) can recover two Supporter/Stadium cards from the discard. Cynthia & Caitlin (CEC) can recover another Supporter. These source-list cards create genuine *potential* paths to a discarded Guzma. Such paths have costs: VS Seeker needs Item access and acquisition, Lusamine and Cynthia & Caitlin consume a Supporter play and generally defer playing the recovered Guzma, and available targets/Bench movement affect the tactical payoff of Gust. Each connector may be needed for something else. Preserving a held Guzma therefore offers immediate hand access while spending it can place it into an accessible recovery zone, depending on future locks and draws.
+
+No pair dominates all others from the measured damage alone. The immediate attack is the same, but the surviving tactical resources and opportunities are different. A next-turn or whole-game preference requires a fully specified opponent board, legal action sequencing, and explicit connector contention. In particular, this source board begins with **no Iron Thorns Bench** and the Guzma action's available targets and switching behavior may constrain its utility.
+
+### Print-name regression resolved
+
+An added audit initially counted three `Guzma` in Prizes because `fullName.startsWith('Guzma ')` also matched the separately named `Guzma & Hala` Supporter. The failed [CI 38911529066](https://github.com/FlareZ123/experiment-01/actions/runs/38911529066) exposed the error. The observer and paid-card verification now use the engine's exact `card.name === name`, and [CI 38911990792](https://github.com/FlareZ123/experiment-01/actions/runs/38911990792) passed. Earlier raw Prize-printing evidence already showed exactly **two** Guzma and one Guzma & Hala in the six Prizes. This is a general reason to avoid string-prefix identities in all source-list and zone audits.
 
 ### Information-set caution
 
@@ -35,6 +53,6 @@ The fact that *both* other Guzma were Prized comes from a read-only physical-sta
 
 ### Test boundaries and next decision
 
-These are four fixed-seed *action* counterfactuals. The simulator accepted the two-card discard and all actual attack/prompt transitions. The work does not compare whether the saved Guzma can produce a better subsequent line, what the Shadow Rider opponent does next, whether protecting a different Supporter or Beach is worth more, or whether the Game Store is fully noninterfering under speculative decision searches. Reproduce full live action/prompt/reducer histories, compare subsequent opposing responses under a vetted policy, and measure irreversible downstream loss from each spent card before judging discard selection.
+These are ten source-identical fixed-seed *action* counterfactuals. The simulator accepted the two-card discard and all actual attack/prompt transitions. The work does not compare whether an immediately held Guzma or a retrievable discarded Guzma produces a better subsequent line, what the Shadow Rider opponent does next, whether protecting a different Supporter or Beach is worth more, or whether the Game Store is fully noninterfering under speculative decision searches. Reproduce full live action/prompt/reducer histories, compare subsequent opposing responses under a vetted policy, and measure irreversible downstream loss from each spent card before judging discard selection.
 
 Source-runner changes are isolated research-side extensions with the original two-card default preserved. CI uses the existing manual `aichi-iron-thorns-first-attack.yml`; no new recurring workflow and no vendor source changes. This study supplies direct evidence for the rank-6 packet's discard-decision gap and does **not** change the zero-qualified-games decision board.
