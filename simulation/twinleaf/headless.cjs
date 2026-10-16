@@ -348,7 +348,7 @@ function runMatch(request) {
           cardsPlayedBySeat[seat][playedCard] = (cardsPlayedBySeat[seat][playedCard] || 0) + 1;
         }
       }
-      if (decisionTrace && (playedCard || abilityInfo || attackInfo ||
+      if (decisionTrace && (playedCard || abilityInfo || attackInfo || selectionInfo ||
           ['PassTurnAction', 'RetreatAction', 'UseStadiumAction'].includes(actionName))) {
         decisionTrace.push({
           actionOrdinal: actions, turnBefore, turnAfter: store.state.turn,
