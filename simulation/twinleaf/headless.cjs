@@ -696,7 +696,7 @@ function runMatch(request) {
         (request.prototypeSafeSimulatorIsolation === true ?
           '+PrototypeSafeSimulatorIsolation-experimental-v1' : '') +
         (request.postSuperAliasRepairIsolation === true ?
-          '+PostSuperAliasRepairIsolation-experimental-v1' : ''),
+          '+PostSuperAliasRepairIsolation-experimental-v2' : ''),
       prototypeSafeSimulatorIsolation: request.prototypeSafeSimulatorIsolation === true,
       postSuperAliasRepairIsolation: request.postSuperAliasRepairIsolation === true,
       policyRandomIsolation: request.isolatePolicyRandomness === true,
