@@ -43,7 +43,7 @@ function compareOwnedStateGraph(source, detached) {
   const unexpected = {sharedReferences:[], repeatedArrayBreaks:[],
     repeatedObjectBreaks:[], sourcePrototypeAliases:[], missingProperties:[],
     valueMismatches:[], arrayLengthMismatches:[],
-    classPrototypeMismatches:[]};
+    classPrototypeMismatches:[], indirectInstancePrototypes:[]};
   let nodes = 0;
   let arrays = 0;
   /** @param {any} original @param {any} cloned @param {string} location */
@@ -61,9 +61,15 @@ function compareOwnedStateGraph(source, detached) {
     if (original === cloned) {
       unexpected.sharedReferences.push(location);
     }
-    if (inheritedClassConstructor(original)!==
-        inheritedClassConstructor(cloned)) {
+    const originalClass=inheritedClassConstructor(original);
+    if (originalClass!==inheritedClassConstructor(cloned)) {
       unexpected.classPrototypeMismatches.push(location);
+    }
+    // Constructor identity cannot detect an inherited intermediate instance
+    // introduced during the pinned Simulator's second clone pass.
+    if (originalClass &&
+        Object.getPrototypeOf(cloned)!==originalClass.prototype) {
+      unexpected.indirectInstancePrototypes.push(location);
     }
     if (Array.isArray(original) &&
         (!Array.isArray(cloned) || original.length !== cloned.length)) {
