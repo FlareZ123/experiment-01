@@ -199,10 +199,12 @@ function runFixture() {
     assert.equal(row.switchPrompt, null, JSON.stringify(row.options));
   }
   return {
-    kind: 'pinned-Store Wonder Tag to Ranger to legal Switch',
+    kind: 'pinned-Store Wonder Tag Ranger entry-lock audit',
     engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     evidence: 'staged legal effects and actual actions, no full game or win rate',
-    cases: rows
+    rawInitialization,
+    hook: 'LeleEntryAbilityLockGuard-v1',
+    correctedCases: rows
   };
 }
 
