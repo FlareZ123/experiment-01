@@ -16,7 +16,7 @@ const load = name => require(path.join(compiled, name));
  *
  * @returns {object}
  */
-function verifyManualAndBombSetup() {
+function buildManualAndBombBoard() {
   const f = stagedRaichu([], null);
   const {PokemonCardList} = load('game/store/state/pokemon-card-list');
   const {CardList} = load('game/store/state/card-list');
@@ -119,8 +119,13 @@ function verifyManualAndBombSetup() {
   assert.equal(response.remainingBombEnergiesInDiscard,0);
   assert.equal(response.electrodeKnockedOut,true);
   assert.equal(response.rainbowUnits,16);
-  return response;
+  return {fixture:f, response};
+}
+
+/** @returns {object} Summary of the staged and executed Energy setup. */
+function verifyManualAndBombSetup() {
+  return buildManualAndBombBoard().response;
 }
 
 if (require.main===module) verifyManualAndBombSetup();
-module.exports={verifyManualAndBombSetup};
+module.exports={buildManualAndBombBoard, verifyManualAndBombSetup};
