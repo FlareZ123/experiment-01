@@ -39,7 +39,8 @@ function runDispatchSmoke() {
     captureScope: capture.captureScope,
     controlOutcomeInvariant: true,
     parametersCaptured: capture.parametersCaptured,
-    canonicalTraceSha256: capture.traceSha256,
+    replayEligibleTraceSha256: capture.traceSha256,
+    diagnosticTraceSha256: capture.diagnosticTraceSha256,
     incompleteCaptureReasons: capture.captureErrors.slice(0, 8),
     status: capture.result.endReason,
     qualification: 'diagnostic only; does not prove replay or competitive policy'
