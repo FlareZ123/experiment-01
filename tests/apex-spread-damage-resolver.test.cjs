@@ -196,7 +196,7 @@ test('pinned Store rank-15 board allows two Bench Knock Outs while Pidgeot survi
   const load=name=>require(path.join(root,name));
   const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
   const {preparedRegidrago}=require('../simulation/twinleaf/apex-attack-action.cjs');
-  const {spreadAwareCopyResolverClass}=
+  const {withSpreadAwareCopyResolver}=
     require('../simulation/twinleaf/apex-spread-copy-resolver.cjs');
   const {PokemonCardList}=load('game/store/state/pokemon-card-list');
   const {AttackAction}=load('game/store/actions/game-actions');
@@ -324,6 +324,8 @@ test('pinned rank-15 Mega Lopunny ex Bench KO takes three actual Prizes',
   const {ChoosePrizePromptResolver}=load(
     'simple-bot/prompt-resolver/choose-prize-prompt-resolver');
   const {defaultStateScores}=load('simple-bot/simple-bot-definitions');
+  const {SimpleTacticsAi}=load('simple-bot/simple-tactics-ai');
+  const definitions=load('simple-bot/simple-bot-definitions');
   const manager=initializeCards();
   const get=name=>manager.getCardByName(name);
   const ready=preparedRegidrago();
@@ -356,17 +358,25 @@ test('pinned rank-15 Mega Lopunny ex Bench KO takes three actual Prizes',
   const choose=ready.state.prompts.find(p=>
     p.result===undefined && p.constructor.name==='ChooseAttackPrompt');
   assert.ok(choose);
-  const Choice=spreadAwareCopyResolverClass();
-  const picked=new Choice({scores:defaultStateScores})
-    .resolvePrompt(ready.state,ready.attacking,choose);
+  const bot=withSpreadAwareCopyResolver(()=>
+    withPrizeWindowPutDamageResolver(()=>
+      new SimpleTacticsAi({id:ready.attacking.id},{
+        tactics:[],
+        promptResolvers:definitions.allPromptResolvers,
+        scores:definitions.defaultStateScores,
+        arbiter:definitions.defaultArbiterOptions
+      },null)));
+  assert.ok(bot.resolvers.some(resolver=>
+    resolver.constructor.name==='SpreadAwareCopyResolver'));
+  assert.ok(bot.resolvers.some(resolver=>
+    resolver.constructor.name==='PrizeWindowPutDamageResolver'));
+  const picked=bot.decodeNextAction(ready.state);
   assert.equal(picked.result.name,'Phantom Dive');
   ready.store.dispatch(picked);
   const damage=ready.state.prompts.find(p=>
     p.result===undefined && p.constructor.name==='PutDamagePrompt');
   assert.ok(damage);
-  const Resolver=prizeWindowPutDamageResolverClass();
-  const move=new Resolver({scores:defaultStateScores})
-    .resolvePrompt(ready.state,ready.attacking,damage);
+  const move=bot.decodeNextAction(ready.state);
   assert.equal(damage.validate(move.result,ready.state),true);
   assert.equal(move.result.find(row=>row.target.index===2)?.damage,50);
   assert.equal(move.result.reduce((sum,row)=>sum+row.damage,0),60);
