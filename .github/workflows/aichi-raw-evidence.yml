@@ -29,3 +29,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_match_record_contract.py' -v
       - name: Test canonical action-trace integrity
         run: python -m unittest discover -s tests -p 'test_action_trace_integrity.py' -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test Node/Python trace hash interoperability
+        run: node --test tests/action-trace-canonical.test.cjs
