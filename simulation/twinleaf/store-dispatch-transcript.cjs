@@ -64,6 +64,41 @@ function portableSnapshot(source, ancestors = new Set(), allowClass = false, at 
   }
 }
 
+
+function diagnosticSnapshot(value, ancestors = new Set(), depth = 0) {
+  if (value === null || typeof value === 'string' || typeof value === 'boolean') return value;
+  if (value === undefined) return {kind:'undefined'};
+  if (typeof value === 'number') {
+    return Number.isSafeInteger(value) ? value : {kind:'number', display:String(value)};
+  }
+  if (typeof value !== 'object') return {kind:typeof value};
+  if (ancestors.has(value)) return {kind:'cycle'};
+  if (depth > 4) return {kind:'depth-limit'};
+  const proto = Object.getPrototypeOf(value);
+  if (!Array.isArray(value) && proto !== Object.prototype && proto !== null) {
+    return {kind:'class', name:proto?.constructor?.name || 'unknown',
+      ...(typeof value.fullName === 'string' ? {fullName:value.fullName} : {})};
+  }
+  ancestors.add(value);
+  try {
+    if (Array.isArray(value)) {
+      return Array.from({length:value.length}, (_, i) =>
+        Object.hasOwn(value, i) ? diagnosticSnapshot(value[i], ancestors, depth + 1)
+          : {kind:'array-hole'});
+    }
+    const out = Object.create(null);
+    for (const [key, desc] of Object.entries(Object.getOwnPropertyDescriptors(value))) {
+      if (!desc.enumerable) continue;
+      Object.defineProperty(out, key, {enumerable:true, configurable:true, writable:true,
+        value:Object.hasOwn(desc, 'value') ?
+          diagnosticSnapshot(desc.value, ancestors, depth + 1) : {kind:'accessor'}});
+    }
+    return out;
+  } finally {
+    ancestors.delete(value);
+  }
+}
+
 /**
  * Minimal *observed* engine state. This is not a complete replay checkpoint.
  * @param {unknown} state
@@ -133,6 +168,7 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
       event.parameters = portableSnapshot(action, new Set(), true);
     } catch (error) {
       event.captureError = error.message;
+      event.partialParameters = diagnosticSnapshot(action);
       captureErrors.push('step ' + step + ': ' + error.message);
     }
     try {
@@ -174,4 +210,5 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
   };
 }
 
-module.exports = { portableSnapshot, observedCounts, withStoreDispatchTranscript };
+module.exports = { portableSnapshot, diagnosticSnapshot, observedCounts,
+  withStoreDispatchTranscript };
