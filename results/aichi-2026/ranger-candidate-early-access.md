@@ -27,3 +27,10 @@ All values condition on a valid initial seven. No bonus draws, search Items or g
 | Temple v1, seven plus 2 draws | 14.50175% | 10.83826% | **25.34001%** |
 | 14-Basic, 2-Lele, 1-Ranger hypothetical, seven plus 2 | 14.45029% | 19.85104% | **34.30133%** |
 
+The rank-1 champion has **no Ranger**; its access by these Ranger-specific channels is zero. The 14-Basic, two-Lele, one-Ranger row is only a **composition-controlled hypothetical**, requiring replacement of one non-Basic deck slot. Compared with Hood's one Lele and 14 total Basics, retaining a second Lele gives **9.09389 percentage points** more restricted Ranger access by nine seen cards. At the initial seven, the hypothetical's 27.21511% reproduces the independent [earlier two-Lele Ranger study](ranger-lock-response.md).
+
+## Boundaries and use
+
+The roughly 25% two-draw access event is **not** a 25% probability of defeating Item lock. Other effects (VS Seeker, Trainer search and bonus draws) can create additional routes. Conversely, these theoretical paths need a free Bench slot, an unused Supporter play, an enabled Lele Ability, the Ranger still accessible, and a consequential lock to remove. Garbotoxin or Initialization could disable Lele, and Ranger does not remove persistent Vileplume Ability lock. Playing Lele also incurs its two-Prize liability and Bench cost. No turn sequencing, opponent tactics, or game outcomes were modeled.
+
+[Enumerator](../../scripts/aichi-ranger-early-access.cjs) reads the three full source inventories and rejects unfamiliar Pokémon stages. [Independent test](../../tests/aichi-ranger-early-access.test.cjs) exhaustively enumerates all physical deals of three toy decks, checks the source-card anchors, and reproduces the earlier two-Lele result. Exact local arithmetic also independently checked the reported outputs. Run the manual opening-audit workflow for repository CI reproduction. These are restricted, conditional combinatorial measurements.
