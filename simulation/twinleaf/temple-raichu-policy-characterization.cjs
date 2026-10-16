@@ -33,6 +33,18 @@ function preparedStadiumResponse(scenario) {
   } else {
     throw new Error('Unsupported response test scenario: ' + scenario);
   }
+  // Real game setup allocates distinct IDs. CardManager's bare test clones
+  // all have id=-1; this can cause unrelated search entries to be blocked
+  // together by ChooseCardsPrompt's blockedCardIds conversion.
+  let nextCardId = 1;
+  for (const player of [fixture.a, fixture.b]) {
+    for (const zone of [
+      player.active, player.stadium, player.hand, player.deck,
+      player.discard, ...player.prizes
+    ]) {
+      for (const card of zone.cards) card.id = nextCardId++;
+    }
+  }
   return fixture;
 }
 
