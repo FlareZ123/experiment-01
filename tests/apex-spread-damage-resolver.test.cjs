@@ -156,14 +156,29 @@ test('pinned Store paid Apex Dragon automatically takes two Bench Knock Outs',
   const oldCount=ready.attacking.getPrizeLeft();
   ready.store.dispatch(recommended);
   const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
-  // Resolve animation continuations before inspecting KO and Prize state.
-  for(let i=0;i<8;i++) {
+  const {ChoosePrizePromptResolver}=load(
+    'simple-bot/prompt-resolver/choose-prize-prompt-resolver');
+  const prizeResolver=new ChoosePrizePromptResolver({scores:defaultStateScores});
+  // A real game completes animation prompts, then chooses Prize cards.
+  // The copied attack and counter allocation are already committed here.
+  const resolvedPrompts=[];
+  for(let i=0;i<12;i++) {
     const pending=ready.state.prompts.find(p=>p.result===undefined);
-    if(pending?.constructor.name!=='WaitPrompt') break;
-    ready.store.dispatch(new ResolvePromptAction(pending.id,null));
+    if(pending?.constructor.name==='WaitPrompt') {
+      ready.store.dispatch(new ResolvePromptAction(pending.id,null));
+    } else if(pending?.constructor.name==='ChoosePrizePrompt') {
+      const chooser=ready.state.players.find(p=>p.id===pending.playerId);
+      assert.ok(chooser);
+      const chosen=prizeResolver.resolvePrompt(ready.state,chooser,pending);
+      assert.ok(chosen);
+      ready.store.dispatch(chosen);
+    } else {
+      break;
+    }
+    resolvedPrompts.push(pending.constructor.name);
   }
   const trace={
-    applied:recommended.result,
+    applied:recommended.result,resolvedPrompts,
     discard:ready.defending.discard.cards.map(card=>card.fullName),
     bench:ready.defending.bench.map(slot=>({
       card:slot.getPokemonCard()?.fullName||null,damage:slot.damage,
@@ -176,7 +191,7 @@ test('pinned Store paid Apex Dragon automatically takes two Bench Knock Outs',
   assert.ok(budews.every(budew=>ready.defending.discard.cards.includes(budew)),
     'Both 30 HP Benched Budew should actually be Knocked Out by counters: '+JSON.stringify(trace));
   assert.equal(oldCount-ready.attacking.getPrizeLeft(),2,
-    'Two one-Prize Pokemon should yield two taken Prizes');
+    'Two one-Prize Pokemon should yield two taken Prizes: '+JSON.stringify(trace));
 
   const index=allPromptResolvers.findIndex(
     cls=>cls.name==='PutDamagePromptResolver');
