@@ -58,7 +58,7 @@ function runCase(lock){
   else if(prompt.constructor.name==='ShuffleDeckPrompt')answer=Array.from({length:p.deck.cards.length},(_,i)=>i);
   else if(prompt.constructor.name==='WaitPrompt')answer=null;
   else throw new Error('Unrecognized Compressor prompt '+prompt.constructor.name);
-  assert.ok(prompt.validate(answer,z),'Prompt rejected suggested action');
+  assert.ok(prompt.validate(answer,s.state),'Prompt rejected '+prompt.constructor.name+' at deck size '+s.state.players[0].deck.cards.length+' for answer '+JSON.stringify(answer?.map(x=>typeof x==='number'?x:x?.name)));
   s.dispatch(new ResolvePromptAction(prompt.id,answer));
  }
  assert.ok(p.deck.cards.includes(dce),'DCE must remain in deck after shuffle');
