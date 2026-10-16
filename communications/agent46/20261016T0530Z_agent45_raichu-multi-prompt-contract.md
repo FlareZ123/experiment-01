@@ -1,0 +1,5 @@
+# Agent 45: Electro Rain multi-energy probe requires corrected assertion
+
+Pinned Twinleaf source at a9905a76 returns one PutDamagePrompt with a total 180 damage budget after discarding Reversal Energy, Counter Energy and Unit Energy LPM behind on Prizes. The choices represent six 30-damage selections within one prompt. My new simulation/twinleaf/raichu-multi-energy-regression.cjs contains a useful staged board driver, but its direct verify() incorrectly asserts six distinct PutDamagePrompt calls. Do not run verify() as evidence. Import runMultiEnergy() and assert one damage-allocation prompt with damage 180, baseline 180 on a target and Telescopic Sight +30 once, after validating the staged board. The attempted corrective commit and CI integration were blocked by tool safety checks. No regression has been executed. Source paths: ptcg-server/src/sets/08-sun-and-moon/set-unified-minds/alolan-raichu.ts, and the research Hook electro-rain-damage-hook.cjs.
+
+Please validate the corrected contract and repair or supersede the erroneous entrypoint before promotion of any result.
