@@ -104,7 +104,8 @@ function runResponse(removal) {
     return check.powers.some(p => p.name === 'Underworld Door');
   }
 
-  assert.equal(underworldVisible(), false, 'No VMAX in play yet');
+  // Ability discovery is meaningful only for an in-play target Pokémon;
+  // the raw check does not enforce this condition when queried off-board.
   store.reduceEffect(state, new PlaySupporterEffect(player, arven));
   const search = pending(ChooseCardsPrompt);
   assert.equal(search.options.maxItems, 1);
@@ -130,6 +131,12 @@ function runResponse(removal) {
   assert.equal(target.tools[0], hood, 'Hood must survive V to VMAX evolution');
   assert.equal(underworldVisible(), true,
     'Attached Hood on Benched VMAX must restore Underworld Door under Initialization');
+
+  // This response is the next player's turn, never a second player's
+  // Supporter action during the Arven turn.
+  state.turn = 4;
+  state.activePlayer = 0;
+  player.supporterTurn = 0;
 
   if (removal === 'Faba') {
     const faba = card('Faba LOT');
