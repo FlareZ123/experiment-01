@@ -26,7 +26,8 @@ test('sampler restores the actual deck and upstream prototype after speculative 
     throw new Error('synthetic speculative failure');
   };
   const restore = installOwnDeckDeterminizationHook({
-    samples:4,seed:101,assumeNoKnownDeckOrder:true
+    samples:4,seed:101,assumeNoKnownDeckOrder:true,
+    assumeDeckContentsKnown:true
   });
   try {
     assert.throws(() =>
