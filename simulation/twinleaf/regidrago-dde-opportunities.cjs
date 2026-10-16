@@ -59,7 +59,10 @@ function diagnose() {
         });
         trials.push({seed, enabled, finished: game.finished, turns: game.turns,
           played: game.cardsPlayedBySeat[0]['Double Dragon Energy'] || 0,
-          samples});
+          apexAttacks: game.attackTrace.filter(a => a.seat === 0 && a.attack === 'Apex Dragon').length,
+          candidateBoardCount: samples.length,
+          selectedDdeAtFirstCandidateDecision: samples.filter(sample => sample.chosenDde).length,
+          samples: samples.slice(0, 8)});
       } finally {
         SimpleTacticsAi.prototype.decodeNextAction = original;
       }
