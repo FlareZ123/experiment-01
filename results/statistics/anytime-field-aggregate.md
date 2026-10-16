@@ -24,3 +24,9 @@ Independence of the 64 games within a round and concavity of log(1-p+p*exp(lambd
       <= (1-q+q*exp(lambda))^64.
 
 Therefore M[t,lambda] is a nonnegative supermartingale under H0, even for unequal matchup win probabilities.
+
+A second supermartingale is the zero-loss component: M[t,infinity] = indicator(all 64t games were wins) / q^(64t). Its one-round success probability is product_j(p[j]), at most mu^64 by AM-GM.
+
+The e-process uses a predeclared, constant mixture: 95% of M[t,infinity] and 5% equally divided across lambda = 0.05, 0.1, 0.25, 0.5, 1, 2, 4, 8, 16, 32. Weighted sums preserve supermartingale validity. Ville's inequality then guarantees that the probability of **ever** crossing E[t] >= 20 under H0 is at most 0.05, with checks after each full round.
+
+This protects repeated checkpointing of this one frozen confirmatory experiment. It does not permit choosing the candidate or mixture after reviewing confirmatory outcomes, peeking at partial rounds, or assuming independence from recycled correlated game seeds.
