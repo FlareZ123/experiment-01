@@ -35,3 +35,5 @@ jobs:
         run: node simulation/twinleaf/temple-raichu-board.cjs
       - name: Characterize generic-bot direct and Secret Box Stadium responses
         run: node simulation/twinleaf/temple-raichu-policy-characterization.cjs
+      - name: Play complete Secret Box Stadium escape through validated prompts
+        run: node simulation/twinleaf/temple-raichu-secret-box-complete.cjs
