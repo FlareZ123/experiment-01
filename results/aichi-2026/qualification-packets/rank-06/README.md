@@ -1,0 +1,43 @@
+# Rank 06 qualification packet: Iron Thorns versus three fixed Shadow Rider lists
+
+**Agent 48, 16 October 2026.** Evidence classification: source-inventory-locked, pinned-engine *policy diagnostics*. **`qualified_for_competitive_inference: false`.** This packet applies the [Critic's replay qualification contract](../../critic-qualification-critical-path.md) to existing archived experiments. No human-level opponent policy or game win-rate result is established.
+
+## Immutable source identities and provenance
+
+- Opponent: Aichi Open League 2026 **rank 6, Kazuma Kashi, Iron Thorns**. Source roster: [all 32 ranks](../../field.csv), complete card manifest: [source 60-card lists](../../full-decklists.json). Confirm source printings using [the resolver](../../../../simulation/evaluation/aichi-pilot.cjs).
+- Candidate inventories are frozen, unmodified between A/B seats: [rank-1 champion source reference](../../benchmark-shadow-rider.md), [Hood Shield v1](../../candidate-hood-shadow-rider.json) and [Temple v1](../../candidate-temple-shadow-rider.json). The experiment uses the same inventory in each seat, rather than tailoring it to Iron Thorns.
+- Engine: pinned Twinleaf submodule commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, located at `vendor/twinleaf`; paper Expanded target remains independently governed by the rulebook and exact printed cards. Research-side options in the baseline six-game replay included `strictPromptValidation` and `isolatePolicyRandomness`, with the source-conditioned default SimpleTacticsAi and the documented Supporter/Double-Dragon corrections. See [rank-6 source pilot](../../source-locked-rank6-iron-thorns-pilot.md), [v2 forensic report](../../agent48-v2-run38842497628.md) and the actual workflow run for precise effective flags.
+- Baseline v2 archive: [manual CI 38842497628](https://github.com/FlareZ123/experiment-01/actions/runs/38842497628), artifact ID `12021732684`, archive SHA-256 `ac9ccc49b85db32b9e7eb66429fb2b20966b98b636a53eddaaadc33084fb2976`. Protocol `independent-slots-v2`; engine-slot A seed `20367160`, B seed `20367161`; all **six actual first turns belonged to physical slot A**, confirmed from draw logs. These adjacent xorshift32 streams are mathematically coupled (see [seed coupling](../../seed-v2-adjacent-xorshift-coupling.md)), so the six observations are neither independent random samples nor a rate estimator.
+- The **earlier** rank-6 pilot [CI 38836135424](https://github.com/FlareZ123/experiment-01/actions/runs/38836135424), artifact `12019820568`, archive SHA-256 `6d413770e52ce6e18aee5d98aabc2b7f9685445d894613e75a18fc99872458fc`, reports research revision `df11b1ee8720fc7836638cb0747547b346796f03` and plan digest `22c25a00dc7e51cff54ed93cd9d1111128a3085e20236d10c4b84a09e9d18890`. **Those identifiers belong to the earlier archive; they must not be silently assigned to the later v2 artifact.** Later v2 revision, exact source-deck print hashes, plan digest and all effective policy revision identifiers still require direct extraction and third-party confirmation before qualification.
+
+## Actual baseline observations
+
+| Fixed candidate | Physical slot | Candidate turn | Candidate attacks | Opponent attacks | Terminal transition observed in v2 archive |
+| --- | --- | --- | ---: | ---: | --- |
+| Champion reference | A | First | 0 | 1 | Iron Thorns deck empty |
+| Champion reference | B | Second | 4 | 9 | Iron Thorns took final Prizes |
+| Hood Shield v1 | A | First | 1 | 2 | Iron Thorns deck empty |
+| Hood Shield v1 | B | Second | 0 | 4 | Iron Thorns deck empty |
+| Temple v1 | A | First | 4 | 7 | Both decks empty; next active player could not draw |
+| Temple v1 | B | Second | 5 | 5 | Iron Thorns deck empty |
+
+These entries summarize **engine action dispatches and terminal transitions**. They do not establish valid competitive decisions. Five games involved deck exhaustion, two had zero candidate attack actions. [Source diagnostic and terminal provenance](../../agent48-v2-run38842497628.md).
+
+## Concrete two-sided decision forks
+
+**Opponent-controlled gust, champion/A.** The rank-6 opponent played `Guzma` on global turn 2, sending the candidate's Benched `Dialga-GX` Active. The candidate then passed **seven consecutive candidate turns** (global turns 3–15) with Dialga still Active. The archived trace supports an opponent-imposed positional trap, but it cannot establish that no legal switch, retreat or stronger earlier benching strategy existed. [Exact event inspection](../../agent48-guzma-active-trap.md).
+
+**Candidate-controlled gust, Hood/B.** The candidate sought Dialga-GX with Mysterious Treasure, Benched it and played its own `Guzma` on global turn 2 while its Active Shadow Rider Calyrex V had a Psychic Energy. The candidate stranded unpowered Dialga Active for **six consecutive candidate passes** (global turns 2–12), and registered zero candidate attack actions that game. Dialga's printed attacks require Metal Energy; this fixed candidate's Energy are Psychic-only. The route is not universally dominated, as removing or trapping a strategically important opponent could sometimes justify Guzma's opportunity cost. [Chronological trap detector and evidence](../../agent48-guzma-active-trap.md).
+
+**Frozen-seed policy counterfactual.** Under the exact Hood/B rank-6 seed `20367161`, an opt-in, very narrow policy filter suppressed that **one** self-stranding Guzma proposal. The base and guarded replay both performed the same candidate setup sequence through fetching and Benching Dialga. At candidate turn 2, baseline played Guzma and remained with Dialga Active, while the guarded arm used **Shadow Mist** from Shadow Rider V. At candidate turn 4, baseline passed with Dialga; guarded arm again used Shadow Mist. **Both arms were nonterminal at 100 actions**, so no winner inference follows. Guard code: [pure predicate](../../../../simulation/twinleaf/guzma-self-switch-guard.cjs); [replay](../../../../simulation/evaluation/aichi-guzma-counterfactual.cjs); [two local regression cases](../../../../tests/guzma-self-switch-guard.test.cjs). [Manual pinned-CI 38844419826](https://github.com/FlareZ123/experiment-01/actions/runs/38844419826), artifact `12022827840`, archive SHA-256 `034cbb0b72556f79fa8121fcd32f73a47dd40b65dcba6e66a1cc85a727a3d341`. See [bounded interpretation](../../agent48-guzma-counterfactual.md).
+
+## Qualification blockers and acceptance work
+
+1. **Complete replay missing.** The six-game archive retains chronological *meaningful* actions with selected hand/public-board summaries, but does not replay every exact prompt, chosen option, reducer, state transition, target, energy modifier and timing window. Replay the two turn-2 Guzma decision forks from authentic dealt states, capturing whole source-state transitions and the opponent's next useful decision.
+2. **Simulator aliases unresolved.** The pinned speculative simulator can mutate the live Game Store's Card history through reference sharing; the experimental prototype-safe clone still breaks some post-attack repeated attack-object aliases. See [demonstrated damage mutation](../../../twinleaf/simulator-card-reference-leak.md) and [post-attack graph discrepancy](../../../twinleaf/prototype-safe-state-graph-audit.md). No profile is presently qualified. Required: before/after source identity graphs and demonstrated decision noninterference for each tested fork.
+3. **No representative Iron Thorns response.** Confirm whether the opponent can and does employ available Energy, attack, gust and lock lines under a vetted policy in **both real starting-turn positions**. Physical engine slot B and first-turn status must be treated separately; the v2 six games all started with slot A.
+4. **No source-independent confirmation sample.** Once the complete replay, paper-rule semantics, information-set noninterference and both player policies pass, freeze revisions and preregister fresh v3-or-later decorrelated seeds. Continue recording all terminal causes, catastrophic opening failures and full 32-rank coverage. A fixed seed replay is a diagnostic contrast, never six Bernoulli trials.
+
+### Verdict
+
+**`qualified_for_competitive_inference: false`**. The turn-2 Guzma fork provides a concrete, source-dependent policy defect and an action-level corrective counterfactual. No source-faithful, independently audited complete competitive game or 99.5% win rate has been demonstrated.
