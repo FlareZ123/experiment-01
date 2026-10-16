@@ -21,6 +21,24 @@ The opt-in recovery tactic tests legal energy placements through cloned `Simulat
 
 The successful CI also reported a GitHub checkout cleanup warning about the vendor's nested `pokemon-cards-css` submodule. The working pinned engine compilation and all tested steps finished successfully; this remains a dependency-maintenance issue worth inspecting before future upgrades.
 
+## Four-seed source-deck decision audit and a counterexample to greedy targeting
+
+A later [manual CI run 38834454922](https://github.com/FlareZ123/experiment-01/actions/runs/38834454922) passed the original technical regression, four-seed authentic source-deck [decision audit](../../simulation/twinleaf/regidrago-dde-opportunities.cjs), [greedy-target fixture](../../simulation/twinleaf/dde-target-priority.cjs), the independent hidden-order probe and all 12 evaluator regressions. The source decks were **rank 10 Regidrago as engine A and rank 1 Shadow Rider as engine B**. Both policy modes used `isolatePolicyRandomness: true`, distinct from the initial single-seed default-RNG smoke noted above. All game traces were bounded at 300 actions, with seeds declared in the script before analysis.
+
+| Seed | DDE cards played, default | DDE cards played, recovery | Apex Dragon attacks, default | Apex Dragon attacks, recovery |
+| --- | ---: | ---: | ---: | ---: |
+| 20261016 | 0 | 1 | 0 | 0 |
+| 20261017 | 0 | 3 | 0 | 3 |
+| 20261103 | 0 | 3 | 3 | 1 |
+| 20261229 | 0 | 2 | 0 | 0 |
+| **Observed total** | **0** | **9** | **3** | **4** |
+
+These counts are **observed engine actions**, not win fractions or paired causal treatment effects. Different actions alter later draw, shuffle, attack and knock-out sequences even with separate speculative RNG streams. The number of states offering a plausible attachment also changes as one policy attaches Energy while the other holds it. All four conditions use real tournament source decks, but both players retain a low-skill default policy aside from the explicitly selected improvement.
+
+The direct greedy-target fixture establishes an important limitation: with an Active Regidrago VSTAR already able to pay Grass+Grass+Fire for Apex Dragon and an unpowered Benched Regidrago VSTAR, the recovery tactic still attaches its in-hand Double Dragon Energy to the **Active**, the first legal Dragon target. This is a reproduced action-choice deficiency. Whether the Bench would be strategically preferable depends on continuation and opponent threats, but blindly choosing the first legal target cannot optimize attachment opportunity cost.
+
+A separate [hidden deck-order probe](../../simulation/twinleaf/hidden-deck-order-policy.cjs) held the visible state constant and reversed the unrevealed deck order; in its one controlled state, both decisions were Legacy Star and thus the selected action did **not** change. This negative single-state result does not refute the independent source-level private-order scoring risk documented by Agent 50 in [the information-set audit](hidden-information-policy-audit.md).
+
 ## Reproduction and future quality gates
 
 Run the manual workflow [`aichi-dde-runtime.yml`](../../.github/workflows/aichi-dde-runtime.yml) against the pinned submodule and the source manifest. It rebuilds Twinleaf, checks the prepared board, runs the paired baseline/opt-in bounded source match, verifies experimental repeatability, then executes the evaluator tests. No push-triggered CI is introduced.
