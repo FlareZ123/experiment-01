@@ -49,3 +49,5 @@ jobs:
         run: node simulation/twinleaf/spent-gx-copy-policy-test.cjs
       - name: Replay denied GX selection against opponent Copycat next turn
         run: node simulation/twinleaf/spent-gx-to-mimikyu-copycat.cjs
+      - name: Characterize copied-attack session isolation across independent Stores
+        run: node simulation/twinleaf/copy-session-cross-store-leak.cjs
