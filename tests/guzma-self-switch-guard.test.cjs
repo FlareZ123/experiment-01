@@ -31,23 +31,20 @@ test('rejects the exact powered Shadow Rider to sole unpowered Dialga line', () 
   assert.equal(wouldSelfStrandShadowRider(state,player,action),true);
 });
 
-test('ordinary Supporters, other matchups and other Bench structures pass', () => {
-  const {state,player,action} = fixture();
-  for (const change of [
-    () => {player.hand.cards[0].name='Iono';},
-    () => {state.players[1].active=slot('Regidrago V');},
-    () => {player.active=slot('Shadow Rider Calyrex V');},
-    () => {player.bench.push(slot('Tapu Lele-GX'));},
-    () => {player.bench[0]=slot('Dialga-GX',['Metal Energy']);}
-  ]) {
-    const f=fixture();
-    const current=f.state, actor=f.player, move=f.action;
-    if(change.toString().includes('player.hand')) actor.hand.cards[0].name='Iono';
-    else if(change.toString().includes('state.players')) current.players[1].active=slot('Regidrago V');
-    else if(change.toString().includes('player.active')) actor.active=slot('Shadow Rider Calyrex V');
-    else if(change.toString().includes('player.bench.push')) actor.bench.push(slot('Tapu Lele-GX'));
-    else actor.bench[0]=slot('Dialga-GX',['Metal Energy']);
-    assert.equal(wouldSelfStrandShadowRider(current,actor,move),false);
+test('non-matching Supporters, Bench states and opposing decks remain untouched', () => {
+  const alterations = [
+    ({player}) => { player.hand.cards[0].name = 'Iono'; },
+    ({state}) => { state.players[1].active = slot('Regidrago V'); },
+    ({player}) => { player.active = slot('Shadow Rider Calyrex V'); },
+    ({player}) => { player.bench.push(slot('Tapu Lele-GX')); },
+    ({player}) => { player.bench[0] = slot('Dialga-GX',['Metal Energy']); }
+  ];
+  for (const alter of alterations) {
+    const f = fixture();
+    alter(f);
+    assert.equal(wouldSelfStrandShadowRider(f.state,f.player,f.action), false);
   }
-  assert.equal(wouldSelfStrandShadowRider(state,player,{type:'PASS_TURN'}),false);
+  const f = fixture();
+  assert.equal(wouldSelfStrandShadowRider(f.state,f.player,
+    {type:'PASS_TURN'}),false);
 });
