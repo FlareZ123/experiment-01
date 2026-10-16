@@ -8,7 +8,7 @@ In a prepared Expanded-format player turn, the opponent has Budew ASC 16 in the 
 
 The first actual `PlayCardAction` **attached Forest Seal Stone onto the Benched V while the Item lock remained active**, demonstrating the Item-versus-Tool distinction in executable state. The engine discovered the Stone's Star Alchemy ability on the equipped V. The Power's actual `ChooseCardsPrompt` accepted the unprized Ranger and subsequent shuffle, consumed the player's VSTAR allowance, and put Ranger into hand. A second actual `PlayCardAction` played Ranger, clearing the attack-origin Item prohibition. A final `PlayCardAction` on Switch was accepted and created a `ChoosePokemonPrompt`.
 
-## Four bounded controls
+## Ten bounded and adversarial board cases
 
 | Prepared-board case | Stone attached | Star Alchemy exposed | Ranger played | Item available |
 | --- | --- | --- | --- | --- |
@@ -16,8 +16,16 @@ The first actual `PlayCardAction` **attached Forest Seal Stone onto the Benched 
 | Same position with Path to the Peak Stadium | Yes | Yes | Yes | Yes, Switch prompt |
 | Ranger in one of the six Prize cards | Yes | Yes | No | No |
 | Defender already used a Supporter this turn | Yes | Yes | No | No |
+| Opposing Active Iron Thorns ex after staged Budew lock | Yes | Yes | Yes | Yes, Switch prompt |
+| Real `UseAbilityAction` instead of direct Power reducer | Yes | Yes | Yes | Yes, Switch prompt |
+| Real `UseAbilityAction` with Path | Yes | Yes | Yes | Yes, Switch prompt |
+| VSTAR Power already consumed | Yes | Shown, activation rejected | No | No |
+| Eligible V's Tool slot occupied by Float Stone | No, attachment rejected | No | No | No |
+| Player prohibited from playing Pokémon Tools | No, attachment rejected | No | No | No |
 
 Star Alchemy remains usable with Path active because the Tool's Power is exempt from generic Pokémon Ability lock, consistent with [the existing Path/Stone ruling summary](../aichi-2026/forest-seal-stone-ruling.md). Ranger's success is specific to an attack-origin Item restriction; it does not remove Vileplume's persistent Ability-origin Item lock.
+
+The expanded [manual Store CI 38874223803](https://github.com/FlareZ123/experiment-01/actions/runs/38874223803) passed all ten cases. In particular, the `UseAbilityAction` pathway first creates a real `WaitPrompt`, followed by Star Alchemy's choice/shuffle prompts. Both Path and the staged Thorns lock permit the Tool-origin VSTAR Power here; the VSTAR-already-used case rejects use, while a full Tool slot or player-level Tool prohibition rejects attachment. The Thorns-plus-prior-Budew position is intentionally prepared and does not establish a naturally occurring turn sequence.
 
 The first CI attempt [38872233085](https://github.com/FlareZ123/experiment-01/actions/runs/38872233085) failed *inside our fixture* because the code passed a `PokemonCardList` where `CheckPokemonPowersEffect` requires a Pokémon card. The corrected fixture (commit `ee03eb293b7baf49719ee8b9200f19cc59063404`) and all other manual board checks then passed [CI 38872601242](https://github.com/FlareZ123/experiment-01/actions/runs/38872601242).
 
