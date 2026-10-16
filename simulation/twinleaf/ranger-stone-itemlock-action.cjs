@@ -122,6 +122,7 @@ function probeStoneRanger(options = {}) {
   } else {
     store.reduceEffect(state,new PowerEffect(defender,stone.powers[0],stone,benchV));
   }
+  while(pending()?.constructor.name==='WaitPrompt') resolve(null);
   const select=pending();
   assert.equal(select?.constructor.name,'ChooseCardsPrompt');
   assert.equal(select.options.min,1);
