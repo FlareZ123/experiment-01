@@ -17,6 +17,7 @@ function doubleTmBoard() {
   const { Store } = engine('game/store/store');
   const { Player } = engine('game/store/state/player');
   const { PokemonCardList } = engine('game/store/state/pokemon-card-list');
+  const { CardList } = engine('game/store/state/card-list');
   const { GamePhase } = engine('game/store/state/state');
   const { Format } = engine('game/store/card/card-types');
   const { AttackAction } = engine('game/store/actions/game-actions');
@@ -39,6 +40,12 @@ function doubleTmBoard() {
   state.phase=GamePhase.PLAYER_TURN;
   state.turn=2; // player going second, first actionable attacking turn
   state.gameSettings.format=Format.EXPANDED;
+  // Six real Prize slots per player prevent a spurious zero-Prize Sudden Death.
+  for(const side of state.players) side.prizes=Array.from({length:6},()=>{
+    const prize=new CardList();
+    prize.cards.push(manager.getCardByName('Dratini OBF'));
+    return prize;
+  });
 
   const bunnelby=card('Bunnelby PRC');
   const tm=card('Technical Machine: Evolution PAR');
