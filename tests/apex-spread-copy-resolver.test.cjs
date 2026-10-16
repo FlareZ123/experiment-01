@@ -32,6 +32,18 @@ test('detects a 50 HP Benched prize window and no window above 60 HP',()=>{
   assert.equal(phantomDiveBenchWindows({bench:[]}),0);
 });
 
+test('does not treat Tool or Ability-bearing targets as certain Bench knockouts',()=>{
+  const f=fakeFixture();
+  const slot=f.opponent.bench[0];
+  slot.tools=[{name:'uncertain Tool'}];
+  assert.equal(phantomDiveBenchWindows(f.opponent),0);
+  assert.equal(preferredPhantomDive(f.state,f.me,f.prompt,f.baseline),null);
+  slot.tools=[];
+  slot.getPokemonCard=()=>({hp:320,powers:[{name:'uncertain Ability'}]});
+  assert.equal(phantomDiveBenchWindows(f.opponent),0);
+  assert.equal(preferredPhantomDive(f.state,f.me,f.prompt,f.baseline),null);
+});
+
 test('prefers the exact Phantom Dive attack instance in a tied 200-damage choice',()=>{
   const f=fakeFixture();
   assert.equal(preferredPhantomDive(f.state,f.me,f.prompt,f.baseline),f.phantom);
