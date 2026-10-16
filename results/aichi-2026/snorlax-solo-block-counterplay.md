@@ -12,10 +12,10 @@ Stealthy Hood's text protects its attached Pokémon from effects of opposing Abi
 
 ## Exact published inventories and conditional opening opportunities
 
-| Opponent rank | Snorlax PGO copies | Total opening Basics | P(Snorlax in valid starting seven) | Tool Jammer | Faba | Megaton Blower | Field Blower |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 3, Haruto Miki | 3 | 11 | 40.56561% | 1 | 1 | 0 | 0 |
-| 7, Hiroto Fuji | 2 | 12 | 27.36369% | 1 | 2 | 1 | 1 |
+| Opponent rank | Snorlax PGO copies | Total opening Basics | P(Snorlax in valid seven) | P(forced Snorlax Active) | Tool Jammer | Faba | Megaton Blower | Field Blower |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 3, Haruto Miki | 3 | 11 | 40.56561% | 15.94504% | 1 | 1 | 0 | 0 |
+| 7, Hiroto Fuji | 2 | 12 | 27.36369% | 8.39961% | 1 | 2 | 1 | 1 |
 
 The probability conditions on having drawn at least one Basic in the initial seven. The Snorlax lead event is **feasibility**: if a Snorlax appears, its pilot may choose it as the Active and leave the Bench empty. It excludes opponent setup, prizes, mulligan bonus draws, later search, Supporters, planned opponent decisions and actual Block activation persistence.
 
@@ -23,7 +23,11 @@ Let `C(n,k)` be the binomial coefficient, `s` the Snorlax count and `b` the Basi
 
 `P(Snorlax in seven | legal seven) = [1 - C(60-s,7)/C(60,7)] / [1 - C(60-b,7)/C(60,7)].`
 
-A feasible Snorlax lead does **not** imply the player will choose it. Its true adoption frequency requires a validated opening policy and matchup decisions.
+In **15.94504%** of legal rank-3 initial sevens and **8.39961%** of legal rank-7 sevens, the hand has at least one Snorlax and no other Basic Pokémon names. The pilot is therefore **forced to start a Snorlax Active** from that initial hand, although they may voluntarily Bench additional Snorlax copies or other Pokémon from later opponent-mulligan bonus draws. This narrower event has exact probability:
+
+`P(forced Snorlax Active | legal seven) = [C(60-b+s,7)-C(60-b,7)] / [C(60,7)-C(60-b,7)].`
+
+The forced event is a lower bound on choosing Snorlax Active from the initial seven, while `P(Snorlax in seven | legal seven)` is the upper feasibility bound. The true selected lead frequency between those bounds requires an opening decision policy. Neither event certifies an enduring Block lock.
 
 ## Fixed candidate inventory
 
