@@ -28,6 +28,7 @@ const {probeEvolutionAnnouncement} = require('./tm-evolution-announcement-probe.
 const {probePassedAttackOptions, nextPassProbeBucket} = require('./pass-attack-announcement-probe.cjs');
 const {withActiveOpeningPivot} = require('./active-opening-pivot.cjs');
 const {withAttackBeforeRetreat} = require('./attack-retreat-order.cjs');
+const {withCopycatApexTimelessPolicy} = require('./mimikyu-counter-policy.cjs');
 const {retreatTransitionEvidence} = require('./retreat-transition-evidence.cjs');
 
 /**
@@ -187,6 +188,8 @@ function policyRandomStreams(seed) {
  * @property {boolean} [leleEntryAbilityLockCorrection] Opt-in correction for Tapu Lele-GX Bench-entry Ability locks.
  * @property {boolean} [radiantGateLockCorrection] Opt-in correction for Radiant Eternatus Bench-entry Ability locks.
  * @property {boolean} [mimikyuApexCopycatCompatibility] Opt-in non-GX Apex Dragon/Copycat copy-tag correction.
+ * @property {boolean} [mimikyuApexTimelessPolicy] Opt-in exact public-state Copycat/Apex/Timeless decision policy.
+ * @property {0|1} [mimikyuApexTimelessPolicySeat] Restrict Copycat counterpolicy to one physical seat.
  * @property {boolean} [mimikyuDeclaredHistoryCorrection] Opt-in printed Copycat attack history after nested prompts.
  * @property {boolean} [regidragoDeclaredHistoryCorrection] Opt-in printed Apex Dragon attack history after nested prompts.
  * @property {boolean} [passClearsLastAttackCorrection] Opt-in clear stale preceding attack when a player passes.
@@ -238,6 +241,18 @@ function runMatch(request) {
   let restoreCopyDeclaredHistoryHook;
   let restorePassClearsLastAttackHook;
   try {
+    if (request.mimikyuApexTimelessPolicySeat !== undefined &&
+        (request.mimikyuApexTimelessPolicy !== true ||
+          ![0, 1].includes(request.mimikyuApexTimelessPolicySeat))) {
+      throw new Error('Counterpolicy seat requires enabled Copycat counterpolicy');
+    }
+    if (request.mimikyuApexTimelessPolicy === true &&
+        !(request.mimikyuApexCopycatCompatibility === true &&
+          request.mimikyuDeclaredHistoryCorrection === true &&
+          request.regidragoDeclaredHistoryCorrection === true &&
+          request.passClearsLastAttackCorrection === true)) {
+      throw new Error('Copycat counterpolicy requires all four rule-history corrections');
+    }
     initializeCards();
     if (request.mimikyuApexCopycatCompatibility === true) {
       restoreMimikyuNonGxCopycatHook = installMimikyuNonGxCopycatHook();
@@ -350,9 +365,17 @@ function runMatch(request) {
         AttackTactic: engine('simple-bot/simple-tactics/attack-tactic').AttackTactic,
         RetreatTactic: engine('simple-bot/simple-tactics/retreat-tactic').RetreatTactic
       }) : null;
-    const optionsBySeat = [0, 1].map(seat =>
-      attackPreferenceOptions && (request.attackBeforeRetreatSeat === undefined ||
-        request.attackBeforeRetreatSeat === seat) ? attackPreferenceOptions : options);
+    const optionsBySeat = [0, 1].map(seat => {
+      let configured = attackPreferenceOptions &&
+        (request.attackBeforeRetreatSeat === undefined ||
+          request.attackBeforeRetreatSeat === seat) ? attackPreferenceOptions : options;
+      if (request.mimikyuApexTimelessPolicy === true &&
+          (request.mimikyuApexTimelessPolicySeat === undefined ||
+            request.mimikyuApexTimelessPolicySeat === seat)) {
+        configured = withCopycatApexTimelessPolicy(configured);
+      }
+      return configured;
+    });
     const seats = [
       new SimpleTacticsAi({ id: 101 }, optionsBySeat[0], request.deckA),
       new SimpleTacticsAi({ id: 202 }, optionsBySeat[1], request.deckB)
@@ -572,6 +595,8 @@ function runMatch(request) {
       leleEntryAbilityLockCorrection: request.leleEntryAbilityLockCorrection === true,
       radiantGateLockCorrection: request.radiantGateLockCorrection === true,
       mimikyuApexCopycatCompatibility: request.mimikyuApexCopycatCompatibility === true,
+      mimikyuApexTimelessPolicy: request.mimikyuApexTimelessPolicy === true,
+      mimikyuApexTimelessPolicySeat: request.mimikyuApexTimelessPolicySeat ?? null,
       mimikyuDeclaredHistoryCorrection: request.mimikyuDeclaredHistoryCorrection === true,
       regidragoDeclaredHistoryCorrection: request.regidragoDeclaredHistoryCorrection === true,
       passClearsLastAttackCorrection: request.passClearsLastAttackCorrection === true,
@@ -605,6 +630,7 @@ function runMatch(request) {
         (request.mimikyuApexCopycatCompatibility === true ? '+MimikyuNonGXCopyApex-v1' : '') +
         (request.mimikyuDeclaredHistoryCorrection === true ? '+MimikyuDeclaredHistory-v1' : '') +
         (request.regidragoDeclaredHistoryCorrection === true ? '+RegidragoDeclaredHistory-v1' : '') +
+        (request.mimikyuApexTimelessPolicy === true ? '+MimikyuApexTimelessCounterPolicy-v1' : '') +
         (request.passClearsLastAttackCorrection === true ? '+PassClearsLastAttack-v1' : ''),
       policyRandomIsolation: request.isolatePolicyRandomness === true,
       randomnessProtocol: request.isolatePolicyRandomness === true ?
