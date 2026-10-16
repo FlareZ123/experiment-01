@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {runMatch,initializeCards}=require('./headless.cjs');
 const {resolveManifestFile}=require('./resolve-field.cjs');
-const {withSourceContinuity}=require('./source-state-continuity.cjs');
+const {withSourceContinuity,withRootPolicyMutationAudit}=require('./source-state-continuity.cjs');
 
 /** Two official-source physical lists and one fixed game seed. */
 function main() {
@@ -18,6 +18,8 @@ function main() {
   initializeCards();
   const {Store}=require(path.resolve(__dirname,
     '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
+  const {SimpleTacticsAi}=require(path.resolve(__dirname,
+    '../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai'));
   const common={
     deckA:regidrago.cardIds,deckB:champion.cardIds,
     seed:4246551499,maxActions:350,
@@ -34,10 +36,11 @@ function main() {
     const request={...common,...(mode==='post-super-reconciled'
       ? {postSuperAliasRepairIsolation:true}:{})};
     const baseline=runMatch(request);
-    const observed=withSourceContinuity(Store,()=>runMatch(request));
-    assert.deepEqual(observed.result,baseline,
+    const observed=withSourceContinuity(Store,()=>
+      withRootPolicyMutationAudit(Store,SimpleTacticsAi,()=>runMatch(request)));
+    assert.deepEqual(observed.result.result,baseline,
       'Read-only source-State observer changed game in '+mode);
-    assert.equal(observed.liveDispatches,observed.result.actions+2,
+    assert.equal(observed.liveDispatches,observed.result.result.actions+2,
       'Live dispatch count did not match actual root actions in '+mode);
     findings.push({
       mode,seed:request.seed,sourceRanks:[10,1],
@@ -45,6 +48,7 @@ function main() {
       liveDispatches:observed.liveDispatches,
       ignoredOtherStoreDispatches:observed.otherDispatches,
       stateChangesBetweenActions:observed.discontinuities.length,
+      policyMutations:observed.result.rootPolicyStateMutations,
       firstChanges:observed.discontinuities.slice(0,12),
       engineWinner:baseline.winner,
       qualification:'partial-State diagnostic only; no competitive win-rate evidence'
