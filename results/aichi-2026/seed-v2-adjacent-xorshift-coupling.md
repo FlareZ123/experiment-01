@@ -32,6 +32,24 @@ An independent Python reproduction sampled **2,000** pairs beginning with the fi
 
 Those are **algorithmic permutation measurements**. Printed repeated card names and gameplay-specific RNG consumption change actual game implications. Only the XOR relation is an exact mathematical statement independent of sampling.
 
+### Actual nine pilot rank pairs (isolated shuffles)
+
+The same independent Python reproduction checked each frozen pilot rank's **one exact pair** without consuming other RNG before a 60-position Fisher-Yates permutation. These are card-index permutations, not observed match opening hands.
+
+| Rank | Slot-A seed | Matching positions out of 60 | Opening-seven index-set intersection |
+| ---: | ---: | ---: | ---: |
+| 1 | 20362040 | 2 | 1 |
+| 2 | 20363064 | 3 | 1 |
+| 3 | 20364088 | 1 | 1 |
+| 4 | 20365112 | 4 | 1 |
+| 5 | 20366136 | 3 | 0 |
+| 6 | 20367160 | 6 | 3 |
+| 8 | 20369208 | 2 | 0 |
+| 10 | 20371256 | 1 | 2 |
+| 26 | 20387640 | 4 | 2 |
+
+All nine pairs have exactly matching first half-range bits. This table shows heterogeneous permutation correlation under the actual fixed seeds, without asserting anything about the randomized order of **real match setup** after intervening coin, shuffle, or prompt RNG calls.
+
 ## Methodological consequences
 
 Different integer seeds in the v2 physical slots should not be called statistically independent pseudorandom streams. The coupling may still be useful for variance reduction in carefully defined paired experiments; it becomes a concern when games are counted as independent observations or when naive confidence intervals assume independent match RNG. The shared research already labels fixed six-trial runs as unqualified engine diagnostics, and this result supplies **no numerical correction to any actual win rate**.
