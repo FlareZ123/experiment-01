@@ -48,12 +48,12 @@ function preparedStadiumResponse(scenario) {
   return fixture;
 }
 
-/** @param {ReturnType<typeof preparedStadiumResponse>} fixture */
-function simplePolicyAction(fixture) {
+/** @param {ReturnType<typeof preparedStadiumResponse>} fixture @param {any} [extraTactic] */
+function simplePolicyAction(fixture, extraTactic) {
   const {SimpleTacticsAi} = load('simple-bot/simple-tactics-ai');
   const definitions = load('simple-bot/simple-bot-definitions');
   const ai = new SimpleTacticsAi({id: fixture.a.id}, {
-    tactics: definitions.allSimpleTactics,
+    tactics: extraTactic ? [extraTactic, ...definitions.allSimpleTactics] : definitions.allSimpleTactics,
     promptResolvers: definitions.allPromptResolvers,
     scores: definitions.defaultStateScores,
     arbiter: definitions.defaultArbiterOptions
@@ -80,6 +80,14 @@ function inspectRaichuStadiumPolicy() {
   const secret = preparedStadiumResponse('secret-box-three-expired-vip');
   const secretChoice = simplePolicyAction(secret);
   assert.ok(secretChoice.rawAction, 'SimpleTacticsAi must return a legal next action');
+  const {RaichuTempleResponseTactic} = require('./temple-raichu-response-tactic.cjs');
+  const patchedChoice = simplePolicyAction(secret, RaichuTempleResponseTactic);
+  assert.equal(patchedChoice.action, 'PlayCardAction');
+  assert.equal(patchedChoice.card, 'Secret Box TWM',
+    'Research-side tactic should make the source-legal Stadium connector available');
+  const patchedDirectChoice = simplePolicyAction(direct, RaichuTempleResponseTactic);
+  assert.equal(patchedDirectChoice.card, 'PokéStop PGO',
+    'Direct Stadium play remains preferable when it is already in hand');
   const {CardType} = load('game/store/card/card-types');
   assert.deepEqual(providedEnergy(secret).map(row => row.provides), [[CardType.COLORLESS]],
     'Blocked Electro Rain source must actually require Stadium removal');
@@ -102,6 +110,9 @@ function inspectRaichuStadiumPolicy() {
       deckStadium: 'PokéStop PGO',
       botAction: secretChoice.action,
       botCard: secretChoice.card,
+      researchTacticAction: patchedChoice.action,
+      researchTacticCard: patchedChoice.card,
+      directStadiumWithResearchTactic: patchedDirectChoice.card,
       manualSecretBoxDispatchPrompts: prompt.constructor.name
     },
     scope: 'Injected turn-four board with source-representable cards; generic bot decision, not competitive policy'
