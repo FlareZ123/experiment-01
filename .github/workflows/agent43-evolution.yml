@@ -1,0 +1,31 @@
+name: Agent 43 Shadow Rider evolution action contract
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evolution:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned upstream
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Pure decision and reversible wrapper tests
+        run: node --test tests/shadow-rider-evolution-priority.test.cjs tests/shadow-rider-evolution-runner.test.cjs tests/first-evolution-natural.test.cjs tests/first-evolution-field.test.cjs
+      - name: Install pinned engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Two legal pinned Store evolution dispatches
+        run: node simulation/twinleaf/shadow-rider-evolution-board.cjs
