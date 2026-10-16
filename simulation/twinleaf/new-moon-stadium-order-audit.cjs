@@ -131,5 +131,47 @@ function audit() {
   };
 }
 
-if (require.main === module) console.log(JSON.stringify(audit(),null,2));
-module.exports = {probeOrder,audit};
+/**
+ * Exact same staged card-play action pairs under a reversible hook, checking
+ * historical order against the official Japanese card-ruling expectation.
+ * @returns {object}
+ */
+function auditWithOfficialOrderHook() {
+  const {installNewMoonSilentLabOrderHook} =
+    require('./new-moon-silent-lab-order-hook.cjs');
+  const baseline = audit();
+  const restore = installNewMoonSilentLabOrderHook();
+  let corrected;
+  try {
+    corrected = audit();
+  } finally {
+    restore();
+  }
+  assert.equal(baseline.rows[0].lunaBlocked,false,
+    'Pinned baseline should reproduce Lab-first bug');
+  assert.equal(corrected.rows[0].lunaBlocked,true,
+    'Earlier Silent Lab must prevent New Moon at Bench entry');
+  assert.equal(corrected.rows[0].mewBlocked,true,
+    'Earlier Silent Lab must suppress Perfection too');
+  assert.equal(corrected.rows[1].lunaBlocked,false,
+    'New Moon established before Lab must remain functional');
+  assert.equal(corrected.rows[1].mewBlocked,false,
+    'Protected Perfection must remain available after later Lab');
+  assert.equal(corrected.rows[2].lunaBlocked,true,
+    'No Solrock is a negative control');
+  assert.equal(corrected.rows[3].mewBlocked,false,
+    'Path-to-the-Peak protection must survive correction');
+  assert.equal(corrected.rows[4].mewBlocked,true,
+    'Absent Solrock must leave Perfection exposed under Path');
+  return {
+    source:'Official Japanese Silent Lab + New Moon ordering Q&A',
+    baseline,
+    corrected,
+    status:'Every staged action-order guard passed under reversible hook',
+    qualification:'This does not validate full-game policy, setup, re-entry, or all lock effects'
+  };
+}
+
+if (require.main === module) console.log(JSON.stringify(auditWithOfficialOrderHook(),null,2));
+module.exports = {probeOrder,audit,auditWithOfficialOrderHook};
+
