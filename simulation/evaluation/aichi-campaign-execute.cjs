@@ -125,7 +125,21 @@ function executeDiagnostic(options) {
       }
       const turn = observedFirstTurn(game);
       const completed = game.finished === true && [0, 1, 3].includes(game.winner);
+      const rawTrace = policyFlags.captureDecisionTrace === true ? game.decisionTrace : null;
+      const traceRequested = policyFlags.captureDecisionTrace === true;
+      const traceValid = !traceRequested || (
+        Array.isArray(rawTrace) && rawTrace.length > 0 &&
+        rawTrace.every((entry, index) =>
+          Number.isInteger(entry.actionOrdinal) &&
+          entry.actionOrdinal >= 0 && entry.actionOrdinal < game.actions &&
+          (index === 0 || entry.actionOrdinal > rawTrace[index - 1].actionOrdinal) &&
+          Number.isInteger(entry.turnBefore) &&
+          Number.isInteger(entry.turnAfter) &&
+          Array.isArray(entry.prizesAfter) && entry.prizesAfter.length === 2 &&
+          Array.isArray(entry.decksAfter) && entry.decksAfter.length === 2)
+      );
       const status = !turn ? 'unverified-first-turn' :
+        completed && !traceValid ? 'unverified-decision-trace' :
         completed ? 'completed-engine-game' : 'unfinished-engine-game';
       const candidateSlot = candidateA ? 0 : 1;
       const opponentSlot = candidateA ? 1 : 0;
@@ -144,7 +158,8 @@ function executeDiagnostic(options) {
         candidateAttacks, opponentAttacks,
         qualityFlags: [
           ...(candidateAttacks === 0 ? ['zero-candidate-attacks'] : []),
-          ...(opponentAttacks === 0 ? ['zero-opponent-attacks'] : [])
+          ...(opponentAttacks === 0 ? ['zero-opponent-attacks'] : []),
+          ...(traceRequested && !traceValid ? ['missing-or-invalid-decision-trace'] : [])
         ],
         // Engine traces are action summaries, not complete replayable transcripts.
         traceSummary: {
@@ -152,7 +167,12 @@ function executeDiagnostic(options) {
           actionsBySeat: game.actionsBySeat || [],
           cardsPlayedBySeat: game.cardsPlayedBySeat || [],
           prizesRemaining: game.prizesRemaining || [],
-          finalState: game.finalState || []
+          finalState: game.finalState || [],
+          chronologicalActionTrace: traceRequested && traceValid ? rawTrace : null,
+          chronologicalActionTraceSha256: traceRequested && traceValid ?
+            digest(rawTrace) : null,
+          capturedMeaningfulActions: traceRequested && traceValid ? rawTrace.length : null,
+          coversAllActionsAndPromptResolutions: false
         }
       });
     } catch (error) {
@@ -206,7 +226,7 @@ function main() {
     policyFlags: {
       strictPromptValidation: true, forestSealSearchCorrection: true,
       doubleDragonRecovery: true, supporterDecisionCorrection: true,
-      isolatePolicyRandomness: true
+      isolatePolicyRandomness: true, captureDecisionTrace: true
     },
     resolvePair(trial) {
       const mapping = mappings.get(trial.candidateId);
