@@ -62,7 +62,7 @@ test('nested engine card instances require identity-aware prompt mapping', () =>
 
 test('accessors, symbols, sparse arrays and unreviewed action classes fail', () => {
   const input = new OptionalAction();
-  Object.defineProperty(input, 'getter', {get() { throw Error('MUST NOT RUN'); }});
+  Object.defineProperty(input, 'getter', {configurable:true, get() { throw Error('MUST NOT RUN'); }});
   assert.throws(() => captureAction(input), /Accessor property/);
   delete input.getter;
   input[Symbol('private')] = 1;
