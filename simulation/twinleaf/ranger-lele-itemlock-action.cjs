@@ -137,3 +137,33 @@ function probeRangerLine(options = {}) {
       }
     }
   }
+
+  assert.equal(leleBenched, !options.forcedLeleActive);
+  assert.equal(sawWonderTag, !options.initialization && !options.forcedLeleActive);
+  const rangerInHand = defender.hand.cards.includes(ranger);
+  assert.equal(rangerInHand, rangerSearched);
+  let rangerPlayed = false;
+  if (rangerInHand && !options.supporterSpent) {
+    play(defender, ranger, trainerTarget);
+    rangerPlayed = true;
+    assert.ok(defender.supporterTurn > 0,
+      'Ranger must consume the turn Supporter action');
+  }
+  assert.equal(defender.cannotPlayItemCards, !rangerPlayed);
+  let switchPrompt = null;
+  if (rangerPlayed) {
+    play(defender, item, trainerTarget);
+    switchPrompt = pending()?.constructor.name || null;
+    assert.equal(switchPrompt, 'ChoosePokemonPrompt',
+      'Real Switch Item should become playable after Ranger');
+  } else {
+    assert.ok(defender.hand.cards.includes(item), 'The locked Item must remain in hand');
+  }
+  return {
+    options, initialItemLock: true, leleBenched, sawWonderTag,
+    rangerSearched, rangerInHand, rangerPlayed,
+    itemLockAfterResponse: defender.cannotPlayItemCards,
+    switchPrompt, supporterSpent: defender.supporterTurn > 0
+  };
+}
+
