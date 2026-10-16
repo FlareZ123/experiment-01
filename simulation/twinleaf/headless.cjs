@@ -7,6 +7,7 @@ const {observeFirstTurn, summarizeTurnOrder} = require('./turn-order-evidence.cj
 const {installToolJammerHook} = require('./tool-jammer-hook.cjs');
 const {installMegatonBlowerHook} = require('./megaton-blower-hook.cjs');
 const {assertValidPromptAction} = require('./prompt-integrity.cjs');
+const {installForestSealSearchHook} = require('./forest-seal-search-hook.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -120,6 +121,7 @@ function installFairBotHooks() {
  * @property {number} [maxActions] Fail-safe bound on all user/bot actions.
  * @property {string} [label] Experimental label for machine-readable output.
  * @property {boolean} [strictPromptValidation] Opt-in pre-dispatch Prompt.validate gate.
+ * @property {boolean} [forestSealSearchCorrection] Opt-in mandatory one-card Star Alchemy hook.
  */
 
 /**
@@ -144,8 +146,12 @@ function runMatch(request) {
   let restoreBotHooks;
   let restoreToolJammerHook;
   let restoreMegatonBlowerHook;
+  let restoreForestSealSearchHook;
   try {
     initializeCards();
+    if (request.forestSealSearchCorrection === true) {
+      restoreForestSealSearchHook = installForestSealSearchHook();
+    }
     restoreToolJammerHook = installToolJammerHook();
     restoreMegatonBlowerHook = installMegatonBlowerHook();
     const { registerPlayersCeremony, PLAYERS_CEREMONY_PRINT } = require('./card-patches.cjs');
@@ -302,11 +308,13 @@ function runMatch(request) {
       phase: state.phase,
       promptValidationMode: request.strictPromptValidation === true ?
         'predispatch-prompt-validate' : 'upstream-unchecked',
+      forestSealSearchCorrection: request.forestSealSearchCorrection === true,
       policy: 'Twinleaf SimpleTacticsAi/defaultStateScores',
       engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
     };
   } finally {
     if (restoreBotHooks) restoreBotHooks();
+    if (restoreForestSealSearchHook) restoreForestSealSearchHook();
     if (restoreMegatonBlowerHook) restoreMegatonBlowerHook();
     if (restoreToolJammerHook) restoreToolJammerHook();
     Math.random = originalRandom;

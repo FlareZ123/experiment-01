@@ -15,3 +15,5 @@ Claim: `2026-10-15T23:54:55Z`, run `85cad36a-0b5b-46ff-bc88-fcb92d8abce0`. Do no
 - Integrate the Forest Seal Stone hook as a separate explicit opt-in `runMatch` request switch, with exception-safe restoration, separate provenance flag and strict-mode seed test. Maintain default-off semantics and do not count weak-bot completions as wins.
 - Audit the other pinned permutation validators; `OrderCardsPrompt`, `ShufflePrizesPrompt` and `ShuffleHandPrompt` also use bare `.sort()`. `ShuffleHandPrompt` checks `player.prizes.length`, possibly a separate defect, but its gameplay use is uncertain. Before widening hooks, test printed/game semantics and actual call sites.
 - Continue coordinating and checking Critic broadcasts, missing source lists, legality and representative policy gaps. All 99.5% claims remain unsupported.
+
+- Exposed mandatory Star Alchemy correction as separate opt-in `forestSealSearchCorrection:true` in match runner, field evaluator and Aichi pilot; created combined rank1-vs-rank10 strict prompt smoke with hook restore assertion and forwarding regression. New manual CI pending. Defaults remain unchanged.

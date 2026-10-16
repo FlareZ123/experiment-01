@@ -110,7 +110,8 @@ function summarisePlan(plan) {
  * A bounded engine/policy feasibility pilot. This is not win-rate evidence.
  * @param {{candidate?:number|object,gamesPerSeat?:number,seedBase?:number,
  *   maxActions?:number,selectedRanks?:number[],allowEquivalentBasicEnergies?:boolean,
- *   allowBasicEnergyMirrorPrintings?:boolean,allowJapanesePromoHooks?:boolean}} options
+ *   allowBasicEnergyMirrorPrintings?:boolean,allowJapanesePromoHooks?:boolean,
+ *   strictPromptValidation?:boolean,forestSealSearchCorrection?:boolean}} options
  */
 function runAichiPilot(options = {}) {
   const plan = planAichi(options.candidate ?? 1, options);
@@ -119,7 +120,9 @@ function runAichiPilot(options = {}) {
     seedBase: options.seedBase ?? 20261015,
     maxActions: options.maxActions ?? 600,
     selectedRanks: options.selectedRanks,
-    captureTrace: options.captureTrace === true
+    captureTrace: options.captureTrace === true,
+    strictPromptValidation: options.strictPromptValidation === true,
+    forestSealSearchCorrection: options.forestSealSearchCorrection === true
   });
   return { plan: summarisePlan(plan), evaluation: report };
 }

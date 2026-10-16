@@ -171,3 +171,25 @@ test('strict prompt mode is explicit, forwarded to runner, and preserved in repo
   assert.equal(seen.length, 2);
   assert.ok(seen.every(request => !Object.hasOwn(request, 'strictPromptValidation')));
 });
+
+test('Forest Seal Stone correction is passed only when explicitly selected', () => {
+  const plan = buildPlan(manifest, pool, 1);
+  const requests = [];
+  const runMatch = request => {
+    requests.push(request);
+    return { finished: true, winner: 0 };
+  };
+  const corrected = evaluatePlan(plan, {
+    gamesPerSeat: 1, selectedRanks: [1],
+    forestSealSearchCorrection: true, runMatch
+  });
+  assert.equal(corrected.forestSealSearchCorrection, true);
+  assert.equal(requests.length, 2);
+  assert.ok(requests.every(request => request.forestSealSearchCorrection === true));
+  requests.length = 0;
+  const baseline = evaluatePlan(plan, {
+    gamesPerSeat: 1, selectedRanks: [1], runMatch
+  });
+  assert.equal(baseline.forestSealSearchCorrection, false);
+  assert.ok(requests.every(request => !Object.hasOwn(request, 'forestSealSearchCorrection')));
+});

@@ -173,12 +173,12 @@ function buildPlan(manifest, cardPool, candidateRank = 1, options = {}) {
  * @param {ReturnType<typeof buildPlan>} plan
  * @param {{runMatch:(request:object)=>object,gamesPerSeat?:number,seedBase?:number,
  *  maxActions?:number,selectedRanks?:number[],captureTrace?:boolean,
- *  strictPromptValidation?:boolean}} options
+ *  strictPromptValidation?:boolean,forestSealSearchCorrection?:boolean}} options
  */
 function evaluatePlan(plan, options) {
   const { runMatch, gamesPerSeat = 10, seedBase = 20261015,
     maxActions = 3000, selectedRanks, captureTrace = false,
-    strictPromptValidation = false } = options;
+    strictPromptValidation = false, forestSealSearchCorrection = false } = options;
   if (typeof runMatch !== 'function') throw new Error('runMatch is required.');
   if (!Number.isInteger(gamesPerSeat) || gamesPerSeat < 1 || gamesPerSeat > 10000) {
     throw new Error('gamesPerSeat must be between 1 and 10000.');
@@ -216,7 +216,8 @@ function evaluatePlan(plan, options) {
             deckA: candidateSeat === 0 ? plan.candidate.cards : opponent.cards,
             deckB: candidateSeat === 1 ? plan.candidate.cards : opponent.cards,
             seed, maxActions, label: 'Aichi rank ' + opponent.rank,
-            ...(strictPromptValidation ? {strictPromptValidation: true} : {})
+            ...(strictPromptValidation ? {strictPromptValidation: true} : {}),
+            ...(forestSealSearchCorrection ? {forestSealSearchCorrection: true} : {})
           };
           row.attempted += 1;
           try {
@@ -291,6 +292,7 @@ function evaluatePlan(plan, options) {
     selectedRanks: selectedRanks || null,
     captureTrace,
     strictPromptValidation,
+    forestSealSearchCorrection,
     policy: 'Twinleaf SimpleTacticsAi; competence unvalidated',
     engineSlotProtocol: 'candidate alternates engine A/B; true first-turn attributed only when engine turn and draw-log agree',
     startingTurnBalanceVerified: false,

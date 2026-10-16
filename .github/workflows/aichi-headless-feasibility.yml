@@ -42,3 +42,6 @@ jobs:
 
       - name: Reproduce and correct compiled 60-card ShuffleDeckPrompt validation
         run: node --test tests/prompt-integrity-pinned-shuffle.test.cjs
+
+      - name: Probe strict prompts plus Forest Seal Stone opt-in and cleanup
+        run: node simulation/twinleaf/forest-seal-opt-in-smoke.cjs
