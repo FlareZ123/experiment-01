@@ -30,7 +30,7 @@ The [manual pinned-engine suite, run 38878319571](https://github.com/FlareZ123/e
 
 The earlier synthetic engine fixture had Active Mimikyu PAL from the rank-3 Snorlax inventory and two Benched Budew ASC from rank 15. The current staged fixture instead uses the published rank-15 Lopunny Vileplume cards: Active evolutionary chain Pidgey FLF / Pidgeotto TEU / Pidgeot ex OBF, plus two Budew ASC on the Bench. Regidrago SIT, Dragapult ex TWM and Hisuian Goodra VSTAR LOR all occur in the published rank-10 Regidrago inventory. The fixture still injects a paid attack and chosen board rather than replaying a source-locked 60-card matchup.
 
-A second pinned-engine manual CI for this board is under test as run [38878619082](https://github.com/FlareZ123/experiment-01/actions/runs/38878619082). Its outcome should be recorded before claiming the extended fixture passes.
+The [second manual pinned-engine CI, run 38878619082](https://github.com/FlareZ123/experiment-01/actions/runs/38878619082), **passed**. The source-inventory-consistent staged Pidgeot ex survived, two Budew ASC entered the opposing discard pile, and the attacking player received two Prize cards after resolving normal pending prompts. This still demonstrates a selected action sequence rather than game-level policy quality.
 
 ## Remaining uncertainty
 
