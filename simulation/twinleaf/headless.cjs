@@ -201,6 +201,7 @@ function runMatch(request) {
   let restoreMegatonBlowerHook;
   let restoreForestSealSearchHook;
   let restoreSupporterDecisionHook;
+  let restoreLeleEntryAbilityLockHook;
   let restoreSnorlaxRetreatStartHook;
   try {
     initializeCards();
