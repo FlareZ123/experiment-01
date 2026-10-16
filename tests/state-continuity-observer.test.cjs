@@ -3,7 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
-  firstMismatch,withSourceContinuity,hash,cardHistory
+  firstMismatch,withSourceContinuity,withRootPolicyMutationAudit,hash,cardHistory
 }=require('../simulation/twinleaf/source-state-continuity.cjs');
 
 class AddPlayerAction {}
