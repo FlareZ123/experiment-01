@@ -34,7 +34,7 @@ function runDoubleDragonRuntimeRegression() {
   const repeated = runMatch({ ...request, doubleDragonRecovery: true });
   assert.equal(control.doubleDragonRecovery, false);
   assert.equal(corrected.doubleDragonRecovery, true);
-  assert.match(corrected.policy, /DoubleDragonAttachTactic-v1/);
+  assert.match(corrected.policy, /DoubleDragonAttachTactic-v2/);
   assert.deepEqual(corrected.deckHashes, control.deckHashes);
   assert.deepEqual(corrected, repeated,
     'Experimental policy must reproduce full bounded engine traces for one seed');
