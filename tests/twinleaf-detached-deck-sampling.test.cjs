@@ -44,3 +44,23 @@ test('symbol-keyed hidden Card aliases are rejected',()=>{
   assert.throws(()=>evaluateDetachedDeckSamples(state,1,{},0,()=>{called++;return 1},null,stealth,opts),/live Card reference/);
   assert.equal(called,0);
 });
+
+test('known card at deck top survives speculative shuffle',()=>{
+  const original=setup();
+  const seen=[];
+  const options={...opts,knownTopCount:1,knownTopVerified:true};
+  evaluateDetachedDeckSamples(original,1,{},0,state=>{
+    const names=state.players[0].deck.cards.map(card=>card.fullName);
+    seen.push(names);
+    assert.equal(names[0],'A');
+    return 1;
+  },null,structuredClone,options);
+  assert.equal(seen.length,options.samples);
+  assert.equal(original.players[0].deck.cards[0].fullName,'A');
+});
+
+test('known top requires observation evidence',()=>{
+  assert.throws(()=>evaluateDetachedDeckSamples(
+    setup(),1,{},0,()=>1,null,structuredClone,
+    {...opts,knownTopCount:1}),/verified observed prefix/);
+});
