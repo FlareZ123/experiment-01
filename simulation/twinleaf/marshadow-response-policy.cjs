@@ -63,7 +63,9 @@ function marshadowResponsePolicyProbe() {
   const beforeScore = score.getScore(f.state, f.attacking.id);
   const defaultChoice = new UseAbilityTactic(options).useTactic(f.state, f.attacking);
   assert.deepEqual(supplied(), [9,9]);
-  assert.throws(() => f.store.dispatch(new AttackAction(f.attacking.id, 'Apex Dragon')),
+  const { Simulator } = load('game/bots/simulator');
+  const negativeSimulation = new Simulator(f.state, options.arbiter);
+  assert.throws(() => negativeSimulation.dispatch(new AttackAction(f.attacking.id, 'Apex Dragon')),
     'Temple should block the paid Dragon attack before removal');
   const response = new UseAbilityAction(f.attacking.id, 'Resetting Hole', {
     player: PlayerType.BOTTOM_PLAYER,
