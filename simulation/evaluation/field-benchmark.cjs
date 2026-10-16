@@ -174,13 +174,15 @@ function buildPlan(manifest, cardPool, candidateRank = 1, options = {}) {
  * @param {{runMatch:(request:object)=>object,gamesPerSeat?:number,seedBase?:number,
  *  maxActions?:number,selectedRanks?:number[],captureTrace?:boolean,
  *  strictPromptValidation?:boolean,forestSealSearchCorrection?:boolean,
- *  doubleDragonRecovery?:boolean,supporterDecisionCorrection?:boolean}} options
+ *  doubleDragonRecovery?:boolean,supporterDecisionCorrection?:boolean,
+ *  isolatePolicyRandomness?:boolean}} options
  */
 function evaluatePlan(plan, options) {
   const { runMatch, gamesPerSeat = 10, seedBase = 20261015,
     maxActions = 3000, selectedRanks, captureTrace = false,
     strictPromptValidation = false, forestSealSearchCorrection = false,
-    doubleDragonRecovery = false, supporterDecisionCorrection = false } = options;
+    doubleDragonRecovery = false, supporterDecisionCorrection = false,
+    isolatePolicyRandomness = false } = options;
   if (typeof runMatch !== 'function') throw new Error('runMatch is required.');
   if (!Number.isInteger(gamesPerSeat) || gamesPerSeat < 1 || gamesPerSeat > 10000) {
     throw new Error('gamesPerSeat must be between 1 and 10000.');
@@ -221,7 +223,8 @@ function evaluatePlan(plan, options) {
             ...(strictPromptValidation ? {strictPromptValidation: true} : {}),
             ...(forestSealSearchCorrection ? {forestSealSearchCorrection: true} : {}),
             ...(doubleDragonRecovery ? {doubleDragonRecovery: true} : {}),
-            ...(supporterDecisionCorrection ? {supporterDecisionCorrection: true} : {})
+            ...(supporterDecisionCorrection ? {supporterDecisionCorrection: true} : {}),
+            ...(isolatePolicyRandomness ? {isolatePolicyRandomness: true} : {})
           };
           row.attempted += 1;
           try {
@@ -299,6 +302,9 @@ function evaluatePlan(plan, options) {
     forestSealSearchCorrection,
     doubleDragonRecovery,
     supporterDecisionCorrection,
+    isolatePolicyRandomness,
+    randomnessProtocol: isolatePolicyRandomness ?
+      'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
     policy: (doubleDragonRecovery ?
       'Twinleaf SimpleTacticsAi+DoubleDragonAttachTactic-v1' :
       'Twinleaf SimpleTacticsAi') +
