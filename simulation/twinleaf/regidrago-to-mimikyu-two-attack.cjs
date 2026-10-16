@@ -24,7 +24,7 @@ const engine = name => require(path.join(output, name));
  *
  * @returns {object} Full declared-action and prompt trace evidence.
  */
-function regidragoToMimikyuTwoAttackContract() {
+function regidragoToMimikyuTwoAttackContract(verifyBonusTurn = false) {
   const manager = initializeCards();
   const names = [
     'Mimikyu GRI', 'Regidrago VSTAR SIT', 'Dratini OBF', 'Dialga-GX UPR',
@@ -110,6 +110,33 @@ function regidragoToMimikyuTwoAttackContract() {
     assert.equal(a.usedTurnSkip, true, 'Copied Timeless-GX extra turn is armed');
     assert.equal(state.playerLastAttack[a.id]?.attack?.name, 'Copycat');
 
+    // Resolve actual between-turn prompts only in the opt-in contract.
+    // This distinguishes an armed turn-skip flag from a real extra turn.
+    let bonusTurnProgression = null;
+    if (verifyBonusTurn) {
+      const before = {turn: state.turn, phase: state.phase,
+        activePlayer: state.activePlayer};
+      let waitPrompts = 0;
+      while (state.phase !== GamePhase.PLAYER_TURN ||
+          state.activePlayer !== 0) {
+        const wait = state.prompts.find(p =>
+          p.constructor.name === 'WaitPrompt' && p.result === undefined);
+        assert.ok(wait, 'Expected real post-Timeless-GX transition prompt');
+        store.dispatch(new ResolvePromptAction(wait.id, null));
+        waitPrompts += 1;
+        assert.ok(waitPrompts <= 8, 'Unexpected extra-turn prompt cycle');
+      }
+      assert.equal(state.activePlayer, 0,
+        'The Timeless-GX user must take another turn immediately');
+      assert.ok(state.turn > before.turn,
+        'The engine must advance to a distinct game turn');
+      bonusTurnProgression = {
+        before, after: {turn: state.turn, phase: state.phase,
+          activePlayer: state.activePlayer},
+        waitPrompts, samePlayerImmediatelyAgain: true
+      };
+    }
+
     return {
       regidrago: {
         declared: 'Apex Dragon',
@@ -128,6 +155,7 @@ function regidragoToMimikyuTwoAttackContract() {
       mimikyuUsedGX: a.usedGX,
       mimikyuExtraTurnArmed: a.usedTurnSkip,
       phaseAfterMimikyu: state.phase,
+      bonusTurnProgression,
       scope: 'Two declared AttackActions and real turn transition, injected boards'
     };
   } finally {
@@ -138,7 +166,8 @@ function regidragoToMimikyuTwoAttackContract() {
 }
 
 if (require.main === module) {
-  process.stdout.write(JSON.stringify(regidragoToMimikyuTwoAttackContract(), null, 2) + '\n');
+  process.stdout.write(JSON.stringify(regidragoToMimikyuTwoAttackContract(
+    process.argv.includes('--verify-bonus')), null, 2) + '\n');
 }
 
 module.exports = {regidragoToMimikyuTwoAttackContract};
