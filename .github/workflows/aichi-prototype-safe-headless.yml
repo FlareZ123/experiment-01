@@ -26,7 +26,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Check source-graph cloning contracts
-        run: node --test tests/detached-simulator-hook.test.cjs tests/prototype-safe-simulator-hook.test.cjs tests/twinleaf-post-super-alias.test.cjs
+        run: node --test tests/detached-simulator-hook.test.cjs tests/prototype-safe-simulator-hook.test.cjs tests/twinleaf-post-super-alias.test.cjs tests/twinleaf-vendor-clone-compatibility.test.cjs
       - name: Audit actual Store clone reference graphs and verify history-alias limits
         run: node --test tests/prototype-safe-state-graph-audit.test.cjs
       - name: Emit full before-and-after Store graph evidence
