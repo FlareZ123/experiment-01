@@ -32,3 +32,5 @@ jobs:
         run: node --test tests/redeemable-ticket-paper-hook.test.cjs
       - name: Preserve corrected Ticket Store evidence
         run: node simulation/twinleaf/redeemable-ticket-paper-regression.cjs
+      - name: Check opt-in headless Ticket flag and restoration
+        run: node --test tests/redeemable-ticket-headless-options.test.cjs
