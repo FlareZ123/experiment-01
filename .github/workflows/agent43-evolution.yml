@@ -29,6 +29,8 @@ jobs:
         run: npm run compile
       - name: Two legal pinned Store evolution dispatches
         run: node simulation/twinleaf/shadow-rider-evolution-board.cjs
+      - name: Verify rank31 Roxie/Koffing optional confirmation
+        run: node simulation/twinleaf/agent43-roxie-koffing-confirmation.cjs
       - name: Observe bounded rank1-vs-rank10 source policy alternatives
         run: node simulation/evaluation/agent43-evolution-contrast.cjs > agent43-evolution-contrast.json
       - name: Print sample policy divergence and blocked states
