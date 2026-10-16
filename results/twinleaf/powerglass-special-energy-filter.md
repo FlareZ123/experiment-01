@@ -27,3 +27,7 @@ Files: [real-Store regression](../../tests/powerglass-energy-filter-store.test.c
 ## Competitive-research relevance
 
 The archived 52nd-place [New Moon Perfection source 60](../als/new-moon-perfection-source-60.md) contains three Basic Psychic Energy plus three Telepathic Psychic Energy (Special). The [exact Prize feasibility extension](../als/new-moon-powerglass-energy-gate.md) counts the Basic Energy as a separate necessary role in the source pilot's prescribed Powerglass acceleration sequence. An unguarded Powerglass attachment of Special Energy could make otherwise blocked game states appear playable and contaminate simulated strength; occurrence frequency under the default bot is unmeasured.
+
+## Default bot selection path (source audit)
+
+The pinned `simple-bot/prompt-resolver/attach-energy-prompt-resolver.ts` builds legal candidates with `cardList.filter(prompt.filter)` before evaluating targets. Therefore the default `AttachEnergyPromptResolver` appears to honor the Basic-only filter in its normal search, despite the unsafe Store acceptance boundary. The reproduced failure requires an explicit out-of-filter result; this finding does **not** show that the default bot would spontaneously attach a Special Energy with Powerglass. The strict research-side guard closes this input-validation hole for opted-in headless runs and reveals mistakes made by future/custom policies.
