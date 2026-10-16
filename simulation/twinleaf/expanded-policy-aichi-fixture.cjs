@@ -14,7 +14,8 @@ function runFixture() {
     });
   const byRank=new Map(resolved.decks.map(deck=>[deck.rank,deck.cardIds]));
   const samples=[{rankA:1,rankB:2,seed:20261021},
-    {rankA:1,rankB:10,seed:20261022}];
+    {rankA:1,rankB:10,seed:20261022},
+    {rankA:2,rankB:1,seed:20261023}];
   const games=samples.map(sample=>{
     const {rankA,rankB,seed}=sample;
     try {
