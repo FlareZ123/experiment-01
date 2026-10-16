@@ -39,3 +39,13 @@ function countQualifiedWins(round) {
 
 
 function assessFieldEvidence(rounds, options={}) {
+  const nullMean=options.nullMean===undefined ? 0.995 : options.nullMean;
+  const alpha=options.alpha===undefined ? 0.05 : options.alpha;
+  if (!Array.isArray(rounds) || !(nullMean>0 && nullMean<1) ||
+      !(alpha>0 && alpha<1)) throw new Error('Invalid evidence inputs.');
+  const thresholdLog=-Math.log(alpha);
+  const finiteWeightLog=Math.log((1-ZERO_LOSS_WEIGHT)/LAMBDAS.length);
+  let wins=0, firstCrossedAtRound=null, logEValue=0;
+  for (let index=0; index<rounds.length; index++) {
+    wins += countQualifiedWins(rounds[index]);
+    const games=(index+1)*CELLS_PER_ROUND;
