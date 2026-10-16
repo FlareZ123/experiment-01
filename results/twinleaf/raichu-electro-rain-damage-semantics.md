@@ -42,14 +42,18 @@ The 30-to-60 correction matches the Tool's printed +30 attack damage to eligible
 
 This hook is **opt-in and not yet wired into generic-bot full matches**. No comparison of full tournament-game results has been conducted with the correction. The correction changes damage classification and thus may reveal further engine behaviors that need characterization.
 
-## Further rule-fidelity tests, in progress
+## Reproduced prevention/immunity inversions
 
-[Separate staged test](../../simulation/twinleaf/raichu-electro-rain-protection-regression.cjs) evaluates two more consequences with `Shaymin DRI`'s printed Flower Curtain and `Skeledirge SSP`'s printed Unaware. The predicted bad baseline and correct Hook contrasts are:
+[Separate source-printed staged regression](../../simulation/twinleaf/raichu-electro-rain-protection-regression.cjs) and [successful pinned manual CI 38855393914](https://github.com/FlareZ123/experiment-01/actions/runs/38855393914) verify two further, opposite-facing defects:
 
-- Against a non-Rule-Box Benched Pokémon protected by Flower Curtain, attack damage should be **prevented** (0); damage-counter placement bypasses that protection and may give an incorrect 30.
-- Against an Unaware Pokémon immune to effects of attacks but susceptible to attack damage, ordinary Electro Rain should deal 30; misclassified `PutCountersEffect` may be blocked as an effect and deal zero.
+| Printed defender ability / target | Pinned default Electro Rain | Opt-in damage-corrected Electro Rain |
+| --- | ---: | ---: |
+| `Shaymin DRI` Flower Curtain protecting non-Rule-Box Benched Dratini | **30** (incorrectly bypasses prevention) | **0** |
+| `Skeledirge SSP` Unaware, which prevents effects of attacks but permits damage | **0** (incorrectly blocks attack damage) | **30** |
 
-These consequences remain **unverified until the updated manual CI completes**. Never use prediction as an empirical result.
+Both contrasts execute a real `AttackAction('Electro Rain')` on the same injected one-Unit-Energy board and resolve all prompts through the pinned Store. The first target is a non-Rule-Box Basic protected by an opposing Shaymin on the Bench; the second target is an already-established Stage2 Skeledirge on the Bench. The protection test logs confirmed `ChooseCardsPrompt`, `PutDamagePrompt` and three `WaitPrompt` resolutions in each run. Both cards' pinned reducers explicitly distinguish `PutDamageEffect` from other attack effects, so the observed inversions support the specific source-level diagnosis.
+
+**Engine finding:** The same misclassification can make a defending Pokémon either less protected or more protected than paper rules allow. This is not a monotonic bias that could safely be approximated as a uniform fixed damage correction. It may reverse particular tactical outcomes in field matchups, so claim promotion requires the corrected semantics and competent play.
 
 ## Open limitations and follow-up
 
