@@ -66,7 +66,7 @@ This model **does not simulate actions or win rates**. It omits Fog Crystal, Mys
 
 ## Next validation gates
 
-1. Run the deterministic `tests/hood-t2-joint.test.cjs` on Node 20 or later and record the results. The local mathematical values were independently cross-checked in Python; the committed test has not yet been run in GitHub CI.
+1. Run the deterministic `tests/hood-t2-joint.test.cjs` on Node 20 or later and record the results. The exact values were independently cross-checked in Python; the committed Node regressions and dated banlist checks passed [manual GitHub Actions run 38827475499](https://github.com/FlareZ123/experiment-01/actions/runs/38827475499).
 2. Confirm, in the pinned engine, that attached Hood survives V-to-VMAX evolution and still blocks Initialization and Garbotoxin. The [research fixture](../../simulation/twinleaf/hood-through-evolution.cjs) exists; verify its CI outcome before treating it as passing.
 3. Test a realistic Arven-to-Hood-plus-Mysterious-Treasure turn with one discard cost, correct one-Supporter constraint, a Bench slot, and both seats.
 4. Evaluate this exact list against all 29 available source opponents and keep the three missing lists explicit. Require equally competent opponent policies, actual first-turn evidence, proper raw records, and replayable failure cases before comparing game strength.
