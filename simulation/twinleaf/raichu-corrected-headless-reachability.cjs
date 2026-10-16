@@ -38,21 +38,29 @@ function compareSourceReachability() {
   assert.equal(corrected.electroRainDamageCorrection,true);
 
   /** @param {object} x */
-  const summarize=x=>({
-    actions:x.actions,
-    finished:x.finished,
-    turns:x.turns,
-    firstTurnSlot:x.firstTurnSlot,
-    prizesRemaining:x.prizesRemaining,
-    attacks:x.attackTrace.map(event=>({
-      turn:event.turn,seat:event.seat,attacker:event.activePokemon,attack:event.attack
-    })),
-    electroRainCount:x.attackTrace.filter(event=>event.attack==='Electro Rain').length,
-    evolutionCount:(x.actionCounts?.PlayPokemonAction??0),
-    terminalReason:x.endReason,
-    policy:x.policy,
-    promptValidationMode:x.promptValidationMode
-  });
+  const summarize=x=>{
+    const attackCounts={};
+    for(const event of x.attackTrace) {
+      attackCounts[event.attack]=(attackCounts[event.attack]||0)+1;
+    }
+    return {
+      actions:x.actions,
+      finished:x.finished,
+      turns:x.turns,
+      firstTurnSlot:x.firstTurnSlot,
+      prizesRemaining:x.prizesRemaining,
+      attackCounts,
+      attacksExceptMotivate:x.attackTrace.filter(event=>event.attack!=='Motivate')
+        .map(event=>({turn:event.turn,seat:event.seat,attacker:event.activePokemon,attack:event.attack})),
+      electroRainCount:attackCounts['Electro Rain']||0,
+      sourceRaichuCardsPlayed:x.cardsPlayedBySeat.map(cards=>cards['Alolan Raichu']||0),
+      sourceElectrodeGXCardsPlayed:x.cardsPlayedBySeat.map(cards=>cards['Electrode-GX']||0),
+      extraEnergyBombActions:x.abilityTrace.filter(event=>event.name==='Extra Energy Bomb').length,
+      terminalReason:x.endReason,
+      policy:x.policy,
+      promptValidationMode:x.promptValidationMode
+    };
+  };
   return {
     kind:'one fixed-seed bounded generic-policy attack-reachability diagnostic',
     sourceRanks:[4,17],
