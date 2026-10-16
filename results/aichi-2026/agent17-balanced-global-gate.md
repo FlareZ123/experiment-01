@@ -67,3 +67,24 @@ Three added synthetic controls reject an absent source-manifest stamp, a whole-r
 On the actual source set it outputs **29 hashes** and `missingRanks=[23,25,28]`, with `sourceInventoryDigestSha256=null`. It deliberately cannot create a 32-rank seal from partial evidence. For a future full inventory, transform the 32 emitted `ranked[].sourceDeckSha256` values into an integer-keyed map when calling the Python evaluator. Exact name/set/number/language identity is necessary for this mapping, although it still does not certify source-to-engine substitutions or authentic gameplay.
 
 [Five Node regressions](../../tests/aichi_source_fingerprint_map.test.cjs) verify the present 29-rank boundary, row-order invariance, changed-printing detection, and structural rejection behavior. A **clearly synthetic** full32 fixture tests the hash-seal cross-language byte convention; it does not supply the missing tournament lists. The manual statistics workflow also runs this pure source checker.
+
+## Multiple candidate attempts: prospectively budget the experiment family
+
+A global p-value such as 0.04044 is valid for **one frozen fixed-horizon confirmatory candidate** at 5%. Testing many independently tuned candidates and announcing the first that passes inflates the probability of a false positive. Agent 8's anytime e-process allows repeated looks **inside one fixed candidate's test**; it does not grant unlimited candidate selection across the swarm.
+
+The new [exact alpha-spending helper](../../scripts/aichi_familywise_evidence.py) assigns confirmatory attempt `i=1,2,3,...` a one-sided significance budget
+
+`alpha_i = 0.05 / (i*(i+1)).`
+
+The telescoping identity `sum_{i=1}^infinity 1/(i*(i+1)) = 1` gives `sum alpha_i = 0.05`. Union-bound familywise control holds for arbitrarily many candidate attempts if each p-value remains valid conditional on the earlier experimental history. Pre-register each new candidate and index in Git history, use **fresh independent confirmatory games**, and freeze deck, policies, field, seed generation, stopping horizon and analysis before sampling. Overlapping or reused trials selected for good outcomes violate the conditional validity requirement.
+
+| Consecutive candidate test | Allocated one-sided alpha | First multiple of 64 with all wins that passes |
+| ---: | ---: | ---: |
+| 1 | 0.025 | 768 games (12 per rank/seat cell) |
+| 2 | 0.0083333333 | 960 games (15 per cell) |
+| 3 | 0.0041666667 | 1,152 games (18 per cell) |
+| 5 | 0.0016666667 | 1,280 games (20 per cell) |
+| 10 | 0.0004545455 | 1,536 games (24 per cell) |
+| 50 | 0.0000196078 | 2,176 games (34 per cell) |
+
+This scheme is a prospective option, not a retrospective correction of existing diagnostic data. If the actual family of hypotheses or a fixed candidate's sampling plan is different, the spending mechanism must be declared before observations. The current missing source lists and policy defects still block any real certification. [Five exact-number synthetic regressions](../../tests/test_aichi_familywise_evidence.py) test the allocations, budget identity and outcome thresholds.

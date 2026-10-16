@@ -26,3 +26,5 @@ jobs:
           node-version: '20'
       - name: Audit source deck fingerprints and missing-rank seal
         run: node --test tests/aichi_source_fingerprint_map.test.cjs
+      - name: Verify exact familywise allocation across future candidate attempts
+        run: python -m unittest discover -s tests -p 'test_aichi_familywise_evidence.py' -v
