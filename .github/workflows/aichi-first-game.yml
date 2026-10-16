@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      latias_attack_ready:
+        description: 'Opt-in source-state Latias one-Psychic attack-cost completion policy'
+        required: false
+        type: boolean
+        default: false
       attack_before_retreat:
         description: 'Opt-in generic Attack before Retreat action-order probe'
         required: false
@@ -77,7 +82,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify cloned Store attack-pass regression after compile
-        run: node --test tests/pass-attack-announcement-probe.test.cjs tests/aichi-pass-attack-opportunities.test.cjs tests/pass-probe-noninterference.test.cjs tests/latias-rank10-energy-completion.test.cjs
+        run: node --test tests/pass-attack-announcement-probe.test.cjs tests/aichi-pass-attack-opportunities.test.cjs tests/pass-probe-noninterference.test.cjs tests/latias-rank10-energy-completion.test.cjs tests/latias-attack-ready-attach.test.cjs
       - name: Verify rank2 source-game pass observer noninterference when opt-in
         if: inputs.audit_passed_attacks
         run: node simulation/twinleaf/pass-probe-noninterference.cjs > aichi-pass-probe-noninterference.json
@@ -99,6 +104,7 @@ jobs:
           AICHI_SHADOW_ENERGY: ${{ inputs.shadow_rider_energy_priority && '1' || '0' }}
           AICHI_SHADOW_ENERGY_GLOBAL: ${{ inputs.shadow_rider_energy_across_field && '1' || '0' }}
           AICHI_OPENING_PIVOT: ${{ inputs.shadow_rider_opening_pivot && '1' || '0' }}
+          AICHI_LATIAS_ATTACK_READY: ${{ inputs.latias_attack_ready && '1' || '0' }}
           AICHI_ATTACK_BEFORE_RETREAT: ${{ inputs.attack_before_retreat && '1' || '0' }}
           AICHI_ATTACK_CANDIDATE_ONLY: ${{ inputs.attack_before_retreat_candidate_only && '1' || '0' }}
           AICHI_ATTACK_PASS_PROBE: ${{ inputs.audit_passed_attacks && '1' || '0' }}
