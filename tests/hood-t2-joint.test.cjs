@@ -116,3 +116,6 @@ test('independent exhaustive ten-card deal and Prize census', () => {
   near(model.readyWithDirectHoodByTurn2, directDeals / validDeals);
   near(model.readyWithDirectOrArvenHoodByTurn2, availableDeals / validDeals);
 });
+
+// The fixed candidate's seven-lock matchup has adversarial hard answers.
+require('./aichi_hood_response_inventory.test.cjs');
