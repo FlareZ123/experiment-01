@@ -2,6 +2,7 @@
 
 const fs = require('node:fs');
 const {createHash} = require('node:crypto');
+const {deriveSlotSeeds} = require('./aichi-decorrelated-seeds.cjs');
 
 /** @param {unknown} value @returns {string} */
 function sha256(value) {
@@ -56,6 +57,14 @@ function auditCampaignQuality(archive) {
         archive.seedProtocol !== 'decorrelated-slots-v3')) {
     throw new Error('Incomplete or unsupported campaign schedule metadata.');
   }
+  const v3 = archive.campaignSchemaVersion === 3;
+  const hasSeedBase = Object.hasOwn(archive, 'seedBase');
+  if (v3 && hasSeedBase &&
+      (!Number.isSafeInteger(archive.seedBase) || archive.seedBase < 0 ||
+       archive.seedBase > 0xffffffff)) {
+    throw new Error('Invalid v3 archive seed base.');
+  }
+  const deriveV3Seeds = v3 && hasSeedBase;
   const expectedTrials = new Set();
   for (const rank of ranks) {
     for (const candidateId of candidates.keys()) {
@@ -102,6 +111,11 @@ function auditCampaignQuality(archive) {
       throw new Error('Candidate variants did not share the scheduled slot seed.');
     }
     slotSeeds.set(seedKey, record.seed);
+    if (deriveV3Seeds && record.seed !==
+        deriveSlotSeeds(archive.seedBase, 'pilot', record.opponentRank, repeat)
+          [record.candidateEngineSlot]) {
+      throw new Error('Decorrelated v3 seed differs from derived schedule.');
+    }
     if (opponentDigests.has(record.opponentRank) &&
         opponentDigests.get(record.opponentRank) !== record.opponentDigest) {
       throw new Error('Opponent source digest drift within a rank.');
@@ -214,6 +228,10 @@ function auditCampaignQuality(archive) {
     kind: 'aichi-fixed-campaign-quality-screen-v1',
     planDigest: archive.planDigest,
     seedProtocol: archive.seedProtocol,
+    seedBase: hasSeedBase ? archive.seedBase : null,
+    seedDerivationStatus: v3 ?
+      (deriveV3Seeds ? 'v3-derived-and-matched' : 'v3-base-missing-legacy') :
+      'not-v3',
     researchPolicyProfile: profile,
     selectedPilotRanks: archive.selectedPilotRanks,
     totalTrials: rows.length,
