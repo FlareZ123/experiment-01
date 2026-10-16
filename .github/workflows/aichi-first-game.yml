@@ -42,6 +42,8 @@ jobs:
         env:
           AICHI_RANKS: ${{ inputs.pilot_ranks || '6' }}
         run: node -e "const a=process.env.AICHI_RANKS.split(',').map(s=>s.trim());const valid=new Set(['1','2','3','4','5','6','8','10','26']);if(!a.length||a.length>2||a.some(x=>!valid.has(x))||new Set(a).size!==a.length)throw Error('Choose one or two distinct published pilot ranks')"
+      - name: Reproduce recorded Hood Shadow Mist alternative
+        run: node simulation/twinleaf/shadow-mist-rank6-pivot.cjs
       - name: Two Aichi seat trials
         run: node simulation/evaluation/aichi-first-game.cjs
       - name: Run fixed-plan three-candidate rank-6 diagnostic
