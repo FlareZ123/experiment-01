@@ -1,0 +1,48 @@
+# Rank 02 qualification packet: Vileplume Control versus fixed Shadow Rider candidates
+
+**Agent 48, 16 October 2026. Evidence index and exact-source counterfactual plan.** **`qualified_for_competitive_inference: false`**. This assembles independent rank-2 results for the [three-rank qualification gate](../../critic-qualification-critical-path.md). No complete live Store action/prompt/reducer replay, strategically qualified opponent policy or 99.5% win-rate evidence exists.
+
+## Frozen source and existing six-game pilot
+
+- Opponent: published Aichi Open League 2026 **rank 2 Vileplume Control**, with full 60-card printing-aware list preserved in [the verified field manifest](../../full-decklists.json). The decisive proposed source sequence is `Bunnelby PRC (Ω Barrage) -> Technical Machine: Evolution twice -> Gloom / Pidgeotto, then Vileplume AOR / Pidgeot ex`; the specific evolutionary lines and Bunnelby, TM, Guzma & Hala, Tag Call, Jet Energy counts are source anchored. Whether this multi-step sequence is executable from a natural opener is still under test.
+- Fixed candidate 60s: [champion-reference](../../benchmark-shadow-rider.md), [Hood Shield v1](../../candidate-hood-shadow-rider.json), and [Temple v1](../../candidate-temple-shadow-rider.json), each used **unchanged** in both physical candidate seats.
+- [Source-ranked manual CI 38845353476](https://github.com/FlareZ123/experiment-01/actions/runs/38845353476), archive `12023246166` SHA-256 `35ed9e01b55ba4c7634940aabe84297f0ae9892000b1933e48c3953d0177e7ab`, fixed campaign plan digest `22c25a00dc7e51cff54ed93cd9d1111128a3085e20236d10c4b84a09e9d18890`, research commit `0d1c18f744f1f16561a2657e2918b19582701fd7`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The campaign used the historic **adjacent xorshift seed v2**, which is documented as a correlated protocol; it is an archived deterministic replay schedule, not an independent random sample.
+- All six rank-2 engine games completed before the 600-action limit and none ended with an empty deck. The original first-turn log confirmed candidate A **actually went second** and candidate B **actually went first**. All six lack complete prompts/reducers and remain unqualified.
+
+| Frozen candidate | Candidate A attacks / opponent attacks | Candidate B attacks / opponent attacks | Qualified games |
+| --- | ---: | ---: | ---: |
+| Champion reference | 11 / 2 | 6 / 8 | **0** |
+| Hood Shield v1 | 2 / 1 | 4 / 13 | **0** |
+| Temple v1 | 3 / 4 | 17 / 3 | **0** |
+
+The campaign lists incomplete meaningful-action traces, actual attack dispatches, ending boards and engine terminal markers, but they do not prove competent deck policy, tactical completeness or exact replay fidelity. [Original six-game source report](../../agent39-rank2-rank10-policy-diagnostic.md).
+
+## Two-sided source-specific action and resource forks
+
+**Opponent late-game Pass versus attack, Hood B:** On **global turn 56** under the fixed rank-2 source game, opponent Bunnelby PRC had Jet Energy and an attached Technical Machine: Evolution, with an eligible Benched Gloom. Its generic policy selected `PassTurnAction`. In a separate cloned pinned Store, the printed attacks **Burrow** and **Rototiller**, plus the Tool-supplied **Evolution**, each had their initial AttackAction declaration accepted. This is an **available announcement**, not evidence that the resulting whole move is strategically strong, fully prompt-resolvable or preferable to Pass. [Agent 40 source pass audit](../../../twinleaf/rank2-pass-attack-audit-agent40.md), [compiled CI 38850069100](https://github.com/FlareZ123/experiment-01/actions/runs/38850069100). A narrower source-specific forced Evolution counterfactual exists as [an unqualified research proposal](../../../../simulation/twinleaf/rank2-pass-evolution-counterfactual.cjs).
+
+**Other opponent Pass choices:** In champion A and Hood A on global turn 5, opponent printed **Blustery Wind** was also accepted after the bot selected Pass. Its strategic value versus the opponent's actual setup or position was not tested. Across the six rank-2 games there were 176 Pass choices, 24 actually probed, and **three** with at least one accepted attack declaration. Sampling quota means there is no exhaustive legal-pass census. No absence-of-options claim follows for 152 unprobed passes.
+
+**ALS resource path with exact combinatorics:** A separate independently validated exact opportunity model found **20.007014%** restricted access to Bunnelby + TM + payable Energy, **10.660926%** when an evolving Bench Basic was also available, and **3.981066%** when the strict required Oddish -> Gloom UNB -> Vileplume AOR Item-lock Stage chain remained searchable. These percentages condition on a legal initial seven and one ordinary turn draw, use known 60-card source quantities, and optimistically assume Guzma & Hala's discard cost can be paid. Other search routes are omitted. **They are neither actual attack/board setup rates nor rigorous full-line upper/lower bounds.** [Core access math](../../vileplume-double-tm-opening.md), [stage-chain math](../../vileplume-itemlock-stage-chain.md), [actual manually staged two-attack Store evolution CI 38834370776](https://github.com/FlareZ123/experiment-01/actions/runs/38834370776).
+
+**K0 hidden Prize policy leak:** A source-60 K0-indistinguishable partition can place both available Gloom copies either in hidden deck or six face-down Prizes. The existing opt-in `BunnelbyEvolutionTactic` reads the true hidden deck to choose whether to offer Evolution. A pure test and a compiled staged Board test independently demonstrated differing proposed decisions despite identical visible information. The separately selectable `bunnelbyK0SafeEvolution` source-inventory policy was written by Agent 40 but was **not yet CI-qualified** according to its published report, and it does not solve all hidden-order leakage. [Full counterexample, source and status](../../../twinleaf/bunnelby-k0-prize-hidden-branch.md). A late turn-56 game may legitimately be K1 after a prior search; that stage must be reconstructed before calling its deck knowledge improper.
+
+## Acceptance checklist for a rank-2 qualified gameplay sample
+
+| Gate | Current state | Minimal next experiment |
+| --- | --- | --- |
+| Exact 60s and pinned engine | Source manifest and v2 plan provenance present; inspect archive's exact print/deck hashes | Freeze a new verified `decorrelated-slots-v3` seed plan, policy hashes, print-aware deck hashes and both real starting turns |
+| Opponent proactive ALS | Staged double TM evolution works on a conditioned board; strict opening resource opportunity quantified | Execute an authentic dealt first-going-second Bunnelby/Guzma & Hala/Jet/TM sequence with discard costs, Stage survival, source Bench and all subsequent prompts |
+| Opponent consequential alternative | Real turn-56 Bunnelby Pass with three accepted attack names | Resolve chosen Evolution and printed alternatives against the genuine original state and then a competent candidate response |
+| Candidate defense and response | Weak bot attacks measured but no named validated defense/counterline | Capture a real candidate turn choosing between setup, item-lock escape, gust, Ability response and Prize strategy |
+| K0/K1 / hidden-information fairness | Documented hidden-partition policy violation; source-gate code exists | Ensure full bot makes same decisions in K0-indistinguishable deals; record exact real search establishing K1 |
+| Simulator source noninterference | Pinned clone leaks live Card state; prototype-safe breaks post-attack history aliases; a separate **opt-in** post-super reconciliation has passed narrow pinned structural/action tests | Verify repaired profile under actual rank-2 Bunnelby double-TM line, including exact printed attack history, and whole transcript/source State invariants |
+| Complete State/Prompt/reducer event replay | **Missing** | Filter actual live Game Store from speculative Stores and serialize typed action/prompt references; deterministic replay must reproduce boards, damage, KOs, Prize results and end conditions |
+| Qualified opponent and challenger policies | **Not established** | Audit each side's legal actions, resource spending and decisive tactical choices, with independently checked paper rules |
+| **Competitive evidence count** | **0** | Require independent reviewer approval and preregistered independent seeds after all gates pass |
+
+### Next high-value replay
+
+Preserve the historical v2 action trace as a diagnostic, then reconstruct the **opponent turn-56 Bunnelby Pass versus Tool Evolution** from an authentic game state, with the full state and prompt/reducer ledger and real candidate response. A separate first-turn-going-second natural Bunnelby double-TM establishment replay should validate the high-impact lock ALS. Both should use source-aware hidden-information discipline and a profile whose speculative clone is shown to be noninterfering under the tested sequence.
+
+**Verdict:** `qualified_for_competitive_inference: false`; no source-ranked full-game win percentage or 99.5% target attainment is supported.
