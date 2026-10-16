@@ -8,6 +8,7 @@ const { captureChooseEnergyReference } = require('./choose-energy-reference.cjs'
 const { captureAttachEnergyReference } = require('./attach-energy-reference.cjs');
 const { captureAction } = require('./source-action-value-codec.cjs');
 const { capturePromptAction } = require('./source-prompt-action-codec.cjs');
+const {sourceZoneSnapshot,zoneSnapshotDigest} = require('./source-zone-checkpoint.cjs');
 
 const INSTALLED = Symbol('research-dispatch-transcript');
 
@@ -161,6 +162,9 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
       parameters: null, before: observedCounts(this.state), after: null
     };
     trace.push(event);
+    if (options.sourceZoneEveryDispatch === true) {
+      event.zoneDigestBefore = zoneSnapshotDigest(sourceZoneSnapshot(this.state));
+    }
     const pending = this.state?.prompts?.find(p => p.result === undefined);
     if (pending && action?.constructor?.name === 'ResolvePromptAction') {
       event.pendingPrompt = {
@@ -249,6 +253,9 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
       throw error;
     } finally {
       event.after = observedCounts(this.state);
+      if (options.sourceZoneEveryDispatch === true) {
+        event.zoneDigestAfter = zoneSnapshotDigest(sourceZoneSnapshot(this.state));
+      }
     }
   };
   Object.defineProperty(wrapped, INSTALLED, { value: true });
