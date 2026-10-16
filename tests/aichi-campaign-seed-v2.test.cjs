@@ -10,12 +10,25 @@ const cards = Array(60).fill('SYNTHETIC');
 function execute(campaign, play) {
   return executeDiagnostic({
     campaign, ranks: [6],
+    expectedEngineRevision: 'twinleafgg/' + 'a'.repeat(40),
     resolvePair: trial => ({
       candidateDigest: trial.candidateDigest,
       opponentDigest: trial.opponentDigest,
       candidateCards: cards, opponentCards: cards
     }),
-    runMatch: play
+    runMatch(request) {
+      const game = play(request);
+      return game && {
+        engine: 'twinleafgg/' + 'a'.repeat(40),
+        label: request.label,
+        rules: { format: 'EXPANDED', firstTurnDrawCard: true,
+          firstTurnUseSupporter: false, attackFirstTurn: false },
+        ...game,
+        rules: { ...game.rules, format: 'EXPANDED',
+          firstTurnDrawCard: true, firstTurnUseSupporter: false,
+          attackFirstTurn: false }
+      };
+    }
   });
 }
 
