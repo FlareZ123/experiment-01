@@ -120,3 +120,36 @@ test('reserve late Tool-specific pass probes even after generic pass quota is ex
   }];
   assert.equal(nextPassProbeBucket(state.players[0], counts), null);
 });
+
+test('full-Card Store clone contains resolved Tool attack damage without live Card mutation', (t) => {
+  const root = path.resolve(__dirname, '../vendor/twinleaf/ptcg-server/output');
+  if (!fs.existsSync(root)) return t.skip('Compile pinned Twinleaf first');
+  const load = name => require(path.join(root, name));
+  const {preparedToolAttack} =
+    require('../simulation/twinleaf/tm-attack-policy-characterization.cjs');
+  const {deepClone} = load('utils');
+  const {Store} = load('game/store/store');
+  const {AttackAction} = load('game/store/actions/game-actions');
+  const {ResolvePromptAction} = load('game/store/actions/resolve-prompt-action');
+  const f = preparedToolAttack();
+  const live = f.defender.active.getPokemonCard();
+  const before = live.damageTakenLastTurn;
+  const clone = new Store({onStateChange() {}});
+  clone.state = deepClone(f.state);
+  const detached = clone.state.players[1].active.getPokemonCard();
+  assert.notStrictEqual(detached, live,
+    'Full Store clone must detach every mutable PokemonCard from live state');
+  clone.dispatch(new AttackAction(f.attacker.id, 'Crisis Punch'));
+  for (let index = 0; index < 12; index++) {
+    const pending = clone.state.prompts.find(p => p.result === undefined);
+    if (!pending) break;
+    assert.equal(pending.constructor.name, 'WaitPrompt');
+    clone.dispatch(new ResolvePromptAction(pending.id, null));
+  }
+  assert.equal(clone.state.prompts.some(p => p.result === undefined), false);
+  assert.equal(clone.state.players[1].active.damage, 280);
+  assert.equal(f.defender.active.damage, 0);
+  assert.equal(detached.damageTakenLastTurn, 280);
+  assert.equal(live.damageTakenLastTurn, before,
+    'Resolving detached Tool attack must not leak history onto live Card');
+});
