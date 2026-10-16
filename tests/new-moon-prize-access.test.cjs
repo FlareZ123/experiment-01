@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {choose,assess} = require('../simulation/evaluation/new-moon-prize-access.cjs');
+const {choose,assess,assessLegalOpening} = require('../simulation/evaluation/new-moon-prize-access.cjs');
 
 test('exact combinatorial helper and complete six-Prize partition', () => {
   assert.equal(choose(60,6),50063860n);
@@ -29,4 +29,16 @@ test('source-preserved one-one-two prize risks have exact counts', () => {
     result.decomposition.bothKeysWithAtLeastOneBallPrized.configurations,
     result.physicallyInsufficientUnprizedHeavyBalls.configurations
   );
+});
+
+test('legal seven-card Basic condition recomputes joint Prize shortage exactly', () => {
+  const result = assessLegalOpening();
+  assert.equal(result.basics, 17);
+  assert.equal(result.allJointDeals, '8866337641761600');
+  assert.equal(result.eligibleJointDeals, '8126553189088880');
+  assert.ok(Math.abs(result.eligibleOpeningProbability - 0.9165625670301298) < 1e-12);
+  assert.ok(Math.abs(result.insufficientHeavyBallsProbability - 0.002221128480172258) < 1e-12);
+  assert.ok(Math.abs(result.atLeastOneKeyPrizedProbability - 0.18934023778651374) < 1e-12);
+  assert.ok(Math.abs(result.bothKeysPrizedProbability - 0.00825511713781343) < 1e-12);
+  assert.ok(result.insufficientHeavyBallsProbability < assess().physicallyInsufficientUnprizedHeavyBalls.fractionOfInitialPrizeSets);
 });
