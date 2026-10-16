@@ -8,3 +8,4 @@ test('Garbotoxin removes Diamond Coat and enables Bomb', () => {
   assert.deepEqual([off.incoming,off.bombCounters,off.combinedDamage],[170,0,240]);
   assert.deepEqual([on.incoming,on.bombCounters,on.combinedDamage],[200,100,340]);
 });
+test('Muscle Band raises incoming to 190 with Diamond Coat',()=>{const x=diancieVsAbsol({garbotoxin:false,muscleBand:true,giantBomb:true});assert.equal(x.incoming,190);assert.equal(x.bombCounters,100);});
