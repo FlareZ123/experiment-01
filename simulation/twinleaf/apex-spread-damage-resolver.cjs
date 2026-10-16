@@ -2,6 +2,7 @@
 
 const path = require('node:path');
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
+const {uncertainCounterProtection} = require('./apex-spread-counter-protection.cjs');
 
 /**
  * Estimate the printed-rule Prize count using the pinned KnockOutEffect reducer.
@@ -70,7 +71,7 @@ function prizeWindowDamageMap(state, player, prompt, codes) {
     const remaining = (slot.hp || pokemon.hp + slot.hpBonus) - slot.damage;
     // Powers and Tools can modify damage-counter placement. Until their
     // effects are checked, do not count those cards as certain knockouts.
-    const trusted = !pokemon.powers?.length && !slot.tools?.length;
+    const trusted = !uncertainCounterProtection(slot,pokemon);
     const knockoutAt = trusted && remaining > 0 && remaining <= 60
       ? Math.ceil(remaining / 10)
       : Infinity;
