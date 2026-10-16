@@ -193,7 +193,7 @@ function main() {
   const tracedSource = request => {
     const captured = withStoreDispatchTranscript(Store,
       () => withSourceZoneCheckpoint(Store, () => runMatch(request),
-        {turn:27,candidateSeat:seat}),{liveStoreOnly:true,typedActionValues:true,promptReferenceActionValues:true});
+        {turn:27,candidateSeat:seat}),{liveStoreOnly:true,typedActionValues:true,promptReferenceActionValues:true,sourceZoneEveryDispatch:true});
     return {
       ...captured,
       sourceZoneCheckpoint:captured.result.checkpoint,
