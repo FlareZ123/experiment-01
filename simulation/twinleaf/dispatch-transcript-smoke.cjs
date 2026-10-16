@@ -13,7 +13,7 @@ function runDispatchSmoke() {
   const capture = withStoreDispatchTranscript(Store, () => runMatch({
     deckA: deck, deckB: deck, seed: 200614, maxActions: 60,
     isolatePolicyRandomness: true
-  }));
+  }), {liveStoreOnly: true});
   assert.ok(capture.result.actions > 0, 'The engine must take real actions');
   assert.ok(capture.dispatched >= capture.result.actions + 2,
     'Every explicit game-loop dispatch and both player entries must be intercepted');
@@ -26,6 +26,8 @@ function runDispatchSmoke() {
     seed: 200614,
     gameLoopActions: capture.result.actions,
     interceptedDispatches: capture.dispatched,
+    excludedSpeculativeDispatches: capture.ignoredOtherStoreDispatches,
+    captureScope: capture.captureScope,
     parametersCaptured: capture.parametersCaptured,
     canonicalTraceSha256: capture.traceSha256,
     incompleteCaptureReasons: capture.captureErrors.slice(0, 8),
