@@ -34,6 +34,14 @@ function checkDoubleDragonAttachment() {
   const before=score.getScore(f.state,f.attacking.id);
   const chosen=new AttachEnergyTactic(opts).useTactic(f.state,f.attacking);
   assert.equal(chosen,undefined,'Default tactic should miss dynamically-provided Energy');
+  const {withDoubleDragonRecovery}=require('./dde-attach-tactic.cjs');
+  const {SimpleTacticsAi}=load('simple-bot/simple-tactics-ai');
+  const recoveryOptions=withDoubleDragonRecovery(opts);
+  const recoveryAction=new SimpleTacticsAi({id:f.attacking.id},recoveryOptions,null)
+    .decodeNextAction(f.state);
+  assert.ok(recoveryAction,'Research-owned policy should find an attachment');
+  assert.equal(recoveryAction.constructor.name,'PlayCardAction');
+  assert.equal(recoveryAction.handIndex,f.attacking.hand.cards.indexOf(dde));
   const {PlayCardAction,PlayerType,SlotType}=
     load('game/store/actions/play-card-action');
   const {CheckProvidedEnergyEffect}=load('game/store/effects/check-effects');
@@ -46,15 +54,14 @@ function checkDoubleDragonAttachment() {
   assert.deepEqual(provided(),[]);
   const handIndex=f.attacking.hand.cards.indexOf(dde);
   assert.ok(handIndex>=0);
-  f.store.dispatch(new PlayCardAction(f.attacking.id,handIndex,{
-    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
-  }));
+  f.store.dispatch(recoveryAction);
   assert.ok(f.attacking.active.cards.includes(dde),'Manual PlayCardAction should attach DDE');
   assert.deepEqual(provided(),[CardType.ANY,CardType.ANY]);
   const after=score.getScore(f.store.state,f.attacking.id);
   assert.equal(before,after,'EnergyScore ignores dynamic provision');
   return {
     passed:true,defaultAttachEnergyAction:null,
+    optInAction:recoveryAction.constructor.name,
     directlyPlayedCard:'Double Dragon Energy ROS',
     providedAfterManualPlay:['ANY','ANY'],
     energyScoreBefore:before,energyScoreAfter:after,
