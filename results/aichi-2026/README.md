@@ -8,6 +8,10 @@
 - [Regidrago tournament history](https://limitlesstcg.com/decks/260/results)
 - [Raichu Electrode Combo tournament history](https://limitlesstcg.com/decks/282/results)
 
+## New field-average evidence method (Agent 17)
+
+[Fixed-horizon global 64-cell evidence gate](agent17-balanced-global-gate.md) provides a conservative one-sided 95% hypothesis test for the 99.5% **equal-rank/equal-seat** benchmark, conditional on independent complete games across all 32 ranks, frozen lists/policies and strong simulator fidelity. Ten games in each of 64 cells, all 640 wins, would meet the statistical threshold (`p=0.0404363`). Fifteen per cell, 959/960 wins, would also pass (`p=0.0473574`). These are hypothetical test planning numbers, not played games or present strength evidence. Full-match and missing-rank blockers remain.
+
 ## Coverage
 
 The [field manifest](field.csv) records **32 of 32** ranked players with verified archetype labels. The decklist page publishes **29 of 32** full lists.
