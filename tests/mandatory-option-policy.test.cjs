@@ -96,3 +96,14 @@ test('pinned Store Guzma & Hala mode selection requires meaningful option',()=>{
   assert.ok(next instanceof ChooseCardsPrompt,'Stadium-search choice should follow the selected mode');
   assert.ok(next.cards.cards.some(c=>c.name==='Sky Field'));
 });
+
+test('pinned Store processes null choice and skips compulsory G&H mode',()=>{
+  const f=guzmaBoard();
+  const ai=new SimpleTacticsAi({id:101},options(false),null);
+  const action=ai.decodeNextAction(f.state);
+  assert.equal(action.result,null);
+  f.store.dispatch(action);
+  assert.equal(f.state.prompts.some(p=>p.result===undefined),false,
+    'A null mode incorrectly ends this noncancelable card choice');
+  assert.equal(f.a.hand.cards.some(c=>c.name==='Sky Field'),false);
+});
