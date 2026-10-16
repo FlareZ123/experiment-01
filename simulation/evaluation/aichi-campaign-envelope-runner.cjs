@@ -60,13 +60,7 @@ function envelopeFromArchive(inputs, archive, researchRevision) {
     rngProtocol: exemplar.observedRngProtocol,
     effectiveMatchOptions: exemplar.effectiveMatchOptions
   };
-  const envelope = createEvidenceEnvelope(inputs, archive, provenance);
-  return {
-    ...envelope,
-    observedRules: exemplar.observedRules,
-    observedResearchPolicyProfile: exemplar.observedResearchPolicyProfile,
-    reportScope: 'source-locked, engine-reported, policy-uncertified feasibility'
-  };
+  return createEvidenceEnvelope(inputs, archive, provenance);
 }
 
 /**
