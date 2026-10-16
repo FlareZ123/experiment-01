@@ -1,0 +1,193 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const { createHash } = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
+const { loadDefaultCampaign, canonicalCards } = require('../../scripts/aichi-comparison-campaign.cjs');
+
+/** @param {unknown} value @returns {string} */
+function digest(value) {
+  return createHash('sha256').update(JSON.stringify(value)).digest('hex');
+}
+
+/**
+ * Only two independent observations establish a claimed first turn: the
+ * Store's first-turn player and the first draw log.
+ * @param {object} game Pinned engine result.
+ * @returns {null|object}
+ */
+function observedFirstTurn(game) {
+  const slot = game.firstTurnSlot;
+  if (game.verifiedByDrawLog !== true || (slot !== 0 && slot !== 1) ||
+      game.firstTurnPlayerId !== (slot === 0 ? 101 : 202) ||
+      game.firstTurnPlayerName !== (slot === 0 ? 'research-A' : 'research-B') ||
+      game.firstDrawLogName !== game.firstTurnPlayerName) return null;
+  return {
+    firstTurnSlot: slot, firstTurnPlayerId: game.firstTurnPlayerId,
+    firstTurnPlayerName: game.firstTurnPlayerName,
+    firstDrawLogName: game.firstDrawLogName, verifiedByDrawLog: true
+  };
+}
+
+/**
+ * A small fixed-candidate execution probe with exact plan identities.
+ * No count produced here is evidence of competitive win probability.
+ *
+ * @param {{campaign:object,ranks:number[],resolvePair:(trial:object)=>object,
+ *   runMatch:(request:object)=>object,maxActions?:number,policyFlags?:object,
+ *   researchRevision?:string}} options
+ * @returns {object}
+ */
+function executeDiagnostic(options) {
+  const { campaign, ranks, resolvePair, runMatch, maxActions = 600,
+    policyFlags = {}, researchRevision = 'not-recorded' } = options;
+  if (!campaign || campaign.schemaVersion !== 1 ||
+      campaign.purpose !== 'exploratory-diagnostic-only' ||
+      typeof campaign.planDigest !== 'string' ||
+      !Array.isArray(campaign.trials) ||
+      typeof resolvePair !== 'function' || typeof runMatch !== 'function') {
+    throw new Error('Invalid comparison campaign or execution callbacks.');
+  }
+  if (!Array.isArray(ranks) || !ranks.length ||
+      ranks.some(r => !Number.isInteger(r) || !campaign.pilotRanks.includes(r)) ||
+      new Set(ranks).size !== ranks.length ||
+      !Number.isInteger(maxActions) || maxActions < 1) {
+    throw new Error('Ranks must be unique published pilot ranks; maxActions must be positive.');
+  }
+  const wanted = new Set(ranks);
+  const trials = campaign.trials.filter(t => t.phase === 'pilot' && wanted.has(t.rank));
+  const expected = ranks.length * campaign.repeats * campaign.candidateRows.length * 2;
+  if (trials.length !== expected || new Set(trials.map(t => t.trialId)).size !== expected) {
+    throw new Error('Incomplete or repeated plan trials.');
+  }
+  const records = [];
+  for (const trial of trials) {
+    const base = {
+      trialId: trial.trialId, planDigest: campaign.planDigest, phase: trial.phase,
+      candidateId: trial.candidateId, candidateDigest: trial.candidateDigest,
+      opponentRank: trial.rank, opponentDigest: trial.opponentDigest,
+      seed: trial.seed, candidateEngineSlot: trial.candidateEngineSlot
+    };
+    try {
+      const pair = resolvePair(trial);
+      if (pair.candidateDigest !== trial.candidateDigest ||
+          pair.opponentDigest !== trial.opponentDigest) {
+        throw new Error('Source deck identity differs from fixed plan.');
+      }
+      if (!Array.isArray(pair.candidateCards) || pair.candidateCards.length !== 60 ||
+          !Array.isArray(pair.opponentCards) || pair.opponentCards.length !== 60) {
+        records.push({ ...base, status: 'blocked-deck-resolution',
+          blockers: pair.blockers || ['One or both decks lack a 60-card engine mapping.'] });
+        continue;
+      }
+      const candidateA = trial.candidateEngineSlot === 'A';
+      const game = runMatch({
+        deckA: candidateA ? pair.candidateCards : pair.opponentCards,
+        deckB: candidateA ? pair.opponentCards : pair.candidateCards,
+        seed: trial.seed, maxActions,
+        label: 'Aichi comparative diagnostic ' + trial.trialId,
+        ...policyFlags
+      });
+      const turn = observedFirstTurn(game);
+      const completed = game.finished === true && [0, 1, 3].includes(game.winner);
+      const status = !turn ? 'unverified-first-turn' :
+        completed ? 'completed-engine-game' : 'unfinished-engine-game';
+      const candidateSlot = candidateA ? 0 : 1;
+      const opponentSlot = candidateA ? 1 : 0;
+      const attackTrace = Array.isArray(game.attackTrace) ? game.attackTrace : [];
+      const candidateAttacks = attackTrace.filter(a => a.seat === candidateSlot).length;
+      const opponentAttacks = attackTrace.filter(a => a.seat === opponentSlot).length;
+      records.push({
+        ...base, status, candidateActualTurn: turn ?
+          (turn.firstTurnSlot === candidateSlot ? 'first' : 'second') : 'unverified',
+        turnEvidence: turn, winnerIndex: game.winner ?? null,
+        engineRevision: game.engine || null, policy: game.policy || null,
+        rules: game.rules || null, randomnessProtocol: game.randomnessProtocol || null,
+        engineDeckHashes: game.deckHashes || null,
+        actions: game.actions ?? null, turns: game.turns ?? null,
+        endReason: game.endReason || null,
+        candidateAttacks, opponentAttacks,
+        qualityFlags: [
+          ...(candidateAttacks === 0 ? ['zero-candidate-attacks'] : []),
+          ...(opponentAttacks === 0 ? ['zero-opponent-attacks'] : [])
+        ],
+        // Engine traces are action summaries, not complete replayable transcripts.
+        traceSummary: {
+          attackTrace, actionCounts: game.actionCounts || {},
+          actionsBySeat: game.actionsBySeat || [],
+          cardsPlayedBySeat: game.cardsPlayedBySeat || [],
+          prizesRemaining: game.prizesRemaining || [],
+          finalState: game.finalState || []
+        }
+      });
+    } catch (error) {
+      records.push({ ...base, status: 'engine-exception',
+        error: String(error?.message || error) });
+    }
+  }
+  const counts = {};
+  for (const record of records) counts[record.status] = (counts[record.status] || 0) + 1;
+  return {
+    schemaVersion: 1, purpose: 'engine-and-policy-diagnostic-only',
+    planDigest: campaign.planDigest, fieldDigest: campaign.fieldDigest,
+    candidateRows: campaign.candidateRows, fieldCoverage: campaign.coverage,
+    selectedPilotRanks: ranks, maxActions, policyFlags, researchRevision,
+    engineAndPolicyQualified: false, strengthClaimPermitted: false,
+    totalScheduled: expected, counts, records,
+    caution: 'Terminal games, attack counts and slot swaps cannot establish competitive performance. Game effects, policies, and actual starting-turn balance need independent validation.'
+  };
+}
+
+/**
+ * Execute a small budgeted default probe in the compiled Twinleaf environment.
+ * The JSON is printed for a manually dispatched CI artifact; no files are mutated.
+ */
+function main() {
+  const { runMatch } = require('../twinleaf/headless.cjs');
+  const { planAichi } = require('./aichi-pilot.cjs');
+  const dir = path.resolve(__dirname, '../../results/aichi-2026');
+  const campaign = loadDefaultCampaign();
+  const source = JSON.parse(fs.readFileSync(path.join(dir, 'full-decklists.json'), 'utf8'));
+  const byRank = new Map(source.decks.map(d => [d.rank, d]));
+  const sourceCandidates = new Map([
+    ['champion-reference', byRank.get(1)],
+    ['hood-shield-v1', JSON.parse(fs.readFileSync(path.join(dir, 'candidate-hood-shadow-rider.json'), 'utf8'))],
+    ['temple-v1', JSON.parse(fs.readFileSync(path.join(dir, 'candidate-temple-shadow-rider.json'), 'utf8'))]
+  ]);
+  const plannedCandidates = new Map(campaign.candidateRows.map(c => [c.id, c]));
+  const mappings = new Map();
+  for (const [id, candidate] of sourceCandidates) {
+    assert.equal(digest(canonicalCards(candidate.cards)), plannedCandidates.get(id).deckDigest,
+      'Candidate drift since comparison schedule: ' + id);
+    mappings.set(id, planAichi(id === 'champion-reference' ? 1 : candidate, {
+      allowEquivalentBasicEnergies: true,
+      allowJapanesePromoHooks: true
+    }));
+  }
+  const ranks = (process.env.AICHI_DIAGNOSTIC_RANKS || '1,6').split(',').map(Number);
+  const output = executeDiagnostic({
+    campaign, ranks, maxActions: 600,
+    researchRevision: process.env.GITHUB_SHA || 'local-revision-not-recorded',
+    policyFlags: {
+      strictPromptValidation: true, forestSealSearchCorrection: true,
+      doubleDragonRecovery: true, supporterDecisionCorrection: true,
+      isolatePolicyRandomness: true
+    },
+    resolvePair(trial) {
+      const mapping = mappings.get(trial.candidateId);
+      const opponent = mapping.opponents.find(o => o.rank === trial.rank);
+      assert.equal(digest(canonicalCards(byRank.get(trial.rank).cards)), trial.opponentDigest);
+      return {
+        candidateDigest: trial.candidateDigest, opponentDigest: trial.opponentDigest,
+        candidateCards: mapping.candidate.cards, opponentCards: opponent.cards,
+        blockers: [...mapping.candidate.unresolved, ...(opponent.unresolved || [])]
+      };
+    },
+    runMatch
+  });
+  process.stdout.write(JSON.stringify(output, null, 2) + '\n');
+}
+
+if (require.main === module) main();
+module.exports = { digest, observedFirstTurn, executeDiagnostic, main };
