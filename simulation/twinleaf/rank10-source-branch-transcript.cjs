@@ -7,6 +7,7 @@ const {runMatch, initializeCards} = require('./headless.cjs');
 const {withStoreDispatchTranscript} = require('./store-dispatch-transcript.cjs');
 const {withSourceZoneCheckpoint} = require('./source-zone-checkpoint.cjs');
 const {auditAuthenticFork} = require('./source-fork-gate.cjs');
+const {withRecordedSourceActions} = require('./source-game-action-replay.cjs');
 const {loadDefaultCampaign} = require('../../scripts/aichi-comparison-campaign.cjs');
 
 /** @param {unknown} value @returns {string} */
@@ -256,6 +257,21 @@ function main() {
     event.parameters?.name === 'Apex Dragon');
   assert.ok(opponentResponse,
     'Counterline must preserve a consequential actual Regidrago response');
+  const replayInputAssessment = (() => {
+    try {
+      const replay = withRecordedSourceActions(control.actionTrace,
+        () => runMatch(common));
+      assert.deepEqual(replay.result,control.result,
+        'Fresh same-process Store action replay produced different match summary');
+      return {status:'same-process-source-input-replay-passed',
+        verifiedDispatches:replay.verifiedDispatches,
+        claim:'Recorded actual inputs reproduced one full source result; independent process and policy qualification remain open'};
+    } catch (error) {
+      return {status:'blocked',reason:String(error.message||error),
+        sourceReplayMechanicsVerified:false,
+        claim:'Unresolved replay blocker; source outcome remains unqualified'};
+    }
+  })();
   const divergence = firstDifference(control.actionTrace, branch.actionTrace);
   assert.ok(divergence && divergence.original.before.turn === 27 &&
     divergence.alternate.before.turn === 27,
@@ -294,6 +310,7 @@ function main() {
     identicalUninstrumentedControl:true,
     identicalControlAfterBranch:true,
     forkAudit,
+    replayInputAssessment,
     actionInputCoverage:{
       control:inputCoverageReport(control.actionTrace),
       alternate:inputCoverageReport(branch.actionTrace)
