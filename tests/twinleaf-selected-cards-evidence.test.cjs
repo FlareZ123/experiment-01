@@ -60,3 +60,18 @@ test('accept object-valued prompt selections from the engine',()=>{
   assert.equal(evidence.selectedIndices,null);
   assert.equal(evidence.unmappedSelectedCards,0);
 });
+
+
+test('capture choice number and source menu text for tagged Supporter',()=>{
+  class SelectOptionPrompt {}
+  const prompt=new SelectOptionPrompt();
+  prompt.message='CHOOSE_OPTION';
+  prompt.values=['Stadium only','Discard 2; search Tool and Special Energy'];
+  const action=new ResolvePromptAction();
+  action.result=1;
+  const info=selectedOptionEvidence(prompt,action);
+  assert.equal(info.selectedOption,1);
+  assert.equal(info.message,'CHOOSE_OPTION');
+  assert.equal(info.selectedText,prompt.values[1]);
+  assert.equal(selectedOptionEvidence(new CoinFlipPrompt(),action),null);
+});
