@@ -261,3 +261,35 @@ test('previously published version 1 campaign digest remains exactly stable', ()
   assert.equal(revised.trialCountByPhase.pilot, 54);
   assert.equal(revised.trialCountByPhase.publishedField, 174);
 });
+
+test('experimental policy metadata reflects engine-effective flags, not initial request', () => {
+  const f = fixture();
+  const experimental = executeCampaign(f, {
+    maxTrials: 1, prepareCandidate: prepare,
+    runMatch(request) {
+      return {
+        ...finished(request),
+        doubleDragonRecovery: true,
+        supporterDecisionCorrection: true,
+        policyRandomIsolation: true,
+        researchPolicyProfile: 'expanded-action-fidelity-probe-v1',
+        experimentalTactics: ['DoubleDragonAttachTactic-v1'],
+        policy: 'test-composite-policy'
+      };
+    }
+  });
+  const record = experimental.records[0];
+  assert.equal(record.status, 'completed');
+  assert.equal(record.effectiveMatchOptions.doubleDragonRecovery, true);
+  assert.equal(record.effectiveMatchOptions.supporterDecisionCorrection, true);
+  assert.equal(record.effectiveMatchOptions.isolatePolicyRandomness, true);
+  assert.equal(record.observedResearchPolicyProfile,
+    'expanded-action-fidelity-probe-v1');
+  assert.deepEqual(record.observedExperimentalTactics, ['DoubleDragonAttachTactic-v1']);
+  const baseline = executeCampaign(f, {
+    maxTrials: 1, prepareCandidate: prepare, runMatch: finished
+  }).records[0];
+  assert.equal(baseline.effectiveMatchOptions.doubleDragonRecovery, false);
+  assert.equal(baseline.effectiveMatchOptions.supporterDecisionCorrection, false);
+  assert.equal(baseline.observedResearchPolicyProfile, null);
+});
