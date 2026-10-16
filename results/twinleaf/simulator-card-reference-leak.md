@@ -70,3 +70,19 @@ Both games used source deck hashes `de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e
 
 **Interpretation:** replacing Simulator's live-Card reference sharing with a detached object graph, while holding source lists and seed fixed, changed the bot game's decisions or downstream game events enough to reverse the engine-reported winner. This is **real whole-game sensitivity**. It does not isolate which particular field or action caused the divergence. The clone also changes reference identity that other upstream code could intentionally rely upon, so reverse causation or alternative mechanisms are not yet excluded. The fixed-seed pair is **one diagnostic comparison, zero qualified competitive samples**, with neither bot policy certified as skilled play. Do not use either game's winner to rank the decks.
 
+
+## Direct proof that contaminated state changes real attack resolution
+
+[Manual CI 38848554287](https://github.com/FlareZ123/experiment-01/actions/runs/38848554287) passed a source-card, pinned-Store characterization in [simulator-counter-phantom-damage.cjs](../../simulation/twinleaf/simulator-counter-phantom-damage.cjs). It uses real engine source printings `Shadow Rider Calyrex V CRE` with one Psychic Energy and `Conkeldurr V PGO` with one Fighting Energy, a conditioned turn-4 board, and real `Shadow Mist`, `PassTurnAction`, between-turn Wait prompts, and `Counter` actions.
+
+| State/observation | No speculative action | Unmodified Simulator speculative Shadow Mist | Detached Simulator speculative Shadow Mist |
+| --- | ---: | ---: | ---: |
+| Simulated damage to Conkeldurr | N/A | 20 | 20 |
+| Actual game-board damage to Conkeldurr | 0 | 0 | 0 |
+| Live Conkeldurr card's `damageTakenLastTurn` before real Counter | 0 | **20** | 0 |
+| Actual resolved Counter damage to Shadow Rider V after its Fighting Resistance | **0** | **10** | **0** |
+
+This establishes a **direct game-mechanics consequence**. The unmodified speculative simulation puts 20 **phantom** damage in a source Card history field even though the board has zero damage. A subsequent actual Counter attack reads that field, producing 10 actual damage after the defending Shadow Rider's -30 Fighting Resistance. In both control and detached-hook conditions, Counter resolves for 0. These are actual pinned reducer and prompt outcomes, not predicted damage.
+
+**Scope:** the test stages a legal-energy conditioned midgame board; the board is not a sampled opening or an archived Aichi whole-game decision. It proves an engine error is *reachable if a simulator performs the indicated speculative attack*, independent of claims that a normal policy actually selects it during a source-ranked match. This is a stronger causal demonstration than the earlier source Card-mutation-only probe. The prior full-game changed winner is policy sensitivity and does not identify which specific field caused divergence.
+
