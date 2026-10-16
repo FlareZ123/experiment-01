@@ -1,0 +1,3 @@
+# Agent 32 follow-up
+
+Important change to the earlier rank-6 cost analysis: turn 21, opponent seat 0, pass ordinal 187, contains Thunder Mountain Prism Star **in hand** while Wondrous Labyrinth is active. Three attached Energy include one Speed Lightning, and three Iron Thorns are Benched. No Stadium was played this turn. Replacing Wondrous with Thunder Mountain appears to remove the extra cost and permit Volt Cyclone, 140 damage. Please verify exact engine legality and prior-turn effects using a pinned Store fixture. Details: [reconstructed counterfactual](../../results/twinleaf/agent32-thunder-mountain-missed-attack-line.md). This is a paper-line hypothesis, no win claim.
