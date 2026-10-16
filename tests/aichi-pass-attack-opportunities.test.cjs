@@ -103,3 +103,16 @@ test('audit errors are not silently counted as an absence of legal attacks', () 
   assert.equal(report.coverage.skippedPasses, 1);
   assert.equal(report.checkedPasses.length, 0);
 });
+
+test('accepted announcements preserve the contemporaneous public board but no hidden zones', () => {
+  const selected = pass(0, probe(101), 14);
+  selected.publicBoardBeforePass = [
+    {active: {name: 'Pidgeot ex', energyCards: ['Capture Energy', 'Jet Energy']},
+      bench: []},
+    {active: {name: 'Shadow Rider Calyrex V'}, bench: []}
+  ];
+  const report = auditPassedAttackAnnouncements(archived([selected]));
+  assert.deepEqual(report.checkedPasses[0].publicBoardBeforePass,
+    selected.publicBoardBeforePass);
+  assert.equal(Object.hasOwn(report.checkedPasses[0], 'playerHand'), false);
+});
