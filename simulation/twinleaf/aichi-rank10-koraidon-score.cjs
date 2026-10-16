@@ -8,7 +8,7 @@ const {runMatch}=require('./headless.cjs');
 const {observeAttackScores,gameSummary}=require('./attack-pass-score-diagnostic.cjs');
 
 /** Revisit the exact Aichi rank10 v3 physical-A seed and fixed candidate inventories. */
-function runRank10() {
+function runRank10(observe = observeAttackScores) {
   const flags={allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true};
   const candidates=[
     {id:'champion-reference',value:1},
@@ -35,7 +35,7 @@ function runRank10() {
       radiantGateLockCorrection:true,entryDrawLockCorrection:true
     };
     const baseline=runMatch(request);
-    const observed=observeAttackScores(()=>runMatch(request));
+    const observed=observe(()=>runMatch(request));
     assert.deepEqual(gameSummary(observed.game),gameSummary(baseline),
       'Score instrumentation changed the source-deck engine result');
     const acceptedPasses=observed.passes.filter(x=>
