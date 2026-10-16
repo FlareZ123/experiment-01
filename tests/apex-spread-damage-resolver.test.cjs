@@ -92,6 +92,35 @@ test('when no possible KO exists, delegates to the generic policy',()=>{
   assert.equal(prizeWindowDamageMap(f.state,f.me,f.prompt,f.codes),null);
 });
 
+test('distributes counters into a legal knockout despite sub-60 per-target caps',()=>{
+  const f=fixture([10,100]);
+  f.prompt.maxAllowedDamage[0].damage=30;
+  f.prompt.maxAllowedDamage[1].damage=30;
+  assert.deepEqual(prizeWindowDamageMap(f.state,f.me,f.prompt,f.codes),[
+    {target:{player:2,slot:4,index:0},damage:30},
+    {target:{player:2,slot:4,index:1},damage:30}
+  ]);
+});
+
+test('avoids unnecessary KO overkill when another target can receive counters',()=>{
+  const f=fixture([10,100]);
+  f.prompt.maxAllowedDamage[0].damage=30;
+  f.prompt.maxAllowedDamage[1].damage=60;
+  assert.deepEqual(prizeWindowDamageMap(f.state,f.me,f.prompt,f.codes),[
+    {target:{player:2,slot:4,index:0},damage:10},
+    {target:{player:2,slot:4,index:1},damage:50}
+  ]);
+});
+
+test('searches valid lower-priority allocations if the best proposal is invalid',()=>{
+  const f=fixture([20,30]);
+  f.prompt.validate=map=>map.reduce((sum,row)=>sum+row.damage,0)===60 &&
+    map.every(row=>row.target.index!==1);
+  assert.deepEqual(prizeWindowDamageMap(f.state,f.me,f.prompt,f.codes),[
+    {target:{player:2,slot:4,index:0},damage:60}
+  ]);
+});
+
 test('pinned Store paid Apex Dragon automatically takes two Bench Knock Outs',
 {skip:!fs.existsSync(path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output/game'))},
 ()=>{
