@@ -29,3 +29,5 @@ jobs:
         run: node simulation/twinleaf/marshadow-temple-escape.cjs
       - name: Probe default bot versus playable response
         run: node simulation/twinleaf/marshadow-response-policy.cjs
+      - name: Test generic bot Double Dragon attachment gating
+        run: node simulation/twinleaf/dde-attachment-policy.cjs
