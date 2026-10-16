@@ -46,5 +46,8 @@ jobs:
       - name: Verify reversible headless Copycat flags and cleanup
         run: node --test tests/mimikyu-headless-hook-options.test.cjs
 
+      - name: Inspect spent GX allowance on nested copied Timeless-GX
+        run: node simulation/twinleaf/mimikyu-gx-reuse-probe.cjs
+
       - name: Characterize stale Copycat attack after intervening pass
         run: node simulation/twinleaf/mimikyu-stale-attack.cjs
