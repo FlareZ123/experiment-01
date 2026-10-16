@@ -192,3 +192,27 @@ test('scheduled decks, seeds and fixed validation cannot be overridden', () => {
   assert.equal(withKnownFlag.records[0].effectiveMatchOptions.doubleDragonRecovery, true);
   assert.equal(withKnownFlag.records[0].observedSeed, withKnownFlag.records[0].seed);
 });
+
+test('exact source mirror exposes paired-slot pseudoreplication key', () => {
+  const f = fixture();
+  f.candidates[0].cards = f.source.decks[0].cards;
+  f.campaign = buildCampaign({
+    field: f.field, source: f.source, candidates: f.candidates,
+    pilotRanks: [1, 2], repeats: 1, seedBase: 20261016
+  });
+  const paired = executeCampaign(f, {
+    maxTrials: 2, prepareCandidate: prepare, runMatch: finished
+  });
+  assert.equal(paired.exactSourceMirrorTrials, 2);
+  assert.equal(paired.records[0].exactSourceMirror, true);
+  assert.equal(paired.records[1].exactSourceMirror, true);
+  assert.equal(paired.records[0].potentialReplayAliasKey,
+    paired.records[1].potentialReplayAliasKey);
+  assert.match(paired.mirrorIndependenceWarning, /not count.*independent/);
+  const ordinary = executeCampaign(f, {
+    maxTrials: 1, prepareCandidate: prepare, runMatch: finished,
+    trialIds: ['pilot:2:0:reference:A']
+  });
+  assert.equal(ordinary.records[0].exactSourceMirror, false);
+  assert.equal(ordinary.records[0].potentialReplayAliasKey, null);
+});
