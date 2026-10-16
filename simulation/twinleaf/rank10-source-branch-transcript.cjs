@@ -301,7 +301,7 @@ function main() {
     qualifiedForCompetitiveInference:false,
     sourceReplayMechanicsVerified:false,
     decisiveLimitations:[
-      'Action parameters and prompt selections may remain nonportable',
+      'Source inputs captured, but independent process replay is still separate',
       'Single pre-fork source-zone checkpoint captured; full Store/reducer replay absent',
       'No causal opponent-response competence or paper-rule qualification',
       'Both physical seats and independently sampled seeds not covered'
