@@ -32,7 +32,8 @@ function loadCampaignInputs() {
       id, cards: JSON.parse(fs.readFileSync(path.join(SOURCE_DIR, file), 'utf8')).cards
     });
   }
-  return { field, source, candidates, campaign: loadDefaultCampaign() };
+  const seatSeedMode = process.env.CAMPAIGN_SEED_PROTOCOL || 'paired-slots-v1';
+  return { field, source, candidates, campaign: loadDefaultCampaign(seatSeedMode) };
 }
 
 /**
@@ -44,7 +45,8 @@ function verifyCampaign(inputs) {
   const { field, source, candidates, campaign } = inputs;
   const reconstructed = buildCampaign({
     field, source, candidates, pilotRanks: campaign.pilotRanks,
-    repeats: campaign.repeats, seedBase: campaign.seedBase
+    repeats: campaign.repeats, seedBase: campaign.seedBase,
+    seatSeedMode: campaign.seedProtocol || 'paired-slots-v1'
   });
   if (reconstructed.planDigest !== campaign.planDigest) {
     throw new Error('Campaign planDigest/source inventory mismatch.');
@@ -229,7 +231,8 @@ function executeCampaign(inputs, options = {}) {
     }
   }
   return {
-    schemaVersion: 1, planDigest: campaign.planDigest, phase,
+    schemaVersion: campaign.schemaVersion, planDigest: campaign.planDigest, phase,
+    seedProtocol: campaign.seedProtocol || 'paired-slots-v1',
     researchRevision: process.env.GITHUB_SHA || null,
     purpose: 'exploratory-engine-feasibility',
     competitiveWinRateCertified: false,
