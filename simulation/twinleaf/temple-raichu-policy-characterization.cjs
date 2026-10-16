@@ -74,8 +74,8 @@ function inspectRaichuStadiumPolicy() {
 
   // An Item play is lawful here: Battle VIP Pass is dead after the first turn
   // and can pay Secret Box's three-card discard requirement.
-  const {PlayCardAction} = load('game/store/actions/play-card-action');
-  const {PlayerType, SlotType} = load('game/store/card/card-types');
+  const {PlayCardAction, PlayerType, SlotType} =
+    load('game/store/actions/play-card-action');
   const target = {player: PlayerType.ANY, slot: SlotType.BOARD, index: 0};
   const manual = new PlayCardAction(secret.a.id, 0, target);
   secret.store.dispatch(manual);
