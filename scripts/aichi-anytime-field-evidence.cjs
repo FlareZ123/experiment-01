@@ -49,3 +49,7 @@ function assessFieldEvidence(rounds, options={}) {
   for (let index=0; index<rounds.length; index++) {
     wins += countQualifiedWins(rounds[index]);
     const games=(index+1)*CELLS_PER_ROUND;
+
+    const zeroLog=wins===games ? Math.log(ZERO_LOSS_WEIGHT)-games*Math.log(nullMean) : -Infinity;
+    const terms=[zeroLog];
+    for (const lambda of LAMBDAS) {
