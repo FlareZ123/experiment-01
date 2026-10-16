@@ -74,3 +74,21 @@ The [independent tests](../../tests/aichi-radiant-wobbuffet-turnone.test.cjs) ex
 
 A new [research-owned pinned Store probe](../../simulation/twinleaf/radiant-wobbuffet-active-probe.cjs) examines the same Radiant hand-to-Bench effect with Wobbuffet (a) Active and (b) Benched while another Psychic Basic is Active, with two VMAX in deck. The existing opt-in [Radiant entering-Bench timing hook](../../simulation/twinleaf/radiant-gate-lock-hook.cjs) was applied reversibly as a control for a separately observed hand-zone evaluation bug under Iron Thorns. **Importantly, both unmodified upstream and hooked pinned Store produced the same results in this Wobbuffet fixture:** Wobbuffet Active produces **no Climactic Gate confirmation prompt**, while Wobbuffet Benched produces a **Gate confirmation prompt**, and Radiant moves onto the Bench in both cases. Thus the Wobbuffet interaction itself is supported by the unmodified pinned engine in the tested state. The complete existing [manual pinned-engine workflow](../../.github/workflows/radiant-gate-engine.yml) passed [run 38851397159](https://github.com/FlareZ123/experiment-01/actions/runs/38851397159), including the new probe and earlier Forest Seal Stone tests. This is a staged effect-level observation. A full legal game, actual player switching and strategic result are not established.
 
+
+## Fourth VMAX: connector-cost sensitivity within Temple
+
+A controlled [one-slot resource-category perturbation](../../scripts/aichi-temple-vmax-slot-sensitivity.cjs) adds a fourth Shadow Rider VMAX to Temple and removes exactly one other slot. The resulting abstract profiles all still contain 60 cards, but they are **counterfactual category inventories**, not named, vetted, legal, recommended decklists. They reuse the exact first-turn resource/Prize model above, including Wobbuffet forced-Active self-lock.
+
+| Removed source category to add VMAX | No-switch two-VMAX Gate opportunity | Change from unchanged Temple |
+| --- | ---: | ---: |
+| None: unchanged Temple (3 VMAX) | **44.97160%** | baseline |
+| One of five direct-search Items (Quick Ball/Mysterious Treasure) | **43.86402%** | **-1.10758 pp** |
+| Hisuian Heavy Ball | 48.23961% | +3.26801 pp |
+| One other Basic Pokémon | 48.83098% | +3.85938 pp |
+| One other non-Basic (generic remainder class) | **49.44878%** | +4.47719 pp |
+| Wobbuffet itself | 50.65944% | +5.68784 pp |
+
+**Important conditional result:** Within this exact model, replacing a search Item with the fourth VMAX makes the target line **less accessible** despite the extra VMAX copy. The loss of a connector outweighs the gain in remaining in-deck VMAX availability for the restricted sequence. Conversely, replacing an abstract other non-Basic improves this particular probability because the model treats all such cards as passive. The other non-Basic group contains Energy, Supporters, stadiums and other effects essential to the deck; no real candidate swap should be selected from it without full opportunity-cost, matchup and action analysis. Removing Hisuian Heavy Ball can harm unrelated critical singleton-Prize recovery, and removing Wobbuffet deletes a matchup-counter role. The Basic replacement group also contains strategically irreplaceable cards such as Mimikyu and Dialga-GX.
+
+[Category-swap tests](../../tests/aichi-temple-vmax-slot-sensitivity.test.cjs) assert 60-card conservation, source counts, resource partition identities, and the specific negative direct-search swap. They passed [manual CI 38852171233](https://github.com/FlareZ123/experiment-01/actions/runs/38852171233) alongside the full first-seven and first-turn suites. The result reinforces why a superficial consistency increase is insufficient to select a final fixed deck; actual gameplay, opponent policy and omitted lines could reverse these proxy rankings.
+
