@@ -26,10 +26,16 @@ function runTracedMatch(request, profile) {
   const resettingHoleActions = [];
   const doubleDragonTargets = [];
   const regidragoAttackDecisions = [];
+  const vstarPlayActions = [];
   SimpleTacticsAi.prototype.decodeNextAction = function tracedDecode(state) {
     const action = original.call(this, state);
     const seat = state.players.findIndex(p => p.id === this.client.id);
     const player = state.players[seat];
+    if (action?.constructor.name === 'PlayCardAction' && player &&
+        player.hand.cards[action.handIndex]?.name === 'Regidrago VSTAR') {
+      vstarPlayActions.push({turn:state.turn,seat,
+        target:action.target,active:player.active.getPokemonCard()?.fullName});
+    }
     if (action?.constructor.name === 'PlayCardAction' && player &&
         player.hand.cards[action.handIndex]?.name === 'Double Dragon Energy') {
       const slot = action.target?.slot;
@@ -39,7 +45,14 @@ function runTracedMatch(request, profile) {
         target:location?.getPokemonCard()?.fullName,
         targetSlot:slot,
         targetIndex:action.target?.index,
-        activeEnergies:player.active.energies.cards.map(c => c.fullName)});
+        activeEnergies:player.active.energies.cards.map(c => c.fullName),
+        vstarAvailability: {
+          hand:player.hand.cards.filter(c=>c.name==='Regidrago VSTAR').length,
+          deck:player.deck.cards.filter(c=>c.name==='Regidrago VSTAR').length,
+          prizes:player.prizes.flatMap(p=>p.cards).filter(c=>c.name==='Regidrago VSTAR').length,
+          discard:player.discard.cards.filter(c=>c.name==='Regidrago VSTAR').length,
+          bench:player.bench.filter(b=>b.getPokemonCard()?.name==='Regidrago VSTAR').length
+        }});
     }
     if (action?.constructor.name === 'AttackAction' && player &&
         ['Regidrago V', 'Regidrago VSTAR'].includes(player.active.getPokemonCard()?.name)) {
@@ -59,7 +72,7 @@ function runTracedMatch(request, profile) {
   };
   try {
     return {game:runWithResearchProfile(request, profile), resettingHoleActions,
-      doubleDragonTargets, regidragoAttackDecisions};
+      doubleDragonTargets, regidragoAttackDecisions, vstarPlayActions};
   } finally {
     SimpleTacticsAi.prototype.decodeNextAction = original;
   }
@@ -94,7 +107,7 @@ function compareRegidragoPilot() {
         label: 'source Aichi pilot ' + profile + ' ' + a + '-' + b
       };
       try {
-        const {game, resettingHoleActions, doubleDragonTargets, regidragoAttackDecisions} =
+        const {game, resettingHoleActions, doubleDragonTargets, regidragoAttackDecisions, vstarPlayActions} =
           runTracedMatch(request, profile);
         rows.push({profile, pair:[a,b],regidragoSeat,seed:request.seed,
           finished:game.finished,endReason:game.endReason,
@@ -104,10 +117,11 @@ function compareRegidragoPilot() {
           doubleDragonPlays:game.cardsPlayedBySeat[regidragoSeat]['Double Dragon Energy'] || 0,
           apexDragonAttacks:game.attackTrace.filter(row =>
             row.seat === regidragoSeat && row.attack === 'Apex Dragon').length,
-          totalRegidragoAttacks:game.attackTrace.filter(row => row.seat === regidragoSeat).length,
+          totalSeatAttacks:game.attackTrace.filter(row => row.seat === regidragoSeat).length,
           resettingHoleActions: resettingHoleActions.filter(row => row.seat === regidragoSeat),
           doubleDragonTargets:doubleDragonTargets.filter(row => row.seat === regidragoSeat),
           regidragoAttackDecisions:regidragoAttackDecisions.filter(row => row.seat === regidragoSeat),
+          vstarPlayActions:vstarPlayActions.filter(row => row.seat === regidragoSeat),
           promptValidationMode:game.promptValidationMode,
           randomnessProtocol:game.randomnessProtocol,
           experimentalTactics:game.experimentalTactics,
