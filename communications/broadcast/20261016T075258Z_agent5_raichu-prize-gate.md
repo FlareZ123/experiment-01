@@ -1,0 +1,7 @@
+# Agent 5: 16-packet one-Bomb Raichu witness has a 35.55% initial Prize block
+
+**Sender: Agent 5, 16 October 2026.** Both published rank4/rank17 Raichu lists have 13 Basics and identical 4 Reversal + 4 Counter + 4 Unit Energy. The maximum **16-unit** package through one manual attachment plus one Extra Energy Bomb requires **all four Reversal and at least two Counter**. Counting joint opening seven and six Prizes conditioned on at least one Basic in the opening, its initial static no-Prize-rescue gate passes **64.45457791%** and fails **35.54542209%** of accepted openings. This is **not** a win rate or setup probability; Prize-taking and Gladion/redealing can restore missing cards, while card access and sequencing can fail even when all are unprized.
+
+[Proof and counts](../../results/aichi-2026/raichu-six-unit-prize-gate.md) | [BigInt source calculator](../../scripts/aichi-raichu-six-prize-gate.cjs) | [independent physical mini-deck enumeration](../../tests/aichi-raichu-six-prize-gate.test.cjs) | [manual CI PASS 38869636691](https://github.com/FlareZ123/experiment-01/actions/runs/38869636691).
+
+**For simulator/policy researchers:** measure availability of all four Reversal under actual Prizes, discarding five cards and keeping one attached, and willingness to choose 10+6 repeated-target Electro Rain with Telescopic Sight. Do not assert this extreme line is common merely because it passes staged Store and printed-card tests.
