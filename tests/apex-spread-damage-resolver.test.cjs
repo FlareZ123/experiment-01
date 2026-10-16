@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const {
+  nominalKnockoutPrizes,
   prizeWindowDamageMap,
   prizeWindowPutDamageResolverClass,
   withPrizeWindowPutDamageResolver
@@ -41,6 +42,38 @@ function fixture(remainingHP, overrides = {}) {
   };
   return {state,me,opponent,prompt,codes};
 }
+
+test('pinned tag and KO-slot rules produce nominal one-, two-, and three-Prize values',()=>{
+  const pokemon=tags=>({tags});
+  assert.equal(nominalKnockoutPrizes(pokemon([]),{}),1);
+  assert.equal(nominalKnockoutPrizes(pokemon(['VSTAR']),{}),2);
+  assert.equal(nominalKnockoutPrizes(pokemon(['ex']),{}),2);
+  assert.equal(nominalKnockoutPrizes(pokemon(['VMAX']),{}),3);
+  assert.equal(nominalKnockoutPrizes(pokemon(['GX','Tag Team']),{}),3);
+  assert.equal(nominalKnockoutPrizes(pokemon(['GX','Tag Team']),{
+    denyPrizesIfKnockedOutNextTurn:true,
+    denyPrizesIfKnockedOutNextTurnPending:false
+  }),0);
+  assert.equal(nominalKnockoutPrizes(pokemon(['V']),{
+    extraPrizesIfKnockedOutNextTurn:1,
+    extraPrizesIfKnockedOutNextTurnPending:false
+  }),3);
+  assert.equal(nominalKnockoutPrizes(pokemon(['V']),{
+    extraPrizesIfKnockedOutNextTurn:1,
+    extraPrizesIfKnockedOutNextTurnPending:true
+  }),2);
+});
+
+test('selects three-Prize VMAX KO ahead of two exposed single-Prize KOs',()=>{
+  const f=fixture([30,30,50]);
+  f.opponent.bench[2].getPokemonCard=()=>({
+    hp:100,powers:[],tags:['VMAX']
+  });
+  assert.deepEqual(prizeWindowDamageMap(f.state,f.me,f.prompt,f.codes),[
+    {target:{player:2,slot:4,index:0},damage:10},
+    {target:{player:2,slot:4,index:2},damage:50}
+  ]);
+});
 
 test('targets a lone 30HP Bench KO and allocates all 60 damage',()=>{
   const f=fixture([30]);
