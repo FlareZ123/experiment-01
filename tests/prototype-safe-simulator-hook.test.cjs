@@ -105,3 +105,13 @@ test('clone state audit reports a source-instance prototype and shared objects',
   const direct=compareOwnedStateGraph(source,{child:source.child});
   assert.equal(direct.sharedReferences.count,1);
 });
+
+test('Store graph audit catches divergent primitive values and Array lengths',()=>{
+  const {compareOwnedStateGraph} =
+    require('../simulation/twinleaf/prototype-safe-state-graph-audit.cjs');
+  const source={scores:[{value:1}],queue:[null,null]};
+  const copy={scores:[{value:2}],queue:[null]};
+  const result=compareOwnedStateGraph(source,copy);
+  assert.equal(result.valueMismatches.count,1);
+  assert.equal(result.arrayLengthMismatches.count,1);
+});
