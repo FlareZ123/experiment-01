@@ -59,7 +59,11 @@ function finished(request) {
     firstDrawLogName: 'research-A',
     deckHashes: [digest(request.deckA), digest(request.deckB)],
     actions: 7, turns: 2,
-    actionCounts: {AttackAction: 1}, prizesRemaining: [5, 6],
+    actionCounts: {AttackAction: 1},
+    decisionTrace: [{actionOrdinal:0,action:'AttackAction',turnBefore:1,
+      turnAfter:1,playerSlot:0,attack:'Max Geist',
+      prizesAfter:[5,6],decksAfter:[28,30]}],
+    prizesRemaining: [5, 6],
     finalState: [{deckRemaining: 28}, {deckRemaining: 30}],
     engine: 'twinleafgg/tested-revision',
     randomnessProtocol: 'separate-game-and-per-seat-policy-prng-v1',
@@ -106,6 +110,8 @@ test('same seed, both engine slots, verified real turn order and deck hashes', (
   assert.deepEqual(result.records[0].finalState,
     [{deckRemaining: 28}, {deckRemaining: 30}]);
   assert.deepEqual(result.records[0].actionCounts, {AttackAction: 1});
+  assert.equal(result.records[0].decisionTrace.length, 1);
+  assert.equal(result.records[0].decisionTrace[0].attack, 'Max Geist');
 });
 
 test('trial identity and explicit budget cannot silently expand or reorder', () => {
@@ -343,4 +349,27 @@ test('runtime engine, rules, random streams and expected policy are verified', (
   });
   assert.equal(acceptedProfile.records[0].status, 'completed');
   assert.equal(acceptedProfile.expectedPolicyProfile,'expanded-action-fidelity-probe-v1');
+});
+
+test('opt-in ordered meaningful-decision trace is requested and source-preserved', () => {
+  const f=fixture();
+  let observedFlag;
+  const traced=executeCampaign(f,{
+    maxTrials:1,prepareCandidate:prepare,captureDecisionTrace:true,
+    runMatch(request) {
+      observedFlag=request.captureDecisionTrace;
+      return finished(request);
+    }
+  });
+  assert.equal(observedFlag,true);
+  assert.equal(traced.captureDecisionTrace,true);
+  assert.equal(traced.records[0].decisionTrace.length,1);
+  const without=executeCampaign(f,{
+    maxTrials:1,prepareCandidate:prepare,
+    runMatch(request) {
+      assert.equal(request.captureDecisionTrace,false);
+      return {...finished(request),decisionTrace:null};
+    }
+  });
+  assert.equal(without.records[0].decisionTrace,null);
 });
