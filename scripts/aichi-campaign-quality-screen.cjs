@@ -41,6 +41,10 @@ function auditCampaignQuality(archive) {
   const experimentalClone = archive.policyFlags?.prototypeSafeSimulatorIsolation === true;
   const simulatorCloneProfile = experimentalClone ?
     'prototype-safe-experimental-v1' : 'pinned-source-card-alias-v0';
+  // Neither the known leaky pinned clone nor the experimental correction
+  // has been qualified for representative full-match inference.
+  const simulatorSafetyStatus = experimentalClone ?
+    'experimental-clone-not-qualified' : 'known-simulator-card-alias-risk';
   const candidates = new Map(archive.candidateRows.map(row => [row.id, row.deckDigest]));
   const ranks = new Set(archive.selectedPilotRanks);
   const ids = new Set();
@@ -125,7 +129,7 @@ function auditCampaignQuality(archive) {
     }
     opponentDigests.set(record.opponentRank, record.opponentDigest);
     ids.add(record.trialId);
-    const reasons = [];
+    const reasons = [simulatorSafetyStatus];
     if (record.status !== 'completed-engine-game') {
       reasons.push('engine-status:' + record.status);
     }
@@ -178,6 +182,7 @@ function auditCampaignQuality(archive) {
       candidateId: record.candidateId,
       researchPolicyProfile: profile,
       simulatorCloneProfile,
+      simulatorSafetyStatus,
       engineSlot: record.candidateEngineSlot,
       actualTurn,
       status: record.status,
@@ -238,6 +243,8 @@ function auditCampaignQuality(archive) {
       'not-v3',
     researchPolicyProfile: profile,
     simulatorCloneProfile,
+    simulatorSafetyStatus,
+    simulatorSafetyQualified: false,
     selectedPilotRanks: archive.selectedPilotRanks,
     totalTrials: rows.length,
     repeatsVerified: repeats, fullPilotMatrixVerified: true,
