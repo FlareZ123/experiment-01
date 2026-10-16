@@ -81,6 +81,12 @@ function auditHiddenDrawForecast() {
       {player: PlayerType.ANY, slot: SlotType.BOARD, index: 0});
     return tactic.evaluateAction(fixture.state, fixture.a.id, action);
   }
+  const startingScoreEnergy = new PlaySupporterTactic(options)
+    .getStateScore(energyTop.state, energyTop.a.id);
+  const startingScorePokemon = new PlaySupporterTactic(options)
+    .getStateScore(pokemonTop.state, pokemonTop.a.id);
+  assert.equal(startingScoreEnergy, startingScorePokemon,
+    'Unrevealed deck order must not change score before forecasting');
   const energyTopScore = score(energyTop);
   const pokemonTopScore = score(pokemonTop);
   assert.equal(typeof energyTopScore, 'number',
@@ -93,6 +99,8 @@ function auditHiddenDrawForecast() {
   return {
     pinnedEngine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     identicalVisibleStateAndDeckMultiset: true,
+    startingScore: startingScoreEnergy,
+    defaultSupporterThreshold: startingScoreEnergy - options.scores.tactics.supporterBonus,
     energyTopScore, pokemonTopScore,
     leaksUnseenDrawOrderIntoSpeculativeActionScore: true,
     scope: 'Prepared state and one speculative Supporter; this does not prove an actual choice changes or measure wins'
