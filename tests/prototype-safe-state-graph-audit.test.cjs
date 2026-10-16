@@ -28,6 +28,8 @@ test('pinned tool-attack history has a measured clone alias-fidelity limitation'
     assert.equal(profile.postSuperRepair.sharedReferences.count,0);
     assert.equal(profile.postSuperRepair.sourcePrototypeAliases.count,0);
     assert.equal(profile.postSuperRepair.missingProperties.count,0);
+    assert.equal(profile.postSuperRepair.valueMismatches.count,0);
+    assert.equal(profile.postSuperRepair.arrayLengthMismatches.count,0);
     assert.equal(profile.postSuperRepair.repeatedArrayBreaks.count,0);
     assert.equal(profile.postSuperRepair.repeatedObjectBreaks.count,0);
   }
