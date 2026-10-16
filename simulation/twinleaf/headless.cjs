@@ -184,6 +184,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [shadowRiderEnergyPriority] Opt-in basic Psychic Energy priority against Active Iron Thorns.
  * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
  * @property {boolean} [attackBeforeRetreat] Opt-in policy-order sensitivity probe for AttackTactic and RetreatTactic.
+ * @property {0|1} [attackBeforeRetreatSeat] Restrict that opt-in probe to one physical seat.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
  */
 
@@ -277,11 +278,9 @@ function runMatch(request) {
         GameMessage: engine('game/game-message').GameMessage
       });
     }
-    if (request.attackBeforeRetreat === true) {
-      options = withAttackBeforeRetreat(options, {
-        AttackTactic: engine('simple-bot/simple-tactics/attack-tactic').AttackTactic,
-        RetreatTactic: engine('simple-bot/simple-tactics/retreat-tactic').RetreatTactic
-      });
+    if (request.attackBeforeRetreatSeat !== undefined &&
+        (!request.attackBeforeRetreat || ![0, 1].includes(request.attackBeforeRetreatSeat))) {
+      throw new Error('Seat-specific attack preference requires an active valid policy flag.');
     }
     if (request.shadowRiderEnergyPriority === true) {
       options = require('./shadow-rider-psychic-attach.cjs').withShadowRiderPsychicPriority(options);
@@ -302,9 +301,17 @@ function runMatch(request) {
     });
     store.state.gameSettings = settings;
     store.state.rules = settings.rules;
+    const attackPreferenceOptions = request.attackBeforeRetreat === true ?
+      withAttackBeforeRetreat(options, {
+        AttackTactic: engine('simple-bot/simple-tactics/attack-tactic').AttackTactic,
+        RetreatTactic: engine('simple-bot/simple-tactics/retreat-tactic').RetreatTactic
+      }) : null;
+    const optionsBySeat = [0, 1].map(seat =>
+      attackPreferenceOptions && (request.attackBeforeRetreatSeat === undefined ||
+        request.attackBeforeRetreatSeat === seat) ? attackPreferenceOptions : options);
     const seats = [
-      new SimpleTacticsAi({ id: 101 }, options, request.deckA),
-      new SimpleTacticsAi({ id: 202 }, options, request.deckB)
+      new SimpleTacticsAi({ id: 101 }, optionsBySeat[0], request.deckA),
+      new SimpleTacticsAi({ id: 202 }, optionsBySeat[1], request.deckB)
     ];
     store.dispatch(new AddPlayerAction(101, 'research-A', request.deckA));
     if (store.state.phase === GamePhase.FINISHED) {
@@ -498,6 +505,7 @@ function runMatch(request) {
       shadowRiderEnergyPriority: request.shadowRiderEnergyPriority === true,
       shadowRiderOpeningPivot: request.shadowRiderOpeningPivot === true,
       attackBeforeRetreat: request.attackBeforeRetreat === true,
+      attackBeforeRetreatSeat: request.attackBeforeRetreatSeat ?? null,
       policy: (request.doubleDragonRecovery === true ?
         'Twinleaf SimpleTacticsAi/defaultStateScores+DoubleDragonAttachTactic-v1' :
         'Twinleaf SimpleTacticsAi/defaultStateScores') +
@@ -508,7 +516,10 @@ function runMatch(request) {
         (request.snorlaxRetreatStartCorrection === true ? '+SnorlaxBlockStartGate-v1' : '') +
         (request.shadowRiderEnergyPriority === true ? '+ShadowRiderPsychicAttachPriority-v1' : '') +
         (request.shadowRiderOpeningPivot === true ? '+SelectedShadowRiderSetupActive-v1' : '') +
-        (request.attackBeforeRetreat === true ? '+AttackBeforeRetreatTactic-v1' : '') +
+        (request.attackBeforeRetreat === true ?
+          '+AttackBeforeRetreatTactic-v1@' +
+            (request.attackBeforeRetreatSeat === undefined ?
+              'both' : 'seat' + request.attackBeforeRetreatSeat) : '') +
         (request.leleEntryAbilityLockCorrection === true ? '+LeleEntryAbilityLockGuard-v1' : '') +
         (request.radiantGateLockCorrection === true ? '+RadiantGateLockGuard-v1' : ''),
       policyRandomIsolation: request.isolatePolicyRandomness === true,
