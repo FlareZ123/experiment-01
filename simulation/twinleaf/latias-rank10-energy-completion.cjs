@@ -98,7 +98,9 @@ function latiasEnergyCompletionContract(attachmentTarget) {
     attack: 'Eon Blade',
     attackAccepted,
     attackError,
-    damageToKoraidon: opponent.active.damage,
+    damageToKoraidonAtReturn: opponent.active.damage,
+    unresolvedPromptTypes: state.prompts.filter(prompt => prompt.result === undefined)
+      .map(prompt => prompt.constructor.name),
     rulesScope: 'Synthetic turn-6 board; pinned Store reducer and current card text'
   };
 }
@@ -115,15 +117,13 @@ function runFixture() {
   assert.equal(active.benchedTapuPsychicAfterAttachment, 0);
   assert.equal(active.attackAccepted, true,
     'Attaching the third Psychic to Active makes Eon Blade payable');
-  assert.equal(active.damageToKoraidon, 200,
-    'Pinned Eon Blade must deliver its printed 200 damage to this Koraidon');
   return {
     evidenceType: 'source-resource-classes-staged-store-attack-v1',
     sourceTrial: 'pilot:10:0:temple-v1:A',
     sourceTurn: 6,
     baselineChoice: bench,
     completionChoice: active,
-    caveat: 'The input game state is staged from selected public/hand resources; no complete source state was rewound, so this is a conditional rule contract rather than a demonstrated game-policy improvement.'
+    caveat: 'The input game state is staged from selected public/hand resources. Accepted attack announcement does not establish resolved attack damage or a replay of the source turn; no full source state was rewound.'
   };
 }
 
