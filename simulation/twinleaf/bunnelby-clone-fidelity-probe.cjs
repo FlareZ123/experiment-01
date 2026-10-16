@@ -12,8 +12,9 @@ const {installPrototypeSafeSimulatorHook} =
  * @returns {object}
  */
 function probeBunnelbyCloneFidelity() {
-  const baseline = replayBunnelbyTmBot();
-  assert.equal(baseline.success, true);
+  // A cold standalone fixture may differ from the warm chained fixture.
+  // Record both rather than presuming the conditioned Stage-2 line succeeds.
+  const baseline = replayBunnelbyTmBot({diagnostic: true});
 
   /** @param {()=>()=>void} install */
   function underHook(install) {
@@ -27,16 +28,16 @@ function probeBunnelbyCloneFidelity() {
 
   const detached = underHook(installDetachedSimulatorHook);
   const prototypeSafe = underHook(installPrototypeSafeSimulatorHook);
-  const baselineAfter = replayBunnelbyTmBot();
-  assert.deepEqual(baselineAfter, baseline,
-    'Experimental cloning changed a later unmodified Bunnelby fixture');
+  const baselineAfter = replayBunnelbyTmBot({diagnostic: true});
+  const restoredBaselineEqual = JSON.stringify(baselineAfter) === JSON.stringify(baseline);
 
   return {
     scope: 'source-conditioned rank2 Bunnelby double TM: Evolution',
     sourceOpponentRank: 1,
     baseline: {
       success: baseline.success, board: baseline.finalBench,
-      secondAttack: baseline.secondAttack, promptKinds: baseline.prompts.map(x => x.kind)
+      secondAttack: baseline.secondAttack, stillPending: baseline.stillPending,
+      unresolvedPrompt: baseline.unresolvedPrompt, prompts: baseline.prompts
     },
     detached: {
       success: detached.success, board: detached.finalBench,
@@ -52,7 +53,14 @@ function probeBunnelbyCloneFidelity() {
       unresolvedPrompt: prototypeSafe.unresolvedPrompt,
       prompts: prototypeSafe.prompts
     },
-    restoredUnmodifiedBaseline: true,
+    baselineAfter: {
+      success: baselineAfter.success, board: baselineAfter.finalBench,
+      secondAttack: baselineAfter.secondAttack,
+      stillPending: baselineAfter.stillPending,
+      unresolvedPrompt: baselineAfter.unresolvedPrompt,
+      prompts: baselineAfter.prompts
+    },
+    restoredUnmodifiedBaselineEqual: restoredBaselineEqual,
     interpretation: 'Clone-model policy and prompts on a conditioned board; exact mechanic/policy readiness must be independently validated. No matchup wins or losses are measured.'
   };
 }
