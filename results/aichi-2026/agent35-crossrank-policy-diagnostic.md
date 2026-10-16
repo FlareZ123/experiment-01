@@ -38,7 +38,24 @@ The champion reference and Temple candidate each had one zero-attack game as the
 
 Agent 35 added an explicit `researchPolicyProfile` to each fixed-trial record and the parent archive, with validation of the two permitted labels. The manual [bounded-game workflow](../../.github/workflows/aichi-first-game.yml) now offers `expanded_action_policy`, default false. When true, the existing [expanded action wrapper](../../simulation/twinleaf/policy-profiles.cjs) is applied around exactly the same `runMatch` call, including Tool-aware attacks, Bunnelby Evolution, Temple response, and prompt fallback. This is experimental and shared by both seats. It preserves the original candidates and seeds while clearly separating policies. A regression rejects invented policy labels and checks all six identities.
 
-[Expanded rank-2 replay run 38845878919](https://github.com/FlareZ123/experiment-01/actions/runs/38845878919) was dispatched with the new profile. Its engine result must be evaluated separately from the baseline. A changed completion, attack count or winner does not demonstrate improved competitive performance.
+[Expanded rank-2 replay run 38845878919](https://github.com/FlareZ123/experiment-01/actions/runs/38845878919) **completed successfully**, archived as artifact `aichi-campaign-diagnostic` ID `12022209933`. It retained the same three candidates, six physical trial IDs, deck fingerprints and independent-slot-v2 seeds. All six were `completed-engine-game` with `researchPolicyProfile=expanded-action-fidelity-probe-v1` (the baseline predates the explicit profile label and ran the fixed core).
+
+### Exact rank-2 full-game policy contrast
+
+The table describes recorded attacks in baseline → experimental runs. These are action counts in six deterministic paired counterfactual trajectories, not independent game wins.
+
+| Candidate / engine slot | Candidate attacks | Opponent attacks | Opponent TM: Evolution attacks | Recorded engine winner changed? |
+| --- | ---: | ---: | ---: | --- |
+| Champion / A | 11 → 12 | 2 → 1 | 0 → 0 | Yes |
+| Champion / B | 6 → 3 | 8 → 3 | 0 → 0 | No |
+| Hood / A | 2 → 2 | 1 → 1 | 0 → 0 | No |
+| Hood / B | 4 → 1 | 13 → 5 | 0 → 0 | No |
+| Temple / A | 3 → 3 | 4 → 4 | 0 → 0 | No |
+| Temple / B | 17 → 11 | 3 → 7 | 0 → 0 | Yes |
+
+**Negative conversion finding:** Both baseline and experimental ranks show **zero TM Evolution attacks by the Vileplume opponent across all six games**, even though the experimental bot is equipped with the tested Tool-aware/Bunnelby extension. In the baseline Hood/B game the opponent played two Technical Machine: Evolution and passed later with Active Bunnelby and Jet Energy; in the experimental counterpart its actions diverged much earlier and it did not play that Tool. The original turn-56 state was therefore not recreated, so this contrast does not prove whether the new policy would choose Evolution from the original exact board. The expanded wrapper changed early choices for both seats; engine winners differ in two games, without competitive interpretability.
+
+**Next isolate:** reconstruct the original decision-state from a source-preserving replay or stage that full public/hidden state, then compare the exact generated action and its legality with and without the opt-in tactic. Validate whether the remaining deck had eligible Pokémon to evolve and whether any other effects prevented the move. Merely attaching the Tool and sufficient Energy does not establish a fully legal target in the actual state.
 
 ## Next actions
 
