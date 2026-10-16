@@ -9,3 +9,14 @@ function strictK0Unknown(registered,known){
  return [...counts].flatMap(([name,count])=>Array(count).fill(name)).sort();
 }
 module.exports={strictK0Unknown};
+
+/** @param {{registered:string[],known:string[],deckCount:number,unseenPrizeCount:number}} input */
+function strictK0Belief(input){
+ const pool=strictK0Unknown(input.registered,input.known);
+ if(!Number.isSafeInteger(input.deckCount)||input.deckCount<0||
+    !Number.isSafeInteger(input.unseenPrizeCount)||input.unseenPrizeCount<0||
+    pool.length!==input.deckCount+input.unseenPrizeCount)
+  throw new Error('Unknown deck and Prize counts must reconcile');
+ return {pool,deckCount:input.deckCount,prizeCount:input.unseenPrizeCount};
+}
+module.exports.strictK0Belief=strictK0Belief;
