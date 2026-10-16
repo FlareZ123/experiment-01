@@ -51,6 +51,14 @@ function stagedDoubleV() {
   const psychicSource=manager.getAllCards()
     .find(c=>c.name==='Psychic Energy');
   assert.ok(psychicSource?.fullName,'No implemented basic Psychic Energy');
+  const {CardList}=load('game/store/state/card-list');
+  for(const player of [own,opp]) {
+    for(let i=0;i<6;i++) {
+      const prize=new CardList();
+      prize.cards.push(card(psychicSource.fullName));
+      player.prizes.push(prize);
+    }
+  }
   for(let i=0;i<2;i++) {
     const energy=card(psychicSource.fullName);
     own.bench[0].cards.push(energy);
