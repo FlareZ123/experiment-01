@@ -43,6 +43,7 @@ function main() {
       strictPromptValidation:true,forestSealSearchCorrection:true,
       supporterDecisionCorrection:true,doubleDragonRecovery:true,
       isolatePolicyRandomness:true,captureDecisionTrace:true,
+      captureCopycatTurnStartSeat:seat,
       postSuperAliasRepairIsolation:true,
       mimikyuApexCopycatCompatibility:true,
       mimikyuDeclaredHistoryCorrection:true,
