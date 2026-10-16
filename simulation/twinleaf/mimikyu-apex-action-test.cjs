@@ -15,20 +15,24 @@ const engine = name => require(path.join(output, name));
  * keeping six occupied Prizes so the engine does not launch sudden death.
  * Prior Apex Dragon use and Energy are staged; this is no legal-match proof.
  * @param {boolean} correctHistory Whether to install the opt-in history repair.
+ * @param {boolean} fairyZone Stage Lillie's Clefairy Bench Ability and synthetic high HP for damage inspection.
  * @returns {object} Attack effects and identity telemetry.
  */
-function declaredCopycatApexContract(correctHistory = false) {
+function declaredCopycatApexContract(correctHistory = false, fairyZone = false) {
   const manager = initializeCards();
   const mimikyu = manager.getCardByName('Mimikyu GRI');
   const regidrago = manager.getCardByName('Regidrago VSTAR SIT');
   const dialga = manager.getCardByName('Dialga-GX UPR');
+  const clefairy = fairyZone ? manager.getCardByName("Lillie's Clefairy ex JTG") : null;
   const psychic1 = manager.getCardByName('Psychic Energy SVE');
   const psychic2 = manager.getCardByName('Psychic Energy SVE');
   assert.ok(mimikyu && regidrago && dialga && psychic1 && psychic2);
+  if (fairyZone) assert.ok(clefairy);
 
   const {Store} = engine('game/store/store');
   const {Player} = engine('game/store/state/player');
   const {CardList} = engine('game/store/state/card-list');
+  const {PokemonCardList} = engine('game/store/state/pokemon-card-list');
   const {GamePhase} = engine('game/store/state/state');
   const {AttackAction} = engine('game/store/actions/game-actions');
   const {ResolvePromptAction} = engine('game/store/actions/resolve-prompt-action');
@@ -50,6 +54,14 @@ function declaredCopycatApexContract(correctHistory = false) {
     a.active.cards.push(mimikyu, psychic1, psychic2);
     a.discard.cards.push(dialga);
     b.active.cards.push(regidrago);
+    if (fairyZone) {
+      // Keep the Dragon alive after x2 damage to inspect damage counters
+      // directly. Actual Regidrago VSTAR prints 280 HP, and would be KO'd.
+      regidrago.hp = 400;
+      const slot = new PokemonCardList();
+      slot.cards.push(clefairy);
+      a.bench.push(slot);
+    }
     state.players = [a, b];
     for (const player of state.players) {
       player.prizes = Array.from({length: 6},
@@ -71,7 +83,7 @@ function declaredCopycatApexContract(correctHistory = false) {
     const afterDeclaration = state.playerLastAttack[a.id]?.attack?.name;
     store.dispatch(new ResolvePromptAction(selection.id, dialga.attacks[2]));
 
-    assert.equal(b.active.damage, 150);
+    assert.equal(b.active.damage, fairyZone ? 300 : 150);
     assert.equal(a.usedGX, true);
     assert.equal(a.usedTurnSkip, true);
     assert.equal(regidrago.attacks[0].copycatAttack, true);
@@ -82,6 +94,8 @@ function declaredCopycatApexContract(correctHistory = false) {
       'Real prompt resolution must match the controlled history behavior');
     return {
       correctedHistory: correctHistory,
+      fairyZone,
+      syntheticDefenderHp: fairyZone ? 400 : 280,
       declaredAttack: 'Copycat',
       lastAttackAfterDeclaration: afterDeclaration,
       lastAttackAfterChoice: actualLastAttack,
@@ -101,7 +115,8 @@ function declaredCopycatApexContract(correctHistory = false) {
 if (require.main === module) {
   const baseline = declaredCopycatApexContract(false);
   const corrected = declaredCopycatApexContract(true);
-  process.stdout.write(JSON.stringify({baseline, corrected}, null, 2) + '\n');
+  const fairyZone = declaredCopycatApexContract(true, true);
+  process.stdout.write(JSON.stringify({baseline, corrected, fairyZone}, null, 2) + '\n');
 }
 
 module.exports = {declaredCopycatApexContract};
