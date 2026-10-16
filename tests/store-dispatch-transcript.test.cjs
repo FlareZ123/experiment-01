@@ -51,3 +51,19 @@ test('unportable nested classes report a capture failure but dispatch proceeds',
   assert.equal(result.traceSha256, null);
   assert.match(result.captureErrors[0], /non-JSON prototype/);
 });
+
+test('live-only mode excludes speculation on other Store instances', () => {
+  class AddPlayerAction extends Action {}
+  const real = new Store();
+  const simulation = new Store();
+  const report = withStoreDispatchTranscript(Store, () => {
+    real.dispatch(new AddPlayerAction(101));
+    simulation.dispatch(new Action(202));
+    real.dispatch(new Action(303));
+  }, {liveStoreOnly: true});
+  assert.equal(report.dispatched, 2);
+  assert.equal(report.ignoredOtherStoreDispatches, 1);
+  assert.equal(report.captureScope, 'first-AddPlayerAction-Store-instance');
+  assert.deepEqual(report.actionTrace.map(e => e.action), ['AddPlayerAction', 'Action']);
+});
+
