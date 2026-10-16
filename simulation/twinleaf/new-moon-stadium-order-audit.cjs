@@ -29,6 +29,7 @@ function probeOrder(request) {
   const {Store} = engine('game/store/store');
   const {Player} = engine('game/store/state/player');
   const {PokemonCardList} = engine('game/store/state/pokemon-card-list');
+  const {CardList} = engine('game/store/state/card-list');
   const {GamePhase} = engine('game/store/state/state');
   const {Format} = engine('game/store/card/card-types');
   const {CheckPokemonPowersEffect} = engine('game/store/effects/check-effects');
@@ -62,13 +63,24 @@ function probeOrder(request) {
   }
   a.bench.push(new PokemonCardList());
   a.hand.cards.push(luna, lab);
+  for (const player of state.players) {
+    player.deck.cards.push(card('Psychic Energy SVE'), card('Psychic Energy SVE'));
+    for (let i = 0; i < 6; i++) {
+      const prize = new CardList();
+      prize.cards.push(card('Psychic Energy SVE'));
+      player.prizes.push(prize);
+    }
+  }
   const bench = {player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index:1};
   const board = {player: PlayerType.ANY, slot: SlotType.BOARD, index:0};
 
   /** @param {any} selected @param {any} location */
   const play = (selected, location) => {
     const index = a.hand.cards.indexOf(selected);
-    assert.ok(index >= 0, 'Required card absent from hand');
+    assert.ok(index >= 0, 'Required ' + selected.fullName +
+      ' absent from hand after ' + request.order + ': ' +
+      JSON.stringify({cards:a.hand.cards.map(x => x.fullName),
+        phase:state.phase,prompts:state.prompts.map(x => x.constructor.name)}));
     store.dispatch(new PlayCardAction(a.id,index,location));
   };
 
