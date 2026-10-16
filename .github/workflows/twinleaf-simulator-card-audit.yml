@@ -31,3 +31,5 @@ jobs:
         run: node --test tests/detached-simulator-hook.test.cjs
       - name: Compare detached Card references and attack behavior
         run: node simulation/twinleaf/detached-simulator-characterization.cjs
+      - name: Compare source-locked fixed-seed game decisions with detached Simulator
+        run: node simulation/twinleaf/detached-simulator-game-contrast.cjs
