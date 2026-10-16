@@ -183,6 +183,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [radiantGateLockCorrection] Opt-in correction for Radiant Eternatus Bench-entry Ability locks.
  * @property {boolean} [snorlaxRetreatStartCorrection] Opt-in, reversible Block check on interactive retreat.
  * @property {boolean} [shadowRiderEnergyPriority] Opt-in basic Psychic Energy priority against Active Iron Thorns.
+ * @property {boolean} [shadowRiderEnergyAcrossField] Opt-in speculative Psychic priority regardless of opposing Active.
  * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
  * @property {boolean} [attackBeforeRetreat] Opt-in policy-order sensitivity probe for AttackTactic and RetreatTactic.
  * @property {0|1} [attackBeforeRetreatSeat] Restrict that opt-in probe to one physical seat.
@@ -283,8 +284,14 @@ function runMatch(request) {
         (!request.attackBeforeRetreat || ![0, 1].includes(request.attackBeforeRetreatSeat))) {
       throw new Error('Seat-specific attack preference requires an active valid policy flag.');
     }
-    if (request.shadowRiderEnergyPriority === true) {
-      options = require('./shadow-rider-psychic-attach.cjs').withShadowRiderPsychicPriority(options);
+    if (request.shadowRiderEnergyPriority === true &&
+        request.shadowRiderEnergyAcrossField === true) {
+      throw new Error('Choose either the lock-specific or across-field Psychic priority.');
+    }
+    if (request.shadowRiderEnergyPriority === true ||
+        request.shadowRiderEnergyAcrossField === true) {
+      options = require('./shadow-rider-psychic-attach.cjs').withShadowRiderPsychicPriority(
+        options, {allOpponents: request.shadowRiderEnergyAcrossField === true});
     }
     const settings = new GameSettings();
     settings.format = Format.EXPANDED;
@@ -507,6 +514,7 @@ function runMatch(request) {
       radiantGateLockCorrection: request.radiantGateLockCorrection === true,
       snorlaxRetreatStartCorrection: request.snorlaxRetreatStartCorrection === true,
       shadowRiderEnergyPriority: request.shadowRiderEnergyPriority === true,
+      shadowRiderEnergyAcrossField: request.shadowRiderEnergyAcrossField === true,
       shadowRiderOpeningPivot: request.shadowRiderOpeningPivot === true,
       attackBeforeRetreat: request.attackBeforeRetreat === true,
       attackBeforeRetreatSeat: request.attackBeforeRetreatSeat ?? null,
@@ -519,6 +527,7 @@ function runMatch(request) {
         (request.templeUnlockRecovery === true ? '+TempleUnlockTactic-v1' : '') +
         (request.snorlaxRetreatStartCorrection === true ? '+SnorlaxBlockStartGate-v1' : '') +
         (request.shadowRiderEnergyPriority === true ? '+ShadowRiderPsychicAttachPriority-v1' : '') +
+        (request.shadowRiderEnergyAcrossField === true ? '+ShadowRiderPsychicAttachAcrossField-v1' : '') +
         (request.shadowRiderOpeningPivot === true ? '+SelectedShadowRiderSetupActive-v1' : '') +
         (request.attackBeforeRetreat === true ?
           '+AttackBeforeRetreatTactic-v1@' +
