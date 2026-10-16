@@ -268,7 +268,8 @@ function main() {
       doubleDragonRecovery: true, supporterDecisionCorrection: true,
       isolatePolicyRandomness: true, captureDecisionTrace: true,
       shadowRiderEnergyPriority: process.env.AICHI_SHADOW_ENERGY === '1',
-      leleEntryAbilityLockCorrection: true
+      leleEntryAbilityLockCorrection: true,
+      radiantGateLockCorrection: true
     },
     resolvePair(trial) {
       const mapping = mappings.get(trial.candidateId);
