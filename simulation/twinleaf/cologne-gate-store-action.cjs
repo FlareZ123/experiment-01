@@ -112,7 +112,10 @@ function probeRealGateAction(useCologne) {
       const prompt = pending();
       if (prompt.constructor.name === 'ShuffleDeckPrompt') {
         answer(Array.from({length: player.deck.cards.length}, (_, i) => i));
-      } else if (prompt.constructor.name === 'ShowCardsPrompt') {
+      } else if (prompt.constructor.name === 'ShowCardsPrompt' ||
+                 prompt.constructor.name === 'WaitPrompt') {
+        // Climactic Gate ends the turn. Resolve the engine's silent
+        // BETWEEN_TURNS wait through its normal Store prompt pipeline.
         answer(true);
       } else {
         throw new Error('Unexpected Gate prompt ' + prompt.constructor.name);
