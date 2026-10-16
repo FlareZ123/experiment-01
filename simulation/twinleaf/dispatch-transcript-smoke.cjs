@@ -43,6 +43,8 @@ function runDispatchSmoke() {
     gameLoopActions: capture.result.actions,
     interceptedDispatches: capture.dispatched,
     excludedSpeculativeDispatches: capture.ignoredOtherStoreDispatches,
+    capturedChoiceReferenceEvents: capture.capturedChoiceReferenceEvents,
+    failedChoiceReferenceEvents: capture.failedChoiceReferenceEvents,
     captureScope: capture.captureScope,
     controlOutcomeInvariant: true,
     independentActionHistogramInvariant: true,
