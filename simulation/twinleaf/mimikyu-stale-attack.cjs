@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { initializeCards } = require('./headless.cjs');
+const {installPassClearsLastAttackHook} = require('./last-attack-pass-hook.cjs');
 
 const root = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} modulePath */
@@ -85,14 +86,59 @@ function testStaleCopycatEffect() {
   return { damage: f.b.active.damage, staleAttack: 'Tail Snap' };
 }
 
+/**
+ * Actual Store.dispatch(PassTurnAction) baseline vs opt-in correction.
+ * Board/prizes are staged; opponent's earlier attack entry is injected.
+ *
+ * @param {boolean} corrected Use the reversible pass-history hook.
+ * @returns {{corrected:boolean,record:string|null,copyDamage:number}}
+ */
+function realPassHistoryContract(corrected) {
+  const f = fixture();
+  const {CardList} = load('game/store/state/card-list');
+  const {GamePhase} = load('game/store/state/state');
+  const {PassTurnAction} = load('game/store/actions/game-actions');
+  const {AttackEffect} = load('game/store/effects/game-effects');
+  const {clearCopyAttackSessionsForTests} =
+    load('game/store/prefabs/copy-attack-delegation');
+  for (const player of f.state.players) {
+    player.prizes = Array.from({length: 6},
+      () => CardList.fromList(['Dratini OBF']));
+    player.deck = CardList.fromList(Array(8).fill('Dratini OBF'));
+  }
+  clearCopyAttackSessionsForTests();
+  const restore = corrected ? installPassClearsLastAttackHook() : () => {};
+  try {
+    f.store.dispatch(new PassTurnAction(f.b.id));
+    const record = f.state.playerLastAttack[f.b.id]?.attack?.name ?? null;
+    assert.equal(record, corrected ? null : 'Tail Snap',
+      'Pass must exhibit the expected previous-attack history state');
+
+    // Separate printed Copycat resolution probe after the real Pass reducer.
+    // This bypasses waiting for the automatic between-turn transition.
+    f.state.phase = GamePhase.ATTACK;
+    f.state.activePlayer = 0;
+    const copycat = new AttackEffect(f.a, f.b, f.mimikyu.attacks[1]);
+    copycat.source = f.a.active;
+    f.mimikyu.reduceEffect(f.store, f.state, copycat);
+    assert.equal(f.b.active.damage, corrected ? 0 : 20);
+    return {corrected, record, copyDamage: f.b.active.damage};
+  } finally {
+    restore();
+    clearCopyAttackSessionsForTests();
+  }
+}
+
 if (require.main === module) {
   testStaleRecordAfterPass();
   process.stdout.write(JSON.stringify({
     source: 'pinned player-turn reducer PassTurn branch',
     staleCopy: testStaleCopycatEffect(),
+    actualPass: {baseline: realPassHistoryContract(false),
+      corrected: realPassHistoryContract(true)},
     expectedPaper: 'Copycat cannot use an attack older than the last opponent turn',
     scope: 'Injected reducer states; not a legal turn-by-turn game',
     engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
   }, null, 2) + '\n');
 }
-module.exports = { testStaleRecordAfterPass, testStaleCopycatEffect };
+module.exports = {testStaleRecordAfterPass, testStaleCopycatEffect, realPassHistoryContract};
