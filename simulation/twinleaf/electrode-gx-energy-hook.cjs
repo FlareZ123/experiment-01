@@ -30,3 +30,7 @@ function installElectrodeGXEnergyHook() {
       }
     });
     if (recipients.length===0) throw new GameError(GameMessage.CANNOT_USE_POWER);
+    const available=player.discard.cards.filter(c=>c.superType===SuperType.ENERGY);
+    if (available.length===0) return original.call(this,store,state,effect);
+    const mandatory=Math.min(5,available.length);
+    const legalTarget=t=>recipients.some(v=>v.player===t.player && v.slot===t.slot && v.index===t.index);
