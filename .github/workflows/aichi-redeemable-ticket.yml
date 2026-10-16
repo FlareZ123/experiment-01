@@ -38,6 +38,8 @@ jobs:
         run: node --test tests/redeemable-ticket-headless-options.test.cjs
       - name: Check Forest Seal direct Ticket route
         run: node --test tests/aichi-ticket-stone-search.test.cjs
+      - name: Verify rank26 Ticket and Forest Seal Stone source actions
+        run: node simulation/twinleaf/ticket-stone-rank26-source.cjs
       - name: Verify staged Ticket and Compressor rescue witness
         run: node --test tests/ticket-compressor-shuffle-proof.test.cjs
       - name: Verify source-complete rank26 Ticket Compressor Item actions
