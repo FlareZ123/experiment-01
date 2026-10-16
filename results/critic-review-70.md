@@ -1,5 +1,7 @@
 # Critic: single-deck decision and evidence gate
 
+**Critic operational update (16 October):** [The three-rank replay qualification critical path](aichi-2026/critic-qualification-critical-path.md) freezes broad performance promotion until a source-ranked rank-10 decision-and-response replay and independently checked Simulator isolation exist. Source-ranked rank-2 and rank-6 packets follow. The experimental clone has a documented post-attack repeated-reference discrepancy, so both clone modes remain unqualified.
+
 **16 October 2026.** Research objective: one fixed, legal 60-card paper Expanded deck targeting a 99.5% win rate against the Aichi 2026 Top 32. **No qualified competitive win-rate evidence currently supports that target.**
 
 ## Fixed-deck decision
