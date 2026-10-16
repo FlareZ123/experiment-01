@@ -58,6 +58,42 @@ function firstDifference(control, branch) {
 }
 
 /**
+ * Group actual recorder failures by their replay-blocking input shape.
+ * Counts represent distinct Store dispatches, not games. This is a
+ * diagnostic priority queue and never upgrades the replay-qualification flag.
+ *
+ * @param {string[]} failures Source-Store recorder capture errors.
+ * @returns {Array<{category:string,path:string,count:number,firstSteps:number[],examples:string[]}>}
+ */
+function summarizeCaptureGaps(failures) {
+  const groups = new Map();
+  for (const failure of failures) {
+    const stepMatch = /^step (\\d+): (.*)$/.exec(failure);
+    const step = stepMatch ? Number(stepMatch[1]) : null;
+    const cause = stepMatch ? stepMatch[2] : failure;
+    const missing = /^Nonportable undefined at (\\S+)$/.exec(cause);
+    const prototype = /^Nested parameter at (\\S+) has non-JSON prototype (.+)$/.exec(cause);
+    const category = missing ? 'undefined-value' :
+      prototype ? 'non-json-prototype' : 'other';
+    const path = missing ? missing[1] :
+      prototype ? prototype[1] : cause;
+    const normalizedPath = path.replace(/\\[\\d+\\]/g, '[*]');
+    const key = category + ':' + normalizedPath;
+    const group = groups.get(key) || {
+      category, path:normalizedPath, count:0, firstSteps:[], examples:[]
+    };
+    group.count += 1;
+    if (step !== null && group.firstSteps.length < 5) group.firstSteps.push(step);
+    if (!group.examples.includes(cause) && group.examples.length < 3) {
+      group.examples.push(cause);
+    }
+    groups.set(key, group);
+  }
+  return [...groups.values()].sort((a,b) =>
+    b.count - a.count || (a.category+a.path).localeCompare(b.category+b.path));
+}
+
+/**
  * One genuine source deal with a reproducible turn-27 fork. This records the
  * full *live-only* dispatch stream while explicitly retaining the recorder's
  * incomplete-argument limitations. No staged cards are injected.
@@ -137,6 +173,8 @@ function main() {
     {forkTurn:27,opponentSlot:0});
   const controlLineage = checkLiveLineage(control, control.result);
   const branchLineage = checkLiveLineage(branch, branch.result);
+  const controlCaptureGapSummary = summarizeCaptureGaps(controlLineage.captureFailures);
+  const alternateCaptureGapSummary = summarizeCaptureGaps(branchLineage.captureFailures);
   checkLiveLineage(repeat, repeat.result);
   const turn27 = game => game.copycatTurnStartEvidence
     .find(snapshot => snapshot.turn === 27);
@@ -203,6 +241,8 @@ function main() {
     identicalUninstrumentedControl:true,
     identicalControlAfterBranch:true,
     forkAudit,
+    captureGapSummary:{control:controlCaptureGapSummary,
+      alternate:alternateCaptureGapSummary},
     sharedAuthenticTurn27Start:originalState,
     sharedHiddenZoneTurn27Checkpoint:control.sourceZoneCheckpoint,
     sharedHiddenZoneTurn27Digest:control.sourceZoneDigest,
@@ -218,4 +258,4 @@ function main() {
   };
 }
 if (require.main === module) process.stdout.write(JSON.stringify(main(), null, 2) + '\n');
-module.exports = {hash, checkLiveLineage, firstDifference, main};
+module.exports = {hash, checkLiveLineage, firstDifference, summarizeCaptureGaps, main};
