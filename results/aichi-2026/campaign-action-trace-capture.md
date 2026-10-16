@@ -31,6 +31,22 @@ The Iron Thorns fast-attack ALS calls for Tag Call / Guzma & Hala, Double Colorl
 
 This is a **small diagnostic sample**, not an estimate of first-turn attack frequency. It identifies a concrete replay-analysis target: examine the opening hands, exact missing DCE/Stadium/search pieces, two-card discard choices, current attack cost and competing Supporter choices before labeling the observed delay a policy defect. The present log cannot disambiguate those alternatives.
 
+## Card-selection prompt capture and correction
+
+The next stage records `ChooseCardsPrompt` selections with **their printed card identity**, selection source zone when recognizable, player-slot attribution and prompt message. This is read from the actual pre-dispatch state through [research-owned instrumentation](../../simulation/twinleaf/selected-cards-evidence.cjs); the selected choices are appended only after the engine dispatch. No information is passed back into the policy. The new [unit tests](../../tests/twinleaf-selected-cards-evidence.test.cjs) cover indices, object-valued results, cancellations and nonmutation.
+
+The **first attempted compiled run** [38841006841](https://github.com/FlareZ123/experiment-01/actions/runs/38841006841) correctly exposed a capture bug: six `engine-exception` records with `Cannot read properties of undefined (reading 'fullName')`. The helper had incorrectly assumed all prompt results were numeric indices. Those six are instrumentation failures, not actual game failures or candidate losses. We changed the helper to accept **the card objects actually returned by the pinned engine**, retaining numeric-index compatibility and reporting unresolved selections explicitly rather than crashing.
+
+The corrected [manual benchmark tests 38841283663](https://github.com/FlareZ123/experiment-01/actions/runs/38841283663) passed, followed by [compiled source-locked diagnostic 38841293324](https://github.com/FlareZ123/experiment-01/actions/runs/38841293324), with all six status codes `completed-engine-game`. Artifact `12021298349`, ZIP SHA-256 `55b1cc8b810973a48bb9cf8794bf1fa0c7f71bba61bcbc429f65146957fa40e6`, head commit `5b6ea2581a8602b1f97f81818b512952c83a8dc2`.
+
+The corrected archive has **895 chronological meaningful-action entries**, of which **174** are actual `ChooseCardsPrompt` selection records. All 174 have resolved physical printing names without null/unmapped entries. Independent SHA-256 recomputation matched each of the six per-game chronological trace hashes. Sample selected-card prompt messages include `CHOOSE_CARD_TO_DISCARD`, `CHOOSE_CARD_TO_HAND` and `CHOOSE_CARD_TO_PUT_ONTO_BENCH`; the log classifies recognized sources as hand, deck and discard, with a separate `unclassified` value for temporary lists.
+
+In the three recorded Iron Thorns-going-second games, the earliest Volt Cyclone remained at global engine turns **10, 16 and 10**. Although Guzma & Hala was later played in several trials, these archives by themselves do not prove that it had the necessary search targets or disposable hand cards at the relevant early point. Prompt selection logs are partial observational evidence, not a policy oracle.
+
+**Still absent:** chosen shuffle permutations, all non-`ChooseCardsPrompt` resolutions, actual hand snapshots at every decision, total card-zone transitions and full action replay. Further instrumentation should remain an opt-in diagnostic and be tested for outcome noninterference.
+
+---
+
 ## Important limits and next step
 
 The `chronologicalActionTrace` is **not a complete deterministic replay**. The current headless instrumentation omits prompt resolutions such as searched/discarded card selections, full shuffle outcomes, player-visible information sets, and many game-state deltas. The SHA-256 digest checks payload identity and order; it does not certify rule fidelity. Simulator winner labels, deck-out conditions and the absence of real human decision skill remain independent concerns.
