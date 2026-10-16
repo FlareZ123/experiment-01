@@ -32,7 +32,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Validate Supporter proposal and field provenance
-        run: node --test tests/supporter-decision-hook.test.cjs tests/test-aichi-field-benchmark.cjs tests/aichi-supporter-census.test.cjs
+        run: node --test tests/supporter-decision-hook.test.cjs tests/test-aichi-field-benchmark.cjs tests/aichi-supporter-census.test.cjs tests/mandatory-option-policy.test.cjs
       - name: Optional published-list policy feasibility probe
         if: ${{ inputs.run_aichi_fixture }}
         run: node simulation/twinleaf/supporter-aichi-smoke.cjs
