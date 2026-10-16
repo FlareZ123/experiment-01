@@ -2,6 +2,7 @@
 from collections import defaultdict
 from hashlib import sha256
 
+from scripts.action_trace_integrity import verify_action_trace
 from scripts.aichi_evidence import read_manifest
 from scripts.matchup_evidence import SeatRecord, summarize
 
@@ -38,6 +39,7 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
     counts = defaultdict(lambda: [0, 0])
     failures = []
     ties = 0
+    verified_completed_traces = 0
     for g in batch["games"]:
         rank, seat, seed = g["rank"], g["seat"], g["seed"]
         side, winner, status = g["candidate_side"], g["winner_side"], g["status"]
@@ -83,6 +85,9 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
         deck = g["opponent_deck_sha256"]
         if not _hash(deck) or not _hash(g["trace_sha256"]):
             raise ValueError("Missing deck or trace SHA-256")
+        trace_verified = "action_trace" in g
+        if trace_verified:
+            verify_action_trace(g["action_trace"], g["trace_sha256"])
         if rank in rank_decks and rank_decks[rank] != deck:
             raise ValueError("Opponent deck changed within placement")
         rank_decks[rank] = deck
@@ -90,6 +95,7 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
             if rank not in published or winner not in ("A", "B", None):
                 raise ValueError("Invalid completed exact-list result")
             counts[key][1] += 1
+            verified_completed_traces += int(trace_verified)
             counts[key][0] += winner == side
             ties += winner is None
         elif status in FAILURES and winner is None:
@@ -100,14 +106,21 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
             raise ValueError("Failure cannot be a win; unknown status")
 
     stats = summarize(SeatRecord(rank, seat, w, n) for (rank, seat), (w, n) in counts.items())
+    finished = sum(n for w, n in counts.values())
+    all_completed_traces_verified = finished > 0 and verified_completed_traces == finished
     return {
         "provenance": {**{k: batch[k] for k in keys}, "engine_slots": slots},
         "raw_games": len(batch["games"]),
-        "finished_games": sum(n for w, n in counts.values()),
+        "finished_games": finished,
+        "verified_completed_traces": verified_completed_traces,
+        "digest_only_completed_games": finished - verified_completed_traces,
+        "all_completed_traces_verified": all_completed_traces_verified,
+        "trace_integrity_promotion_eligible": all_completed_traces_verified and not failures,
+        "competitive_evidence_qualified": False,
         "finished_ties_as_nonwins": ties,
         "failures": failures,
         "pre_first_turn_failures": sum(not f["first_turn_verified"] for f in failures),
         "statistical_result": stats,
         "arithmetic_threshold_with_no_failures": not failures and stats["statistical_threshold_met"],
-        "warning": "Game-rule correctness and playing-policy skill are not established",
+        "warning": "Trace integrity does not establish replayability, game-rule correctness or playing-policy skill",
     }
