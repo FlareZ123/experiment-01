@@ -23,6 +23,8 @@ function oneSetup(deck0, deck1, seed) {
   const { CoinFlipPrompt } = require(path.join(root, 'game/store/prompts/coin-flip-prompt'));
   const { ShuffleDeckPrompt } = require(path.join(root, 'game/store/prompts/shuffle-prompt'));
   const { GamePhase } = require(path.join(root, 'game/store/state/state'));
+  const { SelectPrompt } = require(path.join(root, 'game/store/prompts/select-prompt'));
+  const { GameMessage } = require(path.join(root, 'game/game-message'));
   const { Format } = require(path.join(root, 'game/store/card/card-types'));
   const { GameSettings } = require(path.join(root, 'game/core/game-settings'));
   const { SimpleTacticsAi } = require(path.join(root, 'simple-bot/simple-tactics-ai'));
@@ -53,11 +55,24 @@ function oneSetup(deck0, deck1, seed) {
     store.dispatch(new AddPlayerAction(101, 'Shadow Rider', deck0));
     store.dispatch(new AddPlayerAction(202, 'Iron Thorns', deck1));
     const shuffles = [0, 0];
+    const bonusPromptCount = [0, 0];
+    const bonusPromptOffers = [0, 0];
     let actions = 0;
     while (store.state.phase === GamePhase.SETUP && actions < 200) {
       const state = store.state;
       const prompt = state.prompts.find(p => p.result === undefined);
       if (!prompt) throw new Error('Setup phase without actionable prompt.');
+      if (prompt instanceof SelectPrompt && prompt.message === GameMessage.WANT_TO_DRAW_CARDS) {
+        const offeredSeat = state.players.findIndex(p => p.id === prompt.playerId);
+        if (offeredSeat < 0) throw new Error('Unknown recipient for bonus-card offer.');
+        const offeredCounts = prompt.values.map(value => {
+          const match = /^Draw (\\d+) card\\(s\\)$/.exec(value);
+          if (!match) throw new Error('Unexpected bonus-card offer option: ' + value);
+          return Number(match[1]);
+        });
+        bonusPromptCount[offeredSeat] += 1;
+        bonusPromptOffers[offeredSeat] += Math.max(...offeredCounts);
+      }
       let action;
       if (prompt instanceof ShuffleDeckPrompt) {
         const seat = state.players.findIndex(p => p.id === prompt.getPerspectivePlayerId());
@@ -81,12 +96,16 @@ function oneSetup(deck0, deck1, seed) {
     }
     const mulligans = shuffles.map(n => n - 1);
     if (mulligans.some(n => n < 0)) throw new Error('Initial deck shuffle was missing.');
+    const bonusOffered = [
+      Math.max(0, mulligans[1] - mulligans[0]),
+      Math.max(0, mulligans[0] - mulligans[1])
+    ];
+    if (bonusPromptCount.reduce((sum, count) => sum + count, 0) > 1 ||
+        bonusPromptOffers.some((count, seat) => count !== bonusOffered[seat])) {
+      throw new Error('Observed Twinleaf bonus prompts disagree with redraw-count evidence.');
+    }
     return {
-      mulligans,
-      bonusOffered: [
-        Math.max(0, mulligans[1] - mulligans[0]),
-        Math.max(0, mulligans[0] - mulligans[1])
-      ],
+      mulligans, bonusOffered, bonusPromptCount, bonusPromptOffers,
       setupActions: actions,
       firstSeat: store.state.activePlayer
     };
@@ -110,7 +129,8 @@ function auditMulligans(trials = 2000) {
   const b = byRank.get(6).cardIds;
   const stats = {
     initialMulligans: [0, 0], totalMulligans: [0, 0],
-    totalOfferedBonus: [0, 0], firstSeatCount: [0, 0], setupActions: 0
+    totalOfferedBonus: [0, 0], bonusCases: [0, 0],
+    noBonusCases: 0, firstSeatCount: [0, 0], setupActions: 0
   };
   for (let i = 0; i < trials; i++) {
     const sample = oneSetup(a, b, (0x4e15 + i * 2654435761) >>> 0);
@@ -118,7 +138,10 @@ function auditMulligans(trials = 2000) {
       stats.initialMulligans[seat] += Number(sample.mulligans[seat] > 0);
       stats.totalMulligans[seat] += sample.mulligans[seat];
       stats.totalOfferedBonus[seat] += sample.bonusOffered[seat];
+      stats.bonusCases[seat] += Number(sample.bonusPromptCount[seat] > 0);
     }
+    stats.noBonusCases += Number(sample.bonusPromptCount[0] === 0 &&
+      sample.bonusPromptCount[1] === 0);
     stats.firstSeatCount[sample.firstSeat] += 1;
     stats.setupActions += sample.setupActions;
   }
@@ -129,8 +152,19 @@ function auditMulligans(trials = 2000) {
     }
     return p;
   });
+  const { bilateralBonus } = require('../../scripts/aichi_bilateral_bonus.cjs');
+  const exact = bilateralBonus(4, 14);
   return {
     trials, ranks: [1, 6], seatNames: ['Shadow Rider', 'Iron Thorns'],
+    bilateralOfferCalibration: {
+      observedOneOrMore: stats.bonusCases.map(n => n / trials),
+      observedNeither: stats.noBonusCases / trials,
+      exactOneOrMore: [exact.candidateAtLeastOne, exact.opponentAtLeastOne],
+      exactNeither: exact.neither,
+      exactExpectedOffers: [exact.candidateExpected, exact.opponentExpected],
+      mutualExclusivityVerifiedPerSetup: true,
+      promptsCrossCheckedAgainstRedrawCounts: true
+    },
     initialMulliganRates: stats.initialMulligans.map(n => n / trials),
     totalMulligansPerGame: stats.totalMulligans.map(n => n / trials),
     optionalBonusDrawsOfferedPerGame: stats.totalOfferedBonus.map(n => n / trials),
@@ -150,6 +184,17 @@ if (require.main === module) {
       result.expectedInitialMulliganRates[seat]) > tolerance) {
       throw new Error('Mulligan frequency deviated from exact seven-card expectation.');
     }
+    if (Math.abs(result.bilateralOfferCalibration.observedOneOrMore[seat] -
+      result.bilateralOfferCalibration.exactOneOrMore[seat]) > 0.05 ||
+        Math.abs(result.optionalBonusDrawsOfferedPerGame[seat] -
+          result.bilateralOfferCalibration.exactExpectedOffers[seat]) >
+        (seat === 0 ? 0.26 : 0.08)) {
+      throw new Error('Twinleaf bilateral offer frequency deviated from exact setup law.');
+    }
+  }
+  if (Math.abs(result.bilateralOfferCalibration.observedNeither -
+      result.bilateralOfferCalibration.exactNeither) > 0.05) {
+    throw new Error('Twinleaf no-bonus share deviated from the exact bilateral law.');
   }
 }
 
