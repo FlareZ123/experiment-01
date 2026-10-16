@@ -20,6 +20,7 @@ function diagnose() {
   initializeCards();
   const { SimpleTacticsAi } = engine('simple-bot/simple-tactics-ai');
   const { CardType } = engine('game/store/card/card-types');
+  const { SlotType } = engine('game/store/actions/play-card-action');
   const original = SimpleTacticsAi.prototype.decodeNextAction;
   const trials = [];
   for (const seed of [20261016, 20261017, 20261103, 20261229]) {
@@ -40,11 +41,18 @@ function diagnose() {
             const key = JSON.stringify([state.turn, copies, targets]);
             if (!seen.has(key)) {
               seen.add(key);
+              const chosenDde=action?.constructor.name==='PlayCardAction'&&
+                player.hand.cards[action.handIndex]?.name==='Double Dragon Energy';
+              const target=chosenDde
+                ? (action.target.slot===SlotType.ACTIVE
+                    ? player.active : player.bench[action.target.index])
+                : null;
               samples.push({
-                turn: state.turn, copies, targets,
-                chosen: action?.constructor.name || null,
-                chosenDde: action?.constructor.name === 'PlayCardAction' &&
-                  player.hand.cards[action.handIndex]?.name === 'Double Dragon Energy'
+                turn:state.turn,copies,targets,
+                chosen:action?.constructor.name||null,
+                chosenDde,
+                selectedDdeTarget:target?.getPokemonCard()?.fullName||null,
+                selectedDdeSlot:chosenDde?String(action.target.slot):null
               });
             }
           }
@@ -62,6 +70,8 @@ function diagnose() {
           apexAttacks: game.attackTrace.filter(a => a.seat === 0 && a.attack === 'Apex Dragon').length,
           candidateBoardCount: samples.length,
           selectedDdeAtFirstCandidateDecision: samples.filter(sample => sample.chosenDde).length,
+          observedDdeTargets: samples.filter(sample => sample.chosenDde)
+            .map(sample => ({turn:sample.turn,target:sample.selectedDdeTarget})),
           samples: samples.slice(0, 8)});
       } finally {
         SimpleTacticsAi.prototype.decodeNextAction = original;
