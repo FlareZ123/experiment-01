@@ -157,6 +157,7 @@ function policyRandomStreams(seed) {
  * @property {string} [label] Experimental label for machine-readable output.
  * @property {boolean} [strictPromptValidation] Opt-in pre-dispatch Prompt.validate gate.
  * @property {boolean} [forestSealSearchCorrection] Opt-in mandatory one-card Star Alchemy hook.
+ * @property {boolean} [doubleDragonRecovery] Opt-in experimental legal dynamic-Energy attachment tactic.
  * @property {boolean} [isolatePolicyRandomness] Use independent RNG streams for speculative bot decisions (experimental).
  */
 
@@ -209,12 +210,14 @@ function runMatch(request) {
     const definitions = engine('simple-bot/simple-bot-definitions');
     const { BotFlipMode, BotShuffleMode } = engine('game/bots/bot-arbiter');
 
-    const options = {
+    const baseOptions = {
       tactics: definitions.allSimpleTactics,
       promptResolvers: definitions.allPromptResolvers,
       scores: definitions.defaultStateScores,
       arbiter: { flipMode: BotFlipMode.RANDOM, shuffleMode: BotShuffleMode.RANDOM }
     };
+    const options = request.doubleDragonRecovery === true ?
+      require('./dde-attach-tactic.cjs').withDoubleDragonRecovery(baseOptions) : baseOptions;
     const settings = new GameSettings();
     settings.format = Format.EXPANDED;
     settings.recordingEnabled = false;
@@ -352,7 +355,10 @@ function runMatch(request) {
       promptValidationMode: request.strictPromptValidation === true ?
         'predispatch-prompt-validate' : 'upstream-unchecked',
       forestSealSearchCorrection: request.forestSealSearchCorrection === true,
-      policy: 'Twinleaf SimpleTacticsAi/defaultStateScores',
+      doubleDragonRecovery: request.doubleDragonRecovery === true,
+      policy: request.doubleDragonRecovery === true ?
+        'Twinleaf SimpleTacticsAi/defaultStateScores+DoubleDragonAttachTactic-v1' :
+        'Twinleaf SimpleTacticsAi/defaultStateScores',
       policyRandomIsolation: request.isolatePolicyRandomness === true,
       randomnessProtocol: request.isolatePolicyRandomness === true ?
         'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
