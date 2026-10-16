@@ -12,6 +12,7 @@ const {installSupporterDecisionHook} = require('./supporter-decision-hook.cjs');
 const {selectedCardsEvidence} = require('./selected-cards-evidence.cjs');
 const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.cjs');
 const {publicSnapshot, observeTerminalTransition, advanceActionLineage} = require('./terminal-transition.cjs');
+const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -333,6 +334,8 @@ function runMatch(request) {
         prizeCountBefore: state.players.map(player => player.prizes.filter(prize => prize.cards.length > 0).length)
       } : undefined;
       const publicBeforeDispatch = publicSnapshot(state);
+      const publicBoardBeforePass = decisionTrace && actionName === 'PassTurnAction' ?
+        publicBoardSnapshot(state) : null;
       try {
         store.dispatch(action);
       } catch (error) {
@@ -363,6 +366,7 @@ function runMatch(request) {
           ...(playedCard ? { card: playedCard } : {}),
           ...(abilityInfo ? { ability: abilityInfo.name } : {}),
           ...(selectionInfo ? { cardSelection: selectionInfo } : {}),
+          ...(publicBoardBeforePass ? { publicBoardBeforePass } : {}),
           ...(attackInfo ? { attack: attackInfo.attack,
             attacker: attackInfo.activePokemon } : {}),
           prizesAfter: store.state.players.map(player =>
