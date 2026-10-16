@@ -39,6 +39,8 @@ jobs:
         run: node simulation/twinleaf/own-deck-determinization-audit.cjs
       - name: Verify pinned clone prototype-link repair
         run: node --test tests/twinleaf-normalize-deep-clone.test.cjs
+      - name: Verify seeded clone graph topology
+        run: node --test tests/twinleaf-clone-graph-topology.test.cjs
       - name: Verify detached sample isolation with synthetic Card-alias controls
         run: node --test tests/twinleaf-detached-deck-sampling.test.cjs
       - name: Verify detached full-state sampling on the pinned source-ranked deck
