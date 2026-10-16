@@ -51,6 +51,24 @@ Both original and post-super repaired arms reached their 150-action bound **with
 
 The repaired profile remains explicitly opt-in through `postSuperAliasRepairIsolation` in [headless.cjs](../../simulation/twinleaf/headless.cjs). It is mutually exclusive with the earlier `prototypeSafeSimulatorIsolation` profile and has a distinct policy revision suffix for auditability. A longer frozen-seed [three-profile source contrast](../../simulation/twinleaf/post-super-vs-prototype-safe-source-contrast.cjs) has been defined to characterize policy-action divergence and is not presumed to have passed here.
 
+## Frozen source-deck whole-game diagnostic under three clone profiles
+
+[Manual CI 38890899971](https://github.com/FlareZ123/experiment-01/actions/runs/38890899971) **passed** the same-seed [three-profile source contrast](../../simulation/twinleaf/post-super-vs-prototype-safe-source-contrast.cjs) on pinned engine `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Both published 60-card source-deck hashes, seed `20261049`, actual first-turn seat 1, fixed bot policy/corrections and maximum 350 actions were held constant. The control was also repeated after the other profiles and reproduced **the entire returned game object** exactly.
+
+| Observed engine measure | Original pinned | Earlier detached/prototype-safe | New post-super reconciled |
+| --- | ---: | ---: | ---: |
+| Actions | 203 | 192 | **192** |
+| Turns | 18 | 17 | **17** |
+| Engine-reported winning physical seat | 0, rank 1 | 1, rank 10 | **1, rank 10** |
+| Final Prizes remaining seat 0/1 | 0 / 1 | 2 / 0 | **2 / 0** |
+| Attack dispatches | 9 | 9 | **9** |
+| Captured meaningful actions | 92 | 83 | **83** |
+| Complete captured meaningful-action SHA-256 | `bed34d5c24a34001ee5f4d8a1b547f1f133f5199a167c831f949376d2408a299` | `b3083ecf66eff260a4e819abe83a3dc27b5c1db470a22105e5d386299d8cece2` | **same as detached** |
+
+The **entire ordered captured meaningful-action JSON arrays** of old prototype-safe and post-super repaired profiles are byte-identical, with no first event divergence. This is meaningful observed-game nonregression under this one seeded trajectory despite the proven clone-graph structural correction. The contrast cannot establish equivalence of internal reducer states or exhaustive prompts that the logger does not emit. A failure to observe a behavioral change is compatible with an identity defect that this particular game never exploits.
+
+Original pinned and both detached variants reported **different engine winners**, consistent with earlier Agent49 and Agent37 observations of sensitivity to live Card aliases. Those winners still come from underqualified generic bots and are never competitive matchup samples.
+
 ## What remains unproved
 
 1. The audit's graph traversal covers own enumerable properties in **three selected staged States**. It does not cover every engine object shape, hidden-order information-set test, actual game state phase, card interaction, or post-constructor mutation.
@@ -58,4 +76,4 @@ The repaired profile remains explicitly opt-in through `postSuperAliasRepairIsol
 3. **Additional executed action-level regression:** [manual CI 38890208389](https://github.com/FlareZ123/experiment-01/actions/runs/38890208389) passed the direct [source damage action probe](../../simulation/twinleaf/post-super-alias-action-audit.cjs). Both the original and reconciled simulated Stores resolved 280 Crisis Punch damage and three Wait prompts. The pinned Simulator shared the source target Card and mutated `damageTakenLastTurn`, while the reconciled profile held a detached Card and left the source field unchanged. This validates the reported source-mutation and exact-damage invariants for **one staged attack**, subject to all the broader compatibility limitations. The separate source-ranked bounded [lifecycle test](../../simulation/twinleaf/headless-post-super-alias-smoke.cjs) is a pending follow-up, and no outcome is assumed.
 4. Even a clone that preserves one entire observed object graph does not show that `SimpleTacticsAi` is a strong or information-fair policy. The rank-10 Koraidon and Latias decision forks still require complete event replay and credible both-sided response policies.
 
-**Status:** the repeated attack-history object defect is structurally repaired in the pinned **post-Crisis-Punch Store fixture**, and the same profile has preserved 280 speculative attack damage without mutating the source card in a separate actual-action test. The bounded 150-action source-ranked lifecycle has passed; complete-game and more diverse State conditions remain under test. **`qualified_for_competitive_inference: false`**; no deck win-rate estimate follows.
+**Status:** the repeated attack-history object defect is structurally repaired in the pinned **post-Crisis-Punch Store fixture**, and the same profile has preserved 280 speculative attack damage without mutating the source card in a separate actual-action test. The 150-action source-ranked lifecycle and one fully terminal 350-action fixed-seed contrast have passed; additional State and matchup conditions remain untested. **`qualified_for_competitive_inference: false`**; no deck win-rate estimate follows.
