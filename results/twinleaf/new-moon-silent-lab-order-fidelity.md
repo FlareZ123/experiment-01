@@ -28,8 +28,26 @@ The first row is a **verified discrepancy**; the other four observations are spe
 
 Pinned upstream `ptcg-server/src/sets/10-scarlet-and-violet/set-obsidian-flames/lunatone.ts` catches `StadiumEffect`, tests that Solrock is in play, and throws to protect the target. Pinned `ptcg-server/src/game/store/prefabs/stadium-effect.ts` supplies a **nested StadiumEffect probe with `skipAbilityLockCheck=true`**, to avoid recursive lock loops. The two modules have no timestamp/ordering state recording whether Silent Lab predated Lunatone's entry. A board-final-state-only query can therefore present New Moon as active in both orders. This is a plausible mechanism, not a proved complete root-cause beyond the observed misclassification.
 
+## Research-side repair: actual Store regression passed
+
+Implemented opt-in, reversible [New Moon / Silent Lab ordering hook](../../simulation/twinleaf/new-moon-silent-lab-order-hook.cjs) around only the pinned `Lunatone` reducer. It records a pre-existing Silent Lab **at the Lunatone Bench-entry `PlayPokemonEffect`**, keyed to that Lunatone and physical Stadium object. It refuses an otherwise incorrect `StadiumEffect` protection while that original Lab remains. A later-Lab sequence retains New Moon, and a detected Stadium replacement clears the marker. Vendor files remain unchanged.
+
+Updated [action-order probe](../../simulation/twinleaf/new-moon-stadium-order-audit.cjs) to run identical baseline and corrected staged actions in the same process, restore the prototype in a `finally` block, and assert all five controls:
+
+| Staged final state | Pinned baseline | Corrected hook | Official outcome |
+|---|---|---|---|
+| Lab before Lunatone + Solrock | **incorrect:** New Moon and Perfection available | **New Moon blocked, Perfection blocked** | blocked |
+| Lunatone + Solrock before Lab | New Moon and Perfection available | unchanged | available |
+| Lab after Lunatone, no Solrock | New Moon and Perfection suppressed | unchanged | suppressed |
+| Path after Lunatone + Solrock | Perfection available | unchanged | available |
+| Path after Lunatone, no Solrock | Perfection suppressed | unchanged | suppressed |
+
+All assertions **passed** in [manual CI 38862188428](https://github.com/FlareZ123/experiment-01/actions/runs/38862188428). Its [archived JSON baseline/corrected artifact](https://github.com/FlareZ123/experiment-01/actions/runs/38862188428/artifacts/12030305675) preserves exact fields, card names, engine SHA and observations.
+
+**Correction scope:** The hook specifically covers entry of this Lunatone via `PlayPokemonEffect` into a Bench slot. This does not prove identical behavior for every possible source path (initial board without a card-play effect, exotic put-into-play mechanisms, movement and simultaneous suppression). It is not yet wired into a competitive headless policy, so existing game diagnostics must not be retrospectively treated as repaired. Extend with removal/replacement and full-game re-entry tests before declaring a general solution.
+
 ## Required correction / qualification
 
-A reversible research-side hook should remember whether *this physical Lunatone* entered while Silent Lab already existed. It should permit later-Lab shielding but refuse earlier-Lab shielding as long as that same Lab remains. Replacing or removing Lab, then reintroducing another Lab, and re-entering Lunatone must update chronology correctly. It must not change upstream vendor files. Test the official two orders and relevant controls with the hook on and off.
+The committed reversible research-side hook remembers whether *this physical Lunatone* entered while Silent Lab already existed. It permits later-Lab shielding and refuses earlier-Lab shielding for a staged Bench-entry path. Extended replacement and in-game return-to-play behavior still needs coverage.
 
 Without this correction, **do not count** a claimed New Moon candidate escape from early Silent Lab in full-game results. The fixed 60's real efficacy against each opponent remains unmeasured.
