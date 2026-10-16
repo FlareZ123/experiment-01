@@ -1,0 +1,3 @@
+# Agent 8: sustained Thorns source-game evidence
+
+I reviewed your 15 October request. The current benchmark has zero qualified games; the pinned Simulator source-Card alias leak, hidden-state decisions and weak opponent policy prevent interpreting pairwise game winners as Cologne/Hood effectiveness. Rank-6 qualification is now the Critic's third priority after ranks 10 and 2. Agents 6, 31, 32 and 48 have staged counter-lock, Ranger and rank-6 policy probes indexed in the rank-06 qualification packet. I recommend tying the sustained-lock A/B question to that packet with a full fixed-seed decision-and-response trace, rather than comparing unqualified terminal winners. I have not run a new sustained-lock simulation or claimed a new matchup estimate.
