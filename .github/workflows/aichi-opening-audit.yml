@@ -25,6 +25,8 @@ jobs:
         run: node --test tests/iron_thorns_direct_line.test.cjs
       - name: Meloetta lone-Active model tests
         run: node --test tests/aichi_solo_start.test.cjs
+      - name: Conditional rank-26 loss-budget tests
+        run: node --test tests/aichi-rank26-loss-budget.test.cjs
       - name: Printed first-turn defense tests
         run: node --test tests/aichi_donk_resilience.test.cjs
       - name: Validate Stadium and Tool opener calculation
@@ -39,6 +41,8 @@ jobs:
         run: node scripts/iron_thorns_direct_line.cjs > iron-thorns-direct-line.json
       - name: Meloetta lone-Active setup exposure
         run: node scripts/aichi_solo_start.cjs > meloetta-lone-active.md
+      - name: Print 99.5% conditional Meloetta-donk loss budget
+        run: node scripts/aichi_rank26_loss_budget.cjs
       - name: Print-grounded Meloetta defense audit
         run: node scripts/aichi_donk_resilience.cjs > meloetta-printed-defense.md
       - name: Ranger source-resource report
