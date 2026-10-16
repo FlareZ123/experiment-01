@@ -24,7 +24,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify frozen plan and Latias Energy-targeting policy controls
-        run: node --test tests/aichi-frozen-policy-compare.test.cjs tests/active-latias-attachment.test.cjs tests/aichi-campaign-seed-v3.test.cjs
+        run: node --test tests/aichi-frozen-policy-compare.test.cjs tests/latias-attack-ready-attach.test.cjs tests/aichi-campaign-seed-v3.test.cjs
       - name: Install pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -47,13 +47,13 @@ jobs:
         run: node simulation/evaluation/aichi-campaign-execute.cjs > rank10-v3-latias.json
       - name: Validate baseline trial coverage and policy blockers
         run: node scripts/aichi-campaign-quality-screen.cjs rank10-v3-baseline.json > rank10-v3-baseline-quality.json
-      - name: Validate pivot trial coverage and policy blockers
+      - name: Validate attachment intervention coverage and policy blockers
         run: node scripts/aichi-campaign-quality-screen.cjs rank10-v3-latias.json > rank10-v3-latias-quality.json
       - name: Check exact frozen inventory and one-axis policy contrast
         run: node scripts/aichi-frozen-policy-compare.cjs rank10-v3-baseline.json rank10-v3-latias.json latiasAttackReadyAttachment > rank10-v3-latias-contrast.json
       - name: Display bounded per-trial behavioral deltas
         run: |
-          node -e "const a=require('./rank10-v3-baseline.json');const b=require('./rank10-v3-latias.json');const c=require('./rank10-v3-latias-contrast.json');if(!c.allActualTurnOrdersIdentical)throw Error('Actual starting orders changed');if(c.comparedTrials!==6)throw Error('Expected exactly six matched trials');for(let i=0;i<a.records.length;i++){const x=a.records[i],y=b.records[i];console.log('COUNTERFACTUAL',JSON.stringify({trial:x.trialId,first:x.candidateActualTurn,baselineStatus:x.status,pivotStatus:y.status,baselineAttacks:x.candidateAttacks,pivotAttacks:y.candidateAttacks,baselineOpponentAttacks:x.opponentAttacks,pivotOpponentAttacks:y.opponentAttacks,baselineActions:x.actions,pivotActions:y.actions}));}console.log('MATCHED PLAN',JSON.stringify({count:c.comparedTrials,identicalTraces:c.identicalCapturedTraceTrials,fullReplay:c.fullReplayCaptured,firstOrderSame:c.allActualTurnOrdersIdentical,experimentalFlag:c.changedFlag}));"
+          node -e "const a=require('./rank10-v3-baseline.json');const b=require('./rank10-v3-latias.json');const c=require('./rank10-v3-latias-contrast.json');if(!c.allActualTurnOrdersIdentical)throw Error('Actual starting orders changed');if(c.comparedTrials!==6)throw Error('Expected exactly six matched trials');for(let i=0;i<a.records.length;i++){const x=a.records[i],y=b.records[i];console.log('COUNTERFACTUAL',JSON.stringify({trial:x.trialId,first:x.candidateActualTurn,baselineStatus:x.status,treatmentStatus:y.status,baselineAttacks:x.candidateAttacks,treatmentAttacks:y.candidateAttacks,baselineOpponentAttacks:x.opponentAttacks,treatmentOpponentAttacks:y.opponentAttacks,baselineActions:x.actions,treatmentActions:y.actions}));}console.log('MATCHED PLAN',JSON.stringify({count:c.comparedTrials,identicalTraces:c.identicalCapturedTraceTrials,fullReplay:c.fullReplayCaptured,firstOrderSame:c.allActualTurnOrdersIdentical,experimentalFlag:c.changedFlag}));"
       - name: Preserve both exact-record diagnostics and comparison
         if: always()
         uses: actions/upload-artifact@v4
