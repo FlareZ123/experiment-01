@@ -68,6 +68,14 @@ function encode(value, ancestors) {
   ancestors.add(value);
   try {
     if (Array.isArray(value)) {
+      for (let index = 0; index < value.length; index += 1) {
+        if (!Object.hasOwn(value, index)) {
+          throw new TypeError('Sparse action trace arrays are invalid');
+        }
+      }
+      if (Object.getOwnPropertyNames(value).length !== value.length + 1) {
+        throw new TypeError('Action trace arrays cannot have extra properties');
+      }
       return '[' + value.map(item => encode(item, ancestors)).join(',') + ']';
     }
     const keys = Object.keys(value).sort(compareCodePoints);
@@ -95,6 +103,7 @@ function canonicalActionTrace(trace) {
   }
   trace.forEach((event, index) => {
     if (!event || Array.isArray(event) || typeof event !== 'object' ||
+        !Object.hasOwn(event, 'step') || !Object.hasOwn(event, 'action') ||
         event.step !== index || !Number.isInteger(event.step) ||
         typeof event.action !== 'string' || !event.action.trim()) {
       throw new TypeError('Trace events need sequential steps and action names');
