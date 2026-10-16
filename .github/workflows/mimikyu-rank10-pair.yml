@@ -1,0 +1,40 @@
+name: Aichi rank-10 Mimikyu Copycat paired diagnostic
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-ranked-copycat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate standalone source diagnostics
+        run: node --test tests/mimikyu-rank10-policy-pair.test.cjs
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run source-locked rank-10 fixed-seed Copycat A/B
+        run: node simulation/twinleaf/mimikyu-rank10-policy-pair.cjs > rank10-copycat-paired.json
+      - name: Print bounded findings
+        run: node -e "const x=require('./rank10-copycat-paired.json'); for(const p of x.pairs) console.log(JSON.stringify({trial:p.trialId,first:p.candidateActuallyFirst,control:p.control.prizesRemaining,experiment:p.experimental.prizesRemaining,firstDivergence:p.firstMeaningfulDifference?.index ?? null}));"
+      - name: Preserve exact diagnostic events
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-copycat-paired
+          path: rank10-copycat-paired.json
+          if-no-files-found: warn
