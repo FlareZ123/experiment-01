@@ -273,3 +273,82 @@ test('pinned Store rank-15 board allows two Bench Knock Outs while Pidgeot survi
   }),/guarded experiment/);
   assert.equal(allPromptResolvers[index],original);
 });
+
+test('pinned rank-15 Mega Lopunny ex Bench KO takes three actual Prizes',
+{skip:!fs.existsSync(path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output/game'))},
+()=>{
+  const root=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
+  /** @param {string} name */
+  const load=name=>require(path.join(root,name));
+  const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+  const {preparedRegidrago}=require('../simulation/twinleaf/apex-attack-action.cjs');
+  const {spreadAwareCopyResolverClass}=
+    require('../simulation/twinleaf/apex-spread-copy-resolver.cjs');
+  const {PokemonCardList}=load('game/store/state/pokemon-card-list');
+  const {AttackAction}=load('game/store/actions/game-actions');
+  const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
+  const {ChoosePrizePromptResolver}=load(
+    'simple-bot/prompt-resolver/choose-prize-prompt-resolver');
+  const {defaultStateScores}=load('simple-bot/simple-bot-definitions');
+  const manager=initializeCards();
+  const get=name=>manager.getCardByName(name);
+  const ready=preparedRegidrago();
+  ready.attachFire();
+  ready.defending.active.cards.length=0;
+  ready.defending.active.cards.push(
+    get('Pidgey FLF'),get('Pidgeotto TEU'),get('Pidgeot ex OBF')
+  );
+  const mega=new PokemonCardList();
+  const base=get('Buneary M2');
+  const evolved=get('Mega Lopunny ex M2');
+  assert.ok(base && evolved);
+  mega.cards.push(base,evolved);
+  mega.damage=280; // 330 HP, leaving 50 HP.
+  const budews=[];
+  for(let i=0;i<2;i++) {
+    const slot=new PokemonCardList();
+    const budew=get('Budew ASC');
+    slot.cards.push(budew);
+    ready.defending.bench.push(slot);
+    budews.push(budew);
+  }
+  ready.defending.bench.push(mega);
+  ready.attacking.discard.cards.push(
+    get('Dragapult ex TWM'),get('Hisuian Goodra VSTAR LOR')
+  );
+  assert.equal(nominalKnockoutPrizes(evolved,mega),3);
+  const before=ready.attacking.getPrizeLeft();
+  ready.store.dispatch(new AttackAction(ready.attacking.id,'Apex Dragon'));
+  const choose=ready.state.prompts.find(p=>
+    p.result===undefined && p.constructor.name==='ChooseAttackPrompt');
+  assert.ok(choose);
+  const Choice=spreadAwareCopyResolverClass();
+  const picked=new Choice({scores:defaultStateScores})
+    .resolvePrompt(ready.state,ready.attacking,choose);
+  assert.equal(picked.result.name,'Phantom Dive');
+  ready.store.dispatch(picked);
+  const damage=ready.state.prompts.find(p=>
+    p.result===undefined && p.constructor.name==='PutDamagePrompt');
+  assert.ok(damage);
+  const Resolver=prizeWindowPutDamageResolverClass();
+  const move=new Resolver({scores:defaultStateScores})
+    .resolvePrompt(ready.state,ready.attacking,damage);
+  assert.equal(damage.validate(move.result,ready.state),true);
+  assert.equal(move.result.find(row=>row.target.index===2)?.damage,50);
+  assert.equal(move.result.reduce((sum,row)=>sum+row.damage,0),60);
+  ready.store.dispatch(move);
+  const prizeResolver=new ChoosePrizePromptResolver({scores:defaultStateScores});
+  for(let i=0;i<12;i++) {
+    const pending=ready.state.prompts.find(p=>p.result===undefined);
+    if(pending?.constructor.name==='WaitPrompt') {
+      ready.store.dispatch(new ResolvePromptAction(pending.id,null));
+    } else if(pending?.constructor.name==='ChoosePrizePrompt') {
+      const chooser=ready.state.players.find(p=>p.id===pending.playerId);
+      ready.store.dispatch(prizeResolver.resolvePrompt(ready.state,chooser,pending));
+    } else break;
+  }
+  assert.ok(ready.defending.discard.cards.includes(evolved),
+    'Mega Lopunny ex must be Knocked Out by five counters');
+  assert.ok(budews.every(card=>!ready.defending.discard.cards.includes(card)));
+  assert.equal(before-ready.attacking.getPrizeLeft(),3);
+});
