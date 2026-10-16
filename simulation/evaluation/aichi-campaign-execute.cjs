@@ -68,7 +68,8 @@ function executeDiagnostic(options) {
     'strictPromptValidation', 'forestSealSearchCorrection',
     'doubleDragonRecovery', 'templeUnlockRecovery',
     'supporterDecisionCorrection', 'isolatePolicyRandomness',
-    'captureDecisionTrace', 'snorlaxRetreatStartCorrection'
+    'captureDecisionTrace', 'snorlaxRetreatStartCorrection',
+    'shadowRiderEnergyPriority'
   ]);
   if (policyFlags === null || typeof policyFlags !== 'object' ||
       Array.isArray(policyFlags) ||
@@ -264,7 +265,8 @@ function main() {
     policyFlags: {
       strictPromptValidation: true, forestSealSearchCorrection: true,
       doubleDragonRecovery: true, supporterDecisionCorrection: true,
-      isolatePolicyRandomness: true, captureDecisionTrace: true
+      isolatePolicyRandomness: true, captureDecisionTrace: true,
+      shadowRiderEnergyPriority: process.env.AICHI_SHADOW_ENERGY === '1'
     },
     resolvePair(trial) {
       const mapping = mappings.get(trial.candidateId);
