@@ -24,7 +24,7 @@ const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
 const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
 const {inspectTmEvolutionPass} = require('./tm-evolution-pass-evidence.cjs');
 const {probeEvolutionAnnouncement} = require('./tm-evolution-announcement-probe.cjs');
-const {probePassedAttackOptions} = require('./pass-attack-announcement-probe.cjs');
+const {probePassedAttackOptions, nextPassProbeBucket} = require('./pass-attack-announcement-probe.cjs');
 const {withActiveOpeningPivot} = require('./active-opening-pivot.cjs');
 const {withAttackBeforeRetreat} = require('./attack-retreat-order.cjs');
 const {retreatTransitionEvidence} = require('./retreat-transition-evidence.cjs');
@@ -367,6 +367,7 @@ function runMatch(request) {
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
     let attackPassProbeCount = 0;
+    const attackPassProbeBuckets = {printed: 0, tool: 0};
     let terminalTransition = null;
     let actionLineage = null;
     while (store.state.phase !== GamePhase.FINISHED && actions < maxActions) {
@@ -443,15 +444,19 @@ function runMatch(request) {
       let attackPassProbe = null;
       if (decisionTrace && request.captureAttackPassProbes === true &&
           actionName === 'PassTurnAction' && seat >= 0 && attackPassProbeCount < 8) {
-        attackPassProbeCount++;
-        try {
+        const bucket = nextPassProbeBucket(state.players[seat], attackPassProbeBuckets);
+        if (bucket) {
+          attackPassProbeBuckets[bucket]++;
+          attackPassProbeCount++;
+          try {
           attackPassProbe = probePassedAttackOptions(state, state.players[seat].id);
         } catch (error) {
-          attackPassProbe = {
-            evidenceType: 'post-choice-cloned-attack-announcements-v1',
-            auditError: String(error?.message || error),
-            scope: 'Observation failed without changing the selected policy action.'
-          };
+            attackPassProbe = {
+              evidenceType: 'post-choice-cloned-attack-announcements-v1',
+              auditError: String(error?.message || error),
+              scope: 'Observation failed without changing the selected policy action.'
+            };
+          }
         }
       }
       try {
@@ -527,6 +532,7 @@ function runMatch(request) {
       abilityTrace,
       decisionTrace,
       attackPassProbeCount,
+      attackPassProbeBuckets,
       terminalTransition,
       finalState: state.players.map(player => ({
         deckRemaining: player.deck.cards.length,
