@@ -36,6 +36,12 @@ Consider undamaged Benched **320-HP Shadow Rider Calyrex VMAX (three Prizes)** a
 
 This excludes whether both targets remain Benched, access to six Energy cards, Stadium/Tool counterplay, setup survival, opposing decisions and legal attack execution.
 
+## Active-slot positioning reduces the five-Prize opportunity
+
+A source-legal Bench occupies at most five slots and each player must have an Active Pokémon. **Both** undamaged Shadow Rider targets in the example must be Benched for Telescopic Sight to grant +30 to each. If the **VMAX is Active** and only the V is Benched, the requirement is **11+6=17 packets**. If the **V is Active** and VMAX Benched, it is **7+10=17 packets**. Both Benched require **10+6=16**. This position dependence means two targets alone on the opponent's board cannot both be swept with sixteen packets, because one must occupy Active.
+
+These are base fresh-HP thresholds before existing damage, effects or additional modifiers. [The regression](../../tests/aichi-raichu-manual-attachment.test.cjs) now verifies that the 16-packet source capacity can produce five Prizes in the two-Bench scenario and only three in either mixed Active/Bench scenario. This does not guarantee that moving a target Active is strategically wise in a real match; the opponent's attack, mobility and gust resources may make other positioning better.
+
 ## First-person Top-32 tactical source
 
 A [May 11, 2026 first-person Raichu guide](https://note.com/yudouhu007/n/ned8137f22d7d) describes **16 Lightning-unit equivalents / 480 damage** as the maximum needed when one Electrode activation suffices. The wording does not specify how the author counted an ordinary hand attachment. Our six-card witness reconciles the arithmetic plausibly; it does **not** establish that the author meant this exact partition.
