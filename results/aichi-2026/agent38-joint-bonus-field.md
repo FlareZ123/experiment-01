@@ -92,3 +92,26 @@ The category model assumes all available search Items can be used, without a dis
 The calculated opportunities can be unavailable in a real turn due to unmodeled play constraints; other draw/search effects can create setup routes omitted here. A higher early resource opportunity may still be strategically inferior after considering the resulting board, attack access and deck slots.
 
 This provides a source-specific setup benchmark to compare future search and decision policies. Credible game-win assessment against the full Top 32 still requires validated gameplay and the three unavailable opponent decklists.
+
+## Source-field scenario: persistent forced-Active Initialization
+
+The published 29-list source field contains exactly three four-Basic Iron Thorns ex-only lists at **ranks 6, 24 and 29**. The [source-verified card-text analysis](../als/iron-thorns-suppresses-gate.md) establishes that every valid opening from those lists begins with Active Iron Thorns ex. This gives an unusually strong field-specific way to audit the *unrestricted-resource* average above.
+
+Consider this explicit **conditional counterfactual**: Initialization remains effective through the modeled Gate decision against each of those three opponents, and the candidate does not first turn off Initialization or move Iron Thorns from the Active Spot. Replace the Gate-or-natural union **only for those three source ranks** by the model's natural-only marginal; leave all other 26 ranked scenarios unchanged. This retains the identical opponent-mulligan law, fixed lists, Prize uncertainty, and other restrictions of the previous model.
+
+Let \(U_i\) be a candidate's unrestricted 29-source mean in percent, \(G_{i,4}\) its four-Basic opponent union probability, and \(N_{i,4}\) its four-Basic natural-only marginal. Because exactly three of the 29 observed ranks use the forced Active, the adjusted mean is
+
+\[
+U_i^{\mathrm{persistent\ Initialization}}
+=U_i-\frac{3}{29}(G_{i,4}-N_{i,4}).
+\]
+
+| Fixed list | Previous unrestricted resource union | Removed forced-lock Gate-only contribution | Persistent-Initialization scenario |
+| --- | ---: | ---: | ---: |
+| Champion | 62.007331% | 4.462400 percentage points | **57.544931%** |
+| Hood Shield v1 | 64.592023% | 4.166673 percentage points | **60.425350%** |
+| Temple v1 | 57.903283% | 4.042801 percentage points | **53.860482%** |
+
+This is a direct arithmetic re-aggregation of the already-validated source-conditioned marginals in this report, verified independently using exact decimal arithmetic. Values inherit rounding from the six-decimal published inputs, at most a few units in the last displayed decimal. Hood's advantage over champion within *this restricted conditional resource measure* changes from **2.584692** to **2.880419 percentage points**, while all three candidates lose more than four percentage points of the previously reported source-field mean.
+
+**Interpretation boundary:** This is not a measured setup rate, a competitiveness ranking, or a rigorous upper/lower bound for the real field. The assumption of persistent Initialization can fail when a player finds a legal removal, suppression, or Active-switching line. Other locks and constraints in the remaining 26 lists still affect real play but are excluded here. The unverified ranks 23/25/28 remain excluded. The comparison demonstrates that the known three forced-Active opposing lists materially change the *resource model* once one indisputably relevant interaction is conditioned on; all 32 actual matchups still require verified full-game decisions and outcomes.
