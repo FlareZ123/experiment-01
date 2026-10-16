@@ -10,8 +10,9 @@ const load = name => require(path.join(output, name));
  * Staged Extra Energy Bomb prompt and self-KO check.
  * @param {number} count Number of the five discarded cards to attach.
  * @param {boolean} noRecipient Whether all own Pokémon are GX.
+ * @param {boolean} useBot Let pinned SimpleTacticsAi resolve the attachment prompt.
  */
-function runCase(count, noRecipient = false) {
+function runCase(count, noRecipient = false, useBot = false) {
   const f = stagedRaichu([], null);
   const {PokemonCardList} = load('game/store/state/pokemon-card-list');
   const {CardList} = load('game/store/state/card-list');
@@ -47,24 +48,42 @@ function runCase(count, noRecipient = false) {
   assert.ok(prompt, 'Expected Extra Energy Bomb attachment prompt');
   assert.equal(prompt.constructor.name, 'AttachEnergyPrompt');
   const to = {player:PlayerType.BOTTOM_PLAYER, slot:SlotType.ACTIVE,index:0};
-  const transfers = candidates.slice(0,count).map(card => ({card,to}));
+  let transfers = candidates.slice(0,count).map(card => ({card,to}));
+  if (useBot) {
+    const {SimpleTacticsAi} = load('simple-bot/simple-tactics-ai');
+    const definitions = load('simple-bot/simple-bot-definitions');
+    const {BotFlipMode, BotShuffleMode} = load('game/bots/bot-arbiter');
+    const options = {
+      tactics:definitions.allSimpleTactics,
+      promptResolvers:definitions.allPromptResolvers,
+      scores:definitions.defaultStateScores,
+      arbiter:{flipMode:BotFlipMode.RANDOM,shuffleMode:BotShuffleMode.RANDOM}
+    };
+    const bot = new SimpleTacticsAi({id:101}, options, null);
+    const decision = bot.decodeNextAction(f.state);
+    assert.equal(decision?.constructor.name, 'ResolvePromptAction');
+    assert.equal(decision.id, prompt.id);
+    transfers = decision.result;
+  }
   const promptAccepted = prompt.validate(transfers);
   f.store.dispatch(new ResolvePromptAction(prompt.id,transfers));
   return {
-    count,noRecipient,promptAccepted,min:prompt.options.min,max:prompt.options.max,
+    count,noRecipient,useBot,transferred:transfers.length,
+    promptAccepted,min:prompt.options.min,max:prompt.options.max,
     remainingEnergy:f.a.discard.cards.filter(card => candidates.includes(card)).length,
     opponentPrizesTaken:before-f.b.getPrizeLeft(),
     electrodeInDiscard:f.a.discard.cards.some(card => card.fullName === 'Electrode-GX CES')
   };
 }
 function verify() {
-  const cases = [runCase(5),runCase(4),runCase(0),runCase(0,true)];
+  const cases = [runCase(5),runCase(4),runCase(0),runCase(0,true),runCase(0,true,true)];
   console.log(JSON.stringify({engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     scope:'staged Store actions, illegal inputs deliberately supplied',cases},null,2));
   assert.equal(cases[0].remainingEnergy,0);
   assert.equal(cases[0].opponentPrizesTaken,2);
   assert.equal(cases[1].promptAccepted,true,'Pinned prompt accepts four of five');
   assert.equal(cases[2].promptAccepted,true,'Pinned prompt accepts zero of five');
+  assert.equal(cases[4].transferred,0,'Normal bot chooses zero when no recipient exists');
   return cases;
 }
 if (require.main===module) verify();
