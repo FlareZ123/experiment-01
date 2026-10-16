@@ -36,13 +36,17 @@ function checkAttachmentPriority() {
   const action = new SimpleTacticsAi({id:101}, options, null).decodeNextAction(f.state);
   assert.equal(action?.constructor.name, 'PlayCardAction');
   assert.equal(action.handIndex, f.attacking.hand.cards.indexOf(energy));
-  assert.equal(action.target.slot, SlotType.ACTIVE);
+  assert.equal(action.target.slot, SlotType.BENCH);
+  assert.equal(action.target.index, 0);
+  f.store.dispatch(action);
+  assert.ok(f.attacking.bench[0].cards.includes(energy),
+    'The pinned Store must attach Double Dragon to the benched Regidrago');
   return {
     activeAlreadyCanPayApex:true,
     eligibleUnpoweredBenchedRegidrago:true,
     optInTacticSelected:'Double Dragon Energy',
-    chosenSlot:'ACTIVE',
-    limitation:'First-legal-Dragon priority, not a relative strategic value comparison'
+    chosenSlot:'BENCH',
+    limitation:'Narrow Apex-cost priority only; no lookahead or match value certification'
   };
 }
 if(require.main===module)console.log(JSON.stringify(checkAttachmentPriority(),null,2));
