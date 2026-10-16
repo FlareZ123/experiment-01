@@ -64,21 +64,48 @@ function compareOwnedStateGraph(source, detached) {
   return {sourceObjectNodes:nodes,sourceArrayNodes:arrays,...failures};
 }
 
-/** @returns {object} */
-function characterizePrototypeSafeStateGraph() {
-  const f=preparedRegidrago();
+/**
+ * @param {object} state The unmodified Store state for one observation.
+ * @returns {{pinned:object,prototypeSafe:object}}
+ */
+function auditSimulatorProfiles(state) {
   const {Simulator}=engine('game/bots/simulator');
-  const pinned=new Simulator(f.state);
-  const baseline=compareOwnedStateGraph(f.state,pinned.store.state);
+  const pinned=compareOwnedStateGraph(state,new Simulator(state).store.state);
   const restore=installPrototypeSafeSimulatorHook();
-  let isolated;
+  let prototypeSafe;
   try {
     const {Simulator:SafeSimulator}=engine('game/bots/simulator');
-    isolated=compareOwnedStateGraph(f.state,
-      new SafeSimulator(f.state).store.state);
+    prototypeSafe=compareOwnedStateGraph(state,
+      new SafeSimulator(state).store.state);
   } finally {
     restore();
   }
+  return {pinned,prototypeSafe};
+}
+
+/** @returns {object} */
+function characterizePrototypeSafeStateGraph() {
+  const f=preparedRegidrago();
+  const baseline=auditSimulatorProfiles(f.state);
+  const {preparedToolAttack} =
+    require('./tm-attack-policy-characterization.cjs');
+  const tool=preparedToolAttack();
+  const toolReady=auditSimulatorProfiles(tool.state);
+  const {AttackAction}=engine('game/store/actions/game-actions');
+  const {ResolvePromptAction}=engine('game/store/actions/resolve-prompt-action');
+  tool.store.dispatch(new AttackAction(tool.attacker.id,'Crisis Punch'));
+  let waits=0;
+  while(true){
+    const pending=tool.state.prompts.find(p=>p.result===undefined);
+    if(!pending)break;
+    if(pending.constructor.name!=='WaitPrompt') {
+      throw new Error('Unexpected post-attack prompt: '+pending.constructor.name);
+    }
+    tool.store.dispatch(new ResolvePromptAction(pending.id,null));
+    waits++;
+    if(waits>12)throw new Error('Too many post-attack prompts');
+  }
+  const toolAfter=auditSimulatorProfiles(tool.state);
   const {deepClone}=engine('utils');
   const shared=[{value:1}];
   const repeated={left:shared,right:shared};
@@ -87,8 +114,16 @@ function characterizePrototypeSafeStateGraph() {
     evidenceClass:'pinned-source-Store-clone-reference-graph',
     pinnedRevision:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     fixture:'preparedRegidrago staged Store state',
-    pinned:baseline,
-    prototypeSafe:isolated,
+    pinned:baseline.pinned,
+    prototypeSafe:baseline.prototypeSafe,
+    additionalStateProfiles: {
+      crisisPunchReady:toolReady,
+      crisisPunchAfterRealAttack:{
+        promptWaits:waits,
+        defendingBoardDamage:tool.defender.active.damage,
+        profiles:toolAfter
+      }
+    },
     syntheticRepeatedArrayAliasPreserved:dup.left===dup.right,
     caution:'Own-data identity checks are necessary but do not certify reducer, Ability, hidden-information or full-game fidelity.'
   };
@@ -98,4 +133,4 @@ if(require.main === module) {
   process.stdout.write(JSON.stringify(characterizePrototypeSafeStateGraph(),null,2)+'\n');
 }
 
-module.exports={compareOwnedStateGraph,characterizePrototypeSafeStateGraph};
+module.exports={compareOwnedStateGraph,auditSimulatorProfiles,characterizePrototypeSafeStateGraph};
