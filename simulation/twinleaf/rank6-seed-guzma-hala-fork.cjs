@@ -144,6 +144,18 @@ function withDamageObserver(fn) {
       const actor=this.state.players[1];
       attack.handAtDamage=actor.hand.cards.map(c=>c.fullName);
       attack.discardAtDamage=actor.discard.cards.map(c=>c.fullName);
+      const prints={
+        hand:actor.hand.cards.map(c=>c.fullName),
+        deck:actor.deck.cards.map(c=>c.fullName),
+        prizes:actor.prizes.flatMap(slot=>slot.cards.map(c=>c.fullName)),
+        discard:actor.discard.cards.map(c=>c.fullName)
+      };
+      attack.recoveryZoneCounts=Object.fromEntries(
+        ['Guzma','VS Seeker','Lusamine'].map(name=>[
+          name,Object.fromEntries(Object.entries(prints).map(([zone,cards])=>[
+            zone,cards.filter(card=>card.startsWith(name+' ')).length
+          ]))
+        ]));
     }
     return result;
   };
@@ -209,6 +221,14 @@ function main() {
     assert.equal(attack?.damageAfter,140);
     const retained=attack.handAtDamage;
     const discarded=attack.discardAtDamage;
+    assert.deepEqual(attack.recoveryZoneCounts['VS Seeker'],
+      {hand:0,deck:3,prizes:0,discard:0},
+      'Three physical VS Seekers must remain unprized under this source seed');
+    assert.deepEqual(attack.recoveryZoneCounts.Lusamine,
+      {hand:0,deck:2,prizes:0,discard:0},
+      'Two physical Lusamine must remain unprized under this source seed');
+    assert.equal(attack.recoveryZoneCounts.Guzma.prizes,2,
+      'Two source Guzma must remain Prized');
     for(const name of discardNames){
       assert.ok(discarded.some(card=>card.startsWith(name+' ')),
         'Declared discarded card not observed in Store discard: '+name);
@@ -219,6 +239,7 @@ function main() {
       announcedAttack:'Volt Cyclone',immediateDefenderDamage:attack.damageAfter,
       retainedHandPrintings:retained,
       resultingDiscardPrintings:discarded,
+      sourceRecoveryZoneCounts:attack.recoveryZoneCounts,
       decisionEvents:branch.events};
   });
   console.log(JSON.stringify({
