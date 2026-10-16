@@ -113,3 +113,32 @@ test('K0 unknown-Prize sampling rejects missing observation proof',()=>{
     setup(),1,{},0,()=>1,null,structuredClone,
     {...opts,sampleUnknownPrizes:true}),/verified absence of Prize observations/);
 });
+
+test('K0 exhaustive four-card redeals reproduce finite-population probabilities',()=>{
+  const source=setup();
+  source.players[0].deck.cards.length=3;
+  source.players[0].prizes=[
+    {cards:[{id:11,fullName:'D'}]},
+    {cards:[{id:13,fullName:'E'}]}
+  ];
+  const permutations=[];
+  for(let a=0;a<4;a++)for(let b=0;b<4;b++)
+    for(let c=0;c<4;c++)for(let d=0;d<4;d++)
+      if(new Set([a,b,c,d]).size===4)permutations.push([a,b,c,d]);
+  let next=0;
+  let prizedHit=0;
+  const options={...opts,samples:permutations.length,
+    permutation:n=>{assert.equal(n,4);return permutations[next++]},
+    sampleUnknownPrizes:true,prizesUnobservedVerified:true,
+    knownTopCount:1,knownTopVerified:true};
+  const expected= evaluateDetachedDeckSamples(
+    source,1,{},0,state=>{
+      const player=state.players[0];
+      if(player.prizes.some(prize=>prize.cards[0].fullName==='B'))prizedHit++;
+      return player.deck.cards[1].fullName==='B'?1:0;
+    },null,structuredClone,options);
+  assert.equal(permutations.length,24);
+  assert.equal(expected,1/4);
+  assert.equal(prizedHit,12);
+  assert.equal(source.players[0].prizes[0].cards[0].fullName,'D');
+});
