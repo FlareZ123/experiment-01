@@ -24,7 +24,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify reversible noninterfering recording wrapper
-        run: node --test tests/store-dispatch-transcript.test.cjs tests/source-action-value-codec.test.cjs tests/source-prompt-action-codec.test.cjs tests/action-trace-canonical.test.cjs tests/choose-cards-reference.test.cjs tests/rank10-source-branch-transcript.test.cjs tests/choose-attack-reference.test.cjs tests/source-zone-checkpoint.test.cjs tests/choice-slot-reference.test.cjs tests/choose-energy-reference.test.cjs tests/attach-energy-reference.test.cjs tests/state-continuity-observer.test.cjs
+        run: node --test tests/store-dispatch-transcript.test.cjs tests/source-action-value-codec.test.cjs tests/source-prompt-action-codec.test.cjs tests/action-trace-canonical.test.cjs tests/choose-cards-reference.test.cjs tests/rank10-source-branch-transcript.test.cjs tests/rank10-source-input-coverage.test.cjs tests/choose-attack-reference.test.cjs tests/source-zone-checkpoint.test.cjs tests/choice-slot-reference.test.cjs tests/choose-energy-reference.test.cjs tests/attach-energy-reference.test.cjs tests/state-continuity-observer.test.cjs
       - name: Install compiled engine dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
