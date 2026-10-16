@@ -46,3 +46,15 @@ function installLeleEntryAbilityLockHook() {
     }
     return original.call(this, store, state, effect);
   }
+
+  TapuLeleGX.prototype.reduceEffect = corrected;
+  activeRestore = () => {
+    if (TapuLeleGX.prototype.reduceEffect === corrected) {
+      TapuLeleGX.prototype.reduceEffect = original;
+    }
+    activeRestore = null;
+  };
+  return activeRestore;
+}
+
+module.exports = {installLeleEntryAbilityLockHook};
