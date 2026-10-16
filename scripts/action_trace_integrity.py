@@ -45,8 +45,8 @@ def canonical_action_trace_bytes(trace):
                 type(event.get("action")) is not str or
                 not event["action"].strip()):
             raise ValueError("Trace events need sequential steps and action names")
-    _check_json_value(trace)
     try:
+        _check_json_value(trace)
         return json.dumps(trace, ensure_ascii=False, sort_keys=True,
                           separators=(",", ":"), allow_nan=False).encode("utf-8")
     except (UnicodeError, ValueError, OverflowError, RecursionError) as exc:
