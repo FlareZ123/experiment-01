@@ -9,6 +9,7 @@ const {installMegatonBlowerHook} = require('./megaton-blower-hook.cjs');
 const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 const {installForestSealSearchHook} = require('./forest-seal-search-hook.cjs');
 const {installSupporterDecisionHook} = require('./supporter-decision-hook.cjs');
+const {installGuzmaSelfSwitchGuard} = require('./guzma-self-switch-guard.cjs');
 const {installLeleEntryAbilityLockHook} = require('./lele-entry-ability-lock-hook.cjs');
 const {installRadiantGateLockHook} = require('./radiant-gate-lock-hook.cjs');
 const {selectedCardsEvidence, selectedOptionEvidence} = require('./selected-cards-evidence.cjs');
@@ -170,6 +171,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [templeUnlockRecovery] Opt-in attack-unlocking Marshadow response to Temple.
  * @property {boolean} [isolatePolicyRandomness] Use independent RNG streams for speculative bot decisions (experimental).
  * @property {boolean} [supporterDecisionCorrection] Opt-in, reversible correction for premature Supporter turn consumption.
+ * @property {boolean} [guzmaSelfSwitchGuard] Opt-in rank-6 off-type self-switch counterfactual.
  * @property {boolean} [leleEntryAbilityLockCorrection] Opt-in correction for Tapu Lele-GX Bench-entry Ability locks.
  * @property {boolean} [radiantGateLockCorrection] Opt-in correction for Radiant Eternatus Bench-entry Ability locks.
  * @property {boolean} [snorlaxRetreatStartCorrection] Opt-in, reversible Block check on interactive retreat.
@@ -203,6 +205,7 @@ function runMatch(request) {
   let restoreMegatonBlowerHook;
   let restoreForestSealSearchHook;
   let restoreSupporterDecisionHook;
+  let restoreGuzmaSelfSwitchGuard;
   let restoreLeleEntryAbilityLockHook;
   let restoreRadiantGateLockHook;
   let restoreSnorlaxRetreatStartHook;
@@ -223,6 +226,9 @@ function runMatch(request) {
     restoreBotHooks = installFairBotHooks();
     if (request.supporterDecisionCorrection === true) {
       restoreSupporterDecisionHook = installSupporterDecisionHook();
+    }
+    if (request.guzmaSelfSwitchGuard === true) {
+      restoreGuzmaSelfSwitchGuard = installGuzmaSelfSwitchGuard();
     }
     if (request.leleEntryAbilityLockCorrection === true) {
       restoreLeleEntryAbilityLockHook = installLeleEntryAbilityLockHook();
@@ -447,6 +453,7 @@ function runMatch(request) {
       doubleDragonRecovery: request.doubleDragonRecovery === true,
       templeUnlockRecovery: request.templeUnlockRecovery === true,
       supporterDecisionCorrection: request.supporterDecisionCorrection === true,
+      guzmaSelfSwitchGuard: request.guzmaSelfSwitchGuard === true,
       leleEntryAbilityLockCorrection: request.leleEntryAbilityLockCorrection === true,
       radiantGateLockCorrection: request.radiantGateLockCorrection === true,
       snorlaxRetreatStartCorrection: request.snorlaxRetreatStartCorrection === true,
@@ -455,6 +462,7 @@ function runMatch(request) {
         'Twinleaf SimpleTacticsAi/defaultStateScores+DoubleDragonAttachTactic-v1' :
         'Twinleaf SimpleTacticsAi/defaultStateScores') +
         (request.supporterDecisionCorrection === true ? '+SupporterDecisionGuard-v1' : '') +
+        (request.guzmaSelfSwitchGuard === true ? '+GuzmaSelfSwitchGuard-v1' : '') +
         (request.templeUnlockRecovery === true ? '+TempleUnlockTactic-v1' : '') +
         (request.snorlaxRetreatStartCorrection === true ? '+SnorlaxBlockStartGate-v1' : '') +
         (request.shadowRiderEnergyPriority === true ? '+ShadowRiderPsychicAttachPriority-v1' : '') +
@@ -469,6 +477,7 @@ function runMatch(request) {
     if (restoreRadiantGateLockHook) restoreRadiantGateLockHook();
     if (restoreLeleEntryAbilityLockHook) restoreLeleEntryAbilityLockHook();
     if (restoreSnorlaxRetreatStartHook) restoreSnorlaxRetreatStartHook();
+    if (restoreGuzmaSelfSwitchGuard) restoreGuzmaSelfSwitchGuard();
     if (restoreSupporterDecisionHook) restoreSupporterDecisionHook();
     if (restoreBotHooks) restoreBotHooks();
     if (restoreForestSealSearchHook) restoreForestSealSearchHook();
