@@ -18,8 +18,9 @@ function reachableCards(root, isCard) {
     } else if (value instanceof Set) {
       for (const item of value) pending.push(item);
     } else {
-      for (const descriptor of Object.values(Object.getOwnPropertyDescriptors(value))) {
-        if (Object.hasOwn(descriptor, 'value')) pending.push(descriptor.value);
+      for (const key of Reflect.ownKeys(value)) {
+        const descriptor = Object.getOwnPropertyDescriptor(value,key);
+        if (descriptor && Object.hasOwn(descriptor,'value')) pending.push(descriptor.value);
       }
     }
   }
