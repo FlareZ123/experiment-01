@@ -25,3 +25,9 @@ This provides a plausible paper-legal, attack-producing line on a turn the gener
 The chronological trace is deliberately incomplete. Before calling this a confirmed **engine-accepted missed attack**, replay the pinned Store state with the identical hand and public board, both Stadiums, active Tool and prior-turn restriction state. Record whether `PlayCardAction(Thunder Mountain)` is accepted and whether `AttackAction(Volt Cyclone)` resolves 140 damage plus one Energy transfer. Compare against the original pass and a control with Thunder Mountain absent.
 
 Source card texts from supplied JSON: `sm8-191` Thunder Mountain, `sm9-158` Wondrous Labyrinth, `sv6-77` Iron Thorns ex, `sv9-159` Spiky, `swsh2-171` Capture and `swsh2-173` Speed Lightning. This is a **tactical policy counterexample candidate**, not a deck ranking, game-win result or 99.5% claim.
+
+## Additional sequence check and opportunity cost
+
+The same trace records `PlayCardAction Wondrous Labyrinth Prism Star` by opponent seat 0 at **turn 7, action 60**, well before turn 21. The rank-6 frozen deck has exactly one Wondrous Labyrinth and one Thunder Mountain. No later Stadium action through ordinal 187 is recorded, strengthening the inference that the once-per-turn Stadium play remains unused on turn 21. This remains a partial trace rather than an omniscient engine log.
+
+Replacing Wondrous also gives up its ongoing extra-Colorless attack tax against the opponent's non-Fairy Pokémon. The proposed line establishes **action reachability**, while strategic superiority would require a counterfactual opponent response and subsequent turns. The opponent might rationally preserve the lock instead of dealing 140 damage immediately, so describe this as a missed *available action sequence*, not as a demonstrated bot misplay or win-rate gain.
