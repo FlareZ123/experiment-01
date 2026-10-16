@@ -209,14 +209,20 @@ function executeCampaign(inputs, options = {}) {
         observedSeed: game.seed ?? null,
         effectiveMatchOptions: {
           forestSealSearchCorrection: request.forestSealSearchCorrection === true,
-          doubleDragonRecovery: request.doubleDragonRecovery === true,
-          supporterDecisionCorrection: request.supporterDecisionCorrection === true,
+          doubleDragonRecovery: game.doubleDragonRecovery === true ||
+            (game.doubleDragonRecovery === undefined && request.doubleDragonRecovery === true),
+          supporterDecisionCorrection: game.supporterDecisionCorrection === true ||
+            (game.supporterDecisionCorrection === undefined &&
+              request.supporterDecisionCorrection === true),
           strictPromptValidation: request.strictPromptValidation,
-          isolatePolicyRandomness: request.isolatePolicyRandomness
+          isolatePolicyRandomness: game.policyRandomIsolation === undefined ?
+            request.isolatePolicyRandomness : game.policyRandomIsolation
         },
         resolvedEngineRevision: plan.engineRevision || null,
         observedEngine: game.engine || null,
         observedPolicy: game.policy || null,
+        observedResearchPolicyProfile: game.researchPolicyProfile || null,
+        observedExperimentalTactics: game.experimentalTactics || [],
         observedRngProtocol: game.randomnessProtocol || null,
         observedRules: game.rules || null,
         observedEngineDeckHashes: game.deckHashes || null,
@@ -252,8 +258,16 @@ if (require.main === module) {
   const maxActions = Number(process.env.CAMPAIGN_MAX_ACTIONS || 800);
   const selectedText = process.env.CAMPAIGN_TRIAL_IDS || '';
   const trialIds = selectedText ? selectedText.split(',').map(x => x.trim()) : undefined;
+  const profile = process.env.CAMPAIGN_POLICY_PROFILE || '';
+  const profiled = profile ?
+    require('../twinleaf/policy-profiles.cjs') : null;
+  if (profile && !profiled.ALLOWED_PROFILES.includes(profile)) {
+    throw new Error('Unknown requested campaign policy profile.');
+  }
+  const runMatch = profiled ?
+    request => profiled.runWithResearchProfile(request, profile) : undefined;
   process.stdout.write(JSON.stringify(executeCampaign(loadCampaignInputs(), {
-    phase, maxTrials, maxActions, trialIds
+    phase, maxTrials, maxActions, trialIds, runMatch
   }), null, 2) + '\n');
 }
 
