@@ -264,6 +264,7 @@ function runMatch(request) {
     const actionsBySeat = [{}, {}];
     const cardsPlayedBySeat = [{}, {}];
     const attackTrace = [];
+    const abilityTrace = [];
     while (store.state.phase !== GamePhase.FINISHED && actions < maxActions) {
       const state = store.state;
       const pending = state.prompts.find(prompt => prompt.result === undefined);
@@ -304,6 +305,9 @@ function runMatch(request) {
       const seat = state.players.findIndex(player => player.id === actingId);
       const playedCard = actionName === 'PlayCardAction' && seat >= 0 ?
         state.players[seat].hand.cards[action.handIndex]?.name : undefined;
+      const abilityInfo = actionName === 'UseAbilityAction' && seat >= 0 ? {
+        turn: state.turn, seat, name: action.name
+      } : null;
       const attackInfo = actionName === 'AttackAction' && seat >= 0 ? {
         turn: state.turn, seat,
         activePokemon: state.players[seat].active.getPokemonCard()?.name || '',
@@ -323,6 +327,7 @@ function runMatch(request) {
           cardsPlayedBySeat[seat][playedCard] = (cardsPlayedBySeat[seat][playedCard] || 0) + 1;
         }
       }
+      if (abilityInfo) abilityTrace.push(abilityInfo);
       if (attackInfo) {
         attackInfo.prizeCountAfter = store.state.players.map(player =>
           player.prizes.filter(prize => prize.cards.length > 0).length);
@@ -344,6 +349,7 @@ function runMatch(request) {
       actionsBySeat,
       cardsPlayedBySeat,
       attackTrace,
+      abilityTrace,
       finalState: state.players.map(player => ({
         deckRemaining: player.deck.cards.length,
         handSize: player.hand.cards.length,
