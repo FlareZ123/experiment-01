@@ -7,6 +7,7 @@ const {captureAction}=require('./source-action-value-codec.cjs');
 const {capturePromptAction}=require('./source-prompt-action-codec.cjs');
 const {observedCounts}=require('./store-dispatch-transcript.cjs');
 const {sourceZoneSnapshot,zoneSnapshotDigest}=require('./source-zone-checkpoint.cjs');
+const {observableState,hash:continuityHash}=require('./source-state-continuity.cjs');
 
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const engine=relative=>require(path.join(output,relative));
@@ -54,6 +55,8 @@ function withRecordedSourceActions(sourceTrace,work) {
     }
     assert.equal(zoneSnapshotDigest(sourceZoneSnapshot(state)),event.zoneDigestBefore,
       'Before-action hidden-zone digest differs at source step '+ordinal);
+    assert.equal(continuityHash(observableState(state)),event.continuityDigestBefore,
+      'Before-action card-history digest differs at source step '+ordinal);
     if(event.typedAction) {
       assert.deepEqual(captureAction(action),event.typedAction,
         'Typed action fields differ at source step '+ordinal);
@@ -78,6 +81,8 @@ function withRecordedSourceActions(sourceTrace,work) {
       'After-action Store summary differs at source step '+ordinal);
     assert.equal(zoneSnapshotDigest(sourceZoneSnapshot(this.state)),event.zoneDigestAfter,
       'After-action hidden-zone digest differs at source step '+ordinal);
+    assert.equal(continuityHash(observableState(this.state)),event.continuityDigestAfter,
+      'After-action card-history digest differs at source step '+ordinal);
     ordinal+=1;
     return result;
   };
