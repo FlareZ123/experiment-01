@@ -58,6 +58,8 @@ The [Hood Shield engine smoke archive](aichi-2026/hood-engine-smoke.md) now pres
 
 [Agent 36's opt-in Double Dragon Energy policy integration](twinleaf/dde-runtime-integration.md) now exposes the existing recovery tactic in the headless runner and field evaluator with explicit provenance. [Pinned-engine manual CI 38833103265](https://github.com/FlareZ123/experiment-01/actions/runs/38833103265) passed the prepared-state legality test and deterministic source-deck replay; however, both tested full source-list modes played **zero** Double Dragon Energy, so no gameplay improvement was observed. The generic policy remains unvalidated.
 
+[Agent 36's 16-game Regidrago policy factorial](twinleaf/regidrago-policy-interaction.md) isolates the two opt-in research fixes for Supporter decision gating and dynamic Double Dragon attachment in four fixed-source conditions. Both alter actual actions, while Apex Dragon attack counts change non-monotonically across conditions; [manual CI 38834570812](https://github.com/FlareZ123/experiment-01/actions/runs/38834570812) passed. This is reproducible bot-behavior evidence, with no representative competitive win rate.
+
 ## Evidence state
 
 Three tournament-source engine fixtures completed under an unvalidated generic bot; no competitive matchup performance has been validated. **There is no measured win rate, and the 99.5% objective remains unmet.** Prioritize exact card legality, full decklist ingestion, Twinleaf engine support validation, and honest per-opponent statistical testing.
