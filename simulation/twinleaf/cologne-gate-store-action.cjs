@@ -89,6 +89,10 @@ function probeRealGateAction(useCologne) {
     store.dispatch(new ResolvePromptAction(prompt.id, value));
   }
   if (cologne) play(cologne, boardTarget);
+  const markerDuringCologne = cologne
+    ? opponent.marker.hasMarker('CANCELING_COLOGNE_MARKER', cologne)
+    : false;
+  if (cologne) assert.equal(markerDuringCologne, true);
   const powers = new CheckPokemonPowersEffect(opponent, iron);
   store.reduceEffect(state, powers);
   const initializationVisible = powers.powers.some(p => p.name === 'Initialization');
@@ -125,9 +129,30 @@ function probeRealGateAction(useCologne) {
   const vmaxBenched = player.bench.filter(slot =>
     slot.getPokemonCard()?.name === 'Shadow Rider Calyrex VMAX').length;
   assert.equal(vmaxBenched, gateUsed ? 2 : 0);
+
+  // Gate ends the current turn. Cologne's marker should disappear at that
+  // boundary, allowing Active Iron Thorns' persistent Initialization to
+  // suppress the now-Benched, unprotected VMAX Underworld Door once again.
+  const markerAfterGate = cologne
+    ? opponent.marker.hasMarker('CANCELING_COLOGNE_MARKER', cologne)
+    : false;
+  const ironAfter = new CheckPokemonPowersEffect(opponent, iron);
+  store.reduceEffect(state, ironAfter);
+  const initializationAfterGate = ironAfter.powers.some(p => p.name === 'Initialization');
+  const vmax = player.bench.find(slot =>
+    slot.getPokemonCard()?.name === 'Shadow Rider Calyrex VMAX')?.getPokemonCard();
+  let underworldDoorAfterGate = null;
+  if (vmax) {
+    const after = new CheckPokemonPowersEffect(player, vmax);
+    store.reduceEffect(state, after);
+    underworldDoorAfterGate = after.powers.some(power => power.name === 'Underworld Door');
+  }
+
   return {
     useCologne, initializationVisible, gatePrompt, gateUsed,
-    vmaxBenched, radiantBenched,
+    vmaxBenched, radiantBenched, markerDuringCologne, markerAfterGate,
+    initializationAfterGate, underworldDoorAfterGate,
+    phaseAfterGate: state.phase, activePlayerAfterGate: state.activePlayer,
     pendingCount: state.prompts.filter(p => p.result === undefined).length
   };
 }
@@ -148,6 +173,14 @@ function runTest() {
     assert.equal(correctedLocked.radiantBenched, true);
     assert.equal(correctedCologne.gatePrompt, true);
     assert.equal(correctedCologne.vmaxBenched, 2);
+    assert.equal(correctedCologne.markerDuringCologne, true,
+      'Cologne must actually apply before Radiant comes to Bench');
+    assert.equal(correctedCologne.markerAfterGate, false,
+      'Cologne must end when Climactic Gate ends the turn');
+    assert.equal(correctedCologne.initializationAfterGate, true,
+      'Iron Thorns Initialization should resume after Cologne ends');
+    assert.equal(correctedCologne.underworldDoorAfterGate, false,
+      'The two VMAX should not retain Underworld Door through the resumed lock');
     for (const row of [upstreamLocked, upstreamCologne, correctedLocked, correctedCologne]) {
       assert.equal(row.pendingCount, 0);
     }
