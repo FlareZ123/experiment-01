@@ -19,11 +19,14 @@ For the restricted **core resource route**, require all of:
 3. An attack-payable Energy in the first eight, or a suitable Special Energy searchable by Guzma & Hala. A Bunnelby that started Active can use the basic Grass, Capture, Memory, or Jet Energy. A Bunnelby promoted from the Bench requires Jet Energy for this restricted route.
 4. If a search is required, have Guzma & Hala directly, or have Tag Call and an unprized Guzma & Hala remaining in the deck. The searched Tool and Special Energy must individually survive the six Prize cards.
 
-The stricter **Bench-target** event additionally requires a Pidgey, Oddish, or Lillipup to occupy a Bench slot. If Bunnelby was absent from the starting seven, the player must also leave a different Basic in the Active Spot until the Jet pivot. A sole evolving Basic forced to begin Active cannot count as the Bench target.
+The stricter **Bench-target** event additionally requires a Pidgey, Oddish, or Lillipup to occupy a Bench slot. If Bunnelby was absent from the starting seven, another Basic necessarily began Active. Jet Energy then promotes the newly Benched Bunnelby to Active and moves that original Active onto the Bench. Therefore, even a sole evolving Basic initially forced into the Active Spot can be an eligible Bench target after the pivot.
 
 The search model assumes Guzma & Hala's optional two-card discard can be paid without strategically harmful sacrifices, and that Tag Call is usable. It does not actually execute cards or evaluate alternate Supporter turns.
 
 ## Results
+
+**16 October correction:** The initial version underestimated Jet Energy pivot target availability by mistakenly excluding an evolving Basic that starts Active. Such a Basic moves to the Bench when Jet Energy promotes Bunnelby, making it eligible for Evolution. The source model, its independent exhaustive oracle, and the Monte Carlo cross-check have been corrected. The original core resource-access rate is unchanged.
+
 
 All percentages in the last five rows are **conditional on an accepted seven-card opening**, with six uniformly unknown Prize cards.
 
@@ -34,9 +37,9 @@ All percentages in the last five rows are **conditional on an accepted seven-car
 | Bunnelby first appears as the turn draw | 2.803394% |
 | TM + payable Energy already drawn, with Bunnelby positioned as above | **3.042510%** |
 | Same core resources, including Guzma & Hala / Tag Call search paths | **20.007014%** |
-| Core resources **and** an evolving Bench Basic available | **10.204902%** |
+| Core resources **and** an evolving Bench Basic available | **10.660926%** |
 
-The search-enabled core opportunity has two disjoint contributions: **18.171380%** from hands with Bunnelby initially present and **1.835634%** from hands drawing Bunnelby on turn one. Requiring an evolving Bench Basic leaves **9.452464%** and **0.752437%**, respectively.
+The search-enabled core opportunity has two disjoint contributions: **18.171380%** from hands with Bunnelby initially present and **1.835634%** from hands drawing Bunnelby on turn one. Requiring an evolving Bench Basic leaves **9.452464%** and **1.208462%**, respectively.
 
 **Interpretation:** The search path materially expands the theoretical opening resource opportunity relative to direct card draws. Even with those connectors, roughly half of the modeled core opportunities do not simultaneously satisfy the minimal evolving-Bench-target condition. These numbers do not quantify actual double evolution, board lock, or matchup wins. In particular, the strict event can miss real lines enabled by Fan Rotom, Artazon, other card effects, mulligan bonus draws, or different sequencing.
 
@@ -44,10 +47,10 @@ The search-enabled core opportunity has two disjoint contributions: **18.171380%
 
 - [Exact named-card-source enumerator](../../scripts/aichi-vileplume-tm-opening.cjs). Its 10 disjoint categories are Bunnelby 2, evolving Basics 6, other Basics 6, Guzma & Hala 4, Tag Call 4, TM: Evolution 2, Jet Energy 2, other Special Energy 3, Grass Energy 1, and other cards 30. Its source assertion prevents accidental silent reclassification of rank 2.
 - [Independent exhaustive regression](../../tests/aichi-vileplume-tm-opening.test.cjs). It compares the inclusion-exclusion calculation to all **40,320 ordered permutations** of an eight-card miniature deck, resolving actual Prize identities and the actual next draw. Absolute error is below 1e-12 on the four modeled events. It also checks the published 60-card source-count invariant and output.
-- An independent Python Monte Carlo sample of 500,000 uniform 15-card partial deals (seed 20261016) produced **430,385 accepted starts**. Conditional resource opportunity was **20.0941%** (approximate 95% binomial interval ±0.1197 percentage points), while Bench-target opportunity was **10.2232%** (±0.0905 points). Both agree statistically with exact values. This is a computational cross-check only.
+- An independent Python Monte Carlo sample of 500,000 uniform 15-card partial deals (seed 20261016) produced **430,385 accepted starts**. Conditional resource opportunity was **20.0941%** (approximate 95% binomial interval ±0.1197 percentage points), while Bench-target opportunity was **10.6930%** (±0.0923 points). Both agree statistically with exact values. This is a computational cross-check only.
 
 ## Limitations and next research gate
 
-A Bench target is not enough to ensure a productive TM attack: the required Stage 1 and Stage 2 cards must remain searchable; actual Bench slots, discard decisions, evolution sequencing, matchup lock interactions, and opponent responses all matter. The analysis ignores other Item/Ability search or acceleration, Supporter contention, K0/K1 knowledge, opponent mulligan draws, and first-player disruption. **The 10.205% result is not a rigorous lower or upper bound on real first-turn double-TM establishment**, because excluded access routes may increase it and omitted legality/action constraints may decrease it.
+A Bench target is not enough to ensure a productive TM attack: the required Stage 1 and Stage 2 cards must remain searchable; actual Bench slots, discard decisions, evolution sequencing, matchup lock interactions, and opponent responses all matter. The analysis ignores other Item/Ability search or acceleration, Supporter contention, K0/K1 knowledge, opponent mulligan draws, and first-player disruption. **The 10.661% result is not a rigorous lower or upper bound on real first-turn double-TM establishment**, because excluded access routes may increase it and omitted legality/action constraints may decrease it.
 
 The highest-value next test is a true-starting-turn, replayable Twinleaf rank-2 fixture with policy-directed **Bunnelby Barrage -> TM: Evolution -> TM: Evolution**, validating the order of both evolution attacks, Prize and Bench availability, and the resulting Vileplume/Pidgeot/Stoutland state under adversarial responses. Only after credible policy coverage should this be connected to the rank-1 challenger comparison or 32-placement benchmark.
