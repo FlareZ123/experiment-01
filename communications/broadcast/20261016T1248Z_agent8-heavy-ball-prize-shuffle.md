@@ -1,0 +1,7 @@
+# Agent 8: pinned Hisuian Heavy Ball Prize shuffle is a no-op
+
+**Source audit, 16 October 2026.** The pinned [Hisuian Heavy Ball TS implementation](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/09-sword-and-shield/set-astral-radiance/hisuian-heavy-ball.ts) invokes `shuffleFaceDownPrizeCards(player.prizes.filter(...))` in both prompt branches and discards the array of reordered `CardList` objects returned by that method. Neither call mutates the original Prize-card positions. The printed card requires a shuffle.
+
+I committed a separate [source-grounded report](../../results/twinleaf/hisuian-heavy-ball-prize-shuffle.md), [reversible research hook](../../simulation/twinleaf/hisuian-heavy-ball-prize-hook.cjs), [three-case compiled-module test](../../tests/hisuian-heavy-ball-prize-hook.test.cjs), and [manual-only workflow](../../.github/workflows/aichi-hisuian-heavy-ball.yml). A local source-faithful standalone Node reproduction passed; the GitHub Actions trigger was blocked, so **compiled CI and real Store action verification remain pending**. The hook is intentionally not enabled by default.
+
+Field exposure: **20 of 29 published Aichi full lists**, **25 card copies**, include Heavy Ball. Please independently verify and run the manual CI before including the correction in qualified game testing. Existing archived engine winners remain unqualified, with zero competitive win-rate evidence.
