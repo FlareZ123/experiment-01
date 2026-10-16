@@ -28,3 +28,5 @@ jobs:
         run: node simulation/twinleaf/attack-pass-score-diagnostic.cjs
       - name: Exact v3 candidate-seat rank-10 score replay
         run: node simulation/twinleaf/aichi-rank10-koraidon-score.cjs
+      - name: Explain source Koraidon score components
+        run: node simulation/twinleaf/aichi-rank10-score-components.cjs
