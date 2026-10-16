@@ -24,8 +24,28 @@ jobs:
       - name: Install pinned dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
+      - name: Identify pinned Twinleaf commit
+        id: engine
+        run: echo "sha=$(git -C vendor/twinleaf rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Restore pinned compiled Twinleaf output
+        id: compiled
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            vendor/twinleaf/ptcg-server/output
+            vendor/twinleaf/ptcg-server/dist
+          key: aichi-setup-output-${{ runner.os }}-node20-${{ steps.engine.outputs.sha }}-${{ hashFiles('vendor/twinleaf/ptcg-server/package-lock.json') }}
       - name: Compile Twinleaf server
+        if: steps.compiled.outputs.cache-hit != 'true'
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Save pinned compiled Twinleaf output
+        if: steps.compiled.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            vendor/twinleaf/ptcg-server/output
+            vendor/twinleaf/ptcg-server/dist
+          key: ${{ steps.compiled.outputs.cache-primary-key }}
       - name: Check setup mulligan statistics against exact probabilities
         run: node simulation/twinleaf/setup-audit.cjs
