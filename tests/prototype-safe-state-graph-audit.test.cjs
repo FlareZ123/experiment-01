@@ -25,9 +25,15 @@ test('pinned tool-attack history has a measured clone alias-fidelity limitation'
     assert.equal(profile.prototypeSafe.sharedReferences.count,0);
     assert.equal(profile.prototypeSafe.sourcePrototypeAliases.count,0);
     assert.equal(profile.prototypeSafe.missingProperties.count,0);
+    assert.equal(profile.postSuperRepair.sharedReferences.count,0);
+    assert.equal(profile.postSuperRepair.sourcePrototypeAliases.count,0);
+    assert.equal(profile.postSuperRepair.missingProperties.count,0);
+    assert.equal(profile.postSuperRepair.repeatedArrayBreaks.count,0);
+    assert.equal(profile.postSuperRepair.repeatedObjectBreaks.count,0);
   }
   assert.equal(ready.pinned.repeatedObjectBreaks.count,0);
   assert.equal(ready.prototypeSafe.repeatedObjectBreaks.count,0);
+  assert.equal(ready.postSuperRepair.repeatedObjectBreaks.count,0);
   for(const mode of ['pinned','prototypeSafe']){
     const broken=after.profiles[mode].repeatedObjectBreaks;
     assert.equal(broken.count,2);
