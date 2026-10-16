@@ -28,6 +28,8 @@ jobs:
         run: node --test tests/aichi-registration-fidelity.test.cjs
       - name: Assert New Moon Stadium source-field census
         run: node --test tests/aichi-new-moon-stadium-census.test.cjs
+      - name: Verify exact New Moon twin-singleton rescue combinatorics
+        run: node --test tests/new-moon-prize-access.test.cjs
       - name: Fetch and validate all 29 published full lists
         run: python scripts/ingest_aichi.py
       - uses: actions/upload-artifact@v4
