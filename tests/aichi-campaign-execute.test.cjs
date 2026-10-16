@@ -26,6 +26,7 @@ function run(options = {}) {
   const campaign = loadDefaultCampaign();
   return executeDiagnostic({
     campaign, ranks: [6], maxActions: 30,
+    policyFlags: options.policyFlags || {},
     resolvePair: trial => ({ candidateDigest: trial.candidateDigest,
       opponentDigest: trial.opponentDigest,
       candidateCards: cards, opponentCards: cards }),
