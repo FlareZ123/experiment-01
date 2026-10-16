@@ -32,4 +32,12 @@ assert.equal(run1.firstTurnPlayerId, [101, 202][run1.firstTurnSlot]);
 assert.equal(run1.firstTurnPlayerName, run1.firstDrawLogName,
   'The first-turn engine state must match the first draw log.');
 assert.equal(run1.verifiedByDrawLog, true);
-console.log(JSON.stringify({ kind: 'headless-smoke', note: 'No Aichi field matches or win-rate evidence', result: run1 }, null, 2));
+const isolatedRequest = { ...request, isolatePolicyRandomness: true };
+const isolated1 = runMatch(isolatedRequest);
+const isolated2 = runMatch(isolatedRequest);
+assert.deepEqual(isolated1, isolated2,
+  'Separate policy/game RNG streams must remain deterministic under the pinned engine.');
+assert.equal(isolated1.policyRandomIsolation, true);
+assert.equal(isolated1.randomnessProtocol, 'separate-game-and-per-seat-policy-prng-v1');
+assert.equal(run1.policyRandomIsolation, false, 'Legacy records keep their original RNG protocol.');
+console.log(JSON.stringify({ kind: 'headless-smoke', note: 'No Aichi field matches or win-rate evidence', result: run1, isolatedResult: isolated1 }, null, 2));
