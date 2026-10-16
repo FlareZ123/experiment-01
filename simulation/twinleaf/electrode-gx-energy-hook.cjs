@@ -34,3 +34,11 @@ function installElectrodeGXEnergyHook() {
     if (available.length===0) return original.call(this,store,state,effect);
     const mandatory=Math.min(5,available.length);
     const legalTarget=t=>recipients.some(v=>v.player===t.player && v.slot===t.slot && v.index===t.index);
+    const wrapped = new Proxy(store,{
+      get(target,property) {
+        if (property==='prompt') return (nextState,prompt,callback)=>{
+          if (prompt instanceof AttachEnergyPrompt &&
+              prompt.cardList===player.discard &&
+              prompt.message===GameMessage.ATTACH_ENERGY_CARDS &&
+              prompt.options.max===5) {
+            prompt.options.min=mandatory;
