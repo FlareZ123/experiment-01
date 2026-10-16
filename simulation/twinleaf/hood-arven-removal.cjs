@@ -111,7 +111,11 @@ function runResponse(removal) {
   assert.equal(search.options.maxItems, 1);
   assert.equal(search.options.maxTools, 1);
   assert.equal(search.validate([hood, item]), true,
-    'Arven must allow one Tool plus one Item, under exact prompt constraints');
+    'Arven search target unexpectedly rejected: ' + JSON.stringify({
+      options: search.options,
+      deck: search.cards.cards.map(c => ({name:c.name,type:c.trainerType,id:c.id})),
+      desired: [{name:hood.name,id:hood.id},{name:item.name,id:item.id}]
+    }));
   answer(ChooseCardsPrompt, [hood, item]);
   assert.ok(player.hand.cards.includes(hood) && player.hand.cards.includes(item),
     'Both resources must reach hand after real Arven prompt resolution');
