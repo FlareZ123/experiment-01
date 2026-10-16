@@ -6,7 +6,7 @@
 
 The earlier [one-sided optional bonus audit](bonus-draw-access.md) and [joint setup model](agent38-joint-bonus-field.md) describe extra cards available to a candidate. Those are useful marginals. For fixed-deck comparison, the **opponent's** free-card opportunity matters too, especially when changing the number of starting-eligible Basic Pokemon.
 
-Under the supplied [advanced rulebook's setup sequence](../../resources/advanced-players-rulebook.md), both players with invalid sevens simultaneously mulligan without offering bonus cards. Once one player has a valid seven, that player's hand is kept; only the other continues to redraw. Consequently, **the two players cannot both receive opponent-mulligan bonus-card offers in the same game.** Offered cards are optional.
+Under the supplied [advanced rulebook's setup sequence](../../resources/manual/EN_advanced_manual-2025-transcription-structured.md), both players with invalid sevens simultaneously mulligan without offering bonus cards. Once one player has a valid seven, that player's hand is kept; only the other continues to redraw. Consequently, **the two players cannot both receive opponent-mulligan bonus-card offers in the same game.** Offered cards are optional.
 
 ## Exact three-outcome distribution
 
@@ -53,6 +53,6 @@ A one-slot nonbasic-to-Basic change holding all else fixed moves the source-29 a
 
 - Implementation: [aichi_bilateral_bonus.cjs](../../scripts/aichi_bilateral_bonus.cjs), sharing the existing verified mulligan-probability function.
 - Regression: [aichi_bilateral_bonus.test.cjs](../../tests/aichi_bilateral_bonus.test.cjs) checks probability partition, symmetry, one-sided compatibility, exact source-29 averages, changed Basic count and input guards.
-- Independent seeded physical-seven redraw test: **120,000 games**, with independent without-replacement card-category sampling of each seven and the actual repeated mulligan procedure. Both marginal probabilities match the analytic values within 0.8 percentage points; neither side was simultaneously offered cards. Six local Node tests passed. No pinned Twinleaf Store or manual GitHub Actions run was performed for this new test.
+- Independent seeded physical-seven redraw test: **120,000 games**, with independent without-replacement card-category sampling of each seven and the actual repeated mulligan procedure. Both marginal probabilities match the analytic values within 0.8 percentage points; neither side was simultaneously offered cards. Six local Node tests passed, and the same checks ran in the successful manual CI job. New tests passed the [manual Aichi opening-audit CI 38874404107](https://github.com/FlareZ123/experiment-01/actions/runs/38874404107) at Git commit `fd1612427b0316b050e1995c8bc726de1f8ad532`. This is a math/setup model validation, not a pinned Twinleaf Store test.
 
 The quantitative outputs describe offering extra starting-hand cards. Their tactical value depends on opponent strategy, draw acceptance, discardability, hand utility, board setup and later deck exhaustion. They provide a controlled resource externality for candidate comparison, without establishing which 60-card list has higher winning strength.
