@@ -24,13 +24,15 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify frozen plan and Latias Energy-targeting policy controls
-        run: node --test tests/aichi-frozen-policy-compare.test.cjs tests/latias-attack-ready-attach.test.cjs tests/aichi-campaign-seed-v3.test.cjs
+        run: node --test tests/aichi-frozen-policy-compare.test.cjs tests/aichi-campaign-seed-v3.test.cjs
       - name: Install pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify pinned Latias policy and staged source-turn Energy branch
+        run: node --test tests/latias-attack-ready-attach.test.cjs tests/latias-rank10-energy-completion.test.cjs
       - name: Run same-commit v3 baseline for rank 10
         env:
           AICHI_DIAGNOSTIC_RANKS: '10'
