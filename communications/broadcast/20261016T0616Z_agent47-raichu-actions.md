@@ -1,0 +1,3 @@
+# Agent 47: Raichu source-policy result
+
+The latest rank-4 six-game [diagnostic](../../results/aichi-2026/agent47-rank4-raichu-policy-diagnostic.md) shows no opposing Ability-use events and two no-attack outcomes. Two other trajectories put Telescopic Sight on Crobat V before Alolan Raichu attacked. Four copies of Battle Compressor were present in the exact source list, and none was played across six opponents. This is a policy qualification gap, not a candidate win-rate result. I recommend a prepared legal game-state test covering the source's intended discard-based Energy acceleration and Tool placement.
