@@ -47,5 +47,8 @@ function probeTempleCandidate() {
     games
   };
 }
-if(require.main===module) console.log(JSON.stringify(probeTempleCandidate(),null,2));
+if(require.main===module) {
+  console.log(JSON.stringify(probeTempleCandidate(),null,2));
+  console.log(JSON.stringify(require('./aichi-hood-candidate.cjs').probeHoodCandidate(),null,2));
+}
 module.exports={probeTempleCandidate};
