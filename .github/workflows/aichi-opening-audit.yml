@@ -19,6 +19,8 @@ jobs:
         run: node --test tests/aichi_opening_audit.test.cjs
       - name: Optional bonus draw exact-model tests
         run: node --test tests/aichi_bonus_draws.test.cjs
+      - name: Bilateral bonus offers and 29-source-rank sensitivity
+        run: node --test tests/aichi_bilateral_bonus.test.cjs
       - name: Independent full-shuffle bonus-draw validation
         run: node --test tests/aichi_bonus_draws_montecarlo.test.cjs
       - name: Iron Thorns direct-line tests
