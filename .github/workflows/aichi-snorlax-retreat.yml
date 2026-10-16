@@ -26,7 +26,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Characterize interactive and direct retreat actions
-        run: node simulation/twinleaf/snorlax-retreat-action-characterization.cjs > aichi-snorlax-retreat.json
+        run: node simulation/twinleaf/snorlax-retreat-action-characterization.cjs | tee aichi-snorlax-retreat.json
       - name: Preserve source-backed action characterization
         if: always()
         uses: actions/upload-artifact@v4
