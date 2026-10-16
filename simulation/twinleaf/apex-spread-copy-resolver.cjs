@@ -2,6 +2,7 @@
 
 const path = require('node:path');
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
+const {uncertainCounterProtection} = require('./apex-spread-counter-protection.cjs');
 
 /**
  * Count potential one-Prize Bench knockouts from Phantom Dive's six counters.
@@ -12,7 +13,7 @@ const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
 function phantomDiveBenchWindows(opponent) {
   return opponent.bench.filter(slot => {
     const pokemon = slot.getPokemonCard();
-    if (!pokemon || pokemon.powers?.length || slot.tools?.length) return false;
+    if (!pokemon || uncertainCounterProtection(slot,pokemon)) return false;
     // In the pinned engine, hp is populated as part of the battle state.
     // Synthetic fixtures can leave hp at zero until their first HP check.
     const maximumHp = slot.hp || pokemon.hp + slot.hpBonus;
