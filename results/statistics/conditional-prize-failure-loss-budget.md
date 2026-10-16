@@ -11,3 +11,11 @@ A *hypothetical two-Heavy-Ball* composition has e = 18690899/8515531200 = **0.21
 **No q has been measured.** Insufficient static Heavy Ball capacity for one specific anti-Regidrago route is not a proven game loss: different attacks, timely Prize-taking, and alternate cards may succeed. The hypothetical extra Ball displaces another card. Neither identical severity across ranks nor identical conditional probabilities under changing setup protocols has been established. Two Regidrago full source 60s are still unavailable. This observation offers a **sensitivity test to prioritize**, with no recommended deck change or competitive inference.
 
 Reproduce with exact fractions and the formula above. No new engine outcomes.
+
+## Opponent-side example: Snorlax leads
+
+The same inequality applies to a **source opponent's opening event**. [Agent 19's exact Snorlax audit](../aichi-2026/snorlax-solo-block-counterplay.md) gives probabilities **15.945043530%** for rank 3 and **8.399612502%** for rank 7 of an initial legal seven forcing Snorlax Active. This does not prove a successful Block lock or game loss.
+
+If those two events always resulted in losses and every other game was won, they would contribute **0.760770501%** field losses, beyond the 0.5% budget. If both events had the same conditional loss rate q, the maximum consistent with a 99.5% target and perfect play elsewhere would be **65.72284274%**. Rank 3 alone with certain loss would consume **0.498282610%**, nearly the full allowance.
+
+Exact probabilities: e3=5985497/37538292 and e7=99452/1184007. General lower field-loss contribution is (e3*q3+e7*q7)/32. Neither conditional q is measured.
