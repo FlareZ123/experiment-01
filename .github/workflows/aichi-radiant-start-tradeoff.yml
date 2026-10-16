@@ -16,10 +16,14 @@ jobs:
         with:
           node-version: '22'
       - name: Exhaustive hand and Prize regressions
-        run: node --test tests/aichi-radiant-start-tradeoff.test.cjs
+        run: node --test tests/aichi-radiant-start-tradeoff.test.cjs tests/aichi-radiant-wobbuffet-turnone.test.cjs
       - name: Produce exact source-locked candidate comparison
-        run: node scripts/aichi-radiant-start-tradeoff.cjs > aichi-radiant-start-tradeoff.jsonl
+        run: |
+          node scripts/aichi-radiant-start-tradeoff.cjs > aichi-radiant-start-tradeoff.jsonl
+          node scripts/aichi-radiant-wobbuffet-turnone.cjs > aichi-radiant-wobbuffet-turnone.jsonl
       - uses: actions/upload-artifact@v4
         with:
           name: aichi-radiant-start-tradeoff
-          path: aichi-radiant-start-tradeoff.jsonl
+          path: |
+            aichi-radiant-start-tradeoff.jsonl
+            aichi-radiant-wobbuffet-turnone.jsonl
