@@ -56,6 +56,8 @@ jobs:
         run: node simulation/evaluation/aichi-campaign-execute.cjs > aichi-campaign-diagnostic.json
       - name: Screen engine diagnostics for attacker inactivity and trace integrity
         run: node scripts/aichi-campaign-quality-screen.cjs aichi-campaign-diagnostic.json > aichi-quality-screen.json
+      - name: Print bounded rank-level quality and action blockers
+        run: node -e "const x=require('./aichi-quality-screen.json');console.log('Full pilot matrix verified:',x.fullPilotMatrixVerified);for(const c of x.coverage)console.log('COVERAGE',JSON.stringify(c));for(const r of x.records)console.log('TRIAL',JSON.stringify({trialId:r.trialId,status:r.status,actualTurn:r.actualTurn,candidateAttacks:r.candidateAttacks,opponentAttacks:r.opponentAttacks,blockers:r.blockers,terminalDeckRemaining:r.terminalDeckRemaining,terminalPrizesRemaining:r.terminalPrizesRemaining}))"
       - name: Audit first Iron Thorns decisions without inferring wins
         run: node simulation/evaluation/aichi-opening-decision-audit.cjs aichi-campaign-diagnostic.json > aichi-opening-decision-audit.json
       - name: Audit public pass boards without inferring attack legality
