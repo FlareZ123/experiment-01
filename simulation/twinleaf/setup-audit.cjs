@@ -114,13 +114,19 @@ function oneSetup(deck0, deck1, seed) {
       if (recentSetupActions.length > 8) recentSetupActions.shift();
       store.dispatch(action);
       if (activeBonus) {
-        const actualDrawn = store.state.players[activeBonus.seat].hand.cards.length - handBeforeBonus;
+        const handGrowth = store.state.players[activeBonus.seat].hand.cards.length - handBeforeBonus;
+        // Resolving the final setup prompt can also immediately begin turn 1
+        // and draw one ordinary card for the first player in this dispatch.
+        const turnDrawIncluded = Number(store.state.turn > turnBeforeBonus &&
+          store.state.activePlayer === activeBonus.seat && settings.rules.firstTurnDrawCard);
+        const actualBonusDrawn = handGrowth - turnDrawIncluded;
         bonusSelected[activeBonus.seat] += selectedBonus;
-        bonusDrawn[activeBonus.seat] += actualDrawn;
-        if (actualDrawn !== selectedBonus) {
+        bonusDrawn[activeBonus.seat] += actualBonusDrawn;
+        if (actualBonusDrawn !== selectedBonus) {
           throw new Error('Bonus hand growth mismatch: ' + JSON.stringify({
-            seed, actions, chosen: selectedBonus, actualDrawn,
-            seat: activeBonus.seat, firstSeat: store.state.activePlayer,
+            seed, actions, chosen: selectedBonus, actualBonusDrawn, handGrowth,
+            turnDrawIncluded, seat: activeBonus.seat,
+            firstSeat: store.state.activePlayer,
             turnBeforeBonus, turnAfterBonus: store.state.turn,
             phaseBeforeBonus, phaseAfterBonus: store.state.phase
           }));
