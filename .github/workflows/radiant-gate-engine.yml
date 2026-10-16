@@ -36,3 +36,6 @@ jobs:
 
       - name: Probe Temple Wobbuffet Active suppression of Radiant Gate
         run: node simulation/twinleaf/radiant-wobbuffet-active-probe.cjs
+
+      - name: Validate Temple Wobbuffet and opponent Iron Thorns overlapping Ability locks
+        run: node simulation/twinleaf/radiant-wobbuffet-thorns-matrix.cjs
