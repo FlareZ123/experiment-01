@@ -25,8 +25,12 @@ function run(choice='special'){
  const selected=choice==='special'?special:basic;
  const result=[{card:selected,to:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0}}];
  const validates=q.validate(result,z);
- s.dispatch(new ResolvePromptAction(q.id,result));
- return {choice,validates,attachedSelected:p.active.energies.cards.includes(selected),attachedSpecial:p.active.energies.cards.includes(special),activeCards:p.active.cards.map(c=>c.fullName),energies:p.active.energies.cards.map(c=>c.fullName),discard:p.discard.cards.map(c=>c.fullName),opponentEnergies:o.active.energies.cards.map(c=>c.fullName),promptResultCount:q.result?.length ?? null};
+ const action=new ResolvePromptAction(q.id,result);
+ let guardAccepted=true;
+ try{require('./prompt-integrity.cjs').assertValidPromptAction(z,action)}
+ catch{guardAccepted=false}
+ s.dispatch(action);
+ return {choice,validates,guardAccepted,attachedSelected:p.active.energies.cards.includes(selected),attachedSpecial:p.active.energies.cards.includes(special),activeCards:p.active.cards.map(c=>c.fullName),energies:p.active.energies.cards.map(c=>c.fullName),discard:p.discard.cards.map(c=>c.fullName),opponentEnergies:o.active.energies.cards.map(c=>c.fullName),promptResultCount:q.result?.length ?? null};
 }
 if(require.main===module)console.log(JSON.stringify(run(),null,2));
 module.exports={run};
