@@ -22,4 +22,4 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - run: node --test tests/powerglass-energy-filter-store.test.cjs tests/prompt-integrity-energy-filter.test.cjs
+      - run: node --test tests/powerglass-energy-filter-store.test.cjs tests/prompt-integrity-energy-filter.test.cjs tests/prompt-integrity.test.cjs tests/prompt-integrity-pinned-selection.test.cjs tests/prompt-integrity-pinned-shuffle.test.cjs
