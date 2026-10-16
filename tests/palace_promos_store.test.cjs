@@ -61,6 +61,18 @@ test("Pinned Palace Book actual Item action draws three and ends its player's tu
   }));
   assert.equal(f.a.deck.cards.length, before - 3, 'Palace Book draw count');
   assert.equal(f.a.hand.cards.length, 3, 'Three drawn cards in hand');
+  console.log('PALACE_BOOK_POST_ACTION', JSON.stringify({
+    turn: f.state.turn, activePlayer: f.state.activePlayer,
+    phase: f.state.phase,
+    pending: f.state.prompts.filter(prompt => prompt.result === undefined)
+      .map(prompt => prompt.constructor.name),
+    inHand: f.a.hand.cards.includes(palaceBook),
+    inSupporter: f.a.supporter.cards.includes(palaceBook),
+    inDiscard: f.a.discard.cards.includes(palaceBook),
+    hand: f.a.hand.cards.map(card => card.fullName),
+    supporter: f.a.supporter.cards.map(card => card.fullName),
+    discard: f.a.discard.cards.map(card => card.fullName)
+  }));
   assert.ok(f.a.discard.cards.includes(palaceBook),
     'Used Item must reach discard at turn completion');
   assert.ok(!f.a.supporter.cards.includes(palaceBook),
