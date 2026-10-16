@@ -57,7 +57,9 @@ function finished(request) {
     firstTurnPlayerId: 101, firstTurnPlayerName: 'research-A',
     firstDrawLogName: 'research-A',
     deckHashes: [digest(request.deckA), digest(request.deckB)],
-    actions: 7, turns: 2
+    actions: 7, turns: 2,
+    actionCounts: {AttackAction: 1}, prizesRemaining: [5, 6],
+    finalState: [{deckRemaining: 28}, {deckRemaining: 30}]
   };
 }
 
@@ -91,6 +93,10 @@ test('same seed, both engine slots, verified real turn order and deck hashes', (
   assert.deepEqual(result.selectedTrialIds, result.records.map(r => r.trialId));
   assert.equal(calls[0].strictPromptValidation, true);
   assert.equal(calls[0].isolatePolicyRandomness, true);
+  assert.deepEqual(result.records[0].prizesRemaining, [5, 6]);
+  assert.deepEqual(result.records[0].finalState,
+    [{deckRemaining: 28}, {deckRemaining: 30}]);
+  assert.deepEqual(result.records[0].actionCounts, {AttackAction: 1});
 });
 
 test('trial identity and explicit budget cannot silently expand or reorder', () => {
