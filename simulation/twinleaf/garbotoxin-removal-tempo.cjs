@@ -89,7 +89,7 @@ function probe(options) {
   let selectedGarbodor = false;
   if (blowerPrompt === 'ChoosePokemonPrompt') {
     const prompt = pending();
-    assert.equal(prompt.validate([trash]),true,
+    assert.equal(prompt.validate([trash],state),true,
       'Field Blower must permit targeting the attached Garbodor Tool');
     store.dispatch(new ResolvePromptAction(prompt.id,[trash]));
     selectedGarbodor = true;
