@@ -61,24 +61,31 @@ test("Pinned Palace Book actual Item action draws three and ends its player's tu
   }));
   assert.equal(f.a.deck.cards.length, before - 3, 'Palace Book draw count');
   assert.equal(f.a.hand.cards.length, 3, 'Three drawn cards in hand');
-  console.log('PALACE_BOOK_POST_ACTION', JSON.stringify({
-    turn: f.state.turn, activePlayer: f.state.activePlayer,
-    phase: f.state.phase,
-    pending: f.state.prompts.filter(prompt => prompt.result === undefined)
-      .map(prompt => prompt.constructor.name),
-    inHand: f.a.hand.cards.includes(palaceBook),
-    inSupporter: f.a.supporter.cards.includes(palaceBook),
-    inDiscard: f.a.discard.cards.includes(palaceBook),
-    hand: f.a.hand.cards.map(card => card.fullName),
-    supporter: f.a.supporter.cards.map(card => card.fullName),
-    discard: f.a.discard.cards.map(card => card.fullName)
-  }));
+  // The engine defers the between-turn sequence through a WaitPrompt.
+  // The played Item is intentionally staged until that prompt is resolved.
+  assert.ok(f.a.supporter.cards.includes(palaceBook),
+    'Palace Book remains staged while its end-of-turn prompt is pending');
+  const {ResolvePromptAction} =
+    engine('game/store/actions/resolve-prompt-action');
+  let resolved = 0;
+  for (; resolved < 8; resolved++) {
+    const pending = f.state.prompts.find(prompt => prompt.result === undefined);
+    if (!pending) break;
+    assert.equal(pending.constructor.name, 'WaitPrompt',
+      'Only normal turn transition prompts are expected');
+    assert.equal(pending.validate(null, f.state), true);
+    f.store.dispatch(new ResolvePromptAction(pending.id, null));
+  }
+  assert.ok(resolved > 0 && resolved < 8,
+    'Palace Book turn transition must complete under bounded prompt resolution');
   assert.ok(f.a.discard.cards.includes(palaceBook),
     'Used Item must reach discard at turn completion');
   assert.ok(!f.a.supporter.cards.includes(palaceBook),
     'Item must not remain in Supporter staging zone');
-  assert.ok(f.state.activePlayer !== 0 || f.state.phase !== f.GamePhase.PLAYER_TURN,
-    'Player who used Palace Book must no longer have actions this turn');
+  assert.equal(f.state.activePlayer, 1,
+    'Palace Book turn must pass control to the opponent');
+  assert.equal(f.state.phase, f.GamePhase.PLAYER_TURN,
+    'Prompt completion should reach the next normal player turn');
 });
 
 test('Pinned Palace Belt modifies only the Active holder next-turn draw', () => {
