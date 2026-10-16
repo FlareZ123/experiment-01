@@ -24,6 +24,7 @@ const {decisionHandEvidence} = require('./decision-hand-evidence.cjs');
 const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.cjs');
 const {installElectroRainDamageHook} = require('./electro-rain-damage-hook.cjs');
 const {installRedeemableTicketPaperOrderHook} = require('./redeemable-ticket-paper-hook.cjs');
+const {installHisuianHeavyBallPrizeShuffleHook} = require('./hisuian-heavy-ball-prize-hook.cjs');
 const {publicSnapshot, observeTerminalTransition, advanceActionLineage} = require('./terminal-transition.cjs');
 const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
 const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
@@ -205,6 +206,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [snorlaxRetreatStartCorrection] Opt-in, reversible Block check on interactive retreat.
  * @property {boolean} [electroRainDamageCorrection] Opt-in printed Electro Rain attack damage and repeated-target correction.
  * @property {boolean} [redeemableTicketPaperOrderCorrection] Opt-in paper-rule Ticket top/new-Prize and bottom/old-Prize correction.
+ * @property {boolean} [hisuianHeavyBallPrizeShuffleCorrection] Opt-in paper Prize-position shuffle for Hisuian Heavy Ball.
  * @property {boolean} [shadowRiderEnergyPriority] Opt-in basic Psychic Energy priority against Active Iron Thorns.
  * @property {boolean} [shadowRiderEnergyAcrossField] Opt-in speculative Psychic priority regardless of opposing Active.
  * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
@@ -253,6 +255,7 @@ function runMatch(request) {
   let restoreSnorlaxRetreatStartHook;
   let restoreElectroRainDamageHook;
   let restoreRedeemableTicketPaperOrderHook;
+  let restoreHisuianHeavyBallPrizeShuffleHook;
   let restoreMimikyuNonGxCopycatHook;
   let restoreCopyDeclaredHistoryHook;
   let restorePassClearsLastAttackHook;
@@ -286,6 +289,9 @@ function runMatch(request) {
     initializeCards();
     if (request.redeemableTicketPaperOrderCorrection === true) {
       restoreRedeemableTicketPaperOrderHook = installRedeemableTicketPaperOrderHook();
+    }
+    if (request.hisuianHeavyBallPrizeShuffleCorrection === true) {
+      restoreHisuianHeavyBallPrizeShuffleHook = installHisuianHeavyBallPrizeShuffleHook();
     }
     if (request.mimikyuApexCopycatCompatibility === true) {
       restoreMimikyuNonGxCopycatHook = installMimikyuNonGxCopycatHook();
@@ -727,6 +733,7 @@ function runMatch(request) {
     if (restoreLeleEntryAbilityLockHook) restoreLeleEntryAbilityLockHook();
     if (restoreSnorlaxRetreatStartHook) restoreSnorlaxRetreatStartHook();
     if (restoreElectroRainDamageHook) restoreElectroRainDamageHook();
+    if (restoreHisuianHeavyBallPrizeShuffleHook) restoreHisuianHeavyBallPrizeShuffleHook();
     if (restoreRedeemableTicketPaperOrderHook) restoreRedeemableTicketPaperOrderHook();
     if (restoreDialgaBenchExposureGuard) restoreDialgaBenchExposureGuard();
     if (restoreGuzmaSelfSwitchGuard) restoreGuzmaSelfSwitchGuard();
