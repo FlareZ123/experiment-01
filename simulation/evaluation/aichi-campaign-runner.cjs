@@ -182,7 +182,8 @@ function executeCampaign(inputs, options = {}) {
       label: trial.trialId,
       ...policyFlags,
       strictPromptValidation: true,
-      isolatePolicyRandomness: true
+      isolatePolicyRandomness: true,
+      captureDecisionTrace: options.captureDecisionTrace === true
     };
     try {
       const game = play(request);
@@ -243,6 +244,7 @@ function executeCampaign(inputs, options = {}) {
         observedRules: game.rules || null,
         observedEngineDeckHashes: game.deckHashes || null,
         attackTrace: game.attackTrace || [],
+        decisionTrace: game.decisionTrace || null,
         actionCounts: game.actionCounts || {},
         actionsBySeat: game.actionsBySeat || [],
         cardsPlayedBySeat: game.cardsPlayedBySeat || [],
@@ -260,6 +262,7 @@ function executeCampaign(inputs, options = {}) {
     seedProtocol: campaign.seedProtocol || 'paired-slots-v1',
     researchRevision: process.env.GITHUB_SHA || null,
     expectedPolicyProfile,
+    captureDecisionTrace: options.captureDecisionTrace === true,
     purpose: 'exploratory-engine-feasibility',
     competitiveWinRateCertified: false,
     rulesAndBotCompetenceCertified: false,
@@ -279,6 +282,7 @@ if (require.main === module) {
   const selectedText = process.env.CAMPAIGN_TRIAL_IDS || '';
   const trialIds = selectedText ? selectedText.split(',').map(x => x.trim()) : undefined;
   const profile = process.env.CAMPAIGN_POLICY_PROFILE || '';
+  const captureDecisionTrace = process.env.CAMPAIGN_CAPTURE_DECISIONS === 'true';
   const profiled = profile ?
     require('../twinleaf/policy-profiles.cjs') : null;
   if (profile && !profiled.ALLOWED_PROFILES.includes(profile)) {
@@ -288,7 +292,7 @@ if (require.main === module) {
     request => profiled.runWithResearchProfile(request, profile) : undefined;
   process.stdout.write(JSON.stringify(executeCampaign(loadCampaignInputs(), {
     phase, maxTrials, maxActions, trialIds, runMatch,
-    expectedPolicyProfile: profile || null
+    captureDecisionTrace, expectedPolicyProfile: profile || null
   }), null, 2) + '\n');
 }
 
