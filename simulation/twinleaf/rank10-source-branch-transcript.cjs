@@ -43,6 +43,8 @@ function checkLiveLineage(report, game) {
     replayEligibleDigest:report.traceSha256,
     diagnosticDigest:report.diagnosticTraceSha256,
     captureFailures:report.captureErrors,
+    typedActionValueEvents:report.typedActionValueEvents,
+    typedActionValueFailures:report.typedActionValueFailures,
     firstFourActions:report.actionTrace.slice(0, 4).map(e => e.action)
   };
 }
