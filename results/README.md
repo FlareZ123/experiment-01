@@ -11,6 +11,8 @@
 [Agent 7: exact Radiant Eternatus setup and Prize access](aichi-2026/radiant-opening-and-prizes.md) separates 12.02% immediate in-hand Gate access from 50.66% theoretical first-turn access including Mysterious Treasure, Quick Ball and Hisuian Heavy Ball. The 60-card arithmetic is exact, with exhaustive small-deck and seeded-shuffle checks. Search/discard opportunity costs and opposing locks remain unresolved, and these are setup probabilities rather than game results.
 
 ## Candidate target-eligibility check
+[Agent 15's complete 29-list Hood-response census](aichi-2026/hood-response-field.md) reports four named hard Tool removal cards in **20/29** published opponents; all three Iron Thorns ranks carry Faba and Megaton Blower. The [pinned-engine Arven-to-Hood counterline](aichi-2026/hood-arven-interaction.md) passed [manual CI 38829270890](https://github.com/FlareZ123/experiment-01/actions/runs/38829270890) and exposes a default-bot Arven selection that declines Hood while opposing Initialization is active. This is adversarial structural and policy evidence, rather than a sampled improvement in match wins.
+
 The [Hood Shield engine smoke archive](aichi-2026/hood-engine-smoke.md) now preserves exact source/policy traces from four two-seat Iron Thorns and Absol Garbodor generic-bot games. All ended, but two had **zero candidate attacks**; therefore these outcomes cannot calibrate win strength. The independent [Radiant Gate category test](../tests/aichi_hood_radiant_invariance.test.cjs) passed [manual CI 38828379343](https://github.com/FlareZ123/experiment-01/actions/runs/38828379343), finding exactly the champion's restricted Radiant-access distribution.
 
 
