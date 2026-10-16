@@ -29,3 +29,7 @@ jobs:
         run: node --test tests/twinleaf-hidden-draw-forecast.test.cjs
       - name: Preserve diagnostic values in job log
         run: node simulation/twinleaf/hidden-draw-forecast.cjs
+      - name: Reproduce hidden-order leakage with full ranked source-list inventory
+        run: node --test tests/twinleaf-hidden-source-deck.test.cjs
+      - name: Preserve source-inventory contrast
+        run: node simulation/twinleaf/hidden-source-deck-policy.cjs
