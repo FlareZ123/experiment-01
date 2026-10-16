@@ -34,6 +34,7 @@ function oneSetup(deck0, deck1, seed) {
   settings.format = Format.EXPANDED;
   settings.recordingEnabled = false;
   settings.rules.firstTurnUseSupporter = false;
+  settings.rules.firstTurnDrawCard = true;
 
   const rand = seededRandom(seed);
   const original = Math.random;
@@ -59,7 +60,10 @@ function oneSetup(deck0, deck1, seed) {
     const bonusPromptOffers = [0, 0];
     let actions = 0;
     const recentSetupActions = [];
-    while (store.state.phase === GamePhase.SETUP && actions < 200) {
+    // The pinned reducer enters DRAW and emits a WaitPrompt before PLAYER_TURN.
+    // Complete that transition without playing any turn actions.
+    while ((store.state.phase === GamePhase.SETUP ||
+        store.state.phase === GamePhase.DRAW) && actions < 200) {
       const state = store.state;
       const prompt = state.prompts.find(p => p.result === undefined);
       if (!prompt) throw new Error('Setup phase without actionable prompt.');
