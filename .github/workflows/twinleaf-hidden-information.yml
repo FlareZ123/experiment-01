@@ -25,6 +25,10 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify exact K0/K1 search-window reward under exhaustive small deals
+        run: node --test tests/observation-search-value.test.cjs
+      - name: Verify clone-only speculative deck sampling against pinned engine
+        run: node --test tests/twinleaf-speculative-deck-sampling.test.cjs
       - name: Detect speculative score dependence on hidden deck order
         run: node --test tests/twinleaf-hidden-draw-forecast.test.cjs
       - name: Preserve diagnostic values in job log
