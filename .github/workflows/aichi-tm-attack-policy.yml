@@ -29,3 +29,5 @@ jobs:
         run: node --test tests/tm_attack_policy.test.cjs
       - name: Print real-engine policy contrast
         run: node simulation/twinleaf/tm-attack-policy-characterization.cjs
+      - name: Probe late-game Bunnelby Evolution with one remaining source Stage 2
+        run: node simulation/twinleaf/aichi-bunnelby-turn56-legality.cjs
