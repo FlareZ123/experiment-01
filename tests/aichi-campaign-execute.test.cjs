@@ -1,6 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const { createHash } = require('node:crypto');
 const { executeDiagnostic, observedFirstTurn } =
   require('../simulation/evaluation/aichi-campaign-execute.cjs');
 const { loadDefaultCampaign } = require('../scripts/aichi-comparison-campaign.cjs');
@@ -12,7 +13,10 @@ function sampleGame(request, override = {}) {
     firstDrawLogName: 'research-B', verifiedByDrawLog: true,
     actions: 30, turns: 3, endReason: 'engine-game-end',
     engine: 'pinned-test', policy: 'synthetic-unqualified',
-    deckHashes: ['a', 'b'], attackTrace: [{seat: 0, turn: 2}],
+    seed: request.seed ?? 0,
+    deckHashes: [request.deckA || cards, request.deckB || cards].map(deck =>
+      createHash('sha256').update(JSON.stringify(deck)).digest('hex')),
+    rules: {format: 'EXPANDED'}, attackTrace: [{seat: 0, turn: 2}],
     actionCounts: { AttackAction: 1 }, ...override
   };
 }
@@ -94,4 +98,40 @@ test('invalid pilot ranks, plan identity mismatches and repeated trials are reje
     runMatch:()=>{throw new Error('must not run');}});
   assert.equal(output.counts['engine-exception'], 6);
   assert.match(output.records[0].error,/identity differs/);
+});
+
+test('reported seed mismatch cannot be counted as a finished fixed-plan game', () => {
+  const result = run({runMatch: r => sampleGame(r, {seed: r.seed + 1})});
+  assert.equal(result.counts['unverified-game-identity'], 6);
+  assert.equal(result.counts['completed-engine-game'] || 0, 0);
+  assert.equal(result.records[0].observedSeed, result.records[0].seed + 1);
+});
+
+test('ordered deck fingerprints are verified before first-turn classification', () => {
+  const badHashes = ['forged-candidate', 'forged-opponent'];
+  const result = run({runMatch: r => sampleGame(r, {deckHashes: badHashes})});
+  assert.equal(result.counts['unverified-game-identity'], 6);
+  assert.deepEqual(result.records[0].observedDeckHashes, badHashes);
+  assert.equal(result.records[0].expectedDeckHashes.length, 2);
+});
+
+test('the simulator must attest to Expanded rules for a qualifying terminal game', () => {
+  const result = run({runMatch: r => sampleGame(r, {rules: {format: 'STANDARD'}})});
+  assert.equal(result.counts['unverified-game-environment'], 6);
+  assert.equal(result.counts['completed-engine-game'] || 0, 0);
+});
+
+test('policy flags cannot override fixed plan decks, seeds or action budgets', () => {
+  const campaign = loadDefaultCampaign();
+  const base = {
+    campaign, ranks: [6],
+    resolvePair: () => {throw new Error('must reject before resolution');},
+    runMatch: () => {throw new Error('must not dispatch');}
+  };
+  for (const invalid of [
+    {seed: 1}, {deckA: cards}, {maxActions: 1},
+    {strictPromptValidation: 'yes'}, null, []
+  ]) {
+    assert.throws(() => executeDiagnostic({...base, policyFlags: invalid}), /policyFlags/);
+  }
 });
