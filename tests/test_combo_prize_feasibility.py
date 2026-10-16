@@ -29,6 +29,10 @@ class ComboPrizeTests(unittest.TestCase):
         self.assertEqual(got["either_cut"], Fraction(either, legal_count))
         self.assertEqual(got["prize_feasible"], 1-Fraction(either, legal_count))
 
+    def test_existing_twin_singleton_crosscheck(self):
+        got = combo_prize_cuts((1, 1), (2,), 2, 15)
+        self.assertEqual(got['basic_rescue_cut'], Fraction(354201702, 159469254103))
+
     def test_new_moon_source_inventory(self):
         got = combo_prize_cuts((2, 1, 1, 1, 1, 2), (2, 2, 2, 2), 2, 9)
         self.assertEqual(
