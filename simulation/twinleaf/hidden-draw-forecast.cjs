@@ -96,14 +96,43 @@ function auditHiddenDrawForecast() {
   assert.notEqual(energyTopScore, pokemonTopScore,
     'Speculative evaluation must be sensitive to hidden upcoming draws');
 
+  const threshold = startingScoreEnergy - options.scores.tactics.supporterBonus;
+  assert.ok(energyTopScore < threshold && pokemonTopScore > threshold,
+    'A real tactic decision must straddle the unchanged threshold');
+  const { SimpleTacticsAi } = engine('simple-bot/simple-tactics-ai');
+  const { installSupporterDecisionHook } =
+    require('./supporter-decision-hook.cjs');
+  /** @param {ReturnType<typeof prepare>} fixture */
+  function chosenAction(fixture) {
+    const bot = new SimpleTacticsAi({id: fixture.a.id}, {
+      ...options, tactics: [PlaySupporterTactic]
+    }, null);
+    return bot.decodeNextAction(fixture.state)?.constructor.name ?? null;
+  }
+  const restore = installSupporterDecisionHook();
+  let energyTopAction, pokemonTopAction;
+  try {
+    energyTopAction = chosenAction(energyTop);
+    pokemonTopAction = chosenAction(pokemonTop);
+  } finally {
+    restore();
+  }
+  assert.equal(energyTopAction, 'PassTurnAction',
+    'Hidden Energy-first forecast must reject the single Supporter choice');
+  assert.equal(pokemonTopAction, 'PlayCardAction',
+    'Hidden Pokemon-first forecast must choose the same Supporter card');
+
   return {
     pinnedEngine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     identicalVisibleStateAndDeckMultiset: true,
     startingScore: startingScoreEnergy,
     defaultSupporterThreshold: startingScoreEnergy - options.scores.tactics.supporterBonus,
     energyTopScore, pokemonTopScore,
+    energyTopAction, pokemonTopAction,
+    policy: 'Single PlaySupporterTactic plus research-owned Supporter proposal guard',
     leaksUnseenDrawOrderIntoSpeculativeActionScore: true,
-    scope: 'Prepared state and one speculative Supporter; this does not prove an actual choice changes or measure wins'
+    selectsDifferentActionFromUnseenDrawOrder: true,
+    scope: 'Prepared state, limited one-tactic bot; no full default-policy game and no win-rate measurement'
   };
 }
 if (require.main === module) {
