@@ -9,9 +9,10 @@ const INSTALLED = Symbol('research-dispatch-transcript');
  * Do not invoke accessors or modify game objects.
  * @param {unknown} source
  * @param {Set<object>} ancestors
+ * @param {boolean} allowClass Permit one top-level Action class envelope.
  * @returns {unknown}
  */
-function portableSnapshot(source, ancestors = new Set()) {
+function portableSnapshot(source, ancestors = new Set(), allowClass = false) {
   if (source === null || typeof source === 'string' || typeof source === 'boolean') return source;
   if (typeof source === 'number') {
     if (!Number.isSafeInteger(source)) throw new TypeError('Action parameter not a safe integer');
@@ -19,6 +20,11 @@ function portableSnapshot(source, ancestors = new Set()) {
   }
   if (!source || typeof source !== 'object') throw new TypeError('Nonportable action parameter');
   if (ancestors.has(source)) throw new TypeError('Cyclic action parameter');
+  const prototype = Object.getPrototypeOf(source);
+  if (!allowClass && !Array.isArray(source) &&
+      prototype !== Object.prototype && prototype !== null) {
+    throw new TypeError('Nested action parameter has a non-JSON prototype');
+  }
   ancestors.add(source);
   try {
     if (Array.isArray(source)) {
@@ -26,6 +32,9 @@ function portableSnapshot(source, ancestors = new Set()) {
       for (let i = 0; i < source.length; i += 1) {
         if (!Object.hasOwn(source, i)) throw new TypeError('Sparse parameter array');
         copy.push(portableSnapshot(source[i], ancestors));
+      }
+      if (Object.getOwnPropertyNames(source).length !== source.length + 1) {
+        throw new TypeError('Action parameter arrays cannot have extra properties');
       }
       return copy;
     }
@@ -96,7 +105,7 @@ function withStoreDispatchTranscript(Store, work) {
     };
     trace.push(event);
     try {
-      event.parameters = portableSnapshot(action);
+      event.parameters = portableSnapshot(action, new Set(), true);
     } catch (error) {
       event.captureError = error.message;
       captureErrors.push('step ' + step + ': ' + error.message);
