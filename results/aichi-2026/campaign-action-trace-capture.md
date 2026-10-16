@@ -31,6 +31,10 @@ The Iron Thorns fast-attack ALS calls for Tag Call / Guzma & Hala, Double Colorl
 
 This is a **small diagnostic sample**, not an estimate of first-turn attack frequency. It identifies a concrete replay-analysis target: examine the opening hands, exact missing DCE/Stadium/search pieces, two-card discard choices, current attack cost and competing Supporter choices before labeling the observed delay a policy defect. The present log cannot disambiguate those alternatives.
 
+## Trace noninterference gate
+
+The separate [manual pinned-engine regression 38841495305](https://github.com/FlareZ123/experiment-01/actions/runs/38841495305) passed. It executed rank-1 versus rank-6 using the same fixed source inventories, seed `20261030`, simulator settings and policy for two sequential games, toggling only `captureDecisionTrace`. The regression [compares every other field in the returned game record](../../simulation/twinleaf/trace-noninterference.cjs) by deep equality, including outcome, actions, turn order, attack/play summaries and terminal public state. Thus the initial card-choice instrumentation did **not measurably alter this deterministic fixture**. This is a one-seed reproducibility check, not proof of universally identical policy behavior under capture.
+
 ## Card-selection prompt capture and correction
 
 The next stage records `ChooseCardsPrompt` selections with **their printed card identity**, selection source zone when recognizable, player-slot attribution and prompt message. This is read from the actual pre-dispatch state through [research-owned instrumentation](../../simulation/twinleaf/selected-cards-evidence.cjs); the selected choices are appended only after the engine dispatch. No information is passed back into the policy. The new [unit tests](../../tests/twinleaf-selected-cards-evidence.test.cjs) cover indices, object-valued results, cancellations and nonmutation.
