@@ -57,6 +57,8 @@ These are first-person planning claims. The guide's AI-assisted consistency perc
 - An independent Python combinations enumeration confirmed **14** for five cards, **16** for six, and **10+6** packets for the two hypothetical targets.
 - The existing [manual benchmark statistics workflow](../../.github/workflows/aichi-benchmark-stats.yml) has been extended to run the new tests. **[Manual CI 38867613738](https://github.com/FlareZ123/experiment-01/actions/runs/38867613738) passed** at code revision b4e6fc78af63af6bcae4dba745576b14861d2384. The workflow does not trigger on ordinary commits.
 
+The [exact initial Prize gate](raichu-six-unit-prize-gate.md) further constrains this six-card witness. In both 13-Basic source lists, the chance that all four Reversal Energy and at least two Counter Energy are initially unprized is **64.45457791% conditional on a legal seven-card opener**. Initial Prize compositions alone exclude the exact sixteen-unit line in the other **35.54542209%** absent Prize recovery or re-dealing. This is a resource-only condition, never a matchup probability. [Manual CI 38869636691](https://github.com/FlareZ123/experiment-01/actions/runs/38869636691) passed an independent enumerator.
+
 ## Two separate pinned-engine confirmations
 
 Both checks use the pinned Twinleaf engine revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` and a reversible research-side Electro Rain damage-classification correction. These are controlled, directly staged boards rather than actual source-list games.
