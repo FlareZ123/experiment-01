@@ -458,6 +458,7 @@ function runMatch(request) {
       engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
     };
   } finally {
+    if (restoreLeleEntryAbilityLockHook) restoreLeleEntryAbilityLockHook();
     if (restoreSnorlaxRetreatStartHook) restoreSnorlaxRetreatStartHook();
     if (restoreSupporterDecisionHook) restoreSupporterDecisionHook();
     if (restoreBotHooks) restoreBotHooks();
