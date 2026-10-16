@@ -76,8 +76,9 @@ function diagnosticSnapshot(value, ancestors = new Set(), depth = 0) {
   if (depth > 4) return {kind:'depth-limit'};
   const proto = Object.getPrototypeOf(value);
   if (!Array.isArray(value) && proto !== Object.prototype && proto !== null) {
+    const ownFullName = Object.getOwnPropertyDescriptor(value, 'fullName');
     return {kind:'class', name:proto?.constructor?.name || 'unknown',
-      ...(typeof value.fullName === 'string' ? {fullName:value.fullName} : {})};
+      ...(typeof ownFullName?.value === 'string' ? {fullName:ownFullName.value} : {})};
   }
   ancestors.add(value);
   try {
