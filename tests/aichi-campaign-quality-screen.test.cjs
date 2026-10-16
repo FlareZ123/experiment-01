@@ -238,3 +238,16 @@ test('a legacy v3 archive without the seed base is clearly marked', () => {
   assert.equal(auditCampaignQuality(f).seedDerivationStatus,
     'v3-base-missing-legacy');
 });
+
+test('experimental Simulator clone profile remains visible and is never ranked',()=>{
+  const experimental=fixture();
+  experimental.policyFlags={prototypeSafeSimulatorIsolation:true};
+  const report=auditCampaignQuality(experimental);
+  assert.equal(report.simulatorCloneProfile,'prototype-safe-experimental-v1');
+  assert.ok(report.records.every(row=>
+    row.simulatorCloneProfile==='prototype-safe-experimental-v1'));
+  assert.equal(report.winRateEvidence,false);
+  assert.equal(report.candidateRankingPermitted,false);
+  const original=auditCampaignQuality(fixture());
+  assert.equal(original.simulatorCloneProfile,'pinned-source-card-alias-v0');
+});
