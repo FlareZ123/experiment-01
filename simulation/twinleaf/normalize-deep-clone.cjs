@@ -68,6 +68,13 @@ function assertVendorCloneCompatibleSource(source) {
       assert.ok(typeof key === 'string' && descriptor.enumerable &&
         Object.hasOwn(descriptor,'value'),
       'Pinned deepClone cannot safely preserve symbol, accessor or non-enumerable properties');
+      // For objects, the vendor clone assigns into Object.create(source).
+      // An inherited non-writable own property makes that assignment throw.
+      // Array .map() creates fresh indices, so readonly array elements are safe.
+      if (!Array.isArray(value)) {
+        assert.ok(descriptor.writable,
+          'Pinned deepClone cannot copy non-writable own properties');
+      }
       inspect(descriptor.value);
     }
     if (Array.isArray(value)) activeArrays.delete(value);
