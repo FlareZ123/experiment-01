@@ -155,6 +155,13 @@ test('pinned Store paid Apex Dragon automatically takes two Bench Knock Outs',
   assert.equal(recommended.result.reduce((sum,row)=>sum+row.damage,0),60);
   const oldCount=ready.attacking.prizes.length;
   ready.store.dispatch(recommended);
+  const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
+  // Resolve animation continuations before inspecting KO and Prize state.
+  for(let i=0;i<8;i++) {
+    const pending=ready.state.prompts.find(p=>p.result===undefined);
+    if(pending?.constructor.name!=='WaitPrompt') break;
+    ready.store.dispatch(new ResolvePromptAction(pending.id,null));
+  }
   const trace={
     applied:recommended.result,
     discard:ready.defending.discard.cards.map(card=>card.fullName),
