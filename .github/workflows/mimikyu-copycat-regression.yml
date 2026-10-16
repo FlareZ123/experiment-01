@@ -37,5 +37,8 @@ jobs:
       - name: Exercise declared Copycat AttackAction and nested GX prompt
         run: node simulation/twinleaf/mimikyu-apex-action-test.cjs
 
+      - name: Verify reversible headless Copycat flags and cleanup
+        run: node --test tests/mimikyu-headless-hook-options.test.cjs
+
       - name: Characterize stale Copycat attack after intervening pass
         run: node simulation/twinleaf/mimikyu-stale-attack.cjs
