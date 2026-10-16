@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const {initializeCards} = require('./headless.cjs');
 const {preparedRegidrago} = require('./apex-attack-action.cjs');
-const {SpentGxAwareChooseAttackPromptResolver} =
+const {withSpentGxCopyResolver} =
   require('./spent-gx-copy-prompt-resolver.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
@@ -20,13 +20,8 @@ function runChoicePolicy(usedGX, useOptInResolver) {
   const {AttackAction} = load('game/store/actions/game-actions');
   const {clearCopyAttackSessionsForTests} =
     load('game/store/prefabs/copy-attack-delegation');
-  const {ChooseAttackPromptResolver} =
-    load('simple-bot/prompt-resolver/choose-attack-prompt-resolver');
-  const {defaultStateScores} = load('simple-bot/simple-bot-definitions');
-  const original = new ChooseAttackPromptResolver({scores: defaultStateScores});
-  const improved = new SpentGxAwareChooseAttackPromptResolver({
-    scores: defaultStateScores
-  });
+  const {SimpleTacticsAi} = load('simple-bot/simple-tactics-ai');
+  const definitions = load('simple-bot/simple-bot-definitions');
   clearCopyAttackSessionsForTests();
   const board = preparedRegidrago();
   board.attachFire();
@@ -35,13 +30,23 @@ function runChoicePolicy(usedGX, useOptInResolver) {
   assert.ok(dialga);
   board.attacking.discard.cards = [dialga];
   board.store.dispatch(new AttackAction(board.attacking.id, 'Apex Dragon'));
+  const newBot = () => new SimpleTacticsAi({id:board.attacking.id}, {
+    tactics:[],
+    promptResolvers:definitions.allPromptResolvers,
+    scores:definitions.defaultStateScores,
+    arbiter:definitions.defaultArbiterOptions
+  },null);
+  const bot = useOptInResolver ?
+    withSpentGxCopyResolver(newBot) : newBot();
+  assert.equal(bot.resolvers.some(resolver =>
+    resolver.constructor.name === 'SpentGxAwareChooseAttackPromptResolver'),
+    useOptInResolver);
   const choices = [];
   for (let i = 0; i < 4; i += 1) {
     const prompt = board.state.prompts.find(p =>
       p.result === undefined && p.constructor.name === 'ChooseAttackPrompt');
     if (!prompt) break;
-    const action = (useOptInResolver ? improved : original)
-      .resolvePrompt(board.state, board.attacking, prompt);
+    const action = bot.decodeNextAction(board.state);
     assert.ok(action?.result);
     assert.equal(prompt.validate(action.result), true);
     choices.push(action.result.name);
