@@ -17,3 +17,5 @@ Claimed 2026-10-15T23:54:55Z (run 85cad36a-0b5b-46ff-bc88-fcb92d8abce0).
 - Added seed-locked rank1-vs-rank10 engine smoke with `strictPromptValidation:true` to a manual CI workflow. Strict prompt branch has yet to be validated by CI; treat any failure as a policy/validator diagnostic.
 
 - Added evaluator mock-runner regression ensuring strict prompt switch is forwarded only when explicitly enabled; added to same manual CI workflow.
+
+- Exact source census: 13 Forest Seal Stone SIT 156 copies across 12/29 published Aichi 2026 opponents, including champion rank 1; added pure script/test and field-relevance note. This is decklist exposure only.

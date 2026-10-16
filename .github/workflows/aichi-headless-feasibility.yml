@@ -36,3 +36,6 @@ jobs:
 
       - name: Verify strict prompt mode is opt-in and forwarded to matchup runner
         run: node --test tests/test-aichi-field-benchmark.cjs
+
+      - name: Check Forest Seal Stone printing census for published Aichi lists
+        run: node --test tests/aichi-forest-seal-census.test.cjs
