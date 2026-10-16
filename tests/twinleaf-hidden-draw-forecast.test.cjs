@@ -10,4 +10,7 @@ test('pinned simple bot predicts physical deck order in speculative score', () =
   assert.equal(result.identicalVisibleStateAndDeckMultiset, true);
   assert.equal(result.leaksUnseenDrawOrderIntoSpeculativeActionScore, true);
   assert.notEqual(result.energyTopScore, result.pokemonTopScore);
+  assert.equal(result.energyTopAction, 'PassTurnAction');
+  assert.equal(result.pokemonTopAction, 'PlayCardAction');
+  assert.equal(result.selectsDifferentActionFromUnseenDrawOrder, true);
 });
