@@ -35,3 +35,5 @@ jobs:
         run: node simulation/twinleaf/cologne-gate-store-action.cjs
       - name: Test Benched Dedenne and Crobat draw Abilities under Initialization
         run: node simulation/twinleaf/entry-draw-lock-action.cjs
+      - name: Smoke headless opt-in entry draw lock flag and hook restoration
+        run: node simulation/twinleaf/entry-draw-runner-smoke.cjs
