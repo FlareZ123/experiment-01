@@ -20,6 +20,7 @@ const {publicSnapshot, observeTerminalTransition, advanceActionLineage} = requir
 const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
 const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
 const {inspectTmEvolutionPass} = require('./tm-evolution-pass-evidence.cjs');
+const {probeEvolutionAnnouncement} = require('./tm-evolution-announcement-probe.cjs');
 const {withActiveOpeningPivot} = require('./active-opening-pivot.cjs');
 const {withAttackBeforeRetreat} = require('./attack-retreat-order.cjs');
 const {retreatTransitionEvidence} = require('./retreat-transition-evidence.cjs');
@@ -404,6 +405,8 @@ function runMatch(request) {
       // Never insert remaining-deck target details into the bot's state or action.
       const tmEvolutionBeforePass = publicBoardBeforePass && seat >= 0 ?
         inspectTmEvolutionPass(state.players[seat]) : null;
+      const tmEvolutionAnnouncementProbe = tmEvolutionBeforePass ?
+        probeEvolutionAnnouncement(state, state.players[seat].id) : null;
       try {
         store.dispatch(action);
       } catch (error) {
@@ -443,6 +446,7 @@ function runMatch(request) {
           ...(retreatTransition ? { retreatTransition } : {}),
           ...(printedBasicEnergyBeforePass ? { printedBasicEnergyBeforePass } : {}),
           ...(tmEvolutionBeforePass ? { tmEvolutionBeforePass } : {}),
+          ...(tmEvolutionAnnouncementProbe ? { tmEvolutionAnnouncementProbe } : {}),
           ...(attackInfo ? { attack: attackInfo.attack,
             attacker: attackInfo.activePokemon } : {}),
           prizesAfter: store.state.players.map(player =>
