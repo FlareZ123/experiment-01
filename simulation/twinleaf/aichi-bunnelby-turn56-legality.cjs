@@ -44,7 +44,7 @@ function stageTurn56Evolution() {
     ...['Vileplume-GX CEC', 'Cassius XY', 'Vileplume AOR'].map(get));
   // Ten otherwise plausible cards mimic the remaining deck count. Exactly
   // one live matching Stage 2 is a *measured* condition of the original pass.
-  const deckNames = ['Vileplume AOR', 'Artazon PAL', 'Grand Tree SCR',
+  const deckNames = ['Vileplume AOR', 'Artazon PAL', 'Grass Energy MEE',
     'Tag Call CEC', 'Plumeria BUS', 'Karen XYP', 'Faba LOT',
     'Lusamine CIN', 'Fan Rotom SCR', 'Stealthy Hood UNB'];
   f.attacker.deck.cards.splice(0, f.attacker.deck.cards.length,
