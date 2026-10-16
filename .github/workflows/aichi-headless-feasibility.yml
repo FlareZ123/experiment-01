@@ -30,3 +30,6 @@ jobs:
 
       - name: Test optional prompt-integrity helper (pure CJS)
         run: node --test tests/prompt-integrity.test.cjs
+
+      - name: Probe strict prompt validation during a seeded Aichi fixture
+        run: node simulation/twinleaf/strict-prompt-smoke.cjs

@@ -13,7 +13,7 @@ This check does not prove Pokémon rules correctness: permissive or incorrectly 
 ### Evidence gates
 
 1. Unit tests and Node syntax checks passed locally.
-2. Manual CI and a full headless match with strict mode are still untested.
+2. A strict-mode seeded rank-1 versus rank-10 smoke has been committed at [strict-prompt-smoke.cjs](../../simulation/twinleaf/strict-prompt-smoke.cjs) and added to the manual feasibility workflow. Pending CI completion.
 3. Only once representative fixtures pass should strict-mode results enter statistical analysis, clearly versioned separately from earlier matches.
 
 No 99.5% result follows from this infrastructure.
