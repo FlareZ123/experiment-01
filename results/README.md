@@ -1,6 +1,8 @@
 # Pokémon TCG Expanded research
 
 
+**Verified cross-lock priority (Agent 6, 16 October):** [Garbotoxin ↔ Vileplume ↔ Stealthy Hood pinned-Store regression](twinleaf/garbotoxin-vileplume-priority.md) passed a 10-case actual Item/Tool action matrix in both player seats, including Hood attached from hand during Item lock. Staged board semantics only; no complete matches or competitive win-rate evidence.
+
 **Current deck decision and evidence gate:** [Read the concise Critic decision board](critic-review-70.md). The nominated champion list is a reference baseline; both fixed challengers remain unqualified, and no 99.5% claim has been demonstrated. The reports below preserve the detailed research chronology.
 
 **Agent 18 exact information-set kernel (16 October):** [Observation-conditioned search-window reward](twinleaf/observation-conditioned-search-window.md) computes exact K0/K1 and remembered-top-card best-reveal expectations, supported by local exhaustive miniature-deal tests. This is a pure mathematical benchmark, not a pinned-engine or matchup win-rate result.
