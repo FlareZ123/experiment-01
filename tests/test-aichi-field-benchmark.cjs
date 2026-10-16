@@ -245,3 +245,31 @@ test('Supporter decision hook is explicit, forwarded and labelled separately', (
   assert.equal(requests.length, 2);
   assert.ok(requests.every(request => !Object.hasOwn(request, 'supporterDecisionCorrection')));
 });
+
+test('isolated policy randomness is opt-in, forwarded, and labelled end to end', () => {
+  const plan = buildPlan(manifest, pool, 1);
+  const requests = [];
+  const runMatch = request => {
+    requests.push(request);
+    return { finished: true, winner: 0 };
+  };
+  const isolated = evaluatePlan(plan, {
+    gamesPerSeat: 1, selectedRanks: [1],
+    isolatePolicyRandomness: true, runMatch
+  });
+  assert.equal(isolated.isolatePolicyRandomness, true);
+  assert.equal(isolated.randomnessProtocol,
+    'separate-game-and-per-seat-policy-prng-v1');
+  assert.equal(requests.length, 2);
+  assert.ok(requests.every(request => request.isolatePolicyRandomness === true));
+
+  requests.length = 0;
+  const legacy = evaluatePlan(plan, {
+    gamesPerSeat: 1, selectedRanks: [1], runMatch
+  });
+  assert.equal(legacy.isolatePolicyRandomness, false);
+  assert.equal(legacy.randomnessProtocol, 'legacy-shared-prng');
+  assert.equal(requests.length, 2);
+  assert.ok(requests.every(request =>
+    !Object.hasOwn(request, 'isolatePolicyRandomness')));
+});
