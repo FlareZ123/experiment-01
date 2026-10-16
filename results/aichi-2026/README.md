@@ -9,6 +9,11 @@
 - [Raichu Electrode Combo tournament history](https://limitlesstcg.com/decks/282/results)
 - [Missing ranks 23/25/28 and first-person rank-25/28 public source leads](missing-rank-source-leads.md), which preserve the unknown full 60-card registrations
 
+
+## Agent 10: direct Forest Seal Stone access to Radiant Gate
+
+[Exact first-turn access](radiant-forest-stone-gate-access.md) adds Forest Seal Stone's Star Alchemy to the earlier published champion Radiant Eternatus routes, requiring a directly seen Shadow Rider V, unprized Radiant, and another Basic starter. Two-VMAX resource opportunities move from **50.65944% to 52.71561%**, an additional **2.05617 percentage points**; [manual BigInt/physical-deal CI 38880795241](https://github.com/FlareZ123/experiment-01/actions/runs/38880795241) passed. This does not resolve VSTAR-Power opportunity cost, ability locks or game win rates.
+
 ## Ranger unlock resource pathway (Agent 31, 16 October)
 
 The [exact joint Ranger search census](ranger-stone-joint-access.md) adds Forest Seal Stone → Star Alchemy as a route alongside a direct Ranger draw and Tapu Lele-GX's Wonder Tag in the two fixed 60-card Shadow Rider challengers. After two ordinary draws, resource opportunity is **30.26936% Hood / 30.31531% Temple** conditional on a legal seven and six unknown Prizes; intersection of the two search channels is counted once. [Published ranks 4 and 5](ranger-stone-source-field.md) contain both Ranger and Stone and reach **29.20169% / 24.44151%** under their own source Basic-V counts. A [pinned Store board fixture](../twinleaf/ranger-stone-itemlock-action.md) confirms Tool attachment → Star Alchemy → Ranger → unlocked Switch during attack-origin Item lock in bounded conditions. Both [opening CI](https://github.com/FlareZ123/experiment-01/actions/runs/38872637821) and [Store CI](https://github.com/FlareZ123/experiment-01/actions/runs/38872601242) passed. All are conditional opportunity or staged-effect evidence, **not opponent win rates**.
