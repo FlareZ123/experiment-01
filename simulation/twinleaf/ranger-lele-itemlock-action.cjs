@@ -167,3 +167,31 @@ function probeRangerLine(options = {}) {
   };
 }
 
+/** @returns {object} */
+function runFixture() {
+  const cases = [
+    {},
+    {initialization: true},
+    {rangerPrized: true},
+    {supporterSpent: true},
+    {forcedLeleActive: true}
+  ];
+  const rows = cases.map(options => probeRangerLine(options));
+  assert.equal(rows[0].rangerPlayed, true);
+  assert.equal(rows[0].itemLockAfterResponse, false);
+  assert.equal(rows[0].switchPrompt, 'ChoosePokemonPrompt');
+  for (const row of rows.slice(1)) {
+    assert.equal(row.rangerPlayed, false, JSON.stringify(row.options));
+    assert.equal(row.itemLockAfterResponse, true, JSON.stringify(row.options));
+    assert.equal(row.switchPrompt, null, JSON.stringify(row.options));
+  }
+  return {
+    kind: 'pinned-Store Wonder Tag to Ranger to legal Switch',
+    engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+    evidence: 'staged legal effects and actual actions, no full game or win rate',
+    cases: rows
+  };
+}
+
+if (require.main === module) console.log(JSON.stringify(runFixture(), null, 2));
+module.exports = {probeRangerLine, runFixture};
