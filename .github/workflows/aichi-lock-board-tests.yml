@@ -27,3 +27,4 @@ jobs:
       - run: node simulation/twinleaf/wobbuffet-pivot.cjs
       - run: node simulation/twinleaf/vileplume-double-tm-board.cjs
       - run: node simulation/twinleaf/vileplume-itemlock-action.cjs
+      - run: node simulation/twinleaf/ranger-lele-itemlock-action.cjs
