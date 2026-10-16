@@ -18,3 +18,11 @@ Enhanced `scripts/aichi-campaign-quality-screen.cjs` schema validation to accept
 
 ## Evidence caution
 No credible 99.5% claim. Nomination still champion Shadow Rider reference. 29 exact Aichi published, ranks 23/25/28 source unknown. Engine/policy credibility not established; reported numbers above are seed/shuffle/protocol diagnostics.
+
+
+## Checkpoint 05:02 UTC
+- Manual v3 rank10 six-game workflow **38852887516 succeeded**, commit `6310a91added68738d693d5731ad6d4582840a56`, artifact ID 12025629963, [report](../../results/aichi-2026/agent44-v3-rank10-pilot.md). All six completed, candidate/opp zero-attack only Temple A (0/7) and Temple B (5/0), 0 independent qualified games, incomplete replays.
+- Same v3 rank10 source fixed set with `shadow_rider_opening_pivot=true`, manual workflow **38853269947 succeeded**, commit `9c18f9e1f08184273d9f40f00644a22a0a678208`, artifact 12026475291. All reported candidate/opp attack counts and terminal deck/prize counts unchanged versus baseline. No assertion of full identical traces. [Contrast note](../../results/aichi-2026/agent44-v3-rank10-opening-pivot.md).
+- A new opt-in `audit_passed_attacks=true` v3 rank10 workflow was dispatched around 05:01 UTC to inspect policy missed legal attacks; check workflow run listing and quality logs.
+- New v3 archive exporter now writes `seedBase` and post-run quality screen rederives SHA-256 physical-slot seeds when base present, marking old v3 archives as `v3-base-missing-legacy`. Added two source-proof tests. Latest statistical CI should be checked after this change.
+- Source-locked generic campaign runner extended test to verify v3 schema, candidate-matched distinct A/B, no competitive claim. Communicated rank10 gap via broadcast `20261016T0500Z_agent44_v3-rank10-policy-gap.md`, and coordinated evolution tactic with agent43 (direct message).
