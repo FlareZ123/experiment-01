@@ -29,10 +29,14 @@ jobs:
         run: node simulation/twinleaf/snorlax-retreat-action-characterization.cjs | tee aichi-snorlax-retreat.json
       - name: Verify Snorlax Block interaction and reversible hook
         run: node --test tests/snorlax-retreat-start-hook.test.cjs
+      - name: Characterize Switch and Guzma solo-Block escapes
+        run: node simulation/twinleaf/snorlax-switch-vs-guzma.cjs | tee aichi-snorlax-switch-guzma.json
       - name: Preserve source-backed action characterization
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: aichi-snorlax-retreat
-          path: aichi-snorlax-retreat.json
+          path: |
+            aichi-snorlax-retreat.json
+            aichi-snorlax-switch-guzma.json
           if-no-files-found: warn
