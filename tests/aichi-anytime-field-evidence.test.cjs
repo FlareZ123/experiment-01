@@ -16,7 +16,15 @@ function round(loss=-1,iteration=0) {
     candidatePolicyRevision:'candidate-policy-frozen-v1',
     opponentPolicyRevision:'opponent-policy-frozen-v1',
     engineRevision:'twinleafgg/test-revision',
-    rulesetRevision:'expanded-paper/test-revision'
+    rulesetRevision:'expanded-paper/test-revision',
+    candidateEngineSlot:'A',
+    turnEvidence:{
+      firstTurnSlot:i<32 ? 0 : 1,
+      firstTurnPlayerId:i<32 ? 101 : 202,
+      firstTurnPlayerName:i<32 ? 'research-A' : 'research-B',
+      firstDrawLogName:i<32 ? 'research-A' : 'research-B',
+      verifiedByDrawLog:true
+    }
   }));
 }
 function completeRounds(count) {
@@ -115,4 +123,26 @@ test('frozen deck/policy/engine provenance cannot drift between rounds',()=>{
   const changedEngine=round(-1,1);
   changedEngine[0].engineRevision='different-engine';
   assert.throws(()=>assessFieldEvidence([round(),changedEngine]),/Candidate deck, engine/);
+});
+
+test('actual first-turn evidence must match Store slot and first draw log',()=>{
+  const swapped=round();
+  swapped[0].candidateEngineSlot='B';
+  assert.throws(()=>countQualifiedWins(swapped),/starting seat contradicts/);
+
+  const fabricated=round();
+  fabricated[1].turnEvidence.firstDrawLogName='research-B';
+  assert.throws(()=>countQualifiedWins(fabricated),/starting seat contradicts/);
+
+  const missing=round();delete missing[2].turnEvidence;
+  assert.throws(()=>countQualifiedWins(missing),/unqualified/);
+
+  const oppositeSlot=round();
+  oppositeSlot[0].candidateEngineSlot='B';
+  oppositeSlot[0].turnEvidence={
+    firstTurnSlot:1,firstTurnPlayerId:202,
+    firstTurnPlayerName:'research-B',firstDrawLogName:'research-B',
+    verifiedByDrawLog:true
+  };
+  assert.equal(countQualifiedWins(oppositeSlot),64);
 });
