@@ -74,6 +74,7 @@ function executeDiagnostic(options) {
     'supporterDecisionCorrection', 'isolatePolicyRandomness',
     'captureDecisionTrace', 'snorlaxRetreatStartCorrection',
     'shadowRiderEnergyPriority', 'shadowRiderOpeningPivot', 'attackBeforeRetreat',
+    'attackBeforeRetreatCandidateOnly',
     'leleEntryAbilityLockCorrection',
     'radiantGateLockCorrection'
   ]);
@@ -82,6 +83,10 @@ function executeDiagnostic(options) {
       Object.entries(policyFlags).some(([key, value]) =>
         !allowedFlags.has(key) || typeof value !== 'boolean')) {
     throw new Error('policyFlags may contain only recognized boolean policy options.');
+  }
+  if (policyFlags.attackBeforeRetreatCandidateOnly === true &&
+      policyFlags.attackBeforeRetreat !== true) {
+    throw new Error('Candidate-only preference requires Attack-before-Retreat policy.');
   }
   const wanted = new Set(ranks);
   const trials = campaign.trials.filter(t => t.phase === 'pilot' && wanted.has(t.rank));
@@ -137,10 +142,13 @@ function executeDiagnostic(options) {
       const candidateA = trial.candidateEngineSlot === 'A';
       const deckA = candidateA ? pair.candidateCards : pair.opponentCards;
       const deckB = candidateA ? pair.opponentCards : pair.candidateCards;
+      const {attackBeforeRetreatCandidateOnly, ...enginePolicyFlags} = policyFlags;
       const game = runMatch({
         deckA, deckB, seed: trial.seed, maxActions,
         label: 'Aichi comparative diagnostic ' + trial.trialId,
-        ...policyFlags
+        ...enginePolicyFlags,
+        ...(attackBeforeRetreatCandidateOnly === true ?
+          {attackBeforeRetreatSeat: candidateA ? 0 : 1} : {})
       });
       const expectedDeckHashes = [digest(deckA), digest(deckB)];
       if (game.seed !== trial.seed ||
@@ -298,6 +306,7 @@ function main() {
       shadowRiderEnergyPriority: process.env.AICHI_SHADOW_ENERGY === '1',
       shadowRiderOpeningPivot: process.env.AICHI_OPENING_PIVOT === '1',
       attackBeforeRetreat: process.env.AICHI_ATTACK_BEFORE_RETREAT === '1',
+      attackBeforeRetreatCandidateOnly: process.env.AICHI_ATTACK_CANDIDATE_ONLY === '1',
       leleEntryAbilityLockCorrection: true,
       radiantGateLockCorrection: true
     },
