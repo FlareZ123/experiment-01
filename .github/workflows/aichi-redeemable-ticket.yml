@@ -28,3 +28,5 @@ jobs:
         run: node --test tests/aichi-meloetta-ticket-compressor.test.cjs
       - name: Dispatch Prize-redeal Item in actual Store
         run: node simulation/twinleaf/redeemable-ticket-prize-board.cjs
+      - name: Play Ticket and Compressor with and without Item lock
+        run: node simulation/twinleaf/redeemable-ticket-play-action.cjs
