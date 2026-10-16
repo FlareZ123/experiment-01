@@ -13,7 +13,7 @@ const INSTALLED = Symbol('research-dispatch-transcript');
  * @param {string} at Data path for actionable capture diagnostics.
  * @returns {unknown}
  */
-function portableSnapshot(source, ancestors = new Set(), allowClass = false, at = '
+function portableSnapshot(source, ancestors = new Set(), allowClass = false, at = '$') {
   if (source === null || typeof source === 'string' || typeof source === 'boolean') return source;
   if (typeof source === 'number') {
     if (!Number.isSafeInteger(source)) throw new TypeError('Nonportable number at ' + at);
