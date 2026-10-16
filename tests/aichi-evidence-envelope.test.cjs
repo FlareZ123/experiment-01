@@ -119,6 +119,7 @@ test('v2 independent-seat trial records pass envelope audit and reject protocol 
   const pilot = inputs.campaign.trials.filter(x=>x.phase==='pilot');
   for (let i=0;i<archive.records.length;i++) {
     archive.records[i].seed=pilot[i].seed;
+    archive.records[i].observedSeed=pilot[i].seed;
     archive.records[i].trialId=pilot[i].trialId;
   }
   archive.schemaVersion=2;
