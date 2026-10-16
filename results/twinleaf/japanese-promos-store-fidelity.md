@@ -1,6 +1,6 @@
 # Japanese Aichi promo cards: pinned Store fidelity
 
-**Agent 2, 16 October 2026.** Scope: research-owned, staged `Store` actions and effects for the three Japanese-only functional card identities in the sourced Aichi Top 32 field. **Five reproducible Node tests passed** in [manual GitHub Actions run 38860950522](https://github.com/FlareZ123/experiment-01/actions/runs/38860950522). This evidence concerns narrow gameplay semantics; no competitive win rate or full-match policy is qualified.
+**Agent 2, 16 October 2026.** Scope: research-owned, staged `Store` actions and effects for the three Japanese-only functional card identities in the sourced Aichi Top 32 field. **Six reproducible Node tests passed** in [manual GitHub Actions run 38861436628](https://github.com/FlareZ123/experiment-01/actions/runs/38861436628). This evidence concerns narrow gameplay semantics; no competitive win rate or full-match policy is qualified.
 
 ## Exact environment
 
@@ -19,11 +19,12 @@
 | Palace Book against Vileplume AOR | With the opponent's staged Vileplume evolutionary line on the Bench, the actual Item action was rejected; Book remained in hand and no cards were drawn. | 3, pass |
 | Palace Belt with Jamming Tower | With Jamming Tower in play, Active Belt had no effect on `DrawCardForTurnEffect`, leaving the normal `drawCount=1`. | 4, pass |
 | Player's Ceremony on successive turns | Actual `UseStadiumAction` let the first player draw two and end the turn, then the next player did the same on their own turn. The Stadium stayed in play. | 5, pass |
+| Palace Belt across complete turns | Two actual `PassTurnAction` transitions led to the Belt holder drawing **two** on its next turn, or **one** when Jamming Tower suppressed the Tool. The opposing player drew its usual one card. | 6, pass |
 
-A useful timing lesson is visible in [the diagnostic run 38860206928](https://github.com/FlareZ123/experiment-01/actions/runs/38860206928): checking Palace Book's discard location **before** resolving the between-turn `WaitPrompt` found it still in the Supporter staging zone. After modeling the pending turn transition, [run 38860440173](https://github.com/FlareZ123/experiment-01/actions/runs/38860440173) passed Book and Belt baseline; [run 38860677500](https://github.com/FlareZ123/experiment-01/actions/runs/38860677500) passed both lock tests; the final run passed all five.
+A useful timing lesson is visible in [the diagnostic run 38860206928](https://github.com/FlareZ123/experiment-01/actions/runs/38860206928): checking Palace Book's discard location **before** resolving the between-turn `WaitPrompt` found it still in the Supporter staging zone. After modeling the pending turn transition, [run 38860440173](https://github.com/FlareZ123/experiment-01/actions/runs/38860440173) passed Book and Belt baseline; [run 38860677500](https://github.com/FlareZ123/experiment-01/actions/runs/38860677500) passed both lock tests; run 38860950522 passed the first five; [the six-case manual CI run 38861436628](https://github.com/FlareZ123/experiment-01/actions/runs/38861436628) also validated the complete-turn Palace Belt draw.
 
 ## Scope limits and next tests
 
-The boards are deliberately staged. They do not prove legal opening construction, unrestricted Japanese paper Expanded card legality, all card-level lock interactions, correct engine deck-out behavior, complete game play, strong decisions or matchup wins. Palace Belt is checked at the **real Store effect** level; it still merits an end-to-end next-turn draw test under actual `PassTurnAction`. The Player's Ceremony behavior validates only this research patch version, not an upstream implementation. Other agents should keep opponent policies unqualified until representative legal source lines and responses are observed in real matches.
+The boards are deliberately staged. They do not prove legal opening construction, unrestricted Japanese paper Expanded card legality, all card-level lock interactions, correct engine deck-out behavior, complete game play, strong decisions or matchup wins. Palace Belt now has both a **real Store effect** test and a bounded complete-turn draw test under actual `PassTurnAction`. The Player's Ceremony behavior validates only this research patch version, not an upstream implementation. Other agents should keep opponent policies unqualified until representative legal source lines and responses are observed in real matches.
 
 **No 99.5% claim follows.** Reference [the current deck decision board](../critic-review-70.md) for the full evidence gate.
