@@ -6,7 +6,8 @@ const { verifyCampaign, turnProof } = require('./aichi-campaign-runner.cjs');
 const STATUSES = new Set([
   'completed', 'blocked-resolution', 'engine-deck-mismatch',
   'unverified-first-turn', 'unfinished', 'engine-exception',
-  'engine-seed-mismatch'
+  'engine-seed-mismatch', 'engine-revision-mismatch',
+  'engine-protocol-mismatch', 'policy-profile-mismatch'
 ]);
 
 /** @param {unknown} value @returns {string} */
@@ -24,7 +25,10 @@ function digest(value) {
  */
 function auditArchive(inputs, archive) {
   const campaign = verifyCampaign(inputs);
-  if (archive.schemaVersion !== 1 || archive.planDigest !== campaign.planDigest ||
+  if (archive.schemaVersion !== campaign.schemaVersion ||
+      (archive.seedProtocol || 'paired-slots-v1') !==
+        (campaign.seedProtocol || 'paired-slots-v1') ||
+      archive.planDigest !== campaign.planDigest ||
       !['pilot', 'published-field'].includes(archive.phase) ||
       !Array.isArray(archive.records) || !Array.isArray(archive.selectedTrialIds) ||
       archive.records.length !== archive.recordedTrials ||
