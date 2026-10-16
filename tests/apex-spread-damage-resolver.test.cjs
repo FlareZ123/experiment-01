@@ -121,7 +121,7 @@ test('searches valid lower-priority allocations if the best proposal is invalid'
   ]);
 });
 
-test('pinned Store paid Apex Dragon automatically takes two Bench Knock Outs',
+test('pinned Store rank-15 board allows two Bench Knock Outs while Pidgeot survives',
 {skip:!fs.existsSync(path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output/game'))},
 ()=>{
   const root=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
@@ -144,7 +144,11 @@ test('pinned Store paid Apex Dragon automatically takes two Bench Knock Outs',
   const ready=preparedRegidrago();
   ready.attachFire();
   ready.defending.active.cards.length=0;
-  ready.defending.active.cards.push(get('Mimikyu PAL'));
+  // All these printed Pokemon occur together in Aichi rank 15.
+  ready.defending.active.cards.push(
+    get('Pidgey FLF'),get('Pidgeotto TEU'),get('Pidgeot ex OBF')
+  );
+  assert.ok(ready.defending.active.getPokemonCard()?.hp>200);
   const budews=[];
   for(let i=0;i<2;i++) {
     const budew=get('Budew ASC');
