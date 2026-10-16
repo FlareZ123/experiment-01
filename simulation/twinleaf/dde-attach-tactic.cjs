@@ -6,6 +6,27 @@ const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const load=name=>require(path.join(root,name));
 
 /**
+ * Check whether effective Energy units cover Apex Dragon's printed GGF cost.
+ * The availability of an attack also depends on other game-state restrictions.
+ * This check intentionally does not simulate an attack or mutate Card history.
+ *
+ * @param {Array<number|string>} provided Actual effective Energy units.
+ * @param {object} types Pinned Twinleaf CardType constants.
+ * @returns {boolean}
+ */
+function coversPrintedApexCost(provided, types) {
+  const required = [types.GRASS, types.GRASS, types.FIRE];
+  const assign = (costIndex, used) => {
+    if (costIndex === required.length) return true;
+    return provided.some((unit, index) =>
+      !used.has(index) && (unit === required[costIndex] || unit === types.ANY) &&
+      assign(costIndex + 1, new Set([...used, index]))
+    );
+  };
+  return assign(0, new Set());
+}
+
+/**
  * Opt-in research tactic to recover a missed legal Double Dragon attachment.
  * Insert immediately AFTER upstream AttachEnergyTactic so proven static-score
  * attachments retain their existing priority.
@@ -22,6 +43,7 @@ function makeDoubleDragonAttachTactic() {
     load('game/store/actions/play-card-action');
   const {Simulator}=load('game/bots/simulator');
   const {CheckProvidedEnergyEffect}=load('game/store/effects/check-effects');
+  const {CardType}=load('game/store/card/card-types');
 
   return class DoubleDragonAttachTactic extends SimpleTactic {
     /** @param {object} state @param {object} player @returns {object|undefined} */
@@ -32,12 +54,36 @@ function makeDoubleDragonAttachTactic() {
         c.name==='Double Dragon Energy'&&c.set==='ROS');
       if (handIndex<0) return;
       const wanted=player.hand.cards[handIndex];
-      const positions=[
-        {player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0},
-        ...player.bench.map((_,index)=>({
-          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index
-        }))
-      ];
+      const activePosition={
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+      };
+      const benchPositions=player.bench.map((_,index)=>({
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index
+      }));
+      // Source-verified priority counterexample: if Active Regidrago VSTAR
+      // already covers Apex Dragon's printed cost, preserve the attachment
+      // for an available Benched Dragon before considering the Active.
+      let reserveForBench=false;
+      const active=player.active.getPokemonCard();
+      if(active?.name==='Regidrago VSTAR' && active.set==='SIT' &&
+          benchPositions.some((_,i)=>
+            player.bench[i].getPokemonCard()?.cardType.includes(CardType.DRAGON))) {
+        try {
+          const sim=new Simulator(state,this.options.arbiter);
+          const self=sim.store.state.players.find(p=>p.id===player.id);
+          const check=new CheckProvidedEnergyEffect(self,self.active);
+          sim.store.reduceEffect(sim.store.state,check);
+          const attached=new Set(self.active.energies.cards);
+          const supplied=check.energyMap.filter(row=>attached.has(row.card))
+            .flatMap(row=>row.provides);
+          reserveForBench=coversPrintedApexCost(supplied,CardType);
+        } catch {
+          reserveForBench=false;
+        }
+      }
+      const positions=reserveForBench
+        ? [...benchPositions,activePosition]
+        : [activePosition,...benchPositions];
       for(const target of positions) {
         const action=new PlayCardAction(player.id,handIndex,target);
         try {
@@ -75,4 +121,4 @@ function withDoubleDragonRecovery(options) {
     ]
   };
 }
-module.exports={makeDoubleDragonAttachTactic,withDoubleDragonRecovery};
+module.exports={coversPrintedApexCost,makeDoubleDragonAttachTactic,withDoubleDragonRecovery};
