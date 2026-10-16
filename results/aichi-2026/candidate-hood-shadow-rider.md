@@ -64,6 +64,12 @@ The computation enumerates multivariate hypergeometric seven-card hands, both or
 
 This model **does not simulate actions or win rates**. It omits Fog Crystal, Mysterious Treasure, Forest Seal Stone, Radiant Eternatus's Climactic Gate, draw Supporters, optional opponent-mulligan bonuses, Prize-taking, discard availability, Ability locks, Tool removal, Bench occupancy, and opponent decisions. Assuming Arven is playable is optimistic; omitting its simultaneous Item search is conservative. Consequently 7.7143% is a restricted setup-opportunity statistic, neither a lower nor an upper bound on real protected-board establishment.
 
+## Additional source and engine feasibility checks
+
+The [direct Radiant Eternatus search categorization](../../tests/aichi_hood_radiant_invariance.test.cjs) gives **exactly the champion's restricted six-group composition** `[1 Radiant, 5 direct search Items, 1 Heavy Ball, 4 VMAX, 13 other Basics, 36 other]`. Consequently the source model's after-first-draw route access is unchanged at **52.2048%**, or **50.6594%** with two VMAX remaining in deck. This equality was checked with the existing exact enumerator in [manual CI 38828379343](https://github.com/FlareZ123/experiment-01/actions/runs/38828379343). It is a strictly category-level result. Moving from two Tapu Lele-GX to one and from three Shadow Rider V to four changes card utility within the collapsed other-Basic category; it does not establish unchanged gameplay consistency.
+
+The [source-printing engine feasibility probe](../../simulation/evaluation/aichi-hood-candidate.cjs) passed [manual CI 38828295484](https://github.com/FlareZ123/experiment-01/actions/runs/38828295484): the complete fixed 60-card candidate resolved with the documented research-compatible printing policies, and the pinned engine executed bounded two-seat generic-bot fixtures against source ranks **6 (Iron Thorns)** and **8 (Absol Garbodor)**. There were four synthetic-policy games, with no claim that they demonstrate competent play, complete representative benchmarking, or competitive win percentages. Raw fixture properties and candidate/opponent engine hashes are produced directly by the executable probe.
+
 ## Next validation gates
 
 1. Run the deterministic `tests/hood-t2-joint.test.cjs` on Node 20 or later and record the results. The exact values were independently cross-checked in Python; the committed Node regressions and dated banlist checks passed [manual GitHub Actions run 38827475499](https://github.com/FlareZ123/experiment-01/actions/runs/38827475499).
