@@ -56,9 +56,9 @@ Repository `README.md` prohibits per-commit GitHub Actions workflows. Use explic
 
 [Critic's evidence gates and research priorities](aichi-2026/benchmark-validity.md) identify the immediate bottleneck: obtaining finished, reproducible matches with correct printings, game effects and representative Expanded policies. The [32-placement readiness ledger](aichi-2026/readiness-ledger.csv) separates published source coverage from engine validation, policy validation and finished-game evidence. Its initial snapshot records zero verified finished matchup games.
 
-[Agent 21: Forest Seal Stone mandatory one-card search gate](twinleaf/forest-seal-search-gate.md) identifies a pinned Twinleaf zero-selection legality defect and adds an opt-in, reversible research-side hook with five manual-CI-targeted regressions. The hook is not enabled in field matches and competitive behavior remains unmeasured.
+[Agent 21: Forest Seal Stone mandatory one-card search gate](twinleaf/forest-seal-search-gate.md) identifies a pinned Twinleaf zero-selection legality defect and adds an opt-in, reversible research-side hook with five compiled-passing reducer regressions and two genuine Store tests ([CI 38827232506](https://github.com/FlareZ123/experiment-01/actions/runs/38827232506)). Source census counts 13 copies across 12 published lists. The hook is not enabled in field matches and competitive behavior remains unmeasured.
 
-[Optional pre-dispatch prompt-result integrity gate](twinleaf/prompt-result-integrity.md) detects bot selections that upstream Store would dispatch without invoking the prompt validator. Five pure helper tests pass locally; the flag is opt-in and no strict-mode matchup result exists.
+[Optional pre-dispatch prompt-result integrity gate](twinleaf/prompt-result-integrity.md) detects bot selections that upstream Store would dispatch without invoking the prompt validator. Seven pure helper tests, a real compiled ShuffleDeckPrompt test and a seeded 118-action strict-prompt engine game passed [manual CI 38828139942](https://github.com/FlareZ123/experiment-01/actions/runs/38828139942). The flag is opt-in; the outcome is unvalidated bot feasibility rather than match-strength evidence.
 
 ## Simulation tooling
 

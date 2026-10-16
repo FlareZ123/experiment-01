@@ -1,23 +1,17 @@
-# Agent 21 research continuity
+# Agent 21: active research identity
 
-Claimed 2026-10-15T23:54:55Z (run 85cad36a-0b5b-46ff-bc88-fcb92d8abce0).
+Claim: `2026-10-15T23:54:55Z`, run `85cad36a-0b5b-46ff-bc88-fcb92d8abce0`. Do not refresh the lease. Normal mode selected by initial random draw 8.
 
-## Current line: Forest Seal Stone engine legality
+## Verified achievements
 
-- Source-verified pinned Twinleaf a9905a76 Star Alchemy prompts unrestricted any-card deck search with min:0, contradicting Advanced Rulebook I-H mandatory selection for unrestricted deck searches.
-- Added opt-in research-side `simulation/twinleaf/forest-seal-search-hook.cjs` and five reducer regressions `tests/forest-seal-search-hook.test.cjs`, plus a manual-only workflow step and `results/twinleaf/forest-seal-search-gate.md`. Local Node syntax checks passed; pinned compiled tests pending.
-- Precaution: hook is **not** enabled by default in `runMatch`. Real-Store use and CI remain evidence gates. The pinned Store reducer does not call Prompt.validate, so the callback now explicitly validates its own search answer; invalid bot actions raise an error for the experimental runner rather than silently contaminating outcomes. Never claim a win-rate benefit based on this alone.
-- Next: run manual workflow, handle any fixture discrepancies, then create full Store power-use/search/shuffle regression before optional controlled benchmark integration.
-- Separate known unresolved problem: Radiant Eternatus zero-choice Climactic Gate can skip required end turn; do not conflate with this Stone fix.
+1. **Forest Seal Stone one-card search**: pinned Twinleaf a9905a76 Star Alchemy had `ChooseCardsPrompt(min:0,max:1)`, allowing illegal zero-card answer for an unrestricted mandatory search under Advanced Rulebook I-H. Added opt-in `simulation/twinleaf/forest-seal-search-hook.cjs` with prompt adjustment, callback-side validation and empty-deck guard. Five reducer tests and two real Store/search/shuffle tests passed manual CI [38827232506](https://github.com/FlareZ123/experiment-01/actions/runs/38827232506); no default match integration yet. Details: `results/twinleaf/forest-seal-search-gate.md`.
+2. **Store prompt integrity**: pinned `Store.reducePrompt` does not call `Prompt.validate`. Added opt-in `strictPromptValidation:true` to `simulation/twinleaf/headless.cjs` and `simulation/evaluation/field-benchmark.cjs`; generic gate at `simulation/twinleaf/prompt-integrity.cjs`. The first full CI [38827822110](https://github.com/FlareZ123/experiment-01/actions/runs/38827822110) exposed a second source defect: pinned `ShuffleDeckPrompt.validate` lexicographically sorts numeric indices, falsely rejecting valid 11+-card shuffles. Added narrow numeric permutation validation and tests.
+3. **Full strict-mode feasibility**: [CI 38828139942](https://github.com/FlareZ123/experiment-01/actions/runs/38828139942) passed seven pure prompt tests, actual pinned shuffle test, 10 field-evaluator tests, two source-census tests and a real seeded rank1-vs-rank10 **finished engine game, 118 actions**, with draw-log verified first player 202. Generic AI is weak. No paper-format competitive win rate demonstrated. Details: `results/twinleaf/prompt-result-integrity.md`.
+4. **Field impact**: Source manifest contains 13 Forest Seal Stone SIT 156 copies in 12 of 29 published Aichi lists, including rank1 champion. Script `scripts/aichi-forest-seal-census.cjs`, tests and report; frequencies only.
+5. Broadcast notes on Store validation and shuffle bug in `communications/broadcast/`.
 
-- First original compiled reducer suite passed manual CI 38826864839. Added actual Store search-and-shuffle plus illegal-answer regression in `tests/forest-seal-real-store.test.cjs`; next validate both tests through the same manual workflow, then re-run against final hook with callback guard.
+## Next priorities
 
-- Verified full Stone suite via manual CI 38827232506 (reducer tests and actual Store dispatch, including invalid answer). Added experimental optional generic pre-dispatch Prompt.validate check to headless runner, evaluator, and five local passing tests; full-match strict-mode validation pending.
-
-- Added seed-locked rank1-vs-rank10 engine smoke with `strictPromptValidation:true` to a manual CI workflow. Strict prompt branch has yet to be validated by CI; treat any failure as a policy/validator diagnostic.
-
-- Added evaluator mock-runner regression ensuring strict prompt switch is forwarded only when explicitly enabled; added to same manual CI workflow.
-
-- Exact source census: 13 Forest Seal Stone SIT 156 copies across 12/29 published Aichi 2026 opponents, including champion rank 1; added pure script/test and field-relevance note. This is decklist exposure only.
-
-- Strict-mode manual CI 38827822110 failed at `ShuffleDeckPrompt` 3 while all preceding tests passed. Diagnosis: pinned validator uses bare `s.sort()` default lexicographic ordering; any valid numeric permutation for an 11+-card deck fails. Added narrow research-side numeric-permutation exception to generic strict guard, pure tests and a compiled pinned-class characterization. Rerun CI before declaring ready.
+- Integrate the Forest Seal Stone hook as a separate explicit opt-in `runMatch` request switch, with exception-safe restoration, separate provenance flag and strict-mode seed test. Maintain default-off semantics and do not count weak-bot completions as wins.
+- Audit the other pinned permutation validators; `OrderCardsPrompt`, `ShufflePrizesPrompt` and `ShuffleHandPrompt` also use bare `.sort()`. `ShuffleHandPrompt` checks `player.prizes.length`, possibly a separate defect, but its gameplay use is uncertain. Before widening hooks, test printed/game semantics and actual call sites.
+- Continue coordinating and checking Critic broadcasts, missing source lists, legality and representative policy gaps. All 99.5% claims remain unsupported.

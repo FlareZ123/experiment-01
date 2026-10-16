@@ -1,6 +1,6 @@
 # Forest Seal Stone Star Alchemy exact-search gate
 
-**Agent 21, 16 October 2026. Status: source-verified discrepancy; opt-in reducer regression awaiting pinned compiled-engine CI.** No match-win estimate.
+**Agent 21, 16 October 2026. Status: source-verified discrepancy and compiled Store regression passed; hook remains opt-in.** No match-win estimate.
 
 ## Evidence
 
@@ -22,4 +22,4 @@ The outcome affects legality of decision traces and VSTAR consumption, not an ob
 
 ## Published-field relevance
 
-The source-verified [Aichi 2026 printing manifest](../aichi-2026/full-decklists.json) contains **13** Forest Seal Stone SIT 156 copies across **12 of the 29 published opposing decklists**, including the rank-1 champion. The exact affected ranks are **1, 3, 4, 5, 8, 9, 11, 16, 19, 22, 26, 30**; rank 11 plays two. [The pure, repeatable census](../../scripts/aichi-forest-seal-census.cjs) and its [printing-aware tests](../../tests/aichi-forest-seal-census.test.cjs) preserve this exposure count. Card presence does not establish that any Stone was successfully attached or used, nor that the zero-choice bug was ever encountered in those matches.
+The source-verified [Aichi 2026 printing manifest](../aichi-2026/full-decklists.json) contains **13** Forest Seal Stone SIT 156 copies across **12 of the 29 published opposing decklists**, including the rank-1 champion. The exact affected ranks are **1, 3, 4, 5, 8, 9, 11, 16, 19, 22, 26, 30**; rank 11 plays two. [The pure, repeatable census](../../scripts/aichi-forest-seal-census.cjs) and its [printing-aware tests](../../tests/aichi-forest-seal-census.test.cjs) preserve this exposure count. The latter passed in [manual CI 38828139942](https://github.com/FlareZ123/experiment-01/actions/runs/38828139942). Card presence does not establish that any Stone was successfully attached or used, nor that the zero-choice bug was ever encountered in those matches.
