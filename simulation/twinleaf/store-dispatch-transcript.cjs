@@ -1,6 +1,7 @@
 'use strict';
 
 const { actionTraceSha256 } = require('../evaluation/canonical-action-trace.cjs');
+const { captureChooseCardsReferences } = require('./choose-cards-reference.cjs');
 
 const INSTALLED = Symbol('research-dispatch-transcript');
 
@@ -118,6 +119,16 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
       parameters: null, before: observedCounts(this.state), after: null
     };
     trace.push(event);
+    const pending = this.state?.prompts?.find(p => p.result === undefined);
+    if (pending?.constructor?.name === 'ChooseCardsPrompt' &&
+        action?.constructor?.name === 'ResolvePromptAction') {
+      try {
+        event.choiceReferences = captureChooseCardsReferences(pending, action);
+      } catch (error) {
+        event.choiceCaptureError = error.message;
+        captureErrors.push('step ' + step + ': choice refs: ' + error.message);
+      }
+    }
     try {
       event.parameters = portableSnapshot(action, new Set(), true);
     } catch (error) {
@@ -154,6 +165,8 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
   return {
     result, actionTrace: trace, dispatched: trace.length,
     ignoredOtherStoreDispatches,
+    capturedChoiceReferenceEvents: trace.filter(event => event.choiceReferences).length,
+    failedChoiceReferenceEvents: trace.filter(event => event.choiceCaptureError).length,
     captureScope: options.liveStoreOnly === true ?
       'first-AddPlayerAction-Store-instance' : 'all-Store-instances',
     parametersCaptured: captureErrors.length === 0,
