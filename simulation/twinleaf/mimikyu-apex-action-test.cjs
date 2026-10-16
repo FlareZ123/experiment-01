@@ -94,6 +94,25 @@ function declaredCopycatApexContract(correctHistory = false, fairyZone = false, 
     assert.equal(a.usedGX, true);
     assert.equal(a.usedTurnSkip, true);
     assert.equal(regidrago.attacks[0].copycatAttack, true);
+    const beforeKoWaits = printedHpKo ? {
+      damage: b.active.damage,
+      regidragoInDiscard: b.discard.cards.includes(regidrago),
+      remainingPrizeCards: a.prizes.filter(p => p.cards.length > 0).length,
+      pendingPrompts: state.prompts.filter(p => p.result === undefined)
+        .map(p => p.constructor.name)
+    } : null;
+    let koWaitPromptsResolved = 0;
+    if (printedHpKo) {
+      while (true) {
+        const wait = state.prompts.find(p =>
+          p.constructor.name === 'WaitPrompt' && p.result === undefined);
+        if (!wait) break;
+        store.dispatch(new ResolvePromptAction(wait.id, null));
+        koWaitPromptsResolved++;
+        assert.ok(koWaitPromptsResolved <= 10,
+          'Unexpected repeated pending WaitPrompts on printed-HP KO');
+      }
+    }
     const actualLastAttack = state.playerLastAttack[a.id]?.attack?.name;
     assert.equal(afterDeclaration, 'Copycat',
       'Printed attack identity must be recorded at declaration');
@@ -106,6 +125,10 @@ function declaredCopycatApexContract(correctHistory = false, fairyZone = false, 
       printedHpKo,
       koTelemetry: printedHpKo ? {
         printedRegidragoHp: regidrago.hp,
+        beforeKoWaits,
+        koWaitPromptsResolved,
+        phaseAfterKoWaits: state.phase,
+        turnAfterKoWaits: state.turn,
         regidragoInDiscard: b.discard.cards.includes(regidrago),
         remainingPrizeCards: a.prizes.filter(p => p.cards.length > 0).length,
         opponentActive: b.active.getPokemonCard()?.fullName ?? null,
