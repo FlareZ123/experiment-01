@@ -279,6 +279,12 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
     capturedEnergyAttachmentEvents: trace.filter(event => event.energyAttachment).length,
     typedActionValueEvents: trace.filter(event => event.typedAction).length,
     typedActionValueFailures: trace.filter(event => event.typedActionError).length,
+    promptReplayActionEvents: trace.filter(event => event.promptReplayAction).length,
+    promptReplayActionFailures: trace.filter(event => event.promptReplayActionError).length,
+    promptReplayUnsupportedKinds: [...new Set(trace.filter(event =>
+      event.promptReplayUnsupported).map(event => event.promptReplayUnsupported))],
+    actionInputEnvelopeCoverage: trace.filter(event =>
+      event.typedAction || event.promptReplayAction).length,
     failedChoiceReferenceEvents: trace.filter(event => event.choiceCaptureError).length,
     captureScope: options.liveStoreOnly === true ?
       'first-AddPlayerAction-Store-instance' : 'all-Store-instances',
