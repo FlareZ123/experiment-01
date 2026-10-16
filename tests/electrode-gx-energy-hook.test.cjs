@@ -19,3 +19,9 @@ test('Electrode-GX must attach all five available or reject activation',()=>{
     restore();
   }
 });
+
+test('Electrode rejects blocked recipients',()=>{
+ const restore=installElectrodeGXEnergyHook();
+ try { assert.throws(()=>runCase(0,true)); assert.throws(()=>runCase(0,true,true)); }
+ finally { restore(); }
+});
