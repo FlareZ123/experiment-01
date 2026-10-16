@@ -3,7 +3,8 @@
 const path = require('node:path');
 const { resolveManifestFile } = require('./resolve-field.cjs');
 const { initializeCards } = require('./headless.cjs');
-const {runWithResearchProfile, DEFAULT_PROFILE, REGIDRAGO_PROFILE} =
+const {runWithResearchProfile, DEFAULT_PROFILE, REGIDRAGO_PROFILE,
+  SUPPORTER_PROFILE, REGIDRAGO_SUPPORTER_PROFILE} =
   require('./policy-profiles.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
@@ -22,15 +23,23 @@ function runTracedMatch(request, profile) {
     'simple-bot/simple-tactics-ai'));
   const {SlotType} = require(path.join(output,
     'game/store/actions/play-card-action'));
+  const {TrainerType} = require(path.join(output,
+    'game/store/card/card-types'));
   const original = SimpleTacticsAi.prototype.decodeNextAction;
   const resettingHoleActions = [];
   const doubleDragonTargets = [];
   const regidragoAttackDecisions = [];
   const vstarPlayActions = [];
+  const supporterPlayActions = [];
   SimpleTacticsAi.prototype.decodeNextAction = function tracedDecode(state) {
     const action = original.call(this, state);
     const seat = state.players.findIndex(p => p.id === this.client.id);
     const player = state.players[seat];
+    if (action?.constructor.name === 'PlayCardAction' && player &&
+        player.hand.cards[action.handIndex]?.trainerType === TrainerType.SUPPORTER) {
+      supporterPlayActions.push({turn:state.turn,seat,
+        card:player.hand.cards[action.handIndex]?.fullName});
+    }
     if (action?.constructor.name === 'PlayCardAction' && player &&
         player.hand.cards[action.handIndex]?.name === 'Regidrago VSTAR') {
       vstarPlayActions.push({turn:state.turn,seat,
@@ -72,15 +81,15 @@ function runTracedMatch(request, profile) {
   };
   try {
     return {game:runWithResearchProfile(request, profile), resettingHoleActions,
-      doubleDragonTargets, regidragoAttackDecisions, vstarPlayActions};
+      doubleDragonTargets, regidragoAttackDecisions, vstarPlayActions, supporterPlayActions};
   } finally {
     SimpleTacticsAi.prototype.decodeNextAction = original;
   }
 }
 
 /**
- * One field-sourced Regidrago/Shadow Rider paired-seat pilot under identical
- * seed and ordinary bot policy, with one opt-in tactical-policy variation.
+ * Source Regidrago/Shadow Rider paired-seat factorial policy pilot under
+ * one explicit seed and four versioned simple-bot policy compositions.
  * This is a feasibility characterization, never a matchup win-rate sample.
  */
 function compareRegidragoPilot() {
@@ -96,7 +105,8 @@ function compareRegidragoPilot() {
     throw new Error('Source rank 10 or 1 is not concretely instantiated by the pinned engine.');
   }
   const rows = [];
-  for (const profile of [DEFAULT_PROFILE, REGIDRAGO_PROFILE]) {
+  for (const profile of [DEFAULT_PROFILE, REGIDRAGO_PROFILE,
+    SUPPORTER_PROFILE, REGIDRAGO_SUPPORTER_PROFILE]) {
     for (const [a, b] of [[10, 1], [1, 10]]) {
       const regidragoSeat = a === 10 ? 0 : 1;
       const request = {
@@ -107,7 +117,7 @@ function compareRegidragoPilot() {
         label: 'source Aichi pilot ' + profile + ' ' + a + '-' + b
       };
       try {
-        const {game, resettingHoleActions, doubleDragonTargets, regidragoAttackDecisions, vstarPlayActions} =
+        const {game, resettingHoleActions, doubleDragonTargets, regidragoAttackDecisions, vstarPlayActions, supporterPlayActions} =
           runTracedMatch(request, profile);
         rows.push({profile, pair:[a,b],regidragoSeat,seed:request.seed,
           finished:game.finished,endReason:game.endReason,
@@ -122,6 +132,7 @@ function compareRegidragoPilot() {
           doubleDragonTargets:doubleDragonTargets.filter(row => row.seat === regidragoSeat),
           regidragoAttackDecisions:regidragoAttackDecisions.filter(row => row.seat === regidragoSeat),
           vstarPlayActions:vstarPlayActions.filter(row => row.seat === regidragoSeat),
+          supporterPlayActions,
           promptValidationMode:game.promptValidationMode,
           randomnessProtocol:game.randomnessProtocol,
           experimentalTactics:game.experimentalTactics,
@@ -134,7 +145,8 @@ function compareRegidragoPilot() {
   }
   return {study:'Policy feasibility paired-seat source-deck diagnostic',
     caution:'Unvalidated generic tactics and noncompetitive opponent. No win-rate inference.',
-    researchPolicyProfiles:[DEFAULT_PROFILE,REGIDRAGO_PROFILE],
+    researchPolicyProfiles:[DEFAULT_PROFILE,REGIDRAGO_PROFILE,
+      SUPPORTER_PROFILE, REGIDRAGO_SUPPORTER_PROFILE],
     matches:rows};
 }
 
