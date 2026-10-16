@@ -73,7 +73,8 @@ function executeDiagnostic(options) {
     'doubleDragonRecovery', 'templeUnlockRecovery',
     'supporterDecisionCorrection', 'isolatePolicyRandomness',
     'captureDecisionTrace', 'snorlaxRetreatStartCorrection',
-    'shadowRiderEnergyPriority', 'leleEntryAbilityLockCorrection',
+    'shadowRiderEnergyPriority', 'shadowRiderOpeningPivot',
+    'leleEntryAbilityLockCorrection',
     'radiantGateLockCorrection'
   ]);
   if (policyFlags === null || typeof policyFlags !== 'object' ||
@@ -295,6 +296,7 @@ function main() {
       doubleDragonRecovery: true, supporterDecisionCorrection: true,
       isolatePolicyRandomness: true, captureDecisionTrace: true,
       shadowRiderEnergyPriority: process.env.AICHI_SHADOW_ENERGY === '1',
+      shadowRiderOpeningPivot: process.env.AICHI_OPENING_PIVOT === '1',
       leleEntryAbilityLockCorrection: true,
       radiantGateLockCorrection: true
     },
