@@ -56,3 +56,23 @@ function installElectrodeGXEnergyHook() {
               }
               return callback(transfers);
             });
+          }
+          return target.prompt(nextState,prompt,callback);
+        };
+        const value=Reflect.get(target,property,target);
+        return typeof value==='function' ? value.bind(target) : value;
+      }
+    });
+    return original.call(this,wrapped,state,effect);
+  }
+  ElectrodeGX.prototype.reduceEffect=corrected;
+  restoreActive=()=>{
+    if (ElectrodeGX.prototype.reduceEffect===corrected) {
+      ElectrodeGX.prototype.reduceEffect=original;
+    }
+    restoreActive=null;
+  };
+  return restoreActive;
+}
+
+module.exports={installElectrodeGXEnergyHook};
