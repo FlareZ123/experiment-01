@@ -48,6 +48,12 @@ function withRecordedSourceActions(sourceTrace,work) {
     }
     assert.deepEqual(observedCounts(state),event.before,
       'Before-action Store summary differs at source step '+ordinal);
+    if(typeof event.zoneDigestBefore!=='string' ||
+        typeof event.zoneDigestAfter!=='string') {
+      throw new Error('Source zone evidence missing at step '+ordinal);
+    }
+    assert.equal(zoneSnapshotDigest(sourceZoneSnapshot(state)),event.zoneDigestBefore,
+      'Before-action hidden-zone digest differs at source step '+ordinal);
     if(event.typedAction) {
       assert.deepEqual(captureAction(action),event.typedAction,
         'Typed action fields differ at source step '+ordinal);
