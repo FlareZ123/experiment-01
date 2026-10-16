@@ -92,7 +92,7 @@ test('invalid pilot ranks, plan identity mismatches and repeated trials are reje
   const t = campaign.trials.find(t=>t.phase==='pilot');
   campaign.trials.push(t);
   assert.throws(() => executeDiagnostic({campaign,ranks:[1],
-    resolvePair:()=>null,runMatch:()=>null}), /Incomplete or repeated/);
+    resolvePair:()=>null,runMatch:()=>null}), /planDigest integrity mismatch/);
   const output = executeDiagnostic({campaign:loadDefaultCampaign(),ranks:[6],
     resolvePair: () => ({candidateDigest:'wrong',opponentDigest:'wrong',
       candidateCards:cards,opponentCards:cards}),
