@@ -25,5 +25,7 @@ jobs:
         run: node --test tests/aichi-copycat-starter-prize-joint.test.cjs
       - name: Print joint source-defined starter and Prize-capacity scenarios
         run: node scripts/aichi-copycat-starter-prize-joint.cjs
+      - name: Exhaustively check unconditional versus valid-opener Prize cuts
+        run: python -m unittest discover -s tests -p test_prize_cut_marginals.py -v
       - name: Print source-defined 60-card recovery-capacity scenarios
         run: node scripts/aichi-champion-critical-prize-collapse.cjs
