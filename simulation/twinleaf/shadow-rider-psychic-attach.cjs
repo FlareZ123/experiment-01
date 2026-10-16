@@ -44,9 +44,10 @@ function chooseShadowRiderTarget(player) {
  * Legality is checked by dispatching onto a cloned Twinleaf Store, without
  * changing live state or changing the pinned vendor code.
  *
+ * @param {{allOpponents?:boolean}} [options] Experimental broader matchup gate.
  * @returns {Function} A SimpleTacticsAi-compatible tactic constructor.
  */
-function makeShadowRiderPsychicAttachTactic() {
+function makeShadowRiderPsychicAttachTactic({allOpponents = false} = {}) {
   const {SimpleTactic}=load('simple-bot/simple-tactics/simple-tactics');
   const {PlayCardAction,PlayerType,SlotType}=
     load('game/store/actions/play-card-action');
@@ -58,7 +59,8 @@ function makeShadowRiderPsychicAttachTactic() {
       if (state.prompts.some(p=>p.result===undefined) ||
           player.energyPlayedTurn>=state.turn) return;
       const opponent=state.players.find(p=>p.id!==player.id);
-      if (!opponent || opponent.active.getPokemonCard()?.name!=='Iron Thorns ex') return;
+      if (!opponent || (!allOpponents &&
+          opponent.active.getPokemonCard()?.name !== 'Iron Thorns ex')) return;
       const handIndex=player.hand.cards.findIndex(card=>card.name==='Psychic Energy');
       if (handIndex<0) return;
       const wanted=chooseShadowRiderTarget(player);
@@ -85,16 +87,17 @@ function makeShadowRiderPsychicAttachTactic() {
  * engines and opposing policy choices remain subject to their normal logic.
  *
  * @param {object} options Pinned SimpleBotOptions.
+ * @param {{allOpponents?:boolean}} [settings] Experimental broader matchup gate.
  * @returns {object} Shallow-copied options with opt-in tactic.
  */
-function withShadowRiderPsychicPriority(options) {
+function withShadowRiderPsychicPriority(options, {allOpponents = false} = {}) {
   const at=options.tactics.findIndex(tactic=>tactic.name==='AttachEnergyTactic');
   if(at<0) throw new Error('Pinned AttachEnergyTactic is missing.');
   return {
     ...options,
     tactics:[
       ...options.tactics.slice(0,at),
-      makeShadowRiderPsychicAttachTactic(),
+      makeShadowRiderPsychicAttachTactic({allOpponents}),
       ...options.tactics.slice(at)
     ]
   };
