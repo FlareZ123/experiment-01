@@ -69,3 +69,25 @@ test('live-only mode excludes speculation on other Store instances', () => {
   assert.deepEqual(report.actionTrace.map(e => e.action), ['AddPlayerAction', 'Action']);
 });
 
+
+test('records source-index identity for real ChooseCardsPrompt reference selections', () => {
+  class ChooseCardsPrompt {
+    constructor(cards) { this.cards = {cards}; this.message = 'CHOOSE_CARDS'; }
+  }
+  class ResolvePromptAction {
+    constructor(result) { this.result = result; }
+  }
+  const first = {fullName:'Fezandipiti ex SFA 38'};
+  const second = {fullName:'Fezandipiti ex SFA 38'};
+  const store = new Store();
+  const prompt = new ChooseCardsPrompt([first, second]);
+  store.state.prompts.push(prompt);
+  const report = withStoreDispatchTranscript(Store, () =>
+    store.dispatch(new ResolvePromptAction([second])));
+  const event = report.actionTrace[0];
+  assert.equal(event.choiceReferences.selection[0].index, 1);
+  assert.equal(event.choiceReferences.selection[0].mode, 'card-reference');
+  assert.equal(report.capturedChoiceReferenceEvents, 1);
+  assert.equal(report.failedChoiceReferenceEvents, 0);
+  assert.equal(report.parametersCaptured, true);
+});
