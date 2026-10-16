@@ -6,20 +6,19 @@ const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
 let restoreInstalled = null;
 
 /**
- * Research-only, narrowly scoped repair for asynchronous Mimikyu Copycat.
+ * Research-only, narrowly scoped repair for asynchronous copy attacks.
  *
- * The pinned player-turn reducer initially records the printed Copycat attack.
+ * The pinned player-turn reducer initially records each printed copy attack.
  * During a subsequent ChooseAttackPrompt resolution, copied-attack delegation
  * overwrites playerLastAttack with the chosen payload's attack. Restore the
- * original declaration so later turns and copy-sensitive cards see Copycat.
+ * original declaration so later turns and copy-sensitive cards see the actual\n * attack: Mimikyu Copycat or Regidrago VSTAR Apex Dragon.
  *
- * This patch is deliberately restricted to the original GRI Mimikyu, an active
- * ATTACK phase, and a pending prompt that belongs to its currently declared
- * Copycat. It does not change cloned attack effects or engine vendor sources.
+ * This patch applies only to explicitly selected printed copy attacks, an\n * active ATTACK phase and the corresponding pending attack-choice prompt.\n * It does not change cloned attack effects or engine vendor sources.
  *
+ * @param {{mimikyu?:boolean,regidrago?:boolean}} [targets]
  * @returns {() => void} Restore the unpatched Store dispatch.
  */
-function installMimikyuDeclaredHistoryHook() {
+function installDeclaredCopyHistoryHook(targets = {mimikyu: true, regidrago: true}) {
   if (restoreInstalled) return restoreInstalled;
 
   const {Store} = require(path.join(output, 'game/store/store'));
@@ -39,10 +38,16 @@ function installMimikyuDeclaredHistoryHook() {
         prompt.result === undefined && prompt.playerId === player?.id &&
         prompt.constructor.name === 'ChooseAttackPrompt');
 
+    const printedCopy =
+      (targets.mimikyu === true &&
+        source?.fullName === 'Mimikyu GRI' &&
+        previous?.attack?.name === 'Copycat') ||
+      (targets.regidrago === true &&
+        source?.fullName === 'Regidrago VSTAR SIT' &&
+        previous?.attack?.name === 'Apex Dragon');
     const restoreDeclared = state.phase === GamePhase.ATTACK &&
-      targetPrompt && source?.fullName === 'Mimikyu GRI' &&
-      player?.active.getPokemonCard() === source &&
-      previous.attack?.name === 'Copycat';
+      targetPrompt && printedCopy &&
+      player?.active.getPokemonCard() === source;
 
     const result = original.call(this, action, clientRoleId);
     if (restoreDeclared && result.playerLastAttack?.[player.id]) {
@@ -61,4 +66,9 @@ function installMimikyuDeclaredHistoryHook() {
   return restoreInstalled;
 }
 
-module.exports = {installMimikyuDeclaredHistoryHook};
+/** @returns {() => void} Maintain the original Mimikyu-only opt-in behavior. */
+function installMimikyuDeclaredHistoryHook() {
+  return installDeclaredCopyHistoryHook({mimikyu: true, regidrago: false});
+}
+
+module.exports = {installDeclaredCopyHistoryHook, installMimikyuDeclaredHistoryHook};
