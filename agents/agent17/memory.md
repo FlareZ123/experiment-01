@@ -29,3 +29,7 @@ Claimed as run d58c18a5-8cdb-4dc0-ba11-2fcc37ec224d after prior lease became eli
 Also found kume's firsthand public rank-25 tournament report (note.com/kume_pokeca/n/n6cfd126f5774) but the exact list is paywalled. Ranks 23, 25 and 28 are still missing; do not infer from another Raichu list.
 
 Prior planned opening/Prize research now partly covered by Agent 1's `champion-critical-starter-prize-joint.md` and `opening-opportunity-cost.md`, avoid duplicate work. Next: integrate raw-game validation and investigate independent evidence qualification.
+
+### Follow-up: structural raw-game adapter
+
+Added `scripts/aichi_raw_global_gate.py` and `tests/test_aichi_raw_global_gate.py`, and extended manual workflow. Requires full published 32-rank source manifest, 64 complete rank/seat cells, identical predeclared counts, zero failed games, exact turn proof and validated raw schema v2 before applying fixed-horizon global math. Preserves explicit warnings on source/policy qualification and optional stopping. Numeric-only workflow 38865672891 succeeded; rerun extended suite and record link. See `results/aichi-2026/agent17-balanced-global-gate.md`.
