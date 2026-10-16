@@ -6,6 +6,7 @@ const crypto = require('node:crypto');
 const {observeFirstTurn, summarizeTurnOrder} = require('./turn-order-evidence.cjs');
 const {installToolJammerHook} = require('./tool-jammer-hook.cjs');
 const {installPrototypeSafeSimulatorHook} = require('./prototype-safe-simulator-hook.cjs');
+const {installPostSuperAliasRepairHook} = require('./post-super-alias-repair-hook.cjs');
 const {installMegatonBlowerHook} = require('./megaton-blower-hook.cjs');
 const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 const {installForestSealSearchHook} = require('./forest-seal-search-hook.cjs');
@@ -186,6 +187,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [templeUnlockRecovery] Opt-in attack-unlocking Marshadow response to Temple.
  * @property {boolean} [isolatePolicyRandomness] Use independent RNG streams for speculative bot decisions (experimental).
  * @property {boolean} [prototypeSafeSimulatorIsolation] Opt-in experimental detached speculative Cards/prototypes, not certified for competitive inference.
+ * @property {boolean} [postSuperAliasRepairIsolation] Opt-in experimental source-graph reconciliation after the pinned Simulator constructor.
  * @property {boolean} [supporterDecisionCorrection] Opt-in, reversible correction for premature Supporter turn consumption.
  * @property {boolean} [guzmaSelfSwitchGuard] Opt-in rank-6 off-type self-switch counterfactual.
  * @property {boolean} [dialgaBenchExposureGuard] Opt-in rank-6 gust-target exposure counterfactual.
@@ -235,6 +237,7 @@ function runMatch(request) {
   Math.random = random;
   let restoreBotHooks;
   let restorePrototypeSafeSimulatorHook;
+  let restorePostSuperAliasRepairHook;
   let restoreToolJammerHook;
   let restoreMegatonBlowerHook;
   let restoreForestSealSearchHook;
@@ -251,6 +254,10 @@ function runMatch(request) {
   let restoreCopyDeclaredHistoryHook;
   let restorePassClearsLastAttackHook;
   try {
+    if (request.prototypeSafeSimulatorIsolation === true &&
+        request.postSuperAliasRepairIsolation === true) {
+      throw new Error('Choose only one experimental speculative Simulator profile');
+    }
     if (request.mimikyuApexTimelessPolicySeat !== undefined &&
         (request.mimikyuApexTimelessPolicy !== true ||
           ![0, 1].includes(request.mimikyuApexTimelessPolicySeat))) {
@@ -298,6 +305,9 @@ function runMatch(request) {
     restoreBotHooks = installFairBotHooks();
     if (request.prototypeSafeSimulatorIsolation === true) {
       restorePrototypeSafeSimulatorHook = installPrototypeSafeSimulatorHook();
+    }
+    if (request.postSuperAliasRepairIsolation === true) {
+      restorePostSuperAliasRepairHook = installPostSuperAliasRepairHook();
     }
     if (request.supporterDecisionCorrection === true) {
       restoreSupporterDecisionHook = installSupporterDecisionHook();
@@ -666,8 +676,11 @@ function runMatch(request) {
         (request.mimikyuApexTimelessPolicy === true ? '+MimikyuApexTimelessCounterPolicy-v1' : '') +
         (request.passClearsLastAttackCorrection === true ? '+PassClearsLastAttack-v1' : '') +
         (request.prototypeSafeSimulatorIsolation === true ?
-          '+PrototypeSafeSimulatorIsolation-experimental-v1' : ''),
+          '+PrototypeSafeSimulatorIsolation-experimental-v1' : '') +
+        (request.postSuperAliasRepairIsolation === true ?
+          '+PostSuperAliasRepairIsolation-experimental-v1' : ''),
       prototypeSafeSimulatorIsolation: request.prototypeSafeSimulatorIsolation === true,
+      postSuperAliasRepairIsolation: request.postSuperAliasRepairIsolation === true,
       policyRandomIsolation: request.isolatePolicyRandomness === true,
       randomnessProtocol: request.isolatePolicyRandomness === true ?
         'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
@@ -686,6 +699,7 @@ function runMatch(request) {
     if (restoreDialgaBenchExposureGuard) restoreDialgaBenchExposureGuard();
     if (restoreGuzmaSelfSwitchGuard) restoreGuzmaSelfSwitchGuard();
     if (restoreSupporterDecisionHook) restoreSupporterDecisionHook();
+    if (restorePostSuperAliasRepairHook) restorePostSuperAliasRepairHook();
     if (restorePrototypeSafeSimulatorHook) restorePrototypeSafeSimulatorHook();
     if (restoreBotHooks) restoreBotHooks();
     if (restoreForestSealSearchHook) restoreForestSealSearchHook();
