@@ -39,3 +39,20 @@ The executable [source-guarded model](../../scripts/aichi-meloetta-prize-ticket.
 Force rank-26's singleton Double Colorless Energy into the six original Prizes, keep Ticket in hand, and replay Ticket in a pinned Twinleaf state with six or more other deck cards above the returned Prize block. Assert that the Energy leaves the Prize zone and enters the bottom returned block. Then execute an actual legal search or shuffle, and determine whether the policy can access the Energy before its turn-one Crisis Punch. Explicitly test any Item lock, deck exhaustion, opponent Prize count, self-KO sequence, and Energy attachment required for the attack. The present mathematics neither proves a first-turn donk nor certifies a competitively credible opponent policy.
 
 The collective target remains one fixed legal 60-card list against the Aichi Top 32. This result guards against the mistaken premise that starting Prizes are always immutable.
+
+
+## Compiled-engine verification and direct shuffle extension
+
+A [pinned Twinleaf Store fixture](../../simulation/twinleaf/redeemable-ticket-prize-board.cjs) now dispatches the JTG Redeemable Ticket effect on a conditioned six-Prize board with the SUM Double Colorless Energy among the original Prizes. All six original cards move to the bottom of the deck, the prior top six become the new Prizes, and the singleton Energy is no longer Prized. [Compiled manual CI 38845337935](https://github.com/FlareZ123/experiment-01/actions/runs/38845337935) passed, with the three combinatorial regressions. The fixture uses a neutral supported Active Pokémon, so it establishes the Ticket effect without testing Meloetta's Ability or first-turn attack.
+
+The exact source list also has **four Battle Compressor**. Those Items search the deck for up to three cards to discard and then shuffle the deck. A restricted, cost-excluding follow-up asks whether an initial Energy-Prized deal directly holds **both Ticket and at least one Compressor by its first ordinary turn draw**, creating an opportunity to redeal Prizes and then shuffle the returned Energy. Exact conditional chances among legal seven-card openings:
+
+| Timing of the directly held pair | Chance |
+| --- | ---: |
+| Both Ticket and Compressor already in the initial seven | 0.381266% |
+| Ticket in seven; Compressor is the first-turn draw | 0.057339% |
+| Compressor in seven; Ticket is the first-turn draw | 0.067578% |
+| **Any of those three direct routes** | **0.506183%** |
+
+This is **5.022768%** of the initially DCE-Prized deals. The independent [five-category combinatorial model](../../scripts/aichi-meloetta-ticket-compressor.cjs) and [physical-deal exhaustive test](../../tests/aichi-meloetta-ticket-compressor.test.cjs) passed [compiled manual CI 38845601070](https://github.com/FlareZ123/experiment-01/actions/runs/38845601070). The calculation does not include any other shuffle/search effect, optional mulligan draws, card playability under locks, or whether a subsequent draw finds the Energy. Thus it is neither a complete rescue probability nor a win-rate estimate.
+
