@@ -131,3 +131,46 @@ test('live legal Damage Pump produces two Exeggcute self-KOs and two opponent Pr
     assert.equal(f.donors[0].damage,0);
   } finally {restore();}
 });
+
+const {UseAbilityAction} = engine('game/store/actions/game-actions');
+
+test('one staged turn performs legal 2+2+1 Exeggcute self-KOs via repeat Propagation',()=>{
+  const restore=installDamagePumpSingleSourceHook();
+  try {
+    const f=setup();
+    const remaining=[];
+    for (const [cycle,eggCount] of [[0,2],[1,2],[2,1]]) {
+      for (let eggIndex=0;eggIndex<eggCount;eggIndex++) {
+        const egg=f.eggs[eggIndex];
+        if (f.attacker.discard.cards.includes(egg)) {
+          const discardIndex=f.attacker.discard.cards.indexOf(egg);
+          f.store.dispatch(new UseAbilityAction(f.attacker.id,'Propagation',{
+            player:PlayerType.BOTTOM_PLAYER,
+            slot:SlotType.DISCARD,index:discardIndex
+          }));
+          assert.equal(f.attacker.hand.cards.includes(egg),true,
+            'Propagation must return the re-KOed egg to hand');
+        }
+        play(f,egg,target(3+eggIndex));
+        assert.equal(f.attacker.bench[3+eggIndex].damage,20,
+          'Risky Ruins must re-damage an Exeggcute re-benched this turn');
+      }
+      play(f,f.pumps[cycle],boardTarget);
+      const prompt=pending(f);
+      assert.equal(prompt?.constructor.name,'MoveDamagePrompt');
+      const transfers=Array.from({length:eggCount},(_,eggIndex)=>({
+        from:target(cycle),to:target(3+eggIndex)
+      }));
+      assert.equal(prompt.validate(transfers,f.state),true);
+      f.store.dispatch(new ResolvePromptAction(prompt.id,transfers));
+      claimPrizes(f,eggCount);
+      remaining.push(f.defender.getPrizeLeft());
+      assert.equal(f.state.phase,GamePhase.PLAYER_TURN,
+        'self-KOs should not end the game while opponent has Prizes left');
+    }
+    assert.deepEqual(remaining,[4,2,1]);
+    assert.equal(f.attacker.discard.cards.filter(c=>c.name==='Exeggcute').length,2);
+    assert.equal(f.attacker.bench.slice(3,5).some(s=>s.cards.length>0),false);
+    assert.deepEqual(f.donors.map(s=>s.damage),[0,0,10]);
+  } finally {restore();}
+});
