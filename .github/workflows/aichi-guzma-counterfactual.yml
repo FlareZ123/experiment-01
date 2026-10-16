@@ -1,0 +1,41 @@
+name: Aichi Guzma positional counterfactual
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Test pure Guzma position guard
+        run: node --test tests/guzma-self-switch-guard.test.cjs tests/aichi-guzma-trap.test.cjs
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Reproduce two bounded source-inventory openings
+        run: node simulation/evaluation/aichi-guzma-counterfactual.cjs > aichi-guzma-counterfactual.json
+      - name: Verify the targeted turn-two Guzma intervention
+        run: |
+          node -e "const r=require('./aichi-guzma-counterfactual.json');const a=r.observations; if(a.length!==2 || !a[0].candidateEarlyActions.some(x=>x.card==='Guzma') || a[1].candidateEarlyActions.some(x=>x.card==='Guzma'))process.exit(1);"
+      - name: Preserve comparable action observations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-guzma-counterfactual
+          path: aichi-guzma-counterfactual.json
+          if-no-files-found: warn
