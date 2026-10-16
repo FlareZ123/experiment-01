@@ -4,6 +4,8 @@ const { actionTraceSha256 } = require('../evaluation/canonical-action-trace.cjs'
 const { captureChooseCardsReferences } = require('./choose-cards-reference.cjs');
 const { captureChooseAttackReference } = require('./choose-attack-reference.cjs');
 const { captureSlotChoice } = require('./choice-slot-reference.cjs');
+const { captureChooseEnergyReference } = require('./choose-energy-reference.cjs');
+const { captureAttachEnergyReference } = require('./attach-energy-reference.cjs');
 
 const INSTALLED = Symbol('research-dispatch-transcript');
 
@@ -195,6 +197,24 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
         captureErrors.push('step ' + step + ': source slot: ' + error.message);
       }
     }
+    if (pending?.constructor?.name === 'ChooseEnergyPrompt' &&
+        action?.constructor?.name === 'ResolvePromptAction') {
+      try {
+        event.energyChoice = captureChooseEnergyReference(pending, action);
+      } catch (error) {
+        event.energyChoiceCaptureError = error.message;
+        captureErrors.push('step ' + step + ': EnergyMap choice: ' + error.message);
+      }
+    }
+    if (pending?.constructor?.name === 'AttachEnergyPrompt' &&
+        action?.constructor?.name === 'ResolvePromptAction') {
+      try {
+        event.energyAttachment = captureAttachEnergyReference(pending, action);
+      } catch (error) {
+        event.energyAttachmentCaptureError = error.message;
+        captureErrors.push('step ' + step + ': attached Energy: ' + error.message);
+      }
+    }
     try {
       event.parameters = portableSnapshot(action, new Set(), true);
     } catch (error) {
@@ -235,6 +255,8 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
     capturedChoiceReferenceEvents: trace.filter(event => event.choiceReferences).length,
     capturedAttackChoiceEvents: trace.filter(event => event.attackChoice).length,
     capturedSlotChoiceEvents: trace.filter(event => event.slotChoice).length,
+    capturedEnergyChoiceEvents: trace.filter(event => event.energyChoice).length,
+    capturedEnergyAttachmentEvents: trace.filter(event => event.energyAttachment).length,
     failedChoiceReferenceEvents: trace.filter(event => event.choiceCaptureError).length,
     captureScope: options.liveStoreOnly === true ?
       'first-AddPlayerAction-Store-instance' : 'all-Store-instances',
