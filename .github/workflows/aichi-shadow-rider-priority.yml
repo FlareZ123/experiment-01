@@ -1,0 +1,58 @@
+name: Aichi Shadow Rider Energy A-B diagnostic
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify source-only selection and pass audits
+        run: node --test tests/shadow-rider-psychic-attach.test.cjs tests/public-board-telemetry.test.cjs tests/aichi-pass-board-audit.test.cjs tests/terminal-transition.test.cjs tests/aichi-campaign-execute.test.cjs
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run fixed-plan control
+        env:
+          AICHI_DIAGNOSTIC_RANKS: '6'
+          AICHI_DIAGNOSTIC_SEED_PROTOCOL: 'independent-slots-v2'
+          AICHI_SHADOW_ENERGY: '0'
+        run: node simulation/evaluation/aichi-campaign-execute.cjs > aichi-energy-control.json
+      - name: Run fixed-plan opt-in energy priority
+        env:
+          AICHI_DIAGNOSTIC_RANKS: '6'
+          AICHI_DIAGNOSTIC_SEED_PROTOCOL: 'independent-slots-v2'
+          AICHI_SHADOW_ENERGY: '1'
+        run: node simulation/evaluation/aichi-campaign-execute.cjs > aichi-energy-priority.json
+      - name: Verify matched plan and contrasting policies
+        run: node -e "const a=require('./aichi-energy-control.json');const b=require('./aichi-energy-priority.json');if(a.planDigest!==b.planDigest||a.policyFlags.shadowRiderEnergyPriority!==false||b.policyFlags.shadowRiderEnergyPriority!==true)throw new Error('Treatment or plan identity not verified');console.log('Verified fixed plan',a.planDigest,'control',a.records.length,'opt-in',b.records.length)"
+      - name: Summarize control pass boards
+        run: node scripts/aichi-pass-board-audit.cjs aichi-energy-control.json > aichi-energy-control-passboards.json
+      - name: Summarize opt-in pass boards
+        run: node scripts/aichi-pass-board-audit.cjs aichi-energy-priority.json > aichi-energy-priority-passboards.json
+      - name: Preserve both treatments and pass-board evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-shadow-energy-matched-diagnostic
+          path: |
+            aichi-energy-control.json
+            aichi-energy-priority.json
+            aichi-energy-control-passboards.json
+            aichi-energy-priority-passboards.json
+          if-no-files-found: warn
