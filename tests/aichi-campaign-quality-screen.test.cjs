@@ -156,3 +156,25 @@ test('rank/candidate identities must agree with the encoded trial identifier', (
   f.records[0].opponentRank = 10;
   assert.throws(() => auditCampaignQuality(f), /scheduled trial identity|source-drifted trial identity/);
 });
+
+test('legacy archives remain readable but receive an explicit unversioned profile', () => {
+  const result = auditCampaignQuality(fixture());
+  assert.equal(result.researchPolicyProfile, 'unversioned-legacy');
+  assert.ok(result.records.every(record =>
+    record.researchPolicyProfile === 'unversioned-legacy'));
+});
+
+test('versioned fixed trial policy drift is rejected before quality scoring', () => {
+  const f = fixture();
+  f.researchPolicyProfile = 'expanded-action-fidelity-probe-v1';
+  for (const record of f.records) {
+    record.researchPolicyProfile = 'expanded-action-fidelity-probe-v1';
+  }
+  const checked = auditCampaignQuality(f);
+  assert.equal(checked.researchPolicyProfile, 'expanded-action-fidelity-probe-v1');
+  f.records[1].researchPolicyProfile = 'fixed-core-v1';
+  assert.throws(() => auditCampaignQuality(f), /policy profile differs/);
+  f.records[1].researchPolicyProfile = 'expanded-action-fidelity-probe-v1';
+  f.researchPolicyProfile = 'forged-game-policy';
+  assert.throws(() => auditCampaignQuality(f), /research policy profile/);
+});
