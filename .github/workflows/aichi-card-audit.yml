@@ -24,6 +24,10 @@ jobs:
         run: python -m pip install filelock
       - name: Audit card identifiers
         run: python scripts/aichi_card_audit.py
+      - name: Verify attack-granting Tool source resolver
+        run: python tests/test_aichi_tool_attack_inventory.py
+      - name: Print source-resolved attack-granting Tool field inventory
+        run: python scripts/aichi_tool_attack_inventory.py
       - uses: actions/upload-artifact@v4
         with:
           name: aichi-card-coverage
