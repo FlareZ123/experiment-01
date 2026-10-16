@@ -56,6 +56,22 @@ function snorlaxLeadGivenValidOpening(snorlax, basics) {
 }
 
 /**
+ * Exact forced Snorlax Active among valid initial seven-card hands:
+ * at least one Snorlax and no other Basic species. Multiple Snorlax possible.
+ * Opponent mulligan bonus draws cannot change the Active already selected.
+ * @param {number} snorlax
+ * @param {number} basics
+ */
+function forcedSnorlaxActiveGivenValidOpening(snorlax, basics) {
+  if (!Number.isInteger(snorlax) || !Number.isInteger(basics) ||
+      snorlax < 1 || basics < snorlax || basics > 60) {
+    throw new Error('Invalid Snorlax/Basic inventory.');
+  }
+  return (choose(60-basics+snorlax,7)-choose(60-basics,7)) /
+    (choose(60,7)-choose(60-basics,7));
+}
+
+/**
  * Exact joint probability of a valid seven and at least one drawn Hood, then
  * conditioned on the valid opening. Hood and Basic labels are disjoint.
  * @param {number} hood
@@ -113,6 +129,7 @@ function auditSoloSnorlax() {
     return {
       rank, archetype:deck.archetype, snorlax, basics,
       pSnorlaxLeadGivenValidOpening:snorlaxLeadGivenValidOpening(snorlax,basics),
+      pForcedSnorlaxActiveGivenValidOpening:forcedSnorlaxActiveGivenValidOpening(snorlax,basics),
       namedCounters:Object.fromEntries(['Tool Jammer','Faba','Megaton Blower','Field Blower',
         'Guzma','Counter Catcher'].map(name=>[name,count(deck,name)]))
     };
@@ -137,4 +154,5 @@ function auditSoloSnorlax() {
 }
 
 module.exports={choose,validOpeningProbability,snorlaxLeadGivenValidOpening,
+  forcedSnorlaxActiveGivenValidOpening,
   hoodOpeningGivenValidOpening,allHoodsPrizedGivenValidOpening,auditSoloSnorlax};
