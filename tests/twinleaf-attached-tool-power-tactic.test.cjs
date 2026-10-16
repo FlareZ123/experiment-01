@@ -83,7 +83,8 @@ test('default Ability tactic omits attached Tool power; opt-in enumerates an act
   assert.ok(selected instanceof UseAbilityAction);
   assert.equal(selected.name,'Star Alchemy');
   assert.equal(selected.clientId,fixture.a.id);
-  assert.equal(selected.target.slot,2); // Bench on pinned PlayerType/SlotType enum is checked below.
+  const {SlotType}=mod('game/store/actions/play-card-action');
+  assert.equal(selected.target.slot,SlotType.BENCH);
   assert.ok(candidates.some(a=>a.name==='Star Alchemy'));
 
   const restore=installForestSealSearchHook();
