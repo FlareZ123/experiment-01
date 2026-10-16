@@ -5,6 +5,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const {observeFirstTurn, summarizeTurnOrder} = require('./turn-order-evidence.cjs');
 const {installToolJammerHook} = require('./tool-jammer-hook.cjs');
+const {installPrototypeSafeSimulatorHook} = require('./prototype-safe-simulator-hook.cjs');
 const {installMegatonBlowerHook} = require('./megaton-blower-hook.cjs');
 const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 const {installForestSealSearchHook} = require('./forest-seal-search-hook.cjs');
@@ -184,6 +185,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [doubleDragonRecovery] Opt-in experimental legal dynamic-Energy attachment tactic.
  * @property {boolean} [templeUnlockRecovery] Opt-in attack-unlocking Marshadow response to Temple.
  * @property {boolean} [isolatePolicyRandomness] Use independent RNG streams for speculative bot decisions (experimental).
+ * @property {boolean} [prototypeSafeSimulatorIsolation] Opt-in experimental detached speculative Cards/prototypes, not certified for competitive inference.
  * @property {boolean} [supporterDecisionCorrection] Opt-in, reversible correction for premature Supporter turn consumption.
  * @property {boolean} [guzmaSelfSwitchGuard] Opt-in rank-6 off-type self-switch counterfactual.
  * @property {boolean} [dialgaBenchExposureGuard] Opt-in rank-6 gust-target exposure counterfactual.
@@ -231,6 +233,7 @@ function runMatch(request) {
   const originalRandom = Math.random;
   Math.random = random;
   let restoreBotHooks;
+  let restorePrototypeSafeSimulatorHook;
   let restoreToolJammerHook;
   let restoreMegatonBlowerHook;
   let restoreForestSealSearchHook;
@@ -292,6 +295,9 @@ function runMatch(request) {
       registerPlayersCeremony();
     }
     restoreBotHooks = installFairBotHooks();
+    if (request.prototypeSafeSimulatorIsolation === true) {
+      restorePrototypeSafeSimulatorHook = installPrototypeSafeSimulatorHook();
+    }
     if (request.supporterDecisionCorrection === true) {
       restoreSupporterDecisionHook = installSupporterDecisionHook();
     }
@@ -647,7 +653,10 @@ function runMatch(request) {
         (request.mimikyuDeclaredHistoryCorrection === true ? '+MimikyuDeclaredHistory-v1' : '') +
         (request.regidragoDeclaredHistoryCorrection === true ? '+RegidragoDeclaredHistory-v1' : '') +
         (request.mimikyuApexTimelessPolicy === true ? '+MimikyuApexTimelessCounterPolicy-v1' : '') +
-        (request.passClearsLastAttackCorrection === true ? '+PassClearsLastAttack-v1' : ''),
+        (request.passClearsLastAttackCorrection === true ? '+PassClearsLastAttack-v1' : '') +
+        (request.prototypeSafeSimulatorIsolation === true ?
+          '+PrototypeSafeSimulatorIsolation-experimental-v1' : ''),
+      prototypeSafeSimulatorIsolation: request.prototypeSafeSimulatorIsolation === true,
       policyRandomIsolation: request.isolatePolicyRandomness === true,
       randomnessProtocol: request.isolatePolicyRandomness === true ?
         'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
@@ -666,6 +675,7 @@ function runMatch(request) {
     if (restoreDialgaBenchExposureGuard) restoreDialgaBenchExposureGuard();
     if (restoreGuzmaSelfSwitchGuard) restoreGuzmaSelfSwitchGuard();
     if (restoreSupporterDecisionHook) restoreSupporterDecisionHook();
+    if (restorePrototypeSafeSimulatorHook) restorePrototypeSafeSimulatorHook();
     if (restoreBotHooks) restoreBotHooks();
     if (restoreForestSealSearchHook) restoreForestSealSearchHook();
     if (restoreMegatonBlowerHook) restoreMegatonBlowerHook();
