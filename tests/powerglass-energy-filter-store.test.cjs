@@ -3,7 +3,9 @@ const test=require('node:test'),assert=require('node:assert/strict');
 const {run}=require('../simulation/twinleaf/powerglass-energy-filter-store.cjs');
 
 test('pinned Store documents Powerglass attachment filter bypass',()=>{
- const out=run();
+ const normal=run('basic');
+ assert.equal(normal.attachedSelected,true);
+ const out=run('special');
  assert.equal(out.validates,true);
- console.log('Snapshot:', JSON.stringify(out));
+ console.log('Basic:',JSON.stringify(normal),'Special:',JSON.stringify(out));
 });
