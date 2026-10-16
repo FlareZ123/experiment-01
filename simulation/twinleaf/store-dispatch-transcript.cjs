@@ -26,7 +26,8 @@ function portableSnapshot(source, ancestors = new Set(), allowClass = false, at 
   const prototype = Object.getPrototypeOf(source);
   if (!allowClass && !Array.isArray(source) &&
       prototype !== Object.prototype && prototype !== null) {
-    throw new TypeError('Nested action parameter has a non-JSON prototype');
+    throw new TypeError('Nested parameter at ' + at +
+      ' has non-JSON prototype ' + (prototype?.constructor?.name || 'unknown'));
   }
   ancestors.add(source);
   try {
@@ -141,11 +142,13 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
     Object.defineProperty(Store.prototype, 'dispatch', original);
   }
   let traceSha256 = null;
-  if (!captureErrors.length && trace.length) {
+  let diagnosticTraceSha256 = null;
+  if (trace.length) {
     try {
-      traceSha256 = actionTraceSha256(trace);
+      diagnosticTraceSha256 = actionTraceSha256(trace);
+      if (!captureErrors.length) traceSha256 = diagnosticTraceSha256;
     } catch (error) {
-      captureErrors.push('Canonical digest unavailable: ' + error.message);
+      captureErrors.push('Canonical diagnostic digest unavailable: ' + error.message);
     }
   }
   return {
@@ -154,7 +157,7 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
     captureScope: options.liveStoreOnly === true ?
       'first-AddPlayerAction-Store-instance' : 'all-Store-instances',
     parametersCaptured: captureErrors.length === 0,
-    traceSha256, captureErrors
+    traceSha256, diagnosticTraceSha256, captureErrors
   };
 }
 
