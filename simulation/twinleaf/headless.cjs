@@ -114,6 +114,41 @@ function installFairBotHooks() {
 }
 
 /**
+ * Run a synchronous bot decision with its own random stream. Upstream tactics
+ * simulate candidate actions, including random prompts, before dispatching the
+ * real action. Those speculative samples must not consume game-event samples.
+ *
+ * @param {{decodeNextAction: (state: any) => any}} bot
+ * @param {any} state
+ * @param {() => number} randomSource
+ * @returns {any}
+ */
+function decodeWithPolicyRandom(bot, state, randomSource) {
+  const previous = Math.random;
+  Math.random = randomSource;
+  try {
+    return bot.decodeNextAction(state);
+  } finally {
+    Math.random = previous;
+  }
+}
+
+/**
+ * Separate repeatable decision streams for both seats. This does not promise
+ * identical actual random outcomes after different card actions change the
+ * sequence of real game events.
+ *
+ * @param {number} seed
+ * @returns {[() => number, () => number]}
+ */
+function policyRandomStreams(seed) {
+  return [
+    seededRandom((seed ^ 0x6a09e667) >>> 0),
+    seededRandom((seed ^ 0xbb67ae85) >>> 0)
+  ];
+}
+
+/**
  * @typedef {object} MatchRequest
  * @property {string[]} deckA Fully resolved Twinleaf fullName strings, exactly 60.
  * @property {string[]} deckB Fully resolved Twinleaf fullName strings, exactly 60.
@@ -122,6 +157,7 @@ function installFairBotHooks() {
  * @property {string} [label] Experimental label for machine-readable output.
  * @property {boolean} [strictPromptValidation] Opt-in pre-dispatch Prompt.validate gate.
  * @property {boolean} [forestSealSearchCorrection] Opt-in mandatory one-card Star Alchemy hook.
+ * @property {boolean} [isolatePolicyRandomness] Use independent RNG streams for speculative bot decisions (experimental).
  */
 
 /**
@@ -141,6 +177,8 @@ function runMatch(request) {
     throw new Error('seed must be an unsigned 32-bit integer.');
   }
   const random = seededRandom(request.seed);
+  const policyRandomBySeat = request.isolatePolicyRandomness === true ?
+    policyRandomStreams(request.seed) : null;
   const originalRandom = Math.random;
   Math.random = random;
   let restoreBotHooks;
@@ -229,7 +267,9 @@ function runMatch(request) {
       } else if (pending) {
         const seat = state.players.findIndex(player => player.id === pending.playerId);
         if (seat === -1) throw new Error('Unknown prompt player: ' + pending.playerId);
-        action = seats[seat].decodeNextAction(state);
+        action = policyRandomBySeat ?
+          decodeWithPolicyRandom(seats[seat], state, policyRandomBySeat[seat]) :
+          seats[seat].decodeNextAction(state);
         if (!action) {
           throw new Error('Policy cannot resolve prompt: ' + pending.constructor.name);
         }
@@ -237,7 +277,10 @@ function runMatch(request) {
         if (state.phase !== GamePhase.PLAYER_TURN) {
           throw new Error('Unhandled game phase ' + state.phase);
         }
-        action = seats[state.activePlayer].decodeNextAction(state);
+        action = policyRandomBySeat ?
+          decodeWithPolicyRandom(seats[state.activePlayer], state,
+            policyRandomBySeat[state.activePlayer]) :
+          seats[state.activePlayer].decodeNextAction(state);
         if (!action) {
           throw new Error('Policy failed to generate a turn action.');
         }
@@ -310,6 +353,9 @@ function runMatch(request) {
         'predispatch-prompt-validate' : 'upstream-unchecked',
       forestSealSearchCorrection: request.forestSealSearchCorrection === true,
       policy: 'Twinleaf SimpleTacticsAi/defaultStateScores',
+      policyRandomIsolation: request.isolatePolicyRandomness === true,
+      randomnessProtocol: request.isolatePolicyRandomness === true ?
+        'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
       engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
     };
   } finally {
@@ -328,4 +374,5 @@ function upstreamSmokeDeck() {
   return HEDRICK_DRAGAPULT_WORLDS_2026.slice();
 }
 
-module.exports = { runMatch, initializeCards, seededRandom, deckPermutation, upstreamSmokeDeck, installFairBotHooks };
+module.exports = { runMatch, initializeCards, seededRandom, deckPermutation,
+  upstreamSmokeDeck, installFairBotHooks, decodeWithPolicyRandom, policyRandomStreams };
