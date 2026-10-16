@@ -15,6 +15,11 @@ function resolvePrompts(store) {
     const prompt=store.state.prompts.find(x=>x.result===undefined);
     if(!prompt)return transcript;
     const name=prompt.constructor.name;
+    if(name==='ShowCardsPrompt') {
+      store.dispatch(new ResolvePromptAction(prompt.id,true));
+      transcript.push({type:name,choice:true});
+      continue;
+    }
     if(name==='WaitPrompt') {
       store.dispatch(new ResolvePromptAction(prompt.id,null));
       transcript.push({type:name,choice:null});
