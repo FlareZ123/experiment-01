@@ -1,0 +1,35 @@
+name: Aichi full dispatch transcript diagnostic
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aichi-dispatch-transcript
+  cancel-in-progress: false
+
+jobs:
+  recorder:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify reversible noninterfering recording wrapper
+        run: node --test tests/store-dispatch-transcript.test.cjs tests/action-trace-canonical.test.cjs
+      - name: Install compiled engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Observe real pinned Store dispatches
+        run: node simulation/twinleaf/dispatch-transcript-smoke.cjs
