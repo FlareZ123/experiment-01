@@ -13,6 +13,11 @@ on:
         required: false
         type: string
         default: '6'
+      expanded_action_policy:
+        description: 'Experimental Tool attack, Bunnelby Evolution and Temple response profile; not competitive'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -52,6 +57,7 @@ jobs:
         env:
           AICHI_DIAGNOSTIC_RANKS: ${{ inputs.pilot_ranks || '6' }}
           AICHI_DIAGNOSTIC_SEED_PROTOCOL: 'independent-slots-v2'
+          AICHI_POLICY_PROFILE: ${{ inputs.expanded_action_policy && 'expanded-action-fidelity-probe-v1' || 'fixed-core-v1' }}
           AICHI_SHADOW_ENERGY: ${{ inputs.shadow_rider_energy_priority && '1' || '0' }}
         run: node simulation/evaluation/aichi-campaign-execute.cjs > aichi-campaign-diagnostic.json
       - name: Screen engine diagnostics for attacker inactivity and trace integrity
