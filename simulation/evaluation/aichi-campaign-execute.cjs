@@ -69,7 +69,8 @@ function executeDiagnostic(options) {
     'doubleDragonRecovery', 'templeUnlockRecovery',
     'supporterDecisionCorrection', 'isolatePolicyRandomness',
     'captureDecisionTrace', 'snorlaxRetreatStartCorrection',
-    'shadowRiderEnergyPriority', 'leleEntryAbilityLockCorrection'
+    'shadowRiderEnergyPriority', 'leleEntryAbilityLockCorrection',
+    'radiantGateLockCorrection'
   ]);
   if (policyFlags === null || typeof policyFlags !== 'object' ||
       Array.isArray(policyFlags) ||
