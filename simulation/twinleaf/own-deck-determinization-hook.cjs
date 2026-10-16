@@ -19,12 +19,14 @@ const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  * unknown opponent hand/deck/Prize information. None of that is solved here.
  * Therefore this hook is for controlled information-leakage diagnostics only.
  *
- * @param {{seed:number,samples:number,assumeNoKnownDeckOrder:boolean}} opts
+ * @param {{seed:number,samples:number,assumeNoKnownDeckOrder:boolean,assumeDeckContentsKnown:boolean}} opts
  * @returns {() => void} Restore upstream scoring.
  */
 function installOwnDeckDeterminizationHook(opts) {
   assert.equal(opts.assumeNoKnownDeckOrder, true,
     'Caller must verify there is no legitimately known top-deck order.');
+  assert.equal(opts.assumeDeckContentsKnown, true,
+    'Caller must verify deck membership is known from a prior search (K1).');
   assert.ok(Number.isInteger(opts.samples) && opts.samples >= 1 && opts.samples <= 64);
   assert.ok(Number.isInteger(opts.seed));
 
