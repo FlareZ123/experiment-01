@@ -1,0 +1,19 @@
+name: Aichi terminal-bound e-process intake
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  terminal-binding:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test terminal winner and physical-seat evidence parity
+        run: node --test tests/aichi-qualified-outcome-binding.test.cjs tests/aichi-anytime-field-evidence.test.cjs
