@@ -55,6 +55,18 @@ function executeDiagnostic(options) {
       !Number.isInteger(maxActions) || maxActions < 1) {
     throw new Error('Ranks must be unique published pilot ranks; maxActions must be positive.');
   }
+  const allowedFlags = new Set([
+    'strictPromptValidation', 'forestSealSearchCorrection',
+    'doubleDragonRecovery', 'templeUnlockRecovery',
+    'supporterDecisionCorrection', 'isolatePolicyRandomness',
+    'captureDecisionTrace'
+  ]);
+  if (policyFlags === null || typeof policyFlags !== 'object' ||
+      Array.isArray(policyFlags) ||
+      Object.entries(policyFlags).some(([key, value]) =>
+        !allowedFlags.has(key) || typeof value !== 'boolean')) {
+    throw new Error('policyFlags may contain only recognized boolean policy options.');
+  }
   const wanted = new Set(ranks);
   const trials = campaign.trials.filter(t => t.phase === 'pilot' && wanted.has(t.rank));
   const expected = ranks.length * campaign.repeats * campaign.candidateRows.length * 2;
@@ -82,13 +94,35 @@ function executeDiagnostic(options) {
         continue;
       }
       const candidateA = trial.candidateEngineSlot === 'A';
+      const deckA = candidateA ? pair.candidateCards : pair.opponentCards;
+      const deckB = candidateA ? pair.opponentCards : pair.candidateCards;
       const game = runMatch({
-        deckA: candidateA ? pair.candidateCards : pair.opponentCards,
-        deckB: candidateA ? pair.opponentCards : pair.candidateCards,
-        seed: trial.seed, maxActions,
+        deckA, deckB, seed: trial.seed, maxActions,
         label: 'Aichi comparative diagnostic ' + trial.trialId,
         ...policyFlags
       });
+      const expectedDeckHashes = [digest(deckA), digest(deckB)];
+      if (game.seed !== trial.seed ||
+          !Array.isArray(game.deckHashes) ||
+          game.deckHashes.length !== 2 ||
+          game.deckHashes.some((hash, index) => hash !== expectedDeckHashes[index])) {
+        records.push({
+          ...base, status: 'unverified-game-identity',
+          observedSeed: game.seed ?? null,
+          observedDeckHashes: game.deckHashes ?? null,
+          expectedDeckHashes,
+          error: 'Engine-reported seed or ordered deck hashes differ from the fixed trial.'
+        });
+        continue;
+      }
+      if (game.rules?.format !== 'EXPANDED') {
+        records.push({
+          ...base, status: 'unverified-game-environment',
+          observedRules: game.rules ?? null,
+          error: 'Engine did not confirm the Expanded rules format.'
+        });
+        continue;
+      }
       const turn = observedFirstTurn(game);
       const completed = game.finished === true && [0, 1, 3].includes(game.winner);
       const status = !turn ? 'unverified-first-turn' :
