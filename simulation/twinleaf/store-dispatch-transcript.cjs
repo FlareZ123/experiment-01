@@ -6,6 +6,7 @@ const { captureChooseAttackReference } = require('./choose-attack-reference.cjs'
 const { captureSlotChoice } = require('./choice-slot-reference.cjs');
 const { captureChooseEnergyReference } = require('./choose-energy-reference.cjs');
 const { captureAttachEnergyReference } = require('./attach-energy-reference.cjs');
+const { captureAction } = require('./source-action-value-codec.cjs');
 
 const INSTALLED = Symbol('research-dispatch-transcript');
 
@@ -215,6 +216,13 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
         captureErrors.push('step ' + step + ': attached Energy: ' + error.message);
       }
     }
+    if (options.typedActionValues === true) {
+      try {
+        event.typedAction = captureAction(action);
+      } catch (error) {
+        event.typedActionError = error.message;
+      }
+    }
     try {
       event.parameters = portableSnapshot(action, new Set(), true);
     } catch (error) {
@@ -257,6 +265,8 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
     capturedSlotChoiceEvents: trace.filter(event => event.slotChoice).length,
     capturedEnergyChoiceEvents: trace.filter(event => event.energyChoice).length,
     capturedEnergyAttachmentEvents: trace.filter(event => event.energyAttachment).length,
+    typedActionValueEvents: trace.filter(event => event.typedAction).length,
+    typedActionValueFailures: trace.filter(event => event.typedActionError).length,
     failedChoiceReferenceEvents: trace.filter(event => event.choiceCaptureError).length,
     captureScope: options.liveStoreOnly === true ?
       'first-AddPlayerAction-Store-instance' : 'all-Store-instances',
