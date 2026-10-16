@@ -83,3 +83,33 @@ test('known prefix cannot exceed remaining deck',()=>{
     setup(),1,{},0,()=>1,null,structuredClone,
     {...opts,knownTopCount:4,knownTopVerified:true}),/exceeds deck length/);
 });
+
+test('K0 pooled deck and hidden Prize partitions give identical sample scores',()=>{
+  const a=setup(),b=setup();
+  const prizeA={id:11,fullName:'D'};
+  const prizeB={id:13,fullName:'E'};
+  a.players[0].prizes=[{cards:[prizeA]},{cards:[prizeB]}];
+  b.players[0].prizes=[{cards:[{id:5,fullName:'B'}]},{cards:[prizeB]}];
+  b.players[0].deck.cards[1]={id:11,fullName:'D'};
+  const options={...opts,sampleUnknownPrizes:true,prizesUnobservedVerified:true,
+    knownTopCount:1,knownTopVerified:true};
+  const evaluator=sample=>{
+    const deck=sample.players[0].deck.cards;
+    const prized=sample.players[0].prizes.flatMap(p=>p.cards);
+    assert.equal(deck[0].fullName,'A');
+    assert.equal(prized.length,2);
+    return deck[1].fullName==='B'?5:0;
+  };
+  const score=state=>evaluateDetachedDeckSamples(
+    state,1,{},0,evaluator,null,structuredClone,options);
+  const beforeA=structuredClone(a),beforeB=structuredClone(b);
+  assert.equal(score(a),score(b));
+  assert.deepEqual(a,beforeA);
+  assert.deepEqual(b,beforeB);
+});
+
+test('K0 unknown-Prize sampling rejects missing observation proof',()=>{
+  assert.throws(()=>evaluateDetachedDeckSamples(
+    setup(),1,{},0,()=>1,null,structuredClone,
+    {...opts,sampleUnknownPrizes:true}),/verified absence of Prize observations/);
+});
