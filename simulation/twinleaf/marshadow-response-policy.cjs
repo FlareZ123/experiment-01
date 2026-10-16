@@ -62,16 +62,24 @@ function marshadowResponsePolicyProbe() {
   const score = new StateScore(options);
   const beforeScore = score.getScore(f.state, f.attacking.id);
   const defaultChoice = new UseAbilityTactic(options).useTactic(f.state, f.attacking);
+  const { canUseApex, makeTempleUnlockTactic } = require('./temple-unlock-tactic.cjs');
+  const { SimpleTacticsAi } = load('simple-bot/simple-tactics-ai');
+  assert.equal(canUseApex(f.state, f.attacking.id, options.arbiter), false);
+  const enhanced = {
+    ...options,
+    tactics: [makeTempleUnlockTactic(), ...options.tactics]
+  };
+  const proposed = new SimpleTacticsAi({id:f.attacking.id}, enhanced, null)
+    .decodeNextAction(f.state);
+  assert.ok(proposed instanceof UseAbilityAction,
+    'Action-aware policy should find legal Resetting Hole');
+  assert.equal(proposed.name, 'Resetting Hole');
   assert.deepEqual(supplied(), [9,9]);
   const { Simulator } = load('game/bots/simulator');
   const negativeSimulation = new Simulator(f.state, options.arbiter);
   assert.throws(() => negativeSimulation.dispatch(new AttackAction(f.attacking.id, 'Apex Dragon')),
     'Temple should block the paid Dragon attack before removal');
-  const response = new UseAbilityAction(f.attacking.id, 'Resetting Hole', {
-    player: PlayerType.BOTTOM_PLAYER,
-    slot: SlotType.BENCH,
-    index: 0
-  });
+  const response = proposed;
   f.store.dispatch(response);
   const animation = f.state.prompts.find(prompt => prompt.result === undefined &&
     prompt.constructor.name === 'WaitPrompt');
@@ -94,6 +102,7 @@ function marshadowResponsePolicyProbe() {
     defaultUseAbilityTactic:defaultChoice?.constructor?.name||null,
     defaultPower:defaultChoice?.name||null,
     responseWasChosen,
+    optInChoice:proposed.name,
     beforeScore,afterScore,
     actualAction:'UseAbilityAction Resetting Hole',
     templeDiscarded:true,marshadowDiscarded:true,
