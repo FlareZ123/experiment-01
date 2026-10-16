@@ -21,3 +21,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_aichi_balanced_global_gate.py' -v
       - name: Validate balanced global inference from raw-game structure
         run: python -m unittest discover -s tests -p 'test_aichi_raw_global_gate.py' -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Audit source deck fingerprints and missing-rank seal
+        run: node --test tests/aichi_source_fingerprint_map.test.cjs
