@@ -21,5 +21,9 @@ jobs:
           node-version: '20.19.0'
       - name: Check exact Prize combinatorics against exhaustive physical slots
         run: node --test tests/aichi-champion-critical-prize-collapse.test.cjs
+      - name: Check critical Active-starter overlap against physical deals
+        run: node --test tests/aichi-copycat-starter-prize-joint.test.cjs
+      - name: Print joint source-defined starter and Prize-capacity scenarios
+        run: node scripts/aichi-copycat-starter-prize-joint.cjs
       - name: Print source-defined 60-card recovery-capacity scenarios
         run: node scripts/aichi-champion-critical-prize-collapse.cjs
