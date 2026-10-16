@@ -76,6 +76,8 @@ function withRecordedSourceActions(sourceTrace,work) {
     const result=storeDesc.value.call(this,action);
     assert.deepEqual(observedCounts(this.state),event.after,
       'After-action Store summary differs at source step '+ordinal);
+    assert.equal(zoneSnapshotDigest(sourceZoneSnapshot(this.state)),event.zoneDigestAfter,
+      'After-action hidden-zone digest differs at source step '+ordinal);
     ordinal+=1;
     return result;
   };
