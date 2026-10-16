@@ -1,7 +1,8 @@
 'use strict';
 const {choose}=require('./redeal-posterior.cjs');
-/** @param {{deck:string[],oldPrizes:string[],target:string,drawCount:number}} input */
+/** @param {{deck:string[],oldPrizes:string[],target:string,drawCount:number,unknownUniformOrder:boolean}} input */
 function afterRedealDrawProbability(input){
+ if(input?.unknownUniformOrder!==true)throw new Error('Unknown uniform order required');
  const {deck,oldPrizes,target,drawCount}=input;
  const N=deck.length,n=oldPrizes.length;
  if(!Number.isInteger(drawCount)||drawCount<0||drawCount>N||n>N)throw new RangeError('Invalid draw count');
