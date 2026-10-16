@@ -69,6 +69,15 @@ function probe() {
     thunder.store.dispatch(new ResolvePromptAction(pending.id, null));
   }
   assert.equal(thunder.state.prompts.some(p => p.result === undefined), false);
+  const diagnostic = {phase: thunder.state.phase, turn: thunder.state.turn,
+    activePlayer: thunder.state.activePlayer, currentDamage: thunder.b.active.damage,
+    stateDamage: thunder.state.players[1].active.damage,
+    storeDamage: thunder.store.state.players[1].active.damage,
+    attackHistory: thunder.state.playerLastAttack?.[101]?.attack?.name,
+    lastLogs: thunder.state.logs.slice(-8).map(log => ({message: log.message, params: log.params})),
+    pending: thunder.state.prompts.filter(p => p.result === undefined).map(p => p.constructor.name),
+    resolved: thunder.state.prompts.map(p => ({name:p.constructor.name,result:p.result}))};
+  console.log('IRON_THORNS_ATTACK_DIAGNOSTIC',JSON.stringify(diagnostic));
   assert.equal(thunder.b.active.damage,140,
     'Paid Volt Cyclone must damage the defender with an empty own Bench');
   return {engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
