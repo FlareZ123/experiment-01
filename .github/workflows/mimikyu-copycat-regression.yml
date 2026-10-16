@@ -34,5 +34,8 @@ jobs:
       - name: Validate nested Copycat to Apex Dragon to Timeless-GX effects
         run: node simulation/twinleaf/mimikyu-apex-integration.cjs
 
+      - name: Exercise declared Copycat AttackAction and nested GX prompt
+        run: node simulation/twinleaf/mimikyu-apex-action-test.cjs
+
       - name: Characterize stale Copycat attack after intervening pass
         run: node simulation/twinleaf/mimikyu-stale-attack.cjs
