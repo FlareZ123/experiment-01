@@ -1,0 +1,26 @@
+# Agent 35 research continuity (16 October 2026 UTC)
+
+## Claim and scope
+- Normal research mode (actual random draw 2/10); lease originally claimed `2026-10-16T03:22:31.328125Z` with run ID `d8455995-d775-4990-bff5-a34063b0cf34`. Never refresh the claim during this incarnation; original lease age is authority.
+- Counter incremented 55 to 56 before claiming. Repository `FlareZ123/experiment-01`. Pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. User instructed no Work mode.
+- Benchmark objective: one legal fixed 60-card paper Expanded list targeting 99.5% against 2026 Aichi Top32; no competitive win-rate evidence established. Three fixed candidates are champion reference, Hood Shield v1, Temple v1; 29 published source lists.
+
+## Rank-2 and rank-10 source-locked baseline
+- Dispatched manual workflows rank2 [38845279762](https://github.com/FlareZ123/experiment-01/actions/runs/38845279762) and rank10 [38845310012](https://github.com/FlareZ123/experiment-01/actions/runs/38845310012) at source SHA `3d8b743d052eb1da728e554a47adab5fcf754f9c` using identical independent-slots-v2 plan SHA-256 `22c25a00dc7e51cff54ed93cd9d1111128a3085e20236d10c4b84a09e9d18890`; six engine completions each, all traces digests valid, zero qualified competitive games.
+- Baseline rank2: zero candidate/opponent no-attack games and no empty-deck terminal. Opponent played Technical Machine: Evolution three times across two games and never attacked with Evolution. Specific `pilot:2:0:hood-shield-v1:B`: opponent slot0 at turn56, ordinal339 Jet Energy, 340 TM Evolution, 341 Pidgeot Ability, 343 prompt, 345 Gloom, 346 PassTurnAction. Public snapshot: Active Bunnelby, Jet Energy, TM Evolution; Bench Budew, Pidgeot ex, Jirachi, Bunnelby, Gloom, Stadium Artazon; own hand Vileplume-GX, Cassius, Vileplume AOR. It is NOT proven that Evolution had an eligible deck search target; third Vileplume AOR might be elsewhere, and most Bench already fully evolved.
+- Baseline rank10: candidate zero-attacks in champion-reference:A and temple-v1:A, Regidrago attack paths partly expressed; no empty decks. Unpowered Shadow Rider VMAX or misplaced Psychic Energy observed. Source game quality report linked in [Agent39 cross-rank analysis](../../results/aichi-2026/agent39-rank2-rank10-policy-diagnostic.md).
+- Agent39 independently triggered the exact same deterministic rank2/10 cases in combined run 38845353476; **DO NOT double count those as independent games**.
+
+## Opt-in expanded full-campaign policy contrast
+- Extended [campaign executor](../../simulation/evaluation/aichi-campaign-execute.cjs) with validated, per-trial `researchPolicyProfile`, default `fixed-core-v1`, opt-in `expanded-action-fidelity-probe-v1`. Reuses existing reversible `withExpandedActionOptions()` around `runMatch` with Tool attack + Bunnelby + Temple + modal resolver; added boolean manual workflow input `expanded_action_policy` default false and provenance regression. CI regression suite passed.
+- [Run 38845878919](https://github.com/FlareZ123/experiment-01/actions/runs/38845878919) succeeded at code SHA `f84df450ffc5b3c56934c4f8b631d120c37e73f9`, artifact ID `12022209933`. Baseline rank2 artifact ID `12022408910`; source unchanged. All six completed under both policies; opponent still recorded **zero TM Evolution attacks**. Candidate attack counts changed and two engine winner indices changed; game trajectories diverged early. This is a **negative conversion at full-game level** and NOT a same-state proof of policy illegality/failure. No win-rate estimates.
+- Full evidence and per-trial table in [report](../../results/aichi-2026/agent35-crossrank-policy-diagnostic.md). Broadcast requests [original](../../communications/broadcast/20261016T0333Z_agent35_rank2-rank10-policy.md) and [negative conversion](../../communications/broadcast/20261016T0338Z_agent35_expanded-vileplume-negative-conversion.md). Top results README updated.
+
+## High-value next work
+- Construct an exact same-state legal-action fixture for baseline `pilot:2:0:hood-shield-v1:B` turn56 (need known eligible evolution candidates in deck / otherwise no search action, plus lock/attack effects). The archived `chronologicalActionTrace` captures selected actions and public pass board, NOT full hidden deck contents, so direct exact replay from archived data may be impossible. Build explicit controlled fixture(s) with/without eligible Vileplume target and test both default and expanded tactics. Related existing staged fixture `simulation/twinleaf/bunnelby-tm-policy-replay.cjs` chooses Evolution when source-defined Gloom/Pidgeotto etc present.
+- Inspect Regidrago rank10 early candidate passes, counterfactual legal retreat/energy assignment, but avoid guesses.
+- Consider stronger source-exact integrity and policy adequacy tests. Avoid per-commit workflows and avoid making winner-based competitive claims.
+
+## Files and commits
+- `simulation/evaluation/aichi-campaign-execute.cjs` commit 01d3ee7, `.github/workflows/aichi-first-game.yml` commit 2a5ea6b, `tests/aichi-campaign-execute.test.cjs` commit f84df45.
+- `results/aichi-2026/agent35-crossrank-policy-diagnostic.md` added/updated through commit 1a4838f; broadcasts and top results readme linked.
