@@ -176,7 +176,20 @@ function runFixture() {
     {supporterSpent: true},
     {forcedLeleActive: true}
   ];
-  const rows = cases.map(options => probeRangerLine(options));
+  const rawInitialization = probeRangerLine({initialization: true});
+  const {installLeleEntryAbilityLockHook} =
+    require('./lele-entry-ability-lock-hook.cjs');
+  const restore = installLeleEntryAbilityLockHook();
+  let rows;
+  try {
+    rows = cases.map(options => probeRangerLine(options));
+  } finally {
+    restore();
+  }
+  assert.equal(rawInitialization.sawWonderTag, true,
+    'Confirm pinned upstream pre-move Wonder Tag Ability leak');
+  assert.equal(rawInitialization.rangerPlayed, true,
+    'Raw unguarded Lele should demonstrate materially wrong Item-lock escape');
   assert.equal(rows[0].rangerPlayed, true);
   assert.equal(rows[0].itemLockAfterResponse, false);
   assert.equal(rows[0].switchPrompt, 'ChoosePokemonPrompt');
