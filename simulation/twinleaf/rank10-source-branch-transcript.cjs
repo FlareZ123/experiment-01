@@ -102,7 +102,7 @@ function main() {
   const control = withStoreDispatchTranscript(Store, () => runMatch(common),
     {liveStoreOnly:true});
   assert.deepEqual(control.result, uninstrumented,
-    'Recording altered the unchanged source game's observable return');
+    'Recording altered the unchanged source-game observable return');
   const branch = withStoreDispatchTranscript(Store, () => runMatch(branchRequest),
     {liveStoreOnly:true});
   const repeat = withStoreDispatchTranscript(Store, () => runMatch(common),
