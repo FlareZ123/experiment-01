@@ -36,6 +36,8 @@ jobs:
         run: node simulation/twinleaf/redeemable-ticket-paper-regression.cjs
       - name: Check opt-in headless Ticket flag and restoration
         run: node --test tests/redeemable-ticket-headless-options.test.cjs
+      - name: Check Meloetta opening opportunity
+        run: node --test tests/aichi-ticket-stone-meloetta.test.cjs
       - name: Check Forest Seal direct Ticket route
         run: node --test tests/aichi-ticket-stone-search.test.cjs
       - name: Verify rank26 Ticket and Forest Seal Stone source actions
