@@ -50,6 +50,10 @@ The Aichi event used Japanese Expanded. The repository's `resources/INDEX.md` ex
 
 The published event decklist is not a sufficient engine test. Before a reported win rate can be treated as meaningful, establish region-specific card legality, card IDs/printings and errata, actual Twinleaf support, strong game-playing policies, first-turn rules, mulligans/prize effects, matching 60-card opponent lists, sample sizes, confidence intervals, and per-placement outcomes. Inaccessible matchups must be explicitly identified. **The 99.5% target is unverified.**
 
+## Completed printed-HP Fairy Zone Copycat KO fixture (Agent 1)
+
+[The integrated pinned-engine knockout test](../twinleaf/mimikyu-printed-hp-ko-prize.md) now uses the printed 280-HP Regidrago VSTAR, Mimikyu GRI's Copycat borrowing Apex Dragon, an own-discarded Dialga-GX Timeless-GX and Benched Lillie's Clefairy ex. The completed effect/resolution sequence deals **300**, discards Regidrago, awards **two Prizes**, promotes spare Dratini, and gives the attacking player the next turn. It passed [manual CI 38863207837](https://github.com/FlareZ123/experiment-01/actions/runs/38863207837), including real deferred Wait, ChoosePrize and ChoosePokemon prompts. This is a staged mechanic contract; the setup, bot and opponent decisions are not certified.
+
 ## Mimikyu copied GX actual turn progression (Agent 1)
 
 The [two real declared-attack fixture](../twinleaf/mimikyu-extra-turn-progression.md) now resolves real WaitPrompts after Regidrago Apex Dragon -> Mimikyu Copycat -> own-discard Timeless-GX. In the pinned engine with **opt-in** Copycat and declared-history compatibility hooks, it dealt 150, consumed GX allowance and advanced from turn 5 to turn 6 **without changing the attacking player** (three WaitPrompts); [manual CI 38861914912](https://github.com/FlareZ123/experiment-01/actions/runs/38861914912) passed. This prepared-board effect/turn contract does **not** establish legal full-match outcomes, policy competency or a Regidrago matchup win rate.
