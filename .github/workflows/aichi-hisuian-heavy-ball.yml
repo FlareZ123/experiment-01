@@ -26,4 +26,4 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Reproduce and test Prize-position correction
-        run: node --test tests/hisuian-heavy-ball-prize-hook.test.cjs
+        run: node --test tests/hisuian-heavy-ball-prize-hook.test.cjs tests/hisuian-heavy-ball-real-store.test.cjs
