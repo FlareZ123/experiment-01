@@ -6,6 +6,7 @@
 
 - Pinned Twinleaf submodule: `vendor/twinleaf` at upstream commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 - Source resolver and identity: `Alolan Raichu UNM` (UNM 57), `Unit Energy LPM UPR` (UPR 138), `Telescopic Sight VIV` (VIV 160), opposing `Shadow Rider Calyrex V CRE` (CRE 74).
+- **Both published field lists (ranks 4 and 17) actually contain exactly one Telescopic Sight VIV 160 each**, alongside two Alolan Raichu UNM 57, four each Reversal/Counter/Unit LPM Special Energy, and three Electrode-GX CES 48. Thus the Tool interaction is an explicit included matchup line, although this staged fixture does not measure how often that singleton is accessed, attached or Prized.
 - [Pinned baseline source-locked CI 38854948110](https://github.com/FlareZ123/experiment-01/actions/runs/38854948110), research SHA `651f1fad984db9fc273e5cb06039746479aa4d29`. All prompts were explicitly resolved and validated after fixing synthetic card IDs to be distinct.
 - [Pinned corrected-hook CI 38855189349](https://github.com/FlareZ123/experiment-01/actions/runs/38855189349), research SHA `71bc2065263d45ebecf950727677e33856ae346f`, **success**. The same conditional action was run unpatched and with a reversible, opt-in research-owned hook. The regression asserts the original reducer identity is restored after both corrected cases.
 
