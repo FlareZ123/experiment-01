@@ -28,6 +28,15 @@ function auditCampaignQuality(archive) {
       archive.records.length !== archive.totalScheduled) {
     throw new Error('Expected a complete, explicitly unqualified campaign diagnostic.');
   }
+  // New archives attest to one policy configuration per trial. Older archives
+  // remain readable with an explicit legacy status and cannot impersonate a
+  // versioned full-game policy counterfactual.
+  const profile = Object.hasOwn(archive, 'researchPolicyProfile') ?
+    archive.researchPolicyProfile : 'unversioned-legacy';
+  if (!['fixed-core-v1', 'expanded-action-fidelity-probe-v1',
+    'unversioned-legacy'].includes(profile)) {
+    throw new Error('Invalid archive research policy profile.');
+  }
   const candidates = new Map(archive.candidateRows.map(row => [row.id, row.deckDigest]));
   const ranks = new Set(archive.selectedPilotRanks);
   const ids = new Set();
@@ -66,6 +75,12 @@ function auditCampaignQuality(archive) {
         !ranks.has(record.opponentRank) ||
         !['A', 'B'].includes(record.candidateEngineSlot)) {
       throw new Error('Invalid, repeated or source-drifted trial identity.');
+    }
+    if ((profile === 'unversioned-legacy' &&
+         Object.hasOwn(record, 'researchPolicyProfile')) ||
+        (profile !== 'unversioned-legacy' &&
+         record.researchPolicyProfile !== profile)) {
+      throw new Error('Trial research policy profile differs from archive.');
     }
     const parts = record.trialId.split(':');
     const repeat = Number(parts[2]);
@@ -142,6 +157,7 @@ function auditCampaignQuality(archive) {
       trialId: record.trialId,
       rank: record.opponentRank,
       candidateId: record.candidateId,
+      researchPolicyProfile: profile,
       engineSlot: record.candidateEngineSlot,
       actualTurn,
       status: record.status,
@@ -196,6 +212,7 @@ function auditCampaignQuality(archive) {
     kind: 'aichi-fixed-campaign-quality-screen-v1',
     planDigest: archive.planDigest,
     seedProtocol: archive.seedProtocol,
+    researchPolicyProfile: profile,
     selectedPilotRanks: archive.selectedPilotRanks,
     totalTrials: rows.length,
     repeatsVerified: repeats, fullPilotMatrixVerified: true,
