@@ -58,6 +58,16 @@ function assertValidPromptAction(state, action) {
       available.set(card, count - 1);
     }
   }
+  if (valid && prompt.constructor.name === 'AttachEnergyPrompt' &&
+      action.result !== null) {
+    const eligible = new Set(prompt.cardList.filter(prompt.filter));
+    const used = new Set();
+    valid = Array.isArray(action.result) && action.result.every(({card}) => {
+      if (!eligible.has(card) || used.has(card)) return false;
+      used.add(card);
+      return true;
+    });
+  }
   if (!valid) {
     throw new Error('Twinleaf bot supplied an invalid result to ' +
       prompt.constructor.name + ' (prompt ' + prompt.id + ').');
