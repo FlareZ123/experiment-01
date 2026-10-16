@@ -116,3 +116,19 @@ test('accepted announcements preserve the contemporaneous public board but no hi
     selected.publicBoardBeforePass);
   assert.equal(Object.hasOwn(report.checkedPasses[0], 'playerHand'), false);
 });
+
+test('accepted Evolution carries separate post-choice hidden target count when available', () => {
+  const selected = pass(0, probe(101), 56);
+  selected.tmEvolutionBeforePass = {
+    evidenceType: 'post-decision-tm-evolution-target-inventory-v1',
+    targetCount: 1
+  };
+  const report = auditPassedAttackAnnouncements(archived([selected]));
+  assert.equal(report.checkedPasses[0].postDecisionHiddenTmEvolutionTargetCount, 1);
+  assert.match(report.checkedPasses[0].interpretation, /K0/);
+  const without = auditPassedAttackAnnouncements(archived([pass(0, probe(101), 56)]));
+  assert.equal(
+    Object.hasOwn(without.checkedPasses[0], 'postDecisionHiddenTmEvolutionTargetCount'),
+    false
+  );
+});
