@@ -41,6 +41,12 @@ Other Path to the Peak opponents have ranks **5, 12, 20, 21, 27**, each with cop
 
 The mechanical test priority is rank **9** and rank **15**, each of which carries both Stadiums. Both may test the difference between early suppression and a later failed suppression attempt. These are *presence counts*, not probabilities of playing a Stadium on time.
 
+## Separate Stadium target domain: Bench limits survive New Moon
+
+The [pilot's first-person rules section](https://ottopoke.hatenablog.com/entry/2026/05/13/183822) explicitly states that a functioning New Moon still permits an **eight-Pokémon Bench under Sky Field** and still forces a **three-Pokémon Bench under Parallel City**. These effects constrain the player's Bench capacity and are distinct from effects directed at their Pokémon; New Moon protects only the latter. This is a pilot-reported ruling supported by that targeting distinction, rather than an independently reproduced Store action.
+
+A new exact-name census of the same 29 published 60s finds **Parallel City in ranks 10, 12, 13, 20, 21, 27, 32**, one copy each. The candidate itself has **two Sky Field** Stadiums; the seven Parallel City opponent inventories may contest its Bench occupancy even when Sunbeam Solrock and New Moon Lunatone are active. **A simple simulator rule that removes all Stadium effects whenever New Moon functions is unsound.** Stage a genuinely expanded Bench with a live protected Lunatone and inspect capacity immediately after each Stadium change, including the owner's choice of which excess Pokémon to discard.
+
 ## Required two-order regression
 
 Use the same Solrock, Lunatone, Rule Box Pokémon and Stadium printing in each staged state. Establish that Lab-first Lunatone retains no functioning New Moon; then establish that New-Moon-first Lab does not remove it. Test Path with New Moon and an exposed Rule Box Ability. Repeat after Stadium replacement, Solrock removal and Pokémon moving zones. Record state snapshots, real action order, simulated engine status, and controlled paper-rule expectation. Do not credit a candidate with wins on the basis of an inferred suppression immunity.
