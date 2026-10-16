@@ -5,7 +5,8 @@ const { verifyCampaign, turnProof } = require('./aichi-campaign-runner.cjs');
 
 const STATUSES = new Set([
   'completed', 'blocked-resolution', 'engine-deck-mismatch',
-  'unverified-first-turn', 'unfinished', 'engine-exception'
+  'unverified-first-turn', 'unfinished', 'engine-exception',
+  'engine-seed-mismatch'
 ]);
 
 /** @param {unknown} value @returns {string} */
@@ -37,6 +38,7 @@ function auditArchive(inputs, archive) {
   let completed = 0;
   let verifiedFirst = 0;
   let verifiedSecond = 0;
+  const mirrorAliases = new Map();
   for (let i = 0; i < archive.records.length; i += 1) {
     const row = archive.records[i];
     const scheduled = plan.get(archive.selectedTrialIds[i]);
@@ -50,6 +52,20 @@ function auditArchive(inputs, archive) {
         !STATUSES.has(row.status)) {
       throw new Error('Scheduled trial or status mismatch: ' + (row?.trialId || i));
     }
+    const exactSourceMirror = scheduled.candidateDigest === scheduled.opponentDigest;
+    if (row.exactSourceMirror !== undefined &&
+        row.exactSourceMirror !== exactSourceMirror) {
+      throw new Error('Incorrect source mirror flag: ' + row.trialId);
+    }
+    const aliasKey = exactSourceMirror ? digest({
+      phase: scheduled.phase, rank: scheduled.rank, seed: scheduled.seed,
+      candidateDigest: scheduled.candidateDigest,
+      opponentDigest: scheduled.opponentDigest
+    }) : null;
+    if (row.potentialReplayAliasKey !== undefined &&
+        row.potentialReplayAliasKey !== aliasKey) {
+      throw new Error('Incorrect mirror replay alias key: ' + row.trialId);
+    }
     const proof = row.firstTurn && turnProof(row.firstTurn);
     if (row.firstTurn && !proof) {
       throw new Error('Unverifiable first-turn claim: ' + row.trialId);
@@ -61,7 +77,8 @@ function auditArchive(inputs, archive) {
       throw new Error('False candidate turn attribution: ' + row.trialId);
     }
     if (row.status === 'completed') {
-      if (!proof || !['candidate', 'opponent', 'draw'].includes(row.winner) ||
+      if (!proof || (row.observedSeed !== undefined && row.observedSeed !== scheduled.seed) ||
+          !['candidate', 'opponent', 'draw'].includes(row.winner) ||
           !Array.isArray(row.expectedEngineDeckHashes) ||
           !Array.isArray(row.observedEngineDeckHashes) ||
           row.expectedEngineDeckHashes.length !== 2 ||
@@ -71,15 +88,21 @@ function auditArchive(inputs, archive) {
         throw new Error('Completed game lacks verified turn/deck/outcome: ' + row.trialId);
       }
       completed += 1;
+      if (aliasKey !== null) {
+        mirrorAliases.set(aliasKey, (mirrorAliases.get(aliasKey) || 0) + 1);
+      }
       if (actualTurn === 'first') verifiedFirst += 1;
       else verifiedSecond += 1;
     } else if (row.winner !== null) {
       throw new Error('Noncompleted game was assigned an outcome: ' + row.trialId);
     }
   }
+  const potentialDuplicateMirrorGames = [...mirrorAliases.values()]
+    .reduce((sum, count) => sum + Math.max(0, count - 1), 0);
   return {
     completed, failures: archive.records.length - completed,
-    verifiedFirst, verifiedSecond
+    verifiedFirst, verifiedSecond, potentialDuplicateMirrorGames,
+    maximumDistinctCompletedTrajectories: completed - potentialDuplicateMirrorGames
   };
 }
 
@@ -105,6 +128,20 @@ function createEvidenceEnvelope(inputs, archive, provenance) {
     throw new Error('Explicit engine, policy, ruleset and research provenance required.');
   }
   const audit = auditArchive(inputs, archive);
+  if (archive.researchRevision && archive.researchRevision !== provenance.researchRevision) {
+    throw new Error('Archive/research commit revision mismatch.');
+  }
+  for (const row of archive.records.filter(r => r.status === 'completed')) {
+    if ((row.observedEngine && row.observedEngine !== 'twinleafgg/' + provenance.engineRevision) ||
+        (row.resolvedEngineRevision && row.resolvedEngineRevision !== provenance.engineRevision) ||
+        (row.observedRngProtocol && row.observedRngProtocol !== provenance.rngProtocol) ||
+        (row.observedPolicy && (row.observedPolicy !== provenance.candidatePolicyRevision ||
+          row.observedPolicy !== provenance.opponentPolicyRevision)) ||
+        (row.effectiveMatchOptions && digest(row.effectiveMatchOptions) !==
+          digest(provenance.effectiveMatchOptions))) {
+      throw new Error('Engine-reported provenance conflicts with evidence envelope: ' + row.trialId);
+    }
+  }
   const snapshot = JSON.parse(JSON.stringify({
     archive, provenance, audit,
     interpretation: 'Engine feasibility only; actual policy choices, full action logs and game semantics require independent validation.',
@@ -127,6 +164,8 @@ function hasMatchingResearchConditions(left, right) {
     'candidatePolicyRevision', 'opponentPolicyRevision', 'rngProtocol',
     'effectiveMatchOptions'];
   return left.archive.planDigest === right.archive.planDigest &&
+    left.archive.phase === right.archive.phase &&
+    left.archive.seedProtocol === right.archive.seedProtocol &&
     keys.every(k => digest(left.provenance[k]) === digest(right.provenance[k]));
 }
 
