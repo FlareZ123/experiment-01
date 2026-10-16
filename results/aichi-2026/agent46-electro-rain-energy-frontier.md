@@ -15,7 +15,7 @@ Electrode-GX's `Extra Energy Bomb` can move five Energy **cards** from the disca
 - [Official Japanese card](https://www.pokemon-card.com/card-search/details.php/card/36550/regu/BW) and the bundled card snapshot's UNM 57 establish the attack text and repeated-target choice.
 - The local [Advanced Player's Rulebook](../../resources/advanced-players-rulebook.md), section C-01, gives the analogous three-unit Ignition Energy discard ruling; the Reversal Energy three-unit extrapolation also follows that card's own text.
 - Printed [Temple of Sinnoh](https://limitlesstcg.com/cards/asr/155) says all attached Special Energy supply Colorless and have no other effect. Both published Raichu source lists lack basic Lightning Energy.
-- [Telescopic Sight](https://limitlesstcg.com/cards/viv/160) adds 30 attack damage against eligible Benched Pokémon. The exact application of this modifier to Electro Rain remains an engine-fixture question; the generic bound accepts a caller-supplied once-per-target bonus only when independently justified.
+- [Telescopic Sight](https://limitlesstcg.com/cards/viv/160) adds 30 attack damage against eligible Benched Pokémon. **Both actual ranks 4 and 17 include exactly one Telescopic Sight VIV 160.** The one-per-target bonus has now been verified with the official Alolan Raichu FAQ's analogous Choice Band ruling and [pinned engine correction tests](../twinleaf/raichu-electro-rain-damage-semantics.md), which demonstrate 30 unpatched versus 60 corrected for a one-Unit-Energy attack on a Benched V.
 
 ## Exact conditional source-inventory upper bounds
 
@@ -37,8 +37,20 @@ These conditional states should not be conflated. The first Electrode-GX self-KO
 
 For a **hypothetical** board of 180-HP and 200-HP two-Prize targets plus a 60-HP one-Prize target, a 14-selection budget can take **four Prizes** using 6+7=13 selections against the two two-Prizers. Taking all five would require 15 selections. This example proves only the arithmetic and subset optimizer's behavior. Real damage prevention, target eligibility, simultaneous knockout timing, existing effects, Bench protection, card-specific Prize rules, attack sequence and opposing policy require separate adjudication.
 
+### Shadow Rider-specific hypothetical Prize targets
+
+Pinned card source prints confirm **Shadow Rider Calyrex V CRE 74 has 210 HP and gives 2 Prizes**, while **Shadow Rider Calyrex VMAX CRE 75 has 320 HP and gives 3 Prizes**. The following upper bounds assume every named target is undamaged, is **Benched**, has no damage prevention, and receives Telescopic Sight's printed +30 **once per target** from the actual source-list singleton. They also assume all requisite Energy units are already attached and discardable during the same legal attack.
+
+| Hypothetical simultaneous Bench targets | Required 30-damage selections | Prizes | Within one 14-selection Bomb? | Within two 22-selection Bombs? |
+| --- | ---: | ---: | --- | --- |
+| Two Shadow Rider V (210 HP each) | **12** (6+6) | 4 | Yes | Yes |
+| One Shadow Rider VMAX (320 HP) and one V (210 HP) | **16** (10+6) | 5 | No | Yes |
+| Two Shadow Rider VMAX (320 HP each) | **20** (10+10) | 6 | No | Yes |
+
+These are **conditional lethality and Prize-economy ceilings**. For example, even a six-Prize theoretical attack does not establish that two VMAX will both be on the Bench, that two Electrode-GX can accelerate ten optimally chosen Energy cards on the required turn, or that earlier self-KOs and opponent choices allow survival. The exact stage and attack conditions are deliberately excluded from this upper-bound oracle.
+
 The accompanying [regressions](../../tests/aichi-raichu-energy-capacity.test.cjs) validate both published 12-Energy identities, the two official FAQ examples, prize-state and Temple switches, five/ten/twelve-card upper bounds, and a hypothetical Prize allocation. The existing **manual-only** Aichi statistical workflow includes the test and passed. The checker does not claim Twinleaf implements Electro Rain correctly.
 
 ## Next action with high value
 
-Stage an exact rank-4 or rank-17 board in pinned Twinleaf: evolved Alolan Raichu, Counter Energy, Reversal Energy, Unit Energy LPM, the relevant Prize deficit, active/Benched targets, and one clear attack. Assert **six target selections from three attached cards** (3+2+1), their legal damage allocation, and that the same card setup under Temple cannot announce Electro Rain. Repeat with Telescopic Sight on the correct eligible Bench target, checking one 30-damage modifier for the target rather than for each chosen Energy unit. Preserve full prompts/action history, pin engine and hook revisions, and ask a rules validator about any engine disagreement before treating rank-4/17 outcomes as realistic.
+The source-locked three-Special-Energy test and Temple gate have now been staged in the pinned engine. [Manual CI 38856300813](https://github.com/FlareZ123/experiment-01/actions/runs/38856300813) confirms Reversal+Counter+Unit yields **one 180-damage prompt representing six selections**, and corrected Telescopic Sight yields 210 damage against one eligible Benched VMAX. The [reversible research hook and separate damage/protection tests](../twinleaf/raichu-electro-rain-damage-semantics.md) address the original pinned damage-counter misclassification. The next bottleneck is realistic **attack-line execution**: stage the Electrode-GX self-KO and multi-card attachment setup as legal turn actions with representative sequencing, then validate ability contention, Power/Item locks, Prize cards, and the fixed Shadow Rider candidate's Temple counterplay. Treat sampled generic-bot outcomes as policy diagnostics until attack access is demonstrably representative.
