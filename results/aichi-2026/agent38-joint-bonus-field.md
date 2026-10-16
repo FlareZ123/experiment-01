@@ -83,7 +83,7 @@ The weighted probability is the sum of each conditional joint event times its bo
 
 The [mini-deck regression](../../tests/agent38-joint-bonus.test.cjs) uses independent **8! physical-card permutations**, under each of K=0,1,2,3 bonuses and two small compositions (one with Wobbuffet and one without). The independently enumerated Gate, natural, overlap and union probabilities match the BigInt hypergeometric results. A separate regression cross-checks K=0 against [Agent 42's joint study](agent42-joint-vmax-access.md), and another verifies total probability of the two-player mulligan mixture including the capped tail.
 
-The shorter exact regression passed [manual statistical CI 38854067219](https://github.com/FlareZ123/experiment-01/actions/runs/38854067219). The full 46-bonus-scenario result is separately reproducible with the manual-only [Aichi joint bonus workflow](../../.github/workflows/aichi-joint-bonus-field.yml), which preserves its machine-readable output artifact.
+The shorter exact regression passed [manual statistical CI 38854067219](https://github.com/FlareZ123/experiment-01/actions/runs/38854067219). The complete 46-bonus-scenario model, its independently exhaustive tests, and its machine-readable result artifact passed [manual CI 38854115388](https://github.com/FlareZ123/experiment-01/actions/runs/38854115388) in the dedicated [Aichi joint bonus workflow](../../.github/workflows/aichi-joint-bonus-field.yml).
 
 ## Limits and decision relevance
 
