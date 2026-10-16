@@ -144,6 +144,13 @@ function auditSourceHiddenPolicy() {
     return new SimpleTacticsAi({id:f.a.id}, options, null)
       .decodeNextAction(f.state)?.constructor.name || null;
   }
+  /** @param {ReturnType<typeof sourceState>} data */
+  function chooseAllTactics(data) {
+    const f=data.fixture;
+    return new SimpleTacticsAi({id:f.a.id}, {
+      ...options,tactics:defs.allSimpleTactics
+    },null).decodeNextAction(f.state)?.constructor.name || null;
+  }
   const restore=installSupporterDecisionHook();
   let unproductiveTopAction,productiveTopAction;
   try {
@@ -158,10 +165,13 @@ function auditSourceHiddenPolicy() {
   const lateUnproductiveScore=score(lateA);
   const lateProductiveScore=score(lateB);
   let lateUnproductiveAction,lateProductiveAction;
+  let lateFullUnproductiveAction,lateFullProductiveAction;
   const restoreLate=installSupporterDecisionHook();
   try {
     lateUnproductiveAction=choose(lateA);
     lateProductiveAction=choose(lateB);
+    lateFullUnproductiveAction=chooseAllTactics(lateA);
+    lateFullProductiveAction=chooseAllTactics(lateB);
   } finally {
     restoreLate();
   }
@@ -185,7 +195,10 @@ function auditSourceHiddenPolicy() {
       productiveTopScore:lateProductiveScore,
       unproductiveTopAction:lateUnproductiveAction,
       productiveTopAction:lateProductiveAction,
-      actionChanged:lateUnproductiveAction!==lateProductiveAction
+      actionChanged:lateUnproductiveAction!==lateProductiveAction,
+      fullTacticUnproductiveAction:lateFullUnproductiveAction,
+      fullTacticProductiveAction:lateFullProductiveAction,
+      fullTacticActionChanged:lateFullUnproductiveAction!==lateFullProductiveAction
     },
     scope:'Artificial turn-four 60-card source-inventory state, one-tactic corrected bot; not a full match or strength evidence'
   };
