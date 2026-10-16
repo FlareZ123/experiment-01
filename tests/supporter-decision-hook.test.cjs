@@ -73,3 +73,36 @@ test('hook preserves previously consumed Supporter and restores after an excepti
   }
   assert.equal(PlaySupporterTactic.prototype.useTactic, original);
 });
+
+
+test('SimpleTacticsAi rejects its own legal Supporter proposal without the guard', () => {
+  const { SimpleTacticsAi } = engine('simple-bot/simple-tactics-ai');
+  const { defaultStateScores } = engine('simple-bot/simple-bot-definitions');
+  const { GamePhase } = engine('game/store/state/state');
+  const { PassTurnAction } = engine('game/store/actions/game-actions');
+  const { supporter, player, state } = proposal();
+  state.players = [player];
+  state.prompts = [];
+  state.activePlayer = 0;
+  state.phase = GamePhase.PLAYER_TURN;
+  const options = { tactics: [PlaySupporterTactic], promptResolvers: [],
+    scores: defaultStateScores, arbiter: {} };
+  function decide() {
+    const bot = new SimpleTacticsAi({id: player.id}, options, null);
+    bot.tactics[0].getStateScore = () => 0;
+    bot.tactics[0].evaluateAction = () => 10;
+    // Legal gate uses the pinned concrete Guzma & Hala canPlay predicate.
+    bot.isValidAction = () => supporter.canPlay(null, state, player);
+    return bot.decodeNextAction(state);
+  }
+  assert.ok(decide() instanceof PassTurnAction);
+  assert.equal(player.supporterTurn, state.turn);
+  player.supporterTurn = 0;
+  const restore = installSupporterDecisionHook();
+  try {
+    assert.ok(decide() instanceof PlayCardAction);
+    assert.equal(player.supporterTurn, 0);
+  } finally {
+    restore();
+  }
+});
