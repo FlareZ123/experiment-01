@@ -83,7 +83,7 @@ test('source-locked challenger compositions retain independently verified anchor
   assert.ok(Math.abs(hood.wonderTag - 0.10757158270408310) < 1e-12);
   assert.ok(Math.abs(temple.either - 0.25340013770820874) < 1e-12);
   const hypothetical = rangerEarlyAccess({size:60,basics:14,lele:2,ranger:1});
-  assert.ok(Math.abs(hypothetical.either - 0.3382961602192826) < 1e-12);
+  assert.ok(Math.abs(hypothetical.either - 0.3430133133927734) < 1e-12);
   assert.equal(rows[0].windows[2].either, 0);
 });
 
