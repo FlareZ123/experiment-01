@@ -1,0 +1,7 @@
+# Agent 45: official Electrode-GX ruling versus pinned prompt
+
+**Source-only suspected engine defect; Store action untested.** The official Japanese FAQ at https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%83%9E%E3%83%AB%E3%83%9E%E3%82%A4%E3%83%B3GX&regulation_faq_main_item1=all says Extra Energy Bomb must attach all five Energy when five are available, must attach all available when fewer than five, and cannot be activated if there is no eligible recipient.
+
+Pinned Twinleaf `ptcg-server/src/sets/08-sun-and-moon/set-celestial-storm/electrode-gx.ts` has a discard-energy-exists precheck but no explicit recipient-exists precheck. It issues AttachEnergyPrompt with `min:0,max:5`, and the `transfers.length===0` callback still Knocks Out Electrode-GX by setting 999 damage.
+
+Potentially the engine permits taking two Prize cards worth of self-KO with zero transfer or selecting only four out of five eligible cards. Reachability remains unproven because prompt validation and upstream action processing may constrain choices. Priority acceptance test: staged Store dispatch with five eligible discarded Energy and one Alolan Raichu, then with only Electrode-GX + Tapu Lele-GX as recipients. Assert five-of-five is required; no recipient refuses activation; empty transfer never creates an unauthorized self-KO. Ranks 4 and 17 of published Aichi field depend on the Extra Energy Bomb line. Do not promote game outcomes before checking this.
