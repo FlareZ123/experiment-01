@@ -105,8 +105,12 @@ function assertVendorCloneCompatibleSource(source) {
  */
 function normalizeDeepClonePrototypes(source,copy) {
   const canonical=new WeakMap();
+  const reverse=new WeakMap();
   function visit(src,dst,owner,key) {
-    if(src===null||typeof src!=='object')return;
+    if(src===null||typeof src!=='object') {
+      assert.ok(Object.is(src,dst),'Clone changed a primitive source value');
+      return;
+    }
     assert.ok(dst!==null&&typeof dst==='object','Clone lost an object');
     assert.notStrictEqual(src,dst,'Clone retains a live object identity');
     if(canonical.has(src)) {
@@ -117,6 +121,8 @@ function normalizeDeepClonePrototypes(source,copy) {
       }
       return;
     }
+    assert.equal(reverse.has(dst),false,'Clone collapsed distinct source objects');
+    reverse.set(dst,src);
     canonical.set(src,dst);
     // The pinned Simulator may clone an already-detached State a second time.
     // Its final objects then inherit from intermediate *clones*, rather than
@@ -126,12 +132,15 @@ function normalizeDeepClonePrototypes(source,copy) {
     if(Object.getPrototypeOf(dst)!==classPrototype) {
       Object.setPrototypeOf(dst,classPrototype);
     }
+    const keys=Object.keys(src);
+    assert.deepEqual(Object.keys(dst),keys,
+      'Clone lost or gained enumerable own properties');
     if(Array.isArray(src)){
       assert.ok(Array.isArray(dst),'Array clone was not an array');
       assert.equal(dst.length,src.length);
-      for(let i=0;i<src.length;i+=1)visit(src[i],dst[i],dst,i);
+      for(const index of keys)visit(src[index],dst[index],dst,index);
     } else {
-      for(const key of Object.keys(src))visit(src[key],dst[key],dst,key);
+      for(const property of keys)visit(src[property],dst[property],dst,property);
     }
   }
   visit(source,copy);
