@@ -268,6 +268,9 @@ test('prepared turn-one Meloetta uses source Escape Rope, Koko Dance and Float S
     assert.equal(f.attacker.bench[3].damage,20);
     f.store.dispatch(new UseAbilityAction(f.attacker.id,'Dance of the Ancients',
       target(3)));
+    for(let i=0;i<12 && pending(f)?.constructor.name==='WaitPrompt';i++) {
+      f.store.dispatch(new ResolvePromptAction(pending(f).id,null));
+    }
     prompt=pending(f);
     assert.equal(prompt?.constructor.name,'AttachEnergyPrompt');
     const transfers=[
