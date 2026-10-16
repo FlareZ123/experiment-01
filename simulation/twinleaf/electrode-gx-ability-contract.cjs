@@ -78,6 +78,8 @@ function runCase(count, noRecipient = false, useBot = false, availableCount = 5)
     if (next.constructor.name === 'WaitPrompt') response = null;
     else if (next.constructor.name === 'ShuffleDeckPrompt') {
       response = Array.from({length:f.a.deck.cards.length}, (_, index) => index);
+    } else if (next.constructor.name === 'ChoosePrizePrompt') {
+      response = f.b.prizes.filter(prize => prize.cards.length).slice(0, next.options.count);
     } else throw new Error('Unexpected post-Ability prompt: '+next.constructor.name);
     f.store.dispatch(new ResolvePromptAction(next.id,response));
   }
