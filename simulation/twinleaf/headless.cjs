@@ -204,6 +204,7 @@ function runMatch(request) {
   let restoreForestSealSearchHook;
   let restoreSupporterDecisionHook;
   let restoreLeleEntryAbilityLockHook;
+  let restoreRadiantGateLockHook;
   let restoreSnorlaxRetreatStartHook;
   try {
     initializeCards();
