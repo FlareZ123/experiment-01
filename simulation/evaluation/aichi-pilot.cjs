@@ -111,7 +111,9 @@ function summarisePlan(plan) {
  * @param {{candidate?:number|object,gamesPerSeat?:number,seedBase?:number,
  *   maxActions?:number,selectedRanks?:number[],allowEquivalentBasicEnergies?:boolean,
  *   allowBasicEnergyMirrorPrintings?:boolean,allowJapanesePromoHooks?:boolean,
- *   strictPromptValidation?:boolean,forestSealSearchCorrection?:boolean}} options
+ *   strictPromptValidation?:boolean,forestSealSearchCorrection?:boolean,
+ *   doubleDragonRecovery?:boolean,supporterDecisionCorrection?:boolean,
+ *   isolatePolicyRandomness?:boolean}} options
  */
 function runAichiPilot(options = {}) {
   const plan = planAichi(options.candidate ?? 1, options);
@@ -122,7 +124,10 @@ function runAichiPilot(options = {}) {
     selectedRanks: options.selectedRanks,
     captureTrace: options.captureTrace === true,
     strictPromptValidation: options.strictPromptValidation === true,
-    forestSealSearchCorrection: options.forestSealSearchCorrection === true
+    forestSealSearchCorrection: options.forestSealSearchCorrection === true,
+    doubleDragonRecovery: options.doubleDragonRecovery === true,
+    supporterDecisionCorrection: options.supporterDecisionCorrection === true,
+    isolatePolicyRandomness: options.isolatePolicyRandomness === true
   });
   return { plan: summarisePlan(plan), evaluation: report };
 }
