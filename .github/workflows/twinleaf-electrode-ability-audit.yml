@@ -27,3 +27,5 @@ jobs:
         run: npm run compile
       - name: Execute staged Electrode-GX Store and bot prompt contract
         run: node simulation/twinleaf/electrode-gx-ability-contract.cjs
+      - name: Verify reversible Electrode-GX Energy correction
+        run: node --test tests/electrode-gx-energy-hook.test.cjs
