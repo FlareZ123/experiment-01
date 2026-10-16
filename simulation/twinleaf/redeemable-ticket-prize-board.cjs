@@ -12,6 +12,7 @@ function runTicketBoard(){
  const {CardList}=engine('game/store/state/card-list');
  const {TrainerEffect}=engine('game/store/effects/play-card-effects');
  const {GamePhase}=engine('game/store/state/state');
+ const {DRAW_CARDS}=engine('game/store/prefabs/prefabs');
  const s=new Store({onStateChange(){}}),state=s.state;
  const p=new Player(),o=new Player();p.id=101;o.id=202;
  state.players=[p,o];state.activePlayer=0;state.turn=1;state.phase=GamePhase.PLAYER_TURN;
@@ -25,13 +26,15 @@ function runTicketBoard(){
  const top=p.deck.cards.slice(-6),ticket=card('Redeemable Ticket JTG');
  p.hand.cards.push(ticket);
  s.reduceEffect(state,new TrainerEffect(p,ticket));
- const now=p.prizes.flatMap(x=>x.cards),bottom=p.deck.cards.slice(0,6);
+ const now=p.prizes.flatMap(x=>x.cards),front=p.deck.cards.slice(0,6);
  const same=(a,b)=>a.length===b.length&&a.every(x=>b.includes(x));
- assert.ok(same(now,top),'Replacement Prizes from deck top');
- assert.ok(same(bottom,old),'Original Prizes sent to deck bottom');
- assert.ok(bottom.includes(dce)&&!now.includes(dce),'DCE removed from Prize zone');
+ assert.ok(same(now,top),'Pinned Ticket replacement taken from array end');
+ assert.ok(same(front,old),'Pinned Ticket prepends old Prizes to array front');
+ assert.ok(front.includes(dce)&&!now.includes(dce),'DCE removed from Prize zone');
  assert.ok(p.discard.cards.includes(ticket)&&!p.hand.cards.includes(ticket));
- return {rank:26,engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',oldPrizesReturned:true,dceUnprized:true,attackTested:false,winRateMeasured:false};
+ DRAW_CARDS(s,state,p,6);
+ assert.ok(p.hand.cards.includes(dce),'Normal DRAW_CARDS takes array front, now containing originally Prized DCE');
+ return {rank:26,engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',oldPrizesPrepended:true,newPrizesFromArrayEnd:true,oldDceDrawnAmongFirstSix:true,paperOrderMismatch:true,attackTested:false,winRateMeasured:false};
 }
 if(require.main===module)console.log(JSON.stringify(runTicketBoard(),null,2));
 module.exports={runTicketBoard};
