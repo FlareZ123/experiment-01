@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
-const {initializeCards} = require('../simulation/twinleaf/headless.cjs');
+const {initializeCards, runMatch} = require('../simulation/twinleaf/headless.cjs');
 const {installHisuianHeavyBallPrizeShuffleHook} =
   require('../simulation/twinleaf/hisuian-heavy-ball-prize-hook.cjs');
 
@@ -139,4 +139,33 @@ test('real Store Basic selection: Ball replaces chosen Prize before shuffling', 
   assert.equal(result.ballInDiscard, false);
   assert.equal(result.ballInSupporter, false);
   assert.equal(fixed.a.prizes.flatMap(p => p.cards).length, 6);
+});
+
+
+test('headless opt-in hook is reversible and has no effect when no Ball is present', () => {
+  const {HisuianHeavyBall} =
+    engine('sets/09-sword-and-shield/set-astral-radiance/hisuian-heavy-ball');
+  const original = HisuianHeavyBall.prototype.shuffleFaceDownPrizeCards;
+  const legalFiller = [
+    ...Array(4).fill('Shadow Rider Calyrex V CRE'),
+    ...Array(56).fill('Psychic Energy MEE')
+  ];
+  const common = {
+    deckA: legalFiller,
+    deckB: legalFiller,
+    seed: 1881,
+    maxActions: 5,
+    isolatePolicyRandomness: true,
+    label: 'HeavyBall-no-card-contamination-control'
+  };
+  const baseline = runMatch(common);
+  assert.strictEqual(HisuianHeavyBall.prototype.shuffleFaceDownPrizeCards, original);
+  const fixed = runMatch({...common, hisuianHeavyBallPrizeShuffleCorrection: true});
+  assert.strictEqual(HisuianHeavyBall.prototype.shuffleFaceDownPrizeCards, original);
+  const repeated = runMatch(common);
+  assert.strictEqual(HisuianHeavyBall.prototype.shuffleFaceDownPrizeCards, original);
+  assert.deepEqual(fixed, baseline,
+    'Enabling the correction cannot perturb a no-Ball source game');
+  assert.deepEqual(repeated, baseline,
+    'Headless hook must leave the following uninstrumented game unchanged');
 });
