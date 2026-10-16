@@ -33,3 +33,38 @@ function rangerEarlyAccess(input) {
   const drawDenom = choose(size - opening, draws);
   let direct = 0;
   let wonderTag = 0;
+  for (let a = 0; a <= Math.min(lele, opening); a += 1) {
+    for (let b = 0; b <= Math.min(ranger, opening - a); b += 1) {
+      for (let c = 0; c <= Math.min(basics - lele, opening - a - b); c += 1) {
+        const d = opening - a - b - c;
+        if (a + c === 0 || d > counts[3]) continue;
+        const openingWeight = choose(counts[0], a) * choose(counts[1], b) *
+          choose(counts[2], c) * choose(counts[3], d) / totalOpening;
+        const remaining = [counts[0] - a, counts[1] - b,
+          counts[2] - c, counts[3] - d];
+        for (let aa = 0; aa <= Math.min(remaining[0], draws); aa += 1) {
+          for (let bb = 0; bb <= Math.min(remaining[1], draws - aa); bb += 1) {
+            for (let cc = 0; cc <= Math.min(remaining[2], draws - aa - bb); cc += 1) {
+              const dd = draws - aa - bb - cc;
+              if (dd > remaining[3]) continue;
+              const weight = openingWeight * choose(remaining[0], aa) *
+                choose(remaining[1], bb) * choose(remaining[2], cc) *
+                choose(remaining[3], dd) / drawDenom / validOpening;
+              if (b + bb > 0) {
+                direct += weight;
+              } else if (a + aa > 0 && (c > 0 || a >= 2 || aa > 0)) {
+                const unseen = size - opening - draws;
+                const unseenRangers = ranger - b - bb;
+                const allPrized = choose(prizes, unseenRangers) /
+                  choose(unseen, unseenRangers);
+                wonderTag += weight * (1 - allPrized);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return {direct, wonderTag, either: direct + wonderTag, validOpening};
+}
+
