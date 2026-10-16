@@ -6,7 +6,7 @@
   "official_japanese_deck_code": "GxxDYx-a4rD4W-a8xYxc",
   "visual_provenance": "Source image fetched with public-source CI 38857162495; four high-resolution row inspections 38857511793 38857516724 38857620739 38857625328; identities transcribed visually.",
   "scope": "Research candidate from 52nd place, not an Aichi Top32 source fixture.",
-  "precision_limitations": "Counts and card identities are transcribed from the published 1024x512 deck image. Japanese card-printing IDs and English reprint choices were not independently verified against the official deck viewer. Names of repeated cards do not imply their specific English reprint.",
+  "precision_limitations": "Counts and card identities are transcribed from the published 1024x512 deck image. Japanese card-printing IDs and English reprint choices were not independently verified against the official deck viewer. Names of repeated cards do not imply their specific English reprint. One Solrock English-equivalent is now resolved from the author's prose to CES 62; this does not claim the exact Japanese printing or establish the other 32 printings.",
   "counts": {
     "total": 60,
     "unique": 33,
@@ -109,7 +109,15 @@
       "name_ja": "ソルロック",
       "name_en": "Solrock",
       "count": 1,
-      "type": "Pokémon"
+      "type": "Pokémon",
+      "english_equivalent": {
+        "set": "CES",
+        "number": "62",
+        "id": "sm7-62",
+        "ability": "Sunbeam",
+        "attack": "Scorching Light",
+        "basis": "May 13 pilot prose explicitly names Japanese Sunlight, Lunatone 130 HP increase, and Scorching Light paralysis/burn. Matches Celestial Storm 62/Champion's Road 029."
+      }
     },
     {
       "source_grid_row": 2,
