@@ -17,3 +17,13 @@ This check does not prove Pokémon rules correctness: permissive or incorrectly 
 3. Only once representative fixtures pass should strict-mode results enter statistical analysis, clearly versioned separately from earlier matches.
 
 No 99.5% result follows from this infrastructure.
+
+## First opt-in full-match validation revealed a second upstream defect
+
+[Manual CI run 38827822110](https://github.com/FlareZ123/experiment-01/actions/runs/38827822110) compiled the pinned engine and passed the five pure helper tests. The strict-mode rank-1 versus rank-10 fixture then stopped at the first real `ShuffleDeckPrompt` (prompt 3). This is an **expected discovery from making validation mandatory**, not proof that a real deck shuffle was illegal.
+
+The pinned [ShuffleDeckPrompt source](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/prompts/shuffle-prompt.ts) checks shuffle indices using `s.sort()` before comparing each value with its expected numeric index. JavaScript's [documented default sort](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) is lexicographic. As soon as an array includes 10 or higher, even a correct numeric permutation fails this comparison. A 60-card deck shuffle is therefore falsely invalid under the pinned validator.
+
+The research-side pre-dispatch helper now specifically verifies `ShuffleDeckPrompt` by comparing the result to the owner's current deck length, checking every index is an in-range integer and that there are no duplicates. It does not mutate the ordering or upstream code. [Pure regression tests](../../tests/prompt-integrity.test.cjs) and a [compiled pinned-class characterization](../../tests/prompt-integrity-pinned-shuffle.test.cjs) cover both correct and incorrect permutations. CI remains pending for the updated guard and the seeded full-game smoke.
+
+No competitive matchup result is inferred from the original failure or the correction.

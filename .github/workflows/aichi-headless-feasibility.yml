@@ -39,3 +39,6 @@ jobs:
 
       - name: Check Forest Seal Stone printing census for published Aichi lists
         run: node --test tests/aichi-forest-seal-census.test.cjs
+
+      - name: Reproduce and correct compiled 60-card ShuffleDeckPrompt validation
+        run: node --test tests/prompt-integrity-pinned-shuffle.test.cjs

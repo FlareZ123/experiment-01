@@ -23,7 +23,24 @@ function assertValidPromptAction(state, action) {
   if (!prompt) {
     throw new Error('Twinleaf bot answered an unknown or already-resolved prompt ID.');
   }
-  if (typeof prompt.validate !== 'function' || !prompt.validate(action.result, state)) {
+  // Pinned ShuffleDeckPrompt.validate uses Array#sort() without a numeric
+  // comparator. That lexicographically reorders indices 10+ and rejects every
+  // valid permutation of an ordinary 60-card deck. Apply an exact permutation
+  // check here while preserving every other prompt's own validator.
+  let valid;
+  if (prompt.constructor.name === 'ShuffleDeckPrompt') {
+    const owner = state.players.find(player =>
+      player.id === prompt.getPerspectivePlayerId());
+    const result = action.result;
+    const size = owner?.deck.cards.length;
+    valid = Array.isArray(result) && result.length === size &&
+      result.every(index => Number.isInteger(index) && index >= 0 && index < size) &&
+      new Set(result).size === size;
+  } else {
+    valid = typeof prompt.validate === 'function' &&
+      prompt.validate(action.result, state);
+  }
+  if (!valid) {
     throw new Error('Twinleaf bot supplied an invalid result to ' +
       prompt.constructor.name + ' (prompt ' + prompt.id + ').');
   }

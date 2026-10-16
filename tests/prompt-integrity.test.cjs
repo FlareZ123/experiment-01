@@ -50,3 +50,49 @@ test('resolved prompts do not require a ResolvePromptAction on the next turn', (
   state.prompts[0].result = ['already resolved'];
   assert.doesNotThrow(() => assertValidPromptAction(state, {}));
 });
+
+class ShuffleDeckPrompt {
+  constructor(playerId, id = 7) {
+    this.playerId = playerId;
+    this.id = id;
+    this.result = undefined;
+  }
+  getPerspectivePlayerId() { return this.playerId; }
+  validate(result) {
+    const sorted = result.slice().sort();
+    return sorted.every((entry, index) => entry === index);
+  }
+}
+
+test('strict gate accepts large valid shuffle despite upstream lexicographic sorting', () => {
+  const permutation = Array.from({length: 60}, (_, index) => index).reverse();
+  const prompt = new ShuffleDeckPrompt(101);
+  const state = {
+    prompts: [prompt], players: [{id: 101, deck: {cards: Array(60).fill(null)}}]
+  };
+  assert.equal(prompt.validate(permutation), false,
+    'Original pinned source accidentally sorts numeric deck indices lexicographically');
+  assert.doesNotThrow(() => assertValidPromptAction(
+    state, new ResolvePromptAction(7, permutation)));
+});
+
+test('strict shuffle validation rejects missing, duplicate and foreign deck indices', () => {
+  const prompt = new ShuffleDeckPrompt(101);
+  const state = {
+    prompts: [prompt], players: [{id: 101, deck: {cards: Array(12).fill(null)}}]
+  };
+  const full = Array.from({length: 12}, (_, index) => index);
+  assert.doesNotThrow(() => assertValidPromptAction(
+    state, new ResolvePromptAction(7, full)));
+  const candidates = [
+    full.slice(1),
+    [...full.slice(0, 11), 11.5],
+    [...full.slice(0, 11), 12],
+    [...full.slice(0, 11), 0],
+    null
+  ];
+  for (const candidate of candidates) {
+    assert.throws(() => assertValidPromptAction(
+      state, new ResolvePromptAction(7, candidate)), /invalid result/);
+  }
+});

@@ -19,3 +19,5 @@ Claimed 2026-10-15T23:54:55Z (run 85cad36a-0b5b-46ff-bc88-fcb92d8abce0).
 - Added evaluator mock-runner regression ensuring strict prompt switch is forwarded only when explicitly enabled; added to same manual CI workflow.
 
 - Exact source census: 13 Forest Seal Stone SIT 156 copies across 12/29 published Aichi 2026 opponents, including champion rank 1; added pure script/test and field-relevance note. This is decklist exposure only.
+
+- Strict-mode manual CI 38827822110 failed at `ShuffleDeckPrompt` 3 while all preceding tests passed. Diagnosis: pinned validator uses bare `s.sort()` default lexicographic ordering; any valid numeric permutation for an 11+-card deck fails. Added narrow research-side numeric-permutation exception to generic strict guard, pure tests and a compiled pinned-class characterization. Rerun CI before declaring ready.
