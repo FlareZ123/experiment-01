@@ -33,3 +33,6 @@ jobs:
 
       - name: Resolve actual Store Star Alchemy search and reject empty answers
         run: node --test tests/forest-seal-real-store.test.cjs
+
+      - name: Probe Temple Wobbuffet Active suppression of Radiant Gate
+        run: node simulation/twinleaf/radiant-wobbuffet-active-probe.cjs
