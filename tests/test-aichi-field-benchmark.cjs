@@ -273,3 +273,27 @@ test('isolated policy randomness is opt-in, forwarded, and labelled end to end',
   assert.ok(requests.every(request =>
     !Object.hasOwn(request, 'isolatePolicyRandomness')));
 });
+
+test('Temple-unlock response is only forwarded when explicitly opted in', () => {
+  const plan = buildPlan(manifest, pool, 1);
+  const requests = [];
+  const runMatch = request => {
+    requests.push(request);
+    return { finished: true, winner: 0 };
+  };
+  const tuned = evaluatePlan(plan, {
+    gamesPerSeat: 1, selectedRanks: [1], templeUnlockRecovery: true, runMatch
+  });
+  assert.equal(tuned.templeUnlockRecovery, true);
+  assert.match(tuned.policy, /TempleUnlockTactic-v1/);
+  assert.equal(requests.length, 2);
+  assert.ok(requests.every(request => request.templeUnlockRecovery === true));
+  requests.length = 0;
+  const unmodified = evaluatePlan(plan, {
+    gamesPerSeat: 1, selectedRanks: [1], runMatch
+  });
+  assert.equal(unmodified.templeUnlockRecovery, false);
+  assert.doesNotMatch(unmodified.policy, /TempleUnlockTactic/);
+  assert.equal(requests.length, 2);
+  assert.ok(requests.every(request => !Object.hasOwn(request, 'templeUnlockRecovery')));
+});
