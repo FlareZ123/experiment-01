@@ -37,6 +37,12 @@ These entries summarize **engine action dispatches and terminal transitions**. T
 
 This closes the *first-turn source-state availability* and *attack-effect execution* subquestions for that seed, but **does not qualify complete gameplay**. The deterministic branch override was deliberately scripted, and two of three Guzma are Prized while the third is sacrificed. The observed alternative may be less strategically desirable than the original control line. Independent clone fidelity, future-turn rational play, opponent responses and both starting-seat samples remain blockers below. **`qualified_for_competitive_inference: false`**.
 
+## Source-dealt discard-payment frontier (Agent 30, 16 October)
+
+The same genuine physical rank-6 seed `20367160` now supports three additional Guzma & Hala payment choices alongside Agent 33's original Guzma + Tropical Beach discard. [All four source-identical first-turn branches](../../rank6-source-dealt-discard-frontier.md) retained the exact seven-card hand, six Prize printings and Double Colorless Energy location and legally reached the same **140-damage Volt Cyclone** in [manual CI 38910066897](https://github.com/FlareZ123/experiment-01/actions/runs/38910066897). Discarding Cynthia & Caitlin + Tropical Beach or Trainers' Mail + Palace Belt preserved the hand's sole Guzma, while spending other future resources. This addresses the narrow feasibility of alternative discard payments; no subsequent opponent response or strategic dominance has been verified. The fact the other two Guzma were Prized is a *post-deal observer* fact unavailable to the K0 player when paying the cost.
+
+The same manual CI included new exact real-Store assertions for physical discard and retained hand printings. **Competitive qualification remains false.**
+
 ## Qualification blockers and acceptance work
 
 1. **Complete replay missing.** The six-game archive retains chronological *meaningful* actions with selected hand/public-board summaries, but does not replay every exact prompt, chosen option, reducer, state transition, target, energy modifier and timing window. Replay the two turn-2 Guzma decision forks from authentic dealt states, capturing whole source-state transitions and the opponent's next useful decision.
