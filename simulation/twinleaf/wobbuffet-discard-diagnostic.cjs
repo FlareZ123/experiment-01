@@ -10,9 +10,10 @@ const load = file => require(path.join(root, file));
  * Build fresh state for each probe because real Ability use moves Exeggcute.
  * @param {'active'|'bench'} wobbuffetLocation
  * @param {'discard'|'hand'} eggLocation
+ * @param {{turn?:number, withKoko?:boolean}} [options]
  * @returns {any}
  */
-function board(wobbuffetLocation, eggLocation) {
+function board(wobbuffetLocation, eggLocation, options = {}) {
   const cards = initializeCards();
   const { Store } = load('game/store/store');
   const { Player } = load('game/store/state/player');
@@ -27,12 +28,18 @@ function board(wobbuffetLocation, eggLocation) {
   opp.name = 'Wobbuffet';
   state.players = [own, opp];
   state.activePlayer = 0;
-  state.turn = 2;
+  state.turn = options.turn ?? 2;
   const egg = cards.getCardByName('Exeggcute PLF');
   const wob = cards.getCardByName('Wobbuffet PHF');
   const psy = cards.getCardByName('Meloetta ex SV11B');
   own.active.cards.push(psy);
   own[eggLocation].cards.push(egg);
+  if (options.withKoko === true) {
+    const koko = cards.getCardByName('Tapu Koko Prism Star TEU');
+    const kokoSlot = new PokemonCardList();
+    kokoSlot.cards.push(koko);
+    own.bench.push(kokoSlot);
+  }
   if (wobbuffetLocation === 'active') {
     opp.active.cards.push(wob);
   } else {
@@ -43,16 +50,16 @@ function board(wobbuffetLocation, eggLocation) {
   return { store, state, own, opp, egg, wob };
 }
 
-/** @param {'active'|'bench'} wobLocation @param {'discard'|'hand'} eggLocation */
-function probe(wobLocation, eggLocation) {
+/** @param {'active'|'bench'} wobLocation @param {'discard'|'hand'} eggLocation @param {{turn?:number,withKoko?:boolean}} [options] */
+function probe(wobLocation, eggLocation, options = {}) {
   const { IS_ABILITY_BLOCKED } = load('game/store/prefabs/prefabs');
   const { PowerEffect } = load('game/store/effects/game-effects');
-  const fixture = board(wobLocation, eggLocation);
+  const fixture = board(wobLocation, eggLocation, options);
   const a = IS_ABILITY_BLOCKED(fixture.store, fixture.state, fixture.own, fixture.egg);
-  const fixtureB = board(wobLocation, eggLocation);
+  const fixtureB = board(wobLocation, eggLocation, options);
   const b = IS_ABILITY_BLOCKED(fixtureB.store, fixtureB.state, fixtureB.own,
     fixtureB.egg, fixtureB.egg.powers[0]);
-  const fixtureC = board(wobLocation, eggLocation);
+  const fixtureC = board(wobLocation, eggLocation, options);
   let error = null;
   try {
     fixtureC.store.reduceEffect(fixtureC.state, new PowerEffect(
@@ -60,7 +67,8 @@ function probe(wobLocation, eggLocation) {
   } catch (e) {
     error = e.message;
   }
-  return {wobLocation, eggLocation, stubBlocked:a, truePowerStubBlocked:b,
+  return {wobLocation, eggLocation, turn:options.turn ?? 2, withKoko:options.withKoko===true,
+    stubBlocked:a, truePowerStubBlocked:b,
     directError:error,
     eggNowInHand:fixtureC.own.hand.cards.includes(fixtureC.egg),
     eggNowInDiscard:fixtureC.own.discard.cards.includes(fixtureC.egg)};
@@ -68,9 +76,13 @@ function probe(wobLocation, eggLocation) {
 
 function inspect() {
   const rows = [];
-  for (const w of ['active', 'bench']) {
-    for (const e of ['discard', 'hand']) rows.push(probe(w, e));
+  for (const turn of [1, 2]) {
+    for (const withKoko of [false, true]) {
+      rows.push(probe('active', 'discard', {turn, withKoko}));
+    }
   }
+  rows.push(probe('bench', 'discard', {turn:1, withKoko:true}));
+  rows.push(probe('active', 'hand', {turn:1, withKoko:true}));
   return rows;
 }
 
