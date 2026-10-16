@@ -4,7 +4,6 @@ const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const path = require('node:path');
 const {runMatch, initializeCards} = require('./headless.cjs');
-const {resolveManifestFile} = require('./resolve-field.cjs');
 const {withStoreDispatchTranscript} = require('./store-dispatch-transcript.cjs');
 const {loadDefaultCampaign} = require('../../scripts/aichi-comparison-campaign.cjs');
 
@@ -62,6 +61,7 @@ function firstDifference(control, branch) {
  * incomplete-argument limitations. No staged cards are injected.
  */
 function main() {
+  const {resolveManifestFile} = require('./resolve-field.cjs');
   const field = resolveManifestFile(path.resolve(__dirname,
     '../../results/aichi-2026/full-decklists.json'), {
     allowEquivalentBasicEnergies:true,
