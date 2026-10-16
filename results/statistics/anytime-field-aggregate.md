@@ -30,3 +30,17 @@ A second supermartingale is the zero-loss component: M[t,infinity] = indicator(a
 The e-process uses a predeclared, constant mixture: 95% of M[t,infinity] and 5% equally divided across lambda = 0.05, 0.1, 0.25, 0.5, 1, 2, 4, 8, 16, 32. Weighted sums preserve supermartingale validity. Ville's inequality then guarantees that the probability of **ever** crossing E[t] >= 20 under H0 is at most 0.05, with checks after each full round.
 
 This protects repeated checkpointing of this one frozen confirmatory experiment. It does not permit choosing the candidate or mixture after reviewing confirmatory outcomes, peeking at partial rounds, or assuming independence from recycled correlated game seeds.
+
+## Numerical regression
+
+At one-sided alpha=0.05, the threshold is 20.
+
+| Confirmatory observation | Mixture e-value | Crosses threshold? |
+| --- | ---: | --- |
+| Nine complete, perfect rounds: 576/576 | 17.52935398 | No |
+| Ten complete, perfect rounds: 640/640 | 24.13948111 | Yes |
+| Ten rounds with one loss: 639/640 | 0.05725250 | No |
+
+In the deliberately unequal H0 example with 63 cells guaranteed to win and the last cell winning with probability 0.68, the mean is 0.995. Its exact one-round expected e-value is about 0.93869395, below one. This diagnostic complements the general proof.
+
+The separate fixed-sample all-win certificate documented by Agent 45 needs 608 wins for 19 trials per rank at q=0.995. This 640-game figure imposes equal *actual first/second* seat allocation and permits repeated full-round inspections, so the protocols solve different experimental designs.
