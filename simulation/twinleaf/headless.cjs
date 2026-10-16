@@ -21,6 +21,7 @@ const {selectedCardsEvidence, selectedOptionEvidence} = require('./selected-card
 const {decisionHandEvidence} = require('./decision-hand-evidence.cjs');
 const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.cjs');
 const {installElectroRainDamageHook} = require('./electro-rain-damage-hook.cjs');
+const {installRedeemableTicketPaperOrderHook} = require('./redeemable-ticket-paper-hook.cjs');
 const {publicSnapshot, observeTerminalTransition, advanceActionLineage} = require('./terminal-transition.cjs');
 const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
 const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
@@ -197,6 +198,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [passClearsLastAttackCorrection] Opt-in clear stale preceding attack when a player passes.
  * @property {boolean} [snorlaxRetreatStartCorrection] Opt-in, reversible Block check on interactive retreat.
  * @property {boolean} [electroRainDamageCorrection] Opt-in printed Electro Rain attack damage and repeated-target correction.
+ * @property {boolean} [redeemableTicketPaperOrderCorrection] Opt-in paper-rule Ticket top/new-Prize and bottom/old-Prize correction.
  * @property {boolean} [shadowRiderEnergyPriority] Opt-in basic Psychic Energy priority against Active Iron Thorns.
  * @property {boolean} [shadowRiderEnergyAcrossField] Opt-in speculative Psychic priority regardless of opposing Active.
  * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
@@ -240,6 +242,7 @@ function runMatch(request) {
   let restoreEntryDrawLockHook;
   let restoreSnorlaxRetreatStartHook;
   let restoreElectroRainDamageHook;
+  let restoreRedeemableTicketPaperOrderHook;
   let restoreMimikyuNonGxCopycatHook;
   let restoreCopyDeclaredHistoryHook;
   let restorePassClearsLastAttackHook;
@@ -257,6 +260,9 @@ function runMatch(request) {
       throw new Error('Copycat counterpolicy requires all four rule-history corrections');
     }
     initializeCards();
+    if (request.redeemableTicketPaperOrderCorrection === true) {
+      restoreRedeemableTicketPaperOrderHook = installRedeemableTicketPaperOrderHook();
+    }
     if (request.mimikyuApexCopycatCompatibility === true) {
       restoreMimikyuNonGxCopycatHook = installMimikyuNonGxCopycatHook();
     }
@@ -609,6 +615,7 @@ function runMatch(request) {
       passClearsLastAttackCorrection: request.passClearsLastAttackCorrection === true,
       snorlaxRetreatStartCorrection: request.snorlaxRetreatStartCorrection === true,
       electroRainDamageCorrection: request.electroRainDamageCorrection === true,
+      redeemableTicketPaperOrderCorrection: request.redeemableTicketPaperOrderCorrection === true,
       shadowRiderEnergyPriority: request.shadowRiderEnergyPriority === true,
       shadowRiderEnergyAcrossField: request.shadowRiderEnergyAcrossField === true,
       shadowRiderOpeningPivot: request.shadowRiderOpeningPivot === true,
@@ -624,6 +631,7 @@ function runMatch(request) {
         (request.templeUnlockRecovery === true ? '+TempleUnlockTactic-v1' : '') +
         (request.snorlaxRetreatStartCorrection === true ? '+SnorlaxBlockStartGate-v1' : '') +
         (request.electroRainDamageCorrection === true ? '+ElectroRainDamage-v1' : '') +
+        (request.redeemableTicketPaperOrderCorrection === true ? '+TicketPaperPrizeOrder-v1' : '') +
         (request.shadowRiderEnergyPriority === true ? '+ShadowRiderPsychicAttachPriority-v1' : '') +
         (request.shadowRiderEnergyAcrossField === true ? '+ShadowRiderPsychicAttachAcrossField-v1' : '') +
         (request.shadowRiderOpeningPivot === true ? '+SelectedShadowRiderSetupActive-v1' : '') +
@@ -654,6 +662,7 @@ function runMatch(request) {
     if (restoreLeleEntryAbilityLockHook) restoreLeleEntryAbilityLockHook();
     if (restoreSnorlaxRetreatStartHook) restoreSnorlaxRetreatStartHook();
     if (restoreElectroRainDamageHook) restoreElectroRainDamageHook();
+    if (restoreRedeemableTicketPaperOrderHook) restoreRedeemableTicketPaperOrderHook();
     if (restoreDialgaBenchExposureGuard) restoreDialgaBenchExposureGuard();
     if (restoreGuzmaSelfSwitchGuard) restoreGuzmaSelfSwitchGuard();
     if (restoreSupporterDecisionHook) restoreSupporterDecisionHook();
