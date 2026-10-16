@@ -136,3 +136,30 @@ test('policy flags cannot override fixed plan decks, seeds or action budgets', (
     assert.throws(() => executeDiagnostic({...base, policyFlags: invalid}), /policyFlags/);
   }
 });
+
+
+test('requested chronological action capture is hashed and attributed', () => {
+  const trace = [
+    {actionOrdinal: 1, turnBefore: 1, turnAfter: 1, playerSlot: 0,
+      action: 'PlayCardAction', card: 'Guzma & Hala',
+      prizesAfter: [6, 6], decksAfter: [45, 44]},
+    {actionOrdinal: 5, turnBefore: 1, turnAfter: 2, playerSlot: 0,
+      action: 'AttackAction', attack: 'Volt Cyclone',
+      prizesAfter: [6, 6], decksAfter: [43, 43]}
+  ];
+  const output = run({
+    policyFlags: {captureDecisionTrace: true},
+    runMatch: request => {
+      assert.equal(request.captureDecisionTrace, true);
+      return sampleGame(request, {decisionTrace: trace});
+    }
+  });
+  assert.equal(output.counts['completed-engine-game'], 6);
+  for (const record of output.records) {
+    assert.deepEqual(record.traceSummary.chronologicalActionTrace, trace);
+    assert.equal(record.traceSummary.capturedMeaningfulActions, 2);
+    assert.equal(record.traceSummary.coversAllActionsAndPromptResolutions, false);
+    assert.equal(record.traceSummary.chronologicalActionTraceSha256,
+      createHash('sha256').update(JSON.stringify(trace)).digest('hex'));
+  }
+});
