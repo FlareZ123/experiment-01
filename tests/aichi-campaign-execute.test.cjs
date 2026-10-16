@@ -174,7 +174,10 @@ test('missing requested history prevents a completed status', () => {
 
 test('preserves terminal transition in campaign diagnostic', () => {
   const transition = {evidenceType:'observed-engine-terminal-transition-v1',
-    actionName:'PassTurnAction', before:{phase:2}, after:{phase:99}};
+    actionName:'ResolvePromptAction', before:{phase:2}, after:{phase:99},
+    actionLineage:{initiatingAction:{actionName:'PassTurnAction',actionOrdinal:27,playerSlot:0},
+      promptChain:[{actionName:'ResolvePromptAction',actionOrdinal:28,playerSlot:1,
+        pendingPrompt:'WaitPrompt'}]}};
   const result = run({runMatch: request => sampleGame(request,
     {terminalTransition: transition})});
   assert.equal(result.counts['completed-engine-game'], 6);
