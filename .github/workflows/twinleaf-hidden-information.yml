@@ -33,3 +33,7 @@ jobs:
         run: node --test tests/twinleaf-hidden-source-deck.test.cjs
       - name: Preserve source-inventory contrast
         run: node simulation/twinleaf/hidden-source-deck-policy.cjs
+      - name: Evaluate opt-in own-deck hidden-order sampling on the ranked inventory
+        run: node --test tests/twinleaf-own-deck-sampling.test.cjs
+      - name: Preserve sampled invariance experiment
+        run: node simulation/twinleaf/own-deck-determinization-audit.cjs
