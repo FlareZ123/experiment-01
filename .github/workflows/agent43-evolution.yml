@@ -20,7 +20,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Pure decision and reversible wrapper tests
-        run: node --test tests/shadow-rider-evolution-priority.test.cjs tests/shadow-rider-evolution-runner.test.cjs tests/first-evolution-natural.test.cjs tests/first-evolution-field.test.cjs
+        run: node --test tests/shadow-rider-evolution-priority.test.cjs tests/shadow-rider-evolution-runner.test.cjs tests/first-evolution-natural.test.cjs tests/first-evolution-field.test.cjs tests/first-evolution-contention.test.cjs
       - name: Install pinned engine dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
