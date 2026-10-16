@@ -44,7 +44,7 @@ Both lists have 13 Basic Pokémon, giving an opening-validity fraction `(C(60,7)
 - `D = C(60,7) - C(60-B,7) - C(60-S,7) + C(60-B-S,7)` be valid hands already containing a Stadium.
 - `Z = C(60-S,7) - C(60-B-S,7)` be valid opening hands containing no Stadium.
 
-The first table probability is `D/V`; the second is `(D + Z*S/53)/V`. The implementation reuses the established [opening Basic-stage index](../../scripts/aichi_opening_audit.cjs). [Seeded-shuffle independent tests](../../tests/aichi_raichu_stadium_access.test.cjs) check the exact probabilities against an independent deal simulator, without treating random samples as exact evidence.
+The first table probability is `D/V`; the second is `(D + Z*S/53)/V`. The implementation reuses the established [opening Basic-stage index](../../scripts/aichi_opening_audit.cjs). [Seeded-shuffle independent tests](../../tests/aichi_raichu_stadium_access.test.cjs) check the exact probabilities against an independent deal simulator, without treating random samples as exact evidence. The three tests passed alongside the engine attack-cost assertions in [manual CI run 38826894546](https://github.com/FlareZ123/experiment-01/actions/runs/38826894546).
 
 ### Interpretation for candidate evaluation
 
