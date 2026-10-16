@@ -2,6 +2,41 @@
 const assert=require('node:assert/strict');
 
 /**
+ * Recover the true class prototype without getters. CardManager's pinned
+ * deepClone gives real card instances template-object prototype links.
+ * Removing those links is safe only when all intermediate data is own-shadowed.
+ * @param {object} value
+ * @returns {object}
+ */
+function stableClassPrototype(value) {
+  const dynamic=[],visited=new Set();
+  let proto=Object.getPrototypeOf(value);
+  while(proto!==null && !visited.has(proto)) {
+    visited.add(proto);
+    const ctor=Object.getOwnPropertyDescriptor(proto,'constructor');
+    if(ctor) {
+      assert.ok(Object.hasOwn(ctor,'value') &&
+        typeof ctor.value==='function' && ctor.value.prototype===proto,
+        'Pinned deepClone input has a non-class dynamic prototype');
+      for(const intermediate of dynamic) {
+        for(const key of Reflect.ownKeys(intermediate)) {
+          const d=Object.getOwnPropertyDescriptor(intermediate,key);
+          const own=Object.getOwnPropertyDescriptor(value,key);
+          assert.ok(typeof key==='string' && d.enumerable &&
+            Object.hasOwn(d,'value') && own && own.enumerable &&
+            Object.hasOwn(own,'value'),
+            'Pinned deepClone input has a non-class dynamic prototype');
+        }
+      }
+      return proto;
+    }
+    dynamic.push(proto);
+    proto=Object.getPrototypeOf(proto);
+  }
+  throw new Error('Pinned deepClone input has a non-class dynamic prototype');
+}
+
+/**
  * Reject input shapes pinned deepClone cannot faithfully reproduce. It reads
  * source own enumerable fields and lacks cycle tracking in its array branch.
  *
@@ -19,9 +54,7 @@ function assertVendorCloneCompatibleSource(source) {
     if (visited.has(value)) return;
     assert.ok(Object.getPrototypeOf(value) !== null,
       'Pinned deepClone would share a null-prototype object');
-    assert.ok(typeof value.constructor === 'function' &&
-      Object.getPrototypeOf(value) === value.constructor.prototype,
-      'Pinned deepClone input has a non-class dynamic prototype');
+    stableClassPrototype(value);
     assert.ok(!(value instanceof Map || value instanceof Set ||
       value instanceof Date || value instanceof RegExp ||
       value instanceof ArrayBuffer || ArrayBuffer.isView(value) ||
@@ -73,7 +106,7 @@ function normalizeDeepClonePrototypes(source,copy) {
     }
     canonical.set(src,dst);
     if(Object.getPrototypeOf(dst)===src) {
-      Object.setPrototypeOf(dst,Object.getPrototypeOf(src));
+      Object.setPrototypeOf(dst,stableClassPrototype(src));
     }
     if(Array.isArray(src)){
       assert.ok(Array.isArray(dst),'Array clone was not an array');
