@@ -14,7 +14,7 @@ const mod = name => require(path.join(output, name));
  * prompts with the opt-in unlimited-name mandatory search correction.
  * @param {{path?:boolean,rangerPrized?:boolean,supporterSpent?:boolean,
  *   initialization?:boolean,usedVSTAR?:boolean,toolOccupied?:boolean,
- *   toolLock?:boolean}} options
+ *   toolLock?:boolean,useAction?:boolean}} options
  */
 function probeStoneRanger(options = {}) {
   const cards = initializeCards();
@@ -32,6 +32,7 @@ function probeStoneRanger(options = {}) {
   const {GamePhase} = mod('game/store/state/state');
   const {Format} = mod('game/store/card/card-types');
   const {AttackEffect, PowerEffect} = mod('game/store/effects/game-effects');
+  const {UseAbilityAction} = mod('game/store/actions/game-actions');
   const {CheckPokemonPowersEffect} = mod('game/store/effects/check-effects');
   const {PlayCardAction,PlayerType,SlotType} = mod('game/store/actions/play-card-action');
   const {ResolvePromptAction} = mod('game/store/actions/resolve-prompt-action');
@@ -98,6 +99,15 @@ function probeStoneRanger(options = {}) {
   store.reduceEffect(state,powers);
   assert.ok(powers.powers.some(p=>p.name==='Star Alchemy'),
     'Star Alchemy must remain available while Item lock is active');
+  const definitions=mod('simple-bot/simple-bot-definitions');
+  const {UseAbilityTactic}=mod('simple-bot/simple-tactics/use-ability-tactic');
+  const simpleAbility=new UseAbilityTactic({scores:definitions.defaultStateScores,
+    arbiter:definitions.defaultArbiterOptions,
+    promptResolvers:definitions.allPromptResolvers});
+  const selectedDefaultAbility=simpleAbility.useTactic(state,defender);
+  const defaultEnumeratedStone=selectedDefaultAbility?.name==='Star Alchemy';
+  assert.equal(defaultEnumeratedStone,false,
+    'Pinned default Ability tactic should omit Tool-granted Star Alchemy');
   if(options.usedVSTAR) {
     assert.throws(() => store.reduceEffect(state,
       new PowerEffect(defender,stone.powers[0],stone,benchV)));
@@ -106,7 +116,12 @@ function probeStoneRanger(options = {}) {
       rangerPlayed:false,itemLockedAfter:true,usedVSTAR:true,
       itemPrompt:null,deniedAt:'already-used-vstar'};
   }
-  store.reduceEffect(state,new PowerEffect(defender,stone.powers[0],stone,benchV));
+  if(options.useAction) {
+    store.dispatch(new UseAbilityAction(defender.id,'Star Alchemy',
+      {player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0}));
+  } else {
+    store.reduceEffect(state,new PowerEffect(defender,stone.powers[0],stone,benchV));
+  }
   const select=pending();
   assert.equal(select?.constructor.name,'ChooseCardsPrompt');
   assert.equal(select.options.min,1);
@@ -136,13 +151,14 @@ function probeStoneRanger(options = {}) {
   return {options,stoneAttached:benchV.tools.includes(stone),
     starAlchemyVisible:powers.powers.some(p=>p.name==='Star Alchemy'),
     rangerInHand,rangerPlayed,itemLockedAfter: defender.cannotPlayItemCards,
-    usedVSTAR:defender.usedVSTAR,itemPrompt};
+    usedVSTAR:defender.usedVSTAR,itemPrompt,defaultEnumeratedStone};
 }
 
 function runFixture() {
   const restore=installForestSealSearchHook();
   try {
     const rows=[{}, {path:true}, {initialization:true},
+      {useAction:true}, {path:true,useAction:true},
       {rangerPrized:true}, {supporterSpent:true},
       {usedVSTAR:true}, {toolOccupied:true}, {toolLock:true}]
       .map(probeStoneRanger);
@@ -153,6 +169,9 @@ function runFixture() {
       assert.equal(r.rangerPlayed,!(r.options.rangerPrized||r.options.supporterSpent||
         r.options.usedVSTAR||r.options.toolOccupied||r.options.toolLock));
       assert.equal(r.itemPrompt,r.rangerPlayed?'ChoosePokemonPrompt':null);
+      if(r.stoneAttached&&!r.options.usedVSTAR){
+        assert.equal(r.defaultEnumeratedStone,false);
+      }
     }
     return {pinned:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
       scope:'staged board actual Store actions/effects, no full match or bot policy',rows};
