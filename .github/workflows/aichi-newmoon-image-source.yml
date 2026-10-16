@@ -1,0 +1,25 @@
+name: Aichi New Moon public image source probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-source-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Retrieve linked public tournament deck image
+        shell: bash
+        run: |
+          curl --fail --silent --show-error --location --retry 2 --max-time 30 \
+            --user-agent 'Mozilla/5.0 (compatible; ExpandedResearch/1.0)' \
+            'https://cdn-ak.f.st-hatena.com/images/fotolife/o/ottopoke/20260511/20260511230136.png' \
+            --output "$RUNNER_TEMP/newmoon-deck-source.png"
+          file "$RUNNER_TEMP/newmoon-deck-source.png"
+      - name: Emit source image chunks for a bounded private visual inspection
+        shell: bash
+        run: |
+          node -e "const fs=require('node:fs');const b=fs.readFileSync(process.env.RUNNER_TEMP+'/newmoon-deck-source.png');if(b.length>1000000)throw Error('Source image exceeds inspection cap');const s=b.toString('base64');for(let i=0;i<s.length;i+=4000)console.log('NMIMG'+String(i/4000).padStart(4,'0')+':'+s.slice(i,i+4000));console.log('NMIMGTOTAL:'+b.length);"
