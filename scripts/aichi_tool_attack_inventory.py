@@ -10,8 +10,25 @@ import json
 from functools import lru_cache
 from pathlib import Path
 from typing import Callable, Any
+import unicodedata
 
-from aichi_card_audit import normalize, normalize_number
+
+def normalize(value: str) -> str:
+    """Match harmless source printing name punctuation and capitalization."""
+    return "".join(
+        char for char in unicodedata.normalize("NFKC", value).casefold()
+        if char.isalnum()
+    )
+
+
+def normalize_number(value: str) -> str:
+    """Normalize collector number prefixes consistently with source audits."""
+    value = value.upper().strip()
+    for prefix in ("SWSH", "SM", "XY", "BW"):
+        if value.startswith(prefix) and value[len(prefix):].isdigit():
+            value = value[len(prefix):]
+            break
+    return value.lstrip("0") or "0"
 
 ROOT = Path(__file__).resolve().parents[1]
 
