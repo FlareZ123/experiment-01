@@ -51,6 +51,30 @@ class ComboPrizeTests(unittest.TestCase):
         )
         self.assertGreater(required["either_cut"], original["either_cut"])
 
+    def test_source_slot_replacements_are_state_conditional(self):
+        from scripts.new_moon_prize_sensitivity import compare_swaps
+        baseline, rows = compare_swaps()
+        by_label = dict(rows)
+        self.assertEqual(len(rows), 13)
+        self.assertEqual(baseline, Fraction(155146286885, 3414518146676))
+        self.assertEqual(
+            by_label["third Heavy Ball"],
+            Fraction(36213955929103, 1015819148636110)
+        )
+        self.assertEqual(
+            by_label["extra Dusclops"],
+            Fraction(76365150945191, 2031638297272220)
+        )
+        self.assertEqual(
+            by_label["extra Lunatone"],
+            Fraction(37267972972193, 916331468474240)
+        )
+        self.assertEqual(
+            by_label["extra Basic Psychic Energy"],
+            Fraction(206292627407, 4596466735910)
+        )
+        self.assertTrue(all(value <= baseline for _, value in rows))
+
     def test_new_moon_source_inventory(self):
         got = combo_prize_cuts((2, 1, 1, 1, 1, 2), (2, 2, 2, 2), 2, 9)
         self.assertEqual(
