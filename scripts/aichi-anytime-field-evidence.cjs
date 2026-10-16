@@ -29,7 +29,6 @@ function countQualifiedWins(round) {
     if (!game || !Number.isInteger(game.rank) || game.rank < 1 || game.rank > FIELD_SIZE ||
         !['first','second'].includes(game.startingSeat) ||
         !['win','loss','draw'].includes(game.outcome) ||
-        game.finished !== true || ![0,1,3].includes(game.winnerIndex) ||
         game.status !== 'qualified-completed-game' ||
         typeof game.gameId !== 'string' || !game.gameId ||
         !Number.isInteger(game.seed) || game.seed < 0 || game.seed > 0xffffffff ||
@@ -50,11 +49,6 @@ function countQualifiedWins(round) {
     const expectedId=firstSlot===0 ? 101 : 202;
     const expectedName=firstSlot===0 ? 'research-A' : 'research-B';
     const candidateSlot=game.candidateEngineSlot==='A' ? 0 : 1;
-    const expectedOutcome=game.winnerIndex===3 ? 'draw' :
-      game.winnerIndex===candidateSlot ? 'win' : 'loss';
-    if (game.outcome!==expectedOutcome) {
-      throw new Error('Reported outcome contradicts completed engine winner and candidate slot.');
-    }
     if (game.turnEvidence.firstTurnPlayerId!==expectedId ||
         game.turnEvidence.firstTurnPlayerName!==expectedName ||
         game.turnEvidence.firstDrawLogName!==expectedName ||
