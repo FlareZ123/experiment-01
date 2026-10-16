@@ -58,3 +58,19 @@ test('unknown order must be certified and redeal cannot exceed deck',()=>{
   assert.throws(()=>prizeRedealPosterior({...input,
     uniformUnknownOrder:true,previousPrizeNames:['Y','Z']}),/Too few deck/);
 });
+
+test('unknown singleton has identical marginal Prize risk before and after a blind redeal',()=>{
+  const names=['X','A','B','C','D','E'];
+  const oldPrizePartitions=subsets(names,2);
+  assert.equal(oldPrizePartitions.length,15);
+  let before=0,after=0;
+  for(const old of oldPrizePartitions){
+    const deck=names.filter(name=>!old.includes(name));
+    const model=prizeRedealPosterior({deckCardNames:deck,
+      previousPrizeNames:old,targetName:'X',uniformUnknownOrder:true});
+    before+=Number(old.includes('X'));
+    after+=model.anyNewPrizeProbability;
+  }
+  assert.equal(before/oldPrizePartitions.length,1/3);
+  assert.equal(after/oldPrizePartitions.length,1/3);
+});
