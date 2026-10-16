@@ -40,6 +40,14 @@ function runEnergyAbilityAttackSequence() {
   const prizeStart=f.a.getPrizeLeft();
   const eventNames=[];
   const doAttack=()=>{
+    console.log('BEFORE_ATTACK',JSON.stringify({
+      phase:f.state.phase,activePlayer:f.state.activePlayer,turn:f.state.turn,
+      activePokemon:f.a.active.getPokemonCard()?.fullName,
+      pokemonEnergy:f.a.active.energies.cards.map(c=>c.fullName),
+      unresolved:f.state.prompts.filter(p=>p.result===undefined)
+        .map(p=>p.constructor.name),
+      bench:f.b.bench.map(p=>p.getPokemonCard()?.fullName)
+    }));
     f.store.dispatch(new AttackAction(101,'Electro Rain'));
     for(let i=0;i<35;i++){
       const prompt=f.state.prompts.find(p=>p.result===undefined);
