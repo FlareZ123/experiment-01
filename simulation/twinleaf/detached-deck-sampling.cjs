@@ -35,7 +35,9 @@ function reachableCards(root, isCard) {
  * This is a research diagnostic requiring K1, unknown suffix order and action
  * references that remain valid against a cloned state (e.g. index actions).
  * A known top prefix may be protected only when its observed order is verified.
- * It is not a policy for unknown opponent zones or K0 information sets.
+ * K0 prize-inclusive deals are supported only under an explicit assertion
+ * that none of those Prize identities have yet been observed. Opponent zones
+ * and general gameplay knowledge tracking remain outside this diagnostic.
  *
  * @param {object} state Live source state.
  * @param {number} playerId Acting player id.
@@ -44,7 +46,7 @@ function reachableCards(root, isCard) {
  * @param {Function} evaluator Pinned tactic evaluator.
  * @param {object} receiver Original `this` for evaluator.
  * @param {(state:object)=>object} cloneState Complete detached-state clone.
- * @param {{seed:number,samples:number,permutation:(n:number,rng:Function)=>number[],random:(seed:number)=>Function,isCard:(value:object)=>boolean,knownTopCount?:number,knownTopVerified?:boolean}} opts
+ * @param {{seed:number,samples:number,permutation:(n:number,rng:Function)=>number[],random:(seed:number)=>Function,isCard:(value:object)=>boolean,knownTopCount?:number,knownTopVerified?:boolean,sampleUnknownPrizes?:boolean,prizesUnobservedVerified?:boolean}} opts
  * @returns {number|undefined} Average of valid sampled outcomes.
  */
 function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
@@ -56,6 +58,9 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
     'Known-top count must be a nonnegative safe integer');
   assert.ok(knownTopCount===0||opts.knownTopVerified===true,
     'Preserving top cards requires verified observed prefix order');
+  const sampleUnknownPrizes=opts.sampleUnknownPrizes===true;
+  assert.ok(!sampleUnknownPrizes||opts.prizesUnobservedVerified===true,
+    'Sampling hidden Prizes requires verified absence of Prize observations');
   const srcPlayer=state.players.find(p=>p.id===playerId);
   if (!srcPlayer) return evaluator.call(receiver,state,playerId,action,passTurnScore);
   const sourceCards=reachableCards(state,opts.isCard);
@@ -81,12 +86,24 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
     }
     assert.ok(knownTopCount<=deck.length,
       'Known-top prefix exceeds deck length');
-    const canonical=canonicalUnseenCards(deck.slice(knownTopCount));
+    const hiddenPrizePositions=sampleUnknownPrizes ?
+      player.prizes.flatMap((prize,prizeIndex)=>prize.cards.map(
+        (card,cardIndex)=>({card,prizeIndex,cardIndex}))) : [];
+    const unknownDeckCount=deck.length-knownTopCount;
+    const canonical=canonicalUnseenCards([
+      ...deck.slice(knownTopCount),
+      ...hiddenPrizePositions.map(slot=>slot.card)
+    ]);
     const seed=(opts.seed ^ Math.imul(state.turn+1,0x9e3779b9) ^
       Math.imul(playerId,0x85ebca6b) ^ Math.imul(sample+1,0xc2b2ae35))>>>0;
     const shuffled=opts.permutation(canonical.length,opts.random(seed));
-    deck.splice(knownTopCount,deck.length-knownTopCount,
-      ...shuffled.map(index=>canonical[index]));
+    const sampled=shuffled.map(index=>canonical[index]);
+    deck.splice(knownTopCount,unknownDeckCount,
+      ...sampled.slice(0,unknownDeckCount));
+    hiddenPrizePositions.forEach((slot,index)=>{
+      player.prizes[slot.prizeIndex].cards[slot.cardIndex]=
+        sampled[unknownDeckCount+index];
+    });
     const score=evaluator.call(receiver,detached,playerId,action,passTurnScore);
     if(score!==undefined){total+=score;accepted+=1;}
   }
