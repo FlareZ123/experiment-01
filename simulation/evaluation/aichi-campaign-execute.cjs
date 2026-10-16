@@ -79,6 +79,7 @@ function executeDiagnostic(options) {
     'strictPromptValidation', 'forestSealSearchCorrection',
     'doubleDragonRecovery', 'templeUnlockRecovery',
     'supporterDecisionCorrection', 'isolatePolicyRandomness',
+    'prototypeSafeSimulatorIsolation',
     'captureDecisionTrace', 'captureAttackPassProbes',
     'snorlaxRetreatStartCorrection',
     'shadowRiderEnergyPriority', 'shadowRiderEnergyAcrossField',
@@ -185,7 +186,8 @@ function executeDiagnostic(options) {
         'snorlaxRetreatStartCorrection', 'shadowRiderEnergyPriority',
         'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
         'latiasAttackReadyAttachment',
-        'attackBeforeRetreat', 'leleEntryAbilityLockCorrection',
+        'attackBeforeRetreat', 'prototypeSafeSimulatorIsolation',
+        'leleEntryAbilityLockCorrection',
         'radiantGateLockCorrection'
       ];
       const policyMismatch = echoedPolicyKeys.some(key =>
@@ -362,6 +364,7 @@ function main() {
       strictPromptValidation: true, forestSealSearchCorrection: true,
       doubleDragonRecovery: true, supporterDecisionCorrection: true,
       isolatePolicyRandomness: true, captureDecisionTrace: true,
+      prototypeSafeSimulatorIsolation: process.env.AICHI_PROTOTYPE_SAFE_SIM === '1',
       captureAttackPassProbes: process.env.AICHI_ATTACK_PASS_PROBE === '1',
       shadowRiderEnergyPriority: process.env.AICHI_SHADOW_ENERGY === '1',
       shadowRiderEnergyAcrossField: process.env.AICHI_SHADOW_ENERGY_GLOBAL === '1',
