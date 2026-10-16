@@ -100,7 +100,19 @@ function run(campaign, runMatch = request => ({
   verifiedByDrawLog: true
 })) {
   return executeDiagnostic({
-    campaign, ranks: [6], runMatch,
+    campaign, ranks: [6],
+    expectedEngineRevision: 'twinleafgg/' + 'a'.repeat(40),
+    runMatch(request) {
+      const game = runMatch(request);
+      return game && {
+        engine: 'twinleafgg/' + 'a'.repeat(40),
+        label: request.label,
+        ...game,
+        rules: { ...game.rules, format: 'EXPANDED',
+          firstTurnDrawCard: true, firstTurnUseSupporter: false,
+          attackFirstTurn: false }
+      };
+    },
     resolvePair: trial => ({
       candidateDigest: trial.candidateDigest,
       opponentDigest: trial.opponentDigest,
