@@ -41,7 +41,7 @@ The companion [bonus-draw formulas](../../scripts/aichi_bonus_draws.cjs) assume 
 
 The exact model uses finite-population inclusion-exclusion, with source inputs 60 cards, 7 opening cards, 6 Prizes, 14 Basic Pokémon, 4 Shadow Rider V, 4 VMAX. The computation was independently reproduced using Python integer binomial coefficients and rational arithmetic, and all relevant stages were cross-checked against the supplied card archive.
 
-The new [manifest-derived regression](../../tests/agent38-hood-basic-source-guard.test.cjs) tests all three fixed inventories and the corrected probabilities; it is included in the [manual statistical CI workflow](../../.github/workflows/aichi-benchmark-stats.yml). A passing workflow result has not yet been obtained for this new test.
+The new [manifest-derived regression](../../tests/agent38-hood-basic-source-guard.test.cjs) tests all three fixed inventories and the corrected probabilities; it is included in the [manual statistical CI workflow](../../.github/workflows/aichi-benchmark-stats.yml). The [manual statistical CI 38852448467](https://github.com/FlareZ123/experiment-01/actions/runs/38852448467) passed on 16 October 2026, including the manifest-derived guard.
 
 The prior tests checked the validity of a formula against hard-coded tuples. That did not guarantee the tuples matched the named candidate. Future probability reports should use a manifest-derived input tuple in their tests as well as command-line calculations.
 
