@@ -102,6 +102,8 @@ function oneSetup(deck0, deck1, seed) {
         throw new Error('Non-numeric bonus selection from pinned bot.');
       }
       const handBeforeBonus = activeBonus ? state.players[activeBonus.seat].hand.cards.length : null;
+      const turnBeforeBonus = activeBonus ? state.turn : null;
+      const phaseBeforeBonus = activeBonus ? state.phase : null;
       recentSetupActions.push({
         prompt: prompt.constructor.name, message: String(prompt.message || ''),
         recipientId: prompt.playerId ?? prompt.getPerspectivePlayerId?.() ?? null,
@@ -116,7 +118,12 @@ function oneSetup(deck0, deck1, seed) {
         bonusSelected[activeBonus.seat] += selectedBonus;
         bonusDrawn[activeBonus.seat] += actualDrawn;
         if (actualDrawn !== selectedBonus) {
-          throw new Error('Bonus selection disagrees with actual setup hand growth.');
+          throw new Error('Bonus hand growth mismatch: ' + JSON.stringify({
+            seed, actions, chosen: selectedBonus, actualDrawn,
+            seat: activeBonus.seat, firstSeat: store.state.activePlayer,
+            turnBeforeBonus, turnAfterBonus: store.state.turn,
+            phaseBeforeBonus, phaseAfterBonus: store.state.phase
+          }));
         }
       }
       actions += 1;
