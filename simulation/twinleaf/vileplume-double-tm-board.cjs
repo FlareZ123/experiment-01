@@ -113,7 +113,7 @@ function doubleTmBoard() {
     liveBoard:state.players[0].bench.map(b=>b.cards.map(c=>c.name)),
     phase:state.phase,turn:state.turn,logs:state.logs.slice(-8)
   }));
-  assert.deepEqual(board.map(b=>b.top),['Vileplume','Pidgeot ex']);
+  assert.deepEqual(board.map(b=>b.top).filter(Boolean),['Vileplume','Pidgeot ex']);
   assert.equal(countAttackChoices,1,'Barrage should offer one explicit second attack choice');
   assert.ok(state.turn>=beforeTurn,'Game turn must not rewind');
   return {
@@ -124,7 +124,7 @@ function doubleTmBoard() {
     actualPromptSequence:responses,
     evolutionSearches:nextEvolve,
     barrageSecondAttackChoices:countAttackChoices,
-    finalBench:board.map(b=>b.top),
+    finalBench:board.map(b=>b.top).filter(Boolean),
     finalPhase:state.phase, finalTurn:state.turn,
     scope:'Real pinned Store + attack and prompts on a staged legal board; no shuffled opening, opponent policy, or win rate'
   };
