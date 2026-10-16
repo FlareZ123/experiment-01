@@ -24,7 +24,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify reversible noninterfering recording wrapper
-        run: node --test tests/store-dispatch-transcript.test.cjs tests/action-trace-canonical.test.cjs tests/choose-cards-reference.test.cjs tests/rank10-source-branch-transcript.test.cjs tests/choose-attack-reference.test.cjs tests/source-zone-checkpoint.test.cjs tests/choice-slot-reference.test.cjs tests/choose-energy-reference.test.cjs tests/attach-energy-reference.test.cjs tests/state-continuity-observer.test.cjs
+        run: node --test tests/store-dispatch-transcript.test.cjs tests/source-action-value-codec.test.cjs tests/action-trace-canonical.test.cjs tests/choose-cards-reference.test.cjs tests/rank10-source-branch-transcript.test.cjs tests/choose-attack-reference.test.cjs tests/source-zone-checkpoint.test.cjs tests/choice-slot-reference.test.cjs tests/choose-energy-reference.test.cjs tests/attach-energy-reference.test.cjs tests/state-continuity-observer.test.cjs
       - name: Install compiled engine dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -37,7 +37,7 @@ jobs:
       - name: Run source-ranked rank-10 live-only branch trace
         run: node simulation/twinleaf/rank10-source-branch-transcript.cjs > rank10-source-branch-live-dispatch.json
       - name: Summarize the bounded authentic-deal comparison
-        run: node -e "const x=require('./rank10-source-branch-live-dispatch.json'); console.log(JSON.stringify({trial:x.trial.id,firstCandidateSeat:x.trial.candidatePhysicalSeat,sourceTurn:x.sharedAuthenticTurn27Start.turn,firstDecisionDifference:x.firstMeaningfulDifference?.index ?? null,firstLiveDifference:x.firstLiveDispatchDifference?.index ?? null,controlActions:x.control.recording.liveDispatches,alternateActions:x.alternate.recording.liveDispatches,controlCaptureFailures:x.control.recording.captureFailures.length,alternateCaptureFailures:x.alternate.recording.captureFailures.length,qualified:x.qualifiedForCompetitiveInference}));"
+        run: node -e "const x=require('./rank10-source-branch-live-dispatch.json'); console.log(JSON.stringify({trial:x.trial.id,firstCandidateSeat:x.trial.candidatePhysicalSeat,sourceTurn:x.sharedAuthenticTurn27Start.turn,firstDecisionDifference:x.firstMeaningfulDifference?.index ?? null,firstLiveDifference:x.firstLiveDispatchDifference?.index ?? null,controlActions:x.control.recording.liveDispatches,alternateActions:x.alternate.recording.liveDispatches,controlCaptureFailures:x.control.recording.captureFailures.length,alternateCaptureFailures:x.alternate.recording.captureFailures.length,controlTypedCaptured:x.control.recording.typedActionValueEvents,alternateTypedCaptured:x.alternate.recording.typedActionValueEvents,controlTypedFailures:x.control.recording.typedActionValueFailures,alternateTypedFailures:x.alternate.recording.typedActionValueFailures,qualified:x.qualifiedForCompetitiveInference}));"
       - name: Archive complete live-only Store transcripts
         if: always()
         uses: actions/upload-artifact@v4
