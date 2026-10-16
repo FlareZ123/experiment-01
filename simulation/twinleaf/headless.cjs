@@ -441,6 +441,7 @@ function runMatch(request) {
       doubleDragonRecovery: request.doubleDragonRecovery === true,
       templeUnlockRecovery: request.templeUnlockRecovery === true,
       supporterDecisionCorrection: request.supporterDecisionCorrection === true,
+      leleEntryAbilityLockCorrection: request.leleEntryAbilityLockCorrection === true,
       snorlaxRetreatStartCorrection: request.snorlaxRetreatStartCorrection === true,
       shadowRiderEnergyPriority: request.shadowRiderEnergyPriority === true,
       policy: (request.doubleDragonRecovery === true ?
