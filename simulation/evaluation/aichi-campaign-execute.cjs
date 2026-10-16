@@ -5,6 +5,7 @@ const { createHash } = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const { loadDefaultCampaign, canonicalCards } = require('../../scripts/aichi-comparison-campaign.cjs');
+const { deriveSlotSeeds } = require('../../scripts/aichi-decorrelated-seeds.cjs');
 
 /** @param {unknown} value @returns {string} */
 function digest(value) {
@@ -43,7 +44,7 @@ function executeDiagnostic(options) {
   const { campaign, ranks, resolvePair, runMatch, maxActions = 600,
     policyFlags = {}, researchRevision = 'not-recorded',
     researchPolicyProfile = 'fixed-core-v1' } = options;
-  if (!campaign || ![1, 2].includes(campaign.schemaVersion) ||
+  if (!campaign || ![1, 2, 3].includes(campaign.schemaVersion) ||
       campaign.purpose !== 'exploratory-diagnostic-only' ||
       typeof campaign.planDigest !== 'string' ||
       !Array.isArray(campaign.trials) ||
@@ -52,7 +53,9 @@ function executeDiagnostic(options) {
   }
   if ((campaign.schemaVersion === 1 && Object.hasOwn(campaign, 'seedProtocol')) ||
       (campaign.schemaVersion === 2 &&
-        campaign.seedProtocol !== 'independent-slots-v2')) {
+        campaign.seedProtocol !== 'independent-slots-v2') ||
+      (campaign.schemaVersion === 3 &&
+        campaign.seedProtocol !== 'decorrelated-slots-v3')) {
     throw new Error('Unsupported campaign seed protocol.');
   }
   if (!['fixed-core-v1', 'expanded-action-fidelity-probe-v1'].includes(researchPolicyProfile)) {
@@ -105,8 +108,11 @@ function executeDiagnostic(options) {
   }
   for (const trial of trials) {
     const slotOffset = trial.candidateEngineSlot === 'B' ? 1 : 0;
-    const expectedSeed = campaign.seedBase + 100000 + trial.rank * 1024 +
-      (campaign.schemaVersion === 2 ? 2 * trial.repeat + slotOffset : trial.repeat);
+    const expectedSeed = campaign.schemaVersion === 3 ?
+      deriveSlotSeeds(campaign.seedBase, 'pilot', trial.rank, trial.repeat)
+        [trial.candidateEngineSlot] :
+      campaign.seedBase + 100000 + trial.rank * 1024 +
+        (campaign.schemaVersion === 2 ? 2 * trial.repeat + slotOffset : trial.repeat);
     const expectedId = ['pilot', trial.rank, trial.repeat, trial.candidateId,
       trial.candidateEngineSlot].join(':');
     if (!candidateDigests.has(trial.candidateId) ||
