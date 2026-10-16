@@ -38,6 +38,12 @@ class ActionTraceIntegrityTests(unittest.TestCase):
             with self.subTest(value=repr(trace)), self.assertRaises(ValueError):
                 action_trace_sha256(trace)
 
+    def test_cyclic_python_value_is_rejected_as_malformed(self):
+        event = {"step": 0, "action": "draw"}
+        event["self"] = event
+        with self.assertRaises(ValueError):
+            action_trace_sha256([event])
+
     def test_changed_data_or_digest_fails(self):
         trace = [{"step": 0, "action": "attach", "card": "Basic Energy"}]
         digest = action_trace_sha256(trace)
