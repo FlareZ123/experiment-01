@@ -111,3 +111,34 @@ test('policy observer attributes an actual source scalar write',()=>{
     '$.damageTakenLastTurn');
   assert.equal(result.rootPolicyStateMutations[0].firstMismatch.after,200);
 });
+
+test('opt-in policy history repair only restores physical Card history',()=>{
+  const {withRootCardHistoryRepair}=
+    require('../simulation/twinleaf/root-bot-history-repair.cjs');
+  class PokemonCard {
+    constructor(){this.fullName='Regidrago VSTAR SIT';this.damageTakenLastTurn=0;}
+  }
+  const physical=new PokemonCard();
+  const zone=cards=>({cards});
+  const player=cards=>({active:zone(cards),bench:[],hand:zone([]),
+    deck:zone([]),discard:zone([]),lostzone:zone([]),prizes:[]});
+  const game=new Store();
+  game.state.players=[player([physical]),player([])];
+  class Policy {
+    constructor(){this.client={id:101};}
+    decodeNextAction(state){
+      state.players[0].active.cards[0].damageTakenLastTurn=200;
+      return new AddOne();
+    }
+  }
+  const bot=new Policy();
+  const audit=withRootCardHistoryRepair(Store,Policy,PokemonCard,()=>{
+    game.dispatch(new AddPlayerAction());
+    game.dispatch(bot.decodeNextAction(game.state));
+    return game.state.count;
+  });
+  assert.equal(audit.result,2);
+  assert.equal(audit.restorationEvents.length,1);
+  assert.equal(audit.restorationEvents[0].edits[0].changed,200);
+  assert.equal(physical.damageTakenLastTurn,0);
+});
