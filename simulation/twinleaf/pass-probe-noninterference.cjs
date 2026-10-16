@@ -5,8 +5,6 @@ const {createHash} = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const {loadDefaultCampaign} = require('../../scripts/aichi-comparison-campaign.cjs');
-const {planAichi} = require('../evaluation/aichi-pilot.cjs');
-const {runMatch} = require('./headless.cjs');
 
 /** @param {unknown} obj */
 function sha(obj) {
@@ -56,6 +54,9 @@ function counterfactualFingerprint(completed) {
  * @param {object} [settings]
  */
 function runPassProbeNoninterference(settings = {}) {
+  // Keep pinned engine module loads lazy so hash-only regressions run before compile.
+  const {planAichi} = require('../evaluation/aichi-pilot.cjs');
+  const {runMatch} = require('./headless.cjs');
   const sourceDir = path.resolve(__dirname, '../../results/aichi-2026');
   const candidate = JSON.parse(fs.readFileSync(
     path.join(sourceDir, 'candidate-hood-shadow-rider.json'), 'utf8'
