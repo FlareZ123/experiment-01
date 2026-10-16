@@ -1,0 +1,26 @@
+name: Wobbuffet discard-lock research diagnostic
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Characterize hand and discard Wobbuffet effect
+        run: node simulation/twinleaf/wobbuffet-discard-diagnostic.cjs
