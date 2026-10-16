@@ -3,7 +3,9 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {stageSourceBunnelbyBoard}=require('./bunnelby-tm-policy-replay.cjs');
-const {makeBunnelbyEvolutionTactic,hasBenchEvolutionTarget}=
+const {resolveManifestFile}=require('./resolve-field.cjs');
+const {initializeCards}=require('./headless.cjs');
+const {makeBunnelbyEvolutionTactic,hasBenchEvolutionTarget,hasK0PossibleBenchEvolutionTarget}=
   require('./bunnelby-evolution-policy.cjs');
 
 const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
@@ -63,6 +65,20 @@ function run() {
   assert.equal(a?.constructor.name,'AttackAction',
     'Source stage chain should cause positive tactic to offer an attack');
   assert.equal(a?.name,'Evolution');
+  const field=resolveManifestFile(path.resolve(__dirname,'../../results/aichi-2026/full-decklists.json'),{allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true});
+  const rank2=field.decks.find(deck=>deck.rank===2);
+  assert.ok(rank2?.playableUnderEngine);
+  const manager=initializeCards();
+  const sourceCards=rank2.cardIds.map(name=>manager.getCardByName(name));
+  assert.equal(sourceCards.length,60);
+  const possible=player=>hasK0PossibleBenchEvolutionTarget(player,sourceCards);
+  assert.equal(possible(accessible.a),true);
+  assert.equal(possible(hidden.a),true);
+  const SafeTactic=makeBunnelbyEvolutionTactic(possible);
+  const safeA=new SafeTactic(options).useTactic(accessible.state,accessible.a);
+  const safeB=new SafeTactic(options).useTactic(hidden.state,hidden.a);
+  assert.equal(safeA?.name,'Evolution');
+  assert.equal(safeB?.name,'Evolution');
   assert.equal(b,undefined,
     'Moving only the hidden Gloom to Prizes suppresses the tactic');
   return {
@@ -71,6 +87,8 @@ function run() {
     publicState:accessible.view,
     withGloomInDeck:{predicate:true,action:a?.constructor.name,attack:a?.name},
     withGloomPrized:{predicate:false,action:null,attack:null},
+    k0SafeSource60:{sourceRank:2,actionWithTarget:safeA?.name,
+      actionWithPrizedTarget:safeB?.name},
     scope:'Conditioned board and one opt-in tactic call, no actual source 60 deal or bot full turn, no win rate'
   };
 }
