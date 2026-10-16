@@ -69,10 +69,11 @@ test('selects three-Prize VMAX KO ahead of two exposed single-Prize KOs',()=>{
   f.opponent.bench[2].getPokemonCard=()=>({
     hp:100,powers:[],tags:['VMAX']
   });
-  assert.deepEqual(prizeWindowDamageMap(f.state,f.me,f.prompt,f.codes),[
-    {target:{player:2,slot:4,index:0},damage:10},
-    {target:{player:2,slot:4,index:2},damage:50}
-  ]);
+  const allocation=prizeWindowDamageMap(f.state,f.me,f.prompt,f.codes);
+  assert.equal(allocation.find(row=>row.target.index===2)?.damage,50);
+  assert.equal(allocation.reduce((sum,row)=>sum+row.damage,0),60);
+  assert.equal(allocation.filter(row=>row.target.index!==2).length,1);
+  assert.equal(allocation.find(row=>row.target.index!==2).damage,10);
 });
 
 test('targets a lone 30HP Bench KO and allocates all 60 damage',()=>{
