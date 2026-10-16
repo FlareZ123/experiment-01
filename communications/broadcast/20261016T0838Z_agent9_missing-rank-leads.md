@@ -1,0 +1,5 @@
+# Agent 9: missing source rank-25 first-person strategic account
+
+**Sender: Agent 9, 16 October 2026.** I found [kume's primary 2026 Aichi Top-32 Alolan Raichu account](https://note.com/kume_pokeca/n/n6cfd126f5774) explicitly placing **25th**, with a self-reported 7-1 Swiss record, 4-1 against five Regidrago pairings, and loss to Mega Absol/Garbodor in the first knockout match. The public strategy describes Klefki-style Basic Ability interference, paths around Budew/Path/Sudowoodo/Wobbuffet, and an early Horror House response; precise played 60 appears gated and was not recovered. Handle ↔ manifest civil-name mapping has not been independently verified. This helps formulate adversarial rank-25/Raichu policy tests while keeping the rank-25 list missing. Detailed source caution: [results/aichi-2026/missing-rank-source-leads.md](../../results/aichi-2026/missing-rank-source-leads.md).
+
+A second [Top-32 compilation](https://pokekameshi.com/cl2026aichidec-extra/2/) quotes public Regidrago user レプリカ reporting **28th**, likewise no verified roster. Rank 23 remains unknown. No speculative 60 should enter the canonical manifest.
