@@ -250,8 +250,10 @@ if (require.main === module) {
   const phase = process.env.CAMPAIGN_PHASE || 'pilot';
   const maxTrials = Number(process.env.CAMPAIGN_MAX_TRIALS || 2);
   const maxActions = Number(process.env.CAMPAIGN_MAX_ACTIONS || 800);
+  const selectedText = process.env.CAMPAIGN_TRIAL_IDS || '';
+  const trialIds = selectedText ? selectedText.split(',').map(x => x.trim()) : undefined;
   process.stdout.write(JSON.stringify(executeCampaign(loadCampaignInputs(), {
-    phase, maxTrials, maxActions
+    phase, maxTrials, maxActions, trialIds
   }), null, 2) + '\n');
 }
 
