@@ -57,18 +57,22 @@ function probe() {
   const thunder = prepare(true);
   assert.equal(thunder.a.bench.length,0);
   thunder.store.dispatch(new AttackAction(101,'Volt Cyclone'));
-  const afterAttack = {
-    targetDamage: thunder.b.active.damage,
-    pendingPrompts: thunder.state.prompts.filter(p => p.result === undefined)
-      .map(p => ({type:p.constructor.name, message:p.message ?? null})),
-    turn: thunder.state.turn,
-    phase: thunder.state.phase,
-    activePlayer: thunder.state.activePlayer,
-    engineLogs: thunder.state.logs.slice(-8)
-  };
-  console.log(JSON.stringify({stage:'after AttackAction', afterAttack}, null, 2));
+  const {ResolvePromptAction} =
+    load('game/store/actions/resolve-prompt-action');
+  const animationPrompts = [];
+  for (let i = 0; i < 12; i++) {
+    const pending = thunder.state.prompts.find(p => p.result === undefined);
+    if (!pending) break;
+    assert.equal(pending.constructor.name, 'WaitPrompt',
+      'Unexpected prompt in straightforward Volt Cyclone attack');
+    animationPrompts.push(pending.message || 'wait');
+    thunder.store.dispatch(new ResolvePromptAction(pending.id, null));
+  }
+  assert.equal(thunder.state.prompts.some(p => p.result === undefined), false);
+  assert.equal(thunder.b.active.damage,140,
+    'Paid Volt Cyclone must damage the defender with an empty own Bench');
   return {engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    noThunderRejected:true, withThunderDamage:thunder.b.active.damage, afterAttack,
+    noThunderRejected:true, withThunderDamage:thunder.b.active.damage, animationPrompts,
     benchSlots:thunder.a.bench.length,
     scope:'Injected DCE and Stadium; search and bot decisions untested'};
 }
