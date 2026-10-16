@@ -168,6 +168,7 @@ function executeDiagnostic(options) {
           cardsPlayedBySeat: game.cardsPlayedBySeat || [],
           prizesRemaining: game.prizesRemaining || [],
           finalState: game.finalState || [],
+          terminalTransition: game.terminalTransition || null,
           chronologicalActionTrace: traceRequested && traceValid ? rawTrace : null,
           chronologicalActionTraceSha256: traceRequested && traceValid ?
             digest(rawTrace) : null,
