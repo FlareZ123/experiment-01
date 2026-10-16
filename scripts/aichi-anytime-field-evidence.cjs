@@ -53,3 +53,9 @@ function assessFieldEvidence(rounds, options={}) {
     const zeroLog=wins===games ? Math.log(ZERO_LOSS_WEIGHT)-games*Math.log(nullMean) : -Infinity;
     const terms=[zeroLog];
     for (const lambda of LAMBDAS) {
+      const logNormalizer=lambda+Math.log(nullMean+(1-nullMean)*Math.exp(-lambda));
+      terms.push(finiteWeightLog+lambda*wins-games*logNormalizer);
+    }
+    logEValue=logSumExp(terms);
+    if (firstCrossedAtRound===null && logEValue>=thresholdLog) firstCrossedAtRound=index+1;
+  }
