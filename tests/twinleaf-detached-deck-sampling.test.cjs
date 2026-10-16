@@ -37,3 +37,10 @@ test('clone with detached deck but shared active card is rejected before specula
   assert.throws(()=>evaluateDetachedDeckSamples(state,1,{},0,()=>{called++;return 0},null,shallowCardClone,opts),/live Card reference/);
   assert.equal(called,0);
 });
+
+test('symbol-keyed hidden Card aliases are rejected',()=>{
+  const state=setup();let called=0;const secret=Symbol('hiddenCard');
+  const stealth=s=>{const clone=structuredClone(s);clone[secret]=s.players[0].active.cards[0];return clone};
+  assert.throws(()=>evaluateDetachedDeckSamples(state,1,{},0,()=>{called++;return 1},null,stealth,opts),/live Card reference/);
+  assert.equal(called,0);
+});
