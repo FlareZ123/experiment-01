@@ -61,7 +61,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify terminal-transition and campaign regressions
-        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/printed-basic-energy-audit.test.cjs tests/aichi-basic-covered-passes.test.cjs tests/aichi-benched-basic-pass-triage.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-pass-board-audit.test.cjs tests/aichi-campaign-execute.test.cjs tests/aichi-campaign-seed-v2.test.cjs tests/decision-hand-evidence.test.cjs tests/aichi-opening-decision-audit.test.cjs tests/aichi-campaign-quality-screen.test.cjs tests/tm-evolution-pass-evidence.test.cjs tests/bunnelby-k0-deck-target-leak.test.cjs tests/active-opening-pivot.test.cjs tests/attack-retreat-order.test.cjs tests/retreat-transition-evidence.test.cjs tests/pass-attack-announcement-probe.test.cjs tests/aichi-pass-attack-opportunities.test.cjs
+        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/printed-basic-energy-audit.test.cjs tests/aichi-basic-covered-passes.test.cjs tests/aichi-benched-basic-pass-triage.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-pass-board-audit.test.cjs tests/aichi-campaign-execute.test.cjs tests/aichi-campaign-seed-v2.test.cjs tests/decision-hand-evidence.test.cjs tests/aichi-opening-decision-audit.test.cjs tests/aichi-campaign-quality-screen.test.cjs tests/tm-evolution-pass-evidence.test.cjs tests/bunnelby-k0-deck-target-leak.test.cjs tests/active-opening-pivot.test.cjs tests/attack-retreat-order.test.cjs tests/retreat-transition-evidence.test.cjs tests/pass-attack-announcement-probe.test.cjs tests/aichi-pass-attack-opportunities.test.cjs tests/pass-probe-noninterference.test.cjs
       - name: Install engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -69,7 +69,10 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify cloned Store attack-pass regression after compile
-        run: node --test tests/pass-attack-announcement-probe.test.cjs tests/aichi-pass-attack-opportunities.test.cjs
+        run: node --test tests/pass-attack-announcement-probe.test.cjs tests/aichi-pass-attack-opportunities.test.cjs tests/pass-probe-noninterference.test.cjs
+      - name: Verify rank2 source-game pass observer noninterference when opt-in
+        if: inputs.audit_passed_attacks
+        run: node simulation/twinleaf/pass-probe-noninterference.cjs > aichi-pass-probe-noninterference.json
       - name: Keep manually requested diagnostics within the CI budget
         env:
           AICHI_RANKS: ${{ inputs.pilot_ranks || '6' }}
@@ -123,4 +126,5 @@ jobs:
             aichi-pass-energy-triage.json
             aichi-bench-energy-triage.json
             aichi-pass-attack-opportunities.json
+            aichi-pass-probe-noninterference.json
           if-no-files-found: warn
