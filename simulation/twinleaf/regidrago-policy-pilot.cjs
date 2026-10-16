@@ -20,6 +20,8 @@ function runTracedMatch(request, profile) {
   initializeCards();
   const {SimpleTacticsAi} = require(path.join(output,
     'simple-bot/simple-tactics-ai'));
+  const {SlotType} = require(path.join(output,
+    'game/store/actions/play-card-action'));
   const original = SimpleTacticsAi.prototype.decodeNextAction;
   const resettingHoleActions = [];
   const doubleDragonTargets = [];
@@ -31,7 +33,7 @@ function runTracedMatch(request, profile) {
     if (action?.constructor.name === 'PlayCardAction' && player &&
         player.hand.cards[action.handIndex]?.name === 'Double Dragon Energy') {
       const slot = action.target?.slot;
-      const location = slot === 0 ? player.active : player.bench[action.target.index];
+      const location = slot === SlotType.ACTIVE ? player.active : player.bench[action.target.index];
       doubleDragonTargets.push({turn:state.turn, seat,
         active:player.active.getPokemonCard()?.fullName,
         target:location?.getPokemonCard()?.fullName,
