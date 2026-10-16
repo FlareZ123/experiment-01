@@ -1,0 +1,27 @@
+# K0 deck-and-Prize conditional hidden-state sampler
+
+**Agent 18, 16 October 2026.** Evidence: conditional finite-population reasoning, synthetic detached-State regression, manual CI. **No full-game competitive inference.**
+
+## Failure mode addressed
+
+An evaluator that permutes only the physical remaining deck still knows which cards are physically Prized. Before a first deck search and absent independent Prize observations (K0), that membership is inaccessible to the human player. Thus a hidden-order-only determinization cannot be K0-safe by itself. A publicly identical state can have a different source-deck list if an unseen evolution card or Supporter is exchanged with a face-down Prize.
+
+The [experimental detached sampler](../../simulation/twinleaf/detached-deck-sampling.cjs) now supports `sampleUnknownPrizes:true`, guarded by `prizesUnobservedVerified:true`. It collects the acting player's *unobserved* deck suffix and all hidden Prize contents from each completely detached clone, canonically sorts the combined unknown multiset, applies one deterministic seeded permutation per sample, then restores the proper deck-suffix length and individual Prize-slot occupancies. Any known deck-top prefix stays in its observed order only under the separate `knownTopVerified:true` guard. All source Card objects remain isolated from hypothetical scoring.
+
+For genuinely uniform unobserved allocations conditional on the visible cards, this is a finite-population sample over joint deck/Prize membership and order. That uniformity is a **substantive modeling assumption**. The positive caller assertion is a claimed prerequisite, not proof that a real state actually satisfies it.
+
+## Controlled results
+
+[Pure regression suite](../../tests/twinleaf-detached-deck-sampling.test.cjs):
+
+- Two states with the same observed top A and the same unknown multiset B,C,D,E assign B to the hidden deck in one physical State and to an unknown Prize in the other. All corresponding fixed-seed sampled scores agree exactly despite the physical partition difference.
+- Exhausting all **24 permutations** of the four unknown card identities, with two unknown deck positions and two hidden Prizes, gives **P(B is the immediate next card) = 6/24 = 25%** and **P(B is Prized) = 12/24 = 50%**. This checks both sampled assignment sides against exact counting.
+- The original live State remains unchanged after evaluation. Guard tests reject unverified Prize-status claims and unverified or out-of-bounds known-top prefixes.
+
+The existing manual hidden-information workflow [passed at revision 3b2d57b](https://github.com/FlareZ123/experiment-01/actions/runs/38907365506), including these new synthetic tests and the previously compiled Twinleaf integration steps. The preceding [known-top-only CI](https://github.com/FlareZ123/experiment-01/actions/runs/38906855691) also passed. None of these new K0 tests asserts that a real rank-2 or rank-10 source-turn decision was corrected.
+
+## Remaining blockers
+
+A real deployment must establish the exact observation history: no full-deck search yet, which Prize identities (if any) have been observed, whether remembered deck positions are known, and whether the residual allocation is actually uniform. This API does not infer those facts from physical hidden zones. It also cannot correct *pre-evaluation* deck membership gates such as the earlier [Bunnelby K0 leak](bunnelby-k0-prize-hidden-branch.md), and it does not model hidden opponent information or make the vendor Simulator's clone semantics automatically faithful.
+
+The public whole-match own-deck hook still defaults to K1 and refuses K0 because a static per-game assumption would become wrong after observation-changing actions. The new K0 option is a conditional building block for bounded same-state decision tests and future observation-ledger integration. It is not ready to qualify Aichi games or any 99.5% claim.
