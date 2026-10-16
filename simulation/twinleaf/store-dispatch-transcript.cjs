@@ -7,6 +7,7 @@ const { captureSlotChoice } = require('./choice-slot-reference.cjs');
 const { captureChooseEnergyReference } = require('./choose-energy-reference.cjs');
 const { captureAttachEnergyReference } = require('./attach-energy-reference.cjs');
 const { captureAction } = require('./source-action-value-codec.cjs');
+const { capturePromptAction } = require('./source-prompt-action-codec.cjs');
 
 const INSTALLED = Symbol('research-dispatch-transcript');
 
