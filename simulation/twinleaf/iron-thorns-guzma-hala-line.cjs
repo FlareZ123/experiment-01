@@ -61,6 +61,7 @@ function runLine() {
   for (let n=0; n<10 && pending(); n++) {
     const p=pending();
     followups.push(p.constructor.name);
+    if (p.constructor.name==='WaitPrompt') answer(p,null);
     if (p.constructor.name==='ShowCardsPrompt') answer(p,true);
     else if (p.constructor.name==='ShuffleDeckPrompt') {
       answer(p,f.a.deck.cards.map((_,i)=>i));
@@ -76,7 +77,8 @@ function runLine() {
   assert.ok(f.a.stadium.cards.includes(thunder));
   play(dce,{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
   assert.ok(f.a.active.energies.cards.includes(dce));
-  assert.equal(f.a.bench.length,0);
+  assert.equal(f.a.bench.every(slot => slot.cards.length === 0),true,
+    'No occupied Bench slots in turn-two attack fixture');
   f.store.dispatch(new AttackAction(f.a.id,'Volt Cyclone'));
   const animation=[];
   for (let i=0; i<12 && pending(); i++) {
