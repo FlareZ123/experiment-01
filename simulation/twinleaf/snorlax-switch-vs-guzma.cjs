@@ -3,6 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {initializeCards}=require('./headless.cjs');
+const {installGuzmaNoTargetHook}=require('./guzma-no-target-hook.cjs');
 const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} part */
 const engine=part=>require(path.join(root,part));
@@ -10,7 +11,7 @@ const engine=part=>require(path.join(root,part));
 /**
  * A single source-faithful logical choice, executed as a pinned Store action.
  * Both Trainers are legal Expanded printings; no hand/search frequency assumed.
- * @param {{trainer:'Switch'|'Guzma',opponentBench:boolean,jammer:boolean}} options
+ * @param {{trainer:'Switch'|'Guzma',opponentBench:boolean,jammer:boolean,guzmaCorrection?:boolean}} options
  */
 function probeTrainerEscape(options){
   const manager=initializeCards();
@@ -54,6 +55,7 @@ function probeTrainerEscape(options){
   if(options.jammer)b.active.tools.push(card('Tool Jammer BST'));
   a.hand.cards.push(card(options.trainer==='Switch'?'Switch SVI':'Guzma BUS'));
 
+  const restore=options.guzmaCorrection?installGuzmaNoTargetHook():()=>{};
   let error=null,steps=[];
   try {
     store.dispatch(new PlayCardAction(a.id,0,{
@@ -76,11 +78,13 @@ function probeTrainerEscape(options){
       }
     }
   }catch(failure){error=String(failure?.message||failure);}
+  finally{restore();}
   return {
     ...options,originalActive:'Shadow Rider Calyrex V',
     activeAfter:a.active.getPokemonCard()?.name||null,
     opponentActiveAfter:b.active.getPokemonCard()?.name||null,
     trainerInDiscard:a.discard.cards.some(c=>c.name===options.trainer),
+    trainerInHand:a.hand.cards.some(c=>c.name===options.trainer),
     prompts:steps,
     error
   };
@@ -98,6 +102,7 @@ function probeAll(){
   return {
     engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     cases:cases.map(probeTrainerEscape),
+    correctedCases:cases.map(config=>probeTrainerEscape({...config,guzmaCorrection:true})),
     scope:'Pinned Store-dispatched Trainer interactions on a controlled board; no live 60-card match'
   };
 }
