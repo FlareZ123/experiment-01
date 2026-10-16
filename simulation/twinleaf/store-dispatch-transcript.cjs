@@ -3,6 +3,7 @@
 const { actionTraceSha256 } = require('../evaluation/canonical-action-trace.cjs');
 const { captureChooseCardsReferences } = require('./choose-cards-reference.cjs');
 const { captureChooseAttackReference } = require('./choose-attack-reference.cjs');
+const { captureSlotChoice } = require('./choice-slot-reference.cjs');
 
 const INSTALLED = Symbol('research-dispatch-transcript');
 
@@ -184,6 +185,16 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
         captureErrors.push('step ' + step + ': chosen attack: ' + error.message);
       }
     }
+    if (['ChoosePokemonPrompt','ChoosePrizePrompt'].includes(
+      pending?.constructor?.name) &&
+        action?.constructor?.name === 'ResolvePromptAction') {
+      try {
+        event.slotChoice = captureSlotChoice(pending, action, this.state);
+      } catch (error) {
+        event.slotChoiceCaptureError = error.message;
+        captureErrors.push('step ' + step + ': source slot: ' + error.message);
+      }
+    }
     try {
       event.parameters = portableSnapshot(action, new Set(), true);
     } catch (error) {
@@ -223,6 +234,7 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
     ignoredOtherStoreDispatches,
     capturedChoiceReferenceEvents: trace.filter(event => event.choiceReferences).length,
     capturedAttackChoiceEvents: trace.filter(event => event.attackChoice).length,
+    capturedSlotChoiceEvents: trace.filter(event => event.slotChoice).length,
     failedChoiceReferenceEvents: trace.filter(event => event.choiceCaptureError).length,
     captureScope: options.liveStoreOnly === true ?
       'first-AddPlayerAction-Store-instance' : 'all-Store-instances',
