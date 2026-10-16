@@ -178,3 +178,31 @@ test('versioned fixed trial policy drift is rejected before quality scoring', ()
   f.researchPolicyProfile = 'forged-game-policy';
   assert.throws(() => auditCampaignQuality(f), /research policy profile/);
 });
+
+
+test('v3 source-locked decorrelated seeds pass the same quality gate', () => {
+  const f = fixture();
+  f.campaignSchemaVersion = 3;
+  f.seedProtocol = 'decorrelated-slots-v3';
+  for (const record of f.records) {
+    record.seed = record.candidateEngineSlot === 'A' ? 1509836216 : 995631139;
+  }
+  const out = auditCampaignQuality(f);
+  assert.equal(out.seedProtocol, 'decorrelated-slots-v3');
+  assert.equal(out.fullPilotMatrixVerified, true);
+  assert.equal(out.winRateEvidence, false);
+  assert.equal(out.coverage[0].independentlyQualifiedGames, 0);
+  f.records[1].seed = f.records[0].seed;
+  f.records[2].seed = f.records[0].seed;
+  assert.throws(() => auditCampaignQuality(f), /Independent physical slots/);
+});
+
+test('v3 schema rejects an unrecognized or falsely labeled protocol', () => {
+  const f = fixture();
+  f.campaignSchemaVersion = 3;
+  assert.throws(() => auditCampaignQuality(f), /unsupported campaign schedule/);
+  f.seedProtocol = 'decorrelated-slots-v3';
+  assert.equal(auditCampaignQuality(f).winRateEvidence, false);
+  f.campaignSchemaVersion = 4;
+  assert.throws(() => auditCampaignQuality(f), /unsupported campaign schedule/);
+});
