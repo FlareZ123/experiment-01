@@ -110,3 +110,40 @@ test('Pinned Palace Belt modifies only the Active holder next-turn draw', () => 
   assert.equal(effectBench.drawCount, 1,
     'Palace Belt on the Bench must not modify the Active player draw');
 });
+
+
+test('Palace Book Item cannot bypass opponent Vileplume Item lock', () => {
+  const f = board();
+  const {PokemonCardList} = engine('game/store/state/pokemon-card-list');
+  const {PlayCardAction, PlayerType, SlotType} =
+    engine('game/store/actions/play-card-action');
+  const vileplumeLine = new PokemonCardList();
+  vileplumeLine.cards.push(
+    f.card('Oddish UNB'),
+    f.card('Gloom UNB'),
+    f.card('Vileplume AOR')
+  );
+  f.b.bench.push(vileplumeLine);
+  const palaceBook = f.card('Palace Book SMP');
+  f.a.hand.cards.push(palaceBook);
+  const beforeDeck = f.a.deck.cards.length;
+  assert.throws(() => f.store.dispatch(new PlayCardAction(f.a.id, 0, {
+    player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
+  })), 'Vileplume should forbid the Palace Book Item');
+  assert.equal(f.a.deck.cards.length, beforeDeck);
+  assert.ok(f.a.hand.cards.includes(palaceBook));
+  assert.equal(f.state.activePlayer, 0);
+  assert.equal(f.state.phase, f.GamePhase.PLAYER_TURN);
+});
+
+test('Jamming Tower suppresses Active Palace Belt extra turn-start draw', () => {
+  const f = board();
+  const {DrawCardForTurnEffect} =
+    engine('game/store/effects/game-phase-effects');
+  f.a.active.tools.push(f.card('Palace Belt BWP'));
+  f.b.stadium.cards.push(f.card('Jamming Tower TWM'));
+  const effect = new DrawCardForTurnEffect(f.a);
+  f.store.reduceEffect(f.state, effect);
+  assert.equal(effect.drawCount, 1,
+    'Jamming Tower must suppress the attached Tool effect');
+});
