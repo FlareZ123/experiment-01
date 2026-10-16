@@ -40,6 +40,7 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
     failures = []
     ties = 0
     verified_completed_traces = 0
+    verified_terminal_winners = 0
     for g in batch["games"]:
         rank, seat, seed = g["rank"], g["seat"], g["seed"]
         side, winner, status = g["candidate_side"], g["winner_side"], g["status"]
