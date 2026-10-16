@@ -191,3 +191,47 @@ test("Player's Ceremony Stadium can end successive turns for both players", () =
   assert.ok(f.a.stadium.cards.includes(ceremony));
   assert.equal(f.a.discard.cards.includes(ceremony), false);
 });
+
+
+test('Palace Belt changes an actual next-turn draw; Jamming Tower restores one', () => {
+  const {PassTurnAction} = engine('game/store/actions/game-actions');
+  const {ResolvePromptAction} =
+    engine('game/store/actions/resolve-prompt-action');
+
+  for (const blocked of [false, true]) {
+    const f = board();
+    f.a.active.tools.push(f.card('Palace Belt BWP'));
+    if (blocked) f.b.stadium.cards.push(f.card('Jamming Tower TWM'));
+
+    /** Resolve bounded, legal, noninteractive turn-transition waits. */
+    function finishPendingTurn() {
+      let count = 0;
+      while (count < 8) {
+        const pending = f.state.prompts.find(p => p.result === undefined);
+        if (!pending) break;
+        assert.equal(pending.constructor.name, 'WaitPrompt');
+        assert.ok(pending.validate(null, f.state));
+        f.store.dispatch(new ResolvePromptAction(pending.id, null));
+        count++;
+      }
+      assert.ok(count > 0 && count < 8);
+      assert.equal(f.state.phase, f.GamePhase.PLAYER_TURN);
+    }
+
+    const aBefore = f.a.deck.cards.length;
+    const bBefore = f.b.deck.cards.length;
+    f.store.dispatch(new PassTurnAction(f.a.id));
+    finishPendingTurn();
+    assert.equal(f.state.activePlayer, 1);
+    assert.equal(f.b.deck.cards.length, bBefore - 1,
+      'The opponent draws its ordinary single start-of-turn card');
+
+    f.store.dispatch(new PassTurnAction(f.b.id));
+    finishPendingTurn();
+    assert.equal(f.state.activePlayer, 0);
+    const expected = blocked ? 1 : 2;
+    assert.equal(f.a.deck.cards.length, aBefore - expected,
+      'Active Palace Belt changes real draw count when unblocked');
+    assert.equal(f.a.hand.cards.length, expected);
+  }
+});
