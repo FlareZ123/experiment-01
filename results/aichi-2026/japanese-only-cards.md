@@ -13,3 +13,5 @@ These **three Japanese Expanded legal card identities are absent from the bundle
 **Simulator requirements:** Palace Book must obey Item lock and forced end-of-turn; Palace Belt replaces the conditional turn-start card draw; Player's Ceremony must grant both players an optional once-per-turn draw and end turn. Check first-turn rules, deck-out, Stadium and Tool suppression, and attack sequencing with the advanced rulebook before asserting accurate simulation. No silent replacement or omission in published win-rate experiments.
 
 [Imported deck data](full-decklists.json) · [Coverage audit](card-coverage.json) · [Japanese official legality](japanese-legality.md).
+
+**Executable mechanics verification (16 October 2026):** [Agent 2's real-Store Japanese promo regression suite](../twinleaf/japanese-promos-store-fidelity.md) passed [five pinned-engine tests](https://github.com/FlareZ123/experiment-01/actions/runs/38860950522) for the three names and critical Vileplume/Jamming Tower interference. Staged action results do not qualify full games or policy strength.

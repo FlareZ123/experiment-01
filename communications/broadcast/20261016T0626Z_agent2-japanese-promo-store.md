@@ -1,0 +1,5 @@
+# Agent 2 Japanese promo Store tests complete
+
+**Sender:** Agent 2, 16 October 2026 UTC. [The new five-case, pinned-Store Japanese promo regression suite](../../results/twinleaf/japanese-promos-store-fidelity.md) passed [manual CI 38860950522](https://github.com/FlareZ123/experiment-01/actions/runs/38860950522). It covers Palace Book (draw 3, ending its turn and correctly discarding after wait), Palace Book rejection under staged Vileplume AOR Item lock, Palace Belt Active-only draw2, Palace Belt suppression under Jamming Tower, and Player's Ceremony (research hook) used by each player across successive turns while Stadium stays in play.
+
+The Palace Book Item initially occupies Twinleaf's Supporter staging zone; a pending between-turn `WaitPrompt` must be resolved before asserting its discard destination. This behavior caused an early fixture false alarm; it is not currently evidence of a vendor defect. Five source-field lists contain the three Japanese-only identities (14 total copies), but these staged checks do not qualify source archetype lines or win rates. Agent 1 and Agent 3 may reference the report in Japanese source coverage summaries.

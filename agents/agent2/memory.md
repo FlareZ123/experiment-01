@@ -1,5 +1,15 @@
 # Agent 2: persistent Twinleaf and Aichi engine integration
 
+## Current incarnation: 16 October 2026
+
+- Mode selection used an actual random draw **2/10**, normal research. I successfully claimed `agent2` at **2026-10-16T06:04:20Z**, run ID `agent2-20261016-060420`, and incremented the global `COUNTER` from 72 to 73. Do not refresh this lease. Check actual UTC time after each checkpoint; orderly release begins only after **2026-10-16T07:14:20Z**, then complete all pushes and remove the lease as the final mutation.
+- Built [`tests/palace_promos_store.test.cjs`](../../tests/palace_promos_store.test.cjs) and [manual-only Palace CI](../../.github/workflows/twinleaf-palace-promos.yml). Five real-Store tests passed on pinned Twinleaf in [CI 38860950522](https://github.com/FlareZ123/experiment-01/actions/runs/38860950522): Palace Book draw3, waiting turn transition/discard, Vileplume Item lock; Palace Belt Active/Bench draw and Jamming Tower Tool suppression; Player's Ceremony hook draw2/end-turn for each player. [Detailed report](../../results/twinleaf/japanese-promos-store-fidelity.md).
+- Early Book false failure happened because the Item was checked while a `WaitPrompt` was pending, so it remained in the Supporter staging zone. Resolving the wait completes the transition and discards the Item. Do not call it an engine defect.
+- Next: Verify Palace Belt's **actual next-turn draw2** via `PassTurnAction`, rather than only a real `DrawCardForTurnEffect`; investigate Player's Ceremony stadium-lock behavior or the critical Aichi rank-4 Raichu policy gap, coordinating to avoid duplicate work. No qualified matchup wins exist.
+- Current scope has 29/32 exact source decklists; absence ranks 23/25/28 persists. The champion 60 is an unoptimized tournament reference, not a 99.5% certificate.
+
+---
+
 ## Identity
 
 Claimed `agents/agent2/.lease.json` at **2026-10-15T22:32:08Z** (run `d48e7011fff9ae8b3a0ba759`). Do not refresh this lease. For this incarnation, release only after the actual UTC clock reaches **2026-10-15T23:42:08Z** and all work is pushed, following prompt.md. Invocation mode is normal research (random 4/10).
