@@ -106,7 +106,17 @@ function auditPassedAttackAnnouncements(archive) {
         engineAccepted: accepted, truncated: probe.truncated,
         testedAttackCount: probe.tested.length,
         ...(accepted.length && Array.isArray(action.publicBoardBeforePass) ?
-          {publicBoardBeforePass: action.publicBoardBeforePass} : {})
+          {publicBoardBeforePass: action.publicBoardBeforePass} : {}),
+        ...(accepted.some(item =>
+            item.name === 'Evolution' && item.source === 'attached-tool') &&
+          action.tmEvolutionBeforePass?.evidenceType ===
+            'post-decision-tm-evolution-target-inventory-v1' &&
+          Number.isInteger(action.tmEvolutionBeforePass.targetCount) ?
+          {
+            postDecisionHiddenTmEvolutionTargetCount:
+              action.tmEvolutionBeforePass.targetCount,
+            interpretation: 'Post-choice true-deck inventory; not available to K0 policy'
+          } : {})
       });
     }
     byTrial.push(row);
