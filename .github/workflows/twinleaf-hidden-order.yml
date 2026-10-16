@@ -29,3 +29,5 @@ jobs:
         run: node simulation/twinleaf/hidden-deck-order-audit.cjs
       - name: Compare field-used Trainers Mail hidden-order decisions
         run: node simulation/twinleaf/hidden-trainers-mail-audit.cjs
+      - name: Verify whole unrestricted simple-bot choices
+        run: node simulation/twinleaf/hidden-order-full-policy-audit.cjs
