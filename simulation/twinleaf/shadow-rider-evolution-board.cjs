@@ -40,6 +40,8 @@ function stagedDoubleV() {
   };
   const basic='Shadow Rider Calyrex V CRE';
   own.active.cards.push(card(basic));
+  const {PokemonCardList}=load('game/store/state/pokemon-card-list');
+  own.bench.push(new PokemonCardList());
   own.bench[0].cards.push(card(basic));
   own.hand.cards.push(card('Shadow Rider Calyrex VMAX CRE'));
   opp.active.cards.push(card('Iron Thorns ex TWM'));
