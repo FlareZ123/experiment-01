@@ -30,3 +30,12 @@ jobs:
       - run: node simulation/twinleaf/ranger-lele-itemlock-action.cjs
       - run: node simulation/twinleaf/ranger-stone-itemlock-action.cjs
       - run: node --test tests/twinleaf-attached-tool-power-tactic.test.cjs
+      - name: Bounded published 60-card Tool-Power policy diagnostic
+        run: node simulation/twinleaf/attached-tool-power-source-pilot.cjs > tool-power-source-pilot.json
+      - name: Preserve Tool-Power policy diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-tool-power-policy-diagnostic
+          path: tool-power-source-pilot.json
+          if-no-files-found: ignore
