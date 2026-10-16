@@ -27,7 +27,8 @@ function installLeleEntryAbilityLockHook() {
   /** @param {any} store @param {any} state @param {any} effect */
   function corrected(store, state, effect) {
     if (effect instanceof PlayPokemonEffect &&
-        effect.pokemonCard === this && effect.target.cards.length === 0) {
+        effect.pokemonCard === this && effect.target.cards.length === 0 &&
+        effect.player.bench.includes(effect.target)) {
       const hand = effect.player.hand.cards;
       const index = hand.indexOf(this);
       if (index !== -1) {
@@ -35,7 +36,7 @@ function installLeleEntryAbilityLockHook() {
         effect.target.cards.push(this);
         let blocked;
         try {
-          blocked = IS_ABILITY_BLOCKED(store, state, effect.player, this);
+          blocked = IS_ABILITY_BLOCKED(store, state, effect.player, this, this.powers[0]);
         } finally {
           const position = effect.target.cards.indexOf(this);
           if (position !== -1) effect.target.cards.splice(position, 1);
