@@ -45,6 +45,10 @@ function checkLiveLineage(report, game) {
     captureFailures:report.captureErrors,
     typedActionValueEvents:report.typedActionValueEvents,
     typedActionValueFailures:report.typedActionValueFailures,
+    promptReplayActionEvents:report.promptReplayActionEvents,
+    promptReplayActionFailures:report.promptReplayActionFailures,
+    promptReplayUnsupportedKinds:report.promptReplayUnsupportedKinds,
+    actionInputEnvelopeCoverage:report.actionInputEnvelopeCoverage,
     firstFourActions:report.actionTrace.slice(0, 4).map(e => e.action)
   };
 }
@@ -141,7 +145,7 @@ function main() {
   const tracedSource = request => {
     const captured = withStoreDispatchTranscript(Store,
       () => withSourceZoneCheckpoint(Store, () => runMatch(request),
-        {turn:27,candidateSeat:seat}),{liveStoreOnly:true,typedActionValues:true});
+        {turn:27,candidateSeat:seat}),{liveStoreOnly:true,typedActionValues:true,promptReferenceActionValues:true});
     return {
       ...captured,
       sourceZoneCheckpoint:captured.result.checkpoint,
