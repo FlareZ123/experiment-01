@@ -42,3 +42,20 @@ The estimate is deliberately restricted to direct draws, so it excludes Fog Crys
 Grand Tree can accelerate the PRE line from a prepared Duskull without pre-drawing Stage 1 or Stage 2, but **the 5.286204% event does not measure how often the deck can realistically evolve on turn two**. Future models should add search chains and actual evolving Basic access, then evaluate a qualified opposing lock-response policy under correctly implemented abilities.
 
 This is one genuinely different archetype in the Aichi field and deserves representation in the comparative pilot, even though the benchmark runner's generic bot policy remains unqualified.
+
+
+## Printed Stadium Nav extension
+
+The source includes exactly **one Stadium Nav (UNM 208)**, whose Item text flips **two coins** and permits one Stadium search per heads. With a Grand Tree singleton still in the deck, at least one heads provides a **75%** search success under fair independent flips.
+
+The independent [two-singleton exact enumerator](../../scripts/aichi-dusknoir-stadium-nav.cjs) conditions on the full zone locations of Grand Tree and Stadium Nav, then computes the Duskull/Stage 1/Stage 2 conditions across the remaining 58 cards. The 25 possible zone-pair combinations preserve the seven-card opening, six Prizes, two turn draws and the 45-card deck partition. The independently rederived direct-only probability matches the first model within floating precision.
+
+| Resource route | Joint probability before conditioning on a valid opening | Conditional on valid opening |
+| --- | ---: | ---: |
+| Directly drawn Grand Tree | 4.665071% | 5.286204% |
+| Stadium Nav drawn, Grand Tree in deck, and at least one heads | 2.708807% | 3.069472% |
+| **Combined, disjoint opportunities** | **7.373878%** | **8.355676%** |
+
+This expansion still ignores Item lock, the cost of using Stadium Nav rather than another setup path, opponent Stadium replacement, Bonus Prizes/draws, and all other search engines. The [second seeded-shuffle test](../../tests/aichi-dusknoir-stadium-nav.test.cjs) compares this hypergeometric result to independent randomized full-deck placements plus coin flips. The Node regressions have been committed and are pending manual execution.
+
+The gap between **5.2862%** and **8.3557%** quantifies this one additional connector's opportunity under the model; it is not a measured improvement in real attack rate. Graph access remains distinct from realistic winning-line execution.
