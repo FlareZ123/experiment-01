@@ -1,0 +1,26 @@
+name: Aichi Electro Rain versus Benched V
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  raichu-tool-damage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify Electro Rain versus Benched Pokemon V with Telescopic Sight
+        run: node simulation/twinleaf/raichu-electro-rain-tool-regression.cjs
