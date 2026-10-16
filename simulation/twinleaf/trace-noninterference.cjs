@@ -41,6 +41,13 @@ function checkNoninterference() {
   assert.deepEqual(withoutTrace(traced), withoutTrace(untraced),
     'Enabling diagnostic capture changed a game result or sequence');
   assert.ok(Array.isArray(traced.decisionTrace));
+  const actingEntries = traced.decisionTrace.filter(row =>
+    row.playerSlot === 0 || row.playerSlot === 1);
+  assert.ok(actingEntries.length > 0, 'Expected at least one acting-player decision');
+  assert.ok(actingEntries.every(row =>
+    row.decisionHandBefore?.perspectiveSeat === row.playerSlot &&
+    Array.isArray(row.decisionHandBefore.ownHandPrintings)),
+  'Every attributed meaningful action must carry its own pre-dispatch hand');
   assert.equal(untraced.decisionTrace, null);
   return {
     diagnostic: 'instrumentation-isolation-only',
@@ -49,6 +56,7 @@ function checkNoninterference() {
     firstTurnSlot: traced.firstTurnSlot,
     actions: traced.actions,
     capturedActions: traced.decisionTrace.length,
+    observedHandSamples: actingEntries.length,
     selectedCardPrompts: traced.decisionTrace.filter(row => row.cardSelection).length,
     finished: traced.finished,
     noninterferenceVerified: true,
