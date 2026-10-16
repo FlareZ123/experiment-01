@@ -92,3 +92,22 @@ test('policy observation is read-only for a pure bot',()=>{
   assert.equal(result.rootPolicyCalls,1);
   assert.deepEqual(result.rootPolicyStateMutations,[]);
 });
+
+test('policy observer attributes an actual source scalar write',()=>{
+  class TestBot {
+    decodeNextAction(state){
+      state.card.damageTakenLastTurn=200;
+      return new AddOne();
+    }
+  }
+  const live=new Store(),bot=new TestBot();
+  const result=withRootPolicyMutationAudit(Store,TestBot,()=>{
+    live.dispatch(new AddPlayerAction());
+    live.dispatch(bot.decodeNextAction(live.state));
+  },{snapshot:sample});
+  assert.equal(result.rootPolicyCalls,1);
+  assert.equal(result.rootPolicyStateMutations.length,1);
+  assert.equal(result.rootPolicyStateMutations[0].firstMismatch.path,
+    '$.damageTakenLastTurn');
+  assert.equal(result.rootPolicyStateMutations[0].firstMismatch.after,200);
+});
