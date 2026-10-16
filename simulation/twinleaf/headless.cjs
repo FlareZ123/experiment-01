@@ -9,6 +9,7 @@ const {installMegatonBlowerHook} = require('./megaton-blower-hook.cjs');
 const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 const {installForestSealSearchHook} = require('./forest-seal-search-hook.cjs');
 const {installSupporterDecisionHook} = require('./supporter-decision-hook.cjs');
+const {selectedCardsEvidence} = require('./selected-cards-evidence.cjs');
 const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.cjs');
 const {publicSnapshot, observeTerminalTransition} = require('./terminal-transition.cjs');
 
