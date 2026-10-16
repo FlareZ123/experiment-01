@@ -73,7 +73,8 @@ function executeDiagnostic(options) {
     'doubleDragonRecovery', 'templeUnlockRecovery',
     'supporterDecisionCorrection', 'isolatePolicyRandomness',
     'captureDecisionTrace', 'snorlaxRetreatStartCorrection',
-    'shadowRiderEnergyPriority', 'shadowRiderOpeningPivot', 'attackBeforeRetreat',
+    'shadowRiderEnergyPriority', 'shadowRiderEnergyAcrossField',
+    'shadowRiderOpeningPivot', 'attackBeforeRetreat',
     'attackBeforeRetreatCandidateOnly',
     'leleEntryAbilityLockCorrection',
     'radiantGateLockCorrection'
@@ -304,6 +305,7 @@ function main() {
       doubleDragonRecovery: true, supporterDecisionCorrection: true,
       isolatePolicyRandomness: true, captureDecisionTrace: true,
       shadowRiderEnergyPriority: process.env.AICHI_SHADOW_ENERGY === '1',
+      shadowRiderEnergyAcrossField: process.env.AICHI_SHADOW_ENERGY_GLOBAL === '1',
       shadowRiderOpeningPivot: process.env.AICHI_OPENING_PIVOT === '1',
       attackBeforeRetreat: process.env.AICHI_ATTACK_BEFORE_RETREAT === '1',
       attackBeforeRetreatCandidateOnly: process.env.AICHI_ATTACK_CANDIDATE_ONLY === '1',
