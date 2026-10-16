@@ -27,6 +27,7 @@ function assertVendorCloneCompatibleSource(source) {
       value instanceof ArrayBuffer || ArrayBuffer.isView(value) ||
       value instanceof WeakMap || value instanceof WeakSet),
     'Pinned deepClone does not copy internal object slots');
+    visited.add(value);
     if (Array.isArray(value)) activeArrays.add(value);
     for (const key of Reflect.ownKeys(value)) {
       if (Array.isArray(value) && key === 'length') continue;
@@ -37,7 +38,6 @@ function assertVendorCloneCompatibleSource(source) {
       inspect(descriptor.value);
     }
     if (Array.isArray(value)) activeArrays.delete(value);
-    visited.add(value);
   }
   inspect(source);
 }
