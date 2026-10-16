@@ -1,0 +1,43 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {test}=require('node:test');
+const {normalizeDeepClonePrototypes}=
+  require('../simulation/twinleaf/normalize-deep-clone.cjs');
+// Exact pinned source mechanism, extracted as a pure smoke test.
+function pinnedDeepClone(source,ignores=[],refMap=[]){
+  if(source===null)return null;
+  if(typeof source==='function')return source;
+  if(source instanceof Array)return source.map(item=>pinnedDeepClone(item,ignores,refMap));
+  if(source instanceof Object){
+    if(ignores.some(ignore=>source instanceof ignore))return source;
+    const ref=refMap.find(item=>item.s===source);
+    if(ref!==undefined)return ref.d;
+    const dest=Object.create(source);
+    refMap.push({s:source,d:dest});
+    for(const key in source){
+      if(Object.prototype.hasOwnProperty.call(source,key))dest[key]=pinnedDeepClone(source[key],ignores,refMap);
+    }
+    return dest;
+  }
+  return source;
+}
+class Card{constructor(){this.fullName='Test Pokemon';this.damageTakenLastTurn=0}attack(n){this.damageTakenLastTurn+=n}}
+test('vendor deepClone inherits a live Card as immediate prototype, repair restores class prototype',()=>{
+  const card=new Card();const input={hand:[card],board:{card},self:null};input.self=input;
+  const copy=pinnedDeepClone(input);
+  assert.strictEqual(Object.getPrototypeOf(copy.board.card),card);
+  assert.strictEqual(copy.hand[0],copy.board.card);
+  normalizeDeepClonePrototypes(input,copy);
+  assert.notStrictEqual(copy.board.card,card);
+  assert.strictEqual(Object.getPrototypeOf(copy.board.card),Card.prototype);
+  assert.strictEqual(copy.board.card.attack,Card.prototype.attack);
+  assert.strictEqual(copy.hand[0],copy.board.card);
+  copy.board.card.attack(280);
+  assert.equal(card.damageTakenLastTurn,0);
+  assert.equal(copy.board.card.damageTakenLastTurn,280);
+  assert.strictEqual(copy.self,copy);
+});
+test('repair fails closed if a supposedly cloned object still aliases a live object',()=>{
+  const live={v:3};const fake={nested:live};
+  assert.throws(()=>normalizeDeepClonePrototypes({nested:live},fake),/live object identity/);
+});
