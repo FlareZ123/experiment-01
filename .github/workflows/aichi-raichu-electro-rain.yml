@@ -32,6 +32,8 @@ jobs:
         run: node simulation/twinleaf/raichu-multi-energy-regression.cjs
       - name: Verify Electro Rain ignores Active target Lightning Weakness
         run: node simulation/twinleaf/raichu-electro-rain-weakness-regression.cjs
+      - name: Verify six-Energy setup action sequence
+        run: node simulation/twinleaf/raichu-manual-plus-bomb-setup.cjs
       - name: Verify 14 versus 16 Lightning-unit mixed-Bench five-Prize frontier
         run: node simulation/twinleaf/raichu-six-energy-prize-regression.cjs
       - name: Smoke test headless opt-in with exact rank 4 and 17 source inventories
