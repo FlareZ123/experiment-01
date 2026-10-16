@@ -1,7 +1,7 @@
 'use strict';
 
 const path=require('node:path');
-const {withShadowRiderEvolutionPriority}=
+const {makeShadowRiderEvolutionTactic,withShadowRiderEvolutionPriority}=
   require('./shadow-rider-evolution-priority.cjs');
 
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
@@ -36,13 +36,29 @@ function withShadowRiderEvolutionCounterfactual(fn,options={}) {
  * @returns {object} Policy-labelled bounded match.
  */
 function runShadowRiderEvolutionCounterfactual(request) {
+  const proposals=[];
+  const Base=makeShadowRiderEvolutionTactic();
+  class ObservedShadowRiderEvolutionTactic extends Base {
+    useTactic(state,player) {
+      const action=super.useTactic(state,player);
+      if(action) proposals.push({
+        turn:state.turn,playerId:player.id,slot:action.target.slot,
+        index:action.target.index,handIndex:action.handIndex
+      });
+      return action;
+    }
+  }
   const result=withShadowRiderEvolutionCounterfactual(()=>
-    require('./headless.cjs').runMatch(request));
+    require('./headless.cjs').runMatch(request),{
+      tactic:ObservedShadowRiderEvolutionTactic
+    });
   return {
     ...result,
     policy:result.policy+'+ShadowRiderEvolutionEnergyPriority-v1',
     shadowRiderEvolutionPriority:true,
-    experimentalPolicy:'ShadowRiderEvolutionEnergyPriority-v1'
+    experimentalPolicy:'ShadowRiderEvolutionEnergyPriority-v1',
+    experimentalEvolutionProposals:proposals,
+    proposalQualification:'Tactic emitted a candidate action; simulator may still reject it'
   };
 }
 
