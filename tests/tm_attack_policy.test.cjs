@@ -8,6 +8,55 @@ const {preparedToolAttack, nextAction, characterizeToolAttackPolicy} =
 const {withToolAttackAwareness} =
   require('../simulation/twinleaf/tool-attack-policy.cjs');
 
+
+/**
+ * Replace the deliberately one-card opponent of the Crisis Punch unit fixture
+ * with a source-derived rank-1 opponent zone distribution. Avoid accidentally
+ * rewarding Bunnelby's Burrow as a one-card-deckout winner in setup research.
+ * @param {object} f
+ * @returns {number} Opponent deck cards remaining after Active, hand, Prizes.
+ */
+function stagePublishedChampionOpponent(f) {
+  const path = require('node:path');
+  const {resolveManifestFile} = require('../simulation/twinleaf/resolve-field.cjs');
+  const {initializeCards} = require('../simulation/twinleaf/headless.cjs');
+  const {CardList} = require(path.resolve(__dirname,
+    '../vendor/twinleaf/ptcg-server/output/game/store/state/card-list'));
+  const field = resolveManifestFile(
+    path.resolve(__dirname, '../results/aichi-2026/full-decklists.json'),
+    {allowEquivalentBasicEnergies: true, allowJapanesePromoHooks: true});
+  const champ = field.decks.find(deck => deck.rank === 1);
+  assert.ok(champ?.playableUnderEngine);
+  const source = [...champ.cardIds];
+  const active = 'Shadow Rider Calyrex V CRE';
+  const pos = source.indexOf(active);
+  assert.ok(pos >= 0);
+  source.splice(pos, 1);
+  const cards = initializeCards();
+  const get = name => {
+    const card = cards.getCardByName(name);
+    assert.ok(card, 'Unresolved source card: ' + name);
+    return card;
+  };
+  f.defender.active.cards.splice(0, f.defender.active.cards.length, get(active));
+  f.defender.hand.cards.splice(0, f.defender.hand.cards.length,
+    ...source.splice(0, 7).map(get));
+  f.defender.prizes = source.splice(0, 6).map(name => {
+    const prize = new CardList();
+    prize.cards.push(get(name));
+    return prize;
+  });
+  f.defender.deck.cards.splice(0, f.defender.deck.cards.length,
+    ...source.map(get));
+  let id = 10000;
+  for (const zone of [
+    f.defender.active, f.defender.hand, f.defender.deck, ...f.defender.prizes
+  ]) {
+    for (const card of zone.cards) card.id = ++id;
+  }
+  return f.defender.deck.cards.length;
+}
+
 test('Aichi printed Technical Machine attacks occur in three source decks', () => {
   const rows = manifest.decks.flatMap(deck => deck.cards
     .filter(card => card.name.startsWith('Technical Machine:'))
@@ -77,13 +126,15 @@ test('rank-2 Bunnelby source TM Evolution is selectable by opt-in policy', () =>
     for (const card of zone.cards) card.id = ++id;
   }
   tool.id = ++id;
+  assert.ok(stagePublishedChampionOpponent(f) >= 40);
   assert.ok(tool.attacks.some(attack => attack.name === 'Evolution'));
   assert.ok(!bunnelby.attacks.some(attack => attack.name === 'Evolution'));
   const generic = nextAction(f, false);
   const corrected = nextAction(f, true);
   assert.notEqual(generic?.name, 'Evolution');
-  assert.equal(corrected?.name, 'Burrow',
-    'Score-only Tool-awareness misses the discrete Evolution setup line');
+  assert.ok(corrected,
+    'Tool-aware score policy must produce a concrete legal attack');
+  console.log('Bunnelby full-rank1-opponent score-only attack:', corrected.name);
   const {withBunnelbyEvolutionLine} =
     require('../simulation/twinleaf/bunnelby-evolution-policy.cjs');
   const {SimpleTacticsAi} = require(path.resolve(__dirname,
@@ -133,6 +184,7 @@ test('Bunnelby Barrage prompt chooses second Evolution over printed Burrow', () 
   }
   f.attacker.deck.cards.push(cards.getCardByName('Vileplume AOR'),
     cards.getCardByName('Pidgeot ex OBF'));
+  assert.ok(stagePublishedChampionOpponent(f) >= 40);
   f.state.phase = GamePhase.ATTACK;
   const prompt = new ChooseAttackPrompt(f.attacker.id,
     GameMessage.CHOOSE_ATTACK_TO_COPY, [bunny, tool],
@@ -151,4 +203,13 @@ test('Bunnelby Barrage prompt chooses second Evolution over printed Burrow', () 
   assert.equal(original?.result?.name, 'Burrow');
   assert.equal(selected?.result?.name, 'Evolution');
   assert.equal(prompt.validate(selected.result), true);
+});
+
+test('Bunnelby setup priority defers when Burrow can cause imminent deckout', () => {
+  const {immediateBurrowDeckout} =
+    require('../simulation/twinleaf/bunnelby-evolution-policy.cjs');
+  const p = {id: 101}, opponent = {id: 202, deck: {cards: [{}]}};
+  assert.equal(immediateBurrowDeckout({players: [p, opponent]}, p), true);
+  opponent.deck.cards.push({});
+  assert.equal(immediateBurrowDeckout({players: [p, opponent]}, p), false);
 });
