@@ -28,6 +28,8 @@ The discard-acceptance scenarios are explicit:
 
 These scenarios deliberately bracket a state-dependent DCI decision. They do **not** establish that duplicated cards are strategically free, that other Supporters should be discarded, or that all non-core cards can safely be burned. Item, Tool, Stadium, ACE SPEC, and Supporter future value remain state- and matchup-dependent.
 
+**Validation:** [manual Aichi opening audit CI run 38839673056](https://github.com/FlareZ123/experiment-01/actions/runs/38839673056) passed with the exact and independent seeded-deal tests included through the existing Iron Thorns test entry point. The existing workflow remains manual-only.
+
 ## Reproducible computation
 
 [Exact script](../../scripts/iron-thorns-discard-sensitivity.cjs) and [regression / independent physical-shuffle tests](../../tests/iron-thorns-discard-sensitivity.test.cjs) use the published names and counts in [full-decklists.json](full-decklists.json). The calculation builds a generating-function distribution over the non-core card-name multiplicities, number of duplicate surplus cards and number of spare Supporters. Each term is weighted by the combinations of physical copies, combined with the five key groups (Iron Thorns, Thunder Mountain, DCE, Guzma & Hala, Tag Call) and a six-Prize hypergeometric enumeration. A sole Iron Thorns in the first eight cards receives a **7/8** factor because it must appear in the actual starting seven. The normalizing denominator conditions on at least one Iron Thorns in that seven.
