@@ -1,4 +1,4 @@
-name: Aichi source-locked campaign trial pilot
+name: Aichi source-locked Iron Thorns diagnostic
 
 on:
   workflow_dispatch:
@@ -27,15 +27,16 @@ jobs:
         run: npm run compile
       - name: Verify source-locked trial adapter and guards
         run: node --test tests/aichi-campaign-runner.test.cjs
-      - name: Run two bounded, paired-seat feasibility trials
+      - name: Run six bounded Iron Thorns diagnostic trials
         env:
           CAMPAIGN_SEED_PROTOCOL: independent-slots-v2
           CAMPAIGN_PHASE: pilot
-          CAMPAIGN_MAX_TRIALS: '2'
+          CAMPAIGN_MAX_TRIALS: '6'
+          CAMPAIGN_TRIAL_IDS: 'pilot:6:0:champion-reference:A,pilot:6:0:champion-reference:B,pilot:6:0:hood-shield-v1:A,pilot:6:0:hood-shield-v1:B,pilot:6:0:temple-v1:A,pilot:6:0:temple-v1:B'
           CAMPAIGN_MAX_ACTIONS: '800'
         run: node simulation/evaluation/aichi-campaign-runner.cjs > aichi-campaign-report.json
       - uses: actions/upload-artifact@v4
         with:
-          name: aichi-source-locked-two-trial-report
+          name: aichi-source-locked-rank6-six-trial-report
           path: aichi-campaign-report.json
           retention-days: 14
