@@ -38,6 +38,8 @@ The pinned engine's older `deepClone(state,[Card])` pattern aliases mutable sour
 
 **Caution:** The original announcement probes stopped before resolving all damage-animation prompts, so source Card mutation by those particular probes was never demonstrated. Fully detached cloning prevents that known class of alias by construction; it does not certify every aspect of the upstream clone implementation.
 
+**Residual simulator limitation:** The default SimpleTacticsAi still performs its own speculative scoring through the pinned Simulator, which Agent 49 observed mutating live Card history during natural source-ranked bot play. Protecting the new *observational probe* does not repair those earlier policy/scoring mutations. The precise turn-56 board and its antecedent bot choices therefore remain conditional on a simulator with known semantic defects; the probe confirms announcement acceptance in that resulting state only.
+
 ## Research meaning and next validation
 
 This is evidence that the default fixed-core bot sometimes passes when the pinned engine would accept an attack. Twenty-four of 176 passes were sampled; unsampled passes remain unknown. The accepted attacks require legal full-resolution counterfactuals and a meaningful comparison against alternative tactics to establish strategic value.
