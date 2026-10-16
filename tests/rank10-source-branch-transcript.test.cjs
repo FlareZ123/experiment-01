@@ -52,3 +52,58 @@ test('exact source identity hashing is order-sensitive', () => {
   assert.equal(hash(['A','B']),hash(['A','B']));
   assert.notEqual(hash(['A','B']),hash(['B','A']));
 });
+
+const {auditAuthenticFork} =
+  require('../simulation/twinleaf/source-fork-gate.cjs');
+function sourceEvent(step, turn, activePlayer, action) {
+  return {step,action,before:{turn,activePlayer},after:{turn}};
+}
+test('accepts matching pre-fork trace and records actual opposing action', () => {
+  const prefix=[sourceEvent(0,0,0,'AddPlayerAction'),
+    sourceEvent(1,0,0,'AddPlayerAction'),
+    sourceEvent(2,26,0,'PassTurnAction')];
+  const control=[...prefix,sourceEvent(3,27,1,'PlayCardAction'),
+    sourceEvent(4,27,1,'PassTurnAction'),
+    sourceEvent(5,28,0,'AttackAction')];
+  const changed=[...prefix,sourceEvent(3,27,1,'AttackAction'),
+    sourceEvent(4,27,1,'PassTurnAction'),
+    sourceEvent(5,28,0,'PlayCardAction')];
+  const proof=auditAuthenticFork(control,changed,{forkTurn:27,opponentSlot:0});
+  assert.equal(proof.firstDifferenceTurn,27);
+  assert.equal(proof.preForkLiveDispatches,3);
+  assert.equal(proof.opponentMaterialResponseObserved,true);
+  assert.deepEqual(proof.opponentMaterialActions,
+    [{step:5,turn:28,action:'PlayCardAction'}]);
+});
+test('rejects a divergent source history before declared fork turn', () => {
+  const prefix=[sourceEvent(0,0,0,'AddPlayerAction'),
+    sourceEvent(1,0,0,'AddPlayerAction'),
+    sourceEvent(2,26,0,'PassTurnAction')];
+  const changed=[...prefix.slice(0,2),
+    sourceEvent(2,26,0,'PlayCardAction'),
+    sourceEvent(3,27,1,'AttackAction')];
+  assert.throws(()=>auditAuthenticFork([...prefix,
+    sourceEvent(3,27,1,'PassTurnAction')],changed,
+    {forkTurn:27,opponentSlot:0}),/pre-fork live dispatch history/);
+});
+test('rejects an inert alternative that changes no real dispatch', () => {
+  const trace=[sourceEvent(0,0,0,'AddPlayerAction'),
+    sourceEvent(1,0,0,'AddPlayerAction'),
+    sourceEvent(2,26,0,'PassTurnAction'),
+    sourceEvent(3,27,1,'PassTurnAction')];
+  assert.throws(()=>auditAuthenticFork(trace,trace,
+    {forkTurn:27,opponentSlot:0}),/no live dispatch difference/);
+});
+test('does not promote an opposing pass or prompt to substantive response', () => {
+  const prefix=[sourceEvent(0,0,0,'AddPlayerAction'),
+    sourceEvent(1,0,0,'AddPlayerAction'),
+    sourceEvent(2,26,0,'PassTurnAction')];
+  const control=[...prefix,sourceEvent(3,27,1,'PassTurnAction')];
+  const changed=[...prefix,sourceEvent(3,27,1,'AttackAction'),
+    sourceEvent(4,28,0,'ResolvePromptAction'),
+    sourceEvent(5,28,0,'PassTurnAction')];
+  const proof=auditAuthenticFork(control,changed,
+    {forkTurn:27,opponentSlot:0});
+  assert.equal(proof.opponentPostForkDispatches,2);
+  assert.equal(proof.opponentMaterialResponseObserved,false);
+});
