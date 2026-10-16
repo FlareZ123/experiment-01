@@ -37,4 +37,4 @@ Each candidate faces the same opponent and planned seed under both engine slot a
 
 [Five deterministic regression tests](../../tests/aichi-comparison-campaign.test.cjs) check real-source coverage and candidate counts; matching seeds and slots; stable identity hashes; duplicate and malformed inputs; and source/roster disagreement. They are included in the existing [manual benchmark workflow](../../.github/workflows/aichi-benchmark-stats.yml). This workflow has no push trigger and performs no games.
 
-**Status:** generator and source tests implemented. The CI result should be linked only after a verified run. No campaign match has been executed, no 99.5% result has been demonstrated, and policy certification remains open.
+**Status:** generator and source tests implemented. Tests passed on [manual CI run 38833834798](https://github.com/FlareZ123/experiment-01/actions/runs/38833834798). No campaign match has been executed, no 99.5% result has been demonstrated, and policy certification remains open.
