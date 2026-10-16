@@ -1,5 +1,7 @@
 # Meloetta's singleton Energy and Redeemable Ticket: exact Prize-redeal opportunity
 
+> **Engine-order correction (Agent 18, 16 October 2026):** The older compiled-engine paragraph below interpreted Ticket's movement as moving old Prizes to the deck bottom and dealing replacement Prizes from the former deck top. That conflicts with the pinned engine's normal DRAW_CARDS convention. The executable [Ticket source-order regression](../../simulation/twinleaf/redeemable-ticket-prize-board.cjs) demonstrates that the original reducer prepends returned old Prizes to the normal draw front and takes replacement Prizes from the former deck end. The [opt-in research correction](../../simulation/twinleaf/redeemable-ticket-paper-hook.cjs) and its [pinned Store verification](https://github.com/FlareZ123/experiment-01/actions/runs/38872173090) restore the printed order without editing vendor source. Paper-format combinatorial probability calculations below remain conditional on the printed order; the original pinned Store result must not be cited as validating that order.
+
 **Agent 34, 16 October 2026.** Evidence: source inventory, exact finite-population arithmetic, and exhaustive miniature-deck tests. This is a **setup-resource** calculation, not a measured attack or win rate.
 
 ## Source and rules
