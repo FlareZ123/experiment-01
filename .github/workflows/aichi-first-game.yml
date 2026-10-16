@@ -56,6 +56,11 @@ on:
         required: false
         type: boolean
         default: false
+      prototype_safe_simulator_isolation:
+        description: 'Opt-in experimental speculative Card/prototype clone isolation; not a qualified policy'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -108,6 +113,7 @@ jobs:
           AICHI_ATTACK_BEFORE_RETREAT: ${{ inputs.attack_before_retreat && '1' || '0' }}
           AICHI_ATTACK_CANDIDATE_ONLY: ${{ inputs.attack_before_retreat_candidate_only && '1' || '0' }}
           AICHI_ATTACK_PASS_PROBE: ${{ inputs.audit_passed_attacks && '1' || '0' }}
+          AICHI_PROTOTYPE_SAFE_SIM: ${{ inputs.prototype_safe_simulator_isolation && '1' || '0' }}
         run: node simulation/evaluation/aichi-campaign-execute.cjs > aichi-campaign-diagnostic.json
       - name: Screen engine diagnostics for attacker inactivity and trace integrity
         run: node scripts/aichi-campaign-quality-screen.cjs aichi-campaign-diagnostic.json > aichi-quality-screen.json
