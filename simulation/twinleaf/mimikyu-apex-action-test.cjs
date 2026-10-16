@@ -18,16 +18,18 @@ const engine = name => require(path.join(output, name));
  * @param {boolean} fairyZone Stage Lillie's Clefairy Bench Ability and synthetic high HP for damage inspection.
  * @returns {object} Attack effects and identity telemetry.
  */
-function declaredCopycatApexContract(correctHistory = false, fairyZone = false) {
+function declaredCopycatApexContract(correctHistory = false, fairyZone = false, printedHpKo = false) {
   const manager = initializeCards();
   const mimikyu = manager.getCardByName('Mimikyu GRI');
   const regidrago = manager.getCardByName('Regidrago VSTAR SIT');
   const dialga = manager.getCardByName('Dialga-GX UPR');
   const clefairy = fairyZone ? manager.getCardByName("Lillie's Clefairy ex JTG") : null;
+  const dratini = printedHpKo ? manager.getCardByName('Dratini OBF') : null;
   const psychic1 = manager.getCardByName('Psychic Energy SVE');
   const psychic2 = manager.getCardByName('Psychic Energy SVE');
   assert.ok(mimikyu && regidrago && dialga && psychic1 && psychic2);
   if (fairyZone) assert.ok(clefairy);
+  if (printedHpKo) assert.ok(fairyZone && dratini);
 
   const {Store} = engine('game/store/store');
   const {Player} = engine('game/store/state/player');
@@ -57,10 +59,15 @@ function declaredCopycatApexContract(correctHistory = false, fairyZone = false) 
     if (fairyZone) {
       // Keep the Dragon alive after x2 damage to inspect damage counters
       // directly. Actual Regidrago VSTAR prints 280 HP, and would be KO'd.
-      regidrago.hp = 400;
+      if (!printedHpKo) regidrago.hp = 400;
       const slot = new PokemonCardList();
       slot.cards.push(clefairy);
       a.bench.push(slot);
+      if (printedHpKo) {
+        const spareOpponent = new PokemonCardList();
+        spareOpponent.cards.push(dratini);
+        b.bench.push(spareOpponent);
+      }
     }
     state.players = [a, b];
     for (const player of state.players) {
@@ -83,7 +90,7 @@ function declaredCopycatApexContract(correctHistory = false, fairyZone = false) 
     const afterDeclaration = state.playerLastAttack[a.id]?.attack?.name;
     store.dispatch(new ResolvePromptAction(selection.id, dialga.attacks[2]));
 
-    assert.equal(b.active.damage, fairyZone ? 300 : 150);
+    if (!printedHpKo) assert.equal(b.active.damage, fairyZone ? 300 : 150);
     assert.equal(a.usedGX, true);
     assert.equal(a.usedTurnSkip, true);
     assert.equal(regidrago.attacks[0].copycatAttack, true);
@@ -95,7 +102,17 @@ function declaredCopycatApexContract(correctHistory = false, fairyZone = false) 
     return {
       correctedHistory: correctHistory,
       fairyZone,
-      syntheticDefenderHp: fairyZone ? 400 : 280,
+      syntheticDefenderHp: fairyZone && !printedHpKo ? 400 : 280,
+      printedHpKo,
+      koTelemetry: printedHpKo ? {
+        printedRegidragoHp: regidrago.hp,
+        regidragoInDiscard: b.discard.cards.includes(regidrago),
+        remainingPrizeCards: a.prizes.filter(p => p.cards.length > 0).length,
+        opponentActive: b.active.getPokemonCard()?.fullName ?? null,
+        opponentBench: b.bench.map(p => p.getPokemonCard()?.fullName ?? null),
+        pendingPrompts: state.prompts.filter(p => p.result === undefined)
+          .map(p => p.constructor.name)
+      } : null,
       declaredAttack: 'Copycat',
       lastAttackAfterDeclaration: afterDeclaration,
       lastAttackAfterChoice: actualLastAttack,
@@ -116,7 +133,9 @@ if (require.main === module) {
   const baseline = declaredCopycatApexContract(false);
   const corrected = declaredCopycatApexContract(true);
   const fairyZone = declaredCopycatApexContract(true, true);
-  process.stdout.write(JSON.stringify({baseline, corrected, fairyZone}, null, 2) + '\n');
+  const printedKo = process.argv.includes('--printed-ko') ?
+    declaredCopycatApexContract(true, true, true) : null;
+  process.stdout.write(JSON.stringify({baseline, corrected, fairyZone, printedKo}, null, 2) + '\n');
 }
 
 module.exports = {declaredCopycatApexContract};
