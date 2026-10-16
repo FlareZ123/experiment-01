@@ -20,7 +20,7 @@ At research head `fe03d673d7beef32ade5240ec42306fa59b54375`, [manual CI 38900775
 - The opt-in [headless research profile](../../simulation/twinleaf/headless.cjs) is explicitly versioned `PostSuperAliasRepairIsolation-experimental-v2`, with its lifecycle assertion updated. Prior v1 actions or engine completions must never silently be represented as v2.
 - The vendor submodule is untouched. The repair remains opt-in and must be independently reviewed.
 
-**Validation status:** the initial repair head `f09b4483ca61bf642b209f687ac95052ab64ad12` is being checked by [manual CI 38901229240](https://github.com/FlareZ123/experiment-01/actions/runs/38901229240). That workflow predates the final v2 profile label and expanded real-Store indirect-prototype assertions, so a subsequent complete run is required before marking those extensions passed.
+**Validation status:** [manual compiled CI 38901229240](https://github.com/FlareZ123/experiment-01/actions/runs/38901229240) **passed** the 96 generated graphs and prior real Store clone regressions at repair head `f09b4483ca61bf642b209f687ac95052ab64ad12`. The subsequent [manual compiled CI 38902028078](https://github.com/FlareZ123/experiment-01/actions/runs/38902028078) **passed** the v2 opt-in label, exact class-prototype metric, positive/negative real Store graph assertions, post-Crisis Punch fixture, and source-ranked clone lifecycle/contrast at head `54ed89b7b31d79e721ebe891334b9eb76a815710`. A further fail-closed data-integrity validation run was separately queued, so it must be reported by its own revision.
 
 ## Limits and why this matters
 
