@@ -75,3 +75,33 @@ test('reparenting is idempotent for fully visited clone pairs', () => {
   assert.ok(first > 0);
   assert.equal(second, 0);
 });
+
+test('clone state audit distinguishes repeated arrays from preserved aliases',()=>{
+  const {compareOwnedStateGraph}=
+    require('../simulation/twinleaf/prototype-safe-state-graph-audit.cjs');
+  const shared=[{damage:0}];
+  const source={left:shared,right:shared};
+  const broken={left:[{damage:0}],right:[{damage:0}]};
+  const mismatch=compareOwnedStateGraph(source,broken);
+  assert.equal(mismatch.repeatedArrayBreaks.count,1);
+  assert.equal(mismatch.repeatedObjectBreaks.count,0);
+  assert.equal(mismatch.sharedReferences.count,0);
+  const detachedCard={damage:0};
+  const detachedArray=[detachedCard];
+  const preserved={left:detachedArray,right:detachedArray};
+  const good=compareOwnedStateGraph(source,preserved);
+  assert.equal(good.repeatedArrayBreaks.count,0);
+  assert.equal(good.sharedReferences.count,0);
+});
+
+test('clone state audit reports a source-instance prototype and shared objects',()=>{
+  const {compareOwnedStateGraph}=
+    require('../simulation/twinleaf/prototype-safe-state-graph-audit.cjs');
+  const source={child:{hp:100}};
+  const clone={child:Object.create(source.child)};
+  clone.child.hp=100;
+  const result=compareOwnedStateGraph(source,clone);
+  assert.equal(result.sourcePrototypeAliases.count,1);
+  const direct=compareOwnedStateGraph(source,{child:source.child});
+  assert.equal(direct.sharedReferences.count,1);
+});
