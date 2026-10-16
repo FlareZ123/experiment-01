@@ -16,7 +16,7 @@ The [source-list fixture](../../simulation/twinleaf/own-deck-determinization-aud
 
 ## Hard limitations
 
-1. **Known top-deck information is not represented.** A player can sometimes legitimately know cards and order through prior effects. The hook requires an explicit `assumeNoKnownDeckOrder: true` from the caller; no gameplay-wide implementation should enable it blindly.
+1. **Known top-deck information is not represented.** A player can sometimes legitimately know cards and order through prior effects. The hook requires both explicit `assumeNoKnownDeckOrder: true` and `assumeDeckContentsKnown: true` preconditions from the caller. The synthetic test asserts these assumptions for its constructed state; no gameplay-wide implementation should enable either blindly.
 2. **K0 Prize ignorance remains unsolved.** Even without order knowledge, a player who has never inspected their deck may not know exactly which cards are Prized. This prototype samples from the actual remaining deck multiset, which can leak hidden Prize identities before first search.
 3. **Opponent hidden information is not sampled.** The acting player's opponent hand, deck and Prizes remain at their actual engine values. Other tactic and prompt decision paths can still inspect them, and only the inherited `evaluateAction` path is wrapped.
 4. **Conditioning on successful speculative outcomes can distort valuation.** If a candidate is modeled as legal in only some samples, this prototype averages its non-undefined scores rather than fully pricing unavailable branches. It is not a general POMDP solver.
