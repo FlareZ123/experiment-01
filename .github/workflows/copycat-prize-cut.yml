@@ -5,4 +5,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: node --test tests/copycat-prize-cut.test.cjs
+      - run: node --test tests/copycat-prize-cut.test.cjs tests/absol-gardevoir-duel.test.cjs
