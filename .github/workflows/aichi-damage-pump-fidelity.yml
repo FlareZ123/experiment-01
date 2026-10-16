@@ -25,4 +25,4 @@ jobs:
           npm ci --no-audit --no-fund
           npm run compile
       - name: Verify pinned Damage Pump counterexample and reversible fix
-        run: node --test tests/damage_pump_source_contract.test.cjs tests/damage_pump_store_dispatch.test.cjs tests/damage_pump_corrected_match.test.cjs
+        run: node --test tests/damage_pump_source_contract.test.cjs tests/damage_pump_store_dispatch.test.cjs tests/damage_pump_corrected_match.test.cjs tests/meloetta_damage_pump_two_prizes.test.cjs
