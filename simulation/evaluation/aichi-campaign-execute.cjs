@@ -73,7 +73,7 @@ function executeDiagnostic(options) {
     'doubleDragonRecovery', 'templeUnlockRecovery',
     'supporterDecisionCorrection', 'isolatePolicyRandomness',
     'captureDecisionTrace', 'snorlaxRetreatStartCorrection',
-    'shadowRiderEnergyPriority', 'shadowRiderOpeningPivot',
+    'shadowRiderEnergyPriority', 'shadowRiderOpeningPivot', 'attackBeforeRetreat',
     'leleEntryAbilityLockCorrection',
     'radiantGateLockCorrection'
   ]);
@@ -297,6 +297,7 @@ function main() {
       isolatePolicyRandomness: true, captureDecisionTrace: true,
       shadowRiderEnergyPriority: process.env.AICHI_SHADOW_ENERGY === '1',
       shadowRiderOpeningPivot: process.env.AICHI_OPENING_PIVOT === '1',
+      attackBeforeRetreat: process.env.AICHI_ATTACK_BEFORE_RETREAT === '1',
       leleEntryAbilityLockCorrection: true,
       radiantGateLockCorrection: true
     },
