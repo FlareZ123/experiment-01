@@ -19,3 +19,5 @@ Claim: `2026-10-15T23:54:55Z`, run `85cad36a-0b5b-46ff-bc88-fcb92d8abce0`. Do no
 - Exposed mandatory Star Alchemy correction as separate opt-in `forestSealSearchCorrection:true` in match runner, field evaluator and Aichi pilot; created combined rank1-vs-rank10 strict prompt smoke with hook restore assertion and forwarding regression. New manual CI pending. Defaults remain unchanged.
 
 - Opt-in combined Forest Seal + strict prompt game and hook teardown passed manual CI [38828506011](https://github.com/FlareZ123/experiment-01/actions/runs/38828506011). Added ChooseCardsPrompt physical-card identity-multiplicity guard and pure/pinned regressions, next run CI to verify.
+
+- Investigated missing opponent sources rank23/28; Japanese community recap points to a Regidrago social report stating Swiss 28th (@nnaacc5_uec) but lacks both verified player-name linkage and complete cards. Rank23 remained unattributed. Preserved as conservative [source scout](../../results/aichi-2026/rank23-rank28-source-scout.md), no manifest edits.

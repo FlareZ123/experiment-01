@@ -15,9 +15,9 @@ The [field manifest](field.csv) records **32 of 32** ranked players with verifie
 Full lists absent from the decklist page:
 - Rank 23: Yuki Ueno, Regidrago. Archetype independently displayed in Regidrago tournament history.
 - Rank 25: Kazuki Kumegawa, Raichu Electrode Combo. Archetype independently displayed in Raichu Electrode tournament history.
-- Rank 28: Jo Kato, Regidrago. Archetype independently displayed in Regidrago tournament history.
+- Rank 28: Jo Kato, Regidrago. Archetype independently displayed in Regidrago tournament history. An [unconfirmed 28th-seed alias lead](rank23-rank28-source-scout.md) does not supply a 60-card list.
 
-These three player's exact 60-card lists are **unknown**. Do not substitute a nearby player's version and label it as their list.
+These three players' exact 60-card lists are **unknown**. See [the rank-23/28 source scout](rank23-rank28-source-scout.md) and [the rank-25 first-person scout](rank25-source-scout.md). Do not substitute a nearby player's version and label it as their list.
 
 ## Field archetypes
 
