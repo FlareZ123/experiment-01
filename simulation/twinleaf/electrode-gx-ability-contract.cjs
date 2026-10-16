@@ -79,7 +79,7 @@ function runCase(count, noRecipient = false, useBot = false, availableCount = 5)
 }
 function verify() {
   const cases = [runCase(5),runCase(4),runCase(0),runCase(0,true),
-    runCase(0,true,true),runCase(1,false,false,2)];
+    runCase(0,true,true),runCase(1,false,false,2),runCase(0,false,true)];
   console.log(JSON.stringify({engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     scope:'staged Store actions, illegal inputs deliberately supplied',cases},null,2));
   assert.equal(cases[0].remainingEnergy,0);
@@ -88,6 +88,8 @@ function verify() {
   assert.equal(cases[2].promptAccepted,true,'Pinned prompt accepts zero of five');
   assert.equal(cases[4].transferred,0,'Normal bot chooses zero when no recipient exists');
   assert.equal(cases[5].promptAccepted,true,'Pinned prompt accepts one of two available');
+  assert.ok(cases[6].transferred >= 0 && cases[6].transferred <= 5,
+    'Record how many cards normal bot chooses with a legal recipient');
   return cases;
 }
 if (require.main===module) verify();
