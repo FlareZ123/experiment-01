@@ -355,6 +355,7 @@ function runMatch(request) {
           playerSlot: seat, action: actionName,
           ...(playedCard ? { card: playedCard } : {}),
           ...(abilityInfo ? { ability: abilityInfo.name } : {}),
+          ...(selectionInfo ? { cardSelection: selectionInfo } : {}),
           ...(attackInfo ? { attack: attackInfo.attack,
             attacker: attackInfo.activePokemon } : {}),
           prizesAfter: store.state.players.map(player =>
