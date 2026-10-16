@@ -37,3 +37,5 @@ jobs:
         run: node simulation/twinleaf/headless-prototype-safe-smoke.cjs
       - name: Characterize source-rank2 Bunnelby Evolution under both clone models
         run: node simulation/twinleaf/bunnelby-clone-fidelity-probe.cjs
+      - name: Exercise source-ranked bounded post-super alias-repair lifecycle
+        run: node simulation/twinleaf/headless-post-super-alias-smoke.cjs
