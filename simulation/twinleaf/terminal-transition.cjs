@@ -46,4 +46,31 @@ function observeTerminalTransition(before, after, action, finishedPhase) {
   };
 }
 
-module.exports = {publicSnapshot, observeTerminalTransition};
+
+/**
+ * Preserve the initiating player action across subsequent prompt resolutions.
+ * A prompt-resolution action may be the final engine dispatch for a turn while
+ * an earlier attack, pass, or Trainer play initiated the resolution chain.
+ * This records action labels only; no hidden selections or deck contents.
+ *
+ * @param {{initiatingAction:object|null,promptChain:object[]}|null} previous
+ * @param {{actionOrdinal:number,name:string,playerSlot:number,pendingPrompt:string|null}} action
+ * @returns {{initiatingAction:object|null,promptChain:object[]}}
+ */
+function advanceActionLineage(previous, action) {
+  const step = {
+    actionOrdinal: action.actionOrdinal,
+    actionName: action.name,
+    playerSlot: action.playerSlot,
+    ...(action.pendingPrompt ? {pendingPrompt: action.pendingPrompt} : {})
+  };
+  if (action.name !== 'ResolvePromptAction') {
+    return {initiatingAction: step, promptChain: []};
+  }
+  return {
+    initiatingAction: previous?.initiatingAction ?? null,
+    promptChain: [...(previous?.promptChain ?? []), step]
+  };
+}
+
+module.exports = {publicSnapshot, observeTerminalTransition, advanceActionLineage};
