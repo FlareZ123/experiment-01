@@ -29,6 +29,7 @@ function countQualifiedWins(round) {
     if (!game || !Number.isInteger(game.rank) || game.rank < 1 || game.rank > FIELD_SIZE ||
         !['first','second'].includes(game.startingSeat) ||
         !['win','loss','draw'].includes(game.outcome) ||
+        game.finished !== true || ![0,1,3].includes(game.winnerIndex) ||
         game.status !== 'qualified-completed-game' ||
         typeof game.gameId !== 'string' || !game.gameId ||
         !Number.isInteger(game.seed) || game.seed < 0 || game.seed > 0xffffffff ||
@@ -54,6 +55,11 @@ function countQualifiedWins(round) {
         game.turnEvidence.firstDrawLogName!==expectedName ||
         game.startingSeat!==(candidateSlot===firstSlot ? 'first' : 'second')) {
       throw new Error('Candidate starting seat contradicts actual first-turn Store/draw-log proof.');
+    }
+    const expectedOutcome=game.winnerIndex===3 ? 'draw' :
+      game.winnerIndex===candidateSlot ? 'win' : 'loss';
+    if (game.outcome!==expectedOutcome) {
+      throw new Error('Declared outcome contradicts finished engine winner and candidate slot.');
     }
     const key = game.rank + ':' + game.startingSeat;
     if (seen.has(key)) throw new Error('Repeated rank/seat cell: ' + key);
