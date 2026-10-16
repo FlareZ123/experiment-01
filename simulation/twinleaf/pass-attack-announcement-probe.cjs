@@ -87,4 +87,20 @@ function probePassedAttackOptions(state, playerId, attempt = clonedStoreAcceptsA
   };
 }
 
-module.exports = {visibleActiveAttacks, clonedStoreAcceptsAttack, probePassedAttackOptions};
+/**
+ * Reserve half the bounded probe budget for late Tool-equipped passes.
+ * A first-eight-passes-only policy can miss Bunnelby's turn-56 Evolution
+ * pass after earlier ordinary pass decisions exhaust the audit budget.
+ *
+ * @param {object} player Pinned Twinleaf player.
+ * @param {{printed:number,tool:number}} counts Already attempted probes.
+ * @returns {'printed'|'tool'|null} Bucket to charge, or no remaining quota.
+ */
+function nextPassProbeBucket(player, counts) {
+  const hasAttachedAttack = visibleActiveAttacks(player)
+    .some(attack => attack.source === 'attached-tool');
+  const bucket = hasAttachedAttack ? 'tool' : 'printed';
+  return counts[bucket] < 4 ? bucket : null;
+}
+
+module.exports = {visibleActiveAttacks, clonedStoreAcceptsAttack, probePassedAttackOptions, nextPassProbeBucket};
