@@ -43,7 +43,7 @@ function verifyPostSuperAliasHeadlessLifecycle() {
   const repaired = runMatch({...parameters,postSuperAliasRepairIsolation:true});
   assert.strictEqual(simulatorModule.Simulator,originalSimulator);
   assert.equal(repaired.postSuperAliasRepairIsolation,true);
-  assert.match(repaired.policy,/PostSuperAliasRepairIsolation-experimental-v1/);
+  assert.match(repaired.policy,/PostSuperAliasRepairIsolation-experimental-v2/);
   assert.deepEqual(repaired.deckHashes,original.deckHashes);
   assert.equal(repaired.seed,original.seed);
   assert.equal(repaired.firstTurnSlot,original.firstTurnSlot);
