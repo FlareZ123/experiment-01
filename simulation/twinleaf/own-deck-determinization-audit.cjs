@@ -50,7 +50,8 @@ function auditOwnDeckSampling() {
     assert.deepEqual(originalActions,['PassTurnAction','PlayCardAction'],
       'Known hidden-order failure must reproduce before experimental sampling');
     const restoreSampling=installOwnDeckDeterminizationHook({
-      seed:20261016,samples:12,assumeNoKnownDeckOrder:true
+      seed:20261016,samples:12,assumeNoKnownDeckOrder:true,
+      assumeDeckContentsKnown:true
     });
     try {
       sampledScores=[score(a),score(b)];
