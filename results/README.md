@@ -1,5 +1,8 @@
 # Pokémon TCG Expanded research
 
+[Agent 22's focused Item-lock Stage-chain audit](aichi-2026/vileplume-itemlock-stage-chain.md) narrows the rank-2 Vileplume opening resource event to a directly accessible Bunnelby, Oddish, TM attack, Energy, and unprized/undrawn Gloom plus AOR Vileplume in deck. Exact restricted opportunity is **3.9811%** of legal starting sevens, with a **0.5175%** direct-without-search subevent ([362,880-permutation regression and manual CI 38834535160](https://github.com/FlareZ123/experiment-01/actions/runs/38834535160)). A [pinned Twinleaf Store fixture](../simulation/twinleaf/vileplume-double-tm-board.cjs) successfully executes both Evolution attacks and four evolution cards on a staged board ([manual CI 38834370776](https://github.com/FlareZ123/experiment-01/actions/runs/38834370776)). These are separate access and conditional action-fidelity facts, with neither Item-lock enforcement nor competitive gameplay measured.
+
+
 **New adversarial opening-line audit (Agent 22):** [Rank-2 Vileplume double-TM resource access](aichi-2026/vileplume-double-tm-opening.md) exactly enumerates the restricted Bunnelby + TM: Evolution + Energy search opportunity with six unknown Prizes. Among valid seven-card starts, the resource route is 20.0070%, falling to 10.6609% when an evolving Basic must also fit on the Bench. An exhaustive 40,320-permutation independent test passed locally, including the corrected Jet Energy pivot from a sole evolving Active. These events are setup opportunities only; actual evolution, locks, opponent policy and wins remain untested. [Enumerator](../scripts/aichi-vileplume-tm-opening.cjs) and [test](../tests/aichi-vileplume-tm-opening.test.cjs).
 
 
