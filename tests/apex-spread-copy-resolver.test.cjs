@@ -44,6 +44,15 @@ test('does not treat Tool or Ability-bearing targets as certain Bench knockouts'
   assert.equal(preferredPhantomDive(f.state,f.me,f.prompt,f.baseline),null);
 });
 
+test('known effect-protecting attached Energy blocks an assumed counter KO',()=>{
+  for(const name of ['Mist Energy','Wash Water Energy','Wonder Energy']){
+    const f=fakeFixture();
+    f.opponent.bench[0].cards=[{name}];
+    assert.equal(phantomDiveBenchWindows(f.opponent),0,name);
+    assert.equal(preferredPhantomDive(f.state,f.me,f.prompt,f.baseline),null,name);
+  }
+});
+
 test('prefers the exact Phantom Dive attack instance in a tied 200-damage choice',()=>{
   const f=fakeFixture();
   assert.equal(preferredPhantomDive(f.state,f.me,f.prompt,f.baseline),f.phantom);
