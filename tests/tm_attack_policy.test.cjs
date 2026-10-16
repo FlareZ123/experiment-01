@@ -82,8 +82,73 @@ test('rank-2 Bunnelby source TM Evolution is selectable by opt-in policy', () =>
   const generic = nextAction(f, false);
   const corrected = nextAction(f, true);
   assert.notEqual(generic?.name, 'Evolution');
-  assert.equal(corrected?.constructor.name, 'AttackAction');
-  assert.equal(corrected?.name, 'Evolution');
-  f.store.dispatch(corrected);
+  assert.equal(corrected?.name, 'Burrow',
+    'Score-only Tool-awareness misses the discrete Evolution setup line');
+  const {withBunnelbyEvolutionLine} =
+    require('../simulation/twinleaf/bunnelby-evolution-policy.cjs');
+  const {SimpleTacticsAi} = require(path.resolve(__dirname,
+    '../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai'));
+  const defs = require(path.resolve(__dirname,
+    '../vendor/twinleaf/ptcg-server/output/simple-bot/simple-bot-definitions'));
+  const enhanced = withBunnelbyEvolutionLine(withToolAttackAwareness({
+    tactics: defs.allSimpleTactics,
+    promptResolvers: defs.allPromptResolvers,
+    scores: defs.defaultStateScores,
+    arbiter: defs.defaultArbiterOptions
+  }));
+  const bot = new SimpleTacticsAi({id: f.attacker.id}, enhanced, null);
+  const choice = bot.decodeNextAction(f.state);
+  assert.equal(choice?.constructor.name, 'AttackAction');
+  assert.equal(choice?.name, 'Evolution');
+  f.store.dispatch(choice);
   assert.equal(f.state.prompts.some(prompt => prompt.result === undefined), true);
+});
+
+test('Bunnelby Barrage prompt chooses second Evolution over printed Burrow', () => {
+  const path = require('node:path');
+  const {initializeCards} = require('../simulation/twinleaf/headless.cjs');
+  const {withBunnelbyEvolutionLine} =
+    require('../simulation/twinleaf/bunnelby-evolution-policy.cjs');
+  const output = path.resolve(__dirname, '../vendor/twinleaf/ptcg-server/output');
+  const {ChooseAttackPrompt} = require(path.join(output,
+    'game/store/prompts/choose-attack-prompt'));
+  const {GamePhase} = require(path.join(output, 'game/store/state/state'));
+  const {GameMessage} = require(path.join(output, 'game/game-message'));
+  const {SimpleTacticsAi} = require(path.join(output,
+    'simple-bot/simple-tactics-ai'));
+  const defs = require(path.join(output, 'simple-bot/simple-bot-definitions'));
+  const {PokemonCardList} = require(path.join(output,
+    'game/store/state/pokemon-card-list'));
+  const f = preparedToolAttack();
+  const cards = initializeCards();
+  const bunny = cards.getCardByName('Bunnelby PRC');
+  const tool = cards.getCardByName('Technical Machine: Evolution PAR');
+  f.attacker.active.cards[0] = bunny;
+  f.attacker.active.tools[0] = tool;
+  f.attacker.bench.length = 0;
+  for (const name of ['Gloom UNB','Pidgeotto TEU']) {
+    const slot = new PokemonCardList();
+    slot.cards.push(cards.getCardByName(name));
+    f.attacker.bench.push(slot);
+  }
+  f.attacker.deck.cards.push(cards.getCardByName('Vileplume AOR'),
+    cards.getCardByName('Pidgeot ex OBF'));
+  f.state.phase = GamePhase.ATTACK;
+  const prompt = new ChooseAttackPrompt(f.attacker.id,
+    GameMessage.CHOOSE_ATTACK_TO_COPY, [bunny, tool],
+    {allowCancel: false});
+  prompt.id = 1337;
+  f.state.prompts.push(prompt);
+  const baseOptions = {
+    tactics: defs.allSimpleTactics, promptResolvers: defs.allPromptResolvers,
+    scores: defs.defaultStateScores, arbiter: defs.defaultArbiterOptions
+  };
+  const generic = new SimpleTacticsAi({id: f.attacker.id}, baseOptions, null);
+  const enhanced = new SimpleTacticsAi({id: f.attacker.id},
+    withBunnelbyEvolutionLine(baseOptions), null);
+  const original = generic.decodeNextAction(f.state);
+  const selected = enhanced.decodeNextAction(f.state);
+  assert.equal(original?.result?.name, 'Burrow');
+  assert.equal(selected?.result?.name, 'Evolution');
+  assert.equal(prompt.validate(selected.result), true);
 });
