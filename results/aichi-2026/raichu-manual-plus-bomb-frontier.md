@@ -55,7 +55,7 @@ These are first-person planning claims. The guide's AI-assisted consistency perc
 - [Source-locked JavaScript model](../../scripts/aichi-raichu-manual-attachment.cjs) imports the existing printed-source validator and constructs a deterministic six-card witness.
 - [Independent physical-card enumeration tests](../../tests/aichi-raichu-manual-attachment.test.cjs) exhaust possible manual-card and five-card Bomb assignments, test Prize/Temple alternatives, guard rank 4 and 17 inventories, and check the five-Prize hypothetical Bench example.
 - An independent Python combinations enumeration confirmed **14** for five cards, **16** for six, and **10+6** packets for the two hypothetical targets.
-- The existing [manual benchmark statistics workflow](../../.github/workflows/aichi-benchmark-stats.yml) has been extended to run the new tests. It does not trigger on ordinary commits.
+- The existing [manual benchmark statistics workflow](../../.github/workflows/aichi-benchmark-stats.yml) has been extended to run the new tests. **[Manual CI 38867613738](https://github.com/FlareZ123/experiment-01/actions/runs/38867613738) passed** at code revision b4e6fc78af63af6bcae4dba745576b14861d2384. The workflow does not trigger on ordinary commits.
 
 ## Priority next steps
 
