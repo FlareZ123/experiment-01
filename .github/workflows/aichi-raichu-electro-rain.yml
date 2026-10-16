@@ -36,5 +36,7 @@ jobs:
         run: node simulation/twinleaf/raichu-manual-plus-bomb-setup.cjs
       - name: Verify 14 versus 16 Lightning-unit mixed-Bench five-Prize frontier
         run: node simulation/twinleaf/raichu-six-energy-prize-regression.cjs
+      - name: Verify continuous Raichu Energy attachment and attack sequence
+        run: node simulation/twinleaf/raichu-manual-bomb-attack-sequence.cjs
       - name: Smoke test headless opt-in with exact rank 4 and 17 source inventories
         run: node simulation/twinleaf/raichu-electro-rain-headless-smoke.cjs
