@@ -1,0 +1,61 @@
+{
+  "schema": "exploratory-engine-policy-fixture-v1",
+  "evidenceKind": "pinned-engine-source-deck-policy-characterization",
+  "runUrl": "https://github.com/FlareZ123/experiment-01/actions/runs/38833951933",
+  "workflowHeadSha": "bcf16c4e5b1069040e2031cb066f50707ac5d9ad",
+  "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "researchFixture": "simulation/twinleaf/supporter-aichi-smoke.cjs",
+  "source": "results/aichi-2026/full-decklists.json",
+  "engineA": {
+    "rank": 1,
+    "archetype": "Shadow Rider Calyrex",
+    "deckSha256": "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311"
+  },
+  "engineB": {
+    "rank": 10,
+    "archetype": "Regidrago",
+    "deckSha256": "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9"
+  },
+  "seed": 20261016,
+  "maxActions": 900,
+  "randomnessProtocol": "separate-game-and-per-seat-policy-prng-v1",
+  "games": [
+    {
+      "policy": "Twinleaf SimpleTacticsAi/defaultStateScores",
+      "supporterDecisionCorrection": false,
+      "finished": true,
+      "actions": 125,
+      "turns": 19,
+      "firstTurnSlot": 1,
+      "verifiedByDrawLog": true,
+      "winnerSlot": 1,
+      "supporterPlaysBySeat": [
+        {},
+        {}
+      ]
+    },
+    {
+      "policy": "Twinleaf SimpleTacticsAi/defaultStateScores+SupporterDecisionGuard-v1",
+      "supporterDecisionCorrection": true,
+      "finished": true,
+      "actions": 247,
+      "turns": 30,
+      "firstTurnSlot": 1,
+      "verifiedByDrawLog": true,
+      "winnerSlot": 0,
+      "supporterPlaysBySeat": [
+        {
+          "Iono": 2,
+          "Guzma": 1,
+          "Carmine": 1
+        },
+        {
+          "Guzma": 2,
+          "Iono": 1,
+          "Professor's Research": 1
+        }
+      ]
+    }
+  ],
+  "scope": "Exploratory two-game controlled-source feasibility; no competitive win-rate estimation. Action divergence changes subsequent consumption of game RNG even under separated policy streams."
+}
