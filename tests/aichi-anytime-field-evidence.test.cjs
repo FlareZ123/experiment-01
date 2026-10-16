@@ -23,3 +23,23 @@ test('all 64 rank-by-actual-seat cells are mandatory',()=>{
   const draw=round();draw[0].outcome='draw';
   assert.equal(countQualifiedWins(draw),63);
 });
+
+test('10 complete perfect rounds cross, 9 do not',()=>{
+  const full=Array.from({length:10},()=>round());
+  const nine=assessFieldEvidence(full.slice(0,9));
+  const ten=assessFieldEvidence(full);
+  assert.equal(nine.games,576);
+  assert.equal(nine.currentCrosses,false);
+  assert.equal(ten.games,640);
+  assert.equal(ten.currentCrosses,true);
+  assert.equal(ten.firstCrossedAtRound,10);
+  assert.equal(assessFieldEvidence([]).eValue,1);
+});
+test('one loss still yields a defined finite exponential mixture',()=>{
+  const full=Array.from({length:10},()=>round());
+  full[0]=round(0);
+  const value=assessFieldEvidence(full);
+  assert.equal(value.nonWins,1);
+  assert.equal(value.currentCrosses,false);
+  assert.ok(Number.isFinite(value.logEValue));
+});
