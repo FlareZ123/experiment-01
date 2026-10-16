@@ -10,10 +10,19 @@ function runDispatchSmoke() {
   const {Store} = require(path.resolve(__dirname,
     '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
   const deck = upstreamSmokeDeck();
-  const capture = withStoreDispatchTranscript(Store, () => runMatch({
+  const request = {
     deckA: deck, deckB: deck, seed: 200614, maxActions: 60,
     isolatePolicyRandomness: true
-  }), {liveStoreOnly: true});
+  };
+  const control = runMatch(request);
+  const capture = withStoreDispatchTranscript(Store, () => runMatch(request),
+    {liveStoreOnly: true});
+  for (const key of ['actions', 'finished', 'winner', 'endReason', 'actionCounts',
+    'actionsBySeat', 'attackTrace', 'abilityTrace', 'prizesRemaining',
+    'finalState', 'phase', 'deckHashes', 'randomnessProtocol']) {
+    assert.deepEqual(capture.result[key], control[key],
+      'Instrumentation must preserve observable ' + key);
+  }
   assert.ok(capture.result.actions > 0, 'The engine must take real actions');
   assert.ok(capture.dispatched >= capture.result.actions + 2,
     'Every explicit game-loop dispatch and both player entries must be intercepted');
@@ -28,6 +37,7 @@ function runDispatchSmoke() {
     interceptedDispatches: capture.dispatched,
     excludedSpeculativeDispatches: capture.ignoredOtherStoreDispatches,
     captureScope: capture.captureScope,
+    controlOutcomeInvariant: true,
     parametersCaptured: capture.parametersCaptured,
     canonicalTraceSha256: capture.traceSha256,
     incompleteCaptureReasons: capture.captureErrors.slice(0, 8),
