@@ -21,6 +21,7 @@ const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
 const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
 const {inspectTmEvolutionPass} = require('./tm-evolution-pass-evidence.cjs');
 const {withActiveOpeningPivot} = require('./active-opening-pivot.cjs');
+const {withAttackBeforeRetreat} = require('./attack-retreat-order.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -181,6 +182,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [snorlaxRetreatStartCorrection] Opt-in, reversible Block check on interactive retreat.
  * @property {boolean} [shadowRiderEnergyPriority] Opt-in basic Psychic Energy priority against Active Iron Thorns.
  * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
+ * @property {boolean} [attackBeforeRetreat] Opt-in policy-order sensitivity probe for AttackTactic and RetreatTactic.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
  */
 
@@ -272,6 +274,12 @@ function runMatch(request) {
         ChooseCardsPrompt: engine('game/store/prompts/choose-cards-prompt').ChooseCardsPrompt,
         ResolvePromptAction: engine('game/store/actions/resolve-prompt-action').ResolvePromptAction,
         GameMessage: engine('game/game-message').GameMessage
+      });
+    }
+    if (request.attackBeforeRetreat === true) {
+      options = withAttackBeforeRetreat(options, {
+        AttackTactic: engine('simple-bot/simple-tactics/attack-tactic').AttackTactic,
+        RetreatTactic: engine('simple-bot/simple-tactics/retreat-tactic').RetreatTactic
       });
     }
     if (request.shadowRiderEnergyPriority === true) {
@@ -482,6 +490,7 @@ function runMatch(request) {
       snorlaxRetreatStartCorrection: request.snorlaxRetreatStartCorrection === true,
       shadowRiderEnergyPriority: request.shadowRiderEnergyPriority === true,
       shadowRiderOpeningPivot: request.shadowRiderOpeningPivot === true,
+      attackBeforeRetreat: request.attackBeforeRetreat === true,
       policy: (request.doubleDragonRecovery === true ?
         'Twinleaf SimpleTacticsAi/defaultStateScores+DoubleDragonAttachTactic-v1' :
         'Twinleaf SimpleTacticsAi/defaultStateScores') +
@@ -492,6 +501,7 @@ function runMatch(request) {
         (request.snorlaxRetreatStartCorrection === true ? '+SnorlaxBlockStartGate-v1' : '') +
         (request.shadowRiderEnergyPriority === true ? '+ShadowRiderPsychicAttachPriority-v1' : '') +
         (request.shadowRiderOpeningPivot === true ? '+SelectedShadowRiderSetupActive-v1' : '') +
+        (request.attackBeforeRetreat === true ? '+AttackBeforeRetreatTactic-v1' : '') +
         (request.leleEntryAbilityLockCorrection === true ? '+LeleEntryAbilityLockGuard-v1' : '') +
         (request.radiantGateLockCorrection === true ? '+RadiantGateLockGuard-v1' : ''),
       policyRandomIsolation: request.isolatePolicyRandomness === true,
