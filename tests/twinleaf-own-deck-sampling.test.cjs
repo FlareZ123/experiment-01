@@ -39,3 +39,16 @@ test('sampler restores the actual deck and upstream prototype after speculative 
     SimpleTactic.prototype.evaluateAction=original;
   }
 });
+
+test('sampler rejects use when K1 deck membership or top-order knowledge is unverified', () => {
+  const {installOwnDeckDeterminizationHook} =
+    require('../simulation/twinleaf/own-deck-determinization-hook.cjs');
+  assert.throws(() => installOwnDeckDeterminizationHook({
+    samples:2,seed:123,assumeNoKnownDeckOrder:true,
+    assumeDeckContentsKnown:false
+  }), /prior search \(K1\)/);
+  assert.throws(() => installOwnDeckDeterminizationHook({
+    samples:2,seed:123,assumeNoKnownDeckOrder:false,
+    assumeDeckContentsKnown:true
+  }), /known top-deck order/);
+});
