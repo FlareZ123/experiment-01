@@ -52,3 +52,53 @@ function probeRangerLine(options = {}) {
   defender.active.cards.push(options.forcedLeleActive ?
     card('Tapu Lele-GX GRI') : card('Shadow Rider Calyrex V CRE'));
   defender.bench.push(new PokemonCardList());
+
+  const ranger = card('Pokemon Ranger STS');
+  const lele = card('Tapu Lele-GX GRI');
+  const item = card('Switch SVI');
+  if (!options.forcedLeleActive) defender.hand.cards.push(lele);
+  defender.hand.cards.push(item);
+  defender.deck.cards.push(
+    card('Psychic Energy SVE'),
+    ...(options.rangerPrized ? [] : [ranger]),
+    card('Psychic Energy SVE'), card('Psychic Energy SVE')
+  );
+  attacker.deck.cards.push(card('Psychic Energy SVE'));
+  for (const player of state.players) {
+    for (let i = 0; i < 6; i += 1) {
+      const prize = new CardList();
+      prize.cards.push(options.rangerPrized && player === defender && i === 0 ?
+        ranger : card('Psychic Energy SVE'));
+      player.prizes.push(prize);
+    }
+  }
+
+  // This is the lasting effect of a preceding Itchy Pollen attack, not an
+  // attempt to attack during defender's turn.
+  if (options.initialization) {
+    defender.applyPlayLocks({item: true}, 1);
+  } else {
+    budew.reduceEffect(store, state,
+      new AttackEffect(attacker, defender, budew.attacks[0]));
+  }
+  assert.equal(defender.cannotPlayItemCards, true,
+    'The attack-origin Item restriction must survive into this staged turn');
+  if (options.supporterSpent) defender.supporterTurn = state.turn;
+
+  /** @returns {any} */
+  const pending = () => state.prompts.find(p => p.result === undefined);
+  /** @param {any} answer */
+  function resolve(answer) {
+    const prompt = pending();
+    assert.ok(prompt, 'Expected outstanding Wonder Tag prompt');
+    store.dispatch(new ResolvePromptAction(prompt.id, answer));
+  }
+  const play = (player, cardToPlay, target) => {
+    const handIndex = player.hand.cards.indexOf(cardToPlay);
+    assert.ok(handIndex >= 0, 'Requested card is not in hand');
+    store.dispatch(new PlayCardAction(player.id, handIndex, target));
+  };
+  const benchTarget = {player: PlayerType.BOTTOM_PLAYER,
+    slot: SlotType.BENCH, index: 0};
+  const trainerTarget = {player: PlayerType.ANY,
+    slot: SlotType.BOARD, index: 0};
