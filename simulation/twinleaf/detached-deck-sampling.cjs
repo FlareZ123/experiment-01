@@ -32,8 +32,9 @@ function reachableCards(root, isCard) {
  * in the real state is ever rearranged. The supplied clone must detach every
  * mutable Card instance, not merely copy the surrounding deck/board arrays.
  *
- * This is a research diagnostic requiring K1, unknown deck order and action
+ * This is a research diagnostic requiring K1, unknown suffix order and action
  * references that remain valid against a cloned state (e.g. index actions).
+ * A known top prefix may be protected only when its observed order is verified.
  * It is not a policy for unknown opponent zones or K0 information sets.
  *
  * @param {object} state Live source state.
@@ -43,13 +44,18 @@ function reachableCards(root, isCard) {
  * @param {Function} evaluator Pinned tactic evaluator.
  * @param {object} receiver Original `this` for evaluator.
  * @param {(state:object)=>object} cloneState Complete detached-state clone.
- * @param {{seed:number,samples:number,permutation:(n:number,rng:Function)=>number[],random:(seed:number)=>Function,isCard:(value:object)=>boolean}} opts
+ * @param {{seed:number,samples:number,permutation:(n:number,rng:Function)=>number[],random:(seed:number)=>Function,isCard:(value:object)=>boolean,knownTopCount?:number,knownTopVerified?:boolean}} opts
  * @returns {number|undefined} Average of valid sampled outcomes.
  */
 function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
   evaluator, receiver, cloneState, opts) {
   assert.equal(typeof cloneState, 'function');
   assert.equal(typeof opts.isCard, 'function');
+  const knownTopCount=opts.knownTopCount??0;
+  assert.ok(Number.isSafeInteger(knownTopCount)&&knownTopCount>=0,
+    'Known-top count must be a nonnegative safe integer');
+  assert.ok(knownTopCount===0||opts.knownTopVerified===true,
+    'Preserving top cards requires verified observed prefix order');
   const srcPlayer=state.players.find(p=>p.id===playerId);
   if (!srcPlayer) return evaluator.call(receiver,state,playerId,action,passTurnScore);
   const sourceCards=reachableCards(state,opts.isCard);
@@ -73,11 +79,14 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
       assert.notStrictEqual(deck[i],srcPlayer.deck.cards[i],
         'Sampler clone must detach Card objects, not just deck arrays');
     }
-    const canonical=canonicalUnseenCards(deck);
+    assert.ok(knownTopCount<=deck.length,
+      'Known-top prefix exceeds deck length');
+    const canonical=canonicalUnseenCards(deck.slice(knownTopCount));
     const seed=(opts.seed ^ Math.imul(state.turn+1,0x9e3779b9) ^
       Math.imul(playerId,0x85ebca6b) ^ Math.imul(sample+1,0xc2b2ae35))>>>0;
     const shuffled=opts.permutation(canonical.length,opts.random(seed));
-    deck.splice(0,deck.length,...shuffled.map(index=>canonical[index]));
+    deck.splice(knownTopCount,deck.length-knownTopCount,
+      ...shuffled.map(index=>canonical[index]));
     const score=evaluator.call(receiver,detached,playerId,action,passTurnScore);
     if(score!==undefined){total+=score;accepted+=1;}
   }
