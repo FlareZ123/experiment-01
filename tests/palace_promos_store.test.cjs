@@ -49,7 +49,7 @@ function board() {
   return {store, state, a, b, card, GamePhase};
 }
 
-test('Pinned Palace Book actual Item action draws three and ends its player's turn', () => {
+test("Pinned Palace Book actual Item action draws three and ends its player's turn", () => {
   const f = board();
   const {PlayCardAction, PlayerType, SlotType} =
     engine('game/store/actions/play-card-action');
