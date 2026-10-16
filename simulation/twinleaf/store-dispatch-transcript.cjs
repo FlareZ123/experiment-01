@@ -65,7 +65,7 @@ function portableSnapshot(source, ancestors = new Set(), allowClass = false, at 
 }
 
 
-function diagnosticSnapshot(value, ancestors = new Set(), depth = 0) {
+function diagnosticSnapshot(value, ancestors = new Set(), depth = 0, allowRootClass = false) {
   if (value === null || typeof value === 'string' || typeof value === 'boolean') return value;
   if (value === undefined) return {kind:'undefined'};
   if (typeof value === 'number') {
@@ -75,7 +75,7 @@ function diagnosticSnapshot(value, ancestors = new Set(), depth = 0) {
   if (ancestors.has(value)) return {kind:'cycle'};
   if (depth > 4) return {kind:'depth-limit'};
   const proto = Object.getPrototypeOf(value);
-  if (!Array.isArray(value) && proto !== Object.prototype && proto !== null) {
+  if (!allowRootClass && !Array.isArray(value) && proto !== Object.prototype && proto !== null) {
     const ownFullName = Object.getOwnPropertyDescriptor(value, 'fullName');
     return {kind:'class', name:proto?.constructor?.name || 'unknown',
       ...(typeof ownFullName?.value === 'string' ? {fullName:ownFullName.value} : {})};
@@ -169,7 +169,7 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
       event.parameters = portableSnapshot(action, new Set(), true);
     } catch (error) {
       event.captureError = error.message;
-      event.partialParameters = diagnosticSnapshot(action);
+      event.partialParameters = diagnosticSnapshot(action, new Set(), 0, true);
       captureErrors.push('step ' + step + ': ' + error.message);
     }
     try {
