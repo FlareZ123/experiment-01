@@ -115,3 +115,15 @@ test('Store graph audit catches divergent primitive values and Array lengths',()
   assert.equal(result.valueMismatches.count,1);
   assert.equal(result.arrayLengthMismatches.count,1);
 });
+
+test('Store graph audit detects a changed class identity',()=>{
+  const {compareOwnedStateGraph} =
+    require('../simulation/twinleaf/prototype-safe-state-graph-audit.cjs');
+  class Card{constructor(){this.value=1}}
+  const source={active:new Card()};
+  const wrong={active:{value:1}};
+  const result=compareOwnedStateGraph(source,wrong);
+  assert.equal(result.valueMismatches.count,0);
+  assert.equal(result.classPrototypeMismatches.count,1);
+  assert.deepEqual(result.classPrototypeMismatches.examples,['state.active']);
+});
