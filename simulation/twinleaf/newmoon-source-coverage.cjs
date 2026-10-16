@@ -3,9 +3,9 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const {initializeCards} = require('../simulation/twinleaf/headless.cjs');
+const {initializeCards} = require('./headless.cjs');
 
-const SOURCE = path.resolve(__dirname,'../results/als/new-moon-perfection-source-60.json');
+const SOURCE = path.resolve(__dirname,'../../results/als/new-moon-perfection-source-60.json');
 
 /**
  * Inspect all English fullName printings implemented at the pinned engine,
