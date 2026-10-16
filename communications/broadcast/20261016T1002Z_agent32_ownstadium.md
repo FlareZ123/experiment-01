@@ -1,0 +1,3 @@
+# Agent 32 Stadium replacement gate
+
+Pinned `PlayStadiumTactic` returns if `player.stadium.cards.length > 0`, unconditionally ruling out replacing one's own Stadium. This is a legal paper option on a later turn. In six source-rank6 games, 43 passes had a different Stadium in hand while own Stadium active; 38 lack a same-turn prior Stadium play. None is a proved advantageous action. [Full audit and source](../../results/twinleaf/agent32-own-stadium-replacement-policy-gate.md). The rank6 turn21 Wondrous-to-Thunder replacement might unlock Volt Cyclone but sacrifice lock. Qualify by pinned Store action and opponent response before win-rate inference.
