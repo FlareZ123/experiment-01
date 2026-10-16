@@ -11,8 +11,9 @@ const load = name => require(path.join(output, name));
  * @param {number} count Number of the five discarded cards to attach.
  * @param {boolean} noRecipient Whether all own Pokémon are GX.
  * @param {boolean} useBot Let pinned SimpleTacticsAi resolve the attachment prompt.
+ * @param {number} availableCount Number of Energy cards actually in discard.
  */
-function runCase(count, noRecipient = false, useBot = false) {
+function runCase(count, noRecipient = false, useBot = false, availableCount = 5) {
   const f = stagedRaichu([], null);
   const {PokemonCardList} = load('game/store/state/pokemon-card-list');
   const {CardList} = load('game/store/state/card-list');
@@ -33,7 +34,8 @@ function runCase(count, noRecipient = false, useBot = false) {
   }
   const candidates = ['Reversal Energy PAL','Counter Energy CIN',
     'Unit Energy LPM UPR','Reversal Energy PAL','Counter Energy CIN'].map(f.card);
-  f.a.discard.cards.push(...candidates);
+  const available = candidates.slice(0, availableCount);
+  f.a.discard.cards.push(...available);
   const before = f.b.getPrizeLeft();
   f.store.dispatch(new UseAbilityAction(101, 'Extra Energy Bomb', {
     player:PlayerType.BOTTOM_PLAYER, slot:SlotType.BENCH, index:0
@@ -48,7 +50,7 @@ function runCase(count, noRecipient = false, useBot = false) {
   assert.ok(prompt, 'Expected Extra Energy Bomb attachment prompt');
   assert.equal(prompt.constructor.name, 'AttachEnergyPrompt');
   const to = {player:PlayerType.BOTTOM_PLAYER, slot:SlotType.ACTIVE,index:0};
-  let transfers = candidates.slice(0,count).map(card => ({card,to}));
+  let transfers = available.slice(0,count).map(card => ({card,to}));
   if (useBot) {
     const {SimpleTacticsAi} = load('simple-bot/simple-tactics-ai');
     const definitions = load('simple-bot/simple-bot-definitions');
@@ -68,7 +70,7 @@ function runCase(count, noRecipient = false, useBot = false) {
   const promptAccepted = prompt.validate(transfers);
   f.store.dispatch(new ResolvePromptAction(prompt.id,transfers));
   return {
-    count,noRecipient,useBot,transferred:transfers.length,
+    count,noRecipient,useBot,availableCount,transferred:transfers.length,
     promptAccepted,min:prompt.options.min,max:prompt.options.max,
     remainingEnergy:f.a.discard.cards.filter(card => candidates.includes(card)).length,
     opponentPrizesTaken:before-f.b.getPrizeLeft(),
@@ -76,7 +78,8 @@ function runCase(count, noRecipient = false, useBot = false) {
   };
 }
 function verify() {
-  const cases = [runCase(5),runCase(4),runCase(0),runCase(0,true),runCase(0,true,true)];
+  const cases = [runCase(5),runCase(4),runCase(0),runCase(0,true),
+    runCase(0,true,true),runCase(1,false,false,2)];
   console.log(JSON.stringify({engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     scope:'staged Store actions, illegal inputs deliberately supplied',cases},null,2));
   assert.equal(cases[0].remainingEnergy,0);
@@ -84,6 +87,7 @@ function verify() {
   assert.equal(cases[1].promptAccepted,true,'Pinned prompt accepts four of five');
   assert.equal(cases[2].promptAccepted,true,'Pinned prompt accepts zero of five');
   assert.equal(cases[4].transferred,0,'Normal bot chooses zero when no recipient exists');
+  assert.equal(cases[5].promptAccepted,true,'Pinned prompt accepts one of two available');
   return cases;
 }
 if (require.main===module) verify();
