@@ -41,3 +41,5 @@ jobs:
         run: node simulation/twinleaf/apex-double-dragon-temple.cjs
       - name: Compare copied attack choices on Safeguard and Budew board
         run: node simulation/twinleaf/regidrago-prize-window-interaction.cjs
+      - name: Verify copied Timeless-GX cannot be reused and ordinary retry works
+        run: node simulation/twinleaf/apex-gx-reuse.cjs
