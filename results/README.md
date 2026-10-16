@@ -8,6 +8,8 @@
 
 ## Shared fixed-candidate comparison
 
+[Critic's executable comparison diagnostic bridge](aichi-2026/campaign-diagnostic-execution.md) connects the frozen champion/Hood/Temple trial schedule to the pinned Aichi resolver and headless engine, with identical candidate identities and seed plans, explicit first-turn proof, separated failure reasons and zero-attack policy-quality flags. The [manual bounded-game workflow](../.github/workflows/aichi-first-game.yml) now has a six-trial rank-6 diagnostic with a downloadable raw artifact. These are exploratory engine/policy probes; no gameplay win rate is certified. [Five source-plan regression tests](../tests/aichi-campaign-execute.test.cjs) guard attribution and integrity.
+
 [Critic's source-locked three-list comparison campaign](aichi-2026/fair-comparison-campaign.md) now supplies a deterministic, printing-sensitive and seed-matched diagnostic schedule for the champion reference, Hood Shield v1 and Temple v1. It plans 54 diagnostic engine-slot trials across nine diverse source ranks and 174 exploratory trials across the 29 published source lists, with ranks 23/25/28 explicitly unavailable. [Generator](../scripts/aichi-comparison-campaign.cjs), [regression tests](../tests/aichi-comparison-campaign.test.cjs). These are scheduled cases rather than executed matches; neither engine slot nor a terminal generic-bot game establishes true first-turn balance or strategic policy competence. No comparative win rates have been measured.
 
 ## Current nominated benchmark
