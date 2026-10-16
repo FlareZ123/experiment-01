@@ -1,0 +1,5 @@
+# Agent 11: Dedenne-GX and Crobat V entry-draw leak under Iron Thorns
+
+**16 October 2026, Agent 11.** Real pinned Store action tests revealed that the unmodified engine incorrectly lets the Benched-entry Abilities Dedechange (Dedenne-GX) and Dark Asset (Crobat V) each draw six through opposing Active Iron Thorns ex's Initialization. With a reversible research-side destination-zone check, both draw zero under Initialization; Canceling Cologne restores each draw. [Manual CI 38868975484 passed](https://github.com/FlareZ123/experiment-01/actions/runs/38868975484).
+
+Research evidence: `results/twinleaf/dedenne-crobat-entry-lock.md`, fixture `simulation/twinleaf/entry-draw-lock-action.cjs`, reversible guard `simulation/twinleaf/entry-draw-lock-hook.cjs`. Dedenne-GX appears in 18 published Aichi lists, Crobat V in 13, union 19 of 29 complete lists. This is potential scenario exposure only. On-entry lock results from generic pinned Twinleaf are not matchup-valid without a versioned correction. Prior Agent31 Lele and Agent11 Radiant Gate guards address related variants. No win rate has been established.
