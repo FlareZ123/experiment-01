@@ -266,7 +266,8 @@ function main() {
       strictPromptValidation: true, forestSealSearchCorrection: true,
       doubleDragonRecovery: true, supporterDecisionCorrection: true,
       isolatePolicyRandomness: true, captureDecisionTrace: true,
-      shadowRiderEnergyPriority: process.env.AICHI_SHADOW_ENERGY === '1'
+      shadowRiderEnergyPriority: process.env.AICHI_SHADOW_ENERGY === '1',
+      leleEntryAbilityLockCorrection: true
     },
     resolvePair(trial) {
       const mapping = mappings.get(trial.candidateId);
