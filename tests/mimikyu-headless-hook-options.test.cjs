@@ -21,18 +21,22 @@ test('headless Mimikyu hooks opt in, report policy and restore prototypes', () =
   const hooked = runMatch({
     ...common,
     mimikyuApexCopycatCompatibility: true,
-    mimikyuDeclaredHistoryCorrection: true
+    mimikyuDeclaredHistoryCorrection: true,
+    regidragoDeclaredHistoryCorrection: true
   });
   assert.equal(hooked.mimikyuApexCopycatCompatibility, true);
   assert.equal(hooked.mimikyuDeclaredHistoryCorrection, true);
+  assert.equal(hooked.regidragoDeclaredHistoryCorrection, true);
   assert.match(hooked.policy, /MimikyuNonGXCopyApex-v1/);
   assert.match(hooked.policy, /MimikyuDeclaredHistory-v1/);
+  assert.match(hooked.policy, /RegidragoDeclaredHistory-v1/);
   assert.equal(Store.prototype.dispatch, originalDispatch);
   assert.equal(Mimikyu.prototype.reduceEffect, originalReduce);
 
   const baseline = runMatch(common);
   assert.equal(baseline.mimikyuApexCopycatCompatibility, false);
   assert.equal(baseline.mimikyuDeclaredHistoryCorrection, false);
+  assert.equal(baseline.regidragoDeclaredHistoryCorrection, false);
   assert.equal(Store.prototype.dispatch, originalDispatch);
   assert.equal(Mimikyu.prototype.reduceEffect, originalReduce);
 });
