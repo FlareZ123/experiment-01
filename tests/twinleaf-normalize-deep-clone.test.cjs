@@ -41,3 +41,16 @@ test('repair fails closed if a supposedly cloned object still aliases a live obj
   const live={v:3};const fake={nested:live};
   assert.throws(()=>normalizeDeepClonePrototypes({nested:live},fake),/live object identity/);
 });
+
+test('pinned deepClone duplicates aliased array references; normalizer reunites them',()=>{
+  const shared=[{fullName:'A'}];
+  const source={zone:shared,alias:shared};
+  const detached=pinnedDeepClone(source);
+  assert.notStrictEqual(detached.zone,detached.alias);
+  normalizeDeepClonePrototypes(source,detached);
+  assert.strictEqual(detached.zone,detached.alias);
+  assert.notStrictEqual(detached.zone,shared);
+  assert.notStrictEqual(detached.zone[0],shared[0]);
+  detached.zone[0].fullName='B';
+  assert.equal(source.zone[0].fullName,'A');
+});
