@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      run_expanded_fixture:
+        description: 'Run a two-archetype source-deck composite-policy smoke'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -36,3 +41,6 @@ jobs:
       - name: Optional published-list policy feasibility probe
         if: ${{ inputs.run_aichi_fixture }}
         run: node simulation/twinleaf/supporter-aichi-smoke.cjs
+      - name: Optional composite source-deck policy fixture
+        if: ${{ inputs.run_expanded_fixture }}
+        run: node simulation/twinleaf/expanded-policy-aichi-fixture.cjs
