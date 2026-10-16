@@ -54,6 +54,12 @@ function probeEntry(name, useCologne, lockEnvironment = 'iron-thorns') {
   opponent.active.cards.push(iron);
   if (lockEnvironment === 'path') opponent.stadium.cards.push(card('Path to the Peak CRE'));
   if (lockEnvironment === 'silent-lab') opponent.stadium.cards.push(card('Silent Lab PRC'));
+  if (lockEnvironment === 'garbotoxin-tool' || lockEnvironment === 'garbotoxin-bare') {
+    const garb = new PokemonCardList();
+    garb.cards.push(card('Trubbish BKP'), card('Garbodor BKP'));
+    if (lockEnvironment === 'garbotoxin-tool') garb.tools.push(card('Stealthy Hood UNB'));
+    opponent.bench.push(garb);
+  }
   const player = new Player();
   player.id = 202;
   player.active.cards.push(card('Shadow Rider Calyrex V CRE'));
