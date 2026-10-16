@@ -53,4 +53,27 @@ class SpentGxAwareChooseAttackPromptResolver extends ChooseAttackPromptResolver 
   }
 }
 
-module.exports = {SpentGxAwareChooseAttackPromptResolver};
+/**
+ * Register the policy only while a SimpleTacticsAi is constructed.
+ * The original resolver registry is restored in a finally block.
+ *
+ * @template T
+ * @param {()=>T} fn
+ * @returns {T}
+ */
+function withSpentGxCopyResolver(fn) {
+  const definitions = require(path.join(output,
+    'simple-bot/simple-bot-definitions'));
+  const list = definitions.allPromptResolvers;
+  const i = list.findIndex(ctor => ctor.name === 'ChooseAttackPromptResolver');
+  if (i < 0) throw new Error('Pinned copied-attack resolver not found');
+  const original = list[i];
+  list[i] = SpentGxAwareChooseAttackPromptResolver;
+  try {
+    return fn();
+  } finally {
+    list[i] = original;
+  }
+}
+
+module.exports = {SpentGxAwareChooseAttackPromptResolver,withSpentGxCopyResolver};
