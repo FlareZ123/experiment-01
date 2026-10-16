@@ -57,3 +57,14 @@ test('invalid experiment parameters and unfinished rounds are rejected',()=>{
   const wrong=round();wrong[0].outcome='unfinished';
   assert.throws(()=>assessFieldEvidence([wrong]),/Invalid/);
 });
+
+test('a later crossing remains possible after one early loss',()=>{
+  const rounds=Array.from({length:36},()=>round());
+  rounds[0]=round(0);
+  const before=assessFieldEvidence(rounds.slice(0,35));
+  const after=assessFieldEvidence(rounds);
+  assert.equal(before.currentCrosses,false);
+  assert.equal(after.currentCrosses,true);
+  assert.equal(after.firstCrossedAtRound,36);
+  assert.equal(after.nonWins,1);
+});
