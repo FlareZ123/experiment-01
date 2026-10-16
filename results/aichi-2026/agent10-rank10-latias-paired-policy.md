@@ -10,9 +10,9 @@
 
 ## Directly observed six-game contrast
 
-Printed by the two jobs' quality-screen steps. A and B identify *the candidate's engine slot*; columns report the candidate/opponent attack counts and terminal **remaining** Prize counts, in candidate/opponent order as exposed by the screen. Both jobs completed all six engine matches, and neither recorded any independently qualified games.
+Printed by the two jobs' quality-screen steps. A and B identify *the candidate's engine slot*; attack counts are candidate/opponent; terminal **remaining** Prize arrays are in **physical engine seat 0/1 order**. Candidate slot A corresponds to physical seat 0 and candidate slot B to seat 1. For Temple A the arrays are also candidate/opponent order. Both jobs completed all six engine matches, and neither recorded any independently qualified games.
 
-| Trial | Control attacks C/O | Experimental attacks C/O | Control terminal Prizes C/O | Experimental terminal Prizes C/O |
+| Trial | Control attacks C/O | Experimental attacks C/O | Control terminal Prizes seat 0/1 | Experimental terminal Prizes seat 0/1 |
 | --- | ---: | ---: | ---: | ---: |
 | champion-reference:A | 3 / 4 | 3 / 4 | 2 / 0 | 2 / 0 |
 | champion-reference:B | 4 / 3 | 4 / 3 | 0 / 4 | 0 / 4 |
