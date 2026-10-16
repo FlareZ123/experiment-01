@@ -239,15 +239,27 @@ test('a legacy v3 archive without the seed base is clearly marked', () => {
     'v3-base-missing-legacy');
 });
 
-test('experimental Simulator clone profile remains visible and is never ranked',()=>{
-  const experimental=fixture();
-  experimental.policyFlags={prototypeSafeSimulatorIsolation:true};
-  const report=auditCampaignQuality(experimental);
-  assert.equal(report.simulatorCloneProfile,'prototype-safe-experimental-v1');
-  assert.ok(report.records.every(row=>
-    row.simulatorCloneProfile==='prototype-safe-experimental-v1'));
-  assert.equal(report.winRateEvidence,false);
-  assert.equal(report.candidateRankingPermitted,false);
-  const original=auditCampaignQuality(fixture());
-  assert.equal(original.simulatorCloneProfile,'pinned-source-card-alias-v0');
+test('both Simulator clone modes retain explicit trial-level safety blockers', () => {
+  const original = auditCampaignQuality(fixture());
+  assert.equal(original.simulatorCloneProfile, 'pinned-source-card-alias-v0');
+  assert.equal(original.simulatorSafetyStatus, 'known-simulator-card-alias-risk');
+  assert.equal(original.simulatorSafetyQualified, false);
+  assert.ok(original.records.every(row =>
+    row.simulatorSafetyStatus === original.simulatorSafetyStatus &&
+    row.blockers.includes('known-simulator-card-alias-risk')));
+
+  const experimental = fixture();
+  experimental.policyFlags = {prototypeSafeSimulatorIsolation: true};
+  const report = auditCampaignQuality(experimental);
+  assert.equal(report.simulatorCloneProfile, 'prototype-safe-experimental-v1');
+  assert.equal(report.simulatorSafetyStatus, 'experimental-clone-not-qualified');
+  assert.equal(report.simulatorSafetyQualified, false);
+  assert.ok(report.records.every(row =>
+    row.simulatorCloneProfile === 'prototype-safe-experimental-v1' &&
+    row.simulatorSafetyStatus === report.simulatorSafetyStatus &&
+    row.blockers.includes('experimental-clone-not-qualified') &&
+    !row.blockers.includes('known-simulator-card-alias-risk')));
+  assert.equal(report.winRateEvidence, false);
+  assert.equal(report.candidateRankingPermitted, false);
+  assert.ok(report.coverage.every(row => row.independentlyQualifiedGames === 0));
 });
