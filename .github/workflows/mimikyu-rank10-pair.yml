@@ -27,6 +27,12 @@ jobs:
         run: npm run compile
       - name: Validate standalone source diagnostics
         run: node --test tests/mimikyu-rank10-policy-pair.test.cjs tests/copycat-turn-start-evidence.test.cjs tests/mimikyu-source-turn27-setup.test.cjs
+      - name: Verify source-graph fingerprint observer stays read-only
+        run: node --test tests/rank10-live-decision-noninterference.test.cjs
+      - name: Capture authentic rank-10 turn-27 root decision source noninterference
+        run: node simulation/twinleaf/rank10-live-decision-noninterference.cjs > rank10-turn27-mutation.json
+      - name: Print bounded turn-27 graph mutation verdict
+        run: node -e "const x=require('./rank10-turn27-mutation.json'); console.log(JSON.stringify({trial:x.trial.id,target:x.target,identicalUninstrumentedControl:x.matchedEngineControlSummary,qualified:x.qualifiedForCompetitiveInference}));"
       - name: Run source-locked rank-10 fixed-seed Copycat A/B
         run: node simulation/twinleaf/mimikyu-rank10-policy-pair.cjs > rank10-copycat-paired.json
       - name: Print bounded findings
