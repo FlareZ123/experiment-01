@@ -71,6 +71,10 @@ function marshadowResponsePolicyProbe() {
     index: 0
   });
   f.store.dispatch(response);
+  const animation = f.state.prompts.find(prompt => prompt.result === undefined &&
+    prompt.constructor.name === 'WaitPrompt');
+  assert.ok(animation, 'Ability animation prompt must be acknowledged');
+  f.store.dispatch(new ResolvePromptAction(animation.id, null));
   const afterScore = score.getScore(f.state, f.attacking.id);
   assert.ok(f.defending.discard.cards.includes(temple));
   assert.ok(f.attacking.discard.cards.includes(marshadow));
