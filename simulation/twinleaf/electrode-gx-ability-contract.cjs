@@ -88,8 +88,8 @@ function verify() {
   assert.equal(cases[2].promptAccepted,true,'Pinned prompt accepts zero of five');
   assert.equal(cases[4].transferred,0,'Normal bot chooses zero when no recipient exists');
   assert.equal(cases[5].promptAccepted,true,'Pinned prompt accepts one of two available');
-  assert.ok(cases[6].transferred >= 0 && cases[6].transferred <= 5,
-    'Record how many cards normal bot chooses with a legal recipient');
+  assert.equal(cases[6].transferred,2,
+    'Pinned static EnergyScore ties at two Colorless cards and selects two of five');
   return cases;
 }
 if (require.main===module) verify();
