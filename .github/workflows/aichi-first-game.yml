@@ -26,7 +26,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify terminal-transition and campaign regressions
-        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/printed-basic-energy-audit.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-campaign-execute.test.cjs tests/aichi-campaign-seed-v2.test.cjs tests/decision-hand-evidence.test.cjs tests/aichi-opening-decision-audit.test.cjs
+        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/printed-basic-energy-audit.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-pass-board-audit.test.cjs tests/aichi-campaign-execute.test.cjs tests/aichi-campaign-seed-v2.test.cjs tests/decision-hand-evidence.test.cjs tests/aichi-opening-decision-audit.test.cjs
       - name: Install engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -43,6 +43,8 @@ jobs:
         run: node simulation/evaluation/aichi-campaign-execute.cjs > aichi-campaign-diagnostic.json
       - name: Audit first Iron Thorns decisions without inferring wins
         run: node simulation/evaluation/aichi-opening-decision-audit.cjs aichi-campaign-diagnostic.json > aichi-opening-decision-audit.json
+      - name: Audit public pass boards without inferring attack legality
+        run: node scripts/aichi-pass-board-audit.cjs aichi-campaign-diagnostic.json > aichi-pass-board-audit.json
       - name: Print early-turn hand evidence summary
         run: node -e "const r=require('./aichi-opening-decision-audit.json');for(const x of r.records)console.log(JSON.stringify({trialId:x.trialId,status:x.auditStatus,globalTurn:x.firstObservedTurn,firstHand:x.firstObservedHandPrintings,played:x.playedCards,end:x.firstTurnEndAction,firstAttack:x.firstRecordedAttackTurn}))"
       - name: Preserve bounded diagnostic records
@@ -53,4 +55,5 @@ jobs:
           path: |
             aichi-campaign-diagnostic.json
             aichi-opening-decision-audit.json
+            aichi-pass-board-audit.json
           if-no-files-found: warn
