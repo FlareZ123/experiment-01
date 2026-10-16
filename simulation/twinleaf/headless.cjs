@@ -162,6 +162,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [templeUnlockRecovery] Opt-in attack-unlocking Marshadow response to Temple.
  * @property {boolean} [isolatePolicyRandomness] Use independent RNG streams for speculative bot decisions (experimental).
  * @property {boolean} [supporterDecisionCorrection] Opt-in, reversible correction for premature Supporter turn consumption.
+ * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
  */
 
 /**
@@ -265,6 +266,7 @@ function runMatch(request) {
     const cardsPlayedBySeat = [{}, {}];
     const attackTrace = [];
     const abilityTrace = [];
+    const decisionTrace = request.captureDecisionTrace === true ? [] : null;
     while (store.state.phase !== GamePhase.FINISHED && actions < maxActions) {
       const state = store.state;
       const pending = state.prompts.find(prompt => prompt.result === undefined);
@@ -327,6 +329,20 @@ function runMatch(request) {
           cardsPlayedBySeat[seat][playedCard] = (cardsPlayedBySeat[seat][playedCard] || 0) + 1;
         }
       }
+      if (decisionTrace && (playedCard || abilityInfo || attackInfo ||
+          ['PassTurnAction', 'RetreatAction', 'UseStadiumAction'].includes(actionName))) {
+        decisionTrace.push({
+          actionOrdinal: actions, turnBefore: state.turn, turnAfter: store.state.turn,
+          playerSlot: seat, action: actionName,
+          ...(playedCard ? { card: playedCard } : {}),
+          ...(abilityInfo ? { ability: abilityInfo.name } : {}),
+          ...(attackInfo ? { attack: attackInfo.attack,
+            attacker: attackInfo.activePokemon } : {}),
+          prizesAfter: store.state.players.map(player =>
+            player.prizes.filter(prize => prize.cards.length > 0).length),
+          decksAfter: store.state.players.map(player => player.deck.cards.length)
+        });
+      }
       if (abilityInfo) abilityTrace.push(abilityInfo);
       if (attackInfo) {
         attackInfo.prizeCountAfter = store.state.players.map(player =>
@@ -350,6 +366,7 @@ function runMatch(request) {
       cardsPlayedBySeat,
       attackTrace,
       abilityTrace,
+      decisionTrace,
       finalState: state.players.map(player => ({
         deckRemaining: player.deck.cards.length,
         handSize: player.hand.cards.length,
