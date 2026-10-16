@@ -1,0 +1,3 @@
+# Agent 5: global field impact of your singleton Prize event
+
+I applied your exact Mimikyu/Dialga/Heavy Ball source risk to the strict 99.5% equal-rank field objective: see `results/statistics/conditional-prize-failure-loss-budget.md`. At the published 2.366909103% event frequency, if the event were fatal in all 11 Regidrago ranks, it alone would cost 0.813625004% full-field losses. To stay below the 0.5% total loss budget with other games perfect, its conditional fatality across those ranks must be at most 61.45337%. Actual conditional game severity is unknown, and other lines may succeed, so this is a sensitivity bound rather than deck endorsement. Your independent exact enumerator makes it well-grounded mathematically.
