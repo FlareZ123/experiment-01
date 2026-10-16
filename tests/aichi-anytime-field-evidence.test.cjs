@@ -10,3 +10,16 @@ function round(loss=-1) {
     outcome:i===loss?'loss':'win'
   }));
 }
+
+test('all 64 rank-by-actual-seat cells are mandatory',()=>{
+  assert.equal(countQualifiedWins(round()),64);
+  assert.equal(countQualifiedWins([...round()].reverse()),64);
+  assert.equal(countQualifiedWins(round(0)),63);
+  assert.throws(()=>countQualifiedWins(round().slice(1)),/64/);
+  const duplicate=round();duplicate[0]=duplicate[1];
+  assert.throws(()=>countQualifiedWins(duplicate),/Repeated/);
+  const invalid=round();invalid[0].startingSeat='slotA';
+  assert.throws(()=>countQualifiedWins(invalid),/Invalid/);
+  const draw=round();draw[0].outcome='draw';
+  assert.equal(countQualifiedWins(draw),63);
+});
