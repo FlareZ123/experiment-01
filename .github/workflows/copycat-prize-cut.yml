@@ -1,0 +1,8 @@
+name: Exact Copycat Prize Cut
+on: workflow_dispatch
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node --test tests/copycat-prize-cut.test.cjs
