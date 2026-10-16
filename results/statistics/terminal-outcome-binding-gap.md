@@ -28,3 +28,7 @@ A trial implementation of this condition was committed temporarily, then reverte
 ## Scope
 
 This proposed check would stop contradictory self-reports. It cannot authenticate `winnerIndex` or detect an intentionally fabricated terminal record; only a verified source Store/event replay with trusted raw capture can establish that. The evidence remains **zero qualified competitive games**, and no 99.5% win-rate claim follows.
+
+## Optional strict intake implementation
+
+A new opt-in [terminal-bound wrapper](../../scripts/aichi-qualified-outcome-binding.cjs) and [adversarial fixture suite](../../tests/aichi-qualified-outcome-binding.test.cjs) now enforce the derived win/loss/draw parity before delegating to the unchanged original e-process. A [manual-only test workflow](../../.github/workflows/aichi-terminal-outcome-binding.yml) is committed. These artifacts were not tested in remotely compiled CI during this invocation because workflow trigger access was blocked. The original core function remains unchanged and callers must explicitly select `assessTerminalBoundFieldEvidence` to obtain the additional guard. The wrapper checks consistency of untrusted self-reports, with **no authenticated competitive games**.
