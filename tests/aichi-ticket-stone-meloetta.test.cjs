@@ -28,3 +28,10 @@ function enumerate(n,b,h,q){
  visit();
  return {early:early/legal,meloettaInitial:meloettaInitial/legal};
 }
+test('miniature marked-card physical enumeration',()=>{
+ for(const [n,b,h,q] of [[9,2,3,2],[10,3,3,2]]){
+  const a=ticketStoneMeloetta(n,b,h,q),e=enumerate(n,b,h,q);
+  assert.ok(Math.abs(a.firstEight-e.early)<1e-12);
+  assert.ok(Math.abs(a.meloettaInitially-e.meloettaInitial)<1e-12);
+ }
+});
