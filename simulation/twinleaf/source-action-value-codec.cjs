@@ -47,9 +47,11 @@ function fields(x, seen) {
 /** @param {unknown} x */
 function captureAction(x) {
   if (!x || typeof x !== 'object' || !x.constructor?.name ||
-      Object.getPrototypeOf(x) !== x.constructor.prototype ||
-      Object.getOwnPropertySymbols(x).length) {
+      Object.getPrototypeOf(x) !== x.constructor.prototype) {
     throw new TypeError('Expected a direct Action instance');
+  }
+  if (Object.getOwnPropertySymbols(x).length) {
+    throw new TypeError('Symbol key');
   }
   return {schema:SCHEMA, type:x.constructor.name, fields:fields(x, new Set([x]))};
 }
