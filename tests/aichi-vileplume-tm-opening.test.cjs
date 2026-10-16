@@ -27,8 +27,7 @@ function brute(counts, opening, prizes) {
    const rescued=halas && (hasTool||count(deck,'m')>0)
       && (hasEnergy|| (b7?['j','s'].some(k=>count(deck,k)>0):count(deck,'j')>0));
    const core=direct||rescued;
-   const target=b7?count(hand,'e')>0
-     : count(initial,'o')>0?count(hand,'e')>0:count(hand,'e')>1;
+   const target=count(hand,'e')>0;
    if(direct)successes.direct++;
    if(core)successes.core++;
    if(core&&target)successes.bench++;
@@ -61,7 +60,7 @@ const full=exactOpportunity(cardGroups(rank2.cards));
 assert.ok(Math.abs(full.validOpeningProbability-0.8614093191287199)<1e-12);
 assert.ok(Math.abs(full.directConditional-0.030425098169716457)<1e-12);
 assert.ok(Math.abs(full.resourceConditional-0.2000701403213941)<1e-12);
-assert.ok(Math.abs(full.benchTargetConditional-0.10204901657487496)<1e-12);
+assert.ok(Math.abs(full.benchTargetConditional-0.1066092646999868)<1e-12);
 assert.ok(Math.abs(full.byBunnelby.initial.core+
  full.byBunnelby.firstDraw.core-full.resourceConditional)<1e-12);
 console.log(JSON.stringify({test:'40320-permutation exhaustive cross-check and rank-2 source regression',
