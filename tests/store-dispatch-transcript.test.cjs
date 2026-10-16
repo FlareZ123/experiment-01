@@ -88,6 +88,10 @@ test('records source-index identity for real ChooseCardsPrompt reference selecti
     store.dispatch(new ResolvePromptAction([second])));
   const event = report.actionTrace[0];
   assert.equal(event.choiceReferences.selection[0].index, 1);
+  assert.deepEqual(event.pendingPrompt,{
+    id:null,kind:'ChooseCardsPrompt',message:'CHOOSE_CARDS',
+    playerId:null,perspectivePlayerId:null
+  });
   assert.equal(event.choiceReferences.selection[0].mode, 'card-reference');
   assert.equal(report.capturedChoiceReferenceEvents, 1);
   assert.equal(report.failedChoiceReferenceEvents, 0);
