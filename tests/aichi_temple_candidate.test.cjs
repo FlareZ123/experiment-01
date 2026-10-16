@@ -28,3 +28,6 @@ test('all exact candidate printings appear in the event source',()=>{
     assert.ok(c.count>=1 && (c.count<=4 || c.name==='Psychic Energy'));
   }
 });
+
+// Other fixed Aichi research challengers share this manual-only candidate suite.
+require('./hood-t2-joint.test.cjs');
