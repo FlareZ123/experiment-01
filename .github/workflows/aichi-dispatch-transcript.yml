@@ -24,7 +24,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify reversible noninterfering recording wrapper
-        run: node --test tests/store-dispatch-transcript.test.cjs tests/action-trace-canonical.test.cjs tests/choose-cards-reference.test.cjs tests/rank10-source-branch-transcript.test.cjs tests/choose-attack-reference.test.cjs tests/source-zone-checkpoint.test.cjs tests/choice-slot-reference.test.cjs tests/choose-energy-reference.test.cjs tests/attach-energy-reference.test.cjs
+        run: node --test tests/store-dispatch-transcript.test.cjs tests/action-trace-canonical.test.cjs tests/choose-cards-reference.test.cjs tests/rank10-source-branch-transcript.test.cjs tests/choose-attack-reference.test.cjs tests/source-zone-checkpoint.test.cjs tests/choice-slot-reference.test.cjs tests/choose-energy-reference.test.cjs tests/attach-energy-reference.test.cjs tests/state-continuity-observer.test.cjs
       - name: Install compiled engine dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -44,4 +44,16 @@ jobs:
         with:
           name: rank10-source-branch-live-dispatch
           path: rank10-source-branch-live-dispatch.json
+          if-no-files-found: warn
+
+      - name: Observe source-state continuity under each clone profile
+        run: node simulation/twinleaf/agent1-rank10-continuity.cjs > source-state-continuity-rank10.json
+      - name: Report state changes between real actions
+        run: node -e "const x=require('./source-state-continuity-rank10.json'); console.log(JSON.stringify(x.findings.map(y=>({mode:y.mode,actions:y.actions,stateGaps:y.stateChangesBetweenActions,firstGap:y.firstChanges[0]||null}))));"
+      - name: Archive source-state continuity diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-state-continuity-rank10
+          path: source-state-continuity-rank10.json
           if-no-files-found: warn
