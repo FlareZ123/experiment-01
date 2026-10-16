@@ -23,6 +23,7 @@ const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
 const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
 const {inspectTmEvolutionPass} = require('./tm-evolution-pass-evidence.cjs');
 const {probeEvolutionAnnouncement} = require('./tm-evolution-announcement-probe.cjs');
+const {probePassedAttackOptions} = require('./pass-attack-announcement-probe.cjs');
 const {withActiveOpeningPivot} = require('./active-opening-pivot.cjs');
 const {withAttackBeforeRetreat} = require('./attack-retreat-order.cjs');
 const {retreatTransitionEvidence} = require('./retreat-transition-evidence.cjs');
@@ -192,6 +193,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [attackBeforeRetreat] Opt-in policy-order sensitivity probe for AttackTactic and RetreatTactic.
  * @property {0|1} [attackBeforeRetreatSeat] Restrict that opt-in probe to one physical seat.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
+ * @property {boolean} [captureAttackPassProbes] Opt-in first eight post-choice Pass attack-announcement probes; only archived when capturing decision trace.
  */
 
 /**
@@ -353,6 +355,7 @@ function runMatch(request) {
     const attackTrace = [];
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
+    let attackPassProbeCount = 0;
     let terminalTransition = null;
     let actionLineage = null;
     while (store.state.phase !== GamePhase.FINISHED && actions < maxActions) {
@@ -426,6 +429,20 @@ function runMatch(request) {
         inspectTmEvolutionPass(state.players[seat]) : null;
       const tmEvolutionAnnouncementProbe = tmEvolutionBeforePass ?
         probeEvolutionAnnouncement(state, state.players[seat].id) : null;
+      let attackPassProbe = null;
+      if (decisionTrace && request.captureAttackPassProbes === true &&
+          actionName === 'PassTurnAction' && seat >= 0 && attackPassProbeCount < 8) {
+        attackPassProbeCount++;
+        try {
+          attackPassProbe = probePassedAttackOptions(state, state.players[seat].id);
+        } catch (error) {
+          attackPassProbe = {
+            evidenceType: 'post-choice-cloned-attack-announcements-v1',
+            auditError: String(error?.message || error),
+            scope: 'Observation failed without changing the selected policy action.'
+          };
+        }
+      }
       try {
         store.dispatch(action);
       } catch (error) {
@@ -466,6 +483,7 @@ function runMatch(request) {
           ...(printedBasicEnergyBeforePass ? { printedBasicEnergyBeforePass } : {}),
           ...(tmEvolutionBeforePass ? { tmEvolutionBeforePass } : {}),
           ...(tmEvolutionAnnouncementProbe ? { tmEvolutionAnnouncementProbe } : {}),
+          ...(attackPassProbe ? { attackPassProbe } : {}),
           ...(attackInfo ? { attack: attackInfo.attack,
             attacker: attackInfo.activePokemon } : {}),
           prizesAfter: store.state.players.map(player =>
@@ -497,6 +515,7 @@ function runMatch(request) {
       attackTrace,
       abilityTrace,
       decisionTrace,
+      attackPassProbeCount,
       terminalTransition,
       finalState: state.players.map(player => ({
         deckRemaining: player.deck.cards.length,
