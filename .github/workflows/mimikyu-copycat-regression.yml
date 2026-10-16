@@ -46,6 +46,9 @@ jobs:
       - name: Exercise declared Copycat AttackAction and nested GX prompt
         run: node simulation/twinleaf/mimikyu-apex-action-test.cjs
 
+      - name: Characterize printed-280HP Fairy Zone Copycat KO and Prize handling
+        run: node simulation/twinleaf/mimikyu-apex-action-test.cjs --printed-ko
+
       - name: Verify reversible headless Copycat flags and cleanup
         run: node --test tests/mimikyu-headless-hook-options.test.cjs
 
