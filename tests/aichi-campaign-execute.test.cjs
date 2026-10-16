@@ -163,3 +163,11 @@ test('requested chronological action capture is hashed and attributed', () => {
       createHash('sha256').update(JSON.stringify(trace)).digest('hex'));
   }
 });
+
+
+test('missing requested history prevents a completed status', () => {
+  const result = run({policyFlags: {captureDecisionTrace: true}});
+  assert.equal(result.counts['unverified-decision-trace'], 6);
+  assert.equal(result.counts['completed-engine-game'] || 0, 0);
+  assert.equal(result.records[0].traceSummary.chronologicalActionTrace, null);
+});
