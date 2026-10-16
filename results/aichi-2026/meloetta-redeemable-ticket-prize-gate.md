@@ -56,3 +56,10 @@ The exact source list also has **four Battle Compressor**. Those Items search th
 
 This is **5.022768%** of the initially DCE-Prized deals. The independent [five-category combinatorial model](../../scripts/aichi-meloetta-ticket-compressor.cjs) and [physical-deal exhaustive test](../../tests/aichi-meloetta-ticket-compressor.test.cjs) passed [compiled manual CI 38845601070](https://github.com/FlareZ123/experiment-01/actions/runs/38845601070). The calculation does not include any other shuffle/search effect, optional mulligan draws, card playability under locks, or whether a subsequent draw finds the Energy. Thus it is neither a complete rescue probability nor a win-rate estimate.
 
+
+
+## Distinct Basic-Pokémon Prize-rescue bottleneck
+
+The source also has two **Hisuian Heavy Ball** Items and exactly one copy each of **Meloetta ex** and **Tapu Koko Prism Star**, both Basic Pokémon. The already-validated general [Prize recovery capacity enumerator](../../scripts/prize_recovery_capacity.py) can be applied to these **two required Basic roles**, ten other Basics, and two one-use rescue Items. The event is that more required Basic roles are completely Prized than there are Heavy Ball copies outside the six initial Prizes. After conditioning on a valid opening seven, the exact fraction is **20,015,159 / 9,245,515,994 = 0.216485%**. Hypothetical zero and one Heavy Ball would give 18.587110% and 2.336730%, respectively, keeping 12 Basics and replacing only non-Basic slots.
+
+This small figure measures only *static numerical rescue capacity*, treating unprized Heavy Balls as freely accessible and useable. It omits Item lock, draw/search cost, timing, DCE access, Ticket's Prize-redeal operation, and any attack. It must not be interpreted as a first-turn donk reliability estimate or as proof that two Heavy Balls are the optimal slot allocation.
