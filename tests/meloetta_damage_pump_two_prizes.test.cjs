@@ -225,3 +225,82 @@ test('prepared turn-one five-KO state enables Tool Crisis Punch lethal from Melo
     assert.equal(f.defender.active.cards.length,0);
   } finally {restore();}
 });
+
+test('prepared turn-one Meloetta uses source Escape Rope, Koko Dance and Float Stone before lethal',()=>{
+  const restore=installDamagePumpSingleSourceHook();
+  try {
+    const f=setup();
+    f.state.turn=1;
+    f.state.rules.attackFirstTurn=false;
+    assert.deepEqual(executeFiveKOs(f),[4,2,1]);
+    const manager=initializeCards();
+    let id=11100;
+    /** @param {string} fullname @returns {object} */
+    const card=fullname=>{
+      const result=manager.getCardByName(fullname);
+      assert.ok(result,'Missing source card '+fullname);
+      result.id=id++;
+      return result;
+    };
+    // Two Lightning Energy are staged as previously discarded by source
+    // Battle Compressor. Searching/discard sequencing is not modeled here.
+    const lightning=[card('Lightning Energy SVE'),card('Lightning Energy SVE')];
+    f.attacker.discard.cards.push(...lightning);
+    const rope=card('Escape Rope BST');
+    const koko=card('Tapu Koko Prism Star TEU');
+    const dce=card('Double Colorless Energy SUM');
+    const floatStone=card('Float Stone BKT');
+    const crisis=card('Technical Machine: Crisis Punch PAF');
+    f.attacker.hand.cards.push(rope,koko,dce,floatStone,crisis);
+
+    // Escape Rope promotes our donor, placing Meloetta on the Bench to
+    // satisfy Dance of the Ancients' actual Benched-recipient restriction.
+    play(f,rope,boardTarget);
+    let prompt=pending(f);
+    assert.equal(prompt?.constructor.name,'ChoosePokemonPrompt');
+    assert.equal(prompt.playerId,f.attacker.id);
+    assert.equal(prompt.validate([f.attacker.bench[0]],f.state),true);
+    f.store.dispatch(new ResolvePromptAction(prompt.id,[f.attacker.bench[0]]));
+    assert.equal(f.attacker.active.getPokemonCard()?.name,'Unown');
+    assert.equal(f.attacker.bench[0].getPokemonCard()?.name,'Meloetta ex');
+
+    play(f,koko,target(3));
+    assert.equal(f.attacker.bench[3].damage,20);
+    f.store.dispatch(new UseAbilityAction(f.attacker.id,'Dance of the Ancients',
+      target(3)));
+    prompt=pending(f);
+    assert.equal(prompt?.constructor.name,'AttachEnergyPrompt');
+    const transfers=[
+      {card:lightning[0],to:target(0)},
+      {card:lightning[1],to:target(1)}
+    ];
+    assert.equal(prompt.validate(transfers),true);
+    f.store.dispatch(new ResolvePromptAction(prompt.id,transfers));
+    assert.equal(f.attacker.bench[0].energies.cards.includes(lightning[0]),true);
+    assert.equal(f.attacker.bench[1].energies.cards.includes(lightning[1]),true);
+    assert.equal(f.attacker.lostzone.cards.includes(koko),true);
+
+    // Normal manual attachment and Float Stone free retreat to Meloetta.
+    play(f,dce,target(0));
+    assert.equal(f.attacker.bench[0].energies.cards.includes(dce),true);
+    play(f,floatStone,{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+    assert.equal(f.attacker.active.tools.includes(floatStone),true);
+    const {RetreatAction,AttackAction}=engine('game/store/actions/game-actions');
+    f.store.dispatch(new RetreatAction(f.attacker.id,0));
+    assert.equal(f.attacker.active.getPokemonCard()?.name,'Meloetta ex');
+
+    play(f,crisis,{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+    assert.equal(f.attacker.active.tools.includes(crisis),true);
+    f.store.dispatch(new AttackAction(f.attacker.id,'Crisis Punch'));
+    for(let i=0;i<24 && pending(f);i++) {
+      const followup=pending(f);
+      assert.equal(followup.constructor.name,'WaitPrompt');
+      f.store.dispatch(new ResolvePromptAction(followup.id,null));
+    }
+    const {GameWinner}=engine('game/store/state/state');
+    assert.equal(pending(f),undefined);
+    assert.equal(f.state.phase,GamePhase.FINISHED);
+    assert.equal(f.state.winner,GameWinner.PLAYER_1);
+    assert.equal(f.defender.active.cards.length,0);
+  } finally {restore();}
+});
