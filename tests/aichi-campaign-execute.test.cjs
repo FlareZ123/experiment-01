@@ -183,3 +183,24 @@ test('preserves terminal transition in campaign diagnostic', () => {
 });
 
 require('./twinleaf-selected-cards-evidence.test.cjs');
+
+test('the opt-in Snorlax interactive-retreat gate is forwarded without altering the frozen trial',()=>{
+  const campaign=loadDefaultCampaign();
+  let calls=0;
+  const result=executeDiagnostic({
+    campaign,ranks:[6],policyFlags:{snorlaxRetreatStartCorrection:true},
+    resolvePair:t=>({candidateDigest:t.candidateDigest,opponentDigest:t.opponentDigest,
+      candidateCards:cards,opponentCards:cards}),
+    runMatch:r=>{
+      calls++;
+      assert.equal(r.snorlaxRetreatStartCorrection,true);
+      assert.equal(r.deckA.length,60);
+      assert.equal(r.deckB.length,60);
+      return sampleGame(r);
+    }
+  });
+  assert.equal(calls,6);
+  assert.equal(result.counts['completed-engine-game'],6);
+  assert.equal(result.policyFlags.snorlaxRetreatStartCorrection,true);
+  assert.equal(result.strengthClaimPermitted,false);
+});
