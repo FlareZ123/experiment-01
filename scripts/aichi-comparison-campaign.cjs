@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
+const { deriveSlotSeeds } = require('./aichi-decorrelated-seeds.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
 const PILOT_RANKS = Object.freeze([1, 2, 3, 4, 5, 6, 8, 10, 26]);
@@ -67,14 +68,14 @@ function parseField(csv) {
  * actual first/second turns. Runtime draw-log proof must establish turn order.
  * @param {{field:Array<object>, source:object, candidates:Array<object>,
  *   pilotRanks?:number[], repeats?:number, seedBase?:number,
- *   seatSeedMode?:'paired-slots-v1'|'independent-slots-v2'}} options
+ *   seatSeedMode?:'paired-slots-v1'|'independent-slots-v2'|'decorrelated-slots-v3'}} options
  * @returns {object}
  */
 function buildCampaign(options) {
   const { field, source, candidates, pilotRanks = [...PILOT_RANKS],
     repeats = 1, seedBase = 20261016,
     seatSeedMode = 'paired-slots-v1' } = options;
-  if (!['paired-slots-v1', 'independent-slots-v2'].includes(seatSeedMode)) {
+  if (!['paired-slots-v1', 'independent-slots-v2', 'decorrelated-slots-v3'].includes(seatSeedMode)) {
     throw new Error('Unsupported seat seed protocol.');
   }
   if (!Array.isArray(field) || field.length !== 32 ||
@@ -143,10 +144,13 @@ function buildCampaign(options) {
         // Phase offsets separate exploratory pilot from field-wide follow-up.
         const seedForRank = seedBase + (phase === 'pilot' ? 100000 : 200000) +
           row.rank * 1024;
+        const v3Seeds = seatSeedMode === 'decorrelated-slots-v3' ?
+          deriveSlotSeeds(seedBase, phase, row.rank, repeat) : null;
         for (const candidate of candidateRows) {
           for (const candidateEngineSlot of ['A', 'B']) {
-            const seed = seedForRank + (seatSeedMode === 'independent-slots-v2' ?
-              2 * repeat + (candidateEngineSlot === 'B' ? 1 : 0) : repeat);
+            const seed = v3Seeds ? v3Seeds[candidateEngineSlot] :
+              seedForRank + (seatSeedMode === 'independent-slots-v2' ?
+                2 * repeat + (candidateEngineSlot === 'B' ? 1 : 0) : repeat);
             trials.push({
               trialId: [phase, row.rank, repeat, candidate.id, candidateEngineSlot]
                 .join(':'),
@@ -161,7 +165,8 @@ function buildCampaign(options) {
     }
   }
   const metadata = {
-    schemaVersion: seatSeedMode === 'independent-slots-v2' ? 2 : 1,
+    schemaVersion: seatSeedMode === 'decorrelated-slots-v3' ? 3 :
+      seatSeedMode === 'independent-slots-v2' ? 2 : 1,
     purpose: 'exploratory-diagnostic-only',
     engineAndPolicyQualified: false,
     strengthClaimPermitted: false,
@@ -176,7 +181,7 @@ function buildCampaign(options) {
       publishedField: trials.filter(t => t.phase === 'published-field').length
     }
   };
-  if (seatSeedMode === 'independent-slots-v2') {
+  if (seatSeedMode !== 'paired-slots-v1') {
     metadata.seedProtocol = seatSeedMode;
   }
   return { ...metadata, planDigest: hash({ metadata, trials }), trials };
