@@ -51,3 +51,22 @@ The test restores the original source `damageTakenLastTurn` in a `finally` block
 
 The [differential runner](../../simulation/twinleaf/detached-simulator-characterization.cjs) asserts all four invariants and restores its hook in a `finally` block. **This supports a mechanism-specific mitigation for one controlled effect; it is not a generally certified replacement Simulator.** A separate source-locked whole-game comparison is being investigated without altering default policy.
 
+
+## Full-game policy sensitivity: original versus detached Simulator
+
+[Manual CI 38847922347](https://github.com/FlareZ123/experiment-01/actions/runs/38847922347) passed the staged regression and then ran the [fixed-seed source-locked comparison](../../simulation/twinleaf/detached-simulator-game-contrast.cjs) with rank-1 Shadow Rider versus rank-10 Regidrago from the published 60-card source lists.
+
+Both games used source deck hashes `de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311` and `527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9`, seed `20261049`, `maxActions=350`, first player seat 1, experimental Supporter/Double-Dragon/Forest Seal policy corrections, independent per-seat speculative RNG and the same game RNG scheme.
+
+| Metric | Original Card-aliased Simulator | Detached Simulator |
+| --- | --- | --- |
+| Engine result | seat 0, Shadow Rider | seat 1, Regidrago |
+| Game completed | yes | yes |
+| Actions | 248 | 192 |
+| Turns | 22 | 17 |
+| Attack actions by seat 0 / 1 | 6 / 5 | 4 / 5 |
+| Final Prizes remaining by seat 0 / 1 | 0 / 1 | 2 / 0 |
+| Deterministic trace fingerprint | `67d724d4069f4efbd2ee10ac0bd8a0c1f1d6536e5150da27f0aea302dcc44dc3` | `a8db394798b92d72aa17c0095f4afe9f94ff18851f7e26b56dee58bca7c508a7` |
+
+**Interpretation:** replacing Simulator's live-Card reference sharing with a detached object graph, while holding source lists and seed fixed, changed the bot game's decisions or downstream game events enough to reverse the engine-reported winner. This is **real whole-game sensitivity**. It does not isolate which particular field or action caused the divergence. The clone also changes reference identity that other upstream code could intentionally rely upon, so reverse causation or alternative mechanisms are not yet excluded. The fixed-seed pair is **one diagnostic comparison, zero qualified competitive samples**, with neither bot policy certified as skilled play. Do not use either game's winner to rank the decks.
+
