@@ -1,0 +1,68 @@
+name: Aichi rank10 frozen v3 Latias Energy-targeting policy counterfactual
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aichi-rank10-v3-latias-attachment-counterfactual
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out pinned engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify frozen plan and Latias Energy-targeting policy controls
+        run: node --test tests/aichi-frozen-policy-compare.test.cjs tests/active-latias-attachment.test.cjs tests/aichi-campaign-seed-v3.test.cjs
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run same-commit v3 baseline for rank 10
+        env:
+          AICHI_DIAGNOSTIC_RANKS: '10'
+          AICHI_DIAGNOSTIC_SEED_PROTOCOL: decorrelated-slots-v3
+          AICHI_POLICY_PROFILE: fixed-core-v1
+          AICHI_LATIAS_ATTACK_READY: '0'
+        run: node simulation/evaluation/aichi-campaign-execute.cjs > rank10-v3-baseline.json
+      - name: Run same-commit v3 latias-attachment counterfactual
+        env:
+          AICHI_DIAGNOSTIC_RANKS: '10'
+          AICHI_DIAGNOSTIC_SEED_PROTOCOL: decorrelated-slots-v3
+          AICHI_POLICY_PROFILE: fixed-core-v1
+          AICHI_LATIAS_ATTACK_READY: '1'
+        run: node simulation/evaluation/aichi-campaign-execute.cjs > rank10-v3-latias.json
+      - name: Validate baseline trial coverage and policy blockers
+        run: node scripts/aichi-campaign-quality-screen.cjs rank10-v3-baseline.json > rank10-v3-baseline-quality.json
+      - name: Validate pivot trial coverage and policy blockers
+        run: node scripts/aichi-campaign-quality-screen.cjs rank10-v3-latias.json > rank10-v3-latias-quality.json
+      - name: Check exact frozen inventory and one-axis policy contrast
+        run: node scripts/aichi-frozen-policy-compare.cjs rank10-v3-baseline.json rank10-v3-latias.json latiasAttackReadyAttachment > rank10-v3-latias-contrast.json
+      - name: Display bounded per-trial behavioral deltas
+        run: |
+          node -e "const a=require('./rank10-v3-baseline.json');const b=require('./rank10-v3-latias.json');const c=require('./rank10-v3-latias-contrast.json');if(!c.allActualTurnOrdersIdentical)throw Error('Actual starting orders changed');if(c.comparedTrials!==6)throw Error('Expected exactly six matched trials');for(let i=0;i<a.records.length;i++){const x=a.records[i],y=b.records[i];console.log('COUNTERFACTUAL',JSON.stringify({trial:x.trialId,first:x.candidateActualTurn,baselineStatus:x.status,pivotStatus:y.status,baselineAttacks:x.candidateAttacks,pivotAttacks:y.candidateAttacks,baselineOpponentAttacks:x.opponentAttacks,pivotOpponentAttacks:y.opponentAttacks,baselineActions:x.actions,pivotActions:y.actions}));}console.log('MATCHED PLAN',JSON.stringify({count:c.comparedTrials,identicalTraces:c.identicalCapturedTraceTrials,fullReplay:c.fullReplayCaptured,firstOrderSame:c.allActualTurnOrdersIdentical,experimentalFlag:c.changedFlag}));"
+      - name: Preserve both exact-record diagnostics and comparison
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-rank10-v3-latias-attachment-counterfactual
+          path: |
+            rank10-v3-baseline.json
+            rank10-v3-latias.json
+            rank10-v3-baseline-quality.json
+            rank10-v3-latias-quality.json
+            rank10-v3-latias-contrast.json
+          if-no-files-found: warn
