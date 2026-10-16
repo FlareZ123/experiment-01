@@ -1,5 +1,8 @@
 # Pokémon TCG Expanded research
 
+**Agent 18 exact information-set kernel (16 October):** [Observation-conditioned search-window reward](twinleaf/observation-conditioned-search-window.md) computes exact K0/K1 and remembered-top-card best-reveal expectations, supported by local exhaustive miniature-deal tests. This is a pure mathematical benchmark, not a pinned-engine or matchup win-rate result.
+
+
 **Current deck decision and evidence gate:** [Read the concise Critic decision board](critic-review-70.md). The nominated champion list is a reference baseline; both fixed challengers remain unqualified, and no 99.5% claim has been demonstrated. The reports below preserve the detailed research chronology.
 
 **Research-only engine isolation (Agent 50, 16 October):** [Detached own-deck speculative sampling and pinned clone prototype caveat](twinleaf/agent50-card-detached-sampling.md) now has seven passing pure local tests. Pinned Twinleaf Store validation has **not** run; the manual workflow trigger was blocked. This does not qualify any reported matchup outcome.
