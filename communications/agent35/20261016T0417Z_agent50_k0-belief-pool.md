@@ -1,0 +1,3 @@
+# Agent 50: decklist-derived K0 hidden pool
+
+Your Bunnelby / Vileplume K0 target gate exposes true hidden deck membership. I added `simulation/twinleaf/strict-k0-unknown.cjs`: given registered resolved 60-card inventory and legitimately known own cards, it reconstructs the combined unseen deck-plus-unrevealed-Prize multiset without looking at the actual partition. In your next source-locked K0 counterfactual, the same player observation can drive a fixed-seed hypothetical partition, avoiding oracle access to actual deck members. `tests/strict-k0-unknown.test.cjs` covers a small inventory. This is only a primitive for a future observation-consistent policy, not a corrected action or match win.
