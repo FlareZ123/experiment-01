@@ -12,18 +12,20 @@ const trace = [{
 const traceHash = createHash('sha256').update(JSON.stringify(trace)).digest('hex');
 
 function fixture() {
-  return {
+  const source = {
     purpose: 'engine-and-policy-diagnostic-only',
     planDigest: 'a-frozen-plan',
     seedProtocol: 'independent-slots-v2',
+    campaignSchemaVersion: 2,
     selectedPilotRanks: [6],
     candidateRows: [{id: 'reference', deckDigest: 'reference-digest'},
       {id: 'challenger', deckDigest: 'challenger-digest'}],
-    totalScheduled: 2,
+    totalScheduled: 4,
     engineAndPolicyQualified: false,
     strengthClaimPermitted: false,
     records: [{
       trialId: 'pilot:6:0:reference:A',
+      phase: 'pilot', seed: 20367160, opponentDigest: 'source-rank-6',
       planDigest: 'a-frozen-plan', opponentRank: 6,
       candidateId: 'reference', candidateDigest: 'reference-digest',
       candidateEngineSlot: 'A', candidateActualTurn: 'first',
@@ -40,6 +42,7 @@ function fixture() {
       }
     }, {
       trialId: 'pilot:6:0:challenger:B',
+      phase: 'pilot', seed: 20367161, opponentDigest: 'source-rank-6',
       planDigest: 'a-frozen-plan', opponentRank: 6,
       candidateId: 'challenger', candidateDigest: 'challenger-digest',
       candidateEngineSlot: 'B', candidateActualTurn: 'second',
@@ -52,6 +55,15 @@ function fixture() {
       }
     }]
   };
+  source.records.push(
+    {...source.records[0], trialId: 'pilot:6:0:reference:B',
+      candidateEngineSlot: 'B', candidateActualTurn: 'second',
+      seed: 20367161, candidateAttacks: 3, opponentAttacks: 2},
+    {...source.records[1], trialId: 'pilot:6:0:challenger:A',
+      candidateEngineSlot: 'A', candidateActualTurn: 'first',
+      seed: 20367160, candidateAttacks: 3, opponentAttacks: 2}
+  );
+  return source;
 }
 
 test('engine completions expose rank-level inactivity without ranking candidates', () => {
@@ -60,7 +72,9 @@ test('engine completions expose rank-level inactivity without ranking candidates
   assert.equal(report.winRateEvidence, false);
   assert.equal(report.candidateRankingPermitted, false);
   assert.equal(Object.hasOwn(report, 'winRate'), false);
-  assert.equal(report.totalTrials, 2);
+  assert.equal(report.totalTrials, 4);
+  assert.equal(report.fullPilotMatrixVerified, true);
+  assert.equal(report.repeatsVerified, 1);
   assert.equal(report.coverage.length, 2);
   assert.equal(report.coverage[0].observedFirst, 1);
   assert.equal(report.coverage[1].observedSecond, 1);
@@ -110,4 +124,35 @@ test('engine failures remain separate from policy-quality observations', () => {
   assert.ok(out.records[0].blockers.includes('engine-status:engine-exception'));
   assert.ok(out.records[0].blockers.includes('missing-attack-counts'));
   assert.equal(out.records[0].priority, 'engine-or-resolver-investigation');
+});
+
+test('an expected record count cannot conceal omitted pilot matrix cells', () => {
+  const f = fixture();
+  f.records[2].trialId = 'pilot:6:1:reference:B';
+  assert.throws(() => auditCampaignQuality(f), /scheduled trial identity/);
+});
+
+test('candidate variants must retain exactly matched physical-slot seeds', () => {
+  const f = fixture();
+  f.records[3].seed += 17;
+  assert.throws(() => auditCampaignQuality(f), /scheduled slot seed/);
+});
+
+test('independent slot protocol rejects falsely paired A and B seeds', () => {
+  const f = fixture();
+  f.records[1].seed = f.records[0].seed;
+  f.records[2].seed = f.records[0].seed;
+  assert.throws(() => auditCampaignQuality(f), /Independent physical slots/);
+});
+
+test('all candidates at a rank must reference the same opponent printing inventory', () => {
+  const f = fixture();
+  f.records[1].opponentDigest = 'a-different-list';
+  assert.throws(() => auditCampaignQuality(f), /source digest drift/);
+});
+
+test('rank/candidate identities must agree with the encoded trial identifier', () => {
+  const f = fixture();
+  f.records[0].opponentRank = 10;
+  assert.throws(() => auditCampaignQuality(f), /scheduled trial identity|source-drifted trial identity/);
 });
