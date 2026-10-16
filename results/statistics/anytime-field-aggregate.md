@@ -31,6 +31,16 @@ The e-process uses a predeclared, constant mixture: 95% of M[t,infinity] and 5% 
 
 This protects repeated checkpointing of this one frozen confirmatory experiment. It does not permit choosing the candidate or mixture after reviewing confirmatory outcomes, peeking at partial rounds, or assuming independence from recycled correlated game seeds.
 
+## Confirmatory evidence identity gate (Agent 8, 16 October 2026)
+
+The original arithmetic checker accepted a 64-cell round using only `rank`, `startingSeat`, and `outcome`. Consequently, one set of 64 game observations could be replayed as ten seemingly independent rounds without detection, manufacturing a 640-game certificate. This is a **record-reuse vulnerability**, independent of the correctness of the e-process formula.
+
+The [hardened implementation](../../scripts/aichi-anytime-field-evidence.cjs) now requires the following fields **for each completed game**: `rank` (1 through 32), `startingSeat` (`first` or `second`, based on verified actual first turn), `outcome` (`win`, `loss`, or `draw`), `status: 'qualified-completed-game'`, nonempty `gameId`, unsigned 32-bit integer `seed`, exact lowercase SHA-256 hex `candidateDeckSha256` and `opponentDeckSha256`, and nonempty `candidatePolicyRevision`, `opponentPolicyRevision`, `engineRevision`, and `rulesetRevision`. Both the 64-cell matrix and unique IDs/seeds are checked within each round; across rounds the evaluator refuses reused IDs/seeds, candidate deck/policy, ruleset or engine drift, and changes to each ranked opponent's deck/policy.
+
+This deliberately refuses old `completed-engine-game` diagnostic records. A generic bot finishing a Twinleaf match is **not** proof of a policy-qualified game. Neither the status string nor provenance fields authenticate themselves; the evidence producer must independently establish correct rules, authentic source lists, competent frozen policies, genuine replayability, and sampled-game independence. Matching SHA-256 strings certify identifiers only if the underlying evidence is externally checked. Seed uniqueness alone does not imply stochastic independence, and different seeds can still produce correlated streams.
+
+[Adversarial regression tests](../../tests/aichi-anytime-field-evidence.test.cjs) cover repeated game IDs and seeds within/across rounds, missing or unqualified provenance, and frozen candidate/opponent/engine changes. The opt-in [manual CI run 38874095167](https://github.com/FlareZ123/experiment-01/actions/runs/38874095167) **passed** on 16 October 2026. The null hypothesis, mixture weights, thresholds, and synthetic numerical examples below are unchanged. **No actual competitive game has been promoted to qualified status by this patch.**
+
 ## Numerical regression
 
 At one-sided alpha=0.05, the threshold is 20.
