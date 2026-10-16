@@ -36,6 +36,10 @@ function electroRainVsBenchedV(toolAttached) {
     player.deck.cards.push(f.card('Psychic Energy SVE'));
   }
 
+  // The pinned prompt recomputes blocked indices by Card.id. Synthetic fixture
+  // cards must have distinct IDs just as cards do in a real 60-card game.
+  f.a.active.getPokemonCard().id = 1001;
+  f.attached.forEach((energy, index) => { energy.id = 1002 + index; });
   const events = [];
   f.store.dispatch(new AttackAction(101, 'Electro Rain'));
   for (let i = 0; i < 15; i++) {
@@ -56,7 +60,7 @@ function electroRainVsBenchedV(toolAttached) {
       throw new Error('Unexpected Electro Rain prompt: ' + prompt.constructor.name);
     }
     assert.ok(prompt.validate(selection, f.state),
-      'Pinned engine rejected explicit Electro Rain selection at ' + prompt.constructor.name);
+      'Pinned engine rejected Electro Rain selection: ' + JSON.stringify({type: prompt.constructor.name, options: prompt.options, blocked: prompt.options?.blocked, available: prompt.cards?.cards?.map(c => ({name: c.fullName, id: c.id})), selection: selection?.map?.(c => ({name: c.fullName, id: c.id}))}));
     f.store.dispatch(new ResolvePromptAction(prompt.id, selection));
   }
   assert.ok(!f.state.prompts.some(p => p.result === undefined),
