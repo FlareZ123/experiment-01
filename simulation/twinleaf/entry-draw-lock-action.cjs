@@ -19,7 +19,7 @@ const load = modulePath => require(path.join(output, modulePath));
  *  entryPrompt:boolean,drew:number,handSize:number,benchEntry:boolean,
  *  promptCount:number,entryPower:string}}
  */
-function probeEntry(name, useCologne) {
+function probeEntry(name, useCologne, lockEnvironment = 'iron-thorns') {
   const cards = initializeCards();
   let id = 1;
   /** @param {string} cardName */
@@ -50,8 +50,10 @@ function probeEntry(name, useCologne) {
 
   const opponent = new Player();
   opponent.id = 101;
-  const iron = card('Iron Thorns ex TWM');
+  const iron = card(lockEnvironment === 'iron-thorns' ? 'Iron Thorns ex TWM' : 'Dialga-GX UPR');
   opponent.active.cards.push(iron);
+  if (lockEnvironment === 'path') opponent.stadium.cards.push(card('Path to the Peak CRE'));
+  if (lockEnvironment === 'silent-lab') opponent.stadium.cards.push(card('Silent Lab PRC'));
   const player = new Player();
   player.id = 202;
   player.active.cards.push(card('Shadow Rider Calyrex V CRE'));
@@ -93,7 +95,7 @@ function probeEntry(name, useCologne) {
     store.dispatch(new ResolvePromptAction(prompt.id, true));
   }
   return {
-    name, useCologne, initializationVisible, entryPrompt,
+    name, useCologne, lockEnvironment, initializationVisible, entryPrompt,
     drew: originalDeck - player.deck.cards.length,
     handSize: player.hand.cards.length,
     benchEntry: player.bench[0].getPokemonCard() === incoming,
