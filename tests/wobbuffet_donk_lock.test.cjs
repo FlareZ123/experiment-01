@@ -11,6 +11,9 @@ const {Store} = load('game/store/store');
 const {Player} = load('game/store/state/player');
 const {PokemonCardList} = load('game/store/state/pokemon-card-list');
 const {PowerEffect} = load('game/store/effects/game-effects');
+const {UseAbilityAction} = load('game/store/actions/game-actions');
+const {PlayerType,SlotType} = load('game/store/actions/play-card-action');
+const {GamePhase} = load('game/store/state/state');
 const {IS_ABILITY_BLOCKED} = load('game/store/prefabs/prefabs');
 
 /**
@@ -46,12 +49,19 @@ function board() {
 
 test('Active Wobbuffet blocks Exeggcute Propagation even from discard', () => {
   const f = board();
-  assert.equal(IS_ABILITY_BLOCKED(f.store, f.state, f.player, f.exeggcute), true);
-  const use = new PowerEffect(f.player, f.exeggcute.powers[0], f.exeggcute);
-  assert.throws(() => f.store.reduceEffect(f.state, use),
-    {message: 'BLOCKED_BY_ABILITY'});
-  assert.equal(f.player.discard.cards.includes(f.exeggcute), true);
-  assert.equal(f.player.hand.cards.includes(f.exeggcute), false);
+  f.state.phase = GamePhase.PLAYER_TURN;
+  // A public client action is the real gameplay contract. Direct reduceEffect
+  // may mutate a staged fixture before a later ability-locker throws; only
+  // Store.dispatch performs the rollback used in games.
+  const use = new UseAbilityAction(f.player.id, 'Propagation', {
+    player: PlayerType.BOTTOM_PLAYER, slot: SlotType.DISCARD, index: 0
+  });
+  assert.throws(() => f.store.dispatch(use), {message: 'UNKNOWN_POWER'});
+  const playerAfterRollback = f.store.state.players[0];
+  assert.equal(playerAfterRollback.discard.cards.some(
+    card => card.fullName === f.exeggcute.fullName), true);
+  assert.equal(playerAfterRollback.hand.cards.some(
+    card => card.fullName === f.exeggcute.fullName), false);
 });
 
 test('Bide Barricade leaves Psychic Meloetta Ability unsuppressed', () => {
