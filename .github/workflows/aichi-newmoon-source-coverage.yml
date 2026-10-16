@@ -29,6 +29,16 @@ jobs:
         run: node simulation/twinleaf/newmoon-source-coverage.cjs > newmoon-source-coverage.json
       - name: Display available/missing source names
         run: node -e "const v=require('./newmoon-source-coverage.json'); console.log(JSON.stringify({mappedPhysicalCards:v.mappedPhysicalCards,total:v.cardCount,unmatched:v.unmatched,perCard:v.entries.map(x=>[x.english,x.availableEngineFullNames])},null,2))"
+      - name: Run official-order New Moon Stadium action probe
+        run: node simulation/twinleaf/new-moon-stadium-order-audit.cjs > newmoon-stadium-order-audit.json
+      - name: Display Stadium ordering evidence
+        run: node -e "const v=require('./newmoon-stadium-order-audit.json'); console.log(JSON.stringify(v,null,2))"
+      - name: Preserve Stadium ordering audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-stadium-order-audit
+          path: newmoon-stadium-order-audit.json
+          if-no-files-found: error
       - name: Preserve exact pinned catalog coverage
         uses: actions/upload-artifact@v4
         with:
