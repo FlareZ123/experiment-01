@@ -28,5 +28,7 @@ jobs:
         run: node simulation/twinleaf/raichu-electro-rain-protection-regression.cjs
       - name: Verify repeated target allocations receive flat damage bonus once
         run: node simulation/twinleaf/raichu-electro-rain-duplicate-target.cjs
+      - name: Verify Electro Rain ignores Active target Lightning Weakness
+        run: node simulation/twinleaf/raichu-electro-rain-weakness-regression.cjs
       - name: Smoke test headless opt-in with exact rank 4 and 17 source inventories
         run: node simulation/twinleaf/raichu-electro-rain-headless-smoke.cjs
