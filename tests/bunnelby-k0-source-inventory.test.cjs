@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const source = require('../results/aichi-2026/full-decklists.json');
-const {hasBenchEvolutionTarget} =
+const {hasBenchEvolutionTarget, hasK0PossibleBenchEvolutionTarget} =
   require('../simulation/twinleaf/bunnelby-evolution-policy.cjs');
 
 /** @param {boolean} targetPrized */
@@ -35,9 +35,11 @@ function sourcePartition(targetPrized) {
   stock.push(targetPrized ? prizeSwap : remainingTarget);
   assert.equal(1 + 2 + hand.length + prizes.length + stock.length, 60);
   const player = {
-    active: {getPokemonCard: () => active},
+    active: {cards: [active], getPokemonCard: () => active},
     bench: [{cards: [oddish, gloom], getPokemonCard: () => gloom}],
     hand: {cards: hand},
+    discard: {cards: []},
+    lostzone: {cards: []},
     prizes: prizes.map(card => ({cards:[card]})),
     deck: {cards: stock}
   };
@@ -65,4 +67,17 @@ test('published rank-2 60-card source K0 partition toggles omniscient tactic gat
   }, {});
   // Stage 2 on a Basic conserves both physical evolution cards.
   assert.deepEqual(count(inDeck), count(inPrizes));
+});
+
+test('K0 source gate treats both otherwise indistinguishable Prize deals alike', () => {
+  const a = sourcePartition(false);
+  const b = sourcePartition(true);
+  const rank2 = source.decks.find(deck => deck.rank === 2);
+  const original = rank2.cards.flatMap(row => Array.from({length: row.count},
+    () => ({name: row.name, fullName: row.name + ' ' + row.printing.set,
+      ...(row.name === 'Vileplume' || row.name === 'Vileplume-GX' ?
+        {evolvesFrom: 'Gloom', stage: 2} : {})})));
+  assert.equal(original.length, 60);
+  assert.equal(hasK0PossibleBenchEvolutionTarget(a, original), true);
+  assert.equal(hasK0PossibleBenchEvolutionTarget(b, original), true);
 });
