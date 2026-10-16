@@ -59,7 +59,7 @@ function executeDiagnostic(options) {
     'strictPromptValidation', 'forestSealSearchCorrection',
     'doubleDragonRecovery', 'templeUnlockRecovery',
     'supporterDecisionCorrection', 'isolatePolicyRandomness',
-    'captureDecisionTrace'
+    'captureDecisionTrace', 'snorlaxRetreatStartCorrection'
   ]);
   if (policyFlags === null || typeof policyFlags !== 'object' ||
       Array.isArray(policyFlags) ||
