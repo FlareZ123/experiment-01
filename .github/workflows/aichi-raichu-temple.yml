@@ -33,3 +33,5 @@ jobs:
         run: node --test tests/aichi_raichu_stadium_access.test.cjs
       - name: Test rank-4 and rank-17 Energy sources, Temple denial and Stadium replacement
         run: node simulation/twinleaf/temple-raichu-board.cjs
+      - name: Characterize generic-bot direct and Secret Box Stadium responses
+        run: node simulation/twinleaf/temple-raichu-policy-characterization.cjs
