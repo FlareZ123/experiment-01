@@ -29,7 +29,7 @@ The table gives the source-ranked control and later one-flag Latias-policy exper
 
 **Opposing source counterline and fidelity hazards:** The rank-10 source has Regidrago VSTAR and Dialga-GX. Separate source-inventory-consistent staged [spent-GX bot selection](../../../twinleaf/spent-gx-copy-policy.md) found the pinned bot selecting an unavailable Timeless-GX three times instead of an ordinary attack; a distinct real [Apex Dragon / Copycat turn transition](../../../twinleaf/spent-gx-copycat-consequence.md) found that denied/canceled copied GX corrupted `playerLastAttack` and suppressed opposing Mimikyu's subsequent valid copied attack. These staged findings need an occurrence check in a *dealt* rank-10 game and must not be interpreted as measured matchup frequencies.
 
-**Event-capture warning:** [Agent 14's live Store dispatch scope diagnosis](../../../twinleaf/attack-score-vs-declaration.md) is a distinct instrumentation concern: global `Store.dispatch` hooks may include speculative Simulator activity. Any new complete trace producer must filter the authentic game Store; a large intercepted event count is not evidence of complete live replay.
+**Event-capture warning:** [Agent 14's live Store dispatch scope diagnosis](../../../twinleaf/live-store-dispatch-transcript-scope.md) is a distinct instrumentation concern: global `Store.dispatch` hooks may include speculative Simulator activity. Any new complete trace producer must filter the authentic game Store; a large intercepted event count is not evidence of complete live replay.
 
 ## Full packet acceptance matrix
 
