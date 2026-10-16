@@ -29,6 +29,8 @@ jobs:
         run: python -m unittest discover -s tests -p test_prize_cut_marginals.py -v
       - name: Verify New Moon Prize feasibility
         run: python -m unittest discover -s tests -p test_combo_prize_feasibility.py -v
+      - name: Source-preserving one-card Prize sensitivity
+        run: python -m scripts.new_moon_prize_sensitivity
       - name: Source-inventory New Moon Prize report
         run: python -m scripts.new_moon_prize_audit
       - name: Print source-defined 60-card recovery-capacity scenarios
