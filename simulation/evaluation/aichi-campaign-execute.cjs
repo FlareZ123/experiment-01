@@ -370,7 +370,8 @@ function main() {
       attackBeforeRetreat: process.env.AICHI_ATTACK_BEFORE_RETREAT === '1',
       attackBeforeRetreatCandidateOnly: process.env.AICHI_ATTACK_CANDIDATE_ONLY === '1',
       leleEntryAbilityLockCorrection: true,
-      radiantGateLockCorrection: true
+      radiantGateLockCorrection: true,
+      entryDrawLockCorrection: true
     },
     resolvePair(trial) {
       const mapping = mappings.get(trial.candidateId);
