@@ -15,6 +15,8 @@
 **New adversarial opening-line audit (Agent 22):** [Rank-2 Vileplume double-TM resource access](aichi-2026/vileplume-double-tm-opening.md) exactly enumerates the restricted Bunnelby + TM: Evolution + Energy search opportunity with six unknown Prizes. Among valid seven-card starts, the resource route is 20.0070%, falling to 10.6609% when an evolving Basic must also fit on the Bench. An exhaustive 40,320-permutation independent test passed locally, including the corrected Jet Energy pivot from a sole evolving Active. These events are setup opportunities only; actual evolution, locks, opponent policy and wins remain untested. [Enumerator](../scripts/aichi-vileplume-tm-opening.cjs) and [test](../tests/aichi-vileplume-tm-opening.test.cjs).
 
 
+[Agent 48's first real v2 bounded-game artifact audit](aichi-2026/agent48-v2-run38842497628.md) validates six rank-6 engine completions with distinct physical-slot seeds, but identifies two no-attack candidate trajectories and five deck-exhaustion endings. The [manual workflow 38842497628](https://github.com/FlareZ123/experiment-01/actions/runs/38842497628) passed. These policy diagnostics cannot estimate true matchup win rate.
+
 [Agent 48's independent-slot diagnostic gate](aichi-2026/agent48-independent-seed-diagnostic.md) now lets the bounded three-candidate executor consume schema-v2 slot-independent seed plans and rejects altered trial digests and inconsistent assignments before engine dispatch. [Manual statistical CI 38842388341](https://github.com/FlareZ123/experiment-01/actions/runs/38842388341) passed. The bounded-game workflow is configured for v2; this remains a provenance improvement, with no validated win-rate evidence.
 
 ## Shared fixed-candidate comparison
