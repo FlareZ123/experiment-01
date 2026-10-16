@@ -32,6 +32,33 @@ The two modes follow different game trajectories and execute different numbers o
 
 ## Qualification boundary and next evidence
 
-A [root policy boundary observer](../../simulation/twinleaf/source-state-continuity.cjs) now snapshots the actual root `SimpleTacticsAi.decodeNextAction` input and result, independent of the `Store.dispatch` hook order. A newly extended rank-10 runner also separately compares physical Card-history fields, so attack-history metadata cannot conceal a Card delta. The independent-pinned manual execution of that extension must pass before attributing causal action-selection mutations or asserting experimental suppression of them.
+A [root policy boundary observer](../../simulation/twinleaf/source-state-continuity.cjs) now snapshots the actual root `SimpleTacticsAi.decodeNextAction` input and result, independent of the `Store.dispatch` hook order. A newly extended rank-10 runner also separately compares physical Card-history fields, so attack-history metadata cannot conceal a Card delta. That extension passed in [manual CI 38915754262](https://github.com/FlareZ123/experiment-01/actions/runs/38915754262). Exact root bot-decision observations and their limitations are recorded below.
 
 This is a **partial-State observational diagnostic**, without a complete live prompt/reducer replay, equivalence of arbitrary simulator state transitions, competent two-sided opponent policy, full both-starting-order qualification, paper-rule sign-off, or independently sampled game outcomes. The rank-10 packet and central 32-rank readiness ledger remain unqualified.
+
+## Follow-up: direct root bot-decision mutation attribution, verified
+
+[Third successful manual CI 38915754262](https://github.com/FlareZ123/experiment-01/actions/runs/38915754262), repository head `10df9c9756f22b0e86a1d6b7dc0ba1f1e7a9ce45`, executed the nested `withRootPolicyMutationAudit` recorder while retaining a separately repeated uninstrumented game. Every physical source deck, seed, starting seat, engine revision and correction flag remained unchanged.
+
+| Bot-decision measurement | Original pinned Simulator | Post-super reconciled Simulator |
+| --- | ---: | ---: |
+| Actual game actions | 169 | 348 |
+| Root `decodeNextAction` source-State mutations | **7** | **0** |
+| Root mutations involving `Card.damageTakenLastTurn` | **7** | **0** |
+| Underlying Store-boundary differences | 10 | 5 |
+| Physical Card-history differences across those boundaries | **7** | **0** |
+| Read-only control result equality | Verified | Verified |
+
+The root-only bot wrapper takes a detached full observable-State snapshot immediately before calling `SimpleTacticsAi.decodeNextAction(sourceState)` and immediately afterward, with a strict reference identity check against the authentic game's own `Store.state`. It therefore excludes the before/after dispatch hook-order artefact described above. The original mode's seven root-side effects are concrete effects of normal policy-decision evaluation on the authoritative game State. The reconciled mode produced **no root bot-decision State mutation observed by this audit on this source deal**, across its distinct 348-action trace. Both reruns preserved exactly the uninstrumented `runMatch` results.
+
+Examples from the original mode's causal observations:
+
+- Turn 7, champion bot (`actorId=202`) selected **Eon Blade**: opponent Active physical `damageTakenLastTurn` changed **0 → 200** during action selection.
+- Turn 9, champion bot again selected **Eon Blade**: changed **0 → 200** on another Active Card instance.
+- Turn 11, champion bot again selected **Eon Blade**: changed **0 → 200**.
+- Turn 12, Regidrago bot (`actorId=101`) selected **Retribution Strike**: its Active Card history changed **400 → 0**.
+- Turn 13, champion bot selected **Night Watch**: opponent Active Card history changed **0 → 150**.
+
+The two other original-mode policy changes are preserved in the uploaded [third-run continuity JSON artifact](https://github.com/FlareZ123/experiment-01/actions/runs/38915754262) along with the full first-mismatch and field-specific digests.
+
+**What has been proved:** For this exact rank-10 source deal, the pinned bot-selection routine mutates the authoritative physical-card damage-history fields, while the experimental reconciled clone did not cause any of these directly observed policy-time mutations. **What remains unproved:** that the repaired clone is generally semantically correct; that both modes have equivalent chance exposure given their different playing trajectories; that a particular mutated field changed the winner; or that either mode's AI decisions and paper Expanded game handling are sufficiently strong for matchup win-rate inference. None of these traces is a qualifying competitive game.
