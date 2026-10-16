@@ -6,6 +6,7 @@ const {decodeRecordedAction,approvedActionClasses}=
 const {captureAction}=require('./source-action-value-codec.cjs');
 const {capturePromptAction}=require('./source-prompt-action-codec.cjs');
 const {observedCounts}=require('./store-dispatch-transcript.cjs');
+const {sourceZoneSnapshot,zoneSnapshotDigest}=require('./source-zone-checkpoint.cjs');
 
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const engine=relative=>require(path.join(output,relative));
