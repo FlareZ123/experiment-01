@@ -16,6 +16,7 @@ def source_decks():
 def assess(source_batch, manifest, *, predeclared_games_per_cell):
     return evaluate_balanced_raw_batch(
         source_batch, manifest, source_deck_digests=source_decks(),
+        expected_candidate_deck_sha256="a" * 64,
         predeclared_games_per_cell=predeclared_games_per_cell,
     )
 
@@ -32,7 +33,7 @@ def game(rank, seat, trial, *, status="completed", winner="A"):
     trace_id = f"{rank}-{seat}-{trial}"
     return {
         "game_id": trace_id,
-        "rank": rank, "seat": seat, "seed": trial + 1,
+        "rank": rank, "seat": seat, "seed": rank * 10000 + (0 if seat == "first" else 5000) + trial + 1,
         "candidate_side": "A", "winner_side": winner, "status": status,
         "first_player_side": first_side,
         "first_turn": {
@@ -155,8 +156,30 @@ class BalancedRawGateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "every rank"):
             evaluate_balanced_raw_batch(
                 b, field(), source_deck_digests=damaged_source_map,
+                expected_candidate_deck_sha256="a" * 64,
                 predeclared_games_per_cell=10,
             )
+
+    def test_candidate_batch_is_bound_to_registered_candidate(self):
+        b = batch()
+        b["candidate_deck_sha256"] = "b" * 64
+        with self.assertRaisesRegex(ValueError, "frozen registered candidate"):
+            assess(b, field(), predeclared_games_per_cell=10)
+
+    def test_invalid_registered_candidate_fingerprint_fails(self):
+        b = batch()
+        with self.assertRaisesRegex(ValueError, "lowercase SHA-256"):
+            evaluate_balanced_raw_batch(
+                b, field(), source_deck_digests=source_decks(),
+                expected_candidate_deck_sha256="not-a-digest",
+                predeclared_games_per_cell=10,
+            )
+
+    def test_reused_global_seed_between_ranks_is_rejected(self):
+        b = batch()
+        b["games"][10]["seed"] = b["games"][0]["seed"]
+        with self.assertRaisesRegex(ValueError, "Global RNG seeds"):
+            assess(b, field(), predeclared_games_per_cell=10)
 
 
 if __name__ == "__main__":
