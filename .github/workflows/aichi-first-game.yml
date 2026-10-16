@@ -19,6 +19,8 @@ jobs:
           node-version: '20.19.0'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify terminal-transition and campaign regressions
+        run: node --test tests/terminal-transition.test.cjs tests/aichi-campaign-execute.test.cjs
       - name: Install engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
