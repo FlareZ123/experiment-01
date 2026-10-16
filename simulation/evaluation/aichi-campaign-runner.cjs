@@ -119,6 +119,15 @@ function executeCampaign(inputs, options = {}) {
       allowJapanesePromoHooks: true
     });
   });
+  const policyFlags = options.matchOptions || {};
+  const allowedPolicyFlags = new Set([
+    'forestSealSearchCorrection', 'doubleDragonRecovery',
+    'supporterDecisionCorrection'
+  ]);
+  if (Object.entries(policyFlags).some(([key, value]) =>
+    !allowedPolicyFlags.has(key) || typeof value !== 'boolean')) {
+    throw new Error('matchOptions accepts only explicit boolean policy corrections.');
+  }
   const play = options.runMatch || require('../twinleaf/headless.cjs').runMatch;
   const sourceRanks = new Map(inputs.source.decks.map(d => [d.rank, d]));
   const candidateMap = new Map(candidates.map(c => [c.id, c]));
@@ -163,18 +172,20 @@ function executeCampaign(inputs, options = {}) {
       deckA, deckB, seed: trial.seed,
       maxActions: options.maxActions === undefined ? 800 : options.maxActions,
       label: trial.trialId,
+      ...policyFlags,
       strictPromptValidation: true,
-      isolatePolicyRandomness: true,
-      ...(options.matchOptions || {})
+      isolatePolicyRandomness: true
     };
     try {
       const game = play(request);
       const proof = turnProof(game);
+      const validSeed = game.seed === trial.seed;
       const validHashes = Array.isArray(game.deckHashes) &&
         game.deckHashes.length === 2 &&
         game.deckHashes.every((digest, i) => digest === expectedEngineDeckHashes[i]);
       const terminal = game.finished === true && [0, 1, 3].includes(game.winner);
-      const status = !validHashes ? 'engine-deck-mismatch' :
+      const status = !validSeed ? 'engine-seed-mismatch' :
+        !validHashes ? 'engine-deck-mismatch' :
         !proof ? 'unverified-first-turn' :
           !terminal ? 'unfinished' : 'completed';
       const candidateSlot = candidateA ? 0 : 1;
@@ -187,6 +198,19 @@ function executeCampaign(inputs, options = {}) {
             game.winner === candidateSlot ? 'candidate' : 'opponent') : null,
         endReason: game.endReason || null, actionCount: game.actions ?? null,
         turns: game.turns ?? null, expectedEngineDeckHashes,
+        observedSeed: game.seed ?? null,
+        effectiveMatchOptions: {
+          forestSealSearchCorrection: request.forestSealSearchCorrection === true,
+          doubleDragonRecovery: request.doubleDragonRecovery === true,
+          supporterDecisionCorrection: request.supporterDecisionCorrection === true,
+          strictPromptValidation: request.strictPromptValidation,
+          isolatePolicyRandomness: request.isolatePolicyRandomness
+        },
+        resolvedEngineRevision: plan.engineRevision || null,
+        observedEngine: game.engine || null,
+        observedPolicy: game.policy || null,
+        observedRngProtocol: game.randomnessProtocol || null,
+        observedRules: game.rules || null,
         observedEngineDeckHashes: game.deckHashes || null,
         attackTrace: game.attackTrace || [],
         actionsBySeat: game.actionsBySeat || [],
@@ -200,6 +224,7 @@ function executeCampaign(inputs, options = {}) {
   }
   return {
     schemaVersion: 1, planDigest: campaign.planDigest, phase,
+    researchRevision: process.env.GITHUB_SHA || null,
     purpose: 'exploratory-engine-feasibility',
     competitiveWinRateCertified: false,
     rulesAndBotCompetenceCertified: false,
