@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const {visibleActiveAttacks, probePassedAttackOptions} =
+const {visibleActiveAttacks, probePassedAttackOptions, nextPassProbeBucket} =
   require('../simulation/twinleaf/pass-attack-announcement-probe.cjs');
 
 /** @param {string[]} names */
@@ -104,4 +104,19 @@ test('compiled pinned Store accepts a Crisis Punch Tool attack in a detached clo
     attackerDeck: setup.attacker.deck.cards.map(c => c.fullName),
     defenderDeck: setup.defender.deck.cards.map(c => c.fullName)
   }, before, 'Detached probe must not change live board or deck membership');
+});
+
+test('reserve late Tool-specific pass probes even after generic pass quota is exhausted', () => {
+  const state = fixture();
+  const counts = {printed: 4, tool: 0};
+  assert.equal(nextPassProbeBucket(state.players[0], counts), 'tool');
+  state.players[0].active.tools = [];
+  assert.equal(nextPassProbeBucket(state.players[0], counts), null);
+  counts.printed = 0;
+  assert.equal(nextPassProbeBucket(state.players[0], counts), 'printed');
+  counts.tool = 4;
+  state.players[0].active.tools = [{
+    attacks: [{name: 'Evolution'}]
+  }];
+  assert.equal(nextPassProbeBucket(state.players[0], counts), null);
 });
