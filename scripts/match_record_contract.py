@@ -95,6 +95,7 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
         if status == "completed":
             if rank not in published or winner not in ("A", "B", None):
                 raise ValueError("Invalid completed exact-list result")
+            terminal = g.get("engine_terminal")
             counts[key][1] += 1
             verified_completed_traces += int(trace_verified)
             counts[key][0] += winner == side
