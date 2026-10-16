@@ -33,6 +33,24 @@ class ComboPrizeTests(unittest.TestCase):
         got = combo_prize_cuts((1, 1), (2,), 2, 15)
         self.assertEqual(got['basic_rescue_cut'], Fraction(354201702, 159469254103))
 
+    def test_basic_energy_needed_for_powerglass(self):
+        from scripts.new_moon_prize_audit import source_prize_ceiling
+        original = source_prize_ceiling()
+        required = source_prize_ceiling(
+            require_powerglass_basic_energy=True
+        )
+        self.assertEqual(
+            required["either_cut"], Fraction(155146286885, 3414518146676)
+        )
+        self.assertEqual(
+            required["other_role_cut"],
+            Fraction(1034314950933, 29877033783415)
+        )
+        self.assertEqual(
+            required["basic_rescue_cut"], original["basic_rescue_cut"]
+        )
+        self.assertGreater(required["either_cut"], original["either_cut"])
+
     def test_new_moon_source_inventory(self):
         got = combo_prize_cuts((2, 1, 1, 1, 1, 2), (2, 2, 2, 2), 2, 9)
         self.assertEqual(
