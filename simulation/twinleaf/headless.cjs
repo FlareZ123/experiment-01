@@ -327,6 +327,7 @@ function runMatch(request) {
         turn: state.turn, seat, name: action.name
       } : null;
       const selectionInfo = decisionTrace ? selectedCardsEvidence(pending, action, state) : null;
+      const optionInfo = decisionTrace ? selectedOptionEvidence(pending, action) : null;
       const attackInfo = actionName === 'AttackAction' && seat >= 0 ? {
         turn: state.turn, seat,
         activePokemon: state.players[seat].active.getPokemonCard()?.name || '',
