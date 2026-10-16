@@ -221,6 +221,9 @@ function runMatch(request) {
     if (request.supporterDecisionCorrection === true) {
       restoreSupporterDecisionHook = installSupporterDecisionHook();
     }
+    if (request.leleEntryAbilityLockCorrection === true) {
+      restoreLeleEntryAbilityLockHook = installLeleEntryAbilityLockHook();
+    }
     const { Store } = engine('game/store/store');
     const { AddPlayerAction } = engine('game/store/actions/add-player-action');
     const { ResolvePromptAction } = engine('game/store/actions/resolve-prompt-action');
