@@ -19,3 +19,8 @@ test('three DCE produce exact prize-aware direct-access probability', () => {
   assert.ok(Math.abs(result.conditional - 0.3910785062734533) < 1e-12);
   assert.ok(Math.abs(result.supporterLine - 0.3560810292929796) < 1e-12);
 });
+
+// Cross-validate the original upper-envelope model against explicitly priced
+// Guzma & Hala discard decisions in the same source-locked domain.
+require('./iron-thorns-discard-sensitivity.test.cjs');
+require('./iron-thorns-discard-montecarlo.test.cjs');
