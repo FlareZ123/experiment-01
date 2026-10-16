@@ -27,51 +27,93 @@ function prizeWindowDamageMap(state, player, prompt, codes) {
 
   const opponent = state.players.find(candidate => candidate.id !== player.id);
   if (!opponent) return null;
-  const eligible = opponent.bench.flatMap((slot, index) => {
+  // A damage cap applies per target. A target needing only 10 damage
+  // can still be knocked out when its cap is below the full 60.
+  const entries = opponent.bench.flatMap((slot, index) => {
     const pokemon = slot.getPokemonCard();
-    if (!pokemon || pokemon.powers?.length || slot.tools.length > 0) return [];
-    const target = {
-      player: codes.opponentSide,
-      slot: codes.benchSlot,
-      index
-    };
+    if (!pokemon) return [];
+    const target = {player:codes.opponentSide,slot:codes.benchSlot,index};
     const source = prompt.maxAllowedDamage.find(row =>
       row.target.player === target.player &&
       row.target.slot === target.slot &&
       row.target.index === target.index
     );
-    if (!source || source.damage < 60 ||
-        prompt.options.blocked.some(row =>
-          row.player === target.player &&
-          row.slot === target.slot &&
-          row.index === target.index)) {
-      return [];
-    }
+    if (!source || prompt.options.blocked.some(row =>
+      row.player === target.player &&
+      row.slot === target.slot &&
+      row.index === target.index)) return [];
+    const cap = Math.min(6, Math.floor(source.damage / 10));
+    if (cap <= 0) return [];
     const remaining = (slot.hp || pokemon.hp + slot.hpBonus) - slot.damage;
-    const required = Math.ceil(remaining / 10) * 10;
-    return required >= 10 && required <= 60 ? [{target,required}] : [];
+    // Powers and Tools can modify damage-counter placement. Until their
+    // effects are checked, do not count those cards as certain knockouts.
+    const trusted = !pokemon.powers?.length && !slot.tools?.length;
+    const knockoutAt = trusted && remaining > 0 && remaining <= 60
+      ? Math.ceil(remaining / 10)
+      : Infinity;
+    return [{target,cap,knockoutAt,trusted}];
   });
 
+  if (entries.length === 0 ||
+      entries.reduce((total,entry)=>total+entry.cap,0) < 6 ||
+      !entries.some(entry=>Number.isFinite(entry.knockoutAt))) return null;
+
+  // At most five Bench slots and six counters give <= 7^5 allocations.
+  // Enumerate *full, validated* allocations; optimize immediate KO count,
+  // then avoid excess counters on defeated or uncertain targets, then put
+  // remaining counters toward live, unprotected targets.
   let best = null;
-  for (let mask = 1; mask < 1 << eligible.length; mask += 1) {
-    const selected = eligible.filter((_, index) => (mask & (1 << index)) !== 0);
-    const cost = selected.reduce((sum, target) => sum + target.required, 0);
-    if (cost > 60) continue;
-    if (best && selected.length < best.targets.length) continue;
-    if (best && selected.length === best.targets.length && cost >= best.cost) {
-      continue;
+  let bestScore = null;
+  const counters = new Array(entries.length).fill(0);
+  /** @param {number} position @param {number} left */
+  function enumerate(position,left) {
+    if (position === entries.length) {
+      if (left !== 0) return;
+      let knockouts = 0;
+      let wasted = 0;
+      let progress = 0;
+      for (let i = 0; i < entries.length; i += 1) {
+        const entry = entries[i];
+        const used = counters[i];
+        if (!entry.trusted) {
+          wasted += used;
+        } else if (used >= entry.knockoutAt) {
+          knockouts += 1;
+          wasted += used - entry.knockoutAt;
+        } else {
+          progress += used;
+        }
+      }
+      if (knockouts === 0) return;
+      const score = [knockouts,-wasted,progress];
+      // Lexicographic comparison is deterministic even for tied allocations.
+      if (bestScore) {
+        let compare = 0;
+        for (let i = 0; i < score.length; i += 1) {
+          if (score[i] !== bestScore[i]) {
+            compare = Math.sign(score[i]-bestScore[i]);
+            break;
+          }
+        }
+        if (compare <= 0) return;
+      }
+      const result = entries.flatMap((entry,index) =>
+        counters[index] > 0
+          ? [{target:entry.target,damage:counters[index]*10}]
+          : []);
+      if (!prompt.validate(result,state)) return;
+      best = result;
+      bestScore = score;
+      return;
     }
-    best = {targets:selected,cost};
+    const limit = Math.min(entries[position].cap,left);
+    for (let used = 0; used <= limit; used += 1) {
+      counters[position] = used;
+      enumerate(position+1,left-used);
+    }
   }
-  if (!best) return null;
-  const result = best.targets.map(item => ({
-    target:item.target,
-    damage:item.required
-  }));
-  // Assign all six counters. Extra counters on a selected target are legal
-  // under this Phantom Dive prompt even if that target would be Knocked Out.
-  result[0].damage += 60 - best.cost;
-  return prompt.validate(result,state) ? result : null;
+  enumerate(0,6);
+  return best;
 }
 
 /**
