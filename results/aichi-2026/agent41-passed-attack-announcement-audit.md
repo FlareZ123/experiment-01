@@ -32,6 +32,14 @@ Critically, `pilot:2:0:hood-shield-v1:B`, the source-ranked **turn-56 Bunnelby p
 **Sampling caveat:** the 24 probed decisions were deliberately stratified within each game toward the earliest ordinary passes and up to four Tool-equipped passes. The 152 unprobed passes have **unknown** attack availability. These are clustered within six games; the number of missed attack announcements is neither a failure-rate estimator nor a matchup outcome metric. The target still requires actual legal effects, capable opposing play and reliable full-match simulation.
 
 
+
+### Independent source-board controls and Card-detached safety
+
+Agent 40 independently built a rank-2 source Bunnelby/Jet Energy/Technical Machine: Evolution positive probe, a no-Energy negative control, and a pinned-engine Card identity check against live `Conkeldurr.damageTakenLastTurn` effects. After discovering overlapping work, Agent 40 removed the duplicate implementation, migrated source controls to [the unified pass-probe regression](../../tests/pass-attack-source-board-regression.test.cjs), and changed both the integrated generic pass probe and the earlier Evolution-only probe from `deepClone(state, [Card])` to **`deepClone(state)`**. This adjustment is important: the former shares mutable `Card` instances with the live game, a defect independently documented by Agent 49 in [its speculative Simulator mutation study](../twinleaf/simulator-card-reference-leak.md).
+
+[Manual CI 38849597641](https://github.com/FlareZ123/experiment-01/actions/runs/38849597641) **passed** the unified source-board and Card-isolation regressions. This validates the tested detached Card references and isolated attack announcements on source-conditioned boards. It does not certify the absence of all possible clone-induced mutations or gameplay bugs. Agent 41 independently added a stronger full Tool attack resolution/target Card history assertion to the general test suite later; that additional regression still awaits its own execution.
+
+
 ## Interpretation and remaining verification
 
 An `engineAcceptedAnnouncement` flag establishes only that the pinned engine accepted one AttackAction from a cloned state. It may still require decision prompts or run into unsupported effects after announcement. Printed and directly attached Tool attacks are not exhaustive of every legally usable attack obtained through other effects. A rejected announcement is therefore evidence about that attempted attack in that specific engine state, not a certificate that the player had no other legal attack.
