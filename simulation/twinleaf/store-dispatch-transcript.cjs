@@ -2,6 +2,7 @@
 
 const { actionTraceSha256 } = require('../evaluation/canonical-action-trace.cjs');
 const { captureChooseCardsReferences } = require('./choose-cards-reference.cjs');
+const { captureChooseAttackReference } = require('./choose-attack-reference.cjs');
 
 const INSTALLED = Symbol('research-dispatch-transcript');
 
@@ -165,6 +166,15 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
         captureErrors.push('step ' + step + ': choice refs: ' + error.message);
       }
     }
+    if (pending?.constructor?.name === 'ChooseAttackPrompt' &&
+        action?.constructor?.name === 'ResolvePromptAction') {
+      try {
+        event.attackChoice = captureChooseAttackReference(pending, action);
+      } catch (error) {
+        event.attackChoiceCaptureError = error.message;
+        captureErrors.push('step ' + step + ': chosen attack: ' + error.message);
+      }
+    }
     try {
       event.parameters = portableSnapshot(action, new Set(), true);
     } catch (error) {
@@ -203,6 +213,7 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
     result, actionTrace: trace, dispatched: trace.length,
     ignoredOtherStoreDispatches,
     capturedChoiceReferenceEvents: trace.filter(event => event.choiceReferences).length,
+    capturedAttackChoiceEvents: trace.filter(event => event.attackChoice).length,
     failedChoiceReferenceEvents: trace.filter(event => event.choiceCaptureError).length,
     captureScope: options.liveStoreOnly === true ?
       'first-AddPlayerAction-Store-instance' : 'all-Store-instances',
