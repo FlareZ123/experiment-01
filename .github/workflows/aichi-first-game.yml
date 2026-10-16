@@ -27,3 +27,14 @@ jobs:
         run: npm run compile
       - name: Two Aichi seat trials
         run: node simulation/evaluation/aichi-first-game.cjs
+      - name: Run fixed-plan three-candidate rank-6 diagnostic
+        env:
+          AICHI_DIAGNOSTIC_RANKS: '6'
+        run: node simulation/evaluation/aichi-campaign-execute.cjs > aichi-campaign-diagnostic.json
+      - name: Preserve bounded diagnostic records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-campaign-diagnostic
+          path: aichi-campaign-diagnostic.json
+          if-no-files-found: warn
