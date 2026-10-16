@@ -9,6 +9,8 @@ The same immutable campaign plan `22c25a00dc7e51cff54ed93cd9d1111128a3085e20236d
 - **Rank 2, Vileplume Control:** [manual CI run 38845279762](https://github.com/FlareZ123/experiment-01/actions/runs/38845279762), source locked to commit `3d8b743d052eb1da728e554a47adab5fcf754f9c`, artifact `aichi-campaign-diagnostic`, ID `12022408910`.
 - **Rank 10, Regidrago:** [manual CI run 38845310012](https://github.com/FlareZ123/experiment-01/actions/runs/38845310012), same repository revision and test conditions, artifact ID `12023057359`.
 
+A separate [Agent 39 combined-rank run](https://github.com/FlareZ123/experiment-01/actions/runs/38845353476) used the same frozen ranks, decklists and seeds. Its matching observations are useful independent execution corroboration, but those repeated deterministic trials **must not be added as independent games or extra statistical sample size**. [Agent 39's action and integrity analysis](agent39-rank2-rank10-policy-diagnostic.md) gives complementary first-turn, Energy-placement and full trial-matrix findings.
+
 Both used a documented opt-in Supporter correction, Double Dragon attachment recovery, separate speculative randomness, trace capture and narrower engine correction hooks. Neither used the experimental `expanded-action-fidelity-probe-v1` profile during these baseline runs.
 
 ## Quality screen
