@@ -24,3 +24,4 @@ jobs:
         run: npm run compile
       - run: node simulation/twinleaf/garbotoxin-vileplume-action.cjs
       - run: node simulation/twinleaf/garbotoxin-removal-tempo.cjs
+      - run: node simulation/twinleaf/garbotoxin-faba-tempo.cjs
