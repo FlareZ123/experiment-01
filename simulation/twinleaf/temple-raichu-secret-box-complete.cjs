@@ -58,9 +58,14 @@ function testSecretBoxStadiumLine() {
     } else {
       throw new Error('Unexpected prompt while resolving Secret Box: ' + type);
     }
-    if (typeof p.validate === 'function') {
-      assert.equal(p.validate(selection, f.state), true,
-        'Response must pass normal prompt validation for ' + type);
+    if (typeof p.validate === 'function' && !p.validate(selection, f.state)) {
+      throw new Error('Prompt rejected source-valid selection: ' + JSON.stringify({
+        type, message: p.message, options: p.options,
+        available: p.cards?.cards?.map(card => ({name: card.fullName, id: card.id})),
+        selected: Array.isArray(selection) ? selection.map(card => ({
+          name: card.fullName, id: card.id
+        })) : selection
+      }));
     }
     f.store.dispatch(new ResolvePromptAction(p.id, selection));
   }
