@@ -78,12 +78,17 @@ function probeGate(useCologne) {
   };
 }
 
-/** @returns {{locked:object,unlocked:object}} Both source-backed cases. */
+/** @returns {{upstream:object,corrected:object}} Lock and Cologne controls. */
 function runTest() {
+  // Keep upstream observations separate from the corrective-hook contract.
+  // The pinned source's actual Gate behavior must be measured before calling
+  // it a defect; an earlier fixture failed because this assumption was wrong.
   const upstreamLocked = probeGate(false);
+  const upstreamUnlocked = probeGate(true);
   assert.equal(upstreamLocked.initializationVisible, true);
-  assert.equal(upstreamLocked.gatePrompt, true,
-    'Pinned upstream premature hand-zone check changed: reconsider need for compatibility hook.');
+  assert.equal(upstreamLocked.radiantBenched, true);
+  assert.equal(upstreamUnlocked.initializationVisible, false);
+  assert.equal(upstreamUnlocked.radiantBenched, true);
 
   const restore = installRadiantGateLockHook();
   try {
@@ -95,7 +100,8 @@ function runTest() {
     assert.equal(unlocked.initializationVisible, false);
     assert.equal(unlocked.gatePrompt, true);
     assert.equal(unlocked.radiantBenched, true);
-    return { upstreamLocked, corrected: { locked, unlocked } };
+    return { upstream: { locked: upstreamLocked, unlocked: upstreamUnlocked },
+      corrected: { locked, unlocked } };
   } finally {
     restore();
   }
@@ -105,7 +111,7 @@ if (require.main === module) {
   console.log(JSON.stringify({
     kind: 'canceling-cologne-radiant-gate-unlock',
     engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    status: 'upstream premature Gate trigger plus reversible corrected midgame prompt availability',
+    status: 'upstream source classification and reversible Cologne/lock prompt check',
     ...runTest()
   }, null, 2));
 }
