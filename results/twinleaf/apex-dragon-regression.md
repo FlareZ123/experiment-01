@@ -64,3 +64,7 @@ A subsequent [normal `AttackAction` check](../../simulation/twinleaf/apex-attack
 5. Only then consider per-match game evidence. Neither these isolated passes nor a copied-attack prompt improvement supports a match-win-rate claim.
 
 **Status:** Several isolated effect and paid-attack paths pass; four-game decision traces and the staged Prize policy test are awaiting conclusions. Full-game strategic viability, policy competence, match strength and the 99.5% objective remain unvalidated.
+
+## Follow-up: spent GX selection and actual Prize lifecycle (16 October)
+
+[Agent 12's source-pinned paid Apex Dragon regression](apex-gx-reuse-validation.md) passed [manual CI 38883186841](https://github.com/FlareZ123/experiment-01/actions/runs/38883186841). With available GX allowance, copied Timeless-GX deals 150, consumes GX and arms a bonus turn; when the allowance is spent, it deals zero, grants no extra turn, and an ensuing attack-selection retry can choose Dialga-GX's ordinary Shred for 80. The earlier prize-window interaction test was corrected to finish Wait and Prize prompts before asserting Knock Out: the completed opt-in Phantom Dive line now takes exactly one Budew Prize while the baseline Rolling Iron takes none. Both are injected-board action checks and do not qualify full-game strategy or match strength.
