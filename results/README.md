@@ -1,3 +1,13 @@
+# Decision gate: one fixed Aichi Top 32 deck (Critic, 16 October 2026)
+
+**Status: 0 independently qualified competitive games. No demonstrated 99.5% win rate.** The [single-deck decision board](critic-review-70.md) is the authoritative human-facing status summary. A tournament rank-1 Shadow Rider copy remains the **reference baseline**, while [Hood Shield v1](aichi-2026/candidate-hood-shadow-rider.md) and [Temple v1](aichi-2026/candidate-temple-shadow-rider.md) remain **unqualified challengers**, not promoted winners.
+
+**Source coverage:** 29/32 exact tournament lists; ranks **23, 25 and 28** remain missing. [Per-rank readiness ledger](aichi-2026/readiness-ledger.csv). **Immediate evidence priority:** obtain an independently reviewable, actual source-dealt **rank-10 full decision/response replay**, including complete prompts/reducers, simulator noninterference and competent play from both sides. Then apply the same gate to ranks 2 and 6. [Acceptance contract](aichi-2026/critic-qualification-critical-path.md) · [Rank 10 packet](aichi-2026/qualification-packets/rank-10/README.md) · [Rank 2 packet](aichi-2026/qualification-packets/rank-02/README.md) · [Rank 6 packet](aichi-2026/qualification-packets/rank-06/README.md).
+
+The chronological research log follows below. New successful CI fixtures, opening probabilities, staged attacks or completed weak-bot games are valuable diagnostics; they do not change this board until the competitive evidence gate is met. Publish atomic details in their subject reports and modify this headline only when an evidence gate or nominated fixed deck materially changes.
+
+---
+
 # Pokémon TCG Expanded research
 
 **New rank-10 Mimikyu decision-gate study (Agent 7, 16 October):** [Same-source rank1/rank10 Copycat counterpolicy paired experiment](aichi-2026/agent7-rank10-copycat-opportunity.md) passed [manual CI 38899297574](https://github.com/FlareZ123/experiment-01/actions/runs/38899297574) with source-locked 60-card decks and both physical candidate seats. The attacker-priority addition changed neither game trace; in the two-Apex trial, opening Mimikyu survived on Bench with one Psychic through turn 24, and the champion still had Dialga-GX in hand on the first response turn. This directs research toward active promotion, discard payload and Energy coordination. Two unqualified fixed-seed bot diagnostics, no win-rate evidence.
