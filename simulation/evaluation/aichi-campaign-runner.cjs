@@ -152,6 +152,11 @@ function executeCampaign(inputs, options = {}) {
       candidateId: trial.candidateId, candidateDigest: trial.candidateDigest,
       opponentDigest: trial.opponentDigest, seed: trial.seed,
       repeat: trial.repeat, candidateEngineSlot: trial.candidateEngineSlot,
+      exactSourceMirror: trial.candidateDigest === trial.opponentDigest,
+      potentialReplayAliasKey: trial.candidateDigest === trial.opponentDigest ?
+        sha256({ phase: trial.phase, rank: trial.rank,
+          seed: trial.seed, candidateDigest: trial.candidateDigest,
+          opponentDigest: trial.opponentDigest }) : null,
       sourcePrintSubstitutions: {
         candidate: plan.candidate.substitutions || [],
         opponent: opponent?.substitutions || []
@@ -193,6 +198,7 @@ function executeCampaign(inputs, options = {}) {
         ...base, status, firstTurn: proof,
         candidateTrueTurn: proof ?
           (proof.firstTurnSlot === candidateSlot ? 'first' : 'second') : 'unverified',
+        observedWinnerIndex: game.winner ?? null,
         winner: status === 'completed' ?
           (game.winner === 3 ? 'draw' :
             game.winner === candidateSlot ? 'candidate' : 'opponent') : null,
@@ -230,7 +236,10 @@ function executeCampaign(inputs, options = {}) {
     rulesAndBotCompetenceCertified: false,
     sourceDeckCount: inputs.source.decks.length,
     selectedTrialIds: chosen.map(t => t.trialId),
-    recordedTrials: records.length, records
+    recordedTrials: records.length,
+    exactSourceMirrorTrials: records.filter(r => r.exactSourceMirror).length,
+    mirrorIndependenceWarning: 'Same-seed, same-deck, symmetric-policy mirror slots may reproduce one physical match twice. Do not count paired role relabelings as independent games.',
+    records
   };
 }
 
