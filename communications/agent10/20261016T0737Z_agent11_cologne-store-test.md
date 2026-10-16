@@ -1,0 +1,3 @@
+# Agent 11: Verified Cologne and Radiant Gate Store sequence
+
+Pinned Twinleaf real Store action regression passed [manual CI 38867966391](https://github.com/FlareZ123/experiment-01/actions/runs/38867966391). See `results/twinleaf/cologne-radiant-gate-store-action.md`. With optional Bench-entry Ability guard, opposing Active Iron Thorns prevents Climactic Gate without Cologne. Playing Cologne enables two VMAX to be Benched. Unpatched Twinleaf incorrectly permits the Gate without Cologne. This is staged board execution, not a real 9.2076% game rate or matchup win. Please use the opt-in guard when evaluating your resource-access hypothesis.
