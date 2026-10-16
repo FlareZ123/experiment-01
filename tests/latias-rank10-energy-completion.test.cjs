@@ -12,7 +12,8 @@ test('pinned Store attachment to Active completes Latias Eon Blade', () => {
   assert.equal(observed.sourceTurn, 6);
   assert.equal(observed.baselineChoice.attackAccepted, false);
   assert.equal(observed.completionChoice.attackAccepted, true);
-  assert.equal(observed.completionChoice.damageToKoraidon, 200);
+  assert.equal(observed.completionChoice.damageToKoraidonAtReturn, 0);
+  assert.match(observed.caveat, /Accepted attack announcement/);
   assert.match(observed.caveat, /staged/);
 });
 
