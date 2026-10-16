@@ -1,0 +1,17 @@
+name: Radiant Forest Seal Stone exact opening
+on:
+  workflow_dispatch:
+
+jobs:
+  exact-opening:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate exact and independently enumerated deals
+        run: node tests/radiant-forest-stone-access.test.cjs
+      - name: Print reproducible exact counts
+        run: node scripts/radiant-forest-stone-access.cjs
