@@ -25,3 +25,4 @@ jobs:
       - run: node simulation/twinleaf/temple-wobbuffet-board.cjs
       - run: node simulation/twinleaf/temple-energy-board.cjs
       - run: node simulation/twinleaf/wobbuffet-pivot.cjs
+      - run: node simulation/twinleaf/vileplume-double-tm-board.cjs
