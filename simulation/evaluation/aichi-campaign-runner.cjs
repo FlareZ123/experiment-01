@@ -93,6 +93,7 @@ function executeCampaign(inputs, options = {}) {
   if (!['pilot', 'published-field'].includes(phase)) {
     throw new Error('Unknown campaign phase.');
   }
+  const expectedPolicyProfile = options.expectedPolicyProfile || null;
   const maxTrials = options.maxTrials === undefined ? 2 : options.maxTrials;
   if (!Number.isInteger(maxTrials) || maxTrials < 1 || maxTrials > 1000) {
     throw new Error('maxTrials must be an integer from 1 through 1000.');
@@ -190,9 +191,24 @@ function executeCampaign(inputs, options = {}) {
       const validHashes = Array.isArray(game.deckHashes) &&
         game.deckHashes.length === 2 &&
         game.deckHashes.every((digest, i) => digest === expectedEngineDeckHashes[i]);
+      const engineIdentityValid = !plan.engineRevision ||
+        game.engine === 'twinleafgg/' + plan.engineRevision;
+      const protocolValid = game.randomnessProtocol ===
+          'separate-game-and-per-seat-policy-prng-v1' &&
+        game.policyRandomIsolation === true &&
+        game.promptValidationMode === 'predispatch-prompt-validate' &&
+        game.rules?.format === 'EXPANDED' &&
+        game.rules?.firstTurnDrawCard === true &&
+        game.rules?.firstTurnUseSupporter === false &&
+        game.rules?.attackFirstTurn === false;
+      const profileValid = !expectedPolicyProfile ||
+        game.researchPolicyProfile === expectedPolicyProfile;
       const terminal = game.finished === true && [0, 1, 3].includes(game.winner);
       const status = !validSeed ? 'engine-seed-mismatch' :
         !validHashes ? 'engine-deck-mismatch' :
+        !engineIdentityValid ? 'engine-revision-mismatch' :
+        !protocolValid ? 'engine-protocol-mismatch' :
+        !profileValid ? 'policy-profile-mismatch' :
         !proof ? 'unverified-first-turn' :
           !terminal ? 'unfinished' : 'completed';
       const candidateSlot = candidateA ? 0 : 1;
@@ -243,6 +259,7 @@ function executeCampaign(inputs, options = {}) {
     schemaVersion: campaign.schemaVersion, planDigest: campaign.planDigest, phase,
     seedProtocol: campaign.seedProtocol || 'paired-slots-v1',
     researchRevision: process.env.GITHUB_SHA || null,
+    expectedPolicyProfile,
     purpose: 'exploratory-engine-feasibility',
     competitiveWinRateCertified: false,
     rulesAndBotCompetenceCertified: false,
@@ -270,7 +287,8 @@ if (require.main === module) {
   const runMatch = profiled ?
     request => profiled.runWithResearchProfile(request, profile) : undefined;
   process.stdout.write(JSON.stringify(executeCampaign(loadCampaignInputs(), {
-    phase, maxTrials, maxActions, trialIds, runMatch
+    phase, maxTrials, maxActions, trialIds, runMatch,
+    expectedPolicyProfile: profile || null
   }), null, 2) + '\n');
 }
 
