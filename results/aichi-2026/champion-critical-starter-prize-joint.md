@@ -32,12 +32,12 @@ For the source one-Ball list, exact reduced fractions:
 - F or R = **1233474499 / 14760254080**.
 
 A compact independent identity checks F:
-\`[C(48,7) - C(46,7)] / [C(60,7) - C(46,7)] = 6923/114560\`.
+`[C(48,7) - C(46,7)] / [C(60,7) - C(46,7)] = 6923/114560`.
 The R marginal agrees *exactly* with the earlier independently developed BigInt [critical-Prize model](../../scripts/aichi-champion-critical-prize-collapse.cjs).
 
 ## Validation and reproducibility
 
-The new [joint BigInt enumerator](../../scripts/aichi-copycat-starter-prize-joint.cjs) counts disjoint card categories for the hand and subsequent Prizes. The [regression](../../tests/aichi-copycat-starter-prize-joint.test.cjs) uses an independent physical-slot enumeration of all hands and Prize pairs from an eight-card miniature with 0, 1, 2 or 3 recovery cards, verifying all four joint events. The source-size test checks rational values, the independent original R model and the closed-form F identity. All were green in [manual-only CI run 38861318737](https://github.com/FlareZ123/experiment-01/actions/runs/38861318737) at commit \`02ea79614296972d6a4096995792f78f495ea23a\`. The workflow is [aichi-champion-prize-collapse.yml](../../.github/workflows/aichi-champion-prize-collapse.yml), manually dispatched; no per-commit CI was introduced.
+The new [joint BigInt enumerator](../../scripts/aichi-copycat-starter-prize-joint.cjs) counts disjoint card categories for the hand and subsequent Prizes. The [regression](../../tests/aichi-copycat-starter-prize-joint.test.cjs) uses an independent physical-slot enumeration of all hands and Prize pairs from an eight-card miniature with 0, 1, 2 or 3 recovery cards, verifying all four joint events. The source-size test checks rational values, the independent original R model and the closed-form F identity. All were green in [manual-only CI run 38861318737](https://github.com/FlareZ123/experiment-01/actions/runs/38861318737) at commit `02ea79614296972d6a4096995792f78f495ea23a`. The workflow is [aichi-champion-prize-collapse.yml](../../.github/workflows/aichi-champion-prize-collapse.yml), manually dispatched; no per-commit CI was introduced.
 
 ## Interpretation and unresolved tradeoff
 
