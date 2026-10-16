@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const { initializeCards } = require('./headless.cjs');
 const { installToolJammerHook } = require('./tool-jammer-hook.cjs');
+const { installSnorlaxRetreatStartHook } = require('./snorlax-retreat-start-hook.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} modulePath */
@@ -15,7 +16,7 @@ const engine = modulePath => require(path.join(output, modulePath));
  * be forbidden by Block unless an applicable Hood protects the Active.
  * Opposing Active Tool Jammer should suppress Hood.
  *
- * @param {{hood:boolean,jammer:boolean,interface:'direct'|'start'}} options
+ * @param {{hood:boolean,jammer:boolean,interface:'direct'|'start',startBlockCorrection?:boolean}} options
  */
 function characterizeRetreat(options) {
   const manager = initializeCards();
@@ -68,7 +69,8 @@ function characterizeRetreat(options) {
   store.reduceEffect(state, cost);
   assert.deepEqual(cost.cost, [], 'The test requires a zero-energy legal retreat payment');
 
-  const restore = installToolJammerHook();
+  const restoreJammer = installToolJammerHook();
+  const restoreBlock = options.startBlockCorrection ? installSnorlaxRetreatStartHook() : () => {};
   let error = null;
   let promptKind = null;
   try {
@@ -97,7 +99,8 @@ function characterizeRetreat(options) {
       phase:state.phase
     };
   } finally {
-    restore();
+    restoreBlock();
+    restoreJammer();
   }
 }
 
@@ -115,11 +118,19 @@ function characterizeAll() {
       cases.push(characterizeRetreat({...config,interface:retreatInterface}));
     }
   }
+  const correctedCases=[];
+  for (const config of configs) {
+    for (const retreatInterface of ['direct','start']) {
+      correctedCases.push(characterizeRetreat({
+        ...config,interface:retreatInterface,startBlockCorrection:true
+      }));
+    }
+  }
   return {
     engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     scenario:'Shadow Rider Calyrex V Active + Latias ex Bench versus solo Snorlax PGO',
     purpose:'distinguish direct RetreatAction from interactive RetreatStartAction; tests legal permission, not just cost',
-    cases,
+    cases, correctedCases,
     competitiveClaim:false
   };
 }
