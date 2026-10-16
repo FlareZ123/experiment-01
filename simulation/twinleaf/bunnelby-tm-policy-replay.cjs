@@ -85,9 +85,10 @@ function stageSourceBunnelbyBoard() {
  * evolution, optional Barrage and animation prompts.
  * All strategic decisions come from the bot; shuffle order is kept stable
  * for a conditioned setup test, without implying a sampled game.
+ * @param {{diagnostic?:boolean}} [options] Permit descriptive, non-passing experimental clone diagnostics.
  * @returns {object}
  */
-function replayBunnelbyTmBot() {
+function replayBunnelbyTmBot(options = {}) {
   const {fixture: f} = stageSourceBunnelbyBoard();
   const {ResolvePromptAction} =
     engine('game/store/actions/resolve-prompt-action');
@@ -104,6 +105,7 @@ function replayBunnelbyTmBot() {
   f.store.dispatch(first);
   const prompts = [];
   let secondAttack = null;
+  let unresolvedPrompt = null;
   for (let i = 0; i < 60; i++) {
     const p = f.store.state.prompts.find(prompt => prompt.result === undefined);
     if (!p) break;
@@ -114,7 +116,11 @@ function replayBunnelbyTmBot() {
         Array.from({length: f.attacker.deck.cards.length}, (_, index) => index))
       : kind === 'WaitPrompt' ? new ResolvePromptAction(p.id, null)
         : bot.decodeNextAction(f.store.state);
-    assert.ok(action, 'No bot answer for prompt ' + kind);
+    if (!action) {
+      if (!options.diagnostic) assert.ok(action, 'No bot answer for prompt ' + kind);
+      unresolvedPrompt = kind;
+      break;
+    }
     if (kind === 'ChooseAttackPrompt') {
       secondAttack = action.result?.name;
     }
@@ -125,20 +131,31 @@ function replayBunnelbyTmBot() {
           (action.result || []).map(card => card.name) : undefined
     });
     f.store.dispatch(action);
+    if (options.diagnostic) {
+      prompts[prompts.length - 1].boardAfter =
+        f.attacker.bench.map(slot => slot.getPokemonCard()?.name ?? null);
+    }
   }
-  assert.equal(f.store.state.prompts.some(p => p.result === undefined), false,
-    'Policy replay must not leave a pending prompt');
+  const stillPending=f.store.state.prompts.some(p => p.result === undefined);
   const board = f.attacker.bench.map(slot => slot.getPokemonCard()?.name);
-  assert.deepEqual(board, ['Vileplume','Pidgeot ex'],
-    'Policy should evolve two Basic to Stage 2 by double TM');
-  assert.equal(secondAttack, 'Evolution');
+  const reachedSecondStage = !stillPending &&
+    board.length === 2 && board[0] === 'Vileplume' &&
+    board[1] === 'Pidgeot ex' && secondAttack === 'Evolution';
+  if (!options.diagnostic) {
+    assert.equal(stillPending, false,
+      'Policy replay must not leave a pending prompt');
+    assert.deepEqual(board, ['Vileplume','Pidgeot ex'],
+      'Policy should evolve two Basic to Stage 2 by double TM');
+    assert.equal(secondAttack, 'Evolution');
+  }
   return {
-    success: true,
+    success: reachedSecondStage,
     sourceRanks: {evolutionLine: 2, opponent: 1},
     firstAttack: first.name,
     secondAttack,
     finalBench: board,
     prompts,
+    ...(options.diagnostic ? {stillPending, unresolvedPrompt} : {}),
     caveat: 'Conditioned real Store + actual bot prompts, fixed deck order, no sampled draw or competitive win rate'
   };
 }
