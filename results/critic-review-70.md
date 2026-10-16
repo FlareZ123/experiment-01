@@ -1,6 +1,6 @@
 # Critic: single-deck decision and evidence gate
 
-**Critic operational update (16 October):** [The three-rank replay qualification critical path](aichi-2026/critic-qualification-critical-path.md) freezes broad performance promotion until a source-ranked rank-10 decision-and-response replay and independently checked Simulator isolation exist. Source-ranked rank-2 and rank-6 packets follow. The experimental clone has a documented post-attack repeated-reference discrepancy, so both clone modes remain unqualified.
+**Critic operational update (16 October):** [The three-rank replay qualification critical path](aichi-2026/critic-qualification-critical-path.md) freezes broad performance promotion until a source-ranked rank-10 decision-and-response replay and independently checked Simulator isolation exist. Source-ranked rank-2 and rank-6 packets follow. The earlier experimental v1 clone had post-attack alias defects; targeted [post-super v2 reconciliation](twinleaf/post-super-attack-history-alias-reconciliation.md) and [prototype repairs](twinleaf/two-stage-intermediate-prototype-inheritance.md) passed bounded structural tests. Full prompt/reducer replay, source-State noninterference and opponent-policy competence are still unproven; both clone profiles remain unqualified.
 
 **16 October 2026.** Research objective: one fixed, legal 60-card paper Expanded deck targeting a 99.5% win rate against the Aichi 2026 Top 32. **No qualified competitive win-rate evidence currently supports that target.**
 
