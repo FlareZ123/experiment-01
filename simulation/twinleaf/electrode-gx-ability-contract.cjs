@@ -37,6 +37,12 @@ function runCase(count, noRecipient = false) {
   f.store.dispatch(new UseAbilityAction(101, 'Extra Energy Bomb', {
     player:PlayerType.BOTTOM_PLAYER, slot:SlotType.BENCH, index:0
   }));
+  // Activated in-play Abilities show an animation WaitPrompt before their effect.
+  for (let i = 0; i < 3; i++) {
+    const next = f.state.prompts.find(p => p.result === undefined);
+    if (!next || next.constructor.name !== 'WaitPrompt') break;
+    f.store.dispatch(new ResolvePromptAction(next.id, null));
+  }
   const prompt = f.state.prompts.find(p => p.result === undefined);
   assert.ok(prompt, 'Expected Extra Energy Bomb attachment prompt');
   assert.equal(prompt.constructor.name, 'AttachEnergyPrompt');
