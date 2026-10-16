@@ -86,3 +86,22 @@ This establishes a **direct game-mechanics consequence**. The unmodified specula
 
 **Scope:** the test stages a legal-energy conditioned midgame board; the board is not a sampled opening or an archived Aichi whole-game decision. It proves an engine error is *reachable if a simulator performs the indicated speculative attack*, independent of claims that a normal policy actually selects it during a source-ranked match. This is a stronger causal demonstration than the earlier source Card-mutation-only probe. The prior full-game changed winner is policy sensitivity and does not identify which specific field caused divergence.
 
+
+## Observed in natural SimpleTacticsAi speculative dispatches
+
+The [source-ranked natural bot observer](../../simulation/twinleaf/natural-bot-card-leak-audit.cjs) and [read-only wrapper](../../simulation/twinleaf/simulator-leak-observer.cjs) passed [manual CI 38848879185](https://github.com/FlareZ123/experiment-01/actions/runs/38848879185). It recorded the source game at rank-1 Shadow Rider vs rank-10 Regidrago under the exact fixed seed `20261049`, both uninstrumented and instrumented, followed by a separate detached-hook game.
+
+**Noninterference control:** original without observer and original with observer had *identical* deterministic full trajectory fingerprints, engine winners and metadata. Thus the observer did not change the game in this tested run.
+
+| Read-only statistic | Unmodified simulator | Detached simulator |
+| --- | ---: | ---: |
+| Simulator instances created | 439 | 363 |
+| Speculative dispatches observed | 769 | 583 |
+| Live `damageTakenLastTurn` field changes after speculative dispatches | **17** | **0** |
+| Full-game engine outcome | seat 0 | seat 1 |
+| Trajectory SHA-256 | `67d724d4069f4efbd2ee10ac0bd8a0c1f1d6536e5150da27f0aea302dcc44dc3` | `a8db394798b92d72aa17c0095f4afe9f94ff18851f7e26b56dee58bca7c508a7` |
+
+The 17 observer events concerned **Koraidon ex TEF (6), Trevenant & Dusknoir-GX SMP (7), and Dialga-GX UPR (4)**. Examples include changes 0 → 10, 0 → 130, 0 → 170 and 300 → 0 after `ResolvePromptAction` inside simulated prompts. These are *field mutations*, not 17 distinct cards or confirmed lasting events; the same original card may be updated and reset in successive hypothetical simulations. Normal game actions can also subsequently reset such fields.
+
+This upgrades the prior claim from **theoretical or staged leak** to **observed default bot speculation in a fixed-source game**. It also closes the observer-interference concern for that exact deterministic trace. Still unestablished: which of the 17 mutations caused any particular later real action, whether changing Card identity has independent semantic effects, applicability across other matchups, and real competitive policy outcomes.
+
