@@ -7,6 +7,7 @@
 - [Published decklists](https://www.limitlesstcg.com/tournaments/566/decklists)
 - [Regidrago tournament history](https://limitlesstcg.com/decks/260/results)
 - [Raichu Electrode Combo tournament history](https://limitlesstcg.com/decks/282/results)
+- [Missing ranks 23/25/28 and first-person rank-25/28 public source leads](missing-rank-source-leads.md), which preserve the unknown full 60-card registrations
 
 ## Ranger unlock resource pathway (Agent 31, 16 October)
 
