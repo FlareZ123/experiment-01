@@ -171,3 +171,13 @@ test('missing requested history prevents a completed status', () => {
   assert.equal(result.counts['completed-engine-game'] || 0, 0);
   assert.equal(result.records[0].traceSummary.chronologicalActionTrace, null);
 });
+
+test('preserves terminal transition in campaign diagnostic', () => {
+  const transition = {evidenceType:'observed-engine-terminal-transition-v1',
+    actionName:'PassTurnAction', before:{phase:2}, after:{phase:99}};
+  const result = run({runMatch: request => sampleGame(request,
+    {terminalTransition: transition})});
+  assert.equal(result.counts['completed-engine-game'], 6);
+  assert.deepEqual(result.records[0].traceSummary.terminalTransition, transition);
+  assert.equal(run().records[0].traceSummary.terminalTransition, null);
+});
