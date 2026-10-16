@@ -55,7 +55,7 @@ function probeOrder(request) {
   b.active.cards.push(card('Pidgey MEW'));
   if (request.solrock !== false) {
     const rock = new PokemonCardList();
-    rock.cards.push(card('Solrock OBF'));
+    rock.cards.push(card('Solrock CES'));
     a.bench.push(rock);
   } else {
     a.bench.push(new PokemonCardList());
