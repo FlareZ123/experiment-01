@@ -1,6 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const path=require('node:path');
+const crypto=require('node:crypto');
 const {initializeCards}=require('./headless.cjs');
 const {preparedRegidrago}=require('./apex-attack-action.cjs');
 const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
@@ -15,6 +16,17 @@ function resolvePrompts(store) {
     const prompt=store.state.prompts.find(x=>x.result===undefined);
     if(!prompt)return transcript;
     const name=prompt.constructor.name;
+    if(name==='ShuffleDeckPrompt') {
+      const deck=store.state.players.find(x=>x.id===prompt.playerId).deck.cards;
+      const order=deck.map((_,index)=>index);
+      for(let k=order.length-1;k>0;k--){
+        const j=crypto.randomInt(k+1);
+        [order[k],order[j]]=[order[j],order[k]];
+      }
+      store.dispatch(new ResolvePromptAction(prompt.id,order));
+      transcript.push({type:name,cardCount:order.length});
+      continue;
+    }
     if(name==='ShowCardsPrompt') {
       store.dispatch(new ResolvePromptAction(prompt.id,true));
       transcript.push({type:name,choice:true});
