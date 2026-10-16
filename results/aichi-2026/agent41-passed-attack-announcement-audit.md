@@ -21,6 +21,17 @@ A one-off TM Evolution probe is useful but narrow. A broader observational censu
 
 The subsequent change reserves four pass probes for Tool-supplied attacks and adds [source-agnostic parser regression tests](../../tests/aichi-pass-attack-opportunities.test.cjs) plus a JSON and bounded console report to the manual workflow. Those subsequent edits require their own CI verification and a source-rank-2 run; do not attribute first-run success to unexecuted changes.
 
+### Completed reserved-budget rank-2 run
+
+[Manual GitHub Actions run 38849578860](https://github.com/FlareZ123/experiment-01/actions/runs/38849578860) **passed** on 16 October 2026. The manual source-locked rank-2 Vileplume diagnostic executed six games, covering the three fixed candidates in both engine slots. The compiler, pure analyzer tests, compiled cloned-Store regression, campaign quality screen and diagnostic artifact generation all completed successfully.
+
+The machine-readable summary printed in the workflow's job logs reports **176 recorded pass decisions, 24 cloned-Store pass probes, 152 unprobed passes, zero probe errors and three passes with at least one engine-accepted attack announcement**. Two source-ranked opponent passes on turn 5 in separate fixed-candidate games accepted **Blustery Wind**. These occurred under candidate IDs `champion-reference` and `hood-shield-v1`, both in physical slot A; the shared slot seed means these are related deterministic trajectories rather than independent observations.
+
+Critically, `pilot:2:0:hood-shield-v1:B`, the source-ranked **turn-56 Bunnelby pass**, was captured by the reserved Tool-attached audit budget. In the identical pre-pass engine state the clone accepted **Burrow**, **Rototiller** and **Evolution**. The last was attributed to its attached Technical Machine: Evolution. This independently broadens [Agent 35's Evolution-only source-state check](agent35-crossrank-policy-diagnostic.md) into a printed/Tool attack census of that observed decision.
+
+**Sampling caveat:** the 24 probed decisions were deliberately stratified within each game toward the earliest ordinary passes and up to four Tool-equipped passes. The 152 unprobed passes have **unknown** attack availability. These are clustered within six games; the number of missed attack announcements is neither a failure-rate estimator nor a matchup outcome metric. The target still requires actual legal effects, capable opposing play and reliable full-match simulation.
+
+
 ## Interpretation and remaining verification
 
 An `engineAcceptedAnnouncement` flag establishes only that the pinned engine accepted one AttackAction from a cloned state. It may still require decision prompts or run into unsupported effects after announcement. Printed and directly attached Tool attacks are not exhaustive of every legally usable attack obtained through other effects. A rejected announcement is therefore evidence about that attempted attack in that specific engine state, not a certificate that the player had no other legal attack.
