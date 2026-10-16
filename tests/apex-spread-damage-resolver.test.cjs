@@ -196,7 +196,7 @@ test('pinned Store rank-15 board allows two Bench Knock Outs while Pidgeot survi
   const load=name=>require(path.join(root,name));
   const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
   const {preparedRegidrago}=require('../simulation/twinleaf/apex-attack-action.cjs');
-  const {withSpreadAwareCopyResolver}=
+  const {spreadAwareCopyResolverClass}=
     require('../simulation/twinleaf/apex-spread-copy-resolver.cjs');
   const {PokemonCardList}=load('game/store/state/pokemon-card-list');
   const {AttackAction}=load('game/store/actions/game-actions');
@@ -316,7 +316,7 @@ test('pinned rank-15 Mega Lopunny ex Bench KO takes three actual Prizes',
   const load=name=>require(path.join(root,name));
   const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
   const {preparedRegidrago}=require('../simulation/twinleaf/apex-attack-action.cjs');
-  const {spreadAwareCopyResolverClass}=
+  const {withSpreadAwareCopyResolver}=
     require('../simulation/twinleaf/apex-spread-copy-resolver.cjs');
   const {PokemonCardList}=load('game/store/state/pokemon-card-list');
   const {AttackAction}=load('game/store/actions/game-actions');
