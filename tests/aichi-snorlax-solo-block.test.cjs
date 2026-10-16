@@ -3,7 +3,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {choose,validOpeningProbability,snorlaxLeadGivenValidOpening,
-  hoodOpeningGivenValidOpening,allHoodsPrizedGivenValidOpening,auditSoloSnorlax} =
+  hoodOpeningGivenValidOpening,allHoodsPrizedGivenValidOpening,
+  forcedSnorlaxActiveGivenValidOpening,auditSoloSnorlax} =
   require('../scripts/aichi-snorlax-solo-block.cjs');
 
 test('small and full-size combination arithmetic is exact',()=>{
@@ -26,6 +27,14 @@ test('both source Snorlax lists have verified Basic and active-lead counts',()=>
     0.27363689572781247)<1e-12);
   assert.equal(rows.get(3).namedCounters['Tool Jammer'],1);
   assert.equal(rows.get(7).namedCounters['Tool Jammer'],1);
+  assert.ok(Math.abs(rows.get(3).pForcedSnorlaxActiveGivenValidOpening-
+    0.15945043530483485)<1e-12);
+  assert.ok(Math.abs(rows.get(7).pForcedSnorlaxActiveGivenValidOpening-
+    0.0839961250229095)<1e-12);
+  assert.ok(rows.get(3).pForcedSnorlaxActiveGivenValidOpening<
+    rows.get(3).pSnorlaxLeadGivenValidOpening);
+  assert.ok(rows.get(7).pForcedSnorlaxActiveGivenValidOpening<
+    rows.get(7).pSnorlaxLeadGivenValidOpening);
   assert.equal(rows.get(7).namedCounters.Faba,2);
   assert.equal(rows.get(7).namedCounters['Megaton Blower'],1);
 });
@@ -63,4 +72,6 @@ test('Hood conditional opening access and joint Prize collapse are distinct',()=
   assert.ok(snorlaxLeadGivenValidOpening(2,12)<
     snorlaxLeadGivenValidOpening(3,11));
   assert.throws(()=>allHoodsPrizedGivenValidOpening(7,14),/Invalid/);
+  assert.ok(forcedSnorlaxActiveGivenValidOpening(1,14)>0);
+  assert.throws(()=>forcedSnorlaxActiveGivenValidOpening(0,14),/Invalid/);
 });
