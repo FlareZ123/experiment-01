@@ -2,6 +2,11 @@ name: Aichi Hisuian Heavy Ball Prize-shuffle fidelity
 
 on:
   workflow_dispatch:
+    inputs:
+      source_probe:
+        description: Replay the rank-10 source deal with and without the opt-in correction
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -28,8 +33,10 @@ jobs:
       - name: Reproduce and test Prize-position correction
         run: node --test tests/hisuian-heavy-ball-prize-hook.test.cjs tests/hisuian-heavy-ball-real-store.test.cjs
       - name: Audit live rank-10 source-dealt Heavy Ball branches
+        if: inputs.source_probe
         run: node simulation/twinleaf/hisuian-heavy-ball-source-audit.cjs > heavy-ball-rank10-source.json
       - name: Archive source-game diagnostic and digest
+        if: inputs.source_probe
         uses: actions/upload-artifact@v4
         with:
           name: heavy-ball-rank10-source
