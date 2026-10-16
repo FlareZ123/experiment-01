@@ -28,5 +28,7 @@ jobs:
         run: node simulation/twinleaf/dde-runtime-regression.cjs
       - name: Source-deck Double Dragon decision audit
         run: node simulation/twinleaf/regidrago-dde-opportunities.cjs
+      - name: Check separate hidden-order policy invariant
+        run: node simulation/twinleaf/hidden-deck-order-policy.cjs
       - name: Check field-evaluator policy provenance
         run: node --test tests/test-aichi-field-benchmark.cjs
