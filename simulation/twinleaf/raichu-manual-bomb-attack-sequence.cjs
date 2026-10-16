@@ -32,7 +32,9 @@ function runEnergyAbilityAttackSequence() {
     const card=f.card(name);
     card.id=id;
     list.cards.push(card);
-    f.b.bench.push(list);
+    const open=f.b.bench.findIndex(p=>!p.getPokemonCard());
+    if(open<0)throw new Error('No legal empty opponent Bench slot');
+    f.b.bench[open]=list;
     return card;
   });
   f.a.active.tools.push(f.card('Telescopic Sight VIV'));
