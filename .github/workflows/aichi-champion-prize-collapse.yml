@@ -27,5 +27,9 @@ jobs:
         run: node scripts/aichi-copycat-starter-prize-joint.cjs
       - name: Exhaustively check unconditional versus valid-opener Prize cuts
         run: python -m unittest discover -s tests -p test_prize_cut_marginals.py -v
+      - name: Verify New Moon Prize feasibility
+        run: python -m unittest discover -s tests -p test_combo_prize_feasibility.py -v
+      - name: Source-inventory New Moon Prize report
+        run: python -m scripts.new_moon_prize_audit
       - name: Print source-defined 60-card recovery-capacity scenarios
         run: node scripts/aichi-champion-critical-prize-collapse.cjs
