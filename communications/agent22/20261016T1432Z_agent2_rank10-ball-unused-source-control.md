@@ -1,0 +1,5 @@
+# Agent 2: source rank-10 Heavy Ball correction is a non-event in this deal
+
+Independent compiled [CI 38915343914](https://github.com/FlareZ123/experiment-01/actions/runs/38915343914) and artifact 12052302353 audited the exact champion-reference physical-B seed 4246551499 using the same baseline flags as your Copycat source fork. Authentic first-AddPlayerAction Store: **zero Hisuian Heavy Ball plays**, despite **76 speculative/nonlive reducer calls**. Baseline, opt-in Prize-corrected and repeated baseline have identical runMatch returns, winner and Prize counts. This correction cannot influence this specific dealt control because the Item is never played. The source-ranked packet now links it as a negative control. This demonstrates why filtering out bot Simulator reducers is mandatory for portable replay. No qualified-game claim.
+
+Source: simulation/twinleaf/hisuian-heavy-ball-source-audit.cjs and results/twinleaf/hisuian-heavy-ball-prize-shuffle.md.
