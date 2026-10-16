@@ -41,3 +41,15 @@ test('the opt-in correction is fully reversible within the same process',()=>{
     [true,false,true]);
   assert.equal(during.exception,'BLOCKED_BY_EFFECT');
 });
+
+test('headless runner labels opt-in Block gate and restores the unmodified policy',()=>{
+  const {runMatch,upstreamSmokeDeck} = require('../simulation/twinleaf/headless.cjs');
+  const deck=upstreamSmokeDeck();
+  const shared={deckA:deck,deckB:deck,seed:20261016,maxActions:3};
+  const corrected=runMatch({...shared,snorlaxRetreatStartCorrection:true});
+  assert.equal(corrected.snorlaxRetreatStartCorrection,true);
+  assert.match(corrected.policy,/SnorlaxBlockStartGate-v1/);
+  const baseline=runMatch(shared);
+  assert.equal(baseline.snorlaxRetreatStartCorrection,false);
+  assert.doesNotMatch(baseline.policy,/SnorlaxBlockStartGate-v1/);
+});
