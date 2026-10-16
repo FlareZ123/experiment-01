@@ -37,8 +37,23 @@ function countQualifiedWins(round) {
         typeof game.candidatePolicyRevision !== 'string' || !game.candidatePolicyRevision ||
         typeof game.opponentPolicyRevision !== 'string' || !game.opponentPolicyRevision ||
         typeof game.engineRevision !== 'string' || !game.engineRevision ||
-        typeof game.rulesetRevision !== 'string' || !game.rulesetRevision) {
-      throw new Error('Invalid or unqualified game evidence: rank, starting seat, status, outcome or provenance.');
+        typeof game.rulesetRevision !== 'string' || !game.rulesetRevision ||
+        !['A','B'].includes(game.candidateEngineSlot) ||
+        !game.turnEvidence || game.turnEvidence.verifiedByDrawLog !== true ||
+        ![0,1].includes(game.turnEvidence.firstTurnSlot)) {
+      throw new Error('Invalid or unqualified game evidence: rank, actual seat, status, outcome or provenance.');
+    }
+    // Require the independent first-turn draw log and Store slot to agree.
+    // These are the fixed player IDs/names used by the Aichi headless runner.
+    const firstSlot=game.turnEvidence.firstTurnSlot;
+    const expectedId=firstSlot===0 ? 101 : 202;
+    const expectedName=firstSlot===0 ? 'research-A' : 'research-B';
+    const candidateSlot=game.candidateEngineSlot==='A' ? 0 : 1;
+    if (game.turnEvidence.firstTurnPlayerId!==expectedId ||
+        game.turnEvidence.firstTurnPlayerName!==expectedName ||
+        game.turnEvidence.firstDrawLogName!==expectedName ||
+        game.startingSeat!==(candidateSlot===firstSlot ? 'first' : 'second')) {
+      throw new Error('Candidate starting seat contradicts actual first-turn Store/draw-log proof.');
     }
     const key = game.rank + ':' + game.startingSeat;
     if (seen.has(key)) throw new Error('Repeated rank/seat cell: ' + key);
