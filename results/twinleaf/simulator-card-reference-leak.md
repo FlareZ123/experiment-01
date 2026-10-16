@@ -105,3 +105,17 @@ The 17 observer events concerned **Koraidon ex TEF (6), Trevenant & Dusknoir-GX 
 
 This upgrades the prior claim from **theoretical or staged leak** to **observed default bot speculation in a fixed-source game**. It also closes the observer-interference concern for that exact deterministic trace. Still unestablished: which of the 17 mutations caused any particular later real action, whether changing Card identity has independent semantic effects, applicability across other matchups, and real competitive policy outcomes.
 
+
+## Four-seed source-locked sensitivity follow-up
+
+[Manual CI 38849333658](https://github.com/FlareZ123/experiment-01/actions/runs/38849333658) passed the [predeclared four-seed comparison](../../simulation/twinleaf/detached-simulator-sensitivity-grid.cjs) using original published rank1 and rank10 source lists, identical policy corrections, separate bot/game RNG, and the same pinned submodule. These are *exploratory diagnostics*, with seed `20261049` previously selected and inspected.
+
+| Seed | Original engine result | Detached engine result | Original actions | Detached actions | Different trajectory? |
+| --- | --- | --- | ---: | ---: | --- |
+| 20261049 | rank1 (seat0) | rank10 (seat1) | 248 | 192 | yes |
+| 20261050 | rank1 (seat0) | rank1 (seat0) | 146 | 145 | yes |
+| 20261051 | **unfinished** at 350-action cap | rank1 (seat0) | 350 | 176 | yes |
+| 20261052 | rank10 (seat1) | rank1 (seat0) | 253 | 197 | yes |
+
+**Summary:** Four of four game traces changed. Both profiles completed in three pairs; in two of those, the engine-reported winning seat changed. One pair was incomplete in the original profile. The same actual first-turn seat and source hashes were asserted within each pair. Four tests with weak bots are **not a qualified matchup outcome distribution**, and winner reversals alone cannot identify the leaking field's exact causal path. This follow-up makes the *replicated policy sensitivity* finding stronger.
+
