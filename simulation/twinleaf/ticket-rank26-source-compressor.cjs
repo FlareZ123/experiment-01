@@ -4,6 +4,7 @@ const path=require('node:path');
 const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {initializeCards}=require('./headless.cjs');
 const {installRedeemableTicketPaperOrderHook}=require('./redeemable-ticket-paper-hook.cjs');
+const {expectedTopWindowValue}=require('./observation-search-value.cjs');
 const load=name=>require(path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output',name));
 /** Source-locked artificial rank-26 opening with singleton DCE initially Prized. */
 function sourceRank26TicketCompressor(){
@@ -54,6 +55,12 @@ function sourceRank26TicketCompressor(){
   s.dispatch(new ResolvePromptAction(choose.id,[]));
   const shuffle=state.prompts.find(x=>x.constructor.name==='ShuffleDeckPrompt'&&x.result===undefined);
   assert.ok(shuffle);
+  const access=expectedTopWindowValue({knownTop:[],
+   unseenPool:p.deck.cards.map(c=>c.fullName),deckCount:p.deck.cards.length,
+   unrevealedPrizes:0,window:7,
+   rewardByName:{'Double Colorless Energy SUM':1},missValue:0,
+   uniformUnknownOrder:true});
+  assert.ok(Math.abs(access.expectedValue-7/46)<1e-12);
   const index=p.deck.cards.indexOf(dceCard);
   const order=[index,...Array.from({length:p.deck.cards.length},(_,i)=>i).filter(i=>i!==index)];
   s.dispatch(new ResolvePromptAction(shuffle.id,order));
@@ -62,6 +69,7 @@ function sourceRank26TicketCompressor(){
    exactRegisteredCopies:60,postFirstDrawDeckCount:46,
    ticketAndCompressorItemsDispatched:true,zeroCompressorSelectionValid:true,
    dceReturnedToBottomThenShuffledToTop:true,
+   conditionalSevenCardAccess:access.expectedValue,
    modeledOpponentResponse:false,attackTested:false,winRateMeasured:false};
  }finally{restore();}
 }
