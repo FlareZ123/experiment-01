@@ -20,7 +20,9 @@ function fixture(reverse) {
     assert.ok(card, 'Card missing in pinned engine: ' + name);
     return card;
   };
-  f.attacking.hand.cards.push(get('Carmine TWM'), get("Lillie's Determination MEG"));
+  const research = manager.getAllCards().find(card => card.name === "Professor's Research");
+  assert.ok(research, 'Expected any implemented Professor\'s Research printing');
+  f.attacking.hand.cards.push(get('Carmine TWM'), research);
   const cards = [
     ...Array.from({length:7},()=>get('Grass Energy MEE')),
     ...Array.from({length:7},()=>get('Dratini OBF')),
