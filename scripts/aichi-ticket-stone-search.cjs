@@ -10,4 +10,16 @@ function ticketStoneCrobat(n,b,h,q){
  const turnDrawCrobat=(C(n-4,h-2)-C(n-b-3,h-2))*common/(n-h-1);
  return {allThreeOpening,turnDrawTicket,turnDrawStone,turnDrawCrobat,directRoute:allThreeOpening+turnDrawTicket+turnDrawStone+turnDrawCrobat};
 }
-module.exports={ticketStoneCrobat,verifyRank26};
+/** @param {object} manifest Published Aichi decklists */
+function verifyRank26Stone(manifest){
+ const deck=verifyRank26(manifest);
+ const count=name=>deck.cards.filter(x=>x.name===name).reduce((s,x)=>s+x.count,0);
+ if(count('Crobat V')!==1||count('Forest Seal Stone')!==1)throw Error('Rank 26 Stone copies changed');
+ const basics=new Set(['Unown','Exeggcute','Meloetta ex','Tapu Koko ♢','Bunnelby','Squawkabilly ex','Crobat V','Dedenne-GX']);
+ const mons=deck.cards.filter(x=>x.category==='Pokémon');
+ if(mons.some(x=>!basics.has(x.name)))throw Error('Rank 26 starter classification drift');
+ const b=mons.reduce((n,x)=>n+x.count,0);
+ if(b!==12)throw Error('Rank 26 Basic count changed');
+ return b;
+}
+module.exports={ticketStoneCrobat,verifyRank26Stone};
