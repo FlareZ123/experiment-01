@@ -35,6 +35,8 @@ jobs:
         run: node --test tests/aichi-ranger-early-access.test.cjs
       - name: Joint Ranger Wonder Tag and Star Alchemy exhaustive tests
         run: node --test tests/aichi-ranger-stone-access.test.cjs
+      - name: Source-ranked Raichu and Mew Ranger Stone tests
+        run: node --test tests/aichi-ranger-stone-field.test.cjs
       - name: Audit published Aichi lists
         run: node scripts/aichi_opening_audit.cjs > aichi-opening-audit.md
       - name: Bonus draw access by Aichi opponent
@@ -53,6 +55,8 @@ jobs:
         run: node scripts/aichi-ranger-early-access.cjs > aichi-ranger-early-access.json
       - name: Ranger Forest Seal Stone joint-access report
         run: node scripts/aichi-ranger-stone-access.cjs > aichi-ranger-stone-access.json
+      - name: Published ranks 4 and 5 Ranger Stone report
+        run: node scripts/aichi-ranger-stone-field.cjs > aichi-ranger-stone-field.json
       - uses: actions/upload-artifact@v4
         with:
           name: aichi-opening-audit
@@ -64,3 +68,4 @@ jobs:
             meloetta-printed-defense.md
             aichi-ranger-early-access.json
             aichi-ranger-stone-access.json
+            aichi-ranger-stone-field.json
