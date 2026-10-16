@@ -78,7 +78,7 @@ function probeStoneRanger(options = {}) {
   play(stone,{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0});
   assert.ok(benchV.tools.includes(stone),'Stone must legally attach under the Item lock');
   assert.equal(defender.cannotPlayItemCards,true);
-  const powers=new CheckPokemonPowersEffect(defender,benchV);
+  const powers=new CheckPokemonPowersEffect(defender,benchV.getPokemonCard());
   store.reduceEffect(state,powers);
   assert.ok(powers.powers.some(p=>p.name==='Star Alchemy'),
     'Star Alchemy must remain available while Item lock is active');
