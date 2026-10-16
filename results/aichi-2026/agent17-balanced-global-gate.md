@@ -51,3 +51,11 @@ Statistical validity assumes independent trials, fixed deck/printing identities,
 [Manual GitHub Actions workflow](../../.github/workflows/aichi-global-field-gate.yml) runs both the original numerical tests and these raw-game controls. The initial numerical suite passed [workflow 38865672891](https://github.com/FlareZ123/experiment-01/actions/runs/38865672891); the extension requires a new manual CI dispatch.
 
 **Extended CI confirmation:** 6 numerical tests and 9 synthetic raw-game tests passed [manual workflow run 38866332888](https://github.com/FlareZ123/experiment-01/actions/runs/38866332888). The previous run 38866258248 failed because one synthetic test deleted a single game while expecting a completely absent starting-seat cell; that test was corrected to remove the entire cell. No production evaluation logic changed in this correction.
+
+## Exact-source identity seal for confirmatory raw batches
+
+The extended raw adapter also accepts **32 externally verified per-rank deck fingerprints**. Its `source_inventory_digest()` hashes the ordered array of 32 rank/fingerprint pairs. A prospective batch must carry the same digest in `source_inventory_digest_sha256`, and **every raw game** must match its rank's expected `opponent_deck_sha256` value. This closes a previous structural gap in the raw schema: checking that a substituted opponent list stayed consistent across all games of a rank did not prove that it matched the actual published deck. A complete but source-substituted batch is now rejected.
+
+For existing 29 lists, a fingerprint can be generated from the print-aware `canonicalCards` representation in [the published-field campaign builder](../../scripts/aichi-comparison-campaign.cjs). The upstream fingerprint convention must be frozen alongside the source. External source verification and hash-to-engine-deck attestation remain separate gates; the supplied map could itself be wrong or fraudulent. Since ranks 23, 25 and 28 still lack registered lists, a truthful 32-entry map cannot currently be assembled.
+
+Three added synthetic controls reject an absent source-manifest stamp, a whole-rank opponent-deck substitution, and a source mapping omitting one rank. The complete suite now contains **12 synthetic raw-batch checks** plus six standalone statistical checks.
