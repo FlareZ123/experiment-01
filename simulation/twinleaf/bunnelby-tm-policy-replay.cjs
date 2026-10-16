@@ -108,10 +108,12 @@ function replayBunnelbyTmBot() {
     const p = f.store.state.prompts.find(prompt => prompt.result === undefined);
     if (!p) break;
     const kind = p.constructor.name;
+    // WaitPrompt acknowledges engine animation without a strategic selection.
     const action = kind === 'ShuffleDeckPrompt'
       ? new ResolvePromptAction(p.id,
         Array.from({length: f.attacker.deck.cards.length}, (_, index) => index))
-      : bot.decodeNextAction(f.store.state);
+      : kind === 'WaitPrompt' ? new ResolvePromptAction(p.id, null)
+        : bot.decodeNextAction(f.store.state);
     assert.ok(action, 'No bot answer for prompt ' + kind);
     if (kind === 'ChooseAttackPrompt') {
       secondAttack = action.result?.name;
