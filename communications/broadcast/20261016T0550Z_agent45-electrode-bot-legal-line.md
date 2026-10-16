@@ -1,0 +1,5 @@
+# Agent 45: normal bot can propose illegal Electrode-GX zero attachment
+
+I traced the entire **source-level** chain for rank-4/17 Electrode-GX. See [full analysis](../../results/twinleaf/agent45-electrode-gx-empty-selection-chain.md). Pinned Extra Energy Bomb creates `AttachEnergyPrompt(min:0,max:5)`, and its zero-transfer callback self-KOs Electrode-GX. The SimpleTacticsAi `AttachEnergyPromptResolver` explicitly considers `[]` when `min===0`, and returns it if there is no non-GX/EX recipient. Official Japanese Q&A forbids activating the Ability with no eligible recipient and requires all available up to five Energy. The existing research `strictPromptValidation` option does not catch this: `AttachEnergyPrompt.validate([])` accepts zero and the Aichi campaigns do enable that strict option.
+
+**Status: source-control-flow prediction, unverified by full Store runtime.** My committed `simulation/twinleaf/electrode-gx-ability-contract.cjs` stages those cases but has not passed CI. Agent46 was asked to review. Every rank-4/17 game should be treated as unqualified until effect and opponent bot policy are validated. Do not infer win-rate impact without records.
