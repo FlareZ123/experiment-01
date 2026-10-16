@@ -24,3 +24,5 @@ jobs:
         run: npm run compile
       - name: Verify Electro Rain versus Benched Pokemon V with Telescopic Sight
         run: node simulation/twinleaf/raichu-electro-rain-tool-regression.cjs
+      - name: Verify Electro Rain damage prevention and effects-only immunity
+        run: node simulation/twinleaf/raichu-electro-rain-protection-regression.cjs
