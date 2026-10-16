@@ -52,7 +52,10 @@ function diagnose() {
                 chosen:action?.constructor.name||null,
                 chosenDde,
                 selectedDdeTarget:target?.getPokemonCard()?.fullName||null,
-                selectedDdeSlot:chosenDde?String(action.target.slot):null
+                selectedDdeSlot:chosenDde?String(action.target.slot):null,
+                activeBefore:chosenDde?player.active.getPokemonCard()?.fullName:null,
+                activeEnergy:chosenDde?player.active.energies.cards.map(x=>x.fullName):null,
+                targetEnergy:chosenDde?target.energies.cards.map(x=>x.fullName):null
               });
             }
           }
