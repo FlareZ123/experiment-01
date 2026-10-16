@@ -36,6 +36,18 @@ To distinguish a missing remaining-deck evolution target from a plausible missed
 
 **Trace noninterference check:** All six rank-2 trial records repeated with identical source-locked identities and unchanged ordered meaningful action signatures (action ordinal, selected action, played card, attack name) after telemetry was added. The extra evidence was gathered only after the bot selected its pass, so it supplied no decision input. The SHA-256 trace hashes changed because additional read-only fields were recorded, but the physical actions did not change. Only one of the six games produced a TM Evolution-equipped Active pass, this exact Hood/B observation.
 
+### Exact observed-state attack-announcement proof
+
+[Manual source-locked CI 38847770773](https://github.com/FlareZ123/experiment-01/actions/runs/38847770773) **passed** with the [isolated pinned-Store announcement probe](../../simulation/twinleaf/tm-evolution-announcement-probe.cjs) attached to the same post-choice pass telemetry. Archive artifact ID `12023384875`.
+
+At precisely `pilot:2:0:hood-shield-v1:B`, **turn 56, action 346**, the bot again chose `PassTurnAction` with Active Bunnelby, Jet Energy, TM Evolution, Benched Gloom, and one Vileplume AOR actually remaining in deck. A clone of the **complete actual engine State at that instant** accepted `AttackAction(player.id, 'Evolution')`, producing a **`ChoosePokemonPrompt`**. This is stronger than an inferred Energy-cost heuristic or a staged attack, because the captured state includes engine-applied conditions. The original live state was unaffected by the clone.
+
+Across all six rank-2 source-seeded games, the recorded chronological action signatures and engine winner indices were **identical before and after** the cloned probe was enabled. The probe substitutes a deterministic `Math.random` only inside its isolated copied Store and restores the original function before live-game dispatch. These paired deterministic replays establish observed trace noninterference for this workload, without guaranteeing universal absence of engine-side shared-Card mutations.
+
+The [separate staged Store resolution](../../simulation/twinleaf/aichi-bunnelby-turn56-legality.cjs) also passed [manual CI 38847518435](https://github.com/FlareZ123/experiment-01/actions/runs/38847518435): starting from the observed resource classes and a Gloom marked as having evolved on the same turn, the pinned engine accepted Evolution and let the player choose Vileplume AOR from the deck to evolve it. [A second focused CI 38847758932](https://github.com/FlareZ123/experiment-01/actions/runs/38847758932) passed an additional cloned-announcement noninterference check in the conditioned state.
+
+**Qualified conclusion:** this identifies an actual source-state *engine-legal attack announcement that the fixed-core AI passed over*. The exact pass was produced by a default policy lacking the Tool-aware Bunnelby tactic. The Tool policy's six-game rerun diverged before reaching this precise state, so it cannot establish a corrected selection for this one original decision. Whether attacking would improve eventual prize exchange or win chance is untested. Paper Expanded attack-resolution fidelity remains subject to verification beyond the pinned engine's behavior.
+
 **Important distinct concern:** the existing opt-in Bunnelby Evolution tactical gate scans the *true remaining deck* to decide whether it contains evolution targets. Before the first deck search (K0), that knowledge can reveal which cards are Prized. The [separate information-set characterization](../twinleaf/bunnelby-k0-prize-partition-observation.md) documents this source-level issue. It does not imply K0 was active on turn 56.
 
 ## Rank-10 opponent attack observations
