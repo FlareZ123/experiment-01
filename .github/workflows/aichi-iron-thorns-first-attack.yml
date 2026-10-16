@@ -24,3 +24,5 @@ jobs:
         run: npm run compile
       - name: Source conditional Volt Cyclone attack with no Bench
         run: node simulation/twinleaf/iron-thorns-turn2-attack.cjs
+      - name: Source hand to Guzma and Hala to Special Energy to Volt Cyclone
+        run: node simulation/twinleaf/iron-thorns-guzma-hala-line.cjs
