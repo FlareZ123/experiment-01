@@ -53,5 +53,9 @@ jobs:
         run: node --test tests/twinleaf-detached-own-deck-audit.test.cjs
       - name: Verify joint K0 deck-and-Prize samples in a pinned Bunnelby Store State
         run: node --test tests/twinleaf-k0-detached-bunnelby-audit.test.cjs
+      - name: Verify full source-printed rank-2 deck versus hidden Prize K0 posterior
+        run: node --test tests/twinleaf-rank2-full-source-k0.test.cjs
+      - name: Preserve printed rank-2 conditional sample results in job log
+        run: node simulation/twinleaf/rank2-full-source-k0-sampler.cjs
       - name: Preserve detached scoring contrast in job log
         run: node simulation/twinleaf/detached-own-deck-audit.cjs
