@@ -9,6 +9,7 @@ const {installMegatonBlowerHook} = require('./megaton-blower-hook.cjs');
 const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 const {installForestSealSearchHook} = require('./forest-seal-search-hook.cjs');
 const {installSupporterDecisionHook} = require('./supporter-decision-hook.cjs');
+const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.cjs');
 const {publicSnapshot, observeTerminalTransition} = require('./terminal-transition.cjs');
 
 /**
@@ -163,6 +164,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [templeUnlockRecovery] Opt-in attack-unlocking Marshadow response to Temple.
  * @property {boolean} [isolatePolicyRandomness] Use independent RNG streams for speculative bot decisions (experimental).
  * @property {boolean} [supporterDecisionCorrection] Opt-in, reversible correction for premature Supporter turn consumption.
+ * @property {boolean} [snorlaxRetreatStartCorrection] Opt-in, reversible Block check on interactive retreat.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
  */
 
@@ -192,12 +194,16 @@ function runMatch(request) {
   let restoreMegatonBlowerHook;
   let restoreForestSealSearchHook;
   let restoreSupporterDecisionHook;
+  let restoreSnorlaxRetreatStartHook;
   try {
     initializeCards();
     if (request.forestSealSearchCorrection === true) {
       restoreForestSealSearchHook = installForestSealSearchHook();
     }
     restoreToolJammerHook = installToolJammerHook();
+    if (request.snorlaxRetreatStartCorrection === true) {
+      restoreSnorlaxRetreatStartHook = installSnorlaxRetreatStartHook();
+    }
     restoreMegatonBlowerHook = installMegatonBlowerHook();
     const { registerPlayersCeremony, PLAYERS_CEREMONY_PRINT } = require('./card-patches.cjs');
     if (request.deckA.includes(PLAYERS_CEREMONY_PRINT) || request.deckB.includes(PLAYERS_CEREMONY_PRINT)) {
@@ -401,17 +407,20 @@ function runMatch(request) {
       doubleDragonRecovery: request.doubleDragonRecovery === true,
       templeUnlockRecovery: request.templeUnlockRecovery === true,
       supporterDecisionCorrection: request.supporterDecisionCorrection === true,
+      snorlaxRetreatStartCorrection: request.snorlaxRetreatStartCorrection === true,
       policy: (request.doubleDragonRecovery === true ?
         'Twinleaf SimpleTacticsAi/defaultStateScores+DoubleDragonAttachTactic-v1' :
         'Twinleaf SimpleTacticsAi/defaultStateScores') +
         (request.supporterDecisionCorrection === true ? '+SupporterDecisionGuard-v1' : '') +
-        (request.templeUnlockRecovery === true ? '+TempleUnlockTactic-v1' : ''),
+        (request.templeUnlockRecovery === true ? '+TempleUnlockTactic-v1' : '') +
+        (request.snorlaxRetreatStartCorrection === true ? '+SnorlaxBlockStartGate-v1' : ''),
       policyRandomIsolation: request.isolatePolicyRandomness === true,
       randomnessProtocol: request.isolatePolicyRandomness === true ?
         'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
       engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
     };
   } finally {
+    if (restoreSnorlaxRetreatStartHook) restoreSnorlaxRetreatStartHook();
     if (restoreSupporterDecisionHook) restoreSupporterDecisionHook();
     if (restoreBotHooks) restoreBotHooks();
     if (restoreForestSealSearchHook) restoreForestSealSearchHook();
