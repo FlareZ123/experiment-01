@@ -30,14 +30,19 @@ function selectedCardsEvidence(prompt, action, state) {
     }
   }
 
-  const indices = action.result;
+  const choices = action.result;
+  const indices = choices === null ? null :
+    choices.every(Number.isInteger) ? choices.slice() : null;
+  const selectedCards = choices === null ? null : choices.map(value =>
+    typeof value === 'number' ? prompt.cards.cards[value]?.fullName ?? null :
+      value?.fullName ?? null);
   return {
     promptKind: 'ChooseCardsPrompt',
     message: prompt.message ?? null,
     sourceZone, sourcePlayerSlot,
-    selectedCards: indices === null ? null :
-      indices.map(index => prompt.cards.cards[index].fullName),
-    selectedIndices: indices === null ? null : indices.slice()
+    selectedCards,
+    selectedIndices: indices,
+    unmappedSelectedCards: selectedCards?.filter(name => name === null).length ?? 0
   };
 }
 
