@@ -113,6 +113,49 @@ function declaredCopycatApexContract(correctHistory = false, fairyZone = false, 
           'Unexpected repeated pending WaitPrompts on printed-HP KO');
       }
     }
+    let koPrizePromptsResolved = 0;
+    let koPromotionPromptsResolved = 0;
+    let afterKoInitialWaits = null;
+    if (printedHpKo) {
+      afterKoInitialWaits = {
+        regidragoInDiscard: b.discard.cards.includes(regidrago),
+        remainingPrizeCards: a.prizes.filter(p => p.cards.length > 0).length,
+        pendingPrompts: state.prompts.filter(p => p.result === undefined)
+          .map(p => p.constructor.name)
+      };
+      assert.equal(afterKoInitialWaits.regidragoInDiscard, true);
+      for (let i = 0; i < 12; i++) {
+        const pending = state.prompts.find(p => p.result === undefined);
+        if (!pending) break;
+        if (pending.constructor.name === 'ChoosePrizePrompt') {
+          assert.equal(pending.playerId, a.id);
+          assert.equal(pending.options.count, 2);
+          const chosen = a.prizes.filter(p => p.cards.length > 0)
+            .slice(0, pending.options.count);
+          assert.equal(chosen.length, 2);
+          store.dispatch(new ResolvePromptAction(pending.id, chosen));
+          koPrizePromptsResolved++;
+        } else if (pending.constructor.name === 'ChoosePokemonPrompt') {
+          assert.equal(pending.playerId, b.id);
+          const replacement = b.bench.find(p => p.cards.length > 0);
+          assert.ok(replacement?.cards.includes(dratini));
+          store.dispatch(new ResolvePromptAction(pending.id, [replacement]));
+          koPromotionPromptsResolved++;
+        } else if (pending.constructor.name === 'WaitPrompt') {
+          store.dispatch(new ResolvePromptAction(pending.id, null));
+          koWaitPromptsResolved++;
+        } else {
+          assert.fail('Unrecognized pending KO prompt: ' + pending.constructor.name);
+        }
+      }
+      assert.equal(b.discard.cards.includes(regidrago), true);
+      assert.equal(a.prizes.filter(p => p.cards.length > 0).length, 4,
+        'Printed two-Prize Regidrago VSTAR should award two Prizes');
+      assert.equal(b.active.getPokemonCard(), dratini,
+        'Opponent spare Basic should be promoted after the KO');
+      assert.equal(koPrizePromptsResolved, 1);
+      assert.equal(koPromotionPromptsResolved, 1);
+    }
     const actualLastAttack = state.playerLastAttack[a.id]?.attack?.name;
     assert.equal(afterDeclaration, 'Copycat',
       'Printed attack identity must be recorded at declaration');
@@ -127,6 +170,9 @@ function declaredCopycatApexContract(correctHistory = false, fairyZone = false, 
         printedRegidragoHp: regidrago.hp,
         beforeKoWaits,
         koWaitPromptsResolved,
+        koPrizePromptsResolved,
+        koPromotionPromptsResolved,
+        afterKoInitialWaits,
         phaseAfterKoWaits: state.phase,
         turnAfterKoWaits: state.turn,
         regidragoInDiscard: b.discard.cards.includes(regidrago),
