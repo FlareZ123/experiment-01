@@ -54,3 +54,23 @@ Implementation: [exact source-locked enumerator](../../scripts/aichi-radiant-sta
 This opening audit exposes an otherwise easy-to-miss **tech-card self-interference** and a real VMAX-count cost for Temple. It suggests testing Temple under two scripted initial boards with identical resource zones: (1) Radiant + Wobbuffet are the only initial Basics, Wobbuffet Active; (2) an additional Psychic Basic can start Active. Replay Radiant Benching with and without a prior legal switch under the pinned engine, asserting that Bide Barricade suppresses the first Gate and permits the second, then check the ability behavior against paper card text. Any competitive comparison must also account for Temple's Tool/Stadium response value, the strength of Wobbuffet's lock, and the opponent's reaction.
 
 The 99.5% whole-field objective remains unverified. All three inventories remain provisional benchmarks, and no win-rate claim follows.
+
+## Extension: first ordinary draw and direct search Items
+
+The [seven-category first-turn enumerator](../../scripts/aichi-radiant-wobbuffet-turnone.cjs) independently extends the source-locked comparison to the one mandatory first-turn draw, five search Items (four Mysterious Treasure and one Quick Ball), and one Hisuian Heavy Ball. It follows exactly the route priority and resource rules of the preexisting [Agent 7/13 first-turn Radiant model](../../scripts/radiant-eternatus-opening.cjs). The first-turn model's *source access* probabilities reproduce that earlier six-category model at full integer precision when Wobbuffet is merged back into other Basics.
+
+| First-turn restricted event | Champion | Hood | Temple |
+| --- | ---: | ---: | ---: |
+| Direct Radiant access route before Ability locks | 52.20484% | 52.20484% | 52.59209% |
+| Access plus at least two VMAX remaining in deck | **50.65944%** | **50.65944%** | **46.38691%** |
+| Subset where Wobbuffet is the only initial alternative starter, suppressing Gate if kept Active | 0% | 0% | **1.41532%** |
+| Two-VMAX opportunity with a non-Wobbuffet initial starter | **50.65944%** | **50.65944%** | **44.97160%** |
+
+For Temple's excluded two-VMAX event, disjoint model route contributions are **0.31292 percentage points** opening Radiant, **0.03913** topdeck Radiant, **1.02732** search-Item access and **0.03594** Heavy Ball recovery. The total is **1.41532 pp**. After this gate-awareness filter, Temple's structural gap to champion/Hood is approximately **5.68784 percentage points** within this strictly defined direct-access model. Other plausible VSTAR, additional draw, prize-redeal and card-use lines are omitted. The underlying access model assumes usable search Items without checking legal discard payment, Item locks, choice of connector or opponent disruption, and is **neither an attack/board establishment rate nor an overall upper or lower bound** for realistic games.
+
+The [independent tests](../../tests/aichi-radiant-wobbuffet-turnone.test.cjs) exhaustively compare the seven-category enumerator with physical card deals, six-category legacy marginal probabilities, and route partition identities. Both first-seven and first-draw suites passed [manual CI 38851840613](https://github.com/FlareZ123/experiment-01/actions/runs/38851840613), retaining machine-readable result artifacts. Source rows and exact printings remain fixed.
+
+## Pinned Store Ability-effect observation
+
+A new [research-owned pinned Store probe](../../simulation/twinleaf/radiant-wobbuffet-active-probe.cjs) examines the same Radiant hand-to-Bench effect with Wobbuffet (a) Active and (b) Benched while another Psychic Basic is Active, with two VMAX in deck. The existing opt-in [Radiant entering-Bench timing hook](../../simulation/twinleaf/radiant-gate-lock-hook.cjs) was applied reversibly to avoid a known premature hand-zone evaluation bug. In this corrected effect path, Wobbuffet Active produces **no Climactic Gate confirmation prompt**, while Wobbuffet Benched produces a **Gate confirmation prompt**, and Radiant moves onto the Bench in both cases. The complete existing [manual pinned-engine workflow](../../.github/workflows/radiant-gate-engine.yml) passed [run 38851397159](https://github.com/FlareZ123/experiment-01/actions/runs/38851397159), including the new probe and earlier Forest Seal Stone tests. This is a staged effect-level observation. A full legal game, actual player switching and strategic result are not established.
+
