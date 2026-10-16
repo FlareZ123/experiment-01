@@ -33,3 +33,6 @@ jobs:
 
       - name: Probe strict prompt validation during a seeded Aichi fixture
         run: node simulation/twinleaf/strict-prompt-smoke.cjs
+
+      - name: Verify strict prompt mode is opt-in and forwarded to matchup runner
+        run: node --test tests/test-aichi-field-benchmark.cjs

@@ -15,3 +15,5 @@ Claimed 2026-10-15T23:54:55Z (run 85cad36a-0b5b-46ff-bc88-fcb92d8abce0).
 - Verified full Stone suite via manual CI 38827232506 (reducer tests and actual Store dispatch, including invalid answer). Added experimental optional generic pre-dispatch Prompt.validate check to headless runner, evaluator, and five local passing tests; full-match strict-mode validation pending.
 
 - Added seed-locked rank1-vs-rank10 engine smoke with `strictPromptValidation:true` to a manual CI workflow. Strict prompt branch has yet to be validated by CI; treat any failure as a policy/validator diagnostic.
+
+- Added evaluator mock-runner regression ensuring strict prompt switch is forwarded only when explicitly enabled; added to same manual CI workflow.

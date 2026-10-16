@@ -148,3 +148,26 @@ test('source printing substitutions appear in the evaluation provenance', () => 
   assert.equal(record.opponents[0].opponentSubstitutions.length,1);
   assert.equal(record.opponents[1].status,'missing-published-list');
 });
+
+test('strict prompt mode is explicit, forwarded to runner, and preserved in report', () => {
+  const plan = buildPlan(manifest, pool, 1);
+  const seen = [];
+  const runner = request => {
+    seen.push(request);
+    return { finished: true, winner: 0 };
+  };
+  const strict = evaluatePlan(plan, {
+    gamesPerSeat: 1, selectedRanks: [2],
+    strictPromptValidation: true, runMatch: runner
+  });
+  assert.equal(strict.strictPromptValidation, true);
+  assert.equal(seen.length, 2);
+  assert.ok(seen.every(request => request.strictPromptValidation === true));
+  seen.length = 0;
+  const upstream = evaluatePlan(plan, {
+    gamesPerSeat: 1, selectedRanks: [2], runMatch: runner
+  });
+  assert.equal(upstream.strictPromptValidation, false);
+  assert.equal(seen.length, 2);
+  assert.ok(seen.every(request => !Object.hasOwn(request, 'strictPromptValidation')));
+});
