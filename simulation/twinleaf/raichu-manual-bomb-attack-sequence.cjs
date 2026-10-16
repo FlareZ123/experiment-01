@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const {buildManualAndBombBoard} = require('./raichu-manual-plus-bomb-setup.cjs');
 const {withElectroRainDamageHook} = require('./electro-rain-damage-hook.cjs');
+const {installElectrodeGXEnergyHook} = require('./electrode-gx-energy-hook.cjs');
 
 const compiled = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
@@ -18,7 +19,11 @@ const load = name => require(path.join(compiled, name));
  * are injected prerequisites. This is not a normal opening or bot policy.
  */
 function runEnergyAbilityAttackSequence() {
-  const {fixture:f, response:setup}=buildManualAndBombBoard();
+  const restore=installElectrodeGXEnergyHook();
+  let board;
+  try { board=buildManualAndBombBoard(); }
+  finally { restore(); }
+  const {fixture:f, response:setup}=board;
   const {PokemonCardList}=load('game/store/state/pokemon-card-list');
   const {PlayerType,SlotType}=load('game/store/actions/play-card-action');
   const {AttackAction}=load('game/store/actions/game-actions');
