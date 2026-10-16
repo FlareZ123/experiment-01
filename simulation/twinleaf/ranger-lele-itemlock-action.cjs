@@ -102,3 +102,38 @@ function probeRangerLine(options = {}) {
     slot: SlotType.BENCH, index: 0};
   const trainerTarget = {player: PlayerType.ANY,
     slot: SlotType.BOARD, index: 0};
+
+  let leleBenched = false;
+  let sawWonderTag = false;
+  let rangerSearched = false;
+  if (!options.forcedLeleActive) {
+    play(defender, lele, benchTarget);
+    leleBenched = defender.bench[0].getPokemonCard() === lele;
+    let iterations = 0;
+    while (pending()) {
+      assert.ok(++iterations < 8, 'Wonder Tag prompt sequence did not terminate');
+      const prompt = pending();
+      switch (prompt.constructor.name) {
+        case 'ConfirmPrompt':
+          sawWonderTag = true;
+          resolve(true);
+          break;
+        case 'ChooseCardsPrompt': {
+          const chosen = options.rangerPrized ? [] : [ranger];
+          assert.equal(prompt.validate(chosen), true,
+            'Wonder Tag search selection rejected by real prompt');
+          resolve(chosen);
+          rangerSearched = chosen.length > 0;
+          break;
+        }
+        case 'ShowCardsPrompt':
+          resolve(true);
+          break;
+        case 'ShuffleDeckPrompt':
+          resolve(Array.from({length: defender.deck.cards.length}, (_, i) => i));
+          break;
+        default:
+          throw new Error('Unexpected Wonder Tag prompt: ' + prompt.constructor.name);
+      }
+    }
+  }
