@@ -623,7 +623,7 @@ function runMatch(request) {
       attackBeforeRetreat: request.attackBeforeRetreat === true,
       attackBeforeRetreatSeat: request.attackBeforeRetreatSeat ?? null,
       policy: (request.doubleDragonRecovery === true ?
-        'Twinleaf SimpleTacticsAi/defaultStateScores+DoubleDragonAttachTactic-v2' :
+        'Twinleaf SimpleTacticsAi/defaultStateScores+DoubleDragonAttachTactic-v3' :
         'Twinleaf SimpleTacticsAi/defaultStateScores') +
         (request.supporterDecisionCorrection === true ? '+SupporterDecisionGuard-v1' : '') +
         (request.guzmaSelfSwitchGuard === true ? '+GuzmaSelfSwitchGuard-v1' : '') +
