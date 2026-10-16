@@ -1,6 +1,7 @@
 """Synthetic contract tests for raw Aichi match records."""
 import copy
 import hashlib
+from scripts.action_trace_integrity import action_trace_sha256
 import unittest
 
 from scripts.match_record_contract import evaluate_raw_batch
