@@ -31,6 +31,8 @@ jobs:
         run: node --test tests/prototype-safe-state-graph-audit.test.cjs
       - name: Emit full before-and-after Store graph evidence
         run: node simulation/twinleaf/prototype-safe-state-graph-audit.cjs
+      - name: Compare pinned and repaired speculative Tool-attack source damage
+        run: node simulation/twinleaf/post-super-alias-action-audit.cjs
       - name: Check headless wrapper restoration and source-match noninterference
         run: node simulation/twinleaf/headless-prototype-safe-smoke.cjs
       - name: Characterize source-rank2 Bunnelby Evolution under both clone models
