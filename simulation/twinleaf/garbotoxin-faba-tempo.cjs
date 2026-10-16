@@ -1,0 +1,148 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const {initializeCards} = require('./headless.cjs');
+
+const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
+/** @param {string} moduleName */
+const engine = moduleName => require(path.join(output,moduleName));
+
+/**
+ * Rank-2-relevant Supporter response: Faba removes opponent Garbodor Tool,
+ * potentially restoring own Vileplume Item lock within that same turn.
+ * @param {{vileplume:boolean,hood:boolean,supporterSpent:boolean,ownerSeat:0|1}} options
+ */
+function probe(options) {
+  const cards = initializeCards();
+  let nextCardId = 1;
+  /** @param {string} name */
+  const card = name => {
+    const c = cards.getCardByName(name);
+    assert.ok(c,'Missing pinned '+name);
+    c.id = nextCardId++;
+    return c;
+  };
+  const {Store} = engine('game/store/store');
+  const {Player} = engine('game/store/state/player');
+  const {CardList} = engine('game/store/state/card-list');
+  const {PokemonCardList} = engine('game/store/state/pokemon-card-list');
+  const {GamePhase} = engine('game/store/state/state');
+  const {Format} = engine('game/store/card/card-types');
+  const {PlayCardAction,PlayerType,SlotType} = engine('game/store/actions/play-card-action');
+  const {ResolvePromptAction} = engine('game/store/actions/resolve-prompt-action');
+
+  const store = new Store({onStateChange() {}});
+  const state = store.state;
+  state.phase = GamePhase.PLAYER_TURN;
+  state.turn = 4;
+  state.activePlayer = options.ownerSeat;
+  state.gameSettings.format = Format.EXPANDED;
+  const owner = new Player(), opponent = new Player();
+  owner.id = 101; owner.name = 'Aichi rank2 Vileplume';
+  opponent.id = 202; opponent.name = 'Garbodor opponent';
+  state.players = options.ownerSeat === 0 ? [owner,opponent] : [opponent,owner];
+  owner.active.cards.push(card('Bunnelby PRC'));
+  opponent.active.cards.push(card('Shadow Rider Calyrex V CRE'));
+
+  const flower = new PokemonCardList();
+  flower.cards.push(card('Oddish UNB'));
+  if (options.vileplume) {
+    flower.cards.push(card('Gloom UNB'),card('Vileplume AOR'));
+    if (options.hood) flower.tools.push(card('Stealthy Hood UNB'));
+  }
+  owner.bench.push(flower);
+  const trash = new PokemonCardList();
+  trash.cards.push(card('Trubbish BKP'),card('Garbodor BKP'));
+  const tool = card('Float Stone BKT');
+  trash.tools.push(tool);
+  opponent.bench.push(trash);
+
+  for (const player of state.players) {
+    player.prizes = Array.from({length:6},()=>{
+      const prize = new CardList();
+      prize.cards.push(card('Dratini OBF'));
+      return prize;
+    });
+    player.deck.cards.push(card('Psychic Energy SVE'),card('Psychic Energy SVE'));
+  }
+  const faba = card('Faba LOT');
+  const item = card('Switch SVI');
+  owner.hand.cards.push(faba,item);
+  if (options.supporterSpent) owner.supporterTurn=state.turn;
+  /** @param {any} targetCard @param {any} target */
+  const play = (targetCard,target) => {
+    let error=null;
+    try {
+      const i=owner.hand.cards.indexOf(targetCard);
+      assert.ok(i>=0,'Card must be in hand before attempted action');
+      store.dispatch(new PlayCardAction(owner.id,i,target));
+    } catch(e) {error=e.message;}
+    return error;
+  };
+  const pending = () => state.prompts.find(p=>p.result===undefined);
+  /** @param {any} result */
+  const answer = result => {
+    const prompt=pending();
+    assert.ok(prompt,'Expected Faba prompt');
+    store.dispatch(new ResolvePromptAction(prompt.id,result));
+  };
+  const trainerTarget={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
+  const switchTarget={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0};
+  const fabaError = play(faba,trainerTarget);
+  const promptNames=[];
+  if (!fabaError) {
+    const select=pending();
+    assert.equal(select?.constructor.name,'SelectPrompt');
+    promptNames.push(select.constructor.name);
+    answer(0); // Only opposing Tool is a legal Faba target.
+    const choose=pending();
+    assert.equal(choose?.constructor.name,'ChoosePokemonPrompt');
+    assert.equal(choose.validate([trash],state),true);
+    promptNames.push(choose.constructor.name);
+    answer([trash]);
+    assert.equal(pending(),undefined,'Faba target resolution must finish');
+  }
+  const fabaInHand=owner.hand.cards.includes(faba);
+  const toolInLostZone=opponent.lostzone.cards.includes(tool);
+  const toolStillOnGarbodor=trash.tools.includes(tool);
+  const switchError=play(item,switchTarget);
+  return {...options,fabaError,promptNames,fabaInHand,toolInLostZone,
+    toolStillOnGarbodor,supporterTurn:owner.supporterTurn,
+    switchError,switchPrompt:pending()?.constructor.name||null,
+    itemInHand:owner.hand.cards.includes(item)};
+}
+
+/** @returns {object} Two-seat temporal intervention matrix. */
+function run() {
+  const configs=[
+    {vileplume:false,hood:false,supporterSpent:false},
+    {vileplume:true,hood:false,supporterSpent:false},
+    {vileplume:true,hood:true,supporterSpent:false},
+    {vileplume:true,hood:false,supporterSpent:true}
+  ];
+  const rows=configs.flatMap(p=>[0,1].map(ownerSeat=>probe({...p,ownerSeat})));
+  for (const row of rows) {
+    const played=!row.supporterSpent;
+    assert.equal(row.fabaError,played?null:'SUPPORTER_ALREADY_PLAYED',
+      'Faba play-time gate incorrect: '+JSON.stringify(row));
+    assert.equal(row.fabaInHand,!played,'Faba must remain in hand if denied');
+    assert.equal(row.toolInLostZone,played,'Faba should move opponent Tool to Lost Zone');
+    assert.equal(row.toolStillOnGarbodor,!played,'Targeted Tool must leave only on failure');
+    const blocked=row.vileplume&&played;
+    assert.equal(row.switchError,blocked?'CANNOT_PLAY_THIS_CARD':null,
+      'Vileplume Item lock should re-evaluate immediately');
+    assert.equal(row.itemInHand,blocked,'Blocked Switch stays in hand');
+    assert.equal(row.switchPrompt,blocked?null:'ChoosePokemonPrompt',
+      'Unlocked Switch produces target prompt');
+  }
+  return {
+    study:'Faba Supporter removes Garbotoxin Tool and reactivates Item lock',
+    engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+    source:'Aichi rank2 has Faba LOT; synthesized opponent Garbodor',
+    scope:'Injected board actual Store actions, no deck search, decision AI or game win-rate',
+    rows
+  };
+}
+if (require.main===module) console.log(JSON.stringify(run(),null,2));
+module.exports={probe,run};
