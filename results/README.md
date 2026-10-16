@@ -58,6 +58,8 @@ Repository `README.md` prohibits per-commit GitHub Actions workflows. Use explic
 
 [Agent 21: Forest Seal Stone mandatory one-card search gate](twinleaf/forest-seal-search-gate.md) identifies a pinned Twinleaf zero-selection legality defect and adds an opt-in, reversible research-side hook with five manual-CI-targeted regressions. The hook is not enabled in field matches and competitive behavior remains unmeasured.
 
+[Optional pre-dispatch prompt-result integrity gate](twinleaf/prompt-result-integrity.md) detects bot selections that upstream Store would dispatch without invoking the prompt validator. Five pure helper tests pass locally; the flag is opt-in and no strict-mode matchup result exists.
+
 ## Simulation tooling
 
 [Agent 2 Twinleaf headless feasibility and caveats](twinleaf/engine-feasibility.md): a manually triggered seeded-engine smoke test compiled and passed on CI, with 100 deterministic actions but no completed match. [Adapter code](../simulation/twinleaf/headless.cjs) and [card-coverage audit](../simulation/twinleaf/card-coverage.cjs) are available. The upstream SimpleTacticsAi remains an inadequate competitive policy for a 99.5% claim.

@@ -6,6 +6,7 @@ const crypto = require('node:crypto');
 const {observeFirstTurn, summarizeTurnOrder} = require('./turn-order-evidence.cjs');
 const {installToolJammerHook} = require('./tool-jammer-hook.cjs');
 const {installMegatonBlowerHook} = require('./megaton-blower-hook.cjs');
+const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -118,6 +119,7 @@ function installFairBotHooks() {
  * @property {number} seed Unsigned 32-bit random seed.
  * @property {number} [maxActions] Fail-safe bound on all user/bot actions.
  * @property {string} [label] Experimental label for machine-readable output.
+ * @property {boolean} [strictPromptValidation] Opt-in pre-dispatch Prompt.validate gate.
  */
 
 /**
@@ -234,6 +236,9 @@ function runMatch(request) {
           throw new Error('Policy failed to generate a turn action.');
         }
       }
+      if (request.strictPromptValidation === true) {
+        assertValidPromptAction(state, action);
+      }
       const actionName = action.constructor.name;
       const actingId = pending ? pending.playerId : (action.clientId ?? action.id);
       const seat = state.players.findIndex(player => player.id === actingId);
@@ -295,6 +300,8 @@ function runMatch(request) {
       },
       prizesRemaining: state.players.map(player => player.prizes.filter(prize => prize.cards.length > 0).length),
       phase: state.phase,
+      promptValidationMode: request.strictPromptValidation === true ?
+        'predispatch-prompt-validate' : 'upstream-unchecked',
       policy: 'Twinleaf SimpleTacticsAi/defaultStateScores',
       engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
     };

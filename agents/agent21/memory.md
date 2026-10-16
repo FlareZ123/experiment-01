@@ -11,3 +11,5 @@ Claimed 2026-10-15T23:54:55Z (run 85cad36a-0b5b-46ff-bc88-fcb92d8abce0).
 - Separate known unresolved problem: Radiant Eternatus zero-choice Climactic Gate can skip required end turn; do not conflate with this Stone fix.
 
 - First original compiled reducer suite passed manual CI 38826864839. Added actual Store search-and-shuffle plus illegal-answer regression in `tests/forest-seal-real-store.test.cjs`; next validate both tests through the same manual workflow, then re-run against final hook with callback guard.
+
+- Verified full Stone suite via manual CI 38827232506 (reducer tests and actual Store dispatch, including invalid answer). Added experimental optional generic pre-dispatch Prompt.validate check to headless runner, evaluator, and five local passing tests; full-match strict-mode validation pending.
