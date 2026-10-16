@@ -45,6 +45,25 @@ Likewise, a hypothetical Bide Barricade Wobbuffet opener is not guaranteed prote
 
 The [source-inventory calculator](../../scripts/aichi_rank26_loss_budget.cjs) now derives the same candidate-specific events directly from the original ranked 60-card lists, [unchanged Hood and Temple candidate JSON](candidate-hood-shadow-rider.md), shared `soloAfterBonus` exact model, a printed Basic-stage index, and Wobbuffet PHF 36 counts. It computes the target's equal-placement per-rank loss budget instead of embedding rounded setup percentages. [Regression tests](../../tests/aichi-rank26-loss-budget.test.cjs) include invalid inputs and exact champion/Temple anchor checks. The tests and calculation are wired into the existing [manual opening audit](../../.github/workflows/aichi-opening-audit.yml), but **this new integration has not yet been executed in CI**. The numerical thresholds in this note were separately recomputed using Python arithmetic from the earlier documented setup probabilities.
 
+## Structural sensitivity of adding more Basic starters
+
+The [source-locked exact Basic-count frontier](../../scripts/aichi_rank26_exposure_frontier.cjs) generalizes the same restricted `soloAfterBonus` calculation to hypothetical total Basic counts `b`. Assuming **zero** intrinsically protected starters and taking all offered rank-26 mulligan bonuses, the modeled lone-Active event falls as follows:
+
+| Total candidate Basics | P(lone-Active E) |
+| ---: | ---: |
+| 14 | 37.5068% |
+| 16 | 30.5977% |
+| 18 | 24.5399% |
+| 20 | 19.3195% |
+| 21 | 17.0136% |
+| **22** | **14.9033%** |
+
+Because the entire 32-placement 99.5% loss allowance can allocate at most 16% probability to rank 26 (even granting perfect records against every other rank), **22 Basics** is the first hypothetical copy count at which losses confined to E alone cannot exceed this budget, *even if E always leads to the immediate donk*. This calculation neither assumes E always loses in actual play nor awards any true matchup protection; it identifies a very demanding count tradeoff. In particular, replacing eight non-Basic slots of the 14-Basic reference is not a justified deck improvement absent tests of its damage, attack payloads, consistency and other matchup costs.
+
+For hypothetical *guaranteed* protective Basic copies `p`, the same proportional lone-starter classification gives the minimum total Basics (searched from 14 to 30) for E ≤16%: `p=0→22`, `p=1→22`, `p=2→21`, `p=3→21`, `p=4→20`. **Guaranteed protection is hypothetical.** Actual protective Abilities can be shut off by Canceling Cologne, and some protections require Active position or other conditions. This frontier is a conditional mathematical thought experiment that makes the limits of raw Basic-count optimization explicit, with no tested alternative 60-card list or lower bound on wins.
+
+The [regression checks](../../tests/aichi-rank26-exposure-frontier.test.cjs) anchor the threshold against independent Python exact-combination calculations and are included in the manual [opening audit workflow](../../.github/workflows/aichi-opening-audit.yml). They were committed after the last applicable CI run and await execution in GitHub Actions.
+
 ## Scope and next evidence
 
 The E calculation is tied to the clearly stated all-bonus-draw setup model. Real opponents can play differently, first-turn cards can change the number of Basics in play, and Meloetta may have other win paths. The probabilities cannot be multiplied by an unsupported estimate of first-turn combo success. They create an actionable *necessary success threshold* conditional on one precisely defined setup event.
