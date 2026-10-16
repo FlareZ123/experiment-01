@@ -228,6 +228,8 @@ function main() {
     {forkTurn:27,opponentSlot:0});
   const controlLineage = checkLiveLineage(control, control.result);
   const branchLineage = checkLiveLineage(branch, branch.result);
+  const controlCanonicalSourceInputDigest=sourceInputTraceSha256(control.actionTrace);
+  const alternateCanonicalSourceInputDigest=sourceInputTraceSha256(branch.actionTrace);
   const controlCaptureGapSummary = summarizeCaptureGaps(controlLineage.captureFailures);
   const alternateCaptureGapSummary = summarizeCaptureGaps(branchLineage.captureFailures);
   checkLiveLineage(repeat, repeat.result);
@@ -311,6 +313,7 @@ function main() {
     identicalUninstrumentedControl:true,
     identicalControlAfterBranch:true,
     forkAudit,
+    canonicalInputDigests:{control:controlCanonicalSourceInputDigest,alternate:alternateCanonicalSourceInputDigest},
     replayInputAssessment,
     actionInputCoverage:{
       control:inputCoverageReport(control.actionTrace),
