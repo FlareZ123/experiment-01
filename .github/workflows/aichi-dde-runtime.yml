@@ -26,7 +26,9 @@ jobs:
           npm run compile
       - name: Replay pinned Double Dragon technical fixture and bounded source-deck matches
         run: node simulation/twinleaf/dde-runtime-regression.cjs
-      - name: Demonstrate greedy DDE attachment target bias
+      - name: Test effective Energy matcher
+        run: node --test tests/dde-attach-priority.test.cjs
+      - name: Verify pinned Apex-aware attachment priority
         run: node simulation/twinleaf/dde-target-priority.cjs
       - name: Check separate hidden-order policy invariant
         run: node simulation/twinleaf/hidden-deck-order-policy.cjs
