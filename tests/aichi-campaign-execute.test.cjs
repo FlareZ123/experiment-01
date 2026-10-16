@@ -225,10 +225,11 @@ test('opt-in Shadow Rider attachment policy is carried into every fixed-plan tri
 test('opt-in Lele entry timing correction is propagated and kept out of game-win claims', () => {
   let calls = 0;
   const output = run({
-    policyFlags: {leleEntryAbilityLockCorrection: true},
+    policyFlags: {leleEntryAbilityLockCorrection: true, radiantGateLockCorrection: true},
     runMatch(request) {
       calls += 1;
       assert.equal(request.leleEntryAbilityLockCorrection, true);
+      assert.equal(request.radiantGateLockCorrection, true);
       return sampleGame(request, {
         policy: 'synthetic+LeleEntryAbilityLockGuard-v1',
         leleEntryAbilityLockCorrection: true
@@ -238,6 +239,7 @@ test('opt-in Lele entry timing correction is propagated and kept out of game-win
   assert.equal(calls, 6);
   assert.equal(output.counts['completed-engine-game'], 6);
   assert.equal(output.policyFlags.leleEntryAbilityLockCorrection, true);
+  assert.equal(output.policyFlags.radiantGateLockCorrection, true);
   assert.equal(output.engineAndPolicyQualified, false);
   assert.equal(output.strengthClaimPermitted, false);
 });
