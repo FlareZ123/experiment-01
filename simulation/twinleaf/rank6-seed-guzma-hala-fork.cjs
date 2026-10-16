@@ -26,7 +26,9 @@ const {AttackAction} = engine('game/store/actions/game-actions');
  * @param {()=>T} fn
  * @returns {{result:T,events:object[],completed:boolean}}
  */
-function withGuzmaHalaSourceFork(fn) {
+function withGuzmaHalaSourceFork(fn, discardNames = ['Guzma', 'Tropical Beach']) {
+  assert.equal(discardNames.length, 2, 'G&H optional search requires two discard cards');
+  assert.notEqual(discardNames[0], discardNames[1]);
   const original = SimpleTacticsAi.prototype.decodeNextAction;
   const events = [];
   let step = 0;
@@ -61,13 +63,13 @@ function withGuzmaHalaSourceFork(fn) {
     }
     if (step===2) {
       assert.equal(prompt?.constructor.name,'ChooseCardsPrompt');
-      const cards=['Guzma','Tropical Beach'].map(name=>{
+      const cards=discardNames.map(name=>{
         const card=p.hand.cards.find(item=>item.name===name);
         assert.ok(card,'Unavailable declared discard '+name);
         return card;
       });
       assert.equal(prompt.validate(cards,state),true);
-      return select(state,p,prompt,'Discard Guzma and Tropical Beach',
+      return select(state,p,prompt,'Discard ' + discardNames.join(' + '),
         new ResolvePromptAction(prompt.id,cards));
     }
     if (step===3) {
