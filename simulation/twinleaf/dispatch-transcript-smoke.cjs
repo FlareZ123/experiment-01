@@ -27,6 +27,13 @@ function runDispatchSmoke() {
   assert.ok(capture.dispatched >= capture.result.actions + 2,
     'Every explicit game-loop dispatch and both player entries must be intercepted');
   assert.equal(capture.actionTrace[0].action, 'AddPlayerAction');
+  assert.equal(capture.actionTrace[1].action, 'AddPlayerAction');
+  const liveActionCounts = {};
+  for (const event of capture.actionTrace.slice(2)) {
+    liveActionCounts[event.action] = (liveActionCounts[event.action] || 0) + 1;
+  }
+  assert.deepEqual(liveActionCounts, capture.result.actionCounts,
+    'Captured live actions must match independent root-loop action histogram');
   assert.deepEqual(capture.actionTrace.map(e => e.step),
     Array.from({length: capture.dispatched}, (_, i) => i));
   return {
@@ -38,6 +45,7 @@ function runDispatchSmoke() {
     excludedSpeculativeDispatches: capture.ignoredOtherStoreDispatches,
     captureScope: capture.captureScope,
     controlOutcomeInvariant: true,
+    independentActionHistogramInvariant: true,
     parametersCaptured: capture.parametersCaptured,
     replayEligibleTraceSha256: capture.traceSha256,
     diagnosticTraceSha256: capture.diagnosticTraceSha256,
