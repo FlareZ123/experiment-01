@@ -110,12 +110,17 @@ function replayBunnelbyTmBot(options = {}) {
     const p = f.store.state.prompts.find(prompt => prompt.result === undefined);
     if (!p) break;
     const kind = p.constructor.name;
-    // WaitPrompt acknowledges engine animation without a strategic selection.
-    const action = kind === 'ShuffleDeckPrompt'
+    // Preserve the actual bot's WaitPrompt acknowledgement when available:
+    // forcing a null response can change Barrage's second attack.
+    let action = kind === 'ShuffleDeckPrompt'
       ? new ResolvePromptAction(p.id,
         Array.from({length: f.attacker.deck.cards.length}, (_, index) => index))
-      : kind === 'WaitPrompt' ? new ResolvePromptAction(p.id, null)
-        : bot.decodeNextAction(f.store.state);
+      : bot.decodeNextAction(f.store.state);
+    let fallbackWaitAcknowledgement = false;
+    if (!action && kind === 'WaitPrompt' && options.diagnostic) {
+      action = new ResolvePromptAction(p.id, null);
+      fallbackWaitAcknowledgement = true;
+    }
     if (!action) {
       if (!options.diagnostic) assert.ok(action, 'No bot answer for prompt ' + kind);
       unresolvedPrompt = kind;
@@ -126,6 +131,8 @@ function replayBunnelbyTmBot(options = {}) {
     }
     prompts.push({
       kind,
+      ...(options.diagnostic && kind === 'WaitPrompt' ?
+        {waitResult: action.result ?? null, fallbackWaitAcknowledgement} : {}),
       answer: kind === 'ChooseAttackPrompt' ? secondAttack :
         kind === 'ChooseCardsPrompt' ?
           (action.result || []).map(card => card.name) : undefined
