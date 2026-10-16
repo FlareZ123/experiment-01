@@ -38,6 +38,9 @@ function auditCampaignQuality(archive) {
     'unversioned-legacy'].includes(profile)) {
     throw new Error('Invalid archive research policy profile.');
   }
+  const experimentalClone = archive.policyFlags?.prototypeSafeSimulatorIsolation === true;
+  const simulatorCloneProfile = experimentalClone ?
+    'prototype-safe-experimental-v1' : 'pinned-source-card-alias-v0';
   const candidates = new Map(archive.candidateRows.map(row => [row.id, row.deckDigest]));
   const ranks = new Set(archive.selectedPilotRanks);
   const ids = new Set();
@@ -174,6 +177,7 @@ function auditCampaignQuality(archive) {
       rank: record.opponentRank,
       candidateId: record.candidateId,
       researchPolicyProfile: profile,
+      simulatorCloneProfile,
       engineSlot: record.candidateEngineSlot,
       actualTurn,
       status: record.status,
@@ -233,6 +237,7 @@ function auditCampaignQuality(archive) {
       (deriveV3Seeds ? 'v3-derived-and-matched' : 'v3-base-missing-legacy') :
       'not-v3',
     researchPolicyProfile: profile,
+    simulatorCloneProfile,
     selectedPilotRanks: archive.selectedPilotRanks,
     totalTrials: rows.length,
     repeatsVerified: repeats, fullPilotMatrixVerified: true,
