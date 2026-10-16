@@ -5,6 +5,7 @@ const path = require('node:path');
 const {stageSourceBunnelbyBoard} = require('./bunnelby-tm-policy-replay.cjs');
 const {initializeCards} = require('./headless.cjs');
 const {inspectTmEvolutionPass} = require('./tm-evolution-pass-evidence.cjs');
+const {probeEvolutionAnnouncement} = require('./tm-evolution-announcement-probe.cjs');
 
 const compiled = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
@@ -75,6 +76,16 @@ function testTurn56Evolution() {
   const attacks = new CheckPokemonAttacksEffect(f.attacker).attacks;
   assert.ok(attacks.some(attack => attack.name === 'Evolution'),
     'Tool-provided Evolution attack must be listed');
+  const originalRandom = Math.random;
+  const originalDeckCount = f.attacker.deck.cards.length;
+  const originalPromptCount = f.state.prompts.length;
+  const clonedAnnouncement = probeEvolutionAnnouncement(f.state, f.attacker.id);
+  assert.equal(clonedAnnouncement.accepted, true,
+    'Cloned Store must accept Tool Evolution from matched resource state');
+  assert.equal(Math.random, originalRandom,
+    'Counterfactual legality test must restore game RNG function');
+  assert.equal(f.attacker.deck.cards.length, originalDeckCount);
+  assert.equal(f.state.prompts.length, originalPromptCount);
   f.store.dispatch(new AttackAction(f.attacker.id, 'Evolution'));
   const prompts = [];
   for (let i = 0; i < 30; i++) {
@@ -104,6 +115,7 @@ function testTurn56Evolution() {
     targetPrinting: 'Vileplume AOR',
     stagedGloomJustEvolvedThisTurn: true,
     targetCount: evidence.targetCount,
+    clonedAnnouncement,
     prompts,
     caveat: 'Conditioned Store feasibility control, NOT exact turn-56 hidden state or complete-game policy replay'
   };
