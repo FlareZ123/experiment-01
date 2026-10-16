@@ -19,7 +19,7 @@ Two equally physical partitions of the remaining 52 cards have **the same eight 
 | A | 2 | 0 | **true** |
 | B | 0 | 2 | **false** |
 
-Both states are possible initial Prize deals from the exact source 60. The `Gloom` Stage 1 requirement makes the actual predicate branch, despite no player-observable distinction. The stage metadata is represented minimally in this **pure-function** fixture; the underlying real Gloom UNB evolves from Oddish.
+Both states are possible initial Prize deals from the exact source 60. Conditional on precisely those eight known cards and two unseen Gloom, the probability that **both** Gloom are among the six unknown Prizes is the exact hypergeometric ratio \`C(50,4) / C(52,6) = 1.13122%\`. This is only a conditional illustration and says nothing about the frequency of that specific eight-card start or any resulting game outcome. The `Gloom` Stage 1 requirement makes the actual predicate branch, despite no player-observable distinction. The stage metadata is represented minimally in this **pure-function** fixture; the underlying real Gloom UNB evolves from Oddish.
 
 [Two deterministic tests](../../tests/bunnelby-k0-prize-contrast.test.cjs) assert all physical inventory and known-state invariants, as well as the predicate divergence. They passed [manual CI 38874039408](https://github.com/FlareZ123/experiment-01/actions/runs/38874039408) on Node 22 with the repository's exact rank-2 JSON manifest.
 
