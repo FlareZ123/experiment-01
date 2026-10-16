@@ -20,7 +20,7 @@ The update does not execute speculative attacks to check readiness. A paid print
 - [Pinned Store target fixture](../../simulation/twinleaf/dde-target-priority.cjs) asserts the alternative Benched Regidrago is chosen and the actual Store attaches DDE there.
 - [Manual workflow](../../.github/workflows/aichi-dde-runtime.yml) runs those checks alongside the pre-existing legal attachment and frozen-source bounded Regidrago diagnostics. The policy result label has changed from `DoubleDragonAttachTactic-v1` to **`DoubleDragonAttachTactic-v2`**. Old v1 outputs must retain their version and must not be combined as though produced by v2.
 
-The engine submodule remains pinned to `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; no upstream file is edited. **Verification of all pinned Store assertions is pending the newly dispatched manual job.** No source-deck game outcome, opponent policy qualification or matchup probability is inferred.
+The engine submodule remains pinned to `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; no upstream file is edited. **Pinned-engine validation passed [manual CI run 38869518061](https://github.com/FlareZ123/experiment-01/actions/runs/38869518061).** The exact unit-matcher tests, revised source-state Benched attachment, prior DDE action regression, seeded bounded source-deck diagnostics and 15 field-evaluator tests all completed successfully. The checkout cleanup emitted an already-known nested `pokemon-cards-css` submodule warning after the successful job. No source-deck game outcome, opponent policy qualification or matchup probability is inferred.
 
 ## Next research actions
 
