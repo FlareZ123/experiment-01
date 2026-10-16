@@ -207,3 +207,17 @@ test('the opt-in Snorlax interactive-retreat gate is forwarded without altering 
   assert.equal(result.policyFlags.snorlaxRetreatStartCorrection,true);
   assert.equal(result.strengthClaimPermitted,false);
 });
+
+
+test('opt-in Shadow Rider attachment policy is carried into every fixed-plan trial',()=>{
+  const result=run({
+    policyFlags:{shadowRiderEnergyPriority:true},
+    runMatch:request=>{
+      assert.equal(request.shadowRiderEnergyPriority,true);
+      return sampleGame(request);
+    }
+  });
+  assert.equal(result.totalScheduled,6);
+  assert.equal(result.policyFlags.shadowRiderEnergyPriority,true);
+  assert.equal(result.counts['completed-engine-game'],6);
+});
