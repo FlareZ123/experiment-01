@@ -141,6 +141,9 @@ function withDamageObserver(fn) {
     if (attack && attack.damageAfter===null &&
       this.state.players[0].active.damage>attack.damageBefore) {
       attack.damageAfter=this.state.players[0].active.damage;
+      const actor=this.state.players[1];
+      attack.handAtDamage=actor.hand.cards.map(c=>c.fullName);
+      attack.discardAtDamage=actor.discard.cards.map(c=>c.fullName);
     }
     return result;
   };
