@@ -373,3 +373,44 @@ test('opt-in ordered meaningful-decision trace is requested and source-preserved
   });
   assert.equal(without.records[0].decisionTrace,null);
 });
+
+test('actual campaign envelope attests shared profile and terminal-provenance consistency', () => {
+  const {envelopeFromArchive} =
+    require('../simulation/evaluation/aichi-campaign-envelope-runner.cjs');
+  const f=fixture();
+  const revision='a'.repeat(40);
+  const run=(corruptSecond=false)=>executeCampaign(f,{
+    maxTrials:2,
+    prepareCandidate(candidate) {
+      const p=prepare(candidate);
+      p.engineRevision=revision;
+      return p;
+    },
+    runMatch(request) {
+      const out=finished(request);
+      out.engine='twinleafgg/'+revision;
+      out.policy='TestTactics-v1';
+      out.researchPolicyProfile='simple-default-v0';
+      if(corruptSecond && request.deckA[0].startsWith('opponent-')) {
+        out.rules.firstTurnUseSupporter=true;
+      }
+      return out;
+    }
+  });
+  const archive=run();
+  archive.researchRevision='same-commit';
+  archive.expectedPolicyProfile='simple-default-v0';
+  const envelope=envelopeFromArchive(f,archive,'same-commit');
+  assert.match(envelope.fingerprint,/^[a-f0-9]{64}$/);
+  assert.equal(envelope.audit.completed,2);
+  assert.equal(envelope.competitiveWinRateCertified,false);
+  assert.equal(envelope.fullActionReplayAvailable,false);
+  assert.equal(envelope.provenance.engineRevision,revision);
+  assert.equal(envelope.provenance.candidatePolicyRevision,'TestTactics-v1');
+  assert.match(envelope.provenance.rulesetRevision,/observed-engine-rules-sha256:/);
+  assert.throws(()=>envelopeFromArchive(f,archive,'other-commit'),
+    /revision mismatch/);
+  archive.records[1].observedPolicy='UnqualifiedOtherBot';
+  assert.throws(()=>envelopeFromArchive(f,archive,'same-commit'),
+    /Trial-level engine/);
+});
