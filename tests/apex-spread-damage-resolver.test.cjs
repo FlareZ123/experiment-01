@@ -106,6 +106,17 @@ test('avoids blocked and protected target entries',()=>{
   assert.equal(prizeWindowDamageMap(f.state,f.me,f.prompt,f.codes),null);
 });
 
+test('effect-blocking attached Energy is excluded as a certain counter KO',()=>{
+  const f=fixture([30,30]);
+  f.opponent.bench[0].cards=[{name:'Mist Energy'}];
+  const result=prizeWindowDamageMap(f.state,f.me,f.prompt,f.codes);
+  assert.ok(result);
+  assert.equal(result.find(row=>row.target.index===1)?.damage,30);
+  assert.equal(result.reduce((sum,row)=>sum+row.damage,0),60);
+  f.opponent.bench[1].cards=[{name:'Wonder Energy'}];
+  assert.equal(prizeWindowDamageMap(f.state,f.me,f.prompt,f.codes),null);
+});
+
 test('preserves generic policy for wrong Pokemon, phase, prompt type, or validation',()=>{
   const f=fixture([30]);
   f.me.active.getPokemonCard=()=>({fullName:'Mimikyu GRI'});
