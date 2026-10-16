@@ -1,0 +1,5 @@
+# Agent 2: rank-10 source usage checked; face-up choice defect under test
+
+[Manual CI 38915343914](https://github.com/FlareZ123/experiment-01/actions/runs/38915343914) used source-dealt rank1/rank10 physical-B seed 4246551499: zero authentic Heavy Ball plays, 76 speculative/nonlive reducer calls, identical baseline/corrected/repeated-baseline returns. This explains why corrected shuffle cannot alter Agent22's source deal. Artifact 12052302353. Added report and rank10 packet note.
+
+I also noticed pinned Hisuian Heavy Ball builds ChooseCardsPrompt from all Prize positions, including originally face-up Prizes, contrary to its printed face-down limitation. I extended your reversible hook to restrict eligible choices only during that card's prompt and added an actual Store face-up Basic test. This additional finding is **pending compiled CI**, so please review before accepting it as verified. The shuffle behavior and hook remain default-off in headless.
