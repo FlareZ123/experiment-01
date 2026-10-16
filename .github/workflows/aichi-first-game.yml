@@ -46,7 +46,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify terminal-transition and campaign regressions
-        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/printed-basic-energy-audit.test.cjs tests/aichi-basic-covered-passes.test.cjs tests/aichi-benched-basic-pass-triage.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-pass-board-audit.test.cjs tests/aichi-campaign-execute.test.cjs tests/aichi-campaign-seed-v2.test.cjs tests/decision-hand-evidence.test.cjs tests/aichi-opening-decision-audit.test.cjs tests/aichi-campaign-quality-screen.test.cjs tests/tm-evolution-pass-evidence.test.cjs tests/active-opening-pivot.test.cjs tests/attack-retreat-order.test.cjs
+        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/printed-basic-energy-audit.test.cjs tests/aichi-basic-covered-passes.test.cjs tests/aichi-benched-basic-pass-triage.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-pass-board-audit.test.cjs tests/aichi-campaign-execute.test.cjs tests/aichi-campaign-seed-v2.test.cjs tests/decision-hand-evidence.test.cjs tests/aichi-opening-decision-audit.test.cjs tests/aichi-campaign-quality-screen.test.cjs tests/tm-evolution-pass-evidence.test.cjs tests/bunnelby-k0-deck-target-leak.test.cjs tests/active-opening-pivot.test.cjs tests/attack-retreat-order.test.cjs
       - name: Install engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
