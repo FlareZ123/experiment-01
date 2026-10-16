@@ -60,7 +60,7 @@ function raichuMixedBenchPrizeCase(sixEnergy) {
   f.attached.forEach((energy, index) => {energy.id = 1100 + index;});
   const provided = providedEnergy(f);
   const lightning = provided.reduce((total, row) =>
-    total + row.provides.filter(e => e === CardType.LIGHTNING).length, 0);
+    total + row.provides.filter(e => e === CardType.LIGHTNING || e === CardType.ANY).length, 0);
   const before = f.a.getPrizeLeft();
   const events = [];
   const attack = () => {
@@ -111,6 +111,7 @@ function raichuMixedBenchPrizeCase(sixEnergy) {
 function verify() {
   const five=raichuMixedBenchPrizeCase(false);
   const six=raichuMixedBenchPrizeCase(true);
+  console.log(JSON.stringify({five,six}, null, 2));
   assert.equal(five.actualLightningUnits, 14);
   assert.equal(six.actualLightningUnits, 16);
   assert.equal(five.prizesTaken, 3);
