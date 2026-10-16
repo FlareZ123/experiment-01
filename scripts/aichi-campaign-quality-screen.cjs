@@ -49,9 +49,11 @@ function auditCampaignQuality(archive) {
   const divisor = ranks.size * candidates.size * 2;
   const repeats = archive.totalScheduled / divisor;
   if (!Number.isInteger(repeats) || repeats < 1 ||
-      ![1, 2].includes(archive.campaignSchemaVersion) ||
+      ![1, 2, 3].includes(archive.campaignSchemaVersion) ||
       (archive.campaignSchemaVersion === 2 &&
-        archive.seedProtocol !== 'independent-slots-v2')) {
+        archive.seedProtocol !== 'independent-slots-v2') ||
+      (archive.campaignSchemaVersion === 3 &&
+        archive.seedProtocol !== 'decorrelated-slots-v3')) {
     throw new Error('Incomplete or unsupported campaign schedule metadata.');
   }
   const expectedTrials = new Set();
@@ -178,7 +180,7 @@ function auditCampaignQuality(archive) {
   if (expectedTrials.size !== 0) {
     throw new Error('Pilot coverage omitted scheduled rank/candidate/slot trials.');
   }
-  if (archive.seedProtocol === 'independent-slots-v2') {
+  if (['independent-slots-v2', 'decorrelated-slots-v3'].includes(archive.seedProtocol)) {
     for (const rank of ranks) {
       for (let repeat = 0; repeat < repeats; repeat += 1) {
         if (slotSeeds.get([rank, repeat, 'A'].join(':')) ===
