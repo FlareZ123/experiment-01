@@ -84,8 +84,13 @@ test('Bunnelby K0 gate branches on hidden Prize composition',()=>{
     'Search sees source Gloom remaining in hidden deck');
   assert.equal(hasBenchEvolutionTarget(allPrized),false,
     'Both source Gloom copies facedown Prized suppress the proposed attack');
-  assert.deepEqual(fixture.seen,fixture.seen,
-    'The same physical eight known cards were selected before both Prize deals');
+  const physicalFingerprint = part =>
+    [...fixture.seen,...part.prizes,...part.deck]
+      .map(c=>[c.name,c.printing.set,c.printing.number,c.copy].join(':'))
+      .sort();
+  assert.deepEqual(physicalFingerprint(fixture.withTarget),
+    physicalFingerprint(fixture.targetPrized),
+    'Both partitions must contain identical physical copies of the source 60');
 });
 
 test('K0 target-prize exposure is a real rank-2 60-card configuration',()=>{
