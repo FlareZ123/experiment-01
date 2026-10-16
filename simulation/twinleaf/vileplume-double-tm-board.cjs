@@ -104,8 +104,16 @@ function doubleTmBoard() {
   assert.equal(state.prompts.some(p=>p.result===undefined),false,
     'All prompts must be fully resolved');
   assert.equal(nextEvolve,4,'Both attacks should evolve two separate targets');
-  assert.deepEqual(player.bench.map(b=>b.getPokemonCard().name),
-    ['Vileplume','Pidgeot ex']);
+  const board = player.bench.map(b=>({
+    top:b.getPokemonCard()?.name || null,
+    cards:b.cards.map(card=>card.name)
+  }));
+  if(board.some(b=>b.top===null)) console.log('DIAGNOSTIC_DOUBLE_TM',JSON.stringify({
+    prompts:responses,evolutions:nextEvolve,board,
+    liveBoard:state.players[0].bench.map(b=>b.cards.map(c=>c.name)),
+    phase:state.phase,turn:state.turn,logs:state.logs.slice(-8)
+  }));
+  assert.deepEqual(board.map(b=>b.top),['Vileplume','Pidgeot ex']);
   assert.equal(countAttackChoices,1,'Barrage should offer one explicit second attack choice');
   assert.ok(state.turn>=beforeTurn,'Game turn must not rewind');
   return {
@@ -116,7 +124,7 @@ function doubleTmBoard() {
     actualPromptSequence:responses,
     evolutionSearches:nextEvolve,
     barrageSecondAttackChoices:countAttackChoices,
-    finalBench:player.bench.map(b=>b.getPokemonCard().name),
+    finalBench:board.map(b=>b.top),
     finalPhase:state.phase, finalTurn:state.turn,
     scope:'Real pinned Store + attack and prompts on a staged legal board; no shuffled opening, opponent policy, or win rate'
   };
