@@ -33,6 +33,7 @@ def source_inventory_digest(source_deck_digests: Mapping[int, str]) -> str:
 def evaluate_balanced_raw_batch(
     batch: dict, field_csv: str, *,
     source_deck_digests: Mapping[int, str],
+    expected_candidate_deck_sha256: str,
     predeclared_games_per_cell: int,
     target: str = "0.995",
     confidence: str = "0.95",
@@ -46,10 +47,19 @@ def evaluate_balanced_raw_batch(
     if any(not p.published for p in read_manifest(field_csv)):
         raise ValueError("Exact list provenance for all 32 ranks is required")
 
+    if (not isinstance(expected_candidate_deck_sha256, str) or
+            len(expected_candidate_deck_sha256) != 64 or
+            any(c not in "0123456789abcdef" for c in expected_candidate_deck_sha256)):
+        raise ValueError("Expected candidate deck fingerprint must be a lowercase SHA-256")
+    if batch.get("candidate_deck_sha256") != expected_candidate_deck_sha256:
+        raise ValueError("Batch candidate deck fingerprint differs from the frozen registered candidate")
     expected_source_sha = source_inventory_digest(source_deck_digests)
     if batch.get("source_inventory_digest_sha256") != expected_source_sha:
         raise ValueError("Batch source inventory differs from the externally supplied source map")
     checked = evaluate_raw_batch(batch, field_csv)
+    seed_list = [game["seed"] for game in batch["games"]]
+    if len(seed_list) != len(set(seed_list)):
+        raise ValueError("Global RNG seeds must be unique across all rank and seat cells")
     if checked["failures"]:
         raise ValueError("Failed or unfinished games cannot enter confirmatory evidence")
     for game in batch["games"]:
@@ -71,7 +81,8 @@ def evaluate_balanced_raw_batch(
     ) for cell in summary["cells"])
     global_result = balanced_global_test(records, target=target, confidence=confidence)
     return {
-        "provenance": {**checked["provenance"], "source_inventory_digest_sha256": expected_source_sha},
+        "provenance": {**checked["provenance"], "source_inventory_digest_sha256": expected_source_sha,
+                       "registered_candidate_deck_sha256": expected_candidate_deck_sha256},
         "raw_games": checked["raw_games"],
         "predeclared_games_per_cell": predeclared_games_per_cell,
         "completed_ties_as_nonwins": checked["finished_ties_as_nonwins"],
