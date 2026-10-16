@@ -1,0 +1,18 @@
+name: Aichi Bunnelby K0 information-set characterization
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contrast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/bunnelby-k0-prize-contrast.test.cjs
