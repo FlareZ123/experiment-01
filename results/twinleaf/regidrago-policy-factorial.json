@@ -1,0 +1,319 @@
+{
+  "ciRun": 38834570812,
+  "ciUrl": "https://github.com/FlareZ123/experiment-01/actions/runs/38834570812",
+  "headSha": "73f4175e66c45a939a3c1590a43a74682b584d60",
+  "kind": "Exact-source policy mechanics, 2x2 factorial, 2 seeds, 2 engine seats",
+  "engine": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRanks": [
+    10,
+    1
+  ],
+  "evidenceClass": "generic-bot technical behavior, not win rate",
+  "randomnessProtocol": "separate-game-and-per-seat-policy-prng-v1",
+  "outcomes": [
+    {
+      "seed": 20261016,
+      "regidragoSeat": 0,
+      "supporterGuard": false,
+      "ddeRecovery": false,
+      "actions": 89,
+      "turns": 15,
+      "finished": true,
+      "firstTurnVerified": true,
+      "firstTurnSlot": 1,
+      "regidragoSupporters": 0,
+      "doubleDragonPlayed": 0,
+      "apexDragonAttacks": 0,
+      "regidragoAttackCount": 4,
+      "deckHashes": [
+        "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9",
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311"
+      ]
+    },
+    {
+      "seed": 20261016,
+      "regidragoSeat": 0,
+      "supporterGuard": false,
+      "ddeRecovery": true,
+      "actions": 92,
+      "turns": 15,
+      "finished": true,
+      "firstTurnVerified": true,
+      "firstTurnSlot": 1,
+      "regidragoSupporters": 0,
+      "doubleDragonPlayed": 1,
+      "apexDragonAttacks": 0,
+      "regidragoAttackCount": 5,
+      "deckHashes": [
+        "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9",
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311"
+      ]
+    },
+    {
+      "seed": 20261016,
+      "regidragoSeat": 0,
+      "supporterGuard": true,
+      "ddeRecovery": false,
+      "actions": 142,
+      "turns": 19,
+      "finished": true,
+      "firstTurnVerified": true,
+      "firstTurnSlot": 1,
+      "regidragoSupporters": 3,
+      "doubleDragonPlayed": 0,
+      "apexDragonAttacks": 0,
+      "regidragoAttackCount": 2,
+      "deckHashes": [
+        "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9",
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311"
+      ]
+    },
+    {
+      "seed": 20261016,
+      "regidragoSeat": 0,
+      "supporterGuard": true,
+      "ddeRecovery": true,
+      "actions": 105,
+      "turns": 10,
+      "finished": true,
+      "firstTurnVerified": true,
+      "firstTurnSlot": 1,
+      "regidragoSupporters": 1,
+      "doubleDragonPlayed": 1,
+      "apexDragonAttacks": 3,
+      "regidragoAttackCount": 4,
+      "deckHashes": [
+        "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9",
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311"
+      ]
+    },
+    {
+      "seed": 20261016,
+      "regidragoSeat": 1,
+      "supporterGuard": false,
+      "ddeRecovery": false,
+      "actions": 125,
+      "turns": 19,
+      "finished": true,
+      "firstTurnVerified": true,
+      "firstTurnSlot": 1,
+      "regidragoSupporters": 0,
+      "doubleDragonPlayed": 0,
+      "apexDragonAttacks": 3,
+      "regidragoAttackCount": 9,
+      "deckHashes": [
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311",
+        "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9"
+      ]
+    },
+    {
+      "seed": 20261016,
+      "regidragoSeat": 1,
+      "supporterGuard": false,
+      "ddeRecovery": true,
+      "actions": 207,
+      "turns": 38,
+      "finished": true,
+      "firstTurnVerified": true,
+      "firstTurnSlot": 1,
+      "regidragoSupporters": 0,
+      "doubleDragonPlayed": 3,
+      "apexDragonAttacks": 0,
+      "regidragoAttackCount": 15,
+      "deckHashes": [
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311",
+        "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9"
+      ]
+    },
+    {
+      "seed": 20261016,
+      "regidragoSeat": 1,
+      "supporterGuard": true,
+      "ddeRecovery": false,
+      "actions": 247,
+      "turns": 30,
+      "finished": true,
+      "firstTurnVerified": true,
+      "firstTurnSlot": 1,
+      "regidragoSupporters": 4,
+      "doubleDragonPlayed": 0,
+      "apexDragonAttacks": 0,
+      "regidragoAttackCount": 0,
+      "deckHashes": [
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311",
+        "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9"
+      ]
+    },
+    {
+      "seed": 20261016,
+      "regidragoSeat": 1,
+      "supporterGuard": true,
+      "ddeRecovery": true,
+      "actions": 278,
+      "turns": 31,
+      "finished": true,
+      "firstTurnVerified": true,
+      "firstTurnSlot": 1,
+      "regidragoSupporters": 8,
+      "doubleDragonPlayed": 3,
+      "apexDragonAttacks": 4,
+      "regidragoAttackCount": 4,
+      "deckHashes": [
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311",
+        "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9"
+      ]
+    },
+    {
+      "seed": 20261103,
+      "regidragoSeat": 0,
+      "supporterGuard": false,
+      "ddeRecovery": false,
+      "actions": 234,
+      "turns": 44,
+      "finished": true,
+      "firstTurnVerified": true,
+      "firstTurnSlot": 1,
+      "regidragoSupporters": 0,
+      "doubleDragonPlayed": 0,
+      "apexDragonAttacks": 3,
+      "regidragoAttackCount": 9,
+      "deckHashes": [
+        "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9",
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311"
+      ]
+    },
+    {
+      "seed": 20261103,
+      "regidragoSeat": 0,
+      "supporterGuard": false,
+      "ddeRecovery": true,
+      "actions": 204,
+      "turns": 29,
+      "finished": true,
+      "firstTurnVerified": true,
+      "firstTurnSlot": 1,
+      "regidragoSupporters": 0,
+      "doubleDragonPlayed": 3,
+      "apexDragonAttacks": 1,
+      "regidragoAttackCount": 3,
+      "deckHashes": [
+        "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9",
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311"
+      ]
+    },
+    {
+      "seed": 20261103,
+      "regidragoSeat": 0,
+      "supporterGuard": true,
+      "ddeRecovery": false,
+      "actions": 215,
+      "turns": 23,
+      "finished": true,
+      "firstTurnVerified": true,
+      "firstTurnSlot": 1,
+      "regidragoSupporters": 5,
+      "doubleDragonPlayed": 0,
+      "apexDragonAttacks": 0,
+      "regidragoAttackCount": 1,
+      "deckHashes": [
+        "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9",
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311"
+      ]
+    },
+    {
+      "seed": 20261103,
+      "regidragoSeat": 0,
+      "supporterGuard": true,
+      "ddeRecovery": true,
+      "actions": 195,
+      "turns": 19,
+      "finished": true,
+      "firstTurnVerified": true,
+      "firstTurnSlot": 1,
+      "regidragoSupporters": 5,
+      "doubleDragonPlayed": 1,
+      "apexDragonAttacks": 0,
+      "regidragoAttackCount": 4,
+      "deckHashes": [
+        "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9",
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311"
+      ]
+    },
+    {
+      "seed": 20261103,
+      "regidragoSeat": 1,
+      "supporterGuard": false,
+      "ddeRecovery": false,
+      "actions": 316,
+      "turns": 63,
+      "finished": true,
+      "firstTurnVerified": true,
+      "firstTurnSlot": 1,
+      "regidragoSupporters": 0,
+      "doubleDragonPlayed": 0,
+      "apexDragonAttacks": 1,
+      "regidragoAttackCount": 24,
+      "deckHashes": [
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311",
+        "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9"
+      ]
+    },
+    {
+      "seed": 20261103,
+      "regidragoSeat": 1,
+      "supporterGuard": false,
+      "ddeRecovery": true,
+      "actions": 305,
+      "turns": 59,
+      "finished": true,
+      "firstTurnVerified": true,
+      "firstTurnSlot": 1,
+      "regidragoSupporters": 0,
+      "doubleDragonPlayed": 2,
+      "apexDragonAttacks": 1,
+      "regidragoAttackCount": 22,
+      "deckHashes": [
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311",
+        "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9"
+      ]
+    },
+    {
+      "seed": 20261103,
+      "regidragoSeat": 1,
+      "supporterGuard": true,
+      "ddeRecovery": false,
+      "actions": 348,
+      "turns": 48,
+      "finished": true,
+      "firstTurnVerified": true,
+      "firstTurnSlot": 1,
+      "regidragoSupporters": 8,
+      "doubleDragonPlayed": 0,
+      "apexDragonAttacks": 0,
+      "regidragoAttackCount": 1,
+      "deckHashes": [
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311",
+        "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9"
+      ]
+    },
+    {
+      "seed": 20261103,
+      "regidragoSeat": 1,
+      "supporterGuard": true,
+      "ddeRecovery": true,
+      "actions": 195,
+      "turns": 26,
+      "finished": true,
+      "firstTurnVerified": true,
+      "firstTurnSlot": 1,
+      "regidragoSupporters": 6,
+      "doubleDragonPlayed": 2,
+      "apexDragonAttacks": 0,
+      "regidragoAttackCount": 1,
+      "deckHashes": [
+        "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311",
+        "527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9"
+      ]
+    }
+  ]
+}
