@@ -31,6 +31,8 @@ jobs:
         run: node --test tests/snorlax-retreat-start-hook.test.cjs
       - name: Characterize Switch and Guzma solo-Block escapes
         run: node simulation/twinleaf/snorlax-switch-vs-guzma.cjs | tee aichi-snorlax-switch-guzma.json
+      - name: Validate Switch and Guzma counterlines and reversible guard
+        run: node --test tests/snorlax-switch-vs-guzma.test.cjs
       - name: Preserve source-backed action characterization
         if: always()
         uses: actions/upload-artifact@v4
