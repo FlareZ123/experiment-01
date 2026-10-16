@@ -198,6 +198,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [mimikyuApexCopycatCompatibility] Opt-in non-GX Apex Dragon/Copycat copy-tag correction.
  * @property {boolean} [mimikyuApexTimelessPolicy] Opt-in exact public-state Copycat/Apex/Timeless decision policy.
  * @property {0|1} [mimikyuApexTimelessPolicySeat] Restrict Copycat counterpolicy to one physical seat.
+ * @property {0|1} [mimikyuTurn27SetupSeat] Source-ranked, single-turn test of discard, Energy attachment and promotion into the Copycat response.
  * @property {boolean} [mimikyuDeclaredHistoryCorrection] Opt-in printed Copycat attack history after nested prompts.
  * @property {boolean} [regidragoDeclaredHistoryCorrection] Opt-in printed Apex Dragon attack history after nested prompts.
  * @property {boolean} [passClearsLastAttackCorrection] Opt-in clear stale preceding attack when a player passes.
@@ -264,6 +265,12 @@ function runMatch(request) {
         (request.mimikyuApexTimelessPolicy !== true ||
           ![0, 1].includes(request.mimikyuApexTimelessPolicySeat))) {
       throw new Error('Counterpolicy seat requires enabled Copycat counterpolicy');
+    }
+    if (request.mimikyuTurn27SetupSeat !== undefined &&
+        (request.mimikyuApexTimelessPolicy !== true ||
+          request.mimikyuApexTimelessPolicySeat !== request.mimikyuTurn27SetupSeat ||
+          ![0, 1].includes(request.mimikyuTurn27SetupSeat))) {
+      throw new Error('Source-window Copycat setup requires matching candidate-only counterpolicy seat');
     }
     if (request.captureCopycatTurnStartSeat !== undefined &&
         ![0, 1].includes(request.captureCopycatTurnStartSeat)) {
@@ -416,6 +423,10 @@ function runMatch(request) {
           (request.mimikyuApexTimelessPolicySeat === undefined ||
             request.mimikyuApexTimelessPolicySeat === seat)) {
         configured = withCopycatApexTimelessPolicy(configured);
+      }
+      if (request.mimikyuTurn27SetupSeat === seat) {
+        configured = require('./mimikyu-source-turn27-setup.cjs')
+          .withCopycatTurn27Setup(configured);
       }
       return configured;
     });
@@ -653,6 +664,7 @@ function runMatch(request) {
       mimikyuApexCopycatCompatibility: request.mimikyuApexCopycatCompatibility === true,
       mimikyuApexTimelessPolicy: request.mimikyuApexTimelessPolicy === true,
       mimikyuApexTimelessPolicySeat: request.mimikyuApexTimelessPolicySeat ?? null,
+      mimikyuTurn27SetupSeat: request.mimikyuTurn27SetupSeat ?? null,
       mimikyuDeclaredHistoryCorrection: request.mimikyuDeclaredHistoryCorrection === true,
       regidragoDeclaredHistoryCorrection: request.regidragoDeclaredHistoryCorrection === true,
       passClearsLastAttackCorrection: request.passClearsLastAttackCorrection === true,
@@ -692,6 +704,8 @@ function runMatch(request) {
         (request.mimikyuDeclaredHistoryCorrection === true ? '+MimikyuDeclaredHistory-v1' : '') +
         (request.regidragoDeclaredHistoryCorrection === true ? '+RegidragoDeclaredHistory-v1' : '') +
         (request.mimikyuApexTimelessPolicy === true ? '+MimikyuApexTimelessCounterPolicy-v1' : '') +
+        (request.mimikyuTurn27SetupSeat !== undefined ?
+          '+SourceMimikyuTurn27Setup-v1@seat' + request.mimikyuTurn27SetupSeat : '') +
         (request.passClearsLastAttackCorrection === true ? '+PassClearsLastAttack-v1' : '') +
         (request.prototypeSafeSimulatorIsolation === true ?
           '+PrototypeSafeSimulatorIsolation-experimental-v1' : '') +
