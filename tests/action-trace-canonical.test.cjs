@@ -57,6 +57,12 @@ test('rejects nonportable numbers and malformed action envelopes', () => {
   }
 });
 
+test('rejects sparse arrays and inherited event fields', () => {
+  assert.throws(() => canonicalActionTrace([{ step: 0, action: 'draw', payload: Array(2) }]));
+  const event = Object.create({ step: 0, action: 'draw' });
+  assert.throws(() => canonicalActionTrace([event]));
+});
+
 test('rejects cycles and symbol keys', () => {
   const cyclic = { step: 0, action: 'draw' };
   cyclic.self = cyclic;
