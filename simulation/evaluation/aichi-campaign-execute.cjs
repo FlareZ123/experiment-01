@@ -243,6 +243,7 @@ function executeDiagnostic(options) {
   return {
     schemaVersion: 1, purpose: 'engine-and-policy-diagnostic-only',
     planDigest: campaign.planDigest, fieldDigest: campaign.fieldDigest,
+    seedBase: campaign.seedBase,
     campaignSchemaVersion: campaign.schemaVersion,
     seedProtocol: campaign.seedProtocol || 'paired-slots-v1',
     candidateRows: campaign.candidateRows, fieldCoverage: campaign.coverage,
