@@ -42,3 +42,17 @@ function installElectrodeGXEnergyHook() {
               prompt.message===GameMessage.ATTACH_ENERGY_CARDS &&
               prompt.options.max===5) {
             prompt.options.min=mandatory;
+            return target.prompt(nextState,prompt,transfers=>{
+              if (!Array.isArray(transfers) || !prompt.validate(transfers)) {
+                throw new GameError(GameMessage.ILLEGAL_ACTION);
+              }
+              const chosen=new Set();
+              for (const entry of transfers) {
+                if (!entry || !entry.to || !legalTarget(entry.to) ||
+                    !available.includes(entry.card) || chosen.has(entry.card)) {
+                  throw new GameError(GameMessage.ILLEGAL_ACTION);
+                }
+                chosen.add(entry.card);
+              }
+              return callback(transfers);
+            });
