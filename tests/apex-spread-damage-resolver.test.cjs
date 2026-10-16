@@ -364,3 +364,68 @@ test('pinned rank-15 Mega Lopunny ex Bench KO takes three actual Prizes',
   assert.ok(budews.every(card=>!ready.defending.discard.cards.includes(card)));
   assert.equal(before-ready.attacking.getPrizeLeft(),3);
 });
+
+test('pinned Mist Energy prevents opponent attack counter placement',
+{skip:!fs.existsSync(path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output/game'))},
+()=>{
+  const root=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
+  /** @param {string} name */
+  const load=name=>require(path.join(root,name));
+  const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+  const {preparedRegidrago}=require('../simulation/twinleaf/apex-attack-action.cjs');
+  const {PokemonCardList}=load('game/store/state/pokemon-card-list');
+  const {AttackAction}=load('game/store/actions/game-actions');
+  const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
+  const {ChoosePrizePromptResolver}=load(
+    'simple-bot/prompt-resolver/choose-prize-prompt-resolver');
+  const {SlotType}=load('game/store/actions/play-card-action');
+  const {defaultStateScores}=load('simple-bot/simple-bot-definitions');
+  const get=initializeCards().getCardByName;
+  const ready=preparedRegidrago();
+  ready.attachFire();
+  ready.defending.active.cards.length=0;
+  ready.defending.active.cards.push(
+    get('Pidgey FLF'),get('Pidgeotto TEU'),get('Pidgeot ex OBF')
+  );
+  const protectedBudew=get('Budew ASC');
+  const ordinaryBudew=get('Budew ASC');
+  const protectedSlot=new PokemonCardList();
+  const ordinarySlot=new PokemonCardList();
+  protectedSlot.cards.push(protectedBudew,get('Mist Energy TEF'));
+  ordinarySlot.cards.push(ordinaryBudew);
+  ready.defending.bench.push(protectedSlot,ordinarySlot);
+  ready.attacking.discard.cards.push(get('Dragapult ex TWM'));
+  const before=ready.attacking.getPrizeLeft();
+  ready.store.dispatch(new AttackAction(ready.attacking.id,'Apex Dragon'));
+  const choose=ready.state.prompts.find(p=>
+    p.result===undefined && p.constructor.name==='ChooseAttackPrompt');
+  assert.ok(choose);
+  const copy=choose.cards.flatMap(card=>card.attacks)
+    .find(attack=>attack.name==='Phantom Dive');
+  assert.ok(copy);
+  assert.equal(choose.validate(copy),true);
+  ready.store.dispatch(new ResolvePromptAction(choose.id,copy));
+  const prompt=ready.state.prompts.find(p=>
+    p.result===undefined && p.constructor.name==='PutDamagePrompt');
+  assert.ok(prompt);
+  const targets=prompt.maxAllowedDamage.filter(row=>
+    row.target.slot===SlotType.BENCH).slice(0,2)
+    .map(row=>({target:row.target,damage:30}));
+  assert.equal(targets.length,2);
+  assert.equal(prompt.validate(targets,ready.state),true);
+  ready.store.dispatch(new ResolvePromptAction(prompt.id,targets));
+  const prizeResolver=new ChoosePrizePromptResolver({scores:defaultStateScores});
+  for(let i=0;i<12;i++) {
+    const pending=ready.state.prompts.find(p=>p.result===undefined);
+    if(pending?.constructor.name==='WaitPrompt') {
+      ready.store.dispatch(new ResolvePromptAction(pending.id,null));
+    } else if(pending?.constructor.name==='ChoosePrizePrompt') {
+      const chooser=ready.state.players.find(p=>p.id===pending.playerId);
+      ready.store.dispatch(prizeResolver.resolvePrompt(ready.state,chooser,pending));
+    } else break;
+  }
+  assert.equal(protectedSlot.damage,0);
+  assert.ok(!ready.defending.discard.cards.includes(protectedBudew));
+  assert.ok(ready.defending.discard.cards.includes(ordinaryBudew));
+  assert.equal(before-ready.attacking.getPrizeLeft(),1);
+});
