@@ -19,14 +19,14 @@ jobs:
           node-version: '20.19.0'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
-      - name: Validate standalone source diagnostics
-        run: node --test tests/mimikyu-rank10-policy-pair.test.cjs
       - name: Install pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Validate standalone source diagnostics
+        run: node --test tests/mimikyu-rank10-policy-pair.test.cjs
       - name: Run source-locked rank-10 fixed-seed Copycat A/B
         run: node simulation/twinleaf/mimikyu-rank10-policy-pair.cjs > rank10-copycat-paired.json
       - name: Print bounded findings
