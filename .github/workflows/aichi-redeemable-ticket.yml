@@ -34,3 +34,5 @@ jobs:
         run: node simulation/twinleaf/redeemable-ticket-paper-regression.cjs
       - name: Check opt-in headless Ticket flag and restoration
         run: node --test tests/redeemable-ticket-headless-options.test.cjs
+      - name: Verify staged Ticket and Compressor rescue witness
+        run: node --test tests/ticket-compressor-shuffle-proof.test.cjs
