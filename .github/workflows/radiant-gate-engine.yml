@@ -30,3 +30,6 @@ jobs:
 
       - name: Check opt-in Forest Seal Stone one-card search correction
         run: node --test tests/forest-seal-search-hook.test.cjs
+
+      - name: Resolve actual Store Star Alchemy search and reject empty answers
+        run: node --test tests/forest-seal-real-store.test.cjs

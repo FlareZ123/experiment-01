@@ -16,6 +16,6 @@ Twinleaf's pinned [Forest Seal Stone source](https://github.com/twinleafgg/twinl
 
 ## Remaining gates
 
-The new files passed local Node syntax validation, but the compiled-engine regression has **not yet been executed** in this invocation. Do not silently enable the hook in published-field matches until pinned manual CI and a real-Store Star Alchemy search-and-shuffle test succeed. Future upstream updates require checking that the `min:0` discrepancy still exists before keeping this hook. Independently, Radiant Eternatus's confirmed zero-selection Gate/end-turn discrepancy remains unresolved; this hook does not address it.
+The first pinned compiled-engine regression (original four tests) passed [manual CI 38826864839](https://github.com/FlareZ123/experiment-01/actions/runs/38826864839). A subsequent fifth callback-guard test and two genuine Store dispatch-and-shuffle regressions have been added but have **not yet passed CI**. Do not silently enable the hook in published-field matches until pinned manual CI and a real-Store Star Alchemy search-and-shuffle test succeed. Future upstream updates require checking that the `min:0` discrepancy still exists before keeping this hook. Independently, Radiant Eternatus's confirmed zero-selection Gate/end-turn discrepancy remains unresolved; this hook does not address it.
 
 The outcome affects legality of decision traces and VSTAR consumption, not an observed matchup strength improvement or the 99.5% target.

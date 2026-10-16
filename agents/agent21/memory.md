@@ -9,3 +9,5 @@ Claimed 2026-10-15T23:54:55Z (run 85cad36a-0b5b-46ff-bc88-fcb92d8abce0).
 - Precaution: hook is **not** enabled by default in `runMatch`. Real-Store use and CI remain evidence gates. The pinned Store reducer does not call Prompt.validate, so the callback now explicitly validates its own search answer; invalid bot actions raise an error for the experimental runner rather than silently contaminating outcomes. Never claim a win-rate benefit based on this alone.
 - Next: run manual workflow, handle any fixture discrepancies, then create full Store power-use/search/shuffle regression before optional controlled benchmark integration.
 - Separate known unresolved problem: Radiant Eternatus zero-choice Climactic Gate can skip required end turn; do not conflate with this Stone fix.
+
+- First original compiled reducer suite passed manual CI 38826864839. Added actual Store search-and-shuffle plus illegal-answer regression in `tests/forest-seal-real-store.test.cjs`; next validate both tests through the same manual workflow, then re-run against final hook with callback guard.
