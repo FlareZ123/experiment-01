@@ -83,7 +83,7 @@ class BalancedRawGateTests(unittest.TestCase):
 
     def test_missing_actual_starting_seat_blocks(self):
         b = batch()
-        b["games"].pop()
+        b["games"] = [g for g in b["games"] if not (g["rank"] == 32 and g["seat"] == "second")]
         with self.assertRaisesRegex(ValueError, "64-cell"):
             evaluate_balanced_raw_batch(b, field(), predeclared_games_per_cell=10)
 
