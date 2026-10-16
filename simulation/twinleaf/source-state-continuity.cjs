@@ -111,7 +111,9 @@ function withSourceContinuity(Store,run,options={}) {
         nextAction:name,
         previousHash:previous.hash,
         currentHash:beforeHash,
-        firstMismatch:firstMismatch(previous.snapshot,before)
+        firstMismatch:firstMismatch(previous.snapshot,before),
+        cardHistoryMismatch:firstMismatch(previous.snapshot.cardHistory,
+          before.cardHistory,'$.cardHistory')
       });
     }
     const ordinal=liveDispatches++;
@@ -178,6 +180,8 @@ function withRootPolicyMutationAudit(Store,Bot,run,options={}) {
           proposedAction:action?.constructor?.name ?? null,
           proposedAttack:action?.name ?? null,
           firstMismatch:firstMismatch(before,after),
+          cardHistoryMismatch:firstMismatch(before.cardHistory,
+            after.cardHistory,'$.cardHistory'),
           previousHash,currentHash
         });
       }
