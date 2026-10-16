@@ -25,7 +25,11 @@ test('pinned tool-attack history has a measured clone alias-fidelity limitation'
     assert.equal(profile.prototypeSafe.sharedReferences.count,0);
     assert.equal(profile.prototypeSafe.sourcePrototypeAliases.count,0);
     assert.equal(profile.prototypeSafe.missingProperties.count,0);
+    assert.ok(profile.prototypeSafe.indirectInstancePrototypes.count>0,
+      'Two-pass prototype-safe copy must expose intermediate instance inheritance');
     assert.equal(profile.postSuperRepair.sharedReferences.count,0);
+    assert.equal(profile.postSuperRepair.indirectInstancePrototypes.count,0,
+      'Post-super repair must restore exact source class prototypes');
     assert.equal(profile.postSuperRepair.sourcePrototypeAliases.count,0);
     assert.equal(profile.postSuperRepair.missingProperties.count,0);
     assert.equal(profile.postSuperRepair.valueMismatches.count,0);
