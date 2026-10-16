@@ -37,3 +37,5 @@ function countQualifiedWins(round) {
   return wins;
 }
 
+
+function assessFieldEvidence(rounds, options={}) {
