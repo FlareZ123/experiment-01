@@ -90,14 +90,14 @@ function assertVendorCloneCompatibleSource(source) {
 
 /**
  * The pinned Twinleaf deepClone creates every non-array object with
- * Object.create(source), making the real source object its direct prototype.
- * Restore the original object's class prototype on the clone, keeping the
- * own-field deep-copy intact. Repair repeated array aliases which the vendor
- * helper does not track in its object-only alias map.
+ * Object.create(source). The Simulator can clone twice, leaving its final
+ * objects inheriting from intermediate detached instances even when direct
+ * original-source prototype aliases have been removed. Restore the source's
+ * stable class prototype at every visited cloned object; also repair repeated
+ * array aliases absent from the vendor's object-only reference map.
  *
- * This only repairs inherited-source links introduced by that vendor clone.
- * It is not a general structural-clone implementation, and it must be tested
- * when Twinleaf's upstream deepClone implementation changes.
+ * This is a pinned-vendor compatibility intervention, not a general
+ * structured-clone algorithm; retest if upstream deepClone changes.
  *
  * @param {object} source Original State.
  * @param {object} copy Result of pinned deepClone(source), with no ignores.
