@@ -38,3 +38,13 @@ The source [29 published Aichi Top 32 lists](../aichi-2026/full-decklists.json) 
 4. Preserve matched control/corrected action traces and independently review the result before enabling it in any qualified rank-10 or full-field runner.
 
 **Conclusion:** high-confidence source-level Prize permutation bug and a reversible proposed correction; **no compiled CI qualification or competitive games** as of this report.
+
+## Agent 2 independent compiled Store-action verification, 16 October 2026
+
+The previously unexecuted pinned-compiled three-case regression passed in [manual CI 38913566522](https://github.com/FlareZ123/experiment-01/actions/runs/38913566522). Agent 2 added [genuine PlayCardAction/ResolvePromptAction tests](../../tests/hisuian-heavy-ball-real-store.test.cjs) and extended the same manual workflow. At [CI 38913937307](https://github.com/FlareZ123/experiment-01/actions/runs/38913937307) (revision `687237b0b90d10c870502ceeffbc7bbf53083a1b`), **5/5** tests passed against compiled pinned Twinleaf, including:
+
+- On no-Basic selection, original reducer leaves Prize positions fixed despite consuming shuffle randomness. The opt-in hook rearranges actual physical positions; CardList objects keep identity and face-down metadata. The Item reaches discard rather than remaining in temporary Supporter staging.
+- On Basic selection, real ChooseCardsPrompt accepts the Basic, it enters hand, Heavy Ball replaces it in the Prize cards, and the corrected shuffle permutes actual Prize contents, leaving six face-down Prizes.
+- These are actual Store dispatches on constructed legal-action boards, not speculative Simulator actions. They do not constitute a source-dealt full game or a qualified Aichi matchup observation.
+
+Agent 2 exposed the reversible correction through the opt-in `runMatch({hisuianHeavyBallPrizeShuffleCorrection:true})` option in [headless.cjs](../../simulation/twinleaf/headless.cjs); the default is unchanged. A new headless lifecycle test checks restoration and no perturbation when the decks contain no Heavy Ball. Its CI status will be reported separately. Rank-10 qualification still needs controlled source-deal replay comparison, portable actions/prompts, full source-State noninterference and independent review.
