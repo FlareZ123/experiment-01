@@ -13,6 +13,8 @@ const {installGuzmaSelfSwitchGuard} = require('./guzma-self-switch-guard.cjs');
 const {installDialgaBenchExposureGuard} = require('./dialga-bench-exposure-guard.cjs');
 const {installLeleEntryAbilityLockHook} = require('./lele-entry-ability-lock-hook.cjs');
 const {installRadiantGateLockHook} = require('./radiant-gate-lock-hook.cjs');
+const {installMimikyuNonGxCopycatHook} = require('./copycat-compat.cjs');
+const {installMimikyuDeclaredHistoryHook} = require('./copycat-declared-history-hook.cjs');
 const {selectedCardsEvidence, selectedOptionEvidence} = require('./selected-cards-evidence.cjs');
 const {decisionHandEvidence} = require('./decision-hand-evidence.cjs');
 const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.cjs');
@@ -181,6 +183,8 @@ function policyRandomStreams(seed) {
  * @property {boolean} [dialgaBenchExposureGuard] Opt-in rank-6 gust-target exposure counterfactual.
  * @property {boolean} [leleEntryAbilityLockCorrection] Opt-in correction for Tapu Lele-GX Bench-entry Ability locks.
  * @property {boolean} [radiantGateLockCorrection] Opt-in correction for Radiant Eternatus Bench-entry Ability locks.
+ * @property {boolean} [mimikyuApexCopycatCompatibility] Opt-in non-GX Apex Dragon/Copycat copy-tag correction.
+ * @property {boolean} [mimikyuDeclaredHistoryCorrection] Opt-in printed Copycat attack history after nested prompts.
  * @property {boolean} [snorlaxRetreatStartCorrection] Opt-in, reversible Block check on interactive retreat.
  * @property {boolean} [shadowRiderEnergyPriority] Opt-in basic Psychic Energy priority against Active Iron Thorns.
  * @property {boolean} [shadowRiderEnergyAcrossField] Opt-in speculative Psychic priority regardless of opposing Active.
@@ -221,8 +225,16 @@ function runMatch(request) {
   let restoreLeleEntryAbilityLockHook;
   let restoreRadiantGateLockHook;
   let restoreSnorlaxRetreatStartHook;
+  let restoreMimikyuNonGxCopycatHook;
+  let restoreMimikyuDeclaredHistoryHook;
   try {
     initializeCards();
+    if (request.mimikyuApexCopycatCompatibility === true) {
+      restoreMimikyuNonGxCopycatHook = installMimikyuNonGxCopycatHook();
+    }
+    if (request.mimikyuDeclaredHistoryCorrection === true) {
+      restoreMimikyuDeclaredHistoryHook = installMimikyuDeclaredHistoryHook();
+    }
     if (request.forestSealSearchCorrection === true) {
       restoreForestSealSearchHook = installForestSealSearchHook();
     }
@@ -512,6 +524,8 @@ function runMatch(request) {
       dialgaBenchExposureGuard: request.dialgaBenchExposureGuard === true,
       leleEntryAbilityLockCorrection: request.leleEntryAbilityLockCorrection === true,
       radiantGateLockCorrection: request.radiantGateLockCorrection === true,
+      mimikyuApexCopycatCompatibility: request.mimikyuApexCopycatCompatibility === true,
+      mimikyuDeclaredHistoryCorrection: request.mimikyuDeclaredHistoryCorrection === true,
       snorlaxRetreatStartCorrection: request.snorlaxRetreatStartCorrection === true,
       shadowRiderEnergyPriority: request.shadowRiderEnergyPriority === true,
       shadowRiderEnergyAcrossField: request.shadowRiderEnergyAcrossField === true,
@@ -534,13 +548,17 @@ function runMatch(request) {
             (request.attackBeforeRetreatSeat === undefined ?
               'both' : 'seat' + request.attackBeforeRetreatSeat) : '') +
         (request.leleEntryAbilityLockCorrection === true ? '+LeleEntryAbilityLockGuard-v1' : '') +
-        (request.radiantGateLockCorrection === true ? '+RadiantGateLockGuard-v1' : ''),
+        (request.radiantGateLockCorrection === true ? '+RadiantGateLockGuard-v1' : '') +
+        (request.mimikyuApexCopycatCompatibility === true ? '+MimikyuNonGXCopyApex-v1' : '') +
+        (request.mimikyuDeclaredHistoryCorrection === true ? '+MimikyuDeclaredHistory-v1' : ''),
       policyRandomIsolation: request.isolatePolicyRandomness === true,
       randomnessProtocol: request.isolatePolicyRandomness === true ?
         'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
       engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
     };
   } finally {
+    if (restoreMimikyuDeclaredHistoryHook) restoreMimikyuDeclaredHistoryHook();
+    if (restoreMimikyuNonGxCopycatHook) restoreMimikyuNonGxCopycatHook();
     if (restoreRadiantGateLockHook) restoreRadiantGateLockHook();
     if (restoreLeleEntryAbilityLockHook) restoreLeleEntryAbilityLockHook();
     if (restoreSnorlaxRetreatStartHook) restoreSnorlaxRetreatStartHook();
