@@ -48,6 +48,14 @@ test('only ranks 9, 13, 15 and 32 of the published field contain Silent Lab', ()
   assert.deepEqual(inventory, [[9,2],[13,1],[15,1],[32,1]]);
 });
 
+test('Parallel City bench-compression exposure survives New Moon in source taxonomy', () => {
+  const inventory = field.decks
+    .filter(deck => copies(deck, 'Parallel City') > 0)
+    .map(deck => [deck.rank, copies(deck, 'Parallel City')]);
+  assert.deepEqual(inventory, [[10,1],[12,1],[13,1],[20,1],[21,1],[27,1],[32,1]]);
+  assert.equal(inventory.reduce((sum, [,count]) => sum + count, 0), 7);
+});
+
 test('Path to the Peak appears in seven published opponents with eight copies', () => {
   const inventory = field.decks
     .filter(deck => copies(deck, 'Path to the Peak') > 0)
