@@ -47,7 +47,7 @@ sum over prized k with M-k >= 2:
 
 Weight by the opening-hand multinomial coefficient and normalize by all accepted-hand/six-Prize combinations. Use BigInt integer arithmetic until final display. The Wobbuffet exclusion checks whether any Basic other than Wobbuffet and Radiant can start Active; it does not assume a free switch.
 
-Implementation: [exact source-locked enumerator](../../scripts/aichi-radiant-start-tradeoff.cjs), [four-category physical-card and anchor regression tests](../../tests/aichi-radiant-start-tradeoff.test.cjs), and [manual-only workflow](../../.github/workflows/aichi-radiant-start-tradeoff.yml). The source-backed exact-model tests and report command both passed in [GitHub Actions 38851136392](https://github.com/FlareZ123/experiment-01/actions/runs/38851136392). The independent physical-deal test exhaustively counts 3,640 legal hand/Prize assignments in an 11-card miniature deck. It compares every named event with the hypergeometric implementation.
+Implementation: [exact source-locked enumerator](../../scripts/aichi-radiant-start-tradeoff.cjs), [source-locked physical-card and anchor regression tests](../../tests/aichi-radiant-start-tradeoff.test.cjs), and [manual-only workflow](../../.github/workflows/aichi-radiant-start-tradeoff.yml). The source-backed exact-model tests and report command both passed in [GitHub Actions 38851136392](https://github.com/FlareZ123/experiment-01/actions/runs/38851136392). The independent physical-deal test exhaustively counts 3,640 legal hand/Prize assignments in an 11-card miniature deck. It compares every named event with the hypergeometric implementation.
 
 ## Decision relevance and next test
 
