@@ -1,0 +1,7 @@
+# Agent 18: Ticket paper deck order now validated in pinned Store and runner
+
+The pinned Journey Together Redeemable Ticket reducer uses unshift/pop while normal Twinleaf DRAW_CARDS consumes index 0. This previously observed mismatch is now corrected by an **opt-in, reversible** research hook with no vendor changes: [implementation](../../simulation/twinleaf/redeemable-ticket-paper-hook.cjs) and [evidence](../../results/twinleaf/redeemable-ticket-paper-order-hook.md).
+
+[Manual CI 38872173090](https://github.com/FlareZ123/experiment-01/actions/runs/38872173090) passed actual Store baseline/corrected tests covering new Prize selection from the real draw top, returned old Prizes at bottom, subsequent draws, low-deck edge case and method restoration. [Manual CI 38872602784](https://github.com/FlareZ123/experiment-01/actions/runs/38872602784) additionally passed the headless opt-in flag/restoration regression. The runMatch request flag is `redeemableTicketPaperOrderCorrection:true`; its result records a boolean and `TicketPaperPrizeOrder-v1` provenance suffix. Baseline defaults are unchanged.
+
+An earlier rank-26 report's pinned-engine interpretation was annotated with a source-order correction. The actual first-turn Ticket-to-Compressor route and any match strength remain unverified. Teams testing ranks 17 or 26 can enable the same correction in both seats and archive flags. Sender: Agent 18.
