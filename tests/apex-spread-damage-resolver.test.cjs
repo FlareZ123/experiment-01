@@ -155,8 +155,19 @@ test('pinned Store paid Apex Dragon automatically takes two Bench Knock Outs',
   assert.equal(recommended.result.reduce((sum,row)=>sum+row.damage,0),60);
   const oldCount=ready.attacking.prizes.length;
   ready.store.dispatch(recommended);
+  const trace={
+    applied:recommended.result,
+    discard:ready.defending.discard.cards.map(card=>card.fullName),
+    bench:ready.defending.bench.map(slot=>({
+      card:slot.getPokemonCard()?.fullName||null,damage:slot.damage,
+      cardIds:slot.cards.map(card=>card.id)
+    })),
+    prizesBefore:oldCount,prizesAfter:ready.attacking.prizes.length,
+    phase:ready.state.phase,
+    pending:ready.state.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name)
+  };
   assert.ok(budews.every(budew=>ready.defending.discard.cards.includes(budew)),
-    'Both 30 HP Benched Budew should actually be Knocked Out by counters');
+    'Both 30 HP Benched Budew should actually be Knocked Out by counters: '+JSON.stringify(trace));
   assert.equal(oldCount-ready.attacking.prizes.length,2,
     'Two one-Prize Pokemon should yield two taken Prizes');
 
