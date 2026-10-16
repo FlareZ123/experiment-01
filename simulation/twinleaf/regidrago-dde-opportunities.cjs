@@ -75,6 +75,8 @@ function diagnose() {
           selectedDdeAtFirstCandidateDecision: samples.filter(sample => sample.chosenDde).length,
           observedDdeTargets: samples.filter(sample => sample.chosenDde)
             .map(sample => ({turn:sample.turn,target:sample.selectedDdeTarget})),
+          observedAttacks:game.attackTrace.filter(a=>a.seat===0)
+            .map(a=>({turn:a.turn,attack:a.attack})),
           samples: samples.slice(0, 8)});
       } finally {
         SimpleTacticsAi.prototype.decodeNextAction = original;
