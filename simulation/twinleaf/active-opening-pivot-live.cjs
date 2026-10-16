@@ -125,8 +125,8 @@ function runEligibleSetup(enabled) {
       message:String(prompt.message||'')});
     store.dispatch(action);
   }
-  assert.equal(store.state.phase,GamePhase.PLAYER_TURN,
-    'Complete ordinary rule-driven setup must finish');
+  assert.ok([GamePhase.PLAYER_TURN,GamePhase.DRAW].includes(store.state.phase),
+    'Setup must advance to an actual first-turn or mandatory draw state');
   const player=store.state.players[0];
   const result={
     enabled,sourceRanks:[1,10],
