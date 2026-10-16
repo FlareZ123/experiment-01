@@ -10,6 +10,7 @@ const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 const {installForestSealSearchHook} = require('./forest-seal-search-hook.cjs');
 const {installSupporterDecisionHook} = require('./supporter-decision-hook.cjs');
 const {installLeleEntryAbilityLockHook} = require('./lele-entry-ability-lock-hook.cjs');
+const {installRadiantGateLockHook} = require('./radiant-gate-lock-hook.cjs');
 const {selectedCardsEvidence, selectedOptionEvidence} = require('./selected-cards-evidence.cjs');
 const {decisionHandEvidence} = require('./decision-hand-evidence.cjs');
 const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.cjs');
