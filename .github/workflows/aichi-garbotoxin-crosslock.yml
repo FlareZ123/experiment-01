@@ -23,3 +23,4 @@ jobs:
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - run: node simulation/twinleaf/garbotoxin-vileplume-action.cjs
+      - run: node simulation/twinleaf/garbotoxin-removal-tempo.cjs
