@@ -4,6 +4,7 @@ const path=require('node:path');
 const {fixture}=require('./hidden-deck-order-audit.cjs');
 const {initializeCards,seededRandom}=require('./headless.cjs');
 const {sampleDeckOrder,installSpeculativeDeckSampling}=require('./speculative-deck-sampling.cjs');
+const {installSpeculativeK0Sampling}=require('./speculative-prize-membership.cjs');
 const engine=n=>require(path.join(__dirname,'../../vendor/twinleaf/ptcg-server/output',n));
 
 /** Two K0 states with identical observable resources and combined hidden pool. */
@@ -61,8 +62,22 @@ function runCase(itemName,peek){
  });
  assert.deepEqual(protectedDecisions,['PlayCardAction','PassTurnAction'],
   'Order-only correction must still condition on unknown K0 Prize membership');
+ const trueZones=states.map(s=>({
+  deck:s.players[0].deck.cards.map(c=>c.id),
+  prizes:s.players[0].prizes.map(z=>z.cards.map(c=>c.id))
+ }));
+ const k0Decisions=states.map(s=>{
+  const restore=installSpeculativeK0Sampling({random:seededRandom(seed),playerId:101});
+  try{return decide(s,opts)}finally{restore()}
+ });
+ assert.equal(k0Decisions[0],k0Decisions[1],
+  'K0 sampled actions must agree under an identical observation and RNG');
+ assert.deepEqual(states.map(s=>({
+  deck:s.players[0].deck.cards.map(c=>c.id),
+  prizes:s.players[0].prizes.map(z=>z.cards.map(c=>c.id))
+ })),trueZones,'K0 sampling must never modify the real Store');
  return {item:itemName,peek,seed,baseline,orderOnlySampler:protectedDecisions,
-  equivalentK0Observation:true,scope:'Hypothetical K0 position, no first deck search'};
+  k0SampledPolicy:k0Decisions,equivalentK0Observation:true,scope:'Hypothetical K0 position, no first deck search'};
 }
 function runAudit(){return{
  kind:'unknown-prize-membership-information-set-leak',
