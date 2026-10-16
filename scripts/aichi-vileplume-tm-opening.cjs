@@ -96,8 +96,9 @@ function route(initial, eight, remaining, prizes) {
   // A legal Active comes from the original seven. When Bunnelby arrives
   // as the turn draw, another Basic starts Active and Jet Energy pivots.
   // Reserve one of the evolving Basics on Bench for the TM attack.
-  const target = bStarted ? eight.e >= 1
-    : (initial.o > 0 ? eight.e >= 1 : eight.e >= 2);
+  // A starting evolving Basic returns to Bench when Jet Energy pivots into
+  // newly drawn Bunnelby, so it remains a valid Evolution attack target.
+  const target = eight.e >= 1;
   return {direct, core, withBench:target?core:0};
 }
 
