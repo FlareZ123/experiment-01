@@ -265,3 +265,25 @@ test('fixed-campaign profile identity is source-attributed and rejects unknown p
     ...request, researchPolicyProfile: 'uncontrolled-profile'
   }), /research policy profile/);
 });
+
+test('candidate-only attack priority follows actual physical candidate slot', () => {
+  const seen = [];
+  const out = run({
+    policyFlags: {attackBeforeRetreat: true, attackBeforeRetreatCandidateOnly: true},
+    runMatch: request => {
+      seen.push(request.attackBeforeRetreatSeat);
+      assert.equal(request.attackBeforeRetreat, true);
+      assert.equal(request.attackBeforeRetreatCandidateOnly, undefined);
+      return sampleGame(request);
+    }
+  });
+  assert.deepEqual(seen, [0, 1, 0, 1, 0, 1]);
+  assert.equal(out.totalScheduled, 6);
+  assert.equal(out.engineAndPolicyQualified, false);
+  assert.equal(out.strengthClaimPermitted, false);
+});
+
+test('candidate-specific attack ordering is rejected without the base policy', () => {
+  assert.throws(() => run({policyFlags:
+    {attackBeforeRetreatCandidateOnly: true}}), /requires Attack-before-Retreat/);
+});
