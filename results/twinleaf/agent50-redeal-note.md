@@ -13,3 +13,7 @@ With no information about which unseen card is in the old Prizes, the replacemen
 ## Joint critical-piece risk
 
 For two distinct singleton cards both known to be in a uniformly unknown 46-card pre-redeal deck, replacing six Prizes puts **both** into the new Prize cards with probability `C(44,4)/C(46,6) = 1.44928%`. The chance of **at least one** entering the new Prizes is `1 - C(44,6)/C(46,6) = 24.63768%`. This is a conditional two-piece resource risk, not a prediction for a particular live Aichi hand or a measured game outcome. If both singleton locations were instead entirely unknown among 52 physical cards, the blind marginal probability of both becoming Prized is `C(50,4)/C(52,6) = 1.13122%`, unchanged from a uniformly chosen original six Prize cards.
+
+## Conditional draw-only rescue
+
+New model: `simulation/twinleaf/redeal-draw-access.cjs`, with regressions `tests/redeal-draw-access.test.cjs`. Under fully known old zones, unknown uniform deck order and no later shuffles/searches, old six Prizes become the bottom six cards of the new 46-card deck. A singleton known only among old Prizes therefore has zero probability of being drawn in the first 40 cards, 1/6 chance by draw 41 and certain access by draw 46. An originally decked singleton has first-draw access 1/46 but can become one of the six new Prizes. Deck *search* can reach returned old Prize cards before those draws; this model concerns sequential ordinary draws alone.
