@@ -45,3 +45,5 @@ jobs:
         run: node simulation/twinleaf/apex-gx-reuse.cjs
       - name: Check rejected borrowed GX history after retry cancellation
         run: node simulation/twinleaf/apex-gx-denial-history.cjs
+      - name: Compare generic and spent-GX-aware copied-attack decisions
+        run: node simulation/twinleaf/spent-gx-copy-policy-test.cjs
