@@ -25,6 +25,7 @@ test('actual Store.dispatch calls are recorded without changing return value', (
   assert.equal(r.dispatched, 2);
   assert.equal(r.parametersCaptured, true);
   assert.equal(r.traceSha256, actionTraceSha256(r.actionTrace));
+  assert.equal(r.diagnosticTraceSha256, r.traceSha256);
   assert.equal(r.actionTrace[0].before.turn, 0);
   assert.equal(r.actionTrace[1].after.turn, 2);
 });
@@ -49,6 +50,7 @@ test('unportable nested classes report a capture failure but dispatch proceeds',
   assert.equal(result.result, 101);
   assert.equal(result.parametersCaptured, false);
   assert.equal(result.traceSha256, null);
+  assert.equal(result.diagnosticTraceSha256, actionTraceSha256(result.actionTrace));
   assert.match(result.captureErrors[0], /non-JSON prototype/);
 });
 
