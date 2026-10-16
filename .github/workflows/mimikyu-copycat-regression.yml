@@ -40,6 +40,9 @@ jobs:
       - name: Prove two declared Regidrago and Mimikyu attacks across turn
         run: node simulation/twinleaf/regidrago-to-mimikyu-two-attack.cjs
 
+      - name: Verify actual Timeless-GX bonus-turn transition
+        run: node simulation/twinleaf/regidrago-to-mimikyu-two-attack.cjs --verify-bonus
+
       - name: Exercise declared Copycat AttackAction and nested GX prompt
         run: node simulation/twinleaf/mimikyu-apex-action-test.cjs
 
