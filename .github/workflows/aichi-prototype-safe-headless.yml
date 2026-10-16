@@ -39,3 +39,5 @@ jobs:
         run: node simulation/twinleaf/bunnelby-clone-fidelity-probe.cjs
       - name: Exercise source-ranked bounded post-super alias-repair lifecycle
         run: node simulation/twinleaf/headless-post-super-alias-smoke.cjs
+      - name: Compare source-ranked three-profile clone policy decisions
+        run: node simulation/twinleaf/post-super-vs-prototype-safe-source-contrast.cjs
