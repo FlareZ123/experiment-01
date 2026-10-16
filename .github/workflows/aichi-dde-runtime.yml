@@ -1,0 +1,30 @@
+name: Aichi Double Dragon policy integration
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install and compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Replay pinned Double Dragon technical fixture and bounded source-deck matches
+        run: node simulation/twinleaf/dde-runtime-regression.cjs
+      - name: Check field-evaluator policy provenance
+        run: node --test tests/test-aichi-field-benchmark.cjs
