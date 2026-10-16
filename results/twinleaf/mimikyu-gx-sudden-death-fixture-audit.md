@@ -22,7 +22,7 @@ The missing Prize cards are therefore a sufficient explanation for the failed GX
 
 [Commit fe05804](https://github.com/FlareZ123/experiment-01/commit/fe058040c3b236eb8ed46d229e2489c7da5073d5) retains the exact scripted Mimikyu/Regidrago/Dialga attack choice but adds six occupied Prize piles and a nonempty Deck to both fixture players before dispatch. The cards are inert synthetic fixtures (Dratini OBF), not 60-card legal decks. The test now asserts the original player reference remains stable, no sudden death is reported, 150 damage is applied, `usedGX === true`, `usedTurnSkip === true`, and the original copy-tagged Apex Dragon remains intact.
 
-Manual regression workflow: [CI 38847169084](https://github.com/FlareZ123/experiment-01/actions/runs/38847169084). **Status at drafting: pending verification.**
+Manual regression workflow: [CI 38847169084](https://github.com/FlareZ123/experiment-01/actions/runs/38847169084). **Verified: [manual CI 38847169084](https://github.com/FlareZ123/experiment-01/actions/runs/38847169084) PASSED** at head `fe058040c3b236eb8ed46d229e2489c7da5073d5`. The pinned engine compiled, all five earlier reducer-level hook tests passed, the corrected nested integration script passed, and the stale-Copycat-pass characterization passed. The integration output reports `damage: 150`, `usedGX: true`, `usedTurnSkip: true`; this is isolated attack-fixture evidence rather than a whole-game validation.
 
 ## Limits and next tests
 
