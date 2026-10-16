@@ -53,22 +53,28 @@ function main() {
     const control = runMatch(common);
     const experimental = runMatch({...common,
       mimikyuApexTimelessPolicy:true,mimikyuApexTimelessPolicySeat:seat});
+    const sourceSetup = runMatch({...common,
+      mimikyuApexTimelessPolicy:true,mimikyuApexTimelessPolicySeat:seat,
+      mimikyuTurn27SetupSeat:seat});
     assert.deepEqual(runMatch(common),control,
       'Prior policy/hook run altered a subsequent baseline');
     const expectedHashes = [sha(common.deckA),sha(common.deckB)];
-    for (const game of [control,experimental]) {
+    for (const game of [control,experimental,sourceSetup]) {
       assert.deepEqual(game.deckHashes,expectedHashes);
       assert.equal(game.seed,trial.seed);
       assert.equal(game.verifiedByDrawLog,true);
     }
     assert.equal(control.firstTurnSlot,experimental.firstTurnSlot);
+    assert.equal(control.firstTurnSlot,sourceSetup.firstTurnSlot);
     pairs.push({
       trialId:trial.trialId,candidateSeat:seat,
       candidateActuallyFirst:control.firstTurnSlot === seat,
       originalReplayByteIdentical:true,
       firstMeaningfulDifference:firstDifference(
         control.decisionTrace || [],experimental.decisionTrace || []),
-      control,experimental
+      firstSourceSetupDifference:firstDifference(
+        control.decisionTrace || [],sourceSetup.decisionTrace || []),
+      control,experimental,sourceSetup
     });
   }
   return {
