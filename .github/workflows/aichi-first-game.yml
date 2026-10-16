@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      shadow_rider_energy_across_field:
+        description: 'Experimental Psychic attachment priority regardless of opposing Active'
+        required: false
+        type: boolean
+        default: false
       shadow_rider_opening_pivot:
         description: 'Opt-in selected Shadow Rider V setup Active counterfactual'
         required: false
@@ -74,6 +79,7 @@ jobs:
           AICHI_DIAGNOSTIC_SEED_PROTOCOL: 'independent-slots-v2'
           AICHI_POLICY_PROFILE: ${{ inputs.expanded_action_policy && 'expanded-action-fidelity-probe-v1' || 'fixed-core-v1' }}
           AICHI_SHADOW_ENERGY: ${{ inputs.shadow_rider_energy_priority && '1' || '0' }}
+          AICHI_SHADOW_ENERGY_GLOBAL: ${{ inputs.shadow_rider_energy_across_field && '1' || '0' }}
           AICHI_OPENING_PIVOT: ${{ inputs.shadow_rider_opening_pivot && '1' || '0' }}
           AICHI_ATTACK_BEFORE_RETREAT: ${{ inputs.attack_before_retreat && '1' || '0' }}
           AICHI_ATTACK_CANDIDATE_ONLY: ${{ inputs.attack_before_retreat_candidate_only && '1' || '0' }}
