@@ -104,7 +104,9 @@ function auditPassedAttackAnnouncements(archive) {
         candidateAttacks: record.candidateAttacks,
         opponentAttacks: record.opponentAttacks,
         engineAccepted: accepted, truncated: probe.truncated,
-        testedAttackCount: probe.tested.length
+        testedAttackCount: probe.tested.length,
+        ...(accepted.length && Array.isArray(action.publicBoardBeforePass) ?
+          {publicBoardBeforePass: action.publicBoardBeforePass} : {})
       });
     }
     byTrial.push(row);
