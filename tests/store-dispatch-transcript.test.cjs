@@ -52,6 +52,8 @@ test('unportable nested classes report a capture failure but dispatch proceeds',
   assert.equal(result.traceSha256, null);
   assert.equal(result.diagnosticTraceSha256, actionTraceSha256(result.actionTrace));
   assert.match(result.captureErrors[0], /non-JSON prototype/);
+  assert.equal(result.actionTrace[0].partialParameters.id, 101);
+  assert.equal(result.actionTrace[0].partialParameters.card.kind, 'class');
 });
 
 test('live-only mode excludes speculation on other Store instances', () => {
