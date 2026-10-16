@@ -19,6 +19,7 @@ const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.c
 const {publicSnapshot, observeTerminalTransition, advanceActionLineage} = require('./terminal-transition.cjs');
 const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
 const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
+const {inspectTmEvolutionPass} = require('./tm-evolution-pass-evidence.cjs');
 const {withActiveOpeningPivot} = require('./active-opening-pivot.cjs');
 
 /**
@@ -381,6 +382,10 @@ function runMatch(request) {
         publicBoardSnapshot(state) : null;
       const printedBasicEnergyBeforePass = publicBoardBeforePass && seat >= 0 ?
         printedBasicEnergyAudit(state.players[seat].active, CardType) : null;
+      // Observational K1-sensitive data collected only AFTER the bot chose Pass.
+      // Never insert remaining-deck target details into the bot's state or action.
+      const tmEvolutionBeforePass = publicBoardBeforePass && seat >= 0 ?
+        inspectTmEvolutionPass(state.players[seat]) : null;
       try {
         store.dispatch(action);
       } catch (error) {
@@ -415,6 +420,7 @@ function runMatch(request) {
           ...(decisionHandBefore ? { decisionHandBefore } : {}),
           ...(publicBoardBeforePass ? { publicBoardBeforePass } : {}),
           ...(printedBasicEnergyBeforePass ? { printedBasicEnergyBeforePass } : {}),
+          ...(tmEvolutionBeforePass ? { tmEvolutionBeforePass } : {}),
           ...(attackInfo ? { attack: attackInfo.attack,
             attacker: attackInfo.activePokemon } : {}),
           prizesAfter: store.state.players.map(player =>
