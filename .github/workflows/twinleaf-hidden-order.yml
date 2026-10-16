@@ -35,3 +35,5 @@ jobs:
         run: node simulation/twinleaf/hypothetical-deck-sampler-test.cjs
       - name: Test full policy under authentic rank-6 60-card inventory
         run: node simulation/twinleaf/hidden-source-trainers-mail.cjs
+      - name: Test K0 Prize membership leak
+        run: node simulation/twinleaf/prize-membership-foreknowledge.cjs
