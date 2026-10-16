@@ -53,6 +53,53 @@ function checkLiveLineage(report, game) {
   };
 }
 
+/**
+ * Enumerate every genuine root dispatch whose input is not represented by
+ * either a reviewed primitive/plain typed object or an exact prompt source
+ * reference. This is a pre-replay coverage report, not a replay assertion.
+ *
+ * @param {object[]} events Live-only Store dispatches.
+ * @returns {{represented:number,unrepresented:number,byAction:object[],firstGaps:object[]}}
+ */
+function inputCoverageReport(events) {
+  const failures = new Map();
+  for (const event of events) {
+    if (event.typedAction || event.promptReplayAction) continue;
+    const category = [
+      event.action,
+      event.promptReplayUnsupported || '',
+      event.typedActionError || '',
+      event.promptReplayActionError || ''
+    ].join(' | ');
+    const row = failures.get(category) || {
+      action:event.action,
+      promptKind:event.pendingPrompt?.kind || null,
+      unsupportedKind:event.promptReplayUnsupported || null,
+      typedError:event.typedActionError || null,
+      promptError:event.promptReplayActionError || null,
+      count:0,
+      steps:[]
+    };
+    row.count += 1;
+    if (row.steps.length < 6) row.steps.push(event.step);
+    failures.set(category,row);
+  }
+  const byAction = [...failures.values()].sort((a,b) => b.count-a.count);
+  return {
+    represented:events.length - byAction.reduce((n,row) => n+row.count,0),
+    unrepresented:byAction.reduce((n,row) => n+row.count,0),
+    byAction,
+    firstGaps:events.filter(e => !e.typedAction && !e.promptReplayAction)
+      .slice(0,10).map(e => ({
+        step:e.step,turn:e.before.turn,action:e.action,
+        pendingPrompt:e.pendingPrompt?.kind||null,
+        typedError:e.typedActionError||null,
+        promptError:e.promptReplayActionError||null,
+        unsupportedKind:e.promptReplayUnsupported||null
+      }))
+  };
+}
+
 /** @param {object[]} control @param {object[]} branch */
 function firstDifference(control, branch) {
   for (let i = 0; i < Math.max(control.length, branch.length); i += 1) {
@@ -247,6 +294,10 @@ function main() {
     identicalUninstrumentedControl:true,
     identicalControlAfterBranch:true,
     forkAudit,
+    actionInputCoverage:{
+      control:inputCoverageReport(control.actionTrace),
+      alternate:inputCoverageReport(branch.actionTrace)
+    },
     captureGapSummary:{control:controlCaptureGapSummary,
       alternate:alternateCaptureGapSummary},
     sharedAuthenticTurn27Start:originalState,
@@ -264,4 +315,4 @@ function main() {
   };
 }
 if (require.main === module) process.stdout.write(JSON.stringify(main(), null, 2) + '\n');
-module.exports = {hash, checkLiveLineage, firstDifference, summarizeCaptureGaps, main};
+module.exports = {hash, checkLiveLineage, firstDifference, summarizeCaptureGaps, inputCoverageReport, main};
