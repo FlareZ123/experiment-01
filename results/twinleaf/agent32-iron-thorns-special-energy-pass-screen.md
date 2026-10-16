@@ -22,3 +22,5 @@ Across the remaining opponent passes, this scan found no combination meeting the
 This analysis explains why simply adding Special Energy providers to the Basic-only metric still produces false attack-readiness alerts. Both *energy type/quantity* and *effective costs from Stadiums* must be modeled. A clean public-resource screen remains weaker than a pinned Store attempt because effects, statuses, locks, other attack-cost modifiers and policy action selection are outside the scan.
 
 Card texts inspected from the supplied database: `swsh2-173` Speed Lightning, `sv9-159` Spiky, `swsh2-171` Capture, `sm9-158` Wondrous Labyrinth, plus Double Colorless Energy. Rulebook D-11 confirms stacking attack-cost increases.
+
+**Important tactical follow-up:** [Turn-21 Thunder Mountain in-hand Stadium replacement](agent32-thunder-mountain-missed-attack-line.md) supplies a plausible two-step attack-producing option despite the original pass state's Wondrous Labyrinth cost. The six immediately-unpayable attacks must not be interpreted as six strategically forced passes. Full engine action acceptance remains untested.
