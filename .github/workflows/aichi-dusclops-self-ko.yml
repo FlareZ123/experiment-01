@@ -1,0 +1,29 @@
+name: Aichi Dusclops conditional self-KO
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cursed-blast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned simulator
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Characterize Cursed Blast when damage counters are prevented
+        run: node --test tests/dusclops-self-ko-condition.test.cjs
