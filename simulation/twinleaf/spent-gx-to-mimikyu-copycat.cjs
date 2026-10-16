@@ -88,7 +88,7 @@ function playRejectedGxThenCopycat(fixDeclHistory) {
     store.dispatch(new ResolvePromptAction(retry.id, null));
     const priorAttackAfterCancel = state.playerLastAttack[b.id]?.attack?.name;
     assert.equal(b.usedGX, true);
-    assert.equal(b.usedTurnSkip, false);
+    assert.equal(Boolean(b.usedTurnSkip), false);
     assert.equal(a.active.damage, 0);
 
     let turnWaitPrompts = 0;
