@@ -29,6 +29,34 @@ assert.deepEqual(prizeUpperBound(14, [
   {id: 'c', hp: 60, damage: 0, prizes: 1}
 ]), {prizes: 4, packetsUsed: 13, targetIds: ['a', 'b']});
 assert.equal(prizeUpperBound(0, []).prizes, 0);
+
+// Source-printed CRE 74/75 target HP, illustrative *conditional* Prize frontiers.
+// Telescopic bonus applies once to each Benched V/VMAX, never to Active.
+const twoBenchedV = [
+  {id:'V 1',hp:210,damage:0,prizes:2,bonusDamage:30},
+  {id:'V 2',hp:210,damage:0,prizes:2,bonusDamage:30}
+];
+assert.deepEqual(prizeUpperBound(14,twoBenchedV),{
+  prizes:4,packetsUsed:12,targetIds:['V 1','V 2']
+});
+const mixedBenched = [
+  {id:'VMAX',hp:320,damage:0,prizes:3,bonusDamage:30},
+  {id:'V',hp:210,damage:0,prizes:2,bonusDamage:30}
+];
+assert.deepEqual(prizeUpperBound(14,mixedBenched),{
+  prizes:3,packetsUsed:10,targetIds:['VMAX']
+});
+assert.deepEqual(prizeUpperBound(22,mixedBenched),{
+  prizes:5,packetsUsed:16,targetIds:['VMAX','V']
+});
+const twoBenchedVMAX = [
+  {id:'VMAX 1',hp:320,damage:0,prizes:3,bonusDamage:30},
+  {id:'VMAX 2',hp:320,damage:0,prizes:3,bonusDamage:30}
+];
+assert.deepEqual(prizeUpperBound(22,twoBenchedVMAX),{
+  prizes:6,packetsUsed:20,targetIds:['VMAX 1','VMAX 2']
+});
+
 const deck = {rank: 4, player: 'fixture', cards: energies.map(x => ({...x, category: 'Energy'}))};
 assert.equal(inspectDeck(deck).allTwelveBehind, 24);
 assert.throws(() => inspectDeck({...deck, rank: 17, cards: deck.cards.slice(1)}), /inventory changed/);
