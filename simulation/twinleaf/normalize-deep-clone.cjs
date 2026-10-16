@@ -2,6 +2,44 @@
 const assert=require('node:assert/strict');
 
 /**
+ * Reject input shapes pinned deepClone cannot faithfully reproduce. It reads
+ * source own enumerable fields and lacks cycle tracking in its array branch.
+ *
+ * @param {object} source Original pinned State.
+ */
+function assertVendorCloneCompatibleSource(source) {
+  const visited = new WeakSet();
+  const activeArrays = new WeakSet();
+  function inspect(value) {
+    if (value === null || typeof value !== 'object') return;
+    if (Array.isArray(value)) {
+      assert.equal(activeArrays.has(value), false,
+        'Pinned deepClone cannot clone cyclic arrays');
+    }
+    if (visited.has(value)) return;
+    assert.ok(Object.getPrototypeOf(value) !== null,
+      'Pinned deepClone would share a null-prototype object');
+    assert.ok(!(value instanceof Map || value instanceof Set ||
+      value instanceof Date || value instanceof RegExp ||
+      value instanceof ArrayBuffer || ArrayBuffer.isView(value) ||
+      value instanceof WeakMap || value instanceof WeakSet),
+    'Pinned deepClone does not copy internal object slots');
+    if (Array.isArray(value)) activeArrays.add(value);
+    for (const key of Reflect.ownKeys(value)) {
+      if (Array.isArray(value) && key === 'length') continue;
+      const descriptor = Object.getOwnPropertyDescriptor(value,key);
+      assert.ok(typeof key === 'string' && descriptor.enumerable &&
+        Object.hasOwn(descriptor,'value'),
+      'Pinned deepClone cannot safely preserve symbol, accessor or non-enumerable properties');
+      inspect(descriptor.value);
+    }
+    if (Array.isArray(value)) activeArrays.delete(value);
+    visited.add(value);
+  }
+  inspect(source);
+}
+
+/**
  * The pinned Twinleaf deepClone creates every non-array object with
  * Object.create(source), making the real source object its direct prototype.
  * Restore the original object's class prototype on the clone, keeping the
@@ -45,4 +83,4 @@ function normalizeDeepClonePrototypes(source,copy) {
   visit(source,copy);
   return copy;
 }
-module.exports={normalizeDeepClonePrototypes};
+module.exports={normalizeDeepClonePrototypes,assertVendorCloneCompatibleSource};
