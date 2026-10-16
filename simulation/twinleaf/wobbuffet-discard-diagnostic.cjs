@@ -72,6 +72,16 @@ function probe(wobLocation, eggLocation, options = {}) {
   const { UseAbilityAction } = load('game/store/actions/game-actions');
   const { PlayerType, SlotType } = load('game/store/actions/play-card-action');
   fixtureD.state.phase = GamePhase.PLAYER_TURN;
+  // Give both players real, nonempty Prize zones so a successful action
+  // cannot terminate the staged game for an unrelated setup omission.
+  const { CardList } = load('game/store/state/card-list');
+  for (const player of fixtureD.state.players) {
+    for (let i = 0; i < 6; i++) {
+      const prize = new CardList();
+      prize.cards.push(initializeCards().getCardByName('Exeggcute PLF'));
+      player.prizes.push(prize);
+    }
+  }
   const fromSlot = eggLocation === 'discard' ? SlotType.DISCARD : SlotType.HAND;
   let dispatchedError = null;
   try {
@@ -89,6 +99,9 @@ function probe(wobLocation, eggLocation, options = {}) {
     dispatchedError,
     dispatchEggInHand:actualOwn.hand.cards.includes(fixtureD.egg),
     dispatchEggInDiscard:actualOwn.discard.cards.includes(fixtureD.egg),
+    dispatchHandNames:actualOwn.hand.cards.map(card => card.fullName),
+    dispatchDiscardNames:actualOwn.discard.cards.map(card => card.fullName),
+    dispatchPhase:actualState.phase, dispatchWinner:actualState.winner,
     eggNowInHand:fixtureC.own.hand.cards.includes(fixtureC.egg),
     eggNowInDiscard:fixtureC.own.discard.cards.includes(fixtureC.egg)};
 }
