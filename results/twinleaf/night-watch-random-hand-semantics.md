@@ -1,6 +1,6 @@
 # Agent 25: Night Watch random-hand semantics defect at the pinned Twinleaf revision
 
-**16 October 2026. Evidence:** direct source audit of the repository's pinned upstream commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, plus a concrete falsifiable test plan. **Runtime reproduction is pending**; this is no game-win evidence.
+**16 October 2026. Evidence:** direct source audit, pinned Twinleaf Store reducer characterization and a reversible source-locked correction. [Manual workflow 38856688001](https://github.com/FlareZ123/experiment-01/actions/runs/38856688001) passed four tests at research commit `0d2de38efcd4612f9018e06dd5e61b6d92c8a9c6`. This is an attack-prompt fidelity result, **not game-win evidence**.
 
 ## The printed contract versus implementation
 
@@ -24,7 +24,7 @@ The [pinned ChooseCardsPrompt constructor and validator](https://github.com/twin
 
 The [pinned default ChooseCardsPromptResolver](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/simple-bot/prompt-resolver/choose-cards-prompt-resolver.ts) enumerates the prompt's card objects, scores them by `stateScore.getCardScore(state, prompt.playerId, card)`, sorts **descending**, and takes up to `max`. [SimpleTacticsAi](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/simple-bot/simple-tactics-ai.ts) delegates unresolved prompts to these resolvers. Thus the default bot can make *informed*, hand-content-dependent selections for an attack that calls for random selection.
 
-The available source is enough to identify a mismatch between printed semantics and implemented choice. A staged Store/prompt fixture should confirm observable outcomes and account for any intervening Store-level transformation. There is no indication in the traced prompt constructors/resolver that a random sample happens.
+The available source is enough to identify a mismatch between printed semantics and implemented choice. A staged live Store/AttackEffect fixture **confirms** the unpatched prompt presents all three opponent-hand cards and validates an explicitly selected non-random pair. No Store-level conversion into random selection occurred in this fixture.
 
 ## Why this matters strategically
 
@@ -34,7 +34,7 @@ With three *distinct* cards `A,B,C` and a uniform two-card subset, each is the s
 
 ## Safest intervention and verification
 
-A **research-side opt-in hook**, never an edit to `vendor/twinleaf`, can intercept the exact `TrevenantDusknoirGX.reduceEffect` prompt construction, sample a uniform `k=min(2,|hand|)` subset *using game-event RNG*, and present only those specific card objects as a restricted two-card prompt to preserve the engine's existing Move/Reveal/Shuffle callbacks.
+The [implemented research-side opt-in hook](../../simulation/twinleaf/night-watch-random-hook.cjs) intercepts the exact `TrevenantDusknoirGX.reduceEffect` prompt construction, samples a uniform `k=min(2,|hand|)` subset from the game-event RNG, and presents only those physical card objects as a restricted prompt. It keeps the existing Move/Reveal/Shuffle callbacks and restores the upstream prototypes after the trial.
 
 Scoping must use the emitting card reducer and verified `ChooseCardsPrompt` context. Checking only the display message would also alter legitimate choose-two effects. Randomness must be sampled once from the real-game PRNG; speculative bot policies should use separate RNG streams as already implemented in `simulation/twinleaf/headless.cjs`.
 
@@ -48,4 +48,4 @@ Test requirements:
 
 ## Status
 
-The present report is a source-level defect diagnosis supported by exact pinned files. A patch and runtime test have not yet been qualified. Correcting this class of error is a prerequisite for any Twinleaf benchmark involving Night Watch, and it warrants a targeted audit of other effects worded "random" that currently delegate to an ordinary ChooseCardsPrompt.
+**CI result:** [the manual-only regression workflow](../../.github/workflows/night-watch-random-fidelity.yml) compiled the pinned server and passed [all four Stage Store tests](../../tests/night-watch-random-hook.test.cjs) (4/4, 0 failures). The hook preserved the unselected opponent hand card, moved exactly two random-picked physical cards to the deck, rejected a disallowed third-card substitution, and restored unpatched behavior. An unrelated secret opponent-hand prompt retained its normal full-choice behavior. This **does not yet cover Mewtwo & Mew Perfection delegation, full-game end-of-turn sequencing, independent randomness measurements under many seeds or policy competency**. Keep the new hook opt-in while expanding tests; do not infer competitive win rates.
