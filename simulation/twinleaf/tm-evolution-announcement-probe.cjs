@@ -20,11 +20,10 @@ const load = name => require(path.join(output, name));
  */
 function probeEvolutionAnnouncement(state, playerId) {
   const {deepClone} = load('utils');
-  const {Card} = load('game/store/card/card');
   const {Store} = load('game/store/store');
   const {AttackAction} = load('game/store/actions/game-actions');
   const clone = new Store({onStateChange() {}});
-  clone.state = deepClone(state, [Card]);
+  clone.state = deepClone(state);
   const random = Math.random;
   // Randomness used by speculative engines must never consume live-game RNG.
   Math.random = () => 0.5;
