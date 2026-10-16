@@ -1,0 +1,27 @@
+name: Aichi exact joint bonus resource field
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-resource-field:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify independently exhaustive mini-deck regression
+        run: node --test tests/agent38-joint-bonus.test.cjs
+      - name: Calculate all conditional K and source-field weighted results
+        run: node scripts/agent38-joint-bonus.cjs > joint-bonus-field.json
+      - name: Upload machine-readable source-weighted result
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-exact-joint-bonus
+          path: joint-bonus-field.json
+          retention-days: 30
