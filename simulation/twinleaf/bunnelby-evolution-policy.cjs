@@ -20,6 +20,40 @@ function hasBenchEvolutionTarget(player) {
   });
 }
 
+/**
+ * K0-safe possibility test using the known source 60 rather than the real
+ * hidden deck/Prize partition. Each physical printing contributes one copy.
+ * The result may stay true when all eligible stages are Prized, as it must
+ * until the player actually gains that information through play.
+ *
+ * @param {object} player Pinned Store player.
+ * @param {object[]} sourceCards Original physical 60 Card templates.
+ * @returns {boolean}
+ */
+function hasK0PossibleBenchEvolutionTarget(player, sourceCards) {
+  const names = new Set(player.bench
+    .map(slot => slot.getPokemonCard()?.name).filter(Boolean));
+  if (names.size === 0) return false;
+  const remaining = new Map();
+  for (const card of sourceCards) {
+    if (card.stage === undefined || !names.has(card.evolvesFrom)) continue;
+    remaining.set(card.fullName, (remaining.get(card.fullName) || 0) + 1);
+  }
+  // An owner can see these cards, but cannot inspect their own hidden deck
+  // or face-down Prizes without an effect that grants that information.
+  for (const zone of [
+    player.hand, player.discard, player.lostzone, player.active, ...player.bench
+  ]) {
+    if (!zone) continue;
+    for (const card of zone.cards) {
+      if (remaining.has(card.fullName)) {
+        remaining.set(card.fullName, remaining.get(card.fullName) - 1);
+      }
+    }
+  }
+  return [...remaining.values()].some(count => count > 0);
+}
+
 /** Keep Burrow's immediate opponent-deckout option available. */
 function immediateBurrowDeckout(state, player) {
   const opponent = state.players.find(side => side.id !== player.id);
@@ -32,7 +66,7 @@ function immediateBurrowDeckout(state, player) {
  * in a cloned Simulator before selecting the Tool attack.
  * @returns {Function} Research-side SimpleTactic subclass
  */
-function makeBunnelbyEvolutionTactic() {
+function makeBunnelbyEvolutionTactic(hasTarget = hasBenchEvolutionTarget) {
   const {SimpleTactic} = load('simple-bot/simple-tactics/simple-tactics');
   const {AttackAction} = load('game/store/actions/game-actions');
   const {Simulator} = load('game/bots/simulator');
@@ -43,7 +77,7 @@ function makeBunnelbyEvolutionTactic() {
       if (player.active.getPokemonCard()?.fullName !== 'Bunnelby PRC' ||
           !player.active.tools.some(tool =>
             tool.fullName === 'Technical Machine: Evolution PAR') ||
-          (!hasBenchEvolutionTarget(player) || immediateBurrowDeckout(state, player))) return;
+          (!hasTarget(player) || immediateBurrowDeckout(state, player))) return;
       const action = new AttackAction(player.id, 'Evolution');
       try {
         new Simulator(state, this.options.arbiter).dispatch(action);
@@ -61,7 +95,7 @@ function makeBunnelbyEvolutionTactic() {
  * selects zero-damage Burrow before zero-damage Evolution by list order.
  * @returns {Function} Research-side PromptResolver subclass
  */
-function makeBarrageEvolutionResolver() {
+function makeBarrageEvolutionResolver(hasTarget = hasBenchEvolutionTarget) {
   const {PromptResolver} = load('simple-bot/prompt-resolver/prompt-resolver');
   const {ChooseAttackPrompt} = load('game/store/prompts/choose-attack-prompt');
   const {ResolvePromptAction} =
@@ -73,7 +107,7 @@ function makeBarrageEvolutionResolver() {
       if (!(prompt instanceof ChooseAttackPrompt) ||
           state.phase !== GamePhase.ATTACK ||
           player.active.getPokemonCard()?.fullName !== 'Bunnelby PRC' ||
-          (!hasBenchEvolutionTarget(player) || immediateBurrowDeckout(state, player))) return;
+          (!hasTarget(player) || immediateBurrowDeckout(state, player))) return;
       const toolIndex = prompt.cards.findIndex(card =>
         card.fullName === 'Technical Machine: Evolution PAR');
       if (toolIndex < 0) return;
@@ -93,9 +127,10 @@ function makeBarrageEvolutionResolver() {
  * generic choices. This leaves default policies untouched and composes
  * with the separate ToolAwareAttackTactic.
  * @param {object} options SimpleBotOptions
+ * @param {{sourceCards?:object[]}} [configuration] Immutable source 60 for optional K0-safe decisions.
  * @returns {object} Cloned options
  */
-function withBunnelbyEvolutionLine(options) {
+function withBunnelbyEvolutionLine(options, {sourceCards} = {}) {
   if (!Array.isArray(options.tactics) ||
       !Array.isArray(options.promptResolvers)) {
     throw new Error('Require tactics and prompt resolvers');
@@ -104,6 +139,11 @@ function withBunnelbyEvolutionLine(options) {
       options.promptResolvers.some(r => r.name === 'BarrageEvolutionResolver')) {
     throw new Error('Bunnelby Evolution line already installed');
   }
+  if (sourceCards !== undefined && (!Array.isArray(sourceCards) || sourceCards.length !== 60)) {
+    throw new Error('K0-safe Evolution requires exactly 60 physical source Card copies');
+  }
+  const hasTarget = sourceCards === undefined ? hasBenchEvolutionTarget :
+    player => hasK0PossibleBenchEvolutionTarget(player, sourceCards);
   const toolIndex = options.tactics.findIndex(t =>
     t.name === 'ToolAwareAttackTactic');
   const atkIndex = toolIndex >= 0 ? toolIndex :
@@ -117,18 +157,19 @@ function withBunnelbyEvolutionLine(options) {
     ...options,
     tactics: [
       ...options.tactics.slice(0, atkIndex),
-      makeBunnelbyEvolutionTactic(),
+      makeBunnelbyEvolutionTactic(hasTarget),
       ...options.tactics.slice(atkIndex)
     ],
     promptResolvers: [
       ...options.promptResolvers.slice(0, promptIndex),
-      makeBarrageEvolutionResolver(),
+      makeBarrageEvolutionResolver(hasTarget),
       ...options.promptResolvers.slice(promptIndex)
     ]
   };
 }
 module.exports = {
   hasBenchEvolutionTarget,
+  hasK0PossibleBenchEvolutionTarget,
   immediateBurrowDeckout,
   makeBunnelbyEvolutionTactic,
   makeBarrageEvolutionResolver,
