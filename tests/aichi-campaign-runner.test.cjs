@@ -52,7 +52,7 @@ function prepare(candidate) {
 function finished(request) {
   const firstTurnSlot = 0;
   return {
-    finished: true, winner: 0, endReason: 'engine-game-end',
+    finished: true, winner: 0, seed: request.seed, endReason: 'engine-game-end',
     verifiedByDrawLog: true, firstTurnSlot,
     firstTurnPlayerId: 101, firstTurnPlayerName: 'research-A',
     firstDrawLogName: 'research-A',
@@ -157,4 +157,38 @@ test('engine deck substitution, unsupported resolution and exceptions remain fai
   });
   assert.equal(thrown.records[0].status, 'engine-exception');
   assert.match(thrown.records[0].error, /synthetic engine failure/);
+});
+
+test('scheduled decks, seeds and fixed validation cannot be overridden', () => {
+  const f = fixture();
+  for (const illegal of [
+    { seed: 17 }, { deckA: Array(60).fill('attacker') },
+    { deckB: Array(60).fill('attacker') },
+    { strictPromptValidation: false }, { isolatePolicyRandomness: false },
+    { doubleDragonRecovery: 'yes' }
+  ]) {
+    assert.throws(() => executeCampaign(f, {
+      maxTrials: 1, prepareCandidate: prepare, runMatch: finished,
+      matchOptions: illegal
+    }), /matchOptions/);
+  }
+  const reportedWrongSeed = executeCampaign(f, {
+    maxTrials: 1, prepareCandidate: prepare,
+    runMatch(request) { return { ...finished(request), seed: request.seed + 1 }; }
+  });
+  assert.equal(reportedWrongSeed.records[0].status, 'engine-seed-mismatch');
+  assert.equal(reportedWrongSeed.records[0].winner, null);
+  const withKnownFlag = executeCampaign(f, {
+    maxTrials: 1, prepareCandidate: prepare,
+    matchOptions: { doubleDragonRecovery: true },
+    runMatch(request) {
+      assert.equal(request.doubleDragonRecovery, true);
+      assert.equal(request.strictPromptValidation, true);
+      assert.equal(request.isolatePolicyRandomness, true);
+      return finished(request);
+    }
+  });
+  assert.equal(withKnownFlag.records[0].status, 'completed');
+  assert.equal(withKnownFlag.records[0].effectiveMatchOptions.doubleDragonRecovery, true);
+  assert.equal(withKnownFlag.records[0].observedSeed, withKnownFlag.records[0].seed);
 });
