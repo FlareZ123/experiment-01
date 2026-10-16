@@ -1,0 +1,257 @@
+{
+  "kind": "Hood Shield exact source-list engine and weak-policy feasibility",
+  "status": {
+    "source": "https://www.limitlesstcg.com/tournaments/566/decklists",
+    "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "manifestDigest": "653ed6620d742f1f011d729557265e6173902b5fa87c8b4830f886f7be585173",
+    "candidateRank": null,
+    "candidateLabel": "Hood Shield Shadow Rider v1: fixed 60-card hypothesis",
+    "candidateDigest": "8606a0c21ba502e2ac1a0c9d3ec3e2f631a8af1b752446ce3489c08375afb7b1",
+    "sharedResolver": "simulation/twinleaf/resolve-field.cjs",
+    "printEquivalencePolicy": {
+      "allowEquivalentBasicEnergies": true,
+      "allowBasicEnergyMirrorPrintings": true,
+      "allowJapanesePromoHooks": true
+    },
+    "candidateResolved": true,
+    "candidateSubstitutions": [
+      {
+        "reason": "same-set-basic-energy-number-mismatch",
+        "sourceName": "Psychic Energy",
+        "sourcePrinting": {
+          "set": "MEE",
+          "number": "13",
+          "language": "en"
+        },
+        "resolvedId": "Psychic Energy MEE",
+        "count": 11
+      }
+    ],
+    "candidateUnresolved": [],
+    "readyRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      24,
+      26,
+      27,
+      29,
+      30,
+      31,
+      32
+    ],
+    "unavailableSourceRanks": [
+      23,
+      25,
+      28
+    ],
+    "blockedRanks": [],
+    "semanticSupportVerified": false,
+    "paperLegalityVerified": false,
+    "actualFirstTurnBalanceVerified": false
+  },
+  "candidateDigest": "8606a0c21ba502e2ac1a0c9d3ec3e2f631a8af1b752446ce3489c08375afb7b1",
+  "fieldManifestDigest": "653ed6620d742f1f011d729557265e6173902b5fa87c8b4830f886f7be585173",
+  "matchups": [
+    {
+      "opponentRank": 6,
+      "opponentArchetype": "Iron Thorns",
+      "games": [
+        {
+          "candidateEngineSide": "A",
+          "finished": true,
+          "endReason": "engine-game-end",
+          "actions": 69,
+          "turns": 8,
+          "trueStartingTurnSlot": 1,
+          "firstTurnDrawLogVerified": true,
+          "candidateActuallyWentFirst": false,
+          "candidateCardsPlayed": {
+            "Tapu Lele-GX": 1,
+            "Psychic Energy": 4,
+            "Stealthy Hood": 1,
+            "Hisuian Heavy Ball": 1,
+            "Shadow Rider Calyrex V": 1,
+            "Mysterious Treasure": 1,
+            "Shadow Rider Calyrex VMAX": 1,
+            "Fog Crystal": 1
+          },
+          "candidateAttacks": [
+            {
+              "turn": 4,
+              "activePokemon": "Trevenant & Dusknoir-GX",
+              "attack": "Pale Moon-GX"
+            },
+            {
+              "turn": 6,
+              "activePokemon": "Trevenant & Dusknoir-GX",
+              "attack": "Night Watch"
+            },
+            {
+              "turn": 8,
+              "activePokemon": "Trevenant & Dusknoir-GX",
+              "attack": "Night Watch"
+            }
+          ],
+          "opponentCardsPlayed": {
+            "Speed Lightning Energy": 1,
+            "Thunder Mountain Prism Star": 1
+          },
+          "engineDeckHashes": [
+            "f2fa3eaa3fb4c92f717450d20ee613ac6f33f4d9831644bedb6463b0feba211f",
+            "b50e4cf27c449653cf9c61e4e830b7a3d61f9b1c7e42a7dfd2d781a1c6e6895a"
+          ]
+        },
+        {
+          "candidateEngineSide": "B",
+          "finished": true,
+          "endReason": "engine-game-end",
+          "actions": 116,
+          "turns": 20,
+          "trueStartingTurnSlot": 1,
+          "firstTurnDrawLogVerified": true,
+          "candidateActuallyWentFirst": true,
+          "candidateCardsPlayed": {
+            "Psychic Energy": 2,
+            "Stealthy Hood": 1,
+            "Hisuian Heavy Ball": 1,
+            "Radiant Eternatus": 1,
+            "Mysterious Treasure": 2,
+            "Dialga-GX": 1,
+            "Fog Crystal": 1,
+            "Lillie's Clefairy ex": 2,
+            "Float Stone": 1
+          },
+          "candidateAttacks": [],
+          "opponentCardsPlayed": {
+            "Speed Lightning Energy": 2,
+            "Thunder Mountain Prism Star": 1,
+            "Handheld Fan": 1,
+            "Crushing Hammer": 1
+          },
+          "engineDeckHashes": [
+            "b50e4cf27c449653cf9c61e4e830b7a3d61f9b1c7e42a7dfd2d781a1c6e6895a",
+            "f2fa3eaa3fb4c92f717450d20ee613ac6f33f4d9831644bedb6463b0feba211f"
+          ]
+        }
+      ]
+    },
+    {
+      "opponentRank": 8,
+      "opponentArchetype": "Absol Garbodor",
+      "games": [
+        {
+          "candidateEngineSide": "A",
+          "finished": true,
+          "endReason": "engine-game-end",
+          "actions": 135,
+          "turns": 19,
+          "trueStartingTurnSlot": 1,
+          "firstTurnDrawLogVerified": true,
+          "candidateActuallyWentFirst": false,
+          "candidateCardsPlayed": {
+            "Psychic Energy": 4,
+            "Stealthy Hood": 2,
+            "Fog Crystal": 2,
+            "Mysterious Treasure": 1,
+            "Shadow Rider Calyrex VMAX": 1,
+            "Latias ex": 1,
+            "Tapu Lele-GX": 1,
+            "Shadow Rider Calyrex V": 2
+          },
+          "candidateAttacks": [],
+          "opponentCardsPlayed": {
+            "Darkness Energy": 3,
+            "Float Stone": 3,
+            "Quick Ball": 1,
+            "Budew": 1,
+            "Temple of Sinnoh": 1,
+            "Lightning Energy": 1,
+            "Secret Box": 1,
+            "Squawkabilly ex": 1,
+            "Dedenne-GX": 1
+          },
+          "engineDeckHashes": [
+            "f2fa3eaa3fb4c92f717450d20ee613ac6f33f4d9831644bedb6463b0feba211f",
+            "40fbfb90f3db24ccaf5ca7d284ecffceec543583f882d95c3fffa557cec6b16a"
+          ]
+        },
+        {
+          "candidateEngineSide": "B",
+          "finished": true,
+          "endReason": "engine-game-end",
+          "actions": 196,
+          "turns": 38,
+          "trueStartingTurnSlot": 1,
+          "firstTurnDrawLogVerified": true,
+          "candidateActuallyWentFirst": true,
+          "candidateCardsPlayed": {
+            "Psychic Energy": 6,
+            "Fog Crystal": 2,
+            "Shadow Rider Calyrex V": 3,
+            "Shadow Rider Calyrex VMAX": 2,
+            "Stealthy Hood": 2,
+            "Night Stretcher": 1,
+            "Marshadow": 1,
+            "Hisuian Heavy Ball": 1,
+            "Unfair Stamp": 1,
+            "Dimension Valley": 1
+          },
+          "candidateAttacks": [
+            {
+              "turn": 37,
+              "activePokemon": "Trevenant & Dusknoir-GX",
+              "attack": "Night Watch"
+            }
+          ],
+          "opponentCardsPlayed": {
+            "Mega Absol ex": 1,
+            "Lightning Energy": 3,
+            "Muscle Band": 1,
+            "Trubbish": 1,
+            "Forest Seal Stone": 1,
+            "Garbodor": 1,
+            "Temple of Sinnoh": 1,
+            "Float Stone": 1,
+            "Darkness Energy": 2,
+            "Squawkabilly ex": 1,
+            "Night Stretcher": 1
+          },
+          "engineDeckHashes": [
+            "40fbfb90f3db24ccaf5ca7d284ecffceec543583f882d95c3fffa557cec6b16a",
+            "f2fa3eaa3fb4c92f717450d20ee613ac6f33f4d9831644bedb6463b0feba211f"
+          ]
+        }
+      ]
+    }
+  ],
+  "evidence": "two opponent source lists, both engine sides; generic bot competence and all actual game results unvalidated",
+  "cannotInferCompetitiveWinRate": true,
+  "evidenceProvenance": {
+    "workflow": "aichi-temple-engine.yml",
+    "runId": 38828295484,
+    "jobId": 116740843848,
+    "headSha": "2f06892ae0e3a9f098a441554402534cb54cca9f",
+    "url": "https://github.com/FlareZ123/experiment-01/actions/runs/38828295484",
+    "pinnedEngine": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+  }
+}
