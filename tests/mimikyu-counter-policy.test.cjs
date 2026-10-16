@@ -21,10 +21,10 @@ function fixture() {
   const [mimikyu, regidrago, dialga, dratini, psychic] =
     names.map(name => manager.getCardByName(name));
   assert.ok([mimikyu, regidrago, dialga, dratini, psychic].every(Boolean));
-  const {State} = load('game/store/state/state');
+  const {Store} = load('game/store/store');
   const {Player} = load('game/store/state/player');
   const {GamePhase} = load('game/store/state/state');
-  const state = new State();
+  const state = new Store({onStateChange() {}}).state;
   const a = new Player();
   a.id = 101;
   a.active.cards.push(mimikyu, psychic);
