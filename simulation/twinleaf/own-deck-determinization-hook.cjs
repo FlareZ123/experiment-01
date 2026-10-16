@@ -5,6 +5,7 @@ const path = require('node:path');
 const { deckPermutation, seededRandom } = require('./headless.cjs');
 const { canonicalUnseenCards } = require('./canonical-unseen-cards.cjs');
 const {evaluateDetachedDeckSamples} = require('./detached-deck-sampling.cjs');
+const {normalizeDeepClonePrototypes} = require('./normalize-deep-clone.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 
@@ -51,7 +52,8 @@ function installOwnDeckDeterminizationHook(opts) {
   ) {
     if (opts.isolateGameState === true) {
       return evaluateDetachedDeckSamples(
-        state,playerId,action,passTurnScore,original,this,deepClone,{
+        state,playerId,action,passTurnScore,original,this,
+        current=>normalizeDeepClonePrototypes(current,deepClone(current)),{
           samples:opts.samples,seed:opts.seed,permutation:deckPermutation,
           random:seededRandom,isCard:value=>value instanceof Card
         });
