@@ -12,7 +12,7 @@ const load = modulePath => require(path.join(output, modulePath));
  * Probe the printed Garbotoxin/Stealthy Hood/Irritating Pollen priority matrix
  * by actually trying to play an Item through Twinleaf's Store.
  * The board is a staged midgame; only the Switch is played as an action.
- * @param {{garbodor:boolean,garbodorTool:boolean,vileplumeHood:boolean,activeSeat:0|1,playHood?:boolean}} p
+ * @param {{garbodor:boolean,garbodorTool:boolean,vileplumeHood:boolean,activeSeat:0|1,playHood?:boolean,garbodorOwner?:'same'|'opponent',garbodorPrint?:'BKP'|'LTR'}} p
  */
 function probe(p) {
   const manager = initializeCards();
@@ -51,9 +51,14 @@ function probe(p) {
   a.bench.push(vileplume);
   if (p.garbodor) {
     const garbodor = new PokemonCardList();
-    garbodor.cards.push(card('Trubbish BKP'),card('Garbodor BKP'));
+    garbodor.cards.push(card('Trubbish BKP'),card('Garbodor '+(p.garbodorPrint||'BKP')));
     if (p.garbodorTool) garbodor.tools.push(card('Stealthy Hood UNB'));
-    b.bench.push(garbodor);
+    (p.garbodorOwner === 'same' ? a : b).bench.push(garbodor);
+    if (p.garbodorOwner === 'same') {
+      const filler = new PokemonCardList();
+      filler.cards.push(card('Dratini OBF'));
+      b.bench.push(filler);
+    }
   } else {
     const filler = new PokemonCardList();
     filler.cards.push(card('Dratini OBF'));
@@ -110,7 +115,13 @@ function run() {
     {garbodor:true,garbodorTool:true,vileplumeHood:false},
     {garbodor:true,garbodorTool:true,vileplumeHood:true},
     {garbodor:false,garbodorTool:false,vileplumeHood:false,playHood:true},
-    {garbodor:true,garbodorTool:true,vileplumeHood:false,playHood:true}
+    {garbodor:true,garbodorTool:true,vileplumeHood:false,playHood:true},
+    {garbodor:true,garbodorTool:false,vileplumeHood:false,garbodorPrint:'LTR'},
+    {garbodor:true,garbodorTool:true,vileplumeHood:false,garbodorPrint:'LTR'},
+    {garbodor:true,garbodorTool:true,vileplumeHood:true,garbodorPrint:'LTR'},
+    {garbodor:true,garbodorTool:true,vileplumeHood:false,garbodorOwner:'same'},
+    {garbodor:true,garbodorTool:true,vileplumeHood:true,garbodorOwner:'same'},
+    {garbodor:true,garbodorTool:true,vileplumeHood:false,garbodorOwner:'same',playHood:true}
   ];
   const rows = combinations.flatMap(p=>(p.playHood?[0]:[0,1]).map(
     activeSeat=>probe({...p,activeSeat})));
@@ -120,7 +131,8 @@ function run() {
         'Hood must be attachable through Item lock / before Vileplume lock returns');
     }
     const shouldUnlock = row.garbodorTool &&
-      !(row.vileplumeHood || row.hoodAction?.attached);
+      (row.garbodorOwner === 'same' ||
+        !(row.vileplumeHood || row.hoodAction?.attached));
     assert.equal(row.allowed, shouldUnlock,
       'Cross-lock action deviated from printed-effect matrix: '+JSON.stringify(row));
     assert.equal(row.switchInHand, !shouldUnlock,
