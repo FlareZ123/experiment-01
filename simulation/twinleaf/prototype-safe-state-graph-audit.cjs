@@ -90,13 +90,13 @@ function characterizePrototypeSafeStateGraph() {
   const {preparedToolAttack} =
     require('./tm-attack-policy-characterization.cjs');
   const tool=preparedToolAttack();
-  const toolReady=auditSimulatorProfiles(tool.state);
+  const toolReady=auditSimulatorProfiles(tool.store.state);
   const {AttackAction}=engine('game/store/actions/game-actions');
   const {ResolvePromptAction}=engine('game/store/actions/resolve-prompt-action');
   tool.store.dispatch(new AttackAction(tool.attacker.id,'Crisis Punch'));
   let waits=0;
   while(true){
-    const pending=tool.state.prompts.find(p=>p.result===undefined);
+    const pending=tool.store.state.prompts.find(p=>p.result===undefined);
     if(!pending)break;
     if(pending.constructor.name!=='WaitPrompt') {
       throw new Error('Unexpected post-attack prompt: '+pending.constructor.name);
@@ -105,7 +105,7 @@ function characterizePrototypeSafeStateGraph() {
     waits++;
     if(waits>12)throw new Error('Too many post-attack prompts');
   }
-  const toolAfter=auditSimulatorProfiles(tool.state);
+  const toolAfter=auditSimulatorProfiles(tool.store.state);
   const {deepClone}=engine('utils');
   const shared=[{value:1}];
   const repeated={left:shared,right:shared};
