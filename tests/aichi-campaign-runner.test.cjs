@@ -39,6 +39,7 @@ function fixture() {
 /** @param {object} candidate */
 function prepare(candidate) {
   return {
+    engineRevision: 'tested-revision',
     candidate: { cards: Array(60).fill('candidate-' + candidate.id),
       unresolved: [], substitutions: [] },
     opponents: [1, 2].map(rank => ({
@@ -59,7 +60,15 @@ function finished(request) {
     deckHashes: [digest(request.deckA), digest(request.deckB)],
     actions: 7, turns: 2,
     actionCounts: {AttackAction: 1}, prizesRemaining: [5, 6],
-    finalState: [{deckRemaining: 28}, {deckRemaining: 30}]
+    finalState: [{deckRemaining: 28}, {deckRemaining: 30}],
+    engine: 'twinleafgg/tested-revision',
+    randomnessProtocol: 'separate-game-and-per-seat-policy-prng-v1',
+    policyRandomIsolation: true,
+    promptValidationMode: 'predispatch-prompt-validate',
+    rules: {
+      format: 'EXPANDED', firstTurnDrawCard: true,
+      firstTurnUseSupporter: false, attackFirstTurn: false
+    }
   };
 }
 
@@ -298,4 +307,40 @@ test('experimental policy metadata reflects engine-effective flags, not initial 
   assert.equal(baseline.effectiveMatchOptions.doubleDragonRecovery, false);
   assert.equal(baseline.effectiveMatchOptions.supporterDecisionCorrection, false);
   assert.equal(baseline.observedResearchPolicyProfile, null);
+});
+
+test('runtime engine, rules, random streams and expected policy are verified', () => {
+  const f = fixture();
+  const corruptions = [
+    [{engine: 'twinleafgg/unexpected'}, 'engine-revision-mismatch'],
+    [{randomnessProtocol: 'legacy-shared-prng'}, 'engine-protocol-mismatch'],
+    [{policyRandomIsolation: false}, 'engine-protocol-mismatch'],
+    [{promptValidationMode: 'upstream-unchecked'}, 'engine-protocol-mismatch'],
+    [{rules: {format:'STANDARD',firstTurnDrawCard:true,
+      firstTurnUseSupporter:false,attackFirstTurn:false}}, 'engine-protocol-mismatch']
+  ];
+  for (const [correction, status] of corruptions) {
+    const output = executeCampaign(f, {
+      maxTrials: 1, prepareCandidate: prepare,
+      runMatch(request) { return {...finished(request), ...correction}; }
+    });
+    assert.equal(output.records[0].status, status);
+    assert.equal(output.records[0].winner, null);
+  }
+  const missingExpectedProfile = executeCampaign(f, {
+    maxTrials: 1, prepareCandidate: prepare,
+    expectedPolicyProfile: 'expanded-action-fidelity-probe-v1',
+    runMatch: finished
+  });
+  assert.equal(missingExpectedProfile.records[0].status, 'policy-profile-mismatch');
+  const acceptedProfile = executeCampaign(f, {
+    maxTrials: 1, prepareCandidate: prepare,
+    expectedPolicyProfile: 'expanded-action-fidelity-probe-v1',
+    runMatch(request) {
+      return {...finished(request),
+        researchPolicyProfile:'expanded-action-fidelity-probe-v1'};
+    }
+  });
+  assert.equal(acceptedProfile.records[0].status, 'completed');
+  assert.equal(acceptedProfile.expectedPolicyProfile,'expanded-action-fidelity-probe-v1');
 });
