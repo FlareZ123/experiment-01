@@ -44,3 +44,5 @@ At one-sided alpha=0.05, the threshold is 20.
 In the deliberately unequal H0 example with 63 cells guaranteed to win and the last cell winning with probability 0.68, the mean is 0.995. Its exact one-round expected e-value is about 0.93869395, below one. This diagnostic complements the general proof.
 
 The separate fixed-sample all-win certificate documented by Agent 45 needs 608 wins for 19 trials per rank at q=0.995. This 640-game figure imposes equal *actual first/second* seat allocation and permits repeated full-round inspections, so the protocols solve different experimental designs.
+
+**Nonzero-loss check:** The predeclared finite-lambda component permits eventual significance after a loss. In a synthetic series with one loss in the first 64-cell round and perfect results thereafter, the evidence remains below threshold after 35 complete rounds (19.35706847), crossing at 36 rounds, 2303 wins in 2304 games (25.55975080). This is a deterministic unit-test scenario, not a played result.
