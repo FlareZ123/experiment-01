@@ -16,6 +16,9 @@ function run(){
  p.active.tools.push(card('Powerglass SFA'));
  const basic=card('Psychic Energy MEE'),special=card('Double Colorless Energy SUM');
  p.discard.cards.push(basic,special);
+ const {CardList}=load('game/store/state/card-list');
+ const prize=()=>{const x=new CardList();x.cards.push(card('Psychic Energy MEE'));return x};
+ p.prizes=Array.from({length:6},prize);o.prizes=Array.from({length:6},prize);
  s.reduceEffect(z,new EndTurnEffect(p));
  const q=z.prompts.find(x=>x.result===undefined&&x.constructor.name==='AttachEnergyPrompt');
  assert.ok(q,'Powerglass prompt absent');
