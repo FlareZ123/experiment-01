@@ -1,0 +1,17 @@
+name: Aichi tactical policy factorial
+
+on:
+  workflow_dispatch:
+
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+      - run: npm ci --no-audit --no-fund && npm run compile
+        working-directory: vendor/twinleaf/ptcg-server
+      - run: node simulation/twinleaf/regidrago-policy-factorial.cjs
