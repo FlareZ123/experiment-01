@@ -130,5 +130,71 @@ function withSourceContinuity(Store,run,options={}) {
     status:'diagnostic partial-State continuity, not source replay'};
 }
 
+
+/**
+ * Observe mutations of the original root State that occur while the genuine
+ * SimpleTacticsAi is selecting an action. This distinguishes policy-time
+ * side effects from changes at unrelated dispatch boundaries.
+ *
+ * @template T
+ * @param {function} Store
+ * @param {function} Bot
+ * @param {()=>T} run
+ * @param {{snapshot?:(state:object)=>object}} options
+ * @returns {object}
+ */
+function withRootPolicyMutationAudit(Store,Bot,run,options={}) {
+  const storeDesc=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  const botDesc=Object.getOwnPropertyDescriptor(Bot.prototype,'decodeNextAction');
+  if (!storeDesc || typeof storeDesc.value!=='function' ||
+      !botDesc || typeof botDesc.value!=='function') {
+    throw new TypeError('Expected root Store dispatch and bot decode method');
+  }
+  const snapshot=options.snapshot || observableState;
+  let live=null,rootCalls=0,ignoredCalls=0;
+  const mutations=[];
+  const dispatch=function(...args) {
+    if (!live && args[0]?.constructor?.name==='AddPlayerAction') live=this;
+    return storeDesc.value.apply(this,args);
+  };
+  const decode=function(...args) {
+    const state=args[0];
+    if (!live || state!==live.state) {
+      ignoredCalls++;
+      return botDesc.value.apply(this,args);
+    }
+    rootCalls++;
+    const before=snapshot(state),previousHash=hash(before);
+    let action;
+    try {return (action=botDesc.value.apply(this,args));}
+    finally {
+      const after=snapshot(state);
+      const currentHash=hash(after);
+      if (currentHash!==previousHash) {
+        mutations.push({
+          callOrdinal:rootCalls,
+          turn:before.zones?.turn ?? before.turn ?? null,
+          actorId:this.client?.id ?? null,
+          proposedAction:action?.constructor?.name ?? null,
+          proposedAttack:action?.name ?? null,
+          firstMismatch:firstMismatch(before,after),
+          previousHash,currentHash
+        });
+      }
+    }
+  };
+  Object.defineProperty(Store.prototype,'dispatch',{...storeDesc,value:dispatch});
+  Object.defineProperty(Bot.prototype,'decodeNextAction',{...botDesc,value:decode});
+  let result;
+  try {result=run();}
+  finally {
+    Object.defineProperty(Bot.prototype,'decodeNextAction',botDesc);
+    Object.defineProperty(Store.prototype,'dispatch',storeDesc);
+  }
+  return {result,rootPolicyCalls:rootCalls,ignoredPolicyCalls:ignoredCalls,
+    rootPolicyStateMutations:mutations,
+    status:'read-only real-policy mutation diagnostic, not win-rate evidence'};
+}
+
 module.exports={cardHistory,historyZones,observableState,hash,firstMismatch,
-  withSourceContinuity};
+  withSourceContinuity,withRootPolicyMutationAudit};
