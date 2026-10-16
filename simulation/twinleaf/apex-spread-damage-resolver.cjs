@@ -4,9 +4,32 @@ const path = require('node:path');
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 
 /**
- * Enumerate subsets of knock-outable opposing Benched Pokémon.
- * Each individual Prize opportunity is counted once; multiple-Prize values,
- * protection and future-turn strategy are deliberately outside this model.
+ * Estimate the printed-rule Prize count using the pinned KnockOutEffect reducer.
+ * Global modifiers and unrelated effects remain outside this local projection.
+ *
+ * @param {object} pokemon Opposing PokemonCard, including printed tags.
+ * @param {object} slot Opposing PokemonCardList carrying next-turn KO modifiers.
+ * @returns {number} Nominal Prize cards awarded if this Pokemon is Knocked Out.
+ */
+function nominalKnockoutPrizes(pokemon, slot) {
+  const tags = pokemon.tags || [];
+  let prizes = 1;
+  if (['EX','V','VSTAR','ex','GX'].some(tag => tags.includes(tag))) prizes += 1;
+  if (['Mega ex','Tag Team','Dual Legend'].some(tag => tags.includes(tag))) prizes += 1;
+  if (['VMAX','V-UNION'].some(tag => tags.includes(tag))) prizes += 2;
+  if (slot.denyPrizesIfKnockedOutNextTurn &&
+      !slot.denyPrizesIfKnockedOutNextTurnPending) return 0;
+  if (slot.extraPrizesIfKnockedOutNextTurn > 0 &&
+      !slot.extraPrizesIfKnockedOutNextTurnPending) {
+    prizes += slot.extraPrizesIfKnockedOutNextTurn;
+  }
+  return prizes;
+}
+
+/**
+ * Search complete, validated six-counter allocations to opposing Bench.
+ * Nominal Prize rewards are preferred to raw KO count; global Prize effects,
+ * protection and future-turn strategy remain outside this local model.
  *
  * @param {object} state Current pinned-engine state.
  * @param {object} player Regidrago controller.
@@ -51,7 +74,8 @@ function prizeWindowDamageMap(state, player, prompt, codes) {
     const knockoutAt = trusted && remaining > 0 && remaining <= 60
       ? Math.ceil(remaining / 10)
       : Infinity;
-    return [{target,cap,knockoutAt,trusted}];
+    return [{target,cap,knockoutAt,trusted,
+      prizes: nominalKnockoutPrizes(pokemon,slot)}];
   });
 
   if (entries.length === 0 ||
@@ -59,17 +83,19 @@ function prizeWindowDamageMap(state, player, prompt, codes) {
       !entries.some(entry=>Number.isFinite(entry.knockoutAt))) return null;
 
   // At most five Bench slots and six counters give <= 7^5 allocations.
-  // Enumerate *full, validated* allocations; optimize immediate KO count,
-  // then avoid excess counters on defeated or uncertain targets, then put
-  // remaining counters toward live, unprotected targets.
+  // Enumerate full, validated allocations; optimize immediate victory and
+  // nominal Prizes, then KO count, waste and progress on surviving targets.
   let best = null;
   let bestScore = null;
   const counters = new Array(entries.length).fill(0);
+  const prizesLeft = typeof player.getPrizeLeft === 'function'
+    ? player.getPrizeLeft() : Infinity;
   /** @param {number} position @param {number} left */
   function enumerate(position,left) {
     if (position === entries.length) {
       if (left !== 0) return;
       let knockouts = 0;
+      let prizes = 0;
       let wasted = 0;
       let progress = 0;
       for (let i = 0; i < entries.length; i += 1) {
@@ -79,13 +105,17 @@ function prizeWindowDamageMap(state, player, prompt, codes) {
           wasted += used;
         } else if (used >= entry.knockoutAt) {
           knockouts += 1;
+          prizes += entry.prizes;
           wasted += used - entry.knockoutAt;
         } else {
           progress += used;
         }
       }
       if (knockouts === 0) return;
-      const score = [knockouts,-wasted,progress];
+      const score = [
+        Number(prizesLeft > 0 && prizes >= prizesLeft),
+        prizes, knockouts, -wasted, progress
+      ];
       // Lexicographic comparison is deterministic even for tied allocations.
       if (bestScore) {
         let compare = 0;
@@ -171,6 +201,7 @@ function withPrizeWindowPutDamageResolver(fn) {
 }
 
 module.exports = {
+  nominalKnockoutPrizes,
   prizeWindowDamageMap,
   prizeWindowPutDamageResolverClass,
   withPrizeWindowPutDamageResolver
