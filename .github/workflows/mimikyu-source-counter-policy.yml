@@ -1,0 +1,44 @@
+name: Mimikyu source-counterline policy diagnostic
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aichi-source-mimikyu-counter-policy
+  cancel-in-progress: false
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile exact pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify public Copycat counterpolicy contract
+        run: node --test tests/mimikyu-counter-policy.test.cjs tests/mimikyu-headless-hook-options.test.cjs
+      - name: Compare two policy variants using source rank 1 and 10 full lists in both physical seats
+        run: node simulation/twinleaf/mimikyu-counter-policy-pilot.cjs > mimikyu-policy-diagnostic.json
+      - name: Report bounded engine actions and public Copycat opportunities
+        run: node -e "const x=require('./mimikyu-policy-diagnostic.json');console.log('Qualified win-rate evidence:',x.qualifiedWinRateEvidence);for(const r of x.rows)console.log(JSON.stringify({ranks:r.ranks,policy:r.policy,seed:r.seed,status:r.status,finished:r.finished,verifiedFirstTurn:r.verifiedFirstTurn,apex:r.actualApexDragonAttacks,copycat:r.actualCopycatAttacks,eligibleObservations:r.eligiblePublicChoiceObservations,error:r.error||null}))"
+      - name: Preserve source-locked diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mimikyu-source-copycat-counter-policy
+          path: mimikyu-policy-diagnostic.json
+          if-no-files-found: warn
