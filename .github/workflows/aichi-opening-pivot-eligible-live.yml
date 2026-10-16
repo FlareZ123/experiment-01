@@ -1,0 +1,31 @@
+name: Aichi eligible Rider opening-pivot pinned Store proof
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pinned-setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify pure selection-policy semantics
+        run: node --test tests/active-opening-pivot.test.cjs
+      - name: Install pinned engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute complete actual Store setup with source-legal eligible start
+        run: node simulation/twinleaf/active-opening-pivot-live.cjs
