@@ -23,3 +23,26 @@ function installLeleEntryAbilityLockHook() {
   const {IS_ABILITY_BLOCKED} = require(path.join(output,
     'game/store/prefabs/prefabs'));
   const original = TapuLeleGX.prototype.reduceEffect;
+
+  /** @param {any} store @param {any} state @param {any} effect */
+  function corrected(store, state, effect) {
+    if (effect instanceof PlayPokemonEffect &&
+        effect.pokemonCard === this && effect.target.cards.length === 0) {
+      const hand = effect.player.hand.cards;
+      const index = hand.indexOf(this);
+      if (index !== -1) {
+        hand.splice(index, 1);
+        effect.target.cards.push(this);
+        let blocked;
+        try {
+          blocked = IS_ABILITY_BLOCKED(store, state, effect.player, this);
+        } finally {
+          const position = effect.target.cards.indexOf(this);
+          if (position !== -1) effect.target.cards.splice(position, 1);
+          hand.splice(index, 0, this);
+        }
+        if (blocked) return state;
+      }
+    }
+    return original.call(this, store, state, effect);
+  }
