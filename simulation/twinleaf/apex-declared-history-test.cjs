@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const {initializeCards} = require('./headless.cjs');
+const {installDeclaredCopyHistoryHook} = require('./copycat-declared-history-hook.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
@@ -14,9 +15,10 @@ const engine = name => require(path.join(output, name));
  * This is a staged attack board; normal setup/evolution is bypassed.
  *
  * @param {'Tail Snap'|'Timeless-GX'} attackName
+ * @param {boolean} correctHistory Enable the Regidrago-only opt-in identity hook.
  * @returns {object} Declared and persisted attack identities.
  */
-function declaredApexHistoryContract(attackName) {
+function declaredApexHistoryContract(attackName, correctHistory = false) {
   const manager = initializeCards();
   const regidrago = manager.getCardByName('Regidrago VSTAR SIT');
   const target = manager.getCardByName('Shadow Rider Calyrex V CRE');
@@ -38,6 +40,9 @@ function declaredApexHistoryContract(attackName) {
     engine('game/store/prefabs/copy-attack-delegation');
 
   clearCopyAttackSessionsForTests();
+  const restoreHistory = correctHistory ? installDeclaredCopyHistoryHook({
+    mimikyu: false, regidrago: true
+  }) : () => {};
   try {
     const store = new Store({onStateChange() {}});
     const state = store.state;
@@ -73,25 +78,36 @@ function declaredApexHistoryContract(attackName) {
     store.dispatch(new ResolvePromptAction(prompt.id, chosen));
 
     const persistedHistory = state.playerLastAttack[a.id]?.attack?.name;
+    assert.equal(persistedHistory,
+      correctHistory ? 'Apex Dragon' : attackName,
+      'Persisted attack identity must match selected baseline/correction');
     const expectedDamage = attackName === 'Tail Snap' ? 20 : 150;
     assert.equal(b.active.damage, expectedDamage);
     assert.equal(a.usedGX, attackName === 'Timeless-GX');
     assert.equal(a.usedTurnSkip === true, attackName === 'Timeless-GX');
     return {
       printedAttack: 'Apex Dragon', selectedPayloadAttack: attackName,
+      correctedHistory: correctHistory,
       declaredHistory, persistedHistory, damage: b.active.damage,
       usedGX: a.usedGX, bonusTurn: a.usedTurnSkip === true,
       scope: 'Staged actual AttackAction; 6 occupied prizes; no legal evolution'
     };
   } finally {
+    restoreHistory();
     clearCopyAttackSessionsForTests();
   }
 }
 
 if (require.main === module) {
   process.stdout.write(JSON.stringify({
-    ordinary: declaredApexHistoryContract('Tail Snap'),
-    gx: declaredApexHistoryContract('Timeless-GX')
+    ordinary: {
+      baseline: declaredApexHistoryContract('Tail Snap', false),
+      corrected: declaredApexHistoryContract('Tail Snap', true)
+    },
+    gx: {
+      baseline: declaredApexHistoryContract('Timeless-GX', false),
+      corrected: declaredApexHistoryContract('Timeless-GX', true)
+    }
   }, null, 2) + '\n');
 }
 
