@@ -91,5 +91,70 @@ function assess() {
   };
 }
 
-if (require.main === module) console.log(JSON.stringify(assess(),null,2));
-module.exports = {choose,assess};
+/**
+ * Joint draw of an initial seven and six face-down Prizes. Source has 17
+ * Basic Pokemon: every Pokemon entry except the two Stage-1 Dusclops.
+ * Condition on the first seven containing at least one Basic Pokemon.
+ * The conditional Prize distribution is not the unconditional C(60,6) law.
+ *
+ * @returns {object}
+ */
+function assessLegalOpening() {
+  const basics = source.entries
+    .filter(entry => entry.type === 'Pokémon' && entry.name_en !== 'Dusclops')
+    .reduce((total, entry) => total + entry.count, 0);
+  assert.equal(basics, 17, 'Source Basic inventory changed');
+  const otherBasics = basics - 2;
+  const otherNonBasics = 60 - basics - 2;
+  assert.deepEqual([otherBasics, otherNonBasics], [15, 41]);
+  const handsPerPrizeSet = choose(54, 7);
+  const possibleJointDeals = choose(60, 6) * handsPerPrizeSet;
+  let eligibleJointDeals = 0n;
+  let shortageDeals = 0n;
+  let oneKeyDeals = 0n;
+  let bothKeyDeals = 0n;
+
+  for (let luna = 0; luna <= 1; luna += 1) {
+    for (let solrock = 0; solrock <= 1; solrock += 1) {
+      for (let balls = 0; balls <= 2; balls += 1) {
+        for (let otherBasicPrized = 0; otherBasicPrized <= 6; otherBasicPrized += 1) {
+          const otherNonBasicPrized = 6-luna-solrock-balls-otherBasicPrized;
+          const prizeWays = choose(1,luna) * choose(1,solrock) *
+            choose(2,balls) * choose(otherBasics,otherBasicPrized) *
+            choose(otherNonBasics,otherNonBasicPrized);
+          const nonBasicsRemaining = 43 - balls - otherNonBasicPrized;
+          const eligibleHands = handsPerPrizeSet - choose(nonBasicsRemaining,7);
+          const weight = prizeWays * eligibleHands;
+          eligibleJointDeals += weight;
+          const singletonKeysPrized = luna + solrock;
+          if (singletonKeysPrized > 0) oneKeyDeals += weight;
+          if (singletonKeysPrized === 2) bothKeyDeals += weight;
+          if (singletonKeysPrized > 2 - balls) shortageDeals += weight;
+        }
+      }
+    }
+  }
+  const expectedOpeningWays = possibleJointDeals *
+    (choose(60,7) - choose(43,7)) / choose(60,7);
+  assert.equal(eligibleJointDeals, expectedOpeningWays);
+  return {
+    kind:'legal-opening-conditional-six-prize-heavy-ball-capacity-exact',
+    sourceDeckCode:source.official_japanese_deck_code,
+    totalPhysicalCards:60,
+    basics:17,
+    sevenCardHand:7,
+    prizeCards:6,
+    eligibleJointDeals:eligibleJointDeals.toString(),
+    allJointDeals:possibleJointDeals.toString(),
+    eligibleOpeningProbability:Number(eligibleJointDeals)/Number(possibleJointDeals),
+    atLeastOneKeyPrizedProbability:Number(oneKeyDeals)/Number(eligibleJointDeals),
+    bothKeysPrizedProbability:Number(bothKeyDeals)/Number(eligibleJointDeals),
+    insufficientHeavyBallsProbability:Number(shortageDeals)/Number(eligibleJointDeals),
+    insufficientHeavyBallsConfigurations:shortageDeals.toString(),
+    limitations:'Condition on valid first seven only. No mulligan bonus, actual draw/search access, tactical relevance or future Prize taking. Not a game loss estimate.'
+  };
+}
+
+if (require.main === module) console.log(JSON.stringify({unconditional:assess(),legalOpening:assessLegalOpening()},null,2));
+module.exports = {choose,assess,assessLegalOpening};
+
