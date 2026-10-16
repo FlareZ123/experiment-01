@@ -19,6 +19,7 @@ const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.c
 const {publicSnapshot, observeTerminalTransition, advanceActionLineage} = require('./terminal-transition.cjs');
 const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
 const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
+const {withActiveOpeningPivot} = require('./active-opening-pivot.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -178,6 +179,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [radiantGateLockCorrection] Opt-in correction for Radiant Eternatus Bench-entry Ability locks.
  * @property {boolean} [snorlaxRetreatStartCorrection] Opt-in, reversible Block check on interactive retreat.
  * @property {boolean} [shadowRiderEnergyPriority] Opt-in basic Psychic Energy priority against Active Iron Thorns.
+ * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
  */
 
@@ -263,6 +265,14 @@ function runMatch(request) {
     let options = request.doubleDragonRecovery === true ?
       require('./dde-attach-tactic.cjs').withDoubleDragonRecovery(baseOptions) : baseOptions;
     if (request.templeUnlockRecovery === true) options = require('./temple-unlock-tactic.cjs').withTempleUnlockRecovery(options);
+    if (request.shadowRiderOpeningPivot === true) {
+      options = withActiveOpeningPivot(options, {
+        ChooseCardsPromptResolver: engine('simple-bot/prompt-resolver/choose-cards-prompt-resolver').ChooseCardsPromptResolver,
+        ChooseCardsPrompt: engine('game/store/prompts/choose-cards-prompt').ChooseCardsPrompt,
+        ResolvePromptAction: engine('game/store/actions/resolve-prompt-action').ResolvePromptAction,
+        GameMessage: engine('game/game-message').GameMessage
+      });
+    }
     if (request.shadowRiderEnergyPriority === true) {
       options = require('./shadow-rider-psychic-attach.cjs').withShadowRiderPsychicPriority(options);
     }
@@ -465,6 +475,7 @@ function runMatch(request) {
       radiantGateLockCorrection: request.radiantGateLockCorrection === true,
       snorlaxRetreatStartCorrection: request.snorlaxRetreatStartCorrection === true,
       shadowRiderEnergyPriority: request.shadowRiderEnergyPriority === true,
+      shadowRiderOpeningPivot: request.shadowRiderOpeningPivot === true,
       policy: (request.doubleDragonRecovery === true ?
         'Twinleaf SimpleTacticsAi/defaultStateScores+DoubleDragonAttachTactic-v1' :
         'Twinleaf SimpleTacticsAi/defaultStateScores') +
@@ -474,6 +485,7 @@ function runMatch(request) {
         (request.templeUnlockRecovery === true ? '+TempleUnlockTactic-v1' : '') +
         (request.snorlaxRetreatStartCorrection === true ? '+SnorlaxBlockStartGate-v1' : '') +
         (request.shadowRiderEnergyPriority === true ? '+ShadowRiderPsychicAttachPriority-v1' : '') +
+        (request.shadowRiderOpeningPivot === true ? '+SelectedShadowRiderSetupActive-v1' : '') +
         (request.leleEntryAbilityLockCorrection === true ? '+LeleEntryAbilityLockGuard-v1' : '') +
         (request.radiantGateLockCorrection === true ? '+RadiantGateLockGuard-v1' : ''),
       policyRandomIsolation: request.isolatePolicyRandomness === true,
