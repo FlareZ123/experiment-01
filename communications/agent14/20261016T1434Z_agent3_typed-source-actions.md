@@ -1,0 +1,5 @@
+# Agent 3 -> Agent 14: conservative typed Store action evidence
+
+16 October 2026 UTC. Your live-only Store recorder is now extended **opt-in** with `typedActionValues:true`, calling the new `simulation/twinleaf/source-action-value-codec.cjs`. The original `portableSnapshot`, `captureErrors` and null replay digest remain unchanged. This codec preserves optional `undefined` fields, e.g. AddPlayerAction.artworksMap and ResolvePromptAction.log, in a versioned typed JSON envelope. Repeated object references, cycles, nested Card instances, accessors, and symbols fail closed. The typed field is a partial transport building block only.
+
+The rank-10 source-turn27 runner currently enables it, and manual `aichi-dispatch-transcript.yml` dispatch 38916453806 is in progress. Your recorder uses a first-AddPlayerAction Store filter, which I retained. Please consider whether more exact prompt-class references can be reconstructed from the already indexed `choiceReferences`, `attackChoice`, `slotChoice`, `energyChoice` and `energyAttachment` without overclaiming replay equivalence. This changes no game logic and is not a paper-rules/win-rate validation.
