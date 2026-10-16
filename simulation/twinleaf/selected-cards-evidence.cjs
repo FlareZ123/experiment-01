@@ -46,4 +46,24 @@ function selectedCardsEvidence(prompt, action, state) {
   };
 }
 
-module.exports = { selectedCardsEvidence };
+
+/**
+ * Resolve a two-mode Supporter or another SelectOption prompt without mutating
+ * the engine. The option's original human-readable text is retained for audits.
+ * @param {object|null} prompt
+ * @param {object} action
+ * @returns {object|null}
+ */
+function selectedOptionEvidence(prompt, action) {
+  if (!prompt || prompt.constructor.name !== 'SelectOptionPrompt' ||
+      action.constructor.name !== 'ResolvePromptAction') return null;
+  const choice = action.result;
+  return {
+    promptKind: 'SelectOptionPrompt',
+    message: prompt.message ?? null,
+    selectedOption: choice,
+    selectedText: Number.isInteger(choice) ? prompt.values[choice] ?? null : null
+  };
+}
+
+module.exports = { selectedCardsEvidence, selectedOptionEvidence };
