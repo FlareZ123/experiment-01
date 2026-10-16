@@ -43,6 +43,8 @@ jobs:
         run: node simulation/twinleaf/prototype-safe-simulator-characterization.cjs
       - name: Observe all live Card scalar and flat-array changes during source-ranked bot scoring
         run: node simulation/twinleaf/natural-bot-general-card-leak-audit.cjs
+      - name: Validate prototype-safe headless lifecycle and restoration
+        run: node simulation/twinleaf/headless-prototype-safe-smoke.cjs
       - name: Compare detached Simulator across four predeclared exploratory seeds
         run: node simulation/twinleaf/detached-simulator-sensitivity-grid.cjs
       - name: Reproduce conditional Counter phantom-damage consequence
