@@ -1,0 +1,25 @@
+name: Shadow Rider source-locked opening tradeoff
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exhaustive hand and Prize regressions
+        run: node --test tests/aichi-radiant-start-tradeoff.test.cjs
+      - name: Produce exact source-locked candidate comparison
+        run: node scripts/aichi-radiant-start-tradeoff.cjs > aichi-radiant-start-tradeoff.jsonl
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aichi-radiant-start-tradeoff
+          path: aichi-radiant-start-tradeoff.jsonl
