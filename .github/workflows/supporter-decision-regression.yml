@@ -2,6 +2,12 @@ name: Twinleaf Supporter decision state regression
 
 on:
   workflow_dispatch:
+    inputs:
+      run_aichi_fixture:
+        description: 'Run two additional Aichi weak-bot policy feasibility games'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -27,3 +33,6 @@ jobs:
         run: npm run compile
       - name: Validate Supporter proposal and field provenance
         run: node --test tests/supporter-decision-hook.test.cjs tests/test-aichi-field-benchmark.cjs
+      - name: Optional published-list policy feasibility probe
+        if: ${{ inputs.run_aichi_fixture }}
+        run: node simulation/twinleaf/supporter-aichi-smoke.cjs
