@@ -30,6 +30,8 @@ jobs:
         run: node --test tests/dde-attach-priority.test.cjs
       - name: Verify pinned Apex-aware attachment priority
         run: node simulation/twinleaf/dde-target-priority.cjs
+      - name: Test real Temple search and Marshadow recovery
+        run: node simulation/twinleaf/temple-search-action-chain.cjs
       - name: Check separate hidden-order policy invariant
         run: node simulation/twinleaf/hidden-deck-order-policy.cjs
       - name: Source-deck Double Dragon decision audit
