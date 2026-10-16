@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {lightningUnits} = require('../scripts/aichi-raichu-energy-capacity.cjs');
+const {lightningUnits,prizeUpperBound} = require('../scripts/aichi-raichu-energy-capacity.cjs');
 const {manualPlusBombFrontier, publishedRaichuFrontiers} =
   require('../scripts/aichi-raichu-manual-attachment.cjs');
 
@@ -75,4 +75,20 @@ test('source ranks 4 and 17 retain the 12-energy printed inventory', () => {
       {prizes: 5, packetsUsed: 16,
         targetIds: ['Shadow Rider VMAX', 'Shadow Rider V']});
   }
+});
+
+test('both Shadow Rider targets must be Benched to clear the fresh-target five-Prize threshold',()=>{
+  const vmax={id:'VMAX',hp:320,damage:0,prizes:3};
+  const v={id:'V',hp:210,damage:0,prizes:2};
+  const benchBonus=target=>({...target,bonusDamage:30});
+  const twoBenched=prizeUpperBound(16,[benchBonus(vmax),benchBonus(v)]);
+  const activeVMAX=prizeUpperBound(16,[vmax,benchBonus(v)]);
+  const activeV=prizeUpperBound(16,[benchBonus(vmax),v]);
+  assert.equal(twoBenched.prizes,5);
+  assert.equal(twoBenched.packetsUsed,16);
+  assert.equal(activeVMAX.prizes,3);
+  assert.equal(activeV.prizes,3);
+  // The mixed active/bench targets require 17 packets in either orientation.
+  assert.equal(prizeUpperBound(17,[vmax,benchBonus(v)]).prizes,5);
+  assert.equal(prizeUpperBound(17,[benchBonus(vmax),v]).prizes,5);
 });
