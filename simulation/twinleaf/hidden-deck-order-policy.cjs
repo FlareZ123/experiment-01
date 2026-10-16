@@ -23,6 +23,7 @@ function fixture(reverse) {
   const research = manager.getAllCards().find(card => card.name === "Professor's Research");
   assert.ok(research, 'Expected any implemented Professor\'s Research printing');
   f.attacking.hand.cards.push(get('Carmine TWM'), research);
+  f.attacking.usedVSTAR = true;
   const cards = [
     ...Array.from({length:7},()=>get('Grass Energy MEE')),
     ...Array.from({length:7},()=>get('Dratini OBF')),
@@ -52,8 +53,16 @@ function testHiddenOrder() {
   const b = fixture(true);
   const ai1 = new SimpleTacticsAi({id:101},opts,null);
   const ai2 = new SimpleTacticsAi({id:101},opts,null);
-  const first = label(ai1.decodeNextAction(a.state));
-  const second = label(ai2.decodeNextAction(b.state));
+  const { installSupporterDecisionHook } = require('./supporter-decision-hook.cjs');
+  const restore = installSupporterDecisionHook();
+  let first;
+  let second;
+  try {
+    first = label(ai1.decodeNextAction(a.state));
+    second = label(ai2.decodeNextAction(b.state));
+  } finally {
+    restore();
+  }
   assert.equal(a.attacking.hand.cards.length,b.attacking.hand.cards.length);
   assert.deepEqual(
     a.attacking.deck.cards.map(c=>c.fullName).sort(),
