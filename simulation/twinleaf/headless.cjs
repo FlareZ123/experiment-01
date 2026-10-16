@@ -11,7 +11,7 @@ const {installForestSealSearchHook} = require('./forest-seal-search-hook.cjs');
 const {installSupporterDecisionHook} = require('./supporter-decision-hook.cjs');
 const {selectedCardsEvidence} = require('./selected-cards-evidence.cjs');
 const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.cjs');
-const {publicSnapshot, observeTerminalTransition} = require('./terminal-transition.cjs');
+const {publicSnapshot, observeTerminalTransition, advanceActionLineage} = require('./terminal-transition.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -276,6 +276,7 @@ function runMatch(request) {
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
     let terminalTransition = null;
+    let actionLineage = null;
     while (store.state.phase !== GamePhase.FINISHED && actions < maxActions) {
       const state = store.state;
       const pending = state.prompts.find(prompt => prompt.result === undefined);
@@ -315,6 +316,10 @@ function runMatch(request) {
       const turnBefore = state.turn;
       const actingId = pending ? pending.playerId : (action.clientId ?? action.id);
       const seat = state.players.findIndex(player => player.id === actingId);
+      actionLineage = advanceActionLineage(actionLineage, {
+        actionOrdinal: actions, name: actionName, playerSlot: seat,
+        pendingPrompt: pending ? pending.constructor.name : null
+      });
       const playedCard = actionName === 'PlayCardAction' && seat >= 0 ?
         state.players[seat].hand.cards[action.handIndex]?.name : undefined;
       const abilityInfo = actionName === 'UseAbilityAction' && seat >= 0 ? {
@@ -340,7 +345,9 @@ function runMatch(request) {
           pendingPrompt: pending ? pending.constructor.name : null},
         GamePhase.FINISHED
       );
-      if (observedTerminal) terminalTransition = observedTerminal;
+      if (observedTerminal) terminalTransition = {
+        ...observedTerminal, actionLineage
+      };
       actionCounts[actionName] = (actionCounts[actionName] || 0) + 1;
       if (seat >= 0) {
         actionsBySeat[seat][actionName] = (actionsBySeat[seat][actionName] || 0) + 1;
