@@ -367,6 +367,7 @@ function runMatch(request) {
           ...(playedCard ? { card: playedCard } : {}),
           ...(abilityInfo ? { ability: abilityInfo.name } : {}),
           ...(selectionInfo ? { cardSelection: selectionInfo } : {}),
+          ...(optionInfo ? { optionSelection: optionInfo } : {}),
           ...(publicBoardBeforePass ? { publicBoardBeforePass } : {}),
           ...(attackInfo ? { attack: attackInfo.attack,
             attacker: attackInfo.activePokemon } : {}),
