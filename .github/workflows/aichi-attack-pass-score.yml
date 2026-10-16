@@ -30,3 +30,5 @@ jobs:
         run: node simulation/twinleaf/aichi-rank10-koraidon-score.cjs
       - name: Explain source Koraidon score components
         run: node simulation/twinleaf/aichi-rank10-score-components.cjs
+      - name: Check original turn-five Pass against Pale Moon delayed knockout
+        run: node simulation/twinleaf/aichi-rank10-pale-moon-pass.cjs
