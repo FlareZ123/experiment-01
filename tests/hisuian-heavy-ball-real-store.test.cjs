@@ -169,3 +169,51 @@ test('headless opt-in hook is reversible and has no effect when no Ball is prese
   assert.deepEqual(repeated, baseline,
     'Headless hook must leave the following uninstrumented game unchanged');
 });
+
+
+test('real Store excludes an originally face-up Basic from Heavy Ball Prize choices', () => {
+  const {PlayCardAction, PlayerType, SlotType} =
+    engine('game/store/actions/play-card-action');
+  const {ResolvePromptAction} =
+    engine('game/store/actions/resolve-prompt-action');
+  /** @param {boolean} patched */
+  function inspect(patched) {
+    const f = board(false);
+    const faceUpBasic = initializeCards()
+      .getCardByName('Shadow Rider Calyrex V CRE');
+    assert.ok(faceUpBasic);
+    const slot = f.a.prizes[2];
+    slot.cards.splice(0, 1, faceUpBasic);
+    slot.isSecret = false;
+    const oldPrompt = Object.getOwnPropertyDescriptor(f.store, 'prompt');
+    const restore = patched ? installHisuianHeavyBallPrizeShuffleHook() : null;
+    try {
+      f.store.dispatch(new PlayCardAction(f.a.id, 0, {
+        player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
+      }));
+      const pending = f.state.prompts.find(p => p.result === undefined);
+      assert.ok(pending);
+      assert.equal(pending.constructor.name, 'ChooseCardsPrompt');
+      const erroneouslyOffered = pending.validate([faceUpBasic], f.state);
+      const physicallyOffered = pending.cards.cards.includes(faceUpBasic);
+      assert.equal(pending.validate([], f.state), true);
+      f.store.dispatch(new ResolvePromptAction(pending.id, []));
+      assert.strictEqual(f.a.prizes[2], slot);
+      assert.deepEqual(slot.cards, [faceUpBasic],
+        'Originally face-up Prize is unaffected by face-down Prize shuffle');
+      assert.equal(slot.isSecret, false);
+      assert.ok(f.a.discard.cards.includes(f.ball));
+      return {erroneouslyOffered, physicallyOffered};
+    } finally {
+      if (restore) restore();
+      assert.deepEqual(Object.getOwnPropertyDescriptor(f.store, 'prompt'), oldPrompt,
+        'Per-action prompt interception must not persist in the Store');
+    }
+  }
+  assert.deepEqual(inspect(false), {
+    erroneouslyOffered:true, physicallyOffered:true
+  }, 'Pinned reducer wrongly exposes originally face-up Basic for selection');
+  assert.deepEqual(inspect(true), {
+    erroneouslyOffered:false, physicallyOffered:false
+  }, 'Opt-in correction must show only originally face-down cards');
+});
