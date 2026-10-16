@@ -22,6 +22,21 @@ The concrete `Guzma & Hala CEC 193` implementation at `ptcg-server/src/sets/08-s
 
 Run the manual-only [Supporter regression workflow](../../.github/workflows/supporter-decision-regression.yml). The first dispatched regression is [GitHub Actions run 38833533987](https://github.com/FlareZ123/experiment-01/actions/runs/38833533987); its result should be checked rather than assumed.
 
+## Pinned-engine source-deck execution: 16 October 2026
+
+[Manual CI run 38833951933](https://github.com/FlareZ123/experiment-01/actions/runs/38833951933) successfully compiled pinned Twinleaf, ran 18 targeted policy/benchmark tests, and executed [the opt-in two-game Aichi fixture](../../simulation/twinleaf/supporter-aichi-smoke.cjs). Both games used published rank 1 Shadow Rider as engine A and rank 10 Regidrago as engine B, seed `20261016`, first actual turn B verified against earliest draw log, 900-action cap and `separate-game-and-per-seat-policy-prng-v1`.
+
+| Variant | Finished | Actions | Turns | A Supporter plays | B Supporter plays | Engine winner |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| Original pinned tactic | yes | 125 | 19 | 0 | 0 | B (Regidrago) |
+| `SupporterDecisionGuard-v1` | yes | 247 | 30 | 4 | 4 | A (Shadow Rider) |
+
+Guarded game A used `Iono` twice, `Guzma` once, `Carmine` once; guarded game B used `Guzma` twice, `Iono` once and `Professor's Research` once. Both source-deck SHA-256 hashes were unchanged between games, and both experiments reported the same first-turn slot (B). The action logs show a major change in legal Supporter use, with the outcome also changing. The comparison is a **policy-impact characterization**, not a paired-randomness-invariant estimate: after actions diverge, actual game events consume their common stream in different orders. It does not isolate all downstream factors or establish competent human-level play.
+
+[Machine-readable game summary](supporter-aichi-smoke.json) preserves the source rank, seat, hashes, first-turn confirmation, supporter counts, and CI provenance. The entire detailed card-play trace is in the workflow log.
+
+The uncorrected [Hood Shield smoke archive](../aichi-2026/hood-engine-smoke.json) independently reports **zero Supporters played by either seat across all four archived weak-bot games**, consistent with the newly verified defect. Those separate, unpatched games were generated under other matchup conditions and should not be merged into a quantitative treatment effect.
+
 ## Limitations and next decisive experiment
 
 A complete pinned Store fixture should show a Guzma & Hala play occurring from a legally reachable Aichi-style turn **with and without** the hook, under a fixed card state and controlled random streams, logging whether `PlayCardAction` was selected, attempted, and dispatched. Then compare policy-level full games and representative opponent tactics. The patch itself is a legality/policy fidelity correction, with **no demonstrated improvement in game wins**.
