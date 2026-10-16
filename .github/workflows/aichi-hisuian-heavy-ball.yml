@@ -27,3 +27,11 @@ jobs:
         run: npm run compile
       - name: Reproduce and test Prize-position correction
         run: node --test tests/hisuian-heavy-ball-prize-hook.test.cjs tests/hisuian-heavy-ball-real-store.test.cjs
+      - name: Audit live rank-10 source-dealt Heavy Ball branches
+        run: node simulation/twinleaf/hisuian-heavy-ball-source-audit.cjs > heavy-ball-rank10-source.json
+      - name: Archive source-game diagnostic and digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: heavy-ball-rank10-source
+          path: heavy-ball-rank10-source.json
+          retention-days: 14
