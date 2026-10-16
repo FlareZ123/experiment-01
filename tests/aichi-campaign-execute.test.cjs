@@ -243,3 +243,25 @@ test('opt-in Lele entry timing correction is propagated and kept out of game-win
   assert.equal(output.engineAndPolicyQualified, false);
   assert.equal(output.strengthClaimPermitted, false);
 });
+
+test('fixed-campaign profile identity is source-attributed and rejects unknown profiles', () => {
+  const campaign = loadDefaultCampaign();
+  const request = {
+    campaign, ranks: [6],
+    researchPolicyProfile: 'expanded-action-fidelity-probe-v1',
+    resolvePair: t => ({
+      candidateDigest: t.candidateDigest, opponentDigest: t.opponentDigest,
+      candidateCards: cards, opponentCards: cards
+    }),
+    runMatch: r => sampleGame(r)
+  };
+  const result = executeDiagnostic(request);
+  assert.equal(result.researchPolicyProfile, 'expanded-action-fidelity-probe-v1');
+  assert.equal(result.totalScheduled, 6);
+  assert.ok(result.records.every(r =>
+    r.researchPolicyProfile === 'expanded-action-fidelity-probe-v1'));
+  assert.equal(result.strengthClaimPermitted, false);
+  assert.throws(() => executeDiagnostic({
+    ...request, researchPolicyProfile: 'uncontrolled-profile'
+  }), /research policy profile/);
+});
