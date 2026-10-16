@@ -58,6 +58,8 @@ function oneSetup(deck0, deck1, seed) {
     const shuffles = [0, 0];
     const bonusPromptCount = [0, 0];
     const bonusPromptOffers = [0, 0];
+    const bonusSelected = [0, 0];
+    const bonusDrawn = [0, 0];
     let actions = 0;
     const recentSetupActions = [];
     // The pinned reducer enters DRAW and emits a WaitPrompt before PLAYER_TURN.
@@ -67,6 +69,7 @@ function oneSetup(deck0, deck1, seed) {
       const state = store.state;
       const prompt = state.prompts.find(p => p.result === undefined);
       if (!prompt) throw new Error('Setup phase without actionable prompt.');
+      let activeBonus = null;
       if (prompt instanceof SelectPrompt && prompt.message === GameMessage.WANT_TO_DRAW_CARDS) {
         const offeredSeat = state.players.findIndex(p => p.id === prompt.playerId);
         if (offeredSeat < 0) throw new Error('Unknown recipient for bonus-card offer.');
@@ -77,6 +80,7 @@ function oneSetup(deck0, deck1, seed) {
         });
         bonusPromptCount[offeredSeat] += 1;
         bonusPromptOffers[offeredSeat] += Math.max(...offeredCounts);
+        activeBonus = {seat: offeredSeat, offeredCounts};
       }
       let action;
       if (prompt instanceof ShuffleDeckPrompt) {
@@ -93,6 +97,11 @@ function oneSetup(deck0, deck1, seed) {
         action = seats[seat].decodeNextAction(state);
       }
       if (!action) throw new Error('Unresolved setup prompt: ' + prompt.constructor.name);
+      const selectedBonus = activeBonus ? activeBonus.offeredCounts[action.result] : null;
+      if (activeBonus && !Number.isInteger(selectedBonus)) {
+        throw new Error('Non-numeric bonus selection from pinned bot.');
+      }
+      const handBeforeBonus = activeBonus ? state.players[activeBonus.seat].hand.cards.length : null;
       recentSetupActions.push({
         prompt: prompt.constructor.name, message: String(prompt.message || ''),
         recipientId: prompt.playerId ?? prompt.getPerspectivePlayerId?.() ?? null,
@@ -102,6 +111,14 @@ function oneSetup(deck0, deck1, seed) {
       });
       if (recentSetupActions.length > 8) recentSetupActions.shift();
       store.dispatch(action);
+      if (activeBonus) {
+        const actualDrawn = store.state.players[activeBonus.seat].hand.cards.length - handBeforeBonus;
+        bonusSelected[activeBonus.seat] += selectedBonus;
+        bonusDrawn[activeBonus.seat] += actualDrawn;
+        if (actualDrawn !== selectedBonus) {
+          throw new Error('Bonus selection disagrees with actual setup hand growth.');
+        }
+      }
       actions += 1;
     }
     if (store.state.phase !== GamePhase.PLAYER_TURN) {
@@ -118,11 +135,13 @@ function oneSetup(deck0, deck1, seed) {
       Math.max(0, mulligans[0] - mulligans[1])
     ];
     if (bonusPromptCount.reduce((sum, count) => sum + count, 0) > 1 ||
-        bonusPromptOffers.some((count, seat) => count !== bonusOffered[seat])) {
+        bonusPromptOffers.some((count, seat) => count !== bonusOffered[seat]) ||
+        bonusSelected.some((count, seat) => count > bonusPromptOffers[seat])) {
       throw new Error('Observed Twinleaf bonus prompts disagree with redraw-count evidence.');
     }
     return {
       mulligans, bonusOffered, bonusPromptCount, bonusPromptOffers,
+      bonusSelected, bonusDrawn,
       setupActions: actions,
       firstSeat: store.state.activePlayer
     };
@@ -146,7 +165,8 @@ function auditMulligans(trials = 2000) {
   const b = byRank.get(6).cardIds;
   const stats = {
     initialMulligans: [0, 0], totalMulligans: [0, 0],
-    totalOfferedBonus: [0, 0], bonusCases: [0, 0],
+    totalOfferedBonus: [0, 0], totalTakenBonus: [0, 0],
+    allOffersTakenGames: 0, bonusCases: [0, 0],
     noBonusCases: 0, firstSeatCount: [0, 0], setupActions: 0
   };
   for (let i = 0; i < trials; i++) {
@@ -155,10 +175,13 @@ function auditMulligans(trials = 2000) {
       stats.initialMulligans[seat] += Number(sample.mulligans[seat] > 0);
       stats.totalMulligans[seat] += sample.mulligans[seat];
       stats.totalOfferedBonus[seat] += sample.bonusOffered[seat];
+      stats.totalTakenBonus[seat] += sample.bonusDrawn[seat];
       stats.bonusCases[seat] += Number(sample.bonusPromptCount[seat] > 0);
     }
     stats.noBonusCases += Number(sample.bonusPromptCount[0] === 0 &&
       sample.bonusPromptCount[1] === 0);
+    stats.allOffersTakenGames += Number(sample.bonusSelected.every((count, seat) =>
+      count === sample.bonusPromptOffers[seat]));
     stats.firstSeatCount[sample.firstSeat] += 1;
     stats.setupActions += sample.setupActions;
   }
@@ -180,11 +203,13 @@ function auditMulligans(trials = 2000) {
       exactNeither: exact.neither,
       exactExpectedOffers: [exact.candidateExpected, exact.opponentExpected],
       mutualExclusivityVerifiedPerSetup: true,
-      promptsCrossCheckedAgainstRedrawCounts: true
+      promptsCrossCheckedAgainstRedrawCounts: true,
+      fractionGamesTakingAllOfferedCards: stats.allOffersTakenGames / trials
     },
     initialMulliganRates: stats.initialMulligans.map(n => n / trials),
     totalMulligansPerGame: stats.totalMulligans.map(n => n / trials),
     optionalBonusDrawsOfferedPerGame: stats.totalOfferedBonus.map(n => n / trials),
+    optionalBonusDrawsTakenPerGame: stats.totalTakenBonus.map(n => n / trials),
     expectedInitialMulliganRates: expected,
     firstSeatRates: stats.firstSeatCount.map(n => n / trials),
     averageSetupActions: stats.setupActions / trials,
