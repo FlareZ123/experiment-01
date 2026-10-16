@@ -33,6 +33,14 @@ on:
         required: false
         type: string
         default: '6'
+      seat_seed_protocol:
+        description: 'Explicitly versioned random-seat seed schedule; v2 remains archive default'
+        required: false
+        type: choice
+        options:
+          - independent-slots-v2
+          - decorrelated-slots-v3
+        default: independent-slots-v2
       expanded_action_policy:
         description: 'Experimental Tool attack, Bunnelby Evolution and Temple response profile; not competitive'
         required: false
@@ -61,7 +69,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify terminal-transition and campaign regressions
-        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/printed-basic-energy-audit.test.cjs tests/aichi-basic-covered-passes.test.cjs tests/aichi-benched-basic-pass-triage.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-pass-board-audit.test.cjs tests/aichi-campaign-execute.test.cjs tests/aichi-campaign-seed-v2.test.cjs tests/decision-hand-evidence.test.cjs tests/aichi-opening-decision-audit.test.cjs tests/aichi-campaign-quality-screen.test.cjs tests/tm-evolution-pass-evidence.test.cjs tests/bunnelby-k0-deck-target-leak.test.cjs tests/active-opening-pivot.test.cjs tests/attack-retreat-order.test.cjs tests/retreat-transition-evidence.test.cjs tests/pass-attack-announcement-probe.test.cjs tests/aichi-pass-attack-opportunities.test.cjs tests/pass-probe-noninterference.test.cjs
+        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/printed-basic-energy-audit.test.cjs tests/aichi-basic-covered-passes.test.cjs tests/aichi-benched-basic-pass-triage.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-pass-board-audit.test.cjs tests/aichi-campaign-execute.test.cjs tests/aichi-campaign-seed-v2.test.cjs tests/aichi-campaign-seed-v3.test.cjs tests/decision-hand-evidence.test.cjs tests/aichi-opening-decision-audit.test.cjs tests/aichi-campaign-quality-screen.test.cjs tests/tm-evolution-pass-evidence.test.cjs tests/bunnelby-k0-deck-target-leak.test.cjs tests/active-opening-pivot.test.cjs tests/attack-retreat-order.test.cjs tests/retreat-transition-evidence.test.cjs tests/pass-attack-announcement-probe.test.cjs tests/aichi-pass-attack-opportunities.test.cjs tests/pass-probe-noninterference.test.cjs
       - name: Install engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -86,7 +94,7 @@ jobs:
       - name: Run fixed-plan three-candidate rank-6 diagnostic
         env:
           AICHI_DIAGNOSTIC_RANKS: ${{ inputs.pilot_ranks || '6' }}
-          AICHI_DIAGNOSTIC_SEED_PROTOCOL: 'independent-slots-v2'
+          AICHI_DIAGNOSTIC_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'independent-slots-v2' }}
           AICHI_POLICY_PROFILE: ${{ inputs.expanded_action_policy && 'expanded-action-fidelity-probe-v1' || 'fixed-core-v1' }}
           AICHI_SHADOW_ENERGY: ${{ inputs.shadow_rider_energy_priority && '1' || '0' }}
           AICHI_SHADOW_ENERGY_GLOBAL: ${{ inputs.shadow_rider_energy_across_field && '1' || '0' }}
