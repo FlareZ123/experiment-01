@@ -26,3 +26,5 @@ jobs:
         run: node simulation/twinleaf/iron-thorns-turn2-attack.cjs
       - name: Source hand to Guzma and Hala to Special Energy to Volt Cyclone
         run: node simulation/twinleaf/iron-thorns-guzma-hala-line.cjs
+      - name: Inspect first source-dealt rank6 Prize zone with noninterference gate
+        run: node simulation/twinleaf/rank6-seed-opening-probe.cjs
