@@ -64,6 +64,8 @@ test('reject source shapes omitted or miscloned by pinned helper',()=>{
   assert.throws(()=>assertVendorCloneCompatibleSource(accessor),
     /symbol, accessor or non-enumerable/);
   assert.throws(()=>assertVendorCloneCompatibleSource({at:new Date()}),/internal object slots/);
+  const derived=Object.create({hidden:new Card()});derived.visible=3;
+  assert.throws(()=>assertVendorCloneCompatibleSource({derived}),/non-class dynamic prototype/);
   const array=[];array.push(array);
   assert.throws(()=>assertVendorCloneCompatibleSource({array}),/cyclic arrays/);
 });
