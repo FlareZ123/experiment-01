@@ -4,6 +4,8 @@ const path = require('node:path');
 const {preparedRegidrago} = require('./apex-attack-action.cjs');
 const {installPrototypeSafeSimulatorHook} =
   require('./prototype-safe-simulator-hook.cjs');
+const {installPostSuperAliasRepairHook} =
+  require('./post-super-alias-repair-hook.cjs');
 
 const output = path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output');
@@ -80,7 +82,16 @@ function auditSimulatorProfiles(state) {
   } finally {
     restore();
   }
-  return {pinned,prototypeSafe};
+  const restorePostSuper=installPostSuperAliasRepairHook();
+  let postSuperRepair;
+  try {
+    const {Simulator:ReconciledSimulator}=engine('game/bots/simulator');
+    postSuperRepair=compareOwnedStateGraph(state,
+      new ReconciledSimulator(state).store.state);
+  } finally {
+    restorePostSuper();
+  }
+  return {pinned,prototypeSafe,postSuperRepair};
 }
 
 /** @returns {object} */
