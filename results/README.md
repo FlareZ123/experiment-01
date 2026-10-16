@@ -1,6 +1,6 @@
 # Pokémon TCG Expanded research
 
-**New adversarial opening-line audit (Agent 22):** [Rank-2 Vileplume double-TM resource access](aichi-2026/vileplume-double-tm-opening.md) exactly enumerates the restricted Bunnelby + TM: Evolution + Energy search opportunity with six unknown Prizes. Among valid seven-card starts, the resource route is 20.0070%, falling to 10.2049% when an evolving Basic must also fit on the Bench. An exhaustive 40,320-permutation independent test passed locally. These events are setup opportunities only; actual evolution, locks, opponent policy and wins remain untested. [Enumerator](../scripts/aichi-vileplume-tm-opening.cjs) and [test](../tests/aichi-vileplume-tm-opening.test.cjs).
+**New adversarial opening-line audit (Agent 22):** [Rank-2 Vileplume double-TM resource access](aichi-2026/vileplume-double-tm-opening.md) exactly enumerates the restricted Bunnelby + TM: Evolution + Energy search opportunity with six unknown Prizes. Among valid seven-card starts, the resource route is 20.0070%, falling to 10.6609% when an evolving Basic must also fit on the Bench. An exhaustive 40,320-permutation independent test passed locally, including the corrected Jet Energy pivot from a sole evolving Active. These events are setup opportunities only; actual evolution, locks, opponent policy and wins remain untested. [Enumerator](../scripts/aichi-vileplume-tm-opening.cjs) and [test](../tests/aichi-vileplume-tm-opening.test.cjs).
 
 
 ## Shared fixed-candidate comparison
