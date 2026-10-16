@@ -10,6 +10,10 @@ The [opt-in hook](../../simulation/twinleaf/own-deck-determinization-hook.cjs) i
 
 The [source-list fixture](../../simulation/twinleaf/own-deck-determinization-audit.cjs) reuses the exact rank-10 60-card inventory from the Aichi manifest, comparing two injected turn-four boards with 14 unseen deck cards and the same visible information. It first verifies the pre-hook pass-versus-Research choice difference under the independent Supporter proposal guard, then repeats the comparison with own-deck sampling. The [compiled regression](../../tests/twinleaf-own-deck-sampling.test.cjs) checks that sampled valuations and selected actions match across these two information-equivalent states, and that their original physical deck orders are restored.
 
+## Compiled regression result
+
+[Manual CI run 38836110415](https://github.com/FlareZ123/experiment-01/actions/runs/38836110415) passed the pinned-engine test. Without the sampler, the paired rank-10 source-inventory states selected `PassTurnAction` and `PlayCardAction`. With 12 reproducible unseen-order samples, both returned **`PlayCardAction`** and identical mean speculative Supporter scores of **120.83333333333333**. The actual 14-card deck orders were restored afterward. The test included the known Supporter-turn proposal guard. This is a successful **local noninterference regression**, not evidence of global gameplay correctness.
+
 ## Hard limitations
 
 1. **Known top-deck information is not represented.** A player can sometimes legitimately know cards and order through prior effects. The hook requires an explicit `assumeNoKnownDeckOrder: true` from the caller; no gameplay-wide implementation should enable it blindly.
