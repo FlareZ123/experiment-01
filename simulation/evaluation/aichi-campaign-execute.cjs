@@ -42,12 +42,21 @@ function observedFirstTurn(game) {
 function executeDiagnostic(options) {
   const { campaign, ranks, resolvePair, runMatch, maxActions = 600,
     policyFlags = {}, researchRevision = 'not-recorded' } = options;
-  if (!campaign || campaign.schemaVersion !== 1 ||
+  if (!campaign || ![1, 2].includes(campaign.schemaVersion) ||
       campaign.purpose !== 'exploratory-diagnostic-only' ||
       typeof campaign.planDigest !== 'string' ||
       !Array.isArray(campaign.trials) ||
       typeof resolvePair !== 'function' || typeof runMatch !== 'function') {
     throw new Error('Invalid comparison campaign or execution callbacks.');
+  }
+  if ((campaign.schemaVersion === 1 && Object.hasOwn(campaign, 'seedProtocol')) ||
+      (campaign.schemaVersion === 2 &&
+        campaign.seedProtocol !== 'independent-slots-v2')) {
+    throw new Error('Unsupported campaign seed protocol.');
+  }
+  const { planDigest, trials: scheduledTrials, ...metadata } = campaign;
+  if (digest({ metadata, trials: scheduledTrials }) !== planDigest) {
+    throw new Error('Campaign planDigest integrity mismatch.');
   }
   if (!Array.isArray(ranks) || !ranks.length ||
       ranks.some(r => !Number.isInteger(r) || !campaign.pilotRanks.includes(r)) ||
@@ -72,6 +81,30 @@ function executeDiagnostic(options) {
   const expected = ranks.length * campaign.repeats * campaign.candidateRows.length * 2;
   if (trials.length !== expected || new Set(trials.map(t => t.trialId)).size !== expected) {
     throw new Error('Incomplete or repeated plan trials.');
+  }
+  const candidateDigests = new Map(campaign.candidateRows.map(
+    row => [row.id, row.deckDigest]));
+  if (candidateDigests.size !== campaign.candidateRows.length ||
+      !Number.isInteger(campaign.repeats) || campaign.repeats < 1 ||
+      !Number.isInteger(campaign.seedBase)) {
+    throw new Error('Invalid fixed-plan candidate or repeat metadata.');
+  }
+  for (const trial of trials) {
+    const slotOffset = trial.candidateEngineSlot === 'B' ? 1 : 0;
+    const expectedSeed = campaign.seedBase + 100000 + trial.rank * 1024 +
+      (campaign.schemaVersion === 2 ? 2 * trial.repeat + slotOffset : trial.repeat);
+    const expectedId = ['pilot', trial.rank, trial.repeat, trial.candidateId,
+      trial.candidateEngineSlot].join(':');
+    if (!candidateDigests.has(trial.candidateId) ||
+        trial.candidateDigest !== candidateDigests.get(trial.candidateId) ||
+        !['A', 'B'].includes(trial.candidateEngineSlot) ||
+        !Number.isInteger(trial.repeat) || trial.repeat < 0 ||
+        trial.repeat >= campaign.repeats ||
+        !Number.isInteger(trial.seed) || trial.seed !== expectedSeed ||
+        trial.trialId !== expectedId ||
+        trial.actualStartingTurn !== 'requires-runtime-verification') {
+      throw new Error('Malformed fixed-plan trial or seed assignment.');
+    }
   }
   const records = [];
   for (const trial of trials) {
@@ -186,6 +219,8 @@ function executeDiagnostic(options) {
   return {
     schemaVersion: 1, purpose: 'engine-and-policy-diagnostic-only',
     planDigest: campaign.planDigest, fieldDigest: campaign.fieldDigest,
+    campaignSchemaVersion: campaign.schemaVersion,
+    seedProtocol: campaign.seedProtocol || 'paired-slots-v1',
     candidateRows: campaign.candidateRows, fieldCoverage: campaign.coverage,
     selectedPilotRanks: ranks, maxActions, policyFlags, researchRevision,
     engineAndPolicyQualified: false, strengthClaimPermitted: false,
@@ -202,7 +237,9 @@ function main() {
   const { runMatch } = require('../twinleaf/headless.cjs');
   const { planAichi } = require('./aichi-pilot.cjs');
   const dir = path.resolve(__dirname, '../../results/aichi-2026');
-  const campaign = loadDefaultCampaign();
+  const seedProtocol = process.env.AICHI_DIAGNOSTIC_SEED_PROTOCOL ||
+    'paired-slots-v1';
+  const campaign = loadDefaultCampaign(seedProtocol);
   const source = JSON.parse(fs.readFileSync(path.join(dir, 'full-decklists.json'), 'utf8'));
   const byRank = new Map(source.decks.map(d => [d.rank, d]));
   const sourceCandidates = new Map([
