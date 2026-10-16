@@ -9,6 +9,7 @@ const {installMegatonBlowerHook} = require('./megaton-blower-hook.cjs');
 const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 const {installForestSealSearchHook} = require('./forest-seal-search-hook.cjs');
 const {installSupporterDecisionHook} = require('./supporter-decision-hook.cjs');
+const {publicSnapshot, observeTerminalTransition} = require('./terminal-transition.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -267,6 +268,7 @@ function runMatch(request) {
     const attackTrace = [];
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
+    let terminalTransition = null;
     while (store.state.phase !== GamePhase.FINISHED && actions < maxActions) {
       const state = store.state;
       const pending = state.prompts.find(prompt => prompt.result === undefined);
@@ -317,12 +319,20 @@ function runMatch(request) {
         attack: action.name,
         prizeCountBefore: state.players.map(player => player.prizes.filter(prize => prize.cards.length > 0).length)
       } : undefined;
+      const publicBeforeDispatch = publicSnapshot(state);
       try {
         store.dispatch(action);
       } catch (error) {
         throw new Error('Twinleaf dispatch failed after ' + actions + ' actions (' +
           action.constructor.name + '): ' + error.message, { cause: error });
       }
+      const observedTerminal = observeTerminalTransition(
+        publicBeforeDispatch, publicSnapshot(store.state),
+        {name: actionName, playerSlot: seat,
+          pendingPrompt: pending ? pending.constructor.name : null},
+        GamePhase.FINISHED
+      );
+      if (observedTerminal) terminalTransition = observedTerminal;
       actionCounts[actionName] = (actionCounts[actionName] || 0) + 1;
       if (seat >= 0) {
         actionsBySeat[seat][actionName] = (actionsBySeat[seat][actionName] || 0) + 1;
@@ -368,6 +378,7 @@ function runMatch(request) {
       attackTrace,
       abilityTrace,
       decisionTrace,
+      terminalTransition,
       finalState: state.players.map(player => ({
         deckRemaining: player.deck.cards.length,
         handSize: player.hand.cards.length,
