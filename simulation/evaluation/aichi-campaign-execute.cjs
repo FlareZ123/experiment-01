@@ -86,7 +86,7 @@ function executeDiagnostic(options) {
     'attackBeforeRetreat',
     'attackBeforeRetreatCandidateOnly',
     'leleEntryAbilityLockCorrection',
-    'radiantGateLockCorrection'
+    'radiantGateLockCorrection', 'entryDrawLockCorrection'
   ]);
   if (policyFlags === null || typeof policyFlags !== 'object' ||
       Array.isArray(policyFlags) ||
