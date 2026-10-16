@@ -24,3 +24,9 @@ function installElectrodeGXEnergyHook() {
     }
     const player = effect.player;
     const recipients = [];
+    player.forEachPokemon(PlayerType.BOTTOM_PLAYER,(list,card,target)=>{
+      if (!card.hasTag(CardTag.POKEMON_GX) && !card.hasTag(CardTag.POKEMON_EX)) {
+        recipients.push(target);
+      }
+    });
+    if (recipients.length===0) throw new GameError(GameMessage.CANNOT_USE_POWER);
