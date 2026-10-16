@@ -41,3 +41,5 @@ jobs:
         run: node simulation/twinleaf/headless-post-super-alias-smoke.cjs
       - name: Compare source-ranked three-profile clone policy decisions
         run: node simulation/twinleaf/post-super-vs-prototype-safe-source-contrast.cjs
+      - name: Probe source-ranked Koraidon AttackTactic scores under clone profiles
+        run: node simulation/twinleaf/aichi-rank10-koraidon-score-clone-contrast.cjs
