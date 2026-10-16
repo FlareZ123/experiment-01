@@ -23,3 +23,17 @@ function countQualifiedWins(round) {
   }
   const seen = new Set();
   let wins = 0;
+  for (const game of round) {
+    if (!game || !Number.isInteger(game.rank) || game.rank < 1 || game.rank > FIELD_SIZE ||
+        !['first','second'].includes(game.startingSeat) ||
+        !['win','loss','draw'].includes(game.outcome)) {
+      throw new Error('Invalid rank, actual starting seat, or complete outcome.');
+    }
+    const key = game.rank + ':' + game.startingSeat;
+    if (seen.has(key)) throw new Error('Repeated rank/seat cell: ' + key);
+    seen.add(key);
+    if (game.outcome === 'win') wins += 1;
+  }
+  return wins;
+}
+
