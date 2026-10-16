@@ -8,6 +8,7 @@ const {installToolJammerHook} = require('./tool-jammer-hook.cjs');
 const {installMegatonBlowerHook} = require('./megaton-blower-hook.cjs');
 const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 const {installForestSealSearchHook} = require('./forest-seal-search-hook.cjs');
+const {installSupporterDecisionHook} = require('./supporter-decision-hook.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -159,6 +160,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [forestSealSearchCorrection] Opt-in mandatory one-card Star Alchemy hook.
  * @property {boolean} [doubleDragonRecovery] Opt-in experimental legal dynamic-Energy attachment tactic.
  * @property {boolean} [isolatePolicyRandomness] Use independent RNG streams for speculative bot decisions (experimental).
+ * @property {boolean} [supporterDecisionCorrection] Opt-in, reversible correction for premature Supporter turn consumption.
  */
 
 /**
@@ -186,6 +188,7 @@ function runMatch(request) {
   let restoreToolJammerHook;
   let restoreMegatonBlowerHook;
   let restoreForestSealSearchHook;
+  let restoreSupporterDecisionHook;
   try {
     initializeCards();
     if (request.forestSealSearchCorrection === true) {
@@ -198,6 +201,9 @@ function runMatch(request) {
       registerPlayersCeremony();
     }
     restoreBotHooks = installFairBotHooks();
+    if (request.supporterDecisionCorrection === true) {
+      restoreSupporterDecisionHook = installSupporterDecisionHook();
+    }
     const { Store } = engine('game/store/store');
     const { AddPlayerAction } = engine('game/store/actions/add-player-action');
     const { ResolvePromptAction } = engine('game/store/actions/resolve-prompt-action');
@@ -356,15 +362,18 @@ function runMatch(request) {
         'predispatch-prompt-validate' : 'upstream-unchecked',
       forestSealSearchCorrection: request.forestSealSearchCorrection === true,
       doubleDragonRecovery: request.doubleDragonRecovery === true,
-      policy: request.doubleDragonRecovery === true ?
+      supporterDecisionCorrection: request.supporterDecisionCorrection === true,
+      policy: (request.doubleDragonRecovery === true ?
         'Twinleaf SimpleTacticsAi/defaultStateScores+DoubleDragonAttachTactic-v1' :
-        'Twinleaf SimpleTacticsAi/defaultStateScores',
+        'Twinleaf SimpleTacticsAi/defaultStateScores') +
+        (request.supporterDecisionCorrection === true ? '+SupporterDecisionGuard-v1' : ''),
       policyRandomIsolation: request.isolatePolicyRandomness === true,
       randomnessProtocol: request.isolatePolicyRandomness === true ?
         'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
       engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
     };
   } finally {
+    if (restoreSupporterDecisionHook) restoreSupporterDecisionHook();
     if (restoreBotHooks) restoreBotHooks();
     if (restoreForestSealSearchHook) restoreForestSealSearchHook();
     if (restoreMegatonBlowerHook) restoreMegatonBlowerHook();
