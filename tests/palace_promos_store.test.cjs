@@ -147,3 +147,47 @@ test('Jamming Tower suppresses Active Palace Belt extra turn-start draw', () => 
   assert.equal(effect.drawCount, 1,
     'Jamming Tower must suppress the attached Tool effect');
 });
+
+
+test("Player's Ceremony Stadium can end successive turns for both players", () => {
+  const f = board();
+  const {registerPlayersCeremony} =
+    require('../simulation/twinleaf/card-patches.cjs');
+  const {UseStadiumAction} = engine('game/store/actions/game-actions');
+  const {ResolvePromptAction} =
+    engine('game/store/actions/resolve-prompt-action');
+  const ceremony = f.card(registerPlayersCeremony());
+  f.a.stadium.cards.push(ceremony);
+
+  /** Follow only the pinned engine's explicitly pending turn-transition waits. */
+  function resolveWaits() {
+    let count = 0;
+    while (count < 8) {
+      const pending = f.state.prompts.find(p => p.result === undefined);
+      if (!pending) break;
+      assert.equal(pending.constructor.name, 'WaitPrompt');
+      assert.equal(pending.validate(null, f.state), true);
+      f.store.dispatch(new ResolvePromptAction(pending.id, null));
+      count++;
+    }
+    assert.ok(count > 0 && count < 8, 'Turn transition must be finite');
+  }
+
+  const beforeA = f.a.deck.cards.length;
+  f.store.dispatch(new UseStadiumAction(f.a.id));
+  assert.equal(f.a.deck.cards.length, beforeA - 2,
+    'Player A gets exactly the optional two-card Stadium draw');
+  assert.equal(f.a.stadiumUsedTurn, 2, 'Player A has spent the Stadium use');
+  resolveWaits();
+  assert.equal(f.state.activePlayer, 1);
+  assert.ok(f.a.stadium.cards.includes(ceremony), 'Stadium stays in play');
+
+  const beforeB = f.b.deck.cards.length;
+  f.store.dispatch(new UseStadiumAction(f.b.id));
+  assert.equal(f.b.deck.cards.length, beforeB - 2,
+    'Player B can also use the shared Stadium on their own turn');
+  resolveWaits();
+  assert.equal(f.state.activePlayer, 0);
+  assert.ok(f.a.stadium.cards.includes(ceremony));
+  assert.equal(f.a.discard.cards.includes(ceremony), false);
+});
