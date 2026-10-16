@@ -90,6 +90,12 @@ test('default Ability tactic omits attached Tool power; opt-in enumerates an act
   const restore=installForestSealSearchHook();
   try{
     fixture.store.dispatch(selected);
+    while (fixture.state.prompts.some(p=>p.result===undefined &&
+      p.constructor.name==='WaitPrompt')) {
+      const wait=fixture.state.prompts.find(p=>p.result===undefined &&
+        p.constructor.name==='WaitPrompt');
+      fixture.store.dispatch(new ResolvePromptAction(wait.id,null));
+    }
     const choose=fixture.state.prompts.find(p=>p.result===undefined);
     assert.equal(choose?.constructor.name,'ChooseCardsPrompt');
     assert.equal(choose.options.min,1);
