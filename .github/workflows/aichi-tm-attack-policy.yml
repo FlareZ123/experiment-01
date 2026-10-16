@@ -28,7 +28,7 @@ jobs:
       - name: Characterize K0 Prize partition information boundary
         run: node --test tests/bunnelby-k0-deck-target-leak.test.cjs tests/bunnelby-k0-source-inventory.test.cjs
       - name: Test source-backed Tool attack decision
-        run: node --test tests/tm_attack_policy.test.cjs tests/attack-announcement-probe.test.cjs tests/pass-attack-source-board-regression.test.cjs
+        run: node --test tests/tm_attack_policy.test.cjs tests/pass-attack-announcement-probe.test.cjs tests/pass-attack-source-board-regression.test.cjs
       - name: Print real-engine policy contrast
         run: node simulation/twinleaf/tm-attack-policy-characterization.cjs
       - name: Probe late-game Bunnelby Evolution with one remaining source Stage 2
