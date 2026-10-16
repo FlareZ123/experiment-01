@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { deckPermutation, seededRandom } = require('./headless.cjs');
+const { canonicalUnseenCards } = require('./canonical-unseen-cards.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 
@@ -40,8 +41,7 @@ function installOwnDeckDeterminizationHook(opts) {
     if (!player) return original.call(this, state, playerId, action, passTurnScore);
     const actualDeck = player.deck.cards;
     const originalOrder = actualDeck.slice();
-    const canonical = actualDeck.slice()
-      .sort((a, b) => a.fullName.localeCompare(b.fullName));
+    const canonical = canonicalUnseenCards(actualDeck);
     let total = 0;
     let accepted = 0;
     try {
