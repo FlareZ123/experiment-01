@@ -39,6 +39,19 @@ function chooseShadowRiderTarget(player) {
 }
 
 /**
+ * Matchup gate for one experimental manual-attachment policy.
+ * The original rank-6 probe only applies into Iron Thorns ex; a separate
+ * explicit opt-in mode lets the same prioritization face any opponent.
+ * @param {object|undefined} opponent Pinned Twinleaf Player.
+ * @param {boolean} allOpponents Experimental switch.
+ * @returns {boolean} Whether the policy may consider this opponent.
+ */
+function matchesPsychicPriorityOpponent(opponent, allOpponents) {
+  return Boolean(opponent && (allOpponents ||
+    opponent.active.getPokemonCard()?.name === 'Iron Thorns ex'));
+}
+
+/**
  * Source-locked, opt-in counterfactual attachment tactic.
  * It leaves the upstream AttachEnergyTactic available as fallback.
  * Legality is checked by dispatching onto a cloned Twinleaf Store, without
@@ -59,8 +72,7 @@ function makeShadowRiderPsychicAttachTactic({allOpponents = false} = {}) {
       if (state.prompts.some(p=>p.result===undefined) ||
           player.energyPlayedTurn>=state.turn) return;
       const opponent=state.players.find(p=>p.id!==player.id);
-      if (!opponent || (!allOpponents &&
-          opponent.active.getPokemonCard()?.name !== 'Iron Thorns ex')) return;
+      if (!matchesPsychicPriorityOpponent(opponent, allOpponents)) return;
       const handIndex=player.hand.cards.findIndex(card=>card.name==='Psychic Energy');
       if (handIndex<0) return;
       const wanted=chooseShadowRiderTarget(player);
@@ -105,6 +117,7 @@ function withShadowRiderPsychicPriority(options, {allOpponents = false} = {}) {
 
 module.exports = {
   chooseShadowRiderTarget,
+  matchesPsychicPriorityOpponent,
   makeShadowRiderPsychicAttachTactic,
   withShadowRiderPsychicPriority
 };
