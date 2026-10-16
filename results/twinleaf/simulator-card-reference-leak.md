@@ -37,3 +37,17 @@ The test restores the original source `damageTakenLastTurn` in a `finally` block
 **Research response:** [experimental detached-simulator-hook.cjs](../../simulation/twinleaf/detached-simulator-hook.cjs) pre-clones the full object graph before invoking the original Simulator and is opt-in. Do not enable it in a benchmark until a real pinned-engine differential test establishes attack functionality, card identities and source noninterference. The upstream submodule should remain unmodified. When comparing actual games, preserve baseline and opt-in policy labels, seed plans and opponent inventories.
 
 **Priority next:** characterize the detached hook on the same source-backed Tool attack. If that passes, test a small fixed-seed game with and without the hook and inspect any bot-policy or game-event divergences without calling them win-rate evidence.
+
+## Follow-up: tested detached Card clone
+
+[Manual CI 38847672445](https://github.com/FlareZ123/experiment-01/actions/runs/38847672445) compiled pinned Twinleaf, passed the two [wrapper contract unit tests](../../tests/detached-simulator-hook.test.cjs), and ran the same real, staged Tool attack with and without the opt-in [detached simulator](../../simulation/twinleaf/detached-simulator-hook.cjs):
+
+| Measure | Unmodified Simulator | Detached research Simulator |
+| --- | --- | --- |
+| Simulator shares live target Card identity | yes | no |
+| Simulated damage to target | 280 | 280 |
+| Live target Card field changed | yes | no |
+| Live board damage changed | no | no |
+
+The [differential runner](../../simulation/twinleaf/detached-simulator-characterization.cjs) asserts all four invariants and restores its hook in a `finally` block. **This supports a mechanism-specific mitigation for one controlled effect; it is not a generally certified replacement Simulator.** A separate source-locked whole-game comparison is being investigated without altering default policy.
+
