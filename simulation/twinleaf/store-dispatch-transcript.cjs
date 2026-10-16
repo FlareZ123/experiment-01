@@ -217,6 +217,17 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
         captureErrors.push('step ' + step + ': attached Energy: ' + error.message);
       }
     }
+    if (options.promptReferenceActionValues === true &&
+        action?.constructor?.name === 'ResolvePromptAction') {
+      try {
+        event.promptReplayAction = capturePromptAction(pending, action, this.state);
+        if (!event.promptReplayAction) {
+          event.promptReplayUnsupported = pending?.constructor?.name || 'no-pending-prompt';
+        }
+      } catch (error) {
+        event.promptReplayActionError = error.message;
+      }
+    }
     if (options.typedActionValues === true) {
       try {
         event.typedAction = captureAction(action);
