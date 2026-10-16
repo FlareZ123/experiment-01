@@ -81,6 +81,8 @@ function doubleTmBoard() {
       value=[expected];
     } else if(name==='ShuffleDeckPrompt') {
       value=Array.from({length:player.deck.cards.length},(_,n)=>n);
+    } else if(name==='WaitPrompt') {
+      value=null; // Engine animation delay; no gameplay decision.
     } else if(name==='ConfirmPrompt') {
       value=true; // Take second attack offered by Barrage
     } else if(name==='ChooseAttackPrompt') {
