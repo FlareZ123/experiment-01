@@ -99,7 +99,7 @@ jobs:
       - name: Count pinned-engine accepted attacks missed at Pass decisions
         run: node scripts/aichi-pass-attack-opportunities.cjs aichi-campaign-diagnostic.json > aichi-pass-attack-opportunities.json
       - name: Print bounded missed-attack samples and probe coverage
-        run: node -e "const r=require('./aichi-pass-attack-opportunities.json');console.log('PASS PROBE COVERAGE',JSON.stringify(r.coverage));for(const x of r.checkedPasses.filter(x=>x.engineAccepted.length).slice(0,12))console.log('ACCEPTED PASS ATTACK',JSON.stringify({trialId:x.trialId,side:x.side,turn:x.turnBefore,attacks:x.engineAccepted}))"
+        run: node -e "const r=require('./aichi-pass-attack-opportunities.json');console.log('PASS PROBE COVERAGE',JSON.stringify(r.coverage));for(const x of r.checkedPasses.filter(x=>x.engineAccepted.length).slice(0,12))console.log('ACCEPTED PASS ATTACK',JSON.stringify({trialId:x.trialId,side:x.side,turn:x.turnBefore,attacks:x.engineAccepted,publicBoard:x.publicBoardBeforePass}))"
       - name: Audit first Iron Thorns decisions without inferring wins
         run: node simulation/evaluation/aichi-opening-decision-audit.cjs aichi-campaign-diagnostic.json > aichi-opening-decision-audit.json
       - name: Audit public pass boards without inferring attack legality
