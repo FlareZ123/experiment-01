@@ -36,3 +36,5 @@ jobs:
         run: node --test tests/redeemable-ticket-headless-options.test.cjs
       - name: Verify staged Ticket and Compressor rescue witness
         run: node --test tests/ticket-compressor-shuffle-proof.test.cjs
+      - name: Verify source-complete rank26 Ticket Compressor Item actions
+        run: node --test tests/ticket-rank26-source-compressor.test.cjs
