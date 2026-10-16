@@ -4,6 +4,7 @@ const path=require('node:path');
 const {sourceState}=require('./hidden-source-deck-policy.cjs');
 const {installSupporterDecisionHook}=require('./supporter-decision-hook.cjs');
 const {installOwnDeckDeterminizationHook}=require('./own-deck-determinization-hook.cjs');
+const {liveCardDamageSnapshots}=require('./simulator-leak-observer.cjs');
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const engine=p=>require(path.join(output,p));
 
@@ -13,12 +14,14 @@ function auditDetachedOwnDeck() {
   const {PlaySupporterTactic}=engine('simple-bot/simple-tactics/play-supporter-tactic');
   const {PlayCardAction,PlayerType,SlotType}=engine('game/store/actions/play-card-action');
   const defs=engine('simple-bot/simple-bot-definitions');
+  const {Card}=engine('game/store/card/card');
   const opts={tactics:[PlaySupporterTactic],promptResolvers:defs.allPromptResolvers,
     scores:defs.defaultStateScores,arbiter:defs.defaultArbiterOptions};
   const snapshot=data=>({
     order:data.fixture.a.deck.cards.slice(),
     active:data.fixture.a.active.cards.slice(),
-    hand:data.fixture.a.hand.cards.slice()
+    hand:data.fixture.a.hand.cards.slice(),
+    damageTakenLastTurn:liveCardDamageSnapshots(data.fixture.state,Card)
   });
   const beforeA=snapshot(a),beforeB=snapshot(b);
   const score=data=>{
