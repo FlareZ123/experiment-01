@@ -14,6 +14,10 @@ Earlier regressions found three independently important engine issues/constraint
 
 Those repairs are *opt in*. None alters the pinned vendor source.
 
+## Field relevance: source-verified Dragon GX packages
+
+In the repository's [29 published Aichi inventories](../aichi-2026/full-decklists.json), all **nine** fully published Regidrago placements, at ranks **10, 12, 13, 14, 18, 20, 21, 27 and 32**, include Dialga-GX UPR 100 (two copies at ranks **12** and **27**, one at each other rank). The other two Regidrago Top-32 ranks, **23** and **28**, lack complete source lists, so the finding is 9/9 *published* and does not assert 11/11. Opponent ownership of Dialga-GX does not establish that the opponent will use its GX line or leave Apex Dragon as its most recent declared attack. Mimikyu's copied attack in this fixture selects the **champion's own discarded** Dialga-GX, which is a separate card.
+
 ## New full turn-transition contract
 
 The expanded [two-declared-attack fixture](../../simulation/twinleaf/regidrago-to-mimikyu-two-attack.cjs) now supports `--verify-bonus` and executes the actual Store dispatch and real WaitPrompt chain on prepared boards:
