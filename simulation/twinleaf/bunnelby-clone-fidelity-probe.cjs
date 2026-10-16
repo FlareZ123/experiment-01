@@ -1,6 +1,5 @@
 'use strict';
 
-const assert = require('node:assert/strict');
 const {replayBunnelbyTmBot} = require('./bunnelby-tm-policy-replay.cjs');
 const {installDetachedSimulatorHook} = require('./detached-simulator-hook.cjs');
 const {installPrototypeSafeSimulatorHook} =
