@@ -5,6 +5,7 @@ const crypto = require('node:crypto');
 const path = require('node:path');
 const {runMatch, initializeCards} = require('./headless.cjs');
 const {withStoreDispatchTranscript} = require('./store-dispatch-transcript.cjs');
+const {auditAuthenticFork} = require('./source-fork-gate.cjs');
 const {loadDefaultCampaign} = require('../../scripts/aichi-comparison-campaign.cjs');
 
 /** @param {unknown} value @returns {string} */
@@ -117,6 +118,8 @@ function main() {
   const expectedDeckHashes = [hash(common.deckA), hash(common.deckB)];
   assert.deepEqual(control.result.deckHashes, expectedDeckHashes);
   assert.deepEqual(branch.result.deckHashes, expectedDeckHashes);
+  const forkAudit = auditAuthenticFork(control.actionTrace, branch.actionTrace,
+    {forkTurn:27,opponentSlot:0});
   const controlLineage = checkLiveLineage(control, control.result);
   const branchLineage = checkLiveLineage(branch, branch.result);
   checkLiveLineage(repeat, repeat.result);
@@ -184,6 +187,7 @@ function main() {
       printHashes:expectedDeckHashes},
     identicalUninstrumentedControl:true,
     identicalControlAfterBranch:true,
+    forkAudit,
     sharedAuthenticTurn27Start:originalState,
     recordedCounterline:counterline,
     firstMeaningfulDifference:firstDifference(
