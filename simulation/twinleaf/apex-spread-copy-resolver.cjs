@@ -12,7 +12,7 @@ const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
 function phantomDiveBenchWindows(opponent) {
   return opponent.bench.filter(slot => {
     const pokemon = slot.getPokemonCard();
-    if (!pokemon) return false;
+    if (!pokemon || pokemon.powers?.length || slot.tools?.length) return false;
     // In the pinned engine, hp is populated as part of the battle state.
     // Synthetic fixtures can leave hp at zero until their first HP check.
     const maximumHp = slot.hp || pokemon.hp + slot.hpBonus;
