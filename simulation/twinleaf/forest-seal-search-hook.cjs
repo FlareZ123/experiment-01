@@ -52,6 +52,15 @@ function installForestSealSearchHook() {
                 prompt.message === GameMessage.CHOOSE_CARD_TO_HAND &&
                 prompt.options.min === 0 && prompt.options.max === 1) {
               prompt.options.min = 1;
+              // Store.reducePrompt does not itself call Prompt.validate. This
+              // guard rejects invalid bot results rather than recording a
+              // simulated match with an illegal zero-card VSTAR search.
+              return target.prompt(nextState, prompt, selected => {
+                if (!prompt.validate(selected)) {
+                  throw new GameError(GameMessage.ILLEGAL_ACTION);
+                }
+                return callback(selected);
+              });
             }
             return target.prompt(nextState, prompt, callback);
           };

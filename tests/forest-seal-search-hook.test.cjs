@@ -29,16 +29,18 @@ function fixture(deckSize) {
   const state = new State();
   state.players = [player];
   const prompts = [];
+  const callbacks = [];
   const store = {
-    prompt(current, prompt) {
+    prompt(current, prompt, callback) {
       prompts.push(prompt);
+      callbacks.push(callback);
       return current;
     },
     reduceEffect(current) { return current; }
   };
   const act = () => stone.reduceEffect(store, state,
     new PowerEffect(player, stone.powers[0], stone));
-  return { player, prompts, act, filler };
+  return { player, prompts, callbacks, act, filler };
 }
 
 test('pinned original Star Alchemy prompt accepts illegal empty unrestricted search', () => {
@@ -60,6 +62,18 @@ test('opt-in hook requires one card and keeps valid single-card choice', () => {
     assert.equal(f.prompts[0].validate([]), false);
     assert.equal(f.prompts[0].validate([f.filler]), true);
     assert.equal(f.player.usedVSTAR, true);
+  } finally {
+    restore();
+  }
+});
+
+test('invalid zero selection is rejected at the resolver callback boundary', () => {
+  const restore = installForestSealSearchHook();
+  try {
+    const f = fixture(1);
+    f.act();
+    assert.throws(() => f.callbacks[0]([]),
+      error => error.message === GameMessage.ILLEGAL_ACTION);
   } finally {
     restore();
   }

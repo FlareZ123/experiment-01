@@ -10,9 +10,9 @@ Twinleaf's pinned [Forest Seal Stone source](https://github.com/twinleafgg/twinl
 
 ## Reversible research-side correction
 
-[Forest Seal Stone search hook](../../simulation/twinleaf/forest-seal-search-hook.cjs) wraps only the Stone's Star Alchemy PowerEffect. With nonempty deck, its own ChooseCardsPrompt is set to `min:1` before being stored by the real Store. With empty deck, it rejects the power before spending the VSTAR marker. It forwards unrelated effects unchanged, preserves ordinary Store method receivers, restores the original method and is idempotent. No upstream submodule source is modified.
+[Forest Seal Stone search hook](../../simulation/twinleaf/forest-seal-search-hook.cjs) wraps only the Stone's Star Alchemy PowerEffect. With nonempty deck, its own ChooseCardsPrompt is set to `min:1` before being stored by the real Store. The pinned Store's prompt reducer does not independently validate a submitted prompt result, so the hook also rejects an illegal zero-card answer at its callback boundary rather than allowing it to contaminate game evidence. With empty deck, it rejects the power before spending the VSTAR marker. It forwards unrelated effects unchanged, preserves ordinary Store method receivers, restores the original method and is idempotent. No upstream submodule source is modified.
 
-[Four tests](../../tests/forest-seal-search-hook.test.cjs) compare the unpatched behavior, corrected one-card selection, empty-deck behavior, and reversible/idempotent installation against the pinned compiled engine. The existing [manual-only workflow](../../.github/workflows/radiant-gate-engine.yml) now invokes the tests in addition to upstream characterizations.
+[Five tests](../../tests/forest-seal-search-hook.test.cjs) compare the unpatched behavior, corrected one-card selection, empty-deck behavior, and reversible/idempotent installation against the pinned compiled engine. The existing [manual-only workflow](../../.github/workflows/radiant-gate-engine.yml) now invokes the tests in addition to upstream characterizations.
 
 ## Remaining gates
 
