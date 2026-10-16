@@ -33,5 +33,7 @@ jobs:
         run: node simulation/twinleaf/detached-simulator-characterization.cjs
       - name: Compare source-locked fixed-seed game decisions with detached Simulator
         run: node simulation/twinleaf/detached-simulator-game-contrast.cjs
+      - name: Detect speculative Card mutations during unmodified source-ranked bot decisions
+        run: node simulation/twinleaf/natural-bot-card-leak-audit.cjs
       - name: Reproduce conditional Counter phantom-damage consequence
         run: node simulation/twinleaf/simulator-counter-phantom-damage.cjs
