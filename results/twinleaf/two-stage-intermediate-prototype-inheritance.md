@@ -34,7 +34,7 @@ In an independently fixed rank-10 v3 seed `3162592764` comparison, the original 
 
 Following the prototype fix, `normalizeDeepClonePrototypes` was strengthened to reject changed primitive values, extra/missing own enumerable properties and distinct source nodes merged into one clone. The duplicate-source canonicalizer still repairs repeated references that the pinned Array copying splits. [Adversarial pure Node tests](../../tests/agent16-clone-fail-closed.test.cjs) cover those rejections and sparse-array preservation, and are included in the manual workflow. This detects additional input corruption before a speculative bot action can use the state.
 
-**Current CI verification:** [manual run 38902634280](https://github.com/FlareZ123/experiment-01/actions/runs/38902634280) was dispatched with these validations. Its conclusion must be checked; no pass claim is inferred from a queued run.
+**Current CI verification:** [manual run 38902634280](https://github.com/FlareZ123/experiment-01/actions/runs/38902634280) **passed** the strengthened clone-data guards, 96-graph suite and pinned-Store integration at head `0f011890fb1ce961e6deb7a59a0100aca613d847`.
 
 ## Limits and why this matters
 
