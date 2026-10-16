@@ -193,3 +193,28 @@ test('Forest Seal Stone correction is passed only when explicitly selected', () 
   assert.equal(baseline.forestSealSearchCorrection, false);
   assert.ok(requests.every(request => !Object.hasOwn(request, 'forestSealSearchCorrection')));
 });
+
+test('opt-in Double Dragon policy is forwarded and identified without contaminating baseline', () => {
+  const plan = buildPlan(manifest, pool, 1);
+  const requests = [];
+  const runMatch = request => {
+    requests.push(request);
+    return { finished: true, winner: 0 };
+  };
+  const experimental = evaluatePlan(plan, {
+    gamesPerSeat: 1, selectedRanks: [1], doubleDragonRecovery: true, runMatch
+  });
+  assert.equal(experimental.doubleDragonRecovery, true);
+  assert.match(experimental.policy, /DoubleDragonAttachTactic-v1/);
+  assert.equal(requests.length, 2);
+  assert.ok(requests.every(request => request.doubleDragonRecovery === true));
+
+  requests.length = 0;
+  const control = evaluatePlan(plan, {
+    gamesPerSeat: 1, selectedRanks: [1], runMatch
+  });
+  assert.equal(control.doubleDragonRecovery, false);
+  assert.doesNotMatch(control.policy, /DoubleDragonAttachTactic/);
+  assert.equal(requests.length, 2);
+  assert.ok(requests.every(request => !Object.hasOwn(request, 'doubleDragonRecovery')));
+});
