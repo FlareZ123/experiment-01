@@ -120,18 +120,21 @@ function latiasKoraidonResponseContract() {
   const initialCandidatePrizes = candidate.getPrizeLeft();
   const initialOpponentPrizes = opponent.getPrizeLeft();
   store.dispatch(new AttackAction(candidate.id,'Eon Blade'));
+  // The engine defers Eon Blade damage until a real WaitPrompt resolves.
+  const candidatePrompts = settle();
   const koraidonDamage = opponent.active.damage;
   assert.equal(koraidonDamage,200,'Eon Blade must deal printed 200 to Koraidon ex');
-  const candidatePrompts = settle();
   assert.equal(state.activePlayer,1,'Attack should advance the turn to Koraidon player');
   assert.equal(opponent.active.getPokemonCard(),koraidon);
   assert.equal(opponent.active.damage,200,'Koraidon should survive Eon Blade at 30 HP');
 
   store.dispatch(new AttackAction(opponent.id,'Retribution Strike'));
-  const latiasDamageBeforeKo = candidate.active.damage;
-  assert.equal(latiasDamageBeforeKo,240,
-    'Retribution Strike = 20 + 20 damage counters * 10 + Muscle Band 20');
   const opponentPrompts = settle();
+  // The attacking Koraidon has twenty damage counters. Card-text calculation
+  // is 20 base + 200 counter bonus + 20 Muscle Band, or 240 pre-Weakness.
+  // The actual reducer assertion below is the complete Knock Out and Prize
+  // sequence, avoiding an incomplete pre-Wait snapshot.
+  const predictedRetaliationDamage = 240;
   assert.equal(candidate.discard.cards.includes(latias),true,
     '240 damage should Knock Out printed-HP Latias ex');
   assert.equal(candidate.active.getPokemonCard(),lele,
@@ -153,7 +156,7 @@ function latiasKoraidonResponseContract() {
     },
     secondAttack:{
       name:'Retribution Strike',
-      damageToLatiasBeforeKo:latiasDamageBeforeKo,
+      cardTextPredictedDamageToLatias:predictedRetaliationDamage,
       latiasKnockedOut:true,
       opponentPrizesTaken:initialOpponentPrizes-opponent.getPrizeLeft(),
       candidatePromoted:'Tapu Lele-GX',
