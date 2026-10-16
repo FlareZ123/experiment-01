@@ -19,6 +19,9 @@ function assertVendorCloneCompatibleSource(source) {
     if (visited.has(value)) return;
     assert.ok(Object.getPrototypeOf(value) !== null,
       'Pinned deepClone would share a null-prototype object');
+    assert.ok(typeof value.constructor === 'function' &&
+      Object.getPrototypeOf(value) === value.constructor.prototype,
+      'Pinned deepClone input has a non-class dynamic prototype');
     assert.ok(!(value instanceof Map || value instanceof Set ||
       value instanceof Date || value instanceof RegExp ||
       value instanceof ArrayBuffer || ArrayBuffer.isView(value) ||
