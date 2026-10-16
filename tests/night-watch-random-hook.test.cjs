@@ -129,3 +129,36 @@ test('unrelated secret opponent-hand prompts preserve normal selection', () => {
     restore();
   }
 });
+
+test('Night Watch copied through delegated source reducer uses random physical subset', () => {
+  const { runDelegatedCopiedAttack, clearCopyAttackSessionsForTests } =
+    load('game/store/prefabs/copy-attack-delegation');
+  const f = board();
+  const manager = initializeCards();
+  const mewtwo = manager.getCardByName('Mewtwo & Mew-GX UNM');
+  assert.ok(mewtwo);
+  f.attacker.active.cards = [mewtwo];
+  f.attacker.discard.cards.push(f.trevenant);
+  const restore = installNightWatchRandomHook();
+  const originalRandom = Math.random;
+  try {
+    Math.random = () => 0;
+    runDelegatedCopiedAttack({
+      store:f.store, state:f.state, player:f.attacker, opponent:f.victim,
+      copycatCard:mewtwo, sourceCard:f.trevenant,
+      selectedAttack:f.trevenant.attacks[0],
+      sourceSlot:f.attacker.active, skipLog:true
+    });
+    const prompts = f.state.prompts.filter(p => p instanceof ChooseCardsPrompt);
+    assert.equal(prompts.length,1,
+      'Copy attack must dispatch a Night Watch hand selection');
+    assert.equal(prompts[0].cards.cards.length,2,
+      'Delegated Night Watch must use the same random sampling guard');
+    assert.equal(prompts[0].playerId, f.attacker.id);
+    assert.deepEqual(prompts[0].cards.cards,[f.hand[0],f.hand[1]]);
+  } finally {
+    Math.random = originalRandom;
+    restore();
+    clearCopyAttackSessionsForTests();
+  }
+});
