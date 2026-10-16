@@ -167,6 +167,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [isolatePolicyRandomness] Use independent RNG streams for speculative bot decisions (experimental).
  * @property {boolean} [supporterDecisionCorrection] Opt-in, reversible correction for premature Supporter turn consumption.
  * @property {boolean} [snorlaxRetreatStartCorrection] Opt-in, reversible Block check on interactive retreat.
+ * @property {boolean} [shadowRiderEnergyPriority] Opt-in basic Psychic Energy priority against Active Iron Thorns.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
  */
 
@@ -236,6 +237,9 @@ function runMatch(request) {
     let options = request.doubleDragonRecovery === true ?
       require('./dde-attach-tactic.cjs').withDoubleDragonRecovery(baseOptions) : baseOptions;
     if (request.templeUnlockRecovery === true) options = require('./temple-unlock-tactic.cjs').withTempleUnlockRecovery(options);
+    if (request.shadowRiderEnergyPriority === true) {
+      options = require('./shadow-rider-psychic-attach.cjs').withShadowRiderPsychicPriority(options);
+    }
     const settings = new GameSettings();
     settings.format = Format.EXPANDED;
     settings.recordingEnabled = false;
@@ -424,12 +428,14 @@ function runMatch(request) {
       templeUnlockRecovery: request.templeUnlockRecovery === true,
       supporterDecisionCorrection: request.supporterDecisionCorrection === true,
       snorlaxRetreatStartCorrection: request.snorlaxRetreatStartCorrection === true,
+      shadowRiderEnergyPriority: request.shadowRiderEnergyPriority === true,
       policy: (request.doubleDragonRecovery === true ?
         'Twinleaf SimpleTacticsAi/defaultStateScores+DoubleDragonAttachTactic-v1' :
         'Twinleaf SimpleTacticsAi/defaultStateScores') +
         (request.supporterDecisionCorrection === true ? '+SupporterDecisionGuard-v1' : '') +
         (request.templeUnlockRecovery === true ? '+TempleUnlockTactic-v1' : '') +
-        (request.snorlaxRetreatStartCorrection === true ? '+SnorlaxBlockStartGate-v1' : ''),
+        (request.snorlaxRetreatStartCorrection === true ? '+SnorlaxBlockStartGate-v1' : '') +
+        (request.shadowRiderEnergyPriority === true ? '+ShadowRiderPsychicAttachPriority-v1' : ''),
       policyRandomIsolation: request.isolatePolicyRandomness === true,
       randomnessProtocol: request.isolatePolicyRandomness === true ?
         'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
