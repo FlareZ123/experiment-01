@@ -36,6 +36,7 @@ function mimikyuApexContract(hooked) {
 
   const { Store } = engine('game/store/store');
   const { Player } = engine('game/store/state/player');
+  const { CardList } = engine('game/store/state/card-list');
   const { GamePhase } = engine('game/store/state/state');
   const { AttackEffect } = engine('game/store/effects/game-effects');
   const { ResolvePromptAction } =
@@ -55,6 +56,14 @@ function mimikyuApexContract(hooked) {
     b.id = 202;
     b.name = 'regidrago-fixture';
     state.players = [a, b];
+    // A zero-Prize fixture triggers Twinleaf sudden death in checkState,
+    // which resets usedGX after Timeless-GX has correctly marked it spent.
+    // Keep both players in an ordinary unfinished game during prompt dispatch.
+    for (const player of state.players) {
+      player.prizes = Array.from({length: 6},
+        () => CardList.fromList(['Dratini OBF']));
+      player.deck = CardList.fromList(Array(10).fill('Dratini OBF'));
+    }
     state.activePlayer = 0;
     state.phase = GamePhase.ATTACK;
     state.turn = 4;
@@ -116,6 +125,9 @@ function mimikyuApexContract(hooked) {
       copiedLastAttack: state.playerLastAttack?.[a.id]?.attack?.name,
       promptTypes: state.prompts.map(prompt => prompt.constructor.name)
     }) + '\\n');
+    assert.equal(state.players[0], a, 'Fixture player identity must remain stable');
+    assert.ok(!state.logs.some(log => log.message === 'LOG_SUDDEN_DEATH'),
+      'Synthetic board must not enter sudden death');
     assert.equal(a.usedGX, true, 'Copied GX effect must consume GX marker');
     assert.equal(a.usedTurnSkip, true,
       'Copied Timeless-GX must grant the next turn');
