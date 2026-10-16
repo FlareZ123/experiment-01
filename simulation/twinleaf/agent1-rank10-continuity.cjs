@@ -1,6 +1,8 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const {withRootCardHistoryRepair}=require('./root-bot-history-repair.cjs');
+const {firstDifference}=require('./rank10-source-branch-transcript.cjs');
 const path=require('node:path');
 const {runMatch,initializeCards}=require('./headless.cjs');
 const {resolveManifestFile}=require('./resolve-field.cjs');
@@ -20,6 +22,8 @@ function main() {
     '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
   const {SimpleTacticsAi}=require(path.resolve(__dirname,
     '../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai'));
+  const {Card}=require(path.resolve(__dirname,
+    '../../vendor/twinleaf/ptcg-server/output/game/store/card/card'));
   const common={
     deckA:regidrago.cardIds,deckB:champion.cardIds,
     seed:4246551499,maxActions:350,
