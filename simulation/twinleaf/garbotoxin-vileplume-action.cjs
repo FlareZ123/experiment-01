@@ -96,6 +96,13 @@ function run() {
   ];
   const rows = combinations.flatMap(p=>[0,1].map(
     activeSeat=>probe({...p,activeSeat})));
+  for (const row of rows) {
+    const shouldUnlock = row.garbodorTool && !row.vileplumeHood;
+    assert.equal(row.allowed, shouldUnlock,
+      'Cross-lock action deviated from printed-effect matrix: '+JSON.stringify(row));
+    assert.equal(row.switchInHand, !shouldUnlock,
+      'Illegal Item state or blocked Item consumed: '+JSON.stringify(row));
+  }
   return {
     study:'Vileplume AOR Irritating Pollen vs Garbodor BKP Garbotoxin vs Stealthy Hood UNB',
     engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
