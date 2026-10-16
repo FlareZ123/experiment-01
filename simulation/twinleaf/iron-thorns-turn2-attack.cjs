@@ -57,9 +57,18 @@ function probe() {
   const thunder = prepare(true);
   assert.equal(thunder.a.bench.length,0);
   thunder.store.dispatch(new AttackAction(101,'Volt Cyclone'));
-  assert.equal(thunder.b.active.damage,140);
+  const afterAttack = {
+    targetDamage: thunder.b.active.damage,
+    pendingPrompts: thunder.state.prompts.filter(p => p.result === undefined)
+      .map(p => ({type:p.constructor.name, message:p.message ?? null})),
+    turn: thunder.state.turn,
+    phase: thunder.state.phase,
+    activePlayer: thunder.state.activePlayer,
+    engineLogs: thunder.state.logs.slice(-8)
+  };
+  console.log(JSON.stringify({stage:'after AttackAction', afterAttack}, null, 2));
   return {engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    noThunderRejected:true, withThunderDamage:thunder.b.active.damage,
+    noThunderRejected:true, withThunderDamage:thunder.b.active.damage, afterAttack,
     benchSlots:thunder.a.bench.length,
     scope:'Injected DCE and Stadium; search and bot decisions untested'};
 }
