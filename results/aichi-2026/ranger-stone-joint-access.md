@@ -18,7 +18,7 @@ An accepted seven-card opening must contain a Basic. Deal six random Prizes from
 - **Search:** If Ranger was not directly seen, its single physical copy must remain outside the unknown Prizes. Conditional probability of this is (47-d)/(53-d) after d additional ordinary draws.
 - **Overlaps:** A hand enabling both searches counts as one successful opportunity.
 
-Exact multivariate hypergeometric counts use BigInt numerator/denominator arithmetic. Three independent miniature-deck *physical-deal* enumeration tests and two invariant tests passed locally on Node 22. Full source-provenance and manual CI validation are separate gates.
+Exact multivariate hypergeometric counts use BigInt numerator/denominator arithmetic. Three independent miniature-deck *physical-deal* enumeration tests and two invariant tests passed locally on Node 22. Full source-provenance and manual CI validation are separate gates; the combined [manual workflow 38871772651](https://github.com/FlareZ123/experiment-01/actions/runs/38871772651) subsequently passed all source loading, exact-model tests, and artifact upload.
 
 ## Exact results
 
