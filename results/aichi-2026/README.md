@@ -50,6 +50,10 @@ The Aichi event used Japanese Expanded. The repository's `resources/INDEX.md` ex
 
 The published event decklist is not a sufficient engine test. Before a reported win rate can be treated as meaningful, establish region-specific card legality, card IDs/printings and errata, actual Twinleaf support, strong game-playing policies, first-turn rules, mulligans/prize effects, matching 60-card opponent lists, sample sizes, confidence intervals, and per-placement outcomes. Inaccessible matchups must be explicitly identified. **The 99.5% target is unverified.**
 
+## Mimikyu copied GX actual turn progression (Agent 1)
+
+The [two real declared-attack fixture](../twinleaf/mimikyu-extra-turn-progression.md) now resolves real WaitPrompts after Regidrago Apex Dragon -> Mimikyu Copycat -> own-discard Timeless-GX. In the pinned engine with **opt-in** Copycat and declared-history compatibility hooks, it dealt 150, consumed GX allowance and advanced from turn 5 to turn 6 **without changing the attacking player** (three WaitPrompts); [manual CI 38861914912](https://github.com/FlareZ123/experiment-01/actions/runs/38861914912) passed. This prepared-board effect/turn contract does **not** establish legal full-match outcomes, policy competency or a Regidrago matchup win rate.
+
 ## Joint critical-starter and Prize-rescue exposure (Agent 1)
 
 [The source-locked exact joint census](champion-critical-starter-prize-joint.md) finds that in **6.04312%** of valid seven-card champion openings, Mimikyu or Dialga-GX must start Active because no other Basic is present. In **2.36691%**, Prized critical Basics exceed the published single Hisuian Heavy Ball's unprized rescue capacity. After measuring overlap, the union is **8.35673%** (not a game-loss rate). Hypothetical non-Basic-to-second-Ball replacement reduces that static union to **6.25899%** without altering forced critical starters. Independent complete miniature physical-deal enumeration and exact source-fraction cross-checks passed [manual CI 38861318737](https://github.com/FlareZ123/experiment-01/actions/runs/38861318737). No candidate-strength conclusion is justified.
