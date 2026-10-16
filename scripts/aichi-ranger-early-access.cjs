@@ -68,3 +68,47 @@ function rangerEarlyAccess(input) {
   return {direct, wonderTag, either: direct + wonderTag, validOpening};
 }
 
+const BASIC_NAMES = new Set([
+  'Shadow Rider Calyrex V', "Lillie's Clefairy ex", 'Tapu Lele-GX',
+  'Trevenant & Dusknoir-GX', 'Latias ex', 'Dialga-GX', 'Mimikyu',
+  'Girafarig', 'Marshadow', 'Radiant Eternatus', 'Wobbuffet'
+]);
+
+/**
+ * Extract composition from the three exact Shadow Rider snapshots.
+ * Reject an unknown stage instead of assuming it starts as a Basic.
+ * @param {{cards:object[]}} deck
+ */
+function sourceComposition(deck) {
+  const sum = predicate => deck.cards.filter(predicate)
+    .reduce((n, card) => n + card.count, 0);
+  const basics = sum(card => card.category === 'Pokémon' && BASIC_NAMES.has(card.name));
+  const pokemon = sum(card => card.category === 'Pokémon');
+  const evolutions = sum(card => card.category === 'Pokémon' &&
+    card.name === 'Shadow Rider Calyrex VMAX');
+  if (sum(() => true) !== 60 || basics + evolutions !== pokemon ||
+      pokemon < basics || basics < 1) {
+    throw new Error('Source card inventory drift or unsupported Pokémon stage.');
+  }
+  return {
+    size: 60, basics,
+    lele: sum(card => card.name === 'Tapu Lele-GX'),
+    ranger: sum(card => card.name === 'Pokémon Ranger')
+  };
+}
+
+function report() {
+  const dir = path.resolve(__dirname, '../results/aichi-2026');
+  const full = JSON.parse(fs.readFileSync(path.join(dir, 'full-decklists.json'), 'utf8'));
+  const decks = [
+    ['champion-reference', full.decks.find(deck => deck.rank === 1)],
+    ['hood-shield-v1', JSON.parse(fs.readFileSync(path.join(dir, 'candidate-hood-shadow-rider.json'), 'utf8'))],
+    ['temple-v1', JSON.parse(fs.readFileSync(path.join(dir, 'candidate-temple-shadow-rider.json'), 'utf8'))]
+  ];
+  return decks.map(([id, deck]) => ({id, composition: sourceComposition(deck),
+    windows: [0, 1, 2].map(draws => ({draws,
+      ...rangerEarlyAccess({...sourceComposition(deck), draws})}))}));
+}
+
+if (require.main === module) console.log(JSON.stringify(report(), null, 2));
+module.exports = {choose, rangerEarlyAccess, sourceComposition, report};
