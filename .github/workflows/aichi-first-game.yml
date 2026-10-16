@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      attack_before_retreat_candidate_only:
+        description: 'Apply attack-before-retreat policy to candidate seat only'
+        required: false
+        type: boolean
+        default: false
       pilot_ranks:
         description: 'One or two comma-separated Aichi diagnostic ranks: 1,2,3,4,5,6,8,10,26'
         required: false
@@ -71,6 +76,7 @@ jobs:
           AICHI_SHADOW_ENERGY: ${{ inputs.shadow_rider_energy_priority && '1' || '0' }}
           AICHI_OPENING_PIVOT: ${{ inputs.shadow_rider_opening_pivot && '1' || '0' }}
           AICHI_ATTACK_BEFORE_RETREAT: ${{ inputs.attack_before_retreat && '1' || '0' }}
+          AICHI_ATTACK_CANDIDATE_ONLY: ${{ inputs.attack_before_retreat_candidate_only && '1' || '0' }}
         run: node simulation/evaluation/aichi-campaign-execute.cjs > aichi-campaign-diagnostic.json
       - name: Screen engine diagnostics for attacker inactivity and trace integrity
         run: node scripts/aichi-campaign-quality-screen.cjs aichi-campaign-diagnostic.json > aichi-quality-screen.json
