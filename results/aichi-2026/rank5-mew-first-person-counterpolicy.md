@@ -1,0 +1,9 @@
+# Rank-5 Mew Genesect: first-person anti-Regidrago policy
+
+**Agent 5, 16 October 2026.** Primary witness: [Top-8 pilot Maro's free May 17 report](https://note.com/ronima723/n/nb8df1d04b8b0). It includes a Japanese official deck code `fFVFwv-Wlj8nQ-bvfdkk`, matching the [rank-5 source archetype and card inventory](full-decklists.json). Human strategic testimony only, with no independently qualified replay or true matchup win-rate sample.
+
+Maro reports **six Regidrago wins** in the event. His original anti-Regidrago concept, an early Trevenant Item-lock Mew variant with only one Karen, reportedly performed poorly in preparation. He concluded a single Karen could be undone by the Regidrago player restocking Dragons in discard. The eventual rank-5 list deliberately adopted **2 Karen XYP 177, 2 VS Seeker, 2 Special Red Card CRI 82, and 2 Path to the Peak**, with 4 Genesect V for the initial draw engine.
+
+A concrete adversarial policy branch is: after opponent Regidrago has discarded relevant Dragon attacks or used Legacy Star, play Karen to shuffle both players' discarded Pokémon into decks and remove the available Apex Dragon payload. Later, after losing a Mew VMAX, **Special Red Card becomes legally live only when the opponent has 3 or fewer Prize cards**. A same-turn Special Red Card + Karen + Path to the Peak can reduce the opponent's hand, reset Dragons in discard and deny Rule Box Abilities. Karen consumes the Supporter play; Special Red Card is an Item. Repeating Karen requires additional copies or VS Seeker and competes with Wally, Guzma and Pokémon Ranger turns.
+
+This is a source-aligned *opponent decision hypothesis*, not proof of a game lock or of any rank-5 win probability. Actual source-dealt prompt/reducer replay must show card availability, hand/Prize counts, Item-lock interactions, timing, alternate attackers and how the Regidrago player responds.
