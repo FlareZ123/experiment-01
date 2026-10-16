@@ -98,6 +98,7 @@ function realPassHistoryContract(corrected) {
   const {CardList} = load('game/store/state/card-list');
   const {GamePhase} = load('game/store/state/state');
   const {PassTurnAction} = load('game/store/actions/game-actions');
+  const {ResolvePromptAction} = load('game/store/actions/resolve-prompt-action');
   const {AttackEffect} = load('game/store/effects/game-effects');
   const {clearCopyAttackSessionsForTests} =
     load('game/store/prefabs/copy-attack-delegation');
@@ -110,6 +111,17 @@ function realPassHistoryContract(corrected) {
   const restore = corrected ? installPassClearsLastAttackHook() : () => {};
   try {
     f.store.dispatch(new PassTurnAction(f.b.id));
+    // PassTurn opens a real between-turn WaitPrompt. Leaving it pending
+    // suspends the generator of the subsequent copied attack before damage.
+    let waitsResolved = 0;
+    while (true) {
+      const wait = f.state.prompts.find(prompt =>
+        prompt.constructor.name === 'WaitPrompt' && prompt.result === undefined);
+      if (!wait) break;
+      f.store.dispatch(new ResolvePromptAction(wait.id, null));
+      waitsResolved += 1;
+      assert.ok(waitsResolved <= 6, 'Unexpected repeated phase waits');
+    }
     const record = f.state.playerLastAttack[f.b.id]?.attack?.name ?? null;
     assert.equal(record, corrected ? null : 'Tail Snap',
       'Pass must exhibit the expected previous-attack history state');
@@ -122,7 +134,7 @@ function realPassHistoryContract(corrected) {
     copycat.source = f.a.active;
     f.mimikyu.reduceEffect(f.store, f.state, copycat);
     assert.equal(f.b.active.damage, corrected ? 0 : 20);
-    return {corrected, record, copyDamage: f.b.active.damage};
+    return {corrected, record, waitsResolved, copyDamage: f.b.active.damage};
   } finally {
     restore();
     clearCopyAttackSessionsForTests();
