@@ -46,6 +46,18 @@ jobs:
           path: rank10-source-branch-live-dispatch.json
           if-no-files-found: warn
 
+      - name: Reconstruct the archived control and alternate inputs in a fresh process
+        run: node simulation/twinleaf/rank10-replay-from-archive.cjs rank10-source-branch-live-dispatch.json > rank10-fresh-process-input-replay.json
+      - name: Show archived-action replay acceptance blockers
+        run: node -e "const x=require('./rank10-fresh-process-input-replay.json'); console.log(JSON.stringify(x.findings,null,2))"
+      - name: Archive fresh-process input replay result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-fresh-process-input-replay
+          path: rank10-fresh-process-input-replay.json
+          if-no-files-found: warn
+
       - name: Observe source-state continuity under each clone profile
         run: node simulation/twinleaf/agent1-rank10-continuity.cjs > source-state-continuity-rank10.json
       - name: Report state changes between real actions
