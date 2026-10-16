@@ -20,8 +20,10 @@ function engine(relativePath) {
  * This is an artificial turn-four board, not a claim that it arose in play.
  *
  * @param {boolean} pokemonTop
+ * @param {number} [deckSize] Number of unseen cards remaining, including both seven-card groups.
  */
-function sourceState(pokemonTop) {
+function sourceState(pokemonTop, deckSize = 34) {
+  assert.ok(deckSize === 14 || deckSize === 34);
   const plan = planAichi(10, {
     allowEquivalentBasicEnergies: true,
     allowBasicEnergyMirrorPrintings: true,
@@ -50,7 +52,7 @@ function sourceState(pokemonTop) {
     ...take('Battle VIP Pass', 3)
   ];
   const prizes = remaining.splice(0, 6);
-  const discard = remaining.splice(0, 18);
+  const discard = remaining.splice(0, 52 - deckSize - 0);
   const filler = remaining;
   const deck = pokemonTop ?
     [...productive, ...unproductive, ...filler] :
@@ -150,6 +152,21 @@ function auditSourceHiddenPolicy() {
   } finally {
     restore();
   }
+  const lateA=sourceState(false,14);
+  const lateB=sourceState(true,14);
+  assert.deepEqual(sameVisible(lateA),sameVisible(lateB));
+  const lateUnproductiveScore=score(lateA);
+  const lateProductiveScore=score(lateB);
+  let lateUnproductiveAction,lateProductiveAction;
+  const restoreLate=installSupporterDecisionHook();
+  try {
+    lateUnproductiveAction=choose(lateA);
+    lateProductiveAction=choose(lateB);
+  } finally {
+    restoreLate();
+  }
+  const lateBaseScore=new PlaySupporterTactic(options)
+    .getStateScore(lateA.fixture.state,lateA.fixture.a.id);
   return {
     sourceRank:10,sourceDeckCards:60,
     candidateDigest:a.candidateDigest,
@@ -161,6 +178,15 @@ function auditSourceHiddenPolicy() {
     unproductiveTopScore,productiveTopScore,
     unproductiveTopAction,productiveTopAction,
     actionChanged:unproductiveTopAction!==productiveTopAction,
+    lateFourteenCardDeck:{
+      startingScore:lateBaseScore,
+      supporterThreshold:lateBaseScore-options.scores.tactics.supporterBonus,
+      unproductiveTopScore:lateUnproductiveScore,
+      productiveTopScore:lateProductiveScore,
+      unproductiveTopAction:lateUnproductiveAction,
+      productiveTopAction:lateProductiveAction,
+      actionChanged:lateUnproductiveAction!==lateProductiveAction
+    },
     scope:'Artificial turn-four 60-card source-inventory state, one-tactic corrected bot; not a full match or strength evidence'
   };
 }
