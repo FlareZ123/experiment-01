@@ -1,53 +1,66 @@
 'use strict';
 
-const { withDoubleDragonRecovery } = require('./dde-attach-tactic.cjs');
+const path = require('node:path');
 const { makeTempleUnlockTactic } = require('./temple-unlock-tactic.cjs');
+const { runMatch } = require('./headless.cjs');
 
 const DEFAULT_PROFILE = 'simple-default-v0';
 const REGIDRAGO_PROFILE = 'regidrago-dde-temple-v1';
 const ALLOWED_PROFILES = Object.freeze([DEFAULT_PROFILE, REGIDRAGO_PROFILE]);
+const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 
 /**
- * A deliberately narrow, opt-in policy composition for comparing a source
- * Regidrago deck's actual decisions with an unchanged generic simple bot.
- * It does not purport to solve discretionary discard, attack copy targets,
- * Supporter search priorities, prize planning, locks, or competitive play.
+ * Temporarily register a narrow legal two-step Temple response tactic.
+ * An independent, tested `doubleDragonRecovery` option is already exposed by
+ * the shared runner; this wrapper activates both for a controlled pilot.
+ * Both players receive this tactical class; only Regidrago VSTAR states with
+ * opposing Temple and an eligible Marshadow can trigger its intervention.
  *
- * @param {object} options Immutable baseline SimpleBotOptions.
- * @param {string} profile One of ALLOWED_PROFILES.
- * @returns {object} SimpleBotOptions for one player seat.
+ * @template T
+ * @param {()=>T} fn Synchronous bounded headless match.
+ * @returns {T}
  */
-function optionsForProfile(options, profile) {
-  if (profile === DEFAULT_PROFILE) return options;
-  if (profile !== REGIDRAGO_PROFILE) {
-    throw new Error('Unknown policy profile: ' + String(profile));
-  }
-  const withDde = withDoubleDragonRecovery(options);
-  const index = withDde.tactics.findIndex(tactic => tactic.name === 'UseAbilityTactic');
+function withTempleUnlockTactic(fn) {
+  const definitions = require(path.join(output, 'simple-bot/simple-bot-definitions'));
+  const tactics = definitions.allSimpleTactics;
+  const index = tactics.findIndex(tactic => tactic.name === 'UseAbilityTactic');
   if (index < 0) throw new Error('Pinned UseAbilityTactic extension point missing.');
+  const Custom = makeTempleUnlockTactic();
+  tactics.splice(index, 0, Custom);
+  try {
+    return fn();
+  } finally {
+    const active = tactics.indexOf(Custom);
+    if (active < 0) throw new Error('Regidrago experimental tactic was not preserved.');
+    tactics.splice(active, 1);
+  }
+}
+
+/**
+ * Run an explicitly versioned research policy, preserving standard runner
+ * defaults for all untouched decisions. No policy is judged competitive.
+ *
+ * @param {object} request MatchRequest accepted by headless.runMatch.
+ * @param {string} profile Either DEFAULT_PROFILE or REGIDRAGO_PROFILE.
+ * @returns {object} Full match record with experimental provenance labels.
+ */
+function runWithResearchProfile(request, profile) {
+  if (!ALLOWED_PROFILES.includes(profile)) {
+    throw new Error('Unknown research policy profile: ' + String(profile));
+  }
+  if (profile === DEFAULT_PROFILE) {
+    const result = runMatch({ ...request, isolatePolicyRandomness: true });
+    return { ...result, researchPolicyProfile: profile, experimentalTactics: [] };
+  }
+  const result = withTempleUnlockTactic(() => runMatch({
+    ...request, isolatePolicyRandomness: true, doubleDragonRecovery: true
+  }));
   return {
-    ...withDde,
-    tactics: [
-      ...withDde.tactics.slice(0, index),
-      makeTempleUnlockTactic(),
-      ...withDde.tactics.slice(index)
-    ]
+    ...result,
+    researchPolicyProfile: profile,
+    experimentalTactics: ['DoubleDragonAttachTactic-v1', 'TempleUnlockTactic-v1']
   };
 }
 
-/**
- * @param {string[]|undefined} requested
- * @returns {[string,string]} Validated per-seat profile names.
- */
-function resolvePolicyProfiles(requested) {
-  const profiles = requested === undefined ?
-    [DEFAULT_PROFILE, DEFAULT_PROFILE] : requested;
-  if (!Array.isArray(profiles) || profiles.length !== 2 ||
-      profiles.some(profile => !ALLOWED_PROFILES.includes(profile))) {
-    throw new Error('policyProfiles must contain two supported profile names.');
-  }
-  return [profiles[0], profiles[1]];
-}
-
-module.exports = { DEFAULT_PROFILE, REGIDRAGO_PROFILE, ALLOWED_PROFILES,
-  optionsForProfile, resolvePolicyProfiles };
+module.exports = {DEFAULT_PROFILE, REGIDRAGO_PROFILE, ALLOWED_PROFILES,
+  withTempleUnlockTactic, runWithResearchProfile};
