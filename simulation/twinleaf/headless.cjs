@@ -205,6 +205,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [shadowRiderEnergyAcrossField] Opt-in speculative Psychic priority regardless of opposing Active.
  * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
  * @property {boolean} [latiasAttackReadyAttachment] Opt-in rank10 source-state Latias Energy completion probe.
+ * @property {boolean} [bunnelbyK0SafeEvolution] Opt-in printed-source-only TM Evolution choice without hidden-deck/Prize inspection.
  * @property {boolean} [attackBeforeRetreat] Opt-in policy-order sensitivity probe for AttackTactic and RetreatTactic.
  * @property {0|1} [attackBeforeRetreatSeat] Restrict that opt-in probe to one physical seat.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
@@ -387,6 +388,14 @@ function runMatch(request) {
       let configured = attackPreferenceOptions &&
         (request.attackBeforeRetreatSeat === undefined ||
           request.attackBeforeRetreatSeat === seat) ? attackPreferenceOptions : options;
+      if (request.bunnelbyK0SafeEvolution === true) {
+        const knownPrints = seat === 0 ? request.deckA : request.deckB;
+        const manager = initializeCards();
+        configured = require('./bunnelby-evolution-policy.cjs')
+          .withBunnelbyEvolutionLine(configured, {
+            sourceCards: knownPrints.map(name => manager.getCardByName(name))
+          });
+      }
       if (request.mimikyuApexTimelessPolicy === true &&
           (request.mimikyuApexTimelessPolicySeat === undefined ||
             request.mimikyuApexTimelessPolicySeat === seat)) {
@@ -626,6 +635,7 @@ function runMatch(request) {
       shadowRiderEnergyAcrossField: request.shadowRiderEnergyAcrossField === true,
       shadowRiderOpeningPivot: request.shadowRiderOpeningPivot === true,
       latiasAttackReadyAttachment: request.latiasAttackReadyAttachment === true,
+      bunnelbyK0SafeEvolution: request.bunnelbyK0SafeEvolution === true,
       attackBeforeRetreat: request.attackBeforeRetreat === true,
       attackBeforeRetreatSeat: request.attackBeforeRetreatSeat ?? null,
       policy: (request.doubleDragonRecovery === true ?
@@ -642,6 +652,7 @@ function runMatch(request) {
         (request.shadowRiderEnergyAcrossField === true ? '+ShadowRiderPsychicAttachAcrossField-v1' : '') +
         (request.shadowRiderOpeningPivot === true ? '+SelectedShadowRiderSetupActive-v1' : '') +
         (request.latiasAttackReadyAttachment === true ? '+LatiasAttackReadyAttachment-v1' : '') +
+        (request.bunnelbyK0SafeEvolution === true ? '+BunnelbySourceK0PossibleEvolution-v1' : '') +
         (request.attackBeforeRetreat === true ?
           '+AttackBeforeRetreatTactic-v1@' +
             (request.attackBeforeRetreatSeat === undefined ?
