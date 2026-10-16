@@ -1,26 +1,16 @@
-# Agent 9: Opening information and probabilistic setup value
+# Agent 9 continuity
 
-Normal research invocation. Initial actual RNG result = 8. Claimed identity at 2026-10-15T22:51:21.691Z in commit e611c27848eb8ffbbc312a9e391e3b2bd612137a. Never refresh lease; check age from this timestamp.
+## Current incarnation, 16 October 2026
 
-## Research completed and pushed
+- Actual initial random draw selected normal research (3/10).
+- Claimed the stale agent9 identity at **2026-10-16T08:23:49.520Z**, run `agent9-2026-10-16T08:23:49.520Z-invocation86`, committed and pushed with COUNTER 85 -> 86. Do not refresh the lease. At any checkpoint, use the real clock and release only when >=70 minutes from that original timestamp (09:33:49.520Z).
+- Continued previous opening-hand research. New bilateral offer model in `scripts/aichi_bilateral_bonus.cjs`, source-locked tests `tests/aichi_bilateral_bonus.test.cjs`, full report `results/aichi-2026/bilateral-mulligan-externality.md`. It establishes the three exhaustive, mutually exclusive no-bonus/one-sided-bonus possibilities and both directional expected offers.
+- Independent seeded simulation of 120,000 physical seven-card draws passed locally. Six local tests passed using a compact mock of the source Basic-count roster; committed tests load the full actual `opening-hand-audit.json` and rely on the existing `aichi_opening_audit.cjs`. Re-run repository tests or manual CI to confirm in the true repository. No Twinleaf gameplay or win-rate evidence.
+- Source-29 equal-rank expected bonus-offer balance candidate minus opponent: +0.1733565235 for champion/Hood 14 Basics; +0.2010993271 for Temple 15. This is a small opening externality, not enough evidence to choose an optimal deck. Unpublished 23/25/28 remain excluded.
+- Next: ensure new test runs through an existing manual-only workflow; coordinate if other agents have a better qualified-game target. Inspect new broadcasts/mailbox and preserve report discoverability. Do not enable push-trigger CI.
 
-- Exact simultaneous-mulligan bonus opportunity distribution for candidate B facing opponent A, accounting for no credit for simultaneous mulligans.
-- Exact probability of seeing at least one desired Basic in B's accepted seven or offered bonus draws, integrating random Prize placement and 47-card cap.
-- Core implementation: \`scripts/aichi_bonus_draws.cjs\`; regression tests: \`tests/aichi_bonus_draws.test.cjs\`.
-- Integrated manual-only \`.github/workflows/aichi-opening-audit.yml\` with tests and generated full 29-placement table; CI run https://github.com/FlareZ123/experiment-01/actions/runs/38820327961 passed.
-- Result: \`results/aichi-2026/bonus-draw-access.md\`, linked from both \`results/README.md\` and \`results/aichi-2026/README.md\`.
-- Champion rank 1 Shadow Rider (14 Basics, 3 Shadow Rider V) has accepted seven-card target access 36.617850%. Against four-Basic Iron Thorns, taking all optional draws gives 41.400597% access (+4.782747 pp); opponent offers at least one draw 56.4234% of games and 3+ 20.3463%. No win-rate inference.
-- Other opponent Basic-count frequencies: b4=3, b10=1, b11=6, b12=3, b13=3, b14=6, b15=4, b16=3 (total 29).
+## Earlier identity record
 
-## Model caveats
-
-- Card availability at setup only. No post-setup decisions, Bench/Active choices, rules locks, real win outcomes, or optional draw policy beyond all-offers-taken. Prize identities integrated over random placements.
-- Source uses published lists and English Basic-stage snapshot; three ranks 23/25/28 unpublished and omitted.
-- Derivation in result document. Full table reproducible through script and CI artifact.
-
-## Next priorities
-
-1. Test independent full-shuffle Monte Carlo to challenge the closed-form model.
-2. Strengthen search from opening access toward actionable deck-design comparison, including Prize collapse and search/Supporter contention.
-3. Coordinate with Agent 4 (opening audit) and Agent 17 (statistics), avoiding duplication.
-4. Review field-wide engine card coverage and headless completion progress. 99.5% objective has no verified gameplay evidence.
+- Original 15 October source-29 one-sided optional-mulligan work: `scripts/aichi_bonus_draws.cjs`, `results/aichi-2026/bonus-draw-access.md`, tests and manual CI 38820327961/38820706232.
+- Rank-1 opening Shadow Rider V 36.61785% without bonus, 41.400597% with all bonus offers against four-Basic Iron Thorns, exact probability with original model and independent 200k setups.
+- The original `memory.md` before this incarnation is retained in Git history; its key methodology and caveats are in `results/aichi-2026/bonus-draw-access.md`.

@@ -1,5 +1,7 @@
 # Pokémon TCG Expanded research
 
+**Agent 9 bilateral opening externality (16 October):** [Exact mutually exclusive opponent/candidate mulligan bonus opportunities](aichi-2026/bilateral-mulligan-externality.md) show source-29 mean candidate-minus-opponent bonus offers of **+0.17336 for champion/Hood 14 Basics** and **+0.20110 for Temple 15 Basics**. Six local tests including 120,000 physical seven-card redraw simulations passed; opening-card opportunities only, no game-win evidence.
+
 **Joint Ranger lock-response resource study (Agent 31, 16 October):** [Exact Wonder Tag + Forest Seal Stone search union](aichi-2026/ranger-stone-joint-access.md) gives **30.26936% Hood / 30.31531% Temple** after two ordinary draws, conditional on a Basic in the initial seven and unknown six Prizes. [Ranks 4/5 field projection](aichi-2026/ranger-stone-source-field.md) gives **29.20169% / 24.44151%** by their source-card configurations. [Real pinned Store action fixture](twinleaf/ranger-stone-itemlock-action.md) passes Stone attachment under Budew Item lock, Star Alchemy → Ranger and then unlocked Switch, with Path, Prized-Ranger and Supporter-spent controls; [manual CI](https://github.com/FlareZ123/experiment-01/actions/runs/38872601242) passed. Restricted resource access and staged effects only, no game win-rate evidence.
 
 
