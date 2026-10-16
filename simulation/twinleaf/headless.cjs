@@ -15,6 +15,7 @@ const {installLeleEntryAbilityLockHook} = require('./lele-entry-ability-lock-hoo
 const {installRadiantGateLockHook} = require('./radiant-gate-lock-hook.cjs');
 const {installMimikyuNonGxCopycatHook} = require('./copycat-compat.cjs');
 const {installDeclaredCopyHistoryHook} = require('./copycat-declared-history-hook.cjs');
+const {installPassClearsLastAttackHook} = require('./last-attack-pass-hook.cjs');
 const {selectedCardsEvidence, selectedOptionEvidence} = require('./selected-cards-evidence.cjs');
 const {decisionHandEvidence} = require('./decision-hand-evidence.cjs');
 const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.cjs');
@@ -187,6 +188,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [mimikyuApexCopycatCompatibility] Opt-in non-GX Apex Dragon/Copycat copy-tag correction.
  * @property {boolean} [mimikyuDeclaredHistoryCorrection] Opt-in printed Copycat attack history after nested prompts.
  * @property {boolean} [regidragoDeclaredHistoryCorrection] Opt-in printed Apex Dragon attack history after nested prompts.
+ * @property {boolean} [passClearsLastAttackCorrection] Opt-in clear stale preceding attack when a player passes.
  * @property {boolean} [snorlaxRetreatStartCorrection] Opt-in, reversible Block check on interactive retreat.
  * @property {boolean} [shadowRiderEnergyPriority] Opt-in basic Psychic Energy priority against Active Iron Thorns.
  * @property {boolean} [shadowRiderEnergyAcrossField] Opt-in speculative Psychic priority regardless of opposing Active.
@@ -230,6 +232,7 @@ function runMatch(request) {
   let restoreSnorlaxRetreatStartHook;
   let restoreMimikyuNonGxCopycatHook;
   let restoreCopyDeclaredHistoryHook;
+  let restorePassClearsLastAttackHook;
   try {
     initializeCards();
     if (request.mimikyuApexCopycatCompatibility === true) {
@@ -241,6 +244,9 @@ function runMatch(request) {
         mimikyu: request.mimikyuDeclaredHistoryCorrection === true,
         regidrago: request.regidragoDeclaredHistoryCorrection === true
       });
+    }
+    if (request.passClearsLastAttackCorrection === true) {
+      restorePassClearsLastAttackHook = installPassClearsLastAttackHook();
     }
     if (request.forestSealSearchCorrection === true) {
       restoreForestSealSearchHook = installForestSealSearchHook();
@@ -551,6 +557,7 @@ function runMatch(request) {
       mimikyuApexCopycatCompatibility: request.mimikyuApexCopycatCompatibility === true,
       mimikyuDeclaredHistoryCorrection: request.mimikyuDeclaredHistoryCorrection === true,
       regidragoDeclaredHistoryCorrection: request.regidragoDeclaredHistoryCorrection === true,
+      passClearsLastAttackCorrection: request.passClearsLastAttackCorrection === true,
       snorlaxRetreatStartCorrection: request.snorlaxRetreatStartCorrection === true,
       shadowRiderEnergyPriority: request.shadowRiderEnergyPriority === true,
       shadowRiderEnergyAcrossField: request.shadowRiderEnergyAcrossField === true,
@@ -576,13 +583,15 @@ function runMatch(request) {
         (request.radiantGateLockCorrection === true ? '+RadiantGateLockGuard-v1' : '') +
         (request.mimikyuApexCopycatCompatibility === true ? '+MimikyuNonGXCopyApex-v1' : '') +
         (request.mimikyuDeclaredHistoryCorrection === true ? '+MimikyuDeclaredHistory-v1' : '') +
-        (request.regidragoDeclaredHistoryCorrection === true ? '+RegidragoDeclaredHistory-v1' : ''),
+        (request.regidragoDeclaredHistoryCorrection === true ? '+RegidragoDeclaredHistory-v1' : '') +
+        (request.passClearsLastAttackCorrection === true ? '+PassClearsLastAttack-v1' : ''),
       policyRandomIsolation: request.isolatePolicyRandomness === true,
       randomnessProtocol: request.isolatePolicyRandomness === true ?
         'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
       engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
     };
   } finally {
+    if (restorePassClearsLastAttackHook) restorePassClearsLastAttackHook();
     if (restoreCopyDeclaredHistoryHook) restoreCopyDeclaredHistoryHook();
     if (restoreMimikyuNonGxCopycatHook) restoreMimikyuNonGxCopycatHook();
     if (restoreRadiantGateLockHook) restoreRadiantGateLockHook();
