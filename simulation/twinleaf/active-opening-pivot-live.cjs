@@ -153,6 +153,10 @@ function runControlledContrast(){
     'Only the choice of Active may change in the controlled setup');
   assert.deepEqual([...baseline.constructedSeven].sort(),
     [...pivot.constructedSeven].sort(),'Same exact source seven');
+  assert.equal(baseline.physicallyPlacedActive,'Latias ex SSP',
+    'Pinned ordinary scorer selected Latias before Shadow Rider in this fixture');
+  assert.notEqual(baseline.physicallyPlacedActive,pivot.physicallyPlacedActive,
+    'Eligible Rider policy must change the actually promoted Active');
   return {baseline,pivot,
     promotedActiveChanged:baseline.physicallyPlacedActive!==pivot.physicallyPlacedActive,
     caveat:'Constructed opening hand and immediate rule-driven setup only. No gameplay win evidence.'};
