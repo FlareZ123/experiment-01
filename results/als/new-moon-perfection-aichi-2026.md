@@ -1,10 +1,10 @@
 # Agent 25: New Moon Perfection / turn-two hand-lock candidate lead
 
-**16 October 2026.** Evidence classification: contemporaneous first-person tournament account, independently checked card text, and proposed test design. **No runnable 60-card inventory ingested, no Twinleaf game result, and no game-win-rate claim.**
+**16 October 2026.** Evidence classification: contemporaneous first-person tournament account, source-image transcription, independently checked card text, and staged simulator-fidelity tests. **The complete source-image 60-card inventory is now transcribed, with unresolved Japanese printing IDs and no qualified game-win-rate claim.** See [33 grid entries and complete counts](new-moon-perfection-source-60.md), backed by the [machine-readable source](new-moon-perfection-source-60.json).
 
 ## Source and identity
 
-A May 13, 2026 [first-person report by おっくわ / @sabpokemon](https://ottopoke.hatenablog.com/entry/2026/05/13/183822) describes an Expanded deck called **新月パーフェクション (New Moon Perfection)** used at CL Aichi 2026 Open. The report provides Japanese official deck code **`GxxDYx-a4rD4W-a8xYxc`** and a deck image, plus precise turn sequencing. The pilot explicitly credits friends with the original construction.
+A May 13, 2026 [first-person report by おっくわ / @sabpokemon](https://ottopoke.hatenablog.com/entry/2026/05/13/183822) describes an Expanded deck called **新月パーフェクション (New Moon Perfection)** used at CL Aichi 2026 Open. The report provides Japanese official deck code **`GxxDYx-a4rD4W-a8xYxc`** and a deck image, plus precise turn sequencing. The image was independently retrieved and transcribed into an exact **19 Pokémon, 35 Trainers, six Energy** inventory, with Japanese print IDs and engine IDs still unresolved. The pilot explicitly credits friends with the original construction.
 
 The pilot reports **6–2 Swiss, 52nd place**, with **4–0 against four Regidrago opponents** (rounds 2, 4, 5, 6), one win against Psychic Lopunny, one win against Dragon Lugia, and losses against Raichu/Electro Rain and Iron Thorns. The record is self-reported, unrandomized and extremely small. The author's stated participant count is 962, which differs from the repository's existing 926-person event figure; the discrepancy is not resolved here. This is a **potential non-Top32 candidate or adversarial fixture**, not evidence that it improves on the rank-1 reference.
 
@@ -30,9 +30,9 @@ Card text cross-checks: the provided English card database includes **Mewtwo & M
 
 ## Next precise research tasks
 
-1. Retrieve the **complete 60-card registered inventory** from the first-person official deck code or fully readable deck image; verify all counts, identifiers, Japanese paper Expanded legality, and permissions against the source. Until then, exclude from fixed-list leaderboard and 29/32 opponent manifest.
+1. **Completed source transcription:** the published image yields [all 60 cards](new-moon-perfection-source-60.md) in 33 entries. Next verify Japanese printing identifiers, equivalent Twinleaf mappings and paper Expanded legality. Keep this **52nd-place candidate** separate from the actual Top 32 opponent manifest.
 2. Add a direct **Powerglass-after-Horror-House fixture** checking the end-of-turn Energy attachment and verifying no retroactive extra-GX draw.
-3. Add a staged **Dusclops self-KO -> opponent Prize -> Ace Trainer -> Night Watch** fixture with exactly three opposing hand cards and independently verified random selection. Check opponent's actual allowed actions under Horror House, including Ability availability.
+3. Add a staged **Dusclops self-KO -> opponent Prize -> Ace Trainer -> Night Watch** fixture with exactly three opposing hand cards. Night Watch's pinned engine uses an invalid attacker-controlled card choice; the [reversible corrected reducer and staged Perfection delegation checks](../twinleaf/night-watch-random-hand-semantics.md) passed [five pinned CI tests](https://github.com/FlareZ123/experiment-01/actions/runs/38857044376), while full sequencing remains unqualified. Check opponent's actual allowed actions under Horror House, including Ability availability.
 4. Add **Path + New Moon ordering** and **Iron Thorns/Klefki Active suppression** fixture pairs. Validate both genuine damage and player-card restrictions, not only chosen action names.
 5. Only after deck extraction and effect tests, quantify first-two-turn hand-lock availability and compare the unchanged 60-card candidate across all published Aichi ranks with both-seat policies. Preserve the 3 unknown rank inventories, failures and confidence limits. Candidate strength is currently **unmeasured**.
 
