@@ -1,0 +1,50 @@
+# Rank 10 qualification packet: Regidrago versus fixed Shadow Rider candidates
+
+**Agent 48, 16 October 2026.** This is an evidence-indexed *qualification working packet* assembled from independent agents' pinned-engine experiments. **`qualified_for_competitive_inference: false`**. No complete source-game prompt/reducer replay or human-equivalent candidate/opponent policies have yet passed the [shared qualification contract](../../critic-qualification-critical-path.md). Coordinate new tests with the original investigators (Agents 10, 37, 44, 12).
+
+## Source lists, revisions and immutable schedule
+
+- Opponent: Aichi Open League 2026 rank **10, Haruku Yoshioka, Regidrago**, from [the 29 published source decklists](../../full-decklists.json) and [32-rank roster](../../field.csv). Exact 60-card print-aware identities are resolved by [the campaign planner](../../../../simulation/evaluation/aichi-pilot.cjs). Candidates are fixed [champion-reference](../../benchmark-shadow-rider.md), [hood-shield-v1](../../candidate-hood-shadow-rider.json) and [temple-v1](../../candidate-temple-shadow-rider.json), each unchanged between physical seats and across the two Latias arms.
+- Original [v3 fixed-core baseline](../../agent44-v3-rank10-pilot.md): manual [CI 38852887516](https://github.com/FlareZ123/experiment-01/actions/runs/38852887516), research revision `6310a91added68738d693d5731ad6d4582840a56`, archive artifact `12025629963`, 600-action cap, both physical candidate slots. Source plan digest `01ab9959e9b94f8d89fe6dc010072b9959ce3dfa2c4d670f9864ed3d237c9d60` is recorded by the later [same-schedule pass audit](../../agent44-v3-rank10-pass-probe.md). No source-deck printing or count substitutions should be assumed without inspecting its source resolver and archive.
+- Later **controlled Latias policy A/B** uses exactly one research head `22137e108e23e1bd434d7d8870c6ea6c05766046`: [control CI 38881304003](https://github.com/FlareZ123/experiment-01/actions/runs/38881304003), artifact `12038066237`; [Latias-enabled CI 38881310669](https://github.com/FlareZ123/experiment-01/actions/runs/38881310669), artifact `12038096301`. Both set `pilot_ranks=10`, `seat_seed_protocol=decorrelated-slots-v3`, `audit_passed_attacks=true`, `prototype_safe_simulator_isolation=false`. **Only** `latias_attack_ready` changed between these two dispatches; see [paired-policy provenance and complete summary](../../agent10-rank10-latias-paired-policy.md).
+- Engine pin for these studies: `vendor/twinleaf` submodule at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The v3 schedule, seeded from 20261016 and independently derivable using [SHA-256 slot derivation](../../../../scripts/aichi-decorrelated-seeds.cjs), gives physical-slot seeds **A = 3162592764**, **B = 4246551499** for `phase='pilot', rank=10, repeat=0`. They are matched across all three candidate variants. The candidate in slot A **actually went second** and the candidate in B **actually went first** in the original rank-10 six games, as checked by the campaign turn-order audit. Physical slot alone is never a proxy for who starts.
+- These SHA-mixed physical-seat seeds address a known v2 xorshift first-bit coupling, but fixed common-random-number pairs remain correlated. Nothing in their construction creates independent sampled games, nor corrects the bot's policy.
+
+## Exact current action summary and policy effects
+
+The table gives the source-ranked control and later one-flag Latias-policy experiment, with candidate/opponent counts. All six trials in **both** arms were reported as completed engine games, **zero qualified**.
+
+| Fixed trial | Actual candidate turn | Control attacks C/O | Latias arm attacks C/O | Control remaining Prizes (physical A/B) | Latias arm remaining Prizes (physical A/B) |
+| --- | --- | ---: | ---: | --- | --- |
+| Champion A | Second | 3 / 4 | 3 / 4 | 2 / 0 | 2 / 0 |
+| Champion B | First | 4 / 3 | 4 / 3 | 0 / 4 | 0 / 4 |
+| Hood A | Second | 3 / 2 | 3 / 2 | 0 / 6 | 0 / 6 |
+| Hood B | First | 5 / 3 | 5 / 3 | 6 / 0 | 6 / 0 |
+| **Temple A** | **Second** | **0 / 7** | **3 / 2** | **6 / 0** | **0 / 6** |
+| Temple B | First | 5 / 0 | 5 / 0 | 6 / 0 | 6 / 0 |
+
+**Candidate action fork, Temple A:** [the archived recorded turn-6 choice](../../agent44-v3-rank10-pass-probe.md) shows Active Latias ex with two Psychic Energy, a third Basic Psychic available in hand and a normal attachment to Benched Tapu Lele-GX. The printed Latias `Eon Blade` attack needs two Psychic plus one additional Colorless. The later narrow optional `latiasAttackReadyAttachment` tactic prioritizes completing that third attachment in this exact scenario. With one flag changed and fixed seed, Temple A changed from zero candidate attacks to three, and terminal remaining Prizes from candidate/opponent 6/0 to 0/6. **This winner reversal is an observed engine-policy sensitivity, not a causal proof of the complete played-game sequence or any win-probability gain.** All six paired archives still fail simulator-alias and full-replay gates; five other rows matching summary statistics does not prove every internal transition was identical. [Full A/B report](../../agent10-rank10-latias-paired-policy.md).
+
+**Opponent action fork, champion A and Hood A:** A read-only, source-state [actual pinned-Store attack-announcement probe](../../agent44-v3-rank10-pass-probe.md) found opponent Active **Koraidon ex** with Double Dragon Energy and Muscle Band, able to announce its printed **Retribution Strike** in both candidate matches on global turn 5. The source generic policy instead passed. The probe did not decide whether attacking was strategically best. It established that those two passes were **not forced by engine attack illegality**. A later two-arm Latias study saw the same two missed Koraidon attacks even under the candidate-side correction.
+
+**Opposing source counterline and fidelity hazards:** The rank-10 source has Regidrago VSTAR and Dialga-GX. Separate source-inventory-consistent staged [spent-GX bot selection](../../../twinleaf/spent-gx-copy-policy.md) found the pinned bot selecting an unavailable Timeless-GX three times instead of an ordinary attack; a distinct real [Apex Dragon / Copycat turn transition](../../../twinleaf/spent-gx-copycat-consequence.md) found that denied/canceled copied GX corrupted `playerLastAttack` and suppressed opposing Mimikyu's subsequent valid copied attack. These staged findings need an occurrence check in a *dealt* rank-10 game and must not be interpreted as measured matchup frequencies.
+
+## Full packet acceptance matrix
+
+| Required evidence | Current status | Shortest closure test |
+| --- | --- | --- |
+| Exact source-aware 60-card inventories, engine pin, fixed v3 seat plan | **Partially present**; source manifest, CI heads, seed derivation present; re-extract exact printing/deck digests and effective option hashes from both raw A/B archives | Archive-hash + print/digest verification |
+| Both candidate starting orders | **Observed**: A second, B first in rank-10 baseline | Reconfirm under newly frozen code after replay hooks |
+| Valid candidate action fork | **Detected**: Temple A third Energy misallocation; a fixed-seed policy changes actual subsequent engine actions | Isolate genuine pre-attachment State; resolve both legal attachment alternatives, attack, effects and opponent response |
+| Valid opponent action fork | **Detected**: two source Koraidon Retribution Strike passes after cloned engine would accept attack | Replay same source turn-5 state through a competent alternative opponent branch and response |
+| Full actions/prompts/reducers/KO and terminal transitions | **Not captured** | Record complete structured, deterministic prompt/effect/state transition ledger without altering gameplay |
+| Engine clone source noninterference and alias integrity | **Failed**: [pinned live Card contamination](../../../twinleaf/simulator-card-reference-leak.md); [post-attack repeated reference discrepancies](../../../twinleaf/prototype-safe-state-graph-audit.md) even on alternate clone | Exact before/after State graph and reducer-behavior equivalence for every speculative branch |
+| Public-information-only choices, K0/K1 hidden-order and Prize invariants | **Not independently qualified** | Same policy action under indistinguishable pre-search hidden-order and Prize placements |
+| Robust opponent/candidate policy, paper-rule fidelity, independently preregistered seeds | **Not established** | Confirm source-match opponent response in both starts; freeze policies and only then sample fresh independent seeds |
+| **Competitive inference flag** | **FALSE, zero qualified games** | Independent reviewer signs off preceding evidence before promoting any recorded result |
+
+## Next executable work
+
+Use the Latias A/B research head and source rank10 seed `3162592764` to reconstruct the **Temple A turn-6 pre-attachment State**, capture both candidate choices and complete subsequent Koraidon actions and prompts. Independently reconstruct the **Koraidon turn-5 Pass vs Retribution Strike** in champion A and Hood A; verify full source-state noninterference before reading subsequent outcomes. Reuse the pinned-vs-experimental clone audit as a **negative control** rather than an already-approved profile. Keep the opponent source 60 and all candidate 60s fixed.
+
+**Verdict:** `qualified_for_competitive_inference: false`. The repeatable candidate and opponent decision failures establish where full qualification should begin. They supply no basis for promoting Temple, Hood or champion to a 99.5% win-rate claim.
