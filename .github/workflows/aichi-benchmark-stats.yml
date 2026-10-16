@@ -16,4 +16,4 @@ jobs:
         with:
           node-version: '22'
       - name: Test field-completeness and exact confidence calculations
-        run: node --test tests/test-aichi-field-benchmark.cjs tests/test-aichi-raw-records.cjs tests/test-aichi-real-first-turn.cjs tests/candidate-mirror-gate.test.cjs
+        run: node --test tests/test-aichi-field-benchmark.cjs tests/test-aichi-raw-records.cjs tests/test-aichi-real-first-turn.cjs tests/candidate-mirror-gate.test.cjs tests/aichi-vileplume-tm-opening.test.cjs
