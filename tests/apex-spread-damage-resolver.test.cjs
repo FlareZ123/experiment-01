@@ -380,7 +380,8 @@ test('pinned Mist Energy prevents opponent attack counter placement',
     'simple-bot/prompt-resolver/choose-prize-prompt-resolver');
   const {SlotType}=load('game/store/actions/play-card-action');
   const {defaultStateScores}=load('simple-bot/simple-bot-definitions');
-  const get=initializeCards().getCardByName;
+  const manager=initializeCards();
+  const get=name=>manager.getCardByName(name);
   const ready=preparedRegidrago();
   ready.attachFire();
   ready.defending.active.cards.length=0;
