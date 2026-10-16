@@ -26,6 +26,8 @@ jobs:
           node-version: '20'
       - name: Check published registration identity including rank 22
         run: node --test tests/aichi-registration-fidelity.test.cjs
+      - name: Assert New Moon Stadium source-field census
+        run: node --test tests/aichi-new-moon-stadium-census.test.cjs
       - name: Fetch and validate all 29 published full lists
         run: python scripts/ingest_aichi.py
       - uses: actions/upload-artifact@v4
