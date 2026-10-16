@@ -30,6 +30,12 @@ Under identical published rank-1/rank-10 60-card source hashes, actual first-tur
 
 In an independently fixed rank-10 v3 seed `3162592764` comparison, the original weak bot still passed with Koraidon after scoring Retribution Strike `-2305` against threshold `-199` on turn 5. The repaired v2 profile followed another action trajectory from captured-event index **2**, and its game ended with a different engine winner after 164 rather than 183 actions. The original Koraidon turn-5 source State therefore was not reached in that altered trajectory. This is a policy-and-simulator sensitivity signal, with no causal attribution to the prototype change alone and no competitive win-rate meaning.
 
+## Additional fail-closed cloned-data contract
+
+Following the prototype fix, `normalizeDeepClonePrototypes` was strengthened to reject changed primitive values, extra/missing own enumerable properties and distinct source nodes merged into one clone. The duplicate-source canonicalizer still repairs repeated references that the pinned Array copying splits. [Adversarial pure Node tests](../../tests/agent16-clone-fail-closed.test.cjs) cover those rejections and sparse-array preservation, and are included in the manual workflow. This detects additional input corruption before a speculative bot action can use the state.
+
+**Current CI verification:** [manual run 38902634280](https://github.com/FlareZ123/experiment-01/actions/runs/38902634280) was dispatched with these validations. Its conclusion must be checked; no pass claim is inferred from a queued run.
+
 ## Limits and why this matters
 
 This is a **structural fidelity defect** in an experimental clone path, separate from the previously reproduced pinned live-Card mutation defect. An intermediate prototype belongs to a detached copy, so this result alone does not establish that it mutates the real Store or alters a particular card interaction. It still changes the final object's identity/prototype topology, can affect inherited-property semantics, and should not be silently treated as equivalent to an ordinary deep clone.
