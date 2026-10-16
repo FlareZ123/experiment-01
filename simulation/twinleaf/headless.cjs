@@ -33,6 +33,7 @@ const {probePassedAttackOptions, nextPassProbeBucket} = require('./pass-attack-a
 const {withActiveOpeningPivot} = require('./active-opening-pivot.cjs');
 const {withAttackBeforeRetreat} = require('./attack-retreat-order.cjs');
 const {withCopycatApexTimelessPolicy} = require('./mimikyu-counter-policy.cjs');
+const {copycatTurnStartSnapshot} = require('./copycat-turn-start-evidence.cjs');
 const {retreatTransitionEvidence} = require('./retreat-transition-evidence.cjs');
 
 /**
@@ -211,6 +212,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [attackBeforeRetreat] Opt-in policy-order sensitivity probe for AttackTactic and RetreatTactic.
  * @property {0|1} [attackBeforeRetreatSeat] Restrict that opt-in probe to one physical seat.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
+ * @property {0|1} [captureCopycatTurnStartSeat] Opt-in candidate perspective resource snapshot once per own turn, taken before selecting the first action.
  * @property {boolean} [captureAttackPassProbes] Opt-in first eight post-choice Pass attack-announcement probes; only archived when capturing decision trace.
  */
 
@@ -262,6 +264,10 @@ function runMatch(request) {
         (request.mimikyuApexTimelessPolicy !== true ||
           ![0, 1].includes(request.mimikyuApexTimelessPolicySeat))) {
       throw new Error('Counterpolicy seat requires enabled Copycat counterpolicy');
+    }
+    if (request.captureCopycatTurnStartSeat !== undefined &&
+        ![0, 1].includes(request.captureCopycatTurnStartSeat)) {
+      throw new Error('Copycat turn-start evidence seat must be physical seat 0 or 1');
     }
     if (request.mimikyuApexTimelessPolicy === true &&
         !(request.mimikyuApexCopycatCompatibility === true &&
@@ -437,6 +443,9 @@ function runMatch(request) {
     const attackTrace = [];
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
+    const copycatTurnStartEvidence = request.captureCopycatTurnStartSeat === undefined ?
+      null : [];
+    let lastCopycatTurnCaptured = null;
     let attackPassProbeCount = 0;
     const attackPassProbeBuckets = {printed: 0, tool: 0};
     let terminalTransition = null;
@@ -444,6 +453,14 @@ function runMatch(request) {
     while (store.state.phase !== GamePhase.FINISHED && actions < maxActions) {
       const state = store.state;
       const pending = state.prompts.find(prompt => prompt.result === undefined);
+      if (copycatTurnStartEvidence && !pending &&
+          state.phase === GamePhase.PLAYER_TURN &&
+          state.activePlayer === request.captureCopycatTurnStartSeat &&
+          lastCopycatTurnCaptured !== state.turn) {
+        copycatTurnStartEvidence.push(copycatTurnStartSnapshot(
+          state, request.captureCopycatTurnStartSeat));
+        lastCopycatTurnCaptured = state.turn;
+      }
       let action;
       if (pending instanceof ShuffleDeckPrompt) {
         const ownerId = pending.getPerspectivePlayerId();
@@ -602,6 +619,7 @@ function runMatch(request) {
       attackTrace,
       abilityTrace,
       decisionTrace,
+      ...(copycatTurnStartEvidence ? {copycatTurnStartEvidence} : {}),
       attackPassProbeCount,
       attackPassProbeBuckets,
       terminalTransition,
