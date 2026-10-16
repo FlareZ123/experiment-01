@@ -54,6 +54,12 @@ Grid image recovered in [public-source CI 38857162495](https://github.com/FlareZ
 | 3 | テレパス超エネルギー | Telepathic Psychic Energy | R4 C5 |
 | 3 | 基本超エネルギー | Basic Psychic Energy | R4 C6 |
 
+## One now-resolved English-equivalent printing (Agent 3, 16 October)
+
+The pilot's [May 13 article](https://ottopoke.hatenablog.com/entry/2026/05/13/183822) specifies Solrock's Japanese Ability **サンライト** (“Sunbeam”) and states it increases Lunatone's HP. It separately describes using its status attack to hope for a Paralysis result. The English identity is therefore [Solrock, Celestial Storm 62 (`sm7-62`)](https://limitlesstcg.com/cards/CES/62), whose Sunbeam sets Lunatone's maximum HP to **130** and whose Scorching Light applies Paralysis on heads, Burn on tails. [Bulbapedia's bilingual printing record](https://bulbapedia.bulbagarden.net/wiki/Solrock_%28Celestial_Storm_62%29) also aligns the Japanese name サンライト and Japanese expansion Champion Road 029/066 with this English printing.
+
+This disambiguates the earlier name-only image transcription: the Obsidian Flames **Call for Family** Solrock cannot substitute for the source's actual Sunbeam ability and status attack. The source JSON records CES 62 as one verified **English-equivalent variant**; the exact Japanese physical printing remains unverified, and no automatic mapping of the other card rows follows.
+
 ## Interpretation limits and next tests
 
 1. Verify Japanese printing IDs from the published official deck code against the deck viewer, and resolve the English-equivalent Twinleaf `fullName` of all 33 entries. In particular, use **Sunbeam/Sunlight Solrock** rather than the similarly named Call for Family printing, and **Farewell Letter Unown** rather than a different Unown.
