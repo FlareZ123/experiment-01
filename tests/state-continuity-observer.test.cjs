@@ -79,3 +79,16 @@ test('ignores speculative Stores and restores wrapper on failure',()=>{
   },{snapshot:sample}),/deliberate/);
   assert.equal(Store.prototype.dispatch,prior);
 });
+
+test('policy observation is read-only for a pure bot',()=>{
+  class TestBot {decodeNextAction(){return new AddOne();}}
+  const live=new Store(),bot=new TestBot();
+  const result=withRootPolicyMutationAudit(Store,TestBot,()=>{
+    live.dispatch(new AddPlayerAction());
+    live.dispatch(bot.decodeNextAction(live.state));
+    return live.state.count;
+  },{snapshot:sample});
+  assert.equal(result.result,2);
+  assert.equal(result.rootPolicyCalls,1);
+  assert.deepEqual(result.rootPolicyStateMutations,[]);
+});
