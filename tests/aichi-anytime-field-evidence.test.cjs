@@ -43,3 +43,17 @@ test('one loss still yields a defined finite exponential mixture',()=>{
   assert.equal(value.currentCrosses,false);
   assert.ok(Number.isFinite(value.logEValue));
 });
+
+test('extreme heterogeneous null has one-round expected e-value at most one',()=>{
+  const good=assessFieldEvidence([round()]).eValue;
+  const bad=assessFieldEvidence([round(0)]).eValue;
+  assert.ok(0.68*good+0.32*bad <= 1+1e-10);
+  assert.ok(Math.abs((63+0.68)/64-0.995)<1e-12);
+});
+test('invalid experiment parameters and unfinished rounds are rejected',()=>{
+  assert.throws(()=>assessFieldEvidence([],{nullMean:1}));
+  assert.throws(()=>assessFieldEvidence([],{alpha:0}));
+  assert.throws(()=>assessFieldEvidence([round().slice(1)]));
+  const wrong=round();wrong[0].outcome='unfinished';
+  assert.throws(()=>assessFieldEvidence([wrong]),/Invalid/);
+});
