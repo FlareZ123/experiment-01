@@ -9,6 +9,7 @@ const { captureAttachEnergyReference } = require('./attach-energy-reference.cjs'
 const { captureAction } = require('./source-action-value-codec.cjs');
 const { capturePromptAction } = require('./source-prompt-action-codec.cjs');
 const {sourceZoneSnapshot,zoneSnapshotDigest} = require('./source-zone-checkpoint.cjs');
+const {observableState,hash:continuityHash} = require('./source-state-continuity.cjs');
 
 const INSTALLED = Symbol('research-dispatch-transcript');
 
@@ -164,6 +165,7 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
     trace.push(event);
     if (options.sourceZoneEveryDispatch === true) {
       event.zoneDigestBefore = zoneSnapshotDigest(sourceZoneSnapshot(this.state));
+      event.continuityDigestBefore = continuityHash(observableState(this.state));
     }
     const pending = this.state?.prompts?.find(p => p.result === undefined);
     if (pending && action?.constructor?.name === 'ResolvePromptAction') {
@@ -255,6 +257,7 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
       event.after = observedCounts(this.state);
       if (options.sourceZoneEveryDispatch === true) {
         event.zoneDigestAfter = zoneSnapshotDigest(sourceZoneSnapshot(this.state));
+        event.continuityDigestAfter = continuityHash(observableState(this.state));
       }
     }
   };
