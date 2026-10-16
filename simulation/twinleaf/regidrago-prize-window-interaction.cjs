@@ -16,6 +16,7 @@ function runReadyBoardChoice(usePrizeResolver) {
   const { ResolvePromptAction } = load('game/store/actions/resolve-prompt-action');
   const { PlayerType, SlotType } = load('game/store/actions/play-card-action');
   const { ChooseAttackPromptResolver } = load('simple-bot/prompt-resolver/choose-attack-prompt-resolver');
+  const { ChoosePrizePromptResolver } = load('simple-bot/prompt-resolver/choose-prize-prompt-resolver');
   const { defaultStateScores } = load('simple-bot/simple-bot-definitions');
   const { PokemonCardList } = load('game/store/state/pokemon-card-list');
   const ready = preparedRegidrago();
@@ -31,7 +32,7 @@ function runReadyBoardChoice(usePrizeResolver) {
   bench.cards.push(budew);
   ready.defending.bench.unshift(bench);
   ready.attacking.discard.cards.push(dragapult, goodra);
-  const prizesBefore = ready.attacking.prizes.length;
+  const prizesBefore = ready.attacking.getPrizeLeft();
 
   ready.store.dispatch(new AttackAction(ready.attacking.id, 'Apex Dragon'));
   const prompt = ready.state.prompts.find(p => p.result === undefined && p.constructor.name === 'ChooseAttackPrompt');
@@ -51,7 +52,26 @@ function runReadyBoardChoice(usePrizeResolver) {
       damage: 60
     }]));
   }
-  const prizesAfter = ready.attacking.prizes.length;
+  // Finish the game's animation and Prize-selection prompts. Knock Outs
+  // and taken Prizes are not necessarily settled at PutDamagePrompt return.
+  const prizeResolver = new ChoosePrizePromptResolver({ scores: defaultStateScores });
+  const resolvedPrompts = [];
+  for (let i = 0; i < 12; i += 1) {
+    const pending = ready.state.prompts.find(p => p.result === undefined);
+    if (pending?.constructor.name === 'WaitPrompt') {
+      ready.store.dispatch(new ResolvePromptAction(pending.id, null));
+    } else if (pending?.constructor.name === 'ChoosePrizePrompt') {
+      const chooser = ready.state.players.find(p => p.id === pending.playerId);
+      assert.ok(chooser);
+      const action = prizeResolver.resolvePrompt(ready.state, chooser, pending);
+      assert.ok(action);
+      ready.store.dispatch(action);
+    } else {
+      break;
+    }
+    resolvedPrompts.push(pending.constructor.name);
+  }
+  const prizesAfter = ready.attacking.getPrizeLeft();
   const budewKnockedOut = ready.defending.discard.cards.includes(budew);
   return {
     chosen: chosen.result.name,
@@ -60,6 +80,7 @@ function runReadyBoardChoice(usePrizeResolver) {
     benchRemainingCard: bench.getPokemonCard()?.fullName || null,
     benchDamage: bench.damage,
     prizesTaken: prizesBefore - prizesAfter,
+    resolvedPrompts,
     gamePhase: ready.state.phase,
     promptsPending: ready.state.prompts.filter(p => p.result === undefined).map(p => p.constructor.name),
     defenderDiscardCount: ready.defending.discard.cards.length,
