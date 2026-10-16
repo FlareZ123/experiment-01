@@ -1,0 +1,30 @@
+name: Latias Koraidon adversarial response
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  staged-counter-response:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize exact Twinleaf revision
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Exercise exact source-printing response and earlier Energy contract
+        run: node --test tests/latias-koraidon-adversarial-sequence.test.cjs tests/latias-rank10-energy-completion.test.cjs
+      - name: Print completed rule contract
+        run: node simulation/twinleaf/latias-koraidon-adversarial-sequence.cjs
