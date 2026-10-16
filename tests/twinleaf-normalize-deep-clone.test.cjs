@@ -75,3 +75,12 @@ test('allow repeated noncyclic arrays and ordinary Card class instances',()=>{
   const clone=normalizeDeepClonePrototypes(source,pinnedDeepClone(source));
   assert.strictEqual(clone.primary,clone.alias);
 });
+
+test('object cycles through shared arrays are vendor-safe and stay detached',()=>{
+  const root={card:new Card()};root.self=root;root.zone=[root];
+  assert.doesNotThrow(()=>assertVendorCloneCompatibleSource(root));
+  const copy=normalizeDeepClonePrototypes(root,pinnedDeepClone(root));
+  assert.strictEqual(copy.self,copy);
+  assert.strictEqual(copy.zone[0],copy);
+  assert.notStrictEqual(copy.card,root.card);
+});
