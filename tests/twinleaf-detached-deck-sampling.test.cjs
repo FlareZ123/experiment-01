@@ -64,3 +64,22 @@ test('known top requires observation evidence',()=>{
     setup(),1,{},0,()=>1,null,structuredClone,
     {...opts,knownTopCount:1}),/verified observed prefix/);
 });
+
+test('reordering unobserved suffix leaves every sampled score unchanged',()=>{
+  const a=setup(),b=setup();
+  b.players[0].deck.cards.reverse();
+  b.players[0].deck.cards.unshift(b.players[0].deck.cards.pop());
+  const options={...opts,knownTopCount:1,knownTopVerified:true};
+  const score=state=>evaluateDetachedDeckSamples(
+    state,1,{},0,
+    sample=>sample.players[0].deck.cards[1].id,
+    null,structuredClone,options);
+  assert.equal(score(a),score(b));
+  assert.equal(a.players[0].deck.cards[0].fullName,'A');
+  assert.equal(b.players[0].deck.cards[0].fullName,'A');
+});
+test('known prefix cannot exceed remaining deck',()=>{
+  assert.throws(()=>evaluateDetachedDeckSamples(
+    setup(),1,{},0,()=>1,null,structuredClone,
+    {...opts,knownTopCount:4,knownTopVerified:true}),/exceeds deck length/);
+});
