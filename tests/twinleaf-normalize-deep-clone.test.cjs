@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const {test}=require('node:test');
-const {normalizeDeepClonePrototypes}=
+const {normalizeDeepClonePrototypes,assertVendorCloneCompatibleSource}=
   require('../simulation/twinleaf/normalize-deep-clone.cjs');
 // Exact pinned source mechanism, extracted as a pure smoke test.
 function pinnedDeepClone(source,ignores=[],refMap=[]){
@@ -53,4 +53,23 @@ test('pinned deepClone duplicates aliased array references; normalizer reunites 
   assert.notStrictEqual(detached.zone[0],shared[0]);
   detached.zone[0].fullName='B';
   assert.equal(source.zone[0].fullName,'A');
+});
+
+test('reject source shapes omitted or miscloned by pinned helper',()=>{
+  const symbol=Symbol('private');
+  assert.throws(()=>assertVendorCloneCompatibleSource({[symbol]:{fullName:'Secret'}}),
+    /symbol, accessor or non-enumerable/);
+  const accessor={};
+  Object.defineProperty(accessor,'card',{enumerable:true,get(){throw Error('getter must not run')}});
+  assert.throws(()=>assertVendorCloneCompatibleSource(accessor),
+    /symbol, accessor or non-enumerable/);
+  assert.throws(()=>assertVendorCloneCompatibleSource({at:new Date()}),/internal object slots/);
+  const array=[];array.push(array);
+  assert.throws(()=>assertVendorCloneCompatibleSource({array}),/cyclic arrays/);
+});
+test('allow repeated noncyclic arrays and ordinary Card class instances',()=>{
+  const shared=[new Card()];const source={primary:shared,alias:shared};
+  assert.doesNotThrow(()=>assertVendorCloneCompatibleSource(source));
+  const clone=normalizeDeepClonePrototypes(source,pinnedDeepClone(source));
+  assert.strictEqual(clone.primary,clone.alias);
 });
