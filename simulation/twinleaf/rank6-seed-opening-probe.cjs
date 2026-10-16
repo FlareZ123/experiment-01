@@ -104,10 +104,10 @@ function main() {
   assert.equal(out.firstTurnSlot,0,
     'This archived physical seed requires candidate A to start');
   assert.ok(observed,'Did not reach physical B first-turn choice');
-  const names = observed.hand.map(x=>x.split(' ').slice(0,-1).join(' '));
   const sourceNames = sourceHand.slice().sort();
   const actualNames = observed.hand.map(print=>{
-    const all = [...sourceHand, 'Iron Thorns ex','Double Colorless Energy'];
+    const all = [...sourceHand, 'Iron Thorns ex','Double Colorless Energy']
+      .sort((a,b)=>b.length-a.length);
     return all.find(name=>print.startsWith(name+' ')) ||
       print.replace(/ [^ ]+$/,'');
   }).sort();
