@@ -37,6 +37,9 @@ jobs:
       - name: Observe real Apex Dragon AttackAction last-attack identity
         run: node simulation/twinleaf/apex-declared-history-test.cjs
 
+      - name: Prove two declared Regidrago and Mimikyu attacks across turn
+        run: node simulation/twinleaf/regidrago-to-mimikyu-two-attack.cjs
+
       - name: Exercise declared Copycat AttackAction and nested GX prompt
         run: node simulation/twinleaf/mimikyu-apex-action-test.cjs
 
