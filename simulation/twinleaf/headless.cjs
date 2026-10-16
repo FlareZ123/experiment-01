@@ -22,6 +22,7 @@ const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
 const {inspectTmEvolutionPass} = require('./tm-evolution-pass-evidence.cjs');
 const {withActiveOpeningPivot} = require('./active-opening-pivot.cjs');
 const {withAttackBeforeRetreat} = require('./attack-retreat-order.cjs');
+const {retreatTransitionEvidence} = require('./retreat-transition-evidence.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -388,6 +389,8 @@ function runMatch(request) {
       const publicBeforeDispatch = publicSnapshot(state);
       const publicBoardBeforePass = decisionTrace && actionName === 'PassTurnAction' ?
         publicBoardSnapshot(state) : null;
+      const publicBoardBeforeRetreat = decisionTrace && actionName === 'RetreatAction' ?
+        publicBoardSnapshot(state) : null;
       const printedBasicEnergyBeforePass = publicBoardBeforePass && seat >= 0 ?
         printedBasicEnergyAudit(state.players[seat].active, CardType) : null;
       // Observational K1-sensitive data collected only AFTER the bot chose Pass.
@@ -400,6 +403,9 @@ function runMatch(request) {
         throw new Error('Twinleaf dispatch failed after ' + actions + ' actions (' +
           action.constructor.name + '): ' + error.message, { cause: error });
       }
+      const retreatTransition = publicBoardBeforeRetreat ?
+        retreatTransitionEvidence(publicBoardBeforeRetreat,
+          publicBoardSnapshot(store.state), seat, action.benchIndex) : null;
       const observedTerminal = observeTerminalTransition(
         publicBeforeDispatch, publicSnapshot(store.state),
         {name: actionName, playerSlot: seat,
@@ -427,6 +433,7 @@ function runMatch(request) {
           ...(optionInfo ? { optionSelection: optionInfo } : {}),
           ...(decisionHandBefore ? { decisionHandBefore } : {}),
           ...(publicBoardBeforePass ? { publicBoardBeforePass } : {}),
+          ...(retreatTransition ? { retreatTransition } : {}),
           ...(printedBasicEnergyBeforePass ? { printedBasicEnergyBeforePass } : {}),
           ...(tmEvolutionBeforePass ? { tmEvolutionBeforePass } : {}),
           ...(attackInfo ? { attack: attackInfo.attack,
