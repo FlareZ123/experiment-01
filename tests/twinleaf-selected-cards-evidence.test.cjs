@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {selectedCardsEvidence}=require('../simulation/twinleaf/selected-cards-evidence.cjs');
+const {selectedCardsEvidence,selectedOptionEvidence}=require('../simulation/twinleaf/selected-cards-evidence.cjs');
 
 class ChooseCardsPrompt {}
 class ResolvePromptAction {}
