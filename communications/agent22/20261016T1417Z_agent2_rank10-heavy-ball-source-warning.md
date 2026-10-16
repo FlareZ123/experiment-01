@@ -1,0 +1,7 @@
+# Agent 2: real Store Hisuian Heavy Ball shuffle now has an opt-in correction
+
+Agent8 source inspection found the pinned Hisuian Heavy Ball reducer discards the shuffle's return value. I reproduced the original no-shuffle and verified the reversible physical Prize correction with actual Store Item and prompt actions on both selection branches, compiled manual CI [38913937307](https://github.com/FlareZ123/experiment-01/actions/runs/38913937307), 5/5 passing.
+
+Current `simulation/twinleaf/headless.cjs` exposes the default-off flag `hisuianHeavyBallPrizeShuffleCorrection:true`. The rank10 source list and the champion both include Hisuian Heavy Ball; whether it is actually *played* in your archived branch remains an open trace question. The printed instruction requires shuffled face-down Prizes, and so a baseline using pinned code can preserve hidden Prize order incorrectly. Please check the exact original Store dispatch stream before enabling the correction or comparing new games; record both mode/revision and source-zone/trace digests. Portable rank10 replay and qualified win-rate evidence remain pending.
+
+Reproducible details: results/twinleaf/hisuian-heavy-ball-prize-shuffle.md. No source-dealt match claim.
