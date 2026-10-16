@@ -22,16 +22,31 @@ function countQualifiedWins(round) {
     throw new Error('Each round requires exactly 64 ranked seat games.');
   }
   const seen = new Set();
+  const gameIds = new Set();
+  const seeds = new Set();
   let wins = 0;
   for (const game of round) {
     if (!game || !Number.isInteger(game.rank) || game.rank < 1 || game.rank > FIELD_SIZE ||
         !['first','second'].includes(game.startingSeat) ||
-        !['win','loss','draw'].includes(game.outcome)) {
-      throw new Error('Invalid rank, actual starting seat, or complete outcome.');
+        !['win','loss','draw'].includes(game.outcome) ||
+        game.status !== 'qualified-completed-game' ||
+        typeof game.gameId !== 'string' || !game.gameId ||
+        !Number.isInteger(game.seed) || game.seed < 0 || game.seed > 0xffffffff ||
+        !/^[a-f0-9]{64}$/.test(game.candidateDeckSha256) ||
+        !/^[a-f0-9]{64}$/.test(game.opponentDeckSha256) ||
+        typeof game.candidatePolicyRevision !== 'string' || !game.candidatePolicyRevision ||
+        typeof game.opponentPolicyRevision !== 'string' || !game.opponentPolicyRevision ||
+        typeof game.engineRevision !== 'string' || !game.engineRevision ||
+        typeof game.rulesetRevision !== 'string' || !game.rulesetRevision) {
+      throw new Error('Invalid or unqualified game evidence: rank, starting seat, status, outcome or provenance.');
     }
     const key = game.rank + ':' + game.startingSeat;
     if (seen.has(key)) throw new Error('Repeated rank/seat cell: ' + key);
+    if (gameIds.has(game.gameId)) throw new Error('Repeated game ID within round: ' + game.gameId);
+    if (seeds.has(game.seed)) throw new Error('Repeated game seed within round: ' + game.seed);
     seen.add(key);
+    gameIds.add(game.gameId);
+    seeds.add(game.seed);
     if (game.outcome === 'win') wins += 1;
   }
   return wins;
@@ -46,8 +61,42 @@ function assessFieldEvidence(rounds, options={}) {
   const thresholdLog=-Math.log(alpha);
   const finiteWeightLog=Math.log((1-ZERO_LOSS_WEIGHT)/LAMBDAS.length);
   let wins=0, firstCrossedAtRound=null, logEValue=0;
+  const gameIds=new Set(), seeds=new Set();
+  let candidateDigest=null, engineRevision=null, rulesetRevision=null;
+  let candidatePolicyRevision=null;
+  const opponentDigests=new Map(), opponentPolicies=new Map();
   for (let index=0; index<rounds.length; index++) {
-    wins += countQualifiedWins(rounds[index]);
+    const round=rounds[index];
+    const qualifiedWins=countQualifiedWins(round);
+    // The numerical e-process cannot authenticate records or establish independence.
+    // Reject visible record reuse and provenance drift before crediting a round.
+    for (const game of round) {
+      if (gameIds.has(game.gameId)) throw new Error('Repeated game ID across rounds: '+game.gameId);
+      if (seeds.has(game.seed)) throw new Error('Repeated game seed across rounds: '+game.seed);
+      gameIds.add(game.gameId);
+      seeds.add(game.seed);
+      if (candidateDigest===null) candidateDigest=game.candidateDeckSha256;
+      if (engineRevision===null) engineRevision=game.engineRevision;
+      if (rulesetRevision===null) rulesetRevision=game.rulesetRevision;
+      if (candidatePolicyRevision===null) candidatePolicyRevision=game.candidatePolicyRevision;
+      if (candidateDigest!==game.candidateDeckSha256 ||
+          engineRevision!==game.engineRevision ||
+          rulesetRevision!==game.rulesetRevision ||
+          candidatePolicyRevision!==game.candidatePolicyRevision) {
+        throw new Error('Candidate deck, engine, ruleset or candidate policy changed across evidence rounds.');
+      }
+      if (opponentDigests.has(game.rank) &&
+          opponentDigests.get(game.rank)!==game.opponentDeckSha256) {
+        throw new Error('Opponent deck changed for rank '+game.rank);
+      }
+      if (opponentPolicies.has(game.rank) &&
+          opponentPolicies.get(game.rank)!==game.opponentPolicyRevision) {
+        throw new Error('Opponent policy changed for rank '+game.rank);
+      }
+      opponentDigests.set(game.rank,game.opponentDeckSha256);
+      opponentPolicies.set(game.rank,game.opponentPolicyRevision);
+    }
+    wins += qualifiedWins;
     const games=(index+1)*CELLS_PER_ROUND;
 
     const zeroLog=wins===games ? Math.log(ZERO_LOSS_WEIGHT)-games*Math.log(nullMean) : -Infinity;
