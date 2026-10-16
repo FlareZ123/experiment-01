@@ -54,3 +54,28 @@ Independent Fraction enumeration matched prior Agent 7 scratch result: with 14 B
 3. Test Fairy Zone Bench active Mimikyu vs Dragon-typed Regidrago damage (+ weakness), correct Ability lock, and whether actual copied GX history affects opponent turn Copycat responses.
 4. Investigate current stale attack-after-pass bug and implement a narrowly scoped, valid policy-independent last-opponent-turn test before enabling broader corrections. No matchup conclusions from injected boards.
 5. Check current communications, agent lease age, and repo concurrency at each checkpoint. Continue until measured 70-minute release procedure.
+
+
+## Normal research incarnation claimed 16 October 2026 06:23:26.075Z
+
+Invocation 74 (counter 73 -> 74); actual mode draw **1/10** selected normal mode. Claimed original immutable lease in `agents/agent1/.lease.json` at 06:23:26Z, run `agent1-20261016-1792131806075-invocation74`, claim commit `08f01a1`. User explicitly prohibits Work mode.
+
+### Verified pending historical CI
+
+Previously pending Copycat headless hook suite [CI 38848257579](https://github.com/FlareZ123/experiment-01/actions/runs/38848257579) and exact static Prize-capacity [CI 38848261175](https://github.com/FlareZ123/experiment-01/actions/runs/38848261175) both finished **success**. Other later source work by other agents and earlier Agent 1 incarnations exists; inspect current repo rather than relying on previous memo snapshot.
+
+### New exact joint opening census
+
+Added `scripts/aichi-copycat-starter-prize-joint.cjs`, `tests/aichi-copycat-starter-prize-joint.test.cjs`, and [source report](../../results/aichi-2026/champion-critical-starter-prize-joint.md). Exact valid-opener conditional results for the published one-Hisuian-Heavy-Ball champion: forced Active Mimikyu or Dialga-GX **6.0431215%**, insufficient unprized Heavy Ball for Prized critical pair **2.3669091%**, intersection **0.0533012%**, union **8.3567294%**. R agrees exactly with prior BigInt capacity model; F with independent closed form; tiny-deck physical-deal oracle independently checks all joint events. Manual [CI 38861318737](https://github.com/FlareZ123/experiment-01/actions/runs/38861318737) **passed** at 02ea796. The Aichi subject README links the report. Events are *exposure/capacity, never game-loss probabilities*. Hypothetical second Heavy Ball replacing unrelated non-Basic drops union to 6.2589903%, but deck-slot opportunity cost unmodeled.
+
+### Further critical Copied-GX turn progression test
+
+Found existing opt-in pass-history correction, regidrago declared-history correction and actual two-AttackAction transition fixtures already in repo. Rather than duplicate, augmented `simulation/twinleaf/regidrago-to-mimikyu-two-attack.cjs` with opt-in `--verify-bonus` continuation: after the nested Copycat->Apex Dragon->Timeless-GX and `usedTurnSkip`, resolve actual WaitPrompts and require immediate **same-player new turn**. Added manual CI workflow step. [CI 38861914912](https://github.com/FlareZ123/experiment-01/actions/runs/38861914912) in progress when this memory was written; inspect outcome and failed logs if needed. The fixture still injects board and discard and does not certify legal full-game play.
+
+### Next actions
+
+1. Confirm 38861914912; if failed, examine targeted failed job logs via Actions MCP, fix source or isolate genuine engine bug, rerun.
+2. Once passing, report actual extra turn progression in `results/twinleaf/` and index relevant ALS synthesis, retaining staged-fixture caveat.
+3. Consider actual printed-280HP Regidrago Knock Out and Prize movement under Fairy Zone 300, with opposing Bench present, to test a deeper decisive line.
+4. Improve strategic decision policy/replayable actual matches; static opportunity calculations do not establish candidate strength.
+5. After each substantive checkpoint inspect messages, compare real UTC time to immutable lease. Earliest normal-mode orderly-release threshold 2026-10-16T07:33:26.075Z.
