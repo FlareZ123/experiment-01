@@ -28,3 +28,5 @@ jobs:
         run: node simulation/twinleaf/iron-thorns-guzma-hala-line.cjs
       - name: Inspect first source-dealt rank6 Prize zone with noninterference gate
         run: node simulation/twinleaf/rank6-seed-opening-probe.cjs
+      - name: Test source-dealt rank6 alternative Guzma and Hala attack decision
+        run: node simulation/twinleaf/rank6-seed-guzma-hala-fork.cjs
