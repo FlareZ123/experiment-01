@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank10_four_arm:
+        description: 'Opt-in same-head rank10 2x2 Latias policy versus experimental clone diagnostic (24 bounded games)'
+        required: false
+        type: boolean
+        default: false
       attack_before_retreat:
         description: 'Opt-in generic Attack before Retreat action-order probe'
         required: false
@@ -133,6 +138,15 @@ jobs:
         run: node scripts/aichi-benched-basic-pass-triage.cjs aichi-campaign-diagnostic.json > aichi-bench-energy-triage.json
       - name: Print early-turn hand evidence summary
         run: node -e "const r=require('./aichi-opening-decision-audit.json');for(const x of r.records)console.log(JSON.stringify({trialId:x.trialId,status:x.auditStatus,globalTurn:x.firstObservedTurn,firstHand:x.firstObservedHandPrintings,played:x.playedCards,end:x.firstTurnEndAction,firstAttack:x.firstRecordedAttackTurn}))"
+      - name: Check four-arm trace comparison pure functions
+        if: inputs.rank10_four_arm
+        run: node --test tests/aichi-latias-four-arm.test.cjs
+      - name: Same-head 2x2 rank-10 Latias policy and clone experiment
+        if: inputs.rank10_four_arm
+        run: node simulation/evaluation/aichi-latias-four-arm.cjs > aichi-latias-four-arm-summary.json
+      - name: Print first-divergence highlights without competitive claims
+        if: inputs.rank10_four_arm
+        run: node -e "const x=require('./aichi-latias-four-arm-summary.json');for(const c of x.comparisons)for(const r of c.rows)console.log('FOUR_ARM',JSON.stringify({first:c.first,second:c.second,trialId:r.trialId,firstAttacks:r.first.candidateAttacks,secondAttacks:r.second.candidateAttacks,firstPrizes:r.first.prizesByPhysicalSeat,secondPrizes:r.second.prizesByPhysicalSeat,firstDifference:r.firstDifference}))"
       - name: Preserve bounded diagnostic records
         if: always()
         uses: actions/upload-artifact@v4
@@ -147,4 +161,6 @@ jobs:
             aichi-bench-energy-triage.json
             aichi-pass-attack-opportunities.json
             aichi-pass-probe-noninterference.json
+            aichi-latias-four-arm-summary.json
+            aichi-latias-factorial-full.json
           if-no-files-found: warn
