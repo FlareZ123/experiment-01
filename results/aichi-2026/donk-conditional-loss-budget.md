@@ -41,6 +41,10 @@ The source rank-26 deck contains two `Technical Machine: Crisis Punch PAF 90`, a
 
 Likewise, a hypothetical Bide Barricade Wobbuffet opener is not guaranteed protection: it must be Active for its non-Psychic Ability suppression, and the rank-26 list contains Canceling Cologne. The Temple's reduction from 37.50680% to 31.68266% is a setup exposure improvement, **not a certified 5.82414-point increase in win rate**.
 
+## Executable provenance
+
+The [source-inventory calculator](../../scripts/aichi_rank26_loss_budget.cjs) now derives the same candidate-specific events directly from the original ranked 60-card lists, [unchanged Hood and Temple candidate JSON](candidate-hood-shadow-rider.md), shared `soloAfterBonus` exact model, a printed Basic-stage index, and Wobbuffet PHF 36 counts. It computes the target's equal-placement per-rank loss budget instead of embedding rounded setup percentages. [Regression tests](../../tests/aichi-rank26-loss-budget.test.cjs) include invalid inputs and exact champion/Temple anchor checks. The tests and calculation are wired into the existing [manual opening audit](../../.github/workflows/aichi-opening-audit.yml), but **this new integration has not yet been executed in CI**. The numerical thresholds in this note were separately recomputed using Python arithmetic from the earlier documented setup probabilities.
+
 ## Scope and next evidence
 
 The E calculation is tied to the clearly stated all-bonus-draw setup model. Real opponents can play differently, first-turn cards can change the number of Basics in play, and Meloetta may have other win paths. The probabilities cannot be multiplied by an unsupported estimate of first-turn combo success. They create an actionable *necessary success threshold* conditional on one precisely defined setup event.
