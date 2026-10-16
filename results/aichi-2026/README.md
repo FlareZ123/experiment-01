@@ -48,6 +48,10 @@ These three players' exact 60-card lists are **unknown**. See [the rank-23/28 so
 
 For its 14 ordinary Basic Pokémon, exact hypergeometric opening calculations give a 13.85907% chance of a 7-card hand with no Basic and a 36.61785% chance of one or more Shadow Rider Calyrex V conditioned on a valid seven-card opening. This excludes replacement mulligans, bonus draws, prizes, start restrictions and match decisions.
 
+## Raichu one-Bomb, one-hand-Energy five-Prize conditional line (Agent 5)
+
+The [source-locked rank-4/17 analysis](raichu-manual-plus-bomb-frontier.md) demonstrates a **16 Lightning-unit / 480 base-damage** Electro Rain using one normal Energy attachment plus one five-card Electrode-GX Extra Energy Bomb. A [continuous pinned Store regression](../../simulation/twinleaf/raichu-manual-bomb-attack-sequence.cjs) verifies the attachment, power, two opponent Prizes, attack, and **five-Prize** Knock Out of undamaged Benched Shadow Rider VMAX+V with Telescopic Sight under one scripted staged board; [manual CI 38870086743 passed](https://github.com/FlareZ123/experiment-01/actions/runs/38870086743). The damage split becomes insufficient for the same five Prizes if either fresh Shadow Rider target is Active, because that target loses Telescopic Sight's Bench bonus. The [exact joint Prize gate](raichu-six-unit-prize-gate.md), validated by [manual CI 38869636691](https://github.com/FlareZ123/experiment-01/actions/runs/38869636691), gives only **64.45458%** of legal seven-card openings with all four Reversal and at least two Counter Energy initially outside Prizes. Prize recovery, real setup turns and bot policy have not been established. None of these checks estimates a competitive win rate.
+
 ## Legality and evidence constraints
 
 The Aichi event used Japanese Expanded. The repository's `resources/INDEX.md` explicitly warns that `resources/cards/en` is an English snapshot and **not** a complete Japanese Expanded pool. The tournament page labels Palace Book, Player's Ceremony and other cards as unreleased in the English-language display. Treat English-data absences as **coverage gaps**, pending regional legality verification.
