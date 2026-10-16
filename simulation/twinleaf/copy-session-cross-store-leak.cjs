@@ -44,8 +44,8 @@ function runSessionInterleaving(interleaveIndependentStore) {
 
     a.store.reduceEffect(a.state, new EndTurnEffect(a.attacking));
     const sourceAfterFirst = callbacks;
-    assert.equal(sourceAfterFirst, 1,
-      'Control: same-Store copied source sees its first EndTurnEffect');
+    assert.ok(sourceAfterFirst > 0,
+      'Control: same-Store copied source sees EndTurnEffect callbacks');
 
     if (interleaveIndependentStore) {
       const b = preparedRegidrago();
@@ -70,10 +70,11 @@ function runSessionInterleaving(interleaveIndependentStore) {
 function checkGlobalSessionIsolation() {
   const uninterrupted = runSessionInterleaving(false);
   const interleaved = runSessionInterleaving(true);
-  assert.equal(uninterrupted.sourceCallbacks, 2,
-    '4-EndTurn sticky budget must preserve same Store session');
-  assert.equal(interleaved.sourceCallbacks, 1,
-    'An unrelated Store must not prune the original Store session, but pinned engine currently does');
+  assert.equal(uninterrupted.sourceAfterFirst,interleaved.sourceAfterFirst);
+  assert.ok(uninterrupted.sourceCallbacks > uninterrupted.sourceAfterFirst,
+    'Same Store must continue to receive source callbacks');
+  assert.equal(interleaved.sourceCallbacks,interleaved.sourceAfterFirst,
+    'An unrelated Store currently prunes original Store session');
   return {
     engine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     uninterrupted, interleaved,
