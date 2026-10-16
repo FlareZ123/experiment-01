@@ -14,6 +14,7 @@ const {decisionHandEvidence} = require('./decision-hand-evidence.cjs');
 const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.cjs');
 const {publicSnapshot, observeTerminalTransition, advanceActionLineage} = require('./terminal-transition.cjs');
 const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
+const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -223,7 +224,7 @@ function runMatch(request) {
     const { CoinFlipPrompt } = engine('game/store/prompts/coin-flip-prompt');
     const { ShuffleDeckPrompt } = engine('game/store/prompts/shuffle-prompt');
     const { GamePhase } = engine('game/store/state/state');
-    const { Format } = engine('game/store/card/card-types');
+    const { Format, CardType } = engine('game/store/card/card-types');
     const { GameSettings } = engine('game/core/game-settings');
     const { SimpleTacticsAi } = engine('simple-bot/simple-tactics-ai');
     const definitions = engine('simple-bot/simple-bot-definitions');
@@ -344,6 +345,8 @@ function runMatch(request) {
       const publicBeforeDispatch = publicSnapshot(state);
       const publicBoardBeforePass = decisionTrace && actionName === 'PassTurnAction' ?
         publicBoardSnapshot(state) : null;
+      const printedBasicEnergyBeforePass = publicBoardBeforePass && seat >= 0 ?
+        printedBasicEnergyAudit(state.players[seat].active, CardType) : null;
       try {
         store.dispatch(action);
       } catch (error) {
@@ -377,6 +380,7 @@ function runMatch(request) {
           ...(optionInfo ? { optionSelection: optionInfo } : {}),
           ...(decisionHandBefore ? { decisionHandBefore } : {}),
           ...(publicBoardBeforePass ? { publicBoardBeforePass } : {}),
+          ...(printedBasicEnergyBeforePass ? { printedBasicEnergyBeforePass } : {}),
           ...(attackInfo ? { attack: attackInfo.attack,
             attacker: attackInfo.activePokemon } : {}),
           prizesAfter: store.state.players.map(player =>
