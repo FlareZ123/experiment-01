@@ -48,6 +48,7 @@ function runActivePositionResponse(){
     player.deck.cards.push(f.card('Psychic Energy SVE'));
   }
   const before=f.a.getPrizeLeft();
+  const attackEnergyUnits=providedEnergy(f).reduce((n,row)=>n+row.provides.length,0);
   const events=[];
   const attack=()=>{
     f.store.dispatch(new AttackAction(101,'Electro Rain'));
@@ -76,7 +77,7 @@ function runActivePositionResponse(){
   withElectroRainDamageHook(attack);
   const summary={
     scope:'injected attacker with six source Special Energy, undamaged Active V and Benched VMAX',
-    packets:providedEnergy(f).reduce((n,row)=>n+row.provides.length,0),
+    attackEnergyUnits,
     activeVDamage:f.b.active.damage,
     vmaxKO:f.b.discard.cards.includes(vmaxCard),
     activeVSurvived:f.b.active.getPokemonCard()===activeV,
@@ -84,9 +85,7 @@ function runActivePositionResponse(){
     events
   };
   console.log(JSON.stringify(summary,null,2));
-  // Attack discards the six Energies, so the surviving board has no
-  // attached Energy; the PutDamage prompt verifies the original 480.
-  assert.equal(summary.packets,0);
+  assert.equal(summary.attackEnergyUnits,16);
   assert.equal(summary.activeVDamage,180);
   assert.equal(summary.vmaxKO,true);
   assert.equal(summary.activeVSurvived,true);
