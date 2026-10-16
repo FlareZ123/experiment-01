@@ -20,6 +20,12 @@ function hasBenchEvolutionTarget(player) {
   });
 }
 
+/** Keep Burrow's immediate opponent-deckout option available. */
+function immediateBurrowDeckout(state, player) {
+  const opponent = state.players.find(side => side.id !== player.id);
+  return opponent?.deck.cards.length <= 1;
+}
+
 /**
  * A Bunnelby PRC / TM Evolution priority for the specific Aichi 2026
  * Vileplume early evolution line. It checks actual Store action legality
@@ -37,7 +43,7 @@ function makeBunnelbyEvolutionTactic() {
       if (player.active.getPokemonCard()?.fullName !== 'Bunnelby PRC' ||
           !player.active.tools.some(tool =>
             tool.fullName === 'Technical Machine: Evolution PAR') ||
-          !hasBenchEvolutionTarget(player)) return;
+          (!hasBenchEvolutionTarget(player) || immediateBurrowDeckout(state, player))) return;
       const action = new AttackAction(player.id, 'Evolution');
       try {
         new Simulator(state, this.options.arbiter).dispatch(action);
@@ -67,7 +73,7 @@ function makeBarrageEvolutionResolver() {
       if (!(prompt instanceof ChooseAttackPrompt) ||
           state.phase !== GamePhase.ATTACK ||
           player.active.getPokemonCard()?.fullName !== 'Bunnelby PRC' ||
-          !hasBenchEvolutionTarget(player)) return;
+          (!hasBenchEvolutionTarget(player) || immediateBurrowDeckout(state, player))) return;
       const toolIndex = prompt.cards.findIndex(card =>
         card.fullName === 'Technical Machine: Evolution PAR');
       if (toolIndex < 0) return;
@@ -123,6 +129,7 @@ function withBunnelbyEvolutionLine(options) {
 }
 module.exports = {
   hasBenchEvolutionTarget,
+  immediateBurrowDeckout,
   makeBunnelbyEvolutionTactic,
   makeBarrageEvolutionResolver,
   withBunnelbyEvolutionLine
