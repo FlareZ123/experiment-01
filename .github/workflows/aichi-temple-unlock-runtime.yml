@@ -1,0 +1,21 @@
+name: Temple unlock tactical policy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+      - working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - run: node simulation/twinleaf/temple-unlock-runtime.cjs
+      - run: node --test tests/test-aichi-field-benchmark.cjs
