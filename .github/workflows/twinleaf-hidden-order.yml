@@ -33,3 +33,5 @@ jobs:
         run: node simulation/twinleaf/hidden-order-full-policy-audit.cjs
       - name: Test sampled order policy wrapper
         run: node simulation/twinleaf/hypothetical-deck-sampler-test.cjs
+      - name: Test full policy under authentic rank-6 60-card inventory
+        run: node simulation/twinleaf/hidden-source-trainers-mail.cjs
