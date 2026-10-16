@@ -84,3 +84,48 @@ test('object cycles through shared arrays are vendor-safe and stay detached',()=
   assert.strictEqual(copy.zone[0],copy);
   assert.notStrictEqual(copy.card,root.card);
 });
+
+
+test('pinned CardManager template-clone prototype layers are safely flattened',()=>{
+  class RetrievedCard{
+    constructor(){
+      this.fullName='Synthetic Card';
+      this.damage=0;
+      this.attacks=[{name:'Synthetic Attack',cost:['P']}];
+    }
+    strike(value){this.damage+=value}
+  }
+  const master=new RetrievedCard();
+  const retrieved=pinnedDeepClone(master);
+  assert.strictEqual(Object.getPrototypeOf(retrieved),master);
+  assert.strictEqual(Object.getPrototypeOf(retrieved.attacks[0]),master.attacks[0]);
+  const live={board:[retrieved],hand:[retrieved]};
+  assert.doesNotThrow(()=>assertVendorCloneCompatibleSource(live));
+  const clone=normalizeDeepClonePrototypes(live,pinnedDeepClone(live));
+  const sample=clone.board[0];
+  assert.strictEqual(sample,clone.hand[0]);
+  assert.strictEqual(Object.getPrototypeOf(sample),RetrievedCard.prototype);
+  assert.strictEqual(Object.getPrototypeOf(sample.attacks[0]),Object.prototype);
+  sample.strike(100);
+  sample.attacks[0].name='Independent Attack';
+  assert.equal(retrieved.damage,0);
+  assert.equal(master.damage,0);
+  assert.equal(retrieved.attacks[0].name,'Synthetic Attack');
+  assert.equal(master.attacks[0].name,'Synthetic Attack');
+});
+
+test('shadowed and unshadowed inherited properties have distinct clone safety',()=>{
+  const inherited={hidden:{fullName:'inaccessible reference'}};
+  const unsafe=Object.create(inherited);
+  unsafe.visible=3;
+  assert.throws(()=>assertVendorCloneCompatibleSource({unsafe}),
+    /non-class dynamic prototype/);
+  const shadowed=Object.create(inherited);
+  shadowed.hidden={fullName:'owned'};
+  assert.doesNotThrow(()=>assertVendorCloneCompatibleSource({shadowed}));
+  const detached=normalizeDeepClonePrototypes({shadowed},
+    pinnedDeepClone({shadowed}));
+  assert.strictEqual(Object.getPrototypeOf(detached.shadowed),Object.prototype);
+  detached.shadowed.hidden.fullName='changed';
+  assert.equal(shadowed.hidden.fullName,'owned');
+});
