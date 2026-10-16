@@ -134,43 +134,94 @@ test('live legal Damage Pump produces two Exeggcute self-KOs and two opponent Pr
 
 const {UseAbilityAction} = engine('game/store/actions/game-actions');
 
+/**
+ * Drive the actual Store through legal same-donor Damage Pumps and repeated
+ * discarded Exeggcute Propagation. Requires the rule-fidelity hook installed.
+ * @param {object} f Prepared stage
+ * @returns {number[]} Opponent Prize count after every Pump.
+ */
+function executeFiveKOs(f) {
+  const remaining=[];
+  for (const [cycle,eggCount] of [[0,2],[1,2],[2,1]]) {
+    for (let eggIndex=0;eggIndex<eggCount;eggIndex++) {
+      const egg=f.eggs[eggIndex];
+      if (f.attacker.discard.cards.includes(egg)) {
+        const discardIndex=f.attacker.discard.cards.indexOf(egg);
+        f.store.dispatch(new UseAbilityAction(f.attacker.id,'Propagation',{
+          player:PlayerType.BOTTOM_PLAYER,
+          slot:SlotType.DISCARD,index:discardIndex
+        }));
+        assert.equal(f.attacker.hand.cards.includes(egg),true,
+          'Propagation must return the re-KOed egg to hand');
+      }
+      play(f,egg,target(3+eggIndex));
+      assert.equal(f.attacker.bench[3+eggIndex].damage,20,
+        'Risky Ruins must re-damage Exeggcute returning to Bench');
+    }
+    play(f,f.pumps[cycle],boardTarget);
+    const prompt=pending(f);
+    assert.equal(prompt?.constructor.name,'MoveDamagePrompt');
+    const transfers=Array.from({length:eggCount},(_,eggIndex)=>({
+      from:target(cycle),to:target(3+eggIndex)
+    }));
+    assert.equal(prompt.validate(transfers,f.state),true);
+    f.store.dispatch(new ResolvePromptAction(prompt.id,transfers));
+    claimPrizes(f,eggCount);
+    remaining.push(f.defender.getPrizeLeft());
+    assert.equal(f.state.phase,GamePhase.PLAYER_TURN,
+      'self-KOs cannot end the game while opponent has Prizes');
+  }
+  return remaining;
+}
+
 test('one staged turn performs legal 2+2+1 Exeggcute self-KOs via repeat Propagation',()=>{
   const restore=installDamagePumpSingleSourceHook();
   try {
     const f=setup();
-    const remaining=[];
-    for (const [cycle,eggCount] of [[0,2],[1,2],[2,1]]) {
-      for (let eggIndex=0;eggIndex<eggCount;eggIndex++) {
-        const egg=f.eggs[eggIndex];
-        if (f.attacker.discard.cards.includes(egg)) {
-          const discardIndex=f.attacker.discard.cards.indexOf(egg);
-          f.store.dispatch(new UseAbilityAction(f.attacker.id,'Propagation',{
-            player:PlayerType.BOTTOM_PLAYER,
-            slot:SlotType.DISCARD,index:discardIndex
-          }));
-          assert.equal(f.attacker.hand.cards.includes(egg),true,
-            'Propagation must return the re-KOed egg to hand');
-        }
-        play(f,egg,target(3+eggIndex));
-        assert.equal(f.attacker.bench[3+eggIndex].damage,20,
-          'Risky Ruins must re-damage an Exeggcute re-benched this turn');
-      }
-      play(f,f.pumps[cycle],boardTarget);
-      const prompt=pending(f);
-      assert.equal(prompt?.constructor.name,'MoveDamagePrompt');
-      const transfers=Array.from({length:eggCount},(_,eggIndex)=>({
-        from:target(cycle),to:target(3+eggIndex)
-      }));
-      assert.equal(prompt.validate(transfers,f.state),true);
-      f.store.dispatch(new ResolvePromptAction(prompt.id,transfers));
-      claimPrizes(f,eggCount);
-      remaining.push(f.defender.getPrizeLeft());
-      assert.equal(f.state.phase,GamePhase.PLAYER_TURN,
-        'self-KOs should not end the game while opponent has Prizes left');
-    }
-    assert.deepEqual(remaining,[4,2,1]);
+    assert.deepEqual(executeFiveKOs(f),[4,2,1]);
     assert.equal(f.attacker.discard.cards.filter(c=>c.name==='Exeggcute').length,2);
     assert.equal(f.attacker.bench.slice(3,5).some(s=>s.cards.length>0),false);
     assert.deepEqual(f.donors.map(s=>s.damage),[0,0,10]);
+  } finally {restore();}
+});
+
+test('prepared turn-one five-KO state enables Tool Crisis Punch lethal from Meloetta ex',()=>{
+  const restore=installDamagePumpSingleSourceHook();
+  try {
+    const f=setup();
+    f.state.turn=1;
+    f.state.rules.attackFirstTurn=false;
+    assert.deepEqual(executeFiveKOs(f),[4,2,1]);
+    const manager=initializeCards();
+    const lightning=manager.getCardByName('Lightning Energy SVE');
+    assert.ok(lightning);
+    lightning.id=10020;
+    // Represents one Lightning Energy from a prior, unmodelled acceleration.
+    // This is a staged attack-resolution proof, not a full deck combo replay.
+    f.attacker.active.energies.cards.push(lightning);
+    const dce=manager.getCardByName('Double Colorless Energy SUM');
+    const crisis=manager.getCardByName('Technical Machine: Crisis Punch PAF');
+    assert.ok(dce && crisis);
+    dce.id=10021;
+    crisis.id=10022;
+    f.attacker.hand.cards.push(dce,crisis);
+    play(f,dce,{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+    play(f,crisis,{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+    assert.equal(f.attacker.active.energies.cards.includes(dce),true);
+    assert.equal(f.attacker.active.tools.includes(crisis),true);
+    assert.equal(f.defender.getPrizeLeft(),1);
+    const {AttackAction}=engine('game/store/actions/game-actions');
+    f.store.dispatch(new AttackAction(f.attacker.id,'Crisis Punch'));
+    for(let i=0;i<24 && pending(f);i++) {
+      const prompt=pending(f);
+      assert.equal(prompt.constructor.name,'WaitPrompt',
+        'unexpected followup to legal Crisis Punch attack');
+      f.store.dispatch(new ResolvePromptAction(prompt.id,null));
+    }
+    const {GameWinner}=engine('game/store/state/state');
+    assert.equal(pending(f),undefined);
+    assert.equal(f.state.phase,GamePhase.FINISHED);
+    assert.equal(f.state.winner,GameWinner.PLAYER_1);
+    assert.equal(f.defender.active.cards.length,0);
   } finally {restore();}
 });
