@@ -29,3 +29,5 @@ jobs:
         run: node --test tests/detached-simulator-hook.test.cjs tests/prototype-safe-simulator-hook.test.cjs
       - name: Check headless wrapper restoration and source-match noninterference
         run: node simulation/twinleaf/headless-prototype-safe-smoke.cjs
+      - name: Characterize source-rank2 Bunnelby Evolution under both clone models
+        run: node simulation/twinleaf/bunnelby-clone-fidelity-probe.cjs
