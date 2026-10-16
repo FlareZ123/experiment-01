@@ -21,3 +21,8 @@ function enumerate(n,b,h,q){
    else if(last==='T')t++;else if(last==='S')s++;else if(last==='V')v++;
    return;
   }
+  for(let i=0;i<n;i++)if(!used[i]){used[i]=true;p.push(cards[i]);visit();p.pop();used[i]=false;}
+ }
+ visit();
+ return [one,t,s,v].map(x=>x/legal);
+}
