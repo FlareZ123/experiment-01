@@ -141,5 +141,38 @@ class RawContractTests(unittest.TestCase):
                 evaluate_raw_batch(data, field())
 
 
+    def test_digest_only_stays_diagnostic_and_verified_trace_only_checks_integrity(self):
+        data = batch()
+        completed = game("verified", 1, "first", 501, "completed", "A")
+        data["games"] = [completed]
+        plain = evaluate_raw_batch(data, field())
+        self.assertEqual(plain["digest_only_completed_games"], 1)
+        self.assertFalse(plain["all_completed_traces_verified"])
+        self.assertFalse(plain["trace_integrity_promotion_eligible"])
+
+        completed["action_trace"] = [{"step": 0, "action": "draw", "count": 1}]
+        completed["trace_sha256"] = action_trace_sha256(completed["action_trace"])
+        verified = evaluate_raw_batch(data, field())
+        self.assertEqual(verified["verified_completed_traces"], 1)
+        self.assertEqual(verified["digest_only_completed_games"], 0)
+        self.assertTrue(verified["all_completed_traces_verified"])
+        self.assertTrue(verified["trace_integrity_promotion_eligible"])
+        self.assertFalse(verified["competitive_evidence_qualified"])
+        data["games"].append(game("unverified", 2, "second", 502, "completed", "B"))
+        mixed = evaluate_raw_batch(data, field())
+        self.assertFalse(mixed["all_completed_traces_verified"])
+        self.assertFalse(mixed["trace_integrity_promotion_eligible"])
+
+    def test_tampering_with_action_or_digest_is_rejected(self):
+        completed = game("verified", 1, "first", 503, "completed", "A")
+        completed["action_trace"] = [{"step": 0, "action": "attach", "card": "Energy"}]
+        completed["trace_sha256"] = action_trace_sha256(completed["action_trace"])
+        changed = copy.deepcopy(completed)
+        changed["action_trace"][0]["card"] = "Secret Box"
+        for candidate in [changed, {**completed, "trace_sha256": "c" * 64}]:
+            with self.assertRaisesRegex(ValueError, "match"):
+                evaluate_raw_batch({**batch(), "games": [candidate]}, field())
+
+
 if __name__ == "__main__":
     unittest.main()
