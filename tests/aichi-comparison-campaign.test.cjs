@@ -105,3 +105,6 @@ test('strict manifest parser refuses ambiguous or malformed source status', () =
   assert.throws(() => parseField('rank,player,archetype,full_list_published\n1,P,Test,maybe'),
     /Malformed/);
 });
+
+// Keep the scheduled-trial executor under the same manual campaign CI gate.
+require('./aichi-campaign-runner.test.cjs');
