@@ -25,6 +25,8 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Characterize K0 Prize partition information boundary
+        run: node --test tests/bunnelby-k0-deck-target-leak.test.cjs
       - name: Test source-backed Tool attack decision
         run: node --test tests/tm_attack_policy.test.cjs
       - name: Print real-engine policy contrast
