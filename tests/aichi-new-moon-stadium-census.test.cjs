@@ -30,6 +30,17 @@ test('new Moon source list has two distinct Stadium answers and a one-one shield
   }
 });
 
+test('pilot-identified Sunbeam Solrock English equivalent preserves the source identity', () => {
+  const row = source.entries.find(entry => entry.name_en === 'Solrock');
+  assert.ok(row);
+  assert.equal(row.count, 1);
+  assert.deepEqual(
+    [row.english_equivalent?.set, row.english_equivalent?.number,
+     row.english_equivalent?.ability, row.english_equivalent?.attack],
+    ['CES', '62', 'Sunbeam', 'Scorching Light']
+  );
+});
+
 test('only ranks 9, 13, 15 and 32 of the published field contain Silent Lab', () => {
   const inventory = field.decks
     .filter(deck => copies(deck, 'Silent Lab') > 0)
