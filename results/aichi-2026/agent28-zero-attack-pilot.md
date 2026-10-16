@@ -32,3 +32,23 @@ A useful focused regression would reproduce one of these trajectories at a meani
 The [terminal transition instrumentation](../../simulation/twinleaf/terminal-transition.cjs) now records the last dispatched action and public pre/post state aggregates, and the [campaign diagnostic serializer](../../simulation/evaluation/aichi-campaign-execute.cjs) preserves that evidence. It can disambiguate some end-state narratives but remains **insufficient to prove which internal engine substep resolved a simultaneous loss condition**. Its integration CI is tracked separately.
 
 **Outcome:** actionable policy-fidelity counterexamples, no assessed competitive win rate, no certified superiority of champion/Hood/Temple, and no evidence for the 99.5% target.
+
+
+## Repeated six-case instrumented pilot: terminal transitions
+
+The manual [instrumented CI run 38840718743](https://github.com/FlareZ123/experiment-01/actions/runs/38840718743) **passed**, including four standalone terminal-snapshot regressions and the campaign suite. Artifact ID `12020797645`; ZIP SHA-256 `af59090eb4eb6b5de53f413276668f44ada184256c7394cefbf4e384d8f810cd`. All six pilot cases retained the **same** trial IDs, seeds, winner IDs, action counts, turn counts, attack counts, chronological trace hashes, card plays and final public states as the earlier run. This paired equality supports that recording public snapshots did not perturb these six engine trajectories.
+
+The newly recorded terminal transitions were:
+
+| Trial | Last dispatched action/prompt | Engine phase | Empty decks before terminal dispatch (A/B) | Winner index |
+| --- | --- | --- | --- | ---: |
+| Champion / A | ResolvePromptAction / WaitPrompt | 6 → 7 | no / yes | 0 |
+| Champion / B | ResolvePromptAction / WaitPrompt | 3 → 7 | no / no; candidate B had two Prizes | 1 |
+| Hood / A | ResolvePromptAction / WaitPrompt | 6 → 7 | no / yes | 0 |
+| Hood / B | ResolvePromptAction / WaitPrompt | 6 → 7 | yes / no | 1 |
+| Temple / A | ResolvePromptAction / WaitPrompt | 6 → 7 | yes / yes | 1 |
+| Temple / B | ResolvePromptAction / AttachEnergyPrompt | 3 → 7 | no / no; candidate B had two Prizes | 0 |
+
+The champion B and Temple B rows reached **zero** candidate Prizes at the terminal transition; the table lists their **pre-dispatch** count of two, so their terminal condition differs from the other four. In the Temple A case both decks were empty, so endpoint deck counts alone cannot establish the decisive condition. These are observed pinned-engine phases (numbers 3, 6, 7), not independent rulings about the engine's private transition semantics.
+
+Every last dispatched action was a **prompt resolution** rather than the original card/attack/pass that initiated it. Consequently even this enhanced evidence is insufficient for a complete causal replay. Capturing the immediately preceding initiating action and prompt chain is the next useful telemetry extension. The six games still cannot be used as representative competitive win/loss evidence.
