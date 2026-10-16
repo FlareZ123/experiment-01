@@ -26,7 +26,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Validate standalone source diagnostics
-        run: node --test tests/mimikyu-rank10-policy-pair.test.cjs
+        run: node --test tests/mimikyu-rank10-policy-pair.test.cjs tests/copycat-turn-start-evidence.test.cjs
       - name: Run source-locked rank-10 fixed-seed Copycat A/B
         run: node simulation/twinleaf/mimikyu-rank10-policy-pair.cjs > rank10-copycat-paired.json
       - name: Print bounded findings
