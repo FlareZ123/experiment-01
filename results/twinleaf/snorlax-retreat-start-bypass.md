@@ -4,7 +4,7 @@
 
 ## Why it matters to the Aichi field
 
-The exact published Aichi rank-3 and rank-7 Snorlax Stall source inventories include Snorlax PGO 55. Its printed *Block* Ability prevents the opponent's Active Pokémon from retreating while Snorlax is Active. Source-locked conditional opening feasibility and the Hood counters are separately documented in [our opponent inventory report](../aichi-2026/snorlax-solo-block-counterplay.md). Stall strength and any three-candidate comparison are uninterpretable if the engine permits a normal retreat against active Block.
+The exact published Aichi rank-3 and rank-7 Snorlax Stall source inventories include Snorlax PGO 55. Its printed *Block* Ability prevents the opponent's Active Pokémon from retreating while Snorlax is Active. Source-locked conditional opening feasibility and the Hood counters are separately documented in [our opponent inventory report](../aichi-2026/snorlax-solo-block-counterplay.md). Stall strength requires a rules-faithful retreat path. However, the currently pinned SimpleTacticsAi `retreat-tactic.ts` constructs **`RetreatAction`**, which already enforces Block. This defect therefore does not itself establish contamination of existing default-bot Aichi outcomes. It directly affects the distinct interactive `RetreatStartAction` path and any future policies that use it.
 
 ## Pinned source-level cause
 
@@ -42,8 +42,8 @@ This targeted hook repairs only Snorlax PGO. Other cards with retreat restrictio
 
 ## Limitations and future work
 
-The staged board fixture proves the direct versus interactive action discrepancy and corrected local permission path, including Hood/Jammer. It does not show whether the upstream bot, browser UI, or Aichi source-deck decision policy selects that path in ordinary games. It does not model full 60-card deck draws, opponent Bench commitments, Energy/recovery decisions, or lock strategy. Source deck legality and engine mappings remain separately qualified.
+The staged board fixture proves the direct versus interactive action discrepancy and corrected local permission path, including Hood/Jammer. The pinned SimpleTacticsAi retreat tactic explicitly constructs `RetreatAction`; default headless matches therefore do not exercise this defect through its ordinary retreat tactic. The pinned socket layer also exposes a `retreatStart` route that constructs `RetreatStartAction`, so the bug is meaningful for that interactive interface and any policy choosing it. This fixture does not establish how frequently real UI clients select the route. It does not model full 60-card deck draws, opponent Bench commitments, Energy/recovery decisions, or lock strategy. Source deck legality and engine mappings remain separately qualified.
 
-Further research should capture and count `RetreatStartAction` versus `RetreatAction` in real field matches and enumerate other pinned card effects that handle only one retreat interface. Extend the hook or related compatibility boundary based on an adversarial action test. Do not promote Snorlax matchup terminal results as competitive evidence until this path is corrected and meaningful opponent lock strategies have been validated.
+Further research should capture and count `RetreatStartAction` versus `RetreatAction` in alternative policies and interactive clients, and enumerate other pinned card effects that handle only one retreat interface. Extend the hook or related compatibility boundary based on an adversarial action test. Do not promote Snorlax matchup terminal results as competitive evidence until this path is corrected and meaningful opponent lock strategies have been validated.
 
 No competitive win-rate claim is supported, and the 99.5% goal remains unmet.
