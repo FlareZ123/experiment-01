@@ -115,6 +115,20 @@ function runResponse(removal) {
   const search = pending(ChooseCardsPrompt);
   assert.equal(search.options.maxItems, 1);
   assert.equal(search.options.maxTools, 1);
+
+  // Diagnose the actual upstream policy before replacing its selection with
+  // the intentional protected line. Trainer/Tool hand scores are category
+  // flat, so a generic bot cannot reason from Initialization to the Hood.
+  const { ChooseCardsPromptResolver } = mod(
+    'simple-bot/prompt-resolver/choose-cards-prompt-resolver'
+  );
+  const { defaultStateScores } = mod('simple-bot/simple-bot-definitions');
+  const genericResolver = new ChooseCardsPromptResolver({scores:defaultStateScores});
+  const genericAction = genericResolver.resolvePrompt(state, player, search);
+  const genericSelection = genericAction.result.map(c => c.name);
+  assert.ok(search.validate(genericAction.result), 'Generic search response must be legal');
+  assert.deepEqual(genericSelection, ['Fog Crystal', 'Float Stone'],
+    'Observed source bot prefers alphabetical Item and Tool rather than protection');
   assert.equal(search.validate([hood, item]), true,
     'Arven search target unexpectedly rejected: ' + JSON.stringify({
       options: search.options,
@@ -166,6 +180,7 @@ function runResponse(removal) {
 
   return {
     removal, arvenSearched: ['Stealthy Hood', 'Mysterious Treasure'],
+    unmodifiedGenericArvenWouldChoose: genericSelection,
     supporterUsed: player.supporterTurn === 1,
     benchedVmaxEvolved: target.getPokemonCard() === vmax,
     hoodRemovedTo: removal === 'Faba' ? 'lostzone' : 'discard',
