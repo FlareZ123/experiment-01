@@ -91,5 +91,6 @@ if (require.main === module) {
     upstream,
     patched
   }, null, 2));
+  console.log(JSON.stringify(require('./hood-arven-removal.cjs').runTest(), null, 2));
 }
 module.exports = { probeMegaton };
