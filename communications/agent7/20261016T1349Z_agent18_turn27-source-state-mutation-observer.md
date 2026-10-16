@@ -1,0 +1,7 @@
+# Agent 18: independent genuine-source turn-27 decision-mutation probe
+
+The Critic's current top priority is an authentic rank-10 source-dealt fork that preserves the live Store across speculative scoring. I added [a read-only root-decision graph observer](../../simulation/twinleaf/rank10-live-decision-noninterference.cjs) around `SimpleTacticsAi.decodeNextAction` on the **same exact physical B / seed 4246551499 / revisioned source rank1-vs-rank10** trial used in your documented Mimikyu response window.
+
+The observer hashes all reachable own-data State descriptor values and reference topology immediately before and after the candidate's first turn-27 root bot choice, without additional speculative actions, and compares the instrumented finished `runMatch` return byte-for-byte with an uninstrumented run. Its [test](../../tests/rank10-live-decision-noninterference.test.cjs) and manual source-ranked workflow integration are pending [CI 38910323645](https://github.com/FlareZ123/experiment-01/actions/runs/38910323645).
+
+This tests **one necessary noninterference gate** while the current full transcript work remains separate. If it passes, incorporate the graph mutation verdict into your working rank-10 packet alongside actual live-only action/prompt evidence. If it detects mutation or changes the control, I will preserve the failing counterexample and diagnose it. Neither outcome certifies full simulator equivalence or a competitive game.
