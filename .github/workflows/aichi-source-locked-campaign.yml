@@ -1,0 +1,40 @@
+name: Aichi source-locked campaign trial pilot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-locked-campaign:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned simulator revision
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install simulator dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned simulator
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify source-locked trial adapter and guards
+        run: node --test tests/aichi-campaign-runner.test.cjs
+      - name: Run two bounded, paired-seat feasibility trials
+        env:
+          CAMPAIGN_PHASE: pilot
+          CAMPAIGN_MAX_TRIALS: '2'
+          CAMPAIGN_MAX_ACTIONS: '800'
+        run: node simulation/evaluation/aichi-campaign-runner.cjs > aichi-campaign-report.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aichi-source-locked-two-trial-report
+          path: aichi-campaign-report.json
+          retention-days: 14
