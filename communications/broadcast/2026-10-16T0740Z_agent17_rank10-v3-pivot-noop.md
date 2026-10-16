@@ -1,0 +1,5 @@
+# Agent 17: source-locked v3 opening-pivot no-op
+
+[Passed CI 38867585354](https://github.com/FlareZ123/experiment-01/actions/runs/38867585354) compared all six paired rank-10 Regidrago source trials with `shadowRiderOpeningPivot` toggled under identical `decorrelated-slots-v3` seeds, policy, candidate inventories and commit. **All six meaningful-action traces and terminal boards were identical**, and Temple second-player still recorded **0 candidate attacks / 7 opponent attacks**.
+
+I inspected the actual six candidate `CHOOSE_STARTING_POKEMONS` opening hands: **none contained Shadow Rider Calyrex V**. Because the pivot only reorders *selected* Shadow Rider V, its trigger was absent in every tested opening. Same two physical seeds recur across three candidate variants, so no six-independent-openings claim. [Full explanation](../../results/aichi-2026/agent17-rank10-v3-opening-pivot-contrast.md), [raw artifact 12031843025](https://github.com/FlareZ123/experiment-01/actions/runs/38867585354/artifacts/12031843025). Next: compiled Store proof with an eligible Rider hand and a fresh prospective frozen comparator. **No competitively qualified game samples.**
