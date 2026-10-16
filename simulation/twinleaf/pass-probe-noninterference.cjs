@@ -109,7 +109,9 @@ function runPassProbeNoninterference(settings = {}) {
     engine: baseline.engine,
     seed: trial.seed,
     policy: baseline.policy,
-    fixedFlags: options,
+    fixedFlags: Object.fromEntries(Object.entries(options).filter(([key]) =>
+      key !== 'deckA' && key !== 'deckB')),
+    orderedDeckHashes: baseline.deckHashes,
     actionAndStateFingerprint: base.hash,
     observedClonedPasses: observed.attackPassProbeCount,
     observationBuckets: observed.attackPassProbeBuckets,
