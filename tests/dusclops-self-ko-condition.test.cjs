@@ -55,18 +55,25 @@ function useCursedBlast(f) {
   assert.equal(prompts.length,1,'Cursed Blast should choose exactly one target');
   store.dispatch(new ResolvePromptAction(prompts[0].id,[opponent.active]));
   return { targetDamage:opponent.active.damage, userDamage:f.holder.damage,
+    dusclopsOnBench:player.bench.some(slot=>slot.getPokemonCard()===dusclops),
+    dusclopsInDiscard:player.discard.cards.includes(dusclops),
+    benchRemaining:player.bench.map(slot=>slot.cards.map(c=>c.fullName)),
+    playerDiscard:player.discard.cards.map(c=>c.fullName),
+    opponentPrizeRemaining:opponent.getPrizeLeft(),
     prompts:state.prompts.map(p=>p.constructor.name) };
 }
 
 test('unprotected Cursed Blast places five counters and self-KOs', () => {
   const out=useCursedBlast(stage(false));
   assert.equal(out.targetDamage,50);
-  assert.ok(out.userDamage>=999);
+  console.log('Unprotected Cursed Blast terminal board:', JSON.stringify(out));
+  assert.equal(out.dusclopsOnBench,false,'Self-KO must remove Dusclops from the Bench');
 });
 
 test('characterize pinned Cursed Blast self-KO even if Stealthy Hood prevents counters', () => {
   const out=useCursedBlast(stage(true));
   assert.equal(out.targetDamage,0,'Hood must prevent opponent Ability damage counters');
-  assert.ok(out.userDamage>=999,
-    'UNPATCHED PINNED DEFECT: Cursed Blast unconditionally self-KOs even with no counters');
+  console.log('Hood-prevented Cursed Blast terminal board:', JSON.stringify(out));
+  assert.equal(out.dusclopsOnBench,false,
+    'UNPATCHED PINNED DEFECT: Cursed Blast self-KOs even with no counters');
 });
