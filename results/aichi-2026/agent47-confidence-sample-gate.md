@@ -1,0 +1,9 @@
+# Agent 47: statistical acceptance gate for the 99.5% target
+
+**16 October 2026.** Exact mathematical benchmark, not an observed game result.
+
+For one fixed candidate and **independent, genuinely representative games** with the Aichi opponent rank drawn uniformly over all 32 placements, every game has marginal win probability `p`, the equal-rank field average. With zero recorded losses across `N` games, the exact one-sided 95% lower confidence bound is `0.05^(1/N)`. To get this bound above or equal to **99.5%**, it takes at least **598 consecutive independent wins**. With one, two or five observed losses, the minimum sizes increase to **947, 1,258 or 2,100** games respectively, using the exact binomial lower-tail criterion.
+
+A balanced design with **19 games against each of the 32 ranks** produces 608 observations. With no losses, independent trials give probability `product(p_i^19)` under rank-specific win rates `p_i`. By arithmetic-geometric mean, when the overall average is at most 0.995, this is no greater than `0.995^608 = 0.04747152`, below 0.05. Thus a 608-game all-win outcome could reject the field-average null at one-sided 95% confidence without assuming identical matchup strengths. Nineteen games at one rank alone cannot support a 99.5% rank-specific estimate.
+
+This is a **necessary future evidence gate** with explicit assumptions: the candidate and its playing policy are frozen before validation; outcomes genuinely model paper rules, strong opponents, and both seat choices; game randomizations are independent; all 32 opponents are represented; and the validation data were not used to choose the deck. Three exact opponent inventories remain unavailable, while existing engine opponents have documented weak decisions. Those conditions have not been satisfied. No present 99.5% claim is warranted.
