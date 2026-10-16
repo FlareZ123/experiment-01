@@ -129,6 +129,44 @@ function main() {
   assert.deepEqual(originalState, alternateState,
     'Alternate policy changed the state before the declared turn-27 fork');
 
+  const selectedTimeless = branch.actionTrace.find(event =>
+    event.before.turn === 27 && event.attackChoice?.selection?.attackName === 'Timeless-GX');
+  assert.ok(selectedTimeless,
+    'Copycat must resolve the actual, source-identified Timeless-GX choice');
+  assert.equal(selectedTimeless.attackChoice.selection.printing, 'Dialga-GX UPR');
+  const copycat = branch.actionTrace.find(event =>
+    event.before.turn === 27 && event.action === 'AttackAction' &&
+    event.parameters?.name === 'Copycat');
+  assert.ok(copycat, 'Actual Copycat attack must be announced in the source branch');
+  const extraTurn = branch.actionTrace.find(event =>
+    event.before.turn === 28 && event.before.phase === 2);
+  assert.ok(extraTurn && extraTurn.before.activePlayer === seat,
+    'Copycat/Timeless-GX must give this player the next actual full turn');
+  const opponentResponse = branch.actionTrace.find(event =>
+    event.before.turn >= 29 && event.action === 'AttackAction' &&
+    event.parameters?.name === 'Apex Dragon');
+  assert.ok(opponentResponse,
+    'Counterline must preserve a consequential actual Regidrago response');
+  const divergence = firstDifference(control.actionTrace, branch.actionTrace);
+  assert.ok(divergence && divergence.original.before.turn === 27 &&
+    divergence.alternate.before.turn === 27,
+    'The source-ranked policy difference must first occur at the declared turn 27');
+  const counterline = {
+    declaredSourceDecisionTurn:27,
+    firstLiveDivergenceStep:divergence.index,
+    copiedAttack:copycat.parameters.name,
+    attackChoice:selectedTimeless.attackChoice,
+    extraTurn:{turn:extraTurn.before.turn,actingSeat:extraTurn.before.activePlayer},
+    opponentResponse:{
+      turn:opponentResponse.before.turn,
+      attackerAction:opponentResponse.action,
+      attackName:opponentResponse.parameters.name
+    },
+    controlWinner:control.result.winner,
+    alternateWinner:branch.result.winner,
+    controlFinalPrizes:control.result.prizesRemaining,
+    alternateFinalPrizes:branch.result.prizesRemaining
+  };
   return {
     schema:'rank10-source-branch-live-dispatch-v1',
     label:'diagnostic-only, not a competitive win-rate sample',
@@ -147,6 +185,7 @@ function main() {
     identicalUninstrumentedControl:true,
     identicalControlAfterBranch:true,
     sharedAuthenticTurn27Start:originalState,
+    recordedCounterline:counterline,
     firstMeaningfulDifference:firstDifference(
       control.result.decisionTrace || [], branch.result.decisionTrace || []),
     firstLiveDispatchDifference:firstDifference(
