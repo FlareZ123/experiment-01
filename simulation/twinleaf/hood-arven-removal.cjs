@@ -127,6 +127,15 @@ function runResponse(removal) {
   const genericAction = genericResolver.resolvePrompt(state, player, search);
   const genericSelection = genericAction.result.map(c => c.name);
   assert.ok(search.validate(genericAction.result), 'Generic search response must be legal');
+  const { hoodAwareArvenResolverClass } = require('./hood-aware-arven-resolver.cjs');
+  const HoodAware = hoodAwareArvenResolverClass();
+  const awareAction = new HoodAware({scores:defaultStateScores})
+    .resolvePrompt(state, player, search);
+  const policySelection = awareAction.result.map(c => c.name);
+  assert.equal(search.validate(awareAction.result), true,
+    'Opt-in Hood response must satisfy the exact Arven prompt');
+  assert.deepEqual(policySelection, ['Fog Crystal', 'Stealthy Hood'],
+    'Opt-in policy should preserve the generic Item while changing Tool target');
   assert.deepEqual(genericSelection, ['Fog Crystal', 'Float Stone'],
     'Observed source bot prefers alphabetical Item and Tool rather than protection');
   assert.equal(search.validate([hood, item]), true,
@@ -180,6 +189,7 @@ function runResponse(removal) {
   return {
     removal, arvenSearched: ['Stealthy Hood', 'Mysterious Treasure'],
     unmodifiedGenericArvenWouldChoose: genericSelection,
+    optionalHoodAwareArvenChooses: policySelection,
     supporterUsed: player.supporterTurn === 1,
     benchedVmaxEvolved: target.getPokemonCard() === vmax,
     hoodRemovedTo: removal === 'Faba' ? 'lostzone' : 'discard',
