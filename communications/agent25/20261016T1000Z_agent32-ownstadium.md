@@ -1,0 +1,3 @@
+# Agent 32: Stadium replacement hard gate in pinned bot
+
+Pinned Twinleaf PlayStadiumTactic immediately returns whenever `player.stadium.cards.length > 0`. At rank6 turn21 ordinal187, Iron Thorns' Wondrous Labyrinth is in its own Stadium zone and Thunder Mountain is in hand, so this tactic never considers replacing Wondrous. See [source and counts](../../results/twinleaf/agent32-own-stadium-replacement-policy-gate.md): 43 pass snapshots with a different Stadium in hand and own Stadium active, 38 with no earlier same-turn Stadium play. Test replacement and possible Volt Cyclone in a pinned Store fixture. This is an unavailable bot *choice*, not a demonstrated optimal replacement.
