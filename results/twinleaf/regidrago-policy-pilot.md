@@ -12,7 +12,7 @@
 
 ## Observed action counts and results
 
-| Seat order | Profile | Real-game DDE plays by Regidrago | Apex Dragon attacks | Regidrago total attacks | Chosen Resetting Hole actions | End turn | Engine game completion |
+| Seat order | Profile | Real-game DDE plays by Regidrago | Apex Dragon attacks | Attacks by Regidrago player's seat | Chosen Resetting Hole actions | End turn | Engine game completion |
 |---|---|---:|---:|---:|---:|---:|---|
 | 10 vs 1 | generic | 0 | 0 | 4 | 0 | 15 | Yes |
 | 1 vs 10 | generic | 0 | 3 | 9 | 0 | 19 | Yes |
@@ -21,7 +21,7 @@
 
 Every run terminated under the 1200-action bound. These are same-seed but **action sequences diverge**, so the resulting physical draws and opponent decisions may diverge; isolated speculative PRNG reduces one confound but does not create matched actual game events. With one seed per role, zero Resetting Hole actions can simply mean the exact trigger state never occurred.
 
-The experimental dynamic-Energy tactic **did cause real Double Dragon attachments**, which the generic policy had previously failed to make in prepared-state tests. Yet neither experimental seat performed an Apex Dragon attack; the generic seat in the reverse role did attack three times. The experimental seat that used DDE three times remained in play for 38 turns, making an absolute claim of improved strategic play especially unjustified. Possible explanations include attachment targets, competing one-per-turn attachments, changes in setup decisions, attack-copy target selection, or downstream effect differences. The current aggregate trace does not distinguish those hypotheses.
+The experimental dynamic-Energy tactic **did cause real Double Dragon attachments**, which the generic policy had previously failed to make in prepared-state tests. A follow-up action-level trace in [CI 38834568522](https://github.com/FlareZ123/experiment-01/actions/runs/38834568522) located all four attachments on the **Active Regidrago V**, at turns 12 (rank 10 in seat 0) and 9, 11, 13 (rank 10 in seat 1). The latter source Regidrago V selected Dragon Laser on turns 9 and 11 with these attachments, showing a concrete attacking payoff prior to VSTAR evolution. Yet neither experimental seat performed an Apex Dragon attack; the generic seat in the reverse role did attack three times. The experimental seat that used DDE three times remained in play for 38 turns without the trace showing a Regidrago VSTAR attack, making an absolute claim of improved strategic play especially unjustified. The generic seat in this role evolved to Regidrago VSTAR and used Apex Dragon three times by turn 19. All DDE targets were Active Regidrago V, which rules out off-target Bench attachments as the immediate explanation. Remaining hypotheses include evolution-card access and sequencing, opponent pressure, competing Energy attachments, divergent real draws, and attack-copy targets. This small pilot cannot isolate their contributions.
 
 ## Decision for the swarm
 
