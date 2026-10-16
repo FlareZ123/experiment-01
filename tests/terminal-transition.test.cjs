@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {publicSnapshot, observeTerminalTransition} = require('../simulation/twinleaf/terminal-transition.cjs');
+const {publicSnapshot, observeTerminalTransition, advanceActionLineage} = require('../simulation/twinleaf/terminal-transition.cjs');
 
 const FINISHED = 99;
 function state({phase=2,turn=8,activePlayer=0,winner=null,decks=[3,4],
@@ -56,4 +56,39 @@ test('snapshot is detached and excludes all hidden card identities',()=>{
   original.players[0].deck.cards.length=0;
   assert.equal(snapshot.players[0].deckRemaining,3);
   assert.doesNotMatch(JSON.stringify(snapshot),/Hidden Draw/);
+});
+
+test('the initiating pass survives a chain of terminal prompt resolutions',()=>{
+  const pass = advanceActionLineage(null,
+    {actionOrdinal:31,name:'PassTurnAction',playerSlot:1,pendingPrompt:null});
+  const first = advanceActionLineage(pass,
+    {actionOrdinal:32,name:'ResolvePromptAction',playerSlot:0,pendingPrompt:'WaitPrompt'});
+  const last = advanceActionLineage(first,
+    {actionOrdinal:33,name:'ResolvePromptAction',playerSlot:0,pendingPrompt:'WaitPrompt'});
+  assert.deepEqual(last.initiatingAction, {
+    actionOrdinal:31,actionName:'PassTurnAction',playerSlot:1
+  });
+  assert.deepEqual(last.promptChain.map(step=>step.actionOrdinal),[32,33]);
+  assert.equal(last.promptChain[0].pendingPrompt,'WaitPrompt');
+  assert.deepEqual(pass.promptChain,[]);
+});
+
+test('the next real action resets origin and prior prompt chain',()=>{
+  const chain = advanceActionLineage(
+    advanceActionLineage(null,
+      {actionOrdinal:1,name:'AttackAction',playerSlot:0,pendingPrompt:null}),
+    {actionOrdinal:2,name:'ResolvePromptAction',playerSlot:0,pendingPrompt:'ChoosePrompt'}
+  );
+  const reset=advanceActionLineage(chain,
+    {actionOrdinal:3,name:'PlayCardAction',playerSlot:1,pendingPrompt:null});
+  assert.deepEqual(reset.promptChain,[]);
+  assert.equal(reset.initiatingAction.actionName,'PlayCardAction');
+  assert.equal(chain.initiatingAction.actionName,'AttackAction');
+});
+
+test('orphan prompt chains are explicit without inventing an initiating action',()=>{
+  const orphan=advanceActionLineage(null,
+    {actionOrdinal:0,name:'ResolvePromptAction',playerSlot:0,pendingPrompt:'CoinFlipPrompt'});
+  assert.equal(orphan.initiatingAction,null);
+  assert.equal(orphan.promptChain.length,1);
 });
