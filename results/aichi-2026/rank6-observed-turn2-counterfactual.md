@@ -1,0 +1,15 @@
+# Iron Thorns rank 6: one observed missed turn-two attack opportunity
+
+**Agent 33, 16 October 2026.** Evidence is a source-locked, generic-bot diagnostic, not a competitive win-rate estimate.
+
+[Manual CI run 38842747380](https://github.com/FlareZ123/experiment-01/actions/runs/38842747380) completed six source-identity-checked trials and uploaded [artifact 12022205641](https://github.com/FlareZ123/experiment-01/actions/runs/38842747380/artifacts/12022205641), containing the new opening-hand audit and full partial action histories. ZIP SHA-256: `cfcc2e7d4a7f3447e6e2760950abf96a95ff5a58fdfb7cd987fe3c4534c788e1`. [Compiled trace noninterference CI 38842875244](https://github.com/FlareZ123/experiment-01/actions/runs/38842875244) passed for one fixed seed.
+
+The published [rank-6 Iron Thorns deck](full-decklists.json) has 2 Guzma & Hala (CEC 193), 1 Thunder Mountain Prism Star (LOT 191), and 1 Double Colorless Energy (SUM 136). In three opponent-slot-B games, rank 6 went second on the exact same starting seed `20367160`. **These are three repeats of one distinct opponent opening.**
+
+On global turn 2, all three rank-6 pre-dispatch hand snapshots contain `Guzma BUS`, `Trainers' Mail ROS`, `Guzma & Hala CEC`, `Tropical Beach BWP 50`, `Thunder Mountain Prism Star LOT`, `Cynthia & Caitlin CEC`, `Palace Belt BWP`. All three bots play Palace Belt, Tropical Beach, Guzma, then pass, with no attached Energy on Active Iron Thorns ex and no Bench. The opposing Active is Dialga-GX (champion-reference) or Girafarig (Hood/Temple). Their first recorded Volt Cyclone attacks occur on turns 10, 16 and 10.
+
+**Counterfactual, pending real-Store validation:** Keep the Stadium and Supporter slots open. Use Guzma & Hala, discarding Guzma and Tropical Beach, to seek the singleton Double Colorless Energy from the deck if unprized. Play the already-held Thunder Mountain and attach DCE to Active Iron Thorns. Thunder Mountain lowers the Lightning portion of Volt Cyclone's Lightning-Colorless-Colorless cost, and DCE satisfies both Colorless; a 140-damage attack could follow. The supplied player's rulebook (Card Text II.A) permits applying the damage even if Iron Thorns has no Bench for Volt Cyclone's Energy-transfer instruction. This is a card-text/rules hypothesis until verified against the pinned engine and exact resource locations. The champion-reference engine record later plays DCE at turn 8 without an observed earlier Prize-recovery card, which suggests, but does not certify, its availability on turn 2; Hood/Temple records have intervening Prize-recovery cards.
+
+The observed choices suggest a policy-selection problem worth testing. They do not prove that all counterfactual actions were legal in the saved game, or imply a win rate. A one-seed route should not be treated as three independent observations. The complete trace omits some prompts, shuffle outcomes and hidden-zone transitions; real policy competence remains unvalidated.
+
+**Next:** add a source-representable pinned-engine Supporter search and no-Bench attack test; then evaluate an opt-in opening-line tactic without changing the fixed 60-card inventories.
