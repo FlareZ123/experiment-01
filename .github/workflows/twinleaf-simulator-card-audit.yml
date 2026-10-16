@@ -37,6 +37,10 @@ jobs:
         run: node simulation/twinleaf/natural-bot-card-leak-audit.cjs
       - name: Recheck three source-backed policy fixtures with detached Simulator
         run: node simulation/twinleaf/detached-simulator-existing-fixtures.cjs
+      - name: Test source-prototype severing on cyclic object graphs
+        run: node --test tests/prototype-safe-simulator-hook.test.cjs
+      - name: Characterize a real Tool attack and one source-ranked game with prototype-safe clone
+        run: node simulation/twinleaf/prototype-safe-simulator-characterization.cjs
       - name: Compare detached Simulator across four predeclared exploratory seeds
         run: node simulation/twinleaf/detached-simulator-sensitivity-grid.cjs
       - name: Reproduce conditional Counter phantom-damage consequence
