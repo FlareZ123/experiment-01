@@ -243,23 +243,39 @@ test('both Simulator clone modes retain explicit trial-level safety blockers', (
   const original = auditCampaignQuality(fixture());
   assert.equal(original.simulatorCloneProfile, 'pinned-source-card-alias-v0');
   assert.equal(original.simulatorSafetyStatus, 'known-simulator-card-alias-risk');
+  assert.equal(original.simulatorSafetyBlocker, 'unvalidated-simulator-alias');
   assert.equal(original.simulatorSafetyQualified, false);
   assert.ok(original.records.every(row =>
     row.simulatorSafetyStatus === original.simulatorSafetyStatus &&
-    row.blockers.includes('known-simulator-card-alias-risk')));
+    row.simulatorSafetyBlocker === original.simulatorSafetyBlocker &&
+    row.blockers.includes('unvalidated-simulator-alias') &&
+    !row.blockers.includes('experimental-clone-not-qualified')));
 
   const experimental = fixture();
   experimental.policyFlags = {prototypeSafeSimulatorIsolation: true};
   const report = auditCampaignQuality(experimental);
   assert.equal(report.simulatorCloneProfile, 'prototype-safe-experimental-v1');
   assert.equal(report.simulatorSafetyStatus, 'experimental-clone-not-qualified');
+  assert.equal(report.simulatorSafetyBlocker, 'experimental-clone-not-qualified');
   assert.equal(report.simulatorSafetyQualified, false);
   assert.ok(report.records.every(row =>
     row.simulatorCloneProfile === 'prototype-safe-experimental-v1' &&
     row.simulatorSafetyStatus === report.simulatorSafetyStatus &&
+    row.simulatorSafetyBlocker === report.simulatorSafetyBlocker &&
     row.blockers.includes('experimental-clone-not-qualified') &&
-    !row.blockers.includes('known-simulator-card-alias-risk')));
+    !row.blockers.includes('unvalidated-simulator-alias')));
   assert.equal(report.winRateEvidence, false);
   assert.equal(report.candidateRankingPermitted, false);
   assert.ok(report.coverage.every(row => row.independentlyQualifiedGames === 0));
+  assert.deepEqual(report.records.map(row => row.trialId),
+    original.records.map(row => row.trialId));
+  assert.deepEqual(report.coverage, original.coverage);
+  assert.ok(report.records.every((row,index) => {
+    const baseline=original.records[index];
+    return row.status===baseline.status &&
+      row.traceIntegrity===baseline.traceIntegrity &&
+      row.priority===baseline.priority &&
+      row.candidateAttacks===baseline.candidateAttacks &&
+      row.opponentAttacks===baseline.opponentAttacks;
+  }));
 });
