@@ -303,6 +303,7 @@ function runMatch(request) {
         assertValidPromptAction(state, action);
       }
       const actionName = action.constructor.name;
+      const turnBefore = state.turn;
       const actingId = pending ? pending.playerId : (action.clientId ?? action.id);
       const seat = state.players.findIndex(player => player.id === actingId);
       const playedCard = actionName === 'PlayCardAction' && seat >= 0 ?
@@ -332,7 +333,7 @@ function runMatch(request) {
       if (decisionTrace && (playedCard || abilityInfo || attackInfo ||
           ['PassTurnAction', 'RetreatAction', 'UseStadiumAction'].includes(actionName))) {
         decisionTrace.push({
-          actionOrdinal: actions, turnBefore: state.turn, turnAfter: store.state.turn,
+          actionOrdinal: actions, turnBefore, turnAfter: store.state.turn,
           playerSlot: seat, action: actionName,
           ...(playedCard ? { card: playedCard } : {}),
           ...(abilityInfo ? { ability: abilityInfo.name } : {}),
