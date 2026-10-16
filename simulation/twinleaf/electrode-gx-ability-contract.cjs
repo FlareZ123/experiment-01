@@ -69,6 +69,20 @@ function runCase(count, noRecipient = false, useBot = false, availableCount = 5)
   }
   const promptAccepted = prompt.validate(transfers);
   f.store.dispatch(new ResolvePromptAction(prompt.id,transfers));
+  // The pinned zero-transfer branch also starts an unexpected deck shuffle.
+  // Finish those prompts so Knock Out and Prize accounting can settle.
+  for (let i = 0; i < 12; i++) {
+    const next = f.state.prompts.find(p => p.result === undefined);
+    if (!next) break;
+    let response;
+    if (next.constructor.name === 'WaitPrompt') response = null;
+    else if (next.constructor.name === 'ShuffleDeckPrompt') {
+      response = Array.from({length:f.a.deck.cards.length}, (_, index) => index);
+    } else throw new Error('Unexpected post-Ability prompt: '+next.constructor.name);
+    f.store.dispatch(new ResolvePromptAction(next.id,response));
+  }
+  assert.ok(!f.state.prompts.some(p => p.result === undefined),
+    'No post-Ability prompts should remain');
   return {
     count,noRecipient,useBot,availableCount,transferred:transfers.length,
     promptAccepted,min:prompt.options.min,max:prompt.options.max,
