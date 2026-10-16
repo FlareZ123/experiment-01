@@ -1,4 +1,4 @@
-name: Aichi source-locked Iron Thorns diagnostic
+name: Aichi source-locked Iron Thorns composite policy
 
 on:
   workflow_dispatch:
@@ -30,6 +30,7 @@ jobs:
       - name: Run six bounded Iron Thorns diagnostic trials
         env:
           CAMPAIGN_SEED_PROTOCOL: independent-slots-v2
+          CAMPAIGN_POLICY_PROFILE: expanded-action-fidelity-probe-v1
           CAMPAIGN_PHASE: pilot
           CAMPAIGN_MAX_TRIALS: '6'
           CAMPAIGN_TRIAL_IDS: 'pilot:6:0:champion-reference:A,pilot:6:0:champion-reference:B,pilot:6:0:hood-shield-v1:A,pilot:6:0:hood-shield-v1:B,pilot:6:0:temple-v1:A,pilot:6:0:temple-v1:B'
@@ -37,6 +38,6 @@ jobs:
         run: node simulation/evaluation/aichi-campaign-runner.cjs > aichi-campaign-report.json
       - uses: actions/upload-artifact@v4
         with:
-          name: aichi-source-locked-rank6-six-trial-report
+          name: aichi-source-locked-rank6-composite-policy-report
           path: aichi-campaign-report.json
           retention-days: 14
