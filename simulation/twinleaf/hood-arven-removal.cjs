@@ -154,6 +154,25 @@ function runResponse(removal) {
     'Arven must finish resolving all prompts before other actions');
   assert.equal(player.supporterTurn, 1, 'Arven consumes the Supporter for this turn');
 
+  const { AttachToolTactic } = mod('simple-bot/simple-tactics/attach-tool-tactic');
+  const { hoodAwareAttachToolTacticClass } =
+    require('./hood-aware-attach-tool-tactic.cjs');
+  const { PlayCardAction, SlotType } =
+    mod('game/store/actions/play-card-action');
+  const genericTool = new AttachToolTactic({scores:defaultStateScores})
+    .useTactic(state,player);
+  const awareTool = new (hoodAwareAttachToolTacticClass())({
+    scores:defaultStateScores
+  }).useTactic(state,player);
+  assert.ok(genericTool instanceof PlayCardAction);
+  assert.ok(awareTool instanceof PlayCardAction);
+  assert.equal(genericTool.target.slot, SlotType.ACTIVE,
+    'Generic HP-weighted tactic should spend Hood on Active V');
+  assert.equal(awareTool.target.slot, SlotType.BENCH,
+    'Opt-in tactic should instead shield the vulnerable Benched V');
+  assert.equal(awareTool.target.index, 0);
+  assert.equal(awareTool.handIndex, player.hand.cards.indexOf(hood));
+
   store.reduceEffect(state, new AttachPokemonToolEffect(player, hood, target));
   assert.equal(target.tools.length, 1);
   assert.equal(target.tools[0], hood);
@@ -190,6 +209,8 @@ function runResponse(removal) {
     removal, arvenSearched: ['Stealthy Hood', 'Mysterious Treasure'],
     unmodifiedGenericArvenWouldChoose: genericSelection,
     optionalHoodAwareArvenChooses: policySelection,
+    genericToolTarget: 'Active V',
+    optionalHoodAwareToolTarget: 'Benched V',
     supporterUsed: player.supporterTurn === 1,
     benchedVmaxEvolved: target.getPokemonCard() === vmax,
     hoodRemovedTo: removal === 'Faba' ? 'lostzone' : 'discard',
