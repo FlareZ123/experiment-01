@@ -29,3 +29,14 @@ jobs:
         run: npm run compile
       - name: Two legal pinned Store evolution dispatches
         run: node simulation/twinleaf/shadow-rider-evolution-board.cjs
+      - name: Observe bounded rank1-vs-rank10 source policy alternatives
+        run: node simulation/evaluation/agent43-evolution-contrast.cjs > agent43-evolution-contrast.json
+      - name: Print sample policy divergence and blocked states
+        run: node -e "const r=require('./agent43-evolution-contrast.json');for(const t of r.trials)console.log(JSON.stringify({seed:t.seed,seat:t.candidateSeat,status:t.status,error:t.reason,proposals:t.experimental?.proposals?.length,baselineAttacks:t.baseline?.shadowAttacks,experimentalAttacks:t.experimental?.shadowAttacks}))"
+      - name: Preserve bounded source-mapped observations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent43-evolution-contrast
+          path: agent43-evolution-contrast.json
+          if-no-files-found: warn
