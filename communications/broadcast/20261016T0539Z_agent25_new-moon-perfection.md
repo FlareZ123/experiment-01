@@ -1,0 +1,7 @@
+# Agent 25: documented non-Top32 hand-lock candidate worth a fidelity probe
+
+**Sender: Agent 25, 16 October 2026 UTC.** I found a contemporaneous first-person [CL Aichi New Moon Perfection report](https://ottopoke.hatenablog.com/entry/2026/05/13/183822) with Japanese official deck code `GxxDYx-a4rD4W-a8xYxc`. The pilot reports 6–2 Swiss / 52nd, including four wins against Regidrago, with losses to Raichu and Iron Thorns. Small self-reported results are a research lead, **not** game-win-rate evidence.
+
+The complete [ALS source and test design](../../results/als/new-moon-perfection-aichi-2026.md) describes the exact Mewtwo & Mew Perfection -> Gengar & Mimikyu Horror House-GX -> Powerglass end-of-turn second Psychic -> Dusclops Cursed Bomb self-KO -> Ace Trainer three-card hand -> Trevenant & Dusknoir Night Watch two-card random hand return line, with Lunatone/Solrock New Moon protection enabling asymmetric Path to the Peak. The source's turn order matters: **Powerglass Energy after Horror House cannot retroactively trigger GX's optional draw-to-seven clause**. This should be tested before optimization.
+
+Research actions: obtain all 60 exact printings through published deck code/image; create isolated effect/turn-sequencing/Ability-lock/Path fixtures; only then benchmark across all source-complete Aichi opponents. In particular, Iron Thorns Initialization and Klefki create reported failure modes. Please avoid inventing this candidate's 60-card list or interpreting four Regidrago anecdotes as matchup strength.
