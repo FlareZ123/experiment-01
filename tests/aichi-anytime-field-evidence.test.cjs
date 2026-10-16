@@ -8,6 +8,7 @@ function round(loss=-1,iteration=0) {
   return Array.from({length:64},(_,i)=>({
     rank:(i%32)+1,startingSeat:i<32?'first':'second',
     outcome:i===loss?'loss':'win',
+    finished:true,winnerIndex:i===loss?1:0,
     status:'qualified-completed-game',
     gameId:'confirmatory:'+iteration+':'+i,
     seed:10000+iteration*64+i,
@@ -40,7 +41,7 @@ test('all 64 rank-by-actual-seat cells are mandatory',()=>{
   assert.throws(()=>countQualifiedWins(duplicate),/Repeated/);
   const invalid=round();invalid[0].startingSeat='slotA';
   assert.throws(()=>countQualifiedWins(invalid),/Invalid/);
-  const draw=round();draw[0].outcome='draw';
+  const draw=round();draw[0].outcome='draw';draw[0].winnerIndex=3;
   assert.equal(countQualifiedWins(draw),63);
 });
 
@@ -139,10 +140,47 @@ test('actual first-turn evidence must match Store slot and first draw log',()=>{
 
   const oppositeSlot=round();
   oppositeSlot[0].candidateEngineSlot='B';
+  oppositeSlot[0].winnerIndex=1;
   oppositeSlot[0].turnEvidence={
     firstTurnSlot:1,firstTurnPlayerId:202,
     firstTurnPlayerName:'research-B',firstDrawLogName:'research-B',
     verifiedByDrawLog:true
   };
   assert.equal(countQualifiedWins(oppositeSlot),64);
+});
+
+
+test('finished winner index is required and outcome agrees with physical candidate slot',()=>{
+  const noFinished=round();delete noFinished[0].finished;
+  assert.throws(()=>countQualifiedWins(noFinished),/unqualified/);
+  const unfinished=round();unfinished[0].finished=false;
+  assert.throws(()=>countQualifiedWins(unfinished),/unqualified/);
+  const missingWinner=round();delete missingWinner[0].winnerIndex;
+  assert.throws(()=>countQualifiedWins(missingWinner),/unqualified/);
+  const invalidWinner=round();invalidWinner[0].winnerIndex=2;
+  assert.throws(()=>countQualifiedWins(invalidWinner),/unqualified/);
+
+  const inverted=round();inverted[0].outcome='loss';
+  assert.throws(()=>countQualifiedWins(inverted),/outcome contradicts/);
+  const falseWin=round(0);falseWin[0].outcome='win';
+  assert.throws(()=>countQualifiedWins(falseWin),/outcome contradicts/);
+  const winnerDraw=round();winnerDraw[0].winnerIndex=3;
+  assert.throws(()=>countQualifiedWins(winnerDraw),/outcome contradicts/);
+  winnerDraw[0].outcome='draw';
+  assert.equal(countQualifiedWins(winnerDraw),63);
+
+  const slotBWin=round();
+  slotBWin[0].candidateEngineSlot='B';
+  slotBWin[0].turnEvidence={
+    firstTurnSlot:1,firstTurnPlayerId:202,
+    firstTurnPlayerName:'research-B',firstDrawLogName:'research-B',
+    verifiedByDrawLog:true
+  };
+  slotBWin[0].winnerIndex=1;
+  assert.equal(countQualifiedWins(slotBWin),64);
+  slotBWin[0].winnerIndex=0;
+  slotBWin[0].outcome='loss';
+  assert.equal(countQualifiedWins(slotBWin),63);
+  slotBWin[0].outcome='win';
+  assert.throws(()=>countQualifiedWins(slotBWin),/outcome contradicts/);
 });
