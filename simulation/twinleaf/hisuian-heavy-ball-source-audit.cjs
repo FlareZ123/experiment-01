@@ -134,14 +134,26 @@ function main() {
   const corrected = traceHisuianSource({
     ...common, hisuianHeavyBallPrizeShuffleCorrection:true
   });
+  const branchRequest = {...common, mimikyuApexTimelessPolicy:true,
+    mimikyuApexTimelessPolicySeat:1, mimikyuTurn27SetupSeat:1};
+  const alternate = traceHisuianSource(branchRequest);
+  const correctedAlternate = traceHisuianSource({...branchRequest,
+    hisuianHeavyBallPrizeShuffleCorrection:true});
   const repeated = traceHisuianSource(common);
   assert.deepEqual(repeated, original,
     'Source-run and audit must be unchanged after opt-in correction');
   assert.equal(original.allBallPromptsResolved, true);
   assert.equal(corrected.allBallPromptsResolved, true);
+  assert.equal(alternate.allBallPromptsResolved, true);
+  assert.equal(correctedAlternate.allBallPromptsResolved, true);
+  for (const observed of [corrected,alternate,correctedAlternate]) {
+    assert.deepEqual(observed.result.deckHashes, original.result.deckHashes);
+  }
 
   const brief = trace => ({
     sourceBallPlays:trace.sourceBallPlays,
+    sourceBallPlaysBeforeTurn27:trace.sourceBallDecisions.filter(d=>d.turn<27).length,
+    sourceBallPlaysFromTurn27:trace.sourceBallDecisions.filter(d=>d.turn>=27).length,
     nonliveBallReducers:trace.nonliveBallReducers,
     evidenceDigest:trace.evidenceDigest,
     sourceBallDecisions:trace.sourceBallDecisions,
@@ -152,7 +164,7 @@ function main() {
     returnDigest:digest(trace.result)
   });
   return {
-    schema:'source-aichi-rank10-heavyball-prize-audit-v1',
+    schema:'source-aichi-rank10-heavyball-prize-audit-v2',
     label:'diagnostic source game, NOT qualified for competitive inference',
     source:{rankCandidate:1,rankOpponent:10,seed:trial.seed,
       physicalCandidateSeat:'B',candidateActuallyFirst:true,
@@ -161,6 +173,7 @@ function main() {
     optInPaperShuffleEnabledOnlyInCorrectedArm:true,
     unchangedOriginalAfterCorrection:true,
     original:brief(original), corrected:brief(corrected),
+    alternate:brief(alternate), correctedAlternate:brief(correctedAlternate),
     qualifiedForCompetitiveInference:false,
     sourceReplayMechanicsVerified:false
   };
