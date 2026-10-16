@@ -171,6 +171,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [isolatePolicyRandomness] Use independent RNG streams for speculative bot decisions (experimental).
  * @property {boolean} [supporterDecisionCorrection] Opt-in, reversible correction for premature Supporter turn consumption.
  * @property {boolean} [leleEntryAbilityLockCorrection] Opt-in correction for Tapu Lele-GX Bench-entry Ability locks.
+ * @property {boolean} [radiantGateLockCorrection] Opt-in correction for Radiant Eternatus Bench-entry Ability locks.
  * @property {boolean} [snorlaxRetreatStartCorrection] Opt-in, reversible Block check on interactive retreat.
  * @property {boolean} [shadowRiderEnergyPriority] Opt-in basic Psychic Energy priority against Active Iron Thorns.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
