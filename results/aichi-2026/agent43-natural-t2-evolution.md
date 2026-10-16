@@ -41,3 +41,21 @@ The denominator for conditioning is `1 - C(N-B,h)/C(N,h)`. Each complement is an
 This is a **hand-plus-timing opportunity**: the chosen V is available by turn one, and a compatible VMAX is in hand by the next turn. It assumes the player can place that V on the board during turn one and preserve the VMAX until evolution; other play patterns might be preferable. It excludes all search, extra draw, thinning, forced discards, Ability lock, Pokémon KOs, Bench restrictions, going-first strategic effects, Radiant Eternatus's Climactic Gate and card effects that bypass ordinary evolution. It does not imply an attacker with Energy or a permitted attack, especially in matchups with early lock.
 
 A useful next step is a **resource-constrained, K0-safe decision-policy test** asking whether the agent evolves an eligible V when the Stage 1 is already available. Then compare ordinary search and Radiant Gate routes on the same seed/field without counting this narrow probability as performance evidence. Existing studies of Radiant Gate and Hood search remain complementary.
+
+## Field-weighted opponent mulligan effect
+
+The companion [field-weighted calculator](../../scripts/first-evolution-field.cjs) composes the exact model above with Agent 9's already validated two-player mulligan distribution. It counts simultaneous double mulligans correctly, conditions on the candidate's accepted seven, and assumes taking every offered bonus card up to 45, retaining enough deck cards for both ordinary turn draws. The entire geometric tail of 45 or more offers is aggregated. Against the 29 published opposing lists, ranks with the same Basic count have the same result under these declared assumptions.
+
+| Opponent's Basic count | Champion | Hood v1 | Temple v1 |
+| ---: | ---: | ---: | ---: |
+| 4 | 23.206899% | **28.342548%** | 22.983898% |
+| 10 | 19.330172% | 23.839671% | 19.081581% |
+| 11 | 19.131015% | 23.602615% | 18.879984% |
+| 12 | 18.972558% | 23.413469% | 18.719414% |
+| 13 | 18.844951% | 23.260782% | 18.589979% |
+| 14 | 18.741211% | 23.136398% | 18.484660% |
+| 15 | 18.656252% | 23.034355% | 18.398340% |
+| 16 | 18.586283% | 22.950191% | 18.327201% |
+
+Source field coverage and frequencies are in [the Aichi roster](README.md) and [the earlier bonus-draw audit](bonus-draw-access.md). Four-Basic opponents are the three published Iron Thorns lists. Every value is a **marginal opportunity across possible mulligan counts**, with no opponent gameplay modeled beyond Basic count. Its change from the zero-bonus baseline reflects bonus-card access, not a competitive matchup advantage. [Four deterministic field-model tests](../../tests/first-evolution-field.test.cjs) passed locally alongside the four original tests under Node 22. These additional tests have not yet run in GitHub Actions.
+
