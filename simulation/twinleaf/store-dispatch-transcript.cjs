@@ -157,6 +157,15 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
     };
     trace.push(event);
     const pending = this.state?.prompts?.find(p => p.result === undefined);
+    if (pending && action?.constructor?.name === 'ResolvePromptAction') {
+      event.pendingPrompt = {
+        id:pending.id,
+        kind:pending.constructor.name,
+        message:pending.message ?? null,
+        playerId:pending.playerId,
+        perspectivePlayerId:pending.perspectivePlayerId ?? pending.playerId
+      };
+    }
     if (pending?.constructor?.name === 'ChooseCardsPrompt' &&
         action?.constructor?.name === 'ResolvePromptAction') {
       try {
