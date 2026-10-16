@@ -24,5 +24,7 @@ jobs:
         run: npm run compile
       - name: Verify isolated decision policy RNG contracts
         run: node --test tests/twinleaf-policy-rng-isolation.test.cjs
+      - name: Verify reversible profile and baseline invariance
+        run: node --test tests/twinleaf-policy-profiles.test.cjs
       - name: Compare two-seat source rank-10 policy choices with rank-1
         run: node simulation/twinleaf/regidrago-policy-pilot.cjs
