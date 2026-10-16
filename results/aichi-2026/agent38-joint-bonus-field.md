@@ -51,6 +51,20 @@ These are source-composition averages for resource accessibility. The complete T
 
 The natural-turn-two marginal agrees exactly with the prior [Agent 43 two-player mulligan model](agent43-natural-t2-evolution.md) for the champion and Temple, and with the [source-corrected Hood count](agent38-hood-basic-source-audit.md) for Hood. The combined union marginal is new because it also accounts for the Gate route and exact overlap under extra draws.
 
+## Critical Iron Thorns applicability constraint
+
+The first row has an important gameplay qualifier. The three four-Basic opposing lists at **ranks 6, 24 and 29** contain four Iron Thorns ex and no other Pokémon. Their starting Active must be Iron Thorns ex. Its printed **Initialization** suppresses Radiant Eternatus's Rule-Box Ability while the lock is active. This is established in the source-backed [Iron Thorns Gate lock study](../als/iron-thorns-suppresses-gate.md).
+
+Thus the 66.34% / 69.01% / 62.06% **unrestricted-resource union** figures in the four-Basic row are unsuitable as functional setup probabilities under an unsuppressed Active Initialization. If Gate is fully suppressed and no lock-escape line changes that state before Gate, the available branch of this deliberately restricted two-route model is **natural evolution alone**:
+
+| Candidate | Restricted natural T2 opportunity against four-Basic opponent | Gate-only contribution excluded by Initialization |
+| --- | ---: | ---: |
+| Champion | 23.206899% | 43.136534 percentage points |
+| Hood v1 | 28.733176% | 40.277842 percentage points |
+| Temple v1 | 22.983898% | 39.080409 percentage points |
+
+The excluded contribution is P(Gate and no natural route) under the unsuppressed hypothetical resource model. It is not a measured Gate-attempt rate. Effects that remove or suppress Initialization or change the Active board state can alter the applicable rule, while other resource channels may succeed without Gate. A gameplay-qualified matchup probability requires modeling those lines.
+
 ## Exact derivation
 
 For each fixed eight-category source inventory, enumerate the seven-card opener by hypergeometric category count and exclude a no-Basic mulligan. Integrate a set of K bonus cards plus the first-turn ordinary card as a single size-(K+1) sample. By random-permutation exchangeability, sampling that block before the six unknown Prizes yields the same joint zone distribution as the physical order, where Prizes are placed first.
