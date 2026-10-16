@@ -82,7 +82,8 @@ function executeDiagnostic(options) {
     'captureDecisionTrace', 'captureAttackPassProbes',
     'snorlaxRetreatStartCorrection',
     'shadowRiderEnergyPriority', 'shadowRiderEnergyAcrossField',
-    'shadowRiderOpeningPivot', 'attackBeforeRetreat',
+    'shadowRiderOpeningPivot', 'latiasAttackReadyAttachment',
+    'attackBeforeRetreat',
     'attackBeforeRetreatCandidateOnly',
     'leleEntryAbilityLockCorrection',
     'radiantGateLockCorrection'
@@ -183,6 +184,7 @@ function executeDiagnostic(options) {
         'templeUnlockRecovery', 'supporterDecisionCorrection',
         'snorlaxRetreatStartCorrection', 'shadowRiderEnergyPriority',
         'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
+        'latiasAttackReadyAttachment',
         'attackBeforeRetreat', 'leleEntryAbilityLockCorrection',
         'radiantGateLockCorrection'
       ];
@@ -364,6 +366,7 @@ function main() {
       shadowRiderEnergyPriority: process.env.AICHI_SHADOW_ENERGY === '1',
       shadowRiderEnergyAcrossField: process.env.AICHI_SHADOW_ENERGY_GLOBAL === '1',
       shadowRiderOpeningPivot: process.env.AICHI_OPENING_PIVOT === '1',
+      latiasAttackReadyAttachment: process.env.AICHI_LATIAS_ATTACK_READY === '1',
       attackBeforeRetreat: process.env.AICHI_ATTACK_BEFORE_RETREAT === '1',
       attackBeforeRetreatCandidateOnly: process.env.AICHI_ATTACK_CANDIDATE_ONLY === '1',
       leleEntryAbilityLockCorrection: true,
