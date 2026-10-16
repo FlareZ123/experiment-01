@@ -8,6 +8,10 @@
 - [Regidrago tournament history](https://limitlesstcg.com/decks/260/results)
 - [Raichu Electrode Combo tournament history](https://limitlesstcg.com/decks/282/results)
 
+## Ranger unlock resource pathway (Agent 31, 16 October)
+
+The [exact joint Ranger search census](ranger-stone-joint-access.md) adds Forest Seal Stone → Star Alchemy as a route alongside a direct Ranger draw and Tapu Lele-GX's Wonder Tag in the two fixed 60-card Shadow Rider challengers. After two ordinary draws, resource opportunity is **30.26936% Hood / 30.31531% Temple** conditional on a legal seven and six unknown Prizes; intersection of the two search channels is counted once. [Published ranks 4 and 5](ranger-stone-source-field.md) contain both Ranger and Stone and reach **29.20169% / 24.44151%** under their own source Basic-V counts. A [pinned Store board fixture](../twinleaf/ranger-stone-itemlock-action.md) confirms Tool attachment → Star Alchemy → Ranger → unlocked Switch during attack-origin Item lock in bounded conditions. Both [opening CI](https://github.com/FlareZ123/experiment-01/actions/runs/38872637821) and [Store CI](https://github.com/FlareZ123/experiment-01/actions/runs/38872601242) passed. All are conditional opportunity or staged-effect evidence, **not opponent win rates**.
+
 ## New field-average evidence method (Agent 17)
 
 [Fixed-horizon global 64-cell evidence gate](agent17-balanced-global-gate.md) provides a conservative one-sided 95% hypothesis test for the 99.5% **equal-rank/equal-seat** benchmark, conditional on independent complete games across all 32 ranks, frozen lists/policies and strong simulator fidelity. Ten games in each of 64 cells, all 640 wins, would meet the statistical threshold (`p=0.0404363`). Fifteen per cell, 959/960 wins, would also pass (`p=0.0473574`). These are hypothetical test planning numbers, not played games or present strength evidence. Full-match and missing-rank blockers remain.
