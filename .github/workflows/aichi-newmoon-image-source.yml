@@ -2,6 +2,13 @@ name: Aichi New Moon public image source probe
 
 on:
   workflow_dispatch:
+    inputs:
+      row:
+        description: 'Card-grid row for visual verification, 0 through 3'
+        required: true
+        default: '2'
+        type: choice
+        options: ['0', '1', '2', '3']
 
 permissions:
   contents: read
@@ -19,7 +26,30 @@ jobs:
             'https://cdn-ak.f.st-hatena.com/images/fotolife/o/ottopoke/20260511/20260511230136.png' \
             --output "$RUNNER_TEMP/newmoon-deck-source.png"
           file "$RUNNER_TEMP/newmoon-deck-source.png"
-      - name: Emit source image chunks for a bounded private visual inspection
+      - name: Visually inspect three source-grid segments in selected row
         shell: bash
+        env:
+          ROW_NUMBER: ${{ inputs.row }}
         run: |
-          node -e "const fs=require('node:fs');const b=fs.readFileSync(process.env.RUNNER_TEMP+'/newmoon-deck-source.png');if(b.length>1000000)throw Error('Source image exceeds inspection cap');const s=b.toString('base64');for(let i=0;i<s.length;i+=4000)console.log('NMIMG'+String(i/4000).padStart(4,'0')+':'+s.slice(i,i+4000));console.log('NMIMGTOTAL:'+b.length);"
+          python3 -m pip install --quiet Pillow
+          python3 - <<'PY'
+          import base64
+          import io
+          import os
+          from PIL import Image
+
+          image = Image.open(os.path.join(os.environ["RUNNER_TEMP"], "newmoon-deck-source.png")).convert("RGB")
+          assert image.size == (1024, 512), image.size
+          row = int(os.environ["ROW_NUMBER"])
+          assert row in (0, 1, 2, 3)
+          for group in range(3):
+              x0 = 50 + 309 * group
+              cropped = image.crop((x0, 128 * row, x0 + 309, 128 * (row + 1)))
+              enlarged = cropped.resize((1236, 512), Image.Resampling.NEAREST)
+              buffer = io.BytesIO()
+              enlarged.save(buffer, format="JPEG", quality=91)
+              encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
+              for i in range(0, len(encoded), 4000):
+                  print(f"NMROW{row}GROUP{group}CHUNK{i//4000:04d}:" + encoded[i:i+4000])
+              print(f"NMROW{row}GROUP{group}TOTAL:{len(buffer.getvalue())}")
+          PY
