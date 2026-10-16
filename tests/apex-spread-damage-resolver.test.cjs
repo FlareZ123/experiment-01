@@ -43,6 +43,28 @@ function fixture(remainingHP, overrides = {}) {
   return {state,me,opponent,prompt,codes};
 }
 
+test('source-ranked 10 versus 15 staged prints match immutable Aichi inventories',()=>{
+  const source=JSON.parse(fs.readFileSync(path.resolve(
+    __dirname,'../results/aichi-2026/full-decklists.json'),'utf8'));
+  /** @param {number} rank @param {string} name @param {string} set @param {string} number */
+  const count=(rank,name,set,number)=>{
+    const deck=source.decks.find(row=>row.rank===rank);
+    assert.ok(deck);
+    return deck.cards.filter(row=>row.name===name &&
+      row.printing.set===set && row.printing.number===number)
+      .reduce((sum,row)=>sum+row.count,0);
+  };
+  assert.equal(count(10,'Regidrago VSTAR','SIT','136'),3);
+  assert.equal(count(10,'Dragapult ex','TWM','130'),1);
+  assert.equal(count(10,'Hisuian Goodra VSTAR','LOR','136'),1);
+  assert.equal(count(15,'Pidgey','FLF','75'),2);
+  assert.equal(count(15,'Pidgeotto','TEU','123'),1);
+  assert.equal(count(15,'Pidgeot ex','OBF','164'),2);
+  assert.equal(count(15,'Buneary','PFL','83'),2);
+  assert.equal(count(15,'Mega Lopunny ex','PFL','84'),2);
+  assert.equal(count(15,'Budew','ASC','16'),2);
+});
+
 test('pinned tag and KO-slot rules produce nominal one-, two-, and three-Prize values',()=>{
   const pokemon=tags=>({tags});
   assert.equal(nominalKnockoutPrizes(pokemon([]),{}),1);
