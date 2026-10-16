@@ -185,11 +185,12 @@ function main() {
   // Exact same physical deal; vary only which two hand cards pay the
   // optional Special Energy search cost. Immediate damage equality does
   // not establish long-run strategic dominance of a discard choice.
-  const choices=[
-    ['Cynthia & Caitlin','Tropical Beach'],
-    ["Trainers' Mail",'Palace Belt'],
-    ['Guzma','Cynthia & Caitlin'],
-  ];
+  const spendable=['Guzma',"Trainers' Mail",'Tropical Beach',
+    'Cynthia & Caitlin','Palace Belt'];
+  const choices=spendable.flatMap((card,index)=>
+    spendable.slice(index+1).map(other=>[card,other]))
+    .filter(pair=>!(pair.includes('Guzma') && pair.includes('Tropical Beach')));
+  assert.equal(choices.length,9, 'Expected all nine nondefault hand-payment pairs');
   const otherDiscards=choices.map(discardNames=>{
     const trial=withSourceOpeningProbe(()=>
       withGuzmaHalaSourceFork(()=>
