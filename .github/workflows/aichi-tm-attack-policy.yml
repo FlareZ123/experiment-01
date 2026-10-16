@@ -33,3 +33,13 @@ jobs:
         run: node simulation/twinleaf/tm-attack-policy-characterization.cjs
       - name: Probe late-game Bunnelby Evolution with one remaining source Stage 2
         run: node simulation/twinleaf/aichi-bunnelby-turn56-legality.cjs
+      - name: Compare one exact rank-2 Bunnelby Pass with Evolution intervention
+        run: node simulation/twinleaf/rank2-pass-evolution-counterfactual.cjs > aichi-rank2-pass-counterfactual.json
+      - name: Print bounded rank-2 action evidence
+        run: node -e "const x=require('./aichi-rank2-pass-counterfactual.json');console.log(JSON.stringify({trial:x.sourceTrial,seed:x.seed,baseline:x.baseline,forcedEvolution:x.forcedEvolution},null,2))"
+      - name: Preserve conditioned rank-2 counterfactual
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-rank2-pass-counterfactual
+          path: aichi-rank2-pass-counterfactual.json
+          if-no-files-found: error
