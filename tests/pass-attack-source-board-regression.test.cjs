@@ -33,3 +33,27 @@ test('source TM Evolution becomes unpayable with Energy removed', () => {
   const report = probePassedAttackOptions(f.store.state, f.attacker.id);
   assert.ok(report.tested.some(a => a.name === 'Evolution' && !a.engineAcceptedAnnouncement));
 });
+
+test('Counter card is detached from announcement-probe evaluation state', () => {
+  const path = require('node:path');
+  const {stageCounterBoard} =
+    require('../simulation/twinleaf/simulator-counter-phantom-damage.cjs');
+  const root = path.resolve(__dirname, '../vendor/twinleaf/ptcg-server/output');
+  const {deepClone} = require(path.join(root, 'utils'));
+  const {f, conkeldurr} = stageCounterBoard();
+
+  const detached = deepClone(f.store.state);
+  const clonedTarget = detached.players[1].active.getPokemonCard();
+  assert.notEqual(clonedTarget, conkeldurr,
+    'Cloned Store must not share a live mutable Pokemon Card.');
+  clonedTarget.damageTakenLastTurn = 900;
+  assert.equal(conkeldurr.damageTakenLastTurn, 0);
+
+  const history = conkeldurr.damageTakenLastTurn;
+  const report = probePassedAttackOptions(f.store.state, f.attacker.id);
+  assert.ok(report.tested.some(a =>
+    a.name === 'Shadow Mist' && a.engineAcceptedAnnouncement),
+  'Source Shadow Mist must have an accepted announcement');
+  assert.equal(conkeldurr.damageTakenLastTurn, history);
+  assert.equal(f.defender.active.damage, 0);
+});
