@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),path=require('node:path');
 const {initializeCards}=require('./headless.cjs');
 const load=n=>require(path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output',n));
-function run(){
+function run(choice='special'){
  const m=initializeCards(),card=n=>{const c=m.getCardByName(n);assert.ok(c,n);return c};
  const {Store}=load('game/store/store'),{Player}=load('game/store/state/player');
  const {GamePhase}=load('game/store/state/state');
@@ -22,10 +22,11 @@ function run(){
  s.reduceEffect(z,new EndTurnEffect(p));
  const q=z.prompts.find(x=>x.result===undefined&&x.constructor.name==='AttachEnergyPrompt');
  assert.ok(q,'Powerglass prompt absent');
- const result=[{card:special,to:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0}}];
+ const selected=choice==='special'?special:basic;
+ const result=[{card:selected,to:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0}}];
  const validates=q.validate(result,z);
  s.dispatch(new ResolvePromptAction(q.id,result));
- return {validates,attachedSpecial:p.active.energies.cards.includes(special),activeCards:p.active.cards.map(c=>c.fullName),energies:p.active.energies.cards.map(c=>c.fullName),discard:p.discard.cards.map(c=>c.fullName),opponentEnergies:o.active.energies.cards.map(c=>c.fullName),promptResultCount:q.result?.length ?? null};
+ return {choice,validates,attachedSelected:p.active.energies.cards.includes(selected),attachedSpecial:p.active.energies.cards.includes(special),activeCards:p.active.cards.map(c=>c.fullName),energies:p.active.energies.cards.map(c=>c.fullName),discard:p.discard.cards.map(c=>c.fullName),opponentEnergies:o.active.energies.cards.map(c=>c.fullName),promptResultCount:q.result?.length ?? null};
 }
 if(require.main===module)console.log(JSON.stringify(run(),null,2));
 module.exports={run};
