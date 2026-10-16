@@ -70,17 +70,22 @@ function probe(options) {
   const item = card('Switch SVI');
   owner.hand.cards.push(faba,item);
   if (options.supporterSpent) owner.supporterTurn=state.turn;
+  // Failed Store.dispatch may restore a cloned State. Reacquire all live
+  // references after every attempted action, including denied Supporters.
+  const currentState=()=>store.state;
+  const currentOwner=()=>currentState().players.find(p=>p.id===owner.id);
+  const currentOpponent=()=>currentState().players.find(p=>p.id===opponent.id);
   /** @param {any} targetCard @param {any} target */
   const play = (targetCard,target) => {
     let error=null;
     try {
-      const i=owner.hand.cards.indexOf(targetCard);
+      const i=currentOwner().hand.cards.findIndex(c=>c.id===targetCard.id);
       assert.ok(i>=0,'Card must be in hand before attempted action');
       store.dispatch(new PlayCardAction(owner.id,i,target));
     } catch(e) {error=e.message;}
     return error;
   };
-  const pending = () => state.prompts.find(p=>p.result===undefined);
+  const pending = () => currentState().prompts.find(p=>p.result===undefined);
   /** @param {any} result */
   const answer = result => {
     const prompt=pending();
@@ -98,19 +103,19 @@ function probe(options) {
     answer(0); // Only opposing Tool is a legal Faba target.
     const choose=pending();
     assert.equal(choose?.constructor.name,'ChoosePokemonPrompt');
-    assert.equal(choose.validate([trash],state),true);
+    assert.equal(choose.validate([currentOpponent().bench[0]],currentState()),true);
     promptNames.push(choose.constructor.name);
-    answer([trash]);
+    answer([currentOpponent().bench[0]]);
     assert.equal(pending(),undefined,'Faba target resolution must finish');
   }
-  const fabaInHand=owner.hand.cards.includes(faba);
-  const toolInLostZone=opponent.lostzone.cards.includes(tool);
-  const toolStillOnGarbodor=trash.tools.includes(tool);
+  const fabaInHand=currentOwner().hand.cards.some(c=>c.id===faba.id);
+  const toolInLostZone=currentOpponent().lostzone.cards.some(c=>c.id===tool.id);
+  const toolStillOnGarbodor=currentOpponent().bench[0].tools.some(c=>c.id===tool.id);
   const switchError=play(item,switchTarget);
   return {...options,fabaError,promptNames,fabaInHand,toolInLostZone,
-    toolStillOnGarbodor,supporterTurn:owner.supporterTurn,
+    toolStillOnGarbodor,supporterTurn:currentOwner().supporterTurn,
     switchError,switchPrompt:pending()?.constructor.name||null,
-    itemInHand:owner.hand.cards.includes(item)};
+    itemInHand:currentOwner().hand.cards.some(c=>c.id===item.id)};
 }
 
 /** @returns {object} Two-seat temporal intervention matrix. */
