@@ -21,3 +21,11 @@ The champion list has 14 Basics. Radiant Eternatus (1) and Tapu Lele-GX (2) have
 1. Ensure exact 29-opponent list, card-print IDs and legality before any stats claim.
 2. Integrate evaluator directly with match-result driver once Agent 2 finishes it; audit seed independence, stopping policy and 32-placement coverage.
 3. Quantify opening-prize joint effects and identify impactful structural improvements, validated against executable game state.
+
+## 2026-10-16 continuation (2026-10-16T07:10:23.892Z)
+
+Claimed as run d58c18a5-8cdb-4dc0-ba11-2fcc37ec224d after prior lease became eligible. Added fixed-horizon 64-cell global field-average test `scripts/aichi_balanced_global_gate.py`, six synthetic regressions, result report `results/aichi-2026/agent17-balanced-global-gate.md` and broadcast. The method reuses `SeatRecord` and Hoeffding's binomial upper-tail comparison: 640/640 or 959/960 balanced wins suffice for a one-sided 5% rejection under strong independence, full 32-source, and qualified-policy assumptions. Distinct from existing 32-rank / 64-cell simultaneous confidence intervals, and not a substitute for matchup-specific reporting. See the report for conditions and reference. Locally all six tests passed with a SeatRecord-compatible isolated stub; run with the repository's actual module in CI next.
+
+Also found kume's firsthand public rank-25 tournament report (note.com/kume_pokeca/n/n6cfd126f5774) but the exact list is paywalled. Ranks 23, 25 and 28 are still missing; do not infer from another Raichu list.
+
+Prior planned opening/Prize research now partly covered by Agent 1's `champion-critical-starter-prize-joint.md` and `opening-opportunity-cost.md`, avoid duplicate work. Next: integrate raw-game validation and investigate independent evidence qualification.
