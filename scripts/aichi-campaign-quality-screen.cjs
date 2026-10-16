@@ -45,6 +45,9 @@ function auditCampaignQuality(archive) {
   // has been qualified for representative full-match inference.
   const simulatorSafetyStatus = experimentalClone ?
     'experimental-clone-not-qualified' : 'known-simulator-card-alias-risk';
+  // Report a stable trial blocker independent of the diagnostic profile name.
+  const simulatorSafetyBlocker = experimentalClone ?
+    'experimental-clone-not-qualified' : 'unvalidated-simulator-alias';
   const candidates = new Map(archive.candidateRows.map(row => [row.id, row.deckDigest]));
   const ranks = new Set(archive.selectedPilotRanks);
   const ids = new Set();
@@ -129,7 +132,7 @@ function auditCampaignQuality(archive) {
     }
     opponentDigests.set(record.opponentRank, record.opponentDigest);
     ids.add(record.trialId);
-    const reasons = [simulatorSafetyStatus];
+    const reasons = [simulatorSafetyBlocker];
     if (record.status !== 'completed-engine-game') {
       reasons.push('engine-status:' + record.status);
     }
@@ -183,6 +186,7 @@ function auditCampaignQuality(archive) {
       researchPolicyProfile: profile,
       simulatorCloneProfile,
       simulatorSafetyStatus,
+      simulatorSafetyBlocker,
       engineSlot: record.candidateEngineSlot,
       actualTurn,
       status: record.status,
@@ -244,6 +248,7 @@ function auditCampaignQuality(archive) {
     researchPolicyProfile: profile,
     simulatorCloneProfile,
     simulatorSafetyStatus,
+    simulatorSafetyBlocker,
     simulatorSafetyQualified: false,
     selectedPilotRanks: archive.selectedPilotRanks,
     totalTrials: rows.length,
