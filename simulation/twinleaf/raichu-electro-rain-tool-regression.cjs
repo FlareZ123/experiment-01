@@ -75,14 +75,27 @@ function electroRainVsBenchedV(toolAttached) {
 }
 
 function verify() {
+  const {withElectroRainDamageHook} = require('./electro-rain-damage-hook.cjs');
+  const {Store} = load('game/store/store');
+  const originalReducer = Store.prototype.reduceEffect;
   const withoutTool = electroRainVsBenchedV(false);
   const withTool = electroRainVsBenchedV(true);
+  const correctedWithTool = withElectroRainDamageHook(() => electroRainVsBenchedV(true));
+  const correctedWithoutTool = withElectroRainDamageHook(() => electroRainVsBenchedV(false));
+  assert.equal(Store.prototype.reduceEffect, originalReducer,
+    'Experimental research hook must restore the vendor reducer exactly');
   assert.equal(withoutTool.activeTargetDamage, 0);
   assert.equal(withoutTool.benchedVTargetDamage, 30);
   assert.equal(withoutTool.discardedUnitEnergy, true);
   assert.equal(withTool.discardedUnitEnergy, true);
   assert.equal(withTool.benchedVTargetDamage, 30,
     'Pinned engine behavioral characterization changed: review the Telescopic Sight bug');
+  assert.equal(correctedWithTool.benchedVTargetDamage, 60,
+    'Scoped research hook must restore the printed Telescopic Sight bonus');
+  assert.equal(correctedWithoutTool.benchedVTargetDamage, 30,
+    'Scoped research hook must preserve Electro Rain base damage without a Tool');
+  assert.equal(electroRainVsBenchedV(true).benchedVTargetDamage, 30,
+    'Research hook restoration must recover original pinned behavior');
   return {
     scope: 'one attached source-legal Unit LPM, 30-damage Electro Rain onto Benched V',
     engine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
@@ -90,6 +103,8 @@ function verify() {
     unpatchedEngineDamageWithSight: withTool.benchedVTargetDamage,
     withoutTool,
     withTool,
+    correctedWithTool,
+    correctedWithoutTool,
     note: 'Conditional engine action only, not evidence of matchup wins'
   };
 }
