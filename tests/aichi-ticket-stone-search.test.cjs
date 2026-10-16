@@ -26,3 +26,5 @@ function enumerate(n,b,h,q){
  visit();
  return [one,t,s,v].map(x=>x/legal);
 }
+
+test('physical miniature deal audit',()=>{ const a=ticketStoneCrobat(9,2,2,2),b=enumerate(9,2,2,2); assert.ok(Math.abs(a.directRoute-b.reduce((x,y)=>x+y,0))<1e-12); });
