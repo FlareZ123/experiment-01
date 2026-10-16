@@ -23,16 +23,21 @@ test('headless Mimikyu hooks opt in, report policy and restore prototypes', () =
     mimikyuApexCopycatCompatibility: true,
     mimikyuDeclaredHistoryCorrection: true,
     regidragoDeclaredHistoryCorrection: true,
-    passClearsLastAttackCorrection: true
+    passClearsLastAttackCorrection: true,
+    mimikyuApexTimelessPolicy: true,
+    mimikyuApexTimelessPolicySeat: 0
   });
   assert.equal(hooked.mimikyuApexCopycatCompatibility, true);
   assert.equal(hooked.mimikyuDeclaredHistoryCorrection, true);
   assert.equal(hooked.regidragoDeclaredHistoryCorrection, true);
   assert.equal(hooked.passClearsLastAttackCorrection, true);
+  assert.equal(hooked.mimikyuApexTimelessPolicy, true);
+  assert.equal(hooked.mimikyuApexTimelessPolicySeat, 0);
   assert.match(hooked.policy, /MimikyuNonGXCopyApex-v1/);
   assert.match(hooked.policy, /MimikyuDeclaredHistory-v1/);
   assert.match(hooked.policy, /RegidragoDeclaredHistory-v1/);
   assert.match(hooked.policy, /PassClearsLastAttack-v1/);
+  assert.match(hooked.policy, /MimikyuApexTimelessCounterPolicy-v1/);
   assert.equal(Store.prototype.dispatch, originalDispatch);
   assert.equal(Mimikyu.prototype.reduceEffect, originalReduce);
 
@@ -41,6 +46,13 @@ test('headless Mimikyu hooks opt in, report policy and restore prototypes', () =
   assert.equal(baseline.mimikyuDeclaredHistoryCorrection, false);
   assert.equal(baseline.regidragoDeclaredHistoryCorrection, false);
   assert.equal(baseline.passClearsLastAttackCorrection, false);
+  assert.equal(baseline.mimikyuApexTimelessPolicy, false);
+  assert.equal(baseline.mimikyuApexTimelessPolicySeat, null);
   assert.equal(Store.prototype.dispatch, originalDispatch);
   assert.equal(Mimikyu.prototype.reduceEffect, originalReduce);
+
+  assert.throws(() => runMatch({ ...common, mimikyuApexTimelessPolicy: true }),
+    /requires all four rule-history corrections/);
+  assert.throws(() => runMatch({ ...common, mimikyuApexTimelessPolicySeat: 1 }),
+    /seat requires enabled Copycat counterpolicy/);
 });
