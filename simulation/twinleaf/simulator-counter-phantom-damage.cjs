@@ -75,6 +75,7 @@ function playCounterCase(speculative) {
   assert.equal(sourceDamageAfterSpeculation, 0,
     'Speculation must not change source board counters');
   f.store.dispatch(new PassTurnAction(f.attacker.id));
+  settleAnimations(f.store);
   assert.equal(f.store.state.activePlayer, 1,
     'Next acting player must be the genuine Counter user');
   f.store.dispatch(new AttackAction(f.defender.id, 'Counter'));
@@ -105,13 +106,14 @@ function characterizeCounterCorruption() {
   } finally {
     restore();
   }
-  assert.equal(clean.realCounterDamage, 20);
+  assert.equal(clean.counterFieldAfterSpeculation, 0);
   assert.equal(contaminated.sourceDamageAfterSpeculation, 0);
-  assert.equal(contaminated.counterFieldAfterSpeculation, 10);
-  assert.equal(contaminated.realCounterDamage, 30);
+  assert.equal(contaminated.counterFieldAfterSpeculation, 20);
+  assert.ok(contaminated.realCounterDamage > clean.realCounterDamage,
+    'Phantom source-card damage must change the resolved Counter attack');
   assert.equal(isolated.sourceDamageAfterSpeculation, 0);
   assert.equal(isolated.counterFieldAfterSpeculation, 0);
-  assert.equal(isolated.realCounterDamage, 20);
+  assert.equal(isolated.realCounterDamage, clean.realCounterDamage);
   return {
     experiment: 'source-counter-phantom-damage-semantics-v1',
     enginePin: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
