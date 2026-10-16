@@ -2,6 +2,12 @@ name: Aichi bounded engine gameplay
 
 on:
   workflow_dispatch:
+    inputs:
+      shadow_rider_energy_priority:
+        description: 'Opt-in experimental Psychic attachment counterpolicy for Iron Thorns'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -20,7 +26,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify terminal-transition and campaign regressions
-        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/aichi-campaign-execute.test.cjs tests/decision-hand-evidence.test.cjs
+        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-campaign-execute.test.cjs tests/decision-hand-evidence.test.cjs
       - name: Install engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -32,6 +38,7 @@ jobs:
       - name: Run fixed-plan three-candidate rank-6 diagnostic
         env:
           AICHI_DIAGNOSTIC_RANKS: '6'
+          AICHI_SHADOW_ENERGY: ${{ inputs.shadow_rider_energy_priority && '1' || '0' }}
         run: node simulation/evaluation/aichi-campaign-execute.cjs > aichi-campaign-diagnostic.json
       - name: Preserve bounded diagnostic records
         if: always()
