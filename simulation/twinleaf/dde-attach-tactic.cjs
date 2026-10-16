@@ -60,30 +60,45 @@ function makeDoubleDragonAttachTactic() {
       const benchPositions=player.bench.map((_,index)=>({
         player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index
       }));
-      // Source-verified priority counterexample: if Active Regidrago VSTAR
-      // already covers Apex Dragon's printed cost, preserve the attachment
-      // for an available Benched Dragon before considering the Active.
+      // Matchup-specific attacker hierarchy. Copy-payload Dragons such as
+      // Kyurem and Dialga remain eligible once unpowered Regidrago lines are
+      // considered. VSTAR targets already paying printed Apex are lower tier.
       let reserveForBench=false;
-      const active=player.active.getPokemonCard();
-      if(active?.name==='Regidrago VSTAR' && active.set==='SIT' &&
-          benchPositions.some((_,i)=>
-            player.bench[i].getPokemonCard()?.cardType.includes(CardType.DRAGON))) {
-        try {
-          const sim=new Simulator(state,this.options.arbiter);
-          const self=sim.store.state.players.find(p=>p.id===player.id);
-          const check=new CheckProvidedEnergyEffect(self,self.active);
+      const benchTiers=benchPositions.map(target=>{
+        const pokemon=player.bench[target.index].getPokemonCard();
+        if(pokemon?.name==='Regidrago VSTAR'&&pokemon.set==='SIT')return 0;
+        if(pokemon?.name==='Regidrago V'&&pokemon.set==='SIT')return 1;
+        return 2;
+      });
+      const hasDragon=benchPositions.some(target=>
+        player.bench[target.index].getPokemonCard()?.cardType.includes(CardType.DRAGON));
+      try {
+        const sim=new Simulator(state,this.options.arbiter);
+        const self=sim.store.state.players.find(p=>p.id===player.id);
+        const hasPrintedApex=(slot)=>{
+          const check=new CheckProvidedEnergyEffect(self,slot);
           sim.store.reduceEffect(sim.store.state,check);
-          const attached=new Set(self.active.energies.cards);
+          const attached=new Set(slot.energies.cards);
           const supplied=check.energyMap.filter(row=>attached.has(row.card))
             .flatMap(row=>row.provides);
-          reserveForBench=coversPrintedApexCost(supplied,CardType);
-        } catch {
-          reserveForBench=false;
-        }
+          return coversPrintedApexCost(supplied,CardType);
+        };
+        const active=self.active.getPokemonCard();
+        if(hasDragon&&active?.name==='Regidrago VSTAR'&&active.set==='SIT')
+          reserveForBench=hasPrintedApex(self.active);
+        benchPositions.forEach((target,i)=>{
+          const pokemon=self.bench[target.index].getPokemonCard();
+          if(pokemon?.name==='Regidrago VSTAR'&&pokemon.set==='SIT'&&
+              hasPrintedApex(self.bench[target.index]))benchTiers[i]=3;
+        });
+      } catch {
+        reserveForBench=false;
       }
+      const orderedBench=benchPositions.slice().sort((a,b)=>
+        benchTiers[a.index]-benchTiers[b.index]);
       const positions=reserveForBench
-        ? [...benchPositions,activePosition]
-        : [activePosition,...benchPositions];
+        ? [...orderedBench,activePosition]
+        : [activePosition,...orderedBench];
       for(const target of positions) {
         const action=new PlayCardAction(player.id,handIndex,target);
         try {
