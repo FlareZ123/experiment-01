@@ -57,6 +57,15 @@ These are first-person planning claims. The guide's AI-assisted consistency perc
 - An independent Python combinations enumeration confirmed **14** for five cards, **16** for six, and **10+6** packets for the two hypothetical targets.
 - The existing [manual benchmark statistics workflow](../../.github/workflows/aichi-benchmark-stats.yml) has been extended to run the new tests. **[Manual CI 38867613738](https://github.com/FlareZ123/experiment-01/actions/runs/38867613738) passed** at code revision b4e6fc78af63af6bcae4dba745576b14861d2384. The workflow does not trigger on ordinary commits.
 
+## Two separate pinned-engine confirmations
+
+Both checks use the pinned Twinleaf engine revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` and a reversible research-side Electro Rain damage-classification correction. These are controlled, directly staged boards rather than actual source-list games.
+
+1. [Mixed-Bench attack regression CI 38868627181](https://github.com/FlareZ123/experiment-01/actions/runs/38868627181) passed. The [script](../../simulation/twinleaf/raichu-six-energy-prize-regression.cjs) executed actual Store `AttackAction` and Prize prompts: a five-card, 14-unit scenario Knocked Out VMAX for three Prizes and left V alive; the six-card, 16-unit scenario Knocked Out both for five Prizes. The six Energy cards were directly injected as attached prerequisites.
+2. [Normal attachment plus Electrode-GX activation CI 38868945233](https://github.com/FlareZ123/experiment-01/actions/runs/38868945233) passed. The [script](../../simulation/twinleaf/raichu-manual-plus-bomb-setup.cjs) executed an actual `PlayCardAction` attaching Reversal Energy from hand, then `UseAbilityAction` with five transferred Energy cards from discard, and resolved Electrode's self-KO and the opponent's two-Prize award. The staged attacker held six **distinct physical Energy cards**, providing 16 rainbow units in its verified 6-to-4 remaining-Prize state. The required Stage 1 and discard resources were pre-established.
+
+A [single-state integration](../../simulation/twinleaf/raichu-manual-bomb-attack-sequence.cjs) is separately testable and pending its combined workflow result. Successful separate actions do not by themselves prove full-game turn feasibility or strong policy sequencing.
+
 ## Priority next steps
 
 1. In pinned Twinleaf, stage an actual hand attachment and **exactly one** Extra Energy Bomb. Verify the Prize deficit after Electrode-GX's self-KO and six attached cards providing sixteen Lightning units at attack time.
