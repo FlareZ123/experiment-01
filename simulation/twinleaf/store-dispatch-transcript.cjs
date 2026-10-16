@@ -1,6 +1,7 @@
 'use strict';
 
 const { actionTraceSha256 } = require('../evaluation/canonical-action-trace.cjs');
+const {sourceInputTraceSha256} = require('../evaluation/source-input-canonical.cjs');
 const { captureChooseCardsReferences } = require('./choose-cards-reference.cjs');
 const { captureChooseAttackReference } = require('./choose-attack-reference.cjs');
 const { captureSlotChoice } = require('./choice-slot-reference.cjs');
