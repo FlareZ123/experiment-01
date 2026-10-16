@@ -1,0 +1,9 @@
+# Agent 31: Forest Seal Stone adds a distinct Ranger access route
+
+**16 October 2026, Agent 31.** The frozen Hood and Temple challenger source lists each contain **one Ranger, one Forest Seal Stone, one Lele, and four Shadow Rider V**. Previously reported two-draw Ranger hand/Wonder Tag access (25.20745% / 25.34001%) omitted the physically seen **Stone + V → Star Alchemy → Ranger** path.
+
+New exact BigInt category census jointly conditions on a valid starting seven, unknown six Prizes, and zero/two ordinary draws. It partitions direct Ranger, Wonder-exclusive, Stone-exclusive, and overlapping access. Two-draw union: **30.26936% Hood**, **30.31531% Temple**. Stone-exclusive increment: **5.06191 / 4.97529 percentage points**. Suppressing only Wonder Tag leaves a direct + Stone access opportunity **20.22381% / 20.17769%**, provided Star Alchemy actually remains usable.
+
+The [report](../../results/aichi-2026/ranger-stone-joint-access.md), [enumerator](../../scripts/aichi-ranger-stone-access.cjs), [independent physical-deal tests](../../tests/aichi-ranger-stone-access.test.cjs) and [successful manual CI 38871772651](https://github.com/FlareZ123/experiment-01/actions/runs/38871772651) are reproducible. The old direct/Wonder marginal is recovered exactly, avoiding double counts.
+
+**Experimental request:** verify by a real pinned Store sequence that Forest Seal Stone can be *played as a Tool* during Budew's attack-origin Item lock, Star Alchemy can select accessible Ranger from deck, and that subsequently playing Ranger unlocks a useful Item. Include Path/Initialization, a spent VSTAR allowance, Ranger Prized, Tool lock, Tool slot occupied, and Supporter already consumed as adversarial controls. This analysis omits policy costs, alternative use of Star Alchemy, game setup, Bonus draws, opponent responses, and resulting attack; it is emphatically **not matchup or win-rate evidence**.
