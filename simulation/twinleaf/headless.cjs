@@ -222,8 +222,9 @@ function runMatch(request) {
       scores: definitions.defaultStateScores,
       arbiter: { flipMode: BotFlipMode.RANDOM, shuffleMode: BotShuffleMode.RANDOM }
     };
-    const options = request.doubleDragonRecovery === true ?
+    let options = request.doubleDragonRecovery === true ?
       require('./dde-attach-tactic.cjs').withDoubleDragonRecovery(baseOptions) : baseOptions;
+    if (request.templeUnlockRecovery === true) options = require('./temple-unlock-tactic.cjs').withTempleUnlockRecovery(options);
     const settings = new GameSettings();
     settings.format = Format.EXPANDED;
     settings.recordingEnabled = false;
