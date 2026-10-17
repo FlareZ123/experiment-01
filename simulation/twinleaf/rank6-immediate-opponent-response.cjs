@@ -9,7 +9,7 @@ const {Store}=require(path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
 const {withAcerolaPublicObserver} =
   require('./rank6-acerola-public-observer.cjs');
-const {withSourceOpeningProbe} = require('./rank6-seed-opening-probe.cjs');
+const {withSourceOpeningProbe,signature} = require('./rank6-seed-opening-probe.cjs');
 const {withGuzmaHalaSourceFork,withDamageObserver} =
   require('./rank6-seed-guzma-hala-fork.cjs');
 const {publicTurnLedger,responseTurnEndingActionObserved} =
@@ -62,6 +62,9 @@ function main() {
     ()=>withSourceOpeningProbe(()=>runMatch(request)));
   const baseline=originalObservation.result;
   assert.equal(originalObservation.pending,false);
+  const unobservedBaseline=withSourceOpeningProbe(()=>runMatch(request));
+  assert.equal(signature(baseline.out),signature(unobservedBaseline.out),
+    'Read-only Acerola observer changed full deterministic baseline game');
   assert.equal(baseline.out.firstTurnSlot,0);
   assert.ok(baseline.observed?.hand);
   const observedFingerprint=digest({
@@ -81,6 +84,13 @@ function main() {
         ()=>withDamageObserver(()=>runMatch(request)),pair)));
     const branched=sourceObservation.result;
     assert.equal(sourceObservation.pending,false);
+    const unobservedFork=withSourceOpeningProbe(()=>withGuzmaHalaSourceFork(
+      ()=>withDamageObserver(()=>runMatch(request)),pair));
+    assert.equal(signature(branched.out.result.result),
+      signature(unobservedFork.out.result.result),
+      'Read-only Acerola observer changed source fork game: '+label);
+    assert.deepEqual(branched.observed?.hand,unobservedFork.observed?.hand);
+    assert.deepEqual(branched.observed?.prizes,unobservedFork.observed?.prizes);
     assert.deepEqual(branched.observed?.hand,baseline.observed.hand,
       'Fork changed physical opening hand');
     assert.deepEqual(branched.observed?.prizes,baseline.observed.prizes,
@@ -114,6 +124,8 @@ function main() {
     options:Object.fromEntries(Object.entries(request).filter(([key])=>
       key!=='deckA' && key!=='deckB')),
     rows:all,
+    observerNoninterferenceFullDeterministicSignaturePassed:true,
+    observerComparedIdenticalSourcePairs:3,
     interpretation:'One exact source deal, two alternative discard payments, and an observed next opponent turn. All subsequent bot policy remains unqualified.',
     sourceReplayMechanicsVerified:false,
     qualifiedForCompetitiveInference:false
