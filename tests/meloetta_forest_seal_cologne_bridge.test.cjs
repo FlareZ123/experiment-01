@@ -148,3 +148,64 @@ test('Stone on source Crobat V finds Cologne under active Iron Thorns and enable
 test('Stone on source Crobat V finds Cologne under active Klefki and enables firstturn Meloetta attack',()=>{
   assertForestSealToCologneToCrisis('Klefki SVI');
 });
+
+/**
+ * Order Pad is an additional source-inventory Item search channel under
+ * Pokémon Ability lock. Heads fetches a live-deck Cologne; tails cannot.
+ * Coin result is explicitly controlled rather than presented as probability.
+ * @param {string} printing
+ * @param {boolean} heads
+ */
+function assertOrderPadToCologne(printing,heads) {
+  const f=setup(printing);
+  const pad=initializeCards().getCardByName('Order Pad UPR');
+  assert.ok(pad,'Missing source Order Pad');
+  f.attacker.hand.cards.push(pad);
+  play(f,pad,board);
+  const coin=pending(f);
+  assert.equal(coin?.constructor.name,'CoinFlipPrompt');
+  f.store.dispatch(new ResolvePromptAction(coin.id,heads));
+  if(!heads) {
+    assert.equal(pending(f),undefined);
+    assert.equal(f.attacker.hand.cards.includes(f.cologne),false);
+    assert.equal(f.attacker.deck.cards.includes(f.cologne),true);
+    return;
+  }
+  const choose=pending(f);
+  assert.equal(choose?.constructor.name,'ChooseCardsPrompt');
+  assert.equal(choose.validate([f.cologne]),true);
+  f.store.dispatch(new ResolvePromptAction(choose.id,[f.cologne]));
+
+  for(let i=0;i<8&&pending(f);i++) {
+    const p=pending(f);
+    if(p.constructor.name==='ShowCardsPrompt') {
+      f.store.dispatch(new ResolvePromptAction(p.id,null));
+    } else if(p.constructor.name==='ShuffleDeckPrompt') {
+      const order=f.attacker.deck.cards.map((_,index)=>index);
+      f.store.dispatch(new ResolvePromptAction(p.id,order));
+    } else {
+      assert.fail('Unexpected source Order Pad prompt: '+p.constructor.name);
+    }
+  }
+  assert.equal(pending(f),undefined);
+  assert.equal(f.attacker.hand.cards.includes(f.cologne),true);
+  play(f,f.cologne,board);
+  play(f,f.dce,active);
+  play(f,f.crisis,active);
+  f.store.dispatch(new AttackAction(f.attacker.id,'Crisis Punch'));
+  resolveWaits(f);
+  assert.equal(f.state.phase,GamePhase.FINISHED);
+  assert.equal(f.state.winner,GameWinner.PLAYER_1);
+}
+
+test('Order Pad heads retrieves Cologne under Iron Thorns and unlocks firstturn Meloetta',()=>{
+  assertOrderPadToCologne('Iron Thorns ex TWM',true);
+});
+
+test('Order Pad heads retrieves Cologne under Klefki and unlocks firstturn Meloetta',()=>{
+  assertOrderPadToCologne('Klefki SVI',true);
+});
+
+test('Order Pad tails cannot retrieve Cologne through coin-dependent Item search',()=>{
+  assertOrderPadToCologne('Iron Thorns ex TWM',false);
+});
