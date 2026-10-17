@@ -61,6 +61,10 @@ function probe(useCorrection=false,resolveEmpty=false,resolveOne=false) {
     }
     report.deckSizeAfter=a.deck.cards.length;
     report.discardedItem=a.discard.cards.some(c=>c.name==='Battle Compressor');
+    report.pendingPromptsAfterSelection=state.prompts.filter(prompt =>
+      prompt.result === undefined).map(prompt => prompt.constructor.name);
+    report.itemStillInSupporterZone=a.supporter.cards.some(
+      card => card.name === 'Battle Compressor');
   }
   return report;
   } finally {restore();}
