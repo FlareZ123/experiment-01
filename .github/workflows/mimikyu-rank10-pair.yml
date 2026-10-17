@@ -2,6 +2,12 @@ name: Aichi rank-10 Mimikyu Copycat paired diagnostic
 
 on:
   workflow_dispatch:
+    inputs:
+      run_extra_shred_policy:
+        description: 'Run experimental Agent 28 full-game Shred bot policy fork'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -71,11 +77,13 @@ jobs:
           path: rank10-copycat-paired.json
           if-no-files-found: warn
       - name: Run source-locked rank-10 turn28 Shred counterfactual
+        if: ${{ inputs.run_extra_shred_policy }}
         run: node simulation/twinleaf/rank10-extra-turn-shred-fork.cjs > rank10-turn28-shred-fork.json
       - name: Print bounded Shred source-game verdict
+        if: ${{ inputs.run_extra_shred_policy }}
         run: node -e "const x=require('./rank10-turn28-shred-fork.json'); console.log(JSON.stringify({trial:x.trial.id,unchangedPrefix:x.unchangedSourceSetupThroughTurn28,copycat:x.observedSourceCopycatTurn28,twoPrize:x.observedTwoPrizePickupAfterTurn28,control:x.control.prizesRemaining,alternative:x.experimental.prizesRemaining,qualified:x.qualifiedForCompetitiveInference}));"
       - name: Preserve conditional Shred full-game observations
-        if: always()
+        if: ${{ always() && inputs.run_extra_shred_policy }}
         uses: actions/upload-artifact@v4
         with:
           name: rank10-turn28-shred-fork
