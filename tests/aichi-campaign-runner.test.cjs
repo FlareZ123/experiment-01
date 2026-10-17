@@ -54,6 +54,11 @@ function finished(request) {
   const firstTurnSlot = 0;
   return {
     finished: true, winner: 0, seed: request.seed, endReason: 'engine-game-end',
+    forestSealSearchCorrection: request.forestSealSearchCorrection === true,
+    doubleDragonRecovery: request.doubleDragonRecovery === true,
+    supporterDecisionCorrection: request.supporterDecisionCorrection === true,
+    attachedToolPowerPolicy: request.attachedToolPowerPolicy === true,
+    postSuperAliasRepairIsolation: request.postSuperAliasRepairIsolation === true,
     verifiedByDrawLog: true, firstTurnSlot,
     firstTurnPlayerId: 101, firstTurnPlayerName: 'research-A',
     firstDrawLogName: 'research-A',
@@ -213,6 +218,51 @@ test('scheduled decks, seeds and fixed validation cannot be overridden', () => {
   assert.equal(withKnownFlag.records[0].status, 'completed');
   assert.equal(withKnownFlag.records[0].effectiveMatchOptions.doubleDragonRecovery, true);
   assert.equal(withKnownFlag.records[0].observedSeed, withKnownFlag.records[0].seed);
+});
+
+test('fixed source campaign rejects unverified and false Tool Power policy echoes', () => {
+  const f=fixture();
+  const matchOptions={attachedToolPowerPolicy:true};
+  const accepted=executeCampaign(f,{
+    maxTrials:1,prepareCandidate:prepare,matchOptions,
+    runMatch: request => finished(request)
+  });
+  assert.equal(accepted.records[0].status,'completed');
+  assert.equal(accepted.records[0].requestedMatchOptions.attachedToolPowerPolicy,true);
+  assert.equal(accepted.records[0].effectiveMatchOptions.attachedToolPowerPolicy,true);
+  for(const corrupt of [false,undefined]) {
+    const rejected=executeCampaign(f,{
+      maxTrials:1,prepareCandidate:prepare,matchOptions,
+      runMatch(request){
+        const game=finished(request);
+        if(corrupt===undefined) delete game.attachedToolPowerPolicy;
+        else game.attachedToolPowerPolicy=corrupt;
+        return game;
+      }
+    });
+    assert.equal(rejected.records[0].status,'match-policy-echo-mismatch');
+    assert.equal(rejected.records[0].winner,null);
+    assert.equal(rejected.records[0].effectiveMatchOptions.attachedToolPowerPolicy,
+      corrupt===undefined?null:corrupt);
+  }
+});
+
+test('requested source policy correction cannot be inferred from runner input', () => {
+  const f=fixture();
+  for (const key of ['forestSealSearchCorrection','doubleDragonRecovery',
+    'supporterDecisionCorrection']) {
+    const requested=executeCampaign(f,{
+      maxTrials:1,prepareCandidate:prepare,matchOptions:{[key]:true},
+      runMatch(request){
+        const game=finished(request);
+        delete game[key];
+        return game;
+      }
+    });
+    assert.equal(requested.records[0].status,'match-policy-echo-mismatch');
+    assert.equal(requested.records[0].effectiveMatchOptions[key],null);
+    assert.equal(requested.records[0].winner,null);
+  }
 });
 
 test('exact source mirror exposes paired-slot pseudoreplication key', () => {
