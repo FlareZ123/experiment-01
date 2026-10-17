@@ -123,7 +123,8 @@ function runCase(count, noRecipient = false, useBot = false, availableCount = 5,
     chainedDamage=benchTarget.damage;
   }
   return {
-    count,noRecipient,useBot,availableCount,transferred:transfers.length,
+    count,noRecipient,useBot,availableCount,chainAttack,chainedDamage,energyMapAfterBomb,
+    transferred:transfers.length,
     promptAccepted,min:prompt.options.min,max:prompt.options.max,
     remainingEnergy:f.a.discard.cards.filter(card => candidates.includes(card)).length,
     opponentPrizesTaken:before-f.b.getPrizeLeft(),
