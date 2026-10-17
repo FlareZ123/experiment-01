@@ -28,6 +28,11 @@ function requireCompleteRank10Replay(report) {
       finding.verifiedDispatches >= 3, arm+' replay has no complete dispatches');
     assert.equal(finding.verifiedDispatches, finding.sourceActions,
       arm+' replay stopped before the final action');
+    assert.equal(finding.graphVerifiedDispatches, finding.sourceActions,
+      arm+' Store data-graph checks lack full dispatch coverage');
+    assert.equal(finding.storeDataGraphContract,
+      'live-store-data-graph-except-logs-v1',
+      arm+' Store data-graph contract changed or was not recorded');
     verified.push({arm, dispatches:finding.verifiedDispatches});
   }
   return verified;
@@ -38,7 +43,7 @@ if (require.main === module) {
   assert.ok(filename, 'Pass the fresh-process source replay JSON path');
   const report = JSON.parse(fs.readFileSync(filename, 'utf8'));
   process.stdout.write(JSON.stringify({
-    status:'source-input-replay-complete-only',
+    status:'source-input-and-store-data-graph-replay-complete-only',
     verified:requireCompleteRank10Replay(report),
     competitiveInferenceQualified:false,
     sourceReplayMechanicsVerified:false
