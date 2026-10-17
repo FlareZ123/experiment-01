@@ -35,6 +35,8 @@ jobs:
         run: node simulation/twinleaf/new-moon-native-opening-fixed-source-proof.cjs > new-moon-native-opening-fixed-source-proof.json
       - name: Independently audit rank6 locked reply and printed Poltergeist arithmetic
         run: node simulation/twinleaf/new-moon-rank6-opponent-reply-audit.cjs > new-moon-rank6-opponent-reply-audit.json
+      - name: Fork real rank6 opponent turn5 to visible Lillie Supporter
+        run: node simulation/twinleaf/new-moon-rank6-lillie-turn5-fork.cjs > new-moon-rank6-turn5-lillie-fork.json
       - name: Contrast exact native opener under pinned and repaired Simulator profiles
         run: node simulation/twinleaf/new-moon-native-opening-clone-profile-contrast.cjs > new-moon-native-opening-clone-profile.json
       - name: Preserve source-seed and opponent-response diagnostic
@@ -45,4 +47,5 @@ jobs:
             new-moon-native-opening-fixed-source-proof.json
             new-moon-native-opening-clone-profile.json
             new-moon-rank6-opponent-reply-audit.json
+            new-moon-rank6-turn5-lillie-fork.json
           retention-days: 14
