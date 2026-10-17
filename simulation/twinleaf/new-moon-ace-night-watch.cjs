@@ -27,7 +27,7 @@ function sourceSecondTurn() {
  for(let i=0;i<3;i++){
   const e=card('Psychic Energy MEE');me.active.cards.push(e);me.active.energies.cards.push(e);
  }
- const dusk=card('Duskull SFA'),dusclops=card('Dusclops SFA');
+ const dusk=card('Duskull VIV'),dusclops=card('Dusclops SFA');
  const stack=new PokemonCardList();stack.cards.push(dusk,dusclops);me.bench.push(stack);
  for(const n of ['Solrock CES','Lunatone OBF']){
   const b=new PokemonCardList();b.cards.push(card(n));me.bench.push(b);
