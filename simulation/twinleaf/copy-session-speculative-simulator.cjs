@@ -17,7 +17,7 @@ const load = name => require(path.join(output, name));
  * Pokemon reducer is instrumented to record when session delegation occurs.
  *
  * @param {'control'|'pinned'|'prototype-safe'} mode
- * @returns {{mode:string,events:string[],before:number,after:number,simulatorError:string|null}}
+ * @returns {{mode:string,events:string[],before:number,after:number,simulatorConstructed:boolean,simulatorError:string|null}}
  */
 function runSimulatorSessionProbe(mode) {
   const {EndTurnEffect} = load('game/store/effects/game-phase-effects');
@@ -47,26 +47,34 @@ function runSimulatorSessionProbe(mode) {
     openCopyAttackSession(a.state, a.attacking, originalCopycat,
       source, clonedAttacks, clonedAttacks[0]);
 
-    a.store.reduceEffect(a.state,new EndTurnEffect(a.attacking));
-    const before = events.length;
-    assert.ok(before > 0, 'Control Store must invoke the copied source');
-
     let simulatorError = null;
+    let simulator = null;
     if (mode !== 'control') {
       if (mode === 'prototype-safe') {
         restoreSimulator = installPrototypeSafeSimulatorHook();
       }
       try {
-        const Simulator = simulatorModule.Simulator;
-        const simulator = new Simulator(a.state);
-        simulator.dispatch(new PassTurnAction(a.attacking.id));
+        simulator = new simulatorModule.Simulator(a.state);
       } catch (error) {
-        simulatorError = error?.message ?? String(error);
+        simulatorError = 'construction: ' + (error?.message ?? String(error));
       }
     }
 
     a.store.reduceEffect(a.state,new EndTurnEffect(a.attacking));
-    return {mode,events,before,after:events.length,simulatorError};
+    const before = events.length;
+    assert.ok(before > 0, 'Control Store must invoke the copied source');
+
+    if (simulator) {
+      try {
+        simulator.dispatch(new PassTurnAction(a.attacking.id));
+      } catch (error) {
+        simulatorError = 'dispatch: ' + (error?.message ?? String(error));
+      }
+    }
+
+    a.store.reduceEffect(a.state,new EndTurnEffect(a.attacking));
+    return {mode,events,before,after:events.length,
+      simulatorConstructed:Boolean(simulator),simulatorError};
   } finally {
     restoreSimulator();
     source.reduceEffect = saved;
