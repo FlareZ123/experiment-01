@@ -34,3 +34,24 @@ The nine available Regidrago lists all contain the Regidrago/Budew/Dragapult/Dia
 Under equal placement weighting, the [target loss-budget arithmetic](agent47-field-loss-budget.md) requires at least **98.545455% mean game wins across all eleven Regidrago ranks**, even if every other opponent rank were a guaranteed win. This is a necessary arithmetic constraint, and no such win rate has been measured.
 
 Reproduction: read `results/aichi-2026/full-decklists.json`, select decks whose `archetype` equals `Regidrago`, aggregate `cards[].count` by `cards[].name`, compute column minima and pairwise half-L1 distances. Distinguish name-level inventory distance from functional matchup similarity; source-language and legality checks still apply.
+
+
+## Exact minimum name-coverage panel after rank-10 replay (17 October 2026)
+
+For *experiment scheduling only*, exhaustive enumeration of all **256** subsets of the nine published Regidrago lists containing rank **10** gives a small reproducible source-inventory coverage frontier. This is a set-cover diagnostic over displayed card names and has **no game-policy or effect-coverage interpretation**. The program and tests are [the name-panel enumerator](../../scripts/aichi-regidrago-coverage-panel.cjs) and [its regressions](../../tests/aichi-regidrago-coverage-panel.test.cjs).
+
+| Number of lists including rank 10 | Best representative rank panel | Distinct names covered / 60 | Names still unseen |
+| ---: | --- | ---: | ---: |
+| 1 | 10 | 36 | 24 |
+| 2 | 10, 32 | 49 | 11 |
+| 3 | 10, 27, 32 | 53 | 7 |
+| 4 | 10, 14, 27, 32 | 56 | 4 |
+| 5 | 10, 14, 20, 27, 32 | 58 | 2 |
+| 6 | 10, 13, 14, 20, 27, 32 | 59 | 1 |
+| 7 | 10, 13, 14, 18, 20, 27, 32 | 60 | 0 |
+
+The four-list optimum ties with one other panel on total name coverage. Tie-breaking prefers coverage of single-occurrence names and then ascending rank order. All **60** name identities have a unique printing in these nine exact source inventories, with **20 names / 34 compulsory copies** in common. The 60 names comprise 23 Pokémon, 34 Trainer and three Energy names.
+
+An immediate implication for the source-ranked evidence campaign: rank-10 alone exposes **36/60** Regidrago card names. A later distinct-opponent replay against rank **32** could cover **13 additional identities**, including **Noivern ex, Mega Dragonite ex, Pokémon Ranger, Silent Lab and Stealthy Hood**; rank **27** then adds another four distinct names. This is a **research-test candidate ordering**, contingent on completing the Critic's current rank-10 decision-and-response, rank-2 and rank-6 qualification priorities. Testing seven decks for name coverage does not mean every card is played, every mechanic is exercised, or the two unpublished Regidrago ranks 23/28 are represented. A single rare but decisive interaction may be more important than many otherwise inert names.
+
+Exact arithmetic was checked against the live source manifest using independent exhaustive in-session enumeration. The committed Node tests and any workflow confirmation remain separately identifiable; no engine match, matchup win or 99.5% certificate is produced by this study.
