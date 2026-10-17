@@ -54,6 +54,8 @@ jobs:
           name: rank10-turn5-source-game-fork
           path: rank10-turn5-source-fork.json
           if-no-files-found: error
+      - name: Analyze source policy effects
+        run: node simulation/twinleaf/aichi-rank10-policy-effect-matrix.cjs
       - name: Compare original and corrected pending Pale Moon after source retreat
         run: node simulation/twinleaf/aichi-rank10-delayed-ko-switch.cjs > rank10-delayed-ko-switch.json
       - name: Summarize authentic delayed KO switch correction
