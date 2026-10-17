@@ -5,7 +5,7 @@ const {publicResponseBoard,withTurn29ResponseObserver}=
   require('../simulation/twinleaf/rank10-turn29-response-observer.cjs');
 const mkSlot=name=>({
   getPokemonCard:()=>({fullName:name,attacks:[{name:'Test Attack',cost:[],damage:0}]}),
-  energies:{cards:[]},tools:{cards:[]},damage:0
+  energies:{cards:[]},tools:[],damage:0
 });
 const mkState=secret=>({turn:29,activePlayer:0,
   players:[0,1].map((seat)=>({
