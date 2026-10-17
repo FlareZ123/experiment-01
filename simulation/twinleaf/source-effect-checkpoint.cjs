@@ -103,8 +103,9 @@ function playerPrimitiveEvidence(player) {
 /** @param {object} state @returns {object} */
 function sourceEffectSnapshot(state) {
   return {
-    schema:'source-selected-effect-fields-v1',
+    schema:'source-selected-effect-and-primitive-fields-v2',
     state:selectedFields(state,stateFields),
+    statePrimitiveFields:primitiveOwnFields(state),
     players:state.players.map(player=>({
       fields:selectedFields(player,playerFields),
       active:selectedFields(player.active,pokemonFields),
