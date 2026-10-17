@@ -26,6 +26,10 @@ Manual-only workflow input: `expanded_source_pair:true` on `.github/workflows/ai
 
 [Manual compiled run 39053233363](https://github.com/FlareZ123/experiment-01/actions/runs/39053233363) was dispatched on this revision. Its result must be inserted below after checking the actual workflow conclusion, decision readouts and archive provenance.
 
+## Completed source-pair result
+
+[Compiled manual CI 39053524045](https://github.com/FlareZ123/experiment-01/actions/runs/39053524045) passed. In seed 20261021 both experimental policies had the same recorded root decisions; in seed 20261023 they diverged at global turn 5, root action 68, when v1 chose Guzma & Hala and v2 chose Bellelba & Brycen-Man. Neither source allocation produced a rank-2 Evolution attack. Full artifact provenance, prompt choices, action counts, explicit limitations and the unrelated first red CI are in [the verified evidence report](agent24-rank2-policy-fork-ci-evidence.md). No competitive games are qualified.
+
 ## Initial status
 
 The benchmark continues to have **zero independently qualified competitive games**, and exact Top-32 opponent lists remain **29/32**. The rank-1 reference list and all challenger statuses remain unchanged. The more recent `expanded-gh-root-search-v3` policy is independent and intentionally excluded from this first v1/v2 comparison.
