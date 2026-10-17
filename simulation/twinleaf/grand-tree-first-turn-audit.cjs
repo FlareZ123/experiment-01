@@ -33,7 +33,38 @@ function probe(turn,fresh=false){
   const tree=card('Great Tree SCR');player.stadium.cards.push(tree);
   let error=null;
   try{store.dispatch(new UseStadiumAction(player.id));}catch(e){error=e.message;}
+  const nextPrompt=()=>store.state.prompts.find(p=>p.result===undefined);
+  const initial=nextPrompt();
+  let canChooseOddish=null;
+  const answered=[];
+  if(initial?.constructor.name==='ChoosePokemonPrompt'){
+    const target=store.state.players[state.activePlayer].bench[0];
+    canChooseOddish=initial.validate([target],store.state);
+    if(canChooseOddish){
+      store.dispatch(new ResolvePromptAction(initial.id,[target]));
+      answered.push('ChoosePokemonPrompt');
+      const stageOne=nextPrompt();
+      if(stageOne?.constructor.name==='ChooseCardsPrompt'){
+        const gloom=store.state.players[state.activePlayer].deck.cards
+          .find(c=>c.fullName==='Gloom UNB');
+        assert.ok(gloom,'Gloom must be in source deck');
+        store.dispatch(new ResolvePromptAction(stageOne.id,[gloom]));
+        answered.push('Gloom UNB');
+      }
+      const stageTwo=nextPrompt();
+      if(stageTwo?.constructor.name==='ChooseCardsPrompt'){
+        const flower=store.state.players[state.activePlayer].deck.cards
+          .find(c=>c.fullName==='Vileplume AOR');
+        assert.ok(flower,'Vileplume must be in source deck');
+        store.dispatch(new ResolvePromptAction(stageTwo.id,[flower]));
+        answered.push('Vileplume AOR');
+      }
+    }
+  }
+  const evolvedStack=store.state.players[state.activePlayer].bench[0].cards
+    .map(c=>c.fullName);
   return {turn,activeSeat:state.activePlayer,fresh,error,
+    canChooseOddish,answered,evolvedStack,
     promptTypes:state.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name),
     canEvolveByPaperRules:turn>2&&!fresh};
 }
