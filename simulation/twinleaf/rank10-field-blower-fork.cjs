@@ -42,7 +42,7 @@ function main() {
   assert.equal(trials[0].seed,4246551499);
   const common={
     deckA:opponent.cardIds,deckB:champion.cardIds,
-    seed:trials[0].seed,maxActions:350,label:trials[0].trialId,
+    seed:trials[0].seed,maxActions:500,label:trials[0].trialId,
     strictPromptValidation:true,forestSealSearchCorrection:true,
     supporterDecisionCorrection:true,doubleDragonRecovery:true,
     isolatePolicyRandomness:true,captureDecisionTrace:true,
