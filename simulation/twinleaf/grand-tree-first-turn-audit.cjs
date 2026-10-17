@@ -69,11 +69,28 @@ function probe(turn,fresh=false){
     canEvolveByPaperRules:turn>2&&!fresh};
 }
 /** @returns {object} */
-function run(){const cases=[[1,false],[2,false],[3,false],[4,false],[3,true]]
-  .map(([turn,fresh])=>probe(turn,fresh));
-  return {study:'Grand Tree first-turn prohibition raw engine',cases,
-    illegalCompletedEvolutions:cases.filter(c=>!c.canEvolveByPaperRules&&c.evolvedStack.length>1),
-    qualification:'diagnostic only'};
+function run(){
+  const params=[[1,false],[2,false],[3,false],[4,false],[3,true]];
+  const rawCases=params.map(([turn,fresh])=>probe(turn,fresh));
+  const illegal=rawCases.filter(c=>!c.canEvolveByPaperRules&&c.evolvedStack.length>1);
+  assert.deepEqual(illegal.map(c=>c.turn),[1,2],
+    'Pinned baseline should reproduce both illegal first-turn evolutions');
+  const {installGrandTreeFirstTurnHook}=require('./grand-tree-first-turn-hook.cjs');
+  const restore=installGrandTreeFirstTurnHook();
+  let patchedCases;
+  try{patchedCases=params.map(([turn,fresh])=>probe(turn,fresh));}
+  finally{restore();}
+  const patchedIllegal=patchedCases.filter(c=>!c.canEvolveByPaperRules&&c.evolvedStack.length>1);
+  assert.equal(patchedIllegal.length,0,'First-turn hook must prevent illegal Stage progression');
+  for(const row of patchedCases){
+    if(row.canEvolveByPaperRules)
+      assert.deepEqual(row.evolvedStack,['Oddish UNB','Gloom UNB','Vileplume AOR'],
+        'Correction must preserve legal second-turn Grand Tree');
+  }
+  return {study:'Grand Tree first-turn raw versus corrected pinned Store',
+    rawCases,patchedCases,rawIllegalFirstTurns:illegal.map(c=>c.turn),
+    patchedIllegalCount:patchedIllegal.length,
+    qualification:'Staged actual Store actions only, not whole-game competitive evidence'};
 }
 if(require.main===module)console.log(JSON.stringify(run(),null,2));
 module.exports={probe,run};
