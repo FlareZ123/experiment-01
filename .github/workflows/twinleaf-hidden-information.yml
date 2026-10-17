@@ -63,3 +63,7 @@ jobs:
         run: node simulation/twinleaf/rank2-full-source-k0-sampler.cjs
       - name: Preserve detached scoring contrast in job log
         run: node simulation/twinleaf/detached-own-deck-audit.cjs
+      - name: Verify real-source hidden-order probe controls
+        run: node --test tests/rank10-hidden-order-live-probe.test.cjs
+      - name: Explore frozen rank-10 root decision across detached hidden deck orders
+        run: node simulation/twinleaf/rank10-hidden-order-live-probe.cjs
