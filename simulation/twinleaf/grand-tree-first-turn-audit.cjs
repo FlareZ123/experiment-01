@@ -17,6 +17,7 @@ function probe(turn,fresh=false){
   const {GamePhase}=load('game/store/state/state');
   const {Format}=load('game/store/card/card-types');
   const {UseStadiumAction}=load('game/store/actions/game-actions');
+  const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
   const store=new Store({onStateChange(){}}),state=store.state;
   state.turn=turn;state.phase=GamePhase.PLAYER_TURN;state.activePlayer=(turn+1)%2;
   state.gameSettings.format=Format.EXPANDED;
