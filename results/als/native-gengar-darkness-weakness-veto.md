@@ -49,6 +49,12 @@ The [rank-8 terminal audit](../twinleaf/agent1-newmoon-terminal-exposure-190.md)
 
 For the 17-Basic New Moon 60 (one Gengar plus 16 other Basics) and six Psychic-providing Energy, exact 7-card combinatorics gives **5.1777441416%** of valid openers containing Gengar, at least one of those Energy and another Basic. This upper-bounds the native starter policy's opportunity before considering resolver order and other constraints. It is not a win probability.
 
+## Setup information-set constraint
+
+The supplied Advanced Player's Rulebook first determines who plays first, then has players select starting Basics face down. The selected Actives and Benches are revealed only when the game begins. A starter policy may use the first-player decision and any mulligan-revealed cards, but normally cannot know whether the opponent has Absol, Iron Thorns or another archetype when selecting its own Active. Therefore a matchup-specific starting rule cannot silently use the subsequently revealed opponent Active or source decklist as input.
+
+The pinned `turn-order-evidence.cjs` also warns that `state.activePlayer` while `turn===0` is not authenticated first-player evidence. A proposed going-second-only starting policy would need a trustworthy *setup-time* first-player selection signal. Classifying games by actual turn-one draw after setup is valid for experiment reports, but cannot be back-fed into the starting decision without establishing visibility.
+
 ## Evidence classification
 
 **Verified from provided print records + rulebook:** HP, Weakness, attack base/cost, three-Prize rule, all four source inventories, and the arithmetic threshold. **Hypothesis:** the starter pivot may be exploitable by a skilled Absol opponent more often than the generic pinned bot demonstrates. **Not established:** the actual frequency of a pre-powered Absol, probability of the Gengar setup event under rank-11 conditions, opponent's best reply, deck-level payoff, or an independently qualified win rate.
