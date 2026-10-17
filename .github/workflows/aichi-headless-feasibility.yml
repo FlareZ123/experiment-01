@@ -79,6 +79,9 @@ jobs:
       - name: Verify reversible paper minimum in actual headless match options
         run: node --test tests/battle-compressor-headless-opt-in.test.cjs
 
+      - name: Verify source Battle Compressor observer isolates genuine Store dispatches
+        run: node --test tests/battle-compressor-source-exposure.test.cjs
+
       - name: Audit live Battle Compressor selections in paired Aichi source games
         if: ${{ inputs.battle_compressor_source_exposure }}
         run: node simulation/twinleaf/battle-compressor-source-exposure.cjs
