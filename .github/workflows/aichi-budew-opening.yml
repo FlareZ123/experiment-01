@@ -14,3 +14,7 @@ jobs:
           node-version: '22'
       - run: node --test tests/aichi_budew_opening.test.cjs
       - run: node scripts/aichi_budew_opening.cjs
+      - name: Verify Floette first-three-turn hand-only access
+        run: node --test tests/mega-floette-direct-window.test.cjs
+      - name: Print exact Floette direct Energy-attachment window
+        run: node scripts/mega-floette-direct-window.cjs
