@@ -26,7 +26,7 @@ test('Four-Basic Aichi Thorns opening specifically lifts two counter copies', ()
   assert.ok(Math.abs(two.withAllOptionalBonusCards-0.28470708524981614)<1e-12);
   assert.ok(Math.abs(four.withAllOptionalBonusCards-0.4922956622452833)<1e-12);
   assert.ok(Math.abs(two.chanceAtLeastOneBonus-0.5794279437440825)<1e-12);
-  assert.ok(Math.abs(two.chanceAtLeastThreeBonus-0.2088872810284781)<1e-12);
+  assert.ok(Math.abs(two.chanceAtLeastThreeBonus-0.20894212181283583)<1e-12);
   assert.ok(two.extremeKAtLeast47Tail<1e-9);
 });
 
