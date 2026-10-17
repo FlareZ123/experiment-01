@@ -30,7 +30,7 @@ function sourceEscapeOpportunity(state, player, mode) {
   const opponent = state.players[1];
   const garbodorIndex = opponent.bench.findIndex(slot =>
     slot.getPokemonCard()?.name === 'Garbodor' &&
-    slot.tools.cards.some(c => c.name === 'Float Stone'));
+    slot.tools.some(c => c.name === 'Float Stone'));
   if (garbodorIndex < 0) return null;
   const blowerIndex = player.hand.cards.findIndex(c => c.name === 'Field Blower');
   if (mode === 'tool' && blowerIndex < 0) return null;
@@ -99,7 +99,7 @@ function withRank8EscapePolicy(mode, work) {
     }
     if (stage === 'await-tool-prompt' && !pending) {
       const target = state.players[1].bench[opportunity.garbodorIndex];
-      if (target && !target.tools.cards.some(c => c.name === 'Float Stone')) {
+      if (target && !target.tools.some(c => c.name === 'Float Stone')) {
         stage = 'await-attack';
         events.push({turn:state.turn,kind:'forced-post-blower-retreat'});
         return new RetreatAction(player.id, opportunity.benchIndex);
