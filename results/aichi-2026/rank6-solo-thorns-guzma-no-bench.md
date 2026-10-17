@@ -35,7 +35,13 @@ The alternative choice does not demonstrate superior play. It gives up Trainers'
 
 Reuse [rank-6 source replay](../../simulation/twinleaf/rank6-immediate-opponent-response.cjs) and the ten-payment source fork. At the real **global-turn-four** boundary after champion Acerola/Bench/Pass, assert both printed-source physical inventories, retained hand Guzma, no rank-6 Bench, DCE on Active Iron Thorns, Thunder Mountain in play, Dialga-GX opposing Active and Shadow Rider Calyrex V opposing Bench. Without editing hidden zones, validate and dispatch an actual **PlayCardAction(Guzma)**, resolve the opponent-target prompt, prove both Active positions, then announce Volt Cyclone and observe damage. Compare the spent-Guzma arm under the same observed public state, recording which recovery connector is actually available. Stop at the first failing assertion if the live source state differs.
 
-This experiment is deliberately pending compiled CI. **No Store Guzma action was newly executed in this report.**
+### Pinned implementation inspection and queued regression
+
+Read-only inspection of pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` finds that the compiled Guzma source uses `GUST_OPPONENT_BENCHED_POKEMON(..., {onSwitched: () => SWITCH_ACTIVE_WITH_BENCHED(...)})`. The shared `SWITCH_ACTIVE_WITH_BENCHED` prefab **returns immediately when the acting player's Bench is empty**. Thus the source implementation is consistent with the official solo-Bench ruling, although actual Store prompt/reducer acceptance still requires test execution.
+
+Added a staged, independently conditioned **real Store Guzma positive and no-target negative regression** through [existing Snorlax Switch/Guzma fixture](../../simulation/twinleaf/snorlax-switch-vs-guzma.cjs) and [its existing tests](../../tests/snorlax-switch-vs-guzma.test.cjs). The new `ownBench:false, opponentBench:true` case expects one opposing target prompt, successful gust, unchanged own Active and discarded Guzma. The reverse empty-opponent-Bench case expects the existing reversible no-target correction to reject the play. This fixture belongs to the existing *manual-only* [Aichi Snorlax retreat workflow](../../.github/workflows/aichi-snorlax-retreat.yml), without creating a new workflow.
+
+**Neither this new staged regression nor the authentic turn-four Guzma continuation has been run in compiled CI for this invocation.** The latter remains the stronger missing source-game test.
 
 `sourceReplayMechanicsVerified:false`  
 `qualifiedForCompetitiveInference:false`  
