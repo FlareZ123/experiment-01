@@ -47,6 +47,10 @@ def capture() -> dict:
         visible_strings = list(soup.stripped_strings)
         result["visible_string_count"] = len(visible_strings)
         result["visible_strings"] = visible_strings[:500]
+        result["script_srcs"] = [x.get("src") for x in soup.select("script[src]")]
+        result["inline_scripts"] = [x.get_text(" ", strip=True)[:1600] for x in soup.select("script:not([src])") if x.get_text(" ", strip=True)][:12]
+        result["images"] = [dict(src=x.get("src"), alt=x.get("alt")) for x in soup.select("img")][:25]
+        result["deck_html_context"] = html[max(0, html.find(DECK_CODE)-350):html.find(DECK_CODE)+1100]
         result["sha256"] = hashlib.sha256(response.content).hexdigest()
         result["title"] = soup.title.get_text(" ", strip=True) if soup.title else None
         result["text_excerpt"] = text[:1000]
@@ -92,6 +96,9 @@ if __name__ == "__main__":
         "retrievable": report["retrievable"],
         "sha256": report["sha256"],
         "candidate_rows": len(report["candidate_rows"]),
-        "visible_strings": report.get("visible_strings", [])[:260],
+        "script_srcs": report.get("script_srcs", []),
+        "inline_scripts": report.get("inline_scripts", [])[:8],
+        "images": report.get("images", [])[:10],
+        "deck_html_context": report.get("deck_html_context", ""),
         "error": report["error"],
     }, ensure_ascii=False))
