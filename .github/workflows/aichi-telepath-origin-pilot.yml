@@ -12,6 +12,8 @@ jobs:
     timeout-minutes: 14
     steps:
       - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
       - uses: actions/setup-node@v4
         with:
           node-version: '20.19.0'
@@ -19,8 +21,6 @@ jobs:
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Validate pure root-only source observer and source census
         run: node --test tests/attachment-origin-observer.test.cjs tests/aichi-telepath-source-inventory.test.cjs
-      - name: Load pinned Twinleaf
-        run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
