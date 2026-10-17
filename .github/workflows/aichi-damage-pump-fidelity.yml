@@ -2,6 +2,12 @@ name: Aichi Damage Pump source fidelity
 
 on:
   workflow_dispatch:
+    inputs:
+      source_rank26_opening:
+        description: 'Probe one source-dealt first-turn Meloetta response window'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -26,3 +32,15 @@ jobs:
           npm run compile
       - name: Verify pinned Damage Pump counterexample and reversible fix
         run: node --test tests/damage_pump_source_contract.test.cjs tests/damage_pump_store_dispatch.test.cjs tests/damage_pump_corrected_match.test.cjs tests/meloetta_damage_pump_two_prizes.test.cjs tests/meloetta_source_60_headless.test.cjs tests/meloetta_first_turn_ability_lock.test.cjs tests/meloetta_forest_seal_cologne_bridge.test.cjs
+      - name: Verify pure root-state labels
+        run: node --test tests/meloetta-rank26-firstturn-source-window.test.cjs
+      - name: Search authenticated rank-26 first-turn source window (unqualified)
+        if: ${{ inputs.source_rank26_opening }}
+        run: node simulation/twinleaf/meloetta-rank26-firstturn-source-window.cjs > rank26-firstturn-source-window.json
+      - name: Preserve first-turn source state and explicit missing-gate metadata
+        if: ${{ inputs.source_rank26_opening }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank26-firstturn-source-window-unqualified
+          path: rank26-firstturn-source-window.json
+          if-no-files-found: error
