@@ -85,3 +85,13 @@ test('first-turn Wally is excluded from first-player enabler category',()=>{
   assert.equal(rank22.firstTurnGoingFirst,0);
   assert.ok(rank22.firstTurnGoingSecond>0);
 });
+
+test('independent BigInt Boost Shake source model agrees across all four ranks',()=>{
+  const {manifest,basics}=source();
+  const rows=buildRows(manifest,basics);
+  const {shakeTurnOneWindow}=require('../scripts/aichi-absol-boost-shake-direct.cjs');
+  for(const row of rows) {
+    const independent=shakeTurnOneWindow(row).probability;
+    near(row.firstTurnGoingFirst,independent,1e-11);
+  }
+});
