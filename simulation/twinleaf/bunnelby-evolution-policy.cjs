@@ -54,6 +54,61 @@ function hasK0PossibleBenchEvolutionTarget(player, sourceCards) {
   return [...remaining.values()].some(count => count > 0);
 }
 
+/**
+ * Test a particular Bench target against known source-60 copies only.
+ * Face-down Prizes remain unknown until a real deck search.
+ */
+function hasK0PossibleStageFor(player,sourceCards,name) {
+  const remaining=new Map();
+  for(const card of sourceCards) {
+    if(card.stage!==undefined && card.evolvesFrom===name) {
+      remaining.set(card.fullName,(remaining.get(card.fullName)||0)+1);
+    }
+  }
+  for(const zone of [
+    player.hand,player.discard,player.lostzone,player.active,...player.bench
+  ]) {
+    if(!zone) continue;
+    for(const card of zone.cards) {
+      if(remaining.has(card.fullName)) {
+        remaining.set(card.fullName,remaining.get(card.fullName)-1);
+      }
+    }
+  }
+  return [...remaining.values()].some(n=>n>0);
+}
+
+/** Restrict Bunnelby TM Evolution's target prompt to possible Stage targets. */
+function makeBunnelbyStageTargetResolver(hasStage) {
+  const {PromptResolver}=load('simple-bot/prompt-resolver/prompt-resolver');
+  const {ChoosePokemonPrompt}=load('game/store/prompts/choose-pokemon-prompt');
+  const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
+  const {GameMessage}=load('game/game-message');
+  const {GamePhase}=load('game/store/state/state');
+  return class BunnelbyStageTargetResolver extends PromptResolver {
+    resolvePrompt(state,player,prompt) {
+      if(!(prompt instanceof ChoosePokemonPrompt) ||
+          prompt.message!==GameMessage.CHOOSE_POKEMON_TO_EVOLVE ||
+          state.phase!==GamePhase.ATTACK ||
+          player.active.getPokemonCard()?.fullName!=='Bunnelby PRC' ||
+          !player.active.tools.some(tool=>
+            tool.fullName==='Technical Machine: Evolution PAR')) return;
+      const candidates=player.bench.filter(slot=>
+        slot.getPokemonCard() && hasStage(player,slot))
+        .sort((a,b)=>this.stateScore.getPokemonScore(b)-
+          this.stateScore.getPokemonScore(a));
+      const selected=[];
+      for(const slot of candidates) {
+        if(selected.length>=prompt.options.max) break;
+        if(prompt.validate([...selected,slot],state)) selected.push(slot);
+      }
+      if(selected.length<prompt.options.min ||
+          !prompt.validate(selected,state)) return;
+      return new ResolvePromptAction(prompt.id,selected);
+    }
+  };
+}
+
 /** Keep Burrow's immediate opponent-deckout option available. */
 function immediateBurrowDeckout(state, player) {
   const opponent = state.players.find(side => side.id !== player.id);
@@ -154,10 +209,10 @@ function makeOwnerDeckObservationResolver(onOwnerSearch,isLivePrompt) {
  * generic choices. This leaves default policies untouched and composes
  * with the separate ToolAwareAttackTactic.
  * @param {object} options SimpleBotOptions
- * @param {{sourceCards?:object[],observeFirstOwnDeckSearch?:boolean,isLivePrompt?:(state:object,player:object,prompt:object)=>boolean}} [configuration] Source 60 plus opt-in observed K0 to K1 knowledge transition.
+ * @param {{sourceCards?:object[],observeFirstOwnDeckSearch?:boolean,isLivePrompt?:(state:object,player:object,prompt:object)=>boolean,targetAwareEvolution?:boolean}} [configuration] Source 60 plus opt-in observed K0 to K1 knowledge transition.
  * @returns {object} Cloned options
  */
-function withBunnelbyEvolutionLine(options, {sourceCards,observeFirstOwnDeckSearch=false,isLivePrompt} = {}) {
+function withBunnelbyEvolutionLine(options, {sourceCards,observeFirstOwnDeckSearch=false,isLivePrompt,targetAwareEvolution=false} = {}) {
   if (!Array.isArray(options.tactics) ||
       !Array.isArray(options.promptResolvers)) {
     throw new Error('Require tactics and prompt resolvers');
@@ -175,12 +230,25 @@ function withBunnelbyEvolutionLine(options, {sourceCards,observeFirstOwnDeckSear
   if (observeFirstOwnDeckSearch && typeof isLivePrompt !== 'function') {
     throw new Error('K1 observation requires an explicit live-Store prompt guard');
   }
+  if (targetAwareEvolution && !sourceCards) {
+    throw new Error('Target-aware Evolution requires a known physical source 60');
+  }
   let hasObservedOwnDeck = false;
   const hasTarget = sourceCards === undefined ? hasBenchEvolutionTarget :
     player => hasObservedOwnDeck ? hasBenchEvolutionTarget(player) :
       hasK0PossibleBenchEvolutionTarget(player, sourceCards);
   const Observer = observeFirstOwnDeckSearch ?
     makeOwnerDeckObservationResolver(() => {hasObservedOwnDeck=true;},isLivePrompt) : null;
+  const hasStage = (player,slot) => {
+    const name=slot.getPokemonCard()?.name;
+    if(!name) return false;
+    return sourceCards && !hasObservedOwnDeck ?
+      hasK0PossibleStageFor(player,sourceCards,name) :
+      player.deck.cards.some(card=>
+        card.stage!==undefined && card.evolvesFrom===name);
+  };
+  const StageResolver=targetAwareEvolution ?
+    makeBunnelbyStageTargetResolver(hasStage) : null;
   const toolIndex = options.tactics.findIndex(t =>
     t.name === 'ToolAwareAttackTactic');
   const atkIndex = toolIndex >= 0 ? toolIndex :
@@ -199,6 +267,7 @@ function withBunnelbyEvolutionLine(options, {sourceCards,observeFirstOwnDeckSear
     ],
     promptResolvers: [
       ...(Observer ? [Observer] : []),
+      ...(StageResolver ? [StageResolver] : []),
       ...options.promptResolvers.slice(0, promptIndex),
       makeBarrageEvolutionResolver(hasTarget),
       ...options.promptResolvers.slice(promptIndex)
@@ -208,9 +277,11 @@ function withBunnelbyEvolutionLine(options, {sourceCards,observeFirstOwnDeckSear
 module.exports = {
   hasBenchEvolutionTarget,
   hasK0PossibleBenchEvolutionTarget,
+  hasK0PossibleStageFor,
   immediateBurrowDeckout,
   makeBunnelbyEvolutionTactic,
   makeBarrageEvolutionResolver,
+  makeBunnelbyStageTargetResolver,
   makeOwnerDeckObservationResolver,
   withBunnelbyEvolutionLine
 };
