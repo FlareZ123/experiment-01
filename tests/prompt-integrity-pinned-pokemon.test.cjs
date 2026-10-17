@@ -97,3 +97,10 @@ test('detached nonempty Pokémon spot is not a valid player target', () => {
   assert.equal(scene.prompt.validate([detached], scene.state), true);
   assert.throws(examine(scene, [detached]), /invalid result/);
 });
+
+test('missing target in sparse response is invalid', () => {
+  const scene = fixture(PlayerType.BOTTOM_PLAYER, [SlotType.BENCH]);
+  const sparse = Array(1);
+  assert.equal(scene.prompt.validate(sparse, scene.state), true);
+  assert.throws(examine(scene, sparse), /invalid result/);
+});
