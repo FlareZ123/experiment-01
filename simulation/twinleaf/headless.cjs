@@ -25,6 +25,7 @@ const {selectedCardsEvidence, selectedOptionEvidence} = require('./selected-card
 const {decisionHandEvidence} = require('./decision-hand-evidence.cjs');
 const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.cjs');
 const {installElectroRainDamageHook} = require('./electro-rain-damage-hook.cjs');
+const {installElectrodeGXEnergyHook} = require('./electrode-gx-energy-hook.cjs');
 const {installRedeemableTicketPaperOrderHook} = require('./redeemable-ticket-paper-hook.cjs');
 const {installHisuianHeavyBallPrizeShuffleHook} = require('./hisuian-heavy-ball-prize-hook.cjs');
 const {installPendingEndTurnSwitchCleanup} = require('./pending-end-turn-switch-cleanup.cjs');
@@ -212,6 +213,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [passClearsLastAttackCorrection] Opt-in clear stale preceding attack when a player passes.
  * @property {boolean} [snorlaxRetreatStartCorrection] Opt-in, reversible Block check on interactive retreat.
  * @property {boolean} [electroRainDamageCorrection] Opt-in printed Electro Rain attack damage and repeated-target correction.
+ * @property {boolean} [electrodeGXEnergyCorrection] Opt-in printed Extra Energy Bomb mandatory attachment and recipient legality.
  * @property {boolean} [redeemableTicketPaperOrderCorrection] Opt-in paper-rule Ticket top/new-Prize and bottom/old-Prize correction.
  * @property {boolean} [hisuianHeavyBallPrizeShuffleCorrection] Opt-in paper Prize-position shuffle for Hisuian Heavy Ball.
  * @property {boolean} [pendingEndTurnSwitchCleanupCorrection] Opt-in paper delayed-effect cleanup upon Player.switchPokemon Active-to-Bench movement.
@@ -282,6 +284,7 @@ function runMatch(request) {
   let restoreEldegossEntryLockHook;
   let restoreSnorlaxRetreatStartHook;
   let restoreElectroRainDamageHook;
+  let restoreElectrodeGXEnergyHook;
   let restoreRedeemableTicketPaperOrderHook;
   let restoreHisuianHeavyBallPrizeShuffleHook;
   let pendingEndTurnSwitchCleanupHook;
@@ -354,6 +357,9 @@ function runMatch(request) {
     }
     if (request.electroRainDamageCorrection === true) {
       restoreElectroRainDamageHook = installElectroRainDamageHook();
+    }
+    if (request.electrodeGXEnergyCorrection === true) {
+      restoreElectrodeGXEnergyHook = installElectrodeGXEnergyHook();
     }
     restoreMegatonBlowerHook = installMegatonBlowerHook();
     const { registerPlayersCeremony, PLAYERS_CEREMONY_PRINT } = require('./card-patches.cjs');
@@ -762,6 +768,7 @@ function runMatch(request) {
       passClearsLastAttackCorrection: request.passClearsLastAttackCorrection === true,
       snorlaxRetreatStartCorrection: request.snorlaxRetreatStartCorrection === true,
       electroRainDamageCorrection: request.electroRainDamageCorrection === true,
+      electrodeGXEnergyCorrection: request.electrodeGXEnergyCorrection === true,
       redeemableTicketPaperOrderCorrection: request.redeemableTicketPaperOrderCorrection === true,
       ...(request.pendingEndTurnSwitchCleanupCorrection === true ? {
         pendingEndTurnSwitchCleanupCorrection:true,
@@ -789,6 +796,7 @@ function runMatch(request) {
         (request.templeUnlockRecovery === true ? '+TempleUnlockTactic-v1' : '') +
         (request.snorlaxRetreatStartCorrection === true ? '+SnorlaxBlockStartGate-v1' : '') +
         (request.electroRainDamageCorrection === true ? '+ElectroRainDamage-v1' : '') +
+        (request.electrodeGXEnergyCorrection === true ? '+ElectrodeGXMandatoryEnergy-v1' : '') +
         (request.redeemableTicketPaperOrderCorrection === true ? '+TicketPaperPrizeOrder-v1' : '') +
         (request.pendingEndTurnSwitchCleanupCorrection === true ? '+PendingEndTurnSwitchPaper-v1' : '') +
         (request.apexSpreadPrizeWindowPolicy === true ? '+ApexSpreadPrizeWindow-v1' : '') +
@@ -837,6 +845,7 @@ function runMatch(request) {
     if (restoreLeleEntryAbilityLockHook) restoreLeleEntryAbilityLockHook();
     if (restoreSnorlaxRetreatStartHook) restoreSnorlaxRetreatStartHook();
     if (restoreElectroRainDamageHook) restoreElectroRainDamageHook();
+    if (restoreElectrodeGXEnergyHook) restoreElectrodeGXEnergyHook();
     if (restoreHisuianHeavyBallPrizeShuffleHook) restoreHisuianHeavyBallPrizeShuffleHook();
     if (pendingEndTurnSwitchCleanupHook) pendingEndTurnSwitchCleanupHook.restore();
     if (restoreApexPrizeWindowPolicy) restoreApexPrizeWindowPolicy();
