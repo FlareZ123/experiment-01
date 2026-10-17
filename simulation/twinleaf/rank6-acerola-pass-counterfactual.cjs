@@ -9,7 +9,8 @@ const {withGuzmaHalaSourceFork,withDamageObserver}=
   require('./rank6-seed-guzma-hala-fork.cjs');
 const {withRank6AcerolaPassFork}=require('./rank6-acerola-pass-fork.cjs');
 const {withStoreDispatchTranscript}=require('./store-dispatch-transcript.cjs');
-const {publicTurnLedger}=require('./rank6-response-projection.cjs');
+const {publicTurnLedger,publicPrizeTransitions}=
+  require('./rank6-response-projection.cjs');
 
 /** @param {object} event */
 const comparedEvent=event=>({
@@ -96,7 +97,7 @@ function main() {
   assert.equal(before[first].continuityDigestBefore,
     after[first].continuityDigestBefore);
 
-  const summary=game=>({
+  const summary=(game,trace)=>({
     finished:game.finished,
     winner:game.finished?game.winner:null,
     actions:game.actions,turns:game.turns,
@@ -107,6 +108,7 @@ function main() {
     ],
     opponentPublicTurnThree:publicTurnLedger(game.decisionTrace,
       {seat:0,turn:3}),
+    publicPrizeTransitions:publicPrizeTransitions(trace),
     publiclyAnnouncedAttacks:game.attackTrace.map(event=>({
       turn:event.turn,seat:event.seat,
       attacker:event.activePokemon,attack:event.attack,
@@ -134,7 +136,7 @@ function main() {
     sourcePolicyRngConsumptionProtocol:'unchanged-bot-proposal-in-both-arms',
     controlAcerolaChoice:original.result.sourceChoices[0],
     alternativeAcerolaChoice:alternative.result.sourceChoices[0],
-    control:summary(a.game),forcedPass:summary(b.game),
+    control:summary(a.game,before),forcedPass:summary(b.game,after),
     sourceReplayMechanicsVerified:false,
     qualifiedForCompetitiveInference:false,
     limits:'A single physical seed, generic bot, partial source graph coverage and unknown paper-rule correctness. A legal Pass replacement is a diagnostic, not a proven stronger response.'
