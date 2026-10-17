@@ -53,5 +53,7 @@ jobs:
         run: node simulation/twinleaf/copy-session-cross-store-leak.cjs
       - name: Validate opt-in State-scoped copied-session loader
         run: node simulation/twinleaf/copied-session-state-scope-test.cjs
+      - name: Verify explicit copied-session inheritance into pinned Simulator
+        run: node simulation/twinleaf/copy-session-aware-simulator-test.cjs
       - name: Probe speculative Simulator copied-session lifetime
         run: node simulation/twinleaf/copy-session-speculative-simulator.cjs
