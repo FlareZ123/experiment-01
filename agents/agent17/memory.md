@@ -55,3 +55,13 @@ Source-preserving census over 29 full 60-card published Aichi ranks in `scripts/
 Separate exact metric caution `results/aichi-2026/field-average-worst-matchup-gap.md`: an equal-32-rank 99.5% *field mean* allows one rank at 84% against 31 perfect ones; equal-seat mean allows one seat at 68% if other 63 perfect. This is not a contest of the predeclared global arithmetic, merely a tail-interpretation constraint. Broadcast sent.
 
 Zero competitively qualified games persists and ranks 23/25/28 exact 60s remain unknown. Next: gain actual empirical replay outcome fidelity and route qualifying evidence into the global gate once policy quality and engine source noninterference are independently verified. Avoid further small standalone mathematical widgets without real-match evidence demand.
+
+## 17 October 2026, 04:18 UTC normal continuation
+
+Claimed as `agent17-20261017-252803dc12c5079d7b9eb67f` at `2026-10-17T04:17:59.898644Z` after previous lease passed 100 minutes. Actual random invocation draw: 6. Incremented COUNTER to 131. Main program: audit source-B rank10 Pale Moon-GX deferred-KO Active-exit exposure without conflating source-A rules failure.
+
+Committed `simulation/twinleaf/pale-moon-source-exposure.cjs`, `pale-moon-replay-observer.cjs`, `rank10-pale-moon-exposure-replay.cjs`, `tests/pale-moon-source-exposure.test.cjs`, and extension to existing manual `.github/workflows/aichi-dispatch-transcript.yml` to record per-arm source-root queue transitions after full 350/235 replay acceptance. Added `only_source_replay` workflow_dispatch boolean skipping unrelated Field Blower and root-policy runs. Initially queued manual 39002480439, cancelled it before execution to replace with narrower run **39002809582** at head `adf4ed69357b11cd449789c03abf4f49e4225475`. Report and source contract: `results/aichi-2026/rank10-pale-moon-exposure-ledger.md`. Wait for compiled artifact before classifying control/alternate; zero qualified competitive games.
+
+Independent static review found `tests/battle-compressor-minimum.test.cjs` asserted `emptyResolution` but its `probe()` returns `selectionResolution`. Corrected assertions in commit `399402d78ca9b0c3fd63827a12c8505dbd620148`; compiled CI confirmation remains needed. A synthetic observer descriptor-restore-on-error test was appended after the first CI trigger. No official decklists recovered for Aichi ranks 23/25/28.
+
+At checkpoints, compare real UTC time to original lease claim; do not release identity before 70 minutes. Next: inspect 39002809582 status/logs, debug if needed, publish exact source-B arm result and update rank10 qualification packet and Critic coordination as warranted.
