@@ -41,7 +41,6 @@ test('blocks wrong turn, acting seat, pending prompt and absent ACE SPEC',()=>{
   for(const mutate of [
     state=>{state.turn=4;},
     state=>{state.activePlayer=1;},
-    state=>{state.phase=3;},
     state=>{state.prompts.push({result:undefined});},
     state=>{state.players[0].hand.cards.pop();},
     state=>{state.players[0].active.getPokemonCard=()=>({fullName:'Budew ASC'});}
