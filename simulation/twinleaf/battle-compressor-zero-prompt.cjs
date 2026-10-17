@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const {initializeCards}=require('./headless.cjs');
 const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const get=part=>require(path.join(root,part));
-function probe(useCorrection=false) {
+function probe(useCorrection=false,resolveEmpty=false) {
   const cards=initializeCards();
   const {Store}=get('game/store/store');
   const {Player}=get('game/store/state/player');
@@ -42,13 +42,26 @@ function probe(useCorrection=false) {
   }));
   const prompt=state.prompts.find(p=>p.constructor.name==='ChooseCardsPrompt');
   assert.ok(prompt,'Missing actual Battle Compressor selection prompt');
-  return {
+  const report={
     min:prompt.options.min,max:prompt.options.max,
     acceptsZero:prompt.validate([]),
     acceptsOne:prompt.validate([a.deck.cards[0]]),
     inPlay:a.supporter.cards.some(c=>c.name==='Battle Compressor'),
     deckSize:a.deck.cards.length,corrected:useCorrection
   };
+  if(resolveEmpty){
+    const {ResolvePromptAction}=get('game/store/actions/resolve-prompt-action');
+    try{
+      store.dispatch(new ResolvePromptAction(prompt.id,[]));
+      report.emptyResolution='accepted';
+    }catch(error){
+      report.emptyResolution='rejected';
+      report.emptyError=String(error.message);
+    }
+    report.deckSizeAfter=a.deck.cards.length;
+    report.discardedItem=a.discard.cards.some(c=>c.name==='Battle Compressor');
+  }
+  return report;
   } finally {restore();}
 }
 if(require.main===module)console.log(JSON.stringify({baseline:probe(),corrected:probe(true)},null,2));
