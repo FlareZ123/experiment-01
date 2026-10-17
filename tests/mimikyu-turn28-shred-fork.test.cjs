@@ -150,3 +150,31 @@ test('source-ordinal fork does not select when ordinal mismatches',()=>{
   assert.ok(run.result instanceof RetreatAction);
   assert.equal(run.forcedAttack,false);
 });
+
+test('ordinal source RNG accounting measures and aligns a skipped proposal',()=>{
+  const f=fixture();
+  class ThreeDrawBot extends Bot {
+    decodeNextAction() {
+      Math.random(); Math.random(); Math.random();
+      return new RetreatAction(202);
+    }
+  }
+  const original=withTurn28CopycatShredFork({...f.args,Bot:ThreeDrawBot},()=>{
+    f.store.dispatch(new AddPlayerAction());
+    return new ThreeDrawBot().decodeNextAction(f.state);
+  },{...f.options,forceShred:false,rootActionOrdinal:1,
+    capturePolicyRngAtOrdinal:true});
+  assert.deepEqual(original.policyRngLedger,[{
+    kind:'original-proposal',rootActionOrdinal:1,draws:3,
+    action:'RetreatAction'
+  }]);
+  const changed=withTurn28CopycatShredFork({...f.args,Bot:ThreeDrawBot},()=>{
+    f.store.dispatch(new AddPlayerAction());
+    return new ThreeDrawBot().decodeNextAction(f.state);
+  },{...f.options,rootActionOrdinal:1,policyRngAlignDraws:3});
+  assert.equal(changed.result.name,'Copycat');
+  assert.deepEqual(changed.policyRngLedger,[{
+    kind:'aligned-direct-fork',rootActionOrdinal:1,draws:3,
+    action:'AttackAction'
+  }]);
+});
