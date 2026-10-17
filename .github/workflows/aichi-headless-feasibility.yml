@@ -56,3 +56,6 @@ jobs:
 
       - name: Verify Prize selection has real Prize-zone ownership
         run: node --test tests/prompt-integrity-pinned-prizes.test.cjs
+
+      - name: Verify Pokémon target-side, slot, and duplicate restrictions
+        run: node --test tests/prompt-integrity-pinned-pokemon.test.cjs
