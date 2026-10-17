@@ -24,7 +24,7 @@ function storeDataGraphFingerprint(store,options={}) {
   // ambiguous suffix collisions. Never normalize unrelated gameplay fields.
   function normalizeStatisticId(value, prefixed=false) {
     if(typeof value !== 'string') return value;
-    const match=/^(\\d{13})_([a-z0-9]{1,9})$/.exec(value);
+    const match=/^([0-9]{13})_([a-z0-9]{1,9})$/.exec(value);
     if(!match) return value;
     const normalized='clock-redacted_'+match[2];
     const previous=statisticIds.get(normalized);
