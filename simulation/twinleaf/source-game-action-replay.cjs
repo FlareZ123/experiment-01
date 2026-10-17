@@ -9,6 +9,7 @@ const {observedCounts}=require('./store-dispatch-transcript.cjs');
 const {sourceZoneSnapshot,zoneSnapshotDigest}=require('./source-zone-checkpoint.cjs');
 const {observableState,hash:continuityHash}=require('./source-state-continuity.cjs');
 const {sourceEffectDigest}=require('./source-effect-checkpoint.cjs');
+const {storeDataGraphFingerprint}=require('./store-data-graph-fingerprint.cjs');
 
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const engine=relative=>require(path.join(output,relative));
@@ -44,6 +45,7 @@ function withRecordedSourceActions(sourceTrace,work) {
   }
   let sourceStore=null;
   let ordinal=0;
+  let graphVerifiedDispatches=0;
   const verify= (event,action,pending,state) => {
     if(event?.step!==ordinal||event?.action!==action.constructor.name) {
       throw new Error('Source dispatch identity drift at step '+ordinal);
@@ -79,6 +81,12 @@ function withRecordedSourceActions(sourceTrace,work) {
     const event=sourceTrace[ordinal];
     const pending=this.state.prompts.find(p=>p.result===undefined)||null;
     verify(event,action,pending,this.state);
+    if(event.storeDataGraphBefore || event.storeDataGraphAfter) {
+      assert.ok(event.storeDataGraphBefore && event.storeDataGraphAfter,
+        'Missing one source Store graph checkpoint at step '+ordinal);
+      assert.deepEqual(storeDataGraphFingerprint(this),event.storeDataGraphBefore,
+        'Before-action Store data graph differs at source step '+ordinal);
+    }
     const result=storeDesc.value.call(this,action);
     assert.deepEqual(observedCounts(this.state),event.after,
       'After-action Store summary differs at source step '+ordinal);
@@ -88,6 +96,11 @@ function withRecordedSourceActions(sourceTrace,work) {
       'After-action card-history digest differs at source step '+ordinal);
     assert.equal(sourceEffectDigest(this.state),event.effectDigestAfter,
       'After-action supplementary effect digest differs at source step '+ordinal);
+    if(event.storeDataGraphAfter) {
+      assert.deepEqual(storeDataGraphFingerprint(this),event.storeDataGraphAfter,
+        'After-action Store data graph differs at source step '+ordinal);
+      graphVerifiedDispatches++;
+    }
     ordinal+=1;
     return result;
   };
@@ -110,6 +123,7 @@ function withRecordedSourceActions(sourceTrace,work) {
   if(ordinal!==sourceTrace.length) {
     throw new Error('Fresh replay stopped at '+ordinal+' of '+sourceTrace.length+' source dispatches');
   }
-  return {result,verifiedDispatches:ordinal,completedSourceTrace:true};
+  return {result,verifiedDispatches:ordinal,graphVerifiedDispatches,
+    completedSourceTrace:true};
 }
 module.exports={withRecordedSourceActions};
