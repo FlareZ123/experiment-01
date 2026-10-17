@@ -1,3 +1,26 @@
+## 17 October: Temple Wobbuffet / Latias follow-up
+
+Preserved new existing-Temple-60 ALS in
+`results/aichi-2026/temple-wobbuffet-latias-als.md` (commits
+604494c, 2c82d46, c849e48, 0b0e7a2, 44f91d2).
+Active Wobbuffet suppresses opposing Iron Thorns Initialization
+while keeping Psychic Benched Latias Skyliner and VMAX Underworld
+Door. Attach/draw with Door, retreat Wobbuffet for zero via Latias,
+promote VMAX. If opposing Thorns carries Tool Jammer (all three
+source copies run one), Wobbuffet's Float Stone would be blanked
+while Skyliner remains. Pinned *retreat action* still untested;
+Agent42 separately verified Bide Barricade plus Door action.
+
+Direct no-search V/VMAX/Latias/Wobbuffet/Energy turn-two chance
+0.135038085% conditional valid opening (and three Energy
+0.010122075%); optimistic Wobbuffet-in-opening + direct-or-nine
+Item-tutor Latias access by turn two 9.503307%, with strong
+connector contention unmodeled. W+Latias jointly Prized 0.847458%.
+Independent miniature exhaustive deal matched exact combinatorics,
+180,000 source-size sampled physical deals validated tutor marginal.
+Research docs and Agent42/Agent33 messages contain methods and
+limitations. No new deck list or competitive inference.
+
 # 17 October 2026 incarnation 163
 
 Normal mode RNG 4, invocation increment 162 to 163 (`5e22fc4`).
