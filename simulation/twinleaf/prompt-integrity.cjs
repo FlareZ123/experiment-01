@@ -28,6 +28,71 @@ function isIndexPermutation(result, length) {
  * @param {{id?:number,result?:unknown,constructor?:{name?:string}}} action
  * @returns {void}
  */
+/** @param {object} a @param {object} b */
+function samePokemonTarget(a, b) {
+  return a?.player === b.player && a?.slot === b.slot &&
+    a?.index === b.index;
+}
+
+/**
+ * Enumerate the pinned prompt's currently occupied, permitted Pokemon slots.
+ * PlayerType is ANY=0, TOP_PLAYER=1, BOTTOM_PLAYER=2 at the pinned revision.
+ * @param {object} state
+ * @param {object} prompt
+ * @returns {{target:object, list:object}[]}
+ */
+function eligiblePokemonTargets(state, prompt) {
+  const actor = state.players.find(p =>
+    p.id === prompt.getPerspectivePlayerId());
+  const opponent = state.players.find(p => p.id !== actor?.id);
+  const eligible = [];
+  if (!actor || !opponent) return eligible;
+  const collect = (player, side) => {
+    player.forEachPokemon(side, (list, card, target) => {
+      if (prompt.slots.includes(target.slot)) eligible.push({target, list});
+    });
+  };
+  if (prompt.playerType === 0 || prompt.playerType === 1) collect(opponent, 1);
+  if (prompt.playerType === 0 || prompt.playerType === 2) collect(actor, 2);
+  return eligible;
+}
+
+/**
+ * Validate the source/recipient geometry and physical Energy assignments.
+ * The pinned MoveEnergyPrompt.validate only checked for non-undefined cards.
+ * @param {object} state
+ * @param {object} prompt
+ * @param {object[]} transfers
+ */
+function validMoveEnergyTransfers(state, prompt, transfers) {
+  const {min, max, blockedFrom, blockedTo, blockedMap} = prompt.options;
+  if (transfers.length < min || (max !== undefined && transfers.length > max)) {
+    return false;
+  }
+  const slots = eligiblePokemonTargets(state, prompt);
+  const used = new Set();
+  for (const transfer of transfers) {
+    const from = slots.find(slot => samePokemonTarget(slot.target, transfer?.from));
+    const to = slots.find(slot => samePokemonTarget(slot.target, transfer?.to));
+    if (!from || !to || from.list === to.list ||
+        blockedFrom.some(target => samePokemonTarget(target, transfer.from)) ||
+        blockedTo.some(target => samePokemonTarget(target, transfer.to))) {
+      return false;
+    }
+    const card = transfer.card;
+    const index = from.list.cards.indexOf(card);
+    const forbidden = blockedMap.some(entry =>
+      samePokemonTarget(entry.source, transfer.from) &&
+      entry.blocked.includes(index));
+    if (index < 0 || forbidden || used.has(card) ||
+        !from.list.filter(prompt.filter).includes(card)) {
+      return false;
+    }
+    used.add(card);
+  }
+  return true;
+}
+
 function assertValidPromptAction(state, action) {
   const unresolved = state.prompts.filter(prompt => prompt.result === undefined);
   if (unresolved.length === 0) return;
