@@ -122,15 +122,39 @@ function makeBarrageEvolutionResolver(hasTarget = hasBenchEvolutionTarget) {
   };
 }
 
+
+/**
+ * Observe an actual per-seat bot prompt displaying its entire own deck. This
+ * resolver returns no action, so ordinary prompt choice remains unchanged.
+ * The callback is scoped to one bot/options instance and is never consulted
+ * until its owner has actually received a source-deck search prompt.
+ *
+ * @param {()=>void} onOwnerSearch
+ * @returns {Function} Research-side read-only PromptResolver subclass.
+ */
+function makeOwnerDeckObservationResolver(onOwnerSearch) {
+  const {PromptResolver}=load('simple-bot/prompt-resolver/prompt-resolver');
+  const {ChooseCardsPrompt}=load('game/store/prompts/choose-cards-prompt');
+  return class ObserveOwnerDeckSearchResolver extends PromptResolver {
+    resolvePrompt(state,player,prompt) {
+      if(prompt instanceof ChooseCardsPrompt &&
+          prompt.playerId===player.id && prompt.cards===player.deck) {
+        onOwnerSearch();
+      }
+      return undefined;
+    }
+  };
+}
+
 /**
  * Add a source-conditioned attack and Barrage resolver before upstream
  * generic choices. This leaves default policies untouched and composes
  * with the separate ToolAwareAttackTactic.
  * @param {object} options SimpleBotOptions
- * @param {{sourceCards?:object[]}} [configuration] Immutable source 60 for optional K0-safe decisions.
+ * @param {{sourceCards?:object[],observeFirstOwnDeckSearch?:boolean}} [configuration] Source 60 plus opt-in observed K0 to K1 knowledge transition.
  * @returns {object} Cloned options
  */
-function withBunnelbyEvolutionLine(options, {sourceCards} = {}) {
+function withBunnelbyEvolutionLine(options, {sourceCards,observeFirstOwnDeckSearch=false} = {}) {
   if (!Array.isArray(options.tactics) ||
       !Array.isArray(options.promptResolvers)) {
     throw new Error('Require tactics and prompt resolvers');
@@ -142,8 +166,15 @@ function withBunnelbyEvolutionLine(options, {sourceCards} = {}) {
   if (sourceCards !== undefined && (!Array.isArray(sourceCards) || sourceCards.length !== 60)) {
     throw new Error('K0-safe Evolution requires exactly 60 physical source Card copies');
   }
+  if (observeFirstOwnDeckSearch && !sourceCards) {
+    throw new Error('K1 observation requires a known physical source 60');
+  }
+  let hasObservedOwnDeck = false;
   const hasTarget = sourceCards === undefined ? hasBenchEvolutionTarget :
-    player => hasK0PossibleBenchEvolutionTarget(player, sourceCards);
+    player => hasObservedOwnDeck ? hasBenchEvolutionTarget(player) :
+      hasK0PossibleBenchEvolutionTarget(player, sourceCards);
+  const Observer = observeFirstOwnDeckSearch ?
+    makeOwnerDeckObservationResolver(() => {hasObservedOwnDeck=true;}) : null;
   const toolIndex = options.tactics.findIndex(t =>
     t.name === 'ToolAwareAttackTactic');
   const atkIndex = toolIndex >= 0 ? toolIndex :
@@ -161,6 +192,7 @@ function withBunnelbyEvolutionLine(options, {sourceCards} = {}) {
       ...options.tactics.slice(atkIndex)
     ],
     promptResolvers: [
+      ...(Observer ? [Observer] : []),
       ...options.promptResolvers.slice(0, promptIndex),
       makeBarrageEvolutionResolver(hasTarget),
       ...options.promptResolvers.slice(promptIndex)
@@ -173,5 +205,6 @@ module.exports = {
   immediateBurrowDeckout,
   makeBunnelbyEvolutionTactic,
   makeBarrageEvolutionResolver,
+  makeOwnerDeckObservationResolver,
   withBunnelbyEvolutionLine
 };
