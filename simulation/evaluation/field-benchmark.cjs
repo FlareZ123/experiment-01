@@ -310,7 +310,8 @@ function evaluatePlan(plan, options) {
     randomnessProtocol: isolatePolicyRandomness ?
       'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
     policy: (doubleDragonRecovery ?
-      'Twinleaf SimpleTacticsAi+DoubleDragonAttachTactic-v4' :
+      'Twinleaf SimpleTacticsAi+' +
+      require('../twinleaf/dde-attach-tactic.cjs').DDE_POLICY_VERSION :
       'Twinleaf SimpleTacticsAi') +
       (supporterDecisionCorrection ? '+SupporterDecisionGuard-v1' : '') +
       (templeUnlockRecovery ? '+TempleUnlockTactic-v1' : '') +
