@@ -30,7 +30,7 @@ function probe(seat) {
   const mine=new Player(),them=new Player();
   mine.id=101;them.id=202;
   state.players=seat===0?[mine,them]:[them,mine];
-  state.activePlayer=seat;state.turn=2;
+  state.activePlayer=seat;state.turn=1;
   state.phase=GamePhase.PLAYER_TURN;
   state.gameSettings.format=Format.EXPANDED;
   const klefki=card('Klefki SVI');
@@ -64,7 +64,8 @@ function probe(seat) {
   assert.ok(benched.includes(duskull.fullName));
   assert.ok(mine.active.energies.cards.includes(telepath));
   // Exact subsequent own-turn change, preserving prior attached card.
-  state.turn++;
+  // Advance past the intervening opponent turn; their policy is not modeled.
+  state.turn=3;
   const mewBench=mine.bench.findIndex(p=>p.getPokemonCard()===mew);
   const before={active:mine.active.getPokemonCard().fullName,
     energy:mine.active.energies.cards.map(c=>c.fullName),benched};
