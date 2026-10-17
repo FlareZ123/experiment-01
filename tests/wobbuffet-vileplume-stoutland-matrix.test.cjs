@@ -18,3 +18,5 @@ test('actual Store enforces Hood-dependent dual-lock under Active Wobbuffet and 
     assert.equal(row.supporter.accepted, !row.stoutlandHood);
   }
 });
+
+test('retreat restores both locks',()=>{ const r=require('../simulation/twinleaf/wobbuffet-vileplume-stoutland-matrix.cjs').retreatWindow(); assert.equal(r.after.sentinel,true); assert.equal(r.after.irritatingPollen,true); });
