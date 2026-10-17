@@ -10,6 +10,8 @@ A [contemporaneous Aichi Regidrago Top16 pilot's first-person ruling correction]
 
 The detailed rulebook supplied for this project distinguishes persistent player-targeted attack-origin restrictions from Pokémon-targeted attack effects (C-19). Even if an Ability would be suppressed after entry, a legal-entry check needs to occur first.
 
+The immutable [Aichi full-list registry](../aichi-2026/full-decklists.json) identifies exactly **one Chimecho CIN 43** in final rank **31, Yuhi Yokoyama / Dusknoir Chimecho**. That source printing makes this a real opponent-policy coverage issue for the fixed-deck benchmark rather than a hypothetical card outside the evaluated field.
+
 ## Pinned Twinleaf implementation audit
 
 Pinned upstream Git revision: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` at `vendor/twinleaf`. **Read-only inspection; no upstream modification.**
