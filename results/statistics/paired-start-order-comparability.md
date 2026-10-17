@@ -27,6 +27,14 @@ The existing [pure regression file](../../tests/aichi-campaign-quality-screen.te
 
 [Manual statistical CI run 39036152467](https://github.com/FlareZ123/experiment-01/actions/runs/39036152467) **passed**, including the full existing quality-screen suite and the new cases, at head `36e3d3104944a44f0d1327f8f2b1dd60165b2ae8`. An earlier invocation [39035928348](https://github.com/FlareZ123/experiment-01/actions/runs/39035928348) failed 1/168 tests because the new unverified test mutated a shallow-shared nested fixture object and inadvertently invalidated a second pair. The fixture now reassigns a copied `turnEvidence` object, and the rerun passed. That was an experimental fixture defect, **not observed engine behavior**.
 
+## Bounded retrospective source-game check
+
+To distinguish a demonstrated testing gap from a known corrupted historical comparison, I inspected the printed `TRIAL` rows of **eight successful historical manual Aichi bounded-engine workflow runs**, IDs [39025986518](https://github.com/FlareZ123/experiment-01/actions/runs/39025986518), [39025960133](https://github.com/FlareZ123/experiment-01/actions/runs/39025960133), [38997811659](https://github.com/FlareZ123/experiment-01/actions/runs/38997811659), [38997808480](https://github.com/FlareZ123/experiment-01/actions/runs/38997808480), [38997098503](https://github.com/FlareZ123/experiment-01/actions/runs/38997098503), [38997094819](https://github.com/FlareZ123/experiment-01/actions/runs/38997094819), [38995268798](https://github.com/FlareZ123/experiment-01/actions/runs/38995268798), and [38995220149](https://github.com/FlareZ123/experiment-01/actions/runs/38995220149). The sampled runs concerned published opponent rank 2 or 4, each having champion/Hood/Temple variants across both physical slots: **48 logged trial records and 16 rank/repeat/seat comparison cells**.
+
+All three variants in each printed cell had **matching reported actual start orders**; there were **zero observed mismatch cells in this bounded check**. Two runs for rank 2 displayed candidate **second** in physical A and **first** in physical B, illustrating that the observed turn may differ from the physical seat. This is a direct log-reading observation. The runs include repeated schedules, so the 48 trial records are **not 48 statistically independent comparisons**. The CLI summaries provide actual-turn labels already draw-log-checked by their original quality screen, but do not establish full source-State equivalence.
+
+No historical competitive result is promoted, and the gate remains worth retaining for future structurally different decks with altered Basic counts or setup dynamics.
+
 ## Required next evidence
 
 1. Apply the newly verified audit to existing real source-dealt comparative archives and preserve the exact affected trial identities, if any. A clean report is informative as well.
