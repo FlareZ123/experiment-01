@@ -50,6 +50,22 @@ function probe(seat) {
       p.prizes.push(prize);
     }
   }
+  // Diagnostic-only observer: it forwards identical reducer calls and records
+  // swallowed exceptions within the Special Energy protection preflight.
+  const reductions=[];
+  const reduce=store.reduceEffect.bind(store);
+  store.reduceEffect=(s,e)=>{
+    const kind=e?.constructor?.name;
+    try {
+      const result=reduce(s,e);
+      if(['AttachEnergyEffect','SpecialEnergyEffect','CheckPokemonTypeEffect'].includes(kind))
+        reductions.push({kind,outcome:'returned'});
+      return result;
+    } catch(error) {
+      reductions.push({kind,outcome:'threw',message:error?.message??String(error)});
+      throw error;
+    }
+  };
   store.dispatch(new PlayCardAction(mine.id,0,{
     player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
   }));
@@ -62,7 +78,8 @@ function probe(seat) {
     attachedEnergy:mine.active.energies.cards.map(x=>x.fullName),
     deck:mine.deck.cards.map(x=>x.fullName).slice(0,6),
     energyPlayedTurn:mine.energyPlayedTurn,
-    active:mine.active.getPokemonCard()?.fullName
+    active:mine.active.getPokemonCard()?.fullName,
+    reductions:reductions.slice(-30)
   }));
   assert.equal(selection.validate([mew,duskull]),true);
   store.dispatch(new ResolvePromptAction(selection.id,[mew,duskull]));
