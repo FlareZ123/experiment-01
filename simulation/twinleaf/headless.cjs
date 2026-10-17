@@ -811,7 +811,8 @@ function runMatch(request) {
       attackBeforeRetreat: request.attackBeforeRetreat === true,
       attackBeforeRetreatSeat: request.attackBeforeRetreatSeat ?? null,
       policy: (request.doubleDragonRecovery === true ?
-        'Twinleaf SimpleTacticsAi/defaultStateScores+DoubleDragonAttachTactic-v4' :
+        'Twinleaf SimpleTacticsAi/defaultStateScores+' +
+        require('./dde-attach-tactic.cjs').DDE_POLICY_VERSION :
         'Twinleaf SimpleTacticsAi/defaultStateScores') +
         (request.supporterDecisionCorrection === true ? '+SupporterDecisionGuard-v1' : '') +
         (request.guzmaSelfSwitchGuard === true ? '+GuzmaSelfSwitchGuard-v1' : '') +
