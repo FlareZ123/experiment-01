@@ -125,7 +125,8 @@ function executeCampaign(inputs, options = {}) {
   const policyFlags = options.matchOptions || {};
   const allowedPolicyFlags = new Set([
     'forestSealSearchCorrection', 'doubleDragonRecovery',
-    'supporterDecisionCorrection'
+    'supporterDecisionCorrection',
+    'postSuperAliasRepairIsolation'
   ]);
   if (Object.entries(policyFlags).some(([key, value]) =>
     !allowedPolicyFlags.has(key) || typeof value !== 'boolean')) {
@@ -204,12 +205,15 @@ function executeCampaign(inputs, options = {}) {
         game.rules?.attackFirstTurn === false;
       const profileValid = !expectedPolicyProfile ||
         game.researchPolicyProfile === expectedPolicyProfile;
+      const cloneProfileValid = policyFlags.postSuperAliasRepairIsolation !== true ||
+        game.postSuperAliasRepairIsolation === true;
       const terminal = game.finished === true && [0, 1, 3].includes(game.winner);
       const status = !validSeed ? 'engine-seed-mismatch' :
         !validHashes ? 'engine-deck-mismatch' :
         !engineIdentityValid ? 'engine-revision-mismatch' :
         !protocolValid ? 'engine-protocol-mismatch' :
         !profileValid ? 'policy-profile-mismatch' :
+        !cloneProfileValid ? 'simulator-profile-mismatch' :
         !proof ? 'unverified-first-turn' :
           !terminal ? 'unfinished' : 'completed';
       const candidateSlot = candidateA ? 0 : 1;
@@ -232,6 +236,7 @@ function executeCampaign(inputs, options = {}) {
           supporterDecisionCorrection: game.supporterDecisionCorrection === true ||
             (game.supporterDecisionCorrection === undefined &&
               request.supporterDecisionCorrection === true),
+          postSuperAliasRepairIsolation: game.postSuperAliasRepairIsolation === true,
           strictPromptValidation: request.strictPromptValidation,
           isolatePolicyRandomness: game.policyRandomIsolation === undefined ?
             request.isolatePolicyRandomness : game.policyRandomIsolation
@@ -293,6 +298,8 @@ if (require.main === module) {
     request => profiled.runWithResearchProfile(request, profile) : undefined;
   process.stdout.write(JSON.stringify(executeCampaign(loadCampaignInputs(), {
     phase, maxTrials, maxActions, trialIds, runMatch,
+    matchOptions: {postSuperAliasRepairIsolation:
+      process.env.CAMPAIGN_POST_SUPER_ALIAS_REPAIR === 'true'},
     captureDecisionTrace, expectedPolicyProfile: profile || null
   }), null, 2) + '\n');
 }
