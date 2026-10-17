@@ -200,6 +200,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [mimikyuApexTimelessPolicy] Opt-in exact public-state Copycat/Apex/Timeless decision policy.
  * @property {0|1} [mimikyuApexTimelessPolicySeat] Restrict Copycat counterpolicy to one physical seat.
  * @property {0|1} [mimikyuTurn27SetupSeat] Source-ranked, single-turn test of discard, Energy attachment and promotion into the Copycat response.
+ * @property {0|1} [mimikyuExtraTurnShredSeat] Opt-in exact source turn28 Copycat/Apex/Shred counterfactual for one physical seat.
  * @property {boolean} [mimikyuDeclaredHistoryCorrection] Opt-in printed Copycat attack history after nested prompts.
  * @property {boolean} [regidragoDeclaredHistoryCorrection] Opt-in printed Apex Dragon attack history after nested prompts.
  * @property {boolean} [passClearsLastAttackCorrection] Opt-in clear stale preceding attack when a player passes.
@@ -274,6 +275,12 @@ function runMatch(request) {
           request.mimikyuApexTimelessPolicySeat !== request.mimikyuTurn27SetupSeat ||
           ![0, 1].includes(request.mimikyuTurn27SetupSeat))) {
       throw new Error('Source-window Copycat setup requires matching candidate-only counterpolicy seat');
+    }
+    if (request.mimikyuExtraTurnShredSeat !== undefined &&
+        (![0, 1].includes(request.mimikyuExtraTurnShredSeat) ||
+          request.mimikyuTurn27SetupSeat !== request.mimikyuExtraTurnShredSeat ||
+          request.mimikyuApexTimelessPolicySeat !== request.mimikyuExtraTurnShredSeat)) {
+      throw new Error('Turn28 Shred fork requires the exact turn27 Copycat setup on the same physical seat');
     }
     if (request.captureCopycatTurnStartSeat !== undefined &&
         ![0, 1].includes(request.captureCopycatTurnStartSeat)) {
@@ -433,6 +440,10 @@ function runMatch(request) {
       if (request.mimikyuTurn27SetupSeat === seat) {
         configured = require('./mimikyu-source-turn27-setup.cjs')
           .withCopycatTurn27Setup(configured);
+      }
+      if (request.mimikyuExtraTurnShredSeat === seat) {
+        configured = require('./mimikyu-extra-turn-shred-policy.cjs')
+          .withCopycatExtraTurnShredPolicy(configured);
       }
       return configured;
     });
@@ -671,6 +682,7 @@ function runMatch(request) {
       mimikyuApexTimelessPolicy: request.mimikyuApexTimelessPolicy === true,
       mimikyuApexTimelessPolicySeat: request.mimikyuApexTimelessPolicySeat ?? null,
       mimikyuTurn27SetupSeat: request.mimikyuTurn27SetupSeat ?? null,
+      mimikyuExtraTurnShredSeat: request.mimikyuExtraTurnShredSeat ?? null,
       mimikyuDeclaredHistoryCorrection: request.mimikyuDeclaredHistoryCorrection === true,
       regidragoDeclaredHistoryCorrection: request.regidragoDeclaredHistoryCorrection === true,
       passClearsLastAttackCorrection: request.passClearsLastAttackCorrection === true,
@@ -698,6 +710,7 @@ function runMatch(request) {
         (request.shadowRiderEnergyAcrossField === true ? '+ShadowRiderPsychicAttachAcrossField-v1' : '') +
         (request.shadowRiderOpeningPivot === true ? '+SelectedShadowRiderSetupActive-v1' : '') +
         (request.latiasAttackReadyAttachment === true ? '+LatiasAttackReadyAttachment-v1' : '') +
+        (request.mimikyuExtraTurnShredSeat !== undefined ? '+MimikyuExtraTurnShred-v1' : '') +
         (request.bunnelbyK0SafeEvolution === true ? '+BunnelbySourceK0PossibleEvolution-v1' : '') +
         (request.attackBeforeRetreat === true ?
           '+AttackBeforeRetreatTactic-v1@' +
