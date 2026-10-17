@@ -109,29 +109,35 @@ function run() {
     const inspected=[];
     let selected=null;
     for(let repeat=0;repeat<MAX_PROBES;repeat++) {
-      const seeds=deriveSlotSeeds(20261017,'pilot',RANK,repeat);
+      const seedBase=20261017+Math.floor(repeat/100);
+      const withinBaseRepeat=repeat%100;
+      const seeds=deriveSlotSeeds(seedBase,'pilot',RANK,withinBaseRepeat);
       const seed=seeds[seat===0?'A':'B'];
       let game;
-      try { game=runArm(slots.source,opponent.cards,seat,75,true,false); }
+      try { game=runArm(slots.source,opponent.cards,seat,90,true,false); }
       catch(error) {
-        inspected.push({repeat,seed,screenError:String(error?.message||error)});
+        inspected.push({seedBase,repeat:withinBaseRepeat,seed,screenError:String(error?.message||error)});
         continue;
       }
       const choice=initialChoice(game,seat);
       const second=game.verifiedByDrawLog===true &&
         game.firstTurnSlot===1-seat;
       const eligible=second&&pivotEligible(choice);
-      inspected.push({repeat,seed,firstTurnSlot:game.firstTurnSlot,
+      inspected.push({seedBase,repeat:withinBaseRepeat,seed,firstTurnSlot:game.firstTurnSlot,
         drawVerified:game.verifiedByDrawLog,
         hasGengarInSelection:!!choice,
         eligible});
-      if(eligible) {selected={repeat,seed};break;}
+      if(eligible) {selected={seedBase,repeat:withinBaseRepeat,seed};break;}
     }
 
     const report={candidatePhysicalSeat:seat,
       authenticCandidateSecond:true,scanned:inspected.length,
       screenErrors:inspected.filter(x=>x.screenError).slice(0,8),
-      selected,comparisons:[],qualifiedForCompetitiveInference:false};
+      selected,screenCensus:{
+        verifiedCandidateSecond:inspected.filter(x=>x.drawVerified&&x.firstTurnSlot===1-seat).length,
+        selectedGengar:inspected.filter(x=>x.hasGengarInSelection).length,
+        eligible:inspected.filter(x=>x.eligible).length
+      },comparisons:[],qualifiedForCompetitiveInference:false};
     if(selected) {
       for(const variant of ['source','lockbreak']) {
         const baseline=tryArm(slots[variant],opponent.cards,seat,selected.seed,false);
@@ -170,7 +176,7 @@ function run() {
     contenderPrintHash:contender.canonical_id_count_sha256,
     pinnedTwinleaf:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     policy:'research opt-in native Gengar starting selection; source and Lockbreaker unchanged 60s',
-    seedProtocol:'decorrelated-slots-v3 base 20261017 rank11, first 160 repeats in each physical seat satisfying initial hand Gengar+Psychic and candidate actually second',
+    seedProtocol:'decorrelated-slots-v3 base 20261017 rank11, first 160 seeded attempts in each physical seat (100 max per v3 base; bases 20261017 and 20261018) satisfying initial hand Gengar+Psychic and candidate actually second',
     qualifiedForCompetitiveInference:false,seats
   };
 }
