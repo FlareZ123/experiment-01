@@ -29,6 +29,8 @@ jobs:
         run: node --test tests/bunnelby-k0-deck-target-leak.test.cjs tests/bunnelby-k0-source-inventory.test.cjs
       - name: Verify observed K0 to K1 owner-deck search policy
         run: node --test tests/bunnelby-k1-observation.test.cjs
+      - name: Contrast generic and source-aware TM Evolution targets
+        run: node --test tests/bunnelby-tm-target-selection.test.cjs
       - name: Smoke-test live-root K1 opt-in with both rank-2 source seats
         run: node --test tests/bunnelby-k1-headless-smoke.test.cjs
       - name: Test source-backed Tool attack decision
