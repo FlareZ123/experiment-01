@@ -1,7 +1,5 @@
 'use strict';
 
-const {sourceZoneSnapshot} = require('./source-zone-checkpoint.cjs');
-
 /**
  * A narrow observer of the exact source-dealt rank8 decision turn.
  * Hidden zones are reduced to counts and never given to either bot.
