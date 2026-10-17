@@ -97,6 +97,12 @@ function runCase(count, noRecipient = false, useBot = false, availableCount = 5,
   }
   assert.ok(!f.state.prompts.some(p => p.result === undefined),
     'No post-Ability prompts should remain');
+  let chainedDamage=null;
+  let energyMapAfterBomb=null;
+  if (chainAttack) {
+    const {providedEnergy}=require('./temple-raichu-board.cjs');
+    energyMapAfterBomb=providedEnergy(f);
+  }
   return {
     count,noRecipient,useBot,availableCount,transferred:transfers.length,
     promptAccepted,min:prompt.options.min,max:prompt.options.max,
