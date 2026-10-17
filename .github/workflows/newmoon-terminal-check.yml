@@ -26,7 +26,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Pure terminal signature safety regression
-        run: node --test tests/terminal-signatures.test.cjs
+        run: node --test tests/terminal-signatures.test.cjs tests/public-decision-prefix.test.cjs
       - name: Replay physical-A rank8 terminal evidence
         run: |
           node -e "const fs=require('node:fs'),cp=require('node:child_process');const lock=fs.openSync('rank8-terminal.lock','wx');try{const data=cp.execFileSync(process.execPath,['simulation/twinleaf/newmoon-terminal-audit.cjs'],{encoding:'utf8',maxBuffer:10485760});fs.writeFileSync('rank8-terminal.pending.json',data,{flag:'wx'});fs.renameSync('rank8-terminal.pending.json','rank8-terminal.json')}finally{fs.closeSync(lock);fs.unlinkSync('rank8-terminal.lock')}"
