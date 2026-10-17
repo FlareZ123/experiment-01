@@ -152,5 +152,30 @@ function runMatrix() {
   };
 }
 
+/**
+ * Demonstrate the temporary nature of the Bide Barricade escape window.
+ * With zero Energy attached, an actual RetreatAction must rely on Psychic
+ * Latias ex's Skyliner, then restore the opponent's unprotected locks.
+ */
+function retreatWindow() {
+  const sample = board({vileplumeHood:false,stoutlandHood:false});
+  const before = abilities(sample);
+  assert.equal(before.sentinel,false);
+  assert.equal(before.irritatingPollen,false);
+  assert.equal(sample.regidrago.active.energies.cards.length,0);
+  const {RetreatAction} = engine('game/store/actions/game-actions');
+  sample.store.dispatch(new RetreatAction(sample.regidrago.id,0));
+  assert.equal(sample.regidrago.active.getPokemonCard()?.name,'Latias ex');
+  assert.equal(sample.regidrago.bench[0].getPokemonCard()?.name,'Wobbuffet');
+  const after = abilities(sample);
+  assert.equal(after.sentinel,true);
+  assert.equal(after.irritatingPollen,true);
+  assert.equal(after.skyliner,true);
+  return {before,after,
+    formerActive:'Wobbuffet PHF',newActive:'Latias ex SSP',
+    energyCardsDiscarded:0,
+    scope:'real staged Store retreat, no source-dealt turn'};
+}
+
 if (require.main === module) process.stdout.write(JSON.stringify(runMatrix(),null,2)+'\n');
-module.exports = {board,abilities,attempt,runMatrix};
+module.exports = {board,abilities,attempt,runMatrix,retreatWindow};
