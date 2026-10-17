@@ -20,13 +20,22 @@ const PROFILES = Object.freeze([EXPANDED_PROFILE, EXPANDED_SOURCE_PROFILE]);
  * @returns {object} Reproducible bounded mechanics readout.
  */
 function rank2DecisionReadout(game, rank2Seat) {
-  const relevant = (game.decisionTrace || []).filter(event =>
-    event.playerSlot === rank2Seat &&
-    (event.card === 'Guzma & Hala' ||
-     event.card === 'Technical Machine: Evolution' ||
-     event.card === 'Jet Energy' ||
-     event.optionSelection !== undefined ||
-     event.attack === 'Evolution'));
+  const relevant = (game.decisionTrace || []).filter(e =>
+    e.playerSlot === rank2Seat && (e.card === 'Guzma & Hala' ||
+    e.card === 'Technical Machine: Evolution' || e.card === 'Jet Energy' ||
+    e.optionSelection || e.attack === 'Evolution' ||
+    e.cardSelection?.selectedCards?.some(name =>
+      name === 'Technical Machine: Evolution PAR' || name === 'Jet Energy PAL') ||
+    (e.cardSelection?.sourceZone === 'hand' &&
+      e.cardSelection?.selectedCards?.length === 2))).map(e => ({
+      turn: e.turnBefore, action: e.action,
+      ...(e.card ? {card:e.card} : {}),
+      ...(e.optionSelection ? {option:e.optionSelection.selectedOption,
+        optionText:e.optionSelection.selectedText} : {}),
+      ...(e.cardSelection ? {sourceZone:e.cardSelection.sourceZone,
+        selected:e.cardSelection.selectedCards} : {}),
+      ...(e.attack ? {attack:e.attack} : {})
+    }));
   return {
     status: game.finished ? 'finished-engine-game' : 'action-limited',
     actions: game.actions, turns: game.turns,
