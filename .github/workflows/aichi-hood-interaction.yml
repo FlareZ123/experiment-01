@@ -63,6 +63,9 @@ jobs:
       - name: Show Garbodor Tool activation and Hood destination
         if: inputs.hood_rank8_board_audit
         run: node -e "const x=require('./rank8-hood-board-audit.json'); const slim=e=>({turn:e.turn,action:e.action,card:e.card,actorBefore:e.visibleBefore.actor,actorAfter:e.after.actor,otherBefore:e.visibleBefore.other,otherAfter:e.after.other,discardDark:e.opponentDarknessDiscardBefore}); const chosen=x.chronologicalBoardEvents.filter(e=>e.card==='Float Stone'||e.card==='Stealthy Hood'||e.card==='Garbodor'||e.card==='Trubbish'||e.action==='AttackAction'); console.log(JSON.stringify(chosen.map(slim),null,2));"
+      - name: Print source-ranked full public Tool attachment destinations
+        if: inputs.hood_rank8_board_audit
+        run: node -e "const x=require('./rank8-hood-board-audit.json'); console.log(JSON.stringify(x.fullPublicToolPlays,null,2));"
       - name: Audit source-ranked Hood attacks and Garbotoxin exposure
         if: inputs.hood_rank8_board_audit
         run: node simulation/twinleaf/rank8-hood-lock-attack-gate.cjs rank8-hood-board-audit.json > rank8-hood-action-gate.json
