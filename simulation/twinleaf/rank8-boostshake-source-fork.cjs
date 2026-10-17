@@ -91,6 +91,13 @@ function withRank8BoostShakeFork(execute){
       return record(state,'Choose '+names.join(', '),
         new ResolvePromptAction(pending.id,chosen));
     }
+    if(stage===10 && pending?.constructor.name==='ChoosePokemonPrompt'){
+      const index=p.bench.findIndex(slot=>slot.getPokemonCard()?.name==='Trubbish');
+      assert.equal(index,4);
+      assert.equal(pending.validate([p.bench[index]],state),true);
+      return record(state,'Evolve actual source Trubbish into Garbodor',
+        new ResolvePromptAction(pending.id,[p.bench[index]]));
+    }
     if(pending) return original.call(this,state);
     if(stage===3) return record(state,'Pay Quick Ball with searched Stadium',
       play(p,'Quick Ball',board));
