@@ -79,3 +79,50 @@ test('Python action-name whitespace parity', () => {
   assert.equal(actionTraceSha256([{ step: 0, action: String.fromCharCode(0xfeff) }]),
     '77ce76ff5522a815d33f010fe07532de03c41966f2d18ede81a0ff825f30799f');
 });
+
+test('rejects accessor fields without executing mutable getters', () => {
+  let reads = 0;
+  const dynamicAction = { step: 0 };
+  Object.defineProperty(dynamicAction, 'action', {
+    enumerable: true,
+    get() { reads += 1; return reads === 1 ? 'draw' : ''; }
+  });
+  assert.throws(() => canonicalActionTrace([dynamicAction]), /data properties/);
+  assert.equal(reads, 0);
+
+  const dynamicStep = { action: 'draw' };
+  Object.defineProperty(dynamicStep, 'step', {
+    enumerable: true, get() { reads += 1; return 0; }
+  });
+  assert.throws(() => canonicalActionTrace([dynamicStep]), /data properties/);
+  assert.equal(reads, 0);
+
+  const payload = {};
+  Object.defineProperty(payload, 'card', {
+    enumerable: true,
+    get() { reads += 1; return 'Secret Box'; }
+  });
+  assert.throws(() => canonicalActionTrace([{ step: 0, action: 'search', payload }]), /data properties/);
+  assert.equal(reads, 0);
+
+  const array = ['card'];
+  Object.defineProperty(array, '0', {
+    enumerable: true,
+    get() { reads += 1; return 'switch'; }
+  });
+  assert.throws(() => canonicalActionTrace([{ step: 0, action: 'choose', choices: array }]), /data properties/);
+  assert.equal(reads, 0);
+
+  const hidden = { step: 0 };
+  Object.defineProperty(hidden, 'action', { value: 'draw', enumerable: false });
+  assert.throws(() => canonicalActionTrace([hidden]), /data properties/);
+});
+
+test('retains ordinary frozen data properties and Python reference digests', () => {
+  const event = Object.freeze({
+    step: 0, action: 'draw', payload: Object.freeze({ card: 'Pokémon 🎴', n: 1 })
+  });
+  assert.equal(canonicalActionTrace([event]),
+    '{"action":"draw","payload":{"card":"Pokémon 🎴","n":1},"step":0}');
+  assert.equal(actionTraceSha256(vectors[0].trace), vectors[0].sha256);
+});
