@@ -161,11 +161,15 @@ function assertOrderPadToCologne(printing,heads) {
   const pad=initializeCards().getCardByName('Order Pad UPR');
   assert.ok(pad,'Missing source Order Pad');
   f.attacker.hand.cards.push(pad);
-  play(f,pad,board);
-  resolveWaits(f);
-  const coin=pending(f);
-  assert.equal(coin?.constructor.name,'CoinFlipPrompt');
-  f.store.dispatch(new ResolvePromptAction(coin.id,heads));
+  // Pinned RESOLVE_COIN_FLIP_EFFECT consumes randomness during Item dispatch.
+  // The subsequent WaitPrompt acknowledges the already sampled result.
+  const random=Math.random;
+  try {
+    Math.random=()=>heads ? 0.25 : 0.75;
+    play(f,pad,board);
+  } finally {
+    Math.random=random;
+  }
   resolveWaits(f);
   if(!heads) {
     assert.equal(pending(f),undefined);
