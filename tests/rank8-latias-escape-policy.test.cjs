@@ -11,7 +11,7 @@ const card=(name,extra={})=>({name,fullName:name+' source',...extra});
 const slot=(name,basicPsychic=0,tools=[])=>({
   getPokemonCard(){return card(name);},
   energies:{cards:Array.from({length:basicPsychic},()=>card('Psychic Energy'))},
-  tools:{cards:tools}
+  tools:tools
 });
 function source() {
   const me={
@@ -57,7 +57,7 @@ test('candidate attack route requires an already powered Bench attacker',()=>{
 });
 test('Tool mode requires active opposing Garbotoxin prerequisite',()=>{
   const {state,me,foe}=source();
-  foe.bench[0].tools.cards=[];
+  foe.bench[0].tools=[];
   assert.equal(sourceEscapeOpportunity(state,me,'tool'),null);
   assert.equal(sourceEscapeOpportunity(state,me,'paid'),null);
 });
