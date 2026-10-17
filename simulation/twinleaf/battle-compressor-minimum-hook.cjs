@@ -40,6 +40,21 @@ function installBattleCompressorMinimumHook(){
       SHUFFLE_DECK(store,state,player);
     });
   }
+  function guardedDispatch(action,clientRoleId){
+    if(action instanceof ResolvePromptAction &&
+       Array.isArray(action.result) && action.result.length===0){
+      const prompt=this.state.prompts.find(p=>p.id===action.id);
+      if(prompt instanceof ChooseCardsPrompt &&
+         prompt.message===GameMessage.CHOOSE_CARD_TO_DISCARD &&
+         prompt.cards===prompt.player.deck &&
+         prompt.options.min===1 && prompt.options.max===3 &&
+         prompt.player.supporter.cards.some(c=>c instanceof BattleCompressor)){
+        throw new GameError(GameMessage.CANNOT_PLAY_THIS_CARD);
+      }
+    }
+    return originalDispatch.call(this,action,clientRoleId);
+  }
+  Store.prototype.dispatch=guardedDispatch;
   BattleCompressor.prototype.reduceEffect=corrected;
   const restore=()=>{
     if(BattleCompressor.prototype.reduceEffect===corrected){
