@@ -20,7 +20,9 @@ function raichuSightAttachToolTacticClass() {
   const {PlayCardAction, PlayerType, SlotType} =
     load('game/store/actions/play-card-action');
   const {TrainerCard} = load('game/store/card/trainer-card');
-  const {TrainerType} = load('game/store/card/card-types');
+  const {TrainerType, CardTag} = load('game/store/card/card-types');
+  const sightTargets = [CardTag.POKEMON_GX, CardTag.POKEMON_V,
+    CardTag.POKEMON_VMAX, CardTag.POKEMON_VSTAR, CardTag.POKEMON_VUNION];
 
   return class RaichuSightAttachToolTactic extends AttachToolTactic {
     /** @param {object} state @param {object} player */
@@ -39,11 +41,16 @@ function raichuSightAttachToolTacticClass() {
           active: target.slot === SlotType.ACTIVE
         });
       });
+      const opponent = state.players.find(p => p.id !== player.id);
+      const hasRelevantBench = opponent?.bench.some(list => {
+        const pokemon = list.getPokemonCard();
+        return pokemon && sightTargets.some(tag => pokemon.hasTag(tag));
+      });
       raichus.sort((a, b) =>
         b.energyCount - a.energyCount ||
         Number(b.active) - Number(a.active) ||
         a.target.index - b.target.index);
-      if (raichus.length) {
+      if (raichus.length && hasRelevantBench) {
         return new PlayCardAction(player.id, sightIndex, raichus[0].target);
       }
 
