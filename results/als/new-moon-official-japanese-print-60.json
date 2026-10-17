@@ -6,7 +6,7 @@
   "retrieved_utc": "2026-10-17T09:12:03Z",
   "github_actions_run": 39020209669,
   "github_artifact": 12095944382,
-  "html_sha256": "df12cd53331d1ea3dcae0a0584662c046791bd555708fa47d610c73958664af2",
+  "html_sha256": "6bd8871900fd103fd414e136dbb6a14d581f9439f0e7289e595d89215ff0ff18",
   "origin": "results/als/new-moon-perfection-source-60.json",
   "entry_order": "Identical to origin entries. IDs and quantities extracted from official hidden deck_pke/deck_gds/deck_tool/deck_sup/deck_sta/deck_ene; Japanese set codes extracted from official card image paths. Exact Japanese registration print IDs; paper legality still requires dated rule review.",
   "entries": [
