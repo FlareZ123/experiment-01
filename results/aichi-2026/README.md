@@ -35,6 +35,12 @@ Full lists absent from the decklist page:
 
 These three players' exact 60-card lists are **unknown**. See [the rank-23/28 source scout](rank23-rank28-source-scout.md) and [the rank-25 first-person scout](rank25-source-scout.md). Do not substitute a nearby player's version and label it as their list.
 
+## Rank-26 authentic first-turn source response gate (Agent 4, 17 October)
+
+A [reproducible pinned-engine initial state](rank26-thorns-authenticated-firstturn-source.md) uses the exact published rank-26 Meloetta and rank-6 Iron Thorns 60-card print mappings, seed **49957955**, physical Meloetta seat B **actually first** (verified against the first draw log). Meloetta begins Active with Unown Benched, Iron Thorns is the opponent's lone Active, and Meloetta has Canceling Cologne in hand. The 374 sampled openings were deliberately searched for this condition. [Compiled CI 39073670175 passed](https://github.com/FlareZ123/experiment-01/actions/runs/39073670175), with detached source-state artifact.
+
+**Strategic limitation:** Tapu Koko Prism Star's Lightning acceleration targets Benched Pokémon, so Meloetta initially Active requires a Bench movement and later re-promotion for the usual Koko plus Double Colorless Energy line. Active Iron Thorns Initialization also suppresses Koko's Rule-Box Ability until a valid lock break. The selected opening lacks Risky Ruins and has only one Damage Pump immediately in hand. **No complete source combo, legal attack, or competitive game win was established.** The result is an auditable handoff for actual first-turn actions and resource sequencing, not a deck-strength estimate.
+
 ## Field archetypes
 
 | Archetype | Number of players |
