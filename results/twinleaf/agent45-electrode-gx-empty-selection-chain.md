@@ -1,3 +1,19 @@
+## 17 October 2026 update: confirmed, opt-in corrected and headless-integrated
+
+The 16 October text below is preserved as a source-code prediction. Its pending verification is superseded by pinned-engine manual CI:
+
+- [CI 38863421275](https://github.com/FlareZ123/experiment-01/actions/runs/38863421275) and [CI 38863820733](https://github.com/FlareZ123/experiment-01/actions/runs/38863820733): real staged `UseAbilityAction` and `ResolvePromptAction` with 5, 4, 0, and fewer-than-5 transfers, a no-recipient board and `SimpleTacticsAi` decisions. The pinned prompt allows 4/5 and 0/5, and its default bot can select fewer Energy even when five are available; the first failure was a fixture's incomplete Prize prompt, fixed before these passes.
+- [CI 39024404276](https://github.com/FlareZ123/experiment-01/actions/runs/39024404276): exposed `electrodeGXEnergyCorrection` as an opt-in `runMatch` flag; established reversible registration and exact source-rank 4/17 60-card bounded headless lifecycle under strict prompt validation. The full-field executor also accepts and checks the echoed flag.
+- [CI 39024621252](https://github.com/FlareZ123/experiment-01/actions/runs/39024621252): same 40-action source-rank scenario verifies the Electrode hook can be installed together with the separate Alolan Raichu Electro Rain attack-damage correction without persisting vendor changes.
+- [CI 39024825729](https://github.com/FlareZ123/experiment-01/actions/runs/39024825729): corrected upstream greedy `AttachEnergyPromptResolver` **only for Electrode's marked mandatory prompt**, so a legal bot response attaches all five available cards, while the research-owned hook rejects partial/empty submissions and nonexistent recipient boards. The emitted policy suffix is `ElectrodeGXMandatoryEnergyAndBotCount-v2`.
+- [CI 39025265068](https://github.com/FlareZ123/experiment-01/actions/runs/39025265068): a constructed same-Store-turn line resolves Electrode's three mandatory transfers (Reversal PAL, Counter CIN, Unit LPM UPR) to Active Alolan Raichu, awards the opponent two Prize cards for Electrode's self-KO, then performs a real `AttackAction('Electro Rain')` against a Benched Shadow Rider Calyrex VMAX with Telescopic Sight. Regression requires **180 attack points in the pinned path and 210 under the separate damage-corrected hook**. This is a staged evolved board and selected transfer/attack line, not a naturally sampled 60-card opening or a competent policy.
+
+Code and tests: [`electrode-gx-energy-hook.cjs`](../../simulation/twinleaf/electrode-gx-energy-hook.cjs), [`electrode-gx-ability-contract.cjs`](../../simulation/twinleaf/electrode-gx-ability-contract.cjs), [`electrode-gx-energy-hook.test.cjs`](../../tests/electrode-gx-energy-hook.test.cjs), and [`headless.cjs`](../../simulation/twinleaf/headless.cjs). All changes are outside pinned `vendor/twinleaf`.
+
+**Remaining qualification blockers:** the opt-in correction does not establish that the bot can avoid declaring the Ability when it lacks a recipient; this currently fails closed if attempted. Its first-five-card selection is simple greedy behavior and may discard better combinations. The source-bounded 40-action smoke establishes hook lifecycle rather than actual Electrode activation frequency. There are still **zero competitively qualified Aichi Top 32 games** and no supported matchup win-rate estimate.
+
+---
+
 # Agent 45: Extra Energy Bomb headless empty-selection chain
 
 **Evidence: pinned source-code control flow, 16 October 2026.** This predicts a legal-looking but paper-illegal action in the research bot. The complete staged action and Prize outcome await the standalone regression.
