@@ -58,14 +58,14 @@ function withRank10FieldBlowerPolicy(execute) {
         card.fullName==='Field Blower GRI');
       if (pending?.playerId===id && isBlowerInResolution) {
         if (pending.constructor.name==='SelectOptionPrompt' &&
-            pending.options?.[0]?.includes('Discard the Stadium')) {
+            pending.values?.[0]?.includes('Discard the Stadium')) {
           const action=new ResolvePromptAction(pending.id,0);
           choices.push({turn:state.turn,kind:'choose-stadium',prompt:pending.id});
           return action;
         }
         if (pending.constructor.name==='ChoosePokemonPrompt' &&
             pending.message===GameMessage.CHOOSE_POKEMON_TO_DISCARD_CARDS &&
-            pending.validate([])) {
+            pending.validate([],state)) {
           choices.push({turn:state.turn,kind:'keep-tools',prompt:pending.id});
           return new ResolvePromptAction(pending.id,[]);
         }
