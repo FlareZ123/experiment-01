@@ -115,6 +115,14 @@ jobs:
           if-no-files-found: error
       - name: Probe deck-origin Sol Burst GX versus Telepath from-hand trigger
         run: node simulation/twinleaf/telepath-nonhand-solburst-source.cjs > telepath-nonhand-solburst-source.json
+      - name: Verify reversible Telepath origin and physical-zone correction in both seats
+        run: node simulation/twinleaf/telepath-source-origin-paired.cjs > telepath-source-origin-paired.json
+      - name: Preserve patched/unpatched/hand attachment witness
+        uses: actions/upload-artifact@v4
+        with:
+          name: telepath-source-origin-paired
+          path: telepath-source-origin-paired.json
+          if-no-files-found: error
       - name: Preserve deck-origin Telepath negative engine witness
         uses: actions/upload-artifact@v4
         with:
