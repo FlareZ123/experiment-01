@@ -10,6 +10,14 @@ Added `simulation/twinleaf/apex-prize-headless-policy.cjs` to temporarily instal
 
 `tests/apex-prize-headless-policy.test.cjs` checks installer restoration and deterministic default/flagged/default matches on an unrelated legal 60-card inventory with no Regidrago. Tactical correctness still depends on Agent37's existing compiled prompt-fixture tests.
 
+## Authentic source-deal audit harness
+
+The follow-up `simulation/twinleaf/rank10-apex-prize-source-pair.cjs` (commit `ec2bd96f61f5d792225c9a3be7e9e27207ee755a`) freezes the published rank1 versus rank10 actual 60s, physical champion B seed `4246551499`, the prior Copycat rank10 experimental base correction flags, and the champion-actually-first turn order. It runs baseline → joint-Apex-prompt-policy → identical baseline, refusing to report a comparison if the repeated baseline changes or the full initial hand/deck/Prize-position fingerprints differ across arms.
+
+The read-only source Store dispatch observer records exact copied attack choices and `PutDamagePrompt` allocations, rejecting speculative Store events by instance identity. It reports root-action first divergence and source-choice presence/absence; `firstActionDifference` and source-only observer have pure tests in `tests/rank10-apex-prize-source-pair.test.cjs` (commit `990f600be904bb45b6b91bfe3ab09571eb46cc5f`). The test was added to the normal pure-test stage, while the full source-game comparison is **manual opt-in** using `workflow_dispatch.inputs.apex_source_pair=true` in the existing Aichi AttackTactic workflow (commit `190b0a23e6a9f911f670e44b98c5c842832bf62e`). No source-pair result is claimed before that optional CI completes.
+
+The complete earlier exact rank10 rank1-vs-rank10 game still has the same competitive qualification blockers and any paired result, including a terminal winner reversal, would be a source-deal *policy sensitivity* observation rather than competitive inference.
+
 ## Verification status
 
 - Installer commit: `2e2bdc81e479863c42f9b906449008e20741a176`
