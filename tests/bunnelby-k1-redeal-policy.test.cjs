@@ -21,6 +21,10 @@ function conditionedBot(insertion){
   sample.state.gameSettings.format=Format.EXPANDED;
   sample.state.turn=2;
   const manager=initializeCards();
+  const opponent=sample.state.players.find(player=>player.id!==sample.a.id);
+  assert.ok(opponent);
+  for(let i=0;i<4;i++)opponent.deck.cards.push(
+    manager.getCardByName('Psychic Energy MEE'));
   const bunnelby=manager.getCardByName('Bunnelby PRC');
   const tool=manager.getCardByName('Technical Machine: Evolution PAR');
   const energy=manager.getCardByName('Double Colorless Energy SUM');
