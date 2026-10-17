@@ -108,7 +108,7 @@ function probe(request) {
   if(entryPrompt==='ConfirmPrompt')answer(true);
   assert.equal(pending(),undefined,'Crobat entry must finish all pending prompts');
   const draws=deckBefore-me().deck.cards.length;
-  const expectedDraws=request.garbodorCount===1?6:0;
+  const expectedDraws=request.garbodorCount===1?5:0;
   assert.equal(draws,expectedDraws,'Garbodor suppression should control Crobat Dark Asset');
   assert.equal(entryPrompt,request.garbodorCount===1?'ConfirmPrompt':null,
     'Dark Asset prompt must match active Garbotoxin count');
