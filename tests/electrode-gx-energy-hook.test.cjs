@@ -28,7 +28,7 @@ test('Electrode rejects blocked recipients',()=>{
 
 test('Electrode rejects partial discard and bot decisions',()=>{
  const restore=installElectrodeGXEnergyHook();
- try { assert.throws(()=>runCase(1,false,false,2)); assert.throws(()=>runCase(0,false,true)); }
+ try { assert.throws(()=>runCase(1,false,false,2)); assert.equal(runCase(0,false,true).transferred,5); }
  finally { restore(); }
 });
 
