@@ -177,7 +177,7 @@ function main() {
     deckA:opponent.cardIds, deckB:candidate.cardIds,
     seed:trial.seed, maxActions:350, label:trial.trialId,
     strictPromptValidation:true, forestSealSearchCorrection:true,
-    supporterDecisionCorrection:true, doubleDragonRecovery:true,
+    supporterDecisionCorrection:true, doubleDragonRecovery:true,doubleDragonArchiveV3:true,
     isolatePolicyRandomness:true, captureDecisionTrace:true,
     captureCopycatTurnStartSeat:seat,
     postSuperAliasRepairIsolation:true,
