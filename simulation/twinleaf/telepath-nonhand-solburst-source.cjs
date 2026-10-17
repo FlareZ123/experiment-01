@@ -15,7 +15,7 @@ const load=name=>require(path.join(output,name));
  *
  * @param {0|1} seat Physical player slot.
  */
-function runSeat(seat) {
+function runSeat(seat, options={}) {
   const manager=initializeCards();
   let nextId=200;
   /** @param {string} name */
@@ -84,17 +84,29 @@ function runSeat(seat) {
     handStillEmpty:mine.hand.cards.length===0,
     telepathStillInDeck:mine.deck.cards.includes(telepath),
     telepathAttached:mine.bench[0].energies.cards.includes(telepath),
+    telepathOnTargetPhysicalCards:mine.bench[0].cards.includes(telepath),
     unexpectedTelepathSearch:!!search,
     searchMessage:search?.message??null,
     deckUnchangedContainsSource:mine.deck.cards.includes(telepath),
     pendingPrompts:state.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name)
   };
-  assert.equal(evidence.unexpectedTelepathSearch,true,
-    'Source baseline no longer produces the non-hand Telepath search');
-  assert.equal(evidence.telepathStillInDeck,true,
-    'Unexpectedly repaired deck-to-Pokemon energy zone migration');
-  assert.equal(evidence.telepathAttached,true,
-    'Expected actual reducer attachment to target energy list');
+  if(options.expectCorrected) {
+    assert.equal(evidence.unexpectedTelepathSearch,false,
+      'Non-hand Telepath attachment must not trigger from-hand Basic search');
+    assert.equal(evidence.telepathStillInDeck,false,
+      'Deck-origin Telepath must leave its source zone');
+    assert.equal(evidence.telepathOnTargetPhysicalCards,true,
+      'Energy must exist on target physical CardList after origin-aware move');
+    assert.equal(evidence.telepathAttached,true,
+      'Energy must exist in attached Energy list');
+  } else {
+    assert.equal(evidence.unexpectedTelepathSearch,true,
+      'Source baseline no longer produces the non-hand Telepath search');
+    assert.equal(evidence.telepathStillInDeck,true,
+      'Unexpectedly repaired deck-to-Pokemon energy zone migration');
+    assert.equal(evidence.telepathAttached,true,
+      'Expected actual reducer attachment to target energy list');
+  }
   return evidence;
 }
 function run() {
