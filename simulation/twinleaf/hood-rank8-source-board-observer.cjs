@@ -32,6 +32,21 @@ function snapshot(state, seat) {
  * @param {()=>T} execute
  * @returns {{result:T,records:object[],liveDispatches:number}}
  */
+function abilitySourceBefore(state, seat, action, kind) {
+  if (kind !== 'UseAbilityAction') return null;
+  const target = action.target;
+  const player = state.players[seat];
+  const source = target?.slot === 1 ? player?.active :
+    target?.slot === 2 && Number.isInteger(target.index) ?
+      player?.bench?.[target.index] : null;
+  const pokemon = source?.getPokemonCard?.();
+  return {
+    name: pokemon?.name ?? null,
+    tools: source ? source.tools.map(card => card.name) : null,
+    target: target ? {slot:target.slot,index:target.index} : null
+  };
+}
+
 function withRank8BoardObserver(Store,execute) {
   const original=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   if(!original || typeof original.value!=='function') {
@@ -63,6 +78,7 @@ function withRank8BoardObserver(Store,execute) {
         /Energy|Garbodor|Trubbish|Hood|Stone|Temple|Dark Patch|Guzma|Mega Absol|Arven/i.test(card||'')
       ));
     const before=relevant?snapshot(state,activeSeat):null;
+    const abilitySource=before?abilitySourceBefore(state,activeSeat,action,kind):null;
     let dispatchError=null;
     try {
       return original.value.apply(this,args);
@@ -74,7 +90,7 @@ function withRank8BoardObserver(Store,execute) {
         records.push({
           ordinal,turn:before.turn,actingSeat:activeSeat,
           action:kind,card,declaredName:action.name??null,
-          before,after:snapshot(this.state,activeSeat),dispatchError
+          abilitySource,before,after:snapshot(this.state,activeSeat),dispatchError
         });
       }
     }
@@ -87,4 +103,4 @@ function withRank8BoardObserver(Store,execute) {
   }
 }
 
-module.exports={snapshot,withRank8BoardObserver};
+module.exports={snapshot,abilitySourceBefore,withRank8BoardObserver};
