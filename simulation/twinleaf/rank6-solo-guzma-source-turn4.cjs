@@ -7,6 +7,7 @@ const {runMatch}=require('./headless.cjs');
 const {withSourceOpeningProbe}=require('./rank6-seed-opening-probe.cjs');
 const {withGuzmaHalaSourceFork,withDamageObserver}=
   require('./rank6-seed-guzma-hala-fork.cjs');
+const {publicTurnLedger}=require('./rank6-response-projection.cjs');
 
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} p */
@@ -232,7 +233,11 @@ function main(){
     controlPredecision:a.turn4Start,
     alternatePredecision:b.turn4Start,
     controlOriginalBotChoice:a.events,
+    controlPublicTurn4ActionLedger:publicTurnLedger(a.result.result.decisionTrace,
+      {seat:1,turn:4,limit:100}),
     alternateActions:b.events,
+    alternatePublicTurn4ActionLedger:publicTurnLedger(game.decisionTrace,
+      {seat:1,turn:4,limit:100}),
     alternateGuzmaAndAttackResolved:b.gustResolved,
     actualSourceTurn4DefenderDamage:b.turn4Damage,
     bothArmsGameFinished:[a.result.result.finished,game.finished],
