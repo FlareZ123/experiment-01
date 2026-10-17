@@ -75,6 +75,36 @@ function firstMismatch(a,b,prefix='$') {
 }
 
 /**
+ * List every changed leaf within a detached research snapshot. A changed
+ * array length does not hide changes to the remaining or shifted entries.
+ * The result is limited to this partial snapshot schema.
+ * @param {unknown} left
+ * @param {unknown} right
+ * @param {string} [prefix]
+ * @returns {string[]}
+ */
+function differingLeafPaths(left,right,prefix='$') {
+  const paths=[];
+  function walk(a,b,at) {
+    if(Object.is(a,b)) return;
+    if(a===null || b===null || typeof a!=='object' ||
+       typeof b!=='object' || Array.isArray(a)!==Array.isArray(b)) {
+      paths.push(at);
+      return;
+    }
+    if(Array.isArray(a) && a.length!==b.length) paths.push(at+'.length');
+    const keys=Array.from(new Set([...Object.keys(a),...Object.keys(b)])).sort();
+    for(const key of keys) {
+      const child=at+(Array.isArray(a)?'['+key+']':'.'+key);
+      if(!Object.hasOwn(a,key)||!Object.hasOwn(b,key)) paths.push(child);
+      else walk(a[key],b[key],child);
+    }
+  }
+  walk(left,right,prefix);
+  return paths;
+}
+
+/**
  * Record changes to the authentic live Store that occur between root dispatch
  * calls, such as while a bot is exploring speculative Simulator actions.
  * A changed state may also reflect legitimate out-of-dispatch engine work.
@@ -113,6 +143,7 @@ function withSourceContinuity(Store,run,options={}) {
         previousHash:previous.hash,
         currentHash:beforeHash,
         firstMismatch:firstMismatch(previous.snapshot,before),
+        changedLeafPaths:differingLeafPaths(previous.snapshot,before),
         cardHistoryMismatch:firstMismatch(previous.snapshot.cardHistory,
           before.cardHistory,'$.cardHistory')
       });
@@ -202,4 +233,4 @@ function withRootPolicyMutationAudit(Store,Bot,run,options={}) {
 }
 
 module.exports={cardHistory,historyZones,observableState,hash,firstMismatch,
-  withSourceContinuity,withRootPolicyMutationAudit};
+  differingLeafPaths,withSourceContinuity,withRootPolicyMutationAudit};
