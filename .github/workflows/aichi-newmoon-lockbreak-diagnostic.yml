@@ -29,6 +29,16 @@ jobs:
         run: |
           node --test tests/new-moon-lockbreak.test.cjs
           node simulation/twinleaf/new-moon-lockbreak-validate.cjs > newmoon-lockbreak-print-acceptance.json
+      - name: Verify New Moon source first turn across independent actual-engine seed repeats
+        run: node simulation/twinleaf/new-moon-turn-order-seed-audit.cjs > newmoon-turn-order-audit.json
+      - name: Display seat versus first-turn coverage without matchup claims
+        run: node -e "const v=require('./newmoon-turn-order-audit.json'); console.log(JSON.stringify({first:v.first,second:v.second,rows:v.rows.map(x=>[x.rank,x.candidateSeat,x.repeat,x.firstTurnSlot,x.seed])},null,2))"
+      - name: Preserve direct first-turn source-deal audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-first-turn-seed-strata
+          path: newmoon-turn-order-audit.json
+          if-no-files-found: error
       - name: Source-aligned paired fixed deal, rank 6 and rank 8, both physical seats
         run: node simulation/twinleaf/new-moon-lockbreak-source-diagnostic.cjs > newmoon-lockbreak-source-diagnostic.json
       - name: Summarize one-deal simulator limitations and turn outcomes
