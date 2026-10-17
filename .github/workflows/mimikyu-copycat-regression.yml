@@ -2,6 +2,12 @@ name: Mimikyu Apex Dragon copycat regression
 
 on:
   workflow_dispatch:
+    inputs:
+      gx_source_probe:
+        description: Run root-Store rank10 mirror repeated copied GX-choice audit
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -60,6 +66,16 @@ jobs:
 
       - name: Inspect spent GX allowance on nested copied Timeless-GX
         run: node simulation/twinleaf/mimikyu-gx-reuse-probe.cjs
+
+      - name: Optional exact-source Regidrago mirror repeated Timeless-GX audit
+        if: inputs.gx_source_probe == true
+        run: node simulation/twinleaf/rank10-mirror-source-gx-audit.cjs > rank10-mirror-gx-timeline.json
+      - uses: actions/upload-artifact@v4
+        if: inputs.gx_source_probe == true
+        with:
+          name: rank10-mirror-gx-timeline
+          path: rank10-mirror-gx-timeline.json
+          if-no-files-found: error
 
       - name: Characterize stale Copycat attack after intervening pass
         run: node simulation/twinleaf/mimikyu-stale-attack.cjs
