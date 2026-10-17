@@ -81,6 +81,9 @@ function withTurn28CopycatShredFork(types,work,options={}) {
       return new AttackAction(actor.id,'Copycat');
     }
     const chosen=botDesc.value.call(this,state,...args);
+    // An ordinal-gated fork may force only its exact archived decision.
+    // Never fall through to the legacy proposal-based override on other steps.
+    if (options.rootActionOrdinal!==undefined) return chosen;
     if(!sourceReady || chosen?.constructor?.name!=='RetreatAction' ||
         this.client?.id!==actor.id || forced) return chosen;
     const defender=opponent.active.getPokemonCard();
