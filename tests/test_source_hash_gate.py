@@ -28,8 +28,8 @@ class SourceHashGateTests(unittest.TestCase):
 
 
     def test_matching_and_mismatched_published_inventory(self):
-        field = "rank,player,archetype,full_list_published\\n" + "".join(
-            f"{rank},P{rank},Deck,{'yes' if rank == 1 else 'no'}\\n"
+        field = "rank,player,archetype,full_list_published\n" + "".join(
+            f"{rank},P{rank},Deck,{'yes' if rank == 1 else 'no'}\n"
             for rank in range(1, 33)
         )
         batch = {
