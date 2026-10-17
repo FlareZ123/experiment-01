@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const {initializeCards}=require('./headless.cjs');
 const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const get=part=>require(path.join(root,part));
-function probe(useCorrection=false,resolveEmpty=false) {
+function probe(useCorrection=false,resolveEmpty=false,resolveOne=false) {
   const cards=initializeCards();
   const {Store}=get('game/store/store');
   const {Player}=get('game/store/state/player');
@@ -49,10 +49,11 @@ function probe(useCorrection=false,resolveEmpty=false) {
     inPlay:a.supporter.cards.some(c=>c.name==='Battle Compressor'),
     deckSize:a.deck.cards.length,corrected:useCorrection
   };
-  if(resolveEmpty){
+  if(resolveEmpty || resolveOne){
     const {ResolvePromptAction}=get('game/store/actions/resolve-prompt-action');
+    const selection=resolveOne ? [a.deck.cards[0]] : [];
     try{
-      store.dispatch(new ResolvePromptAction(prompt.id,[]));
+      store.dispatch(new ResolvePromptAction(prompt.id,selection));
       report.emptyResolution='accepted';
     }catch(error){
       report.emptyResolution='rejected';
