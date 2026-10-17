@@ -101,6 +101,80 @@ function openingWindow(ownBasics,opponentBasics) {
     sourceModel:'valid initial seven, six inaccessible Prizes, all usable opposing mulligan bonuses, one ordinary draw; direct, Pad heads, then Stone+Crobat'};
 }
 
+/**
+ * Disjoint access in the directly playable opening-Meloetta subevent:
+ * a singleton Meloetta ex is one of the opening seven, so it may be selected
+ * Active at setup without later search or switching. This models no other
+ * attack prerequisites and counts M's initial placement exactly.
+ *
+ * M is a second distinguished Basic; after placing M in one of seven
+ * opening slots, the six original distinguished cards occupy 59 positions.
+ * Every assignment is valid because M is already in the opening seven.
+ *
+ * @param {number} ownBasics Total Basics including Crobat and Meloetta.
+ * @param {number} bonusDraws Opposing mulligan bonus draws, 0..46.
+ * @returns {{meloettaInOpening:number,direct:number,padAdditional:number,stoneAdditional:number,combined:number}}
+ */
+function fixedInitialMeloettaWindow(ownBasics,bonusDraws) {
+  if(!Number.isInteger(ownBasics)||ownBasics<2||ownBasics>55||
+     !Number.isInteger(bonusDraws)||bonusDraws<0||bonusDraws>46) {
+    throw new RangeError('Invalid Meloetta initial-window parameters');
+  }
+  const caps=[6,6,1+bonusDraws,46-bonusDraws];
+  const denominator=DENOMINATOR*54;
+  const openingValid=1-mulliganProbability(ownBasics);
+  let meloettaInOpening=0,direct=0,padAdditional=0,stoneAdditional=0;
+  for(let code=0;code<4096;code++) {
+    let digits=code;
+    const slots=caps.slice();
+    const position=[];
+    let ways=7;
+    for(let index=0;index<6;index++) {
+      const zone=digits%4;
+      digits=Math.floor(digits/4);
+      position.push(zone);
+      ways*=slots[zone];
+      slots[zone]--;
+    }
+    if(ways===0) continue;
+    const weight=ways/denominator/openingValid;
+    meloettaInOpening+=weight;
+    const observed=zone=>zone===0||zone===2;
+    if(observed(position[0])) {
+      direct+=weight;
+    } else if(position[0]===3) {
+      const pads=position.slice(3).filter(observed).length;
+      const padSuccess=1-0.5**pads;
+      padAdditional+=weight*padSuccess;
+      if(observed(position[1])&&observed(position[2])) {
+        stoneAdditional+=weight*(1-padSuccess);
+      }
+    }
+  }
+  return {meloettaInOpening,direct,padAdditional,stoneAdditional,
+    combined:direct+padAdditional+stoneAdditional};
+}
+
+/**
+ * Integrate joint resource access with Meloetta ex physically in the
+ * initial seven, a directly selectable Active at setup.
+ * @param {number} ownBasics
+ * @param {number} opponentBasics
+ * @returns {object}
+ */
+function initialMeloettaOpening(ownBasics,opponentBasics) {
+  const pOwn=mulliganProbability(ownBasics);
+  const pOpp=mulliganProbability(opponentBasics);
+  const totals={meloettaInOpening:0,direct:0,padAdditional:0,
+    stoneAdditional:0,combined:0};
+  for(let k=0;k<=46;k++) {
+    const weight=k===46?bonusAtLeast(pOpp,pOwn,46):bonusExactly(pOpp,pOwn,k);
+    const row=fixedInitialMeloettaWindow(ownBasics,k);
+    for(const key of Object.keys(totals)) totals[key]+=weight*row[key];
+  }
+  return totals;
+}
+
 /** @param {string} root @returns {object} */
 function sourceStonePadBridge(root) {
   const baseline=sourceOrderPadBridge(root);
@@ -124,7 +198,8 @@ function sourceStonePadBridge(root) {
   return {sourceRanks:[26,6,24,29],
     sourceCrobat:'Crobat V DAA 104',
     sourceStone:'Forest Seal Stone SIT 156',
-    ...result};
+    ...result,
+    meloettaOpeningOnly:initialMeloettaOpening(baseline.ownBasics,baseline.opponentBasics)};
 }
 
 if(require.main===module) {
@@ -132,4 +207,5 @@ if(require.main===module) {
     path.resolve(__dirname,'..')),null,2)+'\n');
 }
 
-module.exports={fixedWindow,openingWindow,sourceStonePadBridge};
+module.exports={fixedWindow,openingWindow,fixedInitialMeloettaWindow,
+  initialMeloettaOpening,sourceStonePadBridge};
