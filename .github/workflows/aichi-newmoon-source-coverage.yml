@@ -75,6 +75,14 @@ jobs:
         run: node simulation/twinleaf/new-moon-stadium-order-audit.cjs > newmoon-stadium-order-audit.json
       - name: Display Stadium ordering evidence
         run: node -e "const v=require('./newmoon-stadium-order-audit.json'); console.log(JSON.stringify(v,null,2))"
+      - name: Test New Moon Path counterline under active Iron Thorns Initialization
+        run: node simulation/twinleaf/new-moon-thorns-path-audit.cjs > newmoon-thorns-path-audit.json
+      - name: Preserve staged Stadium versus Iron Thorns answer
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-thorns-path-audit
+          path: newmoon-thorns-path-audit.json
+          if-no-files-found: error
       - name: Probe Klefki and Latias own-team Ability lock
         run: node simulation/twinleaf/new-moon-klefki-latias-audit.cjs > newmoon-klefki-latias-audit.json
       - name: Display Klefki-Latias engine evidence
