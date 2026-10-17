@@ -55,7 +55,15 @@ function probe(seat) {
   }));
   const selection=state.prompts.find(p=>p.result===undefined&&
     p.constructor.name==='ChooseCardsPrompt');
-  assert.ok(selection,'Telepath search did not offer Basic Psychic prompt');
+  assert.ok(selection,'Telepath search did not offer Basic Psychic prompt: '+JSON.stringify({
+    phase:state.phase,
+    promptKinds:state.prompts.map(x=>({type:x.constructor.name,id:x.id,result:x.result})),
+    hand:mine.hand.cards.map(x=>x.fullName),
+    attachedEnergy:mine.active.energies.cards.map(x=>x.fullName),
+    deck:mine.deck.cards.map(x=>x.fullName).slice(0,6),
+    energyPlayedTurn:mine.energyPlayedTurn,
+    active:mine.active.getPokemonCard()?.fullName
+  }));
   assert.equal(selection.validate([mew,duskull]),true);
   store.dispatch(new ResolvePromptAction(selection.id,[mew,duskull]));
   const benched=mine.bench.filter(slot=>slot.getPokemonCard())
