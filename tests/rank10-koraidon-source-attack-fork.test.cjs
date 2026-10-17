@@ -5,12 +5,14 @@ const {withRank10SourceKoraidonFork}=require('../simulation/twinleaf/rank10-kora
 class AddPlayerAction {}
 class PassTurnAction {constructor(clientId){this.clientId=clientId;}}
 class AttackAction {constructor(clientId,name){this.clientId=clientId;this.name=name;}}
+class RetreatAction {constructor(clientId,benchIndex){this.clientId=clientId;this.benchIndex=benchIndex;}}
 class Store {constructor(state){this.state=state;}dispatch(action){return action;}}
 class Bot {constructor(){this.client={id:202};}decodeNextAction(){return new PassTurnAction(202);}}
 const state=()=>({phase:2,turn:5,activePlayer:0,winner:-1,
   players:[{id:202,active:{getPokemonCard:()=>({fullName:'Koraidon ex TEF'}),
-    energies:{cards:[{fullName:'Double Dragon Energy ROS'}]}}}]});
-const types={Store,Bot,AttackAction};
+    energies:{cards:[{fullName:'Double Dragon Energy ROS'}]}},
+    bench:[{getPokemonCard:()=>({fullName:'Regidrago VSTAR SIT'})}]}]});
+const types={Store,Bot,AttackAction,RetreatAction};
 
 test('single root Store source pass becomes printed Koraidon attack',()=>{
   const input=state(),store=new Store(input),bot=new Bot();
@@ -49,4 +51,18 @@ test('unrelated stores are never affected',()=>{
   },{forceAttack:true});
   assert.equal(report.result.constructor.name,'PassTurnAction');
   assert.equal(report.sourceDecisions.length,0);
+});
+
+test('the authentic Koraidon Pass may instead promote printed Regidrago VSTAR',()=>{
+  const input=state(),store=new Store(input),bot=new Bot();
+  const result=withRank10SourceKoraidonFork(types,()=>{
+    store.dispatch(new AddPlayerAction());
+    return bot.decodeNextAction(input);
+  },{forceRetreat:true});
+  assert.equal(result.result.constructor.name,'RetreatAction');
+  assert.equal(result.result.benchIndex,0);
+  assert.equal(result.sourceDecisions[0].selectedRetreatIndex,0);
+  assert.throws(()=>withRank10SourceKoraidonFork(types,()=>null,{
+    forceAttack:true,forceRetreat:true
+  }));
 });
