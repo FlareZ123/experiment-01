@@ -28,3 +28,17 @@ Under the existing manual CI, run the full Node and pinned Store checks at a nam
 ## Current-head compiled verification
 
 Manual [Twinleaf hidden-information CI 39022797970](https://github.com/FlareZ123/experiment-01/actions/runs/39022797970) succeeded on source head `44f1cf208ac99d30f8ace89529c18116e60573d8`. The job ran the revised detached-score test file and the pinned Store source-ranked detached/K0 audits successfully. This confirms compatibility of the change with the tested engine revision; actual match-policy partial-score incidence and competitive game performance remain unmeasured.
+
+## Detection power of finite samples
+
+Fail-closed aggregation only detects failures in sampled worlds. Under an **idealized independent uniform** hidden-state sampler, if the true fraction of invalid worlds is `q` and `n` worlds are sampled, the probability of observing at least one failure is `1 - (1-q)^n`. The fixed-seed xorshift sampler has not been established as independent uniform draws, so this is a design sensitivity calculation rather than a confidence certificate for the current implementation.
+
+| Assumed failing-world fraction | Detection with 12 samples | Detection with 64 samples |
+| ---: | ---: | ---: |
+| 1% | 11.36% | 47.44% |
+| 5% | 45.96% | 96.25% |
+| 10% | 71.76% | 99.88% |
+
+Even with ideal independent observations, **zero failures in 12 samples** leaves a one-sided 95% exact binomial upper bound of approximately **22.09%** on the failing-world fraction; zero in 64 leaves approximately **4.57%**. This is an argument for adversarial/stratified determinizations and, where feasible, exact finite-state coverage of decisive legality branches. More samples or a passing binary guard alone do not make a policy observation-consistent.
+
+These values were computed in Python using the stated formulas, rounded to two decimals. No empirical source-game failure frequency was estimated.
