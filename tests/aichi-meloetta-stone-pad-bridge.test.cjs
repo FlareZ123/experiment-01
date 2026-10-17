@@ -61,7 +61,8 @@ function deals(trials) {
   }
   const result={};
   for(const key of Object.keys(tally)) result[key]=tally[key]/trials;
-  result.combined=Object.values(tally).reduce((a,b)=>a+b,0)/trials;
+  result.combined=(tally.direct+tally.padAdditional+
+    tally.stoneAdditional)/trials;
   result.meloettaInOpening=tally.mStart/trials;
   result.mDirect=tally.mDirect/trials;
   result.mPad=tally.mPad/trials;
