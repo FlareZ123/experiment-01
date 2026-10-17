@@ -3,8 +3,8 @@
 const assert = require('node:assert/strict');
 const {createHash} = require('node:crypto');
 const path = require('node:path');
-const base = require('../../results/als/new-moon-perfection-english-proxy-60.json');
-const originalPrints = require('../../results/als/new-moon-perfection-english-map.json');
+const base = require('../../results/als/new-moon-perfection-english-map.json');
+const originalPrints = base;
 const proposal = require('../../results/als/new-moon-lockbreak-english-proxy-60.json');
 const banSnapshot = require('../../results/legality/japan-expanded-aichi-2026.json');
 
@@ -23,12 +23,12 @@ function verifyManifest() {
   assert.equal(proposal.entries.length, 34);
   assert.equal(base.entries.reduce((n, row) => n + row.count, 0), 60);
   assert.equal(proposal.entries.reduce((n, row) => n + row.count, 0), 60);
-  assert.equal(idCountHash(base.entries), base.canonical_id_count_sha256);
+  assert.equal(idCountHash(base.entries.map(row => ({english_proxy_card_id: row.id, count: row.count}))), base.sha256_id_counts);
   assert.equal(idCountHash(proposal.entries), proposal.canonical_id_count_sha256);
-  assert.equal(proposal.source_id_count_sha256, base.canonical_id_count_sha256);
-  const source = new Map(base.entries.map(row => [row.english_proxy_card_id, row]));
+  assert.equal(proposal.source_id_count_sha256, base.sha256_id_counts);
+  const source = new Map(base.entries.map(row => [row.id, row]));
   const actualDiff = {};
-  for (const row of base.entries) actualDiff[row.english_proxy_card_id] = -row.count;
+  for (const row of base.entries) actualDiff[row.id] = -row.count;
   for (const row of proposal.entries) {
     assert.ok(row.count >= 1 && row.count <= 4, 'Invalid physical multiplicity');
     assert.ok(!banSnapshot.banned_identities.some(b => b.selector.type === 'trainer_name' &&
@@ -36,8 +36,8 @@ function verifyManifest() {
     actualDiff[row.english_proxy_card_id] =
       (actualDiff[row.english_proxy_card_id] || 0) + row.count;
     if (source.has(row.english_proxy_card_id)) {
-      assert.equal(row.english_database_name,
-        source.get(row.english_proxy_card_id).english_database_name,
+      assert.equal(row.name_en,
+        source.get(row.english_proxy_card_id).name,
         'Original mechanical printing changed under same ID');
     }
   }
