@@ -12,6 +12,7 @@ function createOwnerDeckKnowledgeEpoch(){
   let exactMembership=false;
   let epoch=0;
   let liveSearches=0;
+  let fullPrizeReviews=0;
   let hiddenPrizeRedeals=0;
   return Object.freeze({
     exactMembershipKnown:()=>exactMembership,
@@ -19,12 +20,16 @@ function createOwnerDeckKnowledgeEpoch(){
       liveSearches++;
       if(!exactMembership){exactMembership=true;epoch++;}
     },
+    observeFullOwnPrizes(){
+      fullPrizeReviews++;
+      if(!exactMembership){exactMembership=true;epoch++;}
+    },
     invalidateAfterHiddenPrizeRedeal(){
       hiddenPrizeRedeals++;
       if(exactMembership){exactMembership=false;epoch++;}
     },
     snapshot:()=>Object.freeze({
-      exactMembership,epoch,liveSearches,hiddenPrizeRedeals
+      exactMembership,epoch,liveSearches,fullPrizeReviews,hiddenPrizeRedeals
     })
   });
 }
