@@ -34,13 +34,14 @@ function publicTurnLedger(decisionTrace, options) {
       ? event.prizesAfter.slice() : null,
     decksRemaining:Array.isArray(event.decksAfter)
       ? event.decksAfter.slice() : null,
-    endsTurn:event.turnAfter > event.turnBefore
+    turnEndingActionAccepted:['PassTurnAction','AttackAction'].includes(event.action),
+    observedTurnNumberAdvanced:event.turnAfter > event.turnBefore
   }));
 }
 
 /** @param {object[]} ledger @returns {boolean} */
-function responseTurnEnded(ledger) {
-  return ledger.some(event => event.endsTurn);
+function responseTurnEndingActionObserved(ledger) {
+  return ledger.some(event => event.turnEndingActionAccepted);
 }
 
-module.exports = {publicTurnLedger,responseTurnEnded};
+module.exports = {publicTurnLedger,responseTurnEndingActionObserved};
