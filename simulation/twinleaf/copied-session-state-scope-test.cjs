@@ -10,6 +10,8 @@ try {
     require('./copy-session-cross-store-leak.cjs');
   const {compareGxDeniedCounterline} =
     require('./spent-gx-to-mimikyu-copycat.cjs');
+  const {runSimulatorSessionProbe} =
+    require('./copy-session-speculative-simulator.cjs');
 
   const independent = checkGlobalSessionIsolation();
   const controlIncrement = independent.uninterrupted.sourceAfterSecond -
@@ -26,9 +28,19 @@ try {
   assert.equal(copycat.restored.damageToRegidrago, 80,
     'Actual Copycat turn still must resolve the selected ordinary copy');
 
+  const speculative = {
+    pinned: runSimulatorSessionProbe('pinned'),
+    prototypeSafe: runSimulatorSessionProbe('prototype-safe')
+  };
+  for (const result of Object.values(speculative)) {
+    assert.equal(result.simulatorError, null);
+    assert.equal(result.events.filter(event => event === 'real').length, 4,
+      'Original Store must retain both copied-source callbacks after Simulator');
+  }
+
   console.log('STATE_SCOPED_COPY_SESSION', JSON.stringify({
     engine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    independent, copycat,
+    independent, copycat, speculative,
     scope: 'Opt-in runtime-only research patch, injected real Stores, not a complete game or policy certificate'
   }, null, 2));
 } finally {
