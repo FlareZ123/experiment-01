@@ -195,7 +195,7 @@ function main() {
     const captured = withStoreDispatchTranscript(Store,
       () => withSourceZoneCheckpoint(Store, () => runMatch(request),
         {turn:27,candidateSeat:seat}),{liveStoreOnly:true,typedActionValues:true,promptReferenceActionValues:true,sourceZoneEveryDispatch:true,
-        storeDataGraphEveryDispatch:true});
+        storeDataGraphEveryDispatch:true,storeDataGraphDebugSteps:[34]});
     return {
       ...captured,
       sourceZoneCheckpoint:captured.result.checkpoint,
