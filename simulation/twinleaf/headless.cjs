@@ -796,7 +796,7 @@ function runMatch(request) {
         (request.templeUnlockRecovery === true ? '+TempleUnlockTactic-v1' : '') +
         (request.snorlaxRetreatStartCorrection === true ? '+SnorlaxBlockStartGate-v1' : '') +
         (request.electroRainDamageCorrection === true ? '+ElectroRainDamage-v1' : '') +
-        (request.electrodeGXEnergyCorrection === true ? '+ElectrodeGXMandatoryEnergy-v1' : '') +
+        (request.electrodeGXEnergyCorrection === true ? '+ElectrodeGXMandatoryEnergyAndBotCount-v2' : '') +
         (request.redeemableTicketPaperOrderCorrection === true ? '+TicketPaperPrizeOrder-v1' : '') +
         (request.pendingEndTurnSwitchCleanupCorrection === true ? '+PendingEndTurnSwitchPaper-v1' : '') +
         (request.apexSpreadPrizeWindowPolicy === true ? '+ApexSpreadPrizeWindow-v1' : '') +
