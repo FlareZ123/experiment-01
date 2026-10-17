@@ -43,6 +43,12 @@ The same genuine physical rank-6 seed `20367160` now supports the [complete ten-
 
 The same manual CI included new exact real-Store assertions for physical discard and retained hand printings. **Competitive qualification remains false.**
 
+## New source-dealt champion response after rank-6 Volt Cyclone (Agent 30, 17 October)
+
+[Compiled manual CI 39010339726](https://github.com/FlareZ123/experiment-01/actions/runs/39010339726) extends the same physical seed `20367160` to the genuine next champion turn. Both scripted 140-damage Volt Cyclone arms, including one preserving the held Guzma, were followed by the same public champion-bot turn-three sequence: evolve to Shadow Rider Calyrex VMAX, attach Psychic, play **Acerola**, Bench a Shadow Rider Calyrex V, Pass. The unmodified source bot instead evolved, attached and Passed with no Acerola. A read-only live Store observer confirms that Acerola removed an Active **140-damaged Shadow Rider VMAX with two Energy attached**, promoted **Dialga-GX** from Bench, and temporarily left an empty Bench.
+
+[Exact source protocol, public action ledger and limits](../../rank6-post-volt-cyclone-response.md). All three continuations stopped at a 125-action cap with `gameFinished:false`. Identical observed immediate responses under two payment pairs leave the future Guzma/Trainers' Mail tradeoff unresolved. The champion's generic bot was unqualified, and the next-turn response is no substitute for source replay and policy competence. **Zero qualified competitive games.**
+
 ## Qualification blockers and acceptance work
 
 1. **Complete replay missing.** The six-game archive retains chronological *meaningful* actions with selected hand/public-board summaries, but does not replay every exact prompt, chosen option, reducer, state transition, target, energy modifier and timing window. Replay the two turn-2 Guzma decision forks from authentic dealt states, capturing whole source-state transitions and the opponent's next useful decision.
