@@ -28,13 +28,13 @@ The firsthand reported Swiss record is **7-1**, including **4-1 against five enc
 
 ## Card-level partial information and matchup mechanism
 
-In the public article, the author explicitly describes the inclusion decision in Japanese as `クレッフィを採用できるデッキにしました`: their choice enabled **Klefki**, prioritizing suppression of opposing **Latias ex** and **Tapu Lele-GX** Basic Abilities. The same public discussion considers Item-lock escape and ability-lock disruption lines, including Ranger, Escape Rope, Canceling Cologne and Marshadow. **Discussion of an option is not evidence it appeared in the registered list.** Even the statement of Klefki adoption does not confirm its printing, count, starting frequency or use in any given game.
+In the public article, the author describes selecting an archetype capable of running Klefki, phrased in Japanese as `クレッフィを採用できるデッキにしました`: their choice preserved an option for **Klefki**, prioritizing suppression of opposing **Latias ex** and **Tapu Lele-GX** Basic Abilities. The same public discussion considers Item-lock escape and ability-lock disruption lines, including Ranger, Escape Rope, Canceling Cologne and Marshadow. **Discussion of an option is not evidence it appeared in the registered list.** **This wording does not itself establish that any Klefki was in the registered 60 cards.** It also cannot confirm printing, count, starting frequency or use in any given game.
 
 `resources/cards` (English card pool) contains Klefki `SVI 96` with the **Mischievous Lock** Ability: as long as it is Active, Basic Pokémon in play on both sides have no Abilities, except Mischievous Lock. This is a contingent Active-Spot interaction, and changes if Klefki leaves Active or its own Ability is suppressed. Its effect cannot simply be modeled as perpetual global Ability lock.
 
 As a concrete reference comparison, the **published rank-1 Shadow Rider deck** has **seven copies of Basic Pokémon with printed Abilities**: 2 Tapu Lele-GX (Wonder Tag), 1 Latias ex (Skyliner), 1 Radiant Eternatus (Climactic Gate), 1 Marshadow (Resetting Hole), and 2 Lillie's Clefairy ex (Fairy Zone). The last five names and counts were extracted from the fixed `full-decklists.json`; the abilities were verified against the card pool at `resources/cards`. Klefki can suppress these Abilities **only while its Active-position lock is actually operative**. Rank-1's 4 evolved Shadow Rider Calyrex VMAX are a separate case whose Underworld Door Ability is not directly removed by a Basic-only lock.
 
-This is a **possible first-turn / early lock threat**, not proof rank 25 routinely establishes Klefki. The specific claim that Klefki can shut down the rank-1 early Radiant Eternatus and Tapu Lele-GX entry lines is rules-conditional, subject to turn sequence, opponent choice and alternate card effects.
+This is a **possible first-turn / early lock threat**, not proof rank 25 routinely establishes Klefki. The hypothetical Klefki line can shut down rank-1 early Radiant Eternatus and Tapu Lele-GX entry lines only conditionally, subject to turn sequence, opponent choice and alternate card effects.
 
 ## Consequences for the 32-opponent acceptance gate
 
@@ -43,4 +43,4 @@ This is a **possible first-turn / early lock threat**, not proof rank 25 routine
 3. Evaluate champion and challenger vulnerability to an Active Klefki via **source-legal board checks** (Klefki in play, position, Abilities not disabled, Basic status, alternative exits). Avoid scoring all Basic Abilities as permanently unusable when the source article merely discusses the threat.
 4. Continue pursuing actual 60-card registration evidence for ranks **23, 25 and 28**. A favorable score against 29 known lists cannot establish the requested full Top-32 performance.
 
-**Outcome:** participant-authored partial matchup and lock evidence for previously missing rank 25; **zero new full source lists, zero qualified games, no change to the 99.5% status**.
+**Outcome:** participant-authored partial matchup and *considered* lock evidence for previously missing rank 25; **zero new full source lists, zero qualified games, no change to the 99.5% status**.
