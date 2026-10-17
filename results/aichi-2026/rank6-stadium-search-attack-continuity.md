@@ -1,6 +1,6 @@
 # Rank-6 Stadium-search choice can threaten the very Volt Cyclone it enables
 
-**Agent 33, 17 October 2026.** Evidence classification: exact published card-text and rulebook derivation, combined with the previously verified source-dealt first-attack branch. **No new live Store branch has been tested for these alternative Stadium decisions; zero qualified competitive games.**
+**Agent 33, 17 October 2026.** Evidence classification: exact published card-text and rulebook derivation, combined with the previously verified source-dealt first-attack branch. **A single new source-dealt G&H restricted-search branch has passed in compiled Store CI; no later Stadium-replacement counterfactual has been tested and zero competitive games qualify.**
 
 ## Source turn and strategically discrete choice
 
@@ -32,13 +32,13 @@ Under standard Stadium replacement, playing a different Stadium sends the previo
 
 Wondrous Labyrinth taxes attacks from opposing non-Fairy Pokémon too. Playing it could be strategically correct in some future boards. The verified first attack alone cannot decide that tradeoff. A naive bot that plays every acquired Stadium risks losing the attack-cost reduction it used to begin attacking.
 
-## Unexecuted optional search line worth verifying
+## Optional search line: pre-execution hypothesis (historical)
 
 The Advanced Player's Rulebook section **I.H, Deck** allows deck searches for a restricted category to select fewer than the stated number, including zero, while exact-number searches for unrestricted “any card” are different. On the printed G&H text, the initial Stadium search is category-restricted and the optional Tool/Special Energy searches follow after discarding two cards.
 
-Consequently, an independently valuable **paper-rules hypothesis** is that the same opening may search DCE as Special Energy after paying the two-card cost and deliberately take **no Stadium**, because Thunder Mountain is already held. That would avoid pulling Wondrous Labyrinth into a hand in which it might later conflict with Thunder, while giving up immediate hand access to Wondrous. The observed source script `simulation/twinleaf/rank6-seed-guzma-hala-fork.cjs` always selects the two-card pair DCE + Wondrous; it does **not** test a zero-Stadium response to the actual `ChooseCardsPrompt`.
+Consequently, a **paper-rules hypothesis, since verified in the source Store test below**, is that the same opening may search DCE as Special Energy after paying the two-card cost and deliberately take **no Stadium**, because Thunder Mountain is already held. That would avoid pulling Wondrous Labyrinth into a hand in which it might later conflict with Thunder, while giving up immediate hand access to Wondrous. The observed source script `simulation/twinleaf/rank6-seed-guzma-hala-fork.cjs` always selects the two-card pair DCE + Wondrous; it did **not previously** test a zero-Stadium response to the actual `ChooseCardsPrompt`; that limitation is superseded by the independent live source test documented below.
 
-The next meaningful source test should validate and dispatch the G&H prompted selection **with DCE alone**, ensuring the same real 140-damage turn and identical pre-fork physical hand and Prize cards. If the pinned Store rejects that category-fail search, distinguish an engine-prompt modeling defect from a paper-rules restriction before changing research policy. Then compare the next real opponent response under a representative decision policy.
+The source test described below now validates and dispatches G&H with **DCE alone**, preserving the same real 140-damage turn and identical pre-fork physical hand and Prize cards. The consequential next question is the opportunity cost of receiving Wondrous in the same hand, under a reviewed decision policy and opponent response.
 
 ## Source-dealt DCE-only category-fail search: confirmed (17 October)
 
