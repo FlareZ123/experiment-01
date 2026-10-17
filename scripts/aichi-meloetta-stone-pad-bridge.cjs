@@ -182,7 +182,8 @@ function sourceStonePadBridge(root) {
     path.join(root,'results/aichi-2026/full-decklists.json'),'utf8'));
   const rank26=manifest.decks.find(d=>d.rank===26);
   for(const [name,set,number] of [
-    ['Crobat V','DAA','104'],['Forest Seal Stone','SIT','156']
+    ['Crobat V','DAA','104'],['Forest Seal Stone','SIT','156'],
+    ['Meloetta ex','BLK','44']
   ]) {
     const cards=rank26.cards.filter(c=>c.name===name);
     if(cards.length!==1||cards[0].count!==1||
