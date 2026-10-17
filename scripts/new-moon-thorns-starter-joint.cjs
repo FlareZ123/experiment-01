@@ -100,7 +100,26 @@ function main() {
     nativeGengarAndEnergy:ironThornsDirect({...parameters,starters:nativeGengar,groups:[energy]}),
     starterAndCologne:ironThornsDirect({...parameters,groups:[cologne]}),
     starterCologneEnergy:ironThornsDirect({...parameters,groups:[cologne,energy]}),
-    starterCologneEnergyPowerglass:ironThornsDirect({...parameters,groups:[cologne,energy,powerglass]})
+    starterCologneEnergyPowerglass:ironThornsDirect({...parameters,groups:[cologne,energy,powerglass]}),
+    eitherDirectGXChannel:(() => {
+      const native=ironThornsDirect({...parameters,starters:nativeGengar,groups:[energy]});
+      const copied=ironThornsDirect({...parameters,groups:[cologne,energy]});
+      const both=ironThornsDirect({...parameters,starters:nativeGengar,groups:[cologne,energy]});
+      const eitherStarter=ironThornsDirect({...parameters,starters:starters+nativeGengar,
+        groups:[cologne,energy]});
+      const overlap={
+        firstDraw:both.firstDraw+copied.firstDraw-eitherStarter.firstDraw,
+        withAllBonuses:both.withAllBonuses+copied.withAllBonuses-
+          eitherStarter.withAllBonuses
+      };
+      return {
+        definition:'(Gengar & Mimikyu-GX in initial seven AND Energy visible) OR (Mewtwo & Mew-GX in initial seven AND Cologne AND Energy visible)',
+        overlap,
+        firstDraw:native.firstDraw+copied.firstDraw-overlap.firstDraw,
+        withAllBonuses:native.withAllBonuses+copied.withAllBonuses-
+          overlap.withAllBonuses
+      };
+    })()
   };
 }
 
