@@ -21,6 +21,22 @@ At `max:2`, the generic resolver therefore chooses Fan Rotom and Relicanth. The 
 
 The score calculation was independently executed against the provided `card-list.zip` printings, and the upstream formula, generic resolver, TM effect and default score coefficients were inspected at the pinned revision. Exact Aichi rank-2 60 contains all four Basics and both Stage lines. The constructed microstate is **not** a natural source-shuffled full game.
 
+## Exact static-score exposure under a simplified source opening
+
+An independent [BigInt combinatorial model](../../scripts/aichi-bunnelby-bench-priority.cjs) counts every physical initial-seven plus one-draw observation from the exact rank-2 **60-card source inventory**. It conditions on Bunnelby being available in the **initial seven** to begin Active, assumes all other visible Basic Pokémon can occupy Bench slots, and requires at least one Bench Basic with an Evolution in the source list. More than five such Bench Basics are excluded. It ranks the Bench by the exact pinned *static* score described above, selects two, and asks whether a non-evolving Basic displaces any Stage-capable Basic.
+
+| Precisely defined event | Exact source probability |
+| --- | ---: |
+| Initial Bunnelby Active opportunity plus at least one evolving Bench Basic, within Bench limit | **12.19644349%** of all first-eight observations |
+| A non-evolving Basic is selected over an unselected evolving Basic in that condition | **1.89733285%** of all first-eight observations |
+| Same displacement conditional on the qualifying opening | **15.55644356%** |
+| Any evolving Basic omitted by the two-target limit, conditional on qualifying opening | **17.89040621%** |
+| Excluded configurations with more than five remaining Basic Pokémon on Bench | **0.00442129%** of all first-eight observations |
+
+The exact arithmetic uses integer numerators: denominator `20,468,966,760`, qualifying `2,496,485,964`, non-evolving displacement `388,364,430` and any omission `446,631,480`. The denominator integrates the 7-of-8 possible opening-hand locations of a singleton Bunnelby, so it models initial-seven legality rather than treating a turn draw as an opening Active. [Independent toy-deck ordered enumeration and source assertions](../../tests/aichi-bunnelby-bench-priority.test.cjs) are committed. The model was also cross-checked in an independent local Python combinatorial enumeration and 750,000-draw Monte Carlo. The new repository test has **not** been executed in CI.
+
+**This is a card-visibility and default-score diagnostic, not an actual TM Evolution misplay rate.** It excludes six-Prize Stage survival, TM and Energy access, Supporter/discard economics, Bench-placement choices, turns when Bunnelby begins Benched or enters later, and opponent disruption. Conditional percentages refer only to the deliberately simplified event above. The calculation strengthens the case that the stage-target selector can matter, without predicting its game-win benefit.
+
 ## Separately selectable remedy
 
 [New target resolver](../../simulation/twinleaf/bunnelby-evolution-policy.cjs) is `BunnelbyStageTargetResolver` via `withBunnelbyEvolutionLine(...,{sourceCards,targetAwareEvolution:true})`. It handles only an actual `CHOOSE_POKEMON_TO_EVOLVE` prompt in the attack phase when Bunnelby PRC has TM Evolution PAR. It filters Bench targets for which at least one relevant Stage card is **possibly** searchable under the known original 60 minus publicly known zones. Prior to any first true deck search, hidden Prizes are excluded from the decision. After the independent, live-State-guarded K1 observation, exact deck membership is allowed. It uses the pinned score among the eligible targets, respects prompt validation and falls back to the generic resolver when it cannot produce an accepted choice.
