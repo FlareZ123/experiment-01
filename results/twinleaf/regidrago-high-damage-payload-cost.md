@@ -16,6 +16,8 @@ A [first-person Aichi 2026 79th-place account](https://note.com/nt07/n/n12ac10ce
 
 ## Test scope
 
-[Engine probe](../../simulation/twinleaf/apex-mega-dragonite-energy-discard.cjs) uses a synthetic established paid Regidrago board, puts Mega Dragonite in discard and physically dispatches the copied attack. It records after-resolution Energy and checks available prompts against a single DDE or two Basic attachments. The probe is opt-in under existing manual `aichi-attack-pass-score.yml` flag `mega_energy_probe`; its result has **not yet been observed**.
+[Engine probe](../../simulation/twinleaf/apex-mega-dragonite-energy-discard.cjs) uses a synthetic established paid Regidrago board, puts Mega Dragonite in discard and physically dispatches the copied attack. It records after-resolution Energy and checks available prompts against a single DDE or two Basic attachments. Pinned source inspection at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` shows Mega Dragonite's `reduceEffect` invokes `DISCARD_X_ENERGY_FROM_THIS_POKEMON(...,2)`. The helper makes a `ChooseEnergyPrompt` with two Colorless requirements. Its validator calls `StateUtils.checkExactEnergy`; this expands the Double Dragon `[ANY,ANY]` provision to **two** Energy units. Therefore, *under these inspected source semantics*, one DDE is a legal exact payment. The source card `set='ASC',setNumber='152'` currently has the inconsistent printed `fullName='Mega Dragonite ex M2a'`, so the probe resolves it by exact set+number instead of assuming the name suffix. The runtime copied-attack effect and actual discard still require compiled CI verification.
+
+The probe is opt-in under existing manual `aichi-attack-pass-score.yml` flag `mega_energy_probe`; its result has **not yet been observed**.
 
 A staged printed-attack interaction cannot qualify any game. No change to the nominated 60-card candidate is justified by this analysis alone.
