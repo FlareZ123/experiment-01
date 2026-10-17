@@ -1,6 +1,34 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const crypto=require('node:crypto');
+
+/**
+ * Record the exact Float64 values yielded by Math.random inside one bot
+ * proposal, leaving each value and RNG advancement unchanged.
+ *
+ * @template T
+ * @param {()=>T} work
+ * @returns {{result:T,draws:number,sha256:string}}
+ */
+function recordPolicyRandomValues(work) {
+  const original=Math.random;
+  const hasher=crypto.createHash('sha256');
+  const bytes=Buffer.allocUnsafe(8);
+  let draws=0;
+  Math.random=function observedPolicyDraw() {
+    const value=original();
+    bytes.writeDoubleBE(value,0);
+    hasher.update(bytes);
+    draws++;
+    return value;
+  };
+  try {
+    const result=work();
+    return {result,draws,sha256:hasher.digest('hex')};
+  } finally {Math.random=original;}
+}
+
 
 /**
  * Counterfactual at the original actual rank-1 bot's turn-three Acerola
@@ -30,10 +58,13 @@ function withRank6AcerolaPassFork(types,work,options={}) {
     return dispatch.value.apply(this,args);
   };
   const wrappedDecode=function(state,...args) {
-    const proposal=decode.value.call(this,state,...args);
-    if(state!==root?.state || state.turn!==3 || state.activePlayer!==0 ||
-        this.client?.id!==state.players[0]?.id ||
-        proposal?.constructor?.name!=='PlayCardAction') return proposal;
+    const live=state===root?.state && state.turn===3 &&
+      state.activePlayer===0 && this.client?.id===state.players[0]?.id;
+    const sampled=live
+      ? recordPolicyRandomValues(()=>decode.value.call(this,state,...args))
+      : null;
+    const proposal=sampled ? sampled.result : decode.value.call(this,state,...args);
+    if(!live || proposal?.constructor?.name!=='PlayCardAction') return proposal;
     const player=state.players[0];
     if(player.hand.cards[proposal.handIndex]?.name!=='Acerola') return proposal;
     assert.equal(player.active.getPokemonCard()?.name,
@@ -48,6 +79,8 @@ function withRank6AcerolaPassFork(types,work,options={}) {
       publicActive:player.active.getPokemonCard().name,
       publicDamage:player.active.damage,
       publicEnergyCardCount:player.active.energies.cards.length,
+      originalPolicyRandomDraws:sampled.draws,
+      originalPolicyRandomValuesSha256:sampled.sha256,
       selectedAction:options.forcePass===true?'PassTurnAction':'PlayCardAction'});
     if(options.forcePass===true) {
       assert.equal(forced,false,'Source Acerola counterfactual fired more than once');
