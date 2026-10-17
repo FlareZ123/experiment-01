@@ -25,5 +25,6 @@ jobs:
       - run: node simulation/twinleaf/garbotoxin-vileplume-action.cjs
       - run: node simulation/twinleaf/garbotoxin-removal-tempo.cjs
       - run: node simulation/twinleaf/garbotoxin-faba-tempo.cjs
+      - run: node scripts/aichi-grand-tree-opening.cjs
       - name: Audit raw Grand Tree opening-turn restriction
         run: node simulation/twinleaf/grand-tree-first-turn-audit.cjs
