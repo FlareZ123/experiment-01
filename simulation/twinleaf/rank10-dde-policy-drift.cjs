@@ -72,7 +72,11 @@ function withSourceRootPrintingAudit(Store,run,wantedStep) {
       observed={rootStep,action:action.constructor.name,
         before:snapshot(this.state,action)};
     const result=descriptor.value.apply(this,[action,...args]);
-    if(rootStep===wantedStep) observed.after=snapshot(this.state,action);
+    if(rootStep===wantedStep) {
+      const after=snapshot(this.state,action);
+      delete after.playedPrinting; // The hand index may point to a different card after play.
+      observed.after=after;
+    }
     return result;
   };
   Object.defineProperty(Store.prototype,'dispatch',{...descriptor,value:wrapped});
