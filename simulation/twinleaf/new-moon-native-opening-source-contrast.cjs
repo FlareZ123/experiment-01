@@ -4,7 +4,8 @@ const assert=require('node:assert/strict');
 const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {deriveSlotSeeds}=require('../../scripts/aichi-decorrelated-seeds.cjs');
 const {initializeCards}=require('./headless.cjs');
-const {pairedCandidateSlots,runArm}=require('./new-moon-second-start-paired.cjs');
+const {pairedCandidateSlots}=require('./new-moon-lockbreak-source-diagnostic.cjs');
+const {runArm}=require('./new-moon-second-start-paired.cjs');
 const source=require('../../results/als/new-moon-perfection-english-map.json');
 const contender=require('../../results/als/new-moon-lockbreak-english-proxy-60.json');
 
