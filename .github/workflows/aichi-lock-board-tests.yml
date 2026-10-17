@@ -32,6 +32,8 @@ jobs:
       - run: node simulation/twinleaf/ranger-stone-itemlock-action.cjs
       - name: Verify Eldegoss RCL Happy Match Bench-entry lock fidelity
         run: node simulation/twinleaf/eldegoss-entry-lock-action.cjs
+      - name: Verify Articuno CES Legendary Ascent Bench-entry lock fidelity
+        run: node simulation/twinleaf/articuno-entry-lock-action.cjs
       - name: Verify opt-in Eldegoss hook provenance and restoration
         run: node simulation/twinleaf/eldegoss-entry-runner-smoke.cjs
       - run: node --test tests/battle-compressor-minimum.test.cjs
