@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {compareHiddenDeckOrders,withRootHiddenOrderProbe}=
+const {compareHiddenDeckOrders,withRootHiddenOrderProbe,withRootDispatchCounter}=
   require('../simulation/twinleaf/rank10-hidden-order-live-probe.cjs');
 
 function state() {
@@ -68,5 +68,51 @@ test('source decision wrapper restores original method if detached-state checks 
     ()=>{throw Error('clone preflight failed')},
     {turn:27,seat:1,makeRandom:()=>()=>0.25}
   ),/clone preflight failed/);
+  assert.strictEqual(FakeBot.prototype.decodeNextAction,original);
+});
+
+test('only root-Store dispatches advance the source action ordinal',()=>{
+  class AddPlayerAction{}
+  class Store {
+    dispatch(action){return action.constructor.name;}
+  }
+  const original=Store.prototype.dispatch;
+  const count=withRootDispatchCounter(Store,getOrdinal=>{
+    const root=new Store(),hypothetical=new Store();
+    assert.equal(root.dispatch(new AddPlayerAction()),'AddPlayerAction');
+    assert.equal(getOrdinal(),1);
+    hypothetical.dispatch({kind:'speculative'});
+    assert.equal(getOrdinal(),1);
+    root.dispatch({kind:'live'});
+    assert.equal(getOrdinal(),2);
+    return getOrdinal();
+  });
+  assert.equal(count,2);
+  assert.strictEqual(Store.prototype.dispatch,original);
+});
+
+test('decisive root ordinal gates the detached probe after routine same-turn actions',()=>{
+  const physical=state();
+  physical.turn=28;
+  let ordinal=214;
+  const original=FakeBot.prototype.decodeNextAction;
+  const observed=withRootHiddenOrderProbe(
+    FakeBot,()=>{
+      const bot=new FakeBot({id:202},{});
+      const earlier=bot.decodeNextAction(physical);
+      ordinal=215;
+      const decisive=bot.decodeNextAction(physical);
+      return {earlier,decisive};
+    },
+    structuredClone,{
+      turn:28,seat:1,rootActionOrdinal:215,
+      readRootDispatchCount:()=>ordinal,makeRandom:()=>()=>0.25
+    }
+  );
+  assert.equal(observed.events.length,1);
+  assert.equal(observed.events[0].rootActionOrdinal,215);
+  assert.equal(observed.events[0].actionSensitiveToHiddenDeckOrder,true);
+  assert.equal(observed.result.earlier.top,'A');
+  assert.equal(observed.result.decisive.top,'A');
   assert.strictEqual(FakeBot.prototype.decodeNextAction,original);
 });
