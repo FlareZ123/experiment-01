@@ -64,6 +64,27 @@ test('Source Regidrago v4 clone modes preserve exact decks and observed first-tu
     assert.equal(row.prototypeSafe.verifiedByDrawLog, true);
     assert.equal(row.pinned.actualFirstTurnSlot,
       row.prototypeSafe.actualFirstTurnSlot);
+    assert.match(row.pinned.observableDigest, /^[a-f0-9]{64}$/);
+    assert.equal(row.pinned.observableDigest, row.prototypeSafe.observableDigest);
   }
   console.log('SOURCE_DDE_V4_CLONE_SEAT_PANEL ' + JSON.stringify(report));
+});
+
+test('Observable match digest changes if DDE attachment telemetry changes', () => {
+  const {observableDigest} =
+    require('../simulation/twinleaf/dde-source-clone-seat-panel.cjs');
+  const synthetic = {
+    firstTurnSlot: 1, finished: true, endReason: 'engine-game-end',
+    winner: 0, actions: 10, turns: 3, actionCounts: {},
+    actionsBySeat: [{}, {}],
+    cardsPlayedBySeat: [{'Double Dragon Energy': 1}, {}],
+    attackTrace: [], abilityTrace: [], terminalTransition: null,
+    finalState: [], prizesRemaining: [6, 6]
+  };
+  const original = observableDigest(synthetic);
+  const changed = observableDigest({
+    ...synthetic,
+    cardsPlayedBySeat: [{'Double Dragon Energy': 0}, {}]
+  });
+  assert.notEqual(original, changed);
 });
