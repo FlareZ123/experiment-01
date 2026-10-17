@@ -31,10 +31,14 @@ function audit(events) {
 }
 
 /** @param {string[]} opponentGarbodorTools */
-function door(opponentGarbodorTools) {
+function door(opponentGarbodorTools, abilitySource = {
+  name:'Shadow Rider Calyrex VMAX',tools:['Stealthy Hood'],
+  target:{slot:1,index:0}
+}) {
   return {
     turn: 8, actingSeat: 1, action: 'UseAbilityAction',
     declaredName: 'Underworld Door',
+    abilitySource,
     visibleBefore: {
       actor: {active: {name: 'Shadow Rider Calyrex VMAX',
         tools: ['Stealthy Hood']}, bench: []},
@@ -80,4 +84,29 @@ test('wrong seed, seat, or missing replay proof fail closed', () => {
     actualCandidateTurn: 'first'}));
   assert.throws(() => assessRank8HoodSource({...audit([]),
     exactFullActionStreamNoninterference: false}));
+});
+
+test('source-specific Hood gate rejects unhooded Bench user despite Hooded Active', () => {
+  const benched = door(['Float Stone'], {
+    name:'Shadow Rider Calyrex VMAX',tools:[],
+    target:{slot:2,index:0}
+  });
+  benched.visibleBefore.actor.bench=[
+    {name:'Shadow Rider Calyrex VMAX',tools:[]}
+  ];
+  const unknown = door(['Float Stone'], null);
+  const result = assessRank8HoodSource(audit([benched,unknown]));
+  assert.equal(result.observedUnderworldDoorCount,2);
+  assert.equal(result.underworldDoor[0].hoodedActive,true);
+  assert.equal(result.underworldDoor[0].sourceHooded,false);
+  assert.equal(result.underworldDoor[1].sourceHooded,null);
+  assert.equal(result.protectedUnderworldDoorAgainstEquippedGarbodor,0);
+  assert.equal(result.unresolvedEquippedLockDoorSources,1);
+});
+
+test('source-specific active Hood remains a positive exposure witness', () => {
+  const result=assessRank8HoodSource(audit([door(['Float Stone'])]));
+  assert.equal(result.underworldDoor[0].sourceHooded,true);
+  assert.equal(result.protectedUnderworldDoorAgainstEquippedGarbodor,1);
+  assert.equal(result.unresolvedEquippedLockDoorSources,0);
 });
