@@ -65,6 +65,13 @@ function run() {
           const game=runMatch(request);
           const actions=game.decisionTrace.filter(a=>a.playerSlot===candidateSeat);
           const opponentActions=game.decisionTrace.filter(a=>a.playerSlot!==candidateSeat);
+          const candidateAbilityCounts=Object.fromEntries(
+            [...new Set(game.abilityTrace.filter(a=>a.seat===candidateSeat)
+              .map(a=>a.name))].sort().map(name=>[name,game.abilityTrace
+              .filter(a=>a.seat===candidateSeat && a.name===name).length]));
+          const candidatePrintedAttacks=game.attackTrace
+            .filter(a=>a.seat===candidateSeat).length;
+          const candidatePassCount=actions.filter(a=>a.action==='PassTurnAction').length;
           const counters=Object.fromEntries(
             ['Field Blower','Canceling Cologne','Trainers\' Mail','Rescue Carrier']
               .map(name=>[name,Object.entries(game.cardsPlayedBySeat[candidateSeat])
@@ -79,6 +86,9 @@ function run() {
             ownPrintedAttackNames:game.attackTrace.filter(a=>a.seat===candidateSeat)
               .map(a=>a.name??a.attack??null).slice(0,12),
             playedCounters:counters,
+            candidateAbilityCounts,
+            candidatePrintedAttacks,
+            candidatePassCount,
             ownMeaningfulActions:actions.length,
             opponentMeaningfulActions:opponentActions.length,
             ownFirstActions:actions.slice(0,18).map(a=>({
@@ -108,14 +118,14 @@ function run() {
       assert.equal(a.actualFirstSeat,b.actualFirstSeat);
   }
   return {
-    schema:'new-moon-lockbreak-paired-source-diagnostic-v1',
+    schema:'new-moon-lockbreak-paired-source-diagnostic-v2-ability-and-pass',
     qualifiedForCompetitiveInference:false,
     originalSourcePrintHash:source.sha256_id_counts,
     frozenCandidatePrintHash:contender.canonical_id_count_sha256,
     engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     physicalSlotRule:'Only two Trainer Mail and two Rescue Carrier positions changed. Unchanged 56 exact physical print slots retain source index.',
     seedRule:'decorrelated-slots-v3 pilot seed base 20261017, target rank, game 0',
-    policy:'Original pinned generic SimpleTacticsAi, limited extra rule research flags, no New Moon-specific strategic sequencing',
+    policy:'Original pinned generic SimpleTacticsAi, limited extra rule research flags, no New Moon-specific strategic sequencing; abilityTrace and AttackAction are different channels, ResolvePromptAction ChooseAttackPrompt choices are not fully captured',
     caveats:'Single paired seed in each seat, unqualified policy, unverified full copied-attack and Night Watch random-hand mechanics, possible simulator alias problems, 350-action cap, missing three benchmark ranks. These engine winners must never enter a competitive win-rate ledger.',
     rows
   };
