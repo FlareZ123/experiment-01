@@ -98,8 +98,13 @@ function storeDataGraphFingerprint(store,options={}) {
       if (Object.hasOwn(desc,'value')) {
         flags.push(desc.writable);
         const captured = value===store.state && key==='logs'
-          ? ['log-count',value.logs.length] : visit(desc.value);
-        record.fields.push([key,flags,captured]);
+          ? ['log-count',value.logs.length]
+          : key==='__uniqueId' && className==='PokemonCardList'
+            ? ['string',normalizeStatisticId(desc.value)] : visit(desc.value);
+        const prefix='pokemon_list_';
+        const canonicalKey=key.startsWith(prefix)
+          ? normalizeStatisticId(key.slice(prefix.length),true) : key;
+        record.fields.push([canonicalKey,flags,captured]);
       } else {
         flags.push('accessor');
         record.fields.push([key,flags,desc.get?.name??null,
