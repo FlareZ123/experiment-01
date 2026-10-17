@@ -7,6 +7,7 @@ const {withStoreDispatchTranscript}=require('./store-dispatch-transcript.cjs');
 const {withRank8BoardObserver}=require('./hood-rank8-source-board-observer.cjs');
 const {withRank8BoostShakeFork}=require('./rank8-boostshake-source-fork.cjs');
 const {withRank8FieldBlowerReply}=require('./rank8-field-blower-source-reply.cjs');
+const {withRank8PsychicRecoveryReply}=require('./rank8-psychic-recovery-source-reply.cjs');
 function main(){
   const candidate=require('../../results/aichi-2026/candidate-hood-shadow-rider.json');
   const plan=planAichi(candidate,{allowEquivalentBasicEnergies:true,
@@ -35,6 +36,16 @@ function main(){
       withRank8FieldBlowerReply(()=>
         withRank8BoostShakeFork(()=>runMatch(request))),opts));
   const reply=answered.result.result;
+  const recovered=withRank8BoardObserver(Store,()=>
+    withStoreDispatchTranscript(Store,()=>
+      withRank8PsychicRecoveryReply(()=>
+        withRank8FieldBlowerReply(()=>
+          withRank8BoostShakeFork(()=>runMatch(request)))),opts));
+  const recovery=recovered.result.result;
+  assert.equal(recovery.stage,7);
+  assert.ok(recovery.witness);
+  assert.equal(recovery.result.stage,4);
+  assert.equal(recovery.result.result.stage,11);
   assert.equal(reply.stage,4);
   assert.equal(reply.result.stage,11);
   assert.ok(reply.cleared);
@@ -51,6 +62,8 @@ function main(){
   assert.ok(garbo[0].tools.includes('Float Stone'));
   assert.deepEqual(reply.result.turn8.board,fork.turn8.board,
     'Counter-response changed original locked predecision board');
+  assert.deepEqual(recovery.result.result.turn8.board,fork.turn8.board,
+    'Resource continuation changed source-locked turn8 board');
   return {schema:'rank8-boostshake-real-deal-v1',
     seed:1260748957,sourcePrefixActions:86,
     sourceWitness:fork.witness,choices:fork.events,
@@ -66,6 +79,12 @@ function main(){
         e.turnBefore===8 && e.playerSlot===1).map(e=>({
           action:e.action,card:e.card,ability:e.ability,
           selectedCards:e.cardSelection?.selectedCards}))},
+    psychicRecovery:{steps:recovery.events,witness:recovery.witness,
+      turn8Actions:recovery.result.result.result.decisionTrace.filter(e=>
+        e.turnBefore===8 && e.playerSlot===1).map(e=>({
+          action:e.action,card:e.card,ability:e.ability,
+          selectedCards:e.cardSelection?.selectedCards})),
+      prizes:recovery.result.result.result.prizesRemaining},
     qualifiedForCompetitiveInference:false};
 }
 if(require.main===module)process.stdout.write(JSON.stringify(main(),null,2)+'\n');
