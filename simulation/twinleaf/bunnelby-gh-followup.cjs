@@ -13,7 +13,7 @@ function followup(prizeGloom=false,maxActions=50){
  const f=stageGuzmaHand(prizeGloom),defs=load('simple-bot/simple-bot-definitions');
  const {SimpleTacticsAi}=load('simple-bot/simple-tactics-ai');
  const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
- const {ShuffleDeckPrompt}=load('game/store/prompts/shuffle-deck-prompt');
+ const {ShuffleDeckPrompt}=load('game/store/prompts/shuffle-prompt');
  const {PlayCardAction,PlayerType,SlotType}=load('game/store/actions/play-card-action');
  let o={tactics:defs.allSimpleTactics,promptResolvers:defs.allPromptResolvers,
    scores:defs.defaultStateScores,arbiter:defs.defaultArbiterOptions};
