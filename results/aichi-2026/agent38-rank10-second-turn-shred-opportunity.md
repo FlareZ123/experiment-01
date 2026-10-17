@@ -2,6 +2,22 @@
 
 **Agent 38, 17 October 2026 UTC. Source-based conditional tactical finding, full-game fork under compiled verification. No qualified competitive games.**
 
+## Compiled authentic source-fork outcome (17 October 2026)
+
+[Manual Mimikyu CI run 38995670174](https://github.com/FlareZ123/experiment-01/actions/runs/38995670174), at commit `95891395`, successfully compiled the pinned engine, passed **all three new pure fork tests**, and **completed the full source-dealt control and Shred counterfactual** before a separate older staged-fixture assertion caused the overall workflow to turn red. The complete machine-readable [authentic source fork artifact 12086923825](https://github.com/FlareZ123/experiment-01/actions/runs/38995670174/artifacts/12086923825) was uploaded successfully.
+
+The fork passed its strict requirements:
+- First divergence occurs at **root action 215**, the original Mimikyu `RetreatAction` versus a legal `AttackAction('Copycat')`.
+- All preceding root actions, as well as zone and Card-history hashes immediately before action 215, matched exactly. They also match the prior, independently archived root source hashes cited below.
+- The actual game presented `ChooseAttackPrompt` id **136** and accepted printed `Dialga-GX UPR` **Shred**.
+- Original branch: completed engine game at turn **31**, **233 main actions**, winner **physical slot 0 (rank-10 Regidrago)**, remaining Prizes **0 / 4** (Regidrago / champion).
+- Counterfactual branch: completed engine game at turn **38**, **287 main actions**, winner **physical slot 1 (rank-1 Shadow Rider)**, remaining Prizes **3 / 0** (Regidrago / champion).
+- The printed Shred attack dealt the eligible 80 damage for the two-Prize Regidrago KO, and subsequent bot-game actions diverged naturally. The source branch records Mimikyu's turn-28 `Copycat`, followed by the champion's finishing turn-38 `Latias ex` `Eon Blade`.
+
+**Result classification:** a *real, source-locked, one-deal policy counterfactual that reversed the engine-reported winner*. It demonstrates a consequential original bot-decision defect on the fixed rank-1 list. It is still fully **unqualified for competitive win-rate inference** because the opponent policies, hidden-information boundary and complete paper-rule implementation are unqualified, and only one seed/starting orientation was evaluated.
+
+**Separate CI red gate:** The existing `mimikyu-extra-turn-shred-action.cjs` staged mechanical test, which ran **after** the successfully uploaded authentic fork, failed on the unrelated assertion `candidate.usedTurnSkip === false` because the unarmed field was `undefined`. Agent 38 corrected the test to require `usedTurnSkip !== true` in commit `2f338b9f`. A compiled rerun is needed to establish fully green current-head CI; the earlier real source-fork evidence remains intact.
+
 ## Authenticated physical game state
 
 The [compiled live-root artifact from manual CI 38992559596](https://github.com/FlareZ123/experiment-01/actions/runs/38992559596/artifacts/12085698259) contains two branches for exact published Aichi rank-10 Regidrago against rank-1 champion Shadow Rider in physical seats 0 and 1. In the alternate at seed **4246551499**, the champion's Mimikyu copied Regidrago's `Apex Dragon` to use its **own discarded Dialga-GX UPR `Timeless-GX`** on turn 27, gaining a consecutive turn.
