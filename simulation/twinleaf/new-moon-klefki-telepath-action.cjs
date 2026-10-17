@@ -2,12 +2,19 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {initializeCards}=require('./headless.cjs');
+const {installNumericShuffleValidationHook}=require('./numeric-shuffle-validation-hook.cjs');
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
 const load=name=>require(path.join(output,name));
 
 /** @param {0|1} seat */
 function probe(seat) {
+  const restore=installNumericShuffleValidationHook();
+  try { return probeInner(seat); }
+  finally { restore(); }
+}
+/** @param {0|1} seat */
+function probeInner(seat) {
   const manager=initializeCards();
   let id=100;
   /** @param {string} name */
@@ -116,7 +123,7 @@ function run() {
   const rows=[probe(0),probe(1)];
   return {schema:'new-moon-telepath-klefki-source-store-v1',
     engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    note:'Conditioned board using real Energy PlayCardAction, prompt and paid RetreatAction; source Prize hand accessibility and match policy untested',
+    note:'Conditioned board with opt-in numeric shuffle validation hook; real hand attachment, search and paid RetreatAction, but no source-dealt match or opponent policy',
     rows};
 }
 if(require.main===module)console.log(JSON.stringify(run(),null,2));
