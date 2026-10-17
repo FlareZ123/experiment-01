@@ -26,14 +26,14 @@ function allocations(caps, total) {
   return out;
 }
 
-const BINOMIAL = Array.from({length:61},(_,n)=> {
-  const row = Array(61).fill(0n);
-  row[0]=1n;
-  if(n>0)for(let k=1;k<=n;k++) {
-    row[k]=(BINOMIAL[n-1]?.[k-1]||0n)+(BINOMIAL[n-1]?.[k]||0n);
+const BINOMIAL = Array.from({length:61},()=>Array(61).fill(0n));
+BINOMIAL[0][0]=1n;
+for(let n=1;n<=60;n++){
+  BINOMIAL[n][0]=1n;
+  for(let k=1;k<=n;k++){
+    BINOMIAL[n][k]=BINOMIAL[n-1][k-1]+BINOMIAL[n-1][k];
   }
-  return row;
-});
+}
 /** @param {number} n @param {number} k @returns {bigint} */
 function choose(n,k) { return k<0||k>n?0n:BINOMIAL[n][k]; }
 /** @param {bigint} a @param {bigint} b */
