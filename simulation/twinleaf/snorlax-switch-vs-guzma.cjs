@@ -11,7 +11,7 @@ const engine=part=>require(path.join(root,part));
 /**
  * A single source-faithful logical choice, executed as a pinned Store action.
  * Both Trainers are legal Expanded printings; no hand/search frequency assumed.
- * @param {{trainer:'Switch'|'Guzma',opponentBench:boolean,jammer:boolean,guzmaCorrection?:boolean}} options
+ * @param {{trainer:'Switch'|'Guzma',opponentBench:boolean,jammer:boolean,ownBench?:boolean,guzmaCorrection?:boolean}} options
  */
 function probeTrainerEscape(options){
   const manager=initializeCards();
@@ -45,8 +45,10 @@ function probeTrainerEscape(options){
     side.deck.cards.push(card('Psychic Energy MEE'));
   }
   a.active.cards.push(card('Shadow Rider Calyrex V CRE'));
-  const ownBench=new PokemonCardList();
-  ownBench.cards.push(card('Latias ex SSP'));a.bench.push(ownBench);
+  if(options.ownBench!==false){
+    const ownBench=new PokemonCardList();
+    ownBench.cards.push(card('Latias ex SSP'));a.bench.push(ownBench);
+  }
   b.active.cards.push(card('Snorlax PGO'));
   if(options.opponentBench){
     const target=new PokemonCardList();
@@ -70,6 +72,7 @@ function probeTrainerEscape(options){
         const choice=options.trainer==='Guzma'&&options.opponentBench&&
           steps.filter(x=>x==='ChoosePokemonPrompt').length===1 ?
           b.bench[0]:a.bench[0];
+        assert.ok(choice,'Store requested a switch to a nonexistent own Bench');
         store.dispatch(new ResolvePromptAction(p.id,[choice]));
       } else if(name==='WaitPrompt') {
         store.dispatch(new ResolvePromptAction(p.id,null));
