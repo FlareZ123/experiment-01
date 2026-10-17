@@ -3,9 +3,9 @@
   "candidate": "new-moon-perfection-source-60",
   "source": "results/als/new-moon-perfection-source-60.json",
   "scope": "May 10, 2026 Aichi paper Expanded; 52nd-place published external research contender",
-  "verification": "These are effect-equivalent English card IDs checked against the bundled database. Exact Japanese registered physical printings, translations/errata, release availability, bans and simulator support are not certified.",
+  "verification": "These are effect-equivalent English card IDs checked against the bundled database. Exact Japanese registered physical printings, translations/errata, release availability, bans and simulator support are not certified. Source Japanese Duskull is officially S4 043/100 (card id 38541, Future Sight), mapped here to Vivid Voltage swsh4-69.",
   "japanese_printings_verified": false,
-  "english_equivalent_cards_sha256": "cb6334eef83b32fec5fc1a89989e1dae75f40453c02efc62da9373b29567b4be",
+  "english_equivalent_cards_sha256": "c8dddcbdeebaba3774cf580f0fb85dd46c693f17a599515f46d50c115f564356",
   "digest_definition": "SHA-256 of UTF-8 lines 'row:column|count|english_id\\n' in source grid order",
   "effect_anchors": {
     "Mewtwo & Mew-GX": "Perfection",
@@ -100,7 +100,7 @@
       "source_grid_column": 2,
       "count": 2,
       "name_en": "Duskull",
-      "id": "sv6pt5-18"
+      "id": "swsh4-69"
     },
     {
       "source_grid_row": 2,
