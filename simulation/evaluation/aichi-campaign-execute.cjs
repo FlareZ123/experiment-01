@@ -328,8 +328,7 @@ function main() {
         ...game,
         policy: String(game.policy || 'unspecified') +
           '+TempleUnlockTactic-v1+ToolAwareAttackTactic-v1' +
-          (request.bunnelbyK0SafeEvolution === true ?
-            '+BunnelbySourceK0PossibleEvolution-v1' :
+          (request.bunnelbyK0SafeEvolution === true ? '' :
             '+BunnelbyEvolutionTactic-v1+BarrageEvolutionResolver-v1') +
           '+MandatoryOptionResolver-v1'
       };
