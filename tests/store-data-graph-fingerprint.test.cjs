@@ -33,7 +33,7 @@ test('same separate graph gives matching digest without invoking functions',()=>
   const before=storeDataGraphFingerprint(one);
   const after=storeDataGraphFingerprint(two);
   assert.equal(before.digest,after.digest);
-  assert.equal(before.schema,'live-store-data-graph-except-logs-v1');
+  assert.equal(before.schema,'live-store-own-data-stats-clock-normalized-v2');
   assert.ok(before.nodes>5);
   assert.ok(before.opaqueFunctions>=1);
   assert.deepEqual(one.state.players[0].active.marker.markers,[]);
