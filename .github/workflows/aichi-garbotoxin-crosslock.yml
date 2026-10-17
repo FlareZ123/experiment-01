@@ -2,6 +2,11 @@ name: Aichi Garbotoxin cross-lock action audit
 
 on:
   workflow_dispatch:
+    inputs:
+      rank8_source_fork:
+        description: 'Opt-in same-source rank8 Latias Field Blower and paid retreat counterfactuals'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -9,7 +14,7 @@ permissions:
 jobs:
   cross-lock:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - run: git submodule update --init --depth=1 vendor/twinleaf
@@ -22,6 +27,7 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - run: node --test tests/rank8-latias-escape-policy.test.cjs
       - run: node simulation/twinleaf/garbotoxin-vileplume-action.cjs
       - run: node simulation/twinleaf/garbotoxin-removal-tempo.cjs
       - run: node simulation/twinleaf/garbotoxin-faba-tempo.cjs
@@ -32,3 +38,13 @@ jobs:
       - run: node scripts/aichi-grand-tree-opening.cjs
       - name: Audit raw Grand Tree opening-turn restriction
         run: node simulation/twinleaf/grand-tree-first-turn-audit.cjs
+      - name: Reproduce authentic rank8 Latias escape decision alternatives
+        if: inputs.rank8_source_fork
+        run: node simulation/twinleaf/rank8-latias-escape-fork.cjs > rank8-latias-escape-fork.json
+      - name: Record exact source-ranked counterfactual evidence
+        if: always() && inputs.rank8_source_fork
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank8-latias-source-escape-fork
+          path: rank8-latias-escape-fork.json
+          if-no-files-found: warn
