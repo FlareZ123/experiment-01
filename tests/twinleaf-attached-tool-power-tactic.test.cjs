@@ -6,7 +6,8 @@ const path = require('node:path');
 const {initializeCards} = require('../simulation/twinleaf/headless.cjs');
 const {installForestSealSearchHook} =
   require('../simulation/twinleaf/forest-seal-search-hook.cjs');
-const {attachedToolPowerTacticClass,withAttachedToolPowerTactic} =
+const {attachedToolPowerTacticClass,withAttachedToolPowerTactic,
+  withAttachedToolPowerPolicy} =
   require('../simulation/twinleaf/attached-tool-power-tactic.cjs');
 
 const output=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
@@ -119,4 +120,25 @@ test('opt-in Tool Power tactic registration restores the shared policy on succes
   assert.deepEqual(definitions.allSimpleTactics,before);
   assert.throws(()=>withAttachedToolPowerTactic(()=>{throw Error('intentional');}),/intentional/);
   assert.deepEqual(definitions.allSimpleTactics,before);
+});
+
+test('isolated Tool Power policy preserves global bot registry and card-tactic order', () => {
+  initializeCards();
+  const definitions=mod('simple-bot/simple-bot-definitions');
+  const defaultOrder=definitions.allSimpleTactics.slice();
+  const base={tactics:defaultOrder,scores:definitions.defaultStateScores,
+    promptResolvers:definitions.allPromptResolvers};
+  const modified=withAttachedToolPowerPolicy(base);
+  const before=defaultOrder.findIndex(t=>t.name==='UseAbilityTactic');
+  assert.ok(before>=0);
+  assert.notEqual(modified,base);
+  assert.notEqual(modified.tactics,base.tactics);
+  assert.equal(modified.tactics[before].name,'AttachedToolPowerTactic');
+  assert.equal(modified.tactics[before+1].name,'UseAbilityTactic');
+  assert.deepEqual(modified.tactics.filter(t=>t.name!=='AttachedToolPowerTactic'),defaultOrder);
+  assert.deepEqual(definitions.allSimpleTactics,defaultOrder);
+  const second=withAttachedToolPowerPolicy(base);
+  assert.notEqual(second.tactics,modified.tactics);
+  assert.equal(second.tactics[before].name,'AttachedToolPowerTactic');
+  assert.deepEqual(definitions.allSimpleTactics,defaultOrder);
 });
