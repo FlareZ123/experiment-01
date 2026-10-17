@@ -21,11 +21,13 @@ function observeShop(sourceId,execute){
   const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
   const original=SimpleTacticsAi.prototype.decodeNextAction;
   const samples=[],seen=new Set();
+  let observedDecisionBoundaries=0;
   SimpleTacticsAi.prototype.decodeNextAction=function sourceShopObserver(state){
     const id=this.client?.id;
     const player=state.players.find(p=>p.id===id);
     let sample=null;
     if(id===sourceId && player && state.activePlayer===state.players.indexOf(player)){
+      observedDecisionBoundaries++;
       const occupied=[player.active,...player.bench]
         .filter(slot=>slot.getPokemonCard());
       const garbo=occupied.filter(slot=>slot.getPokemonCard()?.name==='Garbodor');
@@ -65,7 +67,10 @@ function observeShop(sourceId,execute){
     if(sample) sample.selectedAction=action?.constructor?.name||null;
     return action;
   };
-  try{return {result:execute(),samples};}
+  try{
+    const result=execute();
+    return {result,samples,observedDecisionBoundaries};
+  }
   finally{SimpleTacticsAi.prototype.decodeNextAction=original;}
 }
 
@@ -89,6 +94,7 @@ function run(){
     };
     const baseline=runMatch(req);
     const observed=observeShop(sourceSeat===0?101:202,()=>runMatch(req));
+    assert.ok(observed.observedDecisionBoundaries>0, 'Observer did not see the source player act');
     for(const key of ['finished','winner','actions','turns','firstTurnSlot',
       'prizesRemaining','deckHashes','abilityTrace','attackTrace',
       'cardsPlayedBySeat','decisionTrace']){
@@ -99,6 +105,7 @@ function run(){
     cases.push({
       candidateSeat,seed,actualFirstSlot:baseline.firstTurnSlot,
       matchingSourceDecisionTrace:true,
+      sourceDecisionBoundaries:observed.observedDecisionBoundaries,
       sourceDecisionEvents:baseline.decisionTrace.filter(x=>
         x.playerSlot===sourceSeat).length,
       sourceEnded:baseline.finished,sourceEngineWinner:baseline.winner,
