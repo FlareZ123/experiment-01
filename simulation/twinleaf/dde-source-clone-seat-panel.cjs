@@ -42,6 +42,13 @@ function observableDigest(game) {
  * @returns {object}
  */
 function summarize(game, candidateSlot) {
+  const candidateAttacks = game.attackTrace.filter(row => row.seat === candidateSlot);
+  const opponentAttacks = game.attackTrace.filter(row => row.seat !== candidateSlot);
+  /** @param {object[]} attacks */
+  const groupedAttacks = attacks => Object.fromEntries(
+    [...new Set(attacks.map(row => row.attack))].sort()
+      .map(name => [name, attacks.filter(row => row.attack === name).length])
+  );
   return {
     simulatorProfile: game.prototypeSafeSimulatorIsolation ? 'prototype-safe' : 'pinned',
     verifiedByDrawLog: game.verifiedByDrawLog,
@@ -53,13 +60,14 @@ function summarize(game, candidateSlot) {
     turns: game.turns,
     candidateDoubleDragonPlayed:
       game.cardsPlayedBySeat[candidateSlot]['Double Dragon Energy'] || 0,
-    candidateApexAttacks: game.attackTrace
-      .filter(action => action.seat === candidateSlot &&
-        action.attack === 'Apex Dragon').length,
-    candidateTotalAttacks: game.attackTrace
-      .filter(action => action.seat === candidateSlot).length,
-    opponentTotalAttacks: game.attackTrace
-      .filter(action => action.seat !== candidateSlot).length,
+    candidateApexAttacks: candidateAttacks
+      .filter(action => action.attack === 'Apex Dragon').length,
+    candidateTotalAttacks: candidateAttacks.length,
+    candidateAttackNames: groupedAttacks(candidateAttacks),
+    opponentTotalAttacks: opponentAttacks.length,
+    opponentAttackNames: groupedAttacks(opponentAttacks),
+    candidateFinalBoard: game.finalState[candidateSlot],
+    opponentFinalBoard: game.finalState[1 - candidateSlot],
     candidateFinalPrizes: game.prizesRemaining[candidateSlot],
     opponentFinalPrizes: game.prizesRemaining[1 - candidateSlot],
     policy: game.policy,
