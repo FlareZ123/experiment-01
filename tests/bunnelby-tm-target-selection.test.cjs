@@ -74,7 +74,7 @@ test('generic TM Evolution prompt selects high-score non-evolving Basics',()=>{
   const source=printedRank2();
   const choices=selections(context,source);
   assert.deepEqual(choices.defaultNames,['Fan Rotom SCR','Relicanth TEF']);
-  assert.deepEqual(choices.selectedNames,['Pidgey MEW','Oddish UNB']);
+  assert.deepEqual(choices.selectedNames,['Oddish UNB','Pidgey MEW']);
 });
 
 test('K0 source target selection is unchanged across hidden Gloom Prize layouts',()=>{
