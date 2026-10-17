@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      absol_hardmatchup_probe:
+        description: Run exact-source four-rank unqualified Absol matchup diagnostic
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -88,3 +93,14 @@ jobs:
       - name: Audit live Battle Compressor selections in paired Aichi source games
         if: ${{ inputs.battle_compressor_source_exposure }}
         run: node simulation/twinleaf/battle-compressor-source-exposure.cjs
+
+      - name: Four exact-source Absol/Garbodor diagnostic games in both physical seats
+        if: ${{ inputs.absol_hardmatchup_probe }}
+        run: node simulation/twinleaf/absol-hardmatchup-source-pilot.cjs > absol-hardmatchup-source-pilot.json
+      - name: Archive hard-matchup source evidence
+        if: ${{ inputs.absol_hardmatchup_probe }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: absol-hardmatchup-source-pilot
+          path: absol-hardmatchup-source-pilot.json
+          retention-days: 14
