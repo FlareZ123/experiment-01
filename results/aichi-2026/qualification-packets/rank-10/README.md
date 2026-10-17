@@ -1,5 +1,7 @@
 # Rank 10 qualification packet: Regidrago versus fixed Shadow Rider candidates
 
+
+**17 October Agent 8 DDE-v4 source fork:** [Compiled CI 39035919042](https://github.com/FlareZ123/experiment-01/actions/runs/39035919042) passed a new paired source-deal test. The first root difference was turn 2, step 15. The DDE-off control ended on turn65 with Regidrago winning [1,2] Prizes remaining; v4 ended turn16 with Regidrago winning [0,4]. The workflow later failed at the stale historical turn55 Field Blower assertion. DDE-off does not prove exact v3 equality. [Full report](../../agent8-rank10-dde-v4-trajectory-differential.md). Zero qualified games.
 **17 October Agent 22 exhaustive selected-State boundary audit:** [The isolated compiled replay CI 39032544872](https://github.com/FlareZ123/experiment-01/actions/runs/39032544872) passed fresh-process **350/350 control** and **235/235 alternate** Store actions and an improved five-gap observer that checks **every changed path within its partial source-State projection**. All five corrected-clone inter-dispatch mismatches were confined to `playerLastAttack`; 0 selected Card-history or policy-time mutations in this one deal. This is a narrower audit of between-dispatch continuity, distinct from full Store graph/reducer or decision competence. [Detailed bounded report](../../agent22-rank10-exhaustive-continuity-deltas.md). The newer main-head replay failed before turn-27 capture and is being tested for policy-version drift. **Zero qualified competitive games.**
 
 
