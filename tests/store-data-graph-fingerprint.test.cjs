@@ -136,3 +136,44 @@ test('known scope limit: inherited mutable prototype data is not in v1',()=>{
     storeDataGraphFingerprint(right).digest,
     'Prototype instance data requires an independent prototype-chain audit');
 });
+
+
+test('GameStatsTracker wall-clock IDs preserve seeded identity and statistics',()=>{
+  class PokemonCardList {}
+  const sample=(clock,suffix,totalDamage=50)=>{
+    const store=makeStore(),id=clock+'_'+suffix;
+    Object.setPrototypeOf(store.state.players[0].active,
+      PokemonCardList.prototype);
+    store.state.players[0].active.__uniqueId=id;
+    store.state.players[0].gameStats={
+      totalDamageDealt:totalDamage,
+      pokemonDamageStats:{
+        ['pokemon_list_'+id]:{
+          cardId:'pokemon_list_'+id,
+          cardName:'Regidrago VSTAR',
+          totalDamage,
+          evolutionChain:['Regidrago V','Regidrago VSTAR']
+        }
+      }
+    };
+    return store;
+  };
+  const before=storeDataGraphFingerprint(sample('1792203123649','kvpllne5v'));
+  const after=storeDataGraphFingerprint(sample('1792203208269','kvpllne5v'));
+  assert.equal(before.digest,after.digest,
+    'Time-only perturbation in verified tracker IDs should be normalized');
+  assert.notEqual(before.digest,
+    storeDataGraphFingerprint(sample('1792203208269','kvpllne5w')).digest);
+  assert.notEqual(before.digest,
+    storeDataGraphFingerprint(sample('1792203208269','kvpllne5v',80)).digest);
+});
+
+test('timestamp normalization fails closed on duplicate deterministic suffix',()=>{
+  class PokemonCardList {}
+  const s=makeStore();
+  Object.setPrototypeOf(s.state.players[0].active,PokemonCardList.prototype);
+  Object.setPrototypeOf(s.state.players[1].active,PokemonCardList.prototype);
+  s.state.players[0].active.__uniqueId='1792203123649_duplicate';
+  s.state.players[1].active.__uniqueId='1792203208269_duplicate';
+  assert.throws(()=>storeDataGraphFingerprint(s),/identifiers collide/);
+});
