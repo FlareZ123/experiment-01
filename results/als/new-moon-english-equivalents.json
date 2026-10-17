@@ -1,0 +1,260 @@
+{
+  "schema": "new-moon-english-equivalents-v1",
+  "candidate": "new-moon-perfection-source-60",
+  "source": "results/als/new-moon-perfection-source-60.json",
+  "scope": "May 10, 2026 Aichi paper Expanded; 52nd-place published external research contender",
+  "verification": "These are effect-equivalent English card IDs checked against the bundled database. Exact Japanese registered physical printings, translations/errata, release availability, bans and simulator support are not certified.",
+  "japanese_printings_verified": false,
+  "english_equivalent_cards_sha256": "cb6334eef83b32fec5fc1a89989e1dae75f40453c02efc62da9373b29567b4be",
+  "digest_definition": "SHA-256 of UTF-8 lines 'row:column|count|english_id\\n' in source grid order",
+  "effect_anchors": {
+    "Mewtwo & Mew-GX": "Perfection",
+    "Gengar & Mimikyu-GX": "Horror House-GX",
+    "Trevenant & Dusknoir-GX": "Night Watch",
+    "Unown": "Farewell Letter",
+    "Dusclops": "Cursed Blast",
+    "Solrock": "Sunbeam",
+    "Lunatone": "New Moon",
+    "Klefki": "Mischievous Lock",
+    "Latias ex": "Skyliner",
+    "Squawkabilly ex": "Squawk and Seize",
+    "Galarian Articuno V": "Reconstitute"
+  },
+  "english_name_aliases": {
+    "Battle Compressor": "Battle Compressor Team Flare Gear",
+    "Trainer's Mail": "Trainers' Mail"
+  },
+  "entries": [
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 1,
+      "count": 2,
+      "name_en": "Mewtwo & Mew-GX",
+      "id": "sm11-71"
+    },
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 2,
+      "count": 1,
+      "name_en": "Gengar & Mimikyu-GX",
+      "id": "sm9-53"
+    },
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 3,
+      "count": 1,
+      "name_en": "Trevenant & Dusknoir-GX",
+      "id": "smp-SM217"
+    },
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 4,
+      "count": 1,
+      "name_en": "Tapu Lele-GX",
+      "id": "sm2-60"
+    },
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 5,
+      "count": 1,
+      "name_en": "Galarian Articuno V",
+      "id": "swsh6-58"
+    },
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 6,
+      "count": 1,
+      "name_en": "Latias ex",
+      "id": "sv8-76"
+    },
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 7,
+      "count": 1,
+      "name_en": "Lillie's Clefairy ex",
+      "id": "sv9-56"
+    },
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 8,
+      "count": 1,
+      "name_en": "Squawkabilly ex",
+      "id": "sv2-169"
+    },
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 9,
+      "count": 3,
+      "name_en": "Unown",
+      "id": "xy7-30"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 1,
+      "count": 2,
+      "name_en": "Dusclops",
+      "id": "sv6pt5-19"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 2,
+      "count": 2,
+      "name_en": "Duskull",
+      "id": "sv6pt5-18"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 3,
+      "count": 1,
+      "name_en": "Solrock",
+      "id": "sm7-62"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 4,
+      "count": 1,
+      "name_en": "Lunatone",
+      "id": "sv3-92"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 5,
+      "count": 1,
+      "name_en": "Klefki",
+      "id": "sv1-96"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 6,
+      "count": 4,
+      "name_en": "Battle VIP Pass",
+      "id": "swsh8-225"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 7,
+      "count": 4,
+      "name_en": "Fog Crystal",
+      "id": "swsh6-140"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 8,
+      "count": 2,
+      "name_en": "Mysterious Treasure",
+      "id": "sm6-113"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 9,
+      "count": 2,
+      "name_en": "Hisuian Heavy Ball",
+      "id": "swsh10-146"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 1,
+      "count": 4,
+      "name_en": "Rescue Carrier",
+      "id": "swsh7-154"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 2,
+      "count": 2,
+      "name_en": "Battle Compressor",
+      "id": "xy4-92"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 3,
+      "count": 2,
+      "name_en": "Trainer's Mail",
+      "id": "xy6-92"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 4,
+      "count": 1,
+      "name_en": "Adventure Bag",
+      "id": "sm8-167"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 5,
+      "count": 1,
+      "name_en": "Escape Rope",
+      "id": "swsh5-125"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 6,
+      "count": 1,
+      "name_en": "Counter Catcher",
+      "id": "sv4-160"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 7,
+      "count": 1,
+      "name_en": "Secret Box",
+      "id": "sv6-163"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 8,
+      "count": 2,
+      "name_en": "Powerglass",
+      "id": "sv6pt5-63"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 9,
+      "count": 1,
+      "name_en": "Forest Seal Stone",
+      "id": "swsh12-156"
+    },
+    {
+      "source_grid_row": 4,
+      "source_grid_column": 1,
+      "count": 2,
+      "name_en": "Lillie's Determination",
+      "id": "me1-119"
+    },
+    {
+      "source_grid_row": 4,
+      "source_grid_column": 2,
+      "count": 2,
+      "name_en": "Ace Trainer",
+      "id": "xy7-69"
+    },
+    {
+      "source_grid_row": 4,
+      "source_grid_column": 3,
+      "count": 2,
+      "name_en": "Sky Field",
+      "id": "xy6-89"
+    },
+    {
+      "source_grid_row": 4,
+      "source_grid_column": 4,
+      "count": 2,
+      "name_en": "Path to the Peak",
+      "id": "swsh6-148"
+    },
+    {
+      "source_grid_row": 4,
+      "source_grid_column": 5,
+      "count": 3,
+      "name_en": "Telepathic Psychic Energy",
+      "id": "me3-88"
+    },
+    {
+      "source_grid_row": 4,
+      "source_grid_column": 6,
+      "count": 3,
+      "name_en": "Basic Psychic Energy",
+      "id": "sve-5"
+    }
+  ]
+}
