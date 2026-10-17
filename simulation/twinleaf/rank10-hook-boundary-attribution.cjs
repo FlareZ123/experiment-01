@@ -37,6 +37,12 @@ function auditRank10HookBoundaries(archive, continuity) {
     assert.equal(next.continuityDigestBefore, gap.currentHash);
     assert.notEqual(gap.previousHash, gap.currentHash);
     assert.equal(gap.cardHistoryMismatch, null);
+    assert.ok(Array.isArray(gap.changedLeafPaths) &&
+      gap.changedLeafPaths.length > 0,
+      'Missing exhaustive selected-snapshot delta paths');
+    assert.ok(gap.changedLeafPaths.every(path =>
+      path.startsWith('$.zones.previousAttack')),
+      'Additional between-dispatch changes outside playerLastAttack');
     const delta = gap.firstMismatch;
     let kind;
     if (next.action === 'PassTurnAction') {
