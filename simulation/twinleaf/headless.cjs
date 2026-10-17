@@ -217,6 +217,8 @@ function policyRandomStreams(seed) {
  * @property {boolean} [bunnelbyK0SafeEvolution] Opt-in printed-source-only TM Evolution choice without hidden-deck/Prize inspection.
  * @property {boolean} [attackBeforeRetreat] Opt-in policy-order sensitivity probe for AttackTactic and RetreatTactic.
  * @property {0|1} [attackBeforeRetreatSeat] Restrict that opt-in probe to one physical seat.
+ * @property {boolean} [passHorizonAttack] Compare printed AttackAction against a simulated PassTurnAction at the same turn-end horizon (experimental).
+ * @property {0|1} [passHorizonAttackSeat] Apply same-horizon attack scoring only to this physical seat.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
  * @property {0|1} [captureCopycatTurnStartSeat] Opt-in candidate perspective resource snapshot once per own turn, taken before selecting the first action.
  * @property {boolean} [captureAttackPassProbes] Opt-in first eight post-choice Pass attack-announcement probes; only archived when capturing decision trace.
@@ -392,6 +394,11 @@ function runMatch(request) {
         (!request.attackBeforeRetreat || ![0, 1].includes(request.attackBeforeRetreatSeat))) {
       throw new Error('Seat-specific attack preference requires an active valid policy flag.');
     }
+    if (request.passHorizonAttackSeat !== undefined &&
+        (request.passHorizonAttack !== true ||
+          ![0, 1].includes(request.passHorizonAttackSeat))) {
+      throw new Error('Same-horizon attack seat requires an enabled policy flag.');
+    }
     if (request.shadowRiderEnergyPriority === true &&
         request.shadowRiderEnergyAcrossField === true) {
       throw new Error('Choose either the lock-specific or across-field Psychic priority.');
@@ -430,6 +437,12 @@ function runMatch(request) {
       let configured = attackPreferenceOptions &&
         (request.attackBeforeRetreatSeat === undefined ||
           request.attackBeforeRetreatSeat === seat) ? attackPreferenceOptions : options;
+      if (request.passHorizonAttack === true &&
+          (request.passHorizonAttackSeat === undefined ||
+            request.passHorizonAttackSeat === seat)) {
+        configured = require('./attack-pass-horizon-policy.cjs')
+          .withPassHorizonAttack(configured);
+      }
       if (request.bunnelbyK0SafeEvolution === true) {
         const knownPrints = seat === 0 ? request.deckA : request.deckB;
         const manager = initializeCards();
