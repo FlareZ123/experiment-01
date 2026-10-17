@@ -123,8 +123,21 @@ function probe(p) {
   // active-player indices. A source Garbodor player has a spare Float Stone
   // in hand and is permitted to reattach it while Vileplume locks Items.
   store.dispatch(new PassTurnAction(owner.id));
+  // The pinned Store pauses both between-turn checks and the initial draw via
+  // nonvisual WaitPrompt callbacks. Resolve those genuine phase prompts rather
+  // than writing state.activePlayer or state.turn directly.
+  let transitionPrompts=0;
+  while(current().phase!==GamePhase.PLAYER_TURN ||
+        current().activePlayer!==1-p.ownerSeat){
+    const wait=pending();
+    assert.equal(wait?.constructor.name,'WaitPrompt',
+      'Only nonvisual phase progression should remain in a clean checkup');
+    answer(null);
+    transitionPrompts++;
+    assert.ok(transitionPrompts<=5,'Turn progression exceeded expected prompt bound');
+  }
   assert.equal(current().activePlayer,1-p.ownerSeat,
-    'PassTurnAction should give the adversary the next turn');
+    'PassTurnAction and the completed Checkup should give the adversary the next turn');
   const afterPassTurn=current().turn;
   assert.ok(afterPassTurn>4,'PassTurnAction must advance global turn number');
   const retoolError=play(opponent.id,spareFloat.id,ownBench);
@@ -146,7 +159,7 @@ function probe(p) {
   if(mustLock)assert.equal(quickPrompt,null,'Locked Item must not create a prompt');
   else assert.ok(quickPrompt,'Accepted Quick Ball must open a real effect prompt');
 
-  return {...p,afterPassTurn,ownerHoodAction,retoolError,quickError,
+  return {...p,afterPassTurn,transitionPrompts,ownerHoodAction,retoolError,quickError,
     quickPrompt,quickStillInHand,
     replacedFloatOnGarbodor:liveOpponent().bench[0].tools.some(x=>x.id===spareFloat.id),
     firstFloatInLostZone:liveOpponent().lostzone.cards.some(x=>x.id===removedTool.id),
