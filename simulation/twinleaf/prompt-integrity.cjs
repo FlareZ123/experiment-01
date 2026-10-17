@@ -88,7 +88,7 @@ function assertValidPromptAction(state, action) {
       : actor;
     const blocked = new Set(prompt.options.blocked || []);
     valid = Array.isArray(action.result) && !!target &&
-      action.result.every(prize => {
+      Array.from(action.result).every(prize => {
         const index = target.prizes.indexOf(prize);
         return index >= 0 && !blocked.has(index);
       });
