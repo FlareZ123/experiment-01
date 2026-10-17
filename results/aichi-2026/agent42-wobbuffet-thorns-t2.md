@@ -46,7 +46,7 @@ The manifest yields categories Wobbuffet=1, Shadow Rider V=4, VMAX=3, Psychic En
 
 The final numerator multiplies the conditional event by the probability 7/60 of Wobbuffet in the opening seven and divides by the probability of an accepted opening, which equals 1 minus C(45,7)/C(60,7).
 
-[The CJS model](../../scripts/aichi-temple-wobbuffet-thorns-t2.cjs) asserts the source manifest counts, returns the exact reduced fraction, and prints a machine-readable result. [Its regression suite](../../tests/aichi-temple-wobbuffet-thorns-t2.test.cjs) exhausts every ordering of an independent eight-card toy deck, comparing all accepted first-three openings and the next two draws against the weighted formula. This is part of the existing [manual-only opening CI](../../.github/workflows/aichi-radiant-start-tradeoff.yml) and requires no Twinleaf checkout.
+[The CJS model](../../scripts/aichi-temple-wobbuffet-thorns-t2.cjs) asserts the source manifest counts, returns the exact reduced fraction, and prints a machine-readable result. [Its regression suite](../../tests/aichi-temple-wobbuffet-thorns-t2.test.cjs) exhausts every ordering of an independent eight-card toy deck, comparing all accepted first-three openings and the next two draws against the weighted formula. This is part of the existing [manual-only opening CI](../../.github/workflows/aichi-radiant-start-tradeoff.yml), which passed [run 38998088280](https://github.com/FlareZ123/experiment-01/actions/runs/38998088280) at commit `b2784cc9`, and requires no Twinleaf checkout.
 
 ## Interpretation and limits
 
