@@ -1,6 +1,9 @@
 'use strict';
 
 const { createHash } = require('node:crypto');
+// Exact Python 3.12 str.isspace() code points for action-name validity.
+const PYTHON_ACTION_WHITESPACE = new Set([9,10,11,12,13,28,29,30,31,32,133,160,5760,8192,8193,8194,8195,8196,8197,8198,8199,8200,8201,8202,8232,8233,8239,8287,12288]);
+
 
 /**
  * Reject lone UTF-16 surrogates, which Python's UTF-8 serializer cannot encode.
@@ -105,7 +108,7 @@ function canonicalActionTrace(trace) {
     if (!event || Array.isArray(event) || typeof event !== 'object' ||
         !Object.hasOwn(event, 'step') || !Object.hasOwn(event, 'action') ||
         event.step !== index || !Number.isInteger(event.step) ||
-        typeof event.action !== 'string' || !event.action.trim()) {
+        typeof event.action !== 'string' || !Array.from(event.action).some(char => !PYTHON_ACTION_WHITESPACE.has(char.codePointAt(0)))) {
       throw new TypeError('Trace events need sequential steps and action names');
     }
   });
