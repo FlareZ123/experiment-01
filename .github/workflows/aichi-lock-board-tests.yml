@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank8_preregistered_start_panel:
+        description: 'Eight source rank-8 decorrelated v3 starts (repeats 1-4, both seats)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -81,6 +86,16 @@ jobs:
         with:
           name: rank8-mega-absol-energy-counterfork
           path: rank8-absol-counterfork.json
+          if-no-files-found: warn
+      - name: Audit predeclared rank-8 actual start order under guarded policy
+        if: inputs.rank8_preregistered_start_panel
+        run: node simulation/twinleaf/rank8-predeclared-start-panel.cjs > rank8-start-panel.json
+      - name: Preserve all eight source start-order outcomes
+        if: inputs.rank8_preregistered_start_panel && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank8-preregistered-start-panel
+          path: rank8-start-panel.json
           if-no-files-found: warn
       - run: node --test tests/battle-compressor-minimum.test.cjs
       - run: node --test tests/twinleaf-attached-tool-power-tactic.test.cjs
