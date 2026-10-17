@@ -28,7 +28,7 @@ function fixture(mirror = false) {
       seed:t.seed,candidateDigest:t.candidateDigest,
       opponentDigest:t.opponentDigest}) : null,
     candidateTrueTurn:t.candidateEngineSlot==='A'?'first':'second',
-    observedWinnerIndex:0,
+    observedWinnerIndex:0,observedFinished:true,
     winner:t.candidateEngineSlot==='A'?'candidate':'opponent',
     expectedEngineDeckHashes:[h1,h2],
     observedEngineDeckHashes:[h1,h2]
@@ -172,5 +172,15 @@ test('raw engine draw sentinel is verified in both physical candidate seats', ()
   assert.throws(() => auditArchive(inputs, archive), /Completed game/);
   archive.records[0].winner = 'draw';
   archive.records[1].observedWinnerIndex = -1;
+  assert.throws(() => auditArchive(inputs, archive), /Completed game/);
+});
+
+test('completed outcome must retain an affirmative raw engine-finished witness', () => {
+  const {inputs,archive} = fixture();
+  assert.equal(auditArchive(inputs, archive).completed, 2);
+  archive.records[0].observedFinished = false;
+  assert.throws(() => auditArchive(inputs, archive), /Completed game/);
+  archive.records[0].observedFinished = true;
+  delete archive.records[0].observedFinished;
   assert.throws(() => auditArchive(inputs, archive), /Completed game/);
 });
