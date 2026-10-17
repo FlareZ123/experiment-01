@@ -51,7 +51,7 @@ The key decision happens at **K0**, before learning that both other Guzma are Pr
 
 The paper rules and named-card text support these conditional actions; the exact figures are analytical. The source-state assertions for all ten payments were previously verified in compiled Store CI [38911990792](https://github.com/FlareZ123/experiment-01/actions/runs/38911990792). **This document does not claim that the Mail recovery action was executed in that source replay.** The 25.40% line is an explicitly conditional card-access model.
 
-Reproducible formulas: [exact BigInt combinatorics](../../scripts/aichi-prize-conditionals.cjs) and [independent tiny-population enumeration tests](../../tests/aichi-prize-conditionals.test.cjs). Local arithmetic checks matched the above fractions. The new full repository test file has not yet been run in manual pinned CI.
+Reproducible formulas: [exact BigInt combinatorics](../../scripts/aichi-prize-conditionals.cjs) and [independent tiny-population enumeration tests](../../tests/aichi-prize-conditionals.test.cjs). Local arithmetic checks matched the above fractions. The independent exact-source and small-population tests, plus the existing compiled pinned-engine Iron Thorns fixture suite, **passed** in [manual CI 39024011723](https://github.com/FlareZ123/experiment-01/actions/runs/39024011723), workflow head `7874fb1f3bd24178f36f93a019888dfd03371d57`. This tests the conditional arithmetic and existing source actions; it does not execute the conditional Mail recovery branch or qualify a competitive game.
 
 `sourceReplayMechanicsVerified:false`  
 `qualifiedForCompetitiveInference:false`  
