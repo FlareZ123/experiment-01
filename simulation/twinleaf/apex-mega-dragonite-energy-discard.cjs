@@ -14,7 +14,8 @@ function inspectRyunoGlideDiscard(){
   const manager=initializeCards();
   const f=preparedRegidrago();
   f.attachFire();
-  const mega=manager.getCardByName('Mega Dragonite ex ASC');
+  const mega=manager.getAllCards().find(c=>
+    c.name==='Mega Dragonite ex'&&c.set==='ASC'&&String(c.setNumber)==='152');
   const doubleDragon=manager.getCardByName('Double Dragon Energy ROS');
   assert.ok(mega&&doubleDragon,'Missing rank14 printed payload or Energy');
   f.attacking.discard.cards.push(mega);
@@ -30,21 +31,29 @@ function inspectRyunoGlideDiscard(){
   assert.equal(choose.validate(mega.attacks[0]),true);
   f.store.dispatch(new ResolvePromptAction(choose.id,mega.attacks[0]));
   const pending=f.state.prompts.filter(p=>p.result===undefined);
-  const variants=[
-    {name:'one-Double-Dragon',cards:[doubleDragon]},
-    {name:'two-Basic',cards:attached.slice(0,2)},
-    {name:'one-Grass-one-Fire',cards:[attached[0],attached[2]]}
-  ];
-  const outcomes=pending.map(p=>({
-    kind:p.constructor.name,
-    selectionFields:Object.keys(p).filter(k=>!['cards','source'].includes(k)),
-    candidates:variants.map(v=>{
-      let accepted=false,reason=null;
-      try {accepted=Boolean(p.validate(v.cards,f.state));}
-      catch(error){reason=String(error.message||error);}
-      return {name:v.name,accepted,reason};
-    })
-  }));
+  const outcomes=pending.map(p=>{
+    const provided=Array.isArray(p.energy)?p.energy:[];
+    const double=provided.filter(e=>e.card===doubleDragon);
+    const basics=provided.filter(e=>e.card!==doubleDragon);
+    const variants=[
+      {name:'one-Double-Dragon',energy:double},
+      {name:'two-Basic',energy:basics.slice(0,2)},
+      {name:'one-Grass-one-Fire',energy:[basics[0],basics[2]]}
+    ];
+    return {
+      kind:p.constructor.name,
+      provided:provided.map(e=>({card:e.card.fullName,units:e.provides.length})),
+      cost:Array.isArray(p.cost)?p.cost:null,
+      candidates:variants.map(v=>({
+        name:v.name,accepted:v.energy.every(Boolean)&&
+          Boolean(p.validate(v.energy))
+      }))
+    };
+  });
+  const energyPrompt=pending.find(p=>p.constructor.name==='ChooseEnergyPrompt');
+  const oneDouble=energyPrompt?.energy?.filter(e=>e.card===doubleDragon)??[];
+  if(energyPrompt&&oneDouble.length===1&&energyPrompt.validate(oneDouble))
+    f.store.dispatch(new ResolvePromptAction(energyPrompt.id,oneDouble));
   return {
     schema:'apex-mega-dragonite-discard-source-board-v1',
     printedPayload:mega.fullName,printedAttack:mega.attacks[0],
@@ -53,6 +62,9 @@ function inspectRyunoGlideDiscard(){
     afterAttached:f.attacking.active.energies.cards.map(c=>c.fullName),
     pending:outcomes,
     damage:f.defending.active.damage,
+    oneDdeEffectCompleted:Boolean(energyPrompt&&oneDouble.length===1&&
+      energyPrompt.validate(oneDouble)),
+    discardContainsDoubleDragon:f.attacking.discard.cards.includes(doubleDragon),
     originalQueueLength:pending.length,
     qualifiedForCompetitiveInference:false
   };
