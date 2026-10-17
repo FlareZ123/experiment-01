@@ -116,3 +116,39 @@ test('decisive root ordinal gates the detached probe after routine same-turn act
   assert.equal(observed.result.decisive.top,'A');
   assert.strictEqual(FakeBot.prototype.decodeNextAction,original);
 });
+
+test('live owner deck-search observation proves a K1 prompt without speculative leakage',()=>{
+  class AddPlayerAction{}
+  class ChooseCardsPrompt {
+    constructor(player){this.id=15;this.playerId=player.id;
+      this.cards=player.deck;this.result=undefined;}
+  }
+  class Store {
+    constructor(){this.state={turn:3,players:[
+      {id:101,deck:{cards:[]}},
+      {id:202,deck:{cards:[{fullName:'X'}]}}
+    ],prompts:[]};}
+    dispatch(action){
+      if(action.kind==='create-search')this.state.prompts=[
+        new ChooseCardsPrompt(this.state.players[1])];
+      return action.kind??action.constructor.name;
+    }
+  }
+  const original=Store.prototype.dispatch;
+  const evidence=withRootDispatchCounter(Store,(getOrdinal,getSearches)=>{
+    const root=new Store(),sim=new Store();
+    root.dispatch(new AddPlayerAction());
+    sim.dispatch({kind:'create-search'});
+    assert.equal(getSearches().observedWholeOwnerDeckSearches,0);
+    root.dispatch({kind:'create-search'});
+    assert.deepEqual(getSearches(),{
+      observedWholeOwnerDeckSearches:1,
+      first:{ordinal:2,turn:3},last:{ordinal:2,turn:3}
+    });
+    root.dispatch({kind:'repeat-prompt'});
+    assert.equal(getSearches().observedWholeOwnerDeckSearches,1);
+    return getSearches();
+  });
+  assert.equal(evidence.observedWholeOwnerDeckSearches,1);
+  assert.strictEqual(Store.prototype.dispatch,original);
+});
