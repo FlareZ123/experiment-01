@@ -6,6 +6,7 @@ const path=require('node:path');
 const crypto=require('node:crypto');
 const {runMatch,initializeCards}=require('./headless.cjs');
 const {withRecordedSourceActions}=require('./source-game-action-replay.cjs');
+const {withPaleMoonQueueAudit}=require('./pale-moon-queue-audit.cjs');
 const {resolveManifestFile}=require('./resolve-field.cjs');
 const {loadDefaultCampaign}=require('../../scripts/aichi-comparison-campaign.cjs');
 
@@ -63,8 +64,13 @@ function replayArchivedRank10(archive) {
     assert.ok(Array.isArray(sourceTrace));
     let assessment;
     try {
-      const replay=withRecordedSourceActions(sourceTrace,
-        ()=>runMatch(request));
+      const {Store}=require(path.resolve(__dirname,
+        '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
+      const exposure=withPaleMoonQueueAudit(Store,()=>
+        withRecordedSourceActions(sourceTrace,()=>runMatch(request)));
+      const replay=exposure.result;
+      assert.equal(exposure.rootDispatches,sourceTrace.length,
+        'Pale Moon source exposure audit did not observe every root action');
       assert.deepEqual(replay.result,original.result,
         'Replayed live Store result differs from archived original');
       assert.equal(replay.graphVerifiedDispatches,sourceTrace.length,
@@ -74,6 +80,10 @@ function replayArchivedRank10(archive) {
         verifiedDispatches:replay.verifiedDispatches,
         graphVerifiedDispatches:replay.graphVerifiedDispatches,
         storeDataGraphContract:'live-store-own-data-stats-clock-normalized-v2',
+        paleMoonExposure:{status:exposure.status,
+          rootDispatches:exposure.rootDispatches,
+          queueObservedDispatches:exposure.queueObservedDispatches,
+          firstQueue:exposure.firstQueue,exits:exposure.exits},
         sourceActions:sourceTrace.length,
         matchSummaryIdentical:true
       };
