@@ -30,3 +30,19 @@ test('pinned complete source-60 K0 posterior is invariant under hidden Prize swa
   assert.equal(report.pairedPosteriorScores[0],report.pairedPosteriorScores[1]);
   assert.equal(report.liveSourceZonesPreserved,true);
 });
+
+const {auditRank2PartiallyObservedPrize}=
+  require('../simulation/twinleaf/rank2-partial-prize-sampler.cjs');
+
+test('rank-2 observed Prize preserved through paired full-source samples',()=>{
+  const data=auditRank2PartiallyObservedPrize();
+  assert.equal(data.sourceRank,2);
+  assert.equal(data.physicalPrintCards,60);
+  assert.equal(data.remainingUnknownPrizeSlots,5);
+  assert.equal(data.unknownPoolCount,51);
+  assert.deepEqual(data.physicallyPrizedGloom,[0,2]);
+  assert.equal(data.pairedSampleScores[0],data.pairedSampleScores[1]);
+  assert.equal(data.sourceStatePreserved,true);
+  assert.equal(data.exactNumerator,'18424');
+  assert.equal(data.exactDenominator,'2349060');
+});
