@@ -45,3 +45,9 @@ test('cleaned effect, absent effect, and wrapper restoration',()=>{
   assert.equal(fixture(false,false).arms[0].status,'not-exercised');
   assert.equal(Object.hasOwn(Store.prototype,'dispatch'),true);
 });
+
+test('restores original dispatch on source failure',()=>{
+  const old=Store.prototype.dispatch;
+  assert.throws(()=>observePaleMoonReplay(Store,()=>{throw Error('fixture failure')}),/fixture failure/);
+  assert.equal(Store.prototype.dispatch,old);
+});
