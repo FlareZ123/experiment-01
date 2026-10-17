@@ -77,7 +77,7 @@ function compareHiddenDeckOrders(state,actorId,newBot,cloneState,makeRandom) {
  * @param {Function} Ai
  * @param {()=>T} work
  * @param {(state:object)=>object} cloneState
- * @param {{turn:number,seat:number,makeRandom:()=>()=>number,rootActionOrdinal?:number,readRootDispatchCount?:()=>number}} target
+ * @param {{turn:number,seat:number,makeRandom:()=>()=>number,rootActionOrdinal?:number,readRootDispatchCount?:()=>number,readOwnerDeckSearches?:()=>object}} target
  */
 function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
   const descriptor=Object.getOwnPropertyDescriptor(
@@ -105,6 +105,7 @@ function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
     const actual=descriptor.value.call(this,state);
     events.push({...observed,turn:state.turn,seat:state.activePlayer,
       rootActionOrdinal:target.rootActionOrdinal??null,
+      ownerDeckSearchWitness:target.readOwnerDeckSearches?.()??null,
       originalSourceAction:actionSignature(actual)});
     return actual;
   }
@@ -121,20 +122,38 @@ function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
  * actions, matching the rank-10 source-ordinal replay protocol.
  * @template T
  * @param {Function} Store
- * @param {(getOrdinal:()=>number)=>T} work
+ * @param {(getOrdinal:()=>number,getOwnerDeckSearches:()=>object)=>T} work
  * @returns {T}
  */
 function withRootDispatchCounter(Store,work) {
   const descriptor=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.ok(descriptor && typeof descriptor.value==='function');
   let root=null,count=0;
+  const observedPromptIds=new Set(),ownerDeckSearches=[];
   const wrapped=function(...args) {
     if(root===null && args[0]?.constructor?.name==='AddPlayerAction')root=this;
     if(this===root)count++;
-    return descriptor.value.apply(this,args);
+    const result=descriptor.value.apply(this,args);
+    if(this===root) {
+      const state=this.state,owner=state?.players?.[1];
+      if(owner) for(const prompt of state.prompts) {
+        if(prompt?.constructor?.name==='ChooseCardsPrompt' &&
+            prompt.playerId===owner.id &&
+            prompt.result===undefined && prompt.cards===owner.deck &&
+            !observedPromptIds.has(prompt.id)) {
+          observedPromptIds.add(prompt.id);
+          ownerDeckSearches.push({ordinal:count,turn:state.turn});
+        }
+      }
+    }
+    return result;
   };
   Object.defineProperty(Store.prototype,'dispatch',{...descriptor,value:wrapped});
-  try{return work(()=>count);}
+  try{return work(()=>count,()=>({
+    observedWholeOwnerDeckSearches:ownerDeckSearches.length,
+    first:ownerDeckSearches[0]??null,
+    last:ownerDeckSearches.at(-1)??null
+  }));}
   finally{Object.defineProperty(Store.prototype,'dispatch',descriptor);}
 }
 
@@ -188,9 +207,9 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
       SimpleTacticsAi,()=>runMatch(common),cloneState,makeTarget(undefined)):
     withRootDispatchCounter(
       require(path.join(output,'game/store/store')).Store,
-      getOrdinal=>withRootHiddenOrderProbe(
+      (getOrdinal,getOwnerDeckSearches)=>withRootHiddenOrderProbe(
         SimpleTacticsAi,()=>runMatch(common),cloneState,
-        makeTarget(getOrdinal)));
+        {...makeTarget(getOrdinal),readOwnerDeckSearches:getOwnerDeckSearches}));
   assert.deepEqual(observed.result,control,
     'Read-only hidden-order counterfactual changed physical source match');
   assert.equal(observed.events.length,1,
