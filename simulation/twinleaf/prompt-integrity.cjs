@@ -30,8 +30,8 @@ function isIndexPermutation(result, length) {
  */
 /** @param {object} a @param {object} b */
 function samePokemonTarget(a, b) {
-  return a?.player === b.player && a?.slot === b.slot &&
-    a?.index === b.index;
+  if (!a || !b) return false;
+  return a.player === b.player && a.slot === b.slot && a.index === b.index;
 }
 
 /**
