@@ -55,5 +55,7 @@ jobs:
         run: node simulation/twinleaf/copied-session-state-scope-test.cjs
       - name: Verify explicit copied-session inheritance into pinned Simulator
         run: node simulation/twinleaf/copy-session-aware-simulator-test.cjs
+      - name: Verify paid Goodra copied attack before turn continuation
+        run: node simulation/twinleaf/copy-session-paid-apex-clone.cjs
       - name: Probe speculative Simulator copied-session lifetime
         run: node simulation/twinleaf/copy-session-speculative-simulator.cjs
