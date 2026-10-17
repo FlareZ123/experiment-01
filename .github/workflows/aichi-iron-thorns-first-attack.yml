@@ -32,5 +32,7 @@ jobs:
         run: node simulation/twinleaf/rank6-seed-guzma-hala-fork.cjs
       - name: Test public-only opponent response projection
         run: node tests/rank6-response-projection.test.cjs
+      - name: Test read-only public Acerola board observer
+        run: node tests/rank6-acerola-public-observer.test.cjs
       - name: Source-dealt rank6 payment and next opponent turn audit
         run: node simulation/twinleaf/rank6-immediate-opponent-response.cjs
