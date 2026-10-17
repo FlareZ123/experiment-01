@@ -10,10 +10,11 @@ const load=relative=>require(path.join(output,relative));
  * It never examines an opponent's hand, deck or face-down Prizes.
  * @param {object} state Pinned Twinleaf State.
  * @param {object} player Candidate slot B.
+ * @param {number} [sourceTurn=55] The archived candidate turn under test.
  * @returns {{kind:string,handIndex?:number}|null}
  */
-function chooseFieldBlowerSourceAction(state,player) {
-  if (state.turn!==55 || state.phase!==2 || player?.id!==202 ||
+function chooseFieldBlowerSourceAction(state,player,sourceTurn=55) {
+  if (state.turn!==sourceTurn || state.phase!==2 || player?.id!==202 ||
       state.activePlayer!==1 ||
       state.prompts.some(prompt=>prompt.result===undefined)) return null;
   const bench=player.bench;
@@ -39,9 +40,10 @@ function chooseFieldBlowerSourceAction(state,player) {
  * and restored unconditionally; it does not modify the upstream submodule.
  * @template T
  * @param {()=>T} execute Run one match.
+ * @param {number} [sourceTurn=55] The authentic source turn to intervene.
  * @returns {{result:T,choices:object[]}} The real played match and intercepted actions.
  */
-function withRank10FieldBlowerPolicy(execute) {
+function withRank10FieldBlowerPolicy(execute,sourceTurn=55) {
   const {SimpleTacticsAi}=load('simple-bot/simple-tactics-ai');
   const {PlayCardAction,PlayerType,SlotType}=
     load('game/store/actions/play-card-action');
@@ -52,7 +54,7 @@ function withRank10FieldBlowerPolicy(execute) {
   SimpleTacticsAi.prototype.decodeNextAction=function fieldBlowerCandidateDecision(state) {
     const id=this.client.id;
     const player=state.players.find(p=>p.id===id);
-    if (id===202 && state.turn===55 && player) {
+    if (id===202 && state.turn===sourceTurn && player) {
       const pending=state.prompts.find(p=>p.result===undefined);
       const isBlowerInResolution=player.supporter.cards.some(card=>
         card.fullName==='Field Blower GRI');
@@ -71,7 +73,7 @@ function withRank10FieldBlowerPolicy(execute) {
         }
       }
       if (!pending) {
-        const choice=chooseFieldBlowerSourceAction(state,player);
+        const choice=chooseFieldBlowerSourceAction(state,player,sourceTurn);
         if (choice) {
           const target=choice.kind==='remove-parallel-city'?
             {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}:
