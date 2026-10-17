@@ -53,6 +53,8 @@ jobs:
         run: node --test tests/aichi-absol-garbotoxin-window.test.cjs
       - name: First turn Boost Shake direct Garbotoxin tests
         run: node --test tests/aichi-absol-boost-shake-direct.test.cjs
+      - name: First-turn Forest Seal Stone and Field Blower rank11 response
+        run: node --test tests/aichi-rank11-field-blower-early-route.test.cjs
       - name: First turn Boost Shake source audit
         run: node scripts/aichi-absol-boost-shake-direct.cjs > aichi-absol-boost-shake-direct.json
       - name: Absol and Garbotoxin source audit
