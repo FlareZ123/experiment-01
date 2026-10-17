@@ -35,6 +35,13 @@ try {
   assert.ok(detached.simulatorError?.includes('Cloned Pokemon identity differs'));
 
   restoreSimulator();
+  restoreSimulator = installCopySessionAwareSimulatorHook({mapDetachedCards: true});
+  const mapped = runSimulatorSessionProbe('pinned');
+  assert.equal(mapped.simulatorError, null);
+  assert.deepEqual(mapped.events,
+    ['real','real','speculative','speculative','real','real']);
+
+  restoreSimulator();
   restoreSimulator = () => {};
   restoreDetached();
   restoreDetached = () => {};
@@ -45,7 +52,7 @@ try {
 
   console.log('CLONED_COPY_SESSION',JSON.stringify({
     engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    isolated,inherited,detached,reverseOrder,
+    isolated,inherited,detached,mapped,reverseOrder,
     scope:'Experimental pinned clone transfer; detached clone and unsafe wrapper order rejected'
   },null,2));
 } finally {
