@@ -5,7 +5,7 @@
   "source_id_count_sha256": "64fb4f8e008766ce94ef2b26dff65e7fa14cbdc055b3565f3d667708528c232e",
   "canonical_id_count_sha256": "b359040e131251bc77e47add27d809b29eab9ecbc0ec42e297ac2d7e2bd89e65",
   "hash_spec": "SHA-256 of sorted UTF-8 lines id:count followed by newline",
-  "status": "Frozen counter-package proposal. Exact Japanese physical printings and full paper legality not verified, simulator and policy unqualified.",
+  "status": "Frozen counter-package proposal. Exact Japanese physical printings and full paper legality not verified, simulator and policy unqualified. The retained historical English proxy contains Duskull SFA, which differs from the verified official Japanese S4 (Future Sight). This exact candidate is therefore currently a mechanically distinct proxy until migrated; no source-faithful comparison claimed.",
   "change_from_source": {
     "Trainers' Mail ROS": -2,
     "Rescue Carrier EVS": -2,
@@ -129,7 +129,8 @@
       "count": 2,
       "type": "Pokémon",
       "english_proxy_card_id": "sv6pt5-18",
-      "english_database_name": "Duskull"
+      "english_database_name": "Duskull",
+      "twinleaf_full_name": "Duskull SFA"
     },
     {
       "source_grid_row": 2,
@@ -347,7 +348,8 @@
       "count": 3,
       "type": "Energy",
       "english_proxy_card_id": "sv3pt5-207",
-      "english_database_name": "Basic Psychic Energy"
+      "english_database_name": "Basic Psychic Energy",
+      "twinleaf_full_name": "Psychic Energy SVE"
     },
     {
       "name_en": "Field Blower",
