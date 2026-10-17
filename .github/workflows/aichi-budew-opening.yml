@@ -18,3 +18,7 @@ jobs:
         run: node --test tests/mega-floette-direct-window.test.cjs
       - name: Print exact Floette direct Energy-attachment window
         run: node scripts/mega-floette-direct-window.cjs
+      - name: Verify ideal Floette first-turn Item/Pokemon access
+        run: node --test tests/mega-floette-turn1-connectors.test.cjs
+      - name: Print idealized Floette connectors with Prize risk
+        run: node scripts/mega-floette-turn1-connectors.cjs
