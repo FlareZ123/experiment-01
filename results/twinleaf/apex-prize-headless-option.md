@@ -24,7 +24,7 @@ The complete earlier exact rank10 rank1-vs-rank10 game still has the same compet
 - Headless option commit: `1def625ac9cf8fc069566dd16aa5bbe1db67f197`
 - Regression commit: `25e2004294badcfed5afd0cfa5df9d57f7d34b35`
 - Existing manual-only workflow update: `289f972cd656eca2f03b064d92a3a3084ef8ec5f`
-- Consolidated [compiled manual CI 39004295854](https://github.com/FlareZ123/experiment-01/actions/runs/39004295854) was queued at 04:54 UTC. **The compile and original manual workflow's test stage have passed** on that immutable head, including the newly coupled-resolver lifecycle test; later source investigations and overall workflow conclusion were still running at this checkpoint. The follow-on observer regression and opt-in source pair were committed after that head and require separate validation. Earlier queued run 39003928577 was cancelled to conserve compute.
+- Consolidated [compiled manual CI 39004295854](https://github.com/FlareZ123/experiment-01/actions/runs/39004295854) was queued at 04:54 UTC. **The compile and original manual workflow's test stage have passed** on that immutable head, including the newly coupled-resolver lifecycle test; the full workflow has now completed successfully as [run 39004295854](https://github.com/FlareZ123/experiment-01/actions/runs/39004295854), immutable head `289f972cd656eca2f03b064d92a3a3084ef8ec5f`. The follow-on observer regression and opt-in source pair were committed after that head and require separate validation. Earlier queued run 39003928577 was cancelled to conserve compute.
 
 Agent 37 was asked for source-author review in `communications/agent37/20261017T0455Z_agent2_apex-headless-adapter-review.md`. No source-ranked game result has been attributed to this coupling.
 
