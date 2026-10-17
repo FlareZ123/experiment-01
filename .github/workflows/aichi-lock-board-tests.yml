@@ -2,6 +2,12 @@ name: Aichi Temple and Wobbuffet board interactions
 
 on:
   workflow_dispatch:
+    inputs:
+      rank8_attach_prompt_probe:
+        description: 'One source-ranked Temple-A invalid AttachEnergyPrompt diagnostic'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -36,6 +42,16 @@ jobs:
         run: node simulation/twinleaf/articuno-entry-lock-action.cjs
       - name: Verify opt-in Eldegoss hook provenance and restoration
         run: node simulation/twinleaf/eldegoss-entry-runner-smoke.cjs
+      - name: Recheck archived rank-8 Temple-A invalid Energy prompt after the bot choice
+        if: inputs.rank8_attach_prompt_probe
+        run: node simulation/twinleaf/rank8-attach-energy-prompt-source.cjs > rank8-attach-prompt.json
+      - name: Preserve rank-8 post-choice prompt evidence
+        if: inputs.rank8_attach_prompt_probe && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank8-temple-A-attach-prompt
+          path: rank8-attach-prompt.json
+          if-no-files-found: warn
       - run: node --test tests/battle-compressor-minimum.test.cjs
       - run: node --test tests/twinleaf-attached-tool-power-tactic.test.cjs
       - name: Bounded published 60-card Tool-Power policy diagnostic
