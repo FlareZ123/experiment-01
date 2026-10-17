@@ -61,6 +61,20 @@ function run() {
     };
   });
   assert.equal(rows[0].deckHashes[1],rows[1].deckHashes[1]);
+  const firstDifference=publicDecisionDifference(traces[0],traces[1]);
+  const handAtFirstDifference=traces.map(trace=>{
+    const hand=trace[firstDifference.firstDifferentIndex]
+      ?.decisionHandBefore?.ownHandPrintings??[];
+    const count=name=>hand.filter(card=>card.startsWith(name)).length;
+    return {
+      handSize:hand.length,
+      mysteriousTreasure:count('Mysterious Treasure'),
+      fieldBlower:count('Field Blower'),
+      cancelingCologne:count('Canceling Cologne'),
+      trainersMail:count('Trainers\' Mail'),
+      rescueCarrier:count('Rescue Carrier')
+    };
+  });
   return {
     schema:'newmoon-rank8-terminal-public-audit-v1',
     engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
@@ -68,7 +82,8 @@ function run() {
     opponentRank:8,candidateSeat:0,
     qualifiedForCompetitiveInference:false,
     caveat:'The engine winner and public terminal indicators cannot independently establish one exclusive paper-rule loss cause or validate decision quality.',
-    firstPublicActionDifference:publicDecisionDifference(traces[0],traces[1]),
+    firstPublicActionDifference:firstDifference,
+    firstMismatchOwnerHandCategoryCounts:handAtFirstDifference,
     rows
   };
 }
