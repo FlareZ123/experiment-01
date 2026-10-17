@@ -1,0 +1,31 @@
+# New Moon Lockbreaker: no intended attacks or counter actions in eight paired generic-policy games
+
+**Agent 13; 17 October 2026.** Evidence class: inspection of the actual [manually dispatched source-dealt first diagnostic, CI 39022298459](https://github.com/FlareZ123/experiment-01/actions/runs/39022298459), job 117366362390, and the [source runner](../../simulation/twinleaf/new-moon-lockbreak-source-diagnostic.cjs). This is a **policy/observability diagnosis**, not candidate strength evidence.
+
+## What the archived diagnostic records
+
+The runner made exactly **eight** original physical-source-vs-modified-list games, with one paired pseudorandom deal for each combination of opponent rank (6 Iron Thorns or 8 Absol Garbodor), candidate physical seat (0 or 1), and candidate variant (source or Lockbreaker v1). It used source-aligned 60-card decks, its documented policy flags, **350-action cap** and generic `SimpleTacticsAi`. [Job logs](https://github.com/FlareZ123/experiment-01/actions/runs/39022298459) provide a printed summary of every trial.
+
+Across the **eight** observed summary rows:
+
+- `ownPrintedAttackNames: []` **8/8**. These arrays were constructed from the candidate-seat portion of `game.attackTrace`, and may be empty due to policy inaction or incomplete attack instrumentation. Independent action-trace inspection is required before assigning a causal reason.
+- Recorded `playedCounters['Canceling Cologne'] = 0` and `playedCounters['Field Blower'] = 0` in **8/8**. The new Items were therefore never observed being played in the candidate's recorded action stream. This does not distinguish absence from hand, deliberate preservation, timing/lock restrictions or an AI blind spot.
+- Runner-reported `errors: []` in **8/8**. No caught game exception was reported.
+- **6/8** had `finished: true`, while both rank-6 physical seat-0 arms were unfinished (`finished: false`, engine winner -1). Finished states carry no qualified win evidence.
+- There was **one recorded terminal winner reversal** on rank 8, candidate physical seat 0: source `winner=0`, 60 turns, candidate/opponent Prizes remaining `[6,6]`; Lockbreaker `winner=1`, 40 turns, `[6,0]`. This is a capping/deck-out or other terminal attribution candidate for follow-up, **not** a demonstrated Field Blower effectiveness event, as recorded Field Blower/Cologne uses were both zero.
+- Both rank-6 physical seat-1 source and variant ended with winner 0; both rank-8 physical seat-1 source and variant ended with winner 0. One seed per condition is inadequate for statistics in any event.
+
+## Interpretation and falsification criteria
+
+A trial with no candidate recorded attack and zero played anti-lock counter Items cannot test whether that Item package improves the proposed `Horror House-GX -> Cursed Blast -> Ace Trainer -> Night Watch` line. It may still expose genuine issues in the environment, sequencing or the team's policy. The present aggregate has **zero observed exposures to the intended Cologne/Blower mechanism**, so no causal evidence that the variant is better or worse at defeating these locks.
+
+The [exact joint opening model](new-moon-thorns-starter-joint.md) offers a separate way to prioritize the next experiment. Under a natural Mewtwo opener plus direct Cologne and any Psychic Energy, only **3.8433%** of accepted openings by first draw also satisfy those direct-resource observations even after taking all Iron Thorns bonus offers; by contrast, **7.8137%** include a native Gengar & Mimikyu-GX starter plus direct Energy (without requiring the Perfection Ability). These do **not** estimate actual attack access after searches; they identify resource windows to seek in real source hands.
+
+## Required minimal upgrade
+
+1. For each dealt trial, archive the **legal attack affordances** at every candidate decision (printed attacks from Active, Perfection and prompt offers, attached Energy, GX-used flag, Ability-lock status) and the actual chosen action. Distinguish engine offered attack, policy declined attack, and source had no legal attack.
+2. Record each counter Item's **zone and legal-play status** over the first meaningful Iron Thorns/Garbodor turns, alongside the opposing lock. A zero played count is uninterpretable without visibility and valid target state.
+3. Test **one genuine source-dealt decision fork** showing (a) actual legal attack or counter prompt, (b) a mechanically replayed alternate decision and (c) an opponent's plausible and observed next action. Keep exact candidate physical slot, prize state, seed, hook flags and source-print hash.
+4. Add a decision-policy regression before considering multi-seed comparisons. The existing staged [Powerglass/Horror House](../../simulation/twinleaf/new-moon-horror-house-powerglass.cjs) and [Perfection lock-release](../../simulation/twinleaf/new-moon-lockbreak-ability-gates.cjs) fixtures establish narrower mechanical conditions; they do not repair bot decision quality. A native printed-Gengar action probe has been **authored** at [new-moon-native-gengar-action.cjs](../../simulation/twinleaf/new-moon-native-gengar-action.cjs) but has **not** passed a compiled runner test yet; do not use it as verified game evidence.
+
+This report preserves the [manual paired diagnostic](https://github.com/FlareZ123/experiment-01/actions/runs/39022298459) instead of declaring its results invalid or silently discarding terminal states. **No game in this record qualifies for competitive strength inference, and none measures a 99.5% win rate.**
