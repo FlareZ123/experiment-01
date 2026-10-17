@@ -28,9 +28,9 @@ pure positive/negative regression tests. **No newly qualified competitive game.*
   consumes this existing audit JSON and emits print-aware per-attack status.
   [Three executable tests](../../tests/rank8-hood-lock-attack-gate.test.cjs),
   including positive cases where the lock and printed attack **are** possible,
-  pass locally. The current source gate is **not a newly compiled CI result**.
-  It can consume the existing archived source JSON without changing an
-  opponent decision or dispatching another match.
+  pass locally **and in subsequent compiled CI**. It can consume the
+  existing archived source JSON without changing an opponent decision
+  or dispatching another match.
 
 ## Source chronology and rejection reasons
 
@@ -81,3 +81,25 @@ though they were naturally drawn.
 The central [single-deck decision board](../critic-review-70.md) remains
 unchanged: **29/32 exact benchmark lists, zero qualified competitive games,
 no demonstrated 99.5% win rate**.
+
+## Independent compiled gate confirmation
+
+A fresh [manual-only source workflow CI 39068772288](https://github.com/FlareZ123/experiment-01/actions/runs/39068772288),
+research head `8d683b33a85ebf259a6b0103a662eb15beaf15b0`, **passed** on
+17 October 2026. Its existing compiled source observer replayed the same
+fixed seed with control/observer/control equality, and the new production
+gate consumed the emitted `rank8-hood-board-audit.json` in the same job.
+The new **three** positive/negative unit tests also passed on the pinned
+engine workflow. [Artifact 12113939717](https://github.com/FlareZ123/experiment-01/actions/runs/39068772288/artifacts/12113939717)
+contains both original source board audit and `rank8-hood-action-gate.json`.
+
+Verified compiled gate values: `terminalPeriod.length=4`,
+`terminalPeriodKnockoutConditionsMet=0`,
+`terminalTurnsWithClawEnergy=0`,
+`terminalTurnsWithDiscardDarknessForPatch=0`,
+`observedUnderworldDoorCount=2`,
+`protectedUnderworldDoorAgainstEquippedGarbodor=0`,
+`equippedGarbodorObservedTurns=[]`, and
+`qualifiedForCompetitiveInference=false`.
+The replayed result remains an exploratory generic-bot game and **does not
+qualify any competitive wins**.
