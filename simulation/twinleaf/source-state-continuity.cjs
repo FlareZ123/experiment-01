@@ -107,6 +107,7 @@ function withSourceContinuity(Store,run,options={}) {
     if (previous && previous.hash!==beforeHash) {
       discontinuities.push({
         afterActionOrdinal:previous.ordinal,
+        previousAction:previous.name,
         beforeActionOrdinal:liveDispatches,
         nextAction:name,
         previousHash:previous.hash,
