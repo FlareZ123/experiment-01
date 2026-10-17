@@ -226,6 +226,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [hisuianHeavyBallPrizeShuffleCorrection] Opt-in paper Prize-position shuffle for Hisuian Heavy Ball.
  * @property {boolean} [pendingEndTurnSwitchCleanupCorrection] Opt-in paper delayed-effect cleanup upon Player.switchPokemon Active-to-Bench movement.
  * @property {boolean} [apexSpreadPrizeWindowPolicy] Opt-in Regidrago Phantom Dive selection and six-counter nominal Prize planning.
+ * @property {boolean} [spentGxCopyPolicy] Opt-in known legal non-GX fallback when the GX allowance was already consumed.
  * @property {boolean} [shadowRiderEnergyPriority] Opt-in basic Psychic Energy priority against Active Iron Thorns.
  * @property {boolean} [shadowRiderEnergyAcrossField] Opt-in speculative Psychic priority regardless of opposing Active.
  * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
@@ -309,6 +310,7 @@ function runMatch(request) {
   let restoreHisuianHeavyBallPrizeShuffleHook;
   let pendingEndTurnSwitchCleanupHook;
   let restoreApexPrizeWindowPolicy;
+  let restoreSpentGxCopyPolicy;
   let restoreMimikyuNonGxCopycatHook;
   let restoreCopyDeclaredHistoryHook;
   let restorePassClearsLastAttackHook;
@@ -440,6 +442,10 @@ function runMatch(request) {
     const { SimpleTacticsAi } = engine('simple-bot/simple-tactics-ai');
     if (request.apexSpreadPrizeWindowPolicy === true) {
       restoreApexPrizeWindowPolicy = installApexPrizeWindowPolicy();
+    }
+    if (request.spentGxCopyPolicy === true) {
+      restoreSpentGxCopyPolicy = require('./spent-gx-headless-resolver.cjs')
+        .installHeadlessSpentGxCopyPolicy();
     }
     const definitions = engine('simple-bot/simple-bot-definitions');
     const { BotFlipMode, BotShuffleMode } = engine('game/bots/bot-arbiter');
@@ -858,6 +864,7 @@ function runMatch(request) {
       ...(request.apexSpreadPrizeWindowPolicy === true ? {
         apexSpreadPrizeWindowPolicy:true
       } : {}),
+      ...(request.spentGxCopyPolicy === true ? {spentGxCopyPolicy:true} : {}),
       shadowRiderEnergyPriority: request.shadowRiderEnergyPriority === true,
       shadowRiderEnergyAcrossField: request.shadowRiderEnergyAcrossField === true,
       shadowRiderOpeningPivot: request.shadowRiderOpeningPivot === true,
@@ -891,6 +898,7 @@ function runMatch(request) {
         (request.redeemableTicketPaperOrderCorrection === true ? '+TicketPaperPrizeOrder-v1' : '') +
         (request.pendingEndTurnSwitchCleanupCorrection === true ? '+PendingEndTurnSwitchPaper-v1' : '') +
         (request.apexSpreadPrizeWindowPolicy === true ? '+ApexSpreadPrizeWindow-v1' : '') +
+        (request.spentGxCopyPolicy === true ? '+SpentGxLegalCopy-v1' : '') +
         (request.shadowRiderEnergyPriority === true ? '+ShadowRiderPsychicAttachPriority-v1' : '') +
         (request.shadowRiderEnergyAcrossField === true ? '+ShadowRiderPsychicAttachAcrossField-v1' : '') +
         (request.shadowRiderOpeningPivot === true ? '+SelectedShadowRiderSetupActive-v1' : '') +
@@ -943,6 +951,7 @@ function runMatch(request) {
     if (restoreElectrodeGXEnergyHook) restoreElectrodeGXEnergyHook();
     if (restoreHisuianHeavyBallPrizeShuffleHook) restoreHisuianHeavyBallPrizeShuffleHook();
     if (pendingEndTurnSwitchCleanupHook) pendingEndTurnSwitchCleanupHook.restore();
+    if (restoreSpentGxCopyPolicy) restoreSpentGxCopyPolicy();
     if (restoreApexPrizeWindowPolicy) restoreApexPrizeWindowPolicy();
     if (restoreRedeemableTicketPaperOrderHook) restoreRedeemableTicketPaperOrderHook();
     if (restoreDialgaBenchExposureGuard) restoreDialgaBenchExposureGuard();
