@@ -1,9 +1,9 @@
 {
   "schema": "new-moon-lockbreak-English-mechanical-proxy-v1",
   "as_of": "2026-05-10",
-  "source_path": "results/als/new-moon-perfection-english-proxy-60.json",
-  "source_id_count_sha256": "64fb4f8e008766ce94ef2b26dff65e7fa14cbdc055b3565f3d667708528c232e",
-  "canonical_id_count_sha256": "b359040e131251bc77e47add27d809b29eab9ecbc0ec42e297ac2d7e2bd89e65",
+  "source_path": "results/als/new-moon-perfection-english-map.json",
+  "source_id_count_sha256": "4dd537adbf73d89e50215b3d056a9f40d474f05b79e33774c281a30079e1ce95",
+  "canonical_id_count_sha256": "a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4",
   "hash_spec": "SHA-256 of sorted UTF-8 lines id:count followed by newline",
   "status": "Frozen counter-package proposal. Exact Japanese physical printings and full paper legality not verified, simulator and policy unqualified. The retained historical English proxy contains Duskull SFA, which differs from the verified official Japanese S4 (Future Sight). This exact candidate is therefore currently a mechanically distinct proxy until migrated; no source-faithful comparison claimed.",
   "change_from_source": {
@@ -128,9 +128,10 @@
       "name_en": "Duskull",
       "count": 2,
       "type": "Pokémon",
-      "english_proxy_card_id": "sv6pt5-18",
+      "english_proxy_card_id": "swsh4-69",
       "english_database_name": "Duskull",
-      "twinleaf_full_name": "Duskull SFA"
+      "twinleaf_full_name": "Duskull SFA",
+      "mechanics": "Future Sight, source-equivalent selected by Agent25 English map"
     },
     {
       "source_grid_row": 2,
@@ -347,7 +348,7 @@
       "name_en": "Basic Psychic Energy",
       "count": 3,
       "type": "Energy",
-      "english_proxy_card_id": "sv3pt5-207",
+      "english_proxy_card_id": "swsh12pt5-156",
       "english_database_name": "Basic Psychic Energy",
       "twinleaf_full_name": "Psychic Energy SVE"
     },
@@ -369,5 +370,6 @@
       "twinleaf_full_name": "Canceling Cologne ASR",
       "mechanics": "Until end of turn opponent's Active Pokémon has no Abilities"
     }
-  ]
+  ],
+  "reconciliation": "Align Duskull Future Sight and Basic Psychic Energy chosen equivalents to Agent25's compiled source map, superseding earlier unverified proxy variants."
 }
