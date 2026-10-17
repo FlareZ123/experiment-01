@@ -37,6 +37,14 @@ For the independent opposing-mulligan distribution, let p_A be the four-Basic op
 
 The known direct-or-Pad baseline in the latter column is **30.762479%**. Including Stone and Crobat raises modeled access to **32.380357%**, a gain of **1.617878 percentage points**. All figures are conditioned on a valid rank-26 opening; Iron Thorns' opponent-mulligan bonuses are elected when possible, and at most 46 are drawn before the mandatory card.
 
+## Directly selectable Active: Meloetta in the opening seven
+
+The broad resource-access model allows Meloetta ex to be absent from the initial seven. A stricter subevent requires the source singleton **Meloetta ex BLK 44** in the initial seven, so the player can select it as the initial Active without first searching or switching. We enumerate that attacker as a seventh distinguished card fixed in one of seven opening positions, preserving the six Prize cards and the same first-turn bonus-draw distribution.
+
+Among valid rank-26 openings, **14.414801%** directly contain Meloetta. The joint event of *Meloetta initially present* and *at least one modeled Cologne access route* has probability **3.763670%** with no bonus draws, or **4.401787%** with all usable Iron Thorns mulligan bonuses. The latter splits into **2.045887% direct Cologne**, **2.184088% incremental Order Pad**, and **0.171812% incremental Forest Seal Stone**. Conditioned on Meloetta being in the initial seven, modeled Cologne access is **30.536580%** with bonuses.
+
+This stricter joint event is a subset of potential first-turn attack lines because other openings may find and switch Meloetta into the Active Spot. It does not guarantee the remaining Risky Ruins, five self-KOs, Tapu Koko, Energy or TM: Crisis Punch prerequisites. These are access probabilities, never win rates.
+
 ## Validation and limits
 
 The exact six-card enumerator conserves unit probability mass in tested draw windows and independently reproduces both existing direct Cologne and three-Order-Pad results to numerical tolerance. The companion test samples **120,000 seeded independently shuffled physical two-player deals**, resolving opening redraws, six Prizes, bonus offers, a mandatory first draw and separate Pad coin flips. Manual-only GitHub Actions workflow: [Aichi opening-hand audit](../../.github/workflows/aichi-opening-audit.yml). **Compiled-independent workflow [run 39026764843](https://github.com/FlareZ123/experiment-01/actions/runs/39026764843) succeeded at head `753895f6aae9d183d62362d3b883ccd06460d01d`**; its new exact-enumerator, 120k-deal simulation, and JSON report steps each passed. This demonstrates model implementation and repeatability, not a source-dealt match. The exact model is compatible with the earlier source-anchored stage tests demonstrating that Forest Seal Stone on Crobat can fetch Cologne under Active Initialization and Klefki lock.
