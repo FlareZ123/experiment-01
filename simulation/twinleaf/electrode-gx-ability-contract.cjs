@@ -102,6 +102,9 @@ function runCase(count, noRecipient = false, useBot = false, availableCount = 5,
   if (chainAttack) {
     const {providedEnergy}=require('./temple-raichu-board.cjs');
     energyMapAfterBomb=providedEnergy(f);
+    assert.equal(f.b.getPrizeLeft(),4);
+    const {AttackAction}=load('game/store/actions/game-actions');
+    f.store.dispatch(new AttackAction(101,'Electro Rain'));
   }
   return {
     count,noRecipient,useBot,availableCount,transferred:transfers.length,
