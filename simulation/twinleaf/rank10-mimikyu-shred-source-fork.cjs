@@ -4,6 +4,7 @@ const path=require('node:path');
 const {runMatch,initializeCards}=require('./headless.cjs');
 const {resolveManifestFile}=require('./resolve-field.cjs');
 const {withStoreDispatchTranscript}=require('./store-dispatch-transcript.cjs');
+const {responseLedger}=require('./rank10-copycat-response-ledger.cjs');
 const {withTurn28CopycatShredFork}=
   require('./mimikyu-turn28-shred-fork.cjs');
 
@@ -114,7 +115,8 @@ function main() {
       sourceHistoryDigestAtAction:ordained[215].continuityDigestBefore,
       ordinalBranchRootActions:ordained.length,
       ordinalBranchWinner:ordinalAudit.result.result.winner,
-      ordinalBranchPrizeCounts:ordinalAudit.result.result.prizesRemaining
+      ordinalBranchPrizeCounts:ordinalAudit.result.result.prizesRemaining,
+      nextFiveTurns:responseLedger(ordained,{startOrdinal:215,horizonTurns:5})
     };
   }
   const compact=game=>({actions:game.actions,turns:game.turns,
@@ -133,6 +135,8 @@ function main() {
     forcedOpportunity:forked.result.opportunities[0],
     chosenAttack:forked.result.shredSelections[0],
     original:compact(control),counterfactual:compact(alternate),
+    counterfactualNextFiveTurns:responseLedger(after,
+      {startOrdinal:215,horizonTurns:5}),
     ordinalSourceAudit,
     graphQualification:false,paperMechanicsQualified:false,
     qualifiedForCompetitiveInference:false,
