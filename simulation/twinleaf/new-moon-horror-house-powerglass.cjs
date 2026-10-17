@@ -32,7 +32,7 @@ function horrorHousePowerglassContract() {
   const {CardList} = load('game/store/state/card-list');
   const {GamePhase} = load('game/store/state/state');
   const {Format} = load('game/store/card/card-types');
-  const {AttackAction} = load('game/store/actions/game-actions');
+  const {UseAbilityAction} = load('game/store/actions/game-actions');
   const {ResolvePromptAction} = load('game/store/actions/resolve-prompt-action');
   const {PlayerType,SlotType} = load('game/store/actions/play-card-action');
 
@@ -83,7 +83,17 @@ function horrorHousePowerglassContract() {
   assert.equal(before.attackerEnergy, 1);
   assert.ok(before.sourceInDiscard);
   assert.ok(before.discardBasicAvailable);
-  store.dispatch(new AttackAction(mew.id, 'Horror House-GX'));
+  store.dispatch(new UseAbilityAction(mew.id, 'Perfection', {
+    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+  }));
+  const chosen = state.prompts.find(p => p.result === undefined &&
+    p.constructor.name === 'ChooseAttackPrompt');
+  assert.ok(chosen, 'Perfection must offer a real source attack-selection prompt');
+  assert.ok(chosen.cards.includes(payload),
+    'The discarded printed TAG TEAM must appear as an attack source');
+  assert.equal(chosen.validate(payload.attacks[1]), true,
+    'One Psychic must pay Horror House-GX through Perfection');
+  store.dispatch(new ResolvePromptAction(chosen.id, payload.attacks[1]));
 
   const afterAttack = {
     usedGX:mew.usedGX,
