@@ -10,6 +10,7 @@ const {auditAuthenticFork} = require('./source-fork-gate.cjs');
 const {withRecordedSourceActions} = require('./source-game-action-replay.cjs');
 const {loadDefaultCampaign} = require('../../scripts/aichi-comparison-campaign.cjs');
 const {sourceInputTraceSha256}=require('../evaluation/source-input-canonical.cjs');
+const {firstMismatch}=require('./source-state-continuity.cjs');
 
 /** @param {unknown} value @returns {string} */
 function hash(value) {
