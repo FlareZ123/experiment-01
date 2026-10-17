@@ -17,7 +17,7 @@ const {loadDefaultCampaign}=require('../../scripts/aichi-comparison-campaign.cjs
  * @returns {{handIndex:number,target:object}|null}
  */
 function chooseTurn2PrimeCatcher(state,playerId,proposedAction) {
-  if(state.turn!==2 || state.activePlayer!==0 || state.phase!==2 ||
+  if(state.turn!==2 || state.activePlayer!==0 ||
       playerId!==101 || state.prompts.some(p=>p.result===undefined) ||
       proposedAction?.constructor?.name!=='PlayCardAction') return null;
   const player=state.players.find(p=>p.id===playerId);
