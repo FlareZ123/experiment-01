@@ -113,6 +113,14 @@ jobs:
           name: newmoon-klefki-telepath-action
           path: newmoon-klefki-telepath-action.json
           if-no-files-found: error
+      - name: Probe deck-origin Sol Burst GX versus Telepath from-hand trigger
+        run: node simulation/twinleaf/telepath-nonhand-solburst-source.cjs > telepath-nonhand-solburst-source.json
+      - name: Preserve deck-origin Telepath negative engine witness
+        uses: actions/upload-artifact@v4
+        with:
+          name: telepath-nonhand-solburst-source
+          path: telepath-nonhand-solburst-source.json
+          if-no-files-found: error
       - name: Preserve Stadium ordering audit
         uses: actions/upload-artifact@v4
         with:
