@@ -214,6 +214,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [passClearsLastAttackCorrection] Opt-in clear stale preceding attack when a player passes.
  * @property {boolean} [snorlaxRetreatStartCorrection] Opt-in, reversible Block check on interactive retreat.
  * @property {boolean} [electroRainDamageCorrection] Opt-in printed Electro Rain attack damage and repeated-target correction.
+ * @property {boolean} [electrodeGXPrizeTradePolicy] Opt-in source Raichu immediate two-Prize forecast tactic.
  * @property {boolean} [electrodeGXEnergyCorrection] Opt-in printed Extra Energy Bomb mandatory attachment and recipient legality.
  * @property {boolean} [redeemableTicketPaperOrderCorrection] Opt-in paper-rule Ticket top/new-Prize and bottom/old-Prize correction.
  * @property {boolean} [hisuianHeavyBallPrizeShuffleCorrection] Opt-in paper Prize-position shuffle for Hisuian Heavy Ball.
