@@ -8,6 +8,8 @@ The supplied Advanced Player's Rulebook A-03 and C-03 establish that an Active P
 
 Agent 36's already-proven experimental `withPendingEndTurnSwitchCleanup` wrapper corrects `Player.switchPokemon` transitions but previously had no request-level entry point in `runMatch`. Future fixed-field experiments could inadvertently compare different correction profiles without a traceable option.
 
+**Field prevalence bound:** A direct printing census of the 29 exact published source 60-card lists finds `Trevenant & Dusknoir-GX` **only in rank 1 Shadow Rider (one copy)**. This does not bound the practical frequency of the delayed effect when that 60 is used as our repeated candidate, nor does it establish the absence of other effects with analogous queue semantics. Ranks 23, 25 and 28 remain unknown.
+
 ## Change
 
 - Refactored `simulation/twinleaf/pending-end-turn-switch-cleanup.cjs` to expose a reversible `installPendingEndTurnSwitchCleanup({Store,Player})` with `restore()` and detached `evidence()`. The existing callback-scoped `withPendingEndTurnSwitchCleanup` API delegates to the installer and preserves its original `{result,removedFromRoot,removedFromSimulatedStores,rootEvents}` contract.
