@@ -8,7 +8,7 @@ const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {deriveSlotSeeds}=require('../../scripts/aichi-decorrelated-seeds.cjs');
 const {runMatch,initializeCards}=require('./headless.cjs');
 const {sourceZoneSnapshot,zoneSnapshotDigest}=require('./source-zone-checkpoint.cjs');
-const {observableState,hash:historyHash}=require('./source-state-continuity.cjs');
+const {observableState,hash:historyHash,firstMismatch}=require('./source-state-continuity.cjs');
 const {storeDataGraphFingerprint}=require('./store-data-graph-fingerprint.cjs');
 
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
@@ -51,21 +51,25 @@ function observeKoraidonTurn5(work) {
           state.prompts.some(prompt=>prompt.result===undefined)) {
         return botDescriptor.value.call(this,state,...args);
       }
+      const preGraph=storeDataGraphFingerprint(root,{includeGraph:true});
       const before={
         zones:zoneSnapshotDigest(sourceZoneSnapshot(state)),
         history:historyHash(observableState(state)),
-        store:storeDataGraphFingerprint(root).digest
+        store:preGraph.digest
       };
       const action=botDescriptor.value.call(this,state,...args);
+      const postGraph=storeDataGraphFingerprint(root,{includeGraph:true});
       const after={
         zones:zoneSnapshotDigest(sourceZoneSnapshot(state)),
         history:historyHash(observableState(state)),
-        store:storeDataGraphFingerprint(root).digest
+        store:postGraph.digest
       };
       observations.push({
         turn:5,sourceSeat:1,action:action?.constructor?.name??null,
         attack:action?.name??null,before,after,
-        policyTimeRootGraphChanged:before.store!==after.store
+        policyTimeRootGraphChanged:before.store!==after.store,
+        policyTimeRootGraphFirstDifference:before.store!==after.store?
+          firstMismatch(preGraph.graph,postGraph.graph):null
       });
       return action;
     }
@@ -165,6 +169,7 @@ function main() {
     noAdditionalHiddenInfoAccessInResearchSelector:true,
     upstreamBotInformationSetClean:false,
     qualifiedForCompetitiveInference:false,sourceReplayMechanicsVerified:false,
+    qualifiedForSourcePolicyNoninterference:false,
     limitations:[
       'The underlying speculative Simulator may reveal hidden card order to the generic bot',
       'Source policy competence and paper rule fidelity are unqualified',
