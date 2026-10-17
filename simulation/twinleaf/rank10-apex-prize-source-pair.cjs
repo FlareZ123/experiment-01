@@ -107,6 +107,7 @@ function main(){
     seed:trial.seed,maxActions:350,label:trial.trialId,
     strictPromptValidation:true,forestSealSearchCorrection:true,
     supporterDecisionCorrection:true,doubleDragonRecovery:true,
+    doubleDragonArchiveV3:true,
     isolatePolicyRandomness:true,captureDecisionTrace:true,
     captureCopycatTurnStartSeat:1,postSuperAliasRepairIsolation:true,
     mimikyuApexCopycatCompatibility:true,
@@ -124,6 +125,8 @@ function main(){
   assert.deepEqual(control,repeated,
     'Original headless result and source actions changed after opt-in policy');
   assert.deepEqual(control.result.deckHashes,experimental.result.deckHashes);
+  assert.equal(control.result.doubleDragonArchiveV3,true,
+    'Frozen source pair must use archived v3 Double Dragon tactic');
   assert.equal(control.result.firstTurnSlot,1);
   assert.equal(experimental.result.firstTurnSlot,1);
   assert.ok(control.firstNormalTurnZoneDigest,
@@ -150,6 +153,7 @@ function main(){
     sourceDeckHashes:control.result.deckHashes,
     firstNormalTurnZoneDigest:control.firstNormalTurnZoneDigest,
     policyFlag:'apexSpreadPrizeWindowPolicy',
+    ddePolicy:'DoubleDragonAttachTactic-v3-archive',
     controlRepeatExact:true,
     firstRootActionDifference:difference,
     control:compact(control),experimental:compact(experimental),
