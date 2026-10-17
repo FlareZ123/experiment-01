@@ -32,6 +32,8 @@ jobs:
       - run: node simulation/twinleaf/ranger-stone-itemlock-action.cjs
       - name: Verify Eldegoss RCL Happy Match Bench-entry lock fidelity
         run: node simulation/twinleaf/eldegoss-entry-lock-action.cjs
+      - name: Verify opt-in Eldegoss hook provenance and restoration
+        run: node simulation/twinleaf/eldegoss-entry-runner-smoke.cjs
       - run: node --test tests/battle-compressor-minimum.test.cjs
       - run: node --test tests/twinleaf-attached-tool-power-tactic.test.cjs
       - name: Bounded published 60-card Tool-Power policy diagnostic
