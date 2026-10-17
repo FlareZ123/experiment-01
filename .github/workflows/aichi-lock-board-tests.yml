@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank8_two_mega_absol_fork:
+        description: 'One legal rank-8 Dance of the Ancients opponent-action counterfork'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -66,6 +71,16 @@ jobs:
         with:
           name: rank8-distinct-target-contrast
           path: rank8-distinct-targets.json
+          if-no-files-found: warn
+      - name: Counterfork rank-8 Tapu Koko Energy to both Mega Absol ex
+        if: inputs.rank8_two_mega_absol_fork
+        run: node simulation/twinleaf/rank8-tapukoko-two-mega-absol-counterfork.cjs > rank8-absol-counterfork.json
+      - name: Preserve rank-8 legal opponent Energy decision
+        if: inputs.rank8_two_mega_absol_fork && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank8-mega-absol-energy-counterfork
+          path: rank8-absol-counterfork.json
           if-no-files-found: warn
       - run: node --test tests/battle-compressor-minimum.test.cjs
       - run: node --test tests/twinleaf-attached-tool-power-tactic.test.cjs
