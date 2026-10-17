@@ -19,7 +19,7 @@ function publicResponseBoard(state) {
       active:publicPokemon(p.active),
       bench:p.bench.map(publicPokemon).filter(x=>x.name!==null),
       handSize:cards(p.hand).length,deckSize:cards(p.deck).length,
-      prizesRemaining:p.prizes.length,usedGX:p.usedGX===true,
+      prizesRemaining:p.getPrizeLeft(),usedGX:p.usedGX===true,
       usedVSTAR:p.usedVSTAR===true,retreatedTurn:p.retreatedTurn,
       energyPlayedTurn:p.energyPlayedTurn}))};
 }
