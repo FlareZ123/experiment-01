@@ -114,7 +114,7 @@ function run() {
       const seeds=deriveSlotSeeds(seedBase,'pilot',RANK,withinBaseRepeat);
       const seed=seeds[seat===0?'A':'B'];
       let game;
-      try { game=runArm(slots.source,opponent.cards,seat,90,true,false); }
+      try { game=runArm(slots.source,opponent.cards,seat,seed,90,true,false); }
       catch(error) {
         inspected.push({seedBase,repeat:withinBaseRepeat,seed,screenError:String(error?.message||error)});
         continue;
@@ -130,6 +130,9 @@ function run() {
       if(eligible) {selected={seedBase,repeat:withinBaseRepeat,seed};break;}
     }
 
+    assert.ok(inspected.some(x=>x.drawVerified),
+      'No authenticated source turn in '+inspected.length+' screens for seat '+seat+
+      '; first error: '+(inspected.find(x=>x.screenError)?.screenError||'none'));
     const report={candidatePhysicalSeat:seat,
       authenticCandidateSecond:true,scanned:inspected.length,
       screenErrors:inspected.filter(x=>x.screenError).slice(0,8),
