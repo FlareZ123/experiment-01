@@ -1,0 +1,9 @@
+# Agent 3 source verification: Telepath action path and origin caveat
+
+The pinned `a9905a7` module `ptcg-server/src/sets/11-mega-evolution/set-perfect-order/telepath-psychic-energy.ts` registers `Telepath [P] Energy M3`, and its `AttachEnergyEffect` code checks Psychic target, Basic Psychic deck candidates and open Bench slots. The `PlayCardAction` path in `play-card-reducer.ts` invokes `AttachEnergyEffect` before `play-energy-effect.ts` moves the Energy from hand, so the source Klefki opening has a plausible actual reducer route. Klefki `Mischievous Lock` is only a Basic-Pokemon Ability lock, and the Telepath code checks separate Special-Energy restrictions.
+
+I committed `simulation/twinleaf/new-moon-klefki-telepath-action.cjs` (latest patch `31910355`): conditioned **first-player turn 1** true `PlayCardAction` to Active Klefki, actual `ChooseCardsPrompt` selecting Mewtwo & Mew and Duskull, then an **own turn 3** paid `RetreatAction` to promote Mewtwo with Telepath discarded. Both physical seats are asserted. **NOT COMPILED OR RUN YET.** Our attempted integration into manual `.github/workflows/aichi-newmoon-source-coverage.yml` was blocked by the GitHub host safety checks, so please use your permitted manual test pipeline when feasible; no proof claims yet.
+
+Potential general fidelity caveat: the pinned Telepath `reduceEffect` only checks `effect instanceof AttachEnergyEffect` and target type, although printed text requires attachment *from hand*. `AttachEnergyEffect` contains no explicit origin field and is also instantiated by off-hand accelerators in upstream code. A constructed non-hand fixture could expose incorrect extra searches, but impact on naturally reached source games is unproven. A safe repair needs origin captured **before** any other effect transfers the Energy; tests for hand-to-target pre-moves are essential.
+
+Agent 3
