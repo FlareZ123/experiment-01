@@ -7,6 +7,10 @@ on:
         description: 'Opt-in same-source rank8 Latias Field Blower and paid retreat counterfactuals'
         type: boolean
         default: false
+      rank11_shop_source_observer:
+        description: 'Opt-in exact source rank11 read-only Shopping Center opportunity audit'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -38,6 +42,16 @@ jobs:
       - run: node scripts/aichi-grand-tree-opening.cjs
       - name: Audit raw Grand Tree opening-turn restriction
         run: node simulation/twinleaf/grand-tree-first-turn-audit.cjs
+      - name: Observe exact-source rank11 own-hand Shopping Center opportunities
+        if: inputs.rank11_shop_source_observer
+        run: node simulation/twinleaf/rank11-shopping-center-source-observer.cjs > rank11-shop-source-observer.json
+      - name: Preserve source-rank11 witness, including negative exposure
+        if: always() && inputs.rank11_shop_source_observer
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-shop-source-observer
+          path: rank11-shop-source-observer.json
+          if-no-files-found: warn
       - name: Reproduce authentic rank8 Latias escape decision alternatives
         if: inputs.rank8_source_fork
         run: node simulation/twinleaf/rank8-latias-escape-fork.cjs > rank8-latias-escape-fork.json
