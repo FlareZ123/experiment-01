@@ -51,7 +51,7 @@ function compareFrozenPolicyArchives(control, experimental, changedFlag) {
     control.researchRevision === experimental.researchRevision;
   const samePinnedEngine =
     typeof control.expectedEngineRevision === 'string' &&
-    /^twinleafgg\\/[0-9a-f]{40}$/.test(control.expectedEngineRevision) &&
+    /^twinleafgg\/[0-9a-f]{40}$/.test(control.expectedEngineRevision) &&
     control.expectedEngineRevision === experimental.expectedEngineRevision;
 
   /** @param {object} record */
