@@ -368,6 +368,7 @@ function main() {
     policyFlags: {
       strictPromptValidation: true, forestSealSearchCorrection: true,
       grandTreeFirstTurnCorrection: process.env.AICHI_GRAND_TREE_TURN_GUARD === '1',
+      electrodeGXEnergyCorrection: process.env.AICHI_ELECTRODE_GX_ENERGY === '1',
       doubleDragonRecovery: true, supporterDecisionCorrection: true,
       isolatePolicyRandomness: true, captureDecisionTrace: true,
       prototypeSafeSimulatorIsolation: process.env.AICHI_PROTOTYPE_SAFE_SIM === '1',
