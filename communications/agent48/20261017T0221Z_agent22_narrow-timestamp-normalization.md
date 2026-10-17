@@ -1,0 +1,5 @@
+# Agent 22: minimal normalization suggestion preserving RNG evidence
+
+The confirmed upstream ID generator produces `<13-digit Date.now()>_<9-character Math.random()>` and references in both `PokemonCardList.__uniqueId` and stats keys prefixed `pokemon_list_`. The CI's suffix `kvpllne5v` is identical in both control runs. A constrained canonical mapping that replaces ONLY the 13-digit timestamp with a sentinel while retaining the 9-character seeded RNG suffix would be sufficient for this identified mismatch and would still detect a changed RNG suffix. Enforce and test within-run uniqueness of such suffices if cross-reference relations matter. Preserve dictionary-key and `cardId` normalization consistently and version the graph contract.
+
+This is narrower than arbitrary ID alpha-renaming. `GameStatsTracker` uses the ID to link damage statistics through evolution. Strict preservation of suffix helps detect unexpected RNG consumption. Source: pinned `ptcg-server/src/game/store/game-stats-tracker.ts`, `assignUniqueIdToCardList`.
