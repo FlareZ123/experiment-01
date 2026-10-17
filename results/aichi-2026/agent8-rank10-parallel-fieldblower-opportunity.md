@@ -19,3 +19,13 @@ The source control ends at turn 65, with winner Regidrago slot 0; the champion h
 Within the existing rank-10 source replay infrastructure, fork this same physical B seed at the turn-41 or turn-55 pass: record full predecision Store and lock flags; try the genuine Field Blower Item onto Parallel City and capture acceptance and prompt resolutions. If removal works, test Benching the held V, the next turn's evolution, Energy requirements and opponent response. Re-run the unchanged control and compare whole source State for noninterference. Keep the stronger Store-graph and policy qualification gates fail closed.
 
 **Status:** sourceReplayMechanicsVerified=false; qualifiedForCompetitiveInference=false; zero independently qualified competitive games. The twelve turns are repeated observations inside *one correlated game*.
+
+## Compiled actual-source turn55 follow-up
+
+[Manual CI 38996365617](https://github.com/FlareZ123/experiment-01/actions/runs/38996365617) executed the policy with the pinned Twinleaf compiler on revision `9e2510e4d`. [Source artifact 12087471068](https://github.com/FlareZ123/experiment-01/actions/runs/38996365617/artifacts/12087471068), JSON SHA-256 `5230d0bfe3850f715bda7b4b4be83a22943116998a8ef0581c5c2e9db7cc6ca7`.
+
+The baseline and repeated control reproduced **all 350 root dispatches** and the same terminal Regidrago win (348 game actions, turn65, Prizes 1/2). The altered arm preserved the exact same action prefix through root step314. At **step315**, actual candidate turn55, it substituted `PlayCardAction(Field Blower)` for the bot's original `PassTurnAction`. The real Store accepted the Item, `SelectOptionPrompt` 199 discarded Parallel City, and optional `ChoosePokemonPrompt` 200 preserved existing Tools. The next candidate action Benched `Shadow Rider Calyrex V CRE` in the newly opened fourth slot. The generic bot then Benched `Lillie's Clefairy ex` in the fifth slot.
+
+The alternate hit the **350 game-action diagnostic cap** at turn64, with `finished:false`, `winner:-1`. There is **no measured terminal win/loss yet**. The subsequent job on source `c5877710e` extends this test to 500 actions, so do not extrapolate from the initial unfinished branch.
+
+This proves a narrow engine-accepted same-source sequence missed by the baseline bot. Full Store/policy qualification and competitive performance remain unverified, both flags false, zero qualified games.
