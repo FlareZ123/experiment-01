@@ -354,3 +354,55 @@ test('mechanism expectations reject duplicate identifiers and unregistered targe
   f.mechanismChecks = [{...check, id:'other', candidateId:'not-in-campaign'}];
   assert.throws(() => auditCampaignQuality(f), /mechanism check/);
 });
+
+test('equal-seed candidate variants cannot claim paired starts when engine order differs', () => {
+  const f = fixture();
+  // Same rank/repeat/physical A/seed, but a changed deck causes the
+  // candidate Challenger to actually begin second.
+  f.records[3].turnEvidence = {firstTurnSlot: 1, verifiedByDrawLog: true};
+  f.records[3].candidateActualTurn = 'second';
+  const result = auditCampaignQuality(f);
+  assert.equal(result.pairedStartOrderComparable, false);
+  assert.equal(result.pairedStartOrderIssues.length, 1);
+  assert.equal(result.pairedStartOrderIssues[0].status, 'mismatch');
+  assert.equal(result.pairedStartOrderIssues[0].scheduledRankRepeatSlot, '6:0:A');
+  for (const i of [0, 3]) {
+    assert.equal(result.records[i].pairedFirstTurnStatus, 'mismatch');
+    assert.ok(result.records[i].blockers.includes(
+      'cross-variant-start-order-mismatch'));
+  }
+  for (const i of [1, 2]) {
+    assert.equal(result.records[i].pairedFirstTurnStatus, 'matched');
+  }
+  assert.equal(result.coverage[0].pairedFirstTurnMismatches, 1);
+  assert.equal(result.coverage[1].pairedFirstTurnMismatches, 1);
+  assert.equal(result.winRateEvidence, false);
+});
+
+test('a missing source draw-log verification invalidates only the affected comparison pair', () => {
+  const f = fixture();
+  f.records[3].turnEvidence.verifiedByDrawLog = false;
+  f.records[3].candidateActualTurn = 'unverified';
+  const result = auditCampaignQuality(f);
+  assert.equal(result.pairedStartOrderComparable, false);
+  assert.equal(result.pairedStartOrderIssues.length, 1);
+  assert.equal(result.pairedStartOrderIssues[0].status, 'unverified');
+  for (const i of [0, 3]) {
+    assert.ok(result.records[i].blockers.includes(
+      'cross-variant-start-order-unverified'));
+  }
+  assert.equal(result.coverage[0].pairedFirstTurnUnverified, 1);
+  assert.equal(result.coverage[1].pairedFirstTurnUnverified, 1);
+});
+
+test('one-candidate source diagnostics are correctly labeled as unpaired', () => {
+  const f = fixture();
+  f.candidateRows = f.candidateRows.slice(0, 1);
+  f.records = f.records.filter(record => record.candidateId === 'reference');
+  f.totalScheduled = 2;
+  const result = auditCampaignQuality(f);
+  assert.equal(result.pairedStartOrderComparable, false);
+  assert.equal(result.pairedStartOrderIssues.length, 0);
+  assert.ok(result.records.every(record =>
+    record.pairedFirstTurnStatus === 'not-applicable'));
+});
