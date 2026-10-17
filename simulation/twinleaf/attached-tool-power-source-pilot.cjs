@@ -29,10 +29,16 @@ function runSourcePilot() {
       isolatePolicyRandomness:true,
       label:'bounded Tool-granted Power source-policy characterization'
     };
-    for(const kind of ['default','attached-tool-power-v1']){
+    for(const kind of ['default','attached-tool-power-v1',
+      'integrated-attached-tool-power-v1']){
       try {
-        const run=()=>runMatch(common);
-        const result=kind==='default'?run():withAttachedToolPowerTactic(run);
+        const integrated=kind==='integrated-attached-tool-power-v1';
+        const run=()=>runMatch(integrated?
+          {...common,attachedToolPowerPolicy:true}:common);
+        const result=kind==='attached-tool-power-v1'?
+          withAttachedToolPowerTactic(run):run();
+        assert.equal(result.attachedToolPowerPolicy,integrated);
+        assert.equal(result.policy.includes('+AttachedToolPowerCandidate-v1'),integrated);
         const star=result.abilityTrace.filter(x=>x.name==='Star Alchemy');
         const stones=result.cardsPlayedBySeat.map(plays=>plays['Forest Seal Stone']||0);
         assert.equal(result.deckHashes[0],result.deckHashes[1],
@@ -40,13 +46,18 @@ function runSourcePilot() {
         trials.push({seed,kind,status:result.finished?'finished':'action-limited',
           actions:result.actions,turns:result.turns,stonesAttachedBySeat:stones,
           starAlchemyActions:star,deckHashes:result.deckHashes,
-          gamePolicy:result.policy});
+          gamePolicy:result.policy,
+          attachedToolPowerPolicy:result.attachedToolPowerPolicy});
       } catch(error) {
         trials.push({seed,kind,status:'engine-exception',
           error:String(error.message)});
       }
     }
   }
+  const integratedTrials=trials.filter(x=>x.kind==='integrated-attached-tool-power-v1');
+  assert.equal(integratedTrials.length,seeds.length);
+  assert.ok(integratedTrials.some(x=>x.status!=='engine-exception'),
+    'At least one integrated source trial must execute for provenance verification');
   for(const t of trials.filter(x=>x.kind==='default'&&x.status!=='engine-exception')){
     assert.equal(t.starAlchemyActions.length,0,
       'Pinned default bot unexpectedly used a Tool-only Power');
