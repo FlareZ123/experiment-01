@@ -52,6 +52,23 @@ jobs:
           path: rank10-dde-policy-drift.json
           if-no-files-found: warn
 
+      - name: Check v4 turn2 single-action fork predicates
+        if: "!inputs.only_source_replay"
+        run: node --test tests/rank10-v4-turn2-prime-catcher-fork.test.cjs
+      - name: Run same-policy source turn2 Prime Catcher instead of DDE
+        if: "!inputs.only_source_replay"
+        run: node simulation/twinleaf/rank10-v4-turn2-prime-catcher-fork.cjs > rank10-v4-turn2-prime-catcher.json
+      - name: Summarize current-v4 one-choice fork
+        if: "!inputs.only_source_replay"
+        run: node -e "const x=require('./rank10-v4-turn2-prime-catcher.json');console.log(JSON.stringify({override:x.override,firstStep:x.firstSourceDivergence.rootStep,control:x.control,branch:x.forcedPrimeCatcher,qualified:x.qualifiedForCompetitiveInference},null,2))"
+      - name: Archive current-v4 one-choice source fork
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-v4-turn2-prime-catcher
+          path: rank10-v4-turn2-prime-catcher.json
+          if-no-files-found: warn
+
       - name: Check source-locked Field Blower policy predicates
         if: "!inputs.only_source_replay"
         run: node --test tests/rank10-field-blower-policy.test.cjs
