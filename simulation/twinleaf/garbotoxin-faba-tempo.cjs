@@ -115,8 +115,13 @@ function probe(options) {
       assert.ok(target,'Expected a live Tag Call search target or Bench target');
       assert.equal(choose.validate([target],currentState()),true);
       answer([target]);
-      if(tagCall) assert.ok(currentOwner().hand.cards.some(c=>c.id===target.id),
-        'Tag Call must add the real source TAG TEAM Supporter to hand');
+      if(tagCall) {
+        assert.ok(currentOwner().hand.cards.some(c=>c.id===target.id),
+          'Tag Call must add the real source TAG TEAM Supporter to hand');
+        assert.equal(pending()?.constructor.name,'ShowCardsPrompt',
+          'Tag Call must reveal the searched TAG TEAM card to the opponent');
+        answer(true); // ShowCardsPrompt is a Prompt<true> acknowledgment.
+      }
       earlySwitchSelected = true;
     }
     assert.equal(pending(),undefined,'Early Switch must finish before Faba');
