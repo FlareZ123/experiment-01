@@ -26,6 +26,28 @@ Reproducibility: [manual CI run 38997503799](https://github.com/FlareZ123/experi
 
 **Scope:** The test does not draw a shuffled registered deck, does not require the player to naturally find Cologne, and stages all energy, Prize-count and opposing board preconditions. The test establishes a real Store interpretation of a conditional card interaction. Japanese print legality and complete metagame outcomes remain separate questions.
 
+## Additional printed access line: Forest Seal Stone under lock
+
+The rank-26 source 60 contains **one Crobat V** and **one Forest Seal Stone**. The Tool's printed **Star Alchemy** VSTAR Power can be used by an attached Pokémon V even while the Rule-Box or Basic Ability-locking effects remove the Pokémon's own Abilities. The Ability is supplied by the attached Tool. See the existing research [Forest Seal Stone exception](forest-seal-stone-ruling.md), derived from TPCi's earlier official ruling on Pokémon V Tool Abilities; this differs from naïvely treating any Ability a Pokémon can use as an Ability it *has*. The Tool is a distinct resource, and a VSTAR Power is limited to one per game.
+
+A new [pinned real-Store regression](../../tests/meloetta_forest_seal_cologne_bridge.test.cjs) exercised this complete staged line:
+
+```text
+Meloetta ex Active; Crobat V on Bench; Forest Seal Stone in hand
+→ attach Forest Seal Stone to Crobat V
+→ Star Alchemy is discoverable despite opposing Iron Thorns/Klefki Active
+→ use Star Alchemy; search a live-deck Canceling Cologne
+→ play retrieved Canceling Cologne on that turn
+→ attach Double Colorless, attach TM: Crisis Punch
+→ announce first-turn Crisis Punch; KO lone opposing Active; finish game
+```
+
+The test uses the existing reversible [Forest Seal Stone mandatory-search hook](../../simulation/twinleaf/forest-seal-search-hook.cjs), preserving the printed rule that unrestricted searches for exactly one card must select a card. The *source* pinned engine's default Stone code specifies a `min:0` prompt and would permit an illegal empty choice. The rule-corrected one-card selection here was verified with the exact source full-name printed cards.
+
+Against both **Iron Thorns ex TWM** and **Klefki SVI**, actual `UseAbilityAction`, `ChooseCardsPrompt`, `ShuffleDeckPrompt`, `PlayCardAction` and `AttackAction` resolved successfully in [manual CI run 38998176226](https://github.com/FlareZ123/experiment-01/actions/runs/38998176226), **23/23 tests passed**, pinned SHA unchanged.
+
+**Limitations:** Crobat V, Stone, Meloetta, Energy, Tool and the remaining Cologne were deliberately staged; prior five self-KOs were represented as one Prize remaining. The line consumes bench, Tool, once-per-game VSTAR and search resources, and real gameplay might require additional switching if Crobat is Active. Printed card mechanics make it a plausible rescue channel, but its joint opening probability, contested connector alternatives, board-space availability and success in a shuffled match are not established by the test.
+
 ## Direct Cologne access: source-locked finite-population result
 
 The [exact calculator](../../scripts/aichi-meloetta-cologne-window.cjs) verifies the rank-26 12-Basic, one-Cologne inventory and each Iron Thorns rank's 4-Basic, four-Iron-Thorns identity against the published 60-card manifest and bundled Basic-stage index. It models independently randomized seven-card openings repeated until legal, simultaneous mulligans, six random Prize cards, every elected opposing-mulligan bonus draw up to 46, and one mandatory first-turn draw. Capping extras at 46 preserves a card for the mandatory draw; the excluded offered tail `K>=47` has probability **0.000000003557%** under this matchup profile. No Trainer, Ability, search or attack is executed.
