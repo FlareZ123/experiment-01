@@ -5,8 +5,8 @@ const {initializeCards}=require('./headless.cjs');
 const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
 const load=name=>require(path.join(root,name));
-/** @param {number} turn @param {boolean} fresh */
-function probe(turn,fresh=false){
+/** @param {number} turn @param {boolean} fresh @param {boolean} fromHand */
+function probe(turn,fresh=false,fromHand=false){
   const manager=initializeCards();
   let id=0;
   /** @param {string} name */
@@ -17,6 +17,7 @@ function probe(turn,fresh=false){
   const {GamePhase}=load('game/store/state/state');
   const {Format}=load('game/store/card/card-types');
   const {UseStadiumAction}=load('game/store/actions/game-actions');
+  const {PlayCardAction,PlayerType,SlotType}=load('game/store/actions/play-card-action');
   const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
   const store=new Store({onStateChange(){}}),state=store.state;
   state.turn=turn;state.phase=GamePhase.PLAYER_TURN;state.activePlayer=(turn+1)%2;
@@ -30,7 +31,14 @@ function probe(turn,fresh=false){
   const oddish=new PokemonCardList();oddish.cards.push(card('Oddish UNB'));
   oddish.pokemonPlayedTurn=fresh?turn:0;player.bench.push(oddish);
   player.deck.cards.push(card('Gloom UNB'),card('Vileplume AOR'));
-  const tree=card('Great Tree SCR');player.stadium.cards.push(tree);
+  const tree=card('Great Tree SCR');
+  if(fromHand){
+    player.hand.cards.push(tree);
+    store.dispatch(new PlayCardAction(player.id,player.hand.cards.indexOf(tree),
+      {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
+    assert.ok(store.state.players[state.activePlayer].stadium.cards.includes(tree),
+      'Grand Tree must enter play via source-card Stadium action');
+  }else player.stadium.cards.push(tree);
   let error=null;
   try{store.dispatch(new UseStadiumAction(player.id));}catch(e){error=e.message;}
   const nextPrompt=()=>store.state.prompts.find(p=>p.result===undefined);
@@ -63,22 +71,23 @@ function probe(turn,fresh=false){
   }
   const evolvedStack=store.state.players[state.activePlayer].bench[0].cards
     .map(c=>c.fullName);
-  return {turn,activeSeat:state.activePlayer,fresh,error,
+  return {turn,activeSeat:state.activePlayer,fresh,fromHand,error,
     canChooseOddish,answered,evolvedStack,
     promptTypes:store.state.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name),
     canEvolveByPaperRules:turn>2&&!fresh};
 }
 /** @returns {object} */
 function run(){
-  const params=[[1,false],[2,false],[3,false],[4,false],[3,true]];
-  const rawCases=params.map(([turn,fresh])=>probe(turn,fresh));
+  const params=[[1,false,false],[2,false,false],[3,false,false],[4,false,false],
+    [3,true,false],[1,false,true],[2,false,true]];
+  const rawCases=params.map(([turn,fresh,fromHand])=>probe(turn,fresh,fromHand));
   const illegal=rawCases.filter(c=>!c.canEvolveByPaperRules&&c.evolvedStack.length>1);
-  assert.deepEqual(illegal.map(c=>c.turn),[1,2],
+  assert.deepEqual(illegal.map(c=>c.turn),[1,2,1,2],
     'Pinned baseline should reproduce both illegal first-turn evolutions');
   const {installGrandTreeFirstTurnHook}=require('./grand-tree-first-turn-hook.cjs');
   const restore=installGrandTreeFirstTurnHook();
   let patchedCases;
-  try{patchedCases=params.map(([turn,fresh])=>probe(turn,fresh));}
+  try{patchedCases=params.map(([turn,fresh,fromHand])=>probe(turn,fresh,fromHand));}
   finally{restore();}
   const patchedIllegal=patchedCases.filter(c=>!c.canEvolveByPaperRules&&c.evolvedStack.length>1);
   assert.equal(patchedIllegal.length,0,'First-turn hook must prevent illegal Stage progression');
