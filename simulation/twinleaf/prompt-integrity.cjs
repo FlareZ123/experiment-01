@@ -99,12 +99,21 @@ function validMoveEnergyTransfers(state, prompt, transfers) {
  * strictly after the bot's choice and never provide it to policy callbacks.
  * @param {object} prompt
  * @param {object} action
+ * @param {object} state
  * @returns {string}
  */
-function attachEnergyFailureEvidence(prompt, action) {
+function attachEnergyFailureEvidence(prompt, action, state) {
   const source = prompt.cardList.cards;
   const allowed = new Set(prompt.cardList.filter(prompt.filter));
   const seen = new Set();
+  const recipientPool = eligiblePokemonTargets(state, prompt).map(({target, list}) => ({
+    target: {player: target.player, slot: target.slot, index: target.index},
+    pokemon: list.getPokemonCard()?.name ?? null
+  }));
+  const sourceZone = state.players.find(player => player.discard === prompt.cardList) ?
+    'discard' : state.players.find(player => player.deck === prompt.cardList) ?
+      'deck' : state.players.find(player => player.hand === prompt.cardList) ?
+        'hand' : 'other';
   const selections = Array.isArray(action.result) ? action.result.map(entry => {
     const card = entry?.card;
     const duplicate = seen.has(card);
@@ -125,8 +134,10 @@ function attachEnergyFailureEvidence(prompt, action) {
     evidenceType: 'post-choice-invalid-attach-energy-selection-v1',
     promptId: prompt.id,
     promptMessage: prompt.message ?? null,
+    sourceZone,
     sourceSize: source.length,
     eligibleSize: allowed.size,
+    recipientPool,
     min: prompt.options?.min ?? null,
     max: prompt.options?.max ?? null,
     maxPerType: prompt.options?.maxPerType ?? null,
@@ -243,7 +254,7 @@ function assertValidPromptAction(state, action) {
   }
   if (!valid) {
     const detail = name === 'AttachEnergyPrompt' ?
-      ' ' + attachEnergyFailureEvidence(prompt, action) : '';
+      ' ' + attachEnergyFailureEvidence(prompt, action, state) : '';
     throw new Error('Twinleaf bot supplied an invalid result to ' +
       prompt.constructor.name + ' (prompt ' + prompt.id + ').' + detail);
   }
