@@ -104,3 +104,21 @@ test('fails closed on symbol-valued fields and unsupported built-ins',()=>{
   b.state.buffer=new Uint8Array([1,2]);
   assert.throws(()=>storeDataGraphFingerprint(b),/Opaque built-in/);
 });
+
+
+test('explicit coverage limit: equal callback text can hide different lexical captures',()=>{
+  const withCallback = choice => {
+    const s=makeStore();
+    s.promptItems=[{
+      ids:[4],
+      then:function chooseNext() {return choice;}
+    }];
+    return s;
+  };
+  const left=withCallback('knock_out');
+  const right=withCallback('do_nothing');
+  assert.notEqual(left.promptItems[0].then(),right.promptItems[0].then());
+  assert.equal(storeDataGraphFingerprint(left).digest,
+    storeDataGraphFingerprint(right).digest,
+    'Function-source equality is insufficient to prove continuation equivalence');
+});
