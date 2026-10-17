@@ -58,6 +58,20 @@ function runTest() {
       policy: game.policy, deckHashes: game.deckHashes,
       actions: game.actions, turns: game.turns,
       finished: game.finished, winner: game.winner,
+      actualFirstTurnSlot: game.actualFirstTurnSlot ?? game.firstTurnSlot ?? null,
+      prizesRemaining: game.prizesRemaining,
+      actionsBySeat: game.actionsBySeat,
+      attackBySeat: [0, 1].map(seat => ({
+        seat,
+        attacks: game.attackTrace.filter(action => action.seat === seat)
+          .map(action => ({turn: action.turn,
+            attack: action.attack, attacker: action.activePokemon || null}))
+      })),
+      passCountBySeat: [0, 1].map(seat => ({
+        seat, count: game.decisionTrace.filter(event =>
+          event.playerSlot === seat &&
+          String(event.action).includes('PassTurn')).length
+      })),
       invalidPromptSourceResult: false
     };
   } catch (error) {
