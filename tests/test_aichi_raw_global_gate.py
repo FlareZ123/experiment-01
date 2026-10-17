@@ -87,6 +87,8 @@ class BalancedRawGateTests(unittest.TestCase):
         self.assertTrue(x["global_test"]["statistical_threshold_met"])
         self.assertEqual(x["raw_games"], 640)
         self.assertEqual(x["completed_ties_as_nonwins"], 0)
+        self.assertTrue(x["all_completed_traces_verified"])
+        self.assertFalse(x["competitive_evidence_qualified"])
 
     def test_digest_only_record_is_rejected(self):
         b = batch()
