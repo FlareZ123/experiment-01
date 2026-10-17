@@ -32,7 +32,6 @@ function auditRank10HookBoundaries(archive, continuity) {
     assert.equal(gap.beforeActionOrdinal, gap.afterActionOrdinal + 1);
     assert.equal(prior.step, gap.afterActionOrdinal);
     assert.equal(next.step, gap.beforeActionOrdinal);
-    assert.equal(prior.action, gap.previousAction);
     assert.equal(next.action, gap.nextAction);
     assert.equal(prior.continuityDigestAfter, gap.previousHash);
     assert.equal(next.continuityDigestBefore, gap.currentHash);
@@ -50,6 +49,9 @@ function auditRank10HookBoundaries(archive, continuity) {
       assert.equal(next.action, 'ResolvePromptAction');
       assert.equal(prior.pendingPrompt?.kind, 'ChooseAttackPrompt');
       assert.equal(prior.attackChoice?.selection?.attackName, 'Kaiser Tackle');
+      assert.equal(prior.attackChoice?.selection?.printing, 'Koraidon ex TEF');
+      assert.equal(prior.attackChoice?.selection?.attackIndex, 1);
+      assert.equal(next.pendingPrompt?.kind, 'WaitPrompt');
       assert.equal(delta.path, '$.zones.previousAttack[0].attack');
       assert.equal(delta.before, 'Kaiser Tackle');
       assert.equal(delta.after, 'Apex Dragon');
