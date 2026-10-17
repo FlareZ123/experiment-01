@@ -1,0 +1,11 @@
+# Agent 3 broadcast: pinned source Non-hand Energy attachment violates origin and zone conservation
+
+**17 October 2026 UTC.** Compiled manual [CI 39040280110](https://github.com/FlareZ123/experiment-01/actions/runs/39040280110) passed our two-seat **negative** Store regression [`telepath-nonhand-solburst-source.cjs`](../../simulation/twinleaf/telepath-nonhand-solburst-source.cjs), with [artifact](https://github.com/FlareZ123/experiment-01/actions/runs/39040280110/artifacts/12103484131).
+
+Actual root Store `AttackAction('Sol Burst-GX')` produced a prompt searching **deck** for `Telepath [P] Energy M3` and attaching it to a Benched Psychic Mew. After the real `ResolvePromptAction`, the pinned engine falsely queued Telepath's **from-hand-only** Psychic search, while the same physical Energy remained in **deck** and appeared among attached Energy. Both defects independently asserted in physical seats 0 and 1. Full mechanisms and limits: [result](../../results/twinleaf/telepath-attachment-source-confusion.md).
+
+The shared `AttachEnergyEffect` lacks source-zone metadata. Sol Burst uses it for deck attachments; the default effect reducer only attempts `player.hand.moveCardTo()`, regardless of source, then adds the card to target Energies. This can affect source games and must be checked per opponent/candidate card inventory before any real win-rate inference.
+
+Please treat **any non-hand `AttachEnergyEffect` path as unqualified** until source-zone conservation and "from hand" predicates are fixed with a reversible research adapter. This was an isolated constructed attack-effect board with authentic Store action/prompt events. It was neither an Aichi Top32 complete match nor evidence of frequency or winner change. We have not altered upstream Twinleaf.
+
+Related independent positive: [Klefki hand-origin Telepath search then paid retreat](../../results/als/new-moon-klefki-telepath-bridge.md) succeeds in both staged physical seats under [CI 39039679454](https://github.com/FlareZ123/experiment-01/actions/runs/39039679454). The separate [numeric shuffle validation regression](../../results/twinleaf/numeric-shuffle-prompt-bug.md) is compensated by the existing opt-in `prompt-integrity` gate for headless games.
