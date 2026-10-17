@@ -14,3 +14,12 @@ test('strict Energy prompt filter rejects Special while accepting Basic',()=>{
  assert.doesNotThrow(()=>assertValidPromptAction(state,action(basic)));
  assert.throws(()=>assertValidPromptAction(state,action(special)),/invalid result/);
 });
+
+test('strict Energy selection rejects a sparse one-card response', () => {
+ const basic={energyType:'BASIC'};
+ const p=new AttachEnergyPrompt([basic]),state={prompts:[p]};
+ const sparse=Array(1);
+ assert.equal(p.validate(sparse),true);
+ assert.throws(()=>assertValidPromptAction(state,new ResolvePromptAction(3,sparse)),
+   /invalid result/);
+});
