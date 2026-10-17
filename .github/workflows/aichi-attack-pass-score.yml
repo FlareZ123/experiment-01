@@ -36,7 +36,7 @@ jobs:
           npm ci --no-audit --no-fund
           npm run compile
       - name: Test authentic Store pass-score observer and source action fork
-        run: node --test tests/koraidon-pass-score-horizon.test.cjs tests/rank10-koraidon-source-attack-fork.test.cjs tests/pending-end-turn-switch-cleanup.test.cjs tests/pending-end-turn-switch-installer.test.cjs tests/pending-end-turn-headless-option.test.cjs tests/apex-prize-headless-policy.test.cjs tests/rank10-apex-prize-source-pair.test.cjs tests/attack-pass-horizon-policy.test.cjs tests/decision-scoped-detached-simulator.test.cjs tests/graph-difference-witness.test.cjs tests/wobbuffet-vileplume-stoutland-matrix.test.cjs
+        run: node --test tests/koraidon-pass-score-horizon.test.cjs tests/rank10-koraidon-source-attack-fork.test.cjs tests/pending-end-turn-switch-cleanup.test.cjs tests/pending-end-turn-switch-installer.test.cjs tests/pending-end-turn-headless-option.test.cjs tests/apex-prize-headless-policy.test.cjs tests/apex-coupled-paid-store.test.cjs tests/rank10-apex-prize-source-pair.test.cjs tests/attack-pass-horizon-policy.test.cjs tests/decision-scoped-detached-simulator.test.cjs tests/graph-difference-witness.test.cjs tests/wobbuffet-vileplume-stoutland-matrix.test.cjs
       - name: Optional Apex Dragon Mega Dragonite energy-discard Store probe
         if: inputs.mega_energy_probe == true
         run: node simulation/twinleaf/apex-mega-dragonite-energy-discard.cjs > mega-dragonite-energy-discard.json
