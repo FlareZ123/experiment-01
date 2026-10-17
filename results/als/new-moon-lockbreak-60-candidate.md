@@ -8,11 +8,11 @@
 
 The 10 May 2026 Aichi field is [29 precisely published 60s with three unpublished ranks](../aichi-2026/full-decklists.json). The base New Moon 60 comes from a contemporaneous first-person article, separate from those Top 32, source deck code **`GxxDYx-a4rD4W-a8xYxc`**. Agent 25 independently resolved the 33 English simulator equivalents and [validated all original 60 in pinned Twinleaf](new-moon-pinned-print-acceptance.md), while noting that the **Japanese physical-print identifiers remain unresolved**. This proposed challenger preserves those source roles and changes a named four-Item package.
 
-**Frozen English-equivalent card ID/count hash:** `sha256:b359040e131251bc77e47add27d809b29eab9ecbc0ec42e297ac2d7e2bd89e65`.
+**Frozen English-equivalent card ID/count hash:** `sha256:a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4`.
 
-**Original English-proxy card ID/count hash:** `sha256:64fb4f8e008766ce94ef2b26dff65e7fa14cbdc055b3565f3d667708528c232e`.
+**Original English-proxy card ID/count hash:** `sha256:4dd537adbf73d89e50215b3d056a9f40d474f05b79e33774c281a30079e1ce95`.
 
-Canonicalization for both: alphabetically sort `id:count\n` lines in UTF-8, then SHA-256. The reproducible manifest records the actual English proxy IDs of every source Pokémon and Trainer, including the ambiguous Solrock printed equivalent `sm7-62` with **Sunbeam**, Unown `xy7-30` with **Farewell Letter**, Dusclops `sv6pt5-19` with **Cursed Blast**, and the original source's single **Secret Box ACE SPEC**. Added cards are **Field Blower GRI 125 / `sm2-125`** and **Canceling Cologne ASR 136 / `swsh10-136`**, both printed cards visible in published Aichi opponent inventories.
+Canonicalization for both: alphabetically sort `id:count\n` lines in UTF-8, then SHA-256. The reproducible manifest follows the **validated** [Agent25 English source mapping](new-moon-perfection-english-map.json) for all 33 original rows. An earlier raw English proxy used different Duskull and basic Energy set IDs; the adopted map correctly selects the source-representative **Future Sight Duskull VIV 69** and SVE-mapped Psychic Energy. The manifest records the English proxy IDs of every source Pokémon and Trainer, including the ambiguous Solrock printed equivalent `sm7-62` with **Sunbeam**, Unown `xy7-30` with **Farewell Letter**, Dusclops `sv6pt5-19` with **Cursed Blast**, and the original source's single **Secret Box ACE SPEC**. Added cards are **Field Blower GRI 125 / `sm2-125`** and **Canceling Cologne ASR 136 / `swsh10-136`**, both printed cards visible in published Aichi opponent inventories.
 
 | Card slot adjustment relative to source | Change | Presumed value / sacrificed function |
 | --- | ---: | --- |
@@ -39,7 +39,7 @@ This is a **four-slot adjustment**, not an independently invented shell. The ove
 | P | 1 | Squawkabilly ex, PAL 169 |
 | P | 3 | Unown, AOR 30 (Farewell Letter) |
 | P | 2 | Dusclops, SFA 19 (Cursed Blast) |
-| P | 2 | Duskull, SFA 18 |
+| P | 2 | Duskull, VIV 69 (Future Sight, selected source-equivalent mapping) |
 | P | 1 | Solrock, CES 62 (Sunbeam) |
 | P | 1 | Lunatone, OBF 92 (New Moon) |
 | P | 1 | Klefki, SVI 96 |
@@ -62,7 +62,7 @@ This is a **four-slot adjustment**, not an independently invented shell. The ove
 | T | 2 | Field Blower, GRI 125 (**new**) |
 | T | 2 | Canceling Cologne, ASR 136 (**new**) |
 | E | 3 | Telepathic Psychic Energy, M3 88 mechanical equivalent |
-| E | 3 | Basic Psychic Energy, selected proxy SVE |
+| E | 3 | Basic Psychic Energy, selected proxy SVE, source-map ID swsh12pt5-156 |
 
 **Totals: 19 Pokémon, 35 Trainers, six Energy = exactly 60 cards.** The test manifest verifies the source-count delta and the exact ID hash.
 
