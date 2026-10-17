@@ -78,6 +78,7 @@ function executeDiagnostic(options) {
   const allowedFlags = new Set([
     'strictPromptValidation', 'forestSealSearchCorrection',
     'grandTreeFirstTurnCorrection',
+    'electrodeGXEnergyCorrection',
     'doubleDragonRecovery', 'templeUnlockRecovery',
     'supporterDecisionCorrection', 'isolatePolicyRandomness',
     'prototypeSafeSimulatorIsolation',
@@ -185,6 +186,7 @@ function executeDiagnostic(options) {
       const echoedPolicyKeys = [
         'forestSealSearchCorrection', 'doubleDragonRecovery',
         'grandTreeFirstTurnCorrection', 'templeUnlockRecovery', 'supporterDecisionCorrection',
+        'electrodeGXEnergyCorrection',
         'snorlaxRetreatStartCorrection', 'shadowRiderEnergyPriority',
         'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
         'latiasAttackReadyAttachment', 'bunnelbyK0SafeEvolution',
