@@ -31,6 +31,18 @@ By contrast, the source branch paying Guzma + Tropical Beach must reacquire a Gu
 
 The alternative choice does not demonstrate superior play. It gives up Trainers' Mail, changes future access, consumes the turn's Supporter on Guzma, and targets an undamaged two-Prize Shadow Rider V for only 140 rather than the zero-Energy opposing Dialga-GX. Depending on actual board, a different Supporter, target or attack may be preferable. The champion's observed decision policy is unqualified.
 
+## Cross-rank deck-architecture census
+
+The same phenomenon may be structurally relevant outside the one physical rank-6 deal. A direct count of the **29 available published Aichi source 60-card lists** in [full-decklists.json](full-decklists.json) identifies exactly three lists containing only one Pokémon name, **Iron Thorns ex** in four copies each. All three also contain Guzma:
+
+| Published rank | Pokémon inventory | Guzma copies | Empty-own-Bench gust potential |
+| ---: | --- | ---: | --- |
+| 6 | 4 Iron Thorns ex | 3 | Conditional on opponent Bench and saved Guzma |
+| 24 | 4 Iron Thorns ex | 2 | Same mechanism under a different resource list |
+| 29 | 4 Iron Thorns ex | 3 | Same mechanism under a different resource list |
+
+This is a **source-inventory fact**, separate from whether any player rationally leaves the Bench empty. Deliberately maintaining one Active Iron Thorns can protect its Energy continuity when Guzma is used, while exposing the player to an immediate no-Pokémon-in-play loss if that Active is Knocked Out. Bench size must be evaluated jointly with Guzma's active-switch cost, survival probability, and available recovery. There is no observed comparative win rate for solo versus multiple-Thorns play.
+
 ## Falsification and integration handoff
 
 Reuse [rank-6 source replay](../../simulation/twinleaf/rank6-immediate-opponent-response.cjs) and the ten-payment source fork. At the real **global-turn-four** boundary after champion Acerola/Bench/Pass, assert both printed-source physical inventories, retained hand Guzma, no rank-6 Bench, DCE on Active Iron Thorns, Thunder Mountain in play, Dialga-GX opposing Active and Shadow Rider Calyrex V opposing Bench. Without editing hidden zones, validate and dispatch an actual **PlayCardAction(Guzma)**, resolve the opponent-target prompt, prove both Active positions, then announce Volt Cyclone and observe damage. Compare the spent-Guzma arm under the same observed public state, recording which recovery connector is actually available. Stop at the first failing assertion if the live source state differs.
