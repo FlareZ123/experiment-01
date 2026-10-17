@@ -35,6 +35,8 @@ jobs:
         run: node --test tests/aichi-meloetta-stone-pad-bridge.test.cjs
       - name: New Moon solo defense regression
         run: node --test tests/new-moon-meloetta-solo-stress.test.cjs
+      - name: Coupled Klefki and Cologne opening exact model
+        run: node --test tests/new-moon-meloetta-joint-resource.test.cjs
       - name: Conditional rank-26 loss-budget tests
         run: node --test tests/aichi-rank26-loss-budget.test.cjs tests/aichi-rank26-exposure-frontier.test.cjs
       - name: Printed first-turn defense tests
