@@ -56,6 +56,11 @@ on:
         required: false
         type: boolean
         default: false
+      electrode_gx_energy_correction:
+        description: 'Opt-in corrected Extra Energy Bomb mandatory transfer and bot count; ranks 4 and 17'
+        required: false
+        type: boolean
+        default: false
       grand_tree_first_turn_guard:
         description: 'Correct Grand Tree SCR first-turn illegal evolution in pinned Twinleaf; engine fidelity only'
         required: false
