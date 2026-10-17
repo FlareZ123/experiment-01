@@ -121,12 +121,13 @@ function storeDataGraphFingerprint(store,options={}) {
   const root = storeFields.map(key=>[key,visit(store[key])]);
   const data = JSON.stringify({root,nodes});
   return {
-    schema:'live-store-data-graph-except-logs-v1',
+    schema:'live-store-own-data-stats-clock-normalized-v2',
     digest:crypto.createHash('sha256').update(data).digest('hex'),
     nodes:nodes.length,
     opaqueFunctions,
     ...(options.includeGraph===true ? {graph:{root,nodes}} : {}),
     excluded:['Store.handler','State.logs contents (count retained)',
+      'GameStatsTracker Date.now() component of its Pokemon telemetry IDs',
       'function lexical environments','prototype methods and identities']
   };
 }
