@@ -29,6 +29,15 @@ Arrow here denotes immediately before the final live `Store.dispatch` and immedi
 
 The four-slot variant ended after the opponent's actual attack and two prompt resolutions. The candidate's Active was removed, with the opponent moving from three remaining Prizes to zero. That is an observed **three-Prize terminal attack sequence**, not an Item counter success. No unique paper cause is assigned where markers might overlap; the utility deliberately records observable signatures without fabricating a cause.
 
+## Exact opponent attack-path divergence
+
+A second unchanged two-arm source replay [compiled CI 39038841441](https://github.com/FlareZ123/experiment-01/actions/runs/39038841441), at head `5f9708b33215cdeb76a69d8600dff0c5696d4f26`, also **passed** and reproduced the same outcomes. Its [new v2 artifact](https://github.com/FlareZ123/experiment-01/actions/runs/39038841441/artifacts/12102824852) records actual opponent `AttackAction` names in the decisive late turns:
+
+- Source 60: the opponent's Active **Mega Absol ex** used **Terminal Period** on turns **52, 54, 56 and 58**, while both players remained on six Prizes. Printed Mega Absol ex (ME1 86) uses Terminal Period to Knock Out the Active only when it has **exactly six damage counters**, with no printed base damage.
+- Modified Lockbreaker: opponent's Mega Absol ex instead used **Claw of Darkness** on turns **34, 36, 38 and 40**. Its printed attack does **200 damage**, then discards a selected card from the revealed opposing hand. Opponent's remaining Prizes went from **three to zero** after the turn-40 attack/prompt chain.
+
+These names distinguish a condition-dependent Knock Out plan from a direct 200-damage attack. The record does **not yet establish that Claw of Darkness was Energy-payable in source-arm turns 52–58**; that requires the recorded attached Energy at those exact board states. Thus the move choices and results diverge, while calling source-arm Terminal Period an objectively avoidable policy misplay would be premature. The opponent's attack choices are another major mechanism not captured by the original pilot's final-winner labels.
+
 ## Implication for the deck choice
 
 The earlier fixed-seed winner reversal **must not be characterized as positive evidence for Field Blower or Canceling Cologne**. Neither new Item was played in either arm, so there is zero direct exposure to their intended effect. The source's recorded win occurred through the opponent exhausting its deck while the candidate took **no Prize cards**. Separate [Agent13 source-policy auditing](../als/new-moon-lockbreak-policy-exposure-gate.md) confirmed the generic bot made no direct candidate attacks or Perfection invocations across the eight original paired arms, instead passing repeatedly; the sample was entirely candidate-going-first.
