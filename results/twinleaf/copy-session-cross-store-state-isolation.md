@@ -27,3 +27,19 @@ Thus the foreign Store produces **zero** callbacks to the instrumented source it
 The fixture manually opens the copy session and instruments the source reducer; it does not model the complete Apex Dragon declaration, energy cost, alternating legal turns or downstream game result. A separate `copy-session-speculative-simulator.cjs` diagnostic is being repaired to test a real speculative `Simulator.dispatch` against a real Store's active session. It must be evaluated independently rather than assumed to behave like arbitrary Store B.
 
 Avoid using same-process concurrent or speculative Store trajectories as qualified competitive evidence until copy-session lifetime and source-state isolation are tested under the actual caller. A solution should keep session ownership scoped to the appropriate game/State and preserve copied effects that legitimately last across turns. Any research-side patch must be reversible, pinned-revision-aware, and validated against actual attack/prompt/turn continuation. The shared fixed 60-card Aichi objective remains at **zero qualified games**.
+
+## Stable speculative Simulator branch: an additional confirmed exposure
+
+[Manual compiled CI 39040763500](https://github.com/FlareZ123/experiment-01/actions/runs/39040763500) passed the revised [speculative-session fixture](../../simulation/twinleaf/copy-session-speculative-simulator.cjs). It constructs the Simulator from a prompt-free State *before* the control Store generates EndTurn prompts, then dispatches a real `PassTurnAction` in the Simulator and resumes a real `Store.reduceEffect`. All constructed Simulators dispatched without an error.
+
+| Profile | Observed instrumented Goodra callback Store sequence |
+| --- | --- |
+| No Simulator | real, real, real, real |
+| Pinned Simulator | real, real, **speculative, speculative**, real, real |
+| Experimental prototype-safe Simulator | real, real, **speculative**, real |
+
+Thus even in the nominally detached speculative branch, source reducer code ran under the speculative Store, and the prototype-safe profile left the original Store with **one** resumed callback rather than two. The ordinary pinned clone yielded two speculative callbacks but retained both real resumed callbacks in this fixture. This is a lifecycle observation, not a proof that either clone is fully semantics-preserving. Instrumented events record which Store invoked the source handler, not a complete source graph or card-effect equivalence test.
+
+The earlier [manual CI 39040428794](https://github.com/FlareZ123/experiment-01/actions/runs/39040428794) passed the unpatched cross-Store test and showed `ERROR_SIMULATOR_NOT_STABLE` for simulations constructed after pending EndTurn prompts. That censored probe has been superseded by the stable-State construction.
+
+An experimental in-memory [per-State session hook](../../simulation/twinleaf/copied-session-state-scope-hook.cjs) and [regression](../../simulation/twinleaf/copied-session-state-scope-test.cjs) have been written. Their compiled validation is pending; do not infer that the hook is safe in full matches or preserves ongoing copied effects inside cloned hypothetical States.
