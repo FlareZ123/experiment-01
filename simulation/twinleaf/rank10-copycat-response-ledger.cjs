@@ -29,6 +29,8 @@ function responseLedger(trace,options={}) {
       kind==='ChooseAttackPrompt' || kind==='ChoosePrizePrompt';
     if(!isAction&&!isPrompt) continue;
     const selection=event.promptReplayAction?.selection;
+    const attackChoice=event.attackChoice?.selection??selection?.selection;
+    const slotChoice=event.slotChoice?.selections??selection?.selections;
     const report={
       ordinal:index,turn,
       activeSeat:event.before.activePlayer,
@@ -41,17 +43,17 @@ function responseLedger(trace,options={}) {
       prizesAfter:event.after?.prizesRemaining??null
     };
     if(kind==='ChooseAttackPrompt') {
-      report.selectedSource=selection?.selection?.printing??null;
-      report.selectedCopiedAttack=selection?.selection?.attackName??null;
+      report.selectedSource=attackChoice?.printing??null;
+      report.selectedCopiedAttack=attackChoice?.attackName??null;
     }
     if(kind==='ChoosePokemonPrompt') {
-      report.promotions=(selection?.selections??[])
+      report.promotions=(slotChoice??[])
         .filter(x=>x.zone==='bench'||x.zone==='active')
         .map(x=>({playerId:x.playerId,zone:x.zone,
           position:x.index,publicCards:x.signature??[]}));
     }
     if(kind==='ChoosePrizePrompt') {
-      report.prizeCountSelected=selection?.selections?.length??null;
+      report.prizeCountSelected=slotChoice?.length??null;
     }
     out.push(report);
   }
