@@ -31,6 +31,8 @@ jobs:
         run: node --test tests/bunnelby-k1-observation.test.cjs
       - name: Contrast generic and source-aware TM Evolution targets
         run: node --test tests/bunnelby-tm-target-selection.test.cjs
+      - name: Verify exact source Bench-priority displacement and independent toy oracle
+        run: node --test tests/aichi-bunnelby-bench-priority.test.cjs
       - name: Test actual Guzma & Hala mode1 source-60 search prompts
         run: node --test tests/bunnelby-guzma-hala-mode.test.cjs
       - name: Smoke-test live-root K1 opt-in with both rank-2 source seats
