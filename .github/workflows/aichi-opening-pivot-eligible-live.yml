@@ -39,6 +39,8 @@ jobs:
         run: node simulation/twinleaf/new-moon-rank6-lillie-turn5-fork.cjs > new-moon-rank6-turn5-lillie-fork.json
       - name: Contrast exact native opener under pinned and repaired Simulator profiles
         run: node simulation/twinleaf/new-moon-native-opening-clone-profile-contrast.cjs > new-moon-native-opening-clone-profile.json
+      - name: Probe genuine rank11 Absol Garbodor native Gengar starts in both seats
+        run: node simulation/twinleaf/new-moon-rank11-native-gengar-hardmatchup.cjs > new-moon-rank11-native-gengar-hardmatchup.json
       - name: Preserve source-seed and opponent-response diagnostic
         uses: actions/upload-artifact@v4
         with:
@@ -48,4 +50,5 @@ jobs:
             new-moon-native-opening-clone-profile.json
             new-moon-rank6-opponent-reply-audit.json
             new-moon-rank6-turn5-lillie-fork.json
+            new-moon-rank11-native-gengar-hardmatchup.json
           retention-days: 14
