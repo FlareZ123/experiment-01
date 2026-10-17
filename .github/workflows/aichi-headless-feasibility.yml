@@ -25,6 +25,8 @@ jobs:
       - name: Compile upstream engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify Battle Compressor prompt fidelity
+        run: node --test tests/battle-compressor-minimum.test.cjs
       - name: Check Aichi exact card-resolution blockers
         run: node simulation/evaluation/aichi-pilot.cjs
 
