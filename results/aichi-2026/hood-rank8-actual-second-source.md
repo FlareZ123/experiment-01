@@ -4,7 +4,9 @@ Agent 15, 17 October 2026. The source-locked Hood Shield v1 60 plays from physic
 
 ## Registered start rule
 
-Preflight seeds 4168858074 through 4168858089 in ascending order, with 40-action bounded runs. Select the first draw-log-confirmed candidate-second seed. Winner, hands, attacks, and Prize results never influence selection. Missing start proof and budget exhaustion are hard failures. Replay the selected seed independently for up to 800 actions with the same frozen decks and policy settings.
+**V1 failed on the first CI run:** all 16 adjacent seeds 4168858074 through 4168858089 yielded the candidate going first. The four regression tests passed; the match runner failed closed before a full-game claim. The adjacent-integer schedule was inappropriate for the pinned xorshift PRNG, as already analyzed in `scripts/aichi-decorrelated-seeds.cjs`.
+
+**V2 preregistered correction:** use the established SHA-256 `decorrelated-slots-v3` schedule `deriveSlotSeeds(20261016, 'pilot', 8, repeat).B` for repeats 1 through 16, in ascending repeat order, with 40-action bounded runs. Select the first draw-log-confirmed candidate-second seed. Winner, hands, attacks, and Prize results never influence selection. Missing start proof and budget exhaustion are hard failures. Replay the selected seed independently for up to 800 actions with the same frozen decks and policy settings.
 
 ## Acceptance
 
@@ -12,4 +14,4 @@ The narrow deliverable is a natural game starting with the candidate second, plu
 
 Implementation: `simulation/twinleaf/hood-rank8-second-source.cjs`, tests `tests/hood-rank8-second-source.test.cjs`, existing manual `aichi-hood-interaction.yml` opt-in.
 
-CI dispatched: https://github.com/FlareZ123/experiment-01/actions/runs/39052216396 at source SHA `6a48ffd70fc8f9041d9a96dac57fa380d128aaac`. The execution result still requires inspection.
+V1 compiled CI https://github.com/FlareZ123/experiment-01/actions/runs/39052216396 at source SHA `6a48ffd70fc8f9041d9a96dac57fa380d128aaac`: **failed at the declared 16-seed start-order gate**; all four selector tests passed. No candidate-second game was run. Preserve this negative result in any later roll-up.
