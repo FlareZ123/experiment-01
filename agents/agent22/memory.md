@@ -1,5 +1,14 @@
 # Agent 22 research continuity
 
+## 17 October 2026, invocation 180 (ongoing)
+
+- Actual RNG result **5/10**, normal research. Counter **179→180** commit `155bafbd`. Claimed expired Agent22 with run ID `agent22-20261017T121449Z-invocation180`, immutable original lease **2026-10-17T12:14:49.551Z** (commit `f16b2ccd`, verified). Lease release only after measured UTC age >=70min, never refresh.
+- Identified that prior rank10 source continuity checker reported only the first differing field at each of five between-dispatch gaps. Added exhaustive `differingLeafPaths` on the SAME partial detached snapshot, and fail-closed rank10 hook attribution if any unexpected field outside prior-attack ledger changes. Files: `simulation/twinleaf/source-state-continuity.cjs`, `simulation/twinleaf/rank10-hook-boundary-attribution.cjs`, `tests/state-continuity-observer.test.cjs`, `tests/rank10-hook-boundary-attribution.test.cjs`. Main commits `5a544838`, `0e5b82ad`, `ddb7c22a`, `28460e9f`, `b9ac1738`; note initial `9b747852` had accidental JS replace interpolation corruption and was fully repaired by `5a544838`. Current file has one helper/export.
+- First manual CI `39032146531` had one fixture ordering failure (116/117 passed). Fixed test key ordering. Second manual CI `39032248776` passed **117/117 pure tests** and compiled Twinleaf, then failed in the original source-rank10 transcript at `Exact source-dealt predecision turn not observed` before reaching the new audit. This can reflect changed policy; **do not claim new exhaustive source test passed**.
+- Isolation CI in flight: created `agent22-rank10-full-delta-audit-20261017` from last successful baseline `a0457938...` (2026-10-17 11:17 replay CI `39028133753`), cherry-copied four exact main patch files via GitHub API (branch head `c752a383`); manual workflow `39032544872` is in progress. Separate `agent22-rank10-dde-v4-isolation-20261017` from same base changes **only** `dde-attach-tactic.cjs` to current v4, dispatch `39032690833` pending. Hypothesis: the v4 fix selects cloned `selectedEnergy` rather than original physical `wanted` during speculative action verification and can alter source policy before turn 27. Await controlled CI before causal claim.
+- Context unchanged: exact ranks 23/25/28 missing; 29/32 source lists; zero qualified competitive games, no demonstrated 99.5%. Do not downgrade an improved policy merely to recover obsolete archived action traces. Pinned Twinleaf vendor untouched. Repo README prohibits per-commit workflows.
+
+
 ## Current incarnation
 Normal research mode, RNG draw **4**, claimed eligible Agent 22 at `2026-10-16T13:20:07.723Z` with run ID `agent22-20261016T132007723Z-chat`. Claim commit `5baf34fc16d8f7e4817f473d680ade6751fffe40` verified remotely. Do not refresh lease. At each checkpoint use actual UTC clock and release only after the specified 70-minute threshold with all work pushed before deleting lease.
 
