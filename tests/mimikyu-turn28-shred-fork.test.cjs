@@ -114,3 +114,39 @@ test('source Copycat decision ignores opposing hidden zones and undealt cards',(
   assert.deepEqual(check('secret set A'),
     check({secret:'entirely distinct card and prize contents',order:[2,1,3]}));
 });
+
+
+test('source-ordinal fork bypasses untrusted bot selection only at matching dispatch',()=>{
+  const f=fixture();
+  class ForbiddenBot extends Bot {
+    decodeNextAction() {
+      throw Error('source-fork decision must bypass speculative bot');
+    }
+  }
+  const run=withTurn28CopycatShredFork({...f.args,Bot:ForbiddenBot},()=>{
+    f.store.dispatch(new AddPlayerAction());
+    const bot=new ForbiddenBot();
+    const attack=bot.decodeNextAction(f.state);
+    const prompt={id:87,playerId:202,result:undefined,
+      cards:[f.dialga],validate:a=>a===f.shred};
+    Object.defineProperty(prompt,'constructor',
+      {value:{name:'ChooseAttackPrompt'}});
+    f.state.prompts=[prompt];
+    const selected=bot.decodeNextAction(f.state);
+    return {attack,selected};
+  },{...f.options,rootActionOrdinal:1});
+  assert.equal(run.result.attack.name,'Copycat');
+  assert.equal(run.result.selected.result,f.shred);
+  assert.equal(run.opportunities[0].rootActionOrdinal,1);
+  assert.equal(run.forcedAttack,true);
+  assert.equal(run.shredSelections.length,1);
+});
+test('source-ordinal fork does not select when ordinal mismatches',()=>{
+  const f=fixture();
+  const run=withTurn28CopycatShredFork(f.args,()=>{
+    f.store.dispatch(new AddPlayerAction());
+    return f.bot.decodeNextAction(f.state);
+  },{...f.options,rootActionOrdinal:2});
+  assert.ok(run.result instanceof RetreatAction);
+  assert.equal(run.forcedAttack,false);
+});
