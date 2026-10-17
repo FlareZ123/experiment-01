@@ -46,7 +46,7 @@ function cursedBlastAceTrainerContract() {
   opponent.id=202;opponent.name='Field adversary';
   state.players=[candidate,opponent];
   candidate.active.cards.push(card('Mewtwo & Mew-GX UNM'));
-  const duskull=card('Duskull SFA');
+  const duskull=card('Duskull VIV');
   const dusclops=card('Dusclops SFA');
   const evolved=new PokemonCardList();
   evolved.cards.push(duskull,dusclops);
