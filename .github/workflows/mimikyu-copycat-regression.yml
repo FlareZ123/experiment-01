@@ -82,5 +82,8 @@ jobs:
           path: rank10-mirror-gx-timeline.json
           if-no-files-found: error
 
+      - name: Verify composed spent-GX and spread-aware copied attacks
+        run: node --test tests/spent-gx-spread-composition.test.cjs
+
       - name: Characterize stale Copycat attack after intervening pass
         run: node simulation/twinleaf/mimikyu-stale-attack.cjs
