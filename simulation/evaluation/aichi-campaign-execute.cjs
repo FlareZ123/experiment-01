@@ -94,16 +94,17 @@ function executeDiagnostic(options) {
     'radiantGateLockCorrection', 'entryDrawLockCorrection',
     'eldegossEntryLockCorrection'
   ]);
-  // Every allowed boolean requires an exact game echo unless its evidence is
-  // checked through another explicit channel. Future engine hooks therefore
-  // fail closed until runMatch reports their effective requested value.
-  const independentlyObservedPolicyFlags = new Set([
+  // Every engine-effect boolean requires an exact game echo unless it uses
+  // a separate gate below. The two trace flags are observational requests:
+  // captureAttackPassProbes produces data only on eligible Pass actions.
+  // New effect switches fail closed until runMatch echoes their value.
+  const nonEchoPolicyFlags = new Set([
     'strictPromptValidation', 'isolatePolicyRandomness',
     'captureDecisionTrace', 'captureAttackPassProbes',
     'attackBeforeRetreatCandidateOnly'
   ]);
   const echoedPolicyKeys = [...allowedFlags].filter(
-    key => !independentlyObservedPolicyFlags.has(key));
+    key => !nonEchoPolicyFlags.has(key));
   if (policyFlags === null || typeof policyFlags !== 'object' ||
       Array.isArray(policyFlags) ||
       Object.entries(policyFlags).some(([key, value]) =>
