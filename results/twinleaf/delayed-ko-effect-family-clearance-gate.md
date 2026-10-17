@@ -18,3 +18,5 @@ The helper places a reference to the Defending Pokémon's CardList in `Player.pe
 **Test gate:** per print, execute a real attack and separately exercise Retreat, eligible Active evolution and staying Active through end turn. Record queue target identity, root action, KO resolution, and preserved player-level locks. Test opt-in correction and an unaffected control, with no vendor modifications. The existing switch hook does not clear queues on evolution.
 
 Competitive games qualified: **zero**.
+
+**Third source path, not runtime-proven:** pinned `DEVOLVE_POKEMON` in `ptcg-server/src/game/store/prefabs/prefabs.ts` removes an evolution card, then calls `target.clearEffects()`, likewise leaving the separately stored pending-effect queue untouched. Supplied Rulebook C-13 says devolution clears attack effects. Add actual legal Devolution to the same queue-clearance regression as Retreat and evolution; do not promote this static inference without executable source evidence.
