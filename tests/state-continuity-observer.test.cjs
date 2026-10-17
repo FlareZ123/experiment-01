@@ -3,7 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
-  firstMismatch,withSourceContinuity,withRootPolicyMutationAudit,hash,cardHistory
+  firstMismatch,differingLeafPaths,withSourceContinuity,withRootPolicyMutationAudit,hash,cardHistory
 }=require('../simulation/twinleaf/source-state-continuity.cjs');
 
 class AddPlayerAction {}
@@ -33,6 +33,19 @@ test('field-level difference detects a mutable Card scalar',()=>{
   ]);
 });
 
+test('exhaustive selected-state differences expose changes beyond first array-length discrepancy',()=>{
+  const oldState={zones:{previousAttack:[{source:'A',attack:'Kaiser Tackle'}],
+    zzPrivate:[{hand:['Energy'],deck:['Dragon']}]},cardHistory:[]};
+  const newState={zones:{previousAttack:[],
+    zzPrivate:[{hand:['Energy'],deck:['Replaced Dragon']}]},cardHistory:[]};
+  assert.equal(firstMismatch(oldState,newState).path,'$.zones.previousAttack.length');
+  const paths=differingLeafPaths(oldState,newState);
+  assert.ok(paths.includes('$.zones.previousAttack.length'));
+  assert.ok(paths.includes('$.zones.previousAttack[0]'));
+  assert.ok(paths.includes('$.zones.zzPrivate[0].deck[0]'));
+  assert.equal(differingLeafPaths(oldState,oldState).length,0);
+});
+
 test('changes inside Store.dispatch do not create a continuity gap',()=>{
   const store=new Store(),prior=Store.prototype.dispatch;
   const capture=withSourceContinuity(Store,()=>{
@@ -57,6 +70,8 @@ test('mutation between root actions is detected',()=>{
   assert.equal(capture.result,2);
   assert.equal(capture.discontinuities.length,1);
   assert.equal(capture.discontinuities[0].nextAction,'AddOne');
+  assert.deepEqual(capture.discontinuities[0].changedLeafPaths,
+    ['$.damageTakenLastTurn']);
   assert.deepEqual(capture.discontinuities[0].firstMismatch,{
     path:'$.damageTakenLastTurn',before:0,after:90
   });
