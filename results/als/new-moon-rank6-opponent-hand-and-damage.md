@@ -19,6 +19,12 @@ Published Aichi rank-6 Kazuma Kashi Iron Thorns ex is exactly **4 Pokémon (four
 
 The three candidate attacks are source `AttackAction` dispatches: **Horror House-GX (turn 2)**, **Poltergeist (turn 4)** and **Poltergeist (turn 6)**. The final engine transition is traced to the second Poltergeist AttackAction and a following WaitPrompt resolution. The preceding own-hand snapshots were collected as **post-choice observational telemetry** and never fed back to the bot. The exact rank-6 hand content is retained as a fingerprint and category breakdown in the artifact.
 
+## Exact Trainer hand and an on-hand alternative (second compiled replay)
+
+The extended source audit passed [manual CI 39039974023](https://github.com/FlareZ123/experiment-01/actions/runs/39039974023); [artifact 12104265179](https://github.com/FlareZ123/experiment-01/actions/runs/39039974023/artifacts/12104265179) preserves the acting opponent's historical own-hand printings. On both the opponent's forced turn-3 Pass and at the turn-5 Camping Gear source-deck selection, its six visible-to-it Trainer cards were **Tag Call CEC**, **Megaton Blower SSP**, **Trainers' Mail ROS**, **Team Skull Grunt SUM**, **Lillie's Determination M1L** and **Sidney FST 241**. The turn-5 Camping Gear selection added **Iron Thorns ex TWM** to the hand and ended that turn.
+
+This is especially relevant because **Lillie's Determination was already in the opponent's hand** on turn 5, after Horror House had expired. The opponent still had **all six Prize cards**, so [Lillie's Determination's printed effect](https://asia.pokemon-card.com/sg/card-search/detail/21776/) offers a shuffle and **draw eight** line. That is a concrete candidate to evaluate from the exact source information set. It does **not** guarantee drawing the available Iron Thorns ex or Bench access and may be dominated in some hidden states. No counterfactual turn-5 Supporter dispatch has yet been independently qualified, and no claim of a mandatory policy misplay follows from merely having a possible alternative.
+
 ## What this changes
 
 This substantiates the **printed-damage and opponent-hand arithmetic** behind the engine win, and makes the specific policy failure visible. After Horror House expires, the opponent bot chooses a **turn-ending search Item** rather than establishing a backup board before the second Poltergeist. A more competent opponent may choose a different legal line, making this single selected-seed reversal weak evidence of true deck superiority.
