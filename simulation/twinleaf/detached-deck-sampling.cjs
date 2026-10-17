@@ -47,7 +47,7 @@ function reachableCards(root, isCard) {
  * @param {Function} evaluator Pinned tactic evaluator.
  * @param {object} receiver Original `this` for evaluator.
  * @param {(state:object)=>object} cloneState Complete detached-state clone.
- * @param {{seed:number,samples:number,permutation:(n:number,rng:Function)=>number[],random:(seed:number)=>Function,isCard:(value:object)=>boolean,knownTopCount?:number,knownTopVerified?:boolean,sampleUnknownPrizes?:boolean,prizesUnobservedVerified?:boolean,observedPrizeSlots?:Array<{prizeIndex:number,cardIndex:number,fullName:string}>,prizeObservationLedgerComplete?:boolean}} opts
+ * @param {{seed:number,samples:number,permutation:(n:number,rng:Function)=>number[],random:(seed:number)=>Function,isCard:(value:object)=>boolean,knownTopCount?:number,knownTopVerified?:boolean,sampleUnknownPrizes?:boolean,prizesUnobservedVerified?:boolean,observedPrizeSlots?:Array<{prizeIndex:number,cardIndex:number,fullName:string}>,prizeObservationLedgerComplete?:boolean,deckPrizePartitionUnknownVerified?:boolean}} opts
  * @returns {number|undefined} Average of valid sampled outcomes.
  */
 function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
@@ -66,8 +66,9 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
     'Observed Prize slots require Prize-inclusive sampling');
   if(sampleUnknownPrizes&&observedPrizeSlots.length>0) {
     assert.ok(opts.prizeObservationLedgerComplete===true &&
-      opts.prizesUnobservedVerified!==true,
-      'Partially observed Prizes require a verified complete observation ledger');
+      opts.prizesUnobservedVerified!==true &&
+      opts.deckPrizePartitionUnknownVerified===true,
+      'Partially observed Prizes require a verified complete observation ledger and unknown deck/Prize partition');
   } else {
     assert.ok(!sampleUnknownPrizes||opts.prizesUnobservedVerified===true||
       opts.prizeObservationLedgerComplete===true,
