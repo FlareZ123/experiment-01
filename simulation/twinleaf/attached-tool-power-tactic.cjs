@@ -43,6 +43,23 @@ function attachedToolPowerTacticClass() {
 }
 
 /**
+ * Add the same Tool-granted Ability candidate route to one bot's options
+ * without mutating the process-wide pinned SimpleTactics registry.
+ * Used by the regular headless runner for a reproducible per-game opt-in.
+ * @param {{tactics:Function[]}} options Pinned bot options.
+ * @returns {object} Fresh bot options with one additional tactic class.
+ */
+function withAttachedToolPowerPolicy(options) {
+  const position = options.tactics.findIndex(t => t.name === 'UseAbilityTactic');
+  if (position < 0) throw new Error('Pinned UseAbilityTactic extension point unavailable');
+  const custom = attachedToolPowerTacticClass();
+  return {...options, tactics: [
+    ...options.tactics.slice(0, position), custom,
+    ...options.tactics.slice(position)
+  ]};
+}
+
+/**
  * Add a versioned one-tactic candidate route to the pinned SharedTactics list
  * for a synchronous experiment; always restore the shared list afterwards.
  * @template T
@@ -65,4 +82,5 @@ function withAttachedToolPowerTactic(run) {
   }
 }
 
-module.exports = {attachedToolPowerTacticClass,withAttachedToolPowerTactic};
+module.exports = {attachedToolPowerTacticClass,withAttachedToolPowerTactic,
+  withAttachedToolPowerPolicy};
