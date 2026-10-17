@@ -80,6 +80,17 @@ function withSourceMailRecovery(work) {
       return new ResolvePromptAction(prompt.id,cards);
     }
 
+    if (stage==='vs-played') {
+      assert.equal(prompt?.constructor.name,'ChooseCardsPrompt');
+      const guzma=prompt.cards.cards.find(c=>c.name==='Guzma');
+      assert.ok(guzma,'Discarded source Guzma not in VS prompt');
+      assert.equal(prompt.validate([guzma],state),true);
+      stage='vs-selected';
+      events.push({phase:'vs-pick-guzma',turn:state.turn,
+        selectedName:guzma.name});
+      return new ResolvePromptAction(prompt.id,[guzma]);
+    }
+
     if (prompt) return original.call(this,state);
 
     if (stage==='mail-played') {
@@ -99,17 +110,6 @@ function withSourceMailRecovery(work) {
           {player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
       }
       return attack(state,p);
-    }
-
-    if (stage==='vs-played') {
-      assert.equal(prompt?.constructor.name,'ChooseCardsPrompt');
-      const guzma=prompt.cards.cards.find(c=>c.name==='Guzma');
-      assert.ok(guzma,'Discarded source Guzma not in VS prompt');
-      assert.equal(prompt.validate([guzma],state),true);
-      stage='vs-selected';
-      events.push({phase:'vs-pick-guzma',turn:state.turn,
-        selectedName:guzma.name});
-      return new ResolvePromptAction(prompt.id,[guzma]);
     }
 
     if (stage==='vs-selected') {
@@ -165,7 +165,7 @@ function main() {
   assert.equal(source.recoveredGuzma,source.foundVs);
   const damage=source.result.attack;
   assert.equal(damage.recoveryZoneCounts.Guzma.prizes,2);
-  assert.equal(damage.recoveryZoneCounts.VS\u0020Seeker.prizes,0);
+  assert.equal(damage.recoveryZoneCounts['VS Seeker'].prizes,0);
   assert.equal(damage.recoveryZoneCounts.Guzma.hand,
     source.foundVs?1:0);
   const record={
