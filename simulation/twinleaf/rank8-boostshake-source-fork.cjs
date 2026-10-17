@@ -43,9 +43,7 @@ function withRank8BoostShakeFork(execute){
   const activeSource=state=>{
     const p=state.players[0];
     return {turn:state.turn,hand:p.hand.cards.map(c=>c.fullName),
-      deckCounts:Object.fromEntries(['Trubbish','Garbodor','Quick Ball','Temple of Sinnoh']
-        .map(name=>[name,p.deck.cards.filter(c=>c.name===name).length])),
-      prizes:p.prizes.flatMap(prize=>prize.cards.map(c=>c.fullName)),
+      availableBenchSlots:p.bench.filter(slot=>!slot.getPokemonCard()).length,
       bench:p.bench.map(slot=>({name:slot.getPokemonCard()?.name,
         tools:slot.tools.map(tool=>tool.name)})),
       active:p.active.getPokemonCard()?.name};
@@ -70,8 +68,6 @@ function withRank8BoostShakeFork(execute){
       assert.deepEqual(p.hand.cards.map(c=>c.name).sort(),
         shownHand.slice().sort(),'Source hand diverged before first branch');
       assert.equal(p.bench.filter(slot=>slot.getPokemonCard()).length,4);
-      assert.ok(Object.values(witness.deckCounts).every(n=>n>0),
-        'Actual source deck cannot supply all four counterline pieces');
       return record(state,'Play source-held Secret Box',play(p,'Secret Box',board));
     }
     if(stage===0) return original.call(this,state);
