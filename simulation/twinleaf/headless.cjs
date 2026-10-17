@@ -29,6 +29,8 @@ const {installElectroRainDamageHook} = require('./electro-rain-damage-hook.cjs')
 const {installElectrodeGXEnergyHook} = require('./electrode-gx-energy-hook.cjs');
 const {withElectrodePrizeTradePolicy} = require('./electrode-gx-ability-tactic.cjs');
 const {installRedeemableTicketPaperOrderHook} = require('./redeemable-ticket-paper-hook.cjs');
+const {snapshotPrizeCardIdentities,invalidateAfterRootHiddenPrizeIngress} =
+  require('./root-prize-knowledge-observer.cjs');
 const {installHisuianHeavyBallPrizeShuffleHook} = require('./hisuian-heavy-ball-prize-hook.cjs');
 const {installPendingEndTurnSwitchCleanup} = require('./pending-end-turn-switch-cleanup.cjs');
 const {installApexPrizeWindowPolicy} = require('./apex-prize-headless-policy.cjs');
@@ -591,6 +593,10 @@ function runMatch(request) {
       }
       return configured;
     });
+    const deckEpochsByPlayerId = new Map([
+      [101,optionsBySeat[0].bunnelbyDeckKnowledgeEpoch],
+      [202,optionsBySeat[1].bunnelbyDeckKnowledgeEpoch]
+    ].filter(([,epoch])=>epoch));
     const seats = [
       new SimpleTacticsAi({ id: 101 }, optionsBySeat[0], request.deckA),
       new SimpleTacticsAi({ id: 202 }, optionsBySeat[1], request.deckB)
@@ -733,11 +739,17 @@ function runMatch(request) {
           };
         }
       }
+      const prizeBeforeRoot = request.bunnelbyObservedK1 === true ?
+        snapshotPrizeCardIdentities(store.state) : null;
       try {
         store.dispatch(action);
       } catch (error) {
         throw new Error('Twinleaf dispatch failed after ' + actions + ' actions (' +
           action.constructor.name + '): ' + error.message, { cause: error });
+      }
+      if (prizeBeforeRoot) {
+        invalidateAfterRootHiddenPrizeIngress(
+          prizeBeforeRoot,store.state,deckEpochsByPlayerId);
       }
       const retreatTransition = publicBoardBeforeRetreat ?
         retreatTransitionEvidence(publicBoardBeforeRetreat,
@@ -872,6 +884,10 @@ function runMatch(request) {
       latiasAttackReadyAttachment: request.latiasAttackReadyAttachment === true,
       bunnelbyK0SafeEvolution: request.bunnelbyK0SafeEvolution === true,
       bunnelbyObservedK1: request.bunnelbyObservedK1 === true,
+      ...(request.bunnelbyObservedK1 === true ? {
+        bunnelbyKnowledgeEpochs: optionsBySeat.map(options =>
+          options.bunnelbyDeckKnowledgeEpoch.snapshot())
+      } : {}),
       bunnelbyTargetAwareEvolution: request.bunnelbyTargetAwareEvolution === true,
       bunnelbyGuzmaHalaMode1: request.bunnelbyGuzmaHalaMode1 === true,
       bunnelbyGuzmaHalaSearch: request.bunnelbyGuzmaHalaSearch === true,
@@ -907,7 +923,7 @@ function runMatch(request) {
         (request.latiasAttackReadyAttachment === true ? '+LatiasAttackReadyAttachment-v1' : '') +
         (request.mimikyuExtraTurnShredSeat !== undefined ? '+MimikyuExtraTurnShred-v1' : '') +
         (request.bunnelbyK0SafeEvolution === true ? '+BunnelbySourceK0PossibleEvolution-v1' : '') +
-        (request.bunnelbyObservedK1 === true ? '+BunnelbyRootObservedK1-v1' : '') +
+        (request.bunnelbyObservedK1 === true ? '+BunnelbyRootObservedK1-v1+HiddenPrizeEpoch-v1' : '') +
         (request.bunnelbyTargetAwareEvolution === true ? '+BunnelbyStageTargetResolver-v1' : '') +
         (request.bunnelbyGuzmaHalaMode1 === true ? '+BunnelbyGuzmaHalaMode1-v1' : '') +
         (request.bunnelbyGuzmaHalaSearch === true ? '+BunnelbyGHRootSearch-v1' : '') +
