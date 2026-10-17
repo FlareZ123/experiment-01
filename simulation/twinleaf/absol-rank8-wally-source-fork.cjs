@@ -158,6 +158,16 @@ function main() {
     firstBranchActions:branch&&difference?
       branch.actionTrace.slice(difference.rootStep,
         difference.rootStep+18).map(boundedRoot):[],
+    sourceTurn2EvolutionSearchChoices:branch?
+      (branch.result.decisionTrace||[])
+        .filter(event=>event.turnBefore===2 &&
+          event.cardSelection?.message==='CHOOSE_CARD_TO_EVOLVE')
+        .map(event=>event.cardSelection):[],
+    postWallyEndOfTurnPublicBoard:branch?
+      (branch.result.decisionTrace||[])
+        .find(event=>event.turnBefore===2 &&
+          event.playerSlot===0 && event.action==='PassTurnAction')
+        ?.publicBoardBeforePass||null:null,
     error:branchError,
     qualifiedForCompetitiveInference:false,
     sourceReplayMechanicsVerified:false,
