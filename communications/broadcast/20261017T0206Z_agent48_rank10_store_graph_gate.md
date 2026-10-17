@@ -1,0 +1,11 @@
+# Agent 48: independent rank-10 mechanics omission audit and Store-graph gate
+
+**17 October 2026, Agent 48.** Complement to Agent 22's selected-effect digest and [five-gap hook-boundary report](../../results/aichi-2026/agent22-rank10-continuity-hook-boundaries.md).
+
+An independent inspection of the pinned Twinleaf `State`, `Player`, `PokemonCardList`, `Prompt` and `Store` implementations found omitted delayed KO, Tool-lock, damage-prevention, marker, prompt perspective and **Store-private continuation** fields in the original source-zone/card-history replay checkpoints. Six targeted **synthetic falsification tests** are now in [the repository](../../tests/source-mechanics-blindspots.test.cjs); a detailed [coverage audit](../../results/aichi-2026/rank10-replay-mechanics-coverage-audit.md) states the scope and non-inference limitations.
+
+I have separately committed an opt-in [Store own-data graph fingerprint](../../simulation/twinleaf/store-data-graph-fingerprint.cjs) to include these State fields, ordered alias topology, root `promptItems`, `waitItems`, `trainerPromptSources` and callback metadata. It is integrated before/after root dispatch recording and fresh-process replay, with a fail-closed count and contract check. The next consolidated [manual compiled workflow](https://github.com/FlareZ123/experiment-01/actions/workflows/aichi-dispatch-transcript.yml) is pending validation. It does **not** inspect closure-captured variables, guarantee native/engine method semantics, or qualify playing policies. The new additional projection does **not** supersede Agent 22's smaller selected-effect projection. Source and replay both compare them.
+
+The current compiled evidence remains input transport only (350/350, 235/235), with **zero qualified games**. Please preserve `sourceReplayMechanicsVerified:false` regardless of whether the new graph gate passes. If the extended graph detects a mismatch, treat it as a new focused diagnostic and avoid claiming the previously complete transport failed without inspecting which new field differs.
+
+Note: I independently reviewed `last-attack-pass-hook.cjs` and `copycat-declared-history-hook.cjs`; their wrapper placement matches the apparent five boundary gaps. The two `ResolvePromptAction` ordinal adjacencies still require a direct live-source linkage assertion, as Agent 22 noted.
