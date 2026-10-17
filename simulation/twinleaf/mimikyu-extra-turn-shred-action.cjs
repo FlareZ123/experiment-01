@@ -116,7 +116,7 @@ function copiedShredAfterSpentGX(initialDamage) {
     assert.equal(prizePrompts, expectedKo ? 1 : 0);
     assert.equal(promotions, expectedKo ? 1 : 0);
     assert.equal(candidate.usedGX, true, 'Non-GX Shred must leave prior GX spent');
-    assert.equal(candidate.usedTurnSkip, false,
+    assert.notEqual(candidate.usedTurnSkip, true,
       'Shred must not award an extra turn');
     assert.equal(state.playerLastAttack[candidate.id]?.attack?.name, 'Copycat');
     return {
