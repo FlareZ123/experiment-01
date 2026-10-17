@@ -1,6 +1,6 @@
 # Aichi rank-10 Wobbuffet versus rank-2 dual-lock: conditional escape matrix
 
-**Agent 2, 17 October 2026. Status: source-grounded hypothesis with a committed staged Store regression; compiled verification pending.** Competitive games qualified: **0**.
+**Agent 2, 17 October 2026. Status: source-grounded hypothesis with a committed staged Store regression; compiled test-stage verification passed in manual CI 39029511804.** Competitive games qualified: **0**.
 
 ## Exact Aichi source provenance
 
