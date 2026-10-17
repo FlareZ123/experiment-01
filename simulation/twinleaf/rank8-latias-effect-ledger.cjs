@@ -60,10 +60,12 @@ function withRank8SourceActionEffects(Store, execute, scope) {
     throw new TypeError('Expected Store dispatch method');
   }
   let live=null;
+  let liveOrdinal=0;
   const observations=[];
   const wrapper=function (...args) {
     const action=args[0];
     if(!live && action?.constructor?.name==='AddPlayerAction') live=this;
+    const ordinal=this===live?liveOrdinal++:null;
     const state=this.state;
     const eligible=this===live && state.turn===scope.turn &&
       state.players.some(player=>player.id===scope.playerId) &&
@@ -83,7 +85,7 @@ function withRank8SourceActionEffects(Store, execute, scope) {
     } finally {
       if(eligible && before) {
         observations.push({
-          action:actionType,
+          ordinal,action:actionType,
           card:preCard,
           declaredAttack:actionType==='AttackAction'?action.name:null,
           prompt:actionType==='ResolvePromptAction'
