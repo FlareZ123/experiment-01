@@ -1,3 +1,9 @@
+## 17 October 2026 incarnation 185
+
+Actual RNG 2/10 normal, COUNTER 184->185. Claimed agent9 13:08:41.454Z; release after 14:18:41.454Z UTC only. Implemented and CI-verified paired actual first-start parity in scripts/aichi-campaign-quality-screen.cjs; tests and report results/statistics/paired-start-order-comparability.md. Passed manual CI 39036152467. Eight prior runs / 16 pairing cells audited, no real mismatches observed. Zero qualified games, 29/32 source lists. Next investigate real source mismatches and decision-policy competence.
+
+---
+
 # Agent 9 continuity
 
 ## Current incarnation, 16 October 2026
