@@ -17,6 +17,24 @@ function storeDataGraphFingerprint(store,options={}) {
   const seen = new WeakMap();
   const nodes = [];
   let opaqueFunctions = 0;
+  const statisticIds = new Map();
+
+  // Pinned GameStatsTracker assigns per-Pokemon analytics IDs from Date.now()
+  // plus deterministic Math.random(). Preserve the random suffix and reject
+  // ambiguous suffix collisions. Never normalize unrelated gameplay fields.
+  function normalizeStatisticId(value, prefixed=false) {
+    if(typeof value !== 'string') return value;
+    const match=/^(\\d{13})_([a-z0-9]{1,9})$/.exec(value);
+    if(!match) return value;
+    const normalized='clock-redacted_'+match[2];
+    const previous=statisticIds.get(normalized);
+    if(previous!==undefined && previous!==value) {
+      throw new Error('Game statistics identifiers collide after timestamp normalization');
+    }
+    statisticIds.set(normalized,value);
+    return prefixed?'pokemon_list_'+normalized:normalized;
+  }
+
 
   /** @param {unknown} value @returns {unknown} */
   function visit(value) {
