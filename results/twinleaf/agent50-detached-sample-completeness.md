@@ -24,3 +24,7 @@ This fail-closed policy is deliberately conservative and appropriate for rejecti
 ## Next verification
 
 Under the existing manual CI, run the full Node and pinned Store checks at a named repository revision. Then collect per-action sample completeness at representative rank-10 source decisions without altering the live policy, with separate accounting for source-legality, unknown prompts, clone defects, and information-set variation. Promote this guard as an observed policy issue only if partial undefined evaluations are found in a genuine source-dealt decision.
+
+## Current-head compiled verification
+
+Manual [Twinleaf hidden-information CI 39022797970](https://github.com/FlareZ123/experiment-01/actions/runs/39022797970) succeeded on source head `44f1cf208ac99d30f8ace89529c18116e60573d8`. The job ran the revised detached-score test file and the pinned Store source-ranked detached/K0 audits successfully. This confirms compatibility of the change with the tested engine revision; actual match-policy partial-score incidence and competitive game performance remain unmeasured.
