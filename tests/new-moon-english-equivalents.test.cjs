@@ -78,7 +78,7 @@ test('ability-specific lines use the intended variants, not homonymous cards', (
   }
   assert.equal(mapped.entries.find((e) => e.name_en === 'Unown').id, 'xy7-30');
   assert.equal(mapped.entries.find((e) => e.name_en === 'Solrock').id, 'sm7-62');
-  assert.equal(mapped.entries.find((e) => e.name_en === 'Duskull').id, 'sv6pt5-18');
+  assert.equal(mapped.entries.find((e) => e.name_en === 'Duskull').id, 'swsh4-69');
   const secretBox = englishCard(mapped.entries.find((e) => e.name_en === 'Secret Box').id);
   assert.ok(secretBox.subtypes.includes('ACE SPEC'));
   assert.equal(mapped.entries.filter((e) => englishCard(e.id).subtypes.includes('ACE SPEC')).reduce((n, e) => n + e.count, 0), 1);
