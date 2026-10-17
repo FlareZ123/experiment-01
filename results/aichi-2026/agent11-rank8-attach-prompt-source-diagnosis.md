@@ -41,3 +41,27 @@ This is a concrete generic bot policy implementation defect with a legal target 
 Tapu Koko Prism Star TEU 51 appears as a singleton in four available source lists: ranks **8, 19, 22 and 26**. No frequency of actually using its Ability is established. First implement a **reversible research-side** resolver correction satisfying `differentTargets` while preserving accurate counts, source-card identity and attachment legality; then prove current rank-8 replay passes prompt 57, inspect new continuation and test a serious alternative opponent line. Compare with an unmodified control of `differentTargets=false` and with no eligible second target. Do not alter Twinleaf upstream.
 
 The archived and reproduced failures and the generic source inspection do not establish any actual competitive win rate, match advantage or correctness of an entire game. The global research target of 99.5% across 32 matchups remains unverified.
+
+
+## Reversible distinct-target policy contrast, same source game
+
+The [manual CI 39050769262](https://github.com/FlareZ123/experiment-01/actions/runs/39050769262) step **`Paired rank-8 Tapu Koko distinct-target source replays` passed**, source head `eb5fb30a56d79f79d1376e79986126a8ba9ae025`. Archived diagnostic artifact: **12107932005** (`rank8-distinct-target-contrast/rank8-distinct-targets.json`). The main workflow was still completing independent later diagnostic steps when the specific paired test evidence was retrieved; a green step does not imply an entire workflow is green.
+
+The [reversible research-owned bot hook](../../simulation/twinleaf/distinct-attach-targets-hook.cjs) wraps the actual compiled `AttachEnergyPromptResolver` `getPromptResult` and `assignToBestTarget` methods. For `differentTargets:true` only, it temporarily adds each previously selected destination to the prompt's `blockedTo` list, leaving the original per-target scoring in place and restoring the source prompt options after each suggestion. Its install/restore also preserves both original prototype methods. The [two-arm physical replay](../../simulation/twinleaf/rank8-distinct-targets-contrast.cjs) uses the **same physical candidate/opponent 60-card identities, same seed 3755937400 and identical remaining engine/policy flags**.
+
+| Observation | Unmodified source resolver | Opt-in distinct-target guard |
+| --- | --- | --- |
+| Prompt 57 | Invalid duplicate Tapu Koko target | Progressed past prompt 57 |
+| Run status | `AttachEnergyPrompt` exception | Completed engine game |
+| Root dispatch count | Interrupted | **134** |
+| Engine turn count | Interrupted | **13** |
+| Engine `finished` | N/A | `true` |
+| Engine winner slot | N/A | **0** (physically Temple candidate A) |
+| Number of distinct-target prompts seen by hook | N/A | **2** |
+| Successful proposed Energy destinations recorded by hook | N/A | **4** |
+| Earlier destination exclusions applied | N/A | **2** |
+| Resolver prototypes restored | Not installed | **Yes, both** |
+
+**Interpretation:** A small reversible restriction correction removes a real source-game fatal prompt and permits a complete diagnostic trial. The engine's candidate-A terminal winner is **not a competitive win**: the opponent policy was previously demonstrated to be weak, initial-turn coverage is inadequate, card rules remain incompletely corrected, and the revised prompt policy is not independently qualified. In particular, the restriction hook does not ensure that Energy is allocated to useful attackers rather than to Tapu Koko, which removes itself from play.
+
+**Next evidence:** Inspect exact corrected target destinations and source-game opponent attacks/passes; test alternate usable target choices and realistic Absol/Garbodor responses, including the other physical starting order. Retain the fixed policy/version label when comparing raw and guarded actions. This hook is independently scoped to this experiment and **has no headless `runMatch` request flag yet**.
