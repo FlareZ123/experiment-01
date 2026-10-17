@@ -19,6 +19,19 @@ Bide Barricade removes other Pokémon's Abilities except Psychic Pokémon. Iron 
 
 The [pinned Store matrix probe](../../simulation/twinleaf/radiant-wobbuffet-thorns-matrix.cjs), [manual CI run 38853128884](https://github.com/FlareZ123/experiment-01/actions/runs/38853128884), passed. The corrected research hook reproduced all four expected rows, including Underworld Door visibility and the Radiant Gate prompt. The unmodified upstream engine disagreed on Wobbuffet Benched without Cologne: it **offered the Radiant Gate confirmation prompt despite active Initialization**, although its VMAX Underworld Door was suppressed. Treat that unmodified branch as a specific known gate-fidelity defect. The opt-in correction is [radiant-gate-lock-hook.cjs](../../simulation/twinleaf/radiant-gate-lock-hook.cjs). This is a staged effect-level matrix, not a full legal match.
 
+### Same-state actual Underworld Door action
+
+An additional [pinned full-effect action fixture](../../simulation/twinleaf/underworld-door-action.cjs), extending Agent 11's established Hood/Thorns/Garbotoxin controls, now contrasts the same Active Wobbuffet + Benched VMAX + opponent Active Iron Thorns board with **both choices of turn player**. [Manual compiled CI 38998714952](https://github.com/FlareZ123/experiment-01/actions/runs/38998714952) passed:
+
+| Store acting seat | Listed Underworld Door power | Direct PowerEffect | Energy attached | Cards drawn |
+| --- | --- | --- | ---: | ---: |
+| Wobbuffet owner's opponent (Thorns seat 0) | no | blocked by Ability | 0 | 0 |
+| Wobbuffet owner's seat 1, legal owner turn | yes | allowed | **1** | **2** |
+
+Both results were the same with or without Tool Jammer attached to opposing Active Iron Thorns, which cannot turn off the active Wobbuffet's Ability.
+
+The initial attempt at this extension had the **Thorns player marked as the turn player** while directly announcing Underworld Door for the opposing seat. Its failing assertion in [CI 38998268165](https://github.com/FlareZ123/experiment-01/actions/runs/38998268165) exposed that fixture setup mistake; the subsequent characterization [CI 38998505908](https://github.com/FlareZ123/experiment-01/actions/runs/38998505908) confirmed BLOCKED_BY_ABILITY in that branch. A turn-player correction succeeded, and all prior fixture controls remained green. The pinned priority engine's different cross-turn visibility is a potential separate board-lock fidelity concern, but a PowerEffect announced on the opponent's turn cannot count as a legal gameplay counterexample. This action fixture still sets up the midgame board directly rather than evolving V and moving Wobbuffet through a full legal game.
+
 ## New exact resource opportunity
 
 If Wobbuffet starts Active against Iron Thorns, Radiant Gate is unavailable while Wobbuffet stays Active. One natural alternative is to Bench Shadow Rider V on our first turn, evolve it into VMAX on our second turn, then use its Underworld Door while keeping Wobbuffet Active. This requires a Psychic Energy card in hand at the time of using Underworld Door.
