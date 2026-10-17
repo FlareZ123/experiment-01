@@ -629,8 +629,11 @@ function runMatch(request) {
     const attackPassProbeBuckets = {printed: 0, tool: 0};
     let terminalTransition = null;
     let actionLineage = null;
+    const knowledgeEvents = request.bunnelbyObservedK1 === true ? [] : null;
     while (store.state.phase !== GamePhase.FINISHED && actions < maxActions) {
       const state = store.state;
+      const epochBeforeAction = knowledgeEvents ? optionsBySeat.map(options =>
+        options.bunnelbyDeckKnowledgeEpoch.snapshot()) : null;
       const pending = state.prompts.find(prompt => prompt.result === undefined);
       if (copycatTurnStartEvidence && !pending &&
           state.phase === GamePhase.PLAYER_TURN &&
@@ -674,6 +677,17 @@ function runMatch(request) {
       }
       const actionName = action.constructor.name;
       const turnBefore = state.turn;
+      if (knowledgeEvents) {
+        optionsBySeat.forEach((options,seat) => {
+          const current=options.bunnelbyDeckKnowledgeEpoch.snapshot();
+          const prior=epochBeforeAction[seat];
+          if (current.liveSearches>prior.liveSearches) {
+            knowledgeEvents.push({actionOrdinal:actions,turn:turnBefore,seat,
+              kind:'live-own-deck-search',
+              observations:current.liveSearches-prior.liveSearches});
+          }
+        });
+      }
       const actingId = pending ? pending.playerId : (action.clientId ?? action.id);
       const seat = state.players.findIndex(player => player.id === actingId);
       actionLineage = advanceActionLineage(actionLineage, {
@@ -749,10 +763,19 @@ function runMatch(request) {
           action.constructor.name + '): ' + error.message, { cause: error });
       }
       if (prizeBeforeRoot) {
-        invalidateAfterRootHiddenPrizeIngress(
+        const revoked=invalidateAfterRootHiddenPrizeIngress(
           prizeBeforeRoot,store.state,deckEpochsByPlayerId);
-        observeAfterRootFullPrizeReview(
+        const exposed=observeAfterRootFullPrizeReview(
           prizeBeforeRoot,store.state,deckEpochsByPlayerId);
+        for(const [kind,ids] of [
+          ['hidden-prize-ingress',revoked],['full-own-prize-review',exposed]
+        ]) {
+          for(const playerId of ids) {
+            knowledgeEvents.push({actionOrdinal:actions,turn:turnBefore,
+              seat:store.state.players.findIndex(player=>player.id===playerId),
+              kind,action:actionName});
+          }
+        }
       }
       const retreatTransition = publicBoardBeforeRetreat ?
         retreatTransitionEvidence(publicBoardBeforeRetreat,
@@ -889,7 +912,8 @@ function runMatch(request) {
       bunnelbyObservedK1: request.bunnelbyObservedK1 === true,
       ...(request.bunnelbyObservedK1 === true ? {
         bunnelbyKnowledgeEpochs: optionsBySeat.map(options =>
-          options.bunnelbyDeckKnowledgeEpoch.snapshot())
+          options.bunnelbyDeckKnowledgeEpoch.snapshot()),
+        bunnelbyKnowledgeEvents: knowledgeEvents
       } : {}),
       bunnelbyTargetAwareEvolution: request.bunnelbyTargetAwareEvolution === true,
       bunnelbyGuzmaHalaMode1: request.bunnelbyGuzmaHalaMode1 === true,
@@ -926,7 +950,7 @@ function runMatch(request) {
         (request.latiasAttackReadyAttachment === true ? '+LatiasAttackReadyAttachment-v1' : '') +
         (request.mimikyuExtraTurnShredSeat !== undefined ? '+MimikyuExtraTurnShred-v1' : '') +
         (request.bunnelbyK0SafeEvolution === true ? '+BunnelbySourceK0PossibleEvolution-v1' : '') +
-        (request.bunnelbyObservedK1 === true ? '+BunnelbyRootObservedK1-v1+HiddenPrizeEpoch-v2+FullPrizeReview-v1' : '') +
+        (request.bunnelbyObservedK1 === true ? '+BunnelbyRootObservedK1-v1+HiddenPrizeEpoch-v2+FullPrizeReview-v1+KnowledgeEvents-v1' : '') +
         (request.bunnelbyTargetAwareEvolution === true ? '+BunnelbyStageTargetResolver-v1' : '') +
         (request.bunnelbyGuzmaHalaMode1 === true ? '+BunnelbyGuzmaHalaMode1-v1' : '') +
         (request.bunnelbyGuzmaHalaSearch === true ? '+BunnelbyGHRootSearch-v1' : '') +
