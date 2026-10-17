@@ -1,0 +1,43 @@
+name: Aichi New Moon Lockbreaker first full-game diagnostics
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lockbreak-diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned Twinleaf engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Strict frozen candidate and source printing check
+        run: |
+          node --test tests/new-moon-lockbreak.test.cjs
+          node simulation/twinleaf/new-moon-lockbreak-validate.cjs > newmoon-lockbreak-print-acceptance.json
+      - name: Source-aligned paired fixed deal, rank 6 and rank 8, both physical seats
+        run: node simulation/twinleaf/new-moon-lockbreak-source-diagnostic.cjs > newmoon-lockbreak-source-diagnostic.json
+      - name: Summarize one-deal simulator limitations and turn outcomes
+        run: node -e "const x=require('./newmoon-lockbreak-source-diagnostic.json'); console.log(JSON.stringify(x.rows.map(r=>({rank:r.rank,variant:r.variant,seat:r.candidateSeat,first:r.actualFirstSeat,finished:r.finished,winner:r.engineWinner,turns:r.turns,prizes:r.prizesRemaining,attacks:r.ownPrintedAttackNames,played:r.playedCounters,errors:r.errors})),null,2))"
+      - name: Preserve raw single-deal diagnostics and print identity
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-lockbreak-paired-unqualified
+          path: |
+            newmoon-lockbreak-print-acceptance.json
+            newmoon-lockbreak-source-diagnostic.json
+          if-no-files-found: error
