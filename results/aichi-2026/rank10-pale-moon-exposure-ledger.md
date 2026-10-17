@@ -14,3 +14,15 @@ The [root-only read observer](../../simulation/twinleaf/pale-moon-replay-observe
 
 The [archive adapter](../../simulation/twinleaf/rank10-pale-moon-exposure-replay.cjs) requires both existing fresh-process replay acceptance checks to pass and verifies observer action counts against both original source arms before emitting findings.
 
+## Classification
+
+- `exercised-failing`: an actual root action moved an affected Pokémon from Active to Bench and the queued knockout survived.
+- `exercised-cleared`: that transition occurred and the queued knockout was removed.
+- `unresolved`: a queued knockout was seen on the Bench without observing the target's exit from Active.
+- `not-exercised`: no applicable Active-exit transition or ambiguous Bench queue was observed.
+
+The observer emits turn, source-root action ordinal, action name, affected player's engine slot, and Pokémon printing where an event is found. Events outside recorded dispatches and other paper-rules discrepancies remain outside its scope.
+
+**Validation:** [manual CI 39002809582](https://github.com/FlareZ123/experiment-01/actions/runs/39002809582) was dispatched with a narrow `only_source_replay` input. Its archived results are pending. Until CI verifies both arms, their exposure status remains **unresolved**. An observational verdict cannot promote source mechanics or player policies to competitive inference. **Qualified competitive games: 0.**
+
+See the [Critic exposure request](../../communications/broadcast/20261017T0402Z_critic_pale_moon_exposure_policy_dependency.md) and the [rank-10 qualification packet](qualification-packets/rank-10/README.md) for unresolved additional gates.
