@@ -57,7 +57,12 @@ function primitiveOwnFields(source) {
   for(const name of Object.getOwnPropertyNames(source).sort()) {
     const descriptor=Object.getOwnPropertyDescriptor(source,name);
     if(!descriptor || !Object.hasOwn(descriptor,'value')) continue;
-    const value=descriptor.value;
+    const originalValue=descriptor.value;
+    const value=name==='__uniqueId' &&
+      source.constructor?.name==='PokemonCardList' &&
+      typeof originalValue==='string'
+      ? originalValue.replace(/^([0-9]{13})_([a-z0-9]{1,9})$/,
+        'clock-redacted_$2') : originalValue;
     if(value===null || ['string','number','boolean','undefined','bigint'].includes(typeof value)) {
       fields.push([name,typeof value==='undefined'?{undefined:true}:
         typeof value==='bigint'?{bigint:value.toString()}:
@@ -103,7 +108,7 @@ function playerPrimitiveEvidence(player) {
 /** @param {object} state @returns {object} */
 function sourceEffectSnapshot(state) {
   return {
-    schema:'source-selected-effect-and-primitive-fields-v2',
+    schema:'source-selected-effect-and-primitive-fields-v3-clock-normalized',
     state:selectedFields(state,stateFields),
     statePrimitiveFields:primitiveOwnFields(state),
     players:state.players.map(player=>({
