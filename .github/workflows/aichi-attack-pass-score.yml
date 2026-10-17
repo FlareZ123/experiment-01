@@ -25,7 +25,7 @@ jobs:
           npm ci --no-audit --no-fund
           npm run compile
       - name: Test authentic Store pass-score observer and source action fork
-        run: node --test tests/koraidon-pass-score-horizon.test.cjs tests/rank10-koraidon-source-attack-fork.test.cjs tests/pending-end-turn-switch-cleanup.test.cjs tests/attack-pass-horizon-policy.test.cjs
+        run: node --test tests/koraidon-pass-score-horizon.test.cjs tests/rank10-koraidon-source-attack-fork.test.cjs tests/pending-end-turn-switch-cleanup.test.cjs tests/attack-pass-horizon-policy.test.cjs tests/decision-scoped-detached-simulator.test.cjs
       - name: Compare instrumented and uninstrumented source games
         run: node simulation/twinleaf/attack-pass-score-diagnostic.cjs
       - name: Exact v3 candidate-seat rank-10 score replay
@@ -38,8 +38,8 @@ jobs:
         run: node simulation/twinleaf/aichi-rank10-pass-horizon.cjs
       - name: Compare same-horizon printed Attack and Pass on source turn five
         run: node simulation/twinleaf/aichi-rank10-aligned-attack-probe.cjs > rank10-aligned-attack.json
-      - name: Summarize first equal-source Koraidon decisions
-        run: node -e "const x=require('./rank10-aligned-attack.json');for(const p of x.findings)console.log(JSON.stringify({candidate:p.candidate,original:p.sourceControlDecision.map(z=>({action:z.action,attack:z.attack,mutated:z.policyTimeRootGraphChanged,firstDiff:z.policyTimeRootGraphFirstDifference?.path??null})),aligned:p.sourceAlignedDecision.map(z=>({action:z.action,attack:z.attack,mutated:z.policyTimeRootGraphChanged,firstDiff:z.policyTimeRootGraphFirstDifference?.path??null})),firstSourceSame:p.beforeFirstTurn5DecisionIdentical,control:p.control.winner,alignedWinner:p.aligned.winner,qualified:false}))"
+      - name: Summarize first equal-source Koraidon decisions and repaired clone calls
+        run: node -e "const x=require('./rank10-aligned-attack.json');for(const p of x.findings){const recap=z=>z.map(y=>({action:y.action,attack:y.attack,mutated:y.policyTimeRootGraphChanged,firstDiff:y.policyTimeRootGraphFirstDifference?.path??null}));console.log(JSON.stringify({candidate:p.candidate,original:recap(p.sourceControlDecision),aligned:recap(p.sourceAlignedDecision),detachedControl:recap(p.sourceDetachedControlDecision),detachedAligned:recap(p.sourceDetachedAlignedDecision),firstSourceSame:p.beforeFirstTurn5DecisionIdentical,winners:[p.control.winner,p.aligned.winner,p.detachedControl.winner,p.detachedAligned.winner],qualified:false}));}"
       - uses: actions/upload-artifact@v4
         with:
           name: rank10-aligned-attack
