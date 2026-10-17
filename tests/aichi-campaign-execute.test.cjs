@@ -14,7 +14,8 @@ const ECHOED_POLICY_KEYS = [
   'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
   'attackBeforeRetreat', 'attackBeforeRetreatSeat',
   'bunnelbyK0SafeEvolution', 'prototypeSafeSimulatorIsolation',
-  'leleEntryAbilityLockCorrection', 'radiantGateLockCorrection'
+  'leleEntryAbilityLockCorrection', 'radiantGateLockCorrection',
+  'entryDrawLockCorrection', 'eldegossEntryLockCorrection'
 ];
 
 function sampleGame(request, override = {}) {
@@ -378,6 +379,28 @@ test('requested prompt checks, RNG isolation and policy hooks need echoed eviden
     assert.equal(report.counts['completed-engine-game'] || 0, 0);
   }
   assert.equal(run({policyFlags}).counts['completed-engine-game'], 6);
+});
+
+test('entry-Ability correction hooks need an exact per-game echo', () => {
+  for (const flag of ['entryDrawLockCorrection', 'eldegossEntryLockCorrection']) {
+    const policyFlags = {[flag]: true};
+    const accepted = run({policyFlags});
+    assert.equal(accepted.counts['completed-engine-game'], 6);
+    for (const record of accepted.records) {
+      assert.equal(record.observedPolicyFlags[flag], true);
+    }
+    const reversed = run({policyFlags, runMatch: request =>
+      sampleGame(request, {[flag]: false})});
+    assert.equal(reversed.counts['unverified-game-environment'], 6);
+    assert.equal(reversed.counts['completed-engine-game'] || 0, 0);
+    const omitted = run({policyFlags, runMatch: request => {
+      const game = sampleGame(request);
+      delete game[flag];
+      return game;
+    }});
+    assert.equal(omitted.counts['unverified-game-environment'], 6);
+    assert.equal(omitted.counts['completed-engine-game'] || 0, 0);
+  }
 });
 
 test('expected pinned engine revision is mandatory', () => {
