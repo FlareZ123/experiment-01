@@ -1,4 +1,5 @@
 'use strict';
+const {createHash}=require('node:crypto');
 
 /**
  * Observe the number of actual Math.random draws made during one synchronous
@@ -10,17 +11,23 @@
  *
  * @template T
  * @param {() => T} work
- * @returns {{result:T,draws:number}}
+ * @returns {{result:T,draws:number,drawDigest:string}}
  */
 function countPolicyRandomDraws(work) {
   const source = Math.random;
   let draws = 0;
+  const hash=createHash('sha256');
+  const bytes=Buffer.allocUnsafe(8);
   Math.random = function countedPolicyDraw() {
+    const value=source();
     draws += 1;
-    return source();
+    bytes.writeDoubleBE(value,0);
+    hash.update(bytes);
+    return value;
   };
   try {
-    return {result:work(),draws};
+    const result=work();
+    return {result,draws,drawDigest:hash.digest('hex')};
   } finally {
     Math.random = source;
   }
@@ -43,4 +50,21 @@ function consumePolicyRandomDraws(draws) {
   return draws;
 }
 
-module.exports = {countPolicyRandomDraws,consumePolicyRandomDraws};
+/**
+ * Consume a predetermined number of draws with an independently recorded
+ * SHA-256 of their ordered IEEE-754 binary64 values. Calls the existing
+ * bounded consumption helper unchanged; no draws are replaced or invented.
+ *
+ * @param {number} draws
+ * @returns {{draws:number,drawDigest:string}}
+ */
+function consumePolicyRandomDrawsWithDigest(draws) {
+  const observed=countPolicyRandomDraws(()=>consumePolicyRandomDraws(draws));
+  if(observed.result!==draws || observed.draws!==draws) {
+    throw new Error('Policy random consumption count mismatch');
+  }
+  return {draws,drawDigest:observed.drawDigest};
+}
+
+module.exports = {countPolicyRandomDraws,consumePolicyRandomDraws,
+  consumePolicyRandomDrawsWithDigest};
