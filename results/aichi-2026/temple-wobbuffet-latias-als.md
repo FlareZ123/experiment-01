@@ -140,3 +140,56 @@ line is needed or executable.
 This is a concrete example of why exact source-based joint
 Prize distributions matter more than evaluating the two
 singletons independently.
+
+
+## Why a 0.135% no-search line does not measure practical access
+
+The exact Temple source has **nine direct Latias tutors**:
+four **Fog Crystal**, four **Mysterious Treasure**, and one
+**Quick Ball**. Latias is a Psychic Basic. Counting them as
+interchangeable, freely playable connectors is *optimistic*:
+Mysterious Treasure and Quick Ball each require discarding a
+card, and every tutor spent on Latias competes with finding
+the first-turn Rider V, its VMAX evolution, or a Psychic Energy.
+
+A useful **separate marginal** is whether Wobbuffet is present
+in the first seven and Latias can be seen in the first nine,
+or one of those nine tutor cards is seen while Latias remains
+outside six random Prizes. This omits all other necessary
+VMAX/Energy pieces and assumes any observed tutor can be paid
+and played by turn two.
+
+Conditional on an initial legal seven, this marginal event has
+exact probability **9.503307%**. The corresponding **direct
+Wobbuffet plus directly seen Latias** event is only
+**1.792547%**. Given an opening Wobbuffet, the implied
+Latias direct-or-searchable marginal chance is **71.885663%**.
+
+Derivation: accepted-open Wobbuffet
+`P(W)= (7/60)/(1-C(45,7)/C(60,7))`.
+Among the eight further observed cards (remaining opening six
+plus two ordinary draws), Latias is directly present with
+probability `8/59`. Otherwise seeing at least one of the
+nine tutors has probability
+`(C(58,8)-C(49,8))/C(59,8)`;
+conditioned on Latias unseen after nine cards, it is outside
+the six randomized Prize slots with chance `45/51`.
+Therefore
+
+`P(W and direct/searchable Latias) =
+P(W) * [8/59 + ((C(58,8)-C(49,8))/C(59,8))*45/51]`.
+
+The simplified exact fraction is
+`1916073103/20162172550 = 9.503307%`.
+A separate 180,000-deal randomized physical setup sample
+(seed 151707, 158,932 accepted legal openings) observed
+**9.545592%**, compatible with the exact result's expected
+sampling variation.
+
+The large gap from 0.135% to 9.503% illustrates **connector
+domination and contention**. The 9.503% number measures
+marginal access to only two Pokémon and is **not an upper
+or lower bound for full Wobbuffet + Latias + VMAX setup**.
+No opponent plays, search payments, Item locks, evolution
+timing, Bench slots, or acquired target identities are
+otherwise evaluated.
