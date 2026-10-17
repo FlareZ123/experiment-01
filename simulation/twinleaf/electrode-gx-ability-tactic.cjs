@@ -47,6 +47,8 @@ function evaluateBombTactic() {
   assert.ok(simulated,'Pinned simulator must be able to resolve the Ability');
   const after = scorer.getScore(simulated,101);
   const recommended = tactic.useTactic(f.state,f.a);
+  const proposed=new (makeElectrodePrizeTradeTactic())(options).useTactic(f.state,f.a);
+  assert.equal(proposed?.power,'Extra Energy Bomb');
   const result = {
     sourceRanks:[4,17],beforeScore:before,afterScore:after,
     scoreChange:after-before,
