@@ -121,6 +121,13 @@ function probe(options) {
         assert.equal(pending()?.constructor.name,'ShowCardsPrompt',
           'Tag Call must reveal the searched TAG TEAM card to the opponent');
         answer(true); // ShowCardsPrompt is a Prompt<true> acknowledgment.
+        const shuffle=pending();
+        assert.equal(shuffle?.constructor.name,'ShuffleDeckPrompt',
+          'Tag Call should finish by shuffling the searched deck');
+        const length=currentOwner().deck.cards.length;
+        const permutation=Array.from({length},(_,index)=>length-1-index);
+        assert.equal(shuffle.validate(permutation,currentState()),true);
+        answer(permutation); // Valid reproducible shuffle order in staged test.
       }
       earlySwitchSelected = true;
     }
