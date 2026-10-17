@@ -41,10 +41,13 @@ function main() {
     regidragoDeclaredHistoryCorrection:true,
     passClearsLastAttackCorrection:true
   };
-  const run=forceShred=>withStoreDispatchTranscript(Store,
-    ()=>withTurn28CopycatShredFork(types,()=>runMatch(request),{forceShred}),
+  const run=(forceShred,rootActionOrdinal)=>withStoreDispatchTranscript(Store,
+    ()=>withTurn28CopycatShredFork(types,()=>runMatch(request),
+      {forceShred,rootActionOrdinal}),
     {liveStoreOnly:true,sourceZoneEveryDispatch:true});
   const original=run(false),forked=run(true);
+  const ordinalAudit=process.env.COPYCAT_ORDINAL_AUDIT==='1'
+    ? run(true,215) : null;
   const control=original.result.result,alternate=forked.result.result;
   assert.deepEqual(runMatch(request),control,
     'Observer/fork experiment must preserve the original source game');
@@ -78,6 +81,42 @@ function main() {
     '5a27a7fa4d3e9cbef465675b05cf2270f0550851f4cc579940a551c3ade70b4d');
   assert.equal(before[firstIndex].continuityDigestBefore,
     '0faef7ac48c4f7a82c92413a3e0831b33bcc5ad162336e451d4d8ae4d6235548');
+  let ordinalSourceAudit=null;
+  if (ordinalAudit) {
+    const ordained=ordinalAudit.actionTrace;
+    const ordinalDifference=Array.from(
+      {length:Math.min(before.length,ordained.length)},(_,i)=>i)
+      .find(i=>JSON.stringify(pick(before[i]))!==
+        JSON.stringify(pick(ordained[i])));
+    assert.equal(ordinalDifference,215,
+      'Direct-ordinal policy diverged before archived root retreat');
+    assert.equal(ordained[215].action,'AttackAction');
+    assert.equal(ordained[215].parameters.name,'Copycat');
+    assert.equal(ordinalAudit.result.forcedAttack,true);
+    assert.equal(ordinalAudit.result.opportunities.length,1);
+    assert.equal(ordinalAudit.result.opportunities[0].rootActionOrdinal,215);
+    assert.equal(ordinalAudit.result.shredSelections.length,1);
+    ordinalSourceAudit={
+      sourceOrdinal:215,
+      bypassedGenericBotDecisionAtFork:true,
+      firstActionDivergence:ordinalDifference,
+      controlAction:before[215].action,
+      directAction:ordained[215].action,
+      sourceZoneFingerprintMatches:
+        before[215].zoneDigestBefore===ordained[215].zoneDigestBefore,
+      cardHistoryFingerprintMatches:
+        before[215].continuityDigestBefore===
+          ordained[215].continuityDigestBefore,
+      ordinalBranchOutcomeEqualsBotProposalFork:
+        JSON.stringify(ordinalAudit.result.result)===
+          JSON.stringify(forked.result.result),
+      sourceZoneDigestAtAction:ordained[215].zoneDigestBefore,
+      sourceHistoryDigestAtAction:ordained[215].continuityDigestBefore,
+      ordinalBranchRootActions:ordained.length,
+      ordinalBranchWinner:ordinalAudit.result.result.winner,
+      ordinalBranchPrizeCounts:ordinalAudit.result.result.prizesRemaining
+    };
+  }
   const compact=game=>({actions:game.actions,turns:game.turns,
     winner:game.winner,finished:game.finished,
     prizeCounts:game.prizesRemaining,
@@ -94,6 +133,7 @@ function main() {
     forcedOpportunity:forked.result.opportunities[0],
     chosenAttack:forked.result.shredSelections[0],
     original:compact(control),counterfactual:compact(alternate),
+    ordinalSourceAudit,
     graphQualification:false,paperMechanicsQualified:false,
     qualifiedForCompetitiveInference:false,
     caveat:'Exact one-deal scripted counterfactual; all generic-bot actions remain unqualified'
