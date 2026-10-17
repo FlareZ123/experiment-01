@@ -24,6 +24,25 @@ Consequently, the source opponent lacked a **direct normal attachment from hand*
 
 The observed bot then retreated 200-damaged Latias ex into unpowered Dialga-GX and passed at root 232. This is now a bounded resource explanation for why an immediately funded attack was absent. It **does not establish that Retreat → Pass was optimal**.
 
+## Actual unseen-deck order perturbation, compiled negative result
+
+[Manual source CI 39023317673](https://github.com/FlareZ123/experiment-01/actions/runs/39023317673) at frozen main head `4aceebfc4caa667fbb4f469f2a0bd3dfa1088266` passed the new unit and source-branch steps. [Artifact 12097970276](https://github.com/FlareZ123/experiment-01/actions/runs/39023317673/artifacts/12097970276) holds `rank10-turn29-hidden-order.json` (uncompressed SHA-256 `59dfb5287a73fae29fd5d1668b13f87f5e3d7a0b4b06da30d844d63942b86957`). The pure unit test first verified that a deliberately deck-order-peeking mock decision changes when faced with the same temporary reversal, then the real source test inspected exactly one true Regidrago turn29 root231 bot choice.
+
+At that decision alone, the observer reversed the acting player's 17-card unseen **own deck order during `decodeNextAction`**, restored the original card identities and order in `finally` before dispatching the chosen move, and compared against an otherwise identical source replay. It preserved the full real Store prefix before root231, exact predecision zone digest `a512b03755dddc50ed62022fcb075ac54e7198e202150e1d4db8341405525b86`, and full source-zone and own-data-graph fingerprints after scoring.
+
+| Checked metric at exact root231 | Original unseen order | Reversed unseen order |
+| --- | --- | --- |
+| Source bot chosen action | RetreatAction, bench index 0 | RetreatAction, bench index 0 |
+| Policy random draws inside the proposal | 15 | 15 |
+| Real source zone mutated during proposal | No | No |
+| Own-data graph mutated during proposal | No | No |
+| Simulated terminal winner | Shadow Rider seat 1 | Shadow Rider seat 1 |
+| Simulated final Prizes, Regidrago / champion | 3 / 0 | 3 / 0 |
+
+**Finding:** under one real matched source state, reversing unseen deck order failed to change the proposed action or its observed `Math.random` consumption. This is a useful **negative information-set sensitivity test**, rather than proof of a hidden-information-safe bot. It neither distinguishes potential hidden-zone reads that happen to yield the same action, nor verifies unrelated decisions, captured RNG function pointers, strategic competence or paper-rule effects. The physical deck was never re-ordered for the actual played game.
+
+Code and tests: [reversible policy probe](../../simulation/twinleaf/rank10-turn29-hidden-order-policy.cjs), [fixed-source experiment](../../simulation/twinleaf/rank10-turn29-hidden-order-source.cjs), [counterexample mock regression](../../tests/rank10-turn29-hidden-order-policy.test.cjs). The shared manual workflow contains the opt-in compiled run and archives its provenance. Qualification flags remain false.
+
 ## Reproducibility and next acceptance
 
 Code: [own-hand observer](../../simulation/twinleaf/rank10-turn29-own-hand-audit.cjs), [frozen source runner](../../simulation/twinleaf/rank10-shred-turn29-own-hand-source.cjs), [pure tests](../../tests/rank10-turn29-own-hand-audit.test.cjs), and the existing manual-only [paired workflow](../../.github/workflows/mimikyu-rank10-pair.yml). Printed card text comes from the project card database for FLI 113 / BUS 115 and the attached Advanced Player's Rulebook's Trainer/Bench rules.
