@@ -122,3 +122,17 @@ test('explicit coverage limit: equal callback text can hide different lexical ca
     storeDataGraphFingerprint(right).digest,
     'Function-source equality is insufficient to prove continuation equivalence');
 });
+
+
+test('known scope limit: inherited mutable prototype data is not in v1',()=>{
+  const left=makeStore(),right=makeStore();
+  const a={attackCostModifier:0};
+  const b={attackCostModifier:1};
+  Object.setPrototypeOf(left.state.players[0].active,a);
+  Object.setPrototypeOf(right.state.players[0].active,b);
+  assert.notEqual(left.state.players[0].active.attackCostModifier,
+    right.state.players[0].active.attackCostModifier);
+  assert.equal(storeDataGraphFingerprint(left).digest,
+    storeDataGraphFingerprint(right).digest,
+    'Prototype instance data requires an independent prototype-chain audit');
+});
