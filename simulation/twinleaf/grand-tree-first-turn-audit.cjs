@@ -16,7 +16,7 @@ function probe(turn,fresh=false){
   const {PokemonCardList}=load('game/store/state/pokemon-card-list');
   const {GamePhase}=load('game/store/state/state');
   const {Format}=load('game/store/card/card-types');
-  const {UseStadiumEffect}=load('game/store/effects/game-effects');
+  const {UseStadiumAction}=load('game/store/actions/game-actions');
   const store=new Store({onStateChange(){}}),state=store.state;
   state.turn=turn;state.phase=GamePhase.PLAYER_TURN;state.activePlayer=(turn+1)%2;
   state.gameSettings.format=Format.EXPANDED;
@@ -31,7 +31,7 @@ function probe(turn,fresh=false){
   player.deck.cards.push(card('Gloom UNB'),card('Vileplume AOR'));
   const tree=card('Great Tree SCR');player.stadium.cards.push(tree);
   let error=null;
-  try{store.reduceEffect(state,new UseStadiumEffect(player,tree));}catch(e){error=e.message;}
+  try{store.dispatch(new UseStadiumAction(player.id));}catch(e){error=e.message;}
   return {turn,activeSeat:state.activePlayer,fresh,error,
     promptTypes:state.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name),
     canEvolveByPaperRules:turn>2&&!fresh};
