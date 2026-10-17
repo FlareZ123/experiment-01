@@ -4,7 +4,8 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {runMatch}=require('./headless.cjs');
 const {planAichi}=require('../evaluation/aichi-pilot.cjs');
-const {withSourceOpeningProbe}=require('./rank6-seed-opening-probe.cjs');
+const {withSourceOpeningProbe,signature}=
+  require('./rank6-seed-opening-probe.cjs');
 const {withGuzmaHalaSourceFork,withDamageObserver}=
   require('./rank6-seed-guzma-hala-fork.cjs');
 const {withRank6AcerolaPassFork}=require('./rank6-acerola-pass-fork.cjs');
@@ -60,6 +61,14 @@ function main() {
     {liveStoreOnly:true,sourceZoneEveryDispatch:true});
   const original=run(false),alternative=run(true);
   const a=extract(original),b=extract(alternative);
+  const unchanged=withSourceOpeningProbe(()=>withGuzmaHalaSourceFork(
+    ()=>withDamageObserver(()=>runMatch(request)),payment));
+  assert.equal(unchanged.out.completed,true);
+  assert.equal(signature(unchanged.out.result.result),
+    signature(a.game),
+    'Passive Acerola observer and RNG digest changed the original physical game');
+  assert.deepEqual(unchanged.observed?.hand,a.opening.observed?.hand);
+  assert.deepEqual(unchanged.observed?.prizes,a.opening.observed?.prizes);
   assert.equal(original.result.sourceChoices.length,1);
   assert.equal(alternative.result.sourceChoices.length,1);
   assert.equal(original.result.forced,false);
@@ -134,6 +143,7 @@ function main() {
     originalPolicyRandomDraws:originalRng.originalPolicyRandomDraws,
     originalPolicyRandomValuesSha256:originalRng.originalPolicyRandomValuesSha256,
     sourcePolicyRngConsumptionProtocol:'unchanged-bot-proposal-in-both-arms',
+    originalGameMatchesNoResponseObserverSignature:true,
     controlAcerolaChoice:original.result.sourceChoices[0],
     alternativeAcerolaChoice:alternative.result.sourceChoices[0],
     control:summary(a.game,before),forcedPass:summary(b.game,after),
