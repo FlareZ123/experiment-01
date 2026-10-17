@@ -9,6 +9,11 @@ on:
         default: '2'
         type: choice
         options: ['0', '1', '2', '3']
+      probe_deck_code:
+        description: 'Fetch original official Japanese deck-code HTML instead of image inspection'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -19,6 +24,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Retrieve linked public tournament deck image
+        if: ${{ !inputs.probe_deck_code }}
         shell: bash
         run: |
           curl --fail --silent --show-error --location --retry 2 --max-time 30 \
@@ -27,6 +33,7 @@ jobs:
             --output "$RUNNER_TEMP/newmoon-deck-source.png"
           file "$RUNNER_TEMP/newmoon-deck-source.png"
       - name: Visually inspect three source-grid segments in selected row
+        if: ${{ !inputs.probe_deck_code }}
         shell: bash
         env:
           ROW_NUMBER: ${{ inputs.row }}
@@ -53,3 +60,23 @@ jobs:
                   print(f"NMROW{row}GROUP{group}CHUNK{i//4000:04d}:" + encoded[i:i+4000])
               print(f"NMROW{row}GROUP{group}TOTAL:{len(buffer.getvalue())}")
           PY
+      - name: Retrieve official Japanese source deck code
+        if: ${{ inputs.probe_deck_code }}
+        shell: bash
+        run: |
+          curl --silent --show-error --location --max-time 45 --retry 1 \
+            --user-agent 'Mozilla/5.0 (compatible; ExpandedResearch/1.0)' \
+            --dump-header newmoon-official-headers.txt \
+            --output newmoon-official-deck.html \
+            --write-out 'Official viewer HTTP status %{http_code}; downloaded %{size_download} bytes\n' \
+            'https://www.pokemon-card.com/deck/confirm.html/deckID/GxxDYx-a4rD4W-a8xYxc'
+          python3 -c "from pathlib import Path; h=Path('newmoon-official-deck.html').read_text(encoding='utf-8',errors='replace'); print('Viewer bytes:', len(h), 'source_code_present:', 'GxxDYx-a4rD4W-a8xYxc' in h, 'Mewtwo Japanese name present:', 'ミュウツー' in h); print('Head:',repr(h[:600]))"
+      - name: Preserve official deck viewer evidence
+        if: ${{ inputs.probe_deck_code }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-official-deck-viewer
+          path: |
+            newmoon-official-headers.txt
+            newmoon-official-deck.html
+          if-no-files-found: error
