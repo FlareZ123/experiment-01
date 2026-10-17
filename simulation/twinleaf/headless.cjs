@@ -333,6 +333,10 @@ function runMatch(request) {
         (request.electrodeGXEnergyCorrection !== true || request.electroRainDamageCorrection !== true)) {
       throw Error('Electrode Prize-trade requires both rule corrections');
     }
+    if (request.raichuPrizeAllocationPolicy === true &&
+        request.electroRainDamageCorrection !== true) {
+      throw Error('Raichu Prize allocation requires corrected Electro Rain attack damage');
+    }
     initializeCards();
     if (request.redeemableTicketPaperOrderCorrection === true) {
       restoreRedeemableTicketPaperOrderHook = installRedeemableTicketPaperOrderHook();
