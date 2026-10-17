@@ -112,7 +112,8 @@ function withSoloGuzmaTurn4(work,options){
       assert.ok(before.ownActiveEnergy.some(name=>
         name.startsWith('Double Colorless Energy ')));
       assert.ok(before.stadium.includes('Thunder Mountain Prism Star'));
-      assert.ok(before.hand.some(name=>name.startsWith('Guzma ')));
+      assert.ok(player.hand.cards.some(card=>card.name==='Guzma'),
+        'The held Supporter must be exact Guzma BUS, not Guzma & Hala');
       turn4Start=before;
       events.push({turn:4,selected:'first-turn4-proposal',
         originalAction:proposed?.constructor?.name||null,
