@@ -58,6 +58,29 @@ function condense(event) {
 }
 
 /**
+ * All public Pokemon positions for actual source Tool play, including
+ * unrelated Basics omitted by the narrow Garbodor/Shadow Rider projection.
+ * This is extracted from the read-only root Store observer only.
+ * @param {object} event
+ * @returns {object}
+ */
+function fullToolAction(event) {
+  const seat = event.actingSeat;
+  /** @param {object} snap */
+  const ownBoard = snap => ({
+    active: position(snap.board[seat].active),
+    bench: snap.board[seat].bench.map(position),
+    stadium: snap.board[seat].stadium
+  });
+  return {
+    ordinal:event.ordinal,turn:event.turn,actingSeat:seat,
+    card:event.card,actingHandBefore:event.before.actingHand,
+    boardBefore:ownBoard(event.before),boardAfter:ownBoard(event.after),
+    error:event.dispatchError
+  };
+}
+
+/**
  * Fixed candidate-second rank8 source deal, identical to compiled natural
  * Hood v1 CI 39052628800. Compare unchanged-observed-unchanged root
  * Store action input streams in one process, and expose source action state.
@@ -129,6 +152,10 @@ function main() {
       ))
     },
     chronologicalBoardEvents:facts,
+    fullPublicToolPlays:observed.records
+      .filter(x=>x.action==='PlayCardAction' &&
+        ['Float Stone','Stealthy Hood','Forest Seal Stone'].includes(x.card))
+      .map(fullToolAction),
     qualifiedForCompetitiveInference:false,
     limitations:[
       'This is one previously selected source deal; 3 repeats are noninterference controls',
@@ -140,4 +167,4 @@ function main() {
 }
 
 if(require.main===module)process.stdout.write(JSON.stringify(main(),null,2)+'\n');
-module.exports={main,condense,position,side};
+module.exports={main,condense,position,side,fullToolAction};
