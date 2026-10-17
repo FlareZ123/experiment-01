@@ -26,6 +26,9 @@ function installCopySessionAwareSimulatorHook() {
      * @param {object} [options]
      */
     constructor(state, options) {
+      if (simulation.Simulator !== CopySessionAwareSimulator) {
+        throw new Error('Copy-session-aware Simulator must remain outermost');
+      }
       super(state, options);
       inherit(state, this.store.state);
     }
