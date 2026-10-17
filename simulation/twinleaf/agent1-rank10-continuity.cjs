@@ -65,7 +65,7 @@ function main() {
           nextAction:gap.nextAction,
           firstMismatch:gap.firstMismatch,
           cardHistoryMismatch:gap.cardHistoryMismatch
-        })+'\\n');
+        })+'\n');
       }
     }
   }
