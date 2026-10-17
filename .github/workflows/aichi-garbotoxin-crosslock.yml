@@ -27,7 +27,7 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - run: node --test tests/rank8-latias-escape-policy.test.cjs
+      - run: node --test tests/rank8-latias-escape-policy.test.cjs tests/rank8-latias-effect-ledger.test.cjs
       - run: node simulation/twinleaf/garbotoxin-vileplume-action.cjs
       - run: node simulation/twinleaf/garbotoxin-removal-tempo.cjs
       - run: node simulation/twinleaf/garbotoxin-faba-tempo.cjs
