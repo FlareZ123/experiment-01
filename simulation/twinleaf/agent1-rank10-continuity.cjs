@@ -57,6 +57,17 @@ function main() {
       engineWinner:baseline.winner,
       qualification:'partial-State diagnostic only; no competitive win-rate evidence'
     });
+    if (mode === 'post-super-reconciled') {
+      for (const gap of observed.discontinuities) {
+        process.stderr.write('[rank10-continuity-gap] '+JSON.stringify({
+          afterActionOrdinal:gap.afterActionOrdinal,
+          beforeActionOrdinal:gap.beforeActionOrdinal,
+          nextAction:gap.nextAction,
+          firstMismatch:gap.firstMismatch,
+          cardHistoryMismatch:gap.cardHistoryMismatch
+        })+'\\n');
+      }
+    }
   }
   return {schema:'agent1-rank10-continuity-v1',
     sourceListsUnchanged:true,observationNoninterfering:true,
