@@ -31,7 +31,7 @@ function compareFrozenPolicyArchives(control, experimental, changedFlag) {
     'totalScheduled', 'researchPolicyProfile'
   ];
   for (const key of identities) {
-    assert.equal(digest(control[key]), digest(experimental[key]),
+    assert.deepEqual(control[key], experimental[key],
       'Changed fixed campaign identity: ' + key);
   }
   assert.equal(control.policyFlags[changedFlag], false);
