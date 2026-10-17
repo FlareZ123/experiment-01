@@ -39,3 +39,21 @@ Further limitations:
 The first failing assertion in the next compiled run should be preserved. If its three source arms pass, independent reviewers should inspect post-ordinal Bot RNG consumption, prompts, source visible-information invariance, card-specific paper mechanics and the first strategically meaningful Regidrago response before accepting even a narrow **policy-effect isolation** label.
 
 **Status:** code submitted, synthetic test added, compiled/replay outcome **pending**, `sourceReplayMechanicsVerified:false`, `qualifiedForCompetitiveInference:false`, verified competitive games **0**.
+
+## Independent compiled verification: 17 October 2026, Agent 47
+
+[Manual CI **39012103288**](https://github.com/FlareZ123/experiment-01/actions/runs/39012103288), exact head `d3541b81c0b1bf0f3ed117084edf763f759e6634`, **passed the new RNG-alignment arm** and the remaining standard workflow job. [Archived raw JSON artifact 12093476773](https://github.com/FlareZ123/experiment-01/actions/runs/39012103288/artifacts/12093476773) is `rank10-shred-policy-rng-aligned.json` under schema `rank10-shred-policy-rng-consumption-aligned-preflight-v1`. This explicitly supersedes the preflight's earlier **compiled outcome pending** label.
+
+For the source-locked rank1 physical B versus rank10 physical A, seed `4246551499`, the original turn28 root dispatch ordinal 215 bot proposal was **RetreatAction**, consuming **20 calls to the dynamically installed `Math.random`**. The direct Copycat→Apex Dragon→discarded Dialga-GX UPR Shred alternative then consumed those **same 20 draws** immediately before declaring `AttackAction('Copycat')`, bypassing the original speculative bot evaluation. Both original and alternative arms passed the exact source pre-action zone digest `5a27a7fa4d3e9cbef465675b05cf2270f0550851f4cc579940a551c3ade70b4d` and Card-history digest `0faef7ac48c4f7a82c92413a3e0831b33bcc5ad162336e451d4d8ae4d6235548`.
+
+| Source-fixed arm | Root 215 | Draws consumed in skipped-proposal channel | Finished? | Winner seat | Final Prizes [Regidrago, champion] | Root dispatches |
+| --- | --- | ---: | --- | ---: | --- | ---: |
+| Original | Retreat | 20, via real proposal | Yes | 0 | [0,4] | 235 |
+| Direct Shred, no alignment | Copycat | 0 at skipped decision | Yes | 1 | [3,0] | 289 |
+| Direct Shred, 20-draw alignment | Copycat | 20 from seat-specific source | Yes | 1 | [3,0] | 289 |
+
+Critically, the runner reports **`unalignedVsAlignedAfterFork:null`**, meaning it detected **no difference in any compared subsequent live Store dispatch action, parameters, pending-prompt record, source-zone digest or Card-history digest through the end of the two Shred arms**. The five-turn public response projections were also byte-equal; both show actual opposing turn29 Retreat then Pass. Thus, within this runner's projected State and pinned random implementation, merely restoring the original skipped bot's **20 draws does not explain** the deterministic Shred-arm result or subsequent recorded choices.
+
+This is a **negative control for one suspected confound**, rather than a general causal certificate. The two branches make substantively different real card actions and remain confounded with any untested downstream decision policy flaws. The hook does not verify opaque policy RNG closure state or all imported random references, and the comparison does not establish the opponent's capacity to play an optimal turn29 response. Distinct source-A Pale Moon effect exposure must not be imported to these source-B paths. The first nontrivial response to investigate remains turn29 Retreat/Pass against available alternatives.
+
+**Qualification flags remain `sourceReplayMechanicsVerified:false`, `qualifiedForCompetitiveInference:false`, qualified competitive games **0**.** Do not promote any observed terminal winner or fixed candidate from this result.
