@@ -11,3 +11,11 @@ Four **separate turns in the same game** contained an identical tactical resourc
 **Unresolved:** The action summary does not certify that the once-per-turn normal retreat was unused or that no residual restriction exists; its full reducer/prompt history is absent. **Neither route has been submitted to the original pinned Store.** Preserve original source-state noninterference, execute both branches from the genuine turn21 pre-Pass Store, verify actual card selection, power recalculation, retreat legality, Night Watch effects, and opponent's continuation. Do not splice separate dealt games.
 
 The original 45-turn diagnostic eventually awarded the champion the win after later Trevenant & Dusknoir attacks. Four observed Passes are correlated opportunity observations, **not** four lost games or any estimated increase in win rate. Existing competitive evidence remains **0** qualified games out of an incomplete 29/32 exact source field.
+
+## Why the complete resource conjunction matters
+
+The same source artifact also has `pilot:8:0:hood-shield-v1:A`: the candidate passed **nine** times against an equipped Benched Garbodor, and held Field Blower at **eight** such passes. It did **not** have a three-Psychic Trevenant & Dusknoir-GX available at those eight states, so these cannot be treated as equivalent immediate Night Watch opportunities. In addition, the hood candidate's Latias had Float Stone; restoring Skyliner there is not the same mobility gain.
+
+Thus a naive count of "held Field Blower while locked" substantially overstates the immediately executable tactical paths. The champion-reference's four repeated states are distinctive because the potential attack destination was already powered. Preserve this distinction in AMR/connector modeling.
+
+Another important control: hood-shield Latias ex **used Eon Blade on global turn 25** and passed on turn 27; Eon Blade's own text prevents that same Pokémon from attacking on its following turn. That turn-27 Pass is not evidence of an omitted legal Eon Blade. Source-card effects and temporal restrictions must be included before classifying any cost-covered Pass as a bot failure.
