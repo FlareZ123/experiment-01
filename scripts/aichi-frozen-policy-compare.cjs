@@ -26,6 +26,7 @@ function compareFrozenPolicyArchives(control, experimental, changedFlag) {
   }
   const identities = [
     'planDigest', 'fieldDigest', 'campaignSchemaVersion', 'seedProtocol',
+    'seedBase', 'expectedEngineRevision',
     'candidateRows', 'fieldCoverage', 'selectedPilotRanks', 'maxActions',
     'totalScheduled', 'researchPolicyProfile'
   ];
@@ -41,6 +42,27 @@ function compareFrozenPolicyArchives(control, experimental, changedFlag) {
   delete otherExperimentalFlags[changedFlag];
   assert.deepEqual(otherControlFlags, otherExperimentalFlags,
     'More than one research policy flag was changed.');
+
+  // Matching printed decks and physical seeds do not isolate one policy flag
+  // when the research code or engine changed between the two archives.
+  const sameResearchRevision =
+    typeof control.researchRevision === 'string' &&
+    /^[0-9a-f]{40}$/.test(control.researchRevision) &&
+    control.researchRevision === experimental.researchRevision;
+  const samePinnedEngine =
+    typeof control.expectedEngineRevision === 'string' &&
+    /^twinleafgg\\/[0-9a-f]{40}$/.test(control.expectedEngineRevision) &&
+    control.expectedEngineRevision === experimental.expectedEngineRevision;
+
+  /** @param {object} record */
+  const verifiedStartingTurn = record => {
+    const first = record.turnEvidence?.firstTurnSlot;
+    if (record.turnEvidence?.verifiedByDrawLog !== true ||
+        (first !== 0 && first !== 1)) return false;
+    const candidateSlot = record.candidateEngineSlot === 'A' ? 0 : 1;
+    return record.candidateActualTurn ===
+      (first === candidateSlot ? 'first' : 'second');
+  };
 
   const byTrial = new Map();
   for (const r of control.records) {
@@ -72,19 +94,29 @@ function compareFrozenPolicyArchives(control, experimental, changedFlag) {
 
     const traceIdentical = digest(a) === digest(b);
     const turnOrderIdentical =
+      verifiedStartingTurn(prior) && verifiedStartingTurn(candidate) &&
       prior.candidateActualTurn === candidate.candidateActualTurn &&
       digest(prior.turnEvidence) === digest(candidate.turnEvidence);
     const countIdentical =
       prior.candidateAttacks === candidate.candidateAttacks &&
       prior.opponentAttacks === candidate.opponentAttacks;
-    const endStateIdentical =
-      digest(prior.traceSummary?.terminalTransition) ===
-        digest(candidate.traceSummary?.terminalTransition);
+    const terminalControl = prior.traceSummary?.terminalTransition;
+    const terminalExperimental = candidate.traceSummary?.terminalTransition;
+    const terminalEvidenceAvailable =
+      terminalControl !== undefined && terminalControl !== null &&
+      terminalExperimental !== undefined && terminalExperimental !== null;
+    const endStateIdentical = terminalEvidenceAvailable &&
+      digest(terminalControl) === digest(terminalExperimental);
+    const engineEchoVerified = samePinnedEngine &&
+      prior.engineRevision === control.expectedEngineRevision &&
+      candidate.engineRevision === experimental.expectedEngineRevision;
     rows.push({
       trialId: candidate.trialId,
       seed: candidate.seed,
       turnOrderIdentical,
       traceIdentical,
+      engineEchoVerified,
+      terminalEvidenceAvailable,
       capturedEventsBaseline: a.length,
       capturedEventsCounterfactual: b.length,
       attackCountsIdentical: countIdentical,
@@ -94,12 +126,29 @@ function compareFrozenPolicyArchives(control, experimental, changedFlag) {
     });
   }
   assert.equal(seen.size, byTrial.size);
+  const provenanceGaps = [
+    ...(!sameResearchRevision ? ['research-revision-unpinned-or-drifted'] : []),
+    ...(!samePinnedEngine ? ['engine-revision-unpinned-or-drifted'] : []),
+    ...(rows.some(r => !r.engineEchoVerified) ?
+      ['trial-engine-revision-unverified'] : []),
+    ...(rows.some(r => !r.turnOrderIdentical) ?
+      ['starting-turn-unverified-or-drifted'] : []),
+    ...(rows.some(r => !r.fullReplayCaptured) ?
+      ['full-action-and-prompt-replay-not-captured'] : []),
+    ...(rows.some(r => !r.terminalEvidenceAvailable) ?
+      ['terminal-transition-unavailable'] : [])
+  ];
   return {
     kind: 'frozen-policy-meaningful-action-comparison-v1',
     changedFlag,
     planDigest: control.planDigest,
     researchRevisionControl: control.researchRevision,
     researchRevisionExperimental: experimental.researchRevision,
+    expectedEngineRevision: control.expectedEngineRevision ?? null,
+    sameResearchRevision,
+    samePinnedEngine,
+    provenanceGaps,
+    controlledRevisionDiagnostic: provenanceGaps.length === 0,
     comparedTrials: rows.length,
     identicalCapturedTraceTrials: rows.filter(r => r.traceIdentical).length,
     totalControlCapturedEvents: rows.reduce((n,r) => n+r.capturedEventsBaseline,0),
@@ -108,7 +157,7 @@ function compareFrozenPolicyArchives(control, experimental, changedFlag) {
     allTerminalTransitionsIdentical: rows.every(r => r.terminalTransitionIdentical),
     fullReplayCaptured: rows.every(r => r.fullReplayCaptured),
     gameStrengthClaimPermitted: false,
-    caveat: 'Identical captured actions are not a complete prompt/reducer replay. Matched deterministic policy counterfactuals do not supply independent competitive win samples.',
+    caveat: 'Cross-revision comparisons do not isolate one policy flag. Even a version-pinned pair with a complete action trace cannot establish policy competence, paper fidelity, or independent competitive wins.',
     rows
   };
 }
