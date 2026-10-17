@@ -78,6 +78,24 @@ function main() {
   assert.ok(extraTurn(baseline),'Baseline must have the authentic turn28');
   assert.deepEqual(extraTurn(alternate),extraTurn(baseline),
     'The optional Shred tactic changed the source state before the turn28 decision');
+  let firstDecisionDivergence=null;
+  for (let i=0;i<Math.max(baseline.decisionTrace.length,
+    alternate.decisionTrace.length);i++) {
+    const control=baseline.decisionTrace[i]||null;
+    const changed=alternate.decisionTrace[i]||null;
+    if (JSON.stringify(control)!==JSON.stringify(changed)) {
+      firstDecisionDivergence={index:i,control,changed};
+      break;
+    }
+  }
+  assert.ok(firstDecisionDivergence,
+    'Source Shred policy did not change any recorded decision');
+  assert.equal(firstDecisionDivergence.control.actionOrdinal,213,
+    'Unexpected source pre-fork meaningful-action mismatch');
+  assert.equal(firstDecisionDivergence.control.turnBefore,28);
+  assert.equal(firstDecisionDivergence.control.action,'RetreatAction');
+  assert.equal(firstDecisionDivergence.changed.action,'AttackAction');
+  assert.equal(firstDecisionDivergence.changed.attack,'Copycat');
   const copied=alternate.attackTrace.filter(row=>
     row.turn===28 && row.seat===1 && row.activePokemon==='Mimikyu' &&
     row.attack==='Copycat');
@@ -95,6 +113,9 @@ function main() {
       deckHashes:[sha(common.deckA),sha(common.deckB)]},
     unchangedSourceSetupThroughTurn28:true,
     replayedBaselineByteIdentical:true,
+    firstDecisionDivergence:{actionOrdinal:firstDecisionDivergence.control.actionOrdinal,
+      control:firstDecisionDivergence.control.action,
+      experimental:firstDecisionDivergence.changed.action},
     observedSourceCopycatTurn28:copied.length===1,
     observedTwoPrizePickupAfterTurn28:prizeTaken,
     control:boundedView(baseline),experimental:boundedView(alternate),
