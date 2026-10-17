@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const {observableState,hash}=require('./source-state-continuity.cjs');
-const {countPolicyRandomDraws,consumePolicyRandomDraws}=
+const {countPolicyRandomDraws,consumePolicyRandomDrawsWithDigest}=
   require('./policy-random-draw-audit.cjs');
 
 /**
@@ -81,9 +81,11 @@ function withTurn28CopycatShredFork(types,work,options={}) {
         defenderHP:defender.hp,ownDiscardDragon:'Dialga-GX UPR',
         sourceDigest:hash(snapshot(state)),rootActionOrdinal:rootDispatchCount});
       if (options.policyRngAlignDraws !== undefined) {
-        const draws=consumePolicyRandomDraws(options.policyRngAlignDraws);
+        const drawAudit=consumePolicyRandomDrawsWithDigest(
+          options.policyRngAlignDraws);
         policyRngLedger.push({kind:'aligned-direct-fork',
-          rootActionOrdinal:rootDispatchCount,draws,action:'AttackAction'});
+          rootActionOrdinal:rootDispatchCount,draws:drawAudit.draws,
+          drawDigest:drawAudit.drawDigest,action:'AttackAction'});
       }
       forced=true;
       return new AttackAction(actor.id,'Copycat');
@@ -96,6 +98,7 @@ function withTurn28CopycatShredFork(types,work,options={}) {
         ()=>botDesc.value.call(this,state,...args));
       policyRngLedger.push({kind:'original-proposal',
         rootActionOrdinal:rootDispatchCount,draws:observed.draws,
+        drawDigest:observed.drawDigest,
         action:observed.result?.constructor?.name||null});
       return observed.result;
     }
