@@ -131,3 +131,34 @@ test('observer refuses an unguarded K1 configuration',()=>{
     sourceCards:source60(),observeFirstOwnDeckSearch:true
   }),/live-Store prompt guard/);
 });
+
+test('real SimpleTactic speculation routes hidden-deck search prompts through resolvers',()=>{
+  const live=stage(true),hypothetical=stage(false),source=source60();
+  const {SimpleTactic}=engine('simple-bot/simple-tactics/simple-tactics');
+  const {AttackAction}=engine('game/store/actions/game-actions');
+  let speculativeOwnerDeckPrompts=0;
+  const configured=withBunnelbyEvolutionLine(options(),{
+    sourceCards:source,observeFirstOwnDeckSearch:true,
+    isLivePrompt:(state,player,prompt)=>{
+      if(state!==live.state && player.id===live.a.id &&
+          prompt.cards===player.deck) speculativeOwnerDeckPrompts++;
+      return state===live.state;
+    }
+  });
+  class Probe extends SimpleTactic {
+    useTactic(state,player) {
+      return this.simulateAction(state,new AttackAction(player.id,'Evolution'));
+    }
+  }
+  const ObserverTactic=configured.tactics.find(t=>t.name==='BunnelbyEvolutionTactic');
+  assert.ok(ObserverTactic);
+  const before=new ObserverTactic(configured).useTactic(live.state,live.a);
+  assert.equal(before?.name,'Evolution');
+  const probe=new Probe(configured).useTactic(hypothetical.state,hypothetical.a);
+  assert.ok(probe,'Pinned Simulator must resolve the conditioned TM Evolution');
+  assert.ok(speculativeOwnerDeckPrompts>0,
+    'Pinned SimpleTactic should invoke owner-deck prompt observer in speculation');
+  const after=new ObserverTactic(configured).useTactic(live.state,live.a);
+  assert.equal(after?.name,'Evolution',
+    'A speculative search in another State must not advance the live K0 gate');
+});
