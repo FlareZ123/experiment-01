@@ -805,6 +805,7 @@ function runMatch(request) {
         (request.snorlaxRetreatStartCorrection === true ? '+SnorlaxBlockStartGate-v1' : '') +
         (request.electroRainDamageCorrection === true ? '+ElectroRainDamage-v1' : '') +
         (request.electrodeGXEnergyCorrection === true ? '+ElectrodeGXMandatoryEnergyAndBotCount-v2' : '') +
+        (request.electrodeGXPrizeTradePolicy === true ? '+ElectrodeSourcePrizeTrade-v1' : '') +
         (request.redeemableTicketPaperOrderCorrection === true ? '+TicketPaperPrizeOrder-v1' : '') +
         (request.pendingEndTurnSwitchCleanupCorrection === true ? '+PendingEndTurnSwitchPaper-v1' : '') +
         (request.apexSpreadPrizeWindowPolicy === true ? '+ApexSpreadPrizeWindow-v1' : '') +
