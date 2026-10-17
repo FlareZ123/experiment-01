@@ -107,6 +107,22 @@ jobs:
           name: rank10-shred-turn29-response
           path: rank10-turn29-response.json
           if-no-files-found: warn
+      - name: Unit-check actual-own-hand decision observer
+        if: ${{ inputs.run_turn29_response_audit }}
+        run: node --test tests/rank10-turn29-own-hand-audit.test.cjs
+      - name: Capture exact acting-player own-hand resource evidence
+        if: ${{ inputs.run_turn29_response_audit }}
+        run: node simulation/twinleaf/rank10-shred-turn29-own-hand-source.cjs > rank10-turn29-own-hand.json
+      - name: Print own-hand resource and unused-action flags
+        if: ${{ inputs.run_turn29_response_audit }}
+        run: node -e "const x=require('./rank10-turn29-own-hand.json'); console.log(JSON.stringify({hand:x.ownHand,qualified:x.qualifiedForCompetitiveInference}));"
+      - name: Archive retrospective acting-player information
+        if: ${{ always() && inputs.run_turn29_response_audit }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-turn29-own-hand-audit
+          path: rank10-turn29-own-hand.json
+          if-no-files-found: warn
       - name: Show source-aligned knockout counterfactual
         run: node -e "const x=require('./rank10-mimikyu-shred-source-fork.json'); console.log(JSON.stringify({firstDivergence:x.firstSourceDivergence,printedOpportunity:x.sourceOpportunity,chosen:x.chosenAttack,original:x.original,counterfactual:x.counterfactual,qualified:x.qualifiedForCompetitiveInference}));"
       - name: Preserve turn-28 source-game Shred counterfactual
