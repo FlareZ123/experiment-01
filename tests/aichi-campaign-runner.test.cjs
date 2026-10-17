@@ -103,6 +103,7 @@ test('same seed, both engine slots, verified real turn order and deck hashes', (
   assert.deepEqual(result.records.map(r => r.candidateTrueTurn), ['first', 'second']);
   assert.deepEqual(result.records.map(r => r.winner), ['candidate', 'opponent']);
   assert.ok(result.records.every(r => r.status === 'completed'));
+  assert.ok(result.records.every(r => r.observedFinished === true));
   assert.deepEqual(result.selectedTrialIds, result.records.map(r => r.trialId));
   assert.equal(calls[0].strictPromptValidation, true);
   assert.equal(calls[0].isolatePolicyRandomness, true);
@@ -439,4 +440,17 @@ test('v3 schedules both distinct physical slots through the evidence runner', ()
   const baseline = fixture().campaign;
   assert.equal(baseline.schemaVersion, 1);
   assert.notEqual(f.campaign.planDigest, baseline.planDigest);
+});
+
+test('unfinished engine witness is retained and cannot enter completed evidence', () => {
+  const f = fixture();
+  const result = executeCampaign(f, {
+    maxTrials:1, prepareCandidate:prepare,
+    runMatch(request) {
+      return {...finished(request), finished:false};
+    }
+  });
+  assert.equal(result.records[0].observedFinished, false);
+  assert.equal(result.records[0].status, 'unfinished');
+  assert.equal(result.records[0].winner, null);
 });
