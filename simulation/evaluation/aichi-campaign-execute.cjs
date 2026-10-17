@@ -77,6 +77,7 @@ function executeDiagnostic(options) {
   }
   const allowedFlags = new Set([
     'strictPromptValidation', 'forestSealSearchCorrection',
+    'attachedToolPowerPolicy',
     'grandTreeFirstTurnCorrection',
     'electrodeGXEnergyCorrection',
     'electrodeGXPrizeTradePolicy', 'electroRainDamageCorrection',
@@ -376,6 +377,7 @@ function main() {
     researchPolicyProfile,
     policyFlags: {
       strictPromptValidation: true, forestSealSearchCorrection: true,
+      attachedToolPowerPolicy: process.env.AICHI_ATTACHED_TOOL_POWER === '1',
       grandTreeFirstTurnCorrection: process.env.AICHI_GRAND_TREE_TURN_GUARD === '1',
       electrodeGXEnergyCorrection: process.env.AICHI_ELECTRODE_GX_ENERGY === '1',
       electroRainDamageCorrection: process.env.AICHI_ELECTRO_RAIN_DAMAGE === '1',
