@@ -52,6 +52,7 @@ function run() {
         a.seat===0&&a.name==='Perfection').length,
       passes:game.decisionTrace.filter(a=>
         a.playerSlot===0&&a.action==='PassTurnAction').length,
+      lastOpponentAttacks:game.attackTrace.filter(a=>a.seat===1).slice(-4).map(a=>({turn:a.turn,attack:a.attack,activePokemon:a.activePokemon,prizeCountBefore:a.prizeCountBefore,prizeCountAfter:a.prizeCountAfter})),
       played
     };
   });
