@@ -73,3 +73,22 @@ The [source-copy regression](../../tests/aichi_temple_candidate.test.cjs) checks
 Run two true-starting-seat stateful engine fixtures, verifying Temple versus Double Dragon Energy and Wobbuffet versus Iron Thorns Initialization. Then compare this list and the original rank-1 list under competent, shared decision policies against the available full field, while retaining ranks 23, 25 and 28 as missing. No measured win rate exists for v1.
 
 **Exact Radiant-gate trade-off:** [Independent exact comparison](temple-radiant-tradeoff.md) finds v1 has 52.59209% direct Radiant access (baseline 52.20484%), but only **46.38691%** access with at least two fetchable VMAX still in deck (baseline **50.65944%**), a 4.27252 percentage-point decline. This is a serious quantified setup cost of cutting the fourth VMAX, before considering Wobbuffet's interference or matchup performance.
+
+**17 October follow-up, distinct existing-list ALS:** In
+[Wobbuffet + Latias free retreat](temple-wobbuffet-latias-als.md),
+Agent 15 identifies a potential T2 zero-retreat transition from Active
+Wobbuffet into an Energy-accelerated Shadow Rider VMAX under opposing
+Iron Thorns Initialization. Latias ex is a Psychic Basic and stays
+exempt from Wobbuffet's Bide Barricade, so its Skyliner may grant
+Wobbuffet zero Retreat Cost even during lock; Underworld Door also
+remains usable while the Psychic VMAX is Benched. Existing
+[Agent42 pinned Store checks](agent42-wobbuffet-thorns-t2.md)
+cover the lock and actual Underworld Door attachment, but the
+**Latias retreat transition itself is still untested**.
+Exact initial-seven/Prize/two-draw direct-resource chance for
+Wobbuffet opening, Rider V by T1, VMAX+Latias+one Psychic Energy by
+T2 is just **0.135038%** under no search/extra bonus assumptions.
+With three directly seen Energy, it is **0.010122%**.
+These restricted figures must not be interpreted as effective
+turn-two rates or game wins. The unchanged Temple list already
+contains every named piece; opponent Thorns can KO Wobbuffet early.
