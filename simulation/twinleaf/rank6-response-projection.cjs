@@ -44,4 +44,34 @@ function responseTurnEndingActionObserved(ledger) {
   return ledger.some(event => event.turnEndingActionAccepted);
 }
 
-module.exports = {publicTurnLedger,responseTurnEndingActionObserved};
+
+/**
+ * Derive publicly visible Prize-count changes from the authentic root Store
+ * transcript, omitting Prize identities and all private-choice payloads.
+ *
+ * @param {object[]} actionTrace
+ * @returns {object[]}
+ */
+function publicPrizeTransitions(actionTrace) {
+  assert.ok(Array.isArray(actionTrace));
+  const result=[];
+  for(let i=0;i<actionTrace.length;i++) {
+    const event=actionTrace[i];
+    const before=event.before?.prizesRemaining;
+    const after=event.after?.prizesRemaining;
+    if(!Array.isArray(before)||!Array.isArray(after)||
+        before.length!==2||after.length!==2) continue;
+    if(before[0]===after[0] && before[1]===after[1]) continue;
+    result.push({
+      rootActionOrdinal:i,turn:event.before.turn,
+      action:event.action,
+      promptKind:event.pendingPrompt?.kind??null,
+      prizesBefore:before.slice(),
+      prizesAfter:after.slice()
+    });
+  }
+  return result;
+}
+
+module.exports = {publicTurnLedger,responseTurnEndingActionObserved,
+  publicPrizeTransitions};
