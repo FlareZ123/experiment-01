@@ -71,11 +71,11 @@ function audit(candidate,source,getCard,getSet) {
   assert.equal(aceSpecCount,1);
   assert.equal(candidate.entries.filter(r=>r.id==='xy7-30').length,1,
     'Use Farewell Letter Unown rather than banned SM8 variants');
-  assert.equal(candidate.entries.filter(r=>r.id==='sv6pt5-18').length,1,
-    'Use legal Shrouded Fable Duskull rather than prohibited SM11a print');
+  assert.equal(candidate.entries.filter(r=>r.id==='swsh4-69').length,1,
+    'Use a non-prohibited Vivid Voltage Duskull equivalent');
   for(const [name,id,ability] of [
     ['Unown','xy7-30','Farewell Letter'],
-    ['Duskull','sv6pt5-18',null],
+    ['Duskull','swsh4-69',null],
     ['Dusclops','sv6pt5-19','Cursed Blast'],
     ['Solrock','sm7-62','Sunbeam'],
     ['Lunatone','sv3-92','New Moon'],
