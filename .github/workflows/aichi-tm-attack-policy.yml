@@ -29,6 +29,8 @@ jobs:
         run: node --test tests/bunnelby-k0-deck-target-leak.test.cjs tests/bunnelby-k0-source-inventory.test.cjs
       - name: Verify observed K0 to K1 owner-deck search policy
         run: node --test tests/bunnelby-k1-observation.test.cjs
+      - name: Verify root-only hidden Prize epoch invalidation
+        run: node --test tests/root-prize-knowledge-observer.test.cjs tests/bunnelby-k1-ticket-epoch.test.cjs
       - name: Contrast generic and source-aware TM Evolution targets
         run: node --test tests/bunnelby-tm-target-selection.test.cjs
       - name: Verify exact source Bench-priority displacement and independent toy oracle
