@@ -13,6 +13,7 @@
  * @param {{id?:number,result?:unknown,constructor?:{name?:string}}} action
  * @returns {void}
  */
+/** @param {unknown} result @param {number|undefined} length @returns {boolean} */
 function isIndexPermutation(result, length) {
   return Number.isInteger(length) && length >= 0 &&
     Array.isArray(result) && result.length === length &&
