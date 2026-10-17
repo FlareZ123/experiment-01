@@ -61,4 +61,12 @@ test('headless hook is opt-in, labeled, and restored on both source ranks',()=>{
   assert.deepEqual(control.deckHashes,corrected.deckHashes);
   assert.deepEqual(control.rules,corrected.rules);
   assert.equal(corrected.promptValidationMode,'predispatch-prompt-validate');
+  const combined=runMatch({...options,electrodeGXEnergyCorrection:true,
+    electroRainDamageCorrection:true});
+  assert.equal(ElectrodeGX.prototype.reduceEffect,original);
+  assert.equal(combined.electrodeGXEnergyCorrection,true);
+  assert.equal(combined.electroRainDamageCorrection,true);
+  assert.ok(combined.policy.includes('ElectrodeGXMandatoryEnergy-v1'));
+  assert.ok(combined.policy.includes('ElectroRainDamage-v1'));
+  assert.deepEqual(corrected.deckHashes,combined.deckHashes);
 });
