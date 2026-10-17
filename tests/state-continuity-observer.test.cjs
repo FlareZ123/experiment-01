@@ -142,3 +142,50 @@ test('opt-in policy history repair only restores physical Card history',()=>{
   assert.equal(audit.restorationEvents[0].edits[0].changed,200);
   assert.equal(physical.damageTakenLastTurn,0);
 });
+
+
+test('outer pre-dispatch hook produces a continuity gap without speculative policy activity',()=>{
+  class PassTurnAction{}
+  const store=new Store(),prior=Store.prototype.dispatch;
+  const observed=withSourceContinuity(Store,()=>{
+    const inner=Store.prototype.dispatch;
+    Store.prototype.dispatch=function(action){
+      if(action instanceof PassTurnAction) this.state.card.damageTakenLastTurn=150;
+      return inner.call(this,action);
+    };
+    try{
+      store.dispatch(new AddPlayerAction());
+      return store.dispatch(new PassTurnAction());
+    }finally{Store.prototype.dispatch=inner;}
+  },{snapshot:sample});
+  assert.equal(observed.discontinuities.length,1);
+  assert.equal(observed.discontinuities[0].nextAction,'PassTurnAction');
+  assert.deepEqual(observed.discontinuities[0].firstMismatch,{
+    path:'$.damageTakenLastTurn',before:0,after:150
+  });
+  assert.equal(Store.prototype.dispatch,prior);
+});
+
+test('outer post-dispatch hook produces a later continuity gap without policy evaluation',()=>{
+  class ResolvePromptAction{}
+  const store=new Store(),prior=Store.prototype.dispatch;
+  const observed=withSourceContinuity(Store,()=>{
+    const inner=Store.prototype.dispatch;
+    Store.prototype.dispatch=function(action){
+      const result=inner.call(this,action);
+      if(action instanceof ResolvePromptAction) this.state.card.damageTakenLastTurn=200;
+      return result;
+    };
+    try{
+      store.dispatch(new AddPlayerAction());
+      store.dispatch(new ResolvePromptAction());
+      return store.dispatch(new AddOne());
+    }finally{Store.prototype.dispatch=inner;}
+  },{snapshot:sample});
+  assert.equal(observed.discontinuities.length,1);
+  assert.equal(observed.discontinuities[0].nextAction,'AddOne');
+  assert.deepEqual(observed.discontinuities[0].firstMismatch,{
+    path:'$.damageTakenLastTurn',before:0,after:200
+  });
+  assert.equal(Store.prototype.dispatch,prior);
+});
