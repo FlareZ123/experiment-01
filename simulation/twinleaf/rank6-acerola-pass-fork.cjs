@@ -41,8 +41,8 @@ function withRank6AcerolaPassFork(types,work,options={}) {
     assert.equal(player.active.damage,140);
     assert.equal(player.active.energies.cards.length,2);
     assert.equal(player.bench.filter(slot=>slot.getPokemonCard()).length,1);
-    assert.equal(player.bench.find(slot=>slot.getPokemonCard())?
-      .getPokemonCard()?.name,'Dialga-GX');
+    const soleBench=player.bench.find(slot=>slot.getPokemonCard());
+    assert.equal(soleBench.getPokemonCard().name,'Dialga-GX');
     sourceChoices.push({turn:state.turn,seat:state.activePlayer,
       proposal:'PlayCardAction',card:'Acerola',
       publicActive:player.active.getPokemonCard().name,
