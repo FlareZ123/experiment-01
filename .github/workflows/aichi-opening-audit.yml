@@ -51,6 +51,10 @@ jobs:
         run: node --test tests/aichi-ranger-stone-field.test.cjs
       - name: Absol and Garbotoxin direct-window exact source regressions
         run: node --test tests/aichi-absol-garbotoxin-window.test.cjs
+      - name: First turn Boost Shake direct Garbotoxin tests
+        run: node --test tests/aichi-absol-boost-shake-direct.test.cjs
+      - name: First turn Boost Shake source audit
+        run: node scripts/aichi-absol-boost-shake-direct.cjs > aichi-absol-boost-shake-direct.json
       - name: Absol and Garbotoxin source audit
         run: node scripts/aichi-absol-garbotoxin-window.cjs > aichi-absol-garbotoxin-window.json
       - name: Audit published Aichi lists
@@ -85,6 +89,7 @@ jobs:
           path: |
             aichi-opening-audit.md
             aichi-absol-garbotoxin-window.json
+            aichi-absol-boost-shake-direct.json
             aichi-bonus-draws.md
             iron-thorns-direct-line.json
             meloetta-lone-active.md
