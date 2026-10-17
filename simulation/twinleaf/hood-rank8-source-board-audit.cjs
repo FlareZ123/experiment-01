@@ -44,6 +44,7 @@ function condense(event) {
   return {
     ordinal:event.ordinal,turn:event.turn,actingSeat:player,
     action:event.action,card:event.card,declaredName:event.declaredName,
+    abilitySource:event.abilitySource||null,
     attackBefore:attacker.active,
     targetBefore:defender.active,
     opponentActiveExactly60: event.action==='AttackAction' &&
