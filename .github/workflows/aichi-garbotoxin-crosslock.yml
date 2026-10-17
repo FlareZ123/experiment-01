@@ -27,6 +27,7 @@ jobs:
       - run: node simulation/twinleaf/garbotoxin-faba-tempo.cjs
       - run: node simulation/twinleaf/garbotoxin-retool-after-faba.cjs
       - run: node simulation/twinleaf/rank11-shopping-center-diagnostic.cjs
+      - run: node simulation/twinleaf/rank11-shopping-center-store-cycle.cjs
       - run: node scripts/aichi-grand-tree-opening.cjs
       - name: Audit raw Grand Tree opening-turn restriction
         run: node simulation/twinleaf/grand-tree-first-turn-audit.cjs
