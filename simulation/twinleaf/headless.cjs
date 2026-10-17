@@ -195,6 +195,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [battleCompressorPositiveSelectionCorrection] Opt-in paper minimum-one-card selection for Battle Compressor.
  * @property {boolean} [grandTreeFirstTurnCorrection] Opt-in printed first-turn Grand Tree evolution prohibition.
  * @property {boolean} [doubleDragonRecovery] Opt-in experimental legal dynamic-Energy attachment tactic.
+ * @property {boolean} [doubleDragonArchiveV3] Restore the source-locked historical DDE v3 tactic ONLY for archival replay.
  * @property {boolean} [templeUnlockRecovery] Opt-in attack-unlocking Marshadow response to Temple.
  * @property {boolean} [isolatePolicyRandomness] Use independent RNG streams for speculative bot decisions (experimental).
  * @property {boolean} [prototypeSafeSimulatorIsolation] Opt-in experimental detached speculative Cards/prototypes, not certified for competitive inference.
@@ -443,8 +444,13 @@ function runMatch(request) {
       scores: definitions.defaultStateScores,
       arbiter: { flipMode: BotFlipMode.RANDOM, shuffleMode: BotShuffleMode.RANDOM }
     };
+    if (request.doubleDragonArchiveV3 === true && request.doubleDragonRecovery !== true) {
+      throw new Error('Historical DDE v3 replay requires doubleDragonRecovery:true');
+    }
+    const ddeAdapter = request.doubleDragonArchiveV3 === true ?
+      require('./dde-attach-tactic-v3-archive.cjs') : require('./dde-attach-tactic.cjs');
     let options = request.doubleDragonRecovery === true ?
-      require('./dde-attach-tactic.cjs').withDoubleDragonRecovery(baseOptions) : baseOptions;
+      ddeAdapter.withDoubleDragonRecovery(baseOptions) : baseOptions;
     if (request.templeUnlockRecovery === true) options = require('./temple-unlock-tactic.cjs').withTempleUnlockRecovery(options);
     if (request.electrodeGXPrizeTradePolicy === true) options = withElectrodePrizeTradePolicy(options);
     if (request.raichuSightToolPolicy === true) {
@@ -793,6 +799,7 @@ function runMatch(request) {
         request.battleCompressorPositiveSelectionCorrection === true,
       grandTreeFirstTurnCorrection: request.grandTreeFirstTurnCorrection === true,
       doubleDragonRecovery: request.doubleDragonRecovery === true,
+      ...(request.doubleDragonArchiveV3 === true ? {doubleDragonArchiveV3:true} : {}),
       templeUnlockRecovery: request.templeUnlockRecovery === true,
       supporterDecisionCorrection: request.supporterDecisionCorrection === true,
       guzmaSelfSwitchGuard: request.guzmaSelfSwitchGuard === true,
@@ -836,7 +843,9 @@ function runMatch(request) {
       attackBeforeRetreatSeat: request.attackBeforeRetreatSeat ?? null,
       policy: (request.doubleDragonRecovery === true ?
         'Twinleaf SimpleTacticsAi/defaultStateScores+' +
-        require('./dde-attach-tactic.cjs').DDE_POLICY_VERSION :
+        (request.doubleDragonArchiveV3 === true ?
+          'DoubleDragonAttachTactic-v3-archive' :
+          require('./dde-attach-tactic.cjs').DDE_POLICY_VERSION) :
         'Twinleaf SimpleTacticsAi/defaultStateScores') +
         (request.battleCompressorPositiveSelectionCorrection === true ?
           '+BattleCompressorMin1-paper-v1' : '') +
