@@ -118,7 +118,8 @@ function assertValidPromptAction(state, action) {
       action.result !== null) {
     const eligible = new Set(prompt.cardList.filter(prompt.filter));
     const used = new Set();
-    valid = Array.isArray(action.result) && action.result.every(({card}) => {
+    valid = Array.isArray(action.result) && Array.from(action.result).every(entry => {
+      const card = entry?.card;
       if (!eligible.has(card) || used.has(card)) return false;
       used.add(card);
       return true;
