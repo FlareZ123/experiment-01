@@ -16,7 +16,7 @@ const prefix=[
 
 /** @param {string} source @returns {string} */
 function gitBlobSha(source) {
-  const header=Buffer.from('blob '+Buffer.byteLength(source)+'\\0','utf8');
+  const header=Buffer.from('blob '+Buffer.byteLength(source)+'\0','utf8');
   return crypto.createHash('sha1').update(header)
     .update(source,'utf8').digest('hex');
 }
