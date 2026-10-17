@@ -102,6 +102,13 @@ function main() {
     assert.deepEqual(arm.deckHashes, original.deckHashes);
     assert.deepEqual(arm.beforeTurnFiveActions, original.beforeTurnFiveActions,
       'The frozen source game diverged before the intended decision');
+    if (arm.corrected) {
+      for (const event of arm.queueCleanupEvents) {
+        assert.ok(event.effectsRemoved.every(effect =>
+          effect.type === 'knock_out' && effect.attack === 'Pale Moon-GX'),
+        'Active-exit correction changed a different root delayed effect');
+      }
+    }
     if (arm.policy === 'retreat') {
       assert.equal(arm.sourceDecisions.length, 1);
       assert.equal(arm.sourceDecisions[0].originalAction, 'PassTurnAction');
