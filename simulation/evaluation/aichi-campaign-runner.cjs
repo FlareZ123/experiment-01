@@ -125,7 +125,7 @@ function executeCampaign(inputs, options = {}) {
   const policyFlags = options.matchOptions || {};
   const allowedPolicyFlags = new Set([
     'forestSealSearchCorrection', 'doubleDragonRecovery',
-    'supporterDecisionCorrection',
+    'supporterDecisionCorrection', 'attachedToolPowerPolicy',
     'postSuperAliasRepairIsolation'
   ]);
   if (Object.entries(policyFlags).some(([key, value]) =>
@@ -207,6 +207,8 @@ function executeCampaign(inputs, options = {}) {
         game.researchPolicyProfile === expectedPolicyProfile;
       const cloneProfileValid = policyFlags.postSuperAliasRepairIsolation !== true ||
         game.postSuperAliasRepairIsolation === true;
+      const requestedPolicyEchoValid = Object.entries(policyFlags)
+        .every(([key, value]) => game[key] === value);
       const terminal = game.finished === true && [0, 1, 3].includes(game.winner);
       const status = !validSeed ? 'engine-seed-mismatch' :
         !validHashes ? 'engine-deck-mismatch' :
@@ -214,6 +216,7 @@ function executeCampaign(inputs, options = {}) {
         !protocolValid ? 'engine-protocol-mismatch' :
         !profileValid ? 'policy-profile-mismatch' :
         !cloneProfileValid ? 'simulator-profile-mismatch' :
+        !requestedPolicyEchoValid ? 'match-policy-echo-mismatch' :
         !proof ? 'unverified-first-turn' :
           !terminal ? 'unfinished' : 'completed';
       const candidateSlot = candidateA ? 0 : 1;
@@ -229,17 +232,16 @@ function executeCampaign(inputs, options = {}) {
         endReason: game.endReason || null, actionCount: game.actions ?? null,
         turns: game.turns ?? null, expectedEngineDeckHashes,
         observedSeed: game.seed ?? null,
+        requestedMatchOptions: policyFlags,
         effectiveMatchOptions: {
-          forestSealSearchCorrection: request.forestSealSearchCorrection === true,
-          doubleDragonRecovery: game.doubleDragonRecovery === true ||
-            (game.doubleDragonRecovery === undefined && request.doubleDragonRecovery === true),
-          supporterDecisionCorrection: game.supporterDecisionCorrection === true ||
-            (game.supporterDecisionCorrection === undefined &&
-              request.supporterDecisionCorrection === true),
-          postSuperAliasRepairIsolation: game.postSuperAliasRepairIsolation === true,
-          strictPromptValidation: request.strictPromptValidation,
-          isolatePolicyRandomness: game.policyRandomIsolation === undefined ?
-            request.isolatePolicyRandomness : game.policyRandomIsolation
+          forestSealSearchCorrection: game.forestSealSearchCorrection ?? null,
+          doubleDragonRecovery: game.doubleDragonRecovery ?? null,
+          supporterDecisionCorrection: game.supporterDecisionCorrection ?? null,
+          attachedToolPowerPolicy: game.attachedToolPowerPolicy ?? null,
+          postSuperAliasRepairIsolation: game.postSuperAliasRepairIsolation ?? null,
+          strictPromptValidation: game.promptValidationMode ===
+            'predispatch-prompt-validate',
+          isolatePolicyRandomness: game.policyRandomIsolation ?? null
         },
         resolvedEngineRevision: plan.engineRevision || null,
         observedEngine: game.engine || null,
@@ -298,8 +300,12 @@ if (require.main === module) {
     request => profiled.runWithResearchProfile(request, profile) : undefined;
   process.stdout.write(JSON.stringify(executeCampaign(loadCampaignInputs(), {
     phase, maxTrials, maxActions, trialIds, runMatch,
-    matchOptions: {postSuperAliasRepairIsolation:
-      process.env.CAMPAIGN_POST_SUPER_ALIAS_REPAIR === 'true'},
+    matchOptions: {
+      postSuperAliasRepairIsolation:
+        process.env.CAMPAIGN_POST_SUPER_ALIAS_REPAIR === 'true',
+      attachedToolPowerPolicy:
+        process.env.CAMPAIGN_ATTACHED_TOOL_POWER === 'true'
+    },
     captureDecisionTrace, expectedPolicyProfile: profile || null
   }), null, 2) + '\n');
 }
