@@ -17,6 +17,9 @@ const engine=name=>require(path.resolve(__dirname,
 
 function conditionedBot(insertion){
   const sample=build(insertion);
+  const {Format}=engine('game/store/card/card-types');
+  sample.state.gameSettings.format=Format.EXPANDED;
+  sample.state.turn=2;
   const manager=initializeCards();
   const bunnelby=manager.getCardByName('Bunnelby PRC');
   const tool=manager.getCardByName('Technical Machine: Evolution PAR');
