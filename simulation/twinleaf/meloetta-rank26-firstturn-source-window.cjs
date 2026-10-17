@@ -69,7 +69,8 @@ function firstTurnState(meloetta, thorns, attackerSeat, seed) {
       entryDrawLockCorrection:true
     });
   } catch (error) {
-    if (error !== stop) throw error;
+    // The shared headless runner wraps root Store dispatch failures in cause.
+    if (error !== stop && error.cause !== stop) throw error;
   } finally {
     Store.prototype.dispatch = original;
   }
