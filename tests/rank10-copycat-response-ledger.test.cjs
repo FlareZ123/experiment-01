@@ -60,3 +60,41 @@ test('honors bounded turn horizon and fails on absent source fork',()=>{
     {startOrdinal:0,horizonTurns:1}).length,2);
   assert.throws(()=>responseLedger([],{}),/ordinal/);
 });
+
+
+test('reads original source Store attack-choice and public Bench-promotion codecs',()=>{
+  const base={turn:28,activePlayer:1,prizesRemaining:[3,4]};
+  const result=responseLedger([
+    {action:'ResolvePromptAction',before:base,after:base,
+      pendingPrompt:{kind:'ChooseAttackPrompt',playerId:202},
+      attackChoice:{
+        sources:[{printing:'SECRET_OTHER_DISCARDED_DRAGON'}],
+        selection:{printing:'Dialga-GX UPR',attackName:'Shred'}
+      }},
+    {action:'ResolvePromptAction',before:base,after:base,
+      pendingPrompt:{kind:'ChoosePokemonPrompt',playerId:101},
+      slotChoice:{
+        sourceCatalog:[{zone:'prizes',signature:['SECRET_PRIZE']}],
+        selections:[{playerId:101,zone:'bench',index:1,
+          signature:['Regidrago VSTAR SIT']}]}}
+  ],{startOrdinal:0});
+  assert.equal(result[0].selectedSource,'Dialga-GX UPR');
+  assert.equal(result[0].selectedCopiedAttack,'Shred');
+  assert.deepEqual(result[1].promotions,[{
+    playerId:101,zone:'bench',position:1,
+    publicCards:['Regidrago VSTAR SIT']
+  }]);
+  assert.equal(JSON.stringify(result).includes('SECRET'),false);
+});
+test('source Prize selection counts never include hidden selected card identity',()=>{
+  const base={turn:28,activePlayer:1,prizesRemaining:[3,2]};
+  const result=responseLedger([{
+    action:'ResolvePromptAction',before:base,after:base,
+    pendingPrompt:{kind:'ChoosePrizePrompt',playerId:202},
+    slotChoice:{sourceCatalog:[{signature:['HIDDEN_POOL']}],
+      selections:[{zone:'prizes',signature:['HIDDEN_ACE_SPEC']},
+        {zone:'prizes',signature:['HIDDEN_ITEM']}]}
+  }],{startOrdinal:0});
+  assert.equal(result[0].prizeCountSelected,2);
+  assert.equal(JSON.stringify(result).includes('HIDDEN'),false);
+});
