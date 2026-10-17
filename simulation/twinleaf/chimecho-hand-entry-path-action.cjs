@@ -13,7 +13,7 @@ const load = moduleName => require(path.join(output, moduleName));
  * Chimecho CIN Bell of Silence player-level lock through its own reducer.
  * Stadium and lock are crossed without modifying any upstream source.
  *
- * @param {{lock:boolean,path:boolean,withAbility:boolean}} options
+ * @param {{lock:boolean,path:boolean,withAbility:boolean,evolve?:boolean}} options
  * @returns {{options:object,locked:boolean,accepted:boolean,benchEntry:boolean,
  *   handRetained:boolean,error:string|null,pendingPrompts:string[],
  *   lockedAfterDefenderEnd:boolean|null}}
@@ -57,6 +57,10 @@ function probeChimechoHandEntry(options) {
   attacker.active.cards.push(chimecho);
   defender.active.cards.push(card('Shadow Rider Calyrex V CRE'));
   defender.bench.push(new PokemonCardList());
+  if (options.evolve) {
+    defender.bench[0].cards.push(card('Trubbish BKP'));
+    defender.bench[0].pokemonPlayedTurn = 1;
+  }
   if (options.path) attacker.stadium.cards.push(card('Path to the Peak CRE'));
 
   for (const player of [attacker, defender]) {
@@ -68,7 +72,7 @@ function probeChimechoHandEntry(options) {
     }
   }
 
-  const incoming = card(options.withAbility
+  const incoming = card(options.evolve ? 'Garbodor BKP' : options.withAbility
     ? 'Tapu Lele-GX GRI'
     : 'Shadow Rider Calyrex V CRE');
   defender.hand.cards.push(incoming);
@@ -130,6 +134,16 @@ function testChimechoHandEntry() {
         }
         results.push(row);
       }
+      // Stage 1 printed Ability must obey the same hand-entry restriction.
+      // Existing Trubbish has been in play since an earlier turn.
+      const evolution = probeChimechoHandEntry({
+        lock, path, withAbility: true, evolve: true
+      });
+      assert.equal(evolution.accepted, !lock, JSON.stringify(evolution));
+      assert.equal(evolution.benchEntry, !lock, JSON.stringify(evolution));
+      assert.equal(evolution.handRetained, lock, JSON.stringify(evolution));
+      if (lock) assert.equal(evolution.lockedAfterDefenderEnd, false);
+      results.push(evolution);
     }
   }
   return {
