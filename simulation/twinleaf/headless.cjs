@@ -27,6 +27,7 @@ const {installElectroRainDamageHook} = require('./electro-rain-damage-hook.cjs')
 const {installRedeemableTicketPaperOrderHook} = require('./redeemable-ticket-paper-hook.cjs');
 const {installHisuianHeavyBallPrizeShuffleHook} = require('./hisuian-heavy-ball-prize-hook.cjs');
 const {installPendingEndTurnSwitchCleanup} = require('./pending-end-turn-switch-cleanup.cjs');
+const {installApexPrizeWindowPolicy} = require('./apex-prize-headless-policy.cjs');
 const {publicSnapshot, observeTerminalTransition, advanceActionLineage} = require('./terminal-transition.cjs');
 const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
 const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
@@ -212,6 +213,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [redeemableTicketPaperOrderCorrection] Opt-in paper-rule Ticket top/new-Prize and bottom/old-Prize correction.
  * @property {boolean} [hisuianHeavyBallPrizeShuffleCorrection] Opt-in paper Prize-position shuffle for Hisuian Heavy Ball.
  * @property {boolean} [pendingEndTurnSwitchCleanupCorrection] Opt-in paper delayed-effect cleanup upon Player.switchPokemon Active-to-Bench movement.
+ * @property {boolean} [apexSpreadPrizeWindowPolicy] Opt-in Regidrago Phantom Dive selection and six-counter nominal Prize planning.
  * @property {boolean} [shadowRiderEnergyPriority] Opt-in basic Psychic Energy priority against Active Iron Thorns.
  * @property {boolean} [shadowRiderEnergyAcrossField] Opt-in speculative Psychic priority regardless of opposing Active.
  * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
@@ -266,6 +268,7 @@ function runMatch(request) {
   let restoreRedeemableTicketPaperOrderHook;
   let restoreHisuianHeavyBallPrizeShuffleHook;
   let pendingEndTurnSwitchCleanupHook;
+  let restoreApexPrizeWindowPolicy;
   let restoreMimikyuNonGxCopycatHook;
   let restoreCopyDeclaredHistoryHook;
   let restorePassClearsLastAttackHook;
@@ -378,6 +381,9 @@ function runMatch(request) {
     const { Format, CardType } = engine('game/store/card/card-types');
     const { GameSettings } = engine('game/core/game-settings');
     const { SimpleTacticsAi } = engine('simple-bot/simple-tactics-ai');
+    if (request.apexSpreadPrizeWindowPolicy === true) {
+      restoreApexPrizeWindowPolicy = installApexPrizeWindowPolicy();
+    }
     const definitions = engine('simple-bot/simple-bot-definitions');
     const { BotFlipMode, BotShuffleMode } = engine('game/bots/bot-arbiter');
 
@@ -728,6 +734,9 @@ function runMatch(request) {
         pendingEndTurnSwitchCleanupCorrection:true,
         pendingEndTurnSwitchCleanupEvidence:pendingEndTurnSwitchCleanupHook.evidence()
       } : {}),
+      ...(request.apexSpreadPrizeWindowPolicy === true ? {
+        apexSpreadPrizeWindowPolicy:true
+      } : {}),
       shadowRiderEnergyPriority: request.shadowRiderEnergyPriority === true,
       shadowRiderEnergyAcrossField: request.shadowRiderEnergyAcrossField === true,
       shadowRiderOpeningPivot: request.shadowRiderOpeningPivot === true,
@@ -746,6 +755,7 @@ function runMatch(request) {
         (request.electroRainDamageCorrection === true ? '+ElectroRainDamage-v1' : '') +
         (request.redeemableTicketPaperOrderCorrection === true ? '+TicketPaperPrizeOrder-v1' : '') +
         (request.pendingEndTurnSwitchCleanupCorrection === true ? '+PendingEndTurnSwitchPaper-v1' : '') +
+        (request.apexSpreadPrizeWindowPolicy === true ? '+ApexSpreadPrizeWindow-v1' : '') +
         (request.shadowRiderEnergyPriority === true ? '+ShadowRiderPsychicAttachPriority-v1' : '') +
         (request.shadowRiderEnergyAcrossField === true ? '+ShadowRiderPsychicAttachAcrossField-v1' : '') +
         (request.shadowRiderOpeningPivot === true ? '+SelectedShadowRiderSetupActive-v1' : '') +
@@ -788,6 +798,7 @@ function runMatch(request) {
     if (restoreElectroRainDamageHook) restoreElectroRainDamageHook();
     if (restoreHisuianHeavyBallPrizeShuffleHook) restoreHisuianHeavyBallPrizeShuffleHook();
     if (pendingEndTurnSwitchCleanupHook) pendingEndTurnSwitchCleanupHook.restore();
+    if (restoreApexPrizeWindowPolicy) restoreApexPrizeWindowPolicy();
     if (restoreRedeemableTicketPaperOrderHook) restoreRedeemableTicketPaperOrderHook();
     if (restoreDialgaBenchExposureGuard) restoreDialgaBenchExposureGuard();
     if (restoreGuzmaSelfSwitchGuard) restoreGuzmaSelfSwitchGuard();
