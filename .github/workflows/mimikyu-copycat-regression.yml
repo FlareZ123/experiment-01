@@ -85,5 +85,15 @@ jobs:
       - name: Verify composed spent-GX and spread-aware copied attacks
         run: node --test tests/spent-gx-spread-composition.test.cjs
 
+      - name: Optional source Regidrago mirror legal GX fork
+        if: inputs.spent_gx_source_fork == true
+        run: node simulation/twinleaf/rank10-mirror-spent-gx-source-fork.cjs > spent-gx-source-fork.json
+      - uses: actions/upload-artifact@v4
+        if: inputs.spent_gx_source_fork == true
+        with:
+          name: rank10-spent-gx-source-fork
+          path: spent-gx-source-fork.json
+          if-no-files-found: error
+
       - name: Characterize stale Copycat attack after intervening pass
         run: node simulation/twinleaf/mimikyu-stale-attack.cjs
