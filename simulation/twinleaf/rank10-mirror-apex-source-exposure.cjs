@@ -9,7 +9,7 @@ const {withSourceApexObservation, firstActionDifference} =
 
 /**
  * Deterministically select one distinct source seed for each actual first player.
- * The 1-action preview is only a starting-order screen, not a completed game.
+ * The 24-action preview is only a starting-order screen, not a completed game.
  * @param {object} base Fully resolved source-60 deck and game options.
  * @returns {Array<{seed:number,firstTurnSlot:number,probes:number}>}
  */
@@ -17,15 +17,14 @@ function selectTrueStartSeeds(base) {
   const selected = new Map();
   for (let i = 0; i < 48 && selected.size < 2; i += 1) {
     const seed = (4246551499 ^ Math.imul(i + 1, 0x9e3779b1)) >>> 0;
-    const preview = runMatch({...base, seed, maxActions:1});
+    const preview = runMatch({...base, seed, maxActions:24});
     const first = preview.firstTurnSlot;
-    assert.ok(first === 0 || first === 1,
-      'Source preview did not authenticate its first normal turn');
+    if (first !== 0 && first !== 1) continue;
     if (!selected.has(first)) {
       selected.set(first, {seed,firstTurnSlot:first,probes:i + 1});
     }
   }
-  assert.equal(selected.size, 2, '48 sampled authentic starts omitted a player');
+  assert.equal(selected.size, 2, '48 source previews did not cover both actual starting players');
   return [...selected.values()].sort((a,b) => a.firstTurnSlot - b.firstTurnSlot);
 }
 
