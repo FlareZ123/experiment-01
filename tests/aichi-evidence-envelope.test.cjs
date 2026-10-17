@@ -28,7 +28,9 @@ function fixture(mirror = false) {
       seed:t.seed,candidateDigest:t.candidateDigest,
       opponentDigest:t.opponentDigest}) : null,
     candidateTrueTurn:t.candidateEngineSlot==='A'?'first':'second',
-    winner:'candidate',expectedEngineDeckHashes:[h1,h2],
+    observedWinnerIndex:0,
+    winner:t.candidateEngineSlot==='A'?'candidate':'opponent',
+    expectedEngineDeckHashes:[h1,h2],
     observedEngineDeckHashes:[h1,h2]
   }));
   const archive={schemaVersion:1,planDigest:campaign.planDigest,phase:'pilot',
@@ -139,4 +141,36 @@ test('v2 independent-seat trial records pass envelope audit and reject protocol 
   assert.equal(auditArchive(inputs,archive).failures,1);
   archive.records[0].status='policy-profile-mismatch';
   assert.equal(auditArchive(inputs,archive).failures,1);
+});
+
+test('raw terminal winner binds each candidate label to the actual physical slot', () => {
+  const {inputs,archive} = fixture();
+  assert.equal(auditArchive(inputs, archive).completed, 2);
+  assert.equal(archive.records[0].winner, 'candidate');
+  assert.equal(archive.records[1].winner, 'opponent');
+
+  archive.records[1].winner = 'candidate';
+  assert.throws(() => auditArchive(inputs, archive), /Completed game/);
+  archive.records[1].winner = 'opponent';
+
+  archive.records[0].observedWinnerIndex = 1;
+  assert.throws(() => auditArchive(inputs, archive), /Completed game/);
+  archive.records[0].observedWinnerIndex = 0;
+
+  delete archive.records[0].observedWinnerIndex;
+  assert.throws(() => auditArchive(inputs, archive), /Completed game/);
+});
+
+test('raw engine draw sentinel is verified in both physical candidate seats', () => {
+  const {inputs,archive} = fixture();
+  for (const record of archive.records) {
+    record.observedWinnerIndex = 3;
+    record.winner = 'draw';
+  }
+  assert.equal(auditArchive(inputs, archive).completed, 2);
+  archive.records[0].winner = 'opponent';
+  assert.throws(() => auditArchive(inputs, archive), /Completed game/);
+  archive.records[0].winner = 'draw';
+  archive.records[1].observedWinnerIndex = -1;
+  assert.throws(() => auditArchive(inputs, archive), /Completed game/);
 });
