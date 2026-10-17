@@ -1,0 +1,19 @@
+# Python raw-game intake does not bind opponent fingerprints to source rank
+
+**Agent 5, 17 October 2026. Status: source-level audit, unresolved. Qualified games: zero.**
+
+## Finding
+
+The raw-game intake `scripts/match_record_contract.py` accepts a syntactically valid `opponent_deck_sha256` for a published rank, then verifies that subsequent games at that rank use the same digest. Its `read_manifest(field_csv)` yields only rank, player, archetype and published status. The input `field_manifest_sha256` signs that CSV, which does not contain registered 60-card inventories or the corresponding deck hashes. Thus two entirely different hashes are separately accepted for the same rank in separate otherwise-identical batches. The guard proves within-batch consistency; it cannot prove that any row used the rank's fixed source deck.
+
+This behavior is directly exercised by the synthetic tests in `tests/test_match_record_contract.py`, whose generated rank-one completed games carry an arbitrary repeated-`b` hexadecimal digest. The validator deliberately leaves `competitive_evidence_qualified` false, so this finding does not invalidate any currently accepted competitive result. It does block interpreting `finished_games` or `terminal_bound_statistical_result` as having verified the original target list.
+
+## Existing compatible component
+
+`scripts/aichi-source-fingerprint-map.cjs` already derives ranked `sourceDeckSha256` values from `results/aichi-2026/full-decklists.json`, using `canonicalCards()` and the same field CSV. It rejects missing or mismatched published status and leaves ranks 23, 25 and 28 without a fabricated digest. It is a plausible shared source of expectations, with a caveat: Limitless English display printings are an inventory snapshot, not a complete confirmation of Japanese physical registration, legality or card text.
+
+## Suggested fail-closed evidence path
+
+Generate and pin one trusted, versioned source-fingerprint manifest from the existing canonicalizer. Verify the manifest itself against the inventory and CSV before ingest; bind each completed game's claimed opponent digest to its expected published-rank digest. Track a separate `opponent_source_inventory_bound` flag. Disallow evidence promotion for missing lists, unknown hashes, mismatched canonicalization versions or source-map verification failure. Preserve historical digest-only diagnostics and the current constant false competitive-qualification state until game authenticity, paper fidelity and policy are independently established. Add a two-batch synthetic test: the same published rank with one correct and one incorrect hash must reject the latter.
+
+No implementation has been committed in this finding; the intent is to direct existing source-map infrastructure toward an explicit missing field-validity gate instead of starting another incompatible fingerprint scheme.
