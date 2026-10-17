@@ -37,7 +37,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Validate Supporter proposal and field provenance
-        run: node --test tests/supporter-decision-hook.test.cjs tests/test-aichi-field-benchmark.cjs tests/aichi-supporter-census.test.cjs tests/mandatory-option-policy.test.cjs tests/expanded-policy-profile.test.cjs tests/lost-vacuum-modal-choice.test.cjs tests/bunnelby-guzma-hala-mode.test.cjs tests/bunnelby-tm-target-selection.test.cjs tests/bunnelby-k0-source-inventory.test.cjs tests/expanded-source-profile-pair.test.cjs tests/bunnelby-gh-discard-policy-probe.test.cjs
+        run: node --test tests/supporter-decision-hook.test.cjs tests/test-aichi-field-benchmark.cjs tests/aichi-supporter-census.test.cjs tests/mandatory-option-policy.test.cjs tests/expanded-policy-profile.test.cjs tests/lost-vacuum-modal-choice.test.cjs tests/bunnelby-guzma-hala-mode.test.cjs tests/bunnelby-tm-target-selection.test.cjs tests/bunnelby-k0-source-inventory.test.cjs tests/expanded-source-profile-pair.test.cjs tests/bunnelby-gh-discard-policy-probe.test.cjs tests/bunnelby-gh-search-policy.test.cjs
       - name: Optional published-list policy feasibility probe
         if: ${{ inputs.run_aichi_fixture }}
         run: node simulation/twinleaf/supporter-aichi-smoke.cjs
