@@ -21,6 +21,7 @@ function underworldDoorAction(options) {
   const { Player } = engine('game/store/state/player');
   const { PokemonCardList } = engine('game/store/state/pokemon-card-list');
   const { PowerEffect } = engine('game/store/effects/game-effects');
+  const { CheckPokemonPowersEffect } = engine('game/store/effects/check-effects');
   const { ResolvePromptAction } = engine('game/store/actions/resolve-prompt-action');
   const { AttachEnergyPrompt } = engine('game/store/prompts/attach-energy-prompt');
   const { PlayerType, SlotType } = engine('game/store/actions/play-card-action');
@@ -81,19 +82,24 @@ function underworldDoorAction(options) {
   store.state = state;
   const target = player.bench[0];
 
+  const powerCheck = new CheckPokemonPowersEffect(player, vmax);
+  store.reduceEffect(state, powerCheck);
+  const powerListed = powerCheck.powers.some(p => p.name === 'Underworld Door');
   let allowed = true;
   let blockedReason;
+  let blockedStack;
   try {
     store.reduceEffect(state, new PowerEffect(player, vmax.powers[0], vmax, vmaxSlot));
   } catch (error) {
     allowed = false;
     blockedReason = String(error.message);
+    blockedStack = String(error.stack).split('\n').slice(0, 8);
     assert.ok(/BLOCKED|CANNOT_USE_POWER|UNKNOWN_POWER/.test(String(error.message)),
       'Unexpected Ability failure: ' + String(error.message));
   }
   if (!allowed) {
     assert.equal(state.prompts.filter(p => p.result === undefined).length, 0);
-    return { allowed, blockedReason, attached: 0, drawn: 0, handCount: player.hand.cards.length };
+    return { allowed, powerListed, blockedReason, blockedStack, attached: 0, drawn: 0, handCount: player.hand.cards.length };
   }
 
   const pending = state.prompts.find(p => p.result === undefined);
@@ -104,6 +110,7 @@ function underworldDoorAction(options) {
   }]));
   return {
     allowed,
+    powerListed,
     attached: target.energies.cards.filter(c => c.name === 'Psychic Energy').length,
     drawn: initialDeck - player.deck.cards.length,
     handCount: player.hand.cards.length
