@@ -24,6 +24,13 @@ function runCase(count, noRecipient = false, useBot = false, availableCount = 5,
   electrode.cards.push(f.card('Electrode-GX CES'));
   f.a.bench.push(electrode);
   if (noRecipient) f.a.active.cards.splice(0, 1, f.card('Electrode-GX CES'));
+  let benchTarget = null;
+  if (chainAttack) {
+    benchTarget = new PokemonCardList();
+    benchTarget.cards.push(f.card('Shadow Rider Calyrex VMAX CRE'));
+    f.b.bench.push(benchTarget);
+    f.a.active.tools.push(f.card('Telescopic Sight VIV'));
+  }
   for (const player of [f.a, f.b]) {
     player.prizes = Array.from({length:6}, () => {
       const prize = new CardList();
