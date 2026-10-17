@@ -50,3 +50,6 @@ jobs:
 
       - name: Reproduce ChooseCardsPrompt repeated-card source identity acceptance
         run: node --test tests/prompt-integrity-pinned-selection.test.cjs
+
+      - name: Check opt-in ordering, Prize shuffle and hand-shuffle permutations
+        run: node --test tests/prompt-integrity-pinned-permutations.test.cjs
