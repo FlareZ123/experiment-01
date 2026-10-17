@@ -29,3 +29,7 @@ jobs:
         run: node --test tests/decision-damage-history-rollback.test.cjs
       - name: Compare source ranked real bot decisions after history rollback
         run: node simulation/twinleaf/decision-damage-history-experiment.cjs
+      - name: Verify one-decision corrected clone profile scope
+        run: node --test tests/agent49-single-policy-decision.test.cjs
+      - name: Localize first source-ranked action difference and one-shot fork
+        run: node simulation/twinleaf/single-decision-clone-source-contrast.cjs
