@@ -24,9 +24,11 @@ const {AttackAction} = engine('game/store/actions/game-actions');
  * Restores the original bot method before returning.
  * @template T
  * @param {()=>T} fn
+ * @param {string[]} [discardNames] Two visible cards paid to G&H.
+ * @param {string[]} [searchNames] Restricted search picks; defaults preserve the archived fork.
  * @returns {{result:T,events:object[],completed:boolean}}
  */
-function withGuzmaHalaSourceFork(fn, discardNames = ['Guzma', 'Tropical Beach']) {
+function withGuzmaHalaSourceFork(fn, discardNames = ['Guzma', 'Tropical Beach'], searchNames = ['Double Colorless Energy', 'Wondrous Labyrinth Prism Star']) {
   assert.equal(discardNames.length, 2, 'G&H optional search requires two discard cards');
   assert.notEqual(discardNames[0], discardNames[1]);
   const original = SimpleTacticsAi.prototype.decodeNextAction;
@@ -74,14 +76,13 @@ function withGuzmaHalaSourceFork(fn, discardNames = ['Guzma', 'Tropical Beach'])
     }
     if (step===3) {
       assert.equal(prompt?.constructor.name,'ChooseCardsPrompt');
-      const cards=['Double Colorless Energy','Wondrous Labyrinth Prism Star']
-        .map(name=>{
+      const cards=searchNames.map(name=>{
           const card=p.deck.cards.find(item=>item.name===name);
           assert.ok(card,'Unavailable prompted search card '+name);
           return card;
         });
       assert.equal(prompt.validate(cards,state),true);
-      return select(state,p,prompt,'Fetch DCE and Wondrous Labyrinth',
+      return select(state,p,prompt,'Fetch '+searchNames.join(' + '),
         new ResolvePromptAction(prompt.id,cards));
     }
     if (step>=4 && step<=5 && prompt) {
