@@ -3,6 +3,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {selectFirstSecondSeed,summarizeGame,digest} =
   require('../simulation/twinleaf/hood-rank8-second-source.cjs');
+const {deriveSlotSeeds} = require('../scripts/aichi-decorrelated-seeds.cjs');
+const scheduled = ordinal => deriveSlotSeeds(20261016,'pilot',8,ordinal).B;
 
 function proof(seed, slot, winner = null) {
   return {seed,firstTurnSlot:slot,firstTurnPlayerId:slot===0?101:202,
@@ -14,10 +16,10 @@ test('first actual candidate-second seed is independent of winner', () => {
   const requested = [];
   const chosen = selectFirstSecondSeed(seed=>{
     requested.push(seed);
-    return proof(seed,seed===4168858075?0:1,seed%2);
+    return proof(seed,seed===scheduled(2)?0:1,seed%2);
   });
-  assert.deepEqual(requested,[4168858074,4168858075]);
-  assert.equal(chosen.seed,4168858075);
+  assert.deepEqual(requested,[scheduled(1),scheduled(2)]);
+  assert.equal(chosen.seed,scheduled(2));
   assert.equal(chosen.probes[0].candidateActualTurn,'first');
   assert.equal(chosen.probes[1].candidateActualTurn,'second');
   assert.deepEqual(Object.keys(chosen.probes[0]).sort(),
@@ -30,10 +32,11 @@ test('missing draw-log proof fails closed', () => {
 });
 
 test('bounded seed search refuses expansion and overflow', () => {
-  assert.throws(()=>selectFirstSecondSeed(seed=>proof(seed,1),4168858073,2),
+  assert.throws(()=>selectFirstSecondSeed(seed=>proof(seed,1),2),
     /No candidate-second seed/);
-  assert.throws(()=>selectFirstSecondSeed(seed=>proof(seed,0),4294967295,1),
-    /Invalid bounded seed/);
+  assert.throws(()=>selectFirstSecondSeed(seed=>proof(seed,0),33),
+    /Seed preflight budget/);
+  assert.notEqual(scheduled(1),scheduled(2));
 });
 
 test('summary assigns physical B outcome without private hands', () => {
