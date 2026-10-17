@@ -776,6 +776,7 @@ function runMatch(request) {
       snorlaxRetreatStartCorrection: request.snorlaxRetreatStartCorrection === true,
       electroRainDamageCorrection: request.electroRainDamageCorrection === true,
       electrodeGXEnergyCorrection: request.electrodeGXEnergyCorrection === true,
+      electrodeGXPrizeTradePolicy: request.electrodeGXPrizeTradePolicy === true,
       redeemableTicketPaperOrderCorrection: request.redeemableTicketPaperOrderCorrection === true,
       ...(request.pendingEndTurnSwitchCleanupCorrection === true ? {
         pendingEndTurnSwitchCleanupCorrection:true,
