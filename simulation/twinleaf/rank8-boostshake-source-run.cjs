@@ -6,6 +6,7 @@ const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {withStoreDispatchTranscript}=require('./store-dispatch-transcript.cjs');
 const {withRank8BoardObserver}=require('./hood-rank8-source-board-observer.cjs');
 const {withRank8BoostShakeFork}=require('./rank8-boostshake-source-fork.cjs');
+const {withRank8FieldBlowerReply}=require('./rank8-field-blower-source-reply.cjs');
 function main(){
   const candidate=require('../../results/aichi-2026/candidate-hood-shadow-rider.json');
   const plan=planAichi(candidate,{allowEquivalentBasicEnergies:true,
@@ -29,6 +30,16 @@ function main(){
       withRank8BoostShakeFork(()=>runMatch(request)),opts));
   const transcript=observed.result;
   const fork=transcript.result;
+  const answered=withRank8BoardObserver(Store,()=>
+    withStoreDispatchTranscript(Store,()=>
+      withRank8FieldBlowerReply(()=>
+        withRank8BoostShakeFork(()=>runMatch(request))),opts));
+  const reply=answered.result.result;
+  assert.equal(reply.stage,4);
+  assert.equal(reply.result.stage,11);
+  assert.ok(reply.cleared);
+  assert.deepEqual(answered.result.actionTrace.slice(0,86),
+    control.actionTrace.slice(0,86),'Counter-response changed source prefix');
   assert.equal(control.result.firstTurnSlot,0);
   assert.equal(fork.result.firstTurnSlot,0);
   assert.equal(fork.stage,11);
@@ -38,6 +49,8 @@ function main(){
   const garbo=fork.turn8.board[0].bench.filter(p=>p.name==='Garbodor');
   assert.equal(garbo.length,1);
   assert.ok(garbo[0].tools.includes('Float Stone'));
+  assert.deepEqual(reply.result.turn8.board,fork.turn8.board,
+    'Counter-response changed original locked predecision board');
   return {schema:'rank8-boostshake-real-deal-v1',
     seed:1260748957,sourcePrefixActions:86,
     sourceWitness:fork.witness,choices:fork.events,
@@ -47,6 +60,12 @@ function main(){
         source:e.abilitySource})),
     sourceOutcome:control.result.prizesRemaining,
     forkOutcome:fork.result.prizesRemaining,
+    directReply:{steps:reply.events,initial:reply.initial,
+      cleared:reply.cleared,prizes:reply.result.result.prizesRemaining,
+      turn8Actions:reply.result.result.decisionTrace.filter(e=>
+        e.turnBefore===8 && e.playerSlot===1).map(e=>({
+          action:e.action,card:e.card,ability:e.ability,
+          selectedCards:e.cardSelection?.selectedCards}))},
     qualifiedForCompetitiveInference:false};
 }
 if(require.main===module)process.stdout.write(JSON.stringify(main(),null,2)+'\n');
