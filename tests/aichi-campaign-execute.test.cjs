@@ -8,7 +8,7 @@ const { loadDefaultCampaign } = require('../scripts/aichi-comparison-campaign.cj
 
 const EXPECTED_ENGINE = 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const ECHOED_POLICY_KEYS = [
-  'forestSealSearchCorrection', 'grandTreeFirstTurnCorrection', 'doubleDragonRecovery',
+  'forestSealSearchCorrection', 'grandTreeFirstTurnCorrection', 'electrodeGXEnergyCorrection', 'doubleDragonRecovery',
   'templeUnlockRecovery', 'supporterDecisionCorrection',
   'snorlaxRetreatStartCorrection', 'shadowRiderEnergyPriority',
   'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
