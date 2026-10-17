@@ -46,3 +46,24 @@ assert.equal(seen.events[0].before.active.damage,140);
 assert.equal(seen.events[0].after.active.damage,0);
 assert.equal(MockStore.prototype.dispatch,original);
 console.log('rank6 source observer wrapper assertions passed');
+
+class HitAction {constructor(name){this.name=name;}}
+Object.defineProperty(HitAction,'name',{value:'AttackAction'});
+const source=new MockStore();
+source.state.turn=4;
+source.state.activePlayer=1;
+source.state.players[1]={active:blank,bench:[],prizes:[]};
+const targetWitness=require('../simulation/twinleaf/rank6-acerola-public-observer.cjs')
+  .withPublicAttackTargets(MockStore,()=>{
+    source.dispatch(new StartAction());
+    source.dispatch(new HitAction('Volt Cyclone'));
+    return 42;
+  });
+assert.equal(targetWitness.result,42);
+assert.equal(targetWitness.attacks.length,1);
+assert.equal(targetWitness.attacks[0].turn,4);
+assert.equal(targetWitness.attacks[0].seat,1);
+assert.equal(targetWitness.attacks[0].defender,'Shadow Rider Calyrex V');
+assert.equal(targetWitness.attacks[0].defenderCurrentDamage,140);
+assert.equal(MockStore.prototype.dispatch,original);
+console.log('rank6 public attack target observer assertions passed');
