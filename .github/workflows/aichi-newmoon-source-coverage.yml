@@ -35,6 +35,20 @@ jobs:
           name: newmoon-pinned-60
           path: newmoon-pinned-60.json
           if-no-files-found: error
+      - name: Check frozen New Moon counter-package source and exact access
+        run: node --test tests/new-moon-lockbreak.test.cjs
+      - name: Validate source-locked alternative with pinned engine
+        run: node simulation/twinleaf/new-moon-lockbreak-validate.cjs > newmoon-lockbreak-pinned-60.json
+      - name: Record conditional direct anti-lock Item access
+        run: node scripts/new-moon-lockbreak-access.cjs > newmoon-lockbreak-direct-access.json
+      - name: Preserve inspectable challenger print and access packets
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-lockbreak-candidate-v1
+          path: |
+            newmoon-lockbreak-pinned-60.json
+            newmoon-lockbreak-direct-access.json
+          if-no-files-found: error
       - name: Build source 60-card English-name coverage report
         run: node simulation/twinleaf/newmoon-source-coverage.cjs > newmoon-source-coverage.json
       - name: Display available/missing source names
