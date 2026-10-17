@@ -56,6 +56,9 @@ function withRank8BoostShakeFork(execute){
       turn8={turn:state.turn,
         board:state.players.map(player=>({
           active:player.active.getPokemonCard()?.name,
+          activeTools:player.active.tools.map(tool=>tool.name),
+          hand:player.hand.cards.map(card=>card.fullName),
+          stadium:player.stadium.cards.map(card=>card.name),
           bench:player.bench.map(slot=>({
             name:slot.getPokemonCard()?.name,
             tools:slot.tools.map(tool=>tool.name)}))
