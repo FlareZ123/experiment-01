@@ -57,22 +57,47 @@ def capture() -> dict:
             for script in soup.select("script:not([src])")
         )
         indexed = []
+        ids_to_labels = {}
+        ids_to_image = {}
         for match in re.finditer(
             r"PCGDECK\.searchItemName\[(\d+)\]\s*=\s*'([^']*)';",
             inline,
         ):
-            raw = unescape(match.group(2))
-            jp_name, separator, suffix = raw.rpartition("(")
-            if not separator:
-                continue
+            official_id = int(match.group(1))
+            ids_to_labels[official_id] = unescape(match.group(2))
+        for match in re.finditer(
+            r"PCGDECK\.searchItemCardPict\[(\d+)\]\s*=\s*'([^']*)';",
+            inline,
+        ):
+            ids_to_image[int(match.group(1))] = unescape(match.group(2))
+        for index, (official_id, raw) in enumerate(ids_to_labels.items()):
+            image_path = ids_to_image.get(official_id, "")
+            path_match = re.search(r"/large/([^/]+)/(\d+)_", image_path)
+            japanese_name, sep, suffix = raw.rpartition("(")
             indexed.append({
-                "index": len(indexed),
-                "official_card_id": int(match.group(1)),
-                "japanese_name": jp_name,
-                "official_set_number": suffix.removesuffix(")"),
+                "index": index,
+                "official_card_id": official_id,
+                "japanese_name": japanese_name if sep else raw,
+                "official_set_number": suffix.removesuffix(")") if sep else None,
+                "image_set_code": path_match.group(1) if path_match else None,
+                "image_card_id": path_match.group(2) if path_match else None,
                 "raw_label": raw,
             })
         result["indexed_printings"] = indexed
+        result["print_count"] = len(indexed)
+        if indexed:
+            anchor_id = str(indexed[0]["official_card_id"])
+            all_locations = list(re.finditer(r"\b" + anchor_id + r"\b", html))
+            result["anchor_occurrences"] = [
+                html[max(0,m.start()-190):m.end()+220]
+                for m in all_locations[:12]
+            ]
+        result["id_reference_counts"] = {
+            str(row["official_card_id"]): len(
+                re.findall(r"\b" + str(row["official_card_id"]) + r"\b", html)
+            )
+            for row in indexed
+        }
         result["deck_script_properties"] = sorted(
             set(re.findall(r"PCGDECK\.(\w+)", inline))
         )
@@ -128,6 +153,9 @@ if __name__ == "__main__":
         "sha256": report["sha256"],
         "candidate_rows": len(report["candidate_rows"]),
         "indexed_printings": report.get("indexed_printings", []),
+        "print_count": report.get("print_count", 0),
+        "anchor_occurrences": report.get("anchor_occurrences", []),
+        "id_reference_counts": report.get("id_reference_counts", {}),
         "deck_script_properties": report.get("deck_script_properties", []),
         "deck_script_tail": report.get("deck_script_tail", ""),
         "inline_scripts": report.get("inline_scripts", [])[:8],
