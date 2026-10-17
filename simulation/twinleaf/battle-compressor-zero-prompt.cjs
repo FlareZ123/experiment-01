@@ -54,10 +54,10 @@ function probe(useCorrection=false,resolveEmpty=false,resolveOne=false) {
     const selection=resolveOne ? [a.deck.cards[0]] : [];
     try{
       store.dispatch(new ResolvePromptAction(prompt.id,selection));
-      report.emptyResolution='accepted';
+      report.selectionResolution='accepted';
     }catch(error){
-      report.emptyResolution='rejected';
-      report.emptyError=String(error.message);
+      report.selectionResolution='rejected';
+      report.selectionError=String(error.message);
     }
     report.deckSizeAfter=a.deck.cards.length;
     report.discardedItem=a.discard.cards.some(c=>c.name==='Battle Compressor');
