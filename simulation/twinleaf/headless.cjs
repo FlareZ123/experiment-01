@@ -327,6 +327,10 @@ function runMatch(request) {
           request.passClearsLastAttackCorrection === true)) {
       throw new Error('Copycat counterpolicy requires all four rule-history corrections');
     }
+    if (request.electrodeGXPrizeTradePolicy === true &&
+        (request.electrodeGXEnergyCorrection !== true || request.electroRainDamageCorrection !== true)) {
+      throw Error('Electrode Prize-trade requires both rule corrections');
+    }
     initializeCards();
     if (request.redeemableTicketPaperOrderCorrection === true) {
       restoreRedeemableTicketPaperOrderHook = installRedeemableTicketPaperOrderHook();
