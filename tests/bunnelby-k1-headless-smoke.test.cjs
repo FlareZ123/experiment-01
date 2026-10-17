@@ -39,7 +39,7 @@ test('Bunnelby guarded K1 option is explicit and preserves both physical source 
     assert.match(result.policy,/BunnelbyGuzmaHalaMode1-v1/);
     assert.match(result.policy,/BunnelbyStageTargetResolver-v1/);
     assert.match(result.policy,/BunnelbyRootObservedK1-v1/);
-    assert.match(result.policy,/HiddenPrizeEpoch-v2\\+FullPrizeReview-v1\\+KnowledgeEvents-v1/);
+    assert.ok(result.policy.includes('HiddenPrizeEpoch-v2+FullPrizeReview-v1+KnowledgeEvents-v1'));
     assert.equal(result.bunnelbyKnowledgeEpochs.length,2);
     assert.ok(Array.isArray(result.bunnelbyKnowledgeEvents));
     for(let side=0;side<2;side++){
