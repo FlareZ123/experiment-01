@@ -13,8 +13,12 @@ def _hash(value):
     return isinstance(value, str) and len(value) == 64 and all(c in "0123456789abcdef" for c in value)
 
 
-def evaluate_raw_batch(batch: dict, field_csv: str, source_hashes: dict[int, str] | None = None) -> dict:
-    """Validate recorded games against optional independently trusted rank hashes."""
+def evaluate_raw_batch(
+    batch: dict, field_csv: str,
+    source_hashes: dict[int, str] | None = None,
+    candidate_hash: str | None = None,
+) -> dict:
+    """Validate optional independently trusted candidate and ranked opponent hashes."""
     if batch.get("schema_version") != 2:
         raise ValueError("Unknown schema version")
     keys = ("candidate_deck_sha256", "field_manifest_sha256", "engine_revision",
@@ -22,6 +26,8 @@ def evaluate_raw_batch(batch: dict, field_csv: str, source_hashes: dict[int, str
             "opponent_policy_revision", "ruleset_revision", "rng_protocol")
     if not _hash(batch.get(keys[0])) or batch.get(keys[1]) != sha256(field_csv.encode()).hexdigest():
         raise ValueError("Deck/field digest invalid")
+    if candidate_hash is not None and (not _hash(candidate_hash) or batch[keys[0]] != candidate_hash):
+        raise ValueError("Candidate hash disagrees with trusted fixed inventory")
     if any(not isinstance(batch.get(k), str) or not batch[k].strip() for k in keys[2:]):
         raise ValueError("Incomplete run provenance")
     if not isinstance(batch.get("games"), list):
@@ -137,6 +143,7 @@ def evaluate_raw_batch(batch: dict, field_csv: str, source_hashes: dict[int, str
     all_completed_traces_verified = finished > 0 and verified_completed_traces == finished
     all_completed_terminals_bound = finished > 0 and terminal_bound_games == finished
     opponent_source_inventory_bound = source_hashes is not None and finished > 0
+    candidate_source_inventory_bound = candidate_hash is not None and finished > 0
     terminal_stats = summarize(SeatRecord(rank, seat, w, n)
                                for (rank, seat), (w, n) in terminal_counts.items())
     return {
@@ -148,7 +155,9 @@ def evaluate_raw_batch(batch: dict, field_csv: str, source_hashes: dict[int, str
         "unbound_completed_games": finished - terminal_bound_games,
         "all_completed_terminals_bound": all_completed_terminals_bound,
         "opponent_source_inventory_bound": opponent_source_inventory_bound,
-        "full_input_integrity_promotion_eligible": (opponent_source_inventory_bound and
+        "candidate_source_inventory_bound": candidate_source_inventory_bound,
+        "full_input_integrity_promotion_eligible": (candidate_source_inventory_bound and
+                                                    opponent_source_inventory_bound and
                                                     all_completed_traces_verified and
                                                     all_completed_terminals_bound and not failures),
         "digest_only_completed_games": finished - verified_completed_traces,
