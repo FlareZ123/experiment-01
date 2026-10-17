@@ -2,7 +2,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {withRank8BoardObserver}=require('../simulation/twinleaf/hood-rank8-source-board-observer.cjs');
-const {condense}=require('../simulation/twinleaf/hood-rank8-source-board-audit.cjs');
+const {condense,fullToolAction}=require('../simulation/twinleaf/hood-rank8-source-board-audit.cjs');
 
 class AddPlayerAction {}
 class AttackAction {
@@ -64,4 +64,30 @@ test('restores dispatch when a source match throws',()=>{
     new FakeStore().dispatch(new AddPlayerAction());
   }),/original test failure/);
   assert.equal(FakeStore.prototype.dispatch,original);
+});
+
+test('full public Tool projection preserves unrelated Bench slots and real attachment target',()=>{
+  const card=(name,toolCards=[])=>({
+    name,damage:0,energyCards:[],toolCards
+  });
+  const empty=card('Crobat V',['Float Stone']);
+  const before={board:[
+    {active:empty,bench:[card('Mega Absol ex'),card('Trubbish')],
+      stadium:['Temple of Sinnoh']}
+  ],actingHand:['Float Stone BKT','Quick Ball FST']};
+  const after={board:[
+    {active:empty,bench:[card('Mega Absol ex',['Float Stone']),card('Trubbish')],
+      stadium:['Temple of Sinnoh']}
+  ]};
+  const projection=fullToolAction({ordinal:5,turn:7,actingSeat:0,
+    action:'PlayCardAction',card:'Float Stone',
+    before,after,dispatchError:null});
+  assert.equal(projection.card,'Float Stone');
+  assert.equal(projection.boardBefore.bench.length,2);
+  assert.deepEqual(projection.boardBefore.bench[0].tools,[]);
+  assert.deepEqual(projection.boardAfter.bench[0].tools,['Float Stone']);
+  assert.deepEqual(projection.boardAfter.active.tools,['Float Stone']);
+  assert.deepEqual(projection.boardAfter.bench[1].tools,[]);
+  assert.equal(projection.error,null);
+  console.log('Full-Board Tool target detected:',JSON.stringify(projection));
 });
