@@ -2,6 +2,7 @@
 
 const path=require('node:path');
 const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+const DDE_POLICY_VERSION='DoubleDragonAttachTactic-v4';
 /** @param {string} name */
 const load=name=>require(path.join(root,name));
 
@@ -137,4 +138,4 @@ function withDoubleDragonRecovery(options) {
     ]
   };
 }
-module.exports={coversPrintedApexCost,makeDoubleDragonAttachTactic,withDoubleDragonRecovery};
+module.exports={DDE_POLICY_VERSION,coversPrintedApexCost,makeDoubleDragonAttachTactic,withDoubleDragonRecovery};
