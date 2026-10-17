@@ -89,3 +89,14 @@ test('one Store turn chains Bomb, Prize deficit and Telescopic Sight Rain',()=>{
     assert.equal(corrected.chainedDamage,210);
   } finally { restoreBomb(); }
 });
+
+test('with no Energy recipient the corrected AI never declares Extra Energy Bomb',()=>{
+ const {probeNoRecipientAction}=
+   require('../simulation/twinleaf/electrode-gx-ability-contract.cjs');
+ const restore=installElectrodeGXEnergyHook();
+ try {
+   const decision=probeNoRecipientAction();
+   assert.notEqual(decision.power,'Extra Energy Bomb');
+   assert.ok(decision.action);
+ } finally { restore(); }
+});
