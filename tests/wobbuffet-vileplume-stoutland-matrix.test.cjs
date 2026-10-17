@@ -20,3 +20,5 @@ test('actual Store enforces Hood-dependent dual-lock under Active Wobbuffet and 
 });
 
 test('retreat restores both locks',()=>{ const r=require('../simulation/twinleaf/wobbuffet-vileplume-stoutland-matrix.cjs').retreatWindow(); assert.equal(r.after.sentinel,true); assert.equal(r.after.irritatingPollen,true); });
+
+test('rank-8 and rank-11 Psychic Garbotoxin boundary',()=>{ const x=require('../simulation/twinleaf/wobbuffet-garbotoxin-field-boundary.cjs').runMatrix(); assert.equal(x.rows.length,4); });
