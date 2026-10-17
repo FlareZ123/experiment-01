@@ -119,6 +119,8 @@ function runCase(count, noRecipient = false, useBot = false, availableCount = 5,
       assert.ok(prompt.validate(response,f.state),'Invalid attack prompt: '+kind);
       f.store.dispatch(new ResolvePromptAction(prompt.id,response));
     }
+    assert.ok(!f.state.prompts.some(q=>q.result===undefined));
+    chainedDamage=benchTarget.damage;
   }
   return {
     count,noRecipient,useBot,availableCount,transferred:transfers.length,
