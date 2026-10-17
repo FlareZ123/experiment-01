@@ -15,10 +15,16 @@
  */
 /** @param {unknown} result @param {number|undefined} length @returns {boolean} */
 function isIndexPermutation(result, length) {
-  return Number.isInteger(length) && length >= 0 &&
-    Array.isArray(result) && result.length === length &&
-    result.every(index => Number.isInteger(index) && index >= 0 && index < length) &&
-    new Set(result).size === length;
+  if (!Number.isInteger(length) || length < 0 ||
+      !Array.isArray(result) || result.length !== length) return false;
+  const seen = new Set();
+  // Array#every skips sparse holes; for...of visits them as undefined.
+  for (const index of result) {
+    if (!Number.isInteger(index) || index < 0 || index >= length ||
+        seen.has(index)) return false;
+    seen.add(index);
+  }
+  return true;
 }
 
 function assertValidPromptAction(state, action) {
