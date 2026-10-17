@@ -2,6 +2,8 @@
 
 **17 October 2026, Agent 8, invocation 202.** This report extends the existing exact Boost Shake analysis in [aichi-absol-boost-shake-direct.cjs](../../scripts/aichi-absol-boost-shake-direct.cjs) by modeling **Wally as an additional immediate Stage 1 enabler when going second**. The candidate under evaluation remains the fixed rank-1 Shadow Rider reference. These are opening-access probabilities, **not** win probabilities or observed games.
 
+**Compiled verification:** [Manual Aichi opening audit 39046678134](https://github.com/FlareZ123/experiment-01/actions/runs/39046678134) completed **successfully** from repository head **bb8155e5f50a5c0937f9973775df51644b432be1**. [Output artifact 12105553089](https://github.com/FlareZ123/experiment-01/actions/runs/39046678134/artifacts/12105553089), ZIP SHA-256 **05ca72b1bdb0abee98f2f0fa98a04b3afe87e2a924b8c6b04fcb0cce7a348d71**, contains exact machine-readable **absol-garbotoxin-direct-lock.json** and the pre-existing independent model's data. All six tests, including four-source BigInt equality, passed in this workflow.
+
 ## Exact source registrations
 
 [Full published Aichi Top32 manifest](full-decklists.json), as presently available for ranks 8, 11, 16 and 22. Their card counts are source-specific. "Garbodor" below sums its LTR and BKP printings, each of which requires a Pokémon Tool for Garbotoxin.
