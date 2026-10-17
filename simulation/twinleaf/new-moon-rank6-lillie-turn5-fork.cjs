@@ -22,9 +22,9 @@ const LILLIE="Lillie's Determination M1L";
  * @param {()=>T} execute
  * @returns {{result:T,interventions:object[]}}
  */
-function withOpponentTurn5Lillie(execute) {
+function withOpponentTurn5Lillie(execute,preferCaptureEnergy=false) {
   const {SimpleTacticsAi}=load('simple-bot/simple-tactics-ai');
-  const {PlayCardAction}=load('game/store/actions/play-card-action');
+  const {PlayCardAction,PlayerType,SlotType}=load('game/store/actions/play-card-action');
   const {GamePhase}=load('game/store/state/state');
   const proto=SimpleTacticsAi.prototype;
   const prior=Object.getOwnPropertyDescriptor(proto,'decodeNextAction');
@@ -34,6 +34,21 @@ function withOpponentTurn5Lillie(execute) {
   function forcedTurn5Lillie(state) {
     const id=this.client.id;
     const pending=state.prompts.find(prompt=>prompt.result===undefined);
+    if(preferCaptureEnergy && interventions.length===1 && id===101 &&
+       state.activePlayer===0 && state.turn===5 && !pending) {
+      const player=state.players.find(p=>p.id===id);
+      const index=player.hand.cards.findIndex(card=>card.fullName==='Capture Energy RCL');
+      if(index>=0 && player.active.energies.cards.length===0 &&
+          player.bench.every(slot=>!slot.getPokemonCard())) {
+        interventions.push({turn:5,seat:0,kind:'force-Capture-Energy-over-Speed-Lightning',
+          sourceOwnHand:player.hand.cards.map(card=>card.fullName),
+          activePrinting:player.active.getPokemonCard()?.fullName,
+          benchOccupiedBefore:0});
+        return new PlayCardAction(id,index,{
+          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+        });
+      }
+    }
     if(id===101 && state.activePlayer===0 &&
         state.turn===5 && state.phase===GamePhase.PLAYER_TURN &&
         !pending && interventions.length===0) {
@@ -130,11 +145,15 @@ function run() {
   const arm=()=>runArm(source,opponent.cards,SEAT,SEED,350,true,true);
   const baseline=arm();
   const forced=withOpponentTurn5Lillie(arm);
+  const forcedCapture=withOpponentTurn5Lillie(arm,true);
   const restored=arm();
   assert.deepEqual(baseline,restored,
     'Scoped policy fork failed restoration/noninterference full-game replay');
   assert.equal(forced.interventions.length,1,'Expected exact one turn5 Lillie fork');
+  assert.equal(forcedCapture.interventions.length,2,
+    'Expected Lillie then Capture Energy, both in the real source hand');
   assert.deepEqual(baseline.deckHashes,forced.result.deckHashes);
+  assert.deepEqual(baseline.deckHashes,forcedCapture.result.deckHashes);
   assert.equal(baseline.firstTurnSlot,0);
   assert.equal(forced.result.firstTurnSlot,0);
   assert.equal(baseline.verifiedByDrawLog,true);
@@ -143,6 +162,8 @@ function run() {
     .filter(row=>row.turnBefore<5);
   assert.deepEqual(early(baseline),early(forced.result),
     'Pre-fork turn1-4 physical source decisions should be identical');
+  assert.deepEqual(early(baseline),early(forcedCapture.result),
+    'Pre-fork turn1-4 state must be physically identical in Capture branch');
   const actual=turnActions(forced.result,5,0);
   assert.ok(actual.some(action=>action.action==='PlayCardAction' &&
     action.card==="Lillie's Determination"),
@@ -151,7 +172,7 @@ function run() {
     action.action==='PlayCardAction' && action.card==='Camping Gear'),
     'Archived source comparator no longer plays Camping Gear');
   return {
-    schema:'new-moon-rank6-opponent-turn5-source-Lillie-counterfork-v1',
+    schema:'new-moon-rank6-opponent-turn5-source-Lillie-and-Capture-counterfork-v2',
     sourceRank:RANK,candidatePhysicalSeat:SEAT,seed:SEED,
     sourceInventoryHashes:baseline.deckHashes,
     evidenceKind:'same-physical-source seeded opponent-policy counterfactual',
@@ -159,6 +180,10 @@ function run() {
     intervention:forced.interventions[0],
     baseline:observedOutcome(baseline),
     forcedLillie:observedOutcome(forced.result),
+    forcedLillieAndCapture:{
+      interventions:forcedCapture.interventions,
+      ...observedOutcome(forcedCapture.result)
+    },
     stage:'Only bounded source decision policy fork, not independently qualified playing strength',
     qualifiedCompetitiveGames:0
   };
