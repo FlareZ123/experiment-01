@@ -95,6 +95,10 @@ function summary(game) {
     actions:game.actions,
     remainingPrizes:game.prizesRemaining,
     turn27Seen:(game.copycatTurnStartEvidence || []).some(x=>x.turn===27),
+    firstAttacks:(game.attackTrace || []).slice(0,12).map(a=>({
+      turn:a.turn,seat:a.seat,attacker:a.activePokemon,attack:a.attack,
+      prizesBefore:a.prizeCountBefore,prizesAfter:a.prizeCountAfter
+    })),
     doubleDragonDecisions:(game.decisionTrace || [])
       .filter(x=>x.card==='Double Dragon Energy')
       .slice(0,8)
