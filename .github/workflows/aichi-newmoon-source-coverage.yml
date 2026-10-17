@@ -25,6 +25,8 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Run source identity and printing hash regression
+        run: node --test tests/new-moon-print-map.test.cjs
       - name: Build source 60-card English-name coverage report
         run: node simulation/twinleaf/newmoon-source-coverage.cjs > newmoon-source-coverage.json
       - name: Display available/missing source names
@@ -33,6 +35,16 @@ jobs:
         run: node simulation/twinleaf/new-moon-stadium-order-audit.cjs > newmoon-stadium-order-audit.json
       - name: Display Stadium ordering evidence
         run: node -e "const v=require('./newmoon-stadium-order-audit.json'); console.log(JSON.stringify(v,null,2))"
+      - name: Probe Klefki and Latias own-team Ability lock
+        run: node simulation/twinleaf/new-moon-klefki-latias-audit.cjs > newmoon-klefki-latias-audit.json
+      - name: Display Klefki-Latias engine evidence
+        run: node -e "console.log(JSON.stringify(require('./newmoon-klefki-latias-audit.json'),null,2))"
+      - name: Preserve Klefki-Latias action proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-klefki-latias-audit
+          path: newmoon-klefki-latias-audit.json
+          if-no-files-found: error
       - name: Preserve Stadium ordering audit
         uses: actions/upload-artifact@v4
         with:
