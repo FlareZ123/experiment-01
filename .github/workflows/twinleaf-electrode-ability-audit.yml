@@ -29,3 +29,5 @@ jobs:
         run: node simulation/twinleaf/electrode-gx-ability-contract.cjs
       - name: Verify reversible Electrode-GX Energy correction
         run: node --test tests/electrode-gx-energy-hook.test.cjs
+      - name: Verify fixed-source policy flag is carried and checked
+        run: node --test tests/aichi-campaign-execute.test.cjs
