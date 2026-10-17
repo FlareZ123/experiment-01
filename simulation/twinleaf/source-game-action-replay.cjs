@@ -86,6 +86,8 @@ function withRecordedSourceActions(sourceTrace,work) {
       'After-action hidden-zone digest differs at source step '+ordinal);
     assert.equal(continuityHash(observableState(this.state)),event.continuityDigestAfter,
       'After-action card-history digest differs at source step '+ordinal);
+    assert.equal(sourceEffectDigest(this.state),event.effectDigestAfter,
+      'After-action supplementary effect digest differs at source step '+ordinal);
     ordinal+=1;
     return result;
   };
