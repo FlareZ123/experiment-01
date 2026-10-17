@@ -4,7 +4,15 @@ const assert = require('node:assert/strict');
 const {initializeCards}=require('./headless.cjs');
 const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const get=part=>require(path.join(root,part));
-function probe(useCorrection=false,resolveEmpty=false,resolveOne=false) {
+/**
+ * Probe a real compiled Battle Compressor prompt and optionally finish the
+ * engine's shuffle/animation prompts before inspecting Item cleanup.
+ * @param {boolean} useCorrection
+ * @param {boolean} resolveEmpty
+ * @param {boolean} resolveOne
+ * @param {boolean} completeShuffle
+ */
+function probe(useCorrection=false,resolveEmpty=false,resolveOne=false,completeShuffle=false) {
   const cards=initializeCards();
   const {Store}=get('game/store/store');
   const {Player}=get('game/store/state/player');
@@ -65,6 +73,25 @@ function probe(useCorrection=false,resolveEmpty=false,resolveOne=false) {
       prompt.result === undefined).map(prompt => prompt.constructor.name);
     report.itemStillInSupporterZone=a.supporter.cards.some(
       card => card.name === 'Battle Compressor');
+    if(report.selectionResolution==='accepted' && completeShuffle){
+      const shuffle=state.prompts.find(p=>p.constructor.name==='ShuffleDeckPrompt' &&
+        p.result===undefined);
+      assert.ok(shuffle,'Expected a shuffle prompt before trainer cleanup');
+      const order=Array.from({length:a.deck.cards.length},(_,i)=>i);
+      assert.equal(shuffle.validate(order,state),true);
+      store.dispatch(new ResolvePromptAction(shuffle.id,order));
+      const wait=state.prompts.find(p=>p.constructor.name==='WaitPrompt' &&
+        p.result===undefined);
+      assert.ok(wait,'Expected shuffle animation wait before trainer cleanup');
+      store.dispatch(new ResolvePromptAction(wait.id,null));
+      report.discardedItemAfterCompletion=a.discard.cards.some(
+        card=>card.name==='Battle Compressor');
+      report.itemStillInSupporterZoneAfterCompletion=a.supporter.cards.some(
+        card=>card.name==='Battle Compressor');
+      report.deckSizeAfterCompletion=a.deck.cards.length;
+      report.pendingPromptsAfterCompletion=state.prompts.filter(p=>
+        p.result===undefined).map(p=>p.constructor.name);
+    }
   }
   return report;
   } finally {restore();}
