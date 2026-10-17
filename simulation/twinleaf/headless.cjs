@@ -11,6 +11,7 @@ const {installPostSuperAliasRepairHook} = require('./post-super-alias-repair-hoo
 const {installMegatonBlowerHook} = require('./megaton-blower-hook.cjs');
 const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 const {installForestSealSearchHook} = require('./forest-seal-search-hook.cjs');
+const {installBattleCompressorMinimumHook} = require('./battle-compressor-minimum-hook.cjs');
 const {installSupporterDecisionHook} = require('./supporter-decision-hook.cjs');
 const {installGuzmaSelfSwitchGuard} = require('./guzma-self-switch-guard.cjs');
 const {installDialgaBenchExposureGuard} = require('./dialga-bench-exposure-guard.cjs');
@@ -191,6 +192,7 @@ function policyRandomStreams(seed) {
  * @property {string} [label] Experimental label for machine-readable output.
  * @property {boolean} [strictPromptValidation] Opt-in pre-dispatch Prompt.validate gate.
  * @property {boolean} [forestSealSearchCorrection] Opt-in mandatory one-card Star Alchemy hook.
+ * @property {boolean} [battleCompressorPositiveSelectionCorrection] Opt-in paper minimum-one-card selection for Battle Compressor.
  * @property {boolean} [grandTreeFirstTurnCorrection] Opt-in printed first-turn Grand Tree evolution prohibition.
  * @property {boolean} [doubleDragonRecovery] Opt-in experimental legal dynamic-Energy attachment tactic.
  * @property {boolean} [templeUnlockRecovery] Opt-in attack-unlocking Marshadow response to Temple.
@@ -284,6 +286,7 @@ function runMatch(request) {
   let restoreToolJammerHook;
   let restoreMegatonBlowerHook;
   let restoreForestSealSearchHook;
+  let restoreBattleCompressorMinimumHook;
   let restoreGrandTreeFirstTurnHook;
   let restoreSupporterDecisionHook;
   let restoreGuzmaSelfSwitchGuard;
@@ -413,6 +416,9 @@ function runMatch(request) {
       restoreEldegossEntryLockHook = installEldegossEntryLockHook();
     }
     const { Store } = engine('game/store/store');
+    if (request.battleCompressorPositiveSelectionCorrection === true) {
+      restoreBattleCompressorMinimumHook = installBattleCompressorMinimumHook();
+    }
     if (request.pendingEndTurnSwitchCleanupCorrection === true) {
       const {Player}=engine('game/store/state/player');
       pendingEndTurnSwitchCleanupHook=installPendingEndTurnSwitchCleanup({Store,Player});
@@ -783,6 +789,8 @@ function runMatch(request) {
       promptValidationMode: request.strictPromptValidation === true ?
         'predispatch-prompt-validate' : 'upstream-unchecked',
       forestSealSearchCorrection: request.forestSealSearchCorrection === true,
+      battleCompressorPositiveSelectionCorrection:
+        request.battleCompressorPositiveSelectionCorrection === true,
       grandTreeFirstTurnCorrection: request.grandTreeFirstTurnCorrection === true,
       doubleDragonRecovery: request.doubleDragonRecovery === true,
       templeUnlockRecovery: request.templeUnlockRecovery === true,
@@ -830,6 +838,8 @@ function runMatch(request) {
         'Twinleaf SimpleTacticsAi/defaultStateScores+' +
         require('./dde-attach-tactic.cjs').DDE_POLICY_VERSION :
         'Twinleaf SimpleTacticsAi/defaultStateScores') +
+        (request.battleCompressorPositiveSelectionCorrection === true ?
+          '+BattleCompressorMin1-paper-v1' : '') +
         (request.supporterDecisionCorrection === true ? '+SupporterDecisionGuard-v1' : '') +
         (request.guzmaSelfSwitchGuard === true ? '+GuzmaSelfSwitchGuard-v1' : '') +
         (request.dialgaBenchExposureGuard === true ? '+DialgaBenchExposureGuard-v1' : '') +
@@ -881,6 +891,7 @@ function runMatch(request) {
       engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
     };
   } finally {
+    if (restoreBattleCompressorMinimumHook) restoreBattleCompressorMinimumHook();
     if (restorePassClearsLastAttackHook) restorePassClearsLastAttackHook();
     if (restoreCopyDeclaredHistoryHook) restoreCopyDeclaredHistoryHook();
     if (restoreMimikyuNonGxCopycatHook) restoreMimikyuNonGxCopycatHook();
