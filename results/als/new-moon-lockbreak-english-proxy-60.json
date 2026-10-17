@@ -5,7 +5,7 @@
   "source_id_count_sha256": "4dd537adbf73d89e50215b3d056a9f40d474f05b79e33774c281a30079e1ce95",
   "canonical_id_count_sha256": "a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4",
   "hash_spec": "SHA-256 of sorted UTF-8 lines id:count followed by newline",
-  "status": "Frozen counter-package proposal. Exact Japanese physical printings and full paper legality not verified, simulator and policy unqualified. The retained historical English proxy contains Duskull SFA, which differs from the verified official Japanese S4 (Future Sight). This exact candidate is therefore currently a mechanically distinct proxy until migrated; no source-faithful comparison claimed.",
+  "status": "Frozen English mechanics proxy for a counter-package proposal. Source-aligned Future Sight Duskull uses VIV 69. Japanese physical legality, end-to-end simulator fidelity and both player policies remain unqualified; no competitive win-rate evidence is claimed.",
   "change_from_source": {
     "Trainers' Mail ROS": -2,
     "Rescue Carrier EVS": -2,
@@ -130,7 +130,7 @@
       "type": "Pokémon",
       "english_proxy_card_id": "swsh4-69",
       "english_database_name": "Duskull",
-      "twinleaf_full_name": "Duskull SFA",
+      "twinleaf_full_name": "Duskull VIV",
       "mechanics": "Future Sight, source-equivalent selected by Agent25 English map"
     },
     {
