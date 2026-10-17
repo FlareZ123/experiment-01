@@ -13,9 +13,11 @@ const REGIDRAGO_PROFILE = 'regidrago-dde-temple-v1';
 const SUPPORTER_PROFILE = 'simple-supporter-guard-v1';
 const REGIDRAGO_SUPPORTER_PROFILE = 'regidrago-dde-temple-supporter-v2';
 const EXPANDED_PROFILE = 'expanded-action-fidelity-probe-v1';
+const EXPANDED_SOURCE_PROFILE = 'expanded-source-k0-stage-gh-v2';
 const ALLOWED_PROFILES = Object.freeze([
   DEFAULT_PROFILE, REGIDRAGO_PROFILE,
-  SUPPORTER_PROFILE, REGIDRAGO_SUPPORTER_PROFILE, EXPANDED_PROFILE
+  SUPPORTER_PROFILE, REGIDRAGO_SUPPORTER_PROFILE,
+  EXPANDED_PROFILE, EXPANDED_SOURCE_PROFILE
 ]);
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 
@@ -121,6 +123,35 @@ function runWithResearchProfile(request, profile) {
       ]
     };
   }
+  if (profile === EXPANDED_SOURCE_PROFILE) {
+    // Keep the earlier Expanded probe stable. Defer Bunnelby registration to
+    // headless, which constructs one printing-aware source-60 policy per seat.
+    // Source-K0 possibilities must not inspect the actual hidden deck/Prizes.
+    const result = withExpandedActionOptions(() => runMatch({
+      ...shared,
+      doubleDragonRecovery: true,
+      supporterDecisionCorrection: true,
+      bunnelbyK0SafeEvolution: true,
+      bunnelbyTargetAwareEvolution: true,
+      bunnelbyGuzmaHalaMode1: true
+    }), {sourceK0Bunnelby: true});
+    const globalCorrections = [
+      'TempleUnlockTactic-v1', 'ToolAwareAttackTactic-v1',
+      'MandatoryOptionResolver-v1'
+    ];
+    return {
+      ...result,
+      researchPolicyProfile: profile,
+      policy: result.policy + '+' + globalCorrections.join('+'),
+      experimentalTactics: [
+        'DoubleDragonAttachTactic-v1', 'SupporterDecisionGuard-v1',
+        ...globalCorrections,
+        'BunnelbyEvolutionTactic-v1', 'BarrageEvolutionResolver-v1',
+        'BunnelbySourceK0PossibleEvolution-v1',
+        'BunnelbyStageTargetResolver-v1', 'BunnelbyGuzmaHalaMode1-v1'
+      ]
+    };
+  }
   const guarded = profile === REGIDRAGO_SUPPORTER_PROFILE;
   const result = withTempleUnlockTactic(() => runMatch({
     ...shared,
@@ -138,5 +169,6 @@ function runWithResearchProfile(request, profile) {
 }
 
 module.exports = {DEFAULT_PROFILE, REGIDRAGO_PROFILE, SUPPORTER_PROFILE,
-  REGIDRAGO_SUPPORTER_PROFILE, EXPANDED_PROFILE, ALLOWED_PROFILES,
+  REGIDRAGO_SUPPORTER_PROFILE, EXPANDED_PROFILE, EXPANDED_SOURCE_PROFILE,
+  ALLOWED_PROFILES,
   withTempleUnlockTactic, withExpandedActionOptions, runWithResearchProfile};
