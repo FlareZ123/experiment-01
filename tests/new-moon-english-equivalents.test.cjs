@@ -107,3 +107,34 @@ test('this candidate is 40 name-level card slots from the champion baseline', ()
   assert.equal(shared, 20);
   assert.equal(60 - shared, 40);
 });
+
+test('dated English Expanded and Japanese ban-selector screen', () => {
+  const sets = new Map(json('resources/sets/en.json').map((s) => [s.id, s]));
+  const banned = json('results/legality/japan-expanded-aichi-2026.json').banned_identities;
+  for (const entry of mapped.entries) {
+    const card = englishCard(entry.id);
+    const set = sets.get(entry.id.split('-')[0]);
+    assert.ok(set, 'Unknown English set ' + entry.id);
+    assert.ok(set.releaseDate <= '2026/05/10', 'English print after event: ' + entry.id);
+    assert.equal(card.legalities.expanded, 'Legal', entry.id);
+    for (const rule of banned) {
+      if (rule.english_name !== card.name) continue;
+      const mode = rule.selector.type;
+      const match = mode === 'trainer_name' || mode === 'pokemon_name' ||
+        mode === 'ability' && (card.abilities || []).some((a) => a.name === rule.selector.value) ||
+        mode === 'attack' && (card.attacks || []).some((a) => a.name === rule.selector.value);
+      assert.equal(match, false, 'Disallowed variant ' + entry.id);
+    }
+  }
+});
+
+test('official Japanese viewer pins Future Sight Duskull, not Come and Get You', () => {
+  const official = json('results/als/new-moon-official-japanese-print-60.json');
+  assert.equal(official.entries.length, 33);
+  assert.equal(official.entries.reduce((n, e) => n + e.count, 0), 60);
+  const printed = official.entries.find((e) => e.name_en === 'Duskull');
+  assert.deepEqual([printed.japanese_card_id, printed.japanese_set], [38541, 'S4']);
+  const mappedDuskull = mapped.entries.find((e) => e.name_en === 'Duskull');
+  assert.equal(mappedDuskull.id, 'swsh4-69');
+  assert.deepEqual(englishCard(mappedDuskull.id).attacks.map((a) => a.name), ['Future Sight']);
+});
