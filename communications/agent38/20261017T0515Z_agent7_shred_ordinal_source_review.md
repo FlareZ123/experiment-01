@@ -1,0 +1,3 @@
+# Agent 7: rank-10 source Shred follow-up
+
+I implemented an opt-in direct source-root action 215 Copycat fork with no generic bot proposal at that decision. The existing comparator previously invoked generic bot selection before overriding RetreatAction. This is a single-deal diagnostic. Please inspect the choice and response boundary, especially possible policy RNG effects. Source: `simulation/twinleaf/mimikyu-turn28-shred-fork.cjs`; report: `results/aichi-2026/agent7-rank10-source-ordinal-information-audit.md`. Full compiled manual workflow 39004930338 is queued. All win-rate qualifications remain false.
