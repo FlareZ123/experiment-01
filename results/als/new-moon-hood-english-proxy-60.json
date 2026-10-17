@@ -1,0 +1,255 @@
+{
+  "schema": "new-moon-hood-comparator-english-proxy-60-v1",
+  "basis": "New Moon Perfection published 52nd-place Aichi 2026 source code GxxDYx-a4rD4W-a8xYxc",
+  "source_map": "results/als/new-moon-perfection-english-map.json",
+  "source_sha256_id_counts": "4dd537adbf73d89e50215b3d056a9f40d474f05b79e33774c281a30079e1ce95",
+  "candidate_sha256_id_counts": "fa9d615c5dcbf94da9d529e436bbf5d81903299fde6d2750402834efebe186c8",
+  "canonicalization": "Sort id:count\\n lines by id; SHA256 UTF-8, trailing newline preserved",
+  "proposal": "Restore four Rescue Carrier and two removed direct Item counters to source, replacing exactly two Trainers' Mail with two Stealthy Hood. Research comparator, unqualified.",
+  "replacement": {
+    "remove": {
+      "name": "Trainer's Mail",
+      "id": "xy6-92",
+      "count": 2
+    },
+    "add": {
+      "name": "Stealthy Hood",
+      "id": "sm10-186",
+      "count": 2
+    }
+  },
+  "qualification": "UNQUALIFIED; exact Japanese printing unverified; engine Hood card and interactions pending pinned CI",
+  "entries": [
+    {
+      "count": 2,
+      "name": "Mewtwo & Mew-GX",
+      "id": "sm11-71",
+      "signature": "Perfection",
+      "twinleaf_full_name": "Mewtwo & Mew-GX UNM"
+    },
+    {
+      "count": 1,
+      "name": "Gengar & Mimikyu-GX",
+      "id": "sm9-53",
+      "signature": "Horror House-GX",
+      "twinleaf_full_name": "Gengar & Mimikyu-GX TEU"
+    },
+    {
+      "count": 1,
+      "name": "Trevenant & Dusknoir-GX",
+      "id": "smp-SM217",
+      "signature": "Night Watch",
+      "twinleaf_full_name": "Trevenant & Dusknoir-GX SMP"
+    },
+    {
+      "count": 1,
+      "name": "Tapu Lele-GX",
+      "id": "sm2-60",
+      "signature": "Wonder Tag",
+      "twinleaf_full_name": "Tapu Lele-GX GRI"
+    },
+    {
+      "count": 1,
+      "name": "Galarian Articuno V",
+      "id": "swsh6-58",
+      "signature": "Reconstitute",
+      "twinleaf_full_name": "Galarian Articuno V CRE"
+    },
+    {
+      "count": 1,
+      "name": "Latias ex",
+      "id": "sv8-76",
+      "signature": "Skyliner",
+      "twinleaf_full_name": "Latias ex SSP"
+    },
+    {
+      "count": 1,
+      "name": "Lillie's Clefairy ex",
+      "id": "sv9-56",
+      "signature": "Fairy Zone",
+      "twinleaf_full_name": "Lillie's Clefairy ex JTG"
+    },
+    {
+      "count": 1,
+      "name": "Squawkabilly ex",
+      "id": "sv2-169",
+      "signature": "Squawk and Seize",
+      "twinleaf_full_name": "Squawkabilly ex PAL"
+    },
+    {
+      "count": 3,
+      "name": "Unown",
+      "id": "xy7-30",
+      "signature": "Farewell Letter",
+      "twinleaf_full_name": "Unown AOR"
+    },
+    {
+      "count": 2,
+      "name": "Dusclops",
+      "id": "sv6pt5-19",
+      "signature": "Cursed Blast",
+      "twinleaf_full_name": "Dusclops SFA"
+    },
+    {
+      "count": 2,
+      "name": "Duskull",
+      "id": "swsh4-69",
+      "signature": "Future Sight",
+      "twinleaf_full_name": "Duskull VIV"
+    },
+    {
+      "count": 1,
+      "name": "Solrock",
+      "id": "sm7-62",
+      "signature": "Sunbeam",
+      "twinleaf_full_name": "Solrock CES"
+    },
+    {
+      "count": 1,
+      "name": "Lunatone",
+      "id": "sv3-92",
+      "signature": "New Moon",
+      "twinleaf_full_name": "Lunatone OBF"
+    },
+    {
+      "count": 1,
+      "name": "Klefki",
+      "id": "sv1-96",
+      "signature": "Mischievous Lock",
+      "twinleaf_full_name": "Klefki SVI"
+    },
+    {
+      "count": 4,
+      "name": "Battle VIP Pass",
+      "id": "swsh8-225",
+      "signature": null,
+      "twinleaf_full_name": "Battle VIP Pass FST"
+    },
+    {
+      "count": 4,
+      "name": "Fog Crystal",
+      "id": "swsh6-140",
+      "signature": null,
+      "twinleaf_full_name": "Fog Crystal CRE"
+    },
+    {
+      "count": 2,
+      "name": "Mysterious Treasure",
+      "id": "sm6-113",
+      "signature": null,
+      "twinleaf_full_name": "Mysterious Treasure FLI"
+    },
+    {
+      "count": 2,
+      "name": "Hisuian Heavy Ball",
+      "id": "swsh10-146",
+      "signature": null,
+      "twinleaf_full_name": "Hisuian Heavy Ball ASR"
+    },
+    {
+      "count": 4,
+      "name": "Rescue Carrier",
+      "id": "swsh7-154",
+      "signature": null,
+      "twinleaf_full_name": "Rescue Carrier EVS"
+    },
+    {
+      "count": 2,
+      "name": "Battle Compressor",
+      "id": "xy4-92",
+      "signature": null,
+      "twinleaf_full_name": "Battle Compressor PHF"
+    },
+    {
+      "count": 2,
+      "name": "Stealthy Hood",
+      "id": "sm10-186",
+      "signature": "Prevent opposing Ability effects on this Pokemon",
+      "twinleaf_full_name": "Stealthy Hood UNB"
+    },
+    {
+      "count": 1,
+      "name": "Adventure Bag",
+      "id": "sm8-167",
+      "signature": null,
+      "twinleaf_full_name": "Adventure Bag LOT"
+    },
+    {
+      "count": 1,
+      "name": "Escape Rope",
+      "id": "swsh5-125",
+      "signature": null,
+      "twinleaf_full_name": "Escape Rope BST"
+    },
+    {
+      "count": 1,
+      "name": "Counter Catcher",
+      "id": "sv4-160",
+      "signature": null,
+      "twinleaf_full_name": "Counter Catcher PAR"
+    },
+    {
+      "count": 1,
+      "name": "Secret Box",
+      "id": "sv6-163",
+      "signature": null,
+      "twinleaf_full_name": "Secret Box TWM"
+    },
+    {
+      "count": 2,
+      "name": "Powerglass",
+      "id": "sv6pt5-63",
+      "signature": null,
+      "twinleaf_full_name": "Powerglass SFA"
+    },
+    {
+      "count": 1,
+      "name": "Forest Seal Stone",
+      "id": "swsh12-156",
+      "signature": "Star Alchemy",
+      "twinleaf_full_name": "Forest Seal Stone SIT"
+    },
+    {
+      "count": 2,
+      "name": "Lillie's Determination",
+      "id": "me1-119",
+      "signature": null,
+      "twinleaf_full_name": "Lillie's Determination M1L"
+    },
+    {
+      "count": 2,
+      "name": "Ace Trainer",
+      "id": "xy7-69",
+      "signature": null,
+      "twinleaf_full_name": "Ace Trainer AOR"
+    },
+    {
+      "count": 2,
+      "name": "Sky Field",
+      "id": "xy6-89",
+      "signature": null,
+      "twinleaf_full_name": "Sky Field ROS"
+    },
+    {
+      "count": 2,
+      "name": "Path to the Peak",
+      "id": "swsh6-148",
+      "signature": null,
+      "twinleaf_full_name": "Path to the Peak CRE"
+    },
+    {
+      "count": 3,
+      "name": "Telepathic Psychic Energy",
+      "id": "me3-88",
+      "signature": null,
+      "twinleaf_full_name": "Telepath [P] Energy M3"
+    },
+    {
+      "count": 3,
+      "name": "Basic Psychic Energy",
+      "id": "swsh12pt5-156",
+      "signature": null,
+      "twinleaf_full_name": "Psychic Energy SVE"
+    }
+  ]
+}
