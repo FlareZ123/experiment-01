@@ -28,6 +28,8 @@ I retrieved both complete ZIP archives and recursively compared every `aichi-cam
 
 No decision divergence was observed in these six fixed physically seeded games. This verifies an operational selectable option and absence of observed regression on these exact deals. It does **not** establish increased strength or a fair complete policy.
 
+**Coverage qualification from every recorded root Pass board:** I separately enumerated the owner-seat `publicBoardBeforePass` values in all six chronologically ordered raw traces. There were **18** passes with **Bunnelby actually Active for the passing player**, broken down as champion A/B **2/2**, Hood A/B **0/4**, Temple A/B **8/2**. **None of those 18 Bunnelby passes had Technical Machine: Evolution attached.** The traces separately recorded **0 Bunnelby Evolution attack announcements**. Therefore, these six paired games did not expose the specific `Bunnelby+TM Evolution` action opportunity whose K0-vs-legacy branch was meant to be compared. The observed invariance is primarily a successful campaign-integration smoke, with **no direct evidence of policy equivalence at a relevant Bunnelby+TM decision state**. Each board is an observation on a pass, not an independent game. This excludes repeated-game pseudo-replication.
+
 ## Qualification and follow-up
 
 The historical source-K0 archive labels `+BunnelbySourceK0PossibleEvolution-v1` twice, once in the headless layer and once in the Expanded wrapper. A follow-up label deduplication is metadata-only, intentionally separate from the archived same-revision trial evidence.
