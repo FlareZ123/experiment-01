@@ -28,6 +28,17 @@ The attack scores (-2305/-2296) are from [earlier compiled same-seed CI 38890117
 
 The printed attack occurred on global turn five only in the substituted arm. The visible later action sequences diverged naturally afterward; both runs ended with the same prize-outcome winner as their controls. This proves the legal attack intervention and source prefix equality in these exact two engine profiles. It does **not** show that a generic change to `AttackTactic` improves wins, because the in-engine winner stayed the same and the opponent/candidate policies and full paper mechanics are unqualified.
 
+## Source-dealt third alternative: move the Defending Pokémon to the Bench
+
+[Successful manual CI 38989569422](https://github.com/FlareZ123/experiment-01/actions/runs/38989569422), head `c868fecb92c1e4cb9eaac059c23774fab1d484c9`, extended the exact source-dealt turn-five counterfactual to a **third genuine root-Store action**: Koraidon ex uses its normal RetreatAction into the real Benched Regidrago VSTAR. The correct source-zone digest was identical at the decision for Pass, Retribution Strike and Retreat; all three actions were physically dispatched and the real engine finished the games. The original `SimpleTacticsAi` still selected Pass without intervention. Source traces and machine-readable game summaries are preserved in [artifact 12084064649](https://github.com/FlareZ123/experiment-01/actions/runs/38989569422/artifacts/12084064649).
+
+| Fixed physical-A trial | Pass arm final (winner; Prizes candidate/opponent) | Attack arm final | Retreat arm final |
+| --- | --- | --- | --- |
+| Champion reference | Regidrago; 2/0 | Regidrago; 2/0 | Regidrago; **4/0** |
+| Hood Shield v1 | Candidate; 0/6 | Candidate; 0/6 | Candidate; 0/6 |
+
+These prize outcomes expose trajectory sensitivity despite unchanged winners. They do **not** establish that the printed retreat is optimally exploited by the current bot. Critically, the pinned engine stores Pale Moon-GX's delayed knockout in `Player.pendingEndOfTurnEffects` and its normal `Player.switchPokemon` does not visibly remove that queue entry. This could incorrectly knock out Koraidon *on the Bench* after it retreats, contrary to the supplied player's rulebook's Active-to-Bench effect-clearing rule. **This remains a specific source-code hypothesis pending an authoritative live pending-queue/KO trace**, and a reversible research-only correction is being tested separately.
+
 ## Interpretation and next falsification
 
 **Mechanistic finding:** Under the current engine score heuristic, the two originally rejected attacks outscore the real alternative `PassTurnAction` **when evaluated at a common end-of-turn horizon**. This is a demonstrable action-ranking error for the current tactic's own metric. It does **not** prove the attack is strategically optimal, that forcing it yields a win, or that a different action such as retreating to clear Pale Moon's delayed effect is impossible.
