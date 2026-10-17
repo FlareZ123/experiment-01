@@ -88,6 +88,7 @@ function auditSource() {
         deckB:candidateSeat===1?plan.candidate.cards:opponent.cards,
         seed,maxActions:120,
         strictPromptValidation:true,isolatePolicyRandomness:true,
+        captureDecisionTrace:true,
         battleCompressorPositiveSelectionCorrection:corrected
       };
       const observed=withBattleCompressorSourceSelections(Store,
@@ -95,8 +96,25 @@ function auditSource() {
       assert.equal(Store.prototype.dispatch,originalDispatch);
       assert.equal(observed.result.battleCompressorPositiveSelectionCorrection,
         corrected);
+      const handSightings=[0,1].map(slot=>{
+        const rows=observed.result.decisionTrace.filter(row=>
+          row.playerSlot===slot &&
+          row.decisionHandBefore?.ownHandPrintings?.some(name=>
+            name.startsWith('Battle Compressor')));
+        return {
+          seat:slot,decisionObservationsWithCompressor:rows.length,
+          turnNumbers:[...new Set(rows.map(row=>row.turnBefore))]
+        };
+      });
       cases.push({
         candidateSeat,seed,corrected,
+        turns:observed.result.turns,
+        battleCompressorInSourceDecks:[request.deckA,request.deckB].map(cards=>
+          cards.filter(name=>name.startsWith('Battle Compressor')).length),
+        battleCompressorPlayedBySeat:observed.result.cardsPlayedBySeat.map(plays=>
+          Object.entries(plays).filter(([name])=>
+            name.startsWith('Battle Compressor')).reduce((sum,[,n])=>sum+n,0)),
+        handSightings,
         actualFirstSeat:observed.result.firstTurnSlot,
         drawLogVerified:observed.result.verifiedByDrawLog,
         rootDispatches:observed.rootDispatches,
