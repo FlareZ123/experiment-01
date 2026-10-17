@@ -26,8 +26,9 @@ const OPTIONS = Object.freeze({
  * @param {number} maxActions Strict upper bound on simulation actions.
  * @param {boolean} detailed Whether to preserve decision/audit evidence.
  * @param {boolean} [nativeOpeningPivot=false] Reorder only candidate selected starting Basics.
+ * @param {boolean} [postSuperClone=false] Opt-in reconciled Simulator profile, experimental.
  */
-function runArm(candidate, opponent, seat, seed, maxActions, detailed, nativeOpeningPivot=false) {
+function runArm(candidate, opponent, seat, seed, maxActions, detailed, nativeOpeningPivot=false, postSuperClone=false) {
   return runMatch({
     ...OPTIONS,
     deckA:seat === 0 ? candidate : opponent,
@@ -36,7 +37,8 @@ function runArm(candidate, opponent, seat, seed, maxActions, detailed, nativeOpe
     captureDecisionTrace:detailed,
     captureAttackPassProbes:detailed,
     ...(detailed ? {captureCopycatTurnStartSeat:seat} : {}),
-    ...(nativeOpeningPivot ? {newMoonNativeOpeningPivotSeat:seat} : {})
+    ...(nativeOpeningPivot ? {newMoonNativeOpeningPivotSeat:seat} : {}),
+    ...(postSuperClone ? {postSuperAliasRepairIsolation:true} : {})
   });
 }
 
