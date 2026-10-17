@@ -15,3 +15,14 @@ The published champion carries 14 starting Basic Pokemon. If a proposed one-copy
 `sum[k=2..6] C(14,k) C(45,6-k) / [C(60,7) - C(46,7)] = 0.05953966163026917`, or **5.95397% among valid initial sevens**. Cassius alone in a valid seven occurs with **11.09540%** probability, and at least two Basics in a valid seven with **60.58237%**. These are marginal and joint card-resource events. The formula assumes the substituted slot is one of the 46 non-Basics and excludes bonus mulligan draws, setup choices, first-turn Supporter restrictions, later draw/search, Prizes and opponent card effects.
 
 This low initial direct-access figure is useful in evaluating search connectors and Supporter opportunity cost; it does not estimate how often a solo Snorlax lock is escaped.
+
+## Lele-GX access and direct Hood-with-Bench comparison
+
+The champion's published 60 includes **two Tapu Lele-GX**. Wonder Tag allows a Lele played from hand to the Bench to search a Supporter from the deck. A proposed singleton Cassius/AZ occupying one non-Basic slot yields disjoint opening events:
+
+1. Cassius/AZ already in the seven, with at least two Basics: **5.95397% of legal sevens**.
+2. Cassius/AZ absent from the seven, at least one Lele and at least two Basics present, and singleton absent from six Prizes: **16.11972%**.
+
+Together these give **22.07368%** ideal first-seven *resource opportunity*, assuming functioning Wonder Tag and legal Supporter timing. The Prize survival factor for event (2) is exactly 47/53. The counts are 19,807,788 direct hands and 60,473,490 Lele-route hands against 332,682,240 legal sevens before the independent Prize factor. Reproducer: [opening enumerator](../../scripts/aichi-snorlax-scoop-access.cjs) and [regression](../../tests/aichi-snorlax-scoop-access.test.cjs).
+
+The original Hood Shield v1 contains two Hoods. Its **21.13991%** direct opening-Hood figure from the earlier report includes hands with only one Basic and therefore no immediate legal retreat destination. Requiring at least two initial Basics drops this joint resource event to **11.42832%**, before searches and opponent response. These are differently routed resources, **not escape rates**: the Lele route can fail under Ability lock, a prized singleton, full Bench or turn restrictions, while the Hood route can fail under Tool Jammer or removal. Cassius removes board assets, and both Supporters cost the turn's Supporter action. A source-ranked policy must determine actual reachability and which card is displaced.
