@@ -31,6 +31,8 @@ jobs:
         run: node --test tests/aichi-meloetta-cologne-window.test.cjs
       - name: Meloetta Order Pad Cologne exact and shuffled bridge tests
         run: node --test tests/aichi-meloetta-order-pad-bridge.test.cjs
+      - name: Meloetta Stone plus Crobat rescue access tests
+        run: node --test tests/aichi-meloetta-stone-pad-bridge.test.cjs
       - name: Conditional rank-26 loss-budget tests
         run: node --test tests/aichi-rank26-loss-budget.test.cjs tests/aichi-rank26-exposure-frontier.test.cjs
       - name: Printed first-turn defense tests
@@ -55,6 +57,8 @@ jobs:
         run: node scripts/aichi-meloetta-cologne-window.cjs > meloetta-cologne-opening.json
       - name: Meloetta Order Pad Cologne bridge report
         run: node scripts/aichi-meloetta-order-pad-bridge.cjs > meloetta-order-pad-bridge.json
+      - name: Meloetta Stone and Pad access report
+        run: node scripts/aichi-meloetta-stone-pad-bridge.cjs > meloetta-stone-pad-bridge.json
       - name: Print 99.5% conditional Meloetta-donk loss budget
         run: node scripts/aichi_rank26_loss_budget.cjs
       - name: Print source-based hypothetical Basic-count exposure frontier
@@ -77,6 +81,7 @@ jobs:
             meloetta-lone-active.md
             meloetta-cologne-opening.json
             meloetta-order-pad-bridge.json
+            meloetta-stone-pad-bridge.json
             meloetta-printed-defense.md
             aichi-ranger-early-access.json
             aichi-ranger-stone-access.json
