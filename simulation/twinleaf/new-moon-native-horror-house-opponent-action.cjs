@@ -128,6 +128,20 @@ function runSeat(seat) {
   };
 
   // Hand-play prohibition does not disallow an already-powered attack.
+  const {CheckProvidedEnergyEffect,CheckAttackCostEffect} =
+    load('game/store/effects/check-effects');
+  const {StateUtils}=load('game/store/state-utils');
+  const provided=new CheckProvidedEnergyEffect(opponent,opponent.active);
+  store.reduceEffect(state,provided);
+  const requested=new CheckAttackCostEffect(opponent,thorns.attacks[0]);
+  store.reduceEffect(state,requested);
+  const energyDiagnostic={
+    provided:provided.energyMap.map(e=>({
+      name:e.card.fullName,energy:e.provides
+    })),
+    requested:requested.cost,
+    enough:StateUtils.checkEnoughEnergy(provided.energyMap,requested.cost)
+  };
   store.dispatch(new AttackAction(opponent.id, 'Volt Cyclone'));
   let attach;
   for (let i = 0; i < 18; i++) {
@@ -138,6 +152,7 @@ function runSeat(seat) {
       activeEnergies:opponent.active.energies.cards.map(c=>c.fullName),
       benchEnergies:bench.energies.cards.map(c=>c.fullName),
       locks:opponent.playLocksTurnsRemaining,
+      energyDiagnostic,
       lastLogs:state.logs.slice(-5).map(l=>({type:l.type,params:l.params}))
     }));
     if (p.constructor.name === 'AttachEnergyPrompt') {
