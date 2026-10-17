@@ -52,6 +52,8 @@ jobs:
         run: node simulation/twinleaf/entry-draw-garbotoxin-action.cjs
       - name: Verify live-only board observer source isolation
         run: node --test tests/hood-rank8-source-board-observer.test.cjs
+      - name: Validate pure rank8 lock and printed-attack gate
+        run: node --test tests/rank8-hood-lock-attack-gate.test.cjs
       - name: Replay authentic rank8 opponent attack choices three times
         if: inputs.hood_rank8_board_audit
         run: node simulation/twinleaf/hood-rank8-source-board-audit.cjs > rank8-hood-board-audit.json
@@ -61,12 +63,20 @@ jobs:
       - name: Show Garbodor Tool activation and Hood destination
         if: inputs.hood_rank8_board_audit
         run: node -e "const x=require('./rank8-hood-board-audit.json'); const slim=e=>({turn:e.turn,action:e.action,card:e.card,actorBefore:e.visibleBefore.actor,actorAfter:e.after.actor,otherBefore:e.visibleBefore.other,otherAfter:e.after.other,discardDark:e.opponentDarknessDiscardBefore}); const chosen=x.chronologicalBoardEvents.filter(e=>e.card==='Float Stone'||e.card==='Stealthy Hood'||e.card==='Garbodor'||e.card==='Trubbish'||e.action==='AttackAction'); console.log(JSON.stringify(chosen.map(slim),null,2));"
+      - name: Audit source-ranked Hood attacks and Garbotoxin exposure
+        if: inputs.hood_rank8_board_audit
+        run: node simulation/twinleaf/rank8-hood-lock-attack-gate.cjs rank8-hood-board-audit.json > rank8-hood-action-gate.json
+      - name: Print source-ranked attack and lock gate
+        if: inputs.hood_rank8_board_audit
+        run: node -e "const x=require('./rank8-hood-action-gate.json'); console.log(JSON.stringify({terminal:x.terminalPeriod,doors:x.underworldDoor,equippedGarbodorTurns:x.equippedGarbodorObservedTurns,qualified:x.qualifiedForCompetitiveInference},null,2));"
       - name: Archive source-ranked Hood board-level opponent evidence
         if: always() && inputs.hood_rank8_board_audit
         uses: actions/upload-artifact@v4
         with:
           name: rank8-hood-live-board-action-audit
-          path: rank8-hood-board-audit.json
+          path: |
+            rank8-hood-board-audit.json
+            rank8-hood-action-gate.json
           if-no-files-found: warn
       - name: Check rank8 actual second seed selection
         run: node --test tests/hood-rank8-second-source.test.cjs
