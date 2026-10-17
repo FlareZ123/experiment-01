@@ -108,6 +108,7 @@ function run() {
             candidatePassCount,
             candidateOpeningTurnStarts:starts.slice(0,3),
             candidateTurnsHoldingCounters:starts.filter(t=>t.candidateHandCounters.length>0).length,
+            candidateFirstCounterHeld:starts.find(t=>t.candidateHandCounters.length>0)??null,
             ownMeaningfulActions:actions.length,
             opponentMeaningfulActions:opponentActions.length,
             ownFirstActions:actions.slice(0,18).map(a=>({
@@ -137,7 +138,7 @@ function run() {
       assert.equal(a.actualFirstSeat,b.actualFirstSeat);
   }
   return {
-    schema:'new-moon-lockbreak-paired-source-diagnostic-v3-first-turn-visibility',
+    schema:'new-moon-lockbreak-paired-source-diagnostic-v4-counter-held-example',
     qualifiedForCompetitiveInference:false,
     originalSourcePrintHash:source.sha256_id_counts,
     frozenCandidatePrintHash:contender.canonical_id_count_sha256,
