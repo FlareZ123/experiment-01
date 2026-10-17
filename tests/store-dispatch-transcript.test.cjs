@@ -97,3 +97,18 @@ test('records source-index identity for real ChooseCardsPrompt reference selecti
   assert.equal(report.failedChoiceReferenceEvents, 0);
   assert.equal(report.parametersCaptured, true);
 });
+
+
+test('opt-in Store graph evidence detects actual root state changes', () => {
+  const store=new Store();
+  const report=withStoreDispatchTranscript(Store,
+    ()=>store.dispatch(new Action(101)),{storeDataGraphEveryDispatch:true});
+  assert.equal(report.actionTrace.length,1);
+  const event=report.actionTrace[0];
+  assert.equal(event.storeDataGraphBefore.schema,
+    'live-store-data-graph-except-logs-v1');
+  assert.equal(event.storeDataGraphAfter.schema,
+    'live-store-data-graph-except-logs-v1');
+  assert.notEqual(event.storeDataGraphBefore.digest,event.storeDataGraphAfter.digest);
+  assert.equal(report.result,101);
+});
