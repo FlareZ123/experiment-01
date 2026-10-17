@@ -15,3 +15,24 @@ function installBattleCompressorMinimumHook(){
   const {ChooseCardsPrompt}=require(path.join(output,
     'game/store/prompts/choose-cards-prompt'));
   const {GameMessage,GameError}=require(path.join(output,'game'));
+  const {MOVE_CARDS,SHUFFLE_DECK}=require(path.join(output,
+    'game/store/prefabs/prefabs'));
+  const {WAS_TRAINER_USED}=require(path.join(output,
+    'game/store/prefabs/trainer-prefabs'));
+  const original=BattleCompressor.prototype.reduceEffect;
+  function corrected(store,state,effect){
+    if(!WAS_TRAINER_USED(effect,this))return state;
+    const player=effect.player;
+    if(!this.canPlay(store,state,player)){
+      throw new GameError(GameMessage.CANNOT_PLAY_THIS_CARD);
+    }
+    return store.prompt(state,new ChooseCardsPrompt(
+      player,GameMessage.CHOOSE_CARD_TO_DISCARD,player.deck,{},
+      {min:1,max:3,allowCancel:false}
+    ),selected=>{
+      MOVE_CARDS(store,state,player.deck,player.discard,{
+        cards:selected||[],sourceCard:this
+      });
+      SHUFFLE_DECK(store,state,player);
+    });
+  }
