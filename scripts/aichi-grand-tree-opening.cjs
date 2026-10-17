@@ -80,8 +80,9 @@ function run(){
       stage2Total:3,otherStage2:otherVileplume,eligibleBasicCount:totalBasics});
   }
   const aorOnly=quantify(2),allStage2=quantify(3);
-  assert.deepEqual(aorOnly.stillInDeckAfterSixPrizes,
-    {numerator:'545905',denominator:'22178816',percent:2.4613802648437137});
+  assert.equal(aorOnly.stillInDeckAfterSixPrizes.numerator,'545905');
+  assert.equal(aorOnly.stillInDeckAfterSixPrizes.denominator,'22178816');
+  assert.ok(Math.abs(aorOnly.stillInDeckAfterSixPrizes.percent-2.4613802648437137)<1e-10);
   assert.equal(allStage2.stillInDeckAfterSixPrizes.numerator,'297823067');
   assert.equal(allStage2.stillInDeckAfterSixPrizes.denominator,'11754772480');
   return {kind:'exact-restricted-opening-resource-opportunity',source,aorOnly,allStage2,
