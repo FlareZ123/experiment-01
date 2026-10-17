@@ -216,6 +216,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [electroRainDamageCorrection] Opt-in printed Electro Rain attack damage and repeated-target correction.
  * @property {boolean} [electrodeGXPrizeTradePolicy] Opt-in source Raichu immediate two-Prize forecast tactic.
  * @property {boolean} [raichuSightToolPolicy] Opt-in rank-4/17 singleton Sight reservation for Alolan Raichu.
+ * @property {boolean} [raichuPrizeAllocationPolicy] Opt-in source Raichu multi-target Prize-aware Electro Rain allocation.
  * @property {boolean} [electrodeGXEnergyCorrection] Opt-in printed Extra Energy Bomb mandatory attachment and recipient legality.
  * @property {boolean} [redeemableTicketPaperOrderCorrection] Opt-in paper-rule Ticket top/new-Prize and bottom/old-Prize correction.
  * @property {boolean} [hisuianHeavyBallPrizeShuffleCorrection] Opt-in paper Prize-position shuffle for Hisuian Heavy Ball.
@@ -432,6 +433,10 @@ function runMatch(request) {
     if (request.electrodeGXPrizeTradePolicy === true) options = withElectrodePrizeTradePolicy(options);
     if (request.raichuSightToolPolicy === true) {
       options = require('./raichu-sight-tool-tactic.cjs').withRaichuSightToolPolicy(options);
+    }
+    if (request.raichuPrizeAllocationPolicy === true) {
+      options = require('./raichu-prize-allocation-resolver.cjs')
+        .withRaichuPrizeAllocationPolicy(options);
     }
     if (request.shadowRiderOpeningPivot === true) {
       options = withActiveOpeningPivot(options, {
@@ -782,6 +787,7 @@ function runMatch(request) {
       electrodeGXEnergyCorrection: request.electrodeGXEnergyCorrection === true,
       electrodeGXPrizeTradePolicy: request.electrodeGXPrizeTradePolicy === true,
       raichuSightToolPolicy: request.raichuSightToolPolicy === true,
+      raichuPrizeAllocationPolicy: request.raichuPrizeAllocationPolicy === true,
       redeemableTicketPaperOrderCorrection: request.redeemableTicketPaperOrderCorrection === true,
       ...(request.pendingEndTurnSwitchCleanupCorrection === true ? {
         pendingEndTurnSwitchCleanupCorrection:true,
@@ -812,6 +818,7 @@ function runMatch(request) {
         (request.electrodeGXEnergyCorrection === true ? '+ElectrodeGXMandatoryEnergyAndBotCount-v2' : '') +
         (request.electrodeGXPrizeTradePolicy === true ? '+ElectrodeSourcePrizeTrade-v1' : '') +
         (request.raichuSightToolPolicy === true ? '+RaichuSightReservation-v1' : '') +
+        (request.raichuPrizeAllocationPolicy === true ? '+RaichuPrizeAllocation-v1' : '') +
         (request.redeemableTicketPaperOrderCorrection === true ? '+TicketPaperPrizeOrder-v1' : '') +
         (request.pendingEndTurnSwitchCleanupCorrection === true ? '+PendingEndTurnSwitchPaper-v1' : '') +
         (request.apexSpreadPrizeWindowPolicy === true ? '+ApexSpreadPrizeWindow-v1' : '') +
