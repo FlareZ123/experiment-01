@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      absol_rank11_firstturn_audit:
+        description: Source rank 11 first-turn opponent own-hand observer pair
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -103,4 +108,15 @@ jobs:
         with:
           name: absol-hardmatchup-source-pilot
           path: absol-hardmatchup-source-pilot.json
+          retention-days: 14
+
+      - name: Isolate authentic rank 11 first-turn resource and prompt decisions
+        if: ${{ inputs.absol_rank11_firstturn_audit }}
+        run: node simulation/twinleaf/absol-rank11-firstturn-ownhand.cjs > absol-rank11-firstturn-ownhand.json
+      - name: Archive actual first-turn rank 11 source choices
+        if: ${{ inputs.absol_rank11_firstturn_audit }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: absol-rank11-firstturn-ownhand
+          path: absol-rank11-firstturn-ownhand.json
           retention-days: 14
