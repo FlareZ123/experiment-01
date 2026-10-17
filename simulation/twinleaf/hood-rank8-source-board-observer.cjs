@@ -25,12 +25,13 @@ function snapshot(state, seat) {
 }
 
 /**
- * Instrument only actual live Store dispatches. Speculative Simulator Stores
- * never enter this observer. It restores the original dispatch method on exit.
- * @template T
- * @param {Function} Store
- * @param {()=>T} execute
- * @returns {{result:T,records:object[],liveDispatches:number}}
+ * Resolve the actual Pokémon that declared an Ability, using Twinleaf's
+ * UseAbilityAction.target (SlotType.ACTIVE=1, BENCH=2).
+ * @param {object} state
+ * @param {number} seat
+ * @param {object} action
+ * @param {string} kind
+ * @returns {object|null}
  */
 function abilitySourceBefore(state, seat, action, kind) {
   if (kind !== 'UseAbilityAction') return null;
@@ -47,6 +48,14 @@ function abilitySourceBefore(state, seat, action, kind) {
   };
 }
 
+/**
+ * Instrument only actual live Store dispatches. Speculative Simulator Stores
+ * never enter this observer. It restores the original dispatch method on exit.
+ * @template T
+ * @param {Function} Store
+ * @param {()=>T} execute
+ * @returns {{result:T,records:object[],liveDispatches:number}}
+ */
 function withRank8BoardObserver(Store,execute) {
   const original=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   if(!original || typeof original.value!=='function') {
