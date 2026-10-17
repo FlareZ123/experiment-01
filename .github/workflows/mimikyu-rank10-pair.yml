@@ -37,7 +37,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Test source-turn-28 Shred opponent-response fork
-        run: node --test tests/mimikyu-turn28-shred-fork.test.cjs
+        run: node --test tests/mimikyu-turn28-shred-fork.test.cjs tests/rank10-copycat-response-ledger.test.cjs
       - name: Compare archived extra-turn retreat with physical source Shred attack
         run: node simulation/twinleaf/rank10-mimikyu-shred-source-fork.cjs > rank10-mimikyu-shred-source-fork.json
       - name: Audit source-root Shred policy without default bot pre-decision
