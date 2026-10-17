@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      absol_rank11_shopping_observer:
+        description: Read-only source rank 11 Shopping Center and Crobat opportunity audit
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -119,4 +124,15 @@ jobs:
         with:
           name: absol-rank11-firstturn-k1
           path: absol-rank11-firstturn-k1.json
+          retention-days: 14
+
+      - name: Observe rank 11 own-hand Shopping Center opportunities in matched source games
+        if: ${{ inputs.absol_rank11_shopping_observer }}
+        run: node simulation/twinleaf/rank11-shopping-center-source-observer.cjs > rank11-shopping-source-observer.json
+      - name: Archive matched rank 11 Shopping Center source states
+        if: ${{ inputs.absol_rank11_shopping_observer }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-shopping-source-observer
+          path: rank11-shopping-source-observer.json
           retention-days: 14
