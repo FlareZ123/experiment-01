@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank31_chimecho_source_pair:
+        description: 'Two predeclared source-rank31 Chimecho policy exposures versus rank1'
+        required: false
+        type: boolean
+        default: false
       rank8_preregistered_start_panel:
         description: 'Eight source rank-8 decorrelated v3 starts (repeats 1-4, both seats)'
         required: false
@@ -97,6 +102,16 @@ jobs:
         with:
           name: rank8-preregistered-start-panel
           path: rank8-start-panel.json
+          if-no-files-found: warn
+      - name: Observe actual rank31 Chimecho policy in both physical slots
+        if: inputs.rank31_chimecho_source_pair
+        run: node simulation/twinleaf/rank31-chimecho-source-visibility.cjs > rank31-chimecho-source.json
+      - name: Preserve predeclared rank31 source visibility
+        if: inputs.rank31_chimecho_source_pair && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank31-chimecho-source-pair
+          path: rank31-chimecho-source.json
           if-no-files-found: warn
       - run: node --test tests/battle-compressor-minimum.test.cjs
       - run: node --test tests/twinleaf-attached-tool-power-tactic.test.cjs
