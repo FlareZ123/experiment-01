@@ -14,6 +14,7 @@ function probe(turn,fresh=false,fromHand=false){
   const {Store}=load('game/store/store');
   const {Player}=load('game/store/state/player');
   const {PokemonCardList}=load('game/store/state/pokemon-card-list');
+  const {CardList}=load('game/store/state/card-list');
   const {GamePhase}=load('game/store/state/state');
   const {Format}=load('game/store/card/card-types');
   const {UseStadiumAction}=load('game/store/actions/game-actions');
@@ -26,6 +27,11 @@ function probe(turn,fresh=false,fromHand=false){
   for(let i=0;i<2;i++){
     const p=state.players[i];p.id=101+i;p.active.cards.push(card('Bunnelby PRC'));
     p.deck.cards.push(card('Grass Energy MEE'));
+    for(let n=0;n<6;n++){
+      const prize=new CardList();
+      prize.cards.push(card('Grass Energy MEE'));
+      p.prizes.push(prize);
+    }
   }
   const player=state.players[state.activePlayer];
   const oddish=new PokemonCardList();oddish.cards.push(card('Oddish UNB'));
@@ -38,7 +44,11 @@ function probe(turn,fresh=false,fromHand=false){
       {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
     assert.ok(store.state.players[state.activePlayer].stadium.cards
       .some(c=>c.fullName==='Great Tree SCR'),
-      'Grand Tree must enter play via source-card Stadium action');
+      'Grand Tree must enter play via source-card Stadium action: '+
+      JSON.stringify({turn,phase:store.state.phase,
+        ownerStadium:store.state.players[state.activePlayer].stadium.cards.map(c=>c.fullName),
+        ownerHand:store.state.players[state.activePlayer].hand.cards.map(c=>c.fullName),
+        otherStadium:store.state.players[1-state.activePlayer].stadium.cards.map(c=>c.fullName)}));
   }else player.stadium.cards.push(tree);
   let error=null;
   try{store.dispatch(new UseStadiumAction(player.id));}catch(e){error=e.message;}
