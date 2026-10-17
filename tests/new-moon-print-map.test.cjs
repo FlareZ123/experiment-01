@@ -25,3 +25,12 @@ test('fixed name and print identity', () => {
   assert.equal(ids.Dusclops,'sv6pt5-19');
   assert.equal(ids.Klefki,'sv1-96');
 });
+
+const {auditFromResources}=require('../scripts/aichi-new-moon-english-print-audit.cjs');
+test('source English printings satisfy date, variant and source-inventory audit',()=>{
+  const result=auditFromResources();
+  assert.equal(result.count,60);
+  assert.equal(result.aceSpecCount,1);
+  assert.equal(result.authenticJapanesePrintsVerified,false);
+  assert.equal(result.englishDatabaseExpandedFlag,true);
+});
