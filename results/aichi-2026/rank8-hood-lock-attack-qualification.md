@@ -103,3 +103,7 @@ Verified compiled gate values: `terminalPeriod.length=4`,
 `qualifiedForCompetitiveInference=false`.
 The replayed result remains an exploratory generic-bot game and **does not
 qualify any competitive wins**.
+
+## Later source-user attribution validation
+
+[Agent 1's target-specific Underworld Door audit](rank8-hood-ability-source-attribution.md) fixes an evidence-classifier conflation of Hooded Active and actual Ability source. [Compiled CI 39078258472](https://github.com/FlareZ123/experiment-01/actions/runs/39078258472) confirmed that only one of the two turn-8 Ability users actually wore Stealthy Hood; the other Benched VMAX had Float Stone. Equipped Garbodor was absent. The match remains competitively unqualified.
