@@ -53,6 +53,8 @@ function reachableCards(root, isCard) {
 function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
   evaluator, receiver, cloneState, opts) {
   assert.equal(typeof cloneState, 'function');
+  assert.ok(Number.isSafeInteger(opts.samples) && opts.samples > 0,
+    'Detached sampling requires a positive integer sample count');
   assert.equal(typeof opts.isCard, 'function');
   const knownTopCount=opts.knownTopCount??0;
   assert.ok(Number.isSafeInteger(knownTopCount)&&knownTopCount>=0,
@@ -75,10 +77,9 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
       'Sampling hidden Prizes requires verified absence of Prize observations or complete empty ledger');
   }
   const srcPlayer=state.players.find(p=>p.id===playerId);
-  if (!srcPlayer) return evaluator.call(receiver,state,playerId,action,passTurnScore);
+  assert.ok(srcPlayer,'Detached sampling requires an acting player in the source State');
   const sourceCards=reachableCards(state,opts.isCard);
   let total=0;
-  let accepted=0;
   for(let sample=0;sample<opts.samples;sample+=1) {
     const detached=cloneState(state);
     assert.notStrictEqual(detached,state,
@@ -117,8 +118,14 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
         sampled[unknownDeckCount+index];
     });
     const score=evaluator.call(receiver,detached,playerId,action,passTurnScore);
-    if(score!==undefined){total+=score;accepted+=1;}
+    // A mean conditional on successful hidden-world simulations can
+    // overvalue actions that cannot be scored in other possible worlds.
+    // Abstain rather than omit unsuccessful determinizations.
+    if(score===undefined) return undefined;
+    assert.ok(Number.isFinite(score),
+      'Detached evaluator must return a finite score or undefined');
+    total+=score;
   }
-  return accepted?total/accepted:undefined;
+  return total/opts.samples;
 }
 module.exports={evaluateDetachedDeckSamples};
