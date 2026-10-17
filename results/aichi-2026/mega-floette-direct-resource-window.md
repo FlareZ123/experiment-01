@@ -51,6 +51,25 @@ Prize cards are implicitly integrated out: conditional on the seven-card opening
 
 [Independent physical-deal regression](../../tests/mega-floette-direct-window.test.cjs) samples 120,000 fully shuffled 60-card decks and physically skips the six Prize positions after the opening. A separate Python `numpy` run with 300,000 shuffled physical decks, seed **20261017**, yielded **264,620 legal openings** and **8,323 strict-resource hits**, rate **3.145265%**, only about **0.00224 percentage points** from the exact 3.147505%. The same independent trial's loose-resource rate was **3.793742%**, compatible with 3.786291%. The JavaScript regression was committed, while a GitHub Actions dispatch was safety-blocked; its compiled CI status remains **unverified** as of this report. Local JavaScript exact formula was also evaluated and produced the same rational numbers.
 
+## Ideal first-turn connector access: a separate, much larger event
+
+The unsearched attachment probability is **not** an appropriate estimate of search-enabled Floette access. The source rank1 60 has **4 Fog Crystal, 4 Mysterious Treasure, 1 Quick Ball and 1 Hisuian Heavy Ball**. Fog Crystal can search Floette as a Basic Psychic or search a Basic Psychic Energy, Mysterious Treasure can obtain the Psychic Floette by discarding one card, Quick Ball can obtain a Basic by discarding one card, and Heavy Ball can retrieve a Prized Basic Pokémon.
+
+A new exact, intentionally **optimistic** turn-one resource calculation conditions on the same legal initial seven, draws one normal turn card, and then checks for **both** Floette access and one Psychic Energy for a first ordinary attachment. It credits the available search Items as immediately playable without Item lock or strategically expensive discards, assumes the right use of each one-use connector, and checks Floette's hidden Prize status: when Floette is absent from the first eight cards, it is in the six Prizes with conditional probability `6/52`, and in the deck with probability `46/52`. With Floette Prized, Hisuian Heavy Ball can retrieve it if in hand. No other deck-building changes or other draw/search abilities are allowed.
+
+| Disjoint Floette location/route | Exact fraction | Probability |
+| --- | --- | ---: |
+| Floette seen by first turn, direct Energy or Energy via Fog Crystal | `594821801/4515961725` | **13.171542%** |
+| Floette not seen but unprized, reachable by Fog/Mysterious Treasure/Quick Ball, plus Energy direct or via an available separate Fog | `3230009209/6523055825` | **49.516811%** |
+| Floette unseen and Prized, one Heavy Ball in hand plus direct/Fog Energy | `3387202/301064115` | **1.125077%** |
+| **Total first-turn idealized search channel** | **`37463270684/58707502425`** | **63.813430%** |
+
+This **63.81%** is an access event conditional on a valid starting Basic, distinct from the 3.15% **three-manual-attachments-by-turn-three** event computed without search. Combining these two probabilities naively would be invalid because connector use changes future shuffled deck contents and card possession, and the conditions overlap substantially. In particular, **63.81% does not estimate Floette becoming attack-ready or winning**.
+
+[Exact first-turn connector enumerator](../../scripts/mega-floette-turn1-connectors.cjs) uses categories Floette1/other Basic14/Psychic11/Fog4/Treasure4/Quick Ball1/Heavy Ball1/other24 and finite combinations for valid opening seven plus one observed draw and Floette's Prize disposition. [Independent physical-prize regression](../../tests/mega-floette-turn1-connectors.test.cjs) samples actual face-down six-Prize placements. Independently, 300,000 Python randomized deals (seed 2026101702) gave **264,972 valid openings** and **168,731 channel successes**, observed **63.678804%** versus exact **63.813430%**, a difference compatible with sampling variation. As with the prior standalone JS regression, CI dispatch was not completed, so compiled execution of this committed addition is **not yet attested**.
+
+This expands the design question: Floette has substantial *theoretical* early search access, while the outstanding practical constraints are maintaining enough Energy across turns under Garbotoxin, paying actual Mysterious Treasure/Quick Ball discards, allocating finite Fog Crystal uses without starving other lines, and surviving Mega Absol before Floette's payoff. Real policies must account for search contention and information limits rather than treating the idealized access event as established on-board play.
+
 ## Strategy and unresolved questions
 
 A one-card Floette package is directly compatible with the champion's Psychic Pokémon search category and Basic placement rules, subject to card printing and actual search access. The difficulty is timely Psychic acceleration under Garbotoxin; natural direct hand-only materialization reaches the three-normal-attachment ceiling in only a small fraction of valid openings. This strongly motivates a **real source-dealt attack/energy sequencing study** against Absol/Garbodor before any recommendation.
