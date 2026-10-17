@@ -101,6 +101,14 @@ function main() {
       firstDispatchDifference:delta,
       alteredOnlyAtSelectedTurn:delta?.oldTurn === item.opportunity?.turn &&
         delta?.oldAction === 'PassTurnAction',
+      immediateEffects:item.result.effectLedger.filter(x=>x.ordinal>=delta?.ordinal),
+      opponentReply:item.result.result.decisionTrace.filter(x=>
+        x.turnBefore===item.opportunity?.turn+1 && x.playerSlot===1)
+        .slice(0,12).map(x=>({action:x.action,card:x.card??null,
+          attack:x.attack??null,prizesAfter:x.prizesAfter})),
+      attackCounts:item.result.result.attackTrace.reduce((counts,x)=>{
+        counts[x.seat]++;return counts;
+      },[0,0]),
       completeGame:outcome(item.result.result),
       actionTraceDigest:hash(trace),
       traceEvents:trace.length
