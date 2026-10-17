@@ -30,6 +30,7 @@ function main() {
   const request={
     deckA:regidrago.cardIds,deckB:champion.cardIds,
     seed:4246551499,maxActions:350,captureDecisionTrace:true,
+    captureCopycatTurnStartSeat:1,
     strictPromptValidation:true,forestSealSearchCorrection:true,
     supporterDecisionCorrection:true,doubleDragonRecovery:true,
     isolatePolicyRandomness:true,postSuperAliasRepairIsolation:true,
