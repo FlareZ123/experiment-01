@@ -69,9 +69,9 @@ function audit(candidate,source,getCard,getSet) {
   assert.equal(quantity,60);
   assert.deepEqual(totals,{'Pokémon':19,Trainer:35,Energy:6});
   assert.equal(aceSpecCount,1);
-  assert.equal(candidate.entries.filter(r=>r.english_print_id==='xy7-30').length,1,
+  assert.equal(candidate.entries.filter(r=>r.id==='xy7-30').length,1,
     'Use Farewell Letter Unown rather than banned SM8 variants');
-  assert.equal(candidate.entries.filter(r=>r.english_print_id==='sv6pt5-18').length,1,
+  assert.equal(candidate.entries.filter(r=>r.id==='sv6pt5-18').length,1,
     'Use legal Shrouded Fable Duskull rather than prohibited SM11a print');
   for(const [name,id,ability] of [
     ['Unown','xy7-30','Farewell Letter'],
