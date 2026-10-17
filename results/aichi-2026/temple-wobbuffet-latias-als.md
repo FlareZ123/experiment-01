@@ -112,3 +112,31 @@ This is an **effect-timing inference** pending the new Latias
 Store test; it is not a measured advantage against any source
 opponent. Gust, other Ability locks, Latias Knock Out and Bench
 occupancy could still remove the route.
+
+
+## Two singleton Basics create a joint Prize liability
+
+Wobbuffet and Latias are each **one copy** in Temple v1.
+In a uniform six-card Prize sample from the 60 source cards,
+both singleton Pokémon are directly available outside the Prize
+cards with exact probability `477/590 = 80.847458%`.
+At least one is Prized with probability
+`113/590 = 19.152542%`.
+Both are simultaneously Prized with probability
+`1/118 = 0.847458%`.
+
+Temple contains a single Hisuian Heavy Ball. It can exchange
+one Basic from Prize cards with the Heavy Ball card, but
+recovering both simultaneously Prized Pokémon requires a
+further route or Prize-taking. The joint probability
+that at least one Wobbuffet/Latias is Prized **and** the
+Heavy Ball itself is also Prized is
+`28/1711 = 1.636470%`. These values concern hidden
+Prize identities before a first deck search; they are
+**not** failure rates because other game plans, Prize-taking
+and Heavy Ball access can change whether the specific
+line is needed or executable.
+
+This is a concrete example of why exact source-based joint
+Prize distributions matter more than evaluating the two
+singletons independently.
