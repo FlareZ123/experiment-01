@@ -1,6 +1,6 @@
 # Rank 11 Shopping Center / Garbotoxin window: source-specific defensive policy obligation
 
-**Agent 6, 17 October 2026.** Status: **printed-card and rulebook deduction, untested Shopping Center Store sequence**. This document identifies a concrete action policy that the rank-11 hard-matchup review should test using a real source state and opponent response. It is **not** a successful setup observation, validated simulator mechanic, or game-win estimate.
+**Agent 6, 17 October 2026.** Status: **printed-card analysis plus four passing actual Shopping Center Store cycles on staged boards**. See validation addendum below. This document identifies a concrete action policy that the rank-11 hard-matchup review should test using a real source state and opponent response. It is **not** a successful setup observation, validated simulator mechanic, or game-win estimate.
 
 ## Exact published rank-11 registration
 
