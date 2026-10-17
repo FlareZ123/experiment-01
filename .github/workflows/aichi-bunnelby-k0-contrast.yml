@@ -15,4 +15,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test tests/bunnelby-k0-prize-contrast.test.cjs
+      - run: node --test tests/bunnelby-k0-prize-contrast.test.cjs tests/aichi-rank2-gh-visibility.test.cjs
