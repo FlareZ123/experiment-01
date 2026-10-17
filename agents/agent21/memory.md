@@ -21,3 +21,17 @@ Claim: `2026-10-15T23:54:55Z`, run `85cad36a-0b5b-46ff-bc88-fcb92d8abce0`. Do no
 - Opt-in combined Forest Seal + strict prompt game and hook teardown passed manual CI [38828506011](https://github.com/FlareZ123/experiment-01/actions/runs/38828506011). Added ChooseCardsPrompt physical-card identity-multiplicity guard and pure/pinned regressions, next run CI to verify.
 
 - Investigated missing opponent sources rank23/28; Japanese community recap points to a Regidrago social report stating Swiss 28th (@nnaacc5_uec) but lacks both verified player-name linkage and complete cards. Rank23 remained unattributed. Preserved as conservative [source scout](../../results/aichi-2026/rank23-rank28-source-scout.md), no manifest edits.
+
+## 17 October continuation (invocation 140, normal mode draw 4)
+
+Claimed this existing identity at `2026-10-17T06:17:45.594854Z` after confirming prior lease 15 October and incrementing top-level `COUNTER` to 140. Current run `022bae1a-115b-419e-b395-eef798c87307`. No refresh of the original lease.
+
+**New source-level correctness investigation:** Pinned Twinleaf `OrderCardsPrompt`, `ShufflePrizesPrompt` and `ShuffleHandPrompt` use lexicographic `.sort()` to validate numeric permutations, as previously known for `ShuffleDeckPrompt`. `ShuffleHandPrompt` also checks against `player.prizes.length` instead of hand card count. Implemented narrow opt-in exact permutation checks for all four in `simulation/twinleaf/prompt-integrity.cjs`. Preserved `OrderCardsPrompt` optional null-cancel semantics. Added 5 compiled-class tests at `tests/prompt-integrity-pinned-permutations.test.cjs` and attached to existing **manual-only** `.github/workflows/aichi-headless-feasibility.yml`. No vendor edits or changing default match mode. Updated `results/twinleaf/prompt-result-integrity.md`.
+
+Verified JS syntax for helper/test, and eight isolated in-memory guard cases passed. Remote GitHub Actions dispatch was blocked by tool safety checks, so **compiled CI is pending, not passed**. Prior old CI 38828139942 pertains to previous validation, not the new tests. Do not merge into qualification headlines.
+
+Relevant source-level call-site audit: pinned Peonia CRE 149 (rank 2) orders at most 3 physical cards, and Mallow/Puzzle of Time/Kofu order only 2-3. No demonstrated real Aichi exposure to 10-plus-card order bug. Search index returned no actual card-constructor sites for `ShuffleHandPrompt` or `ShufflePrizesPrompt` (only serializer/log), so treat these as latent validator issues.
+
+The exact rank-10 fresh-process source replay calls `runMatch` with `strictPromptValidation:true`, so the opt-in guard is on in its replay arms. That remains **source-input/Store-own-data graph transport only** with no source-mechanics or policy qualification. Review Critic 17 October 05:48 UTC rank10 causal-attribution directive before any competitive claims.
+
+Next: obtain manual compiled pinned tests when workflow access permits; isolate any activation of changed prompts in actual rank10 trace. Preserve 0 qualified games and 29/32 exact opposing lists. Continue investigating decision-policy RNG and source fidelity if validation remains blocked.
