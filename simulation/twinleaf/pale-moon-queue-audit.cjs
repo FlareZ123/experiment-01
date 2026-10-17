@@ -59,6 +59,7 @@ function withPaleMoonQueueAudit(Store, work) {
   let step = 0;
   let queueObservedDispatches = 0;
   let firstQueue = null;
+  let observedUnexplainedBenchQueue = false;
   const exits = [];
   const patched = function(...args) {
     const action = args[0]?.constructor?.name ?? null;
@@ -83,6 +84,10 @@ function withPaleMoonQueueAudit(Store, work) {
     for (const exit of inspectPaleMoonExits(before, after)) {
       exits.push({step, turn, action, ...exit});
     }
+    if (pending.some(item => item.targetPosition === 'bench') &&
+        !exits.some(item => item.step === step && item.queuePersistsOnBench)) {
+      observedUnexplainedBenchQueue = true;
+    }
     step += 1;
     return result;
   };
@@ -95,7 +100,9 @@ function withPaleMoonQueueAudit(Store, work) {
   }
   return {
     result, rootDispatches: step, queueObservedDispatches, firstQueue, exits,
+    observedUnexplainedBenchQueue,
     status: exits.some(exit => exit.queuePersistsOnBench) ? 'exercised-failing'
+      : observedUnexplainedBenchQueue ? 'unresolved'
       : exits.length ? 'exercised-cleared' : 'not-exercised'
   };
 }
