@@ -85,3 +85,32 @@ test('missing GX-use signal or different opponent attack suppresses fork',()=>{
     }
   }
 });
+
+
+test('source Copycat decision ignores opposing hidden zones and undealt cards',()=>{
+  /** @param {unknown} secret */
+  function check(secret) {
+    const f=fixture();
+    const opponent=f.state.players[0],actor=f.state.players[1];
+    opponent.hand={cards:[secret]};
+    opponent.deck={cards:[secret]};
+    opponent.prizes=[{cards:[secret]}];
+    actor.deck={cards:[secret]};
+    actor.prizes=[{cards:[secret]}];
+    const out=withTurn28CopycatShredFork(f.args,()=>{
+      f.store.dispatch(new AddPlayerAction());
+      const attack=f.bot.decodeNextAction(f.state);
+      const prompt={id:41,playerId:202,result:undefined,
+        cards:[f.dialga],validate:a=>a===f.shred};
+      Object.defineProperty(prompt,'constructor',{value:{name:'ChooseAttackPrompt'}});
+      f.state.prompts=[prompt];
+      const choice=f.bot.decodeNextAction(f.state);
+      return [attack.constructor.name,attack.name,
+        choice.constructor.name,choice.result.name];
+    },f.options);
+    return {actions:out.result,opportunities:out.opportunities,
+      selections:out.shredSelections,forcedAttack:out.forcedAttack};
+  }
+  assert.deepEqual(check('secret set A'),
+    check({secret:'entirely distinct card and prize contents',order:[2,1,3]}));
+});
