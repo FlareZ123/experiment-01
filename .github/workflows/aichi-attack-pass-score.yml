@@ -56,6 +56,11 @@ jobs:
           if-no-files-found: error
       - name: Analyze source policy effects
         run: node simulation/twinleaf/aichi-rank10-policy-effect-matrix.cjs > rank10-policy-effect-matrix.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rank10-policy-effect-matrix
+          path: rank10-policy-effect-matrix.json
+          if-no-files-found: error
       - name: Compare original and corrected pending Pale Moon after source retreat
         run: node simulation/twinleaf/aichi-rank10-delayed-ko-switch.cjs > rank10-delayed-ko-switch.json
       - name: Summarize authentic delayed KO switch correction
