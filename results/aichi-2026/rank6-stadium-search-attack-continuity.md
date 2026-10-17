@@ -40,8 +40,23 @@ Consequently, an independently valuable **paper-rules hypothesis** is that the s
 
 The next meaningful source test should validate and dispatch the G&H prompted selection **with DCE alone**, ensuring the same real 140-damage turn and identical pre-fork physical hand and Prize cards. If the pinned Store rejects that category-fail search, distinguish an engine-prompt modeling defect from a paper-rules restriction before changing research policy. Then compare the next real opponent response under a representative decision policy.
 
+## Source-dealt DCE-only category-fail search: confirmed (17 October)
+
+**A genuine compiled pinned Store source fork has now executed successfully**, replacing the untested hypothesis noted above. [Manual CI 39024707937](https://github.com/FlareZ123/experiment-01/actions/runs/39024707937), at workflow head `7f8f829b294341d630ca27b3735248ab8d40e1ea`, passed the new [restricted-search source runner](../../simulation/twinleaf/rank6-guzma-hala-dce-only-source.cjs), existing exact-source regressions, and every downstream test in the manual-only Iron Thorns workflow.
+
+The runner invokes the real `ChooseCardsPrompt.validate(cards, state)` and `ResolvePromptAction` on the original fixed seed in both branches, with the physical predecision seven-card hand, six Prize printings, DCE zone and empty starting Stadium identical. The source G&H search is the **sole** changed selection:
+
+| Source-dealt search response | Cards taken by G&H | Wondrous in postdamage hand | Actual Volt Cyclone damage |
+| --- | --- | --- | ---: |
+| Control | DCE + Wondrous Labyrinth | Yes | 140 |
+| Category-fail branch | **DCE only** | **No** | **140** |
+
+The player can therefore **decline the Stadium part of the source G&H search without sacrificing the first 140-damage Volt Cyclone** in this real Store state. The source script defaults to the original two-card choice in all existing callers; the DCE-only path is opt-in. The retained Thunder Mountain in hand is still played and powers the attack. The no-Stadium choice should not be described as always preferable: the freely acquired Wondrous could serve as discard material, future lock counterpressure, or a fallback Stadium, and keeping it out of hand can also forgo those opportunities. This experiment does not evaluate future turns under a vetted opponent policy or compare the strategic value of the two hands.
+
+This is direct engine action-and-effect evidence for a single physical source state, supported independently by the provided Rulebook's restricted-search principle. **It is neither an independently qualified whole-game replay nor a performance estimate.** `sourceReplayMechanicsVerified:false`; `qualifiedForCompetitiveInference:false`.
+
 ## Boundary of the claim
 
-Card facts: local card database printings `sv6-77` (Iron Thorns ex), `sm1-136` (DCE), `sm8-191` (Thunder Mountain), `sm9-158` (Wondrous Labyrinth), `sm12-193` (G&H), and the [published Aichi rank-6 60](full-decklists.json). Mechanics: provided Advanced Player's Rulebook sections **I.B-04**, **I.C**, and **I.H**, alongside printed Prism Star Stadium rules. Demonstrated engine first attack: [compiled CI 38911990792](https://github.com/FlareZ123/experiment-01/actions/runs/38911990792). The no-Stadium search and later self-replacement outcomes are **unexecuted branches**.
+Card facts: local card database printings `sv6-77` (Iron Thorns ex), `sm1-136` (DCE), `sm8-191` (Thunder Mountain), `sm9-158` (Wondrous Labyrinth), `sm12-193` (G&H), and the [published Aichi rank-6 60](full-decklists.json). Mechanics: provided Advanced Player's Rulebook sections **I.B-04**, **I.C**, and **I.H**, alongside printed Prism Star Stadium rules. Demonstrated engine first attack: [compiled CI 38911990792](https://github.com/FlareZ123/experiment-01/actions/runs/38911990792). The DCE-only source Store search and 140 damage have now been directly executed in manual CI 39024707937; later self-replacement consequences remain an unexecuted branch.
 
 **No game win probability is implied; the 99.5% objective remains unverified.**
