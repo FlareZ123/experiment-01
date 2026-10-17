@@ -69,7 +69,7 @@ function withRank8BoostShakeFork(execute){
       witness=activeSource(state);
       assert.deepEqual(p.hand.cards.map(c=>c.name).sort(),
         shownHand.slice().sort(),'Source hand diverged before first branch');
-      assert.equal(p.bench.length,4);
+      assert.equal(p.bench.filter(slot=>slot.getPokemonCard()).length,4);
       assert.ok(Object.values(witness.deckCounts).every(n=>n>0),
         'Actual source deck cannot supply all four counterline pieces');
       return record(state,'Play source-held Secret Box',play(p,'Secret Box',board));
@@ -93,7 +93,7 @@ function withRank8BoostShakeFork(execute){
     }
     if(stage===10 && pending?.constructor.name==='ChoosePokemonPrompt'){
       const index=p.bench.findIndex(slot=>slot.getPokemonCard()?.name==='Trubbish');
-      assert.equal(index,4);
+      assert.ok(index>=0);
       assert.equal(pending.validate([p.bench[index]],state),true);
       return record(state,'Evolve actual source Trubbish into Garbodor',
         new ResolvePromptAction(pending.id,[p.bench[index]]));
@@ -102,14 +102,14 @@ function withRank8BoostShakeFork(execute){
     if(stage===3) return record(state,'Pay Quick Ball with searched Stadium',
       play(p,'Quick Ball',board));
     if(stage===6){
-      assert.equal(p.bench.length,4);
+      assert.equal(p.bench.filter(slot=>slot.getPokemonCard()).length,4);
       return record(state,'Bench actually searched Trubbish',
         play(p,'Trubbish',{player:PlayerType.BOTTOM_PLAYER,
-          slot:SlotType.BENCH,index:4}));
+          slot:SlotType.BENCH,index:p.bench.findIndex(slot=>!slot.getPokemonCard())}));
     }
     if(stage===7){
       const index=p.bench.findIndex(slot=>slot.getPokemonCard()?.name==='Trubbish');
-      assert.equal(index,4);
+      assert.ok(index>=0);
       return record(state,'Attach held Float Stone to new Trubbish',
         play(p,'Float Stone',{player:PlayerType.BOTTOM_PLAYER,
           slot:SlotType.BENCH,index}));
