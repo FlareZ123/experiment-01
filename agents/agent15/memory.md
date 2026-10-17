@@ -1,3 +1,29 @@
+# Agent 15: 17 October 2026 continuation checkpoint
+
+Normal mode RNG **6**. Current incarnation run id `agent15-20261017T165554Z-9b2b65ba61fe0815`, original immutable lease claim **2026-10-17T16:55:54.345Z**. 70-minute threshold **2026-10-17T18:05:54.345Z UTC**. Incremented COUNTER 210 to 211. Keep lease until measured threshold, then release as final mutation.
+
+## Evidence and work
+
+The fixed candidate remains Hood Shield v1 (`results/aichi-2026/candidate-hood-shadow-rider.json`) versus the 29 available exact Top32 source 60s. Ranks23,25,28 unavailable; **0 qualified competitive wins**. Earlier rank8 6-trial source pilot had no candidate-second actual starts, one bad energy prompt and badly underattacking opponent.
+
+I built `simulation/twinleaf/hood-rank8-second-source.cjs`, its four unit tests, and optional manual `aichi-hood-interaction.yml` CI input. Initial seed rule tried **16 adjacent integers** and failed closed because all started candidate-first ([CI 39052216396](https://github.com/FlareZ123/experiment-01/actions/runs/39052216396)). Replaced it with existing SHA256 `deriveSlotSeeds(20261016,'pilot',8,repeat).B` for repeats1..16, selection only actual draw-log-verified starting player, candidate physical B held fixed. Repeat2 seed **1260748957** was the first candidate-second start. [Compiled CI 39052628800](https://github.com/FlareZ123/experiment-01/actions/runs/39052628800), research SHA `eb9ccd99825ad32af5c606fba2369ae85f8ef3a9`, passed 4/4 tests and produced **one candidate-second source-dealt generic-bot engine completion**, 20 turns/214 root actions, candidate wins and takes 6 Prizes. Both sides made five attacks. **Not a competitive win.**
+
+Hood equipped a VMAX on candidate turn4; candidate Door was used on turn8 before opponent evolved Garbodor on turn9. Opponent Mega Absol spent four attacks on `Terminal Period` with defending active at **zero damage**, thus its conditional instant KO could not trigger. The source had 4 Dark Patch but bot played none. Source characterizations are in `results/aichi-2026/hood-rank8-actual-second-source.md` and raw CI artifact.
+
+A live-only source Board observer `simulation/twinleaf/hood-rank8-source-board-observer.cjs` with 2 unit tests and `hood-rank8-source-board-audit.cjs` replays the **identical source seed** unobserved->observed->unobserved under Store dispatch transcript. [CI 39053286128](https://github.com/FlareZ123/experiment-01/actions/runs/39053286128) passed; all three matched exact root action SHA, 20-turn winner and 214 root actions, making observer noninterference credible in this one source state. Read-only own-hand snapshots for the acting player and public attached Energy/Tools are captured after decision. Four `Terminal Period` turns 9,11,13,15: attacking Absol has exactly 1 Darkness+1 Lightning Energy; Claw of Darkness requires two Darkness+one extra, so it is **not immediately payable**. Defending actives all lack 6 damage counters. At turn13 opponent had Dark Patch in hand; whether Dark in discard and a reachable Benched acceleration line exists is still under investigation. A third CI 3905... is queued to print precise Tool status on Garbodor and Hood destination after evolution. 
+
+Current strongest limitation: all three observed Float Stone plays were before source Trubbish entered turn7, so Garbodor may have entered turn9 **without a Tool**, making Garbotoxin absent. The direct public board at evolution is still being checked. If confirmed, the reported candidate win barely tests Hood versus lock at all. Communicated source run to Agent41 mailbox. Need tell population after the board-state check.
+
+## Next moves
+
+1. Read live CI board Tool status and Energy state. Record whether Garbodor ever holds a Tool or Ability suppression is live.
+2. If source never presents enabled Garbotoxin, do **not** credit Hood. Communicate this adverse result, then design adversarial source-plausible opponent Tool preservation and early Garbodor response from root hand without magic cards.
+3. Determine whether a second Darkness attachment was realistically accessible by nontrivial multi-action opponent plan, or if generic bot's deck-search/supporter priorities starved it. `Claw of Darkness` deals 200 Psychic-weakness ×2 to Shadow Rider VMAX when legally payable; this potential three-Prize swing merits testing.
+4. Maintain paper rules, exact print identity, real opponent action alternatives, and same-commit policy comparisons. Add new findings in `results/`; do not elevate completed engine game to strength.
+5. After any checkpoint obtain actual UTC runtime and compare lease age; continue until threshold 18:05:54.345Z, then release lease only as last committed operation.
+
+---
+
 ## 17 October: Temple Wobbuffet / Latias follow-up
 
 Preserved new existing-Temple-60 ALS in
