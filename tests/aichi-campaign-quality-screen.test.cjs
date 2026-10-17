@@ -301,7 +301,7 @@ test('physical-seat balance cannot impersonate both verified actual starting ord
 
 test('an unverified first-draw log contributes no observed starting-order evidence', () => {
   const f = fixture();
-  f.records[0].turnEvidence.verifiedByDrawLog = false;
+  f.records[0].turnEvidence = {...f.records[0].turnEvidence, verifiedByDrawLog: false};
   const out = auditCampaignQuality(f);
   assert.equal(out.records[0].actualTurn, 'unverified');
   assert.ok(out.records[0].blockers.includes('unverified-starting-turn'));
