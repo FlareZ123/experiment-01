@@ -25,7 +25,7 @@ jobs:
           npm ci --no-audit --no-fund
           npm run compile
       - name: Test authentic Store pass-score observer and source action fork
-        run: node --test tests/koraidon-pass-score-horizon.test.cjs tests/rank10-koraidon-source-attack-fork.test.cjs tests/pending-end-turn-switch-cleanup.test.cjs tests/pending-end-turn-switch-installer.test.cjs tests/pending-end-turn-headless-option.test.cjs tests/attack-pass-horizon-policy.test.cjs tests/decision-scoped-detached-simulator.test.cjs tests/graph-difference-witness.test.cjs
+        run: node --test tests/koraidon-pass-score-horizon.test.cjs tests/rank10-koraidon-source-attack-fork.test.cjs tests/pending-end-turn-switch-cleanup.test.cjs tests/pending-end-turn-switch-installer.test.cjs tests/pending-end-turn-headless-option.test.cjs tests/apex-prize-headless-policy.test.cjs tests/attack-pass-horizon-policy.test.cjs tests/decision-scoped-detached-simulator.test.cjs tests/graph-difference-witness.test.cjs
       - name: Compare instrumented and uninstrumented source games
         run: node simulation/twinleaf/attack-pass-score-diagnostic.cjs
       - name: Exact v3 candidate-seat rank-10 score replay
