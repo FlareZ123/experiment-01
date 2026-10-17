@@ -8,6 +8,11 @@ on:
         type: boolean
         required: false
         default: false
+      run_ordinal_audit:
+        description: 'Compare authentic Shred source fork with no prior generic bot choice'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -35,6 +40,21 @@ jobs:
         run: node --test tests/mimikyu-turn28-shred-fork.test.cjs
       - name: Compare archived extra-turn retreat with physical source Shred attack
         run: node simulation/twinleaf/rank10-mimikyu-shred-source-fork.cjs > rank10-mimikyu-shred-source-fork.json
+      - name: Audit source-root Shred policy without default bot pre-decision
+        if: ${{ inputs.run_ordinal_audit }}
+        env:
+          COPYCAT_ORDINAL_AUDIT: '1'
+        run: node simulation/twinleaf/rank10-mimikyu-shred-source-fork.cjs > rank10-mimikyu-ordinal-source-audit.json
+      - name: Print ordinal-source decision evidence
+        if: ${{ inputs.run_ordinal_audit }}
+        run: node -e "const x=require('./rank10-mimikyu-ordinal-source-audit.json'); console.log(JSON.stringify(x.ordinalSourceAudit));"
+      - name: Preserve source-ordinal audit
+        if: ${{ always() && inputs.run_ordinal_audit }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-mimikyu-ordinal-source-audit
+          path: rank10-mimikyu-ordinal-source-audit.json
+          if-no-files-found: warn
       - name: Show source-aligned knockout counterfactual
         run: node -e "const x=require('./rank10-mimikyu-shred-source-fork.json'); console.log(JSON.stringify({firstDivergence:x.firstSourceDivergence,printedOpportunity:x.sourceOpportunity,chosen:x.chosenAttack,original:x.original,counterfactual:x.counterfactual,qualified:x.qualifiedForCompetitiveInference}));"
       - name: Preserve turn-28 source-game Shred counterfactual
