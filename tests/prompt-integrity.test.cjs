@@ -123,3 +123,35 @@ test('strict selection gate rejects selecting one physical card twice', () => {
   assert.doesNotThrow(() => assertValidPromptAction(
     state, new ResolvePromptAction(7, [a, b])));
 });
+
+test('strict shuffle predicate agrees with exact dense permutations up to size five', () => {
+  const prompt = new ShuffleDeckPrompt(101);
+  for (let size = 0; size <= 5; size++) {
+    const state = {
+      prompts: [prompt],
+      players: [{id: 101, deck: {cards: Array(size).fill(null)}}]
+    };
+    const alphabet = Array.from({length: size + 3}, (_, i) => i - 1);
+    for (let sample = 0; sample < alphabet.length ** size; sample++) {
+      let remaining = sample;
+      const proposed = [];
+      for (let i = 0; i < size; i++) {
+        proposed.push(alphabet[remaining % alphabet.length]);
+        remaining = Math.floor(remaining / alphabet.length);
+      }
+      const expected = new Set(proposed).size === size &&
+        proposed.every(index => Number.isInteger(index) &&
+          index >= 0 && index < size);
+      let accepted = true;
+      try {
+        assertValidPromptAction(state, new ResolvePromptAction(7, proposed));
+      } catch (error) {
+        assert.match(error.message, /invalid result/);
+        accepted = false;
+      }
+      assert.equal(accepted, expected,
+        'Permutation gate mismatch for size ' + size + ' candidate ' +
+        JSON.stringify(proposed));
+    }
+  }
+});
