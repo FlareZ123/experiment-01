@@ -65,3 +65,35 @@ test('mismatched sources, RNG and other flags are rejected',()=>{
   assert.throws(()=>compareFrozenPolicyArchives(before,after,
     'shadowRiderOpeningPivot'),/More than one/);
 });
+
+test('source changes do not prove isolated policy effects', () => {
+  const report = compareFrozenPolicyArchives(sample(false), sample(true), 'shadowRiderOpeningPivot');
+  assert.equal(report.controlledRevisionDiagnostic, false);
+  assert.ok(report.provenanceGaps.includes('research-revision-unpinned-or-drifted'));
+  assert.ok(report.provenanceGaps.includes('engine-revision-unpinned-or-drifted'));
+});
+
+test('equal full revisions and source echoes meet the bounded provenance gate', () => {
+  const before = sample(false), after = sample(true);
+  for (const row of [before, after]) {
+    row.researchRevision = 'a'.repeat(40);
+    row.expectedEngineRevision = 'twinleafgg/' + 'b'.repeat(40);
+    row.records[0].engineRevision = row.expectedEngineRevision;
+    row.records[0].traceSummary.coversAllActionsAndPromptResolutions = true;
+  }
+  const report = compareFrozenPolicyArchives(before, after, 'shadowRiderOpeningPivot');
+  assert.deepEqual(report.provenanceGaps, []);
+  assert.equal(report.controlledRevisionDiagnostic, true);
+  assert.equal(report.gameStrengthClaimPermitted, false);
+});
+
+test('absent terminal evidence and suspect starting turn cannot appear identical', () => {
+  const before = sample(false), after = sample(true);
+  before.records[0].turnEvidence.verifiedByDrawLog = false;
+  delete before.records[0].traceSummary.terminalTransition;
+  delete after.records[0].traceSummary.terminalTransition;
+  const report = compareFrozenPolicyArchives(before, after, 'shadowRiderOpeningPivot');
+  assert.equal(report.allActualTurnOrdersIdentical, false);
+  assert.equal(report.allTerminalTransitionsIdentical, false);
+  assert.equal(report.rows[0].terminalEvidenceAvailable, false);
+});
