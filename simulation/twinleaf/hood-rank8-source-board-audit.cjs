@@ -81,6 +81,29 @@ function fullToolAction(event) {
 }
 
 /**
+ * Detached sequence of every actual source-player turn-7 Store dispatch.
+ * Only the acting player's own hand and public board are retained, so a
+ * prospective Tool hold can be judged from pre-search information.
+ * @param {object} event
+ * @returns {object}
+ */
+function sourceTurnSevenAction(event) {
+  const board = snap => ({
+    active: position(snap.board[0].active),
+    bench: snap.board[0].bench.map(position)
+  });
+  return {
+    ordinal:event.ordinal,turn:event.turn,action:event.action,
+    card:event.card,declaredName:event.declaredName,
+    beforeHand:event.before.actingHand,
+    afterHand:event.after.actingHand,
+    pendingPromptsBefore:event.before.unresolvedPrompts,
+    beforeBoard:board(event.before),afterBoard:board(event.after),
+    dispatchError:event.dispatchError
+  };
+}
+
+/**
  * Fixed candidate-second rank8 source deal, identical to compiled natural
  * Hood v1 CI 39052628800. Compare unchanged-observed-unchanged root
  * Store action input streams in one process, and expose source action state.
@@ -156,6 +179,9 @@ function main() {
       .filter(x=>x.action==='PlayCardAction' &&
         ['Float Stone','Stealthy Hood','Forest Seal Stone'].includes(x.card))
       .map(fullToolAction),
+    sourceTurnSevenTimeline:observed.records
+      .filter(x=>x.turn===7 && x.before.activePlayer===0)
+      .map(sourceTurnSevenAction),
     qualifiedForCompetitiveInference:false,
     limitations:[
       'This is one previously selected source deal; 3 repeats are noninterference controls',
@@ -167,4 +193,4 @@ function main() {
 }
 
 if(require.main===module)process.stdout.write(JSON.stringify(main(),null,2)+'\n');
-module.exports={main,condense,position,side,fullToolAction};
+module.exports={main,condense,position,side,fullToolAction,sourceTurnSevenAction};
