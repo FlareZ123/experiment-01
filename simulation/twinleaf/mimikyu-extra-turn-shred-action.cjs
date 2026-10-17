@@ -28,7 +28,7 @@ function copiedShredAfterSpentGX(initialDamage) {
   const shred = dialga.attacks.find(attack => attack.name === 'Shred');
   assert.ok(copycat && apex && shred);
   assert.equal(regidrago.hp, 280);
-  assert.equal(shred.damage, '80');
+  assert.equal(Number(shred.damage), 80);
 
   const {Store} = engine('game/store/store');
   const {Player} = engine('game/store/state/player');
