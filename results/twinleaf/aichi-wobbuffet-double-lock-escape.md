@@ -28,7 +28,7 @@ A source-print-aware, **deliberately staged** board places Active Wobbuffet and 
 
 The generic **Palace Book SMP** is used only as an easy-to-observe Item-play probe; it is not in the published rank-10 60. **Professor's Research JTG** is a genuine rank-10 Supporter. Both attempts use fresh Stores to prevent the first action's turn end from confounding the other.
 
-The dedicated `tests/wobbuffet-vileplume-stoutland-matrix.test.cjs` makes the above exact expectations executable, including both Wobbuffet and Latias Ability visibility. It is included in existing manual-only `.github/workflows/aichi-attack-pass-score.yml`. Record an immutable successful run before describing this matrix as empirically verified. A failed assertion is evidence of a model/card implementation disagreement to investigate.
+The dedicated `tests/wobbuffet-vileplume-stoutland-matrix.test.cjs` makes the above exact expectations executable, including both Wobbuffet and Latias Ability visibility. It is included in existing manual-only `.github/workflows/aichi-attack-pass-score.yml`. The compiled test step passed in [manual CI 39029511804](https://github.com/FlareZ123/experiment-01/actions/runs/39029511804) at source revision `e7c79d8f37b961831ceab8b1026b35539236e8ae`. This is a four-configuration staged effects result; a source-dealt match and competent opponent-response validation remain unresolved.
 
 ## Qualification boundaries
 
