@@ -11,9 +11,11 @@ function validReport() {
     sourceReplayMechanicsVerified:false,
     findings:[
       {arm:'control',status:'complete-reconstructed-live-input-trace',
-        verifiedDispatches:350,sourceActions:350,matchSummaryIdentical:true},
+        verifiedDispatches:350,sourceActions:350,matchSummaryIdentical:true,
+        graphVerifiedDispatches:350,storeDataGraphContract:'live-store-data-graph-except-logs-v1'},
       {arm:'alternate',status:'complete-reconstructed-live-input-trace',
-        verifiedDispatches:235,sourceActions:235,matchSummaryIdentical:true}
+        verifiedDispatches:235,sourceActions:235,matchSummaryIdentical:true,
+        graphVerifiedDispatches:235,storeDataGraphContract:'live-store-data-graph-except-logs-v1'}
     ]
   };
 }
@@ -34,6 +36,8 @@ test('fails when an archived arm is blocked although the diagnostic process succ
 test('fails on partial actions, changed result, empty replay, or bad provenance labels', () => {
   for(const mutation of [
     r=>{r.findings[0].verifiedDispatches=349;},
+    r=>{r.findings[0].graphVerifiedDispatches=349;},
+    r=>{delete r.findings[0].storeDataGraphContract;},
     r=>{r.findings[0].matchSummaryIdentical=false;},
     r=>{r.findings[0].verifiedDispatches=0;r.findings[0].sourceActions=0;},
     r=>{r.findings[1].arm='control';},
