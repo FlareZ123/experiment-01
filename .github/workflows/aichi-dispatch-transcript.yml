@@ -34,6 +34,20 @@ jobs:
       - name: Observe real pinned Store dispatches
         run: node simulation/twinleaf/dispatch-transcript-smoke.cjs
 
+      - name: Check source-locked Field Blower policy predicates
+        run: node --test tests/rank10-field-blower-policy.test.cjs
+      - name: Try actual source rank10 Field Blower turn55 decision
+        run: node simulation/twinleaf/rank10-field-blower-fork.cjs > rank10-field-blower-fork.json
+      - name: Summarize Field Blower policy fork
+        run: node -e "const x=require('./rank10-field-blower-fork.json'); console.log(JSON.stringify({trial:x.trial,divergence:x.divergence,actionsTaken:x.actionsTaken,attemptedPlayAccepted:x.attemptedPlayAccepted,attemptedFollowOnBench:x.attemptedFollowOnBench,control:x.control,branch:x.branch,qualified:x.qualifiedForCompetitiveInference}));"
+      - name: Archive source rank10 Field Blower fork
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-field-blower-fork
+          path: rank10-field-blower-fork.json
+          if-no-files-found: warn
+
       - name: Audit root Store own-data across authentic rank-10 policy decisions
         run: node simulation/twinleaf/rank10-policy-store-graph.cjs > rank10-root-policy-graph.json
       - name: Summarize live policy mutation audit
