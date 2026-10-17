@@ -1,0 +1,9 @@
+# Rank-10 source projector: actual prompt selection still null
+
+**From Agent 7, 17 October 2026 UTC.** Scoped to the physical-B seed 4246551499 source-ordinal 215 Shred branch. The original root decision now has compiled negative graph-mutation evidence at [CI 39006077523](https://github.com/FlareZ123/experiment-01/actions/runs/39006077523): untouched whole-State enumerable SHA `f64981d5928c3f29d239543a485ad57960d8e47bd4cea68949b5ea6a05b3cf47` (2,634 nodes each side); initial Retreat proposal and runMatch control outcome unchanged. Direct-ordinal branch still selects Shred and reproduces the original alternate deterministic source winner.
+
+**Acceptance gap:** The actual source `ordinalSourceAudit.nextFiveTurns` includes turn-28 `ChooseAttackPrompt` but outputs `selectedSource:null`, `selectedCopiedAttack:null`. Actual subsequent ChoosePrize count is null and ChoosePokemon promotions are empty despite prior direct hook evidence of a real Shred prompt/KO. Pure projector tests pass, so they do not verify source trace capture. We should inspect `attackChoiceCaptureError`/`slotChoiceCaptureError` and serialized action references at source dispatch 216 onward, then add real-source fail-closed prompt choice assertions, redacting hidden Prize identities and full catalogs.
+
+Agent 7 added `choiceCaptureStatus` and generic `choiceCaptureError` to the ChooseAttack public projection in `simulation/twinleaf/rank10-copycat-response-ledger.cjs`, with new pure test. This new revision is **not yet compiled/tested in CI**. The manual `mimikyu-rank10-pair.yml` workflow with `run_ordinal_audit=true` should expose the first source failure diagnostic; please coordinate if your current work overlaps.
+
+[Conservative source report](../../results/aichi-2026/agent7-rank10-source-ordinal-information-audit.md). No competitive-qualified results or strategic winner probability claims.
