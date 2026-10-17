@@ -9,6 +9,8 @@ const {withSourceOpeningProbe,signature}=
 const {withGuzmaHalaSourceFork,withDamageObserver}=
   require('./rank6-seed-guzma-hala-fork.cjs');
 const {withRank6AcerolaPassFork}=require('./rank6-acerola-pass-fork.cjs');
+const {withPublicAttackTargets}=
+  require('./rank6-acerola-public-observer.cjs');
 const {withStoreDispatchTranscript}=require('./store-dispatch-transcript.cjs');
 const {publicTurnLedger,publicPrizeTransitions}=
   require('./rank6-response-projection.cjs');
@@ -26,8 +28,9 @@ function extract(source) {
   return {
     opening:source.result.result,
     fork:source.result.result.out,
-    attack:source.result.result.out.result.attack,
-    game:source.result.result.out.result.result
+    attack:source.result.result.out.result.result.attack,
+    game:source.result.result.out.result.result.result,
+    publicAttackTargets:source.result.result.out.result.attacks
   };
 }
 
@@ -56,7 +59,8 @@ function main() {
   const run=forcePass=>withStoreDispatchTranscript(Store,
     ()=>withRank6AcerolaPassFork(types,
       ()=>withSourceOpeningProbe(()=>withGuzmaHalaSourceFork(
-        ()=>withDamageObserver(()=>runMatch(request)),payment)),
+        ()=>withPublicAttackTargets(Store,
+          ()=>withDamageObserver(()=>runMatch(request))),payment)),
       {forcePass}),
     {liveStoreOnly:true,sourceZoneEveryDispatch:true});
   const original=run(false),alternative=run(true);
@@ -106,7 +110,7 @@ function main() {
   assert.equal(before[first].continuityDigestBefore,
     after[first].continuityDigestBefore);
 
-  const summary=(game,trace)=>({
+  const summary=(game,trace,publicAttackTargets)=>({
     finished:game.finished,
     winner:game.finished?game.winner:null,
     actions:game.actions,turns:game.turns,
@@ -118,6 +122,7 @@ function main() {
     opponentPublicTurnThree:publicTurnLedger(game.decisionTrace,
       {seat:0,turn:3}),
     publicPrizeTransitions:publicPrizeTransitions(trace),
+    originalDefendingPokemonAtAttacks:publicAttackTargets,
     publiclyAnnouncedAttacks:game.attackTrace.map(event=>({
       turn:event.turn,seat:event.seat,
       attacker:event.activePokemon,attack:event.attack,
@@ -146,7 +151,8 @@ function main() {
     originalGameMatchesNoResponseObserverSignature:true,
     controlAcerolaChoice:original.result.sourceChoices[0],
     alternativeAcerolaChoice:alternative.result.sourceChoices[0],
-    control:summary(a.game,before),forcedPass:summary(b.game,after),
+    control:summary(a.game,before,a.publicAttackTargets),
+    forcedPass:summary(b.game,after,b.publicAttackTargets),
     sourceReplayMechanicsVerified:false,
     qualifiedForCompetitiveInference:false,
     limits:'A single physical seed, generic bot, partial source graph coverage and unknown paper-rule correctness. A legal Pass replacement is a diagnostic, not a proven stronger response.'
