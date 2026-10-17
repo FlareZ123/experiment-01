@@ -43,6 +43,12 @@ Under a fixed deck and fixed general selection rule, that same own-hand conditio
 
 The pending [rank-11 source-physical-seat audit](../../simulation/twinleaf/new-moon-rank11-native-gengar-hardmatchup.cjs) is designed to expose those decisions with both unchanged original and Lockbreaker candidate 60s. It is not evidence of a win until its CI record, prompt actions, damage and opponent decisions are reviewed.
 
+## Existing source evidence and opening-frequency ceiling
+
+The [rank-8 terminal audit](../twinleaf/agent1-newmoon-terminal-exposure-190.md) already recorded legal engine Claw of Darkness attacks and a final three-Prize pickup in one source Lockbreaker arm. A paired original-source arm had only two Darkness Energy on Active Mega Absol, insufficient for printed Claw cost. These genuine source branches show Energy development and attack policy can differ; they do not isolate Gengar's Darkness Weakness or establish qualified outcomes.
+
+For the 17-Basic New Moon 60 (one Gengar plus 16 other Basics) and six Psychic-providing Energy, exact 7-card combinatorics gives **5.1777441416%** of valid openers containing Gengar, at least one of those Energy and another Basic. This upper-bounds the native starter policy's opportunity before considering resolver order and other constraints. It is not a win probability.
+
 ## Evidence classification
 
 **Verified from provided print records + rulebook:** HP, Weakness, attack base/cost, three-Prize rule, all four source inventories, and the arithmetic threshold. **Hypothesis:** the starter pivot may be exploitable by a skilled Absol opponent more often than the generic pinned bot demonstrates. **Not established:** the actual frequency of a pre-powered Absol, probability of the Gengar setup event under rank-11 conditions, opponent's best reply, deck-level payoff, or an independently qualified win rate.
