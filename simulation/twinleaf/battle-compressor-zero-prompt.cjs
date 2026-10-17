@@ -33,3 +33,20 @@ function probe() {
     });
     player.deck.cards.push(card('Psychic Energy MEE'));
   }
+  a.deck.cards.push(card('Grass Energy MEE'));
+  a.hand.cards.push(card('Battle Compressor PHF'));
+  store.dispatch(new PlayCardAction(a.id,0,{
+    player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+  }));
+  const prompt=state.prompts.find(p=>p.constructor.name==='ChooseCardsPrompt');
+  assert.ok(prompt,'Missing actual Battle Compressor selection prompt');
+  return {
+    min:prompt.options.min,max:prompt.options.max,
+    acceptsZero:prompt.validate([]),
+    acceptsOne:prompt.validate([a.deck.cards[0]]),
+    inPlay:a.supporter.cards.some(c=>c.name==='Battle Compressor'),
+    deckSize:a.deck.cards.length
+  };
+}
+if(require.main===module)console.log(JSON.stringify(probe(),null,2));
+module.exports={probe};
