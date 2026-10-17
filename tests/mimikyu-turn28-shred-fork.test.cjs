@@ -164,7 +164,8 @@ test('ordinal source RNG accounting measures and aligns a skipped proposal',()=>
     return new ThreeDrawBot().decodeNextAction(f.state);
   },{...f.options,forceShred:false,rootActionOrdinal:1,
     capturePolicyRngAtOrdinal:true});
-  assert.deepEqual(original.policyRngLedger,[{
+  assert.match(original.policyRngLedger[0].drawDigest,/^[0-9a-f]{64}$/);
+  assert.deepEqual(original.policyRngLedger.map(({drawDigest,...rest})=>rest),[{
     kind:'original-proposal',rootActionOrdinal:1,draws:3,
     action:'RetreatAction'
   }]);
@@ -173,7 +174,8 @@ test('ordinal source RNG accounting measures and aligns a skipped proposal',()=>
     return new ThreeDrawBot().decodeNextAction(f.state);
   },{...f.options,rootActionOrdinal:1,policyRngAlignDraws:3});
   assert.equal(changed.result.name,'Copycat');
-  assert.deepEqual(changed.policyRngLedger,[{
+  assert.match(changed.policyRngLedger[0].drawDigest,/^[0-9a-f]{64}$/);
+  assert.deepEqual(changed.policyRngLedger.map(({drawDigest,...rest})=>rest),[{
     kind:'aligned-direct-fork',rootActionOrdinal:1,draws:3,
     action:'AttackAction'
   }]);
