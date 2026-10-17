@@ -77,6 +77,7 @@ function executeDiagnostic(options) {
   }
   const allowedFlags = new Set([
     'strictPromptValidation', 'forestSealSearchCorrection',
+    'grandTreeFirstTurnCorrection',
     'doubleDragonRecovery', 'templeUnlockRecovery',
     'supporterDecisionCorrection', 'isolatePolicyRandomness',
     'prototypeSafeSimulatorIsolation',
@@ -182,7 +183,7 @@ function executeDiagnostic(options) {
       // Runtime fields are self-reported; this is a consistency check.
       const echoedPolicyKeys = [
         'forestSealSearchCorrection', 'doubleDragonRecovery',
-        'templeUnlockRecovery', 'supporterDecisionCorrection',
+        'grandTreeFirstTurnCorrection', 'templeUnlockRecovery', 'supporterDecisionCorrection',
         'snorlaxRetreatStartCorrection', 'shadowRiderEnergyPriority',
         'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
         'latiasAttackReadyAttachment', 'bunnelbyK0SafeEvolution',
@@ -363,6 +364,7 @@ function main() {
     researchPolicyProfile,
     policyFlags: {
       strictPromptValidation: true, forestSealSearchCorrection: true,
+      grandTreeFirstTurnCorrection: process.env.AICHI_GRAND_TREE_TURN_GUARD === '1',
       doubleDragonRecovery: true, supporterDecisionCorrection: true,
       isolatePolicyRandomness: true, captureDecisionTrace: true,
       prototypeSafeSimulatorIsolation: process.env.AICHI_PROTOTYPE_SAFE_SIM === '1',
