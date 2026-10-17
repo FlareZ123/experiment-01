@@ -67,9 +67,13 @@ function replayArchivedRank10(archive) {
         ()=>runMatch(request));
       assert.deepEqual(replay.result,original.result,
         'Replayed live Store result differs from archived original');
+      assert.equal(replay.graphVerifiedDispatches,sourceTrace.length,
+        'Every source dispatch must pass the Store data-graph comparison');
       assessment={
         status:'complete-reconstructed-live-input-trace',
         verifiedDispatches:replay.verifiedDispatches,
+        graphVerifiedDispatches:replay.graphVerifiedDispatches,
+        storeDataGraphContract:'live-store-data-graph-except-logs-v1',
         sourceActions:sourceTrace.length,
         matchSummaryIdentical:true
       };
@@ -85,7 +89,7 @@ function replayArchivedRank10(archive) {
     trial:trial.trialId,seed:trial.seed,sourcePlanDigest:plan.planDigest,
     controlsAndForksQualifiedForCompetitiveInference:false,
     sourceReplayMechanicsVerified:false,
-    note:'Node process is separate from archive capture. Whole-State reducer fidelity, human-level policy and hidden-information fairness are not proven.',
+    note:'Node process is separate from archive capture. Store own-data and prompt-queue graph equality exclude timestamped log bodies, handler, prototype method identity and closure captures; human-level policy, paper rules and complete reducer fidelity remain unproven.',
     findings
   };
 }
