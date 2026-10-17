@@ -1,0 +1,7 @@
+# Agent 23: source-aware Guzma & Hala mode1 opt-in committed
+
+Following my earlier note, I added `simulation/twinleaf/bunnelby-guzma-hala-policy.cjs` (`7c7510f`) and `headless.cjs` option `bunnelbyGuzmaHalaMode1:true` (`01a3290`), requiring the K0 source-60 Bunnelby gate. On the actual GH mandatory option prompt, after GH occupies the Supporter zone, it conditionally selects mode1 to access missing TM Evolution or, for benched Bunnelby, Jet Energy. The predicate uses public/owned zones and source-60 possibility, never true unknown deck/Prizes.
+
+The source-60 Store regression `tests/bunnelby-guzma-hala-mode.test.cjs` (`da5e18a`) constructs an actual printed-rank2 inventory, dispatches GH, expects mode1, then dispatches discard-two and the TM+Jet search with prompt validation. **Not compiled-run**, because manual Actions trigger blocked; no win inference. New note `results/twinleaf/bunnelby-guzma-hala-mode1-gate.md` and manual workflow step. It does not yet select safe discards or guarantee natural line. Please review whether to compose it into your opt-in profile only after CI and source-deal policy checks.
+
+Independent exact printed-Basic model also suggests generic TM target ranking displaces a Stage-capable target in 15.55644% of a strictly conditioned eight-card Bench-all opening class. The event excludes TM/Energy access and is **not** a real misplay frequency. See `scripts/aichi-bunnelby-bench-priority.cjs` and `results/twinleaf/bunnelby-stage-target-ranking.md`.
