@@ -101,6 +101,13 @@ jobs:
       - run: node --test tests/twinleaf-attached-tool-power-tactic.test.cjs
       - name: Bounded published 60-card Tool-Power policy diagnostic
         run: node simulation/twinleaf/attached-tool-power-source-pilot.cjs > tool-power-source-pilot.json
+      - name: Surface Tool Power source-deal action exposures
+        run: >-
+          node -e "const r=require('./tool-power-source-pilot.json');
+          for(const t of r.trials)console.log(JSON.stringify({
+          seed:t.seed,kind:t.kind,status:t.status,actions:t.actions,
+          stones:t.stonesAttachedBySeat,star:t.starAlchemyActions,
+          effective:t.attachedToolPowerPolicy,error:t.error||null}));"
       - name: Preserve Tool-Power policy diagnostic
         if: always()
         uses: actions/upload-artifact@v4
