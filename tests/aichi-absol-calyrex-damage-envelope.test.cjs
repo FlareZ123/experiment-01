@@ -8,6 +8,8 @@ const calyrex = require('../resources/cards/en/swsh6.json').find(c => c.id === '
 test('fixed Aichi Absol and Shadow Rider damage threshold', () => {
   assert.equal(absol.hp, '280');
   assert.equal(calyrex.hp, '320');
+  assert.ok(calyrex.weaknesses.some(w => w.type === 'Darkness' && w.value === '×2'));
+  assert.ok(absol.weaknesses.some(w => w.type === 'Grass' && w.value === '×2'));
   assert.equal(absol.attacks.find(a => a.name === 'Claw of Darkness').damage, '200');
   assert.equal(calyrex.attacks.find(a => a.name === 'Max Geist').damage, '10+');
   assert.equal(200 * 2, 400);
