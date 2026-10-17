@@ -26,6 +26,7 @@ const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.c
 const {installElectroRainDamageHook} = require('./electro-rain-damage-hook.cjs');
 const {installRedeemableTicketPaperOrderHook} = require('./redeemable-ticket-paper-hook.cjs');
 const {installHisuianHeavyBallPrizeShuffleHook} = require('./hisuian-heavy-ball-prize-hook.cjs');
+const {installPendingEndTurnSwitchCleanup} = require('./pending-end-turn-switch-cleanup.cjs');
 const {publicSnapshot, observeTerminalTransition, advanceActionLineage} = require('./terminal-transition.cjs');
 const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
 const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
@@ -210,6 +211,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [electroRainDamageCorrection] Opt-in printed Electro Rain attack damage and repeated-target correction.
  * @property {boolean} [redeemableTicketPaperOrderCorrection] Opt-in paper-rule Ticket top/new-Prize and bottom/old-Prize correction.
  * @property {boolean} [hisuianHeavyBallPrizeShuffleCorrection] Opt-in paper Prize-position shuffle for Hisuian Heavy Ball.
+ * @property {boolean} [pendingEndTurnSwitchCleanupCorrection] Opt-in paper delayed-effect cleanup upon Player.switchPokemon Active-to-Bench movement.
  * @property {boolean} [shadowRiderEnergyPriority] Opt-in basic Psychic Energy priority against Active Iron Thorns.
  * @property {boolean} [shadowRiderEnergyAcrossField] Opt-in speculative Psychic priority regardless of opposing Active.
  * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
@@ -263,6 +265,7 @@ function runMatch(request) {
   let restoreElectroRainDamageHook;
   let restoreRedeemableTicketPaperOrderHook;
   let restoreHisuianHeavyBallPrizeShuffleHook;
+  let pendingEndTurnSwitchCleanupHook;
   let restoreMimikyuNonGxCopycatHook;
   let restoreCopyDeclaredHistoryHook;
   let restorePassClearsLastAttackHook;
@@ -363,6 +366,10 @@ function runMatch(request) {
       restoreEntryDrawLockHook = installEntryDrawLockHook();
     }
     const { Store } = engine('game/store/store');
+    if (request.pendingEndTurnSwitchCleanupCorrection === true) {
+      const {Player}=engine('game/store/state/player');
+      pendingEndTurnSwitchCleanupHook=installPendingEndTurnSwitchCleanup({Store,Player});
+    }
     const { AddPlayerAction } = engine('game/store/actions/add-player-action');
     const { ResolvePromptAction } = engine('game/store/actions/resolve-prompt-action');
     const { CoinFlipPrompt } = engine('game/store/prompts/coin-flip-prompt');
@@ -717,6 +724,10 @@ function runMatch(request) {
       snorlaxRetreatStartCorrection: request.snorlaxRetreatStartCorrection === true,
       electroRainDamageCorrection: request.electroRainDamageCorrection === true,
       redeemableTicketPaperOrderCorrection: request.redeemableTicketPaperOrderCorrection === true,
+      ...(request.pendingEndTurnSwitchCleanupCorrection === true ? {
+        pendingEndTurnSwitchCleanupCorrection:true,
+        pendingEndTurnSwitchCleanupEvidence:pendingEndTurnSwitchCleanupHook.evidence()
+      } : {}),
       shadowRiderEnergyPriority: request.shadowRiderEnergyPriority === true,
       shadowRiderEnergyAcrossField: request.shadowRiderEnergyAcrossField === true,
       shadowRiderOpeningPivot: request.shadowRiderOpeningPivot === true,
@@ -734,6 +745,7 @@ function runMatch(request) {
         (request.snorlaxRetreatStartCorrection === true ? '+SnorlaxBlockStartGate-v1' : '') +
         (request.electroRainDamageCorrection === true ? '+ElectroRainDamage-v1' : '') +
         (request.redeemableTicketPaperOrderCorrection === true ? '+TicketPaperPrizeOrder-v1' : '') +
+        (request.pendingEndTurnSwitchCleanupCorrection === true ? '+PendingEndTurnSwitchPaper-v1' : '') +
         (request.shadowRiderEnergyPriority === true ? '+ShadowRiderPsychicAttachPriority-v1' : '') +
         (request.shadowRiderEnergyAcrossField === true ? '+ShadowRiderPsychicAttachAcrossField-v1' : '') +
         (request.shadowRiderOpeningPivot === true ? '+SelectedShadowRiderSetupActive-v1' : '') +
@@ -775,6 +787,7 @@ function runMatch(request) {
     if (restoreSnorlaxRetreatStartHook) restoreSnorlaxRetreatStartHook();
     if (restoreElectroRainDamageHook) restoreElectroRainDamageHook();
     if (restoreHisuianHeavyBallPrizeShuffleHook) restoreHisuianHeavyBallPrizeShuffleHook();
+    if (pendingEndTurnSwitchCleanupHook) pendingEndTurnSwitchCleanupHook.restore();
     if (restoreRedeemableTicketPaperOrderHook) restoreRedeemableTicketPaperOrderHook();
     if (restoreDialgaBenchExposureGuard) restoreDialgaBenchExposureGuard();
     if (restoreGuzmaSelfSwitchGuard) restoreGuzmaSelfSwitchGuard();
