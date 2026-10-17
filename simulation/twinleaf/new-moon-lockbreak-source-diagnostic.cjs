@@ -59,7 +59,8 @@ function run() {
           entryDrawLockCorrection:true,
           isolatePolicyRandomness:true,
           pendingEndTurnSwitchCleanupCorrection:true,
-          captureDecisionTrace:true
+          captureDecisionTrace:true,
+          captureCopycatTurnStartSeat:candidateSeat
         };
         try {
           const game=runMatch(request);
@@ -72,6 +73,22 @@ function run() {
           const candidatePrintedAttacks=game.attackTrace
             .filter(a=>a.seat===candidateSeat).length;
           const candidatePassCount=actions.filter(a=>a.action==='PassTurnAction').length;
+          const starts=(game.copycatTurnStartEvidence||[]).map(t=>({
+            turn:t.turn,
+            ownActive:t.board[candidateSeat]?.active?.name??null,
+            ownActiveEnergy:t.board[candidateSeat]?.active?.energyCards??[],
+            ownBenched:(t.board[candidateSeat]?.bench??[]).map(p=>p.name),
+            opponentActive:t.board[1-candidateSeat]?.active?.name??null,
+            opponentBench:(t.board[1-candidateSeat]?.bench??[]).map(p=>p.name),
+            candidateHandCounters:t.candidateHand.filter(name=>
+              name.startsWith('Canceling Cologne')||name.startsWith('Field Blower')),
+            candidateHandPsychicEnergy:t.candidateHand.filter(name=>
+              name.startsWith('Psychic Energy')||
+              name.startsWith('Telepathic Psychic Energy')),
+            candidateHandGengar:t.candidateHand
+              .filter(name=>name.startsWith('Gengar & Mimikyu-GX')),
+            usedGX:t.candidateUsedGX
+          }));
           const counters=Object.fromEntries(
             ['Field Blower','Canceling Cologne','Trainers\' Mail','Rescue Carrier']
               .map(name=>[name,Object.entries(game.cardsPlayedBySeat[candidateSeat])
@@ -89,6 +106,8 @@ function run() {
             candidateAbilityCounts,
             candidatePrintedAttacks,
             candidatePassCount,
+            candidateOpeningTurnStarts:starts.slice(0,3),
+            candidateTurnsHoldingCounters:starts.filter(t=>t.candidateHandCounters.length>0).length,
             ownMeaningfulActions:actions.length,
             opponentMeaningfulActions:opponentActions.length,
             ownFirstActions:actions.slice(0,18).map(a=>({
@@ -118,7 +137,7 @@ function run() {
       assert.equal(a.actualFirstSeat,b.actualFirstSeat);
   }
   return {
-    schema:'new-moon-lockbreak-paired-source-diagnostic-v2-ability-and-pass',
+    schema:'new-moon-lockbreak-paired-source-diagnostic-v3-first-turn-visibility',
     qualifiedForCompetitiveInference:false,
     originalSourcePrintHash:source.sha256_id_counts,
     frozenCandidatePrintHash:contender.canonical_id_count_sha256,
