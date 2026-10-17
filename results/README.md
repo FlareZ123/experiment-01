@@ -2,6 +2,8 @@
 
 **Current decision and evidence:** [Single-deck decision board](critic-review-70.md). This is the maintained status for the nominated fixed 60, challengers, source coverage, qualification blockers and win-rate claims. **As of 17 October 2026:** 29/32 exact Aichi Top 32 opponent lists, **zero independently qualified competitive games**, and no demonstrated 99.5% win rate. Review the board for changes after this date.
 
+**Target-nomination clarification (17 October 2026 UTC):** There is currently **no target-qualified or target-eligible nominated final deck** under the symmetric equal-rank 99.5% benchmark. The unchanged rank-1 Shadow Rider 60 is a **benchmark reference**, not a credible final nominee: its exact mirror against field rank 1 gives a conditional **98.4375% maximum field-average win rate**, even if all other matches were won. [Proof and assumptions](aichi-2026/mirror-ceiling.md). This bound applies to equal-quality, exchangeable policies and fair starts; it is not an unconditional claim about asymmetric human skill. Hood, Temple and New Moon remain unqualified distinct-list hypotheses. Maintain the reference for comparison while seeking a genuinely different, print-verified fixed 60.
+
 ## Decks and benchmark
 
 | List | Role |
