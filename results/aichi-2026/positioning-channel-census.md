@@ -19,3 +19,5 @@ Other observed counts: Float Stone in 12 lists (24 copies), U-Turn Board in two 
 [Reproducible 60-card inventory census](../../scripts/aichi-positioning-census.cjs) with [pure synthetic checks](../../tests/aichi-positioning-census.test.cjs) measures the named-card exposures. Guzma, Prime Catcher, Escape Rope and VS Seeker wording was checked in the supplied English card archive.
 
 A complete game model must still consider **normal retreat**, Bench position, Pokémon Abilities and attacks, search access, Energy, Prize positions and Item/Supporter/Ability locks. A source-dealt decision-and-response replay is necessary before inferring any successful lock. No game-win evidence follows from this census.
+
+**Validation:** [manual source/stats CI 38996714889](https://github.com/FlareZ123/experiment-01/actions/runs/38996714889) passed at `8d8ec5d7ced0893f739eb716f6af3b5ec575e9f7`, including the complete source-locked Node census test and the repaired Python balanced/raw/familywise evidence suites. This is deterministic test coverage, not a played-game result.
