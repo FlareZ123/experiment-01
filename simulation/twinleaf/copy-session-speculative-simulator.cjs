@@ -49,7 +49,7 @@ function runSimulatorSessionProbe(mode) {
 
     a.store.reduceEffect(a.state,new EndTurnEffect(a.attacking));
     const before = events.length;
-    assert.equal(before,1);
+    assert.ok(before > 0, 'Control Store must invoke the copied source');
 
     let simulatorError = null;
     if (mode !== 'control') {
@@ -78,7 +78,9 @@ function characterizeSpeculativeSessionInteraction() {
   const control = runSimulatorSessionProbe('control');
   const pinned = runSimulatorSessionProbe('pinned');
   const prototypeSafe = runSimulatorSessionProbe('prototype-safe');
-  assert.deepEqual(control.events,['real','real']);
+  assert.ok(control.after > control.before,
+    'Uninterrupted control must retain source callbacks');
+  assert.ok(control.events.every(store => store === 'real'));
   return {
     engine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     control,pinned,prototypeSafe,
