@@ -77,10 +77,10 @@ test('unqualified hidden allocation and impossible observations are rejected',()
   }),/Inconsistent observed Prize bounds/);
   assert.throws(()=>unlocatedPrizePosterior({
     unknownPool:pool,unknownPrizeCount:2,targetName:'A',
-    observedPrizeBounds:{A:{min:2,max:2},B:{min:0,max:0},
+    observedPrizeBounds:{A:{min:1,max:1},B:{min:0,max:0},
       C:{min:0,max:0},D:{min:0,max:0}},
     uniformUnknownAllocation:true
-  }).nextUnknownDeckProbability,undefined);
+  }),/No physical Prize allocation/);
 });
 
 test('empty Prize zones and no remaining deck are explicit edge cases',()=>{
