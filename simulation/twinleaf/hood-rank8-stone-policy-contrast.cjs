@@ -30,6 +30,22 @@ function summarize(game) {
   const actions=Array.isArray(game.decisionTrace)?game.decisionTrace:[];
   const starActions=actions.filter(action=>action.action==='UseAbilityAction' &&
     action.ability==='Star Alchemy');
+  const postStarPromptSelections=starActions.map(star=>{
+    const next=actions.find(action=>
+      action.actionOrdinal>star.actionOrdinal &&
+      action.actionOrdinal<=star.actionOrdinal+12 &&
+      action.playerSlot===star.playerSlot && action.cardSelection);
+    return {
+      useOrdinal:star.actionOrdinal,physicalSeat:star.playerSlot,
+      firstSubsequentOwnSelection:next?{
+        ordinal:next.actionOrdinal,
+        sourceZone:next.cardSelection.sourceZone,
+        message:next.cardSelection.message,
+        selectedCards:next.cardSelection.selectedCards
+      }:null,
+      attribution:'temporal follow-up only; independent prompt lineage not proved'
+    };
+  });
   return {
     seed:game.seed,firstTurnSlot:game.firstTurnSlot,
     verifiedByDrawLog:game.verifiedByDrawLog,
@@ -45,6 +61,7 @@ function summarize(game) {
       ordinal:action.actionOrdinal,turn:action.turnBefore,
       physicalSeat:action.playerSlot,ability:action.ability
     })),
+    postStarPromptSelections,
     abilityTraceStarCount:(game.abilityTrace||[])
       .filter(action=>action.name==='Star Alchemy').length,
     attacksBySeat:(game.attackTrace||[]).reduce((n,action)=>{
@@ -103,6 +120,23 @@ function main() {
   const firstDifference=Array.from(
     {length:Math.max(a.length,b.length)},(_,i)=>i)
     .find(i=>a[i]!==b[i])??null;
+  const firstToolStarIndex=arms[1].decisionTrace.findIndex(
+    action=>action.action==='UseAbilityAction' &&
+      action.ability==='Star Alchemy');
+  /** @param {object|undefined} action */
+  const minimalAction=action=>action?{
+    ordinal:action.actionOrdinal,turn:action.turnBefore,
+    physicalSeat:action.playerSlot,action:action.action,
+    card:action.card??null,ability:action.ability??null,
+    attack:action.attack??null,
+    cardSelection:action.cardSelection?.selectedCards??null
+  }:null;
+  const firstDifferenceActions=firstDifference===null?null:{
+    baseline:minimalAction(arms[0].decisionTrace[firstDifference]),
+    toolPolicy:minimalAction(arms[1].decisionTrace[firstDifference]),
+    firstNewStarTraceIndex:firstToolStarIndex,
+    divergenceEqualsFirstStar:firstDifference===firstToolStarIndex
+  };
   return {
     schema:'rank8-hood-tool-power-source-contrast-v1',
     sourceResearchRevision:process.env.GITHUB_SHA||'unrecorded',
@@ -115,6 +149,7 @@ function main() {
     resolvedSourceDeckHashes:[digest(base.deckA),digest(base.deckB)],
     soleIntendedPolicyChange:'attachedToolPowerPolicy false versus true for both seats',
     firstRootDecisionDifference:firstDifference,
+    firstDifferenceActions,
     comparedRootPrefixLength:firstDifference===null?Math.min(a.length,b.length):firstDifference,
     arms,qualifiedForCompetitiveInference:false,
     limitations:[
@@ -132,9 +167,11 @@ if(require.main===module){
     JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify({
     seed:report.seed,firstDifference:report.firstRootDecisionDifference,
+    firstDifferenceActions:report.firstDifferenceActions,
     arms:report.arms.map(a=>({name:a.name,finished:a.finished,
       actions:a.rootActions,turns:a.turns,stone:a.stonePlaysBySeat,
-      star:a.starAlchemyRootActions,abilityStar:a.abilityTraceStarCount,
+      star:a.starAlchemyRootActions,starFollowingSelection:a.postStarPromptSelections,
+      abilityStar:a.abilityTraceStarCount,
       attacks:a.attacksBySeat,prizes:a.prizeCounts,policy:a.policy})),
     qualified:false
   },null,2));
