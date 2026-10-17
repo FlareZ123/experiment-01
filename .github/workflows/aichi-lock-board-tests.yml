@@ -29,7 +29,7 @@ jobs:
       - run: node simulation/twinleaf/vileplume-itemlock-action.cjs
       - run: node simulation/twinleaf/ranger-lele-itemlock-action.cjs
       - run: node simulation/twinleaf/ranger-stone-itemlock-action.cjs
-      - run: node simulation/twinleaf/battle-compressor-zero-prompt.cjs
+      - run: node --test tests/battle-compressor-minimum.test.cjs
       - run: node --test tests/twinleaf-attached-tool-power-tactic.test.cjs
       - name: Bounded published 60-card Tool-Power policy diagnostic
         run: node simulation/twinleaf/attached-tool-power-source-pilot.cjs > tool-power-source-pilot.json
