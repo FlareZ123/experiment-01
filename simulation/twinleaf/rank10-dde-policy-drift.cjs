@@ -30,6 +30,57 @@ function firstDecisionDifference(a,b) {
   return null;
 }
 
+/**
+ * Observe a single actual root action without reading a speculative Store.
+ * The observer records only detached printing names and attached Energy.
+ * @template T
+ * @param {Function} Store
+ * @param {()=>T} run
+ * @param {number} wantedStep
+ * @returns {{result:T,observed:object|null}}
+ */
+function withSourceRootPrintingAudit(Store,run,wantedStep) {
+  const descriptor=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  assert.ok(descriptor && typeof descriptor.value==='function');
+  let sourceStore=null,rootStep=-1,observed=null;
+  /** @param {object} state @param {object} action */
+  const snapshot=(state,action)=>{
+    const owner=state.players.find(p=>p.id===action.id);
+    /** @param {object} slot */
+    const pokemon=slot=>({
+      printing:slot.getPokemonCard()?.fullName || null,
+      attachedEnergy:slot.energies.cards.map(c=>c.fullName)
+    });
+    return {
+      turn:state.turn,actorId:action.id,
+      playedPrinting:owner?.hand.cards[action.handIndex]?.fullName || null,
+      target:action.target ? {
+        player:action.target.player,
+        slot:action.target.slot,
+        index:action.target.index
+      } : null,
+      ownActive:owner ? pokemon(owner.active):null,
+      ownBench:owner ? owner.bench.map(pokemon):[]
+    };
+  };
+  const wrapped=function inspectedSourceDispatch(action,...args) {
+    if(!sourceStore && action?.constructor?.name==='AddPlayerAction')
+      sourceStore=this;
+    if(this!==sourceStore)return descriptor.value.apply(this,[action,...args]);
+    rootStep++;
+    if(rootStep===wantedStep)
+      observed={rootStep,action:action.constructor.name,
+        before:snapshot(this.state,action)};
+    const result=descriptor.value.apply(this,[action,...args]);
+    if(rootStep===wantedStep) observed.after=snapshot(this.state,action);
+    return result;
+  };
+  Object.defineProperty(Store.prototype,'dispatch',{...descriptor,value:wrapped});
+  try{return {result:run(),observed}}finally{
+    Object.defineProperty(Store.prototype,'dispatch',descriptor);
+  }
+}
+
 /** @param {object} game @returns {object} */
 function summary(game) {
   return {
@@ -82,11 +133,15 @@ function main() {
     regidragoDeclaredHistoryCorrection:true,
     passClearsLastAttackCorrection:true
   };
-  const capture=doubleDragonRecovery=>withStoreDispatchTranscript(
-    Store,()=>runMatch({...common,doubleDragonRecovery}),{
-      liveStoreOnly:true,typedActionValues:true,
-      promptReferenceActionValues:true,sourceZoneEveryDispatch:true
-    });
+  const capture=doubleDragonRecovery=>{
+    const audited=withSourceRootPrintingAudit(Store,
+      ()=>withStoreDispatchTranscript(
+        Store,()=>runMatch({...common,doubleDragonRecovery}),{
+          liveStoreOnly:true,typedActionValues:true,
+          promptReferenceActionValues:true,sourceZoneEveryDispatch:true
+        }),15);
+    return {...audited.result,turn2SourceAudit:audited.observed};
+  };
   const noRecovery=capture(false);
   const currentV4=capture(true);
   const repeat=capture(false);
@@ -118,6 +173,10 @@ function main() {
     },
     firstChangedSourceRoot: firstDecisionDifference(
       noRecovery.actionTrace,currentV4.actionTrace),
+    turn2PrintedAction: {
+      control:noRecovery.turn2SourceAudit,
+      v4:currentV4.turn2SourceAudit
+    },
     repeatControlIdentical:true,
     limitations:[
       'Single source-dealt seed and engine seat',
