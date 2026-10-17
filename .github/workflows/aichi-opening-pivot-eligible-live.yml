@@ -29,3 +29,13 @@ jobs:
         run: npm run compile
       - name: Execute complete actual Store setup with source-legal eligible start
         run: node simulation/twinleaf/active-opening-pivot-live.cjs
+      - name: Validate own-hand-only New Moon native starter choice
+        run: node --test tests/new-moon-native-opening-pivot.test.cjs
+      - name: Compare same-seed New Moon candidate-second source openings
+        run: node simulation/twinleaf/new-moon-native-opening-source-contrast.cjs > new-moon-native-opening-source.json
+      - name: Preserve source-seed and opponent-response diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: new-moon-native-opening-contrasts
+          path: new-moon-native-opening-source.json
+          retention-days: 14
