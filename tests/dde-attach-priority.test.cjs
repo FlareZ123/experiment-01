@@ -88,3 +88,22 @@ test('Observable match digest changes if DDE attachment telemetry changes', () =
   });
   assert.notEqual(original, changed);
 });
+
+test('The nine published Aichi Regidrago 60s have an explicit ROS97 Energy census', () => {
+  const {summarizeRegidragoSourceEnergy} =
+    require('../scripts/aichi-regidrago-dde-census.cjs');
+  const report = summarizeRegidragoSourceEnergy();
+  assert.equal(report.sourceDeckCount, 29);
+  assert.deepEqual(report.missingFullListRanks, [23, 25, 28]);
+  assert.deepEqual(report.rows.map(row => row.rank),
+    [10, 12, 13, 14, 18, 20, 21, 27, 32]);
+  assert.equal(report.publishedRegidragoDeckCount, 9);
+  assert.equal(report.totalEnergyCards, 88);
+  assert.equal(report.totalDoubleDragonCards, 34);
+  assert.equal(report.fractionOfRegidragoEnergyCards, '34/88');
+  assert.equal(report.fourCopyDdeLists, 7);
+  for (const row of report.rows) {
+    assert.equal(row.energyCards,
+      row.doubleDragonCards + row.grassCards + row.fireCards);
+  }
+});
