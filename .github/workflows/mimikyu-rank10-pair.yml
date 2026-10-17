@@ -123,6 +123,22 @@ jobs:
           name: rank10-turn29-own-hand-audit
           path: rank10-turn29-own-hand.json
           if-no-files-found: warn
+      - name: Unit-test hidden-order-only policy fork restoration
+        if: ${{ inputs.run_turn29_response_audit }}
+        run: node --test tests/rank10-turn29-hidden-order-policy.test.cjs
+      - name: Compare rank10 opponent source choice under unseen deck permutation
+        if: ${{ inputs.run_turn29_response_audit }}
+        run: node simulation/twinleaf/rank10-turn29-hidden-order-source.cjs > rank10-turn29-hidden-order.json
+      - name: Print source opponent hidden-order decision sensitivity
+        if: ${{ inputs.run_turn29_response_audit }}
+        run: node -e "const x=require('./rank10-turn29-hidden-order.json'); console.log(JSON.stringify({sameAction:!x.selectedActionChanged,rngEqual:x.policyRandomDrawsEqual,normal:x.baseline.action,permuted:x.unseenDeckOrderReversal.action}));"
+      - name: Archive source bot hidden-order sensitivity
+        if: ${{ always() && inputs.run_turn29_response_audit }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-turn29-hidden-order-policy
+          path: rank10-turn29-hidden-order.json
+          if-no-files-found: warn
       - name: Show source-aligned knockout counterfactual
         run: node -e "const x=require('./rank10-mimikyu-shred-source-fork.json'); console.log(JSON.stringify({firstDivergence:x.firstSourceDivergence,printedOpportunity:x.sourceOpportunity,chosen:x.chosenAttack,original:x.original,counterfactual:x.counterfactual,qualified:x.qualifiedForCompetitiveInference}));"
       - name: Preserve turn-28 source-game Shred counterfactual
