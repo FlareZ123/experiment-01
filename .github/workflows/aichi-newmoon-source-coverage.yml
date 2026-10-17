@@ -27,6 +27,14 @@ jobs:
         run: npm run compile
       - name: Run source identity and printing hash regression
         run: node --test tests/new-moon-print-map.test.cjs
+      - name: Validate candidate 60 printed-engine variants
+        run: node simulation/twinleaf/new-moon-pinned-print-validate.cjs > newmoon-pinned-60.json
+      - name: Preserve pinned English mechanics-equivalent 60
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-pinned-60
+          path: newmoon-pinned-60.json
+          if-no-files-found: error
       - name: Build source 60-card English-name coverage report
         run: node simulation/twinleaf/newmoon-source-coverage.cjs > newmoon-source-coverage.json
       - name: Display available/missing source names
