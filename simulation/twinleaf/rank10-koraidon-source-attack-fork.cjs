@@ -11,13 +11,15 @@ const {observableState,hash}=require('./source-state-continuity.cjs');
  * evidence of competitive strength or a full paper-rule qualification.
  *
  * @template T
- * @param {{Store:Function,Bot:Function,AttackAction:Function}} types
+ * @param {{Store:Function,Bot:Function,AttackAction:Function,RetreatAction?:Function}} types
  * @param {()=>T} work
- * @param {{forceAttack:boolean}} options
+ * @param {{forceAttack?:boolean,forceRetreat?:boolean}} options
  * @returns {{result:T,sourceDecisions:object[]}}
  */
 function withRank10SourceKoraidonFork(types,work,options) {
-  const {Store,Bot,AttackAction}=types;
+  const {Store,Bot,AttackAction,RetreatAction}=types;
+  assert.ok(!(options.forceAttack===true && options.forceRetreat===true),
+    'An opponent can choose only one source action');
   const storeDesc=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   const botDesc=Object.getOwnPropertyDescriptor(Bot.prototype,'decodeNextAction');
   assert.equal(typeof storeDesc?.value,'function');
@@ -38,14 +40,23 @@ function withRank10SourceKoraidonFork(types,work,options) {
        active.active.getPokemonCard()?.fullName!=='Koraidon ex TEF' ||
        !active.active.energies.cards.some(c=>c.fullName==='Double Dragon Energy ROS'))
        return action;
+    const retreatIndex=options.forceRetreat===true?
+      active.bench.findIndex(slot=>
+        slot.getPokemonCard()?.fullName==='Regidrago VSTAR SIT'):-1;
+    if(options.forceRetreat===true) {
+      assert.equal(typeof RetreatAction,'function');
+      assert.ok(retreatIndex>=0, 'Published Regidrago VSTAR retreat target absent');
+    }
     const event={turn:state.turn,playerId:action.clientId,
       originalAction:action.constructor.name,
       selectedAttack:options.forceAttack===true?'Retribution Strike':null,
+      selectedRetreatIndex:options.forceRetreat===true?retreatIndex:null,
       stateDigest:hash(observableState(state)),
       engineRootStoreOnly:true};
     sourceDecisions.push(event);
-    if(options.forceAttack!==true) return action;
+    if(options.forceAttack!==true && options.forceRetreat!==true) return action;
     if(sourceDecisions.length!==1) throw new Error('Repeated source decision fork');
+    if(options.forceRetreat===true) return new RetreatAction(action.clientId,retreatIndex);
     return new AttackAction(action.clientId,'Retribution Strike');
   };
   Object.defineProperty(Store.prototype,'dispatch',{...storeDesc,value:dispatch});
