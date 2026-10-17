@@ -10,7 +10,7 @@ const { installToolJammerHook } = require('./tool-jammer-hook.cjs');
  * announce PowerEffect, resolve its Energy-attachment prompt and verify both
  * attachment and the two-card draw. Full-turn setup rules are outside scope.
  *
- * @param {{hood:boolean,jammer:boolean,active:boolean,garbodorPrint?:'BKP'|'LTR',garbodorTool?:boolean,stadium?:string}} options
+ * @param {{hood:boolean,jammer:boolean,active:boolean,garbodorPrint?:'BKP'|'LTR',garbodorTool?:boolean,stadium?:string,wobbuffetActive?:boolean}} options
  * @returns {{allowed:boolean, attached:number, drawn:number, handCount:number}}
  */
 function underworldDoorAction(options) {
@@ -58,7 +58,12 @@ function underworldDoorAction(options) {
 
   const other = new PokemonCardList();
   other.cards.push(get('Shadow Rider Calyrex V CRE'));
-  if (options.active) {
+  if (options.wobbuffetActive) {
+    const wobSlot = new PokemonCardList();
+    wobSlot.cards.push(get('Wobbuffet PHF'));
+    player.active = wobSlot;
+    player.bench.push(vmaxSlot, other);
+  } else if (options.active) {
     player.active = vmaxSlot;
     player.bench.push(other);
   } else {
@@ -110,6 +115,8 @@ function runTest() {
     {hood:true,jammer:true,active:false,allowed:true},
     {hood:true,jammer:true,active:true,allowed:false},
     {hood:false,jammer:true,active:false,allowed:false},
+    {hood:false,jammer:false,active:false,wobbuffetActive:true,allowed:true},
+    {hood:false,jammer:true,active:false,wobbuffetActive:true,allowed:true},
     {hood:true,jammer:false,active:false,garbodorPrint:'BKP',allowed:true},
     {hood:true,jammer:false,active:false,garbodorPrint:'LTR',allowed:true},
     {hood:false,jammer:false,active:false,garbodorPrint:'BKP',allowed:false},
