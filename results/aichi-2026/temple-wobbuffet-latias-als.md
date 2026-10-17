@@ -82,3 +82,33 @@ results separately from the competitive ledger.
 
 **No candidate promoted.** Three exact field lists
 (23,25,28) remain missing and competitive games qualified: **0**.
+
+
+## Achi-source Tool Jammer changes the preferred retreat resource
+
+Temple also carries one **Float Stone**, which normally reduces
+Wobbuffet's printed two-Energy Retreat Cost to zero.
+However, all three published Iron Thorns source 60s
+(ranks **6, 24, 29**) include **one Tool Jammer BST136**.
+If Tool Jammer is attached to the opponent's Active Iron Thorns,
+it makes Tools attached to *our* Active Wobbuffet have **no
+effect**. A Float Stone attached to Wobbuffet therefore provides
+no retreat discount under that condition, while the *Benched*
+Latias ex Skyliner is an **Ability**, not a Tool effect.
+Since Wobbuffet is Psychic, its own Bide Barricade preserves
+the Latias Ability while suppressing Thorns Initialization.
+This is a particularly valuable strategic distinction between
+two existing zero-retreat routes in the same exact Temple list.
+
+| Source board / Wobbuffet Active | Float Stone retreat discount | Latias Skyliner retreat discount |
+| --- | --- | --- |
+| Opposing Iron Thorns without Tool Jammer | Should apply | Should apply |
+| Opposing Iron Thorns with Tool Jammer attached | **Suppressed** | **Should apply** |
+
+Both cases must be checked as actual Store retreat actions.
+[Tool Jammer's printed text](https://limitlesstcg.com/cards/BST/136)
+limits its suppression to Tools on the opponent's Active Pokémon.
+This is an **effect-timing inference** pending the new Latias
+Store test; it is not a measured advantage against any source
+opponent. Gust, other Ability locks, Latias Knock Out and Bench
+occupancy could still remove the route.
