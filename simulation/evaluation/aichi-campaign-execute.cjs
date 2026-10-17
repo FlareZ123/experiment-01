@@ -200,7 +200,8 @@ function executeDiagnostic(options) {
         'latiasAttackReadyAttachment', 'bunnelbyK0SafeEvolution',
         'attackBeforeRetreat', 'prototypeSafeSimulatorIsolation',
         'postSuperAliasRepairIsolation', 'leleEntryAbilityLockCorrection',
-        'radiantGateLockCorrection'
+        'radiantGateLockCorrection', 'entryDrawLockCorrection',
+        'eldegossEntryLockCorrection'
       ];
       const policyMismatch = echoedPolicyKeys.some(key =>
         Object.hasOwn(enginePolicyFlags, key) &&
@@ -267,6 +268,9 @@ function executeDiagnostic(options) {
           (turn.firstTurnSlot === candidateSlot ? 'first' : 'second') : 'unverified',
         turnEvidence: turn, winnerIndex: game.winner ?? null,
         engineRevision: game.engine || null, policy: game.policy || null,
+        observedPolicyFlags: Object.fromEntries(echoedPolicyKeys
+          .filter(key => Object.hasOwn(enginePolicyFlags, key))
+          .map(key => [key, game[key]])),
         rules: game.rules || null, randomnessProtocol: game.randomnessProtocol || null,
         engineDeckHashes: game.deckHashes || null,
         actions: game.actions ?? null, turns: game.turns ?? null,
