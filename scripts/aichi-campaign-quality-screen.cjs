@@ -39,14 +39,19 @@ function auditCampaignQuality(archive) {
     throw new Error('Invalid archive research policy profile.');
   }
   const experimentalClone = archive.policyFlags?.prototypeSafeSimulatorIsolation === true;
-  const simulatorCloneProfile = experimentalClone ?
-    'prototype-safe-experimental-v1' : 'pinned-source-card-alias-v0';
+  const repairedClone = archive.policyFlags?.postSuperAliasRepairIsolation === true;
+  if (experimentalClone && repairedClone) {
+    throw new Error('Archive requests incompatible speculative Simulator profiles.');
+  }
+  const simulatorCloneProfile = repairedClone ?
+    'post-super-alias-repair-experimental-v2' : experimentalClone ?
+      'prototype-safe-experimental-v1' : 'pinned-source-card-alias-v0';
   // Neither the known leaky pinned clone nor the experimental correction
   // has been qualified for representative full-match inference.
-  const simulatorSafetyStatus = experimentalClone ?
+  const simulatorSafetyStatus = experimentalClone || repairedClone ?
     'experimental-clone-not-qualified' : 'known-simulator-card-alias-risk';
   // Report a stable trial blocker independent of the diagnostic profile name.
-  const simulatorSafetyBlocker = experimentalClone ?
+  const simulatorSafetyBlocker = experimentalClone || repairedClone ?
     'experimental-clone-not-qualified' : 'unvalidated-simulator-alias';
   const candidates = new Map(archive.candidateRows.map(row => [row.id, row.deckDigest]));
   const ranks = new Set(archive.selectedPilotRanks);
