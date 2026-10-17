@@ -113,4 +113,4 @@ if (require.main === module) {
   console.log('SPECULATIVE_COPY_SESSION',
     JSON.stringify(characterizeSpeculativeSessionInteraction(),null,2));
 }
-module.exports = {characterizeSpeculativeSessionInteraction};
+module.exports = {characterizeSpeculativeSessionInteraction,runSimulatorSessionProbe};
