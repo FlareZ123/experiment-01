@@ -4,9 +4,9 @@
   "source_code": "GxxDYx-a4rD4W-a8xYxc",
   "source_date": "2026-05-13",
   "event_date": "2026-05-10",
-  "scope": "Each row maps the exact source-transcribed identity and count to one selected English card-database print and relevant ability/attack. Japanese physical printing numbers remain unresolved. This is neither a Japanese deck registration export nor proof of paper Expanded legality.",
+  "scope": "Each row maps the exact source-transcribed identity and count to one selected English card-database print and relevant ability/attack. Japanese physical printing numbers remain unresolved. This is neither a Japanese deck registration export nor proof of paper Expanded legality. Exact Japanese source printing from official deck code is archived under new-moon-official-japanese-print-60.json; Duskull S4 maps to English VIV Future Sight.",
   "canonicalization": "Sort entries by id, concatenate `${id}:${count}\\n` in UTF-8; SHA-256.",
-  "sha256_id_counts": "327add6086c4b14853638b40519e835e93c48377e6523ebf4e30b2f35c2ca28b",
+  "sha256_id_counts": "4dd537adbf73d89e50215b3d056a9f40d474f05b79e33774c281a30079e1ce95",
   "sha256_name_counts": "dca35598ff1dc5dc272c52a5b7e64c31a60dd7fb6ef79c043a2fe70167353eb8",
   "entries": [
     {
@@ -82,9 +82,9 @@
     {
       "count": 2,
       "name": "Duskull",
-      "id": "sv6pt5-18",
-      "signature": "Come and Get You",
-      "twinleaf_full_name": "Duskull SFA"
+      "id": "swsh4-69",
+      "signature": "Future Sight",
+      "twinleaf_full_name": "Duskull VIV"
     },
     {
       "count": 1,
