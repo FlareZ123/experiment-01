@@ -98,7 +98,7 @@ test('source turn-seven actor hand and prompt chronology is read-only and comple
   }
   class FakeStore {
     constructor() {
-      this.state={turn:7,activePlayer:0,phase:2,prompts:[],
+      this.state={turn:0,activePlayer:0,phase:2,prompts:[],
         players:[
           player(101,'Mega Absol ex'),player(202,'Shadow Rider Calyrex VMAX')
         ]};
@@ -106,6 +106,7 @@ test('source turn-seven actor hand and prompt chronology is read-only and comple
         {name:'Float Stone',fullName:'Float Stone BKT'}];
     }
     dispatch(action) {
+      if(action instanceof AddPlayerAction) this.state.turn=7;
       if(action instanceof PlayCardAction) {
         const own=this.state.players[0];
         const discarded=own.hand.cards.splice(action.handIndex,1);
