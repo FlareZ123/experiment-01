@@ -76,5 +76,63 @@ function projectedLightningUnits(energies) {
   },0);
 }
 
+
+/**
+ * Opt-in same-turn positive-Prize-response policy for the exact source
+ * Raichu/Electrode payload. It uses public board state and own discard only.
+ * @returns {Function} A pinned SimpleTactic subclass.
+ */
+function makeElectrodePrizeTradeTactic(){
+  const {SimpleTactic}=load('simple-bot/simple-tactics/simple-tactics');
+  const {UseAbilityAction}=load('game/store/actions/game-actions');
+  const {PlayerType,SlotType}=load('game/store/actions/play-card-action');
+  const {CardTag,SuperType}=load('game/store/card/card-types');
+  const twoPrize=[CardTag.POKEMON_V,CardTag.POKEMON_GX,CardTag.POKEMON_EX,
+    CardTag.POKEMON_ex,CardTag.POKEMON_VSTAR,CardTag.POKEMON_VMAX,
+    CardTag.POKEMON_SV_MEGA,CardTag.TAG_TEAM];
+  const sightEligible=[CardTag.POKEMON_V,CardTag.POKEMON_VMAX,
+    CardTag.POKEMON_VSTAR,CardTag.POKEMON_GX,CardTag.TAG_TEAM];
+  return class ElectrodePrizeTradeTactic extends SimpleTactic {
+    useTactic(state,player){
+      if(player.active.getPokemonCard()?.fullName!=='Alolan Raichu UNM')return;
+      const opponent=state.players.find(p=>p.id!==player.id);
+      if(!opponent||opponent.getPrizeLeft()<=2)return;
+      if(player.getPrizeLeft()<=opponent.getPrizeLeft()-2)return;
+      if(state.players.some(p=>p.stadium.cards.some(c=>c.name==='Temple of Sinnoh')))return;
+      const energy=player.discard.cards.filter(c=>c.superType===SuperType.ENERGY).slice(0,5);
+      if(energy.length<3||energy.some(c=>!['Reversal Energy PAL',
+        'Counter Energy CIN','Unit Energy LPM UPR'].includes(c.fullName)))return;
+      const base=projectedLightningUnits(energy)*30;
+      if(base<180)return;
+      const hasSight=player.active.tools.some(c=>c.fullName==='Telescopic Sight VIV');
+      let immediateTwoPrizeKO=false;
+      opponent.forEachPokemon(PlayerType.TOP_PLAYER,(list,card,target)=>{
+        if(!twoPrize.some(tag=>card.hasTag(tag)))return;
+        const bonus=hasSight&&target.slot===SlotType.BENCH&&
+          sightEligible.some(tag=>card.hasTag(tag))?30:0;
+        if(card.hp-list.damage<=base+bonus)immediateTwoPrizeKO=true;
+      });
+      if(!immediateTwoPrizeKO)return;
+      for(let i=0;i<player.bench.length;i++){
+        if(player.bench[i].getPokemonCard()?.fullName==='Electrode-GX CES'){
+          return new UseAbilityAction(player.id,'Extra Energy Bomb',{
+            player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:i
+          });
+        }
+      }
+    }
+  };
+}
+
+/** Add the narrow projected two-Prize trade before ordinary attachments. */
+function withElectrodePrizeTradePolicy(options){
+  const index=options.tactics.findIndex(t=>t.name==='AttachEnergyTactic');
+  if(index<0)throw Error('Expected upstream AttachEnergyTactic');
+  return {...options,tactics:[
+    ...options.tactics.slice(0,index),makeElectrodePrizeTradeTactic(),
+    ...options.tactics.slice(index)
+  ]};
+}
+
 if(require.main===module) evaluateBombTactic();
 module.exports={evaluateBombTactic};
