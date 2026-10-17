@@ -70,6 +70,16 @@ jobs:
           path: rank10-root-policy-graph.json
           if-no-files-found: warn
 
+      - name: Observe isolated Double Dragon source-policy decisions
+        run: node simulation/twinleaf/rank10-dde-policy-trace.cjs > rank10-dde-policy-trace.json
+      - name: Archive isolated Double Dragon source-policy decisions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-dde-policy-source-trace
+          path: rank10-dde-policy-trace.json
+          if-no-files-found: warn
+
       - name: Run source-ranked rank-10 live-only branch trace
         run: node simulation/twinleaf/rank10-source-branch-transcript.cjs > rank10-source-branch-live-dispatch.json
       - name: Summarize the bounded authentic-deal comparison
