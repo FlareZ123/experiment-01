@@ -51,3 +51,19 @@ test('Double Dragon target selection uses simulated local identity in both clone
   assert.equal(result.cases[1].sourceCardDetached, true);
   assert.ok(result.cases.every(row => row.authoritativeStoreAttachment));
 });
+
+test('Source Regidrago v4 clone modes preserve exact decks and observed first-turn identity', () => {
+  const {checkCloneSensitivityBySeat} =
+    require('../simulation/twinleaf/dde-source-clone-seat-panel.cjs');
+  const report = checkCloneSensitivityBySeat();
+  assert.equal(report.cases.length, 2);
+  assert.deepEqual(report.cases.map(row => row.candidateSlot), [0, 1]);
+  for (const row of report.cases) {
+    assert.deepEqual(row.pinned.deckHashes, row.prototypeSafe.deckHashes);
+    assert.equal(row.pinned.verifiedByDrawLog, true);
+    assert.equal(row.prototypeSafe.verifiedByDrawLog, true);
+    assert.equal(row.pinned.actualFirstTurnSlot,
+      row.prototypeSafe.actualFirstTurnSlot);
+  }
+  console.log('SOURCE_DDE_V4_CLONE_SEAT_PANEL ' + JSON.stringify(report));
+});
