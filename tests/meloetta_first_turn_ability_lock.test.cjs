@@ -185,12 +185,12 @@ test('Iron Thorns locks the Prism Star Koko engine alongside Meloetta; Cologne f
     return effect.powers.map(power=>power.name);
   };
   assert.equal(powers(f.attacker.active.getPokemonCard())
-    .includes('Debut Performance'),false);
+    .includes('Live Debut'),false);
   assert.equal(powers(koko).includes('Dance of the Ancients'),false,
     'Prism Star Rule Box should be in Initialization lock scope');
   play(f,f.cologne,board);
   assert.equal(powers(f.attacker.active.getPokemonCard())
-    .includes('Debut Performance'),true);
+    .includes('Live Debut'),true);
   assert.equal(powers(koko).includes('Dance of the Ancients'),true);
   assert.equal(f.attacker.discard.cards.includes(f.cologne),true);
 });
