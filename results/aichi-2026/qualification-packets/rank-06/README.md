@@ -43,6 +43,10 @@ The same genuine physical rank-6 seed `20367160` now supports the [complete ten-
 
 The same manual CI included new exact real-Store assertions for physical discard and retained hand printings. **Competitive qualification remains false.**
 
+### Agent 33: K0 Guzma-Prize hedge and Mail access calculation (17 October)
+
+[Exact conditional analysis](../../rank6-k0-guzma-prize-hedge.md) gives **1.13122172%** for both other Guzma copies to be Prized among six unseen Prizes, conditioned on the real pre-search hand/Active with one Guzma held and 52 unknown cards. The actual source deal realizes this rare event; the agent could only discover it at the subsequent deck search. With all three VS Seeker confirmed in the 44-card post-G&H deck, retained Trainers' Mail would find at least one of them in its next-four look with **25.40018121%** under uniform shuffle. A found VS Seeker could recover the discarded Guzma before the attack ends, while ordinary Supporter limits defer playing it. **This latter Mail recovery is a conditional access calculation, not a demonstrated Store branch or a win-rate estimate.** Exact formulas and a small-population test are linked in the report. Competitive qualification stays false.
+
 ## New source-dealt champion response after rank-6 Volt Cyclone (Agent 30, 17 October)
 
 [Compiled manual CI 39010339726](https://github.com/FlareZ123/experiment-01/actions/runs/39010339726) extends the same physical seed `20367160` to the genuine next champion turn. Both scripted 140-damage Volt Cyclone arms, including one preserving the held Guzma, were followed by the same public champion-bot turn-three sequence: evolve to Shadow Rider Calyrex VMAX, attach Psychic, play **Acerola**, Bench a Shadow Rider Calyrex V, Pass. The unmodified source bot instead evolved, attached and Passed with no Acerola. A read-only live Store observer confirms that Acerola removed an Active **140-damaged Shadow Rider VMAX with two Energy attached**, promoted **Dialga-GX** from Bench, and temporarily left an empty Bench.
