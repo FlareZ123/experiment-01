@@ -1,0 +1,26 @@
+# Rank-10 Koraidon turn-five score horizon mismatch
+
+**Agent 36, 17 October 2026.** Source-dealt Aichi rank-10 Regidrago opponent versus the frozen published rank-1 Shadow Rider champion or Hood Shield candidate. Physical candidate seat A, opponent actually first (root physical slot 1). Exact printed source 60s, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, fixed seed `3162592764`, original `aichi-rank10-koraidon-score.cjs` policy flags and 600-action bound. **This is a two-case bot-policy diagnostic. Zero games are qualified for competitive inference.**
+
+## Hypothesis and independent test
+
+Earlier [source-score analysis](../twinleaf/attack-score-vs-declaration.md) showed an available Koraidon ex TEF with Double Dragon Energy ROS passing at global turn 5, despite the pinned engine accepting the printed `Retribution Strike`. `AttackTactic.useTactic` evaluates an `AttackAction` through a speculative Simulator that advances the turn, then compares its **post-turn** `StateScore` against the **pre-turn** live StateScore minus the 100-point `attackBonus`. The printed opposing Trevenant & Dusknoir-GX SMP `Pale Moon-GX` announces a delayed KO at the end of that opponent turn. This produces a severe scoring-horizon asymmetry when both the attack and a Pass would trigger that same delayed KO.
+
+I added a read-only optional [source-only implicit Pass score observer](../../simulation/twinleaf/koraidon-pass-score-horizon.cjs), its [bounded source runner](../../simulation/twinleaf/aichi-rank10-pass-horizon.cjs), and [regression tests](../../tests/koraidon-pass-score-horizon.test.cjs). The observer filters by the **authentic first-AddPlayerAction Store**, turn 5, printed Koraidon and physically attached Double Dragon Energy. It lets the original AttackTactic select its action first, then separately evaluates `PassTurnAction` with that tactic's own `evaluateAction`. It returns the original action unchanged. The extra speculative evaluation uses policy RNG and could in principle change later decisions; an explicit read-only root-State hash audit checks immediate mutation, and the report compares complete engine game summaries against an uninstrumented control.
+
+[Passing compiled manual CI 38988695074](https://github.com/FlareZ123/experiment-01/actions/runs/38988695074) at source revision `c58e90229993cbab372a10381370f3f9d3ee433d` evaluated both cases without changing complete recorded game summaries and with **zero observed live source-State mutation during either added Pass probe**:
+
+| Source candidate | Immediate StateScore | Upstream attack acceptance threshold | Actual original bot action | Previously recorded attack score | New post-turn Pass score | Attack minus Pass |
+| --- | ---: | ---: | --- | ---: | ---: | ---: |
+| Published champion | -99 | -199 | Pass | **-2305** | **-2331** | **+26** |
+| Hood Shield v1 | -97 | -197 | Pass | **-2296** | **-2327** | **+31** |
+
+The attack scores (-2305/-2296) are from [earlier compiled same-seed CI 38890117370](https://github.com/FlareZ123/experiment-01/actions/runs/38890117370) and [component capture CI 38891761333](https://github.com/FlareZ123/experiment-01/actions/runs/38891761333), under the same source and flags. Score-component decomposition shows that `PlayerScore` alone changes from +30 to -1970 on the simulated attack in the champion case: the opponent takes two Prizes when Koraidon is knocked out, a -2000-point relative swing. The original Pass is implicitly judged at the unadvanced pre-KO board rather than at the equally advanced post-Pass board. The simulated Pass score directly demonstrates that an end-of-turn Pass is even worse on these two local one-step measures.
+
+## Interpretation and next falsification
+
+**Mechanistic finding:** Under the current engine score heuristic, the two originally rejected attacks outscore the real alternative `PassTurnAction` **when evaluated at a common end-of-turn horizon**. This is a demonstrable action-ranking error for the current tactic's own metric. It does **not** prove the attack is strategically optimal, that forcing it yields a win, or that a different action such as retreating to clear Pale Moon's delayed effect is impossible.
+
+A source-consistent [turn-five action fork](../../simulation/twinleaf/rank10-koraidon-source-attack-fork.cjs) and [full-match runner](../../simulation/twinleaf/aichi-rank10-koraidon-source-fork.cjs) were prepared with exact printed source 60s, the same fixed seed, identical predecision hidden/public-State hashes, and real `AttackAction` rather than a staged attacker. Before any performance interpretation, run the full original versus substituted-action game and capture the opponent's actual continuation, ideally with complete prompt/reducer replay. The optional action fork remains a diagnostic policy edit and carries **no 99.5% or qualified win-rate evidence**.
+
+This observation should motivate broader temporal-alignment tests whenever simulated choices advance a turn, a delayed Knock Out resolves, and the baseline tactic compares against a pre-turn score. Extending it from these two Koraidon states requires new source-inventory-consistent evidence. Never silently substitute it as a general heuristic.
