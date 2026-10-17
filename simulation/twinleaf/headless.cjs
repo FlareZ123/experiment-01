@@ -17,6 +17,7 @@ const {installDialgaBenchExposureGuard} = require('./dialga-bench-exposure-guard
 const {installLeleEntryAbilityLockHook} = require('./lele-entry-ability-lock-hook.cjs');
 const {installRadiantGateLockHook} = require('./radiant-gate-lock-hook.cjs');
 const {installEntryDrawLockHook} = require('./entry-draw-lock-hook.cjs');
+const {installEldegossEntryLockHook} = require('./eldegoss-entry-lock-hook.cjs');
 const {installMimikyuNonGxCopycatHook} = require('./copycat-compat.cjs');
 const {installDeclaredCopyHistoryHook} = require('./copycat-declared-history-hook.cjs');
 const {installPassClearsLastAttackHook} = require('./last-attack-pass-hook.cjs');
@@ -200,6 +201,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [leleEntryAbilityLockCorrection] Opt-in correction for Tapu Lele-GX Bench-entry Ability locks.
  * @property {boolean} [radiantGateLockCorrection] Opt-in correction for Radiant Eternatus Bench-entry Ability locks.
  * @property {boolean} [entryDrawLockCorrection] Opt-in correction for Dedenne-GX and Crobat V Bench-entry draw Abilities under in-play-only locks.
+ * @property {boolean} [eldegossEntryLockCorrection] Opt-in correction for Eldegoss V RCL Happy Match Bench-entry recovery under in-play-only locks.
  * @property {boolean} [mimikyuApexCopycatCompatibility] Opt-in non-GX Apex Dragon/Copycat copy-tag correction.
  * @property {boolean} [mimikyuApexTimelessPolicy] Opt-in exact public-state Copycat/Apex/Timeless decision policy.
  * @property {0|1} [mimikyuApexTimelessPolicySeat] Restrict Copycat counterpolicy to one physical seat.
@@ -263,6 +265,7 @@ function runMatch(request) {
   let restoreLeleEntryAbilityLockHook;
   let restoreRadiantGateLockHook;
   let restoreEntryDrawLockHook;
+  let restoreEldegossEntryLockHook;
   let restoreSnorlaxRetreatStartHook;
   let restoreElectroRainDamageHook;
   let restoreRedeemableTicketPaperOrderHook;
@@ -367,6 +370,9 @@ function runMatch(request) {
     }
     if (request.entryDrawLockCorrection === true) {
       restoreEntryDrawLockHook = installEntryDrawLockHook();
+    }
+    if (request.eldegossEntryLockCorrection === true) {
+      restoreEldegossEntryLockHook = installEldegossEntryLockHook();
     }
     const { Store } = engine('game/store/store');
     if (request.pendingEndTurnSwitchCleanupCorrection === true) {
@@ -719,6 +725,7 @@ function runMatch(request) {
       leleEntryAbilityLockCorrection: request.leleEntryAbilityLockCorrection === true,
       radiantGateLockCorrection: request.radiantGateLockCorrection === true,
       entryDrawLockCorrection: request.entryDrawLockCorrection === true,
+      eldegossEntryLockCorrection: request.eldegossEntryLockCorrection === true,
       mimikyuApexCopycatCompatibility: request.mimikyuApexCopycatCompatibility === true,
       mimikyuApexTimelessPolicy: request.mimikyuApexTimelessPolicy === true,
       mimikyuApexTimelessPolicySeat: request.mimikyuApexTimelessPolicySeat ?? null,
@@ -769,6 +776,7 @@ function runMatch(request) {
         (request.leleEntryAbilityLockCorrection === true ? '+LeleEntryAbilityLockGuard-v1' : '') +
         (request.radiantGateLockCorrection === true ? '+RadiantGateLockGuard-v1' : '') +
         (request.entryDrawLockCorrection === true ? '+EntryDrawLockGuard-v1' : '') +
+        (request.eldegossEntryLockCorrection === true ? '+EldegossEntryLockGuard-v1' : '') +
         (request.mimikyuApexCopycatCompatibility === true ? '+MimikyuNonGXCopyApex-v1' : '') +
         (request.mimikyuDeclaredHistoryCorrection === true ? '+MimikyuDeclaredHistory-v1' : '') +
         (request.regidragoDeclaredHistoryCorrection === true ? '+RegidragoDeclaredHistory-v1' : '') +
@@ -791,6 +799,7 @@ function runMatch(request) {
     if (restorePassClearsLastAttackHook) restorePassClearsLastAttackHook();
     if (restoreCopyDeclaredHistoryHook) restoreCopyDeclaredHistoryHook();
     if (restoreMimikyuNonGxCopycatHook) restoreMimikyuNonGxCopycatHook();
+    if (restoreEldegossEntryLockHook) restoreEldegossEntryLockHook();
     if (restoreEntryDrawLockHook) restoreEntryDrawLockHook();
     if (restoreRadiantGateLockHook) restoreRadiantGateLockHook();
     if (restoreLeleEntryAbilityLockHook) restoreLeleEntryAbilityLockHook();
