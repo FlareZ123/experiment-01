@@ -20,6 +20,7 @@ function probe(seat) {
   const {Store}=load('game/store/store');
   const {Player}=load('game/store/state/player');
   const {CardList}=load('game/store/state/card-list');
+  const {PokemonCardList}=load('game/store/state/pokemon-card-list');
   const {GamePhase}=load('game/store/state/state');
   const {Format}=load('game/store/card/card-types');
   const {PlayCardAction,PlayerType,SlotType}=load('game/store/actions/play-card-action');
@@ -29,6 +30,8 @@ function probe(seat) {
   const state=store.state;
   const mine=new Player(),them=new Player();
   mine.id=101;them.id=202;
+  mine.bench=Array.from({length:5},()=>new PokemonCardList());
+  them.bench=Array.from({length:5},()=>new PokemonCardList());
   state.players=seat===0?[mine,them]:[them,mine];
   state.activePlayer=seat;state.turn=1;
   state.phase=GamePhase.PLAYER_TURN;
@@ -50,22 +53,6 @@ function probe(seat) {
       p.prizes.push(prize);
     }
   }
-  // Diagnostic-only observer: it forwards identical reducer calls and records
-  // swallowed exceptions within the Special Energy protection preflight.
-  const reductions=[];
-  const reduce=store.reduceEffect.bind(store);
-  store.reduceEffect=(s,e)=>{
-    const kind=e?.constructor?.name;
-    try {
-      const result=reduce(s,e);
-      if(['AttachEnergyEffect','SpecialEnergyEffect','CheckPokemonTypeEffect'].includes(kind))
-        reductions.push({kind,outcome:'returned'});
-      return result;
-    } catch(error) {
-      reductions.push({kind,outcome:'threw',message:error?.message??String(error)});
-      throw error;
-    }
-  };
   store.dispatch(new PlayCardAction(mine.id,0,{
     player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
   }));
@@ -79,7 +66,7 @@ function probe(seat) {
     deck:mine.deck.cards.map(x=>x.fullName).slice(0,6),
     energyPlayedTurn:mine.energyPlayedTurn,
     active:mine.active.getPokemonCard()?.fullName,
-    reductions:reductions.slice(-30)
+    freeBench:mine.bench.filter(x=>!x.getPokemonCard()).length
   }));
   assert.equal(selection.validate([mew,duskull]),true);
   store.dispatch(new ResolvePromptAction(selection.id,[mew,duskull]));
@@ -88,6 +75,24 @@ function probe(seat) {
   assert.ok(benched.includes(mew.fullName));
   assert.ok(benched.includes(duskull.fullName));
   assert.ok(mine.active.energies.cards.includes(telepath));
+  // The search's shuffle and animation wait are distinct real Store prompts.
+  // This identity permutation is used only for a deterministic staged trace.
+  for(let n=0;n<3;n++) {
+    const prompt=state.prompts.find(x=>x.result===undefined);
+    if(!prompt) break;
+    const kind=prompt.constructor.name;
+    if(kind==='ShuffleDeckPrompt') {
+      const order=Array.from({length:mine.deck.cards.length},(_,i)=>i);
+      assert.ok(prompt.validate(order,state),'Invalid deterministic shuffle');
+      store.dispatch(new ResolvePromptAction(prompt.id,order));
+    } else if(kind==='WaitPrompt') {
+      store.dispatch(new ResolvePromptAction(prompt.id,null));
+    } else {
+      assert.fail('Unexpected search continuation '+kind);
+    }
+  }
+  assert.ok(!state.prompts.some(x=>x.result===undefined),
+    'Search continuation remains unresolved');
   // Exact subsequent own-turn change, preserving prior attached card.
   // Advance past the intervening opponent turn; their policy is not modeled.
   state.turn=3;
