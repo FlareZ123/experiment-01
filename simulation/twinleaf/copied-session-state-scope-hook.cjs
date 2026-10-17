@@ -55,7 +55,15 @@ function sessionsForState(state) {
     'function clearCopyAttackSessionsForTests() {\n    copyAttackSessionsByState = new WeakMap();');
   output += '\nfunction inheritCopyAttackSessionsFromState(parentState, clonedState) {\n' +
     '  const entries = copyAttackSessionsByState.get(parentState) || [];\n' +
-    '  copyAttackSessionsByState.set(clonedState, entries.slice());\n' +
+    '  if (copyAttackSessionsByState.has(clonedState)) throw new Error("Clone already has sessions");\n' +
+    '  for (const entry of entries) {\n' +
+    '    if (!isCopycatInPlay(clonedState, entry.copycatCard)) {\n' +
+    '      throw new Error("Cloned Pokemon identity differs");\n' +
+    '    }\n' +
+    '  }\n' +
+    '  copyAttackSessionsByState.set(clonedState, entries.map(entry => ({\n' +
+    '    ...entry, clonedAttacks: entry.clonedAttacks.slice()\n' +
+    '  })));\n' +
     '  return entries.length;\n' +
     '}\nexports.inheritCopyAttackSessionsFromState = inheritCopyAttackSessionsFromState;\n';
   return output;
