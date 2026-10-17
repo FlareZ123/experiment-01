@@ -45,6 +45,9 @@ function responseLedger(trace,options={}) {
     if(kind==='ChooseAttackPrompt') {
       report.selectedSource=attackChoice?.printing??null;
       report.selectedCopiedAttack=attackChoice?.attackName??null;
+      report.choiceCaptureStatus=attackChoice?'captured':
+        (event.attackChoiceCaptureError?'capture-error':'absent');
+      report.choiceCaptureError=event.attackChoiceCaptureError??null;
     }
     if(kind==='ChoosePokemonPrompt') {
       report.promotions=(slotChoice??[])
