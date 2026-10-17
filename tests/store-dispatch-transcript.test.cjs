@@ -108,7 +108,7 @@ test('opt-in Store graph evidence detects actual root state changes', () => {
   assert.equal(event.storeDataGraphBefore.schema,
     'live-store-own-data-stats-clock-normalized-v2');
   assert.equal(event.storeDataGraphAfter.schema,
-    'live-store-data-graph-except-logs-v1');
+    'live-store-own-data-stats-clock-normalized-v2');
   assert.notEqual(event.storeDataGraphBefore.digest,event.storeDataGraphAfter.digest);
   assert.equal(report.result,101);
 });
