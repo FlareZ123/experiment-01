@@ -40,6 +40,19 @@ jobs:
       - name: Summarize authenticated root deal without promoting performance
         if: ${{ inputs.source_rank26_opening }}
         run: node -e "const x=require('./rank26-firstturn-source-window.json'); console.log(JSON.stringify({examined:x.examined,attackerFirst:x.attackerFirst,activeMeloetta:x.activeMeloetta,selected:x.selected,firstEligible:x.firstEligible?.seed,firstPad:x.firstPad?.seed,firstDirect:x.firstDirect?.seed,competitiveGameQualified:x.competitiveGameQualified},null,2))"
+      - name: Replay legal held Cologne from the authenticated first-turn root
+        if: ${{ inputs.source_rank26_opening }}
+        run: node simulation/twinleaf/meloetta-rank26-source-cologne-action.cjs > rank26-firstturn-cologne-action.json
+      - name: Print source Item action and actual Ability visibility transition
+        if: ${{ inputs.source_rank26_opening }}
+        run: node -e "const x=require('./rank26-firstturn-cologne-action.json'); console.log(JSON.stringify({seed:x.seedIdentity.seed,firstTurnSlot:x.played.firstTurnSlot,sourceRootMatches:x.originalSourceRootMatches,actualHand:x.played.sourceHandBefore,action:x.played.firstNormalTurnAction,before:x.played.meloettaAbilitiesBefore,after:x.played.meloettaAbilitiesAfter,discarded:x.played.cologneInDiscard,gameQualified:x.competitiveGameQualified},null,2))"
+      - name: Archive source held-Cologne action evidence
+        if: ${{ inputs.source_rank26_opening }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank26-held-cologne-action-unqualified
+          path: rank26-firstturn-cologne-action.json
+          if-no-files-found: error
       - name: Preserve first-turn source state and explicit missing-gate metadata
         if: ${{ inputs.source_rank26_opening }}
         uses: actions/upload-artifact@v4
