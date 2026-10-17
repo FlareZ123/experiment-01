@@ -33,3 +33,7 @@ jobs:
         run: node --test tests/agent49-single-policy-decision.test.cjs
       - name: Localize first source-ranked action difference and one-shot fork
         run: node simulation/twinleaf/single-decision-clone-source-contrast.cjs
+      - name: Verify source-zone predecision observer contract
+        run: node --test tests/agent49-zones.test.cjs
+      - name: Find first source-zone predecision divergence between clone profiles
+        run: node simulation/twinleaf/source-predecision-zone-contrast.cjs
