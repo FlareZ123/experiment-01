@@ -62,7 +62,7 @@ function sourceSecondTurn() {
  const target=pending();assert.equal(target.constructor.name,'ChoosePokemonPrompt');
  resolve(target,[opp.active]);
  assert.equal(opp.active.damage,50);
- assert.equal(opp.getPrizeLeft(),5,'Dusclops self-KO must take one opponent Prize');
+ assert.equal(opp.getPrizeLeft(),5,'Dusclops Prize checkpoint: '+JSON.stringify({prize:opp.getPrizeLeft(),holderDamage:stack.damage,activeDamage:opp.active.damage,bench:me.bench.map(x=>x.getPokemonCard()?.name),discard:me.discard.cards.map(x=>x.name),phase:s.phase,prompts:s.prompts.map(x=>x.constructor.name)}));
  assert.equal(ace.canPlay(store,s,me),true,'Self-KO must unlock Ace Trainer');
  store.dispatch(new PlayCardAction(me.id,me.hand.cards.indexOf(ace),
   {player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BOARD,index:0}));
