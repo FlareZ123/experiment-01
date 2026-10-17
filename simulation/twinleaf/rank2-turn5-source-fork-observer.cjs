@@ -115,11 +115,11 @@ function runTurn5ForkObserver({maxActions=90}={}) {
       meaningfulPrefix:fork?game.decisionTrace
         .filter(e=>e.actionOrdinal<=fork.actionOrdinal)
         .map(e=>({
-          actionOrdinal:e.actionOrdinal,turn:e.turnBefore,
-          seat:e.playerSlot,action:e.action,card:e.card??null,
+          actionOrdinal:e.actionOrdinal,turnBefore:e.turnBefore,
+          playerSlot:e.playerSlot,action:e.action,card:e.card??null,
           attack:e.attack??null,
-          option:e.optionSelection?.selectedOption??null,
-          selected:e.cardSelection?.selectedCards??null
+          optionSelection:e.optionSelection,
+          cardSelection:e.cardSelection
         })):null
     };
   }));
