@@ -2,6 +2,8 @@
 
 const assert = require('node:assert/strict');
 const path = require('node:path');
+const { mulliganProbability } = require('./aichi_opening_audit.cjs');
+const { bonusExactly, bonusAtLeast } = require('./aichi_bonus_draws.cjs');
 
 /** @param {number} n @param {number} k @returns {bigint} */
 function choose(n, k) {
@@ -22,25 +24,29 @@ function gcd(a, b) {
 /**
  * Exact no-search T2 Underworld Door resource opportunity with Wobbuffet
  * selected as starting Active. Six random Prizes are marginalized out:
- * only the first seven and subsequent two ordinary draws are inspected.
+ * only the first seven, optionally accepted setup bonus draws, and two
+ * ordinary turn-start draws are inspected.
  *
  * @param {{size:number,opening:number,wobbuffet:number,v:number,vmax:number,psychic:number,other:number,basics:number}} profile
+ * @param {number} [bonusDraws] Number of opposing mulligan bonuses accepted.
  */
-function wobbuffetNaturalTurnTwo(profile) {
+function wobbuffetNaturalTurnTwo(profile, bonusDraws = 0) {
   const { size, opening, wobbuffet, v, vmax, psychic, other, basics } = profile;
   assert.equal(wobbuffet, 1);
   assert.equal(wobbuffet + v + vmax + psychic + other, size);
   assert.ok(basics >= wobbuffet + v);
-  const afterDraw = size - opening - 1;
+  assert.ok(Number.isInteger(bonusDraws) && bonusDraws >= 0 && bonusDraws <= size - opening - 8);
+  const firstTurnOther = opening + bonusDraws;
+  const afterDraw = size - firstTurnOther - 1;
   let favorable = 0n;
   let favorableWithoutPsychic = 0n;
 
-  // Wobbuffet is in the opening seven. Of the first eight seen cards,
-  // seven are independently drawn from the other 59 physical cards.
-  for (let vDraw = 1; vDraw <= Math.min(v, opening); vDraw++) {
-    for (let mDraw = 0; mDraw <= Math.min(vmax, opening - vDraw); mDraw++) {
-      for (let eDraw = 0; eDraw <= Math.min(psychic, opening - vDraw - mDraw); eDraw++) {
-        const oDraw = opening - vDraw - mDraw - eDraw;
+  // With Wobbuffet fixed in the initial seven, the other first-turn cards
+  // are a uniform subset of the other 59 physical cards.
+  for (let vDraw = 1; vDraw <= Math.min(v, firstTurnOther); vDraw++) {
+    for (let mDraw = 0; mDraw <= Math.min(vmax, firstTurnOther - vDraw); mDraw++) {
+      for (let eDraw = 0; eDraw <= Math.min(psychic, firstTurnOther - vDraw - mDraw); eDraw++) {
+        const oDraw = firstTurnOther - vDraw - mDraw - eDraw;
         const weight = choose(v, vDraw) * choose(vmax, mDraw)
           * choose(psychic, eDraw) * choose(other, oDraw);
         let successNext = 0;
@@ -53,13 +59,14 @@ function wobbuffetNaturalTurnTwo(profile) {
     }
   }
 
-  const conditionalDenominator = choose(size - 1, opening) * BigInt(afterDraw);
+  const conditionalDenominator = choose(size - 1, firstTurnOther) * BigInt(afterDraw);
   const openingLegalCount = choose(size, opening) - choose(size - basics, opening);
   const numerator = favorable * BigInt(opening) * choose(size, opening);
   const denominator = conditionalDenominator * BigInt(size) * openingLegalCount;
   const divisor = gcd(numerator, denominator);
 
   return {
+    bonusDraws,
     fraction: String(numerator / divisor) + '/' + String(denominator / divisor),
     percent: 100 * Number(numerator) / Number(denominator),
     wobbuffetOpeningPercent: 100 * Number(BigInt(opening) * choose(size, opening))
@@ -68,6 +75,34 @@ function wobbuffetNaturalTurnTwo(profile) {
       * Number(favorableWithoutPsychic * BigInt(opening) * choose(size, opening))
       / Number(denominator),
     conditionalOnWobbuffetPercent: 100 * Number(favorable) / Number(conditionalDenominator),
+  };
+}
+
+/**
+ * Exact source-deck opponent mulligan-offer distribution is weighted into
+ * the restricted Wobbuffet setup event. Accept every offer but cap at 45 so
+ * both ordinary turn draws remain possible.
+ * @param {number} opponentBasics
+ * @param {Parameters<typeof wobbuffetNaturalTurnTwo>[0]} profile
+ */
+function weightedVersusOpponent(opponentBasics, profile) {
+  assert.ok(Number.isInteger(opponentBasics) && opponentBasics >= 1 && opponentBasics <= 60);
+  assert.equal(profile.size, 60);
+  const pA = mulliganProbability(opponentBasics);
+  const pB = mulliganProbability(profile.basics);
+  let percent = 0;
+  for (let d = 0; d < 45; d++) {
+    percent += bonusExactly(pA, pB, d) * wobbuffetNaturalTurnTwo(profile, d).percent;
+  }
+  percent += bonusAtLeast(pA, pB, 45) * wobbuffetNaturalTurnTwo(profile, 45).percent;
+  return {
+    opponentBasics,
+    candidateBasics: profile.basics,
+    percent,
+    noBonusPercent: wobbuffetNaturalTurnTwo(profile).percent,
+    atLeastOneBonusOffer: bonusAtLeast(pA, pB, 1),
+    allOfferedBonusesTaken: true,
+    tailCap: 45,
   };
 }
 
@@ -98,8 +133,10 @@ if (require.main === module) {
   console.log(JSON.stringify({
     source: 'Temple v1',
     profile: sourceTempleProfile(),
-    result: wobbuffetNaturalTurnTwo(sourceTempleProfile()),
+    noBonus: wobbuffetNaturalTurnTwo(sourceTempleProfile()),
+    bonusScenarios: [0, 1, 2, 3, 4, 5].map(d => wobbuffetNaturalTurnTwo(sourceTempleProfile(), d)),
+    ironThornsFourBasics: weightedVersusOpponent(4, sourceTempleProfile()),
   }, null, 2));
 }
 
-module.exports = { choose, wobbuffetNaturalTurnTwo, sourceTempleProfile };
+module.exports = { choose, wobbuffetNaturalTurnTwo, sourceTempleProfile, weightedVersusOpponent };
