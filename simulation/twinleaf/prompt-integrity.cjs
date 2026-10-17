@@ -93,38 +93,25 @@ function assertValidPromptAction(state, action) {
         return index >= 0 && !blocked.has(index);
       });
   }
-  // Pinned ChoosePokemonPrompt.validate does not check requested player side,
-  // target slots, or physical selection multiplicity. Enumerate exactly the
-  // occupied targets described by PlayerType and SlotType in its request.
+  // Pinned ChoosePokemonPrompt.validate skips physical target-side/slot
+  // membership and duplicate selection. Honor exactly its target metadata.
   if (valid && name === 'ChoosePokemonPrompt' && action.result !== null) {
     const actor = state.players.find(player =>
       player.id === prompt.getPerspectivePlayerId());
     const opponent = state.players.find(player => player.id !== actor?.id);
-    const allowed = new Set();
-    if (actor && opponent) {
-      // Pinned PlayerType: ANY=0, TOP_PLAYER=1, BOTTOM_PLAYER=2.
-      if (prompt.playerType === 0 || prompt.playerType === 1) {
-        opponent.forEachPokemon(1, list => allowed.add(list));
-      }
-      if (prompt.playerType === 0 || prompt.playerType === 2) {
-        actor.forEachPokemon(2, list => allowed.add(list));
-      }
-    }
-    // Only requested occupied slots may be selected, and each physical
-    // Pokemon spot can be chosen at most once.
-    const targets = [];
+    const available = new Set();
     if (actor && opponent) {
       const collect = (player, side) => {
         player.forEachPokemon(side, (list, card, target) => {
-          if (prompt.slots.includes(target.slot)) targets.push(list);
+          if (prompt.slots.includes(target.slot)) available.add(list);
         });
       };
+      // Pinned PlayerType: ANY=0, TOP_PLAYER=1, BOTTOM_PLAYER=2.
       if (prompt.playerType === 0 || prompt.playerType === 1) collect(opponent, 1);
       if (prompt.playerType === 0 || prompt.playerType === 2) collect(actor, 2);
     }
-    const available = new Set(targets);
-    valid = Array.isArray(action.result) &&
-      action.result.every(slot => allowed.has(slot) && available.has(slot)) &&
+    valid = !!actor && !!opponent && Array.isArray(action.result) &&
+      action.result.every(slot => available.has(slot)) &&
       new Set(action.result).size === action.result.length;
   }
   if (valid && prompt.constructor.name === 'AttachEnergyPrompt' &&
