@@ -4,6 +4,9 @@ const assert = require('node:assert/strict');
 const {sourceZoneSnapshot, zoneSnapshotDigest, withSourceZoneCheckpoint} =
   require('../simulation/twinleaf/source-zone-checkpoint.cjs');
 
+const {sourceEffectSnapshot,sourceEffectDigest} =
+  require('../simulation/twinleaf/source-effect-checkpoint.cjs');
+
 const card = fullName => ({fullName});
 function pokemon(cards = []) {
   return {
@@ -78,4 +81,42 @@ test('restores dispatcher when an engine action throws',()=>{
   assert.throws(()=>withSourceZoneCheckpoint(Store,()=>new Store().dispatch(new Move()),
     {turn:27,candidateSeat:1}),/engine-failure/);
   assert.equal(Store.prototype.dispatch,original);
+});
+
+
+test('effect-bearing source fields omitted by the legacy zone and history checkpoints are detected by the supplementary digest',()=>{
+  const original=state();
+  const zone=zoneSnapshotDigest(sourceZoneSnapshot(original));
+  const effect=sourceEffectDigest(original);
+  const cases=[
+    ['player Tool lock',s=>{s.players[1].cannotPlayToolCards=true;}],
+    ['player Stadium lock',s=>{s.players[1].cannotPlayStadiumCards=true;}],
+    ['play-lock countdown',s=>{s.players[1].playLocksTurnsRemaining=2;}],
+    ['attack suppression',s=>{s.players[1].attackPowerSuppressions=[{turnsRemaining:1,powerTypes:[1],mode:'block'}];}],
+    ['damage prevention',s=>{s.players[1].active.preventDamageNextTurn={maxDamage:100};}],
+    ['damage reduction',s=>{s.players[1].active.damageReductionNextTurn=30;}],
+    ['forbidden named attack',s=>{s.players[1].active.cannotUseAttacksNextTurn=['Apex Dragon'];}],
+    ['global Ability activation order',s=>{s.abilityLockOrderCounter=4;}]
+  ];
+  for(const [name,mutate] of cases) {
+    const changed=state();
+    mutate(changed);
+    assert.equal(zoneSnapshotDigest(sourceZoneSnapshot(changed)),zone,
+      name+' is invisible to existing ordered-zone digest');
+    assert.notEqual(sourceEffectDigest(changed),effect,
+      name+' must change the supplementary effect digest');
+  }
+  const actualZoneChange=state();
+  actualZoneChange.players[1].active.damage=30;
+  assert.notEqual(zoneSnapshotDigest(sourceZoneSnapshot(actualZoneChange)),zone);
+  assert.equal(sourceEffectDigest(actualZoneChange),effect,
+    'The supplementary digest remains deliberately scoped to omitted fields');
+});
+
+test('supplementary effect snapshots detach their structured fields',()=>{
+  const live=state();
+  live.players[0].attackPowerSuppressions=[{turnsRemaining:2,powerTypes:[3],mode:'block'}];
+  const checkpoint=sourceEffectSnapshot(live);
+  live.players[0].attackPowerSuppressions[0].turnsRemaining=1;
+  assert.equal(checkpoint.players[0].fields.attackPowerSuppressions[0].turnsRemaining,2);
 });
