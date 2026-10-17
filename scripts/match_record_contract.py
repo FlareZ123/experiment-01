@@ -13,8 +13,8 @@ def _hash(value):
     return isinstance(value, str) and len(value) == 64 and all(c in "0123456789abcdef" for c in value)
 
 
-def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
-    """Verify completed-game turn order; retain honest pre-turn engine failures."""
+def evaluate_raw_batch(batch: dict, field_csv: str, source_hashes: dict[int, str] | None = None) -> dict:
+    """Validate recorded games against optional independently trusted rank hashes."""
     if batch.get("schema_version") != 2:
         raise ValueError("Unknown schema version")
     keys = ("candidate_deck_sha256", "field_manifest_sha256", "engine_revision",
@@ -35,6 +35,12 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
         raise ValueError("Require distinct engine slot IDs and player names")
 
     published = {p.rank for p in read_manifest(field_csv) if p.published}
+    if source_hashes is not None:
+        if (type(source_hashes) is not dict or
+                set(source_hashes) != published or
+                any(type(rank) is not int or not _hash(digest)
+                    for rank, digest in source_hashes.items())):
+            raise ValueError("Expected one trusted source hash per published rank")
     ids, seeds, rank_decks = set(), set(), {}
     counts = defaultdict(lambda: [0, 0])
     failures = []
@@ -99,6 +105,8 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
         if status == "completed":
             if rank not in published or winner not in ("A", "B", None):
                 raise ValueError("Invalid completed exact-list result")
+            if source_hashes is not None and deck != source_hashes[rank]:
+                raise ValueError("Opponent hash disagrees with trusted ranked source")
             if terminal is not None:
                 index = terminal.get("winnerIndex")
                 if terminal.get("finished") is not True or type(index) is not int or index not in (0, 1, 3):
@@ -128,6 +136,7 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
     finished = sum(n for w, n in counts.values())
     all_completed_traces_verified = finished > 0 and verified_completed_traces == finished
     all_completed_terminals_bound = finished > 0 and terminal_bound_games == finished
+    opponent_source_inventory_bound = source_hashes is not None and finished > 0
     terminal_stats = summarize(SeatRecord(rank, seat, w, n)
                                for (rank, seat), (w, n) in terminal_counts.items())
     return {
@@ -138,6 +147,10 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
         "terminal_bound_games": terminal_bound_games,
         "unbound_completed_games": finished - terminal_bound_games,
         "all_completed_terminals_bound": all_completed_terminals_bound,
+        "opponent_source_inventory_bound": opponent_source_inventory_bound,
+        "full_input_integrity_promotion_eligible": (opponent_source_inventory_bound and
+                                                    all_completed_traces_verified and
+                                                    all_completed_terminals_bound and not failures),
         "digest_only_completed_games": finished - verified_completed_traces,
         "all_completed_traces_verified": all_completed_traces_verified,
         "trace_integrity_promotion_eligible": all_completed_traces_verified and not failures,
