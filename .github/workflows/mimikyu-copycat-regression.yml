@@ -3,6 +3,11 @@ name: Mimikyu Apex Dragon copycat regression
 on:
   workflow_dispatch:
     inputs:
+      spent_gx_source_fork:
+        description: Source Regidrago mirror legal copied GX diagnostic
+        type: boolean
+        required: false
+        default: false
       gx_source_probe:
         description: Run root-Store rank10 mirror repeated copied GX-choice audit
         type: boolean
