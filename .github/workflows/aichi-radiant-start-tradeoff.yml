@@ -16,13 +16,14 @@ jobs:
         with:
           node-version: '22'
       - name: Exhaustive hand and Prize regressions
-        run: node --test tests/aichi-radiant-start-tradeoff.test.cjs tests/aichi-radiant-wobbuffet-turnone.test.cjs tests/aichi-temple-vmax-slot-sensitivity.test.cjs tests/aichi-shadow-vmax-two-route-union.test.cjs
+        run: node --test tests/aichi-radiant-start-tradeoff.test.cjs tests/aichi-radiant-wobbuffet-turnone.test.cjs tests/aichi-temple-vmax-slot-sensitivity.test.cjs tests/aichi-shadow-vmax-two-route-union.test.cjs tests/aichi-temple-wobbuffet-thorns-t2.test.cjs
       - name: Produce exact source-locked candidate comparison
         run: |
           node scripts/aichi-radiant-start-tradeoff.cjs > aichi-radiant-start-tradeoff.jsonl
           node scripts/aichi-radiant-wobbuffet-turnone.cjs > aichi-radiant-wobbuffet-turnone.jsonl
           node scripts/aichi-temple-vmax-slot-sensitivity.cjs > aichi-temple-vmax-slot-sensitivity.json
           node scripts/aichi-shadow-vmax-two-route-union.cjs > aichi-shadow-vmax-two-route-union.jsonl
+          node scripts/aichi-temple-wobbuffet-thorns-t2.cjs > aichi-temple-wobbuffet-thorns-t2.json
       - uses: actions/upload-artifact@v4
         with:
           name: aichi-radiant-start-tradeoff
@@ -31,3 +32,4 @@ jobs:
             aichi-radiant-wobbuffet-turnone.jsonl
             aichi-temple-vmax-slot-sensitivity.json
             aichi-shadow-vmax-two-route-union.jsonl
+            aichi-temple-wobbuffet-thorns-t2.json
