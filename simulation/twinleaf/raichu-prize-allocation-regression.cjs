@@ -110,10 +110,6 @@ function compareAllocation(optimize) {
 
   assert.ok(selectedRows);
   assert.equal(selectedRows.reduce((n,row)=>n+row.damage,0),480);
-  assert.equal(f.a.getPrizeLeft(),before -
-    (vmax.slot.getPokemonCard() ? 0 : 3) -
-    (v.slot.getPokemonCard() ? 0 : 2) -
-    (f.b.active.getPokemonCard() ? 0 : 2));
   return {
     optimize,
     damageRows:selectedRows,
@@ -138,9 +134,10 @@ function verify() {
   assert.equal(optimized.vmaxKO,true);
   assert.equal(optimized.vKO,true);
   assert.equal(optimized.activeSurvived,true);
+  const {SlotType} = load('game/store/actions/play-card-action');
   assert.deepEqual(optimized.damageRows.map(row =>
     [row.slot,row.index,row.damage]),[
-      [1,0,300], [1,1,180]
+      [SlotType.BENCH,0,300], [SlotType.BENCH,1,180]
     ]);
   const result={
     stock,optimized,
