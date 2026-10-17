@@ -53,9 +53,12 @@ function withRank8BoardObserver(Store,execute) {
     const activeSeat=seat>=0?seat:state.activePlayer;
     const card=populated && kind==='PlayCardAction' ?
       state.players[activeSeat]?.hand.cards[action.handIndex]?.name??null:null;
-    const relevant=populated && ([
-      'AttackAction','RetreatAction','PassTurnAction','UseAbilityAction'
-    ].includes(kind) ||
+    const relevant=populated && (
+      // Full source turn-7 actions distinguish a Tool deliberately spent
+      // before Iono from a spare Tool held when Trubbish becomes visible.
+      (state.turn===7 && state.activePlayer===0) ||
+      ['AttackAction','RetreatAction','PassTurnAction','UseAbilityAction']
+        .includes(kind) ||
       kind==='PlayCardAction' && (
         /Energy|Garbodor|Trubbish|Hood|Stone|Temple|Dark Patch|Guzma|Mega Absol|Arven/i.test(card||'')
       ));
