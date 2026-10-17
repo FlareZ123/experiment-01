@@ -45,4 +45,17 @@ assert.equal(responseTurnEndingActionObserved(deferredPass),true);
 assert.throws(()=>publicTurnLedger(trace,{seat:0,turn:3,limit:2}),
   /exceeding cap/);
 assert.throws(()=>publicTurnLedger(trace,{seat:0,turn:0}));
-process.stdout.write('rank6 public response projection: 14 assertions passed\n');
+const beforePrizes=[
+  {before:{turn:5,prizesRemaining:[6,6]},
+    after:{prizesRemaining:[6,6]},action:'AttackAction'},
+  {before:{turn:5,prizesRemaining:[6,6]},
+    after:{prizesRemaining:[6,4]},action:'ResolvePromptAction',
+    pendingPrompt:{kind:'ChoosePrizePrompt'},hiddenCard:'HIDDEN_PRIZE'}
+];
+const projected=publicPrizeTransitions(beforePrizes);
+assert.equal(projected.length,1);
+assert.equal(projected[0].rootActionOrdinal,1);
+assert.deepEqual(projected[0].prizesBefore,[6,6]);
+assert.deepEqual(projected[0].prizesAfter,[6,4]);
+assert.equal(JSON.stringify(projected).includes('HIDDEN_PRIZE'),false);
+process.stdout.write('rank6 public response projection: 19 assertions passed\n');
