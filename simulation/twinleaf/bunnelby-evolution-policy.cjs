@@ -130,15 +130,18 @@ function makeBarrageEvolutionResolver(hasTarget = hasBenchEvolutionTarget) {
  * until its owner has actually received a source-deck search prompt.
  *
  * @param {()=>void} onOwnerSearch
+ * @param {(state:object,player:object,prompt:object)=>boolean} isLivePrompt
+ * Required live-Store guard: speculative SimpleTactic evaluation uses the same resolvers.
  * @returns {Function} Research-side read-only PromptResolver subclass.
  */
-function makeOwnerDeckObservationResolver(onOwnerSearch) {
+function makeOwnerDeckObservationResolver(onOwnerSearch,isLivePrompt) {
   const {PromptResolver}=load('simple-bot/prompt-resolver/prompt-resolver');
   const {ChooseCardsPrompt}=load('game/store/prompts/choose-cards-prompt');
   return class ObserveOwnerDeckSearchResolver extends PromptResolver {
     resolvePrompt(state,player,prompt) {
       if(prompt instanceof ChooseCardsPrompt &&
-          prompt.playerId===player.id && prompt.cards===player.deck) {
+          prompt.playerId===player.id && prompt.cards===player.deck &&
+          isLivePrompt(state,player,prompt)) {
         onOwnerSearch();
       }
       return undefined;
@@ -151,10 +154,10 @@ function makeOwnerDeckObservationResolver(onOwnerSearch) {
  * generic choices. This leaves default policies untouched and composes
  * with the separate ToolAwareAttackTactic.
  * @param {object} options SimpleBotOptions
- * @param {{sourceCards?:object[],observeFirstOwnDeckSearch?:boolean}} [configuration] Source 60 plus opt-in observed K0 to K1 knowledge transition.
+ * @param {{sourceCards?:object[],observeFirstOwnDeckSearch?:boolean,isLivePrompt?:(state:object,player:object,prompt:object)=>boolean}} [configuration] Source 60 plus opt-in observed K0 to K1 knowledge transition.
  * @returns {object} Cloned options
  */
-function withBunnelbyEvolutionLine(options, {sourceCards,observeFirstOwnDeckSearch=false} = {}) {
+function withBunnelbyEvolutionLine(options, {sourceCards,observeFirstOwnDeckSearch=false,isLivePrompt} = {}) {
   if (!Array.isArray(options.tactics) ||
       !Array.isArray(options.promptResolvers)) {
     throw new Error('Require tactics and prompt resolvers');
@@ -169,12 +172,15 @@ function withBunnelbyEvolutionLine(options, {sourceCards,observeFirstOwnDeckSear
   if (observeFirstOwnDeckSearch && !sourceCards) {
     throw new Error('K1 observation requires a known physical source 60');
   }
+  if (observeFirstOwnDeckSearch && typeof isLivePrompt !== 'function') {
+    throw new Error('K1 observation requires an explicit live-Store prompt guard');
+  }
   let hasObservedOwnDeck = false;
   const hasTarget = sourceCards === undefined ? hasBenchEvolutionTarget :
     player => hasObservedOwnDeck ? hasBenchEvolutionTarget(player) :
       hasK0PossibleBenchEvolutionTarget(player, sourceCards);
   const Observer = observeFirstOwnDeckSearch ?
-    makeOwnerDeckObservationResolver(() => {hasObservedOwnDeck=true;}) : null;
+    makeOwnerDeckObservationResolver(() => {hasObservedOwnDeck=true;},isLivePrompt) : null;
   const toolIndex = options.tactics.findIndex(t =>
     t.name === 'ToolAwareAttackTactic');
   const atkIndex = toolIndex >= 0 ? toolIndex :

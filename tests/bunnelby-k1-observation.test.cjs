@@ -26,9 +26,10 @@ function source60() {
   return rank2.cardIds.map(name=>manager.getCardByName(name));
 }
 
-function implementations(source) {
+function implementations(source,liveState) {
   const optionsWithObserver=withBunnelbyEvolutionLine(options(),{
-    sourceCards:source,observeFirstOwnDeckSearch:true});
+    sourceCards:source,observeFirstOwnDeckSearch:true,
+    isLivePrompt:state=>state===liveState});
   const Tactic=optionsWithObserver.tactics.find(t=>t.name==='BunnelbyEvolutionTactic');
   const Observer=optionsWithObserver.promptResolvers.find(
     r=>r.name==='ObserveOwnerDeckSearchResolver');
@@ -47,7 +48,7 @@ function showZone(state,player,cards) {
 test('observed owner deck search changes K0 source possibility to K1 actual target',()=>{
   const {state,a,f}=stage(true);
   const source=source60();
-  const {optionsWithObserver,Tactic,Observer}=implementations(source);
+  const {optionsWithObserver,Tactic,Observer}=implementations(source,state);
   const tactic=new Tactic(optionsWithObserver);
   const observer=new Observer(optionsWithObserver);
   assert.equal(hasBenchEvolutionTarget(a),false);
@@ -66,7 +67,7 @@ test('observed owner deck search changes K0 source possibility to K1 actual targ
 test('observed owner search does not suppress a genuinely available stage',()=>{
   const {state,a}=stage(false);
   const source=source60();
-  const {optionsWithObserver,Tactic,Observer}=implementations(source);
+  const {optionsWithObserver,Tactic,Observer}=implementations(source,state);
   const tactic=new Tactic(optionsWithObserver);
   assert.equal(tactic.useTactic(state,a)?.name,'Evolution');
   new Observer(optionsWithObserver).resolvePrompt(state,a,showZone(state,a,a.deck));
@@ -81,8 +82,8 @@ test('K1 observation cannot be enabled without a complete source inventory',()=>
 test('per-bot K1 observation closure is isolated from an untouched peer bot',()=>{
   const {state,a}=stage(true);
   const source=source60();
-  const first=implementations(source);
-  const second=implementations(source);
+  const first=implementations(source,state);
+  const second=implementations(source,state);
   const tacticA=new first.Tactic(first.optionsWithObserver);
   const tacticB=new second.Tactic(second.optionsWithObserver);
   assert.equal(tacticA.useTactic(state,a)?.name,'Evolution');
@@ -98,7 +99,7 @@ test('after legitimate K1 exposure, target existence ignores unseen deck order',
   const first=stage(false);
   const second=stage(false);
   second.a.deck.cards.reverse();
-  const a=implementations(source),b=implementations(source);
+  const a=implementations(source,first.state),b=implementations(source,second.state);
   const t1=new a.Tactic(a.optionsWithObserver),t2=new b.Tactic(b.optionsWithObserver);
   new a.Observer(a.optionsWithObserver)
     .resolvePrompt(first.state,first.a,showZone(first.state,first.a,first.a.deck));
@@ -108,3 +109,25 @@ test('after legitimate K1 exposure, target existence ignores unseen deck order',
   assert.equal(t2.useTactic(second.state,second.a)?.name,'Evolution');
 });
 
+
+test('hypothetical owner deck-search prompt cannot trigger K1',()=>{
+  const live=stage(true),imaginary=stage(true),source=source60();
+  const {optionsWithObserver,Tactic,Observer}=implementations(source,live.state);
+  const tactic=new Tactic(optionsWithObserver);
+  const observer=new Observer(optionsWithObserver);
+  assert.equal(tactic.useTactic(live.state,live.a)?.name,'Evolution');
+  observer.resolvePrompt(imaginary.state,imaginary.a,
+    showZone(imaginary.state,imaginary.a,imaginary.a.deck));
+  assert.equal(tactic.useTactic(live.state,live.a)?.name,'Evolution',
+    'Speculation must leave root knowledge at K0');
+  observer.resolvePrompt(live.state,live.a,
+    showZone(live.state,live.a,live.a.deck));
+  assert.equal(tactic.useTactic(live.state,live.a),undefined,
+    'A live owner deck search legitimately establishes K1');
+});
+
+test('observer refuses an unguarded K1 configuration',()=>{
+  assert.throws(()=>withBunnelbyEvolutionLine(options(),{
+    sourceCards:source60(),observeFirstOwnDeckSearch:true
+  }),/live-Store prompt guard/);
+});
