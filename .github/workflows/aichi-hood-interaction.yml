@@ -66,6 +66,9 @@ jobs:
       - name: Print source-ranked full public Tool attachment destinations
         if: inputs.hood_rank8_board_audit
         run: node -e "const x=require('./rank8-hood-board-audit.json'); console.log(JSON.stringify(x.fullPublicToolPlays,null,2));"
+      - name: Print full source turn seven action and hand chronology
+        if: inputs.hood_rank8_board_audit
+        run: node -e "const x=require('./rank8-hood-board-audit.json'); console.log(JSON.stringify(x.sourceTurnSevenTimeline.map(e=>({ordinal:e.ordinal,action:e.action,card:e.card,declaredName:e.declaredName,beforeHand:e.beforeHand,afterHand:e.afterHand,benchAfter:e.afterBoard.bench.map(p=>p.name+' ['+p.tools.join(',')+']')})),null,2));"
       - name: Audit source-ranked Hood attacks and Garbotoxin exposure
         if: inputs.hood_rank8_board_audit
         run: node simulation/twinleaf/rank8-hood-lock-attack-gate.cjs rank8-hood-board-audit.json > rank8-hood-action-gate.json
