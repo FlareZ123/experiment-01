@@ -44,6 +44,9 @@ def capture() -> dict:
         html = response.text
         soup = BeautifulSoup(html, "html.parser")
         text = soup.get_text(" ", strip=True)
+        visible_strings = list(soup.stripped_strings)
+        result["visible_string_count"] = len(visible_strings)
+        result["visible_strings"] = visible_strings[:500]
         result["sha256"] = hashlib.sha256(response.content).hexdigest()
         result["title"] = soup.title.get_text(" ", strip=True) if soup.title else None
         result["text_excerpt"] = text[:1000]
@@ -89,5 +92,6 @@ if __name__ == "__main__":
         "retrievable": report["retrievable"],
         "sha256": report["sha256"],
         "candidate_rows": len(report["candidate_rows"]),
+        "visible_strings": report.get("visible_strings", [])[:260],
         "error": report["error"],
     }, ensure_ascii=False))
