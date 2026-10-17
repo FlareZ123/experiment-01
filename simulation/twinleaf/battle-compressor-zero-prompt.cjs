@@ -4,7 +4,13 @@ const assert = require('node:assert/strict');
 const {initializeCards}=require('./headless.cjs');
 const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const get=part=>require(path.join(root,part));
-function probe(useCorrection=false,resolveEmpty=false,resolveOne=false) {
+/**
+ * @param {boolean} [useCorrection]
+ * @param {boolean} [resolveEmpty]
+ * @param {boolean} [resolveOne]
+ * @param {boolean} [completeShuffle] Resolve the actual post-selection deck shuffle.
+ */
+function probe(useCorrection=false,resolveEmpty=false,resolveOne=false,completeShuffle=false) {
   const cards=initializeCards();
   const {Store}=get('game/store/store');
   const {Player}=get('game/store/state/player');
@@ -65,6 +71,20 @@ function probe(useCorrection=false,resolveEmpty=false,resolveOne=false) {
       prompt.result === undefined).map(prompt => prompt.constructor.name);
     report.itemStillInSupporterZone=a.supporter.cards.some(
       card => card.name === 'Battle Compressor');
+    if (completeShuffle && report.selectionResolution === 'accepted') {
+      const shuffle = state.prompts.find(prompt =>
+        prompt.result === undefined && prompt.constructor.name === 'ShuffleDeckPrompt');
+      assert.ok(shuffle, 'Accepted selection must lead to real ShuffleDeckPrompt');
+      store.dispatch(new ResolvePromptAction(shuffle.id,
+        Array.from({length:a.deck.cards.length}, (_, index) => index)));
+      report.discardedItemAfterShuffle = a.discard.cards.some(
+        card => card.name === 'Battle Compressor');
+      report.itemStillInSupporterZoneAfterShuffle = a.supporter.cards.some(
+        card => card.name === 'Battle Compressor');
+      report.deckSizeAfterShuffle = a.deck.cards.length;
+      report.pendingPromptsAfterShuffle = state.prompts.filter(prompt =>
+        prompt.result === undefined).map(prompt => prompt.constructor.name);
+    }
   }
   return report;
   } finally {restore();}
