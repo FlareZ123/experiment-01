@@ -51,6 +51,9 @@ jobs:
       - name: Play source-ranked rank8 Hood actual-second game
         if: inputs.hood_rank8_second
         run: node simulation/twinleaf/hood-rank8-second-source.cjs > rank8-hood-second.json
+      - name: Print compact Hood rank8 source outcome
+        if: inputs.hood_rank8_second
+        run: node -e "const x=require('./rank8-hood-second.json'); console.log(JSON.stringify({seed:x.seedSelection.seed,actualCandidateTurn:x.actualCandidateTurn,game:x.game,qualified:x.qualifiedForWinRateInference},null,2));"
       - name: Archive source-ranked rank8 Hood game
         if: always() && inputs.hood_rank8_second
         uses: actions/upload-artifact@v4
