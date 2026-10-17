@@ -37,9 +37,22 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Test source-turn-28 Shred opponent-response fork
-        run: node --test tests/mimikyu-turn28-shred-fork.test.cjs tests/rank10-copycat-response-ledger.test.cjs
+        run: node --test tests/mimikyu-turn28-shred-fork.test.cjs tests/rank10-copycat-response-ledger.test.cjs tests/rank10-turn28-bot-fingerprint.test.cjs
       - name: Compare archived extra-turn retreat with physical source Shred attack
         run: node simulation/twinleaf/rank10-mimikyu-shred-source-fork.cjs > rank10-mimikyu-shred-source-fork.json
+      - name: Fingerprint original source-root turn-28 retreat proposal
+        if: ${{ inputs.run_ordinal_audit }}
+        run: node simulation/twinleaf/rank10-turn28-bot-fingerprint.cjs > rank10-turn28-original-bot-graph.json
+      - name: Print source-root bot graph-change verdict
+        if: ${{ inputs.run_ordinal_audit }}
+        run: node -e "const x=require('./rank10-turn28-original-bot-graph.json'); console.log(JSON.stringify(x.observed));"
+      - name: Preserve root original bot graph diagnostic
+        if: ${{ always() && inputs.run_ordinal_audit }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-turn28-original-bot-graph
+          path: rank10-turn28-original-bot-graph.json
+          if-no-files-found: warn
       - name: Audit source-root Shred policy without default bot pre-decision
         if: ${{ inputs.run_ordinal_audit }}
         env:
