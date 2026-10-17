@@ -95,3 +95,5 @@ window. The opponent may search for Faba, Field Blower or Megaton Blower
 without directly drawing one, or gust around Hood. The candidate may find
 Hood through omitted search, or fail to evolve, attach the Tool, power an
 attack, or survive the lock. This calculation supports no game-win inference.
+
+**Independent physical-deal check:** 75,000 seeded two-deck opening redeals per removal-count case (Python `random.Random(170163)`, both legal-seven checks, sequential mulligan offers, six Prizes per player, all possible bonus draws and two ordinary draws) observed 8,694 protected opportunities / 2,276 joint-removal sightings for two-remover decks, and 8,695 / 3,197 for three-remover decks. The observed joint rates 3.034667% and 4.262667% agree with the exact 3.034199% and 4.272724% within ordinary sampling error. These are simulation checks of the opening model, not full matches.
