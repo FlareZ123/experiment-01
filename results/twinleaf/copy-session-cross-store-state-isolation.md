@@ -58,3 +58,11 @@ An experimental in-memory [per-State session hook](../../simulation/twinleaf/cop
 The same compiled patched process additionally passed the existing paid Regidrago spent-GX denial / next-turn Mimikyu Copycat compatibility fixture: with declaration-history hook, Mimikyu copied the appropriate ordinary attack and damaged Regidrago for 80, as before. This is a **positive bounded regression**, with no source-ranked full-game or bot-policy qualification.
 
 **Remaining open issues:** A cloned `State` does not automatically inherit its parent State's active copied-attack session under this patch. Thus a speculative clone may silently omit its legitimate ongoing copied-attack effects. No full match integration, source-dealt decision replay, one-turn lock/effect fidelity matrix, or engine-version-upgrade test has been completed. The loader must remain opt-in until those are resolved. The fixed-deck 99.5% objective has not been approached through competitive win-rate evidence here.
+
+## Cloned-State session inheritance remains incomplete
+
+[Manual compiled CI 39041317694](https://github.com/FlareZ123/experiment-01/actions/runs/39041317694) **passed** an additional opt-in regression at `401cb941fb6fe156364fe9961214586602213d60`, comparing real Store continuity with both pinned and prototype-safe speculative Simulator branches under the State-scoped loader.
+
+With that loader installed, both speculative branches produced instrumented source callbacks `real, real, speculative, real, real`. The original State therefore retains its expected two resumed callbacks; a speculative State produces only **one** source callback, compared with two in the unpatched pinned Simulator and in the uninterrupted real control. This supports an explicit model gap: the State's sticky copied-attack session is not inherited by the clone. The extra speculative callback originates from ordinary propagation of the instrumented source card, while the missing callback is the session-specific delegated handler.
+
+The opt-in State-scoped loader restores independent-game isolation while **underrepresenting sticky copied effects in clones**. Treat both findings as separate gates. No production default was changed, and no competitive result is qualified.
