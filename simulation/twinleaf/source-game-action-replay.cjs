@@ -8,6 +8,7 @@ const {capturePromptAction}=require('./source-prompt-action-codec.cjs');
 const {observedCounts}=require('./store-dispatch-transcript.cjs');
 const {sourceZoneSnapshot,zoneSnapshotDigest}=require('./source-zone-checkpoint.cjs');
 const {observableState,hash:continuityHash}=require('./source-state-continuity.cjs');
+const {sourceEffectDigest}=require('./source-effect-checkpoint.cjs');
 
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const engine=relative=>require(path.join(output,relative));
