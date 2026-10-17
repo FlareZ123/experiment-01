@@ -36,5 +36,12 @@ jobs:
         run: node simulation/twinleaf/aichi-rank10-pale-moon-pass.cjs
       - name: Compare source Koraidon end-turn Pass against printed attack horizon
         run: node simulation/twinleaf/aichi-rank10-pass-horizon.cjs
-      - name: Resolve source-ranked Koraidon Pass versus printed attack through real game
-        run: node simulation/twinleaf/aichi-rank10-koraidon-source-fork.cjs
+      - name: Resolve source-ranked Koraidon Pass, attack and retreat in genuine games
+        run: node simulation/twinleaf/aichi-rank10-koraidon-source-fork.cjs > rank10-turn5-source-fork.json
+      - name: Summarize matched three-arm source-game counterfactual
+        run: node -e "const x=require('./rank10-turn5-source-fork.json'); for(const p of x.pairs) console.log(JSON.stringify({candidate:p.candidate,sourceSame:p.sameSourcePredecisionState,first:p.actualCandidateFirstTurnSlot,control:p.control.winner,attack:p.alternate.winner,retreat:p.retreat.winner,retreatEvents:p.retreat.actionsAtTurn5,prizes:[p.control.prizesRemaining,p.alternate.prizesRemaining,p.retreat.prizesRemaining]}))"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rank10-turn5-source-game-fork
+          path: rank10-turn5-source-fork.json
+          if-no-files-found: error
