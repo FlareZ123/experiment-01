@@ -105,6 +105,20 @@ function runCase(count, noRecipient = false, useBot = false, availableCount = 5,
     assert.equal(f.b.getPrizeLeft(),4);
     const {AttackAction}=load('game/store/actions/game-actions');
     f.store.dispatch(new AttackAction(101,'Electro Rain'));
+    for(let i=0;i<40;i++) {
+      const prompt=f.state.prompts.find(q=>q.result===undefined);
+      if(!prompt)break;
+      const kind=prompt.constructor.name;
+      const response=kind==='WaitPrompt' ? null :
+        kind==='ChooseCardsPrompt' ? available :
+        kind==='PutDamagePrompt' ? [{
+          target:{player:PlayerType.TOP_PLAYER,slot:SlotType.BENCH,index:0},
+          damage:prompt.damage
+        }] : undefined;
+      assert.notEqual(response,undefined,'Unexpected attack prompt: '+kind);
+      assert.ok(prompt.validate(response,f.state),'Invalid attack prompt: '+kind);
+      f.store.dispatch(new ResolvePromptAction(prompt.id,response));
+    }
   }
   return {
     count,noRecipient,useBot,availableCount,transferred:transfers.length,
