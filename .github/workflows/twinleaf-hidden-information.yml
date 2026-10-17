@@ -51,6 +51,8 @@ jobs:
         run: node --test tests/twinleaf-detached-deck-sampling.test.cjs
       - name: Verify partial positional Prize observations under hidden-state sampling
         run: node --test tests/twinleaf-partial-prize-slots.test.cjs
+      - name: Verify unlocated observed Prize identity posterior with exact counting
+        run: node --test tests/unlocated-prize-posterior.test.cjs
       - name: Verify detached full-state sampling on the pinned source-ranked deck
         run: node --test tests/twinleaf-detached-own-deck-audit.test.cjs
       - name: Verify joint K0 deck-and-Prize samples in a pinned Bunnelby Store State
