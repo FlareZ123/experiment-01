@@ -28,6 +28,11 @@ function auditPassedAttackAnnouncements(archive) {
   }
   const byTrial = [];
   const all = [];
+  // Diagnostic exposure is asymmetric: early opposing passes can consume the
+  // global probe budget before the candidate gets an observable opportunity.
+  const freshSide = () => ({recordedPasses: 0, probedPasses: 0,
+    skippedPasses: 0, auditErrors: 0, acceptedAttackPasses: 0});
+  const coverageBySide = {candidate: freshSide(), opponent: freshSide()};
   const identities = new Set();
   for (const record of archive.records) {
     if (typeof record?.trialId !== 'string' || identities.has(record.trialId) ||
@@ -59,9 +64,12 @@ function auditPassedAttackAnnouncements(archive) {
       if (![0, 1].includes(action.playerSlot)) throw new Error('Invalid pass seat');
       row.recordedPasses++;
       const side = action.playerSlot === candidateSeat ? 'candidate' : 'opponent';
+      const totals = coverageBySide[side];
+      totals.recordedPasses++;
       const probe = action.attackPassProbe;
       if (!probe) {
         row.skippedPasses++;
+        totals.skippedPasses++;
         continue;
       }
       if (probe.evidenceType !== 'post-choice-cloned-attack-announcements-v1') {
@@ -69,6 +77,7 @@ function auditPassedAttackAnnouncements(archive) {
       }
       if (probe.auditError) {
         row.auditErrors++;
+        totals.auditErrors++;
         continue;
       }
       if (probe.playerId !== (action.playerSlot === 0 ? 101 : 202) ||
@@ -87,8 +96,12 @@ function auditPassedAttackAnnouncements(archive) {
         attacks.add(item.name);
       }
       row.probedPasses++;
+      totals.probedPasses++;
       const accepted = probe.tested.filter(item => item.engineAcceptedAnnouncement);
-      if (accepted.length) row.acceptedAttackPasses++;
+      if (accepted.length) {
+        row.acceptedAttackPasses++;
+        totals.acceptedAttackPasses++;
+      }
       if (accepted.some(item => item.source === 'printed')) {
         row.acceptedPrintedAttackPasses++;
       }
@@ -136,6 +149,7 @@ function auditPassedAttackAnnouncements(archive) {
       auditErrors: byTrial.reduce((s, r) => s + r.auditErrors, 0),
       acceptedAttackPasses: byTrial.reduce((s, r) => s + r.acceptedAttackPasses, 0)
     },
+    coverageBySide,
     trials: byTrial, checkedPasses: all
   };
 }
