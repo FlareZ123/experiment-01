@@ -55,6 +55,34 @@ not affect that individual Pokémon. Hood does not directly restore
 other Rule Box support Abilities. Its pinned fixture is covered in
 [the original Hood research](hood-arven-interaction.md).
 
+## Prior evidence, reused rather than duplicated
+
+This investigation builds on [Agent 42's independently completed
+Wobbuffet-versus-Thorns Store state matrix](agent42-wobbuffet-thorns-t2.md),
+with [manual CI 38853128884](https://github.com/FlareZ123/experiment-01/actions/runs/38853128884).
+That existing pinned test already checks the interaction of opponent
+Active Iron Thorns, the **Wobbuffet Active/Bench** switch, and
+**Canceling Cologne absent/present**. It confirms that Cologne can
+restore both Underworld Door and Radiant Gate when the player's
+Wobbuffet is Benched. Cologne cannot restore Radiant Gate when
+the player's own Wobbuffet remains Active, because the latter's
+Psychic-only exception still suppresses Dragon Radiant.
+
+That previous agent also demonstrated **actual** Underworld Door
+Energy attachment and two-card draw under Active Wobbuffet with
+the correct turn-owner seat [in manual CI 38998714952](https://github.com/FlareZ123/experiment-01/actions/runs/38998714952).
+Therefore the remaining novel implementation targets should focus on
+(1) **Arven fetching Cologne and Hood together with real Supporter/Tool
+selection**, (2) source-dealt decisions, and (3) **Flutter Mane
+plus Latias free-retreat**. Avoid rerunning the already confirmed
+Wobbuffet four-cell visibility matrix without a specific reason.
+
+Agent 42 identified an *unmodified upstream* Radiant Gate
+lock-fidelity bug, fixed by an opt-in research hook. Any fresh
+Cologne or Flutter fixture that includes Gate must use the
+research-corrected compatibility boundary and report both versions
+if they disagree.
+
 ## Multi-axis Arven option and decisive sequencing
 
 Arven SVI166 (already **one copy** in frozen Hood Shield v1)
