@@ -47,3 +47,15 @@ The staged legal Store action and default policy omission are in [Tool Power bot
 The first different **meaningful recorded-action index is 82**, among the two ordered decision summaries. The policy-specific action is late in a game where the candidate already receives a baseline generic-bot Prize win. This intervention establishes that the card's granted Power can be used with the actual rank8 source opponent present and a fixed candidate 60; no change in outcome or attack count was demonstrated. The source opponent's previous ability to equip Garbodor and select consequential Terminal Period attacks remains unqualified. The fact that both sides play a Forest Seal Stone and only candidate B uses its Power also highlights policy-dependent opportunity and game-state constraints. A later rerun is collecting the first divergent action and subsequent deck-selection evidence so that index 82 is not overinterpreted.
 
 This experiment should **not** be added as a new field trial or taken as evidence of a higher win probability. It is a deliberately repeated known seed and a policy-mechanics falsification test.
+
+## 17 October 21:37 UTC: exact first divergence and card searched
+
+[Re-run CI 39071550189](https://github.com/FlareZ123/experiment-01/actions/runs/39071550189), exact head `b8f1860057564c4c644d2f4ad0b88f0ece897c86`, passed and archived [full summary artifact 12115172461](https://github.com/FlareZ123/experiment-01/actions/runs/39071550189/artifacts/12115172461). The first **82** meaningful decision entries were identical by action class, seat, played-card identity, declared attack name and declared Ability name. The first divergent decision was exactly the candidate B's turn-16 **root action ordinal 172**:
+
+- **Baseline:** `RetreatAction`.
+- **Tool Power:** `UseAbilityAction`, `Star Alchemy`.
+- **Follow-up:** candidate B's root action ordinal **174** resolved `ChooseCardsPrompt` from its actual deck; `CHOOSE_CARD_TO_HAND` selected the singleton **Acerola BUS**.
+
+The source report labels this adjacent prompt evidence as temporal association because a second independent prompt-lineage verification has not been implemented. The very next own-deck selection after the observed Star Alchemy activation is nevertheless actual engine-produced, and the two profiles shared the complete preceding 82-entry meaningful action signature. **Acerola** is a Supporter with conditional tactical value; neither its selection nor the eventual identical `[6,0]` Prize outcome demonstrates good policy judgment, especially if the relevant damage and Supporter-turn state did not justify the retrieval. This observation suggests evaluating the *opportunity cost* of using the one-time VSTAR Power, not merely tallying legal activations.
+
+The outcome remains an **uncertified, repeated single deal**. The weaker baseline opponent and incomplete root prompt replay still prevent strength inference. A useful next causal check is whether Acerola was subsequently played in a legal, beneficial turn, or was stranded while a stronger Stone search was available.
