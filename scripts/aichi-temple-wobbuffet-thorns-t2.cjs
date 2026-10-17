@@ -35,7 +35,8 @@ function wobbuffetNaturalTurnTwo(profile, bonusDraws = 0) {
   assert.equal(wobbuffet, 1);
   assert.equal(wobbuffet + v + vmax + psychic + other, size);
   assert.ok(basics >= wobbuffet + v);
-  assert.ok(Number.isInteger(bonusDraws) && bonusDraws >= 0 && bonusDraws <= size - opening - 8);
+  const maxBonuses = size === 60 && opening === 7 ? 45 : size - opening - 2;
+  assert.ok(Number.isInteger(bonusDraws) && bonusDraws >= 0 && bonusDraws <= maxBonuses);
   const firstTurnOther = opening + bonusDraws;
   const afterDraw = size - firstTurnOther - 1;
   let favorable = 0n;
