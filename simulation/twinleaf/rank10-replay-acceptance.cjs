@@ -31,7 +31,7 @@ function requireCompleteRank10Replay(report) {
     assert.equal(finding.graphVerifiedDispatches, finding.sourceActions,
       arm+' Store data-graph checks lack full dispatch coverage');
     assert.equal(finding.storeDataGraphContract,
-      'live-store-data-graph-except-logs-v1',
+      'live-store-own-data-stats-clock-normalized-v2',
       arm+' Store data-graph contract changed or was not recorded');
     verified.push({arm, dispatches:finding.verifiedDispatches});
   }
