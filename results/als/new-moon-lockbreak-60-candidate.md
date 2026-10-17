@@ -47,6 +47,7 @@ This is a **four-slot adjustment**, not an independently invented shell. The ove
 | T | 4 | Fog Crystal, CRE 140 |
 | T | 2 | Mysterious Treasure, FLI 113 |
 | T | 2 | Hisuian Heavy Ball, ASR 146 |
+| T | 2 | Rescue Carrier, EVS 154 |
 | T | 2 | Battle Compressor, PHF 92 |
 | T | 1 | Adventure Bag, LOT 167 |
 | T | 1 | Escape Rope, BST 125 |
