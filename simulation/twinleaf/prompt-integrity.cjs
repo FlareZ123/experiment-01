@@ -109,7 +109,7 @@ function attachEnergyFailureEvidence(prompt, action) {
     const card = entry?.card;
     const duplicate = seen.has(card);
     seen.add(card);
-    const target = entry?.target;
+    const target = entry?.to;
     return {
       card: card?.fullName || card?.name || null,
       inSource: source.includes(card),
@@ -129,6 +129,11 @@ function attachEnergyFailureEvidence(prompt, action) {
     eligibleSize: allowed.size,
     min: prompt.options?.min ?? null,
     max: prompt.options?.max ?? null,
+    maxPerType: prompt.options?.maxPerType ?? null,
+    differentTypes: prompt.options?.differentTypes === true,
+    sameTarget: prompt.options?.sameTarget === true,
+    differentTargets: prompt.options?.differentTargets === true,
+    allowedCardTypes: prompt.options?.validCardTypes ?? null,
     selectedSize: selections?.length ?? null,
     selections
   });
