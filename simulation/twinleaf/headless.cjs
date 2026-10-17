@@ -235,6 +235,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [bunnelbyObservedK1] Separate opt-in: switch that policy from K0 to K1 only on live owner-deck search prompts.
  * @property {boolean} [bunnelbyTargetAwareEvolution] Separate opt-in: choose TM Evolution targets with possible Stage cards.
  * @property {boolean} [bunnelbyGuzmaHalaMode1] Separate opt-in: source-aware G&H optional Tool/Special Energy mode preference.
+ * @property {boolean} [bunnelbyGuzmaHalaSearch] Separate root-observed G&H Tool/Jet search preference when Stage remains physically available.
  * @property {boolean} [attackBeforeRetreat] Opt-in policy-order sensitivity probe for AttackTactic and RetreatTactic.
  * @property {0|1} [attackBeforeRetreatSeat] Restrict that opt-in probe to one physical seat.
  * @property {boolean} [passHorizonAttack] Compare printed AttackAction against a simulated PassTurnAction at the same turn-end horizon (experimental).
@@ -276,6 +277,10 @@ function runMatch(request) {
   if (request.bunnelbyGuzmaHalaMode1 === true &&
       request.bunnelbyK0SafeEvolution !== true) {
     throw new Error('Guzma Hala mode1 requires the source-60 Bunnelby K0 option');
+  }
+  if (request.bunnelbyGuzmaHalaSearch === true &&
+      request.bunnelbyGuzmaHalaMode1 !== true) {
+    throw new Error('Bunnelby GH live search requires the source-aware mode1 option');
   }
   const random = seededRandom(request.seed);
   const policyRandomBySeat = request.isolatePolicyRandomness === true ?
@@ -547,6 +552,13 @@ function runMatch(request) {
         if (request.bunnelbyGuzmaHalaMode1 === true) {
           configured = require('./bunnelby-guzma-hala-policy.cjs')
             .withBunnelbyGuzmaHalaMode1(configured,sourceCards);
+        }
+        if (request.bunnelbyGuzmaHalaSearch === true) {
+          configured = require('./bunnelby-gh-search-policy.cjs')
+            .withGhBunnelbyResourceSelection(configured,
+              (state,player,prompt) =>
+                state === store.state && state.players.includes(player) &&
+                state.prompts.includes(prompt) && prompt.result === undefined);
         }
       }
       if (request.mimikyuApexTimelessPolicy === true &&
@@ -855,6 +867,7 @@ function runMatch(request) {
       bunnelbyObservedK1: request.bunnelbyObservedK1 === true,
       bunnelbyTargetAwareEvolution: request.bunnelbyTargetAwareEvolution === true,
       bunnelbyGuzmaHalaMode1: request.bunnelbyGuzmaHalaMode1 === true,
+      bunnelbyGuzmaHalaSearch: request.bunnelbyGuzmaHalaSearch === true,
       attackBeforeRetreat: request.attackBeforeRetreat === true,
       attackBeforeRetreatSeat: request.attackBeforeRetreatSeat ?? null,
       policy: (request.doubleDragonRecovery === true ?
@@ -889,6 +902,7 @@ function runMatch(request) {
         (request.bunnelbyObservedK1 === true ? '+BunnelbyRootObservedK1-v1' : '') +
         (request.bunnelbyTargetAwareEvolution === true ? '+BunnelbyStageTargetResolver-v1' : '') +
         (request.bunnelbyGuzmaHalaMode1 === true ? '+BunnelbyGuzmaHalaMode1-v1' : '') +
+        (request.bunnelbyGuzmaHalaSearch === true ? '+BunnelbyGHRootSearch-v1' : '') +
         (request.attackBeforeRetreat === true ?
           '+AttackBeforeRetreatTactic-v1@' +
             (request.attackBeforeRetreatSeat === undefined ?
