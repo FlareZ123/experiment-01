@@ -25,8 +25,9 @@ const OPTIONS = Object.freeze({
  * @param {number} seed Reproducible unsigned 32-bit match seed.
  * @param {number} maxActions Strict upper bound on simulation actions.
  * @param {boolean} detailed Whether to preserve decision/audit evidence.
+ * @param {boolean} [nativeOpeningPivot=false] Reorder only candidate selected starting Basics.
  */
-function runArm(candidate, opponent, seat, seed, maxActions, detailed) {
+function runArm(candidate, opponent, seat, seed, maxActions, detailed, nativeOpeningPivot=false) {
   return runMatch({
     ...OPTIONS,
     deckA:seat === 0 ? candidate : opponent,
@@ -34,7 +35,8 @@ function runArm(candidate, opponent, seat, seed, maxActions, detailed) {
     seed, maxActions,
     captureDecisionTrace:detailed,
     captureAttackPassProbes:detailed,
-    ...(detailed ? {captureCopycatTurnStartSeat:seat} : {})
+    ...(detailed ? {captureCopycatTurnStartSeat:seat} : {}),
+    ...(nativeOpeningPivot ? {newMoonNativeOpeningPivotSeat:seat} : {})
   });
 }
 
