@@ -33,6 +33,8 @@ jobs:
         run: node --test tests/new-moon-native-opening-pivot.test.cjs
       - name: Assert fixed source setup prompt, chosen Basic identities and opponent response
         run: node simulation/twinleaf/new-moon-native-opening-fixed-source-proof.cjs > new-moon-native-opening-fixed-source-proof.json
+      - name: Independently audit rank6 locked reply and printed Poltergeist arithmetic
+        run: node simulation/twinleaf/new-moon-rank6-opponent-reply-audit.cjs > new-moon-rank6-opponent-reply-audit.json
       - name: Contrast exact native opener under pinned and repaired Simulator profiles
         run: node simulation/twinleaf/new-moon-native-opening-clone-profile-contrast.cjs > new-moon-native-opening-clone-profile.json
       - name: Preserve source-seed and opponent-response diagnostic
@@ -42,4 +44,5 @@ jobs:
           path: |
             new-moon-native-opening-fixed-source-proof.json
             new-moon-native-opening-clone-profile.json
+            new-moon-rank6-opponent-reply-audit.json
           retention-days: 14
