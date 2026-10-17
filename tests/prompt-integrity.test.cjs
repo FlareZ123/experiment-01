@@ -82,6 +82,8 @@ test('strict shuffle validation rejects missing, duplicate and foreign deck indi
     prompts: [prompt], players: [{id: 101, deck: {cards: Array(12).fill(null)}}]
   };
   const full = Array.from({length: 12}, (_, index) => index);
+  const sparse = full.slice();
+  delete sparse[4];
   assert.doesNotThrow(() => assertValidPromptAction(
     state, new ResolvePromptAction(7, full)));
   const candidates = [
@@ -89,6 +91,7 @@ test('strict shuffle validation rejects missing, duplicate and foreign deck indi
     [...full.slice(0, 11), 11.5],
     [...full.slice(0, 11), 12],
     [...full.slice(0, 11), 0],
+    sparse,
     null
   ];
   for (const candidate of candidates) {
