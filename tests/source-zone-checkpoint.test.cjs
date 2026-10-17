@@ -109,8 +109,8 @@ test('effect-bearing source fields omitted by the legacy zone and history checkp
   const actualZoneChange=state();
   actualZoneChange.players[1].active.damage=30;
   assert.notEqual(zoneSnapshotDigest(sourceZoneSnapshot(actualZoneChange)),zone);
-  assert.equal(sourceEffectDigest(actualZoneChange),effect,
-    'The supplementary digest remains deliberately scoped to omitted fields');
+  assert.notEqual(sourceEffectDigest(actualZoneChange),effect,
+    'The expanded primitive audit includes board-slot damage as well as effects');
 });
 
 test('supplementary effect snapshots detach their structured fields',()=>{
