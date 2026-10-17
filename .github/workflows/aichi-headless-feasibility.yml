@@ -53,3 +53,6 @@ jobs:
 
       - name: Check opt-in ordering, Prize shuffle and hand-shuffle permutations
         run: node --test tests/prompt-integrity-pinned-permutations.test.cjs
+
+      - name: Verify Prize selection has real Prize-zone ownership
+        run: node --test tests/prompt-integrity-pinned-prizes.test.cjs
