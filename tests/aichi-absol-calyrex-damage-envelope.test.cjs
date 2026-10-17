@@ -11,7 +11,11 @@ test('fixed Aichi Absol and Shadow Rider damage threshold', () => {
   assert.ok(calyrex.weaknesses.some(w => w.type === 'Darkness' && w.value === '×2'));
   assert.ok(absol.weaknesses.some(w => w.type === 'Grass' && w.value === '×2'));
   assert.equal(absol.attacks.find(a => a.name === 'Claw of Darkness').damage, '200');
-  assert.equal(calyrex.attacks.find(a => a.name === 'Max Geist').damage, '10+');
+  const geist = calyrex.attacks.find(a => a.name === 'Max Geist');
+  assert.equal(geist.damage, '10+');
+  assert.ok(geist.text.includes('30 more damage for each Psychic Energy'));
+  assert.ok(calyrex.rules.some(rule => rule.includes('takes 3 Prize cards')));
+  assert.ok(absol.rules.some(rule => rule.includes('takes 3 Prize cards')));
   assert.equal(200 * 2, 400);
   assert.equal(Math.ceil((280 - 10) / 30), 9);
   assert.equal(10 + 8 * 30, 250);
