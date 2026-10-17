@@ -38,6 +38,14 @@ class ActionTraceIntegrityTests(unittest.TestCase):
             with self.subTest(value=repr(trace)), self.assertRaises(ValueError):
                 action_trace_sha256(trace)
 
+    def test_action_name_whitespace_matches_node_portable_contract(self):
+        for point in (0x85, 0x1c, 0x1f, 0x200a):
+            with self.subTest(code_point=point), self.assertRaises(ValueError):
+                action_trace_sha256([{"step": 0, "action": chr(point)}])
+        self.assertEqual(
+            action_trace_sha256([{"step": 0, "action": chr(0xfeff)}]),
+            "77ce76ff5522a815d33f010fe07532de03c41966f2d18ede81a0ff825f30799f")
+
     def test_cyclic_python_value_is_rejected_as_malformed(self):
         event = {"step": 0, "action": "draw"}
         event["self"] = event
