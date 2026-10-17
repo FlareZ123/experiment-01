@@ -7,7 +7,8 @@ const STATUSES = new Set([
   'completed', 'blocked-resolution', 'engine-deck-mismatch',
   'unverified-first-turn', 'unfinished', 'engine-exception',
   'engine-seed-mismatch', 'engine-revision-mismatch',
-  'engine-protocol-mismatch', 'policy-profile-mismatch'
+  'engine-protocol-mismatch', 'policy-profile-mismatch',
+  'simulator-profile-mismatch'
 ]);
 
 /** @param {unknown} value @returns {string} */
