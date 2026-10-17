@@ -135,4 +135,5 @@ function withElectrodePrizeTradePolicy(options){
 }
 
 if(require.main===module) evaluateBombTactic();
-module.exports={evaluateBombTactic};
+module.exports={evaluateBombTactic,projectedLightningUnits,
+  makeElectrodePrizeTradeTactic,withElectrodePrizeTradePolicy};
