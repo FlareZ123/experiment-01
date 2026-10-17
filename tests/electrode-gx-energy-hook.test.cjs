@@ -56,8 +56,8 @@ test('headless hook is opt-in, labeled, and restored on both source ranks',()=>{
   assert.equal(ElectrodeGX.prototype.reduceEffect,original);
   assert.equal(control.electrodeGXEnergyCorrection,false);
   assert.equal(corrected.electrodeGXEnergyCorrection,true);
-  assert.ok(!control.policy.includes('ElectrodeGXMandatoryEnergy-v1'));
-  assert.ok(corrected.policy.includes('ElectrodeGXMandatoryEnergy-v1'));
+  assert.ok(!control.policy.includes('ElectrodeGXMandatoryEnergyAndBotCount-v2'));
+  assert.ok(corrected.policy.includes('ElectrodeGXMandatoryEnergyAndBotCount-v2'));
   assert.deepEqual(control.deckHashes,corrected.deckHashes);
   assert.deepEqual(control.rules,corrected.rules);
   assert.equal(corrected.promptValidationMode,'predispatch-prompt-validate');
@@ -66,7 +66,7 @@ test('headless hook is opt-in, labeled, and restored on both source ranks',()=>{
   assert.equal(ElectrodeGX.prototype.reduceEffect,original);
   assert.equal(combined.electrodeGXEnergyCorrection,true);
   assert.equal(combined.electroRainDamageCorrection,true);
-  assert.ok(combined.policy.includes('ElectrodeGXMandatoryEnergy-v1'));
+  assert.ok(combined.policy.includes('ElectrodeGXMandatoryEnergyAndBotCount-v2'));
   assert.ok(combined.policy.includes('ElectroRainDamage-v1'));
   assert.deepEqual(corrected.deckHashes,combined.deckHashes);
 });
