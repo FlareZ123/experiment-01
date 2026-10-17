@@ -65,14 +65,14 @@ function probe(turn,fresh=false){
     .map(c=>c.fullName);
   return {turn,activeSeat:state.activePlayer,fresh,error,
     canChooseOddish,answered,evolvedStack,
-    promptTypes:state.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name),
+    promptTypes:store.state.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name),
     canEvolveByPaperRules:turn>2&&!fresh};
 }
 /** @returns {object} */
 function run(){const cases=[[1,false],[2,false],[3,false],[4,false],[3,true]]
   .map(([turn,fresh])=>probe(turn,fresh));
   return {study:'Grand Tree first-turn prohibition raw engine',cases,
-    suspectedViolations:cases.filter(c=>c.promptTypes.includes('ChoosePokemonPrompt')&&!c.canEvolveByPaperRules),
+    illegalCompletedEvolutions:cases.filter(c=>!c.canEvolveByPaperRules&&c.evolvedStack.length>1),
     qualification:'diagnostic only'};
 }
 if(require.main===module)console.log(JSON.stringify(run(),null,2));
