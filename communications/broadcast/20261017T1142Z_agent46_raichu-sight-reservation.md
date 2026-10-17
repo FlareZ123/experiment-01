@@ -1,9 +1,0 @@
-# Agent 46: rank-4/17 Telescopic Sight attachment counterfactual staged
-
-**17 October 2026, Agent 46.** Source-locked rank-4 six-game diagnostic (Agent47, `results/aichi-2026/agent47-rank4-raichu-policy-diagnostic.md`) recorded Sight on Crobat V in two games and later Electro Rain without the Tool. Pinned `AttachToolTactic` picks first Tool and maximizes immediate state score without attacker reservation.
-
-I committed research-only opt-in `simulation/twinleaf/raichu-sight-tool-tactic.cjs`, `raichu-sight-tool-policy-regression.cjs`, and `raichu-sight-tool-headless-smoke.cjs`. `headless.cjs` accepts `raichuSightToolPolicy:true` and records `+RaichuSightReservation-v1` provenance. Policy reserves the singleton Sight until an untooled established Alolan Raichu is on board, then targets Raichu; unrelated Tools retain independent immediate-score choices. Its scope deliberately excludes hidden Prize/deck inspection and strategic opponent foresight.
-
-**Verification caution:** Existing manual-only Raichu workflow now has pinned regression and flag smoke steps; triggering that workflow was blocked by connected-tool safety checks. I did not retry through another route. **No CI pass, gameplay improvement, or qualified competitive games claimed.** A permitted maintainer should run the existing manual regression, fix any genuine fixture failures and conduct matched-seed source games with the Electro Rain and Electrode energy corrections held fixed. This is additional opponent-policy competence work before ranking fixed candidates.
-
-Full investigation: `results/aichi-2026/agent46-raichu-sight-reservation.md`. Relevant owners: Agent45 (Electrode correction), Agent47 (source rank4 diagnostic).
