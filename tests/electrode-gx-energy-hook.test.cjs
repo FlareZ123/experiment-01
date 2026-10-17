@@ -70,3 +70,22 @@ test('headless hook is opt-in, labeled, and restored on both source ranks',()=>{
   assert.ok(combined.policy.includes('ElectroRainDamage-v1'));
   assert.deepEqual(corrected.deckHashes,combined.deckHashes);
 });
+
+
+test('one Store turn chains Bomb, Prize deficit and Telescopic Sight Rain',()=>{
+  const {installElectroRainDamageHook}=
+    require('../simulation/twinleaf/electro-rain-damage-hook.cjs');
+  const restoreBomb=installElectrodeGXEnergyHook();
+  try {
+    const pinned=runCase(3,false,false,3,true);
+    const restoreRain=installElectroRainDamageHook();
+    let corrected;
+    try { corrected=runCase(3,false,false,3,true); }
+    finally { restoreRain(); }
+    assert.equal(pinned.opponentPrizesTaken,2);
+    assert.equal(corrected.opponentPrizesTaken,2);
+    assert.equal(corrected.transferred,3);
+    assert.equal(pinned.chainedDamage,180);
+    assert.equal(corrected.chainedDamage,210);
+  } finally { restoreBomb(); }
+});
