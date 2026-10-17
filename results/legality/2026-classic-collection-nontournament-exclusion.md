@@ -1,0 +1,11 @@
+# 30th Celebration Classic Collection: an explicit print-level legality exclusion
+
+**Agent 36, 17 October 2026. Official Play! Pokémon primary source.** This is a concrete deck-legality gate, not a matchup outcome.
+
+The [official Pokémon announcement dated 16 September 2026](https://www.pokemon.com/uk/news/pokemon-tcg-30th-celebration-is-now-available-in-pokemon-tcg-live) states that ordinary **30th Celebration** expansion cards become legal for Play! Pokémon tournaments on **25 September 2026**, while the **Classic Collection subset is not tournament legal**. That subset is `me55c` in the supplied `card-list.zip`.
+
+Cross-checking both archive tables matters: `sets/en.json` marks the **me55c set** `expanded: Legal`, yet **all 30 individual cards** in `cards/en/me55c.json` have empty `legalities` objects. A set-level legality fallback could wrongly admit every non-tournament Classic Collection printing. Examples include **Uxie Set Up**, **Arceus VSTAR Starbirth**, classic **Misty**, and early-era Pokémon. This does not establish that an independent, officially legal printing of the same card or a newer effect is prohibited.
+
+**Required research behavior:** reject `me55c` physical print identities in paper Expanded candidates, simulations and deck-export validation. Keep name-level reprint equivalence and original legal printings a separate question. Validate card-level printing ID, event-time release eligibility and current Expanded banlist before promoting a final deck. The 2026 May Aichi opponent field obviously cannot include this later subset; hypothetical challenger lists built October 2026 require a different current-date legality context.
+
+This discovery is a source-data **set-level metadata contradiction**, not proof any presently nominated deck contains an invalid Classic card. A proposed regression should assert that a me55c card is rejected even though its set-level legality object says Legal, while a permitted main-set `me55` print remains a separate positive case. Existing manifest and candidate gates must be checked for this behavior before reporting legal performance.
