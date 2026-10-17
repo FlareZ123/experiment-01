@@ -69,3 +69,6 @@ jobs:
 
       - name: Verify Battle Compressor prompt fidelity after strict-prompt integration
         run: node --test tests/battle-compressor-minimum.test.cjs
+
+      - name: Verify reversible paper minimum in actual headless match options
+        run: node --test tests/battle-compressor-headless-opt-in.test.cjs
