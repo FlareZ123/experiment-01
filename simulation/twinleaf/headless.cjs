@@ -38,6 +38,7 @@ const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
 const {inspectTmEvolutionPass} = require('./tm-evolution-pass-evidence.cjs');
 const {probeEvolutionAnnouncement} = require('./tm-evolution-announcement-probe.cjs');
 const {probePassedAttackOptions, nextPassProbeBucket} = require('./pass-attack-announcement-probe.cjs');
+const {probeKlefkiRetreatAfterPass} = require('./klefki-retreat-pass-probe.cjs');
 const {withActiveOpeningPivot} = require('./active-opening-pivot.cjs');
 const {withAttackBeforeRetreat} = require('./attack-retreat-order.cjs');
 const {withCopycatApexTimelessPolicy} = require('./mimikyu-counter-policy.cjs');
@@ -700,6 +701,20 @@ function runMatch(request) {
           }
         }
       }
+      let klefkiRetreatPassProbe = null;
+      if (decisionTrace && request.captureKlefkiRetreatPassProbe === true &&
+          actionName === 'PassTurnAction' && seat >= 0) {
+        try {
+          klefkiRetreatPassProbe = probeKlefkiRetreatAfterPass(
+            state, state.players[seat].id);
+        } catch (error) {
+          klefkiRetreatPassProbe = {
+            evidenceType: 'post-pass-dedenne-klefki-retreat-joust-source-probe-v1',
+            auditError: String(error?.message || error),
+            qualifiedForCompetitiveInference: false
+          };
+        }
+      }
       try {
         store.dispatch(action);
       } catch (error) {
@@ -741,6 +756,7 @@ function runMatch(request) {
           ...(tmEvolutionBeforePass ? { tmEvolutionBeforePass } : {}),
           ...(tmEvolutionAnnouncementProbe ? { tmEvolutionAnnouncementProbe } : {}),
           ...(attackPassProbe ? { attackPassProbe } : {}),
+          ...(klefkiRetreatPassProbe ? {klefkiRetreatPassProbe} : {}),
           ...(attackInfo ? { attack: attackInfo.attack,
             attacker: attackInfo.activePokemon } : {}),
           prizesAfter: store.state.players.map(player =>
