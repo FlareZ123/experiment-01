@@ -46,4 +46,36 @@ function recordFirstFullOwnDeckPrompt(observations,state,prompt,ChooseCardsPromp
   }
 }
 
-module.exports={fullOwnDeckPrompt,recordFirstFullOwnDeckPrompt};
+/**
+ * Existing root-action evidence records the same direct owner-deck CardList
+ * identity in selectedCardsEvidence.sourceZone. From those POST-choice
+ * diagnostics, locate the first verified owner-visible complete-deck prompt
+ * resolution in each physical seat without inspecting hidden game state.
+ *
+ * The prompt was visible before its ResolvePromptAction; the action ordinal is
+ * a conservative bound for subsequent decisions, not the exact reveal tick.
+ * Absence of a match is unknown, not proof that a player remained at K0.
+ *
+ * @param {Array<object>} chronologicalMeaningfulActions
+ * @returns {Array<{seat:number,actionOrdinal:number,turn:number,message:string|null}>}
+ */
+function firstFullDeckResolutions(chronologicalMeaningfulActions) {
+  const first=new Map();
+  for(const row of chronologicalMeaningfulActions) {
+    const choice=row.cardSelection;
+    if (row.action!=='ResolvePromptAction' ||
+        choice?.promptKind!=='ChooseCardsPrompt' ||
+        choice.sourceZone!=='deck' ||
+        choice.sourcePlayerSlot!==row.playerSlot ||
+        ![0,1].includes(row.playerSlot) || first.has(row.playerSlot)) continue;
+    first.set(row.playerSlot,{
+      seat:row.playerSlot,
+      actionOrdinal:row.actionOrdinal,
+      turn:row.turnBefore,
+      message:choice.message??null
+    });
+  }
+  return [...first.values()].sort((a,b)=>a.seat-b.seat);
+}
+
+module.exports={fullOwnDeckPrompt,recordFirstFullOwnDeckPrompt,firstFullDeckResolutions};
