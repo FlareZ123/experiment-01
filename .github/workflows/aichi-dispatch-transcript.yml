@@ -24,7 +24,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify reversible noninterfering recording wrapper
-        run: node --test tests/store-dispatch-transcript.test.cjs tests/source-action-value-codec.test.cjs tests/source-prompt-action-codec.test.cjs tests/source-replay-action-decoder.test.cjs tests/action-trace-canonical.test.cjs tests/source-input-canonical.test.cjs tests/choose-cards-reference.test.cjs tests/rank10-source-branch-transcript.test.cjs tests/rank10-source-input-coverage.test.cjs tests/choose-attack-reference.test.cjs tests/source-zone-checkpoint.test.cjs tests/source-mechanics-blindspots.test.cjs tests/store-data-graph-fingerprint.test.cjs tests/store-data-graph-scope-negative.test.cjs tests/source-effect-clock-normalization.test.cjs tests/choice-slot-reference.test.cjs tests/choose-energy-reference.test.cjs tests/attach-energy-reference.test.cjs tests/state-continuity-observer.test.cjs tests/root-policy-store-graph-audit.test.cjs tests/rank10-hook-boundary-attribution.test.cjs tests/rank10-replay-acceptance.test.cjs tests/aichi-rank10-heavy-ball-exposure.test.cjs
+        run: node --test tests/store-dispatch-transcript.test.cjs tests/source-action-value-codec.test.cjs tests/source-prompt-action-codec.test.cjs tests/source-replay-action-decoder.test.cjs tests/action-trace-canonical.test.cjs tests/source-input-canonical.test.cjs tests/choose-cards-reference.test.cjs tests/rank10-source-branch-transcript.test.cjs tests/rank10-source-input-coverage.test.cjs tests/choose-attack-reference.test.cjs tests/source-zone-checkpoint.test.cjs tests/source-mechanics-blindspots.test.cjs tests/store-data-graph-fingerprint.test.cjs tests/store-data-graph-scope-negative.test.cjs tests/source-effect-clock-normalization.test.cjs tests/choice-slot-reference.test.cjs tests/choose-energy-reference.test.cjs tests/attach-energy-reference.test.cjs tests/state-continuity-observer.test.cjs tests/root-policy-store-graph-audit.test.cjs tests/rank10-hook-boundary-attribution.test.cjs tests/rank10-replay-acceptance.test.cjs tests/aichi-rank10-heavy-ball-exposure.test.cjs tests/pale-moon-source-exposure.test.cjs
       - name: Install compiled engine dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -80,6 +80,18 @@ jobs:
         run: node -e "const x=require('./rank10-fresh-process-input-replay.json'); console.log(JSON.stringify(x.findings,null,2))"
       - name: Fail closed unless both reconstructed source arms complete
         run: node simulation/twinleaf/rank10-replay-acceptance.cjs rank10-fresh-process-input-replay.json
+      - name: Audit authentic rank-10 Pale Moon queue exposure in both replay arms
+        run: |
+          node -e "const fs=require('node:fs'); const {auditRank10PaleMoonExposure}=require('./simulation/twinleaf/rank10-pale-moon-exposure-replay.cjs'); const input=JSON.parse(fs.readFileSync('rank10-source-branch-live-dispatch.json','utf8')); const result=auditRank10PaleMoonExposure(input); fs.writeFileSync('rank10-pale-moon-exposure.json',JSON.stringify(result,null,2)); console.log(JSON.stringify(result.findings.map(x=>({arm:x.arm,dispatches:x.dispatches,activeQueueSteps:x.activeQueueSteps,status:x.status,events:x.events})),null,2));"
+
+      - name: Archive authentic rank-10 Pale Moon exposure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-pale-moon-source-exposure
+          path: rank10-pale-moon-exposure.json
+          if-no-files-found: warn
+
       - name: Archive fresh-process input replay result
         if: always()
         uses: actions/upload-artifact@v4
