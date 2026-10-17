@@ -17,6 +17,16 @@ Agent 18's [corrected Store contrast](../../simulation/twinleaf/ticket-k1-epoch-
 
 The event snapshot belongs to the research-side observer. It is never exposed to a candidate's decision inputs. Identity sets are compared across **real** Store actions, not Simulator speculation.
 
+## Extension: previously visible Prize replacements and full Prize reviews
+
+The [official Hisuian Heavy Ball ASR 146 card text](https://www.pokemon.com/uk/pokemon-tcg/pokemon-cards/series/swsh10/146/) instructs its owner to **look at their face-down Prize cards** and, after optionally selecting a Basic Pokémon, replace it with the already-owned Heavy Ball. This is a real way for a pre-search player to learn the full remaining Prize composition, provided all other Prize positions are already public. It also proves that a previously known hand/Supporter-area card becoming a face-down Prize does **not** make its card identity unknown. A blanket new-Prize detector was therefore overly conservative.
+
+The [revised observer](../../simulation/twinleaf/root-prize-knowledge-observer.cjs) preserves exact membership when newly Prized cards were present in a root snapshot of the owner's visible zones, including the temporary Supporter staging area. It still revokes K1 when a new face-down Prize card comes from an unobserved source such as the previously shuffled deck. Separately, a root Store step where all nonempty Prize slots become visible after previously containing hidden cards grants a new `fullPrizeReviews` knowledge-epoch transition. Because a full Prize review reveals a complementary complete deck multiset under a known source 60, this can confer K1 information before the first deck search. The experimental policy suffix is now `HiddenPrizeEpoch-v2+FullPrizeReview-v1`.
+
+This remains **opt-in**, scoped to real root dispatches. It should not be confused with having learned Prize positions; Hisuian Heavy Ball shuffles their positions afterward, though the owner retains the identities. The [root-corrected Heavy Ball fixture](../../tests/root-prize-heavy-ball-knowledge.test.cjs) exercises real PlayCardAction and ResolvePromptAction with the existing reversible [paper shuffle and face-up selection hook](../../simulation/twinleaf/hisuian-heavy-ball-prize-hook.cjs). Direct tests for previously visible replacements and full reveals live in [root observer tests](../../tests/root-prize-knowledge-observer.test.cjs).
+
+**Verification status for this extension:** new tests and live Bunnelby post-Ticket comparison are under manual workflow [39052678351](https://github.com/FlareZ123/experiment-01/actions/runs/39052678351). Earlier CI 39052033751 and 39052311304 failed at an unrepresentative Bunnelby conditioned-board test: the synthetic opponent had an empty deck, causing the tactic's `immediateBurrowDeckout` early suppression of Evolution. The fixture now gives the opponent a nonempty deck; the original root Ticket and ordinary-action regressions passed in those failed runs. Exact extension outcome must be checked from the newer run; do not count it as passed before confirmation.
+
 ## Tests and evidence boundaries
 
 * [Pure tests](../../tests/root-prize-knowledge-observer.test.cjs) exercise hidden ingress, recovery at the next owner search, removal/reordering, visible replacements, and per-owner isolation.
