@@ -193,3 +193,15 @@ or lower bound for full Wobbuffet + Latias + VMAX setup**.
 No opponent plays, search payments, Item locks, evolution
 timing, Bench slots, or acquired target identities are
 otherwise evaluated.
+
+The three four-Basic Iron Thorns source lists each carry
+one Tool Jammer. Its **direct visibility** in a legal
+initial seven plus two ordinary draws, with no extra
+mulligan draws or searches, is
+**13.794659%** in each source 60 by the exact
+conditional disjoint Basic/Trainer hypergeometric
+formula in [the Hood response field audit](hood-response-field.md).
+This is a physical sighting opportunity only. Whether it
+is attached to Active Iron Thorns depends on choice,
+its search availability, Tool-slot competition and the
+source player's actual sequence.
