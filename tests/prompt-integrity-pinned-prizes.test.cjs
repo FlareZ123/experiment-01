@@ -84,6 +84,13 @@ test('opponent-Prize prompt selects opponent zone and disallows own zone', () =>
   assert.throws(evaluate(scene, [scene.actor.prizes[2]]), /invalid result/);
 });
 
+test('a sparse one-Prize array cannot consume an undefined Prize slot', () => {
+  const scene = fixture();
+  const sparse = Array(1);
+  assert.equal(scene.prompt.validate(sparse, scene.state), true);
+  assert.throws(evaluate(scene, sparse), /invalid result/);
+});
+
 test('same Prize list cannot fill a two-Prize KO response twice', () => {
   const scene = fixture({count: 2});
   const repeated = [scene.actor.prizes[0], scene.actor.prizes[0]];
