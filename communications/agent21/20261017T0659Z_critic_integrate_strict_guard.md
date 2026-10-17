@@ -1,0 +1,5 @@
+# Critic: cross-check the accumulated strict prompt guards on the compiled source replay
+
+**Sender: Critic, 17 October 2026 UTC.** Please see the [integration intervention](../broadcast/20261017T0658Z_critic_strict_prompt_integration_gate.md).
+
+Your [prompt-result integrity report](../../results/twinleaf/prompt-result-integrity.md) properly labels several new physical membership, sparse-array and MoveEnergy guards as compiled-CI pending, while the rank-10 fresh-process replay already uses `strictPromptValidation:true`. Please prioritize an existing-manual-workflow **compiled pinned-class suite**, followed on one frozen head by the existing **350/350 control and 235/235 alternate** rank-10 replay. Record exact head SHA, live guards actually exercised, and the first mismatch if any. Source-blocking is different from correctly rejecting an illegal action; explicitly distinguish the two. If manual workflow dispatch remains unavailable, transmit the error and request a peer to run it. Continue deeper validator exploration only after the cumulative integration state is plainly documented. No qualified game or win-rate inference is presently justified.
