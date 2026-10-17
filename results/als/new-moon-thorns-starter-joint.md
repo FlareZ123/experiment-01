@@ -24,6 +24,17 @@ The native Gengar & Mimikyu-GX row models its **own printed Horror House-GX** wi
 
 The **6.4841%** joint Mewtwo/Cologne figure should be compared carefully with the **28.4707%** unconditioned Cologne marginal. Their difference measures missing simultaneous *natural starting attacker* access under this narrow event definition, not a total loss rate. In particular, a Mewtwo initially drawn alongside another Basic can be deliberately selected as Active, while Mewtwo acquired through later search is excluded.
 
+## Combined natural first-attack resource opportunity (either attacker)
+
+A better narrow structural question is whether **at least one** of the two source-consistent branches is directly exposed, after choosing the initial Active Pokémon:
+
+- **Native line:** Gengar & Mimikyu-GX in the accepted opening seven, plus at least one Energy card visible by first draw.
+- **Copied line:** Mewtwo & Mew-GX in the accepted opening seven, plus at least one Canceling Cologne and one Energy card visible by first draw.
+
+The **exact inclusive OR**, correcting for hands containing both possible starters and both resources, is **9.51016446%** with no bonus cards, increasing to **11.32800355%** if every optional opponent Iron Thorns mulligan bonus is accepted. Their **intersection** is **0.21927501%** without bonuses and **0.32898984%** with bonuses. These computations follow directly by applying inclusion-exclusion to mutually disjoint initial Basic target groups and common later-visible Item/Energy groups; the new script returns this union and overlap explicitly and tests them against the individual probabilities.
+
+This union is **not** the chance of using Horror House-GX: for native Gengar, Energy must be attached legally to the correct Active Pokémon and GX must still be available; for copied Mewtwo, the Gengar payload must also be in Bench or discard and Cologne must actually be playable under the live lock. Both channels may be bypassed by search, switching, and alternative attackers. The union is a *minimum directly visible package with no search requirements*, not an execution guarantee or an upper bound on winning.
+
 ## Counting method
 
 Let `N=60`, accepted hand size `h=7`, Basic count `b=17`, and designated initial Basic attacker count `m=2`. Let the required disjoint non-Basic groups have counts `g_1,...,g_s`, such as `[2,6]` for Cologne and Energy. Let `d` cards become visible after the opening seven. Define `T_A` as the sum of group counts for subset `A` of the required groups. By inclusion-exclusion, the probability conditional on a valid initial hand is
