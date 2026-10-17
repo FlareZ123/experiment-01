@@ -1,7 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const {publicTurnLedger,responseTurnEnded}=
+const {publicTurnLedger,responseTurnEndingActionObserved}=
   require('../simulation/twinleaf/rank6-response-projection.cjs');
 const hidden='SECRET_PRIZE_AND_HAND_CARD';
 const trace=[
@@ -28,11 +28,13 @@ assert.deepEqual(ledger.map(x=>x.action),
   ['PlayCardAction','AttackAction','PassTurnAction']);
 assert.equal(ledger[0].playedCard,'Shadow Rider Calyrex V');
 assert.equal(ledger[1].announcedAttack,'Astral Barrage');
-assert.equal(responseTurnEnded(ledger),true);
+assert.equal(responseTurnEndingActionObserved(ledger),true);
+assert.equal(ledger[2].turnEndingActionAccepted,true);
+assert.equal(ledger[2].observedTurnNumberAdvanced,true);
 assert.equal(JSON.stringify(ledger).includes(hidden),false);
 assert.equal(JSON.stringify(trace),before);
 assert.deepEqual(publicTurnLedger(trace,{seat:0,turn:2}),[]);
-assert.equal(responseTurnEnded([]),false);
+assert.equal(responseTurnEndingActionObserved([]),false);
 assert.throws(()=>publicTurnLedger(trace,{seat:0,turn:3,limit:2}),
   /exceeding cap/);
 assert.throws(()=>publicTurnLedger(trace,{seat:0,turn:0}));
