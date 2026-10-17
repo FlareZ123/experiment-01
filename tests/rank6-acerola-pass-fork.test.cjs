@@ -20,7 +20,7 @@ class Store {
 }
 class Bot {
   constructor(){this.client={id:101};}
-  decodeNextAction(){Bot.proposals++;return new PlayCardAction(0);}
+  decodeNextAction(){Bot.proposals++;Math.random();Math.random();return new PlayCardAction(0);}
 }
 Bot.proposals=0;
 const original=Bot.prototype.decodeNextAction;
@@ -32,7 +32,11 @@ function trial(forcePass){
     return store.dispatch(bot.decodeNextAction(store.state));
   },{forcePass});
 }
-const passive=trial(false),forced=trial(true);
+let passive,forced;
+const savedRandom=Math.random;
+Math.random=()=>0.625;
+try {passive=trial(false);forced=trial(true);}
+finally{Math.random=savedRandom;}
 assert.equal(passive.result.constructor.name,'PlayCardAction');
 assert.equal(forced.result.constructor.name,'PassTurnAction');
 assert.equal(forced.result.clientId,101);
@@ -41,8 +45,12 @@ assert.equal(forced.sourceChoices.length,1);
 assert.equal(passive.forced,false);
 assert.equal(forced.forced,true);
 assert.equal(Bot.proposals,2);
+assert.equal(passive.sourceChoices[0].originalPolicyRandomDraws,2);
+assert.equal(forced.sourceChoices[0].originalPolicyRandomDraws,2);
+assert.equal(passive.sourceChoices[0].originalPolicyRandomValuesSha256,
+  forced.sourceChoices[0].originalPolicyRandomValuesSha256);
 assert.equal(Bot.prototype.decodeNextAction,original);
 assert.equal(Store.prototype.dispatch,originalDispatch);
 assert.equal(forced.sourceChoices[0].publicDamage,140);
 assert.equal(forced.sourceChoices[0].selectedAction,'PassTurnAction');
-console.log('rank6 Acerola source fork: 12 tests pass');
+console.log('rank6 Acerola source fork: 15 tests pass');
