@@ -128,6 +128,9 @@ function probe(options) {
         const permutation=Array.from({length},(_,index)=>length-1-index);
         assert.equal(shuffle.validate(permutation,currentState()),true);
         answer(permutation); // Valid reproducible shuffle order in staged test.
+        assert.equal(pending()?.constructor.name,'WaitPrompt',
+          'Tag Call shuffle also queues a nonvisual completion prompt');
+        answer(null); // WaitPrompt<void> requires a non-undefined result.
       }
       earlySwitchSelected = true;
     }
