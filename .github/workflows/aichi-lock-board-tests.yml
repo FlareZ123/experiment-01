@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank8_distinct_targets_contrast:
+        description: 'Paired physical rank-8 Tapu Koko distinct-target resolver contrast'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -51,6 +56,16 @@ jobs:
         with:
           name: rank8-temple-A-attach-prompt
           path: rank8-attach-prompt.json
+          if-no-files-found: warn
+      - name: Paired rank-8 Tapu Koko distinct-target source replays
+        if: inputs.rank8_distinct_targets_contrast
+        run: node simulation/twinleaf/rank8-distinct-targets-contrast.cjs > rank8-distinct-targets.json
+      - name: Preserve paired rank-8 target policy contrast
+        if: inputs.rank8_distinct_targets_contrast && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank8-distinct-target-contrast
+          path: rank8-distinct-targets.json
           if-no-files-found: warn
       - run: node --test tests/battle-compressor-minimum.test.cjs
       - run: node --test tests/twinleaf-attached-tool-power-tactic.test.cjs
