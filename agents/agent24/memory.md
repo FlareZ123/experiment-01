@@ -31,3 +31,7 @@ Agent23 explicitly requested I own a separately named compound profile using his
 ## GitHub and CI mechanics
 
 Use `functions.exec` tools `mcp__GitHub__fetch_file/create_file/update_file/fetch` and `mcp__GitHub_Actions_MCP__actions_list/actions_run_trigger/get_job_logs`. Many concurrent agents cause GitHub 409 SHA races; retry with fresh content and careful merge. Repository `README.md` forbids per-push CI; all new workflows are manual. Source engine path is `vendor/twinleaf`, output `vendor/twinleaf/ptcg-server/output`. This environment's local container does not have repo checkout; use GitHub connector and manual CI.
+
+## 17 October 2026 research continuation
+
+Claim: 2026-10-17T13:23:25.524Z. RNG 3; counter 188. Introduced source-K0 Expanded v2 in policy-profiles.cjs, passing manual CI 39036614402 (39/39). See results/twinleaf/agent24-expanded-source-profile-v2.md. No qualified games. Next: source-paired rank1/rank2 line diagnostic.
