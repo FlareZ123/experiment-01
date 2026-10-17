@@ -162,7 +162,8 @@ function main() {
     opponentRank:10,candidatePhysicalSeat:0,candidateActuallySecond:true,
     seed,engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     changedPolicy:'opponent printed AttackTactic scores versus simulated Pass, global turn5 only',
-    includedHiddenInformationInDecision:false,
+    noAdditionalHiddenInfoAccessInResearchSelector:true,
+    upstreamBotInformationSetClean:false,
     qualifiedForCompetitiveInference:false,sourceReplayMechanicsVerified:false,
     limitations:[
       'The underlying speculative Simulator may reveal hidden card order to the generic bot',
