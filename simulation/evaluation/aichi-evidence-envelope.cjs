@@ -81,8 +81,12 @@ function auditArchive(inputs, archive) {
       throw new Error('False candidate turn attribution: ' + row.trialId);
     }
     if (row.status === 'completed') {
+      const candidateSlot = scheduled.candidateEngineSlot === 'A' ? 0 : 1;
+      const rawWinner = row.observedWinnerIndex;
+      const boundOutcome = rawWinner === 3 ? 'draw' :
+        rawWinner === candidateSlot ? 'candidate' : 'opponent';
       if (!proof || (row.observedSeed !== undefined && row.observedSeed !== scheduled.seed) ||
-          !['candidate', 'opponent', 'draw'].includes(row.winner) ||
+          ![0, 1, 3].includes(rawWinner) || row.winner !== boundOutcome ||
           !Array.isArray(row.expectedEngineDeckHashes) ||
           !Array.isArray(row.observedEngineDeckHashes) ||
           row.expectedEngineDeckHashes.length !== 2 ||
