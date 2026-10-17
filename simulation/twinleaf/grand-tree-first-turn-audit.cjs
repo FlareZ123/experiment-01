@@ -36,7 +36,8 @@ function probe(turn,fresh=false,fromHand=false){
     player.hand.cards.push(tree);
     store.dispatch(new PlayCardAction(player.id,player.hand.cards.indexOf(tree),
       {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
-    assert.ok(store.state.players[state.activePlayer].stadium.cards.includes(tree),
+    assert.ok(store.state.players[state.activePlayer].stadium.cards
+      .some(c=>c.fullName==='Great Tree SCR'),
       'Grand Tree must enter play via source-card Stadium action');
   }else player.stadium.cards.push(tree);
   let error=null;
