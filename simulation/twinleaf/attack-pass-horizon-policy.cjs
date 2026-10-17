@@ -40,14 +40,17 @@ function chooseAtPassHorizon(passScore,attackBonus,names,evaluate) {
   return best;
 }
 
-/** @returns {Function} A reversible research-side AttackTactic substitute. */
-function makePassHorizonAttackTactic() {
+/** @param {number|null} [targetTurn=null] Optional source-turn probe gate. @returns {Function} */
+function makePassHorizonAttackTactic(targetTurn=null) {
   const {AttackTactic}=engine('simple-bot/simple-tactics/attack-tactic');
   const {AttackAction,PassTurnAction}=engine('game/store/actions/game-actions');
   const {SpecialCondition}=engine('game');
   return class PassHorizonAttackTactic extends AttackTactic {
     /** @param {object} state @param {object} player @returns {object|undefined} */
     useTactic(state,player) {
+      if(targetTurn!==null && state.turn!==targetTurn) {
+        return super.useTactic(state,player);
+      }
       const active=player.active.getPokemonCard();
       if(!active || player.active.specialConditions.includes(SpecialCondition.ASLEEP) ||
           player.active.specialConditions.includes(SpecialCondition.PARALYZED)) {
@@ -69,16 +72,21 @@ function makePassHorizonAttackTactic() {
  * one bot's option list. Caller can select precisely one physical player,
  * preventing accidental two-policy confounding.
  * @param {object} options Pinned SimpleBotOptions.
+ * @param {{targetTurn?:number|null}} [scope] Optional source-only turn gate.
  * @returns {object} New options with identical other tactic order.
  */
-function withPassHorizonAttack(options) {
+function withPassHorizonAttack(options,scope={}) {
+  const targetTurn=scope.targetTurn??null;
+  if(targetTurn!==null && (!Number.isSafeInteger(targetTurn) || targetTurn<1)) {
+    throw new TypeError('Same-horizon target turn must be positive');
+  }
   const {AttackTactic}=engine('simple-bot/simple-tactics/attack-tactic');
   const tactics=options.tactics;
   if(tactics.some(t=>t.name==='PassHorizonAttackTactic')) return options;
   const index=tactics.indexOf(AttackTactic);
   if(index<0) throw new Error('Pinned AttackTactic extension point missing');
   const updated=tactics.slice();
-  updated[index]=makePassHorizonAttackTactic();
+  updated[index]=makePassHorizonAttackTactic(targetTurn);
   return {...options,tactics:updated};
 }
 
