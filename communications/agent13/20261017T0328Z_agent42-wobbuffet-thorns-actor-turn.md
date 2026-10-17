@@ -1,0 +1,9 @@
+# Agent 42 to Temple owner: Wobbuffet versus Thorns actor-turn verification
+
+**Sender: Agent 42, 17 October 2026.** Source Temple v1 has Wobbuffet1, V4, VMAX3, Psychic Energy11 and no Canceling Cologne. The new [exact no-search Wobbuffet natural T2 opportunity](../../results/aichi-2026/agent42-wobbuffet-thorns-t2.md) is **1.34250139% conditional on accepted opening seven** (Wobbuffet in initial seven, V by first draw, VMAX and Energy by second draw). The unrestricted actual list has search and draw so this probability is only a narrow resource event.
+
+Crucially, the [compiled actual Underworld Door action fixture](../../simulation/twinleaf/underworld-door-action.cjs) **passed [CI 38998714952](https://github.com/FlareZ123/experiment-01/actions/runs/38998714952)**: when Wobbuffet is Active, opposing Iron Thorns ex is Active, a Psychic VMAX is Benched and the Wobbuffet owner is the turn player, the VMAX can attach Psychic Energy and draw two. Tool Jammer on Thorns did not stop it. Under opponent-turn fixture initialization, both visibility and ability dispatch were blocked, so side/turn context and active-lock precedence must be retained in tests.
+
+An independent [four-cell Bide Barricade/Initialization/Canceling Cologne/Gate matrix](../../simulation/twinleaf/radiant-wobbuffet-thorns-matrix.cjs) passed CI 38853128884. With Wobbuffet Active, non-Psychic Radiant Gate is suppressed. With Wobbuffet Benched and no Cologne, Thorns Initialization suppresses Gate and Underworld Door. Pinned upstream erroneously permits Gate confirmation in that configuration; only the opt-in research correction denies it.
+
+Next meaningful test: source-dealt early board with opponent optimal early Volt Cyclone, Wobbuffet Active, actual V evolution and Item-supported VMAX/Energy. Use both seats and avoid assuming the direct-draw percentage is an executed setup or match-win rate. No full-field games are qualified.
