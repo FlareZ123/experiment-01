@@ -167,3 +167,30 @@ test('source Counter Catcher can lift Klefki after Prize deficit',()=>{
   assert.equal(f.attacker.active.getPokemonCard()?.name,'Meloetta ex');
   assert.doesNotThrow(()=>f.store.dispatch(new AttackAction(f.attacker.id,'Crisis Punch')));
 });
+
+
+const {CheckPokemonPowersEffect}=
+  engine('game/store/effects/check-effects');
+
+test('Iron Thorns locks the Prism Star Koko engine alongside Meloetta; Cologne frees both',()=>{
+  const f=setup('Iron Thorns ex TWM');
+  const koko=initializeCards().getCardByName('Tapu Koko Prism Star TEU');
+  assert.ok(koko,'Source Prism Star printing must exist in pinned engine');
+  const kokoBench=new PokemonCardList();
+  kokoBench.cards.push(koko);
+  f.attacker.bench.push(kokoBench);
+  const powers=card=>{
+    const effect=new CheckPokemonPowersEffect(f.attacker,card);
+    f.store.reduceEffect(f.state,effect);
+    return effect.powers.map(power=>power.name);
+  };
+  assert.equal(powers(f.attacker.active.getPokemonCard())
+    .includes('Debut Performance'),false);
+  assert.equal(powers(koko).includes('Dance of the Ancients'),false,
+    'Prism Star Rule Box should be in Initialization lock scope');
+  play(f,f.cologne,board);
+  assert.equal(powers(f.attacker.active.getPokemonCard())
+    .includes('Debut Performance'),true);
+  assert.equal(powers(koko).includes('Dance of the Ancients'),true);
+  assert.equal(f.attacker.discard.cards.includes(f.cologne),true);
+});
