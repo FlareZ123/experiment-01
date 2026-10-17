@@ -2,8 +2,13 @@
 
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
+const path = require('node:path');
 const {planAichi} = require('../evaluation/aichi-pilot.cjs');
 const {runMatch} = require('./headless.cjs');
+const {Store}=require(path.resolve(__dirname,
+  '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
+const {withAcerolaPublicObserver} =
+  require('./rank6-acerola-public-observer.cjs');
 const {withSourceOpeningProbe} = require('./rank6-seed-opening-probe.cjs');
 const {withGuzmaHalaSourceFork,withDamageObserver} =
   require('./rank6-seed-guzma-hala-fork.cjs');
@@ -53,7 +58,10 @@ function main() {
     captureDecisionTrace:true,leleEntryAbilityLockCorrection:true,
     radiantGateLockCorrection:true,entryDrawLockCorrection:true
   };
-  const baseline=withSourceOpeningProbe(()=>runMatch(request));
+  const originalObservation=withAcerolaPublicObserver(Store,
+    ()=>withSourceOpeningProbe(()=>runMatch(request)));
+  const baseline=originalObservation.result;
+  assert.equal(originalObservation.pending,false);
   assert.equal(baseline.out.firstTurnSlot,0);
   assert.ok(baseline.observed?.hand);
   const observedFingerprint=digest({
@@ -61,13 +69,18 @@ function main() {
     prizes:baseline.observed.prizes,
     doubleColorless:baseline.observed.doubleColorless
   });
-  const all=[publicGameSummary(baseline.out,'unmodified-source-bot')];
+  const originalRow=publicGameSummary(baseline.out,'unmodified-source-bot');
+  originalRow.sourceAcerolaPublicBoard=originalObservation.events;
+  const all=[originalRow];
   for(const {label,pair} of [
     {label:'guzma-spent',pair:['Guzma','Tropical Beach']},
     {label:'guzma-preserved',pair:["Trainers' Mail",'Tropical Beach']}
   ]) {
-    const branched=withSourceOpeningProbe(()=>withGuzmaHalaSourceFork(
-      ()=>withDamageObserver(()=>runMatch(request)),pair));
+    const sourceObservation=withAcerolaPublicObserver(Store,
+      ()=>withSourceOpeningProbe(()=>withGuzmaHalaSourceFork(
+        ()=>withDamageObserver(()=>runMatch(request)),pair)));
+    const branched=sourceObservation.result;
+    assert.equal(sourceObservation.pending,false);
     assert.deepEqual(branched.observed?.hand,baseline.observed.hand,
       'Fork changed physical opening hand');
     assert.deepEqual(branched.observed?.prizes,baseline.observed.prizes,
@@ -83,6 +96,7 @@ function main() {
     row.sourcePayment=pair.slice();
     row.realVoltCycloneDamage=branched.out.result.attack.damageAfter;
     row.samePhysicalOpening=true;
+    row.sourceAcerolaPublicBoard=sourceObservation.events;
     all.push(row);
   }
   for(const row of all) assert.ok(row.opponentTurnActions.length>0,
