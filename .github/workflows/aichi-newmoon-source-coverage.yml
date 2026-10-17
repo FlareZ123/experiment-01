@@ -49,6 +49,16 @@ jobs:
             newmoon-lockbreak-pinned-60.json
             newmoon-lockbreak-direct-access.json
           if-no-files-found: error
+      - name: Check exact Iron Thorns opponent mulligan-driven Item access
+        run: node --test tests/new-moon-lockbreak-mulligan.test.cjs
+      - name: Preserve Iron Thorns opponent bonus-draw access prediction
+        run: node scripts/new-moon-lockbreak-mulligan.cjs > newmoon-lockbreak-thorns-mulligan.json
+      - name: Upload source-deck-matched bonus access ledger
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-lockbreak-thorns-mulligan
+          path: newmoon-lockbreak-thorns-mulligan.json
+          if-no-files-found: error
       - name: Exercise New Moon printed Perfection across Garbotoxin and active lock
         run: node simulation/twinleaf/new-moon-lockbreak-ability-gates.cjs > newmoon-lockbreak-ability-gates.json
       - name: Preserve live Store lockbreak answer matrix
