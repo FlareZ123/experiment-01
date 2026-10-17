@@ -44,3 +44,26 @@ test('no-target Guzma correction restores the original method after each probe',
   assert.deepEqual([before.trainerInDiscard,corrected.trainerInDiscard,
     after.trainerInDiscard],[true,false,true]);
 });
+
+test('official solo-own-Bench Guzma gust keeps the powered Active in place',()=>{
+  const solo=probeTrainerEscape({
+    trainer:'Guzma',opponentBench:true,ownBench:false,
+    jammer:false,guzmaCorrection:true
+  });
+  assert.equal(solo.error,null,'Opponent gust should work without own Bench');
+  assert.equal(solo.opponentActiveAfter,'Mimikyu');
+  assert.equal(solo.activeAfter,'Shadow Rider Calyrex V');
+  assert.equal(solo.trainerInDiscard,true);
+  assert.equal(solo.trainerInHand,false);
+  assert.deepEqual(solo.prompts,['ChoosePokemonPrompt'],
+    'Only the opposing Bench target needs to be selected');
+
+  const noTarget=probeTrainerEscape({
+    trainer:'Guzma',opponentBench:false,ownBench:false,
+    jammer:false,guzmaCorrection:true
+  });
+  assert.equal(noTarget.activeAfter,'Shadow Rider Calyrex V');
+  assert.equal(noTarget.opponentActiveAfter,'Snorlax');
+  assert.equal(noTarget.trainerInHand,true);
+  assert.equal(noTarget.trainerInDiscard,false);
+});
