@@ -1,6 +1,11 @@
 name: Aichi Stealthy Hood versus Initialization
 on:
   workflow_dispatch:
+    inputs:
+      hood_rank8_second:
+        description: 'Optional source ranked Hood game starting second'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -41,3 +46,15 @@ jobs:
         run: node simulation/twinleaf/entry-draw-stadium-lock-action.cjs
       - name: Verify Tool-gated Garbotoxin hand-zone entry draw suppression
         run: node simulation/twinleaf/entry-draw-garbotoxin-action.cjs
+      - name: Check rank8 actual second seed selection
+        run: node --test tests/hood-rank8-second-source.test.cjs
+      - name: Play source-ranked rank8 Hood actual-second game
+        if: inputs.hood_rank8_second
+        run: node simulation/twinleaf/hood-rank8-second-source.cjs > rank8-hood-second.json
+      - name: Archive source-ranked rank8 Hood game
+        if: always() && inputs.hood_rank8_second
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank8-hood-source-actual-second
+          path: rank8-hood-second.json
+          if-no-files-found: warn
