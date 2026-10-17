@@ -46,5 +46,7 @@ jobs:
         run: node tests/rank6-acerola-pass-fork.test.cjs
       - name: Compare source-dealt Acerola and Pass response actions
         run: node simulation/twinleaf/rank6-acerola-pass-counterfactual.cjs
+      - name: Verify official solo own-Bench Guzma Store regression
+        run: node --test tests/snorlax-switch-vs-guzma.test.cjs
       - name: Reproduce source-dealt solo Guzma turn-four gust and Volt Cyclone
         run: node simulation/twinleaf/rank6-solo-guzma-source-turn4.cjs
