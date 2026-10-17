@@ -64,5 +64,8 @@ jobs:
       - name: Verify Energy selection catalog identity and physical uniqueness
         run: node --test tests/prompt-integrity-pinned-choose-energy.test.cjs
 
+      - name: Print Battle Compressor post-selection lifecycle state
+        run: node -e "const {probe}=require('./simulation/twinleaf/battle-compressor-zero-prompt.cjs'); console.log(JSON.stringify({pinned:probe(false,true),corrected:probe(true,true)},null,2));"
+
       - name: Verify Battle Compressor prompt fidelity after strict-prompt integration
         run: node --test tests/battle-compressor-minimum.test.cjs
