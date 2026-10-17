@@ -28,6 +28,7 @@ const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.c
 const {installElectroRainDamageHook} = require('./electro-rain-damage-hook.cjs');
 const {installElectrodeGXEnergyHook} = require('./electrode-gx-energy-hook.cjs');
 const {withElectrodePrizeTradePolicy} = require('./electrode-gx-ability-tactic.cjs');
+const {withAttachedToolPowerPolicy} = require('./attached-tool-power-tactic.cjs');
 const {installRedeemableTicketPaperOrderHook} = require('./redeemable-ticket-paper-hook.cjs');
 const {snapshotPrizeCardIdentities,invalidateAfterRootHiddenPrizeIngress,
   observeAfterRootFullPrizeReview} =
@@ -196,6 +197,7 @@ function policyRandomStreams(seed) {
  * @property {string} [label] Experimental label for machine-readable output.
  * @property {boolean} [strictPromptValidation] Opt-in pre-dispatch Prompt.validate gate.
  * @property {boolean} [forestSealSearchCorrection] Opt-in mandatory one-card Star Alchemy hook.
+ * @property {boolean} [attachedToolPowerPolicy] Opt-in Tool-granted Ability candidate tactic for both seats.
  * @property {boolean} [battleCompressorPositiveSelectionCorrection] Opt-in paper minimum-one-card selection for Battle Compressor.
  * @property {boolean} [grandTreeFirstTurnCorrection] Opt-in printed first-turn Grand Tree evolution prohibition.
  * @property {boolean} [doubleDragonRecovery] Opt-in experimental legal dynamic-Energy attachment tactic.
@@ -468,6 +470,7 @@ function runMatch(request) {
       ddeAdapter.withDoubleDragonRecovery(baseOptions) : baseOptions;
     if (request.templeUnlockRecovery === true) options = require('./temple-unlock-tactic.cjs').withTempleUnlockRecovery(options);
     if (request.electrodeGXPrizeTradePolicy === true) options = withElectrodePrizeTradePolicy(options);
+    if (request.attachedToolPowerPolicy === true) options = withAttachedToolPowerPolicy(options);
     if (request.raichuSightToolPolicy === true) {
       options = require('./raichu-sight-tool-tactic.cjs').withRaichuSightToolPolicy(options);
     }
@@ -867,6 +870,7 @@ function runMatch(request) {
       promptValidationMode: request.strictPromptValidation === true ?
         'predispatch-prompt-validate' : 'upstream-unchecked',
       forestSealSearchCorrection: request.forestSealSearchCorrection === true,
+      attachedToolPowerPolicy: request.attachedToolPowerPolicy === true,
       battleCompressorPositiveSelectionCorrection:
         request.battleCompressorPositiveSelectionCorrection === true,
       grandTreeFirstTurnCorrection: request.grandTreeFirstTurnCorrection === true,
@@ -936,6 +940,7 @@ function runMatch(request) {
         (request.electroRainDamageCorrection === true ? '+ElectroRainDamage-v1' : '') +
         (request.electrodeGXEnergyCorrection === true ? '+ElectrodeGXMandatoryEnergyAndBotCount-v2' : '') +
         (request.electrodeGXPrizeTradePolicy === true ? '+ElectrodeSourcePrizeTrade-v1' : '') +
+        (request.attachedToolPowerPolicy === true ? '+AttachedToolPowerCandidate-v1' : '') +
         (request.raichuSightToolPolicy === true ? '+RaichuSightReservation-v1' : '') +
         (request.raichuPrizeAllocationPolicy === true ? '+RaichuPrizeAllocation-v1' : '') +
         (request.redeemableTicketPaperOrderCorrection === true ? '+TicketPaperPrizeOrder-v1' : '') +
