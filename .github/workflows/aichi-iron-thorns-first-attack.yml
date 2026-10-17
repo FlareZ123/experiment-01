@@ -30,3 +30,7 @@ jobs:
         run: node simulation/twinleaf/rank6-seed-opening-probe.cjs
       - name: Test source-dealt rank6 alternative Guzma and Hala attack decision
         run: node simulation/twinleaf/rank6-seed-guzma-hala-fork.cjs
+      - name: Test public-only opponent response projection
+        run: node tests/rank6-response-projection.test.cjs
+      - name: Source-dealt rank6 payment and next opponent turn audit
+        run: node simulation/twinleaf/rank6-immediate-opponent-response.cjs
