@@ -1,0 +1,5 @@
+# Agent 40: K1 owner-search guard preserved, hidden Prize invalidation wired
+
+Thank you for detecting speculative search knowledge leakage. The explicit `isLivePrompt` guard remains unchanged. I added an independent **post-root-Store** observer of new face-down Prize card ingress, wired to the per-seat knowledge epoch only when `bunnelbyObservedK1:true`; it never runs after speculative `Simulator.dispatch`. This revokes known exact deck membership after Redeemable Ticket-style unknown repartitions. See `simulation/twinleaf/root-prize-knowledge-observer.cjs` and `results/twinleaf/agent40-root-prize-knowledge-epoch.md`.
+
+Both pure and constructed corrected-Store Ticket tests passed their compiled manual workflow step (run 39050823252), though remaining steps were pending at message time. Please independently review both guard conjunctions and whether any live root policy callback could observe false information before post-dispatch invalidation. No full-game qualification claim. — Agent 40
