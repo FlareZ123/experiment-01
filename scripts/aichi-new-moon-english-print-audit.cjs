@@ -5,14 +5,15 @@ const path=require('node:path');
 const crypto=require('node:crypto');
 
 const candidatePath=path.resolve(__dirname,
-  '../results/aichi-2026/candidate-new-moon-english-60.json');
+  '../results/als/new-moon-perfection-english-map.json');
 const sourcePath=path.resolve(__dirname,
   '../results/als/new-moon-perfection-source-60.json');
 const cardsRoot=path.resolve(__dirname,'../resources/cards/en');
 const setsPath=path.resolve(__dirname,'../resources/sets/en.json');
 const nameEquivalents=new Map([
   ['Battle Compressor','Battle Compressor Team Flare Gear'],
-  ["Trainer's Mail","Trainers' Mail"]
+  ["Trainer's Mail","Trainers' Mail"],
+  ["Basic Psychic Energy","Psychic Energy"]
 ]);
 
 /**
@@ -27,27 +28,27 @@ const nameEquivalents=new Map([
  * @returns {object} Strictly bounded structural and database eligibility audit.
  */
 function audit(candidate,source,getCard,getSet) {
-  assert.equal(candidate.schema,'paper-expanded-english-equivalent-fixed-60-v1');
-  assert.equal(candidate.cards.length,source.entries.length);
+  assert.equal(candidate.schema,'aichi-newmoon-english-simulation-mapping-v1');
+  assert.equal(candidate.entries.length,source.entries.length);
   const sourceByName=new Map(source.entries.map(e=>[e.name_en,e.count]));
   const printedNames=new Map();
   let quantity=0,aceSpecCount=0;
   const totals={Pokémon:0,Trainer:0,Energy:0};
   const verified=[];
-  for(const row of candidate.cards) {
+  for(const row of candidate.entries) {
     assert.ok(Number.isSafeInteger(row.count)&&row.count>0);
-    assert.equal(sourceByName.get(row.source_english_name),row.count,
-      'Changed original source card quantity: '+row.source_english_name);
-    const card=getCard(row.english_print_id);
-    assert.ok(card,'Printing unavailable in snapshot: '+row.english_print_id);
-    const targetName=nameEquivalents.get(row.source_english_name)||
-      row.source_english_name;
-    assert.equal(card.name,targetName,'Ambiguous or wrong printed card: '+row.english_print_id);
+    assert.equal(sourceByName.get(row.name),row.count,
+      'Changed original source card quantity: '+row.name);
+    const card=getCard(row.id);
+    assert.ok(card,'Printing unavailable in snapshot: '+row.id);
+    const targetName=nameEquivalents.get(row.name)||
+      row.name;
+    assert.equal(card.name,targetName,'Ambiguous or wrong printed card: '+row.id);
     assert.equal(card.legalities?.expanded,'Legal',
       'English database printing Expanded flag is not Legal');
-    const set=getSet(row.english_print_id.split('-')[0]);
+    const set=getSet(row.id.split('-')[0]);
     assert.ok(set);
-    assert.ok(set.releaseDate<=candidate.date.replace(/-/g,'/'),
+    assert.ok(set.releaseDate<=candidate.event_date.replace(/-/g,'/'),
       'Selected English printing released after event cutoff');
     assert.ok(Object.hasOwn(totals,card.supertype));
     totals[card.supertype]+=row.count;
@@ -68,9 +69,9 @@ function audit(candidate,source,getCard,getSet) {
   assert.equal(quantity,60);
   assert.deepEqual(totals,{'Pokémon':19,Trainer:35,Energy:6});
   assert.equal(aceSpecCount,1);
-  assert.equal(candidate.cards.filter(r=>r.english_print_id==='xy7-30').length,1,
+  assert.equal(candidate.entries.filter(r=>r.english_print_id==='xy7-30').length,1,
     'Use Farewell Letter Unown rather than banned SM8 variants');
-  assert.equal(candidate.cards.filter(r=>r.english_print_id==='sv6pt5-18').length,1,
+  assert.equal(candidate.entries.filter(r=>r.english_print_id==='sv6pt5-18').length,1,
     'Use legal Shrouded Fable Duskull rather than prohibited SM11a print');
   for(const [name,id,ability] of [
     ['Unown','xy7-30','Farewell Letter'],
@@ -86,17 +87,18 @@ function audit(candidate,source,getCard,getSet) {
     if(ability!==null) assert.ok(card.abilities?.some(a=>a.name===ability),
       'Missing specified strategic ability '+ability+' from '+id);
   }
-  const canonical=candidate.cards
-    .map(row=>[row.english_print_id,row.count])
+  const canonical=candidate.entries
+    .map(row=>[row.id,row.count])
     .sort(([a],[b])=>a.localeCompare(b,'en',{sensitivity:'variant'}))
-    .map(([id,n])=>id+'\t'+n+'\n').join('');
+    .map(([id,n])=>id+':'+n+'\n').join('');
   const sha=crypto.createHash('sha256').update(canonical).digest('hex');
-  assert.equal(sha,candidate.english_print_id_sha256);
+  assert.equal(sha,candidate.sha256_id_counts);
   return {
     schema:'new-moon-source-print-equivalence-audit-v1',
     count:quantity,unique:verified.length,totals,
+    sourceHash:source.official_japanese_deck_code,
     aceSpecCount,hash:sha,
-    date:candidate.date,
+    date:candidate.event_date,
     englishDatabaseExpandedFlag:true,
     englishPrintingOnOrBeforeEvent:true,
     authenticJapanesePrintsVerified:false,
