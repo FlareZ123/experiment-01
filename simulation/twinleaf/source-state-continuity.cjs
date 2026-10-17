@@ -121,7 +121,7 @@ function withSourceContinuity(Store,run,options={}) {
     try {return original.value.apply(this,args);}
     finally {
       const after=snapshot(this.state);
-      previous={ordinal,snapshot:after,hash:hash(after)};
+      previous={ordinal,name,snapshot:after,hash:hash(after)};
     }
   };
   Object.defineProperty(Store.prototype,'dispatch',{...original,value:wrapped});
