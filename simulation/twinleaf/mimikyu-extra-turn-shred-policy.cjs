@@ -72,7 +72,8 @@ function makeShredResolver() {
 }
 
 /**
- * Put the exact-source Shred tactic ahead of the otherwise preferred Retreat.
+ * Put the exact-source Shred tactic immediately before the usual Retreat,
+ * after default Trainer/Supporter opportunities, preserving the turn28 Iono.
  * Non-target turns are delegated unchanged. All source deck/card identities
  * remain frozen, and the application must be opt-in on one physical seat.
  * @param {object} options
@@ -80,9 +81,12 @@ function makeShredResolver() {
  */
 function withCopycatExtraTurnShredPolicy(options) {
   if (options.tactics.some(t=>t.name==='ExtraTurnShredTactic')) return options;
+  const retreatIndex=options.tactics.findIndex(t=>t.name==='RetreatTactic');
+  if (retreatIndex<0) throw new Error('Pinned RetreatTactic required');
   return {
     ...options,
-    tactics:[makeShredTactic(),...options.tactics],
+    tactics:[...options.tactics.slice(0,retreatIndex),makeShredTactic(),
+      ...options.tactics.slice(retreatIndex)],
     promptResolvers:[makeShredResolver(),...options.promptResolvers]
   };
 }
