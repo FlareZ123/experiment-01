@@ -219,6 +219,7 @@ function policyRandomStreams(seed) {
  * @property {0|1} [attackBeforeRetreatSeat] Restrict that opt-in probe to one physical seat.
  * @property {boolean} [passHorizonAttack] Compare printed AttackAction against a simulated PassTurnAction at the same turn-end horizon (experimental).
  * @property {0|1} [passHorizonAttackSeat] Apply same-horizon attack scoring only to this physical seat.
+ * @property {number} [passHorizonAttackTurn] Restrict the correction to one frozen global turn; other turns retain the original tactic.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
  * @property {0|1} [captureCopycatTurnStartSeat] Opt-in candidate perspective resource snapshot once per own turn, taken before selecting the first action.
  * @property {boolean} [captureAttackPassProbes] Opt-in first eight post-choice Pass attack-announcement probes; only archived when capturing decision trace.
@@ -399,6 +400,12 @@ function runMatch(request) {
           ![0, 1].includes(request.passHorizonAttackSeat))) {
       throw new Error('Same-horizon attack seat requires an enabled policy flag.');
     }
+    if (request.passHorizonAttackTurn !== undefined &&
+        (request.passHorizonAttack !== true ||
+          !Number.isSafeInteger(request.passHorizonAttackTurn) ||
+          request.passHorizonAttackTurn < 1)) {
+      throw new Error('Same-horizon target turn needs enabled policy and positive integer.');
+    }
     if (request.shadowRiderEnergyPriority === true &&
         request.shadowRiderEnergyAcrossField === true) {
       throw new Error('Choose either the lock-specific or across-field Psychic priority.');
@@ -441,7 +448,8 @@ function runMatch(request) {
           (request.passHorizonAttackSeat === undefined ||
             request.passHorizonAttackSeat === seat)) {
         configured = require('./attack-pass-horizon-policy.cjs')
-          .withPassHorizonAttack(configured);
+          .withPassHorizonAttack(configured,
+            {targetTurn:request.passHorizonAttackTurn??null});
       }
       if (request.bunnelbyK0SafeEvolution === true) {
         const knownPrints = seat === 0 ? request.deckA : request.deckB;
