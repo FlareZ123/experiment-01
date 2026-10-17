@@ -162,9 +162,11 @@ function assertOrderPadToCologne(printing,heads) {
   assert.ok(pad,'Missing source Order Pad');
   f.attacker.hand.cards.push(pad);
   play(f,pad,board);
+  resolveWaits(f);
   const coin=pending(f);
   assert.equal(coin?.constructor.name,'CoinFlipPrompt');
   f.store.dispatch(new ResolvePromptAction(coin.id,heads));
+  resolveWaits(f);
   if(!heads) {
     assert.equal(pending(f),undefined);
     assert.equal(f.attacker.hand.cards.includes(f.cologne),false);
@@ -178,7 +180,9 @@ function assertOrderPadToCologne(printing,heads) {
 
   for(let i=0;i<8&&pending(f);i++) {
     const p=pending(f);
-    if(p.constructor.name==='ShowCardsPrompt') {
+    if(p.constructor.name==='WaitPrompt') {
+      f.store.dispatch(new ResolvePromptAction(p.id,null));
+    } else if(p.constructor.name==='ShowCardsPrompt') {
       f.store.dispatch(new ResolvePromptAction(p.id,null));
     } else if(p.constructor.name==='ShuffleDeckPrompt') {
       const order=f.attacker.deck.cards.map((_,index)=>index);
