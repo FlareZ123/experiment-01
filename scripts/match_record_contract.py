@@ -40,6 +40,8 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
     failures = []
     ties = 0
     verified_completed_traces = 0
+    terminal_bound_games = 0
+    terminal_counts = defaultdict(lambda: [0, 0])
     for g in batch["games"]:
         rank, seat, seed = g["rank"], g["seat"], g["seed"]
         side, winner, status = g["candidate_side"], g["winner_side"], g["status"]
@@ -91,14 +93,31 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
         if rank in rank_decks and rank_decks[rank] != deck:
             raise ValueError("Opponent deck changed within placement")
         rank_decks[rank] = deck
+        terminal = g.get("engine_terminal")
+        if "engine_terminal" in g and not isinstance(terminal, dict):
+            raise ValueError("Engine terminal must be an object")
         if status == "completed":
             if rank not in published or winner not in ("A", "B", None):
                 raise ValueError("Invalid completed exact-list result")
+            if terminal is not None:
+                index = terminal.get("winnerIndex")
+                if terminal.get("finished") is not True or type(index) is not int or index not in (0, 1, 3):
+                    raise ValueError("Invalid completed engine terminal")
+                derived_winner = {0: "A", 1: "B", 3: None}[index]
+                if winner != derived_winner:
+                    raise ValueError("Reported winner contradicts engine terminal")
+                terminal_bound_games += 1
+                terminal_counts[key][1] += 1
+                terminal_counts[key][0] += derived_winner == side
             counts[key][1] += 1
             verified_completed_traces += int(trace_verified)
             counts[key][0] += winner == side
             ties += winner is None
         elif status in FAILURES and winner is None:
+            if terminal is not None and (terminal.get("finished") is not False or
+                                         type(terminal.get("winnerIndex")) is not int or
+                                         terminal["winnerIndex"] != -1):
+                raise ValueError("Failed game must not claim a terminal winner")
             failures.append({"game_id": g["game_id"], "rank": rank,
                              "seat": seat, "reason": status,
                              "first_turn_verified": turn_verified})
@@ -108,19 +127,33 @@ def evaluate_raw_batch(batch: dict, field_csv: str) -> dict:
     stats = summarize(SeatRecord(rank, seat, w, n) for (rank, seat), (w, n) in counts.items())
     finished = sum(n for w, n in counts.values())
     all_completed_traces_verified = finished > 0 and verified_completed_traces == finished
+    all_completed_terminals_bound = finished > 0 and terminal_bound_games == finished
+    terminal_stats = summarize(SeatRecord(rank, seat, w, n)
+                               for (rank, seat), (w, n) in terminal_counts.items())
     return {
         "provenance": {**{k: batch[k] for k in keys}, "engine_slots": slots},
         "raw_games": len(batch["games"]),
         "finished_games": finished,
         "verified_completed_traces": verified_completed_traces,
+        "terminal_bound_games": terminal_bound_games,
+        "unbound_completed_games": finished - terminal_bound_games,
+        "all_completed_terminals_bound": all_completed_terminals_bound,
         "digest_only_completed_games": finished - verified_completed_traces,
         "all_completed_traces_verified": all_completed_traces_verified,
         "trace_integrity_promotion_eligible": all_completed_traces_verified and not failures,
+        "outcome_integrity_promotion_eligible": (all_completed_traces_verified and
+                                                 all_completed_terminals_bound and not failures),
         "competitive_evidence_qualified": False,
         "finished_ties_as_nonwins": ties,
         "failures": failures,
         "pre_first_turn_failures": sum(not f["first_turn_verified"] for f in failures),
         "statistical_result": stats,
+        "terminal_bound_statistical_result": terminal_stats,
         "arithmetic_threshold_with_no_failures": not failures and stats["statistical_threshold_met"],
-        "warning": "Trace integrity does not establish replayability, game-rule correctness or playing-policy skill",
+        "terminal_bound_arithmetic_threshold_with_no_failures": (
+            all_completed_terminals_bound and not failures and
+            terminal_stats["statistical_threshold_met"]),
+        "warning": ("Unbound completed winners are diagnostic only. Engine-terminal agreement "
+                    "and trace integrity do not establish authentic replay, game-rule correctness "
+                    "or playing-policy skill"),
     }
