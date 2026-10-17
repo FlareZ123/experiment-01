@@ -3,7 +3,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {withExpandedActionOptions,runWithResearchProfile,EXPANDED_PROFILE,
-  DEFAULT_PROFILE,ALLOWED_PROFILES}=require('../simulation/twinleaf/policy-profiles.cjs');
+  EXPANDED_SOURCE_PROFILE,DEFAULT_PROFILE,ALLOWED_PROFILES}=require('../simulation/twinleaf/policy-profiles.cjs');
 const {upstreamSmokeDeck}=require('../simulation/twinleaf/headless.cjs');
 const defs=require(path.resolve(__dirname,
   '../vendor/twinleaf/ptcg-server/output/simple-bot/simple-bot-definitions'));
@@ -63,4 +63,27 @@ test('bounded engine smoke labels Expanded policy capabilities independently',()
   assert.ok(run.experimentalTactics.includes('BarrageEvolutionResolver-v1'));
   assert.match(run.policy,/MandatoryOptionResolver-v1/);
   assert.ok(run.actions<=80);
+});
+
+test('separately versioned source-K0 profile composes both seats without peeking',()=>{
+  assert.ok(ALLOWED_PROFILES.includes(EXPANDED_SOURCE_PROFILE));
+  const tacticsBefore=defs.allSimpleTactics.slice();
+  const resolversBefore=defs.allPromptResolvers.slice();
+  const deck=upstreamSmokeDeck();
+  const run=runWithResearchProfile({
+    deckA:deck,deckB:deck,seed:20261018,maxActions:80,
+    label:'bounded source-K0 composite policy test'
+  },EXPANDED_SOURCE_PROFILE);
+  assert.equal(run.researchPolicyProfile,EXPANDED_SOURCE_PROFILE);
+  assert.equal(run.supporterDecisionCorrection,true);
+  assert.equal(run.bunnelbyK0SafeEvolution,true);
+  assert.equal(run.bunnelbyObservedK1,false);
+  assert.equal(run.bunnelbyTargetAwareEvolution,true);
+  assert.equal(run.bunnelbyGuzmaHalaMode1,true);
+  assert.ok(run.experimentalTactics.includes('BunnelbyGuzmaHalaMode1-v1'));
+  assert.ok(run.experimentalTactics.includes('BunnelbyStageTargetResolver-v1'));
+  assert.match(run.policy,/BunnelbySourceK0PossibleEvolution-v1/);
+  assert.ok(run.actions<=80);
+  assert.deepEqual(defs.allSimpleTactics,tacticsBefore);
+  assert.deepEqual(defs.allPromptResolvers,resolversBefore);
 });
