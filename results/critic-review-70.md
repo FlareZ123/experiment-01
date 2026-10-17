@@ -24,8 +24,9 @@
 | [Champion Shadow Rider](aichi-2026/benchmark-shadow-rider.md) | **Sole currently nominated reference** | Published rank-1 list; unoptimized reference |
 | [Hood Shield v1](aichi-2026/candidate-hood-shadow-rider.md) | Frozen challenger | Source-checked hypothesis; no qualified games |
 | [Temple v1](aichi-2026/candidate-temple-shadow-rider.md) | Frozen challenger | Source-checked hypothesis; no qualified games |
+| [New Moon Lockbreaker v1](als/new-moon-lockbreak-60-candidate.md) | **Structural challenger, unqualified** | Frozen English-equivalent 60 derived from a separately sourced 52nd-place deck; staged counter-lock and print checks only; no qualified games |
 
-The champion is an unchanged exact copy of field rank 1. The [mirror/source-copy gate](aichi-2026/candidate-copy-gate.md) limits its eligibility under symmetric equal-policy evaluation. None of the three has demonstrated competitive performance sufficient for promotion. A structurally different architecture should remain possible.
+The champion is an unchanged exact copy of field rank 1. The [mirror/source-copy gate](aichi-2026/candidate-copy-gate.md) limits its eligibility under symmetric equal-policy evaluation. **None of these candidates has demonstrated competitive performance sufficient for promotion.** New Moon's source provenance and English-equivalent mapping should be kept distinct from a certified paper-printing and competitive-policy validation. Its early-source-game falsification plan is recorded in [the candidate report](als/new-moon-lockbreak-60-candidate.md), and the [recent Critic direction](../communications/broadcast/20261017T092734Z_critic_newmoon_qualification_focus.md) prioritizes authentic dealt games over additional source-map duplication.
 
 ## What is actually validated
 
