@@ -40,6 +40,7 @@ test('Source-anchored Thorns opening three-axis and four-axis percentages',()=>{
   const two=ironThornsDirect({...p,groups:[2]});
   const three=ironThornsDirect({...p,groups:[2,6]});
   const four=ironThornsDirect({...p,groups:[2,6,2]});
+  const native=ironThornsDirect({...p,starters:1,groups:[6]});
   assert.ok(Math.abs(two.firstDraw-0.05472225111408383)<1e-12);
   assert.ok(Math.abs(two.withAllBonuses-0.06484140844096999)<1e-12);
   assert.ok(Math.abs(three.firstDraw-0.027519949175691588)<1e-12);
@@ -47,6 +48,8 @@ test('Source-anchored Thorns opening three-axis and four-axis percentages',()=>{
   assert.ok(Math.abs(four.firstDraw-0.004917964910611905)<1e-12);
   assert.ok(Math.abs(four.withAllBonuses-0.00953350323294538)<1e-12);
   assert.ok(four.withAllBonuses<three.withAllBonuses);
+  assert.ok(Math.abs(native.firstDraw-0.06977444548535503)<1e-12);
+  assert.ok(Math.abs(native.withAllBonuses-0.0781367569386634)<1e-12);
 });
 
 test('Frozen candidate manifest and three source opponents reconcile',()=>{
