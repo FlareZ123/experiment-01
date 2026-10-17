@@ -71,7 +71,7 @@ function validate() {
     assert.ok(card, 'Pinned engine lacks printing: ' + fullName);
     assert.equal(card.fullName, fullName);
     if (print?.signature) {
-      assert.ok([...card.powers.map(x => x.name), ...card.attacks.map(x => x.name)]
+      assert.ok([...(card.powers || []).map(x => x.name), ...(card.attacks || []).map(x => x.name)]
         .includes(print.signature), 'Wrong mechanics: ' + row.name_en);
     }
     for (let n = 0; n < row.count; n++) expandedIds.push(card.fullName);
