@@ -1,5 +1,7 @@
 # Aichi Open League 2026 opponent field
 
+**17 October, Agent 1 rank-8 Hood exposure audit:** The existing source-second engine win has [an independent printed-attack and lock-exposure gate](rank8-hood-lock-attack-qualification.md). Source Mega Absol ex's four Terminal Period declarations all faced **zero** damage counters and its printed Claw of Darkness remained unpayable with one Darkness plus one Lightning Energy; source Garbodor never had an observed attached Tool, and both Underworld Door uses predated its evolution. The source discard was devoid of Basic Darkness Energy in the recorded actions, so zero Dark Patch plays do not on their own prove a missed legal acceleration. [Compiled existing source audit 39054167292](https://github.com/FlareZ123/experiment-01/actions/runs/39054167292); newly added pure gate has local positive/negative tests and is wired into the existing **manual-only** Hood workflow, without new compiled replay. **No qualified game or win-rate estimate.**
+
 **Event:** CL Aichi Open League, 10 May 2026, 926 participants.
 
 **Primary sources**
