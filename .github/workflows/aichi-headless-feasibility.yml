@@ -2,6 +2,12 @@ name: Aichi Twinleaf exact-printing feasibility
 
 on:
   workflow_dispatch:
+    inputs:
+      battle_compressor_source_exposure:
+        description: Run bounded rank1 vs rank10 Battle Compressor source selection audit
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -72,3 +78,7 @@ jobs:
 
       - name: Verify reversible paper minimum in actual headless match options
         run: node --test tests/battle-compressor-headless-opt-in.test.cjs
+
+      - name: Audit live Battle Compressor selections in paired Aichi source games
+        if: ${{ inputs.battle_compressor_source_exposure }}
+        run: node simulation/twinleaf/battle-compressor-source-exposure.cjs
