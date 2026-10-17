@@ -6,6 +6,7 @@ is retained, that the code is currently served, or that cards are legal.
 """
 
 import hashlib
+from html import unescape
 import json
 import os
 import re
@@ -51,6 +52,36 @@ def capture() -> dict:
         result["inline_scripts"] = [x.get_text(" ", strip=True)[:1600] for x in soup.select("script:not([src])") if x.get_text(" ", strip=True)][:12]
         result["images"] = [dict(src=x.get("src"), alt=x.get("alt")) for x in soup.select("img")][:25]
         result["deck_html_context"] = html[max(0, html.find(DECK_CODE)-350):html.find(DECK_CODE)+1100]
+        inline = "\n".join(
+            script.get_text("\n", strip=True)
+            for script in soup.select("script:not([src])")
+        )
+        indexed = []
+        for match in re.finditer(
+            r"PCGDECK\.searchItemName\[(\d+)\]\s*=\s*'([^']*)';",
+            inline,
+        ):
+            raw = unescape(match.group(2))
+            jp_name, separator, suffix = raw.rpartition("(")
+            if not separator:
+                continue
+            indexed.append({
+                "index": len(indexed),
+                "official_card_id": int(match.group(1)),
+                "japanese_name": jp_name,
+                "official_set_number": suffix.removesuffix(")"),
+                "raw_label": raw,
+            })
+        result["indexed_printings"] = indexed
+        result["deck_script_properties"] = sorted(
+            set(re.findall(r"PCGDECK\.(\w+)", inline))
+        )
+        relevant_scripts = [
+            script.get_text("\n", strip=True)
+            for script in soup.select("script:not([src])")
+            if "PCGDECK.searchItemName[" in script.get_text()
+        ]
+        result["deck_script_tail"] = relevant_scripts[0][-3600:] if relevant_scripts else ""
         result["sha256"] = hashlib.sha256(response.content).hexdigest()
         result["title"] = soup.title.get_text(" ", strip=True) if soup.title else None
         result["text_excerpt"] = text[:1000]
@@ -96,7 +127,9 @@ if __name__ == "__main__":
         "retrievable": report["retrievable"],
         "sha256": report["sha256"],
         "candidate_rows": len(report["candidate_rows"]),
-        "script_srcs": report.get("script_srcs", []),
+        "indexed_printings": report.get("indexed_printings", []),
+        "deck_script_properties": report.get("deck_script_properties", []),
+        "deck_script_tail": report.get("deck_script_tail", ""),
         "inline_scripts": report.get("inline_scripts", [])[:8],
         "images": report.get("images", [])[:10],
         "deck_html_context": report.get("deck_html_context", ""),
