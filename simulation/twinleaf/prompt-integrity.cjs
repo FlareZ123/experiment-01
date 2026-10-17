@@ -158,25 +158,13 @@ function assertValidPromptAction(state, action) {
         return index >= 0 && !blocked.has(index);
       });
   }
-  // Pinned ChoosePokemonPrompt.validate skips physical target-side/slot
-  // membership and duplicate selection. Honor exactly its target metadata.
+  // Pinned ChoosePokemonPrompt.validate omits declared side/slot and
+  // physical multiplicity. Reuse the MoveEnergy target enumerator.
   if (valid && name === 'ChoosePokemonPrompt' && action.result !== null) {
-    const actor = state.players.find(player =>
-      player.id === prompt.getPerspectivePlayerId());
-    const opponent = state.players.find(player => player.id !== actor?.id);
-    const available = new Set();
-    if (actor && opponent) {
-      const collect = (player, side) => {
-        player.forEachPokemon(side, (list, card, target) => {
-          if (prompt.slots.includes(target.slot)) available.add(list);
-        });
-      };
-      // Pinned PlayerType: ANY=0, TOP_PLAYER=1, BOTTOM_PLAYER=2.
-      if (prompt.playerType === 0 || prompt.playerType === 1) collect(opponent, 1);
-      if (prompt.playerType === 0 || prompt.playerType === 2) collect(actor, 2);
-    }
-    valid = !!actor && !!opponent && Array.isArray(action.result) &&
-      Array.from(action.result).every(slot => available.has(slot)) &&
+    const allowed = new Set(eligiblePokemonTargets(state, prompt)
+      .map(target => target.list));
+    valid = Array.isArray(action.result) &&
+      Array.from(action.result).every(slot => allowed.has(slot)) &&
       new Set(action.result).size === action.result.length;
   }
   if (valid && name === 'MoveEnergyPrompt' && action.result !== null) {
