@@ -65,3 +65,17 @@ The [reversible research-owned bot hook](../../simulation/twinleaf/distinct-atta
 **Interpretation:** A small reversible restriction correction removes a real source-game fatal prompt and permits a complete diagnostic trial. The engine's candidate-A terminal winner is **not a competitive win**: the opponent policy was previously demonstrated to be weak, initial-turn coverage is inadequate, card rules remain incompletely corrected, and the revised prompt policy is not independently qualified. In particular, the restriction hook does not ensure that Energy is allocated to useful attackers rather than to Tapu Koko, which removes itself from play.
 
 **Next evidence:** Inspect exact corrected target destinations and source-game opponent attacks/passes; test alternate usable target choices and realistic Absol/Garbodor responses, including the other physical starting order. Retain the fixed policy/version label when comparing raw and guarded actions. This hook is independently scoped to this experiment and **has no headless `runMatch` request flag yet**.
+
+
+## Source-game attack and chosen-Energy continuation audit
+
+A second [compiled source replay 39051229231](https://github.com/FlareZ123/experiment-01/actions/runs/39051229231) **passed**, archiving `rank8-distinct-target-contrast` artifact **12106854300** at source head `38d8634945f021bc553bbe54c0794d31f690fafe`. The diagnostic was extended with actual root `attackTrace`, `PassTurnAction` counts, first-turn evidence, final Prizes and explicit pre-choice-independent resolver target proposals. It confirms the same completed **134-action, 13-turn** corrected source game, actual candidate **seat A first**, engine winner **A**, final remaining Prizes **[0,6]**.
+
+| Seat | Actual attacks | Observed Pass actions |
+| --- | --- | ---: |
+| Temple v1 candidate A | **6 Full Moon Rondo**, on turns 3/5/7/9/11/13, all by Lillie's Clefairy ex | 1 |
+| Source rank-8 Absol/Garbodor B | **1 Venomous Fang** (Crobat V, turn 6); **2 Terminal Period** (Mega Absol ex, turns 10/12) | 3 |
+
+The resolver's diagnostic target proposals for **source prompt 57** occurred twice in the policy/scoring process. Each proposal assigned the first physical Lightning to **Tapu Koko** Bench index **2** and the second to one **Mega Absol ex** Bench index **0**. The two proposal observations should not be construed as two distinct actual uses of Tapu Koko's once-only Prism Star Ability. The source game's Tapu Koko consequently receives Lightning immediately before exiting play, a strategically wasteful option while two Mega Absol attackers are available. The pinned resolver's `differentTargets` correction makes the proposal legal, with its strategic preference still substantially questionable.
+
+In view of the opponent's limited, conditional attack sequence and six-Prize terminal margin, the **13-turn engine victory remains demonstrably unqualified as a human-competitive result**. It is a specific source-policy trajectory, and the correct adversarial next test is to force a plausible legal alternate opponent-owned Bench/Discard choice: attach one Lightning to **each Mega Absol ex**, then continue from the unchanged source seed and other decisions as far as the real policy permits. The counterfactual is implemented in `simulation/twinleaf/rank8-tapukoko-two-mega-absol-counterfork.cjs`; its own CI proof must be recorded before drawing any outcome conclusion.
