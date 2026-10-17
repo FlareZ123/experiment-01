@@ -11,6 +11,11 @@ on:
         options:
           - simple-default-v0
           - expanded-action-fidelity-probe-v1
+      post_super_clone:
+        description: 'Experimental v2 speculative Simulator repair; does not qualify game strength'
+        required: false
+        type: boolean
+        default: false
       seat_seed_protocol:
         description: 'v3 default; explicitly choose v2 only to replay historical diagnostics'
         required: false
@@ -49,6 +54,7 @@ jobs:
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
           CAMPAIGN_POLICY_PROFILE: ${{ inputs.policy_profile }}
           CAMPAIGN_CAPTURE_DECISIONS: 'true'
+          CAMPAIGN_POST_SUPER_ALIAS_REPAIR: ${{ inputs.post_super_clone }}
           CAMPAIGN_PHASE: pilot
           CAMPAIGN_MAX_TRIALS: '6'
           CAMPAIGN_TRIAL_IDS: 'pilot:6:0:champion-reference:A,pilot:6:0:champion-reference:B,pilot:6:0:hood-shield-v1:A,pilot:6:0:hood-shield-v1:B,pilot:6:0:temple-v1:A,pilot:6:0:temple-v1:B'
