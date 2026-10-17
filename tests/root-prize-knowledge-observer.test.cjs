@@ -4,7 +4,8 @@ const assert=require('node:assert/strict');
 const test=require('node:test');
 const {createOwnerDeckKnowledgeEpoch}=require(
   '../simulation/twinleaf/owner-deck-knowledge-epoch.cjs');
-const {snapshotPrizeCardIdentities,invalidateAfterRootHiddenPrizeIngress}=
+const {snapshotPrizeCardIdentities,invalidateAfterRootHiddenPrizeIngress,
+  observeAfterRootFullPrizeReview}=
   require('../simulation/twinleaf/root-prize-knowledge-observer.cjs');
 
 const c=name=>({name});
@@ -22,7 +23,7 @@ test('actual hidden Prize ingress revokes K1 and subsequent own search restores 
   p.prizes=[{isSecret:true,cards:[c('newUnknownPrize')]}];
   assert.deepEqual(invalidateAfterRootHiddenPrizeIngress(before,state,epochs),[101]);
   assert.deepEqual(epochs.get(101).snapshot(),{
-    exactMembership:false,epoch:2,liveSearches:1,hiddenPrizeRedeals:1
+    exactMembership:false,epoch:2,liveSearches:1,fullPrizeReviews:0,hiddenPrizeRedeals:1
   });
   epochs.get(101).observeOwnerDeckSearch();
   assert.equal(epochs.get(101).exactMembershipKnown(),true);
@@ -63,4 +64,34 @@ test('root observer invalidates only the affected owner and never K0',()=>{
   a.prizes=[{isSecret:true,cards:[c('newA')]}];
   assert.deepEqual(invalidateAfterRootHiddenPrizeIngress(second,state,epochs),[101]);
   assert.equal(known.exactMembershipKnown(),false);
+});
+
+test('previously known staged Trainer reprized face down preserves K1',()=>{
+  const ball=c('Hisuian Heavy Ball');
+  const p=player(101,[c('originalBasic')]);
+  p.supporter={cards:[ball]};
+  const state={players:[p]},epoch=tracked();
+  const before=snapshotPrizeCardIdentities(state);
+  p.supporter.cards=[];
+  p.prizes[0].cards=[ball];
+  assert.deepEqual(invalidateAfterRootHiddenPrizeIngress(
+    before,state,new Map([[101,epoch]])),[]);
+  assert.equal(epoch.exactMembershipKnown(),true);
+});
+
+test('a genuine full face-up Prize review establishes exact membership for K0',()=>{
+  const p=player(101,[c('prizeA'),c('prizeB')]);
+  const state={players:[p]},epoch=createOwnerDeckKnowledgeEpoch();
+  const before=snapshotPrizeCardIdentities(state);
+  p.prizes.forEach(slot=>{slot.isSecret=false});
+  assert.deepEqual(observeAfterRootFullPrizeReview(
+    before,state,new Map([[101,epoch]])),[101]);
+  assert.deepEqual(epoch.snapshot(),{
+    exactMembership:true,epoch:1,liveSearches:0,fullPrizeReviews:1,
+    hiddenPrizeRedeals:0
+  });
+  const next=snapshotPrizeCardIdentities(state);
+  assert.deepEqual(observeAfterRootFullPrizeReview(
+    next,state,new Map([[101,epoch]])),[]);
+  assert.equal(epoch.snapshot().fullPrizeReviews,1);
 });
