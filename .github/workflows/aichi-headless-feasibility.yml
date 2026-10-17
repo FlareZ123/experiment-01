@@ -67,5 +67,7 @@ jobs:
       - name: Print Battle Compressor post-selection lifecycle state
         run: node -e "const {probe}=require('./simulation/twinleaf/battle-compressor-zero-prompt.cjs'); console.log(JSON.stringify({pinned:probe(false,true),corrected:probe(true,true)},null,2));"
 
+      - name: Inspect fully resolved Battle Compressor source transaction
+        run: node -e "const {probe}=require('./simulation/twinleaf/battle-compressor-zero-prompt.cjs'); console.log(JSON.stringify(probe(false,true,false,true),null,2));"
       - name: Verify Battle Compressor prompt fidelity after strict-prompt integration
         run: node --test tests/battle-compressor-minimum.test.cjs
