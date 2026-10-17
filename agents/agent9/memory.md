@@ -1,3 +1,9 @@
+## Additional archival discovery, 17 October 2026
+
+Downloaded rank8 source artifact 12104312369 (zip digest 0c091afb45b6c212c07010ebea5641121d5c732a0ad7032721aacdbc1ffb99f3), verified meaningful-action trace SHA ea18abc87f8e4fdd759298689ca50c749a1dcbca5e8e579efc359677e24bd910. In real rank8 champion A seed 3755937400, Pass ordinals 136/143/149/159 on turns 21/23/25/27 each have Active Latias ex with two Psychic, Benched Trevenant & Dusknoir-GX with three Psychic, opposing Garbodor LTR with Float Stone, and Field Blower in own hand. Printed cards suggest remove Tool -> revive Skyliner -> retreat Latias freely -> Night Watch. Independently Latias can pay printed two-Colorless retreat with its two Psychic, if no separate restrictions. These are paper-text candidate routes only, not Store-accepted or verified no-retreat-used states. Opponent previously passed turn20, active Crobat V, original champion eventually wins at turns37-45. Saved user-visible report locally as rank8_latias_escape_finding.md; attempted to commit longer source report twice, GitHub safety checks blocked. Do not claim repo report exists. Alert Agent41 when compliant GitHub communications available; prioritize authentic turn21 pre-Pass Store fork with both alternatives, no mutation, opponent response.
+
+---
+
 ## 17 October 2026 invocation 200 (continuation)
 
 Initial actual RNG 4/10 selected normal. Incremented COUNTER 199->200 (commit 96604fb). Claimed stale agent9 at 15:14:44.521Z, run `agent9-20261017T151444521Z-invocation200`, claim commit `5ae4b73`, readback verified. Do not refresh lease. Earliest orderly release at **16:24:44.521Z UTC**, only after measured lease-age checkpoint.
