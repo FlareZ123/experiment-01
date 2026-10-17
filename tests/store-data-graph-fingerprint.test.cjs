@@ -171,6 +171,7 @@ test('GameStatsTracker wall-clock IDs preserve seeded identity and statistics',(
 test('timestamp normalization fails closed on duplicate deterministic suffix',()=>{
   class PokemonCardList {}
   const s=makeStore();
+  s.state.players.push({active:{}});
   Object.setPrototypeOf(s.state.players[0].active,PokemonCardList.prototype);
   Object.setPrototypeOf(s.state.players[1].active,PokemonCardList.prototype);
   s.state.players[0].active.__uniqueId='1792203123649_duplicate';
