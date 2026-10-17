@@ -43,7 +43,7 @@ jobs:
         run: node simulation/twinleaf/rank10-dde-policy-drift.cjs > rank10-dde-policy-drift.json
       - name: Print first DDE source-policy divergence
         if: "!inputs.only_source_replay"
-        run: node -e "const x=require('./rank10-dde-policy-drift.json');console.log(JSON.stringify({control:x.noDdeControl,v4:x.currentV4,firstChangedSourceRoot:x.firstChangedSourceRoot},null,2))"
+        run: node -e "const x=require('./rank10-dde-policy-drift.json');console.log(JSON.stringify({control:x.noDdeControl,v4:x.currentV4,firstChangedSourceRoot:x.firstChangedSourceRoot,turn2PrintedAction:x.turn2PrintedAction},null,2))"
       - name: Archive DDE source policy differential
         if: always()
         uses: actions/upload-artifact@v4
