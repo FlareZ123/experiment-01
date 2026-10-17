@@ -12,7 +12,7 @@ const {observableState,hash}=require('./source-state-continuity.cjs');
  * @template T
  * @param {{Store:Function,Bot:Function,AttackAction:Function,ResolvePromptAction:Function}} types
  * @param {()=>T} work
- * @param {{forceShred?:boolean,snapshot?:(state:object)=>object}} options
+ * @param {{forceShred?:boolean,rootActionOrdinal?:number,snapshot?:(state:object)=>object}} options
  * @returns {{result:T,opportunities:object[],shredSelections:object[]}}
  */
 function withTurn28CopycatShredFork(types,work,options={}) {
@@ -21,11 +21,12 @@ function withTurn28CopycatShredFork(types,work,options={}) {
   const botDesc=Object.getOwnPropertyDescriptor(Bot.prototype,'decodeNextAction');
   assert.equal(typeof storeDesc?.value,'function');
   assert.equal(typeof botDesc?.value,'function');
-  let root=null,forced=false;
+  let root=null,forced=false,rootDispatchCount=0;
   const snapshot=options.snapshot||observableState;
   const opportunities=[],shredSelections=[];
   const dispatch=function(...args) {
     if(!root && args[0]?.constructor?.name==='AddPlayerAction') root=this;
+    if(this===root) rootDispatchCount++;
     return storeDesc.value.apply(this,args);
   };
   const decode=function(state,...args) {
@@ -56,6 +57,28 @@ function withTurn28CopycatShredFork(types,work,options={}) {
         source:dialga.fullName,attack:shred.name,
         stateDigest:hash(snapshot(state))});
       return new ResolvePromptAction(pending.id,shred);
+    }
+    // A source-ordinal fork avoids executing the generic bot's speculative
+    // choice for this one recorded root decision. The paired original branch
+    // separately proves that action 215 was a RetreatAction in the source.
+    // This is a replay diagnostic, never a general production decision policy.
+    if (sourceReady && !pending && !forced &&
+        options.forceShred===true &&
+        options.rootActionOrdinal===rootDispatchCount &&
+        this.client?.id===actor.id) {
+      const defender=opponent.active.getPokemonCard();
+      const damage=opponent.active.damage;
+      assert.equal(defender?.fullName,'Regidrago VSTAR SIT');
+      assert.equal(defender.hp,280);
+      assert.ok(damage>=200 && damage<280,
+        'Source opponent must be in Dialga Shred knockout range');
+      opportunities.push({turn:28,actor:actor.id,
+        originalAction:'independently verified source RetreatAction',
+        defender:defender.fullName,damage,shredPrintedDamage:80,
+        defenderHP:defender.hp,ownDiscardDragon:'Dialga-GX UPR',
+        sourceDigest:hash(snapshot(state)),rootActionOrdinal:rootDispatchCount});
+      forced=true;
+      return new AttackAction(actor.id,'Copycat');
     }
     const chosen=botDesc.value.call(this,state,...args);
     if(!sourceReady || chosen?.constructor?.name!=='RetreatAction' ||
