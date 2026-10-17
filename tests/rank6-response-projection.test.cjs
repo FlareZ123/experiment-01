@@ -1,7 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const {publicTurnLedger,responseTurnEndingActionObserved}=
+const {publicTurnLedger,responseTurnEndingActionObserved,publicPrizeTransitions}=
   require('../simulation/twinleaf/rank6-response-projection.cjs');
 const hidden='SECRET_PRIZE_AND_HAND_CARD';
 const trace=[
