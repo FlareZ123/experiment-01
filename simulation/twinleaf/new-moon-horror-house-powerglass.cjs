@@ -86,6 +86,10 @@ function horrorHousePowerglassContract() {
   store.dispatch(new UseAbilityAction(mew.id, 'Perfection', {
     player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
   }));
+  const abilityWait = state.prompts.find(p => p.result === undefined &&
+    p.constructor.name === 'WaitPrompt');
+  assert.ok(abilityWait, 'Perfection Ability activation emits an animation WaitPrompt');
+  store.dispatch(new ResolvePromptAction(abilityWait.id, null));
   const chosen = state.prompts.find(p => p.result === undefined &&
     p.constructor.name === 'ChooseAttackPrompt');
   assert.ok(chosen, 'Perfection must offer a real source attack-selection prompt');
