@@ -36,6 +36,6 @@ test('genuine Store Battle Compressor search does not spuriously revoke K1',()=>
   assert.deepEqual(invalidateAfterRootHiddenPrizeIngress(
     prior,stage.state,epochs),[]);
   assert.deepEqual(known.snapshot(),{
-    exactMembership:true,epoch:1,liveSearches:1,hiddenPrizeRedeals:0
+    exactMembership:true,epoch:1,liveSearches:1,fullPrizeReviews:0,hiddenPrizeRedeals:0
   });
 });
