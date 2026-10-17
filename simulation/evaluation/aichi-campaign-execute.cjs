@@ -88,7 +88,8 @@ function executeDiagnostic(options) {
     'bunnelbyK0SafeEvolution', 'attackBeforeRetreat',
     'attackBeforeRetreatCandidateOnly',
     'leleEntryAbilityLockCorrection',
-    'radiantGateLockCorrection', 'entryDrawLockCorrection'
+    'radiantGateLockCorrection', 'entryDrawLockCorrection',
+    'eldegossEntryLockCorrection'
   ]);
   if (policyFlags === null || typeof policyFlags !== 'object' ||
       Array.isArray(policyFlags) ||
