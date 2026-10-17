@@ -52,6 +52,10 @@ test('pinned OrderCardsPrompt accepts valid 12-card index permutation in strict 
   assert.doesNotThrow(check(state, prompt, legal));
   assert.throws(check(state, prompt, [...legal.slice(0, -1), legal[0]]),
     /invalid result/);
+  const sparse = legal.slice();
+  delete sparse[3];
+  assert.throws(check(state, prompt, sparse), /invalid result/,
+    'Sparse array holes must not masquerade as missing permutation indices');
   assert.throws(check(state, prompt, null), /invalid result/);
 });
 
