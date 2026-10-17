@@ -8,6 +8,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank2_turn5_observer:
+        description: Capture exact owner-visible turn5 Supporter decision fork
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -73,5 +78,23 @@ jobs:
         with:
           name: rank2-expanded-source-policy-pair
           path: expanded-source-policy-pair.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Validate first source rank2 turn5 root Supporter fork
+        if: ${{ inputs.rank2_turn5_observer }}
+        run: node --test tests/rank2-turn5-source-fork-observer.test.cjs
+      - name: Record original-source fork owner-visible states
+        if: ${{ inputs.rank2_turn5_observer }}
+        run: node simulation/twinleaf/rank2-turn5-source-fork-observer.cjs > rank2-turn5-source-fork.json
+      - name: Summarize observed source predecision equivalence
+        if: ${{ inputs.rank2_turn5_observer }}
+        run: node -e "const r=require('./rank2-turn5-source-fork.json');console.log(JSON.stringify({sameVisible:r.samePredecisionVisibleSnapshot,firstDifference:r.firstRecordedMeaningfulDifference,arms:r.arms.map(a=>({profile:a.profile,fork:a.fork,context:a.capture[0]?.before,deckSearches:a.ownDeckSearchesBeforeFork}))},null,2))"
+      - name: Archive owner-visible source fork contexts
+        if: ${{ always() && inputs.rank2_turn5_observer }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank2-turn5-owner-visible-fork
+          path: rank2-turn5-source-fork.json
           if-no-files-found: warn
           retention-days: 14
