@@ -10,6 +10,7 @@ const {runMatch,initializeCards}=require('./headless.cjs');
 const {sourceZoneSnapshot,zoneSnapshotDigest}=require('./source-zone-checkpoint.cjs');
 const {observableState,hash:historyHash,firstMismatch}=require('./source-state-continuity.cjs');
 const {storeDataGraphFingerprint}=require('./store-data-graph-fingerprint.cjs');
+const {graphDifferenceWitness}=require('./graph-difference-witness.cjs');
 const {withDecisionScopedDetachedSimulator}=
   require('./decision-scoped-detached-simulator.cjs');
 
@@ -75,7 +76,8 @@ function observeKoraidonTurn5(work,options={}) {
         attack:action?.name??null,before,after,
         policyTimeRootGraphChanged:before.store!==after.store,
         policyTimeRootGraphFirstDifference:before.store!==after.store?
-          firstMismatch(preGraph.graph,postGraph.graph):null
+          graphDifferenceWitness(preGraph.graph,postGraph.graph,
+            firstMismatch(preGraph.graph,postGraph.graph)):null
       });
       return action;
     }
