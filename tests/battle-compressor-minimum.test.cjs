@@ -23,3 +23,12 @@ test('the research correction is fully reversible',()=>{
   assert.equal(probe(true).acceptsZero,false);
   assert.equal(probe().acceptsZero,true);
 });
+
+test('actual Store rejects empty corrected choice and retains deck',()=>{
+  const baseline=probe(false,true),corrected=probe(true,true);
+  assert.equal(baseline.emptyResolution,'accepted');
+  assert.equal(baseline.discardedItem,true);
+  assert.equal(baseline.deckSizeAfter,baseline.deckSize);
+  assert.equal(corrected.emptyResolution,'rejected');
+  assert.equal(corrected.deckSizeAfter,corrected.deckSize);
+});
