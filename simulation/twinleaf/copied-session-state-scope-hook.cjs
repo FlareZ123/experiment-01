@@ -53,6 +53,11 @@ function sessionsForState(state) {
   output = replaceOnce(output,
     'function clearCopyAttackSessionsForTests() {\n    copyAttackSessions.length = 0;',
     'function clearCopyAttackSessionsForTests() {\n    copyAttackSessionsByState = new WeakMap();');
+  output += '\nfunction inheritCopyAttackSessionsFromState(parentState, clonedState) {\n' +
+    '  const entries = copyAttackSessionsByState.get(parentState) || [];\n' +
+    '  copyAttackSessionsByState.set(clonedState, entries.slice());\n' +
+    '  return entries.length;\n' +
+    '}\nexports.inheritCopyAttackSessionsFromState = inheritCopyAttackSessionsFromState;\n';
   return output;
 }
 
