@@ -122,7 +122,7 @@ function main() {
     seed, engine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     qualifiedForCompetitiveInference: false,
     sourceReplayMechanicsVerified: false,
-    samePreDecisionGame: true,
+    matchingPreTurnFiveActionStream: true,
     note: 'The original and aligned options follow generic bot decisions. Retreat is an explicit source-state fork. This does not repair information leakage, speculative clone integrity, opponent skill or other card rules.',
     arms: arms.map(({beforeTurnFiveActions, deckHashes, ...arm}) => arm),
     originalDeckHashes: original.deckHashes
