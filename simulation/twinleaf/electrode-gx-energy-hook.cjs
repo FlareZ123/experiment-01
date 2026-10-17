@@ -16,6 +16,36 @@ function installElectrodeGXEnergyHook() {
   const {SuperType,CardTag} = load('game/store/card/card-types');
   const {GameError} = load('game/game-error');
   const {GameMessage} = load('game/game-message');
+  const {AttachEnergyPromptResolver} =
+    load('simple-bot/prompt-resolver/attach-energy-prompt-resolver');
+  const {Card} = load('game/store/card/card');
+  const {deepClone} = load('utils/utils');
+  const mandatoryPrompts = new WeakSet();
+  const originalChoice = AttachEnergyPromptResolver.prototype.getPromptResult;
+  /**
+   * Retain upstream greedy target selection while imposing the card-mandated
+   * full attachment count. The upstream resolver normally scores all prefixes.
+   * @param {any} state @param {any} prompt
+   */
+  function mandatoryChoice(state,prompt) {
+    if (!mandatoryPrompts.has(prompt)) return originalChoice.call(this,state,prompt);
+    const copy=deepClone(state,[Card]);
+    const cardList=this.buildCardsToChoose(copy,prompt);
+    const selected=cardList.cards.slice(0,prompt.options.min);
+    if (selected.length!==prompt.options.min) {
+      throw new GameError(GameMessage.ILLEGAL_ACTION);
+    }
+    const transfers=[];
+    for (const card of selected) {
+      const choice=this.assignToBestTarget(copy,prompt,cardList,card);
+      if (!choice || !Array.isArray(choice.value) || choice.value.length!==1) {
+        throw new GameError(GameMessage.ILLEGAL_ACTION);
+      }
+      transfers.push(choice.value[0]);
+    }
+    return transfers;
+  }
+  AttachEnergyPromptResolver.prototype.getPromptResult=mandatoryChoice;
   const original = ElectrodeGX.prototype.reduceEffect;
   /** @param {any} store @param {any} state @param {any} effect */
   function corrected(store,state,effect) {
@@ -42,6 +72,7 @@ function installElectrodeGXEnergyHook() {
               prompt.message===GameMessage.ATTACH_ENERGY_CARDS &&
               prompt.options.max===5) {
             prompt.options.min=mandatory;
+            mandatoryPrompts.add(prompt);
             return target.prompt(nextState,prompt,transfers=>{
               if (!Array.isArray(transfers) || !prompt.validate(transfers)) {
                 throw new GameError(GameMessage.ILLEGAL_ACTION);
@@ -69,6 +100,9 @@ function installElectrodeGXEnergyHook() {
   restoreActive=()=>{
     if (ElectrodeGX.prototype.reduceEffect===corrected) {
       ElectrodeGX.prototype.reduceEffect=original;
+    }
+    if (AttachEnergyPromptResolver.prototype.getPromptResult===mandatoryChoice) {
+      AttachEnergyPromptResolver.prototype.getPromptResult=originalChoice;
     }
     restoreActive=null;
   };
