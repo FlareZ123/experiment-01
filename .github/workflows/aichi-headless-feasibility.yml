@@ -112,11 +112,11 @@ jobs:
 
       - name: Isolate authentic rank 11 first-turn resource and prompt decisions
         if: ${{ inputs.absol_rank11_firstturn_audit }}
-        run: node simulation/twinleaf/absol-rank11-firstturn-ownhand.cjs > absol-rank11-firstturn-ownhand.json
+        run: node simulation/twinleaf/absol-rank11-k1-source-audit.cjs > absol-rank11-firstturn-k1.json
       - name: Archive actual first-turn rank 11 source choices
         if: ${{ inputs.absol_rank11_firstturn_audit }}
         uses: actions/upload-artifact@v4
         with:
-          name: absol-rank11-firstturn-ownhand
-          path: absol-rank11-firstturn-ownhand.json
+          name: absol-rank11-firstturn-k1
+          path: absol-rank11-firstturn-k1.json
           retention-days: 14
