@@ -94,10 +94,17 @@ function runPassProbeNoninterference(settings = {}) {
   // speculative attacks only after a Pass decision has already been made.
   const baseline = runMatch({...options, captureAttackPassProbes: false});
   const observed = runMatch({...options, captureAttackPassProbes: true});
+  // Re-run the control in this same process. Some copied-attack effects
+  // retain module-global session state across independent Stores, so an
+  // A/B comparison alone misses contamination of a subsequent game.
+  const resumedControl = runMatch({...options, captureAttackPassProbes: false});
   const base = counterfactualFingerprint(baseline);
   const withProbe = counterfactualFingerprint(observed);
+  const resumed = counterfactualFingerprint(resumedControl);
   assert.equal(withProbe.hash, base.hash,
     'Optional cloned attack-pass observation changed the source-ranked game');
+  assert.equal(resumed.hash, base.hash,
+    'Source-ranked control changed after the speculative observer ran');
   assert.ok(observed.attackPassProbeCount >= 1,
     'Must actually run post-choice checks for this to test noninterference');
 
@@ -120,6 +127,7 @@ function runPassProbeNoninterference(settings = {}) {
     actualTurns: baseline.turns,
     actualEngineWinner: baseline.winner,
     flagsDifferedOnlyInOptionalPassObservation: true,
+    baselineStableAfterProbeInSameProcess: true,
     verifiedEqualActionAndStateHistory: true,
     competitiveQualification: false,
     caveat: 'Only one source-locked weak-bot game, under pinned engine behavior; action-equivalence of a post-choice audit is not paper rules or opponent policy fidelity.'
