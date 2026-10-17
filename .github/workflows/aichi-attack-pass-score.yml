@@ -8,6 +8,11 @@ on:
         type: boolean
         required: false
         default: false
+      apex_rank15_screen:
+        description: Run bounded authentic rank10 versus rank15 Phantom Dive exposure screen
+        type: boolean
+        required: false
+        default: false
       mega_energy_probe:
         description: Test printed two-Energy discard against Double Dragon
         type: boolean
@@ -57,6 +62,15 @@ jobs:
         with:
           name: rank10-apex-prize-source-pair
           path: rank10-apex-prize-source-pair.json
+          if-no-files-found: error
+      - name: Optional source-60 rank15 Regidrago Phantom Dive exposure screen
+        if: inputs.apex_rank15_screen == true
+        run: node simulation/twinleaf/rank15-regidrago-spread-exposure.cjs > rank15-spread-exposure.json
+      - uses: actions/upload-artifact@v4
+        if: inputs.apex_rank15_screen == true
+        with:
+          name: rank15-regidrago-spread-exposure
+          path: rank15-spread-exposure.json
           if-no-files-found: error
       - name: Compare instrumented and uninstrumented source games
         run: node simulation/twinleaf/attack-pass-score-diagnostic.cjs
