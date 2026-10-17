@@ -120,3 +120,30 @@ test('supplementary effect snapshots detach their structured fields',()=>{
   live.players[0].attackPowerSuppressions[0].turnsRemaining=1;
   assert.equal(checkpoint.players[0].fields.attackPowerSuppressions[0].turnsRemaining,2);
 });
+
+
+test('all-own-primitive audit catches physical Card mutation hidden from print-zone history',()=>{
+  const live=state();
+  const zone=zoneSnapshotDigest(sourceZoneSnapshot(live));
+  const before=sourceEffectDigest(live);
+  live.players[0].hand.cards[0].damageTakenLastTurn=80;
+  assert.equal(zoneSnapshotDigest(sourceZoneSnapshot(live)),zone);
+  assert.notEqual(sourceEffectDigest(live),before);
+  const primitive=sourceEffectSnapshot(live).players[0].primitive.hand[0];
+  assert.deepEqual(primitive.find(([name])=>name==='damageTakenLastTurn'),
+    ['damageTakenLastTurn',80]);
+});
+
+test('all-own-primitive audit preserves undefined versus absent, without invoking getters',()=>{
+  const game=state();
+  const original=sourceEffectDigest(game);
+  game.players[0].debugUndefined=undefined;
+  assert.notEqual(sourceEffectDigest(game),original);
+  const after=sourceEffectDigest(game);
+  Object.defineProperty(game.players[0],'unsafeGetter',{
+    enumerable:true,get(){throw new Error('must not invoke source getter');}
+  });
+  assert.equal(sourceEffectDigest(game),after);
+  game.players[0].debugUndefined=false;
+  assert.notEqual(sourceEffectDigest(game),after);
+});
