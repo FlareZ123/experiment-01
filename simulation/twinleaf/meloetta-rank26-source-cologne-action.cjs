@@ -126,9 +126,9 @@ function run(){
   assert.equal(played.firstTurnSlot,expected.firstTurnSlot);
   assert.deepEqual(played.sourceHandBefore,expected.attackerHand,
     'Experimental Item branch did not reach the exact same authenticated root');
-  assert.equal(played.meloettaAbilitiesBefore.includes('Debut Performance'),false,
+  assert.equal(played.meloettaAbilitiesBefore.includes('Live Debut'),false,
     'Active Iron Thorns must suppress Meloetta printed Ability');
-  assert.equal(played.meloettaAbilitiesAfter.includes('Debut Performance'),true,
+  assert.equal(played.meloettaAbilitiesAfter.includes('Live Debut'),true,
     'Playing held Cologne must restore Meloetta Ability');
   assert.equal(played.cologneStillInHand,false);
   assert.equal(played.cologneInDiscard,true);
