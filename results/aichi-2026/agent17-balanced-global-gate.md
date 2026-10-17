@@ -89,6 +89,14 @@ The telescoping identity `sum_{i=1}^infinity 1/(i*(i+1)) = 1` gives `sum alpha_i
 
 This scheme is a prospective option, not a retrospective correction of existing diagnostic data. If the actual family of hypotheses or a fixed candidate's sampling plan is different, the spending mechanism must be declared before observations. The current missing source lists and policy defects still block any real certification. [Five exact-number synthetic regressions](../../tests/test_aichi_familywise_evidence.py) test the allocations, budget identity and outcome thresholds.
 
+## 17 October 2026: action-trace requirement for arithmetic promotion
+
+A structural boundary was missing: `evaluate_raw_batch` correctly records `digest_only_completed_games` and `all_completed_traces_verified`, but the higher-level `evaluate_balanced_raw_batch` previously ignored these fields. Thus a **synthetic** full-32, 640/640 winning batch could report `statistical_threshold_met: true` despite containing only unverifiable opaque `trace_sha256` strings and no supplied action traces. This is an evidentiary classification defect, independent of the already-known simulator and opponent-policy shortcomings.
+
+The adapter now rejects any completed record without a nonempty supplied `action_trace` whose canonical SHA-256 matches the record's `trace_sha256`. The 640-game synthetic fixture uses explicitly artificial one-event, correctly hashed traces; two new regressions reject a missing trace and tampered trace content. The lower-level match-record API still accepts digest-only diagnostic games, retaining its existing diagnostic scope.
+
+**Limits:** Trace/hash agreement proves content integrity for the supplied trace only. It cannot certify authentic engine recording, trace completeness, genuine full-state replay, independent random deals or competent choices. The Aichi source field still lacks ranks 23, 25 and 28. The current count of independently qualified competitive games remains zero.
+
 ## Candidate identity and globally disjoint sampling checks (16 October)
 
 The adapter now requires a **second external deck fingerprint**, `expected_candidate_deck_sha256`, in addition to the full 32-rank source map. That fingerprint must match `batch.candidate_deck_sha256` exactly, so an otherwise complete batch cannot silently use a different candidate. This is a structural cross-check between a preregistered candidate card inventory and a batch-provided digest; a subsequent replay/engine-deck attestation is still necessary to prove the cards played.
