@@ -2,6 +2,7 @@
 import hashlib
 import unittest
 
+from scripts.action_trace_integrity import action_trace_sha256
 from scripts.match_record_contract import evaluate_raw_batch
 
 
@@ -53,6 +54,10 @@ class SourceHashGateTests(unittest.TestCase):
         self.assertEqual(evaluate_raw_batch(batch, field)["finished_games"], 1)
         valid = evaluate_raw_batch(batch, field, {1: "b" * 64})
         self.assertTrue(valid["opponent_source_inventory_bound"])
+        self.assertFalse(valid["full_input_integrity_promotion_eligible"])
+        batch["games"][0]["action_trace"] = [{"step": 0, "action": "finish"}]
+        batch["games"][0]["trace_sha256"] = action_trace_sha256(batch["games"][0]["action_trace"])
+        batch["games"][0]["engine_terminal"] = {"finished": True, "winnerIndex": 0}
         self.assertFalse(valid["competitive_evidence_qualified"])
         self.assertFalse(valid["candidate_source_inventory_bound"])
         self.assertFalse(valid["full_input_integrity_promotion_eligible"])
