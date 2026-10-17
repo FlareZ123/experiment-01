@@ -2,6 +2,11 @@ name: Aichi full dispatch transcript diagnostic
 
 on:
   workflow_dispatch:
+    inputs:
+      only_source_replay:
+        description: Skip unrelated source diagnostics
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -35,10 +40,13 @@ jobs:
         run: node simulation/twinleaf/dispatch-transcript-smoke.cjs
 
       - name: Check source-locked Field Blower policy predicates
+        if: "!inputs.only_source_replay"
         run: node --test tests/rank10-field-blower-policy.test.cjs
       - name: Try actual source rank10 Field Blower turn55 decision
+        if: "!inputs.only_source_replay"
         run: node simulation/twinleaf/rank10-field-blower-fork.cjs > rank10-field-blower-fork.json
       - name: Summarize Field Blower policy fork
+        if: "!inputs.only_source_replay"
         run: node -e "const x=require('./rank10-field-blower-fork.json'); console.log(JSON.stringify({trial:x.trial,divergence:x.divergence,actionsTaken:x.actionsTaken,attemptedPlayAccepted:x.attemptedPlayAccepted,attemptedFollowOnBench:x.attemptedFollowOnBench,control:x.control,branch:x.branch,qualified:x.qualifiedForCompetitiveInference}));"
       - name: Archive source rank10 Field Blower fork
         if: always()
@@ -49,8 +57,10 @@ jobs:
           if-no-files-found: warn
 
       - name: Audit root Store own-data across authentic rank-10 policy decisions
+        if: "!inputs.only_source_replay"
         run: node simulation/twinleaf/rank10-policy-store-graph.cjs > rank10-root-policy-graph.json
       - name: Summarize live policy mutation audit
+        if: "!inputs.only_source_replay"
         run: node -e "const x=require('./rank10-root-policy-graph.json'); console.log(JSON.stringify({rootPolicyCalls:x.rootPolicyCalls,observedMutations:x.mutationCount,graphContract:x.graphContract,firstMutations:x.mutations.slice(0,5),qualified:x.qualifiedForCompetitiveInference}));"
       - name: Archive policy-time root Store graph diagnostic
         if: always()
