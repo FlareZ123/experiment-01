@@ -49,6 +49,10 @@ jobs:
         run: node --test tests/aichi-ranger-stone-access.test.cjs
       - name: Source-ranked Raichu and Mew Ranger Stone tests
         run: node --test tests/aichi-ranger-stone-field.test.cjs
+      - name: Absol and Garbotoxin direct-window exact source regressions
+        run: node --test tests/aichi-absol-garbotoxin-window.test.cjs
+      - name: Absol and Garbotoxin source audit
+        run: node scripts/aichi-absol-garbotoxin-window.cjs > aichi-absol-garbotoxin-window.json
       - name: Audit published Aichi lists
         run: node scripts/aichi_opening_audit.cjs > aichi-opening-audit.md
       - name: Bonus draw access by Aichi opponent
@@ -80,6 +84,7 @@ jobs:
           name: aichi-opening-audit
           path: |
             aichi-opening-audit.md
+            aichi-absol-garbotoxin-window.json
             aichi-bonus-draws.md
             iron-thorns-direct-line.json
             meloetta-lone-active.md
