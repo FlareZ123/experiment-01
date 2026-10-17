@@ -55,7 +55,8 @@ function makeOpeningHorrorHouseResolver() {
     resolvePrompt(state,player,prompt) {
       if (!(prompt instanceof ChooseAttackPrompt) ||
           prompt.playerId!==player.id ||
-          firstAttackHorrorHouseChannel(state,player)!=='copied') {
+          state.turn!==2 || player.usedGX===true ||
+          player.active.getPokemonCard()?.fullName!=='Mewtwo & Mew-GX UNM') {
         return super.resolvePrompt(state,player,prompt);
       }
       const payload=prompt.cards.find(card=>card.fullName==='Gengar & Mimikyu-GX TEU');
