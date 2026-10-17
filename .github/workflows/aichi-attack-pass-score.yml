@@ -25,7 +25,7 @@ jobs:
           npm ci --no-audit --no-fund
           npm run compile
       - name: Test authentic Store pass-score observer and source action fork
-        run: node --test tests/koraidon-pass-score-horizon.test.cjs tests/rank10-koraidon-source-attack-fork.test.cjs
+        run: node --test tests/koraidon-pass-score-horizon.test.cjs tests/rank10-koraidon-source-attack-fork.test.cjs tests/pending-end-turn-switch-cleanup.test.cjs
       - name: Compare instrumented and uninstrumented source games
         run: node simulation/twinleaf/attack-pass-score-diagnostic.cjs
       - name: Exact v3 candidate-seat rank-10 score replay
@@ -44,4 +44,13 @@ jobs:
         with:
           name: rank10-turn5-source-game-fork
           path: rank10-turn5-source-fork.json
+          if-no-files-found: error
+      - name: Compare original and corrected pending Pale Moon after source retreat
+        run: node simulation/twinleaf/aichi-rank10-delayed-ko-switch.cjs > rank10-delayed-ko-switch.json
+      - name: Summarize authentic delayed KO switch correction
+        run: node -e "const x=require('./rank10-delayed-ko-switch.json'); for(const p of x.findings) console.log(JSON.stringify({candidate:p.candidate,source:p.predecisionSourceDigest,originalWinner:p.original.winner,correctedWinner:p.corrected.winner,originalPrizes:p.original.prizes,correctedPrizes:p.corrected.prizes,removedRoot:p.corrected.removedRootPending,originalWindow:p.original.window,correctedWindow:p.corrected.window}))"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rank10-delayed-ko-switch
+          path: rank10-delayed-ko-switch.json
           if-no-files-found: error
