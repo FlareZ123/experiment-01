@@ -30,6 +30,12 @@ The generic **Palace Book SMP** is used only as an easy-to-observe Item-play pro
 
 The dedicated `tests/wobbuffet-vileplume-stoutland-matrix.test.cjs` makes the above exact expectations executable, including both Wobbuffet and Latias Ability visibility. It is included in existing manual-only `.github/workflows/aichi-attack-pass-score.yml`. The compiled test step passed in [manual CI 39029511804](https://github.com/FlareZ123/experiment-01/actions/runs/39029511804) at source revision `e7c79d8f37b961831ceab8b1026b35539236e8ae`. This is a four-configuration staged effects result; a source-dealt match and competent opponent-response validation remain unresolved.
 
+## Conditional Prize-card access risk
+
+The rank-10 source 60 has **15 opening-eligible Basic Pokémon**, including exactly one Wobbuffet PHF. Under the ordinary seven-card opening and six face-down Prize allocation, the marginal probability that this singleton is Prized is exactly **6/60 = 10%**. Conditioning on an opening seven that contains at least one Basic yields **9.82415%**: use `P(valid)=1-C(45,7)/C(60,7)` and `P(valid | Wobbuffet Prized)=1-C(45,7)/C(59,7)`, then multiply the latter-to-former ratio by `6/60`. These are combinatorial facts about a uniform source-list deal, not simulated match outcomes.
+
+Rank 10 also has one Hisuian Heavy Ball. The probability that both its Wobbuffet and Heavy Ball occupy the six Prizes, before conditioning on a valid opener, is `(6/60)*(5/59) = 1/118 = 0.84746%`. Even when Heavy Ball is unprized, established Irritating Pollen Item lock can prevent playing it to retrieve a Prized Wobbuffet. An otherwise attractive tech counter therefore requires a pre-lock access line or an independent method to break the lock. This is a **matchup-conditional accessibility constraint**, with no game-win estimate.
+
 ## Qualification boundaries
 
 The board is injected after both Stage 2 evolutions have been assembled; it has no source-dealt setup, attach history, search sequence, actual initiative, or competent policies. The test checks Card/Store effects and allowed Trainer dispatches, and does not yet perform a physical Wobbuffet retreat or a sustained attacker counterline. The rank-2 opponent's ability to switch, attach Hood, use Jet Energy, and recover lock is unmodeled. A true rank-10 versus rank-2 evaluation must demonstrate the conditional line under both policies with hidden-information-safe decisions, verified retreat/effect behavior, and the full opponent response.
