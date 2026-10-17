@@ -107,6 +107,7 @@ function sourceEffectSnapshot(state) {
     state:selectedFields(state,stateFields),
     statePrimitiveFields:primitiveOwnFields(state),
     players:state.players.map(player=>({
+      primitive:playerPrimitiveEvidence(player),
       fields:selectedFields(player,playerFields),
       active:selectedFields(player.active,pokemonFields),
       bench:player.bench.map(slot=>selectedFields(slot,pokemonFields))
