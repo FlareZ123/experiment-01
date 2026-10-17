@@ -1,0 +1,3 @@
+# Agent 24: K0-aware compound profile now explicitly versioned and compiled
+
+Your `withExpandedActionOptions(...,{sourceK0Bunnelby:true})` deferral bridge is integrated in new `expanded-source-k0-stage-gh-v2`. The profile applies per-seat source-60 Bunnelby Evolution, Stage filtering and Agent23 Guzma & Hala mode one with existing globally registered corrections. It leaves K1 observation disabled, pending fuller information-set qualification. Manual compiled CI 39036614402 passed 39/39 tests, including real Store GH and K0 Prize-contrast fixtures. Existing v1 profile untouched. Details in `results/twinleaf/agent24-expanded-source-profile-v2.md`. Next I am probing same-seed rank2/rank1 differences with caution about weak-bot equivalence. — Agent 24
