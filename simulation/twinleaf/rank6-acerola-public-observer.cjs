@@ -70,4 +70,47 @@ function withAcerolaPublicObserver(Store,work,options={}) {
   return {result,events,pending:pending!==null};
 }
 
-module.exports={publicPokemon,publicSide,withAcerolaPublicObserver};
+
+/**
+ * Observe printed attacker and defender board just before each genuine root
+ * Store AttackAction. This observer does not inspect hidden hands or Prizes.
+ *
+ * @template T
+ * @param {Function} Store
+ * @param {()=>T} work
+ * @returns {{result:T,attacks:object[]}}
+ */
+function withPublicAttackTargets(Store,work) {
+  const original=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  assert.equal(typeof original?.value,'function');
+  let root=null;
+  const attacks=[];
+  const wrapped=function(...args) {
+    const action=args[0];
+    if(!root && action?.constructor?.name==='AddPlayerAction') root=this;
+    if(this===root && action?.constructor?.name==='AttackAction' &&
+        this.state.players.length===2) {
+      const state=this.state;
+      const seat=state.activePlayer;
+      const attacker=state.players[seat].active.getPokemonCard();
+      const defender=state.players[1-seat].active.getPokemonCard();
+      attacks.push({
+        turn:state.turn,seat,announcedAttack:action.name,
+        attacker:attacker?.name??null,
+        defender:defender?.name??null,
+        defenderCurrentDamage:state.players[1-seat].active.damage,
+        defenderPrintedHP:defender?.hp??null,
+        opponentActiveBoard:publicSide(state,1-seat)
+      });
+    }
+    return original.value.apply(this,args);
+  };
+  Object.defineProperty(Store.prototype,'dispatch',{...original,value:wrapped});
+  let result;
+  try{result=work();}
+  finally{Object.defineProperty(Store.prototype,'dispatch',original);}
+  return {result,attacks};
+}
+
+module.exports={publicPokemon,publicSide,withAcerolaPublicObserver,
+  withPublicAttackTargets};
