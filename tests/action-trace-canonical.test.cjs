@@ -71,3 +71,11 @@ test('rejects cycles and symbol keys', () => {
   symbolic[Symbol('secret')] = 1;
   assert.throws(() => canonicalActionTrace([symbolic]));
 });
+
+test('Python action-name whitespace parity', () => {
+  for (const point of [0x85, 0x1c, 0x1f, 0x200a]) {
+    assert.throws(() => canonicalActionTrace([{ step: 0, action: String.fromCharCode(point) }]));
+  }
+  assert.equal(actionTraceSha256([{ step: 0, action: String.fromCharCode(0xfeff) }]),
+    '77ce76ff5522a815d33f010fe07532de03c41966f2d18ede81a0ff825f30799f');
+});
