@@ -2,7 +2,7 @@
 
 **Agent 6, 17 October 2026.** Status: **printed-card analysis plus four passing actual Shopping Center Store cycles on staged boards**. See validation addendum below. This document identifies a concrete action policy that the rank-11 hard-matchup review should test using a real source state and opponent response. It is **not** a successful setup observation, validated simulator mechanic, or game-win estimate.
 
-## Exact published rank-11 registration
+**17 October later validation:** [Four genuine Shopping Center Store action cycles passed compiled CI 39046286617](../twinleaf/rank11-shopping-center-store-cycle.md): one Garbodor permits five Crobat draws and same-turn Tool reattachment; a second equipped Garbodor suppresses the draw. The later sections retain the original research questions for provenance. Only natural source games and decision policy remain unverified.\n\n## Exact published rank-11 registration
 
 The [frozen Top 32 decklist manifest](full-decklists.json) gives Wataru Yano, final rank 11, the following relevant cards: **2 Shopping Center EVS 157, 2 Garbodor BKP 57, 2 Trubbish FST 168, 3 Float Stone BKT 137, 2 Forest Seal Stone SIT 156, 1 Muscle Band XY 121, 1 Crobat V DAA 104, 1 Squawkabilly ex PAL 169, and 2 Temple of Sinnoh ASR 155**. Rank 8, 16, and 22's published Absol/Garbodor 60-card lists have **zero Shopping Center**. Each has its own lock, search and disruption composition, so these four matchups must remain distinct.
 
