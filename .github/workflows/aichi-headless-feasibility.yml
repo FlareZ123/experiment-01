@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      absol_rank8_wally_fork:
+        description: One authentic rank-8 source turn2 Wally-versus-Pass branch
+        required: false
+        type: boolean
+        default: false
       absol_rank11_firstturn_audit:
         description: Source rank 11 first-turn opponent own-hand observer pair
         required: false
@@ -103,6 +108,19 @@ jobs:
       - name: Audit live Battle Compressor selections in paired Aichi source games
         if: ${{ inputs.battle_compressor_source_exposure }}
         run: node simulation/twinleaf/battle-compressor-source-exposure.cjs
+
+      - name: Verify own-hand-only rank-8 Wally source decision predicate
+        run: node --test tests/absol-rank8-wally-source-fork.test.cjs
+      - name: Contrast source-dealt rank8 opponent turn2 Pass and Wally
+        if: ${{ inputs.absol_rank8_wally_fork }}
+        run: node simulation/twinleaf/absol-rank8-wally-source-fork.cjs > absol-rank8-wally-fork.json
+      - name: Archive exact rank8 source Wally outcome
+        if: ${{ always() && inputs.absol_rank8_wally_fork }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: absol-rank8-source-wally-fork
+          path: absol-rank8-wally-fork.json
+          if-no-files-found: warn
 
       - name: Four exact-source Absol/Garbodor diagnostic games in both physical seats
         if: ${{ inputs.absol_hardmatchup_probe }}
