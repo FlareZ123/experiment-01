@@ -27,3 +27,23 @@ The hypothesis is limited: an opt-in candidate generator may add an actually cho
 The staged legal Store action and default policy omission are in [Tool Power bot gap](../twinleaf/attached-tool-power-bot-gap.md). The previously completed [Agent15 rank-8 candidate-second source game](hood-rank8-actual-second-source.md) and subsequent [opponent attack/lock audit](rank8-hood-lock-attack-qualification.md) remain the reference for interpreting this same fixed deal. The cross-field decision board remains 29/32 published opponents and zero independently qualified competitive games.
 
 **Outcome log:** to be appended only after compiled execution and manual inspection. A compiled CI pass alone is not evidence of an effective Star Alchemy line.
+
+## 17 October 21:32 UTC: first compiled fixed-deal result
+
+[Manual CI 39071183206](https://github.com/FlareZ123/experiment-01/actions/runs/39071183206), exact head `dcd71f6d1c31909bc31b45952747e6a1738d7232`, passed the source pairing and all compiled action tests. [Archive artifact 12115276619](https://github.com/FlareZ123/experiment-01/actions/runs/39071183206/artifacts/12115276619) contains both chronological meaningful-action traces.
+
+| Frozen rank8 actual-second game | Baseline | New opt-in Tool Power |
+| --- | --- | --- |
+| Candidate (physical B) starting turn | second | second |
+| Fixed seed | 1260748957 | 1260748957 |
+| Forest Seal Stone plays (physical A,B) | (1,1) | (1,1) |
+| Actual Star Alchemy uses | 0 | **1**, candidate B turn16, root action ordinal172 |
+| Root actions / engine turns | 214 / 20 | 221 / 20 |
+| Attacks (physical A,B) | (5,5) | (5,5) |
+| Final Prize counts (physical A,B) | (6,0) | (6,0) |
+| Engine status | completed | completed |
+| Competitive inference | unqualified | unqualified |
+
+The first different **meaningful recorded-action index is 82**, among the two ordered decision summaries. The policy-specific action is late in a game where the candidate already receives a baseline generic-bot Prize win. This intervention establishes that the card's granted Power can be used with the actual rank8 source opponent present and a fixed candidate 60; no change in outcome or attack count was demonstrated. The source opponent's previous ability to equip Garbodor and select consequential Terminal Period attacks remains unqualified. The fact that both sides play a Forest Seal Stone and only candidate B uses its Power also highlights policy-dependent opportunity and game-state constraints. A later rerun is collecting the first divergent action and subsequent deck-selection evidence so that index 82 is not overinterpreted.
+
+This experiment should **not** be added as a new field trial or taken as evidence of a higher win probability. It is a deliberately repeated known seed and a policy-mechanics falsification test.
