@@ -26,6 +26,7 @@ const {decisionHandEvidence} = require('./decision-hand-evidence.cjs');
 const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.cjs');
 const {installElectroRainDamageHook} = require('./electro-rain-damage-hook.cjs');
 const {installElectrodeGXEnergyHook} = require('./electrode-gx-energy-hook.cjs');
+const {withElectrodePrizeTradePolicy} = require('./electrode-gx-ability-tactic.cjs');
 const {installRedeemableTicketPaperOrderHook} = require('./redeemable-ticket-paper-hook.cjs');
 const {installHisuianHeavyBallPrizeShuffleHook} = require('./hisuian-heavy-ball-prize-hook.cjs');
 const {installPendingEndTurnSwitchCleanup} = require('./pending-end-turn-switch-cleanup.cjs');
