@@ -44,7 +44,7 @@ function main() {
     deckA:opponent.cardIds,deckB:champion.cardIds,
     seed:trials[0].seed,maxActions:500,label:trials[0].trialId,
     strictPromptValidation:true,forestSealSearchCorrection:true,
-    supporterDecisionCorrection:true,doubleDragonRecovery:true,
+    supporterDecisionCorrection:true,doubleDragonRecovery:true,doubleDragonArchiveV3:true,
     isolatePolicyRandomness:true,captureDecisionTrace:true,
     captureCopycatTurnStartSeat:1,postSuperAliasRepairIsolation:true,
     mimikyuApexCopycatCompatibility:true,mimikyuDeclaredHistoryCorrection:true,
