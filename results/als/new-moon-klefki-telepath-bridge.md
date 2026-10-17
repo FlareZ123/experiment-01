@@ -9,3 +9,7 @@ An exact BigInt [opening/Prize enumerator](../../scripts/new-moon-klefki-telepat
 [Powerglass](https://asia.pokemon-card.com/ph/card-search/detail/13819/) accelerates Basic Energy only to its Active holder at turn end, even without attacking (Advanced Rulebook E-21). Powerglass attached to Klefki cannot simultaneously accelerate Mewtwo after Klefki retreats. A third manual Energy and accessible attack donors are needed for the later Night Watch route. Horror House forbids plays from hand; the opponent can still attack with a previously powered Active Pokémon.
 
 Next: reproduce in a real pinned-Twinleaf Store action trace in both seats with legal retreat, source Hand/Prize fidelity, fixed donor and Basic-discard access, and noninterfering decision policy. **Zero qualified matches, 99.5% unproven.**
+
+## Active-selection caveat
+
+This 3.25966% opening event allows the player to **choose Klefki as Active** when other Basics also appear. Exact uniformly sampled initial seven with Klefki, Telepath and **no other Basic** is only **0.58467984%** of unconditioned draws, calculated as `(C(43,6)-C(40,6))/C(60,7)` from the source's 17 Basic Pokemon and three Telepath cards. Thus 17.93683% of Klefki+Telepath openings force Klefki as the only Basic; the remaining cases permit a meaningful Active-versus-Bench decision. The post-mulligan card mix can additionally change due to opponent mulligan bonus draws. This is an Active-selection distinction, neither execution frequency nor win probability.
