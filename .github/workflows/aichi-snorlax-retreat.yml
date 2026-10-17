@@ -29,14 +29,16 @@ jobs:
         run: node simulation/twinleaf/snorlax-retreat-action-characterization.cjs | tee aichi-snorlax-retreat.json
       - name: Verify Snorlax Block interaction and reversible hook
         run: node --test tests/snorlax-retreat-start-hook.test.cjs
-      - name: Characterize Switch and Guzma solo-Block escapes
-        run: node simulation/twinleaf/snorlax-switch-vs-guzma.cjs | tee aichi-snorlax-switch-guzma.json
-      - name: Validate Switch and Guzma counterlines and reversible guard
-        run: node --test tests/snorlax-switch-vs-guzma.test.cjs
+      - name: Test proposed singleton Supporter combinatorics
+        run: node --test tests/aichi-snorlax-scoop-access.test.cjs
       - name: Characterize printed Cassius and AZ Block escape alternatives
         run: node simulation/twinleaf/snorlax-scoop-supporter.cjs > aichi-snorlax-scoop-supporter.json
       - name: Test source-independent Supporter action diagnostics
         run: node --test tests/snorlax-scoop-supporter.test.cjs
+      - name: Characterize Switch and Guzma solo-Block escapes
+        run: node simulation/twinleaf/snorlax-switch-vs-guzma.cjs | tee aichi-snorlax-switch-guzma.json
+      - name: Validate Switch and Guzma counterlines and reversible guard
+        run: node --test tests/snorlax-switch-vs-guzma.test.cjs
       - name: Preserve source-backed action characterization
         if: always()
         uses: actions/upload-artifact@v4
