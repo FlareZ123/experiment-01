@@ -132,7 +132,14 @@ function runSeat(seat) {
   let attach;
   for (let i = 0; i < 18; i++) {
     const p = pending();
-    assert.ok(p, 'Expected Volt Cyclone Energy movement prompt');
+    assert.ok(p, 'Expected Volt Cyclone Energy movement prompt; observed '+JSON.stringify({
+      phase:state.phase,turn:state.turn,activePlayer:state.activePlayer,
+      gengarDamage:me.active.damage,thornsActive:opponent.active.getPokemonCard()?.fullName,
+      activeEnergies:opponent.active.energies.cards.map(c=>c.fullName),
+      benchEnergies:bench.energies.cards.map(c=>c.fullName),
+      locks:opponent.playLocksTurnsRemaining,
+      lastLogs:state.logs.slice(-5).map(l=>({type:l.type,params:l.params}))
+    }));
     if (p.constructor.name === 'AttachEnergyPrompt') {
       attach = p; break;
     }
