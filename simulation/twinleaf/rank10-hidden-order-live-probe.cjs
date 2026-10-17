@@ -77,7 +77,7 @@ function compareHiddenDeckOrders(state,actorId,newBot,cloneState,makeRandom) {
  * @param {Function} Ai
  * @param {()=>T} work
  * @param {(state:object)=>object} cloneState
- * @param {{turn:number,seat:number,makeRandom:()=>()=>number}} target
+ * @param {{turn:number,seat:number,makeRandom:()=>()=>number,rootActionOrdinal?:number,readRootDispatchCount?:()=>number}} target
  */
 function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
   const descriptor=Object.getOwnPropertyDescriptor(
@@ -87,7 +87,9 @@ function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
   function wrapped(state) {
     const take=events.length===0&&state.turn===target.turn&&
       state.activePlayer===target.seat&&
-      state.prompts.every(p=>p.result!==undefined);
+      state.prompts.every(p=>p.result!==undefined)&&
+      (target.rootActionOrdinal===undefined ||
+        target.readRootDispatchCount?.()===target.rootActionOrdinal);
     if(!take)return descriptor.value.call(this,state);
     const parent=this;
     const observed=compareHiddenDeckOrders(
@@ -100,8 +102,11 @@ function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
         return bot;
       },
       cloneState,target.makeRandom);
-    events.push({...observed,turn:state.turn,seat:state.activePlayer});
-    return descriptor.value.call(this,state);
+    const actual=descriptor.value.call(this,state);
+    events.push({...observed,turn:state.turn,seat:state.activePlayer,
+      rootActionOrdinal:target.rootActionOrdinal??null,
+      originalSourceAction:actionSignature(actual)});
+    return actual;
   }
   Object.defineProperty(Ai.prototype,'decodeNextAction',{
     ...descriptor,value:wrapped
@@ -110,8 +115,33 @@ function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
   finally{Object.defineProperty(Ai.prototype,'decodeNextAction',descriptor);}
 }
 
+/**
+ * Track only dispatched actions on the authentic root Store, ignoring
+ * speculative Simulator stores. Counter includes both player registration
+ * actions, matching the rank-10 source-ordinal replay protocol.
+ * @template T
+ * @param {Function} Store
+ * @param {(getOrdinal:()=>number)=>T} work
+ * @returns {T}
+ */
+function withRootDispatchCounter(Store,work) {
+  const descriptor=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  assert.ok(descriptor && typeof descriptor.value==='function');
+  let root=null,count=0;
+  const wrapped=function(...args) {
+    if(root===null && args[0]?.constructor?.name==='AddPlayerAction')root=this;
+    if(this===root)count++;
+    return descriptor.value.apply(this,args);
+  };
+  Object.defineProperty(Store.prototype,'dispatch',{...descriptor,value:wrapped});
+  try{return work(()=>count);}
+  finally{Object.defineProperty(Store.prototype,'dispatch',descriptor);}
+}
+
 /** Source-dealt, frozen-seat exploratory sensitivity measurement. */
-function auditRank10HiddenOrder() {
+function auditRank10HiddenOrder(rootActionOrdinal) {
+  assert.ok(rootActionOrdinal===undefined || rootActionOrdinal===215,
+    'Only archived decisive root ordinal 215 is admitted');
   initializeCards();
   const field=resolveManifestFile(path.resolve(__dirname,
     '../../results/aichi-2026/full-decklists.json'),{
@@ -148,16 +178,31 @@ function auditRank10HiddenOrder() {
     return normalizeDeepClonePrototypes(state,deepClone(state));
   };
   const control=runMatch(common);
-  const observed=withRootHiddenOrderProbe(
-    SimpleTacticsAi,()=>runMatch(common),cloneState,{
-      turn:27,seat:1,makeRandom:()=>seededRandom(20261017)
-    });
+  const makeTarget=getOrdinal=>({
+    turn:rootActionOrdinal===undefined?27:28,
+    seat:1,makeRandom:()=>seededRandom(20261017),
+    rootActionOrdinal,readRootDispatchCount:getOrdinal
+  });
+  const observed=rootActionOrdinal===undefined?
+    withRootHiddenOrderProbe(
+      SimpleTacticsAi,()=>runMatch(common),cloneState,makeTarget(undefined)):
+    withRootDispatchCounter(
+      require(path.join(output,'game/store/store')).Store,
+      getOrdinal=>withRootHiddenOrderProbe(
+        SimpleTacticsAi,()=>runMatch(common),cloneState,
+        makeTarget(getOrdinal)));
   assert.deepEqual(observed.result,control,
     'Read-only hidden-order counterfactual changed physical source match');
   assert.equal(observed.events.length,1,
-    'Expected one champion-B source root decision at turn 27');
+    'Expected one champion-B source root decision at designated source gate');
+  if(rootActionOrdinal===215) {
+    assert.equal(observed.events[0].originalSourceAction?.type,'RetreatAction',
+      'Archived source ordinal 215 must be an authentic Retreat proposal');
+  }
   return {
-    study:'rank10-source-turn27-hidden-order-sensitivity',
+    study:rootActionOrdinal===undefined?
+      'rank10-source-turn27-hidden-order-sensitivity':
+      'rank10-source-ordinal215-hidden-order-sensitivity',
     pinnedTrialId:trials[0].trialId,
     seed:trials[0].seed,
     candidatePhysicalSeat:1,
@@ -173,6 +218,8 @@ function auditRank10HiddenOrder() {
   };
 }
 if(require.main===module)
-  process.stdout.write(JSON.stringify(auditRank10HiddenOrder(),null,2)+'\n');
+  process.stdout.write(JSON.stringify(
+    auditRank10HiddenOrder(process.argv[2]==='ordinal215'?215:undefined),
+    null,2)+'\n');
 module.exports={actionSignature,compareHiddenDeckOrders,
-  withRootHiddenOrderProbe,auditRank10HiddenOrder};
+  withRootHiddenOrderProbe,withRootDispatchCounter,auditRank10HiddenOrder};
