@@ -43,5 +43,12 @@ test('isolates root store and distinguishes bad, clean and absent queue',()=>{
    root.dispatch(new AddPlayerAction());root.dispatch(new RetreatAction());
  });
  assert.equal(absent.status,'not-exercised');
+ const ambiguous=withPaleMoonQueueAudit(Store,()=>{
+   const root=new Store();root.state.players[0].active=backup;
+   root.state.players[0].bench=[subject];
+   root.dispatch(new AddPlayerAction());
+ });
+ assert.equal(ambiguous.status,'unresolved');
+ assert.equal(ambiguous.observedUnexplainedBenchQueue,true);
  assert.equal(Store.prototype.dispatch,original);
 });
