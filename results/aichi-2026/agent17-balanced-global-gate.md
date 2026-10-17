@@ -89,6 +89,19 @@ The telescoping identity `sum_{i=1}^infinity 1/(i*(i+1)) = 1` gives `sum alpha_i
 
 This scheme is a prospective option, not a retrospective correction of existing diagnostic data. If the actual family of hypotheses or a fixed candidate's sampling plan is different, the spending mechanism must be declared before observations. The current missing source lists and policy defects still block any real certification. [Five exact-number synthetic regressions](../../tests/test_aichi_familywise_evidence.py) test the allocations, budget identity and outcome thresholds.
 
+## 17 October 2026: power and finite-CI budget sensitivity
+
+For planning once qualified full-match data exist, the fixed-horizon global gate has sharply different *power* at the same true aggregate rate as it starts allowing one or more nonwins. Under the **illustrative and stronger assumption of identically distributed independent trials with true probability 0.999 in every rank/seat cell**, direct binomial-tail calculation gives:
+
+| Fixed games/cell | Total games | Largest nonwins still significant at one-sided 5% | Power at true 99.9% | Power at true 99.95% |
+| ---: | ---: | ---: | ---: | ---: |
+| 10 | 640 | 0 | 52.7124% | 72.6091% |
+| 15 | 960 | 1 | 75.0477% | 91.5838% |
+| 20 | 1,280 | 2 | 86.1775% | 97.2786% |
+| 33 | 2,112 | 5 | 97.9108% | 99.9218% |
+
+These are **prospective planning probabilities** under the assumed true rates, not observations, deck projections or match-win measurements. A 640-all-win design has only about 52.7% chance to reject the 99.5% null even at an iid true 99.9% rate. Unequal matchup probabilities can change power; for example, at the same equal-cell aggregate of 99.9%, a model with 63 perfect cells and one 93.6% cell yields 51.6129% all-win power at 640 games, versus 52.7124% for iid 99.9%. Both scenarios still require faithful independent games and all 32 opponent registrations before such planning can be used.
+
 ## 17 October 2026: action-trace requirement for arithmetic promotion
 
 A structural boundary was missing: `evaluate_raw_batch` correctly records `digest_only_completed_games` and `all_completed_traces_verified`, but the higher-level `evaluate_balanced_raw_batch` previously ignored these fields. Thus a **synthetic** full-32, 640/640 winning batch could report `statistical_threshold_met: true` despite containing only unverifiable opaque `trace_sha256` strings and no supplied action traces. This is an evidentiary classification defect, independent of the already-known simulator and opponent-policy shortcomings.
