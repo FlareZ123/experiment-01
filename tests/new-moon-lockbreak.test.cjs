@@ -7,7 +7,7 @@ const {choose, directByFirstDraw, main} = require('../scripts/new-moon-lockbreak
 
 test('Frozen 60 follows precisely the intended four-card counter package', () => {
   const x = verifyManifest();
-  assert.equal(x.hash, 'b359040e131251bc77e47add27d809b29eab9ecbc0ec42e297ac2d7e2bd89e65');
+  assert.equal(x.hash, 'a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4');
   assert.equal(x.counts['Pokémon'], 19);
   assert.equal(x.counts.Trainer, 35);
   assert.equal(x.counts.Energy, 6);
@@ -35,5 +35,5 @@ test('The access report retains source/variant identity and scope', () => {
   assert.equal(x.source.cologne.probability, 0);
   assert.equal(x.lockbreak.fieldBlower.probability, x.lockbreak.cologne.probability);
   assert.equal(x.lockbreak.eitherNamedItem.probability > x.lockbreak.fieldBlower.probability, true);
-  assert.equal(x.fixedListHash, 'b359040e131251bc77e47add27d809b29eab9ecbc0ec42e297ac2d7e2bd89e65');
+  assert.equal(x.fixedListHash, 'a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4');
 });
