@@ -31,6 +31,25 @@ test('Expanded composite is separately named and restores unmodified defaults',(
   assert.deepEqual(defs.allPromptResolvers,prompts);
 });
 
+test('K0 alternative defers Bunnelby installation to per-seat source runner',()=>{
+  const before=defs.allSimpleTactics.slice(),prompts=defs.allPromptResolvers.slice();
+  const inside=withExpandedActionOptions(()=>({
+    tactics:defs.allSimpleTactics.map(x=>x.name),
+    resolvers:defs.allPromptResolvers.map(x=>x.name)
+  }),{sourceK0Bunnelby:true});
+  assert.ok(inside.tactics.includes('ToolAwareAttackTactic'));
+  assert.ok(inside.resolvers.includes('MandatoryOptionResolver'));
+  assert.equal(inside.tactics.includes('BunnelbyEvolutionTactic'),false);
+  assert.equal(inside.resolvers.includes('BarrageEvolutionResolver'),false);
+  assert.deepEqual(defs.allSimpleTactics,before);
+  assert.deepEqual(defs.allPromptResolvers,prompts);
+  assert.throws(()=>withExpandedActionOptions(()=>{
+    throw Error('source-K0 callback failure');
+  },{sourceK0Bunnelby:true}),/source-K0 callback failure/);
+  assert.deepEqual(defs.allSimpleTactics,before);
+  assert.deepEqual(defs.allPromptResolvers,prompts);
+});
+
 test('bounded engine smoke labels Expanded policy capabilities independently',()=>{
   const deck=upstreamSmokeDeck();
   const run=runWithResearchProfile({
