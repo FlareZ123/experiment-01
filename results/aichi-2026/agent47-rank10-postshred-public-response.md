@@ -20,3 +20,12 @@ The observer's real source-zone hash was `a512b03755dddc50ed62022fcb075ac54e7198
 ### Next investigative question
 
 Test concrete actions *before* the turn29 Retreat, preserving the authentic physical card zones, especially whether the generic respondent overlooked a search, attachment or acceleration route. The available printed-attack census at Pass cannot certify that the turn29 policy was strong.
+
+
+## Agent 37 source Prize-slot erratum (17 October 2026)
+
+The first version of the read-only board observer serialized `prizesRemaining:p.prizes.length`. At the pinned Twinleaf commit, `Player.prizes` remains a six-element array of physical Prize **slots**, even after some become empty. Its actual API `Player.getPrizeLeft()` counts `sum(slot.cards.length)`. Consequently, the **old 6/6 at turn29** in artifact 12094036159 was a reporting error, not the in-engine remaining Prize count.
+
+The corrected read-only observer uses `p.getPrizeLeft()`. A specific empty-slot regression now checks 3/2 across two players and confirms no private Prize-card names enter the public projection. [New compiled rank10 replay 39022538329](https://github.com/FlareZ123/experiment-01/actions/runs/39022538329), source head `4314cb8b81f856e2196f355bf590ab45c33e2fbf`, passed its corrected observer test and paired-source audit stages. [Corrected public-response artifact 12096914140](https://github.com/FlareZ123/experiment-01/actions/runs/39022538329/artifacts/12096914140) shows exact real-root **Regidrago 3 remaining Prizes, Shadow Rider 2 remaining Prizes** at both root231 Retreat and root232 Pass. Terminal winner and remaining Prizes remain **champion seat1, [3,0]**. No engine game actions were changed by this projection correction.
+
+The corrected board changes the tactical clock facing the Regidrago opponent, while the independent [acting-player hand audit](rank10-postshred-opponent-own-hand.md) proves that its three-card hand contained Mysterious Treasure, Budew and Guzma, zero Energy. Further opponent choice and rules fidelity remain unqualified. Original artifact 12094036159 is retained for traceability, but **do not consume its `board.players[].prizesRemaining` values**. Competitive games qualified: zero.
