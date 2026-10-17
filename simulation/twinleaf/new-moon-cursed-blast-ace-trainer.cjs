@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const {initializeCards} = require('./headless.cjs');
+const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} modulePath */
@@ -84,10 +85,11 @@ function cursedBlastAceTrainerContract() {
         assert.ok(chooser);
         selection=Array.from({length:chooser.deck.cards.length},(_,index)=>index);
       }else throw new Error('Unexpected '+phase+' prompt: '+kind);
-      assert.equal(pending.validate(selection,state),true,
-        'Invalid '+phase+' '+kind);
+      const action = new ResolvePromptAction(pending.id,selection);
+      assert.doesNotThrow(() => assertValidPromptAction(state,action),
+        'Invalid strict prompt action for '+phase+' '+kind);
       trace.push({phase,kind,playerId:pending.playerId});
-      store.dispatch(new ResolvePromptAction(pending.id,selection));
+      store.dispatch(action);
     }
     assert.fail('Prompt loop exceeded bound in '+phase);
   }
