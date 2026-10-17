@@ -6,6 +6,10 @@ on:
         description: 'Optional source ranked Hood game starting second'
         type: boolean
         default: false
+      hood_rank8_board_audit:
+        description: 'Optional source-locked three-replay opponent attack-resource audit'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -46,6 +50,21 @@ jobs:
         run: node simulation/twinleaf/entry-draw-stadium-lock-action.cjs
       - name: Verify Tool-gated Garbotoxin hand-zone entry draw suppression
         run: node simulation/twinleaf/entry-draw-garbotoxin-action.cjs
+      - name: Verify live-only board observer source isolation
+        run: node --test tests/hood-rank8-source-board-observer.test.cjs
+      - name: Replay authentic rank8 opponent attack choices three times
+        if: inputs.hood_rank8_board_audit
+        run: node simulation/twinleaf/hood-rank8-source-board-audit.cjs > rank8-hood-board-audit.json
+      - name: Print bounded opponent attack resource ledger
+        if: inputs.hood_rank8_board_audit
+        run: node -e "const x=require('./rank8-hood-board-audit.json'); const brief=a=>a.map(y=>({turn:y.turn,seat:y.actingSeat,action:y.action,card:y.card,name:y.declaredName,attacker:y.attackBefore,target:y.targetBefore,exact60:y.opponentActiveExactly60,hand:y.visibleBefore.actor.hand})); console.log(JSON.stringify({seed:x.seed,qualified:x.qualifiedForCompetitiveInference,streamIdentical:x.exactFullActionStreamNoninterference,control:x.originalControlOutcome,outcome:x.observedOutcome,attacks:x.attackCounts,hood:brief(x.keyEvents.hood),garbo:brief(x.keyEvents.garbodor),terminal:brief(x.keyEvents.terminalPeriod),darkness:brief(x.keyEvents.darknessEnergyAndPatch),door:brief(x.keyEvents.underworldDoor)},null,2));"
+      - name: Archive source-ranked Hood board-level opponent evidence
+        if: always() && inputs.hood_rank8_board_audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank8-hood-live-board-action-audit
+          path: rank8-hood-board-audit.json
+          if-no-files-found: warn
       - name: Check rank8 actual second seed selection
         run: node --test tests/hood-rank8-second-source.test.cjs
       - name: Play source-ranked rank8 Hood actual-second game
