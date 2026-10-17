@@ -2,7 +2,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {withRank8BoardObserver}=require('../simulation/twinleaf/hood-rank8-source-board-observer.cjs');
-const {condense,fullToolAction}=require('../simulation/twinleaf/hood-rank8-source-board-audit.cjs');
+const {condense,fullToolAction,sourceTurnSevenAction}=require('../simulation/twinleaf/hood-rank8-source-board-audit.cjs');
 
 class AddPlayerAction {}
 class AttackAction {
@@ -90,4 +90,49 @@ test('full public Tool projection preserves unrelated Bench slots and real attac
   assert.deepEqual(projection.boardAfter.bench[1].tools,[]);
   assert.equal(projection.error,null);
   console.log('Full-Board Tool target detected:',JSON.stringify(projection));
+});
+
+test('source turn-seven actor hand and prompt chronology is read-only and complete',()=>{
+  class PlayCardAction {
+    constructor(clientId,handIndex) {this.clientId=clientId;this.handIndex=handIndex;}
+  }
+  class FakeStore {
+    constructor() {
+      this.state={turn:7,activePlayer:0,phase:2,prompts:[],
+        players:[
+          player(101,'Mega Absol ex'),player(202,'Shadow Rider Calyrex VMAX')
+        ]};
+      this.state.players[0].hand.cards=[{name:'Iono',fullName:'Iono PAL'},
+        {name:'Float Stone',fullName:'Float Stone BKT'}];
+    }
+    dispatch(action) {
+      if(action instanceof PlayCardAction) {
+        const own=this.state.players[0];
+        const discarded=own.hand.cards.splice(action.handIndex,1);
+        own.discard.cards.push(...discarded);
+        if(discarded[0].name==='Iono') own.hand.cards=[
+          {name:'Trubbish',fullName:'Trubbish PAR'},
+          {name:'Garbodor',fullName:'Garbodor LTR'}
+        ];
+      }
+      return this.state;
+    }
+  }
+  const store=new FakeStore();
+  const original=FakeStore.prototype.dispatch;
+  const observed=withRank8BoardObserver(FakeStore,()=>{
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PlayCardAction(101,0));
+    return store.state.turn;
+  });
+  assert.equal(observed.result,7);
+  assert.equal(FakeStore.prototype.dispatch,original);
+  assert.equal(observed.records.length,1);
+  assert.equal(observed.records[0].card,'Iono');
+  const summary=sourceTurnSevenAction(observed.records[0]);
+  assert.deepEqual(summary.beforeHand,['Iono PAL','Float Stone BKT']);
+  assert.deepEqual(summary.afterHand,['Trubbish PAR','Garbodor LTR']);
+  assert.equal(summary.beforeBoard.active.name,'Mega Absol ex');
+  assert.deepEqual(summary.pendingPromptsBefore,[]);
+  console.log('Source turn seven hand shift:',JSON.stringify(summary));
 });
