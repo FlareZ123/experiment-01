@@ -1,0 +1,211 @@
+{
+  "schema": "aichi-newmoon-english-simulation-mapping-v1",
+  "basis": "results/als/new-moon-perfection-source-60.json",
+  "source_code": "GxxDYx-a4rD4W-a8xYxc",
+  "source_date": "2026-05-13",
+  "event_date": "2026-05-10",
+  "scope": "Each row maps the exact source-transcribed identity and count to one selected English card-database print and relevant ability/attack. Japanese physical printing numbers remain unresolved. This is neither a Japanese deck registration export nor proof of paper Expanded legality.",
+  "canonicalization": "Sort entries by id, concatenate `${id}:${count}\\n` in UTF-8; SHA-256.",
+  "sha256_id_counts": "327add6086c4b14853638b40519e835e93c48377e6523ebf4e30b2f35c2ca28b",
+  "sha256_name_counts": "dca35598ff1dc5dc272c52a5b7e64c31a60dd7fb6ef79c043a2fe70167353eb8",
+  "entries": [
+    {
+      "count": 2,
+      "name": "Mewtwo & Mew-GX",
+      "id": "sm11-71",
+      "signature": "Perfection"
+    },
+    {
+      "count": 1,
+      "name": "Gengar & Mimikyu-GX",
+      "id": "sm9-53",
+      "signature": "Horror House-GX"
+    },
+    {
+      "count": 1,
+      "name": "Trevenant & Dusknoir-GX",
+      "id": "smp-SM217",
+      "signature": "Night Watch"
+    },
+    {
+      "count": 1,
+      "name": "Tapu Lele-GX",
+      "id": "sm2-60",
+      "signature": "Wonder Tag"
+    },
+    {
+      "count": 1,
+      "name": "Galarian Articuno V",
+      "id": "swsh6-58",
+      "signature": "Reconstitute"
+    },
+    {
+      "count": 1,
+      "name": "Latias ex",
+      "id": "sv8-76",
+      "signature": "Skyliner"
+    },
+    {
+      "count": 1,
+      "name": "Lillie's Clefairy ex",
+      "id": "sv9-56",
+      "signature": "Fairy Zone"
+    },
+    {
+      "count": 1,
+      "name": "Squawkabilly ex",
+      "id": "sv2-169",
+      "signature": "Squawk and Seize"
+    },
+    {
+      "count": 3,
+      "name": "Unown",
+      "id": "xy7-30",
+      "signature": "Farewell Letter"
+    },
+    {
+      "count": 2,
+      "name": "Dusclops",
+      "id": "sv6pt5-19",
+      "signature": "Cursed Blast"
+    },
+    {
+      "count": 2,
+      "name": "Duskull",
+      "id": "sv6pt5-18",
+      "signature": "Come and Get You"
+    },
+    {
+      "count": 1,
+      "name": "Solrock",
+      "id": "sm7-62",
+      "signature": "Sunbeam"
+    },
+    {
+      "count": 1,
+      "name": "Lunatone",
+      "id": "sv3-92",
+      "signature": "New Moon"
+    },
+    {
+      "count": 1,
+      "name": "Klefki",
+      "id": "sv1-96",
+      "signature": "Mischievous Lock"
+    },
+    {
+      "count": 4,
+      "name": "Battle VIP Pass",
+      "id": "swsh8-225",
+      "signature": null
+    },
+    {
+      "count": 4,
+      "name": "Fog Crystal",
+      "id": "swsh6-140",
+      "signature": null
+    },
+    {
+      "count": 2,
+      "name": "Mysterious Treasure",
+      "id": "sm6-113",
+      "signature": null
+    },
+    {
+      "count": 2,
+      "name": "Hisuian Heavy Ball",
+      "id": "swsh10-146",
+      "signature": null
+    },
+    {
+      "count": 4,
+      "name": "Rescue Carrier",
+      "id": "swsh7-154",
+      "signature": null
+    },
+    {
+      "count": 2,
+      "name": "Battle Compressor",
+      "id": "xy4-92",
+      "signature": null
+    },
+    {
+      "count": 2,
+      "name": "Trainer's Mail",
+      "id": "xy6-92",
+      "signature": null
+    },
+    {
+      "count": 1,
+      "name": "Adventure Bag",
+      "id": "sm8-167",
+      "signature": null
+    },
+    {
+      "count": 1,
+      "name": "Escape Rope",
+      "id": "swsh5-125",
+      "signature": null
+    },
+    {
+      "count": 1,
+      "name": "Counter Catcher",
+      "id": "sv4-160",
+      "signature": null
+    },
+    {
+      "count": 1,
+      "name": "Secret Box",
+      "id": "sv6-163",
+      "signature": null
+    },
+    {
+      "count": 2,
+      "name": "Powerglass",
+      "id": "sv6pt5-63",
+      "signature": null
+    },
+    {
+      "count": 1,
+      "name": "Forest Seal Stone",
+      "id": "swsh12-156",
+      "signature": "Star Alchemy"
+    },
+    {
+      "count": 2,
+      "name": "Lillie's Determination",
+      "id": "me1-119",
+      "signature": null
+    },
+    {
+      "count": 2,
+      "name": "Ace Trainer",
+      "id": "xy7-69",
+      "signature": null
+    },
+    {
+      "count": 2,
+      "name": "Sky Field",
+      "id": "xy6-89",
+      "signature": null
+    },
+    {
+      "count": 2,
+      "name": "Path to the Peak",
+      "id": "swsh6-148",
+      "signature": null
+    },
+    {
+      "count": 3,
+      "name": "Telepathic Psychic Energy",
+      "id": "me3-88",
+      "signature": null
+    },
+    {
+      "count": 3,
+      "name": "Basic Psychic Energy",
+      "id": "swsh12pt5-156",
+      "signature": null
+    }
+  ]
+}
