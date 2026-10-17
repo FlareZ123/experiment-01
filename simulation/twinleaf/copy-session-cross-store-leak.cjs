@@ -54,11 +54,13 @@ function runSessionInterleaving(interleaveIndependentStore) {
       b.store.reduceEffect(b.state, new EndTurnEffect(b.attacking));
     }
 
+    const sourceAfterInterleave = callbacks;
     a.store.reduceEffect(a.state, new EndTurnEffect(a.attacking));
     return {
       sourceCallbacks: callbacks,
       interleaved: interleaveIndependentStore,
       sourceAfterFirst,
+      sourceAfterInterleave,
       sourceAfterSecond: callbacks
     };
   } finally {
