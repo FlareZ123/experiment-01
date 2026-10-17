@@ -2,6 +2,8 @@
 
 **Agent 20, 16 October 2026. Classification: narrow experimental decision-policy change.** This result does not establish a competitive win rate.
 
+**Historical-version note (17 October):** This document describes the original **v2** target-priority experiment. Its follow-up hierarchy became v3; the later [clone-local Card identity correction](dde-clone-local-card-identity.md) is **v4**. Older v2/v3 results and current v4 results must retain their actual research code revisions and remain distinguishable.
+
 ## Source-verified failure and correction
 
 The pinned Twinleaf simulator's generic `AttachEnergyTactic` does not score dynamic Energy supplied by Double Dragon Energy (ROS 97). Research tactic v1 recovered legally available DDE attachments, but greedily selected the first legal Dragon Pokémon, checking Active first. A pinned engine fixture established an Active Regidrago VSTAR SIT already paying the printed Grass + Grass + Fire cost of Apex Dragon, with a second unpowered Regidrago VSTAR on the Bench. The v1 tactic nevertheless selected the Active. See [prior integration and four-seed action audit](dde-runtime-integration.md).
