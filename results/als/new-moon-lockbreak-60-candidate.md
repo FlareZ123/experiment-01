@@ -77,6 +77,23 @@ This is a **four-slot adjustment**, not an independently invented shell. The ove
 
 These are field **structural constraints**, not wins, losses or policy-verified advantage. The package is also susceptible to high-DCI discard constraints around Secret Box, Supporter contention, Bench space, Item locks, Tool restoration, critical Prize configurations and late-game damage conversion.
 
+## Compiled attached-Tool and Active-Ability suppression test
+
+The [actual pinned Store counter-action matrix](../../simulation/twinleaf/new-moon-lockbreak-ability-gates.cjs) **passed** [compiled manual CI 39021653996](https://github.com/FlareZ123/experiment-01/actions/runs/39021653996) at head `0cbd9b858430a648d525a46bfe4bfff74ae439c9`, with a separate `newmoon-lockbreak-ability-gates` artifact. It creates a **deliberately staged** Active Mewtwo & Mew-GX with realistic opposing printed Pokémon and uses actual `PlayCardAction` and `ResolvePromptAction` to verify Perfection's suppression/restoration by `CheckPokemonPowersEffect` and `IS_ABILITY_BLOCKED`.
+
+| Injected opponent status | Real counter action(s) | Perfection visible at last check |
+| --- | --- | --- |
+| No lock | None | **Yes** |
+| Benched Garbodor BKP with Float Stone | None | **No** |
+| Benched Garbodor BKP with Float Stone | Field Blower selects Garbodor Tool | **Yes** |
+| Active Iron Thorns ex | None | **No** |
+| Active Iron Thorns ex | Canceling Cologne | **Yes** |
+| Active Klefki | Canceling Cologne | **Yes** |
+| Active Iron Thorns ex and Benched Tool Garbodor | Cologne alone, or Blower alone | **No** |
+| Active Iron Thorns ex and Benched Tool Garbodor | Cologne, then Blower | **Yes** |
+
+For the combined-lock row, Field Blower discards the actual selected Float Stone from the player's board into the owner's discard; Cologne's real Active marker is asserted. The order result is consistent with one surviving lock taking effect after the other is addressed. **That synthetic combination is an interaction stress test, not a claim any published Aichi deck fields both.** This confirms a necessary lock-release window under injected resources, and does **not** establish that the source deck can get both Item cards into hand at the right time, avoid Item lock, actually announce and complete Perfection's copied attack, or win an independently dealt game. The opponent is not using a competent turn policy in this fixture.
+
 ## Mathematical early access: severe limitation
 
 An independent exact hypergeometric calculation, conditioned on a **valid seven-card opener with at least one of 17 Basics**, counts designated *non-Basic* Items seen in the starting seven and next mandatory draw (eight observed physical cards in total). Prize placement is integrated by exchangeability before deck setup, and no optional opponent-mulligan draws are modeled. The item is **directly visible** in hand; this does not grant a legal use.
