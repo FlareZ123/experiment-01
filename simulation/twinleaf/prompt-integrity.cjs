@@ -111,7 +111,7 @@ function assertValidPromptAction(state, action) {
       if (prompt.playerType === 0 || prompt.playerType === 2) collect(actor, 2);
     }
     valid = !!actor && !!opponent && Array.isArray(action.result) &&
-      action.result.every(slot => available.has(slot)) &&
+      Array.from(action.result).every(slot => available.has(slot)) &&
       new Set(action.result).size === action.result.length;
   }
   if (valid && prompt.constructor.name === 'AttachEnergyPrompt' &&
