@@ -114,7 +114,7 @@ function run() {
       const seeds=deriveSlotSeeds(seedBase,'pilot',RANK,withinBaseRepeat);
       const seed=seeds[seat===0?'A':'B'];
       let game;
-      try { game=runArm(slots.source,opponent.cards,seat,seed,90,true,false); }
+      try { game=runArm(slots.source,opponent.cards,seat,seed,20,true,false); }
       catch(error) {
         inspected.push({seedBase,repeat:withinBaseRepeat,seed,screenError:String(error?.message||error)});
         continue;
