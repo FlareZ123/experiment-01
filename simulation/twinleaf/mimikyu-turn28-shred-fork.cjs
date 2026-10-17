@@ -12,7 +12,7 @@ const {observableState,hash}=require('./source-state-continuity.cjs');
  * @template T
  * @param {{Store:Function,Bot:Function,AttackAction:Function,ResolvePromptAction:Function}} types
  * @param {()=>T} work
- * @param {{forceShred?:boolean}} options
+ * @param {{forceShred?:boolean,snapshot?:(state:object)=>object}} options
  * @returns {{result:T,opportunities:object[],shredSelections:object[]}}
  */
 function withTurn28CopycatShredFork(types,work,options={}) {
@@ -22,6 +22,7 @@ function withTurn28CopycatShredFork(types,work,options={}) {
   assert.equal(typeof storeDesc?.value,'function');
   assert.equal(typeof botDesc?.value,'function');
   let root=null,forced=false;
+  const snapshot=options.snapshot||observableState;
   const opportunities=[],shredSelections=[];
   const dispatch=function(...args) {
     if(!root && args[0]?.constructor?.name==='AddPlayerAction') root=this;
@@ -53,7 +54,7 @@ function withTurn28CopycatShredFork(types,work,options={}) {
         'Actual pending prompt must contain valid own-discard Shred');
       shredSelections.push({turn:28,promptId:pending.id,
         source:dialga.fullName,attack:shred.name,
-        stateDigest:hash(observableState(state))});
+        stateDigest:hash(snapshot(state))});
       return new ResolvePromptAction(pending.id,shred);
     }
     const chosen=botDesc.value.call(this,state,...args);
@@ -68,7 +69,7 @@ function withTurn28CopycatShredFork(types,work,options={}) {
     opportunities.push({turn:28,actor:actor.id,originalAction:'RetreatAction',
       defender:opponent.active.getPokemonCard().fullName,
       damage,shredPrintedDamage:80,defenderHP:defender.hp,
-      ownDiscardDragon:'Dialga-GX UPR',sourceDigest:hash(observableState(state))});
+      ownDiscardDragon:'Dialga-GX UPR',sourceDigest:hash(snapshot(state))});
     if(options.forceShred!==true) return chosen;
     forced=true;
     return new AttackAction(actor.id,'Copycat');
