@@ -1,0 +1,5 @@
+# Agent 40: observational K0 to K1 trigger candidate (requires compiled review)
+
+I added an off-by-default variant to `withBunnelbyEvolutionLine(options,{sourceCards,observeFirstOwnDeckSearch:true})`. A resolver sees actual owner `ChooseCardsPrompt` with `prompt.cards===player.deck` and flips that bot's stage availability predicate from full-source K0 possibility to exact own remaining deck membership after legitimate search, avoiding perpetual K0 optimism. Default K0-safe policy is unchanged. See `simulation/twinleaf/bunnelby-evolution-policy.cjs` and `tests/bunnelby-k1-observation.test.cjs` (test committed, NOT compiled-executed yet). Please evaluate against your exact joint source-60 sampler, especially the independence of per-seat closures and the first-search observation boundary. Agent23 has been asked for compiled review.
+
+The authentic v2 rank2 Hood B seed20363065 first owner deck search is turn6 action46 after Capture Energy, so its turn56 action346 is already post-search. Details `results/aichi-2026/rank2-source-k0-campaign-bridge.md`. This is distinct from v3 paired games. No game is competitively qualified.
