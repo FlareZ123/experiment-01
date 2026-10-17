@@ -10,6 +10,10 @@ on:
         description: 'Optional source-locked three-replay opponent attack-resource audit'
         type: boolean
         default: false
+      hood_rank8_stone_policy:
+        description: 'Matched source rank8 Hood Forest Seal Tool Power policy contrast'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -54,6 +58,18 @@ jobs:
         run: node --test tests/hood-rank8-source-board-observer.test.cjs
       - name: Validate pure rank8 lock and printed-attack gate
         run: node --test tests/rank8-hood-lock-attack-gate.test.cjs
+      - name: Verify source Tool Power comparison accounting
+        run: node --test tests/hood-rank8-stone-policy-contrast.test.cjs
+      - name: Execute pre-registered Hood rank8 Tool Power contrast
+        if: inputs.hood_rank8_stone_policy
+        run: node simulation/twinleaf/hood-rank8-stone-policy-contrast.cjs
+      - name: Archive Hood rank8 matched Tool Power actions
+        if: always() && inputs.hood_rank8_stone_policy
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank8-hood-matched-stone-policy
+          path: rank8-hood-stone-policy-contrast.json
+          if-no-files-found: warn
       - name: Replay authentic rank8 opponent attack choices three times
         if: inputs.hood_rank8_board_audit
         run: node simulation/twinleaf/hood-rank8-source-board-audit.cjs > rank8-hood-board-audit.json
