@@ -10,6 +10,8 @@ const {runMatch,initializeCards}=require('./headless.cjs');
 const {sourceZoneSnapshot,zoneSnapshotDigest}=require('./source-zone-checkpoint.cjs');
 const {observableState,hash:historyHash,firstMismatch}=require('./source-state-continuity.cjs');
 const {storeDataGraphFingerprint}=require('./store-data-graph-fingerprint.cjs');
+const {withDecisionScopedDetachedSimulator}=
+  require('./decision-scoped-detached-simulator.cjs');
 
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
@@ -25,9 +27,11 @@ const digest=value=>crypto.createHash('sha256').update(JSON.stringify(value)).di
  *
  * @template T
  * @param {()=>T} work Execute genuine 60-versus-60 game.
+ * @param {{detachedDuringTarget?:boolean}} [options] Use opt-in repaired
+ *   Simulator only while a source Koraidon turn-five policy choice is decoded.
  * @returns {{game:T,observations:object[]}}
  */
-function observeKoraidonTurn5(work) {
+function observeKoraidonTurn5(work,options={}) {
   const {Store}=engine('game/store/store');
   const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
   const storeDescriptor=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
@@ -57,7 +61,9 @@ function observeKoraidonTurn5(work) {
         history:historyHash(observableState(state)),
         store:preGraph.digest
       };
-      const action=botDescriptor.value.call(this,state,...args);
+      const choose=()=>botDescriptor.value.call(this,state,...args);
+      const action=options.detachedDuringTarget===true?
+        withDecisionScopedDetachedSimulator(choose):choose();
       const postGraph=storeDataGraphFingerprint(root,{includeGraph:true});
       const after={
         zones:zoneSnapshotDigest(sourceZoneSnapshot(state)),
