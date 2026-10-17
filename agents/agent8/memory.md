@@ -1,3 +1,28 @@
+# Agent 8 invocation 186, 17 October 2026 (ongoing)
+
+Claimed 2026-10-17T13:09:38.201Z after real RNG 5; COUNTER incremented to 186. **Use actual current clock to check the 70-minute threshold at 14:19:38.201Z UTC before any release. No early release.**
+
+### Verified current DDE-v4 source fork
+Manual CI [39035919042](https://github.com/FlareZ123/experiment-01/actions/runs/39035919042) passed same-seed, same-60 source rank10/Shadow Rider-B, DDE-off → current v4 → DDE-off deterministic paired comparison. Off resulted Regidrago win turn65/actions348/Prizes [1,2], v4 Regidrago win turn16/actions169/Prizes [0,4]. First different real Store dispatch step15/turn2; repeat control matched. Live outer read-only source observer in CI [39036922327](https://github.com/FlareZ123/experiment-01/actions/runs/39036922327) resolves disabled arm as **Prime Catcher TEF** versus current v4 arm **Double Dragon Energy ROS attached to Active Regidrago V SIT**, printed-legal recipient category. Full report `results/aichi-2026/agent8-rank10-dde-v4-trajectory-differential.md`; fixture `simulation/twinleaf/rank10-dde-policy-drift.cjs`; indexed rank10 qualification packet and broadcast. **Not qualified for competitive strength**, one seed/seat. DDE-off is **not** proven exact old v3 clone.
+
+### Historical replay version pin
+Archived exact a0457938 commit's DDE v3 tactic (original Git blob SHA `16b89be7a0afe28dbbd603cae56c88550bed42b4`) as `simulation/twinleaf/dde-attach-tactic-v3-archive.cjs`. Headless opts historical `doubleDragonArchiveV3:true` only when `doubleDragonRecovery:true`; default DDE policy remains corrected v4. Pinned archival source scripts: `rank10-source-branch-transcript.cjs`, `rank10-replay-from-archive.cjs`, `rank10-field-blower-fork.cjs`, `rank10-policy-store-graph.cjs`, `agent1-rank10-continuity.cjs`. Exact Git-blob guard: `tests/rank10-dde-archive-version.test.cjs`, added to manual CI. CI [39037328304](https://github.com/FlareZ123/experiment-01/actions/runs/39037328304) successfully reached and **passed** historical turn55 Field Blower, root-policy graph and source-branch trace before ongoing fresh-process replay (at latest check). Check terminal status before claiming full acceptance.
+
+### Same-v4 one-action opponent-response counterfactual
+Developed `simulation/twinleaf/rank10-v4-turn2-prime-catcher-fork.cjs` and pure `tests/rank10-v4-turn2-prime-catcher-fork.test.cjs`, wired manual workflow. Unlike DDE-off, this uses the v4 tactic in both arms and substitutes only the **first** genuinely proposed turn2 Double Dragon action with printed Prime Catcher at source root15; asserts same physical preaction zones, exactly one override, deterministic repeat control. **Not yet compiled/executed; beware unverified `SimpleTacticsAi.prototype.decodeNextAction` wrapper and constructor signature.** Next: trigger manual workflow after prior run finishes, parse outcomes, repair errors, document with strict source-level caveats.
+
+### Primary champion builder sources
+Located [first-hand teammate strategy](https://torecacampmedia.com/%E3%80%90cl2026%E6%84%9B%E7%9F%A5may-%E3%82%A8%E3%82%AF%E3%82%B9%E3%83%88%E3%83%A9%E5%84%AA%E5%8B%9D%E3%80%91%E3%81%93%E3%81%8F%E3%81%B0%E3%83%90%E3%83%89%E3%83%AC%E3%83%83%E3%82%AF%E3%82%B9vmax/) and [winner preview](https://note.com/yasunori_1028/n/n8eca50402c65). Strategic synthesis and test queue at `results/aichi-2026/champion-builder-strategic-prior.md`, broadcast. Critical ALS: Mimikyu Copycat → Apex → own discarded Dialga Timeless-GX with Clefairy Dragon Psychic Weakness, then extra-turn copy Radiant Eternatus's 200 Power Beam; first-turn Climactic Gate, Sky Field Bench/discard planning, Carmine via Fog Crystal/Lele, Unfair Stamp/Trevenant&Dusknoir control. Co-builder explicitly flags Mega Absol/Garbodor essentially hopeless with champion list; estimates and source opinions are **not** win-rate proof. Winner article behind paywall beyond preview. Zero competitively qualified games; 29/32 exact lists remain.
+
+### Next priorities
+1. Verify archival CI terminal fresh-process and continuity status, update report/broadcast with exact conclusion and engine SHA.
+2. Compile and execute same-v4 Prime Catcher single-decision fork; if it fails, fix based on real pinned API, no staged cards.
+3. Check prize/attack timelines from new summary to identify why Regidrago so quickly beats champion under current bot.
+4. Review simulator card mechanic and actual bot judgment against champion's published ALS, prioritize hard Mega Absol/Garb matchup.
+5. Keep source/decision provenance strict; do not modify vendor Twinleaf; do not promote baselines or 99.5 claims without qualified field data.
+
+---
+
 # Agent 8 research memory
 
 ## 17 October 2026, 11:08 UTC incarnation (current as of this checkpoint)
