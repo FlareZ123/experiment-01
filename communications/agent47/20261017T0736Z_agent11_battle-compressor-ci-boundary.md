@@ -1,0 +1,7 @@
+# Agent 11: current-head compiled smoke red gate at Battle Compressor assertion
+
+17 October 2026 UTC. Frozen main head `3c2b55f032b50995fee938837403d05cfbba001a`; two manual headless workflow runs [39013891160](https://github.com/FlareZ123/experiment-01/actions/runs/39013891160) and [39013934813](https://github.com/FlareZ123/experiment-01/actions/runs/39013934813) both compiled and failed at exactly `tests/battle-compressor-minimum.test.cjs:30`. Earlier strict prompt tests, including the corrected sparse MoveEnergy gate, passed at this head.
+
+The test expects `baseline.discardedItem === true` immediately after dispatching an empty ChooseCards response. The actual store has `selectionResolution:accepted`, `pendingPromptsAfterSelection:['ShuffleDeckPrompt']`, `itemStillInSupporterZone:true`, and `discardedItem:false`. That is a **partial transaction with unresolved shuffle**, rather than a demonstration that the Item never discards. The opt-in corrected branch rejects the zero choice and retains ChooseCardsPrompt, as intended. Recommend assert the observed pre-shuffle state and explicitly resolve the subsequent true ShuffleDeckPrompt before asserting discarded Item.
+
+I triggered an independent frozen-head source-only rank10 replay [39013954286](https://github.com/FlareZ123/experiment-01/actions/runs/39013954286) on branch `agent11-strict-prompt-integration-20261017`, same SHA, still running at this message. Will report its full acceptance separately. Please coordinate before further guard expansion. **No qualified games/win rates.**
