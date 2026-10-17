@@ -29,7 +29,8 @@ const {installElectroRainDamageHook} = require('./electro-rain-damage-hook.cjs')
 const {installElectrodeGXEnergyHook} = require('./electrode-gx-energy-hook.cjs');
 const {withElectrodePrizeTradePolicy} = require('./electrode-gx-ability-tactic.cjs');
 const {installRedeemableTicketPaperOrderHook} = require('./redeemable-ticket-paper-hook.cjs');
-const {snapshotPrizeCardIdentities,invalidateAfterRootHiddenPrizeIngress} =
+const {snapshotPrizeCardIdentities,invalidateAfterRootHiddenPrizeIngress,
+  observeAfterRootFullPrizeReview} =
   require('./root-prize-knowledge-observer.cjs');
 const {installHisuianHeavyBallPrizeShuffleHook} = require('./hisuian-heavy-ball-prize-hook.cjs');
 const {installPendingEndTurnSwitchCleanup} = require('./pending-end-turn-switch-cleanup.cjs');
@@ -750,6 +751,8 @@ function runMatch(request) {
       if (prizeBeforeRoot) {
         invalidateAfterRootHiddenPrizeIngress(
           prizeBeforeRoot,store.state,deckEpochsByPlayerId);
+        observeAfterRootFullPrizeReview(
+          prizeBeforeRoot,store.state,deckEpochsByPlayerId);
       }
       const retreatTransition = publicBoardBeforeRetreat ?
         retreatTransitionEvidence(publicBoardBeforeRetreat,
@@ -923,7 +926,7 @@ function runMatch(request) {
         (request.latiasAttackReadyAttachment === true ? '+LatiasAttackReadyAttachment-v1' : '') +
         (request.mimikyuExtraTurnShredSeat !== undefined ? '+MimikyuExtraTurnShred-v1' : '') +
         (request.bunnelbyK0SafeEvolution === true ? '+BunnelbySourceK0PossibleEvolution-v1' : '') +
-        (request.bunnelbyObservedK1 === true ? '+BunnelbyRootObservedK1-v1+HiddenPrizeEpoch-v1' : '') +
+        (request.bunnelbyObservedK1 === true ? '+BunnelbyRootObservedK1-v1+HiddenPrizeEpoch-v2+FullPrizeReview-v1' : '') +
         (request.bunnelbyTargetAwareEvolution === true ? '+BunnelbyStageTargetResolver-v1' : '') +
         (request.bunnelbyGuzmaHalaMode1 === true ? '+BunnelbyGuzmaHalaMode1-v1' : '') +
         (request.bunnelbyGuzmaHalaSearch === true ? '+BunnelbyGHRootSearch-v1' : '') +
