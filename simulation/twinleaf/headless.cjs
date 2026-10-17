@@ -222,6 +222,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [latiasAttackReadyAttachment] Opt-in rank10 source-state Latias Energy completion probe.
  * @property {boolean} [bunnelbyK0SafeEvolution] Opt-in printed-source-only TM Evolution choice without hidden-deck/Prize inspection.
  * @property {boolean} [bunnelbyObservedK1] Separate opt-in: switch that policy from K0 to K1 only on live owner-deck search prompts.
+ * @property {boolean} [bunnelbyTargetAwareEvolution] Separate opt-in: choose TM Evolution targets with possible Stage cards.
  * @property {boolean} [attackBeforeRetreat] Opt-in policy-order sensitivity probe for AttackTactic and RetreatTactic.
  * @property {0|1} [attackBeforeRetreatSeat] Restrict that opt-in probe to one physical seat.
  * @property {boolean} [passHorizonAttack] Compare printed AttackAction against a simulated PassTurnAction at the same turn-end horizon (experimental).
@@ -250,6 +251,10 @@ function runMatch(request) {
   }
   if (request.bunnelbyObservedK1 === true && request.bunnelbyK0SafeEvolution !== true) {
     throw new Error('Observed K1 requires the source-60 Bunnelby K0 option');
+  }
+  if (request.bunnelbyTargetAwareEvolution === true &&
+      request.bunnelbyK0SafeEvolution !== true) {
+    throw new Error('Target-aware Evolution requires the source-60 Bunnelby K0 option');
   }
   const random = seededRandom(request.seed);
   const policyRandomBySeat = request.isolatePolicyRandomness === true ?
@@ -481,6 +486,7 @@ function runMatch(request) {
           .withBunnelbyEvolutionLine(configured, {
             sourceCards: knownPrints.map(name => manager.getCardByName(name)),
             observeFirstOwnDeckSearch: request.bunnelbyObservedK1 === true,
+            targetAwareEvolution: request.bunnelbyTargetAwareEvolution === true,
             ...(request.bunnelbyObservedK1 === true ? {
               isLivePrompt: (state, player, prompt) =>
                 state === store.state && state.players.includes(player) &&
@@ -760,6 +766,7 @@ function runMatch(request) {
       latiasAttackReadyAttachment: request.latiasAttackReadyAttachment === true,
       bunnelbyK0SafeEvolution: request.bunnelbyK0SafeEvolution === true,
       bunnelbyObservedK1: request.bunnelbyObservedK1 === true,
+      bunnelbyTargetAwareEvolution: request.bunnelbyTargetAwareEvolution === true,
       attackBeforeRetreat: request.attackBeforeRetreat === true,
       attackBeforeRetreatSeat: request.attackBeforeRetreatSeat ?? null,
       policy: (request.doubleDragonRecovery === true ?
@@ -781,6 +788,7 @@ function runMatch(request) {
         (request.mimikyuExtraTurnShredSeat !== undefined ? '+MimikyuExtraTurnShred-v1' : '') +
         (request.bunnelbyK0SafeEvolution === true ? '+BunnelbySourceK0PossibleEvolution-v1' : '') +
         (request.bunnelbyObservedK1 === true ? '+BunnelbyRootObservedK1-v1' : '') +
+        (request.bunnelbyTargetAwareEvolution === true ? '+BunnelbyStageTargetResolver-v1' : '') +
         (request.attackBeforeRetreat === true ?
           '+AttackBeforeRetreatTactic-v1@' +
             (request.attackBeforeRetreatSeat === undefined ?
