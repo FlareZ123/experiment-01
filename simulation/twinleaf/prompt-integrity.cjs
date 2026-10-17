@@ -93,6 +93,47 @@ function validMoveEnergyTransfers(state, prompt, transfers) {
   return true;
 }
 
+/**
+ * Failure-only readout. A rejected Energy choice can reflect an invalid
+ * physical card reference, repeated card, target, or count. Keep the detail
+ * strictly after the bot's choice and never provide it to policy callbacks.
+ * @param {object} prompt
+ * @param {object} action
+ * @returns {string}
+ */
+function attachEnergyFailureEvidence(prompt, action) {
+  const source = prompt.cardList.cards;
+  const allowed = new Set(prompt.cardList.filter(prompt.filter));
+  const seen = new Set();
+  const selections = Array.isArray(action.result) ? action.result.map(entry => {
+    const card = entry?.card;
+    const duplicate = seen.has(card);
+    seen.add(card);
+    const target = entry?.target;
+    return {
+      card: card?.fullName || card?.name || null,
+      inSource: source.includes(card),
+      eligible: allowed.has(card),
+      duplicate,
+      entryKeys: entry && typeof entry === 'object' ? Object.keys(entry).sort() : [],
+      target: target && typeof target === 'object' ?
+        {player: target.player ?? null, slot: target.slot ?? null,
+          index: target.index ?? null} : null
+    };
+  }) : null;
+  return JSON.stringify({
+    evidenceType: 'post-choice-invalid-attach-energy-selection-v1',
+    promptId: prompt.id,
+    promptMessage: prompt.message ?? null,
+    sourceSize: source.length,
+    eligibleSize: allowed.size,
+    min: prompt.options?.min ?? null,
+    max: prompt.options?.max ?? null,
+    selectedSize: selections?.length ?? null,
+    selections
+  });
+}
+
 function assertValidPromptAction(state, action) {
   const unresolved = state.prompts.filter(prompt => prompt.result === undefined);
   if (unresolved.length === 0) return;
@@ -196,8 +237,10 @@ function assertValidPromptAction(state, action) {
     });
   }
   if (!valid) {
+    const detail = name === 'AttachEnergyPrompt' ?
+      ' ' + attachEnergyFailureEvidence(prompt, action) : '';
     throw new Error('Twinleaf bot supplied an invalid result to ' +
-      prompt.constructor.name + ' (prompt ' + prompt.id + ').');
+      prompt.constructor.name + ' (prompt ' + prompt.id + ').' + detail);
   }
 }
 
