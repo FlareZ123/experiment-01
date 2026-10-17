@@ -8,6 +8,11 @@ class AddPlayerAction {}
 class AttackAction {
   constructor(clientId,name) {this.clientId=clientId;this.name=name;}
 }
+class UseAbilityAction {
+  constructor(clientId,name,target) {
+    this.clientId=clientId;this.name=name;this.target=target;
+  }
+}
 
 /** @param {string} name @param {number} damage */
 function slot(name,damage=0) {
@@ -136,4 +141,41 @@ test('source turn-seven actor hand and prompt chronology is read-only and comple
   assert.equal(summary.beforeBoard.active.name,'Mega Absol ex');
   assert.deepEqual(summary.pendingPromptsBefore,[]);
   console.log('Source turn seven hand shift:',JSON.stringify(summary));
+});
+
+test('Ability observation identifies exact target slot and attached Hood',()=>{
+  class FakeStore {
+    constructor() {
+      this.state={turn:8,phase:2,activePlayer:1,prompts:[],
+        players:[player(101,'Mega Absol ex'),
+          player(202,'Shadow Rider Calyrex VMAX')]};
+      this.state.players[1].active.tools=[{name:'Stealthy Hood'}];
+      this.state.players[1].bench=[
+        slot('Dialga-GX'),slot('Shadow Rider Calyrex VMAX')
+      ];
+    }
+    dispatch() {return this.state;}
+  }
+  const game=new FakeStore();
+  const actual=withRank8BoardObserver(FakeStore,()=>{
+    game.dispatch(new AddPlayerAction());
+    game.dispatch(new UseAbilityAction(202,'Underworld Door',
+      {player:2,slot:1,index:0}));
+    game.dispatch(new UseAbilityAction(202,'Underworld Door',
+      {player:2,slot:2,index:1}));
+  });
+  assert.equal(actual.records.length,2);
+  const active=condense(actual.records[0]);
+  const bench=condense(actual.records[1]);
+  assert.deepEqual(active.abilitySource,{
+    name:'Shadow Rider Calyrex VMAX',tools:['Stealthy Hood'],
+    target:{slot:1,index:0}
+  });
+  assert.deepEqual(bench.abilitySource,{
+    name:'Shadow Rider Calyrex VMAX',tools:[],
+    target:{slot:2,index:1}
+  });
+  assert.equal(bench.visibleBefore.actor.active.tools.includes('Stealthy Hood'),true);
+  console.log('Source-Pokemon action target proof:',JSON.stringify(
+    [active.abilitySource,bench.abilitySource]));
 });
