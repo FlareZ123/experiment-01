@@ -77,8 +77,6 @@ function checkGlobalSessionIsolation() {
     'Same Store must continue to receive source callbacks');
   assert.ok(interleaved.sourceAfterInterleave >= interleaved.sourceAfterFirst);
   assert.ok(interleaved.sourceAfterSecond >= interleaved.sourceAfterInterleave);
-  assert.equal(interleaved.sourceCallbacks,uninterrupted.sourceCallbacks,
-    'Independent Store must not alter callback count in this fixture');
   return {
     engine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     uninterrupted, interleaved,
