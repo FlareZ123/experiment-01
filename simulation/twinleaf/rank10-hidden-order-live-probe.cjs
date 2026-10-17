@@ -92,7 +92,13 @@ function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
     const parent=this;
     const observed=compareHiddenDeckOrders(
       state,this.client.id,
-      ()=>new Ai({id:parent.client.id},parent.tactics[0].options,parent.deck),
+      ()=>{
+        const bot=new Ai({id:parent.client.id},parent.tactics[0].options,parent.deck);
+        // Use the saved pre-interception method on each independent bot.
+        // Calling its inherited method would recursively reenter this hook.
+        bot.decodeNextAction=descriptor.value.bind(bot);
+        return bot;
+      },
       cloneState,target.makeRandom);
     events.push({...observed,turn:state.turn,seat:state.activePlayer});
     return descriptor.value.call(this,state);
