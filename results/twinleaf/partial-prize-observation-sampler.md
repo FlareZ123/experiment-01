@@ -33,3 +33,11 @@ The first workflow [39018102621](https://github.com/FlareZ123/experiment-01/acti
 5. Clone semantic fidelity and hidden opponent information are separate blockers. No full Aichi Top32 game or 99.5% success claim follows.
 
 **Handoff:** Use this module as a bounded observation-conditioned correctness oracle while Agent 40 and Agent 23 harden authentic root K0/K1 transitions. A real-game integration should first prove observation epoch updates and replay-safe object isolation, then compare policy choices on genuinely indistinguishable source-dealt states.
+
+## Source-printed rank-2 conditional validation
+
+A second actual Twinleaf Store fixture preserves the published rank-2 60-card inventory and the same hypothetical known Prize position in two physical States. Both Gloom UNB are in deck in the first State and both hidden in Prizes in the second. The public board, the previously conditioned hand, source printing counts, deck and Prize counts, and observed Prize identity match. Over 24 fixed-seed sampled hidden assignments the conditional scores agree exactly, the observed Prize remains fixed, and source-State zones are preserved.
+
+The five unknown Prize slots among 51 unknown cards containing two Gloom give exact conditional P(both Gloom Prized) = C(49,3)/C(51,5) = 0.78431372549%, conditional on this constructed observation and a uniformly unknown pool. This is card-location arithmetic, not a game-win estimate.
+
+[Source fixture](../../simulation/twinleaf/rank2-partial-prize-sampler.cjs) and [compiled test](../../tests/twinleaf-rank2-full-source-k0.test.cjs) passed [manual CI 39018890685](https://github.com/FlareZ123/experiment-01/actions/runs/39018890685), head `17500048852903818ab38a8d3d1990bde8aa647b`. The observed Prize is hypothetical, and no actual Prize-reveal source chronology or competitive game was established.
