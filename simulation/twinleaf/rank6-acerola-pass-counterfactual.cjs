@@ -63,6 +63,14 @@ function main() {
   assert.equal(alternative.result.sourceChoices.length,1);
   assert.equal(original.result.forced,false);
   assert.equal(alternative.result.forced,true);
+  const originalRng=original.result.sourceChoices[0];
+  const alternateRng=alternative.result.sourceChoices[0];
+  assert.equal(originalRng.originalPolicyRandomDraws,
+    alternateRng.originalPolicyRandomDraws,
+    'Original bot consumed unequal policy-random draw counts');
+  assert.equal(originalRng.originalPolicyRandomValuesSha256,
+    alternateRng.originalPolicyRandomValuesSha256,
+    'Source policy RNG draw values differed before Acerola decision');
   assert.equal(a.fork.completed,true);
   assert.equal(b.fork.completed,true);
   assert.equal(a.attack?.damageAfter,140);
@@ -98,7 +106,13 @@ function main() {
       game.attackTrace.filter(x=>x.seat===1).length
     ],
     opponentPublicTurnThree:publicTurnLedger(game.decisionTrace,
-      {seat:0,turn:3})
+      {seat:0,turn:3}),
+    publiclyAnnouncedAttacks:game.attackTrace.map(event=>({
+      turn:event.turn,seat:event.seat,
+      attacker:event.activePokemon,attack:event.attack,
+      prizesBefore:event.prizeCountBefore,
+      prizesAfter:event.prizeCountAfter
+    }))
   });
   const report={
     schema:'rank6-source-dealt-champion-acerola-vs-pass-response-v1',
@@ -114,6 +128,9 @@ function main() {
       beforeCardHistorySha256:before[first].continuityDigestBefore
     },
     originalPolicyWasEvaluatedInBothArms:true,
+    observedPolicyRngFloat64SequenceIdentical:true,
+    originalPolicyRandomDraws:originalRng.originalPolicyRandomDraws,
+    originalPolicyRandomValuesSha256:originalRng.originalPolicyRandomValuesSha256,
     sourcePolicyRngConsumptionProtocol:'unchanged-bot-proposal-in-both-arms',
     controlAcerolaChoice:original.result.sourceChoices[0],
     alternativeAcerolaChoice:alternative.result.sourceChoices[0],
