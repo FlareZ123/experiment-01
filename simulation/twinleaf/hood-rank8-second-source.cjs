@@ -3,9 +3,11 @@
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 
+const {deriveSlotSeeds} = require('../../scripts/aichi-decorrelated-seeds.cjs');
+
 const SOURCE_RANK = 8;
 const PHYSICAL_CANDIDATE_SLOT = 1;
-const BASE_SEED = 4168858073;
+const SEED_BASE = 20261016;
 const MAX_SEEDS = 16;
 const PREFLIGHT_ACTIONS = 40;
 
@@ -19,18 +21,15 @@ function digest(value) {
  * observed starting order. Preflight winner and gameplay are never consulted.
  * Unexpected missing proofs fail closed.
  * @param {(seed:number)=>object} preflight
- * @param {number} [baseSeed]
  * @param {number} [maxSeeds]
  * @returns {{seed:number, ordinal:number, probes:object[]}}
  */
-function selectFirstSecondSeed(preflight, baseSeed = BASE_SEED, maxSeeds = MAX_SEEDS) {
-  assert.ok(Number.isSafeInteger(baseSeed) && baseSeed >= 0 &&
-    baseSeed + maxSeeds <= 0xffffffff, 'Invalid bounded seed range');
+function selectFirstSecondSeed(preflight, maxSeeds = MAX_SEEDS) {
   assert.ok(Number.isInteger(maxSeeds) && maxSeeds >= 1 && maxSeeds <= 32,
     'Seed preflight budget must be in [1,32]');
   const probes = [];
   for (let ordinal = 1; ordinal <= maxSeeds; ordinal += 1) {
-    const seed = baseSeed + ordinal;
+    const seed = deriveSlotSeeds(SEED_BASE,'pilot',SOURCE_RANK,ordinal).B;
     const game = preflight(seed);
     assert.ok(game && game.seed === seed && game.verifiedByDrawLog === true &&
       [0, 1].includes(game.firstTurnSlot) &&
@@ -128,7 +127,8 @@ function main() {
     sourceResolution:{candidate:plan.candidate.substitutions,
       opponent:opponent.substitutions},
     physicalCandidateSlot:'B',actualCandidateTurn:'second',
-    predeclaredSeedRule:{baseSeed:BASE_SEED,firstOffset:1,
+    predeclaredSeedRule:{seedBase:SEED_BASE,sourceProtocol:'decorrelated-slots-v3',
+      rank:SOURCE_RANK,physicalSlot:'B',firstRepeat:1,lastRepeat:MAX_SEEDS,
       maxOffsets:MAX_SEEDS,selectionKey:'draw-log-verified-firstTurnSlot-only',
       preflightMaxActions:PREFLIGHT_ACTIONS},
     seedSelection:preflight,
