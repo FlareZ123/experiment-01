@@ -54,6 +54,14 @@ class SourceHashGateTests(unittest.TestCase):
         valid = evaluate_raw_batch(batch, field, {1: "b" * 64})
         self.assertTrue(valid["opponent_source_inventory_bound"])
         self.assertFalse(valid["competitive_evidence_qualified"])
+        self.assertFalse(valid["candidate_source_inventory_bound"])
+        self.assertFalse(valid["full_input_integrity_promotion_eligible"])
+        both = evaluate_raw_batch(batch, field, {1: "b" * 64}, candidate_hash="a" * 64)
+        self.assertTrue(both["candidate_source_inventory_bound"])
+        self.assertTrue(both["full_input_integrity_promotion_eligible"])
+        self.assertFalse(both["competitive_evidence_qualified"])
+        with self.assertRaisesRegex(ValueError, "trusted fixed inventory"):
+            evaluate_raw_batch(batch, field, {1: "b" * 64}, candidate_hash="f" * 64)
         with self.assertRaisesRegex(ValueError, "trusted ranked source"):
             evaluate_raw_batch(batch, field, {1: "c" * 64})
 
