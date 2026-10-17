@@ -1,0 +1,36 @@
+name: Aichi rank10 opponent response diagnostic
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  opponent-response:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Capture rank10 source response
+        run: node simulation/twinleaf/rank10-postshred-opponent-perspective.cjs > rank10-postshred-opponent.json
+      - name: Archive source opponent response
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-postshred-opponent
+          path: rank10-postshred-opponent.json
+          if-no-files-found: warn
