@@ -91,6 +91,7 @@ function auditCampaignQuality(archive) {
     }
   }
   const slotSeeds = new Map();
+  const pairedStartEvidence = new Map();
   const opponentDigests = new Map();
   const rows = archive.records.map(record => {
     if (!record || ids.has(record.trialId) ||
@@ -147,6 +148,9 @@ function auditCampaignQuality(archive) {
       (firstSlot === 0 || firstSlot === 1);
     const actualTurn = !drawLogVerified ? 'unverified' :
       firstSlot === slot ? 'first' : 'second';
+    const pair = pairedStartEvidence.get(seedKey) || [];
+    pair.push({trialId: record.trialId, actualTurn});
+    pairedStartEvidence.set(seedKey, pair);
     if (record.candidateActualTurn !== actualTurn ||
         actualTurn === 'unverified') {
       reasons.push('unverified-starting-turn');
@@ -223,6 +227,33 @@ function auditCampaignQuality(archive) {
       }
     }
   }
+  // A common seed across candidate variants does not guarantee an identical
+  // first-player result: changed Basic counts can consume different setup RNG.
+  // Preserve the source observations; mark any such trial as unpaired for
+  // controlled starting-order comparison rather than rejecting the archive.
+  const pairedStartOrderIssues = [];
+  const pairedFirstTurnStatus = new Map();
+  for (const [key, pair] of pairedStartEvidence) {
+    const turns = new Set(pair.map(x => x.actualTurn));
+    const status = pair.length < 2 ? 'not-applicable' :
+      turns.has('unverified') ? 'unverified' :
+      turns.size === 1 ? 'matched' : 'mismatch';
+    for (const item of pair) pairedFirstTurnStatus.set(item.trialId, status);
+    if (status === 'matched' || status === 'not-applicable') continue;
+    pairedStartOrderIssues.push({
+      scheduledRankRepeatSlot: key, status,
+      trials: pair.map(x => ({trialId: x.trialId, actualTurn: x.actualTurn}))
+    });
+    const blocker = status === 'mismatch' ?
+      'cross-variant-start-order-mismatch' :
+      'cross-variant-start-order-unverified';
+    for (const item of pair) {
+      rows.find(row => row.trialId === item.trialId).blockers.push(blocker);
+    }
+  }
+  for (const row of rows) {
+    row.pairedFirstTurnStatus = pairedFirstTurnStatus.get(row.trialId);
+  }
   // Mechanisms are declared by the researcher before interpreting the archive.
   // A partial or hash-mismatched trace cannot certify an action's absence.
   const checks = archive.mechanismChecks === undefined ? [] : archive.mechanismChecks;
@@ -278,6 +309,10 @@ function auditCampaignQuality(archive) {
         rank, candidateId, trials: subset.length,
         observedFirst, observedSecond, missingActualTurnStrata,
         actualTurnCoverageComplete: missingActualTurnStrata.length === 0,
+        pairedFirstTurnMismatches: subset.filter(row =>
+          row.pairedFirstTurnStatus === 'mismatch').length,
+        pairedFirstTurnUnverified: subset.filter(row =>
+          row.pairedFirstTurnStatus === 'unverified').length,
         mechanismExposure,
         completedEngineGames: subset.filter(row => row.status === 'completed-engine-game').length,
         zeroCandidateAttackTrials: subset.filter(row =>
@@ -310,6 +345,9 @@ function auditCampaignQuality(archive) {
         rank: row.rank, candidateId: row.candidateId,
         missing: row.missingActualTurnStrata
       })),
+    pairedStartOrderIssues,
+    pairedStartOrderComparable: candidates.size > 1 &&
+      pairedStartOrderIssues.length === 0,
     totalTrials: rows.length,
     repeatsVerified: repeats, fullPilotMatrixVerified: true,
     candidateRankingPermitted: false,
