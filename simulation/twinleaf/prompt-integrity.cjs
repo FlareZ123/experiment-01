@@ -167,6 +167,19 @@ function assertValidPromptAction(state, action) {
       Array.from(action.result).every(slot => allowed.has(slot)) &&
       new Set(action.result).size === action.result.length;
   }
+  // Chosen EnergyMap entries must originate from the prompt's actual
+  // provided attached-Energy catalog, once per physical Energy card.
+  if (valid && name === 'ChooseEnergyPrompt' && action.result !== null) {
+    const sourceMaps = new Set(prompt.energy);
+    const spent = new Set();
+    valid = Array.isArray(action.result) &&
+      Array.from(action.result).every(entry => {
+        const card = entry?.card;
+        if (!sourceMaps.has(entry) || !card || spent.has(card)) return false;
+        spent.add(card);
+        return true;
+      });
+  }
   if (valid && name === 'MoveEnergyPrompt' && action.result !== null) {
     valid = Array.isArray(action.result) &&
       validMoveEnergyTransfers(state, prompt, Array.from(action.result));
