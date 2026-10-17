@@ -53,10 +53,14 @@ jobs:
         run: node --test tests/aichi-absol-garbotoxin-window.test.cjs
       - name: First turn Boost Shake direct Garbotoxin tests
         run: node --test tests/aichi-absol-boost-shake-direct.test.cjs
+      - name: Source-specific Wally and Boost Shake direct route tests
+        run: node --test tests/absol-garbotoxin-direct-lock.test.cjs
       - name: First-turn Forest Seal Stone and Field Blower rank11 response
         run: node --test tests/aichi-rank11-field-blower-early-route.test.cjs
       - name: First turn Boost Shake source audit
         run: node scripts/aichi-absol-boost-shake-direct.cjs > aichi-absol-boost-shake-direct.json
+      - name: First turn Wally and Boost Shake route model
+        run: node scripts/absol-garbotoxin-direct-lock.cjs > absol-garbotoxin-direct-lock.json
       - name: Absol and Garbotoxin source audit
         run: node scripts/aichi-absol-garbotoxin-window.cjs > aichi-absol-garbotoxin-window.json
       - name: Audit published Aichi lists
@@ -92,6 +96,7 @@ jobs:
             aichi-opening-audit.md
             aichi-absol-garbotoxin-window.json
             aichi-absol-boost-shake-direct.json
+            absol-garbotoxin-direct-lock.json
             aichi-bonus-draws.md
             iron-thorns-direct-line.json
             meloetta-lone-active.md
