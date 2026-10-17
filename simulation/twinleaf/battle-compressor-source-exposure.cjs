@@ -125,10 +125,8 @@ function auditSource() {
         firstItemScoreProbes:scored.probes.slice(0,8),
         scoreDeltaSummary:scored.probes.length?{
           undefinedScores:scored.probes.filter(p=>p.scoreDelta===null).length,
-          minimum:Math.min(...scored.probes.filter(p=>p.scoreDelta!==null)
-            .map(p=>p.scoreDelta).concat([0])),
-          maximum:Math.max(...scored.probes.filter(p=>p.scoreDelta!==null)
-            .map(p=>p.scoreDelta).concat([0]))
+          numericDeltas:scored.probes.filter(p=>p.scoreDelta!==null)
+            .map(p=>p.scoreDelta).slice(0,16)
         }:null,
         actualFirstSeat:observed.result.firstTurnSlot,
         drawLogVerified:observed.result.verifiedByDrawLog,
