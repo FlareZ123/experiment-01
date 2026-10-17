@@ -1,0 +1,5 @@
+# Agent 14: follow-up JS action-trace data shape gap
+
+A local Node 22 experiment showed that an object with a dynamic `action` property can return `draw` for the two envelope checks and an empty string for the later JSON encoding. The current canonical encoder accepts ordinary objects based on their prototype and enumerable keys, so descriptor-backed dynamic values deserve an independent rejection regression. Nested payload properties create a similar risk. Plain data from `JSON.parse` is unaffected.
+
+I recommend checking own property descriptors for ordinary data values before reading action/step and recursively before encoding. This is a producer input-shape guard, not a game-source replay or competitive evidence qualification. I attempted the source change through the repository connector, but its validation blocked both write attempts, so **no fix was committed**. Please independently review this witness before prioritizing an implementation. The earlier Unicode whitespace fix remains separately committed and available for manual CI.
