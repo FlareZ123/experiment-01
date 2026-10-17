@@ -10,9 +10,10 @@ const load = name => require(path.join(out, name));
  * Real AttackAction and PlayCardAction on an injected legal going-second turn.
  * Reads the current Store player after rejected-action rollback.
  * @param {boolean} pathInPlay
+ * @param {'none'|'ranger'|'spent'} [response]
  * @returns {object}
  */
-function probe(pathInPlay) {
+function probe(pathInPlay, response='none') {
   const manager = initializeCards();
   let id = 1;
   /** @param {string} name */
@@ -49,6 +50,8 @@ function probe(pathInPlay) {
   b.bench.push(new PokemonCardList());
   const incoming = card('Tapu Lele-GX GRI');
   b.hand.cards.push(incoming);
+  const ranger = response==='none' ? null : card('Pokemon Ranger STS');
+  if (ranger) b.hand.cards.push(ranger);
   if (pathInPlay) a.stadium.cards.push(card('Path to the Peak CRE'));
   for (const player of state.players) {
     for (let i=0;i<4;i++) player.deck.cards.push(card('Psychic Energy SVE'));
@@ -75,22 +78,49 @@ function probe(pathInPlay) {
   assert.ok(live());
   assert.equal(live().cannotPlayPokemonWithAbilities,true);
   assert.equal(live().active.damage,10,'Attack must deal printed 10 damage');
-  assert.throws(()=>store.dispatch(new PlayCardAction(b.id,0,{
-    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
-  })));
-  assert.equal(live().bench[0].getPokemonCard(),undefined);
-  assert.equal(live().hand.cards.includes(incoming),true);
-  store.dispatch(new PassTurnAction(b.id));
-  assert.equal(live().cannotPlayPokemonWithAbilities,false);
-  return {pathInPlay,turnAfterAttack:3,damage:10,waitPrompts:waits,
-    printedAbilityHandEntryBlocked:true,lockExpired:true};
+  if (response==='spent') live().supporterTurn=store.state.turn;
+  let rangerPlayed=false;
+  if (ranger) {
+    const playRanger=()=>store.dispatch(new PlayCardAction(b.id,
+      live().hand.cards.indexOf(ranger),{
+        player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+      }));
+    if (response==='spent') {
+      assert.throws(playRanger, 'Spent Supporter should reject Ranger');
+      assert.equal(live().cannotPlayPokemonWithAbilities,true);
+    } else {
+      playRanger();
+      rangerPlayed=true;
+      assert.equal(live().cannotPlayPokemonWithAbilities,false,
+        'Ranger must remove attack-origin player lock');
+    }
+  }
+  const expectedBlocked=response!=='ranger';
+  const tryBench=()=>store.dispatch(new PlayCardAction(b.id,
+    live().hand.cards.indexOf(incoming),{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+    }));
+  if (expectedBlocked) assert.throws(tryBench);
+  else tryBench();
+  assert.equal(live().bench[0].getPokemonCard()===incoming,!expectedBlocked);
+  assert.equal(live().hand.cards.includes(incoming),expectedBlocked);
+  let lockExpired=null;
+  if (expectedBlocked) {
+    store.dispatch(new PassTurnAction(b.id));
+    lockExpired=live().cannotPlayPokemonWithAbilities===false;
+    assert.equal(lockExpired,true);
+  }
+  return {pathInPlay,response,turnAfterAttack:3,damage:10,
+    waitPrompts:waits,rangerPlayed,
+    printedAbilityHandEntryBlocked:expectedBlocked,lockExpired};
 }
 
 /** @returns {object} */
 function main() {
   return {pinned:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    cases:[probe(false),probe(true)],
-    scope:'Staged turn2 real attack, next-turn entry, expiry. No full source-dealt game.'};
+    cases:['none','ranger','spent'].flatMap(response=>
+      [probe(false,response),probe(true,response)]),
+    scope:'Staged turn2 actual attack, Ranger support contention, hand entry and expiry; no full source-dealt game.'};
 }
 if (require.main===module)console.log(JSON.stringify(main(),null,2));
 module.exports={probe,main};
