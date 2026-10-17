@@ -5,6 +5,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const {observeFirstTurn, summarizeTurnOrder} = require('./turn-order-evidence.cjs');
 const {installToolJammerHook} = require('./tool-jammer-hook.cjs');
+const {installGrandTreeFirstTurnHook} = require('./grand-tree-first-turn-hook.cjs');
 const {installPrototypeSafeSimulatorHook} = require('./prototype-safe-simulator-hook.cjs');
 const {installPostSuperAliasRepairHook} = require('./post-super-alias-repair-hook.cjs');
 const {installMegatonBlowerHook} = require('./megaton-blower-hook.cjs');
@@ -185,6 +186,7 @@ function policyRandomStreams(seed) {
  * @property {string} [label] Experimental label for machine-readable output.
  * @property {boolean} [strictPromptValidation] Opt-in pre-dispatch Prompt.validate gate.
  * @property {boolean} [forestSealSearchCorrection] Opt-in mandatory one-card Star Alchemy hook.
+ * @property {boolean} [grandTreeFirstTurnCorrection] Opt-in printed first-turn Grand Tree evolution prohibition.
  * @property {boolean} [doubleDragonRecovery] Opt-in experimental legal dynamic-Energy attachment tactic.
  * @property {boolean} [templeUnlockRecovery] Opt-in attack-unlocking Marshadow response to Temple.
  * @property {boolean} [isolatePolicyRandomness] Use independent RNG streams for speculative bot decisions (experimental).
@@ -247,6 +249,7 @@ function runMatch(request) {
   let restoreToolJammerHook;
   let restoreMegatonBlowerHook;
   let restoreForestSealSearchHook;
+  let restoreGrandTreeFirstTurnHook;
   let restoreSupporterDecisionHook;
   let restoreGuzmaSelfSwitchGuard;
   let restoreDialgaBenchExposureGuard;
@@ -315,6 +318,9 @@ function runMatch(request) {
     }
     if (request.forestSealSearchCorrection === true) {
       restoreForestSealSearchHook = installForestSealSearchHook();
+    }
+    if (request.grandTreeFirstTurnCorrection === true) {
+      restoreGrandTreeFirstTurnHook = installGrandTreeFirstTurnHook();
     }
     restoreToolJammerHook = installToolJammerHook();
     if (request.snorlaxRetreatStartCorrection === true) {
@@ -670,6 +676,7 @@ function runMatch(request) {
       promptValidationMode: request.strictPromptValidation === true ?
         'predispatch-prompt-validate' : 'upstream-unchecked',
       forestSealSearchCorrection: request.forestSealSearchCorrection === true,
+      grandTreeFirstTurnCorrection: request.grandTreeFirstTurnCorrection === true,
       doubleDragonRecovery: request.doubleDragonRecovery === true,
       templeUnlockRecovery: request.templeUnlockRecovery === true,
       supporterDecisionCorrection: request.supporterDecisionCorrection === true,
@@ -755,6 +762,7 @@ function runMatch(request) {
     if (restorePrototypeSafeSimulatorHook) restorePrototypeSafeSimulatorHook();
     if (restoreBotHooks) restoreBotHooks();
     if (restoreForestSealSearchHook) restoreForestSealSearchHook();
+    if (restoreGrandTreeFirstTurnHook) restoreGrandTreeFirstTurnHook();
     if (restoreMegatonBlowerHook) restoreMegatonBlowerHook();
     if (restoreToolJammerHook) restoreToolJammerHook();
     Math.random = originalRandom;
