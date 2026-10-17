@@ -53,7 +53,6 @@ function makeDoubleDragonAttachTactic() {
       const handIndex=player.hand.cards.findIndex(c=>
         c.name==='Double Dragon Energy'&&c.set==='ROS');
       if (handIndex<0) return;
-      const wanted=player.hand.cards[handIndex];
       const activePosition={
         player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
       };
@@ -103,16 +102,18 @@ function makeDoubleDragonAttachTactic() {
         const action=new PlayCardAction(player.id,handIndex,target);
         try {
           const sim=new Simulator(state,this.options.arbiter);
+          const simulatedPlayer=sim.store.state.players.find(p=>p.id===player.id);
+          const selectedEnergy=simulatedPlayer.hand.cards[handIndex];
           sim.dispatch(action);
           if (sim.store.state.prompts.some(p=>p.result===undefined)) continue;
           const updated=sim.store.state.players.find(p=>p.id===player.id);
           const location=target.slot===SlotType.ACTIVE
             ? updated.active:updated.bench[target.index];
-          if (!location.cards.includes(wanted)) continue;
+          if (!location.cards.includes(selectedEnergy)) continue;
           const check=new CheckProvidedEnergyEffect(updated,location);
           sim.store.reduceEffect(sim.store.state,check);
           const units=check.energyMap
-            .filter(row=>row.card===wanted)
+            .filter(row=>row.card===selectedEnergy)
             .reduce((n,row)=>n+row.provides.length,0);
           if(units>0) return action;
         } catch {
