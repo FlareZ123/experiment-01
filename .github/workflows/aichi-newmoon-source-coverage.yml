@@ -129,6 +129,14 @@ jobs:
           name: telepath-nonhand-solburst-source
           path: telepath-nonhand-solburst-source.json
           if-no-files-found: error
+      - name: Check next-turn Horror House hand lock against prepowered Thorns attack
+        run: node simulation/twinleaf/new-moon-native-horror-house-opponent-action.cjs > newmoon-horrorhouse-next-turn.json
+      - name: Archive bounded opponent hand-lock versus attack counterexample
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-horrorhouse-next-turn
+          path: newmoon-horrorhouse-next-turn.json
+          if-no-files-found: error
       - name: Preserve Stadium ordering audit
         uses: actions/upload-artifact@v4
         with:
