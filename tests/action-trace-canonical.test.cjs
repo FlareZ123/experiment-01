@@ -123,6 +123,6 @@ test('retains ordinary frozen data properties and Python reference digests', () 
     step: 0, action: 'draw', payload: Object.freeze({ card: 'Pokémon 🎴', n: 1 })
   });
   assert.equal(canonicalActionTrace([event]),
-    '{"action":"draw","payload":{"card":"Pokémon 🎴","n":1},"step":0}');
+    '[{"action":"draw","payload":{"card":"Pokémon 🎴","n":1},"step":0}]');
   assert.equal(actionTraceSha256(vectors[0].trace), vectors[0].sha256);
 });
