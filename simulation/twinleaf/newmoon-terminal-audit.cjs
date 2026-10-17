@@ -5,6 +5,7 @@ const {runMatch,initializeCards}=require('./headless.cjs');
 const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {pairedCandidateSlots}=require('./new-moon-lockbreak-source-diagnostic.cjs');
 const {terminalSignatures}=require('./terminal-signatures.cjs');
+const {publicDecisionDifference}=require('./public-decision-prefix.cjs');
 
 /** Replay the exact physical-A rank-8 source/Lockbreaker pair without injecting cards. */
 function run() {
@@ -20,6 +21,7 @@ function run() {
     source:{winner:0,turns:60,prizes:[6,6]},
     lockbreak:{winner:1,turns:40,prizes:[6,0]}
   };
+  const traces=[];
   const rows=['source','lockbreak'].map(variant=>{
     const game=runMatch({
       deckA:slots[variant],deckB:opponent.cards,seed,maxActions:350,
@@ -31,6 +33,7 @@ function run() {
     });
     assert.equal(game.firstTurnSlot,0);
     assert.equal(game.verifiedByDrawLog,true);
+    traces.push(game.decisionTrace);
     const expected=archive[variant];
     const played=Object.fromEntries(['Field Blower','Canceling Cologne']
       .map(name=>[name,Object.entries(game.cardsPlayedBySeat[0])
@@ -65,6 +68,7 @@ function run() {
     opponentRank:8,candidateSeat:0,
     qualifiedForCompetitiveInference:false,
     caveat:'The engine winner and public terminal indicators cannot independently establish one exclusive paper-rule loss cause or validate decision quality.',
+    firstPublicActionDifference:publicDecisionDifference(traces[0],traces[1]),
     rows
   };
 }
