@@ -32,7 +32,7 @@ jobs:
       - name: Source-aligned paired fixed deal, rank 6 and rank 8, both physical seats
         run: node simulation/twinleaf/new-moon-lockbreak-source-diagnostic.cjs > newmoon-lockbreak-source-diagnostic.json
       - name: Summarize one-deal simulator limitations and turn outcomes
-        run: node -e "const x=require('./newmoon-lockbreak-source-diagnostic.json'); console.log(JSON.stringify(x.rows.map(r=>({rank:r.rank,variant:r.variant,seat:r.candidateSeat,first:r.actualFirstSeat,finished:r.finished,winner:r.engineWinner,turns:r.turns,prizes:r.prizesRemaining,attacks:r.ownPrintedAttackNames,played:r.playedCounters,errors:r.errors})),null,2))"
+        run: node -e "const x=require('./newmoon-lockbreak-source-diagnostic.json'); console.log(JSON.stringify(x.rows.map(r=>({rank:r.rank,variant:r.variant,seat:r.candidateSeat,first:r.actualFirstSeat,finished:r.finished,winner:r.engineWinner,turns:r.turns,prizes:r.prizesRemaining,attacks:r.ownPrintedAttackNames,abilities:r.candidateAbilityCounts,printed:r.candidatePrintedAttacks,passes:r.candidatePassCount,played:r.playedCounters,errors:r.errors})),null,2))"
       - name: Preserve raw single-deal diagnostics and print identity
         uses: actions/upload-artifact@v4
         with:
