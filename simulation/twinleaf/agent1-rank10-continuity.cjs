@@ -61,6 +61,7 @@ function main() {
       for (const gap of observed.discontinuities) {
         process.stderr.write('[rank10-continuity-gap] '+JSON.stringify({
           afterActionOrdinal:gap.afterActionOrdinal,
+          previousAction:gap.previousAction,
           beforeActionOrdinal:gap.beforeActionOrdinal,
           nextAction:gap.nextAction,
           firstMismatch:gap.firstMismatch,
