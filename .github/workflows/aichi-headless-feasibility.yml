@@ -59,3 +59,6 @@ jobs:
 
       - name: Verify Pokémon target-side, slot, and duplicate restrictions
         run: node --test tests/prompt-integrity-pinned-pokemon.test.cjs
+
+      - name: Verify Energy transfers have physical source, targets and limits
+        run: node --test tests/prompt-integrity-pinned-move-energy.test.cjs
