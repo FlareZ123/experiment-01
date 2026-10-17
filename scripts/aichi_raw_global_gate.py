@@ -62,6 +62,8 @@ def evaluate_balanced_raw_batch(
         raise ValueError("Global RNG seeds must be unique across all rank and seat cells")
     if checked["failures"]:
         raise ValueError("Failed or unfinished games cannot enter confirmatory evidence")
+    if not checked["all_completed_traces_verified"]:
+        raise ValueError("All completed games require verified action traces; digest-only records remain diagnostic")
     for game in batch["games"]:
         if game["opponent_deck_sha256"] != source_deck_digests[game["rank"]]:
             raise ValueError(f"Opponent rank {game['rank']} deck does not match its exact source digest")
