@@ -30,6 +30,8 @@ jobs:
         run: node --test tests/aichi-new-moon-stadium-census.test.cjs
       - name: Verify exact New Moon twin-singleton rescue combinatorics
         run: node --test tests/new-moon-prize-access.test.cjs
+      - name: Verify New Moon source English effect-equivalent print mapping
+        run: node --test tests/new-moon-english-equivalents.test.cjs
       - name: Fetch and validate all 29 published full lists
         run: python scripts/ingest_aichi.py
       - uses: actions/upload-artifact@v4
