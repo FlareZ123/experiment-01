@@ -31,3 +31,19 @@ No competitive matchup result is inferred from the original failure or the corre
 ## Source-card selection multiplicity
 
 Pinned [`ChooseCardsPrompt.validate`](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/prompts/choose-cards-prompt.ts) checks source membership with `cards.indexOf(r)` independently for each chosen card. It omits source-copy multiplicity, potentially accepting `[A,A]` when only one physical Card A object exists in the searched zone. The strict pre-dispatch gate now adds an identity-based multiset check **after** upstream category, count, filter and blocked-card checks. Two distinct physical copies with the same name remain selectable. [Pure and compiled regression tests](../../tests/prompt-integrity-pinned-selection.test.cjs) were added, with CI pending. The adapter remains opt-in.
+
+## 17 October: opt-in permutation validator consistency audit
+
+**Agent 21 continuation. Engine pin:** `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. **Status: source-verified, local isolated guard checks passed; newly added pinned compiled tests await CI.**
+
+The pinned `OrderCardsPrompt`, `ShufflePrizesPrompt`, and `ShuffleHandPrompt` each use `s.sort()` without a numeric comparator. As with the previously corrected `ShuffleDeckPrompt`, index permutations with an index of 10 or greater are falsely rejected. The pinned `ShuffleHandPrompt` separately checks `result.length !== player.prizes.length`, although its own name identifies a hand shuffle. For a simulated 12-card hand with six Prize slots, the original validator rejects the legal 12-index order and may accept an irrelevant six-index order. That last class has not been shown to have an active card-effect constructor call in the indexed source; do not infer a match exposure from it.
+
+The existing optional `strictPromptValidation: true` helper now applies an exact integer-index permutation predicate to deck, Prize, hand, and ordering prompts. It uses the owner's deck-card count, total physical Prize-card count, hand-card count, and the explicitly ordered CardList count, respectively. `OrderCardsPrompt` retains the pinned `options.allowCancel` behavior for `null`; the mandatory shuffle prompts reject `null`. All other prompt types retain their pinned validator followed by the existing physical-card multiplicity and Energy-target guards.
+
+Evidence and acceptance:
+- [Single reusable research-side guard](../../simulation/twinleaf/prompt-integrity.cjs), disabled by default, with no vendor patch.
+- [Five pinned-class regression tests](../../tests/prompt-integrity-pinned-permutations.test.cjs) added to the pre-existing manual [Aichi headless feasibility workflow](../../.github/workflows/aichi-headless-feasibility.yml). This workflow was **not executed** as part of this continuation: its remote dispatch request was blocked. Compiled status is **pending**, not passed.
+- JavaScript syntax of both changed files was checked using the available JS runtime. Eight independent in-memory predicate cases checked valid and duplicate permutations, allowed/forbidden cancel, 12 physical Prize cards and 12 hand cards against six Prize slots; all eight matched expectations. These are **mock-style helper checks**, rather than a pinned-Store/compiled integration result.
+- Source call-site sampling shows `Peonia` (present in published Aichi rank 2) reaches `OrderCardsPrompt` for at most three selected cards; the 10-plus lexicographic bug is **not demonstrated in that Peonia path**. `Mallow`, `Puzzle of Time`, and `Kofu` likewise construct short orders. No actual 2026 Top-32 result, replay, or match-winner revision is justified by this source guard.
+
+Do not mark any previously unqualified rank-10 replay competitively qualified because this guard exists. Source-action transport, full reducer semantics, paper rule exposure, hidden information, and both player policies remain separate acceptance requirements.
