@@ -12,6 +12,7 @@ const { capturePromptAction } = require('./source-prompt-action-codec.cjs');
 const {sourceZoneSnapshot,zoneSnapshotDigest} = require('./source-zone-checkpoint.cjs');
 const {observableState,hash:continuityHash} = require('./source-state-continuity.cjs');
 const {sourceEffectDigest}=require('./source-effect-checkpoint.cjs');
+const {storeDataGraphFingerprint}=require('./store-data-graph-fingerprint.cjs');
 
 const INSTALLED = Symbol('research-dispatch-transcript');
 
@@ -170,6 +171,9 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
       event.continuityDigestBefore = continuityHash(observableState(this.state));
       event.effectDigestBefore = sourceEffectDigest(this.state);
     }
+    if(options.storeDataGraphEveryDispatch === true) {
+      event.storeDataGraphBefore=storeDataGraphFingerprint(this);
+    }
     const pending = this.state?.prompts?.find(p => p.result === undefined);
     if (pending && action?.constructor?.name === 'ResolvePromptAction') {
       event.pendingPrompt = {
@@ -262,6 +266,9 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
         event.zoneDigestAfter = zoneSnapshotDigest(sourceZoneSnapshot(this.state));
         event.continuityDigestAfter = continuityHash(observableState(this.state));
         event.effectDigestAfter = sourceEffectDigest(this.state);
+      }
+      if(options.storeDataGraphEveryDispatch === true) {
+        event.storeDataGraphAfter=storeDataGraphFingerprint(this);
       }
     }
   };
