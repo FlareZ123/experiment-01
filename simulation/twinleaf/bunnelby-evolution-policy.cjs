@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('node:path');
+const {createOwnerDeckKnowledgeEpoch}=require('./owner-deck-knowledge-epoch.cjs');
 const root = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} relative */
 const load = relative => require(path.join(root, relative));
@@ -233,16 +234,19 @@ function withBunnelbyEvolutionLine(options, {sourceCards,observeFirstOwnDeckSear
   if (targetAwareEvolution && !sourceCards) {
     throw new Error('Target-aware Evolution requires a known physical source 60');
   }
-  let hasObservedOwnDeck = false;
+  const knowledgeEpoch=observeFirstOwnDeckSearch ?
+    createOwnerDeckKnowledgeEpoch() : null;
+  const exactMembership=()=>knowledgeEpoch?.exactMembershipKnown()===true;
   const hasTarget = sourceCards === undefined ? hasBenchEvolutionTarget :
-    player => hasObservedOwnDeck ? hasBenchEvolutionTarget(player) :
+    player => exactMembership() ? hasBenchEvolutionTarget(player) :
       hasK0PossibleBenchEvolutionTarget(player, sourceCards);
-  const Observer = observeFirstOwnDeckSearch ?
-    makeOwnerDeckObservationResolver(() => {hasObservedOwnDeck=true;},isLivePrompt) : null;
+  const Observer = knowledgeEpoch ?
+    makeOwnerDeckObservationResolver(
+      ()=>knowledgeEpoch.observeOwnerDeckSearch(),isLivePrompt) : null;
   const hasStage = (player,slot) => {
     const name=slot.getPokemonCard()?.name;
     if(!name) return false;
-    return sourceCards && !hasObservedOwnDeck ?
+    return sourceCards && !exactMembership() ?
       hasK0PossibleStageFor(player,sourceCards,name) :
       player.deck.cards.some(card=>
         card.stage!==undefined && card.evolvesFrom===name);
@@ -260,6 +264,7 @@ function withBunnelbyEvolutionLine(options, {sourceCards,observeFirstOwnDeckSear
   }
   return {
     ...options,
+    ...(knowledgeEpoch ? {bunnelbyDeckKnowledgeEpoch:knowledgeEpoch} : {}),
     tactics: [
       ...options.tactics.slice(0, atkIndex),
       makeBunnelbyEvolutionTactic(hasTarget),
