@@ -103,6 +103,8 @@ jobs:
           name: newmoon-klefki-latias-audit
           path: newmoon-klefki-latias-audit.json
           if-no-files-found: error
+      - name: Test numeric shuffle prompt validation and reversible hook
+        run: node --test tests/numeric-shuffle-validation-hook.test.cjs
       - name: Run Klefki Telepath first-turn bridge through pinned Store
         run: node simulation/twinleaf/new-moon-klefki-telepath-action.cjs > newmoon-klefki-telepath-action.json
       - name: Preserve Klefki Telepath action and retreat witness
