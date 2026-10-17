@@ -44,6 +44,19 @@ function compareCodePoints(first, second) {
  * @param {Set<object>} ancestors
  * @returns {string}
  */
+function ownEnumerableDataValue(object, key) {
+  const descriptor = Object.getOwnPropertyDescriptor(object, key);
+  if (!descriptor || !descriptor.enumerable || !Object.hasOwn(descriptor, 'value')) {
+    throw new TypeError('Action trace fields must be own enumerable data properties');
+  }
+  return descriptor.value;
+}
+
+/**
+ * @param {unknown} value
+ * @param {Set<object>} ancestors
+ * @returns {string}
+ */
 function encode(value, ancestors) {
   if (value === null) return 'null';
   if (typeof value === 'string') {
@@ -79,7 +92,7 @@ function encode(value, ancestors) {
       if (Object.getOwnPropertyNames(value).length !== value.length + 1) {
         throw new TypeError('Action trace arrays cannot have extra properties');
       }
-      return '[' + value.map(item => encode(item, ancestors)).join(',') + ']';
+      return '[' + Array.from({ length: value.length }, (_, index) => encode(ownEnumerableDataValue(value, String(index)), ancestors)).join(',') + ']';
     }
     const keys = Object.keys(value).sort(compareCodePoints);
     if (Object.getOwnPropertyNames(value).length !== keys.length) {
@@ -87,7 +100,7 @@ function encode(value, ancestors) {
     }
     return '{' + keys.map(key => {
       requireUnicodeScalarString(key);
-      return JSON.stringify(key) + ':' + encode(value[key], ancestors);
+      return JSON.stringify(key) + ':' + encode(ownEnumerableDataValue(value, key), ancestors);
     }).join(',') + '}';
   } finally {
     ancestors.delete(value);
@@ -105,10 +118,14 @@ function canonicalActionTrace(trace) {
     throw new TypeError('action_trace must be a nonempty list');
   }
   trace.forEach((event, index) => {
-    if (!event || Array.isArray(event) || typeof event !== 'object' ||
-        !Object.hasOwn(event, 'step') || !Object.hasOwn(event, 'action') ||
-        event.step !== index || !Number.isInteger(event.step) ||
-        typeof event.action !== 'string' || !Array.from(event.action).some(char => !PYTHON_ACTION_WHITESPACE.has(char.codePointAt(0)))) {
+    if (!event || Array.isArray(event) || typeof event !== 'object') {
+      throw new TypeError('Trace events need sequential steps and action names');
+    }
+    const step = ownEnumerableDataValue(event, 'step');
+    const action = ownEnumerableDataValue(event, 'action');
+    if (step !== index || !Number.isInteger(step) ||
+        typeof action !== 'string' ||
+        !Array.from(action).some(char => !PYTHON_ACTION_WHITESPACE.has(char.codePointAt(0)))) {
       throw new TypeError('Trace events need sequential steps and action names');
     }
   });
