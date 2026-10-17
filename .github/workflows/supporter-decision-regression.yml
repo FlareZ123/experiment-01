@@ -47,3 +47,6 @@ jobs:
       - name: Optional paired source-K0 Expanded policy diagnostic
         if: ${{ inputs.run_expanded_fixture }}
         run: node simulation/twinleaf/expanded-source-profile-pair.cjs
+      - name: Optional v2-v3 GH paired diagnostic
+        if: ${{ inputs.run_expanded_fixture }}
+        run: node simulation/twinleaf/expanded-gh-search-pair.cjs
