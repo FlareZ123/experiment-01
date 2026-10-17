@@ -142,3 +142,46 @@ test('K0 exhaustive four-card redeals reproduce finite-population probabilities'
   assert.equal(prizedHit,12);
   assert.equal(source.players[0].prizes[0].cards[0].fullName,'D');
 });
+
+test('partial hypothetical evaluation abstains instead of selecting favourable worlds',()=>{
+  const state=setup(),original=structuredClone(state);
+  let evaluated=0;
+  const speculative=(sample)=>{
+    sample.players[0].deck.cards[0].id+=100;
+    evaluated++;
+    return evaluated===8?undefined:100;
+  };
+  const partial=evaluateDetachedDeckSamples(
+    state,1,{},0,speculative,null,structuredClone,{...opts,samples:8});
+  assert.equal(partial,undefined);
+  assert.equal(evaluated,8);
+  const alternative=evaluateDetachedDeckSamples(
+    state,1,{},0,()=>60,null,structuredClone,{...opts,samples:8});
+  assert.equal(alternative,60);
+  assert.deepEqual(state,original);
+});
+
+test('complete finite world scores are averaged while invalid values fail closed',()=>{
+  const state=setup();
+  let index=0;
+  const scores=[10,20,30,40];
+  const result=evaluateDetachedDeckSamples(
+    state,1,{},0,()=>scores[index++],null,structuredClone,
+    {...opts,samples:4});
+  assert.equal(result,25);
+  assert.equal(index,4);
+  assert.throws(()=>evaluateDetachedDeckSamples(
+    state,1,{},0,()=>NaN,null,structuredClone,opts),/finite score/);
+  assert.throws(()=>evaluateDetachedDeckSamples(
+    state,1,{},0,()=>Infinity,null,structuredClone,opts),/finite score/);
+});
+
+test('invalid sampling preconditions reject missing players and zero samples',()=>{
+  const state=setup();
+  assert.throws(()=>evaluateDetachedDeckSamples(
+    state,999,{},0,()=>100,null,structuredClone,opts),
+    /requires an acting player/);
+  assert.throws(()=>evaluateDetachedDeckSamples(
+    state,1,{},0,()=>100,null,structuredClone,
+    {...opts,samples:0}),/positive integer sample count/);
+});
