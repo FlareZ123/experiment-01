@@ -53,6 +53,7 @@ function run() {
       passes:game.decisionTrace.filter(a=>
         a.playerSlot===0&&a.action==='PassTurnAction').length,
       lastOpponentAttacks:game.attackTrace.filter(a=>a.seat===1).slice(-4).map(a=>({turn:a.turn,attack:a.attack,activePokemon:a.activePokemon,prizeCountBefore:a.prizeCountBefore,prizeCountAfter:a.prizeCountAfter})),
+      lateBoard:(game.copycatTurnStartEvidence||[]).slice(-6).map(x=>({turn:x.turn,own:x.board[0]?.active,opponent:x.board[1]?.active})),
       played
     };
   });
