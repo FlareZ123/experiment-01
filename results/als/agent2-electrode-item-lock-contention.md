@@ -1,0 +1,3 @@
+# Electrode versus Budew: Supporter contention
+
+The Aichi source Absol/Garbodor decks at ranks 8, 16 and 22 contain Budew ASC16. Its no-Energy Itchy Pollen attack prohibits Item plays on the next opponent turn. Spicy Seasoned Curry is an Item, so the Burn prerequisite cannot be played from hand during this lock. Pokémon Ranger STS104 can remove the attack's effect, but Arven SVI166 fetches Curry and Supereffective Glasses and both are Supporters. Ordinarily only one Supporter can be played per turn. Consequently a same-turn Ranger-plus-Arven line is mechanically unavailable; prefetch pieces or first escape lock through another route. Rank11 Absol/Garbodor has no Budew in its source 60. These are source-printing consequences, not tested natural-game usage rates.
