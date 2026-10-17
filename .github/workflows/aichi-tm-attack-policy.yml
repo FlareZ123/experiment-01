@@ -13,6 +13,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank2_gh_ablation:
+        description: Isolate source K0, Stage target, and GH mode1 effects on root Supporter choice
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -96,5 +101,22 @@ jobs:
         with:
           name: rank2-turn5-owner-visible-fork
           path: rank2-turn5-source-fork.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Validate original rank2 GH-component source ablation
+        if: ${{ inputs.rank2_gh_ablation }}
+        run: node --test tests/rank2-gh-mode1-ablation.test.cjs
+      - name: Record source matched root Supporter component effects
+        if: ${{ inputs.rank2_gh_ablation }}
+        run: node simulation/twinleaf/rank2-gh-mode1-ablation.cjs > rank2-gh-mode1-ablation.json
+      - name: Print bounded ablation decision outcomes
+        if: ${{ inputs.rank2_gh_ablation }}
+        run: node -e "const r=require('./rank2-gh-mode1-ablation.json');console.log(JSON.stringify({seed:r.seed,sameSource:r.sameSourceHashes,sameStart:r.sameFirstTurn,sameVisible:r.sameVisibleContext,arms:r.results.map(a=>({flags:a.flags,fork:a.fork,captured:a.captureCount,firstDiff:a.firstRecordedDifferenceFromV1}))},null,2))"
+      - name: Preserve source rank2 component ablation
+        if: ${{ always() && inputs.rank2_gh_ablation }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank2-source-GH-mode1-ablation
+          path: rank2-gh-mode1-ablation.json
           if-no-files-found: warn
           retention-days: 14
