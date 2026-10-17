@@ -88,6 +88,8 @@ def evaluate_balanced_raw_batch(
         "raw_games": checked["raw_games"],
         "predeclared_games_per_cell": predeclared_games_per_cell,
         "completed_ties_as_nonwins": checked["finished_ties_as_nonwins"],
+        "all_completed_traces_verified": checked["all_completed_traces_verified"],
+        "competitive_evidence_qualified": False,
         "global_test": global_result,
         "warning": (
             "Statistical arithmetic and raw-record/source-hash consistency only; "
