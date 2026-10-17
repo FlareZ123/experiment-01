@@ -48,7 +48,7 @@ function evaluateBombTactic() {
   const after = scorer.getScore(simulated,101);
   const recommended = tactic.useTactic(f.state,f.a);
   const proposed=new (makeElectrodePrizeTradeTactic())(options).useTactic(f.state,f.a);
-  assert.equal(proposed?.power,'Extra Energy Bomb');
+  assert.equal(proposed?.name,'Extra Energy Bomb');
   const result = {
     sourceRanks:[4,17],beforeScore:before,afterScore:after,
     scoreChange:after-before,
