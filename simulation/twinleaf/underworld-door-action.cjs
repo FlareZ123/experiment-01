@@ -82,16 +82,18 @@ function underworldDoorAction(options) {
   const target = player.bench[0];
 
   let allowed = true;
+  let blockedReason;
   try {
     store.reduceEffect(state, new PowerEffect(player, vmax.powers[0], vmax, vmaxSlot));
   } catch (error) {
     allowed = false;
+    blockedReason = String(error.message);
     assert.ok(/BLOCKED|CANNOT_USE_POWER|UNKNOWN_POWER/.test(String(error.message)),
       'Unexpected Ability failure: ' + String(error.message));
   }
   if (!allowed) {
     assert.equal(state.prompts.filter(p => p.result === undefined).length, 0);
-    return { allowed, attached: 0, drawn: 0, handCount: player.hand.cards.length };
+    return { allowed, blockedReason, attached: 0, drawn: 0, handCount: player.hand.cards.length };
   }
 
   const pending = state.prompts.find(p => p.result === undefined);
@@ -115,8 +117,8 @@ function runTest() {
     {hood:true,jammer:true,active:false,allowed:true},
     {hood:true,jammer:true,active:true,allowed:false},
     {hood:false,jammer:true,active:false,allowed:false},
-    {hood:false,jammer:false,active:false,wobbuffetActive:true,allowed:true},
-    {hood:false,jammer:true,active:false,wobbuffetActive:true,allowed:true},
+    {hood:false,jammer:false,active:false,wobbuffetActive:true,allowed:false},
+    {hood:false,jammer:true,active:false,wobbuffetActive:true,allowed:false},
     {hood:true,jammer:false,active:false,garbodorPrint:'BKP',allowed:true},
     {hood:true,jammer:false,active:false,garbodorPrint:'LTR',allowed:true},
     {hood:false,jammer:false,active:false,garbodorPrint:'BKP',allowed:false},
