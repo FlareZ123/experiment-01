@@ -25,15 +25,28 @@ try {
     'real','real','speculative','speculative','real','real'
   ]);
 
-  const detached = runSimulatorSessionProbe('prototype-safe');
-  assert.equal(detached.simulatorConstructed, false);
-  assert.ok(detached.simulatorError?.includes('Cloned Pokemon identity differs'));
+  restoreSimulator();
+  const {installPrototypeSafeSimulatorHook} =
+    require('./prototype-safe-simulator-hook.cjs');
+  const restoreDetached = installPrototypeSafeSimulatorHook();
+  try {
+    restoreSimulator = installCopySessionAwareSimulatorHook();
+    const detached = runSimulatorSessionProbe('pinned');
+    assert.equal(detached.simulatorConstructed, false);
+    assert.ok(detached.simulatorError?.includes('Cloned Pokemon identity differs'));
 
-  console.log('CLONED_COPY_SESSION',JSON.stringify({
-    engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    isolated,inherited,detached,
-    scope:'Experimental pinned clone transfer; original-card identity asserted; no complete match'
-  },null,2));
+    console.log('CLONED_COPY_SESSION',JSON.stringify({
+      engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+      isolated,inherited,detached,
+      scope:'Experimental pinned clone transfer; detached clone explicitly rejected'
+    },null,2));
+  } finally {
+    restoreSimulator();
+    restoreSimulator = () => {};
+    restoreDetached();
+  }
+
+
 } finally {
   restoreSimulator();
   restoreLoader();
