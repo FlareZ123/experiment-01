@@ -48,6 +48,7 @@ function sourceSecondTurn() {
   for(let k=0;k<48;k++){
    const p=pending();if(!p)return;
    if(p.constructor.name==='WaitPrompt'){resolve(p,null);continue;}
+   if(p.constructor.name==='ChoosePrizePrompt'){resolve(p,[0]);continue;}
    if(p.constructor.name==='ShuffleDeckPrompt'){
     const who=s.players.find(x=>x.id===p.playerId);
     assert.ok(who);resolve(p,who.deck.cards.map((_,i)=>i));continue;
@@ -61,6 +62,7 @@ function sourceSecondTurn() {
  dusclops.reduceEffect(store,s,new PowerEffect(me,dusclops.powers[0],dusclops));
  const target=pending();assert.equal(target.constructor.name,'ChoosePokemonPrompt');
  resolve(target,[opp.active]);
+ settle();
  assert.equal(opp.active.damage,50);
  assert.equal(opp.getPrizeLeft(),5,'Dusclops Prize checkpoint: '+JSON.stringify({prize:opp.getPrizeLeft(),holderDamage:stack.damage,activeDamage:opp.active.damage,bench:me.bench.map(x=>x.getPokemonCard()?.name),discard:me.discard.cards.map(x=>x.name),phase:s.phase,prompts:s.prompts.map(x=>x.constructor.name)}));
  assert.equal(ace.canPlay(store,s,me),true,'Self-KO must unlock Ace Trainer');
