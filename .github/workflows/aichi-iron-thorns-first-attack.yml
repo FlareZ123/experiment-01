@@ -34,6 +34,8 @@ jobs:
         run: node simulation/twinleaf/rank6-seed-guzma-hala-fork.cjs
       - name: Verify G&H DCE-only restricted category search in source Store
         run: node simulation/twinleaf/rank6-guzma-hala-dce-only-source.cjs
+      - name: Attempt source-dealt Trainers Mail and VS Seeker before attack
+        run: node simulation/twinleaf/rank6-source-mail-recovery.cjs
       - name: Test public-only opponent response projection
         run: node tests/rank6-response-projection.test.cjs
       - name: Test read-only public Acerola board observer
