@@ -83,7 +83,7 @@ function executeDiagnostic(options) {
     'raichuSightToolPolicy', 'raichuPrizeAllocationPolicy',
     'doubleDragonRecovery',  'templeUnlockRecovery',
     'supporterDecisionCorrection', 'isolatePolicyRandomness',
-    'prototypeSafeSimulatorIsolation',
+    'prototypeSafeSimulatorIsolation', 'postSuperAliasRepairIsolation',
     'captureDecisionTrace', 'captureAttackPassProbes',
     'snorlaxRetreatStartCorrection',
     'shadowRiderEnergyPriority', 'shadowRiderEnergyAcrossField',
@@ -99,6 +99,10 @@ function executeDiagnostic(options) {
       Object.entries(policyFlags).some(([key, value]) =>
         !allowedFlags.has(key) || typeof value !== 'boolean')) {
     throw new Error('policyFlags may contain only recognized boolean policy options.');
+  }
+  if (policyFlags.prototypeSafeSimulatorIsolation === true &&
+      policyFlags.postSuperAliasRepairIsolation === true) {
+    throw new Error('Choose only one experimental speculative Simulator profile.');
   }
   if (policyFlags.attackBeforeRetreatCandidateOnly === true &&
       policyFlags.attackBeforeRetreat !== true) {
@@ -195,7 +199,7 @@ function executeDiagnostic(options) {
         'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
         'latiasAttackReadyAttachment', 'bunnelbyK0SafeEvolution',
         'attackBeforeRetreat', 'prototypeSafeSimulatorIsolation',
-        'leleEntryAbilityLockCorrection',
+        'postSuperAliasRepairIsolation', 'leleEntryAbilityLockCorrection',
         'radiantGateLockCorrection'
       ];
       const policyMismatch = echoedPolicyKeys.some(key =>
@@ -380,6 +384,7 @@ function main() {
       doubleDragonRecovery: true, supporterDecisionCorrection: true,
       isolatePolicyRandomness: true, captureDecisionTrace: true,
       prototypeSafeSimulatorIsolation: process.env.AICHI_PROTOTYPE_SAFE_SIM === '1',
+      postSuperAliasRepairIsolation: process.env.AICHI_POST_SUPER_ALIAS_REPAIR_SIM === '1',
       captureAttackPassProbes: process.env.AICHI_ATTACK_PASS_PROBE === '1',
       shadowRiderEnergyPriority: process.env.AICHI_SHADOW_ENERGY === '1',
       shadowRiderEnergyAcrossField: process.env.AICHI_SHADOW_ENERGY_GLOBAL === '1',
