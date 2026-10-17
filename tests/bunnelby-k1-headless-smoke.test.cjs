@@ -29,11 +29,14 @@ test('Bunnelby guarded K1 option is explicit and preserves both physical source 
       deckA,deckB,seed:20363065,maxActions:6,
       bunnelbyK0SafeEvolution:true,bunnelbyObservedK1:true,
       bunnelbyTargetAwareEvolution:true,
+      bunnelbyGuzmaHalaMode1:true,
       label:'source-rank-2-guarded-k1-smoke-seat'+seat
     });
     assert.equal(result.bunnelbyK0SafeEvolution,true);
     assert.equal(result.bunnelbyObservedK1,true);
     assert.equal(result.bunnelbyTargetAwareEvolution,true);
+    assert.equal(result.bunnelbyGuzmaHalaMode1,true);
+    assert.match(result.policy,/BunnelbyGuzmaHalaMode1-v1/);
     assert.match(result.policy,/BunnelbyStageTargetResolver-v1/);
     assert.match(result.policy,/BunnelbyRootObservedK1-v1/);
     assert.equal(result.deckHashes.length,2);
@@ -47,4 +50,11 @@ test('target-aware policy also requires the source K0 gate',()=>{
     deckA:Array(60).fill('A'),deckB:Array(60).fill('B'),
     seed:1,bunnelbyTargetAwareEvolution:true,maxActions:1
   }),/Target-aware Evolution requires the source-60 Bunnelby K0 option/);
+});
+
+test('mode1 policy requires a source-conditioned Bunnelby gate',()=>{
+  assert.throws(()=>runMatch({
+    deckA:Array(60).fill('A'),deckB:Array(60).fill('B'),
+    seed:1,bunnelbyGuzmaHalaMode1:true,maxActions:1
+  }),/Guzma Hala mode1 requires the source-60 Bunnelby K0 option/);
 });
