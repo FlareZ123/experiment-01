@@ -29,7 +29,8 @@ function opportunity(game,seat) {
   const t=firstOwnTurn(game,seat);
   return game.verifiedByDrawLog===true && game.firstTurnSlot===1-seat &&
     t!==null &&
-    [t.active,...t.bench].some(name=>name?.startsWith('Gengar & Mimikyu-GX')) &&
+    t.active!== 'Gengar & Mimikyu-GX' &&
+    t.bench.some(name=>name?.startsWith('Gengar & Mimikyu-GX')) &&
     t.psychicEnergyInHand.length>0;
 }
 
@@ -76,7 +77,7 @@ function run() {
   const seat=1;
   const probes=[];
   let selected=null;
-  for(let repeat=0;repeat<64;repeat++) {
+  for(let repeat=0;repeat<192;repeat++) {
     const seed=deriveSlotSeeds(20261017,'pilot',6,repeat).B;
     const game=runArm(slots.source,opponent.cards,seat,seed,90,true);
     const early=firstOwnTurn(game,seat);
@@ -112,9 +113,9 @@ function run() {
     sourcePrintHash:source.sha256_id_counts,
     candidatePrintHash:contender.canonical_id_count_sha256,
     opponentRank:6,candidateSeat:seat,
-    seedProtocol:'decorrelated-slots-v3: first 64 rank-6 seat B candidate-second turn-two source-board opportunities, then same-seed paired control and native Gengar pivot',
+    seedProtocol:'decorrelated-slots-v3: first 192 rank-6 seat B candidate-second source-board opportunities with Gengar benched, then same-seed paired control and native Gengar pivot',
     intervention:'Only reorder already chosen setup Basics to native Gengar & Mimikyu-GX when own hand contains Psychic or Telepathic Psychic Energy',
-    caveat:'Turn-two board visibility is a screening proxy for setup opportunity; a candidate may draw Energy after setup, so a selected seed can show no actual pivot. The hook never uses the opponent identity or hidden deck/Prize information.',
+    caveat:'Turn-two board visibility is a screening proxy for setup opportunity; a candidate may draw Energy after setup. The hook never uses opponent identity or hidden deck/Prize information. Source test screens for Gengar on Bench to avoid an already-Active negative control.',
     scanned:probes.length,selected,probes,comparisons,
     qualifiedForCompetitiveInference:false
   };
