@@ -205,7 +205,7 @@ test('opt-in Double Dragon policy is forwarded and identified without contaminat
     gamesPerSeat: 1, selectedRanks: [1], doubleDragonRecovery: true, runMatch
   });
   assert.equal(experimental.doubleDragonRecovery, true);
-  assert.match(experimental.policy, /DoubleDragonAttachTactic-v1/);
+  assert.match(experimental.policy, /DoubleDragonAttachTactic-v4/);
   assert.equal(requests.length, 2);
   assert.ok(requests.every(request => request.doubleDragonRecovery === true));
 
