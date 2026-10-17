@@ -24,6 +24,8 @@ For the last row, the actual published rank-6 Energy inventory is 4 Speed Lightn
 
 This is a resource lower bound for the exact board, not a claim that a normal future turn can always draw or attach the required Energy. It also assumes the already attached DCE stays put, which is supported by the observed empty-Bench source turn. If Iron Thorns develops a Bench and Volt Cyclone moves Energy, the calculation must be redone.
 
+An independent, much later source-policy diagnosis provides the **reverse transition**: Agent 32's [rank-6 turn-21 missed Thunder counterfactual](../twinleaf/agent32-thunder-mountain-missed-attack-line.md) observed Wondrous Labyrinth already in play, three attached Energy units and Thunder Mountain held. The generic bot passed despite a printed action opportunity to replace Wondrous with Thunder, remove the surcharge and attack. That account has not yet verified a complete source Store action fork. Together these states identify Stadium timing as a measurable policy competence issue in both directions; they are different physical decision states, and neither establishes which Stadium is globally preferable.
+
 ## Prism Star replacement permanence
 
 Under standard Stadium replacement, playing a different Stadium sends the previous one toward the discard. Thunder Mountain's own **Prism Star rule** sends it to the Lost Zone instead. Therefore, **voluntarily playing Wondrous Labyrinth over the only Thunder Mountain in this 60 is irreversible with ordinary discard recovery**. A later replacement of Wondrous with a different Stadium does not recover Thunder from the Lost Zone.
