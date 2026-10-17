@@ -49,6 +49,8 @@ jobs:
           name: rank10-shred-store-action
           path: rank10-shred-store-action.json
           if-no-files-found: warn
+      - name: Verify exact source-turn28 Shred predicate and archive controls
+        run: node --test tests/mimikyu-extra-turn-shred-policy.test.cjs tests/aichi-rank10-shred-window.test.cjs
       - name: Validate standalone source diagnostics
         run: node --test tests/mimikyu-rank10-policy-pair.test.cjs tests/copycat-turn-start-evidence.test.cjs tests/mimikyu-source-turn27-setup.test.cjs
       - name: Verify source-graph fingerprint observer stays read-only
@@ -67,4 +69,15 @@ jobs:
         with:
           name: rank10-copycat-paired
           path: rank10-copycat-paired.json
+          if-no-files-found: warn
+      - name: Run source-locked rank-10 turn28 Shred counterfactual
+        run: node simulation/twinleaf/rank10-extra-turn-shred-fork.cjs > rank10-turn28-shred-fork.json
+      - name: Print bounded Shred source-game verdict
+        run: node -e "const x=require('./rank10-turn28-shred-fork.json'); console.log(JSON.stringify({trial:x.trial.id,unchangedPrefix:x.unchangedSourceSetupThroughTurn28,copycat:x.observedSourceCopycatTurn28,twoPrize:x.observedTwoPrizePickupAfterTurn28,control:x.control.prizesRemaining,alternative:x.experimental.prizesRemaining,qualified:x.qualifiedForCompetitiveInference}));"
+      - name: Preserve conditional Shred full-game observations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-turn28-shred-fork
+          path: rank10-turn28-shred-fork.json
           if-no-files-found: warn
