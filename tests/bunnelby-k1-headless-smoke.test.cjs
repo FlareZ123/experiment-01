@@ -28,13 +28,23 @@ test('Bunnelby guarded K1 option is explicit and preserves both physical source 
     const result=runMatch({
       deckA,deckB,seed:20363065,maxActions:6,
       bunnelbyK0SafeEvolution:true,bunnelbyObservedK1:true,
+      bunnelbyTargetAwareEvolution:true,
       label:'source-rank-2-guarded-k1-smoke-seat'+seat
     });
     assert.equal(result.bunnelbyK0SafeEvolution,true);
     assert.equal(result.bunnelbyObservedK1,true);
+    assert.equal(result.bunnelbyTargetAwareEvolution,true);
+    assert.match(result.policy,/BunnelbyStageTargetResolver-v1/);
     assert.match(result.policy,/BunnelbyRootObservedK1-v1/);
     assert.equal(result.deckHashes.length,2);
     assert.equal(result.actions<=6,true);
     assert.equal(result.finished || result.endReason==='action-limit',true);
   }
+});
+
+test('target-aware policy also requires the source K0 gate',()=>{
+  assert.throws(()=>runMatch({
+    deckA:Array(60).fill('A'),deckB:Array(60).fill('B'),
+    seed:1,bunnelbyTargetAwareEvolution:true,maxActions:1
+  }),/Target-aware Evolution requires the source-60 Bunnelby K0 option/);
 });
