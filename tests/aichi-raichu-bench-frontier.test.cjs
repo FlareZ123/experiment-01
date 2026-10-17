@@ -22,6 +22,11 @@ const report=sourceFrontier();
 assert.equal(report.sourceCoverage,29);
 assert.deepEqual(report.missingFullLists.sort((a,b)=>a-b),[23,25,28]);
 assert.deepEqual(report.sight16Distribution,{'0':4,'2':2,'4':2,'5':2,'6':19});
+for(const key of ['base14','sight14','base16']) {
+  assert.equal(report.ranks.filter(row=>row[key].prizes>=6).length,0,
+    key+' should have no source-inventory six-Prize ceiling');
+}
+assert.equal(report.ranks.filter(row=>row.sight16.prizes>=6).length,19);
 const rank4=report.ranks.find(row=>row.rank===4);
 const rank17=report.ranks.find(row=>row.rank===17);
 assert.equal(rank4.eligiblePhysicalCards,10);
