@@ -8,7 +8,7 @@ const { loadDefaultCampaign } = require('../scripts/aichi-comparison-campaign.cj
 
 const EXPECTED_ENGINE = 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const ECHOED_POLICY_KEYS = [
-  'forestSealSearchCorrection', 'doubleDragonRecovery',
+  'forestSealSearchCorrection', 'grandTreeFirstTurnCorrection', 'doubleDragonRecovery',
   'templeUnlockRecovery', 'supporterDecisionCorrection',
   'snorlaxRetreatStartCorrection', 'shadowRiderEnergyPriority',
   'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
@@ -403,4 +403,22 @@ test('frozen campaign forwards the experimental clone mode and verifies its echo
     sampleGame(request,{prototypeSafeSimulatorIsolation:false})});
   assert.equal(falseEcho.counts['unverified-game-environment'],6);
   assert.equal(falseEcho.counts['completed-engine-game']||0,0);
+});
+
+test('Grand Tree first-turn correction is forwarded and its engine echo must match', () => {
+  const enabled=run({
+    policyFlags:{grandTreeFirstTurnCorrection:true},
+    runMatch:request=>{
+      assert.equal(request.grandTreeFirstTurnCorrection,true);
+      return sampleGame(request);
+    }
+  });
+  assert.equal(enabled.counts['completed-engine-game'],6);
+  assert.equal(enabled.policyFlags.grandTreeFirstTurnCorrection,true);
+  const forged=run({
+    policyFlags:{grandTreeFirstTurnCorrection:true},
+    runMatch:request=>sampleGame(request,{grandTreeFirstTurnCorrection:false})
+  });
+  assert.equal(forged.counts['unverified-game-environment'],6);
+  assert.equal(forged.counts['completed-engine-game']||0,0);
 });
