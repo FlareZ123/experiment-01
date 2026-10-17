@@ -22,4 +22,5 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - run: node --test tests/expanded-policy-profile.test.cjs
       - run: node simulation/twinleaf/bunnelby-k0-action-contrast.cjs
