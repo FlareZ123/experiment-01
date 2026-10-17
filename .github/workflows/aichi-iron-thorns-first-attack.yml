@@ -16,6 +16,8 @@ jobs:
           node-version: '20.19.0'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Exact K0 Prize and Trainers Mail conditionals
+        run: node --test tests/aichi-prize-conditionals.test.cjs
       - name: Install pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
