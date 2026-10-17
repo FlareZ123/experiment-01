@@ -92,3 +92,42 @@ The existing [Hood-response census](hood-response-field.md) establishes
 that Tool-removal access is widespread and that a strategically distinct
 counter-mechanism is worth checking. It does not establish that Silent
 Lab is better in actual matches.
+
+
+## Symmetric direct-response exposure comparison
+
+Before adding any Lab card to a candidate, compare what a source
+Iron Thorns pilot can **directly observe** by its starting legal
+seven plus two ordinary draws. This is conditional on an initial
+hand containing a Basic, accepts **zero** extra mulligan-bonus cards,
+and integrates random Prizes. Both response sets are non-Basic Trainers.
+
+For a Benched Hood, count Faba, Field Blower, Lost Vacuum and Megaton
+Blower from the published source inventory. For a hypothetical
+Silent Lab, count opposing *different-name Stadiums*, Field Blower and
+Megaton Blower: even without those Items, an opponent can replace Lab
+with one of its own named Stadiums, on a later Stadium-play opportunity.
+
+| Iron Thorns rank | Named Hood removers | Direct Hood counter sighting | Named Lab replacement/removal cards | Direct Lab counter sighting |
+| ---: | ---: | ---: | ---: | ---: |
+| 6 | 2 | 25.894578% | 4 | **45.720474%** |
+| 24 | 2 | 25.894578% | 3 | **36.481460%** |
+| 29 | 3 | 36.481460% | 6 | **60.740185%** |
+
+The rank-6 four Lab answers consist of three printed Stadiums plus
+one Megaton Blower. Rank 24 has two Stadiums plus Megaton. Rank 29
+has four Stadiums, Field Blower and Megaton. All counts were checked
+against source `full-decklists.json`. The same exact hypergeometric
+conditional-access equation documented in
+[the Hood response census](hood-response-field.md#exact-calculation)
+applies with `B=4` and `A=2,3,4,6`.
+
+These are **answer-card observations only**. Many listed Stadiums can
+be immediately played to replace Lab on the opponent's turn, but an
+Item may be locked, a Stadium may be Prized, and the opponent may
+need the same Stadium to execute a higher-value line. Guzma & Hala
+search makes actual Stadium accessibility potentially higher, whereas
+using Faba costs the Supporter turn. The higher direct-answer exposure
+means Silent Lab should **not** be presumed more robust than Hood:
+its different response axis provides tactical diversification at the
+cost of exposure to common Stadium replacement.
