@@ -26,7 +26,10 @@ test('pure source report counts actual Star Alchemy root decisions separately fr
       {actionOrdinal:0,action:'PlayCardAction',playerSlot:0,card:'Forest Seal Stone'},
       {actionOrdinal:1,action:'UseAbilityAction',playerSlot:1,ability:'Star Alchemy',
         turnBefore:2},
-      {actionOrdinal:2,action:'UseAbilityAction',playerSlot:1,ability:'Underworld Door',
+      {actionOrdinal:2,action:'ResolvePromptAction',playerSlot:1,
+        cardSelection:{sourceZone:'deck',message:'Choose a card',
+          selectedCards:['Psychic Energy SVE']}},
+      {actionOrdinal:3,action:'UseAbilityAction',playerSlot:1,ability:'Underworld Door',
         turnBefore:2}
     ]
   };
@@ -38,7 +41,8 @@ test('pure source report counts actual Star Alchemy root decisions separately fr
   assert.equal(s.abilityTraceStarCount,1);
   assert.deepEqual(s.attacksBySeat,[1,2]);
   assert.equal(s.fullActionAndPromptReplay,false);
-  assert.equal(s.decisionSignatures.length,3);
+  assert.equal(s.decisionSignatures.length,4);
+  assert.equal(s.postStarPromptSelections[0].firstSubsequentOwnSelection.selectedCards[0], 'Psychic Energy SVE');
   assert.match(digest(s),/^[0-9a-f]{64}$/);
 });
 
