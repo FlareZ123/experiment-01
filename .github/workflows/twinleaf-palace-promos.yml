@@ -28,4 +28,4 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Exercise Palace Book and Palace Belt with real Store
-        run: node --test tests/palace_promos_store.test.cjs
+        run: node --test tests/palace_promos_store.test.cjs tests/wobbuffet-vileplume-stoutland-matrix.test.cjs
