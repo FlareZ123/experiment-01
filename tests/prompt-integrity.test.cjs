@@ -155,3 +155,43 @@ test('strict shuffle predicate agrees with exact dense permutations up to size f
     }
   }
 });
+
+class AttachEnergyPrompt {
+  constructor(cards) {
+    this.id = 19;
+    this.result = undefined;
+    this.message = 'Attach one Energy';
+    this.cardList = {
+      cards,
+      filter(predicate) { return this.cards.filter(predicate); }
+    };
+    this.filter = () => true;
+    this.options = {min: 1, max: 2};
+  }
+  validate(result) {
+    return Array.isArray(result) && result.length >= 1 && result.length <= 2;
+  }
+}
+
+test('invalid AttachEnergyPrompt reports bounded post-choice card identity diagnostics', () => {
+  const energy = {fullName: 'Darkness Energy fixture'};
+  const foreign = {fullName: 'Foreign Energy fixture'};
+  const prompt = new AttachEnergyPrompt([energy]);
+  const state = {prompts: [prompt]};
+  assert.doesNotThrow(() => assertValidPromptAction(
+    state, new ResolvePromptAction(19, [{card: energy}])));
+  assert.throws(() => assertValidPromptAction(
+    state, new ResolvePromptAction(19, [{card: energy}, {card: energy}])), error => {
+    assert.match(error.message, /post-choice-invalid-attach-energy-selection-v1/);
+    assert.match(error.message, /"duplicate":true/);
+    assert.match(error.message, /"eligible":true/);
+    assert.match(error.message, /"promptId":19/);
+    return true;
+  });
+  assert.throws(() => assertValidPromptAction(
+    state, new ResolvePromptAction(19, [{card: foreign}])), error => {
+    assert.match(error.message, /"inSource":false/);
+    assert.match(error.message, /"eligible":false/);
+    return true;
+  });
+});
