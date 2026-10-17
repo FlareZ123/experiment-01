@@ -36,3 +36,14 @@ function installBattleCompressorMinimumHook(){
       SHUFFLE_DECK(store,state,player);
     });
   }
+  BattleCompressor.prototype.reduceEffect=corrected;
+  const restore=()=>{
+    if(BattleCompressor.prototype.reduceEffect===corrected){
+      BattleCompressor.prototype.reduceEffect=original;
+    }
+    installed=null;
+  };
+  installed={restore};
+  return restore;
+}
+module.exports={installBattleCompressorMinimumHook};
