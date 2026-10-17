@@ -58,6 +58,8 @@ function withRecordedSourceActions(sourceTrace,work) {
       'Before-action hidden-zone digest differs at source step '+ordinal);
     assert.equal(continuityHash(observableState(state)),event.continuityDigestBefore,
       'Before-action card-history digest differs at source step '+ordinal);
+    assert.equal(sourceEffectDigest(state),event.effectDigestBefore,
+      'Before-action supplementary effect digest differs at source step '+ordinal);
     if(event.typedAction) {
       assert.deepEqual(captureAction(action),event.typedAction,
         'Typed action fields differ at source step '+ordinal);
