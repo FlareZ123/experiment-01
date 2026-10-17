@@ -221,6 +221,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
  * @property {boolean} [latiasAttackReadyAttachment] Opt-in rank10 source-state Latias Energy completion probe.
  * @property {boolean} [bunnelbyK0SafeEvolution] Opt-in printed-source-only TM Evolution choice without hidden-deck/Prize inspection.
+ * @property {boolean} [bunnelbyObservedK1] Separate opt-in: switch that policy from K0 to K1 only on live owner-deck search prompts.
  * @property {boolean} [attackBeforeRetreat] Opt-in policy-order sensitivity probe for AttackTactic and RetreatTactic.
  * @property {0|1} [attackBeforeRetreatSeat] Restrict that opt-in probe to one physical seat.
  * @property {boolean} [passHorizonAttack] Compare printed AttackAction against a simulated PassTurnAction at the same turn-end horizon (experimental).
@@ -246,6 +247,9 @@ function runMatch(request) {
   }
   if (!Number.isInteger(request.seed) || request.seed < 0 || request.seed > 0xffffffff) {
     throw new Error('seed must be an unsigned 32-bit integer.');
+  }
+  if (request.bunnelbyObservedK1 === true && request.bunnelbyK0SafeEvolution !== true) {
+    throw new Error('Observed K1 requires the source-60 Bunnelby K0 option');
   }
   const random = seededRandom(request.seed);
   const policyRandomBySeat = request.isolatePolicyRandomness === true ?
@@ -475,7 +479,13 @@ function runMatch(request) {
         const manager = initializeCards();
         configured = require('./bunnelby-evolution-policy.cjs')
           .withBunnelbyEvolutionLine(configured, {
-            sourceCards: knownPrints.map(name => manager.getCardByName(name))
+            sourceCards: knownPrints.map(name => manager.getCardByName(name)),
+            observeFirstOwnDeckSearch: request.bunnelbyObservedK1 === true,
+            ...(request.bunnelbyObservedK1 === true ? {
+              isLivePrompt: (state, player, prompt) =>
+                state === store.state && state.players.includes(player) &&
+                state.prompts.includes(prompt) && prompt.result === undefined
+            } : {})
           });
       }
       if (request.mimikyuApexTimelessPolicy === true &&
@@ -749,6 +759,7 @@ function runMatch(request) {
       shadowRiderOpeningPivot: request.shadowRiderOpeningPivot === true,
       latiasAttackReadyAttachment: request.latiasAttackReadyAttachment === true,
       bunnelbyK0SafeEvolution: request.bunnelbyK0SafeEvolution === true,
+      bunnelbyObservedK1: request.bunnelbyObservedK1 === true,
       attackBeforeRetreat: request.attackBeforeRetreat === true,
       attackBeforeRetreatSeat: request.attackBeforeRetreatSeat ?? null,
       policy: (request.doubleDragonRecovery === true ?
@@ -769,6 +780,7 @@ function runMatch(request) {
         (request.latiasAttackReadyAttachment === true ? '+LatiasAttackReadyAttachment-v1' : '') +
         (request.mimikyuExtraTurnShredSeat !== undefined ? '+MimikyuExtraTurnShred-v1' : '') +
         (request.bunnelbyK0SafeEvolution === true ? '+BunnelbySourceK0PossibleEvolution-v1' : '') +
+        (request.bunnelbyObservedK1 === true ? '+BunnelbyRootObservedK1-v1' : '') +
         (request.attackBeforeRetreat === true ?
           '+AttackBeforeRetreatTactic-v1@' +
             (request.attackBeforeRetreatSeat === undefined ?
