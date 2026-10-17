@@ -15,7 +15,8 @@ const ECHOED_POLICY_KEYS = [
   'attackBeforeRetreat', 'attackBeforeRetreatSeat',
   'bunnelbyK0SafeEvolution', 'prototypeSafeSimulatorIsolation',
   'leleEntryAbilityLockCorrection', 'radiantGateLockCorrection',
-  'entryDrawLockCorrection', 'eldegossEntryLockCorrection'
+  'entryDrawLockCorrection', 'eldegossEntryLockCorrection',
+  'attachedToolPowerPolicy'
 ];
 
 function sampleGame(request, override = {}) {
@@ -401,6 +402,22 @@ test('entry-Ability correction hooks need an exact per-game echo', () => {
     assert.equal(omitted.counts['unverified-game-environment'], 6);
     assert.equal(omitted.counts['completed-engine-game'] || 0, 0);
   }
+});
+
+test('Tool-granted Ability candidate policy requires a matching game echo', () => {
+  const policyFlags={attachedToolPowerPolicy:true};
+  const valid=run({policyFlags});
+  assert.equal(valid.counts['completed-engine-game'],6);
+  assert.ok(valid.records.every(record=>record.observedPolicyFlags.attachedToolPowerPolicy===true));
+  const incorrect=run({policyFlags,runMatch:request=>
+    sampleGame(request,{attachedToolPowerPolicy:false})});
+  assert.equal(incorrect.counts['unverified-game-environment'],6);
+  const absent=run({policyFlags,runMatch:request=>{
+    const game=sampleGame(request);
+    delete game.attachedToolPowerPolicy;
+    return game;
+  }});
+  assert.equal(absent.counts['unverified-game-environment'],6);
 });
 
 test('expected pinned engine revision is mandatory', () => {
