@@ -10,6 +10,10 @@ The Japanese [Top-32 community recap, page two](https://pokekameshi.com/cl2026ai
 
 The same community page identifies multiple other Top-32 Regidrago nicknames with less precise qualifying placements. Their lists cannot be substituted into rank 23 or 28 merely because archetypes agree.
 
+## Prior-year alias collision (17 October verification)
+
+The Regidrago pilot **レプリカ / @nnaacc5_uec** also appears in [a separate 2025 CL Aichi Regidrago deck archive](https://note.com/nayuta_poke/n/nd75cb0ad98a0). That source quotes a **May 4, 2025** post with a **3–3** record and an attached deck image. The rank-28 placement lead is a **May 10, 2026** post with qualifying rank 28. The earlier deck image must **not** be ingested as the 2026 registered list. The 2026 image remains unverified as a readable 60-card list, and the Jo Kato ↔ public-alias identity linkage remains provisional.
+
 ## Rank-23 status
 
 A search for 2026 CL Aichi `予選23位`, `23位`, `レジドラゴ`, Japanese given-name variants and the Limitless romanized player name produced no trustworthy exact 60-card inventory or positive identity-to-list attribution. This is a search outcome only and does not show that the list was never public.
