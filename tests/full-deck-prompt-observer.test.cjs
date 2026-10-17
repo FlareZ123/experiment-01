@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {fullOwnDeckPrompt,recordFirstFullOwnDeckPrompt}=
+const {fullOwnDeckPrompt,recordFirstFullOwnDeckPrompt,firstFullDeckResolutions}=
   require('../simulation/twinleaf/full-deck-prompt-observer.cjs');
 
 class ChooseCardsPrompt {
@@ -45,4 +45,28 @@ test('first-prompt recorder is per player, read-only, and ignores repeated searc
   assert.deepEqual(events.map(x=>[x.playerId,x.actionOrdinal]),[[101,4],[202,8]]);
   assert.equal(JSON.stringify(state),before);
   assert.ok(events.every(e=>!Object.hasOwn(e,'cards')));
+});
+
+test('root trace identifies only owner-visible complete-deck selections',()=>{
+  const trace=[
+    {action:'ResolvePromptAction',playerSlot:0,actionOrdinal:3,turnBefore:0,
+      cardSelection:{promptKind:'ChooseCardsPrompt',sourceZone:'hand',sourcePlayerSlot:0}},
+    {action:'ResolvePromptAction',playerSlot:0,actionOrdinal:9,turnBefore:1,
+      cardSelection:{promptKind:'ChooseCardsPrompt',sourceZone:'deck',sourcePlayerSlot:1}},
+    {action:'ResolvePromptAction',playerSlot:1,actionOrdinal:20,turnBefore:2,
+      cardSelection:{promptKind:'ChooseCardsPrompt',sourceZone:'deck',sourcePlayerSlot:1,
+        message:'CHOOSE_CARD_TO_HAND'}},
+    {action:'ResolvePromptAction',playerSlot:1,actionOrdinal:26,turnBefore:2,
+      cardSelection:{promptKind:'ChooseCardsPrompt',sourceZone:'deck',sourcePlayerSlot:1}},
+    {action:'ResolvePromptAction',playerSlot:0,actionOrdinal:38,turnBefore:4,
+      cardSelection:{promptKind:'ChooseCardsPrompt',sourceZone:'deck',sourcePlayerSlot:0,
+        message:'CHOOSE_CARD_TO_HAND'}}
+  ];
+  const frozen=JSON.stringify(trace);
+  assert.deepEqual(firstFullDeckResolutions(trace),[
+    {seat:0,actionOrdinal:38,turn:4,message:'CHOOSE_CARD_TO_HAND'},
+    {seat:1,actionOrdinal:20,turn:2,message:'CHOOSE_CARD_TO_HAND'}
+  ]);
+  assert.equal(JSON.stringify(trace),frozen);
+  assert.deepEqual(firstFullDeckResolutions(trace.slice(0,2)),[]);
 });
