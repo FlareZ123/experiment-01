@@ -2,6 +2,7 @@
 import hashlib
 import unittest
 
+from scripts.action_trace_integrity import action_trace_sha256
 from scripts.aichi_raw_global_gate import evaluate_balanced_raw_batch, source_inventory_digest
 
 
@@ -31,6 +32,7 @@ def field(missing_rank=None):
 def game(rank, seat, trial, *, status="completed", winner="A"):
     first_side = "A" if seat == "first" else "B"
     trace_id = f"{rank}-{seat}-{trial}"
+    action_trace = [{"step": 0, "action": "synthetic-completed-game", "game_id": trace_id}]
     return {
         "game_id": trace_id,
         "rank": rank, "seat": seat, "seed": rank * 10000 + (0 if seat == "first" else 5000) + trial + 1,
@@ -46,7 +48,8 @@ def game(rank, seat, trial, *, status="completed", winner="A"):
         "opponent_deck_sha256": hashlib.sha256(
             f"rank-{rank}".encode()
         ).hexdigest(),
-        "trace_sha256": hashlib.sha256(trace_id.encode()).hexdigest(),
+        "trace_sha256": action_trace_sha256(action_trace),
+        "action_trace": action_trace,
     }
 
 
@@ -84,6 +87,18 @@ class BalancedRawGateTests(unittest.TestCase):
         self.assertTrue(x["global_test"]["statistical_threshold_met"])
         self.assertEqual(x["raw_games"], 640)
         self.assertEqual(x["completed_ties_as_nonwins"], 0)
+
+    def test_digest_only_record_is_rejected(self):
+        b = batch()
+        del b["games"][0]["action_trace"]
+        with self.assertRaisesRegex(ValueError, "verified action traces"):
+            assess(b, field(), predeclared_games_per_cell=10)
+
+    def test_tampered_action_is_rejected(self):
+        b = batch()
+        b["games"][0]["action_trace"][0]["action"] = "tampered"
+        with self.assertRaisesRegex(ValueError, "does not match"):
+            assess(b, field(), predeclared_games_per_cell=10)
 
     def test_one_tie_counts_as_nonwin(self):
         b = batch()
