@@ -13,7 +13,7 @@ const load = name => require(path.join(output, name));
  * @param {boolean} useBot Let pinned SimpleTacticsAi resolve the attachment prompt.
  * @param {number} availableCount Number of Energy cards actually in discard.
  */
-function runCase(count, noRecipient = false, useBot = false, availableCount = 5) {
+function runCase(count, noRecipient = false, useBot = false, availableCount = 5, chainAttack = false) {
   const f = stagedRaichu([], null);
   const {PokemonCardList} = load('game/store/state/pokemon-card-list');
   const {CardList} = load('game/store/state/card-list');
