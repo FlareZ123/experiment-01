@@ -1,3 +1,40 @@
-name: New Moon terminal check
+name: New Moon rank8 public terminal replay
+
 on:
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rank8-terminal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned simulator
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned simulator
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned simulator
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Pure terminal signature safety regression
+        run: node --test tests/terminal-signatures.test.cjs
+      - name: Replay physical-A rank8 terminal evidence
+        run: |
+          node -e "const fs=require('node:fs'),cp=require('node:child_process');const lock=fs.openSync('rank8-terminal.lock','wx');try{const data=cp.execFileSync(process.execPath,['simulation/twinleaf/newmoon-terminal-audit.cjs'],{encoding:'utf8',maxBuffer:10485760});fs.writeFileSync('rank8-terminal.pending.json',data,{flag:'wx'});fs.renameSync('rank8-terminal.pending.json','rank8-terminal.json')}finally{fs.closeSync(lock);fs.unlinkSync('rank8-terminal.lock')}"
+      - name: Show bounded terminal signatures
+        run: node -e "const d=require('./rank8-terminal.json');console.log(JSON.stringify(d.rows.map(x=>({variant:x.variant,winner:x.winner,turns:x.turns,archiveAgreement:x.archiveAgreement,signatures:x.publicTerminalSignatures,played:x.played})),null,2))"
+      - name: Preserve source-replay evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-rank8-public-terminal
+          path: rank8-terminal.json
+          if-no-files-found: error
