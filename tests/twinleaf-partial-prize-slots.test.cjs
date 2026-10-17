@@ -12,6 +12,7 @@ const permutation=(n,rng)=>{const a=Array.from({length:n},(_,i)=>i);for(let i=n-
 const settings={seed:20261017,samples:12,random,permutation,
   isCard:c=>Object.hasOwn(c,'fullName'),
   sampleUnknownPrizes:true,prizeObservationLedgerComplete:true,
+  deckPrizePartitionUnknownVerified:true,knownTopCount:1,knownTopVerified:true,
   observedPrizeSlots:[{prizeIndex:0,cardIndex:0,fullName:'D'}]};
 const card=(name,id)=>({fullName:name,id});
 function source(prizeB=false) {
@@ -79,6 +80,8 @@ test('partial ledger must be verified and cannot also claim no Prize observation
   const a=source();
   assert.throws(()=>sample(a,{...settings,
     prizeObservationLedgerComplete:false}),/verified complete observation ledger/);
+  assert.throws(()=>sample(a,{...settings,
+    deckPrizePartitionUnknownVerified:false}),/unknown deck\/Prize partition/);
   assert.throws(()=>sample(a,{...settings,
     prizesUnobservedVerified:true}),/verified complete observation ledger/);
   assert.throws(()=>sample(a,{...settings,sampleUnknownPrizes:false}),
