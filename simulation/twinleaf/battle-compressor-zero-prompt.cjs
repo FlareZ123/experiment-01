@@ -33,7 +33,7 @@ function probe(useCorrection=false) {
     });
     player.deck.cards.push(card('Psychic Energy MEE'));
   }
-  a.deck.cards.push(card('Grass Energy MEE'));
+  a.deck.cards.push(card('Psychic Energy MEE'));
   a.hand.cards.push(card('Battle Compressor PHF'));
   const restore=useCorrection ? require('./battle-compressor-minimum-hook.cjs').installBattleCompressorMinimumHook() : ()=>{};
   try {
