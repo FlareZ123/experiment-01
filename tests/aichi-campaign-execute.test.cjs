@@ -13,7 +13,7 @@ const ECHOED_POLICY_KEYS = [
   'snorlaxRetreatStartCorrection', 'shadowRiderEnergyPriority',
   'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
   'attackBeforeRetreat', 'attackBeforeRetreatSeat',
-  'prototypeSafeSimulatorIsolation',
+  'bunnelbyK0SafeEvolution', 'prototypeSafeSimulatorIsolation',
   'leleEntryAbilityLockCorrection', 'radiantGateLockCorrection'
 ];
 
@@ -203,6 +203,35 @@ test('preserves terminal transition in campaign diagnostic', () => {
   assert.equal(result.counts['completed-engine-game'], 6);
   assert.deepEqual(result.records[0].traceSummary.terminalTransition, transition);
   assert.equal(run().records[0].traceSummary.terminalTransition, null);
+});
+
+
+test('source-60 K0-safe Bunnelby policy is seat-invariant and echoed by every fixed rank-2 trial', () => {
+  const campaign = loadDefaultCampaign();
+  const seats = [];
+  const args = {
+    expectedEngineRevision: EXPECTED_ENGINE, campaign, ranks: [2],
+    policyFlags: {bunnelbyK0SafeEvolution: true},
+    resolvePair: trial => ({
+      candidateDigest: trial.candidateDigest,
+      opponentDigest: trial.opponentDigest,
+      candidateCards: cards, opponentCards: cards
+    }),
+    runMatch(request) {
+      seats.push(request.bunnelbyK0SafeEvolution === true &&
+        request.deckA.length === 60 && request.deckB.length === 60);
+      return sampleGame(request);
+    }
+  };
+  const accepted = executeDiagnostic(args);
+  assert.deepEqual(seats, Array(6).fill(true));
+  assert.equal(accepted.counts['completed-engine-game'], 6);
+  assert.equal(accepted.policyFlags.bunnelbyK0SafeEvolution, true);
+  assert.equal(accepted.strengthClaimPermitted, false);
+  const rejected = executeDiagnostic({...args,
+    runMatch: request => sampleGame(request, {bunnelbyK0SafeEvolution: false})});
+  assert.equal(rejected.counts['unverified-game-environment'], 6);
+  assert.equal(rejected.counts['completed-engine-game'] || 0, 0);
 });
 
 require('./twinleaf-selected-cards-evidence.test.cjs');

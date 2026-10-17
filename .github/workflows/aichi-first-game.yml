@@ -56,6 +56,11 @@ on:
         required: false
         type: boolean
         default: false
+      bunnelby_source_k0:
+        description: 'Experimental rank-2 source-60 K0-safe Bunnelby choice; replaces deck-peeking evolution tactic'
+        required: false
+        type: boolean
+        default: false
       audit_passed_attacks:
         description: 'Probe first eight Pass decisions for detached pinned-engine attack announcements'
         required: false
@@ -115,6 +120,7 @@ jobs:
           AICHI_SHADOW_ENERGY_GLOBAL: ${{ inputs.shadow_rider_energy_across_field && '1' || '0' }}
           AICHI_OPENING_PIVOT: ${{ inputs.shadow_rider_opening_pivot && '1' || '0' }}
           AICHI_LATIAS_ATTACK_READY: ${{ inputs.latias_attack_ready && '1' || '0' }}
+          AICHI_BUNNELBY_SOURCE_K0: ${{ inputs.bunnelby_source_k0 && '1' || '0' }}
           AICHI_ATTACK_BEFORE_RETREAT: ${{ inputs.attack_before_retreat && '1' || '0' }}
           AICHI_ATTACK_CANDIDATE_ONLY: ${{ inputs.attack_before_retreat_candidate_only && '1' || '0' }}
           AICHI_ATTACK_PASS_PROBE: ${{ inputs.audit_passed_attacks && '1' || '0' }}

@@ -84,7 +84,7 @@ function executeDiagnostic(options) {
     'snorlaxRetreatStartCorrection',
     'shadowRiderEnergyPriority', 'shadowRiderEnergyAcrossField',
     'shadowRiderOpeningPivot', 'latiasAttackReadyAttachment',
-    'attackBeforeRetreat',
+    'bunnelbyK0SafeEvolution', 'attackBeforeRetreat',
     'attackBeforeRetreatCandidateOnly',
     'leleEntryAbilityLockCorrection',
     'radiantGateLockCorrection', 'entryDrawLockCorrection'
@@ -185,7 +185,7 @@ function executeDiagnostic(options) {
         'templeUnlockRecovery', 'supporterDecisionCorrection',
         'snorlaxRetreatStartCorrection', 'shadowRiderEnergyPriority',
         'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
-        'latiasAttackReadyAttachment',
+        'latiasAttackReadyAttachment', 'bunnelbyK0SafeEvolution',
         'attackBeforeRetreat', 'prototypeSafeSimulatorIsolation',
         'leleEntryAbilityLockCorrection',
         'radiantGateLockCorrection'
@@ -328,10 +328,12 @@ function main() {
         ...game,
         policy: String(game.policy || 'unspecified') +
           '+TempleUnlockTactic-v1+ToolAwareAttackTactic-v1' +
-          '+BunnelbyEvolutionTactic-v1+BarrageEvolutionResolver-v1' +
+          (request.bunnelbyK0SafeEvolution === true ?
+            '+BunnelbySourceK0PossibleEvolution-v1' :
+            '+BunnelbyEvolutionTactic-v1+BarrageEvolutionResolver-v1') +
           '+MandatoryOptionResolver-v1'
       };
-    });
+    }, {sourceK0Bunnelby: request.bunnelbyK0SafeEvolution === true});
   };
   const campaign = loadDefaultCampaign(seedProtocol);
   const source = JSON.parse(fs.readFileSync(path.join(dir, 'full-decklists.json'), 'utf8'));
@@ -370,6 +372,7 @@ function main() {
       shadowRiderEnergyAcrossField: process.env.AICHI_SHADOW_ENERGY_GLOBAL === '1',
       shadowRiderOpeningPivot: process.env.AICHI_OPENING_PIVOT === '1',
       latiasAttackReadyAttachment: process.env.AICHI_LATIAS_ATTACK_READY === '1',
+      bunnelbyK0SafeEvolution: process.env.AICHI_BUNNELBY_SOURCE_K0 === '1',
       attackBeforeRetreat: process.env.AICHI_ATTACK_BEFORE_RETREAT === '1',
       attackBeforeRetreatCandidateOnly: process.env.AICHI_ATTACK_CANDIDATE_ONLY === '1',
       leleEntryAbilityLockCorrection: true,

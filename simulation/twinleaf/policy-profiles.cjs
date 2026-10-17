@@ -53,16 +53,19 @@ function withTempleUnlockTactic(fn) {
  *
  * @template T
  * @param {()=>T} fn Synchronous bounded experimental match.
+ * @param {{sourceK0Bunnelby?:boolean}} [configuration] Omit the deck-peeking
+ *   Bunnelby policy when the headless runner installs its per-seat source-60
+ *   K0-safe replacement. This flag alone does not certify policy quality.
  * @returns {T}
  */
-function withExpandedActionOptions(fn) {
+function withExpandedActionOptions(fn, {sourceK0Bunnelby = false} = {}) {
   const definitions = require(path.join(output,'simple-bot/simple-bot-definitions'));
   const originalTactics = definitions.allSimpleTactics.slice();
   const originalResolvers = definitions.allPromptResolvers.slice();
   let options = {tactics: originalTactics, promptResolvers: originalResolvers};
   options = withTempleUnlockRecovery(options);
   options = withToolAttackAwareness(options);
-  options = withBunnelbyEvolutionLine(options);
+  if (!sourceK0Bunnelby) options = withBunnelbyEvolutionLine(options);
   options = withMandatoryOptionFallback(options);
   definitions.allSimpleTactics.splice(0, definitions.allSimpleTactics.length, ...options.tactics);
   definitions.allPromptResolvers.splice(0, definitions.allPromptResolvers.length, ...options.promptResolvers);
