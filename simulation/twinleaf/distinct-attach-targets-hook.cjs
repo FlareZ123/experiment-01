@@ -28,7 +28,8 @@ function installDistinctAttachTargetsHook() {
   const stats = {
     restrictedPrompts: 0,
     selectedDestinations: 0,
-    targetExclusions: 0
+    targetExclusions: 0,
+    proposedTargetTrace: []
   };
 
   function distinctGetPromptResult(state, prompt) {
@@ -60,6 +61,14 @@ function installDistinctAttachTargetsHook() {
       if (chosen) {
         frame.used.push(chosen);
         stats.selectedDestinations++;
+        stats.proposedTargetTrace.push({
+          promptId: prompt.id,
+          message: prompt.message,
+          energy: card.fullName || card.name || null,
+          destination: {
+            player: chosen.player, slot: chosen.slot, index: chosen.index
+          }
+        });
       }
       return result;
     } finally {
