@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const {initializeCards}=require('./headless.cjs');
 const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const get=part=>require(path.join(root,part));
-function probe() {
+function probe(useCorrection=false) {
   const cards=initializeCards();
   const {Store}=get('game/store/store');
   const {Player}=get('game/store/state/player');
@@ -35,6 +35,8 @@ function probe() {
   }
   a.deck.cards.push(card('Grass Energy MEE'));
   a.hand.cards.push(card('Battle Compressor PHF'));
+  const restore=useCorrection ? require('./battle-compressor-minimum-hook.cjs').installBattleCompressorMinimumHook() : ()=>{};
+  try {
   store.dispatch(new PlayCardAction(a.id,0,{
     player:PlayerType.ANY,slot:SlotType.BOARD,index:0
   }));
@@ -45,8 +47,9 @@ function probe() {
     acceptsZero:prompt.validate([]),
     acceptsOne:prompt.validate([a.deck.cards[0]]),
     inPlay:a.supporter.cards.some(c=>c.name==='Battle Compressor'),
-    deckSize:a.deck.cards.length
+    deckSize:a.deck.cards.length,corrected:useCorrection
   };
+  } finally {restore();}
 }
-if(require.main===module)console.log(JSON.stringify(probe(),null,2));
+if(require.main===module)console.log(JSON.stringify({baseline:probe(),corrected:probe(true)},null,2));
 module.exports={probe};
