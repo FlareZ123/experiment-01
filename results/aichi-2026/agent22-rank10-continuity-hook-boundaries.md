@@ -37,7 +37,7 @@ The replay's existing ordered-zone digest and Card-history digest omit multiple 
 - `tests/source-zone-checkpoint.test.cjs` for adversarial digest-collision and effect-field sensitivity tests;
 - `simulation/twinleaf/store-dispatch-transcript.cjs` and `source-game-action-replay.cjs` for new per-dispatch before/after comparisons.
 
-These changes are **not a complete State fingerprint**. The follow-up compiled CI for the supplemental assertion is separate from the first five-gap diagnostic and should be explicitly cited when its result is known. Until this and the remaining policy/rules gates close, `sourceReplayMechanicsVerified:false` and `qualifiedForCompetitiveInference:false`.
+These changes are **not a complete State fingerprint**. The [supplementary effect-fingerprint compiled CI 38992968255](https://github.com/FlareZ123/experiment-01/actions/runs/38992968255) **passed**, reconstructing **350/350 control** and **235/235 alternate** actions in a fresh process while comparing each new selected-effect digest before and after dispatch. This validates this selected field schema on the archived pair only. A further all-own-primitive fingerprint enhancement has been authored and awaits its separately versioned compiled run. Until this and the remaining policy/rules gates close, `sourceReplayMechanicsVerified:false` and `qualifiedForCompetitiveInference:false`.
 
 ## Next falsification steps
 
