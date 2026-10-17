@@ -39,7 +39,7 @@ jobs:
       - name: Compare same-horizon printed Attack and Pass on source turn five
         run: node simulation/twinleaf/aichi-rank10-aligned-attack-probe.cjs > rank10-aligned-attack.json
       - name: Summarize first equal-source Koraidon decisions
-        run: node -e "const x=require('./rank10-aligned-attack.json');for(const p of x.findings)console.log(JSON.stringify({candidate:p.candidate,original:p.sourceControlDecision.map(z=>({action:z.action,attack:z.attack,mutated:z.policyTimeRootGraphChanged})),aligned:p.sourceAlignedDecision.map(z=>({action:z.action,attack:z.attack,mutated:z.policyTimeRootGraphChanged})),firstSourceSame:p.beforeFirstTurn5DecisionIdentical,control:p.control.winner,alignedWinner:p.aligned.winner,qualified:false}))"
+        run: node -e "const x=require('./rank10-aligned-attack.json');for(const p of x.findings)console.log(JSON.stringify({candidate:p.candidate,original:p.sourceControlDecision.map(z=>({action:z.action,attack:z.attack,mutated:z.policyTimeRootGraphChanged,firstDiff:z.policyTimeRootGraphFirstDifference?.path??null})),aligned:p.sourceAlignedDecision.map(z=>({action:z.action,attack:z.attack,mutated:z.policyTimeRootGraphChanged,firstDiff:z.policyTimeRootGraphFirstDifference?.path??null})),firstSourceSame:p.beforeFirstTurn5DecisionIdentical,control:p.control.winner,alignedWinner:p.aligned.winner,qualified:false}))"
       - uses: actions/upload-artifact@v4
         with:
           name: rank10-aligned-attack
