@@ -2,6 +2,7 @@
 
 const assert = require('node:assert/strict');
 const {canonicalUnseenCards} = require('./canonical-unseen-cards.cjs');
+const {selectUnobservedPrizeSlots} = require('./partial-prize-slots.cjs');
 
 /** Discover card instances across reachable state, without invoking getters. */
 function reachableCards(root, isCard) {
@@ -46,7 +47,7 @@ function reachableCards(root, isCard) {
  * @param {Function} evaluator Pinned tactic evaluator.
  * @param {object} receiver Original `this` for evaluator.
  * @param {(state:object)=>object} cloneState Complete detached-state clone.
- * @param {{seed:number,samples:number,permutation:(n:number,rng:Function)=>number[],random:(seed:number)=>Function,isCard:(value:object)=>boolean,knownTopCount?:number,knownTopVerified?:boolean,sampleUnknownPrizes?:boolean,prizesUnobservedVerified?:boolean}} opts
+ * @param {{seed:number,samples:number,permutation:(n:number,rng:Function)=>number[],random:(seed:number)=>Function,isCard:(value:object)=>boolean,knownTopCount?:number,knownTopVerified?:boolean,sampleUnknownPrizes?:boolean,prizesUnobservedVerified?:boolean,observedPrizeSlots?:Array<{prizeIndex:number,cardIndex:number,fullName:string}>,prizeObservationLedgerComplete?:boolean}} opts
  * @returns {number|undefined} Average of valid sampled outcomes.
  */
 function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
@@ -59,8 +60,19 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
   assert.ok(knownTopCount===0||opts.knownTopVerified===true,
     'Preserving top cards requires verified observed prefix order');
   const sampleUnknownPrizes=opts.sampleUnknownPrizes===true;
-  assert.ok(!sampleUnknownPrizes||opts.prizesUnobservedVerified===true,
-    'Sampling hidden Prizes requires verified absence of Prize observations');
+  const observedPrizeSlots=opts.observedPrizeSlots??[];
+  assert.ok(Array.isArray(observedPrizeSlots),'Observed Prize slots must be an array');
+  assert.ok(sampleUnknownPrizes||observedPrizeSlots.length===0,
+    'Observed Prize slots require Prize-inclusive sampling');
+  if(sampleUnknownPrizes&&observedPrizeSlots.length>0) {
+    assert.ok(opts.prizeObservationLedgerComplete===true &&
+      opts.prizesUnobservedVerified!==true,
+      'Partially observed Prizes require a verified complete observation ledger');
+  } else {
+    assert.ok(!sampleUnknownPrizes||opts.prizesUnobservedVerified===true||
+      opts.prizeObservationLedgerComplete===true,
+      'Sampling hidden Prizes requires verified absence of Prize observations or complete empty ledger');
+  }
   const srcPlayer=state.players.find(p=>p.id===playerId);
   if (!srcPlayer) return evaluator.call(receiver,state,playerId,action,passTurnScore);
   const sourceCards=reachableCards(state,opts.isCard);
@@ -87,8 +99,7 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
     assert.ok(knownTopCount<=deck.length,
       'Known-top prefix exceeds deck length');
     const hiddenPrizePositions=sampleUnknownPrizes ?
-      player.prizes.flatMap((prize,prizeIndex)=>prize.cards.map(
-        (card,cardIndex)=>({card,prizeIndex,cardIndex}))) : [];
+      selectUnobservedPrizeSlots(player.prizes,observedPrizeSlots) : [];
     const unknownDeckCount=deck.length-knownTopCount;
     const canonical=canonicalUnseenCards([
       ...deck.slice(knownTopCount),
