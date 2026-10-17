@@ -25,6 +25,17 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify spent-GX Copycat Apex Shred knockout and non-KO controls
+        run: node simulation/twinleaf/mimikyu-extra-turn-shred-action.cjs > rank10-shred-store-action.json
+      - name: Report Shred action-only result
+        run: node -e "const x=require('./rank10-shred-store-action.json'); console.log(JSON.stringify(x));"
+      - name: Archive Shred Store evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-shred-store-action
+          path: rank10-shred-store-action.json
+          if-no-files-found: warn
       - name: Validate standalone source diagnostics
         run: node --test tests/mimikyu-rank10-policy-pair.test.cjs tests/copycat-turn-start-evidence.test.cjs tests/mimikyu-source-turn27-setup.test.cjs
       - name: Verify source-graph fingerprint observer stays read-only
