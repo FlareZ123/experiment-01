@@ -19,6 +19,10 @@ function installBattleCompressorMinimumHook(){
     'game/store/prefabs/prefabs'));
   const {WAS_TRAINER_USED}=require(path.join(output,
     'game/store/prefabs/trainer-prefabs'));
+  const {Store}=require(path.join(output,'game/store/store'));
+  const {ResolvePromptAction}=require(path.join(output,
+    'game/store/actions/resolve-prompt-action'));
+  const originalDispatch=Store.prototype.dispatch;
   const original=BattleCompressor.prototype.reduceEffect;
   function corrected(store,state,effect){
     if(!WAS_TRAINER_USED(effect,this))return state;
