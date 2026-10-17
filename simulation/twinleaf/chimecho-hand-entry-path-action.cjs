@@ -82,6 +82,7 @@ function probeChimechoHandEntry(options) {
       new AttackEffect(attacker, defender, chimecho.attacks[0]));
   }
   assert.equal(defender.cannotPlayPokemonWithAbilities, options.lock);
+  const lockedBeforeAction = defender.cannotPlayPokemonWithAbilities;
 
   let error = null;
   try {
@@ -94,24 +95,30 @@ function probeChimechoHandEntry(options) {
     error = caught.message;
   }
 
-  // End the locked player's actual turn after the rejected hand entry.
-  // The player-level attack restriction must expire at that boundary.
+  // Rejected actions restore a deep-cloned Store state. Read that live state
+  // rather than a detached reference to the original defender.
+  const liveDefender = () => store.state.players.find(p => p.id === defender.id);
+  assert.ok(liveDefender());
+  const benchEntry = liveDefender().bench[0].getPokemonCard() === incoming;
+  const handRetained = liveDefender().hand.cards.includes(incoming);
+
+  // End the affected player's real Store turn after a blocked hand entry.
   let lockedAfterDefenderEnd = null;
   if (options.lock && options.withAbility) {
     const { PassTurnAction } = load('game/store/actions/game-actions');
     store.dispatch(new PassTurnAction(defender.id));
-    lockedAfterDefenderEnd = defender.cannotPlayPokemonWithAbilities;
+    lockedAfterDefenderEnd = liveDefender().cannotPlayPokemonWithAbilities;
   }
 
   return {
     options,
-    locked: defender.cannotPlayPokemonWithAbilities,
+    locked: lockedBeforeAction,
     accepted: error === null,
-    benchEntry: defender.bench[0].getPokemonCard() === incoming,
-    handRetained: defender.hand.cards.includes(incoming),
+    benchEntry,
+    handRetained,
     lockedAfterDefenderEnd,
     error,
-    pendingPrompts: state.prompts
+    pendingPrompts: store.state.prompts
       .filter(prompt => prompt.result === undefined)
       .map(prompt => prompt.constructor.name)
   };
