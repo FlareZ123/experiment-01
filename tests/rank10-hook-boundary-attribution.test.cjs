@@ -33,6 +33,9 @@ function fixture() {
       previousHash:prev.continuityDigestAfter,
       currentHash:trace[next].continuityDigestBefore,
       cardHistoryMismatch:null,
+      changedLeafPaths:kind === 'pre-dispatch-pass-clear'
+        ? ['$.zones.previousAttack.length','$.zones.previousAttack[0]']
+        : ['$.zones.previousAttack[0].attack'],
       firstMismatch:kind === 'pre-dispatch-pass-clear'
         ? {path:'$.zones.previousAttack.length',before:2,after:1}
         : {path:'$.zones.previousAttack[0].attack',before:'Kaiser Tackle',
@@ -80,6 +83,15 @@ test('wrong prompt, payload, timing or history restoration fails closed',()=>{
     mutate(x);
     assert.throws(()=>auditRank10HookBoundaries(x.archive,x.continuity));
   }
+});
+
+test('a second simultaneous hidden-zone change cannot hide behind the expected first mismatch',()=>{
+  const fixtureWithLeak=fixture();
+  fixtureWithLeak.continuity.findings[0].firstChanges[1].changedLeafPaths.push(
+    '$.zones.players[0].deck[3]');
+  assert.throws(()=>auditRank10HookBoundaries(
+    fixtureWithLeak.archive,fixtureWithLeak.continuity),
+    /Additional between-dispatch changes/);
 });
 
 test('extra gaps, card changes, policy mutations and improper labels are rejected',()=>{
