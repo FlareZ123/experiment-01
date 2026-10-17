@@ -37,3 +37,41 @@ test('The access report retains source/variant identity and scope', () => {
   assert.equal(x.lockbreak.eitherNamedItem.probability > x.lockbreak.fieldBlower.probability, true);
   assert.equal(x.fixedListHash, 'a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4');
 });
+
+test('Human-readable New Moon deck rows match the frozen machine 60', () => {
+  const {readFileSync} = require('node:fs');
+  const path = require('node:path');
+  const proposal = require('../results/als/new-moon-lockbreak-english-proxy-60.json');
+  const report = readFileSync(path.join(__dirname,
+    '../results/als/new-moon-lockbreak-60-candidate.md'), 'utf8');
+  const heading = '## Exact fixed 60 (selected English equivalent printings)';
+  assert.equal(report.split(heading).length, 2);
+  const section = report.split(heading)[1].split('**Totals:')[0];
+  const types = {P: 'Pokémon', T: 'Trainer', E: 'Energy'};
+  const rows = [...section.matchAll(/^\|\s*([PTE])\s*\|\s*(\d+)\s*\|\s*([^|]+)\|/gm)]
+    .map(match => ({
+      type: types[match[1]],
+      count: Number(match[2]),
+      name: match[3].split(',')[0].trim()
+    }));
+  const canonical = entries => entries.map(x => [x.type, x.name, x.count].join(':'))
+    .sort();
+  assert.equal(rows.length, proposal.entries.length);
+  assert.equal(rows.reduce((sum, row) => sum + row.count, 0), 60);
+  assert.deepEqual(canonical(rows), canonical(proposal.entries.map(row => ({
+    type: row.type, name: row.name_en, count: row.count
+  }))));
+});
+
+test('Frozen simulator alias annotations agree with the audited source map', () => {
+  const source = require('../results/als/new-moon-perfection-english-map.json');
+  const proposal = require('../results/als/new-moon-lockbreak-english-proxy-60.json');
+  const byId = new Map(source.entries.map(row => [row.id, row]));
+  for (const row of proposal.entries) {
+    const original = byId.get(row.english_proxy_card_id);
+    if (original && row.twinleaf_full_name) {
+      assert.equal(row.twinleaf_full_name, original.twinleaf_full_name,
+        'Stale simulator alias for ' + row.name_en);
+    }
+  }
+});
