@@ -13,6 +13,13 @@
  * @param {{id?:number,result?:unknown,constructor?:{name?:string}}} action
  * @returns {void}
  */
+function isIndexPermutation(result, length) {
+  return Number.isInteger(length) && length >= 0 &&
+    Array.isArray(result) && result.length === length &&
+    result.every(index => Number.isInteger(index) && index >= 0 && index < length) &&
+    new Set(result).size === length;
+}
+
 function assertValidPromptAction(state, action) {
   const unresolved = state.prompts.filter(prompt => prompt.result === undefined);
   if (unresolved.length === 0) return;
@@ -23,19 +30,23 @@ function assertValidPromptAction(state, action) {
   if (!prompt) {
     throw new Error('Twinleaf bot answered an unknown or already-resolved prompt ID.');
   }
-  // Pinned ShuffleDeckPrompt.validate uses Array#sort() without a numeric
-  // comparator. That lexicographically reorders indices 10+ and rejects every
-  // valid permutation of an ordinary 60-card deck. Apply an exact permutation
-  // check here while preserving every other prompt's own validator.
+  // Four pinned index-permutation validators use lexicographic Array#sort().
+  // ShuffleHandPrompt additionally compares against Prize-slot count instead
+  // of the number of cards in hand. Keep corrections opt-in and source-bound.
   let valid;
-  if (prompt.constructor.name === 'ShuffleDeckPrompt') {
-    const owner = state.players.find(player =>
+  const name = prompt.constructor.name;
+  if (name === 'ShuffleDeckPrompt' || name === 'ShufflePrizesPrompt' ||
+      name === 'ShuffleHandPrompt' || name === 'OrderCardsPrompt') {
+    const owner = state.players?.find(player =>
       player.id === prompt.getPerspectivePlayerId());
-    const result = action.result;
-    const size = owner?.deck.cards.length;
-    valid = Array.isArray(result) && result.length === size &&
-      result.every(index => Number.isInteger(index) && index >= 0 && index < size) &&
-      new Set(result).size === size;
+    const size = name === 'ShuffleDeckPrompt' ? owner?.deck.cards.length
+      : name === 'ShufflePrizesPrompt'
+        ? owner?.prizes.reduce((sum, prize) => sum + prize.cards.length, 0)
+        : name === 'ShuffleHandPrompt' ? owner?.hand.cards.length
+          : prompt.cards.cards.length;
+    valid = name === 'OrderCardsPrompt' && action.result === null
+      ? prompt.options.allowCancel === true
+      : isIndexPermutation(action.result, size);
   } else {
     valid = typeof prompt.validate === 'function' &&
       prompt.validate(action.result, state);
