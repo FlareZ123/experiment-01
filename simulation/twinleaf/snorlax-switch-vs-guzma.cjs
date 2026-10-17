@@ -88,6 +88,8 @@ function probeTrainerEscape(options){
     opponentActiveAfter:b.active.getPokemonCard()?.name||null,
     trainerInDiscard:a.discard.cards.some(c=>c.name===options.trainer),
     trainerInHand:a.hand.cards.some(c=>c.name===options.trainer),
+    trainerInPlayZone:a.supporter.cards.some(c=>c.name===options.trainer),
+    supporterTurn:a.supporterTurn,
     prompts:steps,
     error
   };
@@ -106,6 +108,10 @@ function probeAll(){
     engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     cases:cases.map(probeTrainerEscape),
     correctedCases:cases.map(config=>probeTrainerEscape({...config,guzmaCorrection:true})),
+    soloBenchCases:[
+      {trainer:'Guzma',opponentBench:true,ownBench:false,jammer:false},
+      {trainer:'Guzma',opponentBench:false,ownBench:false,jammer:false}
+    ].map(config=>probeTrainerEscape({...config,guzmaCorrection:true})),
     scope:'Pinned Store-dispatched Trainer interactions on a controlled board; no live 60-card match'
   };
 }
