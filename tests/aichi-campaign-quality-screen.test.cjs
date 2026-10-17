@@ -279,3 +279,78 @@ test('both Simulator clone modes retain explicit trial-level safety blockers', (
       row.opponentAttacks===baseline.opponentAttacks;
   }));
 });
+
+test('physical-seat balance cannot impersonate both verified actual starting orders', () => {
+  const f = fixture();
+  for (const record of f.records) {
+    record.turnEvidence = {
+      firstTurnSlot: record.candidateEngineSlot === 'A' ? 0 : 1,
+      verifiedByDrawLog: true
+    };
+    record.candidateActualTurn = 'first';
+  }
+  const out = auditCampaignQuality(f);
+  assert.equal(out.missingActualTurnCoverage.length, 2);
+  assert.ok(out.coverage.every(row =>
+    row.actualTurnCoverageComplete === false &&
+    row.observedFirst === 2 &&
+    row.observedSecond === 0 &&
+    JSON.stringify(row.missingActualTurnStrata) === JSON.stringify(['second'])));
+  assert.equal(out.winRateEvidence, false);
+});
+
+test('an unverified first-draw log contributes no observed starting-order evidence', () => {
+  const f = fixture();
+  f.records[0].turnEvidence.verifiedByDrawLog = false;
+  const out = auditCampaignQuality(f);
+  assert.equal(out.records[0].actualTurn, 'unverified');
+  assert.ok(out.records[0].blockers.includes('unverified-starting-turn'));
+  assert.equal(out.coverage[0].observedFirst, 0);
+  assert.deepEqual(out.coverage[0].missingActualTurnStrata, ['first']);
+});
+
+test('declared mechanisms distinguish observed actions from incomplete trace silence', () => {
+  const f = fixture();
+  f.mechanismChecks = [
+    {id: 'tool-counter', candidateId: 'challenger', rank: 6,
+      action: 'PlayCardAction', detail: 'Field Blower'},
+    {id: 'copy-attack', candidateId: 'challenger',
+      action: 'UseAbilityAction', detail: 'Perfection'}
+  ];
+  let out = auditCampaignQuality(f);
+  assert.equal(out.mechanismExpectationStatus, 'declared');
+  assert.equal(out.coverage[0].mechanismExposure.length, 0);
+  assert.deepEqual(out.coverage[1].mechanismExposure.map(x => x.status),
+    ['unknown-incomplete-traces', 'unknown-incomplete-traces']);
+  for (const record of f.records) {
+    record.traceSummary = {...record.traceSummary,
+      coversAllActionsAndPromptResolutions: true};
+  }
+  out = auditCampaignQuality(f);
+  assert.deepEqual(out.coverage[1].mechanismExposure.map(x => x.status),
+    ['verified-no-exposure', 'verified-no-exposure']);
+  const actionTrace = [{actionOrdinal: 1, action: 'PlayCardAction',
+    playerSlot: 0, card: 'Field Blower'}];
+  f.records[3].traceSummary.chronologicalActionTrace = actionTrace;
+  f.records[3].traceSummary.chronologicalActionTraceSha256 =
+    createHash('sha256').update(JSON.stringify(actionTrace)).digest('hex');
+  out = auditCampaignQuality(f);
+  assert.equal(out.coverage[1].mechanismExposure[0].observedActions, 1);
+  assert.equal(out.coverage[1].mechanismExposure[0].status, 'observed');
+  assert.equal(out.coverage[1].mechanismExposure[1].status, 'verified-no-exposure');
+  f.records[3].traceSummary.chronologicalActionTraceSha256 = 'forged';
+  out = auditCampaignQuality(f);
+  assert.equal(out.coverage[1].mechanismExposure[0].status, 'unknown-incomplete-traces');
+  assert.equal(out.coverage[1].mechanismExposure[0].observedActions, 0);
+  assert.equal(out.winRateEvidence, false);
+});
+
+test('mechanism expectations reject duplicate identifiers and unregistered targets', () => {
+  const f = fixture();
+  const check = {id:'test', candidateId:'challenger', action:'AttackAction',
+    detail:'Psychic'};
+  f.mechanismChecks = [check, {...check}];
+  assert.throws(() => auditCampaignQuality(f), /mechanism check/);
+  f.mechanismChecks = [{...check, id:'other', candidateId:'not-in-campaign'}];
+  assert.throws(() => auditCampaignQuality(f), /mechanism check/);
+});
