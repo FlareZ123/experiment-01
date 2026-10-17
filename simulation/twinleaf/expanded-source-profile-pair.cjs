@@ -54,10 +54,12 @@ function rank2DecisionReadout(game, rank2Seat) {
  * Pair the same source 60, seed and physical seats under independently
  * versioned bots. Different policy actions can later change deck shuffles,
  * so equal source hashes and starts do not imply paired later draws.
- * @param {{maxActions?:number}} [options]
+ * @param {{maxActions?:number,profiles?:readonly string[]}} [options]
  * @returns {object} Diagnostic, never a competitive win-rate estimate.
  */
-function runSourceProfilePair({maxActions = 350} = {}) {
+function runSourceProfilePair({maxActions = 350,profiles = PROFILES} = {}) {
+  if (!Array.isArray(profiles) || profiles.length !== 2 ||
+      profiles[0] === profiles[1]) throw new Error('Require two distinct research profiles');
   const resolved = resolveManifestFile(path.resolve(__dirname,
     '../../results/aichi-2026/full-decklists.json'), {
     allowEquivalentBasicEnergies: true, allowJapanesePromoHooks: true
@@ -70,7 +72,7 @@ function runSourceProfilePair({maxActions = 350} = {}) {
 
   const samples = SAMPLES.map(sample => {
     const rank2Seat = sample.rankA === 2 ? 0 : 1;
-    const arms = PROFILES.map(profile => {
+    const arms = profiles.map(profile => {
       const game = runWithResearchProfile({
         deckA: decks.get(sample.rankA).cardIds,
         deckB: decks.get(sample.rankB).cardIds,
@@ -93,7 +95,7 @@ function runSourceProfilePair({maxActions = 350} = {}) {
   return {
     study: 'same-seed rank-2 source-policy diagnostic',
     engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    profiles: PROFILES, samples,
+    profiles, samples,
     caveat: 'Weak automated policies and incomplete paper mechanics; decision diagnostics only. No qualified competitive games, win-rate or proof of identical downstream draws.'
   };
 }
