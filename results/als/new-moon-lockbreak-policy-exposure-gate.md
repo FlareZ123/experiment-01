@@ -15,6 +15,19 @@ Across the **eight** observed summary rows:
 - There was **one recorded terminal winner reversal** on rank 8, candidate physical seat 0: source `winner=0`, 60 turns, candidate/opponent Prizes remaining `[6,6]`; Lockbreaker `winner=1`, 40 turns, `[6,0]`. This is a capping/deck-out or other terminal attribution candidate for follow-up, **not** a demonstrated Field Blower effectiveness event, as recorded Field Blower/Cologne uses were both zero.
 - Both rank-6 physical seat-1 source and variant ended with winner 0; both rank-8 physical seat-1 source and variant ended with winner 0. One seed per condition is inadequate for statistics in any event.
 
+## Independently rerun with explicit Ability/Pass telemetry: confirmed 17 October
+
+To resolve the misleading empty native `attackTrace`, I versioned the original pilot's non-invasive report fields and re-dispatched **the same physical pairing and seeds**, on [manual CI 39024907658](https://github.com/FlareZ123/experiment-01/actions/runs/39024907658), job 117373879395. This **passed**. The new [runner](../../simulation/twinleaf/new-moon-lockbreak-source-diagnostic.cjs) retains `captureDecisionTrace:true` and emits candidate-seat `game.abilityTrace` summary alongside direct `AttackAction` and `PassTurnAction` counts, without changing the bot tactics, printed lists, seeds or gameplay options. It therefore adds evidence on copied attacks.
+
+- Across **8/8 paired records**, candidate direct `AttackAction` count **0**.
+- Across **8/8 records**, candidate `Perfection` `UseAbilityAction` count **0**. Only one candidate Ability was recorded anywhere, **`Reconstitute: 1`** for rank-8 Lockbreaker seat 1. The other seven candidate Ability count objects were empty.
+- Candidate `PassTurnAction` counts respectively **26, 28, 27, 17, 30, 20, 10, 18** across the eight manifest-order rows, for **176 recorded Pass-turn choices**. This confirms repeated source-policy pass decisions, independent of the native-vs-copied attack telemetry ambiguity.
+- Counter play remains zero: **no recorded Field Blower / Canceling Cologne uses** in any arm.
+
+The two attack-dispatch channels now being recorded with explicit coverage, it is well-supported that **this pinned generic bot did not announce a candidate printed attack or Perfection-copied attack in these eight source deals**. This is still only a narrow sample. It does not identify why the agent passed: no legally ready attacker, Active lock, failed sequencing and bad move valuation are all compatible with the metadata. A different Ability or unusual attack-dispatch path could also be absent from these two counters. Inspect source-state legal-affordance and chosen Active before asserting missed opportunities.
+
+This result **supersedes any earlier suggestion that the empty `attackTrace` by itself established attack inactivity**. Both channels and the action/pass counts are now available and traceable. Neither eight-game pilot is suitable for comparing card-package performance or promotion.
+
 ## Interpretation and falsification criteria
 
 A trial with no **recorded native AttackAction** and zero played anti-lock counter Items cannot test whether that Item package improves the proposed `Horror House-GX -> Cursed Blast -> Ace Trainer -> Night Watch` line. It may still expose genuine issues in the environment, sequencing or the team's policy. The present aggregate has **zero observed exposures to the intended Cologne/Blower mechanism**, so no causal evidence that the variant is better or worse at defeating these locks.
