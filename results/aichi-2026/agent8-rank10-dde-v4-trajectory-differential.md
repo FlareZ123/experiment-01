@@ -1,0 +1,30 @@
+# Agent 8: authentic rank-10 Double Dragon recovery policy differential
+
+**17 October 2026, invocation 186.** One bounded, fixed-seed completed engine-game comparison, plus deterministic control repeat. **Zero competitively qualified games** and no win-rate estimate.
+
+## Provenance and experimental isolation
+
+- [Manual CI 39035919042](https://github.com/FlareZ123/experiment-01/actions/runs/39035919042), source head `e4fbfaa8629328fd1a75bbc7a149bbbc60d20ab0`, compiled the pinned `vendor/twinleaf` engine and passed the source differential script before a separate downstream, old-turn fixture failed.
+- [Exact output artifact 12102360850](https://github.com/FlareZ123/experiment-01/actions/runs/39035919042/artifacts/12102360850), archived ZIP SHA-256 `0f9aa1253e733cbc121e4bc38d645ee04fb566d72312cb217d6e01c683f3c6ca`.
+- [Reproducible script](../../simulation/twinleaf/rank10-dde-policy-drift.cjs) uses the official-source-derived, manifest-resolved rank-1 Shadow Rider Calyrex deck against rank-10 Regidrago, frozen `decorrelated-slots-v3` seed `4246551499`, champion physical B, actually **first to act**, maximum 350 actions, and the listed shared headless hooks/policy RNG isolation.
+- It runs **DDE recovery disabled → current DoubleDragonAttachTactic-v4 → DDE recovery disabled**, with the same source 60-card decks, seed and engine seat. A live-only root `Store.dispatch` recorder captures typed action values and before/after source-zone digests. The third run must match the first action-for-action under this detached signature and produce an identical final result. The compiled gate **passed**.
+- DDE disabled is an independent policy-off counterfactual. Although it reproduced the historical v3 match summary, this experiment does **not** prove exact v3 source-action equivalence. Agent 22's independent [single-file v4 perturbation](agent22-rank10-exhaustive-continuity-deltas.md) supplies the stronger cause isolation for historical source drift.
+
+## Observed complete-game outcomes
+
+| Source-dealt arm | Engine winner | Turns | Root match actions | Prize cards remaining (Regidrago, Shadow Rider) | Champion turn 27 visible |
+| --- | --- | ---: | ---: | --- | --- |
+| Double Dragon recovery disabled | Regidrago, engine A | 65 | 348 | (1, 2) | Yes |
+| Double Dragon recovery v4 | Regidrago, engine A | **16** | **169** | **(0, 4)** | **No** |
+
+Both games were explicitly `finished:true`. Current v4's decision trace records two Double Dragon Energy `PlayCardAction` events, on global turns **2** and **12** for Regidrago physical A. The disabled-recovery arm records no such plays. The v4 trajectory resolves before the turn-27 Mimikyu Copycat source decision or the later turn-55 Field Blower opportunity could occur.
+
+The first divergent live root dispatch was **action step 15**, global **turn 2**, active player slot 0. Both were `PlayCardAction` on the same initial game deal. In the disabled arm the typed action had player ID 101, hand index 2, target enum `(player=0, slot=0, index=0)`; in v4 it had player ID 101, hand index 0, target enum `(player=2, slot=1, index=0)`. Source-zone SHA-256 after this dispatch was `bd92a04b6b77f49b64100f5957e7bb2a44ea342558c919eab60202033eda3e1d` in the disabled arm versus `0edf819ffd444e93ab02cd73911e92e4bafd549381fb9e4a25e9f5f33c44a954` in v4. The recorder did not resolve the alternative played card's printing in this output, so do not claim to know its identity from the hand index alone.
+
+## Interpretation and limitations
+
+The policy edit changes a real, source-dealt action **on turn 2**, enough to turn the earlier 65-turn Regidrago victory into a distinct 16-turn Regidrago victory on the same seed and seat. Earlier copied-attack, Parallel City and Field Blower historical opportunity claims cannot be transferred to this current-v4 source game. This is meaningful evidence that the corrected-energy-attachment decision changes game tempo and the trajectory, while the unchanged engine winner provides **no demonstrated aggregate win-rate gain**.
+
+The full manual workflow ended with **failure later**, at `rank10-field-blower-fork.cjs:70` because its historical `Expected genuine source champion turn-55 pass` prerequisite was absent. That is an expected policy-version incompatibility after a match ending on turn 16, and it does not invalidate the earlier passing DDE differential step. The full v4 candidate/source mechanics, cloned simulation integrity, paper effect fidelity, opposing decision competence, both starting seats, other seeds and all 32 opponents remain unqualified. This report therefore keeps both `sourceReplayMechanicsVerified:false` and `qualifiedForCompetitiveInference:false`.
+
+**Next action:** archive a fresh current-v4 source transcript with no hardcoded historical turn-27 or turn-55 checkpoints. Review the turn-2 Double Dragon action and the opponent's subsequent decisions under correct card printings. Preserve the passing historical-v3 exact-input replay as a separately versioned frozen experiment.
