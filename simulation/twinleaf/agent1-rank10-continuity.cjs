@@ -28,7 +28,7 @@ function main() {
     deckA:regidrago.cardIds,deckB:champion.cardIds,
     seed:4246551499,maxActions:350,
     strictPromptValidation:true,forestSealSearchCorrection:true,
-    supporterDecisionCorrection:true,doubleDragonRecovery:true,
+    supporterDecisionCorrection:true,doubleDragonRecovery:true,doubleDragonArchiveV3:true,
     isolatePolicyRandomness:true,
     mimikyuApexCopycatCompatibility:true,
     mimikyuDeclaredHistoryCorrection:true,
