@@ -12,3 +12,24 @@ function probe() {
   const {GamePhase}=get('game/store/state/state');
   const {Format}=get('game/store/card/card-types');
   const {PlayCardAction,PlayerType,SlotType}=get('game/store/actions/play-card-action');
+  const card=name=>{
+    const found=cards.getCardByName(name);
+    assert.ok(found,'Missing compiled printing '+name);
+    return found;
+  };
+  const store=new Store({onStateChange(){}});
+  const state=store.state;
+  const a=new Player(),b=new Player();
+  a.id=101;a.name='Compressor';b.id=202;b.name='Other';
+  state.players=[a,b];state.activePlayer=0;
+  state.turn=3;state.phase=GamePhase.PLAYER_TURN;
+  state.gameSettings.format=Format.EXPANDED;
+  for(const player of [a,b]){
+    player.active.cards.push(card('Dratini OBF'));
+    player.prizes=Array.from({length:6},()=>{
+      const prize=new CardList();
+      prize.cards.push(card('Psychic Energy MEE'));
+      return prize;
+    });
+    player.deck.cards.push(card('Psychic Energy MEE'));
+  }
