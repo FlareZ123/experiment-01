@@ -7,7 +7,7 @@ const {runMatch} = require('./headless.cjs');
 const {withSourceOpeningProbe} = require('./rank6-seed-opening-probe.cjs');
 const {withGuzmaHalaSourceFork,withDamageObserver} =
   require('./rank6-seed-guzma-hala-fork.cjs');
-const {publicTurnLedger,responseTurnEnded} =
+const {publicTurnLedger,responseTurnEndingActionObserved} =
   require('./rank6-response-projection.cjs');
 
 /** @param {unknown} value */
@@ -21,7 +21,7 @@ function publicGameSummary(game,label) {
     label,
     sourceOpponentTurn:3,
     opponentTurnActions:ledger,
-    opponentTurnEnded:responseTurnEnded(ledger),
+    opponentTurnEndingActionObserved:responseTurnEndingActionObserved(ledger),
     attackCountSeatA:game.attackTrace.filter(a=>a.seat===0).length,
     attackCountSeatB:game.attackTrace.filter(a=>a.seat===1).length,
     gameFinished:game.finished,
