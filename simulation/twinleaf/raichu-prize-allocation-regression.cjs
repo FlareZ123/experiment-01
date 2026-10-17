@@ -97,6 +97,11 @@ function compareAllocation(optimize) {
       } else if (name === 'ChoosePrizePrompt') {
         choice=f.a.prizes.filter(row => row.cards.length)
           .slice(0,prompt.options.count);
+      } else if (name === 'ChoosePokemonPrompt') {
+        const chooser = f.state.players.find(row => row.id === prompt.playerId);
+        assert.ok(chooser, 'Unrecognized promotion perspective');
+        choice = chooser.bench.filter(row => row.getPokemonCard())
+          .slice(0, prompt.options.min);
       } else if (name === 'WaitPrompt') choice=null;
       else throw new Error('Unexpected Electro Rain prompt '+name);
       assert.ok(prompt.validate(choice,f.state),
