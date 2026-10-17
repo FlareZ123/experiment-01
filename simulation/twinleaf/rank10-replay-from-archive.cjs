@@ -43,7 +43,7 @@ function replayArchivedRank10(archive) {
     deckA:regidrago.cardIds,deckB:champion.cardIds,seed:trial.seed,
     maxActions:350,label:trial.trialId,
     strictPromptValidation:true,forestSealSearchCorrection:true,
-    supporterDecisionCorrection:true,doubleDragonRecovery:true,
+    supporterDecisionCorrection:true,doubleDragonRecovery:true,doubleDragonArchiveV3:true,
     isolatePolicyRandomness:true,captureDecisionTrace:true,
     captureCopycatTurnStartSeat:1,postSuperAliasRepairIsolation:true,
     mimikyuApexCopycatCompatibility:true,
