@@ -52,8 +52,8 @@ def capture() -> dict:
         )
         for row in soup.select("tr"):
             cells = [td.get_text(" ", strip=True) for td in row.select("th, td")]
-            if cells and (re.search(r"\\d+[/／]\\d+", " ".join(cells)) or
-                          any(re.search(r"(?:BW|XY|SM|SV|SWSH|M)[\\w-]*", c) for c in cells)):
+            if cells and (re.search(r"\d+[/／]\d+", " ".join(cells)) or
+                          any(re.search(r"(?:BW|XY|SM|SV|SWSH|M)[\w-]*", c) for c in cells)):
                 result["candidate_rows"].append(cells)
     except requests.RequestException as exc:
         result["error"] = f"{type(exc).__name__}: {exc}"
@@ -67,7 +67,7 @@ def capture() -> dict:
         ) as handle:
             temp_path = Path(handle.name)
             json.dump(result, handle, indent=2, ensure_ascii=False)
-            handle.write("\\n")
+            handle.write("\n")
         os.replace(temp_path, path / "new-moon-official-viewer.json")
         if html:
             with tempfile.NamedTemporaryFile(
