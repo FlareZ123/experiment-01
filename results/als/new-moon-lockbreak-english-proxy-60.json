@@ -1,0 +1,371 @@
+{
+  "schema": "new-moon-lockbreak-English-mechanical-proxy-v1",
+  "as_of": "2026-05-10",
+  "source_path": "results/als/new-moon-perfection-english-proxy-60.json",
+  "source_id_count_sha256": "64fb4f8e008766ce94ef2b26dff65e7fa14cbdc055b3565f3d667708528c232e",
+  "canonical_id_count_sha256": "b359040e131251bc77e47add27d809b29eab9ecbc0ec42e297ac2d7e2bd89e65",
+  "hash_spec": "SHA-256 of sorted UTF-8 lines id:count followed by newline",
+  "status": "Frozen counter-package proposal. Exact Japanese physical printings and full paper legality not verified, simulator and policy unqualified.",
+  "change_from_source": {
+    "Trainers' Mail ROS": -2,
+    "Rescue Carrier EVS": -2,
+    "Field Blower GRI": 2,
+    "Canceling Cologne ASR": 2
+  },
+  "source_event": "Aichi 2026 Open, non-Top32 52nd-place New Moon 60 pilot",
+  "counts": {
+    "total": 60,
+    "unique": 34,
+    "Pokémon": 19,
+    "Trainer": 35,
+    "Energy": 6
+  },
+  "entries": [
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 1,
+      "name_ja": "ミュウツー&ミュウGX",
+      "name_en": "Mewtwo & Mew-GX",
+      "count": 2,
+      "type": "Pokémon",
+      "english_proxy_card_id": "sm11-71",
+      "english_database_name": "Mewtwo & Mew-GX"
+    },
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 2,
+      "name_ja": "ゲンガー&ミミッキュGX",
+      "name_en": "Gengar & Mimikyu-GX",
+      "count": 1,
+      "type": "Pokémon",
+      "english_proxy_card_id": "sm9-53",
+      "english_database_name": "Gengar & Mimikyu-GX"
+    },
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 3,
+      "name_ja": "オーロット&ヨノワールGX",
+      "name_en": "Trevenant & Dusknoir-GX",
+      "count": 1,
+      "type": "Pokémon",
+      "english_proxy_card_id": "smp-SM217",
+      "english_database_name": "Trevenant & Dusknoir-GX"
+    },
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 4,
+      "name_ja": "カプ・テテフGX",
+      "name_en": "Tapu Lele-GX",
+      "count": 1,
+      "type": "Pokémon",
+      "english_proxy_card_id": "sm2-60",
+      "english_database_name": "Tapu Lele-GX"
+    },
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 5,
+      "name_ja": "ガラルフリーザーV",
+      "name_en": "Galarian Articuno V",
+      "count": 1,
+      "type": "Pokémon",
+      "english_proxy_card_id": "swsh6-58",
+      "english_database_name": "Galarian Articuno V"
+    },
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 6,
+      "name_ja": "ラティアスex",
+      "name_en": "Latias ex",
+      "count": 1,
+      "type": "Pokémon",
+      "english_proxy_card_id": "sv8-76",
+      "english_database_name": "Latias ex"
+    },
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 7,
+      "name_ja": "リーリエのピッピex",
+      "name_en": "Lillie's Clefairy ex",
+      "count": 1,
+      "type": "Pokémon",
+      "english_proxy_card_id": "sv9-56",
+      "english_database_name": "Lillie's Clefairy ex"
+    },
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 8,
+      "name_ja": "イキリンコex",
+      "name_en": "Squawkabilly ex",
+      "count": 1,
+      "type": "Pokémon",
+      "english_proxy_card_id": "sv2-169",
+      "english_database_name": "Squawkabilly ex"
+    },
+    {
+      "source_grid_row": 1,
+      "source_grid_column": 9,
+      "name_ja": "アンノーン",
+      "name_en": "Unown",
+      "count": 3,
+      "type": "Pokémon",
+      "english_proxy_card_id": "xy7-30",
+      "english_database_name": "Unown"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 1,
+      "name_ja": "サマヨール",
+      "name_en": "Dusclops",
+      "count": 2,
+      "type": "Pokémon",
+      "english_proxy_card_id": "sv6pt5-19",
+      "english_database_name": "Dusclops"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 2,
+      "name_ja": "ヨマワル",
+      "name_en": "Duskull",
+      "count": 2,
+      "type": "Pokémon",
+      "english_proxy_card_id": "sv6pt5-18",
+      "english_database_name": "Duskull"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 3,
+      "name_ja": "ソルロック",
+      "name_en": "Solrock",
+      "count": 1,
+      "type": "Pokémon",
+      "english_equivalent": {
+        "set": "CES",
+        "number": "62",
+        "id": "sm7-62",
+        "ability": "Sunbeam",
+        "attack": "Scorching Light",
+        "basis": "May 13 pilot prose explicitly names Japanese Sunlight, Lunatone 130 HP increase, and Scorching Light paralysis/burn. Matches Celestial Storm 62/Champion's Road 029."
+      },
+      "english_proxy_card_id": "sm7-62",
+      "english_database_name": "Solrock"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 4,
+      "name_ja": "ルナトーン",
+      "name_en": "Lunatone",
+      "count": 1,
+      "type": "Pokémon",
+      "english_proxy_card_id": "sv3-92",
+      "english_database_name": "Lunatone"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 5,
+      "name_ja": "クレッフィ",
+      "name_en": "Klefki",
+      "count": 1,
+      "type": "Pokémon",
+      "english_proxy_card_id": "sv1-96",
+      "english_database_name": "Klefki"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 6,
+      "name_ja": "バトルVIPパス",
+      "name_en": "Battle VIP Pass",
+      "count": 4,
+      "type": "Trainer",
+      "english_proxy_card_id": "swsh8-225",
+      "english_database_name": "Battle VIP Pass"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 7,
+      "name_ja": "霧の水晶",
+      "name_en": "Fog Crystal",
+      "count": 4,
+      "type": "Trainer",
+      "english_proxy_card_id": "swsh6-140",
+      "english_database_name": "Fog Crystal"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 8,
+      "name_ja": "ミステリートレジャー",
+      "name_en": "Mysterious Treasure",
+      "count": 2,
+      "type": "Trainer",
+      "english_proxy_card_id": "sm6-113",
+      "english_database_name": "Mysterious Treasure"
+    },
+    {
+      "source_grid_row": 2,
+      "source_grid_column": 9,
+      "name_ja": "ヒスイのヘビーボール",
+      "name_en": "Hisuian Heavy Ball",
+      "count": 2,
+      "type": "Trainer",
+      "english_proxy_card_id": "swsh10-146",
+      "english_database_name": "Hisuian Heavy Ball"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 1,
+      "name_ja": "レスキューキャリー",
+      "name_en": "Rescue Carrier",
+      "count": 2,
+      "type": "Trainer",
+      "english_proxy_card_id": "swsh7-154",
+      "english_database_name": "Rescue Carrier"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 2,
+      "name_ja": "バトルコンプレッサー",
+      "name_en": "Battle Compressor",
+      "count": 2,
+      "type": "Trainer",
+      "english_proxy_card_id": "xy4-92",
+      "english_database_name": "Battle Compressor Team Flare Gear"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 4,
+      "name_ja": "ぼうけんのカバン",
+      "name_en": "Adventure Bag",
+      "count": 1,
+      "type": "Trainer",
+      "english_proxy_card_id": "sm8-167",
+      "english_database_name": "Adventure Bag"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 5,
+      "name_ja": "あなぬけのヒモ",
+      "name_en": "Escape Rope",
+      "count": 1,
+      "type": "Trainer",
+      "english_proxy_card_id": "swsh5-125",
+      "english_database_name": "Escape Rope"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 6,
+      "name_ja": "カウンターキャッチャー",
+      "name_en": "Counter Catcher",
+      "count": 1,
+      "type": "Trainer",
+      "english_proxy_card_id": "sv4-160",
+      "english_database_name": "Counter Catcher"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 7,
+      "name_ja": "シークレットボックス",
+      "name_en": "Secret Box",
+      "count": 1,
+      "type": "Trainer",
+      "english_proxy_card_id": "sv6-163",
+      "english_database_name": "Secret Box"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 8,
+      "name_ja": "力の砂時計",
+      "name_en": "Powerglass",
+      "count": 2,
+      "type": "Trainer",
+      "english_proxy_card_id": "sv6pt5-63",
+      "english_database_name": "Powerglass"
+    },
+    {
+      "source_grid_row": 3,
+      "source_grid_column": 9,
+      "name_ja": "森の封印石",
+      "name_en": "Forest Seal Stone",
+      "count": 1,
+      "type": "Trainer",
+      "english_proxy_card_id": "swsh12-156",
+      "english_database_name": "Forest Seal Stone"
+    },
+    {
+      "source_grid_row": 4,
+      "source_grid_column": 1,
+      "name_ja": "リーリエの決心",
+      "name_en": "Lillie's Determination",
+      "count": 2,
+      "type": "Trainer",
+      "english_proxy_card_id": "me1-119",
+      "english_database_name": "Lillie's Determination"
+    },
+    {
+      "source_grid_row": 4,
+      "source_grid_column": 2,
+      "name_ja": "エリートトレーナー",
+      "name_en": "Ace Trainer",
+      "count": 2,
+      "type": "Trainer",
+      "english_proxy_card_id": "xy7-69",
+      "english_database_name": "Ace Trainer"
+    },
+    {
+      "source_grid_row": 4,
+      "source_grid_column": 3,
+      "name_ja": "スカイフィールド",
+      "name_en": "Sky Field",
+      "count": 2,
+      "type": "Trainer",
+      "english_proxy_card_id": "xy6-89",
+      "english_database_name": "Sky Field"
+    },
+    {
+      "source_grid_row": 4,
+      "source_grid_column": 4,
+      "name_ja": "頂への雪道",
+      "name_en": "Path to the Peak",
+      "count": 2,
+      "type": "Trainer",
+      "english_proxy_card_id": "swsh6-148",
+      "english_database_name": "Path to the Peak"
+    },
+    {
+      "source_grid_row": 4,
+      "source_grid_column": 5,
+      "name_ja": "テレパス超エネルギー",
+      "name_en": "Telepathic Psychic Energy",
+      "count": 3,
+      "type": "Energy",
+      "english_proxy_card_id": "me3-88",
+      "english_database_name": "Telepathic Psychic Energy"
+    },
+    {
+      "source_grid_row": 4,
+      "source_grid_column": 6,
+      "name_ja": "基本超エネルギー",
+      "name_en": "Basic Psychic Energy",
+      "count": 3,
+      "type": "Energy",
+      "english_proxy_card_id": "sv3pt5-207",
+      "english_database_name": "Basic Psychic Energy"
+    },
+    {
+      "name_en": "Field Blower",
+      "count": 2,
+      "type": "Trainer",
+      "english_proxy_card_id": "sm2-125",
+      "english_database_name": "Field Blower",
+      "twinleaf_full_name": "Field Blower GRI",
+      "mechanics": "Choose up to two Tools and Stadiums in play and discard them"
+    },
+    {
+      "name_en": "Canceling Cologne",
+      "count": 2,
+      "type": "Trainer",
+      "english_proxy_card_id": "swsh10-136",
+      "english_database_name": "Canceling Cologne",
+      "twinleaf_full_name": "Canceling Cologne ASR",
+      "mechanics": "Until end of turn opponent's Active Pokémon has no Abilities"
+    }
+  ]
+}
