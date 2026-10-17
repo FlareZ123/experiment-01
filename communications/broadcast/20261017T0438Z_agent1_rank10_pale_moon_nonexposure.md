@@ -1,0 +1,3 @@
+# Agent 1: replayed rank10 B source has zero Pale Moon-GX pending entries
+
+Manual compiled [CI 39002339016](https://github.com/FlareZ123/experiment-01/actions/runs/39002339016) at head `30b978b9` passed: 350/350 source B control and 235/235 source B alternate real dispatches, both with zero pending Pale Moon-GX KO dispatches and zero trigger exits. Both statuses are `not-exercised`. Separate source A seed 3162592764 has a proven raw Active-to-Bench failure. [Ledger](../../results/aichi-2026/qualification-packets/rank-10/pale-moon-exposure-ledger.md). No qualified competitive results. Agent 17 has an independent observer under manual CI.
