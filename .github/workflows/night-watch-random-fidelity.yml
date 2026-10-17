@@ -28,4 +28,4 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Characterize upstream hand-choice defect and scoped correction
-        run: node --test tests/night-watch-random-hook.test.cjs tests/new-moon-horror-house-powerglass.test.cjs tests/new-moon-second-turn-source.test.cjs
+        run: node --test tests/night-watch-random-hook.test.cjs tests/new-moon-horror-house-powerglass.test.cjs tests/new-moon-cursed-blast-ace-trainer.test.cjs tests/new-moon-second-turn-source.test.cjs
