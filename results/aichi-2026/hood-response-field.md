@@ -46,3 +46,52 @@ Hood Shield's two Stealthy Hood can sometimes protect the Benched VMAX's `Underw
 This audit does *not* assume those removal cards are immediately playable. Faba consumes the Supporter for the turn; three of the four listed removals are Items affected by Item lock and other conditions, while Lost Vacuum has its own extra hand payment. Search and draw effects can substantially increase access. Opponent decisions, Bench position, alternate Tools, singleton ACE SPEC rules, prizes after taking Knock Outs, and attacking tempo can change the result in either direction.
 
 **Next gate:** benchmark a competent opponent that explicitly recognizes a protected Benched Shadow Rider VMAX and chooses whether to devote Faba/Megaton/Field Blower to it, considering the other uses for its own search and Supporter resources. Compare against the champion and Temple candidate with the same source opponent lists, both real starting orders, validated card-effect hooks and machine-readable action traces. No win-rate claim follows from this inventory.
+
+
+## Bilateral opening race: protected Hood versus printed response
+
+**Agent 15, 17 October 2026; exact mathematical cross-check.** This
+combines [Agent 38's protected turn-two Hood opportunity](../../scripts/agent38-hood-protected-bonus.cjs)
+with the [source-specific removal count](../../scripts/aichi_hood_response_inventory.cjs).
+Both players take all opponent-mulligan bonus draws and each receives two
+ordinary turn draws after a legal opening seven. Random Prizes are integrated.
+These are card-observation events, with no Item play, search, Energy attachment
+or opponent policy modeled.
+
+Against each of the three four-Basic Iron Thorns decks, the candidate's
+restricted natural V + VMAX and directly seen Hood, or Arven with an unprized
+Hood, occurs in **11.6570032%** of openings after candidate bonus draws.
+
+| Source rank | Printed named removers | Hood opportunity and directly seen removal | Hood opportunity without directly seen removal |
+| ---: | ---: | ---: | ---: |
+| 6 | 2 | 3.034199% | **8.622804%** |
+| 24 | 2 | 3.034199% | **8.622804%** |
+| 29 | 3 | 4.272724% | **7.384280%** |
+
+**Joint derivation.** Let `H=0.11657003199627698` denote candidate Hood
+opportunity with all offered bonus cards, and `h=0.0771433601570516`
+its zero-bonus counterpart. Both are exact enumerator values. For `A`
+printed remover copies, the opponent's direct sighting probability after
+`k` opponent bonus cards, conditional on a legal four-Basic opening, is
+
+`a(k)=1-((C(60-A,7)-C(56-A,7))/(C(60,7)-C(56,7)))*C(53-A,k+2)/C(53,k+2)`.
+
+Write `pC=C(46,7)/C(60,7)` and `pO=C(56,7)/C(60,7)`.
+The probability that the **opponent** receives exactly `k>=1` bonus
+cards from candidate mulligans is
+`w(k)=(1-pC)(1-pO)*pC^k/(1-pC*pO)`.
+The two opposite bonus-offer directions cannot both occur. Thus
+
+`P(Hood opportunity AND opponent directly sees remover) =
+ H*a(0)+h*SUM(k>=1,w(k)*(a(k)-a(0)))`.
+
+Cap accepted bonus cards at 45 to preserve both normal draws, absorbing
+the geometric tail into the last cell. Python `math.comb` independently
+reproduced the table. Directly multiplying two separately weighted marginal
+probabilities would incorrectly ignore mutually exclusive bonus directions.
+
+**Limits:** the percentages quantify a narrow simultaneous early-resource
+window. The opponent may search for Faba, Field Blower or Megaton Blower
+without directly drawing one, or gust around Hood. The candidate may find
+Hood through omitted search, or fail to evolve, attach the Tool, power an
+attack, or survive the lock. This calculation supports no game-win inference.
