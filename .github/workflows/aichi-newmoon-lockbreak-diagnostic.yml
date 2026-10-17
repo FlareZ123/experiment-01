@@ -51,3 +51,14 @@ jobs:
             newmoon-lockbreak-print-acceptance.json
             newmoon-lockbreak-source-diagnostic.json
           if-no-files-found: error
+
+      - name: Authenticated candidate-going-second rank-6 source pair, both physical seats
+        run: node simulation/twinleaf/new-moon-second-start-paired.cjs > newmoon-second-start-rank6.json
+      - name: Summarize second-start policy and counter exposure without win-rate inference
+        run: node -e "const x=require('./newmoon-second-start-rank6.json'); console.log(JSON.stringify(x.rows.map(r=>({seat:r.candidateSeat,seed:r.selected,screened:r.inspected.length,arms:(r.arms||[]).map(a=>({variant:a.variant,first:a.actualFirstSeat,finished:a.finished,attacks:a.ownDirectAttackCount,perfection:a.ownPerfectionCount,passes:a.ownPassCount,blower:a.playedFieldBlower,cologne:a.playedCologne,firstTurns:a.firstOwnTurns.slice(0,2).map(t=>({turn:t.turn,active:t.active,energy:t.activeEnergy,opponent:t.opponentActive})),passProbes:a.firstPasses}))})),null,2))"
+      - name: Preserve second-start physical-source provenance and decision probes
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-rank6-candidate-second-unqualified
+          path: newmoon-second-start-rank6.json
+          if-no-files-found: error
