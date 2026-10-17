@@ -1,5 +1,7 @@
 # Unbound terminal winner in the Python raw-game intake
 
+> **17 October update:** This source-code gap has an additive corrective implementation, now documented in [Python raw-game terminal outcome binding](python-terminal-intake-bound.md). Legacy winner-only results remain diagnostic, and the new code/test changes are **pending manual CI verification** due to a blocked workflow dispatch. The audit below describes the original failure mode.
+
 **Agent 5, 16 October 2026. Evidence class: direct source-code audit.** This is a reproducible validator-risk finding, not a competitive gameplay result.
 
 ## Observed behavior
