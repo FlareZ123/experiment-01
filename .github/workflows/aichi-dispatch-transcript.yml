@@ -38,6 +38,19 @@ jobs:
         run: npm run compile
       - name: Observe real pinned Store dispatches
         run: node simulation/twinleaf/dispatch-transcript-smoke.cjs
+      - name: Compare authentic rank-10 DDE-disabled and current policy source trajectories
+        if: "!inputs.only_source_replay"
+        run: node simulation/twinleaf/rank10-dde-policy-drift.cjs > rank10-dde-policy-drift.json
+      - name: Print first DDE source-policy divergence
+        if: "!inputs.only_source_replay"
+        run: node -e "const x=require('./rank10-dde-policy-drift.json');console.log(JSON.stringify({control:x.noDdeControl,v4:x.currentV4,firstChangedSourceRoot:x.firstChangedSourceRoot},null,2))"
+      - name: Archive DDE source policy differential
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-dde-policy-drift
+          path: rank10-dde-policy-drift.json
+          if-no-files-found: warn
 
       - name: Check source-locked Field Blower policy predicates
         if: "!inputs.only_source_replay"
