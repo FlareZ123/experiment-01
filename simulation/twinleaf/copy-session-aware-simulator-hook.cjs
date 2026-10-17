@@ -9,9 +9,10 @@ const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  * clone whose Card identities are preserved. Requires the State-scoped
  * research loader to be installed before Twinleaf is imported.
  *
+ * @param {{mapDetachedCards?:boolean}} [options]
  * @returns {() => void} Restore the previous Simulator constructor.
  */
-function installCopySessionAwareSimulatorHook() {
+function installCopySessionAwareSimulatorHook({mapDetachedCards = false} = {}) {
   const simulation = require(path.join(output, 'game/bots/simulator'));
   const prefab = require(path.join(output, 'game/store/prefabs/copy-attack-delegation'));
   const inherit = prefab.inheritCopyAttackSessionsFromState;
@@ -19,6 +20,8 @@ function installCopySessionAwareSimulatorHook() {
     throw new Error('State-scoped copy session loader must be installed first');
   }
 
+  const {mapPhysicalCardZones} =
+    require('./copy-session-physical-zone-map.cjs');
   const BaseSimulator = simulation.Simulator;
   class CopySessionAwareSimulator extends BaseSimulator {
     /**
@@ -30,7 +33,9 @@ function installCopySessionAwareSimulatorHook() {
         throw new Error('Copy-session-aware Simulator must remain outermost');
       }
       super(state, options);
-      inherit(state, this.store.state);
+      const mapCard = mapDetachedCards ?
+        mapPhysicalCardZones(state, this.store.state) : undefined;
+      inherit(state, this.store.state, mapCard);
     }
   }
   simulation.Simulator = CopySessionAwareSimulator;
