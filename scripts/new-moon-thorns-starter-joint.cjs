@@ -79,9 +79,10 @@ function main() {
   const basics = 17; // Audited source, unchanged across all four Trainer substitutions.
   const starters=count('Mewtwo & Mew-GX');
   const cologne=count('Canceling Cologne');
+  const nativeGengar=count('Gengar & Mimikyu-GX');
   const energy=count('Telepathic Psychic Energy')+count('Basic Psychic Energy');
   const powerglass=count('Powerglass');
-  assert.deepEqual([starters,cologne,energy,powerglass],[2,2,6,2]);
+  assert.deepEqual([starters,nativeGengar,cologne,energy,powerglass],[2,1,2,6,2]);
   for (const rank of [6,24,29]) {
     const opponent=field.decks.find(d=>d.rank===rank);
     assert.ok(opponent);
@@ -96,6 +97,7 @@ function main() {
     assumptions:'Valid initial seven; Mewtwo & Mew-GX physically present as selectable initial Active; disjoint non-Basic resource categories; all optional opponent mulligan bonuses taken; then first mandatory draw; six Prizes randomly marginalised.',
     risks:'Structural card visibility only. This does not establish legal Item use, attack payload access, the right attachments, Powerglass discard fuel, Perfection activation, successful Horror House-GX or win rate.',
     starterOnly:jointDirect({...parameters,groups:[],later:0}),
+    nativeGengarAndEnergy:ironThornsDirect({...parameters,starters:nativeGengar,groups:[energy]}),
     starterAndCologne:ironThornsDirect({...parameters,groups:[cologne]}),
     starterCologneEnergy:ironThornsDirect({...parameters,groups:[cologne,energy]}),
     starterCologneEnergyPowerglass:ironThornsDirect({...parameters,groups:[cologne,energy,powerglass]})
