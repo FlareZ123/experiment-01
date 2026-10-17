@@ -3,7 +3,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {withExpandedActionOptions,runWithResearchProfile,EXPANDED_PROFILE,
-  EXPANDED_SOURCE_PROFILE,DEFAULT_PROFILE,ALLOWED_PROFILES}=require('../simulation/twinleaf/policy-profiles.cjs');
+  EXPANDED_SOURCE_PROFILE,EXPANDED_GH_SEARCH_PROFILE,DEFAULT_PROFILE,ALLOWED_PROFILES}=require('../simulation/twinleaf/policy-profiles.cjs');
 const {upstreamSmokeDeck}=require('../simulation/twinleaf/headless.cjs');
 const defs=require(path.resolve(__dirname,
   '../vendor/twinleaf/ptcg-server/output/simple-bot/simple-bot-definitions'));
@@ -86,4 +86,15 @@ test('separately versioned source-K0 profile composes both seats without peeking
   assert.ok(run.actions<=80);
   assert.deepEqual(defs.allSimpleTactics,tacticsBefore);
   assert.deepEqual(defs.allPromptResolvers,resolversBefore);
+});
+
+test('separate v3 policy labels root-observed G&H resources',()=>{
+ const deck=upstreamSmokeDeck(),old=defs.allPromptResolvers.slice();
+ const game=runWithResearchProfile({deckA:deck,deckB:deck,seed:20261019,maxActions:30},EXPANDED_GH_SEARCH_PROFILE);
+ assert.equal(game.bunnelbyGuzmaHalaSearch,true);
+ assert.equal(game.bunnelbyGuzmaHalaMode1,true);
+ assert.equal(game.bunnelbyK0SafeEvolution,true);
+ assert.equal(game.bunnelbyObservedK1,false);
+ assert.match(game.policy,/BunnelbyGHRootSearch-v1/);
+ assert.deepEqual(defs.allPromptResolvers,old);
 });
