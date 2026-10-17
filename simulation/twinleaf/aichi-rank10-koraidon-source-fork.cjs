@@ -21,11 +21,11 @@ function main() {
   const seed=deriveSlotSeeds(20261016,'pilot',10,0).A;
   assert.equal(seed,3162592764);
   initializeCards();
-  const {AttackAction}=engine('game/store/actions/game-actions');
+  const {AttackAction,RetreatAction}=engine('game/store/actions/game-actions');
   const types={
     Store:engine('game/store/store').Store,
     Bot:engine('simple-bot/simple-tactics-ai').SimpleTacticsAi,
-    AttackAction
+    AttackAction,RetreatAction
   };
   const candidates=[
     {id:'champion-reference',value:1},
@@ -56,6 +56,8 @@ function main() {
       'Read-only source decision capture altered the original game');
     const alternate=withRank10SourceKoraidonFork(types,
       ()=>runMatch(request),{forceAttack:true});
+    const retreat=withRank10SourceKoraidonFork(types,
+      ()=>runMatch(request),{forceRetreat:true});
     assert.equal(control.sourceDecisions.length,1,
       'Original source decision was not the intended single Koraidon pass');
     assert.equal(alternate.sourceDecisions.length,1,
@@ -65,9 +67,19 @@ function main() {
     assert.equal(prior.stateDigest,changed.stateDigest,
       'Source hands/decks/Prizes/public-state changed before the fork');
     assert.equal(changed.originalAction,'PassTurnAction');
+    assert.equal(retreat.sourceDecisions.length,1,
+      'Retreat alternate source decision was not the same single Koraidon pass');
+    assert.equal(retreat.sourceDecisions[0].stateDigest,prior.stateDigest,
+      'Pre-retreat hidden/public state differed from authentic source Pass');
+    assert.equal(retreat.sourceDecisions[0].selectedRetreatIndex,0,
+      'Published Regidrago VSTAR retreat target changed');
     assert.equal(alternate.result.firstTurnSlot,rawControl.firstTurnSlot);
     assert.equal(alternate.result.firstTurnSlot,1);
     assert.deepEqual(alternate.result.deckHashes,rawControl.deckHashes);
+    assert.deepEqual(retreat.result.deckHashes,rawControl.deckHashes);
+    assert.ok(retreat.result.decisionTrace.some(a=>
+      a.turnBefore===5&&a.playerSlot===1&&a.action==='RetreatAction'),
+      'Source Regidrago promotion was not dispatched as an actual RetreatAction');
     assert.ok(alternate.result.attackTrace.some(a=>
       a.seat===1&&a.turn===5&&a.attack==='Retribution Strike'),
       'Printed alternate was not actually declared in the root game');
@@ -83,7 +95,12 @@ function main() {
         attacksAfterDecision:rawControl.attackTrace.filter(a=>a.turn>=5).slice(0,12)},
       alternate:{finished:alternate.result.finished,endReason:alternate.result.endReason,
         winner:alternate.result.winner,prizesRemaining:alternate.result.prizesRemaining,
-        attacksAfterDecision:alternate.result.attackTrace.filter(a=>a.turn>=5).slice(0,12)}
+        attacksAfterDecision:alternate.result.attackTrace.filter(a=>a.turn>=5).slice(0,12)},
+      retreat:{finished:retreat.result.finished,endReason:retreat.result.endReason,
+        winner:retreat.result.winner,prizesRemaining:retreat.result.prizesRemaining,
+        actionsAtTurn5:retreat.result.decisionTrace.filter(a=>
+          a.turnBefore===5&&a.playerSlot===1).map(a=>({action:a.action,card:a.card||null})),
+        attacksAfterDecision:retreat.result.attackTrace.filter(a=>a.turn>=5).slice(0,12)}
     });
   }
   return {schema:'aichi-rank10-source-koraidon-turn5-fork-v1',
