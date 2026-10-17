@@ -65,6 +65,7 @@ jobs:
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
         run: node simulation/evaluation/aichi-campaign-envelope-runner.cjs aichi-campaign-report.json aichi-campaign-envelope.json
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: aichi-rank6-${{ inputs.policy_profile }}-decisions
           path: |
