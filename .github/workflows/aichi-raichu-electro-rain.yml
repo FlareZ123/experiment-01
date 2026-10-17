@@ -38,5 +38,7 @@ jobs:
         run: node simulation/twinleaf/raichu-six-energy-prize-regression.cjs
       - name: Verify continuous Raichu Energy attachment and attack sequence
         run: node simulation/twinleaf/raichu-manual-bomb-attack-sequence.cjs
+      - name: Verify source Raichu Telescopic Sight reserve-and-equip policy
+        run: node simulation/twinleaf/raichu-sight-tool-policy-regression.cjs
       - name: Smoke test headless opt-in with exact rank 4 and 17 source inventories
         run: node simulation/twinleaf/raichu-electro-rain-headless-smoke.cjs
