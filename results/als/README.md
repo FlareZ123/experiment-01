@@ -2,6 +2,8 @@
 
 The 52nd-place New Moon Perfection list is a **candidate outside the Aichi Top 32 benchmark**. Do not insert it among the 32 source opponents. No competitive win rate has been qualified.
 
+- [Frozen New Moon Lockbreaker v1 60-card counter-lock variant](new-moon-lockbreak-60-candidate.md), [34-row English-equivalent printing manifest](new-moon-lockbreak-english-proxy-60.json) and [exact first-draw access model](../../scripts/new-moon-lockbreak-access.cjs). This separately proposes +2 Field Blower and +2 Canceling Cologne for Garbodor/Iron Thorns stress tests while preserving a fixed 60. First compiled run [39020847956](https://github.com/FlareZ123/experiment-01/actions/runs/39020847956) passed source manifest/count/math tests but failed to bind a historical Duskull proxy, repaired in the next source-map-aligned commit. **Fresh compiled CI still pending; no competitive results.**
+
 - [Recovered exact-name 60-card source](new-moon-perfection-source-60.md), with [machine-readable 33-entry list](new-moon-perfection-source-60.json). Exact Japanese card-printing IDs and complete paper legality still need checking.
 - [New Moon English printing/effect-identity audit](new-moon-english-print-audit.md), with [33-slot fixed equivalent manifest](new-moon-english-equivalents.json): name/type/Ability validators passed [manual CI 39017112424](https://github.com/FlareZ123/experiment-01/actions/runs/39017112424). These are **English-equivalent** IDs, not verified Japanese registration printings.
 - [Source pilot's proposed hand-lock sequence](new-moon-perfection-aichi-2026.md): Horror House-GX, Powerglass, Dusclops, Ace Trainer and Night Watch; matchup and timing cautions.
