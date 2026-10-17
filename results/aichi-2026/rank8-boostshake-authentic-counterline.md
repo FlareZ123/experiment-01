@@ -26,3 +26,11 @@ The fork spends the ACE SPEC, three other cards and the Supporter Iono. It loses
 A deliberate superior opponent action can falsify the credibility of the generic-bot response. It does **not** establish an optimal opponent policy or an independently qualified challenger loss. Store's speculative cloning, information-set fairness, Tool-lock interaction and full terminal validation remain open.
 
 The same core Secret Box + Boost Shake + Quick Ball + Garbodor package appears in published Absol/Garbodor ranks **8, 11 and 16**, although the analogous source-dealt line has been proven only for rank 8. Rank 22 has no Boost Shake. See `simulation/twinleaf/rank8-boostshake-source-fork.cjs` and `rank8-boostshake-source-run.cjs`. A follow-up rerun removes pre-search hidden deck/prize observation from the override and adds the genuine turn-8 hand for response analysis.
+
+## Information-set and candidate-hand audit (subsequent compiled rerun)
+
+[Manual CI 39079856424](https://github.com/FlareZ123/experiment-01/actions/runs/39079856424) passed after the opponent override was revised to read **only its own hand and public board** before playing Secret Box. Later choices access card identities only within legally issued deck-search prompts. Its archived [artifact 12118512743](https://github.com/FlareZ123/experiment-01/actions/runs/39079856424/artifacts/12118512743) preserved the same 86-action source prefix and turn-7 equipped Garbodor.
+
+The challenger entered turn 8 with **Stealthy Hood on its Active Shadow Rider VMAX**, an unprotected Benched VMAX, and the actual six-card hand **Night Stretcher, Acerola, Mysterious Treasure, Field Blower, Quick Ball, Battle Compressor**. Even with **Field Blower already in hand**, the generic bot's sole turn-8 action was **PassTurn**. This is an independently auditable *policy-behavior deficiency*, since Garbodor's lock can be switched off by discarding its Tool using Field Blower's text. A direct engine-accepted Field Blower selection and subsequent response remain to be tested; the existence of an in-hand option alone does not establish its complete legal resolution or ultimate value.
+
+The initial unmodified game had a different Iono-refreshed challenger hand containing Arven, which then found Field Blower. The fork's no-Iono hand cannot be replaced with the original hand in tactical analysis.
