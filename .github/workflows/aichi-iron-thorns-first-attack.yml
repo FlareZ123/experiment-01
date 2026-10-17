@@ -36,3 +36,7 @@ jobs:
         run: node tests/rank6-acerola-public-observer.test.cjs
       - name: Source-dealt rank6 payment and next opponent turn audit
         run: node simulation/twinleaf/rank6-immediate-opponent-response.cjs
+      - name: Test source Acerola versus Pass fork
+        run: node tests/rank6-acerola-pass-fork.test.cjs
+      - name: Compare source-dealt Acerola and Pass response actions
+        run: node simulation/twinleaf/rank6-acerola-pass-counterfactual.cjs
