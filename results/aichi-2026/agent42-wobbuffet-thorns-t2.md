@@ -61,6 +61,23 @@ The final numerator multiplies the conditional event by the probability 7/60 of 
 
 [The CJS model](../../scripts/aichi-temple-wobbuffet-thorns-t2.cjs) asserts the source manifest counts, returns the exact reduced fraction, and prints a machine-readable result. [Its regression suite](../../tests/aichi-temple-wobbuffet-thorns-t2.test.cjs) exhausts every ordering of an independent eight-card toy deck, comparing all accepted first-three openings and the next two draws against the weighted formula. This is part of the existing [manual-only opening CI](../../.github/workflows/aichi-radiant-start-tradeoff.yml), which passed [run 38998088280](https://github.com/FlareZ123/experiment-01/actions/runs/38998088280) at commit `b2784cc9`, and requires no Twinleaf checkout.
 
+### Iron Thorns mulligan-offer sensitivity
+
+The three source Iron Thorns lists each have four starting-eligible Basics and frequently offer optional mulligan bonus cards. Wobbuffet must remain in the *original opening seven* to be chosen as Active; extra cards drawn during setup may supply V, VMAX or Psychic Energy.
+
+| Optional bonuses accepted | Direct Wobbuffet + natural V/VMAX/Energy T2 opportunity |
+| ---: | ---: |
+| 0 | 1.34250139% |
+| 1 | 1.79657051% |
+| 2 | 2.28805572% |
+| 3 | 2.80565266% |
+| 4 | 3.33947260% |
+| 5 | 3.88115468% |
+
+With a four-Basic Iron Thorns opponent, the bilateral setup procedure offers at least one optional extra card with probability **57.017203%**. Weighting all bonus counts by the exact [bilateral distribution](bilateral-mulligan-externality.md), taking each offered card and capping at 45 to preserve two ordinary draws, yields **2.04106361%** for this restricted natural T2 event. The no-bonus comparator is 1.34250139%, a difference of 0.69856222 percentage points. The chance of 45 or more offers is approximately 1.025e-10 and is aggregated into the 45-bonus scenario.
+
+Six random Prizes are integrated out, as in the original model. No searches, opponent attacks, Supporters, Abilities or discard constraints are simulated. This is a conditional resource opportunity rather than an executed line or match-winning probability. Source-counted BigInt formulas and exhaustive eight-card physical-deal regressions with 0, 1, and 2 bonuses passed [manual CI 38999240311](https://github.com/FlareZ123/experiment-01/actions/runs/38999240311).
+
 ## Interpretation and limits
 
 This is a small **direct-draw** natural recovery resource window. It does not estimate how often Temple actually evolves or attaches with its many search and draw cards, and it cannot by itself establish that the Wobbuffet slot improves the Iron Thorns matchup. Opposing attacks, evolution denial, unavailable Energy in hand at the Ability moment, one-Supporter contention and card-search discards may alter playability. The probability is neither a general upper bound nor a reliable lower bound on practical turn-two Psychic VMAX access.
