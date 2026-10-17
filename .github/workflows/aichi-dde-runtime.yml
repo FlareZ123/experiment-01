@@ -28,6 +28,8 @@ jobs:
         run: node simulation/twinleaf/dde-runtime-regression.cjs
       - name: Test effective Energy matcher
         run: node --test tests/dde-attach-priority.test.cjs
+      - name: Diagnose source-first DDE v4 no-Apex passes and probe noninterference
+        run: node --test tests/dde-v4-first-seat-policy-audit.test.cjs
       - name: Verify pinned Apex-aware attachment priority
         run: node simulation/twinleaf/dde-target-priority.cjs
       - name: Test real Temple search and Marshadow recovery
