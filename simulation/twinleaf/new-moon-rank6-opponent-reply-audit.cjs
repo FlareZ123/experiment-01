@@ -79,9 +79,21 @@ function auditPivot(game,opponentPrintings) {
   assert.equal(opponentPrintings.filter(x=>rank6CardCategory(x,inventory)==='Trainer').length,48);
 
   const firstReply=actionAt(game,3,'PassTurnAction');
-  const secondReply=actionAt(game,5,'PassTurnAction');
+  const turn5Rows=game.decisionTrace.filter(row=>
+    row.playerSlot===OPPONENT && row.turnBefore===5);
+  assert.ok(turn5Rows.some(row=>row.action==='PlayCardAction' &&
+    row.card==='Camping Gear'), 'Expected opponent Camping Gear turn five');
+  const selected=turn5Rows.find(row=>row.cardSelection?.sourceZone==='deck' &&
+    row.cardSelection?.selectedCards?.length===1);
+  assert.ok(selected,'Missing mandatory Camping Gear searched card');
+  const afterSelection=turn5Rows.find(row=>
+    row.actionOrdinal>selected.actionOrdinal && row.decisionHandBefore);
+  const turn5EndHand=afterSelection
+    ? afterSelection.decisionHandBefore.ownHandPrintings
+    : [...selected.decisionHandBefore.ownHandPrintings,
+        ...selected.cardSelection.selectedCards];
   const firstHand=handCounts(firstReply.decisionHandBefore.ownHandPrintings,inventory);
-  const secondHand=handCounts(secondReply.decisionHandBefore.ownHandPrintings,inventory);
+  const secondHand=handCounts(turn5EndHand,inventory);
   const firstBoard=firstReply.publicBoardBeforePass;
   assert.ok(firstBoard);
   const firstActive=firstBoard[OPPONENT].active;
@@ -104,6 +116,8 @@ function auditPivot(game,opponentPrintings) {
   assert.equal(own6.board[CANDIDATE].active.name,'Gengar & Mimikyu-GX');
   assert.deepEqual(own4.prizeCounts,[6,6]);
   assert.deepEqual(own6.prizeCounts,[6,4]);
+  assert.equal(secondHand.size,own6.opponentHandSize,
+    'Reconstructed hand must match next actual opponent hand size');
   assert.ok(secondHand.Trainer*50>=230 - own6.board[OPPONENT].active.damage,
     'Second hand Trainer count cannot support final unmodified knockout');
   const ownAttacks=game.attackTrace.filter(row=>row.seat===CANDIDATE)
@@ -130,7 +144,9 @@ function auditPivot(game,opponentPrintings) {
       printedPoltergeistDamageFromOpponentTurn3Hand:firstHand.Trainer*50,
       prizesBefore:own4.prizeCounts
     },
-    opponentTurn5:{action:secondReply.action,hand:secondHand},
+    opponentTurn5:{action:'Camping Gear into automatic turn end',
+      selectedPrinting:selected.cardSelection.selectedCards,
+      hand:secondHand},
     candidateTurn6:{
       opponentActive:own6.board[OPPONENT].active.name,
       observedPriorDamage:own6.board[OPPONENT].active.damage,
