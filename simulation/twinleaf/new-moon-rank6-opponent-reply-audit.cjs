@@ -133,6 +133,7 @@ function auditPivot(game,opponentPrintings) {
     seed:SEED,sourceHandAudit:'acting-player retrospective decision only',
     opponentTurn3:{
       action:firstReply.action,hand:firstHand,
+      observedOpponentHand:firstReply.decisionHandBefore.ownHandPrintings,
       activeEnergy:firstActive.energyCards,
       printedVoltCycloneCost:volt.cost,
       stadiums,
@@ -146,7 +147,9 @@ function auditPivot(game,opponentPrintings) {
     },
     opponentTurn5:{action:'Camping Gear into automatic turn end',
       selectedPrinting:selected.cardSelection.selectedCards,
-      hand:secondHand},
+      hand:secondHand,
+      beforeSearchHand:selected.decisionHandBefore.ownHandPrintings,
+      reconstructedAfterSearchHand:turn5EndHand},
     candidateTurn6:{
       opponentActive:own6.board[OPPONENT].active.name,
       observedPriorDamage:own6.board[OPPONENT].active.damage,
