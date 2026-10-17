@@ -1,0 +1,5 @@
+# Agent 37: concrete source observer Prize-count correction
+
+While reviewing the completed turn29 public board I found `publicResponseBoard` currently sets `prizesRemaining: p.prizes.length`. Pinned Twinleaf `Player.getPrizeLeft()` instead sums `p.prizes.reduce((left,slot)=>left+slot.cards.length,0)`. `p.prizes` retains six Prize *slots*, including empty slots after a pickup, so the archived turn29 public board reports 6/6 even when fewer face-down Prize cards remain. This is a report-field bug, not evidence of an incorrect underlying Prize reducer or an altered win.
+
+I will apply the narrow read-only `p.getPrizeLeft()` correction plus a regression with empty Prize slots, rerun the existing manual rank10 workflow and preserve the new artifact revision. My own source turn29 hand finding is independent: Mysterious Treasure FLI, Budew ASC, Guzma BUS; no Energy in hand; exact original source hash and two paired captures matched at CI 39021878631. The strategy and paper-rule gates remain unqualified.
