@@ -98,3 +98,25 @@ test('source Prize selection counts never include hidden selected card identity'
   assert.equal(result[0].prizeCountSelected,2);
   assert.equal(JSON.stringify(result).includes('HIDDEN'),false);
 });
+
+test('exposes a generic real-prompt capture failure without leaking catalogs',()=>{
+  const hidden='UNREVEALED_SOURCE_DECK_CARD';
+  const base={turn:28,activePlayer:1,prizesRemaining:[3,4]};
+  const event={
+    action:'ResolvePromptAction',before:base,after:base,
+    pendingPrompt:{kind:'ChooseAttackPrompt',playerId:202},
+    attackChoiceCaptureError:'Selected attack is not a member of the prompt',
+    choiceReferences:{hidden},
+    promptSourceCatalog:[{printing:hidden}]
+  };
+  const out=responseLedger([event],{startOrdinal:0});
+  assert.equal(out.length,1);
+  assert.equal(out[0].choiceCaptureStatus,'capture-error');
+  assert.equal(out[0].choiceCaptureError,
+    'Selected attack is not a member of the prompt');
+  assert.equal(out[0].selectedCopiedAttack,null);
+  assert.equal(JSON.stringify(out).includes(hidden),false);
+  const absent=responseLedger([{...event,attackChoiceCaptureError:undefined}],
+    {startOrdinal:0});
+  assert.equal(absent[0].choiceCaptureStatus,'absent');
+});
