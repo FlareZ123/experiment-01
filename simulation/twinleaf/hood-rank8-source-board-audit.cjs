@@ -48,6 +48,7 @@ function condense(event) {
     targetBefore:defender.active,
     opponentActiveExactly60: event.action==='AttackAction' &&
       event.declaredName==='Terminal Period'?defenderDamage===60:null,
+    opponentDarknessDiscardBefore:event.before.opponentDarknessDiscard,
     visibleBefore:{actor:attacker,other:defender},
     after:{
       actor:side(after,player),other:side(after,1-player),
