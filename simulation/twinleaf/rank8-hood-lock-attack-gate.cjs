@@ -31,11 +31,20 @@ function assessRank8HoodSource(audit) {
     if (equippedGarbodor(sourceSide)) equippedTurns.add(event.turn);
     if (event.action === 'UseAbilityAction' &&
         event.declaredName === 'Underworld Door' && event.actingSeat === 1) {
+      const source=event.abilitySource;
+      const sourceVerified=source?.name==='Shadow Rider Calyrex VMAX' &&
+        Array.isArray(source.tools) &&
+        [1,2].includes(source.target?.slot) &&
+        Number.isInteger(source.target?.index);
+      const sourceHooded=sourceVerified ?
+        source.tools.includes('Stealthy Hood') : null;
       doors.push({
         turn: event.turn,
         hoodedActive: event.visibleBefore.actor.active?.tools
           ?.includes('Stealthy Hood') === true,
-        equippedOpponentGarbodor: equippedGarbodor(event.visibleBefore.other)
+        equippedOpponentGarbodor: equippedGarbodor(event.visibleBefore.other),
+        abilitySource:source??null,
+        sourceHooded
       });
     }
     if (event.action === 'AttackAction' &&
@@ -62,7 +71,9 @@ function assessRank8HoodSource(audit) {
     rootActionStreamSha256: audit.actionStreamSha256,
     observedUnderworldDoorCount: doors.length,
     protectedUnderworldDoorAgainstEquippedGarbodor:
-      doors.filter(x => x.hoodedActive && x.equippedOpponentGarbodor).length,
+      doors.filter(x => x.sourceHooded === true && x.equippedOpponentGarbodor).length,
+    unresolvedEquippedLockDoorSources:
+      doors.filter(x => x.sourceHooded === null && x.equippedOpponentGarbodor).length,
     equippedGarbodorObservedTurns: [...equippedTurns].sort((a, b) => a - b),
     underworldDoor: doors,
     terminalPeriod: terminal,
@@ -73,7 +84,9 @@ function assessRank8HoodSource(audit) {
     terminalTurnsWithDiscardDarknessForPatch:
       terminal.filter(x => x.darkPatchSourceEnergyAvailable).length,
     qualifiedForCompetitiveInference: false,
-    caveat: 'Basic Darkness and Lightning Energy source printings only. ' +
+    caveat: 'Hood exposure requires a target-specific actual Ability source. ' +
+      'An equipped source is not by itself proof that the Ability resolved. ' +
+      'Basic Darkness and Lightning Energy source printings only. ' +
       'Dark Patch unavailability at inspected turns does not prove opponent policy competence.'
   };
 }
