@@ -2,6 +2,12 @@ name: Aichi Technical Machine attack-policy regression
 
 on:
   workflow_dispatch:
+    inputs:
+      expanded_source_pair:
+        description: Run bounded source-matched rank2 Expanded policy contrast
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -55,3 +61,17 @@ jobs:
           name: aichi-rank2-pass-counterfactual
           path: aichi-rank2-pass-counterfactual.json
           if-no-files-found: error
+
+      - name: Check bounded source-paired decision readout
+        run: node --test tests/expanded-source-profile-pair.test.cjs
+      - name: Run two-seat source-matched Expanded policy comparison
+        if: ${{ inputs.expanded_source_pair }}
+        run: node simulation/twinleaf/expanded-source-profile-pair.cjs > expanded-source-policy-pair.json
+      - name: Archive the earliest observed policy divergences
+        if: ${{ always() && inputs.expanded_source_pair }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank2-expanded-source-policy-pair
+          path: expanded-source-policy-pair.json
+          if-no-files-found: warn
+          retention-days: 14
