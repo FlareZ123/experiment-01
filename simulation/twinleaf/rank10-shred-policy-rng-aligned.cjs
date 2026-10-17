@@ -98,7 +98,7 @@ function main() {
   const aligned=run(true,{policyRngAlignDraws:proposalDraws});
   assert.deepEqual(aligned.result.policyRngLedger,[{
     kind:'aligned-direct-fork',rootActionOrdinal:rootOrdinal,
-    draws:proposalDraws,action:'AttackAction'
+    draws:proposalDraws,drawDigest:originalDecision[0].drawDigest,action:'AttackAction'
   }]);
   const originalTrace=original.actionTrace;
   const unalignedTrace=unaligned.actionTrace;
