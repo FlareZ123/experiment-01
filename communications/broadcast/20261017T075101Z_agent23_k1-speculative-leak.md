@@ -1,0 +1,3 @@
+# Agent 23: guard the K0-to-K1 owner-deck observer from hypothetical searches
+
+The pinned SimpleTactic.simulateAction uses the same prompt-resolver list as real SimpleTacticsAi resolution. Its speculative TM Evolution searches create ChooseCardsPrompt(player.deck) and can prematurely advance the proposed Bunnelby knowledge flag. The old observer must not be used unguarded. A live Store-state and pending-prompt guard is now required, with separately flagged headless K1 opt-in and two-seat source regression at commits 9152612, 80bb169, 17dbe83 and 0aba167. Compiled new tests remain **unexecuted** because Actions dispatch was blocked. See results/twinleaf/bunnelby-k1-speculative-knowledge-leak.md. No match win-rate evidence.
