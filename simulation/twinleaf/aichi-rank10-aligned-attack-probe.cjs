@@ -139,6 +139,12 @@ function main() {
       ...common,passHorizonAttack:true,passHorizonAttackSeat:1,
       passHorizonAttackTurn:5
     }));
+    const detachedControl=observeKoraidonTurn5(()=>runMatch(common),
+      {detachedDuringTarget:true});
+    const detachedAligned=observeKoraidonTurn5(()=>runMatch({
+      ...common,passHorizonAttack:true,passHorizonAttackSeat:1,
+      passHorizonAttackTurn:5
+    }),{detachedDuringTarget:true});
     const repeat=observeKoraidonTurn5(()=>runMatch(common));
     assert.deepEqual(repeat,control,'Intervention altered repeated source control');
     assert.equal(control.game.firstTurnSlot,1);
@@ -155,6 +161,16 @@ function main() {
       'Expected real source Koraidon turn-five decision in both arms');
     assert.deepEqual(firstControl.before,firstAligned.before,
       'Actual same-source Store was not identical before first turn-five choice');
+    for(const arm of [detachedControl,detachedAligned]) {
+      assert.ok(arm.observations.length,
+        'Targeted detached policy never inspected the authentic Koraidon board');
+      assert.deepEqual(firstControl.before,arm.observations[0].before,
+        'A decision-only clone repair changed the source before first choice');
+      assert.deepEqual(control.game.decisionTrace.filter(row=>row.turnBefore<5),
+        arm.game.decisionTrace.filter(row=>row.turnBefore<5),
+        'Decision-only clone profile contaminated earlier turns');
+      assert.deepEqual(arm.game.deckHashes,control.game.deckHashes);
+    }
     results.push({
       candidate:candidate.id,
       frozenDeckHashes:[digest(common.deckA),digest(common.deckB)],
@@ -163,7 +179,11 @@ function main() {
       repeatedControlIdentical:true,
       sourceControlDecision:control.observations,
       sourceAlignedDecision:aligned.observations,
-      control:reportGame(control.game),aligned:reportGame(aligned.game)
+      sourceDetachedControlDecision:detachedControl.observations,
+      sourceDetachedAlignedDecision:detachedAligned.observations,
+      control:reportGame(control.game),aligned:reportGame(aligned.game),
+      detachedControl:reportGame(detachedControl.game),
+      detachedAligned:reportGame(detachedAligned.game)
     });
   }
   return {
@@ -172,6 +192,7 @@ function main() {
     opponentRank:10,candidatePhysicalSeat:0,candidateActuallySecond:true,
     seed,engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     changedPolicy:'opponent printed AttackTactic scores versus simulated Pass, global turn5 only',
+    isolationContrast:'source Koraidon global turn5 choices only, opt-in post-super alias reconciliation',
     noAdditionalHiddenInfoAccessInResearchSelector:true,
     upstreamBotInformationSetClean:false,
     qualifiedForCompetitiveInference:false,sourceReplayMechanicsVerified:false,
@@ -180,7 +201,8 @@ function main() {
       'The underlying speculative Simulator may reveal hidden card order to the generic bot',
       'Source policy competence and paper rule fidelity are unqualified',
       'A repeated deterministic seed is not an independent competitive trial',
-      'Extra speculative Pass evaluations can perturb policy RNG after the fork'
+      'Extra speculative Pass evaluations can perturb policy RNG after the fork',
+      'Decision-scoped repaired Simulator is an unqualified clone and may expose different policy actions'
     ],
     findings:results
   };
