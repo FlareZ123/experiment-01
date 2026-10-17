@@ -25,6 +25,19 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Test source-turn-28 Shred opponent-response fork
+        run: node --test tests/mimikyu-turn28-shred-fork.test.cjs
+      - name: Compare archived extra-turn retreat with physical source Shred attack
+        run: node simulation/twinleaf/rank10-mimikyu-shred-source-fork.cjs > rank10-mimikyu-shred-source-fork.json
+      - name: Show source-aligned knockout counterfactual
+        run: node -e "const x=require('./rank10-mimikyu-shred-source-fork.json'); console.log(JSON.stringify({firstDivergence:x.firstSourceDivergence,printedOpportunity:x.sourceOpportunity,chosen:x.chosenAttack,original:x.original,counterfactual:x.counterfactual,qualified:x.qualifiedForCompetitiveInference}));"
+      - name: Preserve turn-28 source-game Shred counterfactual
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-mimikyu-shred-source-fork
+          path: rank10-mimikyu-shred-source-fork.json
+          if-no-files-found: warn
       - name: Verify spent-GX Copycat Apex Shred knockout and non-KO controls
         run: node simulation/twinleaf/mimikyu-extra-turn-shred-action.cjs > rank10-shred-store-action.json
       - name: Report Shred action-only result
