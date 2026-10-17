@@ -172,7 +172,8 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
       event.effectDigestBefore = sourceEffectDigest(this.state);
     }
     if(options.storeDataGraphEveryDispatch === true) {
-      event.storeDataGraphBefore=storeDataGraphFingerprint(this);
+      event.storeDataGraphBefore=storeDataGraphFingerprint(this,
+        {includeGraph:options.storeDataGraphDebugSteps?.includes(step)===true});
     }
     const pending = this.state?.prompts?.find(p => p.result === undefined);
     if (pending && action?.constructor?.name === 'ResolvePromptAction') {
@@ -268,7 +269,8 @@ function withStoreDispatchTranscript(Store, work, options = {}) {
         event.effectDigestAfter = sourceEffectDigest(this.state);
       }
       if(options.storeDataGraphEveryDispatch === true) {
-        event.storeDataGraphAfter=storeDataGraphFingerprint(this);
+        event.storeDataGraphAfter=storeDataGraphFingerprint(this,
+          {includeGraph:options.storeDataGraphDebugSteps?.includes(step)===true});
       }
     }
   };
