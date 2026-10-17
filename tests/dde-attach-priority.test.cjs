@@ -40,3 +40,14 @@ test('Temple-like effective Colorless cannot masquerade as typed or ANY Energy',
   assert.equal(coversPrintedApexCost(['GRASS','GRASS','COLORLESS'],types),false);
   assert.equal(coversPrintedApexCost(['GRASS','GRASS','ANY'],types),true);
 });
+
+test('Double Dragon target selection uses simulated local identity in both clone profiles', () => {
+  const {testCloneLocalEnergyMatching} =
+    require('../simulation/twinleaf/dde-clone-local-identity.cjs');
+  const result = testCloneLocalEnergyMatching();
+  assert.equal(result.cases.length, 2);
+  assert.equal(result.cases[0].selectedBenchRegidrago, true);
+  assert.equal(result.cases[1].selectedBenchRegidrago, true);
+  assert.equal(result.cases[1].sourceCardDetached, true);
+  assert.ok(result.cases.every(row => row.authoritativeStoreAttachment));
+});
