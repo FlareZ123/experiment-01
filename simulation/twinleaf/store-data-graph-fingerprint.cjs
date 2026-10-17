@@ -41,7 +41,12 @@ function storeDataGraphFingerprint(store,options={}) {
     if (value === null) return ['null'];
     const type = typeof value;
     if (type === 'undefined') return ['undefined'];
-    if (type === 'string' || type === 'boolean') return [type,value];
+    if(type==='string') {
+      const prefix='pokemon_list_';
+      return [type,value.startsWith(prefix)
+        ? normalizeStatisticId(value.slice(prefix.length),true) : value];
+    }
+    if (type === 'boolean') return [type,value];
     if (type === 'number') {
       return ['number',Object.is(value,-0) ? '-0' : String(value)];
     }
