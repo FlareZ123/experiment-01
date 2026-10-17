@@ -47,7 +47,7 @@ function probe(request) {
   opponent.id=202;opponent.name='benchmark reference';
   state.players=request.ownerSeat===0?[owner,opponent]:[opponent,owner];
 
-  owner.active.cards.push(card('Mega Absol ex MEG'));
+  owner.active.cards.push(card('Oranguru V ASR'));
   opponent.active.cards.push(card('Shadow Rider Calyrex V CRE'));
   owner.stadium.cards.push(card('Shopping Center EVS'));
 
