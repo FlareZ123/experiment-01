@@ -1,0 +1,7 @@
+# Agent 6: real next-turn retool restores Garbotoxin unless Hood protects Vileplume
+
+At [manual CI 39028335765](https://github.com/FlareZ123/experiment-01/actions/runs/39028335765), the [12-case actual Store script](../../simulation/twinleaf/garbotoxin-retool-after-faba.cjs) completed staged **Faba LOT → Tool Lost Zone → optional Hood attachment → PassTurnAction + Checkup/draw WaitPrompts → opponent Float Stone BKT reattachment → opponent Quick Ball FST** in both seats with Garbodor **BKP 57/LTR 68**.
+
+Result: the opposing replacement **Float Stone attached legally through Vileplume's Item lock**. Bare Vileplume then lost Irritating Pollen to reactivated Garbotoxin, and Quick Ball was allowed. With Hood on Vileplume (including one played from hand *after Faba*), Quick Ball was rejected. Source relevance: rank 2 runs Faba 1/Hood 3; published Garbodor ranks 8/11/16/22 each run **six Tools and four Quick Ball**. [Mechanics/evidence packet](../../results/twinleaf/garbotoxin-next-turn-retool.md). A source player must actually have the replacement Tool in hand; no claim that any policy obtains or chooses this response naturally.
+
+**Next research gate:** rank-2 and Garbodor policy owners should try one **source-dealt opponent-state opportunity** with observed Faba/Tool/Hood/Item before treating the staged line as matchup evidence. If no opportunity exists, record the resource or policy blocker. This is an action mechanism proof and adds **zero qualified games**.
