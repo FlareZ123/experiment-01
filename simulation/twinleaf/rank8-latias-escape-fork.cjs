@@ -6,6 +6,7 @@ const path = require('node:path');
 const {runMatch, initializeCards} = require('./headless.cjs');
 const {withStoreDispatchTranscript} = require('./store-dispatch-transcript.cjs');
 const {withRank8EscapePolicy} = require('./rank8-latias-escape-policy.cjs');
+const {withRank8SourceActionEffects} = require('./rank8-latias-effect-ledger.cjs');
 const {loadDefaultCampaign} = require('../../scripts/aichi-comparison-campaign.cjs');
 
 /** @param {object} value */
@@ -71,10 +72,14 @@ function main() {
   initializeCards();
   const {Store} = require(path.resolve(__dirname,
     '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
-  const record = () => withStoreDispatchTranscript(Store,()=>runMatch(request),{
-    liveStoreOnly:true,typedActionValues:true,
-    promptReferenceActionValues:true,sourceZoneEveryDispatch:true
-  });
+  const record = () => {
+    const evidence=withRank8SourceActionEffects(Store,()=>
+      withStoreDispatchTranscript(Store,()=>runMatch(request),{
+        liveStoreOnly:true,typedActionValues:true,
+        promptReferenceActionValues:true,sourceZoneEveryDispatch:true
+      }),{turn:21,playerId:101});
+    return {...evidence.result,effectLedger:evidence.observations};
+  };
   const before = record();
   const tool = withRank8EscapePolicy('tool',record);
   const paid = withRank8EscapePolicy('paid',record);
