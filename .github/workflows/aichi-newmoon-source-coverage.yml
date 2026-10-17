@@ -49,6 +49,14 @@ jobs:
             newmoon-lockbreak-pinned-60.json
             newmoon-lockbreak-direct-access.json
           if-no-files-found: error
+      - name: Exercise New Moon printed Perfection across Garbotoxin and active lock
+        run: node simulation/twinleaf/new-moon-lockbreak-ability-gates.cjs > newmoon-lockbreak-ability-gates.json
+      - name: Preserve live Store lockbreak answer matrix
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-lockbreak-ability-gates
+          path: newmoon-lockbreak-ability-gates.json
+          if-no-files-found: error
       - name: Build source 60-card English-name coverage report
         run: node simulation/twinleaf/newmoon-source-coverage.cjs > newmoon-source-coverage.json
       - name: Display available/missing source names
