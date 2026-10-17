@@ -174,5 +174,78 @@ class RawContractTests(unittest.TestCase):
                 evaluate_raw_batch({**batch(), "games": [candidate]}, field())
 
 
+    def test_engine_terminals_bind_both_physical_seats_and_ties(self):
+        data = batch()
+        a = game("a-win", 1, "first", 601, "completed", "A", side="A")
+        b = game("b-win", 1, "first", 602, "completed", "B", side="B")
+        tie = game("tie", 2, "second", 603, "completed", None, side="B")
+        for record, index in ((a, 0), (b, 1), (tie, 3)):
+            record["engine_terminal"] = {"finished": True, "winnerIndex": index}
+            record["action_trace"] = [{"step": 0, "action": "finish"}]
+            record["trace_sha256"] = action_trace_sha256(record["action_trace"])
+        data["games"] = [a, b, tie]
+        result = evaluate_raw_batch(data, field())
+        self.assertEqual(result["terminal_bound_games"], 3)
+        self.assertEqual(result["unbound_completed_games"], 0)
+        self.assertTrue(result["all_completed_terminals_bound"])
+        self.assertTrue(result["outcome_integrity_promotion_eligible"])
+        self.assertEqual(result["finished_ties_as_nonwins"], 1)
+        self.assertEqual(result["statistical_result"],
+                         result["terminal_bound_statistical_result"])
+        self.assertFalse(result["competitive_evidence_qualified"])
+
+    def test_engine_terminal_mismatch_and_malformed_values_fail_closed(self):
+        examples = [
+            ({"finished": True, "winnerIndex": 1}, "contradicts"),
+            ({"finished": True, "winnerIndex": 3}, "contradicts"),
+            ({"finished": False, "winnerIndex": 0}, "Invalid completed"),
+            ({"finished": 1, "winnerIndex": 0}, "Invalid completed"),
+            ({"finished": True, "winnerIndex": False}, "Invalid completed"),
+            ({"finished": True, "winnerIndex": 2}, "Invalid completed"),
+            ({"finished": True, "winnerIndex": -1}, "Invalid completed"),
+            ({"finished": True}, "Invalid completed"),
+            (None, "must be an object"),
+        ]
+        for terminal, message in examples:
+            record = game("bad-terminal", 1, "first", 604, "completed", "A")
+            record["engine_terminal"] = terminal
+            with self.subTest(terminal=terminal), self.assertRaisesRegex(ValueError, message):
+                evaluate_raw_batch({**batch(), "games": [record]}, field())
+
+    def test_legacy_unbound_winners_do_not_receive_terminal_promotion(self):
+        data = batch()
+        bound = game("bound", 1, "first", 605, "completed", "A")
+        bound["engine_terminal"] = {"finished": True, "winnerIndex": 0}
+        legacy = game("legacy", 2, "first", 606, "completed", "A")
+        for record in (bound, legacy):
+            record["action_trace"] = [{"step": 0, "action": "finish"}]
+            record["trace_sha256"] = action_trace_sha256(record["action_trace"])
+        data["games"] = [bound, legacy]
+        result = evaluate_raw_batch(data, field())
+        self.assertEqual(result["terminal_bound_games"], 1)
+        self.assertEqual(result["unbound_completed_games"], 1)
+        self.assertTrue(result["trace_integrity_promotion_eligible"])
+        self.assertFalse(result["outcome_integrity_promotion_eligible"])
+        self.assertFalse(result["all_completed_terminals_bound"])
+        self.assertFalse(result["terminal_bound_statistical_result"]["complete"])
+
+    def test_failed_game_cannot_claim_terminal_winner(self):
+        data = batch()
+        failed = game("failed", 1, "second", 607, "engine_exception", None)
+        for terminal in (
+            {"finished": True, "winnerIndex": 0},
+            {"finished": False, "winnerIndex": 3},
+            {"finished": False, "winnerIndex": None},
+            {"finished": False, "winnerIndex": False},
+        ):
+            failed["engine_terminal"] = terminal
+            with self.subTest(terminal=terminal), self.assertRaisesRegex(ValueError, "Failed game"):
+                evaluate_raw_batch({**data, "games": [failed]}, field())
+        failed["engine_terminal"] = {"finished": False, "winnerIndex": -1}
+        result = evaluate_raw_batch({**data, "games": [failed]}, field())
+        self.assertEqual(result["finished_games"], 0)
+        self.assertFalse(result["all_completed_terminals_bound"])
+
+
 if __name__ == "__main__":
     unittest.main()
