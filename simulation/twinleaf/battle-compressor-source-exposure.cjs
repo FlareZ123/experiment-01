@@ -4,6 +4,7 @@ const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {initializeCards,runMatch}=require('./headless.cjs');
+const {withBattleCompressorItemScores}=require('./battle-compressor-item-tactic-score.cjs');
 
 /** @param {unknown} object */
 const digest=object=>createHash('sha256').update(JSON.stringify(object)).digest('hex');
@@ -79,6 +80,9 @@ function auditSource() {
   const {Store}=require(path.resolve(__dirname,
     '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
   const originalDispatch=Store.prototype.dispatch;
+  const {PlayTrainerTactic}=require(path.resolve(__dirname,
+    '../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics/play-trainer-tactic'));
+  const originalEvaluateAction=PlayTrainerTactic.prototype.evaluateAction;
   const cases=[];
   for(const candidateSeat of [0,1]) {
     const seed=20261017+candidateSeat;
@@ -91,9 +95,11 @@ function auditSource() {
         captureDecisionTrace:true,
         battleCompressorPositiveSelectionCorrection:corrected
       };
-      const observed=withBattleCompressorSourceSelections(Store,
-        ()=>runMatch(request));
+      const scored=withBattleCompressorItemScores(PlayTrainerTactic,
+        ()=>withBattleCompressorSourceSelections(Store,()=>runMatch(request)));
+      const observed=scored.result;
       assert.equal(Store.prototype.dispatch,originalDispatch);
+      assert.equal(PlayTrainerTactic.prototype.evaluateAction,originalEvaluateAction);
       assert.equal(observed.result.battleCompressorPositiveSelectionCorrection,
         corrected);
       const handSightings=[0,1].map(slot=>{
@@ -115,6 +121,15 @@ function auditSource() {
           Object.entries(plays).filter(([name])=>
             name.startsWith('Battle Compressor')).reduce((sum,[,n])=>sum+n,0)),
         handSightings,
+        itemScoreProbes:scored.probes.length,
+        firstItemScoreProbes:scored.probes.slice(0,8),
+        scoreDeltaSummary:scored.probes.length?{
+          undefinedScores:scored.probes.filter(p=>p.scoreDelta===null).length,
+          minimum:Math.min(...scored.probes.filter(p=>p.scoreDelta!==null)
+            .map(p=>p.scoreDelta).concat([0])),
+          maximum:Math.max(...scored.probes.filter(p=>p.scoreDelta!==null)
+            .map(p=>p.scoreDelta).concat([0]))
+        }:null,
         actualFirstSeat:observed.result.firstTurnSlot,
         drawLogVerified:observed.result.verifiedByDrawLog,
         rootDispatches:observed.rootDispatches,
