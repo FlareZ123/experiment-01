@@ -2,8 +2,36 @@
 
 const assert = require('node:assert/strict');
 const path = require('node:path');
+const {createHash} = require('node:crypto');
 const {resolveManifestFile} = require('./resolve-field.cjs');
 const {runMatch} = require('./headless.cjs');
+
+/**
+ * Compare the complete headless runner's recorded action-class and effect
+ * telemetry, selected event traces, terminal board and outcome. This is a
+ * runner-observable digest; it is not a complete Store-state/reducer replay.
+ * @param {object} game
+ * @returns {string}
+ */
+function observableDigest(game) {
+  const evidence = {
+    firstTurnSlot: game.firstTurnSlot,
+    finished: game.finished,
+    endReason: game.endReason,
+    winner: game.winner,
+    actions: game.actions,
+    turns: game.turns,
+    actionCounts: game.actionCounts,
+    actionsBySeat: game.actionsBySeat,
+    cardsPlayedBySeat: game.cardsPlayedBySeat,
+    attackTrace: game.attackTrace,
+    abilityTrace: game.abilityTrace,
+    terminalTransition: game.terminalTransition,
+    finalState: game.finalState,
+    prizesRemaining: game.prizesRemaining
+  };
+  return createHash('sha256').update(JSON.stringify(evidence)).digest('hex');
+}
 
 /**
  * Produce a compact diagnostic record for a bounded source-deck game.
@@ -35,6 +63,7 @@ function summarize(game, candidateSlot) {
     candidateFinalPrizes: game.prizesRemaining[candidateSlot],
     opponentFinalPrizes: game.prizesRemaining[1 - candidateSlot],
     policy: game.policy,
+    observableDigest: observableDigest(game),
     deckHashes: game.deckHashes
   };
 }
@@ -78,6 +107,8 @@ function checkCloneSensitivityBySeat() {
     assert.match(pinned.policy, /DoubleDragonAttachTactic-v4/);
     assert.match(safe.policy, /DoubleDragonAttachTactic-v4/);
     assert.match(safe.policy, /PrototypeSafeSimulatorIsolation-experimental-v1/);
+    assert.equal(observableDigest(pinned), observableDigest(safe),
+      'Simulator clone profile changed runner-observable game telemetry');
     cases.push({
       candidateSlot, seed, exactSourceRanksBySlot:
         candidateSlot === 0 ? [10,1] : [1,10],
@@ -87,6 +118,8 @@ function checkCloneSensitivityBySeat() {
       sameAttackCounts: pinned.attackTrace.length === safe.attackTrace.length
     });
   }
+  assert.deepEqual(cases.map(row => row.pinned.rank10ActualTurn),
+    ['second', 'first'], 'Both documented actual starting orders must be represented');
   return {
     kind: 'rank10-DDE-v4-pinned-vs-prototype-safe-two-seat-diagnostic',
     sourceRank10: 'Haruku Yoshioka Regidrago',
@@ -102,4 +135,4 @@ function checkCloneSensitivityBySeat() {
 if (require.main === module) {
   process.stdout.write(JSON.stringify(checkCloneSensitivityBySeat(), null, 2) + '\n');
 }
-module.exports = {summarize, checkCloneSensitivityBySeat};
+module.exports = {observableDigest, summarize, checkCloneSensitivityBySeat};
