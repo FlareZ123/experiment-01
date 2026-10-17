@@ -40,7 +40,8 @@ function withBattleCompressorSourceSelections(Store,work) {
           promptMin:prompt.options.min,promptMax:prompt.options.max,
           selectionCount:Array.isArray(action.result)?action.result.length:null,
           pendingCardNames:Array.isArray(action.result)?
-            action.result.map(c=>c?.fullName??null):null
+            action.result.map(c=>typeof c==='number' ?
+              prompt.cards.cards[c]?.fullName??null : c?.fullName??null):null
         };
       }
     }
