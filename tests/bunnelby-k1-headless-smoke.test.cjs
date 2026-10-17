@@ -39,6 +39,19 @@ test('Bunnelby guarded K1 option is explicit and preserves both physical source 
     assert.match(result.policy,/BunnelbyGuzmaHalaMode1-v1/);
     assert.match(result.policy,/BunnelbyStageTargetResolver-v1/);
     assert.match(result.policy,/BunnelbyRootObservedK1-v1/);
+    assert.match(result.policy,/HiddenPrizeEpoch-v2\\+FullPrizeReview-v1\\+KnowledgeEvents-v1/);
+    assert.equal(result.bunnelbyKnowledgeEpochs.length,2);
+    assert.ok(Array.isArray(result.bunnelbyKnowledgeEvents));
+    for(let side=0;side<2;side++){
+      const epoch=result.bunnelbyKnowledgeEpochs[side];
+      const events=result.bunnelbyKnowledgeEvents.filter(e=>e.seat===side);
+      assert.equal(events.filter(e=>e.kind==='live-own-deck-search')
+        .reduce((n,e)=>n+e.observations,0),epoch.liveSearches);
+      assert.equal(events.filter(e=>e.kind==='full-own-prize-review').length,
+        epoch.fullPrizeReviews);
+      assert.equal(events.filter(e=>e.kind==='hidden-prize-ingress').length,
+        epoch.hiddenPrizeRedeals);
+    }
     assert.equal(result.deckHashes.length,2);
     assert.equal(result.actions<=6,true);
     assert.equal(result.finished || result.endReason==='action-limit',true);
