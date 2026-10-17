@@ -60,6 +60,8 @@ jobs:
                   print(f"NMROW{row}GROUP{group}CHUNK{i//4000:04d}:" + encoded[i:i+4000])
               print(f"NMROW{row}GROUP{group}TOTAL:{len(buffer.getvalue())}")
           PY
+      - uses: actions/checkout@v4
+        if: ${{ inputs.probe_deck_code }}
       - name: Retrieve official Japanese source deck code
         if: ${{ inputs.probe_deck_code }}
         shell: bash
@@ -71,6 +73,9 @@ jobs:
             --write-out 'Official viewer HTTP status %{http_code}; downloaded %{size_download} bytes\n' \
             'https://www.pokemon-card.com/deck/confirm.html/deckID/GxxDYx-a4rD4W-a8xYxc'
           python3 -c "from pathlib import Path; h=Path('newmoon-official-deck.html').read_text(encoding='utf-8',errors='replace'); print('Viewer bytes:', len(h), 'source_code_present:', 'GxxDYx-a4rD4W-a8xYxc' in h, 'Mewtwo Japanese name present:', 'ミュウツー' in h); print('Head:',repr(h[:600]))"
+      - name: Verify archived Japanese 60
+        if: ${{ inputs.probe_deck_code }}
+        run: python3 scripts/newmoon_official_print_replay.py newmoon-official-deck.html
       - name: Preserve official deck viewer evidence
         if: ${{ inputs.probe_deck_code }}
         uses: actions/upload-artifact@v4
