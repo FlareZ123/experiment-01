@@ -22,7 +22,8 @@ function observePaleMoonReplay(Store,work) {
     const at={step:arm.dispatches,turn,action:name};
     arm.events.push(...classifyPaleMoonExit(before,after,at));
     for(const row of after.filter(x=>x.where==='bench')){
-      if(arm.events.some(e=>e.pokemon===row.pokemon))continue;
+      if(before.some(old=>old.player===row.player &&
+        old.target===row.target && old.where==='active'))continue;
       arm.events.push({...at,slot:row.slot,pokemon:row.pokemon,
         finding:'unresolved',reason:'Bench queue without observed exit'});
     }
