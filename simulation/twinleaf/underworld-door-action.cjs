@@ -10,7 +10,7 @@ const { installToolJammerHook } = require('./tool-jammer-hook.cjs');
  * announce PowerEffect, resolve its Energy-attachment prompt and verify both
  * attachment and the two-card draw. Full-turn setup rules are outside scope.
  *
- * @param {{hood:boolean,jammer:boolean,active:boolean,garbodorPrint?:'BKP'|'LTR',garbodorTool?:boolean,stadium?:string,wobbuffetActive?:boolean}} options
+ * @param {{hood:boolean,jammer:boolean,active:boolean,garbodorPrint?:'BKP'|'LTR',garbodorTool?:boolean,stadium?:string,wobbuffetActive?:boolean,actingSeat?:boolean}} options
  * @returns {{allowed:boolean, attached:number, drawn:number, handCount:number}}
  */
 function underworldDoorAction(options) {
@@ -78,6 +78,7 @@ function underworldDoorAction(options) {
 
   const state = new State();
   state.players = [locker, player];
+  if (options.actingSeat) state.activePlayer = 1;
   const store = new Store({onStateChange() {}});
   store.state = state;
   const target = player.bench[0];
@@ -126,6 +127,8 @@ function runTest() {
     {hood:false,jammer:true,active:false,allowed:false},
     {hood:false,jammer:false,active:false,wobbuffetActive:true,allowed:false},
     {hood:false,jammer:true,active:false,wobbuffetActive:true,allowed:false},
+    {hood:false,jammer:false,active:false,wobbuffetActive:true,actingSeat:true,allowed:true},
+    {hood:false,jammer:true,active:false,wobbuffetActive:true,actingSeat:true,allowed:true},
     {hood:true,jammer:false,active:false,garbodorPrint:'BKP',allowed:true},
     {hood:true,jammer:false,active:false,garbodorPrint:'LTR',allowed:true},
     {hood:false,jammer:false,active:false,garbodorPrint:'BKP',allowed:false},
