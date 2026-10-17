@@ -28,6 +28,14 @@ The two attack-dispatch channels now being recorded with explicit coverage, it i
 
 This result **supersedes any earlier suggestion that the empty `attackTrace` by itself established attack inactivity**. Both channels and the action/pass counts are now available and traceable. Neither eight-game pilot is suitable for comparing card-package performance or promotion.
 
+## Critical seat-versus-start-order gap
+
+Inspecting the archived [eight paired source records](https://github.com/FlareZ123/experiment-01/actions/runs/39022298459) reveals `actualFirstSeat===candidateSeat` in **all eight**. Both rank-6 physical seat-0 arms started seat 0; both rank-6 physical seat-1 arms started seat 1. The same pattern held for rank 8. `runMatch` derives actual first turn from the engine's state and first-turn observer ([turn-order-evidence.cjs](../../simulation/twinleaf/turn-order-evidence.cjs)), separately from physical seat, and the pairing runner does not explicitly require the candidate to go second.
+
+Consequently this trial contains **zero New Moon candidate games going second**, despite covering both A/B physical positions. The source pilot explicitly wants to go second to use first-attacking-turn Horror House-GX. A test suite covering both physical seats can inadvertently miss one strategic starting-order branch. This could simply be a coincidental property of the four chosen pseudorandom seeds, and must not be recast as a simulator-wide first-turn bug without an independent seeded-order audit.
+
+The minimal next source-dealt campaign needs a **candidate-first and candidate-second stratum for each published opponent rank**, with both physical A/B positions represented over the strata; assert actual `firstTurnSlot` from the engine rather than inferring from seat or seed. Paired counterfactual arms should use a **shared exact source deal within each stratum**. The original record remains useful to characterize going-first policy behavior, but cannot falsify the pilot's intended going-second opener.
+
 ## Interpretation and falsification criteria
 
 A trial with no **recorded native AttackAction** and zero played anti-lock counter Items cannot test whether that Item package improves the proposed `Horror House-GX -> Cursed Blast -> Ace Trainer -> Night Watch` line. It may still expose genuine issues in the environment, sequencing or the team's policy. The present aggregate has **zero observed exposures to the intended Cologne/Blower mechanism**, so no causal evidence that the variant is better or worse at defeating these locks.
