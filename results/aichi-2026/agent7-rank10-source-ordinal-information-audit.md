@@ -16,6 +16,12 @@ All other root decisions still use the research bot. The ordinal is a deliberate
 
 The [source comparator](../../simulation/twinleaf/rank10-mimikyu-shred-source-fork.cjs), when run with `COPYCAT_ORDINAL_AUDIT=1`, produces an `ordinalSourceAudit` object comparing the original branch and the direct-ordinal branch: first root-action divergence, action 215 pre-dispatch zone and Card-history digests, existence of a real Shred selection, final winner and Prize counts, and byte equality of complete recorded match summaries against the original proposal-dependent Shred branch. If the source prefix changes unexpectedly, the experiment fails its assertions.
 
+## Post-fork opponent-response audit
+
+The [public response projector](../../simulation/twinleaf/rank10-copycat-response-ledger.cjs) records the following root decisions over the first five turns after the source-ordinal fork: attack announcements, copied attack names, active-Pokémon promotion choices, pass/retreat actions and Prize-count transitions. It deliberately removes hidden Prize identities, prompt source catalogs and any full private deck or hand contents. [Independent pure tests](../../tests/rank10-copycat-response-ledger.test.cjs) verify that a deliberately inserted unrevealed-card identifier is absent from its output. The source comparator exports both `counterfactualNextFiveTurns` and, when selected, `ordinalSourceAudit.nextFiveTurns`. Compiled CI validation for this extension is pending.
+
+The source-ordinal bypass skips one generic bot call. It can therefore also alter the later consumption of policy-specific random numbers, even if the original decision did not modify the root game state. A different eventual winner must be interpreted alongside the immediate source fingerprints and action sequence, rather than attributed to any one kind of hidden-information exposure without additional controls.
+
 ## Evidence and limitations
 
 - Fixed source: published rank-10 Regidrago versus rank-1 Shadow Rider, seed `4246551499`, candidate physical slot B, candidate actually first; no deck substitution.
