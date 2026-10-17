@@ -25,6 +25,14 @@ jobs:
       - name: Compile pinned Twinleaf engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Independent Hood versus Ability-lock and Tool-Jammer probe
+        run: node simulation/twinleaf/new-moon-hood-ability-probe.cjs > newmoon-hood-gate.json
+      - name: Preserve staged Hood effect matrix without matchup claims
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-hood-ability-probe-unqualified
+          path: newmoon-hood-gate.json
+          if-no-files-found: error
       - name: Strict frozen candidate and source printing check
         run: |
           node --test tests/new-moon-lockbreak.test.cjs
