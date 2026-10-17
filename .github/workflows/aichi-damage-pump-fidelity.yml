@@ -37,6 +37,9 @@ jobs:
       - name: Search authenticated rank-26 first-turn source window (unqualified)
         if: ${{ inputs.source_rank26_opening }}
         run: node simulation/twinleaf/meloetta-rank26-firstturn-source-window.cjs > rank26-firstturn-source-window.json
+      - name: Summarize authenticated root deal without promoting performance
+        if: ${{ inputs.source_rank26_opening }}
+        run: node -e "const x=require('./rank26-firstturn-source-window.json'); console.log(JSON.stringify({examined:x.examined,attackerFirst:x.attackerFirst,activeMeloetta:x.activeMeloetta,selected:x.selected,firstEligible:x.firstEligible?.seed,firstPad:x.firstPad?.seed,firstDirect:x.firstDirect?.seed,competitiveGameQualified:x.competitiveGameQualified},null,2))"
       - name: Preserve first-turn source state and explicit missing-gate metadata
         if: ${{ inputs.source_rank26_opening }}
         uses: actions/upload-artifact@v4
