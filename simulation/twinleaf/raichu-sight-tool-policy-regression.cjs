@@ -46,6 +46,9 @@ function verifySightReservation() {
   // If Raichu is ready, Sight goes on the attacker and is actually playable.
   const ready = stagedRaichu(['Unit Energy LPM UPR'], null);
   ready.a.hand.cards.push(ready.card(sight));
+  const readyVictim = new PokemonCardList();
+  readyVictim.cards.push(ready.card('Shadow Rider Calyrex V CRE'));
+  ready.b.bench.push(readyVictim);
   const action = new cls(configured).useTactic(ready.state, ready.a);
   assert.ok(action);
   assert.equal(action.handIndex, 0);
@@ -71,6 +74,9 @@ function verifySightReservation() {
   benched.a.bench.push(bench);
   benched.a.active.cards.push(benched.card('Crobat V DAA'));
   benched.a.hand.cards.push(benched.card(sight));
+  const benchVictim = new PokemonCardList();
+  benchVictim.cards.push(benched.card('Shadow Rider Calyrex V CRE'));
+  benched.b.bench.push(benchVictim);
   const benchAction = new cls(configured).useTactic(benched.state, benched.a);
   assert.deepEqual(benchAction.target, {
     player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index: 0
@@ -78,6 +84,11 @@ function verifySightReservation() {
   benched.store.dispatch(benchAction);
   assert.equal(bench.tools[0].fullName, sight);
   assert.equal(benched.a.active.tools.length, 0);
+
+  // Even an established Raichu must save Sight when only Active targets exist.
+  const inactive = stagedRaichu([], null);
+  inactive.a.hand.cards.push(inactive.card(sight));
+  assert.equal(new cls(configured).useTactic(inactive.state, inactive.a), undefined);
 
   // Other Tools can still be selected without removing/reordering the hand.
   const alternative = stagedRaichu([], null);
@@ -98,6 +109,7 @@ function verifySightReservation() {
   return {
     sources: [4, 17],
     preservedSingletonBeforeEvolution: true,
+    preservedWithoutBenchedVGX: true,
     sightAttachedToActiveRaichu: ready.a.active.tools[0].fullName === sight,
     sightAttachedToBenchedRaichu: bench.tools[0].fullName === sight,
     otherToolStillSelectable: anotherAction.handIndex === 1,
