@@ -59,6 +59,12 @@ test('count accepted Tool attack announcement separately from skipped passes', (
   assert.equal(report.coverage.probedPasses, 2);
   assert.equal(report.coverage.skippedPasses, 1);
   assert.equal(report.coverage.acceptedAttackPasses, 1);
+  assert.deepEqual(report.coverageBySide, {
+    candidate: {recordedPasses: 2, probedPasses: 1,
+      skippedPasses: 1, auditErrors: 0, acceptedAttackPasses: 0},
+    opponent: {recordedPasses: 1, probedPasses: 1,
+      skippedPasses: 0, auditErrors: 0, acceptedAttackPasses: 1}
+  });
   assert.equal(report.trials[0].acceptedToolAttackPasses, 1);
   assert.equal(report.trials[0].acceptedPrintedAttackPasses, 0);
   assert.equal(report.checkedPasses[0].side, 'opponent');
@@ -99,6 +105,7 @@ test('audit errors are not silently counted as an absence of legal attacks', () 
     pass(0, undefined, 1)
   ]));
   assert.equal(report.coverage.auditErrors, 1);
+  assert.equal(report.coverageBySide.opponent.auditErrors, 1);
   assert.equal(report.coverage.probedPasses, 0);
   assert.equal(report.coverage.skippedPasses, 1);
   assert.equal(report.checkedPasses.length, 0);
