@@ -77,3 +77,34 @@ test('K1 observation cannot be enabled without a complete source inventory',()=>
   assert.throws(()=>withBunnelbyEvolutionLine(options(),{
     observeFirstOwnDeckSearch:true}),/source 60/);
 });
+
+test('per-bot K1 observation closure is isolated from an untouched peer bot',()=>{
+  const {state,a}=stage(true);
+  const source=source60();
+  const first=implementations(source);
+  const second=implementations(source);
+  const tacticA=new first.Tactic(first.optionsWithObserver);
+  const tacticB=new second.Tactic(second.optionsWithObserver);
+  assert.equal(tacticA.useTactic(state,a)?.name,'Evolution');
+  assert.equal(tacticB.useTactic(state,a)?.name,'Evolution');
+  new first.Observer(first.optionsWithObserver)
+    .resolvePrompt(state,a,showZone(state,a,a.deck));
+  assert.equal(tacticA.useTactic(state,a),undefined);
+  assert.equal(tacticB.useTactic(state,a)?.name,'Evolution');
+});
+
+test('after legitimate K1 exposure, target existence ignores unseen deck order',()=>{
+  const source=source60();
+  const first=stage(false);
+  const second=stage(false);
+  second.a.deck.cards.reverse();
+  const a=implementations(source),b=implementations(source);
+  const t1=new a.Tactic(a.optionsWithObserver),t2=new b.Tactic(b.optionsWithObserver);
+  new a.Observer(a.optionsWithObserver)
+    .resolvePrompt(first.state,first.a,showZone(first.state,first.a,first.a.deck));
+  new b.Observer(b.optionsWithObserver)
+    .resolvePrompt(second.state,second.a,showZone(second.state,second.a,second.a.deck));
+  assert.equal(t1.useTactic(first.state,first.a)?.name,'Evolution');
+  assert.equal(t2.useTactic(second.state,second.a)?.name,'Evolution');
+});
+
