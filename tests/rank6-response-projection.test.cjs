@@ -35,7 +35,14 @@ assert.equal(JSON.stringify(ledger).includes(hidden),false);
 assert.equal(JSON.stringify(trace),before);
 assert.deepEqual(publicTurnLedger(trace,{seat:0,turn:2}),[]);
 assert.equal(responseTurnEndingActionObserved([]),false);
+const deferredPass=publicTurnLedger([{
+  actionOrdinal:77,turnBefore:3,turnAfter:3,playerSlot:0,
+  action:'PassTurnAction',prizesAfter:[6,6],decksAfter:[44,44]
+}],{seat:0,turn:3});
+assert.equal(deferredPass[0].observedTurnNumberAdvanced,false);
+assert.equal(deferredPass[0].turnEndingActionAccepted,true);
+assert.equal(responseTurnEndingActionObserved(deferredPass),true);
 assert.throws(()=>publicTurnLedger(trace,{seat:0,turn:3,limit:2}),
   /exceeding cap/);
 assert.throws(()=>publicTurnLedger(trace,{seat:0,turn:0}));
-process.stdout.write('rank6 public response projection: 10 assertions passed\n');
+process.stdout.write('rank6 public response projection: 14 assertions passed\n');
