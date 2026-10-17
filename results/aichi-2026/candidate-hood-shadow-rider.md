@@ -70,6 +70,18 @@ The [direct Radiant Eternatus search categorization](../../tests/aichi_hood_radi
 
 The [source-printing engine feasibility probe](../../simulation/evaluation/aichi-hood-candidate.cjs) passed [manual CI 38828295484](https://github.com/FlareZ123/experiment-01/actions/runs/38828295484): the complete fixed 60-card candidate resolved with the documented research-compatible printing policies, and the pinned engine executed bounded two-seat generic-bot fixtures against source ranks **6 (Iron Thorns)** and **8 (Absol Garbodor)**. There were four synthetic-policy games, with no claim that they demonstrate competent play, complete representative benchmarking, or competitive win percentages. Raw fixture properties and candidate/opponent engine hashes are produced directly by the executable probe.
 
+**Additional independent checks (17 October):** the
+[bilateral opponent-mulligan Hood/removal race](hood-response-field.md#bilateral-opening-race-protected-hood-versus-printed-response)
+finds a narrowly modeled 8.62% (rank 6/24) or 7.38% (rank 29) protected
+resource opportunity with no *directly observed* opposing named Tool
+remover in the first nine cards, after accepting all mulligan bonuses.
+This is not a working lock or winning game. A separately researched
+[Silent Lab Stadium alternative](silent-lab-thorns-response-hypothesis.md)
+has a printed-text hypothesis for suppressing Active Basic Iron Thorns
+Initialization, balanced by significant Stadium replacement exposure,
+Basic-Pokémon self-lock, and a currently unmet pinned-engine test gate.
+Both investigations leave the frozen 60-card candidate unchanged.
+
 ## Next validation gates
 The [adversarial Arven-to-Hood effect test](hood-arven-interaction.md) passed [CI 38829270890](https://github.com/FlareZ123/experiment-01/actions/runs/38829270890): under opposing Initialization, the correctly chosen Hood survives V-to-VMAX evolution and exposes Underworld Door. Opposing Faba or hooked Megaton Blower can immediately remove it, suppressing the Ability again. The default SimpleTacticsAi's Arven search independently selected `Fog Crystal + Float Stone` in that state, confirming a concrete policy gap. A [source-complete Tool-removal audit](hood-response-field.md), with [deterministic CI 38829259172](https://github.com/FlareZ123/experiment-01/actions/runs/38829259172), finds at least one named hard Tool answer in **20/29** published source lists, including all three Iron Thorns lists. These counters constrain the deck's matchup promise. Both results concern resources and isolated effects; a real game win-rate is still unmeasured.
 
