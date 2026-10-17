@@ -428,6 +428,7 @@ function runMatch(request) {
     let options = request.doubleDragonRecovery === true ?
       require('./dde-attach-tactic.cjs').withDoubleDragonRecovery(baseOptions) : baseOptions;
     if (request.templeUnlockRecovery === true) options = require('./temple-unlock-tactic.cjs').withTempleUnlockRecovery(options);
+    if (request.electrodeGXPrizeTradePolicy === true) options = withElectrodePrizeTradePolicy(options);
     if (request.shadowRiderOpeningPivot === true) {
       options = withActiveOpeningPivot(options, {
         ChooseCardsPromptResolver: engine('simple-bot/prompt-resolver/choose-cards-prompt-resolver').ChooseCardsPromptResolver,
