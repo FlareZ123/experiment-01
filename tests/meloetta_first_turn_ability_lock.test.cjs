@@ -139,3 +139,31 @@ test('opposing Klefki Mischievous Lock denies Live Debut',()=>{
 test('source Canceling Cologne disables opposing Klefki Mischievous Lock',()=>{
   checkCase('Klefki SVI',true,true);
 });
+
+
+const {PokemonCardList}=engine('game/store/state/pokemon-card-list');
+
+/** Printed alternate response when the active Klefki has any Bench target. */
+test('source Counter Catcher can lift Klefki after Prize deficit',()=>{
+  const f=setup('Klefki SVI');
+  const benched=new PokemonCardList();
+  const defenderCard=initializeCards().getCardByName('Shadow Rider Calyrex V CRE');
+  assert.ok(defenderCard);
+  defenderCard.id=26001;
+  benched.cards.push(defenderCard);
+  f.defender.bench.push(benched);
+  const catcher=initializeCards().getCardByName('Counter Catcher PAR');
+  assert.ok(catcher);
+  catcher.id=26002;
+  f.attacker.hand.cards.push(catcher);
+  play(f,f.dce,active);
+  play(f,f.crisis,active);
+  play(f,catcher,board);
+  const prompt=f.state.prompts.find(p=>p.result===undefined);
+  assert.equal(prompt?.constructor.name,'ChoosePokemonPrompt');
+  assert.equal(prompt.validate([benched],f.state),true);
+  f.store.dispatch(new ResolvePromptAction(prompt.id,[benched]));
+  assert.equal(f.defender.active.getPokemonCard()?.name,'Shadow Rider Calyrex V');
+  assert.equal(f.attacker.active.getPokemonCard()?.name,'Meloetta ex');
+  assert.doesNotThrow(()=>f.store.dispatch(new AttackAction(f.attacker.id,'Crisis Punch')));
+});
