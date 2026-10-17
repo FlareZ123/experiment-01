@@ -27,6 +27,8 @@ jobs:
         run: node --test tests/iron_thorns_direct_line.test.cjs
       - name: Meloetta lone-Active model tests
         run: node --test tests/aichi_solo_start.test.cjs
+      - name: Meloetta direct Cologne opening access and independent deals
+        run: node --test tests/aichi-meloetta-cologne-window.test.cjs
       - name: Conditional rank-26 loss-budget tests
         run: node --test tests/aichi-rank26-loss-budget.test.cjs tests/aichi-rank26-exposure-frontier.test.cjs
       - name: Printed first-turn defense tests
@@ -47,6 +49,8 @@ jobs:
         run: node scripts/iron_thorns_direct_line.cjs > iron-thorns-direct-line.json
       - name: Meloetta lone-Active setup exposure
         run: node scripts/aichi_solo_start.cjs > meloetta-lone-active.md
+      - name: Meloetta direct Cologne opening report
+        run: node scripts/aichi-meloetta-cologne-window.cjs > meloetta-cologne-opening.json
       - name: Print 99.5% conditional Meloetta-donk loss budget
         run: node scripts/aichi_rank26_loss_budget.cjs
       - name: Print source-based hypothetical Basic-count exposure frontier
@@ -67,6 +71,7 @@ jobs:
             aichi-bonus-draws.md
             iron-thorns-direct-line.json
             meloetta-lone-active.md
+            meloetta-cologne-opening.json
             meloetta-printed-defense.md
             aichi-ranger-early-access.json
             aichi-ranger-stone-access.json
