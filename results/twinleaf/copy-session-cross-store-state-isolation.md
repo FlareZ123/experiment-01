@@ -72,3 +72,17 @@ The opt-in State-scoped loader restores independent-game isolation while **under
 [Compiled CI 39042075165](https://github.com/FlareZ123/experiment-01/actions/runs/39042075165) passed a bounded opt-in clone-transfer regression at `3d127309`. The added [wrapper](../../simulation/twinleaf/copy-session-aware-simulator-hook.cjs) calls a fail-closed per-State session-copy helper after the pinned Simulator constructor. The copied Goodra reducer callbacks changed from `real,real,speculative,real,real` under State scope alone to `real,real,speculative,speculative,real,real` with explicit transfer, preserving both hypothetical callbacks and the real parent continuation.
 
 The same test rejected prototype-safe cloned Card identities with `construction: Cloned Pokemon identity differs`. The wrapper deliberately supports the pinned identity-preserving clone only. That pinned clone has other fidelity defects, so this is **no win-rate evidence** and no complete policy simulation qualification. A newer wrapper-order guard and reverse-order test are pending separate CI verification. Complete transferred-session semantics across attack prompts and actual source-ranked gameplay remain open.
+
+## Detached-clone zone rebinding pilot
+
+[Manual compiled CI 39042630404](https://github.com/FlareZ123/experiment-01/actions/runs/39042630404) **passed** an additional source-identity challenge and optional [physical-zone mapper](../../simulation/twinleaf/copy-session-physical-zone-map.cjs). The mapping is derived from corresponding players and cards at exact zone positions, with printing and Card ID equality checks. It handles active, Bench, deck, hand, discard, Lost Zone, Supporter, Stadium and Prize-zone primary card lists. Unsupported or mismatched identities throw.
+
+Four relevant results in one separate-process test:
+
+- Pinned clone with State scope alone: `real,real,speculative,real,real`.
+- Pinned clone with explicit session transfer: `real,real,speculative,speculative,real,real`.
+- Detached clone with plain identity-preserving transfer: **rejected** (different copied Pokémon instance).
+- Detached clone with explicitly enabled physical-zone remapping: `real,real,speculative,speculative,real,real`.
+- Detached wrapper applied after the session transfer: **rejected** because the session wrapper must be outermost.
+
+This demonstrates one instrumented cloned `EndTurnEffect` lifecycle under prototype-safe Card detachment without losing the original Store's copy handler. It is **not yet a certified source-nonmutation or game-semantic clone**: future selected copied attacks may reference cloned Attack objects outside the tracked Card zones, and metadata aliasing is an independent concern. Source-ranked actual-game validation, repeated lookahead branches, faithful paper effects, and qualified bot policies remain missing. No win-rate or deck ranking change follows.
