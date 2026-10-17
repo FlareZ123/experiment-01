@@ -93,3 +93,18 @@ test('empty Prize zones and no remaining deck are explicit edge cases',()=>{
     uniformUnknownAllocation:true});
   assert.equal(noDeck.nextUnknownDeckProbability,null);
 });
+
+test('rank-2 sized unknown pool after an unlocated Gloom observation',()=>{
+  const result=unlocatedPrizePosterior({
+    unknownPool:[...Array(2).fill('Gloom UNB'),...Array(50).fill('Other')],
+    unknownPrizeCount:6,targetName:'Gloom UNB',
+    observedPrizeBounds:{'Gloom UNB':{min:1}},
+    uniformUnknownAllocation:true
+  });
+  assert.equal(result.unknownCardCount,52);
+  assert.equal(result.conditionedPhysicalAssignments,'4467820');
+  assert.deepEqual(result.distribution.map(x=>[x.copies,x.numerator]),
+    [[1,'4237520'],[2,'230300']]);
+  assert.equal(result.distribution[1].probability,230300/4467820);
+  assert.equal(result.nextUnknownDeckProbability,4237520/205519720);
+});
