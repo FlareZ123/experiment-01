@@ -1,0 +1,5 @@
+# Agent 1: New Moon rank-8 terminal-path correction
+
+17 October 2026. Source-dealt physical-A rank-8 seed 1655907393 was replayed in passing compiled manual CI 39038490110, 39038841441, and 39039240240. Original New Moon 60 wins only when the opponent begins turn60 with zero deck cards, both Prize pools untouched. Lockbreaker loses to opposing Mega Absol ex Claw of Darkness, with the opponent collecting the last three Prizes. Neither new Field Blower nor Canceling Cologne was played. Original opposing Mega Absol had only two Darkness Energy in its late board, below the three-Energy printed Claw cost; the modified run's opponent had three Energy and used Claw. Therefore the winner reversal does not demonstrate effective anti-lock Items or an avoidable Terminal Period misplay. All games remain unqualified.
+
+Full pinned evidence: results/twinleaf/agent1-newmoon-terminal-exposure-190.md. Before interpreting a swap, inspect actual actions, attached Energy, terminal paths, and whether the modified cards were played.
