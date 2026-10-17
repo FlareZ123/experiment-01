@@ -422,3 +422,11 @@ test('Grand Tree first-turn correction is forwarded and its engine echo must mat
   assert.equal(forged.counts['unverified-game-environment'],6);
   assert.equal(forged.counts['completed-engine-game']||0,0);
 });
+
+test('Electrode corrected Energy count must match the reported trial flag',()=>{
+ const correct=run({policyFlags:{electrodeGXEnergyCorrection:true}});
+ assert.equal(correct.counts['completed-engine-game'],6);
+ const mismatch=run({policyFlags:{electrodeGXEnergyCorrection:true},runMatch:request=>
+   sampleGame(request,{electrodeGXEnergyCorrection:false})});
+ assert.equal(mismatch.counts['unverified-game-environment'],6);
+});
