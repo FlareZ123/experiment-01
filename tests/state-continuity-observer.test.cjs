@@ -35,14 +35,14 @@ test('field-level difference detects a mutable Card scalar',()=>{
 
 test('exhaustive selected-state differences expose changes beyond first array-length discrepancy',()=>{
   const oldState={zones:{previousAttack:[{source:'A',attack:'Kaiser Tackle'}],
-    players:[{hand:['Energy'],deck:['Dragon']}]},cardHistory:[]};
+    zzPrivate:[{hand:['Energy'],deck:['Dragon']}]},cardHistory:[]};
   const newState={zones:{previousAttack:[],
-    players:[{hand:['Energy'],deck:['Replaced Dragon']}]},cardHistory:[]};
+    zzPrivate:[{hand:['Energy'],deck:['Replaced Dragon']}]},cardHistory:[]};
   assert.equal(firstMismatch(oldState,newState).path,'$.zones.previousAttack.length');
   const paths=differingLeafPaths(oldState,newState);
   assert.ok(paths.includes('$.zones.previousAttack.length'));
   assert.ok(paths.includes('$.zones.previousAttack[0]'));
-  assert.ok(paths.includes('$.zones.players[0].deck[0]'));
+  assert.ok(paths.includes('$.zones.zzPrivate[0].deck[0]'));
   assert.equal(differingLeafPaths(oldState,oldState).length,0);
 });
 
