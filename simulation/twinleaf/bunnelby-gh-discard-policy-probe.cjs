@@ -99,6 +99,9 @@ function probeGuzmaDiscardChoice(prizeBothGloom) {
 
   const searchPrompt = f.state.prompts.find(p => p.result === undefined);
   assert.ok(searchPrompt instanceof ChooseCardsPrompt);
+  const promptShape = {message:searchPrompt.message,
+    min:searchPrompt.options.min,max:searchPrompt.options.max,
+    allowCancel:searchPrompt.options.allowCancel};
   const search = f.bot.decodeNextAction(f.state);
   const searchedNames = chosenNames(search);
   if (!search || !searchPrompt.validate(search.result)) {
@@ -107,7 +110,7 @@ function probeGuzmaDiscardChoice(prizeBothGloom) {
   }
   return {
     prizeBothGloom,mode:mode.result,
-    discardedNames,searchedNames,
+    discardedNames,searchedNames,promptShape,
     availableInHandBeforeSearch: f.player.hand.cards.map(c => c.fullName),
     stage:'search-selected',
     caveat:'Constructed full-source-60 K0 board; upstream bot picks discards and search but no game is completed'
