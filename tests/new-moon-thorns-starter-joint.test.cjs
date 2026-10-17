@@ -52,6 +52,24 @@ test('Source-anchored Thorns opening three-axis and four-axis percentages',()=>{
   assert.ok(Math.abs(native.withAllBonuses-0.0781367569386634)<1e-12);
 });
 
+test('OR of native Gengar and Cologne-copied Mewtwo channels counts overlap once',()=>{
+  const p={size:60,hand:7,prizes:6,basics:17,starters:2,opponentBasics:4};
+  const row=main().eitherDirectGXChannel;
+  const native=ironThornsDirect({...p,starters:1,groups:[6]});
+  const copied=ironThornsDirect({...p,groups:[2,6]});
+  const overlap=ironThornsDirect({...p,starters:1,groups:[2,6]});
+  const merged=ironThornsDirect({...p,starters:3,groups:[2,6]});
+  const physicalBoth=overlap.withAllBonuses+copied.withAllBonuses-
+    merged.withAllBonuses;
+  assert.ok(Math.abs(physicalBoth-row.overlap.withAllBonuses)<1e-12);
+  assert.ok(Math.abs(native.withAllBonuses+copied.withAllBonuses-
+    physicalBoth-row.withAllBonuses)<1e-12);
+  assert.ok(Math.abs(row.firstDraw-0.09510164456970868)<1e-12);
+  assert.ok(Math.abs(row.withAllBonuses-0.11328003547541317)<1e-12);
+  assert.ok(row.withAllBonuses>native.withAllBonuses);
+  assert.ok(row.withAllBonuses<native.withAllBonuses+copied.withAllBonuses);
+});
+
 test('Frozen candidate manifest and three source opponents reconcile',()=>{
   const data=main();
   assert.deepEqual(data.benchmarkRanks,[6,24,29]);
