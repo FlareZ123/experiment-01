@@ -33,9 +33,13 @@ jobs:
         run: node --test tests/new-moon-native-opening-pivot.test.cjs
       - name: Compare same-seed New Moon candidate-second source openings
         run: node simulation/twinleaf/new-moon-native-opening-source-contrast.cjs > new-moon-native-opening-source.json
+      - name: Assert fixed source setup prompt, chosen Basic identities and opponent response
+        run: node simulation/twinleaf/new-moon-native-opening-fixed-source-proof.cjs > new-moon-native-opening-fixed-source-proof.json
       - name: Preserve source-seed and opponent-response diagnostic
         uses: actions/upload-artifact@v4
         with:
           name: new-moon-native-opening-contrasts
-          path: new-moon-native-opening-source.json
+          path: |
+            new-moon-native-opening-source.json
+            new-moon-native-opening-fixed-source-proof.json
           retention-days: 14
