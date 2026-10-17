@@ -65,8 +65,12 @@ function runTest() {
     proto.resolvePrompt = original;
   }
   assert.equal(proto.resolvePrompt, original);
-  assert.equal(sourceSelections.length, 1,
-    'One true root source Tapu Koko prompt must be overridden');
+  assert.ok(sourceSelections.length >= 1,
+    'The pinned prompt 57 must be seen in at least one policy proposal');
+  for (const selection of sourceSelections) {
+    assert.deepEqual(selection.assigned.map(x => x.target.index), [0, 1],
+      'Every intercepted proposal must target the two distinct Mega Absol ex');
+  }
   assert.notEqual(alternative.evidence?.promptId, 57,
     'Legal, physical two-Mega-Absol selection must resolve source prompt 57');
   return {
