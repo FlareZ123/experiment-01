@@ -59,6 +59,16 @@ jobs:
           name: newmoon-lockbreak-thorns-mulligan
           path: newmoon-lockbreak-thorns-mulligan.json
           if-no-files-found: error
+      - name: Test starter-coupled New Moon Iron Thorns direct resource probabilities
+        run: node --test tests/new-moon-thorns-starter-joint.test.cjs
+      - name: Record starter-coupled anti-lock resource access
+        run: node scripts/new-moon-thorns-starter-joint.cjs > newmoon-thorns-starter-joint.json
+      - name: Preserve independently tested starter-coupled access output
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-thorns-starter-joint-v1
+          path: newmoon-thorns-starter-joint.json
+          if-no-files-found: error
       - name: Exercise New Moon printed Perfection across Garbotoxin and active lock
         run: node simulation/twinleaf/new-moon-lockbreak-ability-gates.cjs > newmoon-lockbreak-ability-gates.json
       - name: Preserve live Store lockbreak answer matrix
