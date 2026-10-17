@@ -147,4 +147,35 @@ function verify() {
   return cases;
 }
 if (require.main===module) verify();
-module.exports={runCase,verify};
+/** Probe first bot action on a no-recipient all-GX field under optional correction. */
+function probeNoRecipientAction() {
+  const f=stagedRaichu([],null);
+  const {PokemonCardList}=load('game/store/state/pokemon-card-list');
+  const {CardList}=load('game/store/state/card-list');
+  const {SimpleTacticsAi}=load('simple-bot/simple-tactics-ai');
+  const definitions=load('simple-bot/simple-bot-definitions');
+  const {BotFlipMode,BotShuffleMode}=load('game/bots/bot-arbiter');
+  f.a.active.cards.splice(0,1,f.card('Electrode-GX CES'));
+  const bench=new PokemonCardList();
+  bench.cards.push(f.card('Electrode-GX CES'));
+  f.a.bench.push(bench);
+  f.a.discard.cards.push(f.card('Reversal Energy PAL'));
+  for(const player of [f.a,f.b]) {
+    player.prizes=Array.from({length:6},()=>{
+      const prize=new CardList();
+      prize.cards.push(f.card('Psychic Energy SVE'));
+      return prize;
+    });
+    player.deck.cards.push(f.card('Psychic Energy SVE'));
+  }
+  const bot=new SimpleTacticsAi({id:101},{
+    tactics:definitions.allSimpleTactics,
+    promptResolvers:definitions.allPromptResolvers,
+    scores:definitions.defaultStateScores,
+    arbiter:{flipMode:BotFlipMode.RANDOM,shuffleMode:BotShuffleMode.RANDOM}
+  },null);
+  const action=bot.decodeNextAction(f.state);
+  return {action:action?.constructor.name||null,power:action?.power||null};
+}
+
+module.exports={runCase,verify,probeNoRecipientAction};
