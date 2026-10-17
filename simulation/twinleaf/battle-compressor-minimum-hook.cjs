@@ -60,6 +60,9 @@ function installBattleCompressorMinimumHook(){
     if(BattleCompressor.prototype.reduceEffect===corrected){
       BattleCompressor.prototype.reduceEffect=original;
     }
+    if(Store.prototype.dispatch===guardedDispatch){
+      Store.prototype.dispatch=originalDispatch;
+    }
     installed=null;
   };
   installed={restore};
