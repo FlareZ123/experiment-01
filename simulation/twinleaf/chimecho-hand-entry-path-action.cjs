@@ -15,7 +15,8 @@ const load = moduleName => require(path.join(output, moduleName));
  *
  * @param {{lock:boolean,path:boolean,withAbility:boolean}} options
  * @returns {{options:object,locked:boolean,accepted:boolean,benchEntry:boolean,
- *   handRetained:boolean,error:string|null,pendingPrompts:string[]}}
+ *   handRetained:boolean,error:string|null,pendingPrompts:string[],
+ *   lockedAfterDefenderEnd:boolean|null}}
  */
 function probeChimechoHandEntry(options) {
   const cards = initializeCards();
@@ -89,12 +90,22 @@ function probeChimechoHandEntry(options) {
     error = caught.message;
   }
 
+  // End the locked player's actual turn after the rejected hand entry.
+  // The player-level attack restriction must expire at that boundary.
+  let lockedAfterDefenderEnd = null;
+  if (options.lock && options.withAbility) {
+    const { PassTurnAction } = load('game/store/actions/game-actions');
+    store.dispatch(new PassTurnAction(defender.id));
+    lockedAfterDefenderEnd = defender.cannotPlayPokemonWithAbilities;
+  }
+
   return {
     options,
     locked: defender.cannotPlayPokemonWithAbilities,
     accepted: error === null,
     benchEntry: defender.bench[0].getPokemonCard() === incoming,
     handRetained: defender.hand.cards.includes(incoming),
+    lockedAfterDefenderEnd,
     error,
     pendingPrompts: state.prompts
       .filter(prompt => prompt.result === undefined)
@@ -113,6 +124,10 @@ function testChimechoHandEntry() {
         assert.equal(row.accepted, !shouldBlock, JSON.stringify(row));
         assert.equal(row.benchEntry, !shouldBlock, JSON.stringify(row));
         assert.equal(row.handRetained, shouldBlock, JSON.stringify(row));
+        if (shouldBlock) {
+          assert.equal(row.lockedAfterDefenderEnd, false,
+            'Bell of Silence must expire after the affected player ends the turn');
+        }
         results.push(row);
       }
     }
