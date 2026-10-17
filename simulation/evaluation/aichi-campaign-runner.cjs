@@ -218,6 +218,7 @@ function executeCampaign(inputs, options = {}) {
         candidateTrueTurn: proof ?
           (proof.firstTurnSlot === candidateSlot ? 'first' : 'second') : 'unverified',
         observedWinnerIndex: game.winner ?? null,
+        observedFinished: game.finished === true,
         winner: status === 'completed' ?
           (game.winner === 3 ? 'draw' :
             game.winner === candidateSlot ? 'candidate' : 'opponent') : null,
