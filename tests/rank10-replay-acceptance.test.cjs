@@ -12,10 +12,10 @@ function validReport() {
     findings:[
       {arm:'control',status:'complete-reconstructed-live-input-trace',
         verifiedDispatches:350,sourceActions:350,matchSummaryIdentical:true,
-        graphVerifiedDispatches:350,storeDataGraphContract:'live-store-data-graph-except-logs-v1'},
+        graphVerifiedDispatches:350,storeDataGraphContract:'live-store-own-data-stats-clock-normalized-v2'},
       {arm:'alternate',status:'complete-reconstructed-live-input-trace',
         verifiedDispatches:235,sourceActions:235,matchSummaryIdentical:true,
-        graphVerifiedDispatches:235,storeDataGraphContract:'live-store-data-graph-except-logs-v1'}
+        graphVerifiedDispatches:235,storeDataGraphContract:'live-store-own-data-stats-clock-normalized-v2'}
     ]
   };
 }
