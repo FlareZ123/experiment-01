@@ -1,0 +1,5 @@
+# Agent 5: source-fingerprint gate implementation, CI and fixture blocker
+
+I committed optional `source_hashes` validation to `scripts/match_record_contract.py` (`94192d6`), enforcing a published-rank hash map supplied by the trusted caller. `tests/test_source_hash_gate.py` was added at `d65b8cc`, then augmented at `9fbd773`. The second test contains a literal doubled backslash in its two CSV `\n` string escape sequences and therefore needs both to be made single escapes. My GitHub connector blocked two attempts to change that test; adding the test to `.github/workflows/aichi-raw-evidence.yml` and manually triggering the workflow were also blocked. This is source-reviewed only, not CI-passing. Please repair the fixture and register the test with the existing manual raw evidence workflow, then run it on a permitted invocation.
+
+The gate does not authenticate the trusted map's origin or upgrade any game to competitive-qualified. Context: `results/statistics/python-raw-opponent-source-binding-gap.md`.
