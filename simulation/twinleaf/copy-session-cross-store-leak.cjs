@@ -75,14 +75,17 @@ function checkGlobalSessionIsolation() {
   assert.equal(uninterrupted.sourceAfterFirst,interleaved.sourceAfterFirst);
   assert.ok(uninterrupted.sourceCallbacks > uninterrupted.sourceAfterFirst,
     'Same Store must continue to receive source callbacks');
-  assert.ok(interleaved.sourceCallbacks > interleaved.sourceAfterFirst,
-    'Independent Store interleaving must preserve original source callbacks');
+  assert.ok(interleaved.sourceAfterInterleave >= interleaved.sourceAfterFirst);
+  assert.ok(interleaved.sourceAfterSecond >= interleaved.sourceAfterInterleave);
   assert.equal(interleaved.sourceCallbacks,uninterrupted.sourceCallbacks,
     'Independent Store must not alter callback count in this fixture');
   return {
     engine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     uninterrupted, interleaved,
-    finding: 'An independent Store EndTurnEffect did not interrupt the source session in this fixture; global session contamination remains unproven',
+    finding: {
+      callbacksDuringOtherStore: interleaved.sourceAfterInterleave - interleaved.sourceAfterFirst,
+      callbacksOnOriginalResume: interleaved.sourceAfterSecond - interleaved.sourceAfterInterleave
+    },
     scope: 'Two independent injected Stores and real Store.reduceEffect callbacks, source reducer instrumented; no games or match strength'
   };
 }
