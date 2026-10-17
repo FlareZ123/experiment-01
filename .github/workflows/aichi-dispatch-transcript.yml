@@ -69,6 +69,20 @@ jobs:
           path: rank10-v4-turn2-prime-catcher.json
           if-no-files-found: warn
 
+      - name: Run current-v4 same-seed Prime choice without prior generic bot decision
+        if: "!inputs.only_source_replay"
+        run: node simulation/twinleaf/rank10-v4-prime-no-preview.cjs > rank10-v4-prime-no-preview.json
+      - name: Print no-preview source decision outcome
+        if: "!inputs.only_source_replay"
+        run: node -e "const x=require('./rank10-v4-prime-no-preview.json'); console.log(JSON.stringify({override:x.override,firstStep:x.firstSourceDifference.rootStep,control:x.control,noPreview:x.noPreviewPrime,qualified:x.qualifiedForCompetitiveInference},null,2))"
+      - name: Archive no-preview current-v4 source counterfactual
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-v4-prime-no-preview
+          path: rank10-v4-prime-no-preview.json
+          if-no-files-found: warn
+
       - name: Check source-locked Field Blower policy predicates
         if: "!inputs.only_source_replay"
         run: node --test tests/rank10-field-blower-policy.test.cjs
