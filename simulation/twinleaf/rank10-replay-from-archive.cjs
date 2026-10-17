@@ -73,7 +73,7 @@ function replayArchivedRank10(archive) {
         status:'complete-reconstructed-live-input-trace',
         verifiedDispatches:replay.verifiedDispatches,
         graphVerifiedDispatches:replay.graphVerifiedDispatches,
-        storeDataGraphContract:'live-store-data-graph-except-logs-v1',
+        storeDataGraphContract:'live-store-own-data-stats-clock-normalized-v2',
         sourceActions:sourceTrace.length,
         matchSummaryIdentical:true
       };
