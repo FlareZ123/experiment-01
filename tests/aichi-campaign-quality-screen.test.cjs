@@ -381,7 +381,7 @@ test('equal-seed candidate variants cannot claim paired starts when engine order
 
 test('a missing source draw-log verification invalidates only the affected comparison pair', () => {
   const f = fixture();
-  f.records[3].turnEvidence.verifiedByDrawLog = false;
+  f.records[3].turnEvidence = {...f.records[3].turnEvidence, verifiedByDrawLog: false};
   f.records[3].candidateActualTurn = 'unverified';
   const result = auditCampaignQuality(f);
   assert.equal(result.pairedStartOrderComparable, false);
