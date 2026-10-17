@@ -94,6 +94,16 @@ function executeDiagnostic(options) {
     'radiantGateLockCorrection', 'entryDrawLockCorrection',
     'eldegossEntryLockCorrection'
   ]);
+  // Every allowed boolean requires an exact game echo unless its evidence is
+  // checked through another explicit channel. Future engine hooks therefore
+  // fail closed until runMatch reports their effective requested value.
+  const independentlyObservedPolicyFlags = new Set([
+    'strictPromptValidation', 'isolatePolicyRandomness',
+    'captureDecisionTrace', 'captureAttackPassProbes',
+    'attackBeforeRetreatCandidateOnly'
+  ]);
+  const echoedPolicyKeys = [...allowedFlags].filter(
+    key => !independentlyObservedPolicyFlags.has(key));
   if (policyFlags === null || typeof policyFlags !== 'object' ||
       Array.isArray(policyFlags) ||
       Object.entries(policyFlags).some(([key, value]) =>
@@ -189,20 +199,6 @@ function executeDiagnostic(options) {
         continue;
       }
       // Runtime fields are self-reported; this is a consistency check.
-      const echoedPolicyKeys = [
-        'forestSealSearchCorrection', 'doubleDragonRecovery',
-        'grandTreeFirstTurnCorrection', 'templeUnlockRecovery', 'supporterDecisionCorrection',
-        'electrodeGXEnergyCorrection',
-        'electrodeGXPrizeTradePolicy', 'electroRainDamageCorrection',
-        'raichuSightToolPolicy', 'raichuPrizeAllocationPolicy',
-        'snorlaxRetreatStartCorrection', 'shadowRiderEnergyPriority',
-        'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
-        'latiasAttackReadyAttachment', 'bunnelbyK0SafeEvolution',
-        'attackBeforeRetreat', 'prototypeSafeSimulatorIsolation',
-        'postSuperAliasRepairIsolation', 'leleEntryAbilityLockCorrection',
-        'radiantGateLockCorrection', 'entryDrawLockCorrection',
-        'eldegossEntryLockCorrection'
-      ];
       const policyMismatch = echoedPolicyKeys.some(key =>
         Object.hasOwn(enginePolicyFlags, key) &&
         game[key] !== enginePolicyFlags[key]);
