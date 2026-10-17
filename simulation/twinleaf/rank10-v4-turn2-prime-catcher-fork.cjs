@@ -67,7 +67,11 @@ function endResult(match) {
     winner:match.winner,finished:match.finished,turns:match.turns,
     actions:match.actions,prizesRemaining:match.prizesRemaining,
     firstTurnSlot:match.firstTurnSlot,
-    turn27Seen:(match.copycatTurnStartEvidence||[]).some(x=>x.turn===27)
+    turn27Seen:(match.copycatTurnStartEvidence||[]).some(x=>x.turn===27),
+    firstAttacks:(match.attackTrace||[]).slice(0,12).map(x=>({
+      turn:x.turn,seat:x.seat,attacker:x.activePokemon,attack:x.attack,
+      prizesBefore:x.prizeCountBefore,prizesAfter:x.prizeCountAfter
+    }))
   };
 }
 
