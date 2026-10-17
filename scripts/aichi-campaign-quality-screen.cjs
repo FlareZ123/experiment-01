@@ -138,10 +138,11 @@ function auditCampaignQuality(archive) {
     }
     const slot = record.candidateEngineSlot === 'A' ? 0 : 1;
     const firstSlot = record.turnEvidence?.firstTurnSlot;
-    const actualTurn = firstSlot === slot ? 'first' :
-      firstSlot === 1 - slot ? 'second' : 'unverified';
-    if (record.turnEvidence?.verifiedByDrawLog !== true ||
-        record.candidateActualTurn !== actualTurn ||
+    const drawLogVerified = record.turnEvidence?.verifiedByDrawLog === true &&
+      (firstSlot === 0 || firstSlot === 1);
+    const actualTurn = !drawLogVerified ? 'unverified' :
+      firstSlot === slot ? 'first' : 'second';
+    if (record.candidateActualTurn !== actualTurn ||
         actualTurn === 'unverified') {
       reasons.push('unverified-starting-turn');
     }
@@ -217,15 +218,62 @@ function auditCampaignQuality(archive) {
       }
     }
   }
+  // Mechanisms are declared by the researcher before interpreting the archive.
+  // A partial or hash-mismatched trace cannot certify an action's absence.
+  const checks = archive.mechanismChecks === undefined ? [] : archive.mechanismChecks;
+  if (!Array.isArray(checks) || new Set(checks.map(check => check?.id)).size !== checks.length ||
+      checks.some(check => !check || typeof check.id !== 'string' || !check.id.trim() ||
+        !candidates.has(check.candidateId) ||
+        (check.rank !== undefined && !ranks.has(check.rank)) ||
+        !['PlayCardAction', 'UseAbilityAction', 'AttackAction'].includes(check.action) ||
+        typeof check.detail !== 'string' || !check.detail.trim())) {
+    throw new Error('Invalid or duplicate declared candidate mechanism check.');
+  }
+  const detailField = {
+    PlayCardAction: 'card', UseAbilityAction: 'ability', AttackAction: 'attack'
+  };
   const coverage = [];
   for (const rank of archive.selectedPilotRanks) {
     for (const candidateId of candidates.keys()) {
       const subset = rows.filter(row => row.rank === rank &&
         row.candidateId === candidateId);
+      const observedFirst = subset.filter(row => row.actualTurn === 'first').length;
+      const observedSecond = subset.filter(row => row.actualTurn === 'second').length;
+      const missingActualTurnStrata = [
+        ...(observedFirst === 0 ? ['first'] : []),
+        ...(observedSecond === 0 ? ['second'] : [])
+      ];
+      const records = archive.records.filter(record =>
+        record.opponentRank === rank && record.candidateId === candidateId);
+      const mechanismExposure = checks.filter(check => check.candidateId === candidateId &&
+        (check.rank === undefined || check.rank === rank)).map(check => {
+        let observedActions = 0;
+        let completeTraces = 0;
+        for (const record of records) {
+          const row = rows.find(item => item.trialId === record.trialId);
+          if (row.traceIntegrity !== 'digest-valid') continue;
+          const trace = record.traceSummary.chronologicalActionTrace;
+          const candidateSlot = record.candidateEngineSlot === 'A' ? 0 : 1;
+          observedActions += trace.filter(action => action.playerSlot === candidateSlot &&
+            action.action === check.action &&
+            action[detailField[check.action]] === check.detail).length;
+          if (record.traceSummary.coversAllActionsAndPromptResolutions === true) {
+            completeTraces += 1;
+          }
+        }
+        return {
+          id: check.id, action: check.action, detail: check.detail,
+          observedActions, completeTraces, totalTrials: records.length,
+          status: observedActions > 0 ? 'observed' :
+            completeTraces === records.length ? 'verified-no-exposure' :
+              'unknown-incomplete-traces'
+        };
+      });
       coverage.push({
         rank, candidateId, trials: subset.length,
-        observedFirst: subset.filter(row => row.actualTurn === 'first').length,
-        observedSecond: subset.filter(row => row.actualTurn === 'second').length,
+        observedFirst, observedSecond, missingActualTurnStrata,
+        actualTurnCoverageComplete: missingActualTurnStrata.length === 0,
+        mechanismExposure,
         completedEngineGames: subset.filter(row => row.status === 'completed-engine-game').length,
         zeroCandidateAttackTrials: subset.filter(row =>
           row.blockers.includes('zero-candidate-attacks')).length,
@@ -251,6 +299,12 @@ function auditCampaignQuality(archive) {
     simulatorSafetyBlocker,
     simulatorSafetyQualified: false,
     selectedPilotRanks: archive.selectedPilotRanks,
+    mechanismExpectationStatus: checks.length ? 'declared' : 'not-declared',
+    missingActualTurnCoverage: coverage.filter(row =>
+      !row.actualTurnCoverageComplete).map(row => ({
+        rank: row.rank, candidateId: row.candidateId,
+        missing: row.missingActualTurnStrata
+      })),
     totalTrials: rows.length,
     repeatsVerified: repeats, fullPilotMatrixVerified: true,
     candidateRankingPermitted: false,
