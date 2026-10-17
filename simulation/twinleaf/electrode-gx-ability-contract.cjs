@@ -42,6 +42,11 @@ function runCase(count, noRecipient = false, useBot = false, availableCount = 5,
   const candidates = ['Reversal Energy PAL','Counter Energy CIN',
     'Unit Energy LPM UPR','Reversal Energy PAL','Counter Energy CIN'].map(f.card);
   const available = candidates.slice(0, availableCount);
+  if (chainAttack) {
+    f.a.active.getPokemonCard().id = 1045;
+    benchTarget.getPokemonCard().id = 2050;
+    available.forEach((energy, i) => { energy.id = 1046 + i; });
+  }
   f.a.discard.cards.push(...available);
   const before = f.b.getPrizeLeft();
   f.store.dispatch(new UseAbilityAction(101, 'Extra Energy Bomb', {
