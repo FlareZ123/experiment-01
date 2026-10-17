@@ -11,7 +11,7 @@ const load = modulePath => require(path.join(output, modulePath));
 /**
  * Make a real PlayCardAction and complete Happy Match's optional Supporter
  * recovery on a staged midgame board, with chosen active lock and Coliseum.
- * @param {'none'|'iron-thorns'|'path'|'silent-lab'|'garbotoxin-tool'|'garbotoxin-bare'} lock
+ * @param {'none'|'iron-thorns'|'klefki'|'path'|'silent-lab'|'garbotoxin-tool'|'garbotoxin-bare'} lock
  * @param {boolean} useCologne
  * @returns {object}
  */
@@ -46,7 +46,8 @@ function probeEldegossEntry(lock, useCologne = false) {
   const opponent = new Player();
   opponent.id = 101;
   opponent.active.cards.push(card(lock === 'iron-thorns'
-    ? 'Iron Thorns ex TWM' : 'Dialga-GX UPR'));
+    ? 'Iron Thorns ex TWM' : lock === 'klefki'
+      ? 'Klefki SVI' : 'Dialga-GX UPR'));
   if (lock === 'path') opponent.stadium.cards.push(card('Path to the Peak CRE'));
   if (lock === 'silent-lab') opponent.stadium.cards.push(card('Silent Lab PRC'));
   if (lock.startsWith('garbotoxin')) {
@@ -121,6 +122,8 @@ function runTest() {
     ['none', false, true],
     ['iron-thorns', false, false],
     ['iron-thorns', true, true],
+    ['klefki', false, false],
+    ['klefki', true, true],
     ['path', false, false],
     ['silent-lab', false, false],
     ['garbotoxin-tool', false, false],
@@ -151,6 +154,8 @@ function runTest() {
       'Pinned pre-Bench hand card incorrectly evades in-play lock');
     assert.equal(raw.get('path:false').offered, true,
       'Pinned pre-Bench hand card incorrectly evades Path');
+    assert.equal(raw.get('klefki:false').offered, true,
+      'Pinned pre-Bench hand card incorrectly evades Klefki');
     assert.equal(raw.get('silent-lab:false').offered, false,
       'Explicit hand-zone lock should work without a guard');
     return {
