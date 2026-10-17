@@ -11,7 +11,7 @@ const engine = moduleName => require(path.join(output,moduleName));
 /**
  * Rank-2-relevant Supporter response: Faba removes opponent Garbodor Tool,
  * potentially restoring own Vileplume Item lock within that same turn.
- * @param {{vileplume:boolean,hood:boolean,supporterSpent:boolean,ownerSeat:0|1,switchFirst?:boolean}} options
+ * @param {{vileplume:boolean,hood:boolean,supporterSpent:boolean,ownerSeat:0|1,switchFirst?:boolean,itemKind?:'switch'|'tag-call'}} options
  */
 function probe(options) {
   const cards = initializeCards();
@@ -67,7 +67,9 @@ function probe(options) {
     player.deck.cards.push(card('Psychic Energy SVE'),card('Psychic Energy SVE'));
   }
   const faba = card('Faba LOT');
-  const item = card('Switch SVI');
+  const tagCall=options.itemKind==='tag-call';
+  const item = card(tagCall?'Tag Call CEC':'Switch SVI');
+  if(tagCall) owner.deck.cards.push(card('Guzma & Hala CEC'));
   owner.hand.cards.push(faba,item);
   if (options.supporterSpent) owner.supporterTurn=state.turn;
   // Failed Store.dispatch may restore a cloned State. Reacquire all live
@@ -94,21 +96,27 @@ function probe(options) {
   };
   const trainerTarget={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
   const switchTarget={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0};
-  // Test the opposite temporal order using the same staged board.
-  // While opposing Tool-enabled Garbotoxin suppresses an unhooded Vileplume,
-  // Switch can be played before Faba restores the Item lock.
+  const itemTarget=tagCall?trainerTarget:switchTarget;
+  // Test both Item-first and Faba-first. Tag Call and Faba are actual
+  // rank-2 source cards, while Switch is a simple, separate Item control.
   let earlySwitchError = null;
   let earlySwitchPrompt = null;
   let earlySwitchSelected = false;
   if (options.switchFirst) {
-    earlySwitchError = play(item,switchTarget);
+    earlySwitchError = play(item,itemTarget);
     earlySwitchPrompt = pending()?.constructor.name || null;
     if (!earlySwitchError) {
       const choose = pending();
-      assert.equal(choose?.constructor.name,'ChoosePokemonPrompt');
-      const target = currentOwner().bench[0];
+      assert.equal(choose?.constructor.name,
+        tagCall?'ChooseCardsPrompt':'ChoosePokemonPrompt');
+      const target=tagCall?
+        currentOwner().deck.cards.find(c=>c.fullName==='Guzma & Hala CEC'):
+        currentOwner().bench[0];
+      assert.ok(target,'Expected a live Tag Call search target or Bench target');
       assert.equal(choose.validate([target],currentState()),true);
       answer([target]);
+      if(tagCall) assert.ok(currentOwner().hand.cards.some(c=>c.id===target.id),
+        'Tag Call must add the real source TAG TEAM Supporter to hand');
       earlySwitchSelected = true;
     }
     assert.equal(pending(),undefined,'Early Switch must finish before Faba');
@@ -130,7 +138,7 @@ function probe(options) {
   const fabaInHand=currentOwner().hand.cards.some(c=>c.id===faba.id);
   const toolInLostZone=currentOpponent().lostzone.cards.some(c=>c.id===tool.id);
   const toolStillOnGarbodor=currentOpponent().bench[0].tools.some(c=>c.id===tool.id);
-  const switchError=options.switchFirst?null:play(item,switchTarget);
+  const switchError=options.switchFirst?null:play(item,itemTarget);
   return {...options,fabaError,promptNames,earlySwitchError,earlySwitchPrompt,
     earlySwitchSelected,fabaInHand,toolInLostZone,
     toolStillOnGarbodor,supporterTurn:currentOwner().supporterTurn,
@@ -147,7 +155,8 @@ function run() {
     {vileplume:true,hood:false,supporterSpent:true}
   ];
   const rows=configs.flatMap(p=>[0,1].flatMap(ownerSeat=>
-    [false,true].map(switchFirst=>probe({...p,ownerSeat,switchFirst}))));
+    [false,true].flatMap(switchFirst=>
+      ['switch','tag-call'].map(itemKind=>probe({...p,ownerSeat,switchFirst,itemKind})))));
   for (const row of rows) {
     const played=!row.supporterSpent;
     assert.equal(row.fabaError,played?null:'SUPPORTER_ALREADY_PLAYED',
@@ -161,7 +170,8 @@ function run() {
         'Pre-Faba Item legality must reflect existing Garbotoxin suppression');
       assert.equal(row.earlySwitchSelected,!initiallyLocked,
         'Pre-Faba Switch prompt should finish only while Item access is live');
-      assert.equal(row.earlySwitchPrompt,initiallyLocked?null:'ChoosePokemonPrompt');
+      assert.equal(row.earlySwitchPrompt,initiallyLocked?null:
+        row.itemKind==='tag-call'?'ChooseCardsPrompt':'ChoosePokemonPrompt');
       assert.equal(row.itemInHand,initiallyLocked,
         'Early successful Switch is spent, denied Switch remains in hand');
       assert.equal(row.switchPrompt,null,'Reverse order must not spend a second Item');
@@ -170,14 +180,15 @@ function run() {
       assert.equal(row.switchError,blocked?'CANNOT_PLAY_THIS_CARD':null,
         'Vileplume Item lock should re-evaluate immediately');
       assert.equal(row.itemInHand,blocked,'Blocked Switch stays in hand');
-      assert.equal(row.switchPrompt,blocked?null:'ChoosePokemonPrompt',
+      assert.equal(row.switchPrompt,blocked?null:
+        row.itemKind==='tag-call'?'ChooseCardsPrompt':'ChoosePokemonPrompt',
         'Unlocked Switch produces target prompt');
     }
   }
   return {
     study:'Faba Supporter removes Garbotoxin Tool and reactivates Item lock',
     engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    source:'Aichi rank2 has Faba LOT; synthesized opponent Garbodor',
+    source:'Aichi rank2 registered Faba LOT and Tag Call CEC; Switch is an independent control; opponent Garbodor is staged',
     scope:'Injected board actual Store actions, no deck search, decision AI or game win-rate',
     rows
   };
