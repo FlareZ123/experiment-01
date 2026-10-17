@@ -63,7 +63,7 @@ jobs:
           if-no-files-found: error
 
       - name: Check bounded source-paired decision readout
-        run: node --test tests/expanded-source-profile-pair.test.cjs
+        run: node --test tests/aichi-rank2-gh-visibility.test.cjs tests/expanded-source-profile-pair.test.cjs
       - name: Run two-seat source-matched Expanded policy comparison
         if: ${{ inputs.expanded_source_pair }}
         run: node simulation/twinleaf/expanded-source-profile-pair.cjs > expanded-source-policy-pair.json
