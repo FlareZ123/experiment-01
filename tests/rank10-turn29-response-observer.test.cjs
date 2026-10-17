@@ -11,13 +11,27 @@ const mkState=secret=>({turn:29,activePlayer:0,
   players:[0,1].map((seat)=>({
     id:100+seat,active:mkSlot('Active '+seat),bench:[],
     hand:{cards:[{fullName:secret}]},deck:{cards:[]},
-    prizes:[],stadium:{cards:[]},usedGX:false,usedVSTAR:false,
+    prizes:[],getPrizeLeft(){return this.prizes.reduce((n,p)=>n+p.cards.length,0);},
+    stadium:{cards:[]},usedGX:false,usedVSTAR:false,
     retreatedTurn:0,energyPlayedTurn:0
   }))
 });
 test('public projection is invariant to unrevealed card identity',()=>{
   assert.deepEqual(publicResponseBoard(mkState('HIDDEN-1')),
     publicResponseBoard(mkState('HIDDEN-2')));
+});
+test('counts cards remaining in physical Prize slots rather than six empty positions',()=>{
+ const source=mkState('hidden');
+ source.players[0].prizes=Array.from({length:6},(_,i)=>({
+   cards:i<3?[{fullName:'Unrevealed card'}]:[]
+ }));
+ source.players[1].prizes=Array.from({length:6},(_,i)=>({
+   cards:i<2?[{fullName:'Another private card'}]:[]
+ }));
+ const result=publicResponseBoard(source);
+ assert.equal(result.players[0].prizesRemaining,3);
+ assert.equal(result.players[1].prizesRemaining,2);
+ assert.equal(JSON.stringify(result).includes('Unrevealed card'),false);
 });
 test('captures only authentic Store and restores wrapper',()=>{
   class AddPlayerAction{}
