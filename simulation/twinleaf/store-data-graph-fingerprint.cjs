@@ -9,9 +9,10 @@ const crypto = require('node:crypto');
  * text cannot prove equality of its captured lexical environment.
  *
  * @param {object} store Actual root Twinleaf Store.
- * @returns {{schema:string,digest:string,nodes:number,opaqueFunctions:number,excluded:string[]}}
+ * @param {{includeGraph?:boolean}} [options] Enable a bounded diagnostic graph dump.
+ * @returns {{schema:string,digest:string,nodes:number,opaqueFunctions:number,excluded:string[],graph?:object}}
  */
-function storeDataGraphFingerprint(store) {
+function storeDataGraphFingerprint(store,options={}) {
   if (!store || !store.state) throw new TypeError('Expected a Store with State');
   const seen = new WeakMap();
   const nodes = [];
@@ -96,6 +97,7 @@ function storeDataGraphFingerprint(store) {
     digest:crypto.createHash('sha256').update(data).digest('hex'),
     nodes:nodes.length,
     opaqueFunctions,
+    ...(options.includeGraph===true ? {graph:{root,nodes}} : {}),
     excluded:['Store.handler','State.logs contents (count retained)',
       'function lexical environments','prototype methods and identities']
   };
