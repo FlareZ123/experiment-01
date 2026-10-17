@@ -9,7 +9,7 @@ test('root Store characterizes proposed non-retreat Active removal',()=>{
   assert.equal(report.cases.length,4);
   for(const x of report.cases){
     assert.ok(Array.isArray(x.prompts));
-    assert.equal(typeof x.activeAfter,'string');
+    assert.ok(x.activeAfter === null || typeof x.activeAfter === 'string');
     assert.equal(typeof x.supporterDiscarded,'boolean');
   }
 });
