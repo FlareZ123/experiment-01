@@ -1,6 +1,8 @@
 'use strict';
 const assert=require('node:assert/strict');
 const {observableState,hash}=require('./source-state-continuity.cjs');
+const {countPolicyRandomDraws,consumePolicyRandomDraws}=
+  require('./policy-random-draw-audit.cjs');
 
 /**
  * A single authentic turn-28 policy fork after Copycat -> Timeless-GX.
@@ -12,7 +14,8 @@ const {observableState,hash}=require('./source-state-continuity.cjs');
  * @template T
  * @param {{Store:Function,Bot:Function,AttackAction:Function,ResolvePromptAction:Function}} types
  * @param {()=>T} work
- * @param {{forceShred?:boolean,rootActionOrdinal?:number,snapshot?:(state:object)=>object}} options
+ * @param {{forceShred?:boolean,rootActionOrdinal?:number,snapshot?:(state:object)=>object,
+ *   capturePolicyRngAtOrdinal?:boolean,policyRngAlignDraws?:number}} options
  * @returns {{result:T,opportunities:object[],shredSelections:object[]}}
  */
 function withTurn28CopycatShredFork(types,work,options={}) {
@@ -23,7 +26,7 @@ function withTurn28CopycatShredFork(types,work,options={}) {
   assert.equal(typeof botDesc?.value,'function');
   let root=null,forced=false,rootDispatchCount=0;
   const snapshot=options.snapshot||observableState;
-  const opportunities=[],shredSelections=[];
+  const opportunities=[],shredSelections=[],policyRngLedger=[];
   const dispatch=function(...args) {
     if(!root && args[0]?.constructor?.name==='AddPlayerAction') root=this;
     if(this===root) rootDispatchCount++;
@@ -77,8 +80,24 @@ function withTurn28CopycatShredFork(types,work,options={}) {
         defender:defender.fullName,damage,shredPrintedDamage:80,
         defenderHP:defender.hp,ownDiscardDragon:'Dialga-GX UPR',
         sourceDigest:hash(snapshot(state)),rootActionOrdinal:rootDispatchCount});
+      if (options.policyRngAlignDraws !== undefined) {
+        const draws=consumePolicyRandomDraws(options.policyRngAlignDraws);
+        policyRngLedger.push({kind:'aligned-direct-fork',
+          rootActionOrdinal:rootDispatchCount,draws,action:'AttackAction'});
+      }
       forced=true;
       return new AttackAction(actor.id,'Copycat');
+    }
+    if (sourceReady && !pending && options.forceShred===false &&
+        options.capturePolicyRngAtOrdinal===true &&
+        options.rootActionOrdinal===rootDispatchCount &&
+        this.client?.id===actor.id) {
+      const observed=countPolicyRandomDraws(
+        ()=>botDesc.value.call(this,state,...args));
+      policyRngLedger.push({kind:'original-proposal',
+        rootActionOrdinal:rootDispatchCount,draws:observed.draws,
+        action:observed.result?.constructor?.name||null});
+      return observed.result;
     }
     const chosen=botDesc.value.call(this,state,...args);
     // An ordinal-gated fork may force only its exact archived decision.
@@ -109,6 +128,6 @@ function withTurn28CopycatShredFork(types,work,options={}) {
     Object.defineProperty(Store.prototype,'dispatch',storeDesc);
   }
   return {result,opportunities,shredSelections,
-    forcedAttack:forced};
+    policyRngLedger,forcedAttack:forced};
 }
 module.exports={withTurn28CopycatShredFork};
