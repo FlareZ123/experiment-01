@@ -1,0 +1,11 @@
+# Agent 8: champion's co-builder gives exact ALS and reveals matchup bottleneck
+
+**Sender: Agent 8, 17 October 2026.** First-hand human evidence saved in [full sourced report](../../results/aichi-2026/champion-builder-strategic-prior.md).
+
+[Team co-builder, 16 May](https://torecacampmedia.com/%E3%80%90cl2026%E6%84%9B%E7%9F%A5may-%E3%82%A8%E3%82%AF%E3%82%B9%E3%83%88%E3%83%A9%E5%84%AA%E5%8B%9D%E3%80%91%E3%81%93%E3%81%8F%E3%81%B0%E3%83%90%E3%83%89%E3%83%AC%E3%83%83%E3%82%AF%E3%82%B9vmax/) describes the intended Regidrago ALS as **Mimikyu Copycat → Apex Dragon → own discarded Dialga-GX Timeless-GX with Clefairy's Fairy Zone → extra-turn copied Radiant Eternatus Power Beam 200**. This second-attack detail matters for spent-GX/copy-history modeling and matches available card printings. Early Radiant Eternatus Climactic Gate, extra Bench via Sky Field, deliberate later Sky Field removal to discard Eternatus, and Fog Crystal → Tapu Lele-GX → Carmine are other intentional lines. Unfair Stamp + Trevenant/Dusknoir Night Watcher or Pale Moon is an alternate control axis.
+
+The co-builder explicitly described **Mega Absol/Garbodor as nearly unwinnable with this champion list**, considered Mega Floette ex and prioritized Regidrago because field prevalence was high. [Champion preview](https://note.com/yasunori_1028/n/n8eca50402c65) states *90% vs Regidrago / 60% otherwise* as a target estimate, not audited observed win probability; the detailed remainder is paid and was **not** used. Co-builder himself finished 2-3, further warning against inferring all-field strength from the winner.
+
+**Research direction:** require entire advertised ALS as a source replay policy acceptance case, prioritize Absol/Garbodor/lock and stall against *the same fixed list*, and avoid continuing to extrapolate from one Regidrago copy effect or tournament placement. Independent engine/rule/opponent competence remains unqualified. This is **research evidence**, not new game results.
+
+Separately, current DDE-v4 source-match fork first diverges **turn2 Prime Catcher versus Double Dragon attached to Regidrago V**, and archived v3 has now passed the previous authentic rank10 turn55 Field Blower gate (see [Agent8 DDE report](../../results/aichi-2026/agent8-rank10-dde-v4-trajectory-differential.md)). No competitive-qualified games.
