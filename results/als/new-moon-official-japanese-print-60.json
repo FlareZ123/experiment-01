@@ -1,0 +1,212 @@
+{
+  "schema": "new-moon-official-japanese-prints-v1",
+  "event_date": "2026-05-10",
+  "source_code": "GxxDYx-a4rD4W-a8xYxc",
+  "official_url": "https://www.pokemon-card.com/deck/confirm.html/deckID/GxxDYx-a4rD4W-a8xYxc",
+  "retrieved_utc": "2026-10-17T09:12:03Z",
+  "github_actions_run": 39020209669,
+  "github_artifact": 12095944382,
+  "html_sha256": "df12cd53331d1ea3dcae0a0584662c046791bd555708fa47d610c73958664af2",
+  "origin": "results/als/new-moon-perfection-source-60.json",
+  "entry_order": "Identical to origin entries. IDs and quantities extracted from official hidden deck_pke/deck_gds/deck_tool/deck_sup/deck_sta/deck_ene; Japanese set codes extracted from official card image paths. Exact Japanese registration print IDs; paper legality still requires dated rule review.",
+  "entries": [
+    {
+      "name_en": "Mewtwo & Mew-GX",
+      "count": 2,
+      "japanese_card_id": 37256,
+      "japanese_set": "SM12a"
+    },
+    {
+      "name_en": "Gengar & Mimikyu-GX",
+      "count": 1,
+      "japanese_card_id": 35982,
+      "japanese_set": "SM9"
+    },
+    {
+      "name_en": "Trevenant & Dusknoir-GX",
+      "count": 1,
+      "japanese_card_id": 37257,
+      "japanese_set": "SM12a"
+    },
+    {
+      "name_en": "Tapu Lele-GX",
+      "count": 1,
+      "japanese_card_id": 35504,
+      "japanese_set": "SM8b"
+    },
+    {
+      "name_en": "Galarian Articuno V",
+      "count": 1,
+      "japanese_card_id": 40392,
+      "japanese_set": "SI"
+    },
+    {
+      "name_en": "Latias ex",
+      "count": 1,
+      "japanese_card_id": 48597,
+      "japanese_set": "M2a"
+    },
+    {
+      "name_en": "Lillie's Clefairy ex",
+      "count": 1,
+      "japanese_card_id": 49003,
+      "japanese_set": "MC"
+    },
+    {
+      "name_en": "Squawkabilly ex",
+      "count": 1,
+      "japanese_card_id": 47869,
+      "japanese_set": "MA"
+    },
+    {
+      "name_en": "Unown",
+      "count": 3,
+      "japanese_card_id": 33598,
+      "japanese_set": "XY"
+    },
+    {
+      "name_en": "Dusclops",
+      "count": 2,
+      "japanese_card_id": 45894,
+      "japanese_set": "SV6a"
+    },
+    {
+      "name_en": "Duskull",
+      "count": 2,
+      "japanese_card_id": 38541,
+      "japanese_set": "S4"
+    },
+    {
+      "name_en": "Solrock",
+      "count": 1,
+      "japanese_card_id": 34884,
+      "japanese_set": "SM6b"
+    },
+    {
+      "name_en": "Lunatone",
+      "count": 1,
+      "japanese_card_id": 43889,
+      "japanese_set": "SV3"
+    },
+    {
+      "name_en": "Klefki",
+      "count": 1,
+      "japanese_card_id": 44610,
+      "japanese_set": "SV4a"
+    },
+    {
+      "name_en": "Battle VIP Pass",
+      "count": 4,
+      "japanese_card_id": 44052,
+      "japanese_set": "SVF"
+    },
+    {
+      "name_en": "Fog Crystal",
+      "count": 4,
+      "japanese_card_id": 44174,
+      "japanese_set": "SVEM"
+    },
+    {
+      "name_en": "Mysterious Treasure",
+      "count": 2,
+      "japanese_card_id": 37338,
+      "japanese_set": "SM12a"
+    },
+    {
+      "name_en": "Hisuian Heavy Ball",
+      "count": 2,
+      "japanese_card_id": 45317,
+      "japanese_set": "SVHK"
+    },
+    {
+      "name_en": "Rescue Carrier",
+      "count": 4,
+      "japanese_card_id": 42403,
+      "japanese_set": "S12a"
+    },
+    {
+      "name_en": "Battle Compressor",
+      "count": 2,
+      "japanese_card_id": 37415,
+      "japanese_set": "XY"
+    },
+    {
+      "name_en": "Trainer's Mail",
+      "count": 2,
+      "japanese_card_id": 30925,
+      "japanese_set": "XY6-B"
+    },
+    {
+      "name_en": "Adventure Bag",
+      "count": 1,
+      "japanese_card_id": 37332,
+      "japanese_set": "SM12a"
+    },
+    {
+      "name_en": "Escape Rope",
+      "count": 1,
+      "japanese_card_id": 36398,
+      "japanese_set": "SM10"
+    },
+    {
+      "name_en": "Counter Catcher",
+      "count": 1,
+      "japanese_card_id": 34175,
+      "japanese_set": "SM4S"
+    },
+    {
+      "name_en": "Secret Box",
+      "count": 1,
+      "japanese_card_id": 45783,
+      "japanese_set": "SV6"
+    },
+    {
+      "name_en": "Powerglass",
+      "count": 2,
+      "japanese_card_id": 49399,
+      "japanese_set": "MC"
+    },
+    {
+      "name_en": "Forest Seal Stone",
+      "count": 1,
+      "japanese_card_id": 42184,
+      "japanese_set": "S12"
+    },
+    {
+      "name_en": "Lillie's Determination",
+      "count": 2,
+      "japanese_card_id": 49445,
+      "japanese_set": "MC"
+    },
+    {
+      "name_en": "Ace Trainer",
+      "count": 2,
+      "japanese_card_id": 31049,
+      "japanese_set": "XY7-B"
+    },
+    {
+      "name_en": "Sky Field",
+      "count": 2,
+      "japanese_card_id": 37432,
+      "japanese_set": "XY"
+    },
+    {
+      "name_en": "Path to the Peak",
+      "count": 2,
+      "japanese_card_id": 40316,
+      "japanese_set": "S8b"
+    },
+    {
+      "name_en": "Telepathic Psychic Energy",
+      "count": 3,
+      "japanese_card_id": 49712,
+      "japanese_set": "M3"
+    },
+    {
+      "name_en": "Basic Psychic Energy",
+      "count": 3,
+      "japanese_card_id": 48307,
+      "japanese_set": "ENE"
+    }
+  ]
+}
