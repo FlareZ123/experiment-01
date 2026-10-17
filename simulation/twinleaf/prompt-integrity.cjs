@@ -106,13 +106,15 @@ function attachEnergyFailureEvidence(prompt, action, state) {
   const source = prompt.cardList.cards;
   const allowed = new Set(prompt.cardList.filter(prompt.filter));
   const seen = new Set();
-  const recipientPool = eligiblePokemonTargets(state, prompt).map(({target, list}) => ({
-    target: {player: target.player, slot: target.slot, index: target.index},
-    pokemon: list.getPokemonCard()?.name ?? null
-  }));
-  const sourceZone = state.players.find(player => player.discard === prompt.cardList) ?
-    'discard' : state.players.find(player => player.deck === prompt.cardList) ?
-      'deck' : state.players.find(player => player.hand === prompt.cardList) ?
+  const players = Array.isArray(state.players) ? state.players : [];
+  const recipientPool = players.length >= 2 ?
+    eligiblePokemonTargets(state, prompt).map(({target, list}) => ({
+      target: {player: target.player, slot: target.slot, index: target.index},
+      pokemon: list.getPokemonCard()?.name ?? null
+    })) : [];
+  const sourceZone = players.find(player => player.discard === prompt.cardList) ?
+    'discard' : players.find(player => player.deck === prompt.cardList) ?
+      'deck' : players.find(player => player.hand === prompt.cardList) ?
         'hand' : 'other';
   const selections = Array.isArray(action.result) ? action.result.map(entry => {
     const card = entry?.card;
