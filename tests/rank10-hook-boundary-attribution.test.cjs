@@ -23,12 +23,13 @@ function fixture() {
     trace[next].action = nextAction;
     if (kind === 'post-dispatch-copy-restore') {
       prev.pendingPrompt = {kind:'ChooseAttackPrompt'};
+      trace[next].pendingPrompt = {kind:'WaitPrompt'};
       prev.attackChoice = {schema:'choose-attack-reference-v1',
-        selection:{attackName:'Kaiser Tackle'}};
+        selection:{attackName:'Kaiser Tackle',printing:'Koraidon ex TEF',attackIndex:1}};
     }
     return {
       afterActionOrdinal:prior,beforeActionOrdinal:next,
-      previousAction:prev.action,nextAction,
+      nextAction,
       previousHash:prev.continuityDigestAfter,
       currentHash:trace[next].continuityDigestBefore,
       cardHistoryMismatch:null,
