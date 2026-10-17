@@ -2,6 +2,7 @@
 
 const assert=require('node:assert/strict');
 const test=require('node:test');
+const path=require('node:path');
 const {build}=require('../simulation/twinleaf/ticket-k1-epoch-contrast.cjs');
 const {installRedeemableTicketPaperOrderHook}=
   require('../simulation/twinleaf/redeemable-ticket-paper-hook.cjs');
@@ -12,7 +13,12 @@ const {snapshotPrizeCardIdentities,invalidateAfterRootHiddenPrizeIngress}=
 const {hasBenchEvolutionTarget,hasK0PossibleBenchEvolutionTarget}=
   require('../simulation/twinleaf/bunnelby-evolution-policy.cjs');
 
-test('paper-corrected Store Ticket invalidates a prior genuine K1 epoch in both hidden-order worlds',()=>{
+test('root PlayCardAction for paper-corrected Ticket invalidates K1 in both hidden-order worlds',()=>{
+  const engine=name=>require(path.resolve(__dirname,
+    '../vendor/twinleaf/ptcg-server/output',name));
+  const {PlayCardAction,PlayerType,SlotType}=
+    engine('game/store/actions/play-card-action');
+  const {Format}=engine('game/store/card/card-types');
   const stages=[build(0),build(6)];
   const epochs=stages.map(()=>createOwnerDeckKnowledgeEpoch());
   for(const epoch of epochs)epoch.observeOwnerDeckSearch();
@@ -20,8 +26,15 @@ test('paper-corrected Store Ticket invalidates a prior genuine K1 epoch in both 
   const before=stages.map(x=>snapshotPrizeCardIdentities(x.state));
   const restore=installRedeemableTicketPaperOrderHook();
   try{
-    stages.forEach(stage=>stage.store.reduceEffect(stage.state,
-      new stage.TrainerEffect(stage.a,stage.ticket)));
+    stages.forEach(stage=>{
+      stage.state.gameSettings.format=Format.EXPANDED;
+      stage.state.turn=2;
+      const index=stage.a.hand.cards.indexOf(stage.ticket);
+      assert.ok(index>=0);
+      stage.store.dispatch(new PlayCardAction(stage.a.id,index,
+        {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
+      assert.ok(stage.a.discard.cards.includes(stage.ticket));
+    });
   }finally{restore();}
   assert.deepEqual(originalPrizes[0],originalPrizes[1]);
   assert.deepEqual(stages.map(x=>hasBenchEvolutionTarget(x.a)),[false,true],
