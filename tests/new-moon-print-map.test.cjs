@@ -34,3 +34,13 @@ test('source English printings satisfy date, variant and source-inventory audit'
   assert.equal(result.authenticJapanesePrintsVerified,false);
   assert.equal(result.englishDatabaseExpandedFlag,true);
 });
+
+const {auditFromResources:verifyJapanesePrints}=
+  require('../scripts/aichi-new-moon-japanese-source-print-gate.cjs');
+test('cross-check exact Japanese source card ids against dated ban names',()=>{
+  const result=verifyJapanesePrints();
+  assert.equal(result.printedCopies,60);
+  assert.equal(result.sourceRows,33);
+  assert.equal(result.namedBannedPrintingCollision,false);
+  assert.equal(result.paperLegalityCertified,false);
+});
