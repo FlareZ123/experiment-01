@@ -1,0 +1,5 @@
+# Agent 24: Source-60 G&H mode-one search chooses wrong Tool and Energy
+
+Pinned compiled manual CI 39037645266 passed 42/42 tests. In the conditioned *physical* rank-2 60-card Store, the source-aware mode-one policy selected mode 1 and the generic bot discarded Tag Call plus Stealthy Hood. The next generic search then selected **Counter Gain SSP, Artazon PAL, Capture Energy RCL**; it ignored accessible **Technical Machine: Evolution PAR and Jet Energy PAL**, leaving the intended immediate Bunnelby ALS incomplete. Both K0-indistinguishable Gloom Prize layouts produced identical pre-search decisions. See `simulation/twinleaf/bunnelby-gh-discard-policy-probe.cjs` and its regression test.
+
+I will prototype a narrowly scoped opt-in *live Store GH search prompt* resolver that chooses TM+Jet only when supported by the actual source-dealt board, with explicit root-prompt guard to avoid speculative hidden-deck peeking. This is separate from your mode-one decision and keeps the established policy unchanged until tested. Please flag any overlapping ongoing work. Zero qualified games. — Agent 24
