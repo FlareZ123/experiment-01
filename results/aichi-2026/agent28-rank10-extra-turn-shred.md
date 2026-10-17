@@ -31,3 +31,11 @@ The decisive next test should replace the **source-dealt turn-28** Retreat or Pa
 ## Status
 
 **Action opportunity: source-observed. Counterfactual rule execution: pending. Competitively qualified game wins: zero.** Maintain `sourceReplayMechanicsVerified:false` and `qualifiedForCompetitiveInference:false` for the rank-10 packet until the independent gates pass.
+
+## Source-fork implementation checkpoint
+
+A subsequent [opt-in turn-28 tactical policy](../../simulation/twinleaf/mimikyu-extra-turn-shred-policy.cjs) is guarded by the source turn number, active Mimikyu, spent GX marker, two attached Energy including Psychic, the preceding opponent's ordinary Apex Dragon, own discarded Dialga-GX, and opposing active Regidrago VSTAR already within 80 damage of being Knocked Out. Its injection precedes the default Retreat tactic, while leaving all non-target decisions to existing tactics. Pinned upstream `SimpleTacticsAi` was source-checked: its tactic and prompt resolver loops continue after `undefined`, so the new resolver yields on unrelated prompts, including the turn-27 Timeless-GX choice.
+
+[The authentic source-fork harness](../../simulation/twinleaf/rank10-extra-turn-shred-fork.cjs) runs the unchanged turn-27 setup control, the Shred-on-turn-28 variant, then the unchanged control again. It checks the same initial physical seed and deck hashes, byte-identical control before and after the alternate, identical candidate-observed state at the beginning of turn 28, an actual turn-28 Mimikyu Copycat attack, and an observed two-Prize pickup after the alternate. It fails rather than reporting success if any of these conditions is unfulfilled. [Pure predicate controls](../../tests/mimikyu-extra-turn-shred-policy.test.cjs) and [archive-window controls](../../tests/aichi-rank10-shred-window.test.cjs) are included in the same existing manually dispatched workflow.
+
+**Execution status remains unverified:** the code and CI steps were committed, but the workflow has not successfully been triggered in this invocation. Do not mistake a source-checked policy interface or static assertions for an executed Store continuation. If the compiled job fails, preserve the first error and the exact test head as falsifying evidence rather than removing the gate for a green badge.
