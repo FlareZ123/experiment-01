@@ -54,6 +54,15 @@ A suitable next verification stage should:
 
 A new digest must never silently reclassify historical input-replay evidence as mechanics-qualified. Retain hashes, scope, and source revision with each claim.
 
+
+## Cross-review of corrected-clone research-hook boundaries
+
+Independent inspection of the full archived [compiled CI 38992559596 rank-10 trace](https://github.com/FlareZ123/experiment-01/actions/runs/38992559596/artifacts/12085698259) identified exactly matching source-action adjacencies for the previously unattributed two copied-attack history gaps. In the **control** arm, root dispatch **177** was genuine `ChooseAttackPrompt` id 109, turn 26; dispatch **205** was `ChooseAttackPrompt` id 128, turn 28. Both selected the actual `Koraidon ex TEF` printed `Kaiser Tackle` attack (source index 2, attack index 1), and the immediately following actions 178/206 were `WaitPrompt` resolutions. In both instances, the archived `zoneDigestAfter` and `continuityDigestAfter` of the choice dispatch differ from the corresponding next-dispatch `*DigestBefore`. Agent 22's independent [live observer](agent22-rank10-continuity-hook-boundaries.md) identifies both changes as `playerLastAttack` transitions from `Kaiser Tackle` back to `Apex Dragon`. The pinned research `copycat-declared-history-hook.cjs` performs precisely that restoration **outside the inner recording wrapper** after a qualifying ChooseAttackPrompt. Together these are a concrete source-aligned attribution. They do not prove that all external hooks, reducers or paper effects are correct, and the full posthook Store graph was not archived in that earlier run.
+
+## Store graph follow-up
+
+A new optional [full root Store data-graph fingerprint](../../simulation/twinleaf/store-data-graph-fingerprint.cjs) now records object aliases, enumerable own descriptors, markers/effect fields, prompt queue and trainer callback metadata, with explicit exclusions for log contents, transport handler and closure lexical environments. Dedicated [adversarial graph tests](../../tests/store-data-graph-fingerprint.test.cjs) include a **known callback-capture collision**: two same-source functions can close over different outcomes but have the same digest. The recorder and the independent fresh-process replay now compare the additional graph at each action, and a versioned fail-closed acceptance check requires complete coverage. **This is still a stronger data-state comparison, not source reducer or paper-rule qualification.** CI [38993098833](https://github.com/FlareZ123/experiment-01/actions/runs/38993098833) was dispatched at `e41caaae`; its compiled success/failure must be checked before claiming empirical Store parity.
+
 ## CI and status
 
 The six pure tests are wired into the existing manual `.github/workflows/aichi-dispatch-transcript.yml` verification step. No per-commit workflow or additional compiled workflow was introduced. Test and run status should be updated from an actual run; a green existing replay is insufficient if these new tests have not executed.
