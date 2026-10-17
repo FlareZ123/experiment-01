@@ -43,3 +43,18 @@ Thus even in the nominally detached speculative branch, source reducer code ran 
 The earlier [manual CI 39040428794](https://github.com/FlareZ123/experiment-01/actions/runs/39040428794) passed the unpatched cross-Store test and showed `ERROR_SIMULATOR_NOT_STABLE` for simulations constructed after pending EndTurn prompts. That censored probe has been superseded by the stable-State construction.
 
 An experimental in-memory [per-State session hook](../../simulation/twinleaf/copied-session-state-scope-hook.cjs) and [regression](../../simulation/twinleaf/copied-session-state-scope-test.cjs) have been written. Their compiled validation is pending; do not infer that the hook is safe in full matches or preserves ongoing copied effects inside cloned hypothetical States.
+
+## Opt-in in-memory isolation experiment: compiled validation
+
+[Manual compiled CI 39040941097](https://github.com/FlareZ123/experiment-01/actions/runs/39040941097) **passed** at head `77e6dd89fec7d5f817ea5568c37c205b34a011a3` with the research-only [State-scope loader](../../simulation/twinleaf/copied-session-state-scope-hook.cjs) and [paired regression](../../simulation/twinleaf/copied-session-state-scope-test.cjs). The hook intercepts one compiled CommonJS import, verifies exact source anchors and replaces the module-global array with a `WeakMap` keyed by the current `State`. No vendored file is modified, and the experiment runs in its own Node process. It uses Node's internal CommonJS loader interface and is **not** recommended as a production integration.
+
+| Pair | Pinned unpatched | Per-State experimental |
+| --- | --- | --- |
+| Uninterrupted A then A, total source callbacks | 4 | 4 |
+| A then independent B then A, total source callbacks | **3** | **4** |
+| Callback count in foreign Store | 0 | 0 |
+| Callbacks when original A resumes | **1** | **2** |
+
+The same compiled patched process additionally passed the existing paid Regidrago spent-GX denial / next-turn Mimikyu Copycat compatibility fixture: with declaration-history hook, Mimikyu copied the appropriate ordinary attack and damaged Regidrago for 80, as before. This is a **positive bounded regression**, with no source-ranked full-game or bot-policy qualification.
+
+**Remaining open issues:** A cloned `State` does not automatically inherit its parent State's active copied-attack session under this patch. Thus a speculative clone may silently omit its legitimate ongoing copied-attack effects. No full match integration, source-dealt decision replay, one-turn lock/effect fidelity matrix, or engine-version-upgrade test has been completed. The loader must remain opt-in until those are resolved. The fixed-deck 99.5% objective has not been approached through competitive win-rate evidence here.
