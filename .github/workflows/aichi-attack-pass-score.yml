@@ -8,6 +8,11 @@ on:
         type: boolean
         required: false
         default: false
+      apex_mirror_screen:
+        description: Source-60 Regidrago mirror with authenticated first-player strata
+        type: boolean
+        required: false
+        default: false
       apex_rank15_screen:
         description: Run bounded authentic rank10 versus rank15 Phantom Dive exposure screen
         type: boolean
@@ -71,6 +76,15 @@ jobs:
         with:
           name: rank15-regidrago-spread-exposure
           path: rank15-spread-exposure.json
+          if-no-files-found: error
+      - name: Optional current-v4 Regidrago mirror copy-prompt source screen
+        if: inputs.apex_mirror_screen == true
+        run: node simulation/twinleaf/rank10-mirror-apex-source-exposure.cjs > rank10-mirror-apex-exposure.json
+      - uses: actions/upload-artifact@v4
+        if: inputs.apex_mirror_screen == true
+        with:
+          name: rank10-mirror-apex-exposure
+          path: rank10-mirror-apex-exposure.json
           if-no-files-found: error
       - name: Compare instrumented and uninstrumented source games
         run: node simulation/twinleaf/attack-pass-score-diagnostic.cjs
