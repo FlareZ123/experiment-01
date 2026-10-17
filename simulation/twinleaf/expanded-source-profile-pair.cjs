@@ -13,6 +13,35 @@ const SAMPLES = Object.freeze([
 const PROFILES = Object.freeze([EXPANDED_PROFILE, EXPANDED_SOURCE_PROFILE]);
 
 /**
+ * Compare only recorded meaningful root actions. This is a diagnostic
+ * chronology, not full Store replay, RNG coupling, or policy qualification.
+ * @param {object[]} left
+ * @param {object[]} right
+ * @returns {object|null}
+ */
+function firstRecordedDecisionDifference(left, right) {
+  const project = event => event ? ({
+    actionOrdinal: event.actionOrdinal,
+    turn: event.turnBefore,
+    seat: event.playerSlot,
+    action: event.action,
+    card: event.card,
+    ability: event.ability,
+    attack: event.attack,
+    option: event.optionSelection?.selectedOption,
+    sourceZone: event.cardSelection?.sourceZone,
+    selectedCards: event.cardSelection?.selectedCards
+  }) : null;
+  for (let i = 0; i < Math.max(left.length, right.length); i++) {
+    const a = project(left[i]), b = project(right[i]);
+    if (JSON.stringify(a) !== JSON.stringify(b)) {
+      return {recordedIndex: i, firstProfile: a, secondProfile: b};
+    }
+  }
+  return null;
+}
+
+/**
  * Retain only the rank-2 decisions capable of exposing the Bunnelby ALS.
  * This readout does not assess whether the choice was strategically correct.
  * @param {object} game Headless MatchRecord.
@@ -72,7 +101,7 @@ function runSourceProfilePair({maxActions = 350,profiles = PROFILES} = {}) {
 
   const samples = SAMPLES.map(sample => {
     const rank2Seat = sample.rankA === 2 ? 0 : 1;
-    const arms = profiles.map(profile => {
+    const observations = profiles.map(profile => {
       const game = runWithResearchProfile({
         deckA: decks.get(sample.rankA).cardIds,
         deckB: decks.get(sample.rankB).cardIds,
@@ -80,13 +109,17 @@ function runSourceProfilePair({maxActions = 350,profiles = PROFILES} = {}) {
         strictPromptValidation: true,
         label: 'Source-K0 policy contrast, rank2 seat ' + rank2Seat
       }, profile);
-      return {
+      return {game, arm: {
         profile, ...rank2DecisionReadout(game, rank2Seat),
         strictPromptValidation: game.promptValidationMode
-      };
+      }};
     });
+    const arms = observations.map(observation => observation.arm);
+    const firstRecordedDifference = firstRecordedDecisionDifference(
+      observations[0].game.decisionTrace || [],
+      observations[1].game.decisionTrace || []);
     return {
-      ...sample, rank2Seat, arms,
+      ...sample, rank2Seat, arms, firstRecordedDifference,
       equalSourceHashes: JSON.stringify(arms[0].deckHashes) ===
         JSON.stringify(arms[1].deckHashes),
       equalFirstTurn: arms[0].firstTurnSlot === arms[1].firstTurnSlot
@@ -103,4 +136,5 @@ function runSourceProfilePair({maxActions = 350,profiles = PROFILES} = {}) {
 if (require.main === module) {
   console.log(JSON.stringify(runSourceProfilePair(), null, 2));
 }
-module.exports = {SAMPLES, PROFILES, rank2DecisionReadout, runSourceProfilePair};
+module.exports = {SAMPLES, PROFILES, rank2DecisionReadout,
+  firstRecordedDecisionDifference, runSourceProfilePair};
