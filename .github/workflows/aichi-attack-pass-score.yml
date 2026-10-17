@@ -8,6 +8,11 @@ on:
         type: boolean
         required: false
         default: false
+      mega_energy_probe:
+        description: Test printed two-Energy discard against Double Dragon
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -32,6 +37,15 @@ jobs:
           npm run compile
       - name: Test authentic Store pass-score observer and source action fork
         run: node --test tests/koraidon-pass-score-horizon.test.cjs tests/rank10-koraidon-source-attack-fork.test.cjs tests/pending-end-turn-switch-cleanup.test.cjs tests/pending-end-turn-switch-installer.test.cjs tests/pending-end-turn-headless-option.test.cjs tests/apex-prize-headless-policy.test.cjs tests/rank10-apex-prize-source-pair.test.cjs tests/attack-pass-horizon-policy.test.cjs tests/decision-scoped-detached-simulator.test.cjs tests/graph-difference-witness.test.cjs
+      - name: Optional Apex Dragon Mega Dragonite energy-discard Store probe
+        if: inputs.mega_energy_probe == true
+        run: node simulation/twinleaf/apex-mega-dragonite-energy-discard.cjs > mega-dragonite-energy-discard.json
+      - uses: actions/upload-artifact@v4
+        if: inputs.mega_energy_probe == true
+        with:
+          name: mega-dragonite-energy-discard
+          path: mega-dragonite-energy-discard.json
+          if-no-files-found: error
       - name: Optional exact rank10 source-Apex paired policy audit
         if: inputs.apex_source_pair == true
         run: node simulation/twinleaf/rank10-apex-prize-source-pair.cjs > rank10-apex-prize-source-pair.json
