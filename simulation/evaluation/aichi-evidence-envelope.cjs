@@ -85,7 +85,8 @@ function auditArchive(inputs, archive) {
       const rawWinner = row.observedWinnerIndex;
       const boundOutcome = rawWinner === 3 ? 'draw' :
         rawWinner === candidateSlot ? 'candidate' : 'opponent';
-      if (!proof || (row.observedSeed !== undefined && row.observedSeed !== scheduled.seed) ||
+      if (!proof || row.observedFinished !== true ||
+          (row.observedSeed !== undefined && row.observedSeed !== scheduled.seed) ||
           ![0, 1, 3].includes(rawWinner) || row.winner !== boundOutcome ||
           !Array.isArray(row.expectedEngineDeckHashes) ||
           !Array.isArray(row.observedEngineDeckHashes) ||
