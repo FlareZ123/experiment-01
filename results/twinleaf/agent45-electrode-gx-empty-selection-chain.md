@@ -1,3 +1,11 @@
+## Same-revision paired rank-4 source games: corrected hook has no observed effect
+
+[Corrected CI 39025960133](https://github.com/FlareZ123/experiment-01/actions/runs/39025960133) versus [control CI 39025986518](https://github.com/FlareZ123/experiment-01/actions/runs/39025986518), both revision `4a0cab90`. Published rank-4 60-card opponent, three candidate 60s, identical paired seeds and both physical slots. The six complete meaningful-action trace arrays and corresponding SHA-256 hashes matched **6/6**; actions, turns, attacks and terminal Prizes matched too. The opponent put Electrode-GX in play in **3/6** traces, while the trace contains **zero Extra Energy Bomb actions** in either arm. All 12 records are engine-completed diagnostics, **zero qualified competitive games**. No win-rate interpretation is warranted. Source artifacts: corrected `12098353339`, control `12097858720`.
+
+[Pinned tactic-scoring CI 39026182576](https://github.com/FlareZ123/experiment-01/actions/runs/39026182576) independently established default bot refusal on a staged ready board: score `-56` before and `-1992` after Bomb, difference `-1936`; stock `UseAbilityTactic` chose no Ability. This demonstrates a specific decision-policy barrier but does not prove that all six natural opponents had a ready opportunity. The card-rules repair therefore requires separate policy study before meaningful gameplay evaluation.
+
+---
+
 ## 17 October 2026 update: confirmed, opt-in corrected and headless-integrated
 
 The 16 October text below is preserved as a source-code prediction. Its pending verification is superseded by pinned-engine manual CI:
