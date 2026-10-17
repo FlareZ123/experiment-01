@@ -60,5 +60,21 @@ function evaluateBombTactic() {
   assert.ok(result.scoreChange < -1000,'Two-Prize penalty overwhelms Energy utility');
   return result;
 }
+
+/**
+ * Source-specific theoretical Lightning provision after Bomb gives the opponent
+ * two Prizes. This is a deliberately narrow tactical heuristic.
+ * @param {any[]} energies
+ * @returns {number}
+ */
+function projectedLightningUnits(energies) {
+  return energies.slice(0,5).reduce((n,card)=>{
+    if(card.fullName==='Reversal Energy PAL')return n+3;
+    if(card.fullName==='Counter Energy CIN')return n+2;
+    if(card.fullName==='Unit Energy LPM UPR')return n+1;
+    return n;
+  },0);
+}
+
 if(require.main===module) evaluateBombTactic();
 module.exports={evaluateBombTactic};
