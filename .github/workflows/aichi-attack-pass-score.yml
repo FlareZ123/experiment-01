@@ -49,6 +49,9 @@ jobs:
       - name: Optional exact rank10 source-Apex paired policy audit
         if: inputs.apex_source_pair == true
         run: node simulation/twinleaf/rank10-apex-prize-source-pair.cjs > rank10-apex-prize-source-pair.json
+      - name: Summarize exact rank10 Apex policy source-game comparison
+        if: inputs.apex_source_pair == true
+        run: node -e "const x=require('./rank10-apex-prize-source-pair.json');console.log(JSON.stringify({schema:x.schema,firstDifference:x.firstRootActionDifference,controlRepeatExact:x.controlRepeatExact,control:x.control,experimental:x.experimental,qualified:x.qualifiedForCompetitiveInference}));"
       - uses: actions/upload-artifact@v4
         if: inputs.apex_source_pair == true
         with:
