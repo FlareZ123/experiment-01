@@ -179,6 +179,10 @@ function assertValidPromptAction(state, action) {
       Array.from(action.result).every(slot => available.has(slot)) &&
       new Set(action.result).size === action.result.length;
   }
+  if (valid && name === 'MoveEnergyPrompt' && action.result !== null) {
+    valid = Array.isArray(action.result) &&
+      validMoveEnergyTransfers(state, prompt, Array.from(action.result));
+  }
   if (valid && prompt.constructor.name === 'AttachEnergyPrompt' &&
       action.result !== null) {
     const eligible = new Set(prompt.cardList.filter(prompt.filter));
