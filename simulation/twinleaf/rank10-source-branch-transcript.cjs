@@ -218,8 +218,21 @@ function main() {
   assert.equal(control.sourceZoneDigest, repeat.sourceZoneDigest);
   assert.deepEqual(repeat.result, control.result,
     'Original control changed after alternate-policy invocation');
-  assert.deepEqual(repeat.actionTrace, control.actionTrace,
-    'Original live dispatch trace changed after alternate-policy invocation');
+  const repeatedDiff=firstDifference(control.actionTrace,repeat.actionTrace);
+  if(repeatedDiff) {
+    const old=control.actionTrace[repeatedDiff.index];
+    const current=repeat.actionTrace[repeatedDiff.index];
+    const before=firstMismatch(old.storeDataGraphBefore?.graph,
+      current.storeDataGraphBefore?.graph);
+    const after=firstMismatch(old.storeDataGraphAfter?.graph,
+      current.storeDataGraphAfter?.graph);
+    throw new Error('Repeated control graph drift: '+
+      JSON.stringify({step:repeatedDiff.index,action:old.action,
+        zonesEqual:old.zoneDigestAfter===current.zoneDigestAfter,
+        historyEqual:old.continuityDigestAfter===current.continuityDigestAfter,
+        effectsEqual:old.effectDigestAfter===current.effectDigestAfter,
+        before,after}));
+  }
   assert.equal(control.result.firstTurnSlot, seat,
     'Candidate B was expected to start in the frozen source game');
   assert.equal(branch.result.firstTurnSlot, seat);
