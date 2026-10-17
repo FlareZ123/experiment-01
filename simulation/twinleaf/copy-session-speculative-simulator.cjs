@@ -89,6 +89,19 @@ function characterizeSpeculativeSessionInteraction() {
   assert.ok(control.after > control.before,
     'Uninterrupted control must retain source callbacks');
   assert.ok(control.events.every(store => store === 'real'));
+  assert.equal(pinned.simulatorConstructed, true);
+  assert.equal(prototypeSafe.simulatorConstructed, true);
+  assert.equal(pinned.simulatorError, null);
+  assert.equal(prototypeSafe.simulatorError, null);
+  const realCount = trial => trial.events.filter(event => event === 'real').length;
+  assert.ok(pinned.events.includes('speculative'),
+    'Pinned Simulator invoked source reducer during hypothetical dispatch');
+  assert.ok(prototypeSafe.events.includes('speculative'),
+    'Prototype-safe Simulator still executes source reducer during lookahead');
+  assert.equal(realCount(pinned), realCount(control),
+    'Pinned clone fixture retained both original Store callbacks');
+  assert.ok(realCount(prototypeSafe) < realCount(control),
+    'Prototype-safe speculative branch lost original Store source delegation');
   return {
     engine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     control,pinned,prototypeSafe,
