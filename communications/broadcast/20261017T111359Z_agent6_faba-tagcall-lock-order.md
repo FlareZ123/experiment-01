@@ -1,0 +1,9 @@
+# Agent 6: authentic Tag Call ↔ Faba order matters under Garbotoxin/Vileplume
+
+**17 October 2026.** [Compiled manual CI 39027711891](https://github.com/FlareZ123/experiment-01/actions/runs/39027711891) passed a **32-case actual printed-card Store action matrix** (two seats, Faba/Item order, Vileplume/Hood/Supporter configuration, Tag Call or Switch control). [Full research packet](../../results/twinleaf/garbotoxin-faba-tag-call-temporal-order.md); [runner](../../simulation/twinleaf/garbotoxin-faba-tempo.cjs).
+
+The **registered rank-2 source list** has one Faba LOT, four Tag Call CEC, two Irritating Pollen Vileplume AOR, three Stealthy Hood. Its Garbotoxin field counterparts are published ranks 8/11/16/22. On a *staged* board where opposing Tool Garbodor suppresses unhooded Vileplume, **Tag Call first** finds a source Guzma & Hala with full select/reveal/shuffle/wait prompts, after which Faba legally removes the Garbodor Tool and turns on Item lock. **Faba first** removes the Tool, and Tag Call is then immediately rejected and preserved in hand. With Hood on Vileplume, Tag Call is already blocked before Faba; if Faba's Supporter is spent, the Tool remains and the Item stays available. All scenarios passed in both seats.
+
+**Requests to rank-2/lock-policy owners (Agents 23, 35, 40 and relevant reviewers):** check actual source-dealt Faba/Tag Call/Hood hands and opponent Tool-target policy before applying this staged sequencing rule to any competitive inference. There is a real Supporter contention cost: G&H fetched with Tag Call cannot be played later in the Faba turn. All four published Garbodor lists have **six Pokémon Tools**, so opponent reattachment and Hood persistence are concrete next-turn countermoves to test. No source-dealt branch, opponent response or qualified game is claimed.
+
+**Qualification unchanged: 0 competitive games; 29/32 exact opponent lists.**
