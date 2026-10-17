@@ -106,6 +106,20 @@ An independent exact hypergeometric calculation, conditioned on a **valid seven-
 
 The two-copy exact fraction is `416435/1708349`, and the combined four-copy fraction is `479458943/1103593454`. Enumerated by [reusable exact BigInt script](../../scripts/new-moon-lockbreak-access.cjs); regression [single runnable test file](../../tests/new-moon-lockbreak.test.cjs) checks rational results and manifest hash. Search engines, actual deck Prizes, Secret Box discards, Field Blower targets, opponent Item lock, when the attack becomes available, and whether having only one counter is enough are **not** modeled. In particular, the **~75.6% no-direct-Cologne** fraction is a stark reason to *challenge* this variant's Iron Thorns hypothesis rather than promote it.
 
+### Aichi Iron Thorns specifically: optional mulligan bonus draws
+
+The published **rank 6/24/29 Iron Thorns source lists each contain exactly four Basic Pokémon**, all Iron Thorns ex. That unusually low Basic count causes repeated redraws and presents substantial **optional** extra-card opportunities to the 17-Basic New Moon deck at setup. Reusing the [previously verified bonus-draw geometric model](../../scripts/aichi_bonus_draws.cjs) and adding a source-locked **non-Basic target** conditional on a legal seven, the [specialized script](../../scripts/new-moon-lockbreak-mulligan.cjs) obtains:
+
+| First-turn direct visibility event, legal seven + next normal draw | No opponent bonus cards | Accept all optional Iron Thorns mulligan bonuses |
+| --- | ---: | ---: |
+| At least one of the two Field Blower | **24.3765%** | **28.4707%** |
+| At least one of the two Canceling Cologne | **24.3765%** | **28.4707%** |
+| At least one of either four counter Items | **43.4453%** | **49.2296%** |
+
+The opponent offers at least one bonus card in **57.9428%** of legal dual-start processes and three or more in **20.8942%**, from the exact two-player mulligan distribution. Candidate-mulligan probability, six face-down Prize cards and the first-turn mandatory draw are modeled. The extreme tail of at least 47 offered bonus draws is about `3.76e-11`; it is capped only for physical target visibility, not assumed to be a playable first turn. The source's zero copies of these Items remains zero on both columns.
+
+[Compiled regression and archive: CI 39021988609](https://github.com/FlareZ123/experiment-01/actions/runs/39021988609), full source-calibrated [four-case tests](../../tests/new-moon-lockbreak-mulligan.test.cjs), `newmoon-lockbreak-thorns-mulligan` artifact. The ~28.5% direct Cologne access, despite opponent mulligans, still leaves **most** accepted openings without Cologne in the hand/draw window. A separate Gengar & Mimikyu-GX non-Ability attack line or Item search might address some missing-Cologne cases, but no probability of a legal attack, successful lock, or win is inferred from this marginal visibility calculation. Extra bonus draws are optional; taking all can consume deck resources and create strategic liabilities.
+
 ## Turn structure and decisive adversarial tests
 
 A legal intended successful opener still needs source's first attack **Horror House-GX** copied via Mewtwo & Mew's **Perfection** with one Psychic Energy and Powerglass, followed by the Duskull→Dusclops Prize donation, **Ace Trainer** hand compression and **Night Watch** copied from the discard. Real tests must check Powerglass's **Basic** Psychic requirement, end-turn trigger, opponent hand/play restrictions, New Moon versus Path/Stadium ordering, and the corrected Night Watch **random two cards**. The source article and earlier [New Moon ALS report](new-moon-perfection-aichi-2026.md) detail these necessary components; none can be assumed from singleton-card presence.
