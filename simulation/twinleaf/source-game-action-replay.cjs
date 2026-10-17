@@ -84,7 +84,8 @@ function withRecordedSourceActions(sourceTrace,work) {
     if(event.storeDataGraphBefore || event.storeDataGraphAfter) {
       assert.ok(event.storeDataGraphBefore && event.storeDataGraphAfter,
         'Missing one source Store graph checkpoint at step '+ordinal);
-      assert.deepEqual(storeDataGraphFingerprint(this),event.storeDataGraphBefore,
+      assert.deepEqual(storeDataGraphFingerprint(this,
+        {includeGraph:Boolean(event.storeDataGraphBefore.graph)}),event.storeDataGraphBefore,
         'Before-action Store data graph differs at source step '+ordinal);
     }
     const result=storeDesc.value.call(this,action);
@@ -97,7 +98,8 @@ function withRecordedSourceActions(sourceTrace,work) {
     assert.equal(sourceEffectDigest(this.state),event.effectDigestAfter,
       'After-action supplementary effect digest differs at source step '+ordinal);
     if(event.storeDataGraphAfter) {
-      assert.deepEqual(storeDataGraphFingerprint(this),event.storeDataGraphAfter,
+      assert.deepEqual(storeDataGraphFingerprint(this,
+        {includeGraph:Boolean(event.storeDataGraphAfter.graph)}),event.storeDataGraphAfter,
         'After-action Store data graph differs at source step '+ordinal);
       graphVerifiedDispatches++;
     }
