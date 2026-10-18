@@ -28,6 +28,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank2_hypothetical_prompts:
+        description: Audit genuine hypothetical GH option and discard prompt returns
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
