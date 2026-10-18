@@ -36,3 +36,22 @@ The exact source-locked CJS reproducer now exposes `census()` and `censusAfterFi
 ## Independent CI execution
 
 [Manual benchmark run 39092828578](https://github.com/FlareZ123/experiment-01/actions/runs/39092828578), triggered at 2026-10-18 03:12 UTC with the `rank11-source-census` job, **passed all 4/4 new Node tests**, and executed the source-locked script. Its runner stdout independently printed **2.46422799% / 1.69847237%** for initial seven and **3.67603159% / 2.23067981%** with the first natural draw (direct opportunity / v1 target-ready upper bound). The same workflow's *separate, pre-existing* `test-benchmark` job failed on shared campaign fixture record-count drift (8 records versus assertions expecting 6), so the overall workflow run is red. The rank11 isolated job was successful. This is runnable combinatorial validation only and certifies zero gameplay.
+
+
+## Second disjoint VSTAR route: held Forest Seal Stone
+
+The source includes **2 Oranguru V plus 1 Crobat V**, both eligible to hold Forest Seal Stone and use its *Star Alchemy* search effect. A first-turn player can use a held Forest Seal Stone and Float Stone to establish a Pokémon V (already in hand or fetched through Battle VIP Pass), obtain Boost Shake with Star Alchemy, put Trubbish in play (held or fetched with the same VIP, whose two-Basic search can fill both needs), attach Float to Trubbish, and evolve from a **deck Garbodor** with Boost Shake. The printed Boost Shake ends the turn after resolving the evolution. This route presumes the VSTAR Power remains available, and no prohibiting lock.
+
+This **held-Seal route** requires Forest Seal Stone already in hand and Boost Shake **absent** from the hand; the direct route requires the opposite Boost Shake condition. Thus the events are disjoint. The existing autonomous v1/v2 opening predicate rejects held Seal, so it covers neither route. A source-locked ten-bucket enumeration now handles three different searchable groups with Prize inclusion-exclusion: remaining Boost Shake, Garbodor, missing Trubbish, and missing Pokémon V (**either Oranguru V or Crobat V**).
+
+| Source-defined viable structural route | Seven-card opening, conditional legal H7 | After one normal first-turn draw, conditional legal H7 |
+| --- | ---: | ---: |
+| Held Boost Shake and Float Stone, direct evolution | 2.46422799% | 3.67603159% |
+| Held Forest Seal Stone and Float Stone, Star Alchemy for Shake | **1.48420977%** | **2.27640153%** |
+| **Union of these disjoint hand routes** | **3.94843776%** | **5.95243311%** |
+
+Exact held-Seal numerator: initial seven **102,325,528,271,124** divided by the same legal-opening joint denominator **6,894,276,702,593,280**. With the first normal draw: **7,376,246,746,128,421** / **324,031,005,021,884,160**. The direct numerator in each stratum is documented above. A source inventory with Crobat V omitted from the eligible V group produces a strictly lower number, confirming the group treatment has practical effect. No extra Card actions, forced Active selection, or mulligan bonus draws are counted.
+
+The source-locked regression exercises disjoint group target math and both sample spaces. The isolated `rank11-source-census` job in [manual CI 39093424371](https://github.com/FlareZ123/experiment-01/actions/runs/39093424371) **passed** after introducing the held-Seal route, including all six dedicated tests; the broader benchmark job is a distinct preexisting failing campaign fixture and provides no deck-strength qualification. Exact calculations are validated for these assumptions only.
+
+**Strategic priority:** source-dealt automatic Store decisions selecting at least one *held Boost Shake* opportunity and one *held Forest Seal Stone* opportunity, followed by genuinely consequential candidate counterplay. These numerical events demonstrate missed source-policy coverage, not lock setup actually executed or wins against a skilled player.
