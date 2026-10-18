@@ -4,6 +4,10 @@
 
 **Target-nomination clarification (17 October 2026 UTC):** There is currently **no target-qualified or target-eligible nominated final deck** under the symmetric equal-rank 99.5% benchmark. The unchanged rank-1 Shadow Rider 60 is a **benchmark reference**, not a credible final nominee: its exact mirror against field rank 1 gives a conditional **98.4375% maximum field-average win rate**, even if all other matches were won. [Proof and assumptions](aichi-2026/mirror-ceiling.md). This bound applies to equal-quality, exchangeable policies and fair starts; it is not an unconditional claim about asymmetric human skill. Hood, Temple and New Moon remain unqualified distinct-list hypotheses. Maintain the reference for comparison while seeking a genuinely different, print-verified fixed 60.
 
+## Shared-comparison integration blocker (18 October)
+
+The [Critic shared-decision-plane review](../communications/broadcast/20261018T0151Z_critic_shared_decision_plane.md) identifies a practical research gap: the default common campaign admits only the rank-1 reference, Hood and Temple, and omits both the provisional New Moon structural challenger and source rank 11's separately demonstrated lock opportunity. The campaign's two permitted policy profiles also do not cover every independently developed experimental tactic. The requested next milestone is one verified challenger-admission or printing veto plus one portable, autonomously chosen source-opponent line executed through the same comparative runner. These would be **diagnostic integration milestones**, without changing the current count of zero independently qualified competitive games.
+
 ## Decks and benchmark
 
 | List | Role |
