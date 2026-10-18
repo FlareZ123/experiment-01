@@ -29,7 +29,11 @@ function sampleGame(request, override = {}) {
     firstTurnPlayerId: 202, firstTurnPlayerName: 'research-B',
     firstDrawLogName: 'research-B', verifiedByDrawLog: true,
     actions: 30, turns: 3, endReason: 'engine-game-end',
-    engine: EXPECTED_ENGINE, label: request.label, policy: 'synthetic-unqualified',
+    engine: EXPECTED_ENGINE, label: request.label,
+    policy: 'synthetic-unqualified' + (request.toolAttackAwareness === true ?
+      '+ToolAttackEnumerate-v1@' +
+      (request.toolAttackAwarenessSeat === undefined ?
+        'both' : 'seat' + request.toolAttackAwarenessSeat) : ''),
     promptValidationMode: request.strictPromptValidation === true ?
       'predispatch-prompt-validate' : 'upstream-unchecked',
     policyRandomIsolation: request.isolatePolicyRandomness === true,
@@ -521,6 +525,18 @@ test('opponent-only Tool attack enumeration tracks the actual opponent physical 
     runMatch:request=>sampleGame(request,{toolAttackAwarenessSeat:9})
   });
   assert.equal(forged.counts['unverified-game-environment'],EXPECTED_PILOT_TRIALS);
+  const bogusLabel=run({
+    policyFlags:{toolAttackAwareness:true,toolAttackOpponentOnly:true},
+    runMatch:request=>sampleGame(request,{policy:'synthetic-unqualified'})
+  });
+  assert.equal(bogusLabel.counts['unverified-game-environment'],EXPECTED_PILOT_TRIALS);
+  const allSeats=run({policyFlags:{toolAttackAwareness:true}});
+  assert.equal(allSeats.counts['completed-engine-game'],EXPECTED_PILOT_TRIALS);
+  const bogusGlobal=run({
+    policyFlags:{toolAttackAwareness:true},
+    runMatch:request=>sampleGame(request,{toolAttackAwarenessSeat:0})
+  });
+  assert.equal(bogusGlobal.counts['unverified-game-environment'],EXPECTED_PILOT_TRIALS);
 });
 
 test('Tool attack policy profile guards prevent duplicate or implicit tactics',()=>{
