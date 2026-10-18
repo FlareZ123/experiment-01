@@ -144,6 +144,8 @@ jobs:
           if-no-files-found: warn
       - name: Verify pure attack-log declaration observer gates
         run: node --test tests/twinleaf-attack-log-declarations.test.cjs
+      - name: Verify Poltergeist physical Trainer-count observer invariants
+        run: node --test tests/poltergeist-effect-observer.test.cjs
       - name: Verify pinned Perfection delegated copied-GX Store action
         run: node simulation/twinleaf/perfection-delegated-action.cjs
       - name: Verify Gengar Horror House special-Psychic source fidelity diagnostic
