@@ -150,6 +150,7 @@ function run() {
     sourceActiveAtAlternatePass:alteredBoard.active,
     candidateFirstFollowingTurn:{
       turn:candidateAfter.turn,
+      sourceGarbotoxinExpectedFromPrintedTool:true,
       candidateActive:candidateAfter.board[1].active?.name??null,
       sourceGarbodor:candidateAfter.board[0].bench
         .find(slot=>slot.name==='Garbodor')??null
