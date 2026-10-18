@@ -74,6 +74,43 @@ function runTwoCologneBoard() {
     firstInDiscard:true,secondInHand:true,firstMarker:true,pending:0
   });
   const secondEligible = CAN_PLAY_TRAINER_CARD(store,state,mine,second);
+
+  // Headless bots reason in speculative Simulator clones. Verify the
+  // research Player field transfers, the exact second-card legality survives
+  // cloning, and no clone-local action changes the original Store.
+  const {Simulator} = pinned('game/bots/simulator');
+  const sourceHand = mine.hand.cards.slice();
+  const sourceDiscard = mine.discard.cards.slice();
+  const sourceMarkers = opponent.marker.markers.slice();
+  const simulation = new Simulator(state);
+  const cloneState = simulation.store.state;
+  const cloneMine = cloneState.players.find(p=>p.id===mine.id);
+  const cloneOpponent = cloneState.players.find(p=>p.id===opponent.id);
+  const cloneSecond = cloneMine.hand.cards.find(c=>c.fullName===second.fullName);
+  assert.ok(cloneSecond,'Simulated hand lost the second printed Cologne');
+  const speculative = {
+    secondEligible:CAN_PLAY_TRAINER_CARD(simulation.store,cloneState,cloneMine,cloneSecond),
+    dispatchError:null,
+    secondInHand:null,
+    secondMarker:null
+  };
+  try {
+    simulation.dispatch(new PlayCardAction(cloneMine.id,
+      cloneMine.hand.cards.indexOf(cloneSecond),target));
+  } catch(error) {
+    speculative.dispatchError = error.constructor.name+': '+error.message;
+  }
+  speculative.secondInHand = cloneMine.hand.cards.includes(cloneSecond);
+  speculative.secondMarker = cloneOpponent.marker.hasMarker('CANCELING_COLOGNE_MARKER',
+    cloneSecond);
+  const originalUntouchedByClone =
+    sourceHand.length===mine.hand.cards.length &&
+    sourceHand.every((c,i)=>c===mine.hand.cards[i]) &&
+    sourceDiscard.length===mine.discard.cards.length &&
+    sourceDiscard.every((c,i)=>c===mine.discard.cards[i]) &&
+    sourceMarkers.length===opponent.marker.markers.length &&
+    sourceMarkers.every((m,i)=>m===opponent.marker.markers[i]);
+
   const handIndex = mine.hand.cards.indexOf(second);
   assert.ok(handIndex >= 0);
   let secondDispatchError = null;
@@ -87,8 +124,8 @@ function runTwoCologneBoard() {
   const secondMarker = opponent.marker.hasMarker('CANCELING_COLOGNE_MARKER',second);
   const nextTurnCanPlay = second.canPlay(store,{...state,turn:state.turn+2},mine);
   return {
-    firstEligible,afterFirst,secondEligible,secondDispatchError,
-    secondInHand,secondInDiscard,secondMarker,nextTurnCanPlay,
+    firstEligible,afterFirst,secondEligible,speculative,originalUntouchedByClone,
+    secondDispatchError,secondInHand,secondInDiscard,secondMarker,nextTurnCanPlay,
     pending:state.prompts.filter(p=>p.result===undefined).length
   };
 }
@@ -113,12 +150,24 @@ function run() {
     'Stock engine actually consumed the second illegal same-turn Cologne');
   assert.equal(unpatched.secondMarker,true,
     'Stock engine applied the duplicate opponent Ability-lock marker');
+  assert.equal(unpatched.speculative.secondEligible,true);
+  assert.equal(unpatched.speculative.secondInHand,false);
+  assert.equal(unpatched.speculative.secondMarker,true);
+  assert.equal(unpatched.originalUntouchedByClone,true,
+    'Original state changed while running a speculative duplicate action');
   assert.equal(corrected.firstEligible,true);
   assert.equal(corrected.secondEligible,false,
     'Paper-ruling guard must reject second Cologne');
   assert.equal(corrected.secondInHand,true);
   assert.equal(corrected.secondInDiscard,false);
   assert.equal(corrected.secondMarker,false);
+  assert.equal(corrected.speculative.secondEligible,false,
+    'A cloned turn must retain the first Cologne play turn');
+  assert.equal(corrected.speculative.secondInHand,true);
+  assert.equal(corrected.speculative.secondMarker,false);
+  assert.match(corrected.speculative.dispatchError||'', /CANNOT_PLAY_THIS_CARD|GameError/);
+  assert.equal(corrected.originalUntouchedByClone,true,
+    'Guarded speculative action altered the original state');
   assert.match(corrected.secondDispatchError||'', /CANNOT_PLAY_THIS_CARD|GameError/,
     'The real Store must veto before moving the second Item out of hand');
   assert.equal(corrected.nextTurnCanPlay,true,
