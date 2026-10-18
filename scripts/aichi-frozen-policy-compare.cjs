@@ -168,6 +168,8 @@ function compareFrozenPolicyArchives(control, experimental, changedFlag) {
     identicalCapturedTraceTrials: rows.filter(r => r.traceIdentical).length,
     totalControlCapturedEvents: rows.reduce((n,r) => n+r.capturedEventsBaseline,0),
     allCapturedTracesIdentical: rows.every(r => r.traceIdentical),
+    allOrderedDeckHashesIdentical: rows.every(r =>
+      r.orderedDeckHashState === 'matched'),
     allActualTurnOrdersIdentical: rows.every(r => r.turnOrderIdentical),
     allTerminalTransitionsIdentical: rows.every(r => r.terminalTransitionIdentical),
     fullReplayCaptured: rows.every(r => r.fullReplayCaptured),
