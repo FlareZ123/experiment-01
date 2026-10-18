@@ -19,9 +19,10 @@ function isRank11BoostShakeCandidate(state, player) {
     return false;
   }
   const hand = player.hand?.cards;
+  // Oranguru's Back Order can find Float Stone alongside Forest Seal Stone.
+  // No held Float is required at K0; search availability is tested at K1.
   return Array.isArray(hand) &&
-    hand.some(card => card.name === 'Battle VIP Pass') &&
-    hand.some(card => card.name === 'Float Stone');
+    hand.some(card => card.name === 'Battle VIP Pass');
 }
 
 module.exports = {isRank11BoostShakeCandidate};
