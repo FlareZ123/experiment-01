@@ -69,6 +69,24 @@ function inspectPhysicalCardZones(state) {
     }
   }
 
+  // Some prefabs temporarily move top-deck cards into a CardList owned by
+  // a ChooseCardsPrompt. Such custody is not a canonical board zone.
+  const transientPromptCustody = state.players.map(() => 0);
+  const transientSeen = new Set();
+  for (const prompt of state.prompts || []) {
+    const cards = prompt.cards?.cards;
+    if (!Array.isArray(cards)) continue;
+    const ownerId = prompt.player?.id ?? prompt.playerId;
+    const seat = state.players.findIndex(player => player.id === ownerId);
+    if (seat < 0) continue;
+    for (const card of cards) {
+      if (!seen.has(card) && !transientSeen.has(card)) {
+        transientPromptCustody[seat]++;
+        transientSeen.add(card);
+      }
+    }
+  }
+
   return {
     schema: 'twinleaf-physical-reference-ownership-v1',
     canonicalCounts,
