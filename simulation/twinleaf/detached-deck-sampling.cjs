@@ -27,6 +27,25 @@ function reachableObjects(root) {
 }
 
 /**
+ * Prevent original mutable objects from surviving as own references or as
+ * prototype ancestors. Pinned vendor deepClone uses Object.create(source),
+ * so examining enumerable properties alone can miss a live State alias.
+ */
+function assertNoLiveObjects(root,forbidden,message) {
+  for(const object of reachableObjects(root)) {
+    assert.equal(forbidden.has(object),false,message);
+    let prototype=Object.getPrototypeOf(object);
+    const visited=new Set();
+    while(prototype!==null&&!visited.has(prototype)) {
+      assert.equal(forbidden.has(prototype),false,
+        message+' through inherited prototype');
+      visited.add(prototype);
+      prototype=Object.getPrototypeOf(prototype);
+    }
+  }
+}
+
+/**
  * Score one proposed action against independent full-state and action copies.
  * The supplied clone must detach every reachable mutable State object, not
  * merely Card instances and the surrounding deck/board arrays. Detached
@@ -94,10 +113,8 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
   const sourceObjects=reachableObjects(state);
   // Actions containing references into the original State cannot safely be
   // replayed against a detached State using index-based semantics.
-  for(const object of reachableObjects(action)) {
-    assert.equal(sourceObjects.has(object),false,
-      'Detached sampler action must not reference live State objects');
-  }
+  assertNoLiveObjects(action,sourceObjects,
+    'Detached sampler action must not reference live State objects');
   const actionObjects=reachableObjects(action);
   let total=0;
   for(let sample=0;sample<opts.samples;sample+=1) {
@@ -107,15 +124,13 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
     const player=detached.players.find(p=>p.id===playerId);
     assert.ok(player,'Sampled State lost acting player');
     assert.notStrictEqual(player,srcPlayer,'Sampled Player must be detached');
-    for (const object of reachableObjects(detached)) {
-      assert.equal(sourceObjects.has(object),false,
-        'Sampler clone retained a live Card reference or live State object');
-    }
+    assertNoLiveObjects(detached,sourceObjects,
+      'Sampler clone retained a live Card reference or live State object');
     const detachedAction=cloneState(action);
-    for(const object of reachableObjects(detachedAction)) {
-      assert.equal(actionObjects.has(object)||sourceObjects.has(object),false,
-        'Detached action clone retained a live action or State object');
-    }
+    assertNoLiveObjects(detachedAction,actionObjects,
+      'Detached action clone retained a live action or State object');
+    assertNoLiveObjects(detachedAction,sourceObjects,
+      'Detached action clone retained a live action or State object');
     const deck=player.deck.cards;
     assert.notStrictEqual(deck,srcPlayer.deck.cards,
       'Sampler clone must detach the acting player deck array');
