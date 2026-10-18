@@ -40,7 +40,8 @@ test('published Aichi 29 recovered lists have an exact checked Supporter census'
   const result=run();
   assert.equal(result.sourceDeckCount,29);
   assert.equal(result.totalPrintedCards,29*60);
-  assert.equal(result.classificationComplete,true);
+  assert.equal(result.classificationComplete,true,
+    'Unclassified source Trainers: '+result.unknownTrainerNames.join(', '));
   assert.deepEqual(result.unknownTrainerNames,[]);
   assert.equal(result.conflictingTrainerSubtypeNames.length,0);
   assert.equal(result.totalSupporterCopies,297);
