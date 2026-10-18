@@ -134,17 +134,28 @@ function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
  * actions, matching the rank-10 source-ordinal replay protocol.
  * @template T
  * @param {Function} Store
- * @param {(getOrdinal:()=>number,getOwnerDeckSearches:()=>object)=>T} work
+ * @param {(getOrdinal:()=>number,getOwnerDeckSearches:()=>object,getBoundary:()=>object|null)=>T} work
  * @param {0|1} [ownerSeat] Seat whose actual whole-deck search is observed.
+ * @param {number|null} [wantedBoundary] Zero-based root Store action step.
  * @returns {T}
  */
-function withRootDispatchCounter(Store,work,ownerSeat=1) {
+function withRootDispatchCounter(Store,work,ownerSeat=1,wantedBoundary=null) {
   const descriptor=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.ok(descriptor && typeof descriptor.value==='function');
-  let root=null,count=0;
+  let root=null,count=0,boundary=null;
   const observedPromptIds=new Set(),ownerDeckSearches=[];
   const wrapped=function(...args) {
     if(root===null && args[0]?.constructor?.name==='AddPlayerAction')root=this;
+    if(this===root && count===wantedBoundary){
+      const state=this.state;
+      boundary={
+        rootStep:count,turn:state.turn,activePlayer:state.activePlayer,
+        dispatchedAction:args[0]?.constructor?.name??null,
+        unresolvedPromptTypes:state.prompts
+          .filter(prompt=>prompt.result===undefined)
+          .map(prompt=>prompt.constructor.name)
+      };
+    }
     if(this===root)count++;
     const result=descriptor.value.apply(this,args);
     if(this===root) {
@@ -166,7 +177,7 @@ function withRootDispatchCounter(Store,work,ownerSeat=1) {
     observedWholeOwnerDeckSearches:ownerDeckSearches.length,
     first:ownerDeckSearches[0]??null,
     last:ownerDeckSearches.at(-1)??null
-  }));}
+  }),()=>boundary);}
   finally{Object.defineProperty(Store.prototype,'dispatch',descriptor);}
 }
 
@@ -238,10 +249,13 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
   });
   const observed=withRootDispatchCounter(
     require(path.join(output,'game/store/store')).Store,
-    (getOrdinal,getOwnerDeckSearches)=>withRootHiddenOrderProbe(
-      SimpleTacticsAi,()=>runMatch(common),cloneState,
-      {...makeTarget(getOrdinal),readOwnerDeckSearches:getOwnerDeckSearches}),
-    actorSeat);
+    (getOrdinal,getOwnerDeckSearches,getBoundary)=>{
+      const run=withRootHiddenOrderProbe(
+        SimpleTacticsAi,()=>runMatch(common),cloneState,
+        {...makeTarget(getOrdinal),readOwnerDeckSearches:getOwnerDeckSearches});
+      return {...run,sourceOrdinalBoundary:getBoundary()};
+    },
+    actorSeat,ordinal);
   assert.deepEqual(observed.result,control,
     'Read-only hidden-order counterfactual changed physical source match');
   assert.ok(observed.events.length<=1,
@@ -260,6 +274,7 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
         actions:control.actions,winner:control.winner
       },
       matchedUninstrumentedMatch:true,
+      sourceOrdinalBoundary:observed.sourceOrdinalBoundary,
       qualifiedForCompetitiveInference:false,
       conclusion:'Archived tactic alone did not reconstruct the historical root decision',
       limitations:[
@@ -289,6 +304,7 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
     doubleDragonPolicy:policy.doubleDragonArchiveV3?
       'historical-v3-archive':'current-v4',
     exposed:true,root:observed.events[0],
+    sourceOrdinalBoundary:observed.sourceOrdinalBoundary,
     matchedUninstrumentedMatch:true,
     qualifiedForCompetitiveInference:false,
     limitations:[
