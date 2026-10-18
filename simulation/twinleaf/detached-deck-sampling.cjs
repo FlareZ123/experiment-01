@@ -54,8 +54,9 @@ function assertNoLiveObjects(root,forbidden,message) {
  * This is a research diagnostic requiring K1, unknown suffix order and action
  * references that remain valid against a cloned state (e.g. index actions).
  * A fully known but position-unlocated Prize multiset can be shuffled within
- * face-down Prize slots, separately from the deck suffix. This requires
- * authenticated complete Prize composition and unknown positions; mere K1
+ * the still-unobserved Prize slots, separately from the deck suffix. A
+ * positional observation ledger can preserve any known slots. This requires
+ * authenticated complete Prize composition and unknown residual positions; mere K1
  * deck-membership knowledge does not prove that Prize positions were shuffled.
  * A known top prefix may be protected only when its observed order is verified.
  * K0 prize-inclusive deals are supported only under an explicit assertion
@@ -94,10 +95,12 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
   }
   const observedPrizeSlots=opts.observedPrizeSlots??[];
   assert.ok(Array.isArray(observedPrizeSlots),'Observed Prize slots must be an array');
-  assert.ok(sampleUnknownPrizes||observedPrizeSlots.length===0,
-    'Observed Prize slots require Prize-inclusive sampling');
-  assert.ok(!shuffleKnownPrizePositions||observedPrizeSlots.length===0,
-    'Unlocated Prize shuffle cannot preserve observed positions');
+  assert.ok(sampleUnknownPrizes||shuffleKnownPrizePositions||
+    observedPrizeSlots.length===0,
+    'Observed Prize slots require Prize sampling');
+  assert.ok(!shuffleKnownPrizePositions||observedPrizeSlots.length===0||
+    opts.prizeObservationLedgerComplete===true,
+    'Known Prize positions require a complete observation ledger');
   if(sampleUnknownPrizes&&observedPrizeSlots.length>0) {
     assert.ok(opts.prizeObservationLedgerComplete===true &&
       opts.prizesUnobservedVerified!==true &&
@@ -144,11 +147,13 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
       selectUnobservedPrizeSlots(player.prizes,observedPrizeSlots) : [];
     const unknownDeckCount=deck.length-knownTopCount;
     const knownPrizeSlots=shuffleKnownPrizePositions ?
-      player.prizes.flatMap((slot,prizeIndex)=>{
-        assert.ok(slot.isSecret===true,
-          'Unlocated Prize shuffle requires all Prize positions face down');
-        return slot.cards.map((card,cardIndex)=>({card,prizeIndex,cardIndex}));
-      }) : [];
+      selectUnobservedPrizeSlots(player.prizes,observedPrizeSlots) : [];
+    if(shuffleKnownPrizePositions) {
+      for(const slot of knownPrizeSlots){
+        assert.ok(player.prizes[slot.prizeIndex].isSecret===true,
+          'Unobserved Prize positions must be face down');
+      }
+    }
     const canonical=canonicalUnseenCards([
       ...deck.slice(knownTopCount),
       ...hiddenPrizePositions.map(slot=>slot.card)
