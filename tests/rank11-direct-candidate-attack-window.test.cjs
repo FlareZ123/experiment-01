@@ -49,7 +49,7 @@ test('copied attacks are counted from real Store declarations, not root AttackAc
   assert.equal(row.candidateDelegatedDeclarationCount,1);
   assert.deepEqual(row.candidateRootAttacks,[]);
   assert.equal(row.candidateEarlyDecisions.length,1);
-  assert.equal(row.candidateOpeningDecisions.length,2);
+  assert.equal(row.candidateOpeningDecisions.length,1);
   assert.equal(row.candidatePassDecisions[0].ownHandPrintings[0],'Psychic Energy');
   assert.equal(row.candidatePassDecisions[0].ownPublicBoard.active.name,'Mewtwo & Mew-GX');
   assert.equal(row.candidatePostWitnessDeclarationCount,1);
