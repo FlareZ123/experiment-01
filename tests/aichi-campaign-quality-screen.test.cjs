@@ -684,3 +684,88 @@ test('full root ledger resolves selective-trace silence and identifies next-turn
   assert.ok(out.records[3].blockers.includes('not-a-complete-replay'));
   assert.equal(out.winRateEvidence,false);
 });
+
+
+test('copied attack mechanism requires a real selected source printing and root dispatch',()=>{
+  const {PROTOCOL}=require('../scripts/aichi-root-action-ledger.cjs');
+  const f=fixture();
+  const target={
+    id:'delegated-poltergeist',candidateId:'challenger',rank:6,
+    action:'ResolvePromptAction',detail:'Poltergeist',
+    printing:'Gengar & Mimikyu-GX TEU 53'
+  };
+  f.mechanismChecks=[target];
+  for (const record of f.records) {
+    const roots=Array.from({length:record.actions},(_,i)=>({
+      actionOrdinal:i,
+      action:i===1?'PassTurnAction':'AttachEnergyAction',
+      playerSlot:0,
+      turnBefore:i<=1?1:i<=7?2:3,
+      turnAfter:i===1?2:i===7?3:i<=1?1:i<=7?2:3
+    }));
+    if (record.trialId==='pilot:6:0:challenger:A') {
+      roots[4]={...roots[4],action:'ResolvePromptAction',
+        pendingPrompt:'ChooseAttackPrompt',
+        attackChoice:{printing:target.printing,attackName:target.detail,
+          sourceIndex:0,attackIndex:1}};
+      roots[8]={...roots[8],playerSlot:1,
+        action:'AttackAction',attack:'Shadow Mist'};
+    }
+    record.traceSummary={
+      ...record.traceSummary,
+      rootActionLedger:roots,rootActionLedgerProtocol:PROTOCOL,
+      rootActionLedgerSha256:createHash('sha256')
+        .update(JSON.stringify(roots)).digest('hex'),
+      rootActionLedgerCoversEveryStoreDispatch:true,
+      coversAllActionsAndPromptResolutions:false
+    };
+  }
+  let report=auditCampaignQuality(f);
+  const obs=report.coverage.find(row=>row.candidateId==='challenger')
+    .mechanismExposure[0];
+  assert.equal(obs.status,'observed');
+  assert.equal(obs.observedActions,1);
+  assert.equal(obs.completeTraces,2);
+  assert.equal(obs.rootWitnesses[0].rootActionOrdinal,4);
+  assert.equal(obs.rootWitnesses[0].opponentNextTurnRootActionOrdinal,8);
+  assert.equal(obs.printing,target.printing);
+  assert.equal(obs.resolvedEffectStatus,'unobserved');
+  assert.equal(report.winRateEvidence,false);
+
+  f.mechanismChecks=[{...target,id:'other-print',
+    printing:'Different Gengar & Mimikyu-GX printing'}];
+  report=auditCampaignQuality(f);
+  const other=report.coverage.find(row=>row.candidateId==='challenger')
+    .mechanismExposure[0];
+  assert.equal(other.status,'verified-no-exposure');
+  assert.equal(other.observedActions,0);
+
+  f.mechanismChecks=[{...target,printing:undefined}];
+  assert.throws(()=>auditCampaignQuality(f),/mechanism check/);
+});
+
+test('a selective copied-attack selection can prove a positive only',()=>{
+  const f=fixture();
+  const target={id:'printed-copy',candidateId:'challenger',
+    action:'ResolvePromptAction',detail:'Poltergeist',
+    printing:'Gengar & Mimikyu-GX TEU 53'};
+  f.mechanismChecks=[target];
+  const chosen=[{
+    actionOrdinal:4,action:'ResolvePromptAction',playerSlot:0,
+    turnBefore:2,turnAfter:3,
+    attackChoice:{selection:{printing:target.printing,
+      attackName:target.detail}}
+  }];
+  f.records[3].traceSummary.chronologicalActionTrace=chosen;
+  f.records[3].traceSummary.chronologicalActionTraceSha256=
+    createHash('sha256').update(JSON.stringify(chosen)).digest('hex');
+  let exposure=auditCampaignQuality(f).coverage.find(x=>x.candidateId==='challenger')
+    .mechanismExposure[0];
+  assert.equal(exposure.observedActions,1);
+  assert.equal(exposure.status,'observed');
+  assert.equal(exposure.completeTraces,0);
+  f.records[3].traceSummary.chronologicalActionTraceSha256='malformed';
+  exposure=auditCampaignQuality(f).coverage.find(x=>x.candidateId==='challenger')
+    .mechanismExposure[0];
+  assert.equal(exposure.status,'unknown-incomplete-traces');
+});
