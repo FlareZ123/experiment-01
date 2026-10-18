@@ -2,6 +2,12 @@ name: Aichi benchmark statistical tests
 
 on:
   workflow_dispatch:
+    inputs:
+      rank11_source_census:
+        description: 'Run original rank11 frozen-source tests; requires the pinned research revision'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -35,6 +41,7 @@ jobs:
         run: node --test tests/aichi-archetype-loss-budget.test.cjs
 
   rank11-source-census:
+    if: ${{ inputs.rank11_source_census }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
