@@ -85,7 +85,7 @@ jobs:
           path: rank26-pump-autonomous-source-conditioned.json
           if-no-files-found: error
       - name: Test printed Exeggcute Propagation recovery choices
-        run: node --test tests/rank26-propagation-loop.test.cjs tests/rank26-mail-recovery.test.cjs
+        run: node --test tests/rank26-propagation-loop.test.cjs tests/rank26-mail-recovery.test.cjs tests/rank26-dce-reservation.test.cjs
       - name: Attempt source-card-conserved autonomous 2+2+1 Propagation and Pump sequence
         run: node simulation/twinleaf/rank26-propagation-source-fixture.cjs > rank26-autonomous-propagation-2plus2plus1.json
       - name: Archive staged Propagation and Pump decisions and effects
