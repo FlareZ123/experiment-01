@@ -23,6 +23,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank26_prospective_cohort:
+        description: 'Audit 24 unbiased matched rank26 firstturn engine deals, unqualified'
+        type: boolean
+        required: false
+        default: false
       rank26_propagation_pair:
         description: 'Compare two autonomous rank26 profiles on fixed authentic first-turn deal'
         type: boolean
