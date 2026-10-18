@@ -43,16 +43,22 @@ The dramatic terminal divergence is **not a measured competitive win benefit**: 
 
 The printed [Iron Thorns ex TWM 77](https://asia.pokemon-card.com/hk-en/card-search/detail/17531/) has Volt Cyclone for 140 and instructs its user to move an Energy from the attacker to a Benched Pokémon. The supplied advanced rulebook's section **C-10** confirms that such movement cannot take place if no valid Benched recipient exists, and section **II-A** says to apply executable portions of an attack. This implies that solo Iron Thorns can keep its DCE attached, whereas the backup line normally must move its DCE to an eligible Bench target, reducing immediate Active attack capacity. This creates a real setup-survival versus Energy-retention decision.
 
-A separate **postdamage turn-three physical Energy-zone assertion** has been added to the source runner after this green build, to verify that the pinned Store actually implements the predicted movement. Its new compiled CI result is pending; the green 39154558034 certifies successful Benching and attacking but **does not yet certify DCE's destination**.
+The subsequently added postdamage public-Energy observer **passed** in [compiled pinned CI 39155194388](https://github.com/FlareZ123/experiment-01/actions/runs/39155194388), at research head `b72446efe8bb2ec5ee64db27693bcbc99ac521ee`. It uses the first real Store dispatch of global turn three, after turn-two Volt Cyclone resolved, and asserts these exact public physical card locations:
+
+| Source branch, global turn-three opening | Active Energy | Backup Benched Energy |
+| --- | --- | --- |
+| Solo attacker | One Double Colorless Energy | No Bench |
+| Backup Benched | None | One Double Colorless Energy on the backup Iron Thorns ex |
+
+The genuine backup source fork [artifact 12146049260](https://github.com/FlareZ123/experiment-01/actions/runs/39155194388/artifacts/12146049260), ZIP SHA-256 `c14a1d850aec3c7d794583df752fa41332d93f135c9d2ea3ed0035d9a6690d34`, records both turn-three Energy snapshots alongside the prior verified prefix, 66-action raw solo game and capped 125-action backup game. This closes the **narrow Energy-transfer implementation gate** in this source deal; it remains far from whole-game mechanical fidelity or a competent response.
 
 Pale Moon-GX, declared by the generic champion on the third global turn, can set up a delayed knockout. Prior research found a pinned-engine Active-exit bug for this attack in different source states. No claim about official-paper survival follows from this raw terminal differential until that interaction and opponent continuation are independently checked.
 
 ## Next falsifications
 
-1. Confirm source turn-three actual attached-Energy locations after Volt Cyclone in both branches with the new read-only physical Store observer; diagnose or flag any failed moved-Energy assertion rather than changing the expected official effect.
-2. In the same source, instrument Pale Moon-GX declaration, attached Energy condition, pending delayed KO, target's Active-exit behavior, and actual end-of-turn KO sequence. Compare to the printed rulebook and known research-side hook; keep the raw versus corrected mechanisms separate.
-3. Require a competent rank-1 champion response and first-turn Iron Thorns setup across preregistered independent physical seeds with both true starting seats. Record every missed/no-opportunity opening and all player-information constraints. Consider under what situations the source player's backup Bench is worth the forced Energy move.
-4. Compare distinct frozen candidate 60s only after both policies and engine effects have passed the relevant mechanical/decision gates. Do not count these selected-seed arms as independent full competitive games.
+1. In this source, inspect Pale Moon-GX declaration, attached Energy condition, pending delayed KO, target's Active-exit behavior, and actual end-of-turn KO sequence. Compare to the printed rulebook and known research-side hook; keep raw and corrected mechanisms separate.
+2. Require a competent rank-1 champion response and first-turn Iron Thorns setup across preregistered independent physical seeds with both true starting seats. Record every missed/no-opportunity opening and all player-information constraints. Consider under what situations the source player's backup Bench is worth the forced Energy move.
+3. Compare distinct frozen candidate 60s only after both policies and engine effects have passed the relevant mechanical/decision gates. Do not count these selected-seed arms as independent full competitive games.
 
 `sourceReplayMechanicsVerified:false`  
 `qualifiedForCompetitiveInference:false`  
