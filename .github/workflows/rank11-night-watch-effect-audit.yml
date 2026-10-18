@@ -8,12 +8,19 @@ on:
         type: boolean
         required: false
         default: false
+      reanalyze_prospective:
+        description: 'Audit immutable prior 16-seed artifact without recompiling'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   effect-audit:
+    if: ${{ !inputs.reanalyze_prospective }}
     runs-on: ubuntu-latest
     timeout-minutes: 14
     steps:
@@ -59,3 +66,20 @@ jobs:
             rank11-night-watch-prospective-batch.json
           if-no-files-found: warn
           retention-days: 14
+
+  retrospective-evidence-audit:
+    if: ${{ inputs.reanalyze_prospective }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: rank11-night-watch-effects-unqualified
+          run-id: 39140517254
+          github-token: ${{ github.token }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+      - name: Verify all registered rows and detect paired nonexposure divergences
+        run: node scripts/night-watch-evidence-summary.cjs
