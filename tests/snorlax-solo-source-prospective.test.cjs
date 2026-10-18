@@ -22,6 +22,9 @@ test('real-source summary separates opportunity, selection and attack declaratio
     selectedCount:1,selectedNames:['Snorlax PGO'],otherBasicCountInOwnHand:2};
   const game={
     firstTurnSlot:1,verifiedByDrawLog:true,
+    initialBoardAtFirstTurn:{turn:1,activePlayerSeat:1,
+      players:[{seat:0,active:'Snorlax PGO',bench:[]},
+        {seat:1,active:'Shadow Rider Calyrex V CRE',bench:[]}]},
     snorlaxSoloOpeningEvents:[event],
     attackDeclarationTrace:[{actionOrdinal:10,playerSlot:1,
       attackName:'Max Geist',resolutionStatus:'not-independently-verified'}],
@@ -36,6 +39,8 @@ test('real-source summary separates opportunity, selection and attack declaratio
   assert.equal(row.opponentSoloSelections,1);
   assert.equal(row.attackDeclarations[0].resolutionStatus,'not-independently-verified');
   assert.equal(row.finished,false);
+  assert.equal(row.initialBoardAtFirstTurn.players[0].active,'Snorlax PGO');
+  assert.deepEqual(row.initialBoardAtFirstTurn.players[0].bench,[]);
   assert.equal(row.competitiveGameQualified,false);
   assert.equal(row.sourceActionCounts.ResolvePromptAction,1);
 });
