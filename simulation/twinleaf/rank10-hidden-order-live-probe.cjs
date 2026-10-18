@@ -9,6 +9,7 @@ const {stateGraphFingerprint}=
   require('./rank10-live-decision-noninterference.cjs');
 const {assertVendorCloneCompatibleSource,normalizeDeepClonePrototypes}=
   require('./normalize-deep-clone.cjs');
+const {swapHiddenPrize}=require('./prize-membership-live-probe.cjs');
 
 /** @param {object|null|undefined} action */
 function actionSignature(action) {
@@ -77,7 +78,7 @@ function compareHiddenDeckOrders(state,actorId,newBot,cloneState,makeRandom) {
  * @param {Function} Ai
  * @param {()=>T} work
  * @param {(state:object)=>object} cloneState
- * @param {{turn:number,seat:number,makeRandom:()=>()=>number,rootActionOrdinal?:number,readRootDispatchCount?:()=>number,readOwnerDeckSearches?:()=>object}} target
+ * @param {{turn:number,seat:number,makeRandom:()=>()=>number,rootActionOrdinal?:number,readRootDispatchCount?:()=>number,readOwnerDeckSearches?:()=>object,probePrizeMembership?:boolean}} target
  */
 function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
   const descriptor=Object.getOwnPropertyDescriptor(
@@ -92,22 +93,28 @@ function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
         target.readRootDispatchCount?.()===target.rootActionOrdinal);
     if(!take)return descriptor.value.call(this,state);
     const parent=this;
+    const freshBot=()=>{
+      const bot=new Ai({id:parent.client.id},parent.tactics[0].options,parent.deck);
+      // Always bypass the root interception on independent detached bots.
+      bot.decodeNextAction=descriptor.value.bind(bot);
+      return bot;
+    };
     const observed=compareHiddenDeckOrders(
-      state,this.client.id,
-      ()=>{
-        const bot=new Ai({id:parent.client.id},parent.tactics[0].options,parent.deck);
-        // Use the saved pre-interception method on each independent bot.
-        // Calling its inherited method would recursively reenter this hook.
-        bot.decodeNextAction=descriptor.value.bind(bot);
-        return bot;
-      },
-      cloneState,target.makeRandom);
+      state,this.client.id,freshBot,cloneState,target.makeRandom);
+    const prizeMembership=target.probePrizeMembership===true?
+      swapHiddenPrize(state,this.client.id,cloneState,world=>{
+        const previous=Math.random;
+        Math.random=target.makeRandom();
+        try{return actionSignature(freshBot().decodeNextAction(world))}
+        finally{Math.random=previous}
+      },stateGraphFingerprint):null;
     const sourceHand=state.players.find(p=>p.id===this.client.id)
       ?.hand?.cards?.map(card=>card.fullName)??[];
     const actual=descriptor.value.call(this,state);
     const playedPrinting=actual?.constructor?.name==='PlayCardAction'?
       sourceHand[actual.handIndex]??null:null;
-    events.push({...observed,turn:state.turn,seat:state.activePlayer,
+    events.push({...observed,...(prizeMembership?{prizeMembership}:{}),
+      turn:state.turn,seat:state.activePlayer,
       originalSourcePlayedPrinting:playedPrinting,
       rootActionOrdinal:target.rootActionOrdinal??null,
       ownerDeckSearchWitness:target.readOwnerDeckSearches?.()??null,
@@ -226,7 +233,8 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
   const makeTarget=getOrdinal=>({
     turn:archival?28:2,
     seat:actorSeat,makeRandom:()=>seededRandom(20261017),
-    rootActionOrdinal:ordinal,readRootDispatchCount:getOrdinal
+    rootActionOrdinal:ordinal,readRootDispatchCount:getOrdinal,
+    probePrizeMembership:!archival
   });
   const observed=withRootDispatchCounter(
     require(path.join(output,'game/store/store')).Store,
