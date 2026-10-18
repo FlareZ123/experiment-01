@@ -75,3 +75,19 @@ test('opportunity never presumes hidden search targets or hijacks a held shortcu
   check(player => {player.hand.cards.push({name:'Forest Seal Stone'});});
   check(player => {player.hand.cards.push({name:'Boost Shake'});});
 });
+
+
+test('explicit v2 recognizes the acting source own first turn when it goes second', () => {
+  const {state, player}=sourceDeal();
+  state.turn=2;
+  state.activePlayer=1;
+  assert.equal(openingOpportunity(state, player, 1, 7), false,
+    'Original first-global-turn profile must remain unchanged');
+  assert.equal(openingOpportunity(state, player, 1, 7, true), true);
+  state.activePlayer=0;
+  assert.equal(openingOpportunity(state, player, 1, 7, true), false);
+  state.turn=3;
+  state.activePlayer=1;
+  assert.equal(openingOpportunity(state, player, 1, 7, true), false,
+    'Subsequent turns must not be confused with first personal turn');
+});
