@@ -348,8 +348,12 @@ function auditCampaignQuality(archive) {
       checks.some(check => !check || typeof check.id !== 'string' || !check.id.trim() ||
         !candidates.has(check.candidateId) ||
         (check.rank !== undefined && !ranks.has(check.rank)) ||
-        !['PlayCardAction', 'UseAbilityAction', 'AttackAction'].includes(check.action) ||
-        typeof check.detail !== 'string' || !check.detail.trim())) {
+        !['PlayCardAction', 'UseAbilityAction', 'AttackAction',
+          'ResolvePromptAction'].includes(check.action) ||
+        typeof check.detail !== 'string' || !check.detail.trim() ||
+        (check.action === 'ResolvePromptAction' &&
+         (typeof check.printing !== 'string' || !check.printing.trim())) ||
+        (check.action !== 'ResolvePromptAction' && check.printing !== undefined))) {
     throw new Error('Invalid or duplicate declared candidate mechanism check.');
   }
   const detailField = {
@@ -386,9 +390,17 @@ function auditCampaignQuality(archive) {
           const trace = fullRoot ? record.traceSummary.rootActionLedger :
             record.traceSummary.chronologicalActionTrace;
           const candidateSlot = record.candidateEngineSlot === 'A' ? 0 : 1;
-          const chosen = trace.filter(action => action.playerSlot === candidateSlot &&
-            action.action === check.action &&
-            action[detailField[check.action]] === check.detail);
+          const chosen = trace.filter(action => {
+            if (action.playerSlot !== candidateSlot || action.action !== check.action) {
+              return false;
+            }
+            if (check.action !== 'ResolvePromptAction') {
+              return action[detailField[check.action]] === check.detail;
+            }
+            const choice = fullRoot ? action.attackChoice : action.attackChoice?.selection;
+            return choice?.attackName === check.detail &&
+              choice.printing === check.printing;
+          });
           observedActions += chosen.length;
           for (const action of chosen) {
             const opponentLater = trace.find(event =>
@@ -417,6 +429,7 @@ function auditCampaignQuality(archive) {
         }
         return {
           id: check.id, action: check.action, detail: check.detail,
+          ...(check.printing ? {printing: check.printing} : {}),
           observedActions, completeTraces, totalTrials: records.length,
           rootWitnesses, laterOpponentRootDispatches,
           opponentNextTurnRootDispatches,
