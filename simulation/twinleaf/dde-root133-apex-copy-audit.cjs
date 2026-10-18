@@ -174,7 +174,25 @@ function main() {
   };
 }
 if (require.main === module) {
+  const result = main();
+  const summary = result.attacks.map(row => ({
+    turn: row.turn,
+    opponentBefore: row.before.opposingActive,
+    ownDragonDiscard: row.before.ownDragonDiscard,
+    choices: row.copySelections.map(choice => ({
+      selectedName: choice.selectedName,
+      selectedPrinting: choice.selectedPrinting,
+      available: choice.available.map(option => ({
+        source: option.printing, name: option.name,
+        damage: option.printedDamage, costLength: option.printedEnergyCount
+      })),
+      prizesAfterChoice: choice.after.prizesRemaining,
+      opponentAfterChoice: choice.after.opposingActive
+    })),
+    finalObserved: row.endOfTurn
+  }));
+  process.stderr.write('ROOT133_APEX_CHOICES ' + JSON.stringify(summary) + '\n');
   process.stdout.write('ROOT133_APEX_COPY_TRACE ' +
-    JSON.stringify(main()) + '\n');
+    JSON.stringify(result) + '\n');
 }
 module.exports = {visibleAttackState, withSourceApexCopyTrace, main};
