@@ -152,3 +152,26 @@ test('live owner deck-search observation proves a K1 prompt without speculative 
   assert.equal(evidence.observedWholeOwnerDeckSearches,1);
   assert.strictEqual(Store.prototype.dispatch,original);
 });
+
+
+test('root-step boundary is observed even when no AI callback is made',()=>{
+  class AddPlayerAction{}
+  class PlayCardAction{}
+  class Store{
+    constructor(){this.state={turn:2,activePlayer:0,prompts:[],players:[
+      {id:101,deck:{cards:[]}},{id:202,deck:{cards:[]}}
+    ]}}
+    dispatch(action){return action.constructor.name}
+  }
+  const evidence=withRootDispatchCounter(Store,(getOrdinal,getSearches,getBoundary)=>{
+    const source=new Store();
+    source.dispatch(new AddPlayerAction());
+    source.dispatch(new PlayCardAction());
+    assert.equal(getOrdinal(),2);
+    return getBoundary();
+  },0,1);
+  assert.deepEqual(evidence,{
+    rootStep:1,turn:2,activePlayer:0,
+    dispatchedAction:'PlayCardAction',unresolvedPromptTypes:[]
+  });
+});
