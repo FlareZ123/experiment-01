@@ -24,6 +24,14 @@
 
 The unmodified source control **before and after** the intervention reproduced the same observable digest. On the altered branch the bot continued through a completed engine game with fewer Apex attack declarations and an earlier terminal win. The copied attack identities and post-attack damage/Prize effects were *not independently inspected by this experiment*. It would be premature to attribute the difference specifically to Phantom Dive rather than the combined downstream effect of changed discard and subsequent autonomous simple-bot choices. An actual Store Apex copy-choice/effect witness is the next test.
 
+## Exact restricted opening-exposure context
+
+The registered rank-10 list contains **15 Basic Pokémon**, one `Dragapult ex TWM` and three `Mysterious Treasure FLI`. Counting only a legal opening seven and the next single ordinary draw, with no other draw, search, mulligan bonus, Item lock or sequencing model, the exact chance of holding **both** Dragapult and at least one Mysterious Treasure is
+
+`16,106,986 / 410,541,975 = 3.9233469367%`,
+
+conditional on the opening seven containing at least one Basic. The count is a hypergeometric/ordered-eighth-card calculation over the source 60; it includes possible Prize placement through uniform next-card sampling, but deliberately excludes subsequent search/draw options. The exercised source action occurs on global turn 3, so this is a **narrower direct-opening event**, not its actual occurrence probability. It emphasizes why a retrospectively selected convenient deal cannot support a general win-rate claim.
+
 ## Reproducibility and scope
 
 - [Source runner with one-choice fork, root observer and exact causal checks](../../simulation/twinleaf/rank10-early-dragapult-discard-fork.cjs).
