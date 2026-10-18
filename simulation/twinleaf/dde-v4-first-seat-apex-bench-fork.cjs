@@ -89,7 +89,11 @@ function withNoPreviewApexBenchDde(Store, execute) {
           supporterUsedThisTurn: state.players.find(p => p.id === this.client.id)
             .supporterTurn >= state.turn,
           ownBenchOccupancy: state.players.find(p => p.id === this.client.id)
-            .bench.length
+            .bench.length,
+          opposingBenchOccupancy: state.players.find(p => p.id !== this.client.id)
+            .bench.length,
+          sourceSupporterTurn: state.players.find(p => p.id === this.client.id)
+            .supporterTurn
         });
         return new PlayCardAction(this.client.id, choice.handIndex, target);
       }
