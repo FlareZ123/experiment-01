@@ -8,6 +8,8 @@ const {runMatch} = require('./headless.cjs');
 const {withVIP} = require('./rank11-newmoon-first-vip-counterfactual.cjs');
 const {withFarewellBeforeVip} =
   require('./newmoon-farewell-vip-bench-policy.cjs');
+const {withNewMoonBenchReservation} =
+  require('./newmoon-bench-reservation-policy.cjs');
 const {withRank11DirectBoostShake} = require('./rank11-direct-boostshake.cjs');
 
 const SEED = 2809154458; // Retrospectively selected, explicitly not a win sample.
@@ -28,7 +30,7 @@ const digest = x => createHash('sha256')
  *
  * @returns {object} Failure-inclusive paired diagnostic.
  */
-function run() {
+function run(includeReservation = false) {
   const proposal = loadNewMoonCandidate();
   const plan = planAichi({label:proposal.id, cards:proposal.cards}, {
     allowEquivalentBasicEnergies:true,
