@@ -35,12 +35,15 @@ def evaluate_balanced_raw_batch(
     source_deck_digests: Mapping[int, str],
     expected_candidate_deck_sha256: str,
     predeclared_games_per_cell: int,
+    expected_trials: list[dict],
     target: str = "0.995",
     confidence: str = "0.95",
 ) -> dict:
     """Require source inventory, 64 equal strata, exact turn proof and zero failures."""
     if type(predeclared_games_per_cell) is not int or predeclared_games_per_cell < 1:
         raise ValueError("Positive integer per-cell horizon is required")
+    if not isinstance(expected_trials, list) or not expected_trials:
+        raise ValueError("Independent predeclared trial schedule is required")
     if (type(batch.get("predeclared_games_per_cell")) is not int or
             batch["predeclared_games_per_cell"] != predeclared_games_per_cell):
         raise ValueError("The batch's declared horizon disagrees with the evaluation horizon")
@@ -56,10 +59,19 @@ def evaluate_balanced_raw_batch(
     expected_source_sha = source_inventory_digest(source_deck_digests)
     if batch.get("source_inventory_digest_sha256") != expected_source_sha:
         raise ValueError("Batch source inventory differs from the externally supplied source map")
-    checked = evaluate_raw_batch(batch, field_csv)
     seed_list = [game["seed"] for game in batch["games"]]
     if len(seed_list) != len(set(seed_list)):
         raise ValueError("Global RNG seeds must be unique across all rank and seat cells")
+    checked = evaluate_raw_batch(
+        batch, field_csv,
+        source_hashes=dict(source_deck_digests),
+        candidate_hash=expected_candidate_deck_sha256,
+        expected_trials=expected_trials,
+    )
+    if not checked["all_completed_terminals_bound"]:
+        raise ValueError("All completed games require engine-terminal-bound winners")
+    if not checked["sampling_frame_input_integrity_promotion_eligible"]:
+        raise ValueError("Full source, candidate, trace, terminal and schedule integrity required")
     if checked["failures"]:
         raise ValueError("Failed or unfinished games cannot enter confirmatory evidence")
     if not checked["all_completed_traces_verified"]:
@@ -89,11 +101,14 @@ def evaluate_balanced_raw_batch(
         "predeclared_games_per_cell": predeclared_games_per_cell,
         "completed_ties_as_nonwins": checked["finished_ties_as_nonwins"],
         "all_completed_traces_verified": checked["all_completed_traces_verified"],
+        "all_completed_terminals_bound": checked["all_completed_terminals_bound"],
+        "schedule_bound": checked["schedule_bound"],
+        "scheduled_trial_count": checked["scheduled_trial_count"],
         "competitive_evidence_qualified": False,
         "global_test": global_result,
         "warning": (
-            "Statistical arithmetic and raw-record/source-hash consistency only; "
-            "externally vetted source lists, policy quality, independence, trace "
-            "replay, and engine fidelity require separate verification"
+            "Statistical arithmetic, registered-trial and raw-record consistency only; "
+            "externally vetted source lists, policy quality, independence, authenticated "
+            "trace replay, and engine fidelity require separate verification"
         ),
     }
