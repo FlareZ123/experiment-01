@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const {createHash} = require('node:crypto');
 const {deriveSlotSeeds} = require('./aichi-decorrelated-seeds.cjs');
 const {reconcileAttackObservations} = require('./aichi-attack-observation-reconcile.cjs');
+const {inspectRootActionLedger} = require('./aichi-root-action-ledger.cjs');
 
 /**
  * Validate the root decision summary's own chronological action ordinals.
@@ -219,7 +220,12 @@ function auditCampaignQuality(archive) {
     if (traceIntegrity !== 'digest-valid') {
       reasons.push('trace-' + traceIntegrity);
     }
-    if (record.traceSummary?.coversAllActionsAndPromptResolutions !== true) {
+    const rootLedger = inspectRootActionLedger(record);
+    if (rootLedger.status !== 'complete-root-ledger-self-consistent') {
+      reasons.push(rootLedger.status);
+    }
+    if (record.traceSummary?.coversAllActionsAndPromptResolutions !== true ||
+        rootLedger.status !== 'complete-root-ledger-self-consistent') {
       reasons.push('not-a-complete-replay');
     }
     const rootLineage = traceIntegrity === 'digest-valid' ?
@@ -279,6 +285,8 @@ function auditCampaignQuality(archive) {
       opponentLoggedAttackDeclarations: observation.opponentDeclarations,
       traceIntegrity,
       rootDecisionLineageStatus: rootLineage.status,
+      rootActionLedgerStatus: rootLedger.status,
+      joinedAttackDeclarations: rootLedger.joinedAttackDeclarations,
       terminalOutcomeStatus,
       terminalDeckRemaining: deckRemaining,
       terminalPrizesRemaining: terminalPrizes,
@@ -369,11 +377,14 @@ function auditCampaignQuality(archive) {
         const rootWitnesses = [];
         for (const record of records) {
           const row = rows.find(item => item.trialId === record.trialId);
-          if (row.traceIntegrity !== 'digest-valid' ||
-              row.rootDecisionLineageStatus !== 'self-consistent-root-decision-lineage') {
+          const fullRoot = row.rootActionLedgerStatus ===
+            'complete-root-ledger-self-consistent';
+          if (!fullRoot && (row.traceIntegrity !== 'digest-valid' ||
+              row.rootDecisionLineageStatus !== 'self-consistent-root-decision-lineage')) {
             continue;
           }
-          const trace = record.traceSummary.chronologicalActionTrace;
+          const trace = fullRoot ? record.traceSummary.rootActionLedger :
+            record.traceSummary.chronologicalActionTrace;
           const candidateSlot = record.candidateEngineSlot === 'A' ? 0 : 1;
           const chosen = trace.filter(action => action.playerSlot === candidateSlot &&
             action.action === check.action &&
@@ -399,7 +410,8 @@ function auditCampaignQuality(archive) {
                 opponentLaterTurn?.actionOrdinal ?? null
             });
           }
-          if (record.traceSummary.coversAllActionsAndPromptResolutions === true) {
+          if (fullRoot &&
+              record.traceSummary.coversAllActionsAndPromptResolutions === true) {
             completeTraces += 1;
           }
         }
@@ -438,6 +450,8 @@ function auditCampaignQuality(archive) {
           row.attackObservationStatus !== 'self-consistent-engine-attack-declarations').length,
         rootDecisionLineageUnverifiedTrials: subset.filter(row =>
           row.rootDecisionLineageStatus !== 'self-consistent-root-decision-lineage').length,
+        rootActionLedgerUnverifiedTrials: subset.filter(row =>
+          row.rootActionLedgerStatus !== 'complete-root-ledger-self-consistent').length,
         completedTerminalUnboundTrials: subset.filter(row =>
           row.status === 'completed-engine-game' &&
           row.terminalOutcomeStatus !== 'self-consistent-engine-terminal-outcome').length,
