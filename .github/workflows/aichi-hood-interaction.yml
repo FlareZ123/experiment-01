@@ -140,3 +140,20 @@ jobs:
           name: rank8-boostshake-source-fork
           path: rank8-boostshake-fork.json
           if-no-files-found: warn
+
+      - name: Validate source rank8 conditional opponent lock policy
+        if: inputs.hood_rank8_boostshake_fork
+        run: |
+          node --check simulation/twinleaf/rank8-boostshake-autonomous-policy.cjs
+          node --check simulation/twinleaf/rank8-boostshake-autonomous-source-run.cjs
+          node --test tests/rank8-boostshake-autonomous-policy.test.cjs
+      - name: Audit source rank8 autonomous opponent and protected Hood reply
+        if: inputs.hood_rank8_boostshake_fork
+        run: node simulation/twinleaf/rank8-boostshake-autonomous-source-run.cjs > rank8-autonomous-boostshake.json
+      - name: Archive source rank8 autonomous opponent trace
+        if: always() && inputs.hood_rank8_boostshake_fork
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank8-autonomous-opponent-source-pair
+          path: rank8-autonomous-boostshake.json
+          if-no-files-found: warn
