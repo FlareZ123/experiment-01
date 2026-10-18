@@ -14,3 +14,15 @@ function main() {
   const regidrago=decks.find(row=>row.rank===10);
   assert.ok(champion?.playableUnderEngine&&regidrago?.playableUnderEngine);
   initializeCards();
+  return SEEDS.map(seed=>{
+    const game=runMatch({deckA:champion.cardIds,deckB:regidrago.cardIds,
+      seed,maxActions:350,captureDecisionTrace:true,
+      doubleDragonRecovery:true,isolatePolicyRandomness:true});
+    assert.equal(game.verifiedByDrawLog,true);
+    return {seed,firstTurnSlot:game.firstTurnSlot,
+      finished:game.finished,turns:game.turns,...audit(game.decisionTrace,1),
+      qualifiedForCompetitiveInference:false};
+  });
+}
+if(require.main===module)process.stdout.write(JSON.stringify(main(),null,2)+'\n');
+module.exports={main};
