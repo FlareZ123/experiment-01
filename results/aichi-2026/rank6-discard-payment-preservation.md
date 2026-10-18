@@ -38,3 +38,17 @@ The compiled test is specified to fail closed unless both branches share source-
 This experiment asks an exact DCI/AMR question: is an extra gust, control or recovery option worth preserving against rank 1 after spending two different search-payment cards? It does not presume that the alternate is better. After the mechanical fork is verified, a stronger study needs an autonomous policy that chooses among the two payments from its owner information set, independent physical seeds with both starting orders, and competent challenger responses. A differing weak-bot engine winner would remain diagnostic.
 
 The full target is one unchanged legal 60-card list across all Aichi Top 32. Exactly 29 source 60s are available; no field-wide competitive game is qualified and no demonstrated 99.5% win rate exists.
+
+## Compiled result: passed 18 October, after registration
+
+[Manual CI 39141595448](https://github.com/FlareZ123/experiment-01/actions/runs/39141595448) **passed** at research commit `f0bf7f9d3e61085c6fcea394810063db0d8e68c4` (artifact `12142400780`, `rank6-discard-payment-source-fork`). It compiled the pinned Store and completed the same physical source seed in both arms. The first divergence was **Store step 32**, where both branches resolved an actual `ChooseCardsPrompt`; pre-decision source-zone and continuation hashes were identical.
+
+| Observed field | Default | Protected Eri + Faba |
+| --- | --- | --- |
+| Discarded physical cards | Eri, Faba | Captivating Poké Puff, Tag Call |
+| Turn-two attack | Volt Cyclone | Volt Cyclone |
+| Defender | 80-HP Marshadow | 80-HP Marshadow |
+| First champion reply | Psychic Energy, Unfair Stamp, Mysterious Treasure, Shadow Rider VMAX, Teammates, Pale Moon-GX | Same recorded action sequence |
+| Engine terminal | Champion seat 0, action 66 | Champion seat 0, action 66 |
+
+The completed validation confirms the narrowly specified legal payment swap. **The protected Supporters did not change the observed attack, immediate opponent reply or engine winner on this seed.** Any later-game utility hypothesis is therefore *unresolved*, rather than a demonstrated benefit. The archived artifact explicitly reports `sourceReplayMechanicsVerified:false` and `qualifiedForCompetitiveInference:false`. No target match is qualified by this result.
