@@ -8,12 +8,14 @@ function makeGame(activePlayer,sourceSeat=0,invalid=false) {
   class AI {decodeNextAction(){n++;return 'original';}}
   const original=AI.prototype.decodeNextAction;
   const players=[0,1].map(i=>({
+    name:i===0?'research-A':'research-B',
     active:{getPokemonCard:()=>({
       name:i===sourceSeat?'Oranguru V':'Shadow Rider Calyrex V'
     })},
     hand:{cards:[{name:'Battle VIP Pass',fullName:'Battle VIP Pass FST 225'},{name:'Float Stone',fullName:'Float Stone BKT 137'}]}
   }));
-  const state={turn:1,activePlayer,phase:3,prompts:[],players};
+  const state={turn:1,activePlayer,phase:3,prompts:[],players,
+    logs:[{message:'LOG_PLAYER_DRAWS_CARD',params:{name:players[activePlayer].name}}]};
   const sourceObserver=(_s,p)=>p.active.getPokemonCard().name==='Oranguru V';
   const options={
     sourceSeat,SimpleTacticsAi:AI,playerTurnPhase:3,
@@ -27,6 +29,8 @@ test('capture actual source first and K0 only before root policy action',()=>{
   const g=makeGame(0);
   const r=screenRank11FirstTurn(g.options);
   assert.equal(r.sourceFirst,true);
+  assert.equal(r.verifiedByDrawLog,true);
+  assert.equal(r.firstDrawLogName,'research-A');
   assert.equal(r.eligibleK0,true);
   assert.equal(r.sourceStarter,'Oranguru V');
   assert.deepEqual(r.sourceOwnHand,['Battle VIP Pass','Float Stone']);
@@ -43,6 +47,7 @@ test('candidate-first screen never inspects opponent hidden hand',()=>{
   const r=screenRank11FirstTurn(g.options);
   assert.equal(r.actualFirstPlayerSeat,1);
   assert.equal(r.sourceFirst,false);
+  assert.equal(r.verifiedByDrawLog,true);
   assert.equal(r.eligibleK0,false);
   assert.equal(r.sourceOwnHand,null);
   assert.equal(r.sourceOwnHandPrintings,null);
@@ -59,5 +64,28 @@ test('no first-turn root decision is an explicit screening failure',()=>{
   const g=makeGame(0);
   g.options.runMatch=()=>{};
   assert.throws(()=>screenRank11FirstTurn(g.options),/did not reach/);
+  assert.equal(g.AI.prototype.decodeNextAction,g.original);
+});
+
+test('contradictory live source draw evidence fails closed and restores bot',()=>{
+  const g=makeGame(0);
+  const previousRun=g.options.runMatch;
+  g.options.runMatch=()=>{
+    const cloned=makeGame(0).options;
+    const oldCall=cloned.runMatch;
+    // The mock's own attempt has correct data; build a contradictory
+    // state at the direct root interception in this explicit variant.
+    const fake={turn:1,activePlayer:0,phase:3,prompts:[],
+      logs:[{message:'LOG_PLAYER_DRAWS_CARD',
+        params:{name:'research-B'}}],
+      players:[
+        {name:'research-A',active:{getPokemonCard:()=>({name:'Oranguru V'})},
+          hand:{cards:[]}},
+        {name:'research-B',active:{getPokemonCard:()=>({name:'Shadow Rider V'})},
+          hand:{cards:[]}}
+      ]};
+    return new g.AI().decodeNextAction(fake);
+  };
+  assert.throws(()=>screenRank11FirstTurn(g.options),/contradicts actual draw log/);
   assert.equal(g.AI.prototype.decodeNextAction,g.original);
 });
