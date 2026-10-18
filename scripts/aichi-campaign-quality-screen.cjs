@@ -5,6 +5,36 @@ const {createHash} = require('node:crypto');
 const {deriveSlotSeeds} = require('./aichi-decorrelated-seeds.cjs');
 const {reconcileAttackObservations} = require('./aichi-attack-observation-reconcile.cjs');
 
+/**
+ * Validate the root decision summary's own chronological action ordinals.
+ * A matching hash is insufficient: duplicated callback-style entries could
+ * otherwise be counted as multiple executed root actions.
+ *
+ * This is a structural, untrusted-report check, never a source replay or
+ * independent assertion that any action resolved correctly.
+ *
+ * @param {unknown} trace
+ * @param {unknown} totalActions
+ * @returns {{status:string, events:object[]}}
+ */
+function inspectRootDecisionLineage(trace, totalActions) {
+  if (!Array.isArray(trace) || !Number.isSafeInteger(totalActions) ||
+      totalActions < 0) {
+    return {status: 'root-decision-lineage-unavailable', events: []};
+  }
+  let previous = -1;
+  for (const event of trace) {
+    if (!event || !Number.isSafeInteger(event.actionOrdinal) ||
+        event.actionOrdinal <= previous || event.actionOrdinal >= totalActions ||
+        ![-1, 0, 1].includes(event.playerSlot) ||
+        typeof event.action !== 'string' || event.action.length === 0) {
+      return {status: 'root-decision-lineage-integrity-mismatch', events: []};
+    }
+    previous = event.actionOrdinal;
+  }
+  return {status: 'self-consistent-root-decision-lineage', events: trace};
+}
+
 /** @param {unknown} value @returns {string} */
 function sha256(value) {
   return createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -192,6 +222,12 @@ function auditCampaignQuality(archive) {
     if (record.traceSummary?.coversAllActionsAndPromptResolutions !== true) {
       reasons.push('not-a-complete-replay');
     }
+    const rootLineage = traceIntegrity === 'digest-valid' ?
+      inspectRootDecisionLineage(trace, record.actions) :
+      {status: 'root-decision-lineage-unavailable', events: []};
+    if (rootLineage.status !== 'self-consistent-root-decision-lineage') {
+      reasons.push(rootLineage.status);
+    }
     const terminalPlayers = record.traceSummary?.terminalTransition?.after?.players;
     const deckRemaining = Array.isArray(terminalPlayers) &&
       terminalPlayers.length === 2 &&
@@ -225,6 +261,7 @@ function auditCampaignQuality(archive) {
       candidateLoggedAttackDeclarations: observation.candidateDeclarations,
       opponentLoggedAttackDeclarations: observation.opponentDeclarations,
       traceIntegrity,
+      rootDecisionLineageStatus: rootLineage.status,
       terminalDeckRemaining: deckRemaining,
       terminalPrizesRemaining: terminalPrizes,
       blockers: reasons,
@@ -309,14 +346,31 @@ function auditCampaignQuality(archive) {
         (check.rank === undefined || check.rank === rank)).map(check => {
         let observedActions = 0;
         let completeTraces = 0;
+        let laterOpponentRootDispatches = 0;
+        const rootWitnesses = [];
         for (const record of records) {
           const row = rows.find(item => item.trialId === record.trialId);
-          if (row.traceIntegrity !== 'digest-valid') continue;
+          if (row.traceIntegrity !== 'digest-valid' ||
+              row.rootDecisionLineageStatus !== 'self-consistent-root-decision-lineage') {
+            continue;
+          }
           const trace = record.traceSummary.chronologicalActionTrace;
           const candidateSlot = record.candidateEngineSlot === 'A' ? 0 : 1;
-          observedActions += trace.filter(action => action.playerSlot === candidateSlot &&
+          const chosen = trace.filter(action => action.playerSlot === candidateSlot &&
             action.action === check.action &&
-            action[detailField[check.action]] === check.detail).length;
+            action[detailField[check.action]] === check.detail);
+          observedActions += chosen.length;
+          for (const action of chosen) {
+            const opponentLater = trace.find(event =>
+              event.actionOrdinal > action.actionOrdinal &&
+              event.playerSlot === 1 - candidateSlot);
+            if (opponentLater) laterOpponentRootDispatches += 1;
+            rootWitnesses.push({
+              trialId: record.trialId,
+              rootActionOrdinal: action.actionOrdinal,
+              laterOpponentRootActionOrdinal: opponentLater?.actionOrdinal ?? null
+            });
+          }
           if (record.traceSummary.coversAllActionsAndPromptResolutions === true) {
             completeTraces += 1;
           }
@@ -324,6 +378,10 @@ function auditCampaignQuality(archive) {
         return {
           id: check.id, action: check.action, detail: check.detail,
           observedActions, completeTraces, totalTrials: records.length,
+          rootWitnesses, laterOpponentRootDispatches,
+          opportunityStatus: 'unobserved',
+          hypotheticalProposalStatus: 'unobserved',
+          resolvedEffectStatus: 'unobserved',
           status: observedActions > 0 ? 'observed' :
             completeTraces === records.length ? 'verified-no-exposure' :
               'unknown-incomplete-traces'
@@ -349,6 +407,8 @@ function auditCampaignQuality(archive) {
           row.blockers.includes('zero-opponent-logged-attack-declarations')).length,
         attackObservationIncompleteTrials: subset.filter(row =>
           row.attackObservationStatus !== 'self-consistent-engine-attack-declarations').length,
+        rootDecisionLineageUnverifiedTrials: subset.filter(row =>
+          row.rootDecisionLineageStatus !== 'self-consistent-root-decision-lineage').length,
         candidateRootUndercountTrials: subset.filter(row =>
           row.blockers.includes('candidate-root-attack-action-undercount')).length,
         opponentRootUndercountTrials: subset.filter(row =>
