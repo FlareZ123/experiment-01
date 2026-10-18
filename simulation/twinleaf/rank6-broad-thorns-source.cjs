@@ -90,6 +90,10 @@ function compare(base,seed,maxActions) {
   row.completeSourceOpeningCompared=Boolean(
     baseline?.observed&&alternative?.observed);
   if(row.completeSourceOpeningCompared) {
+    // The real source owner may inspect its own hand at this K0 decision.
+    // Preserve those printings for discard-pair counterfactual review;
+    // intentionally do not serialize the privileged face-down Prize snapshot.
+    row.sourceOwnerVisibleHand=baseline.observed.hand.slice();
     try {
       assert.deepEqual(alternative.observed.hand,baseline.observed.hand);
       assert.deepEqual(alternative.observed.prizes,baseline.observed.prizes);
