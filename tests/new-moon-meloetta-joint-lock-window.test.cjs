@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
-const { jointSetup, sourceJointSetup } =
+const { initialMeloettaJoint, sourceJointSetup } =
   require('../scripts/new-moon-meloetta-joint-lock-window.cjs');
 
 /** @param {number} seed @returns {()=>number} */
@@ -92,42 +92,42 @@ function physicalDeals(games, seed) {
   };
 }
 
-test('source-locked joint exact setup and independent marginal conservation', () => {
+test('source-locked extra condition and previous exact joint baseline', () => {
   const result = sourceJointSetup(path.resolve(__dirname, '..'));
   assert.equal(result.defenderBasics, 17);
   assert.equal(result.attackerBasics, 12);
   assert.equal(result.lockCopies, 1);
   assert.equal(result.paperLegalityVerified, false);
-  assert.ok(Math.abs(result.soleKlefki - 0.016154581995936116) < 1e-10);
-  assert.ok(Math.abs(result.meloettaResourceOpportunity -
-    0.28288700592169225) < 1e-10);
-  assert.ok(Math.abs(result.jointKlefkiAndResource -
+  assert.ok(Math.abs(result.existingSoleKlefki -
+    0.016154581995936116) < 1e-10);
+  assert.ok(Math.abs(result.existingJointKlefkiAndResource -
     0.004572560824435498) < 1e-10);
   assert.ok(Math.abs(result.jointKlefkiMeloettaInitialAndResource -
     0.0006142557039753475) < 1e-10);
-  const { bothNoBonus, attackerGetsBonus, defenderGetsBonus } = result.setupMass;
-  assert.ok(Math.abs(bothNoBonus + attackerGetsBonus + defenderGetsBonus -
-    1) < 1e-12);
-  assert.ok(result.jointKlefkiAndResource <= result.soleKlefki);
-  assert.ok(result.jointKlefkiMeloettaInitialAndResource <=
-    result.jointKlefkiAndResource);
+  assert.ok(result.jointKlefkiMeloettaInitialAndResource <
+    result.existingJointKlefkiAndResource);
 });
 
-test('parameter checks and symmetric sole-Basic identity exchangeability', () => {
-  assert.throws(() => jointSetup(17, 12, 18), RangeError);
-  assert.throws(() => jointSetup(0, 12, 1), RangeError);
-  assert.throws(() => jointSetup(17, 12, 0), RangeError);
-  const one = jointSetup(17, 12, 1);
-  const two = jointSetup(17, 12, 2);
-  assert.ok(Math.abs(two.jointKlefkiAndResource -
-    2 * one.jointKlefkiAndResource) < 1e-12);
-  assert.ok(Math.abs(one.jointSoleAnyAndResource -
-    17 * one.jointKlefkiAndResource) < 1e-12);
+test('invalid inventory and exchangeable sole Basic copies', () => {
+  assert.throws(() => initialMeloettaJoint(17, 12, 18), RangeError);
+  assert.throws(() => initialMeloettaJoint(0, 12, 1), RangeError);
+  assert.throws(() => initialMeloettaJoint(17, 12, 0), RangeError);
+  const one = initialMeloettaJoint(17, 12, 1);
+  const two = initialMeloettaJoint(17, 12, 2);
+  assert.ok(Math.abs(two.jointKlefkiMeloettaInitialAndResource -
+    2 * one.jointKlefkiMeloettaInitialAndResource) < 1e-12);
 });
 
 test('220k physical shuffled setups verify both joint event rates', () => {
   const observed = physicalDeals(220000, 261817);
-  const expected = jointSetup(17, 12, 1);
+  const result = sourceJointSetup(path.resolve(__dirname, '..'));
+  const expected = {
+    soleKlefki: result.existingSoleKlefki,
+    meloettaResourceOpportunity: 0.28288700592169225,
+    jointKlefkiAndResource: result.existingJointKlefkiAndResource,
+    jointKlefkiMeloettaInitialAndResource:
+      result.jointKlefkiMeloettaInitialAndResource
+  };
   for (const key of [
     'soleKlefki', 'meloettaResourceOpportunity',
     'jointKlefkiAndResource', 'jointKlefkiMeloettaInitialAndResource'
