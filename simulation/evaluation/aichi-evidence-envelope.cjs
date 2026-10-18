@@ -252,6 +252,55 @@ function hasMatchingResearchConditions(left, right) {
     keys.every(k => digest(left.provenance[k]) === digest(right.provenance[k]));
 }
 
+/**
+ * Require a true one-to-one paired set of *completed* source-dealt cells.
+ * Research-condition equality alone says nothing about which scheduled
+ * seeds, opponents, or actual first-turn strata were compared.
+ *
+ * Candidate inventories may differ (that is the treatment), but opponent
+ * printing digest, physical slot, seed, repeat, and observed starting order
+ * must match. This is a pairing prerequisite, never a game-strength audit.
+ *
+ * @param {object} left Validated evidence envelope.
+ * @param {object} right Validated evidence envelope.
+ * @returns {boolean}
+ */
+function hasPairedTrialSchedule(left, right) {
+  if (!hasMatchingResearchConditions(left, right)) return false;
+
+  /** @param {object} envelope */
+  function cells(envelope) {
+    const records = envelope?.archive?.records;
+    if (!Array.isArray(records) || records.length === 0) return null;
+    const seen = new Set();
+    for (const row of records) {
+      if (row?.status !== 'completed' ||
+          !['A', 'B'].includes(row.candidateEngineSlot) ||
+          row.observedSeed !== row.seed ||
+          typeof row.opponentDigest !== 'string') return null;
+      const proof = row.firstTurn && turnProof(row.firstTurn);
+      if (!proof) return null;
+      const candidateSlot = row.candidateEngineSlot === 'A' ? 0 : 1;
+      const actualTurn = proof.firstTurnSlot === candidateSlot ?
+        'first' : 'second';
+      if (row.candidateTrueTurn !== actualTurn) return null;
+      const key = JSON.stringify([
+        row.phase, row.rank, row.repeat, row.seed,
+        row.candidateEngineSlot, row.opponentDigest, actualTurn
+      ]);
+      if (seen.has(key)) return null;
+      seen.add(key);
+    }
+    return seen;
+  }
+
+  const a = cells(left);
+  const b = cells(right);
+  return a !== null && b !== null && a.size === b.size &&
+    [...a].every(key => b.has(key));
+}
+
 module.exports = {
-  auditArchive, createEvidenceEnvelope, hasMatchingResearchConditions
+  auditArchive, createEvidenceEnvelope, hasMatchingResearchConditions,
+  hasPairedTrialSchedule
 };
