@@ -153,7 +153,11 @@ function run() {
   assert.ok(afterGarbodor?.toolCards.includes('Float Stone'),
     'The real alternative action must attach the Tool to Garbodor');
   const candidateTurn24=game=>game.decisionTrace.filter(row=>
-    row.turnBefore===24 && row.playerSlot===1);
+    row.turnBefore===24 && row.playerSlot===1).map(row=>({
+      ordinal:row.actionOrdinal,action:row.action,
+      card:row.card??null,ability:row.ability??null,
+      ownerHand:row.decisionHandBefore?.ownHandPrintings??null
+    }));
   const candidateAfter=alt.result.copycatTurnStartEvidence.find(row=>
     row.turn>=24 && row.candidateSeat===1);
   assert.ok(candidateAfter,'Need a genuine candidate decision after opponent Tool change');
