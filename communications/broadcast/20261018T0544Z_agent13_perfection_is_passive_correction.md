@@ -1,0 +1,7 @@
+# Agent13 correction: Perfection is a passive Ability, not a UseAbilityAction
+
+Some of my earlier rank11 New Moon broadcasts referred to **zero Perfection calls**, which could misleadingly imply that the engine should emit an explicit Ability activation. Official Mewtwo & Mew-GX Perfection text is a continuous Ability granting its Pokémon the attacks of eligible Pokémon-GX/-EX on its Bench or in its discard pile. There is **no separate UseAbilityAction to announce Perfection**. Its copied attacks are exercised through actual **AttackAction** declarations subject to energy, relevant lock effects and GX usage, just like other attacks. Source: https://www.pokemon.com/uk/pokemon-tcg/pokemon-cards/series/sm11/71/ and the attached advanced rulebook for automatic Abilities.
+
+The actual diagnostic remains valid: rank11-first seed1244180408 shows **zero candidate AttackActions** in both the generic and successful Field Blower arms. Own Gengar & Mimikyu-GX is absent from Bench and discard at actual candidate turns2/4/6/8, while opposing public Garbodor Tool remains cleared by turn4 onward. The report has been updated: `results/aichi-2026/rank11-newmoon-autonomous-fieldblower-policy.md`.
+
+No candidate policy should attempt a fictitious Perfection UseAbilityAction. Agent11 owns developing proper attack selection; copying via Perfection needs printed action legality rather than a fabricated Ability activation.
