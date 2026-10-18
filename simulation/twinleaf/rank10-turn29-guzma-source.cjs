@@ -52,45 +52,48 @@ function main(){
   assert.equal(control.result.forcedAttack,true);
   assert.equal(forced.result.forcedAttack,true);
   assert.equal(a.stage,'control');
-  assert.equal(b.stage,'done','Guzma must resolve both physical switches');
-  assert.equal(a.actions[0].original,'RetreatAction');
-  assert.equal(b.actions[0].original,'RetreatAction');
+  assert.equal(b.stage,'blocked','Already spent Supporter must block Guzma');
+  assert.equal(a.actions.length,1);
+  assert.equal(b.actions.length,1);
   assert.deepEqual(a.actions[0],{
-    ordinal:231,original:'RetreatAction',heldGuzma:true,forced:false
+    ordinal:231,original:'RetreatAction',heldGuzma:true,
+    forced:false,supporterTurn:1,preventedIllegalSupporter:false
   });
   assert.deepEqual(b.actions[0],{
-    ordinal:231,original:'RetreatAction',heldGuzma:true,forced:true
+    ordinal:231,original:'RetreatAction',heldGuzma:true,
+    forced:true,supporterTurn:1,preventedIllegalSupporter:true
   });
-  assert.deepEqual(control.actionTrace.slice(0,231),
-    forced.actionTrace.slice(0,231),
-    'One unchanged physical prefix must precede both response actions');
+  assert.deepEqual(control.actionTrace,forced.actionTrace,
+    'Rejecting illegal Guzma must preserve the entire real source match');
+  assert.deepEqual(a.result,b.result,
+    'Illegality check must not change game outcome');
   assert.equal(control.actionTrace[231].action,'RetreatAction');
-  assert.equal(forced.actionTrace[231].action,'PlayCardAction');
-  assert.equal(control.actionTrace[231].zoneDigestBefore,
-    forced.actionTrace[231].zoneDigestBefore);
+  assert.equal(forced.actionTrace[231].action,'RetreatAction');
   assert.equal(control.actionTrace[231].zoneDigestBefore,
     'a512b03755dddc50ed62022fcb075ac54e7198e202150e1d4db8341405525b86');
+
   const digest=r=>({finished:r.finished,winner:r.finished?r.winner:null,
     turns:r.turns,actions:r.actions,prizesRemaining:r.prizesRemaining,
     attackTrace:r.attackTrace?.map(x=>({
       seat:x.seat,turn:x.turn,attack:x.attack}))});
   return {
-    schema:'rank10-archived-shred-guzma-response-fork-v1',
+    schema:'rank10-archived-shred-guzma-illegality-audit-v2',
     source:{seed:request.seed,ranks:[10,1],
       deckHashes:[sha(regidrago.cardIds),sha(champion.cardIds)],
       engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+      policy:'DoubleDragonAttachTactic-v3-archive',
       ShredRootOrdinal:215,GuzmaRootOrdinal:231},
-    sourcePrefixIdentical:true,
-    firstDivergence:{
-      ordinal:231,control:control.actionTrace[231].action,
-      forced:forced.actionTrace[231].action,
-      sameSourceZoneSha256:control.actionTrace[231].zoneDigestBefore},
+    fullSourceDispatchTraceIdentical:true,
+    sourceDecision:{ordinal:231,action:'RetreatAction',
+      predecisionZoneSha256:control.actionTrace[231].zoneDigestBefore,
+      supporterTurn:1,canPlayGuzma:false},
     controlBotEvaluatedInBothArms:true,
+    illegalGuzmaSafelyRejected:true,
     responses:{control:{actions:a.actions,game:digest(a.result)},
-      forcedGuzma:{actions:b.actions,game:digest(b.result)}},
+      attemptedGuzma:{actions:b.actions,game:digest(b.result)}},
     sourceReplayMechanicsVerified:false,
     qualifiedForCompetitiveInference:false,
-    limitations:'Forced Guzma target and own switch are preselected. One physical seed, generic bot responses, and unqualified paper-fidelity.'
+    limitations:'Archived, script-forced Shred prefix and one generic-bot source deal. This proves a negative Supporter timing constraint; it does not establish the optimal Retreat choice or competitive win rates.'
   };
 }
 if(require.main===module)process.stdout.write(JSON.stringify(main(),null,2)+'\n');
