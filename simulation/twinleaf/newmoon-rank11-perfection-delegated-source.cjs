@@ -195,13 +195,14 @@ function run() {
     beforePublicBoard:priorEffect.publicBefore,
     afterPublicBoard:priorEffect.steps.at(-1)?.publicAfter??priorEffect.publicAfter,
     physicalPrintedEffect:priorEffect.assessment,
-    attackReducerSteps:priorEffect.steps.map(row=>({
+    attackReducerSteps:priorEffect.steps.map((row,index)=>({
       ordinal:row.actionOrdinal,action:row.actionName,pendingPrompt:row.pendingPrompt,
       beforePrizes:row.before.map(p=>p.prizesRemaining),
       afterPrizes:row.after.map(p=>p.prizesRemaining),
       beforeInPlay:row.before.map(p=>p.inPlayPokemon),
       afterInPlay:row.after.map(p=>p.inPlayPokemon),
-      beforeActiveEnergy:row.publicAfter?.map(p=>p.active?.energyCards??[])??null,
+      beforeActiveEnergy:(index===0?priorEffect.publicAfter:
+        priorEffect.steps[index-1].publicAfter)?.map(p=>p.active?.energyCards??[])??null,
       afterActiveEnergy:row.publicAfter?.map(p=>p.active?.energyCards??[])??null
     })),
     effectPromptTiming:{
