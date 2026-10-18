@@ -6,6 +6,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const {runMatch, initializeCards} = require('./headless.cjs');
 const {withRoxieDiscardEffectType} = require('./roxie-discard-type-hook.cjs');
+const {observeConfirmPrompts} = require('./confirm-prompt-observer.cjs');
 const {planAichi} = require('../evaluation/aichi-pilot.cjs');
 const {deriveSlotSeeds} = require('../../scripts/aichi-decorrelated-seeds.cjs');
 
@@ -79,7 +80,8 @@ function main() {
     const deckA = slot === 'A' ? prepared.candidate.cards : other.cards;
     const deckB = slot === 'B' ? prepared.candidate.cards : other.cards;
     try {
-      const game = withRoxieDiscardEffectType(() => runMatch({
+      const observed = withRoxieDiscardEffectType(() =>
+        observeConfirmPrompts(() => runMatch({
         deckA, deckB, seed:seeds[slot], maxActions:240,
         label:'rank31:roxie-published-field:0:' + slot,
         strictPromptValidation:true,
@@ -93,14 +95,19 @@ function main() {
         grandTreeFirstTurnCorrection:true,
         battleCompressorPositiveSelectionCorrection:true,
         captureDecisionTrace:true
-      }));
+      })));
+      const game = observed.value;
       assert.deepEqual(game.deckHashes, [digest(deckA), digest(deckB)]);
       const exposure = roxieExposure(game, rank31Seat);
       trials.push({slot, seed:seeds[slot], status:'engine-observation',
         rank31Seat, actualFirstTurnSeat:game.firstTurnSlot,
         actions:game.actions, turns:game.turns, finished:game.finished,
         rank31RoxiePlays:game.cardsPlayedBySeat[rank31Seat]?.Roxie || 0,
-        ...exposure, deckHashes:game.deckHashes});
+        ...exposure,
+        rank31Confirmations:observed.confirmations.filter(
+          event => event.seat === rank31Seat
+        ),
+        deckHashes:game.deckHashes});
     } catch (error) {
       trials.push({slot, seed:seeds[slot], status:'engine-error',
         rank31Seat, reason:String(error?.message || error)});
@@ -113,7 +120,7 @@ function main() {
     candidateDigest:prepared.candidateDigest,
     engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     reversibleHook:'RoxieDiscardEffectType',
-    confirmationResultCapture:'Unavailable from standard decisionTrace; do not infer',
+    confirmationResultCapture:'Passive pinned generic resolver observation',
     qualifiedForCompetitiveInference:false, trials
   };
 }
