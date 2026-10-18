@@ -32,6 +32,7 @@ function roxieExposure(game, rank31Seat) {
     ordinal: entry.actionOrdinal, turn: entry.turnBefore
   }));
   const handDiscards = actions.filter(entry =>
+    entry.cardSelection?.message === 'CHOOSE_CARD_TO_DISCARD' &&
     entry.cardSelection?.sourceZone === 'hand' &&
     entry.cardSelection?.sourcePlayerSlot === rank31Seat &&
     entry.cardSelection?.selectedCards?.some(card =>
