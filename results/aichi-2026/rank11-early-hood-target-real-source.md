@@ -30,3 +30,20 @@ The source opponent's live Garbodor had **Float Stone BKT** when the interventio
 Capture the existing Store's **selected candidate ability actions, attack declarations and pass turns** under the two arms, preserving actual hand and board perspective. Determine whether the protected turn-4 Underworld Door was chosen, whether a Psychic Energy attachment and draw were observed, and what blocked an attack. Then test the policy in prospectively selected both-start deals, retaining all no-Hood/no-Garbodor/no-Shadow-Rider opportunities. The current one-source positive result cannot support any frequency claim.
 
 **Project-wide status:** 29/32 exact Aichi Top32 opponent lists; zero independently qualified competitive games; no demonstrated 99.5% fixed-deck win rate.
+
+
+## Follow-up: authentic turn-4 Underworld Door is executable (compiled 18 October)
+
+The original diagnostic above established an unblocked power but did not show its use. A **third** matched, real-deal policy branch now addresses that missing step. New `simulation/twinleaf/protected-underworld-door.cjs` (and four independent pure predicate tests) adds one **autonomously selected, original-root `UseAbilityAction`** only when: the candidate actually holds Basic Psychic Energy, an own Benched Shadow Rider VMAX has Stealthy Hood, an opposing Garbodor publicly wears a Tool, no prompt is pending and it is the candidate's turn. A legitimate **owner `AttachEnergyPrompt`** then selects that same real Psychic Energy for the protected VMAX, without reading opponent-private cards or hidden Prize contents. This composes with the previously tested original-deal Hood attachment and retains a byte-identical restored original-source control.
+
+**[Manual compiled CI 39144421126](https://github.com/FlareZ123/experiment-01/actions/runs/39144421126) PASSED**, source head `d216e1607371b83e52779d4a660637eb4e48952f`, source-tested code committed as `ddbbe0d` / `ed0cfe9` / `3a2aa10`. Artifact **12142778258** ZIP SHA256 `874c6577cf90f00f69ea495affb25ab291412201b916637f5fa5a05911fe916a`, JSON SHA256 `6f3dc80bb470052f550254493360c41bd217c99fb23588c67fc85f3219f4a0ee`.
+
+The engine-selected candidate actions and post-prompt effects are:
+
+1. Candidate global turn **2**: genuinely held Stealthy Hood attached to Benched Shadow Rider V before it evolves.
+2. Global turn **4**: Shadow Rider V evolves into Hooded VMAX. The candidate plays Fog Crystal and searches actual Psychic Energy, just as in the untouched source.
+3. At the live root after that legitimate owner search, with **Psychic Energy MEE** in hand and opposing Garbodor still wearing **Float Stone BKT**, candidate policy dispatches `UseAbilityAction('Underworld Door')` from its **Benched** Hooded VMAX.
+4. Original `AttachEnergyPrompt` accepts and dispatches the real Psychic Energy onto that VMAX. The actual Store checks: **one Psychic Energy attached**, **two cards drawn**, **Hood still attached**, **opponent Garbodor still Tool-equipped**. The resulting hand contains Field Blower GRI and Teammates PRC from the extra draw.
+5. The generic policy subsequently passes with Radiant Eternatus still Active. Neither this branch nor the original/corrected-Tool-only arms declared an attack through the audited early turns. All **three engine games still finish as rank11 wins** with remaining Prizes `[0,6]`.
+
+**Inference:** a staged mechanical Availability/real Store resolution gap is now closed for this single genuine source deal. It is demonstrably possible to execute a protected early Underworld Door, including the full Energy-and-draw effect, under live Garbotoxin. The visible remaining bottleneck is **Active positioning and successful attack conversion**, with a potentially significant competing use of the searched Psychic Energy. Neither the one-source result nor its retrospective selection measures actual game-win probability. The exact physical printing/complete simulator-policy fidelity issues remain open, and a representative both-start follow-up still requires an autonomous opponent and candidate attack/reply.
