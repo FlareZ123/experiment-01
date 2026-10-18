@@ -49,7 +49,11 @@ function probe(config) {
     player.deck.cards.push(card('Psychic Energy MEE'));
   }
   const original = card('Shadow Rider Calyrex V CRE');
+  const attachedEnergy=card('Psychic Energy MEE');
+  const attachedTool=card('Air Balloon SSH');
   us.active.cards.push(original);
+  us.active.energies.cards.push(attachedEnergy);
+  us.active.tools.push(attachedTool);
   if (config.ownBench) {
     const bench = new PokemonCardList();
     bench.cards.push(card('Latias ex SSP'));
@@ -97,6 +101,12 @@ function probe(config) {
     targetInDeck:us.deck.cards.includes(original),
     targetInHand:us.hand.cards.includes(original),
     targetInDiscard:us.discard.cards.includes(original),
+    energyInDeck:us.deck.cards.includes(attachedEnergy),
+    energyInHand:us.hand.cards.includes(attachedEnergy),
+    energyInDiscard:us.discard.cards.includes(attachedEnergy),
+    toolInDeck:us.deck.cards.includes(attachedTool),
+    toolInHand:us.hand.cards.includes(attachedTool),
+    toolInDiscard:us.discard.cards.includes(attachedTool),
     supporterDiscarded:us.discard.cards.some(c=>c.name===config.supporter),
     supporterInPlayZone:us.supporter.cards.some(c=>c.name===config.supporter),
     supporterTurn:us.supporterTurn,
