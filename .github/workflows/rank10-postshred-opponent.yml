@@ -34,3 +34,14 @@ jobs:
           name: rank10-postshred-opponent
           path: rank10-postshred-opponent.json
           if-no-files-found: warn
+      - name: Unit-check legal Guzma fork restoration
+        run: node --test tests/rank10-turn29-guzma-fork.test.cjs
+      - name: Paired authentic post-Shred Guzma versus Retreat response
+        run: node simulation/twinleaf/rank10-turn29-guzma-source.cjs > rank10-turn29-guzma-fork.json
+      - name: Archive true-source Guzma response comparison
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-turn29-guzma-fork
+          path: rank10-turn29-guzma-fork.json
+          if-no-files-found: warn
