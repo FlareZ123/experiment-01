@@ -91,3 +91,18 @@ test('explicit v2 recognizes the acting source own first turn when it goes secon
   assert.equal(openingOpportunity(state, player, 1, 7, true), false,
     'Subsequent turns must not be confused with first personal turn');
 });
+
+test('shared K0 VSTAR path conserves search resources when both Garbodor held', () => {
+  const {state, player} = sourceDeal();
+  Object.defineProperty(player, 'deck', {get() {
+    throw new Error('K0 VSTAR guard touched deck');
+  }});
+  Object.defineProperty(player, 'prizes', {get() {
+    throw new Error('K0 VSTAR guard touched Prizes');
+  }});
+  player.hand.cards.push({name:'Garbodor'}, {name:'Garbodor'});
+  assert.equal(openingOpportunity(state, player, 0, 7, true), true);
+  assert.equal(openingOpportunity(state, player, 0, 7, true, true), false);
+  player.hand.cards.pop();
+  assert.equal(openingOpportunity(state, player, 0, 7, true, true), true);
+});
