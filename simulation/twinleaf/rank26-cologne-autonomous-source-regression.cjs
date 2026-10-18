@@ -47,7 +47,7 @@ function run() {
     'Actual source root should trigger automatic held-Cologne action');
   assert.equal(game.rank26ColognePolicy.actions[0].card,'Canceling Cologne ASR');
   assert.equal(game.rank26ColognePolicy.actions[0].target,'Iron Thorns ex');
-  assert.ok((game.cardsPlayedBySeat[SOURCE.rank26Seat]['Canceling Cologne ASR']||0)>=1,
+  assert.ok((game.cardsPlayedBySeat[SOURCE.rank26Seat]['Canceling Cologne']||0)>=1,
     'Engine must actually process the bot-selected Item from source hand');
   const sequence=(game.decisionTrace||[]).filter(
     action=>action.playerSlot===SOURCE.rank26Seat).slice(0,12);
@@ -62,7 +62,7 @@ function run() {
     researchPolicyProfile:RANK26_COLOGNE_PROFILE,
     policyAudit:game.rank26ColognePolicy,
     actualItemPlayedBySourceSeat:
-      game.cardsPlayedBySeat[SOURCE.rank26Seat]['Canceling Cologne ASR'],
+      game.cardsPlayedBySeat[SOURCE.rank26Seat]['Canceling Cologne'],
     firstSourceActions:sequence,
     finished:game.finished,
     observedWinner:game.winner,
