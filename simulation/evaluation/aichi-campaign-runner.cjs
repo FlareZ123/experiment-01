@@ -5,6 +5,7 @@ const path = require('node:path');
 const { createHash } = require('node:crypto');
 const { buildCampaign, loadDefaultCampaign, parseField } =
   require('../../scripts/aichi-comparison-campaign.cjs');
+const {prepareCandidateInputOrder} = require('./aichi-candidate-input-order.cjs');
 
 const SOURCE_DIR = path.resolve(__dirname, '../../results/aichi-2026');
 
@@ -83,7 +84,8 @@ function turnProof(game) {
  * @param {object} inputs Full source-locked campaign inputs.
  * @param {{phase?:string,trialIds?:string[],maxTrials?:number,
  *   maxActions?:number,prepareCandidate?:(candidate:object)=>object,
- *   runMatch?:(request:object)=>object,matchOptions?:object}} options
+ *   runMatch?:(request:object)=>object,matchOptions?:object,
+ *   inputOrderProtocol?:'source-row-order-v1'|'reference-aligned-v1'}} options
  * @returns {object} Feasibility archive, never a performance certificate.
  */
 function executeCampaign(inputs, options = {}) {
@@ -94,6 +96,10 @@ function executeCampaign(inputs, options = {}) {
     throw new Error('Unknown campaign phase.');
   }
   const expectedPolicyProfile = options.expectedPolicyProfile || null;
+  const inputOrderProtocol = options.inputOrderProtocol || 'source-row-order-v1';
+  if (!['source-row-order-v1','reference-aligned-v1'].includes(inputOrderProtocol)) {
+    throw new Error('Unknown candidate input-order protocol.');
+  }
   const maxTrials = options.maxTrials === undefined ? 2 : options.maxTrials;
   if (!Number.isInteger(maxTrials) || maxTrials < 1 || maxTrials > 1000) {
     throw new Error('maxTrials must be an integer from 1 through 1000.');
@@ -135,6 +141,10 @@ function executeCampaign(inputs, options = {}) {
   const play = options.runMatch || require('../twinleaf/headless.cjs').runMatch;
   const sourceRanks = new Map(inputs.source.decks.map(d => [d.rank, d]));
   const candidateMap = new Map(candidates.map(c => [c.id, c]));
+  const reference = candidateMap.get('champion-reference');
+  if (inputOrderProtocol === 'reference-aligned-v1' && !reference) {
+    throw new Error('Reference-aligned input requires the fixed champion-reference source.');
+  }
   const prepared = new Map();
   const records = [];
 
@@ -156,6 +166,7 @@ function executeCampaign(inputs, options = {}) {
       candidateId: trial.candidateId, candidateDigest: trial.candidateDigest,
       opponentDigest: trial.opponentDigest, seed: trial.seed,
       repeat: trial.repeat, candidateEngineSlot: trial.candidateEngineSlot,
+      inputOrderProtocol,
       exactSourceMirror: trial.candidateDigest === trial.opponentDigest,
       potentialReplayAliasKey: trial.candidateDigest === trial.opponentDigest ?
         sha256({ phase: trial.phase, rank: trial.rank,
@@ -173,9 +184,12 @@ function executeCampaign(inputs, options = {}) {
         firstTurn: null, winner: null });
       continue;
     }
+    const inputOrder = prepareCandidateInputOrder(
+      (reference || candidate).cards,candidate.cards,plan.candidate.cards,
+      inputOrderProtocol);
     const candidateA = trial.candidateEngineSlot === 'A';
-    const deckA = candidateA ? plan.candidate.cards : opponent.cards;
-    const deckB = candidateA ? opponent.cards : plan.candidate.cards;
+    const deckA = candidateA ? inputOrder.engineIds : opponent.cards;
+    const deckB = candidateA ? opponent.cards : inputOrder.engineIds;
     const expectedEngineDeckHashes = [sha256(deckA), sha256(deckB)];
     const request = {
       deckA, deckB, seed: trial.seed,
@@ -222,6 +236,17 @@ function executeCampaign(inputs, options = {}) {
       const candidateSlot = candidateA ? 0 : 1;
       records.push({
         ...base, status, firstTurn: proof,
+        candidateInputOrder: {
+          protocol:inputOrder.protocol,
+          sourceInputHash:inputOrder.sourceInputHash,
+          executedInputHash:inputOrder.executedInputHash,
+          sourcePrintingOrderHash:inputOrder.sourcePrintingOrderHash,
+          executedPrintingOrderHash:inputOrder.executedPrintingOrderHash,
+          referencePrintingOrderHash:inputOrder.referencePrintingOrderHash,
+          sharedCopies:inputOrder.sharedCopies,
+          matchingPositionsBefore:inputOrder.matchingPositionsBefore,
+          matchingPositionsAfter:inputOrder.matchingPositionsAfter
+        },
         candidateTrueTurn: proof ?
           (proof.firstTurnSlot === candidateSlot ? 'first' : 'second') : 'unverified',
         observedWinnerIndex: game.winner ?? null,
@@ -268,6 +293,7 @@ function executeCampaign(inputs, options = {}) {
   return {
     schemaVersion: campaign.schemaVersion, planDigest: campaign.planDigest, phase,
     seedProtocol: campaign.seedProtocol || 'paired-slots-v1',
+    inputOrderProtocol,
     researchRevision: process.env.GITHUB_SHA || null,
     expectedPolicyProfile,
     captureDecisionTrace: options.captureDecisionTrace === true,
@@ -291,6 +317,8 @@ if (require.main === module) {
   const trialIds = selectedText ? selectedText.split(',').map(x => x.trim()) : undefined;
   const profile = process.env.CAMPAIGN_POLICY_PROFILE || '';
   const captureDecisionTrace = process.env.CAMPAIGN_CAPTURE_DECISIONS === 'true';
+  const inputOrderProtocol = process.env.CAMPAIGN_INPUT_ORDER_PROTOCOL ||
+    'source-row-order-v1';
   const profiled = profile ?
     require('../twinleaf/policy-profiles.cjs') : null;
   if (profile && !profiled.ALLOWED_PROFILES.includes(profile)) {
@@ -306,7 +334,8 @@ if (require.main === module) {
       attachedToolPowerPolicy:
         process.env.CAMPAIGN_ATTACHED_TOOL_POWER === 'true'
     },
-    captureDecisionTrace, expectedPolicyProfile: profile || null
+    captureDecisionTrace, expectedPolicyProfile: profile || null,
+    inputOrderProtocol
   }), null, 2) + '\n');
 }
 
