@@ -68,7 +68,7 @@ try {
     let live = null;
     let ordinal = -2;
     const roots = [];
-    Store.prototype.dispatch = function(action,...args) {
+    function observedDispatch(action,...args) {
       if (live===null && action?.constructor?.name==='AddPlayerAction') {
         live=this;
       }
@@ -104,12 +104,13 @@ try {
           });
         }
       }
-    };
+    }
+    Store.prototype.dispatch=observedDispatch;
     try {
       return {game:work(),roots};
     } finally {
-      if(Store.prototype.dispatch!==Store.prototype.dispatch) {
-        throw new Error('Unreachable observer descriptor');
+      if(Store.prototype.dispatch!==observedDispatch) {
+        throw new Error('Live root observer lost Store.dispatch ownership');
       }
       Store.prototype.dispatch=previous;
     }
