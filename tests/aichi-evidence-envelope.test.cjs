@@ -29,6 +29,11 @@ function fixture(mirror = false) {
       opponentDigest:t.opponentDigest}) : null,
     candidateTrueTurn:t.candidateEngineSlot==='A'?'first':'second',
     observedWinnerIndex:0,observedFinished:true,
+    observedEngine:'twinleafgg/pinned-test',
+    resolvedEngineRevision:'pinned-test',
+    observedRngProtocol:'isolated-policy-rng',
+    observedPolicy:'test-policy',
+    effectiveMatchOptions:{strictPromptValidation:true,isolatePolicyRandomness:true},
     winner:t.candidateEngineSlot==='A'?'candidate':'opponent',
     expectedEngineDeckHashes:[h1,h2],
     observedEngineDeckHashes:[h1,h2]
@@ -183,4 +188,37 @@ test('completed outcome must retain an affirmative raw engine-finished witness',
   archive.records[0].observedFinished = true;
   delete archive.records[0].observedFinished;
   assert.throws(() => auditArchive(inputs, archive), /Completed game/);
+});
+
+test('completed evidence requires engine-observed provenance without optional bypasses', () => {
+  const {inputs,archive,provenance} = fixture();
+  assert.equal(createEvidenceEnvelope(inputs,archive,provenance).audit.completed,2);
+  for (const key of ['observedEngine','resolvedEngineRevision',
+    'observedRngProtocol','observedPolicy','effectiveMatchOptions']) {
+    const value = archive.records[0][key];
+    delete archive.records[0][key];
+    assert.throws(() => createEvidenceEnvelope(inputs,archive,provenance),
+      /provenance conflicts/, 'missing ' + key + ' must fail');
+    archive.records[0][key] = value;
+  }
+  const rawSeed = archive.records[0].observedSeed;
+  delete archive.records[0].observedSeed;
+  assert.throws(() => auditArchive(inputs,archive), /Completed game/,
+    'missing engine-reported seed must fail');
+  archive.records[0].observedSeed = rawSeed;
+  archive.records[0].effectiveMatchOptions = {
+    ...provenance.effectiveMatchOptions, isolatePolicyRandomness:false
+  };
+  assert.throws(() => createEvidenceEnvelope(inputs,archive,provenance),
+    /provenance conflicts/, 'changed per-run policy echo must fail');
+});
+
+test('explicit runner policy-echo mismatch is preserved as a failure', () => {
+  const {inputs,archive} = fixture();
+  archive.records[0].status = 'match-policy-echo-mismatch';
+  archive.records[0].winner = null;
+  assert.deepEqual(auditArchive(inputs,archive), {
+    completed:1,failures:1,verifiedFirst:0,verifiedSecond:1,
+    potentialDuplicateMirrorGames:0,maximumDistinctCompletedTrajectories:1
+  });
 });
