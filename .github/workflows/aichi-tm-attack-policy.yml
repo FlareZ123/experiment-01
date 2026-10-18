@@ -135,3 +135,17 @@ jobs:
           path: rank2-gh-mode1-ablation.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Validate bounded source rank2 root Supporter score observer
+        if: ${{ inputs.rank2_root_score_probe }}
+        run: node --test tests/rank2-gh-root-score-probe.test.cjs
+      - name: Record source-ranked Supporter evaluation scores
+        if: ${{ inputs.rank2_root_score_probe }}
+        run: node simulation/twinleaf/rank2-gh-root-score-probe.cjs > rank2-gh-root-score.json
+      - name: Archive reproducible GH root scores
+        if: ${{ always() && inputs.rank2_root_score_probe }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank2-gh-root-score-probe
+          path: rank2-gh-root-score.json
+          if-no-files-found: warn
+          retention-days: 14
