@@ -27,9 +27,17 @@ test('own printed Energy and hand expose the Guzma pivot', () => {
   assert.equal(found.handIndex, 1);
   assert.equal(found.supporterChannelOpen, true);
   assert.equal(found.opponentBenchCount, 1);
+  assert.equal(found.ownBenchCount, 6);
+  assert.deepEqual(found.stadiumsInPlay, []);
   assert.equal(found.targetBenchIndex, 5);
   assert.deepEqual(found.ownHandPrintings,
     ['Dragapult ex TWM', 'Guzma BUS', 'Battle VIP Pass FST']);
+});
+test('the public Stadium is observed without inspecting hidden opponent zones', () => {
+  const state = fixture();
+  state.players[0].stadium = {cards: [card('Sky Field ROS')]};
+  assert.deepEqual(inspectGuzmaWindow(state, 202).stadiumsInPlay,
+    ['Sky Field ROS']);
 });
 test('Supporter contention, empty opposing Bench, absent Guzma veto pivot', () => {
   const state = fixture();
