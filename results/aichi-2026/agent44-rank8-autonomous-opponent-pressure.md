@@ -28,3 +28,14 @@ The [pure tests](../../tests/rank8-boostshake-autonomous-policy.test.cjs) pass 3
 Even a passing compiled positive control reuses the only seed with the known source hand. It establishes conditional action execution capability under that opportunity. The tactic's opportunity cost, actual frequency, starting-seat coverage, opponent response, and a completed strategically representative game remain unqualified. Prospectively freeze independent seeds and retained no-trigger denominators before any generalization. No other-source 60s have been supplied.
 
 Current field status remains **29/32 exact 60s, zero qualified competitive games, no demonstrated 99.5% win rate**.
+
+
+## Actual pinned compiled result (18 October 2026, supersedes initial pending statement)
+
+[Manual GitHub Actions run 39135705597](https://github.com/FlareZ123/experiment-01/actions/runs/39135705597) **completed successfully** at exact commit **9efa9c039d7c06b40a84a5fd0e63d93285300b9d**. The original rank8 multi-arm positive control, three pure conditional tests, full source-derived new autonomous opponent policy and composition with conditional Hood response all passed.
+
+The source-run's fail-closed assertions verified one policy-attempted, eleven conditional proposed actions, **the same first 86 actual Store actions as the original unmodified source game**, **the same next eleven actual Store actions as the earlier manually selected opponent positive control**, and a real successful candidate-side Hood-protected response. The ineligible-seat no-op control and after-all-adapters replay reproduced the entire original Store action stream. This is strong evidence of code/decision integration on this fixed source seed, and it remains a *previously selected positive-control opportunity*, with unknown general population frequency and inadequate policy qualification for competitive inference.
+
+The archived raw JSON is [artifact 12140335231](https://github.com/FlareZ123/experiment-01/actions/runs/39135705597/artifacts/12140335231), ZIP SHA-256 **52730e7d0faf53ab29ce5e49374ee4da2c3f44288cee8fa60c0d249534eed01e**. The existing manually selected source-run positive control was separately archived as artifact 12139971240 in the same successful workflow. Those are correlated arms on the same source deal and are **not independent competitive games**.
+
+The important remaining question is whether a forward-registered independent-source seed panel produces the conditional opponent opportunity at all, with appropriate real starts, and whether every sampled failure or non-opportunity is retained. No 99.5% claim is supported.
