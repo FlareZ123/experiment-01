@@ -23,6 +23,7 @@ function main() {
   const rank31 = field.decks.find(row => row.rank === 31);
   assert.ok(rank1 && rank31);
   const seeds = deriveSlotSeeds(20261016, 'published-field', 31, 1);
+  assert.deepEqual(seeds, {A:2481088205, B:2932006358});
 
   initializeCards();
   const plan = planAichi({label:'champion-reference', cards:rank1.cards}, {
@@ -94,6 +95,8 @@ function main() {
     try {
       const generic = runMatch(base);
       const attackFirst = runMatch({...base, rank31FogEnergySeat:ownerSeat});
+      assert.ok([0, 1].includes(generic.firstTurnSlot));
+      assert.ok([0, 1].includes(attackFirst.firstTurnSlot));
       assert.deepEqual(generic.deckHashes, attackFirst.deckHashes);
       assert.equal(generic.firstTurnSlot, attackFirst.firstTurnSlot);
       records.push({
