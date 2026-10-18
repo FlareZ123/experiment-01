@@ -21,13 +21,17 @@ function freeBenchIndex(player) {
  * @param {object} player
  * @param {0|1} seat
  * @param {number} playerTurnPhase
+ * @param {boolean} [avoidAllGarbodorHeld] Optional information-set K0 guard
  * @returns {{route:'bench'|'hand'|'vip',tool:string}|null}
  */
-function directBoostShakeOpportunity(state, player, seat, playerTurnPhase) {
+function directBoostShakeOpportunity(state, player, seat, playerTurnPhase,
+  avoidAllGarbodorHeld = false) {
   if (![1,2].includes(state.turn) || state.activePlayer !== seat ||
       state.phase !== playerTurnPhase) return null;
   const hand = player.hand.cards.map(card => card.name);
-  if (!hand.includes('Boost Shake')) return null;
+  if (!hand.includes('Boost Shake') ||
+      (avoidAllGarbodorHeld &&
+        hand.filter(name => name === 'Garbodor').length >= 2)) return null;
   const tool = TOOLS.find(name => hand.includes(name));
   if (!tool) return null;
   if (untooledTrubbish(player) >= 0) return {route:'bench', tool};
