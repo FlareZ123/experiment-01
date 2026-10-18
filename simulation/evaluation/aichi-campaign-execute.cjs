@@ -91,6 +91,7 @@ function executeDiagnostic(options) {
     'shadowRiderOpeningPivot', 'latiasAttackReadyAttachment',
     'bunnelbyK0SafeEvolution', 'attackBeforeRetreat',
     'attackBeforeRetreatCandidateOnly',
+    'toolAttackAwareness', 'toolAttackOpponentOnly',
     'leleEntryAbilityLockCorrection',
     'radiantGateLockCorrection', 'entryDrawLockCorrection',
     'eldegossEntryLockCorrection'
@@ -102,7 +103,8 @@ function executeDiagnostic(options) {
   const nonEchoPolicyFlags = new Set([
     'strictPromptValidation', 'isolatePolicyRandomness',
     'captureDecisionTrace', 'captureAttackPassProbes',
-    'captureElectrodeOpportunity', 'attackBeforeRetreatCandidateOnly'
+    'captureElectrodeOpportunity', 'attackBeforeRetreatCandidateOnly',
+    'toolAttackOpponentOnly'
   ]);
   const echoedPolicyKeys = [...allowedFlags].filter(
     key => !nonEchoPolicyFlags.has(key));
@@ -115,6 +117,14 @@ function executeDiagnostic(options) {
   if (policyFlags.prototypeSafeSimulatorIsolation === true &&
       policyFlags.postSuperAliasRepairIsolation === true) {
     throw new Error('Choose only one experimental speculative Simulator profile.');
+  }
+  if (policyFlags.toolAttackOpponentOnly === true &&
+      policyFlags.toolAttackAwareness !== true) {
+    throw new Error('Opponent-only Tool attacks require toolAttackAwareness.');
+  }
+  if (researchPolicyProfile !== 'fixed-core-v1' &&
+      policyFlags.toolAttackAwareness === true) {
+    throw new Error('Tool attack flag overlaps the existing Expanded tactic profile.');
   }
   if (policyFlags.attackBeforeRetreatCandidateOnly === true &&
       policyFlags.attackBeforeRetreat !== true) {
@@ -177,14 +187,17 @@ function executeDiagnostic(options) {
       const candidateA = trial.candidateEngineSlot === 'A';
       const deckA = candidateA ? pair.candidateCards : pair.opponentCards;
       const deckB = candidateA ? pair.opponentCards : pair.candidateCards;
-      const {attackBeforeRetreatCandidateOnly, ...enginePolicyFlags} = policyFlags;
+      const {attackBeforeRetreatCandidateOnly, toolAttackOpponentOnly,
+        ...enginePolicyFlags} = policyFlags;
       const expectedLabel = 'Aichi comparative diagnostic ' + trial.trialId;
       const game = runMatch({
         deckA, deckB, seed: trial.seed, maxActions,
         label: expectedLabel,
         ...enginePolicyFlags,
         ...(attackBeforeRetreatCandidateOnly === true ?
-          {attackBeforeRetreatSeat: candidateA ? 0 : 1} : {})
+          {attackBeforeRetreatSeat: candidateA ? 0 : 1} : {}),
+        ...(toolAttackOpponentOnly === true ?
+          {toolAttackAwarenessSeat: candidateA ? 1 : 0} : {})
       });
       const expectedDeckHashes = [digest(deckA), digest(deckB)];
       if (game.seed !== trial.seed ||
@@ -206,6 +219,8 @@ function executeDiagnostic(options) {
         game[key] !== enginePolicyFlags[key]);
       const expectedAttackSeat = attackBeforeRetreatCandidateOnly === true ?
         (candidateA ? 0 : 1) : null;
+      const expectedToolSeat = toolAttackOpponentOnly === true ?
+        (candidateA ? 1 : 0) : null;
       const environmentValid =
         game.engine === expectedEngineRevision &&
         game.label === expectedLabel &&
@@ -220,6 +235,8 @@ function executeDiagnostic(options) {
            game.randomnessProtocol === 'separate-game-and-per-seat-policy-prng-v1')) &&
         (expectedAttackSeat === null ||
           game.attackBeforeRetreatSeat === expectedAttackSeat) &&
+        (expectedToolSeat === null ||
+          game.toolAttackAwarenessSeat === expectedToolSeat) &&
         !policyMismatch;
       if (!environmentValid) {
         records.push({
@@ -234,6 +251,7 @@ function executeDiagnostic(options) {
           observedPolicyRandomIsolation: game.policyRandomIsolation ?? null,
           observedRandomnessProtocol: game.randomnessProtocol ?? null,
           observedAttackBeforeRetreatSeat: game.attackBeforeRetreatSeat ?? null,
+          observedToolAttackAwarenessSeat: game.toolAttackAwarenessSeat ?? null,
           error: 'Engine revision, trial label, rules, or requested policy evidence did not match.'
         });
         continue;
@@ -457,6 +475,8 @@ function main() {
       shadowRiderOpeningPivot: process.env.AICHI_OPENING_PIVOT === '1',
       latiasAttackReadyAttachment: process.env.AICHI_LATIAS_ATTACK_READY === '1',
       bunnelbyK0SafeEvolution: process.env.AICHI_BUNNELBY_SOURCE_K0 === '1',
+      toolAttackAwareness: process.env.AICHI_TOOL_ATTACK === '1',
+      toolAttackOpponentOnly: process.env.AICHI_TOOL_ATTACK_OPPONENT === '1',
       attackBeforeRetreat: process.env.AICHI_ATTACK_BEFORE_RETREAT === '1',
       attackBeforeRetreatCandidateOnly: process.env.AICHI_ATTACK_CANDIDATE_ONLY === '1',
       leleEntryAbilityLockCorrection: true,
