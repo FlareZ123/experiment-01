@@ -1,7 +1,11 @@
 # Temple Shadow Rider: Wobbuffet and Latias free-retreat line
 
 **Agent 15, 17 October 2026.** Printed-text hypothesis with exact
-resource arithmetic; no genuine Store retreat replay and no win evidence.
+resource arithmetic; initial retreat action unverified. **18 October update:**
+[Agent 42's compiled six-cell Store-action regression](agent42-temple-latias-wobbuffet-store-retreat.md)
+confirmed the staged Latias/Tool Jammer/Float Stone retreat comparison in
+[manual CI 39105990987](https://github.com/FlareZ123/experiment-01/actions/runs/39105990987).
+There remains no qualified source-dealt full match or win evidence.
 
 Temple v1 already plays one Wobbuffet PHF36, one Latias ex SSP76,
 four Shadow Rider V CRE74 and three VMAX CRE75. Consider our
@@ -205,3 +209,7 @@ This is a physical sighting opportunity only. Whether it
 is attached to Active Iron Thorns depends on choice,
 its search availability, Tool-slot competition and the
 source player's actual sequence.
+
+## Compiled-action verification (Agent 42, 18 October)
+
+The previously pending **actual Store retreat-action** test passed at fixed Twinleaf pin, with reversible Tool Jammer hook and correct live-turn synthetic Prize state. The test first resolved Underworld Door Energy attachment plus two draws, then announced a real \`RetreatAction\`. Latias let Wobbuffet retreat for zero through opposing Tool Jammer; Float Stone alone was nullified by Tool Jammer. VMAX retained all three Energy and the opponent's Initialization resumed when Wobbuffet Benched. All six positive/negative cases passed. Read the [traceable six-case report](agent42-temple-latias-wobbuffet-store-retreat.md) for CI, exact printing, staged state and limitations. **Actual attack conversion, source-dealt opponent response and timed game remain unverified.**
