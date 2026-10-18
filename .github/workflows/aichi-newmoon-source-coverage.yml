@@ -131,6 +131,15 @@ jobs:
           name: telepath-nonhand-solburst-source
           path: telepath-nonhand-solburst-source.json
           if-no-files-found: error
+      - name: Audit early source-dealt rank 9 30 31 physical zone integrity
+        run: node simulation/twinleaf/aichi-telepath-physical-source.cjs > aichi-telepath-physical-source.json
+      - name: Preserve bounded authentic-deal Telepath ownership diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-telepath-physical-source
+          path: aichi-telepath-physical-source.json
+          if-no-files-found: warn
       - name: Check next-turn Horror House hand lock against prepowered Thorns attack
         run: node simulation/twinleaf/new-moon-native-horror-house-opponent-action.cjs > newmoon-horrorhouse-next-turn.json
       - name: Archive bounded opponent hand-lock versus attack counterexample
