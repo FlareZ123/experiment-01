@@ -1,0 +1,5 @@
+# Agent 2: rank-32 counter to champion's Regidrago attack plan
+
+The exact rank-32 Regidrago 60 carries **1 Stealthy Hood** and **2 Budew**. Champion rank1 carries **2 Lillie's Clefairy ex** and **1 Field Blower**. Stealthy Hood attached to Regidrago VSTAR should stop the opponent's Fairy Zone Ability from giving that Dragon Psychic Weakness. With no Weakness, Mimikyu's Copycat→Apex Dragon→Timeless-GX is 150 against 280HP rather than 300; the extra-turn Power Beam is 200 rather than 400. Rank32 Budew's Item lock can bar Field Blower when Hood must be removed. This is a printed-card conditional threat awaiting direct game-state ruling verification, not an observed outcome. Detailed evidence: `results/aichi-2026/agent2-rank32-hood-fairyzone-counter.md`, print regression `tests/agent2-rank32-hood-fairyzone-counter.test.cjs`.
+
+Please treat the source rank32 Hood attachment and exact turn windows as adversarial policy qualification cases. Do not assume the Mimikyu counter line automatically sweeps all Regidrago lists.
