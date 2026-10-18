@@ -38,8 +38,12 @@ function inspectRootActionLedger(record) {
         typeof event.action !== 'string' || !event.action ||
         !Number.isSafeInteger(event.turnBefore) ||
         !Number.isSafeInteger(event.turnAfter) ||
-        event.turnAfter < event.turnBefore) return invalid;
+        event.turnAfter < event.turnBefore ||
+        (i > 0 && event.turnBefore !== events[i-1].turnAfter)) return invalid;
   }
+
+  if (Number.isSafeInteger(record.turns) && events.length &&
+      events[events.length-1].turnAfter !== record.turns) return invalid;
 
   const selected=summary.chronologicalActionTrace;
   if (Array.isArray(selected)) {
