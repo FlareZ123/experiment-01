@@ -10,7 +10,8 @@ try {
   const {preparedRegidrago} = require('./apex-attack-action.cjs');
   const {initializeCards} = require('./headless.cjs');
   const {AttackAction} = load('game/store/actions/game-actions');
-  const {EndTurnEffect} = load('game/store/effects/game-phase-effects');
+  const {AttackEffect} = load('game/store/effects/game-effects');
+  const {AfterDamageEffect} = load('game/store/effects/attack-effects');
   const {openCopyAttackSession, cloneAttacks, clearCopyAttackSessionsForTests} =
     load('game/store/prefabs/copy-attack-delegation');
 
@@ -26,13 +27,17 @@ try {
   const calls = [];
   const saved = source.reduceEffect;
   source.reduceEffect = function(store, state, effect) {
-    if (effect instanceof EndTurnEffect && this === copycat) {
+    if (effect instanceof AfterDamageEffect && this === copycat) {
       calls.push(state === before ? 'original' : 'backup');
     }
     return state;
   };
   try {
-    board.store.reduceEffect(before,new EndTurnEffect(before.players[0]));
+    const callback = state => new AfterDamageEffect(new AttackEffect(
+      state.players[0], state.players[1], state.playerLastAttack[state.players[0].id].attack), 0);
+    board.store.reduceEffect(before,callback(before));
+    assert.equal(before.prompts.some(p => p.result === undefined),false,
+      'Rollback probe requires a stable prompt-free State');
     assert.deepEqual(calls,['original'],
       'Existing copied attack session must run before rejected action');
     // Prepared board has Grass+Grass but no Fire. Existing paid-Apex
@@ -43,13 +48,13 @@ try {
     assert.notStrictEqual(after,before,'Rejected root action must replace State');
     assert.strictEqual(after.players[0].active.getPokemonCard(),copycat,
       'Rollback preserves the same pinned Card instance');
-    board.store.reduceEffect(after,new EndTurnEffect(after.players[0]));
+    board.store.reduceEffect(after,callback(after));
     const result = {
       engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
       rollbackChangedStateIdentity:after !== before,
       physicalCopycatIdentityPreserved:true,
       callbacks:calls,
-      scope:'Invalid underpaid AttackAction on injected board; no source-dealt game'
+      scope:'Invalid underpaid AttackAction after prompt-free copied AfterDamageEffect; injected board only'
     };
     console.log('COPIED_SESSION_ROLLBACK',JSON.stringify(result,null,2));
     assert.deepEqual(calls,['original'],
