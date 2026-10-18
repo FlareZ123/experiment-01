@@ -125,6 +125,10 @@ function run() {
   const adapted=withNewMoonBlowerAutonomy(CANDIDATE_SEAT,play);
   const followup=withNewMoonBlowerAutonomy(CANDIDATE_SEAT,play,
     {lowHandLillieAfterBlower:true});
+  const effectReplay=withNewMoonBlowerAutonomy(CANDIDATE_SEAT,
+    ()=>runWithResearchProfile({
+      ...request,capturePoltergeistEffectTrace:true
+    },RANK11_AUTONOMOUS_PROFILE),{lowHandLillieAfterBlower:true});
   const restored=play();
   const after=adapted.result;
   const afterSupporter=followup.result;
@@ -161,6 +165,52 @@ function run() {
   assert.equal(summary(afterSupporter).candidateLilliePlays.length,
     followup.policyAudit.lowHandLillieSelections,
     'Every selected real Supporter must appear in the recorded Store decisions');
+  const observedEffectGame=effectReplay.result;
+  const stable=game=>JSON.stringify({
+    actions:game.actions,turns:game.turns,winner:game.winner,
+    prizes:game.prizesRemaining,decisions:game.decisionTrace,
+    root:game.rootActionLedger,attacks:game.attackDeclarationTrace,
+    terminal:game.terminalTransition
+  });
+  assert.equal(stable(afterSupporter),stable(observedEffectGame),
+    'Read-only Poltergeist effect observer changed the complete action ledger or winner');
+  assert.deepEqual(followup.policyAudit,effectReplay.policyAudit,
+    'Read-only attack observation changed owner-information policy decisions');
+  const selectedCopies=summary(afterSupporter).candidateSelectedCopiedAttacks;
+  assert.equal(selectedCopies.length,3,
+    'This frozen seed previously selected three copied attacks; fail on unexplained drift');
+  assert.ok(selectedCopies.every(x=>x.exactStoreMatch &&
+    x.printing==='Gengar & Mimikyu-GX TEU' &&
+    x.selectedAttack==='Poltergeist'));
+  const effectWindows=observedEffectGame.poltergeistEffectTrace||[];
+  const copiedAttackEffects=selectedCopies.map(choice=>{
+    const effect=effectWindows.find(row=>row.actionOrdinal===choice.ordinal);
+    assert.ok(effect?.assessment,
+      'A copied Store declaration must have its printed-effect window');
+    assert.equal(effect.attackerSeat,CANDIDATE_SEAT);
+    assert.equal(effect.assessment.printedBaseDamage,
+      effect.before[SOURCE_SEAT].handTrainerCount*50,
+      'Printed multiplier must use the opponent actual hand at attack choice');
+    return {
+      turn:effect.turnBefore,ordinal:choice.ordinal,
+      sourcePrinting:choice.printing,attack:choice.selectedAttack,
+      enemyHandTrainerCount:effect.before[SOURCE_SEAT].handTrainerCount,
+      observedPrintedBaseDamage:effect.assessment.printedBaseDamage,
+      assessment:effect.assessment,
+      originalBoard:effect.publicBefore,
+      resolvedSteps:effect.steps.map(row=>({
+        ordinal:row.actionOrdinal,action:row.actionName,
+        pendingPrompt:row.pendingPrompt,
+        beforePrizes:row.before.map(x=>x.prizesRemaining),
+        afterPrizes:row.after.map(x=>x.prizesRemaining),
+        beforeInPlay:row.before.map(x=>x.inPlayPokemon),
+        afterInPlay:row.after.map(x=>x.inPlayPokemon)
+      })),
+      sourceFollowingTurn:observedEffectGame.rootActionLedger.filter(row=>
+        row.playerSlot===SOURCE_SEAT &&
+        row.turnBefore===effect.turnBefore+1)
+    };
+  });
   return {
     schema:'rank11-garbotoxin-newmoon-autonomous-Field-Blower-and-Lillie-exam-v2',
     sourceRank:11,sourceSeed:SEED,sourceSeat:SOURCE_SEAT,
@@ -173,6 +223,8 @@ function run() {
     baseline:summary(baseline),automatic:summary(after),
     automaticWithLowHandLillie:summary(afterSupporter),
     lowHandFollowupAudit:followup.policyAudit,
+    copiedAttackEffects,
+    readOnlyEffectReplayNoninterferenceVerified:true,
     restorationVerified:true,sourceOpeningIdentical:true,
     attackEvidenceContract:'Observed Perfection selections are matched against real Store declarations by root action ordinal; a declaration is not full damage/effect proof',
     qualification:'Source-dealt single-case policy regression; no independent held-out seeds or qualified competitive games',
