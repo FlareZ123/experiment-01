@@ -196,8 +196,21 @@ function run() {
     afterPublicBoard:priorEffect.steps.at(-1)?.publicAfter??priorEffect.publicAfter,
     physicalPrintedEffect:priorEffect.assessment,
     attackReducerSteps:priorEffect.steps.map(row=>({
-      ordinal:row.actionOrdinal,action:row.actionName,pendingPrompt:row.pendingPrompt
+      ordinal:row.actionOrdinal,action:row.actionName,pendingPrompt:row.pendingPrompt,
+      beforePrizes:row.before.map(p=>p.prizesRemaining),
+      afterPrizes:row.after.map(p=>p.prizesRemaining),
+      beforeInPlay:row.before.map(p=>p.inPlayPokemon),
+      afterInPlay:row.after.map(p=>p.inPlayPokemon),
+      beforeActiveEnergy:row.publicAfter?.map(p=>p.active?.energyCards??[])??null,
+      afterActiveEnergy:row.publicAfter?.map(p=>p.active?.energyCards??[])??null
     })),
+    effectPromptTiming:{
+      attachEnergyPromptOrdinal:priorEffect.steps.find(row=>
+        row.pendingPrompt==='AttachEnergyPrompt')?.actionOrdinal??null,
+      choosePrizePromptOrdinal:priorEffect.steps.find(row=>
+        row.pendingPrompt==='ChoosePrizePrompt')?.actionOrdinal??null,
+      paperTimingQualified:false
+    },
     nextSourceTurn:firstSourceReply.turnBefore,
     firstOpponentActionOrdinal:firstSourceReply.actionOrdinal,
     opponentRootActions:nextSourceTurn,
