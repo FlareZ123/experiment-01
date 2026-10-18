@@ -49,3 +49,32 @@ function discoverRootSupporterOrdinal(fn) {
     Object.defineProperty(proto,'decodeNextAction',old);
   }
 }
+
+/** @param {boolean} mode1 @param {string[]} deckA @param {string[]} deckB */
+function sourceGame(mode1,deckA,deckB) {
+  return withExpandedActionOptions(()=>runMatch({
+    deckA,deckB,seed:SEED,maxActions:70,
+    strictPromptValidation:true,captureDecisionTrace:true,
+    isolatePolicyRandomness:true,doubleDragonRecovery:true,
+    supporterDecisionCorrection:true,bunnelbyK0SafeEvolution:true,
+    bunnelbyTargetAwareEvolution:true,
+    bunnelbyGuzmaHalaMode1:mode1
+  }),{sourceK0Bunnelby:true});
+}
+
+/**
+ * Three physical runs per mode: unobserved, ordinal discovery, scored.
+ * All produce real root actions. Full paper play remains unqualified.
+ * @returns {object}
+ */
+function runRank2RootScores() {
+  const field=resolveManifestFile(path.resolve(__dirname,
+    '../../results/aichi-2026/full-decklists.json'),{
+      allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
+    });
+  const byRank=new Map(field.decks.map(d=>[d.rank,d]));
+  const [rank1,rank2]=[byRank.get(1),byRank.get(2)];
+  if(!rank1?.playableUnderEngine||!rank2?.playableUnderEngine){
+    throw new Error('Both source rank 1 and rank 2 lists required');
+  }
+  const source=mode1=>sourceGame(mode1,rank1.cardIds,rank2.cardIds);
