@@ -51,15 +51,25 @@ try {
     assert.strictEqual(after.players[0].active.getPokemonCard(),copycat,
       'Rollback preserves the same pinned Card instance');
     board.store.reduceEffect(after,callback(after));
+    let priorError;
+    assert.throws(() => board.store.dispatch(new AttackAction(before.players[0].id,'Apex Dragon')),
+      error => { priorError = error; return true; });
+    const again = board.store.state;
+    assert.notStrictEqual(again,after, 'Second rejected action must create another backup');
+    assert.notStrictEqual(again,before);
+    assert.strictEqual(again.players[0].active.getPokemonCard(),copycat);
+    board.store.reduceEffect(again,callback(again));
     const result = {
       engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
       rollbackChangedStateIdentity:after !== before,
       physicalCopycatIdentityPreserved:true,
+      repeatedRollbackStateIdentityPreserved:false,
+      secondRejectionName:priorError.name,
       callbacks:calls,
       scope:'Invalid underpaid AttackAction after prompt-free copied AfterDamageEffect; injected board only'
     };
     console.log('COPIED_SESSION_ROLLBACK_REPAIRED',JSON.stringify(result,null,2));
-    assert.deepEqual(calls,['original','backup'],
+    assert.deepEqual(calls,['original','backup','backup'],
       'Rollback-aware transfer must preserve the copied-source callback');
   } finally {
     source.reduceEffect = saved;
