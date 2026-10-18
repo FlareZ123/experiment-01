@@ -272,6 +272,20 @@ function executeDiagnostic(options) {
       const attackTrace = Array.isArray(game.attackTrace) ? game.attackTrace : [];
       const candidateAttacks = attackTrace.filter(a => a.seat === candidateSlot).length;
       const opponentAttacks = attackTrace.filter(a => a.seat === opponentSlot).length;
+      const attackLogValid =
+        game.attackDeclarationTraceProtocol === 'real-store-attack-log-declarations-v1' &&
+        Array.isArray(game.attackDeclarationTrace) &&
+        game.attackDeclarationTrace.every(a =>
+          a.kind === 'engine-attack-declaration' &&
+          [0, 1].includes(a.playerSlot) &&
+          Number.isInteger(a.actionOrdinal) &&
+          a.actionOrdinal >= 0 && a.actionOrdinal < game.actions &&
+          typeof a.attackName === 'string' && a.attackName.length > 0);
+      const attackDeclarations = attackLogValid ? game.attackDeclarationTrace : null;
+      const candidateAttackDeclarations = attackDeclarations ?
+        attackDeclarations.filter(a => a.playerSlot === candidateSlot).length : null;
+      const opponentAttackDeclarations = attackDeclarations ?
+        attackDeclarations.filter(a => a.playerSlot === opponentSlot).length : null;
       records.push({
         ...base, status, candidateActualTurn: turn ?
           (turn.firstTurnSlot === candidateSlot ? 'first' : 'second') : 'unverified',
@@ -285,15 +299,33 @@ function executeDiagnostic(options) {
         actions: game.actions ?? null, turns: game.turns ?? null,
         endReason: game.endReason || null,
         candidateAttacks, opponentAttacks,
+        candidateAttackDeclarations, opponentAttackDeclarations,
+        attackObservationStatus: attackLogValid ?
+          'real-store-attack-log-declarations-v1' : 'attack-observation-incomplete',
         qualityFlags: [
-          ...(candidateAttacks === 0 ? ['zero-candidate-attacks'] : []),
-          ...(opponentAttacks === 0 ? ['zero-opponent-attacks'] : []),
+          ...(candidateAttacks === 0 && candidateAttackDeclarations === 0 ?
+            ['zero-candidate-logged-attack-declarations'] : []),
+          ...(opponentAttacks === 0 && opponentAttackDeclarations === 0 ?
+            ['zero-opponent-logged-attack-declarations'] : []),
+          ...(candidateAttacks === 0 && candidateAttackDeclarations === null ?
+            ['zero-candidate-attacks', 'attack-observation-incomplete'] : []),
+          ...(opponentAttacks === 0 && opponentAttackDeclarations === null ?
+            ['zero-opponent-attacks', 'attack-observation-incomplete'] : []),
+          ...(candidateAttacks === 0 && candidateAttackDeclarations > 0 ?
+            ['candidate-root-attack-action-undercount'] : []),
+          ...(opponentAttacks === 0 && opponentAttackDeclarations > 0 ?
+            ['opponent-root-attack-action-undercount'] : []),
           ...(traceRequested && !traceValid ? ['missing-or-invalid-decision-trace'] : []),
           ...(opportunityRequested && !opportunityValid ? ['missing-electrode-opportunity-evidence'] : [])
         ],
         // Engine traces are action summaries, not complete replayable transcripts.
         traceSummary: {
-          attackTrace, actionCounts: game.actionCounts || {},
+          attackTrace,
+          attackDeclarationTrace: attackDeclarations,
+          attackDeclarationTraceProtocol: attackLogValid ?
+            'real-store-attack-log-declarations-v1' : null,
+          attackDeclarationsAreCompleteEffects: false,
+          actionCounts: game.actionCounts || {},
           actionsBySeat: game.actionsBySeat || [],
           cardsPlayedBySeat: game.cardsPlayedBySeat || [],
           prizesRemaining: game.prizesRemaining || [],
