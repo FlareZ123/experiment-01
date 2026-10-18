@@ -57,6 +57,8 @@ jobs:
         run: node simulation/twinleaf/copy-session-aware-simulator-test.cjs
       - name: Audit cloned copied-attack identity during AfterDamageEffect
         run: node simulation/twinleaf/copy-session-cloned-attack-identity.cjs
+      - name: Guard copied-session clone branches and corrupted attack history
+        run: node simulation/twinleaf/copy-session-clone-branch-guard.cjs
       - name: Verify paid Goodra copied attack before turn continuation
         run: node simulation/twinleaf/copy-session-paid-apex-clone.cjs
       - name: Probe speculative Simulator copied-session lifetime
