@@ -24,7 +24,7 @@ This requires affirmative caller-supplied observation evidence. The flags do not
 2. Exhausting all six physical permutations of three distinct unknown Prize positions makes the probability of finding E in the first chosen slot exactly **2/6 = 1/3** while preserving the whole Prize multiset and known deck top.
 3. Missing composition/position proof, a simultaneous unknown-membership sampler, a positional-observation ledger, and a face-up Prize slot all fail closed.
 
-**Validation status:** Manual compiled workflow [39141719030](https://github.com/FlareZ123/experiment-01/actions/runs/39141719030), dispatched for main after the new source and tests. Its outcome should be checked against the immutable workflow head before treating these tests as pinned-engine passing. This report makes no claim that natural source-turn Prize decisions were observed.
+**Validation status:** In manual pinned-engine workflow [39141719030](https://github.com/FlareZ123/experiment-01/actions/runs/39141719030), the engine compilation and **step 18, `Verify detached sample isolation with synthetic Card-alias controls`, both succeeded** on immutable run head `e3508dcffeb9e39b957c00bdb732852b9f875ec0`, including the three new cases. Later workflow steps were still running at this update; the success of the targeted step is narrower than a complete all-steps pass. No natural source-turn Prize decision was observed.
 
 ## Limitations and next integration gate
 
