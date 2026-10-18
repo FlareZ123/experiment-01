@@ -2,6 +2,12 @@ name: Rank11 terminal Night Watch effect audit
 
 on:
   workflow_dispatch:
+    inputs:
+      run_prospective:
+        description: 'Execute preregistered 16-seed Night Watch comparison'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -9,7 +15,7 @@ permissions:
 jobs:
   effect-audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 14
     steps:
       - uses: actions/checkout@v4
       - name: Load pinned Twinleaf simulator
@@ -37,6 +43,12 @@ jobs:
         run: node simulation/twinleaf/rank11-night-watch-random-paired.cjs > rank11-night-watch-random-paired.json
       - name: Show chance-policy contrast without private hand identities
         run: node -e "const p=require('./rank11-night-watch-random-paired.json'); console.log(JSON.stringify({seed:p.baseline.seed,firstTurnSlot:p.baseline.firstTurnSlot,baseline:{finished:p.baseline.finished,winner:p.baseline.winner,declarations:p.baseline.declarations.length},corrected:{finished:p.corrected.finished,winner:p.corrected.winner,declarations:p.corrected.declarations.length,randomResolutions:p.corrected.hook.resolved,invalid:p.corrected.hook.invalid},qualifiedForCompetitiveInference:p.qualifiedForCompetitiveInference},null,2))"
+      - name: Execute registered 16-seed two-policy source batch
+        if: ${{ inputs.run_prospective }}
+        run: node simulation/twinleaf/rank11-night-watch-prospective-batch.cjs > rank11-night-watch-prospective-batch.json
+      - name: Report all registered seeds including failed rows
+        if: ${{ inputs.run_prospective }}
+        run: node -e "const p=require('./rank11-night-watch-prospective-batch.json');console.log(JSON.stringify({preregistration:p.preregistration,prospectiveSeeds:p.prospectiveSeeds,completeRows:p.completeRowCount,failedRows:p.failedRowCount,firstSeatCounts:p.actualFirstSlotCounts,originalAttackExposures:p.originalAttackExposures,uniformAttackExposures:p.uniformAttackExposures,finishedOriginal:p.finishedOriginal,finishedUniform:p.finishedUniform,correctedInvalid:p.correctedInvalidSamples,qualifiedForCompetitiveInference:p.qualifiedForCompetitiveInference},null,2))"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -44,5 +56,6 @@ jobs:
           path: |
             rank11-night-watch-effect-audit.json
             rank11-night-watch-random-paired.json
+            rank11-night-watch-prospective-batch.json
           if-no-files-found: warn
           retention-days: 14
