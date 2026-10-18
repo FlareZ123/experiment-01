@@ -56,6 +56,16 @@ function withNightWatchEffectJournal(run, Store, attackerName='research-B') {
     if(this!==rootStore) return original.call(this,action);
     if(depth>0) return original.call(this,action);
     const before=stateTotals(this.state);
+    const activePrompt=this.state.prompts.find(p=>p.result===undefined);
+    const sourceSide=this.state.players.find(p=>p.name==='research-A');
+    const promptAudit=activePrompt?{
+      type:activePrompt.constructor.name,
+      playerId:activePrompt.playerId,
+      sourceHand:activePrompt.cards===sourceSide?.hand,
+      minimum:activePrompt.options?.min??null,
+      maximum:activePrompt.options?.max??null,
+      selectionCount:Array.isArray(action.result)?action.result.length:null
+    }:null;
     const startLog=this.state.logs.length;
     const actionName=action.constructor.name;
     const ordinal=++rootDispatches;
@@ -75,7 +85,7 @@ function withNightWatchEffectJournal(run, Store, attackerName='research-B') {
       pending={ordinal,turnBefore:before.turn,actionName,before,stages:[]};
     }
     if(pending) {
-      pending.stages.push({ordinal,actionName,after});
+      pending.stages.push({ordinal,actionName,promptAudit,beforeHand:before.players[0].hand,beforeDeck:before.players[0].deck,after});
       if(after.unresolvedPrompts.length===0) {
         pending.after=after;
         pending.resolutionRootOrdinal=ordinal;
