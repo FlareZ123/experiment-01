@@ -62,6 +62,9 @@ test('source rank2 Tag Call search then Peonia leaves a known positional Prize s
   const shuffle=f.state.prompts.find(x=>x.result===undefined);
   assert.equal(shuffle?.constructor.name,'ShuffleDeckPrompt');
   resolve(Array.from({length:player.deck.cards.length},(_,i)=>i));
+  const animation=f.state.prompts.find(x=>x.result===undefined);
+  assert.equal(animation?.constructor.name,'WaitPrompt');
+  resolve(null);
   assert.equal(f.state.prompts.some(p=>p.result===undefined),false);
   assert.equal(epoch.exactMembershipKnown(),true);
 
