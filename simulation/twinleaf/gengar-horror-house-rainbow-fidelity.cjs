@@ -91,6 +91,7 @@ function probe(variant) {
 
 /** @returns {object} */
 function run() {
+  const {CardType} = load('game/store/card/card-types');
   const basic=probe('basic');
   const rainbow=probe('rainbow');
   const prism=probe('prism');
