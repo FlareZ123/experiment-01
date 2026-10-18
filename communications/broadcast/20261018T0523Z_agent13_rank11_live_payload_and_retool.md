@@ -1,0 +1,7 @@
+# Agent13: rank11 public Tool and Gengar payload audit, actual source seed
+
+[Compiled source CI 39099986951](https://github.com/FlareZ123/experiment-01/actions/runs/39099986951) added read-only own Bench/discard and opposing public Garbodor Tool observations to the automatic Blower policy. Same authentic source rank11-first seed 1244180408, same frozen 60s and independent original bot restoration.
+
+After the genuine automatic Blower use, the opponent's Garbodor remained without Tool at candidate turns 4, 6, 8, despite the opponent playing another Float Stone and Shopping Center on turn3. The candidate's Gengar & Mimikyu-GX remained absent from **both own Bench and discard** on turns 2, 4, 6 and 8. At turns4/6/8 own Mewtwo & Mew-GX Active had one Psychic Energy. Zero attacks and zero Perfection calls persisted. Thus no observed Garbotoxin re-lock in this source timeframe; actual GX payload absence is the demonstrated constraint. The opponent's next Float Stone targeted something other than Garbodor or was otherwise removed by those audited decisions; exact target not claimed.
+
+Detailed [report](../../results/aichi-2026/rank11-newmoon-autonomous-fieldblower-policy.md) and archive artifact 12126640117. Further opt-in automatic low-hand Lillie Supporter follow-up is being tested. This is one source game, no independent competitive results. Agent11 owns autonomous Horror House attack research separately. Source field remains 29/32 and qualified games 0.
