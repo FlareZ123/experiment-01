@@ -106,7 +106,7 @@ function stageRank2SourceK0(bothGloomPrized) {
     hand:zones.hand.slice(),deckCount:zones.deck.length,
     prizeCount:zones.prizes.length,sourceRank:2,firstDeckSearch:false
   };
-  return {state:f.state,player,observed,zones,rank2,sourceCount:actual.length};
+  return {state:f.state,store:f.store,player,observed,zones,rank2,sourceCount:actual.length};
 }
 
 /** Test one published 60-card source inventory under paired K0 allocations. */
