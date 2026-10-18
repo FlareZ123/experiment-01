@@ -667,7 +667,8 @@ test('full root ledger resolves selective-trace silence and identifies next-turn
       rootActionLedger:roots,
       rootActionLedgerSha256:createHash('sha256')
         .update(JSON.stringify(roots)).digest('hex'),
-      coversAllActionsAndPromptResolutions:true
+      rootActionLedgerCoversEveryStoreDispatch:true,
+      coversAllActionsAndPromptResolutions:false
     };
   }
   const out=auditCampaignQuality(f);
@@ -680,5 +681,6 @@ test('full root ledger resolves selective-trace silence and identifies next-turn
     .opponentNextTurnRootActionOrdinal,8);
   assert.equal(out.records[3].rootActionLedgerStatus,
     'complete-root-ledger-self-consistent');
+  assert.ok(out.records[3].blockers.includes('not-a-complete-replay'));
   assert.equal(out.winRateEvidence,false);
 });
