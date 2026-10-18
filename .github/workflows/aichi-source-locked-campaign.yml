@@ -21,6 +21,11 @@ on:
         required: false
         type: boolean
         default: false
+      setup_observer_audit:
+        description: 'With setup_order_probe, run a three-arm observer noninterference audit instead'
+        required: false
+        type: boolean
+        default: false
       setup_order_probe:
         description: 'Run matched source-deal setup experiment instead of full games (unqualified)'
         required: false
@@ -87,8 +92,11 @@ jobs:
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
         run: node simulation/evaluation/aichi-campaign-envelope-runner.cjs aichi-campaign-report.json aichi-campaign-envelope.json
       - name: Probe true post-setup zones under same v3 seed
-        if: ${{ inputs.setup_order_probe }}
+        if: ${{ inputs.setup_order_probe && !inputs.setup_observer_audit }}
         run: node simulation/evaluation/aichi-input-order-deal-probe.cjs > aichi-setup-order-probe.json
+      - name: Audit root Store setup observer noninterference
+        if: ${{ inputs.setup_order_probe && inputs.setup_observer_audit }}
+        run: node simulation/evaluation/aichi-setup-observer-noninterference.cjs > aichi-setup-observer-audit.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -97,4 +105,5 @@ jobs:
             aichi-campaign-report.json
             aichi-campaign-envelope.json
             aichi-setup-order-probe.json
+            aichi-setup-observer-audit.json
           retention-days: 14
