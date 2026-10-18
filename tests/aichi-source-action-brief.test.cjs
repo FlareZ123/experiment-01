@@ -38,7 +38,9 @@ function record(id,slot) {
         action:'PassTurnAction'},
       {playerSlot:sourceSeat,actionOrdinal:12,turnBefore:3,
         action:'ResolvePromptAction'},
-      {playerSlot:candidateSeat,actionOrdinal:13,turnBefore:4,
+      {playerSlot:candidateSeat,actionOrdinal:13,turnBefore:3,
+        action:'ResolvePromptAction'},
+      {playerSlot:candidateSeat,actionOrdinal:14,turnBefore:4,
         action:'PlayCardAction',card:'Field Blower'}
     ]
   };
@@ -69,7 +71,8 @@ test('source seat and real Store declaration survive both physical positions',()
     assert.equal(row.sourceFusionStrikeSystemUses,1);
     assert.equal(row.sourcePlayCounts['Path to the Peak'],1);
     assert.equal(row.sourceFirstAttackActionOrdinal,12);
-    assert.equal(row.firstCandidateRootReplyAfterSourceAttack.card,'Field Blower');
+    assert.equal(row.firstCandidateRootReplyAfterSourceAttack.action,'ResolvePromptAction');
+    assert.equal(row.firstCandidateOwnTurnDecisionAfterSourceAttack.card,'Field Blower');
     assert.equal(row.sourceDeclaredAttacks[0].status,'not-independently-verified');
     assert.equal(row.independentEffectVerification,false);
   }
@@ -86,6 +89,7 @@ test('absence of a log channel stays unknown, never silently counts as zero',()=
   assert.equal(s.records[0].sourceLoggedAttackDeclarations,null);
   assert.equal(s.records[0].sourceFirstAttackActionOrdinal,null);
   assert.equal(s.records[0].firstCandidateRootReplyAfterSourceAttack,null);
+  assert.equal(s.records[0].firstCandidateOwnTurnDecisionAfterSourceAttack,null);
   assert.equal(s.records[1].sourceLoggedAttackDeclarations,0);
 });
 
