@@ -77,4 +77,8 @@ function inspectPhysicalCardZones(state) {
   };
 }
 
-module.exports = {inspectPhysicalCardZones};
+function fixedDeckCountAnomalies(ledger, expected = 60) {
+  return ledger.canonicalCounts.flatMap((observed, seat) => observed === expected ? [] : [{seat, observed, expected}]);
+}
+
+module.exports = {inspectPhysicalCardZones, fixedDeckCountAnomalies};
