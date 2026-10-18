@@ -29,7 +29,8 @@ function auditSourcePass(game, turn=SOURCE_TURN, seat=SOURCE_SEAT) {
   assert.equal(passRows.length,1,'Need one actual source PassTurnAction decision');
   const pass = passRows[0];
   const hand = pass.decisionHandBefore;
-  assert.equal(hand?.perspectiveSeat,seat);
+  assert.ok(hand && hand.perspectiveSeat===seat,
+    'Missing acting-player own-hand evidence at Pass');
   assert.ok(Array.isArray(hand.ownHandPrintings));
   const board = pass.publicBoardBeforePass;
   assert.ok(Array.isArray(board));
