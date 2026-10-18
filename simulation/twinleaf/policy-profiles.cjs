@@ -15,10 +15,12 @@ const REGIDRAGO_SUPPORTER_PROFILE = 'regidrago-dde-temple-supporter-v2';
 const EXPANDED_PROFILE = 'expanded-action-fidelity-probe-v1';
 const EXPANDED_SOURCE_PROFILE = 'expanded-source-k0-stage-gh-v2';
 const EXPANDED_GH_SEARCH_PROFILE = 'expanded-gh-root-search-v3';
+const RANK11_AUTONOMOUS_PROFILE = 'rank11-autonomous-boostshake-v1';
 const ALLOWED_PROFILES = Object.freeze([
   DEFAULT_PROFILE, REGIDRAGO_PROFILE,
   SUPPORTER_PROFILE, REGIDRAGO_SUPPORTER_PROFILE,
-  EXPANDED_PROFILE, EXPANDED_SOURCE_PROFILE, EXPANDED_GH_SEARCH_PROFILE
+  EXPANDED_PROFILE, EXPANDED_SOURCE_PROFILE, EXPANDED_GH_SEARCH_PROFILE,
+  RANK11_AUTONOMOUS_PROFILE
 ]);
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 
@@ -98,6 +100,22 @@ function runWithResearchProfile(request, profile) {
     doubleDragonRecovery: false,
     supporterDecisionCorrection: false
   };
+  if (profile === RANK11_AUTONOMOUS_PROFILE) {
+    const {rank11SourceSeat, ...matchRequest} = shared;
+    if (![0, 1].includes(rank11SourceSeat)) {
+      throw new Error('Rank-11 autonomous opener requires the actual source seat.');
+    }
+    const {withRank11AutonomousOpener} = require('./rank11-autonomous-opener.cjs');
+    const audit = withRank11AutonomousOpener(rank11SourceSeat, () => runMatch(matchRequest));
+    return {
+      ...audit.result,
+      researchPolicyProfile: profile,
+      policy: String(audit.result.policy || 'unqualified-simple-bot') +
+        '+Rank11AutonomousOpener-v1',
+      experimentalTactics: ['Rank11AutonomousOpener-v1'],
+      rank11AutonomousPolicy: audit.policyAudit
+    };
+  }
   if (profile === DEFAULT_PROFILE || profile === SUPPORTER_PROFILE) {
     const guarded = profile === SUPPORTER_PROFILE;
     const result = runMatch({...shared, supporterDecisionCorrection: guarded});
@@ -173,6 +191,6 @@ function runWithResearchProfile(request, profile) {
 
 module.exports = {DEFAULT_PROFILE, REGIDRAGO_PROFILE, SUPPORTER_PROFILE,
   REGIDRAGO_SUPPORTER_PROFILE, EXPANDED_PROFILE, EXPANDED_SOURCE_PROFILE,
-  EXPANDED_GH_SEARCH_PROFILE,
+  EXPANDED_GH_SEARCH_PROFILE, RANK11_AUTONOMOUS_PROFILE,
   ALLOWED_PROFILES,
   withTempleUnlockTactic, withExpandedActionOptions, runWithResearchProfile};
