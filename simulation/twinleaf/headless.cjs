@@ -963,6 +963,25 @@ function runMatch(request) {
           decksAfter: store.state.players.map(player => player.deck.cards.length)
         });
       }
+      // Capture every successful root Store dispatch, including prompt actions
+      // absent from the selective decision trace. This is post-choice evidence.
+      if (rootActionLedger) {
+        rootActionLedger.push({
+          actionOrdinal: actions,
+          turnBefore, turnAfter: store.state.turn,
+          playerSlot: seat, action: actionName,
+          pendingPrompt: pending?.constructor.name ?? null,
+          ...(playedCard ? {card: playedCard} : {}),
+          ...(abilityInfo ? {ability: abilityInfo.name} : {}),
+          ...(attackInfo ? {attack: attackInfo.attack} : {}),
+          ...(attackChoice?.selection ? {attackChoice: {
+            printing: attackChoice.selection.printing,
+            attackName: attackChoice.selection.attackName,
+            attackIndex: attackChoice.selection.attackIndex,
+            sourceIndex: attackChoice.selection.index
+          }} : {})
+        });
+      }
       if (abilityInfo) abilityTrace.push(abilityInfo);
       if (attackInfo) {
         attackInfo.prizeCountAfter = store.state.players.map(player =>
