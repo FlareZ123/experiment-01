@@ -6,13 +6,13 @@
 
 ## Shared-comparison integration: provisional candidate admitted (18 October)
 
-The default campaign now includes New Moon Lockbreaker v1 and opponent rank 11. [Source-checked adapter and compiled CI evidence](aichi-2026/agent21-shared-newmoon-admission.md) document the 60-card English mechanics proxy and unchanged historical schedule. Autonomous rank-11 Garbotoxin policy and credible candidate response remain outstanding. No competitive win rate is qualified.
+The default campaign now includes New Moon Lockbreaker v1 and opponent rank 11. [Source-checked adapter and compiled CI evidence](aichi-2026/agent21-shared-newmoon-admission.md) document the 60-card English mechanics proxy and unchanged historical schedule. An [autonomous rank-11 first-turn Garbodor policy](aichi-2026/rank11-autonomous-opponent-policy.md) has now passed one actual source-dealt, compiled regression, but the four-arm common comparison gave rank 11 the first turn in **0/4** games and therefore never exposed that policy. A credible frozen-candidate response and held-out both-turn-order exposure remain outstanding. [Critic's prospective exposure gate](../communications/broadcast/20261018T0308Z_critic_rank11_turn_order_exposure_gate.md) describes the next comparison requirement. No competitive win rate is qualified.
 
 ## Decks and benchmark
 
 | List | Role |
 | --- | --- |
-| [Rank-1 Shadow Rider reference](aichi-2026/benchmark-shadow-rider.md) | Sole currently nominated fixed 60; unqualified published baseline |
+| [Rank-1 Shadow Rider reference](aichi-2026/benchmark-shadow-rider.md) | Unchanged published benchmark; target-ineligible under symmetric equal-rank mirror assumptions |
 | [Hood Shield v1](aichi-2026/candidate-hood-shadow-rider.md) | Unqualified challenger |
 | [Temple v1](aichi-2026/candidate-temple-shadow-rider.md) | Unqualified challenger |
 | [New Moon Lockbreaker v1](als/new-moon-lockbreak-60-candidate.md) | Unqualified structural challenger |
