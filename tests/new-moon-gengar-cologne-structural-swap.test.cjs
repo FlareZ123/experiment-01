@@ -34,6 +34,20 @@ test('proposed added Gengar and removed Cologne is an exact source-count single-
   assert.ok(x.deltaEither.withAllBonuses>0.05);
 });
 
+test('the three-Prize Gengar solo-start exposure rises in rank26 matchup',()=>{
+  const x=main();
+  near(x.meloettaSolo.baseline.initiallySoleGengar,
+    0.017222457974413594);
+  near(x.meloettaSolo.structuralSwap.initiallySoleGengar,
+    0.02920583782484664);
+  near(x.meloettaSolo.baseline.soleGengarAfterAllBonusCards,
+    0.016154581995936117);
+  near(x.meloettaSolo.structuralSwap.soleGengarAfterAllBonusCards,
+    0.027266600161748293);
+  assert.ok(x.meloettaSolo.structuralSwap.anySoloAfterAllBonusCards<
+    x.meloettaSolo.baseline.anySoloAfterAllBonusCards);
+});
+
 test('both channel intersection is included only once',()=>{
   const x=main();
   for(const key of ['firstDraw','withAllBonuses']) {
