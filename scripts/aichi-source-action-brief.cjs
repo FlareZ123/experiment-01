@@ -132,11 +132,13 @@ function summarizeSourceOpponent(archive, expectedIds) {
 }
 
 if (require.main === module) {
-  if (process.argv.length < 4) {
-    throw new Error('Usage: node aichi-source-action-brief.cjs <report.json> <trialId> [trialId...]');
+  if (process.argv.length < 3) {
+    throw new Error('Provide the source campaign report JSON file');
   }
   const archive=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
-  const brief=summarizeSourceOpponent(archive,process.argv.slice(3));
+  const expected=process.argv.slice(3).length ? process.argv.slice(3) :
+    (process.env.CAMPAIGN_TRIAL_IDS || '').split(',').filter(Boolean);
+  const brief=summarizeSourceOpponent(archive,expected);
   process.stdout.write(JSON.stringify(brief,null,2)+'\n');
 }
 module.exports={DECLARATION_PROTOCOL,sourceRecordBrief,summarizeSourceOpponent};
