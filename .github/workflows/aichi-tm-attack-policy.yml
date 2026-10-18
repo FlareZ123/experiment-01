@@ -18,6 +18,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank2_root_score_probe:
+        description: Inspect root candidate scores for the frozen source GH fork
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
