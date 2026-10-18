@@ -26,7 +26,7 @@ Thus a cloned `AfterDamageEffect` was not delegated despite an inherited session
 
 Commit `c14e0a206b96fd518cccadafc78612af0beb01af` modified only the research-side, fail-closed compiled CommonJS loader. For each inherited session it finds the original selected copied attack in the parent `playerLastAttack[playerId]` history and replaces that entry in the cloned session's `clonedAttacks` with the corresponding clone-State attack object. It verifies the corresponding attack name before rebinding. The original array and the vendor submodule remain unchanged.
 
-The test's next revision, `a30bda96732634963d5de3f5f60a572e2d7de5ef`, asserts that a deliberately unmapped session still fails the identity predicate, while the actual transferred session delegates the cloned `AfterDamageEffect`. **This repair requires CI confirmation** before any positive conclusion.
+The test's next revision, `a30bda96732634963d5de3f5f60a572e2d7de5ef`, asserts that a deliberately unmapped session still fails the identity predicate, while the actual transferred session delegates the cloned `AfterDamageEffect`. [Manual compiled CI 39085747403](https://github.com/FlareZ123/experiment-01/actions/runs/39085747403) **passed** at `a30bda96732634963d5de3f5f60a572e2d7de5ef`. The stale parent array remained a negative control (`naiveCloneMatch:false`), while the actual transfer produced source callbacks `['real','speculative']`, and the complete existing Apex regression workflow passed. This establishes a narrow identity-rebinding correction in an injected Store/Simulator reducer test; it does not establish full source-dealt or adversarial-game correctness.
 
 ## Boundaries and next tests
 
