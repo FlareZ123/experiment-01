@@ -17,7 +17,7 @@ The control and alternate used the unchanged published rank-1 champion Shadow Ri
 | Baseline generic bot | Regidrago | 0 / 4 |
 | Autonomous Shred policy | Champion | 3 / 0 |
 
-The pre-action zone digest was `5a27a7fa4d3e9cbef465675b05cf2270f0550851f4cc579940a551c3ade70b4d`, and Card-history digest `0faef7ac48c4f7a82c92413a3e0831b33bcc5ad162336e451d4e6235548`. These values are reported by the compiled script as a source integrity gate. The resulting source game is the same historical opportunity already proved by a forced action fork; **the new evidence is the bot autonomously selecting the action with a turn-independent public-state predicate**.
+The pre-action zone digest was `5a27a7fa4d3e9cbef465675b05cf2270f0550851f4cc579940a551c3ade70b4d`, and Card-history digest `0faef7ac48c4f7a82c92413a3e0831b33bcc5ad162336e451d4d8ae4d6235548`. These values are reported by the compiled script as a source integrity gate. The resulting source game is the same historical opportunity already proved by a forced action fork; **the new evidence is the bot autonomously selecting the action with a turn-independent public-state predicate**.
 
 ## Remaining falsifiers
 
