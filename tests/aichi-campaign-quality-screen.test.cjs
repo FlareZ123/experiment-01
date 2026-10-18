@@ -406,3 +406,65 @@ test('one-candidate source diagnostics are correctly labeled as unpaired', () =>
   assert.ok(result.records.every(record =>
     record.pairedFirstTurnStatus === 'not-applicable'));
 });
+
+
+test('Perfection delegated declaration overrides the raw root-zero diagnostic', () => {
+  const f = fixture();
+  const record = f.records[0];
+  const protocol = 'real-store-attack-log-declarations-v1';
+  const event = (slot, logIndex, ordinal) => ({
+    kind: 'engine-attack-declaration', playerSlot: slot,
+    playerName: slot === 0 ? 'research-A' : 'research-B',
+    attackName: 'Horror House-GX', logIndex,
+    actionOrdinal: ordinal
+  });
+  record.actions = 10;
+  record.attackObservationStatus = protocol;
+  record.candidateAttackDeclarations = 1;
+  record.opponentAttackDeclarations = 2;
+  record.traceSummary = {
+    ...record.traceSummary,
+    attackDeclarationTraceProtocol: protocol,
+    attackDeclarationsAreCompleteEffects: false,
+    attackDeclarationTrace: [
+      event(0, 0, 2), event(1, 1, 3), event(1, 2, 4)
+    ]
+  };
+  const out = auditCampaignQuality(f);
+  const row = out.records[0];
+  assert.equal(row.candidateAttacks, 0);
+  assert.equal(row.candidateLoggedAttackDeclarations, 1);
+  assert.equal(row.attackObservationStatus,
+    'self-consistent-engine-attack-declarations');
+  assert.ok(row.blockers.includes('candidate-root-attack-action-undercount'));
+  assert.ok(!row.blockers.includes('zero-candidate-attacks'));
+  assert.ok(!row.blockers.includes('zero-candidate-logged-attack-declarations'));
+  assert.equal(out.coverage[0].zeroCandidateAttackTrials, 1);
+  assert.equal(out.coverage[0].zeroCandidateLoggedDeclarationTrials, 0);
+  assert.equal(out.winRateEvidence, false);
+});
+
+test('a logged zero is distinguished from unavailable attack telemetry', () => {
+  const f = fixture();
+  const record = f.records[0];
+  const protocol = 'real-store-attack-log-declarations-v1';
+  record.actions = 10;
+  record.attackObservationStatus = protocol;
+  record.candidateAttackDeclarations = 0;
+  record.opponentAttackDeclarations = 0;
+  record.traceSummary = {
+    ...record.traceSummary,
+    attackDeclarationTraceProtocol: protocol,
+    attackDeclarationsAreCompleteEffects: false,
+    attackDeclarationTrace: []
+  };
+  let row = auditCampaignQuality(f).records[0];
+  assert.ok(row.blockers.includes('zero-candidate-logged-attack-declarations'));
+  assert.ok(!row.blockers.includes('zero-candidate-attacks'));
+  record.candidateAttackDeclarations = 1;
+  row = auditCampaignQuality(f).records[0];
+  assert.equal(row.attackObservationStatus, 'attack-observation-integrity-mismatch');
+  assert.ok(row.blockers.includes('attack-observation-integrity-mismatch'));
+  assert.ok(row.blockers.includes('zero-candidate-attacks'));
+  assert.equal(row.candidateLoggedAttackDeclarations, null);
+});
