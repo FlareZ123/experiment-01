@@ -45,3 +45,7 @@ jobs:
         run: node --test tests/decision-tactic-evaluation-observer.test.cjs
       - name: Compare original and detached source-ranked tactic scoring at first divergent bot decision
         run: node simulation/twinleaf/decision-tactic-score-source-contrast.cjs
+      - name: Replicate source-ranked historical DDE v3 vs v4 and stock vs detached Simulator four-arm contrast
+        run: node simulation/twinleaf/dde-v3-v4-clone-factorial.cjs
+      - name: Verify general own-data source graph snapshot semantics
+        run: node --test tests/owned-source-graph-mutation.test.cjs
