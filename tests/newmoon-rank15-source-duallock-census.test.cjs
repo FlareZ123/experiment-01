@@ -6,13 +6,15 @@ const {observeSourceLock}=require(
 
 /** @param {string|null} name */
 const pokemon=name=>({
-  getPokemonCard:()=>name?{fullName:name}:null
+  getPokemonCard:()=>name?{fullName:name}:null,
+  cards:name?[{fullName:name}]:[]
 });
 /** @param {string} active @param {string[]} bench */
 const player=(active,bench)=>({
   active:pokemon(active),
   bench:bench.map(pokemon),
-  prizes:Array.from({length:6},()=>({cards:[{}]}))
+  prizes:Array.from({length:6},()=>({cards:[{fullName:'Pidgey FLF'}]})),
+  hand:{cards:[]},deck:{cards:[]}
 });
 
 class AddPlayerAction {}
@@ -73,4 +75,20 @@ test('root Store dispatch method is restored after an exception',()=>{
     throw new Error('deliberate source failure');
   }),/deliberate source failure/);
   assert.equal(MockStore.prototype.dispatch,original);
+});
+
+test('source-only initial six-Prize gate is annotated and leaves zones unchanged',()=>{
+  const initial=board('Mewtwo & Mew-GX UNM');
+  initial.phase=2;
+  initial.players[0].prizes[0].cards[0].fullName='Gloom UNB';
+  const before=JSON.stringify(initial);
+  const store=new MockStore(initial);
+  const result=observeSourceLock(MockStore,0,1,()=>{
+    store.dispatch(new AddPlayerAction());
+    return 'unchanged';
+  });
+  assert.equal(result.result,'unchanged');
+  assert.equal(result.firstNormalTurnPrizeGate.beforeTakingPrizesEligible,false);
+  assert.equal(result.firstNormalTurnPrizeGate.gloomPrized,1);
+  assert.equal(JSON.stringify(store.state),before);
 });
