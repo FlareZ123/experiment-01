@@ -13,6 +13,16 @@ function beforeAction(state) {
     })),
     usedGX:player.usedGX,
     itemLocked:player.cannotPlayItemCards===true,
+    handPlayLocks:{
+      item:player.cannotPlayItemCards===true,
+      supporter:player.cannotPlaySupporterCards===true,
+      stadium:player.cannotPlayStadiumCards===true,
+      tool:player.cannotPlayToolCards===true,
+      energy:player.cannotPlayEnergyCards===true,
+      specialEnergy:player.cannotPlaySpecialEnergyCards===true,
+      pokemon:player.cannotPlayPokemonCards===true,
+      turnsRemaining:player.playLocksTurnsRemaining??0
+    },
     prizes:player.prizes.filter(p=>p.cards.length>0).length
   }));
 }
