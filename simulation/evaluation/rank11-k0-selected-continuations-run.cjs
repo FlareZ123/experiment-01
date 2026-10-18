@@ -7,8 +7,6 @@ const {screenRank11FirstTurn}=require('../twinleaf/rank11-first-turn-screen.cjs'
 const {openingOpportunity}=require('../twinleaf/rank11-autonomous-opener.cjs');
 const {seedFor,sha256,gitBlobSha,verifyRegistration,resolvedPrintedDecks}=
   require('./rank11-conditional-k0-screen-run.cjs');
-const {createHash}=require('node:crypto');
-const fs=require('node:fs');
 const path=require('node:path');
 
 const REGISTRATION=require('../../results/aichi-2026/registrations/rank11-k0-selected-continuations-v1-20261018.json');
@@ -54,20 +52,23 @@ function execute(options={}) {
   }
   const decks=options.engineDecks||resolvedPrintedDecks();
   assert.equal(decks.engineRevision,REGISTRATION.engineRevision);
-  const {SimpleTacticsAi}=require(path.join(OUTPUT,'simple-bot/simple-tactics-ai'));
-  const {GamePhase}=require(path.join(OUTPUT,'game/store/state/state'));
-  const screenOne=options.screenOne||((seed,index)=>screenRank11FirstTurn({
-    sourceSeat:0,SimpleTacticsAi,
-    playerTurnPhase:GamePhase.PLAYER_TURN,openingOpportunity,
-    runMatch:()=>runMatch({
-      ...decks,seed,label:'rank11-selected-K0-check:'+index,
-      maxActions:ORIGINAL.maxSetupActions,
-      strictPromptValidation:true,
-      forestSealSearchCorrection:true,
-      battleCompressorPositiveSelectionCorrection:true,
-      isolatePolicyRandomness:true
-    })
-  }));
+  let screenOne=options.screenOne;
+  if(!screenOne) {
+    const {SimpleTacticsAi}=require(path.join(OUTPUT,'simple-bot/simple-tactics-ai'));
+    const {GamePhase}=require(path.join(OUTPUT,'game/store/state/state'));
+    screenOne=(seed,index)=>screenRank11FirstTurn({
+      sourceSeat:0,SimpleTacticsAi,
+      playerTurnPhase:GamePhase.PLAYER_TURN,openingOpportunity,
+      runMatch:()=>runMatch({
+        ...decks,seed,label:'rank11-selected-K0-check:'+index,
+        maxActions:ORIGINAL.maxSetupActions,
+        strictPromptValidation:true,
+        forestSealSearchCorrection:true,
+        battleCompressorPositiveSelectionCorrection:true,
+        isolatePolicyRandomness:true
+      })
+    });
+  }
   const play=options.play||(request=>runWithResearchProfile(
     {...request,rank11SourceSeat:0},RANK11_AUTONOMOUS_PROFILE));
   const records=[];
