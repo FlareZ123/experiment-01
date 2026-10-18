@@ -30,3 +30,12 @@ Agreement in *one selected action* cannot establish that the fresh reconstructed
 Both source contrasts tested one reversed deck order with one equal-seeded fresh-bot policy. The current-v4 actor had no observed whole-deck search before root15, while the archived v3 actor had four observed searches before root215; legitimacy of any known top-of-deck order was not independently verified. Physical engine completeness, policy competence, printed rules fidelity, matchups, and 99.5% win rate remain unqualified.
 
 **Follow-up:** compare actual policy internal-state snapshots and random-position lineage, or establish a replay-safe observation-bound policy adapter; sample multiple permissible unseen-world permutations, independently validate what the actor knows, and avoid using this check alone to promote any competitive outcome.
+
+## Follow-up: detached tactic-score trace
+
+Compiled manual CI [39122412598](https://github.com/FlareZ123/experiment-01/actions/runs/39122412598), head `b25aef8858776042de65b9cf8ee0279149211840`, passed five new synthetic regressions and both authentic rank10 probes. The recorder temporarily wraps `evaluateAction` on each fresh detached bot tactic instance; actual source play and instrumented/uninstrumented match results remain identical.
+
+- Current-v4 turn2/root15: zero recorded candidate-score evaluations in either world. `equalScoreTraces:true` is **vacuous** here; it is not score-invariance evidence.
+- Archived-v3 Timeless turn28/root215: nine recorded tactical evaluations in each world, with identical tactic, candidate and score sequences across one own-deck reversal. This is a single-permutation score-level negative control.
+
+The method and unit tests live in `simulation/twinleaf/tactic-score-trace.cjs` and `tests/twinleaf-tactic-score-trace.test.cjs`. These roots show why authentic decisions should be screened for nonzero score evaluations before testing hidden-order score leakage. No game becomes competitively qualified.
