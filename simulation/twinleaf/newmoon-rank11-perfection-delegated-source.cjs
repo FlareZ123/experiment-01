@@ -121,6 +121,16 @@ function run() {
     'The copied attack chain must contain the terminal candidate Prize transfer');
   assert.equal(printedEffect.assessment.defenderInPlayChange,-1,
     'The copied attack chain must retain the observed opponent KO');
+  const terminalStart=game.copycatTurnStartEvidence.find(row=>
+    row.turn===terminalAttack.turnBefore);
+  assert.ok(terminalStart,'True acting seat own-turn start must be observable');
+  const sourcePrinting='Gengar & Mimikyu-GX TEU';
+  const sourceInOwnDiscardAtTurnStart=terminalStart.candidateDiscard.includes(sourcePrinting);
+  const sourceOnOwnBoardAtDeclaration=printedEffect.publicBefore[CANDIDATE_SEAT]
+    .bench.some(pokemon=>pokemon.name==='Gengar & Mimikyu-GX') ||
+    printedEffect.publicBefore[CANDIDATE_SEAT].active?.name==='Gengar & Mimikyu-GX';
+  assert.ok(sourceInOwnDiscardAtTurnStart||sourceOnOwnBoardAtDeclaration,
+    'Source copied printing should be physically present in own discard at turn start or on board at declaration');
 
   const priorCopiedPoltergeist=delegated.find(entry=>
     entry.attackName==='Poltergeist' &&
@@ -238,6 +248,13 @@ function run() {
     nonterminalCopiedResponse:earlierCopiedResponse,
     poltergeistEffect:{
       ...printedEffect.assessment,
+      originalAttackSource:{
+        printing:sourcePrinting,
+        inOwnDiscardAtTurnStart:sourceInOwnDiscardAtTurnStart,
+        onOwnBoardAtDeclaration:sourceOnOwnBoardAtDeclaration
+      },
+      physicalBoardBefore:printedEffect.publicBefore,
+      physicalBoardAfter:printedEffect.steps.at(-1)?.publicAfter??printedEffect.publicAfter,
       firstActionOrdinal:printedEffect.actionOrdinal,
       resolvedActionOrdinals:printedEffect.steps.map(entry=>entry.actionOrdinal),
       handObservationTiming:'after own attack selection; before actual Store copied attack dispatch',
