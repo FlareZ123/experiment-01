@@ -76,7 +76,7 @@ A separate local shuffle check used **300,000** independent `numpy.random.defaul
 - Exact reproducer: [`scripts/rank11_oranguru_tool_lock_exact.py`](../../scripts/rank11_oranguru_tool_lock_exact.py).
 - Pure checks: [`tests/test_rank11_oranguru_tool_lock_exact.py`](../../tests/test_rank11_oranguru_tool_lock_exact.py).
 - Inputs: [published source 60](full-decklists.json), rank 11, and supplied rulebook.
-- [Manual Aichi opening audit CI 39083209769](https://github.com/FlareZ123/experiment-01/actions/runs/39083209769) **PASSED** at source head `d7e3560b5fd8d3fcb9e2b1a2ef0374faf9399c82`: both new Python test and exact-output steps passed in the existing manual-only workflow. The independent shuffled-deal check was performed locally and is separate from the CI pure tests.
+- [Manual Aichi opening audit CI 39083209769](https://github.com/FlareZ123/experiment-01/actions/runs/39083209769) **PASSED** for the original direct-Active model. The subsequent disjoint pivot extension also **PASSED** in [manual CI 39084142707](https://github.com/FlareZ123/experiment-01/actions/runs/39084142707) at source head `44fb1ba5bc08c11d4246b10d795010d845c40bd3`: all updated Python exact-rate tests and generated-output steps succeeded in the existing manual-only workflow. The two seeded independent shuffled-deal checks were performed locally and are separate from CI pure tests.
 
 ## Strategic scope and open falsification
 
