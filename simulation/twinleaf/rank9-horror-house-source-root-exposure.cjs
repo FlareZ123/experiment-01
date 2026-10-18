@@ -1,5 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
+const path=require('node:path');
+const {defendingHeldItems}=require('./horror-house-root-audit.cjs');
 const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {pairedCandidateSlots}=require('./new-moon-lockbreak-source-diagnostic.cjs');
 const {deriveSlotSeeds}=require('../../scripts/aichi-decorrelated-seeds.cjs');
@@ -87,6 +89,15 @@ function run() {
       }
     }
   }
+  const types=require(path.resolve(__dirname,
+    '../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types'));
+  const rootLockEvents=rank9Source.filter(row=>row.status==='observed')
+    .flatMap(row=>row.rootEvents.map(event=>({
+      rank9Seat:row.seat,seed:row.seed,ordinal:event.actionOrdinal,
+      globalTurn:event.turnBefore,
+      defendingHeldItemPrintings:defendingHeldItems(event,types),
+      hindsightItemCount:defendingHeldItems(event,types).length
+    })));
   const events=rank9Source.filter(row=>row.status==='observed')
     .flatMap(row=>row.rootEvents);
   return {
@@ -103,6 +114,10 @@ function run() {
       row.status==='observed'&&row.verifiedFirstByDrawLog).length,
     sourceErrors:rank9Source.filter(row=>row.status!=='observed').length,
     observedRank9HorrorHouseRootDeclarations:events.length,
+    rootDefenderItemInventory:rootLockEvents,
+    lockRootsWithDefenderHoldingAnyItem:rootLockEvents.filter(
+      row=>row.hindsightItemCount>0).length,
+    itemInventoryInterpretation:'retrospective physical hand at attack root; Items might be unplayable for unrelated reasons, and presence does not prove the lock mattered',
     resultScope:'unqualified 180-action original-source engine exposures, not 16 completed competitive games',
     effectivePsychicConditionIndependentAudit:false,
     resolutionIndependentAudit:false,
