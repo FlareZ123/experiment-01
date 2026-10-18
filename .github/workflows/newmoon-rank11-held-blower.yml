@@ -8,6 +8,11 @@ on:
         type: boolean
         required: false
         default: false
+      handburn_counterfactual:
+        description: 'Opt-in source-conserved rank11 turn49 Quick Ball defensive branch on archived seed'
+        type: boolean
+        required: false
+        default: false
       lillie_factorial_probe:
         description: 'Opt-in preregistered six-seed plus one selected positive control, 4-arm low-hand Lillie policy exposure'
         type: boolean
@@ -67,6 +72,19 @@ jobs:
         with:
           name: newmoon-gengar2-structural-pilot-unqualified
           path: newmoon-gengar2-pilot.json
+          if-no-files-found: warn
+      - name: Validate source turn49 Trainer discard priorities
+        if: inputs.handburn_counterfactual
+        run: node --test tests/rank11-turn49-handburn-counterfactual.test.cjs
+      - name: Compare real-Store source turn49 Quick Ball hand burn and baseline reply
+        if: inputs.handburn_counterfactual
+        run: node simulation/twinleaf/rank11-turn49-handburn-source-probe.cjs > rank11-turn49-handburn-source.json
+      - name: Preserve both real source turn49 policy arms and negative evidence
+        if: inputs.handburn_counterfactual && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-turn49-handburn-counterfactual-unqualified
+          path: rank11-turn49-handburn-source.json
           if-no-files-found: warn
       - name: Preserve source-first and selected legal Item counterfactual
         if: always()
