@@ -82,6 +82,71 @@ def prize_count_for_route(seen):
     return favorable_prize_count(unseen, required)
 
 
+def pivot_prize_count_for_route(seen):
+    """Opening that begins with another Basic and retreats into Oranguru V.
+
+    One held Battle VIP Pass can Bench Oranguru and Trubbish from the deck.
+    The original Active uses an initially held Float Stone and the one normal
+    retreat for the turn; Oranguru then uses Back Order to fetch the second
+    Float Stone for Trubbish and, when needed, Forest Seal Stone.
+    """
+    oranguru, trubbish, float_stone, boost, vip, forest, garbodor, other, _ = seen
+    unseen = tuple(total - count for total, count in zip(COUNTS, seen))
+    if not other or not vip or not float_stone or garbodor == COUNTS[6]:
+        return 0
+    if not oranguru and not unseen[0]:
+        return 0
+    if not trubbish and not unseen[1]:
+        return 0
+    if float_stone == 1 and not unseen[2]:
+        return 0
+    if not boost and (not unseen[3] or not (forest or unseen[5])):
+        return 0
+
+    required = {6}
+    if not oranguru:
+        required.add(0)
+    if not trubbish:
+        required.add(1)
+    if float_stone == 1:
+        required.add(2)
+    if not boost:
+        required.add(3)
+        if not forest:
+            required.add(5)
+    return favorable_prize_count(unseen, required)
+
+
+def exact_pivot_rate():
+    """Disjoint additional access when none of the original seven is Oranguru.
+
+    Counts starting seven with an alternative Basic Pokémon and requires a
+    held/drawn Battle VIP Pass plus one held Float Stone for a legal retreat.
+    Every other rank-11 Basic has printed retreat cost at most two Colorless.
+    """
+    total = 0
+    for seen in compositions():
+        favorable = pivot_prize_count_for_route(seen)
+        if not favorable:
+            continue
+        oranguru = seen[0]
+        other_basic = seen[7]
+        if oranguru == 0:
+            eighth_positions = 7 if other_basic == 1 else 8
+        elif oranguru == 1 and other_basic:
+            eighth_positions = 1  # the sole Oranguru is the eighth draw
+        else:
+            continue
+        ways = 1
+        for count, observed in zip(COUNTS, seen):
+            ways *= comb(count, observed)
+        total += ways * eighth_positions * favorable
+
+    legal_opening = Fraction(comb(60, 7) - comb(49, 7), comb(60, 7))
+    denominator = 8 * comb(60, 8) * PRIZE_CONFIGURATION_COUNT
+    return Fraction(total, denominator) / legal_opening
+
+
 def exact_rates():
     """Return exact probabilities conditional on at least one Basic in seven.
 
@@ -128,3 +193,7 @@ def exact_rates():
 if __name__ == "__main__":
     for name, probability in exact_rates().items():
         print(f"{name}: {float(probability) * 100:.12f}% ({probability})")
+    pivot = exact_pivot_rate()
+    direct = exact_rates()["full_restricted_route"]
+    print(f"non_Oranguru_start_VIP_pivot: {float(pivot) * 100:.12f}% ({pivot})")
+    print(f"union_of_disjoint_routes: {float(direct + pivot) * 100:.12f}% ({direct + pivot})")
