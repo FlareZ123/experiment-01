@@ -11,3 +11,24 @@ The direct event is disjoint from the v1 predicate because v1 explicitly exclude
 Reproduce by classifying the source 60 into counts `(Oranguru V, VIP, Float, Seal, Shake, Trubbish, Garbodor, other Basics, all other)=(2,4,3,2,2,2,2,7,36)`, enumerating all nine-category seven-card hands with products of binomial counts, and for each hand using six-Prize inclusion-exclusion to demand the necessary deck targets. The total sample denominator is `C(60,7) C(53,6)=8866337641761600`; valid-opener numerator `6894276702593280`. The complete target numerators above are exact integers, independently computed with Python arbitrary-precision binomial arithmetic.
 
 **Next falsification:** extend the rank11 policy with an opt-in own-hand direct Trubbish / VIP + Float Stone + Boost Shake sequence, then prove source-dealt real Store actions and opponent responses with both starting turns. Until that validation, retain zero competitively qualified games. Related baseline: [rank11 autonomous opener](rank11-autonomous-opponent-policy.md) and [policy qualification matrix](policy-qualification-matrix.md).
+
+
+## Refined actual first-turn census: initial seven, Prize six, one normal draw
+
+Both players normally receive a start-of-turn draw. The above seven-card census deliberately excludes it. A second exact model deals **seven cards**, checks that the opener already contains a Basic, sets six Prizes from the other 53, and then draws one more card from the remaining 47. It remains before any voluntary gameplay or mulligan bonus.
+
+An efficient enumeration chooses the unordered **eight-card effective hand** plus a six-card Prize set from the other 52, designating one of the eight hand cards as the normal draw. If the effective hand has one Basic, that Basic **cannot** be designated as the draw: doing so would leave the initial seven invalid. With at least two Basics, any of the eight can be the draw; with none, zero are valid. The physically valid numerator must therefore be exactly **47 times** the previously enumerated seven-card valid numerator.
+
+| Exact event | Seven-card case | Seven plus first normal draw |
+| --- | ---: | ---: |
+| Valid initial seven, joint hand/Prize(+draw) numerator | 6,894,276,702,593,280 | 324,031,005,021,884,160 |
+| Direct Float+Shake with Trubbish and deck Garbodor, numerator | 169,890,696,085,236 | 11,911,482,095,606,528 |
+| Direct route conditional on legal initial seven | **2.46422799%** | **3.67603159%** |
+| v1 necessary hand with remaining deck targets, numerator | 117,097,385,243,124 | 7,228,094,214,428,032 |
+| v1 target-ready upper bound conditional on legal initial seven | **1.69847237%** | **2.23067981%** |
+
+The full unconstrained eight-card/Prize/draw denominator is **416,717,869,162,795,200**, of which **324,031,005,021,884,160** worlds had a valid first seven. Independent seeded 300,000 physical hand/Prize/normal-draw Monte Carlo deals gave 8,543 direct opportunities among 232,994 valid openers (3.6666%), consistent with the exact 3.6760%. The exact numerators are the authoritative values.
+
+The refined **3.67603159%** is the better narrowly specified *actual first-turn* structural-access figure than the opening-seven 2.4642%. Both are lower bounds on direct-line access through hand-draw/Item search effects that were deliberately excluded from this counting model, while still requiring optimal execution of the identified available line. Neither is a bound on genuine wins or the proportion of games in which the bot actually acts. The v1 percentages remain generous policy-trigger upper bounds.
+
+The exact source-locked CJS reproducer now exposes `census()` and `censusAfterFirstDraw()`. Both functions fail closed if printed source quantities or pinned exact integer control counts change. Independent no-engine Node regressions live in `tests/rank11-boostshake-opening-census.test.cjs`. Compiled CI status is separately tracked and **not implied by this analytical derivation**.
