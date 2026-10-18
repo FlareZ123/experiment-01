@@ -51,3 +51,14 @@ jobs:
       - name: Verify solo Guzma staged Store regression independently
         if: always()
         run: node --test tests/snorlax-switch-vs-guzma.test.cjs
+      - name: Check autonomous opening selection without engine
+        run: node --test tests/rank6-autonomous-thorns-line.test.cjs
+      - name: Reproduce genuine source-hand autonomous rank6 attack and response
+        run: node simulation/twinleaf/rank6-autonomous-thorns-source.cjs > rank6-autonomous-attack.json
+      - name: Preserve autonomy and unexposed seed denominator
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank6-autonomous-thorns-source
+          path: rank6-autonomous-attack.json
+          if-no-files-found: warn
