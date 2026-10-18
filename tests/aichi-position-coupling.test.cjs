@@ -3,6 +3,9 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { createHash } = require('node:crypto');
+const { buildCampaign, parseField } =
+  require('../scripts/aichi-comparison-campaign.cjs');
 const {
   expandPrintings, samplingProbability, auditAlignment, alignToReference
 } = require('../scripts/aichi-position-coupling.cjs');
@@ -68,4 +71,24 @@ test('probability is hypergeometric and handles all-overlap and no-overlap', () 
   assert.throws(() => auditAlignment(champion.slice(1), hood), /60-card/);
   assert.throws(() => expandPrintings([{name:'Test',count:1,
     printing:{set:'X',number:'1'}}]), /60 card copies/);
+});
+
+
+test('row-order mutation leaves canonical campaign plan unchanged but alters actual input', () => {
+  const field = parseField(fs.readFileSync(path.join(dir, 'field.csv'), 'utf8'));
+  const hoodRows = JSON.parse(fs.readFileSync(
+    path.join(dir, 'candidate-hood-shadow-rider.json'), 'utf8')).cards;
+  const left = buildCampaign({field, source: full, candidates:[
+    {id:'hood',cards:hoodRows}
+  ]});
+  const right = buildCampaign({field, source: full, candidates:[
+    {id:'hood',cards:[...hoodRows].reverse()}
+  ]});
+  assert.equal(left.planDigest, right.planDigest);
+  assert.equal(left.candidateRows[0].deckDigest,
+    right.candidateRows[0].deckDigest);
+  assert.deepEqual(left.trials, right.trials);
+  const sha = cards => createHash('sha256')
+    .update(JSON.stringify(expandPrintings(cards))).digest('hex');
+  assert.notEqual(sha(hoodRows), sha([...hoodRows].reverse()));
 });
