@@ -63,7 +63,7 @@ try {
       engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
       rollbackChangedStateIdentity:after !== before,
       physicalCopycatIdentityPreserved:true,
-      repeatedRollbackStateIdentityPreserved:false,
+      secondRollbackCreatesFreshState:true,
       secondRejectionName:priorError.name,
       callbacks:calls,
       scope:'Invalid underpaid AttackAction after prompt-free copied AfterDamageEffect; injected board only'
