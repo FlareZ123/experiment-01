@@ -116,7 +116,7 @@ jobs:
       - name: Probe deck-origin Sol Burst GX versus Telepath from-hand trigger
         run: node simulation/twinleaf/telepath-nonhand-solburst-source.cjs > telepath-nonhand-solburst-source.json
       - name: Check read-only physical card ownership diagnostics
-        run: node --test tests/physical-card-ledger.test.cjs tests/telepath-root-attach-observer.test.cjs
+        run: node --test tests/physical-card-ledger.test.cjs tests/telepath-root-attach-observer.test.cjs tests/physical-tool-storage.test.cjs
       - name: Verify reversible Telepath origin and physical-zone correction in both seats
         run: node simulation/twinleaf/telepath-source-origin-paired.cjs > telepath-source-origin-paired.json
       - name: Preserve patched/unpatched/hand attachment witness
