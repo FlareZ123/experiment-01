@@ -3,6 +3,11 @@ name: Aichi Temple and Wobbuffet board interactions
 on:
   workflow_dispatch:
     inputs:
+      rank11_delegated_attack_selection_source:
+        description: 'Pinned authentic rank11 New Moon delegated attack selection and Store declaration audit'
+        required: false
+        type: boolean
+        default: false
       rank8_attack_log_full_source:
         description: 'Complete source-dealt rank8 test of central Store attack declarations'
         required: false
@@ -58,6 +63,16 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify source-dealt rank11 printed copied-attack source and Store declaration
+        if: inputs.rank11_delegated_attack_selection_source
+        run: node simulation/twinleaf/newmoon-rank11-perfection-delegated-source.cjs > rank11-copied-attack-selection.json
+      - name: Preserve rank11 selected printing and copied-attack provenance
+        if: inputs.rank11_delegated_attack_selection_source && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-copied-attack-selection
+          path: rank11-copied-attack-selection.json
+          if-no-files-found: warn
       - name: Verify central Store attack ledger on one full source-dealt rank8 game
         if: inputs.rank8_attack_log_full_source
         run: node simulation/twinleaf/source-attack-log-full-match.cjs > rank8-central-attack-ledger.json
