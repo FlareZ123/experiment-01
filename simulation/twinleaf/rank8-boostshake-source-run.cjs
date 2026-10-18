@@ -8,6 +8,7 @@ const {withRank8BoardObserver}=require('./hood-rank8-source-board-observer.cjs')
 const {withRank8BoostShakeFork}=require('./rank8-boostshake-source-fork.cjs');
 const {withRank8FieldBlowerReply}=require('./rank8-field-blower-source-reply.cjs');
 const {withRank8PsychicRecoveryReply}=require('./rank8-psychic-recovery-source-reply.cjs');
+const {withRank8HoodedDoorReply}=require('./rank8-hooded-door-source-reply.cjs');
 function main(){
   const candidate=require('../../results/aichi-2026/candidate-hood-shadow-rider.json');
   const plan=planAichi(candidate,{allowEquivalentBasicEnergies:true,
@@ -42,6 +43,17 @@ function main(){
         withRank8FieldBlowerReply(()=>
           withRank8BoostShakeFork(()=>runMatch(request)))),opts));
   const recovery=recovered.result.result;
+  const hooded=withRank8BoardObserver(Store,()=>
+    withStoreDispatchTranscript(Store,()=>
+      withRank8HoodedDoorReply(()=>
+        withRank8BoostShakeFork(()=>runMatch(request))),opts));
+  const hoodedReply=hooded.result.result;
+  assert.equal(hoodedReply.stage,7);
+  assert.equal(hoodedReply.result.stage,11);
+  assert.equal(hoodedReply.witness?.sourceGarbodorStillEquipped,true);
+  assert.equal(hoodedReply.witness?.heldFieldBlowerPreserved,true);
+  assert.deepEqual(hooded.result.actionTrace.slice(0,86),
+    control.actionTrace.slice(0,86),'Hooded Door changed original source prefix');
   assert.equal(recovery.stage,7);
   assert.ok(recovery.witness);
   assert.equal(recovery.result.stage,4);
@@ -64,6 +76,8 @@ function main(){
     'Counter-response changed original locked predecision board');
   assert.deepEqual(recovery.result.result.turn8.board,fork.turn8.board,
     'Resource continuation changed source-locked turn8 board');
+  assert.deepEqual(hoodedReply.result.turn8.board,fork.turn8.board,
+    'Hooded Door branch changed the source-locked turn8 board');
   return {schema:'rank8-boostshake-real-deal-v1',
     seed:1260748957,sourcePrefixActions:86,
     sourceWitness:fork.witness,choices:fork.events,
@@ -85,6 +99,12 @@ function main(){
           action:e.action,card:e.card,ability:e.ability,
           selectedCards:e.cardSelection?.selectedCards})),
       prizes:recovery.result.result.result.prizesRemaining},
+    hoodedLiveLock:{steps:hoodedReply.events,witness:hoodedReply.witness,
+      turn8Actions:hoodedReply.result.result.decisionTrace.filter(e=>
+        e.turnBefore===8 && e.playerSlot===1).map(e=>({
+          action:e.action,card:e.card,ability:e.ability,
+          selectedCards:e.cardSelection?.selectedCards})),
+      prizes:hoodedReply.result.result.prizesRemaining},
     qualifiedForCompetitiveInference:false};
 }
 if(require.main===module)process.stdout.write(JSON.stringify(main(),null,2)+'\n');
