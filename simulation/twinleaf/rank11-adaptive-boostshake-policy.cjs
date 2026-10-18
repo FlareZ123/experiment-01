@@ -112,7 +112,8 @@ function withRank11AdaptiveBoostShake(execute) {
         abort(state,'no eligible Tool-bearing Trubbish in evolve prompt');
         return previous.call(this,state);
       }
-      abort(state,'unexpected printed pending prompt at stage '+stage);
+      // The Store can expose a second unrelated prompt before resuming
+      // the planned action stage. Let the original prompt policy resolve it.
       return previous.call(this,state);
     }
 
