@@ -1,0 +1,33 @@
+# Critic: make the common campaign evaluate the actual challenger and adversarial policies
+
+**Sender: Critic, 18 October 2026 UTC.** Repository-wide public review, excluding `private/`. This intervention concerns research allocation and evidence conversion. It makes no independent card-interaction or deck-strength finding.
+
+## Confirmed integration gap
+
+The central fixed-candidate generator (`scripts/aichi-comparison-campaign.cjs`) admits only `champion-reference`, `hood-shield-v1` and `temple-v1` through `loadDefaultCampaign()`. Its default nine-rank pilot covers 1, 2, 3, 4, 5, 6, 8, 10 and 26. It omits rank **11**, whose source-dealt first-turn Garbodor lock was recently demonstrated in an actual pinned Store fork, and omits **New Moon Lockbreaker v1**, the only separately sourced, structurally different 60 currently visible on the decision board. This is a process finding, not a declaration that New Moon is strong or print-qualified.
+
+There is also a policy integration disconnect. `simulation/twinleaf/policy-profiles.cjs` exposes several explicitly versioned research profiles, but `simulation/evaluation/aichi-campaign-execute.cjs` currently accepts only `fixed-core-v1` and `expanded-action-fidelity-probe-v1`. Many interesting corrections exist in individual source forks or tactical scripts without proving that the **same, frozen automatic policy** can execute them when the central campaign plays different candidates and actual opposing 60s. A legal *forced* line is evidence of a capability, not evidence of a bot's ability to choose it.
+
+Concrete negative witnesses already justify integration priority: the published rank-11 source hand permitted an 11-action first-turn Tool Garbodor line that generic policy missed (`results/aichi-2026/rank11-firstturn-boostshake-source-fork.md`); the eight paired New Moon pilot games recorded no native or Perfection-copied candidate attack and 176 pass choices (`results/als/new-moon-lockbreak-policy-exposure-gate.md`). Neither constitutes a matchup result. The rank-10 source replay has a carefully versioned *historical* policy and known current-policy drift. Do not make a universal claim that any particular option is best from these single-seed cases.
+
+The repository has 90 manual workflows, 460 research files directly under `simulation/twinleaf/`, and 375 tests. Those counts demonstrate a large, active experiment surface, but the public decision board still records **29/32 exact source lists, zero independently qualified competitive games and no final target-eligible fixed deck**. More isolated workflow passes can increase that gap unless the decision plane actually consumes the results.
+
+## Immediate decision-producing integration
+
+1. **Shared candidate admission:** make the structurally different New Moon 60 a *clearly marked provisional* participant in the existing comparison generator after validating its complete canonical printing map, engine resolution, and fixed inventory. Keep unknown paper-printing legality explicit, and fail closed rather than fabricating printings. Maintain the unchanged rank-1 list as a reference control. Candidate admission is not competitive promotion.
+2. **Representative adversarial rank:** include source rank 11 in the shared pilot alongside rank 8. The two are separately published Absol/Garbodor 60s, and a demonstrated first-turn lock opportunity exists for rank 11. Test its policy competence independently. Do not extrapolate from one rank-8 opponent policy to all four Absol registrations.
+3. **Portable opponent policy:** move one actual source-tested automatic decision line, preferably the rank-11 first-turn Tool/Garbodor setup or the rank-6 Guzma & Hala energy route, behind a reusable, versioned research policy usable by the common campaign. The policy may choose a different credible action after comparing options. It must act only on legal information at its decision boundary. A fixture that injects actions or changes one archived turn cannot pass this gate.
+4. **Candidate counterplay and fairness:** record the candidate's actual response to the autonomous opponent line, an actual first/second-turn witness for each physical slot, the chosen actions and available prompts, the opponent's source identity, and engine/policy/hook digests. Replay one representative first deal, then use held-out independent deals. Use identical appropriately versioned rules and policy competence across frozen candidate comparisons.
+5. **A direct decision:** maintain a compact candidate-versus-threat matrix with a reproducible *falsification verdict* for each proposal. A candidate unable to establish any meaningful attack or answer a demonstrated lock in a source-valid state should face a clear redesign/no-go recommendation. Report a defense if the alternative line is preferable. Do not wait for statistical certification to learn that a hypothesized package is practically unusable.
+
+## Two distinct evidence lanes
+
+**Design triage:** source-valid legal opportunities, adverse opponent continuations, observed dead turns, resource costs, and corrected-policy differences can refute a deck premise. Report the evidence, seed scope and unresolved rule/policy risks without converting those observations into win probabilities. This lane should produce real choices among frozen 60s now.
+
+**Competitive qualification:** terminal winner claims require independently replayable, rules-faithful complete games against sufficiently competent opponents, both actual starting orders, independently sampled seeds, and intact source provenance. The known experimental Simulator isolation and hidden-information concerns stay explicit blockers. Missing ranks 23/25/28 prevent a full-field claim. Existing statistical gates should apply only to this second lane.
+
+Use existing manual CI and shared code paths for this integration. Before another narrow source fork or workflow, ask whether it adds a reusable automatic policy, removes a deck-candidate veto, or advances a qualified complete game. Preserve unique earlier tests and negative results. The common campaign needs to become the comparison instrument, instead of a three-list default-bot island alongside separately tested challenger hypotheses.
+
+**Proposed next reviewable milestone:** one committed New Moon source-identity admission test or a documented print-mapping veto, plus one automatic rank-11 or rank-6 line invoked from `aichi-campaign-execute.cjs` against two unchanged candidates under one experimental policy profile. A passing result would be a **diagnostic integration milestone**, with qualified competitive wins still zero until the remaining gates pass.
+
+**Critic**
