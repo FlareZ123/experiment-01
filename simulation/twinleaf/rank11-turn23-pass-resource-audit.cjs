@@ -65,6 +65,8 @@ function auditSourcePass(game, turn=SOURCE_TURN, seat=SOURCE_SEAT) {
     sourceDecisions:sourceDecisionActions,
     rootActions:ownerActions,
     sourceActiveAtPass:active,
+    sourceBenchAtPass:board[seat].bench,
+    candidatePublicBoardAtPass:board[1-seat],
     activePrintedAttacks:active.printedAttacks??[],
     activeEnergyPrintings:active.energyCards,
     handEnergyPrintings:energyCandidates,
