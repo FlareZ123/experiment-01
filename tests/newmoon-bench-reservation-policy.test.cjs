@@ -52,7 +52,7 @@ test('one missing partner reserves one vacancy and both established require none
     'Gengar & Mimikyu-GX TEU','Solrock CES',null],
     ['Unown AOR']);
   assert.equal(newMoonBenchNeeds(player).missing.length,1);
-  assert.equal(reservedBasicPlay(play(0),player,1,phase,phase),null);
+  assert.equal(reservedBasicPlay(play(0),player,1,phase,phase)?.name,'Unown AOR');
   player.bench[3]=slot('Galarian Articuno V CRE');
   assert.equal(reservedBasicPlay(play(0),player,1,phase,phase)?.name,'Unown AOR');
   player.bench[3]=slot('Lunatone OBF');
@@ -76,6 +76,6 @@ test('trainers and Energy attachments are outside the basic-play veto',()=>{
   const player=owner(core,['Psychic Energy MEE','Battle VIP Pass FST']);
   player.hand.cards[0].stage=undefined;
   assert.equal(reservedBasicPlay(play(0),player,1,phase,phase),null);
-  assert.equal(reservedBasicPlay(play(1),player,1,phase,phase)?.name,
-    'Battle VIP Pass FST');
+  player.hand.cards[1].stage=undefined;
+  assert.equal(reservedBasicPlay(play(1),player,1,phase,phase),null);
 });
