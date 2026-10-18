@@ -9,7 +9,8 @@
  * @param {number} candidateSlot 0 for A, 1 for B
  * @returns {{status:string,candidateDeclarations:number|null,
  *   opponentDeclarations:number|null,candidateRootUndercount:boolean,
- *   opponentRootUndercount:boolean}}
+ *   opponentRootUndercount:boolean,candidateRootUnlogged:boolean,
+ *   opponentRootUnlogged:boolean}}
  */
 function reconcileAttackObservations(record, candidateSlot) {
   const unknown = {
@@ -17,7 +18,9 @@ function reconcileAttackObservations(record, candidateSlot) {
     candidateDeclarations: null,
     opponentDeclarations: null,
     candidateRootUndercount: false,
-    opponentRootUndercount: false
+    opponentRootUndercount: false,
+    candidateRootUnlogged: false,
+    opponentRootUnlogged: false
   };
   const protocol = 'real-store-attack-log-declarations-v1';
   if (record?.attackObservationStatus !== protocol) return unknown;
@@ -50,8 +53,10 @@ function reconcileAttackObservations(record, candidateSlot) {
     status: 'self-consistent-engine-attack-declarations',
     candidateDeclarations: candidate,
     opponentDeclarations: opponent,
-    candidateRootUndercount: record.candidateAttacks === 0 && candidate > 0,
-    opponentRootUndercount: record.opponentAttacks === 0 && opponent > 0
+    candidateRootUndercount: record.candidateAttacks < candidate,
+    opponentRootUndercount: record.opponentAttacks < opponent,
+    candidateRootUnlogged: record.candidateAttacks > candidate,
+    opponentRootUnlogged: record.opponentAttacks > opponent
   };
 }
 
