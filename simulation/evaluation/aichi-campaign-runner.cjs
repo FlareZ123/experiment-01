@@ -141,9 +141,10 @@ function executeCampaign(inputs, options = {}) {
   const play = options.runMatch || require('../twinleaf/headless.cjs').runMatch;
   const sourceRanks = new Map(inputs.source.decks.map(d => [d.rank, d]));
   const candidateMap = new Map(candidates.map(c => [c.id, c]));
-  const reference = candidateMap.get('champion-reference');
+  const references = candidates.filter(candidate => candidate.referenceOnly === true);
+  const reference = references.length === 1 ? references[0] : null;
   if (inputOrderProtocol === 'reference-aligned-v1' && !reference) {
-    throw new Error('Reference-aligned input requires the fixed champion-reference source.');
+    throw new Error('Reference-aligned input requires exactly one designated reference source.');
   }
   const prepared = new Map();
   const records = [];
