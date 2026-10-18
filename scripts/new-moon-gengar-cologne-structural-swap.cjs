@@ -3,6 +3,7 @@
 const assert=require('node:assert/strict');
 const {ironThornsDirect} = require('./new-moon-thorns-starter-joint.cjs');
 const source=require('../results/als/new-moon-lockbreak-english-proxy-60.json');
+const {loneBasicProbability,soloAfterBonus}=require('./aichi_solo_start.cjs');
 
 /**
  * Directly visible resources for either native Horror House or an
@@ -66,6 +67,14 @@ function main(){
   });
   const structuralSwap={...baseline,gengar:baseline.gengar+1,
     cologne:baseline.cologne-1,basics:baseline.basics+1};
+  const meloettaSolo=Object.fromEntries([['baseline',baseline],
+    ['structuralSwap',structuralSwap]].map(([name,roles])=>[name,{
+      initiallySoleGengar:loneBasicProbability(roles.basics)*
+        roles.gengar/roles.basics,
+      soleGengarAfterAllBonusCards:soloAfterBonus(roles.basics,12)*
+        roles.gengar/roles.basics,
+      anySoloAfterAllBonusCards:soloAfterBonus(roles.basics,12)
+    }]));
   const sourceResult=directChannels(baseline);
   const alternateResult=directChannels(structuralSwap);
   return {
@@ -74,7 +83,7 @@ function main(){
     baseline,structuralSwap,
     swap:'Hypothetical single printed Gengar & Mimikyu-GX TEU 53 replacing one Canceling Cologne ASR 136',
     rank6_24_29IronThornsFourBasicOpponent:true,
-    sourceResult,alternateResult,
+    sourceResult,alternateResult,meloettaSolo,
     deltaEither:{
       firstDraw:alternateResult.either.firstDraw-sourceResult.either.firstDraw,
       withAllBonuses:alternateResult.either.withAllBonuses-
