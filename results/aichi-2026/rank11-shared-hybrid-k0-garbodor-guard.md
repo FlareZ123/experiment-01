@@ -30,3 +30,22 @@ The 85-action bounded trials are retrospective policy-regression fixtures, with 
 ## Follow-up falsification
 
 Inspect the divergent seed 1804615887 **actual root actions** and resource zones, verify whether ordinary fallback preserves VIP, Tool and Boost Shake through the opponent's first reply, and whether a different legal line is available. For any field performance claim, prospectively freeze independent deals, include both actual start orders and all no-opportunity denominators, and qualify candidate attacks and opponent decisions.
+
+## Full first-turn root-action audit and VSTAR K0 extension, later compiled replay
+
+A later [manual compiled CI **39150920917**](https://github.com/FlareZ123/experiment-01/actions/runs/39150920917) **PASSED** at head `1b23cf04650c9997a895d2e7c0015dca8827d457`; [artifact **12144729798**](https://github.com/FlareZ123/experiment-01/actions/runs/39150920917/artifacts/12144729798), ZIP SHA256 `507c68ca2d593a4ca40c088385cb482a4ea1914a6d8e7f6be68f2809de34245d`, contained JSON SHA256 `57b27be7a8891419d7cdcbde461d3a15d2a387f3f569f09582fb0c4f50779267`. It extends the opt-in K0 predicate to **both** the direct route and the 11-action Oranguru V/Forest Seal Stone path. Pure tests verify each can decline the line using only its own known two-card Garbodor holding, while original v3 stays untouched. All three previously unchanged source matches again reproduced identical root decision traces and bounded outcomes; the same 11 VSTAR actions occurred under both profiles.
+
+The read-only first-turn Store root ledger reveals the exact resource savings on genuine source seed **1804615887**, when **both Garbodor BKP were already in hand**:
+
+| First source-player turn | Old K1-only hybrid v3 | Opt-in K0+K1 hybrid v4 |
+| --- | --- | --- |
+| Battle VIP Pass | Played at root ordinal 7; real deck search follows | **Held through first turn**, no VIP root action |
+| Forest Seal Stone | Played at ordinal 12 | Played at ordinal 8 |
+| Secret Box | Played at ordinal 13 | Played at ordinal 9 |
+| Float Stone | Played at ordinal 18 | **Held through first turn**, no Tool root action |
+| Shopping Center | Played at ordinal 19 | Played at ordinal 14 |
+| Turn ending | Pass at ordinal 20 | Pass at ordinal 15 |
+
+Both root streams include actual owner search and shuffle prompts, and both make the same Darkness Energy attachment. This is source-dealt evidence of **one preserved Battle VIP Pass and one preserved Float Stone at the end of the first turn**, before the first opposing response. The v4 generic fallback still used Forest Seal Stone and Secret Box; saving two resources does **not** mean the subsequent choice was optimal. Bounded 85-action terminal status was **unfinished**, turn 13, remaining Prize counts **[4,6]** in both arms. Thus the first-turn resource decision improved along a narrow objective, with **zero observed terminal/game-win improvement**.
+
+This is a stronger actual-Store decision witness than merely observing zero scripted actions. It remains one retrospective selected seed, and the policy has no qualified competitive performance.
