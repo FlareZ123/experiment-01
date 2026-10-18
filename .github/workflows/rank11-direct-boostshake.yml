@@ -62,6 +62,9 @@ jobs:
       - name: Compare archived genuine rank11 direct locks with fixed candidate attack windows
         if: inputs.attack_window_probe
         run: node simulation/twinleaf/rank11-direct-candidate-attack-window.cjs > rank11-direct-candidate-attack-window.json
+      - name: Audit and print all fixed candidate attack-window arms
+        if: inputs.attack_window_probe
+        run: node scripts/rank11-direct-attack-window-summary.cjs
       - name: Verify source-first VSTAR and second-start direct policies compose
         run: node simulation/twinleaf/rank11-hybrid-source-replay.cjs > rank11-hybrid-source-replay.json
       - name: Retain one real K1 Garbodor search-negative source seed
