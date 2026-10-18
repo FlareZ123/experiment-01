@@ -139,7 +139,7 @@ jobs:
           path: rank11-forced-shop-source-exposure.json
           if-no-files-found: warn
       - name: Validate held-Shake K0 guards and frozen trial schedule
-        run: node --test tests/rank11-held-shake-opener.test.cjs tests/rank11-held-shake-schedule.test.cjs tests/rank11-held-shake-resource-census.test.cjs
+        run: node --test tests/rank11-held-shake-opener.test.cjs tests/rank11-held-shake-witness.test.cjs tests/rank11-held-shake-schedule.test.cjs tests/rank11-held-shake-resource-census.test.cjs
       - name: Print independent exact 7+6+1 held-Shake access bound
         run: node scripts/rank11-held-shake-resource-census.cjs
       - name: Screen genuine rank11 held-Shake automatic policy on precommitted source deals
