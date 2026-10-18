@@ -35,6 +35,7 @@ function audit() {
           seed,
           maxActions: 120,
           capturePhysicalZoneIntegrity: true,
+          captureDecisionTrace: true,
           label: 'Aichi source rank1 vs rank' + rank
         });
         rows.push({
@@ -45,6 +46,11 @@ function audit() {
           finished: result.finished,
           endReason: result.endReason,
           physicalZoneIntegrity: result.physicalZoneIntegrity,
+          firstAnomalyDecisionContext: result.physicalZoneIntegrity.firstAnomaly ?
+            result.decisionTrace.filter(event =>
+              event.actionOrdinal <= result.physicalZoneIntegrity.firstAnomaly.actionOrdinal)
+              .slice(-5).map(({actionOrdinal, turnBefore, playerSlot, action, card}) =>
+                ({actionOrdinal, turnBefore, playerSlot, action, ...(card ? {card} : {})})) : [],
           qualifiedForCompetitiveInference: false
         });
       } catch (error) {
