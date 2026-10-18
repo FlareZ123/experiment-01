@@ -148,6 +148,8 @@ function run() {
   const candidateAfter=alt.result.copycatTurnStartEvidence.find(row=>
     row.turn>=24 && row.candidateSeat===1);
   assert.ok(candidateAfter,'Need a genuine candidate decision after opponent Tool change');
+  assert.equal(alt.firstCandidatePower?.blocked,true,
+    'The real equipped Garbodor must suppress candidate active ability');
 
   return {
     schema:'rank11-source-retrospective-floatstone-garbodor-counterfactual-v1',
