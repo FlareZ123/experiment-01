@@ -182,7 +182,19 @@ function runInputOrderDealProbe(){
 }
 
 if(require.main===module){
-  process.stdout.write(JSON.stringify(runInputOrderDealProbe(),null,2)+'\n');
+  const evidence=runInputOrderDealProbe();
+  process.stdout.write(JSON.stringify(evidence,null,2)+'\n');
+  // Keep a short independently retrievable summary in the workflow log;
+  // the full detached zone identities remain in its archived JSON artifact.
+  process.stderr.write(JSON.stringify({
+    schema:evidence.schema,sourceFieldCount:evidence.sourceFieldCount,
+    setupsCaptured:evidence.rows.filter(row=>row.setup!==null).length,
+    engineErrors:evidence.rows.filter(row=>row.engineStoppedWithError).map(row=>({
+      candidateId:row.candidateId,slot:row.physicalSeat,
+      protocol:row.inputOrderProtocol,error:row.engineStoppedWithError
+    })),
+    comparisons:evidence.comparisons
+  })+'\n');
 }
 
 module.exports={runInputOrderDealProbe,multisetOverlap,candidateSetup};
