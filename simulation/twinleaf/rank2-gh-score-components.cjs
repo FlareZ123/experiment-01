@@ -37,3 +37,20 @@ function observeGhScoreComponents(play,targetOrdinal=59) {
     Object.defineProperty(proto,method,{...saved,value:replacement(saved.value)});
     restore.push(()=>Object.defineProperty(proto,method,saved));
   }
+  try {
+    patch(SimpleTacticsAi.prototype,'decodeNextAction',old=>
+      function(state){
+        const n=++ordinal,prior=focus;
+        focus=n===targetOrdinal&&state.turn===5&&state.activePlayer===1;
+        try{return old.call(this,state);}
+        finally{focus=prior;}
+      });
+    patch(SimpleTactic.prototype,'evaluateAction',old=>
+      function(state,id,action,passTurnScore){
+        const prior=candidate;
+        const hand=state.players[state.activePlayer].hand.cards;
+        candidate=focus&&this.constructor.name==='PlaySupporterTactic'?
+          hand[action.handIndex]?.fullName??null:null;
+        try{return old.call(this,state,id,action,passTurnScore);}
+        finally{candidate=prior;}
+      });
