@@ -35,6 +35,8 @@ test('only authentic root state is scored and result preserved',()=>{
   assert.equal(result.events[0].actorId,101);
   assert.equal(result.events[0].playedHandPrinting,"Professor's Research JTG");
   assert.deepEqual(result.events[0].tacticCounts,{ScoreTactic:1});
+  assert.equal(result.events[0].finiteCandidateScores,1);
+  assert.deepEqual(result.events[0].scoredTacticCounts,{ScoreTactic:1});
   assert.strictEqual(Bot.prototype.decodeNextAction,original);
   assert.equal(Object.hasOwn(source.tactics[0],'evaluateAction'),false);
 });
@@ -56,4 +58,21 @@ test('root spy restores class method even if actor scorer throws',()=>{
     ()=>new ThrowBot().decodeNextAction(root),()=>root,()=>4),
     /hypothetical failure/);
   assert.strictEqual(ThrowBot.prototype.decodeNextAction,old);
+});
+
+
+test('attempted evaluations without finite scores stay separate',()=>{
+  class UnscoredTactic {
+    evaluateAction(){return undefined;}
+  }
+  class UnscoredBot extends Bot {
+    constructor(){super();this.tactics=[new UnscoredTactic()];}
+  }
+  const events=withRootScoreCensus(UnscoredBot,
+    ()=>new UnscoredBot().decodeNextAction(root),()=>root,()=>12);
+  assert.equal(events.rootCalls,1);
+  assert.equal(events.events[0].candidateEvaluations,1);
+  assert.equal(events.events[0].finiteCandidateScores,0);
+  assert.deepEqual(events.events[0].tacticCounts,{UnscoredTactic:1});
+  assert.deepEqual(events.events[0].scoredTacticCounts,{});
 });
