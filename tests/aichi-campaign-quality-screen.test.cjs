@@ -29,7 +29,9 @@ function fixture() {
       planDigest: 'a-frozen-plan', opponentRank: 6,
       candidateId: 'reference', candidateDigest: 'reference-digest',
       candidateEngineSlot: 'A', candidateActualTurn: 'first',
-      turnEvidence: {firstTurnSlot: 0, verifiedByDrawLog: true},
+      turnEvidence: {firstTurnSlot: 0, firstTurnPlayerId: 101,
+        firstTurnPlayerName: 'research-A', firstDrawLogName: 'research-A',
+        verifiedByDrawLog: true},
       status: 'completed-engine-game', actions: 12,
       candidateAttacks: 0, opponentAttacks: 2,
       traceSummary: {
@@ -47,7 +49,9 @@ function fixture() {
       planDigest: 'a-frozen-plan', opponentRank: 6,
       candidateId: 'challenger', candidateDigest: 'challenger-digest',
       candidateEngineSlot: 'B', candidateActualTurn: 'second',
-      turnEvidence: {firstTurnSlot: 0, verifiedByDrawLog: true},
+      turnEvidence: {firstTurnSlot: 0, firstTurnPlayerId: 101,
+        firstTurnPlayerName: 'research-A', firstDrawLogName: 'research-A',
+        verifiedByDrawLog: true},
       status: 'completed-engine-game', actions: 12,
       candidateAttacks: 3, opponentAttacks: 0,
       traceSummary: {
@@ -285,8 +289,12 @@ test('both Simulator clone modes retain explicit trial-level safety blockers', (
 test('physical-seat balance cannot impersonate both verified actual starting orders', () => {
   const f = fixture();
   for (const record of f.records) {
+    const firstTurnSlot = record.candidateEngineSlot === 'A' ? 0 : 1;
+    const firstTurnPlayerName = firstTurnSlot === 0 ? 'research-A' : 'research-B';
     record.turnEvidence = {
-      firstTurnSlot: record.candidateEngineSlot === 'A' ? 0 : 1,
+      firstTurnSlot,
+      firstTurnPlayerId: firstTurnSlot === 0 ? 101 : 202,
+      firstTurnPlayerName, firstDrawLogName: firstTurnPlayerName,
       verifiedByDrawLog: true
     };
     record.candidateActualTurn = 'first';
@@ -309,6 +317,30 @@ test('an unverified first-draw log contributes no observed starting-order eviden
   assert.ok(out.records[0].blockers.includes('unverified-starting-turn'));
   assert.equal(out.coverage[0].observedFirst, 0);
   assert.deepEqual(out.coverage[0].missingActualTurnStrata, ['first']);
+});
+
+test('a Boolean proof is insufficient without matching first player and draw log', () => {
+  const mutated = [
+    evidence => { delete evidence.firstTurnPlayerId; },
+    evidence => { evidence.firstTurnPlayerId = 202; },
+    evidence => { evidence.firstTurnPlayerName = 'research-B'; },
+    evidence => { evidence.firstDrawLogName = 'research-B'; }
+  ];
+  for (const corrupt of mutated) {
+    const f = fixture();
+    f.records[0].turnEvidence = {...f.records[0].turnEvidence};
+    corrupt(f.records[0].turnEvidence);
+    const result = auditCampaignQuality(f);
+    assert.equal(result.records[0].actualTurn, 'unverified');
+    assert.ok(result.records[0].blockers.includes('unverified-starting-turn'));
+    assert.equal(result.coverage[0].observedFirst, 0);
+    assert.deepEqual(result.coverage[0].missingActualTurnStrata, ['first']);
+    assert.equal(result.records[2].actualTurn, 'second');
+    assert.equal(result.coverage[1].observedFirst, 1);
+    assert.equal(result.coverage[1].observedSecond, 1);
+    assert.equal(result.pairedStartOrderComparable, false);
+    assert.equal(result.pairedStartOrderIssues.length, 1);
+  }
 });
 
 test('declared mechanisms distinguish observed actions from incomplete trace silence', () => {
@@ -361,7 +393,9 @@ test('equal-seed candidate variants cannot claim paired starts when engine order
   const f = fixture();
   // Same rank/repeat/physical A/seed, but a changed deck causes the
   // candidate Challenger to actually begin second.
-  f.records[3].turnEvidence = {firstTurnSlot: 1, verifiedByDrawLog: true};
+  f.records[3].turnEvidence = {firstTurnSlot: 1, firstTurnPlayerId: 202,
+    firstTurnPlayerName: 'research-B', firstDrawLogName: 'research-B',
+    verifiedByDrawLog: true};
   f.records[3].candidateActualTurn = 'second';
   const result = auditCampaignQuality(f);
   assert.equal(result.pairedStartOrderComparable, false);
