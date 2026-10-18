@@ -11,7 +11,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20.19.0'
-      - run: node --test tests/early-shadow-rider-hood.test.cjs
+      - run: node --test tests/early-shadow-rider-hood.test.cjs tests/protected-underworld-door.test.cjs
       - run: npm ci --no-audit --no-fund
         working-directory: vendor/twinleaf/ptcg-server
       - run: npm run compile
