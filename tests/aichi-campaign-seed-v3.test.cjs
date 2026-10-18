@@ -168,3 +168,6 @@ test('v1 and v2 remain separately reproducible', () => {
 // Exercise source-card positional coupling alongside common-seed scheduling.
 // This is a pure print-array/model audit, separate from full-game competence.
 require('./aichi-position-coupling.test.cjs');
+
+// Pure xorshift/Fisher-Yates full v3 source-order sensitivity experiment.
+require('./aichi-position-seed-sweep.test.cjs');
