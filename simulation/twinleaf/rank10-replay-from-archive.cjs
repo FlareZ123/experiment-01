@@ -29,7 +29,10 @@ function replayArchivedRank10(archive) {
   const champion=decks.get(1);
   const regidrago=decks.get(10);
   assert.ok(champion?.playableUnderEngine&&regidrago?.playableUnderEngine);
-  const plan=loadDefaultCampaign('decorrelated-slots-v3');
+  // The source archive predates the New Moon provisional challenger and
+  // rank-11 pilot extension. Reconstruct the explicitly preserved legacy
+  // three-candidate campaign rather than accepting a mismatched plan digest.
+  const plan=loadDefaultCampaign('decorrelated-slots-v3',false);
   const trial=plan.trials.find(t=>t.trialId===archive.trial.id);
   assert.ok(trial);
   assert.equal(trial.rank,10);
