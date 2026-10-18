@@ -48,6 +48,7 @@ const {withAttackBeforeRetreat} = require('./attack-retreat-order.cjs');
 const {withCopycatApexTimelessPolicy} = require('./mimikyu-counter-policy.cjs');
 const {copycatTurnStartSnapshot} = require('./copycat-turn-start-evidence.cjs');
 const {retreatTransitionEvidence} = require('./retreat-transition-evidence.cjs');
+const {inspectPhysicalCardZones} = require('./physical-card-ledger.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -248,6 +249,7 @@ function policyRandomStreams(seed) {
  * @property {0|1} [passHorizonAttackSeat] Apply same-horizon attack scoring only to this physical seat.
  * @property {number} [passHorizonAttackTurn] Restrict the correction to one frozen global turn; other turns retain the original tactic.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
+ * @property {boolean} [capturePhysicalZoneIntegrity] Opt-in read-only physical reference/attached Energy checks after each live root action.
  * @property {0|1} [captureCopycatTurnStartSeat] Opt-in candidate perspective resource snapshot once per own turn, taken before selecting the first action.
  * @property {boolean} [captureAttackPassProbes] Opt-in first eight post-choice Pass attack-announcement probes; only archived when capturing decision trace.
  */
@@ -625,6 +627,14 @@ function runMatch(request) {
     const attackTrace = [];
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
+    const physicalZoneIntegrity = request.capturePhysicalZoneIntegrity === true
+      ? {
+        schema: 'live-headless-physical-zone-integrity-v1',
+        rootActionsChecked: 0,
+        actionsWithAnomaly: 0,
+        firstAnomaly: null
+      }
+      : null;
     const copycatTurnStartEvidence = request.captureCopycatTurnStartSeat === undefined ?
       null : [];
     let lastCopycatTurnCaptured = null;
@@ -765,6 +775,24 @@ function runMatch(request) {
         throw new Error('Twinleaf dispatch failed after ' + actions + ' actions (' +
           action.constructor.name + '): ' + error.message, { cause: error });
       }
+      if (physicalZoneIntegrity) {
+        const ownership = inspectPhysicalCardZones(store.state);
+        physicalZoneIntegrity.rootActionsChecked++;
+        if (ownership.referenceDuplications.length ||
+            ownership.energyWithoutPhysicalCard.length ||
+            ownership.repeatedEnergyIndexes.length) {
+          physicalZoneIntegrity.actionsWithAnomaly++;
+          if (physicalZoneIntegrity.firstAnomaly === null) {
+            physicalZoneIntegrity.firstAnomaly = {
+              actionOrdinal: actions + 1,
+              turn: store.state.turn,
+              actingSeat: state.activePlayer,
+              actionType: actionName,
+              ownership
+            };
+          }
+        }
+      }
       if (prizeBeforeRoot) {
         const revoked=invalidateAfterRootHiddenPrizeIngress(
           prizeBeforeRoot,store.state,deckEpochsByPlayerId);
@@ -847,6 +875,7 @@ function runMatch(request) {
       attackTrace,
       abilityTrace,
       decisionTrace,
+      ...(physicalZoneIntegrity ? {physicalZoneIntegrity} : {}),
       ...(copycatTurnStartEvidence ? {copycatTurnStartEvidence} : {}),
       attackPassProbeCount,
       attackPassProbeBuckets,
