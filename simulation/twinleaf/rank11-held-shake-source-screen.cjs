@@ -15,8 +15,11 @@ const SEED_LABEL = 'agent6-rank11-held-shake-v1-20261018-precommitted';
  * seeds. This is a diagnostic exposure census, not a win-rate sample.
  * @returns {{trialId:string,seed:number,sourceSeat:0|1}[]}
  */
-function schedule() {
-  return Array.from({length: N}, (_, index) => {
+function schedule(startIndex = 0, count = N) {
+  assert(Number.isInteger(startIndex) && startIndex >= 0);
+  assert(Number.isInteger(count) && count > 0);
+  return Array.from({length: count}, (_, offset) => {
+    const index = startIndex + offset;
     const sourceSeat = index % 2;
     const seed = crypto.createHash('sha256')
       .update(SEED_LABEL + ':' + index).digest().readUInt32BE(0);
@@ -32,9 +35,9 @@ function outcome(r) {
 }
 
 /** @returns {object} */
-function run() {
-  const rows = schedule();
-  assert.equal(new Set(rows.map(r => r.seed)).size, N);
+function run({startIndex = 0, count = N} = {}) {
+  const rows = schedule(startIndex, count);
+  assert.equal(new Set(rows.map(r => r.seed)).size, rows.length);
   const scheduleDigest = crypto.createHash('sha256')
     .update(JSON.stringify(rows)).digest('hex');
   const plan = planAichi(1, {
@@ -121,6 +124,7 @@ function run() {
     study: 'rank11 held-Boost-Shake owner-visible autonomous opportunity screen',
     profile: 'rank11-held-shake-v1',
     seedLabel: SEED_LABEL,
+    startIndex, count,
     scheduleDigest,
     schedule: rows,
     engineRevision: plan.engineRevision,
@@ -147,6 +151,8 @@ function run() {
 }
 
 if (require.main === module) {
-  process.stdout.write(JSON.stringify(run(), null, 2) + '\n');
+  const extended = process.env.AICHI_HELD_SHAKE_EXTENDED === 'true';
+  const args = extended ? {startIndex:80, count:160} : {};
+  process.stdout.write(JSON.stringify(run(args), null, 2) + '\n');
 }
 module.exports = {run, schedule, SEED_LABEL, N};
