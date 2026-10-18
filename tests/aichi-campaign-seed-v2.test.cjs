@@ -50,9 +50,10 @@ test('v2 seeds differ by physical slot and match across fixed candidates', () =>
   });
   assert.equal(out.campaignSchemaVersion, 2);
   assert.equal(out.seedProtocol, 'independent-slots-v2');
-  assert.equal(out.counts['completed-engine-game'], 6);
-  assert.deepEqual(observed, [observed[0], observed[0] + 1,
-    observed[0], observed[0] + 1, observed[0], observed[0] + 1]);
+  assert.equal(out.counts['completed-engine-game'],
+    campaign.candidateRows.length * campaign.repeats * 2);
+  assert.deepEqual(observed, campaign.candidateRows.flatMap(() =>
+    [observed[0], observed[0] + 1]));
   assert.equal(out.strengthClaimPermitted, false);
 });
 
