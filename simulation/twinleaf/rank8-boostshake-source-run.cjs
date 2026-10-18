@@ -28,6 +28,12 @@ function main(){
   const opts={liveStoreOnly:true,typedActionValues:true,
     promptReferenceActionValues:true,sourceZoneEveryDispatch:true};
   const control=withStoreDispatchTranscript(Store,()=>runMatch(request),opts);
+  const neutral=withStoreDispatchTranscript(Store,()=>
+    withHoodGarbotoxinRecoveryAutonomy(1,()=>runMatch(request)),opts);
+  assert.equal(neutral.result.policyAudit.triggered,false,
+    'Unmodified source game unexpectedly entered the conditioned Hood branch');
+  assert.deepEqual(neutral.actionTrace,control.actionTrace,
+    'No-op autonomous policy changed the unmodified source action trace');
   const observed=withRank8BoardObserver(Store,()=>
     withStoreDispatchTranscript(Store,()=>
       withRank8BoostShakeFork(()=>runMatch(request)),opts));
@@ -58,6 +64,9 @@ function main(){
   assert.equal(auto.policyAudit.triggered,true);
   assert.equal(auto.policyAudit.successfulEffect,true,
     'Automatic candidate response did not complete Hood-protected draw');
+  const restored=withStoreDispatchTranscript(Store,()=>runMatch(request),opts);
+  assert.deepEqual(restored.actionTrace,control.actionTrace,
+    'Nested opponent and candidate policy adapters failed to restore baseline');
   assert.deepEqual(automatic.result.actionTrace.slice(0,86),
     control.actionTrace.slice(0,86),'Autonomous reply changed source prefix');
   assert.equal(hoodedReply.stage,7);
@@ -100,6 +109,13 @@ function main(){
       .map(e=>({action:e.action,seat:e.actingSeat,name:e.declaredName,
         source:e.abilitySource})),
     sourceOutcome:control.result.prizesRemaining,
+    neutralPolicyControl:{
+      triggered:neutral.result.policyAudit.triggered,
+      fullOriginalActionStreamIdentical:true,
+      afterAllAdapterRestorationIdentical:true,
+      originalActionCount:control.result.actions,
+      candidatePolicy:neutral.result.policyAudit.version
+    },
     forkOutcome:fork.result.prizesRemaining,
     directReply:{steps:reply.events,initial:reply.initial,
       cleared:reply.cleared,prizes:reply.result.result.prizesRemaining,
