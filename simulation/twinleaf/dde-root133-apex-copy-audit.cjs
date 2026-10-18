@@ -192,7 +192,6 @@ if (require.main === module) {
     finalObserved: row.endOfTurn
   }));
   process.stderr.write('ROOT133_APEX_CHOICES ' + JSON.stringify(summary) + '\n');
-  process.stdout.write('ROOT133_APEX_COPY_TRACE ' +
-    JSON.stringify(result) + '\n');
+  process.stdout.write(JSON.stringify(result, null, 2) + '\n');
 }
 module.exports = {visibleAttackState, withSourceApexCopyTrace, main};
