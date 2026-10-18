@@ -225,6 +225,7 @@ function policyRandomStreams(seed) {
  * @property {0|1} [mimikyuApexTimelessPolicySeat] Restrict Copycat counterpolicy to one physical seat.
  * @property {0|1} [mimikyuTurn27SetupSeat] Source-ranked, single-turn test of discard, Energy attachment and promotion into the Copycat response.
  * @property {0|1} [mimikyuExtraTurnShredSeat] Opt-in exact source turn28 Copycat/Apex/Shred counterfactual for one physical seat.
+ * @property {0|1} [mimikyuAutonomousShredSeat] Opt-in turn-independent public-state spent-GX Shred tactic on one seat.
  * @property {boolean} [mimikyuDeclaredHistoryCorrection] Opt-in printed Copycat attack history after nested prompts.
  * @property {boolean} [regidragoDeclaredHistoryCorrection] Opt-in printed Apex Dragon attack history after nested prompts.
  * @property {boolean} [passClearsLastAttackCorrection] Opt-in clear stale preceding attack when a player passes.
@@ -361,6 +362,13 @@ function runMatch(request) {
           request.mimikyuTurn27SetupSeat !== request.mimikyuExtraTurnShredSeat ||
           request.mimikyuApexTimelessPolicySeat !== request.mimikyuExtraTurnShredSeat)) {
       throw new Error('Turn28 Shred fork requires the exact turn27 Copycat setup on the same physical seat');
+    }
+    if (request.mimikyuAutonomousShredSeat !== undefined &&
+        (![0, 1].includes(request.mimikyuAutonomousShredSeat) ||
+          request.mimikyuApexTimelessPolicy !== true ||
+          request.mimikyuApexTimelessPolicySeat !== request.mimikyuAutonomousShredSeat ||
+          request.mimikyuExtraTurnShredSeat !== undefined)) {
+      throw new Error('Autonomous Shred requires its own Apex counterpolicy seat and excludes archived Shred');
     }
     if (request.captureCopycatTurnStartSeat !== undefined &&
         ![0, 1].includes(request.captureCopycatTurnStartSeat)) {
@@ -629,6 +637,10 @@ function runMatch(request) {
       if (request.mimikyuTurn27SetupSeat === seat) {
         configured = require('./mimikyu-source-turn27-setup.cjs')
           .withCopycatTurn27Setup(configured);
+      }
+      if (request.mimikyuAutonomousShredSeat === seat) {
+        configured = require('./mimikyu-autonomous-shred-policy.cjs')
+          .withAutonomousCopycatShredPolicy(configured);
       }
       if (request.mimikyuExtraTurnShredSeat === seat) {
         configured = require('./mimikyu-extra-turn-shred-policy.cjs')
@@ -1007,6 +1019,7 @@ function runMatch(request) {
       mimikyuApexTimelessPolicySeat: request.mimikyuApexTimelessPolicySeat ?? null,
       mimikyuTurn27SetupSeat: request.mimikyuTurn27SetupSeat ?? null,
       mimikyuExtraTurnShredSeat: request.mimikyuExtraTurnShredSeat ?? null,
+      mimikyuAutonomousShredSeat: request.mimikyuAutonomousShredSeat ?? null,
       mimikyuDeclaredHistoryCorrection: request.mimikyuDeclaredHistoryCorrection === true,
       regidragoDeclaredHistoryCorrection: request.regidragoDeclaredHistoryCorrection === true,
       passClearsLastAttackCorrection: request.passClearsLastAttackCorrection === true,
@@ -1078,6 +1091,8 @@ function runMatch(request) {
           '+NewMoonOpeningHorrorHouse-v1@seat' + request.newMoonOpeningHorrorHouseSeat : '') +
         (request.latiasAttackReadyAttachment === true ? '+LatiasAttackReadyAttachment-v1' : '') +
         (request.mimikyuExtraTurnShredSeat !== undefined ? '+MimikyuExtraTurnShred-v1' : '') +
+        (request.mimikyuAutonomousShredSeat !== undefined ?
+          '+AutonomousApexShred-v1@seat' + request.mimikyuAutonomousShredSeat : '') +
         (request.bunnelbyK0SafeEvolution === true ? '+BunnelbySourceK0PossibleEvolution-v1' : '') +
         (request.bunnelbyObservedK1 === true ? '+BunnelbyRootObservedK1-v1+HiddenPrizeEpoch-v2+FullPrizeReview-v1+KnowledgeEvents-v1' : '') +
         (request.bunnelbyTargetAwareEvolution === true ? '+BunnelbyStageTargetResolver-v1' : '') +
