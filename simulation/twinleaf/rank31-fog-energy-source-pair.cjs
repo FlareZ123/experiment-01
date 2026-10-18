@@ -2,6 +2,7 @@
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const crypto = require('node:crypto');
 const path = require('node:path');
 const {runMatch, initializeCards} = require('./headless.cjs');
 const {planAichi} = require('../evaluation/aichi-pilot.cjs');
@@ -35,6 +36,12 @@ function main() {
   assert.equal(plan.candidate.cards.length, 60);
   assert.equal(opponent.status, 'ready');
   assert.equal(opponent.cards.length, 60);
+  const deckDigest = cards => crypto.createHash('sha256')
+    .update(JSON.stringify(cards)).digest('hex');
+  assert.equal(deckDigest(plan.candidate.cards),
+    'de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311');
+  assert.equal(deckDigest(opponent.cards),
+    '6a38420649c4ed689f3e5bf831d97f5990cecad18b294b353d3b62bae38ddd32');
 
   /**
    * @param {object} game Actual synchronous runMatch return
@@ -120,6 +127,8 @@ function main() {
     sourceRank:31, actualEngine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     phase:'published-field', repeat:1,
     seedBase:20261016, seedProtocol:'decorrelated-slots-v3',
+    registrationCommit:'b88804b593d8b7f85df7a630b6e2e67b7c676461',
+    runResearchCommit:process.env.GITHUB_SHA ?? null,
     seeds, originalDeals:records.length, pairedAlternativeBranches:true,
     records,
     qualifiedForCompetitiveInference:false,
