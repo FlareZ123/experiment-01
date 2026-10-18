@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   paired-fixtures:
+    if: ${{ !inputs.temple_thorns_source_window }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -37,18 +38,41 @@ jobs:
       - name: Verify synthetic Wobbuffet and Iron Thorns board effects
         run: node simulation/twinleaf/temple-wobbuffet-board.cjs
 
-      - name: Source-dealt Temple Iron Thorns read-only owner-window panel
-        if: ${{ inputs.temple_thorns_source_window }}
+  source-window:
+    if: ${{ inputs.temple_thorns_source_window }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        rank: [6, 24, 29]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Source-dealt Temple owner-window observations for registered rank
+        env:
+          TEMPLE_SOURCE_RANK: ${{ matrix.rank }}
         run: |
           node --check simulation/twinleaf/temple-thorns-source-window.cjs
           node simulation/twinleaf/temple-thorns-source-window.cjs > temple-thorns-source-window.json
-      - name: Print registered denominator and observer parity, no win estimates
-        if: ${{ inputs.temple_thorns_source_window }}
-        run: node -e "const r=require('./temple-thorns-source-window.json'); console.log(JSON.stringify({schema:r.schema,registered:r.registrationDigest,attempted:r.count,wobStarting:r.wobbuffetStartingActive,wobWindows:r.wobbuffetLiveWindows,readyWindows:r.fullyReadyLiveWindows,observerParity:r.parity?.identical,qualified:r.competitiveQualifiedGames}));"
+      - name: Print registered rank denominator, parity and unqualified windows
+        run: node -e "const r=require('./temple-thorns-source-window.json'); console.log(JSON.stringify({rank:r.selectedRank,registered:r.registrationDigest,attempted:r.count,wobStarting:r.wobbuffetStartingActive,wobWindows:r.wobbuffetLiveWindows,readyWindows:r.fullyReadyLiveWindows,observerParity:r.parity?.identical,qualified:r.competitiveQualifiedGames}));"
       - uses: actions/upload-artifact@v4
-        if: ${{ inputs.temple_thorns_source_window && always() }}
+        if: ${{ always() }}
         with:
-          name: temple-thorns-source-window-24
+          name: temple-thorns-source-window-rank-${{ matrix.rank }}
           path: temple-thorns-source-window.json
           retention-days: 14
           if-no-files-found: warn
