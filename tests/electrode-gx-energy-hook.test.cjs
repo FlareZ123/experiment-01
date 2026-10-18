@@ -83,6 +83,10 @@ test('Crobat V is a legal competing target for all mandatory Bomb attachments',(
      ['Alolan Raichu UNM']);
    assert.ok(competing.transferTargets.every(t=>
      ['Alolan Raichu UNM','Crobat V DAA'].includes(t.recipient)));
+   assert.deepEqual(competing.transferTargets.map(t=>t.recipient),
+     ['Alolan Raichu UNM','Alolan Raichu UNM','Crobat V DAA',
+       'Alolan Raichu UNM','Alolan Raichu UNM']);
+   assert.equal(competing.transferTargets[2].energy, 'Unit Energy LPM UPR');
    console.log('Electrode legal dual-recipient target choice:',
      JSON.stringify(competing.transferTargets));
  } finally { restore(); }
