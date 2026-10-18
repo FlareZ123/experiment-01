@@ -51,7 +51,8 @@ function probe(config) {
   const original = card('Shadow Rider Calyrex V CRE');
   const attachedEnergy=card('Psychic Energy MEE');
   const attachedTool=card('Air Balloon SSH');
-  us.active.cards.push(original);
+  us.active.cards.push(original,attachedEnergy);
+  // Twinleaf's real attachment path stores Energy in both indexes.
   us.active.energies.cards.push(attachedEnergy);
   us.active.tools.push(attachedTool);
   if (config.ownBench) {
