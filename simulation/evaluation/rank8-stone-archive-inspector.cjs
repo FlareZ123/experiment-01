@@ -53,6 +53,21 @@ function inspectArchive(archive){
   const laterTargetPlay=arm=>after(arm).filter(event=>
     event.action==='PlayCardAction'&&event.card===targetName)
     .map(shortEvent);
+  const beforeStar=experiment.decisionTrace.filter(event=>
+    event.playerSlot===1&&event.turnBefore===star.turnBefore&&
+    event.actionOrdinal<star.actionOrdinal);
+  const afterSelection=experiment.decisionTrace.filter(event=>
+    event.actionOrdinal>selected.actionOrdinal);
+  const lastTargetInHand=afterSelection.filter(event=>
+    event.playerSlot===1&&
+    event.decisionHandBefore?.ownHandPrintings?.includes(selectedNames[0])).at(-1);
+  const opposingRoxanne=afterSelection.find(event=>
+    event.playerSlot===0&&event.action==='PlayCardAction'&&
+    event.card==='Roxanne');
+  const nextOwnHand=opposingRoxanne&&afterSelection.find(event=>
+    event.playerSlot===1&&
+    event.actionOrdinal>opposingRoxanne.actionOrdinal&&
+    Array.isArray(event.decisionHandBefore?.ownHandPrintings));
   const context=arm=>{
     const index=arm.decisionTrace.findIndex(event=>
       event.actionOrdinal>=star.actionOrdinal);
@@ -68,6 +83,21 @@ function inspectArchive(archive){
     starUse:shortEvent(star),
     ownDeckSelection:shortEvent(selected),
     selectedNames,
+    sameTurnBeforeSearch:{
+      arvenPlayed:beforeStar.some(e=>
+        e.action==='PlayCardAction'&&e.card==='Arven'),
+      ordinaryPsychicAttachmentObserved:beforeStar.some(e=>
+        e.action==='PlayCardAction'&&e.card==='Psychic Energy')
+    },
+    targetHandAndDisruption:{
+      lastObservedInOwnHand:lastTargetInHand?shortEvent(lastTargetInHand):null,
+      opposingRoxanne:opposingRoxanne?shortEvent(opposingRoxanne):null,
+      firstOwnHandAfterRoxanne:nextOwnHand?{
+        actionOrdinal:nextOwnHand.actionOrdinal,
+        stillContainsTarget:nextOwnHand.decisionHandBefore.ownHandPrintings
+          .includes(selectedNames[0])
+      }:null
+    },
     laterCandidateTargetPlays:{
       baseline:laterTargetPlay(baseline),
       toolPolicy:laterTargetPlay(experiment)
