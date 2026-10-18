@@ -34,6 +34,16 @@ on:
         required: false
         type: boolean
         default: false
+      rank11_conditional_k0_screen:
+        description: Screen precommitted 32 source-dealt rank11 K0 seeds, no matches
+        required: false
+        type: boolean
+        default: false
+      rank11_k0_partition:
+        description: Fixed K0 screening partition 0 to 15
+        required: false
+        type: string
+        default: '0'
       rank11_exposure_probe:
         description: Test a precommitted 16-trial actual-first-turn rank11 partition (unqualified)
         required: false
@@ -114,13 +124,21 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify source-locked trial adapter and guards
-        run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs tests/rank11-autonomous-opener.test.cjs tests/rank11-autonomous-campaign-seat.test.cjs tests/rank11-first-turn-screen.test.cjs
+        run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs tests/rank11-autonomous-opener.test.cjs tests/rank11-autonomous-campaign-seat.test.cjs tests/rank11-first-turn-screen.test.cjs tests/rank11-conditional-k0-screen-run.test.cjs
       - name: Verify precommitted rank11 exposure reporter and fail-closed source identity
         if: ${{ inputs.rank11_exposure_probe }}
         run: node --test tests/rank11-prospective-exposure.test.cjs tests/rank11-prospective-exposure-run.test.cjs
       - name: Authenticate ranked source K0 screen before the first real bot action
         if: ${{ inputs.rank11_first_screen }}
         run: node simulation/twinleaf/rank11-first-turn-source-screen.cjs > rank11-first-turn-source-screen.json
+      - name: Screen a bounded precommitted rank11 conditional K0 partition
+        if: ${{ inputs.rank11_conditional_k0_screen }}
+        env:
+          RANK11_K0_PARTITION: ${{ inputs.rank11_k0_partition || '0' }}
+        run: node simulation/evaluation/rank11-conditional-k0-screen-run.cjs > rank11-conditional-K0-screen.json
+      - name: Summarize complete K0 partition denominator without winner scores
+        if: ${{ inputs.rank11_conditional_k0_screen }}
+        run: node -e "const r=require('./rank11-conditional-K0-screen.json');console.log(JSON.stringify({registration:r.registrationSha256,partition:r.partition,attempted:r.attempted,selectedK0:r.selectedK0,verifiedNonK0:r.verifiedNonK0,unverified:r.unverifiedDraw,exceptions:r.screenExceptions,selectedSeeds:r.records.filter(x=>x.status==='selected-K0').map(x=>x.seed),qualified:r.qualifiedCompetitiveGames}));"
       - name: Execute one fixed 16-trial rank11 true-turn exposure partition
         if: ${{ inputs.rank11_exposure_probe }}
         env:
@@ -144,7 +162,7 @@ jobs:
         if: ${{ inputs.newmoon_pass_probe }}
         run: node simulation/evaluation/newmoon-rank11-pass-observer.cjs > newmoon-rank11-pass-observer.json
       - name: Run up to six source-locked pilot trials
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.newmoon_pass_probe }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.newmoon_pass_probe }}
         env:
           CAMPAIGN_INPUT_ORDER_PROTOCOL: ${{ inputs.input_order_protocol || 'source-row-order-v1' }}
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
@@ -158,7 +176,7 @@ jobs:
           CAMPAIGN_MAX_ACTIONS: '800'
         run: node simulation/evaluation/aichi-campaign-runner.cjs > aichi-campaign-report.json
       - name: Cross-check sourced games and fingerprint evidence envelope
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.newmoon_pass_probe }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.newmoon_pass_probe }}
         env:
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
         run: node simulation/evaluation/aichi-campaign-envelope-runner.cjs aichi-campaign-report.json aichi-campaign-envelope.json
@@ -183,6 +201,7 @@ jobs:
             aichi-multiseed-setup-coupling.json
             rank11-autonomous-source-regression.json
             rank11-first-turn-source-screen.json
+            rank11-conditional-K0-screen.json
             rank11-prospective-exposure-observed.json
             aichi-rank11-newmoon-autonomous-pair.json
             newmoon-rank11-pass-observer.json
