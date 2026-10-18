@@ -8,6 +8,8 @@ test('exact joint Chimecho/Fog/Energy opportunity uses prize-aware source 60', (
   assert.deepEqual(result.direct, {numerator: 1203713n, denominator: 21455940n});
   assert.deepEqual(result.fogBridge, {numerator: 51799174n, denominator: 1984053357n});
   assert.deepEqual(result.union, {numerator: 61980957227n, denominator: 753940275660n});
+  assert.deepEqual(result.soloStarterFogBridge, {numerator: 812567n, denominator: 233418042n});
+  assert.deepEqual(result.conditionalSoloStarter, {numerator: 15438773n, denominator: 3913833495n});
   assert.deepEqual(result.conditionalUnion, {numerator: 61980957227n, denominator: 665351694150n});
   assert.equal(Number(result.union.numerator) / Number(result.union.denominator), 0.08220937284818988);
 });
