@@ -73,32 +73,42 @@ function auditAlignment(a, b) {
 }
 
 /**
- * Return a new arrangement with maximum identity overlap to reference.
- * Caller must version any engine protocol that uses this ordering.
+ * Maximize source-position identity overlap with reference while preserving
+ * every printing. With secondary supplied, remaining positions also maximize
+ * agreement with that already-aligned secondary deck. The secondary comparison
+ * does not move any card already matched to reference.
  * @param {string[]} reference
  * @param {string[]} candidate
+ * @param {string[]} [secondary]
  * @returns {string[]}
  */
-function alignToReference(reference, candidate) {
+function alignToReference(reference, candidate, secondary) {
   auditAlignment(reference, candidate);
-  const available = new Map();
-  for (const id of candidate) available.set(id, (available.get(id) || 0) + 1);
-  const placed = new Map();
+  if (secondary !== undefined) auditAlignment(reference, secondary);
+  const remaining = new Map();
+  for (const id of candidate) remaining.set(id, (remaining.get(id) || 0) + 1);
   const result = Array(60);
   for (let i = 0; i < 60; i += 1) {
     const id = reference[i];
-    if ((available.get(id) || 0) > 0) {
+    if ((remaining.get(id) || 0) > 0) {
       result[i] = id;
-      available.set(id, available.get(id) - 1);
-      placed.set(id, (placed.get(id) || 0) + 1);
+      remaining.set(id, remaining.get(id) - 1);
+    }
+  }
+  if (secondary !== undefined) {
+    for (let i = 0; i < 60; i += 1) {
+      const id = secondary[i];
+      if (result[i] === undefined && (remaining.get(id) || 0) > 0) {
+        result[i] = id;
+        remaining.set(id, remaining.get(id) - 1);
+      }
     }
   }
   const extras = [];
   for (const id of candidate) {
-    if ((placed.get(id) || 0) > 0) {
-      placed.set(id, placed.get(id) - 1);
-    } else {
+    if ((remaining.get(id) || 0) > 0) {
       extras.push(id);
+      remaining.set(id, remaining.get(id) - 1);
     }
   }
   let next = 0;
