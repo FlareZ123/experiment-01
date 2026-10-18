@@ -77,6 +77,10 @@ jobs:
         run: node --test tests/new-moon-secret-box-blower-access.test.cjs
       - name: Preserve New Moon Secret Box and Field Blower exact response
         run: node scripts/new-moon-secret-box-blower-access.cjs > newmoon-secret-box-blower-access.json
+      - name: Independent Secret Box three-discard sensitivity tests
+        run: node --test tests/new-moon-secret-box-discard-sensitivity.test.cjs
+      - name: Record frozen New Moon designated-discard frontier
+        run: node scripts/new-moon-secret-box-discard-sensitivity.cjs > newmoon-secret-box-discard-sensitivity.json
       - name: Rank-11 Field Blower and Arven response exact tests
         run: python3 -m unittest discover -s tests -p 'test_rank11_garbotoxin_field_blower_response.py'
       - name: Rank-11 Field Blower and Arven response exact output
@@ -140,3 +144,4 @@ jobs:
             rank11-arven-blower-response.txt
             rank11-hood-protection-frontier.txt
             newmoon-secret-box-blower-access.json
+            newmoon-secret-box-discard-sensitivity.json
