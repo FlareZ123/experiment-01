@@ -8,10 +8,12 @@ test('Cassius and AZ settle all Store prompts and escape solo Block with a repla
   const report=probeAll();
   assert.equal(report.sourceDeckMatch,false);
   assert.equal(report.competitiveInferenceQualified,false);
-  assert.equal(report.cases.length,7);
+  assert.equal(report.cases.length,10);
   const withReplacement=report.cases.filter(x=>x.ownBench);
-  assert.equal(withReplacement.length,5);
-  for(const x of withReplacement){
+  assert.equal(withReplacement.length,7);
+  const relocating=withReplacement.filter(x=>x.mode!=='draw');
+  assert.equal(relocating.length,6);
+  for(const x of relocating){
     assert.equal(x.error,null,JSON.stringify(x));
     assert.deepEqual(x.remainingPrompts,[],JSON.stringify(x));
     assert.equal(x.activeAfter,'Latias ex',JSON.stringify(x));
@@ -19,7 +21,7 @@ test('Cassius and AZ settle all Store prompts and escape solo Block with a repla
     assert.equal(x.supporterInPlayZone,false,JSON.stringify(x));
     assert.equal(x.supporterTurn,1,JSON.stringify(x));
   }
-  for(const x of withReplacement.filter(x=>x.supporter==='Cassius')){
+  for(const x of relocating.filter(x=>x.supporter==='Cassius')){
     assert.equal(x.targetInDeck,true);
     assert.equal(x.targetInHand,false);
     assert.equal(x.targetInDiscard,false);
@@ -29,7 +31,7 @@ test('Cassius and AZ settle all Store prompts and escape solo Block with a repla
     assert.equal(x.toolInDiscard,false);
     assert.ok(x.prompts.some(p=>p.kind==='ShuffleDeckPrompt'));
   }
-  const az=withReplacement.find(x=>x.supporter==='AZ');
+  const az=relocating.find(x=>x.supporter==='AZ');
   assert.equal(az.targetInDeck,false);
   assert.equal(az.targetInHand,true);
   assert.equal(az.targetInDiscard,false);
@@ -37,7 +39,7 @@ test('Cassius and AZ settle all Store prompts and escape solo Block with a repla
   assert.equal(az.toolInDiscard,true);
   assert.equal(az.energyInDeck,false);
   assert.equal(az.toolInDeck,false);
-  for(const keeper of withReplacement.filter(x=>x.supporter==='Bird Keeper')){
+  for(const keeper of relocating.filter(x=>x.supporter==='Bird Keeper')){
     assert.equal(keeper.targetInDeck,false);
     assert.equal(keeper.targetInHand,false);
     assert.equal(keeper.targetOnBench,true);
@@ -46,6 +48,28 @@ test('Cassius and AZ settle all Store prompts and escape solo Block with a repla
     assert.equal(keeper.energyInDiscard,false);
     assert.equal(keeper.toolInDiscard,false);
     assert.equal(keeper.handCountAfter,3,'Bird Keeper must draw three after a switch');
+  }
+  const tateSwitch=relocating.find(x=>x.supporter==='Tate & Liza');
+  assert.equal(tateSwitch.targetOnBench,true);
+  assert.equal(tateSwitch.energyOnBench,true);
+  assert.equal(tateSwitch.toolOnBench,true);
+  assert.equal(tateSwitch.handCountAfter,0);
+});
+
+test('Tate and Liza draw mode works even when solo Block provides no own Bench',()=>{
+  const cases=probeAll().cases.filter(x=>x.supporter==='Tate & Liza'&&x.mode==='draw');
+  assert.equal(cases.length,2);
+  for(const x of cases){
+    assert.equal(x.error,null,JSON.stringify(x));
+    assert.deepEqual(x.remainingPrompts,[],JSON.stringify(x));
+    assert.equal(x.activeAfter,'Shadow Rider Calyrex V');
+    assert.equal(x.energyOnActive,true);
+    assert.equal(x.toolOnActive,true);
+    assert.equal(x.supporterDiscarded,true);
+    assert.equal(x.supporterTurn,1);
+    assert.equal(x.handCountAfter,5);
+    assert.ok(x.prompts.some(p=>p.kind==='SelectPrompt'));
+    assert.ok(x.prompts.some(p=>p.kind==='ShuffleDeckPrompt'));
   }
 });
 
