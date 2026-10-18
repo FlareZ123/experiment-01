@@ -108,3 +108,25 @@ function runRank2ComponentDifferential(){
       botCalls:inspected.calls
     };
   });
+  const get=(arm,card)=>arm.scores.find(x=>x.candidate===card);
+  const cards=['Bellelba & Brycen-Man CEC','Guzma & Hala CEC'];
+  const deltas=Object.fromEntries(cards.map(card=>{
+    const before=get(arms[0],card),after=get(arms[1],card);
+    return [card,{
+      total:after?.total-before?.total,
+      components:Object.fromEntries(PARTS.map(([key])=>[
+        key,(after?.values?.[key]??NaN)-(before?.values?.[key]??NaN)
+      ]))
+    }];
+  }));
+  return {
+    study:'rank2 source-conditional GH score-component differential',
+    seed:20261023,rank2Seat:1,
+    engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+    arms,deltas,
+    caveat:'Read-only scores of simulated alternative actions, not human policy correctness.'
+  };
+}
+if(require.main===module)
+  console.log(JSON.stringify(runRank2ComponentDifferential(),null,2));
+module.exports={observeGhScoreComponents,runRank2ComponentDifferential};
