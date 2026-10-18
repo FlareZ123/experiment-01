@@ -16,7 +16,9 @@ test('v3 seeds are deterministic, nonzero and distinct across physical seats', (
   const campaign = loadDefaultCampaign('decorrelated-slots-v3');
   assert.equal(campaign.schemaVersion, 3);
   assert.equal(campaign.seedProtocol, 'decorrelated-slots-v3');
-  assert.equal(campaign.trials.length, 228);
+  assert.equal(campaign.trials.length,
+    (campaign.pilotRanks.length + campaign.coverage.publishedRanks.length) *
+    campaign.repeats * campaign.candidateRows.length * 2);
   const pairs = new Map();
   for (const trial of campaign.trials) {
     const seeds = deriveSlotSeeds(campaign.seedBase, trial.phase,
@@ -137,10 +139,11 @@ test('v3 executes frozen diagnostic identity with no competitive claim', () => {
     };
   });
   const pair = deriveSlotSeeds(20261016, 'pilot', 6, 0);
-  assert.deepEqual(seen, [pair.A, pair.B, pair.A, pair.B, pair.A, pair.B]);
+  assert.deepEqual(seen, campaign.candidateRows.flatMap(() => [pair.A, pair.B]));
   assert.equal(out.campaignSchemaVersion, 3);
   assert.equal(out.seedProtocol, 'decorrelated-slots-v3');
-  assert.equal(out.counts['completed-engine-game'], 6);
+  assert.equal(out.counts['completed-engine-game'],
+    campaign.candidateRows.length * campaign.repeats * 2);
   assert.equal(out.strengthClaimPermitted, false);
 });
 
