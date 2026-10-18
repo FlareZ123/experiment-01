@@ -109,19 +109,19 @@ function run(includeReservation = false) {
     }
   }
   return {
-    schema:'rank11-newmoon-farewell-vip-source-pair-v1',
+    schema:includeReservation?'rank11-newmoon-farewell-vip-reservation-v2':'rank11-newmoon-farewell-vip-source-pair-v1',
     date:'2026-10-18',candidate:proposal.id,
     candidatePrintingStatus:'provisional-English-mechanics-proxy',
     sourceRank:11,sourceSeat:0,candidateSeat:1,
     retrospectiveSourceSeed:SEED,pinnedEngine:plan.engineRevision,
     source60Digest:deckHashes[0],candidate60Digest:deckHashes[1],
     initialOwnerInformationIdentical, failures,
-    baseline,farewellFirst,qualifiedCompetitiveGames:0,
+    baseline,farewellFirst,...(farewellReserved?{farewellReserved}:{}),qualifiedCompetitiveGames:0,
     limitations:'One selected real source deal. This isolates a live first-turn ability/Bench-capacity choice, not policy optimality, complete printed effect equivalence or a representative game win probability.'
   };
 }
 
 if (require.main === module) {
-  process.stdout.write(JSON.stringify(run(),null,2)+'\n');
+  process.stdout.write(JSON.stringify(run(process.env.RESERVE_NEW_MOON==='true'),null,2)+'\n');
 }
 module.exports={run,SEED};
