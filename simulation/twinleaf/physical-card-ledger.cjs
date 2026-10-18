@@ -41,7 +41,7 @@ function inspectPhysicalCardZones(state) {
   /** @param {object} slot @param {string} label @param {number} seat */
   function visitPokemon(slot, label, seat) {
     visit(slot, label, seat);
-    visit({cards: slot.tools}, label + '.tools', seat);
+    if (slot.tools) visit({cards: slot.tools}, label + '.tools', seat);
     const physical = new Set(slot.cards);
     const indexed = new Set();
     let ghost = 0;
