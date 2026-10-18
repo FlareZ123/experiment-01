@@ -9,7 +9,7 @@ const { installToolJammerHook } = require('./tool-jammer-hook.cjs');
  * Staged turn-3 Store test of a legal Wobbuffet -> charged Shadow Rider VMAX
  * retreat, after a real Underworld Door attachment/draw. Each configuration
  * creates fresh game objects; this is not a source-dealt match.
- * @param {{latias:boolean,jammer:boolean,floatStone:boolean}} options
+ * @param {{latias:boolean,jammer:boolean,floatStone:boolean,extraWobbuffetPsychic?:boolean}} options
  */
 function runCase(options) {
   const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
@@ -49,6 +49,11 @@ function runCase(options) {
   const thorns = get('Iron Thorns ex TWM');
   const vmax = get('Shadow Rider Calyrex VMAX CRE');
   ours.active.cards.push(wobbuffet);
+  if (options.extraWobbuffetPsychic) {
+    const booster = get('Psychic Energy SVE');
+    ours.active.cards.push(booster);
+    ours.active.energies.cards.push(booster);
+  }
   theirs.active.cards.push(thorns);
   if (options.jammer) theirs.active.tools.push(get('Tool Jammer BST'));
   if (options.floatStone) ours.active.tools.push(get('Float Stone BKT'));
@@ -149,7 +154,8 @@ function runCase(options) {
       store.dispatch(new ResolvePromptAction(wait.id, null));
     }
     attackDamage = theirs.active.damage;
-    if (attackDamage !== 100) {
+    const expectedAttackDamage = options.extraWobbuffetPsychic ? 130 : 100;
+    if (attackDamage !== expectedAttackDamage) {
       console.log(JSON.stringify({
         attackDiagnostic: true, phase: state.phase, turn: state.turn,
         activePlayer: state.activePlayer,
@@ -161,7 +167,8 @@ function runCase(options) {
           .map(p => p.constructor.name)
       }));
     }
-    assert.equal(attackDamage, 100, 'Three Psychic Energy should produce 10+3*30');
+    assert.equal(attackDamage, expectedAttackDamage,
+      'Max Geist must count Psychic Energy retained on the Benched Wobbuffet');
   } else {
     assert.equal(ours.active.getPokemonCard().name, wobbuffet.name);
     assert.equal(vmaxSlot.energies.cards.length, 3);
@@ -186,7 +193,9 @@ function runTest() {
     { latias: true, jammer: true, floatStone: true },
     { latias: false, jammer: false, floatStone: true },
     { latias: false, jammer: true, floatStone: true },
-    { latias: false, jammer: false, floatStone: false }
+    { latias: false, jammer: false, floatStone: false },
+    { latias: true, jammer: true, floatStone: false, extraWobbuffetPsychic: true },
+    { latias: false, jammer: false, floatStone: true, extraWobbuffetPsychic: true }
   ];
   const restore = installToolJammerHook();
   try {
