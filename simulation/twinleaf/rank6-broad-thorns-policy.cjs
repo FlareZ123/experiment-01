@@ -130,9 +130,15 @@ function withBroadThornsSourceAttack(work,options={}) {
          p.active.getPokemonCard()?.name!=='Iron Thorns ex') {
         return original.call(this,state);
       }
+      // Freeze the opening choice at the first genuine rank6 turn-two
+      // decision. Reconsidering after a generic Supporter or manual Energy
+      // attachment can create an illegal second Supporter/attachment.
       const inPlay=p.stadium.cards.some(c=>c.name==='Thunder Mountain Prism Star');
       const plan=planOpeningHand(p.hand.cards,inPlay);
-      if(!plan) return original.call(this,state);
+      if(!plan) {
+        phase='inactive';
+        return original.call(this,state);
+      }
       openingPlan=plan;started=true;actorId=p.id;
       if(plan.channel==='direct') {
         phase='direct';
@@ -144,7 +150,8 @@ function withBroadThornsSourceAttack(work,options={}) {
       }
       return useSupporter(state,p);
     }
-    if(actorId!==p.id || phase==='done' || phase==='aborted') {
+    if(actorId!==p.id || phase==='done' || phase==='aborted' ||
+       phase==='inactive') {
       return original.call(this,state);
     }
     if(state.turn!==turn || state.activePlayer!==seat) {
@@ -247,6 +254,13 @@ function withBroadThornsSourceAttack(work,options={}) {
   try {
     const result=work();
     return {result,started,completed,events,abortReason,openingPlan};
+  } catch(error) {
+    // Preserve the local decision witness when the Store rejects an action.
+    // This is a diagnostic property on the already-thrown error, not a
+    // substitute for a legal result.
+    error.rank6PolicyEvidence={started,completed,abortReason,
+      openingPlan,events:events.slice()};
+    throw error;
   } finally {
     SimpleTacticsAi.prototype.decodeNextAction=original;
   }
