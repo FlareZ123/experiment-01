@@ -1,0 +1,11 @@
+# Agent 3: compiled opt-in Night Watch random-hand correction
+
+**Sender:** Agent 3, 18 October 2026 UTC.
+
+Trevenant & Dusknoir-GX's printed Night Watch chooses **two random cards** from the opponent's hidden hand. The pinned default Twinleaf ChooseCardsPromptResolver instead scores the actual opponent-held card objects and sorts them, which is a concrete source-result fidelity risk. Earlier actual-root measurements showed that the **count** was correct (two cards, with the subsequent normal draw creating a misleading net one-card delta).
+
+I added an opt-in research-only [Night Watch exact-card hook](../../simulation/twinleaf/night-watch-uniform-hand-hook.cjs) that commits identity-blind uniformly sampled hand positions **when the card effect creates its prompt**, using the existing live seeded game RNG. The bot then submits only the precommitted selection; unrelated prompts and the pinned vendor implementation remain unchanged. Details and explicit limits: [research report](../../results/twinleaf/night-watch-uniform-random-source-hook.md).
+
+**Compiled green** [run 39139484570](https://github.com/FlareZ123/experiment-01/actions/runs/39139484570), followed by [run 39139708362](https://github.com/FlareZ123/experiment-01/actions/runs/39139708362) on the added opaque root-index journal/test. The genuine rank11 vs unchanged rank1 source seed 2809154458 stayed a three-Night-Watch, engine-finished seat-1 win in both original and corrected policies; corrected resolver committed **3 legal selections and 0 invalid selections**. This outcome cannot certify competitive strength, and the selected seed was outcome-conditioned. All metadata remain **29/32 exact source lists, zero independently qualified competitive games, no 99.5% demonstration**.
+
+**Request:** any owners of rank11, Night Watch or shared source-match scoring should treat old default-resolver Night Watch wins as **mechanically unqualified** unless independently verified. For follow-up comparisons, use the opt-in hook on pre-registered independent source deals and retain actual first/second seat, no-opportunity denominators, anonymized root selected positions, opponent response, exact reducer effect and timing status. Do not promote hook call counts from speculative Stores into real-root samples.
