@@ -259,6 +259,8 @@ function policyRandomStreams(seed) {
  * @property {0|1} [toolAttackAwarenessSeat] Restrict Tool attack policy to one physical seat; requires toolAttackAwareness.
  * @property {boolean} [bunnelbyK0SafeEvolution] Opt-in printed-source-only TM Evolution choice without hidden-deck/Prize inspection.
  * @property {boolean} [bunnelbyObservedK1] Separate opt-in: switch that policy from K0 to K1 only on live owner-deck search prompts.
+ * @property {0|1} [gladionVisiblePrizeTargetSeat] Root-only, source-visible Gladion Prize alternative seat.
+ * @property {string} [gladionVisiblePrizeTargetPrint] Exact printing to prioritize after real Gladion reveal.
  * @property {boolean} [bunnelbyTargetAwareEvolution] Separate opt-in: choose TM Evolution targets with possible Stage cards.
  * @property {boolean} [bunnelbyGuzmaHalaMode1] Separate opt-in: source-aware G&H optional Tool/Special Energy mode preference.
  * @property {boolean} [bunnelbyGuzmaHalaSearch] Separate root-observed G&H Tool/Jet search preference when Stage remains physically available.
@@ -313,6 +315,14 @@ function runMatch(request) {
       (request.toolAttackAwareness !== true ||
        ![0, 1].includes(request.toolAttackAwarenessSeat))) {
     throw new Error('Seat-specific Tool attack policy requires enabled toolAttackAwareness and seat 0 or 1');
+  }
+  if (request.gladionVisiblePrizeTargetSeat !== undefined ||
+      request.gladionVisiblePrizeTargetPrint !== undefined) {
+    if (![0, 1].includes(request.gladionVisiblePrizeTargetSeat) ||
+        typeof request.gladionVisiblePrizeTargetPrint !== 'string' ||
+        request.gladionVisiblePrizeTargetPrint.length === 0) {
+      throw new Error('Gladion priority requires a valid physical seat and exact target print');
+    }
   }
   if (request.bunnelbyObservedK1 === true && request.bunnelbyK0SafeEvolution !== true) {
     throw new Error('Observed K1 requires the source-60 Bunnelby K0 option');
@@ -641,6 +651,15 @@ function runMatch(request) {
                 state === store.state && state.players.includes(player) &&
                 state.prompts.includes(prompt) && prompt.result === undefined);
         }
+      }
+      if (request.gladionVisiblePrizeTargetSeat === seat) {
+        configured = require('./gladion-visible-prize-resolver.cjs')
+          .withGladionVisiblePrizeChoice(configured, {
+            targetFullName: request.gladionVisiblePrizeTargetPrint,
+            isLivePrompt: (state, player, prompt) =>
+              state === store.state && state.players.includes(player) &&
+              state.prompts.includes(prompt) && prompt.result === undefined
+          });
       }
       if (request.mimikyuApexTimelessPolicy === true &&
           (request.mimikyuApexTimelessPolicySeat === undefined ||
@@ -1221,6 +1240,8 @@ function runMatch(request) {
       toolAttackAwarenessSeat: request.toolAttackAwarenessSeat ?? null,
       bunnelbyK0SafeEvolution: request.bunnelbyK0SafeEvolution === true,
       bunnelbyObservedK1: request.bunnelbyObservedK1 === true,
+      gladionVisiblePrizeTargetSeat: request.gladionVisiblePrizeTargetSeat ?? null,
+      gladionVisiblePrizeTargetPrint: request.gladionVisiblePrizeTargetPrint ?? null,
       ...(request.bunnelbyObservedK1 === true ? {
         bunnelbyKnowledgeEpochs: optionsBySeat.map(options =>
           options.bunnelbyDeckKnowledgeEpoch.snapshot()),
@@ -1274,6 +1295,9 @@ function runMatch(request) {
             'both' : 'seat' + request.toolAttackAwarenessSeat) : '') +
         (request.bunnelbyK0SafeEvolution === true ? '+BunnelbySourceK0PossibleEvolution-v1' : '') +
         (request.bunnelbyObservedK1 === true ? '+BunnelbyRootObservedK1-v1+HiddenPrizeEpoch-v2+FullPrizeReview-v1+KnowledgeEvents-v1' : '') +
+        (request.gladionVisiblePrizeTargetSeat !== undefined ?
+          '+GladionVisiblePrizePriority-v1@seat' + request.gladionVisiblePrizeTargetSeat +
+          ':' + request.gladionVisiblePrizeTargetPrint : '') +
         (request.bunnelbyTargetAwareEvolution === true ? '+BunnelbyStageTargetResolver-v1' : '') +
         (request.bunnelbyGuzmaHalaMode1 === true ? '+BunnelbyGuzmaHalaMode1-v1' : '') +
         (request.bunnelbyGuzmaHalaSearch === true ? '+BunnelbyGHRootSearch-v1' : '') +
