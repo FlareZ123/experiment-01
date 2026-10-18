@@ -92,3 +92,19 @@ function runRank2ComponentDifferential(){
   if(!one?.playableUnderEngine||!two?.playableUnderEngine)
     throw new Error('Both published source 60s required');
   const play=mode=>sourceGame(mode,one.cardIds,two.cardIds);
+  const arms=[false,true].map(mode=>{
+    const baseline=play(mode);
+    const inspected=observeGhScoreComponents(()=>play(mode));
+    const game=inspected.result;
+    const first=e=>e.decisionTrace.find(d=>d.actionOrdinal===68 &&
+      d.turnBefore===5&&d.playerSlot===1);
+    return {
+      mode1:mode,sourceHashes:game.deckHashes,firstTurnSlot:game.firstTurnSlot,
+      observerParity:JSON.stringify(baseline.decisionTrace)===
+        JSON.stringify(game.decisionTrace),
+      baselineRoot:first(baseline)?.card??null,
+      observedRoot:first(game)?.card??null,
+      scores:inspected.components,
+      botCalls:inspected.calls
+    };
+  });
