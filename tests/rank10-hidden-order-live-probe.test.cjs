@@ -175,3 +175,45 @@ test('root-step boundary is observed even when no AI callback is made',()=>{
     dispatchedAction:'PlayCardAction',unresolvedPromptTypes:[]
   });
 });
+
+
+test('detached baseline parity is attested for a reproducible root policy',()=>{
+  class FixedBot extends FakeBot {
+    decodeNextAction(world) {
+      return {top:world.players[1].deck.cards[0].fullName};
+    }
+  }
+  const physical=state();
+  const out=withRootHiddenOrderProbe(FixedBot,
+    ()=>new FixedBot({id:202},{}).decodeNextAction(physical),
+    structuredClone,{turn:27,seat:1,makeRandom:()=>()=>0.25});
+  assert.equal(out.events.length,1);
+  assert.equal(out.events[0].baselineActionMatchedActual,true);
+  assert.equal(out.events[0].sourceDecisionSensitivityInterpretable,true);
+  assert.equal(out.events[0].actionSensitiveToHiddenDeckOrder,true);
+});
+
+test('fresh reconstructed bot history mismatch fails source interpretation',()=>{
+  class StatefulBot extends FakeBot {
+    constructor(...args) {
+      super(...args);
+      this.calls=0;
+    }
+    decodeNextAction() {
+      this.calls++;
+      return {call:this.calls};
+    }
+  }
+  const physical=state(),bot=new StatefulBot({id:202},{});
+  bot.decodeNextAction(physical);
+  const before=structuredClone(physical);
+  const out=withRootHiddenOrderProbe(StatefulBot,
+    ()=>bot.decodeNextAction(physical),
+    structuredClone,{turn:27,seat:1,makeRandom:()=>()=>0.25});
+  assert.equal(out.events.length,1);
+  assert.equal(out.events[0].physicalOrder.data,'{"call":1}');
+  assert.equal(out.events[0].originalSourceAction.data,'{"call":2}');
+  assert.equal(out.events[0].baselineActionMatchedActual,false);
+  assert.equal(out.events[0].sourceDecisionSensitivityInterpretable,false);
+  assert.deepEqual(physical,before);
+});
