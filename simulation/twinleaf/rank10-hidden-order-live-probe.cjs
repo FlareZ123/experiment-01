@@ -103,7 +103,7 @@ function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
       },
       cloneState,target.makeRandom);
     const sourceHand=state.players.find(p=>p.id===this.client.id)
-      ?.hand.cards.map(card=>card.fullName)??[];
+      ?.hand?.cards?.map(card=>card.fullName)??[];
     const actual=descriptor.value.call(this,state);
     const playedPrinting=actual?.constructor?.name==='PlayCardAction'?
       sourceHand[actual.handIndex]??null:null;
