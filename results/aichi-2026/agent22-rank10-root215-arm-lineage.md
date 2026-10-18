@@ -1,0 +1,37 @@
+# Rank-10 root 215: historical policy-arm identity and reconstruction gate
+
+**Agent 22, 18 October 2026.** Evidence class: code-path provenance and historical compiled source fixtures. **Current restored rerun awaits CI.** This is not a competitive-game result.
+
+## Apparent contradiction
+
+- The old Copycat/Shred reports place a `RetreatAction` at root Store ordinal **215**, global **turn 28**, champion physical seat **B**, seed `4246551499`.
+- Agent 50's [18 October compiled source reconstruction](../../results/twinleaf/agent50-rank10-live-hidden-order-probe.md), with archived `DoubleDragonAttachTactic-v3-archive`, instead found a `PlayCardAction` at root **215**, global **turn 29**.
+
+Both can be true, because their policy arms differ.
+
+## Source-level cause
+
+The original `simulation/twinleaf/rank10-source-branch-transcript.cjs` has an unmodified v3 **control** (`common`) and an explicit **Timeless intervention** (`branchRequest`). The latter adds exactly three options:
+
+```js
+mimikyuApexTimelessPolicy: true,
+mimikyuApexTimelessPolicySeat: 1,
+mimikyuTurn27SetupSeat: 1
+```
+
+The [16 October source-dealt turn-27 branch](agent22-rank10-live-copycat-fork.md) compiled at head `243a600c63d1f54511c32e04db75082ca57dad88`. It uses Mimikyu's Copycat to select Timeless-GX, granting the same player a subsequent turn. `simulation/twinleaf/rank10-mimikyu-shred-source-fork.cjs` starts from this **intervention configuration**, then tests whether the bot ought to Retreat or use Copycat/Shred on turn 28. `simulation/twinleaf/rank10-turn28-bot-fingerprint.cjs` similarly explicitly enables the three flags. [Compiled CI 39005718717](https://github.com/FlareZ123/experiment-01/actions/runs/39005718717) and [39006077523](https://github.com/FlareZ123/experiment-01/actions/runs/39006077523) supported the historical turn28 Retreat observation, subject to the documented source-policy and rules limits.
+
+The newer `rank10-hidden-order-live-probe.cjs` initially used archived v3 Double Dragon **without those three flags**. This reconstructs the control arm, whose action 215 does not have to match the turn-28 intervention arm. The archived DDE tactic's implementation is retained at `simulation/twinleaf/dde-attach-tactic-v3-archive.cjs`; the missing policy-arm identity, independently of that tactic, already invalidates a direct ordinal comparison.
+
+## Correction and intended falsification
+
+- Changed `sourcePolicyForOrdinal(215)` to select historical v3 DDE **plus all three Timeless-branch flags**. The default current-v4 root15 probe remains unchanged.
+- Changed the archived hidden-order decision target to turn **28** and asserted that the actual root decision is `RetreatAction`, matching the historical branch expectation.
+- Updated `tests/rank10-hidden-order-policy-profile.test.cjs` to pin the complete object, rather than checking only DDE version.
+- Manually dispatched existing no-per-commit `twinleaf-hidden-information.yml` [run 39110044974](https://github.com/FlareZ123/experiment-01/actions/runs/39110044974), head `bc4743f7`. **The actual pass/fail and live result must be added after inspection**. A pure profile test cannot prove source-action prefix restoration.
+
+If the compiled root action differs, classify it as a **remaining historical replay mismatch**, collect earliest root action/prompt prefix divergence and relevant options, and do not silently redefine the target event.
+
+## Scope
+
+A restored historical root215 would establish that one original **policy arm** is again observable. The proposed detached hidden-deck reversal would test one policy action under one opaque permutation; it cannot prove decision competence, full information-set safety, source-engine/paper-rules fidelity, multi-seed performance, or the 99.5% full-field goal. **Competitive-qualified games: zero.** Exactly 29 of 32 Aichi decklists are source-verified, with ranks 23, 25, and 28 still missing.
