@@ -26,6 +26,8 @@ function visibleAttackState(state, actorId) {
   const self = state.players.find(player => player.id === actorId);
   const foe = state.players.find(player => player.id !== actorId);
   assert.ok(self && foe);
+  const {SuperType, CardType} = require(path.join(root,
+    'game/store/card/card-types'));
   const pokemon = slot => {
     const card = slot.getPokemonCard();
     return card ? {
@@ -39,8 +41,8 @@ function visibleAttackState(state, actorId) {
     opposingActive: pokemon(foe.active),
     opposingBench: foe.bench.map(pokemon).filter(Boolean),
     ownDragonDiscard: self.discard.cards.filter(card =>
-      card.superType === 0 && Array.isArray(card.cardType) &&
-      card.cardType.includes(7)).map(card => card.fullName),
+      card.superType === SuperType.POKEMON && Array.isArray(card.cardType) &&
+      card.cardType.includes(CardType.DRAGON)).map(card => card.fullName),
     prizesRemaining: state.players.map(player =>
       player.prizes.filter(prize => prize.cards.length).length)
   };
