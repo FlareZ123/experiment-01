@@ -30,6 +30,26 @@ function summary(game) {
     }
     if(row.prizesAfter) previousPrizes=row.prizesAfter;
   }
+  const declarations=(game.attackDeclarationTrace||[]).filter(row =>
+    row.playerSlot===CANDIDATE_SEAT).map(row=>({
+      ordinal:row.actionOrdinal,turn:row.turnBefore,
+      trigger:row.triggerAction,attack:row.attackName,
+      status:row.resolutionStatus
+    }));
+  const sourceSelections=game.decisionTrace.filter(row=>
+    row.playerSlot===CANDIDATE_SEAT &&
+    row.attackChoice?.selection).map(row=>{
+      const selected=row.attackChoice.selection;
+      const logged=declarations.find(entry=>
+        entry.ordinal===row.actionOrdinal);
+      return {
+        ordinal:row.actionOrdinal,turn:row.turnBefore,
+        printing:selected.printing,
+        selectedAttack:selected.attackName,
+        loggedAttack:logged?.attack??null,
+        exactStoreMatch:logged?.attack===selected.attackName
+      };
+    });
   const sourceResponses=game.decisionTrace.filter(row =>
     row.playerSlot===SOURCE_SEAT && row.turnBefore>=3 &&
     row.turnBefore<=5 && (row.action==='PlayCardAction' ||
@@ -46,6 +66,9 @@ function summary(game) {
     prizesRemaining:game.prizesRemaining,
     endReason:game.endReason,
     terminalTransition:game.terminalTransition??null,
+    storeAttackProtocol:game.attackDeclarationTraceProtocol??null,
+    candidateStoreDeclarations:declarations,
+    candidateSelectedCopiedAttacks:sourceSelections,
     prizeTransitions,
     sourceAttackActions:game.attackTrace.filter(row=>row.seat===SOURCE_SEAT)
       .map(row=>({turn:row.turn,attack:row.attack,
@@ -115,6 +138,11 @@ function run() {
   assert.deepEqual(baseline.deckHashes,restored.deckHashes);
   assert.deepEqual(baseline.decisionTrace,restored.decisionTrace,
     'Candidate automatic-policy wrapper must restore raw generic decision trace');
+  for(const game of [baseline,after,afterSupporter,restored]) {
+    assert.equal(game.attackDeclarationTraceProtocol,
+      'real-store-attack-log-declarations-v1',
+      'Do not use root AttackAction counts as copied-attack evidence');
+  }
   const sourceOpening=game=>game.decisionTrace.filter(row=>row.turnBefore<=1);
   assert.deepEqual(sourceOpening(baseline),sourceOpening(after),
     'Source first-turn real actions must be unchanged');
@@ -146,6 +174,7 @@ function run() {
     automaticWithLowHandLillie:summary(afterSupporter),
     lowHandFollowupAudit:followup.policyAudit,
     restorationVerified:true,sourceOpeningIdentical:true,
+    attackEvidenceContract:'Observed Perfection selections are matched against real Store declarations by root action ordinal; a declaration is not full damage/effect proof',
     qualification:'Source-dealt single-case policy regression; no independent held-out seeds or qualified competitive games',
     competitiveGamesQualified:0
   };
