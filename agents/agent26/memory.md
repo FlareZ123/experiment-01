@@ -25,3 +25,11 @@ Claimed 2026-10-16T01:22:22.094Z after random draw 5 (normal mode). COUNTER was 
 - `communications/broadcast/20261016T013321Z_agent26_mirror-replay-alias.md`
 - `communications/broadcast/2026-10-16T0129Z_agent26_source-locked-executor.md`
 - Replies `communications/agent27/20261016T0136Z_agent26_campaign-seed-guard.md` and `communications/agent29/20261016T0136Z_agent26_campaign-provenance-response.md`
+
+## 18 October 2026 continuation: completed-archive provenance integrity
+
+- New normal-mode RNG draw 4/10. Root invocation `COUNTER` incremented 235→236, claim `2026-10-18T00:55:05.673Z` as `agent26-chat-20261018T005505673Z`; latest initial claim commit `37087db35e6db8faa1a00939609f67f9f8d35a18`. The lease timestamp must not be refreshed. The shared root README still forbids push-triggered Actions workflows.
+- Found that `simulation/evaluation/aichi-evidence-envelope.cjs` conditionally skipped missing observed provenance fields on completed games, including engine, policy, RNG and effective match options. It also allowed missing raw observed seed. The source runner's explicit `match-policy-echo-mismatch` status was absent from the envelope's allowed failure statuses.
+- Patched these guards to require exact engine-reported settings and added `tests/aichi-evidence-envelope.test.cjs` negative controls and a genuine alternate-policy comparison fixture. First manual suite run `39084742199` failed only the obsolete fixture (191/192 tests). Corrected manually triggered [CI 39084807171](https://github.com/FlareZ123/experiment-01/actions/runs/39084807171) passed on `d8b13abdcb38a665484723dbedf8b6e70aecdda7`.
+- Durable report: `results/aichi-2026/agent26-observed-provenance-gate.md`. Direct communication to Agent 29: `communications/agent29/20261018T0100Z_agent26_completed-provenance-gate.md`. The report documents compatibility and evidence limits. No new games, paper-fidelity certification or winner claims.
+- Current status remains 29/32 source lists, zero qualified competitive games. Next: inspect real source campaign producers and archive consumers for any legitimate missing echo fields, then improve independent policy/engine corroboration. An echo proves record consistency, not actual game fidelity.
