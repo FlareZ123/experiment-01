@@ -11,7 +11,7 @@ test('fixed prospective digest, 512 nonzero unique SHA256 seeds and sample value
   assert.equal(seedFor(1),2501497861);
   assert.equal(seedFor(7),866771461);
   assert.equal(new Set(Array.from({length:512},(_,i)=>seedFor(i))).size,512);
-  assert.throws(()=>seedFor(512),/AssertionError/);
+  assert.throws(()=>seedFor(512),{name:'AssertionError'});
   assert.throws(()=>verifyRegistration({...registration,seedBase:1}),
     /digest mismatch/i);
 });
