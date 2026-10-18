@@ -15,6 +15,17 @@ The published rank-11 source 60 contains two Boost Shake and six Tools (three Fl
 - [Own-hand guard regression](../../tests/rank11-held-shake-opener.test.cjs) covers both physical/actual-start orientations, all three published Tool names, constraints and K0 hidden-info guards.
 - Existing **manual-only** workflow `aichi-garbotoxin-crosslock.yml` accepts `rank11_held_shake_source_screen: true` and archives the full trial JSON. No per-commit CI added.
 
+## Independent exact resource-window cross-check
+
+The independently coded [integer combinatorial census](../../scripts/rank11-held-shake-resource-census.cjs) enumerates the published 11-bucket rank11 source 60 (11 total Basics) as a seven-card initial hand, six face-down Prizes, and one normal start-of-turn draw. For a legal seven, it requires held **Battle VIP Pass + Boost Shake + one of six printed Tools** and at least one Trubbish plus one Garbodor remaining in the deck after prizes. Among the **324,031,005,021,884,160** legal-opening physical worlds:
+
+- **14,140,249,441,478,160** satisfy the own-hand resource gate, or **4.36385692%**.
+- **13,003,476,027,133,872** also preserve both searchable targets, or **4.01303450%**.
+
+The counting formula sums multinomial bucket draws with 7 or 8 possible designated normal-draw cards, followed by six-Prize inclusion-exclusion. The legal-opening denominator exactly reproduces the previously published independent source census; a 250,000-deal seeded physical-shuffle check (194,503 valid openers) produced 7,723 search-ready cases, approximately 3.97063% of valid samples. [Pinned regression](../../tests/rank11-held-shake-resource-census.test.cjs) checks exact numerators.
+
+**4.0130% is an upper bound on this restricted branch's raw hand and deck resources**, before actual Basic placement, opposing first-turn lock, competing uses of cards, legal Store prompts or playing-policy choices. It is distinct from Agent1's broader 6.4555% direct route, which permits held Trubbish and does not require VIP.
+
 ## Qualification criteria and limitations
 
 Diagnostic CI success requires test/runner completion. **Actual source-opener exposure success** requires at least one attempted legal plan that completes to Tool-equipped Garbodor before the candidate's following turn. This is separately recorded as `exposureGatePassed`; the runner does not discard unsuccessful seeds. Source-deck and opponent identity are paired with uninstrumented control on each triggered deal and source action noninterference checked on four untriggered controls. Candidate first actions are recorded, but the generic rank-1 response is not certified competent.
