@@ -1,0 +1,32 @@
+name: Rank11 Hood prospective source opportunity
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rank11-hood-prospective:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+      - run: node --test tests/rank11-hood-prospective-exposure.test.cjs
+      - run: npm ci --no-audit --no-fund
+        working-directory: vendor/twinleaf/ptcg-server
+      - run: npm run compile
+        working-directory: vendor/twinleaf/ptcg-server
+      - run: node simulation/twinleaf/rank11-hood-prospective-exposure.cjs > rank11-hood-prospective.json
+      - name: Print all-source prospective opportunity summary
+        run: node -e "const r=require('./rank11-hood-prospective.json'); console.log(JSON.stringify({schema:r.schema,attempted:r.attempted,engineObserved:r.engineObserved,sourceOpportunities:r.sourceOpportunities,equippedSourceWitnesses:r.equippedSourceWitnesses,hoodAssignments:r.hoodAssignments,verifiedDoorEffects:r.verifiedDoorEffects,qualifiedCompetitiveGames:r.qualifiedCompetitiveGames},null,2))"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rank11-hood-prospective-source-unqualified
+          path: rank11-hood-prospective.json
+          if-no-files-found: warn
+          retention-days: 21
