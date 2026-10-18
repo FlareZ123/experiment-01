@@ -80,3 +80,31 @@ test('short source root sampler stops at first turn and restores Store dispatch'
     /Real failure/);
   assert.equal(MockStore.prototype.dispatch,original);
 });
+
+test('headless root dispatch Error.cause preserves only exact first-turn stop token',()=>{
+  class WrappedStore{
+    constructor(){this.state={turn:0,activePlayer:0,players:[player(101),player(202)]};}
+    dispatch(action){
+      if(action==='first')this.state.turn=1;
+      return action;
+    }
+  }
+  const native=WrappedStore.prototype.dispatch;
+  const captured=captureSetupOnly(WrappedStore,()=>{
+    const store=new WrappedStore();
+    try{
+      store.dispatch('first');
+    }catch(cause){
+      throw new Error('Twinleaf dispatch failed: undefined',{cause});
+    }
+  });
+  assert.equal(captured.stoppedAtFirstTurn,true);
+  assert.equal(captured.setupZones.firstTurnSlot,0);
+  assert.equal(WrappedStore.prototype.dispatch,native);
+  assert.throws(()=>captureSetupOnly(WrappedStore,()=>{
+    throw new Error('Twinleaf dispatch failed: undefined',{
+      cause:new Error('real engine failure')
+    });
+  }),/Twinleaf dispatch failed/);
+  assert.equal(WrappedStore.prototype.dispatch,native);
+});
