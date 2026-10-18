@@ -18,12 +18,12 @@ const digest = value => createHash('sha256').update(JSON.stringify(value)).diges
  * @param {number} opponentSeat Physical source-rank-15 seat
  * @param {number} candidateSeat Physical New Moon seat
  * @param {()=>T} execute Synchronous headless match
- * @returns {{result:T,first:object,max:object,rootSnapshots:number}}
+ * @returns {{result:T,first:object,max:object,rootSnapshots:number,firstNormalTurnZoneDigest:string|null}}
  */
 function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
   const descriptor = Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof descriptor?.value,'function');
-  let root=null,rootSnapshots=0;
+  let root=null,rootSnapshots=0,firstNormalTurnZoneDigest=null;
   const first={aor:null,bus:null,busActive:null,dual:null,
     dusclops:null,dusclopsActive:null,dusclopsAgainstDual:null};
   const max={aorCount:0,busCount:0,dusclopsCount:0};
@@ -33,6 +33,21 @@ function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
     const type=action?.constructor?.name??'UnknownAction';
     if(root===null && type==='AddPlayerAction')root=this;
     const actual=this===root;
+    const state=this.state;
+    // The first genuine main-turn source state predates all policy-dependent
+    // root actions. It includes exact original physical hands, deck order
+    // and hidden Prize composition for paired replay validation only.
+    if(actual && firstNormalTurnZoneDigest===null &&
+        state?.phase===2 && state.players?.length===2 &&
+        state.players.every(p=>p.prizes.length===6)) {
+      firstNormalTurnZoneDigest=digest(state.players.map(p=>({
+        active:p.active.cards.map(c=>c.fullName),
+        bench:p.bench.map(slot=>slot.cards.map(c=>c.fullName)),
+        hand:p.hand.cards.map(c=>c.fullName),
+        deck:p.deck.cards.map(c=>c.fullName),
+        prizes:p.prizes.map(prize=>prize.cards.map(c=>c.fullName))
+      })));
+    }
     const result=descriptor.value.apply(this,args);
     if(!actual || this.state.players?.length!==2)return result;
     const source=this.state.players[opponentSeat];
@@ -72,7 +87,7 @@ function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
   Object.defineProperty(Store.prototype,'dispatch',{...descriptor,value:instrument});
   try {
     const result=execute();
-    return {result,first,max,rootSnapshots};
+    return {result,first,max,rootSnapshots,firstNormalTurnZoneDigest};
   } finally {
     Object.defineProperty(Store.prototype,'dispatch',descriptor);
   }
