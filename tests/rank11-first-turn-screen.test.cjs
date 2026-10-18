@@ -11,7 +11,7 @@ function makeGame(activePlayer,sourceSeat=0,invalid=false) {
     active:{getPokemonCard:()=>({
       name:i===sourceSeat?'Oranguru V':'Shadow Rider Calyrex V'
     })},
-    hand:{cards:[{name:'Battle VIP Pass'},{name:'Float Stone'}]}
+    hand:{cards:[{name:'Battle VIP Pass',fullName:'Battle VIP Pass FST 225'},{name:'Float Stone',fullName:'Float Stone BKT 137'}]}
   }));
   const state={turn:1,activePlayer,phase:3,prompts:[],players};
   const sourceObserver=(_s,p)=>p.active.getPokemonCard().name==='Oranguru V';
@@ -30,6 +30,8 @@ test('capture actual source first and K0 only before root policy action',()=>{
   assert.equal(r.eligibleK0,true);
   assert.equal(r.sourceStarter,'Oranguru V');
   assert.deepEqual(r.sourceOwnHand,['Battle VIP Pass','Float Stone']);
+  assert.deepEqual(r.sourceOwnHandPrintings,['Battle VIP Pass FST 225','Float Stone BKT 137']);
+  assert.equal(r.sourceOpponentHandSize,2);
   assert.equal(g.readCalls(),0);
   assert.equal(g.AI.prototype.decodeNextAction,g.original);
   assert.equal(r.qualifiedForCompetitiveInference,false);
@@ -43,6 +45,8 @@ test('candidate-first screen never inspects opponent hidden hand',()=>{
   assert.equal(r.sourceFirst,false);
   assert.equal(r.eligibleK0,false);
   assert.equal(r.sourceOwnHand,null);
+  assert.equal(r.sourceOwnHandPrintings,null);
+  assert.equal(r.sourceOpponentHandSize,null);
   assert.equal(reads,0);
   assert.equal(g.AI.prototype.decodeNextAction,g.original);
 });
