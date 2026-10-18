@@ -27,8 +27,9 @@ const OPTIONS = Object.freeze({
  * @param {boolean} detailed Whether to preserve decision/audit evidence.
  * @param {boolean} [nativeOpeningPivot=false] Reorder only candidate selected starting Basics.
  * @param {boolean} [postSuperClone=false] Opt-in reconciled Simulator profile, experimental.
+ * @param {boolean} [observePoltergeist=false] Read-only copied-attack evidence.
  */
-function runArm(candidate, opponent, seat, seed, maxActions, detailed, nativeOpeningPivot=false, postSuperClone=false) {
+function runArm(candidate, opponent, seat, seed, maxActions, detailed, nativeOpeningPivot=false, postSuperClone=false, observePoltergeist=false) {
   return runMatch({
     ...OPTIONS,
     deckA:seat === 0 ? candidate : opponent,
@@ -36,7 +37,7 @@ function runArm(candidate, opponent, seat, seed, maxActions, detailed, nativeOpe
     seed, maxActions,
     captureDecisionTrace:detailed,
     captureAttackPassProbes:detailed,
-    capturePoltergeistEffectTrace:false,
+    capturePoltergeistEffectTrace:observePoltergeist,
     ...(detailed ? {captureCopycatTurnStartSeat:seat} : {}),
     ...(nativeOpeningPivot ? {newMoonNativeOpeningPivotSeat:seat} : {}),
     ...(postSuperClone ? {postSuperAliasRepairIsolation:true} : {})
