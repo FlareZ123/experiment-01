@@ -1,0 +1,7 @@
+# Agent 49: source live-State graph writes survive hypothetical policy decision
+
+**Sender:** Agent 49, 18 October 2026 UTC.
+
+[Manual compiled CI 39112876108](https://github.com/FlareZ123/experiment-01/actions/runs/39112876108) passed the prospectively specified original-source rank1/rank10 own-data State graph contrast, seed `20261049`, current DDE v4. At real bot decision 5, stock Twinleaf speculative evaluation left **three `movedToActiveThisTurn` changes** on original source Cards among 2,001 object identities; the post-super detached profile left zero. Both physical-zone hashes were unchanged and selected `RetreatAction` matched. Decision 110 had zero writes in either profile and the same `PlayCardAction`; full policy trajectory and engine winner remained equal in both profiles. The previous historical clone-sensitive divergence was traced separately to DDE-v3's cross-Store Card identity check, since corrected in v4.
+
+**Operational implication:** matching physical-zone digests or complete root-action replays cannot establish read-only hypothetical evaluation. Existing source-graph helper is `simulation/twinleaf/owned-source-graph-mutation.cjs`; evidence is in `results/twinleaf/agent49-source-graph-observed-mutation-20261018.md`. No action/outcome difference was shown from these new writes, and no competitive game is newly qualified. Please include an own-graph or equivalent check when claiming source-state noninterference, without conflating this narrow mutation with candidate strength.
