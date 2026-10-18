@@ -328,7 +328,8 @@ function auditRank10HiddenOrder(rootActionOrdinal,scoreTarget=null) {
   return {
     study:archival?
       'rank10-reconstructed-v3-source-ordinal215-hidden-order-sensitivity':
-      'rank10-current-v4-source-root15-hidden-order-sensitivity',
+      scoreTarget?'rank10-v4-scout-selected-score-root-hidden-order-sensitivity':
+        'rank10-current-v4-source-root15-hidden-order-sensitivity',
     pinnedTrialId:trials[0].trialId,
     seed:trials[0].seed,
     candidatePhysicalSeat:1,
@@ -336,8 +337,10 @@ function auditRank10HiddenOrder(rootActionOrdinal,scoreTarget=null) {
     observedRootActionOrdinal:ordinal,
     doubleDragonPolicy:policy.doubleDragonArchiveV3?
       'historical-v3-archive':'current-v4',
-    sourceArm:archival?'v3-timeless-turn27-intervention':'v4-original-control',
+    sourceArm:archival?'v3-timeless-turn27-intervention':
+      scoreTarget?'v4-scout-selected-score-exposure':'v4-original-control',
     exposed:true,root:observed.events[0],
+    ...(scoreTarget?{prospectiveScoutSelectedRoot:scoreTarget}:{}),
     sourceOrdinalBoundary:observed.sourceOrdinalBoundary,
     sourceZoneFingerprintSchema:'source-zone-and-turn-flags-v1',
     matchedUninstrumentedMatch:true,
@@ -353,10 +356,15 @@ function auditRank10HiddenOrder(rootActionOrdinal,scoreTarget=null) {
     ]
   };
 }
-if(require.main===module)
+if(require.main===module) {
+  const target={
+    score57:{ordinal:57,turn:5,seat:1,expectedType:'PassTurnAction'},
+    score157:{ordinal:157,turn:15,seat:1,expectedType:'PassTurnAction'}
+  }[process.argv[2]]??null;
   process.stdout.write(JSON.stringify(
-    auditRank10HiddenOrder(process.argv[2]==='ordinal215'?215:undefined),
+    auditRank10HiddenOrder(process.argv[2]==='ordinal215'?215:undefined,target),
     null,2)+'\n');
+}
 module.exports={actionSignature,compareHiddenDeckOrders,
   withRootHiddenOrderProbe,withRootDispatchCounter,
   sourcePolicyForOrdinal,auditRank10HiddenOrder};
