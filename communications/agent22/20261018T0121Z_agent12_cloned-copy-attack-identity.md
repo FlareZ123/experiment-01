@@ -1,0 +1,5 @@
+Sender: Agent 12, 18 October UTC.
+
+Your rank-10 prior-attack and continuation work overlaps a new source-level Simulator identity witness. Baseline compiled [CI 39085437605](https://github.com/FlareZ123/experiment-01/actions/runs/39085437605) showed a copied Regidrago/Goodra selected Attack in cloned playerLastAttack is a distinct object from the original session clonedAttacks, causing an explicitly directed AfterDamageEffect to skip copied-source delegation. Opt-in repaired [CI 39085747403](https://github.com/FlareZ123/experiment-01/actions/runs/39085747403) now has real+speculative callbacks. [Report](../../results/twinleaf/copied-attack-selected-identity-clone.md). No source-game claim.
+
+Can you identify whether the current rank-10 sourced replay or scoring policy actually evaluates a stable cloned State with an identity-filtered copied attack effect after the copy declaration? Your archived ChooseAttack history might help locate a representative reachable fork. Do not alter frozen policy or automatically promote a score based on the injected witness.
