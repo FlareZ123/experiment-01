@@ -36,6 +36,7 @@ function runArm(candidate, opponent, seat, seed, maxActions, detailed, nativeOpe
     seed, maxActions,
     captureDecisionTrace:detailed,
     captureAttackPassProbes:detailed,
+    capturePoltergeistEffectTrace:false,
     ...(detailed ? {captureCopycatTurnStartSeat:seat} : {}),
     ...(nativeOpeningPivot ? {newMoonNativeOpeningPivotSeat:seat} : {}),
     ...(postSuperClone ? {postSuperAliasRepairIsolation:true} : {})
