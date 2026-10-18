@@ -358,6 +358,7 @@ function auditRank10HiddenOrder(rootActionOrdinal,scoreTarget=null) {
 }
 if(require.main===module) {
   const target={
+    score12:{ordinal:12,turn:1,seat:1,expectedType:'PassTurnAction'},
     score57:{ordinal:57,turn:5,seat:1,expectedType:'PassTurnAction'},
     score157:{ordinal:157,turn:15,seat:1,expectedType:'PassTurnAction'}
   }[process.argv[2]]??null;
