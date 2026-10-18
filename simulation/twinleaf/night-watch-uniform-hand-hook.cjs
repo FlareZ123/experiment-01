@@ -16,10 +16,19 @@ const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  *
  * @template T
  * @param {()=>T} execute Synchronous source-dealt game.
+ * @param {{counterfactualFirstRootPair?:[number,number]}} [options] Explicit
+ *   one-deal chance-outcome enumeration only. Never count forced arms as games.
  * @returns {{result:T,audit:object}}
  */
-function withUniformNightWatch(execute) {
+function withUniformNightWatch(execute,options={}) {
   if (typeof execute !== 'function') throw new TypeError('execute must be synchronous');
+  const rootPair=options.counterfactualFirstRootPair;
+  if (rootPair !== undefined &&
+      (!Array.isArray(rootPair) || rootPair.length!==2 ||
+       new Set(rootPair).size!==2 ||
+       !rootPair.every(position=>Number.isSafeInteger(position)&&position>=0&&position<5))) {
+    throw new RangeError('Counterfactual first-root pair must be two distinct positions in [0,4]');
+  }
   const load = relative => require(path.join(output, relative));
   const {TrevenantDusknoirGX} =
     load('sets/08-sun-and-moon/set-sun-and-moon-promos/trevenant-dusknoir-gx');
@@ -29,6 +38,7 @@ function withUniformNightWatch(execute) {
   const {GameMessage} = load('game/game-message');
   const {SimpleTacticsAi} = load('simple-bot/simple-tactics-ai');
   const {ResolvePromptAction} = load('game/store/actions/resolve-prompt-action');
+  const {Store} = load('game/store/store');
 
   const cardProto = TrevenantDusknoirGX.prototype;
   const aiProto = SimpleTacticsAi.prototype;
@@ -39,9 +49,15 @@ function withUniformNightWatch(execute) {
     throw new TypeError('Pinned Night Watch card/bot interfaces changed');
   }
   const choices = new WeakMap();
+  const dispatchDescriptor=rootPair===undefined?null:
+    Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  if(rootPair!==undefined&&typeof dispatchDescriptor?.value!=='function')
+    throw new TypeError('Pinned root Store.dispatch is unavailable');
+  let rootStore=null;
   const audit = {
     schema:'night-watch-random-prompt-hook-v1',
     created:0, resolved:0, returnedCounts:[], invalid:0,
+    counterfactualApplied:false, counterfactualFirstRootPair:rootPair||null,
     note:'Counts may include speculative Stores; independently audit root actions.'
   };
 
@@ -69,7 +85,16 @@ function withUniformNightWatch(execute) {
               prompt.options.min === expected &&
               prompt.options.max === expected) {
             // Sample the actual game chance event before any bot sees the prompt.
-            const selected = sampleOpaque(prompt.cards.cards, expected, Math.random);
+            let selected = sampleOpaque(prompt.cards.cards, expected, Math.random);
+            if(rootPair!==undefined && store===rootStore &&
+               audit.counterfactualApplied===false) {
+              if(expected!==2 || prompt.cards.cards.length!==5)
+                throw new Error('The first true-root Night Watch hand is no longer five cards');
+              // Preserve two consumed game-RNG samples even when conditionally
+              // enumerating a specified pair, so downstream chance stream is comparable.
+              selected=rootPair.map(position=>prompt.cards.cards[position]);
+              audit.counterfactualApplied=true;
+            }
             choices.set(prompt, selected);
             audit.created++;
           }
@@ -102,6 +127,15 @@ function withUniformNightWatch(execute) {
     return resolverDescriptor.value.call(this, player, state, prompt);
   }
 
+  if(dispatchDescriptor) {
+    Object.defineProperty(Store.prototype,'dispatch',{
+      ...dispatchDescriptor,
+      value:function rootStoreDiscovery(action,...args) {
+        if(rootStore===null)rootStore=this;
+        return dispatchDescriptor.value.call(this,action,...args);
+      }
+    });
+  }
   Object.defineProperty(cardProto, 'reduceEffect', {...cardDescriptor, value:correctedCardReducer});
   Object.defineProperty(aiProto, 'resolvePrompt', {...resolverDescriptor, value:correctedResolver});
   try {
@@ -109,6 +143,7 @@ function withUniformNightWatch(execute) {
   } finally {
     Object.defineProperty(aiProto, 'resolvePrompt', resolverDescriptor);
     Object.defineProperty(cardProto, 'reduceEffect', cardDescriptor);
+    if(dispatchDescriptor)Object.defineProperty(Store.prototype,'dispatch',dispatchDescriptor);
   }
 }
 
