@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "evidence_type": "precommitted-original-deals-paired-policy-counterfactual",
+  "published_at_utc": "2026-10-18",
+  "candidate": "champion-reference-rank1",
+  "opponent_rank": 31,
+  "opponent": "Yuhi Yokoyama Dusknoir Chimecho",
+  "seed_protocol": "decorrelated-slots-v3",
+  "seed_base": 20261016,
+  "phase": "published-field",
+  "repeat": 1,
+  "engine_pinned_sha": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidate_deck_sha256": "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311",
+  "opponent_deck_sha256": "6a38420649c4ed689f3e5bf831d97f5990cecad18b294b353d3b62bae38ddd32",
+  "original_deals": [
+    {
+      "game_id": "rank31-fog-energy-repeat1-A",
+      "candidate_physical_seat": 0,
+      "opponent_physical_seat": 1,
+      "seed": 2481088205
+    },
+    {
+      "game_id": "rank31-fog-energy-repeat1-B",
+      "candidate_physical_seat": 1,
+      "opponent_physical_seat": 0,
+      "seed": 2932006358
+    }
+  ],
+  "branches": [
+    "pinned-generic",
+    "rank31-fog-for-energy-opt-in"
+  ],
+  "max_actions": 240,
+  "outcomes_status": "unobserved",
+  "statistical_population": "2 original deals, not 4 independent games; mechanism diagnostic only",
+  "competitive_inference_eligible": false,
+  "purpose": "Test printed rank31 Chimecho solo-Active Fog search target choice with actual source Store action, energy attachment, Bell attempt and opponent reply; retain both nonexposures."
+}
