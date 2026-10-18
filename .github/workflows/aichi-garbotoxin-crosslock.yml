@@ -15,6 +15,10 @@ on:
         description: 'Opt-in actual first-turn rank11 own-deck K1 search choices'
         type: boolean
         default: false
+      rank11_firstturn_boostshake_fork:
+        description: 'Opt-in actual-source firstturn VIP Stone Shake forcing and opponent reply'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -65,6 +69,16 @@ jobs:
         with:
           name: rank11-firstturn-k1-source-audit
           path: rank11-k1-source-audit.json
+          if-no-files-found: warn
+      - name: Run source-dealt rank11 first-turn alternative and live reply
+        if: inputs.rank11_firstturn_boostshake_fork
+        run: node simulation/twinleaf/rank11-firstturn-boostshake-source-run.cjs > rank11-firstturn-boostshake-fork.json
+      - name: Archive source first-turn alternative, including failed-run detail
+        if: always() && inputs.rank11_firstturn_boostshake_fork
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-firstturn-boostshake-source-fork
+          path: rank11-firstturn-boostshake-fork.json
           if-no-files-found: warn
       - name: Reproduce authentic rank8 Latias escape decision alternatives
         if: inputs.rank8_source_fork
