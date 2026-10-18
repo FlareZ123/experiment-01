@@ -40,6 +40,16 @@ jobs:
           name: rank10-dde-source-root-target
           path: rank10-dde-root-target.json
           retention-days: 90
+      - name: Validate the exact source root 133 alternative guard
+        run: node --test tests/dde-v4-first-seat-apex-bench-fork.test.cjs
+      - name: Compare source-root 133 DDE Active versus prepared Bench recipient
+        run: node simulation/twinleaf/dde-v4-first-seat-apex-bench-fork.cjs > rank10-apex-bench-dde-fork.json
+      - name: Archive physical DDE retarget fork
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-apex-bench-dde-retarget
+          path: rank10-apex-bench-dde-fork.json
+          retention-days: 90
       - name: Verify pinned Apex-aware attachment priority
         run: node simulation/twinleaf/dde-target-priority.cjs
       - name: Test real Temple search and Marshadow recovery
