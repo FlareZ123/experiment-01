@@ -174,7 +174,7 @@ function main() {
     sourceDde,
     retargetedDde,
     control: summary(control.result.result),
-    alternate: summary(fork.result.result),
+    alternate: summary(fork.result.result.result),
     sourceReplayMechanicsVerified: false,
     qualifiedForCompetitiveInference: false,
     limitations: [
