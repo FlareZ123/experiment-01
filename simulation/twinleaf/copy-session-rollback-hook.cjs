@@ -11,13 +11,15 @@ const HOOK_TAG = Symbol.for('experiment-01.copy-session-rollback-hook');
  * State while preserving the original exception.
  *
  * Install the State-scope loader first, before importing Twinleaf.
+ * @param {{snapshotBeforeDispatch?:boolean}} [options] Transactional registry snapshot; false is a research negative control.
  * @returns {() => void} Restore the unwrapped Store dispatch.
  */
-function installCopySessionRollbackHook() {
+function installCopySessionRollbackHook({snapshotBeforeDispatch = true} = {}) {
   const {Store} = require(path.join(root, 'game/store/store'));
   const prefab = require(path.join(root, 'game/store/prefabs/copy-attack-delegation'));
   const transfer = prefab.transferCopyAttackSessionsOnRollback;
-  if (typeof transfer !== 'function') {
+  const snapshot = prefab.snapshotCopyAttackSessionsForState;
+  if (typeof transfer !== 'function' || typeof snapshot !== 'function') {
     throw new Error('State-scoped copied-session loader required before rollback hook');
   }
   const previous = Store.prototype.dispatch;
@@ -27,13 +29,14 @@ function installCopySessionRollbackHook() {
   /** @param {any} action @param {number} [clientRoleId] */
   function dispatchWithCopySessionRollback(action, clientRoleId) {
     const initialState = this.state;
+    const before = snapshotBeforeDispatch ? snapshot(initialState) : undefined;
     try {
       return previous.call(this, action, clientRoleId);
     } catch (originalError) {
       if (this.state !== initialState) {
         // Fail closed if the cloned State cannot be mapped to its source
         // history; do not silently treat a rolled-back session as intact.
-        transfer(initialState, this.state);
+        transfer(initialState, this.state, before);
       }
       throw originalError;
     }
