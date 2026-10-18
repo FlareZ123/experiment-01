@@ -33,6 +33,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank2_gladion_source_exposure:
+        description: Frozen 8-game authentic rank2 Gladion root opportunity census
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -64,6 +69,19 @@ jobs:
         run: node --test tests/root-prize-knowledge-observer.test.cjs tests/bunnelby-k1-ticket-epoch.test.cjs tests/bunnelby-k1-nonredeal-root.test.cjs tests/bunnelby-k1-redeal-policy.test.cjs tests/root-prize-heavy-ball-knowledge.test.cjs
       - name: Validate authentic Gladion Prize inspection and root-scoped choice
         run: node --test tests/gladion-visible-prize-choice.test.cjs tests/gladion-visible-prize-root.test.cjs
+      - name: Validate source-root Gladion event extraction and frozen cohort
+        run: node --test tests/rank2-gladion-source-exposure.test.cjs
+      - name: Run frozen source rank2 Gladion opportunity census
+        if: ${{ inputs.rank2_gladion_source_exposure }}
+        run: node simulation/twinleaf/rank2-gladion-source-exposure.cjs > rank2-gladion-source-exposure.json
+      - name: Preserve source-dealt Gladion complete and negative observations
+        if: ${{ always() && inputs.rank2_gladion_source_exposure }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank2-gladion-root-exposure
+          path: rank2-gladion-source-exposure.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Contrast generic and source-aware TM Evolution targets
         run: node --test tests/bunnelby-tm-target-selection.test.cjs
       - name: Verify exact source Bench-priority displacement and independent toy oracle
