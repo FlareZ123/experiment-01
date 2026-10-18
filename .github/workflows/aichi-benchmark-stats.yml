@@ -45,7 +45,6 @@ jobs:
         run: node --test tests/aichi-archetype-loss-budget.test.cjs
 
   rank11-source-census:
-    if: ${{ inputs.rank11_source_census }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
@@ -60,12 +59,16 @@ jobs:
       - name: Verify prospective rank11 actual-turn stratification and no-filter guarantees
         run: node --test tests/rank11-prospective-exposure.test.cjs
       - name: Verify frozen-source rank11 execution and failed-attempt retention
+        if: inputs.rank11_source_census
         run: node --test tests/rank11-prospective-exposure-run.test.cjs
       - name: Freeze source-ranked policy and candidate exposure registration
+        if: inputs.rank11_source_census
         run: node scripts/rank11-prospective-exposure.cjs > rank11-prospective-exposure.json
       - name: Print exact machine-readable registration for independent Git commit
+        if: inputs.rank11_source_census
         run: node -p "'FRAME_JSON=' + JSON.stringify(require('./rank11-prospective-exposure.json'))"
       - uses: actions/upload-artifact@v4
+        if: inputs.rank11_source_census
         with:
           name: rank11-prospective-exposure-v1
           path: rank11-prospective-exposure.json
