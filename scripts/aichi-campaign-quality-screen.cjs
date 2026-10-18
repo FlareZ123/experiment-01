@@ -244,6 +244,23 @@ function auditCampaignQuality(archive) {
       terminalPlayers.every(player =>
         Number.isInteger(player.prizesRemaining) && player.prizesRemaining >= 0) ?
       terminalPlayers.map(player => player.prizesRemaining) : null;
+    // Cross-check the reported winner against the observed Store transition.
+    // Agreement remains self-reported consistency, not independent replay.
+    const terminal = record.traceSummary?.terminalTransition;
+    const terminalOutcomeStatus = record.status !== 'completed-engine-game' ?
+      'not-completed' :
+      terminal?.evidenceType !== 'observed-engine-terminal-transition-v1' ||
+      !terminal.before || !terminal.after ||
+      terminal.before.phase === terminal.after.phase ||
+      ![0, 1, 3].includes(terminal.after.winner) ?
+        'terminal-outcome-unavailable' :
+        record.winnerIndex === terminal.after.winner ?
+          'self-consistent-engine-terminal-outcome' :
+          'terminal-winner-mismatch';
+    if (record.status === 'completed-engine-game' &&
+        terminalOutcomeStatus !== 'self-consistent-engine-terminal-outcome') {
+      reasons.push(terminalOutcomeStatus);
+    }
     return {
       trialId: record.trialId,
       rank: record.opponentRank,
@@ -262,6 +279,7 @@ function auditCampaignQuality(archive) {
       opponentLoggedAttackDeclarations: observation.opponentDeclarations,
       traceIntegrity,
       rootDecisionLineageStatus: rootLineage.status,
+      terminalOutcomeStatus,
       terminalDeckRemaining: deckRemaining,
       terminalPrizesRemaining: terminalPrizes,
       blockers: reasons,
@@ -420,6 +438,9 @@ function auditCampaignQuality(archive) {
           row.attackObservationStatus !== 'self-consistent-engine-attack-declarations').length,
         rootDecisionLineageUnverifiedTrials: subset.filter(row =>
           row.rootDecisionLineageStatus !== 'self-consistent-root-decision-lineage').length,
+        completedTerminalUnboundTrials: subset.filter(row =>
+          row.status === 'completed-engine-game' &&
+          row.terminalOutcomeStatus !== 'self-consistent-engine-terminal-outcome').length,
         candidateRootUndercountTrials: subset.filter(row =>
           row.blockers.includes('candidate-root-attack-action-undercount')).length,
         opponentRootUndercountTrials: subset.filter(row =>
