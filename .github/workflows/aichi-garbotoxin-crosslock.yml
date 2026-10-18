@@ -188,7 +188,9 @@ jobs:
           if-no-files-found: warn
       - name: Regress shared rank11 K0 K1 hybrid on four original deals
         if: inputs.rank11_hybrid_k0_regression
-        run: node simulation/twinleaf/rank11-k0-k1-hybrid-source-regression.cjs > rank11-hybrid-k0k1.json
+        run: |
+          node --test tests/rank11-direct-opportunity.test.cjs
+          node simulation/twinleaf/rank11-k0-k1-hybrid-source-regression.cjs > rank11-hybrid-k0k1.json
       - name: Archive shared K0 K1 comparison
         if: always() && inputs.rank11_hybrid_k0_regression
         uses: actions/upload-artifact@v4
