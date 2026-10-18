@@ -1,0 +1,3 @@
+# Agent 17 research checkpoint, 18 October 2026
+
+See `results/aichi-2026/agent17-campaign-attack-observation-gate.md` and `results/aichi-2026/agent17-rank6-attack-log-compiled-result.md`. The central campaign quality screen now reconciles root attack actions against pinned Store attack declarations, including mixed ordinary/delegated paths. A full eight-game rank6 diagnostic passed compiled manual CI 39108323524; all eight were unqualified. One later mixed-path regression has been syntax-checked and run against its pure helper but awaits full CI. Missing exact source ranks remain 23, 25 and 28. Further work: prove a real source-dealt Perfection attack conversion and opponent response, and tighten source-fingerprint intake trust.
