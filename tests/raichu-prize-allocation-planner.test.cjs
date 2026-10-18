@@ -90,6 +90,27 @@ function test() {
   assert.equal(planElectroRainDamage(notRaichu.state,notRaichu.own,
     notRaichu.prompt,notRaichu.codes),null);
 
+  // Source-field threat: nine published Regidrago lists contain the
+  // 280-HP VSTAR and 220-HP V. With Sight, 9+7 damage packets
+  // can take both from the Bench if the Active remains too costly.
+  const regidrago=caseState();
+  const opposing=regidrago.state.players[1];
+  const regCards=[
+    {fullName:'Regidrago VSTAR SIT',hp:280,tags:['VSTAR']},
+    {fullName:'Regidrago VSTAR SIT',hp:280,tags:['VSTAR']},
+    {fullName:'Regidrago V SIT',hp:220,tags:['V']}
+  ];
+  [opposing.active,...opposing.bench].forEach((slot,index) => {
+    slot.hp=regCards[index].hp;
+    slot.getPokemonCard=()=>regCards[index];
+    regidrago.prompt.maxAllowedDamage[index].damage=
+      regCards[index].hp+regidrago.prompt.damage;
+  });
+  const regSplit=planElectroRainDamage(regidrago.state,regidrago.own,
+    regidrago.prompt,regidrago.codes);
+  assert.deepEqual(regSplit.map(({target,damage})=>
+    [target.slot,target.index,damage]),[[2,0,270],[2,1,210]]);
+
   const waveVeil=caseState();
   const manaphy={
     name:'Manaphy',fullName:'Manaphy BRS',hp:70,tags:[],
