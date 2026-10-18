@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {inspectPhysicalCardZones} = require('../simulation/twinleaf/physical-card-ledger.cjs');
+const {inspectPhysicalCardZones, fixedDeckCountAnomalies} = require('../simulation/twinleaf/physical-card-ledger.cjs');
 
 const card = id => ({id});
 const list = (...cards) => ({cards});
@@ -62,4 +62,10 @@ test('distinct physical instances sharing an id are not conflated', () => {
   b.hand.cards.push(card(123));
   const ledger = inspectPhysicalCardZones({players: [a, b]});
   assert.deepEqual(ledger.referenceDuplications, []);
+});
+
+test('fixed deck count detects missing and duplicated cards', () => {
+  assert.deepEqual(fixedDeckCountAnomalies({canonicalCounts: [60, 59]}), [{seat: 1, observed: 59, expected: 60}]);
+  assert.deepEqual(fixedDeckCountAnomalies({canonicalCounts: [61, 60]}), [{seat: 0, observed: 61, expected: 60}]);
+  assert.deepEqual(fixedDeckCountAnomalies({canonicalCounts: [60, 60]}), []);
 });
