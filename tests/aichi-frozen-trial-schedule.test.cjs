@@ -77,7 +77,9 @@ test('corrupted committed plan, unknown candidate and a filtered schedule fail c
       trials:inputs.campaign.trials.filter(row=>
         row.trialId!=='pilot:11:0:champion-reference:A')}
   };
-  assert.throws(()=>freezeFullPhaseSchedule(changed,good),/Campaign planDigest/);
+  assert.deepEqual(freezeFullPhaseSchedule(changed,good),
+    freezeFullPhaseSchedule(inputs,good),
+    'Source reconstruction must ignore filtered caller trial arrays');
   const tampered={
     ...inputs,campaign:{...inputs.campaign,
       planDigest:'f'.repeat(64)}
