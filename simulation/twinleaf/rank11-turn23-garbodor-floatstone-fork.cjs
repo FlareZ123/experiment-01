@@ -203,6 +203,9 @@ function run() {
         row.seat===1&&row.name==='Perfection').length
     },
     alternate:{
+      endReason:alt.result.endReason,
+      finalState:alt.result.finalState,
+      terminalTransition:alt.result.terminalTransition,
       actions:alt.result.actions,turns:alt.result.turns,
       finished:alt.result.finished,
       winner:alt.result.winner,prizes:alt.result.prizesRemaining,
