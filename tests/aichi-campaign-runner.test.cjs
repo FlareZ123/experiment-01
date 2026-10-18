@@ -4,6 +4,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createHash } = require('node:crypto');
 const { buildCampaign } = require('../scripts/aichi-comparison-campaign.cjs');
+const {prepareCandidateInputOrder} =
+  require('../simulation/evaluation/aichi-candidate-input-order.cjs');
 const {
   verifyCampaign, turnProof, executeCampaign
 } = require('../simulation/evaluation/aichi-campaign-runner.cjs');
@@ -503,4 +505,78 @@ test('unfinished engine witness is retained and cannot enter completed evidence'
   assert.equal(result.records[0].observedFinished, false);
   assert.equal(result.records[0].status, 'unfinished');
   assert.equal(result.records[0].winner, null);
+});
+
+test('candidate-aligned input preserves all resolved IDs with maximal exact printing overlap', () => {
+  const printing = (name,count) => ({
+    name,count,printing:{set:'SYN',number:'1',language:'en'}
+  });
+  const reference=[printing('A',50),printing('B',10)];
+  const candidate=[printing('B',8),printing('C',2),printing('A',50)];
+  const ids=[
+    ...Array.from({length:8},(_,i)=>'B-'+i),
+    ...Array.from({length:2},(_,i)=>'C-'+i),
+    ...Array.from({length:50},(_,i)=>'A-'+i)
+  ];
+  const original=prepareCandidateInputOrder(reference,candidate,ids,'source-row-order-v1');
+  const aligned=prepareCandidateInputOrder(reference,candidate,ids,'reference-aligned-v1');
+  assert.deepEqual(original.engineIds,ids);
+  assert.equal(original.sourceInputHash,original.executedInputHash);
+  assert.equal(original.matchingPositionsBefore,original.matchingPositionsAfter);
+  assert.equal(aligned.sharedCopies,58);
+  assert.equal(aligned.matchingPositionsAfter,58);
+  assert.ok(aligned.matchingPositionsBefore < 58);
+  assert.deepEqual([...aligned.engineIds].sort(),[...ids].sort());
+  assert.deepEqual(aligned.engineIds.slice(0,50),ids.slice(10));
+  assert.equal(aligned.sourceInputHash,original.executedInputHash);
+  assert.equal(aligned.sourcePrintingOrderHash,original.sourcePrintingOrderHash);
+  assert.notEqual(aligned.executedInputHash,aligned.sourceInputHash);
+  assert.throws(()=>prepareCandidateInputOrder(reference,candidate,ids.slice(1),
+    'reference-aligned-v1'),/60 source/);
+  assert.throws(()=>prepareCandidateInputOrder(reference,candidate,ids,'unknown'),
+    /protocol/);
+});
+
+test('prospective aligned campaign retains frozen source digests and binds true engine slots', () => {
+  const f=fixture();
+  const row=(name,count)=>({
+    name,count,printing:{set:'SYN',number:'1',language:'en'}
+  });
+  f.candidates[0].cards=[row('A',50),row('B',10)];
+  f.candidates[1].cards=[row('B',8),row('C',2),row('A',50)];
+  f.campaign=buildCampaign({
+    field:f.field,source:f.source,candidates:f.candidates,
+    pilotRanks:[1,2],repeats:1,seedBase:20261016,
+    seatSeedMode:'decorrelated-slots-v3'
+  });
+  const selected=f.campaign.trials.filter(t=>t.phase==='pilot'&&
+    t.rank===1&&t.candidateId==='other');
+  assert.equal(selected.length,2);
+  const calls=[];
+  const archive=executeCampaign(f,{
+    maxTrials:2,trialIds:selected.map(t=>t.trialId),
+    inputOrderProtocol:'reference-aligned-v1',
+    prepareCandidate(candidate){
+      const plan=prepare(candidate);
+      plan.candidate.cards=candidate.cards.flatMap(row=>
+        Array(row.count).fill('resolved-'+row.name));
+      return plan;
+    },
+    runMatch(request){calls.push(request);return finished(request);}
+  });
+  assert.equal(archive.inputOrderProtocol,'reference-aligned-v1');
+  assert.equal(archive.planDigest,f.campaign.planDigest);
+  assert.deepEqual(archive.records.map(r=>r.status),['completed','completed']);
+  assert.deepEqual(archive.records.map(r=>r.candidateInputOrder.matchingPositionsAfter),[58,58]);
+  assert.ok(archive.records.every(r=>r.candidateInputOrder.sourceInputHash!==
+    r.candidateInputOrder.executedInputHash));
+  assert.deepEqual(calls[0].deckA,calls[1].deckB);
+  assert.equal(digest(calls[0].deckA),archive.records[0].expectedEngineDeckHashes[0]);
+  assert.equal(digest(calls[1].deckB),archive.records[1].expectedEngineDeckHashes[1]);
+  assert.deepEqual(archive.records.map(r=>r.candidateDigest),
+    selected.map(r=>r.candidateDigest));
+  assert.throws(()=>executeCampaign(f,{
+    maxTrials:1,inputOrderProtocol:'unsafe',
+    prepareCandidate:prepare,runMatch:finished
+  }),/input-order protocol/);
 });
