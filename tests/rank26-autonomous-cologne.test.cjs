@@ -71,3 +71,13 @@ test('Cologne plus Damage Pump profile is reachable through shared dispatch', ()
   assert.equal(RANK26_COLOGNE_PUMP_PROFILE, 'rank26-autonomous-cologne-pump-v2');
   assert.ok(ALLOWED_PROFILES.includes(RANK26_COLOGNE_PUMP_PROFILE));
 });
+
+test('versioned Propagation profile is opt-in and source-seat aware', () => {
+  const {ALLOWED_PROFILES, RANK26_PROPAGATION_PROFILE} =
+    require('../simulation/twinleaf/policy-profiles.cjs');
+  assert.equal(RANK26_PROPAGATION_PROFILE,
+    'rank26-autonomous-cologne-pump-propagation-v3');
+  assert.equal(ALLOWED_PROFILES.includes(RANK26_PROPAGATION_PROFILE),true);
+  assert.equal(rank26SourceSeat({rank:26,candidateEngineSlot:'A'}),1);
+  assert.equal(rank26SourceSeat({rank:26,candidateEngineSlot:'B'}),0);
+});
