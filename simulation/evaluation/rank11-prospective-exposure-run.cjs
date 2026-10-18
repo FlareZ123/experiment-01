@@ -7,7 +7,6 @@ const {loadCampaignInputs,verifyCampaign}=
   require('./aichi-campaign-runner.cjs');
 const {loadDefaultCampaign,canonicalCards}=
   require('../../scripts/aichi-comparison-campaign.cjs');
-const {planAichi}=require('./aichi-pilot.cjs');
 const {
   pinnedFileBlobs,makeRank11ExposureFrame,auditRank11Exposure
 }=require('../../scripts/rank11-prospective-exposure.cjs');
@@ -50,13 +49,14 @@ function executeRank11ExposurePartition(options={}){
     Math.floor(trial.repeat/4)===partition);
   assert.equal(planned.length,16,'Each predeclared partition must have 16 trials');
   const candidates=new Map(inputs.candidates.map(candidate=>[candidate.id,candidate]));
-  const prepare=options.resolveCandidate || (candidate=>planAichi({
-    label:candidate.id,cards:candidate.cards
-  },{
-    allowEquivalentBasicEnergies:true,
-    allowBasicEnergyMirrorPrintings:true,
-    allowJapanesePromoHooks:true
-  }));
+  const prepare=options.resolveCandidate || (candidate=>{
+    const {planAichi}=require('./aichi-pilot.cjs');
+    return planAichi({label:candidate.id,cards:candidate.cards},{
+      allowEquivalentBasicEnergies:true,
+      allowBasicEnergyMirrorPrintings:true,
+      allowJapanesePromoHooks:true
+    });
+  });
   const resolved=new Map();
   for(const row of registered.candidateRows){
     const candidate=candidates.get(row.id);
