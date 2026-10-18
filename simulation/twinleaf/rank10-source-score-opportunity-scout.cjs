@@ -8,7 +8,8 @@ const {resolveManifestFile}=require('./resolve-field.cjs');
 const {loadDefaultCampaign}=require('../../scripts/aichi-comparison-campaign.cjs');
 const {actionSignature,withRootDispatchCounter}=
   require('./rank10-hidden-order-live-probe.cjs');
-const {captureTacticScores}=require('./tactic-score-trace.cjs');
+const {captureTacticScores,summarizeTacticScores}=
+  require('./tactic-score-trace.cjs');
 
 /**
  * Record evaluated tactic proposals in the *actual* root bot without
@@ -34,12 +35,7 @@ function withRootScoreCensus(Ai,run,rootState,rootOrdinal) {
     rootCalls++;
     const capture=captureTacticScores(this,()=>own.value.call(this,state));
     if(capture.trace.length>0) {
-      const names={},scoredNames={};
-      for(const record of capture.trace) {
-        names[record.tactic]=(names[record.tactic]??0)+1;
-        if(Number.isFinite(record.score))
-          scoredNames[record.tactic]=(scoredNames[record.tactic]??0)+1;
-      }
+      const scoreSummary=summarizeTacticScores(capture.trace);
       const acting=state.players.find(player=>player.id===this.client.id);
       const action=capture.result;
       const handIndex=action?.constructor?.name==='PlayCardAction'?
@@ -50,10 +46,12 @@ function withRootScoreCensus(Ai,run,rootState,rootOrdinal) {
         proposedAction:actionSignature(action),
         playedHandPrinting:handIndex===null?
           null:acting?.hand?.cards?.[handIndex]?.fullName??null,
-        candidateEvaluations:capture.trace.length,
-        finiteCandidateScores:Object.values(scoredNames).reduce(
-          (total,count)=>total+count,0),
-        tacticCounts:names,scoredTacticCounts:scoredNames,
+        candidateEvaluations:scoreSummary.attemptedEvaluations,
+        finiteCandidateScores:scoreSummary.finiteScores,
+        undefinedScores:scoreSummary.undefinedScores,
+        otherUnscored:scoreSummary.otherUnscored,
+        tacticCounts:scoreSummary.attemptsByTactic,
+        scoredTacticCounts:scoreSummary.finiteByTactic,
         traceDigest:crypto.createHash('sha256')
           .update(JSON.stringify(capture.trace)).digest('hex')
       });
