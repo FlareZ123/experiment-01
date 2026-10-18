@@ -92,6 +92,9 @@ jobs:
       - name: Compare authentic source-dealt rank26 v2 versus v3 first decisions
         if: ${{ inputs.rank26_propagation_pair }}
         run: node simulation/twinleaf/rank26-propagation-source-root-pair.cjs > rank26-propagation-source-root-pair.json
+      - name: Print bounded authentic rank26 action and policy summary
+        if: ${{ inputs.rank26_propagation_pair }}
+        run: node -e "const x=require('./rank26-propagation-source-root-pair.json');console.log(JSON.stringify({seed:x.seed,sourceFirst:x.startingOrderDrawLogVerified,v2:{pump:x.v2.rank26PumpPolicy?.actions.length,cologne:x.v2.rank26ColognePolicy?.actions,sourceMoves:x.v2.sourceFirstActions.slice(0,12)},v3:{pump:x.v3.rank26PumpPolicy?.actions.length,propagation:x.v3.rank26PropagationPolicy?.actions,cologne:x.v3.rank26ColognePolicy?.actions,sourceMoves:x.v3.sourceFirstActions.slice(0,12)},sameFirstTurn:x.firstTurnDecisionsEqual,qualified:x.competitiveGameQualified},null,2))"
       - name: Archive authentic rank26 first-turn action comparison
         if: ${{ inputs.rank26_propagation_pair }}
         uses: actions/upload-artifact@v4
