@@ -243,6 +243,8 @@ function policyRandomStreams(seed) {
  * @property {boolean} [shadowRiderEnergyAcrossField] Opt-in speculative Psychic priority regardless of opposing Active.
  * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
  * @property {0|1} [newMoonNativeOpeningPivotSeat] Candidate-only selected Gengar & Mimikyu-GX setup Active ordering probe.
+ * @property {0|1} [newMoonAttackPayloadCompressorSeat] Candidate-only own-hand Compressor and owner-search Gengar payload policy.
+ * @property {0|1} [newMoonOpeningHorrorHouseSeat] Candidate-only first-going-second native or copied Horror House-GX policy.
  * @property {boolean} [latiasAttackReadyAttachment] Opt-in rank10 source-state Latias Energy completion probe.
  * @property {boolean} [bunnelbyK0SafeEvolution] Opt-in printed-source-only TM Evolution choice without hidden-deck/Prize inspection.
  * @property {boolean} [bunnelbyObservedK1] Separate opt-in: switch that policy from K0 to K1 only on live owner-deck search prompts.
@@ -281,6 +283,12 @@ function runMatch(request) {
       (![0, 1].includes(request.newMoonNativeOpeningPivotSeat) ||
         request.shadowRiderOpeningPivot === true)) {
     throw new Error('New Moon setup pivot needs one physical seat and no other setup pivot');
+  }
+  for (const seat of [request.newMoonAttackPayloadCompressorSeat,
+    request.newMoonOpeningHorrorHouseSeat]) {
+    if (seat !== undefined && ![0,1].includes(seat)) {
+      throw new Error('New Moon payload and attack policies need a physical seat');
+    }
   }
   if (request.bunnelbyObservedK1 === true && request.bunnelbyK0SafeEvolution !== true) {
     throw new Error('Observed K1 requires the source-60 Bunnelby K0 option');
@@ -603,6 +611,14 @@ function runMatch(request) {
             ResolvePromptAction: engine('game/store/actions/resolve-prompt-action').ResolvePromptAction,
             GameMessage: engine('game/game-message').GameMessage
           });
+      }
+      if (request.newMoonAttackPayloadCompressorSeat === seat) {
+        configured = require('./new-moon-compressor-payload-policy.cjs')
+          .withNewMoonCompressorPayload(configured);
+      }
+      if (request.newMoonOpeningHorrorHouseSeat === seat) {
+        configured = require('./new-moon-opening-horror-house-policy.cjs')
+          .withNewMoonOpeningHorrorHouse(configured);
       }
       if (request.mimikyuTurn27SetupSeat === seat) {
         configured = require('./mimikyu-source-turn27-setup.cjs')
@@ -985,6 +1001,8 @@ function runMatch(request) {
       shadowRiderEnergyAcrossField: request.shadowRiderEnergyAcrossField === true,
       shadowRiderOpeningPivot: request.shadowRiderOpeningPivot === true,
       newMoonNativeOpeningPivotSeat: request.newMoonNativeOpeningPivotSeat ?? null,
+      newMoonAttackPayloadCompressorSeat: request.newMoonAttackPayloadCompressorSeat ?? null,
+      newMoonOpeningHorrorHouseSeat: request.newMoonOpeningHorrorHouseSeat ?? null,
       latiasAttackReadyAttachment: request.latiasAttackReadyAttachment === true,
       bunnelbyK0SafeEvolution: request.bunnelbyK0SafeEvolution === true,
       bunnelbyObservedK1: request.bunnelbyObservedK1 === true,
@@ -1026,6 +1044,10 @@ function runMatch(request) {
         (request.shadowRiderOpeningPivot === true ? '+SelectedShadowRiderSetupActive-v1' : '') +
         (request.newMoonNativeOpeningPivotSeat !== undefined ?
           '+NewMoonNativeOpeningPivot-v1@seat' + request.newMoonNativeOpeningPivotSeat : '') +
+        (request.newMoonAttackPayloadCompressorSeat !== undefined ?
+          '+NewMoonCompressorPayload-v1@seat' + request.newMoonAttackPayloadCompressorSeat : '') +
+        (request.newMoonOpeningHorrorHouseSeat !== undefined ?
+          '+NewMoonOpeningHorrorHouse-v1@seat' + request.newMoonOpeningHorrorHouseSeat : '') +
         (request.latiasAttackReadyAttachment === true ? '+LatiasAttackReadyAttachment-v1' : '') +
         (request.mimikyuExtraTurnShredSeat !== undefined ? '+MimikyuExtraTurnShred-v1' : '') +
         (request.bunnelbyK0SafeEvolution === true ? '+BunnelbySourceK0PossibleEvolution-v1' : '') +
