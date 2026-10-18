@@ -6,7 +6,7 @@
 
 The pinned Twinleaf `ChoosePrizePromptResolver` takes the first `count` occupied Prizes regardless of card identities. The pinned `Gladion CIN` reducer, after staging Gladion, exposes eligible face-down Prize cards and requests a `ChoosePrizePrompt` with count one. The owner is therefore legally able to distinguish the revealed card printings at that specific pending root prompt.
 
-Rank-2 source Vileplume contains one `Gladion CIN` and one `Grand Tree SCR`. A constructed test with Grand Tree in the fourth Prize slot can compare the generic first-slot choice against a mechanically legal explicit-target choice. Prioritizing Grand Tree is **an experimental tactical hypothesis**, not an established best play for that game state.
+Rank-2 source Vileplume contains one `Gladion CIN` and one `Grand Tree SCR`. A constructed test with the printed Grand Tree (pinned engine fullName `Great Tree SCR`) in the fourth Prize slot can compare the generic first-slot choice against a mechanically legal explicit-target choice. Prioritizing Grand Tree is **an experimental tactical hypothesis**, not an established best play for that game state.
 
 ## Pre-registered falsification and implementation boundary
 
@@ -17,6 +17,8 @@ The alternative [resolver](../../simulation/twinleaf/gladion-visible-prize-resol
 Pure negative controls: hidden Prize(s), no Gladion, foreign player, unavailable target, blocked slot, count !=1, opponent-Prize mode, invalid prompt. The card/slot arrays must remain untouched by the policy.
 
 ## Evidence and scope
+
+**First compile outcome:** [manual CI 39165206495](https://github.com/FlareZ123/experiment-01/actions/runs/39165206495), head `d973fab12198ce0993a13cbcf06e7f8b0e860a53`, failed the new Store test at its card-availability assertion. Five independent pure selection tests passed. This was a test-fixture naming error: the pinned GreatTree class registers `Great Tree SCR` although the Aichi source uses printed `Grand Tree SCR`. The constructed fixture has been corrected; no compiled Store success may be claimed from the failed run.
 
 The repository's existing manually dispatched `aichi-tm-attack-policy.yml` workflow includes the bounded test. Expected engine pin: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; source head and actual CI result will be appended after verification. No simulated games enter a competitive denominator.
 
