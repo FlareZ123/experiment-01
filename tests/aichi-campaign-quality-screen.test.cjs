@@ -515,10 +515,10 @@ test('each mechanism witness is one actual root ordinal with later opponent root
   ];
   const actions = [
     {actionOrdinal: 1, action: 'PlayCardAction', card: 'Field Blower',
-      playerSlot: 0},
-    {actionOrdinal: 2, action: 'ResolvePromptAction', playerSlot: 0},
+      playerSlot: 0, turnBefore: 5},
+    {actionOrdinal: 2, action: 'ResolvePromptAction', playerSlot: 0, turnBefore: 5},
     {actionOrdinal: 3, action: 'PlayCardAction', card: 'Opponent Supporter',
-      playerSlot: 1}
+      playerSlot: 1, turnBefore: 6}
   ];
   const record = f.records[3];
   record.traceSummary.chronologicalActionTrace = actions;
@@ -530,9 +530,11 @@ test('each mechanism witness is one actual root ordinal with later opponent root
   assert.equal(mechanism.status, 'observed');
   assert.equal(mechanism.observedActions, 1);
   assert.equal(mechanism.laterOpponentRootDispatches, 1);
+  assert.equal(mechanism.opponentNextTurnRootDispatches, 1);
   assert.deepEqual(mechanism.rootWitnesses, [{
     trialId: record.trialId, rootActionOrdinal: 1,
-    laterOpponentRootActionOrdinal: 3
+    laterOpponentRootActionOrdinal: 3,
+    opponentNextTurnRootActionOrdinal: 3
   }]);
   assert.equal(mechanism.opportunityStatus, 'unobserved');
   assert.equal(mechanism.hypotheticalProposalStatus, 'unobserved');
@@ -582,4 +584,28 @@ test('root action beyond the true action bound fails closed despite matching dig
   assert.equal(out.records[3].rootDecisionLineageStatus,
     'root-decision-lineage-integrity-mismatch');
   assert.equal(out.winRateEvidence, false);
+});
+
+
+test('same-turn opponent prompt is not later-turn policy evidence', () => {
+  const f = fixture();
+  f.mechanismChecks = [{id: 'blower', candidateId: 'challenger',
+    action: 'PlayCardAction', detail: 'Field Blower'}];
+  const actions = [
+    {actionOrdinal: 3, action: 'PlayCardAction', playerSlot: 0,
+      card: 'Field Blower', turnBefore: 5},
+    {actionOrdinal: 4, action: 'ResolvePromptAction',
+      playerSlot: 1, turnBefore: 5}
+  ];
+  const record = f.records[3];
+  record.traceSummary.chronologicalActionTrace = actions;
+  record.traceSummary.chronologicalActionTraceSha256 =
+    createHash('sha256').update(JSON.stringify(actions)).digest('hex');
+  const audited = auditCampaignQuality(f);
+  const mechanism = audited.coverage.find(row => row.candidateId === 'challenger')
+    .mechanismExposure[0];
+  assert.equal(mechanism.observedActions, 1);
+  assert.equal(mechanism.laterOpponentRootDispatches, 1);
+  assert.equal(mechanism.opponentNextTurnRootDispatches, 0);
+  assert.equal(mechanism.rootWitnesses[0].opponentNextTurnRootActionOrdinal, null);
 });
