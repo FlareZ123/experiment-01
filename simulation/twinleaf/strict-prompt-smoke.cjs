@@ -31,6 +31,20 @@ function probeStrictPromptPolicy() {
     label: 'Aichi rank 1 vs rank 10 prompt-integrity readiness'
   });
   assert.equal(result.promptValidationMode, 'predispatch-prompt-validate');
+  assert.equal(result.attackDeclarationTraceProtocol,
+    'real-store-attack-log-declarations-v1');
+  assert.ok(Array.isArray(result.attackDeclarationTrace));
+  assert.ok(result.attackDeclarationTrace.length > 0,
+    'An actual source-dealt game must exercise the Store attack-log observer');
+  for (const declaration of result.attackDeclarationTrace) {
+    assert.equal(declaration.kind, 'engine-attack-declaration');
+    assert.equal(declaration.resolutionStatus, 'not-independently-verified');
+    assert.ok(Number.isInteger(declaration.actionOrdinal) &&
+      declaration.actionOrdinal < result.actions);
+    assert.ok(typeof declaration.attackName === 'string' &&
+      declaration.attackName.length > 0);
+    assert.ok([0, 1].includes(declaration.playerSlot));
+  }
   return {
     ranks: [1, 10],
     seed: result.seed,
@@ -38,6 +52,8 @@ function probeStrictPromptPolicy() {
     finished: result.finished,
     endReason: result.endReason,
     promptValidationMode: result.promptValidationMode,
+    engineAttackDeclarations: result.attackDeclarationTrace.length,
+    rawAttackActions: result.actionCounts.AttackAction || 0,
     firstTurnPlayerId: result.firstTurnPlayerId,
     verifiedByDrawLog: result.verifiedByDrawLog,
     engine: result.engine,
