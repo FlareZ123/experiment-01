@@ -37,3 +37,11 @@ A complete paired **record** is a successfully executed and auditable original/c
 - The strict opportunity funnel would first need a demonstrated legal source-dealt Night Watch declaration under **a seed-independent policy** with actual response and nonexposure denominator. Subsequent all-start prospective trials should include selection indices, selected card count, full card effect, later opponent reply and a terminal or explicit cap. No seed or setup should be selected based on its engine winner.
 
 **Net project decision:** This test confirms a real prospective zero-exposure boundary, while the mechanistic chance-card defect and corrected positive control remain documented. There are still **29/32 exact opponent 60s, zero qualified competitive games and no demonstrated 99.5% win rate**. Preserve both this negative result and the earlier positive control; avoid additional broad gameplay claims until an actual end-to-end deck/match policy is independently qualified.
+
+## Retrospective audit of the immutable experiment artifact
+
+[Manual CI 39141478579](https://github.com/FlareZ123/experiment-01/actions/runs/39141478579) passed by downloading the existing artifact from source CI 39140517254. The read-only analysis at `scripts/night-watch-evidence-summary.cjs` did not replay any games.
+
+It verified sixteen unique complete registered paired rows, nine jointly finished pairs, zero recorded Night Watch attacks in both versions, and one actual source Boost Shake opportunity in each version. All sixteen pairs had matching finished status, engine winner, action count and source lock-completion flag. These four matching metrics are coarse checks, not proof of identical decisions or states.
+
+Source Boost Shake opportunity is a different condition from successful Night Watch use. The separately conditioned three-attack positive-control replay visibly chose different opponent-hand positions under the correction.
