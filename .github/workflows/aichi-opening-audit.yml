@@ -37,6 +37,8 @@ jobs:
         run: node --test tests/new-moon-meloetta-solo-stress.test.cjs
       - name: Coupled Klefki and Cologne opening exact model
         run: node --test tests/new-moon-meloetta-joint-resource.test.cjs
+      - name: Meloetta-in-seven joint Klefki resource model and physical shuffle
+        run: node --test tests/new-moon-meloetta-joint-lock-window.test.cjs
       - name: Conditional rank-26 loss-budget tests
         run: node --test tests/aichi-rank26-loss-budget.test.cjs tests/aichi-rank26-exposure-frontier.test.cjs
       - name: Printed first-turn defense tests
@@ -93,6 +95,8 @@ jobs:
         run: node scripts/aichi-meloetta-order-pad-bridge.cjs > meloetta-order-pad-bridge.json
       - name: Meloetta Stone and Pad access report
         run: node scripts/aichi-meloetta-stone-pad-bridge.cjs > meloetta-stone-pad-bridge.json
+      - name: Meloetta-in-seven joint resource opening report
+        run: node scripts/new-moon-meloetta-joint-lock-window.cjs > newmoon-meloetta-initial-joint.json
       - name: Print 99.5% conditional Meloetta-donk loss budget
         run: node scripts/aichi_rank26_loss_budget.cjs
       - name: Print source-based hypothetical Basic-count exposure frontier
@@ -120,6 +124,7 @@ jobs:
             meloetta-cologne-opening.json
             meloetta-order-pad-bridge.json
             meloetta-stone-pad-bridge.json
+            newmoon-meloetta-initial-joint.json
             meloetta-printed-defense.md
             aichi-ranger-early-access.json
             aichi-ranger-stone-access.json
