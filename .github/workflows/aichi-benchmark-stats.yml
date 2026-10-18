@@ -40,6 +40,8 @@ jobs:
         run: node scripts/rank11-boostshake-opening-census.cjs
       - name: Verify prospective rank11 actual-turn stratification and no-filter guarantees
         run: node --test tests/rank11-prospective-exposure.test.cjs
+      - name: Verify frozen-source rank11 execution and failed-attempt retention
+        run: node --test tests/rank11-prospective-exposure-run.test.cjs
       - name: Freeze source-ranked policy and candidate exposure registration
         run: node scripts/rank11-prospective-exposure.cjs > rank11-prospective-exposure.json
       - name: Print exact machine-readable registration for independent Git commit
