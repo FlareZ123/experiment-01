@@ -84,6 +84,12 @@ function inheritCopyAttackSessionsFromState(parentState, clonedState, mapCard) {
   return entries.length;
 }
 exports.inheritCopyAttackSessionsFromState = inheritCopyAttackSessionsFromState;
+function transferCopyAttackSessionsOnRollback(parentState, backupState) {
+  const copied = inheritCopyAttackSessionsFromState(parentState, backupState);
+  copyAttackSessionsByState.delete(parentState);
+  return copied;
+}
+exports.transferCopyAttackSessionsOnRollback = transferCopyAttackSessionsOnRollback;
 `;
   return output;
 }
