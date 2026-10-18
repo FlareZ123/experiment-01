@@ -115,6 +115,16 @@ jobs:
           name: rank10-early-dragapult-discard-source-fork
           path: rank10-early-dragapult-discard.json
           retention-days: 90
+      - name: Observe real copied Dragon choices after earlier source discard
+        if: inputs.dragon_discard_audit
+        run: node simulation/twinleaf/rank10-early-dragapult-apex-choice-audit.cjs > rank10-early-dragapult-apex-choices.json
+      - name: Archive root-only copied-attack comparison
+        if: inputs.dragon_discard_audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-early-dragapult-real-apex-copies
+          path: rank10-early-dragapult-apex-choices.json
+          retention-days: 90
       - name: Verify pinned Apex-aware attachment priority
         if: ${{ !inputs.targeted_only }}
         run: node simulation/twinleaf/dde-target-priority.cjs
