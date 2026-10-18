@@ -189,6 +189,13 @@ jobs:
           CAMPAIGN_TRIAL_IDS: ${{ inputs.trial_ids || 'pilot:6:0:champion-reference:A,pilot:6:0:champion-reference:B,pilot:6:0:hood-shield-v1:A,pilot:6:0:hood-shield-v1:B,pilot:6:0:temple-v1:A,pilot:6:0:temple-v1:B' }}
           CAMPAIGN_MAX_ACTIONS: '800'
         run: node simulation/evaluation/aichi-campaign-runner.cjs > aichi-campaign-report.json
+      - name: Print recorded source-seat actions and attack declarations
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe }}
+        env:
+          CAMPAIGN_TRIAL_IDS: ${{ inputs.trial_ids || 'pilot:6:0:champion-reference:A,pilot:6:0:champion-reference:B,pilot:6:0:hood-shield-v1:A,pilot:6:0:hood-shield-v1:B,pilot:6:0:temple-v1:A,pilot:6:0:temple-v1:B' }}
+        run: |
+          node --test tests/aichi-source-action-brief.test.cjs
+          node scripts/aichi-source-action-brief.cjs aichi-campaign-report.json
       - name: Cross-check sourced games and fingerprint evidence envelope
         if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe }}
         env:
