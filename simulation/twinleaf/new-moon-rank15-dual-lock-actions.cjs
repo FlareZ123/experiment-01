@@ -13,7 +13,7 @@ const load=file=>require(path.join(output,file));
  * Both Stage 2 evolution chains are injected as if established on prior
  * turns; no claim about their setup probability or opponent policy.
  *
- * @param {{itemLock:boolean,basicAttackLock:boolean,actor:'basic'|'dusclops'|'cologne'}} options
+ * @param {{itemLock:boolean,basicAttackLock:boolean,actor:'basic'|'dusclops'|'cologne'|'hood-then-basic'}} options
  */
 function probe(options){
   const manager=initializeCards();
@@ -89,7 +89,9 @@ function probe(options){
 
   const before=owner.active.damage;
   const attempted=options.actor==='cologne'?
-    'Canceling Cologne':options.actor==='dusclops'?'Will-O-Wisp':'Miraculous Duo-GX';
+    'Canceling Cologne':options.actor==='dusclops'?'Will-O-Wisp':
+      options.actor==='hood-then-basic'?'Stealthy Hood then Miraculous Duo-GX':
+        'Miraculous Duo-GX';
   let error=null;
   try{
     if(options.actor==='cologne'){
@@ -100,7 +102,18 @@ function probe(options){
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0
         }));
     }else{
-      store.dispatch(new AttackAction(candidate.id,attempted));
+      if(options.actor==='hood-then-basic'){
+        const hood=card('Stealthy Hood UNB');
+        candidate.hand.cards.push(hood);
+        store.dispatch(new PlayCardAction(candidate.id,
+          candidate.hand.cards.indexOf(hood),{
+            player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+          }));
+        assert.equal(candidate.active.tools.includes(hood),true,
+          'The Item lock should allow playing a Tool card');
+      }
+      store.dispatch(new AttackAction(candidate.id,
+        options.actor==='dusclops'?'Will-O-Wisp':'Miraculous Duo-GX'));
       for(let i=0;i<10;i++){
         const pending=store.state.prompts.find(p=>p.result===undefined);
         if(!pending||pending.constructor.name!=='WaitPrompt')break;
@@ -118,6 +131,8 @@ function probe(options){
     damageBefore:before,
     cologneHandAfter:liveCandidate.hand.cards
       .filter(c=>c.name==='Canceling Cologne').length,
+    attackerHoodAfter:liveCandidate.active.tools
+      .some(c=>c.name==='Stealthy Hood'),
     unresolvedPrompts:actual.prompts.filter(p=>p.result===undefined)
       .map(p=>p.constructor.name),
     observationScope:'Staged midgame printed action, not dealt source and not opponent-policy evidence'
@@ -132,15 +147,21 @@ function run(){
     {itemLock:true,basicAttackLock:true,actor:'basic'},
     {itemLock:true,basicAttackLock:true,actor:'dusclops'},
     {itemLock:false,basicAttackLock:true,actor:'cologne'},
-    {itemLock:true,basicAttackLock:true,actor:'cologne'}
+    {itemLock:true,basicAttackLock:true,actor:'cologne'},
+    {itemLock:true,basicAttackLock:true,actor:'hood-then-basic'},
+    {itemLock:false,basicAttackLock:true,actor:'hood-then-basic'}
   ];
   const rows=cases.map(probe);
   for(const row of rows){
     const expected=row.actor==='cologne'?
-      !row.itemLock:row.actor==='dusclops'?true:!row.basicAttackLock;
+      !row.itemLock:row.actor==='dusclops'||
+        row.actor==='hood-then-basic'?true:!row.basicAttackLock;
     assert.equal(row.accepted,expected,
       'Pinned engine disagrees with printed lock gate: '+JSON.stringify(row));
   }
+  assert.ok(rows.filter(r=>r.actor==='hood-then-basic')
+    .every(r=>r.attackerHoodAfter===true),
+    'Hood counterline must attach to the attacker');
   const stage1=rows.find(r=>r.actor==='dusclops');
   assert.equal(stage1.opponentActiveDamage,50,
     'Stage1 Will-O-Wisp must deal 50 under both Vileplume locks');
