@@ -3,6 +3,11 @@ name: Aichi Temple and Wobbuffet board interactions
 on:
   workflow_dispatch:
     inputs:
+      rank19_adp_source_opening:
+        description: 'Prospectively fixed source-rank19 direct ADP+DDE opening versus source rank1, bounded Store trials'
+        required: false
+        type: boolean
+        default: false
       rank11_copy_observer_parity:
         description: 'Read-only source copied-attack parity check'
         required: false
@@ -77,6 +82,26 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Test rank19 ADP readiness separately from printed attack declaration
+        if: inputs.rank19_adp_source_opening
+        run: node --test tests/rank19-adp-source-opening-policy.test.cjs
+      - name: Prospectively screen actual rank19 ADP direct opening and autonomous actions
+        if: inputs.rank19_adp_source_opening
+        run: node simulation/twinleaf/rank19-adp-source-opening-policy.cjs > rank19-source-adp-opening.json
+      - name: Summarize unqualified rank19 ADP source opportunity and policy gate
+        if: inputs.rank19_adp_source_opening
+        run: >-
+          node -e "const r=require('./rank19-source-adp-opening.json');
+          console.log(JSON.stringify({schema:r.schema,
+          count:r.counts,engineRevision:r.sourceEngineRevision,
+          complete:r.allAttemptsRetained,qualified:false}));"
+      - name: Retain complete 160-attempt rank19 source ADP policy records
+        if: inputs.rank19_adp_source_opening && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank19-source-adp-opening
+          path: rank19-source-adp-opening.json
+          if-no-files-found: warn
       - name: Source copied attack observation parity
         if: inputs.rank11_copy_observer_parity
         run: node simulation/twinleaf/source-copied-attack-observer-isolation.cjs
