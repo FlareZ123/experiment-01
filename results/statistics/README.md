@@ -7,5 +7,6 @@ The target is one frozen 60-card deck evaluated against all 32 Aichi Open League
 - [Physical Prize rescue capacity: marginal, legal-opening conditional and joint](agent27-prize-joint-versus-marginal.md): exact source comparison, supplementary calculator and an independent exhaustive-deal test ([manual CI](https://github.com/FlareZ123/experiment-01/actions/runs/38876259687)). Static initial-Prize configurations only.
 - [Field-wide 32-placement statistical evidence protocol](../aichi-2026/evidence-protocol.md): full-ranked-place manifest, uncertainty and provenance.
 - [Hard-matchup familywise veto](hard-matchup-veto.md): exact necessary 84% rank-average / 68% rank-seat floors for a 99.5% equal-weight target, precommitted zero-win batches, and a fail-closed structural input checker. Conditional negative evidence only, with no qualifying matches to date.
+- [Archetype-group necessary win floors](group-loss-budget.md): the 32-rank 99.5% target permits only 0.16 expected rank-equivalent nonwins. Regidrago's 11 placements collectively require at least 98.545% average winning, Absol Garbodor's four require at least 96%, and smaller groups have corresponding necessary minima. Mathematical constraints, no played data.
 
 **Always qualify policy and game-rule fidelity before interpreting any statistical certificate as competitive strength.**
