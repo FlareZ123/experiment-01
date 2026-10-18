@@ -25,6 +25,11 @@ on:
         required: false
         type: boolean
         default: false
+      farewell_vip_pair:
+        description: 'Source-first Benched Unown Farewell before unchanged VIP pair, one archived deal'
+        required: false
+        type: boolean
+        default: false
       vip_prospective_trials:
         description: Prospectively fixed VIP trial count, 0 disables
         required: false
@@ -76,7 +81,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Pure rank11 direct-opportunity and seed-frame regressions
-        run: node --test tests/rank11-direct-opportunity.test.cjs tests/rank11-held-seal-opportunity.test.cjs tests/rank11-held-seal-extended-opportunity.test.cjs tests/rank11-source-seeds.test.cjs tests/rank11-direct-candidate-attack-window.test.cjs tests/rank11-candidate-first-pass-summary.test.cjs tests/rank11-candidate-first-printed-attack-audit.test.cjs tests/rank11-unown-pre-retreat-payment-audit.test.cjs tests/rank11-newmoon-firstturn-vip-availability-audit.test.cjs
+        run: node --test tests/rank11-direct-opportunity.test.cjs tests/rank11-held-seal-opportunity.test.cjs tests/rank11-held-seal-extended-opportunity.test.cjs tests/rank11-source-seeds.test.cjs tests/rank11-direct-candidate-attack-window.test.cjs tests/rank11-candidate-first-pass-summary.test.cjs tests/rank11-candidate-first-printed-attack-audit.test.cjs tests/rank11-unown-pre-retreat-payment-audit.test.cjs tests/rank11-newmoon-firstturn-vip-availability-audit.test.cjs tests/newmoon-farewell-vip-bench-policy.test.cjs
       - name: Install pinned simulator dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -110,6 +115,12 @@ jobs:
       - name: Compare real first-turn candidate VIP play with untouched source Pass
         if: inputs.vip_counterfactual
         run: node simulation/twinleaf/rank11-newmoon-first-vip-counterfactual.cjs > rank11-newmoon-first-vip-counterfactual.json
+      - name: Compare actual candidate first turn with Farewell Letter before VIP
+        if: inputs.farewell_vip_pair
+        run: node simulation/twinleaf/rank11-newmoon-farewell-vip-source-pair.cjs > rank11-newmoon-farewell-vip-source-pair.json
+      - name: Report Farewell-before-VIP source action and fail on engine exception
+        if: inputs.farewell_vip_pair
+        run: node -e "const p=require('./rank11-newmoon-farewell-vip-source-pair.json');console.log(JSON.stringify({seed:p.retrospectiveSourceSeed,firstInformationEqual:p.initialOwnerInformationIdentical,errors:p.failures,baselineVIP:p.baseline.vipAudit?.events,alternatedFarewell:p.farewellFirst.farewellAudit?.events,alternateVIP:p.farewellFirst.vipAudit?.events},null,2));if(p.failures||!p.initialOwnerInformationIdentical)process.exitCode=1"
       - name: Verify source-first VSTAR and second-start direct policies compose
         run: node simulation/twinleaf/rank11-hybrid-source-replay.cjs > rank11-hybrid-source-replay.json
       - name: Retain one real K1 Garbodor search-negative source seed
@@ -129,6 +140,7 @@ jobs:
             rank11-held-seal-source-probe.json
             rank11-direct-candidate-attack-window.json
             rank11-newmoon-first-vip-counterfactual.json
+            rank11-newmoon-farewell-vip-source-pair.json
             rank11-hybrid-source-replay.json
             rank11-direct-abort-replay.json
             rank11-k1-source-contrast.json
