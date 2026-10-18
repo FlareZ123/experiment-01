@@ -85,7 +85,7 @@ function executeDiagnostic(options) {
     'doubleDragonRecovery',  'templeUnlockRecovery',
     'supporterDecisionCorrection', 'isolatePolicyRandomness',
     'prototypeSafeSimulatorIsolation', 'postSuperAliasRepairIsolation',
-    'captureDecisionTrace', 'captureAttackPassProbes',
+    'captureDecisionTrace', 'captureAttackPassProbes', 'captureElectrodeOpportunity',
     'snorlaxRetreatStartCorrection',
     'shadowRiderEnergyPriority', 'shadowRiderEnergyAcrossField',
     'shadowRiderOpeningPivot', 'latiasAttackReadyAttachment',
@@ -102,7 +102,7 @@ function executeDiagnostic(options) {
   const nonEchoPolicyFlags = new Set([
     'strictPromptValidation', 'isolatePolicyRandomness',
     'captureDecisionTrace', 'captureAttackPassProbes',
-    'attackBeforeRetreatCandidateOnly'
+    'captureElectrodeOpportunity', 'attackBeforeRetreatCandidateOnly'
   ]);
   const echoedPolicyKeys = [...allowedFlags].filter(
     key => !nonEchoPolicyFlags.has(key));
@@ -242,6 +242,16 @@ function executeDiagnostic(options) {
       const completed = game.finished === true && [0, 1, 3].includes(game.winner);
       const rawTrace = policyFlags.captureDecisionTrace === true ? game.decisionTrace : null;
       const traceRequested = policyFlags.captureDecisionTrace === true;
+      const opportunityRequested = policyFlags.captureElectrodeOpportunity === true;
+      const opportunityValid = !opportunityRequested || (
+        game.electrodeOpportunitySummary?.evidenceType ===
+          'live-aichi-electrode-public-necessary-conditions-v1' &&
+        Array.isArray(game.electrodeOpportunitySummary.countsBySeat) &&
+        game.electrodeOpportunitySummary.countsBySeat.length === 2 &&
+        game.electrodeOpportunitySummary.countsBySeat.every(row =>
+          Number.isInteger(row.decisions) && row.decisions >= 0 &&
+          Number.isInteger(row.both) && row.both >= 0 && row.both <= row.decisions)
+      );
       const traceValid = !traceRequested || (
         Array.isArray(rawTrace) && rawTrace.length > 0 &&
         rawTrace.every((entry, index) =>
@@ -255,6 +265,7 @@ function executeDiagnostic(options) {
       );
       const status = !turn ? 'unverified-first-turn' :
         completed && !traceValid ? 'unverified-decision-trace' :
+        completed && !opportunityValid ? 'unverified-observer-evidence' :
         completed ? 'completed-engine-game' : 'unfinished-engine-game';
       const candidateSlot = candidateA ? 0 : 1;
       const opponentSlot = candidateA ? 1 : 0;
@@ -277,7 +288,8 @@ function executeDiagnostic(options) {
         qualityFlags: [
           ...(candidateAttacks === 0 ? ['zero-candidate-attacks'] : []),
           ...(opponentAttacks === 0 ? ['zero-opponent-attacks'] : []),
-          ...(traceRequested && !traceValid ? ['missing-or-invalid-decision-trace'] : [])
+          ...(traceRequested && !traceValid ? ['missing-or-invalid-decision-trace'] : []),
+          ...(opportunityRequested && !opportunityValid ? ['missing-electrode-opportunity-evidence'] : [])
         ],
         // Engine traces are action summaries, not complete replayable transcripts.
         traceSummary: {
@@ -291,7 +303,9 @@ function executeDiagnostic(options) {
           chronologicalActionTraceSha256: traceRequested && traceValid ?
             digest(rawTrace) : null,
           capturedMeaningfulActions: traceRequested && traceValid ? rawTrace.length : null,
-          coversAllActionsAndPromptResolutions: false
+          coversAllActionsAndPromptResolutions: false,
+          electrodeOpportunitySummary: opportunityRequested && opportunityValid ?
+            game.electrodeOpportunitySummary : null
         }
       });
     } catch (error) {
@@ -383,6 +397,7 @@ function main() {
       electrodeGXEnergyCorrection: process.env.AICHI_ELECTRODE_GX_ENERGY === '1',
       electroRainDamageCorrection: process.env.AICHI_ELECTRO_RAIN_DAMAGE === '1',
       electrodeGXPrizeTradePolicy: process.env.AICHI_ELECTRODE_PRIZE_TRADE === '1',
+      captureElectrodeOpportunity: process.env.AICHI_ELECTRODE_OPPORTUNITY === '1',
       raichuSightToolPolicy: process.env.AICHI_RAICHU_SIGHT === '1',
       raichuPrizeAllocationPolicy: process.env.AICHI_RAICHU_PRIZE_ALLOCATION === '1',
       doubleDragonRecovery: true, supporterDecisionCorrection: true,
