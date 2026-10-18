@@ -36,6 +36,20 @@ on:
           - '8'
           - '12'
           - '16'
+      held_seal_probe:
+        description: Source-dealt held Forest Seal Stone route, opt-in and unqualified
+        required: false
+        type: boolean
+        default: false
+      held_seal_trials:
+        description: Held-Seal source-dealt frame count
+        required: false
+        default: '32'
+        type: choice
+        options:
+          - '32'
+          - '64'
+          - '128'
       source_seat:
         description: Physical engine seat occupied by published rank11
         required: false
@@ -62,7 +76,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Pure rank11 direct-opportunity and seed-frame regressions
-        run: node --test tests/rank11-direct-opportunity.test.cjs tests/rank11-source-seeds.test.cjs tests/rank11-direct-candidate-attack-window.test.cjs tests/rank11-candidate-first-pass-summary.test.cjs tests/rank11-candidate-first-printed-attack-audit.test.cjs tests/rank11-unown-pre-retreat-payment-audit.test.cjs tests/rank11-newmoon-firstturn-vip-availability-audit.test.cjs
+        run: node --test tests/rank11-direct-opportunity.test.cjs tests/rank11-held-seal-opportunity.test.cjs tests/rank11-source-seeds.test.cjs tests/rank11-direct-candidate-attack-window.test.cjs tests/rank11-candidate-first-pass-summary.test.cjs tests/rank11-candidate-first-printed-attack-audit.test.cjs tests/rank11-unown-pre-retreat-payment-audit.test.cjs tests/rank11-newmoon-firstturn-vip-availability-audit.test.cjs
       - name: Install pinned simulator dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -75,6 +89,15 @@ jobs:
           SEED_PROTOCOL: ${{ inputs.seed_protocol || 'decorrelated-v2' }}
           RANK11_SOURCE_SEAT: ${{ inputs.source_seat || '0' }}
         run: node simulation/twinleaf/rank11-direct-source-probe.cjs > rank11-direct-source-probe.json
+      - name: Observe held-Seal first-own-turn source-dealt opportunities
+        if: inputs.held_seal_probe
+        env:
+          TRIALS: ${{ inputs.held_seal_trials || '32' }}
+          RANK11_SOURCE_SEAT: ${{ inputs.source_seat || '0' }}
+        run: node simulation/twinleaf/rank11-held-seal-source-probe.cjs > rank11-held-seal-source-probe.json
+      - name: Print held-Seal source opportunity denominator
+        if: inputs.held_seal_probe
+        run: node -e "const p=require('./rank11-held-seal-source-probe.json'); console.log(JSON.stringify({trials:p.trialCount,seat:p.sourcePhysicalSeat,sourceFirst:p.sourceFirst,sourceSecond:p.sourceSecond,opportunities:p.opportunities,completed:p.completed,aborted:p.aborted,opportunityRows:p.rows.filter(r=>r.opportunityDetected)},null,2))"
       - name: Compare archived genuine rank11 direct locks with fixed candidate attack windows
         if: inputs.attack_window_probe
         run: node simulation/twinleaf/rank11-direct-candidate-attack-window.cjs > rank11-direct-candidate-attack-window.json
@@ -103,6 +126,7 @@ jobs:
           name: rank11-direct-boostshake-unqualified-seat-${{ inputs.source_seat || '0' }}
           path: |
             rank11-direct-source-probe.json
+            rank11-held-seal-source-probe.json
             rank11-direct-candidate-attack-window.json
             rank11-newmoon-first-vip-counterfactual.json
             rank11-hybrid-source-replay.json
