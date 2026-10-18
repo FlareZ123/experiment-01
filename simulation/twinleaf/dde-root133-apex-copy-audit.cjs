@@ -61,6 +61,7 @@ function withSourceApexCopyTrace(Store, execute) {
   assert.equal(typeof descriptor?.value, 'function');
   let rootStore = null, rootStep = -1, current = null;
   const attacks = [];
+  const observedAttackActions = [];
   Store.prototype.dispatch = function observeApexCopy(action, ...args) {
     if (!rootStore && action?.constructor?.name === 'AddPlayerAction')
       rootStore = this;
@@ -71,6 +72,9 @@ function withSourceApexCopyTrace(Store, execute) {
     const actorId = action?.id;
     const state = this.state;
     const currentTurn = state.turn;
+    if (actionKind === 'AttackAction')
+      observedAttackActions.push({rootStep, actorId, turn:currentTurn,
+        name:action.name ?? null});
     const pending = actionKind === 'ResolvePromptAction' ?
       state.prompts.find(prompt => prompt.id === action.id) : null;
     if (current && currentTurn !== current.turn) {
@@ -122,7 +126,7 @@ function withSourceApexCopyTrace(Store, execute) {
   try {
     const result = execute();
     if (current) current.lastObserved = visibleAttackState(rootStore.state, 202);
-    return {result, attacks};
+    return {result, attacks, observedAttackActions};
   } finally {
     Object.defineProperty(Store.prototype, 'dispatch', descriptor);
   }
@@ -159,7 +163,9 @@ function main() {
   assert.equal(traced.result.overrides.length, 1);
   assert.equal(traced.result.result.guzmaProposed, true);
   assert.equal(traced.result.result.promotionPrompts, 1);
-  assert.equal(traced.attacks.length, 3);
+  assert.equal(traced.attacks.length, 3,
+    JSON.stringify({sourceActions:traced.observedAttackActions,
+      actualForkAttacks:fork.attackTrace.filter(row => row.seat === 1)}));
   return {
     kind: 'rank10-root133-source-copied-attack-selections',
     sources: {ranksBySeat: [1, 10], seed: request.seed,
