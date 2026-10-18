@@ -1,0 +1,38 @@
+name: Aichi rank10 post-Shred Guzma response fork
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-guzma:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify reversible root-Guzma hook
+        run: node --test tests/rank10-turn29-guzma-fork.test.cjs
+      - name: Compare original Retreat with legal Guzma prompt route
+        run: node simulation/twinleaf/rank10-turn29-guzma-source.cjs > rank10-turn29-guzma-fork.json
+      - name: Preserve exact paired source comparison
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-turn29-guzma-fork
+          path: rank10-turn29-guzma-fork.json
+          if-no-files-found: warn
