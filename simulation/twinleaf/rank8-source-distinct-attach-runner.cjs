@@ -48,7 +48,7 @@ function runTest() {
     rawFailure = String(error.message || error);
   }
   assert.match(rawFailure || '',
-    /invalid result to AttachEnergyPrompt 57/,
+    /invalid result to AttachEnergyPrompt \\(prompt 57\\)/,
     'Source control must reproduce the recorded duplicate-target failure');
   const guarded = runMatch({
     ...request,
