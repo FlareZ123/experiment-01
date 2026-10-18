@@ -286,6 +286,7 @@ function auditCampaignQuality(archive) {
       traceIntegrity,
       rootDecisionLineageStatus: rootLineage.status,
       rootActionLedgerStatus: rootLedger.status,
+      rootOriginLineageStatus: rootLedger.originLineageStatus,
       joinedAttackDeclarations: rootLedger.joinedAttackDeclarations,
       terminalOutcomeStatus,
       terminalDeckRemaining: deckRemaining,
@@ -353,7 +354,15 @@ function auditCampaignQuality(archive) {
         typeof check.detail !== 'string' || !check.detail.trim() ||
         (check.action === 'ResolvePromptAction' &&
          (typeof check.printing !== 'string' || !check.printing.trim())) ||
-        (check.action !== 'ResolvePromptAction' && check.printing !== undefined))) {
+        (check.action !== 'ResolvePromptAction' && check.printing !== undefined) ||
+        (check.action !== 'ResolvePromptAction' &&
+         (check.initiatingAction !== undefined || check.initiatingDetail !== undefined)) ||
+        (check.initiatingAction === undefined && check.initiatingDetail !== undefined) ||
+        (check.initiatingAction !== undefined &&
+         (!['PlayCardAction', 'UseAbilityAction', 'AttackAction']
+           .includes(check.initiatingAction) ||
+          typeof check.initiatingDetail !== 'string' ||
+          !check.initiatingDetail.trim())))) {
     throw new Error('Invalid or duplicate declared candidate mechanism check.');
   }
   const detailField = {
@@ -383,6 +392,10 @@ function auditCampaignQuality(archive) {
           const row = rows.find(item => item.trialId === record.trialId);
           const fullRoot = row.rootActionLedgerStatus ===
             'complete-root-ledger-self-consistent';
+          if (check.initiatingAction && (!fullRoot ||
+              row.rootOriginLineageStatus !== 'self-consistent-origin-lineage')) {
+            continue;
+          }
           if (!fullRoot && (row.traceIntegrity !== 'digest-valid' ||
               row.rootDecisionLineageStatus !== 'self-consistent-root-decision-lineage')) {
             continue;
@@ -398,8 +411,13 @@ function auditCampaignQuality(archive) {
               return action[detailField[check.action]] === check.detail;
             }
             const choice = fullRoot ? action.attackChoice : action.attackChoice?.selection;
-            return choice?.attackName === check.detail &&
-              choice.printing === check.printing;
+            if (choice?.attackName !== check.detail ||
+                choice.printing !== check.printing) return false;
+            if (!check.initiatingAction) return true;
+            const initiator = trace[action.initiatingRootActionOrdinal];
+            return initiator?.action === check.initiatingAction &&
+              initiator[detailField[check.initiatingAction]] ===
+                check.initiatingDetail;
           });
           observedActions += chosen.length;
           for (const action of chosen) {
@@ -417,6 +435,9 @@ function auditCampaignQuality(archive) {
             rootWitnesses.push({
               trialId: record.trialId,
               rootActionOrdinal: action.actionOrdinal,
+              ...(check.initiatingAction ? {
+                initiatingRootActionOrdinal: action.initiatingRootActionOrdinal
+              } : {}),
               laterOpponentRootActionOrdinal: opponentLater?.actionOrdinal ?? null,
               opponentNextTurnRootActionOrdinal:
                 opponentLaterTurn?.actionOrdinal ?? null
@@ -430,6 +451,10 @@ function auditCampaignQuality(archive) {
         return {
           id: check.id, action: check.action, detail: check.detail,
           ...(check.printing ? {printing: check.printing} : {}),
+          ...(check.initiatingAction ? {
+            initiatingAction: check.initiatingAction,
+            initiatingDetail: check.initiatingDetail
+          } : {}),
           observedActions, completeTraces, totalTrials: records.length,
           rootWitnesses, laterOpponentRootDispatches,
           opponentNextTurnRootDispatches,
