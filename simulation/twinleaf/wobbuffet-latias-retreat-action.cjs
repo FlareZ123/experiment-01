@@ -141,8 +141,26 @@ function runCase(options) {
     assert.ok(!powers(ours, vmax).includes('Underworld Door'),
       'Rule Box VMAX must become suppressed by resumed Initialization');
     store.dispatch(new AttackAction(ours.id, 'Max Geist'));
-    attackDamage = theirs.active.damage;
     assert.equal(state.playerLastAttack[ours.id]?.attack?.name, 'Max Geist');
+    for (let i = 0; i < 8 && theirs.active.damage === 0; i++) {
+      const wait = state.prompts.find(p =>
+        p.result === undefined && p.constructor.name === 'WaitPrompt');
+      if (!wait) break;
+      store.dispatch(new ResolvePromptAction(wait.id, null));
+    }
+    attackDamage = theirs.active.damage;
+    if (attackDamage !== 100) {
+      console.log(JSON.stringify({
+        attackDiagnostic: true, phase: state.phase, turn: state.turn,
+        activePlayer: state.activePlayer,
+        active: ours.active.getPokemonCard()?.name,
+        energy: ours.active.energies.cards.map(c => c.name),
+        opponentActive: theirs.active.getPokemonCard()?.name,
+        opposingDamage: theirs.active.damage,
+        prompts: state.prompts.filter(p => p.result === undefined)
+          .map(p => p.constructor.name)
+      }));
+    }
     assert.equal(attackDamage, 100, 'Three Psychic Energy should produce 10+3*30');
   } else {
     assert.equal(ours.active.getPokemonCard().name, wobbuffet.name);
