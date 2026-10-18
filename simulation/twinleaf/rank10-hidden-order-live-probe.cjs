@@ -243,11 +243,11 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
   const control=runMatch(common);
   const archival=rootActionOrdinal===215;
   // Current v4 root15 is the real turn2 Double Dragon attachment.
-  // The separate v3-archive rerun puts actual root215 on turn29, as a
-  // PlayCardAction. The earlier turn28 Copycat/Retreat path is not replayed.
+  // The historical Timeless setup branch targets turn28 root215; archival
+  // Double Dragon alone instead reaches the control's turn29 PlayCard.
   const ordinal=archival?215:15,actorSeat=archival?1:0;
   const makeTarget=getOrdinal=>({
-    turn:archival?29:2,
+    turn:archival?28:2,
     seat:actorSeat,makeRandom:()=>seededRandom(20261017),
     rootActionOrdinal:ordinal,readRootDispatchCount:getOrdinal,
     probePrizeMembership:!archival
@@ -285,13 +285,13 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
       limitations:[
         'No hidden-order comparison was executed at root 215',
         'Replay prefix identity was not established',
-        'This historical-policy incompatibility is not a current-v4 policy result'
+        'This historical-policy non-exposure is not a current-v4 policy result'
       ]
     };
   }
   assert.equal(observed.events[0].originalSourceAction?.type,
-    'PlayCardAction',
-    'Both reconstructed source gates must dispatch the verified printed card');
+    archival?'RetreatAction':'PlayCardAction',
+    'Restored historical turn28 must propose Retreat, not a control-line PlayCard');
   if(!archival)
     assert.equal(observed.events[0].originalSourcePlayedPrinting,
       'Double Dragon Energy ROS',
