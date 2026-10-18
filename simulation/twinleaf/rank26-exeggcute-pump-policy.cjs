@@ -11,20 +11,25 @@ const OUTPUT = path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output'
  * @param {object} player
  * @param {number} bottom Bottom-player location tag in Twinleaf.
  * @param {number} bench Bench location tag.
- * @returns {object[]|null} One or two moves, or null if no qualifying KO.
+ * @param {number} remainingOpponentPrizes Number of unclaimed opposing Prizes.
+ * @returns {object[]|null} One or two moves, never a game-losing sixth self-KO.
  */
-function exeggcutePumpMoves(player, bottom, bench) {
+function exeggcutePumpMoves(player, bottom, bench, remainingOpponentPrizes) {
   const slots=player.bench;
   const eggs=slots.map((slot,index)=>({slot,index}))
     .filter(row=>row.slot.getPokemonCard()?.name==='Exeggcute' &&
       row.slot.damage >=20 && row.slot.damage<30);
-  if(eggs.length===0)return null;
-  const donor=slots.findIndex(slot=>slot.getPokemonCard()?.name &&
-    slot.getPokemonCard()?.name!=='Exeggcute' &&
-    slot.damage >=(eggs.length>1?20:10));
-  if(donor===-1)return null;
-  const count=Math.min(eggs.length,2);
-  const from={player:bottom,slot:bench,index:donor};
+  if(eggs.length===0 || remainingOpponentPrizes<=1)return null;
+  const donors=slots.map((slot,index)=>({slot,index}))
+    .filter(row=>row.slot.getPokemonCard()?.name &&
+      row.slot.getPokemonCard()?.name!=='Exeggcute' &&
+      row.slot.damage>=10);
+  const two=eggs.length>=2 && remainingOpponentPrizes>=3
+    ? donors.find(row=>row.slot.damage>=20) : null;
+  const donor=two ?? donors[0];
+  if(!donor)return null;
+  const count=two?2:1;
+  const from={player:bottom,slot:bench,index:donor.index};
   return eggs.slice(0,count).map(row=>({
     from, to:{player:bottom,slot:bench,index:row.index}
   }));
@@ -72,7 +77,10 @@ function withRank26ExeggcutePump(sourceSeat,execute) {
         return original.call(this,state);
       }
     }
-    const moves=exeggcutePumpMoves(own,PlayerType.BOTTOM_PLAYER,SlotType.BENCH);
+    const remainingOpponentPrizes=state.players[1-sourceSeat].prizes
+      .filter(slot=>slot.cards.length>0).length;
+    const moves=exeggcutePumpMoves(
+      own,PlayerType.BOTTOM_PLAYER,SlotType.BENCH,remainingOpponentPrizes);
     if(!moves)return original.call(this,state);
     if(pending){
       if(pending.constructor.name!=='MoveDamagePrompt'||
