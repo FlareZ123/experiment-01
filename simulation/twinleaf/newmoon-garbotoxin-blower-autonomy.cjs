@@ -69,6 +69,7 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {lowHandLillieAfterBl
   let activeSelection = null;
   let lastObservedCandidateTurn = -1;
   let lastBlowerSuccessTurn = -1;
+  let ownerHasSearchedDeck = false;
 
   const newMoonBlowerDecision = function (state) {
     const own = state.players.find(player => player.id === this.client?.id);
@@ -77,6 +78,22 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {lowHandLillieAfterBl
     }
     const opponent = state.players[1-candidateSeat];
     const pending = state.prompts.find(prompt => prompt.result === undefined);
+    if (!ownerHasSearchedDeck && pending?.playerId === own.id &&
+        pending.constructor.name === 'ChooseCardsPrompt' &&
+        pending.cards === own.deck) {
+      ownerHasSearchedDeck = true;
+      const gengar = card => card?.fullName === 'Gengar & Mimikyu-GX TEU';
+      events.push({
+        turn: state.turn, kind:'legitimate-owner-first-deck-search-K1',
+        searchPrompt: pending.constructor.name,
+        gengarInOwnDeck: own.deck.cards.filter(gengar).length,
+        gengarInOwnHand: own.hand.cards.filter(gengar).length,
+        gengarInOwnDiscard: own.discard.cards.filter(gengar).length,
+        gengarOnOwnBench: own.bench.filter(slot =>
+          gengar(slot.getPokemonCard())).length,
+        gengarIsOwnActive: gengar(own.active.getPokemonCard())
+      });
+    }
     if (state.activePlayer === candidateSeat &&
         state.phase === GamePhase.PLAYER_TURN && state.turn <= 8 &&
         state.turn !== lastObservedCandidateTurn && !pending) {
