@@ -41,6 +41,6 @@ test('multi-prized collapse includes actual Basic composition of each target gro
 
 test('reject structurally impossible designated groups',()=>{
   assert.throws(()=>allPrizedAfterLegalSeven(17,2,3));
-  assert.throws(()=>allPrizedAfterLegalSeven(17,43,0));
+  assert.throws(()=>allPrizedAfterLegalSeven(17,44,0));
   assert.throws(()=>allPrizedAfterLegalSeven(0,1,0));
 });
