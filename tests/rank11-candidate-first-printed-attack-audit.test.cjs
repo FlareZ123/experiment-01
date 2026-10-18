@@ -17,16 +17,21 @@ function fixture(){
   const attempts=[];
   for(const [sourceSeedIdentity,s] of Object.entries(snapshots)) {
     for(const candidate of candidates) {
-      const passes=[3,5].map(turnBefore=>({
+      const passes=[3,5].map(turnBefore=>{
+        const unownCount=sourceSeedIdentity==='second-a'?1:3;
+        const benchSize=turnBefore===5?5:(sourceSeedIdentity==='second-a'?4:3);
+        const bench=Array.from({length:unownCount},()=>({name:'Unown'}));
+        while(bench.length<benchSize)bench.push({name:'Duskull'});
+        return ({
         playerSlot:1,action:'PassTurnAction',turnBefore,
         actionOrdinal:turnBefore*10,
         decisionHandBefore:{ownHandPrintings:['Battle VIP Pass FST']},
         publicBoardBeforePass:[
-          {bench:[{name:'Garbodor',toolCards:['Muscle Band']}]},
+          {bench:[{name:'Garbodor',toolCards:['Muscle Band']}],stadium:[]},
           {active:{name:s.active,energyCards:s.energy,
-            printedAttacks:[{name:s.attack,cost:[5,5,9]}]}}
+            printedAttacks:[{name:s.attack,cost:[5,5,9]}]},bench,stadium:[]}
         ]
-      }));
+      });});
       attempts.push({sourceSeedIdentity,seed:s.seed,candidate,
         status:'engine-observed',startVerified:true,actualSourceFirst:false,
         sourcePolicyCompleted:true,nextTurnLockWitness:{equippedGarbodor:true},
@@ -40,6 +45,7 @@ function fixture(){
 test('audits exactly twelve early source Pass observations, without a win claim',()=>{
   const out=auditCandidateFirstPrintedAttacks(fixture());
   assert.equal(out.earlyPassSnapshots,12);
+  assert.equal(out.fullFiveSlotBenchesAtTurnFive,6);
   assert.equal(out.retrospectiveSourceDeals,2);
   assert.equal(out.allInsufficientForPrintedAttack,true);
   assert.equal(out.allHeldFieldBlower,false);
@@ -72,4 +78,17 @@ test('rejects missing and misattributed actual Pass observations',()=>{
   assert.throws(()=>auditCandidateFirstPrintedAttacks(c),/Pass turns changed/);
   const d=fixture();d.attempts[0].actualSourceFirst=true;
   assert.throws(()=>auditCandidateFirstPrintedAttacks(d));
+});
+
+
+test('rejects an opened Bench, missing Unown and newly played Stadium',()=>{
+  const a=fixture();
+  a.attempts[0].candidateEarlyDecisions[1].publicBoardBeforePass[1].bench.pop();
+  assert.throws(()=>auditCandidateFirstPrintedAttacks(a),/Bench size changed/);
+  const b=fixture();
+  b.attempts[0].candidateEarlyDecisions[0].publicBoardBeforePass[1].bench[0].name='Solrock';
+  assert.throws(()=>auditCandidateFirstPrintedAttacks(b),/Unown presence changed/);
+  const c=fixture();
+  c.attempts[0].candidateEarlyDecisions[0].publicBoardBeforePass[1].stadium.push('Sky Field');
+  assert.throws(()=>auditCandidateFirstPrintedAttacks(c),/no Stadium/);
 });
