@@ -1,0 +1,47 @@
+name: Rank11 direct Boost Shake source-policy probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      trials:
+        description: Prospective fixed seed count, maximum 128
+        required: false
+        default: '32'
+
+permissions:
+  contents: read
+
+jobs:
+  direct-source-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Pure rank11 direct-opportunity regressions
+        run: node --test tests/rank11-direct-opportunity.test.cjs
+      - name: Load pinned simulator
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned simulator dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned simulator
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Observe prospective rank11 actual source dealt lines
+        env:
+          TRIALS: ${{ inputs.trials || '32' }}
+        run: node simulation/twinleaf/rank11-direct-source-probe.cjs > rank11-direct-source-probe.json
+      - name: Print bounded outcome and keep all failed opportunities
+        run: node -e "const p=require('./rank11-direct-source-probe.json'); console.log(JSON.stringify({trials:p.actualTrialCount,opportunities:p.opportunities,completed:p.completed,aborts:p.aborts,interesting:p.trials.filter(t=>t.sourceOpportunity!==null)},null,2))"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rank11-direct-boostshake-unqualified
+          path: rank11-direct-source-probe.json
+          if-no-files-found: warn
+          retention-days: 14
