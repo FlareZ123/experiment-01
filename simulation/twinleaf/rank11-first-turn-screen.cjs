@@ -39,6 +39,8 @@ function screenRank11FirstTurn(options) {
           state,source,sourceSeat,playerTurnPhase)===true : false,
         sourceStarter:sourceFirst ? source.active.getPokemonCard()?.name??null : null,
         sourceOwnHand:sourceFirst ? source.hand.cards.map(c=>c.name) : null,
+        sourceOwnHandPrintings:sourceFirst ? source.hand.cards.map(c=>c.fullName) : null,
+        sourceOpponentHandSize:sourceFirst ? state.players[1-sourceSeat].hand.cards.length : null,
         observation:'original Store first-turn state before bot selects a turn action',
         startingOrderProof:'state phase only; separately corroborate actual first draw log',
         continuedGame:false,
