@@ -23,10 +23,10 @@ The source-dealt [observer](../../simulation/twinleaf/agent43-roxie-source-expos
 
 | Source slot | Rank-31 physical seat | Fixed seed | Actual Roxie plays | Roxie-turn Koffing hand-discard choices | Engine turns |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| A (reference in seat 0) | 1 | `1098062414` | 4 | **2** | 37 |
+| A (reference in seat 0) | 1 | `1098062414` | 4 | **1** | 37 |
 | B (reference in seat 1) | 0 | `1295587841` | 4 | **0** | 38 |
 
-The rank-31 source-A game exposes **two actual hand-discard selections containing Koffing** during source-dealt play, a stronger premise than the earlier synthetic fixture. The original v1 source decision trace does **not** record actual generic `ConfirmPrompt` outcomes. Do not infer that a Koffing confirmation was offered or declined merely from the discard. Some effects could be suppressed and the trace has not checked the intermediate prompt inventory.
+The rank-31 source-A game exposes **one actual Koffing discard under Roxie**: the third Roxie was played at action 83, turn 7, and the following `CHOOSE_CARD_TO_DISCARD` prompt selected `Koffing CEC` at action 84. Both source games hit the **240-action cap** and were unfinished. The archived v1 count of two matched all Koffing selections from the hand and erroneously included the initial **`CHOOSE_STARTING_POKEMONS`** prompt at action 6. The tightened source observer now requires a genuine discard prompt; this correction was made **after** compiled CI 39084707814 and is independently supported by inspection of that run's preserved action JSON. The original v1 source decision trace does **not** record actual generic `ConfirmPrompt` outcomes. Do not infer that a Koffing confirmation was offered or declined merely from the discard. Some effects could be suppressed and the trace has not checked the intermediate prompt inventory.
 
 Separately, [the staged pinned Store test](../twinleaf/agent43-roxie-blowaway-store-repair.md) directly establishes that for an unblocked board, choosing false after Roxie/Koffing causes 0/0 damage to opponent Active/Bench while deliberately choosing true causes 10/10; the pinned generic `ConfirmPromptResolver` returns false. That establishes a **potential conditional bot-policy loss of spread damage**, pending live prompt evidence and actual opponent response.
 
