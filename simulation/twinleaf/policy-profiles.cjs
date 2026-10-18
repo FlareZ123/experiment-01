@@ -29,6 +29,7 @@ const ALLOWED_PROFILES = Object.freeze([
   EXPANDED_PROFILE, EXPANDED_SOURCE_PROFILE, EXPANDED_GH_SEARCH_PROFILE,
   RANK11_AUTONOMOUS_PROFILE, RANK11_OWN_FIRST_PROFILE,
   RANK11_SUPPORTER_PROFILE, RANK11_K1_HYBRID_PROFILE,
+  RANK11_K0_K1_HYBRID_PROFILE,
   RANK26_COLOGNE_PROFILE, RANK26_COLOGNE_PUMP_PROFILE,
   RANK26_PROPAGATION_PROFILE
 ]);
@@ -110,7 +111,8 @@ function runWithResearchProfile(request, profile) {
     doubleDragonRecovery: false,
     supporterDecisionCorrection: false
   };
-  if (profile === RANK11_K1_HYBRID_PROFILE) {
+  if (profile === RANK11_K1_HYBRID_PROFILE ||
+      profile === RANK11_K0_K1_HYBRID_PROFILE) {
     const {rank11SourceSeat, ...matchRequest} = shared;
     if (![0, 1].includes(rank11SourceSeat)) {
       throw new Error('Combined rank11 K1 opponent profile needs the source physical seat.');
@@ -122,12 +124,14 @@ function runWithResearchProfile(request, profile) {
         () => runMatch(matchRequest),
         {allowSecondGlobalTurn: true,
           version: 'rank11-original-vstar-first-own-v2'}),
-      {k1AvoidMissingGarbodor: true});
+      {k1AvoidMissingGarbodor: true,
+        k0AvoidAllGarbodorHeld: profile === RANK11_K0_K1_HYBRID_PROFILE});
     return {
       ...direct.result.result,
       researchPolicyProfile: profile,
       experimentalTactics: [
-        'Rank11DirectBoostShakeK1-v2',
+        profile === RANK11_K0_K1_HYBRID_PROFILE ?
+          'Rank11DirectBoostShakeK0K1-v3' : 'Rank11DirectBoostShakeK1-v2',
         'Rank11FirstOwnTurnVSTAR-v2'
       ],
       rank11DirectPolicy: direct.policyAudit,
@@ -313,7 +317,7 @@ function runWithResearchProfile(request, profile) {
   };
 }
 
-module.exports = {RANK11_K1_HYBRID_PROFILE,
+module.exports = {RANK11_K1_HYBRID_PROFILE, RANK11_K0_K1_HYBRID_PROFILE,
   DEFAULT_PROFILE, REGIDRAGO_PROFILE, SUPPORTER_PROFILE,
   REGIDRAGO_SUPPORTER_PROFILE, EXPANDED_PROFILE, EXPANDED_SOURCE_PROFILE,
   EXPANDED_GH_SEARCH_PROFILE, RANK11_AUTONOMOUS_PROFILE,
