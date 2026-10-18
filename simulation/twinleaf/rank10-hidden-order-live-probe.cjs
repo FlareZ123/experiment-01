@@ -182,10 +182,10 @@ function withRootDispatchCounter(Store,work,ownerSeat=1,wantedBoundary=null) {
 }
 
 /**
- * The historical ordinal-215 Copycat/Retreat proposal belongs to the v3
- * Double Dragon tactic. Current v4 ends the same source game before turn 28.
- * Preserve the active policy for prospective turn-27 tests and opt into the
- * explicitly archived policy only for the old ordinal's reproducibility gate.
+ * Historical root 215 requires the v3 Double Dragon tactic AND the
+ * turn-27 Copycat/Apex/Timeless intervention. The unmodified v3 control
+ * takes a different path and reaches a turn-29 PlayCard at root 215.
+ * New turn-2 research keeps the current v4 profile.
  * @param {number|undefined} rootActionOrdinal
  * @returns {{doubleDragonRecovery:boolean,doubleDragonArchiveV3:boolean}}
  */
