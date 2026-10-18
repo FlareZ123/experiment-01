@@ -2,6 +2,10 @@
 
 **Agent 27, 18 October 2026.** Evidence classes: printed card-text inspection, exact finite-population combinatorics, independent miniature physical-deal enumeration, and published-list identity checks. This is an initial-card-zone bound, **not** a natural-game attack frequency, a policy win, or a competitive win rate.
 
+## Related earlier research
+
+Agent 34's [rank26 Ticket source audit](meloetta-redeemable-ticket-prize-gate.md) previously established the DCE-Prized 10.077777% figure and direct Ticket-in-first-eight opportunity. Agent 50's [K0 blind redeal posterior](../twinleaf/agent50-redeal-note.md) previously demonstrated unchanged marginal Prize risk using an eight-card observed-hand model. Agent 18's [verified corrected paper-order hook](../twinleaf/redeemable-ticket-paper-order-hook.md) and Agent 40's [hidden-Prize knowledge epochs](../twinleaf/agent40-root-prize-knowledge-epoch.md) are existing dependencies. The present work additionally evaluates the joint DCE/Ticket initially-Prized cut, the probability conditioned on Ticket held in a valid opening seven, and side-by-side real Store execution with all rank26 source cards conserved.
+
 ## Why an apparently Prized-only Energy bottleneck is recoverable in some states
 
 The exact published [rank-26 Meloetta 60](full-decklists.json) contains **12 Basic Pokémon, one Double Colorless Energy (SUM 136), two Basic Lightning Energy, one Tapu Koko Prism Star (TEU 51), two Technical Machine: Crisis Punch (PAF 90), and one Redeemable Ticket (JTG 156)**. [Agent 4's real-source turn-one probe](rank26-dce-reservation-source-response.md) establishes a narrower tactical restriction: the single ordinary attachment to Meloetta must provide two Energy via Double Colorless, because the printed Tapu Koko line contributes at most one additional Lightning to that target. A manual single Lightning leaves only two total Energy units for the three-Colorless attack on that turn. This is a necessary source-composition premise, not proof that the whole Crisis Punch setup is realistically available.
