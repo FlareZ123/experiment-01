@@ -32,6 +32,27 @@ function blowerOpportunity(state, own, opponent, seat, playerTurnPhase) {
       slot.tools.length > 0);
 }
 
+/**
+ * Pure own-information Supporter opportunity screen. A candidate can use its
+ * normal Supporter on the current legal turn while all six Prizes remain.
+ * Actual engine legality is still checked before any action is dispatched.
+ *
+ * @param {object} state
+ * @param {object} own
+ * @param {0|1} seat
+ * @param {number} playerTurnPhase
+ * @returns {boolean}
+ */
+function lowHandLillieOpportunity(state,own,seat,playerTurnPhase) {
+  return state.activePlayer===seat &&
+    state.phase===playerTurnPhase &&
+    !state.prompts.some(prompt=>prompt.result===undefined) &&
+    own.hand.cards.length>0 && own.hand.cards.length<=2 &&
+    own.supporterTurn!==state.turn &&
+    own.prizes.filter(prize=>prize.cards.length>0).length===6 &&
+    own.hand.cards.some(card=>card.fullName==="Lillie's Determination M1L");
+}
+
 /** @param {object} opponent */
 function tooledGarbodor(opponent) {
   return opponent.bench.find(slot =>
@@ -49,10 +70,14 @@ function tooledGarbodor(opponent) {
  * @template T
  * @param {0|1} candidateSeat
  * @param {()=>T} execute
- * @param {{lowHandLillieAfterBlower?:boolean}} [options]
+ * @param {{lowHandLillieAfterBlower?:boolean,proactiveLowHandLillie?:boolean,automaticFieldBlower?:boolean}} [options]
  * @returns {{result:T,policyAudit:object}}
  */
-function withNewMoonBlowerAutonomy(candidateSeat, execute, {lowHandLillieAfterBlower = false} = {}) {
+function withNewMoonBlowerAutonomy(candidateSeat, execute, {
+  lowHandLillieAfterBlower=false,
+  proactiveLowHandLillie=false,
+  automaticFieldBlower=true
+}={}) {
   if (![0,1].includes(candidateSeat) || typeof execute !== 'function') {
     throw new TypeError('Need candidate physical seat and synchronous game runner');
   }
@@ -134,12 +159,14 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {lowHandLillieAfterBl
       if (toolRemoved) lastBlowerSuccessTurn = state.turn;
       phase = 'idle';
     }
-    if (lowHandLillieAfterBlower && lastBlowerSuccessTurn === state.turn &&
-        state.activePlayer === candidateSeat && !pending &&
-        state.phase === GamePhase.PLAYER_TURN &&
-        own.hand.cards.length <= 2 &&
-        own.supporterTurn !== state.turn &&
-        own.prizes.filter(prize => prize.cards.length > 0).length === 6) {
+    const validLillie=lowHandLillieOpportunity(
+      state,own,candidateSeat,GamePhase.PLAYER_TURN);
+    const afterConfirmedBlower=lastBlowerSuccessTurn===state.turn;
+    const priorityBlower=automaticFieldBlower && blowerOpportunity(
+      state,own,opponent,candidateSeat,GamePhase.PLAYER_TURN);
+    if (validLillie &&
+        ((lowHandLillieAfterBlower && afterConfirmedBlower) ||
+         (proactiveLowHandLillie && !priorityBlower))) {
       const supportIndex = own.hand.cards.findIndex(card =>
         card.fullName === "Lillie's Determination M1L");
       if (supportIndex >= 0) {
@@ -149,15 +176,15 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {lowHandLillieAfterBl
             card:own.hand.cards[supportIndex].fullName,
             handSizeBefore:own.hand.cards.length,
             prizeCount:6,
-            afterRealBlowerSuccess:true});
+            afterRealBlowerSuccess:afterConfirmedBlower});
           lastBlowerSuccessTurn = -1;
           return supporter;
         }
         events.push({turn:state.turn,kind:'Supporter-declined-by-legality-check'});
       }
     }
-    if (blowerOpportunity(state,own,opponent,candidateSeat,
-      GamePhase.PLAYER_TURN)) {
+    if (automaticFieldBlower && blowerOpportunity(
+      state,own,opponent,candidateSeat,GamePhase.PLAYER_TURN)) {
       const index=own.hand.cards.findIndex(card => card.fullName === BLOWER);
       const action=new PlayCardAction(own.id,index,{
         player:PlayerType.ANY,slot:SlotType.BOARD,index:0
@@ -180,9 +207,13 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {lowHandLillieAfterBl
   try {
     const result=execute();
     return {result,policyAudit:{
-      version:lowHandLillieAfterBlower ?
-        'newmoon-garbotoxin-blower-lowhand-lillie-v2' :
-        'newmoon-garbotoxin-blower-autonomous-v1',
+      version:proactiveLowHandLillie ?
+        (automaticFieldBlower ?
+          'newmoon-blower-proactive-lowhand-lillie-v3' :
+          'newmoon-proactive-lowhand-lillie-only-v3') :
+        (lowHandLillieAfterBlower ?
+          'newmoon-garbotoxin-blower-lowhand-lillie-v2' :
+          'newmoon-garbotoxin-blower-autonomous-v1'),
       candidateSeat,opponentSeat:1-candidateSeat,
       opportunitySelections:events.filter(x=>
         x.kind==='autonomous-legal-Item').length,
@@ -203,5 +234,5 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {lowHandLillieAfterBl
   }
 }
 
-module.exports={blowerOpportunity,tooledGarbodor,
+module.exports={blowerOpportunity,lowHandLillieOpportunity,tooledGarbodor,
   withNewMoonBlowerAutonomy,MEWTWO,BLOWER,GARBODOR};
