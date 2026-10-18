@@ -316,6 +316,7 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
     observedRootActionOrdinal:ordinal,
     doubleDragonPolicy:policy.doubleDragonArchiveV3?
       'historical-v3-archive':'current-v4',
+    sourceArm:archival?'v3-timeless-turn27-intervention':'v4-original-control',
     exposed:true,root:observed.events[0],
     sourceOrdinalBoundary:observed.sourceOrdinalBoundary,
     sourceZoneFingerprintSchema:'source-zone-and-turn-flags-v1',
