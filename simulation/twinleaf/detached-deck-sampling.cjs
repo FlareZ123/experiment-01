@@ -35,6 +35,10 @@ function reachableCards(root, isCard) {
  *
  * This is a research diagnostic requiring K1, unknown suffix order and action
  * references that remain valid against a cloned state (e.g. index actions).
+ * A fully known but position-unlocated Prize multiset can be shuffled within
+ * face-down Prize slots, separately from the deck suffix. This requires
+ * authenticated complete Prize composition and unknown positions; mere K1
+ * deck-membership knowledge does not prove that Prize positions were shuffled.
  * A known top prefix may be protected only when its observed order is verified.
  * K0 prize-inclusive deals are supported only under an explicit assertion
  * that none of those Prize identities have yet been observed. Opponent zones
@@ -47,7 +51,7 @@ function reachableCards(root, isCard) {
  * @param {Function} evaluator Pinned tactic evaluator.
  * @param {object} receiver Original `this` for evaluator.
  * @param {(state:object)=>object} cloneState Complete detached-state clone.
- * @param {{seed:number,samples:number,permutation:(n:number,rng:Function)=>number[],random:(seed:number)=>Function,isCard:(value:object)=>boolean,knownTopCount?:number,knownTopVerified?:boolean,sampleUnknownPrizes?:boolean,prizesUnobservedVerified?:boolean,observedPrizeSlots?:Array<{prizeIndex:number,cardIndex:number,fullName:string}>,prizeObservationLedgerComplete?:boolean,deckPrizePartitionUnknownVerified?:boolean}} opts
+ * @param {{seed:number,samples:number,permutation:(n:number,rng:Function)=>number[],random:(seed:number)=>Function,isCard:(value:object)=>boolean,knownTopCount?:number,knownTopVerified?:boolean,sampleUnknownPrizes?:boolean,prizesUnobservedVerified?:boolean,observedPrizeSlots?:Array<{prizeIndex:number,cardIndex:number,fullName:string}>,prizeObservationLedgerComplete?:boolean,deckPrizePartitionUnknownVerified?:boolean,shuffleKnownPrizePositions?:boolean,prizeCompositionKnownVerified?:boolean,prizePositionsUnobservedVerified?:boolean}} opts
  * @returns {number|undefined} Average of valid sampled outcomes.
  */
 function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
@@ -62,10 +66,20 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
   assert.ok(knownTopCount===0||opts.knownTopVerified===true,
     'Preserving top cards requires verified observed prefix order');
   const sampleUnknownPrizes=opts.sampleUnknownPrizes===true;
+  const shuffleKnownPrizePositions=opts.shuffleKnownPrizePositions===true;
+  assert.ok(!(sampleUnknownPrizes&&shuffleKnownPrizePositions),
+    'Unknown-membership and known-composition Prize samplers are exclusive');
+  if(shuffleKnownPrizePositions) {
+    assert.ok(opts.prizeCompositionKnownVerified===true &&
+      opts.prizePositionsUnobservedVerified===true,
+      'Known Prize composition and unknown positions require verified observations');
+  }
   const observedPrizeSlots=opts.observedPrizeSlots??[];
   assert.ok(Array.isArray(observedPrizeSlots),'Observed Prize slots must be an array');
   assert.ok(sampleUnknownPrizes||observedPrizeSlots.length===0,
     'Observed Prize slots require Prize-inclusive sampling');
+  assert.ok(!shuffleKnownPrizePositions||observedPrizeSlots.length===0,
+    'Unlocated Prize shuffle cannot preserve observed positions');
   if(sampleUnknownPrizes&&observedPrizeSlots.length>0) {
     assert.ok(opts.prizeObservationLedgerComplete===true &&
       opts.prizesUnobservedVerified!==true &&
@@ -103,6 +117,12 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
     const hiddenPrizePositions=sampleUnknownPrizes ?
       selectUnobservedPrizeSlots(player.prizes,observedPrizeSlots) : [];
     const unknownDeckCount=deck.length-knownTopCount;
+    const knownPrizeSlots=shuffleKnownPrizePositions ?
+      player.prizes.flatMap((slot,prizeIndex)=>{
+        assert.ok(slot.isSecret===true,
+          'Unlocated Prize shuffle requires all Prize positions face down');
+        return slot.cards.map((card,cardIndex)=>({card,prizeIndex,cardIndex}));
+      }) : [];
     const canonical=canonicalUnseenCards([
       ...deck.slice(knownTopCount),
       ...hiddenPrizePositions.map(slot=>slot.card)
@@ -117,6 +137,17 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
       player.prizes[slot.prizeIndex].cards[slot.cardIndex]=
         sampled[unknownDeckCount+index];
     });
+    // Reassign only Prize positions. Known K1 deck/Prize membership stays fixed.
+    // A distinct deterministic seed prevents deck-order sampling from
+    // consuming Prize-position randomness and vice versa.
+    if(shuffleKnownPrizePositions) {
+      const cards=canonicalUnseenCards(knownPrizeSlots.map(slot=>slot.card));
+      const order=opts.permutation(cards.length,
+        opts.random((seed^0xa5f57b2d)>>>0));
+      knownPrizeSlots.forEach((slot,index)=>{
+        player.prizes[slot.prizeIndex].cards[slot.cardIndex]=cards[order[index]];
+      });
+    }
     const score=evaluator.call(receiver,detached,playerId,action,passTurnScore);
     // A mean conditional on successful hidden-world simulations can
     // overvalue actions that cannot be scored in other possible worlds.
