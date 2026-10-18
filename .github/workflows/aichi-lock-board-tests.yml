@@ -3,6 +3,11 @@ name: Aichi Temple and Wobbuffet board interactions
 on:
   workflow_dispatch:
     inputs:
+      rank11_lastturn_hand_window:
+        description: 'Read-only exact rank11 last-turn own-hand window before copied Poltergeist positive control'
+        required: false
+        type: boolean
+        default: false
       rank19_adp_source_opening:
         description: 'Prospectively fixed source-rank19 direct ADP+DDE opening versus source rank1, bounded Store trials'
         required: false
@@ -101,6 +106,16 @@ jobs:
         with:
           name: rank19-source-adp-opening
           path: rank19-source-adp-opening.json
+          if-no-files-found: warn
+      - name: Observe source rank11 turn35 own-hand before terminal copied attack
+        if: inputs.rank11_lastturn_hand_window
+        run: node simulation/twinleaf/rank11-lastturn-hand-window.cjs > rank11-lastturn-hand.json
+      - name: Preserve rank11 source own-hand before terminal Poltergeist
+        if: inputs.rank11_lastturn_hand_window && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-lastturn-ownhand-positive-control
+          path: rank11-lastturn-hand.json
           if-no-files-found: warn
       - name: Source copied attack observation parity
         if: inputs.rank11_copy_observer_parity
