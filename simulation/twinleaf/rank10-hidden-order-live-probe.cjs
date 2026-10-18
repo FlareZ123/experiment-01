@@ -194,7 +194,11 @@ function sourcePolicyForOrdinal(rootActionOrdinal) {
     'Only archived decisive root ordinal 215 is admitted');
   return {
     doubleDragonRecovery:true,
-    doubleDragonArchiveV3:rootActionOrdinal===215
+    doubleDragonArchiveV3:rootActionOrdinal===215,
+    ...(rootActionOrdinal===215 ? {
+      mimikyuApexTimelessPolicy:true,mimikyuApexTimelessPolicySeat:1,
+      mimikyuTurn27SetupSeat:1
+    } : {})
   };
 }
 
