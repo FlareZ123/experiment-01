@@ -34,9 +34,12 @@ function withRootScoreCensus(Ai,run,rootState,rootOrdinal) {
     rootCalls++;
     const capture=captureTacticScores(this,()=>own.value.call(this,state));
     if(capture.trace.length>0) {
-      const names={};
-      for(const record of capture.trace)
+      const names={},scoredNames={};
+      for(const record of capture.trace) {
         names[record.tactic]=(names[record.tactic]??0)+1;
+        if(Number.isFinite(record.score))
+          scoredNames[record.tactic]=(scoredNames[record.tactic]??0)+1;
+      }
       const acting=state.players.find(player=>player.id===this.client.id);
       const action=capture.result;
       const handIndex=action?.constructor?.name==='PlayCardAction'?
@@ -48,7 +51,9 @@ function withRootScoreCensus(Ai,run,rootState,rootOrdinal) {
         playedHandPrinting:handIndex===null?
           null:acting?.hand?.cards?.[handIndex]?.fullName??null,
         candidateEvaluations:capture.trace.length,
-        tacticCounts:names,
+        finiteCandidateScores:Object.values(scoredNames).reduce(
+          (total,count)=>total+count,0),
+        tacticCounts:names,scoredTacticCounts:scoredNames,
         traceDigest:crypto.createHash('sha256')
           .update(JSON.stringify(capture.trace)).digest('hex')
       });
@@ -102,23 +107,27 @@ function auditRank10SourceScoreCensus() {
     'Score observation changed the authentic source match result');
   const events=observed.events.slice();
   const topByScore=events.sort((a,b)=>
+    b.finiteCandidateScores-a.finiteCandidateScores||
     b.candidateEvaluations-a.candidateEvaluations||
     a.rootStep-b.rootStep).slice(0,16);
-  const supporters=observed.events.filter(event=>
+  const supporterAttempts=observed.events.filter(event=>
     Object.keys(event.tacticCounts).some(name=>/supporter/i.test(name)));
+  const scoredSupporters=observed.events.filter(event=>
+    Object.keys(event.scoredTacticCounts).some(name=>/supporter/i.test(name)));
   return {
     study:'authentic-rank10-v4-policy-score-exposure-census',
     sourceTrialId:matches[0].trialId,seed:matches[0].seed,
     rootPolicyCalls:observed.rootCalls,
     nonzeroScoreExposureCalls:observed.events.length,
     topByScore,
-    firstSupporterScoreOpportunity:supporters[0]??null,
+    firstSupporterEvaluationAttempt:supporterAttempts[0]??null,
+    firstSupporterScoreOpportunity:scoredSupporters[0]??null,
     sourceTerminal:{
       winner:control.winner,turns:control.turns,actions:control.actions
     },
     matchedUninstrumentedGame:true,
     qualifiedForCompetitiveInference:false,
-    interpretation:'Exposure discovery only; no counterfactual score difference or win-rate proof'
+    interpretation:'Attempted evaluations and finite scored proposals are distinct; no counterfactual difference or win-rate proof'
   };
 }
 
