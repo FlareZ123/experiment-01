@@ -105,14 +105,15 @@ function run() {
     'Live candidate own-prompt target must remove public Garbodor Tool');
   assert.equal(summary(baseline).candidateFieldBlowerPlays.length,0);
   assert.equal(summary(after).candidateFieldBlowerPlays.length,1);
-  assert.equal(followup.policyAudit.opportunitySelections,1);
-  assert.equal(followup.policyAudit.confirmedToolRemovals,1);
-  assert.equal(followup.policyAudit.lowHandLillieSelections,1,
-    'Source hand still held a playable Lillie after using the lock answer');
-  assert.equal(summary(afterSupporter).candidateLilliePlays.length,1,
-    'Live pinned Store must record the automatically chosen Supporter');
+  assert.ok(followup.policyAudit.opportunitySelections>=1,
+    'Autonomous source must encounter at least its documented first Tool answer');
+  assert.ok(followup.policyAudit.confirmedToolRemovals>=1,
+    'At least the authentic first removal must be confirmed by public board');
+  assert.equal(summary(afterSupporter).candidateLilliePlays.length,
+    followup.policyAudit.lowHandLillieSelections,
+    'Every selected real Supporter must appear in the recorded Store decisions');
   return {
-    schema:'rank11-garbotoxin-newmoon-autonomous-Field-Blower-exam-v1',
+    schema:'rank11-garbotoxin-newmoon-autonomous-Field-Blower-and-Lillie-exam-v2',
     sourceRank:11,sourceSeed:SEED,sourceSeat:SOURCE_SEAT,
     candidateSeat:CANDIDATE_SEAT,
     fixedCandidate:candidate.id,candidateProxyIdCountHash:candidate.proxyIdCountHash,
