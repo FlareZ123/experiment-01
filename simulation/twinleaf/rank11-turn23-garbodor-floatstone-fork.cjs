@@ -111,6 +111,8 @@ function run() {
   const unchanged=withGarbodorFloatStoneTarget(()=>runArm(...args),{skipChange:true});
   const control=runArm(...args);
   const alt=withGarbodorFloatStoneTarget(()=>runArm(...args));
+  assert.deepEqual(unchanged.result.rootActionLedger,control.rootActionLedger,
+    'Read-only cloned power check must not change unchanged-source decisions');
   assert.equal(control.firstTurnSlot,0);
   assert.equal(alt.result.firstTurnSlot,0);
   assert.equal(control.verifiedByDrawLog,true);
