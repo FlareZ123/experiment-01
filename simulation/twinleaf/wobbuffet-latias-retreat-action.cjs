@@ -61,9 +61,10 @@ function runCase(options) {
 
   const store = new Store({ onStateChange() {} });
   const state = store.state;
-  state.players = [ours, theirs];
+  // Match the pinned engine's BOTTOM_PLAYER target mapping used by Door.
+  state.players = [theirs, ours];
   state.turn = 3;
-  state.activePlayer = 0;
+  state.activePlayer = 1;
   state.phase = GamePhase.PLAYER_TURN;
 
   const powers = (player, pokemon) => {
