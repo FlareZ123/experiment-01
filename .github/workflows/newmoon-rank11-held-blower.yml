@@ -8,6 +8,11 @@ on:
         type: boolean
         required: false
         default: false
+      lillie_factorial_probe:
+        description: 'Opt-in preregistered six-seed plus one selected positive control, 4-arm low-hand Lillie policy exposure'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -37,6 +42,19 @@ jobs:
         run: node --test tests/newmoon-garbotoxin-blower-autonomy.test.cjs
       - name: Source-dealt automatic candidate response against the same autonomous Garbodor opener
         run: node simulation/twinleaf/newmoon-rank11-autonomous-blower-probe.cjs > newmoon-rank11-autonomous-blower.json
+      - name: Pure owner-information proactive low-hand Lillie opportunity tests
+        if: inputs.lillie_factorial_probe
+        run: node --test tests/newmoon-proactive-lowhand-lillie-opportunity.test.cjs tests/newmoon-garbotoxin-blower-autonomy.test.cjs
+      - name: Run predeclared rank11 four-arm small-horizon Lillie policy factorial
+        if: inputs.lillie_factorial_probe
+        run: node simulation/twinleaf/newmoon-rank11-proactive-lillie-factorial.cjs > newmoon-rank11-lillie-factorial.json
+      - name: Preserve all prospective Lillie policy arms including errors
+        if: inputs.lillie_factorial_probe && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-proactive-lowhand-lillie-factorial-unqualified
+          path: newmoon-rank11-lillie-factorial.json
+          if-no-files-found: warn
       - name: Check two-Gengar candidate print count and opener policy contracts
         if: inputs.gengar2_structural_probe
         run: node --test tests/newmoon-gengar2-structural-prospective.test.cjs tests/new-moon-compressor-payload-policy.test.cjs tests/rank6-broad-thorns-policy.test.cjs
