@@ -27,6 +27,26 @@ The last row is only an upper bound on the share of legal openings *passing this
 
 The single-card DCE-Prized event is over ten percent of valid openings. Roughly **9.22 percentage points** of legal openings lie in the potentially recoverable DCE-Prized/Ticket-not-Prized category. Treating all such openings as impossible would exaggerate the strict physical cut by approximately that amount.
 
+## K0 decision risk: Ticket also creates new Prized DCE outcomes
+
+An owner holding Ticket with **no prior Prize mapping** has a materially different decision problem from an owner who searched the deck and knows DCE was Prized. Ticket does not choose favorable new Prize cards. It replaces the old six with the next six from an unknown shuffled deck. If DCE was already in that deck, the exchange can put DCE **into** the new Prizes.
+
+For a strict *initial-state* model, additionally require **Ticket to be in the seven-card opening** and the same opening to contain a Basic. The DCE may be in that hand, the first six Prizes or the 47-card deck. Before any other draws, searches or deck modifications, exact physical symmetry yields:
+
+| DCE event given Ticket held and a Basic-valid initial hand | Exact fraction | Probability |
+| --- | --- | ---: |
+| DCE already in starting hand | 13902 / 148571 | **9.357142376%** |
+| DCE in initial Prizes | 808014 / 7874263 | **10.261455580%** |
+| DCE in replacement Prizes **after Ticket** | 808014 / 7874263 | **10.261455580%** |
+| DCE initially in deck, then selected among six replacement Prizes (conditional on initially in deck) | 6 / 47 | **12.765957447%** |
+| DCE initially Prized, then still in Prizes after Ticket (conditional on initially Prized) | 0 | **0%** |
+
+Why the initial and final marginal probabilities match: conditional on Ticket being in the hand, cards outside that hand occupy 53 exchangeable locations. Ticket exchanges the six Prize locations with six previously unobserved deck locations. For any nonheld singleton such as DCE, the number of Prize slots is still six out of those 53; hand conditioning does not privilege the old or replacement locations. This invariance is specific to **K0**, uniform hidden order and a Ticket played before other cards rearrange the deck. It says nothing about probabilities for specific combinations of other cards or the in-game consequences of moving six actual cards.
+
+After the first full-deck search (**K1**), DCE's zone may become known. When it is known to be Prized, Ticket has a deterministic *physical* benefit: the old DCE moves to the bottom of the deck and out of Prizes. When DCE is known to be in the deck, a pre-shuffle 47-card deck faces a 6/47 chance of newly Prizing it on Ticket use. This makes a blind early Ticket play an unsuitable automatic repair rule; the appropriate policy must consider owner-known Prize mapping, current access and the other cards at risk. The two probability tables have distinct conditioning (Ticket held versus only legal opening).
+
+The extended [source-aware calculator](../../scripts/rank26_prize_ticket_gate.py) now exposes `ticket_held_exchange_probabilities()`, with a second [exhaustive physical-deal test](../../tests/test_rank26_prize_ticket_gate.py) enumerating every accepted 10-card miniature opening, Prize subset and remaining ordered deck. It verifies pre/post Prize invariance and the conditional 3/4 new-Prize risk in that toy experiment.
+
 ## Reproducibility and source guard
 
 - [Exact source-aware calculator](../../scripts/rank26_prize_ticket_gate.py) reads the rank-26 entry in the published full-decklist manifest, fails closed if its relevant identity, 60-card count or 12-Basic count changes, and produces exact rational probabilities.
