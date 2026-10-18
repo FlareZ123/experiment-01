@@ -176,8 +176,16 @@ function auditCampaignQuality(archive) {
     }
     const slot = record.candidateEngineSlot === 'A' ? 0 : 1;
     const firstSlot = record.turnEvidence?.firstTurnSlot;
+    // The producer records four independent-looking consistency fields.
+    // Reject truncated or internally contradictory proofs before counting
+    // first/second coverage. They remain producer reports, not a replay.
+    const firstName = firstSlot === 0 ? 'research-A' : 'research-B';
+    const firstId = firstSlot === 0 ? 101 : 202;
     const drawLogVerified = record.turnEvidence?.verifiedByDrawLog === true &&
-      (firstSlot === 0 || firstSlot === 1);
+      (firstSlot === 0 || firstSlot === 1) &&
+      record.turnEvidence.firstTurnPlayerId === firstId &&
+      record.turnEvidence.firstTurnPlayerName === firstName &&
+      record.turnEvidence.firstDrawLogName === firstName;
     const actualTurn = !drawLogVerified ? 'unverified' :
       firstSlot === slot ? 'first' : 'second';
     const pair = pairedStartEvidence.get(seedKey) || [];
