@@ -111,35 +111,48 @@ function run() {
   assert.equal(new Set(SEEDS).size,SEEDS.length,'Duplicate registered seed');
   const rows=[];
   for(const seed of SEEDS){
-    const original=arm(seed,false);
-    const uniform=arm(seed,true);
-    assert.equal(original.sourceDigest,uniform.sourceDigest);
-    assert.equal(original.trueFirstSlot,uniform.trueFirstSlot);
-    assert.equal(original.candidateLength,60);
-    assert.equal(original.opponentLength,60);
-    rows.push({seed,original,uniform});
+    let original=null;
+    let uniform=null;
+    try {
+      original=arm(seed,false);
+      uniform=arm(seed,true);
+      assert.equal(original.sourceDigest,uniform.sourceDigest);
+      assert.equal(original.trueFirstSlot,uniform.trueFirstSlot);
+      assert.equal(original.candidateLength,60);
+      assert.equal(original.opponentLength,60);
+      rows.push({seed,status:'complete',original,uniform});
+    } catch(error) {
+      rows.push({seed,status:'failed',original,uniform,
+        error: error instanceof Error ? error.message : String(error)});
+    }
   }
-  const starts = [0,1].map(slot=>rows.filter(row=>
+  const complete=rows.filter(row=>row.status==='complete');
+  const starts = [0,1].map(slot=>complete.filter(row=>
     row.original.trueFirstSlot===slot).length);
   return {
     schema:'registered-nightwatch-source-16seed-paired-v1',
     preregistration:'results/twinleaf/night-watch-prospective-batch-registration.md',
     engineRevision:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     originalRank:11,candidateRank:1,registeredSeeds:SEEDS,
-    prospectiveSeeds:SEEDS.length,pairedArms:rows.length*2,
+    prospectiveSeeds:SEEDS.length,pairedArmsAttempted:rows.length*2,
+    completeRowCount:complete.length,failedRowCount:rows.length-complete.length,
     actualFirstSlotCounts:starts,
-    originalAttackExposures:rows.reduce((n,row)=>
+    originalAttackExposures:complete.reduce((n,row)=>
       n+row.original.declaredNightWatch,0),
-    uniformAttackExposures:rows.reduce((n,row)=>
+    uniformAttackExposures:complete.reduce((n,row)=>
       n+row.uniform.declaredNightWatch,0),
-    completePairs:rows.filter(row=>row.original.finished&&row.uniform.finished).length,
-    finishedOriginal:rows.filter(row=>row.original.finished).length,
-    finishedUniform:rows.filter(row=>row.uniform.finished).length,
-    correctedInvalidSamples:rows.reduce((n,row)=>n+row.uniform.hook.invalid,0),
+    completePairs:complete.filter(row=>row.original.finished&&row.uniform.finished).length,
+    finishedOriginal:complete.filter(row=>row.original.finished).length,
+    finishedUniform:complete.filter(row=>row.uniform.finished).length,
+    correctedInvalidSamples:complete.reduce((n,row)=>n+row.uniform.hook.invalid,0),
     pairedRows:rows,qualification:'diagnostic-only',
     competitiveQualifiedGames:0,qualifiedForCompetitiveInference:false
   };
 }
 
-if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
+if(require.main===module){
+  const result=run();
+  process.stdout.write(JSON.stringify(result,null,2)+'\n');
+  if(result.failedRowCount>0)process.exitCode=1;
+}
 module.exports={run,arm,SEEDS,rootNightWatchSelections};
