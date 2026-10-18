@@ -54,7 +54,7 @@ function probe(trainer){
     a.active.cards.push(energy);
     a.active.energies.cards.push(energy);
   }
-  a.active.tools.push(card('Air Balloon SSH'));
+  a.active.tools.push(card('Float Stone BKT'));
 
   const ready=new PokemonCardList();
   ready.cards.push(card('Shadow Rider Calyrex V CRE'));
