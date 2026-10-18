@@ -647,3 +647,39 @@ test('autonomous rank11 uses known source rank and exact opponent physical seat'
   assert.equal(data.records[0].rank11AutonomousPolicy.sourceSeat,1);
   assert.equal(data.records[1].rank11AutonomousPolicy.sourceSeat,0);
 });
+
+
+test('Store-log attack declaration channel preserves copied attacks without native AttackAction', () => {
+  const f = fixture();
+  const protocol = 'real-store-attack-log-declarations-v1';
+  const declaration = {
+    kind: 'engine-attack-declaration', actionOrdinal: 4,
+    turnBefore: 1, triggerAction: 'ResolvePromptAction',
+    playerName: 'research-A', playerSlot: 0, attackName: 'Horror House-GX',
+    resolutionStatus: 'not-independently-verified'
+  };
+  function one(gameModifier) {
+    return executeCampaign(f, {
+      maxTrials: 1, prepareCandidate: prepare,
+      runMatch(request) {
+        return { ...finished(request), attackTrace: [],
+          actionCounts: {ResolvePromptAction: 1}, ...gameModifier };
+      }
+    }).records[0];
+  }
+  const present = one({attackDeclarationTrace: [declaration],
+    attackDeclarationTraceProtocol: protocol});
+  assert.deepEqual(present.attackTrace, []);
+  assert.deepEqual(present.attackDeclarationTrace, [declaration]);
+  assert.equal(present.attackDeclarationTraceProtocol, protocol);
+  assert.equal(present.actionCounts.AttackAction, undefined);
+
+  const observedZero = one({attackDeclarationTrace: [],
+    attackDeclarationTraceProtocol: protocol});
+  assert.deepEqual(observedZero.attackDeclarationTrace, []);
+  assert.equal(observedZero.attackDeclarationTraceProtocol, protocol);
+
+  const unobserved = one({});
+  assert.equal(unobserved.attackDeclarationTrace, null);
+  assert.equal(unobserved.attackDeclarationTraceProtocol, null);
+});
