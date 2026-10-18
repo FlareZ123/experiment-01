@@ -65,5 +65,7 @@ jobs:
         run: node simulation/twinleaf/copy-session-rollback-guard.cjs
       - name: Verify paid Goodra copied attack before turn continuation
         run: node simulation/twinleaf/copy-session-paid-apex-clone.cjs
+      - name: Verify cloned copied-attack handler after paid Apex Dragon action
+        run: node simulation/twinleaf/copy-session-paid-attack-clone-identity.cjs
       - name: Probe speculative Simulator copied-session lifetime
         run: node simulation/twinleaf/copy-session-speculative-simulator.cjs
