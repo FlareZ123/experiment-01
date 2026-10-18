@@ -84,6 +84,23 @@ function test() {
   const disabled=planElectroRainDamage(jamming.state,jamming.own,jamming.prompt,jamming.codes);
   assert.deepEqual(disabled,without);
 
+  const activeJammer=caseState();
+  activeJammer.state.players[1].active.tools.push({
+    name:'Tool Jammer',fullName:'Tool Jammer BST'
+  });
+  const jammed=planElectroRainDamage(activeJammer.state,
+    activeJammer.own,activeJammer.prompt,activeJammer.codes);
+  assert.deepEqual(jammed,without,
+    'Opponent Active Tool Jammer suppresses Sight bonus');
+
+  const benchedJammer=caseState();
+  benchedJammer.state.players[1].bench[0].tools.push({
+    name:'Tool Jammer',fullName:'Tool Jammer BST'
+  });
+  assert.deepEqual(planElectroRainDamage(benchedJammer.state,
+    benchedJammer.own,benchedJammer.prompt,benchedJammer.codes),plan,
+    'Benched Tool Jammer is not active');
+
   const notRaichu=caseState();
   notRaichu.own.active.getPokemonCard=()=>
     ({fullName:'Crobat V DAA',hp:180,tags:['V']});
