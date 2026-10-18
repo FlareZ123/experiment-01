@@ -42,6 +42,12 @@ In **6/6 turn-5 Pass snapshots**, the ordinary five-slot Bench was completely oc
 
 These facts constrain an attractive hypothetical: using a Fog Crystal to search for Solrock CES 62 and pay the single-Colorless Scorching Light attack. On those **turn-5** boards, the candidate cannot simply Bench Solrock under the ordinary five-slot limit. A legal line would need earlier Solrock deployment or another way to free or expand the Bench, access to Solrock in the live search zone, the appropriate Energy attachment, and a valid switch or retreat. Neither a search connector's presence nor the printed one-Energy attack guarantees such a line. The turn-3 boards had open Bench spaces, though Energy use, turn order, search-zone availability and promotion remain unresolved. This finding is a board-constraint observation from source telemetry; it does not rule out other legal responses.
 
+## Root-action choice before the underpowered Pass
+
+A further inspection of the same `second-b` source deal reveals a crucial earlier decision, independently recorded in [the pre-retreat Unown witness](agent39-rank11-unown-pre-retreat-payment-witness.md). **At source root 26 on global turn 3**, Unown was the Active Pokémon with a physically attached Psychic Energy and printed Hidden Power at **one Colorless Energy**. Its attack Energy requirement was payable. The candidate then chose an actual RetreatAction into Articuno, making the eventual Articuno Pass underpowered. This is a real policy-choice opportunity cost, even though the alternative attack's full legality under every status/effect and its tactical benefit remain unqualified.
+
+Consequently, the twelve Pass snapshots establish an inability to pay the printed attack **at those Pass boundaries**. They must never be used to assert that no earlier printed attack was payable during the entire candidate turn.
+
 ## Interpretation and decision impact
 
 These two retrospective source deals supply a **mechanically explained absence of an Active printed attack at the first two observed post-lock Passes**. A candidate policy that explicitly attempted those underpaid printed attacks would be illegal, and a root `AttackAction` count alone cannot determine access to a copied attack. The Garbotoxin and Energy observations weaken any claim that the early no-attack decisions were automatically missed legal attacks. They also show that simply enabling the existing Horror House/Compressor/Blower policy switches did **not** alter the examined early-decision records in either deal.
