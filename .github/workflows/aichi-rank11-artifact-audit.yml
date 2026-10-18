@@ -1,0 +1,34 @@
+name: Inspect archived Aichi rank11 source policy artifact
+
+on:
+  workflow_dispatch:
+    inputs:
+      archived_run:
+        description: GitHub Actions run containing rank11 source regression and campaign reports
+        required: true
+        default: '39090207009'
+        type: string
+      artifact_name:
+        description: Exact name of the source-locked archived report bundle
+        required: true
+        default: aichi-rank6-rank11-autonomous-boostshake-v1-decisions
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  audit-archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch reproducible prior-run artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ inputs.archived_run }}
+          ARTIFACT_NAME: ${{ inputs.artifact_name }}
+        run: gh run download "$SOURCE_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$ARTIFACT_NAME" --dir .
+      - name: Print compact source and four-arm policy evidence
+        run: node scripts/rank11-archived-artifact-summary.cjs
