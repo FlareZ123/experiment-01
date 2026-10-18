@@ -2,7 +2,8 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {openingSetupZones}=require('../simulation/twinleaf/opening-setup-zones.cjs');
+const {openingSetupZones,cardCopyMultisetDigest,openingInventoriesMatch}=
+  require('../simulation/twinleaf/opening-setup-zones.cjs');
 const {captureSourceSetup}=require('../simulation/evaluation/aichi-setup-zone-capture.cjs');
 const {captureSetupOnly}=require('../simulation/evaluation/aichi-setup-only-capture.cjs');
 
@@ -107,4 +108,35 @@ test('headless root dispatch Error.cause preserves only exact first-turn stop to
     });
   }),/Twinleaf dispatch failed/);
   assert.equal(WrappedStore.prototype.dispatch,native);
+});
+
+test('opening conservation rejects a missing or replaced source printing copy',()=>{
+  const players=[player(101),player(202)];
+  for(const p of players){
+    p.deck=zone(Array.from({length:51},(_,i)=>'Deck-'+p.id+'-'+i));
+  }
+  const snapshot=openingSetupZones({
+    turn:1,activePlayer:0,players
+  });
+  const physicalSourceDecks=snapshot.seats.map(seat=>[
+    ...seat.hand,...seat.active,...seat.bench.flat(),
+    ...seat.prizes.flat(),
+    ...Array.from({length:51},(_,i)=>'Deck-'+seat.playerId+'-'+i)
+  ]);
+  assert.deepEqual(snapshot.seats.map(seat=>seat.openingCopyCount),[60,60]);
+  assert.equal(openingInventoriesMatch(snapshot.seats,physicalSourceDecks),true);
+  assert.equal(openingInventoriesMatch(snapshot.seats,
+    physicalSourceDecks.map(cards=>[...cards].reverse())),true);
+  assert.equal(cardCopyMultisetDigest(physicalSourceDecks[0]),
+    cardCopyMultisetDigest([...physicalSourceDecks[0]].reverse()));
+  const replaced=physicalSourceDecks.map(cards=>[...cards]);
+  replaced[0][0]='Different-Card';
+  assert.equal(openingInventoriesMatch(snapshot.seats,replaced),false);
+  assert.equal(openingInventoriesMatch(snapshot.seats,[
+    physicalSourceDecks[0].slice(1),physicalSourceDecks[1]
+  ]),false);
+  assert.equal(openingInventoriesMatch(snapshot.seats,[
+    physicalSourceDecks[1],physicalSourceDecks[0]
+  ]),false);
+  assert.equal(openingInventoriesMatch(null,physicalSourceDecks),false);
 });
