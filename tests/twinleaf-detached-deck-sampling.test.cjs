@@ -257,9 +257,9 @@ test('Prize position-only sampling rejects unproven or incompatible knowledge',(
     /samplers are exclusive/);
   assert.throws(()=>score({...valid,observedPrizeSlots:[
     {prizeIndex:0,cardIndex:0,fullName:'KnownPrize'}]}),
-    /Observed Prize slots require Prize-inclusive sampling/);
+    /complete observation ledger/);
   state.players[0].prizes[0].isSecret=false;
-  assert.throws(()=>score(valid),/all Prize positions face down/);
+  assert.throws(()=>score(valid),/Unobserved Prize positions must be face down/);
 });
 
 
@@ -351,4 +351,66 @@ test('vendor-style original-Action prototype links are rejected',()=>{
     /live action or State object through inherited prototype/);
   assert.equal(called,0);
   assert.equal(action.target.index,1);
+});
+
+test('partially located K1 Prizes preserve observed slots across hidden rearrangements',()=>{
+  const a=setup(),b=setup();
+  const prizes=['D','E','F','G'].map((name,i)=>({
+    isSecret:true,cards:[{id:110+i,fullName:name}]
+  }));
+  a.players[0].prizes=structuredClone(prizes);
+  b.players[0].prizes=structuredClone(prizes);
+  const swapped=b.players[0].prizes;
+  [swapped[1].cards[0],swapped[3].cards[0]]=
+    [swapped[3].cards[0],swapped[1].cards[0]];
+  const options={...opts,knownTopCount:1,knownTopVerified:true,
+    shuffleKnownPrizePositions:true,prizeCompositionKnownVerified:true,
+    prizePositionsUnobservedVerified:true,prizeObservationLedgerComplete:true,
+    observedPrizeSlots:[{prizeIndex:0,cardIndex:0,fullName:'D'}]};
+  const score=state=>evaluateDetachedDeckSamples(
+    state,1,{},0,world=>{
+      const slots=world.players[0].prizes;
+      assert.equal(slots[0].cards[0].fullName,'D');
+      assert.deepEqual(slots.flatMap(slot=>slot.cards)
+        .map(card=>card.fullName).sort(),['D','E','F','G']);
+      assert.equal(world.players[0].deck.cards[0].fullName,'A');
+      return Number(slots[1].cards[0].fullName==='E');
+    },null,structuredClone,options);
+  const beforeA=structuredClone(a),beforeB=structuredClone(b);
+  assert.equal(score(a),score(b));
+  assert.deepEqual(a,beforeA);
+  assert.deepEqual(b,beforeB);
+  a.players[0].prizes[0].isSecret=false;
+  assert.ok(Number.isFinite(score(a)),
+    'A face-up known Prize slot can be preserved in the ledger');
+  b.players[0].prizes[2].isSecret=false;
+  assert.throws(()=>score(b),/Unobserved Prize positions must be face down/);
+});
+
+test('observed K1 residual permutations have exact one-third target probability',()=>{
+  const state=setup();
+  state.players[0].prizes=['D','E','F','G'].map((name,i)=>({
+    isSecret:true,cards:[{id:110+i,fullName:name}]
+  }));
+  const permutations=[
+    [0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]
+  ];
+  let index=0;
+  const probability=evaluateDetachedDeckSamples(state,1,{},0,world=>{
+    const slots=world.players[0].prizes;
+    assert.equal(slots[0].cards[0].fullName,'D');
+    return Number(slots[1].cards[0].fullName==='F');
+  },null,structuredClone,{
+    ...opts,samples:6,knownTopCount:1,knownTopVerified:true,
+    shuffleKnownPrizePositions:true,prizeCompositionKnownVerified:true,
+    prizePositionsUnobservedVerified:true,prizeObservationLedgerComplete:true,
+    observedPrizeSlots:[{prizeIndex:0,cardIndex:0,fullName:'D'}],
+    permutation:n=>{
+      if(n===2)return [0,1];
+      assert.equal(n,3);
+      return permutations[index++];
+    }
+  });
+  assert.equal(index,6);
+  assert.equal(probability,1/3);
 });
