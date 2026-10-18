@@ -14,7 +14,7 @@ function observe(execute){
   const {GamePhase}=mod('game/store/state/state');
   const {IS_ABILITY_BLOCKED}=mod('game/store/prefabs/prefabs');
   const descriptor=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
-  const events=[],seen=new Set();
+  const events=[],seen=new Set(),hoodAttachments=[];
   let root;
   function dispatch(action,...rest){
     if(!root&&action?.constructor?.name==='AddPlayerAction')root=this;
@@ -44,10 +44,26 @@ function observe(execute){
         }
       }
     }
-    return descriptor.value.call(this,action,...rest);
+    const candidate=this===root ? this.state?.players?.[1] : null;
+    const worn=player=>[player.active,...player.bench].flatMap(slot=>
+      slot.tools.filter(card=>card.name==='Stealthy Hood').map(tool=>({
+        pokemon:slot.getPokemonCard()?.fullName??null,
+        attachedCard:tool.fullName
+      })));
+    const before=candidate ? worn(candidate) : [];
+    const response=descriptor.value.call(this,action,...rest);
+    const after=this===root ? this.state?.players?.[1] : null;
+    if(after){
+      const current=worn(after);
+      if(current.length>before.length)hoodAttachments.push({
+        turn:this.state.turn,action:action.constructor.name,
+        before,current
+      });
+    }
+    return response;
   }
   Object.defineProperty(Store.prototype,'dispatch',{...descriptor,value:dispatch});
-  try{return {game:execute(),events};}
+  try{return {game:execute(),events,hoodAttachments};}
   finally{Object.defineProperty(Store.prototype,'dispatch',descriptor);}
 }
 
@@ -74,7 +90,8 @@ function run(){
       e.playerSlot===1&&e.turnBefore===2).slice(0,35).map(e=>({
         ordinal:e.actionOrdinal,action:e.action,card:e.card??null,
         hand:e.decisionHandBefore?.ownHandPrintings??null})),
-    observed:sample.events,baselineReplayEqual:true,
+    observed:sample.events,hoodAttachments:sample.hoodAttachments,
+    baselineReplayEqual:true,
     competitiveGamesQualified:0};
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
