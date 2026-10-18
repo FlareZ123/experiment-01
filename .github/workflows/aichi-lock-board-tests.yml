@@ -54,6 +54,8 @@ jobs:
         run: node simulation/twinleaf/perfection-delegated-action.cjs
       - name: Verify Gengar Horror House special-Psychic source fidelity diagnostic
         run: node simulation/twinleaf/gengar-horror-house-rainbow-fidelity.cjs
+      - name: Verify opt-in paper-Psychic Horror House Store correction and rollback
+        run: node simulation/twinleaf/gengar-horror-house-extra-psychic-hook-contract.cjs
       - run: node simulation/twinleaf/temple-wobbuffet-board.cjs
       - run: node simulation/twinleaf/temple-energy-board.cjs
       - run: node simulation/twinleaf/wobbuffet-pivot.cjs
