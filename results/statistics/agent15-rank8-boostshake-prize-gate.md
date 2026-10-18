@@ -28,6 +28,22 @@ The favorable count is **39,739,351** of **50,063,860** equally likely six-card 
 
 Independent Python `random.Random(20261019)` check, sampling 200,000 six-card subsets without replacement: **158,700** favorable (79.3500%), standardized difference `z=-0.302` from the exact calculation. The analytical result is exact; the randomized check is only a validation.
 
+## Conditioning on a legal opening hand
+
+The unconditional fraction above is a clean uniform-six-Prize combinatorial reference. **A played game first requires a valid seven-card starting hand with a Basic Pokémon**, so the Prize subset distribution for accepted openings is mildly different.
+
+The exact published rank-8 list has ten Basic Pokémon: two Mega Absol ex, two Trubbish, and one each of Tapu Koko Prism Star, Dedenne-GX, Crobat V, Squawkabilly ex, Tapu Lele-GX and Budew. This count can be checked against the provided card database (`me1-86` explicitly has subtype Basic). Split the 46 'other' cards in the original calculation into **8 other Basics and 38 non-Basics**. Trubbish contributes the other two Basics.
+
+Let `b` be the number of Basics among the six Prizes. Given that Prize subset, the probability that a disjoint seven-card initial hand is legal is `1 - C(44+b,7)/C(54,7)`. Weight every six-Prize configuration by that factor and then divide by `P(valid seven) = 1 - C(50,7)/C(60,7) = 74.1370765702%`.
+
+The adjusted exact probability of retaining all six target categories outside Prizes **conditional on an opening hand containing a Basic** is
+
+`217107751062921 / 273885146935400 = 79.2696330897%`.
+
+A separate `random.Random(2026101901)` Python experiment generated 250,000 independent deck shuffles, kept the 185,381 with at least one Basic in the opening seven, then tested cards 8–13 as Prizes. Of those valid deals, 147,226 satisfied the gate (79.4180633398%; `z=1.58` relative to the exact conditional value). The result is an exact combinatorial calculation independently checked by simulation.
+
+This conditional result is the more relevant starting-deal reference for actual games after own mulligans. Optional extra draws caused by an opponent's mulligans occur after Prize setting and do not change this gate.
+
 ## Interpretation and limitations
 
 - The percentage is a **necessary physical-card-availability ceiling on this exact combination's immediately unprized configuration**. It is not the probability of executing the lock. The line must still acquire or hold specific cards, pay Secret Box's three-card discard and Quick Ball's discard, preserve a Bench slot, attach Float Stone, resolve Boost Shake and face a competent opposing response.
