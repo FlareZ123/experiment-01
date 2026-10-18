@@ -338,7 +338,7 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
     limitations:[
       'K1 deck membership and remembered top order are not attested',
       'Only one reversed physical order and one equal-seeded policy RNG',
-      'Detached baseline parity is checked at this root decision only'
+      'Detached baseline parity is checked at this root decision only',
       'Copied policy state may not represent a human-strength player',
       'Complete paper-rule and prompt-closure correctness remain open'
     ]
