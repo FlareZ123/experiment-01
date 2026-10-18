@@ -24,13 +24,13 @@ test('preserving on-Bench Psychic Energy changes an immediate solo Snorlax KO',(
     assert.equal(row.opposingActive,'Snorlax');
     assert.equal(row.opposingDamage,100,JSON.stringify(row));
     assert.equal(row.prizesTaken,0);
-    assert.equal(row.supporterUsed,1);
+    assert.equal(row.supporterUsedBeforeAttack,1);
   }
   for(const name of ['Bird Keeper','Tate & Liza','Switch']){
     const row=byTrainer[name];
     assert.equal(row.energyAtAttack,5,JSON.stringify(row));
     assert.equal(row.opposingActive,null,JSON.stringify(row));
     assert.equal(row.prizesTaken,1,JSON.stringify(row));
-    assert.equal(row.supporterUsed,name==='Switch'?0:1);
+    assert.equal(row.supporterUsedBeforeAttack,name==='Switch'?0:1);
   }
 });
