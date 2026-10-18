@@ -40,7 +40,7 @@ on:
         type: boolean
         default: false
       rank11_k0_partition:
-        description: Fixed K0 screening partition 0 to 15
+        description: Fixed K0 screening partition 0 to 15, or all 512 in one job
         required: false
         type: string
         default: '0'
@@ -124,7 +124,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify source-locked trial adapter and guards
-        run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs tests/rank11-autonomous-opener.test.cjs tests/rank11-autonomous-campaign-seat.test.cjs tests/rank11-first-turn-screen.test.cjs tests/rank11-conditional-k0-screen-run.test.cjs
+        run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs tests/rank11-autonomous-opener.test.cjs tests/rank11-autonomous-campaign-seat.test.cjs tests/rank11-first-turn-screen.test.cjs tests/rank11-conditional-k0-screen-run.test.cjs tests/rank11-conditional-k0-complete.test.cjs
       - name: Verify precommitted rank11 exposure reporter and fail-closed source identity
         if: ${{ inputs.rank11_exposure_probe }}
         run: node --test tests/rank11-prospective-exposure.test.cjs tests/rank11-prospective-exposure-run.test.cjs
@@ -135,10 +135,10 @@ jobs:
         if: ${{ inputs.rank11_conditional_k0_screen }}
         env:
           RANK11_K0_PARTITION: ${{ inputs.rank11_k0_partition || '0' }}
-        run: node simulation/evaluation/rank11-conditional-k0-screen-run.cjs > rank11-conditional-K0-screen.json
+        run: node simulation/evaluation/rank11-conditional-k0-dispatch.cjs > rank11-conditional-K0-screen.json
       - name: Summarize complete K0 partition denominator without winner scores
         if: ${{ inputs.rank11_conditional_k0_screen }}
-        run: node -e "const r=require('./rank11-conditional-K0-screen.json');console.log(JSON.stringify({registration:r.registrationSha256,partition:r.partition,attempted:r.attempted,selectedK0:r.selectedK0,verifiedNonK0:r.verifiedNonK0,unverified:r.unverifiedDraw,exceptions:r.screenExceptions,selectedSeeds:r.records.filter(x=>x.status==='selected-K0').map(x=>x.seed),qualified:r.qualifiedCompetitiveGames}));"
+        run: node -e "const r=require('./rank11-conditional-K0-screen.json');console.log(JSON.stringify({registration:r.registrationSha256,partition:r.partition??'all',attempted:r.attempted??r.attempts,actualSourceFirst:r.actualSourceFirst??r.records.filter(x=>x.sourceFirst===true).length,selectedK0:r.selectedK0,verifiedNonK0:r.verifiedNonK0,unverified:r.unverifiedDraw,exceptions:r.screenExceptions,selectedSeeds:r.records.filter(x=>x.status==='selected-K0').map(x=>x.seed),qualified:r.qualifiedCompetitiveGames}));"
       - name: Execute one fixed 16-trial rank11 true-turn exposure partition
         if: ${{ inputs.rank11_exposure_probe }}
         env:
