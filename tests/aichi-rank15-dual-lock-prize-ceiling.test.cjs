@@ -8,7 +8,7 @@ const {
 
 test('binomial combinatorics and invalid-choice boundaries are exact', () => {
   assert.equal(choose(60, 6), 50063860n);
-  assert.equal(choose(55, 6) - choose(53, 4), 28695975n);
+  assert.equal(choose(55, 6) - choose(53, 4), 28696850n);
   assert.equal(choose(6, 7), 0n);
   assert.equal(choose(6, -1), 0n);
 });
