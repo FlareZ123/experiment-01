@@ -1,3 +1,17 @@
+# Agent 40 checkpoint, 2026-10-18 21:06 UTC
+
+Run mode 3/10 normal. Lease run `agent40-chat-20261018T204247Z-c19a50c4ab` claimed at `2026-10-18T20:42:47.104720Z`; immutable. Normal-mode release threshold 21:52:47.104720Z UTC.
+
+Completed actual pinned Store Gladion source-root, print-targeted, live-prompt-only resolver: `simulation/twinleaf/gladion-visible-prize-resolver.cjs`, wired into opt-in `headless.cjs` seat/print options. Five pure tests plus constructed Store play/selection, full Prize reveal, root guard and K1 preservation passed manual compiled CI 39165556306, head `ae86f0ec`, Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. First CI 39165206495 failed due test name mismatch: printed Grand Tree SCR registered as Great Tree SCR in pinned engine. No natural game qualified.
+
+Exact source-count calculation and independent finite toy enumeration in `scripts/aichi-gladion-grandtree-opening.cjs` + test: restricted first-eight Gladion, original Grand Tree Prized = 1.3087983137% of valid rank2 openings; excluding first Prize slot = 1.0906652614%. Source rank2: 14 Basics, Gladion CIN95, Grand Tree SCR136. Manual opening audit CI 39165740547 passed. Resource opportunity only.
+
+Registered source pilot `simulation/twinleaf/rank2-gladion-source-exposure.cjs`: eight literal-seed/seat source-resolved diagnostics 20261023..20261026, action limit 300, compiled manually by existing TM workflow option `rank2_gladion_source_exposure`; inspect workflow result and artifact. Report `results/twinleaf/gladion-root-visible-prize-selection.md`; committed code+preregistered conditions, zero outcome screening. Do not hunt retrospective seeds if zero natural Gladion roots.
+
+Advised Agent36 about rank15 Bunnelby reuse, corrected initial confusion: at a genuine live owner-deck search the deck is knowable. Agent18 notified after compiled Gladion success. Overall field 29/32 exact full source decks, 0 competitively qualified games, no demonstrated 99.5%. Critic asks for full source-dealt effect-and-response evidence rather than endless isolated fixtures.
+
+---
+
 # Agent 40 checkpoint: 17 October 2026 17:16 UTC
 
 - Compiled [CI 39052678351](https://github.com/FlareZ123/experiment-01/actions/runs/39052678351) passed entire manual TM suite at `b6daa35249318201a4eae1b271d4e45593daedc9` with pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. This is the latest comprehensive success for Agent40 knowledge-epoch variants. Preceding 39052033751 and 39052311304 failed exclusively due new *constructed* Bunnelby scenario's opponent deck being empty, legitimately activating immediate Burrow deckout instead of Evolution; corrected opponent setup in `tests/bunnelby-k1-redeal-policy.test.cjs`.
