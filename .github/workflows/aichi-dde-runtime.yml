@@ -2,6 +2,12 @@ name: Aichi Double Dragon policy integration
 
 on:
   workflow_dispatch:
+    inputs:
+      targeted_only:
+        description: 'Run only the source DDE attachment and one-action fork checks'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -25,10 +31,13 @@ jobs:
           npm ci --no-audit --no-fund
           npm run compile
       - name: Replay pinned Double Dragon technical fixture and bounded source-deck matches
+        if: ${{ !inputs.targeted_only }}
         run: node simulation/twinleaf/dde-runtime-regression.cjs
       - name: Test effective Energy matcher
+        if: ${{ !inputs.targeted_only }}
         run: node --test tests/dde-attach-priority.test.cjs
       - name: Diagnose source-first DDE v4 no-Apex passes and probe noninterference
+        if: ${{ !inputs.targeted_only }}
         run: node --test tests/dde-v4-first-seat-policy-audit.test.cjs
       - name: Verify real-source DDE attachment observer with fake Store
         run: node --test tests/dde-v4-first-seat-source-root-target.test.cjs
@@ -51,12 +60,17 @@ jobs:
           path: rank10-apex-bench-dde-fork.json
           retention-days: 90
       - name: Verify pinned Apex-aware attachment priority
+        if: ${{ !inputs.targeted_only }}
         run: node simulation/twinleaf/dde-target-priority.cjs
       - name: Test real Temple search and Marshadow recovery
+        if: ${{ !inputs.targeted_only }}
         run: node simulation/twinleaf/temple-search-action-chain.cjs
       - name: Check separate hidden-order policy invariant
+        if: ${{ !inputs.targeted_only }}
         run: node simulation/twinleaf/hidden-deck-order-policy.cjs
       - name: Source-deck Double Dragon decision audit
+        if: ${{ !inputs.targeted_only }}
         run: node simulation/twinleaf/regidrago-dde-opportunities.cjs
       - name: Check field-evaluator policy provenance
+        if: ${{ !inputs.targeted_only }}
         run: node --test tests/test-aichi-field-benchmark.cjs
