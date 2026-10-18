@@ -13,6 +13,8 @@ const {assertVendorCloneCompatibleSource,normalizeDeepClonePrototypes}=
   require('./normalize-deep-clone.cjs');
 const {swapHiddenPrize}=require('./prize-membership-live-probe.cjs');
 const {sourceZoneSnapshot,zoneSnapshotDigest}=require('./source-zone-checkpoint.cjs');
+const {sourceEffectDigest}=require('./source-effect-checkpoint.cjs');
+const {createSourcePrefixAudit}=require('./source-prefix-digest.cjs');
 const {observableState,hash:sourceStateDigest}=require('./source-state-continuity.cjs');
 
 /** @param {object|null|undefined} action */
@@ -154,7 +156,7 @@ function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
  * @param {number|null} [wantedBoundary] Zero-based root Store action step.
  * @returns {T}
  */
-function withRootDispatchCounter(Store,work,ownerSeat=1,wantedBoundary=null,boundaryDigest=null,historyDigest=null) {
+function withRootDispatchCounter(Store,work,ownerSeat=1,wantedBoundary=null,boundaryDigest=null,historyDigest=null,prefixAudit=null) {
   const descriptor=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.ok(descriptor && typeof descriptor.value==='function');
   let root=null,count=0,boundary=null;
@@ -173,10 +175,24 @@ function withRootDispatchCounter(Store,work,ownerSeat=1,wantedBoundary=null,boun
           .map(prompt=>prompt.constructor.name)
       };
     }
+    const prefixStep=count;
+    const prefixBefore=prefixAudit && this===root &&
+      wantedBoundary!==null && count<=wantedBoundary?[
+        zoneSnapshotDigest(sourceZoneSnapshot(this.state)),
+        sourceStateDigest(observableState(this.state)),
+        sourceEffectDigest(this.state)
+      ]:null;
     if(this===root)count++;
     const result=descriptor.value.apply(this,args);
     if(this===root) {
       const state=this.state,owner=state?.players?.[ownerSeat];
+      if(prefixBefore) prefixAudit.record([
+        prefixStep,args[0]?.constructor?.name??'UnknownAction',
+        ...prefixBefore,
+        zoneSnapshotDigest(sourceZoneSnapshot(state)),
+        sourceStateDigest(observableState(state)),
+        sourceEffectDigest(state)
+      ]);
       if(owner) for(const prompt of state.prompts) {
         if(prompt?.constructor?.name==='ChooseCardsPrompt' &&
             prompt.playerId===owner.id &&
@@ -271,6 +287,16 @@ function auditRank10HiddenOrder(rootActionOrdinal,scoreTarget=null) {
     rootActionOrdinal:ordinal,readRootDispatchCount:getOrdinal,
     probePrizeMembership:!archival&&scoreTarget===null
   });
+  // Historical SHA checkpoints independently derived from the archived
+  // compiled Timeless-branch source Store events, artifact 12087067955.
+  const prefixAudit=archival?createSourcePrefixAudit({
+    2:'c57be4b4aefc87e547c4424bf59b0305685464428bc4e9612b7107994290d941',
+    10:'e98a2c247d93be48af0fee62acdc2f25f880bfa1d1bd4aed7f86dd128664a701',
+    50:'202ba72857abce7aa8963d7c0184e5f933e4424ec09bb712f56aab6d9c8da02f',
+    183:'c28c866bfc10cafc1595f5667603a30b4a367b1f9aa453ab92730fcdd7fb2b38',
+    215:'9ad0b9438538787eb641604a7d411d0ff2c214dfb174f3b323b35c32dbaf72ea',
+    216:'9b6135cb545bc800dd0d40ff441a4f2a6a40fec94459ed87956b79727052196c'
+  }):null;
   const observed=withRootDispatchCounter(
     require(path.join(output,'game/store/store')).Store,
     (getOrdinal,getOwnerDeckSearches,getBoundary)=>{
@@ -280,7 +306,17 @@ function auditRank10HiddenOrder(rootActionOrdinal,scoreTarget=null) {
       return {...run,sourceOrdinalBoundary:getBoundary()};
     },
     actorSeat,ordinal,state=>zoneSnapshotDigest(sourceZoneSnapshot(state)),
-    state=>sourceStateDigest(observableState(state)));
+    state=>sourceStateDigest(observableState(state)),prefixAudit);
+  const prefixEvidence=prefixAudit?.finish()??null;
+  if(archival) {
+    assert.equal(prefixEvidence.steps,216,
+      'Historical source prefix must include root ordinal 215');
+    assert.ok(prefixEvidence.allMatched,
+      'Historical source prefix checkpoint mismatch: '+
+      JSON.stringify(prefixEvidence.checkpoints.filter(c=>!c.matches)));
+    assert.equal(prefixEvidence.sha256,
+      '9b6135cb545bc800dd0d40ff441a4f2a6a40fec94459ed87956b79727052196c');
+  }
   assert.deepEqual(observed.result,control,
     'Read-only hidden-order counterfactual changed physical source match');
   assert.ok(observed.events.length<=1,
@@ -352,6 +388,7 @@ function auditRank10HiddenOrder(rootActionOrdinal,scoreTarget=null) {
     exposed:true,root:observed.events[0],
     ...(scoreTarget?{prospectiveScoutSelectedRoot:scoreTarget}:{}),
     sourceOrdinalBoundary:observed.sourceOrdinalBoundary,
+    ...(prefixEvidence?{historicalSourcePrefixEvidence:prefixEvidence}:{}),
     sourceZoneFingerprintSchema:'source-zone-and-turn-flags-v1',
     matchedUninstrumentedMatch:true,
     sourceTerminal:{winner:control.winner,turns:control.turns,
@@ -361,6 +398,7 @@ function auditRank10HiddenOrder(rootActionOrdinal,scoreTarget=null) {
       'K1 deck membership and remembered top order are not attested',
       'Only one reversed physical order and one equal-seeded policy RNG',
       'Detached baseline parity is checked at this root decision only',
+      'Historical prefix digest covers selected State projections, not all action payloads or closure state',
       'Copied policy state may not represent a human-strength player',
       'Complete paper-rule and prompt-closure correctness remain open'
     ]
