@@ -26,3 +26,10 @@ The shared campaign quality screen formerly counted mechanism actions directly f
 Each positive mechanism carries its original root action ordinal and, where captured, a later opponent root dispatch ordinal. A later opposing action remains an observation of chronology only; it cannot prove a consequential tactical response. The audit explicitly leaves original opportunity, detached policy proposals and resolution of attack/card effects as `unobserved`.
 
 Three new synthetic regressions cover valid later-opponent-root evidence, a duplicate with perfectly matching action digest, and a root ordinal beyond the actual action count. [Manual CI 39135372290](https://github.com/FlareZ123/experiment-01/actions/runs/39135372290) passed the existing benchmark test workflow. The current 29/32 source coverage, zero qualified games and unproven 99.5% target are unchanged.
+
+
+## 18 October: next-turn and terminal consistency addendum
+
+The quality screen distinguishes any later opposing root from the first **non-prompt opposing action on a strictly later turn** (`opponentNextTurnRootActionOrdinal`). A same-turn opposing prompt never establishes this later-turn field. [CI 39136227313](https://github.com/FlareZ123/experiment-01/actions/runs/39136227313) passed.
+
+The quality screen also matches the completed-game reported winner to an observed Store terminal phase transition's `after.winner`. Absent or contradictory evidence is flagged `terminal-outcome-unavailable` / `terminal-winner-mismatch`, with `completedTerminalUnboundTrials` counts. [CI 39136596867](https://github.com/FlareZ123/experiment-01/actions/runs/39136596867) passed. Source records and terminal objects remain user-supplied and unauthenticated. No competitive win-rate evidence changed.
