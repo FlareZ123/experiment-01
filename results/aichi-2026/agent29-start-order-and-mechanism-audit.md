@@ -46,3 +46,19 @@ All eight physical-B starts in this 16-cell source seed grid were candidate-firs
 Re-execute a New Moon 350-action authentic source and unchanged challenger pair using an actually candidate-second seed above and reverify the first draw, both card digests, independent source-state nonmutation, subsequent candidate Ability/attack/Item affordances and legal opposing responses. Ensure the copied-attack prompt pathway is observable as well as the printed `AttackAction` pathway. Add actual-first and actual-second coverage for each opponent rather than assuming physical-seating balance. The rank-10 mechanistic replay and the 29/32 field provenance gaps remain separate unsolved requirements.
 
 There is no deck promotion or demonstrated 99.5% target from the preceding diagnostics.
+
+## 18 October 2026: complete engine first-turn proof is mandatory
+
+The earlier quality screen trusted `turnEvidence.verifiedByDrawLog === true` and an integer `firstTurnSlot` when attributing a trial's actual first player. This permitted an internally contradictory or truncated archived draw-log proof to populate the first/second denominator even though the campaign execution producer's `observedFirstTurn` function had recorded **four** corroborating fields. This was an evidence-intake gap, not a demonstrated engine randomization defect.
+
+The screen at [`scripts/aichi-campaign-quality-screen.cjs`](../../scripts/aichi-campaign-quality-screen.cjs) now requires all of:
+
+- `verifiedByDrawLog === true` and `firstTurnSlot` exactly 0 or 1;
+- `firstTurnPlayerId === 101` for slot A or `202` for slot B;
+- `firstTurnPlayerName` and `firstDrawLogName` both equal the corresponding `research-A` or `research-B` engine actor name.
+
+One contradiction or absent field sets `actualTurn:'unverified'`, keeps the affected stratum absent, and marks paired-source order evidence unverified. This preserves physically distinct seat identity and retains unverified trials in the campaign denominator. The strict schema mirrors the producer's existing source rules; no game, deck, random seed, simulator or bot policy was altered.
+
+The [manual-only benchmark CI run 39153390189](https://github.com/FlareZ123/experiment-01/actions/runs/39153390189) **passed** at research commit `404808ced8c6d547b49f68d510685363b6707e76`. New adversarial tests cover missing player ID, wrong ID, wrong player name and wrong first-draw-log name, while verifying that a single corrupt comparison arm does not invalidate unrelated first/second observations. A fixture whose proof is valid across all fields preserves the original start-order counts. The previously red shallow-alias fixture is also now repaired by Agent 20's copy-on-write change, independently covered in this successful workflow.
+
+**Boundary:** all proof fields still originate from the runtime/record producer and may be forged together. This change establishes internal consistency and rejects accidental evidence corruption. It is not independent Store replay, a source-of-randomness certification or win-rate evidence. Missing original rank 23/25/28 lists and competitively qualified games remain unresolved.
