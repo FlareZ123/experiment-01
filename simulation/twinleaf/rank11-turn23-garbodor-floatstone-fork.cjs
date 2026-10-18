@@ -41,6 +41,11 @@ function withGarbodorFloatStoneTarget(execute) {
       const own=copy.players[1];
       const mew=own.active.getPokemonCard();
       assert.equal(mew?.name,'Mewtwo & Mew-GX');
+      firstCandidatePower={
+        turn:24,sourceSeat:0,candidateSeat:1,
+        candidateActive:mew.fullName,
+        blocked:powerCheck(shadow.store,copy,own,mew)
+      };
     }
     const ordinary=old.value.call(this,state);
     if(selected || state.turn!==23 || state.activePlayer!==0 ||
