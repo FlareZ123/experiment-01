@@ -16,7 +16,7 @@ const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  * @returns {{result:T,policyAudit:object}}
  */
 function withRank11DirectBoostShake(sourceSeat, execute,
-  {k1AvoidMissingGarbodor = false} = {}) {
+  {k1AvoidMissingGarbodor = false, k0AvoidAllGarbodorHeld = false} = {}) {
   if (![0, 1].includes(sourceSeat) || typeof execute !== 'function') {
     throw new TypeError('Known rank11 seat and synchronous game required.');
   }
