@@ -25,6 +25,7 @@ function sample(enabled) {
       trialId:'pilot:10:0:temple:A',candidateId:'temple',
       candidateDigest:'deck',opponentDigest:'regidrago',opponentRank:10,
       candidateEngineSlot:'A',seed:3162592764,candidateActualTurn:'second',
+      engineDeckHashes:['1'.repeat(64),'2'.repeat(64)],
       candidateAttacks:0,opponentAttacks:7,
       turnEvidence:{firstTurnSlot:1,verifiedByDrawLog:true},
       traceSummary:{chronologicalActionTrace:trace,
@@ -96,4 +97,39 @@ test('absent terminal evidence and suspect starting turn cannot appear identical
   assert.equal(report.allActualTurnOrdersIdentical, false);
   assert.equal(report.allTerminalTransitionsIdentical, false);
   assert.equal(report.rows[0].terminalEvidenceAvailable, false);
+});
+
+
+test('ordered deck hash drift fails provenance even with identical print digests and revisions', () => {
+  const before = sample(false), after = sample(true);
+  for (const archive of [before, after]) {
+    archive.researchRevision = 'a'.repeat(40);
+    archive.expectedEngineRevision = 'twinleafgg/' + 'b'.repeat(40);
+    archive.records[0].engineRevision = archive.expectedEngineRevision;
+    archive.records[0].traceSummary.coversAllActionsAndPromptResolutions = true;
+  }
+  after.records[0].engineDeckHashes[0] = 'f'.repeat(64);
+  const report = compareFrozenPolicyArchives(before, after,
+    'shadowRiderOpeningPivot');
+  assert.equal(report.rows[0].orderedDeckHashState, 'drifted');
+  assert.ok(report.provenanceGaps.includes('ordered-deck-input-hashes-drifted'));
+  assert.equal(report.controlledRevisionDiagnostic, false);
+  assert.equal(report.identicalCapturedTraceTrials, 1);
+});
+
+test('missing ordered source input hash fails closed on otherwise green paired archive', () => {
+  const before = sample(false), after = sample(true);
+  for (const archive of [before, after]) {
+    archive.researchRevision = 'a'.repeat(40);
+    archive.expectedEngineRevision = 'twinleafgg/' + 'b'.repeat(40);
+    archive.records[0].engineRevision = archive.expectedEngineRevision;
+    archive.records[0].traceSummary.coversAllActionsAndPromptResolutions = true;
+  }
+  delete after.records[0].engineDeckHashes;
+  const report = compareFrozenPolicyArchives(before, after,
+    'shadowRiderOpeningPivot');
+  assert.equal(report.rows[0].orderedDeckHashState, 'unavailable');
+  assert.ok(report.provenanceGaps.includes('ordered-deck-input-hashes-unavailable'));
+  assert.equal(report.controlledRevisionDiagnostic, false);
+  assert.equal(report.allCapturedTracesIdentical, true);
 });
