@@ -31,9 +31,20 @@ function screenRank11FirstTurn(options) {
        !state.prompts.some(p=>p.result===undefined)) {
       const sourceFirst=state.activePlayer===sourceSeat;
       const source=sourceFirst ? state.players[sourceSeat] : null;
+      const startPlayer=state.players[state.activePlayer];
+      const firstDraw=state.logs?.find(log=>
+        log.message==='LOG_PLAYER_DRAWS_CARD');
+      const firstDrawName=firstDraw?.params?.name??null;
+      if(firstDrawName!==null && firstDrawName!==startPlayer.name) {
+        throw new Error('Observed first-player state contradicts actual draw log');
+      }
       capture={
         schema:'rank11-live-predecision-screen-v1',
         actualFirstPlayerSeat:state.activePlayer,
+        actualFirstPlayerName:startPlayer.name??null,
+        firstDrawLogName:firstDrawName,
+        verifiedByDrawLog:firstDrawName!==null &&
+          firstDrawName===startPlayer.name,
         sourceFirst,
         eligibleK0:sourceFirst ? openingOpportunity(
           state,source,sourceSeat,playerTurnPhase)===true : false,
@@ -42,7 +53,7 @@ function screenRank11FirstTurn(options) {
         sourceOwnHandPrintings:sourceFirst ? source.hand.cards.map(c=>c.fullName) : null,
         sourceOpponentHandSize:sourceFirst ? state.players[1-sourceSeat].hand.cards.length : null,
         observation:'original Store first-turn state before bot selects a turn action',
-        startingOrderProof:'state phase only; separately corroborate actual first draw log',
+        startingOrderProof:'genuine first-turn Store state; verifiedByDrawLog only if normal-draw log agrees',
         continuedGame:false,
         qualifiedForCompetitiveInference:false
       };
