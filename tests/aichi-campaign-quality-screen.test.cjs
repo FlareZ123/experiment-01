@@ -30,7 +30,8 @@ function fixture() {
       candidateId: 'reference', candidateDigest: 'reference-digest',
       candidateEngineSlot: 'A', candidateActualTurn: 'first',
       turnEvidence: {firstTurnSlot: 0, verifiedByDrawLog: true},
-      status: 'completed-engine-game', candidateAttacks: 0, opponentAttacks: 2,
+      status: 'completed-engine-game', actions: 12,
+      candidateAttacks: 0, opponentAttacks: 2,
       traceSummary: {
         chronologicalActionTrace: trace,
         chronologicalActionTraceSha256: traceHash,
@@ -47,7 +48,8 @@ function fixture() {
       candidateId: 'challenger', candidateDigest: 'challenger-digest',
       candidateEngineSlot: 'B', candidateActualTurn: 'second',
       turnEvidence: {firstTurnSlot: 0, verifiedByDrawLog: true},
-      status: 'completed-engine-game', candidateAttacks: 3, opponentAttacks: 0,
+      status: 'completed-engine-game', actions: 12,
+      candidateAttacks: 3, opponentAttacks: 0,
       traceSummary: {
         chronologicalActionTrace: trace,
         chronologicalActionTraceSha256: traceHash,
@@ -502,4 +504,82 @@ test('mixed ordinary and delegated attacks expose both directions of log mismatc
   assert.equal(result.coverage[0].candidateRootUndercountTrials, 1);
   assert.equal(result.coverage[0].opponentRootUnloggedTrials, 1);
   assert.equal(result.winRateEvidence, false);
+});
+
+
+test('each mechanism witness is one actual root ordinal with later opponent root distinguished', () => {
+  const f = fixture();
+  f.mechanismChecks = [
+    {id: 'blower', candidateId: 'challenger', rank: 6,
+      action: 'PlayCardAction', detail: 'Field Blower'}
+  ];
+  const actions = [
+    {actionOrdinal: 1, action: 'PlayCardAction', card: 'Field Blower',
+      playerSlot: 0},
+    {actionOrdinal: 2, action: 'ResolvePromptAction', playerSlot: 0},
+    {actionOrdinal: 3, action: 'PlayCardAction', card: 'Opponent Supporter',
+      playerSlot: 1}
+  ];
+  const record = f.records[3];
+  record.traceSummary.chronologicalActionTrace = actions;
+  record.traceSummary.chronologicalActionTraceSha256 =
+    createHash('sha256').update(JSON.stringify(actions)).digest('hex');
+  const audited = auditCampaignQuality(f);
+  const mechanism = audited.coverage.find(row => row.candidateId === 'challenger')
+    .mechanismExposure[0];
+  assert.equal(mechanism.status, 'observed');
+  assert.equal(mechanism.observedActions, 1);
+  assert.equal(mechanism.laterOpponentRootDispatches, 1);
+  assert.deepEqual(mechanism.rootWitnesses, [{
+    trialId: record.trialId, rootActionOrdinal: 1,
+    laterOpponentRootActionOrdinal: 3
+  }]);
+  assert.equal(mechanism.opportunityStatus, 'unobserved');
+  assert.equal(mechanism.hypotheticalProposalStatus, 'unobserved');
+  assert.equal(mechanism.resolvedEffectStatus, 'unobserved');
+  assert.equal(audited.records[3].rootDecisionLineageStatus,
+    'self-consistent-root-decision-lineage');
+  assert.equal(audited.winRateEvidence, false);
+});
+
+test('duplicate callback-style ordinal cannot manufacture a second root dispatch', () => {
+  const f = fixture();
+  f.mechanismChecks = [
+    {id: 'blower', candidateId: 'challenger',
+      action: 'PlayCardAction', detail: 'Field Blower'}
+  ];
+  const action = {actionOrdinal: 2, action: 'PlayCardAction',
+    playerSlot: 0, card: 'Field Blower'};
+  const record = f.records[3];
+  record.traceSummary.chronologicalActionTrace = [action, {...action}];
+  record.traceSummary.chronologicalActionTraceSha256 =
+    createHash('sha256')
+      .update(JSON.stringify(record.traceSummary.chronologicalActionTrace))
+      .digest('hex');
+  const audited = auditCampaignQuality(f);
+  assert.equal(audited.records[3].traceIntegrity, 'digest-valid');
+  assert.equal(audited.records[3].rootDecisionLineageStatus,
+    'root-decision-lineage-integrity-mismatch');
+  const mechanism = audited.coverage.find(row => row.candidateId === 'challenger')
+    .mechanismExposure[0];
+  assert.equal(mechanism.observedActions, 0);
+  assert.equal(mechanism.laterOpponentRootDispatches, 0);
+  assert.equal(mechanism.rootWitnesses.length, 0);
+  assert.equal(mechanism.status, 'unknown-incomplete-traces');
+  assert.ok(audited.records[3].blockers.includes(
+    'root-decision-lineage-integrity-mismatch'));
+});
+
+test('root action beyond the true action bound fails closed despite matching digest', () => {
+  const f = fixture();
+  const record = f.records[3];
+  const action = [{actionOrdinal: 12, action: 'AttackAction',
+    playerSlot: 0, attack: 'Timeless-GX'}];
+  record.traceSummary.chronologicalActionTrace = action;
+  record.traceSummary.chronologicalActionTraceSha256 =
+    createHash('sha256').update(JSON.stringify(action)).digest('hex');
+  const out = auditCampaignQuality(f);
+  assert.equal(out.records[3].rootDecisionLineageStatus,
+    'root-decision-lineage-integrity-mismatch');
+  assert.equal(out.winRateEvidence, false);
 });
