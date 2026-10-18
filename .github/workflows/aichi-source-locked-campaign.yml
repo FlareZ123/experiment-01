@@ -21,6 +21,19 @@ on:
         required: false
         type: boolean
         default: false
+      setup_order_probe:
+        description: 'Run matched source-deal setup experiment instead of full games (unqualified)'
+        required: false
+        type: boolean
+        default: false
+      input_order_protocol:
+        description: 'Preserve historical source order or opt in to aligned candidate input'
+        required: false
+        type: choice
+        options:
+          - source-row-order-v1
+          - reference-aligned-v1
+        default: source-row-order-v1
       seat_seed_protocol:
         description: 'v3 default; explicitly choose v2 only to replay historical diagnostics'
         required: false
@@ -53,9 +66,11 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify source-locked trial adapter and guards
-        run: node --test tests/aichi-campaign-runner.test.cjs
+        run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs
       - name: Run six bounded Iron Thorns diagnostic trials
+        if: ${{ !inputs.setup_order_probe }}
         env:
+          CAMPAIGN_INPUT_ORDER_PROTOCOL: ${{ inputs.input_order_protocol || 'source-row-order-v1' }}
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
           CAMPAIGN_POLICY_PROFILE: ${{ inputs.policy_profile }}
           CAMPAIGN_CAPTURE_DECISIONS: 'true'
@@ -67,9 +82,13 @@ jobs:
           CAMPAIGN_MAX_ACTIONS: '800'
         run: node simulation/evaluation/aichi-campaign-runner.cjs > aichi-campaign-report.json
       - name: Cross-check sourced games and fingerprint evidence envelope
+        if: ${{ !inputs.setup_order_probe }}
         env:
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
         run: node simulation/evaluation/aichi-campaign-envelope-runner.cjs aichi-campaign-report.json aichi-campaign-envelope.json
+      - name: Probe true post-setup zones under same v3 seed
+        if: ${{ inputs.setup_order_probe }}
+        run: node simulation/evaluation/aichi-input-order-deal-probe.cjs > aichi-setup-order-probe.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -77,4 +96,5 @@ jobs:
           path: |
             aichi-campaign-report.json
             aichi-campaign-envelope.json
+            aichi-setup-order-probe.json
           retention-days: 14
