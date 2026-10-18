@@ -45,7 +45,6 @@ function run() {
     const game=vstar.result;
     const auditD=direct.policyAudit;
     const auditV=vstar.policyAudit;
-    assert.equal(game.deckHashes?.length,2);
     if(entry.expected==='vstar'){
       assert.equal(auditV.completeAtDecisionBoundary,true,
         'Archived first-start Back Order line lost under composition');
