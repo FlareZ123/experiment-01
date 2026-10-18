@@ -249,6 +249,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [shadowRiderEnergyAcrossField] Opt-in speculative Psychic priority regardless of opposing Active.
  * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
  * @property {0|1} [newMoonNativeOpeningPivotSeat] Candidate-only selected Gengar & Mimikyu-GX setup Active ordering probe.
+ * @property {0|1} [snorlaxSoloOpeningSeat] Rank3/7 source-locked, own-starting-hand solo Snorlax Active policy.
  * @property {0|1} [newMoonAttackPayloadCompressorSeat] Candidate-only own-hand Compressor and owner-search Gengar payload policy.
  * @property {0|1} [rank31FogEnergySeat] Opponent source Chimecho Active: opt-in strict Fog-for-Basic-Psychic-Energy search.
  * @property {0|1} [rank31FogEnergyBroaderSeat] Comparison: allow other Basics in hand or Bench when finding Bell's Energy.
@@ -291,6 +292,10 @@ function runMatch(request) {
   }
   if (!Number.isInteger(request.seed) || request.seed < 0 || request.seed > 0xffffffff) {
     throw new Error('seed must be an unsigned 32-bit integer.');
+  }
+  if (request.snorlaxSoloOpeningSeat !== undefined &&
+      ![0,1].includes(request.snorlaxSoloOpeningSeat)) {
+    throw new Error('Solo Snorlax opening policy requires source physical seat 0 or 1');
   }
   if (request.newMoonNativeOpeningPivotSeat !== undefined &&
       (![0, 1].includes(request.newMoonNativeOpeningPivotSeat) ||
@@ -589,6 +594,8 @@ function runMatch(request) {
         AttackTactic: engine('simple-bot/simple-tactics/attack-tactic').AttackTactic,
         RetreatTactic: engine('simple-bot/simple-tactics/retreat-tactic').RetreatTactic
       }) : null;
+    const snorlaxSoloOpeningEvents = request.snorlaxSoloOpeningSeat === undefined ?
+      null : [];
     const optionsBySeat = [0, 1].map(seat => {
       let configured = attackPreferenceOptions &&
         (request.attackBeforeRetreatSeat === undefined ||
@@ -636,6 +643,15 @@ function runMatch(request) {
           (request.mimikyuApexTimelessPolicySeat === undefined ||
             request.mimikyuApexTimelessPolicySeat === seat)) {
         configured = withCopycatApexTimelessPolicy(configured);
+      }
+      if (request.snorlaxSoloOpeningSeat === seat) {
+        configured = require('./snorlax-solo-opening-policy.cjs')
+          .withSoloSnorlaxOpening(configured, {
+            ChooseCardsPromptResolver: engine('simple-bot/prompt-resolver/choose-cards-prompt-resolver').ChooseCardsPromptResolver,
+            ChooseCardsPrompt: engine('game/store/prompts/choose-cards-prompt').ChooseCardsPrompt,
+            ResolvePromptAction: engine('game/store/actions/resolve-prompt-action').ResolvePromptAction,
+            GameMessage: engine('game/game-message').GameMessage
+          }, snorlaxSoloOpeningEvents);
       }
       if (request.newMoonNativeOpeningPivotSeat === seat) {
         configured = require('./new-moon-native-opening-pivot.cjs')
@@ -1077,6 +1093,10 @@ function runMatch(request) {
         {electrodeOpportunitySummary: electrodeOpportunityObserver.snapshot()} : {}),
       ...(physicalZoneIntegrity ? {physicalZoneIntegrity} : {}),
       ...(copycatTurnStartEvidence ? {copycatTurnStartEvidence} : {}),
+      ...(snorlaxSoloOpeningEvents ? {
+        snorlaxSoloOpeningEvents,
+        snorlaxSoloOpeningPolicy:'SoloSnorlaxOwnHandSetup-v1'
+      } : {}),
       attackPassProbeCount,
       attackPassProbeBuckets,
       terminalTransition,
@@ -1144,6 +1164,7 @@ function runMatch(request) {
       shadowRiderEnergyAcrossField: request.shadowRiderEnergyAcrossField === true,
       shadowRiderOpeningPivot: request.shadowRiderOpeningPivot === true,
       newMoonNativeOpeningPivotSeat: request.newMoonNativeOpeningPivotSeat ?? null,
+      snorlaxSoloOpeningSeat: request.snorlaxSoloOpeningSeat ?? null,
       newMoonAttackPayloadCompressorSeat: request.newMoonAttackPayloadCompressorSeat ?? null,
       newMoonOpeningHorrorHouseSeat: request.newMoonOpeningHorrorHouseSeat ?? null,
       latiasAttackReadyAttachment: request.latiasAttackReadyAttachment === true,
@@ -1187,6 +1208,8 @@ function runMatch(request) {
         (request.shadowRiderEnergyPriority === true ? '+ShadowRiderPsychicAttachPriority-v1' : '') +
         (request.shadowRiderEnergyAcrossField === true ? '+ShadowRiderPsychicAttachAcrossField-v1' : '') +
         (request.shadowRiderOpeningPivot === true ? '+SelectedShadowRiderSetupActive-v1' : '') +
+        (request.snorlaxSoloOpeningSeat !== undefined ?
+          '+SoloSnorlaxOwnHandSetup-v1@seat' + request.snorlaxSoloOpeningSeat : '') +
         (request.newMoonNativeOpeningPivotSeat !== undefined ?
           '+NewMoonNativeOpeningPivot-v1@seat' + request.newMoonNativeOpeningPivotSeat : '') +
         (request.newMoonAttackPayloadCompressorSeat !== undefined ?
