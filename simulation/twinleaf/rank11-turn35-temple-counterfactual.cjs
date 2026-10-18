@@ -27,7 +27,7 @@ function withTempleOnOriginalPass(execute) {
     engine('game/store/actions/play-card-action');
   const {PassTurnAction}=engine('game/store/actions/game-actions');
   const {GamePhase}=engine('game/store/state/state');
-  const {StateUtils}=engine('game/store/state/state-utils');
+  const {StateUtils}=engine('game/store/state-utils');
   const original=Object.getOwnPropertyDescriptor(
     SimpleTacticsAi.prototype,'decodeNextAction');
   assert.equal(typeof original?.value,'function');
