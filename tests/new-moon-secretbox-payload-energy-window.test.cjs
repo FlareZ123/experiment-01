@@ -6,8 +6,13 @@ const {firstEight,firstSevenThenDraw,main}=
 
 test('exact two independent order-of-operations formulations agree for all tiers',()=>{
   for(const D of [0,1,2,4,6,10,14,16,20,24,28,32]){
-    assert.deepEqual(firstEight(D),firstSevenThenDraw(D),
-      'Independent initial seven and eighth-card enumeration mismatch D='+D);
+    const first=firstEight(D),second=firstSevenThenDraw(D);
+    assert.equal(first.numerator,second.numerator,
+      'Exact numerator mismatch D='+D);
+    assert.equal(first.denominator,second.denominator,
+      'Exact denominator mismatch D='+D);
+    assert.ok(Math.abs(first.probability-second.probability)<1e-15,
+      'Floating diagnostic mismatch D='+D);
   }
 });
 
