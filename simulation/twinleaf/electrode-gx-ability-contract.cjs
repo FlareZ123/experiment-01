@@ -12,8 +12,11 @@ const load = name => require(path.join(output, name));
  * @param {boolean} noRecipient Whether all own Pokémon are GX.
  * @param {boolean} useBot Let pinned SimpleTacticsAi resolve the attachment prompt.
  * @param {number} availableCount Number of Energy cards actually in discard.
+ * @param {boolean} chainAttack Attempt Electro Rain after completing Bomb.
+ * @param {boolean} competingRecipient Add source-legal Crobat V as another attachment target.
  */
-function runCase(count, noRecipient = false, useBot = false, availableCount = 5, chainAttack = false) {
+function runCase(count, noRecipient = false, useBot = false, availableCount = 5,
+  chainAttack = false, competingRecipient = false) {
   const f = stagedRaichu([], null);
   const {PokemonCardList} = load('game/store/state/pokemon-card-list');
   const {CardList} = load('game/store/state/card-list');
@@ -23,6 +26,11 @@ function runCase(count, noRecipient = false, useBot = false, availableCount = 5,
   const electrode = new PokemonCardList();
   electrode.cards.push(f.card('Electrode-GX CES'));
   f.a.bench.push(electrode);
+  if (competingRecipient) {
+    const crobat = new PokemonCardList();
+    crobat.cards.push(f.card('Crobat V DAA'));
+    f.a.bench.push(crobat);
+  }
   if (noRecipient) f.a.active.cards.splice(0, 1, f.card('Electrode-GX CES'));
   let benchTarget = null;
   if (chainAttack) {
@@ -80,6 +88,12 @@ function runCase(count, noRecipient = false, useBot = false, availableCount = 5,
     transfers = decision.result;
   }
   const promptAccepted = prompt.validate(transfers);
+  const transferTargets = transfers.map(({to}) => ({
+    slot:to.slot,index:to.index,
+    recipient:to.slot===SlotType.ACTIVE ?
+      f.a.active.getPokemonCard()?.fullName :
+      f.a.bench[to.index]?.getPokemonCard()?.fullName
+  }));
   f.store.dispatch(new ResolvePromptAction(prompt.id,transfers));
   // The pinned zero-transfer branch also starts an unexpected deck shuffle.
   // Finish those prompts so Knock Out and Prize accounting can settle.
@@ -123,7 +137,8 @@ function runCase(count, noRecipient = false, useBot = false, availableCount = 5,
     chainedDamage=benchTarget.damage;
   }
   return {
-    count,noRecipient,useBot,availableCount,chainAttack,chainedDamage,energyMapAfterBomb,
+    count,noRecipient,useBot,availableCount,chainAttack,competingRecipient,
+    transferTargets,chainedDamage,energyMapAfterBomb,
     transferred:transfers.length,
     promptAccepted,min:prompt.options.min,max:prompt.options.max,
     remainingEnergy:f.a.discard.cards.filter(card => candidates.includes(card)).length,
