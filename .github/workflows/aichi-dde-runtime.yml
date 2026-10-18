@@ -86,6 +86,22 @@ jobs:
           name: rank10-root133-apex-copy-audit
           path: rank10-root133-apex-copy.json
           retention-days: 90
+      - name: Test rank10 Dragon discard owner-hand accounting
+        if: inputs.dragon_discard_audit
+        run: node --test tests/regidrago-dragon-discard-access-audit.test.cjs
+      - name: Observe three fixed source Dragon discard-option deals
+        if: inputs.dragon_discard_audit
+        run: node simulation/twinleaf/regidrago-dragon-discard-source-run.cjs > rank10-discard-window.json
+      - name: Summarize source discard resource windows
+        if: inputs.dragon_discard_audit
+        run: node -e "const x=require('./rank10-discard-window.json'); console.log(JSON.stringify(x.map(r=>({seed:r.seed,first:r.firstTurnSlot,finished:r.finished,items:r.coPresentItemTurns,supporters:r.coPresentSupporterTurns,windows:r.windows.length}))))"
+      - name: Archive rank10 source discard windows
+        if: inputs.dragon_discard_audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-owner-discard-windows
+          path: rank10-discard-window.json
+          retention-days: 90
       - name: Verify pinned Apex-aware attachment priority
         if: ${{ !inputs.targeted_only }}
         run: node simulation/twinleaf/dde-target-priority.cjs
