@@ -122,6 +122,50 @@ function run() {
   assert.equal(printedEffect.assessment.defenderInPlayChange,-1,
     'The copied attack chain must retain the observed opponent KO');
 
+  const priorCopiedPoltergeist=delegated.find(entry=>
+    entry.attackName==='Poltergeist' &&
+    entry.actionOrdinal<terminalAttack.actionOrdinal);
+  assert.ok(priorCopiedPoltergeist,
+    'Bounded replay must include a nonterminal authentic copied attack');
+  const priorChoice=game.decisionTrace.find(entry=>
+    entry.actionOrdinal===priorCopiedPoltergeist.actionOrdinal &&
+    entry.attackChoice?.selection?.attackName==='Poltergeist');
+  assert.equal(priorChoice?.attackChoice?.selection?.printing,
+    'Gengar & Mimikyu-GX TEU');
+  const priorEffect=effectWindows.find(entry=>
+    entry.actionOrdinal===priorCopiedPoltergeist.actionOrdinal);
+  assert.ok(priorEffect?.assessment &&
+    Array.isArray(priorEffect.publicBefore),
+    'Nonterminal Poltergeist must have true pre-attack public board and observed reducer effect');
+  const firstSourceReply=game.rootActionLedger.find(row=>
+    row.turnBefore>priorCopiedPoltergeist.turnBefore &&
+    row.playerSlot===1-CANDIDATE_SEAT &&
+    row.action!=='ResolvePromptAction');
+  assert.ok(firstSourceReply,'Expected real following rank11 source player action');
+  const nextSourceTurn=game.rootActionLedger.filter(row=>
+    row.turnBefore===firstSourceReply.turnBefore);
+  assert.ok(nextSourceTurn.some(row=>
+    row.action==='PassTurnAction'||row.action==='AttackAction'||
+    row.turnAfter>row.turnBefore),
+  'Need a complete source turn to associate copied-effect result and opponent response');
+  const earlierCopiedResponse={
+    copiedDeclarationOrdinal:priorCopiedPoltergeist.actionOrdinal,
+    copiedGlobalTurn:priorCopiedPoltergeist.turnBefore,
+    selectedPrinting:priorChoice.attackChoice.selection.printing,
+    selectedAttack:priorChoice.attackChoice.selection.attackName,
+    beforePublicBoard:priorEffect.publicBefore,
+    afterPublicBoard:priorEffect.steps.at(-1)?.publicAfter??priorEffect.publicAfter,
+    physicalPrintedEffect:priorEffect.assessment,
+    attackReducerSteps:priorEffect.steps.map(row=>({
+      ordinal:row.actionOrdinal,action:row.actionName,pendingPrompt:row.pendingPrompt
+    })),
+    nextSourceTurn:firstSourceReply.turnBefore,
+    firstOpponentActionOrdinal:firstSourceReply.actionOrdinal,
+    opponentRootActions:nextSourceTurn,
+    opponentPolicyQualified:false,
+    paperEffectQualified:false
+  };
+
   const raw = game.attackTrace.filter(entry => entry.seat === CANDIDATE_SEAT);
   const aroundCopy = game.decisionTrace.filter(entry =>
     entry.actionOrdinal >= lineage.initiatingAction.actionOrdinal &&
@@ -134,7 +178,7 @@ function run() {
     }));
 
   return {
-    schema:'real-source-rank11-perfection-delegated-terminal-attack-v1',
+    schema:'real-source-rank11-perfection-delegated-effect-and-response-v2',
     sourceRank:SOURCE_RANK,candidatePhysicalSeat:CANDIDATE_SEAT,
     seed:SOURCE_SEED,seedWasConditionallySelected:true,
     engine:game.engine,sourcePrintHash:source.sha256_id_counts,
@@ -161,6 +205,7 @@ function run() {
     terminalAttackChoice:terminalSelection.attackChoice,
     terminalAttackRootAction:terminalAttack.triggerAction,
     terminalPublicEffect,
+    nonterminalCopiedResponse:earlierCopiedResponse,
     poltergeistEffect:{
       ...printedEffect.assessment,
       firstActionOrdinal:printedEffect.actionOrdinal,
