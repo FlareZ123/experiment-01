@@ -64,8 +64,11 @@ function makeRank11ExposureFrame(campaign,config) {
   }
   const source=campaign.trials.filter(trial=>trial.rank===RANK &&
     trial.phase==='pilot');
-  if (source.length!==campaign.repeats*CANDIDATES.length*2 &&
-      source.length<4) {
+  if (source.length!==campaign.repeats*campaign.candidateRows.length*2 ||
+      campaign.candidateRows.some(candidate=>
+        ['A','B'].some(seat=>source.filter(trial=>
+          trial.candidateId===candidate.id &&
+          trial.candidateEngineSlot===seat).length!==campaign.repeats))) {
     throw new Error('No complete rank11 source pilot available');
   }
   const opponents=new Set(source.map(trial=>trial.opponentDigest));
