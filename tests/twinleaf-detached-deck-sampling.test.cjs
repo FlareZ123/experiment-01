@@ -321,3 +321,34 @@ test('a clone retaining an original action subobject is rejected',()=>{
   assert.equal(calls,0);
   assert.deepEqual(action,before);
 });
+
+
+test('vendor-style original-State prototype links are rejected',()=>{
+  const state=setup();state.metadata={counter:0};
+  let called=0;
+  const clone=value=>{
+    const copy=structuredClone(value);
+    if(value===state)Object.setPrototypeOf(copy.metadata,state.metadata);
+    return copy;
+  };
+  assert.throws(()=>evaluateDetachedDeckSamples(
+    state,1,{},0,()=>{called++;return 1},null,clone,opts),
+    /live State object through inherited prototype/);
+  assert.equal(called,0);
+  assert.equal(state.metadata.counter,0);
+});
+
+test('vendor-style original-Action prototype links are rejected',()=>{
+  const state=setup(),action={target:{index:1}};
+  let called=0;
+  const clone=value=>{
+    const copy=structuredClone(value);
+    if(value===action)Object.setPrototypeOf(copy.target,action.target);
+    return copy;
+  };
+  assert.throws(()=>evaluateDetachedDeckSamples(
+    state,1,action,0,()=>{called++;return 1},null,clone,opts),
+    /live action or State object through inherited prototype/);
+  assert.equal(called,0);
+  assert.equal(action.target.index,1);
+});
