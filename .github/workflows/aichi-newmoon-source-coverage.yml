@@ -208,6 +208,10 @@ jobs:
       - name: Run bounded source-dealt rank15 dual-lock opportunity census
         if: ${{ inputs.rank15_source_census }}
         run: node simulation/twinleaf/newmoon-rank15-source-duallock-census.cjs > newmoon-rank15-source-duallock-census.json
+      - name: Show source-dealt rank15 lock exposure summary
+        if: ${{ inputs.rank15_source_census }}
+        run: >-
+          node -e "const x=require('./newmoon-rank15-source-duallock-census.json'); console.log(JSON.stringify({schema:x.schema,trials:x.trialCount,actualFirst:x.candidateActuallyFirstCount,dual:x.jointSourceDualLockExposures,dusclopsAgainstDual:x.candidateDusclopsAgainstJointExposures,rows:x.rows.map(r=>({repeat:r.repeat,seat:r.candidateSeat,first:r.actualFirstSlot,actions:r.actions,finished:r.finished,turns:r.turns,aor:r.first.aor?.turn??null,bus:r.first.bus?.turn??null,busActive:r.first.busActive?.turn??null,dual:r.first.dual?.turn??null,dusclops:r.first.dusclops?.turn??null,dusclopsAgainstDual:r.first.dusclopsAgainstDual?.turn??null}))},null,2))"
       - name: Archive rank15 source-duallock unqualified root exposure census
         if: ${{ always() && inputs.rank15_source_census }}
         uses: actions/upload-artifact@v4
