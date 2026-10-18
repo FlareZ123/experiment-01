@@ -15,4 +15,9 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
       - run: npm run compile
         working-directory: vendor/twinleaf/ptcg-server
-      - run: node simulation/twinleaf/rank11-hood-source-opportunity.cjs
+      - run: node simulation/twinleaf/rank11-hood-source-opportunity.cjs > hood-source.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source-rank11-hood-trace
+          path: hood-source.json
+          if-no-files-found: error
