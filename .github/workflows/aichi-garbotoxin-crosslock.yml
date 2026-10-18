@@ -47,6 +47,10 @@ on:
         description: 'Opt-in four opportunity-conditioned both-start authentic rank11 versus rank1 attack responses'
         type: boolean
         default: false
+      rank11_night_watch_random_audit:
+        description: 'Opt-in source rank11 Night Watch hidden-hand scored-versus-random correctness contrast'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -206,4 +210,24 @@ jobs:
         with:
           name: rank11-both-start-rank1-conditioned-response
           path: rank11-rank1-response.json
+          if-no-files-found: warn
+      - name: Audit stock Night Watch hidden-hand scoring versus paper random selection
+        if: inputs.rank11_night_watch_random_audit
+        run: node simulation/twinleaf/night-watch-rank11-source-contrast.cjs > rank11-night-watch-random.json
+      - name: Summarize source Night Watch hidden-card selections
+        if: inputs.rank11_night_watch_random_audit
+        run: >-
+          node -e "const x=require('./rank11-night-watch-random.json');
+          for(const r of x.rows)console.log(JSON.stringify({
+          policy:r.version,seed:r.seed,lock:r.sourceLockAtFirstCandidateBoundary,
+          choices:r.choices?.map(c=>({turn:c.turn,all:c.opponentHandBefore,
+          selected:c.selected})),candidateAttacks:r.candidatePrintedAttackDeclarations,
+          opponentAttacks:r.opponentPrintedAttackDeclarations,
+          finished:r.engineFinished,winner:r.engineWinner,error:r.error||null}));"
+      - name: Preserve exact source hidden-hand Night Watch audit
+        if: always() && inputs.rank11_night_watch_random_audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-night-watch-hidden-hand-random-contrast
+          path: rank11-night-watch-random.json
           if-no-files-found: warn
