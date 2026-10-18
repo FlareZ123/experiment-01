@@ -102,8 +102,13 @@ function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
         return bot;
       },
       cloneState,target.makeRandom);
+    const sourceHand=state.players.find(p=>p.id===this.client.id)
+      ?.hand.cards.map(card=>card.fullName)??[];
     const actual=descriptor.value.call(this,state);
+    const playedPrinting=actual?.constructor?.name==='PlayCardAction'?
+      sourceHand[actual.handIndex]??null:null;
     events.push({...observed,turn:state.turn,seat:state.activePlayer,
+      originalSourcePlayedPrinting:playedPrinting,
       rootActionOrdinal:target.rootActionOrdinal??null,
       ownerDeckSearchWitness:target.readOwnerDeckSearches?.()??null,
       originalSourceAction:actionSignature(actual)});
@@ -231,12 +236,39 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
     actorSeat);
   assert.deepEqual(observed.result,control,
     'Read-only hidden-order counterfactual changed physical source match');
-  assert.equal(observed.events.length,1,
-    'Expected one champion-B source root decision at designated source gate');
+  assert.ok(observed.events.length<=1,
+    'A single rooted hidden-order probe must not run more than once');
+  if(observed.events.length===0) {
+    assert.ok(archival,'Current-v4 root 15 must be exposed on frozen source');
+    return {
+      study:'rank10-archive-v3-root215-non-exposure',
+      pinnedTrialId:trials[0].trialId,seed:trials[0].seed,
+      candidatePhysicalSeat:1,observedActorSeat:1,
+      observedRootActionOrdinal:215,
+      doubleDragonPolicy:'historical-v3-archive',
+      exposed:false,root:null,
+      completedSource:{
+        finished:control.finished,turns:control.turns,
+        actions:control.actions,winner:control.winner
+      },
+      matchedUninstrumentedMatch:true,
+      qualifiedForCompetitiveInference:false,
+      conclusion:'Archived tactic alone did not reconstruct the historical root decision',
+      limitations:[
+        'No hidden-order comparison was executed at root 215',
+        'Replay prefix identity was not established',
+        'This historical-policy incompatibility is not a current-v4 policy result'
+      ]
+    };
+  }
   assert.equal(observed.events[0].originalSourceAction?.type,
     archival?'RetreatAction':'PlayCardAction',
     archival?'Archived source root 215 must propose Retreat':
       'Current-v4 root 15 must propose the real source PlayCard action');
+  if(!archival)
+    assert.equal(observed.events[0].originalSourcePlayedPrinting,
+      'Double Dragon Energy ROS',
+      'Current-v4 root 15 must be the observed source DDE attachment');
   return {
     study:archival?
       'rank10-archive-v3-source-ordinal215-hidden-order-sensitivity':
@@ -248,7 +280,7 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
     observedRootActionOrdinal:ordinal,
     doubleDragonPolicy:policy.doubleDragonArchiveV3?
       'historical-v3-archive':'current-v4',
-    root:observed.events[0],
+    exposed:true,root:observed.events[0],
     matchedUninstrumentedMatch:true,
     qualifiedForCompetitiveInference:false,
     limitations:[
