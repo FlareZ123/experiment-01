@@ -27,6 +27,8 @@ jobs:
       - name: Compile upstream server without modifying vendor
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Regress official Japanese same-turn Canceling Cologne duplicate ruling
+        run: node simulation/twinleaf/canceling-cologne-repeat-paper-gate.cjs
       - name: Verify Forest Seal Stone Power bypasses Ability lock
         run: node simulation/twinleaf/forest-seal-ability-check.cjs
       - name: Check Forest Seal Stone on board
