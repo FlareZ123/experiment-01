@@ -877,6 +877,8 @@ function runMatch(request) {
       const horrorHouseBefore = horrorHouseAudit ? horrorHouseAudit.beforeAction(state) : null;
       const poltergeistBefore = poltergeistEffectTrace ?
         poltergeistSnapshot(state,SuperType.TRAINER) : null;
+      const poltergeistPublicBefore = poltergeistEffectTrace ?
+        publicBoardSnapshot(state) : null;
       const attackLogStartIndex = state.logs.length;
       const prizeBeforeRoot = request.bunnelbyObservedK1 === true ?
         snapshotPrizeCardIdentities(store.state) : null;
@@ -935,6 +937,8 @@ function runMatch(request) {
             triggerAction:actionName,
             pendingPrompt:pending?.constructor.name??null,
             before:poltergeistBefore, after,
+            publicBefore:poltergeistPublicBefore,
+            publicAfter:publicBoardSnapshot(store.state),
             steps:[]
           };
           poltergeistEffectTrace.push(poltergeistWindow);
@@ -942,7 +946,8 @@ function runMatch(request) {
           poltergeistWindow.steps.push({
             actionOrdinal:actions,actionName,
             pendingPrompt:pending?.constructor.name??null,
-            before:poltergeistBefore,after
+            before:poltergeistBefore,after,
+            publicAfter:publicBoardSnapshot(store.state)
           });
         }
         if (poltergeistWindow &&
