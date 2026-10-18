@@ -57,3 +57,5 @@ jobs:
         run: node simulation/twinleaf/card-coverage.cjs
       - name: Resolve Aichi opponent decks with explicit, tracked substitutions
         run: node simulation/twinleaf/resolve-field.cjs
+      - name: Regress copied-attack selection and declaration root boundaries
+        run: node simulation/twinleaf/perfection-attack-ordinal-boundary.cjs
