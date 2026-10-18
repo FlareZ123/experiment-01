@@ -73,15 +73,21 @@ function main() {
     leleEntryAbilityLockCorrection:true,radiantGateLockCorrection:true,
     entryDrawLockCorrection:true
   };
-  const run=discardPriority=>withStoreDispatchTranscript(Store,
+  const run=policyOptions=>withStoreDispatchTranscript(Store,
     ()=>withSourceOpeningProbe(()=>
       withBroadThornsSourceAttack(()=>
         withPublicAttackTargets(Store,()=>
           withDamageObserver(()=>runMatch(request))),
-        discardPriority?{discardPriority}:{})),
+        policyOptions??{})),
     {liveStoreOnly:true,sourceZoneEveryDispatch:true});
-  const baseline=unpack(run(null));
-  const alternate=unpack(run(protectedPayment));
+  const baseline=unpack(run());
+  const alternate=unpack(run({discardPriority:protectedPayment}));
+  // The same visible hand has held G&H and one now-redundant Tag Call.
+  // Verify the default-off spare-connector option in an actual Store game.
+  const conditional=unpack(run({
+    discardPriority:['Captivating Poké Puff'],
+    conditionalTagCallPayment:true
+  }));
 
   // The comparison is allowed to inspect both hands and face-down Prizes
   // only to establish identity. Hidden-zone truth is never used by either bot.
@@ -95,6 +101,13 @@ function main() {
     alternate.game.deckHashes);
   assert.deepEqual(paid(baseline.chosen.events),expectedOriginalPayment);
   assert.deepEqual(paid(alternate.chosen.events),protectedPayment);
+  assert.deepEqual(paid(conditional.chosen.events),protectedPayment);
+  assert.deepEqual(conditional.source.observed.hand,baseline.source.observed.hand);
+  assert.deepEqual(conditional.source.observed.prizes,baseline.source.observed.prizes);
+  assert.deepEqual(conditional.game.deckHashes,baseline.game.deckHashes);
+  assert.deepEqual(conditional.trace.map(comparedAction),
+    alternate.trace.map(comparedAction),
+    'Spare Tag Call mode must replicate the previously proven legal payment');
   assert.equal(baseline.target.defender,'Marshadow');
   assert.equal(alternate.target.defender,'Marshadow');
 
@@ -142,6 +155,8 @@ function main() {
     },
     defaultPayment:summary(baseline),
     conserveEriFabaPayment:summary(alternate),
+    optInSpareTagCallPayment:summary(conditional),
+    optInMatchesExplicitPaymentActions:true,
     intervention:'Replace only the own-hand discard selection; all other policy and deck settings unchanged.',
     sourceReplayMechanicsVerified:false,
     qualifiedForCompetitiveInference:false,
