@@ -90,6 +90,16 @@ function transferCopyAttackSessionsOnRollback(parentState, backupState) {
   return copied;
 }
 exports.transferCopyAttackSessionsOnRollback = transferCopyAttackSessionsOnRollback;
+function describeCopySessionsForState(state, attack) {
+  return (copyAttackSessionsByState.get(state) || []).map(entry => ({
+    copiedPokemon: entry.copycatCard.fullName,
+    sourcePokemon: entry.sourceCard.fullName,
+    selectedHistory: state.playerLastAttack?.[entry.playerId]?.attack?.name || null,
+    clonedAttackNames: entry.clonedAttacks.map(a => a.name),
+    matchesEffectAttack: attack ? entry.clonedAttacks.includes(attack) : null
+  }));
+}
+exports.describeCopySessionsForState = describeCopySessionsForState;
 `;
   return output;
 }
