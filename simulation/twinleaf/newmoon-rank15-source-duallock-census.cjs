@@ -19,7 +19,7 @@ const digest = value => createHash('sha256').update(JSON.stringify(value)).diges
  * @param {number} opponentSeat Physical source-rank-15 seat
  * @param {number} candidateSeat Physical New Moon seat
  * @param {()=>T} execute Synchronous headless match
- * @returns {{result:T,first:object,max:object,rootSnapshots:number,firstNormalTurnZoneDigest:string|null}}
+ * @returns {{result:T,first:object,max:object,rootSnapshots:number,firstNormalTurnZoneDigest:string|null,firstNormalTurnPrizeGate:object|null}}
  */
 function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
   const descriptor = Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
