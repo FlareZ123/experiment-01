@@ -7,7 +7,7 @@ const {runMatch} = require('./headless.cjs');
 
 /** @param {object} record */
 function withoutTrace(record) {
-  const {decisionTrace, ...game} = record;
+  const {decisionTrace, rootActionLedger, rootActionLedgerProtocol, ...game} = record;
   return game;
 }
 
@@ -49,6 +49,11 @@ function checkNoninterference() {
     Array.isArray(row.decisionHandBefore.ownHandPrintings)),
   'Every attributed meaningful action must carry its own pre-dispatch hand');
   assert.equal(untraced.decisionTrace, null);
+  assert.equal(untraced.rootActionLedger, null);
+  assert.equal(traced.rootActionLedgerProtocol,
+    'actual-store-root-action-ledger-v1');
+  assert.equal(traced.rootActionLedger.length, traced.actions,
+    'Captured ledger must include every successful Store root dispatch');
   return {
     diagnostic: 'instrumentation-isolation-only',
     fixedSourceRanks: [1, 6],
