@@ -8,7 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from rank11_oranguru_tool_lock_exact import (
     COUNTS, exact_rates, favorable_prize_count, compositions,
-    prize_count_for_route,
+    prize_count_for_route, pivot_prize_count_for_route, exact_pivot_rate,
 )
 
 
@@ -56,6 +56,17 @@ class Rank11OranguruExactTests(unittest.TestCase):
             rates["trubbish_float_boost_directly_seen"],
             Fraction(251244295, 79942911672),
         )
+
+    def test_retreat_pivot_needs_pass_and_float(self):
+        self.assertEqual(pivot_prize_count_for_route((0,1,0,1,1,1,0,1,3)), 0)
+        self.assertEqual(pivot_prize_count_for_route((0,1,1,1,0,1,0,1,3)), 0)
+
+    def test_retreat_pivot_fraction(self):
+        self.assertEqual(
+            exact_pivot_rate(),
+            Fraction(144570053726383,1928755982273120),
+        )
+        self.assertLess(exact_pivot_rate()+exact_rates()["full_restricted_route"], 1)
 
     def test_nested_event_boundaries(self):
         p = exact_rates()
