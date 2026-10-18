@@ -27,17 +27,24 @@ function synthetic() {
   return { field, source, candidates };
 }
 
-test('real source: three exact fixed 60-card inventories and known source gaps', () => {
+test('real source: three original inventories and provisional New Moon, plus rank11', () => {
   const report = loadDefaultCampaign();
   assert.equal(report.schemaVersion, 1);
-  assert.equal(report.candidateRows.length, 3);
+  assert.equal(report.candidateRows.length, 4);
+  assert.deepEqual(report.pilotRanks, [1, 2, 3, 4, 5, 6, 8, 10, 11, 26]);
+  const moon = report.candidateRows.find(c => c.id === 'new-moon-lockbreaker-v1');
+  assert.equal(moon.provisionalEnglishProxy, true);
+  assert.equal(moon.paperLegalityVerified, false);
+  assert.equal(moon.sourceCode, 'GxxDYx-a4rD4W-a8xYxc');
+  assert.equal(moon.proxyIdCountHash,
+    'a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4');
   assert.ok(report.candidateRows.every(c => /^[0-9a-f]{64}$/.test(c.deckDigest)));
   assert.deepEqual(report.coverage.missingRanks, [23, 25, 28]);
   assert.equal(report.coverage.publishedRanks.length, 29);
   assert.deepEqual(report.pilotRanks, PILOT_RANKS);
-  assert.equal(report.trialCountByPhase.pilot, 54);
-  assert.equal(report.trialCountByPhase.publishedField, 174);
-  assert.equal(report.trials.length, 228);
+  assert.equal(report.trialCountByPhase.pilot, 80);
+  assert.equal(report.trialCountByPhase.publishedField, 232);
+  assert.equal(report.trials.length, 312);
   assert.equal(report.engineAndPolicyQualified, false);
   assert.equal(report.strengthClaimPermitted, false);
   assert.ok(report.candidateRows.find(c => c.id === 'champion-reference').referenceOnly);
