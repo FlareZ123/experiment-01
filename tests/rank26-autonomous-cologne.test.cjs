@@ -63,3 +63,11 @@ test('source-seat identity is bound to the scheduled rank26 match', () => {
   assert.throws(()=>rank26SourceSeat({rank:11,candidateEngineSlot:'A'}));
   assert.throws(()=>rank26SourceSeat({rank:26,candidateEngineSlot:'C'}));
 });
+
+
+test('Cologne plus Damage Pump profile is reachable through shared dispatch', () => {
+  const {ALLOWED_PROFILES, RANK26_COLOGNE_PUMP_PROFILE} =
+    require('../simulation/twinleaf/policy-profiles.cjs');
+  assert.equal(RANK26_COLOGNE_PUMP_PROFILE, 'rank26-autonomous-cologne-pump-v2');
+  assert.ok(ALLOWED_PROFILES.includes(RANK26_COLOGNE_PUMP_PROFILE));
+});
