@@ -61,6 +61,16 @@ on:
         required: false
         type: boolean
         default: false
+      electro_rain_damage_correction:
+        description: 'Opt-in printed Electro Rain damage semantics for rank 4/17; required for Prize-trade policy'
+        required: false
+        type: boolean
+        default: false
+      electrode_gx_prize_trade_policy:
+        description: 'Opt-in tactical Electrode-GX self-KO and immediate Prize-trade heuristic; requires both rule corrections'
+        required: false
+        type: boolean
+        default: false
       grand_tree_first_turn_guard:
         description: 'Correct Grand Tree SCR first-turn illegal evolution in pinned Twinleaf; engine fidelity only'
         required: false
@@ -131,6 +141,8 @@ jobs:
           AICHI_OPENING_PIVOT: ${{ inputs.shadow_rider_opening_pivot && '1' || '0' }}
           AICHI_LATIAS_ATTACK_READY: ${{ inputs.latias_attack_ready && '1' || '0' }}
           AICHI_ELECTRODE_GX_ENERGY: ${{ inputs.electrode_gx_energy_correction && '1' || '0' }}
+          AICHI_ELECTRO_RAIN_DAMAGE: ${{ inputs.electro_rain_damage_correction && '1' || '0' }}
+          AICHI_ELECTRODE_PRIZE_TRADE: ${{ inputs.electrode_gx_prize_trade_policy && '1' || '0' }}
           AICHI_GRAND_TREE_TURN_GUARD: ${{ inputs.grand_tree_first_turn_guard && '1' || '0' }}
           AICHI_BUNNELBY_SOURCE_K0: ${{ inputs.bunnelby_source_k0 && '1' || '0' }}
           AICHI_ATTACK_BEFORE_RETREAT: ${{ inputs.attack_before_retreat && '1' || '0' }}
