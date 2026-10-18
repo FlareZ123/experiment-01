@@ -49,6 +49,10 @@ function run() {
   assert.equal(SimpleTacticsAi.prototype.decodeNextAction,originalDecode,
     'Screen must not leave the shared bot modified');
   assert.equal(screen.actualFirstPlayerSeat,0);
+  assert.equal(screen.actualFirstPlayerName,'research-A');
+  assert.equal(screen.firstDrawLogName,'research-A');
+  assert.equal(screen.verifiedByDrawLog,true,
+    'The screened Store must corroborate first player from the original draw log');
   assert.equal(screen.sourceFirst,true);
   assert.equal(screen.eligibleK0,true,
     'Authentic rank11 source deal must expose the archived v1 K0 policy');
