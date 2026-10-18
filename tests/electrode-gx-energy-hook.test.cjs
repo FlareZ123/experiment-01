@@ -72,6 +72,23 @@ test('headless hook is opt-in, labeled, and restored on both source ranks',()=>{
 });
 
 
+test('Crobat V is a legal competing target for all mandatory Bomb attachments',()=>{
+ const restore=installElectrodeGXEnergyHook();
+ try {
+   const alone=runCase(0,false,true);
+   const competing=runCase(0,false,true,5,false,true);
+   assert.equal(alone.transferred,5);
+   assert.equal(competing.transferred,5);
+   assert.deepEqual([...new Set(alone.transferTargets.map(t=>t.recipient))],
+     ['Alolan Raichu UNM']);
+   assert.ok(competing.transferTargets.every(t=>
+     ['Alolan Raichu UNM','Crobat V DAA'].includes(t.recipient)));
+   console.log('Electrode legal dual-recipient target choice:',
+     JSON.stringify(competing.transferTargets));
+ } finally { restore(); }
+});
+
+
 test('one Store turn chains Bomb, Prize deficit and Telescopic Sight Rain',()=>{
   const {installElectroRainDamageHook}=
     require('../simulation/twinleaf/electro-rain-damage-hook.cjs');
