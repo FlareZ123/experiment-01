@@ -16,17 +16,19 @@ function digest(value) {
  * any declared attack completed its printed effects.
  *
  * @param {object} record Archived source-game record.
- * @returns {{status:string,events:object[],joinedAttackDeclarations:number}}
+ * @returns {{status:string,events:object[],joinedAttackDeclarations:number,
+ *   originLineageStatus:string}}
  */
 function inspectRootActionLedger(record) {
   const summary = record?.traceSummary;
   const events = summary?.rootActionLedger;
   if (summary?.rootActionLedgerProtocol !== PROTOCOL ||
       !Array.isArray(events)) {
-    return {status:'root-ledger-unavailable',events:[],joinedAttackDeclarations:0};
+    return {status:'root-ledger-unavailable',events:[],joinedAttackDeclarations:0,
+      originLineageStatus:'unavailable'};
   }
   const invalid = {status:'root-ledger-integrity-mismatch',events:[],
-    joinedAttackDeclarations:0};
+    joinedAttackDeclarations:0,originLineageStatus:'integrity-mismatch'};
   if (!Number.isSafeInteger(record.actions) ||
       events.length !== record.actions ||
       summary.rootActionLedgerSha256 !== digest(events)) return invalid;
@@ -44,6 +46,19 @@ function inspectRootActionLedger(record) {
 
   if (Number.isSafeInteger(record.turns) && events.length &&
       events[events.length-1].turnAfter !== record.turns) return invalid;
+
+  const hasOrigins=events.some(event=>
+    Object.hasOwn(event,'initiatingRootActionOrdinal'));
+  if (hasOrigins) {
+    let initiatingOrdinal=null;
+    for (const event of events) {
+      if (!Object.hasOwn(event,'initiatingRootActionOrdinal')) return invalid;
+      if (event.action!=='ResolvePromptAction') {
+        initiatingOrdinal=event.actionOrdinal;
+      }
+      if (event.initiatingRootActionOrdinal!==initiatingOrdinal) return invalid;
+    }
+  }
 
   const selected=summary.chronologicalActionTrace;
   if (Array.isArray(selected)) {
@@ -81,7 +96,9 @@ function inspectRootActionLedger(record) {
     }
   }
   return {status:'complete-root-ledger-self-consistent',
-    events,joinedAttackDeclarations};
+    events,joinedAttackDeclarations,
+    originLineageStatus:hasOrigins ? 'self-consistent-origin-lineage' :
+      'unavailable'};
 }
 
 module.exports={PROTOCOL,inspectRootActionLedger};
