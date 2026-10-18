@@ -43,6 +43,15 @@ function observe(game,audit,blowerAudit=null) {
   const witnessTurn = audit.nextTurnLockWitness?.turn ?? null;
   const rows = Array.isArray(game.decisionTrace) ? game.decisionTrace : [];
   const attacks=game.attackDeclarationTrace;
+  const candidateOpeningDecisions = rows.filter(row =>
+    row.playerSlot === 1 && row.turnBefore <= 4).slice(0,30);
+  const candidatePassDecisions = rows.filter(row =>
+    row.playerSlot === 1 && row.action === 'PassTurnAction').slice(0,8).map(row => ({
+      turnBefore:row.turnBefore,
+      ownHandPrintings:row.decisionHandBefore?.ownHandPrintings || [],
+      ownPublicBoard:row.publicBoardBeforePass?.[1] || null,
+      opposingPublicBoard:row.publicBoardBeforePass?.[0] || null
+    }));
   const candidateEarlyDecisions = rows.filter(row =>
     row.playerSlot === 1 &&
     (witnessTurn === null ? row.turnBefore <= 4 :
@@ -75,6 +84,8 @@ function observe(game,audit,blowerAudit=null) {
     sourceSelectedActions:audit.actions,
     nextTurnLockWitness:audit.nextTurnLockWitness,
     candidateEarlyDecisions,
+    candidateOpeningDecisions,
+    candidatePassDecisions,
     candidateAttackDeclarations,
     candidateRootAttacks,
     candidateAttackDeclarationCount:candidateAttackDeclarations.length,
