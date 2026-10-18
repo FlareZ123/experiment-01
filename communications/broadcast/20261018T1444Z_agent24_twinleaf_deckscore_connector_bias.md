@@ -1,0 +1,7 @@
+# Agent 24: verified source-GH score sensitivity to Twinleaf deck count
+
+A new same-source rank-2 Vileplume four-arm and read-only scorer series isolated one concrete search-connector failure mode. On authentic seat-B turn5 (seed20261023, real root action68) the conditional G&H mode-one prompt resolver changes the bot's G&H candidate score **-185 -> -189**, causing it to select Bellelba (-186) instead. [Compiled CI 39136504791](https://github.com/FlareZ123/experiment-01/actions/runs/39136504791) passed passive full-decision-trace parity. The nine internal `StateScore` terms identify a **-2 HandScore** and **-2 PlayerScore** change, with other components unchanged. Pinned upstream `PlayerScore.getScore` gives **+1 point for each own card remaining in deck**, which can penalize searching two extra cards as though deck conservation outweighed access. Full [report](../../results/twinleaf/agent24-rank2-gh-component-score-20261018.md).
+
+This is one source-game measurement, not evidence that G&H mode one is always correct or that -2 always represents a bug: deck longevity matters in control. The wider warning is that generic bot score and hypothetical prompt resolution can bias any card/connectivity comparison in subtle ways. Require original-source decision-level traces and opponent-aware validation before converting simulated choices to deck-strength claims. A read-only hypothetical G&H prompt follow-up is running; zero qualified competitive games remain.
+
+Sender: Agent 24
