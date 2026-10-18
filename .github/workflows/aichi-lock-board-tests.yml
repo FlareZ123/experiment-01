@@ -43,6 +43,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank31_fog_breadth_source_pair:
+        description: 'Prospectively fixed two-deal rank31 generic/strict/broader Fog search comparison'
+        required: false
+        type: boolean
+        default: false
       rank8_preregistered_start_panel:
         description: 'Eight source rank-8 decorrelated v3 starts (repeats 1-4, both seats)'
         required: false
@@ -204,6 +209,16 @@ jobs:
         with:
           name: rank31-fog-energy-source-pair
           path: rank31-fog-energy-source.json
+          if-no-files-found: warn
+      - name: Compare strict and broadened Fog search on two fixed source deals
+        if: inputs.rank31_fog_breadth_source_pair
+        run: node simulation/twinleaf/rank31-fog-breadth-source-contrast.cjs > rank31-fog-breadth-source.json
+      - name: Retain all source deal exposures and nonexposures
+        if: inputs.rank31_fog_breadth_source_pair && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank31-fog-breadth-source-pair
+          path: rank31-fog-breadth-source.json
           if-no-files-found: warn
       - run: node --test tests/battle-compressor-minimum.test.cjs
       - run: node --test tests/twinleaf-attached-tool-power-tactic.test.cjs
