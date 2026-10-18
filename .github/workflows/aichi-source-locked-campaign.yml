@@ -3,6 +3,11 @@ name: Aichi source-locked Iron Thorns policy diagnostic
 on:
   workflow_dispatch:
     inputs:
+      trial_ids:
+        description: 'Optional comma-separated pilot trial IDs, maximum six'
+        required: false
+        type: string
+        default: ''
       policy_profile:
         description: Research bot decision profile
         required: true
@@ -77,7 +82,7 @@ jobs:
         run: npm run compile
       - name: Verify source-locked trial adapter and guards
         run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs
-      - name: Run six bounded Iron Thorns diagnostic trials
+      - name: Run up to six source-locked pilot trials
         if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit }}
         env:
           CAMPAIGN_INPUT_ORDER_PROTOCOL: ${{ inputs.input_order_protocol || 'source-row-order-v1' }}
@@ -88,7 +93,7 @@ jobs:
           CAMPAIGN_ATTACHED_TOOL_POWER: ${{ inputs.attached_tool_power }}
           CAMPAIGN_PHASE: pilot
           CAMPAIGN_MAX_TRIALS: '6'
-          CAMPAIGN_TRIAL_IDS: 'pilot:6:0:champion-reference:A,pilot:6:0:champion-reference:B,pilot:6:0:hood-shield-v1:A,pilot:6:0:hood-shield-v1:B,pilot:6:0:temple-v1:A,pilot:6:0:temple-v1:B'
+          CAMPAIGN_TRIAL_IDS: ${{ inputs.trial_ids || 'pilot:6:0:champion-reference:A,pilot:6:0:champion-reference:B,pilot:6:0:hood-shield-v1:A,pilot:6:0:hood-shield-v1:B,pilot:6:0:temple-v1:A,pilot:6:0:temple-v1:B' }}
           CAMPAIGN_MAX_ACTIONS: '800'
         run: node simulation/evaluation/aichi-campaign-runner.cjs > aichi-campaign-report.json
       - name: Cross-check sourced games and fingerprint evidence envelope
