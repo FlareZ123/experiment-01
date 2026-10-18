@@ -23,12 +23,20 @@ test('Cassius and AZ settle all Store prompts and escape solo Block with a repla
     assert.equal(x.targetInDeck,true);
     assert.equal(x.targetInHand,false);
     assert.equal(x.targetInDiscard,false);
+    assert.equal(x.energyInDeck,true);
+    assert.equal(x.toolInDeck,true);
+    assert.equal(x.energyInDiscard,false);
+    assert.equal(x.toolInDiscard,false);
     assert.ok(x.prompts.some(p=>p.kind==='ShuffleDeckPrompt'));
   }
   const az=withReplacement.find(x=>x.supporter==='AZ');
   assert.equal(az.targetInDeck,false);
   assert.equal(az.targetInHand,true);
   assert.equal(az.targetInDiscard,false);
+  assert.equal(az.energyInDiscard,true);
+  assert.equal(az.toolInDiscard,true);
+  assert.equal(az.energyInDeck,false);
+  assert.equal(az.toolInDeck,false);
 });
 
 test('solo-own-Pokemon Cassius action is diagnosed separately from a viable escape',()=>{
@@ -36,6 +44,9 @@ test('solo-own-Pokemon Cassius action is diagnosed separately from a viable esca
   assert.equal(solo.supporter,'Cassius');
   assert.equal(solo.targetInDeck,true);
   assert.equal(solo.activeAfter,null);
+  assert.equal(solo.energyInDeck,true);
+  assert.equal(solo.toolInDeck,true);
+  assert.equal(solo.phase,7,'Pinned engine must end after the sole in-play Pokemon leaves');
   assert.equal(solo.error,null,JSON.stringify(solo));
   assert.deepEqual(solo.remainingPrompts,[],JSON.stringify(solo));
 });
