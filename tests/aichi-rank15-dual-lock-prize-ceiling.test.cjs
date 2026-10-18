@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
-  choose, ceilingForBasicCount, fromSourceManifest,
+  choose, ceilingForBasicCount, prerequisiteFailurePartition, fromSourceManifest,
 } = require('../scripts/aichi-rank15-dual-lock-prize-ceiling.cjs');
 
 test('binomial combinatorics and invalid-choice boundaries are exact', () => {
@@ -43,4 +43,27 @@ test('actual published rank-15 60 and exact Pokémon printings drive the model',
   assert.equal(source.rank, 15);
   assert.equal(source.printedBasicCount, 14);
   assert.equal(source.randomSixPrizeAvailability.numerator, '409955');
+});
+
+test('prioritized source six-Prize failure categories exhaust and separate causes', () => {
+  const result = prerequisiteFailurePartition(14);
+  assert.equal(result.length, 5);
+  assert.deepEqual(result.map(x => x.randomSixPrizes.numerator), [
+    '1','2997','663507','58565','409955'
+  ]);
+  assert.deepEqual(result.map(x => x.randomSixPrizes.denominator), [
+    '10','17110','4551260','10012772','715198'
+  ]);
+  assert.deepEqual(result.map(x => x.givenLegalOpening.numerator), [
+    '13444083','5063328051','20393419889','4358254913','18289402231011'
+  ]);
+  assert.deepEqual(result.map(x => x.givenLegalOpening.denominator), [
+    '133576960','29520508160','138562152960',
+    '734379410688','31823107796480'
+  ]);
+  const sum = result.reduce((total, row) =>
+    total + row.givenLegalOpening.probability, 0);
+  assert.ok(Math.abs(sum - 1) < 1e-12);
+  assert.equal(result[4].givenLegalOpening.probability,
+    ceilingForBasicCount(14).availabilityGivenLegalFirstSeven.probability);
 });
