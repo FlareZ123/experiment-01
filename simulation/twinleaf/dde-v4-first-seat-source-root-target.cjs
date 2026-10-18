@@ -165,7 +165,6 @@ function main() {
 }
 
 if (require.main === module)
-  process.stdout.write('SOURCE_DDE_ATTACHMENT_AUDIT ' +
-    JSON.stringify(main()) + '\n');
+  process.stdout.write(JSON.stringify(main(), null, 2) + '\n');
 
 module.exports = {ownPosition, withSourceDdeAttachmentTrace, main};
