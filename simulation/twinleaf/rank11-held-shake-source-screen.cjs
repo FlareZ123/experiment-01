@@ -35,7 +35,7 @@ function outcome(r) {
 }
 
 /** @returns {object} */
-function run({startIndex = 0, count = N} = {}) {
+function run({startIndex = 0, count = N, conserveGarbodor = false} = {}) {
   const rows = schedule(startIndex, count);
   assert.equal(new Set(rows.map(r => r.seed)).size, rows.length);
   const scheduleDigest = crypto.createHash('sha256')
@@ -67,7 +67,7 @@ function run({startIndex = 0, count = N} = {}) {
     };
     try {
     const wrapped = withRank11HeldShake(row.sourceSeat,
-      () => runMatch(request));
+      () => runMatch(request), {conserveGarbodor});
     const game = wrapped.result;
     const policy = wrapped.policyAudit;
     const rank11ActualFirst = game.firstTurnSlot === row.sourceSeat;
@@ -122,7 +122,8 @@ function run({startIndex = 0, count = N} = {}) {
   const opportunities = trials.filter(t => t.openingOpportunity);
   return {
     study: 'rank11 held-Boost-Shake owner-visible autonomous opportunity screen',
-    profile: 'rank11-held-shake-v1',
+    profile: conserveGarbodor ? 'rank11-held-shake-v2-k1-guard' :
+      'rank11-held-shake-v1',
     seedLabel: SEED_LABEL,
     startIndex, count,
     scheduleDigest,
