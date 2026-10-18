@@ -347,6 +347,7 @@ function auditCampaignQuality(archive) {
         let observedActions = 0;
         let completeTraces = 0;
         let laterOpponentRootDispatches = 0;
+        let opponentNextTurnRootDispatches = 0;
         const rootWitnesses = [];
         for (const record of records) {
           const row = rows.find(item => item.trialId === record.trialId);
@@ -364,11 +365,20 @@ function auditCampaignQuality(archive) {
             const opponentLater = trace.find(event =>
               event.actionOrdinal > action.actionOrdinal &&
               event.playerSlot === 1 - candidateSlot);
+            const opponentLaterTurn = Number.isSafeInteger(action.turnBefore) ?
+              trace.find(event => event.actionOrdinal > action.actionOrdinal &&
+                event.playerSlot === 1 - candidateSlot &&
+                event.action !== 'ResolvePromptAction' &&
+                Number.isSafeInteger(event.turnBefore) &&
+                event.turnBefore > action.turnBefore) : null;
             if (opponentLater) laterOpponentRootDispatches += 1;
+            if (opponentLaterTurn) opponentNextTurnRootDispatches += 1;
             rootWitnesses.push({
               trialId: record.trialId,
               rootActionOrdinal: action.actionOrdinal,
-              laterOpponentRootActionOrdinal: opponentLater?.actionOrdinal ?? null
+              laterOpponentRootActionOrdinal: opponentLater?.actionOrdinal ?? null,
+              opponentNextTurnRootActionOrdinal:
+                opponentLaterTurn?.actionOrdinal ?? null
             });
           }
           if (record.traceSummary.coversAllActionsAndPromptResolutions === true) {
@@ -379,6 +389,7 @@ function auditCampaignQuality(archive) {
           id: check.id, action: check.action, detail: check.detail,
           observedActions, completeTraces, totalTrials: records.length,
           rootWitnesses, laterOpponentRootDispatches,
+          opponentNextTurnRootDispatches,
           opportunityStatus: 'unobserved',
           hypotheticalProposalStatus: 'unobserved',
           resolvedEffectStatus: 'unobserved',
