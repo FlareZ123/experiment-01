@@ -16,6 +16,12 @@ on:
         options:
           - simple-default-v0
           - expanded-action-fidelity-probe-v1
+          - rank11-autonomous-boostshake-v1
+      rank11_autonomous_probe:
+        description: Execute one source-rank11 automatic lock policy diagnostic (unqualified)
+        required: false
+        type: boolean
+        default: false
       post_super_clone:
         description: 'Experimental v2 speculative Simulator repair; does not qualify game strength'
         required: false
@@ -81,9 +87,12 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify source-locked trial adapter and guards
-        run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs
+        run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs tests/rank11-autonomous-opener.test.cjs
+      - name: Replay one genuine rank11 opening under the automatic policy
+        if: ${{ inputs.rank11_autonomous_probe }}
+        run: node simulation/twinleaf/rank11-autonomous-source-regression.cjs > rank11-autonomous-source-regression.json
       - name: Run up to six source-locked pilot trials
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe }}
         env:
           CAMPAIGN_INPUT_ORDER_PROTOCOL: ${{ inputs.input_order_protocol || 'source-row-order-v1' }}
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
@@ -97,7 +106,7 @@ jobs:
           CAMPAIGN_MAX_ACTIONS: '800'
         run: node simulation/evaluation/aichi-campaign-runner.cjs > aichi-campaign-report.json
       - name: Cross-check sourced games and fingerprint evidence envelope
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe }}
         env:
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
         run: node simulation/evaluation/aichi-campaign-envelope-runner.cjs aichi-campaign-report.json aichi-campaign-envelope.json
@@ -120,4 +129,5 @@ jobs:
             aichi-setup-order-probe.json
             aichi-setup-observer-audit.json
             aichi-multiseed-setup-coupling.json
+            rank11-autonomous-source-regression.json
           retention-days: 14
