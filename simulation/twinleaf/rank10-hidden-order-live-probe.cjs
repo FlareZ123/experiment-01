@@ -157,10 +157,26 @@ function withRootDispatchCounter(Store,work) {
   finally{Object.defineProperty(Store.prototype,'dispatch',descriptor);}
 }
 
-/** Source-dealt, frozen-seat exploratory sensitivity measurement. */
-function auditRank10HiddenOrder(rootActionOrdinal) {
+/**
+ * The historical ordinal-215 Copycat/Retreat proposal belongs to the v3
+ * Double Dragon tactic. Current v4 ends the same source game before turn 28.
+ * Preserve the active policy for prospective turn-27 tests and opt into the
+ * explicitly archived policy only for the old ordinal's reproducibility gate.
+ * @param {number|undefined} rootActionOrdinal
+ * @returns {{doubleDragonRecovery:boolean,doubleDragonArchiveV3:boolean}}
+ */
+function sourcePolicyForOrdinal(rootActionOrdinal) {
   assert.ok(rootActionOrdinal===undefined || rootActionOrdinal===215,
     'Only archived decisive root ordinal 215 is admitted');
+  return {
+    doubleDragonRecovery:true,
+    doubleDragonArchiveV3:rootActionOrdinal===215
+  };
+}
+
+/** Source-dealt, frozen-seat exploratory sensitivity measurement. */
+function auditRank10HiddenOrder(rootActionOrdinal) {
+  const policy=sourcePolicyForOrdinal(rootActionOrdinal);
   initializeCards();
   const field=resolveManifestFile(path.resolve(__dirname,
     '../../results/aichi-2026/full-decklists.json'),{
@@ -180,7 +196,7 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
     deckA:rank10.cardIds,deckB:rank1.cardIds,
     seed:trials[0].seed,maxActions:350,label:trials[0].trialId,
     strictPromptValidation:true,forestSealSearchCorrection:true,
-    supporterDecisionCorrection:true,doubleDragonRecovery:true,
+    supporterDecisionCorrection:true,...policy,
     isolatePolicyRandomness:true,captureDecisionTrace:true,
     captureCopycatTurnStartSeat:1,postSuperAliasRepairIsolation:true,
     mimikyuApexCopycatCompatibility:true,
@@ -225,6 +241,8 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
     pinnedTrialId:trials[0].trialId,
     seed:trials[0].seed,
     candidatePhysicalSeat:1,
+    doubleDragonPolicy:policy.doubleDragonArchiveV3?
+      'historical-v3-archive':'current-v4',
     root:observed.events[0],
     matchedUninstrumentedMatch:true,
     qualifiedForCompetitiveInference:false,
@@ -241,4 +259,5 @@ if(require.main===module)
     auditRank10HiddenOrder(process.argv[2]==='ordinal215'?215:undefined),
     null,2)+'\n');
 module.exports={actionSignature,compareHiddenDeckOrders,
-  withRootHiddenOrderProbe,withRootDispatchCounter,auditRank10HiddenOrder};
+  withRootHiddenOrderProbe,withRootDispatchCounter,
+  sourcePolicyForOrdinal,auditRank10HiddenOrder};
