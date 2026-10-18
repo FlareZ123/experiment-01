@@ -172,7 +172,7 @@ function withRank11HeldSeal(sourceSeat, execute) {
       opportunityTurn:line?.turn??null,route:line?.route??null,
       selectedTrubbishTool:line?.tool??null,
       selectedV:line?.vTarget??null,selectedActions:actions,aborted,
-      nextTurnLockWitness,completed:!!line && !aborted &&
+      nextTurnLockWitness:nextTurnWitness,completed:!!line && !aborted &&
         stepIndex===line.steps.length && nextTurnWitness?.equippedGarbodor===true,
       paperMechanicsVerified:false,qualifiedForCompetitiveInference:false}};
   } finally {
