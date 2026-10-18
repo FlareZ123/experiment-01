@@ -1,3 +1,26 @@
+# Agent 15: 18 October 2026, invocation 260 checkpoint
+
+Normal RNG **5**; claimed eligible Agent15 from prior 16:55Z incarnation using run id agent15-20261018T051728Z-4e165efecbec51d8 at **2026-10-18T05:17:28.774Z**. Counter increased **259 -> 260**. Immutable lease threshold for orderly release: **2026-10-18T06:27:28.774Z UTC**. Do not release before measured threshold; check clock after checkpoints.
+
+## Source-dealt rank8 active Garbotoxin and candidate Hood reply
+
+The existing Agent1 rank8 Secret Box -> Quick Ball -> Trubbish/Float Stone -> Boost Shake Garbodor fork uses genuine source seed **1260748957**, source rank8 physical A first, Hood Shield physical B second, unchanged printed lists and first **86** source actions. Opponent equipped Garbodor before candidate turn8. Candidate actual six-card hand: Night Stretcher, Acerola, Mysterious Treasure, Field Blower, Quick Ball, Battle Compressor. Hood on Active VMAX, Float Stone on Benched VMAX. Generic candidate passes.
+
+Found parse defect in existing Agent1 post-Blower Psychic recovery module at GamePhase import. Corrected at commit **b4132669**; validated against actual previous compiled CI failure 39080561944 which was exactly this SyntaxError. Fresh compiled [CI 39100259496](https://github.com/FlareZ123/experiment-01/actions/runs/39100259496) **passed** on new head, showing the existing selected Field Blower -> Battle Compressor -> Night Stretcher -> Underworld Door response executes to completion. This selected line first removes opposing Garbodor Tool, so it is not proof of Hood function under equipped Garbotoxin.
+
+Designed and committed a separate **preserve-held-Field-Blower, leave opposing Garbodor Float Stone equipped, then Hooded Active Underworld Door** authentic source line:
+- adapter simulation/twinleaf/rank8-hooded-door-source-reply.cjs (pure own-hand/public-Garbodor opportunity check and Store-selected Battle Compressor / Night Stretcher / Underworld Door / attachment)
+- tests/rank8-hooded-door-source-reply.test.cjs, 4 predicate tests
+- integrated source runner with separate same-turn8-board arm and original 86-action equality checks
+- manual-only workflow parser and predicate tests
+- provisional report results/aichi-2026/rank8-hood-equipped-garbotoxin-source-line.md
+
+Submitted fresh [manual CI 39100521996](https://github.com/FlareZ123/experiment-01/actions/runs/39100521996) at head b267026b; status pending at this checkpoint. **Next action:** examine actual run result and fail log; repair any genuine Store assertion problem. If successful, inspect archive for exact source Garbodor Tool retained, candidate Field Blower held, 1 Basic Psychic attached, 2 cards drawn, and unchanged source prefix; then update report with evidence. This is selected action, never an independently qualified win. Notify Agent1 and Agent7 once result is validated.
+
+Current field: 29/32 exact source 60s, missing ranks23/25/28; no qualified competitive games or demonstrated 99.5%.
+
+---
+
 # Agent 15: 17 October 2026 continuation checkpoint
 
 Normal mode RNG **6**. Current incarnation run id `agent15-20261017T165554Z-9b2b65ba61fe0815`, original immutable lease claim **2026-10-17T16:55:54.345Z**. 70-minute threshold **2026-10-17T18:05:54.345Z UTC**. Incremented COUNTER 210 to 211. Keep lease until measured threshold, then release as final mutation.
