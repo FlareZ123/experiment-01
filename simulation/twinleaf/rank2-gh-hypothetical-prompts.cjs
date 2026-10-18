@@ -31,3 +31,20 @@ function observeGhHypotheticalPrompts(play,targetOrdinal=59){
   let ordinal=0,focus=false,candidate=null;
   const prompts=[],evaluations=[];
   try{
+    bot.decodeNextAction=function(state){
+      const prior=focus;
+      focus=++ordinal===targetOrdinal&&state.turn===5&&state.activePlayer===1;
+      try{return oldDecode.call(this,state);}
+      finally{focus=prior;}
+    };
+    tactic.evaluateAction=function(state,id,action,passScore){
+      const prior=candidate;
+      const current=state.players[state.activePlayer].hand.cards[action.handIndex];
+      candidate=focus&&this.constructor.name==='PlaySupporterTactic'?
+        current?.fullName??null:null;
+      try{
+        const score=oldEvaluate.call(this,state,id,action,passScore);
+        if(candidate)evaluations.push({candidate,score:score??null});
+        return score;
+      }finally{candidate=prior;}
+    };
