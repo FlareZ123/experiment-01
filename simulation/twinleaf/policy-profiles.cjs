@@ -17,6 +17,7 @@ const EXPANDED_SOURCE_PROFILE = 'expanded-source-k0-stage-gh-v2';
 const EXPANDED_GH_SEARCH_PROFILE = 'expanded-gh-root-search-v3';
 const RANK11_AUTONOMOUS_PROFILE = 'rank11-autonomous-boostshake-v1';
 const RANK11_OWN_FIRST_PROFILE = 'rank11-autonomous-first-own-turn-v2';
+const RANK11_SUPPORTER_PROFILE = 'rank11-autonomous-boostshake-supporter-v2';
 const RANK26_COLOGNE_PROFILE = 'rank26-autonomous-cologne-v1';
 const RANK26_COLOGNE_PUMP_PROFILE = 'rank26-autonomous-cologne-pump-v2';
 const ALLOWED_PROFILES = Object.freeze([
@@ -24,7 +25,7 @@ const ALLOWED_PROFILES = Object.freeze([
   SUPPORTER_PROFILE, REGIDRAGO_SUPPORTER_PROFILE,
   EXPANDED_PROFILE, EXPANDED_SOURCE_PROFILE, EXPANDED_GH_SEARCH_PROFILE,
   RANK11_AUTONOMOUS_PROFILE, RANK11_OWN_FIRST_PROFILE,
-  RANK26_COLOGNE_PROFILE, RANK26_COLOGNE_PUMP_PROFILE
+  RANK11_SUPPORTER_PROFILE, RANK26_COLOGNE_PROFILE, RANK26_COLOGNE_PUMP_PROFILE
 ]);
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 
@@ -104,15 +105,17 @@ function runWithResearchProfile(request, profile) {
     doubleDragonRecovery: false,
     supporterDecisionCorrection: false
   };
-  if ([RANK11_AUTONOMOUS_PROFILE, RANK11_OWN_FIRST_PROFILE].includes(profile)) {
+  if ([RANK11_AUTONOMOUS_PROFILE, RANK11_OWN_FIRST_PROFILE,
+      RANK11_SUPPORTER_PROFILE].includes(profile)) {
     const {rank11SourceSeat, ...matchRequest} = shared;
     if (![0, 1].includes(rank11SourceSeat)) {
       throw new Error('Rank-11 autonomous opener requires the actual source seat.');
     }
     const {withRank11AutonomousOpener} = require('./rank11-autonomous-opener.cjs');
     const v2 = profile === RANK11_OWN_FIRST_PROFILE;
+    const supporter = profile === RANK11_SUPPORTER_PROFILE;
     const audit = withRank11AutonomousOpener(rank11SourceSeat,
-      () => runMatch(matchRequest), {
+      () => runMatch({...matchRequest, supporterDecisionCorrection: supporter}), {
         allowSecondGlobalTurn: v2,
         version: profile
       });
@@ -122,7 +125,8 @@ function runWithResearchProfile(request, profile) {
       policy: String(audit.result.policy || 'unqualified-simple-bot') +
         (v2 ? '+Rank11FirstOwnTurn-v2' : '+Rank11AutonomousOpener-v1'),
       experimentalTactics: [v2 ? 'Rank11FirstOwnTurn-v2' :
-        'Rank11AutonomousOpener-v1'],
+        'Rank11AutonomousOpener-v1',
+        ...(supporter ? ['SupporterDecisionGuard-v1'] : [])],
       rank11AutonomousPolicy: audit.policyAudit
     };
   }
@@ -248,6 +252,7 @@ function runWithResearchProfile(request, profile) {
 module.exports = {DEFAULT_PROFILE, REGIDRAGO_PROFILE, SUPPORTER_PROFILE,
   REGIDRAGO_SUPPORTER_PROFILE, EXPANDED_PROFILE, EXPANDED_SOURCE_PROFILE,
   EXPANDED_GH_SEARCH_PROFILE, RANK11_AUTONOMOUS_PROFILE,
-  RANK11_OWN_FIRST_PROFILE, RANK26_COLOGNE_PROFILE,
+  RANK11_OWN_FIRST_PROFILE, RANK11_SUPPORTER_PROFILE,
+  RANK26_COLOGNE_PROFILE,
   RANK26_COLOGNE_PUMP_PROFILE, ALLOWED_PROFILES,
   withTempleUnlockTactic, withExpandedActionOptions, runWithResearchProfile};
