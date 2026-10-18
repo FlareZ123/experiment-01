@@ -25,6 +25,15 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Inspect real Store Secret Box cost and search prompt on staged Garbodor board
+        run: node simulation/twinleaf/newmoon-secretbox-store-prompt-probe.cjs > newmoon-secretbox-store-prompt.json
+      - name: Preserve staged Secret Box diagnostic even if later tests fail
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-secretbox-store-prompt
+          path: newmoon-secretbox-store-prompt.json
+          if-no-files-found: warn
       - name: Run source identity and printing hash regression
         run: node --test tests/new-moon-print-map.test.cjs
       - name: Validate candidate 60 printed-engine variants
