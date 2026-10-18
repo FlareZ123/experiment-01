@@ -27,6 +27,8 @@ jobs:
         run: node --test tests/aichi-printing-order-audit.test.cjs
       - name: Check familywise hard-matchup veto and adversarial provenance cases
         run: node --test tests/aichi-hard-matchup-veto.test.cjs
+      - name: Check archetype group loss floors against registered Aichi field
+        run: node --test tests/aichi-archetype-loss-budget.test.cjs
 
   rank11-source-census:
     runs-on: ubuntu-latest
