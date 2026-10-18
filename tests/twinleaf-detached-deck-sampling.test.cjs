@@ -261,3 +261,63 @@ test('Prize position-only sampling rejects unproven or incompatible knowledge',(
   state.players[0].prizes[0].isSecret=false;
   assert.throws(()=>score(valid),/all Prize positions face down/);
 });
+
+
+test('shared non-Card metadata object is rejected before evaluation',()=>{
+  const state=setup(),before=structuredClone(state);
+  state.metadata={publicTick:0};
+  let calls=0;
+  const clone=value=>{
+    const copy=structuredClone(value);
+    if(value===state)copy.metadata=state.metadata;
+    return copy;
+  };
+  assert.throws(()=>evaluateDetachedDeckSamples(
+    state,1,{},0,()=>{calls++;state.metadata.publicTick++;return 1},
+    null,clone,opts),/live State object/);
+  assert.equal(calls,0);
+  assert.equal(state.metadata.publicTick,0);
+  assert.deepEqual(state.players,before.players);
+});
+
+test('each hypothetical evaluation receives a private action instance',()=>{
+  const state=setup(),action={target:{index:1},attempts:0};
+  const seen=[];
+  const mean=evaluateDetachedDeckSamples(
+    state,1,action,0,(world,id,sampledAction)=>{
+      assert.equal(id,1);
+      assert.equal(sampledAction.target.index,1);
+      assert.equal(sampledAction.attempts,0);
+      seen.push(sampledAction);
+      sampledAction.target.index=99;
+      sampledAction.attempts++;
+      return world.players[0].deck.cards.length;
+    },null,structuredClone,opts);
+  assert.equal(mean,3);
+  assert.equal(seen.length,opts.samples);
+  assert.equal(new Set(seen).size,opts.samples);
+  assert.deepEqual(action,{target:{index:1},attempts:0});
+});
+
+test('an action referencing source State is rejected as non-index-based',()=>{
+  const state=setup(),action={target:state.players[0].deck};
+  let calls=0;
+  assert.throws(()=>evaluateDetachedDeckSamples(
+    state,1,action,0,()=>{calls++;return 1},
+    null,structuredClone,opts),/action must not reference live State objects/);
+  assert.equal(calls,0);
+});
+
+test('a clone retaining an original action subobject is rejected',()=>{
+  const state=setup(),action={target:{index:1}},before=structuredClone(action);
+  let calls=0;
+  const clone=value=>{
+    if(value===action)return {target:action.target};
+    return structuredClone(value);
+  };
+  assert.throws(()=>evaluateDetachedDeckSamples(
+    state,1,action,0,()=>{calls++;return 1},
+    null,clone,opts),/action clone retained a live action/);
+  assert.equal(calls,0);
+  assert.deepEqual(action,before);
+});
