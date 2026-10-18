@@ -10,6 +10,25 @@ function cardCopyMultisetDigest(fullNames){
 }
 
 /**
+ * Validate the complete source identity of each 60-card opening without
+ * exposing the shuffled deck order to the research runner or a bot.
+ * @param {object[]} capturedSeats
+ * @param {string[][]} expectedDecks
+ * @returns {boolean}
+ */
+function openingInventoriesMatch(capturedSeats,expectedDecks){
+  if(!Array.isArray(capturedSeats)||capturedSeats.length!==2 ||
+      !Array.isArray(expectedDecks)||expectedDecks.length!==2){
+    return false;
+  }
+  return capturedSeats.every((seat,i)=>
+    Array.isArray(expectedDecks[i]) && expectedDecks[i].length===60 &&
+    seat?.openingCopyCount===60 &&
+    seat.openingCopyMultisetDigest===
+      cardCopyMultisetDigest(expectedDecks[i]));
+}
+
+/**
  * Detach both players' zones at the first actual game turn. The source game
  * may have included opponent mulligan bonus draws or other setup effects, so
  * these zones are not asserted to reconstruct either original seven.
@@ -60,4 +79,4 @@ function openingSetupZones(state) {
   };
 }
 
-module.exports={openingSetupZones,cardCopyMultisetDigest};
+module.exports={openingSetupZones,cardCopyMultisetDigest,openingInventoriesMatch};
