@@ -82,8 +82,12 @@ function withRank11DirectBoostShake(sourceSeat, execute) {
     if (!line || aborted || stepIndex >= line.steps.length) return prior.call(this, state);
     const step = line.steps[stepIndex];
     const expectsPrompt = step.endsWith('-search') || step === 'garbodor-target';
-    // Allow ordinary shuffle and WaitPrompts to resolve without advancing.
+    // Preserve the line while unrelated Wait/Shuffle prompts are resolved.
     if (!!pending !== expectsPrompt) return prior.call(this, state);
+    if (pending && pending.constructor.name !==
+        (step === 'garbodor-target' ? 'ChoosePokemonPrompt' : 'ChooseCardsPrompt')) {
+      return prior.call(this, state);
+    }
     let action = null;
     if (step === 'vip') action = play(player, 'Battle VIP Pass', board);
     if (step === 'trubbish-hand') {
