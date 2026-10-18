@@ -104,7 +104,7 @@ function withRank11AutonomousOpener(sourceSeat, execute) {
   /** @param {object} player @returns {number} */
   function trubbishIndex(player) {
     return player.bench.findIndex(slot =>
-      slot.getPokemonCard()?.name === 'Trubbish' && slot.tools.length === 0);
+      slot.getPokemonCard()?.name === 'Trubbish');
   }
 
   SimpleTacticsAi.prototype.decodeNextAction = function rank11Policy(state) {
@@ -185,9 +185,11 @@ function withRank11AutonomousOpener(sourceSeat, execute) {
           break;
         case 7: {
           const index = trubbishIndex(player);
-          if (index >= 0) action = play(player, 'Float Stone', {
+          if (index >= 0 && player.bench[index].tools.length === 0) {
+            action = play(player, 'Float Stone', {
             player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index
-          });
+            });
+          }
           break;
         }
         case 8:
