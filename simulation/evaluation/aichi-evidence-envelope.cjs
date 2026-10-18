@@ -8,7 +8,7 @@ const STATUSES = new Set([
   'unverified-first-turn', 'unfinished', 'engine-exception',
   'engine-seed-mismatch', 'engine-revision-mismatch',
   'engine-protocol-mismatch', 'policy-profile-mismatch',
-  'simulator-profile-mismatch'
+  'simulator-profile-mismatch', 'match-policy-echo-mismatch'
 ]);
 
 /** @param {unknown} value @returns {string} */
@@ -87,7 +87,7 @@ function auditArchive(inputs, archive) {
       const boundOutcome = rawWinner === 3 ? 'draw' :
         rawWinner === candidateSlot ? 'candidate' : 'opponent';
       if (!proof || row.observedFinished !== true ||
-          (row.observedSeed !== undefined && row.observedSeed !== scheduled.seed) ||
+          row.observedSeed !== scheduled.seed ||
           ![0, 1, 3].includes(rawWinner) || row.winner !== boundOutcome ||
           !Array.isArray(row.expectedEngineDeckHashes) ||
           !Array.isArray(row.observedEngineDeckHashes) ||
@@ -142,13 +142,16 @@ function createEvidenceEnvelope(inputs, archive, provenance) {
     throw new Error('Archive/research commit revision mismatch.');
   }
   for (const row of archive.records.filter(r => r.status === 'completed')) {
-    if ((row.observedEngine && row.observedEngine !== 'twinleafgg/' + provenance.engineRevision) ||
-        (row.resolvedEngineRevision && row.resolvedEngineRevision !== provenance.engineRevision) ||
-        (row.observedRngProtocol && row.observedRngProtocol !== provenance.rngProtocol) ||
-        (row.observedPolicy && (row.observedPolicy !== provenance.candidatePolicyRevision ||
-          row.observedPolicy !== provenance.opponentPolicyRevision)) ||
-        (row.effectiveMatchOptions && digest(row.effectiveMatchOptions) !==
-          digest(provenance.effectiveMatchOptions))) {
+    if (row.observedEngine !== 'twinleafgg/' + provenance.engineRevision ||
+        row.resolvedEngineRevision !== provenance.engineRevision ||
+        row.observedRngProtocol !== provenance.rngProtocol ||
+        row.observedPolicy !== provenance.candidatePolicyRevision ||
+        row.observedPolicy !== provenance.opponentPolicyRevision ||
+        !row.effectiveMatchOptions ||
+        typeof row.effectiveMatchOptions !== 'object' ||
+        Array.isArray(row.effectiveMatchOptions) ||
+        digest(row.effectiveMatchOptions) !==
+          digest(provenance.effectiveMatchOptions)) {
       throw new Error('Engine-reported provenance conflicts with evidence envelope: ' + row.trialId);
     }
   }
