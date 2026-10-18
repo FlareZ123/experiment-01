@@ -120,6 +120,12 @@ function withRank11AutonomousOpener(sourceSeat, execute) {
       stage = 0;
     }
     if (stage < 0 || stage >= 11) return original.call(this, state);
+    // Owner-search effects may issue mandatory shuffle/wait prompts between
+    // our deliberate actions. Preserve the stage while the pinned resolver
+    // handles those prompts, as in the source Store fork.
+    if (pending && ![1, 3, 6, 9, 10].includes(stage)) {
+      return original.call(this, state);
+    }
 
     let action = null;
     if (pending) {
