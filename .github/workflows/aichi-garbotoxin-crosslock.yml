@@ -47,6 +47,10 @@ on:
         description: 'Posthoc forensic of all 15 archived opportunities from the preregistered second cohort'
         type: boolean
         default: false
+      rank11_held_shake_fieldblower_source112:
+        description: 'Opt-in exact original source 112: real held Field Blower and opponent reply'
+        type: boolean
+        default: false
       rank11_rank1_attack_response:
         description: 'Opt-in four opportunity-conditioned both-start authentic rank11 versus rank1 attack responses'
         type: boolean
@@ -185,6 +189,16 @@ jobs:
         with:
           name: ${{ inputs.rank11_held_shake_extended_reply && 'rank11-held-shake-extended-first-response' || 'rank11-held-shake-candidate-first-response' }}
           path: rank11-held-shake-forensic.json
+          if-no-files-found: warn
+      - name: Run exact source-112 one-Item Tool removal and opponent reply
+        if: inputs.rank11_held_shake_fieldblower_source112
+        run: node simulation/twinleaf/rank11-held-shake-fieldblower-source-fork.cjs > rank11-held-shake-source112-blower.json
+      - name: Archive source-112 action and effect evidence
+        if: always() && inputs.rank11_held_shake_fieldblower_source112
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-held-shake-source112-blower
+          path: rank11-held-shake-source112-blower.json
           if-no-files-found: warn
       - name: Reproduce authentic rank8 Latias escape decision alternatives
         if: inputs.rank8_source_fork
