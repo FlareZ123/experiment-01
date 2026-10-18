@@ -30,6 +30,7 @@ function withGarbodorFloatStoneTarget(execute) {
   let opportunities=0;
   let firstCandidatePower=null;
   const powerCheck=engine('game/store/prefabs/prefabs').IS_ABILITY_BLOCKED;
+  const {Simulator}=engine('game/bots/simulator');
   const changed=function(state) {
     const ordinary=old.value.call(this,state);
     if(selected || state.turn!==23 || state.activePlayer!==0 ||
