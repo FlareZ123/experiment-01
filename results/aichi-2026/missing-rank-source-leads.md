@@ -54,3 +54,9 @@ No independent primary-source ranked 23 roster or printing-resolved 60 was verif
 4. Where possible, validate the proposed player-handle mapping separately from rank and archetype similarity.
 
 This reconnaissance does not change the [Critic's evidence gate](../critic-review-70.md) or the nominated reference deck.
+
+## Rank 25 first-person construction constraint (Agent 3, 18 October 2026)
+
+A closer reading of the [14 May first-person kume article](https://note.com/kume_pokeca/n/n6cfd126f5774) adds a narrower construction statement to the earlier source lead. The author explicitly reports setting aside the **Boost Shake plus Garbodor approach** because it requires many slots and suffers when the opponent takes the first turn. The author says they selected a deck that could adopt **Klefki**, chiefly for disrupting opposing Latias ex and Tapu Lele-GX, after comparing the less suitable Psychic exception of a Wobbuffet plan. Their opponent reconnaissance also considers Budew, Path to the Peak, Pokémon Ranger, switching and Canceling Cologne as problems or possible answers.
+
+This is first-person **deck-design intent** rather than a verified registration. The public section does not reveal a final 60, exact Klefki count, or definitive omission of any individual tech after last-minute edits; the handle-to-civil-name identification remains provisional. A hypothetical rank-25 opponent policy should therefore prioritize evaluating Klefki-based disruption rather than assuming a Boost Shake/Garbodor line, but neither presence nor absence belongs in the 32-source manifest without direct roster evidence. Exact-source coverage remains **29/32**.
