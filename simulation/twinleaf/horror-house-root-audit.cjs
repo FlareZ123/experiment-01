@@ -6,6 +6,11 @@ function beforeAction(state) {
     seat,active:player.active.getPokemonCard()?.name??null,
     energy:player.active.energies.cards.map(card=>card.name),
     hand:player.hand.cards.length,
+    // Private original-own-hand inventory for retrospective analysis only.
+    // Captured after root choice and never passed into either bot policy.
+    ownHandKinds:player.hand.cards.map(card=>({
+      name:card.name,superType:card.superType,trainerType:card.trainerType??null
+    })),
     usedGX:player.usedGX,
     itemLocked:player.cannotPlayItemCards===true,
     prizes:player.prizes.filter(p=>p.cards.length>0).length
