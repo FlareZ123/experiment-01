@@ -1,0 +1,49 @@
+# New Moon's first-draw Battle Compressor to Gengar route is a rare resource opening
+
+**Agent 9, 18 October 2026 UTC.** Evidence: exact combinatorial calculation independently cross-checked by a 200,000-deal Python shuffle experiment. This is an **initial-resource screen**, with no claim about action legality on a particular turn, qualified opponents, game performance, or win rate.
+
+## Precise question
+
+In the unchanged [New Moon Lockbreaker v1 English-equivalent 60](new-moon-lockbreak-english-proxy-60.json) there are **2 Mewtwo & Mew-GX**, **1 Gengar & Mimikyu-GX**, **2 Battle Compressor**, **17 Basic Pokémon overall**, and 60 total physical cards. A proposed opt-in candidate policy can use a genuinely held Battle Compressor, then *during the actual owner search* select Gengar & Mimikyu-GX for discard. That makes its Horror House-GX attack available to Mewtwo & Mew-GX through Perfection after other attack and lock requirements are met.
+
+A necessary *initial-eight-only* resource configuration for this direct channel is:
+
+1. A legal starting seven containing at least one Mewtwo & Mew-GX (so Mewtwo **could** be selected Active).
+2. At least one Battle Compressor among the starting seven and first mandatory draw.
+3. Gengar & Mimikyu-GX absent from those eight cards and absent from the six Prize cards, so a later legal deck search can find it.
+
+The Gengar absence is specific to the **deck-to-discard Compressor route**. A hand Gengar may be Benched, which is a separate attack-payload channel, and there may be additional drawing and searching later in the turn. The event is a resource subset, **not an upper bound on all ways to attack**.
+
+## Exact result
+
+**P(resource event | legal starting seven) = 15,335,595 / 353,982,806 = 4.3322994055%.**
+
+Draw seven, condition on at least one of the 17 Basics, set six uniformly unknown Prize cards from the remaining 53, and draw the first ordinary card from the other 47. Equivalent counting can expose the eighth card first, then select Prizes uniformly from the other 52. Exclude extra cards from opponent mulligans.
+
+Let **C(n,k)** be the binomial coefficient. With one Gengar excluded, the initial seven has 59 possible physical cards, two of them Mewtwo and two Compressor. There are two disjoint cases:
+
+- First seven contains Mewtwo and Compressor: `C(59,7)-2C(57,7)+C(55,7)` ways, followed by **52** eligible non-Gengar next cards.
+- First seven contains Mewtwo but no Compressor: `C(57,7)-C(55,7)` ways, followed by **2** eligible Compressor next cards.
+
+The numerator before Prize conditioning is therefore:
+
+`52 [C(59,7)-2C(57,7)+C(55,7)] + 2 [C(57,7)-C(55,7)] = 918,802,170`.
+
+The denominator of legal-seven / one-draw ordered outcomes is `53 [C(60,7)-C(43,7)]`. Given Gengar remains in the 52 unsighted cards after the eighth, the probability that six Prizes do not contain it is `46/52`. Multiplication and exact fraction reduction give the result above.
+
+A second calculation used **200,000 physically shuffled full-60 decks**, with Python `random.Random(20261018)`, placing seven, then six Prizes, then a first draw, and retaining only legal sevens. It retained **183,386** legal sevens, of which **7,892** met the event: **4.3034909971%**. This agrees within ordinary binomial sampling noise. The computation and independent randomization were performed locally and are not pinned GitHub CI artifacts.
+
+## What this changes
+
+The early direct Compressor/Gengar line occurs in **about 4.3%** of otherwise legally starting hands before considering the conditions needed to play a useful copied attack. Those conditions include choosing Mewtwo Active, Item access, resolving the search, attached Psychic Energy, opponent locks, support timing, GX allowance, and whether the chosen attack is meaningful. Later draw/search chains and a Benched Gengar create additional channels. The number should **never** be equated with the chance of attacking or winning.
+
+A twelve-seed source-dealt A/B screen is therefore unlikely to encounter many first-window cases of this narrowly defined resource opportunity. Exposure counts, including zeros, must accompany any pilot output. More extensive independent seeds or an explicitly conditional positive-control seed are needed to test the new decision branch, followed by prospective both-turn-order qualification.
+
+## Implementation checkpoint and evidence limits
+
+- [Research-owned payload policy](../../simulation/twinleaf/new-moon-compressor-payload-policy.cjs) attempts a held Compressor using only the acting player's information, and inspects named GX payloads only inside the owner-visible deck-search prompt. It prioritizes Gengar and Trevenant & Dusknoir-GX, leaving the fixed 60 unchanged.
+- [Pure regression source](../../tests/new-moon-compressor-payload-policy.test.cjs) covers its hand/public-zone trigger and owner-prompt card selection. [Prospectively fixed rank-11 diagnostic](../../simulation/twinleaf/newmoon-rank11-payload-prospective.cjs) compares 12 decorrelated seat-B seeds across the control and payload policy and retains all attempted arms.
+- [Headless integration](../../simulation/twinleaf/headless.cjs) provides separate per-seat switches for the Compressor policy and existing Horror House attack policy. The pinned Battle Compressor source card has `fullName = 'Battle Compressor PHF'` even though external databases may append Team Flare Gear to its name. The code uses the verified source `name` property.
+- **Not yet compiled or source-run in CI:** a proposed change to the existing manual rank-11 workflow was blocked by repository-operation safety checks. This is a recorded blocker. No test pass, actual Compressor selection, attack, or terminal game is claimed for this new policy.
+
+The full Aichi field still has only **29/32 verified source lists**, and **zero independently qualified competitive games**. The target of a single 99.5%-winning fixed 60 remains unproven.
