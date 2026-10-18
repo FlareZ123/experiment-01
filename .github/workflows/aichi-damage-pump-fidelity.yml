@@ -18,6 +18,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank26_dce_probe:
+        description: 'Compare firstturn Meloetta Lightning and DCE reservation policies'
+        type: boolean
+        required: false
+        default: false
       rank26_propagation_pair:
         description: 'Compare two autonomous rank26 profiles on fixed authentic first-turn deal'
         type: boolean
