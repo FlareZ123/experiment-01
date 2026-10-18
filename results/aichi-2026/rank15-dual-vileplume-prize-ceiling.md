@@ -50,6 +50,22 @@ P(E\mid L)=
 
 Here \(E\) means the six-Prize core eligibility event and \(L\) means that **the initial** seven cards contain a Basic Pokémon. The Basic-invalid hand is reshuffled under the game setup rule, so this conditional value is the relevant random-fresh-start envelope before any other effects. It yields a **42.52791918%** pre-Prize physical obstruction probability on Basic-valid starts. Opponent mulligan extra draws do not change initial Prize composition.
 
+### Which original Prize configuration blocks two Vileplume?
+
+The exact model now partitions **all** six-Prize configurations into five mutually exclusive causes, checked in priority order. Overlapping failure events are assigned to their first matching cause; hence the table's percentages sum to 100%. Conditioning uses the actual source's 14 Basic Pokémon.
+
+| First applicable classification | Unconditioned six Prizes | Conditional on valid seven |
+| --- | ---: | ---: |
+| The singleton BUS Vileplume is Prized | 10.00000% | 10.06467% |
+| BUS available, at least one Oddish Prized | 17.51607% | 17.15190% |
+| BUS and Oddish available, at least one Gloom Prized | 14.57853% | 14.71789% |
+| Core first five available, both AOR Vileplume Prized | 0.58490% | 0.59346% |
+| All required evolution printings outside Prizes | **57.32049%** | **57.47208%** |
+
+This separates the risk of the one BUS printing from the larger, shared two-evolution-chain risk. A raw absence of BUS on the board does **not** imply BUS was Prized; it could also reflect inaccessible evolution resources, action selection, opponent interference, turn timing, or another line taking priority. The original eight-match source artifact records only initial zone digests, so its eight physical classifications require a re-run under the new observer.
+
+The partition is independently implemented as `prerequisiteFailurePartition` in the BigInt model, with exact reduced-fraction assertions and a check that every source deal falls into exactly one category.
+
 ### Independent deal sanity check
 
 A 250,000-repetition seeded full-60 Fisher-Yates style permutation experiment using the source-equivalent category multiset (2 Oddish, 2 Gloom, 2 AOR, 1 BUS, 12 other Basics, 41 other non-Basics) yielded:
