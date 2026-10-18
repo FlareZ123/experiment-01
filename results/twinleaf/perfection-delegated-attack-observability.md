@@ -29,7 +29,7 @@ The second run's exact main-source console packet reports: **Gengar & Mimikyu-GX
 
 The next mechanical gate is independently audited state/effect change at the copied attack's true resolution boundary, followed by a consequential, legal opponent response. Source-dealt and staged traces must remain separated in any statistical win-rate accounting. **Full field coverage remains 29/32 exact lists; competitively qualified games zero; 99.5% unproven.**
 
-## Full hand-play lock regression, invocation 314
+## Full hand-play lock regression, 18 October follow-up
 
 The printed **Gengar & Mimikyu-GX TEU 53 Horror House-GX** prohibits the defender from playing **any card from hand** during their next turn. This covers Item, Supporter, Stadium, Pokémon Tool, Energy and Pokémon, including the Special Energy subcategory. Earlier staged Agent 14 assertions checked only the Item flag. That narrow check could have passed while other hand-play categories remained incorrectly permitted.
 
