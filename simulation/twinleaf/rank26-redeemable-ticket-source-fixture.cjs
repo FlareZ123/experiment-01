@@ -79,7 +79,8 @@ function runSeat(seat, corrected) {
   const originalPrizes = own.prizes.flatMap(zone => zone.cards);
   const oldPrizeIds = originalPrizes.map(card => card.id).sort((a,b) => a-b);
   const originalDeck = own.deck.cards.slice();
-  const replacementIds = own.deck.cards.slice(corrected ? 0 : -6)
+  const replacementIds = own.deck.cards.slice(
+    corrected ? 0 : -6, corrected ? 6 : undefined)
     .map(card => card.id).sort((a,b) => a-b);
   const oldDeckCount = own.deck.cards.length;
   const dceId = own.prizes[0].cards[0].id;
