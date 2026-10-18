@@ -95,7 +95,7 @@ function withRank11Turn49HandBurn(sourceSeat, execute,
     return action;
   }
 
-  SimpleTacticsAi.prototype.decodeNextAction=function sourceHandBurn(state) {
+  const sourceHandBurn=function sourceHandBurn(state) {
     const player=state.players.find(side=>side.id===this.client?.id);
     if(!player || player.id!==sourceId) return oldDecode.call(this,state);
     if(state.turn!==turn || state.activePlayer!==sourceSeat ||
@@ -169,6 +169,7 @@ function withRank11Turn49HandBurn(sourceSeat, execute,
     }
     return oldDecode.call(this,state);
   };
+  SimpleTacticsAi.prototype.decodeNextAction=sourceHandBurn;
   try {
     const result=execute();
     return {result,policyAudit:{
