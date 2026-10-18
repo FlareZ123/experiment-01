@@ -299,6 +299,8 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
     'Restored historical turn28 must propose Retreat, not a control-line PlayCard');
   if(archival) assert.equal(observed.sourceOrdinalBoundary.zoneDigestBefore,
     '5a27a7fa4d3e9cbef465675b05cf2270f0550851f4cc579940a551c3ade70b4d');
+  if(archival) assert.equal(observed.sourceOrdinalBoundary.continuityDigestBefore,
+    '0faef7ac48c4f7a82c92413a3e0831b33bcc5ad162336e451d4e8d6235548');
   if(!archival)
     assert.equal(observed.events[0].originalSourcePlayedPrinting,
       'Double Dragon Energy ROS',
