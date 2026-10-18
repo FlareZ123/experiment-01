@@ -7,6 +7,9 @@ const {withSourceOpeningProbe}=require('./rank6-seed-opening-probe.cjs');
 const {withBroadThornsSourceAttack}=
   require('./rank6-broad-thorns-policy.cjs');
 const {withDamageObserver}=require('./rank6-seed-guzma-hala-fork.cjs');
+const {withPublicAttackTargets}=
+  require('./rank6-acerola-public-observer.cjs');
+const path=require('node:path');
 const {publicTurnLedger}=require('./rank6-response-projection.cjs');
 
 const positiveSeed=20367160;
@@ -44,42 +47,59 @@ function summarize(game) {
  */
 function compare(base,seed,maxActions) {
   const request={...base,seed,maxActions};
+  const row={seed};
+  let baseline=null,alternative=null;
   try {
-    const baseline=withSourceOpeningProbe(()=>runMatch(request));
-    const alternative=withSourceOpeningProbe(()=>
+    baseline=withSourceOpeningProbe(()=>runMatch(request));
+    row.control=summarize(baseline.out);
+  } catch(error) {
+    row.controlError=String(error?.message??error);
+  }
+  try {
+    const output=path.resolve(__dirname,
+      '../../vendor/twinleaf/ptcg-server/output');
+    const {Store}=require(path.join(output,'game/store/store'));
+    alternative=withSourceOpeningProbe(()=>
       withBroadThornsSourceAttack(()=>
-        withDamageObserver(()=>runMatch(request))));
+        withPublicAttackTargets(Store,()=>
+          withDamageObserver(()=>runMatch(request)))));
     const branch=alternative.out;
-    const game=branch.result.result;
-    assert.equal(game.firstTurnSlot,baseline.out.firstTurnSlot);
-    assert.deepEqual(game.deckHashes,baseline.out.deckHashes);
+    const game=branch.result.result.result;
+    row.started=branch.started;
+    row.actionProposed=branch.completed;
+    row.abortReason=branch.abortReason;
+    row.openingPlan=branch.openingPlan;
+    row.selectedActionEvents=branch.events;
+    const witness=branch.result.result.attack;
+    row.attackDamageWitness=witness?
+      {announced:witness.announced,before:witness.damageBefore,
+        after:witness.damageAfter}:null;
+    row.firstPhysicalVoltTarget=branch.result.attacks.find(x=>
+      x.seat===1 && x.turn===2 && x.announcedAttack==='Volt Cyclone')??null;
+    row.treatment=summarize(game);
+    row.engineSourceDeckHashes=game.deckHashes;
     assert.equal(game.verifiedByDrawLog,true);
-    assert.equal(baseline.out.verifiedByDrawLog,true);
-    const bothObserved=Boolean(baseline.observed&&alternative.observed);
-    if(bothObserved) {
+    if(baseline) {
+      assert.equal(game.firstTurnSlot,baseline.out.firstTurnSlot);
+      assert.deepEqual(game.deckHashes,baseline.out.deckHashes);
+    }
+  } catch(error) {
+    row.treatmentError=String(error?.message??error);
+    row.failedPolicyStage=error?.rank6PolicyEvidence??null;
+  }
+  row.completeSourceOpeningCompared=Boolean(
+    baseline?.observed&&alternative?.observed);
+  if(row.completeSourceOpeningCompared) {
+    try {
       assert.deepEqual(alternative.observed.hand,baseline.observed.hand);
       assert.deepEqual(alternative.observed.prizes,baseline.observed.prizes);
       assert.deepEqual(alternative.observed.doubleColorless,
         baseline.observed.doubleColorless);
+    } catch(error) {
+      row.sourceOpeningComparisonError=String(error?.message??error);
     }
-    return {seed,
-      completeSourceOpeningCompared:bothObserved,
-      started:branch.started,
-      actionProposed:branch.completed,
-      abortReason:branch.abortReason,
-      openingPlan:branch.openingPlan,
-      selectedActionEvents:branch.events,
-      attackDamageWitness:branch.result.attack?
-        {announced:branch.result.attack.announced,
-          before:branch.result.attack.damageBefore,
-          after:branch.result.attack.damageAfter}:null,
-      control:summarize(baseline.out),
-      treatment:summarize(game),
-      engineSourceDeckHashes:game.deckHashes};
-  } catch(error) {
-    return {seed,trialExecutionError:String(error?.message??error),
-      qualifiedForCompetitiveInference:false};
   }
+  return row;
 }
 
 /** @returns {object} */
@@ -98,8 +118,9 @@ function main() {
     entryDrawLockCorrection:true
   };
   const positive=compare(base,positiveSeed,125);
-  assert.equal(positive.trialExecutionError,undefined,
-    'Previously proven source seed could not run under broad policy');
+  assert.equal(positive.controlError,undefined);
+  assert.equal(positive.treatmentError,undefined);
+  assert.equal(positive.sourceOpeningComparisonError,undefined);
   assert.equal(positive.started,true);
   assert.equal(positive.actionProposed,true);
   assert.equal(positive.abortReason,null);
@@ -112,9 +133,11 @@ function main() {
   const prospective=prospectiveSeeds.map(seed=>compare(base,seed,100));
   const summary={
     declared:prospective.length,
-    errorTrials:prospective.filter(x=>x.trialExecutionError!==undefined).length,
-    realFirstA:prospective.filter(x=>x.control?.firstTurnSlot===0).length,
-    realFirstB:prospective.filter(x=>x.control?.firstTurnSlot===1).length,
+    controlErrorTrials:prospective.filter(x=>x.controlError!==undefined).length,
+    treatmentErrorTrials:prospective.filter(x=>x.treatmentError!==undefined).length,
+    bothArmsCompleted:prospective.filter(x=>x.control&&x.treatment).length,
+    realFirstA:prospective.filter(x=>(x.control??x.treatment)?.firstTurnSlot===0).length,
+    realFirstB:prospective.filter(x=>(x.control??x.treatment)?.firstTurnSlot===1).length,
     policyStarted:prospective.filter(x=>x.started).length,
     policyProposedAttack:prospective.filter(x=>x.actionProposed).length,
     actualRecordedTurn2Attack:prospective.filter(x=>
@@ -131,7 +154,7 @@ function main() {
     controlPolicy:'frozen pinned SimpleTacticsAi and existing correction flags',
     treatmentPolicy:'rank6-broad-ownhand-tag-gh-thunder-dce-v1',
     positiveControlSeed:positiveSeed,
-    prospectiveSeedProtocol:'24 independent crypto.random 32-bit draws, frozen before results',
+    prospectiveSeedProtocol:'Original 24 crypto.random 32-bit seeds frozen before v1 trial. Replays after the first archive are explicitly diagnostic and must not be treated as fresh independent validation.',
     prospectiveSeeds,
     positive,summary,prospective,
     sourceReplayMechanicsVerified:false,
