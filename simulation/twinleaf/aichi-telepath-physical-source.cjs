@@ -50,7 +50,7 @@ function audit() {
     for (const candidateSeat of [0, 1]) {
       const seed = 2026101800 + rank * 2 + candidateSeat;
       try {
-        const result = runMatch({
+        const result = runObservedMatch({
           deckA: candidateSeat === 0 ? champion.cardIds : deck.cardIds,
           deckB: candidateSeat === 1 ? champion.cardIds : deck.cardIds,
           seed,
