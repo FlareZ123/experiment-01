@@ -3,6 +3,7 @@
 const path = require('node:path');
 const {resolveManifestFile} = require('./resolve-field.cjs');
 const {runMatch} = require('./headless.cjs');
+const {installHeadlessTelepathRootAudit} = require('./telepath-headless-root-audit.cjs');
 
 /**
  * Bounded, source-dealt card-zone integrity audit against all three published
