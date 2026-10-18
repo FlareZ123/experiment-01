@@ -44,11 +44,22 @@ function compareAllocation(optimize) {
   };
   const vmax = victim('Shadow Rider Calyrex VMAX CRE');
   const v = victim('Shadow Rider Calyrex V CRE');
+  // Keep the staged board's evolution stacks physically coherent.
+  const pikachu = f.card('Pikachu LOR');
+  f.a.active.cards.unshift(pikachu);
+  const underlyingV = f.card('Shadow Rider Calyrex V CRE');
+  vmax.slot.cards.unshift(underlyingV);
+  assert.deepEqual(f.a.active.getPokemons().map(card => card.name),
+    ['Pikachu', 'Alolan Raichu']);
+  assert.deepEqual(vmax.slot.getPokemons().map(card => card.name),
+    ['Shadow Rider Calyrex V', 'Shadow Rider Calyrex VMAX']);
   f.a.active.tools.push(f.card('Telescopic Sight VIV'));
+  pikachu.id = 1000;
   f.a.active.getPokemonCard().id = 1001;
   f.b.active.getPokemonCard().id = 2001;
   vmax.card.id = 2002;
   v.card.id = 2003;
+  underlyingV.id = 2004;
   f.attached.forEach((energy,i) => {energy.id = 1101 + i;});
   for (const [player,count] of [[f.a,6],[f.b,4]]) {
     player.prizes = Array.from({length:count},() => {
