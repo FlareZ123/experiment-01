@@ -190,6 +190,32 @@ test('requested chronological action capture is hashed and attributed', () => {
 });
 
 
+test('source Electrode observer is preserved only with valid per-seat game evidence', () => {
+  const observer = {
+    evidenceType: 'live-aichi-electrode-public-necessary-conditions-v1',
+    countsBySeat: [
+      {decisions: 12, both: 0}, {decisions: 11, both: 2}
+    ],
+    distinctInterestingStates: [{seat: 1, turn: 3, activeRaichu: true}]
+  };
+  const present = run({
+    policyFlags: {captureElectrodeOpportunity: true},
+    runMatch: request => {
+      assert.equal(request.captureElectrodeOpportunity, true);
+      return sampleGame(request, {electrodeOpportunitySummary: observer});
+    }
+  });
+  assert.equal(present.counts['completed-engine-game'], EXPECTED_PILOT_TRIALS);
+  assert.ok(present.records.every(record =>
+    record.traceSummary.electrodeOpportunitySummary === observer));
+
+  const missing = run({policyFlags: {captureElectrodeOpportunity: true}});
+  assert.equal(missing.counts['unverified-observer-evidence'],
+    EXPECTED_PILOT_TRIALS);
+  assert.equal(missing.counts['completed-engine-game'] || 0, 0);
+  assert.equal(missing.records[0].traceSummary.electrodeOpportunitySummary, null);
+});
+
 test('missing requested history prevents a completed status', () => {
   const result = run({policyFlags: {captureDecisionTrace: true}});
   assert.equal(result.counts['unverified-decision-trace'], EXPECTED_PILOT_TRIALS);
