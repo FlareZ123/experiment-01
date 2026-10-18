@@ -97,8 +97,11 @@ function withNoPreviewApexBenchDde(Store, execute) {
 
 /** @param {object} match @returns {object} */
 function summary(match) {
+  assert.equal(typeof match.finished, 'boolean',
+    'Unexpected source match summary type');
   return {
     finished: match.finished,
+    endReason: match.endReason,
     winner: match.winner,
     actions: match.actions,
     turns: match.turns,
