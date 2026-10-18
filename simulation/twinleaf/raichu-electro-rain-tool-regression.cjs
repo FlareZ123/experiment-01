@@ -13,9 +13,10 @@ const load = modulePath => require(path.join(output, modulePath));
  * Telescopic Sight should increase damage to a Benched Pokémon V by 30.
  * This is conditional attack-effect fidelity, not a real-game win claim.
  * @param {boolean} toolAttached
+ * @param {'active'|'bench'|null} [barrierPosition]
  * @returns {object}
  */
-function electroRainVsBenchedV(toolAttached) {
+function electroRainVsBenchedV(toolAttached, barrierPosition=null) {
   const f = stagedRaichu(['Unit Energy LPM UPR'], null);
   const {PokemonCardList} = load('game/store/state/pokemon-card-list');
   const {CardList} = load('game/store/state/card-list');
@@ -26,6 +27,17 @@ function electroRainVsBenchedV(toolAttached) {
   const target = new PokemonCardList();
   target.cards.push(f.card('Shadow Rider Calyrex V CRE'));
   f.b.bench.push(target);
+  if (barrierPosition === 'bench' || barrierPosition === 'active') {
+    const mime = f.card('Mr. Mime PLF');
+    mime.id = 2003;
+    if (barrierPosition === 'active') {
+      f.b.active.cards.splice(0,f.b.active.cards.length,mime);
+    } else {
+      const guard = new PokemonCardList();
+      guard.cards.push(mime);
+      f.b.bench.push(guard);
+    }
+  }
   if (toolAttached) f.a.active.tools.push(f.card('Telescopic Sight VIV'));
   for (const player of [f.a, f.b]) {
     for (let i = 0; i < 6; i++) {
@@ -67,6 +79,7 @@ function electroRainVsBenchedV(toolAttached) {
     'Electro Rain should finish all attack-choice prompts');
   return {
     toolAttached,
+    barrierPosition,
     activeTargetDamage: f.b.active.damage,
     benchedVTargetDamage: target.damage,
     discardedUnitEnergy: f.a.discard.cards.some(c => c.fullName === 'Unit Energy LPM UPR'),
@@ -82,6 +95,10 @@ function verify() {
   const withTool = electroRainVsBenchedV(true);
   const correctedWithTool = withElectroRainDamageHook(() => electroRainVsBenchedV(true));
   const correctedWithoutTool = withElectroRainDamageHook(() => electroRainVsBenchedV(false));
+  const benchBarrier = withElectroRainDamageHook(() =>
+    electroRainVsBenchedV(true,'bench'));
+  const activeBarrier = withElectroRainDamageHook(() =>
+    electroRainVsBenchedV(true,'active'));
   assert.equal(Store.prototype.reduceEffect, originalReducer,
     'Experimental research hook must restore the vendor reducer exactly');
   assert.equal(withoutTool.activeTargetDamage, 0);
@@ -94,6 +111,10 @@ function verify() {
     'Scoped research hook must restore the printed Telescopic Sight bonus');
   assert.equal(correctedWithoutTool.benchedVTargetDamage, 30,
     'Scoped research hook must preserve Electro Rain base damage without a Tool');
+  assert.equal(benchBarrier.benchedVTargetDamage, 0,
+    'PLF Mr. Mime on Bench prevents Electro Rain damage to Benched V');
+  assert.equal(activeBarrier.benchedVTargetDamage, 0,
+    'PLF Mr. Mime Active also prevents Electro Rain damage to Benched V');
   assert.equal(electroRainVsBenchedV(true).benchedVTargetDamage, 30,
     'Research hook restoration must recover original pinned behavior');
   return {
@@ -105,6 +126,8 @@ function verify() {
     withTool,
     correctedWithTool,
     correctedWithoutTool,
+    benchBarrier,
+    activeBarrier,
     note: 'Conditional engine action only, not evidence of matchup wins'
   };
 }
