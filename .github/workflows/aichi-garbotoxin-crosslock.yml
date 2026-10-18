@@ -189,6 +189,17 @@ jobs:
       - name: Source-dealt four both-start rank11 opening and rank1 reference attack responses
         if: inputs.rank11_rank1_attack_response
         run: node simulation/twinleaf/rank11-conditioned-lock-rank1-response.cjs > rank11-rank1-response.json
+      - name: Summarize source rank11 lock and rank1 attack declarations
+        if: inputs.rank11_rank1_attack_response
+        run: >-
+          node -e "const x=require('./rank11-rank1-response.json');
+          for(const r of x.rows)console.log(JSON.stringify({
+          seed:r.seed,first:r.actualFirstTurnSlot,expected:r.expectedRank11ActualFirst,
+          completed:r.rank11Direct?.completed,lock:r.rank11Direct?.nextTurnLockWitness,
+          actions:r.rootActions,finished:r.finished,candidateDeclarations:r.candidatePostLockAttackDeclarations,
+          sourceDeclarations:r.opponentPostLockAttackDeclarations,
+          candidatePasses:r.candidatePostLockPasses,candidateRootAttacks:r.candidatePostLockRootAttacks,
+          error:r.error||null}));"
       - name: Preserve exact conditioned-source opponent actions and attack declarations
         if: always() && inputs.rank11_rank1_attack_response
         uses: actions/upload-artifact@v4
