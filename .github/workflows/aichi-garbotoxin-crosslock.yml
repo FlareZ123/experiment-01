@@ -39,6 +39,10 @@ on:
         description: 'Use prospectively registered second cohort indices 80-239 (160 trials)'
         type: boolean
         default: false
+      rank11_held_shake_k1_guard_regression:
+        description: 'Opt-in frozen positive and stage-4 abort sources with K0/K1 guard v2'
+        type: boolean
+        default: false
       rank11_held_shake_reply_forensic:
         description: 'Re-run four already observed source held-Shake opportunities and audit candidate replies'
         type: boolean
@@ -177,6 +181,16 @@ jobs:
         with:
           name: rank11-held-shake-source-screen
           path: rank11-held-shake-source-screen.json
+          if-no-files-found: warn
+      - name: Regress held-Shake v2 resource protection on three archived source deals
+        if: inputs.rank11_held_shake_k1_guard_regression
+        run: node simulation/twinleaf/rank11-held-shake-k1-guard-regression.cjs > rank11-held-shake-k1-guard-regression.json
+      - name: Archive paired source guards including assertion failure
+        if: always() && inputs.rank11_held_shake_k1_guard_regression
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-held-shake-k1-guard-regression
+          path: rank11-held-shake-k1-guard-regression.json
           if-no-files-found: warn
       - name: Capture candidate replies after archived held-Shake triggers
         if: inputs.rank11_held_shake_reply_forensic || inputs.rank11_held_shake_extended_reply
