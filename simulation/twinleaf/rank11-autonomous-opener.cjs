@@ -24,7 +24,8 @@ function openingOpportunity(state, player, seat, playerTurnPhase) {
       player.active.getPokemonCard()?.name !== 'Oranguru V' ||
       player.active.tools.length !== 0 ||
       player.bench.some(slot => slot.getPokemonCard()?.name === 'Trubbish') ||
-      !player.bench.some(slot => !slot.getPokemonCard())) return false;
+      (player.bench.length >= 5 &&
+        !player.bench.some(slot => !slot.getPokemonCard()))) return false;
   const hand = player.hand.cards.map(card => card.name);
   return hand.includes('Battle VIP Pass') && hand.includes('Float Stone') &&
     !hand.includes('Forest Seal Stone') && !hand.includes('Boost Shake');
