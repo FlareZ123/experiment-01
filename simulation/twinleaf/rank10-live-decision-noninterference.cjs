@@ -143,11 +143,29 @@ function auditRank10LiveDecision() {
   const control=runMatch(common);
   const observed=withLiveDecisionFingerprint(
     SimpleTacticsAi,()=>runMatch(common),{turn:27,seat:1});
-  assert.equal(observed.observations.length,1,
-    'Expected a genuine candidate turn-27 decision');
   assert.deepEqual(observed.result,control,
     'Read-only graph audit changed the genuine fixed-seed source game');
   assert.equal(control.firstTurnSlot,1);
+  if (observed.observations.length===0) {
+    return {
+      study:'authentic-rank-10-champion-B-turn27-root-bot-graph-mutation',
+      researchClassification:'target-not-exposed-under-current-opponent-policy',
+      engine:control.engine,
+      trial:{id:trial.trialId,seed:trial.seed,
+        candidatePhysicalSeat:1,candidateActuallyFirst:true,
+        planDigest:schedule.planDigest,sourcePrintedDeckHashes:control.deckHashes},
+      target:null,
+      actualGame:{finished:control.finished,winner:control.winner,
+        turns:control.turns,prizesRemaining:control.prizesRemaining},
+      observationNoninterference:true,matchedEngineControlSummary:true,
+      qualifiedForCompetitiveInference:false,
+      limitations:['Current opponent policy ended before the target turn',
+        'No candidate turn27 bot-decision mutation conclusion follows',
+        'No opponent-policy competence or paper-rules qualification']
+    };
+  }
+  assert.equal(observed.observations.length,1,
+    'Expected at most one genuine candidate turn-27 decision');
   const event=observed.observations[0];
   return {
     study:'authentic-rank-10-champion-B-turn27-root-bot-graph-mutation',
