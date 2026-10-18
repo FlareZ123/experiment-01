@@ -48,7 +48,8 @@ function main() {
     leleEntryAbilityLockCorrection:true, radiantGateLockCorrection:true,
     entryDrawLockCorrection:true, grandTreeFirstTurnCorrection:true,
     battleCompressorPositiveSelectionCorrection:true,
-    captureDecisionTrace:true
+    captureDecisionTrace:true,
+    captureRootConfirmationTrace:true
   };
   const baseline = withRoxieDiscardEffectType(() =>
     observeConfirmPrompts(() => runMatch(request))
@@ -72,12 +73,23 @@ function main() {
       rank31RoxiePlays:game.cardsPlayedBySeat[rank31Seat]?.Roxie || 0,
       ...exposure,
       confirmations:observed.confirmations.filter(q => q.seat === rank31Seat),
+      rootConfirmations:game.rootConfirmationTrace.filter(q => q.seat === rank31Seat),
       modifications
     };
   };
   const control = summarize(baseline, []);
   const corrected = summarize(experiment.value, experiment.accepted);
   assert.deepEqual(control.deckHashes, corrected.deckHashes);
+  const rootControl = control.rootConfirmations.filter(q =>
+    q.turn === 7 && q.message === 'WANT_TO_USE_ABILITY');
+  const rootCorrection = corrected.rootConfirmations.filter(q =>
+    q.turn === 7 && q.message === 'WANT_TO_USE_ABILITY');
+  assert.equal(rootControl.length, 1, 'require an actual root Koffing confirmation');
+  assert.equal(rootCorrection.length, 1, 'require one matching root confirmation');
+  assert.equal(rootControl[0].response, false);
+  assert.equal(rootCorrection[0].response, true);
+  assert.deepEqual(rootControl[0].opponentDamageBefore,
+    rootCorrection[0].opponentDamageBefore);
   assert.equal(control.sourceFirstTurnSeat, corrected.sourceFirstTurnSeat);
   return {
     classification:'Selected-seed real-Store policy mechanism counterfactual; not a win-rate trial',
