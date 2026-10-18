@@ -45,4 +45,10 @@ V1 created an identified strategic regression: Meloetta passed with ordinary att
 
 **Predeclared v2 acceptance:** unchanged rank26/rank6 printed 60s, seed 49957955, physical Meloetta seat B first, Cologne chosen first, and one real basic Lightning action **after** Hisuian Heavy Ball. The audit must name late-Lightning fallback. A missing fallback, early Lightning, illegal action or new root invalidates the probe. Even if v2 succeeds, it merely preserves future-turn Energy potential; Crisis Punch still needs DCE, correct Koko Bench positioning and a free Tool slot. This is a diagnostic selected seed, excluded from random game-performance denominators.
 
+**Verified compiled v2 result:** [manual CI 39171273668](https://github.com/FlareZ123/experiment-01/actions/runs/39171273668) **succeeded** at head `46d9519e5fdf4d681fdc41b67c44334c924d0f43`, archived artifact [`12153020684`](https://github.com/FlareZ123/experiment-01/actions/runs/39171273668/artifacts/12153020684). The source first-own-turn root sequence was:
+
+`Canceling Cologne → Hisuian Heavy Ball → ResolvePromptAction (Unown) → Bench Unown → Lightning Energy → PassTurnAction`.
+
+Thus Lightning occurred **after** the real Heavy Ball search and Unown Bench, as predeclared. V2 logged a `defer-basic-lightning` followed by `late-basic-lightning-after-other-tactics-exhausted`. The manually attached Lightning was actually selected once. DCE remained unattached, Crisis Punch was never used and the source line could not convert to an immediate attack. V2 avoids v1's unused ordinary attachment on this root, retaining an Energy investment for a possible later turn. Its competitiveness and general conditional decision quality are untested. The first three v1 arms also passed again unchanged in the four-arm study.
+
 The experiment is a source-first-turn policy test, not a competitive-game win rate. Its source state was retrospectively selected, so success or failure should not be included in prospective performance denominators. The Top32 source-list audit remains 29/32 with ranks 23,25,28 missing and zero independently qualified competitive games.
