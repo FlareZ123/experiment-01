@@ -20,6 +20,17 @@ function summary(game) {
     actions:game.actions,turns:game.turns,prizesRemaining:game.prizesRemaining};
 }
 
+/** @param {object} game @param {0|1} seat */
+function firstOwnRoot(game, seat) {
+  return game.rootActionLedger.filter(action =>
+    action.playerSlot === seat && action.turnBefore === 1)
+    .slice(0, 30).map(action => ({
+      ordinal: action.actionOrdinal, action: action.action,
+      card: action.card || null, ability: action.ability || null,
+      pendingPrompt: action.pendingPrompt
+    }));
+}
+
 /**
  * Historical exact published source pair, frozen controls against the
  * existing K1 hybrid. This is a policy regression, never match-win evidence.
@@ -72,9 +83,11 @@ function run() {
       ...record,
       printedRank11Copies: source.cards.length,
       v3: {direct:v3.rank11DirectPolicy,
-        autonomous:v3.rank11AutonomousPolicy, game:summary(v3)},
+        autonomous:v3.rank11AutonomousPolicy, game:summary(v3),
+        firstSourceRoot:firstOwnRoot(v3, record.sourceSeat)},
       v4: {direct:v4.rank11DirectPolicy,
-        autonomous:v4.rank11AutonomousPolicy, game:summary(v4)},
+        autonomous:v4.rank11AutonomousPolicy, game:summary(v4),
+        firstSourceRoot:firstOwnRoot(v4, record.sourceSeat)},
       tracesSame: JSON.stringify(v3.decisionTrace) ===
         JSON.stringify(v4.decisionTrace)
     });
