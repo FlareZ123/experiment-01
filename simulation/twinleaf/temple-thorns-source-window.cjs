@@ -204,7 +204,7 @@ function runPanel() {
   }
   assert.equal(records.length, 8);
   return {
-    schema:'agent42-temple-thorns-source-window-v1',
+    schema:'agent42-temple-thorns-source-window-v2-bounded-shards',
     targetRanks:RANKS, seedSet:SEEDS, profile:PROFILE,
     printedDeckManifestDigest:prepared.candidateDigest,
     registeredTrials:planned, registrationDigest, selectedRank, parity,
