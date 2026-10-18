@@ -30,3 +30,10 @@ function observeGhScoreComponents(play,targetOrdinal=59) {
   const restore=[];
   const components=[];
   let ordinal=0,focus=false,candidate=null,frame=null;
+  /** @param {object} proto @param {string} method @param {(old:Function)=>Function} replacement */
+  function patch(proto,method,replacement) {
+    const saved=Object.getOwnPropertyDescriptor(proto,method);
+    if(typeof saved?.value!=='function')throw new Error('Missing method '+method);
+    Object.defineProperty(proto,method,{...saved,value:replacement(saved.value)});
+    restore.push(()=>Object.defineProperty(proto,method,saved));
+  }
