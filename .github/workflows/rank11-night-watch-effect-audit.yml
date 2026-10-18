@@ -1,0 +1,40 @@
+name: Rank11 terminal Night Watch effect audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  effect-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf simulator
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Pure Night Watch read-only observer tests
+        run: node --test tests/rank11-night-watch-effect-journal.test.cjs
+      - name: Install pinned simulator dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned simulator
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Replay frozen source rank11 lock and audit three Night Watch effects
+        run: node simulation/twinleaf/rank11-night-watch-effect-audit.cjs > rank11-night-watch-effect-audit.json
+      - name: Display only aggregate independent effect evidence
+        run: node -e "const p=require('./rank11-night-watch-effect-audit.json'); console.log(JSON.stringify({seed:p.seed,sourceRank:p.sourceRank,candidateRank:p.candidateRank,firstTurnSlot:p.firstTurnSlot,sourceToolGarbodorCompleted:p.sourceToolGarbodorCompleted,gameFinished:p.gameFinished,engineWinner:p.engineWinner,attackDeclarations:p.attackDeclarations,resolvedAttackRecords:p.resolvedAttackRecords,qualifiedForCompetitiveInference:p.qualifiedForCompetitiveInference},null,2))"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rank11-night-watch-effects-unqualified
+          path: rank11-night-watch-effect-audit.json
+          if-no-files-found: warn
+          retention-days: 14
