@@ -15,6 +15,7 @@ on:
         type: choice
         options:
           - simple-default-v0
+          - simple-supporter-guard-v1
           - expanded-action-fidelity-probe-v1
           - rank11-autonomous-boostshake-v1
           - rank26-autonomous-cologne-v1
