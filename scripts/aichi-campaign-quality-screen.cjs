@@ -171,10 +171,14 @@ function auditCampaignQuality(archive) {
         ['opponent', record.opponentAttacks, observation.opponentDeclarations,
           observation.opponentRootUndercount]
       ]) {
-        if (raw !== 0) continue;
-        reasons.push(declared === 0 ? 'zero-' + role + '-logged-attack-declarations' :
-          undercount ? role + '-root-attack-action-undercount' :
-            'zero-' + role + '-attacks');
+        if (raw === 0) {
+          reasons.push(declared === 0 ? 'zero-' + role + '-logged-attack-declarations' :
+            undercount ? role + '-root-attack-action-undercount' :
+              'zero-' + role + '-attacks');
+        } else if (observation.status === 'self-consistent-engine-attack-declarations') {
+          if (raw < declared) reasons.push(role + '-root-attack-action-undercount');
+          if (raw > declared) reasons.push(role + '-root-action-without-declaration');
+        }
       }
     }
     const trace = record.traceSummary?.chronologicalActionTrace;
@@ -224,8 +228,10 @@ function auditCampaignQuality(archive) {
       terminalDeckRemaining: deckRemaining,
       terminalPrizesRemaining: terminalPrizes,
       blockers: reasons,
-      priority: reasons.some(reason => /zero-(candidate|opponent)-(attacks|logged-attack-declarations)/.test(reason)) ?
-        'attacker-policy-investigation' :
+      priority: reasons.some(reason => /^((candidate|opponent)-root-action-without-declaration)$/.test(reason)) ?
+        'engine-or-resolver-investigation' :
+        reasons.some(reason => /zero-(candidate|opponent)-(attacks|logged-attack-declarations)/.test(reason)) ?
+          'attacker-policy-investigation' :
         reasons.includes('engine-status:' + record.status) ?
           'engine-or-resolver-investigation' :
           reasons.includes('empty-deck-at-terminal') ?
@@ -343,6 +349,14 @@ function auditCampaignQuality(archive) {
           row.blockers.includes('zero-opponent-logged-attack-declarations')).length,
         attackObservationIncompleteTrials: subset.filter(row =>
           row.attackObservationStatus !== 'self-consistent-engine-attack-declarations').length,
+        candidateRootUndercountTrials: subset.filter(row =>
+          row.blockers.includes('candidate-root-attack-action-undercount')).length,
+        opponentRootUndercountTrials: subset.filter(row =>
+          row.blockers.includes('opponent-root-attack-action-undercount')).length,
+        candidateRootUnloggedTrials: subset.filter(row =>
+          row.blockers.includes('candidate-root-action-without-declaration')).length,
+        opponentRootUnloggedTrials: subset.filter(row =>
+          row.blockers.includes('opponent-root-action-without-declaration')).length,
         emptyDeckAtTerminalTrials: subset.filter(row =>
           row.blockers.includes('empty-deck-at-terminal')).length,
         independentlyQualifiedGames: 0
