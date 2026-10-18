@@ -96,7 +96,9 @@ function run(includeReservation = false) {
 
   const baseline=arm(false);
   const farewellFirst=arm(true);
-  const failures=[baseline,farewellFirst].filter(row =>
+  const farewellReserved=includeReservation?arm(true,true):null;
+  const arms=[baseline,farewellFirst,...(farewellReserved?[farewellReserved]:[])];
+  const failures=arms.filter(row =>
     row.status!=='engine-observed').length;
   let initialOwnerInformationIdentical=null;
   if (!failures) {
