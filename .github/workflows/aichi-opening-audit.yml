@@ -81,6 +81,10 @@ jobs:
         run: node --test tests/new-moon-secret-box-discard-sensitivity.test.cjs
       - name: Record frozen New Moon designated-discard frontier
         run: node scripts/new-moon-secret-box-discard-sensitivity.cjs > newmoon-secret-box-discard-sensitivity.json
+      - name: Exact first-eight Secret Box payload and Energy conjunction
+        run: node --test tests/new-moon-secretbox-payload-energy-window.test.cjs
+      - name: Preserve strict New Moon source resource co-visibility
+        run: node scripts/new-moon-secretbox-payload-energy-window.cjs > newmoon-secretbox-payload-energy-window.json
       - name: Rank-11 Field Blower and Arven response exact tests
         run: python3 -m unittest discover -s tests -p 'test_rank11_garbotoxin_field_blower_response.py'
       - name: Rank-11 Field Blower and Arven response exact output
@@ -145,3 +149,4 @@ jobs:
             rank11-hood-protection-frontier.txt
             newmoon-secret-box-blower-access.json
             newmoon-secret-box-discard-sensitivity.json
+            newmoon-secretbox-payload-energy-window.json
