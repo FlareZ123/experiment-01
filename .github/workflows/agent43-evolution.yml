@@ -44,5 +44,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: agent43-evolution-contrast
-          path: |\n            agent43-evolution-contrast.json\n            agent43-roxie-source-exposure.json
+          path: |
+            agent43-evolution-contrast.json
+            agent43-roxie-source-exposure.json
           if-no-files-found: warn
