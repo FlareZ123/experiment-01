@@ -21,8 +21,9 @@ function extractGladionRootEvents(ledger,seat){
     const row=ledger[i];
     if(row.playerSlot!==seat||row.action!=='PlayCardAction'||
        row.card!=='Gladion')continue;
-    const next=ledger.slice(i+1).find(e=>
-      e.playerSlot===seat&&e.pendingPrompt==='ChoosePrizePrompt');
+    const immediate=ledger[i+1];
+    const next=immediate?.playerSlot===seat&&
+      immediate.pendingPrompt==='ChoosePrizePrompt'?immediate:null;
     const laterPlay=ledger.slice(i+1).find(e=>
       e.playerSlot===seat&&e.action==='PlayCardAction');
     events.push({
