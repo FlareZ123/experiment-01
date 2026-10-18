@@ -34,6 +34,7 @@ function main() {
     captureCopycatTurnStartSeat:1,
     strictPromptValidation:true,forestSealSearchCorrection:true,
     supporterDecisionCorrection:true,doubleDragonRecovery:true,
+    doubleDragonArchiveV3:true,
     isolatePolicyRandomness:true,postSuperAliasRepairIsolation:true,
     mimikyuApexCopycatCompatibility:true,
     mimikyuApexTimelessPolicy:true,mimikyuApexTimelessPolicySeat:1,
