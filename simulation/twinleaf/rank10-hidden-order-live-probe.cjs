@@ -320,6 +320,8 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
     sourceOrdinalBoundary:observed.sourceOrdinalBoundary,
     sourceZoneFingerprintSchema:'source-zone-and-turn-flags-v1',
     matchedUninstrumentedMatch:true,
+    sourceTerminal:{winner:control.winner,turns:control.turns,
+      actions:control.actions,prizesRemaining:control.prizesRemaining},
     qualifiedForCompetitiveInference:false,
     limitations:[
       'K1 deck membership and remembered top order are not attested',
