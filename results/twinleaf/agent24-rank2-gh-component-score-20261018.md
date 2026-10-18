@@ -22,3 +22,7 @@
 | **Total** | **-185** | **-189** | **-4** |
 
 Bellelba's unchanged option-independent score was -186 (Hand 10, Opponent -59, Player 38, Active 9, Bench 56, Energy -240, other components zero). The two competing scores therefore reverse ordering entirely through HandScore and PlayerScore under the added mode-one resolver.
+
+The pinned upstream `PlayerScore.getScore` awards **one point for every card remaining in the player's deck** (`scores.player.deck:1`), separately from Prize/winner bonuses and a low-deck-size penalty. At this early turn, the two-point PlayerScore loss is consistent with hypothetical G&H mode one extracting two additional cards from the deck relative to its Stadium-only mode zero. This creates a measurable deck-thinning penalty in the bot's *heuristic scoring model*. The observed source-root probe does not independently log those hypothetical search prompts yet, so the exact three-card-versus-one-card search remains a testable explanation.
+
+The hand's two-point loss cannot be attributed to any particular printed singleton from the scalar component alone. An optional [hypothetical prompt observer](../../simulation/twinleaf/rank2-gh-hypothetical-prompts.cjs) is being developed to distinguish the exact choices. These internal scoring patterns provide no evidence of competitive play quality or 99.5% performance.
