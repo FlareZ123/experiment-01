@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank9_horror_house_reply_probe:
+        description: Single authentic rank9 native Horror House root, opponent next-turn and observer-parity test
+        required: false
+        type: boolean
+        default: false
       rank9_horror_house_root_probe:
         description: Bounded exact-source rank9 real-root Horror House audit, no win inference
         required: false
@@ -57,7 +62,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify read-only source-root Horror House declaration filter
-        run: node --test tests/horror-house-root-audit.test.cjs
+        run: node --test tests/horror-house-root-audit.test.cjs tests/rank9-horror-house-nextturn-source-reply.test.cjs
       - name: Check Aichi exact card-resolution blockers
         run: node simulation/evaluation/aichi-pilot.cjs
 
@@ -151,6 +156,17 @@ jobs:
           path: absol-rank11-firstturn-k1.json
           retention-days: 14
 
+      - name: Observe actual rank9 Horror House effect and next-turn opponent decisions
+        if: ${{ inputs.rank9_horror_house_reply_probe }}
+        run: node simulation/twinleaf/rank9-horror-house-nextturn-source-reply.cjs > rank9-horror-house-nextturn-source-reply.json
+      - name: Archive fixed root-response and observational parity proof
+        if: ${{ always() && inputs.rank9_horror_house_reply_probe }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank9-horror-house-nextturn-source-reply
+          path: rank9-horror-house-nextturn-source-reply.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Observe authentic rank9 Horror House root attack and printed-Energy zones
         if: ${{ inputs.rank9_horror_house_root_probe }}
         run: node simulation/twinleaf/rank9-horror-house-source-root-exposure.cjs > rank9-horror-house-source-root-exposure.json
