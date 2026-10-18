@@ -21,7 +21,10 @@ function withHoodRedirect(run){
         ...own.bench.map((s,index)=>({s,kind:SlotType.BENCH,index}))];
       const v=all.find(x=>x.s.getPokemonCard()?.name==='Shadow Rider Calyrex V'
         &&x.s.tools.length===0);
-      if(handIndex>=0&&v){
+      const opponent=state.players[0];
+      const locked=[opponent.active,...opponent.bench].some(s=>
+        s.getPokemonCard()?.name==='Garbodor'&&s.tools.length>0);
+      if(handIndex>=0&&v&&locked){
         assert.equal(proposal.constructor.name,'PlayCardAction');
         const action=new PlayCardAction(own.id,handIndex,{
           player:PlayerType.BOTTOM_PLAYER,slot:v.kind,index:v.index});
