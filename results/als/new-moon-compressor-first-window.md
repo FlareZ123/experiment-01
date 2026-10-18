@@ -33,6 +33,20 @@ The denominator of legal-seven / one-draw ordered outcomes is `53 [C(60,7)-C(43,
 
 A second calculation used **200,000 physically shuffled full-60 decks**, with Python `random.Random(20261018)`, placing seven, then six Prizes, then a first draw, and retaining only legal sevens. It retained **183,386** legal sevens, of which **7,892** met the event: **4.3034909971%**. This agrees within ordinary binomial sampling noise. The computation and independent randomization were performed locally and are not pinned GitHub CI artifacts.
 
+## Joint anti-Garbodor resource requirement: Compressor plus Field Blower
+
+The candidate also needs an early Tool answer if rank 11 establishes Tool-equipped Garbodor. An independent exact enumeration extends the prerequisite above, requiring either a directly observed Field Blower, or an observed Secret Box with at least one Field Blower unprized and available to search. These are mutually exclusive branches, with the direct route taking precedence. Counts are **2 Mewtwo, 1 Gengar, 2 Compressor, 2 Blower, 1 Secret Box, 17 total Basics**, and the remaining 52 physical cards are exchangeable for these events. The denominator still conditions on an initial seven with at least one of 17 Basics.
+
+| Joint first-eight source-and-response event | Exact fraction | Conditional chance |
+| --- | --- | ---: |
+| Mewtwo in first seven, Compressor seen, Gengar unprized and still in deck, direct Blower seen | 1565265 / 176991403 | **0.88437346%** |
+| Same attack-source prerequisite, no directly seen Blower, Secret Box seen, unprized Blower target | 35435778 / 9380544359 | **0.37775823%** |
+| **Either joint route** | **118394823 / 9380544359** | **1.26213169%** |
+
+The [source-locked exact BigInt enumerator](../../scripts/new-moon-blower-compressor-joint-access.cjs) enumerates each legal starting-seven composition, each possible eighth card, and the unknown six-Prize subset. The [corresponding regression file](../../tests/new-moon-blower-compressor-joint-access.test.cjs) asserts the exact fractions and disjoint partition. Both files are committed but **their Node tests have not yet passed compiled CI**. A separate Python physical-deal check of **350,000 shuffles** with seed `20261018` retained **321,000** legal sevens. It saw **2,785** direct combined routes and **1,283** Secret Box-exclusive combined routes, an empirical union rate of **1.26728972%**, consistent with the exact **1.26213169%** result.
+
+An important Prize correlation is handled explicitly. Given unseen Gengar and both unseen Blowers, the chance that Gengar remains unprized **and at least one Blower is unprized** is `C(51,6)/C(52,6) - C(49,4)/C(52,6)`. The event excludes three-card Secret Box payment, a later real Compressor play and target selection, one Psychic Energy, Garbotoxin relief timing, all other search/draw chains, and the broader Gengar-Benched line. The **1.262% is a deliberately narrow conjunction**, not a ceiling on possible first-turn attacks or on a 60-card deck's performance. It justifies measuring complete source-to-counter-to-attack sequences, rather than multiplying marginal percentages as though they were independent.
+
 ## What this changes
 
 The early direct Compressor/Gengar line occurs in **about 4.3%** of otherwise legally starting hands before considering the conditions needed to play a useful copied attack. Those conditions include choosing Mewtwo Active, Item access, resolving the search, attached Psychic Energy, opponent locks, support timing, GX allowance, and whether the chosen attack is meaningful. Later draw/search chains and a Benched Gengar create additional channels. The number should **never** be equated with the chance of attacking or winning.
