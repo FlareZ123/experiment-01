@@ -20,7 +20,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Pure Night Watch read-only observer tests
-        run: node --test tests/rank11-night-watch-effect-journal.test.cjs
+        run: node --test tests/rank11-night-watch-effect-journal.test.cjs tests/night-watch-opaque-card-sampler.test.cjs
       - name: Install pinned simulator dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -33,10 +33,16 @@ jobs:
         run: node -e "const p=require('./rank11-night-watch-effect-audit.json'); console.log(JSON.stringify({seed:p.seed,sourceRank:p.sourceRank,candidateRank:p.candidateRank,firstTurnSlot:p.firstTurnSlot,sourceToolGarbodorCompleted:p.sourceToolGarbodorCompleted,gameFinished:p.gameFinished,engineWinner:p.engineWinner,attackDeclarations:p.attackDeclarations,resolvedAttackRecords:p.resolvedAttackRecords,qualifiedForCompetitiveInference:p.qualifiedForCompetitiveInference},null,2))"
       - name: Trace every real prompt selection and relative source hand/deck movement
         run: node -e "const p=require('./rank11-night-watch-effect-audit.json'); for(const r of p.resolvedAttackRecords){console.log(JSON.stringify({turn:r.turn,stages:r.detailStages},null,2))}"
+      - name: Compare authentic source Night Watch with opaque uniform hand sampling
+        run: node simulation/twinleaf/rank11-night-watch-random-paired.cjs > rank11-night-watch-random-paired.json
+      - name: Show chance-policy contrast without private hand identities
+        run: node -e "const p=require('./rank11-night-watch-random-paired.json'); console.log(JSON.stringify({seed:p.baseline.seed,firstTurnSlot:p.baseline.firstTurnSlot,baseline:{finished:p.baseline.finished,winner:p.baseline.winner,declarations:p.baseline.declarations.length},corrected:{finished:p.corrected.finished,winner:p.corrected.winner,declarations:p.corrected.declarations.length,randomResolutions:p.corrected.hook.resolved,invalid:p.corrected.hook.invalid},qualifiedForCompetitiveInference:p.qualifiedForCompetitiveInference},null,2))"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: rank11-night-watch-effects-unqualified
-          path: rank11-night-watch-effect-audit.json
+          path: |
+            rank11-night-watch-effect-audit.json
+            rank11-night-watch-random-paired.json
           if-no-files-found: warn
           retention-days: 14
