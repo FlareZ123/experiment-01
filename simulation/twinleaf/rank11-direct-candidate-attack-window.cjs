@@ -187,7 +187,7 @@ function run() {
   }
   assert.equal(attempted.length,WITNESSES.length*VARIANTS.length);
   return {
-    schema:'rank11-direct-held-shake-candidate-attack-window-source-v2'
+    schema:'rank11-direct-held-shake-candidate-attack-window-source-v2',
     protocol:'fixed source-authentic retrospective mechanical witnesses',
     sourceRank:11,sourceSeat:0,candidateSeat:1,
     engineRevision:reference.engineRevision,
