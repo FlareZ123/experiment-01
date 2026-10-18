@@ -54,9 +54,17 @@ function calculate() {
   // remain among 52 unseen cards; only 6 are in Prizes rather than 46 deck.
   const basicAvailableInDeck = subtract(one, ratio(choose(50, 4), choose(52, 6)));
   const fogBridge = multiply(multiply(chimechoOpening, noEnergyWithFog), basicAvailableInDeck);
+  // Of the other 59 cards, remove five Energy and fourteen other Basics.
+  // In this strict subset the first seven plus first draw contain neither,
+  // but still contain at least one of the four Fog Crystal copies.
+  const noEnergyNoOtherBasicWithFog = ratio(choose(40, 7) - choose(36, 7), otherSeven);
+  const soloStarterFogBridge = multiply(
+    multiply(chimechoOpening, noEnergyNoOtherBasicWithFog), basicAvailableInDeck);
   const union = add(direct, fogBridge);
   const openingValid = subtract(one, ratio(choose(45, 7), choose(60, 7)));
-  return {direct, fogBridge, union, openingValid, conditionalUnion: divide(union, openingValid)};
+  return {direct, fogBridge, soloStarterFogBridge, union, openingValid,
+    conditionalUnion: divide(union, openingValid),
+    conditionalSoloStarter: divide(soloStarterFogBridge, openingValid)};
 }
 
 module.exports = {choose, calculate};
