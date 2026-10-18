@@ -2,6 +2,12 @@ name: Aichi New Moon printing coverage
 
 on:
   workflow_dispatch:
+    inputs:
+      rank15_source_census:
+        description: 'Run eight frozen source-dealt rank15 dual-lock exposure diagnostics'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -196,6 +202,19 @@ jobs:
           name: newmoon-stadium-order-audit
           path: newmoon-stadium-order-audit.json
           if-no-files-found: error
+      - name: Test root-only source dual-lock observation and cleanup
+        if: ${{ inputs.rank15_source_census }}
+        run: node --test tests/newmoon-rank15-source-duallock-census.test.cjs
+      - name: Run bounded source-dealt rank15 dual-lock opportunity census
+        if: ${{ inputs.rank15_source_census }}
+        run: node simulation/twinleaf/newmoon-rank15-source-duallock-census.cjs > newmoon-rank15-source-duallock-census.json
+      - name: Archive rank15 source-duallock unqualified root exposure census
+        if: ${{ always() && inputs.rank15_source_census }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-rank15-root-census-unqualified
+          path: newmoon-rank15-source-duallock-census.json
+          if-no-files-found: warn
       - name: Preserve exact pinned catalog coverage
         uses: actions/upload-artifact@v4
         with:
