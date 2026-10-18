@@ -7,44 +7,13 @@ const crypto = require('node:crypto');
 const {runMatch, initializeCards} = require('./headless.cjs');
 const {withRoxieDiscardEffectType} = require('./roxie-discard-type-hook.cjs');
 const {observeConfirmPrompts} = require('./confirm-prompt-observer.cjs');
+const {roxieExposure} = require('./roxie-selection-evidence.cjs');
 const {planAichi} = require('../evaluation/aichi-pilot.cjs');
 const {deriveSlotSeeds} = require('../../scripts/aichi-decorrelated-seeds.cjs');
 
 /** @param {string[]} cards @returns {string} */
 function digest(cards) {
   return crypto.createHash('sha256').update(JSON.stringify(cards)).digest('hex');
-}
-
-/**
- * Summarize actual bot decisions without reconstructing hidden opponent cards.
- * No optional-confirmation response is inferred from an absent prompt log.
- * @param {object} game
- * @param {number} rank31Seat
- * @returns {object}
- */
-function roxieExposure(game, rank31Seat) {
-  const actions = (game.decisionTrace || []).filter(
-    entry => entry.playerSlot === rank31Seat
-  );
-  const roxiePlays = actions.filter(entry =>
-    entry.action === 'PlayCardAction' && entry.card === 'Roxie'
-  ).map(entry => ({
-    ordinal: entry.actionOrdinal, turn: entry.turnBefore
-  }));
-  const handDiscards = actions.filter(entry =>
-    entry.cardSelection?.message === 'CHOOSE_CARD_TO_DISCARD' &&
-    entry.cardSelection?.sourceZone === 'hand' &&
-    entry.cardSelection?.sourcePlayerSlot === rank31Seat &&
-    entry.cardSelection?.selectedCards?.some(card =>
-      typeof card === 'string' && card.startsWith('Koffing CEC')
-    )
-  ).map(entry => ({
-    ordinal: entry.actionOrdinal,
-    turn: entry.turnBefore,
-    promptMessage: entry.cardSelection.message,
-    selectedCards: entry.cardSelection.selectedCards
-  }));
-  return {roxiePlays, koffingHandDiscards: handDiscards};
 }
 
 /**
