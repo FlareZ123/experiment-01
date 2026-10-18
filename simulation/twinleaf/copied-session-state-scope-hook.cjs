@@ -54,8 +54,16 @@ function sessionsForState(state) {
     'function clearCopyAttackSessionsForTests() {\n    copyAttackSessions.length = 0;',
     'function clearCopyAttackSessionsForTests() {\n    copyAttackSessionsByState = new WeakMap();');
   output += `
-function inheritCopyAttackSessionsFromState(parentState, clonedState, mapCard) {
-  const entries = copyAttackSessionsByState.get(parentState) || [];
+function snapshotCopyAttackSessionsForState(state) {
+  return (copyAttackSessionsByState.get(state) || []).map(entry => ({
+    ...entry,
+    clonedAttacks: entry.clonedAttacks.slice()
+  }));
+}
+exports.snapshotCopyAttackSessionsForState = snapshotCopyAttackSessionsForState;
+function inheritCopyAttackSessionsFromState(parentState, clonedState, mapCard, priorSessions) {
+  const entries = priorSessions === undefined ?
+    (copyAttackSessionsByState.get(parentState) || []) : priorSessions;
   if (copyAttackSessionsByState.has(clonedState)) throw new Error("Clone already has sessions");
   const translated = entries.map(entry => {
     const clonedAttacks = entry.clonedAttacks.slice();
@@ -84,8 +92,8 @@ function inheritCopyAttackSessionsFromState(parentState, clonedState, mapCard) {
   return entries.length;
 }
 exports.inheritCopyAttackSessionsFromState = inheritCopyAttackSessionsFromState;
-function transferCopyAttackSessionsOnRollback(parentState, backupState) {
-  const copied = inheritCopyAttackSessionsFromState(parentState, backupState);
+function transferCopyAttackSessionsOnRollback(parentState, backupState, priorSessions) {
+  const copied = inheritCopyAttackSessionsFromState(parentState, backupState, undefined, priorSessions);
   copyAttackSessionsByState.delete(parentState);
   return copied;
 }
