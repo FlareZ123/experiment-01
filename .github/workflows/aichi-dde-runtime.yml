@@ -30,6 +30,16 @@ jobs:
         run: node --test tests/dde-attach-priority.test.cjs
       - name: Diagnose source-first DDE v4 no-Apex passes and probe noninterference
         run: node --test tests/dde-v4-first-seat-policy-audit.test.cjs
+      - name: Verify real-source DDE attachment observer with fake Store
+        run: node --test tests/dde-v4-first-seat-source-root-target.test.cjs
+      - name: Capture actual source DDE targets and immediate Energy movement
+        run: node simulation/twinleaf/dde-v4-first-seat-source-root-target.cjs > rank10-dde-root-target.json
+      - name: Archive actual root DDE attachment trace
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-dde-source-root-target
+          path: rank10-dde-root-target.json
+          retention-days: 90
       - name: Verify pinned Apex-aware attachment priority
         run: node simulation/twinleaf/dde-target-priority.cjs
       - name: Test real Temple search and Marshadow recovery
