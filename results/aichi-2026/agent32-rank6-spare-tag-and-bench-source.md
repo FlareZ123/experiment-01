@@ -52,7 +52,16 @@ The subsequently added postdamage public-Energy observer **passed** in [compiled
 
 The genuine backup source fork [artifact 12146049260](https://github.com/FlareZ123/experiment-01/actions/runs/39155194388/artifacts/12146049260), ZIP SHA-256 `c14a1d850aec3c7d794583df752fa41332d93f135c9d2ea3ed0035d9a6690d34`, records both turn-three Energy snapshots alongside the prior verified prefix, 66-action raw solo game and capped 125-action backup game. This closes the **narrow Energy-transfer implementation gate** in this source deal; it remains far from whole-game mechanical fidelity or a competent response.
 
-Pale Moon-GX, declared by the generic champion on the third global turn, can set up a delayed knockout. Prior research found a pinned-engine Active-exit bug for this attack in different source states. No claim about official-paper survival follows from this raw terminal differential until that interaction and opponent continuation are independently checked.
+Pale Moon-GX, declared by the generic champion on the third global turn, can set up a delayed knockout. Prior research found a pinned-engine Active-exit bug for this attack in different source states. To **test its exposure in this exact state**, the source runner now replays both physical branches with the existing research-owned `pendingEndTurnSwitchCleanupCorrection:true` hook. The new [manual pinned CI 39156502399](https://github.com/FlareZ123/experiment-01/actions/runs/39156502399) **passed**, checking out head `5ecfbadd7e1cae7864c0e96c73881d6df656f27e` and producing the source backup [artifact 12147521073](https://github.com/FlareZ123/experiment-01/actions/runs/39156502399/artifacts/12147521073), ZIP SHA-256 `c6a7f7ccb6111937389332255f2ade8be5afe65dd8df73d765120499b855a3c2`.
+
+| Same exact source and Bench choice | Raw Twinleaf | Twinleaf with paper Active-exit cleanup |
+| --- | --- | --- |
+| Solo: 66 actions, 4 turns, generic champion winner | Yes | Identical, no cleanup events |
+| Backup: 125-action cap, 11 turns, no game finish | Yes | Identical, no cleanup events |
+| Hook `removedFromRoot` | Not enabled | **0** in both |
+| Hook `removedFromSimulatedStores` | Not enabled | **0** in both |
+
+The corrected-source artifact records identical physical source hands/Prizes/deck hashes, next-turn public Energy locations, final public boards, terminal flags, Prizes and action counts across raw/corrected counterparts. In the solo branch the champion had **four Prizes remaining** when the source Iron Thorns player had **no Pokémon in play**, confirming the engine's fast terminal was caused by total board collapse rather than finishing a six-Prize race. In the backup branch the champion had **two Prizes remaining** at the action cap, and the Iron Thorns player had one Active Thorns remaining. The existing Active-to-Bench cleanup defect **was never invoked in either root or simulated continuation of this specific seed**, so it does not explain this source result. The broader paper-rule fidelity, opponent skill, game clock, match completion and held-out frequency remain **unqualified**.
 
 ## Strategic abstraction: target-induced mandatory resource movement
 
@@ -70,7 +79,7 @@ This quantifies potential **Bench-choice exposure within resource-qualified open
 
 ## Next falsifications
 
-1. In this source, inspect Pale Moon-GX declaration, attached Energy condition, pending delayed KO, target's Active-exit behavior, and actual end-of-turn KO sequence. Compare to the printed rulebook and known research-side hook; keep raw and corrected mechanisms separate.
+1. The known Pale Moon Active-exit cleanup has now been tested in both exact source continuations with zero applications; any remaining paper-rule audit should inspect the initial queue, actual delayed end-of-turn knockout and source's Active promotion. Preserve this *negative exposure* as its own result without treating raw winner as rule-verified.
 2. Require a competent rank-1 champion response and first-turn Iron Thorns setup across preregistered independent physical seeds with both true starting seats. Record every missed/no-opportunity opening and all player-information constraints. Consider under what situations the source player's backup Bench is worth the forced Energy move.
 3. Compare distinct frozen candidate 60s only after both policies and engine effects have passed the relevant mechanical/decision gates. Do not count these selected-seed arms as independent full competitive games.
 
