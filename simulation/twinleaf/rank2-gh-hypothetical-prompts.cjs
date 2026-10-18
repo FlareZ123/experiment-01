@@ -80,3 +80,21 @@ function runGhHypotheticalComparison(){
   if(!one?.playableUnderEngine||!two?.playableUnderEngine)
     throw new Error('Rank 1 and rank 2 source 60s required');
   const play=mode=>sourceGame(mode,one.cardIds,two.cardIds);
+  const arms=[false,true].map(mode=>{
+    const baseline=play(mode);
+    const observed=observeGhHypotheticalPrompts(()=>play(mode));
+    const game=observed.result;
+    const sourceFork=g=>g.decisionTrace.find(e=>
+      e.actionOrdinal===68&&e.turnBefore===5&&e.playerSlot===1)?.card??null;
+    return {
+      mode1:mode,sourceHashes:game.deckHashes,
+      firstTurnSlot:game.firstTurnSlot,
+      selectedBaseline:sourceFork(baseline),
+      selectedObserved:sourceFork(game),
+      passiveTraceParity:JSON.stringify(baseline.decisionTrace)===
+        JSON.stringify(game.decisionTrace),
+      hypotheticalSupporters:observed.evaluations,
+      hypotheticalGhPrompts:observed.prompts,
+      observedBotCalls:observed.botCalls
+    };
+  });
