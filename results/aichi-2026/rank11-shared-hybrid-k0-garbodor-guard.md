@@ -49,3 +49,20 @@ The read-only first-turn Store root ledger reveals the exact resource savings on
 Both root streams include actual owner search and shuffle prompts, and both make the same Darkness Energy attachment. This is source-dealt evidence that the v4 policy **did not play** Battle VIP Pass or Float Stone from the hand during the first turn. **Whether either card remained held at the end of the turn is unverified**, because v4 played Secret Box, whose discard cost could consume cards from hand; a first-opponent-response hand/discard-zone snapshot is required. The v4 generic fallback still used Forest Seal Stone and Secret Box; saving two resources does **not** mean the subsequent choice was optimal. Bounded 85-action terminal status was **unfinished**, turn 13, remaining Prize counts **[4,6]** in both arms. Thus the first-turn resource decision improved along a narrow objective, with **zero observed terminal/game-win improvement**.
 
 This read-only Store-root decision witness is stronger than merely observing zero scripted actions, but it must not be interpreted as proof that unplayed cards survived other discard costs. It remains one retrospective selected seed, and the policy has no qualified competitive performance.
+
+## First-opponent-decision zone audit: narrower verdict (compiled follow-up)
+
+The independent, read-only [source-zone observer](../../simulation/twinleaf/rank11-k0-firstreply-resource-audit.cjs) passed [manual compiled CI 39151723809](https://github.com/FlareZ123/experiment-01/actions/runs/39151723809); [artifact 12145337102](https://github.com/FlareZ123/experiment-01/actions/runs/39151723809/artifacts/12145337102). The prior seed **1804615887**, rank11 physically first in seat B, is retrospective. At the **first ordinary candidate decision** after rank11's first turn, the complete rank11 owner-hand/discard and public board contained:
+
+| Actual observed zone | v3 K1-only | v4 K0+K1 |
+| --- | --- | --- |
+| Battle VIP Pass in rank11 hand / discard | 1 / 1 | **2 / 0** |
+| Float Stone in rank11 hand | 0 | **1** |
+| Source Trubbish Bench | **1, with Float Stone** | **0** |
+| Garbodor in rank11 hand / discard | 0 / **2** | 0 / **2** |
+| Boost Shake in rank11 hand / discard | 0 / 1 | 0 / 1 |
+| Source Active and attached Tool | Tapu Lele-GX + Forest Seal Stone | Same |
+
+This proves the unplayed VIP/Float Stone in v4 **did survive** Secret Box's discard step. It simultaneously exposes a strategic weakness: **both Garbodor were discarded under either policy** and v4 established **no Trubbish**. Battle VIP Pass can only be played during the first turn (printed FST 225 text), so the two retained VIP copies cannot provide later ordinary setup. The v3 first-turn VIP search did establish a Trubbish, although the generic continuation discarded both evolutions. Rank11's singleton Super Rod is a possible later recovery channel; this specific witness did not test its use.
+
+**Revised interpretation:** v4 demonstrably preserves specific physical cards at the turn boundary, but no source outcome or playable Garbotoxin advantage follows. Its fallback may be less useful than a policy which still uses a first-turn VIP to establish a Basic and protects at least one hand-held Garbodor. That alternative is a **hypothesis**, not a validated policy or performance claim. The identical unfinished 85-action summaries [4,6] cannot rank the branches. Future changes should test the coupled Bench/evolution/discard sequence and actual reply, rather than reward gross card retention as a proxy objective.
