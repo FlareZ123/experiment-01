@@ -40,7 +40,7 @@ Under an ideal uniform \`Math.random\`, the partial Fisher-Yates choice gives ea
 
 The first compiled comparison shows the repaired resolver **executes three legal precommitted random selections**, preserving the earlier conditioned game's winner. The matching winner on one seed is not proof of unchanged outcomes across seeds, and both games are unqualified for paper competitive inference.
 
-A subsequent run on the newer head extends the root journal with private-card-identity-free selection positions and adds a pure observer test. The details should be recorded after its completion, separately from the initially green experiment.
+[Manual follow-up CI 39139708362](https://github.com/FlareZ123/experiment-01/actions/runs/39139708362) also **passed** at code head `0a3a0f13d1f4f29ef33b969967a102ad9caf5f28`. Artifact [12140918513](https://github.com/FlareZ123/experiment-01/actions/runs/39139708362/artifacts/12140918513) includes the paired JSON on the extended read-only journal. A new pure test verifies that source-root opaque pre-dispatch selection positions `[1,3]` are recorded for a mock four-card hand while no card face is included. The compiled game passed the same three corrected prompt resolutions. This is evidence that anonymized root position instrumentation operates, not a multi-seed test of the hand-sampling distribution.
 
 ## Next falsification gates
 
