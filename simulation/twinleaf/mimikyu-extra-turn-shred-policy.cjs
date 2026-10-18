@@ -12,8 +12,8 @@ const engine = modulePath => require(path.join(output,modulePath));
  * @param {object} player
  * @returns {boolean}
  */
-function shouldCopyApexShred(state, player) {
-  if (state.turn !== 28 || player.usedGX !== true ||
+function isCopyApexShredBoard(state, player) {
+  if (player.usedGX !== true ||
       player.active.getPokemonCard()?.fullName !== 'Mimikyu GRI') return false;
   const opponent = state.players.find(p => p.id !== player.id);
   const last = opponent && state.playerLastAttack?.[opponent.id];
@@ -29,6 +29,16 @@ function shouldCopyApexShred(state, player) {
   const attached=player.active.energies.cards;
   return attached.length >= 2 &&
     attached.some(card=>card.name === 'Psychic Energy');
+}
+
+/**
+ * Preserve the exact turn-28 restriction for archived single-deal experiments.
+ * @param {object} state
+ * @param {object} player
+ * @returns {boolean}
+ */
+function shouldCopyApexShred(state,player) {
+  return state.turn===28 && isCopyApexShredBoard(state,player);
 }
 
 /** @returns {Function} */
@@ -92,6 +102,7 @@ function withCopycatExtraTurnShredPolicy(options) {
 }
 
 module.exports={
-  shouldCopyApexShred,makeShredTactic,makeShredResolver,
+  shouldCopyApexShred,isCopyApexShredBoard,
+  makeShredTactic,makeShredResolver,
   withCopycatExtraTurnShredPolicy
 };
