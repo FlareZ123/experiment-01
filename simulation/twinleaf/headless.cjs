@@ -971,6 +971,8 @@ function runMatch(request) {
           turnBefore, turnAfter: store.state.turn,
           playerSlot: seat, action: actionName,
           pendingPrompt: pending?.constructor.name ?? null,
+          initiatingRootActionOrdinal:
+            actionLineage?.initiatingAction?.actionOrdinal ?? null,
           ...(playedCard ? {card: playedCard} : {}),
           ...(abilityInfo ? {ability: abilityInfo.name} : {}),
           ...(attackInfo ? {attack: attackInfo.attack} : {}),
