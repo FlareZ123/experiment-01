@@ -692,7 +692,8 @@ test('copied attack mechanism requires a real selected source printing and root 
   const target={
     id:'delegated-poltergeist',candidateId:'challenger',rank:6,
     action:'ResolvePromptAction',detail:'Poltergeist',
-    printing:'Gengar & Mimikyu-GX TEU 53'
+    printing:'Gengar & Mimikyu-GX TEU 53',
+    initiatingAction:'UseAbilityAction',initiatingDetail:'Perfection'
   };
   f.mechanismChecks=[target];
   for (const record of f.records) {
@@ -704,12 +705,17 @@ test('copied attack mechanism requires a real selected source printing and root 
       turnAfter:i===1?2:i===7?3:i<=1?1:i<=7?2:3
     }));
     if (record.trialId==='pilot:6:0:challenger:A') {
+      roots[3]={...roots[3],action:'UseAbilityAction',ability:'Perfection'};
       roots[4]={...roots[4],action:'ResolvePromptAction',
         pendingPrompt:'ChooseAttackPrompt',
         attackChoice:{printing:target.printing,attackName:target.detail,
           sourceIndex:0,attackIndex:1}};
       roots[8]={...roots[8],playerSlot:1,
         action:'AttackAction',attack:'Shadow Mist'};
+    }
+    for (let index=0;index<roots.length;index+=1) {
+      roots[index].initiatingRootActionOrdinal=
+        roots[index].action==='ResolvePromptAction'?3:index;
     }
     record.traceSummary={
       ...record.traceSummary,
@@ -727,6 +733,7 @@ test('copied attack mechanism requires a real selected source printing and root 
   assert.equal(obs.observedActions,1);
   assert.equal(obs.completeTraces,2);
   assert.equal(obs.rootWitnesses[0].rootActionOrdinal,4);
+  assert.equal(obs.rootWitnesses[0].initiatingRootActionOrdinal,3);
   assert.equal(obs.rootWitnesses[0].opponentNextTurnRootActionOrdinal,8);
   assert.equal(obs.printing,target.printing);
   assert.equal(obs.resolvedEffectStatus,'unobserved');
@@ -740,7 +747,18 @@ test('copied attack mechanism requires a real selected source printing and root 
   assert.equal(other.status,'verified-no-exposure');
   assert.equal(other.observedActions,0);
 
+  f.mechanismChecks=[{...target,id:'other-origin',
+    initiatingDetail:'Underworld Door'}];
+  report=auditCampaignQuality(f);
+  const otherOrigin=report.coverage.find(row=>row.candidateId==='challenger')
+    .mechanismExposure[0];
+  assert.equal(otherOrigin.status,'verified-no-exposure');
+  assert.equal(otherOrigin.observedActions,0);
+
   f.mechanismChecks=[{...target,printing:undefined}];
+  assert.throws(()=>auditCampaignQuality(f),/mechanism check/);
+  f.mechanismChecks=[{...target,initiatingAction:'UseAbilityAction',
+    initiatingDetail:undefined}];
   assert.throws(()=>auditCampaignQuality(f),/mechanism check/);
 });
 
@@ -764,6 +782,13 @@ test('a selective copied-attack selection can prove a positive only',()=>{
   assert.equal(exposure.observedActions,1);
   assert.equal(exposure.status,'observed');
   assert.equal(exposure.completeTraces,0);
+  f.mechanismChecks=[{...target,initiatingAction:'UseAbilityAction',
+    initiatingDetail:'Perfection'}];
+  exposure=auditCampaignQuality(f).coverage.find(x=>x.candidateId==='challenger')
+    .mechanismExposure[0];
+  assert.equal(exposure.status,'unknown-incomplete-traces');
+  assert.equal(exposure.observedActions,0);
+  f.mechanismChecks=[target];
   f.records[3].traceSummary.chronologicalActionTraceSha256='malformed';
   exposure=auditCampaignQuality(f).coverage.find(x=>x.candidateId==='challenger')
     .mechanismExposure[0];
