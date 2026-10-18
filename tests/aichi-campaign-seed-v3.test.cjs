@@ -177,3 +177,6 @@ require('./aichi-position-seed-sweep.test.cjs');
 
 // Exact hypergeometric coupling bound, with real-source and toy regressions.
 require('./aichi-maximal-opening-coupling.test.cjs');
+
+// Exact same-initial-index Basic opening-acceptance divergence (no gameplay).
+require('./aichi-basic-opening-coupling.test.cjs');
