@@ -94,6 +94,24 @@ function main(){
   assert.notEqual(control.actionTrace[231].zoneDigestAfter,
     pivot.actionTrace[231].zoneDigestAfter,
     'Distinct Retreat targets must change the actual Store board');
+  const responseProjection=trace=>trace.filter(e=>
+    e.before.turn>=30&&e.before.turn<=32&&e.before.activePlayer===1)
+    .slice(0,24).map(e=>({
+      step:e.step,turn:e.before.turn,action:e.action,
+      prizeBefore:e.before.prizesRemaining,
+      prizeAfter:e.after.prizesRemaining
+    }));
+  const divergentAfter=control.actionTrace.map((e,i)=>({
+    root:i,left:e.zoneDigestAfter,right:pivot.actionTrace[i]?.zoneDigestAfter
+  })).filter(e=>e.root>=231&&e.left!==e.right);
+  const firstReconvergence=control.actionTrace.findIndex((e,i)=>i>231&&
+    e.zoneDigestAfter===pivot.actionTrace[i]?.zoneDigestAfter);
+  const response={original:responseProjection(control.actionTrace),
+    wobbuffet:responseProjection(pivot.actionTrace),
+    differentSourceZoneAfterDispatches:divergentAfter.length,
+    firstReconvergenceRootOrdinal:firstReconvergence>=0?firstReconvergence:null,
+    finalRealStoreZoneMatch:control.actionTrace.at(-1)?.zoneDigestAfter===
+      pivot.actionTrace.at(-1)?.zoneDigestAfter};
   const digest=r=>({finished:r.finished,winner:r.finished?r.winner:null,
     turns:r.turns,actions:r.actions,prizesRemaining:r.prizesRemaining,
     attackTrace:r.attackTrace?.map(x=>({
@@ -117,7 +135,7 @@ function main(){
         observed:p.observation,game:digest(p.result),
         firstChangedPhysicalRootOrdinal:231,
         preForkSourceZoneSha256:pivot.actionTrace[231].zoneDigestBefore,
-        samePrefixThroughRoot230:true}},
+        samePrefixThroughRoot230:true,response}},
 
     sourceReplayMechanicsVerified:false,
     qualifiedForCompetitiveInference:false,
