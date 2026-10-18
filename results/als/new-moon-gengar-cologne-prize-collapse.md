@@ -50,6 +50,17 @@ An independent Python `random.Random(20261018)` full-60 physical-shuffle census 
 
 The observed sampling fluctuations are compatible with the exact model at this sample size. The exact formula is authoritative for the stated assumptions; the simulation is a coding/sampling cross-check rather than evidence of in-game policy.
 
+## Second independent 1,000,000-deal check per variant
+
+A separate `random.Random(2026101809)` sample drew an **ordered 13-card selection from 60 without replacement** for each physical deal, treating positions one through seven as the opening hand and eight through thirteen as the six Prizes. It is distributionally equivalent to a full shuffle and uses a distinct sampling implementation and seed.
+
+| Scenario | Legal sevens | Gengar all-Prized | Cologne all-Prized |
+| --- | ---: | ---: | ---: |
+| Frozen | 916,535 | 90,392 (9.862362%) | 7,822 (0.853432%) |
+| Structural | 929,967 | 7,609 (0.818201%) | 93,387 (10.041969%) |
+
+Against the exact expectations, all four independently sampled rates lie within **1.2 estimated binomial standard errors** (absolute standardized deviations approximately 0.56, 0.21, 1.19 and 0.02, respectively). This further corroborates the conditioning and all-Prized calculation. The independent sample remains solely a physical-card probability check.
+
 ## Competitive interpretation and next falsification
 
 This mathematical inversion supplies an important counterweight to the first-eight native attack opportunity gain. Against four-Basic Iron Thorns with Initialization, extra Gengar increases access to native attacks and decreases both-Gengar Prize collapse; losing Cologne makes an Item-based Ability-unlock fallback much more fragile to Prizes. Against rank26 Meloetta, the previously quantified increase in initial sole-Gengar three-Prize liability remains. Which effect matters competitively requires authentic source-dealt actions, printed attacks, full resolving effects, opponent counterplay, both actual starting orders and print-legality checks.
