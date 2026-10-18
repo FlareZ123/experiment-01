@@ -56,6 +56,14 @@ The observer captured the first-turn source state and restored `Store.prototype.
 
 A separate [controlled first-turn stop sampler](../../simulation/evaluation/aichi-setup-only-capture.cjs) is being developed to measure more distinct source seeds without spending computation on unqualified subsequent bot decisions. It remains solely an opening-distribution diagnostic.
 
+## Extended setup-sampling validation failures
+
+The first 3-rank × 4-repeat × 2-seat expanded sampler launch, [run 39087126422](https://github.com/FlareZ123/experiment-01/actions/runs/39087126422), **failed as a workflow** because setup-only mode had inherited a full-game envelope step that requires `aichi-campaign-report.json`. That unrelated step was made conditional on actual full-game mode.
+
+After that fix, [run 39087408609](https://github.com/FlareZ123/experiment-01/actions/runs/39087408609) **returned CI success but captured 0/120 first-turn snapshots**. Its log reported the same `Twinleaf dispatch failed ... (ResolvePromptAction): undefined` for each arm. Investigation of the checked pinned `headless.cjs` showed that it catches root `Store.dispatch` exceptions and wraps them as `Error(message, {cause: originalError})`; our deliberate stop token was only recognized as the directly thrown error. Thus **the attempted 120-arm statistics were invalid** despite nominal job success. The original 10-game non-stopping probe remains valid and separate.
+
+The stop observer now accepts only its exact private token, either directly or through `Error.cause`, with regression tests verifying unrelated engine failures still throw. The multi-seed sampler now **fails closed** on any missing capture, instead of generating misleading zero-valid summary tables. A source-compiled corrected rerun is needed before making any cross-seed claim.
+
 ## Acceptance and limits
 
 A successful compiled probe must produce actual turn-one Store snapshots with intact source-deck hashes, legal initialized zones and recognized physical slot; it must preserve all candidate and opponent 60-card identities. A missing snapshot, draw-log mismatch, different opponent post-setup zones, lower actual card overlap, or unverified start-order matching is valuable adverse evidence to report.
