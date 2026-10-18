@@ -258,6 +258,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [passHorizonAttack] Compare printed AttackAction against a simulated PassTurnAction at the same turn-end horizon (experimental).
  * @property {0|1} [passHorizonAttackSeat] Apply same-horizon attack scoring only to this physical seat.
  * @property {number} [passHorizonAttackTurn] Restrict the correction to one frozen global turn; other turns retain the original tactic.
+ * @property {boolean} [captureHorrorHouseRootResolution] Observe only real-root Store Horror House declarations and adjacent zones.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
  * @property {boolean} [captureRootConfirmationTrace] Observe only actual Store-dispatched confirmation choices and public damage.
  * @property {boolean} [captureElectrodeOpportunity] Observe source Raichu/Bomb public necessary conditions only at live non-prompt decisions.
@@ -675,6 +676,9 @@ function runMatch(request) {
     const cardsPlayedBySeat = [{}, {}];
     const attackTrace = [];
     const attackDeclarationTrace = [];
+    const horrorHouseAudit = request.captureHorrorHouseRootResolution === true ?
+      require('./horror-house-root-audit.cjs') : null;
+    const horrorHouseRootTrace = horrorHouseAudit ? [] : null;
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
     const rootConfirmationTrace = request.captureRootConfirmationTrace === true ? [] : null;
@@ -824,6 +828,7 @@ function runMatch(request) {
           };
         }
       }
+      const horrorHouseBefore = horrorHouseAudit ? horrorHouseAudit.beforeAction(state) : null;
       const attackLogStartIndex = state.logs.length;
       const prizeBeforeRoot = request.bunnelbyObservedK1 === true ?
         snapshotPrizeCardIdentities(store.state) : null;
@@ -866,6 +871,11 @@ function runMatch(request) {
           promptPendingAfter: store.state.prompts.some(prompt => prompt.result === undefined),
           resolutionStatus: 'not-independently-verified'
         });
+      }
+      if (horrorHouseAudit) {
+        const rootDeclarations = attackDeclarationTrace.filter(row=>row.actionOrdinal===actions);
+        horrorHouseRootTrace.push(...horrorHouseAudit.rootHorrorHouseEvents(
+          horrorHouseBefore,horrorHouseAudit.beforeAction(store.state),rootDeclarations));
       }
       if (physicalZoneIntegrity) {
         const ownership = inspectPhysicalCardZones(store.state);
@@ -969,6 +979,7 @@ function runMatch(request) {
       attackTrace,
       attackDeclarationTrace,
       attackDeclarationTraceProtocol: 'real-store-attack-log-declarations-v1',
+      ...(horrorHouseRootTrace ? {horrorHouseRootTrace} : {}),
       abilityTrace,
       decisionTrace,
       ...(rootConfirmationTrace ? {rootConfirmationTrace} : {}),
