@@ -60,7 +60,14 @@ function caseFor(manifest) {
     allGengarAndMewtwoPrized:
       allPrizedAfterLegalSeven(basics,gengar+mewtwo,gengar+mewtwo),
     allGengarAndColognePrized:
-      allPrizedAfterLegalSeven(basics,gengar+cologne,gengar)
+      allPrizedAfterLegalSeven(basics,gengar+cologne,gengar),
+    // Inclusion-exclusion across all physical copies of both channels.
+    // 'Both accessible' means only at least one copy of each is unprized;
+    // it says nothing about usable hand, deck search, lock or chosen attack.
+    get bothChannelsUnprized() {
+      return 1-this.allGengarPrized-this.allColognePrized+
+        this.allGengarAndColognePrized;
+    }
   };
 }
 
