@@ -3,6 +3,11 @@ name: Aichi Temple and Wobbuffet board interactions
 on:
   workflow_dispatch:
     inputs:
+      rank11_terminal_carmine_counterfactual:
+        description: 'One retrospective actual owner-hand Carmine action instead of source rank11 turn35 Pass'
+        required: false
+        type: boolean
+        default: false
       rank11_lastturn_hand_window:
         description: 'Read-only exact rank11 last-turn own-hand window before copied Poltergeist positive control'
         required: false
@@ -106,6 +111,16 @@ jobs:
         with:
           name: rank19-source-adp-opening
           path: rank19-source-adp-opening.json
+          if-no-files-found: warn
+      - name: Test source rank11 turn35 own-hand Carmine action counterfactual
+        if: inputs.rank11_terminal_carmine_counterfactual
+        run: node simulation/twinleaf/rank11-turn35-carmine-counterfactual.cjs > rank11-terminal-carmine.json
+      - name: Retain source rank11 one-action Carmine contrast
+        if: inputs.rank11_terminal_carmine_counterfactual && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-terminal-carmine-single-action
+          path: rank11-terminal-carmine.json
           if-no-files-found: warn
       - name: Observe source rank11 turn35 own-hand before terminal copied attack
         if: inputs.rank11_lastturn_hand_window
