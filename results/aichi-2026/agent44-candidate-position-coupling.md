@@ -33,6 +33,24 @@ The two reference-aligned variants can also attain the **Hood/Temple maximum of 
 
 One maximal assignment fills Hood's five indices respectively with Shadow Rider Calyrex V, Pokémon Ranger, Stealthy Hood, Stealthy Hood, and Arven; Temple's five with Wobbuffet, Shadow Rider Calyrex V, Pokémon Ranger, Temple of Sinnoh, and Temple of Sinnoh. For each variant all other entries are the matching reference printing. Enumerating the `5! × 5! = 14,400` candidate remainder placements yielded **432** equally scored best joint arrangements. Those attain the pairwise indexed-overlap vector `(55, 55, 56)`. This mathematical construction makes no claim that initial source-order reformatting improves the game-playing deck; it provides a controlled design for prospective seed-matched diagnostics.
 
+## Finite v3 seed-schedule sensitivity
+
+To inspect the *actual scheduled seeds* without playing any Pokémon TCG games, I independently reproduced `aichi-decorrelated-seeds.cjs` SHA-256 seed derivation and `headless.cjs` xorshift32/Fisher–Yates **index-only** shuffle in Python. The rank-6 pilot A/B seeds reproduced the checked-in values `1509836216` and `995631139`, and the first 15 shuffled indices for A matched a separate Node 22 xorshift check:
+
+`[54, 23, 32, 25, 50, 40, 13, 10, 8, 2, 14, 16, 1, 57, 33]`.
+
+I swept `2 phases × 32 hypothetical placements × 100 repeats × 2 physical slots = 12,800` valid deterministic v3 seeds at base `20261016`. Missing opponent placements appear here **only as seed labels**; their decklists were never invented or simulated. For each seed, both variants were subjected to exactly the same original-index shuffle. An event counted when all first seven shuffled indices had identical printings across a candidate pair.
+
+| Pair | Original row order: matching events / 12,800 | Simultaneously aligned input order: matching events / 12,800 |
+| --- | ---: | ---: |
+| Champion / Hood | **46** (0.359375%) | **6,724** (52.531250%) |
+| Champion / Temple | **5** (0.039063%) | **6,672** (52.125000%) |
+| Hood / Temple | **393** (3.070313%) | **7,624** (59.562500%) |
+
+The low-probability Champion/Temple event has high relative finite-sample noise, so the **exact combinatorial values in the first table** are the primary inference; these fixed-seed counts are a reproducibility cross-check. This sweep does **not** simulate mulligans, evolving board state, card-play effects, opponent decisions, hidden information, or game outcomes. It does not assert the pinned game's actual initial RNG streams remain synchronized across deck variants.
+
+The pure [12,800-seed experiment helper](../../scripts/aichi-position-seed-sweep.cjs) and [schedule regression](../../tests/aichi-position-seed-sweep.test.cjs) codify the same experimental distinction, including `actualGamesMeasured: 0`. Existing manual v3 seed tests import these checks. The raw positional analysis was independently executed from the checked-in remote source in a JavaScript isolate; full official Node CI dispatch remained unavailable due to host safety checks at this checkpoint.
+
 ## Why this matters
 
 The v3 SHA-256 physical-slot seeding correctly avoids the proven adjacent-slot xorshift32 coupling. It also intentionally gives candidate *variants* the same source RNG seed for controlled comparisons. **Seed equality alone establishes neither paired starting hands nor a high-overlap treatment/control opening.** Unaligned source rows can create substantial deal variation on top of the proposed card difference, reducing the precision of small-sample structural candidate comparisons.
