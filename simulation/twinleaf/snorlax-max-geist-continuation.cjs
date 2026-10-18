@@ -124,11 +124,12 @@ function probe(trainer){
     }
     const energyAtAttack=[a.active,...a.bench].reduce(
       (sum,slot)=>sum+slot.energies.cards.filter(e=>e.name==='Psychic Energy').length,0);
+    const supporterUsedBeforeAttack=a.supporterTurn;
     stateStore.dispatch(new AttackAction(a.id,'Max Geist'));
     settle();
     return {
       trainer,energyAtAttack,
-      supporterUsed:a.supporterTurn,
+      supporterUsedBeforeAttack,
       handSize:a.hand.cards.length,
       opposingActive:b.active.getPokemonCard()?.name??null,
       opposingDamage:b.active.damage,
