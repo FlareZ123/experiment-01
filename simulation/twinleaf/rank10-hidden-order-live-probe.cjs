@@ -238,11 +238,12 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
   };
   const control=runMatch(common);
   const archival=rootActionOrdinal===215;
-  // Current-v4 source game ends on turn 16; step 15 is the real turn-2
-  // DDE attachment decision. Historical step 215 is only in archived v3.
+  // Current v4 root15 is the real turn2 Double Dragon attachment.
+  // The separate v3-archive rerun puts actual root215 on turn29, as a
+  // PlayCardAction. The earlier turn28 Copycat/Retreat path is not replayed.
   const ordinal=archival?215:15,actorSeat=archival?1:0;
   const makeTarget=getOrdinal=>({
-    turn:archival?28:2,
+    turn:archival?29:2,
     seat:actorSeat,makeRandom:()=>seededRandom(20261017),
     rootActionOrdinal:ordinal,readRootDispatchCount:getOrdinal,
     probePrizeMembership:!archival
@@ -276,7 +277,7 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
       matchedUninstrumentedMatch:true,
       sourceOrdinalBoundary:observed.sourceOrdinalBoundary,
       qualifiedForCompetitiveInference:false,
-      conclusion:'Archived tactic alone did not reconstruct the historical root decision',
+      conclusion:'Reconstructed v3 root215 had no observed AI decode callback',
       limitations:[
         'No hidden-order comparison was executed at root 215',
         'Replay prefix identity was not established',
@@ -285,16 +286,15 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
     };
   }
   assert.equal(observed.events[0].originalSourceAction?.type,
-    archival?'RetreatAction':'PlayCardAction',
-    archival?'Archived source root 215 must propose Retreat':
-      'Current-v4 root 15 must propose the real source PlayCard action');
+    'PlayCardAction',
+    'Both reconstructed source gates must dispatch the verified printed card');
   if(!archival)
     assert.equal(observed.events[0].originalSourcePlayedPrinting,
       'Double Dragon Energy ROS',
       'Current-v4 root 15 must be the observed source DDE attachment');
   return {
     study:archival?
-      'rank10-archive-v3-source-ordinal215-hidden-order-sensitivity':
+      'rank10-reconstructed-v3-source-ordinal215-hidden-order-sensitivity':
       'rank10-current-v4-source-root15-hidden-order-sensitivity',
     pinnedTrialId:trials[0].trialId,
     seed:trials[0].seed,
