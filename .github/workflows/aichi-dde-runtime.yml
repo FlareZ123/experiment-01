@@ -71,6 +71,14 @@ jobs:
           name: rank10-root133-guzma-pivot
           path: rank10-root133-guzma-pivot.json
           retention-days: 90
+      - name: Observe copied Dragon attack choices in source game
+        run: node simulation/twinleaf/dde-root133-apex-copy-audit.cjs > rank10-root133-apex-copy.json
+      - name: Archive copied Dragon attack source trace
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-root133-apex-copy-audit
+          path: rank10-root133-apex-copy.json
+          retention-days: 90
       - name: Verify pinned Apex-aware attachment priority
         if: ${{ !inputs.targeted_only }}
         run: node simulation/twinleaf/dde-target-priority.cjs
