@@ -1,5 +1,14 @@
 'use strict';
 
+const {createHash}=require('node:crypto');
+
+/** Canonical digest of resolved cards irrespective of zone or input order. */
+function cardCopyMultisetDigest(fullNames){
+  return createHash('sha256')
+    .update(JSON.stringify([...fullNames].sort()))
+    .digest('hex');
+}
+
 /**
  * Detach both players' zones at the first actual game turn. The source game
  * may have included opponent mulligan bonus draws or other setup effects, so
@@ -33,15 +42,22 @@ function openingSetupZones(state) {
     turn:state.turn,firstTurnSlot:state.activePlayer,
     containsUnrevealedPrizeIdentities:true,
     originalStartingSevenReconstructed:false,
-    seats:state.players.map(player => ({
-      playerId:player.id,
-      hand:names(player.hand),
-      active:names(player.active),
-      bench:player.bench.map(names),
-      prizes:player.prizes.map(names),
-      deckRemaining:names(player.deck).length
-    }))
+    seats:state.players.map(player => {
+      const hand=names(player.hand);
+      const active=names(player.active);
+      const bench=player.bench.map(names);
+      const prizes=player.prizes.map(names);
+      const deck=names(player.deck);
+      const allCopies=[...hand,...active,...bench.flat(),
+        ...prizes.flat(),...deck];
+      return {
+        playerId:player.id,
+        hand,active,bench,prizes,deckRemaining:deck.length,
+        openingCopyCount:allCopies.length,
+        openingCopyMultisetDigest:cardCopyMultisetDigest(allCopies)
+      };
+    })
   };
 }
 
-module.exports={openingSetupZones};
+module.exports={openingSetupZones,cardCopyMultisetDigest};
