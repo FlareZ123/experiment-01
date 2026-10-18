@@ -281,13 +281,14 @@ function withBroadThornsSourceAttack(work,options={}) {
     }
     if(phase==='attach' && !prompt &&
         state.phase===GamePhase.PLAYER_TURN) {
-      if(!p.hand.cards.some(c=>c.name==='Double Colorless Energy')) {
-        abort(state,'DCE unavailable at attachment stage');
+      // Re-enter the shared post-Stadium path so opt-in backup Benching
+      // happens before attachment even when Thunder was fetched this turn.
+      // Previously this stage skipped backup entirely.
+      if(!p.stadium.cards.some(c=>c.name==='Thunder Mountain Prism Star')) {
+        abort(state,'Thunder Mountain not in play after Stadium action');
         return original.call(this,state);
       }
-      phase='attack';
-      return select(state,'Attach Double Colorless Energy',
-        play(p,'Double Colorless Energy',active));
+      return continueAfterSearch(state,p)??original.call(this,state);
     }
     if(phase==='attack' && !prompt &&
         state.phase===GamePhase.PLAYER_TURN) {
