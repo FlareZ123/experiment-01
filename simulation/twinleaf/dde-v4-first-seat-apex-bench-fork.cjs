@@ -80,7 +80,16 @@ function withNoPreviewApexBenchDde(Store, execute) {
           chosenRecipient: 'Benched Regidrago VSTAR SIT',
           handIndex: choice.handIndex,
           target,
-          suppressedOriginalBotEvaluation: true
+          suppressedOriginalBotEvaluation: true,
+          ownHandPrintings: state.players.find(p => p.id === this.client.id)
+            .hand.cards.map(card => card.fullName),
+          ownDiscardSwitchOptions: state.players.find(p => p.id === this.client.id)
+            .discard.cards.filter(card => ['Guzma BUS', 'Prime Catcher TEF']
+              .includes(card.fullName)).map(card => card.fullName),
+          supporterUsedThisTurn: state.players.find(p => p.id === this.client.id)
+            .supporterTurn >= state.turn,
+          ownBenchOccupancy: state.players.find(p => p.id === this.client.id)
+            .bench.length
         });
         return new PlayCardAction(this.client.id, choice.handIndex, target);
       }
