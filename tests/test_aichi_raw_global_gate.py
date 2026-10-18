@@ -14,11 +14,26 @@ def source_decks():
     }
 
 
+def registered_schedule(horizon=10):
+    return [
+        {
+            "game_id": f"{rank}-{seat}-{trial}",
+            "rank": rank,
+            "seed": rank * 10000 + (0 if seat == "first" else 5000) + trial + 1,
+            "candidate_side": "A",
+        }
+        for rank in range(1, 33)
+        for seat in ("first", "second")
+        for trial in range(horizon)
+    ]
+
+
 def assess(source_batch, manifest, *, predeclared_games_per_cell):
     return evaluate_balanced_raw_batch(
         source_batch, manifest, source_deck_digests=source_decks(),
         expected_candidate_deck_sha256="a" * 64,
         predeclared_games_per_cell=predeclared_games_per_cell,
+        expected_trials=registered_schedule(predeclared_games_per_cell),
     )
 
 
@@ -50,6 +65,12 @@ def game(rank, seat, trial, *, status="completed", winner="A"):
         ).hexdigest(),
         "trace_sha256": action_trace_sha256(action_trace),
         "action_trace": action_trace,
+        "engine_terminal": {
+            "finished": status == "completed",
+            "winnerIndex": (
+                0 if winner == "A" else 1 if winner == "B" else 3
+            ) if status == "completed" else -1,
+        },
     }
 
 
@@ -89,6 +110,9 @@ class BalancedRawGateTests(unittest.TestCase):
         self.assertEqual(x["completed_ties_as_nonwins"], 0)
         self.assertTrue(x["all_completed_traces_verified"])
         self.assertFalse(x["competitive_evidence_qualified"])
+        self.assertTrue(x["all_completed_terminals_bound"])
+        self.assertTrue(x["schedule_bound"])
+        self.assertEqual(x["scheduled_trial_count"], 640)
 
     def test_digest_only_record_is_rejected(self):
         b = batch()
@@ -105,6 +129,7 @@ class BalancedRawGateTests(unittest.TestCase):
     def test_one_tie_counts_as_nonwin(self):
         b = batch()
         b["games"][0]["winner_side"] = None
+        b["games"][0]["engine_terminal"]["winnerIndex"] = 3
         x = assess(b, field(), predeclared_games_per_cell=10)
         self.assertEqual(x["completed_ties_as_nonwins"], 1)
         self.assertEqual(x["global_test"]["nonwins"], 1)
@@ -118,7 +143,7 @@ class BalancedRawGateTests(unittest.TestCase):
     def test_missing_actual_starting_seat_blocks(self):
         b = batch()
         b["games"] = [g for g in b["games"] if not (g["rank"] == 32 and g["seat"] == "second")]
-        with self.assertRaisesRegex(ValueError, "64-cell"):
+        with self.assertRaisesRegex(ValueError, "Scheduled trial results omitted"):
             assess(b, field(), predeclared_games_per_cell=10)
 
     def test_missing_declared_horizon_blocks(self):
@@ -135,13 +160,14 @@ class BalancedRawGateTests(unittest.TestCase):
     def test_unbalanced_cell_blocks(self):
         b = batch()
         b["games"].append(game(1, "first", 10))
-        with self.assertRaisesRegex(ValueError, "Total completed games"):
+        with self.assertRaisesRegex(ValueError, "Unscheduled trial"):
             assess(b, field(), predeclared_games_per_cell=10)
 
     def test_failure_blocks_even_with_remaining_valid_games(self):
         b = batch()
         b["games"][0]["winner_side"] = None
         b["games"][0]["status"] = "policy_stall"
+        b["games"][0]["engine_terminal"] = {"finished": False, "winnerIndex": -1}
         with self.assertRaisesRegex(ValueError, "Failed or unfinished"):
             assess(b, field(), predeclared_games_per_cell=10)
 
@@ -163,7 +189,7 @@ class BalancedRawGateTests(unittest.TestCase):
         for g in b["games"]:
             if g["rank"] == 17:
                 g["opponent_deck_sha256"] = "f" * 64
-        with self.assertRaisesRegex(ValueError, "Opponent rank 17 deck"):
+        with self.assertRaisesRegex(ValueError, "Opponent hash disagrees"):
             assess(b, field(), predeclared_games_per_cell=10)
 
     def test_source_map_must_cover_every_rank(self):
@@ -175,6 +201,7 @@ class BalancedRawGateTests(unittest.TestCase):
                 b, field(), source_deck_digests=damaged_source_map,
                 expected_candidate_deck_sha256="a" * 64,
                 predeclared_games_per_cell=10,
+                expected_trials=registered_schedule(10),
             )
 
     def test_candidate_batch_is_bound_to_registered_candidate(self):
@@ -190,12 +217,47 @@ class BalancedRawGateTests(unittest.TestCase):
                 b, field(), source_deck_digests=source_decks(),
                 expected_candidate_deck_sha256="not-a-digest",
                 predeclared_games_per_cell=10,
+                expected_trials=registered_schedule(10),
             )
 
     def test_reused_global_seed_between_ranks_is_rejected(self):
         b = batch()
         b["games"][10]["seed"] = b["games"][0]["seed"]
         with self.assertRaisesRegex(ValueError, "Global RNG seeds"):
+            assess(b, field(), predeclared_games_per_cell=10)
+
+
+    def test_missing_engine_terminal_blocks_arithmetic_promotion(self):
+        b = batch()
+        del b["games"][0]["engine_terminal"]
+        with self.assertRaisesRegex(ValueError, "engine-terminal-bound winners"):
+            assess(b, field(), predeclared_games_per_cell=10)
+
+    def test_mismatched_engine_terminal_winner_blocks(self):
+        b = batch()
+        b["games"][0]["engine_terminal"]["winnerIndex"] = 1
+        with self.assertRaisesRegex(ValueError, "contradicts engine terminal"):
+            assess(b, field(), predeclared_games_per_cell=10)
+
+    def test_independent_schedule_is_required(self):
+        b = batch()
+        with self.assertRaisesRegex(ValueError, "Independent predeclared trial schedule"):
+            evaluate_balanced_raw_batch(
+                b, field(), source_deck_digests=source_decks(),
+                expected_candidate_deck_sha256="a" * 64,
+                predeclared_games_per_cell=10, expected_trials=[],
+            )
+
+    def test_unique_but_unscheduled_seed_blocks(self):
+        b = batch()
+        b["games"][0]["seed"] += 1000000
+        with self.assertRaisesRegex(ValueError, "Unscheduled trial"):
+            assess(b, field(), predeclared_games_per_cell=10)
+
+    def test_mismatched_scheduled_candidate_side_blocks(self):
+        b = batch()
+        b["games"][0]["candidate_side"] = "B"
+        with self.assertRaisesRegex(ValueError, "Unscheduled trial"):
             assess(b, field(), predeclared_games_per_cell=10)
 
 
