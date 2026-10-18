@@ -81,11 +81,11 @@ function auditFirstTurnVipNonuse(report) {
     assert.equal(copies,expected.vip,'Held live first-turn VIP count changed');
     // None of the first-turn source-visible hand cards is a Basic Pokémon.
     // The validated first-turn plays do not discard Pokémon from the game.
-    const nonPokemonHand=new Set([
+    const nonBasicHand=new Set([
       'Dusclops SFA','Battle VIP Pass FST','Fog Crystal CRE',
       'Psychic Energy MEE','Rescue Carrier EVS'
     ]);
-    assert.ok(hand.every(name=>nonPokemonHand.has(name)),
+    assert.ok(hand.every(name=>nonBasicHand.has(name)),
       'First-turn own-hand identities changed');
     const visibleBasic=1+own.bench.length;
     const minimumRemainingBasic=PRINTED_BASIC_POKEMON-visibleBasic-STARTING_PRIZES;
