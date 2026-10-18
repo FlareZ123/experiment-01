@@ -31,6 +31,22 @@ function firstOwnRoot(game, seat) {
     }));
 }
 
+/** Capture only source player's own-hand snapshots after the policy chose an action. */
+function firstOwnHandDecisions(game, seat) {
+  return game.decisionTrace.filter(action =>
+    action.playerSlot === seat && action.turnBefore === 1 &&
+    action.decisionHandBefore &&
+    (action.action === 'PassTurnAction' ||
+      ['Battle VIP Pass', 'Secret Box', 'Float Stone', 'Boost Shake']
+        .includes(action.card)))
+    .map(action => ({
+      ordinal:action.actionOrdinal, action:action.action,
+      card:action.card || null,
+      ownHandPrintings:action.decisionHandBefore.ownHandPrintings,
+      opponentHandSize:action.decisionHandBefore.opponentHandSize
+    }));
+}
+
 /**
  * Historical exact published source pair, frozen controls against the
  * existing K1 hybrid. This is a policy regression, never match-win evidence.
@@ -84,10 +100,12 @@ function run() {
       printedRank11Copies: source.cards.length,
       v3: {direct:v3.rank11DirectPolicy,
         autonomous:v3.rank11AutonomousPolicy, game:summary(v3),
-        firstSourceRoot:firstOwnRoot(v3, record.sourceSeat)},
+        firstSourceRoot:firstOwnRoot(v3, record.sourceSeat),
+        firstOwnHandDecisions:firstOwnHandDecisions(v3, record.sourceSeat)},
       v4: {direct:v4.rank11DirectPolicy,
         autonomous:v4.rank11AutonomousPolicy, game:summary(v4),
-        firstSourceRoot:firstOwnRoot(v4, record.sourceSeat)},
+        firstSourceRoot:firstOwnRoot(v4, record.sourceSeat),
+        firstOwnHandDecisions:firstOwnHandDecisions(v4, record.sourceSeat)},
       tracesSame: JSON.stringify(v3.decisionTrace) ===
         JSON.stringify(v4.decisionTrace)
     });
