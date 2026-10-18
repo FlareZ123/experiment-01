@@ -1,6 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
 const {planAichi} = require('../evaluation/aichi-pilot.cjs');
 const {pairedCandidateSlots} =
   require('./new-moon-lockbreak-source-diagnostic.cjs');
@@ -31,8 +32,20 @@ function run() {
   const candidate = pairedCandidateSlots().lockbreak;
   assert.equal(candidate.length,60);
 
-  const game = runArm(candidate,rank11.cards,CANDIDATE_SEAT,
-    SOURCE_SEED,350,true,true);
+  const args=[candidate,rank11.cards,CANDIDATE_SEAT,SOURCE_SEED,350,
+    true,true,false];
+  const control=runArm(...args,false);
+  const game=runArm(...args,true);
+  const stable=entry=>JSON.stringify({
+    actions:entry.actions,turns:entry.turns,winner:entry.winner,
+    prizes:entry.prizesRemaining,
+    root:entry.rootActionLedger,
+    attacks:entry.attackDeclarationTrace,terminal:entry.terminalTransition
+  });
+  const controlDigest=crypto.createHash('sha256').update(stable(control)).digest('hex');
+  const observedDigest=crypto.createHash('sha256').update(stable(game)).digest('hex');
+  assert.equal(observedDigest,controlDigest,
+    'Read-only Trainer-count observation must preserve complete root-ledger and terminal outcome');
   assert.equal(game.seed,SOURCE_SEED);
   assert.equal(game.firstTurnSlot,0,'This source seed must remain rank11-first');
   assert.equal(game.verifiedByDrawLog,true);
@@ -94,6 +107,20 @@ function run() {
     scope:'observed engine KO and Prize shift after selected copied-attack chain'
   };
   assert.deepEqual(game.prizesRemaining,[2,0]);
+  const effectWindows=game.poltergeistEffectTrace;
+  assert.ok(Array.isArray(effectWindows) && effectWindows.length>0);
+  const printedEffect=effectWindows.find(entry=>
+    entry.actionOrdinal===terminalAttack.actionOrdinal);
+  assert.ok(printedEffect,
+    'The actual copied Poltergeist Store action must have a retrospective printed-count event');
+  assert.equal(printedEffect.attackerSeat,CANDIDATE_SEAT);
+  assert.equal(printedEffect.assessment?.printedBaseDamage,
+    printedEffect.before[1-CANDIDATE_SEAT].handTrainerCount*50,
+  'Printed 50xTrainer damage must use the defender actual physical pre-attack hand');
+  assert.equal(printedEffect.assessment.prizeChange,-1,
+    'The copied attack chain must contain the terminal candidate Prize transfer');
+  assert.equal(printedEffect.assessment.defenderInPlayChange,-1,
+    'The copied attack chain must retain the observed opponent KO');
 
   const raw = game.attackTrace.filter(entry => entry.seat === CANDIDATE_SEAT);
   const aroundCopy = game.decisionTrace.filter(entry =>
@@ -134,6 +161,16 @@ function run() {
     terminalAttackChoice:terminalSelection.attackChoice,
     terminalAttackRootAction:terminalAttack.triggerAction,
     terminalPublicEffect,
+    poltergeistEffect:{
+      ...printedEffect.assessment,
+      firstActionOrdinal:printedEffect.actionOrdinal,
+      resolvedActionOrdinals:printedEffect.steps.map(entry=>entry.actionOrdinal),
+      handObservationTiming:'after own attack selection; before actual Store copied attack dispatch',
+      observedReducerWindow:true,
+      outcomeControlDigest:controlDigest,
+      observedDigest,
+      observerNoninterferenceVerified:true
+    },
     terminal:terminal,
     terminalPromptActions:aroundCopy,
     policy:game.policy,
