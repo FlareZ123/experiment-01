@@ -90,6 +90,7 @@ function inspectPhysicalCardZones(state) {
   return {
     schema: 'twinleaf-physical-reference-ownership-v1',
     canonicalCounts,
+    transientPromptCustody,
     referenceDuplications: [...doubled.values()].map(locations => ({locations})),
     energyWithoutPhysicalCard,
     repeatedEnergyIndexes
