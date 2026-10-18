@@ -30,7 +30,9 @@ Both compiled manual runs executed **the identical scheduled trial** `pilot:11:0
 | Untimed simulator outcome | Rank11 win, Prizes [0,6] | Rank11 win, Prizes [0,6] |
 | Competitively qualified games | **0** | **0** |
 
-The source `cardsPlayedBySeat[0]` ledger confirms **three** actual Guzma plays in the guarded arm; this count is from the complete game, rather than the first-turn excerpt.\n\nThe first action difference occurred at **decision event 25**, after an identical 25-event prefix, while the source side still occupied the same physical seat. The observed source Guzma intervention changes later action timing, so the candidate Lillie play cannot be interpreted as an isolated candidate-side treatment. Opposing opportunities and available actions can change after the first divergence. The printed `Lillie's Determination` was actually held through many default-policy candidate Passes, and is played once in the guarded continuation.
+The source `cardsPlayedBySeat[0]` ledger confirms **three** actual Guzma plays in the guarded arm; this count is from the complete game, rather than the first-turn excerpt.
+
+The first action difference occurred at **decision event 25**, after an identical 25-event prefix, while the source side still occupied the same physical seat. The observed source Guzma intervention changes later action timing, so the candidate Lillie play cannot be interpreted as an isolated candidate-side treatment. Opposing opportunities and available actions can change after the first divergence. The printed `Lillie's Determination` was actually held through many default-policy candidate Passes, and is played once in the guarded continuation.
 
 The default arm used `rank11-autonomous-boostshake-v1`, while the corrected arm used `simple-supporter-guard-v1`; **these are distinct bot profiles**. The ranked source's autonomous Boost Shake policy had `opportunityDetected:false` in the default arm because rank11 started second, so the sample shows a particularly clean early comparison of the generic and Supporter guard behaviors. It does *not* prove the two profiles have identical non-Supporter behavior in all other situations.
 
