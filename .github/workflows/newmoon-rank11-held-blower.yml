@@ -39,7 +39,7 @@ jobs:
         run: node simulation/twinleaf/newmoon-rank11-autonomous-blower-probe.cjs > newmoon-rank11-autonomous-blower.json
       - name: Check two-Gengar candidate print count and opener policy contracts
         if: inputs.gengar2_structural_probe
-        run: node --test tests/newmoon-gengar2-structural-prospective.test.cjs tests/new-moon-compressor-payload-policy.test.cjs
+        run: node --test tests/newmoon-gengar2-structural-prospective.test.cjs tests/new-moon-compressor-payload-policy.test.cjs tests/rank6-broad-thorns-policy.test.cjs
       - name: Run frozen-versus-two-Gengar source-dealt 24-arm pilot
         if: inputs.gengar2_structural_probe
         run: node simulation/twinleaf/newmoon-gengar2-structural-prospective.cjs > newmoon-gengar2-pilot.json
