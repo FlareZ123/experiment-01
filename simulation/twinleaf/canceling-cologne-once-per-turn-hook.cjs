@@ -28,8 +28,8 @@ function installCancelingCologneOncePerTurnHook() {
   const {WAS_TRAINER_USED} = pinned('game/store/prefabs/trainer-prefabs');
   const {Store} = pinned('game/store/store');
   const {PlayItemEffect} = pinned('game/store/effects/play-card-effects');
-  const {GameError} = pinned('game-error');
-  const {GameMessage} = pinned('game-message');
+  const {GameError} = pinned('game/game-error');
+  const {GameMessage} = pinned('game/game-message');
   const priorStoreReduceEffect = Store.prototype.reduceEffect;
   const priorCanPlay = prototype.canPlay;
   const priorReduceEffect = prototype.reduceEffect;
