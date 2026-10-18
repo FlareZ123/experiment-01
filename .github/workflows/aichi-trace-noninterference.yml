@@ -20,3 +20,5 @@ jobs:
       - run: npm run compile
         working-directory: vendor/twinleaf/ptcg-server
       - run: node simulation/twinleaf/trace-noninterference.cjs
+      - name: Verify published rank9 root ledger and read-only source replay
+        run: node simulation/twinleaf/rank9-root-ledger-noninterference.cjs
