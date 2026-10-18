@@ -73,3 +73,5 @@ jobs:
         run: node simulation/twinleaf/copy-session-speculative-simulator.cjs
       - name: Probe source-dealt Regidrago copied-session branch exposure
         run: node simulation/twinleaf/copy-session-ranked-source-exposure.cjs
+      - name: Audit real copied Apex attack effect and following opponent roots
+        run: node simulation/twinleaf/copy-session-ranked-effect-reply.cjs
