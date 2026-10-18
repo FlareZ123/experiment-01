@@ -15,6 +15,14 @@ on:
         options:
           - decorrelated-v2
           - legacy-consecutive-v1
+      source_seat:
+        description: Physical engine seat occupied by published rank11
+        required: false
+        default: '0'
+        type: choice
+        options:
+          - '0'
+          - '1'
 
 permissions:
   contents: read
@@ -44,15 +52,16 @@ jobs:
         env:
           TRIALS: ${{ inputs.trials || '32' }}
           SEED_PROTOCOL: ${{ inputs.seed_protocol || 'decorrelated-v2' }}
+          RANK11_SOURCE_SEAT: ${{ inputs.source_seat || '0' }}
         run: node simulation/twinleaf/rank11-direct-source-probe.cjs > rank11-direct-source-probe.json
       - name: Verify source-first VSTAR and second-start direct policies compose
         run: node simulation/twinleaf/rank11-hybrid-source-replay.cjs > rank11-hybrid-source-replay.json
       - name: Print bounded outcome and keep all failed opportunities
-        run: node -e "const p=require('./rank11-direct-source-probe.json'); console.log(JSON.stringify({seedProtocol:p.seedProtocol,trials:p.actualTrialCount,starts:p.startSlotCounts,opportunities:p.opportunities,completed:p.completed,aborts:p.aborts,interesting:p.trials.filter(t=>t.sourceOpportunity!==null)},null,2))"
+        run: node -e "const p=require('./rank11-direct-source-probe.json'); console.log(JSON.stringify({seedProtocol:p.seedProtocol,sourceSeat:p.sourcePhysicalSeat,trials:p.actualTrialCount,starts:p.startSlotCounts,sourceFirst:p.sourceActualFirstCount,opportunities:p.opportunities,completed:p.completed,aborts:p.aborts,interesting:p.trials.filter(t=>t.sourceOpportunity!==null)},null,2))"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: rank11-direct-boostshake-unqualified
+          name: rank11-direct-boostshake-unqualified-seat-${{ inputs.source_seat || '0' }}
           path: |
             rank11-direct-source-probe.json
             rank11-hybrid-source-replay.json
