@@ -4,7 +4,8 @@ const assert = require('node:assert/strict');
 const {createHash} = require('node:crypto');
 const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const {buildCampaign} = require('../scripts/aichi-comparison-campaign.cjs');
-const {auditArchive,createEvidenceEnvelope,hasMatchingResearchConditions} =
+const {auditArchive,createEvidenceEnvelope,hasMatchingResearchConditions,
+  hasPairedTrialSchedule} =
   require('../simulation/evaluation/aichi-evidence-envelope.cjs');
 
 /** @returns {object} */
@@ -227,4 +228,46 @@ test('explicit runner policy-echo mismatch is preserved as a failure', () => {
     completed:1,failures:1,verifiedFirst:0,verifiedSecond:1,
     potentialDuplicateMirrorGames:0,maximumDistinctCompletedTrajectories:1
   });
+});
+
+
+test('compatible settings alone cannot certify paired trials across distinct subsets', () => {
+  const full=fixture();
+  const whole=createEvidenceEnvelope(full.inputs,full.archive,full.provenance);
+  const subset=fixture();
+  subset.archive.records=subset.archive.records.slice(1);
+  subset.archive.selectedTrialIds=subset.archive.selectedTrialIds.slice(1);
+  subset.archive.recordedTrials=1;
+  const partial=createEvidenceEnvelope(subset.inputs,subset.archive,subset.provenance);
+  assert.equal(hasMatchingResearchConditions(whole,partial),true);
+  assert.equal(hasPairedTrialSchedule(whole,partial),false);
+
+  const other=fixture();
+  other.archive.records=other.archive.records.slice(0,1);
+  other.archive.selectedTrialIds=other.archive.selectedTrialIds.slice(0,1);
+  other.archive.recordedTrials=1;
+  const disjoint=createEvidenceEnvelope(other.inputs,other.archive,other.provenance);
+  assert.equal(hasMatchingResearchConditions(disjoint,partial),true);
+  assert.equal(hasPairedTrialSchedule(disjoint,partial),false);
+});
+
+test('paired schedule requires actual first-turn parity and accepts record reordering', () => {
+  const left=fixture();
+  const a=createEvidenceEnvelope(left.inputs,left.archive,left.provenance);
+  const equal=fixture();
+  equal.archive.records.reverse();
+  equal.archive.selectedTrialIds.reverse();
+  const reordered=createEvidenceEnvelope(equal.inputs,equal.archive,equal.provenance);
+  assert.equal(hasPairedTrialSchedule(a,reordered),true);
+
+  const different=fixture();
+  different.archive.records[0].firstTurn={
+    firstTurnSlot:1,firstTurnPlayerId:202,firstTurnPlayerName:'research-B',
+    firstDrawLogName:'research-B',verifiedByDrawLog:true
+  };
+  different.archive.records[0].candidateTrueTurn='second';
+  const b=createEvidenceEnvelope(different.inputs,different.archive,
+    different.provenance);
+  assert.equal(hasMatchingResearchConditions(a,b),true);
+  assert.equal(hasPairedTrialSchedule(a,b),false);
 });
