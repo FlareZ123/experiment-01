@@ -26,9 +26,43 @@ These checks are necessary, **not sufficient**. They do not verify unspent Abili
 
 **Validity gates:** both CI jobs must pass; their eight `trialId` sets, matched seeds, source deck hashes, observed starting players, outcomes and entire `chronologicalActionTrace` arrays must be strictly equal. Observer-enabled records must have recognized `electrodeOpportunitySummary.evidenceType` and per-seat counts. Any gameplay divergence makes the observer unfit for causal opportunity claims, even if it reports interesting numbers.
 
-## Results
+## Results: eight exact live paired games, observer noninterference verified
 
-Pending artifact inspection. No qualified competitive win-rate claim.
+Both frozen CI runs completed successfully at revision `f4096bde9873f1fb71077f3b09986b5a4891642c` and identical plan digest `21fd5c47f6168f127f2e3dcad4b9d42bd79ed0c4b3801b261b5d8d667ef10cbf`. The control [39096036644](https://github.com/FlareZ123/experiment-01/actions/runs/39096036644), artifact `12124329815`, and observer [39096039374](https://github.com/FlareZ123/experiment-01/actions/runs/39096039374), artifact `12125105684`, both reported `completed-engine-game: 8`.
+
+Independent comparison of downloaded `aichi-campaign-diagnostic.json` payloads matched the set of eight `trialId` values. Every pair matched source candidate/opponent digests, actual first turn, PRNG seed, pinned engine revision, rules, status, action count, turn count, winner index, full chronological meaningful-action array, full `traceSummary` except the opt-in evidence field, and terminal Prize/board snapshot. Each pair differed only in the expected observational request flag. This supports **noninterference in the tested eight games**, with no claim that the monitor proves all unobserved properties of the engine.
+
+### Actual rank-4 opponent decision census
+
+Counts apply only to the **rank-4 source opponent's own** non-prompt decisions, regardless of whether the opponent was physical seat 0 or 1. Each row represents a distinct frozen candidate and seat, with one repeat.
+
+| Candidate | Candidate seat | Opponent decision points | Active Raichu | Benched Electrode | Both simultaneously | Opponent attacks |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Champion reference | A | 24 | 4 | 0 | 0 | 1 |
+| Champion reference | B | 30 | 0 | 0 | 0 | 4 |
+| Hood Shield | A | 25 | 1 | 0 | 0 | 2 |
+| Hood Shield | B | 36 | 0 | 14 | 0 | 0 |
+| Temple | A | 28 | 0 | 1 | 0 | 0 |
+| Temple | B | 24 | 0 | 6 | 0 | 1 |
+| New Moon | A | 66 | 0 | 13 | 0 | 10 |
+| New Moon | B | 71 | 0 | 53 | 0 | 15 |
+| **Total** | | **304** | **5** | **87** | **0** | **33** |
+
+Counts from `records[].traceSummary.electrodeOpportunitySummary.countsBySeat[opponentSlot]`, where `opponentSlot=1` when `candidateEngineSlot='A'`, and `0` otherwise.
+
+**Direct conclusion:** `both = 0` in **all eight games**, hence `bothWithDiscardSpecial = 0`, `withSafePrizeWindow = 0` and `withPostBombReversalWindow = 0` at every observed opponent decision. This is a stronger diagnosis than inferring lack of a board from aggregate zero Bomb activations alone. It explains why the source-specific Prize-trade tactic lacked its target setup at the actual sampled decision points.
+
+- The opponent's Active **Alolan Raichu** existed at five decision points spread across **two** games. Its bench contained no Electrode-GX in any such state. The captured state in champion-seat-A global turn 6 had two relevant Special Energy cards in the public discard, opponent source side six own Prizes remaining versus candidate four. The hood-seat-A state in global turn 12 had three.
+- A **Benched Electrode-GX** existed at 87 opponent decision points across **five** games. In none was Raichu Active. The New Moon opponent-seat-B game contributed 53 such decision points, and sometimes had as many as seven relevant Special Energy cards in discard. Those are temporally correlated passes and do not represent 53 independent opportunities.
+- Two games had **zero opponent attacks**. Any apparent opponent inability to win is heavily contaminated by generic policy competency. The observer does not capture whether Raichu was present on the Bench, whether Electrode was in hand, or whether a legal switch/evolution existed during the turn.
+
+### Limits and implications
+
+The monitoring snapshots only pre-choice game states with no pending prompt, which is the intended phase of the narrow `ElectrodeSourcePrizeTrade-v1` tactic. A `both=0` result does not prove the printed `Extra Energy Bomb` Ability was never legally usable with a **different recipient or strategy**, and is not evidence that playing Electrode would always be strategically inferior.
+
+The next high-value intervention is source-aware **Active-position and Bench setup** decisions, with attention to evolutions, switch Item availability, the opponent's Klefki lock, two-Prize self-KO risk, and remaining discarded Special Energy. Only after demonstrating substantial board conjunction exposure is it worth comparing downstream Prize-trade or Energy-attachment policies for live match outcomes.
+
+All game records are unqualified as estimates of real paper Expanded win probability.
 
 ## Next discriminating step
 
