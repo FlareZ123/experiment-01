@@ -249,6 +249,7 @@ function policyRandomStreams(seed) {
  * @property {0|1} [passHorizonAttackSeat] Apply same-horizon attack scoring only to this physical seat.
  * @property {number} [passHorizonAttackTurn] Restrict the correction to one frozen global turn; other turns retain the original tactic.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
+ * @property {boolean} [captureElectrodeOpportunity] Observe source Raichu/Bomb public necessary conditions only at live non-prompt decisions.
  * @property {boolean} [capturePhysicalZoneIntegrity] Opt-in read-only physical reference/attached Energy checks after each live root action.
  * @property {0|1} [captureCopycatTurnStartSeat] Opt-in candidate perspective resource snapshot once per own turn, taken before selecting the first action.
  * @property {boolean} [captureAttackPassProbes] Opt-in first eight post-choice Pass attack-announcement probes; only archived when capturing decision trace.
@@ -627,6 +628,8 @@ function runMatch(request) {
     const attackTrace = [];
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
+    const electrodeOpportunityObserver = request.captureElectrodeOpportunity === true ?
+      require('./electrode-opportunity-observer.cjs').createElectrodeOpportunityObserver() : null;
     const physicalZoneIntegrity = request.capturePhysicalZoneIntegrity === true
       ? {
         schema: 'live-headless-physical-zone-integrity-v1',
@@ -648,6 +651,10 @@ function runMatch(request) {
       const epochBeforeAction = knowledgeEvents ? optionsBySeat.map(options =>
         options.bunnelbyDeckKnowledgeEpoch.snapshot()) : null;
       const pending = state.prompts.find(prompt => prompt.result === undefined);
+      if (electrodeOpportunityObserver && !pending &&
+          state.phase === GamePhase.PLAYER_TURN) {
+        electrodeOpportunityObserver.observe(state);
+      }
       if (copycatTurnStartEvidence && !pending &&
           state.phase === GamePhase.PLAYER_TURN &&
           state.activePlayer === request.captureCopycatTurnStartSeat &&
@@ -877,6 +884,8 @@ function runMatch(request) {
       attackTrace,
       abilityTrace,
       decisionTrace,
+      ...(electrodeOpportunityObserver ?
+        {electrodeOpportunitySummary: electrodeOpportunityObserver.snapshot()} : {}),
       ...(physicalZoneIntegrity ? {physicalZoneIntegrity} : {}),
       ...(copycatTurnStartEvidence ? {copycatTurnStartEvidence} : {}),
       attackPassProbeCount,
