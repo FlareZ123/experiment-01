@@ -21,7 +21,7 @@ Both compiled manual runs executed **the identical scheduled trial** `pilot:11:0
 | Run | [CI 39106804578](https://github.com/FlareZ123/experiment-01/actions/runs/39106804578), [artifact 12129175438](https://github.com/FlareZ123/experiment-01/actions/runs/39106804578/artifacts/12129175438) | [CI 39107220132](https://github.com/FlareZ123/experiment-01/actions/runs/39107220132), [artifact 12128494832](https://github.com/FlareZ123/experiment-01/actions/runs/39107220132/artifacts/12128494832) |
 | Rank11 autonomous Boost Shake opportunity | 0; its source-first condition was ineligible | Not installed |
 | Candidate Supporters actually played | **0** | **1 Lillie's Determination** |
-| Source rank11 Supporters actually played | **0** | **2 Guzma** |
+| Source rank11 Supporters actually played | **0** | **3 Guzma** |
 | First choice divergence | Source turn 8 would `PassTurnAction` | Source turn 8 selects `PlayCardAction('Guzma')` |
 | First 25 normalized decision events | Identical | Identical |
 | Source actual Store attack declarations | 20 | 16 |
@@ -30,7 +30,7 @@ Both compiled manual runs executed **the identical scheduled trial** `pilot:11:0
 | Untimed simulator outcome | Rank11 win, Prizes [0,6] | Rank11 win, Prizes [0,6] |
 | Competitively qualified games | **0** | **0** |
 
-The first action difference occurred at **decision event 25**, after an identical 25-event prefix, while the source side still occupied the same physical seat. The observed source Guzma intervention changes later action timing, so the candidate Lillie play cannot be interpreted as an isolated candidate-side treatment. Opposing opportunities and available actions can change after the first divergence. The printed `Lillie's Determination` was actually held through many default-policy candidate Passes, and is played once in the guarded continuation.
+The source `cardsPlayedBySeat[0]` ledger confirms **three** actual Guzma plays in the guarded arm; this count is from the complete game, rather than the first-turn excerpt.\n\nThe first action difference occurred at **decision event 25**, after an identical 25-event prefix, while the source side still occupied the same physical seat. The observed source Guzma intervention changes later action timing, so the candidate Lillie play cannot be interpreted as an isolated candidate-side treatment. Opposing opportunities and available actions can change after the first divergence. The printed `Lillie's Determination` was actually held through many default-policy candidate Passes, and is played once in the guarded continuation.
 
 The default arm used `rank11-autonomous-boostshake-v1`, while the corrected arm used `simple-supporter-guard-v1`; **these are distinct bot profiles**. The ranked source's autonomous Boost Shake policy had `opportunityDetected:false` in the default arm because rank11 started second, so the sample shows a particularly clean early comparison of the generic and Supporter guard behaviors. It does *not* prove the two profiles have identical non-Supporter behavior in all other situations.
 
