@@ -31,6 +31,8 @@ function auditPostShredOpponent(){
   ()=>runMatch({...request,captureCopycatTurnStartSeat:seat}),
   {forceShred:true,rootActionOrdinal:215});
  const opponent=run(0),championView=run(1);
+ assert.equal(opponent.result.doubleDragonArchiveV3,true,
+  'Post-Shred source turn29 requires archived DDE v3');
  assert.equal(opponent.shredSelections[0]?.attack,'Shred');
  const withoutPerspective=record=>{
   const {copycatTurnStartEvidence,...other}=record.result;
