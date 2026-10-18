@@ -23,6 +23,10 @@ on:
         description: 'Opt-in source-ranked Tool-Garbodor versus live Underworld Door availability'
         type: boolean
         default: false
+      rank11_forced_shop_exposure:
+        description: 'Opt-in natural Shop-Crobat window audit after printed rank11 forced turn-one lock'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -93,6 +97,16 @@ jobs:
         with:
           name: rank11-source-underworld-exposure
           path: rank11-underworld-lock-exposure.json
+          if-no-files-found: warn
+      - name: Audit source Shop-Crobat windows after the first-turn lock fork
+        if: inputs.rank11_forced_shop_exposure
+        run: node simulation/twinleaf/rank11-forced-shop-source-exposure.cjs > rank11-forced-shop-source-exposure.json
+      - name: Archive source-forced Shop opportunity evidence
+        if: always() && inputs.rank11_forced_shop_exposure
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-forced-shop-source-exposure
+          path: rank11-forced-shop-source-exposure.json
           if-no-files-found: warn
       - name: Reproduce authentic rank8 Latias escape decision alternatives
         if: inputs.rank8_source_fork
