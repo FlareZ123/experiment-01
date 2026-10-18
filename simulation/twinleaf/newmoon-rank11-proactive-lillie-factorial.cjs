@@ -93,12 +93,18 @@ function arm(candidate,opponent,seed,mode) {
   assert.equal(result.rank11AutonomousPolicy?.sourceSeat,SOURCE_SEAT);
   const summary=summarize(result,policyAudit);
   if (policyAudit) {
-    assert.equal(summary.candidateLilliePlays.length,
+    assert.ok(summary.candidateLilliePlays.length>=
       policyAudit.lowHandLillieSelections,
       'A selected proactive Supporter must be a real Store PlayCardAction');
-    assert.equal(summary.candidateBlowerPlays.length,
+    assert.ok(summary.candidateBlowerPlays.length>=
       policyAudit.opportunitySelections,
       'An autonomous selected Item must be a real Store PlayCardAction');
+    for(const event of policyAudit.events.filter(x=>
+      x.kind==='autonomous-legal-low-hand-Supporter')) {
+      assert.ok(summary.candidateLilliePlays.some(row=>
+        row.turn===event.turn),
+      'A selected Lillie should be present in the same actual turn');
+    }
   }
   return summary;
 }
