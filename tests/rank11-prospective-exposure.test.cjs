@@ -100,6 +100,10 @@ test('registration rejects absent source identity, policy fingerprint and tamper
   assert.throws(()=>makeRank11ExposureFrame(original,{
     seedBase:20261018,repeats:1,fileBlobs:blobs
   }),/Predeclare/);
+  assert.throws(()=>makeRank11ExposureFrame({
+    ...original,trials:original.trials.slice(1)
+  },{seedBase:20261018,repeats:4,fileBlobs:blobs}),
+  /No complete rank11 source pilot/);
   const f=frame();
   f.trials[0].seed++;
   assert.equal(verifyFrameDigest(f),false);
