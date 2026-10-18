@@ -31,3 +31,32 @@ The model's `selectedK0` count does **not** estimate successfully executed first
 A seed selected by condition is valid for challenging a **specific mechanical counterplay state**, and must never be scored as an unselected competitive matchup win. Future full-strength evidence should come from independent candidate-vs-all-32 source decks, both true starting orders, validated paper effects and sufficiently skilled action policies.
 
 **Field remains 29/32 full print-resolved opponent lists and zero competitively qualified games.** Ranks 23, 25 and 28 remain unresolved.
+
+
+## Observed full 512-attempt screen, frozen before any continuation
+
+[Manual compiled CI **39097916869**](https://github.com/FlareZ123/experiment-01/actions/runs/39097916869) **passed**, head `4c5c171df2a3b794de28b517cee30118256e3482`; test suite **66/66 passed**. Archived original 512-row artifact [12125432682](https://github.com/FlareZ123/experiment-01/actions/runs/39097916869/artifacts/12125432682), SHA-256 ZIP digest `53043fd481aa974e65bcf7a3b1d1cc805c2363b9e8a62a9173c245997b248557`.
+
+| Precommitted original-Store opening diagnostic | Observed |
+| --- | ---: |
+| Total unique scheduled seeds screened | **512** |
+| Rank11 actually first, verified from genuine draw state | **267** |
+| Source rank11 original-decision `v1 openingOpportunity` true | **5** |
+| All verified remaining non-K0 | **507** |
+| Unverified first draws | **0** |
+| Engine screening exceptions | **0** |
+| Qualified competitive games/wins | **0** |
+
+The conditional K0 positives were determined by owner-visible first-turn hand and public board, **before any rank11 policy continuation**. Their seed/index pairs, in original precommitted index order:
+
+| Index | Engine seed |
+| ---: | ---: |
+| 82 | `2365845580` |
+| 159 | `1841861201` |
+| 198 | `3388373692` |
+| 295 | `2806488363` |
+| 305 | `1762595892` |
+
+No selected game was tested or scored before committing [the five-selected-continuation registration](registrations/rank11-k0-selected-continuations-v1-20261018.json), registration SHA-256 `5a0719430593a780282499894cd6c16d5e8c4cb09dbcbffcb512b379435488d1` and commit `63bf4d993c2e346ce05d38e9867083c36cb131fa`.
+
+Descriptively, **5/512** (0.9765625%) scheduled attempts and **5/267** (approximately 1.87266%) actual source-first openings met this narrow live K0 predicate. These observed seeded-engine counts should not be equated to the earlier **2.23068% static hand/search-target necessary-event census**, since the predicates and empirical setup/Active conditions differ. They are not independently policy-qualified matchup observations. The 512 records contain all eligible and ineligible trials; their screening provenance survives even if later selected counterplay runs fail.
