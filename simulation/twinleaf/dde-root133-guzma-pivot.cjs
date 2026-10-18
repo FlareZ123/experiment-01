@@ -43,6 +43,9 @@ function inspectGuzmaWindow(state, actorId) {
   return {
     turn: state.turn, actorId, handIndex,
     ownHandPrintings: owner.hand.cards.map(card => card.fullName),
+    usedVSTAR: owner.usedVSTAR,
+    koLastOpposingTurn: owner.pokemonKnockedOutDuringOpponentsLastTurn,
+    ownBenchPrintings: owner.bench.map(slot => slot.getPokemonCard()?.fullName ?? null),
     supporterTurn: owner.supporterTurn,
     supporterChannelOpen: owner.supporterTurn === 0,
     opponentBenchCount, ownBenchCount, stadiumsInPlay,
