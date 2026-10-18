@@ -246,7 +246,8 @@ function policyRandomStreams(seed) {
  * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
  * @property {0|1} [newMoonNativeOpeningPivotSeat] Candidate-only selected Gengar & Mimikyu-GX setup Active ordering probe.
  * @property {0|1} [newMoonAttackPayloadCompressorSeat] Candidate-only own-hand Compressor and owner-search Gengar payload policy.
- * @property {0|1} [rank31FogEnergySeat] Opponent source Chimecho Active: opt-in Fog-for-Basic-Psychic-Energy search.
+ * @property {0|1} [rank31FogEnergySeat] Opponent source Chimecho Active: opt-in strict Fog-for-Basic-Psychic-Energy search.
+ * @property {0|1} [rank31FogEnergyBroaderSeat] Comparison: allow other Basics in hand or Bench when finding Bell's Energy.
  * @property {0|1} [newMoonOpeningHorrorHouseSeat] Candidate-only first-going-second native or copied Horror House-GX policy.
  * @property {boolean} [latiasAttackReadyAttachment] Opt-in rank10 source-state Latias Energy completion probe.
  * @property {boolean} [bunnelbyK0SafeEvolution] Opt-in printed-source-only TM Evolution choice without hidden-deck/Prize inspection.
@@ -628,9 +629,12 @@ function runMatch(request) {
         configured = require('./new-moon-compressor-payload-policy.cjs')
           .withNewMoonCompressorPayload(configured);
       }
-      if (request.rank31FogEnergySeat === seat) {
+      if (request.rank31FogEnergySeat === seat ||
+          request.rank31FogEnergyBroaderSeat === seat) {
         configured = require('./rank31-fog-energy-prompt-policy.cjs')
-          .withRank31FogEnergyPrompt(configured);
+          .withRank31FogEnergyPrompt(configured, {
+            allowOtherBasics:request.rank31FogEnergyBroaderSeat === seat
+          });
       }
       if (request.newMoonOpeningHorrorHouseSeat === seat) {
         configured = require('./new-moon-opening-horror-house-policy.cjs')
