@@ -16,6 +16,20 @@ const CANDIDATE_SEAT=1;
 function summary(game) {
   const candidateTurns=game.decisionTrace.filter(row =>
     row.playerSlot===CANDIDATE_SEAT);
+  let previousPrizes=[6,6];
+  const prizeTransitions=[];
+  for(const row of game.decisionTrace) {
+    if(row.prizesAfter && row.prizesAfter.some((n,i)=>n<previousPrizes[i])) {
+      prizeTransitions.push({
+        actionOrdinal:row.actionOrdinal,turn:row.turnBefore,
+        actorSeat:row.playerSlot,action:row.action,
+        card:row.card??null,ability:row.ability??null,
+        attack:row.attack??null,
+        previousPrizes,prizesAfter:row.prizesAfter
+      });
+    }
+    if(row.prizesAfter) previousPrizes=row.prizesAfter;
+  }
   const sourceResponses=game.decisionTrace.filter(row =>
     row.playerSlot===SOURCE_SEAT && row.turnBefore>=3 &&
     row.turnBefore<=5 && (row.action==='PlayCardAction' ||
@@ -30,6 +44,13 @@ function summary(game) {
     actions:game.actions,turns:game.turns,
     finished:game.finished,winner:game.winner,
     prizesRemaining:game.prizesRemaining,
+    endReason:game.endReason,
+    terminalTransition:game.terminalTransition??null,
+    prizeTransitions,
+    sourceAttackActions:game.attackTrace.filter(row=>row.seat===SOURCE_SEAT)
+      .map(row=>({turn:row.turn,attack:row.attack,
+        prizeCountBefore:row.prizeCountBefore,
+        prizeCountAfter:row.prizeCountAfter})),
     candidateAttacks:game.attackTrace.filter(row=>row.seat===CANDIDATE_SEAT)
       .map(row=>({turn:row.turn,attack:row.attack})),
     candidateLilliePlays:candidateTurns.filter(row=>
