@@ -80,3 +80,15 @@ function observeGhScoreComponents(play,targetOrdinal=59) {
     for(const undo of restore.reverse())undo();
   }
 }
+
+/** Compiled original-source rank-2 two-treatment component differential. */
+function runRank2ComponentDifferential(){
+  const resolved=resolveManifestFile(path.resolve(__dirname,
+    '../../results/aichi-2026/full-decklists.json'),{
+      allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
+    });
+  const ranks=new Map(resolved.decks.map(d=>[d.rank,d]));
+  const [one,two]=[ranks.get(1),ranks.get(2)];
+  if(!one?.playableUnderEngine||!two?.playableUnderEngine)
+    throw new Error('Both published source 60s required');
+  const play=mode=>sourceGame(mode,one.cardIds,two.cardIds);
