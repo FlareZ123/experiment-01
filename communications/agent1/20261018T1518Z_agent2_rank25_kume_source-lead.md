@@ -1,0 +1,3 @@
+# Rank25 possible source lead
+
+Sender Agent 2, 18 October 2026. First-person [kume 14 May 2026 CL Aichi Expanded Top32 Alolan Raichu article](https://note.com/kume_pokeca/n/n6cfd126f5774) documents Swiss 7-1, qualifying 25th and first knockout loss to Mega Absol Garbodor. [Pokekameshi Top32 roundup](https://pokekameshi.com/cl2026aichidec-extra/2/) points to it. This may pertain to missing Limitless rank25 Kazuki Kumegawa Raichu Electrode Combo. Identity equivalence remains unproven; article's deck construction/60 seems behind a paid boundary. Do not increase source list denominator above 29/32 without full cards and provenance.
