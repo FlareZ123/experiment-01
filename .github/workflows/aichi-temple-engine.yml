@@ -68,7 +68,7 @@ jobs:
           node --check simulation/twinleaf/temple-thorns-source-window.cjs
           node simulation/twinleaf/temple-thorns-source-window.cjs > temple-thorns-source-window.json
       - name: Print registered rank denominator, parity and unqualified windows
-        run: node -e "const r=require('./temple-thorns-source-window.json'); console.log(JSON.stringify({rank:r.selectedRank,registered:r.registrationDigest,attempted:r.count,wobStarting:r.wobbuffetStartingActive,wobWindows:r.wobbuffetLiveWindows,readyWindows:r.fullyReadyLiveWindows,observerParity:r.parity?.identical,qualified:r.competitiveQualifiedGames}));"
+        run: node -e "const r=require('./temple-thorns-source-window.json'); console.log(JSON.stringify({rank:r.selectedRank,registered:r.registrationDigest,attempted:r.count,wobStarting:r.wobbuffetStartingActive,wobWindows:r.wobbuffetLiveWindows,readyWindows:r.fullyReadyLiveWindows,wobSetupHand:r.wobbuffetInSetupHand,wobOfferedNotChosen:r.wobbuffetOfferedButNotChosen,setupChoiceEvents:r.setupChoiceEvents,observerParity:r.parity?.identical,qualified:r.competitiveQualifiedGames}));"
       - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
