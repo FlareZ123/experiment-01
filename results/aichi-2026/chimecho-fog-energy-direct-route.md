@@ -71,3 +71,28 @@ A diagnostic that observes a rank31 player starting Chimecho with **Fog in hand 
 ### Pinned-engine source cross-check, without claiming a Store test
 
 Read-only inspection of [Twinleaf's exact pinned `FogCrystal` implementation](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/09-sword-and-shield/set-chilling-reign/fog-crystal.ts) at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` independently confirms that this version includes an Energy search target only if `c.energyType === EnergyType.BASIC && c.name === 'Psychic Energy'`. The alternate permitted target is a Basic Psychic-type Pokémon. Thus its implemented search pool has **two** Energy targets for registered rank31. This source inspection agrees with the counting model, but is **not** an actually dispatched Fog Crystal action or conclusive paper-ruling certification. Verify the engine's real owner-facing target list and the chosen root action before using the bridge as a tested in-game line.
+
+## Distinct default-policy defect: the solo-starter search score
+
+A closer read-only audit of **pinned upstream `a9905a76`**, not an actual Store-dispatch test, reveals a testable policy fork. The default [`ChooseCardsPromptResolver`](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/simple-bot/prompt-resolver/choose-cards-prompt-resolver.ts) selects a Fog search target by descending `StateScore.getCardScore`. That score only computes the delta of [`HandScore`](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/simple-bot/state-score/hand-score.ts) after hypothetically adding a card, with [default constants](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/simple-bot/simple-bot-definitions.ts):
+
+| Target, at a prompt with empty Bench, no held Basic and no held Energy | Hand-score gain |
+| --- | ---: |
+| Basic Psychic Pokémon | **21** (one card plus 20 for a Basic when Bench empty); **23** if no Pokémon in hand |
+| Basic Psychic Energy | **6** (one card plus 5 for first Energy in hand) |
+
+Thus **when that exact prompt state occurs**, the pinned default chooses a Basic Psychic Pokémon over the Energy needed to attach to an existing Active Chimecho and use Bell. This is a **deterministic relative scoring implication**, conditional on the generic resolver running and the alternative Pokémon being a valid deck target. Registered rank31 contains three Psychic Basic Duskull, three Psychic Basic Koffing and three Psychic Basic Unown in addition to Chimecho, all verified in the bundled source card database. If no other Basics appeared among the observed first eight, six Prize cards cannot hide all nine alternatives, so a searchable Psychic Basic is guaranteed. A better-informed policy could deliberately choose Energy instead at this exact decision boundary.
+
+The exact **strict solo-starter subset** of B requires Chimecho in initial seven, **no other Basic Pokémon or eligible Energy** in the remaining six initial cards and first draw, at least one Fog in those seven positions, and at least one Basic Psychic Energy remaining in deck:
+
+```text
+P(B and no other Basic seen by first draw)
+ = (7/60) * [C(40,7)-C(36,7)]/C(59,7)
+          * [1-C(50,4)/C(52,6)]
+ = 812567/233418042
+ = 0.003481166207366267
+```
+
+This is **0.348116621%** of uniformly shuffled games or **0.394466781%** of valid initial-seven openings; it is **13.333841%** of the narrower Fog-rescue event B. The exact count is exported as `soloStarterFogBridge` in the BigInt calculator and checked in its local regression. A separate **400,000-deal** categorical Python shuffle with seed `29831019` found **1,431** such deals (sample **0.357750%**, within **1.035** approximate binomial standard errors of the exact value).
+
+**Essential causal limit:** having no other Basic in the first eight does **not** prove the Bench is still empty at the actual Fog prompt. An earlier Battle VIP Pass, Buddy-Buddy Poffin, Telepathic Energy effect, or other play may recruit a Basic, and the bot may never play Fog. Nor does selecting Energy necessarily mean an attack succeeds against a live lock. The percentage is a **pre-interaction source-hand predicate**, not a measured default-policy error rate. The decisive next test is a genuine source-60 owner-visible Fog prompt with live Bench/hand and target list, root action, manual Energy attachment, attack selection and opponent reply. A stage-specific deterministic source audit alone cannot replace that experiment.
