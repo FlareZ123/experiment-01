@@ -71,6 +71,8 @@ jobs:
           name: rank10-root133-guzma-pivot
           path: rank10-root133-guzma-pivot.json
           retention-days: 90
+      - name: Test source-only Apex copy observer actor and prompt reference
+        run: node --test tests/dde-root133-apex-copy-audit.test.cjs
       - name: Observe copied Dragon attack choices in source game
         run: node simulation/twinleaf/dde-root133-apex-copy-audit.cjs > rank10-root133-apex-copy.json
       - name: Archive copied Dragon attack source trace
