@@ -40,6 +40,8 @@ P(legal seven) = [binomial(60,7) − binomial(60 − B,7)] / binomial(60,7),
 
 where B is the source count of Basic Pokémon. This exactly accounts for the rare hands containing the only Basic as their subsequent first draw.
 
+**Compiled independent workflow check:** Manual [Aichi opening audit CI 39098983950](https://github.com/FlareZ123/experiment-01/actions/runs/39098983950) on source head 1172c72f **completed successfully**, including the new exact six-fraction assertion step. The [opening evidence artifact](https://github.com/FlareZ123/experiment-01/actions/runs/39098983950/artifacts/12125224985) contains machine-readable aichi-three-rank-garbotoxin-direct.json. This certifies the source inventory counts and implemented mathematical calculation on the repository checkout; it does not run any opponent-policy game.
+
 **Reproducible executable:** [scripts/aichi-direct-garbotoxin-opening.cjs](../../scripts/aichi-direct-garbotoxin-opening.cjs) reads the fixed registered full-decklist manifest, checks source 60-card totals, explicitly verifies the printings and Pokémon Stage assumptions, computes reduced fractions with BigInt, and asserts the six expected results. Independent Python Fraction arithmetic reproduced all six. Fixed-seed Monte Carlo (250,000 permutations per list) gave consistent frequencies.
 
 ## Interpretation
