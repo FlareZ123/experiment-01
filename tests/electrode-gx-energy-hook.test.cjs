@@ -93,6 +93,26 @@ test('Crobat V is a legal competing target for all mandatory Bomb attachments',(
 });
 
 
+
+test('Prize-trade v1 forecasts a 320-HP KO that the greedy multi-recipient bot can miss',()=>{
+  const {projectedLightningUnits}=
+    require('../simulation/twinleaf/electrode-gx-ability-tactic.cjs');
+  const restore=installElectrodeGXEnergyHook();
+  try {
+    const {transferTargets}=runCase(0,false,true,5,false,true);
+    const all=transferTargets.map(t=>({fullName:t.energy}));
+    const onRaichu=transferTargets.filter(t=>
+      t.recipient==='Alolan Raichu UNM').map(t=>({fullName:t.energy}));
+    const forecast=projectedLightningUnits(all)*30;
+    const actual=projectedLightningUnits(onRaichu)*30;
+    assert.equal(forecast,330);
+    assert.equal(actual,300);
+    // Constructed necessary-damage counterexample: a 320-HP Active
+    // defender, no Telescopic Sight Bench bonus or prevention effects.
+    assert.ok(forecast>=320 && actual<320);
+  } finally { restore(); }
+});
+
 test('one Store turn chains Bomb, Prize deficit and Telescopic Sight Rain',()=>{
   const {installElectroRainDamageHook}=
     require('../simulation/twinleaf/electro-rain-damage-hook.cjs');
