@@ -81,6 +81,22 @@ try {
           p.prizes.filter(prize=>prize.cards.length>0).length),
         logs:this.state.logs.length
       }:null;
+      const actor=this.state.players[this.state.activePlayer];
+      const passPerspective=currentOrdinal>=0 &&
+        action.constructor.name==='PassTurnAction' && actor ? {
+        actingSeat:this.state.activePlayer,
+        actualTurn:this.state.turn,
+        ownHandPrintings:actor.hand.cards.map(card=>card.fullName),
+        enginePlayableHandPrintings:actor.hand.cards
+          .filter(card=>actor.playableCardIds.includes(card.id))
+          .map(card=>card.fullName),
+        supporterChannelUnused:actor.supporterTurn!==this.state.turn,
+        energyAttachmentChannelUnused:actor.energyPlayedTurn!==this.state.turn,
+        retreatChannelUnused:actor.retreatedTurn!==this.state.turn,
+        usedVSTAR:actor.usedVSTAR,
+        ownActive:actor.active.getPokemonCard()?.fullName??null,
+        activeEnergy:actor.active.energies.cards.map(card=>card.fullName)
+      }:null;
       let failed=false;
       try {
         return previous.call(this,action,...args);
@@ -94,6 +110,7 @@ try {
             action:action.constructor.name,
             failed,
             before,
+            passPerspective,
             after:{
               turn:this.state.turn,
               board:publicBoardSnapshot(this.state),
@@ -123,10 +140,11 @@ try {
       active:snapshot.board.map(p=>({
         name:p.active?.name??null,
         damage:p.active?.damage??null,
-        energy:p.active?.energyCards??[]
+        energy:p.active?.energyCards??[],
+        tools:p.active?.toolCards??[]
       })),
       bench:snapshot.board.map(p=>p.bench.map(z=>({
-        name:z.name,damage:z.damage
+        name:z.name,damage:z.damage,tools:z.toolCards??[]
       }))),
       stadiums:snapshot.board.map(p=>p.stadium)
     };
@@ -198,6 +216,9 @@ try {
     },
     nextOpponent:{
       turn:nextOpponent.turnBefore,
+      passPerspective:observed.roots.find(row=>
+        row.ordinal===reply.find(event=>event.action==='PassTurnAction')?.actionOrdinal)
+        ?.passPerspective??null,
       roots:reply.map(row=>({
         ordinal:row.actionOrdinal,action:row.action,
         card:row.card??null,attack:row.attack??null
