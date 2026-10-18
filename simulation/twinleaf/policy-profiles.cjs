@@ -19,6 +19,7 @@ const RANK11_AUTONOMOUS_PROFILE = 'rank11-autonomous-boostshake-v1';
 const RANK11_OWN_FIRST_PROFILE = 'rank11-autonomous-first-own-turn-v2';
 const RANK11_SUPPORTER_PROFILE = 'rank11-autonomous-boostshake-supporter-v2';
 const RANK11_K1_HYBRID_PROFILE = 'rank11-k1-direct-vstar-v3';
+const RANK11_K0_K1_HYBRID_PROFILE = 'rank11-k0-k1-direct-vstar-v4';
 const RANK26_COLOGNE_PROFILE = 'rank26-autonomous-cologne-v1';
 const RANK26_COLOGNE_PUMP_PROFILE = 'rank26-autonomous-cologne-pump-v2';
 const RANK26_PROPAGATION_PROFILE = 'rank26-autonomous-cologne-pump-propagation-v3';
