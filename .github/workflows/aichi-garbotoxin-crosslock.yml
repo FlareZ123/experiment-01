@@ -35,6 +35,10 @@ on:
         description: 'Opt-in precommitted 80 two-slot actual-source held-Boost-Shake exposure screen'
         type: boolean
         default: false
+      rank11_held_shake_extended_cohort:
+        description: 'Use prospectively registered second cohort indices 80-239 (160 trials)'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -144,6 +148,8 @@ jobs:
         run: node scripts/rank11-held-shake-resource-census.cjs
       - name: Screen genuine rank11 held-Shake automatic policy on precommitted source deals
         if: inputs.rank11_held_shake_source_screen
+        env:
+          AICHI_HELD_SHAKE_EXTENDED: ${{ inputs.rank11_held_shake_extended_cohort && 'true' || 'false' }}
         run: node simulation/twinleaf/rank11-held-shake-source-screen.cjs > rank11-held-shake-source-screen.json
       - name: Retain all held-Shake source trials including unsuccessful opportunities
         if: always() && inputs.rank11_held_shake_source_screen
