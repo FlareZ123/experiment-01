@@ -3,6 +3,8 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const {initializeCards} = require('./headless.cjs');
+const {newlyLoggedAttackDeclarations} =
+  require('../evaluation/twinleaf-attack-log-declarations.cjs');
 
 const pinned = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const root = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
@@ -15,7 +17,7 @@ const load = name => require(path.join(root, name));
  * channel without an ordinary AttackAction, and whether an ordinary attack
  * works for the source Pokemon. This is not a source-dealt game.
  *
- * @param {'native'|'perfection'} channel
+ * @param {'native'|'perfection'|'perfection-canceled'} channel
  * @returns {object}
  */
 function probe(channel) {
@@ -71,6 +73,7 @@ function probe(channel) {
   assert.equal(mine.usedGX, false);
 
   const declarations = [];
+  const logsBefore = state.logs.length;
   let selectedCopy = null;
   if (channel === 'native') {
     const action = new AttackAction(mine.id,'Horror House-GX');
@@ -95,18 +98,34 @@ function probe(channel) {
     assert.ok(attack,'Printed Horror House-GX unavailable');
     assert.equal(prompt.validate(attack),true,
       'One Psychic Energy must suffice for printed Horror House-GX');
-    selectedCopy = attack.name;
-    const choice = new ResolvePromptAction(prompt.id,attack);
+    const canceled = channel === 'perfection-canceled';
+    selectedCopy = canceled ? null : attack.name;
+    const choice = new ResolvePromptAction(prompt.id,canceled ? null : attack);
     declarations.push(choice.type);
     store.dispatch(choice);
   }
 
-  assert.equal(mine.usedGX,true,
-    'Horror House-GX must actually execute and spend the one-per-game GX use');
+  const canceled = channel === 'perfection-canceled';
+  const announced = newlyLoggedAttackDeclarations(state.logs,logsBefore,{
+    actionOrdinal:1,turnBefore:2,
+    triggerAction:channel==='native' ? 'AttackAction' : 'ResolvePromptAction'
+  });
+  assert.equal(mine.usedGX,!canceled,
+    'GX flag must distinguish resolved Horror House-GX from canceled copy');
+  assert.equal(announced.length,canceled ? 0 : 1,
+    'Engine attack log must distinguish real copied attack from canceled Ability');
+  if (!canceled) {
+    assert.equal(announced[0].attackName,'Horror House-GX');
+    assert.equal(announced[0].playerName,mine.name);
+    assert.equal(opponent.cannotPlayItemCards,true,
+      'Horror House-GX must apply its actual opponent hand-play lock');
+  }
   return {
     channel, declarationActionTypes:declarations,
     selectedCopiedAttack:selectedCopy, usedGX:mine.usedGX,
-    resolvedAsGx:true,
+    opponentItemLocked:opponent.cannotPlayItemCards,
+    attackLog:announced,
+    resolvedAsGx:!canceled,
     pendingPromptTypes:state.prompts.filter(p=>p.result===undefined)
       .map(p=>p.constructor.name),
     scope:'staged printed-card legal Store action, not an authentic 60-card deal'
@@ -117,9 +136,12 @@ function probe(channel) {
 function run() {
   const native = probe('native');
   const perfection = probe('perfection');
+  const canceled = probe('perfection-canceled');
   assert.equal(native.usedGX,true);
   assert.equal(perfection.usedGX,true);
   assert.equal(perfection.selectedCopiedAttack,'Horror House-GX');
+  assert.equal(canceled.usedGX,false);
+  assert.deepEqual(canceled.attackLog,[]);
   assert.deepEqual(perfection.declarationActionTypes,
     ['USE_ABILITY_ACTION','RESOLVE_PROMPT']);
   return {
@@ -127,7 +149,7 @@ function run() {
     engine:pinned,
     paperDistinction:'Perfection is a continuous Ability under printed paper text; pinned Twinleaf exposes an activated copy-action interface',
     caution:'AttackAction-only event counts undercount resolved copied attacks',
-    native,perfection,qualifiedCompetitiveGame:false
+    native,perfection,canceled,qualifiedCompetitiveGame:false
   };
 }
 
