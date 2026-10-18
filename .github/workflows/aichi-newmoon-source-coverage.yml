@@ -8,6 +8,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank15_policy_pair:
+        description: 'Run matched original-source rank15 Bunnelby Evolution policy comparison'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -218,6 +223,23 @@ jobs:
         with:
           name: newmoon-rank15-root-census-unqualified
           path: newmoon-rank15-source-duallock-census.json
+          if-no-files-found: warn
+      - name: Test source root observer and exact opponent-policy root counters
+        if: ${{ inputs.rank15_policy_pair }}
+        run: node --test tests/newmoon-rank15-source-duallock-census.test.cjs tests/newmoon-rank15-bunnelby-policy-pair.test.cjs
+      - name: Run matching rank15 Bunnelby original-source policy arms
+        if: ${{ inputs.rank15_policy_pair }}
+        run: node simulation/twinleaf/newmoon-rank15-bunnelby-policy-pair.cjs > newmoon-rank15-bunnelby-policy-pair.json
+      - name: Show genuine rank15 Bunnelby dual-lock differential
+        if: ${{ inputs.rank15_policy_pair }}
+        run: >-
+          node -e "const x=require('./newmoon-rank15-bunnelby-policy-pair.json'); console.log(JSON.stringify({schema:x.schema,pairs:x.opportunityPairs,first:x.actualFirstCandidateCount,generic:x.generic,bunnelbyEvolution:x.bunnelbyEvolution,rows:x.rows.map(r=>({repeat:r.repeat,seat:r.candidateSeat,trueFirst:r.actualFirstSlot,generic:{actions:r.generic.rootActions,aor:r.generic.first.aor?.turn??null,bus:r.generic.first.bus?.turn??null,dual:r.generic.first.dual?.turn??null,evo:r.generic.policyActions.evolutionRootDecisions.length,cards:r.generic.policyActions.cardsPlayed},bunnelby:{actions:r.bunnelbyEvolution.rootActions,aor:r.bunnelbyEvolution.first.aor?.turn??null,bus:r.bunnelbyEvolution.first.bus?.turn??null,dual:r.bunnelbyEvolution.first.dual?.turn??null,evo:r.bunnelbyEvolution.policyActions.evolutionRootDecisions.length,cards:r.bunnelbyEvolution.policyActions.cardsPlayed}}))},null,2))"
+      - name: Preserve matched-source rank15 Bunnelby policy diagnostics
+        if: ${{ always() && inputs.rank15_policy_pair }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-rank15-bunnelby-policy-pair-unqualified
+          path: newmoon-rank15-bunnelby-policy-pair.json
           if-no-files-found: warn
       - name: Preserve exact pinned catalog coverage
         uses: actions/upload-artifact@v4
