@@ -30,7 +30,7 @@ jobs:
       - name: Verify spent Supporter blocks Guzma and compare Retreat target
         run: node simulation/twinleaf/rank10-turn29-guzma-source.cjs > rank10-turn29-guzma-fork.json
       - name: Print bounded one-Prize source pivot result
-        run: node -e "const x=require('./rank10-turn29-guzma-fork.json'); console.log(JSON.stringify({source:x.source,control:x.responses.control.game,pivot:x.responses.onePrizeWobbuffetRetreat.game,choice:x.responses.onePrizeWobbuffetRetreat.observed}));"
+        run: node -e "const x=require('./rank10-turn29-guzma-fork.json'); console.log(JSON.stringify({source:x.source,control:x.responses.control.game,pivot:x.responses.onePrizeWobbuffetRetreat.game,choice:x.responses.onePrizeWobbuffetRetreat.observed,response:x.responses.onePrizeWobbuffetRetreat.response}));"
       - name: Preserve exact paired source comparison
         if: always()
         uses: actions/upload-artifact@v4
