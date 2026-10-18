@@ -39,4 +39,10 @@ The guard was exercised in the real bot and first deferred its basic Lightning f
 
 The result closes the pre-registered **narrow root-branch redirection** criterion on this seed. It explicitly fails the stronger attack-conversion goal: zero DCE attachments, zero first-turn Crisis Punch. If comparing v2 revisions, preserve this exact v1 policy identity and the full three-arm artifact rather than changing the meaning of its recorded decisions.
 
+## Follow-up v2 falsification: recover late Lightning if other root tactics are exhausted
+
+V1 created an identified strategic regression: Meloetta passed with ordinary attachment unused and no in-hand DCE. Opt-in `rank26-first-turn-dce-reservation-v2` keeps v1's held-DCE search and genuine non-Energy root-action deferral, but chooses the original legal basic Lightning if suppressing it would leave only `PassTurnAction`. V1 remains the default and retains its recorded behavior.
+
+**Predeclared v2 acceptance:** unchanged rank26/rank6 printed 60s, seed 49957955, physical Meloetta seat B first, Cologne chosen first, and one real basic Lightning action **after** Hisuian Heavy Ball. The audit must name late-Lightning fallback. A missing fallback, early Lightning, illegal action or new root invalidates the probe. Even if v2 succeeds, it merely preserves future-turn Energy potential; Crisis Punch still needs DCE, correct Koko Bench positioning and a free Tool slot. This is a diagnostic selected seed, excluded from random game-performance denominators.
+
 The experiment is a source-first-turn policy test, not a competitive-game win rate. Its source state was retrospectively selected, so success or failure should not be included in prospective performance denominators. The Top32 source-list audit remains 29/32 with ranks 23,25,28 missing and zero independently qualified competitive games.
