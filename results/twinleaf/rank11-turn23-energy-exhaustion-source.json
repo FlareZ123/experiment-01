@@ -1,0 +1,134 @@
+{
+  "schema": "rank11-turn23-source-energy-exhaustion-excerpt-v1",
+  "provenance": {
+    "engine": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "run_id": 39158329417,
+    "artifact_id": 12147813055,
+    "artifact_zip_sha256": "e625e90bc7910bcebd1271cf94fd9f6386d26cd31e057d795d4b8693bd364e41",
+    "seed": 1111464409,
+    "candidatePhysicalSeat": 1,
+    "sourceRank": 11,
+    "originField": "nonterminalCopiedResponse"
+  },
+  "sourceBeforeCopiedAttack": {
+    "globalTurn": 22,
+    "ordinal": 210,
+    "active": {
+      "name": "Mega Absol ex",
+      "energies": [
+        "Darkness Energy",
+        "Darkness Energy",
+        "Darkness Energy"
+      ]
+    },
+    "bench": [
+      {
+        "name": "Oranguru V",
+        "energies": [
+          "Darkness Energy"
+        ]
+      },
+      {
+        "name": "Crobat V",
+        "energies": [
+          "Darkness Energy"
+        ]
+      },
+      {
+        "name": "Latias ex",
+        "energies": []
+      },
+      {
+        "name": "Garbodor",
+        "energies": [
+          "Darkness Energy",
+          "Darkness Energy"
+        ]
+      },
+      {
+        "name": "Mega Absol ex",
+        "energies": [
+          "Darkness Energy"
+        ]
+      },
+      {
+        "name": "Mega Absol ex",
+        "energies": []
+      }
+    ]
+  },
+  "sourceAfterCopiedAttack": {
+    "active": {
+      "name": "Mega Absol ex",
+      "energies": [
+        "Darkness Energy"
+      ],
+      "printedAttacks": [
+        {
+          "name": "Terminal Period",
+          "cost": [
+            "Darkness",
+            "Colorless"
+          ]
+        },
+        {
+          "name": "Claw of Darkness",
+          "cost": [
+            "Darkness",
+            "Darkness",
+            "Colorless"
+          ]
+        }
+      ]
+    },
+    "knockedOutActiveEnergyCards": 3
+  },
+  "sourceTurn23RootActions": [
+    {
+      "ordinal": 216,
+      "action": "ResolvePromptAction",
+      "card": null
+    },
+    {
+      "ordinal": 217,
+      "action": "PlayCardAction",
+      "card": "Float Stone"
+    },
+    {
+      "ordinal": 218,
+      "action": "PlayCardAction",
+      "card": "Shopping Center"
+    },
+    {
+      "ordinal": 219,
+      "action": "ResolvePromptAction",
+      "card": null
+    },
+    {
+      "ordinal": 220,
+      "action": "PlayCardAction",
+      "card": "Marnie"
+    },
+    {
+      "ordinal": 221,
+      "action": "ResolvePromptAction",
+      "card": null
+    },
+    {
+      "ordinal": 222,
+      "action": "ResolvePromptAction",
+      "card": null
+    },
+    {
+      "ordinal": 223,
+      "action": "PassTurnAction",
+      "card": null
+    },
+    {
+      "ordinal": 224,
+      "action": "ResolvePromptAction",
+      "card": null
+    }
+  ],
+  "note": "Source-replay subset transcribed and checked against artifact ZIP, with printed attack cost names rendered from Pokémon source; no other fields are claimed."
+}
