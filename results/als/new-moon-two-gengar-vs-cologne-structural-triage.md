@@ -36,6 +36,21 @@ The [reusable one-slot structural comparison](../../scripts/new-moon-gengar-colo
 
 As a separate sanity check, a Python `random.Random(20261018)` physical 60-card-deal experiment used 250,000 shuffles per variant, with six Prizes dealt between starting seven and first draw. The baseline retained **229,118** valid starting hands, **21,698** direct union events (**9.47023%**). The alternative retained **232,468** valid starts, **33,066** union events (**14.22389%**). Both are compatible with their exact probabilities within sampling uncertainty. All optional-mulligan rates remain analytic, not simulated or policy-observed.
 
+## Counterweight: increased three-Prize solo-Gengar exposure against Meloetta
+
+The same one-slot swap replaces a Trainer with a Basic TAG TEAM of **240 printed HP**, whose Rule Box awards **three Prizes** if it is Knocked Out ([English TEU 53 card text](https://www.pokemon.com/us/pokemon-tcg/pokemon-cards/series/sm9/53/)). Published rank 26 Meloetta aims for a first-turn 280-damage Crisis Punch with a lone opposing Active, so the number of solitary Gengar starters matters even though a complete 280-damage response has not been observed under a qualified source policy.
+
+Use the already validated [lone-Basic and simultaneous mulligan enumerator](../../scripts/aichi_solo_start.cjs). Conditional on a legal seven, the share of all sole-Basic starts attributable to one of `g` Gengar copies is exactly `g / basics` by exchangeability. The same proportion applies after electing all offered rank26 (12-Basic) opponent mulligan bonus draws, assuming every newly exposed Basic gets Benched.
+
+| Rank26 setup-only event | Frozen 1 Gengar, 17 Basics | Alternative 2 Gengar, 18 Basics |
+| --- | ---: | ---: |
+| Sole Gengar among initial legal seven | **1.72224580%** | **2.92058378%** |
+| Sole Gengar after all opponent bonus draws | **1.61545820%** | **2.72666002%** |
+
+The swap increases the *post-bonus sole three-Prize Gengar exposure* by **1.11120182 percentage points**, while **total** post-bonus sole-Active exposure actually decreases because the deck has more Basics. A possible three-Prize loss is particularly serious when the objective allows only a 0.5% nonwin budget over the whole field. The exposure numbers are not the chance that Meloetta executes its attack or wins; Gengar may also use a lock attack when it goes second. Neither the rank26 attack policy nor the time clock is qualified. This illustrates why the attractive Iron Thorns visibility improvement cannot determine the single best deck without adversarial multi-matchup play.
+
+The [structural comparator](../../scripts/new-moon-gengar-cologne-structural-swap.cjs) and [regressions](../../tests/new-moon-gengar-cologne-structural-swap.test.cjs) preserve both sides of the numerical tradeoff. The tests remain unrun in compiled CI.
+
 ## Why this could fail despite better direct resource access
 
 A Gengar lead can give up **three Prize cards** when Knocked Out. The counter-package may need a second Cologne against active Iron Thorns or another threat, especially after the first has been used or Prized. Native Horror House-GX is one GX attack per game and requires correct Psychic Energy attachment; generic Twinleaf bot policy historically missed legal zero-damage lock attacks. Natural hand visibility cannot guarantee any attack. The source article's later Dusclops / Ace Trainer / Trevenant & Dusknoir-GX Night Watch plan has its own requirements.
