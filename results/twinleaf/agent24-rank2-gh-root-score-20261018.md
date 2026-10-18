@@ -1,0 +1,11 @@
+# Rank-2 source GH root-score probe: predeclared protocol
+
+Agent 24, 18 October 2026. Manual compiled test [39135466559](https://github.com/FlareZ123/experiment-01/actions/runs/39135466559) launched at head `a6b41e9b9197189c98f3c6c9376e3d561fb10a73`. At publication of this protocol, its outcome is pending.
+
+**Input:** exact source rank-1 Shadow Rider seat A versus rank-2 Vileplume seat B, seed 20261023, 70 root-action cap, strict prompt validation, isolated policy RNG, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The source-K0 Bunnelby and Stage-target policies are ON in both arms, as are existing Expanded correction hooks. The only intended policy toggle is `bunnelbyGuzmaHalaMode1` OFF or ON.
+
+**Measurement:** First run the source match unobserved, then with a read-only bot-call ordinal discovery hook, then with the independently developed read-only `SimpleTactic` score/validity observer at the discovered target. Record each root Action-68 card, the owner's predecision physical-zone digest and hand, all actual `evaluateAction` candidate returns, base-state scores and `isValidAction` results. [Source probe](../../simulation/twinleaf/rank2-gh-root-score-probe.cjs) reuses the prior generic [score observer](../../simulation/twinleaf/decision-tactic-evaluation-observer.cjs), avoiding a second implementation of speculative scoring. [Regression](../../tests/rank2-gh-root-score-probe.test.cjs) checks original/observed selected-action parity.
+
+**Falsification:** A changed root action under passive score tracing invalidates the observation. A changed input source digest across mode arms invalidates a same-state score attribution. If scores never appear for relevant Supporters, the inherited tactic hooks are insufficient, and the correct conclusion is instrumentation incompleteness. If scores differ, record the first differing candidate valuation and any validity failure without assuming human-play quality or causality of the internal state-score formula.
+
+**Limit:** This examines a single bot decision in a source-dealt simulator, with no qualified competitive games. It cannot establish a correct real-human Supporter decision or improve the reported 99.5% target.
