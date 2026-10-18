@@ -71,7 +71,7 @@ function run() {
   ]);
 
   return {
-    kind:'rank11-conditional-K0-owner-only-opening-source-v1',
+    kind:'rank11-conditional-K0-two-Tool-opening-source-v2',
     sourceSeed:SOURCE_SEED,sourceRank:11,candidateRank:1,
     engine:plan.engineRevision,fieldManifestDigest:plan.manifestDigest,
     candidateDigest:plan.candidateDigest,
