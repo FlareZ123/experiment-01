@@ -30,7 +30,7 @@ function probe(variant) {
   const {Player} = load('game/store/state/player');
   const {CardList} = load('game/store/state/card-list');
   const {GamePhase} = load('game/store/state/state');
-  const {Format,CardType} = load('game/store/card/card-types');
+  const {Format,CardType,SuperType} = load('game/store/card/card-types');
   const {CheckProvidedEnergyEffect} = load('game/store/effects/check-effects');
   const {AttackAction} = load('game/store/actions/game-actions');
   const state = new Store({onStateChange() {}});
@@ -71,7 +71,7 @@ function probe(variant) {
     name:entry.card.name,provides:entry.provides
   }));
   const rawPsychicCards = source.active.cards.filter(c =>
-    c.superType === 'ENERGY' && c.provides.includes(CardType.PSYCHIC));
+    c.superType === SuperType.ENERGY && c.provides.includes(CardType.PSYCHIC));
   const actualAttached = source.active.energies.cards.map(c=>c.name);
   assert.equal(actualAttached.length,2);
 
@@ -98,7 +98,7 @@ function run() {
   assert.equal(rainbow.printedPsychicCardCount,1);
   assert.equal(colorless.printedPsychicCardCount,1);
   assert.ok(rainbow.semanticMap.some(entry=>
-    entry.name==='Rainbow Energy' && entry.provides.includes('ANY')),
+    entry.name==='Rainbow Energy' && entry.provides.includes(CardType.ANY)),
     'Rainbow must dynamically provide every type through CheckProvidedEnergyEffect');
   assert.equal(basic.sourceHandCount,7,
     'Two native Psychic Energy should trigger the extra-effect draw');
