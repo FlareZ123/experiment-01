@@ -3,7 +3,7 @@
 /**
  * Diagnose physical-card reference ownership in pinned Twinleaf State.
  *
- * Only CardList.cards are canonical locations. PokemonCardList.energies.cards
+ * CardList.cards and PokemonCardList.tools are canonical locations. energies.cards
  * is a secondary attachment index and must not be counted as an additional
  * physical zone. Card identifiers may be duplicated by independent clones,
  * so ownership is determined by reference identity.
