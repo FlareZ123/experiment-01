@@ -686,6 +686,7 @@ function runMatch(request) {
     const horrorHouseRootTrace = horrorHouseAudit ? [] : null;
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
+    const rootActionLedger = request.captureDecisionTrace === true ? [] : null;
     const rootConfirmationTrace = request.captureRootConfirmationTrace === true ? [] : null;
     const electrodeOpportunityObserver = request.captureElectrodeOpportunity === true ?
       require('./electrode-opportunity-observer.cjs').createElectrodeOpportunityObserver() : null;
