@@ -3,7 +3,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {sourcePolicyForOrdinal,withRootDispatchCounter}=require('../simulation/twinleaf/rank10-hidden-order-live-probe.cjs');
 
-test('archived root uses historical v3 and turn 27 uses current v4',()=>{
+test('archived root uses historical v3 and turn 2 uses current v4',()=>{
   assert.deepEqual(sourcePolicyForOrdinal(),{
     doubleDragonRecovery:true,doubleDragonArchiveV3:false
   });
