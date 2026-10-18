@@ -311,6 +311,7 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
       'historical-v3-archive':'current-v4',
     exposed:true,root:observed.events[0],
     sourceOrdinalBoundary:observed.sourceOrdinalBoundary,
+    expectedHistoricalZone:null,
     matchedUninstrumentedMatch:true,
     qualifiedForCompetitiveInference:false,
     limitations:[
