@@ -126,7 +126,7 @@ function main() {
     assert.deepEqual(corrected.source.observed.prizes,without.source.observed.prizes);
     assert.deepEqual(corrected.game.deckHashes,without.game.deckHashes);
     assert.ok(corrected.game.pendingEndTurnSwitchCleanupEvidence,
-      'Missing correction's root/simulated Store application audit');
+      "Missing correction's root/simulated Store application audit");
   }
   assert.deepEqual(without.source.observed.hand,withBackup.source.observed.hand);
   assert.deepEqual(without.source.observed.prizes,withBackup.source.observed.prizes);
