@@ -87,7 +87,8 @@ function run() {
       ownerId:p.playerId??null,
       ownHand:p.cards===mine.hand,
       ownDeck:p.cards===mine.deck,
-      options:p.options??null,
+      options:p.options?{min:p.options.min??null,max:p.options.max??null}:null,
+      message:p.message??null,
       promptCards:p.cards?.cards?.map(c=>c.fullName)??null
     }))
   });
