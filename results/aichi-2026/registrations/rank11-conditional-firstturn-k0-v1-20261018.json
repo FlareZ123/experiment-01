@@ -1,0 +1,22 @@
+{
+  "schema": "aichi-rank11-conditional-original-store-K0-screen-v1",
+  "purpose": "precommitted opening-state diagnostic only; all screened seeds retained",
+  "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank": 11,
+  "sourceSeat": 0,
+  "candidateRank": 1,
+  "candidateSeat": 1,
+  "sourceDeckDigest": "967308cd60e92348d8069a348174d816efcaa06f3825a3cf45b64886facb1273",
+  "candidateDeckDigest": "85d816b20b514bcf2936fbeca79d9577f745bc7e1e7e151c3234fd6c9ea81f52",
+  "seedDomain": "aichi-rank11-predecision-conditional-K0-v1",
+  "seedBase": 20261018,
+  "attemptCount": 512,
+  "partitionSize": 32,
+  "maxSetupActions": 200,
+  "K0Predicate": "rank11-autonomous-boostshake-v1 openingOpportunity",
+  "screenBlobSha": "de384a26e103acdc57e5d287d4c6633d8482cb60",
+  "openerBlobSha": "4eb0f84b0fca36922b8a32b5d753ffbf6ef3d488",
+  "selectionRule": "all seeds screened in index order; select draw-log-verified source-first K0 opportunity, preserve all other rows",
+  "qualification": "no winner/strength classification, replay with independent hand and draw-log validation before continuation",
+  "frameSha256": "b09ea18666286856f69337581eaf10730ee3ac946bd501e42b04c914e18151bb"
+}
