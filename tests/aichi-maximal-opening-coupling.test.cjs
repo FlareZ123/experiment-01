@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { expandPrintings, auditAlignment } =
   require('../scripts/aichi-position-coupling.cjs');
-const { choose, maximalHandEquality } =
+const { choose, maximalHandEquality, maximalValidOpeningEquality } =
   require('../scripts/aichi-maximal-opening-coupling.cjs');
 
 const dir = path.resolve(__dirname, '../results/aichi-2026');
@@ -87,4 +87,51 @@ test('identical and disjoint multisets have expected extreme bounds', () => {
   assert.equal(maximalHandEquality(['x', 'x'], ['y', 'y'], 0).probability, 1);
   assert.throws(() => maximalHandEquality(['x'], ['x', 'y']), /equal-sized/);
   assert.throws(() => maximalHandEquality(['x'], ['y'], 2), /valid draw/);
+});
+
+
+test('source Basic-only opening acceptance changes the exact maximal coupling', () => {
+  // All named source prints are documented Basic except the VMAX evolution.
+  const basics = new Set([
+    'Shadow Rider Calyrex V', "Lillie's Clefairy ex", 'Tapu Lele-GX',
+    'Trevenant & Dusknoir-GX', 'Latias ex', 'Dialga-GX',
+    'Mimikyu', 'Girafarig', 'Marshadow', 'Radiant Eternatus', 'Wobbuffet'
+  ]);
+  const basicIds = new Set(arrays.flat().filter(id =>
+    basics.has(JSON.parse(id)[0])));
+  assert.equal(basicIds.size, 11);
+  const expected = [
+    ['61938700930191360', '110677472811417600', [14,14]],
+    ['62785269905367900', '113387189617152000', [14,15]],
+    ['70117358031212580', '113387189617152000', [14,15]]
+  ];
+  [[0,1],[0,2],[1,2]].forEach(([a,b],i) => {
+    const result = maximalValidOpeningEquality(arrays[a], arrays[b], basicIds);
+    assert.equal(result.numerator, expected[i][0]);
+    assert.equal(result.denominator, expected[i][1]);
+    assert.deepEqual(result.basicCounts, expected[i][2]);
+  });
+});
+
+test('conditional maximal mass matches directly enumerated legal tiny openings', () => {
+  for (const [a,b,basics,k] of [
+    [['a','a','b'],['a','b','b'],new Set(['a']),2],
+    [['a','a','b','c'],['a','b','b','c'],new Set(['c']),2],
+    [['a','a','b','c'],['a','b','b','c'],new Set(['a','c']),2]
+  ]) {
+    const left = bruteHands(a,k), right = bruteHands(b,k);
+    const valid = histogram => new Map([...histogram].filter(([key]) =>
+      JSON.parse(key).some(id => basics.has(id))));
+    const p = valid(left), q = valid(right);
+    const pa = [...p.values()].reduce((sum,v)=>sum+v,0);
+    const pb = [...q.values()].reduce((sum,v)=>sum+v,0);
+    const same = [...new Set([...p.keys(),...q.keys()])]
+      .reduce((sum,key)=>sum+Math.min(
+        (p.get(key)||0)*pb, (q.get(key)||0)*pa),0);
+    const exact = maximalValidOpeningEquality(a,b,basics,k);
+    assert.equal(exact.numerator,String(same));
+    assert.equal(exact.denominator,String(pa*pb));
+  }
+  assert.throws(() => maximalValidOpeningEquality(
+    ['x','x'],['y','y'],new Set(['x']),1),/no valid opening/);
 });
