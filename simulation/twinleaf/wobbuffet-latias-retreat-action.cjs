@@ -52,7 +52,9 @@ function runCase(options) {
   }
   const vmaxSlot = new PokemonCardList();
   vmaxSlot.cards.push(get('Shadow Rider Calyrex V CRE'), vmax);
-  vmaxSlot.energies.cards.push(get('Psychic Energy SVE'), get('Psychic Energy SVE'));
+  const preload = [get('Psychic Energy SVE'), get('Psychic Energy SVE')];
+  vmaxSlot.cards.push(...preload);
+  vmaxSlot.energies.cards.push(...preload);
   const vmaxIndex = ours.bench.length;
   ours.bench.push(vmaxSlot);
   const energy = get('Psychic Energy SVE');
