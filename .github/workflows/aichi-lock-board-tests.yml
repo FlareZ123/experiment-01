@@ -164,6 +164,9 @@ jobs:
           name: herdier-corrected-contract
           path: herdier-corrected-contract.json
           if-no-files-found: warn
+      - name: Verify opt-in Herdier headless provenance and prototype restoration
+        if: inputs.herdier_evolution_lock_probe
+        run: node simulation/twinleaf/herdier-headless-hook-lifecycle.cjs
       - name: Recheck archived rank-8 Temple-A invalid Energy prompt after the bot choice
         if: inputs.rank8_attach_prompt_probe
         run: node simulation/twinleaf/rank8-attach-energy-prompt-source.cjs > rank8-attach-prompt.json
