@@ -80,4 +80,85 @@ function maximalHandEquality(cardsA, cardsB, k = 7) {
   };
 }
 
-module.exports = {choose, maximalHandEquality};
+
+/**
+ * Maximal equality mass of seven-card hands after each player's independent
+ * rejection mulligans until the hand contains at least one Basic Pokémon.
+ * "Basic" eligibility is supplied by exact printing identifiers. This does
+ * not model optional opponent-mulligan bonus draws or initial board choices.
+ *
+ * @param {string[]} cardsA
+ * @param {string[]} cardsB
+ * @param {Set<string>} basicPrintIds
+ * @param {number} [k]
+ * @returns {{numerator:string,denominator:string,probability:number,
+ * basicCounts:number[],neutralBasicCopies:number,
+ * neutralOtherCopies:number,model:string}}
+ */
+function maximalValidOpeningEquality(cardsA, cardsB, basicPrintIds, k = 7) {
+  maximalHandEquality(cardsA, cardsB, k);
+  if (!(basicPrintIds instanceof Set)) {
+    throw new TypeError('Exact Basic-printing identifier set required');
+  }
+  const n = cardsA.length;
+  const basicsA = cardsA.filter(id => basicPrintIds.has(id)).length;
+  const basicsB = cardsB.filter(id => basicPrintIds.has(id)).length;
+  const validA = choose(n, k) - choose(n - basicsA, k);
+  const validB = choose(n, k) - choose(n - basicsB, k);
+  if (validA === 0n || validB === 0n) {
+    throw new RangeError('One deck has no valid opening of requested size');
+  }
+  const ca = new Map(), cb = new Map();
+  for (const id of cardsA) ca.set(id, (ca.get(id) || 0) + 1);
+  for (const id of cardsB) cb.set(id, (cb.get(id) || 0) + 1);
+  let neutralBasic = 0, neutralOther = 0;
+  const changed = [];
+  for (const id of new Set([...ca.keys(), ...cb.keys()])) {
+    const a = ca.get(id) || 0, b = cb.get(id) || 0;
+    if (a === b) {
+      if (basicPrintIds.has(id)) neutralBasic += a;
+      else neutralOther += a;
+    } else {
+      changed.push({a, b, basic: basicPrintIds.has(id)});
+    }
+  }
+  let numerator = 0n;
+  /**
+   * @param {number} at
+   * @param {number} used
+   * @param {number} selectedBasics
+   * @param {bigint} waysA
+   * @param {bigint} waysB
+   */
+  function visit(at, used, selectedBasics, waysA, waysB) {
+    if (at === changed.length) {
+      const left = k - used;
+      for (let bs = 0; bs <= Math.min(neutralBasic, left); bs += 1) {
+        const other = left - bs;
+        if (bs + selectedBasics > 0 && other <= neutralOther) {
+          const factor = choose(neutralBasic, bs) *
+            choose(neutralOther, other);
+          const scaledA = waysA * validB, scaledB = waysB * validA;
+          numerator += factor * (scaledA < scaledB ? scaledA : scaledB);
+        }
+      }
+      return;
+    }
+    const {a, b, basic} = changed[at];
+    for (let h = 0; h <= Math.min(a, b, k - used); h += 1) {
+      visit(at + 1, used + h, selectedBasics + (basic ? h : 0),
+        waysA * choose(a, h), waysB * choose(b, h));
+    }
+  }
+  visit(0, 0, 0, 1n, 1n);
+  const denominator = validA * validB;
+  return {
+    numerator: String(numerator), denominator: String(denominator),
+    probability: Number(numerator) / Number(denominator),
+    basicCounts: [basicsA, basicsB],
+    neutralBasicCopies: neutralBasic, neutralOtherCopies: neutralOther,
+    model: 'maximal-equality-coupling-conditional-on-valid-seven'
+  };
+}
+
+module.exports = {choose, maximalHandEquality, maximalValidOpeningEquality};
