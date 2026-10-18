@@ -14,3 +14,20 @@ function renderSelection(selection) {
     return selection.fullName??selection.constructor?.name??'object';
   return selection??null;
 }
+
+/**
+ * Read existing evaluator prompt returns on the actual turn-five source root.
+ * @template T
+ * @param {()=>T} play
+ * @param {number} [targetOrdinal]
+ */
+function observeGhHypotheticalPrompts(play,targetOrdinal=59){
+  const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
+  const {SimpleTactic}=engine('simple-bot/simple-tactics/simple-tactics');
+  const bot=SimpleTacticsAi.prototype,tactic=SimpleTactic.prototype;
+  const oldDecode=bot.decodeNextAction;
+  const oldEvaluate=tactic.evaluateAction;
+  const oldResolve=tactic.resolvePrompt;
+  let ordinal=0,focus=false,candidate=null;
+  const prompts=[],evaluations=[];
+  try{
