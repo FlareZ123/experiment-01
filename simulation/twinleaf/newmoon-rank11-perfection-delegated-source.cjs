@@ -62,6 +62,16 @@ function run() {
     entry.actionOrdinal <= lineage.promptChain.at(-1).actionOrdinal);
   assert.ok(terminalAttack,
     'Logged copied attack must be attributable to terminal prompt chain');
+  const selectedCopies = game.decisionTrace.filter(row =>
+    row.attackChoice?.selection &&
+    row.actionOrdinal >= lineage.initiatingAction.actionOrdinal &&
+    row.actionOrdinal <= terminalAttack.actionOrdinal);
+  const terminalSelection = selectedCopies.at(-1);
+  assert.ok(terminalSelection,
+    'Terminal delegated attack must retain a real ChooseAttackPrompt selection');
+  assert.equal(terminalSelection.attackChoice.selection.attackName,
+    terminalAttack.attackName,
+    'Selected printed attack must match the subsequent real Store attack declaration');
   assert.deepEqual(game.prizesRemaining,[2,0]);
 
   const raw = game.attackTrace.filter(entry => entry.seat === CANDIDATE_SEAT);
@@ -71,7 +81,8 @@ function run() {
     .map(entry => ({
       ordinal:entry.actionOrdinal,turn:entry.turnBefore,action:entry.action,
       ability:entry.ability??null,attack:entry.attack??null,
-      selection:entry.cardSelection?.selectedCards??null
+      selection:entry.cardSelection?.selectedCards??null,
+      attackChoice:entry.attackChoice?.selection??null
     }));
 
   return {
@@ -97,6 +108,9 @@ function run() {
       resolutionStatus:entry.resolutionStatus
     })),
     terminalAttack:terminalAttack.attackName,
+    terminalSelectedPrinting:terminalSelection.attackChoice.selection.printing,
+    terminalSelectionOrdinal:terminalSelection.actionOrdinal,
+    terminalAttackChoice:terminalSelection.attackChoice,
     terminalAttackRootAction:terminalAttack.triggerAction,
     terminal:terminal,
     terminalPromptActions:aroundCopy,
