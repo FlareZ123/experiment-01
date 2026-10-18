@@ -44,6 +44,28 @@ function run() {
   assert.ok(adaptive.initialOwnHand.some(c=>c.includes('Battle VIP Pass')));
   assert.ok(adaptive.initialOwnHand.some(c=>c.includes('Float Stone')));
 
+  const noOpSeed=1244180409;
+  const noOpRequest={...request,seed:noOpSeed,
+    label:'rank11-K0-conditional-noop-source-control'};
+  const originalNoOp=runMatch(noOpRequest);
+  const adaptiveNoOp=withRank11AdaptiveBoostShake(()=>runMatch(noOpRequest));
+  assert.equal(adaptiveNoOp.attempted,false,
+    'Preregistered source control must not satisfy the K0 activation gate');
+  assert.equal(adaptiveNoOp.completed,false);
+  assert.equal(adaptiveNoOp.aborted,null);
+  assert.deepEqual(adaptiveNoOp.issuedActions,[]);
+  assert.deepEqual(adaptiveNoOp.result.decisionTrace,originalNoOp.decisionTrace,
+    'Absent a trigger, wrapper must preserve every selected bot action');
+  assert.deepEqual([
+    adaptiveNoOp.result.finished,adaptiveNoOp.result.winner,
+    adaptiveNoOp.result.actions,adaptiveNoOp.result.turns,
+    adaptiveNoOp.result.prizesRemaining,adaptiveNoOp.result.deckHashes
+  ],[
+    originalNoOp.finished,originalNoOp.winner,
+    originalNoOp.actions,originalNoOp.turns,
+    originalNoOp.prizesRemaining,originalNoOp.deckHashes
+  ]);
+
   return {
     kind:'rank11-conditional-K0-owner-only-opening-source-v1',
     sourceSeed:SOURCE_SEED,sourceRank:11,candidateRank:1,
@@ -63,6 +85,13 @@ function run() {
       actualRank11FirstTurn:game.decisionTrace.filter(e=>
         e.playerSlot===0&&e.turnBefore===1).slice(0,20)},
     matchedSourceOpening:true,
+    noOpSourceControl:{
+      seed:noOpSeed,triggered:adaptiveNoOp.attempted,
+      exactMeaningfulActionTraceEquality:true,
+      controlWinner:originalNoOp.winner,
+      controlActions:originalNoOp.actions,
+      controlTurns:originalNoOp.turns
+    },
     qualifiedForCompetitiveInference:false,
     scope:'One rule-based contingent opener, not a competitive or generally skilled player'
   };
