@@ -17,14 +17,39 @@ const CELL_FLOOR = RANKS * SEATS * TARGET - (RANKS * SEATS - 1);
 const SHA256 = /^[a-f0-9]{64}$/;
 
 /**
+ * Null upper bound on zero wins with prospectively fixed independent games.
+ * The target entails p(first)+p(second)>=2*RANK_FLOOR. If nFirst and nSecond
+ * games are sampled in their respective actual-start strata, maximize the
+ * all-loss likelihood a^nFirst*b^nSecond over nonnegative loss probabilities
+ * a+b<=2*(1-RANK_FLOOR). Weighted AM-GM places the worst case at
+ * a = totalLoss*nFirst/n and b = totalLoss*nSecond/n.
+ *
+ * @param {number} nFirst Nonnegative number of candidate-first games.
+ * @param {number} nSecond Nonnegative number of candidate-second games.
+ * @returns {number} One-sided worst-case probability of all nonwins.
+ */
+function rankAllNonwinBound(nFirst, nSecond) {
+  if (![nFirst,nSecond].every(n => Number.isSafeInteger(n) && n >= 0) ||
+      nFirst+nSecond === 0) {
+    throw new Error('Nonnegative integer first/second counts with a positive total required.');
+  }
+  const n = nFirst+nSecond;
+  const totalLoss = 2*(1-RANK_FLOOR);
+  return Math.pow(totalLoss,n) *
+    Math.pow(nFirst/n,nFirst) * Math.pow(nSecond/n,nSecond);
+}
+
+/**
  * Spend 5% familywise alpha over indefinitely many candidate attempts.
  * Each attempt allocates half its alpha to 32 rank tests and half to
  * 64 rank-by-actual-start tests. Each specific test is evaluated once,
- * at its prospectively registered, fixed sample size.
+ * at its prospectively registered, fixed sample size. Rank tests optimize
+ * for total games by permitting a prespecified nearly balanced odd horizon.
  *
  * @param {number} attemptIndex Positive global candidate attempt index.
  * @param {'rank'|'seat'} kind
- * @returns {{attemptAlpha:number, perTestAlpha:number, floor:number, games:number}}
+ * @returns {{attemptAlpha:number,perTestAlpha:number,floor:number,games:number,
+ *   firstGames:number,secondGames:number,allNonwinNullProbabilityUpperBound:number}}
  */
 function vetoDesign(attemptIndex, kind) {
   if (!Number.isSafeInteger(attemptIndex) || attemptIndex < 1 ||
@@ -35,9 +60,21 @@ function vetoDesign(attemptIndex, kind) {
   const perTestAlpha = attemptAlpha / (2 * (kind === 'rank' ? RANKS : RANKS * SEATS));
   const floor = kind === 'rank' ? RANK_FLOOR : CELL_FLOOR;
   let games = kind === 'rank' ? 2 : 1;
-  const increment = kind === 'rank' ? 2 : 1;
-  while (Math.pow(1 - floor, games) > perTestAlpha) games += increment;
-  return {attemptAlpha, perTestAlpha, floor, games};
+  let firstGames = kind === 'rank' ? 1 : 0;
+  let secondGames = kind === 'rank' ? 1 : 0;
+  let allNonwinNullProbabilityUpperBound = kind === 'rank' ?
+    rankAllNonwinBound(firstGames,secondGames) : Math.pow(1-floor,games);
+  while (allNonwinNullProbabilityUpperBound > perTestAlpha) {
+    games++;
+    if (kind === 'rank') {
+      firstGames = Math.floor(games/2);
+      secondGames = games-firstGames;
+    }
+    allNonwinNullProbabilityUpperBound = kind === 'rank' ?
+      rankAllNonwinBound(firstGames,secondGames) : Math.pow(1-floor,games);
+  }
+  return {attemptAlpha, perTestAlpha, floor, games,
+    firstGames, secondGames, allNonwinNullProbabilityUpperBound};
 }
 
 /**
@@ -82,9 +119,9 @@ function assessHardMatchupVeto(registration, observations) {
     plannedSeats[row.startingSeat] += 1;
   }
   if (registration.kind === 'rank' &&
-      (plannedSeats.first !== design.games / 2 ||
-       plannedSeats.second !== design.games / 2)) {
-    throw new Error('Rank veto requires equal actual-first and actual-second trials.');
+      (plannedSeats.first !== design.firstGames ||
+       plannedSeats.second !== design.secondGames)) {
+    throw new Error('Rank veto requires the exact predeclared near-balanced actual starting-seat counts.');
   }
   if (registration.kind === 'seat' &&
       plannedSeats[registration.startingSeat] !== design.games) {
@@ -128,13 +165,15 @@ function assessHardMatchupVeto(registration, observations) {
   }
 
   const allNonWins = wins === 0;
-  const nullEventUpperBound = Math.pow(1 - design.floor, design.games);
+  const nullEventUpperBound = design.allNonwinNullProbabilityUpperBound;
   return {
     schema: 'aichi-hard-matchup-veto-v1',
     attemptIndex: registration.attemptIndex,
     rank: registration.rank,
     kind: registration.kind,
-    startingSeat: registration.kind === 'seat' ? registration.startingSeat : 'balanced',
+    startingSeat: registration.kind === 'seat' ? registration.startingSeat : 'nearly-balanced',
+    actualFirstGames: registration.kind === 'rank' ? plannedSeats.first : null,
+    actualSecondGames: registration.kind === 'rank' ? plannedSeats.second : null,
     games: design.games,
     wins,
     nonWins: design.games - wins,
@@ -149,5 +188,5 @@ function assessHardMatchupVeto(registration, observations) {
 
 module.exports = {
   RANKS, SEATS, TARGET, FAMILY_ALPHA, RANK_FLOOR, CELL_FLOOR,
-  vetoDesign, assessHardMatchupVeto
+  rankAllNonwinBound, vetoDesign, assessHardMatchupVeto
 };
