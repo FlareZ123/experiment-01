@@ -90,6 +90,19 @@ function test() {
   assert.equal(planElectroRainDamage(notRaichu.state,notRaichu.own,
     notRaichu.prompt,notRaichu.codes),null);
 
+  const waveVeil=caseState();
+  const manaphy={
+    name:'Manaphy',fullName:'Manaphy BRS',hp:70,tags:[],
+    powers:[{name:'Wave Veil'}]
+  };
+  waveVeil.state.players[1].bench.push({
+    hp:70,hpBonus:0,damage:0,tools:[],
+    getPokemonCard:()=>manaphy
+  });
+  assert.equal(planElectroRainDamage(waveVeil.state,waveVeil.own,
+    waveVeil.prompt,waveVeil.codes),null,
+    'Wave Veil might block the projected two-Bench five-Prize line');
+
   const insufficient=caseState({budget:1});
   assert.equal(planElectroRainDamage(insufficient.state,insufficient.own,
     insufficient.prompt,insufficient.codes),null);
