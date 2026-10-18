@@ -61,4 +61,17 @@ An opt-in one-use `withRank26FarewellDraw` uses the same unmodified rank26/rank6
 
 Source: `simulation/twinleaf/rank26-farewell-source-draw.cjs`, pure guard tests `tests/rank26-farewell-source-draw.test.cjs`, fifth arm of `simulation/twinleaf/rank26-dce-authentic-source-probe.cjs`; opt-in existing manual `rank26_dce_probe`, no new workflow. This remains one retrospectively selected diagnostic opening, excluded from win-rate denominators.
 
+**Compiled Farewell action and draw verified:** [manual CI 39171877932](https://github.com/FlareZ123/experiment-01/actions/runs/39171877932) **passed**, pinned head `260ad8c2cf39396746f0b00aaaa21eadc4127d61`, full [source action artifact 12152458012](https://github.com/FlareZ123/experiment-01/actions/runs/39171877932/artifacts/12152458012). The actual Store accepted one **Farewell Letter** `UseAbilityAction` at global turn 1/action ordinal 18, targeting physically Benched, unattached `Unown AOR`. The source owner-visible before/after evidence is:
+
+| Root observable | Before Farewell | After Farewell |
+| --- | ---: | ---: |
+| Own deck card count | 43 | 42 |
+| Own Benched Unown | 1 | 0 |
+| Own discard Unown | 0 | 1 |
+| Opponent remaining Prizes | 6 | 6 |
+
+The new drawn physical card was **Hisuian Heavy Ball ASR**, verified from owner hand after root dispatch. The full source-first decisions were `Cologne → Trainers' Mail → resolve to Float Stone → Farewell Letter → Float Stone attached to Active Meloetta → Heavy Ball → resolve to Unown → Bench Unown → basic Lightning Energy → Pass`. All decklists, source seed, turn and original draw-log invariants were held constant. The one Farewell activation gave a real card and freed a Bench slot transiently. The bot still spent its sole manual Energy on Lightning, equipped Float Stone to Meloetta (contending with Crisis Punch TM Tool) and **declared zero firstturn Crisis Punch attacks**. At source action cap 100, `finished:false` remains an incomplete diagnostic, not an opponent loss.
+
+**Outcome classification:** one genuine source-root, owner-observation-conditioned ability and draw response now verified. No initial hand re-staging, no new hidden-card peek and no synthetic opponent move. The follow-up falsifies any theory that a single Farewell draw suffices to fix this particular firstturn strategy; the random printed drawn card did not advance the immediate DCE+TM line. Whether Unown should be saved for alternative tactical usage remains matchup-dependent, and a multiple-seed held-out distribution is still absent.
+
 The experiment is a source-first-turn policy test, not a competitive-game win rate. Its source state was retrospectively selected, so success or failure should not be included in prospective performance denominators. The Top32 source-list audit remains 29/32 with ranks 23,25,28 missing and zero independently qualified competitive games.
