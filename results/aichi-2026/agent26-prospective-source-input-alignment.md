@@ -48,6 +48,14 @@ All four frozen, same-seed, same-seat comparisons increased the realized referen
 
 The workflow completed despite an upstream nested-submodule cleanup warning after uploading the artifact. Its main compilation, probe execution and artifact step succeeded. Follow-up evidence needed: a randomized multi-seed design, replay checks of instrumentation noninterference, K0-safe decision policies, and eventually matched full opponent games with complete rule qualification.
 
+## Observational noninterference control
+
+[Compiled manual CI 39086825382](https://github.com/FlareZ123/experiment-01/actions/runs/39086825382), [artifact 12121520674](https://github.com/FlareZ123/experiment-01/actions/runs/39086825382/artifacts/12121520674), ran the **unchanged printed rank-1 champion source versus rank-6 Iron Thorns**, physical candidate seat A and v3 seed `1509836216` through the pinned Twinleaf Store three consecutive times. The first and third runs used normal headless execution without the researcher hook; the middle run used the same settings with the scoped source-setup observer. Every run used strict Prompt validation, separated per-seat policy RNG, decision tracing and the same 250-action ceiling.
+
+The observer captured the first-turn source state and restored `Store.prototype.dispatch`. The two plain controls and the observed arm produced **byte-equal full returned game summaries**, SHA-256 `cb0af0ffc8b140817da806b6da2c2628e99fcc8e1f94e4c28c38207cadb6ffbf`. Their full decision-trace, attack-trace and played-card aggregate digests also matched. All three reached the same source-engine terminal summary (17 turns, 91 root actions, observed winner slot 0) with first-turn draw-log proof. This is **one demonstrated no-perturbation case** under identical same-process reseeding. Because the bot is unqualified, the common engine winner is not a competitive result. The observer may still perturb other trajectories or versions, and an independent fresh-process check remains desirable.
+
+A separate [controlled first-turn stop sampler](../../simulation/evaluation/aichi-setup-only-capture.cjs) is being developed to measure more distinct source seeds without spending computation on unqualified subsequent bot decisions. It remains solely an opening-distribution diagnostic.
+
 ## Acceptance and limits
 
 A successful compiled probe must produce actual turn-one Store snapshots with intact source-deck hashes, legal initialized zones and recognized physical slot; it must preserve all candidate and opponent 60-card identities. A missing snapshot, draw-log mismatch, different opponent post-setup zones, lower actual card overlap, or unverified start-order matching is valuable adverse evidence to report.
