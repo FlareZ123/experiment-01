@@ -65,6 +65,10 @@ jobs:
         run: node scripts/absol-garbotoxin-direct-lock.cjs > absol-garbotoxin-direct-lock.json
       - name: First turn Garbotoxin any-compatible-Tool extension
         run: node scripts/aichi-absol-any-tool-first-turn.cjs > aichi-absol-any-tool-first-turn.json
+      - name: Rank-11 Oranguru Tool/Stone opening exact tests
+        run: python3 -m unittest discover -s tests -p 'test_rank11_oranguru_tool_lock_exact.py'
+      - name: Rank-11 Oranguru Tool/Stone opening exact audit
+        run: python3 scripts/rank11_oranguru_tool_lock_exact.py > rank11-oranguru-tool-lock-exact.txt
       - name: Absol and Garbotoxin source audit
         run: node scripts/aichi-absol-garbotoxin-window.cjs > aichi-absol-garbotoxin-window.json
       - name: Audit published Aichi lists
@@ -112,3 +116,4 @@ jobs:
             aichi-ranger-early-access.json
             aichi-ranger-stone-access.json
             aichi-ranger-stone-field.json
+            rank11-oranguru-tool-lock-exact.txt
