@@ -68,6 +68,9 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Source copied attack observation parity
+        if: inputs.rank11_copy_observer_parity
+        run: node simulation/twinleaf/source-copied-attack-observer-isolation.cjs
       - name: Verify source-dealt rank11 printed copied-attack source and Store declaration
         if: inputs.rank11_delegated_attack_selection_source
         run: node simulation/twinleaf/newmoon-rank11-perfection-delegated-source.cjs > rank11-copied-attack-selection.json
