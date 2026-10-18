@@ -48,6 +48,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify pure attack-log declaration observer gates
+        run: node --test tests/twinleaf-attack-log-declarations.test.cjs
       - name: Verify pinned Perfection delegated copied-GX Store action
         run: node simulation/twinleaf/perfection-delegated-action.cjs
       - run: node simulation/twinleaf/temple-wobbuffet-board.cjs
