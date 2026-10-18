@@ -1,6 +1,7 @@
 """Pure exact-arithmetic regression for rank-11 Oranguru lock opportunities."""
 import sys
 import unittest
+import json
 from fractions import Fraction
 from math import comb
 from pathlib import Path
@@ -13,6 +14,24 @@ from rank11_oranguru_tool_lock_exact import (
 
 
 class Rank11OranguruExactTests(unittest.TestCase):
+    def test_source_manifest_matches_exact_counts(self):
+        src = Path(__file__).resolve().parents[1] / "results/aichi-2026/full-decklists.json"
+        data = json.loads(src.read_text(encoding="utf-8"))
+        rows = next(x["cards"] for x in data["decks"] if x["rank"] == 11)
+        by_name = {r["name"]: r["count"] for r in rows}
+        targets = (
+            "Oranguru V", "Trubbish", "Float Stone", "Boost Shake",
+            "Battle VIP Pass", "Forest Seal Stone", "Garbodor",
+        )
+        self.assertEqual(tuple(by_name[name] for name in targets), COUNTS[:7])
+        self.assertEqual(
+            sum(by_name[name] for name in (
+                "Mega Absol ex", "Latias ex", "Tapu Lele-GX",
+                "Crobat V", "Squawkabilly ex"
+            )), COUNTS[7],
+        )
+        self.assertEqual(sum(row["count"] for row in rows), 60)
+
     def test_source_partition(self):
         self.assertEqual(sum(COUNTS), 60)
         self.assertEqual(COUNTS[:7], (2, 2, 3, 2, 4, 2, 2))
