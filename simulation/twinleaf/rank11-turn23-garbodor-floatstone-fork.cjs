@@ -63,6 +63,7 @@ function withGarbodorFloatStoneTarget(execute,{skipChange=false}={}) {
     const candidate=state.players[1];
     if(candidate.active.getPokemonCard()?.name!=='Mewtwo & Mew-GX')return ordinary;
     opportunities++;
+    if(skipChange)return ordinary;
     const target={
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:targetIndex
     };
