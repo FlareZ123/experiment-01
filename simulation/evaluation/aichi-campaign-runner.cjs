@@ -296,6 +296,7 @@ function executeCampaign(inputs, options = {}) {
         rank11AutonomousPolicy: game.rank11AutonomousPolicy || null,
         rank26ColognePolicy: game.rank26ColognePolicy || null,
         rank26PumpPolicy: game.rank26PumpPolicy || null,
+        rank26PropagationPolicy: game.rank26PropagationPolicy || null,
         observedRngProtocol: game.randomnessProtocol || null,
         observedRules: game.rules || null,
         observedEngineDeckHashes: game.deckHashes || null,
@@ -363,7 +364,8 @@ if (require.main === module) {
         }, profile);
       }
       if (profile === profiled.RANK26_COLOGNE_PROFILE ||
-          profile === profiled.RANK26_COLOGNE_PUMP_PROFILE) {
+          profile === profiled.RANK26_COLOGNE_PUMP_PROFILE ||
+          profile === profiled.RANK26_PROPAGATION_PROFILE) {
         return profiled.runWithResearchProfile({
           ...request, rank26SourceSeat: rank26SourceSeat(trial)
         }, profile);
