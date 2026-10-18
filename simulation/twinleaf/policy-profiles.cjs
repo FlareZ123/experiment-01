@@ -123,7 +123,8 @@ function runWithResearchProfile(request, profile) {
       () => withRank11AutonomousOpener(rank11SourceSeat,
         () => runMatch(matchRequest),
         {allowSecondGlobalTurn: true,
-          version: 'rank11-original-vstar-first-own-v2'}),
+          version: 'rank11-original-vstar-first-own-v2',
+          k0AvoidAllGarbodorHeld: profile === RANK11_K0_K1_HYBRID_PROFILE}),
       {k1AvoidMissingGarbodor: true,
         k0AvoidAllGarbodorHeld: profile === RANK11_K0_K1_HYBRID_PROFILE});
     return {
