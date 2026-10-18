@@ -57,6 +57,16 @@ jobs:
         run: node --test tests/bunnelby-k1-headless-smoke.test.cjs
       - name: Test source-backed Tool attack decision
         run: node --test tests/tm_attack_policy.test.cjs tests/pass-attack-announcement-probe.test.cjs tests/pass-attack-source-board-regression.test.cjs
+      - name: Audit rank2 printed-singleton GH discard frontier
+        run: |
+          node --test tests/aichi-vileplume-gh-discard-frontier.test.cjs tests/aichi-vileplume-gh-discard-physical.test.cjs
+          node scripts/aichi-vileplume-gh-discard-frontier.cjs > rank2-gh-discard-frontier.json
+      - name: Archive exact and physical source-count sensitivity
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank2-gh-discard-frontier-resource-only
+          path: rank2-gh-discard-frontier.json
+          if-no-files-found: error
       - name: Print real-engine policy contrast
         run: node simulation/twinleaf/tm-attack-policy-characterization.cjs
       - name: Probe late-game Bunnelby Evolution with one remaining source Stage 2
