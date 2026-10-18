@@ -125,6 +125,7 @@ jobs:
         run: |
           node --check simulation/twinleaf/rank8-psychic-recovery-source-reply.cjs
           node --check simulation/twinleaf/rank8-hooded-door-source-reply.cjs
+          node --check simulation/twinleaf/hood-garbotoxin-recovery-autonomy.cjs
           node --test tests/rank8-hooded-door-source-reply.test.cjs
       - name: Execute source-dealt rank8 early Garbotoxin source fork
         if: inputs.hood_rank8_boostshake_fork
