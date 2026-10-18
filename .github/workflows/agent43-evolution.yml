@@ -34,7 +34,7 @@ jobs:
       - name: Observe real source-dealt rank31 Roxie decisions
         run: node simulation/twinleaf/agent43-roxie-source-exposure.cjs > agent43-roxie-source-exposure.json
       - name: Print bounded rank31 Roxie exposure
-        run: node -e "const r=require('./agent43-roxie-source-exposure.json');for(const t of r.trials)console.log(JSON.stringify({slot:t.slot,status:t.status,reason:t.reason,roxie:t.rank31RoxiePlays,koffing:t.koffingHandDiscards?.length,turns:t.turns}))"
+        run: node -e "const r=require('./agent43-roxie-source-exposure.json');for(const t of r.trials){const c=t.rank31Confirmations||[];const k=t.koffingHandDiscards||[];console.log(JSON.stringify({slot:t.slot,status:t.status,reason:t.reason,roxie:t.rank31RoxiePlays,koffing:k,confirmationCount:c.length,atKoffingTurns:c.filter(q=>k.some(d=>d.turn===q.turn)),turns:t.turns}))}"
       - name: Observe bounded rank1-vs-rank10 source policy alternatives
         run: node simulation/evaluation/agent43-evolution-contrast.cjs > agent43-evolution-contrast.json
       - name: Print sample policy divergence and blocked states
