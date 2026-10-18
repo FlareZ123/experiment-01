@@ -71,7 +71,7 @@ jobs:
       - name: Smoke-test live-root K1 opt-in with both rank-2 source seats
         run: node --test tests/bunnelby-k1-headless-smoke.test.cjs
       - name: Test opt-in headless Tool attack policy and Bunnelby composition
-        run: node --test tests/twinleaf-tool-attack-headless.test.cjs
+        run: node --test tests/twinleaf-tool-attack-headless.test.cjs tests/aichi-campaign-execute.test.cjs
       - name: Test source-backed Tool attack decision
         run: node --test tests/tm_attack_policy.test.cjs tests/pass-attack-announcement-probe.test.cjs tests/pass-attack-source-board-regression.test.cjs
       - name: Audit rank2 printed-singleton GH discard frontier
