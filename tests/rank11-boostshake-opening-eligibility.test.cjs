@@ -36,10 +36,14 @@ test('a first-turn public board and own hand enable a conditional attempt',()=>{
 test('it abstains on unavailable or overcommitted resources',()=>{
   for(const config of [
     {active:'Crobat V'}, {toolCount:1}, {benchCount:5},
-    {vip:false}, {float:false}, {turn:2},{activePlayer:1},
+    {vip:false}, {turn:2},{activePlayer:1},
     {playerId:202},{usedVSTAR:true}
   ]) assert.equal(isRank11BoostShakeCandidate(...position(config)),false,
     JSON.stringify(config));
+});
+
+test('Back Order can obtain Float Stone at K1 when it is absent at K0',()=>{
+  assert.equal(isRank11BoostShakeCandidate(...position({float:false})),true);
 });
 
 test('the K0 eligibility guard does not access hidden deck or Prize cards',()=>{
