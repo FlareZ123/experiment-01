@@ -6,6 +6,7 @@ const {initializeCards,runMatch} = require('./headless.cjs');
 const {planAichi} = require('../evaluation/aichi-pilot.cjs');
 const {deriveSlotSeeds} = require('../../scripts/aichi-decorrelated-seeds.cjs');
 const {pairedCandidateSlots} = require('./new-moon-lockbreak-source-diagnostic.cjs');
+const {inspectRank15PrizePrerequisites} = require('./rank15-prize-prereq.cjs');
 
 const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
@@ -24,6 +25,7 @@ function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
   const descriptor = Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof descriptor?.value,'function');
   let root=null,rootSnapshots=0,firstNormalTurnZoneDigest=null;
+  let firstNormalTurnPrizeGate=null;
   const first={aor:null,bus:null,busActive:null,dual:null,
     dusclops:null,dusclopsActive:null,dusclopsAgainstDual:null};
   const max={aorCount:0,busCount:0,dusclopsCount:0};
@@ -40,6 +42,9 @@ function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
     if(actual && firstNormalTurnZoneDigest===null &&
         state?.phase===2 && state.players?.length===2 &&
         state.players.every(p=>p.prizes.length===6)) {
+      const physicalPrizes=state.players[opponentSeat].prizes.map(p=>
+        p.cards[0]?.fullName??'');
+      firstNormalTurnPrizeGate=inspectRank15PrizePrerequisites(physicalPrizes);
       firstNormalTurnZoneDigest=digest(state.players.map(p=>({
         active:p.active.cards.map(c=>c.fullName),
         bench:p.bench.map(slot=>slot.cards.map(c=>c.fullName)),
@@ -87,7 +92,8 @@ function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
   Object.defineProperty(Store.prototype,'dispatch',{...descriptor,value:instrument});
   try {
     const result=execute();
-    return {result,first,max,rootSnapshots,firstNormalTurnZoneDigest};
+    return {result,first,max,rootSnapshots,firstNormalTurnZoneDigest,
+      firstNormalTurnPrizeGate};
   } finally {
     Object.defineProperty(Store.prototype,'dispatch',descriptor);
   }
@@ -142,6 +148,7 @@ function run() {
         finished:game.finished,endReason:game.endReason,actions:game.actions,
         turns:game.turns,rootSnapshots:observed.rootSnapshots,
         first:observed.first,max:observed.max,
+        firstNormalTurnPrizeGate:observed.firstNormalTurnPrizeGate,
         rootActionDigest:digest(game.rootActionLedger)
       });
     }
@@ -160,6 +167,9 @@ function run() {
     candidateActuallyFirstCount:rows.filter(x=>x.candidateActuallyFirst).length,
     sourceOpponentPolicy:'generic SimpleTacticsAi; unqualified',
     sourceCandidatePolicy:'generic SimpleTacticsAi; unqualified',
+    sourceInitialPrizeGateObserved:rows.filter(x=>x.firstNormalTurnPrizeGate!==null).length,
+    sourceInitialPrizeGateEligible:rows.filter(x=>
+      x.firstNormalTurnPrizeGate?.beforeTakingPrizesEligible===true).length,
     limitations:'Post-dispatch live-board position only: does not independently prove operating Abilities, source Vileplume evolution legality, complete attack resolution, a competent opponent, or gameplay win strength.',
     qualifiedForCompetitiveInference:false,
     rows
