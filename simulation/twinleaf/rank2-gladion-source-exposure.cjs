@@ -31,7 +31,7 @@ function extractGladionRootEvents(ledger,seat){
       prizePromptOrdinal:next?.actionOrdinal??null,
       prizePromptResolved:next?.action==='ResolvePromptAction',
       nextOwnPlayOrdinal:laterPlay?.actionOrdinal??null,
-      followUpObserved:next!==undefined&&next.actionOrdinal<=
+      followUpObserved:next!==null&&next.actionOrdinal<=
         (laterPlay?.actionOrdinal??Number.POSITIVE_INFINITY)
     });
   }
