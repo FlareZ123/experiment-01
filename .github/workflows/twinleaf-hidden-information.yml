@@ -97,7 +97,10 @@ jobs:
   rank10-archival-prefix:
     if: ${{ inputs.archival_prefix_only }}
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
     steps:
       - uses: actions/checkout@v4
       - name: Load pinned Twinleaf
@@ -115,5 +118,20 @@ jobs:
         run: npm run compile
       - name: Check selective prefix digest negative controls
         run: node --test tests/source-prefix-digest.test.cjs tests/rank10-hidden-order-live-probe.test.cjs
-      - name: Compare first 216 authentic v3 Timeless Store actions with archived prefix
+      - name: Compare all 235 authentic v3 Timeless source inputs and State projections
         run: node simulation/twinleaf/rank10-hidden-order-live-probe.cjs ordinal215
+      - name: Retrieve frozen 17 October source Store archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download 38995733010 -R ${{ github.repository }} -n rank10-source-branch-live-dispatch -D archived-rank10
+      - name: Independently replay archived original 350 and alternate 235 inputs in fresh process
+        run: node simulation/twinleaf/rank10-replay-from-archive.cjs archived-rank10/rank10-source-branch-live-dispatch.json > rank10-historical-replay-now.json
+      - name: Fail closed on incomplete full two-arm fresh-process replay
+        run: node simulation/twinleaf/rank10-replay-acceptance.cjs rank10-historical-replay-now.json
+      - name: Archive full historical source replay verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-historical-current-head-replay
+          path: rank10-historical-replay-now.json
+          if-no-files-found: warn
