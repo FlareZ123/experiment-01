@@ -12,7 +12,8 @@ const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  * The board is constructed, not a source-dealt 60-card match.
  * @param {0|1} seat Printed Gengar's physical slot.
  */
-function runSeat(seat) {
+function runSeat(seat, profile = 'two-energy') {
+  assert.ok(['two-energy', 'one-dce-thunder-mountain'].includes(profile));
   const manager = initializeCards();
   let serial = 1000;
   /** @param {string} fullName */
@@ -50,10 +51,17 @@ function runSeat(seat) {
   me.active.energies.cards.push(psychic);
 
   const thorns = card('Iron Thorns ex TWM');
-  const speed = card('Speed Lightning Energy RCL');
+  const speed = profile === 'two-energy'
+    ? card('Speed Lightning Energy RCL') : null;
   const dce = card('Double Colorless Energy SUM');
-  opponent.active.cards.push(thorns, speed, dce);
-  opponent.active.energies.cards.push(speed, dce);
+  opponent.active.cards.push(thorns, dce);
+  opponent.active.energies.cards.push(dce);
+  if (speed) {
+    opponent.active.cards.push(speed);
+    opponent.active.energies.cards.push(speed);
+  } else {
+    opponent.stadium.cards.push(card('Thunder Mountain Prism Star LOT'));
+  }
   let bench = new PokemonCardList();
   bench.cards.push(card('Iron Thorns ex TWM'));
   opponent.bench.push(bench);
@@ -163,7 +171,7 @@ function runSeat(seat) {
       lastAttack:state.lastAttack?.name,
       storeLastAttack:store.state.lastAttack?.name,
       rootLogCount:store.state.logs.length,
-      skipRejectedPlays,
+      skipRejectedPlays, profile,
       gengarDamage:me.active.damage,thornsActive:opponent.active.getPokemonCard()?.fullName,
       activeEnergies:opponent.active.energies.cards.map(c=>c.fullName),
       benchEnergies:bench.energies.cards.map(c=>c.fullName),
@@ -189,9 +197,10 @@ function runSeat(seat) {
   assert.ok(!opponent.active.cards.includes(dce), 'Moved Energy remained Active');
 
   return {
-    seat,
+    seat, profile,
     source: {gengar: gengar.fullName, active: thorns.fullName,
-      preattached: [speed.fullName, dce.fullName]},
+      preattached: speed ? [speed.fullName, dce.fullName] : [dce.fullName],
+      stadium: opponent.stadium.cards[0]?.fullName ?? null},
     opponentTurn: {turn: state.turn, locks, blocked,
       voltCycloneAllowed: true, attackDamage: me.active.damage,
       movedSpecialEnergyToBench: bench.cards.includes(dce)},
@@ -203,7 +212,11 @@ function run() {
   return {
     schema: 'horror-house-hand-lock-versus-prepowered-thorns-attack-v1',
     engine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    rows: [runSeat(0), runSeat(1)],
+    rows: [
+      runSeat(0), runSeat(1),
+      runSeat(0, 'one-dce-thunder-mountain'),
+      runSeat(1, 'one-dce-thunder-mountain')
+    ],
     qualifiedForCompetitiveInference: false
   };
 }
