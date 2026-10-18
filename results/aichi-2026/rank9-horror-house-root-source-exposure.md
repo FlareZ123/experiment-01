@@ -38,6 +38,24 @@ A next high-value test should prospectively seek rank9 source states with **two 
 
 **Shared status remains 29/32 exact opposing lists, zero independently qualified competitive games, no target-qualified final deck and no demonstrated 99.5% win rate.**
 
+## Defender's retrospective Item inventory at genuine locks
+
+A follow-up source-identical 16-deal compilation [CI 39141893327](https://github.com/FlareZ123/experiment-01/actions/runs/39141893327), head `ef34caa0`, succeeded with read-only **original opponent-own-hand card class snapshots** taken only after the attacking bot had chosen a real root action. Reproducible JSON artifact **12141887071** stores all 16 source records and their seven root lock events. This evidence belongs to the same original 16 deals, so **it is not an additional sample of seven**.
+
+Of the seven genuine native Horror House-GX roots, **six defenders held one or more Item cards** at the instant the lock began. Hindsight inventory by seed:
+
+| Source seed | Printed Item cards already held by defender |
+| --- | --- |
+| 2845535998 | Mysterious Treasure |
+| 3599213939 | Mysterious Treasure ×2; Quick Ball |
+| 1480695589 | VS Seeker ×2; Mysterious Treasure; Fog Crystal |
+| 387039398 | None (but two VMAX, two Psychic Energy and Acerola) |
+| 2817592727 | Quick Ball; Mysterious Treasure |
+| 3400700421 | Mysterious Treasure; VS Seeker ×2 |
+| 2985808209 | Hisuian Heavy Ball; Night Stretcher |
+
+**This is an Item subset of a much broader all-card hand lock.** In the one zero-Item seed, the defender still held Pokémon, Energy and a Supporter that Horror House also disallowed playing. Every observed defender had one or more hand cards in potentially restricted categories. No test has yet established which of those cards would actually have been playable or optimally used absent Horror House, nor whether alternative actions could overcome the lock. A source-root *held card* is only an upper bound on tactical opportunities denied. These seven events use generic opponent policies and do not estimate competitive win rate.
+
 ## Corrected lock scope
 
 The original summary mentioned only `cannotPlayItemCards`, which understated the attack. Gengar & Mimikyu-GX TEU 53 reads that the opponent cannot play **any cards from their hand** during their next turn. The pinned engine's `OPPONENT_CANNOT_PLAY_ANY_CARDS` wrapper sets Item, Supporter, Tool, Stadium, Energy and Pokémon play prohibitions. A future live audit should record each category independently. See the [actual next-turn rank1 attacking reply](rank9-horror-house-authentic-nextturn.md), where the defender held two VMAX, two Psychic Energy, Acerola and Latias ex. No causal hand-lock advantage or policy competence is inferred.
