@@ -125,6 +125,16 @@ jobs:
           name: rank26-mail-scout-source-unqualified
           path: rank26-mail-source-probe.json
           if-no-files-found: error
+      - name: Execute authentic rank26 DCE policy comparison
+        if: ${{ inputs.rank26_dce_probe }}
+        run: node simulation/twinleaf/rank26-dce-authentic-source-probe.cjs > rank26-dce-source-probe.json
+      - name: Archive source firstturn DCE decisions and observed limitations
+        if: ${{ inputs.rank26_dce_probe }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank26-dce-source-probe-unqualified
+          path: rank26-dce-source-probe.json
+          if-no-files-found: error
       - name: Verify pure root-state labels
         run: node --test tests/meloetta-rank26-firstturn-source-window.test.cjs
       - name: Search authenticated rank-26 first-turn source window (unqualified)
