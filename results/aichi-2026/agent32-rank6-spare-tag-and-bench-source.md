@@ -54,6 +54,12 @@ The genuine backup source fork [artifact 12146049260](https://github.com/FlareZ1
 
 Pale Moon-GX, declared by the generic champion on the third global turn, can set up a delayed knockout. Prior research found a pinned-engine Active-exit bug for this attack in different source states. No claim about official-paper survival follows from this raw terminal differential until that interaction and opponent continuation are independently checked.
 
+## Exact opening-card exposure (pure combinatorics, not gameplay)
+
+The source rank-6 60 contains exactly **four** Basic Pokémon, all Iron Thorns ex. In an ideal uniform 7-card opening, `P(at least one Basic) = [C(60,7) - C(56,7)] / C(60,7) = 38962/97527 = 39.94996257%`. Conditional on a valid initial seven, `P(at least two Basic in those seven) = 2202/13915 = 15.82464966%`. If the rank-6 player goes second and receives one ordinary initial draw, the additional mutually exclusive event of **exactly one Basic in the seven and another Basic on that first draw** is `663/13915 = 4.76464247%`. Their sum is exactly **573/2783 = 20.58929213%**, conditional on a valid initial seven.
+
+This describes merely the opportunity to have two Iron Thorns among the opening eight printed cards, before accounting for optional setup Benching, opponent bonus cards from mulligans, Prize effects on later access, actual seat/order resolution, lock, Energy, action sequencing or skill. One extra Basic may already be on the Bench after setup and may not be in the turn-two hand. The selected physical source's spare Basic in hand is a valid witness; the exact fraction is **not** a probability of a beneficial backup-Bench action and cannot support a win-rate estimate. The very low Basic count makes correct mulligan/bonus-draw coupling important when comparing source matchups.
+
 ## Next falsifications
 
 1. In this source, inspect Pale Moon-GX declaration, attached Energy condition, pending delayed KO, target's Active-exit behavior, and actual end-of-turn KO sequence. Compare to the printed rulebook and known research-side hook; keep raw and corrected mechanisms separate.
