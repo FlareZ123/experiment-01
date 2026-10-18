@@ -270,6 +270,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [captureHorrorHouseRootResolution] Observe only real-root Store Horror House declarations and adjacent zones.
  * @property {boolean} [capturePoltergeistEffectTrace] Opt-in retrospective hand Trainer counts and real-root Poltergeist reducer windows.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
+ * @property {boolean} [captureStartingBoard] Read-only physical Active/Bench at the first nonprompt player-turn opportunity.
  * @property {boolean} [captureRootConfirmationTrace] Observe only actual Store-dispatched confirmation choices and public damage.
  * @property {boolean} [captureElectrodeOpportunity] Observe source Raichu/Bomb public necessary conditions only at live non-prompt decisions.
  * @property {boolean} [capturePhysicalZoneIntegrity] Opt-in read-only physical reference/attached Energy checks after each live root action.
@@ -713,6 +714,7 @@ function runMatch(request) {
       throw new Error('maxActions must be a positive integer.');
     }
     let actions = 0;
+    let initialBoardAtFirstTurn = null;
     const actionCounts = {};
     const actionsBySeat = [{}, {}];
     const cardsPlayedBySeat = [{}, {}];
@@ -750,6 +752,19 @@ function runMatch(request) {
       const epochBeforeAction = knowledgeEvents ? optionsBySeat.map(options =>
         options.bunnelbyDeckKnowledgeEpoch.snapshot()) : null;
       const pending = state.prompts.find(prompt => prompt.result === undefined);
+      if (request.captureStartingBoard === true &&
+          initialBoardAtFirstTurn === null && !pending &&
+          state.phase === GamePhase.PLAYER_TURN) {
+        initialBoardAtFirstTurn = {
+          turn:state.turn,activePlayerSeat:state.activePlayer,
+          players:state.players.map((player,seat)=>({
+            seat,
+            active:player.active.getPokemonCard()?.fullName??null,
+            bench:player.bench.map(slot=>slot.getPokemonCard()?.fullName)
+              .filter(Boolean)
+          }))
+        };
+      }
       if (electrodeOpportunityObserver && !pending &&
           state.phase === GamePhase.PLAYER_TURN) {
         electrodeOpportunityObserver.observe(state);
@@ -1098,6 +1113,7 @@ function runMatch(request) {
         {electrodeOpportunitySummary: electrodeOpportunityObserver.snapshot()} : {}),
       ...(physicalZoneIntegrity ? {physicalZoneIntegrity} : {}),
       ...(copycatTurnStartEvidence ? {copycatTurnStartEvidence} : {}),
+      ...(request.captureStartingBoard === true ? {initialBoardAtFirstTurn} : {}),
       ...(snorlaxSoloOpeningEvents ? {
         snorlaxSoloOpeningEvents,
         snorlaxSoloOpeningPolicy:'SoloSnorlaxOwnHandSetup-v1'
