@@ -19,6 +19,10 @@ on:
         description: 'Opt-in actual-source firstturn VIP Stone Shake forcing and opponent reply'
         type: boolean
         default: false
+      rank11_adaptive_boostshake:
+        description: 'Opt-in owner-only K0-conditional rank11 lock opening with authentic Store actions'
+        type: boolean
+        default: false
       rank11_underworld_exposure:
         description: 'Opt-in source-ranked Tool-Garbodor versus live Underworld Door availability'
         type: boolean
@@ -87,6 +91,18 @@ jobs:
         with:
           name: rank11-firstturn-boostshake-source-fork
           path: rank11-firstturn-boostshake-fork.json
+          if-no-files-found: warn
+      - name: Test rank11 K0-conditional policy eligibility and source opening
+        if: inputs.rank11_adaptive_boostshake
+        run: |
+          node --test tests/rank11-boostshake-opening-eligibility.test.cjs
+          node simulation/twinleaf/rank11-adaptive-boostshake-source-run.cjs > rank11-adaptive-boostshake.json
+      - name: Preserve conditional rank11 first-turn source-policy trace
+        if: always() && inputs.rank11_adaptive_boostshake
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-adaptive-source-boostshake
+          path: rank11-adaptive-boostshake.json
           if-no-files-found: warn
       - name: Evaluate rank11 source Garbotoxin against live Underworld Door
         if: inputs.rank11_underworld_exposure
