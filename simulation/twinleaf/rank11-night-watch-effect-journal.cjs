@@ -62,6 +62,11 @@ function withNightWatchEffectJournal(run, Store, attackerName='research-B') {
       type:activePrompt.constructor.name,
       playerId:activePrompt.playerId,
       sourceHand:activePrompt.cards===sourceSide?.hand,
+      // Private card faces are never logged. Positions refer only to the
+      // pre-dispatch opaque hand order for offline chance-fidelity auditing.
+      selectionPositions:activePrompt.cards===sourceSide?.hand &&
+        Array.isArray(action.result) ? action.result.map(card=>
+          sourceSide.hand.cards.indexOf(card)) : null,
       minimum:activePrompt.options?.min??null,
       maximum:activePrompt.options?.max??null,
       selectionCount:Array.isArray(action.result)?action.result.length:null
