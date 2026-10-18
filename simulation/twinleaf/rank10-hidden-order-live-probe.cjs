@@ -123,9 +123,10 @@ function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
  * @template T
  * @param {Function} Store
  * @param {(getOrdinal:()=>number,getOwnerDeckSearches:()=>object)=>T} work
+ * @param {0|1} [ownerSeat] Seat whose actual whole-deck search is observed.
  * @returns {T}
  */
-function withRootDispatchCounter(Store,work) {
+function withRootDispatchCounter(Store,work,ownerSeat=1) {
   const descriptor=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.ok(descriptor && typeof descriptor.value==='function');
   let root=null,count=0;
@@ -135,7 +136,7 @@ function withRootDispatchCounter(Store,work) {
     if(this===root)count++;
     const result=descriptor.value.apply(this,args);
     if(this===root) {
-      const state=this.state,owner=state?.players?.[1];
+      const state=this.state,owner=state?.players?.[ownerSeat];
       if(owner) for(const prompt of state.prompts) {
         if(prompt?.constructor?.name==='ChooseCardsPrompt' &&
             prompt.playerId===owner.id &&
@@ -213,34 +214,38 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
     return normalizeDeepClonePrototypes(state,deepClone(state));
   };
   const control=runMatch(common);
+  const archival=rootActionOrdinal===215;
+  // Current-v4 source game ends on turn 16; step 15 is the real turn-2
+  // DDE attachment decision. Historical step 215 is only in archived v3.
+  const ordinal=archival?215:15,actorSeat=archival?1:0;
   const makeTarget=getOrdinal=>({
-    turn:rootActionOrdinal===undefined?27:28,
-    seat:1,makeRandom:()=>seededRandom(20261017),
-    rootActionOrdinal,readRootDispatchCount:getOrdinal
+    turn:archival?28:2,
+    seat:actorSeat,makeRandom:()=>seededRandom(20261017),
+    rootActionOrdinal:ordinal,readRootDispatchCount:getOrdinal
   });
-  const observed=rootActionOrdinal===undefined?
-    withRootHiddenOrderProbe(
-      SimpleTacticsAi,()=>runMatch(common),cloneState,makeTarget(undefined)):
-    withRootDispatchCounter(
-      require(path.join(output,'game/store/store')).Store,
-      (getOrdinal,getOwnerDeckSearches)=>withRootHiddenOrderProbe(
-        SimpleTacticsAi,()=>runMatch(common),cloneState,
-        {...makeTarget(getOrdinal),readOwnerDeckSearches:getOwnerDeckSearches}));
+  const observed=withRootDispatchCounter(
+    require(path.join(output,'game/store/store')).Store,
+    (getOrdinal,getOwnerDeckSearches)=>withRootHiddenOrderProbe(
+      SimpleTacticsAi,()=>runMatch(common),cloneState,
+      {...makeTarget(getOrdinal),readOwnerDeckSearches:getOwnerDeckSearches}),
+    actorSeat);
   assert.deepEqual(observed.result,control,
     'Read-only hidden-order counterfactual changed physical source match');
   assert.equal(observed.events.length,1,
     'Expected one champion-B source root decision at designated source gate');
-  if(rootActionOrdinal===215) {
-    assert.equal(observed.events[0].originalSourceAction?.type,'RetreatAction',
-      'Archived source ordinal 215 must be an authentic Retreat proposal');
-  }
+  assert.equal(observed.events[0].originalSourceAction?.type,
+    archival?'RetreatAction':'PlayCardAction',
+    archival?'Archived source root 215 must propose Retreat':
+      'Current-v4 root 15 must propose the real source PlayCard action');
   return {
-    study:rootActionOrdinal===undefined?
-      'rank10-source-turn27-hidden-order-sensitivity':
-      'rank10-source-ordinal215-hidden-order-sensitivity',
+    study:archival?
+      'rank10-archive-v3-source-ordinal215-hidden-order-sensitivity':
+      'rank10-current-v4-source-root15-hidden-order-sensitivity',
     pinnedTrialId:trials[0].trialId,
     seed:trials[0].seed,
     candidatePhysicalSeat:1,
+    observedActorSeat:actorSeat,
+    observedRootActionOrdinal:ordinal,
     doubleDragonPolicy:policy.doubleDragonArchiveV3?
       'historical-v3-archive':'current-v4',
     root:observed.events[0],
