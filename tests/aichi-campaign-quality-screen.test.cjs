@@ -609,3 +609,37 @@ test('same-turn opponent prompt is not later-turn policy evidence', () => {
   assert.equal(mechanism.opponentNextTurnRootDispatches, 0);
   assert.equal(mechanism.rootWitnesses[0].opponentNextTurnRootActionOrdinal, null);
 });
+
+
+test('live Store terminal winner must agree with recorded completed-game winner', () => {
+  const f = fixture();
+  const record = f.records[0];
+  record.winnerIndex = 1;
+  record.traceSummary.terminalTransition = {
+    evidenceType: 'observed-engine-terminal-transition-v1',
+    before: {phase: 2},
+    after: {phase: 3, winner: 1, players: [
+      {deckRemaining: 3, prizesRemaining: 2},
+      {deckRemaining: 5, prizesRemaining: 0}
+    ]}
+  };
+  let out = auditCampaignQuality(f);
+  assert.equal(out.records[0].terminalOutcomeStatus,
+    'self-consistent-engine-terminal-outcome');
+  assert.equal(out.coverage[0].completedTerminalUnboundTrials, 1);
+  assert.ok(!out.records[0].blockers.includes('terminal-winner-mismatch'));
+  record.winnerIndex = 0;
+  out = auditCampaignQuality(f);
+  assert.equal(out.records[0].terminalOutcomeStatus,
+    'terminal-winner-mismatch');
+  assert.ok(out.records[0].blockers.includes('terminal-winner-mismatch'));
+  record.winnerIndex = 1;
+  record.traceSummary.terminalTransition = {
+    evidenceType: 'observed-engine-terminal-transition-v1',
+    before: {phase: 3}, after: {phase: 3, winner: 1}
+  };
+  out = auditCampaignQuality(f);
+  assert.equal(out.records[0].terminalOutcomeStatus,
+    'terminal-outcome-unavailable');
+  assert.equal(out.winRateEvidence, false);
+});
