@@ -143,7 +143,7 @@ function run() {
   assert.equal(source.cards.length,60);
   assert.equal(plan.candidate.cards.length,60);
   const seeds=Array.from({length:REPEATS},(_,i)=>
-    deriveSlotSeeds(SEED_BASE,'lillie-factorial-v1',SOURCE_RANK,i).B);
+    deriveSlotSeeds(SEED_BASE,'pilot',SOURCE_RANK,i).B);
   assert.equal(new Set(seeds).size,REPEATS);
   assert.ok(!seeds.includes(OLD_SELECTED_POSITIVE));
   const prospective=seeds.map(seed=>
@@ -160,8 +160,9 @@ function run() {
     engineRevision:plan.engineRevision,
     actionLimit:ACTION_LIMIT,
     seedBase:SEED_BASE,
-    prospectiveSeedProtocol:'deriveSlotSeeds(20261019,lillie-factorial-v1,11,repeat).B for repeats 0 through 5; written to source before the CI execution; all retained',
+    prospectiveSeedProtocol:'deriveSlotSeeds(20261019,pilot,11,repeat).B for repeats 0 through 5; written to source before the CI execution; all retained',
     modes:MODES.map(x=>x.id),
+    trialRegistryNote:'Initial manual CI 39174187678 failed before any game because the v3 hash generator rejects unknown phase labels. This run uses the documented pilot phase while preserving seed base, all six prespecified repeat indices and policies; no outcome-conditioned seed selection.',
     prospective,
     retrospectivePositive,
     interpretation:'Only source-dealt short-horizon owner-information decision-policy exposure. The selected positive control is excluded from prospective statistics; weak source bot and no paper clock.',
