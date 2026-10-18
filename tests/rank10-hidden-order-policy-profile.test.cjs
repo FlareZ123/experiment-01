@@ -46,3 +46,27 @@ test('K1 whole-deck-search evidence is scoped to observed actor seat',()=>{
   assert.equal(seen.observedWholeOwnerDeckSearches,1);
   assert.deepEqual(seen.first,{ordinal:2,turn:2});
 });
+
+test('root-boundary digest is captured once from the actual Store state',()=>{
+  class AddPlayerAction {}
+  class OtherAction {}
+  class Store {
+    constructor(){this.state={turn:2,activePlayer:0,prompts:[]};}
+    dispatch(action){this.state.turn+=action instanceof OtherAction?1:0;}
+  }
+  let seen=0;
+  const out=withRootDispatchCounter(Store,(ordinal,searches,boundary)=>{
+    const physical=new Store();
+    physical.dispatch(new AddPlayerAction());
+    physical.dispatch(new OtherAction());
+    const shadow=new Store();
+    shadow.dispatch(new OtherAction());
+    assert.equal(ordinal(),2);
+    return boundary();
+  },0,1,state=>{seen++;return 'source-turn-'+state.turn;});
+  assert.equal(seen,1);
+  assert.deepEqual(out,{
+    rootStep:1,turn:2,activePlayer:0,dispatchedAction:'OtherAction',
+    zoneDigestBefore:'source-turn-2',unresolvedPromptTypes:[]
+  });
+});
