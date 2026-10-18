@@ -184,6 +184,10 @@ function run() {
     sourceGarbodorToolsAtAlternatePass:afterGarbodor.toolCards,
     sourceActiveAtOriginalPass:originalBoard.active,
     sourceActiveAtAlternatePass:alteredBoard.active,
+    candidateTurn24Actions:{
+      original:candidateTurn24(control),
+      alternative:candidateTurn24(alt.result)
+    },
     candidateFirstFollowingTurn:{
       turn:candidateAfter.turn,
       sourceGarbotoxinExpectedFromPrintedTool:candidateAfter.board[0].bench.some(
