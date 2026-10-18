@@ -92,6 +92,16 @@ function compareFrozenPolicyArchives(control, experimental, changedFlag) {
     assert.equal(digest(b), candidate.traceSummary.chronologicalActionTraceSha256,
       'Corrupted counterfactual trace');
 
+    // The fixed plan hashes a printing multiset; source row order can still
+    // change the physical 60-card input arrays and opening deals.
+    const hashArrayValid = value => Array.isArray(value) &&
+      value.length === 2 && value.every(hash =>
+        typeof hash === 'string' && /^[0-9a-f]{64}$/.test(hash));
+    const orderedDeckHashState =
+      !hashArrayValid(prior.engineDeckHashes) ||
+      !hashArrayValid(candidate.engineDeckHashes) ? 'unavailable' :
+        (prior.engineDeckHashes.every((hash, i) =>
+          hash === candidate.engineDeckHashes[i]) ? 'matched' : 'drifted');
     const traceIdentical = digest(a) === digest(b);
     const turnOrderIdentical =
       verifiedStartingTurn(prior) && verifiedStartingTurn(candidate) &&
@@ -114,6 +124,7 @@ function compareFrozenPolicyArchives(control, experimental, changedFlag) {
       trialId: candidate.trialId,
       seed: candidate.seed,
       turnOrderIdentical,
+      orderedDeckHashState,
       traceIdentical,
       engineEchoVerified,
       terminalEvidenceAvailable,
@@ -133,6 +144,10 @@ function compareFrozenPolicyArchives(control, experimental, changedFlag) {
       ['trial-engine-revision-unverified'] : []),
     ...(rows.some(r => !r.turnOrderIdentical) ?
       ['starting-turn-unverified-or-drifted'] : []),
+    ...(rows.some(r => r.orderedDeckHashState === 'unavailable') ?
+      ['ordered-deck-input-hashes-unavailable'] : []),
+    ...(rows.some(r => r.orderedDeckHashState === 'drifted') ?
+      ['ordered-deck-input-hashes-drifted'] : []),
     ...(rows.some(r => !r.fullReplayCaptured) ?
       ['full-action-and-prompt-replay-not-captured'] : []),
     ...(rows.some(r => !r.terminalEvidenceAvailable) ?
