@@ -108,9 +108,15 @@ function fixture(sourceSeat) {
   return {store,state,own,opponent,sourceSeat,source60,defending60};
 }
 
-/** @param {0|1} sourceSeat */
-function runSeat(sourceSeat) {
+/** @param {0|1} sourceSeat @param {2|6} [opponentPrizesRemaining] */
+function runSeat(sourceSeat,opponentPrizesRemaining=6) {
   const f=fixture(sourceSeat);
+  // Stage four already-claimed opposing Prizes into their owner's hand,
+  // preserving both printed 60s for the fifth-self-KO boundary.
+  const alreadyTaken=f.opponent.prizes.slice(opponentPrizesRemaining)
+    .flatMap(slot=>slot.cards.splice(0));
+  f.opponent.hand.cards.push(...alreadyTaken);
+  assert.equal(f.opponent.getPrizeLeft(),opponentPrizesRemaining);
   const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
   const {ResolvePromptAction}=engine('game/store/actions/resolve-prompt-action');
   const {GamePhase}=engine('game/store/state/state');
@@ -132,24 +138,29 @@ function runSeat(sourceSeat) {
       f.store.dispatch(next);
       const prizePrompt=f.state.prompts.find(x=>x.result===undefined);
       assert.equal(prizePrompt?.constructor.name,'ChoosePrizePrompt');
-      assert.equal(prizePrompt.options.count,2);
-      const chosen=f.opponent.prizes.filter(x=>x.cards.length).slice(0,2);
+      const expectedKOs=opponentPrizesRemaining===2?1:2;
+      assert.equal(prizePrompt.options.count,expectedKOs);
+      const chosen=f.opponent.prizes.filter(x=>x.cards.length)
+        .slice(0,expectedKOs);
       assert.equal(prizePrompt.validate(chosen,f.state),true);
       f.store.dispatch(new ResolvePromptAction(prizePrompt.id,chosen));
-      assert.equal(f.opponent.getPrizeLeft(),4);
+      assert.equal(f.opponent.getPrizeLeft(),
+        opponentPrizesRemaining-expectedKOs);
       assert.equal(f.own.bench[3].cards.length,0);
-      assert.equal(f.own.bench[4].cards.length,0);
-      assert.equal(f.own.bench[0].damage,0);
-      assert.equal(f.own.discard.cards.filter(c=>c.name==='Exeggcute').length,2);
+      assert.equal(f.own.bench[4].cards.length,expectedKOs===1?1:0);
+      assert.equal(f.own.bench[0].damage,20-10*expectedKOs);
+      assert.equal(f.own.discard.cards.filter(c=>c.name==='Exeggcute').length,
+        expectedKOs);
       return {card:'Damage Pump LOR',
         prompt:'MoveDamagePrompt',oneDonor:true,
-        twoExeggcuteKnockedOut:true,
-        opponentPrizesBefore:6,opponentPrizesAfter:4,
+        exeggcuteKnockedOut:expectedKOs,
+        opponentPrizesBefore:opponentPrizesRemaining,
+        opponentPrizesAfter:opponentPrizesRemaining-expectedKOs,
         stateStillPlayerTurn:f.state.phase===GamePhase.PLAYER_TURN};
     });
     assert.deepEqual(audit.policyAudit.actions.map(x=>x.action),
       ['PlayCardAction','ResolvePromptAction']);
-    return {sourceSeat,result:audit.result,
+    return {sourceSeat,opponentPrizesRemaining,result:audit.result,
       decisionAudit:audit.policyAudit,
       sourcePrintedCopies:60,
       opponentPrintedCopies:60};
@@ -159,11 +170,12 @@ function runSeat(sourceSeat) {
 /** Both physical seats must execute the same legal source-conserved move. */
 function run(){
   return {
-    schema:'aichi-rank26-autonomous-pump-physical-inventory-conditioned-v1',
+    schema:'aichi-rank26-autonomous-pump-prize-capped-physical-fixture-v2',
     engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    samples:[runSeat(0),runSeat(1)],
+    samples:[runSeat(0),runSeat(1),runSeat(0,2),runSeat(1,2)],
     conservation:'Both registered Aichi 60s exactly conserved, but hand and board are prearranged.',
     sampledNaturalOpening:false,
+    stagedFifthKOWithoutSixth:true,
     fullFiveKOsQualified:false,
     attackQualified:false,
     opponentPolicyQualified:false,
