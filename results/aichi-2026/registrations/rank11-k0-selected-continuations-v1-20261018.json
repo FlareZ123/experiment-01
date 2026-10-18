@@ -1,0 +1,39 @@
+{
+  "schema": "aichi-rank11-K0-selected-authentic-continuation-v1",
+  "parentFrameSha256": "b09ea18666286856f69337581eaf10730ee3ac946bd501e42b04c914e18151bb",
+  "selectionSourceCI": 39097916869,
+  "evidenceStage": "512 original Store first-turn K0 screens; 5 eligible before outcome observation",
+  "sourceRank": 11,
+  "sourceSeat": 0,
+  "candidateRank": 1,
+  "candidateSeat": 1,
+  "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourcePolicy": "rank11-autonomous-boostshake-v1",
+  "candidatePolicy": "pinned SimpleTacticsAi unqualified",
+  "continuationMaxActions": 350,
+  "selected": [
+    {
+      "index": 82,
+      "seed": 2365845580
+    },
+    {
+      "index": 159,
+      "seed": 1841861201
+    },
+    {
+      "index": 198,
+      "seed": 3388373692
+    },
+    {
+      "index": 295,
+      "seed": 2806488363
+    },
+    {
+      "index": 305,
+      "seed": 1762595892
+    }
+  ],
+  "requiredReplayProof": "same 60 printing IDs + exact seed + first player draw log + source first-action ordered printing hand",
+  "qualification": "mechanical lock witness, not a statistical win estimate",
+  "registrationSha256": "5a0719430593a780282499894cd6c16d5e8c4cb09dbcbffcb512b379435488d1"
+}
