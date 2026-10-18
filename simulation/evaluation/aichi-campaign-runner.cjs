@@ -205,7 +205,7 @@ function executeCampaign(inputs, options = {}) {
       captureDecisionTrace: options.captureDecisionTrace === true
     };
     try {
-      const game = play(request);
+      const game = play(request, trial);
       const proof = turnProof(game);
       const validSeed = game.seed === trial.seed;
       const validHashes = Array.isArray(game.deckHashes) &&
@@ -278,6 +278,7 @@ function executeCampaign(inputs, options = {}) {
         observedResearchPolicyProfile: game.researchPolicyProfile || null,
         observedExperimentalTactics: game.experimentalTactics || [],
         rank11AutonomousPolicy: game.rank11AutonomousPolicy || null,
+        rank11AutonomousPolicy: game.rank11AutonomousPolicy || null,
         observedRngProtocol: game.randomnessProtocol || null,
         observedRules: game.rules || null,
         observedEngineDeckHashes: game.deckHashes || null,
@@ -330,7 +331,16 @@ if (require.main === module) {
     throw new Error('Unknown requested campaign policy profile.');
   }
   const runMatch = profiled ?
-    request => profiled.runWithResearchProfile(request, profile) : undefined;
+    (request, trial) => {
+      if (profile !== profiled.RANK11_AUTONOMOUS_PROFILE) {
+        return profiled.runWithResearchProfile(request, profile);
+      }
+      if (trial.rank !== 11) {
+        throw new Error('Rank11 autonomous policy requires published rank11 source.');
+      }
+      const rank11SourceSeat = trial.candidateEngineSlot === 'A' ? 1 : 0;
+      return profiled.runWithResearchProfile({ ...request, rank11SourceSeat }, profile);
+    } : undefined;
   process.stdout.write(JSON.stringify(executeCampaign(loadCampaignInputs(), {
     phase, maxTrials, maxActions, trialIds, runMatch,
     matchOptions: {
