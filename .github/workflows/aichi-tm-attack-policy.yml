@@ -23,6 +23,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank2_score_components:
+        description: Attribute rank2 GH root score difference to nine StateScore components
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
