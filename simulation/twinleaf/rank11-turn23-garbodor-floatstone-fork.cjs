@@ -15,8 +15,9 @@ const engine=relative=>require(path.join(output,relative));
  * No cards, hidden zones, opponent decisions, or printed effects are injected.
  *
  * @template T
- * @param {()=>T} execute Runs one independently seeded genuine source game.
- * @returns {{result:T,selected:object|null,opportunities:number}}
+ * @param {()=>T} execute Runs one fixed authentic source game.
+ * @param {{skipChange?:boolean}} [options] Observe original bot action without alteration.
+ * @returns {{result:T,selected:object|null,opportunities:number,firstCandidatePower:object|null}}
  */
 function withGarbodorFloatStoneTarget(execute,{skipChange=false}={}) {
   if(typeof execute!=='function')throw new TypeError('A source game function is required');
