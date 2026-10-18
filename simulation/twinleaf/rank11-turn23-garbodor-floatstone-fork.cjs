@@ -36,6 +36,11 @@ function withGarbodorFloatStoneTarget(execute) {
         state.players[1].id===this.client?.id &&
         state.phase===GamePhase.PLAYER_TURN &&
         !state.prompts.some(p=>p.result===undefined)) {
+      const shadow=new Simulator(state);
+      const copy=shadow.store.state;
+      const own=copy.players[1];
+      const mew=own.active.getPokemonCard();
+      assert.equal(mew?.name,'Mewtwo & Mew-GX');
     }
     const ordinary=old.value.call(this,state);
     if(selected || state.turn!==23 || state.activePlayer!==0 ||
