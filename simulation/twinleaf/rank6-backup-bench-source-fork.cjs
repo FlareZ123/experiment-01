@@ -25,9 +25,29 @@ function withPublicOwnAttackBoard(Store,work) {
   assert.equal(typeof descriptor?.value,'function');
   let root=null;
   const snapshots=[];
+  let nextTurnEnergy=null;
+  /** @param {object} state */
+  const rank6Energies=state=>{
+    const p=state.players[1];
+    return {
+      active:p.active.getPokemonCard()?.name??null,
+      activeEnergy:p.active.energies.cards.map(c=>c.name),
+      bench:p.bench.map((slot,index)=>({
+        index,pokemon:slot.getPokemonCard()?.name??null,
+        energy:slot.energies.cards.map(c=>c.name)
+      })).filter(x=>x.pokemon!==null)
+    };
+  };
   const wrapped=function(...args) {
     const action=args[0];
     if(!root&&action?.constructor?.name==='AddPlayerAction') root=this;
+    // First real opposing decision after the turn-two attack resolves.
+    // The observer reads public attached Energy only, never hidden zones.
+    if(this===root && !nextTurnEnergy && snapshots.length>0 &&
+       this.state.turn===3 && this.state.activePlayer===0 &&
+       this.state.players.length===2) {
+      nextTurnEnergy=rank6Energies(this.state);
+    }
     if(this===root&&action?.constructor?.name==='AttackAction'&&
        this.state.players.length===2&&this.state.activePlayer===1) {
       snapshots.push({
@@ -39,7 +59,10 @@ function withPublicOwnAttackBoard(Store,work) {
     return descriptor.value.apply(this,args);
   };
   Object.defineProperty(Store.prototype,'dispatch',{...descriptor,value:wrapped});
-  try{return {result:work(),snapshots};}
+  try {
+    const result=work();
+    return {result,snapshots,nextTurnEnergy};
+  }
   finally{Object.defineProperty(Store.prototype,'dispatch',descriptor);}
 }
 
@@ -59,7 +82,9 @@ function unpack(experiment) {
   assert.equal(game.firstTurnSlot,0);
   assert.ok(game.attackTrace.some(x=>x.seat===1&&x.turn===2&&
     x.attack==='Volt Cyclone'));
-  return {source,line,game,snapshot,trace:experiment.actionTrace};
+  return {source,line,game,snapshot,
+    nextTurnEnergy:observer.nextTurnEnergy,
+    trace:experiment.actionTrace};
 }
 
 /** @returns {object} */
@@ -100,6 +125,16 @@ function main() {
     without.snapshot.ownPublic.bench.length+1);
   assert.ok(withBackup.snapshot.ownPublic.bench.some(slot=>
     slot.pokemon?.name==='Iron Thorns ex'));
+  // The mandatory Volt Cyclone effect changes which Thorns carries DCE.
+  // With no Bench the move is impossible and the Active retains Energy.
+  assert.ok(without.nextTurnEnergy&&withBackup.nextTurnEnergy,
+    'Missing physical opposing-turn checkpoint after each attack');
+  assert.deepEqual(without.nextTurnEnergy.activeEnergy,
+    ['Double Colorless Energy']);
+  assert.deepEqual(withBackup.nextTurnEnergy.activeEnergy,[]);
+  assert.ok(withBackup.nextTurnEnergy.bench.some(slot=>
+    slot.pokemon==='Iron Thorns ex' &&
+    slot.energy.includes('Double Colorless Energy')));
   const simplify=x=>({
     action:x.action,parameters:x.parameters,
     pendingPrompt:x.pendingPrompt??null,
@@ -129,7 +164,8 @@ function main() {
     gameWinner:arm.game.finished?arm.game.winner:null,
     actionCount:arm.game.actions,
     turns:arm.game.turns,
-    selectedRootActions:arm.line.events
+    selectedRootActions:arm.line.events,
+    nextTurnPublicEnergy:arm.nextTurnEnergy
   });
   const result={
     schema:'rank6-source-dealt-backup-bench-counterfactual-v1',
