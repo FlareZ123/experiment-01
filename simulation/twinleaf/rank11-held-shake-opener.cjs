@@ -20,9 +20,10 @@ function engine(name) {
  * @param {object} player
  * @param {0|1} seat
  * @param {number} phase
+ * @param {boolean} [conserveGarbodor] Preserve the published pair when both copies are held
  * @returns {boolean}
  */
-function heldShakeOpportunity(state, player, seat, phase) {
+function heldShakeOpportunity(state, player, seat, phase, conserveGarbodor = false) {
   if (![1, 2].includes(state.turn) || state.activePlayer !== seat ||
       state.phase !== phase ||
       player.bench.some(s => s.getPokemonCard()?.name === 'Trubbish') ||
@@ -30,7 +31,8 @@ function heldShakeOpportunity(state, player, seat, phase) {
   const names = player.hand.cards.map(c => c.name);
   return names.includes('Battle VIP Pass') &&
     names.includes('Boost Shake') &&
-    TOOLS.some(name => names.includes(name));
+    TOOLS.some(name => names.includes(name)) &&
+    (!conserveGarbodor || names.filter(name => name === 'Garbodor').length < 2);
 }
 
 /**
@@ -42,9 +44,10 @@ function heldShakeOpportunity(state, player, seat, phase) {
  * @template T
  * @param {0|1} sourceSeat Known physical location of rank11 in this match
  * @param {()=>T} execute One synchronous source-dealt headless match
+ * @param {{conserveGarbodor?:boolean}} [configuration] Opt-in K0/K1 resource protection
  * @returns {{result:T,policyAudit:object}}
  */
-function withRank11HeldShake(sourceSeat, execute) {
+function withRank11HeldShake(sourceSeat, execute, {conserveGarbodor = false} = {}) {
   if (![0, 1].includes(sourceSeat) || typeof execute !== 'function') {
     throw new TypeError('Require known rank11 physical seat and synchronous match.');
   }
@@ -64,6 +67,7 @@ function withRank11HeldShake(sourceSeat, execute) {
   let aborted = null;
   let witness = null;
   let openingTurn = null;
+  let guardedExit = null;
 
   /** @param {object} player @param {string} name @param {object} target */
   function play(player, name, target) {
@@ -102,7 +106,7 @@ function withRank11HeldShake(sourceSeat, execute) {
     const pending = state.prompts.find(p => p.result === undefined);
     if (stage === null) {
       if (pending || !heldShakeOpportunity(state, player, sourceSeat,
-        GamePhase.PLAYER_TURN)) return previous.call(this, state);
+        GamePhase.PLAYER_TURN, conserveGarbodor)) return previous.call(this, state);
       stage = 0;
       openingTurn = state.turn;
       initialOwnHand = player.hand.cards.map(card => card.fullName);
@@ -113,7 +117,20 @@ function withRank11HeldShake(sourceSeat, execute) {
     // pinned resolver without resetting the multi-action plan.
     let action = null;
     if (pending) {
-      if (stage === 1) action = deckChoice(state, player, pending, 'Trubbish');
+      if (stage === 1) {
+        action = deckChoice(state, player, pending, 'Trubbish');
+        if (conserveGarbodor && action &&
+            !pending.cards.cards.some(card => card.name === 'Garbodor')) {
+          // The actual owner deck-search prompt exposes the entire remaining
+          // deck. Preserve the held Tool and Boost Shake when no evolution
+          // target exists; still select the Trubbish via the played VIP Pass.
+          guardedExit = {turn: state.turn, step: stage,
+            reason: 'no-Garbodor-in-owner-visible-search'};
+          const chosen = select(state, action);
+          stage = -1;
+          return chosen;
+        }
+      }
       if (stage === 4) action = deckChoice(state, player, pending, 'Garbodor');
       if (stage === 5 && pending.constructor.name === 'ChoosePokemonPrompt') {
         const index = targetIndex(player);
@@ -158,10 +175,11 @@ function withRank11HeldShake(sourceSeat, execute) {
   try {
     const result = execute();
     return {result, policyAudit: {
-      profile: 'rank11-held-shake-v1',
+      profile: conserveGarbodor ? 'rank11-held-shake-v2-k1-guard' :
+        'rank11-held-shake-v1',
       sourceSeat, openingTurn, initialOwnHand, selectedTool: toolName,
       opportunityDetected: stage !== null, attemptedActions: events.length,
-      actions: events, aborted, witness,
+      actions: events, aborted, guardedExit, witness,
       completeAtDecisionBoundary: stage === 6 &&
         witness?.equippedGarbodor === true,
       qualifiedForCompetitiveInference: false
