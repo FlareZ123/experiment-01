@@ -140,6 +140,16 @@ jobs:
           name: rank26-dce-source-probe-unqualified
           path: rank26-dce-source-probe.json
           if-no-files-found: error
+      - name: Audit preregistered 24 paired source deals and source-first opportunities
+        if: ${{ inputs.rank26_prospective_cohort }}
+        run: node simulation/twinleaf/rank26-prospective-firstturn-cohort.cjs > rank26-prospective-firstturn-cohort.json
+      - name: Archive all 24 preregistered source deals and 48 bot traces
+        if: ${{ inputs.rank26_prospective_cohort }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank26-prospective-firstturn-policy-cohort-unqualified
+          path: rank26-prospective-firstturn-cohort.json
+          if-no-files-found: error
       - name: Verify pure root-state labels
         run: node --test tests/meloetta-rank26-firstturn-source-window.test.cjs
       - name: Search authenticated rank-26 first-turn source window (unqualified)
