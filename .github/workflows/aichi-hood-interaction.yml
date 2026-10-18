@@ -120,6 +120,12 @@ jobs:
           path: rank8-hood-second.json
           if-no-files-found: warn
 
+      - name: Regress Hood under equipped Garbotoxin and parse source replies
+        if: inputs.hood_rank8_boostshake_fork
+        run: |
+          node --check simulation/twinleaf/rank8-psychic-recovery-source-reply.cjs
+          node --check simulation/twinleaf/rank8-hooded-door-source-reply.cjs
+          node --test tests/rank8-hooded-door-source-reply.test.cjs
       - name: Execute source-dealt rank8 early Garbotoxin source fork
         if: inputs.hood_rank8_boostshake_fork
         run: node simulation/twinleaf/rank8-boostshake-source-run.cjs > rank8-boostshake-fork.json
