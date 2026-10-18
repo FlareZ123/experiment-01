@@ -31,6 +31,23 @@ All arms use the identical rank-6 source 60, fixed v3 slot seeds, engine-card re
 
 The established manual workflow [`aichi-source-locked-campaign.yml`](../../.github/workflows/aichi-source-locked-campaign.yml) now supports an optional source-setup test in place of six extended game diagnostics. It retains the original branch as the default. No push-triggered CI was enabled.
 
+## Compiled first-turn experiment outcome (18 October)
+
+**Pinned manual [CI 39086384962](https://github.com/FlareZ123/experiment-01/actions/runs/39086384962) passed**, at exact research commit `a5f44195da21767e5be66a55a0f9b33d113da27c`. The predecessor [CI 39086071193](https://github.com/FlareZ123/experiment-01/actions/runs/39086071193) also passed but redirected its full JSON to an artifact without printing the compact contrast to the job log. The rerun emitted the exact summary in the successful job log and archived 10 root post-setup states in [artifact 12120434730](https://github.com/FlareZ123/experiment-01/actions/runs/39086384962/artifacts/12120434730), ZIP SHA-256 `db8c33567c155fc5ed0c747f12d158d794cccc420cbc94846ce6c33553a74521`.
+
+All ten real pinned-Store runs captured post-setup zones. There were **zero engine exceptions**. The actual physical candidate went first in every A arm and second in every B arm, confirmed for the source and aligned branches. Opponent full post-setup zone digests were **identical** between native and aligned arms within each candidate and seed. The outcome evidence compares hand + Active + Bench card multiset intersections with the same-seat source-reference setup, and separately compares all six Prize printing identities. This is one realized, finite sample under two fixed v3 seeds.
+
+| Candidate, physical seat and seed | Matching source printing *input positions* native → aligned | Candidate exposed post-setup copies shared with reference native → aligned | Prized copies shared with reference native → aligned |
+| --- | ---: | ---: | ---: |
+| Hood A, `1509836216` | 28 → 55 | **6 → 9** | **3 → 5** |
+| Temple A, `1509836216` | 19 → 55 | **5 → 9** | **2 → 5** |
+| Hood B, `995631139` | 28 → 55 | **5 → 7** | **3 → 6** |
+| Temple B, `995631139` | 19 → 55 | **4 → 6** | **3 → 6** |
+
+All four frozen, same-seed, same-seat comparisons increased the realized reference hand-and-in-play overlap, and all four increased Prize overlap. **This confirms feasibility of the position-aligned coupling method on these source deals.** It does not prove a general rate improvement, actual starting-seven equality, or that later policy actions remain counterfactually comparable. Agent44's source-printing maximum pertains to input positions; the realized post-setup overlaps are a separate measurement. The experimental post-setup capture is internal and contains hidden cards. It is an evidence observer and must remain outside AI decision inputs.
+
+The workflow completed despite an upstream nested-submodule cleanup warning after uploading the artifact. Its main compilation, probe execution and artifact step succeeded. Follow-up evidence needed: a randomized multi-seed design, replay checks of instrumentation noninterference, K0-safe decision policies, and eventually matched full opponent games with complete rule qualification.
+
 ## Acceptance and limits
 
 A successful compiled probe must produce actual turn-one Store snapshots with intact source-deck hashes, legal initialized zones and recognized physical slot; it must preserve all candidate and opponent 60-card identities. A missing snapshot, draw-log mismatch, different opponent post-setup zones, lower actual card overlap, or unverified start-order matching is valuable adverse evidence to report.
