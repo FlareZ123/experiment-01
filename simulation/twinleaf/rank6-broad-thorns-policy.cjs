@@ -14,12 +14,28 @@ const discardOrder=[
   'Guzma','Lillie\'s Determination','Lusamine','Gladion'
 ];
 
-/** @param {{name:string}[]} cards @returns {{name:string}[]} */
-function chooseOpeningDiscards(cards,priorities=discardOrder) {
+/**
+ * @param {{name:string}[]} cards
+ * @param {string[]} [priorities]
+ * @param {boolean} [conditionalTagCallPayment]
+ * @returns {{name:string}[]}
+ */
+function chooseOpeningDiscards(
+  cards,priorities=discardOrder,conditionalTagCallPayment=false
+) {
   const out=[];
   for(const name of priorities) {
     for(const card of cards) {
       if(card.name===name && out.length<2 && !out.includes(card)) out.push(card);
+    }
+  }
+  // A spare, now-redundant Tag Call can pay after the required connector
+  // has been spent; this is always opt-in and lowest payment priority.
+  if(conditionalTagCallPayment) {
+    for(const card of cards) {
+      if(card.name==='Tag Call' && out.length<2 && !out.includes(card)) {
+        out.push(card);
+      }
     }
   }
   return out.length===2?out:[];
@@ -30,9 +46,14 @@ function chooseOpeningDiscards(cards,priorities=discardOrder) {
  * Prize values are read. Actual accessibility is deferred to search prompts.
  * @param {{name:string}[]} hand
  * @param {boolean} [thunderInPlay]
+ * @param {string[]} [priorities]
+ * @param {boolean} [conditionalTagCallPayment]
  * @returns {{channel:string,needDce:boolean,needThunder:boolean,discardCount:number}|null}
  */
-function planOpeningHand(hand,thunderInPlay=false,priorities=discardOrder) {
+function planOpeningHand(
+  hand,thunderInPlay=false,priorities=discardOrder,
+  conditionalTagCallPayment=false
+) {
   const held = name=>hand.some(c=>c.name===name);
   const needDce=!held('Double Colorless Energy');
   const needThunder=!thunderInPlay && !held('Thunder Mountain Prism Star');
@@ -41,8 +62,17 @@ function planOpeningHand(hand,thunderInPlay=false,priorities=discardOrder) {
   }
   const supporter=held('Guzma & Hala')?'held-guzma-hala':
     (held('Tag Call')?'tag-call-to-guzma-hala':null);
-  if(!supporter || (needDce && chooseOpeningDiscards(hand,priorities).length!==2)) {
-    return null;
+  if(!supporter) return null;
+  if(needDce) {
+    // The first Tag Call must be played to obtain G&H. Never pre-count
+    // that same physical card as one of the two later discard payments.
+    const paymentHand=hand.slice();
+    if(supporter==='tag-call-to-guzma-hala') {
+      paymentHand.splice(paymentHand.findIndex(c=>c.name==='Tag Call'),1);
+    }
+    if(chooseOpeningDiscards(
+      paymentHand,priorities,conditionalTagCallPayment
+    ).length!==2) return null;
   }
   return {channel:supporter,needDce,needThunder,
     discardCount:needDce?2:0};
@@ -54,7 +84,7 @@ function planOpeningHand(hand,thunderInPlay=false,priorities=discardOrder) {
  * reading deck cards is restricted to actual ChooseCardsPrompt resolution.
  * @template T
  * @param {()=>T} work
- * @param {{seat?:number,turn?:number,discardPriority?:string[],benchBackup?:boolean}} [options]
+ * @param {{seat?:number,turn?:number,discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean}} [options]
  * @returns {{result:T,started:boolean,completed:boolean,events:object[],abortReason:string|null,openingPlan:object|null}}
  */
 function withBroadThornsSourceAttack(work,options={}) {
@@ -62,6 +92,7 @@ function withBroadThornsSourceAttack(work,options={}) {
   const seat=options.seat??1,turn=options.turn??2;
   const priorities=options.discardPriority??discardOrder;
   const benchBackup=options.benchBackup===true;
+  const conditionalTagCallPayment=options.conditionalTagCallPayment===true;
   const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
   /** @param {string} name */
   const engine=name=>require(path.join(root,name));
@@ -147,7 +178,9 @@ function withBroadThornsSourceAttack(work,options={}) {
       // decision. Reconsidering after a generic Supporter or manual Energy
       // attachment can create an illegal second Supporter/attachment.
       const inPlay=p.stadium.cards.some(c=>c.name==='Thunder Mountain Prism Star');
-      const plan=planOpeningHand(p.hand.cards,inPlay,priorities);
+      const plan=planOpeningHand(
+        p.hand.cards,inPlay,priorities,conditionalTagCallPayment
+      );
       if(!plan) {
         phase='inactive';
         return original.call(this,state);
@@ -202,7 +235,9 @@ function withBroadThornsSourceAttack(work,options={}) {
         new ResolvePromptAction(prompt.id,openingPlan.needDce?1:0));
     }
     if(phase==='discard' && prompt?.constructor.name==='ChooseCardsPrompt') {
-      const payment=chooseOpeningDiscards(p.hand.cards,priorities);
+      const payment=chooseOpeningDiscards(
+        p.hand.cards,priorities,conditionalTagCallPayment
+      );
       if(payment.length!==2 || !prompt.validate(payment,state)) {
         abort(state,'G&H discard payment unavailable');
         return original.call(this,state);
