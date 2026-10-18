@@ -3,6 +3,11 @@ name: Aichi Temple and Wobbuffet board interactions
 on:
   workflow_dispatch:
     inputs:
+      rank11_copy_observer_parity:
+        description: 'Read-only source copied-attack parity check'
+        required: false
+        type: boolean
+        default: false
       rank11_delegated_attack_selection_source:
         description: 'Pinned authentic rank11 New Moon delegated attack selection and Store declaration audit'
         required: false
