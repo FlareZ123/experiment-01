@@ -502,6 +502,7 @@ function runMatch(request) {
     const { CoinFlipPrompt } = engine('game/store/prompts/coin-flip-prompt');
     const { ShuffleDeckPrompt } = engine('game/store/prompts/shuffle-prompt');
     const { GamePhase } = engine('game/store/state/state');
+    const { GameMessage } = engine('game/game-message');
     const { Format, CardType, SuperType } = engine('game/store/card/card-types');
     const { GameSettings } = engine('game/core/game-settings');
     const { SimpleTacticsAi } = engine('simple-bot/simple-tactics-ai');
@@ -597,6 +598,7 @@ function runMatch(request) {
       }) : null;
     const snorlaxSoloOpeningEvents = request.snorlaxSoloOpeningSeat === undefined ?
       null : [];
+    const rootSoloSetupSelections = snorlaxSoloOpeningEvents ? [] : null;
     const optionsBySeat = [0, 1].map(seat => {
       let configured = attackPreferenceOptions &&
         (request.attackBeforeRetreatSeat === undefined ||
@@ -752,6 +754,17 @@ function runMatch(request) {
       const epochBeforeAction = knowledgeEvents ? optionsBySeat.map(options =>
         options.bunnelbyDeckKnowledgeEpoch.snapshot()) : null;
       const pending = state.prompts.find(prompt => prompt.result === undefined);
+      const rootedSoloSetup = rootSoloSetupSelections && pending &&
+          pending.message === GameMessage.CHOOSE_STARTING_POKEMONS &&
+          pending.playerId === state.players[request.snorlaxSoloOpeningSeat].id ? {
+            promptId:pending.id,phase:state.phase,turn:state.turn,
+            sourceSeat:request.snorlaxSoloOpeningSeat,
+            activeBefore:state.players[request.snorlaxSoloOpeningSeat]
+              .active.getPokemonCard()?.fullName??null,
+            benchBefore:state.players[request.snorlaxSoloOpeningSeat]
+              .bench.map(slot=>slot.getPokemonCard()?.fullName).filter(Boolean),
+            emptySelectionValid:pending.validate([],state)
+          } : null;
       if (request.captureStartingBoard === true &&
           initialBoardAtFirstTurn === null && !pending &&
           state.phase === GamePhase.PLAYER_TURN) {
@@ -810,6 +823,9 @@ function runMatch(request) {
         assertValidPromptAction(state, action);
       }
       const actionName = action.constructor.name;
+      const rootedSoloSetupChoice = rootedSoloSetup &&
+        actionName === 'ResolvePromptAction' &&
+        Array.isArray(action.result) ? action.result.map(card=>card.fullName) : null;
       const turnBefore = state.turn;
       if (knowledgeEvents) {
         optionsBySeat.forEach((options,seat) => {
@@ -912,6 +928,16 @@ function runMatch(request) {
       } catch (error) {
         throw new Error('Twinleaf dispatch failed after ' + actions + ' actions (' +
           action.constructor.name + '): ' + error.message, { cause: error });
+      }
+      if (rootedSoloSetup && rootedSoloSetupChoice) {
+        const source = store.state.players[request.snorlaxSoloOpeningSeat];
+        rootSoloSetupSelections.push({
+          ...rootedSoloSetup, actionOrdinal:actions,
+          selectedNames:rootedSoloSetupChoice,
+          activeAfter:source.active.getPokemonCard()?.fullName??null,
+          benchAfter:source.bench.map(slot=>slot.getPokemonCard()?.fullName)
+            .filter(Boolean)
+        });
       }
       if (rootConfirm) {
         const defending = store.state.players[1-seat];
@@ -1116,6 +1142,8 @@ function runMatch(request) {
       ...(request.captureStartingBoard === true ? {initialBoardAtFirstTurn} : {}),
       ...(snorlaxSoloOpeningEvents ? {
         snorlaxSoloOpeningEvents,
+        rootSoloSetupSelections,
+        rootSoloSetupSelectionProtocol:'actual-Store-dispatched-starting-prompt-v1',
         snorlaxSoloOpeningPolicy:'SoloSnorlaxOwnHandSetup-v1'
       } : {}),
       attackPassProbeCount,
