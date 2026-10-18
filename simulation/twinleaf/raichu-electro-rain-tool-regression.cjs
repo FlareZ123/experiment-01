@@ -24,6 +24,11 @@ function electroRainVsBenchedV(toolAttached, barrierPosition=null) {
   const {AttackAction} = load('game/store/actions/game-actions');
   const {ResolvePromptAction} = load('game/store/actions/resolve-prompt-action');
 
+  const base = f.card('Pikachu LOR');
+  f.a.active.cards.unshift(base);
+  assert.deepEqual(f.a.active.getPokemons().map(card => card.name),
+    ['Pikachu','Alolan Raichu']);
+
   const target = new PokemonCardList();
   target.cards.push(f.card('Shadow Rider Calyrex V CRE'));
   f.b.bench.push(target);
@@ -50,6 +55,7 @@ function electroRainVsBenchedV(toolAttached, barrierPosition=null) {
 
   // The pinned prompt recomputes blocked indices by Card.id. Synthetic fixture
   // cards must have distinct IDs just as cards do in a real 60-card game.
+  base.id = 1000;
   f.a.active.getPokemonCard().id = 1001;
   f.attached.forEach((energy, index) => { energy.id = 1002 + index; });
   const events = [];
