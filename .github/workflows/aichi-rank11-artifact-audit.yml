@@ -11,6 +11,7 @@ on:
         options:
           - source-policy-legacy
           - prospective-exposure-v1
+          - first-vip-source-v1
       archived_run:
         description: GitHub Actions run containing rank11 source regression and campaign reports
         required: true
@@ -44,3 +45,6 @@ jobs:
       - name: Verify prospectively registered rank11 trial denominator and starting order
         if: ${{ inputs.audit_mode == 'prospective-exposure-v1' }}
         run: node scripts/rank11-prospective-artifact-summary.cjs
+      - name: Print authentic first-turn VIP selection evidence
+        if: ${{ inputs.audit_mode == 'first-vip-source-v1' }}
+        run: node -e "const x=require('./rank11-newmoon-first-vip-counterfactual.json');console.log(JSON.stringify({seed:x.seed,originalOpening:x.baseline.audit.opening,control:x.baseline.audit.events,counterfactual:x.alternative.audit.events,firstActions:x.alternative.firstActions.map(a=>({turn:a.turnBefore,action:a.action,card:a.card}))},null,2))"
