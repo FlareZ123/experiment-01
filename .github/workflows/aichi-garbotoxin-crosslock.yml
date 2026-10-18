@@ -189,7 +189,7 @@ jobs:
       - name: Regress shared rank11 K0 K1 hybrid on four original deals
         if: inputs.rank11_hybrid_k0_regression
         run: |
-          node --test tests/rank11-direct-opportunity.test.cjs
+          node --test tests/rank11-direct-opportunity.test.cjs tests/rank11-autonomous-opener.test.cjs
           node simulation/twinleaf/rank11-k0-k1-hybrid-source-regression.cjs > rank11-hybrid-k0k1.json
       - name: Archive shared K0 K1 comparison
         if: always() && inputs.rank11_hybrid_k0_regression
