@@ -13,9 +13,10 @@ const engine = modulePath => require(path.join(output, modulePath));
  * Herdier SUM 104's Treasure Hunt is an on-evolution Ability that retrieves
  * one Item. The opposing lock is fully in play before evolution.
  * @param {'none'|'wobbuffet'|'garbotoxin-tool'|'garbotoxin-bare'|'silent-lab'|'iron-thorns'} lock
+ * @param {boolean} [twoItems=false] Whether to test illicit two-Item selection
  * @returns {object}
  */
-function probe(lock) {
+function probe(lock, twoItems = false) {
   const manager = initializeCards();
   let nextId = 1;
   /** @param {string} name */
@@ -70,8 +71,10 @@ function probe(lock) {
 
   const incoming = card('Herdier SUM');
   const retrievedItem = card('Switch SVI');
+  const secondItem = twoItems ? card('Ultra Ball SVI') : null;
   player.hand.cards.push(incoming);
   player.discard.cards.push(retrievedItem);
+  if (secondItem) player.discard.cards.push(secondItem);
   for (const side of state.players) {
     side.deck.cards.push(card('Psychic Energy SVE'));
     for (let i = 0; i < 6; i++) {
@@ -85,6 +88,8 @@ function probe(lock) {
     player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index: 0
   }));
   const prompts = [];
+  let allowedTwoItemSelection = null;
+  let itemPromptMax = null;
   for (let n = 0; n < 5; n++) {
     const pending = state.prompts.find(prompt => prompt.result === undefined);
     if (!pending) break;
@@ -92,9 +97,13 @@ function probe(lock) {
     if (pending.constructor.name === 'ConfirmPrompt') {
       store.dispatch(new ResolvePromptAction(pending.id, true));
     } else if (pending.constructor.name === 'ChooseCardsPrompt') {
-      assert.equal(pending.validate([retrievedItem]), true,
-        'Treasure Hunt should permit its discarded Item');
-      store.dispatch(new ResolvePromptAction(pending.id, [retrievedItem]));
+      const wanted = secondItem ? [retrievedItem, secondItem] : [retrievedItem];
+      allowedTwoItemSelection = secondItem ? pending.validate(wanted) : null;
+      itemPromptMax = pending.options.max;
+      const selection = allowedTwoItemSelection ? wanted : [retrievedItem];
+      assert.equal(pending.validate(selection), true,
+        'Treasure Hunt must permit a legal Item selection');
+      store.dispatch(new ResolvePromptAction(pending.id, selection));
     } else {
       break;
     }
@@ -102,11 +111,15 @@ function probe(lock) {
 
   const evolved = evolvingSlot.getPokemonCard() === incoming;
   const recovered = player.hand.cards.includes(retrievedItem);
+  const recoveredItemCount = [retrievedItem, secondItem]
+    .filter(item => item && player.hand.cards.includes(item)).length;
   const expected = ['none', 'garbotoxin-bare', 'silent-lab', 'iron-thorns']
     .includes(lock);
   return {
-    lock, evolved, expectedRecoveryByPrintedRules: expected, recovered,
-    matchesPrintedExpectation: recovered === expected,
+    lock, twoItems, evolved, expectedRecoveryByPrintedRules: expected,
+    recovered, recoveredItemCount,
+    matchesPrintedExpectation: recovered === expected && recoveredItemCount <= 1,
+    allowedTwoItemSelection, itemPromptMax,
     itemStillInDiscard: player.discard.cards.includes(retrievedItem),
     promptSequence: prompts,
     unhandledPrompts: state.prompts.filter(p => p.result === undefined)
@@ -120,14 +133,14 @@ function runTest() {
     'none', 'wobbuffet', 'garbotoxin-tool', 'garbotoxin-bare',
     'silent-lab', 'iron-thorns'
   ];
-  const records = scenarios.map(probe);
+  const records = [...scenarios.map(lock => probe(lock)), probe('none', true)];
   for (const record of records) {
     assert.equal(record.evolved, true, record.lock + ': real evolution failed');
   }
   return {
     schema: 'herdier-sum-on-evolution-item-recovery-lock-source-v1',
     engineRevision: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    scope: 'six staged real Store evolution actions; no full-game performance',
+    scope: 'seven staged real Store evolution actions; no full-game performance',
     sourceFieldRanksWithHerdier: [2, 15],
     discrepancies: records.filter(record => !record.matchesPrintedExpectation),
     records,
