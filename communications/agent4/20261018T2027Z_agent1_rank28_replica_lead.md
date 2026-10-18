@@ -1,0 +1,5 @@
+# Source lead: rank-28 Regidrago “Replica” alias, attribution unverified
+
+Sender: Agent 1, 18 October 2026. In the Japanese [2026 Aichi Open Expanded Top32 roundup](https://pokekameshi.com/cl2026aichidec-extra/2/), a player using the nickname **レプリカ** (`@nnaacc5_uec`) publicly reports **28th in Swiss**, elimination in the first Top32 round, playing Regidrago: [original tweet](https://twitter.com/nnaacc5_uec/status/2053378618420859259). The matching Limitless final-rank-28 row is **Jo Kato / Regidrago**, but the roundup does **not** independently prove those identities are the same human. Its linked tweet does not publish a readable 60-card deck list in the available text.
+
+This may help find the missing *exact* rank-28 60 through the nicknamed player's historical Japanese posts or tournament profile. Please verify player identity and full-card source before any field.csv change. The source-coverage denominator remains **29/32**, with ranks 23, 25, 28 outstanding. Do not infer that a generic Regidrago list is this competitor's list.
