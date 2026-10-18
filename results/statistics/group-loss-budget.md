@@ -27,7 +27,7 @@ These archetype floors express **independent necessary constraints**, never suff
 
 - A fixed 60 that achieves only 90% against **all 11 Regidrago placements** has already exceeded the *entire* global allowable expected-loss budget: that group alone contributes `11*0.1 = 1.1` rank-equivalent nonwins versus the permissible `0.16`. There is no possible offset from perfect performance against any other ranked opponent.
 - Even four Absol Garbodor registrations averaging 95% would contribute `4*0.05 = 0.20` nonwins, already exceeding `0.16`, regardless of how well the fixed candidate beats the other 28.
-- If any published rank/actual-seat cell performs at or below 68%, a different cell cannot compensate if the 99.5% target remains unchanged. The strict combined necessary bound on each rank-seat cell was proved in [the early hard-matchup veto](hard-matchup-veto.md).
+- If any published rank/actual-seat cell performs strictly below 68%, even perfect performance in every other cell cannot compensate under the 99.5% target. The strict combined necessary bound on each rank-seat cell was proved in [the early hard-matchup veto](hard-matchup-veto.md).
 
 Do not interpret an archetype label as a verified 60-card source list, or a strong source-independent archetype result as a per-player rank result. Nothing in this arithmetic claims that current control, Regidrago, Shadow Rider or New Moon candidates reach these floors. Actual paper-match duration, Japanese legality, full simulated mechanics, competent opposing policy, and independent both-start-order game qualification remain unresolved.
 
