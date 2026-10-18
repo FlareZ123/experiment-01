@@ -9,3 +9,16 @@
 ## Compiled outcome
 
 [Manual CI 39136504791](https://github.com/FlareZ123/experiment-01/actions/runs/39136504791) **PASSED** at head `fc026892a36072b47790c7accde2a6b6dd33e479`. Both source-dealt baseline versus passive-observer root action traces were identical. The nine component sums matched all four original `StateScore` totals. Archived `rank2-gh-score-components` artifact ID **12140057094**, ZIP SHA256 `c615fd488da72405525ba0375a6fc1d5050d86e8f9fd7951ce37cad33b539f63`.
+
+| Genuine G&H scorer component | Mode one OFF | Mode one ON | Difference |
+| --- | ---: | ---: | ---: |
+| HandScore | 12 | 10 | **-2** |
+| PlayerScore | 40 | 38 | **-2** |
+| OpponentScore | -62 | -62 | 0 |
+| ActiveScore | 9 | 9 | 0 |
+| BenchScore | 56 | 56 | 0 |
+| EnergyScore | -240 | -240 | 0 |
+| Special conditions, damage, tools | 0 | 0 | 0 |
+| **Total** | **-185** | **-189** | **-4** |
+
+Bellelba's unchanged option-independent score was -186 (Hand 10, Opponent -59, Player 38, Active 9, Bench 56, Energy -240, other components zero). The two competing scores therefore reverse ordering entirely through HandScore and PlayerScore under the added mode-one resolver.
