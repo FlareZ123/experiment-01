@@ -242,6 +242,16 @@ function executeDiagnostic(options) {
       const completed = game.finished === true && [0, 1, 3].includes(game.winner);
       const rawTrace = policyFlags.captureDecisionTrace === true ? game.decisionTrace : null;
       const traceRequested = policyFlags.captureDecisionTrace === true;
+      const rootLedger = traceRequested ? game.rootActionLedger : null;
+      const rootLedgerValid = traceRequested &&
+        game.rootActionLedgerProtocol === 'actual-store-root-action-ledger-v1' &&
+        Array.isArray(rootLedger) && rootLedger.length === game.actions &&
+        rootLedger.every((event, index) =>
+          event.actionOrdinal === index && [-1, 0, 1].includes(event.playerSlot) &&
+          typeof event.action === 'string' && event.action.length > 0 &&
+          Number.isSafeInteger(event.turnBefore) &&
+          Number.isSafeInteger(event.turnAfter) &&
+          event.turnAfter >= event.turnBefore);
       const opportunityRequested = policyFlags.captureElectrodeOpportunity === true;
       const opportunityValid = !opportunityRequested || (
         game.electrodeOpportunitySummary?.evidenceType ===
@@ -335,7 +345,11 @@ function executeDiagnostic(options) {
           chronologicalActionTraceSha256: traceRequested && traceValid ?
             digest(rawTrace) : null,
           capturedMeaningfulActions: traceRequested && traceValid ? rawTrace.length : null,
-          coversAllActionsAndPromptResolutions: false,
+          rootActionLedger: rootLedgerValid ? rootLedger : null,
+          rootActionLedgerSha256: rootLedgerValid ? digest(rootLedger) : null,
+          rootActionLedgerProtocol: rootLedgerValid ?
+            'actual-store-root-action-ledger-v1' : null,
+          coversAllActionsAndPromptResolutions: rootLedgerValid,
           electrodeOpportunitySummary: opportunityRequested && opportunityValid ?
             game.electrodeOpportunitySummary : null
         }
