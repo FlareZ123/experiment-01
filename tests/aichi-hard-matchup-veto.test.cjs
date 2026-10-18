@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {vetoDesign, assessHardMatchupVeto, RANK_FLOOR, CELL_FLOOR} =
+const {vetoDesign, rankAllNonwinBound, assessHardMatchupVeto, RANK_FLOOR, CELL_FLOOR} =
   require('../scripts/aichi-hard-matchup-veto.cjs');
 
 const FROZEN = Object.freeze({
@@ -28,7 +28,7 @@ function fixture(kind = 'rank', attemptIndex = 1) {
     plannedTrials: Array.from({length:n}, (_, i) => ({
       gameId: 'synthetic-' + i,
       seed: 100000 + i,
-      startingSeat: kind === 'rank' ? i % 2 ? 'second' : 'first' : 'second'
+      startingSeat: kind === 'rank' ? i % 2 ? 'first' : 'second' : 'second'
     }))
   };
   const games = registration.plannedTrials.map(row => {
@@ -57,21 +57,23 @@ function fixture(kind = 'rank', attemptIndex = 1) {
 test('necessary target floors account for all 32 ranks and two actual starting seats', () => {
   assert.ok(Math.abs(RANK_FLOOR - 0.84) < 1e-12);
   assert.ok(Math.abs(CELL_FLOOR - 0.68) < 1e-12);
-  assert.equal(vetoDesign(1, 'rank').games, 6);
+  assert.equal(vetoDesign(1, 'rank').games, 5);
   assert.equal(vetoDesign(1, 'seat').games, 8);
-  assert.equal(vetoDesign(2, 'rank').games, 6);
+  assert.equal(vetoDesign(2, 'rank').games, 5);
   assert.equal(vetoDesign(2, 'seat').games, 9);
-  assert.equal(vetoDesign(10, 'rank').games, 8);
+  assert.equal(vetoDesign(10, 'rank').games, 7);
   assert.equal(vetoDesign(10, 'seat').games, 12);
 });
 
-test('balanced all-nonwin rank batch crosses its pre-budgeted threshold', () => {
+test('nearly-balanced all-nonwin rank batch crosses its pre-budgeted threshold', () => {
   const {registration, games} = fixture();
   const out = assessHardMatchupVeto(registration, games);
-  assert.equal(out.games, 6);
+  assert.equal(out.games, 5);
+  assert.equal(out.actualFirstGames, 2);
+  assert.equal(out.actualSecondGames, 3);
   assert.equal(out.wins, 0);
   assert.equal(out.conditionalStatisticalVeto, true);
-  assert.ok(Math.abs(out.allNonWinNullProbabilityUpperBound - .16 ** 6) < 1e-12);
+  assert.ok(Math.abs(out.allNonWinNullProbabilityUpperBound - .192 ** 2 * .128 ** 3) < 1e-12);
   assert.equal(out.evidenceClass, 'structurally-checked-self-reported-qualified-games');
 });
 
@@ -82,6 +84,18 @@ test('all-nonwin actual-seat batch crosses its distinct 64-cell threshold', () =
   assert.equal(out.startingSeat, 'second');
   assert.equal(out.conditionalStatisticalVeto, true);
   assert.ok(Math.abs(out.allNonWinNullProbabilityUpperBound - .32 ** 8) < 1e-12);
+});
+
+test('sharp heterogeneous start bound rejects naive identical-start loss assumption', () => {
+  assert.ok(Math.abs(rankAllNonwinBound(2,3) -
+    .192 ** 2 * .128 ** 3) < 1e-12);
+  assert.ok(Math.abs(rankAllNonwinBound(3,2) -
+    rankAllNonwinBound(2,3)) < 1e-12);
+  assert.ok(rankAllNonwinBound(2,2) > vetoDesign(1, 'rank').perTestAlpha);
+  assert.ok(rankAllNonwinBound(2,3) <= vetoDesign(1, 'rank').perTestAlpha);
+  assert.equal(vetoDesign(3, 'rank').games, 6);
+  assert.throws(() => rankAllNonwinBound(-1,2), /Nonnegative/);
+  assert.throws(() => rankAllNonwinBound(0,0), /Nonnegative/);
 });
 
 test('one observed win prevents the all-nonwin veto', () => {
@@ -111,11 +125,11 @@ test('failed actual-seat draw-log attribution cannot be counted', () => {
   assert.throws(() => assessHardMatchupVeto(registration, games), /actual starting seat/i);
 });
 
-test('rank screen refuses 3:3 synthetic slots mistakenly registered as 4:2', () => {
+test('rank screen rejects changed 2:3 preregistered actual starting-seat counts', () => {
   const {registration, games} = fixture();
   registration.plannedTrials[1].startingSeat = 'first';
   games[1].startingSeat = 'first';
-  assert.throws(() => assessHardMatchupVeto(registration, games), /equal actual-first/);
+  assert.throws(() => assessHardMatchupVeto(registration, games), /exact predeclared near-balanced/);
 });
 
 test('unregistered score, altered source identity and policy drift fail closed', () => {
