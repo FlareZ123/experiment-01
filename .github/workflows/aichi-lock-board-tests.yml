@@ -85,6 +85,16 @@ jobs:
           name: rank8-distinct-target-contrast
           path: rank8-distinct-targets.json
           if-no-files-found: warn
+      - name: Exercise opt-in runner flag on authentic rank-8 source deal
+        if: inputs.rank8_distinct_targets_contrast
+        run: node simulation/twinleaf/rank8-source-distinct-attach-runner.cjs > rank8-attach-runner.json
+      - name: Preserve source-dealt runner provenance
+        if: inputs.rank8_distinct_targets_contrast && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank8-source-attach-runner-flag
+          path: rank8-attach-runner.json
+          if-no-files-found: warn
       - name: Counterfork rank-8 Tapu Koko Energy to both Mega Absol ex
         if: inputs.rank8_two_mega_absol_fork
         run: node simulation/twinleaf/rank8-tapukoko-two-mega-absol-counterfork.cjs > rank8-absol-counterfork.json
