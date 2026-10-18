@@ -1,7 +1,6 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {runWithResearchProfile,RANK11_AUTONOMOUS_PROFILE}=
   require('./policy-profiles.cjs');
 const candidate=require('../../results/aichi-2026/candidate-hood-shadow-rider.json');
@@ -46,6 +45,7 @@ function concise(game) {
 
 /** Narrow original-deal setup position counterfactual, no qualified wins. */
 function run() {
+  const {planAichi}=require('../evaluation/aichi-pilot.cjs');
   const plan=planAichi(candidate,{allowEquivalentBasicEnergies:true,
     allowBasicEnergyMirrorPrintings:true,allowJapanesePromoHooks:true});
   const rank11=plan.opponents.find(row=>row.rank===11);
