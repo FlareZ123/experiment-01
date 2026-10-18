@@ -84,12 +84,12 @@ def ticket_held_exchange_probabilities(
             not 0 < prizes <= deck_size - opening - prizes):
         raise ValueError("Infeasible Ticket-held physical deck")
     valid_ticket_hands = (
-        choose(deck_size - 1, opening - 1)
-        - choose(deck_size - 1 - basics, opening - 1)
+        comb(deck_size - 1, opening - 1)
+        - comb(deck_size - 1 - basics, opening - 1)
     )
     dce_in_valid_ticket_hand = (
-        choose(deck_size - 2, opening - 2)
-        - choose(deck_size - 2 - basics, opening - 2)
+        comb(deck_size - 2, opening - 2)
+        - comb(deck_size - 2 - basics, opening - 2)
     )
     if not valid_ticket_hands:
         raise ValueError("No Basic-valid opening containing Ticket")
