@@ -6,6 +6,7 @@ const {loadCampaignInputs}=require('./aichi-campaign-runner.cjs');
 const {planAichi}=require('./aichi-pilot.cjs');
 const {prepareCandidateInputOrder}=require('./aichi-candidate-input-order.cjs');
 const {captureSetupOnly}=require('./aichi-setup-only-capture.cjs');
+const {cardCopyMultisetDigest}=require('../twinleaf/opening-setup-zones.cjs');
 const {deriveSlotSeeds}=require('../../scripts/aichi-decorrelated-seeds.cjs');
 const {runMatch}=require('../twinleaf/headless.cjs');
 const {Store}=require(path.resolve(__dirname,
@@ -114,6 +115,13 @@ function sampleSourceCoupling(options={}){
               error=String(failure?.message||failure);
             }
             const observation=observedSeat(capture?.setupZones,candidateSeat);
+            const expectedDecks=[request.deckA,request.deckB];
+            const capturedSeats=capture?.setupZones?.seats;
+            const openingInventoriesVerified=Array.isArray(capturedSeats)&&
+              capturedSeats.length===2 && capturedSeats.every((seat,index)=>
+                seat.openingCopyCount===60 &&
+                seat.openingCopyMultisetDigest===
+                  cardCopyMultisetDigest(expectedDecks[index]));
             const sample={
               rank,repeat,seed,physicalSlot,candidateId:candidate.id,
               inputOrderProtocol:protocol,
@@ -122,6 +130,7 @@ function sampleSourceCoupling(options={}){
               inputDeckHash:ordered.executedInputHash,
               actualPostSetup:observation,
               stoppedAtFirstTurn:capture?.stoppedAtFirstTurn===true,
+              openingInventoriesVerified,
               error
             };
             local.push(sample);
@@ -164,14 +173,15 @@ function sampleSourceCoupling(options={}){
   // A syntactically successful CI run with zero captured Store setups is
   // misleading evidence. Require every predeclared source arm to reach turn 1.
   const failed=samples.filter(row=>row.error || !row.stoppedAtFirstTurn ||
-    !row.actualPostSetup);
+    !row.actualPostSetup || !row.openingInventoriesVerified);
   if(failed.length){
     const example=failed[0];
     throw new Error('Source setup-coupling capture failed in '+failed.length+'/'+
       samples.length+' arms; first: rank='+example.rank+
       ' repeat='+example.repeat+' seat='+example.physicalSlot+
       ' candidate='+example.candidateId+
-      ' error='+(example.error||'missing post-setup snapshot'));
+      ' error='+(example.error||(!example.openingInventoriesVerified ?
+        'source 60-card inventory mismatch' : 'missing post-setup snapshot')));
   }
   const summary=[];
   for(const rank of ranks){
