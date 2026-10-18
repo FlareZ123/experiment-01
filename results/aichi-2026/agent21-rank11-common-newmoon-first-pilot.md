@@ -39,3 +39,17 @@ Using the five disjoint categories `(VIP=4, Mewtwo=2, Gengar=1, other Basics=14,
 The corresponding probability merely to **see at least one VIP by the first turn** in a valid opener is `479458943 / 1103593454 = 43.4452507182%`. Conditional on seeing VIP, the narrow two-targets-in-deck condition holds in **72.6094843999%** of these deals. An independent 200,000-shuffle seeded Monte Carlo gave 31.5453% for the joint event, agreeing to sampling error.
 
 This is a **necessary-inventory exposure screen for precisely the two-target deck-search route**, not the probability of legal VIP play, an optimal setup, or successful attack. Mewtwo or Gengar already drawn/Benched could permit a stronger alternative with fewer deck targets; conversely insufficient Bench space, Item lock, an inconvenient Active Pokémon, Supporter or Energy contention, and damage/Prize considerations can make the two-target route undesirable. Future first-turn policy claims should report those visible constraints explicitly and test source-real outcomes. No new engine game or qualified competitive result accompanies this mathematical addendum.
+
+
+### Early resource concurrence against a first-turn Tool Garbodor
+
+The source-tested rank11 policy can establish a Tool-bearing Garbodor before the New Moon player's **first** turn when rank11 starts. The fixed New Moon 60 has four VIP, two Field Blower, six Psychic-providing Energy cards, and 17 Basic Pokémon. Under the same valid-seven plus natural first-draw model above, all of VIP, Field Blower and Energy are disjoint from the 17 Basic cards. Thus a direct first-eight joint screen can be computed by inclusion-exclusion, without multiplying independent marginal probabilities.
+
+For a forbidden subset totalling `k` of those non-Basic resource cards, define
+`Q(k) = [C(60-k,7)-C(43-k,7)]/[C(60,7)-C(43,7)] × (53-k)/53`.
+This is the conditional probability that the opening seven and first-turn draw **avoid every card** in that subset. The intervening six random Prizes do not alter this draw marginal, by exchangeability.
+
+- **VIP and Field Blower both directly seen:** `1-Q(4)-Q(2)+Q(6) = 5581553/58083866 = 9.6094722758%`.
+- **VIP, Field Blower and at least one of six Energy cards directly seen:** `1-Q(4)-Q(2)-Q(6)+Q(6)+Q(10)+Q(8)-Q(12) = 25913413/551796727 = 4.6961882396%`. Here the two different six-card exclusion groups (VIP plus Blower, and Energy alone) are distinct subsets despite having the same `Q(6)` value. Equivalently use the full eight-term inclusion-exclusion over resource group sizes (4, 2, 6).
+
+An independent 250,000-shuffle source-count Monte Carlo gave approximately 9.5542% and 4.7346%, within sampling fluctuation. These direct conjunctions are **neither full first-turn attack probabilities nor access upper bounds once legal searches, deck cycling, attack costs, Board positioning and Supporters are modeled**. They reveal why comparing independent individual-card access marginals obscures the real, compound setup barrier. An actual held Field Blower must also be playable and targeted correctly under the opponent's live lock.
