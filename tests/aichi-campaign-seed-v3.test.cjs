@@ -164,3 +164,7 @@ test('v1 and v2 remain separately reproducible', () => {
   assert.deepEqual(v1, loadDefaultCampaign('paired-slots-v1'));
   assert.deepEqual(v2, loadDefaultCampaign('independent-slots-v2'));
 });
+
+// Exercise source-card positional coupling alongside common-seed scheduling.
+// This is a pure print-array/model audit, separate from full-game competence.
+require('./aichi-position-coupling.test.cjs');
