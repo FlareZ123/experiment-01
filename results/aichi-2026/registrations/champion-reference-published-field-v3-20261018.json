@@ -1,0 +1,369 @@
+{
+  "schema_version": 1,
+  "scope": "entire-candidate-phase-no-retroactive-selection",
+  "campaignPlanDigest": "21fd5c47f6168f127f2e3dcad4b9d42bd79ed0c4b3801b261b5d8d667ef10cbf",
+  "fieldDigest": "15bb91ad4a3c546bf5890d7b0eb644d69a87257af45eb0b0db1fb893948b4217",
+  "sourceRankCount": 29,
+  "unavailableSourceRanks": [
+    23,
+    25,
+    28
+  ],
+  "candidateId": "champion-reference",
+  "candidateDeckSha256": "85d816b20b514bcf2936fbeca79d9577f745bc7e1e7e151c3234fd6c9ea81f52",
+  "phase": "published-field",
+  "seedProtocol": "decorrelated-slots-v3",
+  "seedBase": 20261016,
+  "repeats": 1,
+  "expected_trials": [
+    {
+      "game_id": "published-field:1:0:champion-reference:A",
+      "rank": 1,
+      "seed": 4226057018,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:1:0:champion-reference:B",
+      "rank": 1,
+      "seed": 114251598,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:2:0:champion-reference:A",
+      "rank": 2,
+      "seed": 157259541,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:2:0:champion-reference:B",
+      "rank": 2,
+      "seed": 225716525,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:3:0:champion-reference:A",
+      "rank": 3,
+      "seed": 1504539478,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:3:0:champion-reference:B",
+      "rank": 3,
+      "seed": 2264387202,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:4:0:champion-reference:A",
+      "rank": 4,
+      "seed": 3291451324,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:4:0:champion-reference:B",
+      "rank": 4,
+      "seed": 771881345,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:5:0:champion-reference:A",
+      "rank": 5,
+      "seed": 1995668291,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:5:0:champion-reference:B",
+      "rank": 5,
+      "seed": 3084831334,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:6:0:champion-reference:A",
+      "rank": 6,
+      "seed": 3116742542,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:6:0:champion-reference:B",
+      "rank": 6,
+      "seed": 4228719731,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:7:0:champion-reference:A",
+      "rank": 7,
+      "seed": 1127024293,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:7:0:champion-reference:B",
+      "rank": 7,
+      "seed": 1780649273,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:8:0:champion-reference:A",
+      "rank": 8,
+      "seed": 2060949163,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:8:0:champion-reference:B",
+      "rank": 8,
+      "seed": 900317889,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:9:0:champion-reference:A",
+      "rank": 9,
+      "seed": 1360909377,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:9:0:champion-reference:B",
+      "rank": 9,
+      "seed": 1949235311,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:10:0:champion-reference:A",
+      "rank": 10,
+      "seed": 3472161149,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:10:0:champion-reference:B",
+      "rank": 10,
+      "seed": 2178091181,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:11:0:champion-reference:A",
+      "rank": 11,
+      "seed": 926437142,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:11:0:champion-reference:B",
+      "rank": 11,
+      "seed": 1189368262,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:12:0:champion-reference:A",
+      "rank": 12,
+      "seed": 1764695665,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:12:0:champion-reference:B",
+      "rank": 12,
+      "seed": 3784906626,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:13:0:champion-reference:A",
+      "rank": 13,
+      "seed": 3649974993,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:13:0:champion-reference:B",
+      "rank": 13,
+      "seed": 223295933,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:14:0:champion-reference:A",
+      "rank": 14,
+      "seed": 3481758925,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:14:0:champion-reference:B",
+      "rank": 14,
+      "seed": 3864969087,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:15:0:champion-reference:A",
+      "rank": 15,
+      "seed": 323382013,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:15:0:champion-reference:B",
+      "rank": 15,
+      "seed": 2953382283,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:16:0:champion-reference:A",
+      "rank": 16,
+      "seed": 866416861,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:16:0:champion-reference:B",
+      "rank": 16,
+      "seed": 3411681118,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:17:0:champion-reference:A",
+      "rank": 17,
+      "seed": 906127422,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:17:0:champion-reference:B",
+      "rank": 17,
+      "seed": 3226307775,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:18:0:champion-reference:A",
+      "rank": 18,
+      "seed": 1994885898,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:18:0:champion-reference:B",
+      "rank": 18,
+      "seed": 3989985330,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:19:0:champion-reference:A",
+      "rank": 19,
+      "seed": 4068159807,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:19:0:champion-reference:B",
+      "rank": 19,
+      "seed": 520300872,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:20:0:champion-reference:A",
+      "rank": 20,
+      "seed": 3729363892,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:20:0:champion-reference:B",
+      "rank": 20,
+      "seed": 510835731,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:21:0:champion-reference:A",
+      "rank": 21,
+      "seed": 2558259418,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:21:0:champion-reference:B",
+      "rank": 21,
+      "seed": 239285000,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:22:0:champion-reference:A",
+      "rank": 22,
+      "seed": 662064496,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:22:0:champion-reference:B",
+      "rank": 22,
+      "seed": 3840787943,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:24:0:champion-reference:A",
+      "rank": 24,
+      "seed": 345711541,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:24:0:champion-reference:B",
+      "rank": 24,
+      "seed": 861810015,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:26:0:champion-reference:A",
+      "rank": 26,
+      "seed": 3110347407,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:26:0:champion-reference:B",
+      "rank": 26,
+      "seed": 2597494245,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:27:0:champion-reference:A",
+      "rank": 27,
+      "seed": 2093181640,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:27:0:champion-reference:B",
+      "rank": 27,
+      "seed": 1937965266,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:29:0:champion-reference:A",
+      "rank": 29,
+      "seed": 4011954645,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:29:0:champion-reference:B",
+      "rank": 29,
+      "seed": 2032119797,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:30:0:champion-reference:A",
+      "rank": 30,
+      "seed": 3761044408,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:30:0:champion-reference:B",
+      "rank": 30,
+      "seed": 3097155163,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:31:0:champion-reference:A",
+      "rank": 31,
+      "seed": 1098062414,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:31:0:champion-reference:B",
+      "rank": 31,
+      "seed": 1295587841,
+      "candidate_side": "B"
+    },
+    {
+      "game_id": "published-field:32:0:champion-reference:A",
+      "rank": 32,
+      "seed": 1169181429,
+      "candidate_side": "A"
+    },
+    {
+      "game_id": "published-field:32:0:champion-reference:B",
+      "rank": 32,
+      "seed": 949520314,
+      "candidate_side": "B"
+    }
+  ],
+  "scheduleSha256": "c4470115fe0953deaffbaeb605dc78a9f7a99d98eed114266729f242a3807219"
+}
