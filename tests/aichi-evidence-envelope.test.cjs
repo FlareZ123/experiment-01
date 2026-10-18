@@ -83,8 +83,14 @@ test('provenance envelope is explicitly uncertified and comparison-sensitive',()
   assert.equal(left.fullActionReplayAvailable,false);
   const same=createEvidenceEnvelope(inputs,archive,{...provenance});
   assert.equal(hasMatchingResearchConditions(left,same),true);
-  const changed=createEvidenceEnvelope(inputs,archive,{
-    ...provenance,effectiveMatchOptions:{isolatePolicyRandomness:false}
+  const alternate=fixture();
+  const alternateOptions={...alternate.provenance.effectiveMatchOptions,
+    isolatePolicyRandomness:false};
+  for (const row of alternate.archive.records) {
+    row.effectiveMatchOptions={...alternateOptions};
+  }
+  const changed=createEvidenceEnvelope(alternate.inputs,alternate.archive,{
+    ...alternate.provenance,effectiveMatchOptions:alternateOptions
   });
   assert.equal(hasMatchingResearchConditions(left,changed),false);
   assert.throws(()=>createEvidenceEnvelope(inputs,archive,{
