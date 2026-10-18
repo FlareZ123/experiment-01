@@ -46,3 +46,21 @@ test('defender Items are hindsight physical inventory, never policy access',()=>
   assert.throws(()=>defendingHeldItems({...event,playerSlot:-1},types),
     /authenticated attacker/);
 });
+
+test('snapshot projects all real player hand lock flag categories',()=>{
+  const source=player('Gengar & Mimikyu-GX');
+  const defender=player('Shadow Rider V');
+  defender.cannotPlayItemCards=true;
+  defender.cannotPlaySupporterCards=true;
+  defender.cannotPlayStadiumCards=true;
+  defender.cannotPlayToolCards=true;
+  defender.cannotPlayEnergyCards=true;
+  defender.cannotPlaySpecialEnergyCards=true;
+  defender.cannotPlayPokemonCards=true;
+  defender.playLocksTurnsRemaining=1;
+  const lock=beforeAction({players:[source,defender]})[1].handPlayLocks;
+  assert.deepEqual(lock,{
+    item:true,supporter:true,stadium:true,tool:true,
+    energy:true,specialEnergy:true,pokemon:true,turnsRemaining:1
+  });
+});
