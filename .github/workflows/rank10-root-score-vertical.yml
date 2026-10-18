@@ -1,0 +1,32 @@
+name: Rank10 source-root score vertical
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-root-score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Test scorer observer and source-root gate
+        run: node --test tests/twinleaf-tactic-score-trace.test.cjs tests/rank10-source-score-opportunity-scout.test.cjs tests/rank10-hidden-order-live-probe.test.cjs tests/rank10-hidden-order-policy-profile.test.cjs
+      - name: Observe authentic rank10 score opportunities
+        run: node simulation/twinleaf/rank10-source-score-opportunity-scout.cjs
+      - name: Compare rank10 root12 score under hidden-deck permutation
+        run: node simulation/twinleaf/rank10-hidden-order-live-probe.cjs score12
