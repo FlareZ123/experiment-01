@@ -67,6 +67,7 @@ function audit() {
           finished: result.finished,
           endReason: result.endReason,
           physicalZoneIntegrity: result.physicalZoneIntegrity,
+          telepathRootAttachEvents: result.telepathRootAttachEvents,
           firstAnomalyDecisionContext: result.physicalZoneIntegrity.firstAnomaly ?
             result.decisionTrace.filter(event =>
               event.actionOrdinal <= result.physicalZoneIntegrity.firstAnomaly.actionOrdinal)
