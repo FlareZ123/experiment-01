@@ -141,6 +141,25 @@ function test() {
     waveVeil.prompt,waveVeil.codes),null,
     'Wave Veil might block the projected two-Bench five-Prize line');
 
+  const mrMime={
+    name:'Mr. Mime',fullName:'Mr. Mime PLF',hp:70,tags:[],
+    powers:[{name:'Bench Barrier'}]
+  };
+  const mimeBench=caseState();
+  mimeBench.state.players[1].bench.push({
+    hp:70,hpBonus:0,damage:0,tools:[],
+    getPokemonCard:()=>mrMime
+  });
+  assert.equal(planElectroRainDamage(mimeBench.state,mimeBench.own,
+    mimeBench.prompt,mimeBench.codes),null,
+    'Aichi rank-2 Mr. Mime prevents projected Bench damage');
+
+  const mimeActive=caseState();
+  mimeActive.state.players[1].active.getPokemonCard=()=>mrMime;
+  assert.equal(planElectroRainDamage(mimeActive.state,mimeActive.own,
+    mimeActive.prompt,mimeActive.codes),null,
+    'Bench Barrier remains relevant while Mr. Mime is Active');
+
   const insufficient=caseState({budget:1});
   assert.equal(planElectroRainDamage(insufficient.state,insufficient.own,
     insufficient.prompt,insufficient.codes),null);
