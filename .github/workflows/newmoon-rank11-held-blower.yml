@@ -1,0 +1,36 @@
+name: New Moon authentic held-Blower response
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  field-blower-counterfactual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned simulator dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned simulator
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run source-rank11 automatic policy with one real-hand candidate answer
+        run: node simulation/twinleaf/newmoon-rank11-real-hand-blower-response.cjs > newmoon-rank11-held-blower.json
+      - name: Preserve source-first and selected legal Item counterfactual
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-rank11-held-blower-unqualified
+          path: newmoon-rank11-held-blower.json
+          if-no-files-found: warn
