@@ -12,9 +12,10 @@ const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  * @param {object} player Acting owner
  * @param {object} prompt Owner's ChooseCardsPrompt
  * @param {{energySuperType:number,pokemonSuperType:number,basicEnergyType:number,basicStage:number,playerTurnPhase:number}} types
+ * @param {{allowOtherBasics?:boolean}} [policy] Explicit alternate policy scope.
  * @returns {object[]|null} One Basic Psychic Energy target, or delegate
  */
-function selectRank31FogEnergy(state, player, prompt, types) {
+function selectRank31FogEnergy(state, player, prompt, types, {allowOtherBasics = false} = {}) {
   const active = state.players[state.activePlayer];
   if (state.phase !== types.playerTurnPhase ||
       active?.id !== player.id ||
@@ -22,10 +23,11 @@ function selectRank31FogEnergy(state, player, prompt, types) {
       player.cannotPlayEnergyCards ||
       player.active.getPokemonCard()?.fullName !== 'Chimecho CIN' ||
       player.active.cards.some(card => card.superType === types.energySuperType) ||
-      player.hand.cards.some(card => card.superType === types.energySuperType ||
-        (card.superType === types.pokemonSuperType &&
-         card.stage === types.basicStage)) ||
-      player.bench.some(slot => slot.getPokemonCard()) ||
+      player.hand.cards.some(card => card.superType === types.energySuperType) ||
+      (!allowOtherBasics && player.hand.cards.some(card =>
+        card.superType === types.pokemonSuperType &&
+        card.stage === types.basicStage)) ||
+      (!allowOtherBasics && player.bench.some(slot => slot.getPokemonCard())) ||
       !player.supporter.cards.some(card => card.fullName === 'Fog Crystal CRE') ||
       prompt.playerId !== player.id ||
       prompt.cards !== player.deck ||
@@ -47,9 +49,10 @@ function selectRank31FogEnergy(state, player, prompt, types) {
  * All other choices defer to the pinned generic resolver.
  *
  * @param {object} options Pinned simple-bot configuration
+ * @param {{allowOtherBasics?:boolean}} [policy] Opt-in broader Bell resource strategy.
  * @returns {object} New configuration; original input remains untouched
  */
-function withRank31FogEnergyPrompt(options) {
+function withRank31FogEnergyPrompt(options, {allowOtherBasics = false} = {}) {
   /** @param {string} name @returns {any} */
   const load = name => require(path.join(output, name));
   const {ChooseCardsPromptResolver} =
@@ -76,7 +79,7 @@ function withRank31FogEnergyPrompt(options) {
           basicEnergyType: EnergyType.BASIC,
           basicStage: Stage.BASIC,
           playerTurnPhase: GamePhase.PLAYER_TURN
-        });
+        }, {allowOtherBasics});
         if (selected) return new ResolvePromptAction(prompt.id, selected);
       }
       return super.resolvePrompt(state, player, prompt);
