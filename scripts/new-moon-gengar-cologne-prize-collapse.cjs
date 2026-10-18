@@ -52,7 +52,7 @@ function caseFor(manifest) {
     manifest.entries.filter(entry=>entry.name_en==='Dusclops')
       .reduce((sum,entry)=>sum+entry.count,0);
   assert.ok([gengar,mewtwo,cologne,basics].every(Number.isInteger));
-  return {
+  const channelRisks = {
     basics,gengar,mewtwo,cologne,
     openingValid:1-mulliganProbability(basics),
     allGengarPrized:allPrizedAfterLegalSeven(basics,gengar,gengar),
@@ -61,13 +61,13 @@ function caseFor(manifest) {
       allPrizedAfterLegalSeven(basics,gengar+mewtwo,gengar+mewtwo),
     allGengarAndColognePrized:
       allPrizedAfterLegalSeven(basics,gengar+cologne,gengar),
-    // Inclusion-exclusion across all physical copies of both channels.
-    // 'Both accessible' means only at least one copy of each is unprized;
-    // it says nothing about usable hand, deck search, lock or chosen attack.
-    get bothChannelsUnprized() {
-      return 1-this.allGengarPrized-this.allColognePrized+
-        this.allGengarAndColognePrized;
-    }
+  };
+  // Inclusion-exclusion over physical copies. The presence of an unprized
+  // copy says nothing about finding or legally using it under lock.
+  return {
+    ...channelRisks,
+    bothChannelsUnprized:1-channelRisks.allGengarPrized-
+      channelRisks.allColognePrized+channelRisks.allGengarAndColognePrized
   };
 }
 
