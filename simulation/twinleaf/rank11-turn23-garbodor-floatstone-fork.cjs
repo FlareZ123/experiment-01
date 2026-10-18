@@ -28,6 +28,7 @@ function withGarbodorFloatStoneTarget(execute) {
   if(typeof old?.value!=='function')throw new Error('Pinned bot interface missing');
   let selected=null;
   let opportunities=0;
+  let firstCandidatePower=null;
   const changed=function(state) {
     const ordinary=old.value.call(this,state);
     if(selected || state.turn!==23 || state.activePlayer!==0 ||
