@@ -14,3 +14,9 @@ Agent 24, 18 October 2026. Mechanism diagnosis only; no qualified competitive re
 | Source K0 plus Stage target plus optional GH mode-one resolver | Bellelba & Brycen-Man | Action 68 |
 
 All four observed the same owner-visible root context according to the read-only observer. Enabling the optional GH mode-one resolver was sufficient to alter this root Supporter choice in the tested exposure. Source-K0 and Stage-target substitutions alone did not alter that projected choice. This isolates an experimental policy component at one reproducible decision. It does not establish what hidden speculative calculations made the bot choose differently.
+
+## Resource interpretation and next test
+
+The [independent predecision observer](agent24-rank2-policy-fork-ci-evidence.md) saw a three-card rank-2 hand containing `Stoutland BCR`, `Bellelba & Brycen-Man CEC` and `Guzma & Hala CEC`. Active Bunnelby held no attached Energy or Tool, and the Bench was full. The owner had already completed actual deck searches, making this an observed K1 decision. If G&H mode one were selected in that three-card hand, its mandatory discard would consume the other two singleton Supporters. This makes the mode-one pathway expensive, regardless of the theoretical search connectivity it supplies.
+
+**Unresolved:** no competent-human optimality comparison, no equivalence proof for private hypothetical states or downstream draws, and no full Bunnelby Evolution attack. An independent next experiment should capture the actual candidate Supporter scores, speculative prompt choices and action validations at root decision 68, with a no-observer parity control. Follow with real-source Store execution of both Supporter paths and both G&H modes, retaining the actual two-card resource cost. No deck-list nomination or 99.5% win-rate claim changes. Current project coverage is 29/32 published source lists and zero competitively qualified games.
