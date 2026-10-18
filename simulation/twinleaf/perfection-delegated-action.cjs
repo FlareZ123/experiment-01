@@ -81,9 +81,14 @@ function probe(channel) {
       {player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
     declarations.push(action.type);
     store.dispatch(action);
-    const prompt = state.prompts.find(p => p.result === undefined);
+    let prompt = state.prompts.find(p => p.result === undefined);
+    for (let step=0; step<8 && prompt?.constructor.name==='WaitPrompt';step++) {
+      store.dispatch(new ResolvePromptAction(prompt.id,true));
+      prompt = state.prompts.find(p => p.result === undefined);
+    }
     assert.equal(prompt?.constructor.name,'ChooseAttackPrompt',
-      'Perfection should request a copied attack');
+      'Perfection should request a copied attack; pending=' +
+      state.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name).join(','));
     const printed = prompt.cards.find(c => c.fullName === gengar.fullName);
     assert.ok(printed,'Actual discard Gengar must be in the attack-source prompt');
     const attack = printed.attacks.find(a => a.name === 'Horror House-GX');
