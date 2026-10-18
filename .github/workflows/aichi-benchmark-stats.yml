@@ -23,7 +23,18 @@ jobs:
         run: node --test tests/aichi-regidrago-coverage-panel.test.cjs
       - name: Exact source rank31 Roxie plus Koffing direct access
         run: node --test tests/rank31-roxie-pair.test.cjs
-      - name: Verify exact rank11 first-draw lock opportunity census
-        run: node --test tests/rank11-boostshake-opening-census.test.cjs
       - name: Audit locale-dependent source deck fingerprint order
         run: node --test tests/aichi-printing-order-audit.test.cjs
+
+  rank11-source-census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify independent exact hand Prize and first-draw derivations
+        run: node --test tests/rank11-boostshake-opening-census.test.cjs
+      - name: Print source-locked numerator and conditional access rates
+        run: node scripts/rank11-boostshake-opening-census.cjs
