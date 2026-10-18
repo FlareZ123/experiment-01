@@ -100,7 +100,7 @@ test('sharp heterogeneous start bound rejects naive identical-start loss assumpt
 
 test('one observed win prevents the all-nonwin veto', () => {
   const {registration, games} = fixture();
-  games[0].winnerIndex = 0;
+  games[0].winnerIndex = games[0].candidateEngineSlot === 'A' ? 0 : 1;
   games[0].outcome = 'win';
   assert.equal(assessHardMatchupVeto(registration, games).conditionalStatisticalVeto, false);
 });
@@ -127,8 +127,8 @@ test('failed actual-seat draw-log attribution cannot be counted', () => {
 
 test('rank screen rejects changed 2:3 preregistered actual starting-seat counts', () => {
   const {registration, games} = fixture();
-  registration.plannedTrials[1].startingSeat = 'first';
-  games[1].startingSeat = 'first';
+  registration.plannedTrials[0].startingSeat = 'first';
+  games[0].startingSeat = 'first';
   assert.throws(() => assessHardMatchupVeto(registration, games), /exact predeclared near-balanced/);
 });
 
