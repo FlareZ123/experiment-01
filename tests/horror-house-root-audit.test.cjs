@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {beforeAction,rootHorrorHouseEvents}=require('../simulation/twinleaf/horror-house-root-audit.cjs');
+const {beforeAction,rootHorrorHouseEvents,defendingHeldItems}=require('../simulation/twinleaf/horror-house-root-audit.cjs');
 function player(name) {
   return {active:{getPokemonCard:()=>({name}),energies:{cards:[{name:'Prism Energy'}]}},
     hand:{cards:[{}]},prizes:[{cards:[{}]},{cards:[]}],usedGX:false,
@@ -27,4 +27,22 @@ test('only logged real Horror House attack events, native or delegated',()=>{
   assert.deepEqual(rows.map(x=>x.triggerAction),['AttackAction','ResolvePromptAction']);
   assert.ok(rows.every(x=>x.resolutionVerified===false));
   assert.deepEqual(rootHorrorHouseEvents(a,a,[]),[]);
+});
+
+test('defender Items are hindsight physical inventory, never policy access',()=>{
+  const a=player('Gengar');
+  const b=player('Shadow Rider V');
+  b.hand.cards=[
+    {name:'Ultra Ball',superType:2,trainerType:0},
+    {name:'Acerola',superType:2,trainerType:1},
+    {name:'Forest Seal Stone',superType:2,trainerType:3},
+    {name:'VS Seeker',superType:2,trainerType:0},
+    {name:'Psychic Energy',superType:3}
+  ];
+  const snapshot=beforeAction({players:[a,b]});
+  const event={playerSlot:0,before:snapshot};
+  const types={SuperType:{TRAINER:2},TrainerType:{ITEM:0}};
+  assert.deepEqual(defendingHeldItems(event,types),['Ultra Ball','VS Seeker']);
+  assert.throws(()=>defendingHeldItems({...event,playerSlot:-1},types),
+    /authenticated attacker/);
 });
