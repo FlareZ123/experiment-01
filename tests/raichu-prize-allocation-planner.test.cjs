@@ -128,6 +128,23 @@ function test() {
   assert.deepEqual(regSplit.map(({target,damage})=>
     [target.slot,target.index,damage]),[[2,0,270],[2,1,210]]);
 
+  // A Regidrago that copied Hisuian Goodra VSTAR's Rolling Iron may
+  // survive the apparent KO: 300 printed damage minus 80 is only 220.
+  const rollingIron=caseState({budget:10});
+  const rollingBoard=rollingIron.state.players[1];
+  rollingBoard.bench=[];
+  rollingBoard.active.hp=280;
+  rollingBoard.active.getPokemonCard=()=>
+    ({fullName:'Regidrago VSTAR SIT',hp:280,tags:['VSTAR']});
+  rollingIron.prompt.maxAllowedDamage[0].damage=580;
+  assert.ok(planElectroRainDamage(rollingIron.state,rollingIron.own,
+    rollingIron.prompt,rollingIron.codes),
+    'Unprotected VSTAR can be knocked out by 300');
+  rollingBoard.active.damageReductionNextTurn=80;
+  assert.equal(planElectroRainDamage(rollingIron.state,rollingIron.own,
+    rollingIron.prompt,rollingIron.codes),null,
+    'Rolling Iron 80 reduction prevents the 300-damage KO claim');
+
   const waveVeil=caseState();
   const manaphy={
     name:'Manaphy',fullName:'Manaphy BRS',hp:70,tags:[],
