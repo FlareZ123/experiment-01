@@ -44,7 +44,7 @@ function run() {
   assert.equal(audit?.opportunityDetected, true,
     'Automatic player did not recognize the public/own-hand source opportunity');
   assert.equal(audit?.attemptedActions, 11,
-    'Automatic decision line did not finish eleven Store actions');
+    'Automatic decision line did not finish eleven Store actions: ' + JSON.stringify(audit));
   assert.equal(audit?.aborted, null);
   assert.equal(audit?.completeAtDecisionBoundary, true,
     'Automatic line must produce the Tool-bearing Garbodor before opponent acts');
