@@ -114,7 +114,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify terminal-transition and campaign regressions
-        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/printed-basic-energy-audit.test.cjs tests/aichi-basic-covered-passes.test.cjs tests/aichi-benched-basic-pass-triage.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-pass-board-audit.test.cjs tests/aichi-campaign-execute.test.cjs tests/aichi-campaign-seed-v2.test.cjs tests/aichi-campaign-seed-v3.test.cjs tests/decision-hand-evidence.test.cjs tests/aichi-opening-decision-audit.test.cjs tests/aichi-campaign-quality-screen.test.cjs tests/tm-evolution-pass-evidence.test.cjs tests/bunnelby-k0-deck-target-leak.test.cjs tests/active-opening-pivot.test.cjs tests/attack-retreat-order.test.cjs tests/retreat-transition-evidence.test.cjs tests/pass-attack-announcement-probe.test.cjs tests/aichi-pass-attack-opportunities.test.cjs tests/prompt-integrity.test.cjs
+        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/printed-basic-energy-audit.test.cjs tests/aichi-basic-covered-passes.test.cjs tests/aichi-benched-basic-pass-triage.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-pass-board-audit.test.cjs tests/aichi-campaign-execute.test.cjs tests/aichi-campaign-seed-v2.test.cjs tests/aichi-campaign-seed-v3.test.cjs tests/decision-hand-evidence.test.cjs tests/aichi-opening-decision-audit.test.cjs tests/aichi-campaign-quality-screen.test.cjs tests/tm-evolution-pass-evidence.test.cjs tests/bunnelby-k0-deck-target-leak.test.cjs tests/active-opening-pivot.test.cjs tests/attack-retreat-order.test.cjs tests/retreat-transition-evidence.test.cjs tests/pass-attack-announcement-probe.test.cjs tests/aichi-pass-attack-opportunities.test.cjs tests/prompt-integrity.test.cjs tests/electrode-opportunity-observer.test.cjs
       - name: Install engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -129,14 +129,14 @@ jobs:
       - name: Keep manually requested diagnostics within the CI budget
         env:
           AICHI_RANKS: ${{ inputs.pilot_ranks || '6' }}
-        run: node -e "const a=process.env.AICHI_RANKS.split(',').map(s=>s.trim());const valid=new Set(['1','2','3','4','5','6','8','10','26']);if(!a.length||a.length>2||a.some(x=>!valid.has(x))||new Set(a).size!==a.length)throw Error('Choose one or two distinct published pilot ranks')"
+        run: node -e "const a=process.env.AICHI_RANKS.split(',').map(s=>s.trim());const valid=new Set(['1','2','3','4','5','6','8','10','11','26']);if(!a.length||a.length>2||a.some(x=>!valid.has(x))||new Set(a).size!==a.length)throw Error('Choose one or two distinct published pilot ranks')"
       - name: Reproduce recorded Hood Shadow Mist alternative
         run: node simulation/twinleaf/shadow-mist-rank6-pivot.cjs
       - name: Verify Wondrous Labyrinth modifies Mimikyu Filch payment
         run: node simulation/twinleaf/wondrous-mimikyu-filch.cjs
       - name: Two Aichi seat trials
         run: node simulation/evaluation/aichi-first-game.cjs
-      - name: Run fixed-plan three-candidate rank-6 diagnostic
+      - name: Run fixed-plan four-candidate pilot diagnostic
         env:
           AICHI_DIAGNOSTIC_RANKS: ${{ inputs.pilot_ranks || '6' }}
           AICHI_DIAGNOSTIC_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
