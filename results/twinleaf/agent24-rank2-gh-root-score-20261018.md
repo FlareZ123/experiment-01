@@ -27,3 +27,9 @@ All three runs within each arm (baseline, ordinal discovery, score observer) ind
 | `isValidAction` on selected card | true | true |
 
 The mode-one resolver changes the **hypothetically evaluated G&H action score by minus 4 points** on this concrete source state while leaving Bellelba's score and the base score unchanged. The resulting change in ordering explains the selection flip in the pinned greedy Supporter tactic. Both selected actions were validated successfully; this is **not** a predispatch legality rejection. The tests also reported `sourceDecisionTraceUnchanged:true` and `sameFork:true` for passive score observations in both arms.
+
+### Mechanism and evidence boundary
+
+The pinned upstream `PlaySupporterTactic` simulates each Supporter via `SimpleTactic.evaluateAction`, chooses the highest-scoring legal proposal above a threshold and validates the selected action. Simulated hypothetical actions invoke the configured prompt resolvers. The new mode-one resolver therefore changes the score of a *proposed* Supporter even when that same Supporter is never committed.
+
+In this three-card source hand, a real G&H mode-one discard would sacrifice both other cards, singleton Stoutland and singleton Bellelba & Brycen-Man. The measured minus-four delta is consistent with that hypothetical resource cost. The score probe did not log its exact hypothetical prompt choices, selected discards or score components. It cannot prove that the entire delta is attributable to discard loss or that the scoring formula approximates strong human judgment.
