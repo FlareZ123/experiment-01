@@ -130,9 +130,10 @@ function run(){
     p=pending();
     if(!p)break;
     trace.push({prompt:p.constructor.name});
-    if(p.constructor.name==='ShowCardsPrompt'||
-        p.constructor.name==='WaitPrompt'){
+    if(p.constructor.name==='ShowCardsPrompt'){
       select(p,true);
+    }else if(p.constructor.name==='WaitPrompt'){
+      select(p,null);
     }else if(p.constructor.name==='ShuffleDeckPrompt'){
       select(p,Array.from({length:mine.deck.cards.length},(_,j)=>j));
     }else{
