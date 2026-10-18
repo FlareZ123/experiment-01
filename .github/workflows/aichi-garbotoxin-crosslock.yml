@@ -39,6 +39,10 @@ on:
         description: 'Use prospectively registered second cohort indices 80-239 (160 trials)'
         type: boolean
         default: false
+      rank11_held_shake_reply_forensic:
+        description: 'Re-run four already observed source held-Shake opportunities and audit candidate replies'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -157,6 +161,16 @@ jobs:
         with:
           name: rank11-held-shake-source-screen
           path: rank11-held-shake-source-screen.json
+          if-no-files-found: warn
+      - name: Capture real candidate first reply after all four original held-Shake triggers
+        if: inputs.rank11_held_shake_reply_forensic
+        run: node simulation/twinleaf/rank11-held-shake-forensic.cjs > rank11-held-shake-forensic.json
+      - name: Archive candidate reply forensics, including source witness failures
+        if: always() && inputs.rank11_held_shake_reply_forensic
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-held-shake-candidate-first-response
+          path: rank11-held-shake-forensic.json
           if-no-files-found: warn
       - name: Reproduce authentic rank8 Latias escape decision alternatives
         if: inputs.rank8_source_fork
