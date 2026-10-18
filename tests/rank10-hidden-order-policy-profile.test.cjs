@@ -8,7 +8,9 @@ test('archived root uses historical v3 and turn 2 uses current v4',()=>{
     doubleDragonRecovery:true,doubleDragonArchiveV3:false
   });
   assert.deepEqual(sourcePolicyForOrdinal(215),{
-    doubleDragonRecovery:true,doubleDragonArchiveV3:true
+    doubleDragonRecovery:true,doubleDragonArchiveV3:true,
+    mimikyuApexTimelessPolicy:true,mimikyuApexTimelessPolicySeat:1,
+    mimikyuTurn27SetupSeat:1
   });
   assert.throws(()=>sourcePolicyForOrdinal(216));
 });
