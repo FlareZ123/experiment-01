@@ -241,6 +241,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [shadowRiderEnergyAcrossField] Opt-in speculative Psychic priority regardless of opposing Active.
  * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
  * @property {0|1} [newMoonNativeOpeningPivotSeat] Candidate-only selected Gengar & Mimikyu-GX setup Active ordering probe.
+ * @property {0|1} [newMoonOpeningHorrorHouseSeat] Opt-in source candidate's going-second first-attack Horror House preference (native or Perfection).
  * @property {boolean} [latiasAttackReadyAttachment] Opt-in rank10 source-state Latias Energy completion probe.
  * @property {boolean} [bunnelbyK0SafeEvolution] Opt-in printed-source-only TM Evolution choice without hidden-deck/Prize inspection.
  * @property {boolean} [bunnelbyObservedK1] Separate opt-in: switch that policy from K0 to K1 only on live owner-deck search prompts.
@@ -274,6 +275,10 @@ function runMatch(request) {
   }
   if (!Number.isInteger(request.seed) || request.seed < 0 || request.seed > 0xffffffff) {
     throw new Error('seed must be an unsigned 32-bit integer.');
+  }
+  if (request.newMoonOpeningHorrorHouseSeat !== undefined &&
+      ![0, 1].includes(request.newMoonOpeningHorrorHouseSeat)) {
+    throw new Error('New Moon Horror House policy needs a valid physical seat');
   }
   if (request.newMoonNativeOpeningPivotSeat !== undefined &&
       (![0, 1].includes(request.newMoonNativeOpeningPivotSeat) ||
@@ -592,6 +597,10 @@ function runMatch(request) {
           (request.mimikyuApexTimelessPolicySeat === undefined ||
             request.mimikyuApexTimelessPolicySeat === seat)) {
         configured = withCopycatApexTimelessPolicy(configured);
+      }
+      if (request.newMoonOpeningHorrorHouseSeat === seat) {
+        configured = require('./new-moon-opening-horror-house-policy.cjs')
+          .withNewMoonOpeningHorrorHouse(configured);
       }
       if (request.newMoonNativeOpeningPivotSeat === seat) {
         configured = require('./new-moon-native-opening-pivot.cjs')
@@ -965,6 +974,7 @@ function runMatch(request) {
       shadowRiderEnergyAcrossField: request.shadowRiderEnergyAcrossField === true,
       shadowRiderOpeningPivot: request.shadowRiderOpeningPivot === true,
       newMoonNativeOpeningPivotSeat: request.newMoonNativeOpeningPivotSeat ?? null,
+      newMoonOpeningHorrorHouseSeat: request.newMoonOpeningHorrorHouseSeat ?? null,
       latiasAttackReadyAttachment: request.latiasAttackReadyAttachment === true,
       bunnelbyK0SafeEvolution: request.bunnelbyK0SafeEvolution === true,
       bunnelbyObservedK1: request.bunnelbyObservedK1 === true,
@@ -1006,6 +1016,8 @@ function runMatch(request) {
         (request.shadowRiderOpeningPivot === true ? '+SelectedShadowRiderSetupActive-v1' : '') +
         (request.newMoonNativeOpeningPivotSeat !== undefined ?
           '+NewMoonNativeOpeningPivot-v1@seat' + request.newMoonNativeOpeningPivotSeat : '') +
+        (request.newMoonOpeningHorrorHouseSeat !== undefined ?
+          '+NewMoonOpeningHorrorHouse-v1@seat' + request.newMoonOpeningHorrorHouseSeat : '') +
         (request.latiasAttackReadyAttachment === true ? '+LatiasAttackReadyAttachment-v1' : '') +
         (request.mimikyuExtraTurnShredSeat !== undefined ? '+MimikyuExtraTurnShred-v1' : '') +
         (request.bunnelbyK0SafeEvolution === true ? '+BunnelbySourceK0PossibleEvolution-v1' : '') +
