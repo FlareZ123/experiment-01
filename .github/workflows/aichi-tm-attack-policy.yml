@@ -154,3 +154,17 @@ jobs:
           path: rank2-gh-root-score.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Validate passive rank2 GH nine-component score decomposition
+        if: ${{ inputs.rank2_score_components }}
+        run: node --test tests/rank2-gh-score-components.test.cjs
+      - name: Observe original-source GH score components
+        if: ${{ inputs.rank2_score_components }}
+        run: node simulation/twinleaf/rank2-gh-score-components.cjs > rank2-gh-score-components.json
+      - name: Archive original-source GH component attribution
+        if: ${{ always() && inputs.rank2_score_components }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank2-gh-score-components
+          path: rank2-gh-score-components.json
+          if-no-files-found: warn
+          retention-days: 14
