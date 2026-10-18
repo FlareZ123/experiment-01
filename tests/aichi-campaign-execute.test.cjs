@@ -39,6 +39,7 @@ function sampleGame(request, override = {}) {
     policyRandomIsolation: request.isolatePolicyRandomness === true,
     randomnessProtocol: request.isolatePolicyRandomness === true ?
       'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
+    toolAttackAwarenessSeat: request.toolAttackAwarenessSeat ?? null,
     ...Object.fromEntries(ECHOED_POLICY_KEYS.filter(key =>
       Object.hasOwn(request, key)).map(key => [key, request[key]])),
     seed: request.seed ?? 0,
