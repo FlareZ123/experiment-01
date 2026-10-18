@@ -68,3 +68,15 @@ function observeGhHypotheticalPrompts(play,targetOrdinal=59){
     bot.decodeNextAction=oldDecode;
   }
 }
+
+/** Compare both genuine source GH hypothetical prompt paths. */
+function runGhHypotheticalComparison(){
+  const field=resolveManifestFile(path.resolve(__dirname,
+    '../../results/aichi-2026/full-decklists.json'),{
+      allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
+    });
+  const byRank=new Map(field.decks.map(d=>[d.rank,d]));
+  const [one,two]=[byRank.get(1),byRank.get(2)];
+  if(!one?.playableUnderEngine||!two?.playableUnderEngine)
+    throw new Error('Rank 1 and rank 2 source 60s required');
+  const play=mode=>sourceGame(mode,one.cardIds,two.cardIds);
