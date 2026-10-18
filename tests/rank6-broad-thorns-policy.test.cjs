@@ -90,3 +90,50 @@ test('duplicate priority labels never spend one physical hand card twice',()=>{
     []);
   assert.equal(planOpeningHand(h,false,['Tag Call','Tag Call']),null);
 });
+
+test('held G&H spends spare Tag Call only when explicitly enabled',()=>{
+  const h=hand(['Iron Thorns ex','Guzma & Hala','Tag Call',
+    'Tropical Beach','Thunder Mountain Prism Star']);
+  assert.equal(planOpeningHand(h),null);
+  assert.deepEqual(planOpeningHand(h,false,undefined,true),{
+    channel:'held-guzma-hala',needDce:true,
+    needThunder:false,discardCount:2
+  });
+  const payments=chooseOpeningDiscards(h,undefined,true);
+  assert.deepEqual(payments.map(c=>c.name),['Tropical Beach','Tag Call']);
+  assert.equal(new Set(payments).size,2);
+});
+
+test('one Tag Call cannot pay for its own search of G&H',()=>{
+  const h=hand(['Iron Thorns ex','Tag Call',
+    'Tropical Beach','Thunder Mountain Prism Star']);
+  assert.equal(planOpeningHand(h,false,undefined,true),null);
+  assert.equal(planOpeningHand(h,false,['Tag Call','Tropical Beach']),null);
+});
+
+test('second physical Tag Call can pay after first fetched G&H',()=>{
+  const h=hand(['Iron Thorns ex','Tag Call','Tag Call',
+    'Tropical Beach','Thunder Mountain Prism Star']);
+  assert.equal(planOpeningHand(h),null);
+  assert.deepEqual(planOpeningHand(h,false,undefined,true),{
+    channel:'tag-call-to-guzma-hala',needDce:true,
+    needThunder:false,discardCount:2
+  });
+  // Simulate the actual hand after consuming one Tag Call and obtaining G&H.
+  const afterSearch=h.slice(1);
+  afterSearch.push({name:'Guzma & Hala'});
+  assert.deepEqual(chooseOpeningDiscards(afterSearch,undefined,true)
+    .map(c=>c.name),['Tropical Beach','Tag Call']);
+});
+
+test('opt-in extra Tag Calls are last-priority and never count twice',()=>{
+  const h=hand(['Tag Call','Tag Call','Camping Gear','Eri']);
+  assert.deepEqual(chooseOpeningDiscards(h,undefined,true)
+    .map(c=>c.name),['Camping Gear','Eri']);
+  assert.deepEqual(chooseOpeningDiscards(
+    hand(['Tag Call','Tag Call']),undefined,true
+  ).map(c=>c.name),['Tag Call','Tag Call']);
+  assert.deepEqual(chooseOpeningDiscards(
+    hand(['Tag Call']),undefined,true
+  ),[]);
+});
