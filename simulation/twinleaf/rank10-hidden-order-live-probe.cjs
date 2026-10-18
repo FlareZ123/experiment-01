@@ -194,7 +194,7 @@ function withRootDispatchCounter(Store,work,ownerSeat=1,wantedBoundary=null,boun
     observedWholeOwnerDeckSearches:ownerDeckSearches.length,
     first:ownerDeckSearches[0]??null,
     last:ownerDeckSearches.at(-1)??null
-  }),()=>boundary);}
+  }),()=>boundary,()=>root?.state??null);}
   finally{Object.defineProperty(Store.prototype,'dispatch',descriptor);}
 }
 
