@@ -150,7 +150,9 @@ function withRank11DirectBoostShake(sourceSeat, execute,
   try {
     const result = execute();
     return {result, policyAudit:{
-      version:k1AvoidMissingGarbodor ? 'rank11-direct-boostshake-k1-v2' :
+      version:k0AvoidAllGarbodorHeld && k1AvoidMissingGarbodor ?
+        'rank11-direct-boostshake-k0-k1-v3' :
+        k1AvoidMissingGarbodor ? 'rank11-direct-boostshake-k1-v2' :
         'rank11-direct-boostshake-v1', sourceSeat,
       opportunityTurn:line?.turn ?? null, route:line?.route ?? null,
       selectedTool:line?.tool ?? null,
