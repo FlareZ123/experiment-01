@@ -13,6 +13,7 @@ const mod = name => require(path.join(root, name));
  * Before its first own-deck search, it reads only public board and own hand.
  * Search availability is learned through actual pending search prompts.
  * It never stages cards or mutates the Store outside real returned actions.
+ * Back Order may obtain two Tools when Float Stone is absent from the hand.
  *
  * The heuristic intentionally commits a VSTAR power, VIP Item and turn-ending
  * Boost Shake to establish Tool-Garbodor. A competitive chooser must compare
@@ -89,11 +90,24 @@ function withRank11AdaptiveBoostShake(execute) {
 
     const searchStages = new Map([
       [1,['ChooseCardsPrompt','Trubbish']],
-      [3,['ChooseCardsPrompt','Forest Seal Stone']],
       [6,['ChooseCardsPrompt','Boost Shake']],
       [9,['ChooseCardsPrompt','Garbodor']]
     ]);
     if (pending) {
+      if (stage === 3 && pending.constructor.name === 'ChooseCardsPrompt') {
+        const desired=['Forest Seal Stone'];
+        if (!player.hand.cards.some(card => card.name === 'Float Stone')) {
+          desired.push('Float Stone');
+        }
+        const cards=desired.map(name =>
+          pending.cards?.cards?.find(card => card.name === name));
+        if (cards.every(Boolean) && pending.validate(cards,state) === true) {
+          return issue(state,'Back Order searches '+desired.join(' and '),
+            new ResolvePromptAction(pending.id,cards));
+        }
+        abort(state,'Back Order cannot find '+desired.join(' and '));
+        return previous.call(this,state);
+      }
       const wanted=searchStages.get(stage);
       if (wanted && pending.constructor.name === wanted[0]) {
         const action=fromSearch(state,pending,wanted[1]);
