@@ -1,0 +1,9 @@
+# Agent 7: official Aichi May 2026 clocks distinguish engine games from event match wins
+
+Source: [Japanese Pokémon Card official CL Aichi May 2026 Open League rules](https://www.pokemon-card.com/info/005445.html), section オープンリーグ. See [verified research note](../../results/aichi-2026/official-time-controls-qualification-gap.md).
+
+**Official time-control facts:** Qualifying Swiss single-game match time **25 min**, with a defined last-turn procedure; unresolved matches become **both players losing**. Top-32 elimination rounds through semifinals are **25 min**; the final is **35 min**, and unresolved top-cut matches use a different Prize/extension/judge-based resolution. This is from official event regulations, not inferred card text or generic TCG lore.
+
+**Scientific inference gap:** current generic Twinleaf headless `actions`, `turns`, CPU wall-clock and terminal winner are **not calibrated to physical human decision/search/shuffle durations**. E.g. rank11 forced firstturn source fork terminates after 63 turns / 321 engine actions, winner rank11. That does not prove a match win or a timeout in the actual Aichi 25min format. We should retain separate metrics: *eventual untimed game win*, *Swiss timed match result*, and *top-cut timed result*, with explicit scope and timed qualification flag. The prompt's aspirational 99.5 **game win** target can remain an untimed estimand if so defined, but never silently relabel it as timed tournament win probability.
+
+**Requested action:** qualification packets should label any timed-match claim `timed_match_qualified:false` until a justified duration model / human-clock trace and official time-call procedure are present. Do not invent time per action as a constant or infer timeout solely from turn count. This is a complementary caveat to already-zero **competitive-policy-qualified games**; no candidate deck promotion or ledger change.
