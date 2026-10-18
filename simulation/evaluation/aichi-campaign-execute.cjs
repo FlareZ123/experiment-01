@@ -221,6 +221,9 @@ function executeDiagnostic(options) {
         (candidateA ? 0 : 1) : null;
       const expectedToolSeat = toolAttackOpponentOnly === true ?
         (candidateA ? 1 : 0) : null;
+      const expectedToolPolicy = enginePolicyFlags.toolAttackAwareness === true ?
+        '+ToolAttackEnumerate-v1@' +
+        (expectedToolSeat === null ? 'both' : 'seat' + expectedToolSeat) : null;
       const environmentValid =
         game.engine === expectedEngineRevision &&
         game.label === expectedLabel &&
@@ -235,8 +238,10 @@ function executeDiagnostic(options) {
            game.randomnessProtocol === 'separate-game-and-per-seat-policy-prng-v1')) &&
         (expectedAttackSeat === null ||
           game.attackBeforeRetreatSeat === expectedAttackSeat) &&
-        (expectedToolSeat === null ||
-          game.toolAttackAwarenessSeat === expectedToolSeat) &&
+        (enginePolicyFlags.toolAttackAwareness !== true ||
+          (game.toolAttackAwarenessSeat === expectedToolSeat &&
+           typeof game.policy === 'string' &&
+           game.policy.includes(expectedToolPolicy))) &&
         !policyMismatch;
       if (!environmentValid) {
         records.push({
@@ -252,6 +257,8 @@ function executeDiagnostic(options) {
           observedRandomnessProtocol: game.randomnessProtocol ?? null,
           observedAttackBeforeRetreatSeat: game.attackBeforeRetreatSeat ?? null,
           observedToolAttackAwarenessSeat: game.toolAttackAwarenessSeat ?? null,
+          expectedToolAttackPolicy: expectedToolPolicy,
+          observedToolAttackPolicy: game.policy ?? null,
           error: 'Engine revision, trial label, rules, or requested policy evidence did not match.'
         });
         continue;
