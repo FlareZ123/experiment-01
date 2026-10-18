@@ -21,6 +21,7 @@ function auditPostShredOpponent(){
   seed:4246551499,maxActions:350,captureDecisionTrace:true,
   strictPromptValidation:true,forestSealSearchCorrection:true,
   supporterDecisionCorrection:true,doubleDragonRecovery:true,
+  doubleDragonArchiveV3:true,
   isolatePolicyRandomness:true,postSuperAliasRepairIsolation:true,
   mimikyuApexCopycatCompatibility:true,mimikyuApexTimelessPolicy:true,
   mimikyuApexTimelessPolicySeat:1,mimikyuTurn27SetupSeat:1,
