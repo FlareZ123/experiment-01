@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank31_fog_energy_source_pair:
+        description: 'Opt-in two source-dealt rank31 Fog Energy-choice alternative branches'
+        required: false
+        type: boolean
+        default: false
       rank8_preregistered_start_panel:
         description: 'Eight source rank-8 decorrelated v3 starts (repeats 1-4, both seats)'
         required: false
@@ -63,6 +68,8 @@ jobs:
       - run: node simulation/twinleaf/vileplume-itemlock-action.cjs
       - run: node simulation/twinleaf/chimecho-hand-entry-path-action.cjs
       - run: node simulation/twinleaf/chimecho-bell-attack-action.cjs
+      - name: Verify exact rank31 Fog bridge and scoped owner-prompt policy
+        run: node --test tests/rank31-fog-energy-direct.test.cjs tests/rank31-fog-energy-prompt-policy.test.cjs
       - run: node simulation/twinleaf/ranger-lele-itemlock-action.cjs
       - run: node simulation/twinleaf/ranger-stone-itemlock-action.cjs
       - name: Verify Eldegoss RCL Happy Match Bench-entry lock fidelity
@@ -132,6 +139,16 @@ jobs:
         with:
           name: rank31-chimecho-source-pair
           path: rank31-chimecho-source.json
+          if-no-files-found: warn
+      - name: Run precommitted rank31 Fog Energy source-deal policy contrast
+        if: inputs.rank31_fog_energy_source_pair
+        run: node simulation/twinleaf/rank31-fog-energy-source-pair.cjs > rank31-fog-energy-source.json
+      - name: Retain both rank31 original deals and paired counterfactuals
+        if: inputs.rank31_fog_energy_source_pair && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank31-fog-energy-source-pair
+          path: rank31-fog-energy-source.json
           if-no-files-found: warn
       - run: node --test tests/battle-compressor-minimum.test.cjs
       - run: node --test tests/twinleaf-attached-tool-power-tactic.test.cjs
