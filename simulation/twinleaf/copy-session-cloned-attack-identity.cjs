@@ -80,14 +80,15 @@ try {
     engine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     parentAttackMatchesSession: originalAttack === attacks[0],
     clonedAttackSharesParentIdentity: cloneAttack === originalAttack,
-    parentMatch, cloneMatch, events,
-    scope: 'Injected established board, actual cloned State and delegated AfterDamageEffect; not complete game or policy evaluation'
+    parentMatch, naiveCloneMatch: cloneMatch, events,
+    transferredCloneInvokedSource: events.includes('speculative'),
+    scope: 'Injected established board, mapped copied-session transfer and actual AfterDamageEffect; no complete game or policy evidence'
   };
   console.log('COPIED_CLONE_ATTACK_IDENTITY', JSON.stringify(result, null, 2));
-  assert.deepEqual(events, ['real'],
-    'Current session transfer is expected to omit cloned selected-attack identity');
+  assert.deepEqual(events, ['real', 'speculative'],
+    'Translated session must recognize cloned selected attack and delegate it');
   assert.equal(cloneMatch, false,
-    'Expected cloned Attack value does not match parent session Attack object');
+    'Naive nontransferred parent-session identity remains a negative control');
 } finally {
   restoreSimulator();
   restoreLoader();
