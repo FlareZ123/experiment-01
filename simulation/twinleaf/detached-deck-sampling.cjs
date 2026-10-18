@@ -97,7 +97,7 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
   assert.ok(Array.isArray(observedPrizeSlots),'Observed Prize slots must be an array');
   assert.ok(sampleUnknownPrizes||shuffleKnownPrizePositions||
     observedPrizeSlots.length===0,
-    'Observed Prize slots require Prize sampling');
+    'Observed Prize slots require Prize-inclusive sampling');
   assert.ok(!shuffleKnownPrizePositions||observedPrizeSlots.length===0||
     opts.prizeObservationLedgerComplete===true,
     'Known Prize positions require a complete observation ledger');
