@@ -84,6 +84,7 @@ test('equal full revisions and source echoes meet the bounded provenance gate', 
   }
   const report = compareFrozenPolicyArchives(before, after, 'shadowRiderOpeningPivot');
   assert.deepEqual(report.provenanceGaps, []);
+  assert.equal(report.allOrderedDeckHashesIdentical, true);
   assert.equal(report.controlledRevisionDiagnostic, true);
   assert.equal(report.gameStrengthClaimPermitted, false);
 });
@@ -112,6 +113,7 @@ test('ordered deck hash drift fails provenance even with identical print digests
   const report = compareFrozenPolicyArchives(before, after,
     'shadowRiderOpeningPivot');
   assert.equal(report.rows[0].orderedDeckHashState, 'drifted');
+  assert.equal(report.allOrderedDeckHashesIdentical, false);
   assert.ok(report.provenanceGaps.includes('ordered-deck-input-hashes-drifted'));
   assert.equal(report.controlledRevisionDiagnostic, false);
   assert.equal(report.identicalCapturedTraceTrials, 1);
@@ -129,6 +131,7 @@ test('missing ordered source input hash fails closed on otherwise green paired a
   const report = compareFrozenPolicyArchives(before, after,
     'shadowRiderOpeningPivot');
   assert.equal(report.rows[0].orderedDeckHashState, 'unavailable');
+  assert.equal(report.allOrderedDeckHashesIdentical, false);
   assert.ok(report.provenanceGaps.includes('ordered-deck-input-hashes-unavailable'));
   assert.equal(report.controlledRevisionDiagnostic, false);
   assert.equal(report.allCapturedTracesIdentical, true);
