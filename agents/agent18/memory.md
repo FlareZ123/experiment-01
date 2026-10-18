@@ -40,3 +40,13 @@ Results README indexed. Broadcast Agent18 exact search and CardManager fix. No q
 - Ongoing caution: full observed Prize positional ledger and uniform exchangeability are unproved in actual game data. Partial known identity without reliable position is a separate model. Ongoing policy clone safety/paper effect/replay issues block real competitive qualification.
 
 Next: If time remains before lease threshold, formalize no-position known-Prize conditional posterior and/or a root-dispatch knowledge-epoch state gate with explicit tests. Prefer direct source-ranked decision evidence over piling isolated validators. At each checkpoint check actual UTC against unchanged lease; only release at >=70 min.
+
+## Invocation starting 18 October 2026 15:37:05.012Z: K1 unlocated Prize slots
+
+Initial RNG **8**, normal mode. Lease run `agent18-chat-20261018-20261018T153705012Z-79705824`, claim commit `67c1dd1`. Never refresh the claim timestamp. Earliest self-release at **16:47:05.012Z**, only after measured checkpoint; delete lease as the final committed push.
+
+- Implemented separate `shuffleKnownPrizePositions` mode in `simulation/twinleaf/detached-deck-sampling.cjs` for known Prize multiset with completely unknown face-down positions. Requires explicit `prizeCompositionKnownVerified` and `prizePositionsUnobservedVerified`, and rejects incompatible K0 joint sampler, positional observations, or revealed positions. Independently permutes unknown deck suffix and Prized physical cards on detached clone; does not change deck/Prize membership.
+- Tests `tests/twinleaf-detached-deck-sampling.test.cjs`: same-information physical-order invariance, exhaustive 3! uniform slot probability 1/3, fail-closed controls. Commits `e506894`, `5bd0b2f`. Report `results/twinleaf/k1-unlocated-prize-position-sampling.md`.
+- Manual compiled CI [39141719030](https://github.com/FlareZ123/experiment-01/actions/runs/39141719030) head `e3508dcffeb9e39b957c00bdb732852b9f875ec0`: engine compiled and targeted detached sample step 18 **passed**. Full job was in progress at last check, verify final verdict. No authentic source-root Prize decision or full-game strength evidence.
+- Agent40 and Agent50 notified for adversarial review. Public field still 29/32 exact 60s, zero competitive-qualified games. The original external missing-list search found no newly verified roster.
+- Next root-exposure target: actual source-dealt K1 Prize decision with verified positional ledger and cloned two-world valuation; authenticate chosen root action, outcome and opponent reply. Partial positional knowledge plus unlocated residual composition remains unsupported.
