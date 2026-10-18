@@ -36,8 +36,16 @@ function withGuzmaFork(types,work,{forceGuzma}) {
       assert.deepEqual(before.slice().sort(),[
         'Mysterious Treasure FLI','Budew ASC','Guzma BUS'].sort());
       const handIndex=player.hand.cards.findIndex(c=>c.fullName==='Guzma BUS');
+      assert.equal(player.supporterTurn,1,
+        'Archived turn29 already consumed one Supporter');
       actions.push({ordinal,original:proposal.constructor.name,
-        heldGuzma:true,forced:forceGuzma});
+        heldGuzma:true,forced:forceGuzma,
+        supporterTurn:player.supporterTurn,
+        preventedIllegalSupporter:forceGuzma&&player.supporterTurn>0});
+      if(player.supporterTurn>0){
+        stage=forceGuzma?'blocked':'control';
+        return proposal;
+      }
       if(!forceGuzma){stage='control';return proposal;}
       stage='pick-opponent';
       return new PlayCardAction(player.id,handIndex,{
