@@ -103,7 +103,7 @@ function run(includeReservation = false) {
   let initialOwnerInformationIdentical=null;
   if (!failures) {
     initialOwnerInformationIdentical = JSON.stringify(baseline.firstOwnerDecision) ===
-      JSON.stringify(farewellFirst.firstOwnerDecision);
+      JSON.stringify(farewellFirst.firstOwnerDecision) && (!farewellReserved || JSON.stringify(baseline.firstOwnerDecision) === JSON.stringify(farewellReserved.firstOwnerDecision));
     if (!initialOwnerInformationIdentical) {
       throw new Error('Source first-owner decision changed across intervention arms');
     }
