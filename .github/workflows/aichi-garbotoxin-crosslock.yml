@@ -43,6 +43,10 @@ on:
         description: 'Re-run four already observed source held-Shake opportunities and audit candidate replies'
         type: boolean
         default: false
+      rank11_held_shake_extended_reply:
+        description: 'Posthoc forensic of all 15 archived opportunities from the preregistered second cohort'
+        type: boolean
+        default: false
       rank11_rank1_attack_response:
         description: 'Opt-in four opportunity-conditioned both-start authentic rank11 versus rank1 attack responses'
         type: boolean
@@ -170,14 +174,16 @@ jobs:
           name: rank11-held-shake-source-screen
           path: rank11-held-shake-source-screen.json
           if-no-files-found: warn
-      - name: Capture real candidate first reply after all four original held-Shake triggers
-        if: inputs.rank11_held_shake_reply_forensic
+      - name: Capture candidate replies after archived held-Shake triggers
+        if: inputs.rank11_held_shake_reply_forensic || inputs.rank11_held_shake_extended_reply
+        env:
+          AICHI_HELD_SHAKE_FORENSIC_EXTENDED: ${{ inputs.rank11_held_shake_extended_reply && 'true' || 'false' }}
         run: node simulation/twinleaf/rank11-held-shake-forensic.cjs > rank11-held-shake-forensic.json
       - name: Archive candidate reply forensics, including source witness failures
-        if: always() && inputs.rank11_held_shake_reply_forensic
+        if: always() && (inputs.rank11_held_shake_reply_forensic || inputs.rank11_held_shake_extended_reply)
         uses: actions/upload-artifact@v4
         with:
-          name: rank11-held-shake-candidate-first-response
+          name: ${{ inputs.rank11_held_shake_extended_reply && 'rank11-held-shake-extended-first-response' || 'rank11-held-shake-candidate-first-response' }}
           path: rank11-held-shake-forensic.json
           if-no-files-found: warn
       - name: Reproduce authentic rank8 Latias escape decision alternatives
