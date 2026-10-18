@@ -85,7 +85,7 @@ test('partial ledger must be verified and cannot also claim no Prize observation
   assert.throws(()=>sample(a,{...settings,
     prizesUnobservedVerified:true}),/verified complete observation ledger/);
   assert.throws(()=>sample(a,{...settings,sampleUnknownPrizes:false}),
-    /require Prize-inclusive sampling/);
+    /require Prize sampling/);
 });
 
 test('empty ledger retains legacy fully-unobserved Prize behavior',()=>{
