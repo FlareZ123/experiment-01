@@ -49,6 +49,11 @@ function planElectroRainDamage(state, player, prompt, codes) {
     card.fullName === 'Telescopic Sight VIV');
   const jammingTower = state.players.some(side =>
     side.stadium.cards.some(card => card.name === 'Jamming Tower'));
+  // Tool Jammer on the opponent's Active disables our Active Sight. The
+  // pinned vendor Tool Jammer has no effective reducer, so this is a
+  // conservative paper-rule projection only, not an engine correction.
+  const activeToolJammer = opponent.active.tools.some(card =>
+    card.name === 'Tool Jammer');
   const sightTargetTags = ['GX', 'V', 'VMAX', 'VSTAR', 'V-UNION'];
   const blocked = prompt.options.blocked || [];
   const entries = [];
@@ -67,7 +72,7 @@ function planElectroRainDamage(state, player, prompt, codes) {
     const maximumHp = slot.hp || pokemon.hp + (slot.hpBonus || 0);
     const remaining = maximumHp - slot.damage;
     if (remaining <= 0) return;
-    const bonus = hasSight && !jammingTower &&
+    const bonus = hasSight && !jammingTower && !activeToolJammer &&
       target.slot === codes.benchSlot &&
       sightTargetTags.some(tag => (pokemon.tags || []).includes(tag)) ? 30 : 0;
     entries.push({
