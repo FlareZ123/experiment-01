@@ -7,6 +7,7 @@ const {resolveManifestFile}=require('./resolve-field.cjs');
 const {withStoreDispatchTranscript}=require('./store-dispatch-transcript.cjs');
 const {withTurn28CopycatShredFork}=require('./mimikyu-turn28-shred-fork.cjs');
 const {withGuzmaFork}=require('./rank10-turn29-guzma-fork.cjs');
+const {withOnePrizeRetreat}=require('./rank10-turn29-one-prize-retreat.cjs');
 /** @param {unknown} x */
 const sha=x=>crypto.createHash('sha256').update(JSON.stringify(x)).digest('hex');
 /** Paired, same-deal mechanical Guzma response fork; no win-rate inference. */
@@ -24,11 +25,11 @@ function main(){
   const get=p=>require(path.join(output,p));
   const {Store}=get('game/store/store');
   const {SimpleTacticsAi}=get('simple-bot/simple-tactics-ai');
-  const {AttackAction}=get('game/store/actions/game-actions');
+  const {AttackAction,RetreatAction}=get('game/store/actions/game-actions');
   const {ResolvePromptAction}=get('game/store/actions/resolve-prompt-action');
   const {PlayCardAction,PlayerType,SlotType}=
     get('game/store/actions/play-card-action');
-  const types={Store,Bot:SimpleTacticsAi,AttackAction,ResolvePromptAction,
+  const types={Store,Bot:SimpleTacticsAi,AttackAction,RetreatAction,ResolvePromptAction,
     PlayCardAction,PlayerType,SlotType};
   const request={deckA:regidrago.cardIds,deckB:champion.cardIds,
     seed:4246551499,maxActions:350,captureDecisionTrace:true,
@@ -47,10 +48,17 @@ function main(){
       ()=>withGuzmaFork(types,()=>runMatch(request),{forceGuzma}),{
         forceShred:true,rootActionOrdinal:215,policyRngAlignDraws:20
       }),{liveStoreOnly:true,sourceZoneEveryDispatch:true});
-  const control=run(false),forced=run(true);
+  const runRetreat=force=>withStoreDispatchTranscript(Store,
+    ()=>withTurn28CopycatShredFork(types,
+      ()=>withOnePrizeRetreat(types,()=>runMatch(request),force),{
+        forceShred:true,rootActionOrdinal:215,policyRngAlignDraws:20
+      }),{liveStoreOnly:true,sourceZoneEveryDispatch:true});
+  const control=run(false),forced=run(true),pivot=runRetreat(true);
   const a=control.result.result,b=forced.result.result;
+  const p=pivot.result.result;
   assert.equal(control.result.forcedAttack,true);
   assert.equal(forced.result.forcedAttack,true);
+  assert.equal(pivot.result.forcedAttack,true);
   assert.equal(a.stage,'control');
   assert.equal(b.stage,'blocked','Already spent Supporter must block Guzma');
   assert.equal(a.actions.length,1);
@@ -72,6 +80,20 @@ function main(){
   assert.equal(control.actionTrace[231].zoneDigestBefore,
     'a512b03755dddc50ed62022fcb075ac54e7198e202150e1d4db8341405525b86');
 
+  assert.deepEqual(control.actionTrace.slice(0,231),
+    pivot.actionTrace.slice(0,231),
+    'Both Retreat targets must share exactly the same physical game prefix');
+  assert.ok(p.observation,'One-Prize Retreat opportunity was never observed');
+  assert.equal(p.observation.ordinal,231);
+  assert.equal(p.observation.normal,'Dialga-GX UPR');
+  assert.equal(p.observation.alternative,'Wobbuffet PHF');
+  assert.equal(control.actionTrace[231].action,'RetreatAction');
+  assert.equal(pivot.actionTrace[231].action,'RetreatAction');
+  assert.equal(control.actionTrace[231].zoneDigestBefore,
+    pivot.actionTrace[231].zoneDigestBefore);
+  assert.notEqual(control.actionTrace[231].zoneDigestAfter,
+    pivot.actionTrace[231].zoneDigestAfter,
+    'Distinct Retreat targets must change the actual Store board');
   const digest=r=>({finished:r.finished,winner:r.finished?r.winner:null,
     turns:r.turns,actions:r.actions,prizesRemaining:r.prizesRemaining,
     attackTrace:r.attackTrace?.map(x=>({
@@ -90,10 +112,16 @@ function main(){
     controlBotEvaluatedInBothArms:true,
     illegalGuzmaSafelyRejected:true,
     responses:{control:{actions:a.actions,game:digest(a.result)},
-      attemptedGuzma:{actions:b.actions,game:digest(b.result)}},
+      attemptedGuzma:{actions:b.actions,game:digest(b.result)},
+      onePrizeWobbuffetRetreat:{
+        observed:p.observation,game:digest(p.result),
+        firstChangedPhysicalRootOrdinal:231,
+        preForkSourceZoneSha256:pivot.actionTrace[231].zoneDigestBefore,
+        samePrefixThroughRoot230:true}},
+
     sourceReplayMechanicsVerified:false,
     qualifiedForCompetitiveInference:false,
-    limitations:'Archived, script-forced Shred prefix and one generic-bot source deal. This proves a negative Supporter timing constraint; it does not establish the optimal Retreat choice or competitive win rates.'
+    limitations:'Archived, script-forced Shred prefix and one generic-bot source deal. Guzma was illegal; Wobbuffet Retreat is a forced, policy-untested legal hypothesis. Paper fidelity and winner interpretation remain unqualified.'
   };
 }
 if(require.main===module)process.stdout.write(JSON.stringify(main(),null,2)+'\n');
