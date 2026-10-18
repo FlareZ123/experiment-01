@@ -16,10 +16,13 @@ function engine(name) {
  * @param {object} player
  * @param {number} seat
  * @param {number} playerTurnPhase
+ * @param {boolean} [allowSecondGlobalTurn] Optional v2 path: player's first turn when going second.
  * @returns {boolean}
  */
-function openingOpportunity(state, player, seat, playerTurnPhase) {
-  if (state.turn !== 1 || state.activePlayer !== seat ||
+function openingOpportunity(state, player, seat, playerTurnPhase,
+  allowSecondGlobalTurn = false) {
+  if (!(state.turn === 1 || (allowSecondGlobalTurn && state.turn === 2)) ||
+      state.activePlayer !== seat ||
       state.phase !== playerTurnPhase || player.usedVSTAR ||
       player.active.getPokemonCard()?.name !== 'Oranguru V' ||
       player.active.tools.length !== 0 ||
@@ -40,9 +43,11 @@ function openingOpportunity(state, player, seat, playerTurnPhase) {
  * @template T
  * @param {0|1} sourceSeat Known from the source-locked campaign's opponent rank.
  * @param {()=>T} execute A synchronous headless game.
+ * @param {{allowSecondGlobalTurn?:boolean,version?:string}} [configuration] Opt-in versioned extension.
  * @returns {{result:T,policyAudit:object}}
  */
-function withRank11AutonomousOpener(sourceSeat, execute) {
+function withRank11AutonomousOpener(sourceSeat, execute,
+  {allowSecondGlobalTurn = false, version = 'rank11-autonomous-boostshake-v1'} = {}) {
   if (![0, 1].includes(sourceSeat) || typeof execute !== 'function') {
     throw new TypeError('Require the known rank-11 source physical seat.');
   }
@@ -124,7 +129,9 @@ function withRank11AutonomousOpener(sourceSeat, execute) {
     const pending = state.prompts.find(prompt => prompt.result === undefined);
     if (stage === null) {
       if (pending || !openingOpportunity(state, player, sourceSeat,
-        GamePhase.PLAYER_TURN)) return original.call(this, state);
+        GamePhase.PLAYER_TURN, allowSecondGlobalTurn)) {
+        return original.call(this, state);
+      }
       stage = 0;
     }
     if (stage < 0 || stage >= 11) return original.call(this, state);
@@ -219,8 +226,10 @@ function withRank11AutonomousOpener(sourceSeat, execute) {
     return {
       result,
       policyAudit: {
-        version: 'rank11-autonomous-boostshake-v1',
-        sourceSeat, opportunityDetected: stage !== null,
+        version,
+        sourceSeat, allowSecondGlobalTurn,
+        opportunityGlobalTurn:events[0]?.turn ?? null,
+        opportunityDetected: stage !== null,
         attemptedActions: events.length, selectedLine: events,
         aborted, nextTurnLockWitness: witness,
         completeAtDecisionBoundary: stage === 11 &&
