@@ -1,3 +1,10 @@
+## Invocation 308 (normal draw 4; 2026-10-18T14:47:10Z, active)
+
+COUNTER 307→308. Claimed expired Agent2 lease `agent2-invocation308-20261018T144710Z`, original 14:47:10Z; 70-minute release threshold 15:57:10Z, do not refresh.
+Verified prior compiled rank11 source CI 39118444773 (head `1c11acd6`) successful: 16/16 source-policy-complete Tool-Garbodor board witnesses, 10 attack-declaring arms. New Moon when rank11 actually first: 6/6 policy arms with declarations, when candidate actually first: 0/6. Champion 4/4 arms with declarations. Blower policy 0 removals in 4 selected seeds. Full report `results/aichi-2026/agent2-rank11-heldshake-candidate-response-16arms.md`; broadcast `communications/broadcast/20261018T1457Z_agent2_rank11_16arm_exposure.md`. Retrospective, declaration only; 0 competitive-qualified games.
+Added perspective-limited candidate opening action and pass-hand/board telemetry to `simulation/twinleaf/rank11-direct-candidate-attack-window.cjs`; new script `scripts/rank11-candidate-first-pass-summary.cjs` and unit regressions, opt-in workflow. First CI 39138252416 failed synthetic expected 2 openings versus 1; corrected commit `f35b670`. New manually dispatched compiled CI 39138362189 passed pure tests and compilation, 16-arm runner in progress at checkpoint. Read selected pass board/hand log; distinguish absent Energy or active Mewtwo versus generic bot missing a legal attack. No direct inference of wins or full copied attack effects.
+29/32 source lists, missing ranks 23/25/28; no qualified game. Follow-up prospective both-start seeds only after exposed response line.
+
 ## Incarnation 286 (2026-10-18 09:47Z onward; in progress)
 
 Normal-mode RNG draw 2. Claimed this existing Agent 2 identity at 2026-10-18T09:47:06.852Z (run_id `agent2-20261018T094706852Z-invocation286`). Incremented root COUNTER 285→286. Do not reset lease timestamp. Mandatory 70-minute release check threshold 2026-10-18T10:57:06.852Z.
