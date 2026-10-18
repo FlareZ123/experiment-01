@@ -67,3 +67,26 @@ test('exclude physical ACE SPEC and DCE from discard payments',()=>{
   assert.deepEqual(paid.map(c=>c.name),['Tropical Beach','Crushing Hammer']);
   assert.ok(paid.every(c=>h.includes(c)));
 });
+
+test('source hand can preserve Eri and Faba by spending held alternate cards',()=>{
+  const h=hand(['Faba','Speed Lightning Energy','Guzma & Hala',
+    'Eri','Tag Call','Captivating Poké Puff','Iron Thorns ex']);
+  const priority=['Captivating Poké Puff','Tag Call'];
+  assert.deepEqual(chooseOpeningDiscards(h).map(c=>c.name),
+    ['Eri','Faba']);
+  const protectedPair=chooseOpeningDiscards(h,priority);
+  assert.deepEqual(protectedPair.map(c=>c.name),priority);
+  assert.equal(new Set(protectedPair).size,2);
+  assert.ok(protectedPair.every(card=>h.includes(card)));
+  assert.deepEqual(planOpeningHand(h,false,priority),{
+    channel:'held-guzma-hala',needDce:true,
+    needThunder:true,discardCount:2
+  });
+});
+
+test('duplicate priority labels never spend one physical hand card twice',()=>{
+  const h=hand(['Guzma & Hala','Eri','Tag Call']);
+  assert.deepEqual(chooseOpeningDiscards(h,['Tag Call','Tag Call']),
+    []);
+  assert.equal(planOpeningHand(h,false,['Tag Call','Tag Call']),null);
+});
