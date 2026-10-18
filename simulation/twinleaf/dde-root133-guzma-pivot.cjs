@@ -103,7 +103,8 @@ function withSourceGuzmaPivot(execute) {
         observedWindow = window;
         if (window.readyToAttempt) {
           guzmaProposed = true;
-          return new PlayCardAction(this.client.id, window.handIndex);
+          return new PlayCardAction(this.client.id, window.handIndex,
+            {player: PlayerType.ANY, slot: SlotType.BOARD, index: 0});
         }
       }
     }
