@@ -106,20 +106,92 @@ function census() {
   return r;
 }
 
+
+/**
+ * Exact actual first-turn census: initial seven, six Prizes, then normal
+ * first-turn draw. An effective eight-card hand must preserve validity
+ * of its first seven. Conditional on an unordered H8, each possible
+ * distinguished draw card contributes one physical ordering. If H8 has
+ * exactly one Basic, only seven of the eight can be the final draw.
+ * Both possible starting seats receive the normal start-of-turn draw;
+ * any bonus draws, Trainer actions or search from hand are excluded.
+ * @returns {Record<string,bigint>}
+ */
+function censusAfterFirstDraw() {
+  const n = loadCounts();
+  const hand = Array(n.length).fill(0);
+  const p = C(52, 6);
+  const r = {
+    allHands:0n, valid:0n, direct:0n,
+    v1Hand:0n, v1Targets:0n,
+    total:C(60, 8) * 8n * p
+  };
+  /** @param {number} i @param {number} remain @param {bigint} ways */
+  function enumerate(i, remain, ways) {
+    if (i === n.length) {
+      if (remain) return;
+      r.allHands += ways;
+      const basics = hand[0] + hand[5] + hand[7];
+      const legalFinalDraws = basics >= 2 ? 8 : basics === 1 ? 7 : 0;
+      const weightedWays = ways * BigInt(legalFinalDraws);
+      r.valid += weightedWays * p;
+      if (hand[2] && hand[4] && (hand[1] || hand[5])) {
+        r.direct += weightedWays * goodPrizeChoices(n, hand,
+          hand[5] ? [6] : [5, 6], 52);
+      }
+      if (hand[0] && hand[1] && hand[2] && !hand[3] && !hand[4]) {
+        r.v1Hand += weightedWays * p;
+        r.v1Targets += weightedWays *
+          goodPrizeChoices(n, hand, [5, 3, 4, 6], 52);
+      }
+      return;
+    }
+    for (let h = 0; h <= Math.min(n[i], remain); h++) {
+      hand[i] = h;
+      enumerate(i + 1, remain - h, ways * C(n[i], h));
+    }
+    hand[i] = 0;
+  }
+  enumerate(0, 8, 1n);
+  assert.equal(r.allHands, C(60, 8));
+  // Independent derivation: each valid H7/Prize6 deal offers 47 deck
+  // cards for the first normal draw, irrespective of its identity.
+  assert.equal(r.total, 416717869162795200n);
+  assert.equal(r.valid, census().valid * 47n);
+  assert.equal(r.valid, 324031005021884160n);
+  assert.equal(r.direct, 11911482095606528n);
+  assert.equal(r.v1Hand, 8012265580359040n);
+  assert.equal(r.v1Targets, 7228094214428032n);
+  return r;
+}
+
 /** @param {bigint} x @param {bigint} d @returns {string} */
 function percent(x, d) {
   return (Number(x) * 100 / Number(d)).toFixed(8) + '%';
 }
 if (require.main === module) {
   const r = census();
+  const afterDraw = censusAfterFirstDraw();
+  const numeric = values => Object.fromEntries(
+    Object.entries(values).map(([k, v]) => [k, String(v)]));
   console.log(JSON.stringify({
-    validHandFraction: percent(r.valid, r.total),
-    directWithSearchableGarbodor: percent(r.direct, r.valid),
-    v1NecessaryHandOnly: percent(r.v1Hand, r.valid),
-    v1WithSearchableTargets: percent(r.v1Targets, r.valid),
-    exactIntegerNumerators: Object.fromEntries(
-      Object.entries(r).map(([k, v]) => [k, String(v)])),
+    initialSeven: {
+      validHandFraction: percent(r.valid, r.total),
+      directWithSearchableGarbodor: percent(r.direct, r.valid),
+      v1NecessaryHandOnly: percent(r.v1Hand, r.valid),
+      v1WithSearchableTargets: percent(r.v1Targets, r.valid),
+      exactIntegerNumerators: numeric(r)
+    },
+    initialSevenPlusFirstNormalDraw: {
+      validHandFraction: percent(afterDraw.valid, afterDraw.total),
+      directWithSearchableGarbodor:
+        percent(afterDraw.direct, afterDraw.valid),
+      v1NecessaryHandOnly: percent(afterDraw.v1Hand, afterDraw.valid),
+      v1WithSearchableTargets:
+        percent(afterDraw.v1Targets, afterDraw.valid),
+      exactIntegerNumerators: numeric(afterDraw)
+    },
     qualifiesCompetitiveGames: false
   }, null, 2));
 }
-module.exports = {C, loadCounts, goodPrizeChoices, census};
+module.exports = {C, loadCounts, goodPrizeChoices, census, censusAfterFirstDraw};
