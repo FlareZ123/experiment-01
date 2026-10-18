@@ -52,5 +52,5 @@ test('actual attachment on the turn defeats the missed-manual-attachment flag',(
 test('do not extrapolate if Pass lacks own-hand evidence',()=>{
   const game=example([]);
   delete game.decisionTrace.at(-1).decisionHandBefore;
-  assert.throws(()=>auditSourcePass(game),/perspectiveSeat/);
+  assert.throws(()=>auditSourcePass(game),/own-hand evidence/);
 });
