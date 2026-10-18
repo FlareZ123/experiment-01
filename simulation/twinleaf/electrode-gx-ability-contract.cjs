@@ -88,7 +88,8 @@ function runCase(count, noRecipient = false, useBot = false, availableCount = 5,
     transfers = decision.result;
   }
   const promptAccepted = prompt.validate(transfers);
-  const transferTargets = transfers.map(({to}) => ({
+  const transferTargets = transfers.map(({to,card}) => ({
+    energy:card.fullName,
     slot:to.slot,index:to.index,
     recipient:to.slot===SlotType.ACTIVE ?
       f.a.active.getPokemonCard()?.fullName :
