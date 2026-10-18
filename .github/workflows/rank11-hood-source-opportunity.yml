@@ -11,17 +11,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20.19.0'
-      - run: node --test tests/early-shadow-rider-hood.test.cjs tests/protected-underworld-door.test.cjs
+      - run: node --test tests/early-shadow-rider-hood.test.cjs tests/protected-underworld-door.test.cjs tests/rank11-hood-opening-active-pivot.test.cjs
       - run: npm ci --no-audit --no-fund
         working-directory: vendor/twinleaf/ptcg-server
       - run: npm run compile
         working-directory: vendor/twinleaf/ptcg-server
       - run: node simulation/twinleaf/rank11-hood-source-opportunity.cjs > hood-source.json
       - run: node simulation/twinleaf/rank11-hood-target-counterfactual.cjs > hood-target-counterfactual.json
+      - run: node simulation/twinleaf/rank11-hood-opening-active-pivot.cjs > hood-opening-active-pivot.json
       - uses: actions/upload-artifact@v4
         with:
           name: source-rank11-hood-trace
           path: |
             hood-source.json
             hood-target-counterfactual.json
+            hood-opening-active-pivot.json
           if-no-files-found: error
