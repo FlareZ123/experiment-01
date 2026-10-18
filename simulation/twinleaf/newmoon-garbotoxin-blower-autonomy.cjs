@@ -49,9 +49,10 @@ function tooledGarbodor(opponent) {
  * @template T
  * @param {0|1} candidateSeat
  * @param {()=>T} execute
+ * @param {{lowHandLillieAfterBlower?:boolean}} [options]
  * @returns {{result:T,policyAudit:object}}
  */
-function withNewMoonBlowerAutonomy(candidateSeat, execute) {
+function withNewMoonBlowerAutonomy(candidateSeat, execute, {lowHandLillieAfterBlower = false} = {}) {
   if (![0,1].includes(candidateSeat) || typeof execute !== 'function') {
     throw new TypeError('Need candidate physical seat and synchronous game runner');
   }
@@ -67,6 +68,7 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute) {
   let phase = 'idle';
   let activeSelection = null;
   let lastObservedCandidateTurn = -1;
+  let lastBlowerSuccessTurn = -1;
 
   const newMoonBlowerDecision = function (state) {
     const own = state.players.find(player => player.id === this.client?.id);
@@ -109,9 +111,33 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute) {
       return original.call(this,state);
     }
     if (phase === 'verify' && !pending) {
+      const toolRemoved = !tooledGarbodor(opponent);
       events.push({turn:state.turn,kind:'public-Tool-check',
-        garbodorToolRemoved:!tooledGarbodor(opponent)});
+        garbodorToolRemoved:toolRemoved});
+      if (toolRemoved) lastBlowerSuccessTurn = state.turn;
       phase = 'idle';
+    }
+    if (lowHandLillieAfterBlower && lastBlowerSuccessTurn === state.turn &&
+        state.activePlayer === candidateSeat && !pending &&
+        state.phase === GamePhase.PLAYER_TURN &&
+        own.hand.cards.length <= 2 &&
+        own.supporterTurn !== state.turn &&
+        own.prizes.filter(prize => prize.cards.length > 0).length === 6) {
+      const supportIndex = own.hand.cards.findIndex(card =>
+        card.fullName === "Lillie's Determination M1L");
+      if (supportIndex >= 0) {
+        const supporter = new PlayCardAction(own.id, supportIndex);
+        if (this.isValidAction(state, supporter)) {
+          events.push({turn:state.turn,kind:'autonomous-legal-low-hand-Supporter',
+            card:own.hand.cards[supportIndex].fullName,
+            handSizeBefore:own.hand.cards.length,
+            prizeCount:6,
+            afterRealBlowerSuccess:true});
+          lastBlowerSuccessTurn = -1;
+          return supporter;
+        }
+        events.push({turn:state.turn,kind:'Supporter-declined-by-legality-check'});
+      }
     }
     if (blowerOpportunity(state,own,opponent,candidateSeat,
       GamePhase.PLAYER_TURN)) {
@@ -137,12 +163,16 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute) {
   try {
     const result=execute();
     return {result,policyAudit:{
-      version:'newmoon-garbotoxin-blower-autonomous-v1',
+      version:lowHandLillieAfterBlower ?
+        'newmoon-garbotoxin-blower-lowhand-lillie-v2' :
+        'newmoon-garbotoxin-blower-autonomous-v1',
       candidateSeat,opponentSeat:1-candidateSeat,
       opportunitySelections:events.filter(x=>
         x.kind==='autonomous-legal-Item').length,
       confirmedToolRemovals:events.filter(x=>
         x.kind==='public-Tool-check'&&x.garbodorToolRemoved).length,
+      lowHandLillieSelections:events.filter(x=>
+        x.kind==='autonomous-legal-low-hand-Supporter').length,
       phaseAtEnd:phase,events,
       targetInformation:'candidate own hand and opponent public Tool-bearing Garbodor only',
       strengthQualified:false
