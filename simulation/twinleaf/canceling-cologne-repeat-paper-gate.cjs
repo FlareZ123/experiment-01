@@ -100,9 +100,16 @@ function runTwoCologneBoard() {
   } catch(error) {
     speculative.dispatchError = error.constructor.name+': '+error.message;
   }
-  speculative.secondInHand = cloneMine.hand.cards.includes(cloneSecond);
-  speculative.secondMarker = cloneOpponent.marker.hasMarker('CANCELING_COLOGNE_MARKER',
-    cloneSecond);
+  const currentCloneState = simulation.store.state;
+  const currentCloneMine = currentCloneState.players.find(p=>p.id===mine.id);
+  const currentCloneOpponent = currentCloneState.players.find(p=>p.id===opponent.id);
+  speculative.stateReplacedAfterFailure = currentCloneState!==cloneState;
+  speculative.secondInHand = currentCloneMine.hand.cards.includes(cloneSecond);
+  speculative.secondMarker = currentCloneOpponent.marker.hasMarker(
+    'CANCELING_COLOGNE_MARKER',cloneSecond);
+  speculative.firstInDiscard = currentCloneMine.discard.cards.includes(first);
+  speculative.firstMarker = currentCloneOpponent.marker.hasMarker(
+    'CANCELING_COLOGNE_MARKER',first);
   const originalUntouchedByClone =
     sourceHand.length===mine.hand.cards.length &&
     sourceHand.every((c,i)=>c===mine.hand.cards[i]) &&
@@ -119,14 +126,26 @@ function runTwoCologneBoard() {
   } catch (error) {
     secondDispatchError = error.constructor.name + ': ' + error.message;
   }
-  const secondInHand = mine.hand.cards.includes(second);
-  const secondInDiscard = mine.discard.cards.includes(second);
-  const secondMarker = opponent.marker.hasMarker('CANCELING_COLOGNE_MARKER',second);
-  const nextTurnCanPlay = second.canPlay(store,{...state,turn:state.turn+2},mine);
+  // A rejected action deep-clones Store.state as part of Twinleaf's rollback.
+  // All post-dispatch witnesses must use this canonical replacement graph.
+  const currentState = store.state;
+  const currentMine = currentState.players.find(p=>p.id===mine.id);
+  const currentOpponent = currentState.players.find(p=>p.id===opponent.id);
+  const stateReplacedAfterFailure = currentState!==state;
+  const secondInHand = currentMine.hand.cards.includes(second);
+  const secondInDiscard = currentMine.discard.cards.includes(second);
+  const secondMarker = currentOpponent.marker.hasMarker('CANCELING_COLOGNE_MARKER',
+    second);
+  const firstInDiscard = currentMine.discard.cards.includes(first);
+  const firstMarker = currentOpponent.marker.hasMarker('CANCELING_COLOGNE_MARKER',
+    first);
+  const nextTurnCanPlay = second.canPlay(store,{...currentState,
+    turn:currentState.turn+2},currentMine);
   return {
     firstEligible,afterFirst,secondEligible,speculative,originalUntouchedByClone,
-    secondDispatchError,secondInHand,secondInDiscard,secondMarker,nextTurnCanPlay,
-    pending:state.prompts.filter(p=>p.result===undefined).length
+    secondDispatchError,stateReplacedAfterFailure,secondInHand,secondInDiscard,
+    secondMarker,firstInDiscard,firstMarker,nextTurnCanPlay,
+    pending:currentState.prompts.filter(p=>p.result===undefined).length
   };
 }
 
@@ -155,16 +174,26 @@ function run() {
   assert.equal(unpatched.speculative.secondMarker,true);
   assert.equal(unpatched.originalUntouchedByClone,true,
     'Original state changed while running a speculative duplicate action');
+  assert.equal(unpatched.stateReplacedAfterFailure,false);
+  assert.equal(unpatched.speculative.stateReplacedAfterFailure,false);
   assert.equal(corrected.firstEligible,true);
   assert.equal(corrected.secondEligible,false,
     'Paper-ruling guard must reject second Cologne');
   assert.equal(corrected.secondInHand,true);
   assert.equal(corrected.secondInDiscard,false);
   assert.equal(corrected.secondMarker,false);
+  assert.equal(corrected.firstInDiscard,true);
+  assert.equal(corrected.firstMarker,true);
+  assert.equal(corrected.stateReplacedAfterFailure,true,
+    'Failed real Store action must be read from the new rollback State');
   assert.equal(corrected.speculative.secondEligible,false,
     'A cloned turn must retain the first Cologne play turn');
   assert.equal(corrected.speculative.secondInHand,true);
   assert.equal(corrected.speculative.secondMarker,false);
+  assert.equal(corrected.speculative.firstInDiscard,true);
+  assert.equal(corrected.speculative.firstMarker,true);
+  assert.equal(corrected.speculative.stateReplacedAfterFailure,true,
+    'Failed speculative action must be read from the new rollback State');
   assert.match(corrected.speculative.dispatchError||'', /CANNOT_PLAY_THIS_CARD|GameError/);
   assert.equal(corrected.originalUntouchedByClone,true,
     'Guarded speculative action altered the original state');
