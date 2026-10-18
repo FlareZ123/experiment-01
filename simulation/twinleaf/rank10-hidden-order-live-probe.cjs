@@ -2,6 +2,7 @@
 
 const assert=require('node:assert/strict');
 const path=require('node:path');
+const {isDeepStrictEqual}=require('node:util');
 const {runMatch,initializeCards,seededRandom}=require('./headless.cjs');
 const {resolveManifestFile}=require('./resolve-field.cjs');
 const {loadDefaultCampaign}=require('../../scripts/aichi-comparison-campaign.cjs');
@@ -113,6 +114,12 @@ function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
     const sourceHand=state.players.find(p=>p.id===this.client.id)
       ?.hand?.cards?.map(card=>card.fullName)??[];
     const actual=descriptor.value.call(this,state);
+    const actualAction=actionSignature(actual);
+    // A freshly constructed detached bot may not reproduce the live bot's
+    // hidden internal state or policy RNG. Distinguish its paired-world
+    // sensitivity from sensitivity of the *actual* source decision.
+    const baselineActionMatchedActual=isDeepStrictEqual(
+      observed.physicalOrder,actualAction);
     const playedPrinting=actual?.constructor?.name==='PlayCardAction'?
       sourceHand[actual.handIndex]??null:null;
     events.push({...observed,...(prizeMembership?{prizeMembership}:{}),
@@ -120,7 +127,9 @@ function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
       originalSourcePlayedPrinting:playedPrinting,
       rootActionOrdinal:target.rootActionOrdinal??null,
       ownerDeckSearchWitness:target.readOwnerDeckSearches?.()??null,
-      originalSourceAction:actionSignature(actual)});
+      baselineActionMatchedActual,
+      sourceDecisionSensitivityInterpretable:baselineActionMatchedActual,
+      originalSourceAction:actualAction});
     return actual;
   }
   Object.defineProperty(Ai.prototype,'decodeNextAction',{
@@ -294,6 +303,8 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
       ]
     };
   }
+  assert.equal(observed.events[0].baselineActionMatchedActual,true,
+    'Detached baseline policy does not reproduce actual root source action');
   assert.equal(observed.events[0].originalSourceAction?.type,
     archival?'RetreatAction':'PlayCardAction',
     'Restored historical turn28 must propose Retreat, not a control-line PlayCard');
@@ -327,6 +338,7 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
     limitations:[
       'K1 deck membership and remembered top order are not attested',
       'Only one reversed physical order and one equal-seeded policy RNG',
+      'Detached baseline parity is checked at this root decision only'
       'Copied policy state may not represent a human-strength player',
       'Complete paper-rule and prompt-closure correctness remain open'
     ]
