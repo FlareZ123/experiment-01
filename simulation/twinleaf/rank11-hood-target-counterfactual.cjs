@@ -10,6 +10,37 @@ const {withEarlyShadowRiderHood} = require('./early-shadow-rider-hood.cjs');
 const candidate = require('../../results/aichi-2026/candidate-hood-shadow-rider.json');
 
 /**
+ * Acting-player action and attack evidence, never opponent-private information.
+ * Every declared attack remains declaration-only until independently audited.
+ * @param {object} game
+ * @returns {object}
+ */
+function candidateEarlyEffectEvidence(game) {
+  const decisions=(game.decisionTrace||[]).filter(row =>
+    row.playerSlot===1 && row.turnBefore<=10).slice(0,70);
+  return {
+    selectedDecisions:decisions.map(row=>({
+      turn:row.turnBefore,ordinal:row.actionOrdinal,
+      action:row.action,card:row.card??null,
+      ability:row.ability??null,
+      attack:row.attack??row.attackChoice?.name??null,
+      passActive:row.publicBoardBeforePass?.[1]?.active??null,
+      handBefore:row.decisionHandBefore?.ownHandPrintings??null
+    })),
+    declaredAbilities:(game.abilityTrace||[]).filter(row =>
+      row.seat===1 && row.turn<=12),
+    candidateAttackDeclarations:(game.attackDeclarationTrace||[])
+      .filter(row=>row.playerSlot===1 && row.turnBefore<=12)
+      .map(row=>({turn:row.turnBefore,name:row.attackName,
+        trigger:row.triggerAction,ordinal:row.actionOrdinal})),
+    candidateRootAttacks:(game.attackTrace||[])
+      .filter(row=>row.seat===1 && row.turn<=12)
+      .map(row=>({turn:row.turn,attack:row.attack})),
+    candidatePlayedCards:game.cardsPlayedBySeat?.[1]||{}
+  };
+}
+
+/**
  * One actual-deal counterfactual. Both arms retain exact deck IDs, seed,
  * engine rules and source-opponent policy. Instrumentation runs only after
  * the original policy's chosen action or as a source Store observer.
@@ -61,6 +92,7 @@ function run() {
     sourceEngineDeckDigests:baseline.game.deckHashes,
     original:{
       hoodAttachments:baseline.hoodAttachments,
+      earlyEffectEvidence:candidateEarlyEffectEvidence(baseline.game),
       initialOwnActions:baseline.game.decisionTrace.filter(row =>
         row.playerSlot===1 && row.turnBefore<=4).slice(0,20)
         .map(row=>({turn:row.turnBefore,action:row.action,
@@ -70,6 +102,7 @@ function run() {
     },
     alternative:{
       policyAudit:alternative.policyAudit,
+      earlyEffectEvidence:candidateEarlyEffectEvidence(alternative.result.game),
       actualHoodAttachments:physical,
       matchingSelectedToolAttachment:observedAttachment,
       protectedVmaxWhileOpponentToolEquipped:equippedProtected,
