@@ -117,6 +117,23 @@ function runWithResearchProfile(request, profile) {
       rank11AutonomousPolicy: audit.policyAudit
     };
   }
+  if (profile === RANK26_COLOGNE_PROFILE) {
+    const {rank26SourceSeat, ...matchRequest} = shared;
+    if (![0, 1].includes(rank26SourceSeat)) {
+      throw new Error('Rank-26 Cologne research requires a source seat.');
+    }
+    const {withRank26CologneOpener} = require('./rank26-cologne-opener.cjs');
+    const audit = withRank26CologneOpener(rank26SourceSeat,
+      () => runMatch(matchRequest));
+    return {
+      ...audit.result,
+      researchPolicyProfile: profile,
+      policy: String(audit.result.policy || 'unqualified-simple-bot') +
+        '+Rank26CologneOpener-v1',
+      experimentalTactics: ['Rank26CologneOpener-v1'],
+      rank26ColognePolicy: audit.policyAudit
+    };
+  }
   if (profile === DEFAULT_PROFILE || profile === SUPPORTER_PROFILE) {
     const guarded = profile === SUPPORTER_PROFILE;
     const result = runMatch({...shared, supporterDecisionCorrection: guarded});
