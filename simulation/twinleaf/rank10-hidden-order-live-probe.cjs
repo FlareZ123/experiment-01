@@ -220,7 +220,8 @@ function sourcePolicyForOrdinal(rootActionOrdinal) {
 }
 
 /** Source-dealt, frozen-seat exploratory sensitivity measurement. */
-function auditRank10HiddenOrder(rootActionOrdinal) {
+function auditRank10HiddenOrder(rootActionOrdinal,scoreTarget=null) {
+  assert.ok(scoreTarget===null || rootActionOrdinal===undefined);
   const policy=sourcePolicyForOrdinal(rootActionOrdinal);
   initializeCards();
   const field=resolveManifestFile(path.resolve(__dirname,
@@ -262,12 +263,13 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
   // Current v4 root15 is the real turn2 Double Dragon attachment.
   // The historical Timeless setup branch targets turn28 root215; archival
   // Double Dragon alone instead reaches the control's turn29 PlayCard.
-  const ordinal=archival?215:15,actorSeat=archival?1:0;
+  const ordinal=archival?215:(scoreTarget?.ordinal??15);
+  const actorSeat=archival?1:(scoreTarget?.seat??0);
   const makeTarget=getOrdinal=>({
-    turn:archival?28:2,
+    turn:archival?28:(scoreTarget?.turn??2),
     seat:actorSeat,makeRandom:()=>seededRandom(20261017),
     rootActionOrdinal:ordinal,readRootDispatchCount:getOrdinal,
-    probePrizeMembership:!archival
+    probePrizeMembership:!archival&&scoreTarget===null
   });
   const observed=withRootDispatchCounter(
     require(path.join(output,'game/store/store')).Store,
@@ -310,16 +312,19 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
   assert.equal(observed.events[0].baselineActionMatchedActual,true,
     'Detached baseline policy does not reproduce actual root source action');
   assert.equal(observed.events[0].originalSourceAction?.type,
-    archival?'RetreatAction':'PlayCardAction',
+    archival?'RetreatAction':(scoreTarget?.expectedType??'PlayCardAction'),
     'Restored historical turn28 must propose Retreat, not a control-line PlayCard');
   if(archival) assert.equal(observed.sourceOrdinalBoundary.zoneDigestBefore,
     '5a27a7fa4d3e9cbef465675b05cf2270f0550851f4cc579940a551c3ade70b4d');
   if(archival) assert.equal(observed.sourceOrdinalBoundary.continuityDigestBefore,
     '0faef7ac48c4f7a82c92413a3e0831b33bcc5ad162336e451d4d8ae4d6235548');
-  if(!archival)
+  if(!archival&&scoreTarget===null)
     assert.equal(observed.events[0].originalSourcePlayedPrinting,
       'Double Dragon Energy ROS',
       'Current-v4 root 15 must be the observed source DDE attachment');
+  if(scoreTarget!==null) assert.ok(
+    observed.events[0].tacticScoreComparison.physicalEvaluations>0,
+    'Scout-selected source root must evaluate at least one tactic');
   return {
     study:archival?
       'rank10-reconstructed-v3-source-ordinal215-hidden-order-sensitivity':
