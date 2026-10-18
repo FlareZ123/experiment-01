@@ -161,6 +161,18 @@ function sampleSourceCoupling(options={}){
       }
     }
   }
+  // A syntactically successful CI run with zero captured Store setups is
+  // misleading evidence. Require every predeclared source arm to reach turn 1.
+  const failed=samples.filter(row=>row.error || !row.stoppedAtFirstTurn ||
+    !row.actualPostSetup);
+  if(failed.length){
+    const example=failed[0];
+    throw new Error('Source setup-coupling capture failed in '+failed.length+'/'+
+      samples.length+' arms; first: rank='+example.rank+
+      ' repeat='+example.repeat+' seat='+example.physicalSlot+
+      ' candidate='+example.candidateId+
+      ' error='+(example.error||'missing post-setup snapshot'));
+  }
   const summary=[];
   for(const rank of ranks){
     for(const candidateId of ['hood-shield-v1','temple-v1']){
