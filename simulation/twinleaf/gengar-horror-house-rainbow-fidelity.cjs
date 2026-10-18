@@ -13,7 +13,7 @@ const load = relativePath => require(path.join(ROOT, relativePath));
  * attached Energy cards appear in active.cards and active.energies.cards,
  * matching AttachEnergyEffect. No true 60-card deal is represented.
  *
- * @param {'basic'|'rainbow'|'colorless'} variant
+ * @param {'basic'|'rainbow'|'prism'|'colorless'} variant
  * @returns {object}
  */
 function probe(variant) {
@@ -45,7 +45,7 @@ function probe(variant) {
   opponent.active.cards.push(card('Pidgey MEW'));
   const attachedNames = ['Psychic Energy SVE',
     variant === 'basic' ? 'Psychic Energy SVE' :
-      variant === 'rainbow' ? 'Rainbow Energy SUM' : 'Double Colorless Energy EVO'];
+      variant === 'rainbow' ? 'Rainbow Energy SUM' : variant === 'prism' ? 'Prism Energy NXD' : 'Double Colorless Energy EVO'];
   for (const name of attachedNames) {
     const energy = card(name);
     source.active.cards.push(energy);
@@ -93,9 +93,11 @@ function probe(variant) {
 function run() {
   const basic=probe('basic');
   const rainbow=probe('rainbow');
+  const prism=probe('prism');
   const colorless=probe('colorless');
   assert.equal(basic.printedPsychicCardCount,2);
   assert.equal(rainbow.printedPsychicCardCount,1);
+  assert.equal(prism.printedPsychicCardCount,1);
   assert.equal(colorless.printedPsychicCardCount,1);
   assert.ok(rainbow.semanticMap.some(entry=>
     entry.name==='Rainbow Energy' && entry.provides.includes(CardType.ANY)),
@@ -109,10 +111,12 @@ function run() {
   assert.equal(rainbow.sourceHandCount,0,
     'Pinned bug witness: two Psychic-providing units with Rainbow fail draw');
   assert.equal(rainbow.opponentHandCount,0);
+  assert.equal(prism.sourceHandCount,0);
+  assert.equal(prism.opponentHandCount,0);
   return {
     schema:'pinned-horror-house-extra-psychic-source-fidelity-v1',
     pinned:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    basic,rainbow,colorless,
+    basic,rainbow,prism,colorless,
     paperExpectedRainbowDraw:7,
     pinObservedRainbowDraw:rainbow.sourceHandCount,
     sourceMechanism:'Gengar counts energy.provides.includes(PSYCHIC) on raw cards, ignoring CheckProvidedEnergyEffect dynamic ANY',
