@@ -98,3 +98,18 @@ function runGhHypotheticalComparison(){
       observedBotCalls:observed.botCalls
     };
   });
+  return {
+    study:'source-rank2 hypothetical GH prompt and discard evaluation',
+    seed:20261023,rank2Seat:1,
+    engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+    sameSourceHashes:JSON.stringify(arms[0].sourceHashes)===
+      JSON.stringify(arms[1].sourceHashes),
+    sameFirstTurn:arms[0].firstTurnSlot===arms[1].firstTurnSlot,
+    arms,
+    caveat:'Observed hypothetical evaluator prompt responses, not played human choices or qualified game outcomes.'
+  };
+}
+if(require.main===module)
+  console.log(JSON.stringify(runGhHypotheticalComparison(),null,2));
+module.exports={renderSelection,observeGhHypotheticalPrompts,
+  runGhHypotheticalComparison};
