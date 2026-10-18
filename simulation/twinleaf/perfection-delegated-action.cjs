@@ -117,13 +117,33 @@ function probe(channel) {
   if (!canceled) {
     assert.equal(announced[0].attackName,'Horror House-GX');
     assert.equal(announced[0].playerName,mine.name);
-    assert.equal(opponent.cannotPlayItemCards,true,
-      'Horror House-GX must apply its actual opponent hand-play lock');
   }
+  // Printed Horror House-GX prohibits every kind of card played from hand.
+  // Check all six categories and the Special Energy subcase; Item-only
+  // assertions would silently accept an incomplete simulator effect.
+  const opponentHandPlayLocks = {
+    item:opponent.cannotPlayItemCards,
+    supporter:opponent.cannotPlaySupporterCards,
+    stadium:opponent.cannotPlayStadiumCards,
+    tool:opponent.cannotPlayToolCards,
+    energy:opponent.cannotPlayEnergyCards,
+    specialEnergy:opponent.cannotPlaySpecialEnergyCards,
+    pokemon:opponent.cannotPlayPokemonCards
+  };
+  for (const [category,blocked] of Object.entries(opponentHandPlayLocks)) {
+    assert.equal(blocked,!canceled,
+      `Horror House-GX full hand-play lock mismatch for ${category} in ${channel}`);
+  }
+  assert.equal(opponent.playLocksTurnsRemaining,canceled ? 0 : 1,
+    'Successful GX effect must last through the opponent next turn');
+  assert.equal(mine.cannotPlayItemCards,false,
+    'Opponent-only lock must not block the attacking player');
   return {
     channel, declarationActionTypes:declarations,
     selectedCopiedAttack:selectedCopy, usedGX:mine.usedGX,
     opponentItemLocked:opponent.cannotPlayItemCards,
+    opponentHandPlayLocks,
+    opponentLockTurnsRemaining:opponent.playLocksTurnsRemaining,
     attackLog:announced,
     resolvedAsGx:!canceled,
     pendingPromptTypes:state.prompts.filter(p=>p.result===undefined)
