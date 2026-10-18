@@ -573,6 +573,14 @@ test('prospective aligned campaign retains frozen source digests and binds true 
   const corrupted=structuredClone(archive);
   corrupted.records[0].candidateInputOrder.executedInputHash='0'.repeat(64);
   assert.throws(()=>auditArchive(f,corrupted),/input-order evidence mismatch/);
+  corrupted.records[0].candidateInputOrder.executedInputHash=
+    archive.records[0].candidateInputOrder.executedInputHash;
+  corrupted.records[0].candidateInputOrder.sourcePrintingOrderHash='0'.repeat(64);
+  assert.throws(()=>auditArchive(f,corrupted),/input-order evidence mismatch/);
+  corrupted.records[0].candidateInputOrder.sourcePrintingOrderHash=
+    archive.records[0].candidateInputOrder.sourcePrintingOrderHash;
+  corrupted.records[1].candidateInputOrder.sourceInputHash='e'.repeat(64);
+  assert.throws(()=>auditArchive(f,corrupted),/input-order engine hash drift/);
   const mislabeled=structuredClone(archive);
   mislabeled.inputOrderProtocol='source-row-order-v1';
   assert.throws(()=>auditArchive(f,mislabeled),/input-order protocol/);
