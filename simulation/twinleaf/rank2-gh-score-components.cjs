@@ -16,3 +16,17 @@ const PARTS=[
   ['damage','damage-score','DamageScore'],
   ['tools','tools-score','ToolsScore']
 ];
+
+/**
+ * Read the existing scorer calls for the actual rank-2 root Supporter decision.
+ * @template T
+ * @param {()=>T} play
+ * @param {number} [targetOrdinal]
+ */
+function observeGhScoreComponents(play,targetOrdinal=59) {
+  const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
+  const {SimpleTactic}=engine('simple-bot/simple-tactics/simple-tactics');
+  const {StateScore}=engine('simple-bot/state-score/state-score');
+  const restore=[];
+  const components=[];
+  let ordinal=0,focus=false,candidate=null,frame=null;
