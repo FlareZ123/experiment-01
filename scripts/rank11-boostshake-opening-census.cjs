@@ -46,9 +46,10 @@ function loadCounts() {
  * Number of Prize choices that leave the requested deck targets.
  * Index meanings: O,V,F,S,B,T,G,otherBasic,other.
  * @param {number[]} total @param {number[]} hand @param {number[]} targets
+ * @param {number} [cardsNotHeld=53] Deck+Prize pool after the hand and draw
  * @returns {bigint}
  */
-function goodPrizeChoices(total, hand, targets) {
+function goodPrizeChoices(total, hand, targets, cardsNotHeld = 53) {
   let answer = 0n;
   for (let mask = 0; mask < (1 << targets.length); mask++) {
     let forced = 0;
@@ -59,7 +60,7 @@ function goodPrizeChoices(total, hand, targets) {
         parity++;
       }
     }
-    const ways = C(53 - forced, 6 - forced);
+    const ways = C(cardsNotHeld - forced, 6 - forced);
     answer += parity % 2 ? -ways : ways;
   }
   return answer;
