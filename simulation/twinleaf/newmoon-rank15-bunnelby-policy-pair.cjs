@@ -89,6 +89,9 @@ function run() {
       assert.equal(control.firstNormalTurnZoneDigest,
         evolution.firstNormalTurnZoneDigest,
         'Policy arm changed the original first-turn physical deal');
+      assert.deepEqual(control.firstNormalTurnPrizeGate,
+        evolution.firstNormalTurnPrizeGate,
+        'Policy arm changed the original physical Prize prerequisites');
       assert.equal(control.result.firstTurnSlot,
         evolution.result.firstTurnSlot,
         'Policy arm changed the original true starting player');
@@ -105,6 +108,7 @@ function run() {
         rootSnapshots:observed.rootSnapshots,
         first:observed.first,
         max:observed.max,
+        firstNormalTurnPrizeGate:observed.firstNormalTurnPrizeGate,
         rootActionDigest:hash(observed.result.rootActionLedger),
         policyActions:rootPolicyTrace(observed.result,rank15Seat)
       });
@@ -130,6 +134,10 @@ function run() {
     opportunityPairs:8,actualFirstCandidateCount:rows.filter(
       r=>r.actualFirstSlot===r.candidateSeat).length,
     sourceDeckAndInitialDealMatchedInEveryPair:true,
+    sourcePrizePrerequisitesEligible:rows.filter(r=>
+      r.generic.firstNormalTurnPrizeGate?.beforeTakingPrizesEligible===true).length,
+    sourcePrizePrerequisitesUnavailable:rows.filter(r=>
+      r.generic.firstNormalTurnPrizeGate?.beforeTakingPrizesEligible===false).length,
     generic:{aor:count('generic','aor'),
       bus:count('generic','bus'),dual:count('generic','dual')},
     bunnelbyEvolution:{aor:count('bunnelbyEvolution','aor'),
