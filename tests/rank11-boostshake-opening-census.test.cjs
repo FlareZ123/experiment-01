@@ -15,9 +15,11 @@ test('published rank11 source buckets and exact combinatorial counts', () => {
 
 test('Prize target selection fails closed if every copy is held', () => {
   const total = loadCounts();
-  const hand = [2,1,1,0,1,0,2,1,0];
+  const hand = [2,1,1,0,1,0,2,0,0];
   assert.equal(goodPrizeChoices(total, hand, [6]), 0n);
-  assert.equal(goodPrizeChoices(total, hand, [6],52), 0n);
+  const afterDraw=[...hand];
+  afterDraw[7]+=1;
+  assert.equal(goodPrizeChoices(total, afterDraw, [6],52), 0n);
   assert.equal(goodPrizeChoices(total, hand, [5]), C(53,6) - C(51,4));
 });
 
