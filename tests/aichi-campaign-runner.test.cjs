@@ -577,7 +577,8 @@ test('prospective aligned campaign retains frozen source digests and binds true 
   mislabeled.inputOrderProtocol='source-row-order-v1';
   assert.throws(()=>auditArchive(f,mislabeled),/input-order protocol/);
   const provenance={
-    researchRevision:'synthetic-test',engineRevision:'tested-revision',
+    researchRevision:archive.researchRevision || 'synthetic-test',
+    engineRevision:'tested-revision',
     rulesetRevision:'test-rules',candidatePolicyRevision:'test-policy',
     opponentPolicyRevision:'test-policy',
     rngProtocol:'separate-game-and-per-seat-policy-prng-v1',
