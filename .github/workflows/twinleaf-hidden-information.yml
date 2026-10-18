@@ -67,6 +67,8 @@ jobs:
         run: node --test tests/rank10-prize-membership-live-probe.test.cjs
       - name: Verify root source policy profile
         run: node --test tests/rank10-hidden-order-policy-profile.test.cjs
+      - name: Verify tactic-score trace observer and failure restoration
+        run: node --test tests/twinleaf-tactic-score-trace.test.cjs
       - name: Verify real-source hidden-order probe controls
         run: node --test tests/rank10-hidden-order-live-probe.test.cjs
       - name: Explore frozen rank-10 root decision across detached hidden deck orders
