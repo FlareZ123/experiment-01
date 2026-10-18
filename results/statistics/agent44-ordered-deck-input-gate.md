@@ -12,6 +12,19 @@ Before this change, `scripts/aichi-frozen-policy-compare.cjs` compared source mu
 
 This gap is distinct from the earlier [same-seed position-coupling analysis](../aichi-2026/agent44-candidate-position-coupling.md). It concerns comparing **two policy versions of the same candidate**, where preserving all actual input details is essential for causal attribution.
 
+## Exact frozen-Hood row-order counterexample
+
+The [printing-position regression](../../tests/aichi-position-coupling.test.cjs) now constructs two *real-source* campaign plans over the same 29 published opponent lists. Both use the exact same Hood Shield 60, same `id`, same source manifest, same field, same repeat counts and same seed protocol. One candidate input preserves Hood's checked-in rows; the other reverses only those JSON rows, preserving every printing and quantity.
+
+A V8-source preview of the actual fetched `buildCampaign` and `expandPrintings` implementations confirmed:
+
+- `planDigest` is **identical** across the two plans.
+- `candidateRows[0].deckDigest` is **identical**.
+- All **76 scheduled trial identities and seeds** remain equal.
+- The expanded ordered 60-copy arrays **differ at 58 of 60 positions**.
+
+This is a **direct source-backed counterexample** to inferring identical physical deck input from matching plan/printing digests. The check used a deterministic string identity stand-in for SHA-256 while testing equality/invariance; the actual regression uses Node's `createHash('sha256')` to test different ordered array hashes. It does not emulate gameplay or confirm that every source card effect is implemented.
+
 ## Implemented contract
 
 The frozen-policy comparator now checks, for every paired trial:
