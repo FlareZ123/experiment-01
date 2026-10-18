@@ -16,11 +16,12 @@ const EXPANDED_PROFILE = 'expanded-action-fidelity-probe-v1';
 const EXPANDED_SOURCE_PROFILE = 'expanded-source-k0-stage-gh-v2';
 const EXPANDED_GH_SEARCH_PROFILE = 'expanded-gh-root-search-v3';
 const RANK11_AUTONOMOUS_PROFILE = 'rank11-autonomous-boostshake-v1';
+const RANK26_COLOGNE_PROFILE = 'rank26-autonomous-cologne-v1';
 const ALLOWED_PROFILES = Object.freeze([
   DEFAULT_PROFILE, REGIDRAGO_PROFILE,
   SUPPORTER_PROFILE, REGIDRAGO_SUPPORTER_PROFILE,
   EXPANDED_PROFILE, EXPANDED_SOURCE_PROFILE, EXPANDED_GH_SEARCH_PROFILE,
-  RANK11_AUTONOMOUS_PROFILE
+  RANK11_AUTONOMOUS_PROFILE, RANK26_COLOGNE_PROFILE
 ]);
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 
@@ -192,5 +193,6 @@ function runWithResearchProfile(request, profile) {
 module.exports = {DEFAULT_PROFILE, REGIDRAGO_PROFILE, SUPPORTER_PROFILE,
   REGIDRAGO_SUPPORTER_PROFILE, EXPANDED_PROFILE, EXPANDED_SOURCE_PROFILE,
   EXPANDED_GH_SEARCH_PROFILE, RANK11_AUTONOMOUS_PROFILE,
+  RANK26_COLOGNE_PROFILE,
   ALLOWED_PROFILES,
   withTempleUnlockTactic, withExpandedActionOptions, runWithResearchProfile};
