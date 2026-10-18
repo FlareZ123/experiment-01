@@ -65,6 +65,9 @@ jobs:
       - name: Audit and print all fixed candidate attack-window arms
         if: inputs.attack_window_probe
         run: node scripts/rank11-direct-attack-window-summary.cjs
+      - name: Print candidate-first response evidence
+        if: inputs.attack_window_probe
+        run: node scripts/rank11-candidate-first-pass-summary.cjs
       - name: Verify source-first VSTAR and second-start direct policies compose
         run: node simulation/twinleaf/rank11-hybrid-source-replay.cjs > rank11-hybrid-source-replay.json
       - name: Retain one real K1 Garbodor search-negative source seed
