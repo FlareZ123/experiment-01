@@ -84,8 +84,10 @@ function arm(seed,corrected) {
   const declares = game.attackDeclarationTrace.filter(x=>
     x.playerSlot===1 && x.attackName==='Night Watch');
   assert.equal(game.verifiedByDrawLog,true,'Actual draw-based start missing');
-  assert.equal(chosen.length,declares.length,
-    'Night Watch declaration does not resolve one source-hand choice');
+  const expectedChoices=journal.records.filter(record=>
+    record.before.players[0].hand>0).length;
+  assert.equal(chosen.length,expectedChoices,
+    'Night Watch with a nonempty source hand missed a root choice');
   if(corrected)assert.equal(wrapped.audit.invalid,0,'Invalid corrected sample');
   return {
     seed,corrected,sourceDigest:plan.manifestDigest,
@@ -96,6 +98,7 @@ function arm(seed,corrected) {
     sourceOpportunityTurn:wrapped.result.policyAudit.opportunityTurn,
     finished:game.finished,winner:game.winner,actions:game.actions,
     declaredNightWatch:declares.length,
+    eligibleNonemptyHandChoices:expectedChoices,
     actualRootNightWatchChoices:chosen,
     hook:wrapped.audit ? {
       created:wrapped.audit.created,resolved:wrapped.audit.resolved,
