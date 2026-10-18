@@ -35,6 +35,27 @@ I also inspected the **actual pinned Twinleaf source**, rather than the moving l
 
 This source hand has unusually high disposable-Trainer pressure against Poltergeist. The generic source bot omitted all three Quick Balls on its actual turn 49, but the archive alone does **not** prove their legal availability under all live restrictions, the exact hand at that decision, or how the candidate would choose its attack if Poltergeist no longer knocked out Mega Absol.
 
+## Compiled prospective telemetry extension: exact own hand confirmed
+
+**19 October 2026 UTC update.** I changed only the existing source replay's **read-only `summary(game)` projection** to retain its actual source turn-49 `decisionTrace.decisionHandBefore`, and asserted root 288 Energy attachment and root 289 attack. The [manual-only workflow 39175849697](https://github.com/FlareZ123/experiment-01/actions/runs/39175849697) **passed** at research commit `cbcd0f2f2d5a61d125eaeb7ef71ebc804a0dd98c`, pinned Twinleaf as above. Exact workflow artifact **12154197056**, `newmoon-rank11-held-blower-unqualified` ZIP SHA256 `f8bdd479adc22112cc02b9458e5139e15f6212c48c7af81590c42b8b1b032ce3`; inner `newmoon-rank11-autonomous-blower.json` SHA256 `6f7b866b9408cb209e80ed5a1a2737ae65b07ff4ed1a38271a4b947bcb05ced3`. I independently downloaded and parsed this newly compiled ZIP, with both source and source-summary assertions passing. This is a source-dealt retrospective observation, still **not** a prospective competitive game.
+
+At actual source **turn 49, root 288, before** the generic bot's selected Darkness Energy attachment, the acting source player's **own hand** was exactly:
+
+```text
+Quick Ball FST ×3
+Carmine TWM ×2
+Secret Box TWM ×1
+Guzma BUS ×1
+Boost Shake EVS ×1
+VS Seeker PHF ×1
+Dark Patch ASR ×1
+Darkness Energy MEE ×1
+```
+
+This is **ten Trainers and one Energy**, source **deck 14 after root 288** (unchanged from just before root 288, because an ordinary hand attachment does not move deck cards). At actual source **root 289**, immediately before the printed Claw of Darkness, the same ten Trainers remained **in hand**, with the Darkness Energy attached, and the deck still at **14**. Zero Quick Balls had been used. This proves the precise hand-premise and the pinned Quick Ball card-specific **other-card-in-hand / nonempty-deck** prerequisites were both met. It does not independently prove an active Item lock was absent, that a proposed **three-Item sequence** passes all Store legality and prompt resolution checks, or that the candidate would use the same copied attack afterward.
+
+The verified **ten-Trainer turn-49 hand** is exactly the trainer inventory observed at the subsequent turn-50 Poltergeist declaration. The **hypothetical three-Quick-Ball, three-other-Trainer discard** path therefore has a confirmed starting count of ten, leaving four Trainers and printed **200** damage if all three Items are legally played with Trainer discard costs. Suitable *hypothetical* discard targets already in the own hand include **Boost Shake, VS Seeker and one Carmine**. It remains necessary to execute the real Store branch and record the candidate's adaptive response. The original candidate-result replay remained unchanged in its original automated policy arm: CI assertions verified its three copied Poltergeist selections and printed-effect outcomes on this seed.
+
 ## Required discriminating follow-up
 
 Reuse the same **authentic** source seed, printed lists, compiled engine pin and read-only root ledger. At **source turn 49, before root 288**, capture **rank 11's own hand and public field**, active effects/item lock, deck-search permissions, allowed root actions, Basic-search availability, current Supporter/retreat allowances, and all Pokémon/Tools/Energy. With an explicit separately labeled policy counterfactual, attempt sequentially **Quick Ball → discard another Trainer** three times through *real Store actions and prompts*, choosing only source-owner-visible cards in search prompts. Preserve the unchanged baseline replay and compare the post-action Trainer count, source attack legality/damage and candidate's **actual legal response**, rather than calculating only the prospective 200 base. Report both successful and blocked steps; do not splice the counterfactual trajectory into confirmatory game records.
