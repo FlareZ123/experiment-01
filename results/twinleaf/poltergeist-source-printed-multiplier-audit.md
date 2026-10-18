@@ -37,6 +37,24 @@ The same immutable source 60s, physical seats, actual seed, policy flags, origin
 
 This proves matching serialized evidence and terminal outcome for this pair. It does **not** prove all hidden engine reference graphs were unchanged, that the engine matches all paper rules, or that the bot's tactical choices were competent. The observer reads opponent hand only after bot decision and never passes this hindsight inventory into the active decision policy.
 
+## Authentic nonterminal copied attack and ensuing opponent actions
+
+A second read-only source replay, [manual compiled CI 39157953757](https://github.com/FlareZ123/experiment-01/actions/runs/39157953757), **passed** at head `5142bcbdf6e6ad38fbb571223daf597155736d6a`, archive [12147582845](https://github.com/FlareZ123/experiment-01/actions/runs/39157953757/artifacts/12147582845), ZIP SHA256 `bac2dbdf29bebc2d5cfa2cd1db6bbe2834fe46232b1bde2301a23557931bfc91`.
+
+In that **same authentic game**, an earlier `UseAbilityAction('Perfection')` chain copied printed Poltergeist at root ordinal **210**, global turn **22**. This is **not terminal**. Immediately before the Store attack declaration the rank11 hand held six of eight Trainers: Battle VIP Pass, Quick Ball, Professor's Letter, Marnie, Shopping Center and Float Stone. Thus the printed base was **300**; the defended Active **Mega Absol ex** had 280 printed HP and **150 prior damage**, leaving only **130**. The subsequent real Store transition removed that Active Mega Absol and awarded the candidate **three Prizes**, consistent with the Mega Evolution ex Rule. The source Active was replaced by another Mega Absol ex. The attacking Mewtwo & Mew-GX was physically in the Active Spot with one Telepathic Psychic Energy and one Psychic Energy; the printed copied attack's two-Psychic cost was represented in the real source board. Garbodor was on the source Bench with **no Pokémon Tool** at this exact decision.
+
+Unlike the terminal turn36, this copied attack has a real ensuing opponent turn. The complete source-ledger next opponent turn **23** recorded:
+
+- Root **217**: play Float Stone;
+- Root **218**: replace candidate Sky Field with Shopping Center;
+- Root **219**: candidate resolves a `ChoosePokemonPrompt` stemming from Sky Field's removal;
+- Root **220**: play Marnie, with subsequent hand-resolution prompts;
+- Root **223**: Pass, followed by end-of-turn root224.
+
+At the attack boundary the candidate had **eight Benched Pokémon under Sky Field**. Replacing Sky Field is a potentially consequential counter-move: its printed text requires discarding excess Benched Pokémon down to five. A new same-source check is pending to independently verify the following candidate-turn public Bench count and exact survivors. The Marnie also represents real opponent hand disruption, although tactical competency and the counterfactual benefit of each chosen play have not been established. No opponent attack was observed in turn23.
+
+This is an **ordered authentic engine opponent response** and a genuine turn-after-copied-attack example; it does not establish a strategically optimized opponent policy, a full paper-rules replay or a prospective natural-play success probability.
+
 ## Boundaries and next discriminating test
 
 The source printed multiplier, actual target HP, recorded KO and final Prize now form a reproducible mechanic-consequence witness. The attack's **full damage reducer, Weakness/Resistance/active modifiers, and the exact public board at the attack instant** have not been independently replayed or audited. The copied terminal attack also ends the game, so it has **no next opponent turn**. To close the Critic-requested response gate, the same source game also contains a **nonterminal copied Poltergeist on global turn 22, ordinal 210**. Investigate its true predecision public board, physical Trainer count, damage/effects, end-of-turn and the rank11 player's next autonomous action. A selected-successful seed remains a **mechanical positive control**; prospectively fixed independent seeds and both actual starts are mandatory for competitive inference.
