@@ -73,7 +73,7 @@ test('nearly-balanced all-nonwin rank batch crosses its pre-budgeted threshold',
   assert.equal(out.actualSecondGames, 3);
   assert.equal(out.wins, 0);
   assert.equal(out.conditionalStatisticalVeto, true);
-  assert.ok(Math.abs(out.allNonWinNullProbabilityUpperBound - .192 ** 2 * .128 ** 3) < 1e-12);
+  assert.ok(Math.abs(out.allNonWinNullProbabilityUpperBound - .128 ** 2 * .192 ** 3) < 1e-12);
   assert.equal(out.evidenceClass, 'structurally-checked-self-reported-qualified-games');
 });
 
@@ -88,7 +88,7 @@ test('all-nonwin actual-seat batch crosses its distinct 64-cell threshold', () =
 
 test('sharp heterogeneous start bound rejects naive identical-start loss assumption', () => {
   assert.ok(Math.abs(rankAllNonwinBound(2,3) -
-    .192 ** 2 * .128 ** 3) < 1e-12);
+    .128 ** 2 * .192 ** 3) < 1e-12);
   assert.ok(Math.abs(rankAllNonwinBound(3,2) -
     rankAllNonwinBound(2,3)) < 1e-12);
   assert.ok(rankAllNonwinBound(2,2) > vetoDesign(1, 'rank').perTestAlpha);
