@@ -122,7 +122,8 @@ function runSeat(seat) {
     assert.ok(opponent.hand.cards.includes(selected), 'Rejected card left hand');
     return String(error.message);
   };
-  const blocked = {
+  const skipRejectedPlays = process.env.HORROR_HOUSE_SKIP_REJECTED_PLAYS === '1';
+  const blocked = skipRejectedPlays ? null : {
     item: attemptBlocked(item),
     supporter: attemptBlocked(supporter)
   };
@@ -148,6 +149,12 @@ function runSeat(seat) {
     const p = pending();
     assert.ok(p, 'Expected Volt Cyclone Energy movement prompt; observed '+JSON.stringify({
       phase:state.phase,turn:state.turn,activePlayer:state.activePlayer,
+      rootStateIsSameReference:state===store.state,
+      storePhase:store.state.phase,storeTurn:store.state.turn,
+      lastAttack:state.lastAttack?.name,
+      storeLastAttack:store.state.lastAttack?.name,
+      rootLogCount:store.state.logs.length,
+      skipRejectedPlays,
       gengarDamage:me.active.damage,thornsActive:opponent.active.getPokemonCard()?.fullName,
       activeEnergies:opponent.active.energies.cards.map(c=>c.fullName),
       benchEnergies:bench.energies.cards.map(c=>c.fullName),
