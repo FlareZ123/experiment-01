@@ -42,6 +42,19 @@ jobs:
       - name: Verify pinned source-rank26 bot chooses its held Cologne
         if: ${{ inputs.rank26_autonomous_cologne }}
         run: node simulation/twinleaf/rank26-cologne-autonomous-source-regression.cjs > rank26-autonomous-cologne.json
+      - name: Compare identical printed rank26 source seed under both bot profiles
+        if: ${{ inputs.rank26_autonomous_cologne }}
+        run: node simulation/twinleaf/rank26-cologne-autonomous-counterfactual.cjs > rank26-cologne-decision-counterfactual.json
+      - name: Print concise paired source first-turn choices
+        if: ${{ inputs.rank26_autonomous_cologne }}
+        run: node -e "const x=require('./rank26-cologne-decision-counterfactual.json');console.log(JSON.stringify({seed:x.seed,baseline:x.baseline.firstTurnDecisions.slice(0,8),automatic:x.automatic.firstTurnDecisions.slice(0,8),firstTurnCologneBaseline:x.baseline.firstTurnCologneUse,firstTurnCologneAutomatic:x.automatic.firstTurnCologneUse,different:x.strictlyDifferentDecision},null,2))"
+      - name: Archive paired first-turn source decision counterfactual
+        if: ${{ inputs.rank26_autonomous_cologne }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank26-cologne-autonomous-paired-unqualified
+          path: rank26-cologne-decision-counterfactual.json
+          if-no-files-found: error
       - name: Archive rank26 automatic source decision
         if: ${{ inputs.rank26_autonomous_cologne }}
         uses: actions/upload-artifact@v4
