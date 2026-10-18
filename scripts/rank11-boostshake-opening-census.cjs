@@ -11,10 +11,10 @@ const path = require('node:path');
 const buckets = [
   ['Oranguru V'], ['Battle VIP Pass'], ['Float Stone'],
   ['Forest Seal Stone'], ['Boost Shake'], ['Trubbish'],
-  ['Garbodor'], ['Mega Absol ex', 'Latias ex', 'Tapu Lele-GX',
-    'Crobat V', 'Squawkabilly ex']
+  ['Garbodor'], ['Crobat V'],
+  ['Mega Absol ex', 'Latias ex', 'Tapu Lele-GX', 'Squawkabilly ex']
 ];
-const expected = [2, 4, 3, 2, 2, 2, 2, 7, 36];
+const expected = [2, 4, 3, 2, 2, 2, 2, 1, 6, 36];
 
 /** @param {number} n @param {number} k @returns {bigint} */
 function C(n, k) {
@@ -44,7 +44,8 @@ function loadCounts() {
 
 /**
  * Number of Prize choices that leave the requested deck targets.
- * Index meanings: O,V,F,S,B,T,G,otherBasic,other.
+ * Index meanings: Oranguru,VIP,Float,Seal,Shake,Trubbish,Garbodor,
+ * CrobatV,otherBasic,other.
  * @param {number[]} total @param {number[]} hand @param {number[]} targets
  * @param {number} [cardsNotHeld=53] Deck+Prize pool after the hand and draw
  * @returns {bigint}
@@ -66,12 +67,54 @@ function goodPrizeChoices(total, hand, targets, cardsNotHeld = 53) {
   return answer;
 }
 
+/**
+ * Inclusion-exclusion over disjoint deck target groups. A requirement may be
+ * met by any remaining printing in its group. Groups must not overlap.
+ * @param {number[]} total @param {number[]} hand
+ * @param {number[][]} groups @param {number} [cardsNotHeld=53]
+ * @returns {bigint}
+ */
+function goodPrizeGroups(total, hand, groups, cardsNotHeld = 53) {
+  let ways = 0n;
+  for (let mask = 0; mask < (1 << groups.length); mask++) {
+    let forced = 0;
+    let parity = 0;
+    for (let i = 0; i < groups.length; i++) {
+      if (mask & (1 << i)) {
+        forced += groups[i].reduce((n, k) => n + total[k] - hand[k], 0);
+        parity++;
+      }
+    }
+    ways += (parity % 2 ? -1n : 1n) *
+      C(cardsNotHeld - forced, 6 - forced);
+  }
+  return ways;
+}
+
+/**
+ * A held Seal can find an unprized Boost Shake using any established Pokémon
+ * V. Held VIP can search for both missing Trubbish and a V, if necessary.
+ * @param {number[]} hand @returns {boolean}
+ */
+function heldSealOpportunity(hand) {
+  return hand[2] > 0 && hand[3] > 0 && hand[4] === 0 &&
+    (hand[5] > 0 || hand[1] > 0) &&
+    (hand[0] + hand[7] > 0 || hand[1] > 0);
+}
+
+/** @param {number[]} hand @returns {number[][]} */
+function heldSealRequiredGroups(hand) {
+  return [[4], [6],
+    ...(hand[5] ? [] : [[5]]),
+    ...(hand[0] + hand[7] ? [] : [[0, 7]])];
+}
+
 /** @returns {Record<string,bigint>} */
 function census() {
   const n = loadCounts();
   const hand = Array(n.length).fill(0);
   const p = C(53, 6);
-  const r = {allHands: 0n, valid: 0n, direct: 0n,
+  const r = {allHands: 0n, valid: 0n, direct: 0n, heldSeal: 0n,
     v1Hand: 0n, v1Targets: 0n, total: C(60, 7) * p};
 
   /** @param {number} i @param {number} remain @param {bigint} ways */
@@ -79,11 +122,15 @@ function census() {
     if (i === n.length) {
       if (remain) return;
       r.allHands += ways;
-      if (!hand[0] && !hand[5] && !hand[7]) return;
+      if (!hand[0] && !hand[5] && !hand[7] && !hand[8]) return;
       r.valid += ways * p;
       if (hand[2] && hand[4] && (hand[1] || hand[5])) {
         const targets = hand[5] ? [6] : [5, 6];
         r.direct += ways * goodPrizeChoices(n, hand, targets);
+      }
+      if (heldSealOpportunity(hand)) {
+        r.heldSeal += ways * goodPrizeGroups(n, hand,
+          heldSealRequiredGroups(hand), 53);
       }
       if (hand[0] && hand[1] && hand[2] && !hand[3] && !hand[4]) {
         r.v1Hand += ways * p;
@@ -102,6 +149,7 @@ function census() {
   assert.equal(r.total, 8866337641761600n);
   assert.equal(r.valid, 6894276702593280n);
   assert.equal(r.direct, 169890696085236n);
+  assert.equal(r.heldSeal, 102325528271124n);
   assert.equal(r.v1Hand, 127592737981800n);
   assert.equal(r.v1Targets, 117097385243124n);
   return r;
@@ -123,7 +171,7 @@ function censusAfterFirstDraw() {
   const hand = Array(n.length).fill(0);
   const p = C(52, 6);
   const r = {
-    allHands:0n, valid:0n, direct:0n,
+    allHands:0n, valid:0n, direct:0n, heldSeal:0n,
     v1Hand:0n, v1Targets:0n,
     total:C(60, 8) * 8n * p
   };
@@ -132,13 +180,17 @@ function censusAfterFirstDraw() {
     if (i === n.length) {
       if (remain) return;
       r.allHands += ways;
-      const basics = hand[0] + hand[5] + hand[7];
+      const basics = hand[0] + hand[5] + hand[7] + hand[8];
       const legalFinalDraws = basics >= 2 ? 8 : basics === 1 ? 7 : 0;
       const weightedWays = ways * BigInt(legalFinalDraws);
       r.valid += weightedWays * p;
       if (hand[2] && hand[4] && (hand[1] || hand[5])) {
         r.direct += weightedWays * goodPrizeChoices(n, hand,
           hand[5] ? [6] : [5, 6], 52);
+      }
+      if (heldSealOpportunity(hand)) {
+        r.heldSeal += weightedWays * goodPrizeGroups(n, hand,
+          heldSealRequiredGroups(hand), 52);
       }
       if (hand[0] && hand[1] && hand[2] && !hand[3] && !hand[4]) {
         r.v1Hand += weightedWays * p;
@@ -161,6 +213,7 @@ function censusAfterFirstDraw() {
   assert.equal(r.valid, census().valid * 47n);
   assert.equal(r.valid, 324031005021884160n);
   assert.equal(r.direct, 11911482095606528n);
+  assert.equal(r.heldSeal, 7376246746128421n);
   assert.equal(r.v1Hand, 8012265580359040n);
   assert.equal(r.v1Targets, 7228094214428032n);
   return r;
@@ -179,6 +232,8 @@ if (require.main === module) {
     initialSeven: {
       validHandFraction: percent(r.valid, r.total),
       directWithSearchableGarbodor: percent(r.direct, r.valid),
+      heldSealVStarRoute: percent(r.heldSeal, r.valid),
+      disjointDirectOrHeldSeal: percent(r.direct + r.heldSeal, r.valid),
       v1NecessaryHandOnly: percent(r.v1Hand, r.valid),
       v1WithSearchableTargets: percent(r.v1Targets, r.valid),
       exactIntegerNumerators: numeric(r)
@@ -187,6 +242,9 @@ if (require.main === module) {
       validHandFraction: percent(afterDraw.valid, afterDraw.total),
       directWithSearchableGarbodor:
         percent(afterDraw.direct, afterDraw.valid),
+      heldSealVStarRoute: percent(afterDraw.heldSeal, afterDraw.valid),
+      disjointDirectOrHeldSeal:
+        percent(afterDraw.direct + afterDraw.heldSeal, afterDraw.valid),
       v1NecessaryHandOnly: percent(afterDraw.v1Hand, afterDraw.valid),
       v1WithSearchableTargets:
         percent(afterDraw.v1Targets, afterDraw.valid),
@@ -195,4 +253,5 @@ if (require.main === module) {
     qualifiesCompetitiveGames: false
   }, null, 2));
 }
-module.exports = {C, loadCounts, goodPrizeChoices, census, censusAfterFirstDraw};
+module.exports = {C, loadCounts, goodPrizeChoices, goodPrizeGroups,
+  heldSealOpportunity, heldSealRequiredGroups, census, censusAfterFirstDraw};
