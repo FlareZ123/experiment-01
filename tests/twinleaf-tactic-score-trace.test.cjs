@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {captureTacticScores,compareTacticScores}=
+const {captureTacticScores,compareTacticScores,summarizeTacticScores}=
   require('../simulation/twinleaf/tactic-score-trace.cjs');
 
 class PlayCardAction {
@@ -66,4 +66,30 @@ test('undefined returned evaluation is marked, without inventing a numeric score
   assert.equal(cap.trace.length,1);
   assert.equal(cap.trace[0].undefinedScore,true);
   assert.equal(cap.trace[0].score,null);
+});
+
+
+test('finite scoring and speculative failures have separate denominators',()=>{
+  const trace=[
+    {tactic:'PlaySupporterTactic',score:undefined,undefinedScore:true},
+    {tactic:'PlayTrainerTactic',score:0,undefinedScore:false},
+    {tactic:'RetreatTactic',score:-2,undefinedScore:false},
+    {tactic:'PlaySupporterTactic',score:10,undefinedScore:false},
+    {tactic:'AttackTactic',score:NaN,undefinedScore:false}
+  ];
+  const census=summarizeTacticScores(trace);
+  assert.deepEqual(census,{
+    attemptedEvaluations:5,finiteScores:3,undefinedScores:1,
+    otherUnscored:1,
+    attemptsByTactic:{
+      PlaySupporterTactic:2,PlayTrainerTactic:1,
+      RetreatTactic:1,AttackTactic:1
+    },
+    finiteByTactic:{
+      PlayTrainerTactic:1,RetreatTactic:1,PlaySupporterTactic:1
+    }
+  });
+  const comparison=compareTacticScores(trace,trace);
+  assert.deepEqual(comparison.physicalScoreSummary,census);
+  assert.deepEqual(comparison.counterfactualScoreSummary,census);
 });
