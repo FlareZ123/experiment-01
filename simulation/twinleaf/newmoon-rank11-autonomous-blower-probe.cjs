@@ -50,6 +50,18 @@ function summary(game) {
         exactStoreMatch:logged?.attack===selected.attackName
       };
     });
+  // Read-only retrospective source-own-hand census immediately after the
+  // original rank-11 policy chose an action and before live Store dispatch.
+  // No opponent-hidden information is passed into either decision policy.
+  const sourceTurn49OwnerChoices=game.decisionTrace.filter(row=>
+    row.playerSlot===SOURCE_SEAT && row.turnBefore===49 &&
+    ['PlayCardAction','AttackAction','PassTurnAction'].includes(row.action))
+    .map(row=>({
+      ordinal:row.actionOrdinal,turn:row.turnBefore,
+      action:row.action,card:row.card??null,attack:row.attack??null,
+      ownHandPrintings:row.decisionHandBefore?.ownHandPrintings??null,
+      sourceDeckRemainingAfter:row.decksAfter?.[SOURCE_SEAT]??null
+    }));
   const sourceResponses=game.decisionTrace.filter(row =>
     row.playerSlot===SOURCE_SEAT && row.turnBefore>=3 &&
     row.turnBefore<=5 && (row.action==='PlayCardAction' ||
@@ -96,7 +108,8 @@ function summary(game) {
       lastPassBoard:row.action==='PassTurnAction'?
         row.publicBoardBeforePass??null:null
     })),
-    sourceNextTurns:sourceResponses
+    sourceNextTurns:sourceResponses,
+    sourceTurn49OwnerChoices
   };
 }
 
@@ -182,6 +195,17 @@ function run() {
   assert.ok(selectedCopies.every(x=>x.exactStoreMatch &&
     x.printing==='Gengar & Mimikyu-GX TEU' &&
     x.selectedAttack==='Poltergeist'));
+  // This validates the missing predecision own-hand premise of the
+  // rank-11 turn49 Quick Ball counterfactual with source-dealt evidence.
+  const turn49=summary(afterSupporter).sourceTurn49OwnerChoices;
+  const firstSourceAction=turn49.find(row=>row.ordinal===288);
+  assert.equal(firstSourceAction?.card,'Darkness Energy',
+    'Archived source turn49 first source action drifted');
+  assert.ok(Array.isArray(firstSourceAction.ownHandPrintings),
+    'Source turn49 must have an independently captured own-hand snapshot');
+  assert.equal(turn49.some(row=>
+    row.ordinal===289 && row.attack==='Claw of Darkness'),true,
+    'Source turn49 printed attack action drifted');
   const effectWindows=observedEffectGame.poltergeistEffectTrace||[];
   const copiedAttackEffects=selectedCopies.map(choice=>{
     const effect=effectWindows.find(row=>row.actionOrdinal===choice.ordinal);
