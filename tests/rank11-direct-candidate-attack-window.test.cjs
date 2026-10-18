@@ -10,7 +10,7 @@ test('fixed source witnesses are cross-applied to four frozen candidate-policy a
   assert.deepEqual(new Set(WITNESSES.map(w=>w.previousRank11First)),
     new Set([true,false]));
   assert.equal(new Set(WITNESSES.map(w=>w.seed)).size,4);
-  assert.equal(new Set(VARIANTS.map(v=>v.id)).size,3);
+  assert.equal(new Set(VARIANTS.map(v=>v.id)).size,4);
   assert.equal(VARIANTS.filter(v=>v.deck==='new-moon').length,3);
   assert.equal(digest(['A','B']).length,64);
 });
