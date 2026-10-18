@@ -56,6 +56,16 @@ on:
         required: false
         type: boolean
         default: false
+      tool_attack_awareness:
+        description: 'Opt-in direct Tool-granted attack enumeration, fixed-core only; unqualified'
+        required: false
+        type: boolean
+        default: false
+      tool_attack_opponent_only:
+        description: 'Apply direct Tool attack enumeration solely to opponent physical seat'
+        required: false
+        type: boolean
+        default: false
       electrode_gx_energy_correction:
         description: 'Opt-in corrected Extra Energy Bomb mandatory transfer and bot count; ranks 4 and 17'
         required: false
@@ -151,6 +161,8 @@ jobs:
           AICHI_ELECTRODE_OPPORTUNITY: ${{ inputs.electrode_opportunity_observer && '1' || '0' }}
           AICHI_GRAND_TREE_TURN_GUARD: ${{ inputs.grand_tree_first_turn_guard && '1' || '0' }}
           AICHI_BUNNELBY_SOURCE_K0: ${{ inputs.bunnelby_source_k0 && '1' || '0' }}
+          AICHI_TOOL_ATTACK: ${{ inputs.tool_attack_awareness && '1' || '0' }}
+          AICHI_TOOL_ATTACK_OPPONENT: ${{ inputs.tool_attack_opponent_only && '1' || '0' }}
           AICHI_ATTACK_BEFORE_RETREAT: ${{ inputs.attack_before_retreat && '1' || '0' }}
           AICHI_ATTACK_CANDIDATE_ONLY: ${{ inputs.attack_before_retreat_candidate_only && '1' || '0' }}
           AICHI_ATTACK_PASS_PROBE: ${{ inputs.audit_passed_attacks && '1' || '0' }}
