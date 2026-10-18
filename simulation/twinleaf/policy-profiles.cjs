@@ -21,13 +21,15 @@ const RANK11_SUPPORTER_PROFILE = 'rank11-autonomous-boostshake-supporter-v2';
 const RANK11_K1_HYBRID_PROFILE = 'rank11-k1-direct-vstar-v3';
 const RANK26_COLOGNE_PROFILE = 'rank26-autonomous-cologne-v1';
 const RANK26_COLOGNE_PUMP_PROFILE = 'rank26-autonomous-cologne-pump-v2';
+const RANK26_PROPAGATION_PROFILE = 'rank26-autonomous-cologne-pump-propagation-v3';
 const ALLOWED_PROFILES = Object.freeze([
   DEFAULT_PROFILE, REGIDRAGO_PROFILE,
   SUPPORTER_PROFILE, REGIDRAGO_SUPPORTER_PROFILE,
   EXPANDED_PROFILE, EXPANDED_SOURCE_PROFILE, EXPANDED_GH_SEARCH_PROFILE,
   RANK11_AUTONOMOUS_PROFILE, RANK11_OWN_FIRST_PROFILE,
   RANK11_SUPPORTER_PROFILE, RANK11_K1_HYBRID_PROFILE,
-  RANK26_COLOGNE_PROFILE, RANK26_COLOGNE_PUMP_PROFILE
+  RANK26_COLOGNE_PROFILE, RANK26_COLOGNE_PUMP_PROFILE,
+  RANK26_PROPAGATION_PROFILE
 ]);
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 
@@ -157,6 +159,40 @@ function runWithResearchProfile(request, profile) {
       rank11AutonomousPolicy: audit.policyAudit
     };
   }
+  if (profile === RANK26_PROPAGATION_PROFILE) {
+    const {rank26SourceSeat, ...matchRequest} = shared;
+    if (![0, 1].includes(rank26SourceSeat)) {
+      throw new Error('Rank-26 propagation profile requires its source physical seat.');
+    }
+    const {withRank26CologneOpener} = require('./rank26-cologne-opener.cjs');
+    const {withRank26ExeggcutePump} = require('./rank26-exeggcute-pump-policy.cjs');
+    const {withRank26PropagationLoop} = require('./rank26-propagation-loop.cjs');
+    const {installDamagePumpSingleSourceHook} =
+      require('./damage-pump-single-source-hook.cjs');
+    const restorePump = installDamagePumpSingleSourceHook();
+    try {
+      const combined = withRank26CologneOpener(rank26SourceSeat,
+        () => withRank26ExeggcutePump(rank26SourceSeat,
+          () => withRank26PropagationLoop(rank26SourceSeat,
+            () => runMatch(matchRequest))));
+      const game = combined.result.result.result;
+      return {
+        ...game,
+        researchPolicyProfile: profile,
+        policy: String(game.policy || 'unqualified-simple-bot') +
+          '+Rank26ColognePumpPropagation-v3',
+        experimentalTactics: ['Rank26CologneOpener-v1',
+          'Rank26PrizeCappedPump-v2', 'Rank26PropagationLoop-v1'],
+        rank26ColognePolicy: combined.policyAudit,
+        rank26PumpPolicy: combined.result.policyAudit,
+        rank26PropagationPolicy: combined.result.result.policyAudit,
+        damagePumpSingleSourceCorrection: true,
+        competitiveGameQualified: false
+      };
+    } finally {
+      restorePump();
+    }
+  }
   if (profile === RANK26_COLOGNE_PUMP_PROFILE) {
     const {rank26SourceSeat, ...matchRequest} = shared;
     if (![0, 1].includes(rank26SourceSeat)) {
@@ -282,5 +318,5 @@ module.exports = {RANK11_K1_HYBRID_PROFILE,
   EXPANDED_GH_SEARCH_PROFILE, RANK11_AUTONOMOUS_PROFILE,
   RANK11_OWN_FIRST_PROFILE, RANK11_SUPPORTER_PROFILE,
   RANK26_COLOGNE_PROFILE,
-  RANK26_COLOGNE_PUMP_PROFILE, ALLOWED_PROFILES,
+  RANK26_COLOGNE_PUMP_PROFILE, RANK26_PROPAGATION_PROFILE, ALLOWED_PROFILES,
   withTempleUnlockTactic, withExpandedActionOptions, runWithResearchProfile};
