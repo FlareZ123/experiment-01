@@ -67,7 +67,7 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute) {
   let phase = 'idle';
   let activeSelection = null;
 
-  SimpleTacticsAi.prototype.decodeNextAction = function newMoonBlowerDecision(state) {
+  const newMoonBlowerDecision = function (state) {
     const own = state.players.find(player => player.id === this.client?.id);
     if (!own || own.id !== candidateId) {
       return original.call(this, state);
@@ -115,6 +115,7 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute) {
     }
     return original.call(this,state);
   };
+  SimpleTacticsAi.prototype.decodeNextAction = newMoonBlowerDecision;
   try {
     const result=execute();
     return {result,policyAudit:{
