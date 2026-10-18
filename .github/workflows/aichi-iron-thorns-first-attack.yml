@@ -62,3 +62,14 @@ jobs:
           name: rank6-autonomous-thorns-source
           path: rank6-autonomous-attack.json
           if-no-files-found: warn
+      - name: Verify broad K0/visible-hand DCE and Thunder search plans
+        run: node --test tests/rank6-broad-thorns-policy.test.cjs
+      - name: Preserve all 24 preregistered broad source-opponent trials
+        run: node simulation/twinleaf/rank6-broad-thorns-source.cjs > rank6-broad-thorns-source.json
+      - name: Archive exact broad-policy exposure and unsuccessful trials
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank6-broad-thorns-source
+          path: rank6-broad-thorns-source.json
+          if-no-files-found: warn
