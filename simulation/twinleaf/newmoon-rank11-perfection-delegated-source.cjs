@@ -8,6 +8,7 @@ const {pairedCandidateSlots} =
 const {runArm} = require('./new-moon-second-start-paired.cjs');
 const {initialChoice} = require('./new-moon-rank11-native-gengar-hardmatchup.cjs');
 const {auditSourcePass}=require('./rank11-turn23-pass-resource-audit.cjs');
+const {run:runRank11ToolTargetContrast}=require('./rank11-turn23-garbodor-floatstone-fork.cjs');
 const source = require('../../results/als/new-moon-perfection-english-map.json');
 const contender = require('../../results/als/new-moon-lockbreak-english-proxy-60.json');
 
@@ -262,6 +263,7 @@ function run() {
     terminalPublicEffect,
     nonterminalCopiedResponse:earlierCopiedResponse,
     sourceTurn23PassAudit:auditSourcePass(game),
+    retrospectiveTurn23GarbodorToolTargetContrast:runRank11ToolTargetContrast(),
     poltergeistEffect:{
       ...printedEffect.assessment,
       originalAttackSource:{
