@@ -12,9 +12,11 @@ const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  * @template T
  * @param {0|1} sourceSeat
  * @param {()=>T} execute
+ * @param {{k1AvoidMissingGarbodor?:boolean}} [configuration]
  * @returns {{result:T,policyAudit:object}}
  */
-function withRank11DirectBoostShake(sourceSeat, execute) {
+function withRank11DirectBoostShake(sourceSeat, execute,
+  {k1AvoidMissingGarbodor = false} = {}) {
   if (![0, 1].includes(sourceSeat) || typeof execute !== 'function') {
     throw new TypeError('Known rank11 seat and synchronous game required.');
   }
@@ -97,6 +99,15 @@ function withRank11DirectBoostShake(sourceSeat, execute) {
     }
     if (step === 'trubbish-search') {
       action = deckChoice(state, player, pending, 'Trubbish');
+      if (action && k1AvoidMissingGarbodor &&
+          pending.playerId === player.id && pending.cards === player.deck &&
+          !pending.cards.cards.some(card => card.name === 'Garbodor')) {
+        aborted = {turn:state.turn, stepIndex, step,
+          reason:'own-deck-search-established-no-Garbodor',
+          ownerDeckSearch:true, garbodorInOwnerSearch:0,
+          garbodorInOwnHand:player.hand.cards.filter(card =>
+            card.name === 'Garbodor').length};
+      }
     }
     if (step === 'attach-tool') {
       const index = untooledTrubbish(player);
@@ -138,9 +149,11 @@ function withRank11DirectBoostShake(sourceSeat, execute) {
   try {
     const result = execute();
     return {result, policyAudit:{
-      version:'rank11-direct-boostshake-v1', sourceSeat,
+      version:k1AvoidMissingGarbodor ? 'rank11-direct-boostshake-k1-v2' :
+        'rank11-direct-boostshake-v1', sourceSeat,
       opportunityTurn:line?.turn ?? null, route:line?.route ?? null,
-      selectedTool:line?.tool ?? null, actions, aborted,
+      selectedTool:line?.tool ?? null,
+      k1AvoidMissingGarbodor, actions, aborted,
       nextTurnLockWitness:witness,
       completed:!!line && stepIndex === line.steps.length &&
         witness?.equippedGarbodor === true,
