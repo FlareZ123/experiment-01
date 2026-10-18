@@ -39,6 +39,10 @@ on:
         description: 'Use prospectively registered second cohort indices 80-239 (160 trials)'
         type: boolean
         default: false
+      rank11_hybrid_k0_regression:
+        description: 'Opt-in original source hybrid K0K1 policy regression'
+        type: boolean
+        default: false
       rank11_held_shake_k1_guard_regression:
         description: 'Opt-in frozen positive and stage-4 abort sources with K0/K1 guard v2'
         type: boolean
