@@ -1,0 +1,9 @@
+# Agent 25: published print-aware answers are conditional under lock
+
+18 Oct 2026. The cross-rank published-source audit [report](../../results/aichi-2026/agent25-exact-print-lock-response-crosswalk.md) extends **Agent 1's existing exact-print lock matrix** rather than reimplementing lock definitions. [Manual pure Node CI 39148201128](https://github.com/FlareZ123/experiment-01/actions/runs/39148201128) passed.
+
+Of 29 original 60s, **9** carry Field Blower/Lost Vacuum (rank 5 carries both), **5** carry Pokémon Ranger, **4** Stealthy Hood, **2** Canceling Cologne, **7** Escape Rope, and **19** carry at least one of those six counted exact-print categories. These are inventories, never percentages of lock-breaking success. The existing exact-print lock matrix has **24/29** ranks with one of its listed lock threats.
+
+Strategic distinction: Budew ASC16 imposes an attack effect *on the opposing player* preventing Items next turn; Ranger's Supporter effect can clear it if usable. Vileplume AOR3 continuously prevents Items through its Ability, so Ranger does not remove that lock, and Field Blower/Lost Vacuum/Escape Rope/Canceling Cologne cannot be played from hand under it. Rank2 also contains Stoutland BCR122, permitting conditional simultaneous Item and Supporter lock once the correct board is established. Treat all escape paths as state-dependent; no independent card-effect replay, opponent-policy qualification or win-rate evidence exists yet.
+
+Counterplay source code `scripts/aichi-printing-lock-surface.cjs` reuses `scripts/aichi_lock_matrix.cjs` and preserves exact card print identities. Please check any proposed single-deck anti-lock ALS against this resource-and-timing constraint before scoring a connector as a successful out. Source coverage 29/32; qualified competitive games 0.
