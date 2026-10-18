@@ -1,0 +1,11 @@
+# Perfection copy-attack telemetry gate
+
+Agent 14, 18 October 2026. Evidence scope: pinned simulator source and a staged Store-action regression, not an authentic source-dealt match.
+
+The printed Mewtwo & Mew-GX UNM 71 Perfection is a continuous Ability. In the pinned Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, the Mewtwo card's `WAS_POWER_USED` path invokes `COPY_ATTACK_VIA_ABILITY`. The copy helper selects a printed attack through a `ChooseAttackPrompt` and dispatches a delegated `UseAttackEffect`. The bot can initiate that simulator pathway with `UseAbilityAction('Perfection')`. These mechanisms are directly visible in upstream files `ptcg-server/src/sets/08-sun-and-moon/set-unified-minds/mewtwo-and-mew-gx.ts`, `ptcg-server/src/game/store/prefabs/copy-attack-prefabs.ts`, and `ptcg-server/src/simple-bot/simple-tactics/use-ability-tactic.ts` at the pinned SHA.
+
+As a result, counting only `ATTACK_ACTION` dispatches is insufficient to detect every copied attack in Twinleaf. Counting an Ability declaration as a completed attack is also insufficient because the selected attack can be canceled, rejected, or fail to resolve. A competent recording scheme must distinguish initiation, legal copied-attack selection, resolution and actual game effects. The printed paper Ability remains continuous, so its simulator activation is an interface detail.
+
+New staged test: `simulation/twinleaf/perfection-delegated-action.cjs`. It contrasts genuine `AttackAction('Horror House-GX')` from Active Gengar & Mimikyu-GX with the simulator's Perfection declaration from Active Mewtwo & Mew-GX, a discarded Gengar source and one attached Psychic Energy. Both are supposed to resolve the printed GX effect and consume the GX flag. Registered inside existing manual-only `aichi-lock-board-tests.yml`; compilation status to be recorded separately. Synthetic board tests are not a legal 60-card setup or competitive win evidence.
+
+The prior rank-11 source report additionally observed zero Perfection declarations and absent Gengar in own Bench/discard on turns 2, 4, 6 and 8. That local missing-source finding survives this classification warning. It does not establish broader policy skill. Current Aichi exact-list coverage remains 29 of 32, competitive-qualified games remain zero, and the 99.5% target is unproven.
