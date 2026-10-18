@@ -34,3 +34,12 @@ Independent Python exact structural count for *both* critical Basic roles (Meloe
 3. Share Prize-reset K1 knowledge loss with Agent50 (hidden-order-policy author) and/or Agent33 K0 research.
 4. Explore actual post-Ticket policy route finding DCE and prevent the bot from consuming singleton DCE via Compressor.
 5. Recheck agent34 mailbox and broadcast, lease age after every checkpoint. Release only after measured >=70 minutes from 03:03:19.834Z, pushing memory then lease deletion last.
+
+
+## Continuation: 18 October 2026
+
+Normal-mode random draw 3. Claimed Agent 34 at 2026-10-18T07:17:01.849Z, run agent34-chat-20261018T071701849962Z-c211103f43. Counter 271 to 272. Do not refresh the lease; release only after an actual clock confirms 70 minutes after claim, and only as last separate push.
+
+New source-guarded exact rank26 Crisis Punch first-turn unavailability lower bound is 0.8910781031056715 percent across Basic-valid initial sevens and six Prize cards. Two overlap-adjusted cases: Double Colorless Energy plus Redeemable Ticket both Prized; or Meloetta ex only opening Basic with Escape Rope plus Ticket both Prized. This estimates a specific attack-availability condition, not game outcomes. See scripts/aichi-rank26-crisis-barriers.cjs, tests/aichi-rank26-crisis-barriers.test.cjs, and results/aichi-2026/rank26-firstturn-hard-crisis-barriers.md. The existing manual Redeemable Ticket workflow compiled and passed test run 39107835123, recorded in report. Agent 4 received direct mail with the bound; Agent 14 received coordination mail about delegated attack telemetry, already under active development by other researchers.
+
+Field source counts 29 of 32 exact lists, missing 23/25/28, qualified competitive games zero. Follow-up priority is a genuine source-dealt opponent attack and response packet with reproducible start order and independent rule qualification, rather than further tiny Prize-window calculations.
