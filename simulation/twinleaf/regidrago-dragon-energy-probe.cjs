@@ -13,9 +13,10 @@ const load = name => require(path.join(root,name));
  * This staged board intentionally excludes all realistic search/policy stages.
  *
  * @param {'dragon-impact'|'ryuno-glide'} scenario
+ * @param {'double-dragon'|'basic'} energyPlan
  * @returns {object}
  */
-function probe(scenario='dragon-impact') {
+function probe(scenario='dragon-impact',energyPlan='double-dragon') {
   const manager=initializeCards();
   let serial=1;
   const make = name => {
@@ -30,6 +31,7 @@ function probe(scenario='dragon-impact') {
   const {GamePhase}=load('game/store/state/state');
   const {Format}=load('game/store/card/card-types');
   const {AttackAction}=load('game/store/actions/game-actions');
+  const {CheckProvidedEnergyEffect}=load('game/store/effects/check-effects');
   const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
 
   const store=new Store({onStateChange(){}});
@@ -42,8 +44,14 @@ function probe(scenario='dragon-impact') {
   const attackName=scenario==='ryuno-glide' ? 'Ryuno Glide' : 'Dragon Impact';
   const dragon=make(payload);
   mine.discard.cards.push(dragon);
-  mine.active.energies.cards.push(make('Double Dragon Energy ROS'));
-  mine.active.energies.cards.push(make('Double Dragon Energy ROS'));
+  if(energyPlan==='double-dragon') {
+    mine.active.energies.cards.push(make('Double Dragon Energy ROS'));
+    mine.active.energies.cards.push(make('Double Dragon Energy ROS'));
+  } else {
+    mine.active.energies.cards.push(make('Grass Energy SVE'));
+    mine.active.energies.cards.push(make('Grass Energy SVE'));
+    mine.active.energies.cards.push(make('Fire Energy SVE'));
+  }
   for(const player of [opponent,mine]){
     player.deck.cards.push(make('Psychic Energy SVE'),make('Psychic Energy SVE'));
     for(let i=0;i<6;i++){
@@ -55,12 +63,23 @@ function probe(scenario='dragon-impact') {
   state.phase=GamePhase.PLAYER_TURN;
   state.gameSettings.format=Format.EXPANDED;
   const logIndex=state.logs.length;
+  const check=new CheckProvidedEnergyEffect(mine,mine.active);
+  store.reduceEffect(state,check);
   const before={
+    effectiveEnergy:check.energyMap.map(x=>({
+      card:x.card.fullName,provided:x.provides
+    })),
+    energyPlan,
     attackerEnergyCards:mine.active.energies.cards.map(c=>c.fullName),
     opponentDamage:opponent.active.damage,
     opponentHp:opponent.active.getPokemonCard()?.hp
   };
-  store.dispatch(new AttackAction(mine.id,'Apex Dragon'));
+  let dispatchError=null;
+  try {
+    store.dispatch(new AttackAction(mine.id,'Apex Dragon'));
+  } catch(error) {
+    dispatchError=String(error.message||error);
+  }
   const steps=[];
   let stoppedAt=null;
   for(let i=0;i<10;i++){
@@ -99,7 +118,7 @@ function probe(scenario='dragon-impact') {
     opponentHp:opponent.active.getPokemonCard()?.hp,
     logTail:state.logs.slice(logIndex).map(l=>String(l.message||l.text||l)).slice(-25)
   };
-  return {scenario,engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+  return {scenario,energyPlan,dispatchError,engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     payload,attackName,before,steps,stoppedAt,pending,after,
     stagedNotQualified:true};
 }
@@ -107,7 +126,10 @@ function probe(scenario='dragon-impact') {
 if(require.main===module){
   process.stdout.write(JSON.stringify({
     schema:'regidrago-copy-energy-discard-staged-v0',
-    cases:[probe('dragon-impact'),probe('ryuno-glide')]
+    cases:[
+      probe('dragon-impact','basic'),probe('dragon-impact','double-dragon'),
+      probe('ryuno-glide','basic'),probe('ryuno-glide','double-dragon')
+    ]
   },null,2)+'\n');
 }
 module.exports={probe};
