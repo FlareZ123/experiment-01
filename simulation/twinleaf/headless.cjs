@@ -1009,6 +1009,9 @@ function runMatch(request) {
       ...(horrorHouseRootTrace ? {horrorHouseRootTrace} : {}),
       abilityTrace,
       decisionTrace,
+      rootActionLedger,
+      rootActionLedgerProtocol: rootActionLedger ?
+        'actual-store-root-action-ledger-v1' : null,
       ...(rootConfirmationTrace ? {rootConfirmationTrace} : {}),
       ...(electrodeOpportunityObserver ?
         {electrodeOpportunitySummary: electrodeOpportunityObserver.snapshot()} : {}),
