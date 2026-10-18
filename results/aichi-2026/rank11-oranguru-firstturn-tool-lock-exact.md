@@ -46,6 +46,29 @@ Although six Prizes are dealt before the compulsory eighth card is drawn, card-o
 
 Divide the weighted event count by `8*C(60,8)*C(52,6)` and then by `1 - C(49,7)/C(60,7)`, the probability of a legal seven with rank 11's eleven Basic Pokémon. The script uses exact Python integers and `Fraction` throughout; decimal percentages are presentation only.
 
+## Disjoint extension: Battle VIP Pass plus a one-retreat Oranguru pivot
+
+**18 October follow-up.** The initial 14.6839% event requires Oranguru V to be in the starting seven and chosen Active. A second, **disjoint** legal line starts with one of rank 11's **seven other Basic Pokémon** Active, then uses the normal once-per-turn retreat to put Oranguru into the Active Spot and activate Back Order. The source's exact seven alternatives are Mega Absol ex ×3, Latias ex, Tapu Lele-GX, Crobat V and Squawkabilly ex, each with a printed Retreat Cost of **at most two Colorless**, so a single attached Float Stone suffices. These printed values were checked against the provided card database.
+
+The restricted sequence is:
+
+1. The starting seven contain another Basic **and no Oranguru V**. The first eight seen contain **Battle VIP Pass and at least one Float Stone**. If the eighth card is Oranguru, it may be Benched from hand; otherwise the Pass searches an unprized Oranguru. It also fetches Trubbish if not already held. Only one Pass is required because it can fetch up to two Basics.
+2. Attach the first held Float Stone to the original Active, then perform the **one normal retreat** to Oranguru. This spends the retreat opportunity and occupies the previous Active's Tool slot.
+3. Use Active Oranguru's Back Order to collect the missing second Float Stone and, when Boost Shake is not held, a missing Forest Seal Stone. At least one *second* Float Stone must be held or remain unprized in deck, and at least one Forest Seal Stone must be held or searchable when needed.
+4. Attach Forest Seal Stone to Tool-free Oranguru V and use Star Alchemy to find an unprized Boost Shake if not held. Attach the second Float Stone to Trubbish, then play Boost Shake to search an unprized Garbodor, evolve it, and end the turn.
+
+The exact enumeration imposes each of these limits, including an original non-Oranguru Basic starter, Oranguru being either the eighth draw or an unprized Pass target, an unprized Trubbish if not seen, both spent Float Stones, an unprized Garbodor and any required Stone/Shake searches. Source-player K0 Prize uncertainty is integrated as a uniform six-card allocation. It does not assume unrestricted access to the full deck before the first legal search.
+
+| Disjoint, conditional-on-valid-seven access class | Exact rate |
+| --- | ---: |
+| Original Oranguru-in-opening-seven route | **14.683897923741%** |
+| Additional other-Basic-start, VIP-plus-Float retreat route | **7.495507729080%** |
+| **Union of the two specific legal access classes** | **22.179405652822%** |
+
+The pivot's exact fraction is `144570053726383 / 1928755982273120`. For its first-eight category count, the number of admissible eighth-card placements is **eight** when at least two other Basics were drawn and no Oranguru was drawn, **seven** when exactly one other Basic was drawn and no Oranguru was drawn, or **one** when the only Oranguru was the eighth draw and at least one other Basic was in the first seven. These cases are disjoint from the initial Oranguru-in-seven event and allow simple exact addition. In a separate 300,000-permutation seeded category-deal check (`default_rng(20261018)`), **17,595 of 233,425 legal openings** satisfied the pivot predicate, or **7.537753%**, which is **0.78 binomial standard deviations** from the exact 7.495508%.
+
+This extension is a constructive **potential resource route**, with more stringent upfront hand requirements than the original route: the Pass and first Float Stone must be available before Back Order and the retreat is consumed. It omits alternate ways to switch the initial Active (Escape Rope, Latias ex Skyliner), Quick Ball, Secret Box's discard-constrained search, additional draw, opposing counterplay and realistic policy tradeoffs. **22.1794% is still a restricted source opportunity rate, not a real turn-one lock execution frequency or game win rate.** The source's first-party strategy report describing frequent early lock therefore still needs action-level and matchup verification rather than treating this fraction as an empirical bound.
+
 ## Independent numerical check and reproducibility
 
 A separate local shuffle check used **300,000** independent `numpy.random.default_rng(7168221)` permutations of the full 60-card category population. **233,143** had a Basic in their starting seven. The identical reachability predicates gave **14.796927%** for the full subset among those valid openings, versus exact **14.683898%**, a difference of **1.54 binomial standard deviations**; the no-VIP, no-Stone and all-direct variants were respectively **6.084249%, 3.161579%, 0.313970%**, each within 1.7 standard deviations of exact. This shuffled-deal check is Monte Carlo validation of the combinatorics, not actual played Pokémon TCG games.
