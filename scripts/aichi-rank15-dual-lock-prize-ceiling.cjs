@@ -80,6 +80,61 @@ function ceilingForBasicCount(basicCount) {
   };
 }
 
+
+/**
+ * Disjoint, prioritized classification of initial Prizes.
+ * Each category counts exactly once even when multiple roles are Prized.
+ * @param {number} basicCount Printed Basic Pokemon count.
+ */
+function prerequisiteFailurePartition(basicCount) {
+  assert.ok(Number.isInteger(basicCount) && basicCount >= 2 && basicCount <= 53);
+  const names = [
+    'BUS Vileplume Prized',
+    'Oddish Prized, BUS outside Prizes',
+    'Gloom Prized, BUS and Oddish outside Prizes',
+    'Both AOR Vileplume Prized, preceding roles available',
+    'All dual-stage prerequisites outside Prizes',
+  ];
+  const unconditioned = [0n, 0n, 0n, 0n, 0n];
+  const legalWeighted = [0n, 0n, 0n, 0n, 0n];
+  const otherBasics = basicCount - 2;
+  const otherNonBasics = 60 - 7 - otherBasics;
+  for (let prizedOddish = 0; prizedOddish <= 2; prizedOddish++) {
+    for (let prizedGloom = 0; prizedGloom <= 2; prizedGloom++) {
+      for (let prizedAOR = 0; prizedAOR <= 2; prizedAOR++) {
+        for (let prizedBUS = 0; prizedBUS <= 1; prizedBUS++) {
+          for (let prizedOtherBasics = 0;
+            prizedOtherBasics <= Math.min(6, otherBasics); prizedOtherBasics++) {
+            const prizedOtherNonBasics = 6 - prizedOddish - prizedGloom -
+              prizedAOR - prizedBUS - prizedOtherBasics;
+            const ways = choose(2, prizedOddish) * choose(2, prizedGloom) *
+              choose(2, prizedAOR) * choose(1, prizedBUS) *
+              choose(otherBasics, prizedOtherBasics) *
+              choose(otherNonBasics, prizedOtherNonBasics);
+            const validSeven = choose(54, 7) -
+              choose(54 - basicCount + prizedOddish + prizedOtherBasics, 7);
+            const key = prizedBUS ? 0 : prizedOddish ? 1 :
+              prizedGloom ? 2 : prizedAOR === 2 ? 3 : 4;
+            unconditioned[key] += ways;
+            legalWeighted[key] += ways * validSeven;
+          }
+        }
+      }
+    }
+  }
+  const unconditionedTotal = unconditioned.reduce((a, b) => a + b, 0n);
+  const legalTotal = legalWeighted.reduce((a, b) => a + b, 0n);
+  assert.equal(unconditionedTotal, choose(60, 6));
+  assert.equal(legalTotal * choose(60, 7),
+    choose(60, 6) * choose(54, 7) *
+      (choose(60, 7) - choose(60 - basicCount, 7)));
+  return names.map((name, i) => ({
+    name,
+    randomSixPrizes: fraction(unconditioned[i], unconditionedTotal),
+    givenLegalOpening: fraction(legalWeighted[i], legalTotal),
+  }));
+}
+
 /**
  * Resolve exact stage types from the repository's source-printing card pool.
  * @param {object} deck Parsed published rank-15 source list
@@ -130,4 +185,4 @@ if (require.main === module) {
   process.stdout.write(JSON.stringify(fromSourceManifest(), null, 2) + '\n');
 }
 
-module.exports = { choose, ceilingForBasicCount, basicCountFromPrintedDeck, fromSourceManifest };
+module.exports = { choose, ceilingForBasicCount, prerequisiteFailurePartition, basicCountFromPrintedDeck, fromSourceManifest };
