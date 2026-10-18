@@ -49,3 +49,7 @@ The first compiled comparison shows the repaired resolver **executes three legal
 - Review source-rank11 and candidate policy competence, third-party paper mechanics, timing and all 32 actual opponent lists. The current rank11 single-seed win has a conditioned source lock and does not contribute to a reliable win rate.
 
 **Overall project state remains 29/32 exact source lists, zero independently qualified competitive games, and no established 99.5% fixed-deck win rate.**
+
+## Prospective generalization check: negative exposure
+
+A separately [pre-registered sixteen-deal two-policy source comparison](night-watch-prospective-zero-exposure.md) executed all 32 arm runs in [manual compiled CI 39140517254](https://github.com/FlareZ123/experiment-01/actions/runs/39140517254), with **zero failures, nine versus seven true-start observations**, and **zero Night Watch declarations in both policies**. Nine of sixteen arms per policy ended with engine terminals within 160 actions; seven per policy reached the cap. This is evidence of **nonexposure** under the tested source/deal/policy conditions, so it cannot support any assertion about the corrected attack's outcome effect or win rate. The original conditioned single-seed triple-Night-Watch replay above remains the exercised mechanistic positive control.
