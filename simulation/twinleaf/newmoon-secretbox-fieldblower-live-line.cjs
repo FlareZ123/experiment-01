@@ -13,7 +13,7 @@ const load=name=>require(path.join(output,name));
  * Field Blower removing a publicly equipped Garbodor Tool.
  * This does not establish genuine source-deal access or a strong bot.
  */
-function run(){
+function run({bridgeToHorrorHouse=false}={}){
   const manager=initializeCards();
   let nextId=1;
   /** @param {string} name */
@@ -32,6 +32,7 @@ function run(){
   const {PlayCardAction,PlayerType,SlotType}=
     load('game/store/actions/play-card-action');
   const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
+  const {UseAbilityAction}=load('game/store/actions/game-actions');
   const {CheckPokemonPowersEffect}=load('game/store/effects/check-effects');
   const {IS_ABILITY_BLOCKED}=load('game/store/prefabs/prefabs');
   const store=new Store({onStateChange(){}});
@@ -65,7 +66,10 @@ function run(){
     p.deck.cards.push(card('Psychic Energy SVE'));
   }
   const box=card('Secret Box TWM');
-  const payments=[card('Battle VIP Pass FST'),
+  const payments=bridgeToHorrorHouse ? [
+    card('Gengar & Mimikyu-GX TEU'),card('Psychic Energy SVE'),
+    card('Canceling Cologne ASR')
+  ] : [card('Battle VIP Pass FST'),
     card('Canceling Cologne ASR'),card('Ace Trainer AOR')];
   mine.hand.cards.push(box,...payments);
   const blower=card('Field Blower GRI');
@@ -168,11 +172,70 @@ function run(){
     perfection:ability()
   };
   assert.equal(afterBlower.perfection.visible,true);
+  let attackBridge=null;
+  if(bridgeToHorrorHouse){
+    const payload=payments[0],reserve=payments[1],glass=chosen[1];
+    assert.equal(payload.fullName,'Gengar & Mimikyu-GX TEU');
+    assert.equal(reserve.fullName,'Psychic Energy SVE');
+    assert.ok(mine.discard.cards.includes(payload));
+    assert.ok(mine.discard.cards.includes(reserve));
+    assert.ok(mine.hand.cards.includes(glass));
+    store.dispatch(new PlayCardAction(mine.id,mine.hand.cards.indexOf(glass),{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    assert.ok(mine.active.tools.includes(glass),
+      'Searched Powerglass must attach to previously bare Active');
+    store.dispatch(new UseAbilityAction(mine.id,'Perfection',{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    p=pending();
+    assert.equal(p?.constructor.name,'WaitPrompt');
+    select(p,null);
+    p=pending();
+    assert.equal(p?.constructor.name,'ChooseAttackPrompt');
+    assert.ok(p.cards.includes(payload),'Paid Gengar must become a legal copy source');
+    const horror=payload.attacks.find(x=>x.name==='Horror House-GX');
+    assert.ok(horror,'Printed Gengar must offer Horror House-GX');
+    trace.push({prompt:'Perfection copied GX selection',attack:horror.name,
+      sourceCard:payload.fullName});
+    select(p,horror);
+    assert.equal(mine.usedGX,true);
+    assert.equal(mine.active.energies.cards.length,1,
+      'End-of-turn Powerglass cannot accelerate before copied GX resolves');
+    let powerglass=null;
+    for(let j=0;j<18;j++){
+      p=pending();
+      if(!p)break;
+      trace.push({prompt:p.constructor.name});
+      if(p.constructor.name==='AttachEnergyPrompt'){
+        powerglass=p;break;
+      }
+      assert.equal(p.constructor.name,'WaitPrompt',
+        'Unexpected prompt preceding Powerglass acceleration');
+      select(p,null);
+    }
+    assert.ok(powerglass,'Expected genuine end-of-turn Powerglass Energy prompt');
+    select(powerglass,[{card:reserve,to:{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }}]);
+    assert.ok(mine.active.energies.cards.includes(reserve));
+    assert.equal(mine.active.energies.cards.length,2);
+    attackBridge={
+      paidPayloadIsCopySource:true,powerglassAttached:true,
+      usedGX:mine.usedGX,attackingEnergyAtResolution:1,
+      energyAfterPowerglass:mine.active.energies.cards.length,
+      reserveEnergyDiscardedAfterAttachment:mine.discard.cards.includes(reserve),
+      opponentHandPlayLocked:opponent.cannotPlayToolCards,
+      candidateTurnAfter:state.turn,
+      candidateActiveAfter:mine.active.getPokemonCard()?.fullName
+    };
+  }
   return {
     schema:'newmoon-secretbox-fieldblower-real-store-chain-v1',
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     qualification:'Staged legal printed Trainer actions on a conditioned board. The three disposable cards and search targets were planted; no source-dealt owner-hand event or copied attack has been established.',
     initial,trace,afterSearch,afterBlower,
+    ...(attackBridge?{attackBridge}:{}),
     qualifiedForCompetitiveInference:false
   };
 }
