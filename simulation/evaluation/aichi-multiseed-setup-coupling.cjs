@@ -6,7 +6,7 @@ const {loadCampaignInputs}=require('./aichi-campaign-runner.cjs');
 const {planAichi}=require('./aichi-pilot.cjs');
 const {prepareCandidateInputOrder}=require('./aichi-candidate-input-order.cjs');
 const {captureSetupOnly}=require('./aichi-setup-only-capture.cjs');
-const {cardCopyMultisetDigest}=require('../twinleaf/opening-setup-zones.cjs');
+const {openingInventoriesMatch}=require('../twinleaf/opening-setup-zones.cjs');
 const {deriveSlotSeeds}=require('../../scripts/aichi-decorrelated-seeds.cjs');
 const {runMatch}=require('../twinleaf/headless.cjs');
 const {Store}=require(path.resolve(__dirname,
@@ -117,11 +117,8 @@ function sampleSourceCoupling(options={}){
             const observation=observedSeat(capture?.setupZones,candidateSeat);
             const expectedDecks=[request.deckA,request.deckB];
             const capturedSeats=capture?.setupZones?.seats;
-            const openingInventoriesVerified=Array.isArray(capturedSeats)&&
-              capturedSeats.length===2 && capturedSeats.every((seat,index)=>
-                seat.openingCopyCount===60 &&
-                seat.openingCopyMultisetDigest===
-                  cardCopyMultisetDigest(expectedDecks[index]));
+            const openingInventoriesVerified=
+              openingInventoriesMatch(capturedSeats,expectedDecks);
             const sample={
               rank,repeat,seed,physicalSlot,candidateId:candidate.id,
               inputOrderProtocol:protocol,
