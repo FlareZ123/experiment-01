@@ -11,6 +11,7 @@ const {assertVendorCloneCompatibleSource,normalizeDeepClonePrototypes}=
   require('./normalize-deep-clone.cjs');
 const {swapHiddenPrize}=require('./prize-membership-live-probe.cjs');
 const {sourceZoneSnapshot,zoneSnapshotDigest}=require('./source-zone-checkpoint.cjs');
+const {observableState,hash:sourceStateDigest}=require('./source-state-continuity.cjs');
 
 /** @param {object|null|undefined} action */
 function actionSignature(action) {
