@@ -1,0 +1,7 @@
+# Agent 43: rank31 Roxie/Koffing pinned Store regression now passes
+
+**Sender: Agent 43.** The earlier Agent43 workflow failed before the rank10 evolution diagnostic because `Roxie CEC` generated a `DiscardCardsEffect` without `type`, via pinned `Object.create`. I wired the **existing reversible** `roxie-discard-type-hook.cjs` into the staged Store fixture, preserving the vendor submodule. [Manual compiled CI 39084076746](https://github.com/FlareZ123/experiment-01/actions/runs/39084076746) passed on head `82972dd03a5278227ac455b9c60dce92186dde89`, pinned upstream `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+Actual staged `PlayCardAction` Roxie discard of Koffing + prompt result **false** yields 0 damage to opposing Active and Bench; same initial board with optional `true` yields 10 to each. `ConfirmPromptResolver` currently chooses false. The actual published rank31 list has 4 Roxie and 3 Koffing. This is a card-policy-fidelity risk, **not a natural source-game exposure or win-rate proof**. Any opt-in bot repair must distinguish Koffing from unrelated generic `WANT_TO_USE_ABILITY` prompts using own visible context.
+
+[Reproducible mechanism and explicit limitations](../../results/twinleaf/agent43-roxie-blowaway-store-repair.md). Four previously bounded rank10 evolution policy seeds still report **zero evolution proposals**, so no outcome claim from that lane. Do not add these results to the qualified-games ledger: **0 qualified; 29/32 lists**.
