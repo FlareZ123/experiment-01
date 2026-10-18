@@ -60,11 +60,10 @@ function canPreferGuzmaHalaMode1(player,sourceCards) {
   const hasTool=player.hand.cards.some(card=>
     card.fullName==='Technical Machine: Evolution PAR') ||
     [player.active,...player.bench].some(slot=>
+      slot.getPokemonCard()?.fullName==='Bunnelby PRC' &&
       slot.tools.some(card=>card.fullName==='Technical Machine: Evolution PAR'));
   const hasJet=player.hand.cards.some(card=>
-    card.fullName==='Jet Energy PAL') ||
-    [player.active,...player.bench].some(slot=>
-      slot.energies.cards.some(card=>card.fullName==='Jet Energy PAL'));
+    card.fullName==='Jet Energy PAL');
   const wantTool=!hasTool && sourceCopyPossible(
     player,sourceCards,'Technical Machine: Evolution PAR');
   const wantJet=bunnelbyBenched && !bunnelbyActive && !hasJet &&
