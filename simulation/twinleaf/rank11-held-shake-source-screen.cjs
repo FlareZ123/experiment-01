@@ -62,6 +62,7 @@ function run() {
       captureDecisionTrace: true,
       label: row.trialId
     };
+    try {
     const wrapped = withRank11HeldShake(row.sourceSeat,
       () => runMatch(request));
     const game = wrapped.result;
@@ -100,9 +101,21 @@ function run() {
       }
     }
     trials.push(record);
+    } catch (error) {
+      // Failed source actions, bot errors and control mismatches are retained
+      // in the same precommitted denominator, with no inferred turn order.
+      trials.push({
+        ...row, candidateSeat, rank11ActualFirst: null,
+        openingOpportunity: null, completedLine: false,
+        policy: null, sourceDeckHashes: null, terminal: null,
+        firstCandidateActions: [], noTriggerReplayVerified: false,
+        pairedOriginalSource: null,
+        error: {name: error.name, message: error.message}
+      });
+    }
   }
-  const first = trials.filter(t => t.rank11ActualFirst);
-  const second = trials.filter(t => !t.rank11ActualFirst);
+  const first = trials.filter(t => t.rank11ActualFirst === true);
+  const second = trials.filter(t => t.rank11ActualFirst === false);
   const opportunities = trials.filter(t => t.openingOpportunity);
   return {
     study: 'rank11 held-Boost-Shake owner-visible autonomous opportunity screen',
@@ -121,7 +134,8 @@ function run() {
       rank11Second: second.filter(t => t.openingOpportunity).length
     },
     completeCount: trials.filter(t => t.completedLine).length,
-    abortedCount: trials.filter(t => t.policy.aborted).length,
+    abortedCount: trials.filter(t => t.policy?.aborted).length,
+    failedTrialCount: trials.filter(t => t.error).length,
     noTriggerVerifiedControls: trials.filter(t =>
       t.noTriggerReplayVerified).length,
     exposureGatePassed: opportunities.some(t => t.completedLine),
