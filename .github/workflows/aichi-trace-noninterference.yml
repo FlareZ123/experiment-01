@@ -22,3 +22,5 @@ jobs:
       - run: node simulation/twinleaf/trace-noninterference.cjs
       - name: Verify published rank9 root ledger and read-only source replay
         run: node simulation/twinleaf/rank9-root-ledger-noninterference.cjs
+      - name: Verify published rank11 delegated Perfection and opponent reply parity
+        run: node simulation/twinleaf/rank11-perfection-root-ledger-noninterference.cjs
