@@ -20,6 +20,7 @@ function stableRecord(result) {
     prizesRemaining:result.prizesRemaining,
     actionCounts:result.actionCounts,
     attackTrace:result.attackTrace,
+    attackDeclarationTrace:result.attackDeclarationTrace,
     decisionTrace:result.decisionTrace.map(row=>{
       const {attackPassProbe,...untouched}=row;
       return untouched;
@@ -67,6 +68,14 @@ function run() {
       'Archived action count drift under supposedly frozen policy');
     assert.equal(ordinary.turns,entry.priorTurns,
       'Archived turn count drift');
+    assert.equal(ordinary.attackDeclarationTraceProtocol,
+      'real-store-attack-log-declarations-v1');
+    assert.ok(Array.isArray(ordinary.attackDeclarationTrace));
+    assert.ok(ordinary.attackDeclarationTrace.every(a=>[0,1].includes(a.playerSlot)));
+    const loggedOwnAttacks=ordinary.attackDeclarationTrace.filter(a=>
+      a.playerSlot===entry.candidateSeat);
+    const loggedDelegated=loggedOwnAttacks.filter(a=>
+      a.triggerAction!=='AttackAction');
     const ownAttacks=ordinary.attackTrace.filter(a=>a.seat===entry.candidateSeat);
     assert.equal(ownAttacks.length,entry.priorOwnAttacks,
       'Archived candidate attack count drift');
@@ -85,6 +94,15 @@ function run() {
       archivedNaturalReplayMatches:true,
       observationalNoninterference:true,
       candidateAttackCount:ownAttacks.length,
+      candidateRawAttackActions:ownAttacks.length,
+      candidateEngineLoggedAttackDeclarations:loggedOwnAttacks.length,
+      candidateDelegatedAttackDeclarations:loggedDelegated.length,
+      candidateAttackLog:loggedOwnAttacks.map(a=>({
+        turn:a.turnBefore,attack:a.attackName,rootAction:a.triggerAction,
+        rootOrdinal:a.actionOrdinal,pendingAfter:a.promptPendingAfter,
+        resolutionStatus:a.resolutionStatus
+      })),
+      attackLogEvidence:'real Store declarations only, without independently verified attack completion or paper timing',
       candidatePassedTurns:ordinary.decisionTrace.filter(row=>
         row.playerSlot===entry.candidateSeat && row.action==='PassTurnAction').length,
       candidatePassProbes:passObservations,
