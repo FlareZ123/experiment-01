@@ -7,7 +7,7 @@ const { buildCampaign } = require('../scripts/aichi-comparison-campaign.cjs');
 const {prepareCandidateInputOrder} =
   require('../simulation/evaluation/aichi-candidate-input-order.cjs');
 const {
-  verifyCampaign, turnProof, executeCampaign
+  verifyCampaign, turnProof, executeCampaign, rank11SourceSeat
 } = require('../simulation/evaluation/aichi-campaign-runner.cjs');
 
 /** @param {unknown} value @returns {string} */
@@ -622,4 +622,28 @@ test('prospective aligned campaign retains frozen source digests and binds true 
     maxTrials:1,inputOrderProtocol:'unsafe',
     prepareCandidate:prepare,runMatch:finished
   }),/input-order protocol/);
+});
+
+test('autonomous rank11 uses known source rank and exact opponent physical seat', () => {
+  assert.equal(rank11SourceSeat({rank:11,candidateEngineSlot:'A'}),1);
+  assert.equal(rank11SourceSeat({rank:11,candidateEngineSlot:'B'}),0);
+  assert.throws(()=>rank11SourceSeat({rank:10,candidateEngineSlot:'A'}),/rank11/);
+  assert.throws(()=>rank11SourceSeat({rank:11,candidateEngineSlot:'C'}),/rank11/);
+  const f=fixture();
+  const selected=[];
+  const data=executeCampaign(f,{
+    maxTrials:2,prepareCandidate:prepare,
+    runMatch(request,trial){
+      selected.push([trial.candidateEngineSlot,trial.rank,trial.seed]);
+      return {...finished(request),rank11AutonomousPolicy:{
+        sourceSeat:trial.candidateEngineSlot==='A'?1:0,
+        opportunityDetected:false
+      }};
+    }
+  });
+  assert.deepEqual(selected.map(x=>x[0]),['A','B']);
+  assert.deepEqual(selected.map(x=>x[1]),[1,1]);
+  assert.equal(selected[0][2],selected[1][2]);
+  assert.equal(data.records[0].rank11AutonomousPolicy.sourceSeat,1);
+  assert.equal(data.records[1].rank11AutonomousPolicy.sourceSeat,0);
 });
