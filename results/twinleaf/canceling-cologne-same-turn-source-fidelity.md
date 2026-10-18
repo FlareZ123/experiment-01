@@ -37,6 +37,17 @@ Frozen New Moon Lockbreaker v1 has 17 Basics, two Cologne and 41 other cards. Wi
 
 The probability of drawing the one missing Cologne on the ordinary draw is 1/53 before Prize exposure by exchangeability. This is an opening **card-presence** event, not the probability of illegally playing both cards. Later draws, search access, game decisions, opponent mulligans and future turns are excluded.
 
+## Speculative Simulator branch and canonical rollback verification
+
+The further [complete manual smoke CI 39115428801](https://github.com/FlareZ123/experiment-01/actions/runs/39115428801) **passed**, including a new true `Simulator(state)` branch created **after** the first printed Cologne. The test compares the second physical Cologne action in a cloned Store against the source Store under both stock and corrected conditions:
+
+- The original engine accepts a second cloned same-turn Cologne, consumes it and adds a duplicate cloned marker. The source player/hand/discard and original opponent markers are unchanged by the cloned action.
+- With the guard, `CAN_PLAY_TRAINER_CARD` returns false in the cloned State. Attempting the actual cloned `PlayCardAction` throws. The second Item remains in the **current** speculative Store's hand; the first remains in discard with its marker; no duplicate marker is added.
+- The fixture explicitly **rebinds** `simulation.store.state` and `store.state` after rejected actions. Pinned Twinleaf rolls back a failed action by replacing its State with a deep clone, making old Player references stale. Both rejected corrected actions are proven to replace their State; all post-rejection card-zone and marker assertions use the canonical replacement graphs.
+- The original real Store state remains untouched by speculative actions. Hook uninstall still reproduces the full original stock result.
+
+This extends the mechanics proof to the speculative branch path used by headless bots. It is limited to the injected two-Cologne board. A natural source-dealt game and a strong adversarial attack policy remain unqualified.
+
 ## Qualification and next tests
 
-The regression tests an injected board and real Store actions. It does not constitute a legal original-source 60-card deal, autonomous opponent response, match replay, official timed result or win-rate evidence. Source campaign evaluators must explicitly opt into this hook before its behavior applies to games. A subsequent pinned-Simulator clone check should verify that the extra per-turn Player field survives speculative cloning and that the source Store is unchanged. Other printed Item restrictions deserve specific inspection where their canPlay and reducer gates differ, without assuming all such Items are defective. The current Aichi benchmark retains **29/32 exact opponent lists and zero qualified competitive games**.
+The regression tests an injected board and real Store actions. It does not constitute a legal original-source 60-card deal, autonomous opponent response, match replay, official timed result or win-rate evidence. Source campaign evaluators must explicitly opt into this hook before its behavior applies to games. A subsequent actual-source game check should identify whether the unchanged frozen candidate and its bot policy ever attempt a repeated Cologne, and verify comparable policy decisions with the hook explicitly opt-in. Other printed Item restrictions deserve specific inspection where their canPlay and reducer gates differ, without assuming all such Items are defective. The current Aichi benchmark retains **29/32 exact opponent lists and zero qualified competitive games**.
