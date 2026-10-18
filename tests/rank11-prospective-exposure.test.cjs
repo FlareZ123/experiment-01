@@ -93,7 +93,7 @@ test('registration rejects absent source identity, policy fingerprint and tamper
     {seedBase:20261018,repeats:4,fileBlobs:blobs}),/verified source-locked/);
   assert.throws(()=>makeRank11ExposureFrame(
     {...original,candidateRows:[original.candidateRows[0]]},
-    {seedBase:20261018,repeats:4,fileBlobs:blobs}),/Missing source-locked candidate/);
+    {seedBase:20261018,repeats:4,fileBlobs:blobs}),/No complete rank11 source pilot/);
   assert.throws(()=>makeRank11ExposureFrame(original,{
     seedBase:20261018,repeats:4,fileBlobs:{}
   }),/pinned Git blob/);
