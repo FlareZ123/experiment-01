@@ -1,6 +1,7 @@
 """Pure exact fractions for early Garbotoxin Tool-removal resource access."""
 import sys
 import unittest
+import json
 from fractions import Fraction
 from pathlib import Path
 
@@ -9,6 +10,28 @@ from rank11_garbotoxin_field_blower_response import DECKS, EVENTS, exact_respons
 
 
 class GarbotoxinResponseTest(unittest.TestCase):
+    def test_frozen_decks_match_actual_published_manifests(self):
+        root = Path(__file__).resolve().parents[1] / "results/aichi-2026"
+        field = json.loads((root / "full-decklists.json").read_text(encoding="utf-8"))
+        champion = next(x["cards"] for x in field["decks"] if x["rank"] == 1)
+        hood = json.loads(
+            (root / "candidate-hood-shadow-rider.json").read_text(encoding="utf-8")
+        )["cards"]
+        for rows, expected in (
+            (champion, DECKS["source_champion_rank1"]),
+            (hood, DECKS["hood_shield_v1"]),
+        ):
+            by_name = {r["name"]: r["count"] for r in rows}
+            self.assertEqual(sum(r["count"] for r in rows), 60)
+            self.assertEqual(
+                sum(r["count"] for r in rows
+                    if r["category"] == "Pokémon" and
+                    r["name"] != "Shadow Rider Calyrex VMAX"), expected[0],
+            )
+            self.assertEqual(by_name.get("Arven", 0), expected[1])
+            self.assertEqual(by_name["Field Blower"], expected[2])
+            self.assertEqual(by_name.get("Stealthy Hood", 0), expected[3])
+
     def test_immutable_source_categories(self):
         self.assertEqual(DECKS["source_champion_rank1"], (14, 0, 1, 0, 45))
         self.assertEqual(DECKS["hood_shield_v1"], (14, 1, 1, 2, 42))
