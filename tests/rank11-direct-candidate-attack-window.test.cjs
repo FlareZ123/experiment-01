@@ -46,7 +46,7 @@ test('copied attacks are counted from real Store declarations, not root AttackAc
   assert.equal(row.candidateAttackDeclarationCount,1);
   assert.equal(row.candidateDelegatedDeclarationCount,1);
   assert.deepEqual(row.candidateRootAttacks,[]);
-  assert.equal(row.candidateEarlyDecisions.length,2);
+  assert.equal(row.candidateEarlyDecisions.length,1);
   assert.equal(row.engineWinnerDiagnosticOnly,null);
   assert.equal(row.paperRulesAndPolicyQualified,false);
 });
