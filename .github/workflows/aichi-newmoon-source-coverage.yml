@@ -34,6 +34,17 @@ jobs:
           name: newmoon-secretbox-store-prompt
           path: newmoon-secretbox-store-prompt.json
           if-no-files-found: warn
+      - name: Exercise staged Secret Box four-category search into Field Blower
+        run: node simulation/twinleaf/newmoon-secretbox-fieldblower-live-line.cjs > newmoon-secretbox-fieldblower-chain.json
+      - name: Display staged Secret Box completion audit
+        run: node -e "const x=require('./newmoon-secretbox-fieldblower-chain.json'); console.log(JSON.stringify({trace:x.trace,afterSearch:x.afterSearch,afterBlower:x.afterBlower,qualifiedForCompetitiveInference:x.qualifiedForCompetitiveInference},null,2))"
+      - name: Archive staged Box-to-Blower real Store action chain
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-secretbox-fieldblower-chain
+          path: newmoon-secretbox-fieldblower-chain.json
+          if-no-files-found: warn
       - name: Run source identity and printing hash regression
         run: node --test tests/new-moon-print-map.test.cjs
       - name: Validate candidate 60 printed-engine variants
