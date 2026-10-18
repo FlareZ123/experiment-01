@@ -327,13 +327,13 @@ test('version 2 uses independent physical-slot seeds shared across candidate inv
 
 test('previously published version 1 campaign digest remains exactly stable', () => {
   const { loadDefaultCampaign } = require('../scripts/aichi-comparison-campaign.cjs');
-  assert.equal(loadDefaultCampaign().planDigest,
+  assert.equal(loadDefaultCampaign('paired-slots-v1', false).planDigest,
     'e6a0695e70325b855600c68bfe1e465a44b3bea3dec0abbe9eda96a7f1e62deb');
   const revised = loadDefaultCampaign('independent-slots-v2');
   assert.equal(revised.schemaVersion, 2);
   assert.notEqual(revised.planDigest, loadDefaultCampaign().planDigest);
-  assert.equal(revised.trialCountByPhase.pilot, 54);
-  assert.equal(revised.trialCountByPhase.publishedField, 174);
+  assert.equal(revised.trialCountByPhase.pilot, 80);
+  assert.equal(revised.trialCountByPhase.publishedField, 232);
 });
 
 test('experimental policy metadata reflects engine-effective flags, not initial request', () => {
