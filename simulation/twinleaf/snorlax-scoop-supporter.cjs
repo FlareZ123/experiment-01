@@ -10,7 +10,7 @@ const engine = module => require(path.join(output, module));
 /**
  * Test a Supporter removing its own trapped Active versus solo Snorlax.
  * These Supporters are proposed deck swaps, absent from benchmark source 60s.
- * @param {{supporter:'Cassius'|'AZ',jammer:boolean,ownBench:boolean}} config
+ * @param {{supporter:'Cassius'|'AZ'|'Bird Keeper',jammer:boolean,ownBench:boolean}} config
  */
 function probe(config) {
   const manager = initializeCards();
@@ -46,7 +46,7 @@ function probe(config) {
       prize.cards.push(card('Dratini OBF'));
       return prize;
     });
-    player.deck.cards.push(card('Psychic Energy MEE'));
+    for(let n=0;n<6;n++) player.deck.cards.push(card('Psychic Energy MEE'));
   }
   const original = card('Shadow Rider Calyrex V CRE');
   const attachedEnergy=card('Psychic Energy MEE');
@@ -62,7 +62,8 @@ function probe(config) {
   }
   them.active.cards.push(card('Snorlax PGO'));
   if (config.jammer) them.active.tools.push(card('Tool Jammer BST'));
-  us.hand.cards.push(card(config.supporter==='Cassius'?'Cassius XY':'AZ PHF'));
+  const supporterPrinting={Cassius:'Cassius XY',AZ:'AZ PHF','Bird Keeper':'Bird Keeper DAA'};
+  us.hand.cards.push(card(supporterPrinting[config.supporter]));
 
   const prompts=[];
   let error=null;
@@ -76,8 +77,9 @@ function probe(config) {
       const kind=prompt.constructor.name;
       prompts.push({kind, active:us.active.getPokemonCard()?.name??null});
       if(kind==='ChoosePokemonPrompt') {
-        const choice=us.active.getPokemonCard()?.name==='Shadow Rider Calyrex V'?
-          us.active:us.bench[0];
+        const choice=config.supporter==='Bird Keeper'?us.bench[0]:
+          us.active.getPokemonCard()?.name==='Shadow Rider Calyrex V'?
+            us.active:us.bench[0];
         store.dispatch(new ResolvePromptAction(prompt.id,[choice]));
       } else if(kind==='ShuffleDeckPrompt') {
         // The pinned engine requires an explicit complete deck permutation.
@@ -102,6 +104,10 @@ function probe(config) {
     targetInDeck:us.deck.cards.includes(original),
     targetInHand:us.hand.cards.includes(original),
     targetInDiscard:us.discard.cards.includes(original),
+    targetOnBench:us.bench.some(s=>s.cards.includes(original)),
+    energyOnBench:us.bench.some(s=>s.energies.cards.includes(attachedEnergy)),
+    toolOnBench:us.bench.some(s=>s.tools.includes(attachedTool)),
+    handCountAfter:us.hand.cards.length,
     energyInDeck:us.deck.cards.includes(attachedEnergy),
     energyInHand:us.hand.cards.includes(attachedEnergy),
     energyInDiscard:us.discard.cards.includes(attachedEnergy),
@@ -124,7 +130,10 @@ function probeAll(){
     {supporter:'Cassius',jammer:false,ownBench:true},
     {supporter:'Cassius',jammer:true,ownBench:true},
     {supporter:'AZ',jammer:true,ownBench:true},
-    {supporter:'Cassius',jammer:false,ownBench:false}
+    {supporter:'Cassius',jammer:false,ownBench:false},
+    {supporter:'Bird Keeper',jammer:false,ownBench:true},
+    {supporter:'Bird Keeper',jammer:true,ownBench:true},
+    {supporter:'Bird Keeper',jammer:false,ownBench:false}
   ];
   return {
     engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
