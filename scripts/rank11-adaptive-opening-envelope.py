@@ -48,12 +48,12 @@ def restricted_allocations(number, allowed):
 
 
 @lru_cache(maxsize=None)
-def restricted_probability(no_oranguru, no_vip, no_float, missing_target_groups):
+def restricted_probability(no_oranguru, no_vip, no_float, missing_target_groups, all_float_prized=False):
     """Chance that selected bad events hold, using exact labeled-card counting."""
     groups = (
         (2, (1, 2, 3) if no_oranguru else (0, 1, 2, 3)),
         (4, (1, 3) if no_vip else (0, 1, 2, 3)),
-        (3, (1, 3) if no_float else (0, 1, 2, 3)),
+        (3, (1,) if all_float_prized else (1, 3) if no_float else (0, 1, 2, 3)),
     )
     if missing_target_groups:
         groups += ((2 * missing_target_groups, (0, 1, 2)),)
@@ -120,9 +120,25 @@ def calculate():
                 * restricted_probability(no_o, no_vip, no_float, missed)
             )
 
-    assert Fraction(0) < complete < gate < legal
+    # V2 searches Float Stone with the same Back Order prompt whenever the
+    # opening hand does not already hold one. The required Float copy can
+    # therefore be in the seen hand or in the post-draw deck, but not solely
+    # among the six Prizes. No search target may be wholly out of deck.
+    expanded_gate = has_oranguru - oranguru_and_category_absent(4)
+    expanded_complete = Fraction(0, 1)
+    for no_o, no_vip in product((0, 1), repeat=2):
+        for missed in range(5):
+            sign = (-1) ** (no_o + no_vip + missed) * comb(4, missed)
+            expanded_complete += sign * (
+                restricted_probability(no_o, no_vip, False, missed)
+                - restricted_probability(no_o, no_vip, False, missed, True)
+            )
+
+    assert Fraction(0) < complete < gate < expanded_complete < expanded_gate < legal
+    assert abs(float(complete / legal) - 0.032421358651137974) < 1e-12
+    assert abs(float(expanded_complete / legal) - 0.10857251808943989) < 1e-12
     return {
-        "research": "rank11-k0-conditional-opening-resource-envelope-v1",
+        "research": "rank11-k0-conditional-opening-resource-envelope-v2",
         "exactPrintedCopies": SOURCE_COPIES,
         "basicCopies": BASIC_COPIES,
         "legalSevenProbability": float(legal),
@@ -132,6 +148,17 @@ def calculate():
         "exactFullySearchableUnconditional": {
             "numerator": str(complete.numerator),
             "denominator": str(complete.denominator),
+        },
+        "backOrderDualToolV2": {
+            "k0EligibilityGivenValidSeven": float(expanded_gate / legal),
+            "searchableFullLineGivenValidSeven": float(expanded_complete / legal),
+            "searchableFullLineGivenK0Eligibility": float(
+                expanded_complete / expanded_gate
+            ),
+            "exactFullySearchableUnconditional": {
+                "numerator": str(expanded_complete.numerator),
+                "denominator": str(expanded_complete.denominator),
+            },
         },
         "gamesSimulated": 0,
         "playerPolicyCertified": False,
