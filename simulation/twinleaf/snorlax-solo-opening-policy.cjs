@@ -25,9 +25,11 @@ function chooseSoloSnorlax(ownHand) {
  * @param {object} options One seat's SimpleTacticsAi options.
  * @param {object} types Pinned prompt/action constructors and constants.
  * @param {object[]} events Output-only real setup-prompt audit.
+ * @param {{declineOptionalBench?:boolean}} [policy] Distinct v2 optional second setup choice.
  * @returns {object} New per-seat options, with original options untouched.
  */
-function withSoloSnorlaxOpening(options, types, events) {
+function withSoloSnorlaxOpening(options, types, events,
+  {declineOptionalBench=false}={}) {
   const {ChooseCardsPromptResolver, ChooseCardsPrompt,
     ResolvePromptAction, GameMessage} = types;
   if (options.promptResolvers.some(resolver =>
@@ -42,7 +44,13 @@ function withSoloSnorlaxOpening(options, types, events) {
         return super.resolvePrompt(state, player, prompt);
       }
 
-      const proposed = chooseSoloSnorlax(player.hand.cards);
+      const held = chooseSoloSnorlax(player.hand.cards);
+      const activeAlreadySolo =
+        player.active.getPokemonCard()?.fullName === 'Snorlax PGO' &&
+        !player.bench.some(slot=>slot.getPokemonCard());
+      const chooseEmpty = declineOptionalBench && activeAlreadySolo &&
+        prompt.validate([],state);
+      const proposed = chooseEmpty ? [] : held;
       const legal = proposed !== null && prompt.validate(proposed, state);
       const action = legal ?
         new ResolvePromptAction(prompt.id, proposed) :
@@ -50,16 +58,18 @@ function withSoloSnorlaxOpening(options, types, events) {
       events.push({
         playerId:player.id,
         promptId:prompt.id,
-        sawSnorlax:proposed !== null,
-        appliedSoloSnorlax:legal,
+        sawSnorlax:held !== null,
+        appliedSoloSnorlax:legal && proposed.length===1,
+        alreadySoloBefore:activeAlreadySolo,
+        declinedOptionalBench:legal && chooseEmpty,
         selectedCount:Array.isArray(action?.result)?action.result.length:null,
         selectedNames:Array.isArray(action?.result)?
           action.result.map(card=>card.fullName):[],
         // This count uses only the owner's hand, visible at setup.
         otherBasicCountInOwnHand:player.hand.cards.filter(card =>
-          card.stage === proposed?.[0]?.stage &&
-          card.superType === proposed?.[0]?.superType &&
-          card !== proposed?.[0]).length
+          card.stage === held?.[0]?.stage &&
+          card.superType === held?.[0]?.superType &&
+          card !== held?.[0]).length
       });
       return action;
     }
