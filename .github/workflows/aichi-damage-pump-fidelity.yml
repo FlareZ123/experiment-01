@@ -13,6 +13,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank26_propagation_pair:
+        description: 'Compare two autonomous rank26 profiles on fixed authentic first-turn deal'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -83,6 +88,16 @@ jobs:
         with:
           name: rank26-propagation-2plus2plus1-staged-unqualified
           path: rank26-autonomous-propagation-2plus2plus1.json
+          if-no-files-found: error
+      - name: Compare authentic source-dealt rank26 v2 versus v3 first decisions
+        if: ${{ inputs.rank26_propagation_pair }}
+        run: node simulation/twinleaf/rank26-propagation-source-root-pair.cjs > rank26-propagation-source-root-pair.json
+      - name: Archive authentic rank26 first-turn action comparison
+        if: ${{ inputs.rank26_propagation_pair }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank26-source-v2-v3-authentic-deal-unqualified
+          path: rank26-propagation-source-root-pair.json
           if-no-files-found: error
       - name: Verify pure root-state labels
         run: node --test tests/meloetta-rank26-firstturn-source-window.test.cjs
