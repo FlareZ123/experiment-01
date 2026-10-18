@@ -72,6 +72,27 @@ function run() {
   assert.equal(terminalSelection.attackChoice.selection.attackName,
     terminalAttack.attackName,
     'Selected printed attack must match the subsequent real Store attack declaration');
+  const publicBefore=terminal.before.players;
+  const publicAfter=terminal.after.players;
+  assert.equal(terminal.actionName,'ResolvePromptAction');
+  assert.equal(terminal.pendingPrompt,'WaitPrompt');
+  assert.equal(publicBefore[CANDIDATE_SEAT].prizesRemaining,1);
+  assert.equal(publicAfter[CANDIDATE_SEAT].prizesRemaining,0);
+  assert.equal(publicBefore[1-CANDIDATE_SEAT].inPlayPokemon-
+    publicAfter[1-CANDIDATE_SEAT].inPlayPokemon,1,
+  'Terminal prompt must knock out one source Pokemon in real Store');
+  assert.equal(terminal.after.winner,CANDIDATE_SEAT);
+  assert.ok(lineage.promptChain.at(-1).actionOrdinal>
+    terminalSelection.actionOrdinal,
+  'Prize transition must follow the selected attack, not be assumed at declaration');
+  const terminalPublicEffect={
+    sourceInPlayBefore:publicBefore[1-CANDIDATE_SEAT].inPlayPokemon,
+    sourceInPlayAfter:publicAfter[1-CANDIDATE_SEAT].inPlayPokemon,
+    candidatePrizesBefore:publicBefore[CANDIDATE_SEAT].prizesRemaining,
+    candidatePrizesAfter:publicAfter[CANDIDATE_SEAT].prizesRemaining,
+    finalPromptOrdinal:lineage.promptChain.at(-1).actionOrdinal,
+    scope:'observed engine KO and Prize shift after selected copied-attack chain'
+  };
   assert.deepEqual(game.prizesRemaining,[2,0]);
 
   const raw = game.attackTrace.filter(entry => entry.seat === CANDIDATE_SEAT);
@@ -112,6 +133,7 @@ function run() {
     terminalSelectionOrdinal:terminalSelection.actionOrdinal,
     terminalAttackChoice:terminalSelection.attackChoice,
     terminalAttackRootAction:terminalAttack.triggerAction,
+    terminalPublicEffect,
     terminal:terminal,
     terminalPromptActions:aroundCopy,
     policy:game.policy,
