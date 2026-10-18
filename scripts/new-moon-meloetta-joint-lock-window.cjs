@@ -43,9 +43,8 @@ function jointSetup(defenderBasics, attackerBasics, lockCopies) {
   const baseWithMeloetta = fixedInitialMeloettaWindow(attackerBasics, 0).combined;
   const attackerGetsBonus = bonusAtLeast(pD, pA, 1);
   const defenderGetsBonus = bonusAtLeast(pA, pD, 1);
-  let weightedResource = (bothNoBonus + defenderGetsBonus) * base;
-  let weightedInitialMeloetta = (bothNoBonus + defenderGetsBonus) *
-    baseWithMeloetta;
+  let weightedResource = base;
+  let weightedInitialMeloetta = baseWithMeloetta;
   let jointResourceFactor = (bothNoBonus + attackerGetsBonus) * base;
   let jointMeloettaFactor = (bothNoBonus + attackerGetsBonus) *
     baseWithMeloetta;
