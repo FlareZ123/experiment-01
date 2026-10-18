@@ -3,7 +3,8 @@
 const assert = require('node:assert/strict');
 const {planAichi} = require('../evaluation/aichi-pilot.cjs');
 const {initializeCards} = require('./headless.cjs');
-const {RANK26_COLOGNE_PROFILE, DEFAULT_PROFILE, runWithResearchProfile} =
+const {RANK26_COLOGNE_PROFILE,RANK26_COLOGNE_PUMP_PROFILE,
+  DEFAULT_PROFILE,runWithResearchProfile} =
   require('./policy-profiles.cjs');
 const {SOURCE} = require('./rank26-cologne-autonomous-source-regression.cjs');
 
@@ -55,6 +56,8 @@ function compare() {
       })),
       sourceRank26DecisionCount:trace.length,
       experimentalSelection:game.rank26ColognePolicy||null,
+      experimentalPump:game.rank26PumpPolicy||null,
+      pumpSingleSourceCorrected:game.damagePumpSingleSourceCorrection===true,
       finished:game.finished,observedWinner:game.winner,
       firstAttack:game.attackTrace
         .find(entry=>entry.seat===SOURCE.rank26Seat)||null
@@ -62,17 +65,22 @@ function compare() {
   }
   const baseline=run(DEFAULT_PROFILE);
   const automatic=run(RANK26_COLOGNE_PROFILE);
+  const combined=run(RANK26_COLOGNE_PUMP_PROFILE);
   assert.equal(baseline.engine,automatic.engine);
+  assert.equal(baseline.engine,combined.engine);
   assert.equal(automatic.experimentalSelection?.opportunitiesSelected,1);
   assert.equal(automatic.firstTurnCologneUse,true);
   assert.equal(automatic.playedCologneTotal,1);
+  assert.equal(combined.experimentalSelection?.opportunitiesSelected,1);
+  assert.equal(combined.firstTurnDecisions[0]?.card,'Canceling Cologne');
+  assert.equal(combined.pumpSingleSourceCorrected,true);
   return {
     schema:'rank26-cologne-identical-source-seed-bot-decision-counterfactual-v1',
     sourceRank:26,opponentRank:6,seed:SOURCE.seed,
     engine:baseline.engine,
     identicalDecksAndSetupSeed:true,
     candidatePhysicalSeat:SOURCE.rank26Seat,
-    baseline,automatic,
+    baseline,automatic,combined,
     strictlyDifferentDecision:
       JSON.stringify(baseline.firstTurnDecisions) !==
       JSON.stringify(automatic.firstTurnDecisions),
