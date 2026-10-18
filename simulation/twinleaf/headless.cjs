@@ -55,6 +55,8 @@ const {retreatTransitionEvidence} = require('./retreat-transition-evidence.cjs')
 const {inspectPhysicalCardZones, fixedDeckCountAnomalies} = require('./physical-card-ledger.cjs');
 const {newlyLoggedAttackDeclarations} =
   require('../evaluation/twinleaf-attack-log-declarations.cjs');
+const {snapshot:poltergeistSnapshot,assess:assessPoltergeist} =
+  require('./poltergeist-effect-observer.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -265,6 +267,7 @@ function policyRandomStreams(seed) {
  * @property {0|1} [passHorizonAttackSeat] Apply same-horizon attack scoring only to this physical seat.
  * @property {number} [passHorizonAttackTurn] Restrict the correction to one frozen global turn; other turns retain the original tactic.
  * @property {boolean} [captureHorrorHouseRootResolution] Observe only real-root Store Horror House declarations and adjacent zones.
+ * @property {boolean} [capturePoltergeistEffectTrace] Opt-in retrospective hand Trainer counts and real-root Poltergeist reducer windows.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
  * @property {boolean} [captureRootConfirmationTrace] Observe only actual Store-dispatched confirmation choices and public damage.
  * @property {boolean} [captureElectrodeOpportunity] Observe source Raichu/Bomb public necessary conditions only at live non-prompt decisions.
@@ -493,7 +496,7 @@ function runMatch(request) {
     const { CoinFlipPrompt } = engine('game/store/prompts/coin-flip-prompt');
     const { ShuffleDeckPrompt } = engine('game/store/prompts/shuffle-prompt');
     const { GamePhase } = engine('game/store/state/state');
-    const { Format, CardType } = engine('game/store/card/card-types');
+    const { Format, CardType, SuperType } = engine('game/store/card/card-types');
     const { GameSettings } = engine('game/core/game-settings');
     const { SimpleTacticsAi } = engine('simple-bot/simple-tactics-ai');
     if (request.apexSpreadPrizeWindowPolicy === true) {
@@ -699,6 +702,8 @@ function runMatch(request) {
     const cardsPlayedBySeat = [{}, {}];
     const attackTrace = [];
     const attackDeclarationTrace = [];
+    const poltergeistEffectTrace = request.capturePoltergeistEffectTrace === true ? [] : null;
+    let poltergeistWindow = null;
     const horrorHouseAudit = request.captureHorrorHouseRootResolution === true ?
       require('./horror-house-root-audit.cjs') : null;
     const horrorHouseRootTrace = horrorHouseAudit ? [] : null;
@@ -854,6 +859,8 @@ function runMatch(request) {
         }
       }
       const horrorHouseBefore = horrorHouseAudit ? horrorHouseAudit.beforeAction(state) : null;
+      const poltergeistBefore = poltergeistEffectTrace ?
+        poltergeistSnapshot(state,SuperType.TRAINER) : null;
       const attackLogStartIndex = state.logs.length;
       const prizeBeforeRoot = request.bunnelbyObservedK1 === true ?
         snapshotPrizeCardIdentities(store.state) : null;
@@ -896,6 +903,38 @@ function runMatch(request) {
           promptPendingAfter: store.state.prompts.some(prompt => prompt.result === undefined),
           resolutionStatus: 'not-independently-verified'
         });
+      }
+      if (poltergeistEffectTrace) {
+        const after = poltergeistSnapshot(store.state,SuperType.TRAINER);
+        const copiedOrNative = loggedAttacks.find(row=>row.attackName==='Poltergeist');
+        if (copiedOrNative) {
+          const attackerSeat = store.state.players.findIndex(player=>
+            player.name===copiedOrNative.playerName);
+          if (![0,1].includes(attackerSeat)) {
+            throw new Error('Poltergeist Store attacker could not be identified');
+          }
+          poltergeistWindow = {
+            schema:'real-Store-Poltergeist-root-window-v1',
+            attackerSeat, actionOrdinal:actions, turnBefore,
+            triggerAction:actionName,
+            pendingPrompt:pending?.constructor.name??null,
+            before:poltergeistBefore, after,
+            steps:[]
+          };
+          poltergeistEffectTrace.push(poltergeistWindow);
+        } else if (poltergeistWindow) {
+          poltergeistWindow.steps.push({
+            actionOrdinal:actions,actionName,
+            pendingPrompt:pending?.constructor.name??null,
+            before:poltergeistBefore,after
+          });
+        }
+        if (poltergeistWindow &&
+            (store.state.phase===GamePhase.FINISHED ||
+             !store.state.prompts.some(prompt=>prompt.result===undefined))) {
+          poltergeistWindow.assessment=assessPoltergeist(poltergeistWindow);
+          poltergeistWindow=null;
+        }
       }
       if (horrorHouseAudit) {
         const rootDeclarations = attackDeclarationTrace.filter(row=>row.actionOrdinal===actions);
@@ -1026,6 +1065,7 @@ function runMatch(request) {
       attackTrace,
       attackDeclarationTrace,
       attackDeclarationTraceProtocol: 'real-store-attack-log-declarations-v1',
+      ...(poltergeistEffectTrace ? {poltergeistEffectTrace} : {}),
       ...(horrorHouseRootTrace ? {horrorHouseRootTrace} : {}),
       abilityTrace,
       decisionTrace,
