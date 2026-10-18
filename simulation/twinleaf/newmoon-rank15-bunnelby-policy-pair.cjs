@@ -86,6 +86,8 @@ function run() {
       assert.equal(control.result.verifiedByDrawLog,true);
       assert.equal(evolution.result.verifiedByDrawLog,true);
       assert.ok(control.firstNormalTurnZoneDigest);
+      assert.ok(control.firstNormalTurnPrizeGate);
+      assert.ok(evolution.firstNormalTurnPrizeGate);
       assert.equal(control.firstNormalTurnZoneDigest,
         evolution.firstNormalTurnZoneDigest,
         'Policy arm changed the original first-turn physical deal');
