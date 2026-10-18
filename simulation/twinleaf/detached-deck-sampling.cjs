@@ -4,16 +4,14 @@ const assert = require('node:assert/strict');
 const {canonicalUnseenCards} = require('./canonical-unseen-cards.cjs');
 const {selectUnobservedPrizeSlots} = require('./partial-prize-slots.cjs');
 
-/** Discover card instances across reachable state, without invoking getters. */
-function reachableCards(root, isCard) {
-  const cards = new Set();
-  const seen = new WeakSet();
+/** Collect all reachable mutable object identities without invoking getters. */
+function reachableObjects(root) {
+  const seen = new Set();
   const pending = [root];
   while (pending.length) {
     const value = pending.pop();
     if (value === null || typeof value !== 'object' || seen.has(value)) continue;
     seen.add(value);
-    if (isCard(value)) cards.add(value);
     if (value instanceof Map) {
       for (const [key, item] of value) pending.push(key, item);
     } else if (value instanceof Set) {
@@ -25,13 +23,14 @@ function reachableCards(root, isCard) {
       }
     }
   }
-  return cards;
+  return seen;
 }
 
 /**
- * Score one proposed action against independent full-state copies. No array
- * in the real state is ever rearranged. The supplied clone must detach every
- * mutable Card instance, not merely copy the surrounding deck/board arrays.
+ * Score one proposed action against independent full-state and action copies.
+ * The supplied clone must detach every reachable mutable State object, not
+ * merely Card instances and the surrounding deck/board arrays. Detached
+ * index-based actions are regenerated for each hypothetical world.
  *
  * This is a research diagnostic requiring K1, unknown suffix order and action
  * references that remain valid against a cloned state (e.g. index actions).
@@ -92,7 +91,14 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
   }
   const srcPlayer=state.players.find(p=>p.id===playerId);
   assert.ok(srcPlayer,'Detached sampling requires an acting player in the source State');
-  const sourceCards=reachableCards(state,opts.isCard);
+  const sourceObjects=reachableObjects(state);
+  // Actions containing references into the original State cannot safely be
+  // replayed against a detached State using index-based semantics.
+  for(const object of reachableObjects(action)) {
+    assert.equal(sourceObjects.has(object),false,
+      'Detached sampler action must not reference live State objects');
+  }
+  const actionObjects=reachableObjects(action);
   let total=0;
   for(let sample=0;sample<opts.samples;sample+=1) {
     const detached=cloneState(state);
@@ -101,9 +107,14 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
     const player=detached.players.find(p=>p.id===playerId);
     assert.ok(player,'Sampled State lost acting player');
     assert.notStrictEqual(player,srcPlayer,'Sampled Player must be detached');
-    for (const card of reachableCards(detached,opts.isCard)) {
-      assert.equal(sourceCards.has(card),false,
-        'Sampler clone retained a live Card reference outside or inside the deck');
+    for (const object of reachableObjects(detached)) {
+      assert.equal(sourceObjects.has(object),false,
+        'Sampler clone retained a live Card reference or live State object');
+    }
+    const detachedAction=cloneState(action);
+    for(const object of reachableObjects(detachedAction)) {
+      assert.equal(actionObjects.has(object)||sourceObjects.has(object),false,
+        'Detached action clone retained a live action or State object');
     }
     const deck=player.deck.cards;
     assert.notStrictEqual(deck,srcPlayer.deck.cards,
@@ -148,7 +159,7 @@ function evaluateDetachedDeckSamples(state, playerId, action, passTurnScore,
         player.prizes[slot.prizeIndex].cards[slot.cardIndex]=cards[order[index]];
       });
     }
-    const score=evaluator.call(receiver,detached,playerId,action,passTurnScore);
+    const score=evaluator.call(receiver,detached,playerId,detachedAction,passTurnScore);
     // A mean conditional on successful hidden-world simulations can
     // overvalue actions that cannot be scored in other possible worlds.
     // Abstain rather than omit unsuccessful determinizations.
