@@ -3,131 +3,83 @@
 const path = require('node:path');
 const { choose, mulliganProbability } = require('./aichi_opening_audit.cjs');
 const { bonusExactly, bonusAtLeast } = require('./aichi_bonus_draws.cjs');
-const { fixedWindow, fixedInitialMeloettaWindow } =
+const { fixedInitialMeloettaWindow } =
   require('./aichi-meloetta-stone-pad-bridge.cjs');
-const { assess } = require('./new-moon-meloetta-solo-stress.cjs');
+const { jointOpening } = require('./new-moon-meloetta-joint-resource.cjs');
 
 /**
- * Exact joint opening event across both players' physical decks.
- * The players cannot each receive opponent-mulligan bonuses in the same setup:
- * after the first unmatched seven, one player retains a valid opening.
- * Prizes are marginalized in the existing rank-26 access enumerator.
+ * Extend the existing Klefki/Cologne co-occurrence census to require
+ * singleton Meloetta ex physically in its legal opening seven.
  *
- * @param {number} defenderBasics Source-checked New Moon Basic count.
- * @param {number} attackerBasics Source-checked Meloetta Basic count.
- * @param {number} lockCopies Source-checked Basic Klefki copies.
+ * At most one player receives opponent-mulligan bonuses in a setup.
+ * The F(k) enumerator already integrates six hidden Prize cards, three
+ * independent Order Pad flips and the Stone/Crobat rescue opportunity.
+ * @param {number} defenderBasics Source New Moon Basic count.
+ * @param {number} attackerBasics Source Meloetta Basic count.
+ * @param {number} lockCopies Klefki Basic copies in defender's 60.
  * @returns {object}
  */
-function jointSetup(defenderBasics, attackerBasics, lockCopies) {
+function initialMeloettaJoint(defenderBasics, attackerBasics, lockCopies) {
   if (![defenderBasics, attackerBasics, lockCopies].every(Number.isInteger) ||
       defenderBasics < 1 || defenderBasics > 53 ||
       attackerBasics < 2 || attackerBasics > 55 ||
       lockCopies < 1 || lockCopies > defenderBasics) {
-    throw new RangeError('Invalid physical source Basic inventory.');
+    throw new RangeError('Invalid physical Basic inventory.');
   }
   const pD = mulliganProbability(defenderBasics);
   const pA = mulliganProbability(attackerBasics);
-  const denominator = 1 - pD * pA;
-  const bothNoBonus = (1 - pD) * (1 - pA) / denominator;
-
-  // A valid seven with exactly one Klefki and no other Basic.
-  const eligibleOpenings = choose(60, 7) - choose(60 - defenderBasics, 7);
+  const bothValid = (1 - pD) * (1 - pA) / (1 - pD * pA);
   const initiallySoleLock = lockCopies * choose(60 - defenderBasics, 6) /
-    eligibleOpenings;
-  const initiallySoleAny = defenderBasics * choose(60 - defenderBasics, 6) /
-    eligibleOpenings;
-  const noFurtherBasic = k => k <= 54 - defenderBasics ?
-    choose(54 - defenderBasics, k) / choose(53, k) : 0;
+    (choose(60, 7) - choose(60 - defenderBasics, 7));
+  const f0 = fixedInitialMeloettaWindow(attackerBasics, 0).combined;
 
-  const base = fixedWindow(attackerBasics, 0).combined;
-  const baseWithMeloetta = fixedInitialMeloettaWindow(attackerBasics, 0).combined;
-  const attackerGetsBonus = bonusAtLeast(pD, pA, 1);
-  const defenderGetsBonus = bonusAtLeast(pA, pD, 1);
-  let weightedResource = base;
-  let weightedInitialMeloetta = baseWithMeloetta;
-  let jointResourceFactor = (bothNoBonus + attackerGetsBonus) * base;
-  let jointMeloettaFactor = (bothNoBonus + attackerGetsBonus) *
-    baseWithMeloetta;
-  let solePersistence = bothNoBonus + attackerGetsBonus;
-
-  // Defender draws only when attacker mulligans. In this branch attacker
-  // receives no bonuses, so only its zero-bonus resource window applies.
+  // If the defender receives bonuses, Meloetta has none.
+  const defenderBonusMass = bonusAtLeast(pA, pD, 1);
+  let attackerMarginal = (bothValid + defenderBonusMass) * f0;
+  let jointFactor = bothValid * f0;
   for (let k = 1; k <= 54 - defenderBasics; k += 1) {
-    const mass = bonusExactly(pA, pD, k) * noFurtherBasic(k);
-    solePersistence += mass;
-    jointResourceFactor += mass * base;
-    jointMeloettaFactor += mass * baseWithMeloetta;
+    const noExtraBasic = choose(54 - defenderBasics, k) / choose(53, k);
+    jointFactor += bonusExactly(pA, pD, k) * noExtraBasic * f0;
   }
 
-  // Attacker draws only when defender mulligans. The defender retains its
-  // original seven, including a sole Klefki. 46+ draws share the capped
-  // first-turn observation window, leaving the ordinary turn draw possible.
+  // If Meloetta receives bonuses, Klefki remains its only defending Basic.
   for (let k = 1; k < 46; k += 1) {
     const mass = bonusExactly(pD, pA, k);
-    const full = fixedWindow(attackerBasics, k).combined;
-    const withMeloetta =
-      fixedInitialMeloettaWindow(attackerBasics, k).combined;
-    weightedResource += mass * (full - base);
-    weightedInitialMeloetta += mass * (withMeloetta - baseWithMeloetta);
-    jointResourceFactor += mass * (full - base);
-    jointMeloettaFactor += mass * (withMeloetta - baseWithMeloetta);
+    const f = fixedInitialMeloettaWindow(attackerBasics, k).combined;
+    jointFactor += mass * f;
+    attackerMarginal += mass * f;
   }
-  const tailMass = bonusAtLeast(pD, pA, 46);
-  const tailFull = fixedWindow(attackerBasics, 46).combined;
-  const tailWithMeloetta =
-    fixedInitialMeloettaWindow(attackerBasics, 46).combined;
-  weightedResource += tailMass * (tailFull - base);
-  weightedInitialMeloetta += tailMass *
-    (tailWithMeloetta - baseWithMeloetta);
-  jointResourceFactor += tailMass * (tailFull - base);
-  jointMeloettaFactor += tailMass * (tailWithMeloetta - baseWithMeloetta);
-
-  const soleKlefki = initiallySoleLock * solePersistence;
-  const jointKlefkiAndResource = initiallySoleLock * jointResourceFactor;
-  const jointKlefkiMeloettaInitialAndResource =
-    initiallySoleLock * jointMeloettaFactor;
+  const tail = bonusAtLeast(pD, pA, 46);
+  const f46 = fixedInitialMeloettaWindow(attackerBasics, 46).combined;
+  jointFactor += tail * f46;
+  attackerMarginal += tail * f46;
   return {
     defenderBasics, attackerBasics, lockCopies,
-    setupMass: {
-      bothNoBonus, attackerGetsBonus, defenderGetsBonus
-    },
-    soleKlefki,
-    soleAnyBasic: initiallySoleAny * solePersistence,
-    meloettaResourceOpportunity: weightedResource,
-    meloettaInitiallyPresentAndResource: weightedInitialMeloetta,
-    jointKlefkiAndResource,
-    jointKlefkiMeloettaInitialAndResource,
-    jointSoleAnyAndResource: initiallySoleAny * jointResourceFactor,
-    conditionalResourceGivenSoleKlefki:
-      jointKlefkiAndResource / soleKlefki,
-    independentProduct: soleKlefki * weightedResource,
-    probabilitySoleKlefkiWithoutModeledRoute:
-      soleKlefki - jointKlefkiAndResource,
-    scope: 'Opening structural and idealized resource opportunity only. No attack, policy, paper-legality or game-win claim.'
+    meloettaInitiallyPresentAndResource: attackerMarginal,
+    jointKlefkiMeloettaInitialAndResource:
+      initiallySoleLock * jointFactor,
+    scope: 'Exact physical setup and idealized resource access. Meloetta opening Active may conflict with Tapu Koko Bench acceleration; no completed attack or win inference.'
   };
 }
 
 /** @param {string} root @returns {object} */
 function sourceJointSetup(root) {
-  const source = assess(root);
-  if (source.challengerBasics !== 17 ||
-      source.opponentBasics !== 12 ||
-      source.afterAllUsableOpponentMulliganBonuses.challengerSoloKlefki <= 0) {
-    throw new Error('Source opening identities changed.');
+  const earlier = jointOpening(root);
+  if (earlier.defenderBasics !== 17 || earlier.attackerBasics !== 12) {
+    throw new Error('Frozen New Moon and source rank-26 Basic counts changed.');
   }
-  const result = jointSetup(17, 12, 1);
-  if (Math.abs(result.soleKlefki -
-      source.afterAllUsableOpponentMulliganBonuses.challengerSoloKlefki) > 1e-10 ||
-      Math.abs(result.meloettaResourceOpportunity -
-      source.meloettaCologneResourceOpportunity.combined) > 1e-10) {
-    throw new Error('Joint model does not reproduce both earlier marginals.');
+  const extra = initialMeloettaJoint(17, 12, 1);
+  if (!(extra.jointKlefkiMeloettaInitialAndResource > 0 &&
+      extra.jointKlefkiMeloettaInitialAndResource < earlier.combined)) {
+    throw new Error('Stricter joint event lies outside the established event.');
   }
   return {
-    rankAttacker: 26,
-    challenger: 'New Moon Lockbreaker v1',
-    challengerHash: source.challengerHash,
+    priorResearch: 'scripts/new-moon-meloetta-joint-resource.cjs',
+    challengerHash: earlier.challengerHash,
     paperLegalityVerified: false,
-    ...result
+    existingJointKlefkiAndResource: earlier.combined,
+    existingSoleKlefki: earlier.soleKlefki,
+    ...extra
   };
 }
 
@@ -136,4 +88,4 @@ if (require.main === module) {
     sourceJointSetup(path.resolve(__dirname, '..')), null, 2) + '\n');
 }
 
-module.exports = { jointSetup, sourceJointSetup };
+module.exports = { initialMeloettaJoint, sourceJointSetup };
