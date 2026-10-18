@@ -37,12 +37,15 @@ function inspectGuzmaWindow(state, actorId) {
     return null;
   const handIndex = owner.hand.cards.findIndex(card => card.fullName === 'Guzma BUS');
   const opponentBenchCount = opponent.bench.filter(slot => slot.getPokemonCard()).length;
+  const ownBenchCount = owner.bench.filter(slot => slot.getPokemonCard()).length;
+  const stadiumsInPlay = state.players.flatMap(player =>
+    (player.stadium?.cards || []).map(card => card.fullName));
   return {
     turn: state.turn, actorId, handIndex,
     ownHandPrintings: owner.hand.cards.map(card => card.fullName),
     supporterTurn: owner.supporterTurn,
     supporterChannelOpen: owner.supporterTurn === 0,
-    opponentBenchCount,
+    opponentBenchCount, ownBenchCount, stadiumsInPlay,
     readyToAttempt: owner.supporterTurn === 0 &&
       opponentBenchCount > 0 && handIndex >= 0,
     active: 'Koraidon ex TEF', targetBenchIndex: 5,
@@ -76,6 +79,7 @@ function withSourceGuzmaPivot(execute) {
   const OriginalResolver = allPromptResolvers[resolverIndex];
   const originalDecode = SimpleTacticsAi.prototype.decodeNextAction;
   let observedWindow = null, guzmaProposed = false, promotionPrompts = 0;
+  let opponentActiveAfterGust = null;
   const resolverName = 'SourceRoot133GuzmaPivotResolver';
   const PivotResolver = class extends OriginalResolver {
     resolvePrompt(state, player, prompt) {
@@ -88,6 +92,8 @@ function withSourceGuzmaPivot(execute) {
             target?.getPokemonCard()?.fullName === 'Regidrago VSTAR SIT' &&
             prompt.validate([target], state)) {
           promotionPrompts++;
+          opponentActiveAfterGust = state.players.find(entry =>
+            entry.id !== 202)?.active.getPokemonCard()?.fullName ?? null;
           return new ResolvePromptAction(prompt.id, [target]);
         }
       }
@@ -112,7 +118,8 @@ function withSourceGuzmaPivot(execute) {
   };
   try {
     return {
-      result: execute(), observedWindow, guzmaProposed, promotionPrompts
+      result: execute(), observedWindow, guzmaProposed, promotionPrompts,
+      opponentActiveAfterGust
     };
   } finally {
     SimpleTacticsAi.prototype.decodeNextAction = originalDecode;
@@ -192,6 +199,7 @@ function main() {
     window: pivot.observedWindow,
     guzmaProposed: pivot.guzmaProposed,
     ownPromotionPromptOverridden: pivot.promotionPrompts,
+    opponentActiveAfterGust: pivot.opponentActiveAfterGust,
     control: baselineSummary, counterfactual: experimentalSummary,
     sourceReplayMechanicsVerified: false,
     qualifiedForCompetitiveInference: false,
