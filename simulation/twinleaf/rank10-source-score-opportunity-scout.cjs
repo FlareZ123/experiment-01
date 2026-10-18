@@ -12,6 +12,32 @@ const {captureTacticScores,summarizeTacticScores}=
   require('./tactic-score-trace.cjs');
 
 /**
+ * Attribute only scored Supporter proposals to the acting player's own hand.
+ * All candidate actions are the pinned source's index-based PlayCardActions.
+ *
+ * @param {object[]} records Recorded evaluations.
+ * @param {{hand:{cards:object[]}}} acting Live acting player at decision time.
+ */
+function finiteSupporterCandidates(records,acting) {
+  const candidates=[];
+  for(const record of records) {
+    if(record.tactic!=='PlaySupporterTactic' ||
+       !Number.isFinite(record.score))continue;
+    assert.ok(acting?.hand?.cards);
+    assert.equal(record.actionType,'PlayCardAction');
+    const data=JSON.parse(record.actionSignature);
+    const index=data.handIndex;
+    assert.ok(Number.isSafeInteger(index)&&index>=0 &&
+      index<acting.hand.cards.length,
+      'Source Supporter candidate must resolve to the actor own hand');
+    const printing=acting.hand.cards[index].fullName;
+    assert.ok(typeof printing==='string'&&printing.length>0);
+    candidates.push({printing,score:record.score});
+  }
+  return candidates;
+}
+
+/**
  * Record evaluated tactic proposals in the *actual* root bot without
  * proposing additional moves. The live Store state must be authenticated
  * by object identity; speculative Simulator states are not admitted.
@@ -52,6 +78,7 @@ function withRootScoreCensus(Ai,run,rootState,rootOrdinal) {
         otherUnscored:scoreSummary.otherUnscored,
         tacticCounts:scoreSummary.attemptsByTactic,
         scoredTacticCounts:scoreSummary.finiteByTactic,
+        finiteSupporterCandidates:finiteSupporterCandidates(capture.trace,acting),
         traceDigest:crypto.createHash('sha256')
           .update(JSON.stringify(capture.trace)).digest('hex')
       });
@@ -120,6 +147,11 @@ function auditRank10SourceScoreCensus() {
     topByScore,
     firstSupporterEvaluationAttempt:supporterAttempts[0]??null,
     firstSupporterScoreOpportunity:scoredSupporters[0]??null,
+    scoredSupporterSourceRoots:scoredSupporters.map(event=>({
+      rootStep:event.rootStep,turn:event.turn,actorSeat:event.actorSeat,
+      selectedPrinting:event.playedHandPrinting,
+      finiteSupporterCandidates:event.finiteSupporterCandidates
+    })),
     sourceTerminal:{
       winner:control.winner,turns:control.turns,actions:control.actions
     },
@@ -131,4 +163,4 @@ function auditRank10SourceScoreCensus() {
 
 if(require.main===module)
   process.stdout.write(JSON.stringify(auditRank10SourceScoreCensus(),null,2)+'\n');
-module.exports={withRootScoreCensus,auditRank10SourceScoreCensus};
+module.exports={withRootScoreCensus,auditRank10SourceScoreCensus,finiteSupporterCandidates};
