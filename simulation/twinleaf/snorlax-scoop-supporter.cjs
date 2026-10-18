@@ -1,5 +1,6 @@
 'use strict';
 
+const {randomInt} = require('node:crypto');
 const path = require('node:path');
 const {initializeCards} = require('./headless.cjs');
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
@@ -73,6 +74,15 @@ function probe(config) {
         const choice=us.active.getPokemonCard()?.name==='Shadow Rider Calyrex V'?
           us.active:us.bench[0];
         store.dispatch(new ResolvePromptAction(prompt.id,[choice]));
+      } else if(kind==='ShuffleDeckPrompt') {
+        // The pinned engine requires an explicit complete deck permutation.
+        // Use unbiased cryptographic draws: this fixture does not model deck-order policy.
+        const permutation=Array.from({length:us.deck.cards.length},(_,i)=>i);
+        for(let i=permutation.length-1;i>0;i--){
+          const j=randomInt(i+1);
+          [permutation[i],permutation[j]]=[permutation[j],permutation[i]];
+        }
+        store.dispatch(new ResolvePromptAction(prompt.id,permutation));
       } else if(kind==='WaitPrompt') {
         store.dispatch(new ResolvePromptAction(prompt.id,null));
       } else {
@@ -88,6 +98,9 @@ function probe(config) {
     targetInHand:us.hand.cards.includes(original),
     targetInDiscard:us.discard.cards.includes(original),
     supporterDiscarded:us.discard.cards.some(c=>c.name===config.supporter),
+    supporterInPlayZone:us.supporter.cards.some(c=>c.name===config.supporter),
+    supporterTurn:us.supporterTurn,
+    phase:state.phase,
     remainingPrompts:state.prompts.filter(p=>p.result===undefined)
       .map(p=>p.constructor.name),
     prompts,error
