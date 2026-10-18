@@ -156,7 +156,7 @@ function withRank11DirectBoostShake(sourceSeat, execute,
         'rank11-direct-boostshake-v1', sourceSeat,
       opportunityTurn:line?.turn ?? null, route:line?.route ?? null,
       selectedTool:line?.tool ?? null,
-      k1AvoidMissingGarbodor, actions, aborted,
+      k1AvoidMissingGarbodor, k0AvoidAllGarbodorHeld, actions, aborted,
       nextTurnLockWitness:witness,
       completed:!!line && stepIndex === line.steps.length &&
         witness?.equippedGarbodor === true,
