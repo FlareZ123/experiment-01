@@ -84,3 +84,12 @@ jobs:
           name: rank6-discard-payment-source-fork
           path: rank6-discard-payment-source-fork.json
           if-no-files-found: warn
+      - name: Audit source rank6 held backup Bench before real Volt Cyclone
+        run: node simulation/twinleaf/rank6-backup-bench-source-fork.cjs > rank6-backup-bench-source-fork.json
+      - name: Archive physical backup Bench counterfactual
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank6-backup-bench-source-fork
+          path: rank6-backup-bench-source-fork.json
+          if-no-files-found: warn
