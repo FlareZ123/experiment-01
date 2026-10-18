@@ -31,3 +31,5 @@ The separate [staged Chimecho attack and hand-entry Store regressions](../twinle
 Predeclare additional exact-source seed/physical seat trials, stratify by **actual first player** from draw logs and record owner-visible initial hand + legal first decisions, owner-facing Fog Crystal search prompt and attack availability. Identify a reproducible real rank31-going-second state in which printed Chimecho and Psychic-producing Energy are available, then compare generic and independent autonomous Bell-aware policies from the same actual source deal without injecting cards or inspecting hidden deck before a legal owner search. Preserve full opponent candidate response and replay noninterference. **Do not select only realized successful Bell branches for strength inference**.
 
 Current global Aichi benchmark: 29/32 exact source inventories (ranks 23/25/28 missing), zero independently qualified games, no demonstrated 99.5% win rate.
+
+**Final CI check:** Entire workflow 39091329603 finished SUCCESS at 2026-10-18 02:55:48 UTC; downloaded ZIP SHA-256 `f549d997df06a13c4f67485fc5fb09e4a571e882848e40bb43a6bf4fffde719b`.
