@@ -8,6 +8,7 @@ const {RANK26_PROPAGATION_PROFILE,runWithResearchProfile} =
 const {SOURCE} = require('./rank26-cologne-autonomous-source-regression.cjs');
 const {withRank26DceReservation} = require('./rank26-dce-reservation.cjs');
 const {withMailScout} = require('./rank26-mail-recovery.cjs');
+const {withRank26FarewellDraw} = require('./rank26-farewell-source-draw.cjs');
 
 /** @returns {object} */
 function compare() {
@@ -79,6 +80,26 @@ function compare() {
   assert.ok(lateCards.indexOf('Hisuian Heavy Ball')>=0 &&
     lateCards.indexOf('Lightning Energy')>lateCards.indexOf('Hisuian Heavy Ball'),
     'Source Lightning was not actually postponed behind the played Item');
+  const farewell = withRank26FarewellDraw(SOURCE.rank26Seat,()=>
+    withRank26DceReservation(SOURCE.rank26Seat,()=>
+      withMailScout(SOURCE.rank26Seat,()=>
+        runWithResearchProfile(request,RANK26_PROPAGATION_PROFILE)),
+      {lateBasicFallback:true}));
+  const farewellSummary=summarize(farewell.result.result.result);
+  const receipt=farewell.policyAudit;
+  assert.equal(receipt.selections.length,1,
+    'Source did not select one owner-visible Farewell Letter');
+  assert.ok(receipt.after,'No actual source root after Farewell action');
+  const before=receipt.selections[0].before;
+  assert.equal(receipt.after.ownDeckCount,before.ownDeckCount-1,
+    'Printed Farewell did not consume one real deck card');
+  assert.equal(receipt.after.ownBenchedUnown,before.ownBenchedUnown-1,
+    'Unown was not actually removed from the Bench');
+  assert.equal(receipt.after.opponentPrizes,before.opponentPrizes,
+    'Farewell discard must not be counted as a Knock Out');
+  assert.ok(farewellSummary.sourceFirstDecisions.some(a=>
+    a.action==='UseAbilityAction'),
+    'Farewell source action did not reach the first-turn Store trace');
   return {
     schema:'rank26-authentic-source-firstturn-dce-reservation-v1',
     seed:SOURCE.seed,sourceSeat:SOURCE.rank26Seat,sourceRank:26,
@@ -92,6 +113,9 @@ function compare() {
       mailPolicy:assisted.result.policyAudit
     },
     lateFallback:{firstTurn:lateSummary,policy:late.policyAudit},
+    farewellMailLateFallback:{firstTurn:farewellSummary,
+      farewellPolicy:receipt,dcePolicy:farewell.result.policyAudit,
+      mailPolicy:farewell.result.result.policyAudit},
     prospectiveRandomTrial:false,
     gamePolicyQualified:false,
     competitiveGameQualified:false,
