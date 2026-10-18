@@ -197,6 +197,11 @@ jobs:
         run: |
           node --test tests/aichi-source-action-brief.test.cjs
           node scripts/aichi-source-action-brief.cjs aichi-campaign-report.json
+      - name: Reconcile source rank26 v3 proposed tactics and actual Store dispatch
+        if: ${{ inputs.policy_profile == 'rank26-autonomous-cologne-pump-propagation-v3' && !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe }}
+        run: |
+          node --test tests/aichi-rank26-v3-action-brief.test.cjs
+          node scripts/aichi-rank26-v3-action-brief.cjs aichi-campaign-report.json
       - name: Cross-check sourced games and fingerprint evidence envelope
         if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe }}
         env:
