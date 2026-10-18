@@ -104,6 +104,9 @@ jobs:
       - name: Pair New Moon and champion with source-first rank11 policy
         if: ${{ inputs.rank11_autonomous_probe }}
         run: node simulation/evaluation/rank11-newmoon-autonomous-pair.cjs > aichi-rank11-newmoon-autonomous-pair.json
+      - name: Resolve one genuine New Moon Field Blower hand against autonomous rank11 Garbotoxin
+        if: ${{ inputs.rank11_autonomous_probe }}
+        run: node simulation/twinleaf/newmoon-rank11-real-hand-blower-response.cjs > newmoon-rank11-real-blower-response.json
       - name: Audit source New Moon attack passes without policy intervention
         if: ${{ inputs.newmoon_pass_probe }}
         run: node simulation/evaluation/newmoon-rank11-pass-observer.cjs > newmoon-rank11-pass-observer.json
@@ -149,4 +152,5 @@ jobs:
             aichi-rank11-newmoon-autonomous-pair.json
             newmoon-rank11-pass-observer.json
             rank11-autonomous-comparison.json
+            newmoon-rank11-real-blower-response.json
           retention-days: 14
