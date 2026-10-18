@@ -567,6 +567,40 @@ test('prospective aligned campaign retains frozen source digests and binds true 
   assert.equal(archive.inputOrderProtocol,'reference-aligned-v1');
   assert.equal(archive.planDigest,f.campaign.planDigest);
   assert.deepEqual(archive.records.map(r=>r.status),['completed','completed']);
+  const {auditArchive,createEvidenceEnvelope,hasMatchingResearchConditions} =
+    require('../simulation/evaluation/aichi-evidence-envelope.cjs');
+  assert.equal(auditArchive(f,archive).completed,2);
+  const corrupted=structuredClone(archive);
+  corrupted.records[0].candidateInputOrder.executedInputHash='0'.repeat(64);
+  assert.throws(()=>auditArchive(f,corrupted),/input-order evidence mismatch/);
+  const mislabeled=structuredClone(archive);
+  mislabeled.inputOrderProtocol='source-row-order-v1';
+  assert.throws(()=>auditArchive(f,mislabeled),/input-order protocol/);
+  const provenance={
+    researchRevision:'synthetic-test',engineRevision:'tested-revision',
+    rulesetRevision:'test-rules',candidatePolicyRevision:'test-policy',
+    opponentPolicyRevision:'test-policy',
+    rngProtocol:'separate-game-and-per-seat-policy-prng-v1',
+    effectiveMatchOptions:archive.records[0].effectiveMatchOptions
+  };
+  for(const record of archive.records) record.observedPolicy='test-policy';
+  const alignedEnvelope=createEvidenceEnvelope(f,archive,provenance);
+  const sourceArchive=structuredClone(archive);
+  sourceArchive.inputOrderProtocol='source-row-order-v1';
+  for(const record of sourceArchive.records) {
+    record.inputOrderProtocol='source-row-order-v1';
+    record.candidateInputOrder.protocol='source-row-order-v1';
+    record.candidateInputOrder.executedInputHash=record.candidateInputOrder.sourceInputHash;
+    record.candidateInputOrder.executedPrintingOrderHash=
+      record.candidateInputOrder.sourcePrintingOrderHash;
+    record.candidateInputOrder.matchingPositionsAfter=
+      record.candidateInputOrder.matchingPositionsBefore;
+    const seat=record.candidateEngineSlot==='A'?0:1;
+    record.expectedEngineDeckHashes[seat]=record.candidateInputOrder.sourceInputHash;
+    record.observedEngineDeckHashes[seat]=record.candidateInputOrder.sourceInputHash;
+  }
+  const sourceEnvelope=createEvidenceEnvelope(f,sourceArchive,provenance);
+  assert.equal(hasMatchingResearchConditions(alignedEnvelope,sourceEnvelope),false);
   assert.deepEqual(archive.records.map(r=>r.candidateInputOrder.matchingPositionsAfter),[58,58]);
   assert.ok(archive.records.every(r=>r.candidateInputOrder.sourceInputHash!==
     r.candidateInputOrder.executedInputHash));
