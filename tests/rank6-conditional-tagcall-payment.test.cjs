@@ -45,5 +45,6 @@ test('conditional Tag Call does not reclassify original legacy narrow event',()=
   const revised=exactExpandedOpening(sourceCounts,
     {conditionalTagCallPayment:true});
   assert.deepEqual(revised.legacyNarrow,original.legacyNarrow);
-  assert.equal(original.total.numerator,1349n*0n+original.total.numerator);
+  assert.equal(original.legacyNarrow.numerator,1349n);
+  assert.equal(original.legacyNarrow.denominator,577170n);
 });
