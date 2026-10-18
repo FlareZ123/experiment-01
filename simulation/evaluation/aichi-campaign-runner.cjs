@@ -57,6 +57,14 @@ function verifyCampaign(inputs) {
   return reconstructed;
 }
 
+/** @param {object} trial Verified frozen source schedule row. @returns {0|1} */
+function rank11SourceSeat(trial) {
+  if (trial?.rank !== 11 || !['A','B'].includes(trial.candidateEngineSlot)) {
+    throw new Error('Autonomous rank11 requires a verified source rank and seat.');
+  }
+  return trial.candidateEngineSlot === 'A' ? 1 : 0;
+}
+
 /**
  * First-turn evidence must match both the actual engine slot and first draw log.
  * @param {object} game
@@ -335,11 +343,9 @@ if (require.main === module) {
       if (profile !== profiled.RANK11_AUTONOMOUS_PROFILE) {
         return profiled.runWithResearchProfile(request, profile);
       }
-      if (trial.rank !== 11) {
-        throw new Error('Rank11 autonomous policy requires published rank11 source.');
-      }
-      const rank11SourceSeat = trial.candidateEngineSlot === 'A' ? 1 : 0;
-      return profiled.runWithResearchProfile({ ...request, rank11SourceSeat }, profile);
+      return profiled.runWithResearchProfile({
+        ...request, rank11SourceSeat: rank11SourceSeat(trial)
+      }, profile);
     } : undefined;
   process.stdout.write(JSON.stringify(executeCampaign(loadCampaignInputs(), {
     phase, maxTrials, maxActions, trialIds, runMatch,
@@ -354,4 +360,5 @@ if (require.main === module) {
   }), null, 2) + '\n');
 }
 
-module.exports = { loadCampaignInputs, verifyCampaign, turnProof, executeCampaign };
+module.exports = { loadCampaignInputs, verifyCampaign, turnProof, executeCampaign,
+  rank11SourceSeat };
