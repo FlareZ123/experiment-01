@@ -68,7 +68,7 @@ function summarizeGame(game,sourceSeat){
 function run(){
   const plan=planAichi(1,permissions);
   assert.equal(plan.engineRevision,
-    'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');
+    'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');
   assert.equal(plan.candidate.cards.length,60);
   const rows=[];
   for(const trial of schedule()){
