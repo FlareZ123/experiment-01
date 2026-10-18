@@ -26,11 +26,27 @@ function installCancelingCologneOncePerTurnHook() {
     throw new Error('Pinned Canceling Cologne class changed');
   }
   const {WAS_TRAINER_USED} = pinned('game/store/prefabs/trainer-prefabs');
+  const {Store} = pinned('game/store/store');
+  const {PlayItemEffect} = pinned('game/store/effects/play-card-effects');
+  const {GameError} = pinned('game-error');
+  const {GameMessage} = pinned('game-message');
+  const priorStoreReduceEffect = Store.prototype.reduceEffect;
   const priorCanPlay = prototype.canPlay;
   const priorReduceEffect = prototype.reduceEffect;
   if (typeof priorCanPlay !== 'function' || typeof priorReduceEffect !== 'function') {
     throw new Error('Pinned Cologne hooks unavailable');
   }
+  // The pinned PlayCard reducer dispatches Items without consulting canPlay.
+  // Veto the PlayItemEffect before it moves the second physical card to the
+  // Supporter/Item play zone; a late TrainerEffect veto would strand that card.
+  Store.prototype.reduceEffect = function paperCologneStoreReduceEffect(state, effect) {
+    if (effect instanceof PlayItemEffect &&
+        effect.trainerCard?.name === 'Canceling Cologne' &&
+        effect.player?.[FIELD] === state.turn) {
+      throw new GameError(GameMessage.CANNOT_PLAY_THIS_CARD);
+    }
+    return priorStoreReduceEffect.call(this, state, effect);
+  };
   prototype.canPlay = function paperCologneCanPlay(store, state, player) {
     return player[FIELD] !== state.turn &&
       priorCanPlay.call(this, store, state, player);
@@ -44,6 +60,7 @@ function installCancelingCologneOncePerTurnHook() {
   /** @returns {void} */
   const restore = () => {
     if (!activeInstallation) return;
+    Store.prototype.reduceEffect = priorStoreReduceEffect;
     prototype.canPlay = priorCanPlay;
     prototype.reduceEffect = priorReduceEffect;
     activeInstallation = null;
