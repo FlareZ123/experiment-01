@@ -13,8 +13,8 @@ from scripts.match_record_contract import evaluate_raw_batch
 
 class TrialScheduleGateTests(unittest.TestCase):
     def setUp(self):
-        self.field = "rank,player,archetype,full_list_published\\n" + "".join(
-            f"{rank},P{rank},Deck,{'yes' if rank == 1 else 'no'}\\n"
+        self.field = "rank,player,archetype,full_list_published\n" + "".join(
+            f"{rank},P{rank},Deck,{'yes' if rank == 1 else 'no'}\n"
             for rank in range(1, 33)
         )
         self.trace = [{"step": 0, "action": "finish"}]
