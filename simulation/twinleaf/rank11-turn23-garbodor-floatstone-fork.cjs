@@ -18,7 +18,7 @@ const engine=relative=>require(path.join(output,relative));
  * @param {()=>T} execute Runs one independently seeded genuine source game.
  * @returns {{result:T,selected:object|null,opportunities:number}}
  */
-function withGarbodorFloatStoneTarget(execute) {
+function withGarbodorFloatStoneTarget(execute,{skipChange=false}={}) {
   if(typeof execute!=='function')throw new TypeError('A source game function is required');
   const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
   const {PlayCardAction,PlayerType,SlotType}=
