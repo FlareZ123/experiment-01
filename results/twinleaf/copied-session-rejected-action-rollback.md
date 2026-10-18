@@ -16,7 +16,7 @@ The corrected [prompt-free regression](../../simulation/twinleaf/copy-session-ro
 
 A new opt-in [dispatch wrapper](../../simulation/twinleaf/copy-session-rollback-hook.cjs) detects when an invalid root action replaces `Store.state`; it transfers currently registered copied sessions into the replacement State and rebinds the most recent selected Attack identity through the already validated session-copy helper. The adapter preserves the original invalid-action exception and is reversible. The existing State-scope loader exports `transferCopyAttackSessionsOnRollback` only inside its in-memory compiled CommonJS patch, with no vendor edit.
 
-The intended positive gate is [rollback guard](../../simulation/twinleaf/copy-session-rollback-guard.cjs) in the manual Apex workflow. **CI confirmation remains pending** for that guard, so this report only claims the negative witness so far.
+The intended positive gate is [rollback guard](../../simulation/twinleaf/copy-session-rollback-guard.cjs) in the manual Apex workflow. [Manual compiled CI 39086895297](https://github.com/FlareZ123/experiment-01/actions/runs/39086895297) **passed** at `0719dc39046081856f9f2cdfaa2b1377c2eee31a`. The paired opt-in repair emitted `callbacks:['original','backup']` after the same rejected action; the unpatched State-scoped control emitted only `['original']`. The full existing Apex workflow passed as well. This establishes a narrow rollback continuation correction while keeping the original illegal-action rejection. No full-game semantic or policy qualification follows.
 
 ## Limits
 
