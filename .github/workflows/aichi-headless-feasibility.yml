@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank9_horror_house_root_probe:
+        description: Bounded exact-source rank9 real-root Horror House audit, no win inference
+        required: false
+        type: boolean
+        default: false
       absol_rank11_shopping_observer:
         description: Read-only source rank 11 Shopping Center and Crobat opportunity audit
         required: false
@@ -51,6 +56,8 @@ jobs:
       - name: Compile upstream engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify read-only source-root Horror House declaration filter
+        run: node --test tests/horror-house-root-audit.test.cjs
       - name: Check Aichi exact card-resolution blockers
         run: node simulation/evaluation/aichi-pilot.cjs
 
@@ -144,6 +151,17 @@ jobs:
           path: absol-rank11-firstturn-k1.json
           retention-days: 14
 
+      - name: Observe authentic rank9 Horror House root attack and printed-Energy zones
+        if: ${{ inputs.rank9_horror_house_root_probe }}
+        run: node simulation/twinleaf/rank9-horror-house-source-root-exposure.cjs > rank9-horror-house-source-root-exposure.json
+      - name: Preserve all 16 prospectively registered source exposures and positive gate
+        if: ${{ always() && inputs.rank9_horror_house_root_probe }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank9-horror-house-root-source-exposure
+          path: rank9-horror-house-source-root-exposure.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Observe rank 11 own-hand Shopping Center opportunities in matched source games
         if: ${{ inputs.absol_rank11_shopping_observer }}
         run: node simulation/twinleaf/rank11-shopping-center-source-observer.cjs > rank11-shopping-source-observer.json
