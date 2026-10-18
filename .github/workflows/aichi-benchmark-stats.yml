@@ -21,6 +21,8 @@ jobs:
         run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs
       - name: Verify Regidrago source-name panel scheduling
         run: node --test tests/aichi-regidrago-coverage-panel.test.cjs
+      - name: Verify printed Dragon attack-panel scheduling
+        run: node --test tests/aichi-regidrago-attack-payload-panel.test.cjs
       - name: Exact source rank31 Roxie plus Koffing direct access
         run: node --test tests/rank31-roxie-pair.test.cjs
       - name: Audit locale-dependent source deck fingerprint order
