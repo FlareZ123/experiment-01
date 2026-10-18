@@ -127,7 +127,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh run download 38995733010 -R ${{ github.repository }} -n rank10-source-branch-live-dispatch -D archived-rank10
       - name: Verify archived source JSON bytes match the original immutable artifact
-        run: node -e "const fs=require('node:fs'); const crypto=require('node:crypto'); const b=fs.readFileSync('archived-rank10/rank10-source-branch-live-dispatch.json'); const actual=crypto.createHash('sha256').update(b).digest('hex'); const expected='bd7853c3e1692fb8c554a28e83bd2b2b808d0056104a7ae109c4d94aabee4599'; if(actual!==expected)throw Error('Historical source bytes mismatch: '+actual); console.log('Historical JSON byte SHA256 verified:',actual)"
+        run: |
+          node -e "const fs=require('node:fs'); const crypto=require('node:crypto'); const b=fs.readFileSync('archived-rank10/rank10-source-branch-live-dispatch.json'); const actual=crypto.createHash('sha256').update(b).digest('hex'); const expected='bd7853c3e1692fb8c554a28e83bd2b2b808d0056104a7ae109c4d94aabee4599'; if(actual!==expected)throw Error('Historical source bytes mismatch: '+actual); console.log('Historical JSON byte SHA256 verified:',actual)"
       - name: Independently replay archived original 350 and alternate 235 inputs in fresh process
         run: node simulation/twinleaf/rank10-replay-from-archive.cjs archived-rank10/rank10-source-branch-live-dispatch.json > rank10-historical-replay-now.json
       - name: Fail closed on incomplete full two-arm fresh-process replay
