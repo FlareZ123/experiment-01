@@ -6,7 +6,7 @@
 
 One **retrospectively selected** seed from the previously [registered 16-deal rank9 campaign](rank9-horror-house-root-source-exposure.md), **387039398**. Physical rank9 **seat 1**, true rank1-first (seat0) draw-log verified. Exact rank9 Shun Ito Absol Electrode source 60 faced unchanged rank1 Yasunori Kato Shadow Rider source 60; tracked simulator-friendly print equivalence. Root attack at **global turn 2, root ordinal 21** was native Gengar & Mimikyu-GX **Horror House-GX**.
 
-Immediately before and after actual root dispatch: rank9 Gengar Active had only **one Prism Energy**. `usedGX:false → true`; defending rank1 `cannotPlayItemCards:false → true`. Both hands remained six (rank9) and five (rank1) at this instant. No extra-Psychic draw was expected or executed.
+Immediately before and after actual root dispatch: rank9 Gengar Active had only **one Prism Energy**. `usedGX:false → true`; defending rank1 `cannotPlayItemCards:false → true`. The Item flag is just one visible projection of the broad **all-card hand lock**, not the full status by itself. Both hands remained six (rank9) and five (rank1) at this instant. No extra-Psychic draw was expected or executed.
 
 The next global turn (**turn 3**) contains a recorded actual root `AttackAction('Shadow Mist')` by rank1 Shadow Rider Calyrex V at **ordinal 25**. This is the first *included* opponent decision in the shared `decisionTrace` subset, not proof it was the first physical root action of turn 3: that trace omits some action classes, such as raw Energy attachment, and captures prompts only when they produce designated selection evidence. Rank1's own visible hand snapshot at the Shadow Mist decision comprised two Psychic Energy, two Shadow Rider Calyrex VMAX, Acerola and Latias ex. **No Item** was present in that recorded hand; the lock's immediate denial of an otherwise-playable Item is therefore unobserved in this selected sample. The selected action was an attack, so the simulator had a consequential attacking reply. Card-effect and opponent competence are independently unverified.
 
@@ -20,8 +20,12 @@ This is a bounded **single-seed read-only observer noninterference control** and
 
 ## Interpretation
 
-The previous 16-deal campaign proved that source rank9's Gengar sometimes actually performs native Horror House under source-dealt heads-up play, with a preserved encounter denominator. This selected continuation now establishes a root-observed rank1 attacking answer, yet **does not show an Item being denied in the opponent's recorded hand**. It is a concrete counterweight to interpreting a logged lock as automatically effective and a reminder to distinguish selected action from all available actions.
+The previous 16-deal campaign proved that source rank9's Gengar sometimes actually performs native Horror House under source-dealt heads-up play, with a preserved encounter denominator. This selected continuation now establishes a root-observed rank1 attacking answer, and documents **several held Energy, Pokémon and Supporter cards that the printed all-hand lock restricts**. It remains a counterweight to treating the opponent's actual opportunity cost or tactical outcome as proven by a logged lock and a reminder to distinguish selected action from all available actions.
 
 A stronger test would include a complete typed root-action transcript for both sides around the lock, verify source-visible hand and any legal Item pressure at the right decision point, observe printed Shadow Mist and Horror House effects through turn end, and independently review bot decisions under a competent opponent policy. Do not count the selected source branch again as an independent trial.
 
 **Competitive-qualified games: zero. Source field: 29/32 exact lists. 99.5% fixed-deck performance remains unproven.**
+
+## Correction provenance
+
+**18 October, source-text audit:** Earlier wording described Horror House as an Item lock and characterized the defender's zero-Item hand as nonexposure. This was incorrect. The attached English card pool's TEU 53 text explicitly prohibits **any** card from being played from hand. Pinned `gengar-and-mimikyu-gx.ts` calls `OPPONENT_CANNOT_PLAY_ANY_CARDS`, whose option set includes Pokémon, Energy, Items, Supporters, Tools and Stadiums. This report replaces the overly narrow interpretation; previously measured root actions and source hashes are unchanged. The all-hand lock's independent live Store effect and counterfactual policy impact still need validation.
