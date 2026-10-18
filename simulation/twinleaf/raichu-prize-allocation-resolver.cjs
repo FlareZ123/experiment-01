@@ -33,6 +33,18 @@ function planElectroRainDamage(state, player, prompt, codes) {
 
   const opponent = state.players.find(row => row.id !== player.id);
   if (!opponent) return null;
+
+  // Wave Veil can prevent all attack damage to the opponent's Bench.
+  // A conservative projection cannot assume that the Ability is suppressed.
+  // Delegate when present rather than claiming a fictitious multi-Prize KO.
+  let possibleWaveVeil = false;
+  opponent.forEachPokemon(codes.opponentSide, (_slot, pokemon) => {
+    if (pokemon.name === 'Manaphy' &&
+        pokemon.powers?.some(power => power.name === 'Wave Veil')) {
+      possibleWaveVeil = true;
+    }
+  });
+  if (possibleWaveVeil) return null;
   const hasSight = player.active.tools.some(card =>
     card.fullName === 'Telescopic Sight VIV');
   const jammingTower = state.players.some(side =>
