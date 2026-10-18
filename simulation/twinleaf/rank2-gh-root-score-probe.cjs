@@ -111,3 +111,20 @@ function runRank2RootScores() {
         JSON.stringify(measured.decisionTrace)
     };
   });
+  return {
+    study:'rank2 GH mode-one root-score source-state differential',
+    engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+    seed:SEED,rank2Seat:1,
+    sameSourceHashes:JSON.stringify(arms[0].sourceHashes)===
+      JSON.stringify(arms[1].sourceHashes),
+    sameFirstTurn:arms[0].firstTurnSlot===arms[1].firstTurnSlot,
+    sameRootZoneDigest:
+      arms[0].scoreTrace?.predecisionZoneDigest===
+      arms[1].scoreTrace?.predecisionZoneDigest,
+    arms,
+    caveat:'Read-only tactic score diagnosis, not an optimal policy, paper match or win-rate sample.'
+  };
+}
+
+if(require.main===module)console.log(JSON.stringify(runRank2RootScores(),null,2));
+module.exports={discoverRootSupporterOrdinal,sourceGame,runRank2RootScores};
