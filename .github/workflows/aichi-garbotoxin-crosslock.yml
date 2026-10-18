@@ -43,6 +43,10 @@ on:
         description: 'Re-run four already observed source held-Shake opportunities and audit candidate replies'
         type: boolean
         default: false
+      rank11_rank1_attack_response:
+        description: 'Opt-in four opportunity-conditioned both-start authentic rank11 versus rank1 attack responses'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -181,4 +185,14 @@ jobs:
         with:
           name: rank8-latias-source-escape-fork
           path: rank8-latias-escape-fork.json
+          if-no-files-found: warn
+      - name: Source-dealt four both-start rank11 opening and rank1 reference attack responses
+        if: inputs.rank11_rank1_attack_response
+        run: node simulation/twinleaf/rank11-conditioned-lock-rank1-response.cjs > rank11-rank1-response.json
+      - name: Preserve exact conditioned-source opponent actions and attack declarations
+        if: always() && inputs.rank11_rank1_attack_response
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-both-start-rank1-conditioned-response
+          path: rank11-rank1-response.json
           if-no-files-found: warn
