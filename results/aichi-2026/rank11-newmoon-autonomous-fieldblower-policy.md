@@ -35,3 +35,18 @@ The v1 policy does **not** evaluate attack payload accessibility, legal copied a
 Next: measure public opponent retooling after turn three; model genuine payload/attack-ready states and follow-up, then prospectively test held-out source openings stratified by actual starter and record failures. This positive source seed is a regression exam, never a game-win sample. Japanese paper print fidelity, full replay and competent bot behavior remain unresolved.
 
 **Field status:** 29/32 exact opposing lists; ranks 23,25,28 unknown; zero independently qualified competitive games and no demonstrated 99.5% win rate.
+
+## 18 October additional actual-zone witness: source Tool stayed off, Gengar unavailable
+
+A read-only extension of the **same unqualified source seed** and same automatic v1 behavior passed compiled manual [CI 39099986951](https://github.com/FlareZ123/experiment-01/actions/runs/39099986951), head **4467fca0ecd44c92d557b5e77cab8b2b942fe9a7**; [artifact 12126640117](https://github.com/FlareZ123/experiment-01/actions/runs/39099986951/artifacts/12126640117), automatic JSON SHA256 **aca8659aa3bc625753a4436e452147acce341fecf0216c7af76d91f7af37ce0f**. The adapter inspects **own** Bench/discard and Energy and **opponent public** Garbodor Tool at the earliest non-prompt ordinary decision on each candidate turn; it never exposes hidden opposing information to the bot.
+
+| Actual candidate decision turn | Candidate Active | Active attached Energy at first decision | Gengar & Mimikyu-GX in own Bench | In own discard | Opponent Garbodor Tool |
+| --- | --- | --- | --- | --- | --- |
+| 2 | Tapu Lele-GX | none | **No** | **No** | Float Stone BKT, before Blower |
+| 4 | Mewtwo & Mew-GX | one Psychic | **No** | **No** | **none** |
+| 6 | Mewtwo & Mew-GX | one Psychic | **No** | **No** | **none** |
+| 8 | Mewtwo & Mew-GX | one Psychic | **No** | **No** | **none** |
+
+At turn 2 the same live match subsequently moved Mewtwo Active by Escape Rope, attached Psychic Energy, removed the Tool, and passed. The opponent did play an additional Float Stone and Shopping Center on its next turn, but **Garbodor was still publicly untooled at each observed candidate turn through turn 8**. Therefore the previous caveat about an unverified threat of immediate Garbotoxin restoration must be narrowed: the additional Tool did **not** restore Garbotoxin on the observed board states. The true **Gengar GX attack source was absent from both legal Perfection attack-source zones** at each of the four observations. This now positively confirms missing Gengar payload as an observed local obstruction, independently of Tool removal. Other available copied attacks and full attack legality remain unqualified.
+
+These are repeated time points in one source game and share its seed/decisions. They provide **zero new independent games**, do not justify any estimated match win probability, and cannot establish that retaining Field Blower would dominate spending it.
