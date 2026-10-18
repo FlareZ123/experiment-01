@@ -86,4 +86,56 @@ function runCase(toolName, evolvedName) {
       'Forest Stone must not grant VSTAR Power to non-V Pokémon');
     assert.equal(pending(), undefined);
   }
-// __CONTINUATION__
+  play(shake, {player: PlayerType.ANY, slot: SlotType.BOARD, index: 0});
+  const search = pending();
+  assert.equal(search?.constructor.name, 'ChooseCardsPrompt',
+    'Boost Shake must search the source deck');
+  assert.equal(search.validate([evolved], state), true);
+  store.dispatch(new ResolvePromptAction(search.id, [evolved]));
+  const recipient = pending();
+  assert.equal(recipient?.constructor.name, 'ChoosePokemonPrompt',
+    'Boost Shake must prompt for the evolution recipient');
+  assert.equal(recipient.validate([trash], state), true,
+    'Newly played first-turn Trubbish must be a valid target');
+  store.dispatch(new ResolvePromptAction(recipient.id, [trash]));
+  for (let k = 0; k < 4 && pending(); k++) {
+    const prompt = pending();
+    if (prompt.constructor.name === 'ShuffleDeckPrompt') {
+      store.dispatch(new ResolvePromptAction(prompt.id,
+        a.deck.cards.map((_, i) => i)));
+    } else if (prompt.constructor.name === 'WaitPrompt') {
+      store.dispatch(new ResolvePromptAction(prompt.id, null));
+    } else {
+      throw new Error('Unresolved prompt ' + prompt.constructor.name);
+    }
+  }
+  assert.equal(pending(), undefined, 'Search/evolution prompts must settle');
+  assert.equal(trash.getPokemonCard(), evolved, 'Boost Shake evolution failed');
+  assert.deepEqual(trash.tools, tool ? [tool] : [],
+    'Boost Shake must preserve Pokémon Tool across evolution');
+  const after = available(b, vmax);
+  const lockLive = !after.includes('Underworld Door');
+  assert.equal(lockLive, !!tool,
+    'Garbotoxin must disable other Pokémon Abilities only when equipped');
+  assert.equal(available(a, evolved).includes('Star Alchemy'), false);
+  return {tool: toolName, printing: evolvedName, lockLive,
+    beforeAbilities: before, afterAbilities: after,
+    toolPreserved: trash.tools.map(x => x.fullName),
+    vstarOnNonV: false, originalTurn: 1, turnAfter: state.turn};
+}
+
+/** @returns {object} */
+function run() {
+  const rows = ['Garbodor BKP', 'Garbodor LTR'].flatMap(print =>
+    [null, 'Float Stone BKT', 'Forest Seal Stone SIT']
+      .map(tool => runCase(tool, print)));
+  return {
+    kind: 'firstturn-forest-seal-stone-garbotoxin-staged-store-v1',
+    engine: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+    scope: 'Staged board; real first-turn Store Tool and Boost Shake actions, no natural opponent policy or full match',
+    rows
+  };
+}
+if (require.main === module) console.log(JSON.stringify(run(), null, 2));
+module.exports = {run, runCase};
+
