@@ -5,3 +5,7 @@
 [Source](../../simulation/twinleaf/rank2-gh-score-components.cjs) and [regression](../../tests/rank2-gh-score-components.test.cjs) wrap the existing nine `getScore` methods and the actual `PlaySupporterTactic` evaluation. Each implementation is invoked once without independent rescoring, and prototypes are restored in `finally`. Controls require unchanged selected-action trace and that the nine returned component values sum to the recorded `StateScore` total. A difference in root selected action or incorrect sum invalidates this attribution. No published-card changes, new deck proposal or competitive game is evaluated.
 
 [Manual CI run 39136504791](https://github.com/FlareZ123/experiment-01/actions/runs/39136504791) dispatched at head `fc026892a36072b47790c7accde2a6b6dd33e479`, **pending at protocol creation**. Artifact when produced: `rank2-gh-score-components`.
+
+## Compiled outcome
+
+[Manual CI 39136504791](https://github.com/FlareZ123/experiment-01/actions/runs/39136504791) **PASSED** at head `fc026892a36072b47790c7accde2a6b6dd33e479`. Both source-dealt baseline versus passive-observer root action traces were identical. The nine component sums matched all four original `StateScore` totals. Archived `rank2-gh-score-components` artifact ID **12140057094**, ZIP SHA256 `c615fd488da72405525ba0375a6fc1d5050d86e8f9fd7951ce37cad33b539f63`.
