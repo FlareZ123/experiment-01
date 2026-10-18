@@ -13,8 +13,9 @@ const {seedFrame} = require('./rank11-source-seeds.cjs');
  * @param {number} [count]
  * @returns {object}
  */
-function run(count = 32, seedProtocol = 'legacy-consecutive-v1') {
+function run(count = 32, seedProtocol = 'legacy-consecutive-v1', sourceSeat = 0) {
   assert(Number.isInteger(count) && count > 0 && count <= 128);
+  assert([0,1].includes(sourceSeat));
   const plan = planAichi(1,{
     allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
   });
@@ -26,8 +27,9 @@ function run(count = 32, seedProtocol = 'legacy-consecutive-v1') {
   const seeds = seedFrame(count, seedProtocol);
   for (let i=0;i<count;i+=1) {
     const seed=seeds[i];
-    const game=withRank11DirectBoostShake(0,() => runMatch({
-      deckA:opponent.cards,deckB:plan.candidate.cards,seed,
+    const game=withRank11DirectBoostShake(sourceSeat,() => runMatch({
+      deckA:sourceSeat===0 ? opponent.cards : plan.candidate.cards,
+      deckB:sourceSeat===1 ? opponent.cards : plan.candidate.cards,seed,
       label:'rank11-direct-source-probe-v1',maxActions:48,
       strictPromptValidation:true,forestSealSearchCorrection:true,
       battleCompressorPositiveSelectionCorrection:true,
@@ -35,6 +37,7 @@ function run(count = 32, seedProtocol = 'legacy-consecutive-v1') {
     }));
     trials.push({
       seed,firstTurnSlot:game.result.firstTurnSlot,
+      sourceActuallyFirst:game.result.firstTurnSlot===sourceSeat,
       sourceOpportunity:game.policyAudit.opportunityTurn,
       selectedRoute:game.policyAudit.route,
       selectedTool:game.policyAudit.selectedTool,
@@ -48,7 +51,8 @@ function run(count = 32, seedProtocol = 'legacy-consecutive-v1') {
   }
   return {
     study:'source-first-or-second authentic rank11 direct Boost Shake coverage',
-    sourceRank:11,candidateRank:1,actualEnginePin:plan.engineRevision,
+    sourceRank:11,candidateRank:1,sourcePhysicalSeat:sourceSeat,
+    actualEnginePin:plan.engineRevision,
     sourceManifest:plan.manifestDigest,referenceCandidate:plan.candidateDigest,
     seedProtocol, seedFrame:seeds,
     declaredMaxRootActions:48,actualTrialCount:trials.length,
@@ -57,6 +61,7 @@ function run(count = 32, seedProtocol = 'legacy-consecutive-v1') {
       slot1:trials.filter(t=>t.firstTurnSlot===1).length,
       unobserved:trials.filter(t=>t.firstTurnSlot===null).length
     },
+    sourceActualFirstCount:trials.filter(t=>t.sourceActuallyFirst).length,
     opportunities:trials.filter(t=>t.sourceOpportunity!==null).length,
     completed:trials.filter(t=>t.completed).length,
     aborts:trials.filter(t=>t.aborted).length,
@@ -65,6 +70,7 @@ function run(count = 32, seedProtocol = 'legacy-consecutive-v1') {
 }
 if (require.main === module) {
   process.stdout.write(JSON.stringify(run(Number(process.env.TRIALS || 32),
-    process.env.SEED_PROTOCOL || 'legacy-consecutive-v1'),null,2)+'\n');
+    process.env.SEED_PROTOCOL || 'legacy-consecutive-v1',
+    Number(process.env.RANK11_SOURCE_SEAT || '0')),null,2)+'\n');
 }
 module.exports={run};
