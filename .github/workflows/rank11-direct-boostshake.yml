@@ -36,12 +36,16 @@ jobs:
         env:
           TRIALS: ${{ inputs.trials || '32' }}
         run: node simulation/twinleaf/rank11-direct-source-probe.cjs > rank11-direct-source-probe.json
+      - name: Verify source-first VSTAR and second-start direct policies compose
+        run: node simulation/twinleaf/rank11-hybrid-source-replay.cjs > rank11-hybrid-source-replay.json
       - name: Print bounded outcome and keep all failed opportunities
         run: node -e "const p=require('./rank11-direct-source-probe.json'); console.log(JSON.stringify({trials:p.actualTrialCount,opportunities:p.opportunities,completed:p.completed,aborts:p.aborts,interesting:p.trials.filter(t=>t.sourceOpportunity!==null)},null,2))"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: rank11-direct-boostshake-unqualified
-          path: rank11-direct-source-probe.json
+          path: |
+            rank11-direct-source-probe.json
+            rank11-hybrid-source-replay.json
           if-no-files-found: warn
           retention-days: 14
