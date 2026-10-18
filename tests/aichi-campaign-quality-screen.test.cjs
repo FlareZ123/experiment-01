@@ -643,3 +643,42 @@ test('live Store terminal winner must agree with recorded completed-game winner'
     'terminal-outcome-unavailable');
   assert.equal(out.winRateEvidence, false);
 });
+
+
+test('full root ledger resolves selective-trace silence and identifies next-turn opponent root',()=>{
+  const {PROTOCOL}=require('../scripts/aichi-root-action-ledger.cjs');
+  const f=fixture();
+  f.mechanismChecks=[{id:'blower',candidateId:'challenger',
+    rank:6,action:'PlayCardAction',detail:'Field Blower'}];
+  for (const record of f.records) {
+    const roots=Array.from({length:record.actions},(_,i)=>({
+      actionOrdinal:i,action:'AttachEnergyAction',playerSlot:0,
+      turnBefore:i<=1?1:i<=7?2:3,
+      turnAfter:i===1?2:i===7?3:i<=1?1:i<=7?2:3
+    }));
+    roots[1]={...roots[1],action:'PassTurnAction'};
+    if (record.trialId==='pilot:6:0:challenger:A') {
+      roots[4]={...roots[4],action:'PlayCardAction',card:'Field Blower'};
+      roots[8]={...roots[8],action:'PlayCardAction',
+        card:'Opponent Supporter',playerSlot:1};
+    }
+    record.traceSummary={
+      ...record.traceSummary,rootActionLedgerProtocol:PROTOCOL,
+      rootActionLedger:roots,
+      rootActionLedgerSha256:createHash('sha256')
+        .update(JSON.stringify(roots)).digest('hex'),
+      coversAllActionsAndPromptResolutions:true
+    };
+  }
+  const out=auditCampaignQuality(f);
+  const checked=out.coverage.find(row=>row.candidateId==='challenger');
+  assert.equal(checked.rootActionLedgerUnverifiedTrials,0);
+  assert.equal(checked.mechanismExposure[0].observedActions,1);
+  assert.equal(checked.mechanismExposure[0].completeTraces,2);
+  assert.equal(checked.mechanismExposure[0].opponentNextTurnRootDispatches,1);
+  assert.equal(checked.mechanismExposure[0].rootWitnesses[0]
+    .opponentNextTurnRootActionOrdinal,8);
+  assert.equal(out.records[3].rootActionLedgerStatus,
+    'complete-root-ledger-self-consistent');
+  assert.equal(out.winRateEvidence,false);
+});
