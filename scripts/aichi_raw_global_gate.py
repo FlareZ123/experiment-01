@@ -68,14 +68,14 @@ def evaluate_balanced_raw_batch(
         candidate_hash=expected_candidate_deck_sha256,
         expected_trials=expected_trials,
     )
-    if not checked["all_completed_terminals_bound"]:
-        raise ValueError("All completed games require engine-terminal-bound winners")
-    if not checked["sampling_frame_input_integrity_promotion_eligible"]:
-        raise ValueError("Full source, candidate, trace, terminal and schedule integrity required")
     if checked["failures"]:
         raise ValueError("Failed or unfinished games cannot enter confirmatory evidence")
     if not checked["all_completed_traces_verified"]:
         raise ValueError("All completed games require verified action traces; digest-only records remain diagnostic")
+    if not checked["all_completed_terminals_bound"]:
+        raise ValueError("All completed games require engine-terminal-bound winners")
+    if not checked["sampling_frame_input_integrity_promotion_eligible"]:
+        raise ValueError("Full source, candidate, trace, terminal and schedule integrity required")
     for game in batch["games"]:
         if game["opponent_deck_sha256"] != source_deck_digests[game["rank"]]:
             raise ValueError(f"Opponent rank {game['rank']} deck does not match its exact source digest")
