@@ -71,6 +71,15 @@ jobs:
           if-no-files-found: error
       - name: Exercise New Moon printed Perfection across Garbotoxin and active lock
         run: node simulation/twinleaf/new-moon-lockbreak-ability-gates.cjs > newmoon-lockbreak-ability-gates.json
+      - name: Probe rank15 two-print Vileplume versus Basic and Stage1 source attacks
+        run: node simulation/twinleaf/new-moon-rank15-dual-lock-actions.cjs > newmoon-rank15-dual-vileplume.json
+      - name: Preserve source-printed rank15 conditioned attack gate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-rank15-dual-vileplume
+          path: newmoon-rank15-dual-vileplume.json
+          if-no-files-found: warn
       - name: Preserve live Store lockbreak answer matrix
         uses: actions/upload-artifact@v4
         with:
