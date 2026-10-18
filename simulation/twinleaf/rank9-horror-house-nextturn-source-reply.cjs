@@ -90,6 +90,15 @@ function run() {
   assert.equal(attack.before[SOURCE_SEAT].usedGX,false);
   assert.equal(attack.after[SOURCE_SEAT].usedGX,true);
   assert.equal(attack.after[0].itemLocked,true);
+  const lock=attack.after[0].handPlayLocks;
+  for(const category of ['item','supporter','tool','stadium','energy',
+    'specialEnergy','pokemon']) {
+    assert.equal(lock[category],true,
+      'Horror House must lock defender '+category+' from hand');
+    assert.equal(attack.before[0].handPlayLocks[category],false,
+      'Defender had unexpected unrelated lock before Horror House');
+  }
+  assert.equal(lock.turnsRemaining,1);
 
   const replies=nextOpponentRootChoices(
     withTrace.decisionTrace,attack,SOURCE_SEAT);
@@ -114,6 +123,7 @@ function run() {
     nextOpponentTurnHasAnyRootChoice:replies.length>0,
     fullGameObserverParity:true,
     twoPsychicPaperHookNoOpOnOnePsychic:true,
+    allPrintedHandCardCategoryLocksVerified:true,
     originalSourceGame:{
       finished:off.finished,
       actions:off.actions,turns:off.turns,winnerUnqualified:off.winner,
