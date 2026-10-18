@@ -59,6 +59,15 @@ function main(){
   assert.equal(a[target].continuityDigestBefore,b[target].continuityDigestBefore);
   assert.equal(a[target].zoneDigestBefore,
     '5a27a7fa4d3e9cbef465675b05cf2270f0550851f4cc579940a551c3ade70b4d');
+  const chosen=b.slice(target).map(event=>event.attackChoice?.selection)
+    .find(selection=>selection?.printing==='Dialga-GX UPR'&&
+      selection.attackName==='Shred');
+  assert.ok(chosen,'Live nested ChooseAttackPrompt never resolved to printed Shred');
+  const pickup=b.slice(target).find(event=>
+    event.before?.prizesRemaining?.[1]===4 &&
+    event.after?.prizesRemaining?.[1]===2);
+  assert.ok(pickup,'Actual root Store did not collect the two Prize cards');
+  assert.ok(pickup.step>target,'Two-Prize pickup preceded the Copycat decision');
   assert.equal(pilot.result.mimikyuAutonomousShredSeat,1);
   assert.equal(baseline.result.mimikyuAutonomousShredSeat,null);
   assert.equal(pilot.result.doubleDragonArchiveV3,true);
@@ -87,6 +96,10 @@ function main(){
       beforeZone:a[target].zoneDigestBefore,
       beforeHistory:a[target].continuityDigestBefore
     },
+    resolvedShredPrompt:{printing:chosen.printing,
+      attackName:chosen.attackName,promptSourceIndex:chosen.index,
+      attackIndex:chosen.attackIndex},
+    observedTwoPrizePickupAtRoot:pickup.step,
     baseline:summary(baseline.result),
     alternative:summary(pilot.result),
     sourceReplayMechanicsVerified:false,qualifiedForCompetitiveInference:false,
