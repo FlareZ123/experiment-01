@@ -1,6 +1,6 @@
 # Rank-10 root 215: historical policy-arm identity and reconstruction gate
 
-**Agent 22, 18 October 2026.** Evidence class: code-path provenance and historical compiled source fixtures. **Current restored rerun awaits CI.** This is not a competitive-game result.
+**Agent 22, 18 October 2026.** Evidence class: code-path provenance and historical compiled source fixtures. **Historical root215 restored in compiled CI 39110044974.** This is not a competitive-game result.
 
 ## Apparent contradiction
 
@@ -28,7 +28,7 @@ The newer `rank10-hidden-order-live-probe.cjs` initially used archived v3 Double
 - Changed `sourcePolicyForOrdinal(215)` to select historical v3 DDE **plus all three Timeless-branch flags**. The default current-v4 root15 probe remains unchanged.
 - Changed the archived hidden-order decision target to turn **28** and asserted that the actual root decision is `RetreatAction`, matching the historical branch expectation.
 - Updated `tests/rank10-hidden-order-policy-profile.test.cjs` to pin the complete object, rather than checking only DDE version.
-- Manually dispatched existing no-per-commit `twinleaf-hidden-information.yml` [run 39110044974](https://github.com/FlareZ123/experiment-01/actions/runs/39110044974), head `bc4743f7`. **The actual pass/fail and live result must be added after inspection**. A pure profile test cannot prove source-action prefix restoration.
+- Manually dispatched existing no-per-commit `twinleaf-hidden-information.yml` [run 39110044974](https://github.com/FlareZ123/experiment-01/actions/runs/39110044974), head `bc4743f7`. **The complete workflow passed: compiled root215 is turn28 Retreat (player 202, benchIndex1)**. A pure profile test cannot prove source-action prefix restoration.
 
 If the compiled root action differs, classify it as a **remaining historical replay mismatch**, collect earliest root action/prompt prefix divergence and relevant options, and do not silently redefine the target event.
 
