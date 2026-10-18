@@ -38,7 +38,7 @@ All formulas are exact rational combinations for the explicitly restricted sourc
 | --- | ---: | ---: |
 | Basic-valid first seven | **90.07771067%** | 100% |
 | ADP in initial seven | 11.66666667% | **12.95177972%** |
-| ADP in seven + DDE already in seven | **4.16041199%** | 4.618689% (derived) |
+| ADP in seven + DDE already in seven | **4.16041199%** | 4.61869197% (derived) |
 | ADP in seven + DDE by first normal draw | **4.72692178%** | **5.24760425%** |
 | Increment from one normal draw | **0.56650979 percentage points** | About 0.6289 percentage points |
 | Singleton ADP among six Prizes | 10% unconditionally | **9.85451550%** |
