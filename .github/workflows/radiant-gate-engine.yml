@@ -39,3 +39,6 @@ jobs:
 
       - name: Validate Temple Wobbuffet and opponent Iron Thorns overlapping Ability locks
         run: node simulation/twinleaf/radiant-wobbuffet-thorns-matrix.cjs
+
+      - name: Verify real Underworld Door and Latias retreat against Iron Thorns Tool Jammer
+        run: node simulation/twinleaf/wobbuffet-latias-retreat-action.cjs
