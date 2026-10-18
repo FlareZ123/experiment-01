@@ -88,9 +88,11 @@ function favorablePrizes(groups,hand8,route) {
  * seven, six unseen Prizes, one normal draw. No mulligan bonus or card effects.
  * This quantity is an action-resource opportunity, not a policy success rate.
  * @param {Record<string,number>} groups
+ * @param {{conditionalTagCallPayment?:boolean}} [options]
  */
-function exactExpandedOpening(groups) {
+function exactExpandedOpening(groups,options={}) {
   assert.equal(groupsOrder.reduce((sum,key)=>sum+groups[key],0),60);
+  const conditionalTagCallPayment=options.conditionalTagCallPayment===true;
   const raw={direct:0n,'guzma-hala':0n,'tag-call':0n,legacyNarrow:0n};
   const hand={};
   function enumerate(index,left) {
@@ -109,7 +111,14 @@ function exactExpandedOpening(groups) {
     const direct=hand.thunder>0 && hand.dce>0;
     const route=direct?'direct':hand.guzmaHala>0?'guzma-hala':
       hand.tagCall>0?'tag-call':null;
-    if (!route || (!hand.dce && hand.discards<2)) return;
+    // With held G&H, Tag Call is no longer needed for this turn's connector.
+    // After using one Tag Call to search G&H, only remaining copies qualify.
+    // Other future tactical value is deliberately outside this resource model.
+    const spareTags=hand.guzmaHala>0?hand.tagCall:
+      route==='tag-call'?Math.max(0,hand.tagCall-1):0;
+    const effectiveDiscards=hand.discards+
+      (conditionalTagCallPayment?spareTags:0);
+    if (!route || (!hand.dce && effectiveDiscards<2)) return;
     const ways=groupsOrder.reduce((product,key)=>
       product*choose(groups[key],hand[key]),1n);
     // With one Basic among eight, it must occupy the initial seven (7/8).
