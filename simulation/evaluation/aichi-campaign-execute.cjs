@@ -349,7 +349,8 @@ function executeDiagnostic(options) {
           rootActionLedgerSha256: rootLedgerValid ? digest(rootLedger) : null,
           rootActionLedgerProtocol: rootLedgerValid ?
             'actual-store-root-action-ledger-v1' : null,
-          coversAllActionsAndPromptResolutions: rootLedgerValid,
+          rootActionLedgerCoversEveryStoreDispatch: rootLedgerValid,
+          coversAllActionsAndPromptResolutions: false,
           electrodeOpportunitySummary: opportunityRequested && opportunityValid ?
             game.electrodeOpportunitySummary : null
         }
