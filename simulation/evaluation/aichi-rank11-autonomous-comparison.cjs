@@ -54,10 +54,17 @@ function run() {
     winnerObservedByEngine:record.observedWinnerIndex,
     observedFinished:record.observedFinished,
     actions:record.actionCount, turns:record.turns, endReason:record.endReason,
+    // Historical native-only dispatch count retained for compatibility.
     candidateAttacks:record.attackTrace.filter(action =>
       action.seat === (record.candidateEngineSlot === 'A' ? 0 : 1)),
     opponentAttacks:record.attackTrace.filter(action =>
       action.seat === (record.candidateEngineSlot === 'A' ? 1 : 0)),
+    // Null denotes missing telemetry; [] denotes a witnessed zero.
+    attackDeclarationTraceProtocol:record.attackDeclarationTraceProtocol,
+    candidateAttackDeclarations:record.attackDeclarationTrace?.filter(action =>
+      action.playerSlot === (record.candidateEngineSlot === 'A' ? 0 : 1)) ?? null,
+    opponentAttackDeclarations:record.attackDeclarationTrace?.filter(action =>
+      action.playerSlot === (record.candidateEngineSlot === 'A' ? 1 : 0)) ?? null,
     opposingFirstTurnDecisions:(record.decisionTrace || []).filter(action =>
       action.playerSlot === (record.candidateEngineSlot === 'A' ? 1 : 0) &&
       action.turnBefore === 1).slice(0, 25),
@@ -67,7 +74,7 @@ function run() {
   }));
   return {
     study:'shared-campaign rank11 autonomous opponent against frozen reference and provisional New Moon',
-    version:'rank11-automatic-source-comparison-v1',
+    version:'rank11-automatic-source-comparison-v2-declaration-observation',
     experimental:true,
     campaignPlanDigest:original.planDigest,
     sourceOpponentRank:RANK, sourceOpponentDigest:outcomes[0].opponentDigest,
