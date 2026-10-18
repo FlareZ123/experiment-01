@@ -31,6 +31,10 @@ on:
         description: 'Opt-in natural Shop-Crobat window audit after printed rank11 forced turn-one lock'
         type: boolean
         default: false
+      rank11_held_shake_source_screen:
+        description: 'Opt-in precommitted 80 two-slot actual-source held-Boost-Shake exposure screen'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -133,6 +137,18 @@ jobs:
         with:
           name: rank11-forced-shop-source-exposure
           path: rank11-forced-shop-source-exposure.json
+          if-no-files-found: warn
+      - name: Validate held-Shake K0 guards and frozen trial schedule
+        run: node --test tests/rank11-held-shake-opener.test.cjs tests/rank11-held-shake-schedule.test.cjs
+      - name: Screen genuine rank11 held-Shake automatic policy on precommitted source deals
+        if: inputs.rank11_held_shake_source_screen
+        run: node simulation/twinleaf/rank11-held-shake-source-screen.cjs > rank11-held-shake-source-screen.json
+      - name: Retain all held-Shake source trials including unsuccessful opportunities
+        if: always() && inputs.rank11_held_shake_source_screen
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-held-shake-source-screen
+          path: rank11-held-shake-source-screen.json
           if-no-files-found: warn
       - name: Reproduce authentic rank8 Latias escape decision alternatives
         if: inputs.rank8_source_fork
