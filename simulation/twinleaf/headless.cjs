@@ -51,6 +51,7 @@ const {withCopycatApexTimelessPolicy} = require('./mimikyu-counter-policy.cjs');
 const {copycatTurnStartSnapshot} = require('./copycat-turn-start-evidence.cjs');
 const {retreatTransitionEvidence} = require('./retreat-transition-evidence.cjs');
 const {inspectPhysicalCardZones, fixedDeckCountAnomalies} = require('./physical-card-ledger.cjs');
+const {newlyLoggedAttackDeclarations} = require('../evaluation/twinleaf-attack-log-declarations.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -253,6 +254,7 @@ function policyRandomStreams(seed) {
  * @property {0|1} [passHorizonAttackSeat] Apply same-horizon attack scoring only to this physical seat.
  * @property {number} [passHorizonAttackTurn] Restrict the correction to one frozen global turn; other turns retain the original tactic.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
+ * @property {boolean} [captureEngineAttackDeclarations] Opt-in new-Store-log attack declarations including attacks copied via Ability. Declaration is not proof of completed effect.
  * @property {boolean} [captureElectrodeOpportunity] Observe source Raichu/Bomb public necessary conditions only at live non-prompt decisions.
  * @property {boolean} [capturePhysicalZoneIntegrity] Opt-in read-only physical reference/attached Energy checks after each live root action.
  * @property {0|1} [captureCopycatTurnStartSeat] Opt-in candidate perspective resource snapshot once per own turn, taken before selecting the first action.
@@ -639,6 +641,7 @@ function runMatch(request) {
     const cardsPlayedBySeat = [{}, {}];
     const attackTrace = [];
     const abilityTrace = [];
+    const engineAttackDeclarationTrace = request.captureEngineAttackDeclarations === true ? [] : null;
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
     const electrodeOpportunityObserver = request.captureElectrodeOpportunity === true ?
       require('./electrode-opportunity-observer.cjs').createElectrodeOpportunityObserver() : null;
@@ -788,11 +791,22 @@ function runMatch(request) {
       }
       const prizeBeforeRoot = request.bunnelbyObservedK1 === true ?
         snapshotPrizeCardIdentities(store.state) : null;
+      const attackLogPrefix = engineAttackDeclarationTrace ? state.logs.length : 0;
       try {
         store.dispatch(action);
       } catch (error) {
         throw new Error('Twinleaf dispatch failed after ' + actions + ' actions (' +
           action.constructor.name + '): ' + error.message, { cause: error });
+      }
+      if (engineAttackDeclarationTrace) {
+        const declarations = newlyLoggedAttackDeclarations(store.state.logs,attackLogPrefix,{
+          actionOrdinal:actions + 1,turnBefore,triggerAction:actionName
+        });
+        engineAttackDeclarationTrace.push(...declarations.map(record => ({
+          ...record,rootActionSeat:seat,
+          provenance:'new logs after a real root Store dispatch',
+          qualification:'engine-attack-declaration-only'
+        })));
       }
       if (physicalZoneIntegrity) {
         const ownership = inspectPhysicalCardZones(store.state);
@@ -896,6 +910,7 @@ function runMatch(request) {
       attackTrace,
       abilityTrace,
       decisionTrace,
+      ...(engineAttackDeclarationTrace ? {engineAttackDeclarationTrace} : {}),
       ...(electrodeOpportunityObserver ?
         {electrodeOpportunitySummary: electrodeOpportunityObserver.snapshot()} : {}),
       ...(physicalZoneIntegrity ? {physicalZoneIntegrity} : {}),
