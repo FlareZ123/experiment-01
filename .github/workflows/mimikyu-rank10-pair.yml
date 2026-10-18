@@ -28,6 +28,11 @@ on:
         type: boolean
         required: false
         default: false
+      run_natural_shred_pilot:
+        description: 'Run four prespecified natural rank10/rank12 both-seat pairs'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -80,6 +85,19 @@ jobs:
         with:
           name: rank10-autonomous-shred-pilot
           path: rank10-autonomous-shred-pilot.json
+          if-no-files-found: warn
+      - name: Run four new-seed two-rank autonomous Shred source pairs
+        if: ${{ inputs.run_natural_shred_pilot }}
+        run: node simulation/twinleaf/mimikyu-autonomous-heldout.cjs > mimikyu-autonomous-heldout.json
+      - name: Print natural-pair exposure census
+        if: ${{ inputs.run_natural_shred_pilot }}
+        run: node -e "const x=require('./mimikyu-autonomous-heldout.json');for(const r of x.results)console.log(JSON.stringify({rank:r.rank,seed:r.seed,seat:r.candidateSeat,first:r.control.candidateActuallyFirst,control:r.control.prizesRemaining,autonomous:r.autonomous.prizesRemaining,copycat:[r.control.candidateMimikyuCopycatTurns,r.autonomous.candidateMimikyuCopycatTurns]}));"
+      - name: Archive natural source-pair observations
+        if: ${{ always() && inputs.run_natural_shred_pilot }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mimikyu-autonomous-heldout
+          path: mimikyu-autonomous-heldout.json
           if-no-files-found: warn
       - name: Reproduce archived v3 post-Shred opponent perspective
         if: ${{ inputs.run_ordinal_audit }}
