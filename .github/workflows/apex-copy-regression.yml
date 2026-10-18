@@ -63,6 +63,8 @@ jobs:
         run: node simulation/twinleaf/copy-session-rollback-loss.cjs
       - name: Verify opt-in copy-session transfer after rejected root action
         run: node simulation/twinleaf/copy-session-rollback-guard.cjs
+      - name: Falsify late-effect copied-session rollback without transactional snapshot
+        run: node simulation/twinleaf/copy-session-rollback-transaction.cjs
       - name: Verify paid Goodra copied attack before turn continuation
         run: node simulation/twinleaf/copy-session-paid-apex-clone.cjs
       - name: Verify cloned copied-attack handler after paid Apex Dragon action
