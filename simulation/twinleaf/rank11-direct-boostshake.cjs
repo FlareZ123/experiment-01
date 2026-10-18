@@ -117,8 +117,18 @@ function withRank11DirectBoostShake(sourceSeat, execute) {
       }
     }
     if (!action) {
+      const ownerSearch = pending?.constructor.name === 'ChooseCardsPrompt' &&
+        pending.playerId === player.id && pending.cards === player.deck;
+      const eligible = ownerSearch ? pending.cards.cards.filter(card =>
+        card.name === 'Garbodor') : [];
       aborted = {turn:state.turn, stepIndex, step,
-        prompt:pending?.constructor.name || null};
+        prompt:pending?.constructor.name || null,
+        ownerDeckSearch:ownerSearch,
+        garbodorInOwnerSearch:ownerSearch ? eligible.length : null,
+        garbodorWithValidSelection:ownerSearch ? eligible.filter(card =>
+          pending.validate([card],state)).length : null,
+        garbodorInOwnHand:ownerSearch ? player.hand.cards.filter(card =>
+          card.name === 'Garbodor').length : null};
       return prior.call(this, state);
     }
     actions.push({turn:state.turn, step, className:action.constructor.name});
