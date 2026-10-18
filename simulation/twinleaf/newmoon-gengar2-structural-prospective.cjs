@@ -33,10 +33,19 @@ function candidatePair() {
   assert.equal(sourceManifest.canonical_id_count_sha256,source.proxyIdCountHash);
   assert.equal(alternateManifest.canonical_id_count_sha256,
     '3c1cf2b5fa73a966c23260f3ceb85a5ebd70073cdd805f44b269969bfea2bd33');
-  const counts=new Map(alternateManifest.entries.map(entry=>
-    [entry.name_en,entry.count]));
-  const cards=source.cards.map(card=>({...card,
-    printing:{...card.printing},count:counts.get(card.name)}));
+  assert.equal(sourceManifest.entries.length,alternateManifest.entries.length);
+  assert.equal(source.cards.length,sourceManifest.entries.length);
+  // Pair by immutable printed entry position. The loader intentionally
+  // renames Basic Psychic Energy to Twinleaf's supported Psychic Energy.
+  // A text-name lookup would silently assign it an undefined count.
+  const cards=source.cards.map((card,index)=>{
+    const old=sourceManifest.entries[index];
+    const next=alternateManifest.entries[index];
+    assert.equal(old.english_proxy_card_id,next.english_proxy_card_id);
+    assert.equal(old.name_en,next.name_en);
+    assert.equal(card.count,old.count);
+    return {...card,printing:{...card.printing},count:next.count};
+  });
   assert.equal(cards.length,source.cards.length);
   assert.ok(cards.every(x=>Number.isInteger(x.count)&&x.count>0));
   assert.equal(cards.reduce((sum,x)=>sum+x.count,0),60);
