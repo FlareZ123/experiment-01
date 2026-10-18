@@ -8,6 +8,12 @@ The frozen [New Moon Lockbreaker v1](new-moon-lockbreak-60-candidate.md) has two
 
 A defensible untested alternative replaces exactly **one Canceling Cologne ASR 136 with one Gengar & Mimikyu-GX TEU 53**, retaining the other 59 physical printings. This hypothetical list would have two Gengar, one Cologne, 18 Basics, 20 Pokémon, 34 Trainers, and six Energy. Both printings are already verified parts of the frozen 60's English-equivalent manifest. The proposed exchange affects lock-response options, lead attacker exposure, Bench commitments, physical Prize risks, and three-Prize liability.
 
+### Paper Expanded legality screen, preliminary
+
+The Japanese Pokémon Card Game [official Extra regulation list](https://www.pokemon-card.com/rules/regulation/index.html) (updated **19 February 2026**, accessed 18 October) covers **BW series onward** and enumerates its banned cards including the specific SM11a Duskull and SM8 Unown variants. It does not name Gengar & Mimikyu-GX or Canceling Cologne as banned; the added second Gengar copy is also below the four-copy deck-construction ceiling. The frozen source uses the **S4 Future Sight Duskull equivalent** and AOR Unown equivalent, rather than those specific banned variants. The English-language [2026 format announcement](https://www.pokemon.com/uk/news/2026-pokemon-tcg-standard-format-rotation-announcement) separately retains BW onward for paper Expanded, distinguishing it from PTCG Live's incomplete legacy catalog.
+
+This checks the **one-slot exchange's prima facie legality against a dated published ban list**. It does not verify exact Japanese registrations for every source slot, localized text/errata, the event's full policy, or all time-sensitive exceptions. It is insufficient for a complete legal-deck certificate.
+
 ## Exact naturally visible first-attack resources
 
 Define a highly permissive, deliberately simplified *two-channel exposure event*:
