@@ -86,7 +86,7 @@ function withGarbodorFloatStoneTarget(execute) {
     {...old,value:changed});
   try {
     const result=execute();
-    return {result,selected,opportunities};
+    return {result,selected,opportunities,firstCandidatePower};
   } finally {
     Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',old);
   }
