@@ -59,6 +59,18 @@ jobs:
           name: rank10-apex-bench-dde-retarget
           path: rank10-apex-bench-dde-fork.json
           retention-days: 90
+      - name: Test exact source Guzma pivot availability guards
+        run: node --test tests/dde-root133-guzma-pivot.test.cjs
+      - name: Evaluate one source-root DDE then Guzma pivot
+        run: node simulation/twinleaf/dde-root133-guzma-pivot.cjs > rank10-root133-guzma-pivot.json
+      - name: Summarize source-root Guzma opportunity and outcome
+        run: node -e "const x=require('./rank10-root133-guzma-pivot.json'); console.log('ROOT133_GUZMA_WINDOW',JSON.stringify({window:x.window,guzmaProposed:x.guzmaProposed,promotion:x.ownPromotionPromptOverridden,control:x.control,counterfactual:x.counterfactual}));"
+      - name: Archive source-root Guzma pivot
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-root133-guzma-pivot
+          path: rank10-root133-guzma-pivot.json
+          retention-days: 90
       - name: Verify pinned Apex-aware attachment priority
         if: ${{ !inputs.targeted_only }}
         run: node simulation/twinleaf/dde-target-priority.cjs
