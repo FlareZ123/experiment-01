@@ -300,6 +300,12 @@ function executeCampaign(inputs, options = {}) {
         observedRules: game.rules || null,
         observedEngineDeckHashes: game.deckHashes || null,
         attackTrace: game.attackTrace || [],
+        // Preserve the independent Store-log channel for delegated copy attacks.
+        // Null means unobserved; an observed empty trace is an actual zero.
+        attackDeclarationTrace: Array.isArray(game.attackDeclarationTrace) ?
+          game.attackDeclarationTrace : null,
+        attackDeclarationTraceProtocol: Array.isArray(game.attackDeclarationTrace) ?
+          (game.attackDeclarationTraceProtocol || null) : null,
         decisionTrace: game.decisionTrace || null,
         actionCounts: game.actionCounts || {},
         actionsBySeat: game.actionsBySeat || [],
