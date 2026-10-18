@@ -17,6 +17,11 @@ on:
           - simple-default-v0
           - expanded-action-fidelity-probe-v1
           - rank11-autonomous-boostshake-v1
+      newmoon_pass_probe:
+        description: 'Observe cloned legal attack options after New Moon Bot Pass, no gameplay intervention'
+        required: false
+        type: boolean
+        default: false
       rank11_autonomous_probe:
         description: Execute one source-rank11 automatic lock policy diagnostic (unqualified)
         required: false
@@ -99,8 +104,11 @@ jobs:
       - name: Pair New Moon and champion with source-first rank11 policy
         if: ${{ inputs.rank11_autonomous_probe }}
         run: node simulation/evaluation/rank11-newmoon-autonomous-pair.cjs > aichi-rank11-newmoon-autonomous-pair.json
+      - name: Audit source New Moon attack passes without policy intervention
+        if: ${{ inputs.newmoon_pass_probe }}
+        run: node simulation/evaluation/newmoon-rank11-pass-observer.cjs > newmoon-rank11-pass-observer.json
       - name: Run up to six source-locked pilot trials
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe && !inputs.newmoon_pass_probe }}
         env:
           CAMPAIGN_INPUT_ORDER_PROTOCOL: ${{ inputs.input_order_protocol || 'source-row-order-v1' }}
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
@@ -114,7 +122,7 @@ jobs:
           CAMPAIGN_MAX_ACTIONS: '800'
         run: node simulation/evaluation/aichi-campaign-runner.cjs > aichi-campaign-report.json
       - name: Cross-check sourced games and fingerprint evidence envelope
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe && !inputs.newmoon_pass_probe }}
         env:
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
         run: node simulation/evaluation/aichi-campaign-envelope-runner.cjs aichi-campaign-report.json aichi-campaign-envelope.json
@@ -139,5 +147,6 @@ jobs:
             aichi-multiseed-setup-coupling.json
             rank11-autonomous-source-regression.json
             aichi-rank11-newmoon-autonomous-pair.json
+            newmoon-rank11-pass-observer.json
             rank11-autonomous-comparison.json
           retention-days: 14
