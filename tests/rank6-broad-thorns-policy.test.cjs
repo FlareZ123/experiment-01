@@ -120,7 +120,7 @@ test('second physical Tag Call can pay after first fetched G&H',()=>{
     needThunder:false,discardCount:2
   });
   // Simulate the actual hand after consuming one Tag Call and obtaining G&H.
-  const afterSearch=h.slice(1);
+  const afterSearch=h.filter((_,i)=>i!==1);
   afterSearch.push({name:'Guzma & Hala'});
   assert.deepEqual(chooseOpeningDiscards(afterSearch,undefined,true)
     .map(c=>c.name),['Tropical Beach','Tag Call']);
