@@ -129,7 +129,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify source-locked trial adapter and guards
-        run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs tests/rank11-autonomous-opener.test.cjs tests/rank11-autonomous-campaign-seat.test.cjs tests/rank11-first-turn-screen.test.cjs tests/rank11-conditional-k0-screen-run.test.cjs tests/rank11-conditional-k0-complete.test.cjs tests/rank11-k0-selected-continuations-run.test.cjs tests/rank26-autonomous-cologne.test.cjs tests/rank26-exeggcute-pump-policy.test.cjs
+        run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs tests/rank11-autonomous-opener.test.cjs tests/rank11-autonomous-campaign-seat.test.cjs tests/rank11-first-turn-screen.test.cjs tests/rank11-conditional-k0-screen-run.test.cjs tests/rank11-conditional-k0-complete.test.cjs tests/rank11-k0-selected-continuations-run.test.cjs tests/aichi-campaign-attack-observer-screen.test.cjs tests/rank26-autonomous-cologne.test.cjs tests/rank26-exeggcute-pump-policy.test.cjs
       - name: Verify precommitted rank11 exposure reporter and fail-closed source identity
         if: ${{ inputs.rank11_exposure_probe }}
         run: node --test tests/rank11-prospective-exposure.test.cjs tests/rank11-prospective-exposure-run.test.cjs
