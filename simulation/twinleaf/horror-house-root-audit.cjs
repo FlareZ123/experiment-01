@@ -26,4 +26,21 @@ function rootHorrorHouseEvents(before,after,declared) {
   }));
 }
 
-module.exports={beforeAction,rootHorrorHouseEvents};
+/**
+ * Evaluate Item cards physically present in the defender's hand at the
+ * actual attack root. This is a retrospective inventory ceiling, not a
+ * proof any Item was otherwise playable or that a lock changed a decision.
+ * @param {object} event Root observed Horror House attack.
+ * @param {{SuperType:object,TrainerType:object}} types Engine type enums.
+ * @returns {string[]}
+ */
+function defendingHeldItems(event,types) {
+  if(![0,1].includes(event.playerSlot)) {
+    throw new Error('Need authenticated attacker seat for defender inventory');
+  }
+  return event.before[1-event.playerSlot].ownHandKinds.filter(card=>
+    card.superType===types.SuperType.TRAINER &&
+    card.trainerType===types.TrainerType.ITEM).map(card=>card.name);
+}
+
+module.exports={beforeAction,rootHorrorHouseEvents,defendingHeldItems};
