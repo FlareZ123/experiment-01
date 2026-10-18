@@ -77,10 +77,15 @@ function planElectroRainDamage(state, player, prompt, codes) {
     const bonus = hasSight && !jammingTower && !activeToolJammer &&
       target.slot === codes.benchSlot &&
       sightTargetTags.some(tag => (pokemon.tags || []).includes(tag)) ? 30 : 0;
+    // Regidrago can copy Hisuian Goodra VSTAR's Rolling Iron. Its 80-point
+    // reduction remains on the Active Pokémon during the opponent's reply.
+    // Treat positive target-side reduction as live unless verified otherwise;
+    // this may miss a KO if a source-specific filter actually excludes Raichu.
+    const reduction = Math.max(0, slot.damageReductionNextTurn || 0);
     entries.push({
       target,
       cap,
-      packetsForKO: Math.max(1, Math.ceil((remaining - bonus) / 30)),
+      packetsForKO: Math.max(1, Math.ceil((remaining + reduction - bonus) / 30)),
       prizes: nominalKnockoutPrizes(pokemon, slot)
     });
   });
