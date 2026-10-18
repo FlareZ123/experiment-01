@@ -73,6 +73,21 @@ function auditCandidateFirstPrintedAttacks(report) {
       assert.ok(garbodor && Array.isArray(garbodor.toolCards) &&
         garbodor.toolCards.includes('Muscle Band'),
         'BKP Garbotoxin requires the live attached Tool witness');
+      assert.ok(boards.every(board => Array.isArray(board.stadium) &&
+        board.stadium.length===0),
+        'Five-slot Bench audit requires no Stadium in play');
+      const bench=boards[1].bench;
+      assert.ok(Array.isArray(bench),'Public candidate Bench required');
+      const expectedBenchCount=pass.turnBefore===3 ?
+        (arm.sourceSeedIdentity==='second-a' ? 4 : 3) : 5;
+      const expectedUnownCount=arm.sourceSeedIdentity==='second-a' ? 1 : 3;
+      assert.equal(bench.length,expectedBenchCount,
+        'Source candidate Bench size changed');
+      const unownCount=bench.filter(p=>p.name==='Unown').length;
+      assert.equal(unownCount,expectedUnownCount,
+        'Source Ability-locked Unown presence changed');
+      assert.ok(!bench.some(p=>p.name==='Solrock'),
+        'Source Solrock Bench state changed');
       const active=boards[1].active;
       const requirement=PRINTED_ATTACKS[active?.name];
       assert.ok(requirement,'Unexpected Active printing identity');
@@ -97,6 +112,10 @@ function auditCandidateFirstPrintedAttacks(report) {
         printedAttack:requirement.name,
         printedAttackEnergyCost:requirement.cost,
         opposingGarbodorEquippedTool:'Muscle Band',
+        candidateBenchCount:bench.length,
+        emptyBenchSlotsUnderFiveLimit:5-bench.length,
+        lockedUnownOnBench:unownCount,
+        solrockOnBench:false,
         ownHandPrintings:[...ownHand],
         fieldBlowerHeld:ownHand.some(name=>name.startsWith('Field Blower')),
         insufficientPrintedAttackEnergy:true,
@@ -108,11 +127,13 @@ function auditCandidateFirstPrintedAttacks(report) {
   assert.equal(seen.size,6);
   assert.equal(observations.length,12);
   return {
-    schema:'rank11-candidate-first-early-pass-printed-energy-v1',
+    schema:'rank11-candidate-first-early-pass-constraints-v2',
     sourceArtifact:'CI 39118444773 / artifact 12132319883',
     retrospectiveSourceDeals:2,
     repeatedPolicyArms:6,
     earlyPassSnapshots:observations.length,
+    fullFiveSlotBenchesAtTurnFive:observations.filter(row=>
+      row.globalTurn===5 && row.emptyBenchSlotsUnderFiveLimit===0).length,
     allInsufficientForPrintedAttack:true,
     allHeldFieldBlower:observations.every(row=>row.fieldBlowerHeld),
     observations,
