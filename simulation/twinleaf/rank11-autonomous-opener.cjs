@@ -69,8 +69,16 @@ function withRank11AutonomousOpener(sourceSeat, execute) {
     return action;
   }
   /** @param {object} state @param {string} reason */
-  function abort(state, reason) {
-    aborted = { turn: state.turn, stage, reason };
+  function abort(state, reason, player, pending) {
+    aborted = { turn: state.turn, stage, reason,
+      pendingType: pending?.constructor?.name || null,
+      pendingPlayerId: pending?.playerId ?? null,
+      ownsPendingDeck: pending?.cards === player?.deck,
+      pendingNames: pending?.playerId === player?.id ?
+        [...new Set((pending?.cards?.cards || []).map(c => c.name))]
+          .filter(name => ['Trubbish', 'Forest Seal Stone',
+            'Boost Shake', 'Garbodor'].includes(name)) : []
+    };
     stage = -1;
   }
   /** @param {object} player @param {string} name @param {object} target */
@@ -86,10 +94,10 @@ function withRank11AutonomousOpener(sourceSeat, execute) {
    * @param {object} prompt
    * @param {string} fullName
    */
-  function chooseDeckCard(state, player, prompt, fullName) {
+  function chooseDeckCard(state, player, prompt, name) {
     if (prompt.constructor.name !== 'ChooseCardsPrompt' ||
         prompt.playerId !== player.id || prompt.cards !== player.deck) return null;
-    const card = prompt.cards.cards.find(item => item.fullName === fullName);
+    const card = prompt.cards.cards.find(item => item.name === name);
     if (!card || !prompt.validate([card], state)) return null;
     return new ResolvePromptAction(prompt.id, [card]);
   }
@@ -131,16 +139,16 @@ function withRank11AutonomousOpener(sourceSeat, execute) {
     if (pending) {
       switch (stage) {
         case 1:
-          action = chooseDeckCard(state, player, pending, 'Trubbish FST');
+          action = chooseDeckCard(state, player, pending, 'Trubbish');
           break;
         case 3:
-          action = chooseDeckCard(state, player, pending, 'Forest Seal Stone SIT');
+          action = chooseDeckCard(state, player, pending, 'Forest Seal Stone');
           break;
         case 6:
-          action = chooseDeckCard(state, player, pending, 'Boost Shake EVS');
+          action = chooseDeckCard(state, player, pending, 'Boost Shake');
           break;
         case 9:
-          action = chooseDeckCard(state, player, pending, 'Garbodor BKP');
+          action = chooseDeckCard(state, player, pending, 'Garbodor');
           break;
         case 10: {
           const index = trubbishIndex(player);
@@ -195,7 +203,7 @@ function withRank11AutonomousOpener(sourceSeat, execute) {
     }
     if (!action) {
       abort(state, pending ? 'expected-owner-prompt-or-source-card-unavailable' :
-        'expected-public-board-or-own-hand-line-unavailable');
+        'expected-public-board-or-own-hand-line-unavailable',player,pending);
       return original.call(this, state);
     }
     return select(state, 'autonomously-chosen-source-lock-step', action);
