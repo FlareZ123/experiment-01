@@ -11,6 +11,10 @@ on:
         description: 'Opt-in exact source rank11 read-only Shopping Center opportunity audit'
         type: boolean
         default: false
+      rank11_k1_source_audit:
+        description: 'Opt-in actual first-turn rank11 own-deck K1 search choices'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -51,6 +55,16 @@ jobs:
         with:
           name: rank11-shop-source-observer
           path: rank11-shop-source-observer.json
+          if-no-files-found: warn
+      - name: Audit rank11 source first-turn own-deck K1 search choices
+        if: inputs.rank11_k1_source_audit
+        run: node simulation/twinleaf/absol-rank11-k1-source-audit.cjs > rank11-k1-source-audit.json
+      - name: Archive K1 action evidence and negative controls
+        if: always() && inputs.rank11_k1_source_audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-firstturn-k1-source-audit
+          path: rank11-k1-source-audit.json
           if-no-files-found: warn
       - name: Reproduce authentic rank8 Latias escape decision alternatives
         if: inputs.rank8_source_fork
