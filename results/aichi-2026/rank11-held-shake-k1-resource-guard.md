@@ -43,3 +43,9 @@ The positive trial 131 had the same 69-action / ten-global-turn engine result in
 The research correction establishes that a fixed-60 policy can avoid two observed deterministic wasted-resource lines by respecting K0 card-count knowledge and K1 deck-search information. It has not established that conserving a Tool and Shake changes the match result, that the original bot's alternative move is strategically strongest, that all other Garbodor and Item paths are handled correctly, or that 25-minute paper tournament games are modeled.
 
 An independent **prospective** v2 source cohort with both actual starting orders, complete candidate responses and negative opportunity denominators is needed before any frequency generalization. The full field remains **29/32 exact opponent 60s** (ranks 23, 25 and 28 unavailable). **Zero independently qualified competitive games**, no target-qualified final deck, and no demonstrated 99.5% win rate.
+
+## Pre-existing shared-policy overlap discovered after this regression
+
+A separate, older implementation already provided the same **owner-search K1 prevention** in [`rank11-direct-boostshake.cjs`](../../simulation/twinleaf/rank11-direct-boostshake.cjs), through its opt-in `k1AvoidMissingGarbodor: true` setting and the [shared VSTAR/direct K1 hybrid](../../simulation/twinleaf/policy-profiles.cjs). This report's K1 guard is therefore an independent regression of an **existing research technique**, rather than evidence of a newly discovered search mechanism. The genuinely distinct addition here is the K0 check for **both Garbodor already in the visible own hand**, plus a preserved old-v1 160-schedule control.
+
+A separate shared-hybrid K0 extension and paired source-regression are being validated independently. Do not merge engine-win figures from these related arms or attribute the established K1 mechanism to this report. The cross-agent correction was sent to the original hybrid maintainer.
