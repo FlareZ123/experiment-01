@@ -24,6 +24,11 @@ function brief(r){
   const declared=Array.isArray(r.attackDeclarationTrace)?
     r.attackDeclarationTrace.filter(x=>x.playerSlot===seat):null;
   const played=r.cardsPlayedBySeat?.[seat]??null;
+  const sourceFirst=r.firstTurn?.verifiedByDrawLog===true?
+    r.firstTurn.firstTurnSlot===seat:null;
+  const firstTurnBasicLightningPlays=sourceFirst===true&&chosen?
+    chosen.filter(x=>x.turnBefore===1&&x.action==='PlayCardAction'&&
+      x.card==='Lightning Energy').length:null;
   return {
     trialId:r.trialId,seed:r.seed,
     status:r.status,sourceSeat:seat,
@@ -31,6 +36,9 @@ function brief(r){
       r.firstTurn.firstTurnSlot===seat:null,
     profile:r.observedResearchPolicyProfile,
     actualDecisions:chosen?.length??null,
+    firstTurnBasicLightningPlays,
+    crisisPunchEnergyBudgetDeadEnd:firstTurnBasicLightningPlays===null?
+      null:firstTurnBasicLightningPlays>0,
     proposedRecoverySelections:selected?.length??null,
     proposedPumpSelections:pumped?.length??null,
     rootPropagationActions:actual('UseAbilityAction','ability','Propagation'),
