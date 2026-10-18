@@ -78,3 +78,36 @@ function runRank2RootScores() {
     throw new Error('Both source rank 1 and rank 2 lists required');
   }
   const source=mode1=>sourceGame(mode1,rank1.cardIds,rank2.cardIds);
+  const arms=[false,true].map(mode1=>{
+    const baseline=source(mode1);
+    const discovered=discoverRootSupporterOrdinal(()=>source(mode1));
+    if(discovered.matches.length!==1){
+      throw new Error('Expected exactly one authentic turn5 source hand');
+    }
+    const target=discovered.matches[0];
+    const observer=installPinnedTacticEvaluationObserver(target.botOrdinal);
+    let measured;
+    try {
+      measured=source(mode1);
+    } finally {
+      observer.restore();
+    }
+    const fork=game=>game.decisionTrace.find(e=>
+      e.turnBefore===5&&e.playerSlot===1&&
+      e.action==='PlayCardAction'&&
+      (e.card==='Guzma & Hala'||e.card==='Bellelba & Brycen-Man'));
+    const decisions=[baseline,discovered.result,measured].map(fork);
+    const sameFork=decisions.every(e=>e&&e.actionOrdinal===68 &&
+      e.card===decisions[0].card);
+    return {
+      mode1,sourceHashes:measured.deckHashes,firstTurnSlot:measured.firstTurnSlot,
+      sameFork,decisions:decisions.map(e=>({
+        ordinal:e?.actionOrdinal??null,card:e?.card??null
+      })),target,scoreTrace:observer.report.selectedDecision,
+      observedBotCallCount:observer.report.decisionsObserved,
+      strictPromptValidation:measured.promptValidationMode,
+      sourceDecisionTraceUnchanged:
+        JSON.stringify(baseline.decisionTrace)===
+        JSON.stringify(measured.decisionTrace)
+    };
+  });
