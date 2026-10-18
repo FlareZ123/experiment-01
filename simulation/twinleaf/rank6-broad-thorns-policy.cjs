@@ -252,4 +252,4 @@ function withBroadThornsSourceAttack(work,options={}) {
   }
 }
 
-module.exports={chooseOpeningDiscards,planOpeningHand,withBroadThornsSourceAttack};
+module.exports={discardOrder,chooseOpeningDiscards,planOpeningHand,withBroadThornsSourceAttack};
