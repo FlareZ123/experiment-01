@@ -19,7 +19,9 @@ test('copied attacks are counted from real Store declarations, not root AttackAc
   const game={
     firstTurnSlot:0,verifiedByDrawLog:true,
     decisionTrace:[
-      {playerSlot:1,turnBefore:2,rootAction:'PassTurnAction'},
+      {playerSlot:1,turnBefore:2,action:'PassTurnAction',rootAction:'PassTurnAction',
+        decisionHandBefore:{ownHandPrintings:['Psychic Energy']},
+        publicBoardBeforePass:[{active:{name:'Oranguru V'}},{active:{name:'Mewtwo & Mew-GX'}}]},
       {playerSlot:1,turnBefore:6,rootAction:'AttackAction'},
       {playerSlot:0,turnBefore:2,rootAction:'PlayCardAction'}],
     attackTrace:[],
@@ -47,6 +49,9 @@ test('copied attacks are counted from real Store declarations, not root AttackAc
   assert.equal(row.candidateDelegatedDeclarationCount,1);
   assert.deepEqual(row.candidateRootAttacks,[]);
   assert.equal(row.candidateEarlyDecisions.length,1);
+  assert.equal(row.candidateOpeningDecisions.length,2);
+  assert.equal(row.candidatePassDecisions[0].ownHandPrintings[0],'Psychic Energy');
+  assert.equal(row.candidatePassDecisions[0].ownPublicBoard.active.name,'Mewtwo & Mew-GX');
   assert.equal(row.candidatePostWitnessDeclarationCount,1);
   assert.deepEqual(row.candidateBlowerAudit,null);
   assert.equal(row.engineWinnerDiagnosticOnly,null);
