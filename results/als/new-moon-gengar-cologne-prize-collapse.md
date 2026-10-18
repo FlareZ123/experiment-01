@@ -34,8 +34,11 @@ All numbers are percentages **conditional on an initial legal seven**, not per-g
 | **Every Cologne copy Prized** | **0.855470%** | **10.042510%** |
 | Every Gengar **and both Mewtwo** Prized | 0.055994% | 0.002922% |
 | Every Gengar **and every Cologne** Prized | 0.058344% | 0.057492% |
+| **At least one of each Gengar and Cologne unprized** | **89.323106%** | **89.185629%** |
 
 The swap reduces total Gengar-all-Prized risk by **9.050415 percentage points**, while raising total Cologne-all-Prized risk by **9.187040 percentage points**. The combined native plus copied Pokémon-payload all-Prized event is about **19 times** less frequent in the two-Gengar structure, though this rare event alone gives no estimate of overall deck performance. The full Gengar-and-Cologne joint all-Prized risk changes very little because the proposed swap still involves three designated physical copies, with one Basic moved between the groups.
+
+Although the individual all-Prized events shift by roughly nine percentage points in opposite directions, the **joint condition that at least one Gengar and one Cologne are unprized** changes only **−0.137477 percentage points**. This follows by inclusion-exclusion: `1 − P(all Gengar Prized) − P(all Cologne Prized) + P(both groups all Prized)`. It is an important limitation of analyzing resource channels individually. The native route and the Item-dependent route are not interchangeable in live matchups, and the joint event requires no hand access or playable card.
 
 These are **physical copy survival** statements. If an unprized Gengar is in hand, the alternative may still need a legal way to Bench/discard it for Mewtwo & Mew-GX's Perfection; an unprized Cologne may be inaccessible through a locked Item window or consumed for another purpose. Being Prized may be recoverable after drawing Prizes or through suitable recovery cards. The one-slot swap reallocates the risk from the native route toward an Item-dependent response precisely when Ability and Item lock make tactical access important.
 
