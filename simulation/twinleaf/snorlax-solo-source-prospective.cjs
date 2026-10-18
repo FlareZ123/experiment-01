@@ -43,6 +43,7 @@ function summarizeGame(game,sourceSeat){
     actualFirstSlot:game.firstTurnSlot,
     verifiedByDrawLog:game.verifiedByDrawLog,
     opponentOpeningEvents:events,
+    initialBoardAtFirstTurn:game.initialBoardAtFirstTurn??null,
     opponentSoloOpportunities:events?.filter(e=>e.sawSnorlax).length??null,
     opponentSoloSelections:events?.filter(e=>e.appliedSoloSnorlax).length??null,
     attackDeclarations:(game.attackDeclarationTrace??[]).map(e=>({
@@ -82,7 +83,8 @@ function run(){
       const request={
         deckA,deckB,seed:trial.seed,maxActions:MAX_ACTIONS,
         isolatePolicyRandomness:true,strictPromptValidation:true,
-        captureDecisionTrace:true,snorlaxRetreatStartCorrection:true,
+        captureDecisionTrace:true,captureStartingBoard:true,
+        snorlaxRetreatStartCorrection:true,
         ...(policy==='solo-Snorlax'?
           {snorlaxSoloOpeningSeat:trial.sourceSeat}:{}),
         label:'rank'+trial.rank+'-Snorlax-source-'+policy
