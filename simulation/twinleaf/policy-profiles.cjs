@@ -18,6 +18,7 @@ const EXPANDED_GH_SEARCH_PROFILE = 'expanded-gh-root-search-v3';
 const RANK11_AUTONOMOUS_PROFILE = 'rank11-autonomous-boostshake-v1';
 const RANK11_OWN_FIRST_PROFILE = 'rank11-autonomous-first-own-turn-v2';
 const RANK11_SUPPORTER_PROFILE = 'rank11-autonomous-boostshake-supporter-v2';
+const RANK11_K1_HYBRID_PROFILE = 'rank11-k1-direct-vstar-supporter-v3';
 const RANK26_COLOGNE_PROFILE = 'rank26-autonomous-cologne-v1';
 const RANK26_COLOGNE_PUMP_PROFILE = 'rank26-autonomous-cologne-pump-v2';
 const ALLOWED_PROFILES = Object.freeze([
@@ -25,7 +26,8 @@ const ALLOWED_PROFILES = Object.freeze([
   SUPPORTER_PROFILE, REGIDRAGO_SUPPORTER_PROFILE,
   EXPANDED_PROFILE, EXPANDED_SOURCE_PROFILE, EXPANDED_GH_SEARCH_PROFILE,
   RANK11_AUTONOMOUS_PROFILE, RANK11_OWN_FIRST_PROFILE,
-  RANK11_SUPPORTER_PROFILE, RANK26_COLOGNE_PROFILE, RANK26_COLOGNE_PUMP_PROFILE
+  RANK11_SUPPORTER_PROFILE, RANK11_K1_HYBRID_PROFILE,
+  RANK26_COLOGNE_PROFILE, RANK26_COLOGNE_PUMP_PROFILE
 ]);
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 
@@ -105,6 +107,32 @@ function runWithResearchProfile(request, profile) {
     doubleDragonRecovery: false,
     supporterDecisionCorrection: false
   };
+  if (profile === RANK11_K1_HYBRID_PROFILE) {
+    const {rank11SourceSeat, ...matchRequest} = shared;
+    if (![0, 1].includes(rank11SourceSeat)) {
+      throw new Error('Combined rank11 K1 opponent profile needs the source physical seat.');
+    }
+    const {withRank11DirectBoostShake} = require('./rank11-direct-boostshake.cjs');
+    const {withRank11AutonomousOpener} = require('./rank11-autonomous-opener.cjs');
+    const direct = withRank11DirectBoostShake(rank11SourceSeat,
+      () => withRank11AutonomousOpener(rank11SourceSeat,
+        () => runMatch({...matchRequest, supporterDecisionCorrection: true}),
+        {allowSecondGlobalTurn: true,
+          version: 'rank11-original-vstar-first-own-v2'}),
+      {k1AvoidMissingGarbodor: true});
+    return {
+      ...direct.result.result,
+      researchPolicyProfile: profile,
+      experimentalTactics: [
+        'Rank11DirectBoostShakeK1-v2',
+        'Rank11FirstOwnTurnVSTAR-v2',
+        'SupporterDecisionGuard-v1'
+      ],
+      rank11DirectPolicy: direct.policyAudit,
+      rank11AutonomousPolicy: direct.result.policyAudit,
+      competitiveGameQualified: false
+    };
+  }
   if ([RANK11_AUTONOMOUS_PROFILE, RANK11_OWN_FIRST_PROFILE,
       RANK11_SUPPORTER_PROFILE].includes(profile)) {
     const {rank11SourceSeat, ...matchRequest} = shared;
@@ -249,7 +277,8 @@ function runWithResearchProfile(request, profile) {
   };
 }
 
-module.exports = {DEFAULT_PROFILE, REGIDRAGO_PROFILE, SUPPORTER_PROFILE,
+module.exports = {RANK11_K1_HYBRID_PROFILE,
+  DEFAULT_PROFILE, REGIDRAGO_PROFILE, SUPPORTER_PROFILE,
   REGIDRAGO_SUPPORTER_PROFILE, EXPANDED_PROFILE, EXPANDED_SOURCE_PROFILE,
   EXPANDED_GH_SEARCH_PROFILE, RANK11_AUTONOMOUS_PROFILE,
   RANK11_OWN_FIRST_PROFILE, RANK11_SUPPORTER_PROFILE,
