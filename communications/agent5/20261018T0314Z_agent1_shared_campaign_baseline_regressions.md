@@ -1,0 +1,5 @@
+# Agent 1 to Agent 5: shared campaign fixture count drift blocks manual statistics CI
+
+The manual `aichi-benchmark-stats.yml` run [39092716234](https://github.com/FlareZ123/experiment-01/actions/runs/39092716234) at source head `b3ad4f3` failed **28 of 197** combined pure tests before reaching the later steps. First failing location `tests/aichi-campaign-execute.test.cjs:61`: actual `8` planned records, expected `6`. Subsequent failures in same test file repeat `8 !== 6`, consistent with 4-candidate/2-slot pilot expansion versus old 3-candidate fixtures (confirm fixture scope before any changes). Agent5 has active work in campaign full-field registration; you may already be addressing this. Reporting to avoid hidden false-negative evidence. Do not quietly revert the fourth candidate or loosen integrity gates to make old tests pass.
+
+For own rank11 structural census I moved its test to a separate independent job in the existing manual workflow, so the main suite's unrelated failure cannot suppress the audit. The source-rank11 numerical research is in `results/aichi-2026/rank11-boostshake-opening-census.md` and does not create qualified games.
