@@ -148,10 +148,13 @@ function run() {
   };
   const controlWrapped = withRank11HeldShake(0,() => runMatch(request));
   const control=controlWrapped.result;
-  const interventionWrapped=withRank11HeldShake(0,
-    () => withActualFieldBlower(1, () => runMatch(request)));
+  // Put the response wrapper outside the source observer so every actual
+  // candidate decision passes through the source observer before Item play.
+  // Inverse nesting masks the immediate pre-Blower Tool witness.
+  const interventionWrapped=withActualFieldBlower(1,
+    () => withRank11HeldShake(0, () => runMatch(request)));
   const intervened=interventionWrapped.result.result;
-  const audit=interventionWrapped.result.audit;
+  const audit=interventionWrapped.audit;
 
   assert.equal(control.firstTurnSlot,0);
   assert.equal(intervened.firstTurnSlot,0);
@@ -159,7 +162,7 @@ function run() {
   assert.equal(intervened.verifiedByDrawLog,true);
   assert.deepEqual(intervened.deckHashes,control.deckHashes);
   assert.equal(controlWrapped.policyAudit.completeAtDecisionBoundary,true);
-  assert.equal(interventionWrapped.policyAudit.completeAtDecisionBoundary,true);
+  assert.equal(interventionWrapped.result.policyAudit.completeAtDecisionBoundary,true);
   assert.deepEqual(intervened.decisionTrace.filter(r=>r.turnBefore<=1),
     control.decisionTrace.filter(r=>r.turnBefore<=1),
     'The genuine source opening and all its prompt decisions must stay unchanged');
@@ -183,7 +186,7 @@ function run() {
     engineRevision:plan.engineRevision,
     controlDeckHashes:control.deckHashes,
     firstTurnIdentical:true,
-    sourceFirstTurnLockWitness:interventionWrapped.policyAudit.witness,
+    sourceFirstTurnLockWitness:interventionWrapped.result.policyAudit.witness,
     controlFirstCandidate: first,
     responseFirstCandidate:turnActions(intervened,1,2),
     sourceNextTurnControl:turnActions(control,0,3),
