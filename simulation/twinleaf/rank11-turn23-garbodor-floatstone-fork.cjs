@@ -197,6 +197,9 @@ function run() {
         .find(slot=>slot.name==='Garbodor')??null
     },
     control:{
+      endReason:control.endReason,
+      finalState:control.finalState,
+      terminalTransition:control.terminalTransition,
       actions:control.actions,turns:control.turns,finished:control.finished,
       winner:control.winner,prizes:control.prizesRemaining,
       PerfectionDeclarations:control.abilityTrace.filter(row=>
