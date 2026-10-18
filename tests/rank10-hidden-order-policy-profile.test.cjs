@@ -63,10 +63,12 @@ test('root-boundary digest is captured once from the actual Store state',()=>{
     shadow.dispatch(new OtherAction());
     assert.equal(ordinal(),2);
     return boundary();
-  },0,1,state=>{seen++;return 'source-turn-'+state.turn;});
+  },0,1,state=>{seen++;return 'source-turn-'+state.turn;},
+    state=>'history-turn-'+state.turn);
   assert.equal(seen,1);
   assert.deepEqual(out,{
     rootStep:1,turn:2,activePlayer:0,dispatchedAction:'OtherAction',
-    zoneDigestBefore:'source-turn-2',unresolvedPromptTypes:[]
+    zoneDigestBefore:'source-turn-2',
+    continuityDigestBefore:'history-turn-2',unresolvedPromptTypes:[]
   });
 });
