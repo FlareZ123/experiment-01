@@ -46,6 +46,17 @@ test('reference alignment achieves theoretical positional overlap without changi
   }
 });
 
+test('three shared-seed variants can be jointly aligned at all pairwise maxima', () => {
+  const alignedHood = alignToReference(champion, hood);
+  const alignedTemple = alignToReference(champion, temple, alignedHood);
+  assert.equal(auditAlignment(champion, alignedHood).matchingPositions, 55);
+  assert.equal(auditAlignment(champion, alignedTemple).matchingPositions, 55);
+  assert.equal(auditAlignment(alignedHood, alignedTemple).matchingPositions, 56);
+  assert.deepEqual(alignedTemple.slice().sort(), temple.slice().sort());
+  near(auditAlignment(alignedHood, alignedTemple).observedSeven,
+    0.6005003742553344);
+});
+
 test('probability is hypergeometric and handles all-overlap and no-overlap', () => {
   near(samplingProbability(55, 13), 0.2808634312256386);
   near(samplingProbability(56, 7), 0.6005003742553344);
