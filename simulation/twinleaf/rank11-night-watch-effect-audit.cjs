@@ -63,6 +63,12 @@ function run() {
       ordinal:index+1,turn:record.turnBefore,
       initiatingRootAction:record.actionName,
       resolutionDispatches:record.stages.map(stage=>stage.actionName),
+      detailStages:record.stages.map(stage=>({
+        ordinal:stage.ordinal,action:stage.actionName,prompt:stage.promptAudit,
+        beforeHand:stage.beforeHand,beforeDeck:stage.beforeDeck,
+        afterHand:stage.after.players[0].hand,
+        afterDeck:stage.after.players[0].deck
+      })),
       before:{hand:from.hand,deck:from.deck,prizes:from.prizes,
         active:from.active},
       after:{hand:to.hand,deck:to.deck,prizes:to.prizes,
