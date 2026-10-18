@@ -16,7 +16,7 @@ The published 29 decks contain **five duplicate-name-within-deck groups**:
 | 22 | Trubbish | 2 | FST 168 ×1; NVI 48 ×1 |
 | 31 | Dusknoir | 4 | PRE 37 ×3; BCR 63 ×1 |
 
-Thus a naïve number-of-records count would wrongly report **five** decks containing Garbodor instead of **four**, and three Vileplume decks instead of two. The printing distinction is useful evidence: merging the card texts of LTR Garbodor and BKP Garbodor would also corrupt lock analysis. Do not merge printings when evaluating their Abilities or attacks.
+Thus a naïve number-of-records count would wrongly report **five** decks containing Garbodor instead of **four**, and three Vileplume decks instead of two. The printing distinction is useful evidence. [Direct card-text inspection](field-printing-mechanics-audit.md) confirms **both LTR and BKP Garbodor have the same Garbotoxin Ability**, although their attacks differ. The AOR and BUS Vileplume printings provide substantially different locks. Preserve printings when evaluating their Abilities or attacks.
 
 ## Field incidence under correct unique-deck counting
 
