@@ -10,7 +10,7 @@ const {ResolvePromptAction}=
   require(path.join(root,'game/store/actions/resolve-prompt-action'));
 const {UseAbilityAction}=
   require(path.join(root,'game/store/actions/game-actions'));
-const {GamePhase}=require(path.join(root,'game/store/state/state');
+const {GamePhase}=require(path.join(root,'game/store/state/state'));
 
 /**
  * Following a real Field Blower reply, use a source-hand Battle Compressor and
