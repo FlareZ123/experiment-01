@@ -17,6 +17,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - name: Load pinned simulator
+        run: git submodule update --init --depth=1 vendor/twinleaf
       - uses: actions/setup-node@v4
         with:
           node-version: '20.19.0'
@@ -24,8 +26,6 @@ jobs:
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Pure rank11 direct-opportunity regressions
         run: node --test tests/rank11-direct-opportunity.test.cjs
-      - name: Load pinned simulator
-        run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned simulator dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
