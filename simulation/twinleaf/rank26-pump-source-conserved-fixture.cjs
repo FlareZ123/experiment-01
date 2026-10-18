@@ -34,8 +34,11 @@ function fixture(sourceSeat) {
     return remaining.splice(i,1)[0];
   };
   const active=take('Meloetta ex SV11B');
+  const dedenne=source60.filter(name=>name.startsWith('Dedenne-GX '));
+  assert.equal(dedenne.length,1,
+    'Resolved rank26 source must have exactly one printed Dedenne-GX');
   const benchNames=['Unown AOR','Squawkabilly ex PAL',
-    'Dedenne-GX UNB','Exeggcute PLF','Exeggcute PLF'].map(take);
+    dedenne[0],'Exeggcute PLF','Exeggcute PLF'].map(take);
   const stadium=take('Risky Ruins MEG');
   const hand=[take('Damage Pump LOR'),...remaining.splice(0,6)];
   const prizes=remaining.splice(0,6);
