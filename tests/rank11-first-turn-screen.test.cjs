@@ -69,12 +69,7 @@ test('no first-turn root decision is an explicit screening failure',()=>{
 
 test('contradictory live source draw evidence fails closed and restores bot',()=>{
   const g=makeGame(0);
-  const previousRun=g.options.runMatch;
   g.options.runMatch=()=>{
-    const cloned=makeGame(0).options;
-    const oldCall=cloned.runMatch;
-    // The mock's own attempt has correct data; build a contradictory
-    // state at the direct root interception in this explicit variant.
     const fake={turn:1,activePlayer:0,phase:3,prompts:[],
       logs:[{message:'LOG_PLAYER_DRAWS_CARD',
         params:{name:'research-B'}}],
