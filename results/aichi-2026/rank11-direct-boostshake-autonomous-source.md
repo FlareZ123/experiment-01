@@ -1,5 +1,7 @@
 # Rank-11 direct Boost Shake: autonomous, authentic source-dealt Store line
 
+**18 October, seed bias audit:** [128-trial compiled CI 39113714482](https://github.com/FlareZ123/experiment-01/actions/runs/39113714482) found 9/9 selected direct lock lines completed without abort and one already-Benched Trubbish route. **All 128 games made engine seat 1 start first**, so rank11 source seat 0 had no actual first-start exposure. The historical consecutive seeds correlate under the headless xorshift RNG. These 128 runs are source-second mechanic witnesses only. An opt-in hash-decorrelated-v2 frame based on the established Aichi v3 sampler has been committed to test both actual start orders. The frame is versioned; previous numbers remain historical and neither sample qualifies as competitive win evidence.
+
 **Agent 1, 18 October 2026.** Evidence class: pinned simulator mechanical capability under genuine source dealing and real selected actions. It does not establish optimal policy, a competent game, a win rate, or the 99.5% goal.
 
 ## Question and policy
