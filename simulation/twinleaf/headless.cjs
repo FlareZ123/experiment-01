@@ -257,6 +257,7 @@ function policyRandomStreams(seed) {
  * @property {0|1} [passHorizonAttackSeat] Apply same-horizon attack scoring only to this physical seat.
  * @property {number} [passHorizonAttackTurn] Restrict the correction to one frozen global turn; other turns retain the original tactic.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
+ * @property {boolean} [captureRootConfirmationTrace] Observe only actual Store-dispatched confirmation choices and public damage.
  * @property {boolean} [captureElectrodeOpportunity] Observe source Raichu/Bomb public necessary conditions only at live non-prompt decisions.
  * @property {boolean} [capturePhysicalZoneIntegrity] Opt-in read-only physical reference/attached Energy checks after each live root action.
  * @property {0|1} [captureCopycatTurnStartSeat] Opt-in candidate perspective resource snapshot once per own turn, taken before selecting the first action.
@@ -659,6 +660,7 @@ function runMatch(request) {
     const attackDeclarationTrace = [];
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
+    const rootConfirmationTrace = request.captureRootConfirmationTrace === true ? [] : null;
     const electrodeOpportunityObserver = request.captureElectrodeOpportunity === true ?
       require('./electrode-opportunity-observer.cjs').createElectrodeOpportunityObserver() : null;
     const physicalZoneIntegrity = request.capturePhysicalZoneIntegrity === true
@@ -808,11 +810,31 @@ function runMatch(request) {
       const attackLogStartIndex = state.logs.length;
       const prizeBeforeRoot = request.bunnelbyObservedK1 === true ?
         snapshotPrizeCardIdentities(store.state) : null;
+      const rootConfirm = rootConfirmationTrace &&
+          pending?.constructor.name === 'ConfirmPrompt' &&
+          actionName === 'ResolvePromptAction' && seat >= 0 ? {
+        actionOrdinal:actions, turn:turnBefore, seat,
+        promptId:pending.id, message:pending.message, response:action.result,
+        opponentDamageBefore:[
+          state.players[1-seat].active.damage,
+          ...state.players[1-seat].bench.filter(b => b.getPokemonCard()).map(b => b.damage)
+        ]
+      } : null;
       try {
         store.dispatch(action);
       } catch (error) {
         throw new Error('Twinleaf dispatch failed after ' + actions + ' actions (' +
           action.constructor.name + '): ' + error.message, { cause: error });
+      }
+      if (rootConfirm) {
+        const defending = store.state.players[1-seat];
+        rootConfirmationTrace.push({
+          ...rootConfirm,
+          opponentDamageAfter:[
+            defending.active.damage,
+            ...defending.bench.filter(b => b.getPokemonCard()).map(b => b.damage)
+          ]
+        });
       }
       const loggedAttacks = newlyLoggedAttackDeclarations(
         store.state.logs, attackLogStartIndex,
@@ -932,6 +954,7 @@ function runMatch(request) {
       attackDeclarationTraceProtocol: 'real-store-attack-log-declarations-v1',
       abilityTrace,
       decisionTrace,
+      ...(rootConfirmationTrace ? {rootConfirmationTrace} : {}),
       ...(electrodeOpportunityObserver ?
         {electrodeOpportunitySummary: electrodeOpportunityObserver.snapshot()} : {}),
       ...(physicalZoneIntegrity ? {physicalZoneIntegrity} : {}),
