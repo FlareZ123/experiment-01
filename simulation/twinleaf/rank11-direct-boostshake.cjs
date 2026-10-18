@@ -73,7 +73,8 @@ function withRank11DirectBoostShake(sourceSeat, execute,
     const pending = state.prompts.find(prompt => prompt.result === undefined);
     if (!line && !pending) {
       const found = directBoostShakeOpportunity(
-        state, player, sourceSeat, GamePhase.PLAYER_TURN);
+        state, player, sourceSeat, GamePhase.PLAYER_TURN,
+        k0AvoidAllGarbodorHeld);
       if (found) {
         const prefix = found.route === 'vip' ? ['vip', 'trubbish-search'] :
           found.route === 'hand' ? ['trubbish-hand'] : [];
