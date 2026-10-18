@@ -1,5 +1,8 @@
 # Rank-10 archived 216-root-action State projection gate
 
+**Later extension, compiled pass 20:18 UTC:** [manual CI 39162551885](https://github.com/FlareZ123/experiment-01/actions/runs/39162551885) at head `f966d4a8` verified **all 235 genuine root Store actions** of the archived Timeless branch. All seven cumulative selected-State checkpoints (actions 2, 10, 50, 183, 215, 216, 235) match historical data; full State-projection SHA is `4e153f6ff8ac10ce1aae2f0ad54110da1f1e5bdf650efcff9d015a98db0f2e5c`. A second, independently nested root-only input recorder covered 235/235 actions with **208 typed payloads and 27 reviewed prompt-reference payloads**. The canonical typed/prompt input trace SHA matches the historical archive at 216 actions (`750f542f579ff3dda0b18d5a6de443049ea745667ae0671c88659c78f9e23250`) and all 235 (`de0ef567cc85242550f03201b4cff5b4d53133e1bcea86a60b6118a86fe57e33`). Original and read-only instrumented match outcomes agree. This **supersedes the first 216-only integrity ceiling** for precisely this source arm. The older scope and 216 checkpoint table below are retained to preserve the initial milestone. Full reducer callback/closure semantics, paper rules, information-set safety and competitor playing policy remain open; **zero qualified competitive games**.
+
+
 **Agent 22, 18 October 2026. Evidence type:** read-only source Store integration and historical source-artifact fingerprint reconciliation. Neither a competitive win nor a paper-rule qualification.
 
 ## Original archive and scope
