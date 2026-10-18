@@ -48,25 +48,32 @@ function run(includeReservation = false) {
     isolatePolicyRandomness:true,captureDecisionTrace:true
   };
 
-  /** @param {boolean} enabled */
-  function arm(enabled) {
+  /**
+   * @param {boolean} enabled Farewell-first policy active.
+   * @param {boolean} [reserve] Preserve open slots after the actual VIP.
+   */
+  function arm(enabled,reserve=false) {
     try {
-      const outer = withRank11DirectBoostShake(0, () => withVIP(
-        () => withFarewellBeforeVip(() => runMatch({
-          ...common, label:'rank11-first-farewell-vip:'+enabled
-        }),{enabled,candidateSeat:1}),true));
-      const vip = outer.result;
-      const farewell = vip.game;
-      const game = farewell.result;
+      const play=()=>runMatch({...common,
+        label:'rank11-first-farewell-vip:'+enabled+':reserve:'+reserve});
+      const inner=()=>reserve ?
+        withNewMoonBenchReservation(play,1) : {result:play(),audit:null};
+      const outer=withRank11DirectBoostShake(0,()=>withVIP(
+        ()=>withFarewellBeforeVip(inner,{enabled,candidateSeat:1}),true));
+      const vip=outer.result;
+      const farewell=vip.game;
+      const reservation=farewell.result;
+      const game=reservation.result;
       assert.deepEqual(game.deckHashes,deckHashes);
       assert.equal(game.engine,'twinleafgg/'+plan.engineRevision);
       assert.equal(game.firstTurnSlot,1);
       assert.equal(game.verifiedByDrawLog,true);
       return {
-        status:'engine-observed',enabled,
+        status:'engine-observed',enabled,reserve,
         firstTurnSlot:game.firstTurnSlot,deckHashes:game.deckHashes,
         firstOwnerDecision:farewell.audit.opening,
         farewellAudit:farewell.audit,vipAudit:vip.audit,
+        reservationAudit:reservation.audit,
         rank11PolicyAudit:outer.policyAudit,
         firstCandidateTurn:game.decisionTrace.filter(row =>
           row.playerSlot===1 && row.turnBefore===1),
@@ -81,7 +88,7 @@ function run(includeReservation = false) {
         qualifiedForCompetitiveInference:false
       };
     } catch (error) {
-      return {status:'engine-or-policy-exception',enabled,
+      return {status:'engine-or-policy-exception',enabled,reserve,
         error:String(error?.stack || error),
         qualifiedForCompetitiveInference:false};
     }
