@@ -71,6 +71,10 @@ jobs:
         run: node --test tests/twinleaf-tactic-score-trace.test.cjs
       - name: Verify real-source hidden-order probe controls
         run: node --test tests/rank10-hidden-order-live-probe.test.cjs
+      - name: Verify root-only score census observer
+        run: node --test tests/rank10-source-score-opportunity-scout.test.cjs
+      - name: Observe genuine rank-10 tactic-score opportunities
+        run: node simulation/twinleaf/rank10-source-score-opportunity-scout.cjs
       - name: Explore frozen rank-10 root decision across detached hidden deck orders
         run: node simulation/twinleaf/rank10-hidden-order-live-probe.cjs
       - name: Explore genuine rank-10 decisive ordinal 215 under detached deck orders
