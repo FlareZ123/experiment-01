@@ -24,7 +24,7 @@ The independently coded [integer combinatorial census](../../scripts/rank11-held
 
 The counting formula sums multinomial bucket draws with 7 or 8 possible designated normal-draw cards, followed by six-Prize inclusion-exclusion. The legal-opening denominator exactly reproduces the previously published independent source census; a 250,000-deal seeded physical-shuffle check (194,503 valid openers) produced 7,723 search-ready cases, approximately 3.97063% of valid samples. [Pinned regression](../../tests/rank11-held-shake-resource-census.test.cjs) checks exact numerators.
 
-**4.0130% is an upper bound on this restricted branch's raw hand and deck resources**, before actual Basic placement, opposing first-turn lock, competing uses of cards, legal Store prompts or playing-policy choices. It is distinct from Agent1's broader 6.4555% direct route, which permits held Trubbish and does not require VIP.
+**4.0130% is a static eight-seen-card benchmark for this restricted branch's raw hand and deck resources**, before actual Basic placement, opposing first-turn lock, competing uses of cards, legal Store prompts or playing-policy choices. It is distinct from Agent1's broader 6.4555% direct route, which permits held Trubbish and does not require VIP.
 
 ## Qualification criteria and limitations
 
@@ -51,3 +51,21 @@ Because the first 80 actually yielded **zero rank11-first trigger opportunities*
 
 **Current evidence boundary:** The 80-run numerator of four includes only source rank11-second cases. The original late witness was corrected and independently replayed on the same seeds; all four immediate Tool-Garbodor prerequisites passed at turn 3. The new independent cohort is an adaptive *mechanism exposure* experiment; it is not a preselected favorable win sample. All actual match winners remain unqualified, and 99.5% has no evidence.
 
+
+## Second-cohort compiled source exposure, 18 October 2026
+
+Manual [compiled CI 39096399773](https://github.com/FlareZ123/experiment-01/actions/runs/39096399773) **passed** at research head `1b62cf8efd19df7ba1d9aca079912352632ebe68` and pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Downloaded [artifact 12124996140](https://github.com/FlareZ123/experiment-01/actions/runs/39096399773/artifacts/12124996140) has ZIP SHA256 `080776b1d94b43f968a0ed76cc66b7b5d76f57c29db7eca8bf0f3d4d82f76f12`, and extracted `rank11-held-shake-source-screen.json` SHA256 `cc8bb6a65d4f53d8f5a9d33797ef59ecea0d91a68d94cbeae0ce6ebd421d282c`. The artifact reports the **exact preregistered schedule digest** `55b103b4ff5c24fd95b76bf5ce39c773fcde6cb502218586a91cedfde5c3fbbf`, trial indices 80..239. Independently parsed the ZIP and counted all retained trial rows; the JSON top-level counters agree with row-level reconstruction.
+
+| Measured category | Actual rank11 first | Actual rank11 second | Total |
+| --- | ---: | ---: | ---: |
+| Source-dealt trials | 88 | 72 | **160** |
+| Own-hand restricted opening opportunities | 12 | 3 | **15** |
+| Six policy actions and Tool-Garbodor at immediate opponent decision | 10 | 3 | **13** |
+| Aborted after Tool attachment at source Garbodor owner-search selection (stage 4) | 2 | 0 | **2** |
+| Trial-level engine exceptions | 0 | 0 | **0** |
+
+All **13** successful board witnesses were recorded at the immediately following *opponent normal decision* (global turn 2 after rank11 started first, or 3 after it started second), without retrospectively substituting later source-owned prompts. Observed sources used genuine printed Float Stone, Forest Seal Stone or Muscle Band Tools. Of these 13 bounded `maxActions=85` games, **one** had a terminal pinned-engine winner (rank11 source; trial `held-shake:131`, 69 actions, ten global turns, remaining Prizes physical A/B `3/6`); the other **12** remained unfinished. These are weak-bot engine traces, not tournament match results.
+
+**Interpretation boundary and opening-probability correction:** The static 7-card opening + 1 mandatory draw, six-Prize **4.01303450%** combinatorial event above does not cap the **dynamic** observed owner-hand policy exposure at every first-personal-turn action. Actual playable hands can differ due to opponent mulligan bonuses and intervening card effects, and the policy predicate runs at subsequent action boundaries. Thus the empirical **15/160 (9.375%)** includes a wider set of opportunities than the exact opening-eight benchmark; a direct statistical comparison or claim of inconsistency is unwarranted until the source runner captures the actual earliest eight-card opportunity and all intervening hand changes. The first/second split (12/88 versus 3/72) is an exploratory observation from an adaptively preregistered mechanism-exposure cohort, not evidence of a first-player advantage or a matchup win rate. The two stage-4 aborts remain documented failures rather than removed from the denominator; Prizes, hand locations and prompt restrictions have not been distinguished as causes.
+
+**Next discriminating test:** retain candidate *first-turn-after-lock* legal choices and completed effects in the **same successful source trajectories**. `firstCandidateActions` only preserves the first six chronological candidate actions, which may precede the lock when rank11 goes second. A newer independent four-opportunity [source-response diagnostic](rank11-source-conditioned-rank1-attack-response.md) provides named attack declarations for distinct opportunity-conditioned seeds, but does not qualify the present 160-deal response population. A future frozen candidate should be tested under both actual starts, with a source-enabled opponent that can establish and re-establish lock, complete attack effects, and verified 25-minute clock handling. **29/32 exact source lists, zero qualified competitive games, target unproven.**
