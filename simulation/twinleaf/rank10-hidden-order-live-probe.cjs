@@ -325,6 +325,16 @@ function auditRank10HiddenOrder(rootActionOrdinal,scoreTarget=null) {
   if(scoreTarget!==null) assert.ok(
     observed.events[0].tacticScoreComparison.physicalEvaluations>0,
     'Scout-selected source root must evaluate at least one tactic');
+  if(scoreTarget?.expectedPrinting) assert.equal(
+    observed.events[0].originalSourcePlayedPrinting,
+    scoreTarget.expectedPrinting,
+    'Authentic source root played a different printing');
+  if(scoreTarget?.requireFiniteSupporterScore) assert.ok(
+    observed.events[0].tacticScoreComparison
+      .physicalScoreSummary.finiteByTactic.PlaySupporterTactic>=1 &&
+    observed.events[0].tacticScoreComparison
+      .counterfactualScoreSummary.finiteByTactic.PlaySupporterTactic>=1,
+    'Source root must have a finite Supporter candidate score in both worlds');
   return {
     study:archival?
       'rank10-reconstructed-v3-source-ordinal215-hidden-order-sensitivity':
@@ -359,6 +369,8 @@ function auditRank10HiddenOrder(rootActionOrdinal,scoreTarget=null) {
 if(require.main===module) {
   const target={
     score12:{ordinal:12,turn:1,seat:1,expectedType:'PassTurnAction'},
+    score19:{ordinal:19,turn:2,seat:0,expectedType:'PlayCardAction',
+      expectedPrinting:'Faba LOT',requireFiniteSupporterScore:true},
     score57:{ordinal:57,turn:5,seat:1,expectedType:'PassTurnAction'},
     score157:{ordinal:157,turn:15,seat:1,expectedType:'PassTurnAction'}
   }[process.argv[2]]??null;
