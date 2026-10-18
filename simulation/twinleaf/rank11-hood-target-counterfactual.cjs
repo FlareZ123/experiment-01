@@ -7,6 +7,7 @@ const {runWithResearchProfile,RANK11_AUTONOMOUS_PROFILE} =
   require('./policy-profiles.cjs');
 const {observe} = require('./rank11-hood-source-opportunity.cjs');
 const {withEarlyShadowRiderHood} = require('./early-shadow-rider-hood.cjs');
+const {withProtectedUnderworldDoor} = require('./protected-underworld-door.cjs');
 const candidate = require('../../results/aichi-2026/candidate-hood-shadow-rider.json');
 
 /**
@@ -65,12 +66,15 @@ function run() {
   const game = () => runWithResearchProfile(request,RANK11_AUTONOMOUS_PROFILE);
   const baseline = observe(game);
   const alternative = withEarlyShadowRiderHood(1,()=>observe(game));
+  const protectedDoor = withEarlyShadowRiderHood(1,()=>
+    withProtectedUnderworldDoor(1,()=>observe(game)));
   const restored = observe(game);
   assert.equal(baseline.game.verifiedByDrawLog,true);
   assert.equal(alternative.result.game.verifiedByDrawLog,true);
   assert.equal(baseline.game.firstTurnSlot,0,
     'Published source must genuinely start first');
   assert.deepEqual(baseline.game.deckHashes,alternative.result.game.deckHashes);
+  assert.deepEqual(baseline.game.deckHashes,protectedDoor.result.result.game.deckHashes);
   assert.deepEqual(baseline.game.decisionTrace,restored.game.decisionTrace,
     'Original chosen-action policy must be restored after experiment');
   assert.deepEqual(baseline.hoodAttachments,restored.hoodAttachments);
@@ -108,6 +112,14 @@ function run() {
       protectedVmaxWhileOpponentToolEquipped:equippedProtected,
       gameFinished:alternative.result.game.finished,
       diagnosticPrizesRemaining:alternative.result.game.prizesRemaining
+    },
+    withProtectedDoor:{
+      hoodPolicyAudit:protectedDoor.policyAudit,
+      doorPolicyAudit:protectedDoor.result.policyAudit,
+      actualHoodAttachments:protectedDoor.result.result.hoodAttachments,
+      earlyEffectEvidence:candidateEarlyEffectEvidence(protectedDoor.result.result.game),
+      gameFinished:protectedDoor.result.result.game.finished,
+      diagnosticPrizesRemaining:protectedDoor.result.result.game.prizesRemaining
     },
     restoredControlByteIdentical:true,
     qualifiedCompetitiveGames:0,
