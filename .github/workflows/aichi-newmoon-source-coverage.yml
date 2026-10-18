@@ -58,6 +58,8 @@ jobs:
           if-no-files-found: warn
       - name: Run source identity and printing hash regression
         run: node --test tests/new-moon-print-map.test.cjs
+      - name: Check original Japanese source printing identifiers and dated ban collision
+        run: node --test tests/new-moon-japanese-source-print-gate.test.cjs
       - name: Validate candidate 60 printed-engine variants
         run: node simulation/twinleaf/new-moon-pinned-print-validate.cjs > newmoon-pinned-60.json
       - name: Preserve pinned English mechanics-equivalent 60
