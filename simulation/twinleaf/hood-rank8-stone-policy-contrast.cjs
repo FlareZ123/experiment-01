@@ -7,6 +7,7 @@ const {runMatch,initializeCards} = require('./headless.cjs');
 const {writeLockedArtifact} =
   require('../evaluation/aichi-campaign-envelope-runner.cjs');
 
+const {withOwnerStarSearchAnswer}=require('./owner-star-search-answer.cjs');
 const SEED=1260748957;
 const SOURCE_RANK=8;
 const CANDIDATE_SLOT=1;
@@ -137,6 +138,23 @@ function main() {
     firstNewStarTraceIndex:firstToolStarIndex,
     divergenceEqualsFirstStar:firstDifference===firstToolStarIndex
   };
+  // Separate source-dealt third arm: one legal owner prompt answer changes.
+  // Preserve the original two-arm baseline-versus-Tool-Power contrast.
+  const fork=withOwnerStarSearchAnswer(CANDIDATE_SLOT,'Psychic Energy',()=>
+    runMatch({...base,attachedToolPowerPolicy:true,
+      label:'rank8-source-hood-stone-owner-energy-fork'}));
+  const changed=summarize(fork.result);
+  assert.equal(changed.firstTurnSlot,0);
+  assert.equal(changed.verifiedByDrawLog,true);
+  assert.deepEqual(changed.deckHashes,arms[1].deckHashes);
+  const sourceStar=arms[1].postStarPromptSelections[0];
+  const altStar=changed.postStarPromptSelections.find(e=>
+    e.physicalSeat===CANDIDATE_SLOT);
+  const starPrefix=arms[1].decisionTrace.findIndex(e=>
+    e.action==='UseAbilityAction'&&e.ability==='Star Alchemy'&&
+    e.playerSlot===CANDIDATE_SLOT);
+  const prefixHeld=JSON.stringify(changed.decisionSignatures.slice(0,starPrefix))===
+    JSON.stringify(arms[1].decisionSignatures.slice(0,starPrefix));
   return {
     schema:'rank8-hood-tool-power-source-contrast-v1',
     sourceResearchRevision:process.env.GITHUB_SHA||'unrecorded',
@@ -151,6 +169,15 @@ function main() {
     firstRootDecisionDifference:firstDifference,
     firstDifferenceActions,
     comparedRootPrefixLength:firstDifference===null?Math.min(a.length,b.length):firstDifference,
+    ownerPromptTargetContrast:{
+      soleIntervention:'Star Alchemy real owner-deck card selected',
+      fixedCandidateSeat:CANDIDATE_SLOT,requested:'Psychic Energy',
+      audit:fork.audit,identicalPreStarDecisionPrefix:prefixHeld,
+      originalSelection:sourceStar?.firstSubsequentOwnSelection??null,
+      alternativeSelection:altStar?.firstSubsequentOwnSelection??null,
+      candidateTrace:changed,
+      qualifiedForCompetitiveInference:false
+    },
     arms,qualifiedForCompetitiveInference:false,
     limitations:[
       'Opposing generic bot is not independently qualified, including source Garbotoxin Tool setup and attack target decisions',
@@ -173,6 +200,12 @@ if(require.main===module){
       star:a.starAlchemyRootActions,starFollowingSelection:a.postStarPromptSelections,
       abilityStar:a.abilityTraceStarCount,
       attacks:a.attacksBySeat,prizes:a.prizeCounts,policy:a.policy})),
+    targetContrast:report.ownerPromptTargetContrast && {
+      audit:report.ownerPromptTargetContrast.audit,
+      prefix:report.ownerPromptTargetContrast.identicalPreStarDecisionPrefix,
+      selected:report.ownerPromptTargetContrast.alternativeSelection,
+      prizes:report.ownerPromptTargetContrast.candidateTrace.prizeCounts
+    },
     qualified:false
   },null,2));
 }
