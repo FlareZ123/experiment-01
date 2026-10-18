@@ -13,6 +13,8 @@ const {runWithResearchProfile,RANK11_AUTONOMOUS_PROFILE,
   RANK26_COLOGNE_PUMP_PROFILE}=require('./policy-profiles.cjs');
 const {withNewMoonBlowerAutonomy}=
   require('./newmoon-garbotoxin-blower-autonomy.cjs');
+const {withBroadThornsSourceAttack}=
+  require('./rank6-broad-thorns-policy.cjs');
 
 const SOURCE_RANKS=[6,11,26];
 const REPEATS=2;
@@ -130,6 +132,8 @@ function run() {
             label:'newmoon-gengar2-vs-cologne1-'+variant+'-rank'+rank
           };
           const execute=()=>{
+            if(rank===6)return withBroadThornsSourceAttack(
+              ()=>runMatch(request),{seat:sourceSeat,turn:2});
             if(rank===11)return runWithResearchProfile({
               ...request,rank11SourceSeat:sourceSeat
             },RANK11_AUTONOMOUS_PROFILE);
@@ -140,8 +144,17 @@ function run() {
           };
           try {
             const result=withNewMoonBlowerAutonomy(candidateSeat,execute);
+            const rank6Branch=rank===6?result.result:null;
+            const game=rank6Branch?rank6Branch.result:result.result;
             arms[variant]={ok:true,sourcePrintHash:plan.candidateDigest,
-              telemetry:observe(result.result,candidateSeat),
+              telemetry:observe(game,candidateSeat),
+              sourceThornsTurn2:rank6Branch?{
+                policyStarted:rank6Branch.started,
+                attackProposed:rank6Branch.completed,
+                openingPlan:rank6Branch.openingPlan,
+                abortReason:rank6Branch.abortReason,
+                events:rank6Branch.events
+              }:null,
               blowerSelections:result.policyAudit.opportunitySelections,
               confirmedToolRemovals:result.policyAudit.confirmedToolRemovals,
               competitivelyQualified:false};
