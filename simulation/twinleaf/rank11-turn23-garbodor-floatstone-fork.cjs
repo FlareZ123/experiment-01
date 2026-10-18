@@ -164,6 +164,7 @@ function run() {
     alternateFirstTurnSlot:alt.result.firstTurnSlot,
     actionOrdinal:atControl.actionOrdinal,
     alternateTarget:shift,preTargetRootActionsIdentical:true,
+    alternateCandidateTurn24AbilityCheck:alt.firstCandidatePower,
     sourceGarbodorToolsAtOriginalPass:beforeGarbodor.toolCards,
     sourceGarbodorToolsAtAlternatePass:afterGarbodor.toolCards,
     sourceActiveAtOriginalPass:originalBoard.active,
