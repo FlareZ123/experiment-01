@@ -108,6 +108,7 @@ function run() {
   assert.equal(candidate.length,60);
   const seed=1111464409;
   const args=[candidate,source.cards,1,seed,350,true,true,false,false];
+  const unchanged=withGarbodorFloatStoneTarget(()=>runArm(...args),{skipChange:true});
   const control=runArm(...args);
   const alt=withGarbodorFloatStoneTarget(()=>runArm(...args));
   assert.equal(control.firstTurnSlot,0);
