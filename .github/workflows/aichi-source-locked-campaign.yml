@@ -29,6 +29,21 @@ on:
         required: false
         type: boolean
         default: false
+      rank11_exposure_probe:
+        description: Test a precommitted 16-trial actual-first-turn rank11 partition (unqualified)
+        required: false
+        type: boolean
+        default: false
+      rank11_exposure_partition:
+        description: Fixed registered repeat partition 0, 1, 2 or 3
+        required: false
+        type: choice
+        options:
+          - '0'
+          - '1'
+          - '2'
+          - '3'
+        default: '0'
       post_super_clone:
         description: 'Experimental v2 speculative Simulator repair; does not qualify game strength'
         required: false
@@ -95,6 +110,14 @@ jobs:
         run: npm run compile
       - name: Verify source-locked trial adapter and guards
         run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs tests/rank11-autonomous-opener.test.cjs tests/rank11-autonomous-campaign-seat.test.cjs
+      - name: Verify precommitted rank11 exposure reporter and fail-closed source identity
+        if: ${{ inputs.rank11_exposure_probe }}
+        run: node --test tests/rank11-prospective-exposure.test.cjs tests/rank11-prospective-exposure-run.test.cjs
+      - name: Execute one fixed 16-trial rank11 true-turn exposure partition
+        if: ${{ inputs.rank11_exposure_probe }}
+        env:
+          RANK11_EXPOSURE_PARTITION: ${{ inputs.rank11_exposure_partition || '0' }}
+        run: node simulation/evaluation/rank11-prospective-exposure-run.cjs > rank11-prospective-exposure-observed.json
       - name: Replay one genuine rank11 opening under the automatic policy
         if: ${{ inputs.rank11_autonomous_probe }}
         run: node simulation/twinleaf/rank11-autonomous-source-regression.cjs > rank11-autonomous-source-regression.json
@@ -113,7 +136,7 @@ jobs:
         if: ${{ inputs.newmoon_pass_probe }}
         run: node simulation/evaluation/newmoon-rank11-pass-observer.cjs > newmoon-rank11-pass-observer.json
       - name: Run up to six source-locked pilot trials
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe && !inputs.newmoon_pass_probe }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.newmoon_pass_probe }}
         env:
           CAMPAIGN_INPUT_ORDER_PROTOCOL: ${{ inputs.input_order_protocol || 'source-row-order-v1' }}
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
@@ -127,7 +150,7 @@ jobs:
           CAMPAIGN_MAX_ACTIONS: '800'
         run: node simulation/evaluation/aichi-campaign-runner.cjs > aichi-campaign-report.json
       - name: Cross-check sourced games and fingerprint evidence envelope
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe && !inputs.newmoon_pass_probe }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.newmoon_pass_probe }}
         env:
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
         run: node simulation/evaluation/aichi-campaign-envelope-runner.cjs aichi-campaign-report.json aichi-campaign-envelope.json
@@ -151,6 +174,7 @@ jobs:
             aichi-setup-observer-audit.json
             aichi-multiseed-setup-coupling.json
             rank11-autonomous-source-regression.json
+            rank11-prospective-exposure-observed.json
             aichi-rank11-newmoon-autonomous-pair.json
             newmoon-rank11-pass-observer.json
             rank11-autonomous-comparison.json
