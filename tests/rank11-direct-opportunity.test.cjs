@@ -81,3 +81,17 @@ test('hand Basic outranks VIP, while existing Bench Trubbish outranks both', () 
   player.bench.push(slot('Trubbish'));
   assert.equal(directBoostShakeOpportunity(state,player,0,7).route,'bench');
 });
+
+test('opt-in K0 guard conserves held resources for all direct routes', () => {
+  for (const route of ['bench', 'hand', 'vip']) {
+    const {state, player} = deal(route);
+    player.hand.cards.push({name: 'Garbodor'}, {name: 'Garbodor'});
+    assert.deepEqual(directBoostShakeOpportunity(state, player, 0, 7),
+      {route, tool: 'Muscle Band'});
+    assert.equal(directBoostShakeOpportunity(state, player, 0, 7, true),
+      null, 'K0 held evolution pair should suppress ' + route);
+    player.hand.cards.pop();
+    assert.deepEqual(directBoostShakeOpportunity(state, player, 0, 7, true),
+      {route, tool: 'Muscle Band'});
+  }
+});
