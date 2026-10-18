@@ -207,8 +207,10 @@ function main() {
   assert.equal(altered.result.result.forcedSelections,1,
     'No uniquely legal source Dragapult discard option was found');
   const originalAnswer = findTreasureCost(baseline.decisionTrace);
-  const alternativeAnswer = findTreasureCost(fork.decisionTrace);
-  assert.deepEqual(alternativeAnswer.answer.printings,[DRAGON_PRINTING]);
+  const alternativeBotProposal = findTreasureCost(fork.decisionTrace);
+  assert.deepEqual(altered.result.result.originalChoice,
+    originalAnswer.answer.printings,
+    'Original bot proposal changed before root replacement');
   assert.ok(!originalAnswer.answer.printings.includes(DRAGON_PRINTING),
     'Default source already discarded the chosen Dragon');
   const cost = altered.result.costAnswers.find(row =>
@@ -226,7 +228,8 @@ function main() {
     source:{ranksBySeat:[1,10],seed:SOURCE_SEED,
       pinnedTwinleaf:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
       policy:'DoubleDragonAttachTactic-v4'},
-    originalAnswer,alternativeAnswer,firstDifference,
+    originalAnswer,alternativeBotProposal,
+    actualRootAnswer:cost,firstDifference,
     promptFork:{observed:altered.result.result.observed,
       forcedSelections:altered.result.result.forcedSelections,
       originalChoice:altered.result.result.originalChoice,
