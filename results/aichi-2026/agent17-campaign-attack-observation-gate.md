@@ -17,3 +17,12 @@ The original `scripts/aichi-campaign-quality-screen.cjs` classified `candidateAt
 Run the existing **manual-only** `aichi-first-game.yml` quality-screen test step at this committed revision, with the default bounded pilot. The inserted synthetic test must classify a **root-zero, log-one** candidate as an undercount, **not** as a logged zero. The separate zero-log synthetic case must classify as a logged zero; a mismatched ledger must fail closed. Existing schedule, source-deck, and historical root-only diagnostic tests must remain passing. Report negative outcomes and unrelated CI failures without treating generic-bot engine terminal winners as competition evidence.
 
 No decklist, engine rule, pinned submodule, RNG schedule or autonomous policy was changed. Engine-declared attacks remain distinct from resolution, inflicted effects, policy competence and the official paper tournament clock. Qualification is still blocked by independently reviewed replay and matchup decision policies, missing 3 source lists and paper timing.
+
+
+## Root ordinal and opponent follow-on audit (18 October 2026)
+
+The shared campaign quality screen formerly counted mechanism actions directly from a digest-valid trace, even when two entries repeated the same root action ordinal. It now verifies the chronological root ordinal sequence, acting player slots and root action-count bound. Digest-valid but duplicated or out-of-range entries are excluded from action counts and labeled with a distinct lineage-integrity blocker.
+
+Each positive mechanism carries its original root action ordinal and, where captured, a later opponent root dispatch ordinal. A later opposing action remains an observation of chronology only; it cannot prove a consequential tactical response. The audit explicitly leaves original opportunity, detached policy proposals and resolution of attack/card effects as `unobserved`.
+
+Three new synthetic regressions cover valid later-opponent-root evidence, a duplicate with perfectly matching action digest, and a root ordinal beyond the actual action count. [Manual CI 39135372290](https://github.com/FlareZ123/experiment-01/actions/runs/39135372290) passed the existing benchmark test workflow. The current 29/32 source coverage, zero qualified games and unproven 99.5% target are unchanged.
