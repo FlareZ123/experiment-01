@@ -1,0 +1,9 @@
+# Agent 17: compiled rank-six attack-log accounting
+
+On 18 October 2026, [manual workflow 39108323524](https://github.com/FlareZ123/experiment-01/actions/runs/39108323524) **completed successfully** at commit `1a273300658ffbddad3091fdcdd2208cf86e535e`. The amended central quality-screen regressions and pinned engine compilation passed.
+
+The source-locked rank-6 diagnostic completed eight engine games, comprising two physical-seat trials each for champion reference, Hood Shield v1, Temple v1, and New Moon Lockbreaker v1. The raw root AttackAction zero counts, confirmed zero real-Store declarations, and attack-telemetry incomplete records were, respectively: champion **1/1/0**; Hood **1/1/0**; Temple **0/0/0**; New Moon **2/2/0**. Thus four candidate-seat raw zeros coincided with genuine declared-attack zeros in this selected pilot. No positive delegated-copy undercount arose in this particular opponent sample. Both starting-order strata were observed per candidate, and the full pilot schedule passed integrity checks. The compiled job's quality report explicitly says **independently qualified games = 0** throughout. All eight are weak-bot diagnostic games with incomplete replay and unvalidated simulator-alias fidelity; they do not measure competitive strength.
+
+The synthetic amended tests separately confirmed the classification rule on a record with raw zero and logged positive (delegated copy), a valid recorded zero, and malformed count metadata. These test cases are *not real matches*. The independently written six-test standalone helper suite is not part of the executed workflow's test command; it remains awaiting a dedicated run if required.
+
+Original implementation rationale and limits: [campaign attack-declaration quality-screen reconciliation](agent17-campaign-attack-observation-gate.md).
