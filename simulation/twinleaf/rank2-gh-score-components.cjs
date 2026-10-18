@@ -54,3 +54,15 @@ function observeGhScoreComponents(play,targetOrdinal=59) {
         try{return old.call(this,state,id,action,passTurnScore);}
         finally{candidate=prior;}
       });
+    patch(StateScore.prototype,'getScore',old=>
+      function(state,id){
+        if(!candidate)return old.call(this,state,id);
+        const previous=frame;
+        const entry={candidate,values:{},stateTurn:state.turn};
+        frame=entry;
+        try{
+          entry.total=old.call(this,state,id);
+          components.push(entry);
+          return entry.total;
+        }finally{frame=previous;}
+      });
