@@ -137,7 +137,7 @@ function sourceGame(prepared, rank, seed, seat, observed) {
   const deckA = seat === 0 ? prepared.candidate.cards : opponent.cards;
   const deckB = seat === 1 ? prepared.candidate.cards : opponent.cards;
   const run = () => runWithResearchProfile({
-    deckA, deckB, seed, maxActions: 400,
+    deckA, deckB, seed, maxActions: 220,
     isolatePolicyRandomness: true, strictPromptValidation: true,
     captureStartingBoard: true,
     label: 'agent42-temple-source-rank-' + rank + '-seed-' + seed + '-seat-' + seat
@@ -180,9 +180,14 @@ function runPanel() {
   const planned = RANKS.flatMap(rank => SEEDS.flatMap(seed =>
     [0, 1].map(seat => ({rank, seed, seat}))));
   const registrationDigest = digest(planned);
+  const selectedRank = Number(process.env.TEMPLE_SOURCE_RANK);
+  if (!RANKS.includes(selectedRank)) {
+    throw new Error('Source panel rank must be one of the three registered Iron Thorns opponents');
+  }
+  const selected = planned.filter(entry => entry.rank === selectedRank);
   const records = [];
   let parity = null;
-  for (const entry of planned) {
+  for (const entry of selected) {
     const observed = sourceGame(prepared, entry.rank, entry.seed, entry.seat, true);
     if (parity === null) {
       const control = sourceGame(prepared, entry.rank, entry.seed, entry.seat, false);
@@ -197,12 +202,12 @@ function runPanel() {
     }
     records.push(observed);
   }
-  assert.equal(records.length, 24);
+  assert.equal(records.length, 8);
   return {
     schema:'agent42-temple-thorns-source-window-v1',
     targetRanks:RANKS, seedSet:SEEDS, profile:PROFILE,
     printedDeckManifestDigest:prepared.candidateDigest,
-    registeredTrials:planned, registrationDigest, parity,
+    registeredTrials:planned, registrationDigest, selectedRank, parity,
     count:records.length,
     wobbuffetStartingActive:records.filter(row =>
       row.initialBoard?.players?.[row.candidateSeat]?.active?.startsWith('Wobbuffet ')).length,
