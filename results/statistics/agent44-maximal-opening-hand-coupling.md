@@ -38,6 +38,26 @@ The difference between the final two columns comes from alternative joint-hand c
 
 Since both decks are uniform seven-card sample distributions, no coupling can make their hands identical more often than the maximal-equality mass reported above. This is a firm statement about **the seven-card hand marginals under uniform without-replacement draws**. It says nothing about mulligan-conditioned accepted hands, bonus draws, Prize interactions, actual first-player identity, or full-game winning chances.
 
+## Valid seven-card opening hands after Basic mulligans
+
+The initial unconditional seven-card distribution is useful mathematically, but Pokémon TCG redraws opening hands with no Basic Pokémon. For these exact three frozen lists, their printed Stage distribution contains respectively **14, 14 and 15 Basic Pokémon**. All 11 distinct Basic print identities were checked against the supplied card-print database where available; Trevenant & Dusknoir-GX SM217, missing from that database's promo row, is independently identified as a **Basic TAG TEAM** in the [SM Promo 217 card record](https://bulbapedia.bulbagarden.net/wiki/Trevenant_%26_Dusknoir-GX_%28SM_Promo_217%29). Shadow Rider Calyrex VMAX is an Evolution.
+
+Under repeated rejection draws until the seven-card hand contains at least one Basic, the probability that a draw is accepted equals
+
+`Q_B = [C(60,7) - C(60-B,7)] / C(60,7)`.
+
+The respective mulligan probabilities are **13.859068%** with 14 Basics and **11.750079%** with 15 Basics. Conditioning the two hands on valid openings changes each unordered-hand mass to `P_A(h | valid) = w_A(h) / V_A`, where `V_A = C(60,7)-C(60-B_A,7)`.
+
+A second exact [implementation](../../scripts/aichi-maximal-opening-coupling.cjs) therefore subdivides unchanged printings into `neutralBasic` and `neutralNonbasic`, requires at least one Basic in the common candidate hand, and sums neutral choices weighted by `min(w_A/V_A, w_B/V_B)`. The calculation uses exact `BigInt` rational numerators and denominators.
+
+| Pair | Basic counts | Exact maximal equality after both valid-seven filters | Probability |
+| --- | --- | --- | ---: |
+| Champion / Hood | 14 / 14 | 61,938,700,930,191,360 / 110,677,472,811,417,600 | **55.963241%** |
+| Champion / Temple | 14 / 15 | 62,785,269,905,367,900 / 113,387,189,617,152,000 | **55.372454%** |
+| Hood / Temple | 14 / 15 | 70,117,358,031,212,580 / 113,387,189,617,152,000 | **61.838871%** |
+
+These are bounds for **accepted seven-card hands only**. They deliberately exclude the extra optional cards that an opponent may draw because of a mulligan, player-specific basic selection for the Active Spot, Prize assignment and all later game actions. The Basic stage classifications are source inputs to the formula, so independent print-stage verification matters. [Source regression tests](../../tests/aichi-maximal-opening-coupling.test.cjs) compare the full-field fixed-printing results and small exactly enumerated accepted-hand toy examples. Both independent Python integer arithmetic and a preview execution of the current committed JavaScript implementation returned the numerators above; official CI execution remains pending.
+
 ## Independent verification
 
 1. The exact rational numerators and neutral counts were derived with independent Python `math.comb` and `fractions.Fraction` combinatorics, enumerating respectively 48, 63 and 12 feasible changed-type hand allocations.
