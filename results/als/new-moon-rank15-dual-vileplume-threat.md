@@ -27,3 +27,7 @@ Use unmodified printed 60s, actual starting-seat evidence and real evolution chr
 Executable source census: [script](../../scripts/new-moon-rank15-dual-vileplume.cjs) and [two source-contract tests](../../tests/new-moon-rank15-dual-vileplume.test.cjs). Neither invokes Twinleaf nor validates a real joint-board line.
 
 **Decision:** add rank15's split-print dual-lock threat to the adversarial acceptance tests for New Moon; do not award or assume a win/loss before actual replay. **Zero independently qualified competitive matches.**
+
+## Staged pinned-Store attack probe, pending execution
+
+The new [conditional live-Store action probe](../../simulation/twinleaf/new-moon-rank15-dual-lock-actions.cjs) stages BUS Vileplume Active and optionally AOR Vileplume Benched, then attempts the real pinned engine's Basic Mewtwo & Mew-GX attack, Stage 1 Dusclops Will-O-Wisp attack, or Canceling Cologne Item. The probe asserts the printed-action gates and 50 damage for Dusclops. It is registered in the existing manual New Moon workflow. **At publication time, this compiled probe is not verified by a completed action run**; the execution request was blocked. Any assertion failure should be preserved as engine-fidelity evidence rather than smoothed into a game claim.
