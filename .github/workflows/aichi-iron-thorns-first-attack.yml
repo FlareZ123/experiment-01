@@ -75,3 +75,12 @@ jobs:
           name: rank6-broad-thorns-source
           path: rank6-broad-thorns-source.json
           if-no-files-found: warn
+      - name: Compare legal rank6 source discard payments on the same physical seed
+        run: node simulation/twinleaf/rank6-discard-payment-source-fork.cjs > rank6-discard-payment-source-fork.json
+      - name: Archive paired Store payment fork and negative evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank6-discard-payment-source-fork
+          path: rank6-discard-payment-source-fork.json
+          if-no-files-found: warn
