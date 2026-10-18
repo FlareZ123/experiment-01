@@ -198,6 +198,16 @@ jobs:
           name: rank11-hybrid-k0k1-source-regression
           path: rank11-hybrid-k0k1.json
           if-no-files-found: warn
+      - name: Observe first opposing decision source hand and discard after K0 choice
+        if: inputs.rank11_hybrid_k0_regression
+        run: node simulation/twinleaf/rank11-k0-firstreply-resource-audit.cjs > rank11-k0-firstreply-zones.json
+      - name: Preserve first opposing decision physical resource zones
+        if: always() && inputs.rank11_hybrid_k0_regression
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-k0-firstreply-resource-zones
+          path: rank11-k0-firstreply-zones.json
+          if-no-files-found: warn
       - name: Regress held-Shake v2 resource protection on three archived source deals
         if: inputs.rank11_held_shake_k1_guard_regression
         run: node simulation/twinleaf/rank11-held-shake-k1-guard-regression.cjs > rank11-held-shake-k1-guard-regression.json
