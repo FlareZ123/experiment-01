@@ -75,6 +75,8 @@ jobs:
         run: node --test tests/rank10-source-score-opportunity-scout.test.cjs
       - name: Observe genuine rank-10 tactic-score opportunities
         run: node simulation/twinleaf/rank10-source-score-opportunity-scout.cjs
+      - name: Compare source-selected turn1 root12 Supporter tactic scores
+        run: node simulation/twinleaf/rank10-hidden-order-live-probe.cjs score12
       - name: Compare source-selected turn5 root57 hidden-order tactic scores
         run: node simulation/twinleaf/rank10-hidden-order-live-probe.cjs score57
       - name: Compare source-selected turn15 root157 hidden-order tactic scores
