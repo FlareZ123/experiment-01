@@ -16,7 +16,8 @@ function setup() {
     if(action.type==='attack') {
       state.logs.push({message:'LOG_PLAYER_USES_ATTACK',
         params:{name:'research-B',attack:'Night Watch'}});
-      state.prompts=[{constructor:{name:'ChooseCardsPrompt'},result:undefined}];
+      state.prompts=[{constructor:{name:'ChooseCardsPrompt'},result:undefined,
+        cards:state.players[0].hand,options:{min:2,max:2}}];
     }
     if(action.type==='resolve') {
       state.players[0].hand.cards.splice(0,2);
@@ -68,4 +69,20 @@ test('prototype is restored after a failing source replay',()=>{
     const real=new Store();real.dispatch({type:'attack'});throw new Error('source fail');
   },Store),/source fail/);
   assert.equal(Store.prototype.dispatch,old);
+});
+
+
+test('root audit records private-hand positions without reading card faces',()=>{
+  const {Store}=setup();
+  const observed=withNightWatchEffectJournal(()=>{
+    const real=new Store();
+    real.dispatch({type:'attack'});
+    real.dispatch({type:'resolve',result:[2,4]});
+  },Store);
+  const record=observed.records[0];
+  const selected=record.stages.find(stage=>
+    stage.promptAudit?.selectionPositions?.length===2);
+  assert.deepEqual(selected.promptAudit.selectionPositions,[1,3]);
+  assert.equal(selected.promptAudit.sourceHand,true);
+  assert.equal(JSON.stringify(selected.promptAudit).includes('Absol ex'),false);
 });
