@@ -137,8 +137,8 @@ function runSeat(sourceSeat) {
       assert.equal(prizePrompt.validate(chosen,f.state),true);
       f.store.dispatch(new ResolvePromptAction(prizePrompt.id,chosen));
       assert.equal(f.opponent.getPrizeLeft(),4);
-      assert.equal(f.own.bench[3].getPokemonCard(),undefined);
-      assert.equal(f.own.bench[4].getPokemonCard(),undefined);
+      assert.equal(f.own.bench[3].cards.length,0);
+      assert.equal(f.own.bench[4].cards.length,0);
       assert.equal(f.own.bench[0].damage,0);
       assert.equal(f.own.discard.cards.filter(c=>c.name==='Exeggcute').length,2);
       return {card:'Damage Pump LOR',
