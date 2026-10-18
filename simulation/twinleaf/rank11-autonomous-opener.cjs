@@ -46,11 +46,12 @@ function openingOpportunity(state, player, seat, playerTurnPhase,
  * @template T
  * @param {0|1} sourceSeat Known from the source-locked campaign's opponent rank.
  * @param {()=>T} execute A synchronous headless game.
- * @param {{allowSecondGlobalTurn?:boolean,version?:string}} [configuration] Opt-in versioned extension.
+ * @param {{allowSecondGlobalTurn?:boolean,version?:string,k0AvoidAllGarbodorHeld?:boolean}} [configuration] Opt-in versioned extension.
  * @returns {{result:T,policyAudit:object}}
  */
 function withRank11AutonomousOpener(sourceSeat, execute,
-  {allowSecondGlobalTurn = false, version = 'rank11-autonomous-boostshake-v1'} = {}) {
+  {allowSecondGlobalTurn = false, version = 'rank11-autonomous-boostshake-v1',
+    k0AvoidAllGarbodorHeld = false} = {}) {
   if (![0, 1].includes(sourceSeat) || typeof execute !== 'function') {
     throw new TypeError('Require the known rank-11 source physical seat.');
   }
@@ -132,7 +133,8 @@ function withRank11AutonomousOpener(sourceSeat, execute,
     const pending = state.prompts.find(prompt => prompt.result === undefined);
     if (stage === null) {
       if (pending || !openingOpportunity(state, player, sourceSeat,
-        GamePhase.PLAYER_TURN, allowSecondGlobalTurn)) {
+        GamePhase.PLAYER_TURN, allowSecondGlobalTurn,
+        k0AvoidAllGarbodorHeld)) {
         return original.call(this, state);
       }
       stage = 0;
@@ -230,7 +232,7 @@ function withRank11AutonomousOpener(sourceSeat, execute,
       result,
       policyAudit: {
         version,
-        sourceSeat, allowSecondGlobalTurn,
+        sourceSeat, allowSecondGlobalTurn, k0AvoidAllGarbodorHeld,
         opportunityGlobalTurn:events[0]?.turn ?? null,
         opportunityDetected: stage !== null,
         attemptedActions: events.length, selectedLine: events,
