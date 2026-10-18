@@ -25,6 +25,17 @@ on:
         required: false
         type: boolean
         default: false
+      vip_prospective_trials:
+        description: Prospectively fixed VIP trial count, 0 disables
+        required: false
+        default: '0'
+        type: choice
+        options:
+          - '0'
+          - '4'
+          - '8'
+          - '12'
+          - '16'
       source_seat:
         description: Physical engine seat occupied by published rank11
         required: false
