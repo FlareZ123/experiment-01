@@ -411,7 +411,7 @@ function auditCampaignQuality(archive) {
             });
           }
           if (fullRoot &&
-              record.traceSummary.coversAllActionsAndPromptResolutions === true) {
+              record.traceSummary.rootActionLedgerCoversEveryStoreDispatch === true) {
             completeTraces += 1;
           }
         }
