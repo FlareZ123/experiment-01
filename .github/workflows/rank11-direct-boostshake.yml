@@ -126,6 +126,14 @@ jobs:
       - name: Report Farewell-before-VIP source action and fail on engine exception
         if: inputs.farewell_vip_pair
         run: node -e "const p=require('./rank11-newmoon-farewell-vip-source-pair.json');console.log(JSON.stringify({seed:p.retrospectiveSourceSeed,firstInformationEqual:p.initialOwnerInformationIdentical,errors:p.failures,baselineVIP:p.baseline.vipAudit?.events,alternatedFarewell:p.farewellFirst.farewellAudit?.events,alternateVIP:p.farewellFirst.vipAudit?.events},null,2));if(p.failures||!p.initialOwnerInformationIdentical)process.exitCode=1"
+      - name: Evaluate Farewell plus two-slot New Moon Bench reservation on unchanged source deal
+        if: inputs.farewell_reservation_probe
+        env:
+          RESERVE_NEW_MOON: 'true'
+        run: node simulation/twinleaf/rank11-newmoon-farewell-vip-source-pair.cjs > rank11-newmoon-farewell-vip-reservation.json
+      - name: Print source reservation Pass observations and preserve negative outcomes
+        if: inputs.farewell_reservation_probe
+        run: node scripts/rank11-newmoon-reservation-audit.cjs
       - name: Verify source-first VSTAR and second-start direct policies compose
         run: node simulation/twinleaf/rank11-hybrid-source-replay.cjs > rank11-hybrid-source-replay.json
       - name: Retain one real K1 Garbodor search-negative source seed
@@ -146,6 +154,7 @@ jobs:
             rank11-direct-candidate-attack-window.json
             rank11-newmoon-first-vip-counterfactual.json
             rank11-newmoon-farewell-vip-source-pair.json
+            rank11-newmoon-farewell-vip-reservation.json
             rank11-hybrid-source-replay.json
             rank11-direct-abort-replay.json
             rank11-k1-source-contrast.json
