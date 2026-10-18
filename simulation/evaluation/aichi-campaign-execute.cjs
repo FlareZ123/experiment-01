@@ -354,7 +354,8 @@ function main() {
   const sourceCandidates = new Map([
     ['champion-reference', byRank.get(1)],
     ['hood-shield-v1', JSON.parse(fs.readFileSync(path.join(dir, 'candidate-hood-shadow-rider.json'), 'utf8'))],
-    ['temple-v1', JSON.parse(fs.readFileSync(path.join(dir, 'candidate-temple-shadow-rider.json'), 'utf8'))]
+    ['temple-v1', JSON.parse(fs.readFileSync(path.join(dir, 'candidate-temple-shadow-rider.json'), 'utf8'))],
+    ['new-moon-lockbreaker-v1', require('../../scripts/aichi-new-moon-candidate.cjs').loadNewMoonCandidate()]
   ]);
   const plannedCandidates = new Map(campaign.candidateRows.map(c => [c.id, c]));
   const mappings = new Map();
