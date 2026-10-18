@@ -15,3 +15,15 @@ Agent 24, 18 October 2026. Manual compiled test [39135466559](https://github.com
 [Manual CI 39135466559](https://github.com/FlareZ123/experiment-01/actions/runs/39135466559) completed **successfully** at head `a6b41e9b9197189c98f3c6c9376e3d561fb10a73`. The paired source-dealt probe regression passed. Artifact `rank2-gh-root-score-probe` is ID **12139593312**, ZIP SHA256 `41e77ca1203c3927efe04754de3e2dc2fcb40c015c4e148200e1792dfeadf0c2`. The JSON inside the ZIP is `rank2-gh-root-score.json`. No other card, deck, source, or matchup is claimed tested by this probe.
 
 All three runs within each arm (baseline, ordinal discovery, score observer) independently selected the same root Supporter at global root action 68, turn 5. The exact target was **bot-call ordinal 59**, physical seat B. The rank-2 hand was [`Stoutland BCR`, `Bellelba & Brycen-Man CEC`, `Guzma & Hala CEC`]; the Active was `Bunnelby PRC` without Energy. Source-deck hashes and first-turn slot matched. All modes shared full predecision source-zone SHA256 `e2ebe2476ee2f04d9b42b9a6a9ec3c8f3466be7e402a1eaa66bd875b85f92d3b`.
+
+### Source-root candidate evaluation
+
+| Genuine `PlaySupporterTactic.evaluateAction` result | Mode 1 OFF | Mode 1 ON |
+| --- | ---: | ---: |
+| Bellelba & Brycen-Man, hand index 1 | -186 | -186 |
+| Guzma & Hala, hand index 2 | **-185** | **-189** |
+| Baseline `PlaySupporterTactic.getStateScore` | -184 | -184 |
+| Selected action | **Guzma & Hala** | **Bellelba & Brycen-Man** |
+| `isValidAction` on selected card | true | true |
+
+The mode-one resolver changes the **hypothetically evaluated G&H action score by minus 4 points** on this concrete source state while leaving Bellelba's score and the base score unchanged. The resulting change in ordering explains the selection flip in the pinned greedy Supporter tactic. Both selected actions were validated successfully; this is **not** a predispatch legality rejection. The tests also reported `sourceDecisionTraceUnchanged:true` and `sameFork:true` for passive score observations in both arms.
