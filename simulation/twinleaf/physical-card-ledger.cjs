@@ -108,4 +108,20 @@ function fixedDeckCountAnomalies(ledger, expected = 60) {
   return ledger.canonicalCounts.flatMap((observed, seat) => observed === expected ? [] : [{seat, observed, expected}]);
 }
 
-module.exports = {inspectPhysicalCardZones, fixedDeckCountAnomalies};
+/**
+ * Audit physical cards including those temporarily held in a live prompt.
+ * This separately preserves the stricter canonical-only count for diagnosis.
+ *
+ * @param {{canonicalCounts: number[], transientPromptCustody: number[]}} ledger
+ * @param {number} [expected=60]
+ * @returns {Array<{seat: number, observed: number, expected: number}>}
+ */
+function locatedOrPromptCountAnomalies(ledger, expected = 60) {
+  return ledger.canonicalCounts.flatMap((count, seat) => {
+    const observed = count + ledger.transientPromptCustody[seat];
+    return observed === expected ? [] : [{seat, observed, expected}];
+  });
+}
+
+module.exports = {inspectPhysicalCardZones, fixedDeckCountAnomalies,
+  locatedOrPromptCountAnomalies};
