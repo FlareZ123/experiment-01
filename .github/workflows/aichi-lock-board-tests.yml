@@ -3,6 +3,11 @@ name: Aichi Temple and Wobbuffet board interactions
 on:
   workflow_dispatch:
     inputs:
+      rank8_attack_log_full_source:
+        description: 'Complete one archived rank8 source game with opt-in attack declaration telemetry'
+        required: false
+        type: boolean
+        default: false
       rank8_attach_prompt_probe:
         description: 'One source-ranked Temple-A invalid AttachEnergyPrompt diagnostic'
         required: false
@@ -52,6 +57,16 @@ jobs:
         run: node --test tests/twinleaf-attack-log-declarations.test.cjs
       - name: Smoke opt-in Store attack logs on an authentic source 60 opening
         run: node simulation/twinleaf/source-attack-log-headless-smoke.cjs
+      - name: Compare action-class trace and new Store logs in complete rank8 source game
+        if: inputs.rank8_attack_log_full_source
+        run: node simulation/twinleaf/source-attack-log-full-match.cjs > rank8-full-attack-ledger.json
+      - name: Preserve source-rank8 full attack declaration packet
+        if: inputs.rank8_attack_log_full_source && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank8-full-attack-declarations
+          path: rank8-full-attack-ledger.json
+          if-no-files-found: warn
       - name: Verify pinned Perfection delegated copied-GX Store action
         run: node simulation/twinleaf/perfection-delegated-action.cjs
       - run: node simulation/twinleaf/temple-wobbuffet-board.cjs
