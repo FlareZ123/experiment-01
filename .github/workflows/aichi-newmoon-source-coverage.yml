@@ -45,6 +45,17 @@ jobs:
           name: newmoon-secretbox-fieldblower-chain
           path: newmoon-secretbox-fieldblower-chain.json
           if-no-files-found: warn
+      - name: Resolve paid-Gengar Secret Box into copied Horror House and delayed Powerglass
+        run: node -e "process.stdout.write(JSON.stringify(require('./simulation/twinleaf/newmoon-secretbox-fieldblower-live-line.cjs').run({bridgeToHorrorHouse:true}),null,2)+'\\n')" > newmoon-secretbox-horrorhouse-chain.json
+      - name: Show copied-GX and late Energy witness
+        run: node -e "const x=require('./newmoon-secretbox-horrorhouse-chain.json'); console.log(JSON.stringify({attackBridge:x.attackBridge,trace:x.trace},null,2))"
+      - name: Archive staged paid-payload attack bridge
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-secretbox-horrorhouse-chain
+          path: newmoon-secretbox-horrorhouse-chain.json
+          if-no-files-found: warn
       - name: Run source identity and printing hash regression
         run: node --test tests/new-moon-print-map.test.cjs
       - name: Validate candidate 60 printed-engine variants
