@@ -35,6 +35,8 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm run compile
+      - name: Audit exact rank26 Dedenne source printing and resolver ID
+        run: node scripts/aichi-rank26-source-id-audit.cjs > rank26-dedenne-source-id.json
       - name: Verify pinned Damage Pump counterexample and reversible fix
         run: node --test tests/damage_pump_source_contract.test.cjs tests/damage_pump_store_dispatch.test.cjs tests/damage_pump_corrected_match.test.cjs tests/meloetta_damage_pump_two_prizes.test.cjs tests/meloetta_source_60_headless.test.cjs tests/meloetta_first_turn_ability_lock.test.cjs tests/meloetta_forest_seal_cologne_bridge.test.cjs
       - name: Rank26 autonomous Item eligibility and hidden-information guard
