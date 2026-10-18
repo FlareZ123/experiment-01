@@ -32,6 +32,10 @@ function run() {
   const game=adaptive.result;
   assert.equal(control.firstTurnSlot,0);
   assert.equal(game.firstTurnSlot,control.firstTurnSlot);
+  assert.equal(control.finished,true,'Frozen control must end naturally');
+  assert.equal(game.finished,true,'Conditional policy must lead to a terminal game');
+  assert.ok(game.decisionTrace.some(e=>e.playerSlot===1&&e.turnBefore===2),
+    'The source rank1 opponent must receive its actual first turn');
   assert.deepEqual(game.deckHashes,control.deckHashes);
   assert.equal(adaptive.attempted,true,
     'The positive-control initial own-hand K0 gate must trigger');
