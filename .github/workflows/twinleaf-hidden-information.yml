@@ -2,12 +2,18 @@ name: Twinleaf hidden-information policy diagnostic
 
 on:
   workflow_dispatch:
+    inputs:
+      archival_prefix_only:
+        description: Run only compiled archival rank-10 prefix falsification
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   hidden-draw-forecast:
+    if: ${{ !inputs.archival_prefix_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -86,4 +92,28 @@ jobs:
       - name: Explore frozen rank-10 root decision across detached hidden deck orders
         run: node simulation/twinleaf/rank10-hidden-order-live-probe.cjs
       - name: Explore genuine rank-10 decisive ordinal 215 under detached deck orders
+        run: node simulation/twinleaf/rank10-hidden-order-live-probe.cjs ordinal215
+
+  rank10-archival-prefix:
+    if: ${{ inputs.archival_prefix_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Check selective prefix digest negative controls
+        run: node --test tests/source-prefix-digest.test.cjs tests/rank10-hidden-order-live-probe.test.cjs
+      - name: Compare first 216 authentic v3 Timeless Store actions with archived prefix
         run: node simulation/twinleaf/rank10-hidden-order-live-probe.cjs ordinal215
