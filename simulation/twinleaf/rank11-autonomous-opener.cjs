@@ -17,10 +17,11 @@ function engine(name) {
  * @param {number} seat
  * @param {number} playerTurnPhase
  * @param {boolean} [allowSecondGlobalTurn] Optional v2 path: player's first turn when going second.
+ * @param {boolean} [avoidAllGarbodorHeld] Optional K0 guard for the fixed published rank11 pair.
  * @returns {boolean}
  */
 function openingOpportunity(state, player, seat, playerTurnPhase,
-  allowSecondGlobalTurn = false) {
+  allowSecondGlobalTurn = false, avoidAllGarbodorHeld = false) {
   if (!(state.turn === 1 || (allowSecondGlobalTurn && state.turn === 2)) ||
       state.activePlayer !== seat ||
       state.phase !== playerTurnPhase || player.usedVSTAR ||
@@ -31,7 +32,9 @@ function openingOpportunity(state, player, seat, playerTurnPhase,
         !player.bench.some(slot => !slot.getPokemonCard()))) return false;
   const hand = player.hand.cards.map(card => card.name);
   return hand.includes('Battle VIP Pass') && hand.includes('Float Stone') &&
-    !hand.includes('Forest Seal Stone') && !hand.includes('Boost Shake');
+    !hand.includes('Forest Seal Stone') && !hand.includes('Boost Shake') &&
+    (!avoidAllGarbodorHeld ||
+      hand.filter(name => name === 'Garbodor').length < 2);
 }
 
 /**
