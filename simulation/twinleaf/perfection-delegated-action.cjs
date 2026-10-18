@@ -121,7 +121,7 @@ function run() {
   assert.equal(perfection.usedGX,true);
   assert.equal(perfection.selectedCopiedAttack,'Horror House-GX');
   assert.deepEqual(perfection.declarationActionTypes,
-    ['USE_ABILITY_ACTION','RESOLVE_PROMPT_ACTION']);
+    ['USE_ABILITY_ACTION','RESOLVE_PROMPT']);
   return {
     schema:'perfection-delegated-action-contract-v1',
     engine:pinned,
