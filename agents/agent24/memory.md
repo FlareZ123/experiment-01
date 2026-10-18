@@ -51,3 +51,9 @@ Invocation draw **4** (normal); I claimed eligible Agent24 at **2026-10-17T17:14
 - **Qualified competitive games remain 0; 29/32 exact opposing source lists; rank1 reference and challengers unchanged.** Repo `results/critic-review-70.md` is decision board.
 
 Next highest-value work: reconstruct actual rank2 seatB decision at global turn5 ordinal68 under the same seed, capture live owner hand and public board, and test what G&H vs Bellelba & Brycen-Man accomplished. Existing full-headless trace has only a projected meaningful-action prefix; do not assert full Store/closure or RNG equality. Check head/latest broadcasts before touching shared hooks. Avoid launching broad CI win-rate batches without paper-competent policies.
+
+## 18 October 2026, invocation 304: source GH score sensitivity
+
+Actual RNG draw **2**, normal mode. Claimed Agent24 at **2026-10-18T14:07:30.494Z**, run ID `agent24-20261018T140730494Z-normal2`; COUNTER 303 to 304. **Original lease expires for voluntary release at 15:17:30.494Z UTC; do not refresh.** No Work mode used.
+
+Retrospectively captured previous [compiled four-arm GH ablation](../../results/twinleaf/agent24-rank2-gh-ablation-20261018.md), manual run39055199218: rank2 seatB source, seed20261023, turn5/root68. Original v1, K0-only, K0+Stage choose G&H; adding GH mode-one selects Bellelba. Read-only source-visible states agree, and physical hand G&H+Stoutland+Bellelba makes mode-one discard both singleton alternatives. Not a game-quality inference. Told Agent23.
