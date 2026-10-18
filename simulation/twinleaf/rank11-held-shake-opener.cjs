@@ -93,6 +93,18 @@ function withRank11HeldShake(sourceSeat, execute) {
   }
 
   SimpleTacticsAi.prototype.decodeNextAction = function heldShake(state) {
+    // Observe the immediate opponent decision before the source-only return.
+    if (stage === 6 && !witness && openingTurn !== null &&
+        state.activePlayer !== sourceSeat && state.turn > openingTurn &&
+        state.phase === GamePhase.PLAYER_TURN) {
+      const source = state.players.find(p => p.id === sourceId);
+      if (source) witness = {
+        turn: state.turn, opponentDecisionSeat: state.activePlayer,
+        equippedGarbodor: source.bench.some(s =>
+          s.getPokemonCard()?.name === 'Garbodor' &&
+          s.tools.some(t => t.name === toolName))
+      };
+    }
     const player = state.players.find(p => p.id === this.client?.id);
     if (!player || player.id !== sourceId) return previous.call(this, state);
     const pending = state.prompts.find(p => p.result === undefined);
@@ -104,19 +116,7 @@ function withRank11HeldShake(sourceSeat, execute) {
       initialOwnHand = player.hand.cards.map(card => card.fullName);
       toolName = TOOLS.find(name => player.hand.cards.some(c => c.name === name));
     }
-    if (stage < 0 || stage >= 6) {
-      if (stage === 6 && !witness && state.activePlayer !== sourceSeat &&
-          state.turn > openingTurn) {
-        const source = state.players.find(p => p.id === sourceId);
-        witness = {
-          turn: state.turn,
-          equippedGarbodor: source.bench.some(s =>
-            s.getPokemonCard()?.name === 'Garbodor' &&
-            s.tools.some(t => t.name === toolName))
-        };
-      }
-      return previous.call(this, state);
-    }
+    if (stage < 0 || stage >= 6) return previous.call(this, state);
     // Shuffle/Wait and any ancillary owner prompts remain delegated to the
     // pinned resolver without resetting the multi-action plan.
     let action = null;
