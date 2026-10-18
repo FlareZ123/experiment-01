@@ -17,8 +17,14 @@ def evaluate_raw_batch(
     batch: dict, field_csv: str,
     source_hashes: dict[int, str] | None = None,
     candidate_hash: str | None = None,
+    expected_trials: list[dict] | None = None,
 ) -> dict:
-    """Validate optional independently trusted candidate and ranked opponent hashes."""
+    """Validate independently supplied source hashes and preregistered trial inputs.
+
+    expected_trials must originate outside the observed game batch. Its game_id,
+    rank, seed and physical candidate_side identify every scheduled trial.
+    Actual first/second turn is deliberately checked only from engine proof.
+    """
     if batch.get("schema_version") != 2:
         raise ValueError("Unknown schema version")
     keys = ("candidate_deck_sha256", "field_manifest_sha256", "engine_revision",
@@ -39,6 +45,24 @@ def evaluate_raw_batch(
             slots[0]["id"] == slots[1]["id"] or
             slots[0]["name"] == slots[1]["name"]):
         raise ValueError("Require distinct engine slot IDs and player names")
+
+    scheduled = None
+    if expected_trials is not None:
+        if type(expected_trials) is not list or not expected_trials:
+            raise ValueError("Expected a nonempty independently supplied trial schedule")
+        scheduled = {}
+        for trial in expected_trials:
+            if not isinstance(trial, dict):
+                raise ValueError("Malformed scheduled trial")
+            game_id = trial.get("game_id")
+            rank, seed, side = (trial.get("rank"), trial.get("seed"),
+                                trial.get("candidate_side"))
+            if (not isinstance(game_id, str) or not game_id or game_id in scheduled or
+                    type(rank) is not int or rank not in range(1, 33) or
+                    type(seed) is not int or not 0 <= seed <= 0xffffffff or
+                    side not in ("A", "B")):
+                raise ValueError("Invalid or duplicated scheduled trial identity")
+            scheduled[game_id] = (rank, seed, side)
 
     published = {p.rank for p in read_manifest(field_csv) if p.published}
     if source_hashes is not None:
@@ -71,6 +95,8 @@ def evaluate_raw_batch(
         seeds.add((rank, seat, seed))
         if side not in ("A", "B"):
             raise ValueError("Candidate engine seat must be A or B")
+        if scheduled is not None and scheduled.get(g["game_id"]) != (rank, seed, side):
+            raise ValueError("Unscheduled trial or registered trial inputs changed")
         order = g.get("first_turn")
         turn_verified = isinstance(order, dict)
         if not turn_verified:
@@ -138,6 +164,10 @@ def evaluate_raw_batch(
         else:
             raise ValueError("Failure cannot be a win; unknown status")
 
+    if scheduled is not None and set(scheduled) != ids:
+        missing = sorted(set(scheduled) - ids)
+        raise ValueError(f"Scheduled trial results omitted: {missing[:5]}")
+
     stats = summarize(SeatRecord(rank, seat, w, n) for (rank, seat), (w, n) in counts.items())
     finished = sum(n for w, n in counts.values())
     all_completed_traces_verified = finished > 0 and verified_completed_traces == finished
@@ -149,6 +179,9 @@ def evaluate_raw_batch(
     return {
         "provenance": {**{k: batch[k] for k in keys}, "engine_slots": slots},
         "raw_games": len(batch["games"]),
+        "schedule_bound": scheduled is not None,
+        "scheduled_trial_count": len(scheduled) if scheduled is not None else None,
+        "all_scheduled_trials_accounted": scheduled is not None,
         "finished_games": finished,
         "verified_completed_traces": verified_completed_traces,
         "terminal_bound_games": terminal_bound_games,
@@ -165,6 +198,10 @@ def evaluate_raw_batch(
         "trace_integrity_promotion_eligible": all_completed_traces_verified and not failures,
         "outcome_integrity_promotion_eligible": (all_completed_traces_verified and
                                                  all_completed_terminals_bound and not failures),
+        "sampling_frame_input_integrity_promotion_eligible": (
+            scheduled is not None and candidate_source_inventory_bound and
+            opponent_source_inventory_bound and all_completed_traces_verified and
+            all_completed_terminals_bound and not failures),
         "competitive_evidence_qualified": False,
         "finished_ties_as_nonwins": ties,
         "failures": failures,
