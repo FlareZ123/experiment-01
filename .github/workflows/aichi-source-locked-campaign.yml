@@ -21,6 +21,11 @@ on:
         required: false
         type: boolean
         default: false
+      setup_multiseed_audit:
+        description: 'Run bounded multi-rank, multi-seed first-turn captures only; unqualified'
+        required: false
+        type: boolean
+        default: false
       setup_observer_audit:
         description: 'With setup_order_probe, run a three-arm observer noninterference audit instead'
         required: false
@@ -73,7 +78,7 @@ jobs:
       - name: Verify source-locked trial adapter and guards
         run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs
       - name: Run six bounded Iron Thorns diagnostic trials
-        if: ${{ !inputs.setup_order_probe }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit }}
         env:
           CAMPAIGN_INPUT_ORDER_PROTOCOL: ${{ inputs.input_order_protocol || 'source-row-order-v1' }}
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
@@ -92,11 +97,14 @@ jobs:
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
         run: node simulation/evaluation/aichi-campaign-envelope-runner.cjs aichi-campaign-report.json aichi-campaign-envelope.json
       - name: Probe true post-setup zones under same v3 seed
-        if: ${{ inputs.setup_order_probe && !inputs.setup_observer_audit }}
+        if: ${{ inputs.setup_order_probe && !inputs.setup_observer_audit && !inputs.setup_multiseed_audit }}
         run: node simulation/evaluation/aichi-input-order-deal-probe.cjs > aichi-setup-order-probe.json
       - name: Audit root Store setup observer noninterference
-        if: ${{ inputs.setup_order_probe && inputs.setup_observer_audit }}
+        if: ${{ inputs.setup_order_probe && inputs.setup_observer_audit && !inputs.setup_multiseed_audit }}
         run: node simulation/evaluation/aichi-setup-observer-noninterference.cjs > aichi-setup-observer-audit.json
+      - name: Sample true source setups across ranks and independent seeds
+        if: ${{ inputs.setup_multiseed_audit }}
+        run: node simulation/evaluation/aichi-multiseed-setup-coupling.cjs > aichi-multiseed-setup-coupling.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -106,4 +114,5 @@ jobs:
             aichi-campaign-envelope.json
             aichi-setup-order-probe.json
             aichi-setup-observer-audit.json
+            aichi-multiseed-setup-coupling.json
           retention-days: 14
