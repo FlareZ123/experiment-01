@@ -1,5 +1,8 @@
 # Rank-11 direct Boost Shake opening census
 
+**Latest 18 October scope correction:** Garbotoxin accepts any Pokémon Tool, including the source's Forest Seal Stone and Muscle Band. The most complete disjoint immediate-tool access census on this page yields **9.66626737%** after the first natural draw. Earlier Float-Stone-only figures are valid restricted subsets, and are not the latest all-Tool calculation. These are structural card-access events, not demonstrated bot decisions or wins.
+
+
 **Exact calculation, 18 October 2026.** The published rank-11 Absol Garbodor 60 contains 2 Trubbish, 2 Garbodor, 4 Battle VIP Pass, 3 Float Stone, 2 Boost Shake, 2 Oranguru V and 11 Basic Pokemon. The existing `rank11-autonomous-boostshake-v1` policy rejects hands that already contain Boost Shake.
 
 Enumerate uniformly chosen opening hands of seven from 60, followed by six Prizes chosen from the other 53, conditioning on hands with a Basic. An immediate structural Garbotoxin line is present if hand has Float Stone and Boost Shake, has Trubbish in hand or a Battle VIP Pass with at least one Trubbish remaining in deck, and at least one Garbodor remains in deck. A Trubbish in hand can be made Active or Benched and equipped before Boost Shake evolves it. This event covers **2.46422799% of valid seven-card hands with random Prizes** (169890696085236 / 6894276702593280 combined hand-Prize deals). No other draws, mulligan bonus draws or additional search cards are credited.
@@ -55,3 +58,23 @@ Exact held-Seal numerator: initial seven **102,325,528,271,124** divided by the 
 The source-locked regression exercises disjoint group target math and both sample spaces. The isolated `rank11-source-census` job in [manual CI 39093424371](https://github.com/FlareZ123/experiment-01/actions/runs/39093424371) **passed** after introducing the held-Seal route, including all six dedicated tests; the broader benchmark job is a distinct preexisting failing campaign fixture and provides no deck-strength qualification. Exact calculations are validated for these assumptions only.
 
 **Strategic priority:** source-dealt automatic Store decisions selecting at least one *held Boost Shake* opportunity and one *held Forest Seal Stone* opportunity, followed by genuinely consequential candidate counterplay. These numerical events demonstrate missed source-policy coverage, not lock setup actually executed or wins against a skilled player.
+
+## Tool-complete direct lock: Forest Seal Stone or Muscle Band on Trubbish
+
+**Rules refinement.** Source Garbodor BKP 57 Garbotoxin requires a Pokémon Tool attached to it without specifying which Tool. The source list includes **3 Float Stone, 2 Forest Seal Stone and 1 Muscle Band**, all attachable to Trubbish before Boost Shake evolves it. Forest Seal Stone can be attached to a non-V Pokémon; its Star Alchemy VSTAR Power cannot be used by that non-V Pokémon. The Tool remains attached through evolution.
+
+A **held Boost Shake** therefore needs any of six Tools. Separately, **held Forest Seal Stone without Shake** can give Star Alchemy to an established Oranguru V or Crobat V and fetch Shake from deck; Trubbish must hold a *distinct* Tool from Float Stone, Muscle Band or a second held Forest Seal Stone. The two events are mutually exclusive by held Shake.
+
+| Structural source access after random six Prizes | Valid seven-card opener | Legal seven + first normal draw |
+| --- | ---: | ---: |
+| Held Shake, **any Tool** on Trubbish | **4.44596744%** | **6.45550612%** |
+| Held Seal, no Shake, **separate Tool** on Trubbish | **2.12421845%** | **3.21076125%** |
+| **Disjoint union, Tool-complete** | **6.57018589%** | **9.66626737%** |
+
+Exact combined numerators: valid opening seven **452,966,795,149,713** / **6,894,276,702,593,280**; seven plus first draw **31,321,703,320,823,661** / **324,031,005,021,884,160**. Individual after-draw direct and held-Seal counts are **20,917,841,360,559,248** and **10,403,861,960,264,413**. Hand must have a Basic in its **initial seven**. Bonus draws, Quick Ball, Oranguru Back Order, Secret Box, other effects and opponent locks are outside this exact sampling model.
+
+The eleven source-locked category counts are 2 Oranguru V, 4 VIP, 3 Float, 2 Seal, 2 Shake, 2 Trubbish, 2 Garbodor, 1 Crobat V, 1 Muscle Band, 6 other Basic and 35 others. The updated CommonJS script and tests enforce exact joint integer controls and verify distinct Tool conditions and group-Prize effects. **Isolated 8-test census job passed** in [manual CI 39093676404](https://github.com/FlareZ123/experiment-01/actions/runs/39093676404). Its companion preexisting benchmark job may fail unrelated source-campaign fixture assertions, which do not invalidate the isolated calculation.
+
+Earlier tables on this page counted Float Stone only as Tool; they are preserved strict-subset scenarios. The **9.66626737%** is the current two-route structural access estimate under the more complete card-text treatment. Actual lock activation remains unobserved in a qualified independent game. Opponent actions, Ability locks and resource sequencing may prevent the line; additional search and card draw may increase access. This is not a competitive win-rate result.
+
+**Next action:** implement and validate the two autonomous source-dealt opponent Tool routes with genuine decision logs, independent starts and meaningful candidate responses. Competitive games qualified: **zero**.
