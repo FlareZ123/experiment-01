@@ -65,6 +65,14 @@ function rank11SourceSeat(trial) {
   return trial.candidateEngineSlot === 'A' ? 1 : 0;
 }
 
+/** @param {object} trial Verified rank26 source match. @returns {0|1} */
+function rank26SourceSeat(trial) {
+  if (trial?.rank !== 26 || !['A','B'].includes(trial.candidateEngineSlot)) {
+    throw new Error('Autonomous rank26 requires the published source rank and seat.');
+  }
+  return trial.candidateEngineSlot === 'A' ? 1 : 0;
+}
+
 /**
  * First-turn evidence must match both the actual engine slot and first draw log.
  * @param {object} game
@@ -286,7 +294,7 @@ function executeCampaign(inputs, options = {}) {
         observedResearchPolicyProfile: game.researchPolicyProfile || null,
         observedExperimentalTactics: game.experimentalTactics || [],
         rank11AutonomousPolicy: game.rank11AutonomousPolicy || null,
-        rank11AutonomousPolicy: game.rank11AutonomousPolicy || null,
+        rank26ColognePolicy: game.rank26ColognePolicy || null,
         observedRngProtocol: game.randomnessProtocol || null,
         observedRules: game.rules || null,
         observedEngineDeckHashes: game.deckHashes || null,
@@ -340,12 +348,17 @@ if (require.main === module) {
   }
   const runMatch = profiled ?
     (request, trial) => {
-      if (profile !== profiled.RANK11_AUTONOMOUS_PROFILE) {
-        return profiled.runWithResearchProfile(request, profile);
+      if (profile === profiled.RANK11_AUTONOMOUS_PROFILE) {
+        return profiled.runWithResearchProfile({
+          ...request, rank11SourceSeat: rank11SourceSeat(trial)
+        }, profile);
       }
-      return profiled.runWithResearchProfile({
-        ...request, rank11SourceSeat: rank11SourceSeat(trial)
-      }, profile);
+      if (profile === profiled.RANK26_COLOGNE_PROFILE) {
+        return profiled.runWithResearchProfile({
+          ...request, rank26SourceSeat: rank26SourceSeat(trial)
+        }, profile);
+      }
+      return profiled.runWithResearchProfile(request, profile);
     } : undefined;
   process.stdout.write(JSON.stringify(executeCampaign(loadCampaignInputs(), {
     phase, maxTrials, maxActions, trialIds, runMatch,
@@ -361,4 +374,4 @@ if (require.main === module) {
 }
 
 module.exports = { loadCampaignInputs, verifyCampaign, turnProof, executeCampaign,
-  rank11SourceSeat };
+  rank11SourceSeat, rank26SourceSeat };
