@@ -32,6 +32,14 @@ The newer `rank10-hidden-order-live-probe.cjs` initially used archived v3 Double
 
 If the compiled root action differs, classify it as a **remaining historical replay mismatch**, collect earliest root action/prompt prefix divergence and relevant options, and do not silently redefine the target event.
 
+## Compiled verification
+
+[Manual CI 39110044974](https://github.com/FlareZ123/experiment-01/actions/runs/39110044974) completed successfully at `bc4743f7c9277827b2d11a68e1dc4384abe66754`, after compiling the pinned Twinleaf source and passing both historical-profile regression and source game.
+
+At global **turn 28**, root dispatch **215**, physical champion seat **1**, the authentic Store action was `RetreatAction` with actor ID **202**, bench index **1**. There were **22 remaining own deck cards**, and **four** prior own deck search prompts were recorded, latest at root185 on turn27. Equal-seeded detached policies on physical and reversed remaining deck order chose the identical Retreat action, `actionSensitiveToHiddenDeckOrder:false`. The untouched live State graph digest before and after the probe was `955530f42ee54b2dcca44485239156e69201833781a6c5d1e88b3e5db2ab3e19`; the instrumented and uninstrumented `runMatch` return values matched exactly.
+
+The repaired experiment demonstrates that restoring the **Timeless intervention arm** restores the historic source event; the prior turn29 PlayCard belonged to the unmodified v3 control arm. The hidden-order result tests only one reversed permutation, one seed, and one action, after previous search history. A full 215-step old-vs-new source prefix equality comparison is still desirable. Neither bot-policy competence nor competitive game qualification is established. 
+
 ## Scope
 
 A restored historical root215 would establish that one original **policy arm** is again observable. The proposed detached hidden-deck reversal would test one policy action under one opaque permutation; it cannot prove decision competence, full information-set safety, source-engine/paper-rules fidelity, multi-seed performance, or the 99.5% full-field goal. **Competitive-qualified games: zero.** Exactly 29 of 32 Aichi decklists are source-verified, with ranks 23, 25, and 28 still missing.
