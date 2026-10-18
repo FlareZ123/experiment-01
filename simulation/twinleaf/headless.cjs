@@ -25,6 +25,7 @@ const {installMimikyuNonGxCopycatHook} = require('./copycat-compat.cjs');
 const {installDeclaredCopyHistoryHook} = require('./copycat-declared-history-hook.cjs');
 const {installPassClearsLastAttackHook} = require('./last-attack-pass-hook.cjs');
 const {selectedCardsEvidence, selectedOptionEvidence} = require('./selected-cards-evidence.cjs');
+const {captureChooseAttackReference} = require('./choose-attack-reference.cjs');
 const {decisionHandEvidence} = require('./decision-hand-evidence.cjs');
 const {installSnorlaxRetreatStartHook} = require('./snorlax-retreat-start-hook.cjs');
 const {installElectroRainDamageHook} = require('./electro-rain-damage-hook.cjs');
@@ -775,6 +776,7 @@ function runMatch(request) {
       } : null;
       const selectionInfo = decisionTrace ? selectedCardsEvidence(pending, action, state) : null;
       const optionInfo = decisionTrace ? selectedOptionEvidence(pending, action) : null;
+      const attackChoice = decisionTrace ? captureChooseAttackReference(pending, action) : null;
       const decisionHandBefore = decisionTrace && seat >= 0 ?
         decisionHandEvidence(state, seat) : null;
       const attackInfo = actionName === 'AttackAction' && seat >= 0 ? {
@@ -931,7 +933,7 @@ function runMatch(request) {
           cardsPlayedBySeat[seat][playedCard] = (cardsPlayedBySeat[seat][playedCard] || 0) + 1;
         }
       }
-      if (decisionTrace && (playedCard || abilityInfo || attackInfo || selectionInfo || optionInfo ||
+      if (decisionTrace && (playedCard || abilityInfo || attackInfo || selectionInfo || optionInfo || attackChoice ||
           ['PassTurnAction', 'RetreatAction', 'UseStadiumAction'].includes(actionName))) {
         decisionTrace.push({
           actionOrdinal: actions, turnBefore, turnAfter: store.state.turn,
@@ -940,6 +942,7 @@ function runMatch(request) {
           ...(abilityInfo ? { ability: abilityInfo.name } : {}),
           ...(selectionInfo ? { cardSelection: selectionInfo } : {}),
           ...(optionInfo ? { optionSelection: optionInfo } : {}),
+          ...(attackChoice ? { attackChoice } : {}),
           ...(decisionHandBefore ? { decisionHandBefore } : {}),
           ...(publicBoardBeforePass ? { publicBoardBeforePass } : {}),
           ...(retreatTransition ? { retreatTransition } : {}),
