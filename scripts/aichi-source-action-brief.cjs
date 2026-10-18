@@ -33,6 +33,11 @@ function sourceRecordBrief(record) {
   const firstReply = firstAttack && Array.isArray(record.decisionTrace) ?
     record.decisionTrace.find(row => row.playerSlot === candidateSeat &&
       row.actionOrdinal > firstAttack.actionOrdinal) : null;
+  const ownTurnDecision = firstAttack && Array.isArray(record.decisionTrace) ?
+    record.decisionTrace.find(row => row.playerSlot === candidateSeat &&
+      row.turnBefore > firstAttack.turnBefore &&
+      ['PlayCardAction','UseAbilityAction','AttackAction',
+        'PassTurnAction','RetreatAction','UseStadiumAction'].includes(row.action)) : null;
   const relevantActions = actions?.filter(event =>
     event.action === 'UseAbilityAction' ||
     event.action === 'PlayCardAction' ||
@@ -81,6 +86,11 @@ function sourceRecordBrief(record) {
       turn:firstReply.turnBefore,ordinal:firstReply.actionOrdinal,
       action:firstReply.action,card:firstReply.card??null,
       attack:firstReply.attack??null,ability:firstReply.ability??null
+    } : null,
+    firstCandidateOwnTurnDecisionAfterSourceAttack:ownTurnDecision ? {
+      turn:ownTurnDecision.turnBefore,ordinal:ownTurnDecision.actionOrdinal,
+      action:ownTurnDecision.action,card:ownTurnDecision.card??null,
+      attack:ownTurnDecision.attack??null,ability:ownTurnDecision.ability??null
     } : null,
     capturedSourceDecisions:actions?.length ?? null,
     actionBudgetReached:record.endReason === 'action-limit',
