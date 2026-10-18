@@ -97,6 +97,13 @@ function inspectPhysicalCardZones(state) {
   };
 }
 
+/**
+ * Compare each player's canonical physically located card total to the deck size.
+ * Temporary card custody during unresolved prompts is reported separately.
+ * @param {{canonicalCounts: number[]}} ledger Physical reference inventory.
+ * @param {number} [expected=60] Starting deck size.
+ * @returns {Array<{seat: number, observed: number, expected: number}>}
+ */
 function fixedDeckCountAnomalies(ledger, expected = 60) {
   return ledger.canonicalCounts.flatMap((observed, seat) => observed === expected ? [] : [{seat, observed, expected}]);
 }
