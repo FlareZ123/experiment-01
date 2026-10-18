@@ -66,6 +66,19 @@ function compare() {
   const mailCandidate=summarize(assisted.result.result);
   assert.ok(assisted.policyAudit.decisions.length>0,
     'Mail-assisted DCE policy did not encounter ordinary Lightning');
+  const late = withRank26DceReservation(SOURCE.rank26Seat,()=>
+    runWithResearchProfile(request,RANK26_PROPAGATION_PROFILE),
+    {lateBasicFallback:true});
+  const lateSummary=summarize(late.result);
+  assert.equal(late.policyAudit.version,'rank26-first-turn-dce-reservation-v2');
+  assert.ok(late.policyAudit.decisions.some(d=>
+    d.decision==='late-basic-lightning-after-other-tactics-exhausted'),
+    'Source did not complete the postponed Lightning fallback');
+  assert.equal(lateSummary.sourceBasicLightningChoices,1);
+  const lateCards=lateSummary.sourceFirstDecisions.map(d=>d.card);
+  assert.ok(lateCards.indexOf('Hisuian Heavy Ball')>=0 &&
+    lateCards.indexOf('Lightning Energy')>lateCards.indexOf('Hisuian Heavy Ball'),
+    'Source Lightning was not actually postponed behind the played Item');
   return {
     schema:'rank26-authentic-source-firstturn-dce-reservation-v1',
     seed:SOURCE.seed,sourceSeat:SOURCE.rank26Seat,sourceRank:26,
@@ -78,6 +91,7 @@ function compare() {
       firstTurn:mailCandidate,policy:assisted.policyAudit,
       mailPolicy:assisted.result.policyAudit
     },
+    lateFallback:{firstTurn:lateSummary,policy:late.policyAudit},
     prospectiveRandomTrial:false,
     gamePolicyQualified:false,
     competitiveGameQualified:false,
