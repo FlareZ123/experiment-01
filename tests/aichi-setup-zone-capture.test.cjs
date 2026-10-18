@@ -4,6 +4,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {openingSetupZones}=require('../simulation/twinleaf/opening-setup-zones.cjs');
 const {captureSourceSetup}=require('../simulation/evaluation/aichi-setup-zone-capture.cjs');
+const {captureSetupOnly}=require('../simulation/evaluation/aichi-setup-only-capture.cjs');
 
 /** @param {string[]} names */
 const zone=names=>({cards:names.map(fullName=>({fullName}))});
@@ -49,5 +50,33 @@ test('source Store wrapper captures first turn once and restores dispatch on suc
   assert.equal(MockStore.prototype.dispatch,original);
   assert.throws(()=>captureSourceSetup(MockStore,()=>{throw new Error('Probe failed');}),
     /Probe failed/);
+  assert.equal(MockStore.prototype.dispatch,original);
+});
+
+test('short source root sampler stops at first turn and restores Store dispatch',()=>{
+  class MockStore{
+    constructor(){this.state={turn:0,activePlayer:0,players:[player(101),player(202)]};}
+    dispatch(action){
+      if(action==='turn1')this.state.turn=1;
+      if(action==='should-not-run')throw Error('Sampler ran policy action');
+    }
+  }
+  const original=MockStore.prototype.dispatch;
+  const observed=captureSetupOnly(MockStore,()=>{
+    const store=new MockStore();
+    store.dispatch('turn1');
+    store.dispatch('should-not-run');
+  });
+  assert.equal(observed.stoppedAtFirstTurn,true);
+  assert.deepEqual(observed.setupZones.seats[1].hand,['Hand-202']);
+  assert.equal(MockStore.prototype.dispatch,original);
+  const noTurn=captureSetupOnly(MockStore,()=>{
+    const store=new MockStore();store.dispatch('setup-only');
+  });
+  assert.equal(noTurn.stoppedAtFirstTurn,false);
+  assert.equal(noTurn.setupZones,null);
+  assert.equal(MockStore.prototype.dispatch,original);
+  assert.throws(()=>captureSetupOnly(MockStore,()=>{throw Error('Real failure');}),
+    /Real failure/);
   assert.equal(MockStore.prototype.dispatch,original);
 });
