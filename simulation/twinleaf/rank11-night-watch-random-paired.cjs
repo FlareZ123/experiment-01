@@ -73,7 +73,8 @@ function oneArm(corrected) {
       promptSelections:r.stages.filter(s =>
         s.promptAudit?.sourceHand === true &&
         s.promptAudit?.type === 'ChooseCardsPrompt'
-      ).map(s => s.promptAudit.selectionCount)
+      ).map(s => ({count:s.promptAudit.selectionCount,
+        positions:s.promptAudit.selectionPositions}))
     })),
     rootPhysicalIntegrity:game.physicalZoneIntegrity,
     hook:wrapped.audit
