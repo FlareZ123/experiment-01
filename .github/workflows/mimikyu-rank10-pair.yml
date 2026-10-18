@@ -23,6 +23,11 @@ on:
         type: boolean
         required: false
         default: false
+      run_autonomous_shred_pilot:
+        description: 'Test turn-independent public-state Copycat Shred policy against source deal'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -47,7 +52,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Test source-turn-28 Shred opponent-response fork
-        run: node --test tests/mimikyu-turn28-shred-fork.test.cjs tests/rank10-copycat-response-ledger.test.cjs tests/rank10-turn28-bot-fingerprint.test.cjs tests/policy-random-draw-audit.test.cjs
+        run: node --test tests/mimikyu-turn28-shred-fork.test.cjs tests/rank10-copycat-response-ledger.test.cjs tests/rank10-turn28-bot-fingerprint.test.cjs tests/policy-random-draw-audit.test.cjs tests/mimikyu-autonomous-shred-policy.test.cjs
       - name: Run source-locked rank-10 turn28 Shred counterfactual
         if: ${{ inputs.run_extra_shred_policy }}
         run: node simulation/twinleaf/rank10-extra-turn-shred-fork.cjs > rank10-turn28-shred-fork.json
@@ -63,6 +68,19 @@ jobs:
           if-no-files-found: warn
       - name: Compare archived extra-turn retreat with physical source Shred attack
         run: node simulation/twinleaf/rank10-mimikyu-shred-source-fork.cjs > rank10-mimikyu-shred-source-fork.json
+      - name: Run source-locked autonomous Shred policy pilot
+        if: ${{ inputs.run_autonomous_shred_pilot }}
+        run: node simulation/twinleaf/rank10-autonomous-shred-pilot.cjs > rank10-autonomous-shred-pilot.json
+      - name: Print bounded turn-independent tactical policy outcome
+        if: ${{ inputs.run_autonomous_shred_pilot }}
+        run: node -e "const x=require('./rank10-autonomous-shred-pilot.json');console.log(JSON.stringify({source:x.source,first:x.firstRootDivergence,control:x.baseline.prizesRemaining,autonomous:x.alternative.prizesRemaining,qualified:x.qualifiedForCompetitiveInference}));"
+      - name: Archive state-dependent Shred tactical policy pilot
+        if: ${{ always() && inputs.run_autonomous_shred_pilot }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank10-autonomous-shred-pilot
+          path: rank10-autonomous-shred-pilot.json
+          if-no-files-found: warn
       - name: Reproduce archived v3 post-Shred opponent perspective
         if: ${{ inputs.run_ordinal_audit }}
         run: node simulation/twinleaf/rank10-postshred-opponent-perspective.cjs > rank10-postshred-perspective.json
