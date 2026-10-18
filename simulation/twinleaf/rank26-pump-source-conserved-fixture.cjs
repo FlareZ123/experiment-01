@@ -34,11 +34,11 @@ function fixture(sourceSeat) {
     return remaining.splice(i,1)[0];
   };
   const active=take('Meloetta ex SV11B');
-  const dedenne=source60.filter(name=>name.startsWith('Dedenne-GX '));
-  assert.equal(dedenne.length,1,
-    'Resolved rank26 source must have exactly one printed Dedenne-GX');
+  // Choose the published PRC Bunnelby as the third non-Darkness donor.
+  // The earlier dormant fixture assumed an engine Dedenne-GX ID that the
+  // exact-source resolver does not expose; keep the donor source-conserved.
   const benchNames=['Unown AOR','Squawkabilly ex PAL',
-    dedenne[0],'Exeggcute PLF','Exeggcute PLF'].map(take);
+    'Bunnelby PRC','Exeggcute PLF','Exeggcute PLF'].map(take);
   const stadium=take('Risky Ruins MEG');
   const hand=[take('Damage Pump LOR'),...remaining.splice(0,6)];
   const prizes=remaining.splice(0,6);
