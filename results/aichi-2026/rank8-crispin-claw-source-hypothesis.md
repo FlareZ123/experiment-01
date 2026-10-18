@@ -24,6 +24,16 @@ The existing Secret Box selection burns all three non-core cards and ends with e
 
 The source opponent **has six Prize cards remaining, and the Hood player has six remaining at turn7**, verified from archived genuine natural root ordinal86 `prizes=[6,6]`. Thus **Roxanne is not immediately playable**, since its printed condition requires the opponent to have three or fewer remaining Prizes. Earlier correspondence proposing immediate Roxanne was corrected. Crispin has no analogous Prize-based use restriction.
 
+## Pinned-engine interface audit (source inspection only)
+
+I inspected the **actual upstream Twinleaf revision pinned in this repo**, `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, without modifying the vendor dependency:
+
+- [Secret Box reducer](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/10-scarlet-and-violet/set-twilight-masquerade/secret-box.ts): scans remaining **owner deck**, counts Item, Tool, Stadium and Supporter separately, and builds a real `ChooseCardsPrompt` with `min:0`, `max:sum(category-cap)`, `maxSupporters:Math.min(supporters,1)` and corresponding caps for the other three classes. This means the *engine interface* supports selecting a Supporter alongside the original Item and Stadium **when a Supporter is actually in the source deck**. It says nothing about whether Crispin itself is available in this deal.
+- [Crispin reducer](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/10-scarlet-and-violet/set-stellar-crown/crispin.ts): checks `player.supporterTurn`; owner search `ChooseCardsPrompt` filters **Basic Energy**; choosing two identically named types throws; an `AttachEnergyPrompt` with one attachment then moves the remaining card to hand. This supports the desired *kind* of action sequence, but has not been exercised on the rank-8 source board.
+- [Core play-trainer reducer](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/effect-reducers/play-trainer-effect.ts) uses the supporter zone to stage **Item** cards while prompts resolve, then `finalizeTrainerCleanup` clears them from that zone when prompts finish. [Play-card reducer](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/reducers/play-card-reducer.ts) separately bars Supporters when the supporter zone is occupied. Source inspection therefore does **not** support a claim that an already fully resolved Secret Box automatically blocks Crispin as a Supporter. The actual turn-7 Supporter-use state remains to be tested.
+
+These are **source-code implementation facts**, not runtime guarantees of complete paper fidelity. No engine hook appears needed merely to expose Secret Box's third category; eligibility of this particular card remains a hidden-zone owner-prompt question.
+
 ## Falsification protocol
 
 Use the archived seed **1260748957**, actual first-turn player rank8 physical A, candidate Hood physical B, the exact published source 60s, the same pinned engine/hook flags. Produce a fail-closed source record with:
