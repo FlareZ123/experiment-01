@@ -8,9 +8,9 @@ test('Cassius and AZ settle all Store prompts and escape solo Block with a repla
   const report=probeAll();
   assert.equal(report.sourceDeckMatch,false);
   assert.equal(report.competitiveInferenceQualified,false);
-  assert.equal(report.cases.length,4);
+  assert.equal(report.cases.length,7);
   const withReplacement=report.cases.filter(x=>x.ownBench);
-  assert.equal(withReplacement.length,3);
+  assert.equal(withReplacement.length,5);
   for(const x of withReplacement){
     assert.equal(x.error,null,JSON.stringify(x));
     assert.deepEqual(x.remainingPrompts,[],JSON.stringify(x));
@@ -37,6 +37,25 @@ test('Cassius and AZ settle all Store prompts and escape solo Block with a repla
   assert.equal(az.toolInDiscard,true);
   assert.equal(az.energyInDeck,false);
   assert.equal(az.toolInDeck,false);
+  for(const keeper of withReplacement.filter(x=>x.supporter==='Bird Keeper')){
+    assert.equal(keeper.targetInDeck,false);
+    assert.equal(keeper.targetInHand,false);
+    assert.equal(keeper.targetOnBench,true);
+    assert.equal(keeper.energyOnBench,true);
+    assert.equal(keeper.toolOnBench,true);
+    assert.equal(keeper.energyInDiscard,false);
+    assert.equal(keeper.toolInDiscard,false);
+    assert.equal(keeper.handCountAfter,3,'Bird Keeper must draw three after a switch');
+  }
+});
+
+test('Bird Keeper requires a Bench and leaves an illegal attempt unspent',()=>{
+  const solo=probeAll().cases.find(x=>x.supporter==='Bird Keeper'&&!x.ownBench);
+  assert.equal(solo.activeAfter,'Shadow Rider Calyrex V',JSON.stringify(solo));
+  assert.equal(solo.supporterDiscarded,false);
+  assert.equal(solo.supporterInPlayZone,false);
+  assert.equal(solo.supporterTurn,0);
+  assert.ok(solo.error,JSON.stringify(solo));
 });
 
 test('solo-own-Pokemon Cassius action is diagnosed separately from a viable escape',()=>{
