@@ -28,6 +28,10 @@ test('exact canonical single-slot swap exchanges Gengar and Cologne Prize bottle
   near(alternative.allColognePrized,0.10042509844812446);
   assert.ok(deltaAllGengarPrized< -0.09);
   assert.ok(deltaAllColognePrized>0.09);
+  near(original.bothChannelsUnprized,0.8932310584709777);
+  near(alternative.bothChannelsUnprized,0.8918562907104187);
+  near(alternative.bothChannelsUnprized-original.bothChannelsUnprized,
+    -0.0013747677605590036);
 });
 
 test('multi-prized collapse includes actual Basic composition of each target group',()=>{
