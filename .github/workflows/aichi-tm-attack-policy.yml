@@ -173,3 +173,17 @@ jobs:
           path: rank2-gh-score-components.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Validate genuine rank2 hypothetical GH option prompts
+        if: ${{ inputs.rank2_hypothetical_prompts }}
+        run: node --test tests/rank2-gh-hypothetical-prompts.test.cjs
+      - name: Record source-locked hypothetical GH prompt choices
+        if: ${{ inputs.rank2_hypothetical_prompts }}
+        run: node simulation/twinleaf/rank2-gh-hypothetical-prompts.cjs > rank2-gh-hypothetical-prompts.json
+      - name: Archive speculative source GH prompt selections
+        if: ${{ always() && inputs.rank2_hypothetical_prompts }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank2-gh-hypothetical-prompts
+          path: rank2-gh-hypothetical-prompts.json
+          if-no-files-found: warn
+          retention-days: 14
