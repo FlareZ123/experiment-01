@@ -28,3 +28,24 @@ test('precommitted source schedule is complete, balanced and content-addressed',
     '2acd32fbdac8dbe9c3366c496f26583e7db0a4689855f2f12d8881fcc17956b6');
   assert.deepEqual(schedule(), rows);
 });
+
+
+test('second cohort was frozen prospectively after zero rank11-first exposure', () => {
+  const first = schedule();
+  const heldout = schedule(80, 160);
+  assert.equal(heldout.length, 160);
+  assert.equal(new Set(heldout.map(r => r.seed)).size, 160);
+  assert.equal(new Set([...first, ...heldout].map(r => r.seed)).size, 240);
+  assert.equal(heldout.filter(r => r.sourceSeat === 0).length, 80);
+  assert.equal(heldout.filter(r => r.sourceSeat === 1).length, 80);
+  assert.deepEqual(heldout.slice(0, 3), [
+    {trialId: 'held-shake:80', seed: 1986827875, sourceSeat: 0},
+    {trialId: 'held-shake:81', seed: 3463709315, sourceSeat: 1},
+    {trialId: 'held-shake:82', seed: 3634495010, sourceSeat: 0}
+  ]);
+  assert.deepEqual(heldout[159],
+    {trialId: 'held-shake:239', seed: 3455366208, sourceSeat: 1});
+  assert.equal(crypto.createHash('sha256')
+    .update(JSON.stringify(heldout)).digest('hex'),
+    '55b103b4ff5c24fd95b76bf5ce39c773fcde6cb502218586a91cedfde5c3fbbf');
+});
