@@ -12,7 +12,7 @@
 
 ## Observations from the compiled job
 
-**16/16** attempted arms were engine-observed without exceptions and showed `sourcePolicyCompleted=true`, with next-turn lock witness. **10/16** arms had at least one candidate Store attack declaration after the witness. The individual seed/arm declarations below are **declarations only**; complete copied-attack resolution, meaningful damage and paper legality are not established.
+**16/16** attempted arms were engine-observed without exceptions and showed `sourcePolicyCompleted=true`: the rank11 policy finished its route and the next-turn observer saw Tool-equipped Garbodor. This is a board-state witness for the intended lock, not a separate proof that Garbotoxin remained operational against every possible disabling effect. **10/16** arms had at least one candidate Store attack declaration after the witness. The individual seed/arm declarations below are **declarations only**; complete copied-attack resolution, meaningful damage and paper legality are not established.
 
 | Actual first player | Seed | Champion generic attack declarations | New Moon generic | New Moon Horror+Compressor | New Moon + Field Blower policy |
 | --- | --- | --- | --- | --- | --- |
@@ -27,7 +27,7 @@ The three New Moon policy variants were **identical on the observed declared att
 
 ### Interpretation and next discriminating test
 
-The strongest new constraint is the **candidate-first failure to reach any recorded attack declaration under this source-opponent policy** in both selected candidate-first seeds, despite a lock witness in each policy arm. Any assertion that New Moon has an effective universal rank11 anti-lock line must first explain these exact accessible-state trajectories and establish a competent reply in fresh source-dealt seeds.
+The strongest new constraint is the **candidate-first failure to reach any recorded attack declaration under this source-opponent policy** in both selected candidate-first seeds, despite next-turn Tool-equipped Garbodor in each policy arm. Any assertion that New Moon has an effective universal rank11 anti-lock line must first explain these exact accessible-state trajectories and establish a competent reply in fresh source-dealt seeds.
 
 To make the next study discriminating: (1) inspect the candidate-first `decisionTrace`, own visible hand, Bench and Energy for the first two candidate turns; (2) distinguish unavailable attacks from choosing Pass while an attack was possible; (3) identify whether Field Blower was held, searched, blocked, or consumed; (4) instrument native and delegated attack **selection, effect resolution and turn end**, not only the declaration log; (5) choose fresh prospective actual-start-stratified seeds with all misses retained, and audit opponent response and official paper clock. Only after those gates should opponent-strength or deck improvement be inferred.
 
