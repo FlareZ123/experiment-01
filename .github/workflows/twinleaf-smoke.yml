@@ -27,6 +27,8 @@ jobs:
       - name: Compile upstream server without modifying vendor
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Probe source Regidrago printed-copy discard and Double Dragon Energy
+        run: node simulation/twinleaf/regidrago-dragon-energy-probe.cjs
       - name: Regress official Japanese same-turn Canceling Cologne duplicate ruling
         run: node simulation/twinleaf/canceling-cologne-repeat-paper-gate.cjs
       - name: Verify Forest Seal Stone Power bypasses Ability lock
