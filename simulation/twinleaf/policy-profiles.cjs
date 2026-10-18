@@ -18,7 +18,7 @@ const EXPANDED_GH_SEARCH_PROFILE = 'expanded-gh-root-search-v3';
 const RANK11_AUTONOMOUS_PROFILE = 'rank11-autonomous-boostshake-v1';
 const RANK11_OWN_FIRST_PROFILE = 'rank11-autonomous-first-own-turn-v2';
 const RANK11_SUPPORTER_PROFILE = 'rank11-autonomous-boostshake-supporter-v2';
-const RANK11_K1_HYBRID_PROFILE = 'rank11-k1-direct-vstar-supporter-v3';
+const RANK11_K1_HYBRID_PROFILE = 'rank11-k1-direct-vstar-v3';
 const RANK26_COLOGNE_PROFILE = 'rank26-autonomous-cologne-v1';
 const RANK26_COLOGNE_PUMP_PROFILE = 'rank26-autonomous-cologne-pump-v2';
 const ALLOWED_PROFILES = Object.freeze([
@@ -116,7 +116,7 @@ function runWithResearchProfile(request, profile) {
     const {withRank11AutonomousOpener} = require('./rank11-autonomous-opener.cjs');
     const direct = withRank11DirectBoostShake(rank11SourceSeat,
       () => withRank11AutonomousOpener(rank11SourceSeat,
-        () => runMatch({...matchRequest, supporterDecisionCorrection: true}),
+        () => runMatch(matchRequest),
         {allowSecondGlobalTurn: true,
           version: 'rank11-original-vstar-first-own-v2'}),
       {k1AvoidMissingGarbodor: true});
@@ -125,8 +125,7 @@ function runWithResearchProfile(request, profile) {
       researchPolicyProfile: profile,
       experimentalTactics: [
         'Rank11DirectBoostShakeK1-v2',
-        'Rank11FirstOwnTurnVSTAR-v2',
-        'SupporterDecisionGuard-v1'
+        'Rank11FirstOwnTurnVSTAR-v2'
       ],
       rank11DirectPolicy: direct.policyAudit,
       rank11AutonomousPolicy: direct.result.policyAudit,
