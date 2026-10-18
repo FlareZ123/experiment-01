@@ -62,6 +62,18 @@ jobs:
           name: rank26-autonomous-cologne-unqualified
           path: rank26-autonomous-cologne.json
           if-no-files-found: error
+      - name: Verify rank26 two-Egg Damage Pump source-bound decision planner
+        run: node --test tests/rank26-exeggcute-pump-policy.test.cjs
+      - name: Run automatic single-donor two-Exeggcute Store action in both source seats
+        if: ${{ inputs.rank26_autonomous_cologne }}
+        run: node simulation/twinleaf/rank26-pump-source-conserved-fixture.cjs > rank26-pump-autonomous-source-conditioned.json
+      - name: Archive source-card-conserved automatic two-Egg KO proof
+        if: ${{ inputs.rank26_autonomous_cologne }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank26-pump-autonomous-source-conditioned
+          path: rank26-pump-autonomous-source-conditioned.json
+          if-no-files-found: error
       - name: Verify pure root-state labels
         run: node --test tests/meloetta-rank26-firstturn-source-window.test.cjs
       - name: Search authenticated rank-26 first-turn source window (unqualified)
