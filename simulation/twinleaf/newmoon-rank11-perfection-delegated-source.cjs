@@ -148,6 +148,35 @@ function run() {
     row.action==='PassTurnAction'||row.action==='AttackAction'||
     row.turnAfter>row.turnBefore),
   'Need a complete source turn to associate copied-effect result and opponent response');
+  const stadiumReply=nextSourceTurn.find(row=>
+    row.playerSlot===1-CANDIDATE_SEAT &&
+    row.action==='PlayCardAction' && row.card==='Shopping Center');
+  const benchChoice=nextSourceTurn.find(row=>
+    row.playerSlot===CANDIDATE_SEAT &&
+    row.action==='ResolvePromptAction' && row.pendingPrompt==='ChoosePokemonPrompt');
+  assert.ok(stadiumReply && benchChoice,
+    'Observed source reply must include Shopping Center and candidate Bench choice');
+  const followingCandidateTurn=game.copycatTurnStartEvidence.find(row=>
+    row.turn>firstSourceReply.turnBefore);
+  assert.ok(followingCandidateTurn && followingCandidateTurn.candidateSeat===CANDIDATE_SEAT);
+  const beforeCandidateBench=priorEffect.publicBefore[CANDIDATE_SEAT].bench.length;
+  const afterCandidateBench=followingCandidateTurn.board[CANDIDATE_SEAT].bench.length;
+  assert.equal(beforeCandidateBench,8,
+    'Printed Sky Field exposure source must have eight candidate Benched Pokémon');
+  assert.equal(afterCandidateBench,5,
+    'Replacing Sky Field should expose the candidate reduced to five Benched Pokémon');
+  const benchContraction={
+    publicCandidateBenchBefore:priorEffect.publicBefore[CANDIDATE_SEAT].bench.map(p=>p.name),
+    publicCandidateBenchNextTurn:followingCandidateTurn.board[CANDIDATE_SEAT].bench.map(p=>p.name),
+    candidateBenchCountBefore:beforeCandidateBench,
+    candidateBenchCountNextTurn:afterCandidateBench,
+    activeStadiumBefore:priorEffect.publicBefore[CANDIDATE_SEAT].stadium,
+    activeStadiumNextTurn:followingCandidateTurn.board[CANDIDATE_SEAT].stadium,
+    stadiumPlayedOrdinal:stadiumReply.actionOrdinal,
+    candidateBenchPromptOrdinal:benchChoice.actionOrdinal,
+    nextCandidateTurn:followingCandidateTurn.turn,
+    observationScope:'authentic source sequence, public board before copied attack versus first candidate decision after opponent Shopping Center and Marnie; causality beyond ordered Store actions not independently replayed'
+  };
   const earlierCopiedResponse={
     copiedDeclarationOrdinal:priorCopiedPoltergeist.actionOrdinal,
     copiedGlobalTurn:priorCopiedPoltergeist.turnBefore,
@@ -162,6 +191,7 @@ function run() {
     nextSourceTurn:firstSourceReply.turnBefore,
     firstOpponentActionOrdinal:firstSourceReply.actionOrdinal,
     opponentRootActions:nextSourceTurn,
+    benchContraction,
     opponentPolicyQualified:false,
     paperEffectQualified:false
   };
@@ -178,7 +208,7 @@ function run() {
     }));
 
   return {
-    schema:'real-source-rank11-perfection-delegated-effect-and-response-v2',
+    schema:'real-source-rank11-perfection-delegated-effect-response-and-bench-v3',
     sourceRank:SOURCE_RANK,candidatePhysicalSeat:CANDIDATE_SEAT,
     seed:SOURCE_SEED,seedWasConditionallySelected:true,
     engine:game.engine,sourcePrintHash:source.sha256_id_counts,
