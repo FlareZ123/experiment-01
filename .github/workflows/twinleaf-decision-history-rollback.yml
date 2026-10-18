@@ -41,3 +41,7 @@ jobs:
         run: node --test tests/selected-source-card-field-rollback.test.cjs
       - name: Contrast source-ranked other-field rollback treatments
         run: node simulation/twinleaf/source-card-field-factorial-contrast.cjs
+      - name: Test read-only one-decision tactic score observer
+        run: node --test tests/decision-tactic-evaluation-observer.test.cjs
+      - name: Compare original and detached source-ranked tactic scoring at first divergent bot decision
+        run: node simulation/twinleaf/decision-tactic-score-source-contrast.cjs
