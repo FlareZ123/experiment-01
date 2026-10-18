@@ -63,6 +63,8 @@ jobs:
         run: node simulation/twinleaf/articuno-entry-lock-action.cjs
       - name: Verify opt-in Eldegoss hook provenance and restoration
         run: node simulation/twinleaf/eldegoss-entry-runner-smoke.cjs
+      - name: Forest Seal Stone on non-V Trubbish and first-turn Garbotoxin action
+        run: node simulation/twinleaf/garbodor-forest-stone-firstturn-action.cjs
       - name: Verify Articuno and distinct Energy target opt-in hook lifecycle
         run: node simulation/twinleaf/entry-attach-runner-lifecycle.cjs
       - name: Recheck archived rank-8 Temple-A invalid Energy prompt after the bot choice
