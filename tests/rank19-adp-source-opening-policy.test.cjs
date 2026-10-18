@@ -54,12 +54,13 @@ test('alternate Active, absent DDE, used GX and wrong first-draw ID each reject 
     game=>{game.copycatTurnStartEvidence[0].candidateUsedGX=true;},
     game=>{game.firstTurnPlayerId=101;}
   ];
-  for(const corrupt of corruptions){
+  for(const [index,corrupt] of corruptions.entries()){
     const game=fixture();
     corrupt(game);
     const row=project(game,55);
     assert.equal(row.directReadyAfterOpponent,false);
-    assert.equal(row.alteredCreationDeclaredOnFirstTurn,true);
+    // A contradicted first-player proof no longer authenticates turn 2.
+    assert.equal(row.alteredCreationDeclaredOnFirstTurn,index<3);
   }
 });
 
