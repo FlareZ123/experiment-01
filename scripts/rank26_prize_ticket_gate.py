@@ -67,6 +67,54 @@ def prized_nonbasic_group_conditional(
             * valid_given_all_prized / valid)
 
 
+def ticket_held_exchange_probabilities(
+    *, deck_size: int = 60, basics: int = 12,
+    opening: int = 7, prizes: int = 6,
+) -> dict[str, Fraction]:
+    """Compare DCE Prize risk before and after playing a held Ticket at K0.
+
+    The shuffled original Prize cards go to the deck bottom. The new Prize
+    cards come from its previously untouched, uniformly shuffled top.
+    Ticket and DCE are distinct non-Basic singletons, and the opening
+    includes Ticket and >=1 Basic. No additional draws, searches or opponent
+    effects intervene before Ticket; deck holds enough cards to replenish.
+    """
+    if (not 0 < basics <= deck_size - 2 or
+            not 2 <= opening < deck_size or
+            not 0 < prizes <= deck_size - opening - prizes):
+        raise ValueError("Infeasible Ticket-held physical deck")
+    valid_ticket_hands = (
+        choose(deck_size - 1, opening - 1)
+        - choose(deck_size - 1 - basics, opening - 1)
+    )
+    dce_in_valid_ticket_hand = (
+        choose(deck_size - 2, opening - 2)
+        - choose(deck_size - 2 - basics, opening - 2)
+    )
+    if not valid_ticket_hands:
+        raise ValueError("No Basic-valid opening containing Ticket")
+    dce_in_hand = Fraction(dce_in_valid_ticket_hand, valid_ticket_hands)
+    dce_out_of_hand = 1 - dce_in_hand
+    other_cards = deck_size - opening
+    deck_cards = other_cards - prizes
+    initially_prized = dce_out_of_hand * Fraction(prizes, other_cards)
+    initially_in_deck = dce_out_of_hand * Fraction(deck_cards, other_cards)
+    after_exchange_prized = (
+        initially_in_deck * Fraction(prizes, deck_cards)
+    )
+    if initially_prized != after_exchange_prized:
+        raise AssertionError("Uniform Prize exchange must preserve risk")
+    return {
+        "dce_in_opening": dce_in_hand,
+        "dce_initially_prized": initially_prized,
+        "dce_after_ticket_prized": after_exchange_prized,
+        "dce_initially_in_deck": initially_in_deck,
+        "new_prize_risk_given_dce_initially_in_deck":
+            Fraction(prizes, deck_cards),
+        "new_prize_risk_given_dce_initially_prized": Fraction(0),
+    }
+
+
 def report(manifest_path: Path) -> dict[str, str]:
     _, basics = rank26_inventory(manifest_path)
     dce = prized_nonbasic_group_conditional(1, basics=basics)
