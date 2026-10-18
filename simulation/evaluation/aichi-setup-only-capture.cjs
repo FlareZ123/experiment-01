@@ -34,7 +34,10 @@ function captureSetupOnly(storeClass,play) {
     try{
       play();
     }catch(error){
-      if(error!==stop)throw error;
+      // Headless wraps root dispatch failures with Error.cause. Accept only
+      // our exact private sentinel, and never mistake a real engine failure
+      // with similar text for a successful stop.
+      if(error!==stop && error?.cause!==stop)throw error;
     }
     return {setupZones,stoppedAtFirstTurn:setupZones!==null};
   }finally{
