@@ -105,14 +105,29 @@ function main() {
     leleEntryAbilityLockCorrection:true,radiantGateLockCorrection:true,
     entryDrawLockCorrection:true
   };
-  const run=benchBackup=>unpack(withStoreDispatchTranscript(Store,
+  const run=(benchBackup,paperPendingCleanup=false)=>
+    unpack(withStoreDispatchTranscript(Store,
     ()=>withSourceOpeningProbe(()=>
       withBroadThornsSourceAttack(()=>
         withPublicOwnAttackBoard(Store,()=>
-          withPublicAttackTargets(Store,()=>runMatch(request))),
+          withPublicAttackTargets(Store,()=>runMatch({
+            ...request,pendingEndTurnSwitchCleanupCorrection:paperPendingCleanup
+          }))),
         {benchBackup})),
     {liveStoreOnly:true,sourceZoneEveryDispatch:true}));
   const without=run(false),withBackup=run(true);
+  // A separately documented pinned Twinleaf defect leaves a queued
+  // Pale Moon-GX KO on a Pokemon after it retreats to the Bench. Test
+  // identical *physical* sources under the research-owned opt-in fix.
+  const correctedSolo=run(false,true);
+  const correctedBackup=run(true,true);
+  for(const corrected of [correctedSolo,correctedBackup]) {
+    assert.deepEqual(corrected.source.observed.hand,without.source.observed.hand);
+    assert.deepEqual(corrected.source.observed.prizes,without.source.observed.prizes);
+    assert.deepEqual(corrected.game.deckHashes,without.game.deckHashes);
+    assert.ok(corrected.game.pendingEndTurnSwitchCleanupEvidence,
+      'Missing correction's root/simulated Store application audit');
+  }
   assert.deepEqual(without.source.observed.hand,withBackup.source.observed.hand);
   assert.deepEqual(without.source.observed.prizes,withBackup.source.observed.prizes);
   assert.deepEqual(without.source.observed.doubleColorless,
@@ -160,12 +175,17 @@ function main() {
     opponentPublicBoardAtAttack:arm.snapshot.opponentPublic,
     announcedAttack:arm.snapshot.attack,
     rank6PrizesRemaining:arm.game.prizesRemaining[1],
+    championPrizesRemaining:arm.game.prizesRemaining[0],
+    sourceEndReason:arm.game.endReason,
+    finalPublicBoard:arm.game.finalState,
     gameFinished:arm.game.finished,
     gameWinner:arm.game.finished?arm.game.winner:null,
     actionCount:arm.game.actions,
     turns:arm.game.turns,
     selectedRootActions:arm.line.events,
-    nextTurnPublicEnergy:arm.nextTurnEnergy
+    nextTurnPublicEnergy:arm.nextTurnEnergy,
+    ...(arm.game.pendingEndTurnSwitchCleanupEvidence ?
+      {pendingCleanupEvidence:arm.game.pendingEndTurnSwitchCleanupEvidence}: {})
   });
   const result={
     schema:'rank6-source-dealt-backup-bench-counterfactual-v1',
@@ -182,6 +202,12 @@ function main() {
     qualifiedForCompetitiveInference:false,
     noBackup:summarize(without),
     heldBackupBenched:summarize(withBackup),
+    correctedPendingCleanupContrast:{
+      noBackup:summarize(correctedSolo),
+      heldBackupBenched:summarize(correctedBackup),
+      sourceInitialHandsPrizesAndHashesIdentical:true,
+      hook:'Research-owned opt-in PendingEndTurnSwitchPaper-v1'
+    },
     caveats:'One selected real source seed. Bench alternative is an opt-in strategy with unqualified generic opponent and omitted match clock; raw engine pending Pale Moon-GX may require validated rules correction.'
   };
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
