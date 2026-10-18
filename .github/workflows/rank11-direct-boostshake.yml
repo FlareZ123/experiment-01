@@ -7,6 +7,14 @@ on:
         description: Prospective fixed seed count, maximum 128
         required: false
         default: '32'
+      seed_protocol:
+        description: Source seed frame, legacy consecutive or decorrelated
+        required: false
+        default: 'decorrelated-v2'
+        type: choice
+        options:
+          - decorrelated-v2
+          - legacy-consecutive-v1
 
 permissions:
   contents: read
@@ -24,8 +32,8 @@ jobs:
           node-version: '20.19.0'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
-      - name: Pure rank11 direct-opportunity regressions
-        run: node --test tests/rank11-direct-opportunity.test.cjs
+      - name: Pure rank11 direct-opportunity and seed-frame regressions
+        run: node --test tests/rank11-direct-opportunity.test.cjs tests/rank11-source-seeds.test.cjs
       - name: Install pinned simulator dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -35,11 +43,12 @@ jobs:
       - name: Observe prospective rank11 actual source dealt lines
         env:
           TRIALS: ${{ inputs.trials || '32' }}
+          SEED_PROTOCOL: ${{ inputs.seed_protocol || 'decorrelated-v2' }}
         run: node simulation/twinleaf/rank11-direct-source-probe.cjs > rank11-direct-source-probe.json
       - name: Verify source-first VSTAR and second-start direct policies compose
         run: node simulation/twinleaf/rank11-hybrid-source-replay.cjs > rank11-hybrid-source-replay.json
       - name: Print bounded outcome and keep all failed opportunities
-        run: node -e "const p=require('./rank11-direct-source-probe.json'); console.log(JSON.stringify({trials:p.actualTrialCount,opportunities:p.opportunities,completed:p.completed,aborts:p.aborts,interesting:p.trials.filter(t=>t.sourceOpportunity!==null)},null,2))"
+        run: node -e "const p=require('./rank11-direct-source-probe.json'); console.log(JSON.stringify({seedProtocol:p.seedProtocol,trials:p.actualTrialCount,starts:p.startSlotCounts,opportunities:p.opportunities,completed:p.completed,aborts:p.aborts,interesting:p.trials.filter(t=>t.sourceOpportunity!==null)},null,2))"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
