@@ -59,6 +59,8 @@ jobs:
         run: node simulation/twinleaf/copy-session-cloned-attack-identity.cjs
       - name: Guard copied-session clone branches and corrupted attack history
         run: node simulation/twinleaf/copy-session-clone-branch-guard.cjs
+      - name: Probe copied-session rollback after rejected attack action
+        run: node simulation/twinleaf/copy-session-rollback-loss.cjs
       - name: Verify paid Goodra copied attack before turn continuation
         run: node simulation/twinleaf/copy-session-paid-apex-clone.cjs
       - name: Probe speculative Simulator copied-session lifetime
