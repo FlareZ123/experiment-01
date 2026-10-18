@@ -67,6 +67,7 @@ test('attempted evaluations without finite scores stay separate',()=>{
   }
   class UnscoredBot extends Bot {
     constructor(){super();this.tactics=[new UnscoredTactic()];}
+    decodeNextAction(state){return super.decodeNextAction(state);}
   }
   const events=withRootScoreCensus(UnscoredBot,
     ()=>new UnscoredBot().decodeNextAction(root),()=>root,()=>12);
