@@ -51,6 +51,8 @@ const {withCopycatApexTimelessPolicy} = require('./mimikyu-counter-policy.cjs');
 const {copycatTurnStartSnapshot} = require('./copycat-turn-start-evidence.cjs');
 const {retreatTransitionEvidence} = require('./retreat-transition-evidence.cjs');
 const {inspectPhysicalCardZones, fixedDeckCountAnomalies} = require('./physical-card-ledger.cjs');
+const {newlyLoggedAttackDeclarations} =
+  require('../evaluation/twinleaf-attack-log-declarations.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -638,6 +640,7 @@ function runMatch(request) {
     const actionsBySeat = [{}, {}];
     const cardsPlayedBySeat = [{}, {}];
     const attackTrace = [];
+    const attackDeclarationTrace = [];
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
     const electrodeOpportunityObserver = request.captureElectrodeOpportunity === true ?
@@ -786,6 +789,7 @@ function runMatch(request) {
           };
         }
       }
+      const attackLogStartIndex = state.logs.length;
       const prizeBeforeRoot = request.bunnelbyObservedK1 === true ?
         snapshotPrizeCardIdentities(store.state) : null;
       try {
@@ -793,6 +797,20 @@ function runMatch(request) {
       } catch (error) {
         throw new Error('Twinleaf dispatch failed after ' + actions + ' actions (' +
           action.constructor.name + '): ' + error.message, { cause: error });
+      }
+      const loggedAttacks = newlyLoggedAttackDeclarations(
+        store.state.logs, attackLogStartIndex,
+        { actionOrdinal: actions, turnBefore, triggerAction: actionName });
+      for (const declaration of loggedAttacks) {
+        attackDeclarationTrace.push({
+          ...declaration,
+          playerSlot: store.state.players.findIndex(
+            player => player.name === declaration.playerName),
+          triggerPlayerSlot: seat,
+          turnAfter: store.state.turn,
+          promptPendingAfter: store.state.prompts.some(prompt => prompt.result === undefined),
+          resolutionStatus: 'not-independently-verified'
+        });
       }
       if (physicalZoneIntegrity) {
         const ownership = inspectPhysicalCardZones(store.state);
@@ -894,6 +912,8 @@ function runMatch(request) {
       actionsBySeat,
       cardsPlayedBySeat,
       attackTrace,
+      attackDeclarationTrace,
+      attackDeclarationTraceProtocol: 'real-store-attack-log-declarations-v1',
       abilityTrace,
       decisionTrace,
       ...(electrodeOpportunityObserver ?
