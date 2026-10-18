@@ -468,3 +468,38 @@ test('a logged zero is distinguished from unavailable attack telemetry', () => {
   assert.ok(row.blockers.includes('zero-candidate-attacks'));
   assert.equal(row.candidateLoggedAttackDeclarations, null);
 });
+
+test('mixed ordinary and delegated attacks expose both directions of log mismatch', () => {
+  const f = fixture();
+  const record = f.records[0];
+  const protocol = 'real-store-attack-log-declarations-v1';
+  const event = (playerSlot, index, ordinal) => ({
+    kind: 'engine-attack-declaration', playerSlot,
+    playerName: playerSlot === 0 ? 'research-A' : 'research-B',
+    attackName: 'Phantom Dive', logIndex: index, actionOrdinal: ordinal
+  });
+  record.actions = 10;
+  record.candidateAttacks = 1;
+  record.opponentAttacks = 2;
+  record.attackObservationStatus = protocol;
+  record.candidateAttackDeclarations = 2;
+  record.opponentAttackDeclarations = 1;
+  record.traceSummary = {
+    ...record.traceSummary,
+    attackDeclarationTraceProtocol: protocol,
+    attackDeclarationsAreCompleteEffects: false,
+    attackDeclarationTrace: [
+      event(0, 1, 2), event(0, 2, 3), event(1, 3, 4)
+    ]
+  };
+  const result = auditCampaignQuality(f);
+  const row = result.records[0];
+  assert.equal(row.candidateLoggedAttackDeclarations, 2);
+  assert.equal(row.opponentLoggedAttackDeclarations, 1);
+  assert.ok(row.blockers.includes('candidate-root-attack-action-undercount'));
+  assert.ok(row.blockers.includes('opponent-root-action-without-declaration'));
+  assert.equal(row.priority, 'engine-or-resolver-investigation');
+  assert.equal(result.coverage[0].candidateRootUndercountTrials, 1);
+  assert.equal(result.coverage[0].opponentRootUnloggedTrials, 1);
+  assert.equal(result.winRateEvidence, false);
+});
