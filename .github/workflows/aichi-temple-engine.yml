@@ -2,6 +2,12 @@ name: Aichi Temple candidate engine feasibility
 
 on:
   workflow_dispatch:
+    inputs:
+      temple_thorns_source_window:
+        description: '24 precommitted Temple versus Iron Thorns owner-observation games, unqualified'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -30,3 +36,19 @@ jobs:
 
       - name: Verify synthetic Wobbuffet and Iron Thorns board effects
         run: node simulation/twinleaf/temple-wobbuffet-board.cjs
+
+      - name: Source-dealt Temple Iron Thorns read-only owner-window panel
+        if: ${{ inputs.temple_thorns_source_window }}
+        run: |
+          node --check simulation/twinleaf/temple-thorns-source-window.cjs
+          node simulation/twinleaf/temple-thorns-source-window.cjs > temple-thorns-source-window.json
+      - name: Print registered denominator and observer parity, no win estimates
+        if: ${{ inputs.temple_thorns_source_window }}
+        run: node -e "const r=require('./temple-thorns-source-window.json'); console.log(JSON.stringify({schema:r.schema,registered:r.registrationDigest,attempted:r.count,wobStarting:r.wobbuffetStartingActive,wobWindows:r.wobbuffetLiveWindows,readyWindows:r.fullyReadyLiveWindows,observerParity:r.parity?.identical,qualified:r.competitiveQualifiedGames}));"
+      - uses: actions/upload-artifact@v4
+        if: ${{ inputs.temple_thorns_source_window && always() }}
+        with:
+          name: temple-thorns-source-window-24
+          path: temple-thorns-source-window.json
+          retention-days: 14
+          if-no-files-found: warn
