@@ -113,6 +113,8 @@ function run() {
   const alt=withGarbodorFloatStoneTarget(()=>runArm(...args));
   assert.deepEqual(unchanged.result.rootActionLedger,control.rootActionLedger,
     'Read-only cloned power check must not change unchanged-source decisions');
+  assert.equal(unchanged.firstCandidatePower?.blocked,false,
+    'Untooled source Garbodor should leave Perfection unblocked');
   assert.equal(control.firstTurnSlot,0);
   assert.equal(alt.result.firstTurnSlot,0);
   assert.equal(control.verifiedByDrawLog,true);
