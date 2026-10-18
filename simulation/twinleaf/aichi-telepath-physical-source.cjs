@@ -6,6 +6,26 @@ const {runMatch} = require('./headless.cjs');
 const {installHeadlessTelepathRootAudit} = require('./telepath-headless-root-audit.cjs');
 
 /**
+ * Observe the root Store only while running one genuine engine match.
+ * Simulated Stores have prototype onStateChange instead of an own callback
+ * in the pinned engine. Restore upstream method descriptors after the run.
+ *
+ * @param {object} request Exact headless match request.
+ * @returns {object} Match summary plus reducer-origin evidence.
+ */
+function runObservedMatch(request) {
+  const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
+  const {Store} = require(path.join(output, 'game/store/store'));
+  const {AttachEnergyEffect} = require(path.join(output, 'game/store/effects/play-card-effects'));
+  const audit = installHeadlessTelepathRootAudit({Store, AttachEnergyEffect});
+  try {
+    return {...runMatch(request), telepathRootAttachEvents: audit.events.slice()};
+  } finally {
+    audit.restore();
+  }
+}
+
+/**
  * Bounded, source-dealt card-zone integrity audit against all three published
  * Telepathic Psychic Energy lists. This measures engine state integrity only.
  * It does not measure competitive strength, attack fidelity or win rate.
