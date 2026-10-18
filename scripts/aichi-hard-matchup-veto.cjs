@@ -5,7 +5,7 @@
  * symmetric equal-rank/equal-actual-start Aichi Top 32 benchmark.
  *
  * A passing structural check cannot independently authenticate a game.
- * Source printings, replay, paper rules/clock, policy competence, independence,
+ * Source printings, replay, paper rules, policy competence, independence,
  * and prospective Git registration remain external prerequisites.
  */
 const RANKS = 32;
@@ -182,7 +182,7 @@ function assessHardMatchupVeto(registration, observations) {
     allNonWinNullProbabilityUpperBound: nullEventUpperBound,
     conditionalStatisticalVeto: allNonWins && nullEventUpperBound <= design.perTestAlpha,
     evidenceClass: 'structurally-checked-self-reported-qualified-games',
-    caveat: 'Statistical veto only if independent actual games, printings, policy, replay, tournament timing, candidate registration and global attempt index were independently verified before data collection.'
+    caveat: 'Statistical veto only if independent completed games, source printings, paper rules, policy, replay, outcome scope (untimed game or calibrated timed match), candidate registration and global attempt index were independently verified before data collection. Tournament-clock evidence is required for timed match claims, not for the untimed game-win estimand.'
   };
 }
 
