@@ -4,9 +4,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
 const { deriveSlotSeeds } = require('./aichi-decorrelated-seeds.cjs');
+const { loadNewMoonCandidate } = require('./aichi-new-moon-candidate.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
-const PILOT_RANKS = Object.freeze([1, 2, 3, 4, 5, 6, 8, 10, 26]);
+const LEGACY_PILOT_RANKS = Object.freeze([1, 2, 3, 4, 5, 6, 8, 10, 26]);
+const PILOT_RANKS = Object.freeze([...LEGACY_PILOT_RANKS, 11].sort((a, b) => a - b));
 const CHALLENGERS = Object.freeze([
   ['hood-shield-v1', 'candidate-hood-shadow-rider.json'],
   ['temple-v1', 'candidate-temple-shadow-rider.json']
@@ -130,7 +132,12 @@ function buildCampaign(options) {
     seen.add(c.id);
     return {
       id: c.id, deckDigest: hash(canonicalCards(c.cards)),
-      referenceOnly: c.referenceOnly === true
+      referenceOnly: c.referenceOnly === true,
+      ...(c.provisionalEnglishProxy === true ? {
+        provisionalEnglishProxy: true, paperLegalityVerified: false,
+        sourceCode: c.sourceCode,
+        proxyIdCountHash: c.proxyIdCountHash
+      } : {})
     };
   });
   const trials = [];
@@ -187,8 +194,14 @@ function buildCampaign(options) {
   return { ...metadata, planDigest: hash({ metadata, trials }), trials };
 }
 
-/** @returns {object} Exact checked-in reference plus two research challengers. */
-function loadDefaultCampaign(seatSeedMode = 'paired-slots-v1') {
+/**
+ * Source-checked fixed pilot. Historical three-list digest remains reproducible
+ * by explicitly passing includeProvisional=false.
+ * @param {string} seatSeedMode
+ * @param {boolean} includeProvisional
+ * @returns {object}
+ */
+function loadDefaultCampaign(seatSeedMode = 'paired-slots-v1', includeProvisional = true) {
   const dir = path.join(ROOT, 'results', 'aichi-2026');
   const source = JSON.parse(fs.readFileSync(path.join(dir, 'full-decklists.json'), 'utf8'));
   const field = parseField(fs.readFileSync(path.join(dir, 'field.csv'), 'utf8'));
@@ -200,12 +213,14 @@ function loadDefaultCampaign(seatSeedMode = 'paired-slots-v1') {
     const candidate = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
     candidates.push({ id, cards: candidate.cards });
   }
-  return buildCampaign({ field, source, candidates, seatSeedMode });
+  if (includeProvisional) candidates.push(loadNewMoonCandidate());
+  return buildCampaign({ field, source, candidates, seatSeedMode,
+    pilotRanks: includeProvisional ? [...PILOT_RANKS] : [...LEGACY_PILOT_RANKS] });
 }
 
 if (require.main === module) {
   process.stdout.write(JSON.stringify(loadDefaultCampaign(), null, 2) + '\n');
 }
 
-module.exports = { PILOT_RANKS, canonicalCards, parseField, buildCampaign,
-  loadDefaultCampaign };
+module.exports = { PILOT_RANKS, LEGACY_PILOT_RANKS, canonicalCards,
+  parseField, buildCampaign, loadDefaultCampaign };
