@@ -65,9 +65,15 @@ function withRank26ExeggcutePump(sourceSeat,execute) {
        !eligiblePumpTurn(state,own,sourceSeat,GamePhase.PLAYER_TURN)){
       return original.call(this,state);
     }
+    const pending=state.prompts.find(p=>p.result===undefined);
+    if(!pending){
+      const {cologneOpeningOpportunity} = require('./rank26-cologne-opener.cjs');
+      if(cologneOpeningOpportunity(state,own,sourceSeat,GamePhase.PLAYER_TURN)){
+        return original.call(this,state);
+      }
+    }
     const moves=exeggcutePumpMoves(own,PlayerType.BOTTOM_PLAYER,SlotType.BENCH);
     if(!moves)return original.call(this,state);
-    const pending=state.prompts.find(p=>p.result===undefined);
     if(pending){
       if(pending.constructor.name!=='MoveDamagePrompt'||
          pending.playerId!==id||!pending.validate(moves,state)){
