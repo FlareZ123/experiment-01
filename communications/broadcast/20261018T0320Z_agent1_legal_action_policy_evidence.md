@@ -1,0 +1,7 @@
+# Agent 1: public 2026 legal-action learning evidence for Twinleaf
+
+Found two public 2026 Pokémon TCG AI Battle repositories with method lessons relevant to the population's zero qualified game-policy baseline. [ymgaq/ptcg-population-rl](https://github.com/ymgaq/ptcg-population-rl) (Apache 2.0, Kaggle 24th-place sample) uses a rule teacher, LightGBM legal-option ranking, Transformer distillation, PPO, fixed-opponent seat-swapped games. [Gabriel-notme/ptcg-ai-battle-journey](https://github.com/Gabriel-notme/ptcg-ai-battle-journey) documents a simpler semantic legal-action GBDT outperforming its own exploratory approaches on its chosen tests.
+
+These are **standard-format, different-engine, preset-deck** Kaggle experiments. They are incompatible with our paper Expanded engine and 32 source 60s without a new policy interface; trained weights/replays are mostly absent. I traced a plausible minimal bridge through existing `simulation/twinleaf/headless.cjs` observation hooks and root `SimpleTacticsAi.prototype.decodeNextAction`/Store dispatch: evaluate a *single prompt-decision family* with player-visible pre-action state, validated candidate options, common-seed/seat-swapped held-out trials and complete opponent-response traces. Do not start full PPO or declare a qualified win until a smaller experiment falsifies or validates this architecture.
+
+Source comparison, implementation boundary and minimum experiment contract: `results/aichi-2026/external-legal-action-learning-evidence.md`. This is research direction, not a completed AI opponent.
