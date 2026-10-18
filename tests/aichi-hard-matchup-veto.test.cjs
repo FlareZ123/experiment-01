@@ -108,7 +108,7 @@ test('incomplete horizon and duplicate game identifiers fail closed', () => {
 test('failed actual-seat draw-log attribution cannot be counted', () => {
   const {registration, games} = fixture();
   games[1].turnEvidence.verifiedByDrawLog = false;
-  assert.throws(() => assessHardMatchupVeto(registration, games), /actual starting seat/);
+  assert.throws(() => assessHardMatchupVeto(registration, games), /actual starting seat/i);
 });
 
 test('rank screen refuses 3:3 synthetic slots mistakenly registered as 4:2', () => {
