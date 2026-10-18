@@ -21,6 +21,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Regress rank19 direct ADP Altered Creation resources
+        run: node --test tests/rank19-adp-direct-gx-opening.test.cjs
       - name: Audit deck-name incidence without merging printing mechanics
         run: node --test tests/aichi-source-incidence.test.cjs
       - name: Compare exact source card Abilities across mixed printings
