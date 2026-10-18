@@ -37,3 +37,7 @@ jobs:
         run: node --test tests/agent49-zones.test.cjs
       - name: Find first source-zone predecision divergence between clone profiles
         run: node simulation/twinleaf/source-predecision-zone-contrast.cjs
+      - name: Verify selected source Card descriptor rollback semantics
+        run: node --test tests/selected-source-card-field-rollback.test.cjs
+      - name: Contrast source-ranked other-field rollback treatments
+        run: node simulation/twinleaf/source-card-field-factorial-contrast.cjs
