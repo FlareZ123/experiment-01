@@ -3,6 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {initializeCards}=require('./headless.cjs');
+const {withRoxieDiscardEffectType}=require('./roxie-discard-type-hook.cjs');
 
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} source */
@@ -62,6 +63,7 @@ function stagedRoxie() {
  * @param {boolean} optIn
  */
 function runRoxie(optIn) {
+  return withRoxieDiscardEffectType(() => {
   const f=stagedRoxie();
   const {PlayCardAction}=load('game/store/actions/play-card-action');
   const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
@@ -89,6 +91,7 @@ function runRoxie(optIn) {
     koffingDiscarded:f.own.discard.cards.some(c=>c.name==='Koffing'),
     roxieDrewAtLeastThree:f.own.hand.cards.length>=3
   };
+  });
 }
 
 function verify() {
