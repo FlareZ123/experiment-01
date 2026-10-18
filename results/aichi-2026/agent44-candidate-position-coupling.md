@@ -24,6 +24,15 @@ It is possible for unordered opening hands to agree despite some indexed differe
 
 A more severe thirteen-index sensitivity illustrates opening/Prize coupling in the same ideal model. For Champion/Hood, `C(28,13)/C(60,13) = 0.00000724659`; for Champion/Temple, `C(19,13)/C(60,13) = 0.00000000525115`. Both would have `C(55,13)/C(60,13) = 0.2808634312` in an optimally indexed common-copy arrangement. Here thirteen means a fixed set of seven opener and six Prize-deal original indices; it does not assert actual chronology or hand identity after mulligans.
 
+## Three-list alignment is simultaneously feasible
+
+The two reference-aligned variants can also attain the **Hood/Temple maximum of 56 shared positions simultaneously**, without sacrificing either champion/variant 55-position maximum. Holding the champion printing array fixed, reference-constrained unmatched source index positions (zero-based) are:
+
+- Hood: `[10, 20, 26, 37, 47]`.
+- Temple: `[6, 10, 20, 26, 47]`.
+
+One maximal assignment fills Hood's five indices respectively with Shadow Rider Calyrex V, Pokémon Ranger, Stealthy Hood, Stealthy Hood, and Arven; Temple's five with Wobbuffet, Shadow Rider Calyrex V, Pokémon Ranger, Temple of Sinnoh, and Temple of Sinnoh. For each variant all other entries are the matching reference printing. Enumerating the `5! × 5! = 14,400` candidate remainder placements yielded **432** equally scored best joint arrangements. Those attain the pairwise indexed-overlap vector `(55, 55, 56)`. This mathematical construction makes no claim that initial source-order reformatting improves the game-playing deck; it provides a controlled design for prospective seed-matched diagnostics.
+
 ## Why this matters
 
 The v3 SHA-256 physical-slot seeding correctly avoids the proven adjacent-slot xorshift32 coupling. It also intentionally gives candidate *variants* the same source RNG seed for controlled comparisons. **Seed equality alone establishes neither paired starting hands nor a high-overlap treatment/control opening.** Unaligned source rows can create substantial deal variation on top of the proposed card difference, reducing the precision of small-sample structural candidate comparisons.
