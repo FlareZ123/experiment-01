@@ -53,6 +53,8 @@ jobs:
         run: node --test tests/aichi-ranger-stone-field.test.cjs
       - name: Absol and Garbotoxin direct-window exact source regressions
         run: node --test tests/aichi-absol-garbotoxin-window.test.cjs
+      - name: Source rank-2 Gladion and Grand Tree direct-Prize opportunity
+        run: node --test tests/aichi-gladion-grandtree-opening.test.cjs
       - name: First turn Boost Shake direct Garbotoxin tests
         run: node --test tests/aichi-absol-boost-shake-direct.test.cjs
       - name: Source-specific Wally and Boost Shake direct route tests
