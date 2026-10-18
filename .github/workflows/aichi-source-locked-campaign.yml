@@ -22,6 +22,7 @@ on:
           - rank11-autonomous-boostshake-supporter-v2
           - rank26-autonomous-cologne-v1
           - rank26-autonomous-cologne-pump-v2
+          - rank26-autonomous-cologne-pump-propagation-v3
       newmoon_pass_probe:
         description: 'Observe cloned legal attack options after New Moon Bot Pass, no gameplay intervention'
         required: false
