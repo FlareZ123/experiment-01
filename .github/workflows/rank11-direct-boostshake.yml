@@ -15,6 +15,11 @@ on:
         options:
           - decorrelated-v2
           - legacy-consecutive-v1
+      attack_window_probe:
+        description: 'Retrospective source lock versus fixed candidate attack-window diagnostic'
+        required: false
+        type: boolean
+        default: false
       source_seat:
         description: Physical engine seat occupied by published rank11
         required: false
@@ -41,7 +46,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Pure rank11 direct-opportunity and seed-frame regressions
-        run: node --test tests/rank11-direct-opportunity.test.cjs tests/rank11-source-seeds.test.cjs
+        run: node --test tests/rank11-direct-opportunity.test.cjs tests/rank11-source-seeds.test.cjs tests/rank11-direct-candidate-attack-window.test.cjs
       - name: Install pinned simulator dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -54,6 +59,9 @@ jobs:
           SEED_PROTOCOL: ${{ inputs.seed_protocol || 'decorrelated-v2' }}
           RANK11_SOURCE_SEAT: ${{ inputs.source_seat || '0' }}
         run: node simulation/twinleaf/rank11-direct-source-probe.cjs > rank11-direct-source-probe.json
+      - name: Compare archived genuine rank11 direct locks with fixed candidate attack windows
+        if: inputs.attack_window_probe
+        run: node simulation/twinleaf/rank11-direct-candidate-attack-window.cjs > rank11-direct-candidate-attack-window.json
       - name: Verify source-first VSTAR and second-start direct policies compose
         run: node simulation/twinleaf/rank11-hybrid-source-replay.cjs > rank11-hybrid-source-replay.json
       - name: Retain one real K1 Garbodor search-negative source seed
@@ -70,6 +78,7 @@ jobs:
           name: rank11-direct-boostshake-unqualified-seat-${{ inputs.source_seat || '0' }}
           path: |
             rank11-direct-source-probe.json
+            rank11-direct-candidate-attack-window.json
             rank11-hybrid-source-replay.json
             rank11-direct-abort-replay.json
             rank11-k1-source-contrast.json
