@@ -2,6 +2,12 @@ name: Aichi raw evidence contract
 
 on:
   workflow_dispatch:
+    inputs:
+      emit_frozen_source_schedule:
+        description: 'Emit exact source-verified champion field schedule for precommit'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -38,5 +44,9 @@ jobs:
           node-version: '22'
       - name: Test frozen complete Aichi campaign schedule registration
         run: node --test tests/aichi-frozen-trial-schedule.test.cjs
+      - name: Print candidate field registration for independently committed plan
+        if: inputs.emit_frozen_source_schedule
+        run: >-
+          node -e "const p=require('./scripts/aichi-frozen-trial-schedule.cjs').freezeDefaultAichiSchedule({phase:'published-field',candidateId:'champion-reference'});console.log('REGISTERED_FIELD_JSON='+JSON.stringify(p));"
       - name: Test Node/Python trace hash interoperability
         run: node --test tests/action-trace-canonical.test.cjs
