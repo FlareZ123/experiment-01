@@ -42,3 +42,20 @@ The original report preceded a direct Max Geist attack-resolution extension. The
 The observable arithmetic is consistent with the printed Max Geist attack: `10 + 30 × 3 = 100` for exactly three attached Psychic Energy in the staged game. Against the printed 230 HP Iron Thorns ex, a clean one-hit Knock Out through Max Geist would need **at least eight Psychic Energy in play** (`10 + 30 × 7 = 220`, `10 + 30 × 8 = 250`), before considering other damage modifiers or prior damage. No such eight-Energy state was observed. After the retreat, Wobbuffet is Benched, Initialization is once again active, and Underworld Door becomes unavailable: the staged route produces a paid attack yet fails the immediate Knock Out and shuts off its own prior Energy-acceleration engine. A subsequent opponent decision or Volt Cyclone reply has not been executed in this fixture.
 
 **Evidence distinction:** printed card arithmetic + compiled staged Store action resolution, **not** authentic source-dealt setup or human-equivalent attacker policy. The source lists, both true starting orders, full opponent response, complete replay fidelity, and paper clock remain unqualified. The qualified-competitive-game count remains zero.
+
+## 18 October independent in-play Energy-placement threshold extension
+
+**Compiled CI [39160472629](https://github.com/FlareZ123/experiment-01/actions/runs/39160472629) passed** at research revision `afac6a8e8f643aca413e4df6dcd47bfe90b2e1e9`, against the same pinned Twinleaf submodule and reversible Tool Jammer hook. The expanded [same eight-case fixture](../../simulation/twinleaf/wobbuffet-latias-retreat-action.cjs) retains its six previous controls and adds **one Physical Psychic Energy attached to Active Wobbuffet** before Underworld Door. After real Door plus prompt resolution attaches the third Psychic to Benched VMAX, a **zero-cost** actual retreat moves the Psychic-energy-bearing Wobbuffet to the Bench and promotes VMAX. Two added independent route configurations test `Latias present + opposing Tool Jammer` and `Latias absent + active Float Stone without opposing Tool Jammer`.
+
+The manual CI's full pinned Store response was:
+
+| Staged route and Energy placement | Successful retreat? | VMAX-attached Psychic | Other in-play Psychic | Actual Max Geist damage |
+| --- | --- | ---: | ---: | ---: |
+| Four original free-retreat controls | Yes | 3 | 0 | **100** each |
+| Two original blocked-retreat controls | No | 3 on Bench | 0 | No Max Geist |
+| Latias free retreat through active Tool Jammer; Psychic on Wobbuffet | Yes | 3 | 1 | **130** |
+| Float Stone free retreat without Tool Jammer; Psychic on Wobbuffet | Yes | 3 | 1 | **130** |
+
+The outcome confirms that Max Geist counts Psychic Energy attached to *all of the player's Pokémon*, including a Wobbuffet that has just retreated to the Bench. With Iron Thorns ex's printed 230 HP, an unchanged two-attack sequence of 130 would total 260 and achieve a two-hit KO **if** the same undamaged target remained and attacks/effects could be repeated. The original 100 requires three unmodified attacks. Printed arithmetic: `10+30×3=100`, `10+30×4=130`. This is a discrete attack-count threshold for a *possible* two-turn sequence, not an experimentally established second attack or Prize-taking result.
+
+**Important temporal/AMR constraint:** The additional Wobbuffet Energy is **preloaded in an established staged board** and cannot be assumed to appear for free during Temple's first two ordinary turns. Building three Energy on VMAX plus one on Wobbuffet may require extra acceleration or another turn beyond the first two regular hand attachments and one Underworld Door. Neither eight-branch staged fixture executes a second Max Geist nor any opponent decision, Energy denial, switching, Stadium replacement or Volt Cyclone. Source-hand legality and competitively qualified wins remain unproven.
