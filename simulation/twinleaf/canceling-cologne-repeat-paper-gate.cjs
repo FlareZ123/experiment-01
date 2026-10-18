@@ -109,12 +109,18 @@ function run() {
   assert.equal(unpatched.firstEligible,true);
   assert.equal(unpatched.secondEligible,true,
     'Pinned canPlay accepted redundant same-turn Cologne');
+  assert.equal(unpatched.secondInDiscard,true,
+    'Stock engine actually consumed the second illegal same-turn Cologne');
+  assert.equal(unpatched.secondMarker,true,
+    'Stock engine applied the duplicate opponent Ability-lock marker');
   assert.equal(corrected.firstEligible,true);
   assert.equal(corrected.secondEligible,false,
     'Paper-ruling guard must reject second Cologne');
   assert.equal(corrected.secondInHand,true);
   assert.equal(corrected.secondInDiscard,false);
   assert.equal(corrected.secondMarker,false);
+  assert.match(corrected.secondDispatchError||'', /CANNOT_PLAY_THIS_CARD|GameError/,
+    'The real Store must veto before moving the second Item out of hand');
   assert.equal(corrected.nextTurnCanPlay,true,
     'A separate future turn must not remain blocked');
   assert.deepEqual(restored,unpatched,'Uninstall must restore stock behavior');
