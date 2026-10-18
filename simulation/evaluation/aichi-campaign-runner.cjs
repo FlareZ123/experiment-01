@@ -33,6 +33,8 @@ function loadCampaignInputs() {
       id, cards: JSON.parse(fs.readFileSync(path.join(SOURCE_DIR, file), 'utf8')).cards
     });
   }
+  candidates.push(require('../../scripts/aichi-new-moon-candidate.cjs')
+    .loadNewMoonCandidate());
   const seatSeedMode = process.env.CAMPAIGN_SEED_PROTOCOL || 'paired-slots-v1';
   return { field, source, candidates, campaign: loadDefaultCampaign(seatSeedMode) };
 }
