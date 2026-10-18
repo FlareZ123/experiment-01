@@ -44,6 +44,31 @@ function captureTacticScores(bot,work) {
 }
 
 /**
+ * Report attempts separately from finite candidate valuations. An evaluator
+ * can return undefined for a speculative action the engine cannot score.
+ *
+ * @param {Array<{tactic:string,score:number|null,undefinedScore:boolean}>} trace
+ */
+function summarizeTacticScores(trace) {
+  const attemptsByTactic={},finiteByTactic={};
+  let finiteScores=0,undefinedScores=0,otherUnscored=0;
+  for(const candidate of trace) {
+    const tactic=candidate.tactic;
+    attemptsByTactic[tactic]=(attemptsByTactic[tactic]??0)+1;
+    if(Number.isFinite(candidate.score)) {
+      finiteByTactic[tactic]=(finiteByTactic[tactic]??0)+1;
+      finiteScores++;
+    } else if(candidate.undefinedScore)undefinedScores++;
+    else otherUnscored++;
+  }
+  return {
+    attemptedEvaluations:trace.length,
+    finiteScores,undefinedScores,otherUnscored,
+    attemptsByTactic,finiteByTactic
+  };
+}
+
+/**
  * Compare only actual called candidate-score records. Different call counts
  * or action identities make later aligned records uninterpretable as a score
  * delta on the same proposed action.
@@ -71,6 +96,8 @@ function compareTacticScores(physical,counterfactual) {
   return {
     physicalEvaluations:physical.length,
     counterfactualEvaluations:counterfactual.length,
+    physicalScoreSummary:summarizeTacticScores(physical),
+    counterfactualScoreSummary:summarizeTacticScores(counterfactual),
     equalScoreTraces:physical.length===counterfactual.length&&
       firstDifference===null,
     firstDifference:firstDifference??(physical.length!==counterfactual.length?
@@ -78,4 +105,4 @@ function compareTacticScores(physical,counterfactual) {
   };
 }
 
-module.exports={captureTacticScores,compareTacticScores};
+module.exports={captureTacticScores,compareTacticScores,summarizeTacticScores};
