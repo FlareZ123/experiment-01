@@ -124,12 +124,23 @@ function probe(scenario='dragon-impact',energyPlan='double-dragon') {
 }
 
 if(require.main===module){
+  const cases=[];
+  for(const [scenario,energyPlan] of [
+    ['dragon-impact','basic'],['dragon-impact','double-dragon'],
+    ['ryuno-glide','basic'],['ryuno-glide','double-dragon']
+  ]){
+    try{
+      cases.push(probe(scenario,energyPlan));
+    }catch(error){
+      if(!String(error.message||error).includes('Missing pinned engine card')) throw error;
+      cases.push({scenario,energyPlan,
+        missingEngineCard:String(error.message||error),
+        stagedNotQualified:true});
+    }
+  }
   process.stdout.write(JSON.stringify({
-    schema:'regidrago-copy-energy-discard-staged-v0',
-    cases:[
-      probe('dragon-impact','basic'),probe('dragon-impact','double-dragon'),
-      probe('ryuno-glide','basic'),probe('ryuno-glide','double-dragon')
-    ]
+    schema:'regidrago-copy-energy-discard-staged-v1',
+    cases
   },null,2)+'\n');
 }
 module.exports={probe};
