@@ -48,3 +48,23 @@ function observeGhHypotheticalPrompts(play,targetOrdinal=59){
         return score;
       }finally{candidate=prior;}
     };
+    tactic.resolvePrompt=function(state,player,prompt){
+      const result=oldResolve.call(this,state,player,prompt);
+      if(focus && candidate==='Guzma & Hala CEC'){
+        prompts.push({
+          promptType:prompt.constructor.name,
+          message:prompt.message,
+          selection:renderSelection(result?.result),
+          promptMinimum:prompt.options?.min??null,
+          promptMaximum:prompt.options?.max??null
+        });
+      }
+      return result;
+    };
+    return {result:play(),prompts,evaluations,botCalls:ordinal};
+  }finally{
+    tactic.resolvePrompt=oldResolve;
+    tactic.evaluateAction=oldEvaluate;
+    bot.decodeNextAction=oldDecode;
+  }
+}
