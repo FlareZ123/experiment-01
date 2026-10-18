@@ -154,6 +154,16 @@ jobs:
           name: herdier-evolution-lock-matrix
           path: herdier-evolution-lock.json
           if-no-files-found: warn
+      - name: Verify source-vs-corrected Herdier evolution lock and single-Item contract
+        if: inputs.herdier_evolution_lock_probe
+        run: node simulation/twinleaf/herdier-treasure-hunt-hook-contract.cjs > herdier-corrected-contract.json
+      - name: Retain Herdier correction counterfactual and hook restoration
+        if: inputs.herdier_evolution_lock_probe && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: herdier-corrected-contract
+          path: herdier-corrected-contract.json
+          if-no-files-found: warn
       - name: Recheck archived rank-8 Temple-A invalid Energy prompt after the bot choice
         if: inputs.rank8_attach_prompt_probe
         run: node simulation/twinleaf/rank8-attach-energy-prompt-source.cjs > rank8-attach-prompt.json
