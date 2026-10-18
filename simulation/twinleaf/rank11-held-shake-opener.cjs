@@ -3,6 +3,7 @@
 const path = require('node:path');
 const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 const TOOLS = Object.freeze(['Float Stone', 'Muscle Band', 'Forest Seal Stone']);
+const {nextOpponentLockWitness} = require('./rank11-held-shake-witness.cjs');
 
 /** @param {string} name @returns {any} */
 function engine(name) {
@@ -93,18 +94,9 @@ function withRank11HeldShake(sourceSeat, execute) {
   }
 
   SimpleTacticsAi.prototype.decodeNextAction = function heldShake(state) {
-    // Observe the immediate opponent decision before the source-only return.
-    if (stage === 6 && !witness && openingTurn !== null &&
-        state.activePlayer !== sourceSeat && state.turn > openingTurn &&
-        state.phase === GamePhase.PLAYER_TURN) {
-      const source = state.players.find(p => p.id === sourceId);
-      if (source) witness = {
-        turn: state.turn, opponentDecisionSeat: state.activePlayer,
-        equippedGarbodor: source.bench.some(s =>
-          s.getPokemonCard()?.name === 'Garbodor' &&
-          s.tools.some(t => t.name === toolName))
-      };
-    }
+    // An actual opponent bot turn is the required witness boundary.
+    if (!witness) witness = nextOpponentLockWitness(state, sourceSeat,
+      sourceId, openingTurn, stage, toolName, GamePhase.PLAYER_TURN);
     const player = state.players.find(p => p.id === this.client?.id);
     if (!player || player.id !== sourceId) return previous.call(this, state);
     const pending = state.prompts.find(p => p.result === undefined);
