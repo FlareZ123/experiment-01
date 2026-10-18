@@ -5,6 +5,8 @@ from game records. These synthetic cases do not certify real engine replay.
 """
 import copy
 import hashlib
+import json
+from pathlib import Path
 import unittest
 
 from scripts.action_trace_integrity import action_trace_sha256
@@ -113,6 +115,45 @@ class TrialScheduleGateTests(unittest.TestCase):
         self.assertEqual(len(result["failures"]), 1)
         self.assertEqual(result["pre_first_turn_failures"], 1)
         self.assertFalse(result["sampling_frame_input_integrity_promotion_eligible"])
+
+
+    def test_checked_in_source_schedule_digest_and_all_rank_seats(self):
+        root = Path(__file__).resolve().parents[1]
+        source_file = root / "results" / "aichi-2026" / "registrations" / (
+            "champion-reference-published-field-v3-20261018.json"
+        )
+        document = json.loads(source_file.read_text(encoding="utf-8"))
+        serialized = {
+            key: value for key, value in document.items()
+            if key != "scheduleSha256"
+        }
+        computed = hashlib.sha256(json.dumps(
+            serialized, separators=(",", ":"), ensure_ascii=False
+        ).encode("utf-8")).hexdigest()
+        registered = "c4470115fe0953deaffbaeb605dc78a9f7a99d98eed114266729f242a3807219"
+        self.assertEqual(computed, registered)
+        self.assertEqual(document["scheduleSha256"], registered)
+        self.assertEqual(document["candidateId"], "champion-reference")
+        self.assertEqual(document["seedProtocol"], "decorrelated-slots-v3")
+        self.assertEqual(document["campaignPlanDigest"],
+                         "21fd5c47f6168f127f2e3dcad4b9d42bd79ed0c4b3801b261b5d8d667ef10cbf")
+        from scripts.aichi_evidence import read_manifest
+        source_manifest = (root / "results" / "aichi-2026" / "field.csv").read_text(
+            encoding="utf-8"
+        )
+        published = {row.rank for row in read_manifest(source_manifest) if row.published}
+        self.assertEqual(len(published), 29)
+        trials = document["expected_trials"]
+        self.assertEqual(len(trials), 58)
+        observed = {(row["rank"], row["candidate_side"]) for row in trials}
+        self.assertEqual(observed, {
+            (rank, side) for rank in published for side in ("A", "B")
+        })
+        self.assertEqual(len({row["game_id"] for row in trials}), 58)
+        for row in trials:
+            self.assertEqual(row["game_id"], (
+                f"published-field:{row['rank']}:0:champion-reference:{row['candidate_side']}"
+            ))
 
 
 if __name__ == "__main__":
