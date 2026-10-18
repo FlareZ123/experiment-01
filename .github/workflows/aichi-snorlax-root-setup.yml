@@ -1,0 +1,38 @@
+name: Aichi Snorlax authentic setup root probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rooted-setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Check setup adapter regressions
+        run: node --test tests/snorlax-solo-opening-policy.test.cjs
+      - name: Observe authentic root Store setup selections
+        run: node simulation/twinleaf/snorlax-root-setup-probe.cjs | tee aichi-snorlax-root-setup.json
+      - name: Archive actual setup selection roots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-snorlax-root-setup
+          path: aichi-snorlax-root-setup.json
+          if-no-files-found: warn
