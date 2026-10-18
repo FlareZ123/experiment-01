@@ -56,6 +56,8 @@ jobs:
         run: node simulation/twinleaf/rank11-direct-source-probe.cjs > rank11-direct-source-probe.json
       - name: Verify source-first VSTAR and second-start direct policies compose
         run: node simulation/twinleaf/rank11-hybrid-source-replay.cjs > rank11-hybrid-source-replay.json
+      - name: Retain one real K1 Garbodor search-negative source seed
+        run: node simulation/twinleaf/rank11-direct-abort-replay.cjs > rank11-direct-abort-replay.json
       - name: Print bounded outcome and keep all failed opportunities
         run: node -e "const p=require('./rank11-direct-source-probe.json'); console.log(JSON.stringify({seedProtocol:p.seedProtocol,sourceSeat:p.sourcePhysicalSeat,trials:p.actualTrialCount,starts:p.startSlotCounts,sourceFirst:p.sourceActualFirstCount,opportunities:p.opportunities,completed:p.completed,aborts:p.aborts,interesting:p.trials.filter(t=>t.sourceOpportunity!==null)},null,2))"
       - uses: actions/upload-artifact@v4
@@ -65,5 +67,6 @@ jobs:
           path: |
             rank11-direct-source-probe.json
             rank11-hybrid-source-replay.json
+            rank11-direct-abort-replay.json
           if-no-files-found: warn
           retention-days: 14
