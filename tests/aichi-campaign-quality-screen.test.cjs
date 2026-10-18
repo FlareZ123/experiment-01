@@ -330,7 +330,7 @@ test('declared mechanisms distinguish observed actions from incomplete trace sil
   }
   out = auditCampaignQuality(f);
   assert.deepEqual(out.coverage[1].mechanismExposure.map(x => x.status),
-    ['verified-no-exposure', 'verified-no-exposure']);
+    ['unknown-incomplete-traces', 'unknown-incomplete-traces']);
   const actionTrace = [{actionOrdinal: 1, action: 'PlayCardAction',
     playerSlot: 0, card: 'Field Blower'}];
   f.records[3].traceSummary.chronologicalActionTrace = actionTrace;
