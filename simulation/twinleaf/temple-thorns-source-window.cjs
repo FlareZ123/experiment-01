@@ -56,12 +56,31 @@ function withOwnerWindowObserver(seat, execute) {
     'simple-bot/simple-tactics-ai'));
   const {GamePhase} = require(path.join(ENGINE_OUTPUT,
     'game/store/state/state'));
+  const {GameMessage} = require(path.join(ENGINE_OUTPUT,
+    'game/game-message'));
   const original = SimpleTacticsAi.prototype.decodeNextAction;
   const expectedId = seat === 0 ? 101 : 202;
   const events = [];
   const previous = new Set();
   const wrapper = function templeSourceObserver(state) {
     const player = state.players.find(side => side.id === this.client?.id);
+    const pending = state.prompts.find(prompt => prompt.result === undefined);
+    if (player?.id === expectedId && pending?.playerId === expectedId &&
+        pending.message === GameMessage.CHOOSE_STARTING_POKEMONS) {
+      const wobbuffetInHand = player.hand.cards
+        .some(card => card.name === 'Wobbuffet');
+      const action = original.call(this, state);
+      const chosenNames = Array.isArray(action?.result) ?
+        action.result.map(card => card?.name || null) : null;
+      events.push({
+        kind: 'owner-actual-setup-choice', turn: state.turn,
+        prompt: pending.constructor.name,
+        wobbuffetInHand,
+        chosenNames,
+        wobbuffetSelectedActive: chosenNames?.[0] === 'Wobbuffet'
+      });
+      return action;
+    }
     if (player?.id === expectedId &&
         state.phase === GamePhase.PLAYER_TURN &&
         state.activePlayer === seat &&
@@ -165,6 +184,8 @@ function sourceGame(prepared, rank, seed, seat, observed) {
       .filter(event => event.kind === 'wobbuffet-active-window'),
     firstOwnTurnDecisions: wrapped.events
       .filter(event => event.kind === 'first-own-turn-decision'),
+    ownerSetupChoices: wrapped.events
+      .filter(event => event.kind === 'owner-actual-setup-choice'),
     mechanicalOnly: true
   };
 }
@@ -204,13 +225,20 @@ function runPanel() {
   }
   assert.equal(records.length, 8);
   return {
-    schema:'agent42-temple-thorns-source-window-v2-bounded-shards',
+    schema:'agent42-temple-thorns-source-window-v3-setup-choice',
     targetRanks:RANKS, seedSet:SEEDS, profile:PROFILE,
     printedDeckManifestDigest:prepared.candidateDigest,
     registeredTrials:planned, registrationDigest, selectedRank, parity,
     count:records.length,
     wobbuffetStartingActive:records.filter(row =>
       row.initialBoard?.players?.[row.candidateSeat]?.active?.startsWith('Wobbuffet ')).length,
+    wobbuffetInSetupHand:records.filter(row =>
+      row.ownerSetupChoices.some(choice => choice.wobbuffetInHand)).length,
+    wobbuffetOfferedButNotChosen:records.filter(row =>
+      row.ownerSetupChoices.some(choice =>
+        choice.wobbuffetInHand && choice.wobbuffetSelectedActive === false)).length,
+    setupChoiceEvents:records.reduce((n,row) =>
+      n+row.ownerSetupChoices.length,0),
     wobbuffetLiveWindows:records.reduce((n,row) =>
       n+row.wobbuffetWindows.length,0),
     fullyReadyLiveWindows:records.reduce((n,row) => n +
