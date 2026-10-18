@@ -217,8 +217,8 @@ function main() {
     row.selectedPrintings.includes(DRAGON_PRINTING));
   assert.equal(cost?.physicalDiscardConfirmed,true,
     'Physical Dragon failed to enter actual discard after the chosen cost');
-  const firstDifference = firstDecisionDifference(control.result.actionTrace,
-    altered.result.result.actionTrace);
+  const firstDifference = firstDecisionDifference(control.actionTrace,
+    altered.actionTrace);
   assert.ok(firstDifference);
   assert.equal(firstDifference.control.beforeZone,
     firstDifference.corrected.beforeZone,
