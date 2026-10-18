@@ -355,7 +355,9 @@ if (require.main === module) {
   }
   const runMatch = profiled ?
     (request, trial) => {
-      if (profile === profiled.RANK11_AUTONOMOUS_PROFILE) {
+      if ([profiled.RANK11_AUTONOMOUS_PROFILE,
+          profiled.RANK11_OWN_FIRST_PROFILE,
+          profiled.RANK11_SUPPORTER_PROFILE].includes(profile)) {
         return profiled.runWithResearchProfile({
           ...request, rank11SourceSeat: rank11SourceSeat(trial)
         }, profile);
