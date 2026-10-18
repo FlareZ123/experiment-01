@@ -1,6 +1,8 @@
 'use strict';
 
 const path=require('node:path');
+const {sourceZoneSnapshot,zoneSnapshotDigest}=
+  require('./source-zone-checkpoint.cjs');
 
 /**
  * Read-only, synchronous trace of one real SimpleTacticsAi decision's score
@@ -76,8 +78,13 @@ function observeOneDecisionTacticEvaluations(
     const index=++ordinal;
     if(index!==targetOrdinal)return originalDecision.value.call(this,state);
     if(active)throw new Error('Nested target bot decision');
+    const snapshot=sourceZoneSnapshot(state);
     report.selectedDecision={
       index,turn:state.turn,actorSeat:state.activePlayer,
+      predecisionZoneDigest:zoneSnapshotDigest(snapshot),
+      ownHand:state.players[state.activePlayer].hand.cards.map(c=>c.fullName),
+      ownActive:state.players[state.activePlayer].active.getPokemonCard()?.fullName??null,
+      ownEnergy:state.players[state.activePlayer].active.energies.cards.map(c=>c.fullName),
       evaluations:[],baseScores:[],validations:[],selected:null
     };
     active=true;
