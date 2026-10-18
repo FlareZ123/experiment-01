@@ -3,6 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {isDeepStrictEqual}=require('node:util');
+const {captureTacticScores,compareTacticScores}=require('./tactic-score-trace.cjs');
 const {runMatch,initializeCards,seededRandom}=require('./headless.cjs');
 const {resolveManifestFile}=require('./resolve-field.cjs');
 const {loadDefaultCampaign}=require('../../scripts/aichi-comparison-campaign.cjs');
@@ -51,18 +52,21 @@ function compareHiddenDeckOrders(state,actorId,newBot,cloneState,makeRandom) {
     const randomBefore=Math.random;
     Math.random=makeRandom();
     try {
-      return actionSignature(newBot().decodeNextAction(world));
+      const bot=newBot();
+      const scored=captureTacticScores(bot,()=>bot.decodeNextAction(world));
+      return {action:actionSignature(scored.result),scores:scored.trace};
     } finally {
       Math.random=randomBefore;
     }
   };
-  const physicalOrder=evaluate(base);
-  const reversedOrder=evaluate(reverse);
+  const physical=evaluate(base),reversed=evaluate(reverse);
+  const physicalOrder=physical.action,reversedOrder=reversed.action;
   const post=stateGraphFingerprint(state);
   assert.deepEqual(post,pre,'Counterfactual lookahead changed live Store State');
   return {
     actorId,deckCards:before.length,
     physicalOrder,reversedOrder,
+    tacticScoreComparison:compareTacticScores(physical.scores,reversed.scores),
     actionSensitiveToHiddenDeckOrder:
       JSON.stringify(physicalOrder)!==JSON.stringify(reversedOrder),
     liveStatePreserved:true,
