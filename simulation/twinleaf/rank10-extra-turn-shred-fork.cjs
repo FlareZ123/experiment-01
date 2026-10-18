@@ -75,7 +75,28 @@ function main() {
   assert.equal(alternate.firstTurnSlot,1);
   const extraTurn=game=>game.copycatTurnStartEvidence
     .find(snapshot=>snapshot.turn===28);
-  assert.ok(extraTurn(baseline),'Baseline must have the authentic turn28');
+  const recent=baseline.copycatTurnStartEvidence
+    .filter(entry=>entry.turn>=23 && entry.turn<=30)
+    .map(entry=>({
+      turn:entry.turn,usedGX:entry.candidateUsedGX,
+      lastAttack:entry.previousOpponentAttack,
+      mimikyu:entry.mimikyu,dialga:entry.ownDialga,
+      prizes:entry.prizeCounts
+    }));
+  assert.ok(extraTurn(baseline),
+    'Baseline must have the authentic turn28; actual bounded source trace: '+
+      JSON.stringify({
+        finished:baseline.finished,winner:baseline.winner,
+        turns:baseline.turns,prizes:baseline.prizesRemaining,
+        recent,
+        rootAttacks:baseline.attackTrace.filter(entry=>entry.turn>=23)
+          .map(entry=>({turn:entry.turn,seat:entry.seat,
+            attack:entry.attack,pokemon:entry.activePokemon})),
+        recentDecisions:baseline.decisionTrace
+          .filter(entry=>entry.turnBefore>=23 && entry.turnBefore<=30)
+          .map(entry=>({turn:entry.turnBefore,ordinal:entry.actionOrdinal,
+            action:entry.action,attack:entry.attack||null}))
+      }));
   assert.deepEqual(extraTurn(alternate),extraTurn(baseline),
     'The optional Shred tactic changed the source state before the turn28 decision');
   let firstDecisionDivergence=null;
