@@ -23,6 +23,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank26_ticket_prize_probe:
+        description: 'Verify rank26 source DCE Prize transfer with actual Redeemable Ticket'
+        type: boolean
+        required: false
+        default: false
       rank26_prospective_cohort:
         description: 'Audit 24 unbiased matched rank26 firstturn engine deals, unqualified'
         type: boolean
@@ -177,4 +182,17 @@ jobs:
         with:
           name: rank26-firstturn-source-window-unqualified
           path: rank26-firstturn-source-window.json
+          if-no-files-found: error
+      - name: Prove exact source-conditional rank26 Ticket Prize cut
+        if: ${{ inputs.rank26_ticket_prize_probe }}
+        run: python -m unittest discover -s tests -p test_rank26_prize_ticket_gate.py
+      - name: Play rank26 Redeemable Ticket in real pinned Store, both source seats
+        if: ${{ inputs.rank26_ticket_prize_probe }}
+        run: node simulation/twinleaf/rank26-redeemable-ticket-source-fixture.cjs > rank26-ticket-source-prize-transfer.json
+      - name: Archive rank26 actual Store Ticket effect and physical conservation
+        if: ${{ inputs.rank26_ticket_prize_probe }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank26-ticket-source-prize-transfer-unqualified
+          path: rank26-ticket-source-prize-transfer.json
           if-no-files-found: error
