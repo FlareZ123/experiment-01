@@ -66,6 +66,14 @@ jobs:
       - name: Verify source-dealt rank11 printed copied-attack source and Store declaration
         if: inputs.rank11_delegated_attack_selection_source
         run: node simulation/twinleaf/newmoon-rank11-perfection-delegated-source.cjs > rank11-copied-attack-selection.json
+      - name: Surface actual rank11 terminal copied attack identity
+        if: inputs.rank11_delegated_attack_selection_source
+        run: >-
+          node -e "const r=require('./rank11-copied-attack-selection.json');
+          console.log(JSON.stringify({seed:r.seed,sourceRank:r.sourceRank,
+          copied:r.terminalAttack,source:r.terminalSelectedPrinting,
+          root:r.terminalAttackRootAction,attacks:r.attacks,
+          usedPrizes:r.finalPrizes,turn:r.finalTurns,qualified:false}));"
       - name: Preserve rank11 selected printing and copied-attack provenance
         if: inputs.rank11_delegated_attack_selection_source && always()
         uses: actions/upload-artifact@v4
@@ -76,6 +84,15 @@ jobs:
       - name: Verify central Store attack ledger on one full source-dealt rank8 game
         if: inputs.rank8_attack_log_full_source
         run: node simulation/twinleaf/source-attack-log-full-match.cjs > rank8-central-attack-ledger.json
+      - name: Surface rank8 completed source Store logging summary
+        if: inputs.rank8_attack_log_full_source
+        run: >-
+          node -e "const r=require('./rank8-central-attack-ledger.json');
+          console.log(JSON.stringify({seed:r.seed,rank:r.rank,
+          printedActionAttacks:r.originalAttackActionTrace.length,
+          storeDeclarations:r.centralStoreAttackDeclarations.length,
+          turns:r.turns,actions:r.actions,finished:r.finished,
+          qualified:false}));"
       - name: Preserve complete source rank8 attack ledger evidence
         if: inputs.rank8_attack_log_full_source && always()
         uses: actions/upload-artifact@v4
