@@ -97,6 +97,16 @@ jobs:
         run: |
           node --test tests/rank11-boostshake-opening-eligibility.test.cjs
           node simulation/twinleaf/rank11-adaptive-boostshake-source-run.cjs > rank11-adaptive-boostshake.json
+      - name: Count rank11 conditional opener from exact printed finite population
+        if: inputs.rank11_adaptive_boostshake
+        run: python3 scripts/rank11-adaptive-opening-envelope.py > rank11-adaptive-opening-envelope.json
+      - name: Preserve exact source opening resource envelope
+        if: always() && inputs.rank11_adaptive_boostshake
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-adaptive-opening-envelope
+          path: rank11-adaptive-opening-envelope.json
+          if-no-files-found: warn
       - name: Preserve conditional rank11 first-turn source-policy trace
         if: always() && inputs.rank11_adaptive_boostshake
         uses: actions/upload-artifact@v4
