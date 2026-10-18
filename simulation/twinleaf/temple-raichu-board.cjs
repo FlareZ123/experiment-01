@@ -3,7 +3,6 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { initializeCards } = require('./headless.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} modulePath */
@@ -42,6 +41,7 @@ function publishedRaichuEnergies() {
 
 /** @param {string[]} energyNames @param {string|null} stadiumName */
 function stagedRaichu(energyNames, stadiumName) {
+  const {initializeCards} = require('./headless.cjs');
   const cards = initializeCards();
   const { Store } = load('game/store/store');
   const { Player } = load('game/store/state/player');
