@@ -71,3 +71,32 @@ test('older selective-only archives remain explicitly unverified',()=>{
   delete f.traceSummary.rootActionLedgerProtocol;
   assert.equal(inspectRootActionLedger(f).status,'root-ledger-unavailable');
 });
+
+
+test('root lineage binds copied selection to a real earlier initiating Ability',()=>{
+  const f=fixture();
+  const roots=f.traceSummary.rootActionLedger;
+  const origins=[0,1,1,3];
+  roots.forEach((event,i)=>{
+    event.initiatingRootActionOrdinal=origins[i];
+  });
+  f.traceSummary.rootActionLedgerSha256=hash(roots);
+  let status=inspectRootActionLedger(f);
+  assert.equal(status.status,'complete-root-ledger-self-consistent');
+  assert.equal(status.originLineageStatus,'self-consistent-origin-lineage');
+  roots[2].initiatingRootActionOrdinal=0;
+  f.traceSummary.rootActionLedgerSha256=hash(roots);
+  status=inspectRootActionLedger(f);
+  assert.equal(status.status,'root-ledger-integrity-mismatch');
+  roots[2].initiatingRootActionOrdinal=1;
+  delete roots[3].initiatingRootActionOrdinal;
+  f.traceSummary.rootActionLedgerSha256=hash(roots);
+  assert.equal(inspectRootActionLedger(f).status,'root-ledger-integrity-mismatch');
+});
+
+test('old valid root ledgers do not silently attest missing initiator lineage',()=>{
+  const f=fixture();
+  const out=inspectRootActionLedger(f);
+  assert.equal(out.status,'complete-root-ledger-self-consistent');
+  assert.equal(out.originLineageStatus,'unavailable');
+});
