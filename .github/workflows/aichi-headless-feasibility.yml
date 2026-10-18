@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank9_horror_house_causal_fork:
+        description: Two selected authentic Horror House attacks with explicitly illegal no-hand-lock matched source fork
+        required: false
+        type: boolean
+        default: false
       rank9_horror_house_reply_probe:
         description: Single authentic rank9 native Horror House root, opponent next-turn and observer-parity test
         required: false
@@ -156,6 +161,22 @@ jobs:
           path: absol-rank11-firstturn-k1.json
           retention-days: 14
 
+      - name: Prove reversible illegal no-hand-lock intervention preserves GX and paper prototype
+        if: ${{ inputs.rank9_horror_house_causal_fork }}
+        run: node simulation/twinleaf/gengar-horror-house-no-lock-fork-contract.cjs > gengar-horror-house-no-lock-fork-contract.json
+      - name: Contrast two selected native Horror House source roots against no-hand-lock counterfactual
+        if: ${{ inputs.rank9_horror_house_causal_fork }}
+        run: node simulation/twinleaf/rank9-horror-house-lock-causal-fork.cjs > rank9-horror-house-lock-causal-fork.json
+      - name: Archive explicit rule-broken causal fork and staged mechanical contract
+        if: ${{ always() && inputs.rank9_horror_house_causal_fork }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank9-horror-house-lock-causal-fork
+          path: |
+            gengar-horror-house-no-lock-fork-contract.json
+            rank9-horror-house-lock-causal-fork.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Observe actual rank9 Horror House effect and next-turn opponent decisions
         if: ${{ inputs.rank9_horror_house_reply_probe }}
         run: node simulation/twinleaf/rank9-horror-house-nextturn-source-reply.cjs > rank9-horror-house-nextturn-source-reply.json
