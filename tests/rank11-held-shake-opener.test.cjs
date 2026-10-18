@@ -69,3 +69,20 @@ test('rejects absent paid resources and constrained turn/bench', () => {
     assert.equal(heldShakeOpportunity(state, player, 0, 7), false);
   }
 });
+
+test('v2 K0 guard rejects both held Garbodor without inspecting hidden zones', () => {
+  const {state, player} = caseFromHand([
+    'Battle VIP Pass', 'Boost Shake', 'Float Stone',
+    'Garbodor', 'Garbodor'
+  ]);
+  Object.defineProperty(player, 'deck', {get() {
+    throw new Error('K0 guard illegally inspected deck');
+  }});
+  Object.defineProperty(player, 'prizes', {get() {
+    throw new Error('K0 guard illegally inspected prizes');
+  }});
+  assert.equal(heldShakeOpportunity(state, player, 0, 7), true);
+  assert.equal(heldShakeOpportunity(state, player, 0, 7, true), false);
+  player.hand.cards.pop();
+  assert.equal(heldShakeOpportunity(state, player, 0, 7, true), true);
+});
