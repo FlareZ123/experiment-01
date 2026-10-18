@@ -85,7 +85,7 @@ jobs:
           node -e "const r=require('./rank11-copied-attack-selection.json');
           console.log(JSON.stringify({seed:r.seed,sourceRank:r.sourceRank,
           copied:r.terminalAttack,source:r.terminalSelectedPrinting,
-          root:r.terminalAttackRootAction,attacks:r.attacks,
+          root:r.terminalAttackRootAction,attacks:r.attacks,effect:r.terminalPublicEffect,
           usedPrizes:r.finalPrizes,turn:r.finalTurns,qualified:false}));"
       - name: Preserve rank11 selected printing and copied-attack provenance
         if: inputs.rank11_delegated_attack_selection_source && always()
