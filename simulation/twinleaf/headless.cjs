@@ -252,6 +252,8 @@ function policyRandomStreams(seed) {
  * @property {0|1} [rank31FogEnergyBroaderSeat] Comparison: allow other Basics in hand or Bench when finding Bell's Energy.
  * @property {0|1} [newMoonOpeningHorrorHouseSeat] Candidate-only first-going-second native or copied Horror House-GX policy.
  * @property {boolean} [latiasAttackReadyAttachment] Opt-in rank10 source-state Latias Energy completion probe.
+ * @property {boolean} [toolAttackAwareness] Opt-in Tool-granted attack enumeration in the ordinary attack tactic.
+ * @property {0|1} [toolAttackAwarenessSeat] Restrict Tool attack policy to one physical seat; requires toolAttackAwareness.
  * @property {boolean} [bunnelbyK0SafeEvolution] Opt-in printed-source-only TM Evolution choice without hidden-deck/Prize inspection.
  * @property {boolean} [bunnelbyObservedK1] Separate opt-in: switch that policy from K0 to K1 only on live owner-deck search prompts.
  * @property {boolean} [bunnelbyTargetAwareEvolution] Separate opt-in: choose TM Evolution targets with possible Stage cards.
@@ -297,6 +299,11 @@ function runMatch(request) {
     if (seat !== undefined && ![0,1].includes(seat)) {
       throw new Error('New Moon payload and attack policies need a physical seat');
     }
+  }
+  if (request.toolAttackAwarenessSeat !== undefined &&
+      (request.toolAttackAwareness !== true ||
+       ![0, 1].includes(request.toolAttackAwarenessSeat))) {
+    throw new Error('Seat-specific Tool attack policy requires enabled toolAttackAwareness and seat 0 or 1');
   }
   if (request.bunnelbyObservedK1 === true && request.bunnelbyK0SafeEvolution !== true) {
     throw new Error('Observed K1 requires the source-60 Bunnelby K0 option');
@@ -589,6 +596,11 @@ function runMatch(request) {
         configured = require('./attack-pass-horizon-policy.cjs')
           .withPassHorizonAttack(configured,
             {targetTurn:request.passHorizonAttackTurn??null});
+      }
+      if (request.toolAttackAwareness === true &&
+          (request.toolAttackAwarenessSeat === undefined ||
+            request.toolAttackAwarenessSeat === seat)) {
+        configured = require('./tool-attack-policy.cjs').withToolAttackAwareness(configured);
       }
       if (request.bunnelbyK0SafeEvolution === true) {
         const knownPrints = seat === 0 ? request.deckA : request.deckB;
@@ -1095,6 +1107,8 @@ function runMatch(request) {
       newMoonAttackPayloadCompressorSeat: request.newMoonAttackPayloadCompressorSeat ?? null,
       newMoonOpeningHorrorHouseSeat: request.newMoonOpeningHorrorHouseSeat ?? null,
       latiasAttackReadyAttachment: request.latiasAttackReadyAttachment === true,
+      toolAttackAwareness: request.toolAttackAwareness === true,
+      toolAttackAwarenessSeat: request.toolAttackAwarenessSeat ?? null,
       bunnelbyK0SafeEvolution: request.bunnelbyK0SafeEvolution === true,
       bunnelbyObservedK1: request.bunnelbyObservedK1 === true,
       ...(request.bunnelbyObservedK1 === true ? {
@@ -1143,6 +1157,9 @@ function runMatch(request) {
         (request.mimikyuExtraTurnShredSeat !== undefined ? '+MimikyuExtraTurnShred-v1' : '') +
         (request.mimikyuAutonomousShredSeat !== undefined ?
           '+AutonomousApexShred-v1@seat' + request.mimikyuAutonomousShredSeat : '') +
+        (request.toolAttackAwareness === true ?
+          '+ToolAttackEnumerate-v1@' + (request.toolAttackAwarenessSeat === undefined ?
+            'both' : 'seat' + request.toolAttackAwarenessSeat) : '') +
         (request.bunnelbyK0SafeEvolution === true ? '+BunnelbySourceK0PossibleEvolution-v1' : '') +
         (request.bunnelbyObservedK1 === true ? '+BunnelbyRootObservedK1-v1+HiddenPrizeEpoch-v2+FullPrizeReview-v1+KnowledgeEvents-v1' : '') +
         (request.bunnelbyTargetAwareEvolution === true ? '+BunnelbyStageTargetResolver-v1' : '') +
