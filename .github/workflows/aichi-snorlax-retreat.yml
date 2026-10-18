@@ -35,6 +35,10 @@ jobs:
         run: node simulation/twinleaf/snorlax-scoop-supporter.cjs > aichi-snorlax-scoop-supporter.json
       - name: Test source-independent Supporter action diagnostics
         run: node --test tests/snorlax-scoop-supporter.test.cjs
+      - name: Trace Max Geist attack conversion after five Block-escape Trainers
+        run: node simulation/twinleaf/snorlax-max-geist-continuation.cjs > aichi-snorlax-max-geist-continuation.json
+      - name: Assert real Max Geist attack conversion and Prize differences
+        run: node --test tests/snorlax-max-geist-continuation.test.cjs
       - name: Characterize Switch and Guzma solo-Block escapes
         run: node simulation/twinleaf/snorlax-switch-vs-guzma.cjs | tee aichi-snorlax-switch-guzma.json
       - name: Validate Switch and Guzma counterlines and reversible guard
@@ -48,4 +52,5 @@ jobs:
             aichi-snorlax-retreat.json
             aichi-snorlax-switch-guzma.json
             aichi-snorlax-scoop-supporter.json
+            aichi-snorlax-max-geist-continuation.json
           if-no-files-found: warn
