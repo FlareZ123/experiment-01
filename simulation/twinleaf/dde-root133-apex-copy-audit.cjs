@@ -69,7 +69,7 @@ function withSourceApexCopyTrace(Store, execute) {
       return descriptor.value.apply(this, [action, ...args]);
     rootStep++;
     const actionKind = action?.constructor?.name;
-    const actorId = action?.id;
+    const actorId = actionKind === 'AttackAction' ? action.clientId : action?.id;
     const state = this.state;
     const currentTurn = state.turn;
     if (actionKind === 'AttackAction')
