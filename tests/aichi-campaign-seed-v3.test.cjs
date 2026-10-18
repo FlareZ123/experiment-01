@@ -171,3 +171,6 @@ require('./aichi-position-coupling.test.cjs');
 
 // Pure xorshift/Fisher-Yates full v3 source-order sensitivity experiment.
 require('./aichi-position-seed-sweep.test.cjs');
+
+// Exact hypergeometric coupling bound, with real-source and toy regressions.
+require('./aichi-maximal-opening-coupling.test.cjs');
