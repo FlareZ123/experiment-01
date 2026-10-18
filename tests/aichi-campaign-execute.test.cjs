@@ -17,6 +17,7 @@ const ECHOED_POLICY_KEYS = [
   'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
   'attackBeforeRetreat', 'attackBeforeRetreatSeat',
   'bunnelbyK0SafeEvolution', 'prototypeSafeSimulatorIsolation',
+  'toolAttackAwareness', 'toolAttackAwarenessSeat',
   'leleEntryAbilityLockCorrection', 'radiantGateLockCorrection',
   'entryDrawLockCorrection', 'eldegossEntryLockCorrection',
   'attachedToolPowerPolicy'
@@ -498,4 +499,38 @@ test('Electrode corrected Energy count must match the reported trial flag',()=>{
  const mismatch=run({policyFlags:{electrodeGXEnergyCorrection:true},runMatch:request=>
    sampleGame(request,{electrodeGXEnergyCorrection:false})});
  assert.equal(mismatch.counts['unverified-game-environment'], EXPECTED_PILOT_TRIALS);
+});
+
+test('opponent-only Tool attack enumeration tracks the actual opponent physical seat',()=>{
+  const seen=[];
+  const out=run({
+    policyFlags:{toolAttackAwareness:true,toolAttackOpponentOnly:true},
+    runMatch:request=>{
+      seen.push(request.toolAttackAwarenessSeat);
+      assert.equal(request.toolAttackAwareness,true);
+      assert.equal(request.toolAttackOpponentOnly,undefined);
+      return sampleGame(request);
+    }
+  });
+  assert.deepEqual(seen,Array.from({length:EXPECTED_PILOT_TRIALS},
+    (_,i)=>i%2===0?1:0));
+  assert.equal(out.counts['completed-engine-game'],EXPECTED_PILOT_TRIALS);
+  assert.equal(out.strengthClaimPermitted,false);
+  const forged=run({
+    policyFlags:{toolAttackAwareness:true,toolAttackOpponentOnly:true},
+    runMatch:request=>sampleGame(request,{toolAttackAwarenessSeat:9})
+  });
+  assert.equal(forged.counts['unverified-game-environment'],EXPECTED_PILOT_TRIALS);
+});
+
+test('Tool attack policy profile guards prevent duplicate or implicit tactics',()=>{
+  assert.throws(()=>run({policyFlags:{toolAttackOpponentOnly:true}}),
+    /Opponent-only Tool attacks require/);
+  assert.throws(()=>executeDiagnostic({
+    expectedEngineRevision:EXPECTED_ENGINE,campaign:loadDefaultCampaign(),
+    ranks:[6],researchPolicyProfile:'expanded-action-fidelity-probe-v1',
+    policyFlags:{toolAttackAwareness:true},
+    resolvePair:()=>{throw Error('must not resolve');},
+    runMatch:()=>{throw Error('must not run');}
+  }),/overlaps the existing Expanded tactic profile/);
 });
