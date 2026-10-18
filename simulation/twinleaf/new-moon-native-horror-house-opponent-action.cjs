@@ -34,8 +34,8 @@ function runSeat(seat) {
     load('game/store/actions/play-card-action');
 
   const store = new Store({onStateChange() {}});
-  const state = store.state;
-  const me = new Player(), opponent = new Player();
+  let state = store.state;
+  let me = new Player(), opponent = new Player();
   me.id = 101; opponent.id = 202;
   me.name = 'printed Gengar'; opponent.name = 'pre-powered Iron Thorns';
   state.players = seat === 0 ? [me, opponent] : [opponent, me];
@@ -54,7 +54,7 @@ function runSeat(seat) {
   const dce = card('Double Colorless Energy SUM');
   opponent.active.cards.push(thorns, speed, dce);
   opponent.active.energies.cards.push(speed, dce);
-  const bench = new PokemonCardList();
+  let bench = new PokemonCardList();
   bench.cards.push(card('Iron Thorns ex TWM'));
   opponent.bench.push(bench);
   // Legitimate opponent-hand options, all excluded by Horror House's
@@ -117,6 +117,15 @@ function runSeat(seat) {
       }));
     } catch (caught) {
       error = caught;
+      // The pinned Store rolls back illegal actions by replacing this.state
+      // with a new deep-cloned object graph. Refresh the live references.
+      const priorState = state;
+      state = store.state;
+      assert.notEqual(state, priorState,
+        'Rejected action must have replaced the live Store State');
+      me = state.players[seat];
+      opponent = state.players[1 - seat];
+      bench = opponent.bench[0];
     }
     assert.ok(error, 'Horror House allowed a hand card: ' + selected.fullName);
     assert.ok(opponent.hand.cards.includes(selected), 'Rejected card left hand');
