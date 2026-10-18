@@ -89,7 +89,7 @@ function probe(options){
 
   const before=owner.active.damage;
   const attempted=options.actor==='cologne'?
-    'Canceling Cologne':options.actor==='dusclops'?'Will-O-Wisp':
+    'Canceling Cologne':options.actor==='dusclops'?'Will-o-Wisp':
       options.actor==='hood-then-basic'?'Stealthy Hood then Miraculous Duo-GX':
         'Miraculous Duo-GX';
   let error=null;
@@ -113,7 +113,7 @@ function probe(options){
           'The Item lock should allow playing a Tool card');
       }
       store.dispatch(new AttackAction(candidate.id,
-        options.actor==='dusclops'?'Will-O-Wisp':'Miraculous Duo-GX'));
+        options.actor==='dusclops'?'Will-o-Wisp':'Miraculous Duo-GX'));
       for(let i=0;i<10;i++){
         const pending=store.state.prompts.find(p=>p.result===undefined);
         if(!pending||pending.constructor.name!=='WaitPrompt')break;
@@ -164,7 +164,7 @@ function run(){
     'Hood counterline must attach to the attacker');
   const stage1=rows.find(r=>r.actor==='dusclops');
   assert.equal(stage1.opponentActiveDamage,50,
-    'Stage1 Will-O-Wisp must deal 50 under both Vileplume locks');
+    'Stage1 Will-o-Wisp must deal 50 under both Vileplume locks');
   return {
     schema:'aichi-rank15-dual-vileplume-staged-store-v1',
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
