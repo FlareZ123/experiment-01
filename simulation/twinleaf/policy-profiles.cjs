@@ -18,6 +18,7 @@ const EXPANDED_GH_SEARCH_PROFILE = 'expanded-gh-root-search-v3';
 const RANK11_AUTONOMOUS_PROFILE = 'rank11-autonomous-boostshake-v1';
 const RANK11_OWN_FIRST_PROFILE = 'rank11-autonomous-first-own-turn-v2';
 const RANK26_COLOGNE_PROFILE = 'rank26-autonomous-cologne-v1';
+const RANK26_COLOGNE_PUMP_PROFILE = 'rank26-autonomous-cologne-pump-v2';
 const ALLOWED_PROFILES = Object.freeze([
   DEFAULT_PROFILE, REGIDRAGO_PROFILE,
   SUPPORTER_PROFILE, REGIDRAGO_SUPPORTER_PROFILE,
@@ -123,6 +124,35 @@ function runWithResearchProfile(request, profile) {
         'Rank11AutonomousOpener-v1'],
       rank11AutonomousPolicy: audit.policyAudit
     };
+  }
+  if (profile === RANK26_COLOGNE_PUMP_PROFILE) {
+    const {rank26SourceSeat, ...matchRequest} = shared;
+    if (![0, 1].includes(rank26SourceSeat)) {
+      throw new Error('Rank-26 first-turn policy requires its source seat.');
+    }
+    const {withRank26CologneOpener} = require('./rank26-cologne-opener.cjs');
+    const {withRank26ExeggcutePump} = require('./rank26-exeggcute-pump-policy.cjs');
+    const {installDamagePumpSingleSourceHook} =
+      require('./damage-pump-single-source-hook.cjs');
+    const restorePump=installDamagePumpSingleSourceHook();
+    try {
+      const combined=withRank26CologneOpener(rank26SourceSeat,
+        () => withRank26ExeggcutePump(rank26SourceSeat,
+          () => runMatch(matchRequest)));
+      return {
+        ...combined.result.result,
+        researchPolicyProfile: profile,
+        policy: String(combined.result.result.policy || 'unqualified-simple-bot') +
+          '+Rank26ColognePump-v2',
+        experimentalTactics:['Rank26CologneOpener-v1',
+          'Rank26SingleSourcePump-v1'],
+        rank26ColognePolicy:combined.policyAudit,
+        rank26PumpPolicy:combined.result.policyAudit,
+        damagePumpSingleSourceCorrection:true
+      };
+    }finally{
+      restorePump();
+    }
   }
   if (profile === RANK26_COLOGNE_PROFILE) {
     const {rank26SourceSeat, ...matchRequest} = shared;
