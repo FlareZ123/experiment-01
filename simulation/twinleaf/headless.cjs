@@ -48,7 +48,7 @@ const {withAttackBeforeRetreat} = require('./attack-retreat-order.cjs');
 const {withCopycatApexTimelessPolicy} = require('./mimikyu-counter-policy.cjs');
 const {copycatTurnStartSnapshot} = require('./copycat-turn-start-evidence.cjs');
 const {retreatTransitionEvidence} = require('./retreat-transition-evidence.cjs');
-const {inspectPhysicalCardZones} = require('./physical-card-ledger.cjs');
+const {inspectPhysicalCardZones, fixedDeckCountAnomalies} = require('./physical-card-ledger.cjs');
 
 /**
  * Reproducible, in-process Twinleaf experimentation.
@@ -777,10 +777,11 @@ function runMatch(request) {
       }
       if (physicalZoneIntegrity) {
         const ownership = inspectPhysicalCardZones(store.state);
+        const countAnomalies = fixedDeckCountAnomalies(ownership);
         physicalZoneIntegrity.rootActionsChecked++;
         if (ownership.referenceDuplications.length ||
             ownership.energyWithoutPhysicalCard.length ||
-            ownership.repeatedEnergyIndexes.length) {
+            ownership.repeatedEnergyIndexes.length || countAnomalies.length) {
           physicalZoneIntegrity.actionsWithAnomaly++;
           if (physicalZoneIntegrity.firstAnomaly === null) {
             physicalZoneIntegrity.firstAnomaly = {
@@ -788,7 +789,8 @@ function runMatch(request) {
               turn: store.state.turn,
               actingSeat: state.activePlayer,
               actionType: actionName,
-              ownership
+              ownership,
+              countAnomalies
             };
           }
         }
