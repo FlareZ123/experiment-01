@@ -141,7 +141,7 @@ function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
  * @param {number|null} [wantedBoundary] Zero-based root Store action step.
  * @returns {T}
  */
-function withRootDispatchCounter(Store,work,ownerSeat=1,wantedBoundary=null,boundaryDigest=null) {
+function withRootDispatchCounter(Store,work,ownerSeat=1,wantedBoundary=null,boundaryDigest=null,historyDigest=null) {
   const descriptor=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.ok(descriptor && typeof descriptor.value==='function');
   let root=null,count=0,boundary=null;
@@ -154,6 +154,7 @@ function withRootDispatchCounter(Store,work,ownerSeat=1,wantedBoundary=null,boun
         rootStep:count,turn:state.turn,activePlayer:state.activePlayer,
         dispatchedAction:args[0]?.constructor?.name??null,
         ...(boundaryDigest?{zoneDigestBefore:boundaryDigest(state)}:{}),
+        ...(historyDigest?{continuityDigestBefore:historyDigest(state)}:{}),
         unresolvedPromptTypes:state.prompts
           .filter(prompt=>prompt.result===undefined)
           .map(prompt=>prompt.constructor.name)
@@ -263,7 +264,8 @@ function auditRank10HiddenOrder(rootActionOrdinal) {
         {...makeTarget(getOrdinal),readOwnerDeckSearches:getOwnerDeckSearches});
       return {...run,sourceOrdinalBoundary:getBoundary()};
     },
-    actorSeat,ordinal,state=>zoneSnapshotDigest(sourceZoneSnapshot(state)));
+    actorSeat,ordinal,state=>zoneSnapshotDigest(sourceZoneSnapshot(state)),
+    state=>sourceStateDigest(observableState(state)));
   assert.deepEqual(observed.result,control,
     'Read-only hidden-order counterfactual changed physical source match');
   assert.ok(observed.events.length<=1,
