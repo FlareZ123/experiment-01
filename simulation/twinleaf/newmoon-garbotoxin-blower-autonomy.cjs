@@ -66,6 +66,7 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute) {
   const events = [];
   let phase = 'idle';
   let activeSelection = null;
+  let lastObservedCandidateTurn = -1;
 
   const newMoonBlowerDecision = function (state) {
     const own = state.players.find(player => player.id === this.client?.id);
@@ -74,6 +75,23 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute) {
     }
     const opponent = state.players[1-candidateSeat];
     const pending = state.prompts.find(prompt => prompt.result === undefined);
+    if (state.activePlayer === candidateSeat &&
+        state.phase === GamePhase.PLAYER_TURN && state.turn <= 8 &&
+        state.turn !== lastObservedCandidateTurn && !pending) {
+      lastObservedCandidateTurn = state.turn;
+      const garbodor = opponent.bench.find(slot =>
+        slot.getPokemonCard()?.fullName === GARBODOR);
+      const payload = card => card?.fullName === 'Gengar & Mimikyu-GX TEU';
+      events.push({
+        turn: state.turn, kind: 'read-only-own-turn-board',
+        garbodorVisible: Boolean(garbodor),
+        garbodorToolPrintings: (garbodor?.tools || []).map(card => card.fullName),
+        ownActive: own.active.getPokemonCard()?.fullName ?? null,
+        ownActiveEnergyPrintings: own.active.energies.cards.map(card => card.fullName),
+        ownGengarOnBench: own.bench.some(slot => payload(slot.getPokemonCard())),
+        ownGengarInDiscard: own.discard.cards.some(payload)
+      });
+    }
     if (phase === 'choose') {
       const target = tooledGarbodor(opponent);
       if (pending?.constructor.name === 'ChoosePokemonPrompt' &&
