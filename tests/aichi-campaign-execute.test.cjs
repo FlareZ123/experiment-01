@@ -7,8 +7,11 @@ const { executeDiagnostic, observedFirstTurn } =
 const { loadDefaultCampaign } = require('../scripts/aichi-comparison-campaign.cjs');
 
 const EXPECTED_ENGINE = 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
+const TEST_CAMPAIGN = loadDefaultCampaign();
+const EXPECTED_PILOT_TRIALS = TEST_CAMPAIGN.candidateRows.length * TEST_CAMPAIGN.repeats * 2;
 const ECHOED_POLICY_KEYS = [
-  'forestSealSearchCorrection', 'grandTreeFirstTurnCorrection', 'electrodeGXEnergyCorrection', 'doubleDragonRecovery',
+  'forestSealSearchCorrection', 'grandTreeFirstTurnCorrection', 'electrodeGXEnergyCorrection',
+  'electrodeGXPrizeTradePolicy', 'electroRainDamageCorrection', 'doubleDragonRecovery',
   'templeUnlockRecovery', 'supporterDecisionCorrection',
   'snorlaxRetreatStartCorrection', 'shadowRiderEnergyPriority',
   'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
@@ -56,16 +59,16 @@ function run(options = {}) {
   });
 }
 
-test('exact fixed-candidate pilot schedule produces 6 attributed records with no win-rate', () => {
+test('exact fixed-candidate pilot schedule includes every frozen candidate and both seats', () => {
   const result = run();
-  assert.equal(result.totalScheduled, 6);
-  assert.equal(result.records.length, 6);
-  assert.equal(result.counts['completed-engine-game'], 6);
+  assert.equal(result.totalScheduled, EXPECTED_PILOT_TRIALS);
+  assert.equal(result.records.length, EXPECTED_PILOT_TRIALS);
+  assert.equal(result.counts['completed-engine-game'], EXPECTED_PILOT_TRIALS);
   assert.equal(result.strengthClaimPermitted, false);
   assert.equal(result.engineAndPolicyQualified, false);
   assert.equal(Object.hasOwn(result, 'winRate'), false);
   assert.deepEqual(new Set(result.records.map(r => r.candidateId)),
-    new Set(['champion-reference', 'hood-shield-v1', 'temple-v1']));
+    new Set(TEST_CAMPAIGN.candidateRows.map(row => row.id)));
   assert.deepEqual(new Set(result.records.map(r => r.candidateEngineSlot)),
     new Set(['A', 'B']));
   assert.equal(result.records[0].candidateActualTurn, 'second');
@@ -76,7 +79,7 @@ test('exact fixed-candidate pilot schedule produces 6 attributed records with no
 
 test('unverified turn never silently becomes a completed match', () => {
   const result = run({ runMatch: r => sampleGame(r, {firstDrawLogName: 'wrong'}) });
-  assert.equal(result.counts['unverified-first-turn'], 6);
+  assert.equal(result.counts['unverified-first-turn'], EXPECTED_PILOT_TRIALS);
   assert.equal(result.records[0].candidateActualTurn, 'unverified');
   assert.equal(result.records[0].turnEvidence, null);
   assert.equal(observedFirstTurn(sampleGame({}, {firstTurnPlayerId: 101})), null);
@@ -90,7 +93,7 @@ test('incomplete and exception games retain failure classifications', () => {
     throw new Error('upstream policy stalled');
   } });
   assert.equal(result.counts['unfinished-engine-game'], 1);
-  assert.equal(result.counts['engine-exception'], 5);
+  assert.equal(result.counts['engine-exception'], EXPECTED_PILOT_TRIALS - 1);
   assert.match(result.records[1].error, /stalled/);
 });
 
@@ -103,7 +106,7 @@ test('blocked resolution is explicit and never dispatched', () => {
       opponentCards: cards, blockers: ['unmapped source printing'] }),
     runMatch: () => { throw new Error('must not run'); }
   });
-  assert.equal(result.counts['blocked-deck-resolution'], 6);
+  assert.equal(result.counts['blocked-deck-resolution'], EXPECTED_PILOT_TRIALS);
   assert.deepEqual(result.records[0].blockers, ['unmapped source printing']);
 });
 
@@ -119,13 +122,13 @@ test('invalid pilot ranks, plan identity mismatches and repeated trials are reje
     resolvePair: () => ({candidateDigest:'wrong',opponentDigest:'wrong',
       candidateCards:cards,opponentCards:cards}),
     runMatch:()=>{throw new Error('must not run');}});
-  assert.equal(output.counts['engine-exception'], 6);
+  assert.equal(output.counts['engine-exception'], EXPECTED_PILOT_TRIALS);
   assert.match(output.records[0].error,/identity differs/);
 });
 
 test('reported seed mismatch cannot be counted as a finished fixed-plan game', () => {
   const result = run({runMatch: r => sampleGame(r, {seed: r.seed + 1})});
-  assert.equal(result.counts['unverified-game-identity'], 6);
+  assert.equal(result.counts['unverified-game-identity'], EXPECTED_PILOT_TRIALS);
   assert.equal(result.counts['completed-engine-game'] || 0, 0);
   assert.equal(result.records[0].observedSeed, result.records[0].seed + 1);
 });
@@ -133,14 +136,14 @@ test('reported seed mismatch cannot be counted as a finished fixed-plan game', (
 test('ordered deck fingerprints are verified before first-turn classification', () => {
   const badHashes = ['forged-candidate', 'forged-opponent'];
   const result = run({runMatch: r => sampleGame(r, {deckHashes: badHashes})});
-  assert.equal(result.counts['unverified-game-identity'], 6);
+  assert.equal(result.counts['unverified-game-identity'], EXPECTED_PILOT_TRIALS);
   assert.deepEqual(result.records[0].observedDeckHashes, badHashes);
   assert.equal(result.records[0].expectedDeckHashes.length, 2);
 });
 
 test('the simulator must attest to Expanded rules for a qualifying terminal game', () => {
   const result = run({runMatch: r => sampleGame(r, {rules: {format: 'STANDARD'}})});
-  assert.equal(result.counts['unverified-game-environment'], 6);
+  assert.equal(result.counts['unverified-game-environment'], EXPECTED_PILOT_TRIALS);
   assert.equal(result.counts['completed-engine-game'] || 0, 0);
 });
 
@@ -176,7 +179,7 @@ test('requested chronological action capture is hashed and attributed', () => {
       return sampleGame(request, {decisionTrace: trace});
     }
   });
-  assert.equal(output.counts['completed-engine-game'], 6);
+  assert.equal(output.counts['completed-engine-game'], EXPECTED_PILOT_TRIALS);
   for (const record of output.records) {
     assert.deepEqual(record.traceSummary.chronologicalActionTrace, trace);
     assert.equal(record.traceSummary.capturedMeaningfulActions, 2);
@@ -189,7 +192,7 @@ test('requested chronological action capture is hashed and attributed', () => {
 
 test('missing requested history prevents a completed status', () => {
   const result = run({policyFlags: {captureDecisionTrace: true}});
-  assert.equal(result.counts['unverified-decision-trace'], 6);
+  assert.equal(result.counts['unverified-decision-trace'], EXPECTED_PILOT_TRIALS);
   assert.equal(result.counts['completed-engine-game'] || 0, 0);
   assert.equal(result.records[0].traceSummary.chronologicalActionTrace, null);
 });
@@ -202,7 +205,7 @@ test('preserves terminal transition in campaign diagnostic', () => {
         pendingPrompt:'WaitPrompt'}]}};
   const result = run({runMatch: request => sampleGame(request,
     {terminalTransition: transition})});
-  assert.equal(result.counts['completed-engine-game'], 6);
+  assert.equal(result.counts['completed-engine-game'], EXPECTED_PILOT_TRIALS);
   assert.deepEqual(result.records[0].traceSummary.terminalTransition, transition);
   assert.equal(run().records[0].traceSummary.terminalTransition, null);
 });
@@ -226,13 +229,13 @@ test('source-60 K0-safe Bunnelby policy is seat-invariant and echoed by every fi
     }
   };
   const accepted = executeDiagnostic(args);
-  assert.deepEqual(seats, Array(6).fill(true));
-  assert.equal(accepted.counts['completed-engine-game'], 6);
+  assert.deepEqual(seats, Array(EXPECTED_PILOT_TRIALS).fill(true));
+  assert.equal(accepted.counts['completed-engine-game'], EXPECTED_PILOT_TRIALS);
   assert.equal(accepted.policyFlags.bunnelbyK0SafeEvolution, true);
   assert.equal(accepted.strengthClaimPermitted, false);
   const rejected = executeDiagnostic({...args,
     runMatch: request => sampleGame(request, {bunnelbyK0SafeEvolution: false})});
-  assert.equal(rejected.counts['unverified-game-environment'], 6);
+  assert.equal(rejected.counts['unverified-game-environment'], EXPECTED_PILOT_TRIALS);
   assert.equal(rejected.counts['completed-engine-game'] || 0, 0);
 });
 
@@ -253,8 +256,8 @@ test('the opt-in Snorlax interactive-retreat gate is forwarded without altering 
       return sampleGame(r);
     }
   });
-  assert.equal(calls,6);
-  assert.equal(result.counts['completed-engine-game'],6);
+  assert.equal(calls, EXPECTED_PILOT_TRIALS);
+  assert.equal(result.counts['completed-engine-game'], EXPECTED_PILOT_TRIALS);
   assert.equal(result.policyFlags.snorlaxRetreatStartCorrection,true);
   assert.equal(result.strengthClaimPermitted,false);
 });
@@ -268,9 +271,9 @@ test('opt-in Shadow Rider attachment policy is carried into every fixed-plan tri
       return sampleGame(request);
     }
   });
-  assert.equal(result.totalScheduled,6);
+  assert.equal(result.totalScheduled, EXPECTED_PILOT_TRIALS);
   assert.equal(result.policyFlags.shadowRiderEnergyPriority,true);
-  assert.equal(result.counts['completed-engine-game'],6);
+  assert.equal(result.counts['completed-engine-game'], EXPECTED_PILOT_TRIALS);
 });
 
 test('opt-in Lele entry timing correction is propagated and kept out of game-win claims', () => {
@@ -287,8 +290,8 @@ test('opt-in Lele entry timing correction is propagated and kept out of game-win
       });
     }
   });
-  assert.equal(calls, 6);
-  assert.equal(output.counts['completed-engine-game'], 6);
+  assert.equal(calls, EXPECTED_PILOT_TRIALS);
+  assert.equal(output.counts['completed-engine-game'], EXPECTED_PILOT_TRIALS);
   assert.equal(output.policyFlags.leleEntryAbilityLockCorrection, true);
   assert.equal(output.policyFlags.radiantGateLockCorrection, true);
   assert.equal(output.engineAndPolicyQualified, false);
@@ -309,7 +312,7 @@ test('fixed-campaign profile identity is source-attributed and rejects unknown p
   };
   const result = executeDiagnostic(request);
   assert.equal(result.researchPolicyProfile, 'expanded-action-fidelity-probe-v1');
-  assert.equal(result.totalScheduled, 6);
+  assert.equal(result.totalScheduled, EXPECTED_PILOT_TRIALS);
   assert.ok(result.records.every(r =>
     r.researchPolicyProfile === 'expanded-action-fidelity-probe-v1'));
   assert.equal(result.strengthClaimPermitted, false);
@@ -329,8 +332,8 @@ test('candidate-only attack priority follows actual physical candidate slot', ()
       return sampleGame(request);
     }
   });
-  assert.deepEqual(seen, [0, 1, 0, 1, 0, 1]);
-  assert.equal(out.totalScheduled, 6);
+  assert.deepEqual(seen, Array.from({length: EXPECTED_PILOT_TRIALS}, (_, i) => i % 2));
+  assert.equal(out.totalScheduled, EXPECTED_PILOT_TRIALS);
   assert.equal(out.engineAndPolicyQualified, false);
   assert.equal(out.strengthClaimPermitted, false);
 });
@@ -347,7 +350,7 @@ test('a different engine or scheduled trial label cannot claim completion', () =
     {label: 'wrong scheduled trial'}
   ]) {
     const report = run({runMatch: request => sampleGame(request, override)});
-    assert.equal(report.counts['unverified-game-environment'], 6);
+    assert.equal(report.counts['unverified-game-environment'], EXPECTED_PILOT_TRIALS);
     assert.equal(report.counts['completed-engine-game'] || 0, 0);
     assert.equal(report.expectedEngineRevision, EXPECTED_ENGINE);
   }
@@ -360,7 +363,7 @@ test('Expanded first-turn rule drift is rejected independently of format', () =>
     {format: 'EXPANDED', firstTurnDrawCard: true, firstTurnUseSupporter: false, attackFirstTurn: true}
   ]) {
     const report = run({runMatch: request => sampleGame(request, {rules})});
-    assert.equal(report.counts['unverified-game-environment'], 6);
+    assert.equal(report.counts['unverified-game-environment'], EXPECTED_PILOT_TRIALS);
   }
 });
 
@@ -376,30 +379,30 @@ test('requested prompt checks, RNG isolation and policy hooks need echoed eviden
     {supporterDecisionCorrection: false}
   ]) {
     const report = run({policyFlags, runMatch: request => sampleGame(request, override)});
-    assert.equal(report.counts['unverified-game-environment'], 6);
+    assert.equal(report.counts['unverified-game-environment'], EXPECTED_PILOT_TRIALS);
     assert.equal(report.counts['completed-engine-game'] || 0, 0);
   }
-  assert.equal(run({policyFlags}).counts['completed-engine-game'], 6);
+  assert.equal(run({policyFlags}).counts['completed-engine-game'], EXPECTED_PILOT_TRIALS);
 });
 
 test('entry-Ability correction hooks need an exact per-game echo', () => {
   for (const flag of ['entryDrawLockCorrection', 'eldegossEntryLockCorrection']) {
     const policyFlags = {[flag]: true};
     const accepted = run({policyFlags});
-    assert.equal(accepted.counts['completed-engine-game'], 6);
+    assert.equal(accepted.counts['completed-engine-game'], EXPECTED_PILOT_TRIALS);
     for (const record of accepted.records) {
       assert.equal(record.observedPolicyFlags[flag], true);
     }
     const reversed = run({policyFlags, runMatch: request =>
       sampleGame(request, {[flag]: false})});
-    assert.equal(reversed.counts['unverified-game-environment'], 6);
+    assert.equal(reversed.counts['unverified-game-environment'], EXPECTED_PILOT_TRIALS);
     assert.equal(reversed.counts['completed-engine-game'] || 0, 0);
     const omitted = run({policyFlags, runMatch: request => {
       const game = sampleGame(request);
       delete game[flag];
       return game;
     }});
-    assert.equal(omitted.counts['unverified-game-environment'], 6);
+    assert.equal(omitted.counts['unverified-game-environment'], EXPECTED_PILOT_TRIALS);
     assert.equal(omitted.counts['completed-engine-game'] || 0, 0);
   }
 });
@@ -407,17 +410,17 @@ test('entry-Ability correction hooks need an exact per-game echo', () => {
 test('Tool-granted Ability candidate policy requires a matching game echo', () => {
   const policyFlags={attachedToolPowerPolicy:true};
   const valid=run({policyFlags});
-  assert.equal(valid.counts['completed-engine-game'],6);
+  assert.equal(valid.counts['completed-engine-game'], EXPECTED_PILOT_TRIALS);
   assert.ok(valid.records.every(record=>record.observedPolicyFlags.attachedToolPowerPolicy===true));
   const incorrect=run({policyFlags,runMatch:request=>
     sampleGame(request,{attachedToolPowerPolicy:false})});
-  assert.equal(incorrect.counts['unverified-game-environment'],6);
+  assert.equal(incorrect.counts['unverified-game-environment'], EXPECTED_PILOT_TRIALS);
   const absent=run({policyFlags,runMatch:request=>{
     const game=sampleGame(request);
     delete game.attachedToolPowerPolicy;
     return game;
   }});
-  assert.equal(absent.counts['unverified-game-environment'],6);
+  assert.equal(absent.counts['unverified-game-environment'], EXPECTED_PILOT_TRIALS);
 });
 
 test('expected pinned engine revision is mandatory', () => {
@@ -436,12 +439,12 @@ test('frozen campaign forwards the experimental clone mode and verifies its echo
     assert.equal(request.prototypeSafeSimulatorIsolation,true);
     return sampleGame(request);
   }});
-  assert.equal(calls,6);
-  assert.equal(accepted.counts['completed-engine-game'],6);
+  assert.equal(calls, EXPECTED_PILOT_TRIALS);
+  assert.equal(accepted.counts['completed-engine-game'], EXPECTED_PILOT_TRIALS);
   assert.equal(accepted.engineAndPolicyQualified,false);
   const falseEcho=run({policyFlags,runMatch:request=>
     sampleGame(request,{prototypeSafeSimulatorIsolation:false})});
-  assert.equal(falseEcho.counts['unverified-game-environment'],6);
+  assert.equal(falseEcho.counts['unverified-game-environment'], EXPECTED_PILOT_TRIALS);
   assert.equal(falseEcho.counts['completed-engine-game']||0,0);
 });
 
@@ -453,20 +456,20 @@ test('Grand Tree first-turn correction is forwarded and its engine echo must mat
       return sampleGame(request);
     }
   });
-  assert.equal(enabled.counts['completed-engine-game'],6);
+  assert.equal(enabled.counts['completed-engine-game'], EXPECTED_PILOT_TRIALS);
   assert.equal(enabled.policyFlags.grandTreeFirstTurnCorrection,true);
   const forged=run({
     policyFlags:{grandTreeFirstTurnCorrection:true},
     runMatch:request=>sampleGame(request,{grandTreeFirstTurnCorrection:false})
   });
-  assert.equal(forged.counts['unverified-game-environment'],6);
+  assert.equal(forged.counts['unverified-game-environment'], EXPECTED_PILOT_TRIALS);
   assert.equal(forged.counts['completed-engine-game']||0,0);
 });
 
 test('Electrode corrected Energy count must match the reported trial flag',()=>{
  const correct=run({policyFlags:{electrodeGXEnergyCorrection:true}});
- assert.equal(correct.counts['completed-engine-game'],6);
+ assert.equal(correct.counts['completed-engine-game'], EXPECTED_PILOT_TRIALS);
  const mismatch=run({policyFlags:{electrodeGXEnergyCorrection:true},runMatch:request=>
    sampleGame(request,{electrodeGXEnergyCorrection:false})});
- assert.equal(mismatch.counts['unverified-game-environment'],6);
+ assert.equal(mismatch.counts['unverified-game-environment'], EXPECTED_PILOT_TRIALS);
 });
