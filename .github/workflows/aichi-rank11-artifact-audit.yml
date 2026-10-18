@@ -3,6 +3,14 @@ name: Inspect archived Aichi rank11 source policy artifact
 on:
   workflow_dispatch:
     inputs:
+      audit_mode:
+        description: Which archived evidence protocol to audit
+        required: true
+        default: source-policy-legacy
+        type: choice
+        options:
+          - source-policy-legacy
+          - prospective-exposure-v1
       archived_run:
         description: GitHub Actions run containing rank11 source regression and campaign reports
         required: true
@@ -31,4 +39,8 @@ jobs:
           ARTIFACT_NAME: ${{ inputs.artifact_name }}
         run: gh run download "$SOURCE_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$ARTIFACT_NAME" --dir .
       - name: Print compact source and four-arm policy evidence
+        if: ${{ inputs.audit_mode == 'source-policy-legacy' }}
         run: node scripts/rank11-archived-artifact-summary.cjs
+      - name: Verify prospectively registered rank11 trial denominator and starting order
+        if: ${{ inputs.audit_mode == 'prospective-exposure-v1' }}
+        run: node scripts/rank11-prospective-artifact-summary.cjs
