@@ -30,6 +30,7 @@ test('own printed Energy and hand expose the Guzma pivot', () => {
   assert.equal(found.ownBenchCount, 6);
   assert.deepEqual(found.stadiumsInPlay, []);
   assert.equal(found.targetBenchIndex, 5);
+  assert.equal(found.ownBenchPrintings[5], 'Regidrago VSTAR SIT');
   assert.deepEqual(found.ownHandPrintings,
     ['Dragapult ex TWM', 'Guzma BUS', 'Battle VIP Pass FST']);
 });
