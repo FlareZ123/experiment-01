@@ -44,6 +44,22 @@ A separate `random.Random(2026101901)` Python experiment generated 250,000 indep
 
 This conditional result is the more relevant starting-deal reference for actual games after own mulligans. Optional extra draws caused by an opponent's mulligans occur after Prize setting and do not change this gate.
 
+## Related published Absol/Garbodor structural gates
+
+The same named Secret Box / Boost Shake / Quick Ball / Float Stone / Trubbish / Tool-enabled Garbodor *category* requirement can be calculated for the other exact published Absol/Garbodor variants whose lists actually include Boost Shake. These are **card-presence comparisons only**. A source-dealt equivalent tactical line has not been validated for ranks 11 or 16.
+
+| Opponent rank | S / Boost Shake / Trubbish / Garbodor / Float Stone / Quick Ball copies | Basic Pokémon | Uniform six-Prize availability | Conditional on legal opening seven |
+| --- | --- | ---: | ---: | ---: |
+| 8 | 1 / 1 / 2 / 2 / 4 / 4 | 10 | 79.3773213% | 79.2696331% |
+| 11 | 1 / 2 / 2 / 2 / 3 / 4 | 11 | 87.5838539% | 87.5361362% |
+| 16 | 1 / 2 / 2 / 3 / 4 / 4 | 11 | 88.3638637% | 88.3290687% |
+
+Exact unconditional fractions for ranks 11 and 16 respectively: `1153891/1317470`, `44238361/50063860`. Exact seven-valid-opening conditional fractions: `502915286879237/574523058549440`, `608965040237423/689427670259328`. Rank 11's printed source has two Boost Shake and three Float Stone; rank 16 has two Boost Shake and three Garbodor (two LTR68 and one BKP57). The supplied card pool confirms both LTR68 and BKP57 use a Tool-enabled Garbotoxin Ability. Rank 22's source does **not** contain Boost Shake, so its route is outside this comparison.
+
+For independent checks, 120,000 fixed-seed shuffled decks per rank were sampled, filtering for a Basic in the opening seven. Rank 11: 81,721 of 93,292 valid hands had a favorable Prize subset (87.5970%, `z=0.56`). Rank 16: 82,399 of 93,200 (88.4109%, `z=0.78`). These samples validate arithmetic only.
+
+The modestly higher *unprized* availability for ranks 11 and 16 must not be promoted into stronger matchups: searching, hand costs, timing, attacking, competing lines, Tool removal, loss exposure and opponent policies are completely unmeasured by this calculation.
+
 ## Interpretation and limitations
 
 - The percentage is a **necessary physical-card-availability ceiling on this exact combination's immediately unprized configuration**. It is not the probability of executing the lock. The line must still acquire or hold specific cards, pay Secret Box's three-card discard and Quick Ball's discard, preserve a Bench slot, attach Float Stone, resolve Boost Shake and face a competent opposing response.
