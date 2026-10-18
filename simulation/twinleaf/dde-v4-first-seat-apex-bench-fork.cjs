@@ -118,6 +118,15 @@ function summary(match) {
     firstTurnSlot: match.firstTurnSlot,
     candidateAttacks: (match.attackTrace || []).filter(x => x.seat === 1)
       .map(x => ({turn:x.turn,attacker:x.activePokemon,attack:x.attack})),
+    candidatePassPositions: (match.decisionTrace || [])
+      .filter(row => row.playerSlot === 1 && row.action === 'PassTurnAction' &&
+        row.turnBefore >= 27).slice(0, 8).map(row => ({
+          turn: row.turnBefore,
+          step: row.actionOrdinal,
+          active: row.publicBoardBeforePass?.[1]?.active ?? null,
+          bench: row.publicBoardBeforePass?.[1]?.bench ?? [],
+          ownHand: row.decisionHandBefore?.ownHandPrintings ?? []
+        })),
     observerDigest: observableDigest(match)
   };
 }
