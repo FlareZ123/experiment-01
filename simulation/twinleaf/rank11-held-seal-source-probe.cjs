@@ -29,10 +29,19 @@ function run(trialCount=32,sourceSeat=0) {
   const rows=[];
   for (let i=0;i<seeds.length;i++) {
     const seed=seeds[i];
-    const args=[candidate,opponent.cards,1-sourceSeat,seed,110,true,
+    const args=[candidate,opponent.cards,1-sourceSeat,seed,110,false,
       false,false,false];
-    const observed=withRank11HeldSeal(sourceSeat,()=>runArm(...args));
+    const screen=withRank11HeldSeal(sourceSeat,()=>runArm(...args));
+    // Full decision/pass instrumentation is expensive. Reobserve only
+    // source deals where the read-only opening screen found an opportunity.
+    const observed=screen.policyAudit.opportunityTurn===null ? screen :
+      withRank11HeldSeal(sourceSeat,()=>runArm(...args.slice(0,5),true,
+        ...args.slice(6)));
     const game=observed.result;
+    assert.equal(game.firstTurnSlot,screen.result.firstTurnSlot);
+    assert.deepEqual(observed.policyAudit.selectedActions,
+      screen.policyAudit.selectedActions,
+      'Decision instrumentation must preserve the held-Seal action sequence');
     assert.equal(game.verifiedByDrawLog,true,'Must be actual source deal');
     assert.ok(game.firstTurnSlot===0||game.firstTurnSlot===1);
     const policy=observed.policyAudit;
@@ -42,6 +51,8 @@ function run(trialCount=32,sourceSeat=0) {
     rows.push({
       trial:i,seed,sourcePhysicalSeat:sourceSeat,actualFirstSeat:game.firstTurnSlot,
       sourceStartedFirst:game.firstTurnSlot===sourceSeat,
+      sourceOwnTurnReached:game.turns>= (game.firstTurnSlot===sourceSeat ? 1 : 2),
+      detailedReplay:observed!==screen,
       frozenCandidateHash:candidateManifest.canonical_id_count_sha256,
       actions:game.actions,turns:game.turns,gameFinished:game.finished,
       engineWinner:game.winner,prizesRemaining:game.prizesRemaining,
@@ -56,7 +67,7 @@ function run(trialCount=32,sourceSeat=0) {
     });
   }
   return {
-    schema:'rank11-held-seal-actual-source-policy-frame-v1',
+    schema:'rank11-held-seal-actual-source-policy-frame-v2-screened',
     scope:'bounded real source-dealt mechanical policy trials, not competitive games',
     sourceRank:11,sourcePhysicalSeat:sourceSeat,trialCount,
     sourceCardList:'published Aichi 2026 rank11 printed 60',
@@ -67,6 +78,7 @@ function run(trialCount=32,sourceSeat=0) {
     gameActionCap:110,
     sourceFirst:rows.filter(row=>row.sourceStartedFirst).length,
     sourceSecond:rows.filter(row=>!row.sourceStartedFirst).length,
+    sourceFirstTurnCensored:rows.filter(row=>!row.sourceOwnTurnReached).length,
     opportunities:rows.filter(row=>row.opportunityDetected).length,
     completed:rows.filter(row=>row.policy.completed).length,
     aborted:rows.filter(row=>row.policy.aborted).length,
