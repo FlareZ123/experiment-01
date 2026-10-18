@@ -36,5 +36,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Test frozen complete Aichi campaign schedule registration
+        run: node --test tests/aichi-frozen-trial-schedule.test.cjs
       - name: Test Node/Python trace hash interoperability
         run: node --test tests/action-trace-canonical.test.cjs
