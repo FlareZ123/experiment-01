@@ -185,3 +185,79 @@ test('invalid sampling preconditions reject missing players and zero samples',()
     state,1,{},0,()=>100,null,structuredClone,
     {...opts,samples:0}),/positive integer sample count/);
 });
+
+test('K1 known Prize membership permits position-only hidden permutations',()=>{
+  const source=setup();
+  const prizeCards=[
+    {id:11,fullName:'D'},{id:13,fullName:'E'},{id:17,fullName:'F'}
+  ];
+  const a=structuredClone(source),b=structuredClone(source);
+  a.players[0].prizes=prizeCards.map(card=>({isSecret:true,cards:[card]}));
+  b.players[0].prizes=prizeCards.slice().reverse().map(
+    card=>({isSecret:true,cards:[card]}));
+  const options={...opts,shuffleKnownPrizePositions:true,
+    prizeCompositionKnownVerified:true,prizePositionsUnobservedVerified:true,
+    knownTopCount:1,knownTopVerified:true};
+  const score=state=>evaluateDetachedDeckSamples(
+    state,1,{},0,sampled=>{
+      const p=sampled.players[0];
+      assert.deepEqual(
+        p.prizes.flatMap(slot=>slot.cards).map(card=>card.fullName).sort(),
+        ['D','E','F']);
+      assert.deepEqual(
+        p.deck.cards.map(card=>card.fullName).sort(),['A','B','C']);
+      assert.equal(p.deck.cards[0].fullName,'A');
+      return p.prizes[0].cards[0].id;
+    },null,structuredClone,options);
+  const beforeA=structuredClone(a),beforeB=structuredClone(b);
+  assert.equal(score(a),score(b));
+  assert.deepEqual(a,beforeA);
+  assert.deepEqual(b,beforeB);
+});
+
+test('known unlocated Prize slots exhaust exactly to uniform target probability',()=>{
+  const state=setup();
+  state.players[0].prizes=['D','E','F'].map((name,i)=>({
+    isSecret:true,cards:[{id:i+11,fullName:name}]
+  }));
+  const permutations=[
+    [0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]
+  ];
+  let k=0;
+  const options={...opts,samples:6,knownTopCount:1,knownTopVerified:true,
+    shuffleKnownPrizePositions:true,prizeCompositionKnownVerified:true,
+    prizePositionsUnobservedVerified:true,
+    permutation:n=>{
+      if(n===2)return [0,1];
+      assert.equal(n,3);
+      return permutations[k++];
+    }};
+  const proportion=evaluateDetachedDeckSamples(
+    state,1,{},0,s=>s.players[0].prizes[0].cards[0].fullName==='E'?1:0,
+    null,structuredClone,options);
+  assert.equal(k,6);
+  assert.equal(proportion,1/3);
+  assert.equal(state.players[0].prizes[0].cards[0].fullName,'D');
+});
+
+test('Prize position-only sampling rejects unproven or incompatible knowledge',()=>{
+  const state=setup();
+  state.players[0].prizes=[{
+    isSecret:true,cards:[{id:41,fullName:'KnownPrize'}]
+  }];
+  const valid={...opts,shuffleKnownPrizePositions:true,
+    prizeCompositionKnownVerified:true,prizePositionsUnobservedVerified:true};
+  const score=options=>evaluateDetachedDeckSamples(
+    state,1,{},0,()=>1,null,structuredClone,options);
+  assert.throws(()=>score({...valid,prizeCompositionKnownVerified:false}),
+    /verified observations/);
+  assert.throws(()=>score({...valid,prizePositionsUnobservedVerified:false}),
+    /verified observations/);
+  assert.throws(()=>score({...valid,sampleUnknownPrizes:true}),
+    /samplers are exclusive/);
+  assert.throws(()=>score({...valid,observedPrizeSlots:[
+    {prizeIndex:0,cardIndex:0,fullName:'KnownPrize'}]}),
+    /Observed Prize slots require Prize-inclusive sampling/);
+  state.players[0].prizes[0].isSecret=false;
+  assert.throws(()=>score(valid),/all Prize positions face down/);
+});
