@@ -31,20 +31,12 @@ try {
   const request = {
     deckA:opponent.cardIds,
     deckB:candidate.cardIds,
-    seed:4246551499,
+    seed:3162592764,
     maxActions:350,
     label:'agent12-session-source-rank10-historical-deal',
-    strictPromptValidation:true,
-    forestSealSearchCorrection:true,
-    supporterDecisionCorrection:true,
     doubleDragonRecovery:true,
-    doubleDragonArchiveV3:true,
     isolatePolicyRandomness:true,
-    captureDecisionTrace:true,
-    mimikyuApexCopycatCompatibility:true,
-    mimikyuDeclaredHistoryCorrection:true,
-    regidragoDeclaredHistoryCorrection:true,
-    passClearsLastAttackCorrection:true
+    captureDecisionTrace:true
   };
   /** @param {object} game */
   const digest = game => crypto.createHash('sha256').update(JSON.stringify({
@@ -101,10 +93,16 @@ try {
   }
   assert.equal(baseline.verifiedByDrawLog,true);
   assert.equal(repaired.verifiedByDrawLog,true);
+  assert.equal(baseline.firstTurnSlot,1,
+    'Historical source rank10 second-start seed must retain verified draw order');
   assert.equal(baseline.firstTurnSlot,repaired.firstTurnSlot);
   assert.deepEqual(baseline.deckHashes,repaired.deckHashes);
   assert.ok(observed.constructed>0,
     'Copy-aware subclass must actually wrap bot simulator construction');
+  assert.ok(baseline.attackTrace.some(x=>x.seat===0&&x.attack==='Apex Dragon'),
+    'Selected source rank10 opponent deal must genuinely attack with Apex Dragon');
+  assert.ok(observed.withCopiedSession>0,
+    'Need real simulator branch exposure while a copied-attack session exists');
   assert.ok(repaired.attackDeclarationTraceProtocol,
     'Central Store attack declarations must remain available');
   const result = {
