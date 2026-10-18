@@ -53,23 +53,38 @@ function sessionsForState(state) {
   output = replaceOnce(output,
     'function clearCopyAttackSessionsForTests() {\n    copyAttackSessions.length = 0;',
     'function clearCopyAttackSessionsForTests() {\n    copyAttackSessionsByState = new WeakMap();');
-  output += '\nfunction inheritCopyAttackSessionsFromState(parentState, clonedState, mapCard) {\n' +
-    '  const entries = copyAttackSessionsByState.get(parentState) || [];\n' +
-    '  if (copyAttackSessionsByState.has(clonedState)) throw new Error("Clone already has sessions");\n' +
-    '  const translated = entries.map(entry => ({\n' +
-    '    ...entry,\n' +
-    '    copycatCard: mapCard ? mapCard(entry.copycatCard) : entry.copycatCard,\n' +
-    '    sourceCard: mapCard ? mapCard(entry.sourceCard) : entry.sourceCard,\n' +
-    '    clonedAttacks: entry.clonedAttacks.slice()\n' +
-    '  }));\n' +
-    '  for (const entry of translated) {\n' +
-    '    if (!isCopycatInPlay(clonedState, entry.copycatCard)) {\n' +
-    '      throw new Error("Cloned Pokemon identity differs");\n' +
-    '    }\n' +
-    '  }\n' +
-    '  copyAttackSessionsByState.set(clonedState, translated);\n' +
-    '  return entries.length;\n' +
-    '}\nexports.inheritCopyAttackSessionsFromState = inheritCopyAttackSessionsFromState;\n';
+  output += `
+function inheritCopyAttackSessionsFromState(parentState, clonedState, mapCard) {
+  const entries = copyAttackSessionsByState.get(parentState) || [];
+  if (copyAttackSessionsByState.has(clonedState)) throw new Error("Clone already has sessions");
+  const translated = entries.map(entry => {
+    const clonedAttacks = entry.clonedAttacks.slice();
+    const parentAttack = parentState.playerLastAttack?.[entry.playerId]?.attack;
+    const cloneAttack = clonedState.playerLastAttack?.[entry.playerId]?.attack;
+    const selectedIndex = clonedAttacks.indexOf(parentAttack);
+    if (selectedIndex !== -1) {
+      if (!cloneAttack || cloneAttack.name !== parentAttack.name) {
+        throw new Error("Copied session cloned selected attack mismatch");
+      }
+      clonedAttacks[selectedIndex] = cloneAttack;
+    }
+    return {
+      ...entry,
+      copycatCard: mapCard ? mapCard(entry.copycatCard) : entry.copycatCard,
+      sourceCard: mapCard ? mapCard(entry.sourceCard) : entry.sourceCard,
+      clonedAttacks
+    };
+  });
+  for (const entry of translated) {
+    if (!isCopycatInPlay(clonedState, entry.copycatCard)) {
+      throw new Error("Cloned Pokemon identity differs");
+    }
+  }
+  copyAttackSessionsByState.set(clonedState, translated);
+  return entries.length;
+}
+exports.inheritCopyAttackSessionsFromState = inheritCopyAttackSessionsFromState;
+`;
   return output;
 }
 
