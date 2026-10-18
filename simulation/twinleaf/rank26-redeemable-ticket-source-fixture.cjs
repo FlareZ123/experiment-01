@@ -3,6 +3,8 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { fixture } = require('./rank26-pump-source-conserved-fixture.cjs');
+const { installRedeemableTicketPaperOrderHook } =
+  require('./redeemable-ticket-paper-hook.cjs');
 
 const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
@@ -63,7 +65,7 @@ function physicalCards(player) {
  * a synthetic prepared state, not a randomized first-turn opportunity.
  * @param {0|1} seat
  */
-function runSeat(seat) {
+function runSeat(seat, corrected) {
   const f = fixture(seat);
   const own = f.own;
   exchange(own, 'Double Colorless Energy', own.prizes[0], 0);
@@ -76,7 +78,8 @@ function runSeat(seat) {
   assert.equal(new Set(before.map(card => card.id)).size, 60);
   const originalPrizes = own.prizes.flatMap(zone => zone.cards);
   const oldPrizeIds = originalPrizes.map(card => card.id).sort((a,b) => a-b);
-  const oldDeckTopIds = own.deck.cards.slice(-6)
+  const originalDeck = own.deck.cards.slice();
+  const replacementIds = own.deck.cards.slice(corrected ? 0 : -6)
     .map(card => card.id).sort((a,b) => a-b);
   const oldDeckCount = own.deck.cards.length;
   const dceId = own.prizes[0].cards[0].id;
@@ -90,7 +93,12 @@ function runSeat(seat) {
   });
   assert.equal(f.state.phase, GamePhase.PLAYER_TURN);
   assert.equal(f.state.activePlayer, seat);
-  f.store.dispatch(item);
+  const restore = corrected ? installRedeemableTicketPaperOrderHook() : null;
+  try {
+    f.store.dispatch(item);
+  } finally {
+    restore?.();
+  }
 
   const after = physicalCards(own);
   assert.equal(after.length, 60);
@@ -103,27 +111,46 @@ function runSeat(seat) {
   const newPrizes = own.prizes.flatMap(zone => zone.cards);
   assert.equal(newPrizes.length, 6);
   assert.deepEqual(newPrizes.map(card => card.id).sort((a,b) => a-b),
-    oldDeckTopIds, 'New Prizes must be the old top six deck cards');
-  assert.deepEqual(own.deck.cards.slice(0,6)
+    replacementIds, 'Actual replacement Prize end must match chosen engine variant');
+  assert.deepEqual(own.deck.cards.slice(corrected ? -6 : 0, corrected ? undefined : 6)
     .map(card => card.id).sort((a,b) => a-b),
-    oldPrizeIds, 'Original shuffled Prizes must be at deck bottom');
+    oldPrizeIds, 'Old Prize block must match the expected engine end');
   assert.equal(own.deck.cards.length, oldDeckCount);
-  assert.ok(own.deck.cards.slice(0,6).some(card => card.id === dceId));
+  assert.equal(
+    own.deck.cards.slice(-6).some(card => card.id === dceId),
+    corrected, 'Only corrected reducer puts the rescued DCE at deck bottom'
+  );
+  assert.equal(
+    own.deck.cards.slice(0,6).some(card => card.id === dceId),
+    !corrected, 'Pinned baseline wrongly makes the old DCE immediately drawable'
+  );
   assert.equal(own.prizes.flatMap(zone => zone.cards)
     .some(card => card.id === dceId), false);
   assert.equal(own.discard.cards.filter(card => card.id === ticketId).length, 1);
   assert.equal(own.hand.cards.some(card => card.id === ticketId), false);
   assert.equal(f.state.phase, GamePhase.PLAYER_TURN);
+  const { DRAW_CARDS } = engine('game/store/prefabs/prefabs');
+  DRAW_CARDS(f.store, f.state, own, 6);
+  const actualDraw = own.hand.cards.slice(-6).map(card => card.id);
+  const expectedDraw = (corrected ? originalDeck.slice(6,12) : originalPrizes)
+    .map(card => card.id);
+  assert.deepEqual(actualDraw.sort((a,b) => a-b),
+    expectedDraw.sort((a,b) => a-b),
+    'Ordinary draw must reveal the actual physical top of each reducer');
+  assert.equal(actualDraw.includes(dceId), !corrected,
+    'Baseline draw exposes old DCE, corrected draw does not');
 
   return {
     sourceSeat: seat,
+    paperOrderCorrected: corrected,
     sourceCardCountBefore: before.length,
     sourceCardCountAfter: after.length,
     uniqueSourceCardIds: 60,
     realStorePlayCardAction: true,
     playedTicketPrint: 'Redeemable Ticket JTG 156',
-    movedDceFromPrizesToDeckBottom: true,
-    replacementPrizesMatchOldTopDeck: true,
+    rescuedDceAtActualDeckBottom: corrected,
+    oldDceInFirstSixOrdinaryDraws: !corrected,
+    replacementPrizesMatchPaperTop: corrected,
     oldAndNewPrizeCount: [originalPrizes.length, newPrizes.length],
     prizeCountUnchanged: own.getPrizeLeft() === 6,
     attackExecuted: false,
@@ -135,11 +162,12 @@ function runSeat(seat) {
 /** @returns {object} */
 function run() {
   return {
-    schema: 'rank26-redeemable-ticket-live-store-source-60-v1',
+    schema: 'rank26-redeemable-ticket-paper-vs-unpatched-live-store-v2',
     pinnedTwinleaf: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     stagedSourceCards: true,
-    samples: [runSeat(0), runSeat(1)],
-    note: 'Prepared 60-card-conserved test, not a random source deal or player policy'
+    samples: [runSeat(0, false), runSeat(0, true),
+      runSeat(1, false), runSeat(1, true)],
+    note: 'Prepared full-source comparisons. Printed card requires the corrected hook; unpatched reducer reverses top and bottom.'
   };
 }
 if (require.main === module) process.stdout.write(JSON.stringify(run(), null, 2) + '\n');
