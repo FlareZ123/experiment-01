@@ -31,3 +31,21 @@ function discoverRootSupporterOrdinal(fn) {
       hand.includes('Bellelba & Brycen-Man CEC') &&
       hand.includes('Stoutland BCR') &&
       !state.prompts.some(p=>p.result===undefined);
+    const action=old.value.call(this,state);
+    if(focus && action?.constructor.name==='PlayCardAction' &&
+       names.has(hand[action.handIndex])) {
+      matches.push({botOrdinal:ordinal,turn:state.turn,seat:1,
+        selected:hand[action.handIndex],ownHand:hand});
+    }
+    return action;
+  }
+  Object.defineProperty(proto,'decodeNextAction',{...old,value:observed});
+  try {
+    return {result:fn(),matches,calls};
+  } finally {
+    if(proto.decodeNextAction!==observed){
+      throw new Error('Ordinal observer lost prototype ownership');
+    }
+    Object.defineProperty(proto,'decodeNextAction',old);
+  }
+}
