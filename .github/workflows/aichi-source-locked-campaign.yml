@@ -96,6 +96,9 @@ jobs:
         env:
           CAMPAIGN_SEED_PROTOCOL: decorrelated-slots-v3
         run: node simulation/evaluation/aichi-rank11-autonomous-comparison.cjs > rank11-autonomous-comparison.json
+      - name: Pair New Moon and champion with source-first rank11 policy
+        if: ${{ inputs.rank11_autonomous_probe }}
+        run: node simulation/evaluation/rank11-newmoon-autonomous-pair.cjs > aichi-rank11-newmoon-autonomous-pair.json
       - name: Run up to six source-locked pilot trials
         if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe }}
         env:
@@ -135,5 +138,6 @@ jobs:
             aichi-setup-observer-audit.json
             aichi-multiseed-setup-coupling.json
             rank11-autonomous-source-regression.json
+            aichi-rank11-newmoon-autonomous-pair.json
             rank11-autonomous-comparison.json
           retention-days: 14
