@@ -40,7 +40,7 @@ function run() {
     entryDrawLockCorrection: true,
     isolatePolicyRandomness: true,
     pendingEndTurnSwitchCleanupCorrection: true,
-    captureAttackPassProbes: true,
+    captureAttackPassProbes: false,
     captureCopycatTurnStartSeat: CANDIDATE_SEAT,
     newMoonNativeOpeningPivotSeat: CANDIDATE_SEAT
   };
