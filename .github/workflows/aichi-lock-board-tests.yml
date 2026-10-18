@@ -22,6 +22,10 @@ on:
         description: 'Pinned Herdier SUM 104 actual evolution under Wobbuffet and Garbotoxin'
         type: boolean
         default: false
+      evolution_source_static_scan:
+        description: 'Opt-in printed-field evolution Ability direct guard scanner, no claims of runtime bugs'
+        type: boolean
+        default: false
       rank8_attach_prompt_probe:
         description: 'One source-ranked Temple-A invalid AttachEnergyPrompt diagnostic'
         required: false
@@ -116,6 +120,19 @@ jobs:
         with:
           name: rank8-central-attack-ledger
           path: rank8-central-attack-ledger.json
+          if-no-files-found: warn
+      - name: Audit source-level evolution Ability guard opportunities
+        if: inputs.evolution_source_static_scan
+        run: node --test tests/aichi-evolution-ability-static-audit.test.cjs
+      - name: Scan pinned source against exact registered Pokémon printings
+        if: inputs.evolution_source_static_scan
+        run: node scripts/aichi-evolution-ability-static-audit.cjs > evolution-static-leads.json
+      - name: Preserve static leads and unmatched printings
+        if: inputs.evolution_source_static_scan && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-evolution-static-leads
+          path: evolution-static-leads.json
           if-no-files-found: warn
       - name: Verify pure attack-log declaration observer gates
         run: node --test tests/twinleaf-attack-log-declarations.test.cjs
