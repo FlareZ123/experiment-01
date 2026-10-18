@@ -7,7 +7,7 @@
 - Parent report: [Agent 2's 16-arm held-Boost-Shake rank-11 study](agent2-rank11-heldshake-candidate-response-16arms.md).
 - Actual pinned-Store compiled job: [manual CI 39118444773](https://github.com/FlareZ123/experiment-01/actions/runs/39118444773), source revision `1c11acd63a36f0307499782c590c8366a3c684a2`, Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 - Full JSON: artifact ID `12132319883`, file `rank11-direct-candidate-attack-window.json`. ZIP SHA-256 `62b3287a81c1fb18d08644f65d3efac57c9507e7529f9e9e3f80c6df60b5d670` (independently checked on retrieved bytes).
-- Audit: [versioned validator](../../scripts/rank11-candidate-first-printed-attack-audit.cjs), [fail-closed unit tests](../../tests/rank11-candidate-first-printed-attack-audit.test.cjs). Run the validator against the preserved full JSON. Local Node tests passed **3/3** and the actual archived report passed **12/12** observed-pass checks.
+- Audit: [versioned validator](../../scripts/rank11-candidate-first-printed-attack-audit.cjs), [fail-closed unit tests](../../tests/rank11-candidate-first-printed-attack-audit.test.cjs). Run the validator against the preserved full JSON. Local Node tests passed **4/4** and the actual archived report passed **12/12** observed-pass checks, including **6/6 turn-5 full-Bench** checks.
 - The two actual **candidate-first** deals were `second-a = 1769876458` and `second-b = 2809154458`; source rank 11 was physical A and the New Moon candidate physical B. Each was re-observed under three frozen New Moon policy arms. Selection of these seeds was **retrospective and lock-outcome-conditioned**.
 
 The chosen twelve Pass observations are the first two captured **post-lock** candidate Pass actions in the six candidate-first arms, at global turns 3 and 5. This is two independent source-deal identities, repeated under policy variants, rather than twelve independent games.
@@ -28,6 +28,19 @@ Card/rules cross-check against the supplied complete card database and Advanced 
 - **Telepathic Psychic Energy M3 88** supplies a single Psychic Energy when attached, despite enabling up to two Basic Psychic Bench placements upon attachment. Counting attached cards is valid for **this audited energy mix**. The validator rejects unfamiliar Energy printings rather than assuming all Special Energy cards provide one unit.
 
 The early engine trace further shows that `second-a` attached Telepathic Psychic Energy and resolved a two-Duskull Bench selection on turn 3. In `second-b`, the candidate's turn-3 trace played a Psychic Energy, retreated, then passed; turn-5 trace attached Telepathic Psychic Energy, selected a Duskull, and passed. These are actual recorded root actions, with no demonstration that the decisions were strategically ideal.
+
+## Additional verified Bench constraint
+
+The same full archived source records show the following **candidate Bench occupancy**, audited by the updated source validator:
+
+| Candidate-first source deal | Candidate turn 3 Bench | Candidate turn 5 Bench | Unown occupying slots | Solrock already established? |
+| --- | ---: | ---: | ---: | --- |
+| `second-a` | 4 / 5 | **5 / 5** | 1 | No |
+| `second-b` | 3 / 5 | **5 / 5** | 3 | No |
+
+In **6/6 turn-5 Pass snapshots**, the ordinary five-slot Bench was completely occupied, **neither player had a Stadium in play**, and no Solrock was present. With rank11's Tool-equipped Garbodor, the listed Unown (AOR 30, Farewell Letter) could not use their Abilities to vacate Bench slots. The three policy variants repeated the same source boards within each of the two historical deals.
+
+These facts constrain an attractive hypothetical: using a Fog Crystal to search for Solrock CES 62 and pay the single-Colorless Scorching Light attack. On those **turn-5** boards, the candidate cannot simply Bench Solrock under the ordinary five-slot limit. A legal line would need earlier Solrock deployment or another way to free or expand the Bench, access to Solrock in the live search zone, the appropriate Energy attachment, and a valid switch or retreat. Neither a search connector's presence nor the printed one-Energy attack guarantees such a line. The turn-3 boards had open Bench spaces, though Energy use, turn order, search-zone availability and promotion remain unresolved. This finding is a board-constraint observation from source telemetry; it does not rule out other legal responses.
 
 ## Interpretation and decision impact
 
