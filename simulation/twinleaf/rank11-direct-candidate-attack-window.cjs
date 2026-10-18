@@ -18,7 +18,8 @@ const WITNESSES = Object.freeze([
 const VARIANTS = Object.freeze([
   {id:'champion-reference',deck:'reference',candidatePolicy:'generic'},
   {id:'new-moon-generic',deck:'new-moon',candidatePolicy:'generic'},
-  {id:'new-moon-horror-compressor',deck:'new-moon',candidatePolicy:'horror-compressor-v1'}
+  {id:'new-moon-horror-compressor',deck:'new-moon',candidatePolicy:'horror-compressor-v1'},
+  {id:'new-moon-blower-horror-compressor',deck:'new-moon',candidatePolicy:'blower-compressor-horror-v1'}
 ]);
 
 /** @param {unknown} value @returns {string} */
@@ -33,12 +34,15 @@ function digest(value) {
  * @param {object} audit
  * @returns {object}
  */
-function observe(game,audit) {
+function observe(game,audit,blowerAudit=null) {
+  if(!Array.isArray(game.attackDeclarationTrace) ||
+     game.attackDeclarationTraceProtocol!=='real-store-attack-log-declarations-v1') {
+    throw new Error('Full real Store attack declaration telemetry required');
+  }
   const actualSourceFirst = game.firstTurnSlot === 0;
   const witnessTurn = audit.nextTurnLockWitness?.turn ?? null;
   const rows = Array.isArray(game.decisionTrace) ? game.decisionTrace : [];
-  const attacks = Array.isArray(game.attackDeclarationTrace) ?
-    game.attackDeclarationTrace : [];
+  const attacks=game.attackDeclarationTrace;
   const candidateEarlyDecisions = rows.filter(row =>
     row.playerSlot === 1 &&
     (witnessTurn === null ? row.turnBefore <= 4 :
@@ -52,6 +56,8 @@ function observe(game,audit) {
       resolutionStatus:row.resolutionStatus,
       promptPendingAfter:row.promptPendingAfter
     }));
+  const candidatePostWitnessDeclarations=witnessTurn===null?[]:
+    candidateAttackDeclarations.filter(row=>row.turnBefore>=witnessTurn);
   const candidateRootAttacks = (game.attackTrace || []).filter(row =>
     row.seat === 1).map(row => ({
       turn:row.turn,activePokemon:row.activePokemon,
@@ -72,6 +78,9 @@ function observe(game,audit) {
     candidateAttackDeclarations,
     candidateRootAttacks,
     candidateAttackDeclarationCount:candidateAttackDeclarations.length,
+    candidatePostWitnessDeclarations,
+    candidatePostWitnessDeclarationCount:candidatePostWitnessDeclarations.length,
+    candidateBlowerAudit:blowerAudit,
     candidateDelegatedDeclarationCount:candidateAttackDeclarations.filter(row =>
       row.triggerAction !== 'AttackAction').length,
     engineFinished:game.finished,
@@ -88,7 +97,7 @@ function observe(game,audit) {
 }
 
 /**
- * A fixed 12-arm, retrospective mechanical replay. Every selected seed is
+ * A fixed 16-arm, retrospective mechanical replay. Every selected seed is
  * retained for every candidate, even if the original source lock disappears.
  * @returns {object}
  */
@@ -97,6 +106,7 @@ function run() {
   const {loadNewMoonCandidate}=require('../../scripts/aichi-new-moon-candidate.cjs');
   const {runMatch}=require('./headless.cjs');
   const {withRank11DirectBoostShake}=require('./rank11-direct-boostshake.cjs');
+  const {withNewMoonBlowerAutonomy}=require('./newmoon-garbotoxin-blower-autonomy.cjs');
 
   const reference=planAichi(1,{
     allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
@@ -137,7 +147,8 @@ function run() {
         isolatePolicyRandomness:true,
         captureDecisionTrace:true
       };
-      const enhanced=variant.candidatePolicy==='horror-compressor-v1';
+      const enhanced=variant.candidatePolicy==='horror-compressor-v1' ||
+        variant.candidatePolicy==='blower-compressor-horror-v1';
       const request=enhanced?{
         ...common,
         newMoonNativeOpeningPivotSeat:1,
@@ -156,9 +167,18 @@ function run() {
         qualifiedForCompetitiveInference:false
       };
       try {
-        const played=withRank11DirectBoostShake(0,()=>runMatch(request));
+        const played=withRank11DirectBoostShake(0,()=>
+          variant.candidatePolicy==='blower-compressor-horror-v1' ?
+            withNewMoonBlowerAutonomy(1,()=>runMatch(request)) :
+            {result:runMatch(request),policyAudit:null});
+        const game=played.result.result;
+        assert.equal(game.seed,witness.seed,'Physical seed mutated');
+        assert.equal(game.engine,trial.expectedEngine,'Wrong simulator revision');
+        assert.deepEqual(game.deckHashes,[trial.sourceEngineDeckDigest,
+          trial.candidateEngineDeckDigest], 'Physical engine inventory differs');
+        assert.equal(game.verifiedByDrawLog,true,'True turn order unverified');
         attempted.push({...trial,status:'engine-observed',
-          ...observe(played.result,played.policyAudit)});
+          ...observe(game,played.policyAudit,played.result.policyAudit)});
       }catch(error){
         attempted.push({...trial,status:'engine-exception',
           error:String(error?.stack||error)});
@@ -167,7 +187,7 @@ function run() {
   }
   assert.equal(attempted.length,WITNESSES.length*VARIANTS.length);
   return {
-    schema:'rank11-direct-held-shake-candidate-attack-window-source-v1',
+    schema:'rank11-direct-held-shake-candidate-attack-window-source-v2'
     protocol:'fixed source-authentic retrospective mechanical witnesses',
     sourceRank:11,sourceSeat:0,candidateSeat:1,
     engineRevision:reference.engineRevision,
@@ -182,7 +202,8 @@ function run() {
     engineExceptions:attempted.filter(t=>t.status==='engine-exception').length,
     observedDirectLocks:attempted.filter(t=>t.sourcePolicyCompleted===true).length,
     observedCandidateDeclarationsAfterAnyLock:attempted.filter(t=>
-      t.sourcePolicyCompleted===true && t.candidateAttackDeclarationCount>0).length,
+      t.sourcePolicyCompleted===true &&
+      t.candidatePostWitnessDeclarationCount>0).length,
     attempts:attempted,
     qualifiedCompetitiveGames:0,
     warning:'Retrospective seed selection; every arm diagnostic-only. Engine attack declarations do not certify effect resolution, opponent competence, Japanese paper printing legality, paper clock or game win rate.'
