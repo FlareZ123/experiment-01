@@ -25,7 +25,7 @@ test('real Gladion Store reveal enables legal priority retrieval from later Priz
   const definitions=engine('simple-bot/simple-bot-definitions');
   const manager=initializeCards();
   const gladion=manager.getCardByName('Gladion CIN');
-  const grandTree=manager.getCardByName('Grand Tree SCR');
+  const grandTree=manager.getCardByName('Great Tree SCR');
   assert.ok(gladion&&grandTree);
   f.state.turn=2;
   f.state.gameSettings.format=Format.EXPANDED;
@@ -54,7 +54,7 @@ test('real Gladion Store reveal enables legal priority retrieval from later Priz
   assert.equal(generic.result[0],f.a.prizes[0],
     'pinned generic resolver retrieves the first occupied slot');
 
-  const Root=makeGladionVisiblePrizeResolver('Grand Tree SCR',
+  const Root=makeGladionVisiblePrizeResolver('Great Tree SCR',
     (state,player,prompt)=>state===f.store.state&&
       f.store.state.players.includes(player)&&
       f.store.state.prompts.includes(prompt)&&prompt.result===undefined);
