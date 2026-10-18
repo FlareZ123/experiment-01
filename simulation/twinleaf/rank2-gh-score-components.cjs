@@ -66,3 +66,17 @@ function observeGhScoreComponents(play,targetOrdinal=59) {
           return entry.total;
         }finally{frame=previous;}
       });
+    for(const [name,moduleName,className] of PARTS){
+      const Component=engine('simple-bot/state-score/'+moduleName)[className];
+      patch(Component.prototype,'getScore',old=>
+        function(state,id){
+          const value=old.call(this,state,id);
+          if(frame)frame.values[name]=value;
+          return value;
+        });
+    }
+    return {result:play(),components,calls:ordinal};
+  }finally{
+    for(const undo of restore.reverse())undo();
+  }
+}
