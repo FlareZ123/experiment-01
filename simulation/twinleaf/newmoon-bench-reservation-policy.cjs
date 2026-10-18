@@ -67,7 +67,7 @@ function withNewMoonBenchReservation(execute, candidateSeat) {
   assert.equal(typeof execute,'function');
   assert.ok(candidateSeat === 0 || candidateSeat === 1);
   const {SimpleTacticsAi} = require(path.join(OUTPUT,'simple-bot/simple-tactics-ai'));
-  const {PassTurnAction,PlayCardAction} =
+  const {PassTurnAction} =
     require(path.join(OUTPUT,'game/store/actions/game-actions'));
   const {GamePhase} = require(path.join(OUTPUT,'game/store/state/state'));
   const original = SimpleTacticsAi.prototype.decodeNextAction;
