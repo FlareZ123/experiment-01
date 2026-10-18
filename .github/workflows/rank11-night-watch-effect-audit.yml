@@ -31,6 +31,8 @@ jobs:
         run: node simulation/twinleaf/rank11-night-watch-effect-audit.cjs > rank11-night-watch-effect-audit.json
       - name: Display only aggregate independent effect evidence
         run: node -e "const p=require('./rank11-night-watch-effect-audit.json'); console.log(JSON.stringify({seed:p.seed,sourceRank:p.sourceRank,candidateRank:p.candidateRank,firstTurnSlot:p.firstTurnSlot,sourceToolGarbodorCompleted:p.sourceToolGarbodorCompleted,gameFinished:p.gameFinished,engineWinner:p.engineWinner,attackDeclarations:p.attackDeclarations,resolvedAttackRecords:p.resolvedAttackRecords,qualifiedForCompetitiveInference:p.qualifiedForCompetitiveInference},null,2))"
+      - name: Trace every real prompt selection and relative source hand/deck movement
+        run: node -e "const p=require('./rank11-night-watch-effect-audit.json'); for(const r of p.resolvedAttackRecords){console.log(JSON.stringify({turn:r.turn,stages:r.detailStages},null,2))}"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
