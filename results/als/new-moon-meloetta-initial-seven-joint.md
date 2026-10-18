@@ -18,6 +18,7 @@ Six random Prize cards are inaccessible for search, and a mandatory first-turn d
 | --- | ---: |
 | New Moon sole Klefki, from [earlier research](new-moon-meloetta-joint-resource.md) | **1.615458%** |
 | Sole Klefki plus any modeled Meloetta Cologne resource opportunity, earlier result | **0.457256%** |
+| Meloetta initially in seven and Cologne opportunity, regardless of defender | **3.799963%** |
 | Sole Klefki, initial-seven Meloetta ex, and modeled Cologne opportunity, **new** | **0.061426%** |
 | New event as fraction of preceding broader joint event | **13.4335%** |
 
@@ -31,7 +32,7 @@ Conditional on New Moon's initial legal seven consisting of Klefki and six non-B
 
 The first-seven Meloetta condition is incorporated through the existing prize-aware and fair-coin exact enumerator `fixedInitialMeloettaWindow(12,k)` in [the existing Stone/Pad source model](../aichi-2026/meloetta-stone-pad-joint-access.md). The new [extension implementation](../../scripts/new-moon-meloetta-joint-lock-window.cjs) weights that condition across both mutually exclusive bonus-draw directions. Its [test](../../tests/new-moon-meloetta-joint-lock-window.test.cjs) independently shuffles **220,000 synthetic physical 60-card decks**, redoes both players' mulligans, sets six inaccessible Prizes, draws bonuses and one turn card, then flips each observed Pad. This test also samples the two established marginals and broad joint event, making a mistaken case split observable.
 
-The test is added to the existing **manual-dispatch** [Aichi opening audit workflow](../../.github/workflows/aichi-opening-audit.yml), with a JSON artifact for the new result. No per-commit workflow was introduced. A successful CI run is required before describing the Monte Carlo regression as passed.
+The test is added to the existing **manual-dispatch** [Aichi opening audit workflow](../../.github/workflows/aichi-opening-audit.yml), with a JSON artifact for the new result. No per-commit workflow was introduced. **Verification completed:** [manual CI run 39090792432](https://github.com/FlareZ123/experiment-01/actions/runs/39090792432), head `655669049dec8820b29a131c855c9a49226d4d22`, passed the source-locked exact model, the new 220,000 independently shuffled deals, and all retained opening-audit steps. This confirms repeatable code results; it does not qualify a match.
 
 ## Tactical meaning and limits
 
