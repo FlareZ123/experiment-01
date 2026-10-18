@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      dragon_discard_audit:
+        description: 'Also run three fixed source Dragon discard-hand telemetry deals'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
