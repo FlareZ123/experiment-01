@@ -20,6 +20,11 @@ on:
         required: false
         type: boolean
         default: false
+      vip_counterfactual:
+        description: 'Real first-turn VIP play against the fixed candidate-first source seed'
+        required: false
+        type: boolean
+        default: false
       source_seat:
         description: Physical engine seat occupied by published rank11
         required: false
@@ -68,6 +73,9 @@ jobs:
       - name: Print candidate-first response evidence
         if: inputs.attack_window_probe
         run: node scripts/rank11-candidate-first-pass-summary.cjs
+      - name: Compare real first-turn candidate VIP play with untouched source Pass
+        if: inputs.vip_counterfactual
+        run: node simulation/twinleaf/rank11-newmoon-first-vip-counterfactual.cjs > rank11-newmoon-first-vip-counterfactual.json
       - name: Verify source-first VSTAR and second-start direct policies compose
         run: node simulation/twinleaf/rank11-hybrid-source-replay.cjs > rank11-hybrid-source-replay.json
       - name: Retain one real K1 Garbodor search-negative source seed
@@ -85,6 +93,7 @@ jobs:
           path: |
             rank11-direct-source-probe.json
             rank11-direct-candidate-attack-window.json
+            rank11-newmoon-first-vip-counterfactual.json
             rank11-hybrid-source-replay.json
             rank11-direct-abort-replay.json
             rank11-k1-source-contrast.json
