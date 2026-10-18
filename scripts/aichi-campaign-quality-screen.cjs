@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const {createHash} = require('node:crypto');
 const {deriveSlotSeeds} = require('./aichi-decorrelated-seeds.cjs');
+const {reconcileAttackObservations} = require('./aichi-attack-observation-reconcile.cjs');
 
 /** @param {unknown} value @returns {string} */
 function sha256(value) {
@@ -155,12 +156,26 @@ function auditCampaignQuality(archive) {
         actualTurn === 'unverified') {
       reasons.push('unverified-starting-turn');
     }
+    const observation = reconcileAttackObservations(record, slot);
+    if (observation.status !== 'self-consistent-engine-attack-declarations') {
+      reasons.push(observation.status);
+    }
     if (!Number.isInteger(record.candidateAttacks) || record.candidateAttacks < 0 ||
         !Number.isInteger(record.opponentAttacks) || record.opponentAttacks < 0) {
       reasons.push('missing-attack-counts');
     } else {
-      if (record.candidateAttacks === 0) reasons.push('zero-candidate-attacks');
-      if (record.opponentAttacks === 0) reasons.push('zero-opponent-attacks');
+      // Root AttackAction is only one of Twinleaf's attack-declaration paths.
+      for (const [role, raw, declared, undercount] of [
+        ['candidate', record.candidateAttacks, observation.candidateDeclarations,
+          observation.candidateRootUndercount],
+        ['opponent', record.opponentAttacks, observation.opponentDeclarations,
+          observation.opponentRootUndercount]
+      ]) {
+        if (raw !== 0) continue;
+        reasons.push(declared === 0 ? 'zero-' + role + '-logged-attack-declarations' :
+          undercount ? role + '-root-attack-action-undercount' :
+            'zero-' + role + '-attacks');
+      }
     }
     const trace = record.traceSummary?.chronologicalActionTrace;
     const claimedDigest = record.traceSummary?.chronologicalActionTraceSha256;
@@ -202,12 +217,15 @@ function auditCampaignQuality(archive) {
       status: record.status,
       candidateAttacks: record.candidateAttacks ?? null,
       opponentAttacks: record.opponentAttacks ?? null,
+      attackObservationStatus: observation.status,
+      candidateLoggedAttackDeclarations: observation.candidateDeclarations,
+      opponentLoggedAttackDeclarations: observation.opponentDeclarations,
       traceIntegrity,
       terminalDeckRemaining: deckRemaining,
       terminalPrizesRemaining: terminalPrizes,
       blockers: reasons,
-      priority: reasons.includes('zero-candidate-attacks') ||
-        reasons.includes('zero-opponent-attacks') ? 'attacker-policy-investigation' :
+      priority: reasons.some(reason => /zero-(candidate|opponent)-(attacks|logged-attack-declarations)/.test(reason)) ?
+        'attacker-policy-investigation' :
         reasons.includes('engine-status:' + record.status) ?
           'engine-or-resolver-investigation' :
           reasons.includes('empty-deck-at-terminal') ?
@@ -316,9 +334,15 @@ function auditCampaignQuality(archive) {
         mechanismExposure,
         completedEngineGames: subset.filter(row => row.status === 'completed-engine-game').length,
         zeroCandidateAttackTrials: subset.filter(row =>
-          row.blockers.includes('zero-candidate-attacks')).length,
+          row.candidateAttacks === 0).length,
         zeroOpponentAttackTrials: subset.filter(row =>
-          row.blockers.includes('zero-opponent-attacks')).length,
+          row.opponentAttacks === 0).length,
+        zeroCandidateLoggedDeclarationTrials: subset.filter(row =>
+          row.blockers.includes('zero-candidate-logged-attack-declarations')).length,
+        zeroOpponentLoggedDeclarationTrials: subset.filter(row =>
+          row.blockers.includes('zero-opponent-logged-attack-declarations')).length,
+        attackObservationIncompleteTrials: subset.filter(row =>
+          row.attackObservationStatus !== 'self-consistent-engine-attack-declarations').length,
         emptyDeckAtTerminalTrials: subset.filter(row =>
           row.blockers.includes('empty-deck-at-terminal')).length,
         independentlyQualifiedGames: 0
