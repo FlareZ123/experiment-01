@@ -3,6 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {initializeCards}=require('./headless.cjs');
+const {inspectPhysicalCardZones}=require('./physical-card-ledger.cjs');
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
 const load=name=>require(path.join(output,name));
@@ -77,8 +78,10 @@ function runSeat(seat, options={}) {
   assert.equal(attach.validate(result),true);
   store.dispatch(new ResolvePromptAction(attach.id,result));
   const search=state.prompts.find(p=>p.result===undefined&&p.constructor.name==='ChooseCardsPrompt');
+  const physicalZoneLedger=inspectPhysicalCardZones(state);
   const evidence={
     seat,sourceAttack:'Sol Burst-GX',sourceZone:'deck',
+    physicalZoneLedger,
     attackCard:solgaleo.fullName,energy:telepath.fullName,
     target:mew.fullName,
     handStillEmpty:mine.hand.cards.length===0,
@@ -99,6 +102,9 @@ function runSeat(seat, options={}) {
       'Energy must exist on target physical CardList after origin-aware move');
     assert.equal(evidence.telepathAttached,true,
       'Energy must exist in attached Energy list');
+    assert.deepEqual(physicalZoneLedger.referenceDuplications, []);
+    assert.deepEqual(physicalZoneLedger.energyWithoutPhysicalCard, [],
+      'Corrected attachment must have physical ownership in the target slot');
   } else {
     assert.equal(evidence.unexpectedTelepathSearch,true,
       'Source baseline no longer produces the non-hand Telepath search');
@@ -106,6 +112,10 @@ function runSeat(seat, options={}) {
       'Unexpectedly repaired deck-to-Pokemon energy zone migration');
     assert.equal(evidence.telepathAttached,true,
       'Expected actual reducer attachment to target energy list');
+    assert.deepEqual(physicalZoneLedger.referenceDuplications, []);
+    assert.deepEqual(physicalZoneLedger.energyWithoutPhysicalCard,
+      [{location:'seat'+seat+'.bench[0]',count:1}],
+      'Raw reducer should exhibit one ghost Energy index');
   }
   return evidence;
 }
