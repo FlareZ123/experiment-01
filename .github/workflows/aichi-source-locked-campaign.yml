@@ -17,6 +17,7 @@ on:
           - simple-default-v0
           - expanded-action-fidelity-probe-v1
           - rank11-autonomous-boostshake-v1
+          - rank26-autonomous-cologne-v1
       newmoon_pass_probe:
         description: 'Observe cloned legal attack options after New Moon Bot Pass, no gameplay intervention'
         required: false
