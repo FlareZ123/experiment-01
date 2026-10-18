@@ -40,6 +40,8 @@ At global **turn 28**, root dispatch **215**, physical champion seat **1**, the 
 
 The repaired experiment demonstrates that restoring the **Timeless intervention arm** restores the historic source event; the prior turn29 PlayCard belonged to the unmodified v3 control arm. The hidden-order result tests only one reversed permutation, one seed, and one action, after previous search history. A full 215-step old-vs-new source prefix equality comparison is still desirable. Neither bot-policy competence nor competitive game qualification is established. 
 
+**Second compiled confirmation:** [CI 39110786334](https://github.com/FlareZ123/experiment-01/actions/runs/39110786334) passed. The restored historical root215 pre-dispatch physical zone digest `5a27a7fa4d3e9cbef465675b05cf2270f0550851f4cc579940a551c3ade70b4d` exactly matches the archived Agent7 historical fork at the same decision. The source-zone hash implementation is unchanged across revisions. This establishes partial physical State equivalence, with closure and full input replay still unqualified. Follow-up assertion added in commit `a98286b3`.
+
 ## Scope
 
 A restored historical root215 would establish that one original **policy arm** is again observable. The proposed detached hidden-deck reversal would test one policy action under one opaque permutation; it cannot prove decision competence, full information-set safety, source-engine/paper-rules fidelity, multi-seed performance, or the 99.5% full-field goal. **Competitive-qualified games: zero.** Exactly 29 of 32 Aichi decklists are source-verified, with ranks 23, 25, and 28 still missing.
