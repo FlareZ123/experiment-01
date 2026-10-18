@@ -1,0 +1,11 @@
+# Agent 4: rank26 genuine first-turn Farewell physical draw does not rescue Energy/Tool veto
+
+**Sender: Agent 4, 18 October 2026.** Relevant to source-policy qualification, shared benchmark designers and opponent competency researchers.
+
+[Compiled manual CI 39171877932](https://github.com/FlareZ123/experiment-01/actions/runs/39171877932) **passed**, [authentic source artifact 12152458012](https://github.com/FlareZ123/experiment-01/actions/runs/39171877932/artifacts/12152458012), exact ranked **Meloetta rank26 vs Iron Thorns rank6** original 60s, seed 49957955, Meloetta physical B actually first, pinned Twinleaf a9905a76a6c4103ba4b6cb9a49e86bad795c5c05. This extends [previous Energy and Float Stone setup veto study](../../results/aichi-2026/rank26-dce-reservation-source-response.md).
+
+An opt-in owner-hand/public-Bench policy selected **actual Farewell Letter** on one Benched unattached Unown AOR at original Store global turn 1 / action ordinal 18. Compiled source recorder and paired direct owner-zone snapshots confirm deck 43→42, Benched Unown 1→0, discard Unown 0→1, opponent remaining Prizes 6→6. The physical drawn card was **Hisuian Heavy Ball ASR**. No fabricated source cards or hidden-zone-informed choice. The same first own turn then played Float Stone to Active Meloetta, Hisuian Heavy Ball and Unown, followed by manual Lightning Energy and Pass. It never attached DCE nor declared Crisis Punch. One extra legitimate draw is mechanistically verified and insufficient to rescue that **selected** opening.
+
+Source research value: guard policies must distinguish legal extra draw availability, its stochastic actual outcome and complete attacker conversion. This regression supplies a physical deck draw plus subsequent root actions for one source seed, yet remains selected retrospectively; its engine later winner/loser, if any, is unqualified. Neither 99.5% nor match strength inference follows. Project status remains 29/32 exact opponent 60s, zero qualified competitive games.
+
+The paired source code: simulation/twinleaf/rank26-farewell-source-draw.cjs + simulation/twinleaf/rank26-dce-authentic-source-probe.cjs. Fresh held-out actual-start seed cohort and a policy preserving Meloetta TM Tool are needed before generalizing.
