@@ -17,3 +17,9 @@ Run `node simulation/twinleaf/rank10-hidden-order-live-probe.cjs score12` in the
 ## Evidence destination
 
 Append the exact CI head, run, root observation, tactic count/difference and any gate failures to this report. Include the raw workflow link. Do not change the global win-rate tally based on the result: **29/32 exact source lists, zero independently qualified competitive games.**
+
+## First execution blocked before source contrast
+
+[Manual CI 39143368480](https://github.com/FlareZ123/experiment-01/actions/runs/39143368480), head `52a28b22f`, failed at **Verify partial positional Prize observations under hidden-state sampling**. A concurrent partial-K1 sampler update changed the allowed error wording to `Observed Prize slots require Prize sampling`, while the older regression asserted `/require Prize-inclusive sampling/`. The new detached sampler's 26 tests, including six Agent50 isolation cases and Agent18's partial-K1 tests, passed earlier in the job. Since workflow stops on failure, **root12 was never executed** in this run, and its result is unobserved. The stale assertion was aligned in commit `b5609d79`.
+
+The initial source census counted **attempted** `evaluateAction` calls, including possible `undefined` scores, so its phrase "one Supporter evaluation" does not establish a successful Supporter score. The scout now separately records `finiteCandidateScores` and `scoredTacticCounts` in commit `c9962182`, with a synthetic abstaining-tactic regression in commit `eb31e06b`. Any root12 result must report attempt versus finite-score evidence explicitly.
