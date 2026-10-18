@@ -339,7 +339,7 @@ test('declared mechanisms distinguish observed actions from incomplete trace sil
   out = auditCampaignQuality(f);
   assert.equal(out.coverage[1].mechanismExposure[0].observedActions, 1);
   assert.equal(out.coverage[1].mechanismExposure[0].status, 'observed');
-  assert.equal(out.coverage[1].mechanismExposure[1].status, 'verified-no-exposure');
+  assert.equal(out.coverage[1].mechanismExposure[1].status, 'unknown-incomplete-traces');
   f.records[3].traceSummary.chronologicalActionTraceSha256 = 'forged';
   out = auditCampaignQuality(f);
   assert.equal(out.coverage[1].mechanismExposure[0].status, 'unknown-incomplete-traces');
