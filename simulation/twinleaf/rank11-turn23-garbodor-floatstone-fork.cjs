@@ -170,6 +170,7 @@ function run() {
     alternateFirstTurnSlot:alt.result.firstTurnSlot,
     actionOrdinal:atControl.actionOrdinal,
     alternateTarget:shift,preTargetRootActionsIdentical:true,
+    baselinePowerObserverRootParityVerified:true,
     originalCandidateTurn24AbilityCheck:unchanged.firstCandidatePower,
     alternateCandidateTurn24AbilityCheck:alt.firstCandidatePower,
     sourceGarbodorToolsAtOriginalPass:beforeGarbodor.toolCards,
