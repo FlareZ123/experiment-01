@@ -26,7 +26,7 @@ function shouldSeekPayload(state, player, playerTurnPhase) {
     !state.prompts.some(prompt => prompt.result === undefined) &&
     player.active.getPokemonCard()?.fullName === MEWTWO &&
     player.deck.cards.length > 0 &&
-    has(player.hand.cards, 'Battle Compressor Team Flare Gear PHF') &&
+    player.hand.cards.some(card => card.name === 'Battle Compressor') &&
     !has(player.hand.cards, GENGAR) &&
     !has(player.discard.cards, GENGAR) &&
     !player.bench.some(slot => slot.getPokemonCard()?.fullName === GENGAR);
@@ -79,7 +79,7 @@ function withNewMoonCompressorPayload(options) {
     useTactic(state, player) {
       if (!shouldSeekPayload(state, player, GamePhase.PLAYER_TURN)) return;
       const index = player.hand.cards.findIndex(card =>
-        card.fullName === 'Battle Compressor Team Flare Gear PHF');
+        card.name === 'Battle Compressor');
       return new PlayCardAction(player.id, index, {
         player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
       });
