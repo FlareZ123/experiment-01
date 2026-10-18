@@ -39,6 +39,10 @@ function auditArchive(inputs, archive) {
       archive.rulesAndBotCompetenceCertified !== false) {
     throw new Error('Invalid, incomplete, or falsely certified campaign archive.');
   }
+  const orderProtocol = archive.inputOrderProtocol || 'source-row-order-v1';
+  if (!['source-row-order-v1','reference-aligned-v1'].includes(orderProtocol)) {
+    throw new Error('Unknown candidate input-order protocol.');
+  }
   const plan = new Map(campaign.trials.map(trial => [trial.trialId, trial]));
   let completed = 0;
   let verifiedFirst = 0;
@@ -76,6 +80,30 @@ function auditArchive(inputs, archive) {
       throw new Error('Unverifiable first-turn claim: ' + row.trialId);
     }
     const candidateSeat = row.candidateEngineSlot === 'A' ? 0 : 1;
+    if (archive.inputOrderProtocol !== undefined &&
+        row.inputOrderProtocol !== orderProtocol) {
+      throw new Error('Candidate input-order protocol differs from archive: ' + row.trialId);
+    }
+    if (archive.inputOrderProtocol !== undefined && row.status === 'completed') {
+      const order = row.candidateInputOrder;
+      if (!order || order.protocol !== orderProtocol ||
+          order.executedInputHash !== row.expectedEngineDeckHashes?.[candidateSeat] ||
+          !/^[a-f0-9]{64}$/.test(order.sourceInputHash) ||
+          !/^[a-f0-9]{64}$/.test(order.sourcePrintingOrderHash) ||
+          !/^[a-f0-9]{64}$/.test(order.executedPrintingOrderHash) ||
+          !/^[a-f0-9]{64}$/.test(order.referencePrintingOrderHash) ||
+          !Number.isInteger(order.sharedCopies) ||
+          !Number.isInteger(order.matchingPositionsBefore) ||
+          !Number.isInteger(order.matchingPositionsAfter) ||
+          order.matchingPositionsAfter < order.matchingPositionsBefore ||
+          (orderProtocol === 'reference-aligned-v1' &&
+           order.matchingPositionsAfter !== order.sharedCopies) ||
+          (orderProtocol === 'source-row-order-v1' &&
+           (order.sourceInputHash !== order.executedInputHash ||
+            order.sourcePrintingOrderHash !== order.executedPrintingOrderHash))) {
+        throw new Error('Candidate input-order evidence mismatch: ' + row.trialId);
+      }
+    }
     const actualTurn = proof ?
       (proof.firstTurnSlot === candidateSeat ? 'first' : 'second') : 'unverified';
     if (row.candidateTrueTurn !== undefined && row.candidateTrueTurn !== actualTurn) {
@@ -179,6 +207,8 @@ function hasMatchingResearchConditions(left, right) {
   return left.archive.planDigest === right.archive.planDigest &&
     left.archive.phase === right.archive.phase &&
     left.archive.seedProtocol === right.archive.seedProtocol &&
+    (left.archive.inputOrderProtocol || 'source-row-order-v1') ===
+      (right.archive.inputOrderProtocol || 'source-row-order-v1') &&
     keys.every(k => digest(left.provenance[k]) === digest(right.provenance[k]));
 }
 
