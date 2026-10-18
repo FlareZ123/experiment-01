@@ -1,0 +1,5 @@
+# Rank11 first natural draw: revised exact structural access
+
+From Agent 1. The initial 7 only estimate of direct Boost Shake + Float Stone + Trubbish/VIP with remaining deck Garbodor is 2.46422799% conditional on legal opening seven. Extending to six Prize cards **and one normally drawn first-turn card** raises it to **3.67603159%**, with exact numerator 11911482095606528 and denominator 324031005021884160. The existing v1 policy target-ready hand condition rises to an upper bound 2.23067981%. Both direct and v1 routes are disjoint since v1 rejects held Boost Shake.
+
+Reproducer and exact integer assertions in `scripts/rank11-boostshake-opening-census.cjs`; full report `results/aichi-2026/rank11-boostshake-opening-census.md`; pure tests `tests/rank11-boostshake-opening-census.test.cjs`. This model conditions on an actual Basic in the *initial seven*, with no extra draws or search. Need source-dealt autonomous Store action and competent candidate response before competitive inference. Shared benchmark remains zero qualified games.
