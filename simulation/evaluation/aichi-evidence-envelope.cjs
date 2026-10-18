@@ -2,6 +2,8 @@
 
 const { createHash } = require('node:crypto');
 const { verifyCampaign, turnProof } = require('./aichi-campaign-runner.cjs');
+const {expandPrintings,alignToReference,auditAlignment} =
+  require('../../scripts/aichi-position-coupling.cjs');
 
 const STATUSES = new Set([
   'completed', 'blocked-resolution', 'engine-deck-mismatch',
@@ -43,6 +45,30 @@ function auditArchive(inputs, archive) {
   if (!['source-row-order-v1','reference-aligned-v1'].includes(orderProtocol)) {
     throw new Error('Unknown candidate input-order protocol.');
   }
+  const sourceOrderClaims=new Map();
+  if (archive.inputOrderProtocol !== undefined) {
+    const referenceCandidates=inputs.candidates.filter(c=>c.referenceOnly===true);
+    if (referenceCandidates.length!==1) {
+      throw new Error('Versioned input-order protocol needs exactly one source reference.');
+    }
+    const referencePrintings=expandPrintings(referenceCandidates[0].cards);
+    for(const candidate of inputs.candidates){
+      const sourcePrintings=expandPrintings(candidate.cards);
+      const executedPrintings=orderProtocol==='reference-aligned-v1' ?
+        alignToReference(referencePrintings,sourcePrintings) : [...sourcePrintings];
+      const before=auditAlignment(referencePrintings,sourcePrintings);
+      const after=auditAlignment(referencePrintings,executedPrintings);
+      sourceOrderClaims.set(candidate.id,{
+        sourcePrintingOrderHash:digest(sourcePrintings),
+        executedPrintingOrderHash:digest(executedPrintings),
+        referencePrintingOrderHash:digest(referencePrintings),
+        sharedCopies:after.sharedCopies,
+        matchingPositionsBefore:before.matchingPositions,
+        matchingPositionsAfter:after.matchingPositions
+      });
+    }
+  }
+  const observedInputHashesByCandidate=new Map();
   const plan = new Map(campaign.trials.map(trial => [trial.trialId, trial]));
   let completed = 0;
   let verifiedFirst = 0;
@@ -86,7 +112,10 @@ function auditArchive(inputs, archive) {
     }
     if (archive.inputOrderProtocol !== undefined && row.status === 'completed') {
       const order = row.candidateInputOrder;
+      const expectedSourceOrder=sourceOrderClaims.get(row.candidateId);
       if (!order || order.protocol !== orderProtocol ||
+          !expectedSourceOrder ||
+          Object.entries(expectedSourceOrder).some(([key,value])=>order[key]!==value) ||
           order.executedInputHash !== row.expectedEngineDeckHashes?.[candidateSeat] ||
           !/^[a-f0-9]{64}$/.test(order.sourceInputHash) ||
           !/^[a-f0-9]{64}$/.test(order.sourcePrintingOrderHash) ||
@@ -95,7 +124,11 @@ function auditArchive(inputs, archive) {
           !Number.isInteger(order.sharedCopies) ||
           !Number.isInteger(order.matchingPositionsBefore) ||
           !Number.isInteger(order.matchingPositionsAfter) ||
+          order.sharedCopies < 0 || order.sharedCopies > 60 ||
+          order.matchingPositionsBefore < 0 ||
+          order.matchingPositionsBefore > order.sharedCopies ||
           order.matchingPositionsAfter < order.matchingPositionsBefore ||
+          order.matchingPositionsAfter > order.sharedCopies ||
           (orderProtocol === 'reference-aligned-v1' &&
            order.matchingPositionsAfter !== order.sharedCopies) ||
           (orderProtocol === 'source-row-order-v1' &&
@@ -103,6 +136,13 @@ function auditArchive(inputs, archive) {
             order.sourcePrintingOrderHash !== order.executedPrintingOrderHash))) {
         throw new Error('Candidate input-order evidence mismatch: ' + row.trialId);
       }
+      const previous=observedInputHashesByCandidate.get(row.candidateId);
+      const current=[order.sourceInputHash,order.executedInputHash];
+      if (previous && JSON.stringify(previous)!==JSON.stringify(current)) {
+        throw new Error('Candidate input-order engine hash drift across trials: ' +
+          row.trialId);
+      }
+      observedInputHashesByCandidate.set(row.candidateId,current);
     }
     const actualTurn = proof ?
       (proof.firstTurnSlot === candidateSeat ? 'first' : 'second') : 'unverified';
