@@ -25,9 +25,9 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Verify reversible root-Guzma hook
-        run: node --test tests/rank10-turn29-guzma-fork.test.cjs
-      - name: Compare original Retreat with legal Guzma prompt route
+      - name: Verify reversible root-Guzma and Retreat-target hooks
+        run: node --test tests/rank10-turn29-guzma-fork.test.cjs tests/rank10-turn29-one-prize-retreat.test.cjs
+      - name: Verify spent Supporter blocks Guzma and compare Retreat target
         run: node simulation/twinleaf/rank10-turn29-guzma-source.cjs > rank10-turn29-guzma-fork.json
       - name: Preserve exact paired source comparison
         if: always()
