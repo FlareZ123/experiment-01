@@ -85,6 +85,25 @@ function runCase(options) {
     to: { player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index: vmaxIndex },
     card: energy
   }]));
+  if (vmaxSlot.energies.cards.length !== 3) {
+    console.log(JSON.stringify({
+      diagnostic: 'unexpected-post-door-energy-state',
+      options,
+      stage: state.phase,
+      prompts: state.prompts.map(p => ({ type: p.constructor.name, id: p.id, result: p.result })),
+      ours: {
+        active: { cards: ours.active.cards.map(c => c.name), hp: ours.active.hp },
+        bench: ours.bench.map(slot => ({
+          pokemon: slot.getPokemonCard()?.name, hp: slot.hp,
+          cards: slot.cards.map(c => c.name),
+          indexedEnergy: slot.energies.cards.map(c => c.name)
+        })),
+        discard: ours.discard.cards.map(c => c.name),
+        hand: ours.hand.cards.map(c => c.name),
+        deck: ours.deck.cards.map(c => c.name)
+      }
+    }, null, 2));
+  }
   assert.equal(vmaxSlot.energies.cards.length, 3);
   assert.equal(ours.hand.cards.length, 2, 'Underworld Door must draw two cards');
 
