@@ -23,7 +23,8 @@ function rank26DceReservationOpportunity(state, own, sourceSeat, turnPhase) {
 /**
  * Replace a selected first-turn basic Lightning attachment with a legal
  * held DCE attachment, or defer the normal Energy action to allow other
- * source-bot tactics to search/draw. Other turns and seats are unchanged.
+ * source-bot tactics to search/draw. In opt-in v2, restore the original
+ * Lightning action only if every non-Energy tactic would pass. Other turns and seats are unchanged.
  *
  * This is a versioned policy counterfactual, never a competitive bot claim.
  * @template T
@@ -31,7 +32,7 @@ function rank26DceReservationOpportunity(state, own, sourceSeat, turnPhase) {
  * @param {()=>T} execute
  * @returns {{result:T,policyAudit:object}}
  */
-function withRank26DceReservation(sourceSeat, execute) {
+function withRank26DceReservation(sourceSeat, execute, {lateBasicFallback=false} = {}) {
   if (![0, 1].includes(sourceSeat) || typeof execute !== 'function')
     throw new TypeError('Require rank26 physical seat and synchronous run.');
   const engine = relative => require(path.join(OUTPUT, relative));
@@ -85,6 +86,14 @@ function withRank26DceReservation(sourceSeat, execute) {
     } finally {
       this.tactics = originalTactics;
     }
+    if (lateBasicFallback && alternative?.constructor.name === 'PassTurnAction') {
+      decisions.push({
+        turn: state.turn, sourceSeat, oldCard: basic.fullName,
+        decision: 'late-basic-lightning-after-other-tactics-exhausted',
+        heldDce: dceIndex >= 0, information: 'own hand and public board'
+      });
+      return selected;
+    }
     const otherCard = alternative instanceof PlayCardAction
       ? own.hand.cards[alternative.handIndex]?.fullName || null : null;
     decisions.push({
@@ -99,7 +108,8 @@ function withRank26DceReservation(sourceSeat, execute) {
   };
   try {
     return {result: execute(), policyAudit: {
-      version: 'rank26-first-turn-dce-reservation-v1',
+      version: lateBasicFallback ? 'rank26-first-turn-dce-reservation-v2' :
+        'rank26-first-turn-dce-reservation-v1',
       sourceSeat, decisions, competitiveGameQualified: false
     }};
   } finally {
