@@ -54,13 +54,14 @@ function planOpeningHand(hand,thunderInPlay=false,priorities=discardOrder) {
  * reading deck cards is restricted to actual ChooseCardsPrompt resolution.
  * @template T
  * @param {()=>T} work
- * @param {{seat?:number,turn?:number,discardPriority?:string[]}} [options]
+ * @param {{seat?:number,turn?:number,discardPriority?:string[],benchBackup?:boolean}} [options]
  * @returns {{result:T,started:boolean,completed:boolean,events:object[],abortReason:string|null,openingPlan:object|null}}
  */
 function withBroadThornsSourceAttack(work,options={}) {
   assert.equal(typeof work,'function');
   const seat=options.seat??1,turn=options.turn??2;
   const priorities=options.discardPriority??discardOrder;
+  const benchBackup=options.benchBackup===true;
   const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
   /** @param {string} name */
   const engine=name=>require(path.join(root,name));
@@ -75,7 +76,7 @@ function withBroadThornsSourceAttack(work,options={}) {
   const board={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
   const active={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0};
   let phase='idle',actorId=null,started=false,completed=false;
-  let openingPlan=null,abortReason=null;
+  let openingPlan=null,abortReason=null,backupDeployed=false;
   const events=[];
 
   /** @param {object} state @param {string} action @param {object} result */
@@ -111,6 +112,17 @@ function withBroadThornsSourceAttack(work,options={}) {
       phase='attach';
       return select(state,'Play Thunder Mountain',
         play(p,'Thunder Mountain Prism Star',board));
+    }
+    if(benchBackup && !backupDeployed) {
+      const free=p.bench.findIndex(slot=>!slot.getPokemonCard());
+      if(free>=0 && p.hand.cards.some(c=>c.name==='Iron Thorns ex')) {
+        backupDeployed=true;
+        phase='backup';
+        return select(state,'Bench held backup Iron Thorns ex',
+          play(p,'Iron Thorns ex',{
+            player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:free
+          }));
+      }
     }
     if(!p.hand.cards.some(c=>c.name==='Double Colorless Energy')) {
       abort(state,'Required DCE unavailable after search');
@@ -227,6 +239,10 @@ function withBroadThornsSourceAttack(work,options={}) {
       if(!prompt && state.phase===GamePhase.PLAYER_TURN) {
         return continueAfterSearch(state,p)??original.call(this,state);
       }
+    }
+    if(phase==='backup' && !prompt &&
+        state.phase===GamePhase.PLAYER_TURN) {
+      return continueAfterSearch(state,p)??original.call(this,state);
     }
     if(phase==='attach' && !prompt &&
         state.phase===GamePhase.PLAYER_TURN) {
