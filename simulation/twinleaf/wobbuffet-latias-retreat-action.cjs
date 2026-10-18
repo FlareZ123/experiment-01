@@ -18,6 +18,7 @@ function runCase(options) {
   const { GamePhase } = engine('game/store/state/state');
   const { Player } = engine('game/store/state/player');
   const { PokemonCardList } = engine('game/store/state/pokemon-card-list');
+  const { CardList } = engine('game/store/state/card-list');
   const { CheckRetreatCostEffect, CheckPokemonPowersEffect } =
     engine('game/store/effects/check-effects');
   const { PowerEffect } = engine('game/store/effects/game-effects');
@@ -38,6 +39,12 @@ function runCase(options) {
   const theirs = new Player();
   theirs.id = 202;
   theirs.name = 'Iron Thorns';
+  // A live PLAYER_TURN Store check requires nonempty Prize zones; otherwise
+  // both zero-Prize players trigger sudden-death re-setup after the prompt.
+  ours.prizes = [new CardList()];
+  theirs.prizes = [new CardList()];
+  ours.prizes[0].cards.push(get('Psychic Energy SVE'));
+  theirs.prizes[0].cards.push(get('Psychic Energy SVE'));
   const wobbuffet = get('Wobbuffet PHF');
   const thorns = get('Iron Thorns ex TWM');
   const vmax = get('Shadow Rider Calyrex VMAX CRE');
