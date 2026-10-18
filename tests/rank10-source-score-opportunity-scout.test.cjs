@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {withRootScoreCensus}=
+const {withRootScoreCensus,finiteSupporterCandidates}=
   require('../simulation/twinleaf/rank10-source-score-opportunity-scout.cjs');
 
 class PlayCardAction {
@@ -76,4 +76,22 @@ test('attempted evaluations without finite scores stay separate',()=>{
   assert.equal(events.events[0].finiteCandidateScores,0);
   assert.deepEqual(events.events[0].tacticCounts,{UnscoredTactic:1});
   assert.deepEqual(events.events[0].scoredTacticCounts,{});
+});
+
+test('finite source Supporter candidates use the actor own hand printing',()=>{
+  const acting={hand:{cards:[{fullName:'Faba LOT'},{fullName:'Ultra Ball SUM'}]}};
+  const traces=[
+    {tactic:'PlaySupporterTactic',score:4,
+      actionType:'PlayCardAction',actionSignature:'{"handIndex":0}'},
+    {tactic:'PlaySupporterTactic',score:null,
+      actionType:'PlayCardAction',actionSignature:'{"handIndex":0}'},
+    {tactic:'PlayTrainerTactic',score:10,
+      actionType:'PlayCardAction',actionSignature:'{"handIndex":1}'}
+  ];
+  assert.deepEqual(finiteSupporterCandidates(traces,acting),
+    [{printing:'Faba LOT',score:4}]);
+  assert.throws(()=>finiteSupporterCandidates([
+    {tactic:'PlaySupporterTactic',score:3,
+      actionType:'PlayCardAction',actionSignature:'{"handIndex":99}'}
+  ],acting),/Source Supporter candidate/);
 });
