@@ -12,3 +12,6 @@ test('pinned Store scores K1 paired hidden-order states on cloned Card graphs',(
 // Keep the compiled, root-dispatched Heavy Ball K1 test beside the
 // existing pinned Store hidden-information audit in manual CI.
 require('./root-k1-unlocated-heavy-ball-sampling.test.cjs');
+
+// Source-printed owner search and Peonia reveal the known-position K1 boundary.
+require('./root-k1-peonia-prize-sampling.test.cjs');
