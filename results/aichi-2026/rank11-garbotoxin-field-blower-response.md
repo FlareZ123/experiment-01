@@ -42,7 +42,7 @@ Source card listings:
 - [Champion exact source 60](full-decklists.json) (rank 1).
 - [Hood Shield fixed print-aware 60](candidate-hood-shadow-rider.json).
 - Pure [exact regression](../../tests/test_rank11_garbotoxin_field_blower_response.py).
-- Existing manually triggered [Aichi opening audit workflow](../../.github/workflows/aichi-opening-audit.yml), with exact rate tests and generated text output.
+- Existing manually triggered [Aichi opening audit workflow](../../.github/workflows/aichi-opening-audit.yml), with exact rate tests and generated text output. **Compiled manual CI [39084547417](https://github.com/FlareZ123/experiment-01/actions/runs/39084547417) passed** on head `e7d39dc993fb25866ae64999732a94b9b9e8ea89` after addition of this exact-response regression, including all prior opening-audit steps.
 
 ## Limits and strategic use
 
