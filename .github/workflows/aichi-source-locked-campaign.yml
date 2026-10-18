@@ -87,10 +87,15 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify source-locked trial adapter and guards
-        run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs tests/rank11-autonomous-opener.test.cjs
+        run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs tests/rank11-autonomous-opener.test.cjs tests/rank11-autonomous-campaign-seat.test.cjs
       - name: Replay one genuine rank11 opening under the automatic policy
         if: ${{ inputs.rank11_autonomous_probe }}
         run: node simulation/twinleaf/rank11-autonomous-source-regression.cjs > rank11-autonomous-source-regression.json
+      - name: Compare two frozen candidate inventories against the identical rank11 automatic policy
+        if: ${{ inputs.rank11_autonomous_probe }}
+        env:
+          CAMPAIGN_SEED_PROTOCOL: decorrelated-slots-v3
+        run: node simulation/evaluation/aichi-rank11-autonomous-comparison.cjs > rank11-autonomous-comparison.json
       - name: Run up to six source-locked pilot trials
         if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.rank11_autonomous_probe }}
         env:
@@ -130,4 +135,5 @@ jobs:
             aichi-setup-observer-audit.json
             aichi-multiseed-setup-coupling.json
             rank11-autonomous-source-regression.json
+            rank11-autonomous-comparison.json
           retention-days: 14
