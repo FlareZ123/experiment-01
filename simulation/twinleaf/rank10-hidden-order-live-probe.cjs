@@ -15,6 +15,8 @@ const {swapHiddenPrize}=require('./prize-membership-live-probe.cjs');
 const {sourceZoneSnapshot,zoneSnapshotDigest}=require('./source-zone-checkpoint.cjs');
 const {sourceEffectDigest}=require('./source-effect-checkpoint.cjs');
 const {createSourcePrefixAudit}=require('./source-prefix-digest.cjs');
+const {withStoreDispatchTranscript}=require('./store-dispatch-transcript.cjs');
+const {sourceInputTraceSha256}=require('../evaluation/source-input-canonical.cjs');
 const {observableState,hash:sourceStateDigest}=require('./source-state-continuity.cjs');
 
 /** @param {object|null|undefined} action */
@@ -156,7 +158,7 @@ function withRootHiddenOrderProbe(Ai,work,cloneState,target) {
  * @param {number|null} [wantedBoundary] Zero-based root Store action step.
  * @returns {T}
  */
-function withRootDispatchCounter(Store,work,ownerSeat=1,wantedBoundary=null,boundaryDigest=null,historyDigest=null,prefixAudit=null) {
+function withRootDispatchCounter(Store,work,ownerSeat=1,wantedBoundary=null,boundaryDigest=null,historyDigest=null,prefixAudit=null,prefixLimit=null) {
   const descriptor=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.ok(descriptor && typeof descriptor.value==='function');
   let root=null,count=0,boundary=null;
@@ -177,7 +179,8 @@ function withRootDispatchCounter(Store,work,ownerSeat=1,wantedBoundary=null,boun
     }
     const prefixStep=count;
     const prefixBefore=prefixAudit && this===root &&
-      wantedBoundary!==null && count<=wantedBoundary?[
+      wantedBoundary!==null &&
+      (prefixLimit===null?count<=wantedBoundary:count<prefixLimit)?[
         zoneSnapshotDigest(sourceZoneSnapshot(this.state)),
         sourceStateDigest(observableState(this.state)),
         sourceEffectDigest(this.state)
@@ -295,10 +298,12 @@ function auditRank10HiddenOrder(rootActionOrdinal,scoreTarget=null) {
     50:'202ba72857abce7aa8963d7c0184e5f933e4424ec09bb712f56aab6d9c8da02f',
     183:'c28c866bfc10cafc1595f5667603a30b4a367b1f9aa453ab92730fcdd7fb2b38',
     215:'9ad0b9438538787eb641604a7d411d0ff2c214dfb174f3b323b35c32dbaf72ea',
-    216:'9b6135cb545bc800dd0d40ff441a4f2a6a40fec94459ed87956b79727052196c'
+    216:'9b6135cb545bc800dd0d40ff441a4f2a6a40fec94459ed87956b79727052196c',
+    235:'4e153f6ff8ac10ce1aae2f0ad54110da1f1e5bdf650efcff9d015a98db0f2e5c'
   }):null;
-  const observed=withRootDispatchCounter(
-    require(path.join(output,'game/store/store')).Store,
+  const SourceStore=require(path.join(output,'game/store/store')).Store;
+  const runObserved=()=>withRootDispatchCounter(
+    SourceStore,
     (getOrdinal,getOwnerDeckSearches,getBoundary)=>{
       const run=withRootHiddenOrderProbe(
         SimpleTacticsAi,()=>runMatch(common),cloneState,
@@ -306,16 +311,40 @@ function auditRank10HiddenOrder(rootActionOrdinal,scoreTarget=null) {
       return {...run,sourceOrdinalBoundary:getBoundary()};
     },
     actorSeat,ordinal,state=>zoneSnapshotDigest(sourceZoneSnapshot(state)),
-    state=>sourceStateDigest(observableState(state)),prefixAudit);
+    state=>sourceStateDigest(observableState(state)),prefixAudit,
+    archival?235:null);
+  // Keep the input-capture observer strictly inside the archival profile.
+  // Both wrappers intercept only the first genuine AddPlayerAction Store.
+  const inputRecorder=archival?withStoreDispatchTranscript(
+    SourceStore,runObserved,{
+      liveStoreOnly:true,typedActionValues:true,
+      promptReferenceActionValues:true,sourceZoneEveryDispatch:true
+    }):null;
+  const observed=inputRecorder?inputRecorder.result:runObserved();
   const prefixEvidence=prefixAudit?.finish()??null;
+  const inputEvidence=inputRecorder?{
+    actions:inputRecorder.dispatched,
+    represented:inputRecorder.actionInputEnvelopeCoverage,
+    first216Sha256:sourceInputTraceSha256(
+      inputRecorder.actionTrace.slice(0,216)),
+    full235Sha256:sourceInputTraceSha256(inputRecorder.actionTrace)
+  }:null;
   if(archival) {
-    assert.equal(prefixEvidence.steps,216,
-      'Historical source prefix must include root ordinal 215');
+    assert.equal(prefixEvidence.steps,235,
+      'Historical source trace must include all 235 root actions');
+    assert.equal(inputEvidence.actions,235,
+      'Historical source input recorder omitted a root action');
+    assert.equal(inputEvidence.represented,235,
+      'Historical source input recorder omitted a typed or prompt input');
+    assert.equal(inputEvidence.first216Sha256,
+      '750f542f579ff3dda0b18d5a6de443049ea745667ae0671c88659c78f9e23250');
+    assert.equal(inputEvidence.full235Sha256,
+      'de0ef567cc85242550f03201b4cff5b4d53133e1bcea86a60b6118a86fe57e33');
     assert.ok(prefixEvidence.allMatched,
       'Historical source prefix checkpoint mismatch: '+
       JSON.stringify(prefixEvidence.checkpoints.filter(c=>!c.matches)));
     assert.equal(prefixEvidence.sha256,
-      '9b6135cb545bc800dd0d40ff441a4f2a6a40fec94459ed87956b79727052196c');
+      '4e153f6ff8ac10ce1aae2f0ad54110da1f1e5bdf650efcff9d015a98db0f2e5c');
   }
   assert.deepEqual(observed.result,control,
     'Read-only hidden-order counterfactual changed physical source match');
@@ -389,6 +418,7 @@ function auditRank10HiddenOrder(rootActionOrdinal,scoreTarget=null) {
     ...(scoreTarget?{prospectiveScoutSelectedRoot:scoreTarget}:{}),
     sourceOrdinalBoundary:observed.sourceOrdinalBoundary,
     ...(prefixEvidence?{historicalSourcePrefixEvidence:prefixEvidence}:{}),
+    ...(inputEvidence?{historicalTypedInputEvidence:inputEvidence}:{}),
     sourceZoneFingerprintSchema:'source-zone-and-turn-flags-v1',
     matchedUninstrumentedMatch:true,
     sourceTerminal:{winner:control.winner,turns:control.turns,
@@ -398,7 +428,7 @@ function auditRank10HiddenOrder(rootActionOrdinal,scoreTarget=null) {
       'K1 deck membership and remembered top order are not attested',
       'Only one reversed physical order and one equal-seeded policy RNG',
       'Detached baseline parity is checked at this root decision only',
-      'Historical prefix digest covers selected State projections, not all action payloads or closure state',
+      'Historical full-game digest covers selected State projections and typed root inputs, not reducer closure state',
       'Copied policy state may not represent a human-strength player',
       'Complete paper-rule and prompt-closure correctness remain open'
     ]
