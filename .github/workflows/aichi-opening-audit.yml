@@ -69,6 +69,10 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_rank11_oranguru_tool_lock_exact.py'
       - name: Rank-11 Oranguru Tool/Stone opening exact audit
         run: python3 scripts/rank11_oranguru_tool_lock_exact.py > rank11-oranguru-tool-lock-exact.txt
+      - name: Rank-11 Field Blower and Arven response exact tests
+        run: python3 -m unittest discover -s tests -p 'test_rank11_garbotoxin_field_blower_response.py'
+      - name: Rank-11 Field Blower and Arven response exact output
+        run: python3 scripts/rank11_garbotoxin_field_blower_response.py > rank11-arven-blower-response.txt
       - name: Absol and Garbotoxin source audit
         run: node scripts/aichi-absol-garbotoxin-window.cjs > aichi-absol-garbotoxin-window.json
       - name: Audit published Aichi lists
@@ -117,3 +121,4 @@ jobs:
             aichi-ranger-stone-access.json
             aichi-ranger-stone-field.json
             rank11-oranguru-tool-lock-exact.txt
+            rank11-arven-blower-response.txt
