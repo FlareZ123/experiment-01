@@ -53,3 +53,17 @@ The first compiled comparison shows the repaired resolver **executes three legal
 ## Prospective generalization check: negative exposure
 
 A separately [pre-registered sixteen-deal two-policy source comparison](night-watch-prospective-zero-exposure.md) executed all 32 arm runs in [manual compiled CI 39140517254](https://github.com/FlareZ123/experiment-01/actions/runs/39140517254), with **zero failures, nine versus seven true-start observations**, and **zero Night Watch declarations in both policies**. Nine of sixteen arms per policy ended with engine terminals within 160 actions; seven per policy reached the cap. This is evidence of **nonexposure** under the tested source/deal/policy conditions, so it cannot support any assertion about the corrected attack's outcome effect or win rate. The original conditioned single-seed triple-Night-Watch replay above remains the exercised mechanistic positive control.
+
+## Actual-root first-choice divergence, same engine terminal
+
+[Manual compiled CI 39141264008](https://github.com/FlareZ123/experiment-01/actions/runs/39141264008), head `90172ec634971e529be1edf20a4463d100ae568d`, repeated the frozen original conditioned source pair and printed anonymized **actual Store root** positions recorded immediately before resolving each Night Watch opponent-hand `ChooseCardsPrompt`. This is a reproduction of **the previous already selected seed**, not another independent game.
+
+| Global turn | Pinned default resolver selected opaque positions | Uniform-rule hook selected opaque positions |
+| --- | --- | --- |
+| 9 | **[0, 1]** | **[2, 0]** |
+| 11 | [0, 1] | [3, 0] |
+| 13 | [0] | [0, 1] |
+
+The first turn-9 pair visibly **differs in the actual selected cards by position**, despite both runs selecting two legitimate cards. Later selections do not refer to the same opponent-hand contents or hand size because effects and subsequent game evolution have already diverged, so they are descriptive of separate outcomes only. In particular, turn 13 selects **one** in the original run because it has one available hand card, while the corrected run selects **two** because it has at least two. The two engine games retain seat-1 winners. Neither the original score-based selection's position order nor the hook's one-sample position order is itself a test of uniformity across repeated independent random deals. The pinned resolver source and identity-blind partial Fisher-Yates routine give the mechanism; this actual-root audit establishes their concrete game-state difference.
+
+The [prospective 16-seed batch](night-watch-prospective-zero-exposure.md) still had **zero attacks in either arm** and must remain a nonexposure result, with zero competitive-qualified games.
