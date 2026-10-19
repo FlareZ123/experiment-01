@@ -223,3 +223,33 @@ test('a cloned rejected attack never becomes a resolved tactical effect',()=>{
   assert.equal(out.samples[0].tested[0].engineAcceptedAnnouncement,false);
   assert.equal(out.summary.boundedAndIncomplete,true);
 });
+
+test('candidate Perfection sampled menu is a separate cloned Ability channel',()=>{
+  const rows=[
+    {playerSlot:0,action:'PassTurnAction',turnBefore:1,actionOrdinal:20,
+      perfectionPassProbe:{
+        evidenceType:'post-choice-cloned-perfection-attack-menu-v1',
+        activationAccepted:true,choicePromptObserved:true,
+        validAttackNames:['Horror House-GX'],
+        validAttackSources:[{source:'Gengar & Mimikyu-GX',attack:'Horror House-GX'}]
+      }},
+    {playerSlot:0,action:'PassTurnAction',turnBefore:3,actionOrdinal:31,
+      perfectionPassProbe:{
+        evidenceType:'post-choice-cloned-perfection-attack-menu-v1',
+        activationAccepted:false,choicePromptObserved:false,
+        validAttackNames:[],validAttackSources:[]
+      }},
+    {playerSlot:1,action:'PassTurnAction',turnBefore:4,actionOrdinal:42,
+      perfectionPassProbe:{
+        activationAccepted:true,validAttackNames:['Poltergeist']
+      }}
+  ];
+  const out=candidatePostChoicePassEvidence(rows,0);
+  assert.equal(out.summary.observedCandidatePasses,2);
+  assert.equal(out.summary.observedPerfectionPasses,2);
+  assert.equal(out.summary.acceptedPerfectionActivations,1);
+  assert.equal(out.summary.nonemptyCopiedAttackMenus,1);
+  assert.equal(out.perfectionSamples[0].validAttackNames[0],'Horror House-GX');
+  assert.equal(out.samples.length,0);
+  assert.equal(JSON.stringify(out).includes('Poltergeist'),false);
+});
