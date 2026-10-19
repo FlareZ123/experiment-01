@@ -70,9 +70,10 @@ function assertManifest(plan=registration) {
  * Every result is unqualified for tournament win-rate inference.
  * @param {object} trial
  * @param {Map<string,object>} prepared
+ * @param {{captureRejectedActionEvidence?:boolean}} [auditOptions]
  * @returns {object}
  */
-function executeArm(trial,prepared) {
+function executeArm(trial,prepared,auditOptions={}) {
   const {runMatch} = require('../twinleaf/headless.cjs');
   const {withRank11DirectBoostShake} =
     require('../twinleaf/rank11-direct-boostshake.cjs');
@@ -93,7 +94,9 @@ function executeArm(trial,prepared) {
   const request={
     deckA,deckB,seed:trial.seed,maxActions:registration.maxRootActions,
     label:'agent41-crossrank-source-locked-'+trial.id,
-    ...registration.frozenFlags
+    ...registration.frozenFlags,
+    ...(auditOptions.captureRejectedActionEvidence === true ?
+      {captureRejectedActionEvidence:true} : {})
   };
   const play=()=>runMatch(request);
   let sourceAudit;
@@ -276,4 +279,4 @@ if(require.main===module) {
   const partition=Number(process.env.AGENT41_PARTITION||0);
   process.stdout.write(JSON.stringify(run(partition),null,2)+'\n');
 }
-module.exports={run,scheduledArms,pairs,gitBlobSha,assertManifest};
+module.exports={run,executeArm,scheduledArms,pairs,gitBlobSha,assertManifest};
