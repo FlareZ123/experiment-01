@@ -35,6 +35,10 @@ Therefore the source's single Item-lock Vileplume chain survives initial Prizes 
 
 This is **only a physical upper envelope for prerequisites**, and no bound on true win fraction. Even a completely accessible source hand may fail to evolve, bring Stoutland Active, power attacks or maintain Item lock before the opponent disrupts it.
 
+### Independent shuffled-deal sanity check
+
+An independently written Python 250,000-trial sampler (seed **2026101902**) shuffled the equivalent 60-card role multiset, with **215,260** samples satisfying a Basic-valid original seven, and evaluated the exact same four disjoint six-Prize categories. It observed a joint-chain availability of **86.14466%** conditional on a legal seven, compared with the exact **86.06287%**, a difference of approximately **0.082 percentage points**. The observed class distribution (neither, AOR only, Stoutland only, both) was **0.18907%, 11.37415%, 2.29211%, 86.14466%**. These finite-sample deviations are compatible with ordinary Monte Carlo noise; the report uses the exact BigInt combinatorics as its numerical result.
+
 ## Strategically consequential comparison with rank 15
 
 Rank 15 also has an Item-lock AOR Vileplume and an Active-only secondary lock from BUS Vileplume. Unlike rank2, **both rank15 locks share the same 2 Oddish and 2 Gloom**, so both variants can coexist only if **all four** underlying cards survive the initial Prizes, as well as BUS and at least one AOR Stage2. [The independent rank15 exact study](rank15-dual-vileplume-prize-ceiling.md) reports joint necessary-card feasibility of **57.47208082%** on a Basic-valid initial seven.
