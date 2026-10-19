@@ -60,9 +60,21 @@ function withOwnerRootChoiceWindow(Store,ownerSeat,execute,window){
     const player=capture?prior.players[ownerSeat]:null;
     const before=player?publicOwnPokemon(player):null;
     const pending=capture?prior.prompts.find(p=>p.result===undefined):null;
+    const ownerPrompt=!!pending && pending.playerId===player.id;
+    const ownedDeckPrompt=ownerPrompt &&
+      pending.constructor.name==='ChooseCardsPrompt'&&
+      pending.cards===player.deck;
+    // An actual owner-deck search is a K1 information boundary. Printed
+    // target counts below are inspected ONLY inside that live owner prompt.
+    const ownSearchTargets=ownedDeckPrompt?{
+      oddish:player.deck.cards.filter(c=>c.fullName==='Oddish UNB').length,
+      gloom:player.deck.cards.filter(c=>c.fullName==='Gloom UNB').length,
+      aor:player.deck.cards.filter(c=>c.fullName==='Vileplume AOR').length,
+      bus:player.deck.cards.filter(c=>c.fullName==='Vileplume BUS').length
+    }:null;
     const sourceCard=capture&&type==='PlayCardAction'?
       player.hand.cards[action.handIndex]?.fullName||null:null;
-    const selection=capture&&type==='ResolvePromptAction'?
+    const selection=capture&&ownerPrompt&&type==='ResolvePromptAction'?
       (Array.isArray(action.result)?action.result:[action.result])
         .map(choiceName).filter(Boolean).slice(0,12):[];
     const beforeTurn=prior?.turn;
@@ -74,7 +86,8 @@ function withOwnerRootChoiceWindow(Store,ownerSeat,execute,window){
         rootOrdinal:rootActions,turnBefore:beforeTurn,
         turnAfter:this.state.turn,action:type,
         sourceCard,previousPrompt:pending?.constructor?.name||null,
-        promptWasOwnDeck:pending?.cards===player.deck,
+        promptWasOwnDeck:ownedDeckPrompt,
+        ownerSearchStageCounts:ownSearchTargets,
         selectedPrintedCards:selection,
         before,after:publicOwnPokemon(afterPlayer)
       });
