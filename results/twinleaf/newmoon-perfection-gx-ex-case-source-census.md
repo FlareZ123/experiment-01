@@ -23,6 +23,8 @@ Input: the fixed [New Moon Lockbreaker English proxy 60](../als/new-moon-lockbre
 
 **Total potential eligible source inventory: 4 unique printed Pokémon and 5 physical copies, with 7 distinct printed attack names and zero different-text, same-name eligible donor collisions.** Mewtwo & Mew-GX's Miraculous Duo-GX is also its native attack, but another copy on the Bench or in the discard pile can supply that printed identity. Counting it does not imply a separate useful copying line.
 
+**Pinned-engine source cross-check:** Twinleaf commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, file `ptcg-server/src/sets/08-sun-and-moon/set-unified-minds/mewtwo-and-mew-gx.ts`, filters possible copied-attack Pokémon with `CardTag.POKEMON_EX` or `CardTag.POKEMON_GX`. In its pinned `card-types.ts`, these tags equal uppercase `EX`/`GX`, whereas the distinct modern tag is `POKEMON_ex = 'ex'`. This means **the pinned Perfection source-selection filter itself appears correct on EX/ex categorization**. It separately omits `MewtwoMewGX` from discard-source `extraCards`, although the copycat already has Miraculous Duo-GX natively and can use it as its own attack. This is a source-code observation, not a compiled live-store correctness certification. The research scanner's old case-folding bug was therefore a **research-data classification defect**, with no evidence that this same defect exists in the pinned game engine.
+
 The candidate also contains **three modern Pokémon ex printings**, one copy each, which must **not** be counted as Perfection donor printings:
 
 - Latias ex SSP 76 (`sv8-76`), Eon Blade
