@@ -243,7 +243,7 @@ jobs:
           if-no-files-found: warn
       - name: Check portable owner-visible Crobat trigger without hidden deck information
         if: inputs.rank11_crobat_owner_positive_control
-        run: node --test tests/rank11-crobat-terminal-policy.test.cjs
+        run: node --test tests/rank11-crobat-terminal-policy.test.cjs tests/rank11-crobat-terminal-wrapper.test.cjs
       - name: Run historical positive control under actual source Store actions
         if: inputs.rank11_crobat_owner_positive_control
         run: node simulation/twinleaf/rank11-crobat-owner-source-positive-control.cjs > rank11-crobat-portable-policy-positive.json
