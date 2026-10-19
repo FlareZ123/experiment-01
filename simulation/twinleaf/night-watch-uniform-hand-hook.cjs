@@ -16,13 +16,18 @@ const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  *
  * @template T
  * @param {()=>T} execute Synchronous source-dealt game.
- * @param {{counterfactualFirstRootPair?:[number,number],auditPlanningSamples?:boolean}} [options]
- *   Opt-in bot-planning classification; forced pairs are diagnostic, not games.
+ * @param {{counterfactualFirstRootPair?:[number,number],auditPlanningSamples?:boolean,planningRandomSource?:()=>number}} [options]
+ *   Opt-in planning classification or planning-only chance stress intervention.
  * @returns {{result:T,audit:object}}
  */
 function withUniformNightWatch(execute,options={}) {
   if (typeof execute !== 'function') throw new TypeError('execute must be synchronous');
   const rootPair=options.counterfactualFirstRootPair;
+  if(options.planningRandomSource!==undefined &&
+     (options.auditPlanningSamples!==true ||
+      typeof options.planningRandomSource!=='function')) {
+    throw new TypeError('Planning-only sampler requires active decision-depth audit');
+  }
   if (rootPair !== undefined &&
       (!Array.isArray(rootPair) || rootPair.length!==2 ||
        new Set(rootPair).size!==2 ||
@@ -67,6 +72,7 @@ function withUniformNightWatch(execute,options={}) {
     precommitsInBotDecision:0, precommitsOutsideBotDecision:0,
     resolutionsInBotDecision:0, resolutionsOutsideBotDecision:0,
     counterfactualApplied:false, counterfactualFirstRootPair:rootPair||null,
+    planningRandomOverrideEnabled:options.planningRandomSource!==undefined,
     note:'Counts may include speculative Stores; independently audit root actions.'
   };
 
@@ -94,7 +100,9 @@ function withUniformNightWatch(execute,options={}) {
               prompt.options.min === expected &&
               prompt.options.max === expected) {
             // Sample the actual game chance event before any bot sees the prompt.
-            let selected = sampleOpaque(prompt.cards.cards, expected, Math.random);
+            const sampleRandom = decisionDepth>0 && options.planningRandomSource ?
+              options.planningRandomSource : Math.random;
+            let selected = sampleOpaque(prompt.cards.cards, expected, sampleRandom);
             if(rootPair!==undefined && store===rootStore &&
                audit.counterfactualApplied===false) {
               if(expected!==2 || prompt.cards.cards.length!==5)
