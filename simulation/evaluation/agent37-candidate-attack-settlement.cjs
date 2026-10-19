@@ -59,6 +59,7 @@ function candidateAttackSettlement(game,candidateSeat) {
     // Only authenticated physical source roots on the immediately following
     // global turn; selection prompts never disclose selected hidden cards.
     const sourceTurnActions=nextSource?roots.filter(row=>
+      row.actionOrdinal>=nextSource.actionOrdinal &&
       row.playerSlot===sourceSeat &&
       row.turnBefore===declaration.turnBefore+1).map(row=>({
       ordinal:row.actionOrdinal,action:row.action,
