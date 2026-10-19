@@ -1,0 +1,97 @@
+'use strict';
+
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {candidateAttackSettlement}=require(
+  '../simulation/evaluation/agent37-candidate-attack-settlement.cjs');
+
+/** @returns {object} Minimal fake public Store audit of one delegated attack. */
+function fixture(){
+  const initial=[{active:{name:'Mega Absol ex',damage:0}},
+    {active:{name:'Mewtwo & Mew-GX',damage:0}}];
+  const damaged=[{active:{name:'Mega Absol ex',damage:150}},
+    {active:{name:'Mewtwo & Mew-GX',damage:0}}];
+  return {
+    rootActionLedgerProtocol:'actual-store-root-action-ledger-v1',
+    attackDeclarationTraceProtocol:'real-store-attack-log-declarations-v1',
+    publicAttackTransitionsProtocol:'actual-store-public-attack-transitions-v1',
+    rootActionLedger:[
+      {actionOrdinal:0,playerSlot:1,turnBefore:21,
+        action:'ResolvePromptAction',initiatingRootActionOrdinal:0},
+      {actionOrdinal:1,playerSlot:1,turnBefore:21,
+        action:'ResolvePromptAction',initiatingRootActionOrdinal:0},
+      {actionOrdinal:2,playerSlot:0,turnBefore:22,
+        action:'PlayCardAction',card:'Dark Patch'}
+    ],
+    attackDeclarationTrace:[{
+      actionOrdinal:0,playerSlot:1,turnBefore:21,
+      triggerAction:'ResolvePromptAction',attackName:'Poltergeist',
+      playerName:'research-B'
+    }],
+    publicAttackTransitions:[{
+      actionOrdinal:0,triggerPlayerSlot:1,
+      initiatingRootActionOrdinal:0,
+      turnBefore:21,triggerAction:'ResolvePromptAction',
+      declarations:[{attackName:'Poltergeist',playerName:'research-B'}],
+      before:initial,beforePrizesRemaining:[6,5],
+      settled:{completionRootActionOrdinal:1,
+        after:damaged,prizesRemaining:[6,5]}
+    }],
+    poltergeistEffectTrace:[{
+      attackerSeat:1,actionOrdinal:0,
+      assessment:{sourceHandTrainerCount:3,sourceHandTrainerNames:['Secret Box'],
+        printedBaseDamage:150,defenderBefore:'Mega Absol ex',
+        defenderPrintedHp:280,defenderDamageBefore:0,
+        printedBaseDamageReachesPrintedRemainingHp:false,
+        defenderInPlayChange:0,prizeChange:0}
+    }]
+  };
+}
+
+test('authentic prompt settlement, public board, printed base, opponent reply, redaction',()=>{
+  const result=candidateAttackSettlement(fixture(),1);
+  assert.equal(result.declarations,1);
+  assert.equal(result.settled,1);
+  assert.equal(result.withImmediateSourceReturn,1);
+  const event=result.attacks[0];
+  assert.equal(event.delegatedCopy,true);
+  assert.equal(event.completionRootOrdinal,1);
+  assert.equal(event.publicBoardAfter[0].active.damage,150);
+  assert.deepEqual(event.prizesBefore,[6,5]);
+  assert.equal(event.nextSourceRoot.action,'PlayCardAction');
+  assert.equal(event.nextSourceRoot.card,'Dark Patch');
+  assert.equal(event.printedPoltergeist.baseDamage,150);
+  assert.equal(JSON.stringify(result).includes('Secret Box'),false,
+    'Retrospective opponent hand names must never be exported');
+  assert.equal(result.qualifiedForCompetitiveInference,false);
+});
+
+test('unfinished effect, missing response and missing printed audit are explicit',()=>{
+  const game=fixture();
+  game.publicAttackTransitions[0].settled=null;
+  game.rootActionLedger=game.rootActionLedger.slice(0,1);
+  game.poltergeistEffectTrace=[];
+  const result=candidateAttackSettlement(game,1);
+  assert.equal(result.settled,0);
+  assert.equal(result.withImmediateSourceReturn,0);
+  assert.equal(result.attacks[0].nextSourceRoot,null);
+  assert.equal(result.attacks[0].publicBoardAfter,null);
+  assert.equal(result.attacks[0].printedPoltergeist,null);
+});
+
+test('a wrong physical actor or attack log is refused, not promoted',()=>{
+  const wrong=fixture();
+  wrong.publicAttackTransitions[0].triggerPlayerSlot=0;
+  assert.throws(()=>candidateAttackSettlement(wrong,1),/missing from public/);
+  const wrongRoot=fixture();
+  wrongRoot.rootActionLedger[0].playerSlot=0;
+  assert.throws(()=>candidateAttackSettlement(wrongRoot,1),/root action disagree/);
+});
+
+test('candidate without any declarations has an empty transport packet',()=>{
+  const game=fixture();
+  game.attackDeclarationTrace=[];
+  const out=candidateAttackSettlement(game,1);
+  assert.equal(out.declarations,0);
+  assert.deepEqual(out.attacks,[]);
+});
