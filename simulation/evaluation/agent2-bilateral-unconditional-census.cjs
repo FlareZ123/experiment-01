@@ -65,6 +65,13 @@ function auditUnconditionalBilateralCensus(plan,archive){
     const fullTerminal=perCandidate.every(x=>x.engineTerminalObserved);
     const p0=perCandidate[0].sourcePressureEvidence==='verified-effect';
     const p1=perCandidate[1].sourcePressureEvidence==='verified-effect';
+    // Preserve realized pressure separately for legitimate source-deal drift.
+    // A different source bonus-draw outcome can be an inventory treatment
+    // consequence, so the unaligned arm must remain in intent-to-test.
+    const pressureRegardlessOfAlignment=!fullTerminal?null:
+      p0&&p1?'both-witnessed':
+      p0?'first-only-witnessed':
+      p1?'second-only-witnessed':'neither-witnessed';
     const pressureCell=!aligned?'unaligned-start-or-deal':
       !fullTerminal?'censored-or-missing':
       p0&&p1?'both-witnessed':
@@ -78,6 +85,7 @@ function auditUnconditionalBilateralCensus(plan,archive){
       candidateArms:perCandidate,
       bothEngineTerminal:fullTerminal,
       pressureCell,
+      unalignedTerminalPressureCell:!aligned?pressureRegardlessOfAlignment:null,
       // A selected opportunity is a downstream variable. Keeping this
       // category in the census cannot turn it into causal comparison evidence.
       sourcePressureCausalityCertified:false,
@@ -88,6 +96,9 @@ function auditUnconditionalBilateralCensus(plan,archive){
     const subset=pairs.filter(pair=>pair.sourceRank===opponent.rank);
     const pressureCells=Object.fromEntries(PRESSURE_CELLS.map(cell=>
       [cell,subset.filter(pair=>pair.pressureCell===cell).length]));
+    const unalignedTerminalPressureCells=Object.fromEntries(
+      PRESSURE_CELLS.slice(0,4).map(cell=>[cell,subset.filter(pair=>
+        pair.unalignedTerminalPressureCell===cell).length]));
     return [opponent.rank,{
       pairsRegistered:subset.length,
       pairsBothEngineTerminal:subset.filter(p=>p.bothEngineTerminal).length,
@@ -95,9 +106,17 @@ function auditUnconditionalBilateralCensus(plan,archive){
         p.pressureCell==='unaligned-start-or-deal').length,
       pairsCensoredOrMissing:subset.filter(p=>
         p.pressureCell==='censored-or-missing').length,
-      pressureCells
+      pressureCells,
+      // Descriptive owner-observed pressure only. These are not matched
+      // source-position counterfactual comparisons.
+      unalignedTerminalPressureCells
     }];
   }));
+  const allRegisteredAttemptsAccounted=strict.completeAttemptCensus;
+  const actualStartsPerCandidateAndRankObserved=
+    strict.twoRealStartsPerCandidateAndRankObserved;
+  const unconditionalAttemptCensusReviewable=
+    allRegisteredAttemptsAccounted&&actualStartsPerCandidateAndRankObserved;
   const alignedCompletePairedCensus=
     strict.completeAttemptCensus &&
     strict.twoRealStartsPerCandidateAndRankObserved &&
@@ -109,6 +128,11 @@ function auditUnconditionalBilateralCensus(plan,archive){
     registeredArms:strict.registeredArms,
     observedArms:strict.observedArms,
     registeredPairs:pairs.length,
+    allRegisteredAttemptsAccounted,
+    actualStartsPerCandidateAndRankObserved,
+    // Unconditional accounting deliberately does not select on post-setup
+    // source fingerprint or observed opponent lock pressure.
+    unconditionalAttemptCensusReviewable,
     pairedAttemptCensusReviewable:alignedCompletePairedCensus,
     pairedAttemptCensusVerdict:alignedCompletePairedCensus?
       'ALIGNED-ATTEMPT-CENSUS-REVIEWABLE':'HOLD-UNALIGNED-OR-INCOMPLETE',
@@ -119,7 +143,10 @@ function auditUnconditionalBilateralCensus(plan,archive){
     gameWinRateCertified:false,
     comparativeStrengthCertified:false,
     paperClockCertified:false,
-    caveat:'Includes every registered arm regardless of pressure. Missing, failed '+
+    caveat:'Unconditional attempt accounting is separate from matched '+ 
+      'physical source-deal reviewability. Unaligned terminal pressure '+ 
+      'cells are descriptive, not paired causal effects. '+ 
+      'Includes every registered arm regardless of pressure. Missing, failed '+
       'and capped source games remain in the denominator. No witnessed effect '+
       'does not imply no possible pressure. An engine terminal is not a '+
       'qualified win. This census does not repair an unfair hidden-information '+
