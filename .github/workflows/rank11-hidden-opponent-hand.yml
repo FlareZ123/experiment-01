@@ -45,3 +45,7 @@ jobs:
         run: node --test tests/perfection-hidden-choice-decision.test.cjs
       - name: Print staged Perfection action-choice thresholds
         run: node simulation/twinleaf/perfection-hidden-choice-decision.cjs
+      - name: Complete-bot actor-observation paired hidden-hand regression
+        run: node --test tests/rank11-full-bot-hidden-hand-pair.test.cjs
+      - name: Print complete-bot action choices under both hidden partitions
+        run: node simulation/twinleaf/rank11-full-bot-hidden-hand-pair.cjs
