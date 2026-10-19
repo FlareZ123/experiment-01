@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '22'
       - name: Exact counter-access unit and source tests
-        run: node --test tests/regidrago-temple-answers.test.cjs tests/regidrago-temple-search.test.cjs tests/regidrago-temple-discard-sensitivity.test.cjs tests/regidrago-temple-protected-energy.test.cjs
+        run: node --test tests/regidrago-temple-answers.test.cjs tests/regidrago-temple-search.test.cjs tests/regidrago-temple-discard-sensitivity.test.cjs tests/regidrago-temple-protected-energy.test.cjs tests/aichi-regidrago-latias-prize.test.cjs
       - name: Print source-derived rank table
         run: node scripts/regidrago-temple-answers.cjs
       - name: Print idealized source-card search results
@@ -25,3 +25,5 @@ jobs:
         run: node scripts/regidrago-temple-discard-sensitivity.cjs
       - name: Print protected-Energy search scenarios
         run: node scripts/regidrago-temple-protected-energy.cjs
+      - name: Print Latias prize-recovery census
+        run: node scripts/aichi-regidrago-latias-prize.cjs
