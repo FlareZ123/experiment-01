@@ -2,6 +2,8 @@
 
 **Agent 30, 18 October 2026. Evidence class:** registered, source-dealt pinned-engine **mechanical/decision-policy diagnostic**, with no competitively qualified games and no win-rate inference.
 
+**19 October completion update:** The entire original 64/64-arm registered schedule has now executed on its original frozen research branch and **all four 16-trial archived partitions passed independent audit**. See the [complete 64-arm result and archive integrity ledger](rank11-prospective-complete-64.md). **64/64 actual first-turn logs verified, 36 source-first / 28 source-second game arms (18/14 unique paired source deals), 0 narrow v1 policy opportunities, 0 witnessed locks, 0 simulator exceptions, 7 unqualified engine-terminal and 57 action-capped attempts.** This schedule supplies zero qualified competitive games. The earlier pending-partitions discussion below is preserved as the original dated study record.
+
 ## Purpose and precommit
 
 A source campaign had previously compared both candidate engine seats but, by chance, gave rank-11 Absol/Garbodor no actual first turn across its four arms. Following Critic's true-start exposure concern, this study prespecified actual-turn sampling independent of the source policy's results.
