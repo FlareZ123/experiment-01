@@ -22,7 +22,7 @@ test('prints evidence under precise uncertainty labels', () => {
         choicePromptObserved: true, pendingPromptType: 'ChooseAttackPrompt',
         rejection: 'probe-rejection-example', validAttackNames: ['Poltergeist'],
         publicBoardBeforePass:[{active:{name:'Mewtwo & Mew-GX'}}],
-        publicCopySourceInventory:{discard:[{name:'Gengar & Mimikyu-GX'}],bench:[]}}]]
+        publicCopySourceInventory:{discard:[{name:'Gengar & Mimikyu-GX'}],bench:[]}}]
     },
     {trial: {id: '6:0:A:champion-reference'}, status: 'engine-error',
       error: 'sample error'}
