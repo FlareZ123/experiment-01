@@ -2,7 +2,8 @@
 
 const assert=require('node:assert/strict');
 const test=require('node:test');
-const {fingerprintInitialSourceDeal:fingerprint}=
+const {fingerprintInitialSourceDeal:fingerprint,
+  createInitialSourceDealObserver:createObserver}=
   require('../simulation/evaluation/source-physical-deal-fingerprint.cjs');
 /** @param {string[]} cards */
 const zone=cards=>({cards:cards.map(fullName=>({fullName,id:42}))});
@@ -70,4 +71,28 @@ test('actor seat and source positions are bound, no opponent alias',()=>{
   assert.notEqual(fingerprint(s,0,0).digestSha256,
     fingerprint(s,1,0).digestSha256);
   assert.throws(()=>fingerprint(s,2,0));
+});
+
+test('observer ignores setup and captures once before initial live action',()=>{
+  const state=fixture(),observer=createObserver(1);
+  state.phase=1;
+  observer.observe(state);
+  assert.equal(observer.result(),null);
+  state.phase=2;
+  state.prompts.push({result:undefined});
+  observer.observe(state);
+  assert.equal(observer.result(),null);
+  state.prompts.pop();
+  const expected=fingerprint(state,1,0).digestSha256;
+  observer.observe(state);
+  assert.equal(observer.result().digestSha256,expected);
+  state.players[1].deck.cards.reverse();
+  observer.observe(state);
+  assert.equal(observer.result().digestSha256,expected,
+    'Later game state must not replace first pre-action digest');
+});
+test('observer refuses a first stable observation after the opening turn',()=>{
+  const state=fixture(),observer=createObserver(0);
+  state.turn=2;
+  assert.throws(()=>observer.observe(state),/already past turn 1/);
 });
