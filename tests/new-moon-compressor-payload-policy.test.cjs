@@ -77,6 +77,20 @@ test('benched Mewtwo can trigger anticipatory setup only in explicit v2 mode',()
   }),false,'Existing donor must suppress anticipatory discard');
 });
 
+test('versioned late turn window opens the observed owner-only midgame opportunity',()=>{
+  const {state,player}=fixture();
+  state.turn=11;
+  assert.equal(shouldSeekPayload(state,player,3),false);
+  assert.equal(shouldSeekPayload(state,player,3,{maxGlobalTurn:14}),true);
+  state.turn=13;
+  assert.equal(shouldSeekPayload(state,player,3,{maxGlobalTurn:14}),true);
+  state.turn=15;
+  assert.equal(shouldSeekPayload(state,player,3,{maxGlobalTurn:14}),false);
+  player.cannotPlayItemCards=true;
+  state.turn=11;
+  assert.equal(shouldSeekPayload(state,player,3,{maxGlobalTurn:14}),false);
+});
+
 test('owner prompt selects Gengar and Trevenant in priority order',()=>{
   const gengar={fullName:GENGAR},trev={fullName:TREV};
   const junk={fullName:'Battle VIP Pass FST'};
