@@ -65,6 +65,8 @@ jobs:
         run: node --test tests/rank31-roxie-pair.test.cjs
       - name: Audit locale-dependent source deck fingerprint order
         run: node --test tests/aichi-printing-order-audit.test.cjs
+      - name: Verify exact actor-K0 expected discard utility against exhaustive Prize deals
+        run: node --test tests/k0-discard-value-frontier.test.cjs
       - name: Check familywise hard-matchup veto and adversarial provenance cases
         run: node --test tests/aichi-hard-matchup-veto.test.cjs
       - name: Verify source-deal sealed actual-start accrual and fixed-seat veto
