@@ -56,7 +56,8 @@ function summarizeOpportunity(events) {
     observedOwnerRootDecisions:events.length,
     observedOwnTurns:new Set(events.map(row=>row.turn)).size,
     heldCompressorDecisionRoots:events.filter(row=>row.handCompressorCount>0).length,
-    heldCompressorTurns:distinct('hasHeldCompressor'),
+    heldCompressorTurns:new Set(events.filter(row=>
+      row.handCompressorCount>0).map(row=>row.turn)).size,
     mewtwoActiveTurns:distinct('mewtwoActive'),
     mewtwoBenchedTurns:distinct('mewtwoBenched'),
     activeOnlyEligibleTurns:distinct('activeOnlyEligible'),
