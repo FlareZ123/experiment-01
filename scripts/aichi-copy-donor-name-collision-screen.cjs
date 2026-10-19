@@ -77,7 +77,7 @@ function scan() {
         continue;
       }
       const card=match.card;
-      const subtypes=(card.subtypes??[]).map(s=>s.toUpperCase());
+      const subtypes=card.subtypes??[];
       const meetsDragon=isRegidrago &&
         card.types?.includes('Dragon') && card.name!=='Regidrago VSTAR';
       const meetsGXEX=isMewtwo && card.name!=='Mewtwo & Mew-GX' &&
