@@ -117,5 +117,72 @@ function main(){
   return out;
 }
 
-if(require.main===module)main();
-module.exports={main,preparedOwnerState};
+/**
+ * Genuine item-play/prompt check of the corrected hand-held donor rule.
+ * A Gengar in hand is NOT a Perfection donor. The other GX payload remains
+ * eligible for Battle Compressor and should be selected from owner deck.
+ * No initial-card multiset is changed; only that own card's zone changes.
+ * @returns {object}
+ */
+function heldGengarCounterexample(){
+  const {store,a}=preparedOwnerState();
+  const {shouldSeekPayload}=require('./new-moon-compressor-payload-policy.cjs');
+  const {SimpleTacticsAi}=pinned('simple-bot/simple-tactics-ai');
+  const defs=pinned('simple-bot/simple-bot-definitions');
+  const {GamePhase}=pinned('game/store/state/state');
+  const {PlayCardAction}=pinned('game/store/actions/play-card-action');
+  const {ResolvePromptAction}=pinned('game/store/actions/resolve-prompt-action');
+  const {ChooseCardsPrompt}=pinned('game/store/prompts/choose-cards-prompt');
+  const location=a.deck.cards.findIndex(c=>c.fullName===GENGAR);
+  assert.ok(location>=0);
+  const [held]=a.deck.cards.splice(location,1);
+  a.hand.cards.push(held);
+  assert.equal(shouldSeekPayload(store.state,a,GamePhase.PLAYER_TURN),true,
+    'Held Gengar cannot satisfy the Bench/discard Perfection donor rule');
+  const opts=withNewMoonCompressorPayload({
+    tactics:defs.allSimpleTactics,promptResolvers:defs.allPromptResolvers,
+    scores:defs.defaultStateScores,arbiter:defs.defaultArbiterOptions
+  });
+  const ai=new SimpleTacticsAi({id:a.id},opts,null);
+  const first=ai.decodeNextAction(store.state);
+  assert.ok(first instanceof PlayCardAction);
+  assert.equal(a.hand.cards[first.handIndex]?.name,'Battle Compressor');
+  store.dispatch(first);
+  const owner=store.state.players[0];
+  const prompt=store.state.prompts.find(p=>p.result===undefined &&
+    p instanceof ChooseCardsPrompt && p.player===owner &&
+    p.cards===owner.deck);
+  assert.ok(prompt,'Compressor must expose the real owner-deck prompt');
+  const answer=ai.decodeNextAction(store.state);
+  assert.ok(answer instanceof ResolvePromptAction);
+  const selected=Array.isArray(answer.result)?answer.result.map(x=>
+    typeof x==='number'?prompt.cards.cards[x]?.fullName:x?.fullName):[];
+  assert.deepEqual(selected,[TREV],
+    'Only own-deck Trevenant can be discarded; held Gengar cannot be');
+  store.dispatch(answer);
+  const finalOwner=store.state.players[0];
+  assert.ok(finalOwner.hand.cards.some(c=>c.fullName===GENGAR));
+  assert.ok(finalOwner.discard.cards.some(c=>c.fullName===TREV));
+  assert.ok(!finalOwner.discard.cards.some(c=>c.fullName===GENGAR));
+  const copies=ownerVisibleCopyOptions(finalOwner);
+  assert.ok(copies.some(x=>x.source===TREV && x.attack==='Night Watch'));
+  assert.ok(!copies.some(x=>x.source===GENGAR));
+  const summary={
+    schema:'owner-visible-held-gengar-compressor-v1',
+    pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+    heldGengarPreventedCompressor:false,
+    genuinePrompt:prompt.constructor.name,
+    selectedFromOwnDeck:selected,
+    gengarRemainsHeld:true,
+    livePerfectionCopyOptions:copies,
+    aichiSourceDeal:false,competitiveQualified:false
+  };
+  process.stdout.write(JSON.stringify(summary,null,2)+'\n');
+  return summary;
+}
+
+if(require.main===module){
+  main();
+  heldGengarCounterexample();
+}
+module.exports={main,preparedOwnerState,heldGengarCounterexample};
