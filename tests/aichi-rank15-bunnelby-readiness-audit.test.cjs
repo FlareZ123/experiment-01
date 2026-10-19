@@ -69,13 +69,13 @@ test('refuses legacy root observers lacking critical physical readiness fields',
 test('refuses inconsistent root physical signal containment',()=>{
   const source=fixture();
   source.rows[0].generic.first.sourceBunnelbyActive=null;
-  assert.throws(()=>summarizeBunnelbyReadiness(source),/AssertionError/);
+  assert.throws(()=>summarizeBunnelbyReadiness(source),{name:'AssertionError'});
 });
 
 test('requires identical original physical deals and never infers win rate',()=>{
   const source=fixture();
   source.rows[1].identicalPrepolicySourceDeal=false;
-  assert.throws(()=>summarizeBunnelbyReadiness(source),/AssertionError/);
+  assert.throws(()=>summarizeBunnelbyReadiness(source),{name:'AssertionError'});
   assert.deepEqual(FIELDS.slice(0,3),[
     'sourceBunnelbyActive','sourceBunnelbyActiveWithTM',
     'sourceBunnelbyActiveWithTMAndEnergy'
