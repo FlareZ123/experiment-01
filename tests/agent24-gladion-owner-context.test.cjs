@@ -34,7 +34,10 @@ function setup(){
     hand:{cards:[{fullName:'Jet Energy PAL'}]},
     discard:{cards:[{fullName:'Tag Call CEC'}]},
     stadium:{cards:[{fullName:'Artazon PAL'}]},
-    supporterTurn:5,
+    supporterTurn:1,
+    stadiumUsedTurn:0,
+    stadiumPlayedTurn:5,
+    lostzone:{cards:[{fullName:'Lost Vacuum CRZ'}]},
     active:slot({fullName:'Bunnelby PRC'}),
     bench:[
       slot({fullName:'Oddish UNB'}),
@@ -64,6 +67,10 @@ test('opt-in Gladion owner context records own resources and face-up boards only
   const prior=beforeGladionRootPrizeChoice(
     f.state,f.prompt,f.action,1,47,true);
   assert.equal(prior.ownerContextBefore.supporterAlreadyPlayed,true);
+  assert.equal(prior.ownerContextBefore.stadiumEffectUsedThisTurn,false);
+  assert.equal(prior.ownerContextBefore.stadiumPlayedThisTurn,true);
+  assert.deepEqual(prior.ownerContextBefore.ownLostZonePrintings,
+    ['Lost Vacuum CRZ']);
   assert.equal(prior.ownerContextBefore.ownActive.pokemon,'Bunnelby PRC');
   assert.equal(prior.ownerContextBefore.ownBench[1].stackPrintings[0],
     'Oddish UNB');
@@ -100,4 +107,17 @@ test('no board context may be captured before all Prize cards are revealed',()=>
   const f=setup();f.prizes[1].isSecret=true;
   assert.equal(beforeGladionRootPrizeChoice(
     f.state,f.prompt,f.action,1,47,true),null);
+});
+
+test('used Stadium and Supporter counters are distinct from global turn number',()=>{
+  const f=setup();
+  f.owner.stadiumUsedTurn=5;
+  f.owner.supporterTurn=1;
+  const prior=beforeGladionRootPrizeChoice(
+    f.state,f.prompt,f.action,1,47,true);
+  assert.equal(prior.ownerContextBefore.supporterAlreadyPlayed,true);
+  assert.equal(prior.ownerContextBefore.stadiumEffectUsedThisTurn,true);
+  f.owner.stadiumUsedTurn=4;
+  assert.equal(prior.ownerContextBefore.stadiumEffectUsedThisTurn,true,
+    'Detached context must not change with the live state');
 });
