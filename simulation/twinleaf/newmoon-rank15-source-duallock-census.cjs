@@ -108,6 +108,14 @@ function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
           occupiedSourceBench,sourceStageLineSlots,
           activeToolNames,activeEnergyNames
         };
+        // The acting rank-15 player can inspect their own hand. Capture it
+        // only at the first genuinely dispatched powered-TM position; never
+        // use the source's hidden deck, Prizes, or candidate hand as a policy
+        // input. This is a read-only diagnostic for why no Oddish was Benched.
+        if(name==='sourceBunnelbyActiveWithTMAndEnergy'){
+          first[name].sourceOwnerHandNames=
+            source.hand.cards.map(card=>card.fullName);
+        }
       }
     }
     return result;
