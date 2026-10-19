@@ -94,6 +94,9 @@ test('all registered, aligned actual-first paired attempts are reviewable',()=>{
   assert.equal(census.observedArms,8);
   assert.equal(census.registeredPairs,4);
   assert.equal(census.pairedAttemptCensusReviewable,true);
+  assert.equal(census.allRegisteredAttemptsAccounted,true);
+  assert.equal(census.unconditionalAttemptCensusReviewable,true);
+  assert.equal(census.actualStartsPerCandidateAndRankObserved,true);
   assert.equal(census.mechanicallyPairedWitnesses,4);
   assert.equal(census.byRank[6].pressureCells['both-witnessed'],2);
   assert.equal(census.byRank[11].pressureCells['both-witnessed'],2);
@@ -156,12 +159,20 @@ test('missing arm or different real source deal blocks aligned census',()=>{
   let census=auditUnconditionalBilateralCensus(x.plan,x.archive);
   assert.equal(census.registeredArms,8);
   assert.equal(census.observedArms,7);
+  assert.equal(census.allRegisteredAttemptsAccounted,false);
+  assert.equal(census.unconditionalAttemptCensusReviewable,false);
   assert.equal(census.pairedAttemptCensusReviewable,false);
   const y=fixture();
   rowFor(y.archive,11,1,'newmoon').sourceDealFingerprint=hex('e');
   census=auditUnconditionalBilateralCensus(y.plan,y.archive);
   assert.equal(census.pairedAttemptCensusReviewable,false);
   assert.equal(census.byRank[11].pressureCells['unaligned-start-or-deal'],1);
+  assert.equal(census.allRegisteredAttemptsAccounted,true);
+  assert.equal(census.unconditionalAttemptCensusReviewable,true,
+    'Legitimate source-deal divergence cannot erase complete attempt review');
+  assert.equal(census.pairs.find(p=>p.sourceRank===11&&p.candidateSeat===1)
+    .unalignedTerminalPressureCell,'both-witnessed');
+  assert.equal(census.byRank[11].unalignedTerminalPressureCells['both-witnessed'],1);
 });
 
 test('real first-turn draw mismatch and policy drift fail closed',()=>{
@@ -186,4 +197,39 @@ test('pressure witness helper never calls an incomplete game a negative',()=>{
   assert.equal(pressureEvidence({status:'action-cap',
     sourcePressure:{accepted:true,effectVerified:true,
       traceAuthenticated:true,actorSeat:0}},0),'verified-effect');
+});
+
+
+test('unaligned source-deal pressure is retained without claiming a matched counterfactual',()=>{
+  const {plan,archive}=fixture();
+  const row=rowFor(archive,11,1,'newmoon');
+  row.sourceDealFingerprint=hex('e');
+  row.sourcePressure.effectVerified=false;
+  const census=auditUnconditionalBilateralCensus(plan,archive);
+  assert.equal(census.unconditionalAttemptCensusReviewable,true);
+  assert.equal(census.pairedAttemptCensusReviewable,false);
+  assert.equal(census.byRank[11].pressureCells['unaligned-start-or-deal'],1);
+  assert.equal(census.byRank[11].unalignedTerminalPressureCells['first-only-witnessed'],1);
+  const pair=census.pairs.find(p=>p.sourceRank===11&&p.candidateSeat===1);
+  assert.equal(pair.unalignedTerminalPressureCell,'first-only-witnessed');
+  assert.equal(pair.candidateArms[0].sourcePressureEvidence,'verified-effect');
+  assert.equal(pair.candidateArms[1].sourcePressureEvidence,'no-witness-in-terminal');
+  assert.equal(pair.sourcePressureCausalityCertified,false);
+  assert.equal(census.comparativeStrengthCertified,false);
+});
+
+test('unaligned censored arms never acquire fabricated negative pressure',()=>{
+  const {plan,archive}=fixture();
+  const row=rowFor(archive,11,1,'newmoon');
+  row.sourceDealFingerprint=hex('e');
+  row.status='action-cap';row.engineFinished=false;row.engineWinner=null;
+  row.rootActionCount=280;
+  const census=auditUnconditionalBilateralCensus(plan,archive);
+  assert.equal(census.unconditionalAttemptCensusReviewable,true);
+  assert.equal(census.byRank[11].pressureCells['unaligned-start-or-deal'],1);
+  assert.equal(census.byRank[11].unalignedTerminalPressureCells['both-witnessed'],0);
+  const pair=census.pairs.find(p=>p.sourceRank===11&&p.candidateSeat===1);
+  assert.equal(pair.unalignedTerminalPressureCell,null);
+  assert.equal(pair.candidateArms[1].status,'action-cap');
+  assert.equal(pair.candidateArms[1].engineWinner,null);
 });
