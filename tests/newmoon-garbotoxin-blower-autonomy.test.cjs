@@ -76,3 +76,28 @@ test('opt-in any Active allows an owner-legal public Tool response before Mewtwo
   opponent.bench[0].tools=[];
   assert.equal(blowerOpportunity(state,own,opponent,1,7,true),false);
 });
+
+
+test('LTR Garbotoxin printing enables the same public Tool response',()=>{
+  const {own,slot,opponent,state}=fixture();
+  slot.getPokemonCard=()=>({fullName:'Garbodor LTR'});
+  assert.equal(blowerOpportunity(state,own,opponent,1,7),true);
+  assert.equal(tooledGarbodor(opponent),slot);
+});
+
+test('the policy selects the tooled LTR when a BKP copy is untooled',()=>{
+  const {own,slot,opponent,state}=fixture();
+  slot.tools=[];
+  const ltr={getPokemonCard:()=>({fullName:'Garbodor LTR'}),
+    tools:[{name:'Float Stone'}]};
+  opponent.bench.push(ltr);
+  assert.equal(blowerOpportunity(state,own,opponent,1,7),true);
+  assert.equal(tooledGarbodor(opponent),ltr);
+});
+
+test('other Garbodor printings are excluded without printed Garbotoxin proof',()=>{
+  const {own,slot,opponent,state}=fixture();
+  slot.getPokemonCard=()=>({fullName:'Garbodor DRX'});
+  assert.equal(blowerOpportunity(state,own,opponent,1,7),false);
+  assert.equal(tooledGarbodor(opponent),undefined);
+});
