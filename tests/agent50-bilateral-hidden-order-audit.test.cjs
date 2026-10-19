@@ -65,7 +65,7 @@ function run(trial,overrides={}) {
 
 test('the two authentic development streams target the next candidate turn',()=>{
   assert.deepEqual(candidateDevelopmentTarget(rank6),{turn:3,seat:0});
-  assert.deepEqual(candidateDevelopmentTarget(rank11),{turn:2,seat:1});
+  assert.deepEqual(candidateDevelopmentTarget(rank11),{turn:3,seat:1});
   assert.throws(()=>candidateDevelopmentTarget({
     rank:11,candidateSlot:'A'
   }),/Historical fixture/);
