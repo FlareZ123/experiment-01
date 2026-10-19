@@ -13,8 +13,12 @@ const SEED = 2809154458;
 const Store = require(path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output/game/store/store')).Store;
 
-/** Run the same authentic two-deck seed with one optional game-chance correction. */
-function oneArm(corrected) {
+/**
+ * @param {boolean} corrected
+ * @param {{planningRandomSource?:()=>number,includeRootLedger?:boolean,labelSuffix?:string}} [options]
+ * @returns {object}
+ */
+function oneArm(corrected,options={}) {
   const plan = planAichi(1, {
     allowEquivalentBasicEnergies:true, allowJapanesePromoHooks:true
   });
@@ -22,7 +26,8 @@ function oneArm(corrected) {
   assert.equal(opponent?.status, 'ready');
   const request = {
     deckA:opponent.cards, deckB:plan.candidate.cards, seed:SEED,
-    label:corrected ? 'rank11-nightwatch-random-uniform' : 'rank11-nightwatch-original',
+    label:(corrected ? 'rank11-nightwatch-random-uniform' : 'rank11-nightwatch-original')+
+      (options.labelSuffix || ''),
     maxActions:160, strictPromptValidation:true,
     forestSealSearchCorrection:true,
     battleCompressorPositiveSelectionCorrection:true,
@@ -36,7 +41,10 @@ function oneArm(corrected) {
     )
   );
   const wrapped = corrected ?
-    withUniformNightWatch(execute,{auditPlanningSamples:true}) :
+    withUniformNightWatch(execute,{
+      auditPlanningSamples:true,
+      ...(options.planningRandomSource ? {planningRandomSource:options.planningRandomSource}: {})
+    }) :
     {result:execute(), audit:null};
   const game = wrapped.result.result.result.result;
   const journal = wrapped.result.result.result;
@@ -86,6 +94,10 @@ function oneArm(corrected) {
         positions:s.promptAudit.selectionPositions}))
     })),
     rootPhysicalIntegrity:game.physicalZoneIntegrity,
+    ...(options.includeRootLedger ? {
+      rootActionLedger:game.rootActionLedger,
+      decisionTrace:game.decisionTrace
+    }: {}),
     hook:wrapped.audit
   };
 }
