@@ -8,6 +8,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank2_gh_search_gameplay:
+        description: Run preregistered source-rank2 two-seat complete G&H search-policy contrast
+        type: boolean
+        required: false
+        default: false
       rank2_turn5_observer:
         description: Capture exact owner-visible turn5 Supporter decision fork
         type: boolean
@@ -130,6 +135,21 @@ jobs:
         with:
           name: rank2-expanded-source-policy-pair
           path: expanded-source-policy-pair.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Verify source rank2 G&H search profile contracts
+        if: ${{ inputs.rank2_gh_search_gameplay }}
+        run: node --test tests/expanded-gh-search-pair.test.cjs tests/bunnelby-gh-search-policy.test.cjs
+      - name: Compare both printed source seats with G&H resource selection v2 versus v3
+        if: ${{ inputs.rank2_gh_search_gameplay }}
+        run: node simulation/twinleaf/expanded-gh-search-pair.cjs > rank2-gh-search-gameplay.json
+      - name: Preserve both exposed and unexposed genuine source-game decisions
+        if: ${{ always() && inputs.rank2_gh_search_gameplay }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank2-gh-search-gameplay
+          path: rank2-gh-search-gameplay.json
           if-no-files-found: warn
           retention-days: 14
 
