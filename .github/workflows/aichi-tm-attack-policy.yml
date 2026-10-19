@@ -43,6 +43,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank2_grandtree_turn5_fork:
+        description: Retrospective owner-visible real Store Grand Tree evolution fork
+        type: boolean
+        required: false
+        default: false
       rank2_gladion_source_exposure:
         description: Frozen 8-game authentic rank2 Gladion root opportunity census
         type: boolean
@@ -90,6 +95,20 @@ jobs:
         with:
           name: agent24-rank2-gladion-turn5-context
           path: agent24-gladion-turn5-context.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Validate bounded Grand Tree own-deck search guard
+        if: ${{ inputs.rank2_grandtree_turn5_fork }}
+        run: node --test tests/agent40-rank2-grandtree-root-fork.test.cjs
+      - name: Replay authentic turn5 rank2 Grand Tree staged evolution and actual opponent reply
+        if: ${{ inputs.rank2_grandtree_turn5_fork }}
+        run: node simulation/twinleaf/agent40-rank2-grandtree-root-fork.cjs > agent40-rank2-grandtree-fork.json
+      - name: Archive fixed-source Grand Tree counterfactual including failure
+        if: ${{ always() && inputs.rank2_grandtree_turn5_fork }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent40-rank2-grandtree-source-fork
+          path: agent40-rank2-grandtree-fork.json
           if-no-files-found: warn
           retention-days: 14
       - name: Validate source-root Gladion event extraction and frozen cohort
