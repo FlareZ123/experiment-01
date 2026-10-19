@@ -1,0 +1,130 @@
+{
+  "schema": "agent41-crossrank-bilateral-exploratory-v1",
+  "registeredAtUtc": "2026-10-19",
+  "hypothesis": "Can the unchanged champion Shadow Rider source 60 and unchanged New Moon Lockbreaker v1 English-mechanics proxy 60 be meaningfully discriminated on the same preregistered v3 seed schedule against actual-source rank-6 Iron Thorns and rank-11 Absol Garbodor when their source-first-response signature lines are enabled?",
+  "scope": "Exploratory first decision and bounded-continuation comparisons. Never count engine winners as competitive win-rate samples.",
+  "frozenOpponentRanks": [
+    6,
+    11
+  ],
+  "frozenCandidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "fieldRosterBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "fieldCsvBlobSha": "b0d86497b940b73ff5f83c5e8a4ca1f7ebab1be1",
+  "newMoon60BlobSha": "0edaa9ee651ae9724bb0ea9b46b6431adb12760b",
+  "newMoonLoaderBlobSha": "0656ee1a940cf74c884af95dada5196081a6c0e9",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "seedProtocol": "aichi-decorrelated-slots-v3",
+  "seedBase": 20261019,
+  "phase": "pilot",
+  "repeats": 6,
+  "physicalCandidateSlots": [
+    "A",
+    "B"
+  ],
+  "partitionRepeats": [
+    [
+      0,
+      1,
+      2
+    ],
+    [
+      3,
+      4,
+      5
+    ]
+  ],
+  "maxRootActions": 260,
+  "seedsByRankAndRepeat": {
+    "6": {
+      "0": {
+        "A": 407516727,
+        "B": 1634674207
+      },
+      "1": {
+        "A": 3384976141,
+        "B": 188607013
+      },
+      "2": {
+        "A": 2394734225,
+        "B": 3371210851
+      },
+      "3": {
+        "A": 3164875617,
+        "B": 1756476188
+      },
+      "4": {
+        "A": 2811312219,
+        "B": 4243892780
+      },
+      "5": {
+        "A": 3681865516,
+        "B": 3884210376
+      }
+    },
+    "11": {
+      "0": {
+        "A": 4204628782,
+        "B": 3746181384
+      },
+      "1": {
+        "A": 3069271503,
+        "B": 3267075879
+      },
+      "2": {
+        "A": 194201297,
+        "B": 623585882
+      },
+      "3": {
+        "A": 692059384,
+        "B": 406667061
+      },
+      "4": {
+        "A": 1562378564,
+        "B": 1747333289
+      },
+      "5": {
+        "A": 2914613103,
+        "B": 3611636387
+      }
+    }
+  },
+  "frozenFlags": {
+    "strictPromptValidation": true,
+    "forestSealSearchCorrection": true,
+    "doubleDragonRecovery": true,
+    "supporterDecisionCorrection": true,
+    "isolatePolicyRandomness": true,
+    "captureDecisionTrace": true,
+    "leleEntryAbilityLockCorrection": true,
+    "radiantGateLockCorrection": true,
+    "entryDrawLockCorrection": true,
+    "battleCompressorPositiveSelectionCorrection": true,
+    "shadowRiderEnergyPriority": true
+  },
+  "sourcePolicies": {
+    "6": "rank6-broad-ownhand-tag-gh-thunder-dce, protected last five discard card-name groups (30 physical acceptance copies), first attack-eligible global turn 2 if second / 3 if first; generic thereafter",
+    "11": "rank11-direct-boostshake-v1, owner-hand and public board, first own turn 1 or 2, genuine search prompts; generic thereafter"
+  },
+  "candidatePolicies": {
+    "champion-reference": "generic bot + frozen common engine correction and rank6 Psychic attach priority",
+    "new-moon-lockbreaker-v1": "generic bot + frozen common engine correction; rank11 owner-visible Garbodor Field Blower and low-hand Lillie after Blower only"
+  },
+  "acceptance": {
+    "allArmsRetained": true,
+    "scheduledArms": 48,
+    "uniqueRankSeatSeeds": 24,
+    "pairedArmDependence": true,
+    "realFirstPlayerFromEngineDrawLog": true,
+    "sourceOwnerHandBeforeFirstRecordedDecision": true,
+    "rootActionLedgerDigest": true,
+    "copyAttackDeclarationTrace": true,
+    "terminalCauseAndActionCaps": true,
+    "sourceOpportunitiesAndAborts": true,
+    "uncertainty": "Actual source starting hands may differ between candidate rosters under shared random seed. Report whether first owner-hand observations match and classify drift. Genuine paper-rule fidelity, print equivalence, human policy competence and 25-minute match-clock equivalence are not certified.",
+    "advancementRule": "If source opportunity is missing on either archetype, or most games cap without consequential attacks, do not promote any candidate. Recommend policy/horizon redesign before spending on larger outcome panels.",
+    "competitiveQualifiedGamesAllowed": 0
+  }
+}
