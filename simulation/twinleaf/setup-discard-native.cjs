@@ -3,6 +3,7 @@ const assert=require('node:assert/strict');
 const {stageSourceDeck}=require('./setup-discard-stage.cjs');
 const {chooseSetupDeckDiscards}=require('./setup-discard-prompt-planner.cjs');
 const {installBattleCompressorMinimumHook}=require('./battle-compressor-minimum-hook.cjs');
+const {installNumericShuffleOrderHook}=require('./shuffle-deck-numeric-order-hook.cjs');
 /**
  * Source-inventory-locked Store fixture: actual Item, selection, shuffle and
  * animation prompts. No sampled game or tactical performance inference.
@@ -26,8 +27,12 @@ function nativeSetupDiscard(kind){
   const shuffle=pending().find(p=>p.constructor.name==='ShuffleDeckPrompt');
   assert.ok(shuffle);
   const permutation=Array.from({length:owner.deck.cards.length},(_,i)=>i);
-  assert.equal(shuffle.validate(permutation,state),true);
+  const pinnedAcceptsLegalOrder=shuffle.validate(permutation,state);
+  assert.equal(pinnedAcceptsLegalOrder,false,'Pinned 11+ index lexicographic shuffle rejection');
+  const restoreNumeric=installNumericShuffleOrderHook();
+  try { assert.equal(shuffle.validate(permutation,state),true);
   store.dispatch(new ResolvePromptAction(shuffle.id,permutation));
+  }finally{restoreNumeric();}
   const wait=pending().find(p=>p.constructor.name==='WaitPrompt');
   assert.ok(wait);store.dispatch(new ResolvePromptAction(wait.id,null));
   assert.deepEqual(pending(),[]);
@@ -35,6 +40,7 @@ function nativeSetupDiscard(kind){
   for(const n of decision.printings)
    assert.ok(owner.discard.cards.some(c=>c.fullName===n));
   return {kind,physicalRegistered60:true,discarded:decision.printings,
+   pinnedAcceptsLegalOrder,numericShuffleHookValidated:true,
    nativeStoreAccepted:true,pendingPromptCount:pending().length,
    constructedMechanicalFixture:true,qualifiedCompetitiveGames:0};
  }finally{restore()}
