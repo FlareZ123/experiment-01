@@ -47,6 +47,7 @@ function withTurn50OwnerPerfectionReply(candidateSeat,execute) {
     }
     const pending=state.prompts.find(p=>p.result===undefined);
     if(phase==='select-attack') {
+      if(pending?.constructor.name==='WaitPrompt') return previous.call(this,state);
       if(!pending || pending.playerId!==player.id ||
           pending.constructor.name!=='ChooseAttackPrompt') {
         audit.declinedReason='missing-own-choose-attack-prompt';
