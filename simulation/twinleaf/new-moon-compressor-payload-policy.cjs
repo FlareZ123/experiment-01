@@ -17,14 +17,18 @@ const MEWTWO = 'Mewtwo & Mew-GX UNM';
  * @param {object} state
  * @param {object} player
  * @param {number} playerTurnPhase
+ * @param {{allowBenchedMewtwo?:boolean}} [setup] Versioned setup option.
  * @returns {boolean}
  */
-function shouldSeekPayload(state, player, playerTurnPhase) {
+function shouldSeekPayload(state, player, playerTurnPhase, setup={}) {
   const has = (cards, name) => cards.some(card => card.fullName === name);
+  const mewtwoReady = player.active.getPokemonCard()?.fullName === MEWTWO ||
+    (setup.allowBenchedMewtwo === true &&
+      player.bench.some(slot => slot.getPokemonCard()?.fullName === MEWTWO));
   return state.phase === playerTurnPhase &&
     state.turn <= 6 &&
     !state.prompts.some(prompt => prompt.result === undefined) &&
-    player.active.getPokemonCard()?.fullName === MEWTWO &&
+    mewtwoReady &&
     player.deck.cards.length > 0 &&
     player.cannotPlayItemCards !== true &&
     player.hand.cards.some(card => card.name === 'Battle Compressor') &&
@@ -58,9 +62,12 @@ function selectPayloads(visibleCards, maximum) {
  * No card inventories, Prizes, or physical deal are modified.
  *
  * @param {object} options
+ * @param {{allowBenchedMewtwo?:boolean}} [setup]
+ *   Explicit opt-in anticipatory preparation. Existing source-only runs
+ *   retain their Active-only behavior unless this second argument is set.
  * @returns {object}
  */
-function withNewMoonCompressorPayload(options) {
+function withNewMoonCompressorPayload(options,setup={}) {
   const {SimpleTactic} = engine('simple-bot/simple-tactics/simple-tactics');
   const {PromptResolver} = engine('simple-bot/prompt-resolver/prompt-resolver');
   const {PlayCardAction,PlayerType,SlotType} =
@@ -79,7 +86,7 @@ function withNewMoonCompressorPayload(options) {
   class NewMoonPayloadCompressorTactic extends SimpleTactic {
     /** @param {object} state @param {object} player */
     useTactic(state, player) {
-      if (!shouldSeekPayload(state, player, GamePhase.PLAYER_TURN)) return;
+      if (!shouldSeekPayload(state, player, GamePhase.PLAYER_TURN, setup)) return;
       const index = player.hand.cards.findIndex(card =>
         card.name === 'Battle Compressor');
       return new PlayCardAction(player.id, index, {
