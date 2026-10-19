@@ -5,8 +5,10 @@ const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {canonicalCards}=require('./aichi-comparison-campaign.cjs');
 const {fingerprintPublishedField}=require('./aichi-source-fingerprint-map.cjs');
-const {assessTerminalBoundFieldEvidence}=
+const {assertTerminalOutcomeBinding}=
   require('./aichi-qualified-outcome-binding.cjs');
+const {assessCorrelatedFieldEvidence}=
+  require('./aichi-correlated-round-evidence.cjs');
 
 /** @param {unknown} value @returns {string} */
 const digest=value=>createHash('sha256')
@@ -75,8 +77,11 @@ function assessRepositoryFullFieldClaim(rounds,candidateCards,options={}) {
     throw new Error('Candidate must contain exactly 60 cards');
   }
   assertFullFieldSourceBinding(rounds,fieldMap,digest(canonical));
+  for(const round of rounds) {
+    for(const game of round) assertTerminalOutcomeBinding(game);
+  }
   return {
-    ...assessTerminalBoundFieldEvidence(rounds,options),
+    ...assessCorrelatedFieldEvidence(rounds,options),
     fieldManifestSha256:fieldMap.fieldManifestSha256,
     sourceInventoryDigestSha256:fieldMap.sourceInventoryDigestSha256,
     candidateDeckSha256:digest(canonical),
