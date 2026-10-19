@@ -51,7 +51,7 @@ function withRank26SourceEnergyObserver(seat, execute) {
     // detached legality-evaluation Stores. Only the live headless Store runs
     // the original AddPlayerAction sequence for player 101.
     if (!rootStore && action?.constructor?.name === 'AddPlayerAction' &&
-        action.id === 101) rootStore = this;
+        action.clientId === 101) rootStore = this;
     if (this !== rootStore) {
       ignoredOtherStoreActions++;
       return previous.call(this, action, ...args);
