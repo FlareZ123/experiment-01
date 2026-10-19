@@ -71,9 +71,18 @@ function probe(params) {
   const pending=state.prompts.filter(p=>p.result===undefined)
     .map(p=>p.constructor.name);
   const accepted=!error && pending.includes('ChooseCardsPrompt');
+  const effective=store.state;
+  const effectiveSource=effective.players[params.sourceSeat];
   return {...params,error,accepted,pending,
+    stateReplaced:effective!==state,
+    sourceReplaced:effectiveSource!==source,
+    effectivePending:effective.prompts.filter(p=>p.result===undefined)
+      .map(p=>p.constructor.name),
     sourceStoneStillAttached:source.active.tools.includes(stone),
+    effectiveStoneAttached:effectiveSource.active.tools.some(
+      item=>item.name==='Forest Seal Stone'),
     sourceVSTARUsed:source.usedVSTAR,
+    effectiveVSTARUsed:effectiveSource.usedVSTAR,
     stadium:candidate.stadium.cards.map(c=>c.fullName)};
 }
 function run(){
