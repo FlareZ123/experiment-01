@@ -23,6 +23,11 @@ on:
           - rank26-autonomous-cologne-v1
           - rank26-autonomous-cologne-pump-v2
           - rank26-autonomous-cologne-pump-propagation-v3
+      newmoon_vip_probe:
+        description: Precommitted 16 source deals, two hard ranks, both real starts, candidate-first VIP policy
+        required: false
+        type: boolean
+        default: false
       newmoon_pass_probe:
         description: 'Observe cloned legal attack options after New Moon Bot Pass, no gameplay intervention'
         required: false
@@ -142,6 +147,15 @@ jobs:
       - name: Verify precommitted rank11 exposure reporter and fail-closed source identity
         if: ${{ inputs.rank11_exposure_probe }}
         run: node --test tests/rank11-prospective-exposure.test.cjs tests/rank11-prospective-exposure-run.test.cjs
+      - name: Validate first-own-turn VIP owner-visible policy semantics
+        if: ${{ inputs.newmoon_vip_probe }}
+        run: node --test tests/newmoon-first-own-vip.test.cjs
+      - name: Run precommitted two-rank paired New Moon owner-VIP mechanic probes
+        if: ${{ inputs.newmoon_vip_probe }}
+        run: node simulation/evaluation/newmoon-first-own-vip-prospective.cjs > newmoon-vip-prospective.json
+      - name: Print complete source-deal VIP intervention tally without winners
+        if: ${{ inputs.newmoon_vip_probe }}
+        run: node -e "const x=require('./newmoon-vip-prospective.json');console.log(JSON.stringify({registration:x.registration,attempted:x.observedAttempts,starts:x.verifiedActualStartingOrders,legalVIP:x.legalVIPDispatches,promptChosen:x.ownerPromptValidSelections,exceptions:x.falseOrFailedAttempts,records:x.observations.map(o=>({id:o.trialId,seed:o.seed,actualFirst:o.firstTurnSlot,vip:o.policyAudit?.selectedLegalVip??false,chosen:o.policyAudit?.validatedSearchSelection??false,status:o.status,error:o.error?.split('\\n')[0]}))},null,2))"
       - name: Authenticate ranked source K0 screen before the first real bot action
         if: ${{ inputs.rank11_first_screen }}
         run: node simulation/twinleaf/rank11-first-turn-source-screen.cjs > rank11-first-turn-source-screen.json
@@ -182,7 +196,7 @@ jobs:
         if: ${{ inputs.newmoon_pass_probe }}
         run: node simulation/evaluation/newmoon-rank11-pass-observer.cjs > newmoon-rank11-pass-observer.json
       - name: Run up to six source-locked pilot trials
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe }}
         env:
           CAMPAIGN_INPUT_ORDER_PROTOCOL: ${{ inputs.input_order_protocol || 'source-row-order-v1' }}
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
@@ -196,19 +210,19 @@ jobs:
           CAMPAIGN_MAX_ACTIONS: '800'
         run: node simulation/evaluation/aichi-campaign-runner.cjs > aichi-campaign-report.json
       - name: Print recorded source-seat actions and attack declarations
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe }}
         env:
           CAMPAIGN_TRIAL_IDS: ${{ inputs.trial_ids || 'pilot:6:0:champion-reference:A,pilot:6:0:champion-reference:B,pilot:6:0:hood-shield-v1:A,pilot:6:0:hood-shield-v1:B,pilot:6:0:temple-v1:A,pilot:6:0:temple-v1:B' }}
         run: |
           node --test tests/aichi-source-action-brief.test.cjs
           node scripts/aichi-source-action-brief.cjs aichi-campaign-report.json
       - name: Reconcile source rank26 v3 proposed tactics and actual Store dispatch
-        if: ${{ inputs.policy_profile == 'rank26-autonomous-cologne-pump-propagation-v3' && !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe }}
+        if: ${{ inputs.policy_profile == 'rank26-autonomous-cologne-pump-propagation-v3' && !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe }}
         run: |
           node --test tests/aichi-rank26-v3-action-brief.test.cjs
           node scripts/aichi-rank26-v3-action-brief.cjs aichi-campaign-report.json
       - name: Cross-check sourced games and fingerprint evidence envelope
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe }}
         env:
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
         run: node simulation/evaluation/aichi-campaign-envelope-runner.cjs aichi-campaign-report.json aichi-campaign-envelope.json
@@ -240,6 +254,7 @@ jobs:
             rank11-conditional-K0-screen.json
             rank11-K0-continuations.json
             rank11-prospective-exposure-observed.json
+            newmoon-vip-prospective.json
             aichi-rank11-newmoon-autonomous-pair.json
             newmoon-rank11-pass-observer.json
             rank11-autonomous-comparison.json
