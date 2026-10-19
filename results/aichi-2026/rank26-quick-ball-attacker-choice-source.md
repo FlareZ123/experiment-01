@@ -31,3 +31,21 @@ This is a **decision quality experiment**, and even a successful Meloetta choice
 - No per-push CI. Registered pair retains negative observations.
 
 **Qualification before execution:** 29/32 exact field source lists, 0 qualified competitive games, no final target-qualified 60 and no demonstration of 99.5%. This intervention does not alter the decklist.
+
+
+## Compiled source outcome, 19 October 2026
+
+The frozen manual-only [CI 39206647514](https://github.com/FlareZ123/experiment-01/actions/runs/39206647514) **succeeded**, compiled pinned Twinleaf, passed the owner-state information-boundary unit tests, and executed all four registered paired source first-turn cases. Its complete JSON is [artifact 12165982592](https://github.com/FlareZ123/experiment-01/actions/runs/39206647514/artifacts/12165982592), `rank26-quick-ball-target-source-development-unqualified`. The ZIP was independently parsed; it contains exactly four cases, all four precommitted seed/seat pairs, with actual source draw-log and deck-hash checks.
+
+| Source seed | Actual firstturn Quick Ball roots | Changed source-deck choice | Opponent Prizes after turn 1 |
+| --- | ---: | --- | ---: |
+| 2046029502 | 1 | Bunnelby PRC → Meloetta ex SV11B | 6 |
+| 4158340325 | 0 | No relevant owner-deck prompt | 6 |
+| 2818295704 | 0 | No relevant owner-deck prompt | 6 |
+| 1839183531 | 0 | No relevant owner-deck prompt | 6 |
+
+On seed `2046029502`, real source firstturn action ordinals **12/13** played Mail and selected Battle VIP Pass; ordinal **17** played Forest Seal Stone; ordinal **18** played Quick Ball; ordinal **19** selected **Dowsing Machine PLS** for its discard cost **in both arms**. The genuine Quick Ball owner-deck prompt at ordinal **20** selected **Bunnelby PRC** in control and **Meloetta ex SV11B** under the opt-in preference. The real Store subsequently accepted the control's Bunnelby and the variant's Meloetta ex as first-turn `PlayCardAction` at ordinal **24**, followed by variant Float Stone at ordinal **25**, then Pass. Which Pokémon received Float Stone was not captured in this report and is not asserted.
+
+Therefore a missing-attacker selection was changed at a genuine owner-visible, printed-card legal prompt, with a real downstream card play. **Across all four development cases, root attacks = 0 and opponent Prize reductions = 0; no complete firstturn Crisis Punch, timed game, strong opponent response or competitive win was demonstrated.** The other three cases showed no Quick Ball firstturn root, so the new preference did not fire. This selected four-source cohort is diagnostic and **not a prospective frequency sample**.
+
+A distinct, important resource-allocation observation is that the same authentic seed discarded the **singleton Dowsing Machine ACE SPEC** for Quick Ball while source firstturn's opener held **Iono**. This suggests a separately testable discard-policy defect. It is not yet proof that sacrificing Iono gives a better game trajectory, since later Supporter value and Dowsing lines may differ. Keep that opportunity evidence separate from the already validated Meloetta-target source prompt.
