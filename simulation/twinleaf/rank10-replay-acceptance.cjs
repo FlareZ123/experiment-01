@@ -1,6 +1,7 @@
 'use strict';
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const {CORE_FIELDS} = require('./rank10-result-projection.cjs');
 
 /**
  * Demand a complete source-Store input replay from each frozen rank-10 arm.
@@ -22,8 +23,18 @@ function requireCompleteRank10Replay(report) {
     const finding = matches[0];
     assert.equal(finding.status, 'complete-reconstructed-live-input-trace',
       arm+' replay is incomplete: '+String(finding.reason || finding.status));
-    assert.equal(finding.matchSummaryIdentical, true,
-      arm+' replay produced a different match result');
+    assert.equal(finding.matchOutcomeProjectionIdentical, true,
+      arm+' replay has no proven stable game outcome projection');
+    assert.equal(finding.historicalMatchProjection?.schema,
+      'rank10-historical-match-outcome-projection-v1',
+      arm+' replay projection schema is missing or changed');
+    assert.equal(finding.historicalMatchProjection?.matched, true,
+      arm+' replay outcome projection did not pass');
+    assert.deepEqual(finding.historicalMatchProjection?.fields, CORE_FIELDS,
+      arm+' replay outcome field coverage has changed');
+    assert.equal(finding.matchSummaryIdentical,
+      finding.historicalMatchProjection.entireRunMatchObjectEqual,
+      arm+' full result object equality has been mislabeled');
     assert.ok(Number.isSafeInteger(finding.verifiedDispatches) &&
       finding.verifiedDispatches >= 3, arm+' replay has no complete dispatches');
     assert.equal(finding.verifiedDispatches, finding.sourceActions,
