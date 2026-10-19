@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {pairedCandidateSlots}=require('./new-moon-lockbreak-source-diagnostic.cjs');
 const {runArm}=require('./new-moon-second-start-paired.cjs');
+const {runMatch}=require('./headless.cjs');
 const {withRank11DirectBoostShake}=
   require('./rank11-direct-boostshake.cjs');
 const {withRank11HeldSeal}=require('./rank11-held-seal-policy.cjs');
@@ -81,8 +82,13 @@ function run() {
   }
   const negativeSeed=207674218;
   const sourceSeat=0;
-  const playNegative=()=>runArm(candidates.source,opponent.cards,1,
-    negativeSeed,110,true);
+  const playNegative=()=>runMatch({
+    deckA:opponent.cards,deckB:plan.candidate.cards,seed:negativeSeed,
+    label:'rank11-direct-source-probe-v1',maxActions:48,
+    strictPromptValidation:true,forestSealSearchCorrection:true,
+    battleCompressorPositiveSelectionCorrection:true,
+    isolatePolicyRandomness:true,captureDecisionTrace:true
+  });
   const baseline=withRank11DirectBoostShake(sourceSeat,playNegative,{
     k0AvoidAllGarbodorHeld:true,k1AvoidMissingGarbodor:true
   });
