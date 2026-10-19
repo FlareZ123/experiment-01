@@ -89,34 +89,53 @@ function run() {
     battleCompressorPositiveSelectionCorrection:true,
     isolatePolicyRandomness:true,captureDecisionTrace:true
   });
-  const baseline=withRank11DirectBoostShake(sourceSeat,playNegative,{
+  // Preserve the original unguarded negative control. Its aborted line is
+  // evidence about the historical decoder, not about later K0/K1 guards.
+  const legacy=withRank11DirectBoostShake(sourceSeat,playNegative);
+  assert.equal(legacy.policyAudit.aborted?.step,'garbodor-search',
+    'The original unguarded Garbodor search control changed');
+  assert.equal(legacy.policyAudit.aborted?.ownerDeckSearch,true);
+  const guarded=withRank11DirectBoostShake(sourceSeat,playNegative,{
     k0AvoidAllGarbodorHeld:true,k1AvoidMissingGarbodor:true
   });
   const exclusive=withRank11ExclusiveOpeners(sourceSeat,playNegative);
-  assert.equal(baseline.result.verifiedByDrawLog,true);
-  assert.equal(exclusive.result.verifiedByDrawLog,true);
-  assert.equal(baseline.result.firstTurnSlot,sourceSeat);
-  assert.equal(exclusive.result.firstTurnSlot,sourceSeat);
-  assert.deepEqual(baseline.result.deckHashes,exclusive.result.deckHashes);
-  assert.ok(baseline.policyAudit.aborted,
-    'Archived Garbodor-search-negative case did not abort');
-  assert.equal(exclusive.policyAudit.selected?.kind,'direct');
-  assert.ok(exclusive.policyAudit.direct.aborted,
-    'Exclusive policy did not retain direct-route abort');
-  const negativeTurn=baseline.policyAudit.opportunityTurn;
-  assert.deepEqual(
-    ownerActions(baseline.result,sourceSeat,negativeTurn),
-    ownerActions(exclusive.result,sourceSeat,negativeTurn));
+  for(const trial of [legacy,guarded,exclusive]) {
+    assert.equal(trial.result.verifiedByDrawLog,true);
+    assert.equal(trial.result.firstTurnSlot,sourceSeat);
+    assert.deepEqual(trial.result.deckHashes,legacy.result.deckHashes);
+  }
+  const guardedAudit=guarded.policyAudit;
+  const selected=exclusive.policyAudit.selected;
+  const sameRoute=selected?.kind==='direct' ||
+    (selected===null && guardedAudit.opportunityTurn===null);
+  const sourceRootActionsEqual=sameRoute &&
+    [1,2].every(turn=>assert.deepEqual(
+      ownerActions(guarded.result,sourceSeat,turn),
+      ownerActions(exclusive.result,sourceSeat,turn))===undefined);
+  if(selected?.kind==='direct') {
+    assert.deepEqual(exclusive.policyAudit.direct.actions,guardedAudit.actions,
+      'Exclusive policy changed direct route's planned actions');
+    assert.deepEqual(exclusive.policyAudit.direct.aborted,guardedAudit.aborted,
+      'Exclusive policy changed direct route's abort');
+  }
   const negative={sourceSeat,sourceActuallyFirst:true,seed:negativeSeed,
-    selected:exclusive.policyAudit.selected,
-    baselineAbort:baseline.policyAudit.aborted,
-    exclusiveAbort:exclusive.policyAudit.direct.aborted,
-    rootActionsEqual:true,qualified:false};
-  return {schema:'rank11-exclusive-opener-retrospective-seven-fixture-v2',
+    legacyAbort:legacy.policyAudit.aborted,
+    guardedOpportunityTurn:guardedAudit.opportunityTurn,
+    guardedAbort:guardedAudit.aborted,
+    guardedCompleted:guardedAudit.completed,
+    selected,
+    exclusiveDirectAbort:exclusive.policyAudit.direct.aborted,
+    exclusiveHeldCompleted:exclusive.policyAudit.held.completed,
+    sameRoute,sourceRootActionsEqual,
+    legacyAndGuardedSameOpening:
+      legacy.policyAudit.opportunityTurn===guardedAudit.opportunityTurn,
+    qualified:false};
+  return {schema:'rank11-exclusive-opener-retrospective-seven-fixture-v3',
     twinleaf:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     sourceRank:11,tested:rows.length+1,rows,negative,
     prospective:false,qualifiedCompetitiveGames:0,
-    boundary:'Six selected authentic positive controls and one source-first direct-route search abort, no win-rate inference'};
+    boundary:'Six selected authentic positive controls and one historical unguarded abort compared to revised guarded policies. No win-rate inference'};
+
 }
 
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
