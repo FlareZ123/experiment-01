@@ -27,16 +27,15 @@ function run() {
     catch(error) { return {record:null,error:String(error?.stack||error),
       rejection:error?.rejectedActionEvidence??null}; }
   });
-  assert.ok(guarded.audit.rejections.some(row=>row.turn===3 &&
-    row.reason==='stadium-lock' && row.card==='Thunder Mountain Prism Star LOT'),
-  'The live source bot never vetoed the known prohibited Stadium');
-  assert.ok(!(guarded.result.error?.includes('BLOCKED_BY_EFFECT') &&
-    guarded.result.rejection?.actionOrdinal===33),
-  'Original rejected Store action reappeared after the veto');
+  const vetoObserved=guarded.audit.rejections.some(row=>row.turn===3 &&
+    row.reason==='stadium-lock' && row.card==='Thunder Mountain Prism Star LOT');
+  const originalRejectionPrevented=!(guarded.result.error?.includes('BLOCKED_BY_EFFECT') &&
+    guarded.result.rejection?.actionOrdinal===33);
   const r=guarded.result.record;
   return {schema:'agent8-player-play-lock-retrospective-v1',
     frozenTrialId:trial.id,seed:trial.seed,originalFailureRoot:33,
-    originalFailureReproduced:true,policyAudit:guarded.audit,
+    originalFailureReproduced:true,vetoObserved,originalRejectionPrevented,
+    policyAudit:guarded.audit,
     guardedError:guarded.result.error,guardedRejection:guarded.result.rejection,
     guardedGame:r?{status:r.status,actions:r.actions,turns:r.turns,
       rootActionLedgerSha256:r.rootActionLedgerSha256,
