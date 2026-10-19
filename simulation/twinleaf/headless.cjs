@@ -5,6 +5,8 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const {observeFirstTurn, summarizeTurnOrder} = require('./turn-order-evidence.cjs');
 const {playerPlayLockVeto}=require('./player-play-lock-veto.cjs');
+const {createInitialSourceDealObserver}=
+  require('../evaluation/source-physical-deal-fingerprint.cjs');
 const {installToolJammerHook} = require('./tool-jammer-hook.cjs');
 const {installGrandTreeFirstTurnHook} = require('./grand-tree-first-turn-hook.cjs');
 const {installPrototypeSafeSimulatorHook} = require('./prototype-safe-simulator-hook.cjs');
@@ -744,6 +746,9 @@ function runMatch(request) {
     let actions = 0;
     const playLockDispatchGuardEvents=[];
     let initialBoardAtFirstTurn = null;
+    const sourceDealObserver = request.captureInitialSourceDealFingerprintSeat ===
+      undefined ? null : createInitialSourceDealObserver(
+        request.captureInitialSourceDealFingerprintSeat);
     const actionCounts = {};
     const actionsBySeat = [{}, {}];
     const cardsPlayedBySeat = [{}, {}];
@@ -782,6 +787,9 @@ function runMatch(request) {
       const epochBeforeAction = knowledgeEvents ? optionsBySeat.map(options =>
         options.bunnelbyDeckKnowledgeEpoch.snapshot()) : null;
       const pending = state.prompts.find(prompt => prompt.result === undefined);
+      // Opt-in post-setup digest, captured before any first-turn bot decision.
+      // Its private card inventory is never provided to a policy.
+      if (sourceDealObserver) sourceDealObserver.observe(state);
       const rootedSoloSetup = rootSoloSetupSelections && pending &&
           pending.message === GameMessage.CHOOSE_STARTING_POKEMONS &&
           pending.playerId === state.players[request.snorlaxSoloOpeningSeat].id ? {
@@ -1275,6 +1283,9 @@ function runMatch(request) {
       ...(physicalZoneIntegrity ? {physicalZoneIntegrity} : {}),
       ...(copycatTurnStartEvidence ? {copycatTurnStartEvidence} : {}),
       ...(request.captureStartingBoard === true ? {initialBoardAtFirstTurn} : {}),
+      ...(sourceDealObserver ? {
+        initialSourceDealFingerprint:sourceDealObserver.result()
+      } : {}),
       ...(snorlaxSoloOpeningEvents ? {
         snorlaxSoloOpeningEvents,
         rootSoloSetupSelections,
