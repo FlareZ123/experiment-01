@@ -15,6 +15,10 @@ Both scripts temporarily replace `SimpleTacticsAi.prototype.decodeNextAction`, c
 
 This interference is a **control-flow risk inferred from the adapters**, not proof that a source-dealt seed will trigger the collision. Initial hand disjointness cannot be used as evidence of dynamic decoder independence. Generic AI actions, pending prompts, missing deck targets or already used Tool placements can introduce further contention.
 
+## 19 October compiled retrospective check
+
+The [five archived source-first Seal-positive games](rank11-naive-dual-opener-retrospective-replay.md) were compiled and run at [CI 39202502347](https://github.com/FlareZ123/experiment-01/actions/runs/39202502347): all five standalone versus naive-nested source-first root-action ledgers matched, all five nested held-Seal lines completed, and **zero nested direct-Shake claims** occurred. This is a bounded negative falsification result. It does not eliminate the fallback hazard for untested owner states, later turns, source-second starts, or failed search paths. The original concern should remain an implementation design risk, and the test should not be used as a competitive policy or rate claim.
+
 ## Qualification route
 
 A fresh, versioned opponent policy should select **one route for the owner at the actual first decision boundary**, using the acting source hand and public board only. Preserve the selected branch and separate no-opportunity/abort/completion audits; prevent the alternate decoder from claiming a route after the initial choice. Execute both physical seats, compare real Store root actions with independent standalone positive controls, and preserve natural failed starts in the prospective denominator. Do not merge experiments run against different candidate 60s or count staged replays as played games.
