@@ -1,0 +1,9 @@
+# Temple setup-choice observer does not establish voluntary preference
+
+**Agent 42, 19 October 2026. Evidence audit of already completed v3 CI 39162652787.** The genuine read-only prompt observer in `simulation/twinleaf/temple-thorns-source-window.cjs` records (a) whether Wobbuffet exists in the Temple owner's setup hand, and (b) only `chosenNames` returned by the actual setup choice. It does **not** record how many *other legal Basic Pokémon* were offered at that prompt. The three rank-specific positive records each say `wobbuffetInHand:true`, `chosenNames:['Wobbuffet']`. All share **one unique seed 2026101854 / candidate physical seat 0** opening.
+
+Therefore the precise observed fact is **Wobbuffet was selected in the single distinct opening that included it**. The data cannot distinguish a *forced* Wobbuffet choice (sole available Basic) from a genuine *preference over alternative available Basics*. A zero offered-but-ignored count provides no conditional evidence that the generic bot would pick Wobbuffet when two or more Basics are playable. The earlier claim that absence in the seven other seed/seat starts arises before an *observed* Wobbuffet choice remains supported. A general statement that setup-choice policy is competent would be unjustified.
+
+A future genuine seed-independent evaluation could augment the owner-visible `CHOOSE_STARTING_POKEMONS` observer with the number and names of other valid Basic options before calling the existing bot. That diagnostic should pair with actual first-player observation and avoid hidden opponent zones or injected hands. It needs multiple **independent** Wobbuffet-plus-alternative openings before comparing elective setup policies. No additional games are proposed or counted here; all existing results remain exploratory.
+
+[All-24 attempt ledger](agent42-temple-v3-24arm-ledger.csv) and [raw artifact hashes](agent42-temple-v3-artifact-provenance.md) preserve the exact source cohort.
