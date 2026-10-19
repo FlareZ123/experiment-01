@@ -262,6 +262,16 @@ function executeDevelopment(trial,candidates,{
   const candidateCompressorRoots=rootTrace.filter(row=>
     row.playerSlot===candidateSeat && row.action==='PlayCardAction' &&
     row.card==='Battle Compressor');
+  const candidateOwnDeckSelectionEvidence=(game.decisionTrace||[])
+    .filter(row=>row.playerSlot===candidateSeat &&
+      row.cardSelection?.sourceZone==='deck' &&
+      row.cardSelection.sourcePlayerSlot===candidateSeat)
+    .map(row=>({
+      ordinal:row.actionOrdinal,turn:row.turnBefore,
+      parentRootOrdinal:rootTrace.find(root=>
+        root.actionOrdinal===row.actionOrdinal)?.initiatingRootActionOrdinal??null,
+      selectedCards:row.cardSelection.selectedCards
+    }));
   const sourceDeal=game.initialSourceDealFingerprint;
   assert.equal(sourceDeal?.seat,sourceSeat);
   assert.match(sourceDeal?.digestSha256,/^[0-9a-f]{64}$/);
