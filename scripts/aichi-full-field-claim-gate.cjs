@@ -53,6 +53,24 @@ function assertFullFieldSourceBinding(rounds,fieldMap,candidateDigest) {
 }
 
 /**
+ * Source-deck and completed winner-bound correlation-robust assessment.
+ * Accepts an injected map only for caller-verified archive integration and
+ * synthetic regression tests; prefer the repository-anchored public entry.
+ *
+ * @param {object[][]} rounds
+ * @param {object} fieldMap
+ * @param {string} candidateDigest
+ * @param {object} [options]
+ */
+function assessSourceBoundRounds(rounds,fieldMap,candidateDigest,options={}) {
+  assertFullFieldSourceBinding(rounds,fieldMap,candidateDigest);
+  for(const round of rounds) {
+    for(const game of round) assertTerminalOutcomeBinding(game);
+  }
+  return assessCorrelatedFieldEvidence(rounds,options);
+}
+
+/**
  * Final-claim intake for the current canonical source repository. A
  * successful arithmetic assessment remains conditional on genuine independent
  * games, competent policies, paper legality, clock, and external provenance.
@@ -76,12 +94,8 @@ function assessRepositoryFullFieldClaim(rounds,candidateCards,options={}) {
   if(canonical.reduce((n,row)=>n+row[1],0)!==60) {
     throw new Error('Candidate must contain exactly 60 cards');
   }
-  assertFullFieldSourceBinding(rounds,fieldMap,digest(canonical));
-  for(const round of rounds) {
-    for(const game of round) assertTerminalOutcomeBinding(game);
-  }
   return {
-    ...assessCorrelatedFieldEvidence(rounds,options),
+    ...assessSourceBoundRounds(rounds,fieldMap,digest(canonical),options),
     fieldManifestSha256:fieldMap.fieldManifestSha256,
     sourceInventoryDigestSha256:fieldMap.sourceInventoryDigestSha256,
     candidateDeckSha256:digest(canonical),
@@ -90,4 +104,5 @@ function assessRepositoryFullFieldClaim(rounds,candidateCards,options={}) {
   };
 }
 
-module.exports={assertFullFieldSourceBinding,assessRepositoryFullFieldClaim};
+module.exports={assertFullFieldSourceBinding,assessSourceBoundRounds,
+  assessRepositoryFullFieldClaim};
