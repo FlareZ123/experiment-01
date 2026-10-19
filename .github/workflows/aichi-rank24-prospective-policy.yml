@@ -1,6 +1,12 @@
 name: Aichi rank24 prospective owner-policy comparison
 on:
   workflow_dispatch:
+    inputs:
+      k1_probe_only:
+        description: Run three-source-deal actor-owned search regression
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -19,6 +25,7 @@ jobs:
       - name: Check own-hand source policy and cohort integrity
         run: |
           node --check simulation/twinleaf/rank24-thorns-three-arm-prospective.cjs
+          node --check simulation/twinleaf/rank24-k1-search-regression.cjs
           node --test tests/aichi-thorns-crossrank-opening.test.cjs tests/rank6-broad-thorns-policy.test.cjs
       - name: Install pinned engine packages
         working-directory: vendor/twinleaf/ptcg-server
@@ -27,14 +34,27 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Execute all twenty-four prespecified source-dealt three-arm seeds
+        if: ${{ !inputs.k1_probe_only }}
         run: node simulation/twinleaf/rank24-thorns-three-arm-prospective.cjs > rank24-three-arm-source.json
       - name: Print diagnostic status and preserved non-exposures
+        if: ${{ !inputs.k1_probe_only }}
         run: node -e "const r=require('./rank24-three-arm-source.json'); console.log(JSON.stringify({schema:r.schema,seeds:r.precommittedSeeds.length,summary:r.summary,qualified:r.competitiveQualifiedGames,head:r.researchRevision},null,2));"
       - name: Archive every fixed seed and arm, including failures
-        if: always()
+        if: ${{ always() && !inputs.k1_probe_only }}
         uses: actions/upload-artifact@v4
         with:
           name: rank24-three-arm-prospective-source
           path: rank24-three-arm-source.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Execute rank24 original source owner-deck K0-to-K1 regression
+        if: ${{ inputs.k1_probe_only }}
+        run: node simulation/twinleaf/rank24-k1-search-regression.cjs > rank24-k1-search-regression.json
+      - name: Archive three native K1 search cases with unchanged policy control
+        if: ${{ always() && inputs.k1_probe_only }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank24-k1-owner-search-regression
+          path: rank24-k1-search-regression.json
           if-no-files-found: warn
           retention-days: 14
