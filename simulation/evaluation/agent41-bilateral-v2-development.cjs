@@ -73,6 +73,38 @@ function firstPostSourceDecision(rootTrace,rank,sourceAudit,candidateSeat){
 }
 
 /**
+ * Trace the real Store source line and prompt-closed reply using the same
+ * offline evidence packet as the rank6/rank11 historical cross-rank audit.
+ * This packet never asserts legal play, full printed effect or win strength.
+ *
+ * @param {object} game Genuine engine execution.
+ * @param {6|11} rank Registered source rank.
+ * @param {object} sourceAudit Archived source policy completion.
+ * @param {0|1} sourceSeat Source physical seat.
+ * @returns {object|null}
+ */
+function sourceLineReplyPacket(game,rank,sourceAudit,sourceSeat){
+  let turn=null;
+  if(rank===6){
+    if(sourceAudit?.turn2?.completed===true)turn=2;
+    else if(sourceAudit?.turn3?.completed===true)turn=3;
+  }else if(rank===11 && sourceAudit?.completed===true &&
+    Number.isSafeInteger(sourceAudit.opportunityTurn) &&
+    sourceAudit.opportunityTurn>=1){
+    turn=sourceAudit.opportunityTurn;
+  }
+  if(turn===null)return null;
+  const {buildBilateralReplyPacket}=
+    require('./aichi-bilateral-reply-packet.cjs');
+  return buildBilateralReplyPacket(game,{
+    sourceSeat,triggerTurn:turn,
+    expectedSourceAction:rank===6?'AttackAction':'PlayCardAction',
+    expectedSourceDetail:rank===6?'Volt Cyclone':'Boost Shake',
+    requirePublicAttackTransitions:true
+  });
+}
+
+/**
  * A real frozen Store development arm. The v1 source-side policy is retained,
  * the v1 candidate-only New Moon policy is deliberately replaced by common v0.
  * @param {object} trial
@@ -147,6 +179,7 @@ function executeDevelopment(trial,candidates){
   assert.match(sourceDeal?.digestSha256,/^[0-9a-f]{64}$/);
   const candidateFollowup=firstPostSourceDecision(
     rootTrace,trial.rank,sourceAudit,candidateSeat);
+  const sourceLinePacket=sourceLineReplyPacket(game,trial.rank,sourceAudit,sourceSeat);
   return {
     trial,qualifiesForCompetitiveInference:false,
     policyVersion:POLICY_VERSION,
@@ -158,7 +191,7 @@ function executeDevelopment(trial,candidates){
     firstDrawLogName:game.firstDrawLogName,
     sourceDealFingerprint:sourceDeal.digestSha256,
     sourceFirstOwnHandSha256:ownerFirst?sha256(ownerFirst):null,
-    policyAudit:commonAudit,sourceAudit,
+    policyAudit:commonAudit,sourceAudit,sourceLinePacket,
     attackDeclarations:{
       source:declared.filter(r=>r.playerSlot===sourceSeat).length,
       candidate:declared.filter(r=>r.playerSlot===candidateSeat).length
@@ -241,4 +274,4 @@ if(require.main===module){
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
 module.exports={developmentTrials,firstPostSourceDecision,
-  executeDevelopment,runDevelopment};
+  sourceLineReplyPacket,executeDevelopment,runDevelopment};
