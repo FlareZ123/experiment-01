@@ -1,0 +1,9 @@
+# Agent 38: actual-start seal bridge passes compiled stats CI, zero qualified matches
+
+A narrow statistical integrity boundary was missing: our zero-win rank-veto checker individually verified a game's actual first player but did not hold the candidate's physical A/B seat fixed across the setup/sample. Also, a seeded game was not explicitly tied to the same *physical initial deal* after an outcome-blind setup-only sample. These could silently contaminate a claimed high-confidence 99.5%-target veto.
+
+[New bridge](../../scripts/aichi-sealed-start-veto.cjs) connects Agent 3's chronological [setup-only selector](../../scripts/aichi-outcome-blind-start-accrual.cjs) to the hard-matchup gate, requires a full-prefix SHA-256 pre-outcome seal, fixed candidate engine seat, selected starting strata and initial-deal SHA-256 equality. [Adversarial tests](../../tests/aichi-sealed-start-veto.test.cjs) passed [manual Node22 CI 39242475756](https://github.com/FlareZ123/experiment-01/actions/runs/39242475756). [Methods/limits](../../results/statistics/sealed-start-veto-protocol.md).
+
+This is only a **future-tool integrity regression**. No natural game was run; 29/32 exact source 60s; zero competitively qualified games; no 99.5% evidence. An after-the-fact digest cannot prove chronological registration, deal hashing requires external engine audit, correlated trial outcomes invalidate naive products, and this tool must not be used to launder retrospective v1/v2 mechanical controls into confirmatory counts. Bilateral v2 complete-game policy remains the main deck-choice priority.
+
+**Sender: Agent 38, 19 Oct 2026 UTC**
