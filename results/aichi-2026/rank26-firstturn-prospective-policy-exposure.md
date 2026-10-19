@@ -21,3 +21,50 @@ Use root observable printed attack/copy-action information where available; neve
 `simulation/twinleaf/rank26-prospective-firstturn-cohort.cjs` will assert the registered 60 count for each player, pinned submodule, exact seed equality, actual starting-player draw-log validation, deck identity hashes, original root consistency and source profile version. Its JSON will archive all 24 source snapshots and 48 actual engine game-trace summaries. Max total 5,760 engine action steps; this is a controlled manually dispatched workload in the existing `aichi-damage-pump-fidelity.yml` workflow behind a new opt-in input, with no per-commit job and no automatic repeated run. A red assertion is a failed test to be diagnosed, not grounds for dropping a seed.
 
 A successful run establishes a prospective, unfiltered **sample of action-selection exposure** under a partially qualified simulator and generic opponent policy. It does **not** establish that any full deck meets the 99.5% objective or that these source policies reflect elite player performance. Opponent policy, first-turn attack and complete response remain to be audited.
+
+
+## Compiled outcome, 19 October 2026
+
+**The preregistered campaign executed successfully.** [Manual-only CI run 39181632217](https://github.com/FlareZ123/experiment-01/actions/runs/39181632217), exact head \`801a44d7392d352e21732bb5149acde8f277dd64\`, pinned Twinleaf \`a9905a76a6c4103ba4b6cb9a49e86bad795c5c05\`. The complete JSON is archived in [artifact 12156642489](https://github.com/FlareZ123/experiment-01/actions/runs/39181632217/artifacts/12156642489), \`rank26-prospective-firstturn-policy-cohort-unqualified\`. The downloaded archive was independently parsed as a 24-case JSON with **24 distinct seeds** and both seats for repeats 40 through 51. The frozen comparison scripts assert matching source deck hashes, real first-draw log, start positions, source profile and action caps.
+
+| Preregistered source observable | Observed |
+| --- | ---: |
+| Genuine independent seed/seat cases | 24 |
+| Meloetta side actually playing first | 9 |
+| First-player Meloetta initially Active | 0 |
+| First-player Meloetta initially on Bench | 0 |
+| First-player Meloetta Active with opponent lone Active | 0 |
+| Variant first-turn Cologne selected | 0 |
+| Variant first-turn Trainers' Mail selected | 0 |
+| Variant first-turn Farewell Letter selected | 0 |
+| Variant first-turn DCE card plays | 0 |
+| Variant first-turn basic Lightning card plays | 2 |
+| Variant first-turn root \`AttackAction\` | 0 |
+| Variant first-turn observed opponent Prizes below six | 0 |
+| First-turn control/variant action-trace differences | **0/24** |
+| Action-capped paired continuations | 23 |
+| Engine-terminal paired continuations | 1 |
+
+**Primary conclusion: a genuine no-intervention opportunity census.** All 24 paired **recorded first-turn** action summaries are identical, and every variation audit reports zero Farewell selections, zero Mail selections and an empty DCE-reservation decision list. Source-first plays occurred in nine physical deals, but **none had Meloetta ex initially in play in either Active or Bench**. As the three opt-in first-turn hooks require an Active Meloetta, their zero observed actions do **not** falsify what they would do in a qualified active-Meloetta window. A retrospective seed 49957955 previously triggered these branches; that selected source seed is disjoint from this preregistered cohort and must remain a distinct mechanical test. No first-turn Crisis Punch or actual Prize gain was established here.
+
+Among the nine source-first opening hands, seven contain at least one Trainers' Mail. **Four** of those seven contain neither Risky Ruins nor Canceling Cologne in the audited original hand (seeds \`2046029502\`, \`4158340325\`, \`2818295704\`, \`1839183531\`). They therefore satisfy the source Mail scout's **hand-resource** gate but fail its \`Meloetta ex\` Active requirement. The other public-board, actual root and prompt requirements still must be checked before claiming those four were legal action opportunities. This is a concrete policy **coverage** hypothesis: the current Mail-only support is restricted to an already established attacker, while source-first draws can begin on other Basic Pokémon. A broadened owner-information-safe search policy should face genuinely held-out deals after this development set, rather than reclassifying these four as performance data.
+
+For audit, the nine genuine source-first positions are:
+
+| Seed | Physical seat | Source initial Active | Source initial Bench |
+| --- | --- | --- | --- |
+| 2540626718 | B | Crobat V | Exeggcute |
+| 2046029502 | A | Squawkabilly ex | Empty |
+| 1001048889 | B | Exeggcute | Unown |
+| 4158340325 | A | Unown | Unown |
+| 4148793063 | B | Exeggcute | Squawkabilly ex |
+| 4079093321 | A | Dedenne-GX | Empty |
+| 2818295704 | B | Unown | Dedenne-GX |
+| 1839183531 | A | Exeggcute | Squawkabilly ex |
+| 1394063981 | B | Unown | Empty |
+
+The single source-second engine-terminal pair is seed \`1939635193\`, rank6 physical B awarded the engine outcome in both paired arms. This is an engine diagnostic, not a tournament result: both policies are generic and unresolved against a competent adversary, and the remaining 23 source-pairs are action-capped. **Zero qualified competitive games; no change to the full-field deck selection or 99.5% target evidence.**
+
+### Next discriminating gate
+
+Resolve whether a legal first-turn Trainers' Mail root choice on a non-Meloetta starter improves subsequent genuine attacker establishment, while preserving the first-turn Tool slot, DCE+Lightning route, printed abilities and source hand/public-board information boundary. A direct source-conserved action/effect/reply demonstration is more informative than another marginal access calculation. Any learned policy change should be assessed on new predeclared seeds and both actual starts. A first-turn Mail use alone is an action-availability result; **printed Crisis Punch, consequential opponent response, genuine Prize transition, clock and competent opposing policy** must be checked before game-strength inference.
