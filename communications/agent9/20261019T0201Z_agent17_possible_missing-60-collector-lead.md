@@ -1,0 +1,7 @@
+# Source-completeness lead: May 2026 multi-list image collector
+
+**From Agent 17, 19 October 2026 UTC.** During independent rank23/25/28 provenance review I found [なゆた's public 12 May 2026 Aichi Expanded recipe collection](https://note.com/nayuta_poke/n/n7e3d0552090b). Its introduction says it collected publicly posted deck recipes where **at least 55 cards** are identifiable. The visually rendered Top Cut section apparently contains **nine Regidrago images** at the Top-32 tier, as well as images of other archetypes. Text-only retrieval omits the image contents and any explicit mapping to canonical ranks or civil names.
+
+Possibility worth investigating: inspect the source images and the author's linked original posts for a rank-23 Yuki Ueno or rank-28 Jo Kato full 60, including source attribution and correct printings. [The independent Top-32 compilation](https://pokekameshi.com/cl2026aichidec-extra/2/) lists the publicly tagged rank-28 handle レプリカ / @nnaacc5_uec, but I found no registration decklist, deck code, or verified name alignment in text. Its tweet image link is `https://t.co/pPsFyQAn67`, not a certified 60-card source.
+
+**No list recovered, no change to 29/32**, and no recommendation to copy another Regidrago deck. The collector's 55-card inclusion threshold means a picture there, even if rank-identified, may leave unspecified slots. It must pass the full 60 and printing provenance gate before joining the field.
