@@ -6,7 +6,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {fingerprintPublishedField}=
   require('../scripts/aichi-source-fingerprint-map.cjs');
-const {assertFullFieldSourceBinding,assessRepositoryFullFieldClaim}=
+const {assertFullFieldSourceBinding,assessSourceBoundRounds,
+  assessRepositoryFullFieldClaim}=
   require('../scripts/aichi-full-field-claim-gate.cjs');
 
 const CANDIDATE='a'.repeat(64);
@@ -76,4 +77,44 @@ test('final-claim intake uses repository source and refuses undocumented ranks',
     const result=assessRepositoryFullFieldClaim([],candidate);
     assert.equal(result.sourceRanksBound,32);
   }
+});
+
+/** @param {number} index @returns {object[]} */
+function completeSyntheticRound(index) {
+  return Array.from({length:64},(_,i)=>{
+    const first=i<32;
+    const rank=i%32+1;
+    return {
+      ...game(rank),startingSeat:first?'first':'second',outcome:'win',
+      winnerIndex:0,finished:true,status:'qualified-completed-game',
+      gameId:'source-bound-synthetic:'+index+':'+i,
+      seed:500000+index*64+i,
+      candidatePolicyRevision:'frozen-candidate-test',
+      opponentPolicyRevision:'frozen-opponent-test',
+      engineRevision:'frozen-engine-test',
+      rulesetRevision:'frozen-paper-test',
+      candidateEngineSlot:'A',
+      turnEvidence:{
+        firstTurnSlot:first?0:1,
+        firstTurnPlayerId:first?101:202,
+        firstTurnPlayerName:first?'research-A':'research-B',
+        firstDrawLogName:first?'research-A':'research-B',
+        verifiedByDrawLog:true
+      }
+    };
+  });
+}
+
+test('full-field claim uses conservative within-round dependence model',()=>{
+  const rounds=Array.from({length:10},(_,i)=>completeSyntheticRound(i));
+  const result=assessSourceBoundRounds(rounds,sourceMap(),CANDIDATE);
+  assert.equal(result.games,640);
+  assert.equal(result.wins,640);
+  assert.equal(result.currentCrosses,false,
+    'ten correlated complete rounds cannot certify a 99.5% field mean');
+  assert.match(result.model,/arbitrary-within-round/);
+  const tampered=completeSyntheticRound(10);
+  tampered[0].winnerIndex=1;
+  assert.throws(()=>assessSourceBoundRounds(
+    [tampered],sourceMap(),CANDIDATE),/contradicts/);
 });
