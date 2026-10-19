@@ -22,7 +22,7 @@ function run(){
   const prepared=new Map([['new-moon-lockbreaker-v1',{plan}]]);
   const baseline=executeArm(trial,prepared);
   assert.equal(baseline.rootActionLedgerSha256,
-    '9a9007f302a6e84084eb75c77f0a86db0e037c58384dff2076de828ba0ba913');
+    '9a9007f302a6e84084eb75c77f0a86db0e037c58384d7ff2076de828ba0ba913');
   const variant=withStoneVRecipient(0,()=>executeArm(trial,prepared));
   const treated=variant.result;
   for(const record of [baseline,treated]){
