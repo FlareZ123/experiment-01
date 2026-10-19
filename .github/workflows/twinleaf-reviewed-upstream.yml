@@ -60,6 +60,8 @@ jobs:
         run: |
           node --test tests/turn_order_evidence.test.cjs tests/twinleaf-policy-rng-isolation.test.cjs tests/twinleaf-vendor-clone-compatibility.test.cjs tests/new-moon-opening-horror-house-store-preflight.test.cjs
           node simulation/twinleaf/smoke-test.cjs
+          node simulation/twinleaf/card-coverage.cjs
+          node simulation/twinleaf/resolve-field.cjs
           node --test tests/meloetta_self_ko.test.cjs tests/dusclops-self-ko-condition.test.cjs tests/newmoon-garbotoxin-blower-stadium-store.test.cjs tests/snorlax-scoop-supporter.test.cjs
       - name: Record immutable compatibility pair
         if: steps.revision.outputs.changed == 'true'
