@@ -23,5 +23,7 @@ jobs:
         run: node --test tests/field_threat_audit.test.cjs
       - name: Audit printed counterplay incidence against canonical lock matrix
         run: node --test tests/aichi-printing-lock-surface.test.cjs
+      - name: Verify source-print threats across five omitted archetypes
+        run: node --test tests/aichi-unrepresented-mechanics.test.cjs
       - name: Emit auditable JSON report
         run: node scripts/field_threat_audit.cjs
