@@ -1,0 +1,25 @@
+seed,source_second,paired,control_t2_volt,tier3_started,tier3_plan,tier3_t2_volt,tier3_abort,tier4_started,tier4_plan,tier4_t2_volt,tier4_abort,tier3_equal_tier4,generic_terminal,tier3_terminal,tier4_terminal
+1150814608,true,true,0,1,held-guzma-hala,0,G&H prompted search could not retrieve planned targets,1,held-guzma-hala,0,G&H prompted search could not retrieve planned targets,true,0,0,0
+1227663392,false,true,0,0,,0,,0,,0,,true,0,0,0
+1536200185,false,true,0,0,,0,,0,,0,,true,0,0,0
+2738504777,true,true,0,1,tag-call-to-guzma-hala,1,,1,tag-call-to-guzma-hala,1,,true,0,0,0
+3947869777,true,true,0,0,,0,,0,,0,,true,0,0,0
+1646324166,true,true,0,0,,0,,0,,0,,true,0,0,0
+530785730,false,true,0,0,,0,,0,,0,,true,0,0,0
+3392296998,true,true,0,1,tag-call-to-guzma-hala,1,,1,tag-call-to-guzma-hala,1,,true,0,0,0
+2966203069,true,true,0,1,tag-call-to-guzma-hala,0,G&H prompted search could not retrieve planned targets,1,tag-call-to-guzma-hala,0,G&H prompted search could not retrieve planned targets,true,0,0,0
+1612901860,true,true,0,0,,0,,0,,0,,true,0,0,0
+1454548326,false,true,0,0,,0,,0,,0,,true,0,0,0
+1245565188,true,true,0,1,held-guzma-hala,1,,1,held-guzma-hala,1,,true,0,1,1
+780632397,false,true,0,0,,0,,0,,0,,true,0,0,0
+3414027287,true,true,0,0,,0,,0,,0,,true,0,0,0
+362426168,false,true,0,0,,0,,0,,0,,true,0,0,0
+1707024377,false,true,0,0,,0,,0,,0,,true,0,0,0
+2271301293,false,true,0,0,,0,,0,,0,,true,0,0,0
+307969223,true,true,0,0,,0,,0,,0,,true,0,0,0
+2087054058,true,true,0,0,,0,,0,,0,,true,0,0,0
+3364644363,true,true,0,1,held-guzma-hala,0,G&H prompted search could not retrieve planned targets,1,held-guzma-hala,0,G&H prompted search could not retrieve planned targets,true,1,1,1
+245444614,false,true,0,0,,0,,0,,0,,true,0,0,0
+672333298,true,true,0,1,tag-call-to-guzma-hala,1,,1,tag-call-to-guzma-hala,1,,true,0,0,0
+2804067880,true,true,0,1,held-guzma-hala,1,,1,held-guzma-hala,1,,true,0,0,0
+2069970111,true,true,0,0,,0,,0,,0,,true,0,0,0
