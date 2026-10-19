@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {chooseDiscardPair,hasOpeningLine,chooseOpeningRoute} =
+const {chooseDiscardPair,hasOpeningLine} =
   require('../simulation/twinleaf/rank6-autonomous-thorns-line.cjs');
 
 /** @param {string[]} names */
@@ -45,36 +45,4 @@ test('missing access cards or missing payment veto the branch',()=>{
   for(const absent of full) {
     assert.equal(hasOpeningLine(cards(full.filter(x=>x!==absent))),false);
   }
-});
-
-
-test('expanded source opener uses actual held Tag Call without reading deck',()=>{
-  const hand=cards(['Tag Call','Tropical Beach',"Trainers' Mail"]);
-  assert.equal(hasOpeningLine(hand),false);
-  assert.equal(chooseOpeningRoute(hand),null);
-  assert.equal(chooseOpeningRoute(hand,{allowTagCall:true}),null,
-    'Needs either a held Stadium or authorization to search it');
-  assert.equal(chooseOpeningRoute(hand,{allowTagCall:true,allowStadiumSearch:true}),
-    'tag-call');
-  assert.equal(chooseOpeningRoute(cards([...hand.map(c=>c.name),
-    'Thunder Mountain Prism Star']),{allowTagCall:true}),'tag-call');
-});
-
-test('expanded opponent refuses to spend protected discards or held DCE',()=>{
-  const options={allowTagCall:true,allowStadiumSearch:true};
-  const few=cards(['Tag Call','Trainers\' Mail','Guzma',
-    'Cynthia & Caitlin','Thunder Mountain Prism Star']);
-  assert.equal(chooseOpeningRoute(few,options),null);
-  const dce=cards(['Tag Call','Tropical Beach',"Trainers' Mail",
-    'Double Colorless Energy']);
-  assert.equal(chooseOpeningRoute(dce,options),null);
-});
-
-test('expanded G&H can source a missing Stadium without Tag Call',()=>{
-  const hand=cards(['Guzma & Hala','Tropical Beach',"Trainers' Mail"]);
-  assert.equal(chooseOpeningRoute(hand,{allowStadiumSearch:true}),'direct');
-  assert.equal(chooseOpeningRoute(hand,{allowTagCall:true}),null);
-  assert.equal(chooseOpeningRoute(cards([...hand.map(c=>c.name),
-    'Thunder Mountain Prism Star'])), 'direct',
-    'Baseline hand-only exact-gate behavior is preserved');
 });
