@@ -99,6 +99,24 @@ function buildBilateralReplyPacket(game, options) {
         assert.equal(event.declarations[i].attackName,actual[i].attackName);
         assert.equal(event.declarations[i].playerName,actual[i].playerName);
       }
+      if (event.settled !== undefined && event.settled !== null) {
+        const completion=event.settled.completionRootActionOrdinal;
+        const closingRoot=roots[completion];
+        assert(Number.isSafeInteger(completion) &&
+          completion>=event.actionOrdinal && closingRoot &&
+          (completion===event.actionOrdinal ||
+            closingRoot.action==='ResolvePromptAction') &&
+          (completion===event.actionOrdinal ||
+            closingRoot.initiatingRootActionOrdinal===
+              event.initiatingRootActionOrdinal) &&
+          Array.isArray(event.settled.after) &&
+          event.settled.after.length===2 &&
+          Array.isArray(event.settled.prizesRemaining) &&
+          event.settled.prizesRemaining.length===2 &&
+          Array.isArray(event.settled.deckRemaining) &&
+          event.settled.deckRemaining.length===2,
+        'Resolved public attack observation has no authentic prompt-chain terminator');
+      }
     }
   }
   const detailField = {
