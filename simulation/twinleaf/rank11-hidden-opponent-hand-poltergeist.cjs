@@ -1,6 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 const path = require('node:path');
 const {initializeCards} = require('./headless.cjs');
 const {resolveManifestFile} = require('./resolve-field.cjs');
@@ -29,7 +30,15 @@ function makeFixture(trainersInOpponentHand) {
   const rank11 = field.decks.find(row => row.rank === 11);
   assert.equal(rank11?.playableUnderEngine, true);
   assert.equal(rank11.cardIds.length, 60);
-  const remaining = [...rank11.cardIds];
+  const manifest = JSON.parse(fs.readFileSync(path.resolve(__dirname,
+    '../../results/aichi-2026/full-decklists.json'), 'utf8'));
+  const source = manifest.decks.find(row => row.rank === 11);
+  const sourceNames = source.cards.flatMap(row => Array(row.count).fill(row.name));
+  assert.equal(sourceNames.length, 60);
+  // resolveManifest preserves the order of source rows while resolving
+  // each printing. Maintain their correspondence instead of guessing
+  // the engine's fullName suffixes from a source set abbreviation.
+  const remaining = rank11.cardIds.map((id, i) => ({id, sourceName:sourceNames[i]}));
   const manager = initializeCards();
   let uid = 1;
   /** @param {string} fullName */
@@ -39,25 +48,24 @@ function makeFixture(trainersInOpponentHand) {
     c.id = uid++;
     return c;
   }
-  /** @param {string} fullName */
-  function take(fullName) {
-    const index = remaining.findIndex(name =>
-      name === fullName || name.startsWith(fullName + ' '));
-    assert.ok(index >= 0, 'Published rank 11 lacks ' + fullName);
-    const [resolvedName] = remaining.splice(index, 1);
-    return make(resolvedName);
+  /** @param {string} sourceName */
+  function take(sourceName) {
+    const index = remaining.findIndex(item => item.sourceName === sourceName);
+    assert.ok(index >= 0, 'Published rank 11 lacks ' + sourceName);
+    const [resolved] = remaining.splice(index, 1);
+    return make(resolved.id);
   }
 
-  const active = take('Mega Absol ex MEG');
-  const benched = take('Oranguru V ASR');
+  const active = take('Mega Absol ex');
+  const benched = take('Oranguru V');
   const trainers = Array.from({length: 4},
-    () => take('Battle VIP Pass FST'));
+    () => take('Battle VIP Pass'));
   const energies = Array.from({length: 4},
-    () => take('Darkness Energy MEE'));
-  const prizeCards = Array.from({length: 6}, () => take(remaining[0]));
+    () => take('Darkness Energy'));
+  const prizeCards = Array.from({length: 6}, () => take(remaining[0].sourceName));
   const sourceHand = trainersInOpponentHand ? trainers : energies;
-  const sourceDeck = trainersInOpponentHand ? [...energies, ...remaining.map(make)] :
-    [...trainers, ...remaining.map(make)];
+  const sourceDeck = trainersInOpponentHand ? [...energies, ...remaining.map(x => make(x.id))] :
+    [...trainers, ...remaining.map(x => make(x.id))];
 
   const {Store} = load('game/store/store');
   const {Player} = load('game/store/state/player');
