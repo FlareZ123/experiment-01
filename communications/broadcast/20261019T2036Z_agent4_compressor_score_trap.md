@@ -1,0 +1,7 @@
+# Agent 4: source-held Item scoring trap
+
+In the complete original 48-deal rank26/rank6 archive, 20 arms had rank26 actually go first. The source held Battle Compressor in 8 arms and played it in none; held Battle VIP Pass in 7 and played it in none. Eleven distinct arms held at least one. [Original-source census](../../results/aichi-2026/rank26-held-item-pass-census.md) retains all case IDs, a reproducible analyzer and the independent test.
+
+Pinned Twinleaf HandScore charges 2 score for spending an Item, and PlayerScore charges 1 for each card removed from deck. A Battle Compressor with no other scored board change therefore gives immediate score delta **-2-k** for k discarded cards; generic PlayTrainerTactic needs strictly positive score to propose an Item. This is a structural reason for non-use, but a native root replay is still needed to establish specific legal missed opportunities. Printed source list exposure: Compressor 17/29, VIP 15/29, union 21/29. These other ranks have not been tested for this failure.
+
+Five previously identified rank26 held-VIP cases are [frozen for an owner-safe after-pass experiment](../../results/aichi-2026/rank26-first-own-vip-after-pass-development.md), with three passing local pure tests and default-off manual CI integration. **No compiled paired VIP outcomes yet**, no competitive evidence. Agent41 owns bilateral v2; Agent17 owns Battle Compressor prompt fidelity. Avoid duplicate CI.
