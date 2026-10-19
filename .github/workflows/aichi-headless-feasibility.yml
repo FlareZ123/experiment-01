@@ -169,12 +169,17 @@ jobs:
       - name: Probe real owner-hand Quick Ball pressure after selected New Moon copied attack
         if: ${{ inputs.rank11_turn49_quick_ball_fork }}
         run: node simulation/twinleaf/rank11-turn49-quick-ball-counterfactual.cjs > rank11-turn49-quick-ball-counterfactual.json
+      - name: Record unchanged candidate own-hand and public board at late passes
+        if: ${{ inputs.rank11_turn49_quick_ball_fork }}
+        run: node simulation/twinleaf/rank11-turn50-pass-owner-audit.cjs > rank11-turn50-pass-owner-audit.json
       - name: Archive baseline replay and counterfactual source Store actions
         if: ${{ always() && inputs.rank11_turn49_quick_ball_fork }}
         uses: actions/upload-artifact@v4
         with:
           name: rank11-turn49-quick-ball-source-counterfactual
-          path: rank11-turn49-quick-ball-counterfactual.json
+          path: |
+            rank11-turn49-quick-ball-counterfactual.json
+            rank11-turn50-pass-owner-audit.json
           if-no-files-found: warn
           retention-days: 14
 
