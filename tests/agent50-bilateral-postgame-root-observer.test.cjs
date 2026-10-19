@@ -145,3 +145,48 @@ test('postgame counterfactual cannot modify preserved real game evidence',()=>{
   assert.equal(observed.result.action.play,'generic');
   assert.equal(observed.result.source,'authentic-store');
 });
+
+test('complete audit accepts one identical game replay and records a postgame decision flip',()=>{
+  const {auditDevelopmentArm}=
+    require('../simulation/evaluation/agent50-bilateral-hidden-order-audit.cjs');
+  const trial={id:'6:0:A:champion-reference',rank:6,candidateSlot:'A',
+    candidateId:'champion-reference',seed:407516727};
+  const headless={
+    runMatch(s) {
+      const bot=new SyntheticBot({id:101},{tactics:[],promptResolvers:[]});
+      return bot.decodeNextAction(s);
+    }
+  };
+  const execute=()=>{
+    const selected=headless.runMatch(state());
+    assert.deepEqual(selected,{player:101,play:'generic'});
+    return {
+      trial,rootActionLedgerSha256:'a'.repeat(64),
+      sourceDealFingerprint:'b'.repeat(64),
+      verifiedFirstTurn:true,sourceActuallyFirst:false,
+      actualStarterSeat:0,actionCount:2,turns:3,
+      finished:false,winner:null,endReason:'bounded',
+      finalPrizes:[6,6]
+    };
+  };
+  const wrapper=(Bot,work,clone,target)=>withPostgameRootOrderProbe(
+    Bot,work,clone,target,{
+      headless,
+      compare:(source,actorId,newBot)=>{
+        assert.equal(actorId,101);
+        return {
+          physicalOrder:actionSignature(newBot().decodeNextAction(source)),
+          reversedOrder:actionSignature({player:101,play:'different'}),
+          liveStatePreserved:true,actionSensitiveToHiddenDeckOrder:true,
+          tacticScoreComparison:{equalScoreTraces:false}
+        };
+      }
+    }
+  );
+  const row=auditDevelopmentArm(trial,execute,wrapper,SyntheticBot,
+    structuredClone,()=>()=>0.25);
+  assert.equal(row.classification,'hidden-order-action-sensitivity-observed');
+  assert.equal(row.noninterferenceVerified,true);
+  assert.equal(row.comparisonQualified,true);
+  assert.equal(row.competitiveGameQualified,false);
+});
