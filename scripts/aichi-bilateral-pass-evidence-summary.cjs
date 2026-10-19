@@ -43,6 +43,8 @@ function summarizePassEvidence(archive) {
         promptObserved: item.choicePromptObserved,
         pendingPromptType: item.pendingPromptType ?? null,
         rejection: item.rejection ?? item.auditError ?? null,
+        publicBoard: item.publicBoardBeforePass ?? null,
+        publicCopySourceInventory: item.publicCopySourceInventory ?? null,
         availableCopiedAttacks: item.validAttackNames ?? []
       }))
     };
