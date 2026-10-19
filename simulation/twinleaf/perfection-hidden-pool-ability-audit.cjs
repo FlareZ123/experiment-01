@@ -11,6 +11,15 @@ const load=name=>require(path.resolve(__dirname,'../../vendor/twinleaf/ptcg-serv
 function makePerfectionFixture(trainersInHand){
   const sample=makeFixture(trainersInHand);
   const owner=sample.attacker;
+  // The shared baseline fixture has only 21 owner cards; complete its
+  // synthetic 60 before replacing one Energy with Mewtwo & Mew-GX.
+  const cards=initializeCards();
+  for(let i=0;i<39;i++){
+    const energy=cards.getCardByName('Psychic Energy MEE');
+    assert.ok(energy);
+    energy.id=5000+i;
+    owner.deck.cards.push(energy);
+  }
   owner.usedGX=true;
   const gengar=owner.active.cards.shift();
   assert.equal(gengar.name,'Gengar & Mimikyu-GX');
