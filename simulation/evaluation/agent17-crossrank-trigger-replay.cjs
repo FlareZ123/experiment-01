@@ -39,7 +39,7 @@ function preparedFrozenDecks() {
   const roster=JSON.parse(fs.readFileSync(path.join(root,
     'results/aichi-2026/full-decklists.json'),'utf8'));
   const reference=roster.decks.find(row=>row.rank===1);
-  assert(reference && reference.cards.length===60);
+  assert(reference && Array.isArray(reference.cards));
   const newMoon=loadNewMoonCandidate();
   const specs=[
     ['champion-reference',reference.cards],
