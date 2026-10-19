@@ -61,3 +61,30 @@ test('projection cannot replace independently verified engine first draw',()=>{
   assert.throws(()=>projectedFirstSlot(-1),/unsigned/);
   assert.throws(()=>selectProjectedSeed(20261017,'pilot',6,'unknown','second'),/Invalid/);
 });
+
+test('compiled Gengar structural pilot exposes rank-11/rank-26 missing actual starts',()=>{
+  // First slots independently attested by source-game first draw logs,
+  // manual compiled run 39220233036, raw artifact 12170849360.
+  const observed=[
+    {rank:6,bySeat:{A:[0,1],B:[0,0]},sourceFirst:3},
+    {rank:11,bySeat:{A:[1,1],B:[0,0]},sourceFirst:4},
+    {rank:26,bySeat:{A:[0,0],B:[1,1]},sourceFirst:0}
+  ];
+  let checked=0;
+  for(const row of observed){
+    let sourceFirst=0;
+    for(const seat of /** @type {const} */ (['A','B'])){
+      const sourceSlot=seat==='A'?1:0;
+      row.bySeat[seat].forEach((actualFirst,repeat)=>{
+        const seed=deriveSlotSeeds(20261018,'pilot',row.rank,repeat)[seat];
+        assert.equal(projectedFirstSlot(seed),actualFirst,
+          'Frozen source seed disagrees with verified engine starting slot');
+        if(actualFirst===sourceSlot)sourceFirst++;
+        checked++;
+      });
+    }
+    assert.equal(sourceFirst,row.sourceFirst,
+      'Physical seat coverage cannot replace true source start strata');
+  }
+  assert.equal(checked,12);
+});
