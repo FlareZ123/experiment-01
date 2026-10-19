@@ -55,3 +55,18 @@ test('K0 gate never inspects the unsearched deck',()=>{
  Object.defineProperty(s.players[0],'deck',{get(){throw new Error('hidden deck read');}});
  assert.equal(crobatLethalOpportunity(s,0).ready,true);
 });
+test('powered Active Crobat can attack without a Dark Patch or a search',()=>{
+ const s=state();s.players[0].active=slot('Crobat V DAA',['Darkness Energy SVE','Darkness Energy SVE']);
+ s.players[0].bench[0]=slot('Oranguru V DAA');s.players[0].discard.cards=[];
+ assert.equal(crobatLethalOpportunity(s,0).mode,'active-attack');
+});
+test('powered Bench Crobat can be promoted without a Patch or Stone',()=>{
+ const s=state();s.players[0].bench[0].energies.cards.push(card('Darkness Energy SVE'));
+ s.players[0].discard.cards=[];s.players[0].usedVSTAR=true;
+ assert.equal(crobatLethalOpportunity(s,0).mode,'powered-bench');
+});
+test('held Stone opens owner-deck search without Shopping Center',()=>{
+ const s=state();s.players[0].hand.cards.push(card('Forest Seal Stone SIT'));
+ s.players[0].stadium.cards=[];s.players[0].bench[1].tools=[];
+ assert.equal(crobatLethalOpportunity(s,0).mode,'held-stone');
+});
