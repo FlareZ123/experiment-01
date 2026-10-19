@@ -24,8 +24,9 @@ jobs:
       - name: Check out pinned research and vendor commits
         uses: actions/checkout@v4
         with:
-          submodules: true
           persist-credentials: false
+      - name: Initialize the exact committed Twinleaf gitlink
+        run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Find upstream main without advancing the pinned submodule
         id: revision
         shell: bash
@@ -78,7 +79,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
-          submodules: true
+      - name: Initialize committed Twinleaf without recursive nested checkout
+        run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Apply exactly the commit validated in the read-only job
         shell: bash
         env:
