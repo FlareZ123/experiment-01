@@ -76,7 +76,10 @@ function withRank6UnownFarewellPassProbe(execute,{seat,turn}) {
           copied.dispatch(action);
           const after=copied.state.players[seat];
           counterfactual={
-            engineAccepted:true,
+            dispatchReturnedWithoutThrow:true,
+            pendingPromptTypes:copied.state.prompts
+              .filter(prompt=>prompt.result===undefined)
+              .map(prompt=>prompt.constructor.name),
             unownLeavesBench:!after.bench[benchIndex].getPokemonCard(),
             ownerDeckDecrease:before.ownerDeckSize-after.deck.cards.length,
             ownerHandIncrease:after.hand.cards.length-before.ownerHandSize,
@@ -84,7 +87,7 @@ function withRank6UnownFarewellPassProbe(execute,{seat,turn}) {
             drawnCardIdentityRecorded:false
           };
         } catch(error) {
-          counterfactual={engineAccepted:false,error:String(error?.message||error)};
+          counterfactual={dispatchReturnedWithoutThrow:false,error:String(error?.message||error)};
         } finally {
           Math.random=oldRandom;
         }
