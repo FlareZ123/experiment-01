@@ -16,9 +16,10 @@ const load = relativePath => require(path.join(output, relativePath));
  * @param {boolean} useGlimwood
  * @param {boolean} [verifyItemLock]
  * @param {'none'|'wobbuffet-bare'|'wobbuffet-jammer-native'|'wobbuffet-jammer-hooked'} [counterMode]
- * @returns {{targetStage: string, coinWaits: number, reflipPrompts: number, choicePrompts: number, toolConserved: boolean, energyConserved: boolean, damageConserved: boolean, dittoReturned: boolean, targetRetained: boolean}}
+ * @param {0|1|null} [nativeSwitchSeat] Native full-card play probe seat; null skips it.
+ * @returns {object}
  */
-function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'none') {
+function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'none', nativeSwitchSeat = null) {
   const cards = initializeCards();
   let nextId = 1;
   /** @param {string} name @returns {any} */
@@ -123,6 +124,7 @@ function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'no
   // either player from announcing an Item from hand. Exercise the genuine
   // engine's PlayItemEffect without constructing an artificial card action.
   let itemLock;
+  let nativeItemPlay;
   if (verifyItemLock) {
     if (counterMode !== 'none') {
       const liveEnemy = store.state.players.find(player => player.id === enemy.id);
@@ -160,6 +162,39 @@ function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'no
         vileplumeSuppressed: IS_ABILITY_BLOCKED(store, state, liveMine, stage2)
       } : {})
     };
+    if (nativeSwitchSeat !== null) {
+      assert.ok(nativeSwitchSeat === 0 || nativeSwitchSeat === 1);
+      const { PokemonCardList } = load('game/store/state/pokemon-card-list');
+      const { PlayCardAction, PlayerType, SlotType } =
+        load('game/store/actions/play-card-action');
+      const actor = store.state.players[nativeSwitchSeat];
+      const benchSlot = new PokemonCardList();
+      benchSlot.cards.push(card('Pidgey MEW'));
+      actor.bench.push(benchSlot);
+      const item = card('Switch SVI');
+      const itemIndex = actor.hand.cards.length;
+      actor.hand.cards.push(item);
+      state.phase = GamePhase.PLAYER_TURN;
+      state.activePlayer = nativeSwitchSeat;
+      state.turn = 3;
+      let error = null;
+      try {
+        store.dispatch(new PlayCardAction(actor.id, itemIndex, {
+          player: PlayerType.BOTTOM_PLAYER, slot: SlotType.ACTIVE, index: 0
+        }));
+      } catch (caught) {
+        error = caught.message;
+      }
+      nativeItemPlay = {
+        seat: nativeSwitchSeat,
+        accepted: error === null,
+        error,
+        itemStillInHand: actor.hand.cards.includes(item),
+        unresolvedPromptKinds: state.prompts
+          .filter(prompt => prompt.result === undefined)
+          .map(prompt => prompt.constructor.name)
+      };
+    }
     } finally {
       if (restore) restore();
     }
@@ -169,7 +204,8 @@ function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'no
     targetStage: stage2.stage, coinWaits, reflipPrompts, choicePrompts,
     toolConserved: true, energyConserved: true, damageConserved: true,
     dittoReturned: true, targetRetained: true,
-    ...(verifyItemLock ? { itemLock } : {})
+    ...(verifyItemLock ? { itemLock } : {}),
+    ...(nativeSwitchSeat !== null ? { nativeItemPlay } : {})
   };
 }
 
