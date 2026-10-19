@@ -262,3 +262,31 @@ test('physical-print echo cannot conceal changed actual resolved game decks',()=
   assert.throws(()=>auditBilateralV2(plan,archive),
     /Candidate resolved engine 60 digest required/);
 });
+
+test('another pair ID cannot re-count an identical physical source deal',()=>{
+  const {plan,archive}=fixture();
+  const existing=plan.arms.filter(row=>
+    row.rank===6&&row.candidateSeat===0);
+  assert.equal(existing.length,2);
+  for(const original of existing) {
+    const clone={...original,id:'clone:'+original.id,
+      pairId:'cloned-source-6-0'};
+    plan.arms.push(clone);
+    const originalRow=archive.rows.find(row=>row.id===original.id);
+    assert.ok(originalRow);
+    archive.rows.push({...originalRow,id:clone.id,pairId:clone.pairId});
+  }
+  assert.throws(()=>auditBilateralV2(plan,archive),
+    /Duplicate physical source stream/);
+});
+
+test('different real source seats may use the same numerical seed',()=>{
+  const {plan,archive}=fixture();
+  const rows=plan.arms.filter(row=>row.rank===6&&row.candidateSeat===1);
+  for(const row of rows)row.seed=6000;
+  for(const row of archive.rows.filter(row=>
+    row.rank===6&&row.candidateSeat===1))row.seed=6000;
+  const result=auditBilateralV2(plan,archive);
+  assert.equal(result.registeredArms,8);
+  assert.equal(result.completeAttemptCensus,true);
+});
