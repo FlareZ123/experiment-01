@@ -65,6 +65,7 @@ function run(){
     assert.equal(root.firstTurnSlot,seat);
     assert.ok(!root.attackerActive?.startsWith('Meloetta ex '));
     assert.ok(!root.attackerBench.some(x=>x.startsWith('Meloetta ex ')));
+    assert.ok(!root.attackerHand.some(x=>x.startsWith('Meloetta ex ')));
     assert.ok(root.attackerHand.some(x=>x.startsWith('Battle VIP Pass ')));
     const a=seat===0?source:enemy.cards;
     const b=seat===1?source:enemy.cards;
