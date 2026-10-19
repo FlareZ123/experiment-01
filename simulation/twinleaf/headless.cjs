@@ -256,6 +256,7 @@ function policyRandomStreams(seed) {
  * @property {0|1} [newMoonNativeOpeningPivotSeat] Candidate-only selected Gengar & Mimikyu-GX setup Active ordering probe.
  * @property {0|1} [snorlaxSoloOpeningSeat] Rank3/7 source-locked, own-starting-hand solo Snorlax Active policy.
  * @property {boolean} [snorlaxSoloDeclineOptionalBench] With solo policy, decline a later legal optional Bench prompt after Snorlax is already alone Active.
+ * @property {boolean} [snorlaxSoloPreserveBench] With source solo opening, suppress own ordinary Basic Benching while PGO Snorlax is alone Active.
  * @property {0|1} [newMoonAttackPayloadCompressorSeat] Candidate-only own-hand Compressor and owner-search Gengar payload policy.
  * @property {0|1} [rank31FogEnergySeat] Opponent source Chimecho Active: opt-in strict Fog-for-Basic-Psychic-Energy search.
  * @property {0|1} [rank31FogEnergyBroaderSeat] Comparison: allow other Basics in hand or Bench when finding Bell's Energy.
@@ -328,6 +329,10 @@ function runMatch(request) {
   if (request.snorlaxSoloOpeningSeat !== undefined &&
       ![0,1].includes(request.snorlaxSoloOpeningSeat)) {
     throw new Error('Solo Snorlax opening policy requires source physical seat 0 or 1');
+  }
+  if (request.snorlaxSoloPreserveBench === true &&
+      request.snorlaxSoloOpeningSeat === undefined) {
+    throw new Error('Solo Snorlax Bench restraint requires a source opening seat');
   }
   if (request.newMoonNativeOpeningPivotSeat !== undefined &&
       (![0, 1].includes(request.newMoonNativeOpeningPivotSeat) ||
@@ -704,6 +709,13 @@ function runMatch(request) {
             GameMessage: engine('game/game-message').GameMessage
           }, snorlaxSoloOpeningEvents, {
             declineOptionalBench:request.snorlaxSoloDeclineOptionalBench===true
+          });
+      }
+      if (request.snorlaxSoloOpeningSeat === seat &&
+          request.snorlaxSoloPreserveBench === true) {
+        configured = require('./snorlax-solo-opening-policy.cjs')
+          .withSoloSnorlaxBenchPreservation(configured, {
+            PlayBasicTactic:engine('simple-bot/simple-tactics/play-basic-tactic').PlayBasicTactic
           });
       }
       if (request.newMoonNativeOpeningPivotSeat === seat) {
