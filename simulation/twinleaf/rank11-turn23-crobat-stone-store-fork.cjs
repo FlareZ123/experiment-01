@@ -42,7 +42,7 @@ function withCrobatCounterattack(work) {
       stage,turn:state.turn,rootAction:action.constructor.name,
       sourceHand:state.players[0].hand.cards.map(c=>c.fullName),
       sourceUsedVSTAR:state.players[0].usedVSTAR,
-      sourceRemainingPrizes:state.players[0].prizes.length,
+      sourceRemainingPrizes:state.players[0].prizes.filter(prize=>prize.cards.length>0).length,
       ...notes
     });
     return action;
@@ -230,6 +230,9 @@ function run() {
     finalStage:alternative.stage,
     sequenceComplete:alternative.stage===10 && Boolean(attack),
     sourceAttackDeclaration:attack??null,
+    sourceOccupiedPrizesAtAttack:alternative.actions.find(row=>
+      row.attack==='Venomous Fang')?.sourceRemainingPrizes??null,
+    sourceOccupiedPrizesAfterFork:changed.prizesRemaining[0],
     baseline:{
       turns:baseline.turns,actions:baseline.actions,winner:baseline.winner,
       prizes:baseline.prizesRemaining,finished:baseline.finished,
