@@ -27,7 +27,8 @@ function developmentCandidates(){
   assert.ok(reference);
   const defs=[
     ['champion-reference',{label:'champion-reference',cards:reference.cards}],
-    ['new-moon-lockbreaker-v1',loadNewMoonCandidate()]
+    ['new-moon-lockbreaker-v1',{label:'new-moon-lockbreaker-v1',
+      cards:loadNewMoonCandidate().cards}]
   ];
   return new Map(defs.map(([id,deck])=>[id,{
     plan:planAichi(deck,{
