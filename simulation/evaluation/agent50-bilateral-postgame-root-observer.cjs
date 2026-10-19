@@ -88,8 +88,14 @@ function withPostgameRootOrderProbe(
       try {
         const sourceBefore=stateGraphFingerprint(state);
         snapshot=cloneDetached(state);
-        assert.equal(typeof this.tactics?.[0]?.options,'object');
-        options=cloneBotOptions({...this.tactics[0].options,
+        const commonOptions=this.tactics?.[0]?.options;
+        assert.ok(commonOptions&&typeof commonOptions==='object',
+          'Pinned tactic option source is missing');
+        assert.ok(this.tactics.every(t=>t.options===commonOptions),
+          'Live tactic options differ; one reconstructed config is incomplete');
+        assert.ok(this.resolvers.every(r=>r.options===commonOptions),
+          'Live resolver options differ; one reconstructed config is incomplete');
+        options=cloneBotOptions({...commonOptions,
           tactics:this.tactics.map(tactic=>tactic.constructor),
           promptResolvers:this.resolvers.map(resolver=>resolver.constructor)});
         assert.deepEqual(stateGraphFingerprint(state),sourceBefore,
