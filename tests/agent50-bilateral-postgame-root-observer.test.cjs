@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {withPostgameRootOrderProbe}=
+const {cloneBotOptions,withPostgameRootOrderProbe}=
   require('../simulation/evaluation/agent50-bilateral-postgame-root-observer.cjs');
 const {actionSignature}=
   require('../simulation/twinleaf/rank10-hidden-order-live-probe.cjs');
@@ -189,4 +189,78 @@ test('complete audit accepts one identical game replay and records a postgame de
   assert.equal(row.noninterferenceVerified,true);
   assert.equal(row.comparisonQualified,true);
   assert.equal(row.competitiveGameQualified,false);
+});
+
+
+test('captured mutable scores and arbiter data are isolated in every world',()=>{
+  const Tactic=class Tactic{};
+  const Resolver=class Resolver{};
+  const original={
+    tactics:[Tactic],promptResolvers:[Resolver],
+    scores:{hand:{hasSupporter:7},opponent:{hand:11}},
+    arbiter:{flipMode:0,shuffleMode:2}
+  };
+  const boundary=cloneBotOptions(original);
+  assert.notStrictEqual(boundary.scores,original.scores);
+  assert.notStrictEqual(boundary.arbiter,original.arbiter);
+  assert.strictEqual(boundary.tactics[0],Tactic);
+  assert.strictEqual(boundary.promptResolvers[0],Resolver);
+  original.scores.hand.hasSupporter=900;
+  original.arbiter.shuffleMode=900;
+  assert.equal(boundary.scores.hand.hasSupporter,7);
+  assert.equal(boundary.arbiter.shuffleMode,2);
+  const physical=cloneBotOptions(boundary);
+  const reversed=cloneBotOptions(boundary);
+  physical.scores.opponent.hand=999;
+  physical.arbiter.flipMode=999;
+  physical.tactics.push(class Other{});
+  assert.equal(reversed.scores.opponent.hand,11);
+  assert.equal(reversed.arbiter.flipMode,0);
+  assert.deepEqual(reversed.tactics,[Tactic]);
+});
+
+test('postgame comparison cannot inherit future live or prior-world score mutations',()=>{
+  const baseline=SyntheticBot.prototype.decodeNextAction;
+  const options={
+    tactics:[],promptResolvers:[],
+    scores:{hand:{hasSupporter:7}},
+    arbiter:{shuffleMode:2}
+  };
+  const headless={runMatch(s){
+    const bot=new SyntheticBot({id:101},options);
+    const action=bot.decodeNextAction(s);
+    // This is a synthetic future action after the observed owner decision.
+    options.scores.hand.hasSupporter=37;
+    options.arbiter.shuffleMode=9;
+    return {action,finished:true};
+  }};
+  const original=headless.runMatch;
+  let comparableWorlds=0;
+  const audited=withPostgameRootOrderProbe(
+    SyntheticBot,()=>headless.runMatch(state()),structuredClone,
+    {turn:3,seat:0,makeRandom:()=>()=>0.3},
+    {headless,compare:(_snapshot,actor,newBot)=>{
+      assert.equal(actor,101);
+      const physical=newBot().tactics[0].options;
+      assert.equal(physical.scores.hand.hasSupporter,7);
+      assert.equal(physical.arbiter.shuffleMode,2);
+      physical.scores.hand.hasSupporter=-1;
+      physical.arbiter.shuffleMode=-1;
+      const reversed=newBot().tactics[0].options;
+      assert.equal(reversed.scores.hand.hasSupporter,7);
+      assert.equal(reversed.arbiter.shuffleMode,2);
+      comparableWorlds=2;
+      return {
+        physicalOrder:actionSignature({player:101,play:'generic'}),
+        reversedOrder:actionSignature({player:101,play:'generic'}),
+        liveStatePreserved:true,actionSensitiveToHiddenDeckOrder:false,
+        tacticScoreComparison:{equalScoreTraces:true}
+      };
+    }}
+  );
+  assert.equal(comparableWorlds,2);
+  assert.equal(audited.events[0].baselineActionMatchedActual,true);
+  assert.equal(audited.result.action.play,'generic');
+  assert.strictEqual(headless.runMatch,original);
+  assert.strictEqual(SyntheticBot.prototype.decodeNextAction,baseline);
 });
