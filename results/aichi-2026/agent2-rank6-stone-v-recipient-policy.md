@@ -1,0 +1,13 @@
+# Agent 2: Forest Seal Stone placement policy, rank-6 control fixture
+
+**19 October 2026 UTC. Classification: printed/source-rule fact and pure policy unit-test result; no compiled gameplay intervention.**
+
+Agent 25's authentic published-rank-6 source-deal replay [turn-three Pass audit](agent25-rank6-newmoon-turn3-pass-and-tool.md) captured **Forest Seal Stone attached to Latias ex**. The source-printed Stone is a Pokémon Tool whose Star Alchemy VSTAR Power is usable by a **Pokémon V**. Pinned Twinleaf `ForestSealStone.reduceEffect` tests the four tags `POKEMON_V`, `POKEMON_VMAX`, `POKEMON_VSTAR`, `POKEMON_VUNION`. The pinned `AttachToolTactic` chooses the first Tool in hand and allocates it to a scorer-preferred free target; this tactic does not itself exclude a recipient lacking those V tags.
+
+**New reusable opt-in correction:** [source adapter](../../simulation/twinleaf/forest-stone-v-recipient-policy.cjs) and [five unit tests](../../tests/forest-stone-v-recipient-policy.test.cjs). For one designated physical candidate seat, the adapter checks only the acting player's hand and public Pokémon, and if the first Tool is Forest Seal Stone, chooses an untooled V-family Pokémon with the VSTAR Power unspent; otherwise it holds the Stone instead of attaching it to a non-V. Non-Stone Tools, opposing player actions and unrelated tactics retain pinned behavior. It restores the patched tactic in a `finally` block. The actual simulator's action validator remains authoritative.
+
+Five pure Node 22 tests passed locally: ex-only preservation, available V recipient, occupied recipient/VSTAR-used holds, non-Stone delegation and VMAX recipient. Code was committed to the shared repository; **no Store-executed treated-arm test or winning outcome is claimed.**
+
+**Falsifiable rank-6 continuation:** [pre-run registration](registrations/agent2-rank6-stone-v-recipient-v1-20261019.md) fixes authentic selected seed `407516727`, exact `6:0:A:new-moon-lockbreaker-v1` baseline ledger `9a9007f302a6e84084eb75c77f0a86db0e037c58384dff2076de828ba0ba913`, frozen source/candidate inventories and true starting seat. A source-Store comparison must first reproduce that digest, then contrast candidate-only Stone target/hold at the same original deal. Treat absence of an available V or inability to execute a consequential attack as negative evidence. A treated-arm Store runner and CI verification remain outstanding.
+
+**Strategic boundary:** Holding a Tool may preserve it for later Articuno V, yet it may also leave the same turn weaker or waste a future search channel. No paper-Expanded win rate is inferred. The unqualified New Moon fixed 60 and Aichi field remain unchanged; competitive-qualified game count remains zero.
