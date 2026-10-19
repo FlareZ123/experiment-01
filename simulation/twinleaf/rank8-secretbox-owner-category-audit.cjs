@@ -75,7 +75,7 @@ function withRank8OwnerSearchExpansion(execute){
     const pending=state.prompts.find(p=>p.result===undefined);
     const isSearch=this.client?.id===101 && state.turn===7 &&
       state.activePlayer===0 && pending?.constructor.name==='ChooseCardsPrompt' &&
-      pending.cards===owner?.deck && pending.options?.max===4 &&
+      pending.cards===owner?.deck && pending.options?.maxItems===1 && pending.options?.maxStadiums===1 && pending.options?.maxSupporters!==undefined && pending.options?.maxTools!==undefined &&
       pending.cards.cards.some(c=>c.name==='Quick Ball') &&
       pending.cards.cards.some(c=>c.name==='Temple of Sinnoh');
     if(!isSearch)return previous.call(this,state);
