@@ -86,6 +86,8 @@ function probeDittoStage2(useGlimwood) {
       } else if (kind === 'ConfirmPrompt') {
         reflipPrompts++;
         store.dispatch(new ResolvePromptAction(pending.id, true));
+      } else if (kind === 'ShuffleDeckPrompt') {
+        store.dispatch(new ResolvePromptAction(pending.id, null));
       } else if (kind === 'ChooseCardsPrompt') {
         choicePrompts++;
         assert.ok(mine.deck.cards.includes(stage2), 'Stage 2 must be a deck choice');
