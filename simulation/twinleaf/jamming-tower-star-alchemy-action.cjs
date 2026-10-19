@@ -82,11 +82,30 @@ function probe(params) {
     .map(p=>p.constructor.name);
   const accepted=!error && pending.includes('ChooseCardsPrompt') &&
     effectiveSource.usedVSTAR===true;
+  let searchCompleted=false;
+  let shuffleCompleted=false;
+  if(accepted){
+    const search=effective.prompts.find(p=>
+      p.result===undefined && p.constructor.name==='ChooseCardsPrompt');
+    const shake=effectiveSource.deck.cards.find(c=>c.name==='Boost Shake');
+    assert.ok(search && shake && search.validate([shake],effective));
+    store.dispatch(new ResolvePromptAction(search.id,[shake]));
+    searchCompleted=effectiveSource.hand.cards.includes(shake) &&
+      !effectiveSource.deck.cards.includes(shake);
+    const shuffle=store.state.prompts.find(p=>
+      p.result===undefined && p.constructor.name==='ShuffleDeckPrompt');
+    assert.ok(shuffle);
+    const order=effectiveSource.deck.cards.map((_,i)=>i);
+    assert.equal(shuffle.validate(order,store.state),true);
+    store.dispatch(new ResolvePromptAction(shuffle.id,order));
+    shuffleCompleted=store.state.prompts.every(p=>p.result!==undefined);
+  }
   return {...params,error,accepted,pending,resolvedAbilityAnimation,
-    sourceStoneStillAttached:effectiveSource.active.tools.some(
-      item=>item.name==='Forest Seal Stone'),
-    sourceVSTARUsed:effectiveSource.usedVSTAR,
-    stadium:effective.players[1-params.sourceSeat].stadium.cards
+    searchCompleted,shuffleCompleted,
+    sourceStoneStillAttached:store.state.players[params.sourceSeat].active.tools
+      .some(item=>item.name==='Forest Seal Stone'),
+    sourceVSTARUsed:store.state.players[params.sourceSeat].usedVSTAR,
+    stadium:store.state.players[1-params.sourceSeat].stadium.cards
       .map(c=>c.fullName)};
 }
 function run(){
@@ -101,6 +120,8 @@ function run(){
       JSON.stringify(row));
     assert.equal(row.sourceStoneStillAttached,true);
     assert.equal(row.stadium.length,Number(row.tower));
+    assert.equal(row.searchCompleted,!row.tower);
+    assert.equal(row.shuffleCompleted,!row.tower);
   }
   return {schema:'staged-jamming-tower-preemption-star-alchemy-v1',
     engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
