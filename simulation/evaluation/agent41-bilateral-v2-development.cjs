@@ -181,6 +181,11 @@ function executeDevelopment(trial,candidates){
     seed:trial.seed,maxActions:registration.maxRootActions,
     label:'agent41-bilateral-v2-common-policy-development-'+trial.id,
     ...registration.frozenFlags,
+    // Shared v2 mechanical integration: intercept every actual actor's
+    // owner-visible Trainer/Energy hand-play lock at final root dispatch.
+    // This changes the retrospective policy version, never the historical v1
+    // deal or seed. A veto's Pass fallback is still strategically unqualified.
+    enforceVisiblePlayLockBothSeats:true,
     capturePublicAttackTransitions:true,
     captureFinalPublicBoard:true,
     captureAttackPassProbes:true,
@@ -237,6 +242,7 @@ function executeDevelopment(trial,candidates){
   return {
     trial,qualifiesForCompetitiveInference:false,
     policyVersion:POLICY_VERSION,
+    finalDispatchVisiblePlayLockV2:game.livePlayLockGuardBothSeats===true,
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
     verifiedFirstTurn:game.verifiedByDrawLog,
     actualStarterSeat:game.firstTurnSlot,
@@ -297,7 +303,7 @@ function runDevelopment(){
     }); }
   }
   return {
-    schema:'agent41-bilateral-common-policy-development-v0b',
+    schema:'agent41-bilateral-common-policy-development-v0c-live-lock-guard',
     sourceRegistration:'historical v1 selection; not v2 preregistration',
     enginePin:registration.enginePin,
     candidatePolicy:POLICY_VERSION,
