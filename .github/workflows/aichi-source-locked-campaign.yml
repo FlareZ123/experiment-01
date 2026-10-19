@@ -300,7 +300,7 @@ jobs:
         run: node -e "const r=require('./agent8-player-play-lock.json');console.log(JSON.stringify({source:r.frozenTrialId,prior:r.originalFailureRoot,originalPlayLocks:r.originalPlayLocks,blocked:r.policyAudit.rejections,considered:r.policyAudit.considered,vetoObserved:r.vetoObserved,originalRejectionPrevented:r.originalRejectionPrevented,guardedError:r.guardedError?.slice(0,450),guarded:r.guardedGame,qualified:r.competitivelyQualifiedGames}))"
       - name: Verify owner-only Basic Bench fallback under pinned live lock flags
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent8-basic-bench-after-lock' }}
-        run: node --test tests/player-play-lock-veto.test.cjs tests/visible-lock-basic-bench-response.test.cjs
+        run: node --test tests/player-play-lock-veto.test.cjs tests/visible-lock-basic-bench-response.test.cjs tests/player-play-lock-veto-store.test.cjs
       - name: Replay one already rejected rank6 owner Basic Bench alternative on its original deal
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent8-basic-bench-after-lock' }}
         run: node simulation/evaluation/agent8-player-play-lock-basic-reply-replay.cjs > agent8-play-lock-basic-reply.json
