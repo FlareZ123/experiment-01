@@ -153,6 +153,21 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Verify closed source Bunnelby Evolution and next-root extraction
+        if: ${{ inputs.rank2_gh_search_gameplay }}
+        run: node --test tests/rank2-gh-search-attack-response.test.cjs
+      - name: Retrospectively reobserve real source Evolution effect and opposing first action
+        if: ${{ inputs.rank2_gh_search_gameplay }}
+        run: node simulation/twinleaf/rank2-gh-search-attack-response.cjs > rank2-gh-attack-response.json
+      - name: Preserve same-origin attack and public next-root packet
+        if: ${{ always() && inputs.rank2_gh_search_gameplay }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank2-gh-attack-response
+          path: rank2-gh-attack-response.json
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Validate first source rank2 turn5 root Supporter fork
         if: ${{ inputs.rank2_turn5_observer }}
         run: node --test tests/rank2-turn5-source-fork-observer.test.cjs
