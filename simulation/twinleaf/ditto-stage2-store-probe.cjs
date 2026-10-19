@@ -87,7 +87,10 @@ function probeDittoStage2(useGlimwood) {
         reflipPrompts++;
         store.dispatch(new ResolvePromptAction(pending.id, true));
       } else if (kind === 'ShuffleDeckPrompt') {
-        store.dispatch(new ResolvePromptAction(pending.id, null));
+        // The pinned shuffle callback expects a complete card-index permutation.
+        const length = mine.deck.cards.length;
+        const permutation = Array.from({ length }, (_, i) => length - i - 1);
+        store.dispatch(new ResolvePromptAction(pending.id, permutation));
       } else if (kind === 'ChooseCardsPrompt') {
         choicePrompts++;
         assert.ok(mine.deck.cards.includes(stage2), 'Stage 2 must be a deck choice');
