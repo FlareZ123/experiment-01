@@ -931,12 +931,20 @@ function runMatch(request) {
         const owner=state.players[guardedPlayLockSeat];
         const {SuperType,TrainerType,EnergyType,Stage} =
           engine('game/store/card/card-types');
-        const reason=playerPlayLockVeto(owner,action,{
-          superTrainer:SuperType.TRAINER,superEnergy:SuperType.ENERGY,
-           item:TrainerType.ITEM,supporter:TrainerType.SUPPORTER,
-           stadium:TrainerType.STADIUM,tool:TrainerType.TOOL,
-           specialEnergy:EnergyType.SPECIAL
-        });
+        const {PowerType}=engine('game/store/card/pokemon-types');
+        const playLockEnums={
+          superPokemon:SuperType.POKEMON,
+          superTrainer:SuperType.TRAINER,
+          superEnergy:SuperType.ENERGY,
+          item:TrainerType.ITEM,
+          supporter:TrainerType.SUPPORTER,
+          stadium:TrainerType.STADIUM,
+          tool:TrainerType.TOOL,
+          specialEnergy:EnergyType.SPECIAL,
+          abilityPowerType:PowerType.ABILITY,
+          evolvedStages:[Stage.STAGE_1,Stage.STAGE_2]
+        };
+        const reason=playerPlayLockVeto(owner,action,playLockEnums);
         if (reason) {
           const heldLillieIndex =
             request.visiblePlayLockSupporterSeat === guardedPlayLockSeat ?
@@ -948,11 +956,8 @@ function runMatch(request) {
           const basicResponse=request.visiblePlayLockBasicBenchFallback === true ?
             require('./visible-lock-basic-bench-response.cjs')
               .visibleBasicBenchResponse(state,owner,action,{
-                superTrainer:SuperType.TRAINER,superEnergy:SuperType.ENERGY,
-                superPokemon:SuperType.POKEMON,
-                stadium:TrainerType.STADIUM,specialEnergy:EnergyType.SPECIAL,
+                ...playLockEnums,
                 basicStage:Stage.BASIC,
-                abilityPowerType:engine('game/store/card/pokemon-types').PowerType.ABILITY,
                 bottomPlayerType:PlayerType.BOTTOM_PLAYER,
                 benchSlotType:SlotType.BENCH
               },(id,handIndex,target)=>
