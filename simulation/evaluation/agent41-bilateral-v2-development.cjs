@@ -62,10 +62,14 @@ function firstPostSourceDecision(rootTrace,rank,sourceAudit,candidateSeat){
   if(sourceTurn===null) return {
     root:null,status:'no-completed-source-line',sourceTurn:null
   };
+  // Only an actor-owned, non-prompt action on the immediately following
+  // global turn can witness the first candidate response. A later action
+  // may follow an intervening source turn and is not the same reply window.
   const root=rootTrace.find(row=>row.playerSlot===candidateSeat &&
-    row.turnBefore>sourceTurn)??null;
+    row.turnBefore===sourceTurn+1 &&
+    row.action!=='ResolvePromptAction')??null;
   return {root,status:root?'candidate-root-after-source-line':
-    'no-candidate-root-after-source-line',sourceTurn};
+    'no-candidate-root-on-immediate-next-turn',sourceTurn};
 }
 
 /**
