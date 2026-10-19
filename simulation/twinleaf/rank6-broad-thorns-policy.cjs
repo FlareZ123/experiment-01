@@ -48,7 +48,7 @@ function chooseOpeningDiscards(
  * @param {boolean} [thunderInPlay]
  * @param {string[]} [priorities]
  * @param {boolean} [conditionalTagCallPayment]
- * @param {{stadiumLocked?:boolean,specialEnergyLocked?:boolean,itemLocked?:boolean,supporterLocked?:boolean,stadiumAlreadyPlayed?:boolean,activeDceAttached?:boolean}} [constraints]
+ * @param {{stadiumLocked?:boolean,specialEnergyLocked?:boolean,itemLocked?:boolean,supporterLocked?:boolean,stadiumAlreadyPlayed?:boolean,activeDceAttached?:boolean,energyAlreadyAttached?:boolean,energyLocked?:boolean}} [constraints]
  * @returns {{channel:string,needDce:boolean,needThunder:boolean,discardCount:number}|null}
  */
 function planOpeningHand(
@@ -58,7 +58,8 @@ function planOpeningHand(
   // This particular opener must play DCE from hand and have Thunder Mountain
   // in play before Volt Cyclone. Public player-level locks can make an
   // otherwise reachable Tag Call/G&H path impossible on the current turn.
-  if ((constraints.specialEnergyLocked && !constraints.activeDceAttached) ||
+  if (((constraints.specialEnergyLocked || constraints.energyLocked ||
+       constraints.energyAlreadyAttached) && !constraints.activeDceAttached) ||
       (constraints.stadiumLocked && !thunderInPlay) ||
       (constraints.stadiumAlreadyPlayed && !thunderInPlay)) return null;
   const held = name=>hand.some(c=>c.name===name);
@@ -84,6 +85,22 @@ function planOpeningHand(
   }
   return {channel:supporter,needDce,needThunder,
     discardCount:needDce?2:0};
+}
+
+/**
+ * True if a manual DCE attachment would violate a public, player-level
+ * hand-play restriction or the already-spent attachment allowance.
+ * Pin: play-card-reducer.ts at a9905a76. This is an owner-visible check.
+ * @param {{cannotPlayEnergyCards?:boolean,cannotPlaySpecialEnergyCards?:boolean,energyPlayedTurn?:number,usedDragonsWish?:boolean}} player
+ * @param {{turn:number,rules?:{unlimitedEnergyAttachments?:boolean}}} state
+ * @returns {boolean}
+ */
+function dceHandAttachmentBlocked(player,state) {
+  return Boolean(player.cannotPlayEnergyCards ||
+    player.cannotPlaySpecialEnergyCards ||
+    (player.energyPlayedTurn===state.turn &&
+     player.usedDragonsWish!==true &&
+     state.rules?.unlimitedEnergyAttachments!==true));
 }
 
 /**
@@ -177,6 +194,10 @@ function withBroadThornsSourceAttack(work,options={}) {
       abort(state,'Required DCE unavailable after search');
       return null;
     }
+    if(dceHandAttachmentBlocked(p,state)) {
+      abort(state,'Manual DCE attachment is no longer available');
+      return null;
+    }
     phase='attack';
     return select(state,'Attach Double Colorless Energy',
       play(p,'Double Colorless Energy',active));
@@ -203,6 +224,10 @@ function withBroadThornsSourceAttack(work,options={}) {
       const constraints=playLockAwareOpening ? {
         stadiumLocked:Boolean(p.cannotPlayStadiumCards),
         specialEnergyLocked:Boolean(p.cannotPlaySpecialEnergyCards),
+        energyLocked:Boolean(p.cannotPlayEnergyCards),
+        energyAlreadyAttached:p.energyPlayedTurn===state.turn &&
+          p.usedDragonsWish!==true &&
+          state.rules?.unlimitedEnergyAttachments!==true,
         itemLocked:Boolean(p.cannotPlayItemCards),
         supporterLocked:Boolean(p.cannotPlaySupporterCards) ||
           p.supporterTurn>0,
@@ -351,4 +376,4 @@ function withBroadThornsSourceAttack(work,options={}) {
   }
 }
 
-module.exports={discardOrder,chooseOpeningDiscards,planOpeningHand,withBroadThornsSourceAttack};
+module.exports={discardOrder,chooseOpeningDiscards,planOpeningHand,dceHandAttachmentBlocked,withBroadThornsSourceAttack};
