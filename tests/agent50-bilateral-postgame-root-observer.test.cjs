@@ -111,6 +111,9 @@ test('distinct live tactic configurations fail closed instead of faking a bot',(
       super(client,options);
       this.tactics.push({options:structuredClone(options)});
     }
+    decodeNextAction(state) {
+      return super.decodeNextAction(state);
+    }
   }
   const baseline=MixedOptionsBot.prototype.decodeNextAction;
   const headless={
