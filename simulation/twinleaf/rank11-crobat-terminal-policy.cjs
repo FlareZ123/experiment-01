@@ -90,22 +90,24 @@ function crobatLethalOpportunity(state, seat) {
  * @template T
  * @param {0|1} sourceSeat
  * @param {() => T} execute Synchronous already-configured headless match.
+ * @param {{resolveEngine?:(name:string)=>any}} [options] Tested loader seam.
  * @returns {{result:T,audit:object}}
  */
-function withRank11CrobatTerminalPolicy(sourceSeat, execute) {
+function withRank11CrobatTerminalPolicy(sourceSeat, execute,
+  {resolveEngine=engine} = {}) {
   if (![0,1].includes(sourceSeat)) throw new RangeError('sourceSeat must be 0 or 1');
-  const {SimpleTacticsAi} = engine('simple-bot/simple-tactics-ai');
-  const {GamePhase} = engine('game/store/state/state');
-  const {PlayerType,SlotType,PlayCardAction} = engine('game/store/actions/play-card-action');
-  const {ResolvePromptAction} = engine('game/store/actions/resolve-prompt-action');
+  const {SimpleTacticsAi} = resolveEngine('simple-bot/simple-tactics-ai');
+  const {GamePhase} = resolveEngine('game/store/state/state');
+  const {PlayerType,SlotType,PlayCardAction} = resolveEngine('game/store/actions/play-card-action');
+  const {ResolvePromptAction} = resolveEngine('game/store/actions/resolve-prompt-action');
   const {UseStadiumAction,UseAbilityAction,RetreatAction,AttackAction} =
-    engine('game/store/actions/game-actions');
+    resolveEngine('game/store/actions/game-actions');
   const proto = SimpleTacticsAi.prototype;
   const old = Object.getOwnPropertyDescriptor(proto, 'decodeNextAction');
   assert.equal(typeof old?.value, 'function');
   const boardTarget = {player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
   const benchTarget = i => ({player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:i});
-  const audit = {version:'rank11-crobat-terminal-owner-v2',sourceSeat,attempts:[],
+  const audit = {version:'rank11-crobat-terminal-owner-v3',sourceSeat,attempts:[],
     qualifyingGames:0,containsSeedSpecificGate:false};
   let turn = null, stage = null, event = null;
   function abort(reason) {
@@ -117,16 +119,16 @@ function withRank11CrobatTerminalPolicy(sourceSeat, execute) {
     return action;
   }
   const wrapper = function rank11CrobatOwnerDecision(state) {
-    const ordinary = old.value.call(this, state);
+    const ordinary = () => old.value.call(this, state);
     if (state.players[sourceSeat].id !== this.client?.id ||
         state.activePlayer !== sourceSeat || state.phase !== GamePhase.PLAYER_TURN)
-      return ordinary;
+      return ordinary();
     if (turn !== null && state.turn !== turn && stage !== 'done') abort('turn-expired');
     const own = state.players[sourceSeat];
     const pending = state.prompts.find(p => p.result === undefined);
     if (stage === null) {
       const gate = crobatLethalOpportunity(state, sourceSeat);
-      if (!gate.ready) return ordinary;
+      if (!gate.ready) return ordinary();
       turn = state.turn;
       event = {turn,gate,status:'executing',actions:[]};
       audit.attempts.push(event);
@@ -137,18 +139,18 @@ function withRank11CrobatTerminalPolicy(sourceSeat, execute) {
       };
       stage = stages[gate.mode];
     }
-    if (stage === 'aborted' || stage === 'done') return ordinary;
+    if (stage === 'aborted' || stage === 'done') return ordinary();
     const index = name => own.hand.cards.findIndex(c => c.fullName === name);
     const crobatIndex = own.bench.findIndex(s => s.getPokemonCard()?.fullName === 'Crobat V DAA');
     if (crobatIndex < 0 && stage !== 'attack') {
-      abort('crobat-left-bench'); return ordinary;
+      abort('crobat-left-bench'); return ordinary();
     }
     if (pending) {
       if (stage === 'choose-stone' && pending.constructor.name === 'ChoosePokemonPrompt') {
         const slot = event.gate.stoneSlot === -2 ?
           own.active : own.bench[event.gate.stoneSlot];
         if (!slot?.tools.some(c => c.fullName === 'Forest Seal Stone SIT') ||
-            !pending.validate([slot],state)) { abort('stone-prompt-rejected'); return ordinary; }
+            !pending.validate([slot],state)) { abort('stone-prompt-rejected'); return ordinary(); }
         stage = 'attach-stone';
         return record(state,new ResolvePromptAction(pending.id,[slot]),'retrieve-stone');
       }
@@ -156,7 +158,7 @@ function withRank11CrobatTerminalPolicy(sourceSeat, execute) {
           pending.playerId === own.id && pending.cards === own.deck) {
         const patch = pending.cards.cards.find(c => c.fullName === 'Dark Patch ASR');
         if (!patch || !pending.validate([patch],state)) {
-          abort('no-legitimate-patch-in-star-alchemy-search'); return ordinary;
+          abort('no-legitimate-patch-in-star-alchemy-search'); return ordinary();
         }
         stage = 'await-patch';
         return record(state,new ResolvePromptAction(pending.id,[patch]),'search-patch');
@@ -165,12 +167,12 @@ function withRank11CrobatTerminalPolicy(sourceSeat, execute) {
         const energy = own.discard.cards.find(c => c.name === 'Darkness Energy');
         const transfers = energy ? [{card:energy,to:benchTarget(crobatIndex)}] : [];
         if (!energy || !pending.validate(transfers,state)) {
-          abort('darkness-attach-prompt-rejected'); return ordinary;
+          abort('darkness-attach-prompt-rejected'); return ordinary();
         }
         stage = 'retreat';
         return record(state,new ResolvePromptAction(pending.id,transfers),'dark-patch-to-crobat');
       }
-      return ordinary;
+      return ordinary();
     }
     if (stage === 'stadium') {
       stage = 'choose-stone';
@@ -178,13 +180,13 @@ function withRank11CrobatTerminalPolicy(sourceSeat, execute) {
     }
     if (stage === 'attach-stone') {
       const i=index('Forest Seal Stone SIT');
-      if (i < 0) { abort('stone-not-in-hand'); return ordinary; }
+      if (i < 0) { abort('stone-not-in-hand'); return ordinary(); }
       stage = 'vstar';
       return record(state,new PlayCardAction(own.id,i,benchTarget(crobatIndex)),'equip-crobat-stone');
     }
     if (stage === 'vstar') {
       if (own.usedVSTAR || !own.bench[crobatIndex].tools.some(c => c.fullName === 'Forest Seal Stone SIT')) {
-        abort('vstar-unavailable'); return ordinary;
+        abort('vstar-unavailable'); return ordinary();
       }
       stage = 'choose-patch';
       return record(state,new UseAbilityAction(own.id,'Star Alchemy',benchTarget(crobatIndex)),
@@ -193,26 +195,26 @@ function withRank11CrobatTerminalPolicy(sourceSeat, execute) {
     if (stage === 'await-patch' && index('Dark Patch ASR') >= 0) stage = 'patch';
     if (stage === 'patch') {
       const i = index('Dark Patch ASR');
-      if (i < 0) { abort('patch-not-in-hand'); return ordinary; }
+      if (i < 0) { abort('patch-not-in-hand'); return ordinary(); }
       stage = 'attach-darkness';
       return record(state,new PlayCardAction(own.id,i,boardTarget),'play-dark-patch');
     }
     if (stage === 'retreat') {
       if (own.bench[crobatIndex].energies.cards.length < 2) {
-        abort('crobat-not-powered'); return ordinary;
+        abort('crobat-not-powered'); return ordinary();
       }
       stage = 'attack';
       return record(state,new RetreatAction(own.id,crobatIndex),'promote-crobat');
     }
     if (stage === 'attack') {
       if (own.active.getPokemonCard()?.fullName !== 'Crobat V DAA') {
-        abort('crobat-promotion-failed'); return ordinary;
+        abort('crobat-promotion-failed'); return ordinary();
       }
       stage = 'done';
       event.status = 'attack-declared';
       return record(state,new AttackAction(own.id,'Venomous Fang'),'venomous-fang');
     }
-    return ordinary;
+    return ordinary();
   };
   Object.defineProperty(proto,'decodeNextAction',{...old,value:wrapper});
   try {
