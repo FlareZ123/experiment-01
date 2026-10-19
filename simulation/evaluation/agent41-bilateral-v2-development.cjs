@@ -105,6 +105,42 @@ function sourceLineReplyPacket(game,rank,sourceAudit,sourceSeat){
 }
 
 /**
+ * Keep only owner-slot Pass decisions and the public detached-Store
+ * attack announcement probes captured after the action had already been
+ * chosen. This samples at most eight Pass roots globally across both actors.
+ * Copy and other granted attacks may be absent from the enumeration.
+ *
+ * @param {object[]} decisionTrace Selective, post-choice Store trace.
+ * @param {0|1} candidateSeat Real candidate seat.
+ * @returns {{summary:object,samples:object[]}}
+ */
+function candidatePostChoicePassEvidence(decisionTrace,candidateSeat){
+  assert.ok(candidateSeat===0||candidateSeat===1);
+  const passes=decisionTrace.filter(row=>
+    row.playerSlot===candidateSeat&&row.action==='PassTurnAction');
+  const samples=passes.filter(row=>row.attackPassProbe)
+    .map(row=>({
+      ordinal:row.actionOrdinal,turn:row.turnBefore,
+      activePokemon:row.attackPassProbe.activePokemon??null,
+      auditError:row.attackPassProbe.auditError??null,
+      tested:row.attackPassProbe.tested??[],
+      truncated:row.attackPassProbe.truncated??false
+    }));
+  return {
+    summary:{
+      observedCandidatePasses:passes.length,
+      boundedProbeCount:samples.length,
+      unprobedCandidatePasses:passes.length-samples.length,
+      cloneAcceptedPasses:samples.filter(row=>
+        row.tested.some(attack=>attack.engineAcceptedAnnouncement===true)).length,
+      boundedAndIncomplete:true,
+      caveat:'Only printed/Tool-visible attack announcements on at most 8 globally sampled Pass roots'
+    },
+    samples
+  };
+}
+
+/**
  * A real frozen Store development arm. The v1 source-side policy is retained,
  * the v1 candidate-only New Moon policy is deliberately replaced by common v0.
  * @param {object} trial
@@ -181,19 +217,8 @@ function executeDevelopment(trial,candidates){
   const candidateFollowup=firstPostSourceDecision(
     rootTrace,trial.rank,sourceAudit,candidateSeat);
   const sourceLinePacket=sourceLineReplyPacket(game,trial.rank,sourceAudit,sourceSeat);
-  // This bounded post-choice clone probe is an offline diagnostic only.
-  // Its printed and Tool-visible attack enumeration omits copied attacks;
-  // no result may be fed into the decision policy or counted as game strength.
-  const candidatePasses=game.decisionTrace.filter(row=>
-    row.playerSlot===candidateSeat && row.action==='PassTurnAction');
-  const candidatePassProbes=candidatePasses.filter(row=>row.attackPassProbe)
-    .map(row=>({
-      ordinal:row.actionOrdinal,turn:row.turnBefore,
-      activePokemon:row.attackPassProbe.activePokemon??null,
-      auditError:row.attackPassProbe.auditError??null,
-      tested:row.attackPassProbe.tested??[],
-      truncated:row.attackPassProbe.truncated??false
-    }));
+  const passEvidence=candidatePostChoicePassEvidence(
+    game.decisionTrace,candidateSeat);
   return {
     trial,qualifiesForCompetitiveInference:false,
     policyVersion:POLICY_VERSION,
@@ -206,15 +231,8 @@ function executeDevelopment(trial,candidates){
     sourceDealFingerprint:sourceDeal.digestSha256,
     sourceFirstOwnHandSha256:ownerFirst?sha256(ownerFirst):null,
     policyAudit:commonAudit,sourceAudit,sourceLinePacket,
-    candidatePostChoicePassProbe:{
-      observedCandidatePasses:candidatePasses.length,
-      boundedProbeCount:candidatePassProbes.length,
-      cloneAcceptedPasses:candidatePassProbes.filter(row=>
-        row.tested.some(attack=>attack.engineAcceptedAnnouncement===true)).length,
-      boundedAndIncomplete:true,
-      caveat:'Only printed/Tool-visible attack announcements on at most 8 globally sampled Pass roots'
-    },
-    candidatePassProbeSamples:candidatePassProbes,
+    candidatePostChoicePassProbe:passEvidence.summary,
+    candidatePassProbeSamples:passEvidence.samples,
     attackDeclarations:{
       source:declared.filter(r=>r.playerSlot===sourceSeat).length,
       candidate:declared.filter(r=>r.playerSlot===candidateSeat).length
@@ -297,4 +315,5 @@ if(require.main===module){
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
 module.exports={developmentTrials,firstPostSourceDecision,
-  sourceLineReplyPacket,executeDevelopment,runDevelopment};
+  sourceLineReplyPacket,candidatePostChoicePassEvidence,
+  executeDevelopment,runDevelopment};
