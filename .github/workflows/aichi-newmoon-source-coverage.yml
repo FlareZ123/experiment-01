@@ -13,6 +13,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank15_bench_reservation:
+        description: 'Replay eight rank15 source physical deals with stage-line Bench reserve'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -240,6 +245,23 @@ jobs:
         with:
           name: newmoon-rank15-bunnelby-policy-pair-unqualified
           path: newmoon-rank15-bunnelby-policy-pair.json
+          if-no-files-found: warn
+      - name: Test rank15 visible Bench-slot source policy and real Store snapshot
+        if: ${{ inputs.rank15_bench_reservation }}
+        run: node --test tests/rank15-vileplume-bench-reservation.test.cjs tests/newmoon-rank15-source-duallock-census.test.cjs tests/newmoon-rank15-bunnelby-policy-pair.test.cjs
+      - name: Replay rank15 identical physical deals with source Bench reservation
+        if: ${{ inputs.rank15_bench_reservation }}
+        run: node simulation/twinleaf/rank15-vileplume-bench-reserved-source.cjs > rank15-bench-reserved-source.json
+      - name: Show source-aware rank15 Bench reservation exposure
+        if: ${{ inputs.rank15_bench_reservation }}
+        run: >-
+          node -e "const x=require('./rank15-bench-reserved-source.json'); console.log(JSON.stringify({schema:x.schema,attempts:x.trialCount,executed:x.executed,errors:x.errors,originalSourceDealsMatched:x.matchedOriginalDeals,aor:x.aor,bus:x.bus,dual:x.dual,twoStageLines:x.twoSourceStageLineSlots,fullBenchBelowTwo:x.fullSourceBenchBelowTwoStageLines,rows:x.rows.map(r=>({repeat:r.repeat,seat:r.candidateSeat,status:r.status,eligible:r.initialDualStagePrerequisitesEligible,aor:r.first?.aor?.turn??null,bus:r.first?.bus?.turn??null,twoLines:r.first?.twoSourceStageLineSlots?.turn??null,benchCrowded:r.first?.fullSourceBenchBelowTwoStageLines?.turn??null,tmDeclared:r.sourceActions?.nativeSourceAttackDeclarations?.evolutionAnnouncements??null,actions:r.actions??null}))},null,2))"
+      - name: Archive unqualified rank15 identical-deal Bench reservation
+        if: ${{ always() && inputs.rank15_bench_reservation }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank15-bench-reserved-source-unqualified
+          path: rank15-bench-reserved-source.json
           if-no-files-found: warn
       - name: Preserve exact pinned catalog coverage
         uses: actions/upload-artifact@v4
