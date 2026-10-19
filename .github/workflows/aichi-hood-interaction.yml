@@ -164,6 +164,22 @@ jobs:
           path: rank8-boostshake-fork.json
           if-no-files-found: warn
 
+      - name: Validate genuine Secret Box search category selection
+        if: inputs.hood_rank8_boostshake_fork
+        run: |
+          node --check simulation/twinleaf/rank8-secretbox-owner-category-audit.cjs
+          node --test tests/rank8-secretbox-owner-category-audit.test.cjs
+      - name: Replay actual owner Secret Box prompt and retained options
+        if: inputs.hood_rank8_boostshake_fork
+        run: node simulation/twinleaf/rank8-secretbox-owner-category-audit.cjs > rank8-secretbox-owner-category-audit.json
+      - name: Archive Secret Box owner-prompt search comparison
+        if: always() && inputs.hood_rank8_boostshake_fork
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank8-secretbox-owner-search-comparison
+          path: rank8-secretbox-owner-category-audit.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Validate source rank8 conditional opponent lock policy
         if: inputs.hood_rank8_boostshake_fork
         run: |
