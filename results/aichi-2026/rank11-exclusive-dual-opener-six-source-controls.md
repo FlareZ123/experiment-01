@@ -43,3 +43,22 @@ These are **six retrospective positives**, comprising different fixed candidate 
 The branch latch removes one *potential* class of interference by design. Since there were no actual competing claims in these six fixtures, this test does not prove that the latch resolved a real observed collision. Test failed and K1-aborted lines, no-opportunity starts, both physical seats in a new failure-inclusive seed frame, and actual source-opponent replies under an information-set-safe autonomous two-player policy. Until then this is an **early policy mechanics improvement**; it is not a qualified full-game opponent.
 
 **Qualified competitive games added: zero.**
+
+
+## 19 October extension: historical source negative and guarded K1 behavior
+
+The original six retrospective positives remain the same source fixtures and controls. A later version of the [source runner](../../simulation/twinleaf/rank11-exclusive-openers-source-replay.cjs) also explicitly separates the historical unguarded decoder from the more recent K0/K1 guarded decoder. The comparison used published rank-11 60 versus the fixed reference 60, source in physical seat A and actually starting first, authentic seed `207674218`, identical deck hashes, and real Owner-deck search prompts.
+
+[Compiled manual CI 39314465521](https://github.com/FlareZ123/experiment-01/actions/runs/39314465521), on source runner commit `ad61c192d3886cf3c6140dab1f5869a0ba2d6fc1`, **succeeded**. Its source output demonstrates:
+
+| Route | Observed abort | Owner deck Garbodor at search | Owner hand Garbodor |
+| --- | --- | ---: | ---: |
+| Original unguarded direct route | `garbodor-search`, step 4 | 0 | 1 |
+| K0/K1 guarded direct route | `trubbish-search`, step 1 | 0 | 1 |
+| Exclusive combined route | `trubbish-search`, step 1 | 0 | 1 |
+
+The guarded direct and combined decoders selected the same direct VIP route, recorded the same abort object, and preserved all source root actions across turns **1 and 2**. The guarded and exclusive runs did **not** complete Garbodor setup. In contrast, the original unguarded search abort arrived at a later step. This establishes a narrower source-backed resource-expenditure avoidance mechanism: the K1 guard stops planning the fruitless Boost Shake line at the first owner-visible deck search. It does not prove a better match outcome, because the opponent's available next moves and the opportunity costs of foregoing a line have not been evaluated competitively.
+
+The newer [exclusive opener module](../../simulation/twinleaf/rank11-exclusive-openers.cjs) additionally exports a pure claim latch, with [two-direction and bounded-history regression](../../tests/rank11-exclusive-openers.test.cjs). Both claim directions passed an independent engine-free smoke test. The pure regression was registered in the existing manual workflow, but those newly registered CI tests require a separate workflow run on the newer commit; the 39314465521 source replay used the preceding engine adapter revision. Pure conflicting-claim tests demonstrate the internal latch contract and remain distinct from genuine game states: none of the six positive source deals or this negative source deal exposed a competing second route claim.
+
+**Competitive-qualified games added: zero.**
