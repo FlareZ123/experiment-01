@@ -15,7 +15,8 @@ const RANK = 11;
 const CANDIDATE_SEAT = 1;
 const SOURCE_SEAT = 0;
 const SEED_BASE = 20261018;
-const REPEATS = 12;
+const {TOTAL_REPEATS,PARTITION_COUNT,scheduledRepeats} =
+  require('./newmoon-payload-partition-plan.cjs');
 
 /** @param {object} game @returns {object} */
 function observations(game) {
@@ -88,7 +89,9 @@ function arm(candidate,opponent,seed,payload) {
   }
 }
 
-function run() {
+/** @param {number|null} partitionIndex A fixed subset or the complete original cohort. */
+function run(partitionIndex = null) {
+  const schedule=scheduledRepeats(partitionIndex);
   const candidate=loadNewMoonCandidate();
   const plan=planAichi({label:candidate.id,cards:candidate.cards},{
     allowEquivalentBasicEnergies:true,
@@ -100,7 +103,7 @@ function run() {
   assert.equal(opponent.cards.length,60);
   assert.equal(plan.candidate.cards.length,60);
   const rows=[];
-  for(let repeat=0;repeat<REPEATS;repeat++) {
+  for(const repeat of schedule) {
     const seed=deriveSlotSeeds(SEED_BASE,'pilot',RANK,repeat).B;
     const control=arm(plan.candidate.cards,opponent.cards,seed,false);
     const payload=arm(plan.candidate.cards,opponent.cards,seed,true);
@@ -118,7 +121,10 @@ function run() {
   return {
     schema:'newmoon-rank11-prospective-compressor-attack-source-v1',
     printedSourceRank:RANK,candidateSeat:CANDIDATE_SEAT,
-    sourceSeat:SOURCE_SEAT,seedBase:SEED_BASE,repeats:REPEATS,
+    sourceSeat:SOURCE_SEAT,seedBase:SEED_BASE,repeats:TOTAL_REPEATS,
+    partitionIndex,partitionCount:PARTITION_COUNT,
+    scheduledRepeats:schedule,retainedAttemptCount:rows.length,
+    fullCohortPresent:partitionIndex===null,
     seedProtocol:'decorrelated-slots-v3; fixed repeats 0 through 11, all retained',
     candidatePrintHash:candidate.proxyIdCountHash,
     engineRevision:plan.engineRevision,
@@ -128,5 +134,9 @@ function run() {
     rows
   };
 }
-if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
+if(require.main===module) {
+  const raw=process.env.NEWMOON_PAYLOAD_PARTITION;
+  const index=raw===undefined?null:Number(raw);
+  process.stdout.write(JSON.stringify(run(index),null,2)+'\n');
+}
 module.exports={run,observations,arm};
