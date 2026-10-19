@@ -129,6 +129,7 @@ function candidatePostChoicePassEvidence(decisionTrace,candidateSeat){
   const perfectionSamples=passes.filter(row=>row.perfectionPassProbe)
     .map(row=>({
       ordinal:row.actionOrdinal,turn:row.turnBefore,
+      publicBoardBeforePass:row.publicBoardBeforePass??null,
       ...row.perfectionPassProbe
     }));
   return {
