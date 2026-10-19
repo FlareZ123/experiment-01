@@ -10,6 +10,10 @@ const load=name=>require(path.resolve(__dirname,'../../vendor/twinleaf/ptcg-serv
 /** Inspect owner-observation-equivalent Perfection choices at the actual tactic threshold. */
 function run(){
   const samples=[makePerfectionFixture(false),makePerfectionFixture(true)];
+  // The raw alternative can take three Prizes only when the unseen opponent
+  // hand contains enough Trainers to finish the already-damaged Mega Absol.
+  // An actual policy must decide before it knows that hidden information.
+  for(const sample of samples)sample.defender.active.damage=80;
   assert.deepEqual(observation(samples[0]),observation(samples[1]));
   const {UseAbilityTactic}=load('simple-bot/simple-tactics/use-ability-tactic');
   const defs=load('simple-bot/simple-bot-definitions');
@@ -28,11 +32,12 @@ function run(){
   try{
     sampled=samples.map(s=>new UseAbilityTactic(opts).useTactic(s.state,s.attacker)?.name??null);
   }finally{restore();}
+  assert.equal(raw[0]!==raw[1],true,'Decisive KO threshold should reveal a raw Perfection action-choice leak');
   assert.equal(sampled[0],sampled[1],'Owner-observation-equivalent choices must match');
   assert.deepEqual(samples.map(s=>new UseAbilityTactic(opts).useTactic(s.state,s.attacker)?.name??null),raw,
     'Restoration must recover the same original choices');
-  return {schema:'perfection-hidden-state-use-ability-choice-v1',
-    baseline,raw,sampled,rawActionLeak:raw[0]!==raw[1],
+  return {schema:'perfection-hidden-state-use-ability-choice-v2',
+    opposingActiveDamage:80,baseline,raw,sampled,rawActionLeak:raw[0]!==raw[1],
     sampledActionLeak:sampled[0]!==sampled[1],
     sourceRank:11,ownerCards:60,opponentCards:60,qualifiedGames:0};
 }
