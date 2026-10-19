@@ -28,9 +28,25 @@ All four retrospectively observed games report an engine terminal, without any n
 
 This evidence reveals a concrete rank6 response-policy asymmetry: the reference candidate actually declared Pale Moon-GX on the first turn after Volt Cyclone, while the New Moon first reply attached Telepathic Psychic Energy and did not declare an attack. It does **not** show that the fixed 60 difference caused the behavior, that the source attack's printed damage was applied correctly, or that either response was strategically optimal. It may motivate owner-visible decision-policy development on fresh prospectively registered deals.
 
+## A completed attack is later than its accepted root
+
+[Compiled manual CI 39203269786](https://github.com/FlareZ123/experiment-01/actions/runs/39203269786) **PASSED** with the additional opt-in public board and same-origin prompt-chain observer ([downloaded artifact](https://github.com/FlareZ123/experiment-01/actions/runs/39203269786/artifacts)). It also passed ten focused pure checks and the existing shared regression suite.
+
+**The source attack's direct Store dispatch left an unresolved prompt and had no immediate public damage delta.** Its following genuine prompt-resolution roots produced the expected **140** base damage on the opposing Active, agreeing with Iron Thorns ex `sv6-77`'s printed Volt Cyclone damage in `resources/cards/en/sv6.json`:
+
+| Registered source attack | Source attack ordinal | Final same-origin prompt action | Opponent's public Active damage | Prizes immediately after effect |
+| --- | ---: | ---: | --- | --- |
+| `6:0:A:champion-reference` | 27 | **30** | Trevenant & Dusknoir-GX **0 → 140** | 6 / 6 |
+| `6:0:A:new-moon-lockbreaker-v1` | 26 | **29** | Latias ex **0 → 140** | 6 / 6 |
+| `6:2:A:new-moon-lockbreaker-v1` | 39 | **42** | Mewtwo & Mew-GX **0 → 140** | 6 / 6 |
+
+A naive observation immediately after `AttackAction` incorrectly records zero damage in all three cases, even though the prompt-resolved Store subsequently applies 140. The code now retains both snapshots and fails closed on incompatible actor/origin/closing-root linkage. The champion response's actual Pale Moon-GX declaration also traverses a prompted root; the board snapshot still shows zero damage to Iron Thorns, which alone says nothing about Pale Moon-GX's non-damage effects.
+
+This establishes **real Store-resolved public damage behavior in these three selected source-dealt states**. The stronger full paper-rule claim still requires verifying Weakness, Resistance, replacement effects, damage modifiers, broader state interaction and opponent decision quality; no simulator evidence here qualifies match win probability.
+
 ## Scope of new read-only instrumentation
 
-The additive [public-attack observer](../../simulation/twinleaf/headless.cjs) is **opt-in** and records face-up board snapshots immediately before and after actual Store actions that logged an attack declaration. The archive packet validates those snapshots against the root/declaration actor, preserves whether a prompt remains pending, and keeps `sourceEffectVerified:false` even when damage counters change. It never exports hidden hand, facedown deck order or Prize identities. **This public-delta extension requires separate compiled verification** from the baseline root-to-reply run cited above.
+The additive [public-attack observer](../../simulation/twinleaf/headless.cjs) is **opt-in** and records face-up board snapshots immediately before and after actual Store actions that logged an attack declaration. The archive packet validates those snapshots against the root/declaration actor, preserves whether a prompt remains pending, and keeps `sourceEffectVerified:false` even when damage counters change. It never exports hidden hand, facedown deck order or Prize identities. **The public-delta extension has been verified in the separate compiled run above; the later golden-source archived-root digest gate remains an independent check.**
 
 Read-only root snapshots cannot establish all prompt-resolved printed attack effects, correct rules semantics, game-clock outcomes, information-set-safe policy decisions, or human-grade bilateral play. Do not interpret a 6-Prize engine deck-out victory as defeating the source lock on merits.
 
