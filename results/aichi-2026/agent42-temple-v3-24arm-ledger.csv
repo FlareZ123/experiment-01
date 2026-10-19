@@ -1,0 +1,25 @@
+rank,seed,seat,actualFirst,initialActive,wobbuffetOffered,wobbuffetChosen,wobbuffetWindows,latiasWindows,vmaxWindows,readyWindows,maxGeistDeclarations,candidatePrizesRemaining,sourcePrizesRemaining,turns,status
+6,2026101851,0,false,Trevenant & Dusknoir-GX SMP,false,false,0,0,0,0,0,0,6,12,terminal
+6,2026101851,1,true,Trevenant & Dusknoir-GX SMP,false,false,0,0,0,0,0,2,6,19,terminal
+6,2026101852,0,false,Shadow Rider Calyrex V CRE,false,false,0,0,0,0,0,4,6,28,action-limit
+6,2026101852,1,true,Lillie's Clefairy ex JTG,false,false,0,0,0,0,0,6,6,32,action-limit
+6,2026101853,0,false,Lillie's Clefairy ex JTG,false,false,0,0,0,0,0,4,4,35,action-limit
+6,2026101853,1,true,Dialga-GX UPR,false,false,0,0,0,0,0,6,6,28,action-limit
+6,2026101854,0,false,Wobbuffet PHF,true,true,14,10,0,0,0,6,3,26,action-limit
+6,2026101854,1,true,Trevenant & Dusknoir-GX SMP,false,false,0,0,0,0,0,0,6,13,terminal
+24,2026101851,0,false,Trevenant & Dusknoir-GX SMP,false,false,0,0,0,0,0,6,0,25,terminal
+24,2026101851,1,true,Trevenant & Dusknoir-GX SMP,false,false,0,0,0,0,0,0,6,15,terminal
+24,2026101852,0,false,Shadow Rider Calyrex V CRE,false,false,0,0,0,0,0,6,4,30,action-limit
+24,2026101852,1,true,Lillie's Clefairy ex JTG,false,false,0,0,0,0,0,6,3,30,action-limit
+24,2026101853,0,false,Lillie's Clefairy ex JTG,false,false,0,0,0,0,0,0,5,28,terminal
+24,2026101853,1,true,Dialga-GX UPR,false,false,0,0,0,0,0,0,6,19,terminal
+24,2026101854,0,false,Wobbuffet PHF,true,true,26,22,5,0,0,2,6,27,action-limit
+24,2026101854,1,true,Trevenant & Dusknoir-GX SMP,false,false,0,0,0,0,0,0,6,19,terminal
+29,2026101851,0,false,Trevenant & Dusknoir-GX SMP,false,false,0,0,0,0,0,0,5,26,terminal
+29,2026101851,1,true,Trevenant & Dusknoir-GX SMP,false,false,0,0,0,0,0,2,6,27,action-limit
+29,2026101852,0,false,Shadow Rider Calyrex V CRE,false,false,0,0,0,0,0,6,1,29,action-limit
+29,2026101852,1,true,Lillie's Clefairy ex JTG,false,false,0,0,0,0,0,2,2,24,action-limit
+29,2026101853,0,false,Lillie's Clefairy ex JTG,false,false,0,0,0,0,0,2,6,8,terminal
+29,2026101853,1,true,Dialga-GX UPR,false,false,0,0,0,0,1,6,6,28,action-limit
+29,2026101854,0,false,Wobbuffet PHF,true,true,14,10,0,0,0,6,4,29,action-limit
+29,2026101854,1,true,Trevenant & Dusknoir-GX SMP,false,false,0,0,0,0,0,0,6,19,terminal
