@@ -287,7 +287,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [capturePhysicalZoneIntegrity] Opt-in read-only physical reference/attached Energy checks after each live root action.
  * @property {0|1} [captureCopycatTurnStartSeat] Opt-in candidate perspective resource snapshot once per own turn, taken before selecting the first action.
  * @property {0|1} [visiblePlayLockSupporterSeat] With enforceVisiblePlayLockSeat, substitute held legal Lillie's Determination once before falling back to Pass; historical source-policy regression only.
- * @property {boolean} [enforceVisiblePlayLockBothSeats] Opt-in generic final-action Stadium and Special Energy lock guard for both actual actors; mutually exclusive with a single guarded seat.
+ * @property {boolean} [enforceVisiblePlayLockBothSeats] Opt-in generic final-action owner-visible Trainer and Energy play-lock guard for both actual actors; mutually exclusive with a single guarded seat.
  * @property {boolean} [captureAttackPassProbes] Opt-in first eight post-choice Pass attack-announcement probes; only archived when capturing decision trace.
  * @property {0|1} [capturePerfectionPassProbeSeat] On up to four real Pass decisions with active Mewtwo & Mew-GX, inspect detached Perfection attack menu; observation only.
  */
@@ -910,7 +910,9 @@ function runMatch(request) {
           engine('game/store/card/card-types');
         const reason=playerPlayLockVeto(owner,action,{
           superTrainer:SuperType.TRAINER,superEnergy:SuperType.ENERGY,
-          stadium:TrainerType.STADIUM,specialEnergy:EnergyType.SPECIAL
+           item:TrainerType.ITEM,supporter:TrainerType.SUPPORTER,
+           stadium:TrainerType.STADIUM,tool:TrainerType.TOOL,
+           specialEnergy:EnergyType.SPECIAL
         });
         if (reason) {
           const heldLillieIndex =
@@ -1544,9 +1546,9 @@ function runMatch(request) {
           '+SourceMimikyuTurn27Setup-v1@seat' + request.mimikyuTurn27SetupSeat : '') +
         (request.passClearsLastAttackCorrection === true ? '+PassClearsLastAttack-v1' : '') +
         (request.enforceVisiblePlayLockSeat !== undefined ?
-          '+LivePlayLockDispatchVeto-v1@seat' + request.enforceVisiblePlayLockSeat : '') +
+          '+LivePlayLockDispatchVeto-v2@seat' + request.enforceVisiblePlayLockSeat : '') +
         (request.enforceVisiblePlayLockBothSeats === true ?
-          '+LivePlayLockDispatchVeto-v1@both' : '') +
+          '+LivePlayLockDispatchVeto-v2@both' : '') +
         (request.visiblePlayLockSupporterSeat !== undefined ?
           '+HeldLillieIfLegalElsePass-v1@seat' + request.visiblePlayLockSupporterSeat : '') +
         (request.prototypeSafeSimulatorIsolation === true ?
