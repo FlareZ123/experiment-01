@@ -91,7 +91,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Pure rank11 direct-opportunity and seed-frame regressions
-        run: node --test tests/rank11-direct-opportunity.test.cjs tests/rank11-held-seal-opportunity.test.cjs tests/rank11-held-seal-extended-opportunity.test.cjs tests/rank11-source-seeds.test.cjs tests/rank11-direct-candidate-attack-window.test.cjs tests/rank11-candidate-first-pass-summary.test.cjs tests/rank11-candidate-first-printed-attack-audit.test.cjs tests/rank11-unown-pre-retreat-payment-audit.test.cjs tests/rank11-newmoon-firstturn-vip-availability-audit.test.cjs tests/newmoon-farewell-vip-bench-policy.test.cjs tests/newmoon-bench-reservation-policy.test.cjs
+        run: node --test tests/rank11-direct-opportunity.test.cjs tests/rank11-held-seal-opportunity.test.cjs tests/rank11-held-seal-extended-opportunity.test.cjs tests/rank11-source-seeds.test.cjs tests/rank11-direct-candidate-attack-window.test.cjs tests/rank11-candidate-first-pass-summary.test.cjs tests/rank11-candidate-first-printed-attack-audit.test.cjs tests/rank11-unown-pre-retreat-payment-audit.test.cjs tests/rank11-newmoon-firstturn-vip-availability-audit.test.cjs tests/newmoon-farewell-vip-bench-policy.test.cjs tests/newmoon-bench-reservation-policy.test.cjs tests/newmoon-garbotoxin-blower-autonomy.test.cjs
       - name: Install pinned simulator dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -118,7 +118,7 @@ jobs:
         run: node simulation/twinleaf/rank11-held-seal-newmoon-coupled-reply.cjs > rank11-held-seal-newmoon-coupled-reply.json
       - name: Print true source and autonomous New Moon response ledger
         if: inputs.held_seal_coupled_reply
-        run: node -e "const p=require('./rank11-held-seal-newmoon-coupled-reply.json'); console.log(JSON.stringify({scope:p.selection,rows:p.rows.map(r=>({trial:r.trial,seed:r.seed,sourceOpening:r.sourceOpening,selectedBlowers:r.responder.selectedBlowers,confirmedRemovals:r.responder.confirmedToolRemovals,firstReply:r.withCandidateResponse.candidateFirstTurnActions,pairedOriginalRootEqual:r.identicalSourceFirstTurnRootLedger}))},null,2))"
+        run: node -e "const p=require('./rank11-held-seal-newmoon-coupled-reply.json'); console.log(JSON.stringify({scope:p.selection,rows:p.rows.map(r=>({trial:r.trial,seed:r.seed,sourceOpening:r.sourceOpening,selectedBlowers:r.responder.selectedBlowers,confirmedRemovals:r.responder.confirmedToolRemovals,anyActiveBlowers:r.anyActiveResponder.selectedBlowers,anyActiveRemovals:r.anyActiveResponder.confirmedToolRemovals,anyActiveEvents:r.anyActiveResponder.policyEvents.filter(e=>e.kind==='autonomous-legal-Item'||e.kind==='public-Tool-check'),firstReply:r.withCandidateResponse.candidateFirstTurnActions,pairedOriginalRootEqual:r.identicalSourceFirstTurnRootLedger}))},null,2))"
       - name: Compare archived genuine rank11 direct locks with fixed candidate attack windows
         if: inputs.attack_window_probe
         run: node simulation/twinleaf/rank11-direct-candidate-attack-window.cjs > rank11-direct-candidate-attack-window.json
