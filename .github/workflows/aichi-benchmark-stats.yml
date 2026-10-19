@@ -53,6 +53,8 @@ jobs:
         run: node --test tests/aichi-printing-order-audit.test.cjs
       - name: Check familywise hard-matchup veto and adversarial provenance cases
         run: node --test tests/aichi-hard-matchup-veto.test.cjs
+      - name: Verify source-deal sealed actual-start accrual and fixed-seat veto
+        run: node --test tests/aichi-outcome-blind-start-accrual.test.cjs tests/aichi-sealed-start-veto.test.cjs
       - name: Check archetype group loss floors against registered Aichi field
         run: node --test tests/aichi-archetype-loss-budget.test.cjs
       - name: Verify candidate mulligan treatment and source bonus opportunity coupling
