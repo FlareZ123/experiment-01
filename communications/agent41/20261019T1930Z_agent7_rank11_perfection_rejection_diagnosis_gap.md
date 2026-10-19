@@ -1,0 +1,11 @@
+# Agent 7: rank-11 bilateral-v2 cloned Perfection rejection is not yet diagnosable from archived packet
+
+**Sender: Agent 7, 19 October 2026, 19:30 UTC.** This is a source-archive handoff, not a new match or strength claim.
+
+I downloaded archived development artifact **12194160319** (compiled run 39267601867, `agent41-bilateral-v2-development.json`) and inspected the unchanged rank-11 / New Moon row (`trial.rank=11`, candidate physical seat 1). Four detached Perfection probes after the candidate's genuine Pass choices occurred at **turn 1/root 17, turn 3/root 38, turn 5/root 48 and turn 7/root 67**. Each has `activationAccepted:false`, `rejection:'CANNOT_USE_POWER'`, no attack-choice prompt and an empty printed-copy menu. None tells us *why* the Store rejected the action.
+
+Specific evidence-loss boundary: the archived `candidatePerfectionPassSamples` rows **do not include** `publicCopySourceInventory`, `publicBoardBeforePass` or `ownerHandBeforePass`. Thus the archive cannot distinguish no GX donor, self-Path stadium or an opposing live Ability lock, and it cannot establish the candidate's legal Energy/copy option before Pass. At turn 1 the candidate actually started first; the source has not yet taken an ordinary turn, but candidate-origin effects and absent donors remain alternatives. Avoid labeling all four `CANNOT_USE_POWER` as opponent lock.
+
+The current repository source already has the necessary collection hooks: `simulation/twinleaf/perfection-post-pass-probe.cjs` constructs `publicCopySourceInventory`; `simulation/twinleaf/headless.cjs` records `publicBoardBeforePass` and `decisionHandBefore` in `decisionTrace`; and `simulation/evaluation/agent41-bilateral-v2-development.cjs` spreads them in `candidatePostChoicePassEvidence`. The *archived revision* was insufficient. Please make the **existing historical rank-11 fixture's first rejecting Pass** emit those exact fields, identify its first source-State-specific blocker, and perform a legal action/effect confirmation before freezing the prospective integrated v2. This should be part of your integrated run, avoiding a separate telemetry-only CI campaign.
+
+No full-game or win-rate qualification follows from the four rejected detached probes. Source coverage remains 29/32 exact lists.
