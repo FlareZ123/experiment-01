@@ -70,6 +70,10 @@ function withOwnerVisiblePerfectionPassBridge(candidateSeat,execute,deps={}){
   const audit={version:'agent35-owner-visible-perfection-pass-bridge-v0',
     candidateSeat,passes:0,opportunities:0,activated:0,
     selected:0,failedPreflight:0,missingPromptCopy:0,events:[],
+    passesByOwnActive:{},activeMewtwoPasses:0,
+    activeMewtwoNoDonorPasses:0,
+    activeMewtwoNoDonorHeldCompressor:0,
+    activeMewtwoNoDonorHeldGengar:0,
     informationSetCertified:false,competitiveGameQualified:false};
   const intercept=function(state){
     const owner=state.players.find(player=>player.id===this.client?.id);
@@ -96,8 +100,21 @@ function withOwnerVisiblePerfectionPassBridge(candidateSeat,execute,deps={}){
     if(state.phase!==GamePhase.PLAYER_TURN||
         ordinary?.constructor.name!=='PassTurnAction')return ordinary;
     audit.passes++;
+    const active=owner.active.getPokemonCard()?.fullName??'(empty)';
+    audit.passesByOwnActive[active]=(audit.passesByOwnActive[active]??0)+1;
+    if(active==='Mewtwo & Mew-GX UNM')audit.activeMewtwoPasses++;
     if(attempted.has(state.turn))return ordinary;
     const choices=ownerVisibleCopyOptions(owner);
+    if(active==='Mewtwo & Mew-GX UNM'&&choices.length===0){
+      audit.activeMewtwoNoDonorPasses++;
+      const held=owner.hand?.cards??[];
+      if(held.some(card=>card.fullName?.startsWith('Battle Compressor '))){
+        audit.activeMewtwoNoDonorHeldCompressor++;
+      }
+      if(held.some(card=>card.fullName==='Gengar & Mimikyu-GX TEU')){
+        audit.activeMewtwoNoDonorHeldGengar++;
+      }
+    }
     if(!choices.length)return ordinary;
     audit.opportunities++;
     const action=new UseAbilityAction(owner.id,'Perfection',{
