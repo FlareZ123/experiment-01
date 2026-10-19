@@ -27,6 +27,8 @@ jobs:
         run: npm run compile
       - name: Execute staged Electrode-GX Store and bot prompt contract
         run: node simulation/twinleaf/electrode-gx-ability-contract.cjs
+      - name: Verify exact rank9 Bomb attachment to Mega ex
+        run: node --test tests/rank9-electrode-mega-recipient.test.cjs
       - name: Verify reversible Electrode-GX Energy correction
         run: node --test tests/electrode-gx-energy-hook.test.cjs
       - name: Expose default Electrode Ability scoring penalty
