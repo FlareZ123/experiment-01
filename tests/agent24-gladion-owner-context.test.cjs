@@ -113,10 +113,13 @@ test('used Stadium and Supporter counters are distinct from global turn number',
   const f=setup();
   f.owner.stadiumUsedTurn=5;
   f.owner.supporterTurn=1;
+  f.owner.bench[0].pokemonPlayedTurn=5;
   const prior=beforeGladionRootPrizeChoice(
     f.state,f.prompt,f.action,1,47,true);
   assert.equal(prior.ownerContextBefore.supporterAlreadyPlayed,true);
   assert.equal(prior.ownerContextBefore.stadiumEffectUsedThisTurn,true);
+  assert.equal(prior.ownerContextBefore.ownBench[0].playedThisTurn,true);
+  assert.equal(prior.ownerContextBefore.ownBench[1].playedThisTurn,false);
   f.owner.stadiumUsedTurn=4;
   assert.equal(prior.ownerContextBefore.stadiumEffectUsedThisTurn,true,
     'Detached context must not change with the live state');
