@@ -18,6 +18,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank26_dowsing_hold_probe:
+        description: 'Check one authentic firstturn ACE SPEC consumption guard in four historical rank26 deals'
+        type: boolean
+        required: false
+        default: false
       rank26_quick_ball_discard_probe:
         description: 'Compare real source Quick Ball Iono versus ACE cost on four historical openings'
         type: boolean
@@ -154,6 +159,18 @@ jobs:
         with:
           name: rank26-mail-scout-source-unqualified
           path: rank26-mail-source-probe.json
+          if-no-files-found: error
+      - name: Test source-first Dowsing tactic guard boundary
+        run: node --test tests/rank26-dowsing-hold.test.cjs
+      - name: Compare matched rank26 source firstturn with ACE hold tactic
+        if: ${{ inputs.rank26_dowsing_hold_probe }}
+        run: node simulation/twinleaf/rank26-dowsing-hold-source-pair.cjs > rank26-dowsing-hold-source.json
+      - name: Archive source Dowsing firstturn guard action comparison
+        if: ${{ inputs.rank26_dowsing_hold_probe }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank26-dowsing-hold-development-unqualified
+          path: rank26-dowsing-hold-source.json
           if-no-files-found: error
       - name: Verify owner-hand Quick Ball cost safety constraints
         run: node --test tests/rank26-quick-ball-discard.test.cjs
