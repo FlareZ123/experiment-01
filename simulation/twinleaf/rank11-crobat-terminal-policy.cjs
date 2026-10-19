@@ -106,7 +106,9 @@ function withRank11CrobatTerminalPolicy(sourceSeat, execute) {
     if (stage === 'aborted' || stage === 'done') return ordinary;
     const index = name => own.hand.cards.findIndex(c => c.fullName === name);
     const crobatIndex = own.bench.findIndex(s => s.getPokemonCard()?.fullName === 'Crobat V DAA');
-    if (crobatIndex < 0) { abort('crobat-left-bench'); return ordinary; }
+    if (crobatIndex < 0 && stage !== 'attack') {
+      abort('crobat-left-bench'); return ordinary;
+    }
     if (pending) {
       if (stage === 'choose-stone' && pending.constructor.name === 'ChoosePokemonPrompt') {
         const slot = own.bench[event.gate.stoneSlot];
