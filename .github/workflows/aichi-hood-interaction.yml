@@ -18,6 +18,10 @@ on:
         description: 'Matched source rank8 Hood Forest Seal Tool Power policy contrast'
         type: boolean
         default: false
+      hood_rank8_spent_supporter_replay:
+        description: 'Agent31 retrospective rank8 Stone unrestricted search ranking contrast'
+        type: boolean
+        default: false
       hood_rank8_pressure_prospective:
         description: 'Agent15 frozen 16-seed source rank8 Hood pressure pairs'
         type: boolean
@@ -68,6 +72,19 @@ jobs:
         run: node --test tests/rank8-hood-lock-attack-gate.test.cjs
       - name: Verify source Tool Power comparison accounting
         run: node --test tests/hood-rank8-stone-policy-contrast.test.cjs
+      - name: Check restricted spent-Supporter Stone source chronology
+        run: node --test tests/spent-supporter-search-policy.test.cjs tests/rank8-spent-supporter-stone-source.test.cjs
+      - name: Replay original rank8 Stone search with optional spent-Supporter correction
+        if: inputs.hood_rank8_spent_supporter_replay
+        run: node simulation/twinleaf/rank8-spent-supporter-stone-source.cjs
+      - name: Archive rank8 spent-Supporter Stone prompt source contrast
+        if: always() && inputs.hood_rank8_spent_supporter_replay
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank8-spent-supporter-stone-source-comparison
+          path: rank8-spent-supporter-search-pair.json
+          if-no-files-found: error
+          retention-days: 14
       - name: Execute pre-registered Hood rank8 Tool Power contrast
         if: inputs.hood_rank8_stone_policy
         run: node simulation/twinleaf/hood-rank8-stone-policy-contrast.cjs
