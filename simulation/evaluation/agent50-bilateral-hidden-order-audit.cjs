@@ -7,8 +7,10 @@ const {isDeepStrictEqual}=require('node:util');
 
 /**
  * The source-first opponent line at 6:0:A is expected on global turn 2,
- * and the candidate's next own turn is 3. At 11:2:B, source first-turn
- * Boost Shake can be followed by candidate global turn 2. These are
+ * and the candidate's next own turn is 3. At 11:2:B, the source player
+ * actually starts second and any turn-2 Boost Shake precedes candidate
+ * global turn 3. Both placements are confirmed from the compiled 19 October
+ * common-policy development run 39234692630. These are
  * *historical development* roots, not held-out or assured pressure events.
  *
  * @param {{rank:number,candidateSlot:string}} trial
@@ -20,7 +22,7 @@ function candidateDevelopmentTarget(trial) {
   assert.ok((trial.rank===6&&trial.candidateSlot==='A')||
     (trial.rank===11&&trial.candidateSlot==='B'),
   'Historical fixture/seat mismatch');
-  return {turn:trial.rank===6?3:2,seat:trial.candidateSlot==='A'?0:1};
+  return {turn:3,seat:trial.candidateSlot==='A'?0:1};
 }
 
 /**
@@ -100,9 +102,11 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom) {
     controlProjection.rootActions &&
     controlProjection.sourceDeal &&
     controlProjection.verifiedFirstTurn===true &&
+    controlProjection.sourceActuallyFirst===false &&
     observedProjection.rootActions &&
     observedProjection.sourceDeal &&
-    observedProjection.verifiedFirstTurn===true);
+    observedProjection.verifiedFirstTurn===true &&
+    observedProjection.sourceActuallyFirst===false);
   const noninterferenceVerified=samePlayback&&actualExecutionAuthenticated;
   const event=events.length===1?events[0]:null;
   const ownerBaselineVerified=event?.baselineActionMatchedActual===true &&
@@ -199,7 +203,7 @@ function runHistoricalDevelopmentAudit() {
   return {
     schema:'agent50-crossrank-historical-live-hidden-order-v1',
     protocol:'same-frozen-game control/replay, one candidate root hidden order flip',
-    targetRankAndActualSeat:'6:0:A candidate seat A turn 3; 11:2:B candidate seat B turn 2',
+    targetRankAndActualSeat:'6:0:A candidate seat A turn 3; 11:2:B candidate seat B turn 3',
     source:'Agent 41 previously inspected v1 development streams; excluded from prospective v2',
     allAttemptsRetained:true,attempts:rows.length,rows,
     liveProbeNoninterfering:rows.filter(r=>r.noninterferenceVerified).length,
