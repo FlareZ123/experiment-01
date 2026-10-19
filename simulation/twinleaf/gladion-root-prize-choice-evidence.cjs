@@ -20,6 +20,7 @@ function gladionOwnerBoardContext(state,seat){
       stackPrintings:(slot.cards||[]).map(card=>card.fullName),
       toolPrintings:(slot.tools||[]).map(card=>card.fullName),
       energyPrintings:(slot.energies?.cards||[]).map(card=>card.fullName),
+      playedThisTurn:slot.pokemonPlayedTurn===state.turn,
       damage:slot.damage
     };
   };
