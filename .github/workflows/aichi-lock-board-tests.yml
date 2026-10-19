@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent37_rank11_tool_maintenance:
+        description: 'Predeclared 4-seed both-seat source-owned Float Stone to Garbodor retarget, unqualified'
+        required: false
+        type: boolean
+        default: false
       agent34_rank11_autonomous_carmine:
         description: 'Bounded own-information Carmine response policy versus frozen New Moon, archived and registered seeds'
         required: false
@@ -112,6 +117,27 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Prove owner-hand public-board-only Garbotoxin Tool retarget
+        if: inputs.agent37_rank11_tool_maintenance
+        run: node --test tests/rank11-garbodor-tool-maintenance-policy.test.cjs
+      - name: Run every preregistered rank11 Tool-maintenance physical seat
+        if: inputs.agent37_rank11_tool_maintenance
+        run: node simulation/twinleaf/rank11-garbodor-tool-maintenance-panel.cjs > rank11-garbodor-maintenance.json
+      - name: Summarize Tool-maintenance exposure without counting competitive wins
+        if: inputs.agent37_rank11_tool_maintenance
+        run: >-
+          node -e "const r=require('./rank11-garbodor-maintenance.json');
+          console.log(JSON.stringify({schema:r.schema,
+          scheduled:r.totalScheduledPairs,completed:r.bothArmsCompleted,
+          failed:r.failedArmsPreserved,opportunities:r.retargetOpportunities,
+          qualified:r.qualifiedCompetitiveGames}));"
+      - name: Preserve all preregistered source Tool-maintenance cases
+        if: inputs.agent37_rank11_tool_maintenance && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-garbodor-maintenance-prospective
+          path: rank11-garbodor-maintenance.json
+          if-no-files-found: warn
       - name: Test rank19 ADP readiness separately from printed attack declaration
         if: inputs.rank19_adp_source_opening
         run: node --test tests/rank19-adp-source-opening-policy.test.cjs
