@@ -276,6 +276,9 @@ function executeDevelopment(trial,candidates,{
       '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')),
     ownerCompressorPayloadOptIn:compressorPayload,
     ownerCompressorLate14OptIn:lateCompressorPayload,
+    ...(lateCompressorPayload?{candidateBattleCompressorRoots:
+      candidateCompressorRoots.map(row=>({turn:row.turnBefore,
+        ordinal:row.actionOrdinal,card:row.card}))}:{}),
     ...(opportunityAudit?{ownerCompressorOpportunityAudit:ownerCompressorAudit}:{}),
     finalDispatchVisiblePlayLockV2:game.livePlayLockGuardBothSeats===true,
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
