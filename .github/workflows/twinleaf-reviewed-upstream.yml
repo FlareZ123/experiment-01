@@ -1,0 +1,107 @@
+name: Review upstream Twinleaf revisions
+
+on:
+  schedule:
+    - cron: '13 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: twinleaf-upstream-review
+  cancel-in-progress: false
+
+jobs:
+  validate-upstream:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      changed: ${{ steps.revision.outputs.changed }}
+      upstream_sha: ${{ steps.revision.outputs.upstream_sha }}
+      current_sha: ${{ steps.revision.outputs.current_sha }}
+    steps:
+      - name: Check out pinned research and vendor commits
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          persist-credentials: false
+      - name: Find upstream main without advancing the pinned submodule
+        id: revision
+        shell: bash
+        run: |
+          current="$(git -C vendor/twinleaf rev-parse HEAD)"
+          git -C vendor/twinleaf fetch --depth=1 origin main
+          upstream="$(git -C vendor/twinleaf rev-parse FETCH_HEAD)"
+          echo "current_sha=$current" >> "$GITHUB_OUTPUT"
+          echo "upstream_sha=$upstream" >> "$GITHUB_OUTPUT"
+          if [[ "$current" == "$upstream" ]]; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+            git -C vendor/twinleaf checkout --detach "$upstream"
+          fi
+      - name: Set up pinned Node version for compatibility check
+        if: steps.revision.outputs.changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install candidate upstream dependencies and compile
+        if: steps.revision.outputs.changed == 'true'
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Regress research-side adapter, real Store and source-deal boundary
+        if: steps.revision.outputs.changed == 'true'
+        run: |
+          node --test tests/turn_order_evidence.test.cjs tests/twinleaf-policy-rng-isolation.test.cjs tests/twinleaf-vendor-clone-compatibility.test.cjs tests/new-moon-opening-horror-house-store-preflight.test.cjs
+          node simulation/twinleaf/smoke-test.cjs
+      - name: Record immutable compatibility pair
+        if: steps.revision.outputs.changed == 'true'
+        run: |
+          echo "Current research pin: ${{ steps.revision.outputs.current_sha }}"
+          echo "Tested upstream pin: ${{ steps.revision.outputs.upstream_sha }}"
+
+  propose-reviewed-pin:
+    needs: validate-upstream
+    if: needs.validate-upstream.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out current main for a reviewable update
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          submodules: true
+      - name: Apply exactly the commit validated in the read-only job
+        shell: bash
+        env:
+          VALIDATED_UPSTREAM_SHA: ${{ needs.validate-upstream.outputs.upstream_sha }}
+        run: |
+          git -C vendor/twinleaf fetch --depth=1 origin "$VALIDATED_UPSTREAM_SHA"
+          git -C vendor/twinleaf checkout --detach "$VALIDATED_UPSTREAM_SHA"
+          test "$(git -C vendor/twinleaf rev-parse HEAD)" = "$VALIDATED_UPSTREAM_SHA"
+      - name: Open or update one reviewable submodule pin proposal
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: automation/twinleaf-reviewed-upstream
+          base: main
+          add-paths: vendor/twinleaf
+          commit-message: 'Agent 2: propose tested Twinleaf upstream pin'
+          title: 'Review tested Twinleaf upstream pin'
+          body: |
+            Scheduled or manual review of the existing Twinleaf gitlink at `vendor/twinleaf`.
+
+            Previous tested project pin: `${{ needs.validate-upstream.outputs.current_sha }}`
+            New pinned-upstream candidate: `${{ needs.validate-upstream.outputs.upstream_sha }}`
+
+            A separate **read-only-token** job fetched this exact upstream commit, installed and compiled the server, ran selected research-side adapter and real Store tests, and executed the bounded headless smoke game. A failure blocks publication of the proposal. The publishing job executes no upstream build code with a write token.
+
+            Review the upstream diff, unsupported Expanded printings, simulation fidelity and adapter compatibility before merging. This is an **unmerged proposed pin**, never a silent revision change. Do not compare results from different engine revisions without recording both.
+          delete-branch: true
