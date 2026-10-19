@@ -110,8 +110,7 @@ function withRank11Turn49QuickBalls(sourceSeat, execute) {
       if (pending) return original.call(this,state);
       completed++;
       events.push({kind:'search-resolved',turn:state.turn,completed,
-        trainersLeft:own.hand.cards.filter(c=>c.superType==='TRAINER' ||
-          c.constructor?.name?.includes('Trainer')).length,
+        trainersLeft:own.hand.cards.filter(c=>c.superType===2).length,
         hand:own.hand.cards.map(c=>c.fullName)});
       phase='play';
       if (completed===3) return original.call(this,state);
