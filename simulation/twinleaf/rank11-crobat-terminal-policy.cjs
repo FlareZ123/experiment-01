@@ -12,44 +12,73 @@ function occupiedPrizes(p) {
   return p.prizes.filter(slot => slot.cards.length > 0).length;
 }
 
+const THREE_PRIZE_TARGETS = new Set([
+  'Mewtwo & Mew-GX UNM',
+  'Shadow Rider Calyrex VMAX CRE',
+  'Trevenant & Dusknoir-GX SMP',
+  'Gengar & Mimikyu-GX TEU'
+]);
+
+/** @param {any} slot @returns {boolean} */
+function hasCrobatAttackEnergy(slot) {
+  return slot.energies.cards.length >= 2 &&
+    slot.energies.cards.some(c => c.name === 'Darkness Energy');
+}
+
 /**
- * Source-only hand / public-board eligibility for a very narrow lethal line.
- * K0 never assumes a Dark Patch remains searchable. That is established only
- * when the owner's Star Alchemy search prompt grants deck inspection.
+ * Owner-information-only lethal-opportunity classification.
+ * Never examines hidden opponent zones, owner deck, or unobserved Prizes.
+ * Uses a conservative 70-damage threshold despite Darkness Weakness on
+ * three listed targets. Future improvements must check live modifiers.
  *
- * @param {any} state Current genuine Store state.
- * @param {0|1} seat Rank-11 source seat.
- * @returns {{ready:boolean,reason:string,stoneSlot:number,crobatIndex:number,patchInHand:boolean}}
+ * @param {any} state Actual Store state.
+ * @param {0|1} seat Source physical seat.
+ * @returns {{ready:boolean,mode:string|null,reason:string,stoneSlot:number,crobatIndex:number,patchInHand:boolean}}
  */
 function crobatLethalOpportunity(state, seat) {
-  const no = reason => ({ready:false,reason,stoneSlot:-1,crobatIndex:-1,patchInHand:false});
+  const no = reason => ({ready:false,mode:null,reason,
+    stoneSlot:-1,crobatIndex:-1,patchInHand:false});
   if (state.activePlayer !== seat || state.prompts.some(p => p.result === undefined))
     return no('not-owner-decision');
   const own = state.players[seat];
   const other = state.players[1-seat];
   const defended = other.active.getPokemonCard();
-  if (defended?.fullName !== 'Mewtwo & Mew-GX UNM' ||
+  if (!THREE_PRIZE_TARGETS.has(defended?.fullName) ||
       defended.hp - other.active.damage > 70)
-    return no('no-public-70-damage-tag-team-ko');
+    return no('no-public-three-prize-lethal-target');
   if (occupiedPrizes(own) > 3) return no('no-immediate-prize-win');
-  if (!own.discard.cards.some(c => c.name === 'Darkness Energy'))
-    return no('no-discard-darkness');
+  const yes = (mode,stoneSlot,crobatIndex,patchInHand=false) => ({
+    ready:true,mode,reason:mode,stoneSlot,crobatIndex,patchInHand});
+  if (own.active.getPokemonCard()?.fullName === 'Crobat V DAA' &&
+      hasCrobatAttackEnergy(own.active))
+    return yes('active-attack',-1,-1);
   const crobatIndex = own.bench.findIndex(slot =>
-    slot.getPokemonCard()?.fullName === 'Crobat V DAA' && slot.tools.length === 0 &&
+    slot.getPokemonCard()?.fullName === 'Crobat V DAA' &&
     slot.energies.cards.some(c => c.name === 'Darkness Energy'));
   if (crobatIndex < 0) return no('no-eligible-bench-crobat');
+  const crobat = own.bench[crobatIndex];
+  if (hasCrobatAttackEnergy(crobat)) return yes('powered-bench',-1,crobatIndex);
+  if (!own.discard.cards.some(c => c.name === 'Darkness Energy'))
+    return no('no-discard-darkness');
   const patchInHand = own.hand.cards.some(c => c.fullName === 'Dark Patch ASR');
-  if (patchInHand) return {ready:true,reason:'held-dark-patch',stoneSlot:-1,crobatIndex,patchInHand};
+  if (patchInHand) return yes('held-dark-patch',-1,crobatIndex,true);
   if (own.usedVSTAR) return no('vstar-spent');
   if (own.bench.some(slot => slot.getPokemonCard()?.name === 'Garbodor' && slot.tools.length))
     return no('own-garbotoxin-blocks-star-alchemy');
+  if (crobat.tools.some(c => c.fullName === 'Forest Seal Stone SIT'))
+    return yes('crobat-equipped-stone',-1,crobatIndex);
+  if (crobat.tools.length) return no('crobat-tool-slot-occupied');
+  if (own.hand.cards.some(c => c.fullName === 'Forest Seal Stone SIT'))
+    return yes('held-stone',-1,crobatIndex);
+  if (!own.stadium.cards.some(c => c.fullName === 'Shopping Center EVS'))
+    return no('no-shopping-center-for-stone-transfer');
   const stoneSlot = own.bench.findIndex(slot =>
-    slot.getPokemonCard() && slot !== own.bench[crobatIndex] &&
+    slot.getPokemonCard() && slot !== crobat &&
     slot.tools.some(c => c.fullName === 'Forest Seal Stone SIT'));
-  if (stoneSlot < 0 ||
-      !own.stadium.cards.some(c => c.fullName === 'Shopping Center EVS'))
-    return no('no-source-tool-transfer-search');
-  return {ready:true,reason:'search-with-transferred-stone',stoneSlot,crobatIndex,patchInHand};
+  if (stoneSlot >= 0) return yes('transfer-stone',stoneSlot,crobatIndex);
+  if (own.active.tools.some(c => c.fullName === 'Forest Seal Stone SIT'))
+    return yes('transfer-stone',-2,crobatIndex);
+  return no('no-source-tool-transfer-search');
 }
 
 /**
@@ -76,7 +105,7 @@ function withRank11CrobatTerminalPolicy(sourceSeat, execute) {
   assert.equal(typeof old?.value, 'function');
   const boardTarget = {player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
   const benchTarget = i => ({player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:i});
-  const audit = {version:'rank11-crobat-terminal-owner-v1',sourceSeat,attempts:[],
+  const audit = {version:'rank11-crobat-terminal-owner-v2',sourceSeat,attempts:[],
     qualifyingGames:0,containsSeedSpecificGate:false};
   let turn = null, stage = null, event = null;
   function abort(reason) {
@@ -101,7 +130,12 @@ function withRank11CrobatTerminalPolicy(sourceSeat, execute) {
       turn = state.turn;
       event = {turn,gate,status:'executing',actions:[]};
       audit.attempts.push(event);
-      stage = gate.patchInHand ? 'patch' : 'stadium';
+      const stages = {
+        'active-attack':'attack', 'powered-bench':'retreat',
+        'held-dark-patch':'patch', 'crobat-equipped-stone':'vstar',
+        'held-stone':'attach-stone', 'transfer-stone':'stadium'
+      };
+      stage = stages[gate.mode];
     }
     if (stage === 'aborted' || stage === 'done') return ordinary;
     const index = name => own.hand.cards.findIndex(c => c.fullName === name);
@@ -111,7 +145,8 @@ function withRank11CrobatTerminalPolicy(sourceSeat, execute) {
     }
     if (pending) {
       if (stage === 'choose-stone' && pending.constructor.name === 'ChoosePokemonPrompt') {
-        const slot = own.bench[event.gate.stoneSlot];
+        const slot = event.gate.stoneSlot === -2 ?
+          own.active : own.bench[event.gate.stoneSlot];
         if (!slot?.tools.some(c => c.fullName === 'Forest Seal Stone SIT') ||
             !pending.validate([slot],state)) { abort('stone-prompt-rejected'); return ordinary; }
         stage = 'attach-stone';
