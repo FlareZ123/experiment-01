@@ -30,7 +30,8 @@ function publicAction(event) {
  *
  * @param {object} game Completed headless runMatch output, including capped games.
  * @param {{sourceSeat:0|1,triggerTurn:number,expectedSourceAction:string,
- *   expectedSourceDetail:string,tailLength?:number}} options
+ *   expectedSourceDetail:string,tailLength?:number,
+ *   requirePublicAttackTransitions?:boolean}} options
  * @returns {object}
  */
 function buildBilateralReplyPacket(game, options) {
@@ -72,6 +73,34 @@ function buildBilateralReplyPacket(game, options) {
     'Store declaration mismatches its executing actor/root');
   }
 
+  const publicAttackTransitions=game.publicAttackTransitions;
+  if (options.requirePublicAttackTransitions === true) {
+    assert.equal(game.publicAttackTransitionsProtocol,
+      'actual-store-public-attack-transitions-v1',
+      'Expected opted-in real Store public attack observation');
+    assert(Array.isArray(publicAttackTransitions));
+  }
+  if (Array.isArray(publicAttackTransitions)) {
+    for (const event of publicAttackTransitions) {
+      const root=roots[event.actionOrdinal];
+      const actual=attacks.filter(a=>a.actionOrdinal===event.actionOrdinal);
+      assert(root && actual.length>0 &&
+        root.playerSlot===event.triggerPlayerSlot &&
+        root.action===event.triggerAction &&
+        root.turnBefore===event.turnBefore &&
+        root.turnAfter===event.turnAfter &&
+        Array.isArray(event.before) && event.before.length===2 &&
+        Array.isArray(event.after) && event.after.length===2 &&
+        typeof event.promptPendingAfter==='boolean' &&
+        Array.isArray(event.declarations) &&
+        event.declarations.length===actual.length,
+      'Public attack observation does not match real Store root');
+      for (let i=0;i<actual.length;i++) {
+        assert.equal(event.declarations[i].attackName,actual[i].attackName);
+        assert.equal(event.declarations[i].playerName,actual[i].playerName);
+      }
+    }
+  }
   const detailField = {
     PlayCardAction: 'card', AttackAction: 'attack', UseAbilityAction: 'ability'
   }[options.expectedSourceAction];
@@ -125,12 +154,21 @@ function buildBilateralReplyPacket(game, options) {
     executedSourceRoot: sourceAction ? publicAction(sourceAction) : null,
     // A live Store attack declaration is not printed damage/effect proof.
     matchingSourceAttackDeclared: Boolean(signatureDeclared),
+    sourceImmediatePublicAttackTransition: sourceAction ?
+      publicAttackTransitions?.find(row=>
+        row.actionOrdinal===sourceAction.actionOrdinal)??null : null,
     laterSourceAttackDeclarations: opponentAttackLog.map(attack => ({
       ordinal: attack.actionOrdinal,
       turn: attack.turnBefore,
       attackName: attack.attackName
     })),
     firstCandidateNextTurnRoot: candidate ? publicAction(candidate) : null,
+    candidateImmediatePublicAttackTransitions: candidate ?
+      publicAttackTransitions?.filter(row=>
+        row.actionOrdinal>=candidate.actionOrdinal &&
+        row.turnBefore===candidate.turnBefore &&
+        (sourceReturns===null ||
+          row.actionOrdinal<sourceReturns.actionOrdinal))??[] : [],
     candidateSameTurnAttackDeclarations: candidateAttackDeclarations.map(attack=>({
       ordinal: attack.actionOrdinal,turn: attack.turnBefore,
       attackName: attack.attackName
