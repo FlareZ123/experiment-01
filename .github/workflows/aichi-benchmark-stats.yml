@@ -63,6 +63,8 @@ jobs:
         run: node --test tests/new-moon-lockbreak-japanese-ban-screen.test.cjs
       - name: Verify structural two-Gengar Japanese 60 matches frozen source and English proxy
         run: node --test tests/new-moon-two-gengar-japanese-provenance.test.cjs
+      - name: Verify GX/EX case distinction in New Moon donor printings
+        run: node --test tests/aichi-perfection-copy-donor-screen.test.cjs
 
   rank11-source-census:
     runs-on: ubuntu-latest
