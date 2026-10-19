@@ -29,6 +29,10 @@ function runHaxorusApexTarget(targetName,basic,prizesExpected) {
   const {Format,Stage}=load('game/store/card/card-types');
   const {AttackAction}=load('game/store/actions/game-actions');
   const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
+  const {ChoosePrizePromptResolver}=
+    load('simple-bot/prompt-resolver/choose-prize-prompt-resolver');
+  const {defaultStateScores}=
+    load('simple-bot/simple-bot-definitions');
   const {clearCopyAttackSessionsForTests}=
     load('game/store/prefabs/copy-attack-delegation');
 
@@ -79,7 +83,7 @@ function runHaxorusApexTarget(targetName,basic,prizesExpected) {
     attacker.active.energies.cards.push(card);
   }
   assert.equal(defender.active.getPokemonCard().name,defenderCard.name);
-  const beforePrizes=attacker.prizes.length;
+  const beforePrizes=attacker.getPrizeLeft();
 
   store.dispatch(new AttackAction(attacker.id,'Apex Dragon'));
   const prompt=state.prompts.find(p=>
@@ -91,7 +95,25 @@ function runHaxorusApexTarget(targetName,basic,prizesExpected) {
     'Chosen Haxorus attack must be valid under Apex copy prompt');
   store.dispatch(new ResolvePromptAction(prompt.id,payload.attacks[1]));
 
-  const remainingPrizes=attacker.prizes.length;
+  // Prize awards use a real ChoosePrizePrompt. The Prize array keeps all six
+  // slots and empties their CardLists, so count nonempty slots after settling.
+  const prizeResolver=new ChoosePrizePromptResolver({scores:defaultStateScores});
+  const settledPrompts=[];
+  for(let i=0;i<12;i++) {
+    const pending=state.prompts.find(p=>p.result===undefined);
+    if(!pending)break;
+    if(pending.constructor.name==='WaitPrompt') {
+      store.dispatch(new ResolvePromptAction(pending.id,null));
+    } else if(pending.constructor.name==='ChoosePrizePrompt') {
+      const chooser=state.players.find(p=>p.id===pending.playerId);
+      assert.ok(chooser);
+      const action=prizeResolver.resolvePrompt(state,chooser,pending);
+      assert.ok(action,'Real Prize resolver must choose valid Prize cards');
+      store.dispatch(action);
+    } else break;
+    settledPrompts.push(pending.constructor.name);
+  }
+  const remainingPrizes=attacker.getPrizeLeft();
   const claimed=beforePrizes-remainingPrizes;
   const discarded=defender.discard.cards.some(c=>c.name===defenderCard.name);
   if(basic) {
@@ -109,6 +131,7 @@ function runHaxorusApexTarget(targetName,basic,prizesExpected) {
     underlyingPrintedAttack:'Axe Blast',pinnedAttackName:payload.attacks[1].name,
     apexEnergyPayment:'Grass Grass Fire',
     targetDiscarded:discarded,prizesTaken:claimed,
+    settledPrompts,
     expectedPrizes:basic?prizesExpected:0,
     attackerActiveAttackName:attacker.active.getPokemonCard().attacks[0].name,
     qualification:'Staged Store action, no full game or human policy'
