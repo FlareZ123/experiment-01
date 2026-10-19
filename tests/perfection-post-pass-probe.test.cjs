@@ -103,6 +103,14 @@ test('pinned Store clone may expose a paid Horror House-GX Perfection choice',t=
     usedGX:attacker.usedGX
   },before,'Read-only detached probe must not mutate the real Source or GX state');
   assert.equal(state.activePlayer,1);
+  state.players=[attacker,defending];
+  state.activePlayer=0;
+  const fromSeatA=probePostPassPerfection(state,attacker.id);
+  assert.equal(fromSeatA.activationAccepted,true,
+    'A-seat Perfection controls must be exercised alongside B-seat controls');
+  assert.equal(fromSeatA.choicePromptObserved,true);
+  assert.ok(fromSeatA.validAttackNames.includes('Horror House-GX'));
+  assert.equal(state.activePlayer,0);
 });
 
 test('negative menu is a diagnostic and cannot be promoted to a game outcome',()=>{
