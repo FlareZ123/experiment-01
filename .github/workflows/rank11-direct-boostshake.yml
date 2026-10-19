@@ -51,6 +51,11 @@ on:
         required: false
         type: boolean
         default: false
+      exclusive_opener_replay:
+        description: 'Six source-dealt direct or Seal positive-control replay comparisons'
+        required: false
+        type: boolean
+        default: false
       held_seal_coupled_reply:
         description: 'Five retrospectively selected true source held-Seal opens versus autonomous New Moon counter'
         required: false
@@ -124,6 +129,12 @@ jobs:
       - name: Summarize dual wrapper source action and competing claim
         if: inputs.dual_opener_nesting_audit
         run: node -e "const a=require('./rank11-dual-opener-nesting-audit.json');console.log(JSON.stringify(a.rows.map(r=>({seed:r.seed,identical:r.sourceActionsIdentical,held:r.nestedHeld.completed,direct:r.nestedDirect.completed,directOpportunity:r.nestedDirect.opportunityTurn})),null,2))"
+      - name: Compare exclusive rank11 opener against six authentic standalone positive controls
+        if: inputs.exclusive_opener_replay
+        run: node simulation/twinleaf/rank11-exclusive-openers-source-replay.cjs > rank11-exclusive-openers-source-replay.json
+      - name: Print exclusive opener preserved root actions and blocked competing route
+        if: inputs.exclusive_opener_replay
+        run: node -e "const r=require('./rank11-exclusive-openers-source-replay.json');console.log(JSON.stringify(r.rows,null,2))"
       - name: Compare five actual held-Seal source openings with New Moon first response
         if: inputs.held_seal_coupled_reply
         run: node simulation/twinleaf/rank11-held-seal-newmoon-coupled-reply.cjs > rank11-held-seal-newmoon-coupled-reply.json
@@ -175,6 +186,7 @@ jobs:
             rank11-held-seal-source-probe.json
             rank11-held-seal-newmoon-coupled-reply.json
             rank11-dual-opener-nesting-audit.json
+            rank11-exclusive-openers-source-replay.json
             rank11-direct-candidate-attack-window.json
             rank11-newmoon-first-vip-counterfactual.json
             rank11-newmoon-farewell-vip-source-pair.json
