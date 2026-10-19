@@ -1019,18 +1019,43 @@ function runMatch(request) {
           resolutionStatus: 'not-independently-verified'
         });
       }
-      if (publicAttackTransitions && loggedAttacks.length) {
-        publicAttackTransitions.push({
-          actionOrdinal:actions,turnBefore,turnAfter:store.state.turn,
-          triggerAction:actionName,triggerPlayerSlot:seat,
-          declarations:loggedAttacks.map(attack=>({
-            playerName:attack.playerName,attackName:attack.attackName
-          })),
-          before:publicAttackBefore,
+      if (publicAttackTransitions) {
+        const promptStillOpen=store.state.prompts.some(prompt=>
+          prompt.result===undefined);
+        const settledSnapshot=()=>({
+          completionRootActionOrdinal:actions,
           after:publicBoardSnapshot(store.state),
-          promptPendingAfter:store.state.prompts.some(prompt=>
-            prompt.result===undefined)
+          prizesRemaining:store.state.players.map(player=>
+            player.prizes.filter(prize=>prize.cards.length>0).length),
+          deckRemaining:store.state.players.map(player=>player.deck.cards.length)
         });
+        if (loggedAttacks.length) {
+          publicAttackTransitions.push({
+            actionOrdinal:actions,turnBefore,turnAfter:store.state.turn,
+            triggerAction:actionName,triggerPlayerSlot:seat,
+            initiatingRootActionOrdinal:
+              actionLineage?.initiatingAction?.actionOrdinal??null,
+            declarations:loggedAttacks.map(attack=>({
+              playerName:attack.playerName,attackName:attack.attackName
+            })),
+            before:publicAttackBefore,
+            beforePrizesRemaining:publicBeforeDispatch.players.map(player=>
+              player.prizesRemaining),
+            after:publicBoardSnapshot(store.state),
+            promptPendingAfter:promptStillOpen,
+            settled:promptStillOpen?null:settledSnapshot()
+          });
+        }
+        // Follow the same Store attack's genuine prompted effect until its
+        // last ResolvePromptAction. An immediate root snapshot frequently
+        // precedes all printed attack damage and must not be treated as final.
+        if (actionName==='ResolvePromptAction' && !promptStillOpen) {
+          const origin=actionLineage?.initiatingAction?.actionOrdinal;
+          for (const event of publicAttackTransitions) {
+            if (event.initiatingRootActionOrdinal===origin &&
+                event.settled===null) event.settled=settledSnapshot();
+          }
+        }
       }
       if (poltergeistEffectTrace) {
         const after = poltergeistSnapshot(store.state,SuperType.TRAINER);
