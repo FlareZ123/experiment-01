@@ -91,3 +91,11 @@ for(const channel of ['native','copied']){
     assert.equal(actor.usedGX,false,'Speculation consumed live GX allowance');
   });
 }
+
+test('Horror House extra-Psychic uses effective Energy under Temple',()=>{
+  const packet=require('../simulation/twinleaf/gengar-horror-house-temple-static-overcount.cjs').run();
+  assert.equal(packet.temple.dynamicExtra,false);
+  assert.equal(packet.temple.rawPrintedCount,2);
+  assert.equal(packet.temple.sourceHand,7);
+  assert.equal(packet.temple.opponentHand,7);
+});
