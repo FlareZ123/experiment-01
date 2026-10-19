@@ -60,6 +60,9 @@ test('authentic prompt settlement, public board, printed base, opponent reply, r
   assert.deepEqual(event.prizesBefore,[6,5]);
   assert.equal(event.nextSourceRoot.action,'PlayCardAction');
   assert.equal(event.nextSourceRoot.card,'Dark Patch');
+  assert.equal(event.nextSourceTurnActionCount,1);
+  assert.deepEqual(event.nextSourceTurnActions,[{ordinal:2,action:'PlayCardAction',card:'Dark Patch'}]);
+  assert.equal(event.sourceTurnActionsTruncated,false);
   assert.equal(event.printedPoltergeist.baseDamage,150);
   assert.equal(JSON.stringify(result).includes('Secret Box'),false,
     'Retrospective opponent hand names must never be exported');
@@ -75,6 +78,7 @@ test('unfinished effect, missing response and missing printed audit are explicit
   assert.equal(result.settled,0);
   assert.equal(result.withImmediateSourceReturn,0);
   assert.equal(result.attacks[0].nextSourceRoot,null);
+  assert.deepEqual(result.attacks[0].nextSourceTurnActions,[]);
   assert.equal(result.attacks[0].publicBoardAfter,null);
   assert.equal(result.attacks[0].printedPoltergeist,null);
 });
