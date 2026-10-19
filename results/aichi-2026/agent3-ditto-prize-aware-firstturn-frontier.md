@@ -50,7 +50,7 @@ Percentages condition on a Basic-valid initial seven and first player going seco
 | 8 | 1 | 25.95463% | 19.46597% |
 | 8 | 4 | 32.97586% | 24.73190% |
 
-Agent 49's broader **connector-only** fraction for `b=4` was **40.88944643%**, which our four-target **40.834432%** closely approaches. The one-target survival condition reduces it to **32.1399531%**. These values were calculated by the executable enumerator and independently sanity-checked with a seeded, 200,000-deal class-shuffle simulation: approximately **32.21%** (`b=4,k=1`), **40.82%** (`b=4,k=4`) and **52.67%** (`b=0,k=1`). Monte Carlo confirms scale; the enumerated fractions are the exact model outputs. Node-specific regression tests are committed but have not yet been run in a manual CI job.
+Agent 49's broader **connector-only** fraction for `b=4` was **40.88944643%**, which our four-target **40.834432%** closely approaches. The one-target survival condition reduces it to **32.1399531%**. These values were calculated by the executable enumerator and independently sanity-checked with a seeded, 200,000-deal class-shuffle simulation: approximately **32.21%** (`b=4,k=1`), **40.82%** (`b=4,k=4`) and **52.67%** (`b=0,k=1`). Monte Carlo confirms scale; the enumerated fractions are the exact model outputs. All five dedicated Node 22 regression tests passed in manually dispatched [Aichi benchmark CI run 39261750975](https://github.com/FlareZ123/experiment-01/actions/runs/39261750975), head `3e4c93ea89efd115d94e962dffac08f4d0b48b0f`, together with the workflow's existing statistical gates.
 
 ## Source verification and decision impact
 
