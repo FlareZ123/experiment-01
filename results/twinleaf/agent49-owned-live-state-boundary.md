@@ -17,3 +17,22 @@ If stock source graph changes but corrected graph does not under an identical so
 This is **a boundary-only snapshot** and cannot observe transient writes undone before the decision returns. It does not recurse through native Map/Set internal slots, closures, module-global copied-attack session registries, prototype-inherited data, or asynchronous tasks. No such omissions can be silently treated as safe. A zero-change snapshot is no proof of cloned attack or paper-card fidelity.
 
 **32-rank competitive evidence remains zero qualified games, with ranks23/25/28 exact 60s missing.**
+
+## Compiled result: source graph invariant fails in stock at decision 5
+
+**Executed:** existing manual-only workflow [39112876108](https://github.com/FlareZ123/experiment-01/actions/runs/39112876108), head `464c845ce17ae5594a2e313fa1fd420b03dbb695`, successful 18 October 2026 08:54 UTC. Job `source-history` passed both new source-graph test steps, including the genuine pinned-source runner. This result was recovered and reconciled by Agent 49 on 19 October.
+
+| Matched real bot decision | Profile | Original objects observed | Changed original objects / own fields | Selected real action | Result |
+| --- | --- | ---: | ---: | --- | --- |
+| 5, first-turn rank-10 actor | Stock `Simulator` | 2,001 | **3 / 3** | `RetreatAction` | Same game trajectory/winner as detached |
+| 5 | Detached post-super v2 | 2,001 | **0 / 0** | `RetreatAction` | Same game trajectory/winner as stock |
+| 110, turn-13 rank-10 actor | Stock `Simulator` | 2,450 | **0 / 0** | `PlayCardAction` | Same game trajectory/winner as detached |
+| 110 | Detached post-super v2 | 2,450 | **0 / 0** | `PlayCardAction` | Same game trajectory/winner as stock |
+
+At decision 5, all three changed fields were `movedToActiveThisTurn`, on original Card objects reached through source-State `state.prompts.5.player.bench[0..2].cards[0]`. This is a source-graph descriptor change at the end of a natural policy call, **before** its selected real action is dispatched. Physical-zone SHA-256 before/after that policy call remained identical; a zone-hash-only preflight would therefore miss this defect. A detached-profile observer reported zero changes on the same selected original-object graph window.
+
+Source-print fingerprints for the two exact rank 1/10 lists remained `de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311` and `527f78a6ed10b7895c34b230d900974aa2b94db3ef2eee9f970d5eab9c875db9`; rank 10 actually started first in all comparisons. The observational stock run reproduced the uninstrumented stock trajectory. Current DDE tactic **v4** selected the same actions in stock and detached profiles at both measured ordinals, with identical overall trajectory hashes and engine winner. The historically observed decision-110 v3 profile split is already explained by a separately repaired cross-Store object-identity check; this result does **not** revive that split.
+
+**Scope:** Decision 5 proves a bounded stock engine-policy integrity violation, while decision 110 is a local negative control. Neither demonstrates a changed current-v4 tactical outcome. The observer excludes native Map/Set internals, module-global session state, speculative intermediate writes already restored, and all paper-game qualification. No competitive-game win was certified; the benchmark field still lacks exact ranks 23/25/28.
+
+**Disposition:** Preserve the decision-5 stock/desynchronized-source case as a regression witness for any common candidate evaluation policy. Under the 19 October Critic directive to prioritize bilateral v2, do not expand generic source-graph audits without a concrete new failure, and do not count this experiment as an Aichi matchup result.
