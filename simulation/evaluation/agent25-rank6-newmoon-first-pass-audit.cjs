@@ -66,8 +66,15 @@ function run() {
   const headless=require('../twinleaf/headless.cjs');
   const realRun=headless.runMatch;
   let tracedGame=null;
+  let farewellPassObservations=null;
+  const {withRank6UnownFarewellPassProbe}=
+    require('../twinleaf/newmoon-rank6-pass-farewell-observer.cjs');
   headless.runMatch=(request)=>{
-    tracedGame=realRun({...request,captureAttackPassProbes:true});
+    const wrapped=withRank6UnownFarewellPassProbe(
+      ()=>realRun({...request,captureAttackPassProbes:true}),
+      {seat:0,turn:3});
+    tracedGame=wrapped.result;
+    farewellPassObservations=wrapped.observations;
     return tracedGame;
   };
   let record;
@@ -85,6 +92,7 @@ function run() {
   const traceDigest=sha(tracedGame.rootActionLedger);
   assert.equal(traceDigest,SOURCE_SHA,'Probe was not source-game noninterfering');
   assert.equal(tracedGame.actions,240);
+  assert.equal(farewellPassObservations?.length,1);
   return {
     schema:'agent25-retrospective-rank6-newmoon-first-pass-v1',
     originalCompiledRun:39193837824,
@@ -97,6 +105,7 @@ function run() {
     sourceRootLedgerMatchesArchived:true,
     originalAndReplayedRootLedgerSha256:traceDigest,
     firstCandidateTurn3:summarizeCandidatePass(tracedGame,record.candidateSeat),
+    legalFarewellCounterfactual:farewellPassObservations[0],
     sourceDeclarations:record.sourceAttackDeclarations,
     candidateDeclarations:record.candidateAttackDeclarations,
     actions:tracedGame.actions,turns:tracedGame.turns,
