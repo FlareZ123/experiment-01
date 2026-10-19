@@ -57,6 +57,26 @@ test('public Item lock removes the Compressor action opportunity',()=>{
   assert.equal(shouldSeekPayload(state,player,3),true);
 });
 
+test('benched Mewtwo can trigger anticipatory setup only in explicit v2 mode',()=>{
+  const {state,player}=fixture();
+  player.active.getPokemonCard=()=>({fullName:'Trevenant & Dusknoir-GX SMP'});
+  player.bench[0].getPokemonCard=()=>({fullName:MEWTWO});
+  assert.equal(shouldSeekPayload(state,player,3),false,
+    'Archived source control remains Active-Mewtwo-only');
+  assert.equal(shouldSeekPayload(state,player,3,{
+    allowBenchedMewtwo:true
+  }),true);
+  player.cannotPlayItemCards=true;
+  assert.equal(shouldSeekPayload(state,player,3,{
+    allowBenchedMewtwo:true
+  }),false);
+  player.cannotPlayItemCards=false;
+  player.discard.cards=[{fullName:GENGAR}];
+  assert.equal(shouldSeekPayload(state,player,3,{
+    allowBenchedMewtwo:true
+  }),false,'Existing donor must suppress anticipatory discard');
+});
+
 test('owner prompt selects Gengar and Trevenant in priority order',()=>{
   const gengar={fullName:GENGAR},trev={fullName:TREV};
   const junk={fullName:'Battle VIP Pass FST'};
