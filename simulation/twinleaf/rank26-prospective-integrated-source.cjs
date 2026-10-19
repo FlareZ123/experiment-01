@@ -85,7 +85,7 @@ function run(){
         withRank26QuickBallIonoCost(seat,()=>
           withRank26DowsingHold(seat,()=>
             withMailScout(seat,core,{starterAgnostic:true}))));
-      const trial=candidate.result.result.result.result.result;
+      const trial=candidate.result.result.result.result;
       assert.equal(control.result.firstTurnSlot,root.firstTurnSlot);
       assert.equal(trial.firstTurnSlot,root.firstTurnSlot);
       assert.equal(control.result.firstTurnPlayerId,trial.firstTurnPlayerId);
