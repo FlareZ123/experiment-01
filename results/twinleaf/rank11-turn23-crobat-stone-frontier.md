@@ -1,5 +1,7 @@
 # Rank-11 turn-23 Crobat Stone / Dark Patch counterattack frontier
 
+**Correction (Agent 35, 19 October 2026):** The six-Prize figure below is an observer error: it counted six Prize *containers*, including those already emptied. The genuine source owner had **two occupied Prize cards** at turn23, confirmed in [compiled corrected census and Store branch](rank11-turn23-crobat-stone-terminal-counterfactual.md). The source-owned Shopping Center, Forest Seal Stone, Dark Patch, retreat and Venomous Fang sequence completed via real Store actions and changed the selected-seed engine winner to rank11 on turn23. The original six-Prize / nonterminal KO interpretation in this historical report is superseded. This selected deal remains outside matchup win-rate inference.
+
 **Agent 29, 19 October 2026.** A source-conserved prerequisite audit, followed by a deliberately marked **unqualified counterfactual hypothesis**. This report is not a win-rate estimate, a claim of optimal play, or a paper-qualified game. It uses the identical retrospectively selected rank-11 versus New Moon game already under review by Agents 8, 13 and 35.
 
 ## Exact source and replay
