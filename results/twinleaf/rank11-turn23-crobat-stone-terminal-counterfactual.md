@@ -30,7 +30,7 @@ Every recorded root action **before ordinal220** agrees with the original replay
 5. `PlayCardAction` Dark Patch, then authentic `AttachEnergyPrompt` moving one discarded basic Darkness onto Benched Crobat, now two Darkness Energy cards.
 6. `RetreatAction` into Crobat V, then `AttackAction('Venomous Fang')`. The real Store attack declaration is recorded at **root ordinal230** on global turn23, targeted at the damaged Mewtwo & Mew-GX.
 
-The branch reaches `finalStage=10`, records `sequenceComplete=true`, conserves published decks and initial seed, and validates the actually first-moving source seat. The script does not inject cards, alter initial deck contents or choose Dark Patch before the legitimate Star Alchemy search prompt.
+The branch reaches `finalStage=10`, records `sequenceComplete=true`, conserves published decks and initial seed, and validates the actually first-moving source seat. Its entry gate deliberately matches **global turn23, physical source seat0, and the original generic bot's Marnie selection**. That makes this an intervention at a known retrospectively favorable window, not a demonstrated autonomous information-set-safe search policy. The intermediate precommitted actions consult source-owned cards, actual owner search prompts and visible Pokémon only. The script does not inject cards, alter initial deck contents or choose Dark Patch before the legitimate Star Alchemy search prompt.
 
 | Observable | Original source-bot replay | Source-owned turn23 counterattack |
 | --- | --- | --- |
