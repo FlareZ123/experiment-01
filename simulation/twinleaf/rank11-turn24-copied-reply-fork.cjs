@@ -118,6 +118,10 @@ function run() {
   const seed=1111464409;
   const args=[candidate,source.cards,1,seed,350,true,true,false,false];
   const control=runArm(...args);
+  const observedControl=runArm(...args.slice(0,-1),true);
+  assert.deepEqual(observedControl.rootActionLedger,control.rootActionLedger,
+    'Read-only Poltergeist observer changed baseline action ledger');
+  assert.deepEqual(observedControl.terminalTransition,control.terminalTransition);
   const changed=withTurn24CopiedPoltergeist(()=>runArm(...args.slice(0,-1),true));
   const game=changed.game;
   assert.equal(control.firstTurnSlot,0);
@@ -162,6 +166,7 @@ function run() {
     identicalDeckHashes:game.deckHashes,
     firstDivergentRootOrdinal:instead.actionOrdinal,
     completePreInterventionRootParity:true,
+    baselineEffectObserverNoninterferenceVerified:true,
     turn24PrintedEffect:observedTurn24.assessment,
     chosenAction:changed.proposal,
     chosenAttack:changed.selectedAttack,
