@@ -7,11 +7,16 @@ on:
         required: false
         type: boolean
         default: false
+      native_energy_probe:
+        description: Compile pinned Twinleaf and verify manual DCE attachment in a single prepared Store
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
   policy-smoke:
-    if: ${{ inputs.policy_smoke_only }}
+    if: ${{ inputs.policy_smoke_only && !inputs.native_energy_probe }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
@@ -23,8 +28,31 @@ jobs:
         run: node --check simulation/twinleaf/rank6-broad-thorns-policy.cjs
       - name: Run source K0 opening-policy unit regressions
         run: node --test tests/rank6-broad-thorns-policy.test.cjs
+  native-attachment-probe:
+    if: ${{ inputs.native_energy_probe }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify pinned Store fixture syntax
+        run: node --check simulation/twinleaf/rank6-manual-attachment-native-fixture.cjs
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Compare native legal and second-attachment rejects
+        run: node simulation/twinleaf/rank6-manual-attachment-native-fixture.cjs
   test:
-    if: ${{ !inputs.policy_smoke_only }}
+    if: ${{ !inputs.policy_smoke_only && !inputs.native_energy_probe }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
