@@ -70,6 +70,7 @@ function makeFixture(trainersInOpponentHand) {
   const {Store} = load('game/store/store');
   const {Player} = load('game/store/state/player');
   const {CardList} = load('game/store/state/card-list');
+  const {PokemonCardList} = load('game/store/state/pokemon-card-list');
   const {GamePhase} = load('game/store/state/state');
   const {Format} = load('game/store/card/card-types');
   const store = new Store({onStateChange() {}});
@@ -103,7 +104,9 @@ function makeFixture(trainersInOpponentHand) {
   }
 
   defender.active.cards.push(active);
-  defender.bench[0].cards.push(benched);
+  const benchSlot = new PokemonCardList();
+  benchSlot.cards.push(benched);
+  defender.bench.push(benchSlot);
   defender.hand.cards.push(...sourceHand);
   defender.deck.cards.push(...sourceDeck);
   defender.prizes = prizeCards.map(card => {
