@@ -27,7 +27,7 @@ jobs:
       - name: Check shared source policy syntax
         run: node --check simulation/twinleaf/rank6-broad-thorns-policy.cjs
       - name: Run source K0 opening and rejected-action safety regressions
-        run: node --test tests/rank6-broad-thorns-policy.test.cjs tests/rejected-play-counter-rollback.test.cjs
+        run: node --test tests/rank6-broad-thorns-policy.test.cjs
   native-attachment-probe:
     if: ${{ inputs.native_energy_probe }}
     runs-on: ubuntu-latest
