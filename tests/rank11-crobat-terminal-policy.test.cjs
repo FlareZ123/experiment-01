@@ -4,7 +4,7 @@ const test=require('node:test');
 const {occupiedPrizes,crobatLethalOpportunity}=require('../simulation/twinleaf/rank11-crobat-terminal-policy.cjs');
 
 /** @param {string} fullName @returns {{fullName:string,name:string,hp:number}} */
-function card(fullName){return {fullName,name:fullName.replace(/ (UNM|DAA|ASR|SIT|EVS|BKP|SVE|SSH|MEE|SSP|PLF)$/,''),hp:270};}
+function card(fullName){return {fullName,name:fullName.replace(/ (UNM|DAA|ASR|SIT|EVS|BKP|SVE|SSH|MEE|SSP|PLF|CRE|TEU|SMP)$/,''),hp:270};}
 function slot(name,energy=[],tool=[]){return {getPokemonCard:()=>name?card(name):null,energies:{cards:energy.map(card)},tools:tool.map(card)};}
 function state() {
  const own={prizes:Array.from({length:6},(_,i)=>({cards:i<2?[card('Prize')]:[]})),
@@ -20,11 +20,11 @@ test('occupied prizes count real occupied slots, not persistent containers',()=>
 });
 test('state-only gate accepts real owner resources before selecting a hidden deck card',()=>{
  const g=crobatLethalOpportunity(state(),0);
- assert.deepEqual(g,{ready:true,reason:'search-with-transferred-stone',stoneSlot:1,crobatIndex:0,patchInHand:false});
+ assert.deepEqual(g,{ready:true,mode:'transfer-stone',reason:'transfer-stone',stoneSlot:1,crobatIndex:0,patchInHand:false});
 });
 test('hand Dark Patch avoids speculative owner deck search',()=>{
  const s=state();s.players[0].hand.cards.push(card('Dark Patch ASR'));
- assert.equal(crobatLethalOpportunity(s,0).reason,'held-dark-patch');
+ assert.equal(crobatLethalOpportunity(s,0).mode,'held-dark-patch');
 });
 test('public target must already be in KO range',()=>{
  const s=state();s.players[1].active.damage=190;
