@@ -1,0 +1,23 @@
+# Shadow Mist source-policy correction: spent Supporter and live-Store continuation
+
+**Agent 6, 19 October 2026.** Evidence class: one retrospectively selected source deal replay under an opt-in final-dispatch policy change. No competitive match/win-rate result.
+
+## Source and controls
+
+Original registered `6:2:A:champion-reference` (rank-6 Iron Thorns source seat B, rank-1 champion seat A, seed `2394734225`) rejected root action **33** at source global turn 3: hand-play `Thunder Mountain Prism Star LOT` returned `BLOCKED_BY_EFFECT`. A recorded genuine opposing `Shadow Mist` declaration prevented next-turn Stadium and Special Energy play. Source hand held `Lillie's Determination M1L` and `Double Colorless Energy SUM`. Baseline error, owner-visible state and prior attack are preserved in [original report](agent6-rank6-shadow-mist-rejected-stadium.md) and [archived replay](https://github.com/FlareZ123/experiment-01/actions/runs/39197729723).
+
+## Correction and negative option check
+
+An initial bot-prototype interception did not catch the final selected action (manual [CI 39198833771](https://github.com/FlareZ123/experiment-01/actions/runs/39198833771), **failed**). The opt-in Store-boundary alternative in [headless](../../simulation/twinleaf/headless.cjs) does reach the selected action, but an early implementation tried to play held Lillie and was rejected `SUPPORTER_ALREADY_PLAYED` (compiled [CI 39229226991](https://github.com/FlareZ123/experiment-01/actions/runs/39229226991), **failed**). The actual game snapshot at root 33 has `ownerSupporterTurn:1`; pinned Twinleaf treats `supporterTurn` as a positive **used-Supporter counter**. This is independently grounded in the [pinned Shauna implementation](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/07-x-and-y/set-x-and-y/shauna.ts) and supplied advanced rulebook's once-per-turn Supporter rule. Thus held Lillie is **not a legal alternative** in this actual position.
+
+Updated [held-card selector](../../simulation/twinleaf/visible-lock-supporter-response.cjs) checks `supporterTurn > 0` and applicable player-level Supporter lock. Four [unit-test cases](../../tests/visible-lock-supporter-response.test.cjs) exercise held, spent, locked and missing cases. `visiblePlayLockSupporterSeat` is default-off, only legal with matching `enforceVisiblePlayLockSeat`; the original standard guard still passes instead of submitting prohibited plays. Policy provenance includes the opt-in flags.
+
+Manual compiled [CI 39229746777](https://github.com/FlareZ123/experiment-01/actions/runs/39229746777) **PASSED** on `d0b619b78224941cbbcd350fe891cba08b5ebfa2`; [artifact 12176003226](https://github.com/FlareZ123/experiment-01/actions/runs/39229746777/artifacts/12176003226) contains the full JSON. It confirms exactly one live dispatch veto at turn 3, seat B: `stadium-lock` on `Thunder Mountain Prism Star LOT`, choosing `PassTurnAction`, with stadium/Special Energy restriction flags true. The corrected game advances through **260 accepted root actions**, terminates at the action cap on turn 27 with Prizes [2,2], and has **no engine winner**. Source and candidate attack declaration counts 5 and 6. These are exploratory trajectory diagnostics, not qualified outcomes.
+
+An additional observed fault remains: the rank-6 turn-3 scripted opener later began `Tag Call → Guzma & Hala`, selected DCE and attempted Thunder Mountain during the same lock. Its source-script audit ended with `Unexpected prompt or phase WaitPrompt` after the substitute Pass; `started:true, completed:false`. The live veto prevents an illegal Store dispatch while the higher-level setup policy is still lock-unaware. Existing [rank6 broad policy](../../simulation/twinleaf/rank6-broad-thorns-policy.cjs) needs a source-owner-visible eligibility gate before a v2 common-policy deployment.
+
+## Integration relevance
+
+The [Critic bilateral-v2 directive](../../communications/broadcast/20261019T0556Z_critic_stop_mechanical_reaudits_start_bilateral_v2.md) and [Agent 41 owner announcement](../../communications/broadcast/20261019T0616Z_agent41_bilateral_v2_integration_owner.md) supersede further duplicate same-seed mechanical reaudits. The current patch is a **documented owner-visible safeguard candidate** for common bilateral policy; it must be included and verified as a frozen executable policy by that integration owner. The historical source deal must never become a v2 held-out performance sample.
+
+**Status:** zero newly qualified games, zero claimable wins, no deck ranking inferred from this correction.
