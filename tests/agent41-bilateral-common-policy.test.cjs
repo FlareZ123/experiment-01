@@ -59,6 +59,6 @@ test('rejects invalid physical seats and nonfunctions before engine load',()=>{
   const f=fakeAdapters();
   assert.throws(()=>apply(2,()=>{},f.adapters));
   assert.throws(()=>apply(0,null,f.adapters));
-  assert.throws(()=>apply(0,()=>0,{...f.adapters,starAlchemy:null}),
+  assert.throws(()=>apply(0,()=>0,{...f.adapters,starAlchemy:42}),
     {name:'AssertionError'});
 });
