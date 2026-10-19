@@ -56,9 +56,22 @@ The exact conditional fraction is **53,594,899 / 413,287,114,240**.
 
 The [separate necessary-only Prize ceiling](rank15-dual-vileplume-prize-ceiling.md) is **57.47208%** of Basic-valid starts. Comparing the two numbers shows how restrictive this intentionally connector-free five-role opening is. It provides **no estimate** for the much more important full search-enabled setup.
 
+## One owner-played Buddy-Buddy Poffin: exact access expansion
+
+A complementary, still tightly bounded physical event permits **one Buddy-Buddy Poffin TEF 144** from the first eight to search any missing Oddish UNB 5 (50 HP). If both Oddish were already seen in eight, the direct line is included without requiring Poffin. The unchanged requirements are: Bunnelby in the initial seven and chosen Active, one TM and one Energy in the first eight, both Gloom and BUS Vileplume in the deck after Prize placement, and at least one AOR Vileplume in that deck. Every Oddish absent from the first eight must be physically unprized and therefore available for Poffin's deck search. This event requires Poffin to be playable before the attack; an opponent's Item lock or another effect could prevent that action.
+
+Adding a `p` count for the source's three Poffin, `o` for the number of Oddish already among eight, and 39 residual cards, the same eight-card hypergeometric calculation enforces `o=2 OR p>=1`. The number of Prize configurations leaving the missing Oddish, both Gloom and BUS out of Prizes, with an AOR in the deck, is `C(47+o,6)-C(45+o,4)` when `a=0`, and `C(46+o,6)` when `a=1`.
+
+| Exact first-turn physical event | Conditional on Basic-valid initial seven |
+| --- | ---: |
+| Direct Bunnelby / TM / Energy / both Oddish first-eight, no search | **0.01296796%** |
+| Above **or** at most one available Poffin to obtain missing Oddish | **0.35518951%** |
+
+The one-Poffin union is exactly **1,379,875,346,061 / 388,489,887,385,600**, approximately **1 in 282** legal starts and **27.39 times** the strict no-search event. This ratio is a contrast between precisely defined *opportunity sets*, not a causal estimate of Poffin's game-win benefit or its marginal deck-slot value. A separate exhaustive seven-card hand, eighth draw and six-Prize count independently reproduces the new fraction. The model still excludes Tag Call, Guzma & Hala, Artazon, other search/draw, discard costs, enemy lock effects and automated play. The complete source ALS is therefore much broader.
+
 ## Independent verification and actionable next test
 
-`scripts/aichi-rank15-direct-tm-opening.cjs` enumerates the eight-card physical count categories and valid six-Prize completions using exact BigInt binomial coefficients. `tests/aichi-rank15-direct-tm-opening.test.cjs` independently enumerates initial-seven categories followed by the eighth draw and initial Prizes. These *different enumerations* reproduce the identical reduced rational fraction. Both mathematical tests passed locally under Node 22. The source-manifest assertion uses the repository's exact 60 and requires a full checkout; **no compiled Twinleaf run and no remote CI are claimed for this addition**.
+`scripts/aichi-rank15-direct-tm-opening.cjs` enumerates the eight-card physical count categories and valid six-Prize completions using exact BigInt binomial coefficients. `tests/aichi-rank15-direct-tm-opening.test.cjs` independently enumerates initial-seven categories followed by the eighth draw and initial Prizes. These *different enumerations* reproduce the identical reduced rational fraction. All four mathematical tests (two independently enumerated probabilities) passed locally under Node 22. The source-manifest assertion uses the repository's exact 60 and requires a full checkout; **no compiled Twinleaf run and no remote CI are claimed for this addition**.
 
 Practical priority: improve a **frozen, source-owned rank-15 policy** that executes the Tag Call / Guzma & Hala / Poffin or Artazon connectors with actual cost and owner-information checks. Keep its failed hands and no-opportunities in a prospective denominator. Record the source's evolution chain, real AOR/BUS board, Basic attacker lock application and opposing response; compare the existing generic policy on identical source seeds. This source-specific line matters for evaluating New Moon, but a numerical setup proxy cannot substitute for a competitive two-player game.
 
