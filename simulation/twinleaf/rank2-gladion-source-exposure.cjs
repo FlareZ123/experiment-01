@@ -57,13 +57,17 @@ function examine(trial,run=runWithResearchProfile){
   const game=run({
     deckA:decks[0],deckB:decks[1],seed:trial.seed,
     strictPromptValidation:true,grandTreeFirstTurnCorrection:true,
-    captureDecisionTrace:true,maxActions:ACTION_LIMIT,
+    captureDecisionTrace:true,captureGladionRootPrizeChoices:true,
+    maxActions:ACTION_LIMIT,
     label:'Frozen source rank2 Gladion root exposure'
   },EXPANDED_SOURCE_PROFILE);
   if(!Array.isArray(game.rootActionLedger))throw Error('Missing root ledger');
   const played=(game.cardsPlayedBySeat?.[trial.rank2Seat]?.Gladion||0);
   const events=extractGladionRootEvents(game.rootActionLedger,trial.rank2Seat);
   if(events.length!==played)throw Error('Root Gladion play census mismatch');
+  const prizeChoices=game.gladionRootPrizeChoices||[];
+  if(prizeChoices.length!==events.filter(e=>e.prizePromptResolved).length)
+    throw Error('Owner-visible Gladion prompt observation mismatch');
   return {
     ...trial,rank2SourcePlayer:rank2.player,
     rank1SourcePlayer:rank1.player,engine:game.engine,
@@ -76,7 +80,7 @@ function examine(trial,run=runWithResearchProfile){
     gladionRootPlays:events.length,
     actualGladionChoosePrizeResolutions:events.filter(e=>
       e.prizePromptResolved&&e.followUpObserved).length,
-    events,
+    events,rootVisibleGladionPrizeChoices:prizeChoices,
     competitiveGameQualified:false
   };
 }
@@ -96,6 +100,8 @@ function runPilot(){
     completedDiagnostics:games.filter(g=>!g.error).length,
     errorDiagnostics:games.filter(g=>g.error).length,
     actualGladionRootPlays:games.reduce((s,g)=>s+(g.gladionRootPlays||0),0),
+    ownerVisiblePrizeSelections:games.reduce((s,g)=>
+      s+(g.rootVisibleGladionPrizeChoices?.length||0),0),
     actualGladionChoosePrizeResolutions:games.reduce((s,g)=>
       s+(g.actualGladionChoosePrizeResolutions||0),0),
     games,
