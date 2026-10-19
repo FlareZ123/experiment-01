@@ -51,3 +51,15 @@ jobs:
         run: node --test tests/setup-compensation-observer.test.cjs tests/headless-initial-setup-compensation-smoke.test.cjs
       - name: Check setup mulligan statistics against exact probabilities
         run: node simulation/twinleaf/setup-audit.cjs
+
+      - name: Validate destination-aware mandatory deck-discard selections
+        run: node --test tests/setup-discard-prompt-planner.test.cjs
+      - name: Exercise rank26 and New Moon source-60 actual Store prompt lifecycle
+        run: node simulation/twinleaf/setup-discard-native.cjs > setup-discard-native.json
+      - name: Preserve all source-60 constructed native prompt results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent17-setup-discard-source-60
+          path: setup-discard-native.json
+          if-no-files-found: warn
