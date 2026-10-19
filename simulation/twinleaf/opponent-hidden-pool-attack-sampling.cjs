@@ -10,7 +10,7 @@ const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
  * Source roster and public observations must independently establish the
  * hidden multiset; none of the sampled identities or positions may be known.
  * Runs only prospective AttackAction scoring; real actions stay untouched.
- * @param {{seed:number,samples:number,hiddenPoolKnownVerified:boolean,opponentHandUnobservedVerified:boolean,opponentDeckOrderUnobservedVerified:boolean,opponentPrizeIdentityUnobservedVerified:boolean}} options
+ * @param {{seed:number,samples:number,includePerfectionAbility?:boolean,hiddenPoolKnownVerified:boolean,opponentHandUnobservedVerified:boolean,opponentDeckOrderUnobservedVerified:boolean,opponentPrizeIdentityUnobservedVerified:boolean}} options
  * @returns {()=>void}
  */
 function installOpponentHiddenPoolAttackSampling(options){
@@ -20,11 +20,15 @@ function installOpponentHiddenPoolAttackSampling(options){
     assert.equal(options[key],true,key+' must be verified before sampling');
   }
   const {SimpleTactic}=require(path.join(output,'simple-bot/simple-tactics/simple-tactics'));
-  const {AttackAction}=require(path.join(output,'game/store/actions/game-actions'));
+  const {AttackAction,UseAbilityAction}=require(path.join(output,'game/store/actions/game-actions'));
   const {deepClone}=require(path.join(output,'utils'));
   const original=SimpleTactic.prototype.evaluateAction;
   SimpleTactic.prototype.evaluateAction=function sampledAttack(state,playerId,action,passTurnScore){
-    if(!(action instanceof AttackAction))return original.call(this,state,playerId,action,passTurnScore);
+    const delegatedPerfection=options.includePerfectionAbility===true &&
+      action instanceof UseAbilityAction && action.name==='Perfection';
+    if(!(action instanceof AttackAction)&&!delegatedPerfection){
+      return original.call(this,state,playerId,action,passTurnScore);
+    }
     assertVendorCloneCompatibleSource(state);
     const owner=state.players.find(p=>p.id===playerId);
     const opponent=state.players.find(p=>p.id!==playerId);
@@ -52,7 +56,10 @@ function installOpponentHiddenPoolAttackSampling(options){
       other.hand.cards.splice(0,handCount,...shuffle.slice(0,handCount));
       other.deck.cards.splice(0,deckCount,...shuffle.slice(handCount,handCount+deckCount));
       prizeSlots.forEach(([i,j],k)=>other.prizes[i].cards[j]=shuffle[handCount+deckCount+k]);
-      const score=original.call(this,copy,playerId,new AttackAction(action.clientId,action.name),passTurnScore);
+      const sampledAction=delegatedPerfection?
+        new UseAbilityAction(action.clientId,action.name,{...action.target}):
+        new AttackAction(action.clientId,action.name);
+      const score=original.call(this,copy,playerId,sampledAction,passTurnScore);
       if(score===undefined)return undefined;
       assert.ok(Number.isFinite(score),'Nonfinite simulated score');
       total+=score;
