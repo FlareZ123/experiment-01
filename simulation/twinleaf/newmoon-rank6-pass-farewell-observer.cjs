@@ -39,6 +39,7 @@ function withRank6UnownFarewellPassProbe(execute,{seat,turn}) {
   const {deepClone}=load('utils');
   const {Store}=load('game/store/store');
   const {UseAbilityAction}=load('game/store/actions/game-actions');
+  const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
   const {PlayerType,SlotType}=load('game/store/actions/play-card-action');
   const prior=SimpleTacticsAi.prototype.decodeNextAction;
   const observations=[];
@@ -74,9 +75,21 @@ function withRank6UnownFarewellPassProbe(execute,{seat,turn}) {
         Math.random=()=>0.5;
         try {
           copied.dispatch(action);
+          const waitResolutions=[];
+          for(let step=0;step<3;step++) {
+            const pending=copied.state.prompts
+              .filter(prompt=>prompt.result===undefined);
+            if(pending.length!==1||
+               pending[0].constructor.name!=='WaitPrompt') break;
+            const prompt=pending[0];
+            const reply=new ResolvePromptAction(prompt.id,null);
+            copied.dispatch(reply);
+            waitResolutions.push('WaitPrompt resolved with null');
+          }
           const after=copied.state.players[seat];
           counterfactual={
             dispatchReturnedWithoutThrow:true,
+            waitPromptResolutions:waitResolutions.length,
             pendingPromptTypes:copied.state.prompts
               .filter(prompt=>prompt.result===undefined)
               .map(prompt=>prompt.constructor.name),
