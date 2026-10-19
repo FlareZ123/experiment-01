@@ -1,0 +1,71 @@
+{
+  "schema": "rank11-exclusive-openers-prospective-v1",
+  "registeredAtUtc": "2026-10-19",
+  "intent": "Failure-inclusive real source-dealt mechanical policy opportunity and abort evaluation; not competitive game testing.",
+  "opponent": {
+    "rank": 11,
+    "source": "Published exact Aichi 2026 rank-11 Absol/Garbodor 60",
+    "sourcePrintedIdentitySha256": "967308cd60e92348d8069a348174d816efcaa06f3825a3cf45b64886facb1273"
+  },
+  "candidate": {
+    "id": "new-moon-lockbreaker-v1-english-proxy",
+    "cards": 60,
+    "canonicalIdCountSha256": "a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4",
+    "status": "provisional English mechanics proxy, not print-verified Japanese tournament legality"
+  },
+  "engine": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "experiment": {
+    "physicalSourceSeats": [
+      0,
+      1
+    ],
+    "repeatsPerSourceSeat": 64,
+    "attempts": 128,
+    "maxRootActions": 48,
+    "sourceMustBeOriginalDealt": true,
+    "actualFirstCheckedAgainstDrawLog": true,
+    "requireCompleteDenominator": true,
+    "candidateListUnchanged": true,
+    "unselectedSeedsPreserved": true,
+    "bothSeatsAlwaysIncluded": true,
+    "optionalOutcomeClasses": [
+      "no-route",
+      "direct-completed",
+      "direct-aborted",
+      "direct-unresolved",
+      "held-seal-completed",
+      "held-seal-aborted",
+      "held-seal-unresolved"
+    ],
+    "completeDoesNotImplyCompetitiveQuality": true
+  },
+  "policies": {
+    "source": "withRank11ExclusiveOpeners first owner-visible eligible direct/held-seal route; K0/K1 early Garbodor guards",
+    "candidate": "existing generic New Moon runArm policy; no competitive competence assumed",
+    "twoSidedPolicyQualified": false
+  },
+  "randomness": {
+    "protocol": "sha256-first-four-byte-big-endian-v1",
+    "domain": "aichi-rank11-exclusive-lockbreak-20261019-v1",
+    "messageFormat": "${domain}|seat=${sourceSeat}|repeat=${repeat}",
+    "framing": "64 consecutive repeat indices per physical source seat, 0..63",
+    "seedLineFormat": "${sourceSeat}:${repeat}:${seed}\\n",
+    "seedFrameSha256": "a8d3110f98fb8407161ec8e57a9544c000ce7ee4258bd69a0ccc85a199440d08",
+    "seedSelectionRule": "Every registered seed attempted exactly once; no selecting on opening, seat, outcome, win, trace, or simulator failure"
+  },
+  "output": "results/aichi-2026/rank11-exclusive-openers-prospective-v1.md",
+  "classification": "Observe real starting order, early source policy route, legal prompt progression, source actual next-turn lock witness, abort timing and any competing claim. No engine winner counts toward win rate. Record every failure and censor.",
+  "pinnedResearchBlobs": {
+    "simulation/twinleaf/rank11-exclusive-openers.cjs": "659eb015372bf3e882da9ad217e7a5eccc0bedaf",
+    "simulation/twinleaf/rank11-direct-boostshake.cjs": "76990c55c94095438637a85dcf3ef0996e2d6492",
+    "simulation/twinleaf/rank11-held-seal-policy.cjs": "2846bc65161f7b81e8527644846eabc6932a4f7f",
+    "simulation/twinleaf/rank11-exclusive-prospective-seeds.cjs": "d2f23f8d65b338ee7f85501330de1f823228773c",
+    "simulation/twinleaf/new-moon-second-start-paired.cjs": "fa3a76166356fdeeb450725d2c58e82db028faaa",
+    "simulation/twinleaf/headless.cjs": "33dbfbaa85cc2c547206d248fe6a68604ef9704b"
+  },
+  "assessmentCaveats": [
+    "Opening-selection counts measure current bounded bot behavior, not line availability for skilled human players.",
+    "English mechanics proxy, bot hidden-information leakage, source printing/rules and 25-minute clock limit interpretation.",
+    "The historical positive and abort fixtures are excluded from this new 128-arm prospective denominator."
+  ]
+}
