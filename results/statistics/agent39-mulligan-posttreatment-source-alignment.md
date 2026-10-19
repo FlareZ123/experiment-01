@@ -39,6 +39,29 @@ For independently repeated valid-opening redraws, total candidate mulligan count
 
 Numerator `C(46,7)-C(43,7)=21,300,566` and denominator `C(60,7)=386,206,920` were computed using Python `math.comb`; the probabilities are input-inventory arithmetic and do not depend on a fitted simulation. The static Basic count should be rechecked if either fixed 60 changes.
 
+## An explicit ideal sequential coupling for rank-6 and rank-11 setup
+
+For a narrower, protocol-specific expectation, suppose both candidates receive the **same fresh ideal seven-index permutation on every redraw**, with all champion Basic card indices also Basic in New Moon. Set `a = p_17` (both variants fail to find a Basic), `b = p_14 - p_17` (only the champion fails), and `c = 1 - p_14` (both succeed). Repeating draws until each legal opening is found gives an exact probability of **different total mulligan counts**:
+
+`P(M_champion != M_NewMoon) = b/(1-a) = 6.017401308%.`
+
+This slightly exceeds the absolute 5.5153% lower bound across arbitrary joint distributions of complete mulligan counts. The sequential construction is a particular valid paper-style common-random-numbers coupling.
+
+If the source 60 is independently shuffled with `p_s` as its own per-attempt mulligan probability, the source's *bonus-card allowance* differs across two candidate arms precisely when `M_source < M_champion` on a divergent candidate-pair path. Summing over the initial shared invalid hands and subsequent champion-only redraws gives
+
+`P(different source bonus offers) = b/(1-a) - b*c*p_s / ((1-a*p_s)*(1-p_14*p_s))`.
+
+The complete source 60s contain **four Basics at rank 6** (four Iron Thorns ex) and **eleven Basics at rank 11** (13 Pokémon minus two Garbodor evolutions), verified from [published source inventories](../aichi-2026/full-decklists.json). The source includes **three Basic Mega Absol ex**; its two Garbodor are Stage 1. The Mega Absol ex and Garbodor stages were independently checked against the supplied card database.
+
+| Frozen source | Source Basics | Source first-seven mulligan rate | Ideal nested-sequential source bonus-offer discrepancy |
+| --- | ---: | ---: | ---: |
+| Rank 6 Iron Thorns | 4 | 60.050037426% | **2.741320342%** |
+| Rank 11 Absol Garbodor | 11 | 22.242114150% | **4.906462305%** |
+
+The source may decline those legally optional cards, so the percentage of **actually diverging source hands** may be lower. It may also diverge for other reasons, including different pseudorandom call paths; this calculation cannot predict the Twinleaf observer's empirical fingerprint mismatch frequency. The numbers are conditions of the *stated ideal setup coupling*, not lower bounds on observed source-deal hash mismatch.
+
+Reproducible code: [exact paper-mulligan coupling calculator](../../scripts/aichi-mulligan-treatment-coupling.cjs), [independent infinite-sum numerical regression and source-list count checks](../../tests/aichi-mulligan-treatment-coupling.test.cjs). Node 22 [manual benchmark workflow 39242013636](https://github.com/FlareZ123/experiment-01/actions/runs/39242013636), run against commit `ef730a1cfe7dd649e85664cbfc6ff5fa7f997bfa`, **passed**. This is a pure arithmetic/test verification, not full-game or policy validation. The existing [pinned Store setup audit](../../simulation/twinleaf/setup-audit.cjs) already records per-player mulligan counts, bonus prompt offers, selections and cards drawn for **setup-only** source matches. Its instrumentation can inform the full-game runner without reinventing paper mulligan bookkeeping.
+
 ## Required distinction in the registered v2 report
 
 1. **Unconditional intent-to-test:** retain *every* prospectively registered candidate arm, including different candidate mulligan counts, source optional draws, source position mismatches, engine errors and caps, without conditioning comparison inclusion on source-pressure or complete turn-1 source-state equality. Report each separately and keep policy/rule vetoes.
