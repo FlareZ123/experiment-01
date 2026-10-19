@@ -92,6 +92,7 @@ test('reject source identity, archive audit or policy-data mutation',()=>{
 
   const falseClaim=fixture();
   falseClaim[0].observations[0].candidateResponse.legalStateTransitionWitness=true;
+  falseClaim[0].audit=auditRank11Exposure(frame,falseClaim[0].observations);
   assert.throws(()=>auditCompleteRank11(falseClaim),/never independently certified/);
 
   const corrupted=fixture();
