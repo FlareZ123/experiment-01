@@ -32,7 +32,7 @@ test('active switch off Thorns ends owner-only response',()=>{
   x.opponent.active=zone('Iron Thorns ex');
   x.opponent.bench=[zone('Garbodor',['Float Stone'])];
   assert.deepEqual(chooseProtectedShadowRider(x.own,x.opponent),
-    {slot:'ACTIVE',index:0,pokemon:'Shadow Rider Calyrex V TEST'});
+    {slot:'BENCH',index:0,pokemon:'Shadow Rider Calyrex VMAX TEST'});
   x.opponent.active=zone('Trubbish');
   x.opponent.bench=[zone('Iron Thorns ex')];
   assert.equal(chooseProtectedShadowRider(x.own,x.opponent,'initialization'),null);
