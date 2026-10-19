@@ -26,6 +26,10 @@ on:
         description: 'Agent15 frozen 16-seed source rank8 Hood pressure pairs'
         type: boolean
         default: false
+      hood_rank8_crispin_native:
+        description: 'Source turn7 Secret Box Crispin native Energy choice and attack audit'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -214,3 +218,20 @@ jobs:
           path: rank8-hood-pressure-prospective.json
           if-no-files-found: warn
           retention-days: 21
+
+      - name: Validate owner-side Crispin native Energy proposal
+        if: inputs.hood_rank8_crispin_native
+        run: |
+          node --check simulation/twinleaf/rank8-secretbox-crispin-native-line.cjs
+          node --test tests/rank8-secretbox-crispin-native-line.test.cjs
+      - name: Execute authentic source Crispin four-category continuation
+        if: inputs.hood_rank8_crispin_native
+        run: node simulation/twinleaf/rank8-secretbox-crispin-native-line.cjs > rank8-secretbox-crispin-native.json
+      - name: Archive source Crispin prompt and opponent reply
+        if: always() && inputs.hood_rank8_crispin_native
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank8-secretbox-crispin-native-line
+          path: rank8-secretbox-crispin-native.json
+          if-no-files-found: warn
+          retention-days: 14
