@@ -65,7 +65,15 @@ function executeArm(request,profile) {
       sourceVisibleOpening:observer ? {
         active:observer.active,hand:observer.hand,
         dceZoneCounts:Object.fromEntries(Object.entries(observer.doubleColorless)
-          .map(([zone,cards])=>[zone,cards.length]))
+          .map(([zone,cards])=>[zone,cards.length])),
+        // Privileged analyst-only truth AFTER the live opening decision was
+        // already proposed. The decision policy never receives this field.
+        thunderMountainInitiallyPrized:observer.prizes.some(print=>
+          print.startsWith('Thunder Mountain Prism Star ')),
+        thunderMountainInitiallyHeld:observer.hand.some(print=>
+          print.startsWith('Thunder Mountain Prism Star ')),
+        thunderMountainInStadium:observer.stadium.some(print=>
+          print.startsWith('Thunder Mountain Prism Star '))
       }:null,
       // Privileged Prize data is retained exclusively for paired equality;
       // do not serialize it or provide it to the source-owner bot.
