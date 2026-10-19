@@ -59,6 +59,8 @@ jobs:
         run: |
           node simulation/twinleaf/rank6-rejected-stadium-state-audit.cjs > rank6-rejected-stadium-state.json
           cat rank6-rejected-stadium-state.json
+      - name: Verify proactive Battle Compressor owner-visible prompt
+        run: node simulation/twinleaf/newmoon-compressor-owner-prompt-native.cjs
       - name: Archive pinned rejected-action evidence
         if: always()
         uses: actions/upload-artifact@v4
