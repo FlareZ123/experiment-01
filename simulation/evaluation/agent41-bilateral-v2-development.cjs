@@ -348,7 +348,8 @@ function runDevelopment({
         'agent41-bilateral-common-policy-development-v0c-live-lock-guard')),
     sourceRegistration:'historical v1 selection; not v2 preregistration',
     enginePin:registration.enginePin,
-    candidatePolicy:POLICY_VERSION+(compressorPayload?'+owner-compressor-v1':''),
+    candidatePolicy:POLICY_VERSION+(lateCompressorPayload?
+      '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1'')),
     ownerCompressorPayloadOptIn:compressorPayload,
     ownerCompressorOpportunityAudit:opportunityAudit,
     ownerCompressorLate14OptIn:lateCompressorPayload,
