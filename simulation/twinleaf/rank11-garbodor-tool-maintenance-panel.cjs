@@ -143,7 +143,7 @@ function run() {
   return {
     schema:'rank11-full-source-tool-maintenance-prospective-v1',
     registration:'results/aichi-2026/rank11-garbodor-tool-maintenance-registration.md',
-    seedProtocol:'four cryptographically drawn seeds, both physical candidate slots, fixed before compiling',
+    seedProtocol:'four predeclared distinct seeds, both physical candidate slots; origin unaudited, diagnostic only',
     seeds:SEEDS,
     sourceRank:SOURCE_RANK,
     engineRevision:plan.engineRevision,
