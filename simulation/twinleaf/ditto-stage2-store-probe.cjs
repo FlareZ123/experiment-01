@@ -14,9 +14,10 @@ const load = relativePath => require(path.join(output, relativePath));
  * The scripted Math.random values apply solely inside this synchronous probe.
  *
  * @param {boolean} useGlimwood
+ * @param {boolean} [verifyItemLock]
  * @returns {{targetStage: string, coinWaits: number, reflipPrompts: number, choicePrompts: number, toolConserved: boolean, energyConserved: boolean, damageConserved: boolean, dittoReturned: boolean, targetRetained: boolean}}
  */
-function probeDittoStage2(useGlimwood) {
+function probeDittoStage2(useGlimwood, verifyItemLock = false) {
   const cards = initializeCards();
   let nextId = 1;
   /** @param {string} name @returns {any} */
@@ -117,10 +118,32 @@ function probeDittoStage2(useGlimwood) {
   assert.equal(coinWaits, useGlimwood ? 2 : 1);
   assert.equal(reflipPrompts, useGlimwood ? 1 : 0);
 
+  // The transformed Vileplume has Irritating Pollen, which should prevent
+  // either player from announcing an Item from hand. Exercise the genuine
+  // engine's PlayItemEffect without constructing an artificial card action.
+  let itemLock;
+  if (verifyItemLock) {
+    const { PlayItemEffect } = load('game/store/effects/play-card-effects');
+    const { GameMessage } = load('game/game-message');
+    const switchItem = card('Switch SVI');
+    /** @param {any} player */
+    const blocked = player => {
+      try {
+        store.reduceEffect(state, new PlayItemEffect(player, switchItem));
+        return false;
+      } catch (error) {
+        if (error.message !== GameMessage.CANNOT_PLAY_THIS_CARD) throw error;
+        return true;
+      }
+    };
+    itemLock = { ownerBlocked: blocked(liveMine), opponentBlocked: blocked(enemy) };
+  }
+
   return {
     targetStage: stage2.stage, coinWaits, reflipPrompts, choicePrompts,
     toolConserved: true, energyConserved: true, damageConserved: true,
-    dittoReturned: true, targetRetained: true
+    dittoReturned: true, targetRetained: true,
+    ...(verifyItemLock ? { itemLock } : {})
   };
 }
 
