@@ -18,6 +18,13 @@ class Rank8HoodCoreEarlyTests(unittest.TestCase):
                          Fraction(85787, 511724169))
         self.assertEqual(result["conditional_on_valid_start"],
                          Fraction(85787, 379377339))
+        expanded = exact(allow_same_name_duplicates=True)
+        self.assertEqual(expanded["all_held_and_valid_start"],
+                         Fraction(148540, 511724169))
+        self.assertEqual(expanded["conditional_on_valid_start"],
+                         Fraction(148540, 379377339))
+        self.assertGreater(expanded["conditional_on_valid_start"],
+                           result["conditional_on_valid_start"])
 
     def test_independent_physical_deal(self):
         rng = random.Random(20261019)
@@ -27,7 +34,7 @@ class Rank8HoodCoreEarlyTests(unittest.TestCase):
              for label in [f"discard{i}"] * count] + ["other"] * 28
         )
         self.assertEqual(len(deck), 60)
-        valid = hits = 0
+        valid = hits = duplicate_compatible_hits = 0
         for _ in range(200000):
             rng.shuffle(deck)
             if "basic" not in deck[:7]:
@@ -42,12 +49,25 @@ class Rank8HoodCoreEarlyTests(unittest.TestCase):
             )
             if core and distinct_discard_names >= 3:
                 hits += 1
+            if core and sum(
+                card.startswith("discard") for card in seen
+            ) >= 3:
+                duplicate_compatible_hits += 1
         predicted = float(exact()["conditional_on_valid_start"])
         observed = hits / valid
         sigma = (predicted * (1 - predicted) / valid) ** 0.5
         self.assertGreater(valid, 130000)
         self.assertGreater(hits, 0)
         self.assertLess(abs(observed - predicted), 5 * sigma)
+        alternative = float(
+            exact(allow_same_name_duplicates=True)["conditional_on_valid_start"]
+        )
+        alternative_sigma = (alternative * (1 - alternative) / valid) ** 0.5
+        self.assertGreaterEqual(duplicate_compatible_hits, hits)
+        self.assertLess(
+            abs(duplicate_compatible_hits / valid - alternative),
+            5 * alternative_sigma,
+        )
 
 
 if __name__ == "__main__":
