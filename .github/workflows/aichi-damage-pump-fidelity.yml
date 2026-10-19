@@ -23,6 +23,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank26_tool_guard_probe:
+        description: 'Check five source-dealt rank26 firstturn Tool proposal vetoes'
+        type: boolean
+        required: false
+        default: false
       rank26_dce_probe:
         description: 'Compare firstturn Meloetta Lightning and DCE reservation policies'
         type: boolean
@@ -105,7 +110,7 @@ jobs:
           path: rank26-pump-autonomous-source-conditioned.json
           if-no-files-found: error
       - name: Test printed Exeggcute Propagation recovery choices
-        run: node --test tests/rank26-propagation-loop.test.cjs tests/rank26-mail-recovery.test.cjs tests/rank26-dce-reservation.test.cjs tests/rank26-farewell-source-draw.test.cjs
+        run: node --test tests/rank26-propagation-loop.test.cjs tests/rank26-mail-recovery.test.cjs tests/rank26-dce-reservation.test.cjs tests/rank26-farewell-source-draw.test.cjs tests/rank26-crisis-tool-guard.test.cjs
       - name: Attempt source-card-conserved autonomous 2+2+1 Propagation and Pump sequence
         run: node simulation/twinleaf/rank26-propagation-source-fixture.cjs > rank26-autonomous-propagation-2plus2plus1.json
       - name: Archive staged Propagation and Pump decisions and effects
@@ -152,6 +157,19 @@ jobs:
         with:
           name: rank26-mail-starter-development-unqualified
           path: rank26-mail-starter-development.json
+          if-no-files-found: error
+      - name: Compare source rank26 firstturn Tool proposal-preservation guards
+        if: ${{ inputs.rank26_tool_guard_probe }}
+        run: node simulation/twinleaf/rank26-crisis-tool-source-pair.cjs > rank26-crisis-tool-guard-source.json
+      - name: Print bounded source firstturn Tool veto contrast
+        if: ${{ inputs.rank26_tool_guard_probe }}
+        run: node -e "const x=require('./rank26-crisis-tool-guard-source.json'); console.log(JSON.stringify({cases:x.summary.cases,originalTM:x.summary.originalFirstturnTM,guardTM:x.summary.guardFirstturnTM,originalFloat:x.summary.originalFirstturnFloat,guardFloat:x.summary.guardFirstturnFloat,blocked:x.summary.totalBlockedProposals,attack:x.summary.firstturnGuardAttacks,prize:x.summary.firstturnGuardPrizeDecrease,qualified:x.qualification.competitiveGameWinRate},null,2))"
+      - name: Archive real source Tool proposal and final action comparisons
+        if: ${{ inputs.rank26_tool_guard_probe }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank26-crisis-tool-source-guard-unqualified
+          path: rank26-crisis-tool-guard-source.json
           if-no-files-found: error
       - name: Execute authentic rank26 DCE policy comparison
         if: ${{ inputs.rank26_dce_probe }}
