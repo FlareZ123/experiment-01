@@ -78,3 +78,20 @@ test('no fallback without a real forbidden owner-hand play',()=>{
   assert.equal(visibleBasicBenchResponse(
     state,owner,{...original,type:'ATTACK_ACTION'},enums,makePlayCard),null);
 });
+
+test('Item-locked source uses same complete enums for Basic Bench fallback',()=>{
+  const state=fixture(),owner=state.players[0];
+  owner.hand.cards[0]={fullName:'Field Blower GRI',
+    superType:2,trainerType:0};
+  owner.cannotPlayStadiumCards=false;
+  owner.cannotPlayItemCards=true;
+  const lockedItem=makePlayCard(202,0,{player:2,slot:0,index:0});
+  assert.deepEqual(visibleBasicBenchResponse(
+    state,owner,lockedItem,enums,makePlayCard),{
+      action:makePlayCard(202,1,{player:2,slot:2,index:0}),
+      card:'Iron Thorns ex TWM',benchSlot:0
+    });
+  owner.cannotPlayItemCards=false;
+  assert.equal(visibleBasicBenchResponse(
+    state,owner,lockedItem,enums,makePlayCard),null);
+});
