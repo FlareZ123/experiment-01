@@ -81,6 +81,8 @@ function auditBilateralV2(plan,archive) {
     if(!pairs.has(arm.pairId))pairs.set(arm.pairId,[]);
     pairs.get(arm.pairId).push(arm);
   }
+  /** @type {Map<string,string>} */
+  const physicalStreams=new Map();
   for(const [pairId,members] of pairs) {
     assert.equal(members.length,2,'Each pair needs both candidates: '+pairId);
     assert.deepEqual(new Set(members.map(a=>a.candidateId)),
@@ -88,6 +90,15 @@ function auditBilateralV2(plan,archive) {
     assert.equal(members[0].rank,members[1].rank);
     assert.equal(members[0].candidateSeat,members[1].candidateSeat);
     assert.equal(members[0].seed,members[1].seed);
+    // New pair IDs must not relabel the same source-rank, physical seat
+    // and PRNG stream as independent candidate-comparison opportunities.
+    const stream=JSON.stringify([
+      members[0].rank,members[0].candidateSeat,members[0].seed
+    ]);
+    assert.ok(!physicalStreams.has(stream),
+      'Duplicate physical source stream '+stream+' under both '+
+      physicalStreams.get(stream)+' and '+pairId);
+    physicalStreams.set(stream,pairId);
   }
 
   const rows=new Map();
