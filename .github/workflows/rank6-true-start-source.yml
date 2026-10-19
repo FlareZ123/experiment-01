@@ -1,0 +1,38 @@
+name: Rank6 true-start source policy gate
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned upstream dependency
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate research source and pure opening decisions
+        run: |
+          node --check simulation/twinleaf/rank6-broad-thorns-policy.cjs
+          node --check simulation/twinleaf/rank6-true-start-opportunity-source.cjs
+          node --test tests/rank6-broad-thorns-policy.test.cjs
+      - name: Install pinned Twinleaf dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Build pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run all frozen both-start source trial pairs
+        run: node simulation/twinleaf/rank6-true-start-opportunity-source.cjs > rank6-true-start-source.json
+      - name: Preserve source results including every error and action cap
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank6-true-start-source
+          path: rank6-true-start-source.json
+          if-no-files-found: warn
