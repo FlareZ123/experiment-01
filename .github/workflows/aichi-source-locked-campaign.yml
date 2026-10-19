@@ -3,6 +3,11 @@ name: Aichi source-locked Iron Thorns policy diagnostic
 on:
   workflow_dispatch:
     inputs:
+      agent17_crossrank_trigger_replay:
+        description: 'Retrospective only: four archived cross-rank source-action and bilateral reply Store packets'
+        required: false
+        type: boolean
+        default: false
       agent41_crossrank_trial:
         description: 'Execute prespecified rank 6 and rank 11 two-candidate owner-policy screen'
         required: false
@@ -175,16 +180,25 @@ jobs:
       - name: Compile pinned simulator
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify retrospective Store packet and frozen trigger identities
+        if: ${{ inputs.agent41_crossrank_trial && inputs.agent17_crossrank_trigger_replay }}
+        run: node --test tests/aichi-bilateral-reply-packet.test.cjs tests/agent17-crossrank-trigger-replay.test.cjs
+      - name: Reexecute four original source-triggered game arms for accepted-action and reply witnesses
+        if: ${{ inputs.agent41_crossrank_trial && inputs.agent17_crossrank_trigger_replay }}
+        run: node simulation/evaluation/agent17-crossrank-trigger-replay.cjs > agent17-crossrank-trigger-evidence.json
+      - name: Show bounded bilateral observations without competitive inference
+        if: ${{ inputs.agent41_crossrank_trial && inputs.agent17_crossrank_trigger_replay }}
+        run: node -e "const x=require('./agent17-crossrank-trigger-evidence.json');for(const r of x.rows)console.log('FORENSIC',JSON.stringify({id:r.id,status:r.status,source:r.sourceReplyPacket?.executedSourceRoot,sourceAttackAccepted:r.sourceReplyPacket?.matchingSourceAttackDeclared,candidateFirst:r.sourceReplyPacket?.firstCandidateNextTurnRoot,candidateAttackNames:r.sourceReplyPacket?.candidateSameTurnAttackDeclarations,nextSource:r.sourceReplyPacket?.nextSourceTurnRoot,error:r.error?.slice(0,250)}))"
       - name: Verify registered Agent41 two-rank schedule and corpus hashes
-        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && !inputs.agent17_crossrank_trigger_replay }}
         run: node --test tests/agent41-crossrank-actual-decisions.test.cjs
       - name: Execute frozen candidate-paired Iron Thorns and Garbodor screen
-        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && !inputs.agent17_crossrank_trigger_replay }}
         env:
           AGENT41_PARTITION: ${{ inputs.agent41_crossrank_partition || '0' }}
         run: node simulation/evaluation/agent41-crossrank-actual-decisions.cjs > agent41-crossrank-observed.json
       - name: Print bounded failures, decisions and source opportunity counts
-        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && !inputs.agent17_crossrank_trigger_replay }}
         run: node -e "const a=require('./agent41-crossrank-observed.json');console.log(JSON.stringify({partition:a.partition,recorded:a.partitionRecorded,status:a.statusCounts,opportunities:a.sourceOpportunityCounts,sourceFirst:a.actualSourceFirstCount,attackDeclarations:a.observedAttackDeclarations,matchedSourceHands:a.pairedSourceHandAgreement,paired:a.pairedTotal,errors:a.rows.filter(x=>x.status==='engine-error').map(x=>({id:x.id,error:x.error?.slice(0,250)}))},null,2))"
       - name: Replay original Agent41 rank6 rejected root and capture legal owner information
         if: ${{ inputs.agent41_crossrank_trial && inputs.agent6_rejected_arm }}
@@ -326,6 +340,7 @@ jobs:
             rank11-K0-continuations.json
             rank11-prospective-exposure-observed.json
             agent41-crossrank-observed.json
+            agent17-crossrank-trigger-evidence.json
             agent6-crossrank-rejected-root.json
             agent6-shadow-mist-supporter.json
             agent25-rank6-newmoon-first-pass.json
