@@ -130,6 +130,8 @@ function candidatePostChoicePassEvidence(decisionTrace,candidateSeat){
     .map(row=>({
       ordinal:row.actionOrdinal,turn:row.turnBefore,
       publicBoardBeforePass:row.publicBoardBeforePass??null,
+      ownerHandBeforePass:row.decisionHandBefore?.perspectiveSeat===candidateSeat ?
+        (row.decisionHandBefore.ownHandPrintings??null):null,
       ...row.perfectionPassProbe
     }));
   return {
