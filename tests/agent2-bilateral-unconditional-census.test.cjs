@@ -236,6 +236,33 @@ test('unaligned censored arms never acquire fabricated negative pressure',()=>{
   assert.equal(pair.candidateArms[1].engineWinner,null);
 });
 
+
+test('every actual physical source start must have a fingerprint even when arms diverge',()=>{
+  const x=fixture();
+  rowFor(x.archive,11,1,'newmoon').sourceDealFingerprint='';
+  let census=auditUnconditionalBilateralCensus(x.plan,x.archive);
+  assert.equal(census.allRegisteredAttemptsAccounted,true);
+  assert.equal(census.actualStartsPerCandidateAndRankObserved,true);
+  assert.equal(census.allRegisteredArmsStartVerified,true);
+  assert.equal(census.allRegisteredSourceStartsFingerprinted,false);
+  assert.equal(census.unconditionalAttemptCensusReviewable,false,
+    'Unknown physical origin is not an authenticated unconditional start');
+  assert.equal(census.byRank[11].pressureCells['unaligned-start-or-deal'],1);
+
+  const y=fixture();
+  rowFor(y.archive,11,1,'newmoon').sourceDealFingerprint=hex('e');
+  census=auditUnconditionalBilateralCensus(y.plan,y.archive);
+  assert.equal(census.allRegisteredSourceStartsFingerprinted,true);
+  assert.equal(census.unconditionalAttemptCensusReviewable,true,
+    'Two different genuine source fingerprints remain an unconditional cohort');
+
+  const z=fixture();
+  rowFor(z.archive,6,0,'reference').sourceDealFingerprint=null;
+  census=auditUnconditionalBilateralCensus(z.plan,z.archive);
+  assert.equal(census.allRegisteredSourceStartsFingerprinted,false);
+  assert.equal(census.unconditionalAttemptCensusReviewable,false);
+});
+
 test('accepted pressure requires a possible source root within the archived ledger',()=>{
   const {plan,archive}=fixture();
   const row=rowFor(archive,6,0,'reference');
