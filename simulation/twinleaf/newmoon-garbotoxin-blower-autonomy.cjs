@@ -10,7 +10,11 @@ const MEWTWO = 'Mewtwo & Mew-GX UNM';
 const BLOWER = 'Field Blower GRI';
 const GARBODOR = 'Garbodor BKP';
 const GARBODOR_LTR = 'Garbodor LTR';
-const GARBOTOXIN_PRINTINGS = new Set([GARBODOR, GARBODOR_LTR]);
+const GARBODOR_DRX = 'Garbodor DRX';
+const GARBODOR_PLF = 'Garbodor PLF';
+const GARBOTOXIN_PRINTINGS = new Set([
+  GARBODOR, GARBODOR_LTR, GARBODOR_DRX, GARBODOR_PLF
+]);
 
 /** @param {object|null|undefined} pokemon @returns {boolean} */
 const isGarbotoxinPrinting = pokemon =>
