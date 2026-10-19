@@ -40,10 +40,20 @@ function run() {
     })
   }]]);
   const choices=[];
+  const diagnosticCalls=[];
   let supporterSelected=false,blockedFollowupDeclined=false;
   const installedReply=function stateLimitedReply(state) {
     const proposed=original.call(this,state);
     const owner=state.players[1];
+    if(state.turn===3 && state.activePlayer===1 &&
+       diagnosticCalls.length<12) {
+      const logs=state.logs.filter(x=>x.message==='LOG_PLAYER_USES_ATTACK');
+      diagnosticCalls.push({clientId:this.client?.id,ownerId:owner.id,
+        turn:state.turn,proposal:proposed?.constructor.name??null,
+        proposalCard:owner.hand.cards[proposed?.handIndex]?.name??null,
+        pending:state.prompts.find(x=>x.result===undefined)?.constructor.name??null,
+        lastPublicAttack:logs.at(-1)?.params??null});
+    }
     if(this.client?.id!==owner.id || state.activePlayer!==1 ||
         state.turn!==3 || state.prompts.some(x=>x.result===undefined) ||
         proposed?.constructor.name!=='PlayCardAction') return proposed;
@@ -86,7 +96,9 @@ function run() {
     SimpleTacticsAi.prototype.decodeNextAction=original;
   }
   assert.equal(supporterSelected,true,
-    'Owner-visible Shadow Mist legal alternate must occur at the same root');
+    'Owner-visible legal alternate absent: '+JSON.stringify({
+      error,diagnosticCalls,choices
+    }).slice(0,3600));
   return {
     schema:'rank6-shadow-mist-one-source-supporter-counterfactual-v1',
     frozenTrialId:trial.id,seed:trial.seed,
@@ -95,7 +107,7 @@ function run() {
     candidateId:trial.candidateId,sourceRank:trial.rank,
     sourceSupporterReplacementSelected:supporterSelected,
     blockedFollowupDeclined,
-    decisions:choices,error,result,
+    decisions:choices,diagnosticCalls,error,result,
     competitiveQualifiedGames:0,
     caveat:'Single historical seed, one source legal-decision test, no performance inference. Owner-visible public Shadow Mist and held supporter trigger, no future deck information.'
   };
