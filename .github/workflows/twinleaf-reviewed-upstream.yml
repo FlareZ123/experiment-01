@@ -90,7 +90,9 @@ jobs:
           git -C vendor/twinleaf checkout --detach "$VALIDATED_UPSTREAM_SHA"
           test "$(git -C vendor/twinleaf rev-parse HEAD)" = "$VALIDATED_UPSTREAM_SHA"
       - name: Open or update one reviewable submodule pin proposal
+        id: proposal
         uses: peter-evans/create-pull-request@v8
+        continue-on-error: true
         with:
           branch: automation/twinleaf-reviewed-upstream
           base: main
