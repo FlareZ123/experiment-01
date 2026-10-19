@@ -134,6 +134,18 @@ function afterTurn48(game) {
         ordinal:row.actionOrdinal,turn:row.turnBefore,
         playerSlot:row.playerSlot,action:row.action,
         prizesAfter:row.prizesAfter
+      })),
+    // Detached post-action evidence only: hidden opponent hand is never given
+    // to either policy. Preserve printed calculation and Store board changes.
+    latePoltergeistEffectWindows:(game.poltergeistEffectTrace||[])
+      .filter(event=>event.turnBefore>=50 &&
+        event.attackerSeat===CANDIDATE_SEAT)
+      .map(event=>({
+        turnBefore:event.turnBefore,actionOrdinal:event.actionOrdinal,
+        triggerAction:event.triggerAction,
+        before:event.before,after:event.after,
+        publicBefore:event.publicBefore,publicAfter:event.publicAfter,
+        steps:event.steps,assessment:event.assessment??null
       }))
   };
 }
@@ -176,6 +188,14 @@ function run() {
   const before=game=>game.rootActionLedger.filter(row=>row.turnBefore<50);
   assert.deepEqual(before(control),before(reply),
     'Only the candidate real t50 choice may differ after source Quick Ball fork');
+  const selectedWindow=(reply.poltergeistEffectTrace||[]).find(event=>
+    event.attackerSeat===CANDIDATE_SEAT && event.turnBefore===50);
+  assert.ok(selectedWindow,
+    'Chosen owner Perfection must reach a genuine Store Poltergeist effect window');
+  assert.equal(selectedWindow.assessment?.sourceHandTrainerCount,4,
+    'Source hand must still contain four Trainer cards after Quick Ball burns');
+  assert.equal(selectedWindow.assessment?.printedBaseDamage,200,
+    'The 50xTrainer printed-base calculation must use the observed source hand');
   return {
     schema:'rank11-QBall-counterfactual-plus-candidate-t50-Perfection-choice-v1',
     seed:SEED,sourceRank:11,enginePinned:plan.engineRevision,
