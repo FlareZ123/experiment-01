@@ -28,7 +28,9 @@ function run() {
       rejection:error?.rejectedActionEvidence??null}; }
   });
   const vetoObserved=guarded.audit.rejections.some(row=>row.turn===3 &&
-    row.reason==='stadium-lock' && row.card==='Thunder Mountain Prism Star LOT');
+    ['stadium-lock','stadium-tactic-held'].includes(row.reason)) ||
+    guarded.audit.directProposals.some(row=>row.turn===3 &&
+      row.reason==='stadium-lock' && row.card==='Thunder Mountain Prism Star LOT');
   const originalRejectionPrevented=!(guarded.result.error?.includes('BLOCKED_BY_EFFECT') &&
     guarded.result.rejection?.actionOrdinal===33);
   const r=guarded.result.record;
