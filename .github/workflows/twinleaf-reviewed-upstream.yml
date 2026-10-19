@@ -118,7 +118,10 @@ jobs:
       - name: Verify published review branch after restricted PR operation
         if: steps.proposal.outcome == 'failure'
         shell: bash
+        env:
+          VALIDATED_UPSTREAM_SHA: ${{ needs.validate-upstream.outputs.upstream_sha }}
         run: |
-          git ls-remote --exit-code --heads origin refs/heads/automation/twinleaf-reviewed-upstream
-          echo '::warning::Automatic PR creation is disabled; tested review branch exists.'
+          git fetch --depth=1 origin refs/heads/automation/twinleaf-reviewed-upstream
+          test "$(git rev-parse FETCH_HEAD:vendor/twinleaf)" = "$VALIDATED_UPSTREAM_SHA"
+          echo '::warning::Automatic PR creation is disabled; exact tested review branch exists.'
           echo 'Manually open https://github.com/${{ github.repository }}/pull/new/automation/twinleaf-reviewed-upstream' >> "$GITHUB_STEP_SUMMARY"
