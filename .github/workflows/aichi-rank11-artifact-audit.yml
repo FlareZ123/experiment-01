@@ -13,6 +13,7 @@ on:
           - prospective-exposure-v1
           - prospective-exposure-complete-v1
           - first-vip-source-v1
+          - crossrank-partition0-disposition
       archived_run:
         description: GitHub Actions run containing rank11 source regression and campaign reports
         required: true
@@ -63,6 +64,9 @@ jobs:
       - name: Validate every archived byte and all 64 prospectively registered source attempts
         if: ${{ inputs.audit_mode == 'prospective-exposure-complete-v1' }}
         run: node scripts/rank11-prospective-complete-census.cjs
+      - name: Audit every frozen cross-rank partition-0 arm and source-trigger attempt
+        if: ${{ inputs.audit_mode == 'crossrank-partition0-disposition' }}
+        run: node scripts/agent6-crossrank-disposition.cjs agent41-crossrank-observed.json
       - name: Print authentic first-turn VIP selection evidence
         if: ${{ inputs.audit_mode == 'first-vip-source-v1' }}
         run: node -e "const x=require('./rank11-newmoon-first-vip-counterfactual.json');console.log(JSON.stringify({seed:x.seed,originalOpening:x.baseline.audit.opening,control:x.baseline.audit.events,counterfactual:x.alternative.audit.events,firstActions:x.alternative.firstActions.map(a=>({turn:a.turnBefore,action:a.action,card:a.card}))},null,2))"
