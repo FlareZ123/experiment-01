@@ -26,3 +26,24 @@ test('native Ditto Stage-2 Vileplume stops both players from playing Items', () 
     opponentBlocked: true
   });
 });
+
+test('rank-7 Wobbuffet alone does not pierce Vileplume Stealthy Hood', () => {
+  assert.deepEqual(probeDittoStage2(false, true, 'wobbuffet-bare').itemLock, {
+    ownerBlocked: true, opponentBlocked: true,
+    hoodSuppressed: false, vileplumeSuppressed: false
+  });
+});
+
+test('unpatched pinned Tool Jammer fails its printed Tool suppression', () => {
+  assert.deepEqual(probeDittoStage2(false, true, 'wobbuffet-jammer-native').itemLock, {
+    ownerBlocked: true, opponentBlocked: true,
+    hoodSuppressed: false, vileplumeSuppressed: false
+  });
+});
+
+test('shared research Tool Jammer hook permits Wobbuffet to suppress active Vileplume', () => {
+  assert.deepEqual(probeDittoStage2(false, true, 'wobbuffet-jammer-hooked').itemLock, {
+    ownerBlocked: false, opponentBlocked: false,
+    hoodSuppressed: true, vileplumeSuppressed: true
+  });
+});
