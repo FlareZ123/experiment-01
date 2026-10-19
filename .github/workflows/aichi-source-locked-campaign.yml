@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent6_rejected_arm:
+        description: 'Audit just the archived rank6 rejected PlayCardAction at fixed source seed'
+        required: false
+        type: boolean
+        default: false
       agent41_crossrank_partition:
         description: 'Preregistered three-repeat partition, 0 or 1'
         required: false
@@ -156,16 +161,19 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify registered Agent41 two-rank schedule and corpus hashes
-        if: ${{ inputs.agent41_crossrank_trial }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm }}
         run: node --test tests/agent41-crossrank-actual-decisions.test.cjs
       - name: Execute frozen candidate-paired Iron Thorns and Garbodor screen
-        if: ${{ inputs.agent41_crossrank_trial }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm }}
         env:
           AGENT41_PARTITION: ${{ inputs.agent41_crossrank_partition || '0' }}
         run: node simulation/evaluation/agent41-crossrank-actual-decisions.cjs > agent41-crossrank-observed.json
       - name: Print bounded failures, decisions and source opportunity counts
-        if: ${{ inputs.agent41_crossrank_trial }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm }}
         run: node -e "const a=require('./agent41-crossrank-observed.json');console.log(JSON.stringify({partition:a.partition,recorded:a.partitionRecorded,status:a.statusCounts,opportunities:a.sourceOpportunityCounts,sourceFirst:a.actualSourceFirstCount,attackDeclarations:a.observedAttackDeclarations,matchedSourceHands:a.pairedSourceHandAgreement,paired:a.pairedTotal,errors:a.rows.filter(x=>x.status==='engine-error').map(x=>({id:x.id,error:x.error?.slice(0,250)}))},null,2))"
+      - name: Replay original Agent41 rank6 rejected root and capture legal owner information
+        if: ${{ inputs.agent41_crossrank_trial && inputs.agent6_rejected_arm }}
+        run: node simulation/evaluation/agent6-crossrank-rejected-root.cjs > agent6-crossrank-rejected-root.json
       - name: Verify source-locked trial adapter and guards
         run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs tests/rank11-autonomous-opener.test.cjs tests/rank11-autonomous-campaign-seat.test.cjs tests/rank11-first-turn-screen.test.cjs tests/rank11-conditional-k0-screen-run.test.cjs tests/rank11-conditional-k0-complete.test.cjs tests/rank11-k0-selected-continuations-run.test.cjs tests/aichi-campaign-attack-observer-screen.test.cjs tests/rank26-autonomous-cologne.test.cjs tests/rank26-exeggcute-pump-policy.test.cjs tests/rank26-propagation-loop.test.cjs tests/rank11-autonomous-supporter-profile.test.cjs
       - name: Verify precommitted rank11 exposure reporter and fail-closed source identity
@@ -279,6 +287,7 @@ jobs:
             rank11-K0-continuations.json
             rank11-prospective-exposure-observed.json
             agent41-crossrank-observed.json
+            agent6-crossrank-rejected-root.json
             newmoon-vip-prospective.json
             aichi-rank11-newmoon-autonomous-pair.json
             newmoon-rank11-pass-observer.json
