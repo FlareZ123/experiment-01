@@ -26,7 +26,7 @@ test('one complete Japanese-printing 60 traces exactly to source and four-card s
 test('provenance validator refuses a changed original Japanese printing',()=>{
   const altered=clone();
   const mew=altered.entries.find(e=>e.name_en==='Mewtwo & Mew-GX');
-  mew.japanese_card_id+=1;
+  mew.japanese_card_id=999999;
   assert.throws(()=>validateJapanesePrintCandidate(altered,original),/Source print ID altered/);
   console.log('Refused an unverified substitution for official-source Mewtwo.');
 });
