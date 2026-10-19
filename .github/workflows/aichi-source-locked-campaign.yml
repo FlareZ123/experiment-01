@@ -192,7 +192,7 @@ jobs:
         run: node -e "const x=require('./agent6-shadow-mist-supporter.json');console.log(JSON.stringify({trial:x.frozenTrialId,choices:x.decisions,error:x.error?.slice(0,700)||null,sourcePolicy:x.result?.sourcePolicyAudit,actions:x.result?.actions,status:x.result?.status,attacks:x.result?.sourceAttackDeclarations,prizes:x.result?.prizesRemaining},null,2))"
       - name: Test retrospective first-response probe isolation and own-hand evidence
         if: ${{ inputs.agent41_crossrank_trial && inputs.agent25_rank6_newmoon_pass }}
-        run: node --test tests/agent25-rank6-newmoon-first-pass-audit.test.cjs
+        run: node --test tests/agent25-rank6-newmoon-first-pass-audit.test.cjs tests/newmoon-rank6-pass-farewell-observer.test.cjs
       - name: Replay one true-source New Moon turn-three first response with after-Pass legality probe
         if: ${{ inputs.agent41_crossrank_trial && inputs.agent25_rank6_newmoon_pass }}
         run: node simulation/evaluation/agent25-rank6-newmoon-first-pass-audit.cjs > agent25-rank6-newmoon-first-pass.json
