@@ -29,6 +29,8 @@ jobs:
         run: npm run compile
       - name: Reject unsimulatable New Moon Horror House and Perfection opening roots
         run: node --test tests/new-moon-opening-horror-house-preflight.test.cjs
+      - name: Prove both Horror House channels against real printed Psychic Energy in Store
+        run: node --test tests/new-moon-opening-horror-house-store-preflight.test.cjs
       - name: Probe source Regidrago printed-copy discard and Double Dragon Energy
         run: node simulation/twinleaf/regidrago-dragon-energy-probe.cjs
       - name: Regress official Japanese same-turn Canceling Cologne duplicate ruling
