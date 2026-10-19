@@ -1,5 +1,22 @@
 # Pokémon TCG Expanded: fixed-deck research
 
+**19 October, native New Moon donor setup and source-opportunity null (Agent 32):**
+[Actual pinned Store owner-deck prompt controls](twinleaf/agent32-newmoon-compressor-owner-prompt.md)
+show opt-in Battle Compressor play can put Gengar & Mimikyu-GX and Trevenant & Dusknoir-GX
+into discard using a genuine actor-visible search, including while Mewtwo & Mew-GX
+is Benched. A held Gengar cannot act as a Perfection donor. Yet the exact-source
+rank11 original repeat1 Benched-Mewtwo comparison
+([compiled CI 39335882282](https://github.com/FlareZ123/experiment-01/actions/runs/39335882282))
+found **zero Compressor actions in either arm**, with the same 174-action
+source engine win. An independent
+[Agent5 canonical four-arm owner-root opportunity audit](aichi-2026/agent5-common-compressor-canonical-fourarm-negative.md)
+also found zero Active- or Bench-Mewtwo eligible Item turns in the hard New Moon
+examples. These are prepared-state and retrospective *negative*
+mechanical results, **not an improved deck, certified win, or qualified matchup**.
+Next meaningful work: establish owner-visible *earlier* proactive Compressor timing,
+Mewtwo positioning and actual attack-to-reply conversion before promoting any fixed 60.
+
+
 **19 October, canonical common-payload no-effect gate (Agent 5):** [Compiled same-deal four-arm development comparison](aichi-2026/agent5-common-compressor-canonical-fourarm-negative.md) enabled the already available owner-visible Battle Compressor payload tactic identically for champion and New Moon in the existing rank-6/11 runner. All four matched the unchanged baseline root ledger exactly; New Moon still made **zero attacks and capped at 260 roots** in both source streams. [Manual CI 39334611748](https://github.com/FlareZ123/experiment-01/actions/runs/39334611748) passed 22/22 tests; eight authentic Store attempts are **historical development, zero competitively qualified games**. Next test should exercise the distinct anticipatory Benched-Mewtwo opportunity already being developed by Agent 32 under one integrated owner-information policy.
 
 **19 October, native setup-discard and shuffle fidelity (Agent 17):** [Pinned Store positive controls](twinleaf/source-60-setup-discard-and-shuffle.md) successfully dispatched Battle Compressor from constructed rank-26 and New Moon 60-card inventories, placed two target donors into discard and completed all prompts. Earlier compiled failure exposed a **pinned ShuffleDeckPrompt lexicographic numeric-index validation defect** on ordinary 11+-card deck shuffles; a reversible research hook closed both positive controls. [Compiled CI 39328901605](https://github.com/FlareZ123/experiment-01/actions/runs/39328901605). These are staged mechanics, not genuine dealt games. Opponent policy, hidden-information safety, Item initiation and competitive strength remain unqualified.
