@@ -29,3 +29,7 @@ jobs:
         run: node --test tests/rank11-hidden-opponent-hand-poltergeist.test.cjs
       - name: Print source-inventory-locked score differential
         run: node simulation/twinleaf/rank11-hidden-opponent-hand-poltergeist.cjs
+      - name: Verify detached opponent-hidden-pool attack score invariance
+        run: node --test tests/rank11-blind-poltergeist-forecast.test.cjs
+      - name: Print source-60 score equivalence after blinded sampling
+        run: node simulation/twinleaf/rank11-blind-poltergeist-forecast.cjs
