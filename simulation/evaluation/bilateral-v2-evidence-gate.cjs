@@ -126,8 +126,14 @@ function auditBilateralV2(plan,archive) {
       continue;
     }
     const sourceSeat=1-arm.candidateSeat;
+    const actualSeat=row.actualStarterSeat;
+    // The boolean is a producer assertion. Require the Store-observed player
+    // and first turn draw log to agree with the claimed physical seat.
     const validStart=row.verifiedFirstTurn===true &&
-      [0,1].includes(row.actualStarterSeat);
+      (actualSeat===0 || actualSeat===1) &&
+      row.firstTurnPlayerId===(actualSeat===0?101:202) &&
+      row.firstTurnPlayerName===(actualSeat===0?'research-A':'research-B') &&
+      row.firstDrawLogName===row.firstTurnPlayerName;
     const sourcePressure=row.sourcePressure?.accepted===true &&
       row.sourcePressure?.effectVerified===true &&
       row.sourcePressure?.traceAuthenticated===true &&
