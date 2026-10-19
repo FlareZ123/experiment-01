@@ -29,6 +29,8 @@ jobs:
         run: npm run compile
       - name: Check Regidrago VSTAR discard-attack copying
         run: node simulation/twinleaf/apex-copy-contract.cjs
+      - name: Verify paid Regidrago Apex Dragon Haxorus Basic-KO prizes
+        run: node simulation/twinleaf/apex-haxorus-basic-ko.cjs
       - name: Check Regidrago VSTAR Phantom Dive copying
         run: node simulation/twinleaf/apex-phantom-dive.cjs
       - name: Check upstream copied-attack selection policy
