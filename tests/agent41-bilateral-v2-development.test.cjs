@@ -76,7 +76,6 @@ test('completed source with no later candidate root stays explicitly missing',()
 
 test('late root after an intervening source turn is not the immediate reply',()=>{
   const roots=[
-    {playerSlot:1,turnBefore:3,actionOrdinal:30,action:'PassTurnAction'},
     {playerSlot:0,turnBefore:4,actionOrdinal:40,action:'PlayCardAction'},
     {playerSlot:1,turnBefore:5,actionOrdinal:50,action:'PlayCardAction'}
   ];
