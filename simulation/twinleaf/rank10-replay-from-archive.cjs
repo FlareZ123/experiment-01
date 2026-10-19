@@ -89,11 +89,13 @@ function replayArchivedRank10(archive) {
           firstQueue:exposure.firstQueue,exits:exposure.exits},
         sourceActions:sourceTrace.length,
         historicalMatchProjection,
-        matchSummaryIdentical:true
+        matchSummaryIdentical:historicalMatchProjection.entireRunMatchObjectEqual,
+        matchOutcomeProjectionIdentical:true
       };
     } catch(error) {
       assessment={status:'blocked',reason:String(error.message||error),
-        sourceActions:sourceTrace.length,matchSummaryIdentical:false};
+        sourceActions:sourceTrace.length,matchSummaryIdentical:false,
+        matchOutcomeProjectionIdentical:false};
     }
     findings.push({arm,...assessment});
   }
