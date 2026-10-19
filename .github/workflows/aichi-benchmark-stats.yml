@@ -51,6 +51,8 @@ jobs:
         run: node --test tests/aichi-hard-matchup-veto.test.cjs
       - name: Check archetype group loss floors against registered Aichi field
         run: node --test tests/aichi-archetype-loss-budget.test.cjs
+      - name: Check correlated-field sequential evidence and intact qualification gates
+        run: node --test tests/aichi-correlated-round-evidence.test.cjs
 
   rank11-source-census:
     runs-on: ubuntu-latest
