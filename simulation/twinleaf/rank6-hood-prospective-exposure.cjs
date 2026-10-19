@@ -3,7 +3,6 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {deriveSlotSeeds}=require('../../scripts/aichi-decorrelated-seeds.cjs');
-const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {runWithResearchProfile,DEFAULT_PROFILE}=require('./policy-profiles.cjs');
 const {withEarlyShadowRiderHood}=require('./early-shadow-rider-hood.cjs');
 const {withProtectedUnderworldDoor}=require('./protected-underworld-door.cjs');
@@ -135,6 +134,7 @@ function observe(game,item,kind,hood,door,actualHoodAttachments){
 
 /** @returns {object} Fixed 32-arm, 16-paired actual-shuffle exposure experiment. */
 function run(){
+  const {planAichi}=require('../evaluation/aichi-pilot.cjs');
   const hoodPlan=planAichi(hoodCandidate,PRINT_POLICY);
   const championPlan=planAichi(1,PRINT_POLICY);
   const source=hoodPlan.opponents.find(row=>row.rank===RANK);
