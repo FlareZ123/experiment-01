@@ -1,0 +1,50 @@
+name: New Moon Compressor fixed source partitions
+
+on:
+  workflow_dispatch:
+    inputs:
+      partition:
+        description: 'Predeclared rank-11 repeat subset; four runs cover repeats 0 through 11'
+        required: true
+        type: choice
+        options:
+          - '0'
+          - '1'
+          - '2'
+          - '3'
+
+permissions:
+  contents: read
+
+jobs:
+  source-partition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Check disjoint registered partition coverage and owner-hand payload policy
+        run: node --test tests/newmoon-payload-partition-plan.test.cjs tests/new-moon-compressor-payload-policy.test.cjs
+      - name: Execute same-deal control and Compressor intervention in one fixed partition
+        env:
+          NEWMOON_PAYLOAD_PARTITION: ${{ inputs.partition }}
+        run: node simulation/twinleaf/newmoon-payload-partition-write.cjs
+      - name: Preserve all source-deal attempts, including errors and action caps
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newmoon-compressor-source-partition-${{ inputs.partition }}
+          path: newmoon-payload-partition-${{ inputs.partition }}.json
+          if-no-files-found: warn
