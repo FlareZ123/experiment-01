@@ -99,26 +99,38 @@ function run() {
     const response=withNewMoonBlowerAutonomy(CANDIDATE_SEAT,
       ()=>withRank11HeldSeal(SOURCE_SEAT,play),
       {lowHandLillieAfterBlower:true});
+    const broad=withNewMoonBlowerAutonomy(CANDIDATE_SEAT,
+      ()=>withRank11HeldSeal(SOURCE_SEAT,play),
+      {lowHandLillieAfterBlower:true,allowAnyActiveBlower:true});
     const baseGame=baseline.result;
     const replyGame=response.result.result;
+    const broadGame=broad.result.result;
+    const broadSource=broad.result.policyAudit;
     const sourceResponse=response.result.policyAudit;
-    for(const game of [baseGame,replyGame]) {
+    for(const game of [baseGame,replyGame,broadGame]) {
       assert.equal(game.firstTurnSlot,SOURCE_SEAT,
         'Retrospective first-source fixture changed actual start');
       assert.equal(game.verifiedByDrawLog,true);
     }
     assert.deepEqual(baseGame.deckHashes,replyGame.deckHashes);
+    assert.deepEqual(baseGame.deckHashes,broadGame.deckHashes);
     assert.equal(baseline.policyAudit.completed,true,
       'Previous successful source held-Seal line no longer completes');
     assert.equal(sourceResponse.completed,true,
       'Source held-Seal line changed before candidate can respond');
+    assert.equal(broadSource.completed,true,
+      'Source opening changed before Active-independent response');
     assert.equal(baseline.policyAudit.route,fixture.route);
     assert.deepEqual(baseline.policyAudit.selectedActions,
       sourceResponse.selectedActions);
+    assert.deepEqual(baseline.policyAudit.selectedActions,
+      broadSource.selectedActions);
     const sourcePrefix=game=>game.rootActionLedger.filter(row=>
       row.turnBefore<2);
     assert.deepEqual(sourcePrefix(baseGame),sourcePrefix(replyGame),
       'Opponent response affected authentic source initial turn');
+    assert.deepEqual(sourcePrefix(baseGame),sourcePrefix(broadGame),
+      'Active-independent response changed the authentic source opening');
     rows.push({
       ...fixture,sourceActuallyFirst:true,
       identicalSourceFirstTurnRootLedger:true,
@@ -140,12 +152,19 @@ function run() {
       },
       baseline:shortGame(baseGame),
       withCandidateResponse:shortGame(replyGame),
+      anyActiveResponder:{
+        selectedBlowers:broad.policyAudit.opportunitySelections,
+        confirmedToolRemovals:broad.policyAudit.confirmedToolRemovals,
+        selectedLillies:broad.policyAudit.lowHandLillieSelections,
+        policyEvents:broad.policyAudit.events
+      },
+      withAnyActiveResponse:shortGame(broadGame),
       competitiveQualified:false
     });
   }
   return {
-    schema:'rank11-held-seal-vs-newmoon-live-response-retrospective-v1',
-    objective:'genuine held-Seal source line -> real early candidate response',
+    schema:'rank11-held-seal-vs-newmoon-live-response-retrospective-v2',
+    objective:'genuine held-Seal source line -> default and any-Active owner-legal Field Blower response',
     selection:'all 5 of 5 detected and completed source-first openings in the same source-A 128-deal frame; outcomes selected retrospectively',
     inputProvenance:{
       sourceRank:11,sourcePhysicalSeat:SOURCE_SEAT,
