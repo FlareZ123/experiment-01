@@ -29,5 +29,7 @@ jobs:
           name: rank11-exclusive-prospective-v1-unqualified
           run-id: ${{ inputs.source_run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Print all exceptional and exposed opening trials
+        run: node -e "const r=require('./rank11-exclusive-prospective-v1.json'); console.log(JSON.stringify({exceptions:r.rows.filter(x=>x.resultClass==='engine-exception'),selected:r.rows.filter(x=>x.selectedKind!==null).map(x=>({seat:x.sourceSeat,repeat:x.repeat,seed:x.seed,first:x.sourceActuallyFirst,route:x.selectedKind,category:x.resultClass,aborted:x.aborted,sourceActions:x.selectedKind==='direct'?x.directActions:x.heldActions}))},null,2))"
       - name: Audit all 128 registered physical source deals
         run: node scripts/rank11-exclusive-prospective-audit.cjs rank11-exclusive-prospective-v1.json
