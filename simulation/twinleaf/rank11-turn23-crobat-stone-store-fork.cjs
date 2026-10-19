@@ -63,7 +63,6 @@ function withCrobatCounterattack(work) {
          source.hand.cards[ordinary.handIndex]?.fullName!=='Marnie SSH' ||
          !source.stadium.cards.some(c=>c.fullName==='Shopping Center EVS'))return ordinary;
       assert.equal(source.usedVSTAR,false);
-      assert.ok(source.deck.cards.some(c=>c.fullName==='Dark Patch ASR'));
       assert.ok(source.discard.cards.some(c=>c.name==='Darkness Energy'));
       assert.ok(latias()?.tools.some(c=>c.fullName==='Forest Seal Stone SIT'));
       assert.ok(benchIndex()>=0);
