@@ -181,8 +181,91 @@ function heldGengarCounterexample(){
   return summary;
 }
 
+/**
+ * Native anticipatory owner setup with Mewtwo only on the Bench.
+ * Explicit mode must decide to Compressor before Mewtwo is Active,
+ * whereas the old registered default must preserve its active-only gate.
+ * @returns {object}
+ */
+function benchedMewtwoPreparation(){
+  const {store,a}=preparedOwnerState();
+  const {shouldSeekPayload}=require('./new-moon-compressor-payload-policy.cjs');
+  const {GamePhase}=pinned('game/store/state/state');
+  const {PokemonCardList}=pinned('game/store/state/pokemon-card-list');
+  const {SimpleTacticsAi}=pinned('simple-bot/simple-tactics-ai');
+  const defs=pinned('simple-bot/simple-bot-definitions');
+  const {PlayCardAction}=pinned('game/store/actions/play-card-action');
+  const {ResolvePromptAction}=pinned('game/store/actions/resolve-prompt-action');
+  const {ChooseCardsPrompt}=pinned('game/store/prompts/choose-cards-prompt');
+
+  const [mewtwo]=a.active.cards.splice(0,1);
+  assert.equal(mewtwo.fullName,MEWTWO);
+  const activeIron=initializeCards().getCardByName('Iron Thorns ex TWM');
+  assert.ok(activeIron);
+  activeIron.id=45000;
+  a.active.cards.unshift(activeIron);
+  const benchSlot=new PokemonCardList();
+  benchSlot.cards.push(mewtwo);
+  a.bench.push(benchSlot);
+  assert.equal(a.active.getPokemonCard()?.fullName,'Iron Thorns ex TWM');
+  assert.equal(a.bench[0].getPokemonCard()?.fullName,MEWTWO);
+  assert.equal(shouldSeekPayload(store.state,a,GamePhase.PLAYER_TURN),false);
+  assert.equal(shouldSeekPayload(store.state,a,GamePhase.PLAYER_TURN,{
+    allowBenchedMewtwo:true
+  }),true);
+  const options=withNewMoonCompressorPayload({
+    tactics:defs.allSimpleTactics,
+    promptResolvers:defs.allPromptResolvers,
+    scores:defs.defaultStateScores,
+    arbiter:defs.defaultArbiterOptions
+  },{allowBenchedMewtwo:true});
+  const ai=new SimpleTacticsAi({id:a.id},options,null);
+  const first=ai.decodeNextAction(store.state);
+  assert.ok(first instanceof PlayCardAction);
+  assert.equal(a.hand.cards[first.handIndex]?.name,'Battle Compressor');
+  store.dispatch(first);
+
+  const live=store.state.players[0];
+  const prompt=store.state.prompts.find(p=>p.result===undefined &&
+    p instanceof ChooseCardsPrompt && p.player===live &&
+    p.cards===live.deck);
+  assert.ok(prompt);
+  const answer=ai.decodeNextAction(store.state);
+  assert.ok(answer instanceof ResolvePromptAction);
+  const selected=answer.result.map(c=>typeof c==='number' ?
+    prompt.cards.cards[c]?.fullName:c?.fullName);
+  assert.deepEqual(selected,[GENGAR,TREV]);
+  store.dispatch(answer);
+  const final=store.state.players[0];
+  assert.ok(final.discard.cards.some(c=>c.fullName===GENGAR));
+  assert.ok(final.discard.cards.some(c=>c.fullName===TREV));
+  assert.equal(final.active.getPokemonCard()?.fullName,'Iron Thorns ex TWM');
+  assert.equal(final.bench[0].getPokemonCard()?.fullName,MEWTWO);
+  const copyNow=ownerVisibleCopyOptions(final);
+  assert.deepEqual(copyNow,[],
+    'Perfection copies require Mewtwo Active even after early discard');
+  const result={
+    schema:'owner-visible-benched-mewtwo-early-donor-setup-v1',
+    enginePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+    defaultSourceGateAllowed:false,explicitBenchGateAllowed:true,
+    initialOwnerActive:'Iron Thorns ex TWM',
+    initialOwnerBench:[MEWTWO],
+    genuinePrompt:prompt.constructor.name,
+    selectedFromOwnDeck:selected,
+    bothDonorsMovedToDiscard:true,
+    immediateCopiesWhileMewtwoBenched:copyNow,
+    futureMewtwoPromotionRequired:true,
+    syntheticBoard:true,sourceAichiDeal:false,
+    qualifiedForCompetitiveInference:false
+  };
+  process.stdout.write(JSON.stringify(result,null,2)+'\n');
+  return result;
+}
+
 if(require.main===module){
   main();
   heldGengarCounterexample();
+  benchedMewtwoPreparation();
 }
-module.exports={main,preparedOwnerState,heldGengarCounterexample};
+module.exports={main,preparedOwnerState,heldGengarCounterexample,
+  benchedMewtwoPreparation};
