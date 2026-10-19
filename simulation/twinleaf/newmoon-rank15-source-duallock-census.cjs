@@ -30,7 +30,8 @@ function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
     dusclops:null,dusclopsActive:null,dusclopsAgainstDual:null,
     twoSourceStageLineSlots:null,fullSourceBenchBelowTwoStageLines:null,
     sourceBunnelbyActive:null,sourceBunnelbyActiveWithTM:null,
-    sourceBunnelbyActiveWithTMAndEnergy:null};
+    sourceBunnelbyActiveWithTMAndEnergy:null,
+    sourceOddishOnBench:null};
   const max={aorCount:0,busCount:0,dusclopsCount:0,
     sourceStageLineSlots:0};
 
@@ -86,6 +87,7 @@ function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
       dusclopsAgainstDual:aorCount>0 &&
         opponentActive==='Vileplume BUS' && candidateActive==='Dusclops SFA',
       twoSourceStageLineSlots:sourceStageLineSlots>=2,
+      sourceOddishOnBench:opponentBoard.slice(1).includes('Oddish UNB'),
       fullSourceBenchBelowTwoStageLines:occupiedSourceBench===5 &&
         sourceStageLineSlots<2,
       sourceBunnelbyActive:activeBunnelby,
