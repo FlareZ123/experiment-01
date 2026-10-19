@@ -58,6 +58,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank26_vip_after_pass_probe:
+        description: 'Five historical source-first native VIP pass counterfactuals, unqualified'
+        type: boolean
+        required: false
+        default: false
       rank26_ticket_prize_probe:
         description: 'Verify rank26 source DCE Prize transfer with actual Redeemable Ticket'
         type: boolean
@@ -261,6 +266,18 @@ jobs:
         with:
           name: rank26-held-dce-recipient-three-development-cases-unqualified
           path: rank26-held-dce-native-source-replay.json
+          if-no-files-found: error
+      - name: Verify source-held VIP owner-only opportunity and search selection
+        run: node --test tests/rank26-first-own-vip-after-pass.test.cjs tests/aichi-rank26-held-item-census.test.cjs
+      - name: Test five authentic held-VIP source pass counterfactuals
+        if: ${{ inputs.rank26_vip_after_pass_probe }}
+        run: node simulation/twinleaf/rank26-vip-after-pass-source-pair.cjs
+      - name: Archive rank26 native VIP action, Bench and negative paths
+        if: ${{ inputs.rank26_vip_after_pass_probe }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank26-first-own-vip-retrospective-unqualified
+          path: rank26-vip-after-pass-source-pair.json
           if-no-files-found: error
       - name: Audit preregistered 24 paired source deals and source-first opportunities
         if: ${{ inputs.rank26_prospective_cohort }}
