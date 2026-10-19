@@ -783,6 +783,13 @@ function runMatch(request) {
     const sourceDealObserver = request.captureInitialSourceDealFingerprintSeat ===
       undefined ? null : createInitialSourceDealObserver(
         request.captureInitialSourceDealFingerprintSeat);
+    const setupCompensationObserver = request.captureSetupCompensation === true ?
+      require('../evaluation/setup-compensation-observer.cjs')
+        .createSetupCompensationObserver({
+          GamePhase,ShuffleDeckPrompt,
+          SelectPrompt:engine('game/store/prompts/select-prompt').SelectPrompt,
+          GameMessage
+        }) : null;
     const actionCounts = {};
     const actionsBySeat = [{}, {}];
     const cardsPlayedBySeat = [{}, {}];
@@ -1081,8 +1088,14 @@ function runMatch(request) {
           })),
         publicBoard: publicBoardSnapshot(state)
       } : null;
+      if (setupCompensationObserver) {
+        setupCompensationObserver.before(state,pending,action);
+      }
       try {
         store.dispatch(action);
+        if (setupCompensationObserver) {
+          setupCompensationObserver.after(store.state);
+        }
       } catch (error) {
         const rejected = new Error('Twinleaf dispatch failed after ' +
           actions + ' actions (' + action.constructor.name + '): ' +
@@ -1351,6 +1364,9 @@ function runMatch(request) {
       ...(request.captureStartingBoard === true ? {initialBoardAtFirstTurn} : {}),
       ...(sourceDealObserver ? {
         initialSourceDealFingerprint:sourceDealObserver.result()
+      } : {}),
+      ...(setupCompensationObserver ? {
+        initialSetupCompensation:setupCompensationObserver.result()
       } : {}),
       ...(snorlaxSoloOpeningEvents ? {
         snorlaxSoloOpeningEvents,
