@@ -36,7 +36,8 @@ function oneArm(corrected) {
     )
   );
   const wrapped = corrected ?
-    withUniformNightWatch(execute) : {result:execute(), audit:null};
+    withUniformNightWatch(execute,{auditPlanningSamples:true}) :
+    {result:execute(), audit:null};
   const game = wrapped.result.result.result.result;
   const journal = wrapped.result.result.result;
   const declarations = game.attackDeclarationTrace.filter(row =>
@@ -50,6 +51,14 @@ function oneArm(corrected) {
       'Corrected bot did not resolve any random Night Watch selection');
     assert.equal(wrapped.audit.invalid,0,
       'Corrected Night Watch random choice failed legality validation');
+    assert.equal(wrapped.audit.created,
+      wrapped.audit.precommitsInBotDecision+
+      wrapped.audit.precommitsOutsideBotDecision,
+      'Every sampled prompt must have exactly one planning/root classification');
+    assert.equal(wrapped.audit.resolved,
+      wrapped.audit.resolutionsInBotDecision+
+      wrapped.audit.resolutionsOutsideBotDecision,
+      'Every sampled resolution must be classified');
   } else {
     assert.equal(declarations.length,3,
       'Baseline historic Night Watch declaration regression');
