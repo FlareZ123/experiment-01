@@ -44,7 +44,7 @@ jobs:
       - name: Run source-rank11 automatic policy with one real-hand candidate answer
         run: node simulation/twinleaf/newmoon-rank11-real-hand-blower-response.cjs > newmoon-rank11-held-blower.json
       - name: Source-printed Garbotoxin and pinned Field Blower target policy tests
-        run: node --test tests/newmoon-garbotoxin-blower-autonomy.test.cjs tests/newmoon-garbotoxin-blower-pinned-prompt.test.cjs tests/newmoon-garbotoxin-blower-stadium-store.test.cjs
+        run: node --test tests/newmoon-garbotoxin-blower-autonomy.test.cjs tests/newmoon-garbotoxin-blower-pinned-prompt.test.cjs tests/newmoon-garbotoxin-blower-stadium-store.test.cjs tests/agent2-bilateral-composed-garbotoxin-store.test.cjs
       - name: Source-dealt automatic candidate response against the same autonomous Garbodor opener
         run: node simulation/twinleaf/newmoon-rank11-autonomous-blower-probe.cjs > newmoon-rank11-autonomous-blower.json
       - name: Pure owner-information proactive low-hand Lillie opportunity tests
