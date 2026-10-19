@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {playerPlayLockVeto}=
+const {playerPlayLockVeto,visiblePlayLockGuardSeat}=
   require('../simulation/twinleaf/player-play-lock-veto.cjs');
 
 const enums={superTrainer:2,superEnergy:3,stadium:2,specialEnergy:1};
@@ -53,4 +53,17 @@ test('attack, opposing action and missing cards are left alone',()=>{
 test('the two printed lock flags are independent',()=>{
   assert.equal(playerPlayLockVeto(player(true,false),play(1),enums),null);
   assert.equal(playerPlayLockVeto(player(false,true),play(0),enums),null);
+});
+
+test('both-actor lock guard selects the actual active seat',()=>{
+  const request={enforceVisiblePlayLockBothSeats:true};
+  assert.equal(visiblePlayLockGuardSeat(request,0),0);
+  assert.equal(visiblePlayLockGuardSeat(request,1),1);
+});
+
+test('historical single-actor guard remains confined to its physical seat',()=>{
+  const request={enforceVisiblePlayLockSeat:1};
+  assert.equal(visiblePlayLockGuardSeat(request,0),1);
+  assert.equal(visiblePlayLockGuardSeat(request,1),1);
+  assert.equal(visiblePlayLockGuardSeat({},0),undefined);
 });
