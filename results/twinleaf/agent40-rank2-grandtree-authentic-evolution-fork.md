@@ -50,3 +50,20 @@ An additional opt-in `promoteStoutland:true` option extends the same original pr
 
 Immediate narrow follow-up: read-only capture of Active Stoutland at the first actual opposing decision, plus an independently cloned original-source opponent-hand Supporter legality probe or natural root rejection if one occurs. No crossfield wins or optimizations are supported until a frozen, robust two-sided policy is evaluated on fresh balanced physical deals.
 
+
+## First actual opposing owner turn under Active Stoutland: read-only parity control
+
+A further opt-in post-choice observer records **only the first actual rank-1 owner decision** at global turn6, after all original actions through Gladion root47 and the same real owner-prompt Stage2/paid-Retreat alternative. The owner hand is read **after** the normal bot has chosen its action, is not used to select the source's earlier Stadium or Retreat branch, and is information the opponent actor legitimately owns. The opponent's hidden deck and Prize-card identities are not consulted. The runner executes a separate otherwise identical fork **without this observer** and requires byte-equivalent full root action ledgers, Prize totals and action counts.
+
+[Manual workflow 39326623656](https://github.com/FlareZ123/experiment-01/actions/runs/39326623656), artifact [12222512394](https://github.com/FlareZ123/experiment-01/actions/runs/39326623656/artifacts/12222512394), ZIP SHA-256 `2281dce87014028bca49f5e337887767a12d6bf3f5b43517148e4720cc00a68e`, JSON SHA-256 `d326dbc3b51d296ddac45f5a9bb73c9393aac0070cc566665c142166c5538e85`. The archived result reports `ownerTurn6ObservationNoninterfering:true`, `preForkPrefixIdentical:true`, same pinned engine, same source/deck digests and same 300-root cap.
+
+At the **first genuine rank-1 own turn6 decision**, the observer found:
+
+- Public source Active: **Stoutland BCR**. Opponent's own Active: **Marshadow UNB**.
+- Opponent's legitimately owner-visible hand: **Teammates PRC, Hisuian Heavy Ball ASR, VS Seeker PHF, Shadow Rider Calyrex VMAX CRE, Psychic Energy MEE, Mysterious Treasure FLI**.
+- The opponent had **not already played a Supporter** on this turn. Its ordinary bot proposed `PlayCardAction` **Psychic Energy MEE** first.
+
+**No Supporter denial can be inferred from this decision alone.** Teammates has its own prior-opponent-turn Knock Out prerequisite; if that condition is false, Teammates could not be played even without Sentinel. The owner also held VS Seeker, which could possibly retrieve a different, otherwise playable Supporter if an eligible printed card is in its discard pile. This requires a grounded owner-discard census and an actual printed-game-condition/Store probe before attributing any missing Supporter action to the Active Stoutland lock. The original scoring AI still has known setup-action failures, so a Pass or Energy action cannot certify that no valuable Supporter line existed.
+
+This extra witness is a bounded owner-safe, within-seed parity observation only. It changes none of the current full-field evidence status or the zero competitive-win denominator.
+
