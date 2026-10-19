@@ -19,3 +19,10 @@ test('authentic pinned Store Glimwood allows exactly one tails-to-heads redo', (
     dittoReturned: true, targetRetained: true
   });
 });
+
+test('native Ditto Stage-2 Vileplume stops both players from playing Items', () => {
+  assert.deepEqual(probeDittoStage2(false, true).itemLock, {
+    ownerBlocked: true,
+    opponentBlocked: true
+  });
+});
