@@ -960,6 +960,11 @@ function runMatch(request) {
         ownerHandPrintings: seat >= 0 ?
           state.players[seat].hand.cards.map(card => card.fullName) : null,
         ownerSupporterTurn: seat >= 0 ? state.players[seat].supporterTurn : null,
+        ownerPlayLockFlags: seat >= 0 ? {
+          stadium:state.players[seat].cannotPlayStadiumCards,
+          specialEnergy:state.players[seat].cannotPlaySpecialEnergyCards,
+          remainingTurns:state.players[seat].playLocksTurnsRemaining
+        } : null,
         chosenTarget: actionName === 'PlayCardAction' ? {
           player: action.target?.player ?? null,
           slot: action.target?.slot ?? null,
