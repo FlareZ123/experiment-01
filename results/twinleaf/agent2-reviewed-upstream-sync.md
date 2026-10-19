@@ -33,3 +33,12 @@ The PR remains **draft and unmerged**. The committed project baseline remains `a
 ### Remaining follow-up
 
 Reviewers should compare old/new source-level rule reducers and enforce a sufficiently broad simulation regression suite on the exact proposed SHA before choosing whether to merge. If rejected, preserve the compatible working pin. The scheduled check is limited to one weekly run with a 25-minute validation timeout; its existence is not a license for arbitrary high-cost sampling.
+
+
+## Expanded upstream compatibility regression, 21:55 UTC
+
+The workflow now also executes genuine Store-facing suites for self-KO resolution, Dusclops self-KO conditional targeting, Garbotoxin/Field Blower with an active Stadium, and a multi-Supporter Pokémon-return / movement fixture. The publication job additionally requires that `main` still pins the original SHA whose candidate compatibility was validated; a concurrent external vendor-pin change aborts the proposal rather than silently rebasing an untested comparison.
+
+[Manual CI 39330715874](https://github.com/FlareZ123/experiment-01/actions/runs/39330715874) **PASSED both jobs** at exact research workflow head `d12b81fbb5be0329288eb87f7089ba6e4355022e`. The new tests extend evidence coverage of the upstream source-diff risk areas. Their passing result does **not** imply comprehensive rules or bot-policy equivalence.
+
+The draft [PR #9](https://github.com/FlareZ123/experiment-01/pull/9) was rechecked after the passing run: it is **open, unmerged and draft**; head now `dff404a775c029467a75c9f7e4b29d446e145568` (updated due main commits), while the actual committed `main` gitlink remains `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. That pin is the authoritative engine for all currently archived gameplay research.
