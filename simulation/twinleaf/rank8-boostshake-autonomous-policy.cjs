@@ -43,6 +43,50 @@ function inspectBoostShakeWindow(own) {
     reason:'public Bench and own-hand trigger'};
 }
 
+
+/**
+ * Versioned, opt-in expansion of the same own-hand predicate. Secret Box
+ * discards three *physical cards*, so duplicated priority names may satisfy
+ * its cost. Preserve the v1 three-distinct-names decisions whenever possible.
+ * Choose each priority name once before taking a second physical copy.
+ * @param {object} own Own visible-to-self hand and public board.
+ * @returns {{eligible:boolean,discardNames:string[],reason:string}}
+ */
+function inspectBoostShakeWindowAllowDuplicates(own) {
+  const first=inspectBoostShakeWindow(own);
+  if(first.eligible || first.reason!=='fewer than three designated discard options') {
+    return first;
+  }
+  const hand=own.hand.cards;
+  const priorities=['Dark Patch','VS Seeker','Iono','Darkness Energy',
+    'Battle Compressor','Field Blower','N','Pokémon Ranger'];
+  const indices=[];
+  const used=new Set();
+  for(const name of priorities) {
+    const index=hand.findIndex((card,i)=>card.name===name&&!used.has(i));
+    if(index>=0) {
+      used.add(index);
+      indices.push(index);
+    }
+  }
+  if(indices.length<3) {
+    for(const name of priorities) {
+      for(let i=0;i<hand.length && indices.length<3;i++) {
+        if(hand[i].name===name&&!used.has(i)) {
+          used.add(i);
+          indices.push(i);
+        }
+      }
+      if(indices.length===3)break;
+    }
+  }
+  return indices.length>=3?{
+    eligible:true,
+    discardNames:indices.slice(0,3).map(i=>hand[i].name),
+    reason:'three distinct physical priority cards including repeated names'
+  }:first;
+}
+
 /**
  * A provisional seed-independent rank8 Tool-Garbodor policy. The only public
  * state it reads before K1 is its own hand/board, after which each searched
@@ -57,7 +101,8 @@ function inspectBoostShakeWindow(own) {
  * @param {()=>T} execute Synchronous source-dealt runMatch.
  * @returns {{result:T,policyAudit:object}}
  */
-function withRank8AutonomousBoostShake(sourceSeat,execute) {
+function withRank8AutonomousBoostShake(sourceSeat,execute,
+  {allowDuplicatePriorityDiscards=false}={}) {
   if (![0,1].includes(sourceSeat) || typeof execute!=='function') {
     throw new TypeError('Physical seat and synchronous execute callback required');
   }
@@ -123,7 +168,9 @@ function withRank8AutonomousBoostShake(sourceSeat,execute) {
     if (!attempted && !pending &&
         state.activePlayer===sourceSeat &&
         state.phase===GamePhase.PLAYER_TURN) {
-      const window=inspectBoostShakeWindow(own);
+      const window=allowDuplicatePriorityDiscards?
+        inspectBoostShakeWindowAllowDuplicates(own):
+        inspectBoostShakeWindow(own);
       if (window.eligible) {
         const action=fromHand(own,'Secret Box');
         if (action && this.isValidAction(state,action)) {
@@ -192,7 +239,10 @@ function withRank8AutonomousBoostShake(sourceSeat,execute) {
   try {
     const result=execute();
     return {result,policyAudit:{
-      schema:'rank8-conditional-boost-shake-opponent-v1',
+      schema:allowDuplicatePriorityDiscards?
+        'rank8-conditional-boost-shake-opponent-v2-duplicate-priority':
+        'rank8-conditional-boost-shake-opponent-v1',
+      allowDuplicatePriorityDiscards,
       informationScope:'own-hand/public-board-then-legitimate-own-search-prompt',
       attempted,completed:stage===11,aborted,verifiedEquippedGarbodor:verified,
       initialOwnHand,requestedDiscardNames,events,
@@ -204,4 +254,5 @@ function withRank8AutonomousBoostShake(sourceSeat,execute) {
   }
 }
 
-module.exports={inspectBoostShakeWindow,withRank8AutonomousBoostShake};
+module.exports={inspectBoostShakeWindow,
+  inspectBoostShakeWindowAllowDuplicates,withRank8AutonomousBoostShake};
