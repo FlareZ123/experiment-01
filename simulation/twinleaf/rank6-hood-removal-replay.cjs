@@ -13,6 +13,20 @@ const candidate=require('../../results/aichi-2026/candidate-hood-shadow-rider.js
 const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
 /**
+ * A public-Zone Hood destination census for a genuine owner's discard/Lost Zone.
+ * The opponent can inspect both piles in paper play.
+ * @param {object} state Pinned real Store State.
+ * @param {0|1} candidateSeat Physical Hood owner seat.
+ * @returns {{discard:number,lostZone:number}}
+ */
+function publicHoodDestinations(state,candidateSeat){
+  const owner=state?.players?.[candidateSeat];
+  const count=zone=>zone?.cards?.filter(card=>
+    card.name==='Stealthy Hood').length??0;
+  return {discard:count(owner?.discard),lostZone:count(owner?.lostzone)};
+}
+
+/**
  * Root-Store-only physical public-board Tool transitions. Deck/hand/private
  * zones are neither recorded nor queried. The callback sees the original
  * opponent state only; simulation subgraphs never count as live reductions.
@@ -42,16 +56,19 @@ function withRootToolTransitions(candidateSeat,execute){
   function dispatch(action,...rest){
     if(!root && action?.constructor?.name==='AddPlayerAction')root=this;
     const before=this===root?publicHoods(this.state):[];
+    const destinationsBefore=this===root?
+      publicHoodDestinations(this.state,candidateSeat):null;
     const turn=this===root?this.state?.turn:null;
     const actorSeat=this===root?this.state?.activePlayer:null;
     const result=descriptor.value.call(this,action,...rest);
     if(this===root){
       const after=publicHoods(this.state);
+      const destinationsAfter=publicHoodDestinations(this.state,candidateSeat);
       if(before.length!==after.length)physicalToolTransitions.push({
         turnBefore:turn,turnAfter:this.state?.turn,
         actorSeat,action:action?.constructor?.name||null,
         previousCount:before.length,currentCount:after.length,
-        before,after
+        destinationsBefore,destinationsAfter,before,after
       });
     }
     return result;
@@ -219,4 +236,4 @@ function run({targetFabaHood=false}={}){
   };
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
-module.exports={withRootToolTransitions,observe,countSourceFirstDeals,run};
+module.exports={publicHoodDestinations,withRootToolTransitions,observe,countSourceFirstDeals,run};
