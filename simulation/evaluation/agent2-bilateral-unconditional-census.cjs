@@ -115,8 +115,14 @@ function auditUnconditionalBilateralCensus(plan,archive){
   const allRegisteredAttemptsAccounted=strict.completeAttemptCensus;
   const actualStartsPerCandidateAndRankObserved=
     strict.twoRealStartsPerCandidateAndRankObserved;
+  // Aggregate both-start coverage can hide a malformed extra arm whose
+  // candidate/real-first pair was covered by another legitimate repeat.
+  const allRegisteredArmsStartVerified=strict.arms.every(
+    arm=>arm.validStart===true);
   const unconditionalAttemptCensusReviewable=
-    allRegisteredAttemptsAccounted&&actualStartsPerCandidateAndRankObserved;
+    allRegisteredAttemptsAccounted&&
+    actualStartsPerCandidateAndRankObserved&&
+    allRegisteredArmsStartVerified;
   const alignedCompletePairedCensus=
     strict.completeAttemptCensus &&
     strict.twoRealStartsPerCandidateAndRankObserved &&
@@ -130,6 +136,7 @@ function auditUnconditionalBilateralCensus(plan,archive){
     registeredPairs:pairs.length,
     allRegisteredAttemptsAccounted,
     actualStartsPerCandidateAndRankObserved,
+    allRegisteredArmsStartVerified,
     // Unconditional accounting deliberately does not select on post-setup
     // source fingerprint or observed opponent lock pressure.
     unconditionalAttemptCensusReviewable,
