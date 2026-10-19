@@ -106,3 +106,37 @@ test('source Item acceptance does not assert damage, lock or strength',()=>{
   assert.equal(out.matchingSourceAttackDeclared,false);
   assert.equal(out.sourceEffectVerified,false);
 });
+
+test('observed public attack board transitions match exact Store attack root',()=>{
+  const game=fixture();
+  game.attackDeclarationTrace[0].playerName='research-B';
+  game.attackDeclarationTrace[1].playerName='research-A';
+  game.publicAttackTransitionsProtocol='actual-store-public-attack-transitions-v1';
+  game.publicAttackTransitions=[
+    {actionOrdinal:1,turnBefore:2,turnAfter:3,triggerAction:'AttackAction',
+      triggerPlayerSlot:1,promptPendingAfter:false,
+      declarations:[{attackName:'Volt Cyclone',playerName:'research-B'}],
+      before:[{active:{name:'Mewtwo',damage:0}},{active:{name:'Iron Thorns',damage:0}}],
+      after:[{active:{name:'Mewtwo',damage:40}},{active:{name:'Iron Thorns',damage:0}}]},
+    {actionOrdinal:3,turnBefore:3,turnAfter:4,triggerAction:'AttackAction',
+      triggerPlayerSlot:0,promptPendingAfter:false,
+      declarations:[{attackName:'Pale Moon-GX',playerName:'research-A'}],
+      before:[{active:{name:'Mewtwo',damage:40}},{active:{name:'Iron Thorns',damage:0}}],
+      after:[{active:{name:'Mewtwo',damage:40}},{active:{name:'Iron Thorns',damage:120}}]}
+  ];
+  const out=buildBilateralReplyPacket(game,{
+    ...args,requirePublicAttackTransitions:true
+  });
+  assert.equal(out.sourceImmediatePublicAttackTransition.after[0].active.damage,40);
+  assert.equal(out.candidateImmediatePublicAttackTransitions[0].after[1].active.damage,120);
+  assert.equal(out.sourceEffectVerified,false);
+  assert.equal(out.qualifiedCompetitiveGame,false);
+  game.publicAttackTransitions[0].triggerPlayerSlot=0;
+  assert.throws(()=>buildBilateralReplyPacket(game,{
+    ...args,requirePublicAttackTransitions:true
+  }),/Public attack observation/);
+  delete game.publicAttackTransitions;
+  assert.throws(()=>buildBilateralReplyPacket(game,{
+    ...args,requirePublicAttackTransitions:true
+  }),/AssertionError/);
+});
