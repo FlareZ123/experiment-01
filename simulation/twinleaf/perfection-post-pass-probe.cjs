@@ -78,10 +78,21 @@ function probePostPassPerfection(state,playerId,attempt=detachedPerfectionAttemp
   if(state.prompts.some(x=>x.result===undefined))return null;
   const owner=state.players.find(player=>player.id===playerId);
   if(owner?.active.getPokemonCard()?.name!=='Mewtwo & Mew-GX')return null;
+  const candidate=(card)=>({name:card.name,printing:card.fullName,
+    attacks:(card.attacks??[]).map(attack=>attack.name)});
+  // Public own discard and Bench can distinguish absent copied payloads.
+  const publicCopySourceInventory={
+    discard:(owner.discard?.cards??[]).filter(card=>
+      Array.isArray(card.attacks) && card.attacks.length>0).map(candidate),
+    bench:(owner.bench??[]).map(slot=>slot.getPokemonCard())
+      .filter(card=>card && Array.isArray(card.attacks)&&card.attacks.length>0)
+      .map(candidate)
+  };
   const trial=attempt(state,playerId);
   return {
     evidenceType:'post-choice-cloned-perfection-attack-menu-v1',
     playerId,activePokemon:owner.active.getPokemonCard().name,
+    publicCopySourceInventory,
     ...trial,
     scope:'Detached pinned Store after an actual Pass; Ability activation and copied attack prompt acceptance only, without competitive or printed-paper rule certification.'
   };
