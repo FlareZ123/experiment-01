@@ -140,3 +140,49 @@ test('observed public attack board transitions match exact Store attack root',()
     ...args,requirePublicAttackTransitions:true
   }),/AssertionError/);
 });
+
+test('attack damage settled after a real same-origin prompt, never on pending root',()=>{
+  const roots=[
+    {actionOrdinal:0,turnBefore:2,turnAfter:2,playerSlot:1,
+      action:'AttackAction',attack:'Volt Cyclone',initiatingRootActionOrdinal:0},
+    {actionOrdinal:1,turnBefore:2,turnAfter:3,playerSlot:1,
+      action:'ResolvePromptAction',initiatingRootActionOrdinal:0},
+    {actionOrdinal:2,turnBefore:3,turnAfter:4,playerSlot:0,
+      action:'PassTurnAction',initiatingRootActionOrdinal:2},
+    {actionOrdinal:3,turnBefore:4,turnAfter:5,playerSlot:1,
+      action:'PassTurnAction',initiatingRootActionOrdinal:3}
+  ];
+  const empty=[{active:{name:'Trevenant & Dusknoir-GX',damage:0}},
+    {active:{name:'Iron Thorns ex',damage:0}}];
+  const damaged=[{active:{name:'Trevenant & Dusknoir-GX',damage:140}},
+    {active:{name:'Iron Thorns ex',damage:0}}];
+  const game={
+    actions:roots.length,rootActionLedger:roots,
+    rootActionLedgerProtocol:'actual-store-root-action-ledger-v1',
+    attackDeclarationTraceProtocol:'real-store-attack-log-declarations-v1',
+    attackDeclarationTrace:[{actionOrdinal:0,turnBefore:2,turnAfter:2,
+      playerSlot:1,triggerAction:'AttackAction',triggerPlayerSlot:1,
+      attackName:'Volt Cyclone',playerName:'research-B'}],
+    publicAttackTransitionsProtocol:'actual-store-public-attack-transitions-v1',
+    publicAttackTransitions:[{
+      actionOrdinal:0,turnBefore:2,turnAfter:2,
+      triggerAction:'AttackAction',triggerPlayerSlot:1,
+      initiatingRootActionOrdinal:0,
+      declarations:[{attackName:'Volt Cyclone',playerName:'research-B'}],
+      before:empty,after:empty,promptPendingAfter:true,
+      settled:{completionRootActionOrdinal:1,after:damaged,
+        prizesRemaining:[6,6],deckRemaining:[32,30]}
+    }],
+    finished:false
+  };
+  const options={...args,requirePublicAttackTransitions:true};
+  const packet=buildBilateralReplyPacket(game,options);
+  assert.equal(packet.sourceImmediatePublicAttackTransition.after[0].active.damage,0);
+  assert.equal(packet.sourceImmediatePublicAttackTransition.settled.after[0].active.damage,140);
+  assert.equal(packet.sourceImmediatePublicAttackTransition.settled.completionRootActionOrdinal,1);
+  assert.equal(packet.firstCandidateNextTurnRoot.action,'PassTurnAction');
+  assert.equal(packet.sourceEffectVerified,false);
+  game.publicAttackTransitions[0].settled.completionRootActionOrdinal=3;
+  assert.throws(()=>buildBilateralReplyPacket(game,options),
+    /Resolved public attack observation/);
+});
