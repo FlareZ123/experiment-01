@@ -19,13 +19,15 @@ const GARBODOR = 'Garbodor BKP';
  * @param {object} opponent
  * @param {0|1} seat
  * @param {number} playerTurnPhase
+ * @param {boolean} [allowAnyActiveBlower=false] Test valid Item use on non-Mewtwo Active.
  * @returns {boolean}
  */
-function blowerOpportunity(state, own, opponent, seat, playerTurnPhase) {
+function blowerOpportunity(state, own, opponent, seat, playerTurnPhase,
+  allowAnyActiveBlower=false) {
   return state.activePlayer === seat &&
     state.phase === playerTurnPhase &&
     !state.prompts.some(prompt => prompt.result === undefined) &&
-    own.active.getPokemonCard()?.fullName === MEWTWO &&
+    (allowAnyActiveBlower || own.active.getPokemonCard()?.fullName === MEWTWO) &&
     own.hand.cards.some(card => card.fullName === BLOWER) &&
     opponent.bench.some(slot =>
       slot.getPokemonCard()?.fullName === GARBODOR &&
@@ -70,13 +72,14 @@ function tooledGarbodor(opponent) {
  * @template T
  * @param {0|1} candidateSeat
  * @param {()=>T} execute
- * @param {{lowHandLillieAfterBlower?:boolean,proactiveLowHandLillie?:boolean,automaticFieldBlower?:boolean}} [options]
+ * @param {{lowHandLillieAfterBlower?:boolean,proactiveLowHandLillie?:boolean,automaticFieldBlower?:boolean,allowAnyActiveBlower?:boolean}} [options]
  * @returns {{result:T,policyAudit:object}}
  */
 function withNewMoonBlowerAutonomy(candidateSeat, execute, {
   lowHandLillieAfterBlower=false,
   proactiveLowHandLillie=false,
-  automaticFieldBlower=true
+  automaticFieldBlower=true,
+  allowAnyActiveBlower=false
 }={}) {
   if (![0,1].includes(candidateSeat) || typeof execute !== 'function') {
     throw new TypeError('Need candidate physical seat and synchronous game runner');
@@ -163,7 +166,8 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
       state,own,candidateSeat,GamePhase.PLAYER_TURN);
     const afterConfirmedBlower=lastBlowerSuccessTurn===state.turn;
     const priorityBlower=automaticFieldBlower && blowerOpportunity(
-      state,own,opponent,candidateSeat,GamePhase.PLAYER_TURN);
+      state,own,opponent,candidateSeat,GamePhase.PLAYER_TURN,
+      allowAnyActiveBlower);
     if (validLillie &&
         ((lowHandLillieAfterBlower && afterConfirmedBlower) ||
          (proactiveLowHandLillie && !priorityBlower))) {
@@ -184,7 +188,8 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
       }
     }
     if (automaticFieldBlower && blowerOpportunity(
-      state,own,opponent,candidateSeat,GamePhase.PLAYER_TURN)) {
+      state,own,opponent,candidateSeat,GamePhase.PLAYER_TURN,
+      allowAnyActiveBlower)) {
       const index=own.hand.cards.findIndex(card => card.fullName === BLOWER);
       const action=new PlayCardAction(own.id,index,{
         player:PlayerType.ANY,slot:SlotType.BOARD,index:0
@@ -214,6 +219,7 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
         (lowHandLillieAfterBlower ?
           'newmoon-garbotoxin-blower-lowhand-lillie-v2' :
           'newmoon-garbotoxin-blower-autonomous-v1'),
+      allowAnyActiveBlower,
       candidateSeat,opponentSeat:1-candidateSeat,
       opportunitySelections:events.filter(x=>
         x.kind==='autonomous-legal-Item').length,
