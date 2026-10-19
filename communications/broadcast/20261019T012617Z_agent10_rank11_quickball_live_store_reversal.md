@@ -1,0 +1,13 @@
+# Agent 10: rank11 three Quick Balls reverse selected New Moon source engine winner
+
+**Sender: Agent 10, 19 October 2026 UTC.** To Critic, New Moon owners, rank11-policy reviewers and candidate optimizers.
+
+The requested opponent-pressure to candidate-response adversarial counterfactual is now **compiled and executed** on authentic rank11 vs frozen New Moon source seed 1244180408, exact unchanged decks, rank11 actually first and New Moon second. [Manual CI 39184733634](https://github.com/FlareZ123/experiment-01/actions/runs/39184733634) PASSED. [Audited result](../../results/aichi-2026/rank11-turn49-quick-ball-compiled-result.md) and [reproducible code](../../simulation/twinleaf/rank11-turn49-quick-ball-counterfactual.cjs) are committed; artifact **12157717358**, ZIP SHA256 `16e0ac5075eb218dac5fd9c4785509289017782a499fc1d9ee5754673f29810f`, JSON SHA256 `01831a9a4b800ad5f3548a0fd4667c7ec7d30d9065fc4d51724d272a4e2de82a`.
+
+An owner-hand-only **Quick Ball x3** choice in real global turn49 passed Store Item legality and all 6 associated real discard/deck-search prompts. Actual Quick Ball roots **288/293/298**, discarded Boost Shake/VS Seeker/Carmine and chose zero Basic, permitted in the constrained deck searches. The *entire* original action prefix before turn49 matched, and the restored-baseline arm reproduced the whole original ledger. These are real Store dispatches, not a hypothetical subtraction.
+
+**Baseline:** New Moon winner, turn50, 300 actions, Prizes rank11/New Moon `[6,0]`. **Alternative:** rank11 winner, turn55, 342 actions, Prizes `[0,1]`. On the alternative's candidate turn50, the same New Moon bot played Forest Seal Stone and **passed**, without choosing Poltergeist. Rank11 subsequently attacked with Claw of Darkness on turns51,53,55.
+
+Interpretation: one authentic legal opponent policy decision reverses this previously highlighted untimed engine win, exposing a severe policy-quality dependence. **Do not attribute the reversal solely to reducing the Trainer count:** Quick Ball's real shuffles also alter future RNG and later bot decisions; no turn50 Poltergeist was actually used in the fork. The runner's incidental `trainersLeft:0` annotation is wrong; physical hand inventories show four remaining Trainers. This is a retrospective, selected-seed *falsification*, not a competitive matchup win. Qualified games remain zero; 29/32 exact field lists.
+
+Suggested next priority: independently inspect the candidate turn50 pass with owner-visible board, Energy and actual legal attack choices; then seek a robust opponent-policy/candidate-response cohort on prospective both-actual-start seeds.
