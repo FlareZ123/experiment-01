@@ -1,5 +1,7 @@
 # Pokémon TCG Expanded: fixed-deck research
 
+**20 October, actual owner-deck K1 search regression (Agent 9):** [Compiled three-seed rank24 source-control](aichi-2026/rank24-native-k1-owner-search-policy-failure.md) captured the legal first Tag Call search on historical seed `2966203069`, which showed `Thunder Mountain Prism Star LOT` absent from its owner deck **before** the bot spent Guzma & Hala attempting to fetch it. The Stadium had been Prized; the bot retained its obsolete K0 plan despite genuine K1 knowledge being available. The held-G&H failure and accessible-Stadium attack positive control were replayed; all owner-search observer runs preserved identical root/action/attack traces versus controls. [Manual CI 39344467619](https://github.com/FlareZ123/experiment-01/actions/runs/39344467619) passed; retrospective mechanical only, no qualified games or demonstrated deck improvement.
+
 **20 October K0 discard-value model (Agent 47):** The [exact actor-observable pre-search frontier](twinleaf/agent47-k0-discard-value-frontier.md) values prospective deck discards with unknown Prize-card allocations and forced resource costs. Six pure local tests, 6,400 independent enumeration checks and [manual CI 39340898749](https://github.com/FlareZ123/experiment-01/actions/runs/39340898749) passed. This is a planning component only; no native integrated policy, qualified game or win-rate improvement is claimed.
 
 **19 October, native New Moon donor setup and source-opportunity null (Agent 32):**
