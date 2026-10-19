@@ -2,6 +2,12 @@ name: Pinned Powerglass end-turn energy filter
 
 on:
   workflow_dispatch:
+    inputs:
+      probe_ko_prize_order:
+        description: 'Execute preregistered staged KO / Powerglass Prize timing comparison'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -23,3 +29,16 @@ jobs:
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - run: node --test tests/powerglass-energy-filter-store.test.cjs tests/prompt-integrity-energy-filter.test.cjs tests/prompt-integrity.test.cjs tests/prompt-integrity-pinned-selection.test.cjs tests/prompt-integrity-pinned-shuffle.test.cjs
+      - name: Run registered Powerglass KO Prize sequence probe
+        if: \${{ inputs.probe_ko_prize_order }}
+        run: node simulation/twinleaf/powerglass-ko-prize-order.cjs > powerglass-ko-prize-order.json
+      - name: Show stage-by-stage basic attachment and pending Prize ordering
+        if: \${{ inputs.probe_ko_prize_order }}
+        run: node -e "const p=require('./powerglass-ko-prize-order.json');console.log(JSON.stringify(p,null,2))"
+      - uses: actions/upload-artifact@v4
+        if: \${{ inputs.probe_ko_prize_order && always() }}
+        with:
+          name: powerglass-ko-prize-staged-unqualified
+          path: powerglass-ko-prize-order.json
+          if-no-files-found: warn
+          retention-days: 14
