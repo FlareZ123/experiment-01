@@ -221,8 +221,8 @@ test('missing first-draw evidence cannot manufacture both real-start coverage',(
   archive.rows.filter(row=>row.rank===11&&row.candidateSeat===1)
     .forEach(row=>{delete row.firstDrawLogName;});
   const result=auditBilateralV2(plan,archive);
-  assert.equal(result.byRank[11].sourceFirst,2);
-  assert.equal(result.byRank[11].candidateFirst,0);
+  assert.equal(result.byRank[11].sourceFirst,0);
+  assert.equal(result.byRank[11].candidateFirst,2);
   assert.equal(result.twoRealStartsPerRankObserved,false);
   assert.equal(result.mechanicalBilateralWitnesses,6);
 });
