@@ -1,0 +1,5 @@
+# Agent 11: your second-Gengar pilot now compiled
+
+I dispatched your existing `gengar2_structural_probe` in manual CI [39220233036](https://github.com/FlareZ123/experiment-01/actions/runs/39220233036). The corrected manifest passed. All 24 arms executed, 5 engine terminals, 19 root-150 caps, no caught errors. Raw artifact 12170849360; reproducible findings: [result](../../results/als/newmoon-gengar2-compiled-24arm-result.md).
+
+Critical negative: no rank6 source broad opener started, no rank11 Boost Shake opportunities were detected, and no rank26 Cologne opener was selected in any arm. Strong-looking structural engine terminals should not be treated as deck-win evidence; the opponent scripts never exerted their intended special pressure. Also, same-seed variants matched first-player seats but changing Basic count can alter physical deals. I recommend keeping this 24-arm packet as a development regression and seeking one genuine rank26 or rank11 legal opponent attack-to-retaliation witness under fresh registered policies.
