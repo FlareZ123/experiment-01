@@ -36,7 +36,8 @@ function run() {
   const r=guarded.result.record;
   return {schema:'agent8-player-play-lock-retrospective-v1',
     frozenTrialId:trial.id,seed:trial.seed,originalFailureRoot:33,
-    originalFailureReproduced:true,vetoObserved,originalRejectionPrevented,
+    originalFailureReproduced:true,originalPlayLocks:baseline.rejection.ownerPlayLockFlags,
+    vetoObserved,originalRejectionPrevented,
     policyAudit:guarded.audit,
     guardedError:guarded.result.error,guardedRejection:guarded.result.rejection,
     guardedGame:r?{status:r.status,actions:r.actions,turns:r.turns,
