@@ -21,3 +21,12 @@ Archive all four original and guarded firstturn action sequences, veto counts an
 Execution: [rank26-dowsing-hold-source-pair.cjs](../../simulation/twinleaf/rank26-dowsing-hold-source-pair.cjs), pure [unit tests](../../tests/rank26-dowsing-hold.test.cjs), existing [manual Damage Pump CI](../../.github/workflows/aichi-damage-pump-fidelity.yml) with Boolean `rank26_dowsing_hold_probe`, archive `rank26-dowsing-hold-development-unqualified`.
 
 Broader status unchanged: 29/32 exact Aichi Top32 60s, zero competitive-qualified games, no eligible 99.5% final candidate.
+
+
+## Compiled outcome: authentic source ACE hold passed, with no attack
+
+[Manual CI 39208852419](https://github.com/FlareZ123/experiment-01/actions/runs/39208852419) **passed** with pinned compiled Twinleaf, real first-player draw-log, fixed original 60-card hashes, pure veto tests, live Store and matching root prefixes. Full four-case JSON: [artifact 12166837088](https://github.com/FlareZ123/experiment-01/actions/runs/39208852419/artifacts/12166837088), `rank26-dowsing-hold-development-unqualified`.
+
+On the one qualifying historic source seed, `2046029502/A`, control firstturn played Dowsing Machine at root ordinal **26**, discarded **Bicycle + Order Pad**, retrieved previously discarded **Iono**, then passed. The opt-in source-only `PlayTrainerTactic` veto suppressed exactly **one real Dowsing proposal**, leaving the same prefix intact through Float Stone at ordinal 25, then passed at ordinal 26 without spending ACE SPEC or those two Trainers. Three other pre-registered historical source deals had no qualifying veto.
+
+Four-case summary: **original firstturn Dowsing plays 1; guarded 0; real vetoes 1; guarded root attacks 0; opponent Prize decreases 0**. The narrow resource hold happened as expected, yet attacker conversion and whole-game superiority remain unproven. This retrospective source-development cohort contributes **zero** qualified game outcomes and no prospective effectiveness estimate. The guard is a heuristic that may be wrong if Dowsing would recover a more valuable immediate target. The project remains **29/32 exact source lists, zero competitively qualified games, no final 99.5%-qualified list**.
