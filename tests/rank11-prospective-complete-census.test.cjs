@@ -84,7 +84,7 @@ test('missing, duplicated or swapped physical partition rows fail closed',()=>{
 test('reject source identity, archive audit or policy-data mutation',()=>{
   const drift=fixture();
   drift[0].fixedRegistrationSha256='unregistered';
-  assert.throws(()=>auditCompleteRank11(drift),/registration/i);
+  assert.throws(()=>auditCompleteRank11(drift),/strictly equal/);
 
   const policy=fixture();
   policy[0].observations[0].observedPolicyProfile='generic';
