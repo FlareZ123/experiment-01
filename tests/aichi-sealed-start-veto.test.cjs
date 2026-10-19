@@ -14,7 +14,7 @@ const frozen = {
   engineRevision: 'pinned-twinleaf',
   rulesetRevision: 'paper-expanded-v1'
 };
-const slots = [0, 0, 1, 0, 1, 0];
+const slots = [0, 0, 0, 0, 1, 1];
 const attempts = slots.map((_, i) => ({gameId: 'fixed-' + i, seed: 8000 + i}));
 const registration = {
   attemptIndex: 1, rank: 11, kind: 'rank', candidateEngineSlot: 'B',
@@ -52,24 +52,27 @@ test('all six chronological setup attempts yield sealed balanced five-game rank 
   const seal = createAccrualSeal(registration, setupPrefix);
   assert.equal(seal.plannedTrials.length, 5);
   assert.deepEqual(seal.plannedTrials.map(row => row.startingSeat),
-    ['second', 'second', 'first', 'second', 'first']);
+    ['second', 'second', 'second', 'first', 'first']);
   const result = assessSealedAccrualVeto(
     registration, setupPrefix, seal, gamesFromSeal(seal)
   );
   assert.equal(result.conditionalStatisticalVeto, true);
   assert.equal(result.qualifiedForCompetitiveInference, false);
-  assert.equal(result.setupAttemptCount, 5);
-  assert.equal(result.overflowSetupAttempts, 0);
+  assert.equal(result.setupAttemptCount, 6);
+  assert.equal(result.overflowSetupAttempts, 1);
   assert.equal(result.physicallyFixedCandidateSlot, 'B');
 });
 
 test('requires successful full chronological start accrual, including the exact stopping point', () => {
   assert.throws(() => createAccrualSeal(registration, setupPrefix.slice(0, 4)), /incomplete/);
-  assert.throws(() => createAccrualSeal(registration, setupPrefix), /after the fixed quota/);
+  const extended = {...registration, attempts: [...attempts, {gameId: 'extra', seed: 9000}]};
+  const extra = {...setup(0), gameId: 'extra', seed: 9000};
+  assert.throws(() => createAccrualSeal(extended, [...setupPrefix, extra]),
+    /after the fixed quota/);
 });
 
 test('pre-outcome seal forbids reordered results or modified frozen policy', () => {
-  const prefix = setupPrefix.slice(0, 5);
+  const prefix = setupPrefix;
   const seal = createAccrualSeal(registration, prefix);
   const games = gamesFromSeal(seal);
   const altered = {...registration, frozen: {...frozen, opponentPolicyRevision: 'changed'}};
@@ -81,7 +84,7 @@ test('pre-outcome seal forbids reordered results or modified frozen policy', () 
 });
 
 test('fixes the candidate physical slot through setup and all completed games', () => {
-  const prefix = setupPrefix.slice(0, 5);
+  const prefix = setupPrefix;
   const seal = createAccrualSeal(registration, prefix);
   const games = gamesFromSeal(seal);
   games[0] = {...games[0], candidateEngineSlot: 'A'};
@@ -90,7 +93,7 @@ test('fixes the candidate physical slot through setup and all completed games', 
 });
 
 test('matches initial physical deals, beyond numerical seed and first-player seat', () => {
-  const prefix = setupPrefix.slice(0, 5);
+  const prefix = setupPrefix;
   const seal = createAccrualSeal(registration, prefix);
   const games = gamesFromSeal(seal);
   games[1] = {...games[1], initialDealSha256: sha('f')};
@@ -99,7 +102,7 @@ test('matches initial physical deals, beyond numerical seed and first-player sea
 });
 
 test('every attempted setup must carry its own initial-deal fingerprint', () => {
-  const prefix = setupPrefix.slice(0, 5);
+  const prefix = setupPrefix.map(row => ({...row}));
   delete prefix[4].initialDealSha256;
   assert.throws(() => createAccrualSeal(registration, prefix), /initial-deal/);
 });
@@ -121,7 +124,7 @@ test('rank and seat tests derive different design quotas', () => {
 });
 
 test('extra outcome-bearing setup getters are never accessed by selection or sealing', () => {
-  const prefix = setupPrefix.slice(0, 5);
+  const prefix = setupPrefix.map(row => ({...row}));
   Object.defineProperty(prefix[0], 'outcome', {
     get() { throw new Error('Looked at hidden outcome'); }
   });
