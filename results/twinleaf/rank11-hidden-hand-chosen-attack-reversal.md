@@ -24,3 +24,7 @@ These 12 deliberately selected comparisons are **neither independent games nor f
 Action-value policies used to judge decklists must not read exact opponent hidden partitions. Opt-in observer-constrained hidden-pool sampling exists in [opponent-hidden-pool-attack-sampling](../../simulation/twinleaf/opponent-hidden-pool-attack-sampling.cjs); it requires independently justified knowledge of the source multiset and visible information before its output can be interpreted as a policy. It has not qualified the shared bilateral-v2 competitive pilot.
 
 **Field state:** 29/32 exact registered source 60s, zero competitively qualified games; the 99.5% target is not proven.
+
+## Compiled one-pair blind-sampling control
+
+[Manual pinned CI 39244936442](https://github.com/FlareZ123/experiment-01/actions/runs/39244936442) **passed**. The baseline retained **six changed choices out of twelve artificial hidden-partition pairs**. With Agent23's detachable hidden-pool sampler installed only for attack-evaluation in a new zero-damage/GX-available pair (24 deterministic samples per attack), the previously discrepant **Horror House-GX / Poltergeist** decisions became **Poltergeist / Poltergeist**. The source 60 and actor's observable state remain the same. This proves one local observation-parity correction; it does not qualify a full policy, match, or win-rate estimate. The sampler restores its patch after the check.
