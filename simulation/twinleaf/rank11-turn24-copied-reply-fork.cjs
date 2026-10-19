@@ -187,6 +187,9 @@ function run() {
     completePreInterventionRootParity:true,
     baselineEffectObserverNoninterferenceVerified:true,
     turn24PrintedEffect:observedTurn24.assessment,
+    turn24SourceActiveBefore:observedTurn24.publicBefore[0]?.active??null,
+    turn24SourceActiveAfter:observedTurn24.steps.at(-1)?.publicAfter?.[0]?.active??null,
+    turn24SourceBenchAfter:observedTurn24.steps.at(-1)?.publicAfter?.[0]?.bench??null,
     chosenAction:changed.proposal,
     chosenAttack:changed.selectedAttack,
     actualCopiedAttack:{
