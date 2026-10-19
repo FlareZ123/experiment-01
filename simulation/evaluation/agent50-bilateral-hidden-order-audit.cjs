@@ -4,6 +4,11 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {isDeepStrictEqual}=require('node:util');
+const {createHash}=require('node:crypto');
+
+/** @param {unknown} value JSON-serializable genuine Store evidence. */
+const evidenceDigest=value=>createHash('sha256')
+  .update(JSON.stringify(value??null)).digest('hex');
 
 /**
  * The source-first opponent line at 6:0:A is expected on global turn 2,
@@ -50,7 +55,15 @@ function comparisonProjection(row) {
     endReason:row.endReason??null,
     finalPrizes:row.finalPrizes??null,
     attackDeclarations:row.attackDeclarations??null,
-    settledPublicAttackCount:row.settledPublicAttackCount??null
+    settledPublicAttackCount:row.settledPublicAttackCount??null,
+    // Root action and terminal equality alone miss identical actions that
+    // produced different effects, boards or delegated-copy observations.
+    publicBoardSha256:evidenceDigest(row.finalBoard),
+    firstSettledAttacksSha256:evidenceDigest(row.firstSettledPublicAttack),
+    sourceReplyPacketSha256:evidenceDigest(row.sourceLinePacket),
+    candidatePassSamplesSha256:evidenceDigest(row.candidatePassProbeSamples),
+    candidatePerfectionSamplesSha256:evidenceDigest(
+      row.candidatePerfectionPassSamples)
   };
 }
 
