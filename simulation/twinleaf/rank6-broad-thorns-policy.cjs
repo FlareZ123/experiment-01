@@ -48,12 +48,19 @@ function chooseOpeningDiscards(
  * @param {boolean} [thunderInPlay]
  * @param {string[]} [priorities]
  * @param {boolean} [conditionalTagCallPayment]
+ * @param {{stadiumLocked?:boolean,specialEnergyLocked?:boolean,itemLocked?:boolean,supporterLocked?:boolean,stadiumAlreadyPlayed?:boolean}} [constraints]
  * @returns {{channel:string,needDce:boolean,needThunder:boolean,discardCount:number}|null}
  */
 function planOpeningHand(
   hand,thunderInPlay=false,priorities=discardOrder,
-  conditionalTagCallPayment=false
+  conditionalTagCallPayment=false,constraints={}
 ) {
+  // This particular opener must play DCE from hand and have Thunder Mountain
+  // in play before Volt Cyclone. Public player-level locks can make an
+  // otherwise reachable Tag Call/G&H path impossible on the current turn.
+  if (constraints.specialEnergyLocked ||
+      (constraints.stadiumLocked && !thunderInPlay) ||
+      (constraints.stadiumAlreadyPlayed && !thunderInPlay)) return null;
   const held = name=>hand.some(c=>c.name===name);
   const needDce=!held('Double Colorless Energy');
   const needThunder=!thunderInPlay && !held('Thunder Mountain Prism Star');
@@ -61,8 +68,8 @@ function planOpeningHand(
     return {channel:'direct',needDce:false,needThunder:false,discardCount:0};
   }
   const supporter=held('Guzma & Hala')?'held-guzma-hala':
-    (held('Tag Call')?'tag-call-to-guzma-hala':null);
-  if(!supporter) return null;
+    (!constraints.itemLocked && held('Tag Call')?'tag-call-to-guzma-hala':null);
+  if(!supporter || constraints.supporterLocked) return null;
   if(needDce) {
     // The first Tag Call must be played to obtain G&H. Never pre-count
     // that same physical card as one of the two later discard payments.
@@ -179,7 +186,14 @@ function withBroadThornsSourceAttack(work,options={}) {
       // attachment can create an illegal second Supporter/attachment.
       const inPlay=p.stadium.cards.some(c=>c.name==='Thunder Mountain Prism Star');
       const plan=planOpeningHand(
-        p.hand.cards,inPlay,priorities,conditionalTagCallPayment
+        p.hand.cards,inPlay,priorities,conditionalTagCallPayment,{
+          stadiumLocked:Boolean(p.cannotPlayStadiumCards),
+          specialEnergyLocked:Boolean(p.cannotPlaySpecialEnergyCards),
+          itemLocked:Boolean(p.cannotPlayItemCards),
+          supporterLocked:Boolean(p.cannotPlaySupporterCards) ||
+            p.supporterTurn>0,
+          stadiumAlreadyPlayed:p.stadiumPlayedTurn===state.turn
+        }
       );
       if(!plan) {
         phase='inactive';
