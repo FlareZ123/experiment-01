@@ -255,6 +255,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [shadowRiderOpeningPivot] Opt-in counterfactual for setup Active choice with selected Shadow Rider V.
  * @property {0|1} [newMoonNativeOpeningPivotSeat] Candidate-only selected Gengar & Mimikyu-GX setup Active ordering probe.
  * @property {0|1} [snorlaxSoloOpeningSeat] Rank3/7 source-locked, own-starting-hand solo Snorlax Active policy.
+ * @property {boolean} [snorlaxSoloDeclineOptionalBench] With solo policy, decline a later legal optional Bench prompt after Snorlax is already alone Active.
  * @property {0|1} [newMoonAttackPayloadCompressorSeat] Candidate-only own-hand Compressor and owner-search Gengar payload policy.
  * @property {0|1} [rank31FogEnergySeat] Opponent source Chimecho Active: opt-in strict Fog-for-Basic-Psychic-Energy search.
  * @property {0|1} [rank31FogEnergyBroaderSeat] Comparison: allow other Basics in hand or Bench when finding Bell's Energy.
@@ -701,7 +702,9 @@ function runMatch(request) {
             ChooseCardsPrompt: engine('game/store/prompts/choose-cards-prompt').ChooseCardsPrompt,
             ResolvePromptAction: engine('game/store/actions/resolve-prompt-action').ResolvePromptAction,
             GameMessage: engine('game/game-message').GameMessage
-          }, snorlaxSoloOpeningEvents);
+          }, snorlaxSoloOpeningEvents, {
+            declineOptionalBench:request.snorlaxSoloDeclineOptionalBench===true
+          });
       }
       if (request.newMoonNativeOpeningPivotSeat === seat) {
         configured = require('./new-moon-native-opening-pivot.cjs')
