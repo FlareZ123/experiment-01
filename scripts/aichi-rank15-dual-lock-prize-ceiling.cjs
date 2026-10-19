@@ -135,6 +135,67 @@ function prerequisiteFailurePartition(basicCount) {
   }));
 }
 
+
+/**
+ * Distinguish a single viable Stage 2 lock line from two simultaneously
+ * viable shared Oddish/Gloom chains before recovering any initial Prizes.
+ * Each printed card is either in the first six Prizes or outside them;
+ * this is physical feasibility only, with no search, evolution or policy.
+ *
+ * @param {number} basicCount The complete printed source deck's Basic count.
+ */
+function lockTopologyPartition(basicCount) {
+  assert.ok(Number.isInteger(basicCount) && basicCount >= 2 && basicCount <= 53);
+  const names = [
+    'Neither AOR nor BUS independently has a complete unprized chain',
+    'Only AOR has a complete unprized chain',
+    'Only BUS has a complete unprized chain',
+    'Both printings individually accessible, but shared chains prevent coexistence',
+    'AOR and BUS can coexist through two unprized evolution chains',
+  ];
+  const counts = Array(5).fill(0n);
+  const validCounts = Array(5).fill(0n);
+  const otherBasics = basicCount - 2;
+  const otherNonBasics = 60 - 7 - otherBasics;
+  for (let odd = 0; odd <= 2; odd++) {
+    for (let gloom = 0; gloom <= 2; gloom++) {
+      for (let aor = 0; aor <= 2; aor++) {
+        for (let bus = 0; bus <= 1; bus++) {
+          for (let b = 0; b <= Math.min(6, otherBasics); b++) {
+            const n = 6 - odd - gloom - aor - bus - b;
+            const ways = choose(2, odd) * choose(2, gloom) *
+              choose(2, aor) * choose(1, bus) *
+              choose(otherBasics, b) * choose(otherNonBasics, n);
+            const sevenWays = choose(54, 7) -
+              choose(54 - basicCount + odd + b, 7);
+            const canAOR = odd < 2 && gloom < 2 && aor < 2;
+            const canBUS = odd < 2 && gloom < 2 && bus === 0;
+            const canCoexist = odd === 0 && gloom === 0 && bus === 0 && aor < 2;
+            const category = canCoexist ? 4 : canAOR && canBUS ? 3 :
+              canAOR ? 1 : canBUS ? 2 : 0;
+            counts[category] += ways;
+            validCounts[category] += ways * sevenWays;
+          }
+        }
+      }
+    }
+  }
+  const all = counts.reduce((sum, x) => sum + x, 0n);
+  const allLegal = validCounts.reduce((sum, x) => sum + x, 0n);
+  assert.equal(all, choose(60, 6));
+  assert.equal(allLegal * choose(60, 7),
+    choose(60, 6) * choose(54, 7) *
+      (choose(60, 7) - choose(60 - basicCount, 7)));
+  const categories = names.map((name, i) => ({
+    name,
+    randomSixPrizes: fraction(counts[i], all),
+    givenLegalOpening: fraction(validCounts[i], allLegal),
+  }));
+  assert.equal(categories[4].givenLegalOpening.probability,
+    ceilingForBasicCount(basicCount).availabilityGivenLegalFirstSeven.probability);
+  return categories;
+}
+
 /**
  * Resolve exact stage types from the repository's source-printing card pool.
  * @param {object} deck Parsed published rank-15 source list
@@ -185,4 +246,4 @@ if (require.main === module) {
   process.stdout.write(JSON.stringify(fromSourceManifest(), null, 2) + '\n');
 }
 
-module.exports = { choose, ceilingForBasicCount, prerequisiteFailurePartition, basicCountFromPrintedDeck, fromSourceManifest };
+module.exports = { choose, ceilingForBasicCount, prerequisiteFailurePartition, lockTopologyPartition, basicCountFromPrintedDeck, fromSourceManifest };
