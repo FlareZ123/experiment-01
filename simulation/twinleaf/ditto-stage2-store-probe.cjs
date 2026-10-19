@@ -185,14 +185,37 @@ function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'no
       } catch (caught) {
         error = caught.message;
       }
+      const pendingKinds = state.prompts
+        .filter(prompt => prompt.result === undefined)
+        .map(prompt => prompt.constructor.name);
+      const switchPrompt = state.prompts.find(prompt =>
+        prompt.result === undefined &&
+        prompt.constructor.name === 'ChoosePokemonPrompt' &&
+        prompt.playerId === actor.id);
+      let switchPromptResolved = false;
+      if (error === null && switchPrompt) {
+        assert.equal(switchPrompt.validate([benchSlot], state), true,
+          'Fresh legal Bench target must validate');
+        const { ResolvePromptAction } =
+          load('game/store/actions/resolve-prompt-action');
+        store.dispatch(new ResolvePromptAction(switchPrompt.id, [benchSlot]));
+        switchPromptResolved = true;
+      }
       nativeItemPlay = {
         seat: nativeSwitchSeat,
         accepted: error === null,
         error,
         itemStillInHand: actor.hand.cards.includes(item),
-        unresolvedPromptKinds: state.prompts
-          .filter(prompt => prompt.result === undefined)
-          .map(prompt => prompt.constructor.name)
+        unresolvedPromptKinds: pendingKinds,
+        switchPromptResolved,
+        activeAfterSwitch: actor.active.getPokemonCard()?.fullName ?? null,
+        originalActiveOnBench: actor.bench.some(slot =>
+          slot.getPokemonCard() === (nativeSwitchSeat === 0 ? stage2 :
+            store.state.players.find(player => player.id === enemy.id)
+              ?.bench.find(slot => slot.getPokemonCard()?.name === 'Wobbuffet')
+              ?.getPokemonCard())),
+        vileplumeAbilitySuppressedAfter: IS_ABILITY_BLOCKED(
+          store, state, liveMine, stage2)
       };
     }
     } finally {
