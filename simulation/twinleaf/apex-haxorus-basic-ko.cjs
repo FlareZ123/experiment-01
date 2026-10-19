@@ -144,7 +144,7 @@ function runHaxorusApexTarget(targetName,basic,prizesExpected) {
 function testHaxorusApexBasicKo(){
   const cases=[
     runHaxorusApexTarget('Iron Thorns ex TWM',true,2),
-    runHaxorusApexTarget('Mega Absol ex MEG',true,3),
+    runHaxorusApexTarget('Mega Absol ex M1L',true,3),
     runHaxorusApexTarget('Regidrago VSTAR SIT',false,0)
   ];
   return {engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
