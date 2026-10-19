@@ -82,4 +82,33 @@ function withSoloSnorlaxOpening(options, types, events,
   return {...options, promptResolvers};
 }
 
-module.exports={chooseSoloSnorlax,withSoloSnorlaxOpening};
+/**
+ * Suppress ordinary play-from-hand Basic Benching while the own Active is a
+ * lone PGO Snorlax. Other tactics remain at their pinned original positions.
+ * This opt-in control is a hypothesis about source player strategy, not a
+ * claim that refusing backup Pokémon is always correct.
+ *
+ * @param {object} options Per-seat pinned SimpleBotOptions.
+ * @param {{PlayBasicTactic: Function}} types Pinned tactic class.
+ * @returns {object} New options preserving original tactics array.
+ */
+function withSoloSnorlaxBenchPreservation(options,{PlayBasicTactic}) {
+  if(options.tactics.some(Tactic=>
+    Tactic.name==='SoloSnorlaxBenchPreservationTactic')) return options;
+  const index=options.tactics.indexOf(PlayBasicTactic);
+  if(index<0)throw new Error('Pinned PlayBasicTactic missing');
+  class SoloSnorlaxBenchPreservationTactic extends PlayBasicTactic {
+    /** @param {object} state @param {object} player */
+    useTactic(state,player) {
+      if(player.active.getPokemonCard()?.fullName==='Snorlax PGO' &&
+          !player.bench.some(slot=>slot.getPokemonCard())) return undefined;
+      return super.useTactic(state,player);
+    }
+  }
+  const tactics=options.tactics.slice();
+  tactics[index]=SoloSnorlaxBenchPreservationTactic;
+  return {...options,tactics};
+}
+
+module.exports={chooseSoloSnorlax,withSoloSnorlaxOpening,
+  withSoloSnorlaxBenchPreservation};
