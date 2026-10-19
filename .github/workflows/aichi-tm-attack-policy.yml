@@ -53,6 +53,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank2_grandtree_owner_opponent:
+        description: Observe authentic opposing turn6 owner hand and Stoutland without interfering
+        type: boolean
+        required: false
+        default: false
       rank2_gladion_source_exposure:
         description: Frozen 8-game authentic rank2 Gladion root opportunity census
         type: boolean
@@ -128,6 +133,17 @@ jobs:
         with:
           name: agent40-rank2-grandtree-stoutland-active-fork
           path: agent40-rank2-grandtree-active.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Observe exact original-source first opponent owner decision under Active Stoutland
+        if: ${{ inputs.rank2_grandtree_owner_opponent }}
+        run: node simulation/twinleaf/agent40-rank2-grandtree-root-fork.cjs --promote-stoutland --observe-opponent > agent40-stoutland-first-opponent.json
+      - name: Preserve observed opponent own-hand and full-deal root-equality proof
+        if: ${{ always() && inputs.rank2_grandtree_owner_opponent }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent40-stoutland-opponent-first-owner-root
+          path: agent40-stoutland-first-opponent.json
           if-no-files-found: warn
           retention-days: 14
       - name: Validate source-root Gladion event extraction and frozen cohort
