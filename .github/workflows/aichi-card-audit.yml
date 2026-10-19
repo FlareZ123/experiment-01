@@ -28,6 +28,8 @@ jobs:
         run: python tests/test_aichi_tool_attack_inventory.py
       - name: Print source-resolved attack-granting Tool field inventory
         run: python scripts/aichi_tool_attack_inventory.py
+      - name: Screen exact Aichi donor attack-name collisions
+        run: node scripts/aichi-copy-donor-name-collision-screen.cjs
       - uses: actions/upload-artifact@v4
         with:
           name: aichi-card-coverage
