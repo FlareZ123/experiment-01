@@ -259,6 +259,9 @@ function executeDevelopment(trial,candidates,{
     row.declarations?.length && row.settled?.after);
   const sourceFirst=game.firstTurnSlot===sourceSeat;
   const rootTrace=game.rootActionLedger||[];
+  const candidateCompressorRoots=rootTrace.filter(row=>
+    row.playerSlot===candidateSeat && row.action==='PlayCardAction' &&
+    row.card==='Battle Compressor');
   const sourceDeal=game.initialSourceDealFingerprint;
   assert.equal(sourceDeal?.seat,sourceSeat);
   assert.match(sourceDeal?.digestSha256,/^[0-9a-f]{64}$/);
