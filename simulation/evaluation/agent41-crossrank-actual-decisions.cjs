@@ -70,7 +70,7 @@ function assertManifest(plan=registration) {
  * Every result is unqualified for tournament win-rate inference.
  * @param {object} trial
  * @param {Map<string,object>} prepared
- * @param {{captureRejectedActionEvidence?:boolean}} [auditOptions]
+ * @param {{captureRejectedActionEvidence?:boolean,enforceVisiblePlayLockGuard?:boolean,visiblePlayLockSupporterResponse?:boolean}} [auditOptions]
  * @returns {object}
  */
 function executeArm(trial,prepared,auditOptions={}) {
@@ -102,7 +102,9 @@ function executeArm(trial,prepared,auditOptions={}) {
     ...(auditOptions.captureFinalCapEvidence === true ?
       {captureFinalPublicBoard:true} : {}),
     ...(auditOptions.enforceVisiblePlayLockGuard === true ?
-      {enforceVisiblePlayLockSeat:sourceSeat} : {})
+      {enforceVisiblePlayLockSeat:sourceSeat,
+        ...(auditOptions.visiblePlayLockSupporterResponse === true ?
+          {visiblePlayLockSupporterSeat:sourceSeat} : {})} : {})
   };
   const play=()=>runMatch(request);
   let sourceAudit;
