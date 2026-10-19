@@ -282,6 +282,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [captureElectrodeOpportunity] Observe source Raichu/Bomb public necessary conditions only at live non-prompt decisions.
  * @property {boolean} [capturePhysicalZoneIntegrity] Opt-in read-only physical reference/attached Energy checks after each live root action.
  * @property {0|1} [captureCopycatTurnStartSeat] Opt-in candidate perspective resource snapshot once per own turn, taken before selecting the first action.
+ * @property {0|1} [visiblePlayLockSupporterSeat] With enforceVisiblePlayLockSeat, substitute held legal Lillie's Determination once before falling back to Pass; historical source-policy regression only.
  * @property {boolean} [captureAttackPassProbes] Opt-in first eight post-choice Pass attack-announcement probes; only archived when capturing decision trace.
  */
 
@@ -297,6 +298,11 @@ function runMatch(request) {
   if (request.enforceVisiblePlayLockSeat !== undefined &&
       ![0,1].includes(request.enforceVisiblePlayLockSeat)) {
     throw new Error('Live Store play-lock guard needs a physical seat 0 or 1');
+  }
+  if (request.visiblePlayLockSupporterSeat !== undefined &&
+      (request.visiblePlayLockSupporterSeat !== request.enforceVisiblePlayLockSeat ||
+       ![0,1].includes(request.visiblePlayLockSupporterSeat))) {
+    throw new Error('Lock-response Supporter requires a matching guarded physical seat');
   }
   if (!Array.isArray(request.deckA) || request.deckA.length !== 60 ||
       !Array.isArray(request.deckB) || request.deckB.length !== 60) {
@@ -865,17 +871,28 @@ function runMatch(request) {
           stadium:TrainerType.STADIUM,specialEnergy:EnergyType.SPECIAL
         });
         if (reason) {
+          const heldLillieIndex =
+            request.visiblePlayLockSupporterSeat === request.enforceVisiblePlayLockSeat ?
+            require('./visible-lock-supporter-response.cjs')
+              .heldLillieResponseIndex(owner,state.turn) : -1;
+          const {PassTurnAction}=engine('game/store/actions/game-actions');
+          const {PlayCardAction,PlayerType,SlotType}=
+            engine('game/store/actions/play-card-action');
+          const alternative=heldLillieIndex >= 0 ?
+            "Lillie's Determination" : 'PassTurnAction';
           playLockDispatchGuardEvents.push({
             turn:state.turn,seat:request.enforceVisiblePlayLockSeat,
             reason,originalCard:owner.hand.cards[action.handIndex].fullName,
             originalAction:action.constructor.name,
-            alternative:'PassTurnAction',
+            alternative,
             playerFlags:{stadium:owner.cannotPlayStadiumCards,
               specialEnergy:owner.cannotPlaySpecialEnergyCards,
               remainingTurns:owner.playLocksTurnsRemaining}
           });
-          const {PassTurnAction}=engine('game/store/actions/game-actions');
-          action=new PassTurnAction(owner.id);
+          action=heldLillieIndex >= 0 ?
+            new PlayCardAction(owner.id,heldLillieIndex,{
+              player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+            }) : new PassTurnAction(owner.id);
         }
       }
       if (request.strictPromptValidation === true) {
