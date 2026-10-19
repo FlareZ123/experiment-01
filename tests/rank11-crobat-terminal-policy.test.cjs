@@ -70,3 +70,24 @@ test('held Stone opens owner-deck search without Shopping Center',()=>{
  s.players[0].stadium.cards=[];s.players[0].bench[1].tools=[];
  assert.equal(crobatLethalOpportunity(s,0).mode,'held-stone');
 });
+test('equipped Stone opens VSTAR search without Shopping Center',()=>{
+ const s=state();s.players[0].bench[0].tools=[card('Forest Seal Stone SIT')];
+ s.players[0].stadium.cards=[];
+ assert.equal(crobatLethalOpportunity(s,0).mode,'crobat-equipped-stone');
+});
+test('Stone can be retrieved from source Active through Shopping Center',()=>{
+ const s=state();s.players[0].bench[1].tools=[];
+ s.players[0].active.tools=[card('Forest Seal Stone SIT')];
+ const g=crobatLethalOpportunity(s,0);
+ assert.equal(g.mode,'transfer-stone');assert.equal(g.stoneSlot,-2);
+});
+test('Crobat with another Tool may still use a held Patch',()=>{
+ const s=state();s.players[0].bench[0].tools=[card('Float Stone PLF')];
+ s.players[0].hand.cards.push(card('Dark Patch ASR'));s.players[0].usedVSTAR=true;
+ assert.equal(crobatLethalOpportunity(s,0).mode,'held-dark-patch');
+});
+test('fixed champion Shadow Rider VMAX is eligible at a conservative lethal threshold',()=>{
+ const s=state();const v=card('Shadow Rider Calyrex VMAX CRE');v.hp=320;
+ s.players[1].active.getPokemonCard=()=>v;s.players[1].active.damage=250;
+ assert.equal(crobatLethalOpportunity(s,0).mode,'transfer-stone');
+});
