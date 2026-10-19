@@ -79,11 +79,38 @@ function run() {
       baselineCompleted:baseline.policyAudit.completed,
       exclusiveCompleted:audit.completed});
   }
-  return {schema:'rank11-exclusive-opener-retrospective-six-fixture-v1',
+  const negativeSeed=207674218;
+  const sourceSeat=0;
+  const playNegative=()=>runArm(candidates.source,opponent.cards,1,
+    negativeSeed,110,true);
+  const baseline=withRank11DirectBoostShake(sourceSeat,playNegative,{
+    k0AvoidAllGarbodorHeld:true,k1AvoidMissingGarbodor:true
+  });
+  const exclusive=withRank11ExclusiveOpeners(sourceSeat,playNegative);
+  assert.equal(baseline.result.verifiedByDrawLog,true);
+  assert.equal(exclusive.result.verifiedByDrawLog,true);
+  assert.equal(baseline.result.firstTurnSlot,sourceSeat);
+  assert.equal(exclusive.result.firstTurnSlot,sourceSeat);
+  assert.deepEqual(baseline.result.deckHashes,exclusive.result.deckHashes);
+  assert.ok(baseline.policyAudit.aborted,
+    'Archived Garbodor-search-negative case did not abort');
+  assert.equal(exclusive.policyAudit.selected?.kind,'direct');
+  assert.ok(exclusive.policyAudit.direct.aborted,
+    'Exclusive policy did not retain direct-route abort');
+  const negativeTurn=baseline.policyAudit.opportunityTurn;
+  assert.deepEqual(
+    ownerActions(baseline.result,sourceSeat,negativeTurn),
+    ownerActions(exclusive.result,sourceSeat,negativeTurn));
+  const negative={sourceSeat,sourceActuallyFirst:true,seed:negativeSeed,
+    selected:exclusive.policyAudit.selected,
+    baselineAbort:baseline.policyAudit.aborted,
+    exclusiveAbort:exclusive.policyAudit.direct.aborted,
+    rootActionsEqual:true,qualified:false};
+  return {schema:'rank11-exclusive-opener-retrospective-seven-fixture-v2',
     twinleaf:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    sourceRank:11,tested:rows.length,rows,
+    sourceRank:11,tested:rows.length+1,rows,negative,
     prospective:false,qualifiedCompetitiveGames:0,
-    boundary:'Six selected authentic positive controls across both direct seats, both starts, and held Seal source-first'};
+    boundary:'Six selected authentic positive controls and one source-first direct-route search abort, no win-rate inference'};
 }
 
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
