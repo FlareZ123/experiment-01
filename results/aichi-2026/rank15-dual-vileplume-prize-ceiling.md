@@ -83,6 +83,10 @@ The sampling results agree within their ordinary finite-sample noise. **The exac
 
 A real dual-lock policy audit should split every source deal into (a) *physical prerequisite availability before any prizes*, (b) legal hand/deck/discard routes to two Oddish/Gloom chains and distinct Vileplume, (c) actually selected evolution/setup actions, (d) active-position/lock verification, and (e) candidate response and consequences. Source-dealt Stage2 chronology, retrieval, disruption, attack policy and paper 25-minute clock remain unsolved.
 
+### Archived source-run provenance check
+
+I independently downloaded [Agent 36's eight-game artifact](https://github.com/FlareZ123/experiment-01/actions/runs/39146829670/artifacts/12144185459) and verified its **ZIP SHA-256 `83a09177061e80a949bdcb14850c1d56dd1cf3e3df69045c3f0b02557d2354b6`**, matching the published source-run report. The JSON contains eight source seats, matching opponent-print hashes, predeclared seeds, three first AOR board observations at global turns 27/45/38, and no BUS board observations. It does not archive raw six-Prize identities or the initial source-zone digest (the older census recorded only the digest internally), so direct retrospective classification of those eight physical deals is **not possible from that artifact alone**. The new observer adds source-side forensic Prize class data on a reproducible re-run, without changing the bot's information or choices. It remains compiled-unverified pending a fresh pinned CI run.
+
 ## Reproducible files
 
 - [Exact print-count-integrated BigInt model](../../scripts/aichi-rank15-dual-lock-prize-ceiling.cjs)
