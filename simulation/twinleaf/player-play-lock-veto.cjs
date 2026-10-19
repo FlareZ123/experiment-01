@@ -66,7 +66,9 @@ function withPlayerPlayLockVeto(seat, execute) {
   assert.equal(typeof execute, 'function');
   const load = name => require(path.join(OUTPUT, name));
   const {SimpleTacticsAi} = load('simple-bot/simple-tactics-ai');
-  const {SuperType,TrainerType,EnergyType} = load('game/store/card/card-types');
+  const {SuperType,TrainerType,EnergyType,Stage} =
+    load('game/store/card/card-types');
+  const {PowerType}=load('game/store/card/pokemon-types');
   const {PlayStadiumTactic}=load('simple-bot/simple-tactics/play-stadium-tactic');
   const {PassTurnAction}=load('game/store/actions/game-actions');
   const originalDecode=SimpleTacticsAi.prototype.decodeNextAction;
@@ -74,10 +76,17 @@ function withPlayerPlayLockVeto(seat, execute) {
   const original = SimpleTacticsAi.prototype.isValidAction;
   assert.equal(typeof original, 'function');
   const enums = {
-    superTrainer: SuperType.TRAINER,
-    superEnergy: SuperType.ENERGY,
-    stadium: TrainerType.STADIUM,
-    specialEnergy: EnergyType.SPECIAL
+    superPokemon:SuperType.POKEMON,
+    superTrainer:SuperType.TRAINER,
+    superEnergy:SuperType.ENERGY,
+    item:TrainerType.ITEM,
+    supporter:TrainerType.SUPPORTER,
+    stadium:TrainerType.STADIUM,
+    tool:TrainerType.TOOL,
+    specialEnergy:EnergyType.SPECIAL,
+    abilityPowerType:PowerType.ABILITY,
+    evolvedStages:[Stage.STAGE_1,Stage.STAGE_2,
+      Stage.VMAX,Stage.VSTAR,Stage.MEGA,Stage.BREAK,Stage.LV_X]
   };
   const rejections = [];
   const considered = [];
