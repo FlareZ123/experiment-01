@@ -96,7 +96,9 @@ function executeArm(trial,prepared,auditOptions={}) {
     label:'agent41-crossrank-source-locked-'+trial.id,
     ...registration.frozenFlags,
     ...(auditOptions.captureRejectedActionEvidence === true ?
-      {captureRejectedActionEvidence:true} : {})
+      {captureRejectedActionEvidence:true} : {}),
+    ...(auditOptions.captureBilateralReplyPacket === true ?
+      {capturePublicAttackTransitions:true} : {})
   };
   const play=()=>runMatch(request);
   let sourceAudit;
