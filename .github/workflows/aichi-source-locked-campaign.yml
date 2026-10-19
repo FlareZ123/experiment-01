@@ -241,7 +241,7 @@ jobs:
         run: node simulation/evaluation/agent6-crossrank-rejected-root.cjs > agent6-crossrank-rejected-root.json
       - name: Verify actor-visible rank6 opener restrictions and held Supporter decisions
         if: ${{ inputs.agent41_crossrank_trial && inputs.agent6_shadow_mist_supporter }}
-        run: node --test tests/rank6-broad-thorns-policy.test.cjs tests/visible-lock-supporter-response.test.cjs
+        run: node --test tests/rank6-broad-thorns-policy.test.cjs tests/visible-lock-supporter-response.test.cjs tests/player-play-lock-veto.test.cjs
       - name: Replay held Supporter response to real Shadow Mist restriction
         if: ${{ inputs.agent41_crossrank_trial && inputs.agent6_shadow_mist_supporter }}
         run: node simulation/evaluation/agent6-shadow-mist-source-supporter.cjs > agent6-shadow-mist-supporter.json
