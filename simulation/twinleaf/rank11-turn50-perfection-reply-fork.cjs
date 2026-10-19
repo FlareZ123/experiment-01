@@ -42,7 +42,8 @@ function withTurn50OwnerPerfectionReply(candidateSeat,execute) {
     const player=state.players.find(p=>p.id===this.client?.id);
     if(!player || player.id!==candidateId || state.turn!==50 ||
         state.activePlayer!==candidateSeat ||
-        state.phase!==GamePhase.PLAYER_TURN || phase==='finished') {
+        (state.phase!==GamePhase.PLAYER_TURN && phase!=='select-attack') ||
+        phase==='finished') {
       return previous.call(this,state);
     }
     const pending=state.prompts.find(p=>p.result===undefined);
