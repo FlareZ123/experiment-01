@@ -13,6 +13,8 @@ try {
   const {Store} = load('game/store/store');
   const {resolveManifestFile} = require('./resolve-field.cjs');
   const {runMatch} = require('./headless.cjs');
+  const {installDecisionBoundaryCardObserver} =
+    require('./bot-decision-card-boundary-observer.cjs');
   const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
   const manifest = resolveManifestFile(path.resolve(__dirname,
     '../../results/aichi-2026/full-decklists.json'), {
@@ -150,11 +152,19 @@ try {
     };
   }
   const control=runMatch(request);
-  const observed=withReadOnlyLiveStoreSnapshots(()=>runMatch(request));
+  const boundary=installDecisionBoundaryCardObserver();
+  let observed;
+  try {
+    observed=withReadOnlyLiveStoreSnapshots(()=>runMatch(request));
+  } finally {
+    boundary.restore();
+  }
   const game=observed.game;
   assert.equal(game.firstTurnSlot,1);
   assert.equal(game.verifiedByDrawLog,true);
   assert.equal(game.actions,observed.roots.length);
+  assert.ok(boundary.report.decisions>0,
+    'Card observer must cover live source bot decisions');
   assert.equal(digest(control),digest(game),
     'Read-only live Store snapshots must preserve root choices and all compared outcome fields');
   const declarations=game.attackDeclarationTrace.filter(x=>
@@ -228,6 +238,10 @@ try {
       ordinal:row.ordinal,action:row.action,
       before:compact(row.before),after:compact(row.after)
     })),
+    botDecisionCardBoundary:{
+      ...boundary.report,
+      scope:'Top-level live physical-zone Card scalars across synchronous bot decision only; excludes nested attachments and other live reducer effects'
+    },
     rootObserverScope:{
       seen:observed.roots.length,
       effectStatus:'Physical public-board observation after real root actions; no independent attack-damage calculation',
