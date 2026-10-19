@@ -26,7 +26,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Check setup adapter regressions
-        run: node --test tests/snorlax-solo-opening-policy.test.cjs
+        run: node --test tests/snorlax-solo-opening-policy.test.cjs tests/snorlax-solo-optional-bench.test.cjs
       - name: Observe authentic root Store setup selections
         run: node simulation/twinleaf/snorlax-root-setup-probe.cjs | tee aichi-snorlax-root-setup.json
       - name: Archive actual setup selection roots
