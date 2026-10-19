@@ -2,6 +2,7 @@
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const {createHash} = require('node:crypto');
 
 /**
  * Audit all archived arms, keeping attempted source opportunities separate
@@ -92,7 +93,9 @@ function disposition(cohort) {
 
 if (require.main === module) {
   const file=process.argv[2]||'agent41-crossrank-observed.json';
-  const result=disposition(JSON.parse(fs.readFileSync(file,'utf8')));
+  const raw=fs.readFileSync(file);
+  const result=disposition(JSON.parse(raw.toString('utf8')));
+  result.sourceJsonSha256=createHash('sha256').update(raw).digest('hex');
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
 module.exports={disposition};
