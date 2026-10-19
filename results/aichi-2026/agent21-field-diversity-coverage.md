@@ -48,13 +48,29 @@ Fix the source ranks already sampled in the common ten-rank campaign, then add *
 
 The current rank-10 Regidrago single source is **already the optimal one-source minimax center** by this crude metric, and ranks 8+11 are **already the optimal two-source Garbodor centers**. The largest overlooked *same-archetype* inventory divergence is instead Snorlax rank 7 and Raichu rank 17. This is useful for scheduling a future test, **only after** bilateral policies and printed effects are qualified.
 
+## The broader pilot has five entirely unrepresented archetypes
+
+Before interpreting same-archetype nearest neighbors, the current common ten-rank pilot (1, 2, 3, 4, 5, 6, 8, 10, 11, 26) directly samples **10 of the 29 published source 60s** and **9 of the 14 represented archetypes**. Another **19 published 60s** remain outside that pilot. In particular, these five distinct archetypes have **no source list in the pilot at all**:
+
+| Published rank | Absent archetype |
+| ---: | --- |
+| **9** | Absol Electrode |
+| **15** | Lopunny Vileplume |
+| **19** | Raging Bolt |
+| **30** | Lillie's Clefairy |
+| **31** | Dusknoir Chimecho |
+
+This is an independent source-coverage gap from the **three completely unpublished lists** at ranks 23/25/28. Unlike nearest-neighbor printed distance, no within-archetype proxy exists in the pilot for these five types.
+
+**Revised priority:** after the current cross-lock response/policy gate, explicitly qualify at least one bilateral game-policy scenario from these **five missing archetypes** before calling a test panel archetype-spanning. Subsequently use the rank 7/17/24/16 printed-card diversity additions to probe transfer between two lists bearing one archetype label. The order among the five missing archetypes should be chosen by threat and policy readiness, not a meaningless card distance across different archetypes. Code now exports `pilotCoverage(source,pilotRanks)`; real-source regression asserts the exact five absences.
+
 ## Practical consequences and caveats
 
 1. Keep rank 6 Iron Thorns and ranks 8/11 equipped-Garbodor as the present **cross-lock bilateral-policy qualification gate**. The calculation gives no reason to bypass that Critic priority or rerun defective bots. Use already verified line-specific regression controls.
-2. When a policy can execute a real competing action and reply in those archetypes, spend the next source-list expansion budget on **rank 7 Snorlax** and **rank 17 Raichu** rather than assuming existing archetype aliases generalize. Both are registered exact 60s and represent large inventory differences from the current pilot.
+2. First address the five **unrepresented archetypes** above with credible bilateral source/action evidence. Then, when a policy can execute a real competing action and reply, spend same-archetype expansion budget on **rank 7 Snorlax** and **rank 17 Raichu** rather than assuming existing archetype aliases generalize. Both are registered exact 60s and represent large inventory differences from the current pilot.
 3. If studying a second printed Iron Thorns list, rank 24 removes all but five printed slot distances from the closest chosen Thorns representation. Rank 29 would leave the worst-case distance at fourteen with rank 6 fixed. Rank 16 is the stronger next printed Garbodor coverage point after ranks 8+11.
 4. A purely printed-card-distance study **cannot** certify variation of decisions, win conditions, opponent skill, card-effect fidelity, paper Expanded legality or Japanese registration. Two decks only five swaps apart can have materially different matchup lines. Conversely many alternate full-art/reprint IDs may be mechanically equivalent. Preserve name and printing views; test observed decision lines independently.
 5. The three unrecovered exact ranks remain outside all distance calculations. Do not add inferred Regidrago/Raichu lists or pool match results through the nearest observed archetype.
 6. This is a **descriptive design calculation**, with no stochastic seed, game clock or match result. The source SHA and code allow independent reproduction. The regression suite was executed against the authentic 29-list JSON using the exact committed source/test bodies in a V8 read harness with Node built-in shims; **native Node CI has not been run**, and no GitHub Actions minutes were spent.
 
-**Research decision:** preserve all existing frozen 60-card candidates and tests. The next high-value experimental transition remains a genuine, held-out two-party attack/response comparison across at least two hard archetypes. This analysis specifically identifies which later source 60s broaden that comparison without claiming a deck has become stronger.
+**Research decision:** preserve all existing frozen 60-card candidates and tests. The next high-value experimental transition remains a genuine, held-out two-party attack/response comparison across at least two hard archetypes. An archetype-spanning panel then requires the five currently absent source types before relying on within-archetype nearest-neighbor expansion. This analysis identifies later source 60s that broaden that comparison without claiming a deck has become stronger.
