@@ -14,6 +14,6 @@ The [Japanese Pokémon TCG expansion page](https://www.pokemon-card.com/ex/m4/) 
 
 **Consequences:** Rejecting source cards by English printing date alone would create three false chronology flags. These exact Japanese card effects already existed before Aichi. Continue separate event-ban, card-print identity, and interaction checks. Unmapped English metadata codes remain unresolved rather than illegal.
 
-[Audit library](../../scripts/aichi-event-era-proxy-audit.cjs) and [regression](../../tests/aichi-event-era-proxy-audit.test.cjs) preserve expected rows and prevent careless post-event English bans. The underlying paired JSON files were read computationally and the numbers above reproduced. **Committed Node regression/CI execution is still unverified.**
+[Audit library](../../scripts/aichi-event-era-proxy-audit.cjs) and [regression](../../tests/aichi-event-era-proxy-audit.test.cjs) preserve expected rows and prevent careless post-event English bans. The paired JSON files were read computationally and the numbers above reproduced. The committed Node regression was **verified by successful pinned CI [39248224471](https://github.com/FlareZ123/experiment-01/actions/runs/39248224471)** (job 118045287195, named event-era printing step succeeded).
 
 Full field remains **29/32** sourced, with **zero** competitively qualified games and an unproven 99.5% target.
