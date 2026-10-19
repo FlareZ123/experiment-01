@@ -178,7 +178,7 @@ function audit() {
         c.trainerType !== undefined).length,
       poltergeistScore:score,
       selectedActionClass:chosen?.constructor.name || null,
-      selectedAttack:chosen?.attack || chosen?.attackName || null
+      selectedAttack:chosen?.name || null
     };
   });
   assert.equal(prospective[0].opponentHiddenTrainers, 0);
