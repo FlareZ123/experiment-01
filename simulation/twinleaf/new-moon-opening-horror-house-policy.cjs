@@ -36,10 +36,20 @@ function makeOpeningHorrorHouseTactic() {
     /** @param {object} state @param {object} player */
     useTactic(state,player) {
       const channel=firstAttackHorrorHouseChannel(state,player);
-      if (channel==='native') return new AttackAction(player.id,'Horror House-GX');
-      if (channel==='copied') return new UseAbilityAction(player.id,'Perfection',
-        {player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
-      return undefined;
+      let action;
+      if (channel==='native') {
+        action=new AttackAction(player.id,'Horror House-GX');
+      }else if (channel==='copied') {
+        action=new UseAbilityAction(player.id,'Perfection',
+          {player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+      }else{
+        return undefined;
+      }
+      // Match the pinned AttackTactic's speculative legality boundary.
+      // This catches insufficient Energy, active Ability lock and spent-GX
+      // failures before submitting the selected root action to the live Store.
+      // Only the action's executability matters; no hidden-state score is used.
+      return this.simulateAction(state,action)===undefined?undefined:action;
     }
   };
 }
