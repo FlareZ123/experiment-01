@@ -2,6 +2,12 @@ name: Twinleaf source-ranked speculative Card mutation audit
 
 on:
   workflow_dispatch:
+    inputs:
+      rank6_guzma_probe:
+        description: 'Source-rank6 turn33 defensive Guzma and free-retreat fork, unqualified'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -26,4 +32,17 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Observe original and post-super v2 live Card histories
+        if: ${{ !inputs.rank6_guzma_probe }}
         run: node simulation/twinleaf/agent16-natural-source-mutation-contrast.cjs
+      - name: Execute authentic rank6 held-Guzma defensive gust fork
+        if: ${{ inputs.rank6_guzma_probe }}
+        run: node simulation/twinleaf/rank6-turn33-guzma-response.cjs > rank6-turn33-guzma-response.json
+      - name: Print bounded source and first-response witness
+        if: ${{ inputs.rank6_guzma_probe }}
+        run: node -e "const x=require('./rank6-turn33-guzma-response.json');console.log(JSON.stringify({source:x.source,firstRoot:x.firstAuthenticSourceDivergenceRootOrdinal,stage:x.sourceDecision.stage,events:x.sourceDecision.events,original:x.control,forced:x.forcedGuzmaAndFreeRetreat,qualified:x.qualifiedForCompetitiveInference}));"
+      - uses: actions/upload-artifact@v4
+        if: ${{ inputs.rank6_guzma_probe && always() }}
+        with:
+          name: agent16-rank6-turn33-guzma-source-fork
+          path: rank6-turn33-guzma-response.json
+          retention-days: 14
