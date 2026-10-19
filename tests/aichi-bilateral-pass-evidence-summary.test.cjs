@@ -19,7 +19,8 @@ test('prints evidence under precise uncertainty labels', () => {
         auditError: null, tested: [{name: 'Miraculous Duo-GX', source: 'printed',
           engineAcceptedAnnouncement: true}]}],
       candidatePerfectionPassSamples: [{turn: 3, activationAccepted: true,
-        choicePromptObserved: true, validAttackNames: ['Poltergeist']}]
+        choicePromptObserved: true, pendingPromptType: 'ChooseAttackPrompt',
+        rejection: 'probe-rejection-example', validAttackNames: ['Poltergeist']}]
     },
     {trial: {id: '6:0:A:champion-reference'}, status: 'engine-error',
       error: 'sample error'}
@@ -29,6 +30,8 @@ test('prints evidence under precise uncertainty labels', () => {
   assert.equal(result.rows[0].clonedPrintedAnnouncementAccepted, 1);
   assert.deepEqual(result.rows[0].perfectionSamples[0].availableCopiedAttacks,
     ['Poltergeist']);
+  assert.equal(result.rows[0].perfectionSamples[0].rejection,
+    'probe-rejection-example');
   assert.equal(result.rows[1].error, 'sample error');
   assert.equal(result.rows[1].candidatePasses, null);
   assert.equal(result.qualification.provesPaperLegalAttack, false);
