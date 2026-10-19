@@ -269,7 +269,8 @@ function executeDevelopment(trial,candidates,{
     game.decisionTrace,candidateSeat);
   return {
     trial,qualifiesForCompetitiveInference:false,
-    policyVersion:POLICY_VERSION+(compressorPayload?'+owner-compressor-v1':''),
+    policyVersion:POLICY_VERSION+(lateCompressorPayload?
+      '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')),
     ownerCompressorPayloadOptIn:compressorPayload,
     ownerCompressorLate14OptIn:lateCompressorPayload,
     ...(opportunityAudit?{ownerCompressorOpportunityAudit:ownerCompressorAudit}:{}),
