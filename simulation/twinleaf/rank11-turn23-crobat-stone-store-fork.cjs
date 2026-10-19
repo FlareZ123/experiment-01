@@ -195,7 +195,7 @@ function run() {
   const candidate=pairedCandidateSlots().lockbreak;
   assert.equal(candidate.length,60);
   assert.equal(source.cards.length,60);
-  const args=[candidate,source.cards,1,SEED,350,true,true,false,false];
+  const args=[candidate,source.cards,1,SEED,350,true,true,false,false,true];
   const baseline=runArm(...args);
   const alternative=withCrobatCounterattack(()=>runArm(...args));
   const changed=alternative.result;
@@ -214,6 +214,10 @@ function run() {
     'Source root actions changed before original Marnie choice');
   const attack=changed.attackDeclarationTrace.find(r=>
     r.turnBefore===23&&r.playerSlot===0&&r.attackName==='Venomous Fang');
+  const actualAttackTransition=changed.publicAttackTransitions.find(row=>
+    row.turnBefore===23 && row.triggerPlayerSlot===0 &&
+    row.declarations.some(declaration=>declaration.attackName==='Venomous Fang'));
+  assert.ok(actualAttackTransition,'Real source Venomous Fang public transition was not captured');
   const attacksBefore=baseline.attackDeclarationTrace.filter(r=>
     r.turnBefore===22&&r.playerSlot===1&&r.attackName==='Poltergeist');
   assert.equal(attacksBefore.length,1);
@@ -230,6 +234,7 @@ function run() {
     finalStage:alternative.stage,
     sequenceComplete:alternative.stage===10 && Boolean(attack),
     sourceAttackDeclaration:attack??null,
+    sourceAttackPublicTransition:actualAttackTransition,
     sourceOccupiedPrizesAtAttack:alternative.actions.find(row=>
       row.attack==='Venomous Fang')?.sourceRemainingPrizes??null,
     sourceOccupiedPrizesAfterFork:changed.prizesRemaining[0],
