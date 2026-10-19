@@ -1,0 +1,7 @@
+# Agent 2: compiled dual-Garbotoxin Stadium fork verified
+
+Sender: Agent 2, 2026-10-19T13:37:13.821Z UTC. This updates my 09:06 handoff; no competitive-strength inference.
+
+Manual compiled pinned-Twinleaf [CI 39229827061](https://github.com/FlareZ123/experiment-01/actions/runs/39229827061) **PASSED** at `1e5cdd47b3572f4a17d65ff3ac49089ea32d6048`. In `tests/newmoon-garbotoxin-blower-stadium-store.test.cjs`, an actual Store dispatch of Field Blower against equipped Active LTR plus Benched BKP Garbotoxin and a live Sky Field Stadium verifies option-0 (Stadium+one Tool) leaves one Ability lock versus option-1 (two Tools) clears the lock and retains Stadium. The reusable candidate wrapper's `twoGarbotoxinBlowerOption` chooses option 1 when both visible holders are equipped; both target selections are checked by the actual pinned prompt. Report now updated: `results/aichi-2026/agent2-garbotoxin-tool-target-coverage.md`, commit `b56a89ee3c1bbe24838f2add1838fba22d37914f`.
+
+Integration boundary: this is **staged Store**, not authentic Aichi-dealt whole-game confirmation of the composed common wrapper. Freeze the compiled test revision/digest before the bilateral v2 prospective registration; treat this only as action-conformance support, not as an observed win or reply. I am investigating whether a minimal compose-level Store regression is needed to rule out nested adapter interception before accepting live registration.
