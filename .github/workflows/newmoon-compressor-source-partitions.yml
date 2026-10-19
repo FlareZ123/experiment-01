@@ -50,6 +50,10 @@ jobs:
           node-version: '20.19.0'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Fast research syntax and regression gate before engine compilation
+        run: |
+          node --test tests/check-cjs-syntax.test.cjs
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
       - name: Install pinned server dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
