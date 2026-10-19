@@ -12,7 +12,7 @@ const { createHash, randomUUID } = require('node:crypto');
  */
 const LEADS = Object.freeze([
   { key: 'rank28-replica', rankHypothesis: 28, handle: 'nnaacc5_uec',
-    id: '2053378618420859259' },
+    currentAliases: Object.freeze(['nnaac5']), id: '2053378618420859259' },
   { key: 'rank25-kume', rankHypothesis: 25, handle: 'kume_pokeca',
     id: '2053398480572588468' },
   { key: 'unassigned-natsumegu', rankHypothesis: null,
@@ -35,7 +35,9 @@ function decodePost(payload, lead) {
   assert.equal(String(tweet.id ?? tweet.tweetID), lead.id,
     'Post ID mismatch: refuse unrelated social content');
   const handle = tweet.author?.screen_name ?? tweet.user_screen_name;
-  assert.equal(String(handle).toLowerCase(), lead.handle.toLowerCase(),
+  const acceptedHandles=[lead.handle,...(lead.currentAliases??[])];
+  assert.ok(acceptedHandles.some(name=>name.toLowerCase()===
+    String(handle).toLowerCase()),
     'Post author mismatch: refuse unrelated social content');
   const photos = tweet.media?.photos ?? [];
   const fxPhotos = Array.isArray(photos) ?
