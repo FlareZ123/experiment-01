@@ -70,6 +70,37 @@ test('completed source with no later candidate root stays explicitly missing',()
     opportunityTurn:2,completed:true
   },0);
   assert.deepEqual(x,{
-    root:null,status:'no-candidate-root-after-source-line',sourceTurn:2
+    root:null,status:'no-candidate-root-on-immediate-next-turn',sourceTurn:2
   });
+});
+
+test('late root after an intervening source turn is not the immediate reply',()=>{
+  const roots=[
+    {playerSlot:1,turnBefore:3,actionOrdinal:30,action:'PassTurnAction'},
+    {playerSlot:0,turnBefore:4,actionOrdinal:40,action:'PlayCardAction'},
+    {playerSlot:1,turnBefore:5,actionOrdinal:50,action:'PlayCardAction'}
+  ];
+  const out=firstPostSourceDecision(roots,11,{
+    opportunityTurn:2,completed:true
+  },1);
+  assert.equal(out.root,null);
+  assert.equal(out.status,'no-candidate-root-on-immediate-next-turn');
+});
+
+test('opponent prompt completion cannot count as an independent candidate reply',()=>{
+  const roots=[
+    {playerSlot:0,turnBefore:3,actionOrdinal:20,
+      action:'ResolvePromptAction'},
+    {playerSlot:0,turnBefore:3,actionOrdinal:21,
+      action:'AttachEnergyAction'}
+  ];
+  const completed=firstPostSourceDecision(roots,6,{
+    turn2:{completed:true}
+  },0);
+  assert.equal(completed.root?.actionOrdinal,21);
+  const onlyPrompt=firstPostSourceDecision(roots.slice(0,1),6,{
+    turn2:{completed:true}
+  },0);
+  assert.equal(onlyPrompt.root,null);
+  assert.equal(onlyPrompt.status,'no-candidate-root-on-immediate-next-turn');
 });
