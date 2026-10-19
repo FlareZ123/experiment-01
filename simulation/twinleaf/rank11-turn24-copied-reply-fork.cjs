@@ -155,6 +155,25 @@ function run() {
     row.actionOrdinal>copied.actionOrdinal &&
     row.playerSlot===0 && row.turnBefore>=25 &&
     row.action!=='ResolvePromptAction');
+  assert.ok(firstSourceReply,'Need an authentic source response following copied turn24');
+  const sourceTurnActions=game.rootActionLedger.filter(row=>
+    row.turnBefore===firstSourceReply.turnBefore && row.playerSlot===0);
+  assert.ok(sourceTurnActions.some(row=>
+    row.action==='PassTurnAction'||row.turnAfter>row.turnBefore),
+    'The source player response must proceed through a complete real turn');
+  const sourceTurnAttackDeclarations=game.attackDeclarationTrace.filter(row=>
+    row.turnBefore===firstSourceReply.turnBefore && row.playerSlot===0);
+  const sourceFirstAction=game.decisionTrace.find(row=>
+    row.actionOrdinal===firstSourceReply.actionOrdinal);
+  const sourceTurnPublicPressure={
+    globalTurn:firstSourceReply.turnBefore,
+    initialAction:firstSourceReply,
+    ownerHandAtInitialAction:sourceFirstAction?.decisionHandBefore?.ownHandPrintings??null,
+    publicBoardAtInitialAction:sourceFirstAction?.publicBoardBeforePass??null,
+    fullSourceTurnActions:sourceTurnActions,
+    sourceAttackDeclarations:sourceTurnAttackDeclarations,
+    sourceAttackDeclared:sourceTurnAttackDeclarations.length>0
+  };
 
   return {
     schema:'rank11-source-candidate-turn24-perfection-poltergeist-fork-v1',
@@ -179,7 +198,8 @@ function run() {
       row.turnBefore===24 && row.playerSlot===1),
     candidateTurn24Changed:game.rootActionLedger.filter(row=>
       row.turnBefore===24 && row.playerSlot===1),
-    sourceNextAction:firstSourceReply??null,
+    sourceNextAction:firstSourceReply,
+    sourceTurnPublicPressure,
     control:{
       winner:control.winner,prizes:control.prizesRemaining,
       actions:control.actions,turns:control.turns,
