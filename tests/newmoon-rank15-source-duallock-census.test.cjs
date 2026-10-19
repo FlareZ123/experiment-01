@@ -7,7 +7,9 @@ const {observeSourceLock}=require(
 /** @param {string|null} name */
 const pokemon=name=>({
   getPokemonCard:()=>name?{fullName:name}:null,
-  cards:name?[{fullName:name}]:[]
+  cards:name?[{fullName:name}]:[],
+  tools:[],
+  energies:{cards:[]}
 });
 /** @param {string} active @param {string[]} bench */
 const player=(active,bench)=>({
@@ -118,5 +120,29 @@ test('detect authentic full Bench with only one stage-chain position',()=>{
   assert.equal(result.first.fullSourceBenchBelowTwoStageLines.occupiedSourceBench,5);
   assert.equal(result.first.twoSourceStageLineSlots,null);
   assert.equal(result.max.sourceStageLineSlots,1);
+  assert.equal(MockStore.prototype.dispatch,original);
+});
+
+test('source root observer separates Bunnelby Active from Tool and Energy readiness',()=>{
+  const original=Object.getOwnPropertyDescriptor(MockStore.prototype,'dispatch').value;
+  const store=new MockStore({players:[player('Oddish UNB',[])]});
+  const state={
+    players:[player('Bunnelby PRC',['Oddish UNB']),
+      player('Mewtwo & Mew-GX UNM',[])],
+    turn:4,activePlayer:0
+  };
+  state.players[0].active.tools=[{fullName:'Technical Machine: Evolution PAR'}];
+  state.players[0].active.energies.cards=[{fullName:'Jet Energy PAL'}];
+  const result=observeSourceLock(MockStore,0,1,()=>{
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(Object.assign(new PlayCardAction(),{nextState:state}));
+    return 'observed';
+  });
+  assert.equal(result.result,'observed');
+  assert.equal(result.first.sourceBunnelbyActive.turn,4);
+  assert.deepEqual(result.first.sourceBunnelbyActiveWithTM.activeToolNames,
+    ['Technical Machine: Evolution PAR']);
+  assert.deepEqual(result.first.sourceBunnelbyActiveWithTMAndEnergy.activeEnergyNames,
+    ['Jet Energy PAL']);
   assert.equal(MockStore.prototype.dispatch,original);
 });
