@@ -100,7 +100,9 @@ function executeArm(trial,prepared,auditOptions={}) {
     ...(auditOptions.captureBilateralReplyPacket === true ?
       {capturePublicAttackTransitions:true} : {}),
     ...(auditOptions.captureFinalCapEvidence === true ?
-      {captureFinalPublicBoard:true} : {})
+      {captureFinalPublicBoard:true} : {}),
+    ...(auditOptions.enforceVisiblePlayLockGuard === true ?
+      {enforceVisiblePlayLockSeat:sourceSeat} : {})
   };
   const play=()=>runMatch(request);
   let sourceAudit;
@@ -209,6 +211,8 @@ function executeArm(trial,prepared,auditOptions={}) {
     candidatePrintingProxy:trial.candidateId==='new-moon-lockbreaker-v1',
     engineDeckHashes:game.deckHashes,
     sourcePolicyAudit:sourceAudit,candidatePolicyAudit:candidateAudit,
+    ...(auditOptions.enforceVisiblePlayLockGuard === true ?
+      {playLockDispatchGuardEvents:game.playLockDispatchGuardEvents} : {}),
     ...(auditOptions.captureBilateralReplyPacket===true ? {sourceReplyPacket} : {}),
     ...(auditOptions.captureFinalCapEvidence===true ? {finalCapEvidence} : {}),
     candidateAttackDeclarations:candidateDecl?.length??null,
