@@ -3,7 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {blowerOpportunity,tooledGarbodor,tooledGarbotoxinSlots,
-    chooseGarbotoxinTargets,MEWTWO,BLOWER,GARBODOR}=
+    chooseGarbotoxinTargets,twoGarbotoxinBlowerOption,MEWTWO,BLOWER,GARBODOR}=
   require('../simulation/twinleaf/newmoon-garbotoxin-blower-autonomy.cjs');
 
 function fixture() {
@@ -158,4 +158,25 @@ test('four supplied and pinned source Garbotoxin printings qualify',()=>{
     assert.equal(blowerOpportunity(state,own,opponent,1,7),true,print);
     assert.equal(tooledGarbodor(opponent),slot,print);
   }
+});
+
+
+test('selects two-Tool mode only for two equipped Garbotoxin sources',()=>{
+  const {slot,opponent}=fixture();
+  const second={getPokemonCard:()=>({fullName:'Garbodor LTR'}),
+    tools:[{name:'Float Stone'}]};
+  opponent.active=second;
+  const prompt={constructor:{name:'SelectOptionPrompt'},values:[
+    'Discard the Stadium card and up to 1 Pokémon Tool card.',
+    'Discard up to 2 Pokémon Tool cards.']};
+  assert.equal(twoGarbotoxinBlowerOption(prompt,opponent),1);
+  second.tools=[];
+  assert.equal(twoGarbotoxinBlowerOption(prompt,opponent),null);
+  second.tools.push({name:'Float Stone'});
+  prompt.values[1]='Unrelated choice';
+  assert.equal(twoGarbotoxinBlowerOption(prompt,opponent),null);
+  prompt.values[1]='Discard up to 2 Pokémon Tool cards.';
+  prompt.constructor.name='ChooseCardsPrompt';
+  assert.equal(twoGarbotoxinBlowerOption(prompt,opponent),null);
+  assert.ok(slot.tools.length>0);
 });
