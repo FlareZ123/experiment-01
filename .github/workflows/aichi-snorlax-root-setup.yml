@@ -29,6 +29,8 @@ jobs:
         run: node --test tests/snorlax-solo-opening-policy.test.cjs tests/snorlax-solo-optional-bench.test.cjs
       - name: Observe authentic root Store setup selections
         run: node simulation/twinleaf/snorlax-root-setup-probe.cjs | tee aichi-snorlax-root-setup.json
+      - name: Test historical second setup prompt with optional empty Bench
+        run: node simulation/twinleaf/snorlax-optional-bench-source-witness.cjs
       - name: Archive actual setup selection roots
         if: always()
         uses: actions/upload-artifact@v4
