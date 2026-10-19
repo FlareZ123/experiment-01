@@ -70,7 +70,7 @@ function assertManifest(plan=registration) {
  * Every result is unqualified for tournament win-rate inference.
  * @param {object} trial
  * @param {Map<string,object>} prepared
- * @param {{captureRejectedActionEvidence?:boolean,enforceVisiblePlayLockGuard?:boolean,visiblePlayLockSupporterResponse?:boolean}} [auditOptions]
+ * @param {{captureRejectedActionEvidence?:boolean,enforceVisiblePlayLockGuard?:boolean,visiblePlayLockSupporterResponse?:boolean,sourceOpeningPublicLocks?:boolean}} [auditOptions]
  * @returns {object}
  */
 function executeArm(trial,prepared,auditOptions={}) {
@@ -122,10 +122,14 @@ function executeArm(trial,prepared,auditOptions={}) {
     candidateAudit=source.result.policyAudit;
   }else{
     const allowedDiscards=discardOrder.slice(0,-5);
+    const sourceOpeningOptions=auditOptions.sourceOpeningPublicLocks===true ?
+      {playLockAwareOpening:true} : {};
     const sourceTurnTwo=withBroadThornsSourceAttack(()=>
       withBroadThornsSourceAttack(play,{
-        seat:sourceSeat,turn:3,discardPriority:allowedDiscards
-      }),{seat:sourceSeat,turn:2,discardPriority:allowedDiscards});
+        seat:sourceSeat,turn:3,discardPriority:allowedDiscards,
+        ...sourceOpeningOptions
+      }),{seat:sourceSeat,turn:2,discardPriority:allowedDiscards,
+        ...sourceOpeningOptions});
     const turnTwo=sourceTurnTwo;
     const turnThree=turnTwo.result;
     game=turnThree.result;
