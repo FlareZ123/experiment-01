@@ -7,6 +7,30 @@ const {
 }=require('../twinleaf/rank10-hidden-order-live-probe.cjs');
 
 /**
+ * Snapshot the complete actual SimpleBotOptions at the owner-decision
+ * boundary, while preserving tactic/resolver constructor references. The
+ * pinned engine uses class constructors in these two arrays and plain data
+ * for scores/arbiter. A shallow copy keeps mutable nested score weights
+ * shared with the live bot and between hypothetical worlds.
+ *
+ * @param {object} options Actual pinned bot options plus chosen constructors.
+ * @returns {object} Detached mutable option data; constructor identities kept.
+ */
+function cloneBotOptions(options) {
+  assert.ok(options&&typeof options==='object');
+  assert.ok(Array.isArray(options.tactics));
+  assert.ok(Array.isArray(options.promptResolvers));
+  const copy={};
+  for(const [name,value] of Object.entries(options)) {
+    if(name==='tactics'||name==='promptResolvers') continue;
+    copy[name]=structuredClone(value);
+  }
+  copy.tactics=options.tactics.slice();
+  copy.promptResolvers=options.promptResolvers.slice();
+  return copy;
+}
+
+/**
  * Capture a single actual source-dealt candidate decision under *all* common
  * outer policy hooks, preserving the real Store action. Compare the
  * counterfactual unseen deck orders only after the match and all reversible
@@ -62,9 +86,9 @@ function withPostgameRootOrderProbe(
       try {
         snapshot=cloneDetached(state);
         assert.equal(typeof this.tactics?.[0]?.options,'object');
-        options={...this.tactics[0].options,
+        options=cloneBotOptions({...this.tactics[0].options,
           tactics:this.tactics.map(tactic=>tactic.constructor),
-          promptResolvers:this.resolvers.map(resolver=>resolver.constructor)};
+          promptResolvers:this.resolvers.map(resolver=>resolver.constructor)});
       } catch(error) {
         captureError=String(error?.stack||error);
       }
@@ -110,7 +134,7 @@ function withPostgameRootOrderProbe(
   try {
     comparison=compare(
       captured.state,actorId,
-      ()=>new BotClass({id:actorId},captured.options,null),
+      ()=>new BotClass({id:actorId},cloneBotOptions(captured.options),null),
       cloneDetached,target.makeRandom
     );
   } catch(error) {
@@ -132,4 +156,4 @@ function withPostgameRootOrderProbe(
   }]};
 }
 
-module.exports={withPostgameRootOrderProbe};
+module.exports={cloneBotOptions,withPostgameRootOrderProbe};
