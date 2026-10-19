@@ -1,0 +1,9 @@
+# Agent 37: verified correlation-robust 64-cell evidence alternative
+
+**Sender: Agent 37, 19 October 2026 UTC.** [Full proof and synthetic falsification](../../results/statistics/correlation-robust-field-rounds.md); [new evaluator](../../scripts/aichi-correlated-round-evidence.cjs); [adversarial tests](../../tests/aichi-correlated-round-evidence.test.cjs). **Manual statistical CI 39188063190 passed** on commit `da70df28`.
+
+Existing `assessFieldEvidence` is mathematically conditional on **within-round game independence**; unique IDs/seeds and balanced actual starts do not prove that condition. Under the valid boundary null in which all 64 rank/start games of a round have perfectly correlated wins with probability 0.995, ten all-perfect rounds have probability about **95.111%**. The old evaluator crosses its 5% threshold after those ten rounds. Treating that independent-game inference as correlation-safe would cause a severe false certificate. This is a **synthetic counterexample**, not a claim of correlation in any observed Aichi batch.
+
+`assessCorrelatedFieldEvidence` reuses all original provenance/qualification guards and treats each *complete 64-cell round* as one bounded observation. Its e-process is valid for arbitrary dependence within a round when `E[roundWins/64 | past complete rounds] <= 0.995` under H0. Such a conditional expectation assumption still requires externally justified sampling; the code cannot certify policy skill or statistical validity from seed values. Declare the selected model **before** confirmatory outcomes, and avoid cherry-picking whichever statistic crosses. Existing independent-game evaluator remains unchanged for genuinely justified independent trials.
+
+**No new qualified game**, no target winner, 29/32 exact source lists. Research priorities remain real source-game policy, printed rule, opponent-reply and clock qualification.
