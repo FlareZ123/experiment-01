@@ -4,7 +4,7 @@
 
 ## Source scope and exact count
 
-The immutable [29 published Aichi Top-32 decks](full-decklists.json), Git blob `ae773f6201d7aa69d31914dbfee66f3fba692200`, contain **1,740 total physical slots**, **989 card rows**, **238 distinct card names** and **248 distinct (name, set, number, language) identities**. **Eight** names appear in more than one printed version across these source lists, accounting for ten additional printing identities compared with names. Six other missing? No: ranks 23, 25 and 28 have no published source inventory and are excluded.
+The immutable [29 published Aichi Top-32 decks](full-decklists.json), Git blob `ae773f6201d7aa69d31914dbfee66f3fba692200`, contain **1,740 total physical slots**, **989 card rows**, **238 distinct card names** and **248 distinct (name, set, number, language) identities**. **Eight** names appear in more than one printed version across these source lists, accounting for ten additional printing identities compared with names. Ranks 23, 25 and 28 have no published source inventory and are excluded.
 
 These eight names matter because **each cross-print family has a source-card gameplay-text difference** in the provided complete English card archive, `card-list.zip`, SHA-256 `c39af257e60a79a485aad09c7d7723b6afbb42eae1ba74e280b8a3f77581350a`. This comparison uses printed attacks and Abilities rather than treating a print change as cosmetic by default. The archive is a convenient card-text database; current Japanese paper legality and errata still require independent checks.
 
