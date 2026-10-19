@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {developmentTrials}=require(
+const {developmentTrials,firstPostSourceDecision}=require(
   '../simulation/evaluation/agent41-bilateral-v2-development.cjs');
 
 test('only historical source streams enter the policy development packet',()=>{
@@ -27,4 +27,49 @@ test('no seed or candidate appears outside the immutable v1 manifest',()=>{
   for(const row of developmentTrials()) {
     assert.equal(row.seed,idToSeed.get(row.id));
   }
+});
+
+test('rank11 null opportunity never becomes a fictitious first candidate reply',()=>{
+  const roots=[
+    {playerSlot:1,turnBefore:1,actionOrdinal:20,action:'PassTurnAction'},
+    {playerSlot:1,turnBefore:3,actionOrdinal:43,action:'PlayCardAction'}
+  ];
+  const noLine=firstPostSourceDecision(roots,11,
+    {opportunityTurn:null,completed:false},1);
+  assert.deepEqual(noLine,{
+    root:null,status:'no-completed-source-line',sourceTurn:null
+  });
+  const aborted=firstPostSourceDecision(roots,11,
+    {opportunityTurn:2,completed:false},1);
+  assert.equal(aborted.root,null);
+  const completed=firstPostSourceDecision(roots,11,
+    {opportunityTurn:2,completed:true},1);
+  assert.equal(completed.root?.actionOrdinal,43);
+  assert.equal(completed.status,'candidate-root-after-source-line');
+});
+
+test('rank6 completed source-turn gate skips abort-only source actions',()=>{
+  const roots=[
+    {playerSlot:0,turnBefore:3,actionOrdinal:50},
+    {playerSlot:0,turnBefore:4,actionOrdinal:68}
+  ];
+  assert.equal(firstPostSourceDecision(roots,6,{
+    turn2:{started:true,completed:false},
+    turn3:{started:true,completed:false}
+  },0).root,null);
+  const completed=firstPostSourceDecision(roots,6,{
+    turn2:{started:false,completed:false},
+    turn3:{started:true,completed:true}
+  },0);
+  assert.equal(completed.root?.actionOrdinal,68);
+  assert.equal(completed.sourceTurn,3);
+});
+
+test('completed source with no later candidate root stays explicitly missing',()=>{
+  const x=firstPostSourceDecision([],11,{
+    opportunityTurn:2,completed:true
+  },0);
+  assert.deepEqual(x,{
+    root:null,status:'no-candidate-root-after-source-line',sourceTurn:2
+  });
 });
