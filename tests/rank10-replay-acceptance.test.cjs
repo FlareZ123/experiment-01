@@ -2,6 +2,7 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 const {requireCompleteRank10Replay} = require('../simulation/twinleaf/rank10-replay-acceptance.cjs');
+const {CORE_FIELDS} = require('../simulation/twinleaf/rank10-result-projection.cjs');
 
 /** @returns {object} */
 function validReport() {
@@ -11,10 +12,16 @@ function validReport() {
     sourceReplayMechanicsVerified:false,
     findings:[
       {arm:'control',status:'complete-reconstructed-live-input-trace',
-        verifiedDispatches:350,sourceActions:350,matchSummaryIdentical:true,
+        verifiedDispatches:350,sourceActions:350,matchSummaryIdentical:false,
+        matchOutcomeProjectionIdentical:true,
+        historicalMatchProjection:{schema:'rank10-historical-match-outcome-projection-v1',
+          matched:true,fields:CORE_FIELDS,entireRunMatchObjectEqual:false},
         graphVerifiedDispatches:350,storeDataGraphContract:'live-store-own-data-stats-clock-normalized-v2'},
       {arm:'alternate',status:'complete-reconstructed-live-input-trace',
-        verifiedDispatches:235,sourceActions:235,matchSummaryIdentical:true,
+        verifiedDispatches:235,sourceActions:235,matchSummaryIdentical:false,
+        matchOutcomeProjectionIdentical:true,
+        historicalMatchProjection:{schema:'rank10-historical-match-outcome-projection-v1',
+          matched:true,fields:CORE_FIELDS,entireRunMatchObjectEqual:false},
         graphVerifiedDispatches:235,storeDataGraphContract:'live-store-own-data-stats-clock-normalized-v2'}
     ]
   };
@@ -38,7 +45,10 @@ test('fails on partial actions, changed result, empty replay, or bad provenance 
     r=>{r.findings[0].verifiedDispatches=349;},
     r=>{r.findings[0].graphVerifiedDispatches=349;},
     r=>{delete r.findings[0].storeDataGraphContract;},
-    r=>{r.findings[0].matchSummaryIdentical=false;},
+    r=>{r.findings[0].matchOutcomeProjectionIdentical=false;},
+    r=>{r.findings[0].matchSummaryIdentical=true;},
+    r=>{r.findings[0].historicalMatchProjection.fields=['winner'];},
+    r=>{r.findings[0].historicalMatchProjection.schema='unknown';},
     r=>{r.findings[0].verifiedDispatches=0;r.findings[0].sourceActions=0;},
     r=>{r.findings[1].arm='control';},
     r=>{r.findings.pop();},
