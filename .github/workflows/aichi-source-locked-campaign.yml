@@ -298,6 +298,21 @@ jobs:
       - name: Report policy veto and subsequent Store behavior as unqualified
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent8-player-lock-veto' }}
         run: node -e "const r=require('./agent8-player-play-lock.json');console.log(JSON.stringify({source:r.frozenTrialId,prior:r.originalFailureRoot,originalPlayLocks:r.originalPlayLocks,blocked:r.policyAudit.rejections,considered:r.policyAudit.considered,vetoObserved:r.vetoObserved,originalRejectionPrevented:r.originalRejectionPrevented,guardedError:r.guardedError?.slice(0,450),guarded:r.guardedGame,qualified:r.competitivelyQualifiedGames}))"
+      - name: Assert exactly one historical rank11 New Moon source deal and both-seat Perfection control
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-rank11-mewtwo-pass-owner' }}
+        run: node --test tests/agent17-rank11-mewtwo-pass-owner-context.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/perfection-post-pass-probe.test.cjs tests/aichi-bilateral-pass-evidence-summary.test.cjs
+      - name: Observe owner-hand and public board on unchanged archived rank11 deal
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-rank11-mewtwo-pass-owner' }}
+        run: node simulation/evaluation/agent17-rank11-mewtwo-pass-owner-context.cjs > agent17-rank11-mewtwo-own-hand.json
+      - name: Summarize one-arm candidate resource context without strength inference
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-rank11-mewtwo-pass-owner' }}
+        run: node -e "const d=require('./agent17-rank11-mewtwo-own-hand.json');const r=d.row;console.log('HISTORICAL_ID',r.trial.id,'START',r.actualStarterSeat,'SOURCE_DEAL',r.sourceDealFingerprint,'ROOT_DIGEST',r.rootActionLedgerSha256,'ACTIONS',r.actionCount);for(const p of r.candidatePerfectionPassSamples)console.log('OWNER_PASS',JSON.stringify({turn:p.turn,hand:p.ownerHandBeforePass,rejection:p.rejection,publicCopy:p.publicCopySourceInventory,board:p.publicBoardBeforePass}));console.log('COMPETITIVE_GAMES',d.competitiveQualifiedGames)"
+      - uses: actions/upload-artifact@v4
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-rank11-mewtwo-pass-owner' }}
+        with:
+          name: agent17-rank11-mewtwo-owner-context
+          path: agent17-rank11-mewtwo-own-hand.json
+          retention-days: 10
       - name: Verify source-locked trial adapter and guards
         run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs tests/rank11-autonomous-opener.test.cjs tests/rank11-autonomous-campaign-seat.test.cjs tests/rank11-first-turn-screen.test.cjs tests/rank11-conditional-k0-screen-run.test.cjs tests/rank11-conditional-k0-complete.test.cjs tests/rank11-k0-selected-continuations-run.test.cjs tests/aichi-campaign-attack-observer-screen.test.cjs tests/rank26-autonomous-cologne.test.cjs tests/rank26-exeggcute-pump-policy.test.cjs tests/rank26-propagation-loop.test.cjs tests/rank11-autonomous-supporter-profile.test.cjs
       - name: Verify precommitted rank11 exposure reporter and fail-closed source identity
