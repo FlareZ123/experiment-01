@@ -86,7 +86,9 @@ jobs:
         shell: bash
         env:
           VALIDATED_UPSTREAM_SHA: ${{ needs.validate-upstream.outputs.upstream_sha }}
+          VALIDATED_BASE_SHA: ${{ needs.validate-upstream.outputs.current_sha }}
         run: |
+          test "$(git -C vendor/twinleaf rev-parse HEAD)" = "$VALIDATED_BASE_SHA"
           git -C vendor/twinleaf fetch --depth=1 origin "$VALIDATED_UPSTREAM_SHA"
           git -C vendor/twinleaf checkout --detach "$VALIDATED_UPSTREAM_SHA"
           test "$(git -C vendor/twinleaf rev-parse HEAD)" = "$VALIDATED_UPSTREAM_SHA"
