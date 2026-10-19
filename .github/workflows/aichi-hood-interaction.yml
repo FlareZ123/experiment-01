@@ -74,6 +74,8 @@ jobs:
         run: node --test tests/hood-rank8-stone-policy-contrast.test.cjs
       - name: Check restricted spent-Supporter Stone source chronology
         run: node --test tests/spent-supporter-search-policy.test.cjs tests/rank8-spent-supporter-stone-source.test.cjs
+      - name: Validate authentic pinned rescoring of a spent-turn Star Alchemy search
+        run: node --test tests/spent-supporter-search-pinned.test.cjs
       - name: Replay original rank8 Stone search with optional spent-Supporter correction
         if: inputs.hood_rank8_spent_supporter_replay
         run: node simulation/twinleaf/rank8-spent-supporter-stone-source.cjs
