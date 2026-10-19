@@ -55,10 +55,21 @@ function withPlayerPlayLockVeto(seat, execute) {
     specialEnergy: EnergyType.SPECIAL
   };
   const rejections = [];
+  const considered = [];
   const adapted = function pinnedPlayLockOwnerVeto(state, action) {
     const actorIndex = state.players.findIndex(p=>p.id===this.client?.id);
     if (actorIndex>=0 && (seat===null || seat===actorIndex)) {
       const player=state.players[actorIndex];
+      if (considered.length<160 && state.turn<=4) {
+        const card=player.hand.cards[action?.handIndex];
+        considered.push({turn:state.turn,seat:actorIndex,
+          actionType:action?.type??null,card:card?.fullName??null,
+          superType:card?.superType??null,trainerType:card?.trainerType??null,
+          energyType:card?.energyType??null,
+          stadiumLocked:player.cannotPlayStadiumCards,
+          specialEnergyLocked:player.cannotPlaySpecialEnergyCards,
+          lockTurns:player.playLocksTurnsRemaining});
+      }
       const reason=playerPlayLockVeto(player,action,enums);
       if (reason) {
         rejections.push({turn:state.turn,seat:actorIndex,reason,
@@ -73,7 +84,7 @@ function withPlayerPlayLockVeto(seat, execute) {
   try {
     const result=execute();
     return {result,audit:{version:'owner-visible-player-play-lock-v1',
-      seat,rejections}};
+      seat,rejections,considered}};
   } finally {
     assert.equal(SimpleTacticsAi.prototype.isValidAction,adapted);
     SimpleTacticsAi.prototype.isValidAction = original;
