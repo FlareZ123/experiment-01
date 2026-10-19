@@ -30,7 +30,7 @@ For a cell with true win probability `p_i`, its expected factor is
 g(p_i) = p_i * q/p0 + (1-p_i) * (1-q)/(1-p0).
 ```
 
-For `q > p0`, `g` is positive, affine and increasing, and `g(p0)=1`. For a complete 64-cell block, conditional independence and the arithmetic-geometric mean inequality yield
+For `q > p0`, `g` is nonnegative, affine and increasing, and `g(p0)=1`. For a complete 64-cell block, conditional independence and the arithmetic-geometric mean inequality yield
 
 ```
 E[product_i Z_i | previous blocks]
