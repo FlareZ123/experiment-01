@@ -46,6 +46,11 @@ on:
           - '8'
           - '12'
           - '16'
+      held_seal_coupled_reply:
+        description: 'Five retrospectively selected true source held-Seal opens versus autonomous New Moon counter'
+        required: false
+        type: boolean
+        default: false
       held_seal_probe:
         description: Source-dealt held Forest Seal Stone route, opt-in and unqualified
         required: false
@@ -108,6 +113,12 @@ jobs:
       - name: Print held-Seal source opportunity denominator
         if: inputs.held_seal_probe
         run: node -e "const p=require('./rank11-held-seal-source-probe.json'); console.log(JSON.stringify({trials:p.trialCount,seat:p.sourcePhysicalSeat,sourceFirst:p.sourceFirst,sourceSecond:p.sourceSecond,opportunities:p.opportunities,completed:p.completed,aborted:p.aborted,opportunityRows:p.rows.filter(r=>r.opportunityDetected)},null,2))"
+      - name: Compare five actual held-Seal source openings with New Moon first response
+        if: inputs.held_seal_coupled_reply
+        run: node simulation/twinleaf/rank11-held-seal-newmoon-coupled-reply.cjs > rank11-held-seal-newmoon-coupled-reply.json
+      - name: Print true source and autonomous New Moon response ledger
+        if: inputs.held_seal_coupled_reply
+        run: node -e "const p=require('./rank11-held-seal-newmoon-coupled-reply.json'); console.log(JSON.stringify({scope:p.selection,rows:p.rows.map(r=>({trial:r.trial,seed:r.seed,sourceOpening:r.sourceOpening,selectedBlowers:r.responder.selectedBlowers,confirmedRemovals:r.responder.confirmedToolRemovals,firstReply:r.withCandidateResponse.candidateFirstTurnActions,pairedOriginalRootEqual:r.identicalSourceFirstTurnRootLedger}))},null,2))"
       - name: Compare archived genuine rank11 direct locks with fixed candidate attack windows
         if: inputs.attack_window_probe
         run: node simulation/twinleaf/rank11-direct-candidate-attack-window.cjs > rank11-direct-candidate-attack-window.json
@@ -151,6 +162,7 @@ jobs:
           path: |
             rank11-direct-source-probe.json
             rank11-held-seal-source-probe.json
+            rank11-held-seal-newmoon-coupled-reply.json
             rank11-direct-candidate-attack-window.json
             rank11-newmoon-first-vip-counterfactual.json
             rank11-newmoon-farewell-vip-source-pair.json
