@@ -3,6 +3,11 @@ name: Aichi Temple and Wobbuffet board interactions
 on:
   workflow_dispatch:
     inputs:
+      agent34_rank11_autonomous_carmine:
+        description: 'Bounded own-information Carmine response policy versus frozen New Moon, archived and registered seeds'
+        required: false
+        type: boolean
+        default: false
       rank11_terminal_carmine_counterfactual:
         description: 'One retrospective actual owner-hand Carmine action instead of source rank11 turn35 Pass'
         required: false
@@ -121,6 +126,25 @@ jobs:
         with:
           name: rank19-source-adp-opening
           path: rank19-source-adp-opening.json
+          if-no-files-found: warn
+      - name: Source rank11 autonomous Carmine counterpolicy, fixed-deal pair
+        if: inputs.agent34_rank11_autonomous_carmine
+        run: node simulation/twinleaf/rank11-autonomous-carmine-source-pair.cjs > rank11-autonomous-carmine-source-pair.json
+      - name: Surface prospective and retrospective source policy exposure separately
+        if: inputs.agent34_rank11_autonomous_carmine
+        run: >-
+          node -e "const r=require('./rank11-autonomous-carmine-source-pair.json');
+          for(const row of r.rows)console.log(JSON.stringify({seed:row.seed,
+          kind:row.kind,firstTurnSlot:row.firstTurnSlot,
+          decisions:row.policyDecisions,
+          control:row.control,contrast:row.contrast,
+          qualified:false}));"
+      - name: Archive exact rank11 autonomous Carmine source decision pair
+        if: inputs.agent34_rank11_autonomous_carmine && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent34-rank11-autonomous-carmine-source
+          path: rank11-autonomous-carmine-source-pair.json
           if-no-files-found: warn
       - name: Test source rank11 turn35 own-hand Carmine action counterfactual
         if: inputs.rank11_terminal_carmine_counterfactual
