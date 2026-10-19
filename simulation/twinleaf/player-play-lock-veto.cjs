@@ -13,14 +13,25 @@ const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  *
  * @param {object} player Live owner player state.
  * @param {object} proposedAction Proposed root action.
- * @param {{superTrainer:number,superEnergy:number,item?:number,supporter?:number,stadium:number,tool?:number,specialEnergy:number}} enums
- * @returns {'item-lock'|'supporter-lock'|'stadium-lock'|'tool-lock'|'energy-lock'|'special-energy-lock'|null}
+ * @param {{superPokemon?:number,superTrainer:number,superEnergy:number,item?:number,supporter?:number,stadium:number,tool?:number,specialEnergy:number,abilityPowerType?:number,evolvedStages?:number[]}} enums
+ * @returns {'pokemon-lock'|'ability-pokemon-lock'|'evolution-lock'|'item-lock'|'supporter-lock'|'stadium-lock'|'tool-lock'|'energy-lock'|'special-energy-lock'|null}
  */
 function playerPlayLockVeto(player, proposedAction, enums) {
   if (proposedAction?.type !== 'PLAY_CARD_ACTION' ||
       proposedAction.id !== player.id) return null;
   const card = player.hand.cards[proposedAction.handIndex];
   if (!card) return null;
+  if (enums.superPokemon !== undefined &&
+      card.superType === enums.superPokemon) {
+    if (player.cannotPlayPokemonCards) return 'pokemon-lock';
+    if (enums.abilityPowerType !== undefined &&
+        player.cannotPlayPokemonWithAbilities &&
+        card.powers?.some(power=>power.powerType===enums.abilityPowerType))
+      return 'ability-pokemon-lock';
+    if (Array.isArray(enums.evolvedStages) &&
+        player.cannotEvolvePokemonCards &&
+        enums.evolvedStages.includes(card.stage)) return 'evolution-lock';
+  }
   if (card.superType === enums.superTrainer) {
     if (card.trainerType === enums.stadium &&
         player.cannotPlayStadiumCards) return 'stadium-lock';
