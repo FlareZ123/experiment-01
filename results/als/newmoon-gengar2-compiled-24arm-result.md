@@ -27,3 +27,13 @@ Of the three two-Gengar candidate engine terminals, **two contain no candidate `
 ## Narrow opening design sensitivity
 
 The existing [rank-11 first-eight census](../statistics/rank11-rare-v1-exposure-budget.md) assigns the v1 necessary resource event **2.23068%** in a valid source-first opening. This pilot supplied four rank-11 source-first seed cells, giving an illustrative independent-seed chance `(1 - 0.0223067981)^4 = 91.3714%` of seeing **no such necessary resource event**. Combining that with rank 6's one source-second necessary-event probability 9.63265% yields an illustrative **82.5699%** probability of neither narrow rank-6 nor narrow rank-11 necessary event. These are optimistic static resource-event calculations, not measured policy execution rates, and independence across game startups is an assumption. Rank 26 has no comparable event probability included. This is an **experiment sensitivity diagnosis**, not game strength evidence.
+
+## Decision table (all cells retained)
+
+| Source opponent | True source-first/source-second distinct deals | Engine terminals, both inventory arms | 150-root caps | Real specialized source openings | Proposed inventory decision |
+| --- | ---: | --- | ---: | ---: | --- |
+| Rank 6 Iron Thorns | 3 / 1 | Two source wins | 6 | 0/8 arms | Hold, null pressure and one true source-second deal |
+| Rank 11 Absol/Garbodor | 4 / 0 | Two structural candidate wins | 6 | 0/8 arms | Hold, no source-second and no authentic equipped lock |
+| Rank 26 Meloetta | 0 / 4 | One structural candidate win | 7 | 0/8 arms | Hold, no source-first and no genuine crisis-punch opener |
+
+All three decisions are **inconclusive**. The tables distinguish actual-start coverage, engine terminal and pressure exposure from competitive conclusions.
