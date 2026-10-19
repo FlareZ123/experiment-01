@@ -45,6 +45,8 @@ function turn23Frontier(state) {
   };
   const physicalCount=Object.values(patched).reduce((a,b)=>a+b,0);
   assert.equal(physicalCount,3,'Source three Dark Patch cards not conserved');
+  // Prize zone slots persist after cards are taken: only occupied slots remain.
+  const prizeCardsRemaining=owner.prizes.filter(prize=>prize.length>0).length;
   const candidateActive=target.active;
   const targetCard=state.players[1].active.getPokemonCard();
   const candidatePrintedHp=targetCard?.hp??null;
@@ -70,7 +72,7 @@ function turn23Frontier(state) {
     sourceVSTARUsed:owner.usedVSTAR,
     ownerDarkPatchZoneCount:patched,
     ownerDarknessDiscardCount:basicDarkness(owner.discard),
-    ownerRemainingPrizes:owner.prizes.length,
+    ownerRemainingPrizes:prizeCardsRemaining,
     sourceActive:owner.active,
     sourceCrobat:crobat,
     sourceLatias:latias,
@@ -78,9 +80,9 @@ function turn23Frontier(state) {
     sourceStadium:owner.stadium,
     candidateActive,
     candidatePrintedHp,
-    sourcePrizeCountBeforeHypotheticalKO:owner.prizes.length,
+    sourcePrizeCountBeforeHypotheticalKO:prizeCardsRemaining,
     sourcePrizeCountAfterHypotheticalThreePrizeKO:
-      Math.max(0,owner.prizes.length-3),
+      Math.max(0,prizeCardsRemaining-3),
     prerequisites,
     allAttackResourcePrerequisitesSeen:
       Object.values(prerequisites).every(Boolean),
