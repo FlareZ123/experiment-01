@@ -30,6 +30,10 @@ test('identical optional payload search is seat scoped and default inert',()=>{
   assert.deepEqual(commonPayloadOption(1,true),{
     newMoonAttackPayloadCompressorSeat:1
   });
+  assert.deepEqual(commonPayloadOption(1,true,true),{
+    newMoonAttackPayloadCompressorLateSeat:1
+  });
+  assert.deepEqual(commonPayloadOption(0,false,true),{});
   assert.throws(()=>commonPayloadOption(2,true),{name:'AssertionError'});
 });
 
