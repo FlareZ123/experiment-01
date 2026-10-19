@@ -35,7 +35,7 @@ def source_categories():
     return basic, core, disposable, other
 
 
-def exact():
+def exact(allow_same_name_duplicates=False):
     """Enumerate unordered first-eight compositions with opener-position correction.
 
     The first normal draw can be taken after setting six random Prizes without
@@ -45,7 +45,8 @@ def exact():
     valid7 = Fraction(comb(60, 7) - comb(60 - basic, 7), comb(60, 7))
     favorable_and_valid7 = Fraction(0)
     for picks in product(*(range(n + 1) for n in disposables)):
-        if sum(n > 0 for n in picks) < 3:
+        if ((sum(picks) if allow_same_name_duplicates
+             else sum(n > 0 for n in picks)) < 3):
             continue
         d = sum(picks)
         multiplicity = 1
@@ -72,6 +73,8 @@ def exact():
 
 
 if __name__ == "__main__":
-    for name, value in exact().items():
-        print(f"{name}: {value} = {float(value):.12%}")
+    for mode in (False, True):
+        print("allow_same_name_duplicates:", mode)
+        for name, value in exact(mode).items():
+            print(f"{name}: {value} = {float(value):.12%}")
     print("Interpretation: a narrow initial eight-card hand predicate only.")
