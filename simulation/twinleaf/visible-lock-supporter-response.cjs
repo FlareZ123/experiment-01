@@ -6,11 +6,11 @@
  * Stadium or Special Energy proposal.
  *
  * @param {object} player Actor's own live Player state
- * @param {number} turn Real Store turn
+ * @param {number} turn Real Store turn (not the Supporter counter)
  * @returns {number} Legal-looking own-hand index, or -1 to decline
  */
 function heldLillieResponseIndex(player,turn) {
-  if (player.supporterTurn === turn ||
+  if (player.supporterTurn > 0 ||
       player.cannotPlaySupporterCards === true) return -1;
   return player.hand.cards.findIndex(card =>
     card.name === "Lillie's Determination");
