@@ -10,7 +10,7 @@ const ROOT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output')
 const engine = name => require(path.join(ROOT,name));
 const SEED = 1111464409;
 const DARK_PATCH = 'Dark Patch ASR';
-const DARKNESS = 'Darkness Energy MEE';
+const DARKNESS_PREFIX = 'Darkness Energy ';
 
 /** @param {string[]} names @param {string} printing @returns {number} */
 function count(names,printing) {
@@ -35,6 +35,7 @@ function turn23Frontier(state) {
     name==='Garbodor BKP'));
   assert.ok(crobat && latias && garbodor,
     'Source turn23 Crobat/Latias/Garbodor board drifted');
+  const basicDarkness=names=>names.filter(name=>name.startsWith(DARKNESS_PREFIX)).length;
   const patched={
     deck:count(owner.deck,DARK_PATCH),
     hand:count(owner.hand,DARK_PATCH),
@@ -48,10 +49,10 @@ function turn23Frontier(state) {
   const prerequisites={
     vstarAvailable:owner.usedVSTAR===false,
     darkPatchSearchable:patched.deck>0,
-    darknessInDiscard:count(owner.discard,DARKNESS)>0,
+    darknessInDiscard:basicDarkness(owner.discard)>0,
     sealOnLatias:latias.tools.includes('Forest Seal Stone SIT'),
     crobatEmptyTool:crobat.tools.length===0,
-    crobatHasOneDarkness:count(crobat.energies,DARKNESS)===1,
+    crobatHasOneDarkness:basicDarkness(crobat.energies)===1,
     shoppingCenterInPlay:owner.stadium.includes('Shopping Center EVS'),
     garbotoxinUntooled:garbodor.tools.length===0,
     targetReachableBy70:target.active.cards.includes('Mewtwo & Mew-GX UNM') &&
@@ -65,7 +66,7 @@ function turn23Frontier(state) {
     opaqueFullZoneDigest:zoneSnapshotDigest(snapshot),
     sourceVSTARUsed:owner.usedVSTAR,
     ownerDarkPatchZoneCount:patched,
-    ownerDarknessDiscardCount:count(owner.discard,DARKNESS),
+    ownerDarknessDiscardCount:basicDarkness(owner.discard),
     ownerRemainingPrizes:owner.prizes.length,
     sourceActive:owner.active,
     sourceCrobat:crobat,
