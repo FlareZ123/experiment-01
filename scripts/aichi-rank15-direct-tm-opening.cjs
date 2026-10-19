@@ -62,6 +62,58 @@ function calculateDirectTmOpportunity() {
   };
 }
 
+/**
+ * Same physical event, allowing at most one Buddy-Buddy Poffin played from
+ * the first eight cards to search missing 50-HP Oddish. If both Oddish
+ * were already seen, Poffin is optional.
+ */
+function calculatePoffinAssistedTmOpportunity() {
+  let favorable = 0n;
+  for (let b = 1; b <= 2; b++) {
+    for (let oddish = 0; oddish <= 2; oddish++) {
+      for (let tm = 1; tm <= 2; tm++) {
+        for (let energy = 1; energy <= 7; energy++) {
+          for (let poffin = 0; poffin <= 3; poffin++) {
+            for (let aor = 0; aor <= 1; aor++) {
+              const other = 8 - b - oddish - tm - energy - poffin - aor;
+              if (other < 0 || other > 39 || (oddish < 2 && !poffin)) continue;
+              const seenWays = choose(2, b) * choose(2, oddish) *
+                choose(2, tm) * choose(7, energy) *
+                choose(3, poffin) * choose(2, aor) * choose(39, other);
+              // Unseen Oddish, both Gloom and BUS must avoid Prizes; an
+              // AOR must remain in the deck to complete both searches.
+              const prizeWays = aor === 0 ?
+                choose(47 + oddish, 6) - choose(45 + oddish, 4) :
+                choose(46 + oddish, 6);
+              favorable += seenWays * BigInt(b === 1 ? 7 : 8) * prizeWays;
+            }
+          }
+        }
+      }
+    }
+  }
+  const denominator = 8n * choose(60, 8) * choose(52, 6);
+  const legalSeven = choose(60, 7) - choose(46, 7);
+  const allSeven = choose(60, 7);
+  const conditional = fraction(favorable * allSeven, denominator * legalSeven);
+  assert.deepEqual([conditional.numerator, conditional.denominator],
+    ['1379875346061', '388489887385600']);
+  const direct = calculateDirectTmOpportunity();
+  assert.ok(conditional.probability >
+    direct.conditionalOnBasicValidInitialSeven.probability);
+  return {
+    sourceRank: 15,
+    scenario: 'First-eight physical hand, plus at most one owner-played Buddy-Buddy Poffin to obtain missing Oddish',
+    unconditioned: fraction(favorable, denominator),
+    conditionalOnBasicValidInitialSeven: conditional,
+    relativeToNoSearch: conditional.probability /
+      direct.conditionalOnBasicValidInitialSeven.probability,
+    assumesPoffinUsable: true,
+    excludes: 'Tag Call, Guzma & Hala, Artazon, other draw/search, hand recycling, opponent lock and actual policy',
+    qualifiesCompetitiveResults: false
+  };
+}
+
 /** @param {string} root Repository root */
 function fromSourceManifest(root = path.resolve(__dirname, '..')) {
   const field = JSON.parse(fs.readFileSync(path.join(root,
@@ -80,12 +132,14 @@ function fromSourceManifest(root = path.resolve(__dirname, '..')) {
   ], [2, 2, 2, 1, 2, 2]);
   assert.equal(deck.cards.filter(c => c.category === 'Energy')
     .reduce((sum, c) => sum + c.count, 0), COUNTS.energy);
+  assert.equal(count('Buddy-Buddy Poffin', 'TEF'), 3);
   // The earlier source printing audit separately verifies exactly 14 Basics.
-  return calculateDirectTmOpportunity();
+  return {...calculateDirectTmOpportunity(),
+    poffinAssisted: calculatePoffinAssistedTmOpportunity()};
 }
 
 if (require.main === module) {
   process.stdout.write(JSON.stringify(fromSourceManifest(), null, 2) + '\n');
 }
 
-module.exports = {calculateDirectTmOpportunity, fromSourceManifest};
+module.exports = {calculateDirectTmOpportunity, calculatePoffinAssistedTmOpportunity, fromSourceManifest};
