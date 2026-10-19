@@ -15,7 +15,7 @@ const {withRank26QuickBallIonoCost}=require('./rank26-quick-ball-discard.cjs');
 const {withRank26DowsingHold}=require('./rank26-dowsing-hold.cjs');
 
 const SEED_BASE=20261019;
-const REPEATS=Object.freeze(Array.from({length:24},(_,i)=>i+200));
+const REPEATS=Object.freeze(Array.from({length:24},(_,i)=>i+60));
 const ENGINE='twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const digest=x=>crypto.createHash('sha256').update(JSON.stringify(x)).digest('hex');
 
@@ -133,7 +133,7 @@ function run(){
     schema:'rank26-prospective-original-source-integrated-policy-exposure-v1',
     sourceRank:26,opponentRank:6,original60s:[60,60],
     seedProtocol:'aichi-decorrelated-slots-v3',
-    seedBase:SEED_BASE,repeats:[200,223],
+    seedBase:SEED_BASE,repeats:[60,83],
     printedSourceHash:plan.candidateDigest,
     engine:ENGINE,actionCap:120,
     control:'rank26-propagation-v3 + Mail-starter-v2',
