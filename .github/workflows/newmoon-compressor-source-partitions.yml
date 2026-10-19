@@ -144,18 +144,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 10
       - name: Check disjoint registered partition coverage and owner-hand payload policy
-        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.owner_compressor_opportunity_audit }}
+        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development }}
         run: node --test tests/newmoon-payload-partition-plan.test.cjs tests/new-moon-compressor-payload-policy.test.cjs
       - name: Execute same-deal control and Compressor intervention in one fixed partition
-        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit }}
+        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development }}
         env:
           NEWMOON_PAYLOAD_PARTITION: ${{ inputs.partition }}
         run: node simulation/twinleaf/newmoon-payload-partition-write.cjs
       - name: Compare early Bench-Mewtwo owner-donor preparation on historical repeat1
-        if: ${{ !inputs.common_bilateral_compressor_development && inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit }}
+        if: ${{ !inputs.common_bilateral_compressor_development && inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development }}
         run: node simulation/twinleaf/newmoon-rank11-benched-payload-retrospective.cjs > newmoon-bench-retrospective-repeat1.json
       - name: Archive historical repeat1 bench-donor policy contrast
-        if: ${{ !inputs.common_bilateral_compressor_development && inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && always() }}
+        if: ${{ !inputs.common_bilateral_compressor_development && inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && always() }}
         uses: actions/upload-artifact@v4
         with:
           name: newmoon-bench-retrospective-repeat1
@@ -163,7 +163,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 10
       - name: Preserve all source-deal attempts, including errors and action caps
-        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && always() }}
+        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && always() }}
         uses: actions/upload-artifact@v4
         with:
           name: newmoon-compressor-source-partition-${{ inputs.partition }}
