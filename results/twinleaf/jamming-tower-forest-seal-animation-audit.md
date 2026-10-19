@@ -13,3 +13,7 @@ In physical seats 0 and 1, with Tower absent, Star Alchemy advances to ChooseCar
 The pinned sources are `ptcg-server/src/game/store/effect-reducers/game-effect.ts` for animation sequencing, `ptcg-server/src/sets/09-sword-and-shield/set-silver-tempest/forest-seal-stone.ts` for the Power, and `ptcg-server/src/sets/10-scarlet-and-violet/set-twilight-masquerade/jamming-tower.ts` for Tool-effect suppression.
 
 This validates one preemptive interaction. It does not test completed deck-search choices, setup frequencies, autonomous policies, match clock, or field win rates. An active Jamming Tower prevents Tool-granted Star Alchemy without removing the attached Tool and does not itself disable Garbotoxin. No competitive games qualified.
+
+## Search-to-shuffle extension
+
+Commit `dfba5a22f1ea29e2c55fcabcd6d895bb9d6e7aec` extends the two no-Tower controls to select the real Boost Shake card from the player's deck using `ResolvePromptAction`, assert its movement into the source hand, complete the subsequent `ShuffleDeckPrompt` with a valid full deck-order permutation and assert that no pending prompts remain. The two Tower cases still reject Star Alchemy without spending the VSTAR Power. [Manual CI 39212390885](https://github.com/FlareZ123/experiment-01/actions/runs/39212390885) **passed** the full workflow, including these four action tests. This closes the bounded prompt-resolution sequence for the staged search, while leaving natural gameplay and competitive policy unqualified.
