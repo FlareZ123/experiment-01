@@ -144,7 +144,7 @@ function withTurn33Guzma(work,force) {
       const target=actor.bench.find(slot=>
         slot.getPokemonCard()?.name==='Trevenant & Dusknoir-GX');
       assert.ok(target,'No original Trevenant & Dusknoir on Bench');
-      assert.ok(target.tools.cards.some(c=>c.name==='Float Stone'),
+      assert.ok(target.tools.some(c=>c.name==='Float Stone'),
         'The proposed own pivot lacks its physical Float Stone');
       assert.equal(pending.validate([target],state),true,
         'The original own Bench pivot is not a valid Guzma target');
@@ -157,7 +157,7 @@ function withTurn33Guzma(work,force) {
     if(stage==='retreat') {
       assert.equal(pending,undefined);
       assert.equal(actor.active.getPokemonCard()?.name,'Trevenant & Dusknoir-GX');
-      assert.ok(actor.active.tools.cards.some(c=>c.name==='Float Stone'));
+      assert.ok(actor.active.tools.some(c=>c.name==='Float Stone'));
       const vmaxIndex=actor.bench.findIndex(slot=>
         slot.getPokemonCard()?.name==='Shadow Rider Calyrex VMAX');
       assert.ok(vmaxIndex>=0,
