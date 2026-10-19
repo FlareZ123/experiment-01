@@ -55,10 +55,14 @@ function swaps(a, b) {
  * at the minimum worst uncovered distance are counted.
  * @param {Array<{rank:number,inv:Map<string,number>}>} rows
  * @param {number} k
+ * @param {number[]} requiredRanks Centers already in the comparison cohort
  * @returns {{radius:number,ranks:number[],optimalSets:number}}
  */
-function centers(rows, k) {
-  if (!Number.isInteger(k) || k < 1 || k > rows.length) {
+function centers(rows, k, requiredRanks = []) {
+  if (!Number.isInteger(k) || k < 1 || k > rows.length ||
+      new Set(requiredRanks).size !== requiredRanks.length ||
+      requiredRanks.length > k ||
+      requiredRanks.some(r => !rows.some(row => row.rank === r))) {
     throw new Error('Invalid center count');
   }
   const distances = rows.map(a => rows.map(b => swaps(a.inv, b.inv)));
@@ -67,6 +71,7 @@ function centers(rows, k) {
   let ranks = [];
   function visit(selected, next) {
     if (selected.length === k) {
+      if (!requiredRanks.every(r => selected.some(i => rows[i].rank === r))) return;
       const worst = Math.max(...distances.map(row =>
         Math.min(...selected.map(center => row[center]))));
       if (worst < radius) {
