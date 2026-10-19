@@ -91,6 +91,10 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_rank11_garbotoxin_field_blower_response.py'
       - name: Rank-11 Field Blower and Arven response exact output
         run: python3 scripts/rank11_garbotoxin_field_blower_response.py > rank11-arven-blower-response.txt
+      - name: Rank-8 held Secret Box Boost Shake Float Stone early gate
+        run: python3 -m unittest discover -s tests -p 'test_rank8_hood_core_early_exact.py'
+      - name: Preserve rank-8 core policy first-eight exact source probability
+        run: python3 scripts/rank8_hood_core_early_exact.py > rank8-hood-core-early.txt
       - name: Rank-11 Hood and Blower joint-source response exact tests
         run: python3 -m unittest discover -s tests -p 'test_rank11_hood_persistence_exact.py'
       - name: Rank-11 Hood and Blower response frontier output
@@ -149,6 +153,7 @@ jobs:
             rank11-oranguru-tool-lock-exact.txt
             rank11-arven-blower-response.txt
             rank11-hood-protection-frontier.txt
+            rank8-hood-core-early.txt
             newmoon-secret-box-blower-access.json
             newmoon-secret-box-discard-sensitivity.json
             newmoon-secretbox-payload-energy-window.json
