@@ -20,10 +20,23 @@ const PRESSURE_CELLS=[
 function pressureEvidence(row,sourceSeat){
   if(!row)return 'missing';
   const pressure=row.sourcePressure;
-  if(pressure?.accepted===true &&
-      pressure?.effectVerified===true &&
-      pressure?.traceAuthenticated===true &&
-      pressure?.actorSeat===sourceSeat)return 'verified-effect';
+  // A producer's authentication flags alone do not prove that the claimed
+  // Store event occurs within this game's accepted root-action ledger.
+  // Keep genuine pre-cap effects even when the game subsequently fails.
+  const bounded=Number.isSafeInteger(row.rootActionCount) &&
+    Number.isSafeInteger(pressure?.rootActionOrdinal) &&
+    Number.isSafeInteger(pressure?.completionOrdinal) &&
+    Number.isSafeInteger(pressure?.turnBefore) &&
+    Number.isSafeInteger(pressure?.completionTurnBefore) &&
+    pressure.rootActionOrdinal>=0 &&
+    pressure.rootActionOrdinal<=pressure.completionOrdinal &&
+    pressure.completionOrdinal<row.rootActionCount &&
+    pressure.turnBefore>=1 &&
+    pressure.completionTurnBefore===pressure.turnBefore;
+  if(bounded && pressure.accepted===true &&
+      pressure.effectVerified===true &&
+      pressure.traceAuthenticated===true &&
+      pressure.actorSeat===sourceSeat)return 'verified-effect';
   return row.status==='engine-terminal'?'no-witness-in-terminal':'censored';
 }
 
