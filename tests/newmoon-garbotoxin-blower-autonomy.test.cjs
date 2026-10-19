@@ -101,3 +101,15 @@ test('other Garbodor printings are excluded without printed Garbotoxin proof',()
   assert.equal(blowerOpportunity(state,own,opponent,1,7),false);
   assert.equal(tooledGarbodor(opponent),undefined);
 });
+
+
+test('active Garbotoxin lock is targetable even with an empty opposing Bench',()=>{
+  const {own,slot,opponent,state}=fixture();
+  slot.getPokemonCard=()=>({fullName:'Garbodor LTR'});
+  opponent.active=slot;
+  opponent.bench=[];
+  assert.equal(blowerOpportunity(state,own,opponent,1,7),true);
+  assert.equal(tooledGarbodor(opponent),slot);
+  slot.tools=[];
+  assert.equal(blowerOpportunity(state,own,opponent,1,7),false);
+});
