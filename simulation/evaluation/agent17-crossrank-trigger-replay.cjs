@@ -65,9 +65,21 @@ function run() {
       const observed=executeArm(trial,prepared,{
         captureBilateralReplyPacket:true
       });
+      // Agent25 independently recorded this original source-deal complete
+      // action ledger before this observer existed. Fail if observational
+      // capture changes any root decision, prompt or turn on that replay.
+      const archivedRootSha256=
+        trial.id==='6:0:A:new-moon-lockbreaker-v1' ?
+        '9a9007f302a6e84084eb75c77f0a86db0e037c58384d7ff2076de828ba0ba913' : null;
+      if (archivedRootSha256!==null) {
+        assert.equal(observed.rootActionLedgerSha256,archivedRootSha256,
+          'Observer changed the previously archived 240-root source game');
+      }
       return {
         id:trial.id,seed:trial.seed,sourceRank:trial.rank,
         status:observed.status,actions:observed.actions,turns:observed.turns,
+        rootActionLedgerSha256:observed.rootActionLedgerSha256,
+        archivedRootLedgerMatched:archivedRootSha256===null?null:true,
         sourcePolicyAudit:observed.sourcePolicyAudit,
         sourceActuallyFirst:observed.sourceActuallyFirst,
         verifiedFirstTurn:observed.verifiedFirstTurn,
