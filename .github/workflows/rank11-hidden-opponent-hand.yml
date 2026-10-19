@@ -1,0 +1,31 @@
+name: Rank-11 opponent hidden-hand policy audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  poltergeist-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify observational-equivalence controls and hidden-hand forecast
+        run: node --test tests/rank11-hidden-opponent-hand-poltergeist.test.cjs
+      - name: Print source-inventory-locked score differential
+        run: node simulation/twinleaf/rank11-hidden-opponent-hand-poltergeist.cjs
