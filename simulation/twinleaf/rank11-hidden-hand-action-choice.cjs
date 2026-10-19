@@ -36,7 +36,6 @@ function run() {
     const choice=pair(damage,gxUsed).map(selected);
     rows.push({damage,gxUsed,energyHand:choice[0],trainerHand:choice[1],changed:choice[0]!==choice[1]});
   }
-  const blind=pair(0,false);
   const {installOpponentHiddenPoolAttackSampling}=
     require('./opponent-hidden-pool-attack-sampling.cjs');
   const restore=installOpponentHiddenPoolAttackSampling({
@@ -44,12 +43,30 @@ function run() {
     hiddenPoolKnownVerified:true,opponentHandUnobservedVerified:true,
     opponentDeckOrderUnobservedVerified:true,opponentPrizeIdentityUnobservedVerified:true
   });
-  let sampledChoices;
-  try {sampledChoices=blind.map(selected);} finally {restore();}
+  // This diagnostic compares all 12 observation-equivalent scenarios, not
+  // merely the one successful example. Every opponent-hidden partition and
+  // candidate attack is evaluated under the same deterministic sampled pool.
+  const sampledRows=[];
+  try {
+    for (const damage of [0,40,80,120,160,200]) {
+      for (const gxUsed of [false,true]) {
+        const samples=pair(damage,gxUsed);
+        const choices=samples.map(selected);
+        sampledRows.push({
+          damage,gxUsed,energyHand:choices[0],trainerHand:choices[1],
+          changed:choices[0]!==choices[1]
+        });
+      }
+    }
+  } finally {
+    restore();
+  }
+  const sampledChoices=[sampledRows[0].energyHand,sampledRows[0].trainerHand];
   assert.equal(sampledChoices[0],sampledChoices[1],
-    'Blinded decision must depend only on observations plus the known source 60');
-  return {schema:'rank11-observation-equivalent-attack-choice-v1',sourceRank:11,sourceCards:60,pairs:rows.length,reversals:rows.filter(x=>x.changed).length,
-    sampledChoices,rows,certifiedGames:0};
+    'Blinded zero-damage action must not depend on unseen partition');
+  return {schema:'rank11-observation-equivalent-attack-choice-v2',sourceRank:11,sourceCards:60,pairs:rows.length,reversals:rows.filter(x=>x.changed).length,
+    sampledChoices,sampledReversals:sampledRows.filter(x=>x.changed).length,
+    sampledRows,rows,certifiedGames:0};
 }
 if(require.main===module) process.stdout.write(JSON.stringify(run(),null,2)+'\n');
 module.exports={run};
