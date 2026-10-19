@@ -108,4 +108,12 @@ jobs:
             A separate **read-only-token** job fetched this exact upstream commit, installed and compiled the server, ran selected research-side adapter and real Store tests, and executed the bounded headless smoke game. A failure blocks publication of the proposal. The publishing job executes no upstream build code with a write token.
 
             Review the upstream diff, unsupported Expanded printings, simulation fidelity and adapter compatibility before merging. This is an **unmerged proposed pin**, never a silent revision change. Do not compare results from different engine revisions without recording both.
+          draft: true
           delete-branch: true
+      - name: Verify published review branch after restricted PR operation
+        if: steps.proposal.outcome == 'failure'
+        shell: bash
+        run: |
+          git ls-remote --exit-code --heads origin refs/heads/automation/twinleaf-reviewed-upstream
+          echo '::warning::Automatic PR creation is disabled; tested review branch exists.'
+          echo 'Manually open https://github.com/${{ github.repository }}/pull/new/automation/twinleaf-reviewed-upstream' >> "$GITHUB_STEP_SUMMARY"
