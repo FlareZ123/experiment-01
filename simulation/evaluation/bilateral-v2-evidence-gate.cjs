@@ -198,14 +198,15 @@ function auditBilateralV2(plan,archive) {
     const completionTurn=row.sourcePressure?.completionTurnBefore;
     const candidateTurn=row.candidateReply?.turnBefore;
     const nextSourceTurn=row.sourceContinuation?.turnBefore;
-    const sourceStartsOdd=actualSeat===sourceSeat;
+    // Printed extra-turn attacks such as Timeless-GX can change which
+    // physical player owns odd/even global turns. Observed root actor seats
+    // above, rather than inferred parity, establish the actual participants.
     const immediateTurnLineage=validStart&&
       [pressureTurn,completionTurn,candidateTurn,nextSourceTurn]
         .every(n=>Number.isSafeInteger(n)&&n>=1) &&
       completionTurn===pressureTurn &&
       candidateTurn===pressureTurn+1 &&
-      nextSourceTurn===pressureTurn+2 &&
-      (pressureTurn%2===1)===sourceStartsOdd;
+      nextSourceTurn===pressureTurn+2;
     const bilateralWitness=validStart&&sourcePressure&&firstCandidateReply&&
       sourceContinuation&&chronological&&immediateTurnLineage&&
       row.status!=='engine-error';
