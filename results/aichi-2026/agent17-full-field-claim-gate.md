@@ -26,5 +26,6 @@ The new wrapper is intentionally separate from the 29-source exploratory pilot. 
 - Source: [claim gate](../../scripts/aichi-full-field-claim-gate.cjs), [targeted tests](../../tests/aichi-full-field-claim-gate.test.cjs), [canonical rank digests](../../scripts/aichi-source-fingerprint-map.cjs).
 - Integrated into the existing inexpensive **manual-only** `.github/workflows/aichi-benchmark-stats.yml`.
 - [Manual CI 39187823240](https://github.com/FlareZ123/experiment-01/actions/runs/39187823240) **passed**, head `0d1e49d0c87abfad4b82c77e48691548d36d01ab`, after commit `3117b9d`.
+- [Follow-up manual CI 39188315077](https://github.com/FlareZ123/experiment-01/actions/runs/39188315077) **passed** at head `45ebaa92b74c09345bd517fe635f9dbe3e5db87e`. This run includes the new source-bound correlated-round and inverted-winner regressions, alongside Agent 37's independent correlation-model tests.
 
 **Current outcome:** The full-field claim intake correctly refuses an Aichi 2026 Top-32 statistical result while ranks **23, 25, 28** lack an exact public 60-card source. A future source discovery should first be validated and committed with provenance; only then can this wrapper compare all 32 source fingerprints to frozen game records. The 99.5% target remains entirely unproven.
