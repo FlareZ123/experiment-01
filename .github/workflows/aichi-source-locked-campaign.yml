@@ -187,6 +187,14 @@ jobs:
       - name: Show captured public board changes beside source and candidate Store attack declarations
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-four-trigger-forensic' }}
         run: node -e "const x=require('./agent17-crossrank-trigger-evidence.json');const view=a=>a?.map((p,i)=>({slot:i,active:p.active?{name:p.active.name,damage:p.active.damage}:null,bench:p.bench?.map(y=>({name:y.name,damage:y.damage})),stadium:p.stadium}));for(const r of x.rows){const p=r.sourceReplyPacket;const t=p?.sourceImmediatePublicAttackTransition;console.log('PUBLIC_ATTACK',JSON.stringify({id:r.id,source:t?{before:view(t.before),after:view(t.after),pending:t.promptPendingAfter,settled:t.settled?{ordinal:t.settled.completionRootActionOrdinal,after:view(t.settled.after),prizes:t.settled.prizesRemaining}:null}:null,candidate:(p?.candidateImmediatePublicAttackTransitions??[]).map(y=>({attacks:y.declarations.map(z=>z.attackName),before:view(y.before),after:view(y.after),pending:y.promptPendingAfter,settled:y.settled?{ordinal:y.settled.completionRootActionOrdinal,after:view(y.settled.after),prizes:y.settled.prizesRemaining}:null}))}))}"
+      - name: Require observed printed-base damage, prompt completion and identical archived root history
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-four-trigger-forensic' }}
+        run: |
+          node --test tests/agent17-crossrank-resolved-audit.test.cjs
+          node scripts/agent17-crossrank-resolved-audit.cjs agent17-crossrank-trigger-evidence.json > agent17-crossrank-resolved-audit.json
+      - name: Print qualified retrospective mechanics, keeping game results excluded
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-four-trigger-forensic' }}
+        run: node -e "const r=require('./agent17-crossrank-resolved-audit.json');console.log('RESOLVED_AUDIT',JSON.stringify(r))"
       - name: Verify registered Agent41 two-rank schedule and corpus hashes
         if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' }}
         run: node --test tests/agent41-crossrank-actual-decisions.test.cjs
@@ -339,6 +347,7 @@ jobs:
             rank11-prospective-exposure-observed.json
             agent41-crossrank-observed.json
             agent17-crossrank-trigger-evidence.json
+            agent17-crossrank-resolved-audit.json
             agent6-crossrank-rejected-root.json
             agent6-shadow-mist-supporter.json
             agent25-rank6-newmoon-first-pass.json
