@@ -72,12 +72,13 @@ function withRank11Turn49QuickBalls(sourceSeat, execute) {
     }
     if (phase === 'discard') {
       if (!pending || pending.constructor.name !== 'ChooseCardsPrompt' ||
-          pending.playerId !== own.id || pending.cards !== own.hand) {
+          pending.playerId !== own.id ||
+          !pending.cards?.cards?.every(card=>own.hand.cards.includes(card))) {
         fail('unexpected-discard-prompt',state,pending);
         return original.call(this,state);
       }
       const name=DISCARD[completed];
-      const card=own.hand.cards.find(item=>item.fullName===name);
+      const card=pending.cards.cards.find(item=>item.fullName===name);
       if (!card || !pending.validate([card],state)) {
         fail('planned-owner-discard-rejected',state,pending);
         return original.call(this,state);
