@@ -53,6 +53,8 @@ jobs:
         run: node --test tests/aichi-archetype-loss-budget.test.cjs
       - name: Check correlated-field sequential evidence and intact qualification gates
         run: node --test tests/aichi-correlated-round-evidence.test.cjs
+      - name: Verify constructed Japanese New Moon 60 and reject altered printings
+        run: node --test tests/new-moon-lockbreak-japanese-provenance.test.cjs
 
   rank11-source-census:
     runs-on: ubuntu-latest
