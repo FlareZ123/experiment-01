@@ -117,7 +117,7 @@ function run() {
   }
   if(selected?.kind==='direct') {
     assert.deepEqual(exclusive.policyAudit.direct.actions,guardedAudit.actions,
-      'Exclusive policy changed direct route's planned actions');
+      'Exclusive policy changed direct route planned actions');
     assert.deepEqual(exclusive.policyAudit.direct.aborted,guardedAudit.aborted,
       'Exclusive policy changed direct route's abort');
   }
