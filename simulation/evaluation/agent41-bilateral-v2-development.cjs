@@ -174,7 +174,9 @@ function commonPayloadOption(candidateSeat,enabled){
  * @param {Map<string,object>} candidates
  * @returns {object}
  */
-function executeDevelopment(trial,candidates,{compressorPayload=false}={}){
+function executeDevelopment(trial,candidates,{
+  compressorPayload=false,opportunityAudit=false
+}={}){
   const {runMatch}=require('../twinleaf/headless.cjs');
   const {withRank11DirectBoostShake}=
     require('../twinleaf/rank11-direct-boostshake.cjs');
@@ -207,8 +209,16 @@ function executeDevelopment(trial,candidates,{compressorPayload=false}={}){
     capturePerfectionPassProbeSeat:candidateSeat,
     captureInitialSourceDealFingerprintSeat:sourceSeat
   };
+  let ownerCompressorAudit=null;
+  const runWithReadOnlyAudit=()=>{
+    if(!opportunityAudit)return runMatch(request);
+    const output=require('../twinleaf/owner-compressor-opportunity-audit.cjs')
+      .withOwnerCompressorOpportunityAudit(candidateSeat,()=>runMatch(request));
+    ownerCompressorAudit=output.audit;
+    return output.result;
+  };
   const common=()=>withBilateralCommonCandidatePolicy(candidateSeat,
-    ()=>runMatch(request));
+    runWithReadOnlyAudit);
   let game,sourceAudit,commonAudit;
   if(trial.rank===11){
     const played=withRank11DirectBoostShake(sourceSeat,common,
@@ -258,6 +268,7 @@ function executeDevelopment(trial,candidates,{compressorPayload=false}={}){
     trial,qualifiesForCompetitiveInference:false,
     policyVersion:POLICY_VERSION+(compressorPayload?'+owner-compressor-v1':''),
     ownerCompressorPayloadOptIn:compressorPayload,
+    ...(opportunityAudit?{ownerCompressorOpportunityAudit:ownerCompressorAudit}:{}),
     finalDispatchVisiblePlayLockV2:game.livePlayLockGuardBothSeats===true,
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
     verifiedFirstTurn:game.verifiedByDrawLog,
@@ -294,7 +305,7 @@ function executeDevelopment(trial,candidates,{compressorPayload=false}={}){
 }
 
 /** @returns {object} */
-function runDevelopment({compressorPayload=false}={}){
+function runDevelopment({compressorPayload=false,opportunityAudit=false}={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
   const {loadNewMoonCandidate}=require('../../scripts/aichi-new-moon-candidate.cjs');
@@ -312,20 +323,25 @@ function runDevelopment({compressorPayload=false}={}){
       allowBasicEnergyMirrorPrintings:true,allowJapanesePromoHooks:true})}]));
   const rows=[];
   for(const trial of developmentTrials()){
-    try { rows.push(executeDevelopment(trial,prepared,{compressorPayload})); }
+    try { rows.push(executeDevelopment(trial,prepared,{
+      compressorPayload,opportunityAudit
+    })); }
     catch(error){ rows.push({
       trial,status:'engine-error',error:String(error?.stack||error),
       qualifiesForCompetitiveInference:false
     }); }
   }
   return {
-    schema:compressorPayload?
-      'agent5-bilateral-common-policy-development-v0c-owner-compressor-v1':
-      'agent41-bilateral-common-policy-development-v0c-live-lock-guard',
+    schema:opportunityAudit?
+      'agent5-bilateral-common-policy-development-v0c-readonly-opportunity-v1':
+      (compressorPayload?
+        'agent5-bilateral-common-policy-development-v0c-owner-compressor-v1':
+        'agent41-bilateral-common-policy-development-v0c-live-lock-guard'),
     sourceRegistration:'historical v1 selection; not v2 preregistration',
     enginePin:registration.enginePin,
     candidatePolicy:POLICY_VERSION+(compressorPayload?'+owner-compressor-v1':''),
     ownerCompressorPayloadOptIn:compressorPayload,
+    ownerCompressorOpportunityAudit:opportunityAudit,
     rows,attempted:rows.length,
     sourcePairs:['6:0:A','11:2:B'].map(key=>{
       const here=rows.filter(row=>row.trial?.id.startsWith(key+':'));
@@ -353,7 +369,8 @@ function runDevelopment({compressorPayload=false}={}){
 
 if(require.main===module){
   const result=runDevelopment({
-    compressorPayload:process.env.AGENT5_COMMON_COMPRESSOR_DEV==='true'
+    compressorPayload:process.env.AGENT5_COMMON_COMPRESSOR_DEV==='true',
+    opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
