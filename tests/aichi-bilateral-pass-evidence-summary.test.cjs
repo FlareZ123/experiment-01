@@ -20,7 +20,9 @@ test('prints evidence under precise uncertainty labels', () => {
           engineAcceptedAnnouncement: true}]}],
       candidatePerfectionPassSamples: [{turn: 3, activationAccepted: true,
         choicePromptObserved: true, pendingPromptType: 'ChooseAttackPrompt',
-        rejection: 'probe-rejection-example', validAttackNames: ['Poltergeist']}]
+        rejection: 'probe-rejection-example', validAttackNames: ['Poltergeist'],
+        publicBoardBeforePass:[{active:{name:'Mewtwo & Mew-GX'}}],
+        publicCopySourceInventory:{discard:[{name:'Gengar & Mimikyu-GX'}],bench:[]}}]]
     },
     {trial: {id: '6:0:A:champion-reference'}, status: 'engine-error',
       error: 'sample error'}
@@ -32,6 +34,10 @@ test('prints evidence under precise uncertainty labels', () => {
     ['Poltergeist']);
   assert.equal(result.rows[0].perfectionSamples[0].rejection,
     'probe-rejection-example');
+  assert.equal(result.rows[0].perfectionSamples[0].publicBoard[0].active.name,
+    'Mewtwo & Mew-GX');
+  assert.equal(result.rows[0].perfectionSamples[0].publicCopySourceInventory.discard[0].name,
+    'Gengar & Mimikyu-GX');
   assert.equal(result.rows[1].error, 'sample error');
   assert.equal(result.rows[1].candidatePasses, null);
   assert.equal(result.qualification.provesPaperLegalAttack, false);
