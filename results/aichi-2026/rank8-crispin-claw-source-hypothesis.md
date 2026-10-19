@@ -34,6 +34,10 @@ I inspected the **actual upstream Twinleaf revision pinned in this repo**, `a990
 
 These are **source-code implementation facts**, not runtime guarantees of complete paper fidelity. No engine hook appears needed merely to expose Secret Box's third category; eligibility of this particular card remains a hidden-zone owner-prompt question.
 
+## Same-prefix Supporter allowance
+
+The [published original source chronology](rank8-boostshake-authentic-counterline.md) reports that **the unmodified rank-8 policy played held Iono on source turn7** shortly after the intervention point, successfully reshuffling its own hand and drawing into accessible Quick Ball, Temple, Trubbish and Garbodor. In the archived live-board artifact, the stage0 six-card held hand includes Iono, and the later original turn-7 hand differs completely after the Iono effect. The [pinned play-card reducer](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/reducers/play-card-reducer.ts) bars a second Supporter while one has been played, and the [turn-effect reducer](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/effect-reducers/game-phase-effect.ts) resets `supporterTurn` at turn end. This is **indirect evidence** that turn7's Supporter allowance remained unused at the intervention point; otherwise the unmodified subsequent Iono should not have resolved normally. The printed action fork must nonetheless recheck the live `Crispin` play gate before treating the new path as legal.
+
 ## Falsification protocol
 
 Use the archived seed **1260748957**, actual first-turn player rank8 physical A, candidate Hood physical B, the exact published source 60s, the same pinned engine/hook flags. Produce a fail-closed source record with:
