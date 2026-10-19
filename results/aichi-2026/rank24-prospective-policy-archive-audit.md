@@ -11,3 +11,7 @@ All arms had 105-action caps. One generic arm and two arms in each source-policy
 ## Durable row evidence
 
 The [24-deal outcome ledger](rank24-prospective-24-seed-ledger.csv) persists all individual registered seed IDs, real source start directions, paired audit flags, policy activation, actual first-turn AttackActions, search aborts and terminal indicators after the 14-day Actions archive retention expires. The immutable archived JSON payload's independent **SHA-256 is `1c8e3c787f4c14a7ca04020ae2ab9d313019f289b9db3b7be99042da391f89fd`** (213,313 uncompressed bytes). The ledger is a reduced public summary; the archived JSON is the primary evidence for original decision traces and deck hashes. The ledger must not be mistaken for full Source-Store attack damage, human policy or competitive-game certification.
+
+## Follow-up: three search aborts resolved
+
+The [paired unchanged-deal Thunder Mountain audit](rank24-thunder-prize-abort-audit.md) checked the previously ambiguous three search aborts using the independently archived 19 October analyst-only Prize-zone replay. Each abort occurred with the singleton Stadium Prized while required Double Colorless Energy access remained. The original and instrumented 24-seed / 72-arm JSON outputs were identical after removing only the added analyst observations and the changed research revision. This is a particular early-attack plan failure, not a competitive result or license for deck-peeking search decisions.
