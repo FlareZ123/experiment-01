@@ -2,7 +2,8 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {blowerOpportunity,tooledGarbodor,MEWTWO,BLOWER,GARBODOR}=
+const {blowerOpportunity,tooledGarbodor,tooledGarbotoxinSlots,
+    chooseGarbotoxinTargets,MEWTWO,BLOWER,GARBODOR}=
   require('../simulation/twinleaf/newmoon-garbotoxin-blower-autonomy.cjs');
 
 function fixture() {
@@ -112,4 +113,38 @@ test('active Garbotoxin lock is targetable even with an empty opposing Bench',()
   assert.equal(tooledGarbodor(opponent),slot);
   slot.tools=[];
   assert.equal(blowerOpportunity(state,own,opponent,1,7),false);
+});
+
+
+test('a two-target Tool prompt selects two distinct public Garbotoxin holders',()=>{
+  const {slot,opponent,state}=fixture();
+  const second={getPokemonCard:()=>({fullName:'Garbodor LTR'}),
+    tools:[{name:'Stealthy Hood'}]};
+  opponent.active=second;
+  const prompt={validate:targets=>targets.length<=2};
+  assert.deepEqual(tooledGarbotoxinSlots(opponent),[second,slot]);
+  assert.deepEqual(chooseGarbotoxinTargets(prompt,opponent,state),
+    [second,slot]);
+});
+
+test('a Stadium-constrained one-target prompt selects only one holder',()=>{
+  const {slot,opponent,state}=fixture();
+  const ltr={getPokemonCard:()=>({fullName:'Garbodor LTR'}),
+    tools:[{name:'Float Stone'}]};
+  opponent.active=ltr;
+  const prompt={validate:targets=>targets.length===1};
+  assert.deepEqual(chooseGarbotoxinTargets(prompt,opponent,state),[ltr]);
+  assert.equal(tooledGarbodor(opponent),ltr);
+  assert.ok(slot.tools.length);
+});
+
+test('blocked first holder yields second allowed holder, all blocked returns null',()=>{
+  const {slot,opponent,state}=fixture();
+  const ltr={getPokemonCard:()=>({fullName:'Garbodor LTR'}),
+    tools:[{name:'Float Stone'}]};
+  opponent.active=ltr;
+  const prompt={validate:targets=>targets.length===1&&targets[0]!==ltr};
+  assert.deepEqual(chooseGarbotoxinTargets(prompt,opponent,state),[slot]);
+  prompt.validate=()=>false;
+  assert.equal(chooseGarbotoxinTargets(prompt,opponent,state),null);
 });
