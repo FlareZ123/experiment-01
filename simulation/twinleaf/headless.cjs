@@ -260,6 +260,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [snorlaxSoloDeclineOptionalBench] With solo policy, decline a later legal optional Bench prompt after Snorlax is already alone Active.
  * @property {boolean} [snorlaxSoloPreserveBench] With source solo opening, suppress own ordinary Basic Benching while PGO Snorlax is alone Active.
  * @property {0|1} [newMoonAttackPayloadCompressorSeat] Candidate-only own-hand Compressor and owner-search Gengar payload policy.
+ * @property {0|1} [newMoonAttackPayloadCompressorBenchedSeat] Independent opt-in: also prepare owner-deck donors when Mewtwo is Benched.
  * @property {0|1} [rank31FogEnergySeat] Opponent source Chimecho Active: opt-in strict Fog-for-Basic-Psychic-Energy search.
  * @property {0|1} [rank31FogEnergyBroaderSeat] Comparison: allow other Basics in hand or Bench when finding Bell's Energy.
  * @property {0|1} [newMoonOpeningHorrorHouseSeat] Candidate-only first-going-second native or copied Horror House-GX policy.
@@ -740,9 +741,13 @@ function runMatch(request) {
             GameMessage: engine('game/game-message').GameMessage
           });
       }
-      if (request.newMoonAttackPayloadCompressorSeat === seat) {
+      if (request.newMoonAttackPayloadCompressorSeat === seat ||
+          request.newMoonAttackPayloadCompressorBenchedSeat === seat) {
         configured = require('./new-moon-compressor-payload-policy.cjs')
-          .withNewMoonCompressorPayload(configured);
+          .withNewMoonCompressorPayload(configured, {
+            allowBenchedMewtwo:
+              request.newMoonAttackPayloadCompressorBenchedSeat === seat
+          });
       }
       if (request.rank31FogEnergySeat === seat ||
           request.rank31FogEnergyBroaderSeat === seat) {
@@ -1495,6 +1500,8 @@ function runMatch(request) {
       newMoonNativeOpeningPivotSeat: request.newMoonNativeOpeningPivotSeat ?? null,
       snorlaxSoloOpeningSeat: request.snorlaxSoloOpeningSeat ?? null,
       newMoonAttackPayloadCompressorSeat: request.newMoonAttackPayloadCompressorSeat ?? null,
+      newMoonAttackPayloadCompressorBenchedSeat:
+        request.newMoonAttackPayloadCompressorBenchedSeat ?? null,
       newMoonOpeningHorrorHouseSeat: request.newMoonOpeningHorrorHouseSeat ?? null,
       latiasAttackReadyAttachment: request.latiasAttackReadyAttachment === true,
       toolAttackAwareness: request.toolAttackAwareness === true,
@@ -1545,6 +1552,9 @@ function runMatch(request) {
           '+NewMoonNativeOpeningPivot-v1@seat' + request.newMoonNativeOpeningPivotSeat : '') +
         (request.newMoonAttackPayloadCompressorSeat !== undefined ?
           '+NewMoonCompressorPayload-v1@seat' + request.newMoonAttackPayloadCompressorSeat : '') +
+        (request.newMoonAttackPayloadCompressorBenchedSeat !== undefined ?
+          '+NewMoonCompressorPayload-BenchedMewtwo-v2@seat' +
+            request.newMoonAttackPayloadCompressorBenchedSeat : '') +
         (request.newMoonOpeningHorrorHouseSeat !== undefined ?
           '+NewMoonOpeningHorrorHouse-v1@seat' + request.newMoonOpeningHorrorHouseSeat : '') +
         (request.latiasAttackReadyAttachment === true ? '+LatiasAttackReadyAttachment-v1' : '') +
