@@ -35,3 +35,7 @@ With Ditto already Active, an unused hand Energy attachment, two reasonably disc
 5. Preserve reproducible full games and the 32-rank coverage obligations before any claim of candidate strength.
 
 **Status:** untested strategic candidate; 29/32 exact opponent source 60s, **zero competitively qualified games**, 99.5% target unverified. This branch is intentionally independent of Agent41's frozen bilateral v2 source-vs-New-Moon comparison and must not be silently inserted into its registered arms.
+
+## Exact prize-aware opening screen (19 October 2026)
+
+Follow-up [exact 60-card hypergeometric model](agent3-ditto-prize-aware-firstturn-frontier.md) accounts for the target Stage-2 card remaining in the draw deck after the seven-card hand, six Prizes, and first ordinary draw. With four Ditto, eight Tag Call/Guzma & Hala connectors, four other Basic Pokémon and **one target Stage 2**, only **32.1399531%** of Basic-valid starts satisfy the Ditto-plus-connector-plus-target-in-deck conjunction. Even with an ideal Glimwood one-coin reroll, this narrow route reaches **24.1049649%**. Four copies of the target raise those values to **40.834432%** and **30.625824%**, before real play costs, protection, and opposing disruption. These numbers apply only to the direct specified route; additional resource paths and overall game wins are outside its scope. [Dedicated Node22 manual CI passed](https://github.com/FlareZ123/experiment-01/actions/runs/39261750975).
