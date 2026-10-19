@@ -45,6 +45,8 @@ function auditBilateralV2(plan,archive) {
   for(const candidate of plan.candidates) {
     assert.ok(typeof candidate.id==='string'&&candidate.id.length);
     assert.ok(digest(candidate.deckSha256),'Candidate physical print digest required');
+    assert.ok(digest(candidate.engineDeckSha256),
+      'Candidate resolved engine 60 digest required');
     assert.ok(!candidateById.has(candidate.id),'Duplicate candidate ID');
     candidateById.set(candidate.id,candidate);
   }
@@ -53,6 +55,8 @@ function auditBilateralV2(plan,archive) {
     assert.ok(Number.isInteger(opponent.rank)&&opponent.rank>=1&&
       opponent.rank<=32);
     assert.ok(digest(opponent.deckSha256),'Exact source printed 60 required');
+    assert.ok(digest(opponent.engineDeckSha256),
+      'Source resolved engine 60 digest required');
     assert.ok(!rankMap.has(opponent.rank),'Duplicate source rank');
     rankMap.set(opponent.rank,opponent);
   }
@@ -104,6 +108,14 @@ function auditBilateralV2(plan,archive) {
       'Per-arm candidate decision policy changed');
     assert.equal(row.sourcePolicySha256,plan.sourcePolicySha256,
       'Per-arm source decision policy changed');
+    assert.ok(Array.isArray(row.engineDeckHashes) &&
+      row.engineDeckHashes.length===2,
+      'Actual Store engineDeckHashes required');
+    const candidateHash=candidateById.get(arm.candidateId).engineDeckSha256;
+    const sourceHash=rankMap.get(arm.rank).engineDeckSha256;
+    assert.deepEqual(row.engineDeckHashes,arm.candidateSeat===0?
+      [candidateHash,sourceHash]:[sourceHash,candidateHash],
+      'Actual resolved engine inputs contradict registered physical print plan');
     assert.ok(STATUSES.has(row.status),'Unknown status in '+row.id);
     assert.ok(Number.isSafeInteger(row.rootActionCount)&&
       row.rootActionCount>=0&&row.rootActionCount<=plan.maxRootActions);
