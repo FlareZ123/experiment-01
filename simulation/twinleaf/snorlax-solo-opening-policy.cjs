@@ -45,7 +45,7 @@ function withSoloSnorlaxOpening(options, types, events,
       }
 
       const held = chooseSoloSnorlax(player.hand.cards);
-      const activeAlreadySolo =
+      const activeAlreadySolo = declineOptionalBench &&
         player.active.getPokemonCard()?.fullName === 'Snorlax PGO' &&
         !player.bench.some(slot=>slot.getPokemonCard());
       const chooseEmpty = declineOptionalBench && activeAlreadySolo &&
