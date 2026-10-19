@@ -84,6 +84,8 @@ test('full dual-start archive is mechanically reviewable, never competitive',()=
   assert.equal(r.observedArms,8);
   assert.equal(r.completeAttemptCensus,true);
   assert.equal(r.twoRealStartsPerRankObserved,true);
+  assert.equal(r.twoRealStartsPerCandidateAndRankObserved,true);
+  assert.equal(r.bothHardRanksHavePairedBilateralWitnesses,true);
   assert.equal(r.mechanicalBilateralWitnesses,8);
   assert.equal(r.alignedPhysicalSourcePairs,4);
   assert.equal(r.opportunityAndPolicyVerdict,'MECHANICAL-PILOT-REVIEWABLE');
@@ -289,4 +291,33 @@ test('different real source seats may use the same numerical seed',()=>{
   const result=auditBilateralV2(plan,archive);
   assert.equal(result.registeredArms,8);
   assert.equal(result.completeAttemptCensus,true);
+});
+
+test('rank-pooled two starts cannot cover a candidate that never started first',()=>{
+  const {plan,archive}=fixture();
+  const newmoonSourceFirst=archive.rows.find(row=>
+    row.rank===6&&row.candidateId==='newmoon'&&row.candidateSeat===0);
+  assert.ok(newmoonSourceFirst);
+  newmoonSourceFirst.actualStarterSeat=1;
+  newmoonSourceFirst.firstTurnPlayerId=202;
+  newmoonSourceFirst.firstTurnPlayerName='research-B';
+  newmoonSourceFirst.firstDrawLogName='research-B';
+  const r=auditBilateralV2(plan,archive);
+  assert.equal(r.twoRealStartsPerRankObserved,true);
+  assert.equal(r.twoRealStartsPerCandidateAndRankObserved,false);
+  assert.equal(r.opportunityAndPolicyVerdict,'HOLD-OR-INCOMPLETE');
+});
+
+test('separate valid source replies never certify unpaired bilateral comparison',()=>{
+  const {plan,archive}=fixture();
+  for(const row of archive.rows.filter(row=>
+    row.rank===11&&row.candidateId==='newmoon')) {
+    row.sourceDealFingerprint=hex('e');
+  }
+  const r=auditBilateralV2(plan,archive);
+  assert.equal(r.completeAttemptCensus,true);
+  assert.equal(r.twoRealStartsPerCandidateAndRankObserved,true);
+  assert.equal(r.bothHardRanksHaveBilateralWitnesses,true);
+  assert.equal(r.bothHardRanksHavePairedBilateralWitnesses,false);
+  assert.equal(r.opportunityAndPolicyVerdict,'HOLD-OR-INCOMPLETE');
 });
