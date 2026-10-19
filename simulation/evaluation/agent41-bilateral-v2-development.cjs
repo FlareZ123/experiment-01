@@ -126,6 +126,11 @@ function candidatePostChoicePassEvidence(decisionTrace,candidateSeat){
       tested:row.attackPassProbe.tested??[],
       truncated:row.attackPassProbe.truncated??false
     }));
+  const perfectionSamples=passes.filter(row=>row.perfectionPassProbe)
+    .map(row=>({
+      ordinal:row.actionOrdinal,turn:row.turnBefore,
+      ...row.perfectionPassProbe
+    }));
   return {
     summary:{
       observedCandidatePasses:passes.length,
@@ -133,10 +138,16 @@ function candidatePostChoicePassEvidence(decisionTrace,candidateSeat){
       unprobedCandidatePasses:passes.length-samples.length,
       cloneAcceptedPasses:samples.filter(row=>
         row.tested.some(attack=>attack.engineAcceptedAnnouncement===true)).length,
+      observedPerfectionPasses:perfectionSamples.length,
+      acceptedPerfectionActivations:perfectionSamples.filter(row=>
+        row.activationAccepted===true).length,
+      nonemptyCopiedAttackMenus:perfectionSamples.filter(row=>
+        row.validAttackNames?.length>0).length,
       boundedAndIncomplete:true,
       caveat:'Only printed/Tool-visible attack announcements on at most 8 globally sampled Pass roots'
     },
-    samples
+    samples,
+    perfectionSamples
   };
 }
 
@@ -170,6 +181,7 @@ function executeDevelopment(trial,candidates){
     capturePublicAttackTransitions:true,
     captureFinalPublicBoard:true,
     captureAttackPassProbes:true,
+    capturePerfectionPassProbeSeat:candidateSeat,
     captureInitialSourceDealFingerprintSeat:sourceSeat
   };
   const common=()=>withBilateralCommonCandidatePolicy(candidateSeat,
@@ -233,6 +245,7 @@ function executeDevelopment(trial,candidates){
     policyAudit:commonAudit,sourceAudit,sourceLinePacket,
     candidatePostChoicePassProbe:passEvidence.summary,
     candidatePassProbeSamples:passEvidence.samples,
+    candidatePerfectionPassSamples:passEvidence.perfectionSamples,
     attackDeclarations:{
       source:declared.filter(r=>r.playerSlot===sourceSeat).length,
       candidate:declared.filter(r=>r.playerSlot===candidateSeat).length
