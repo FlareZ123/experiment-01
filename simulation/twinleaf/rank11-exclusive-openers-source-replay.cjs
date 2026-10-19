@@ -108,10 +108,13 @@ function run() {
   const selected=exclusive.policyAudit.selected;
   const sameRoute=selected?.kind==='direct' ||
     (selected===null && guardedAudit.opportunityTurn===null);
-  const sourceRootActionsEqual=sameRoute &&
-    [1,2].every(turn=>assert.deepEqual(
+  let sourceRootActionsEqual=null;
+  if(sameRoute) {
+    for(const turn of [1,2]) assert.deepEqual(
       ownerActions(guarded.result,sourceSeat,turn),
-      ownerActions(exclusive.result,sourceSeat,turn))===undefined);
+      ownerActions(exclusive.result,sourceSeat,turn));
+    sourceRootActionsEqual=true;
+  }
   if(selected?.kind==='direct') {
     assert.deepEqual(exclusive.policyAudit.direct.actions,guardedAudit.actions,
       'Exclusive policy changed direct route's planned actions');
