@@ -98,7 +98,9 @@ function executeArm(trial,prepared,auditOptions={}) {
     ...(auditOptions.captureRejectedActionEvidence === true ?
       {captureRejectedActionEvidence:true} : {}),
     ...(auditOptions.captureBilateralReplyPacket === true ?
-      {capturePublicAttackTransitions:true} : {})
+      {capturePublicAttackTransitions:true} : {}),
+    ...(auditOptions.captureFinalCapEvidence === true ?
+      {captureFinalPublicBoard:true} : {})
   };
   const play=()=>runMatch(request);
   let sourceAudit;
@@ -170,6 +172,33 @@ function executeArm(trial,prepared,auditOptions={}) {
       expectedSourceDetail:trial.rank===6?'Volt Cyclone':'Boost Shake',
       requirePublicAttackTransitions:true
     }) : null;
+  const finalCapEvidence=auditOptions.captureFinalCapEvidence===true ? {
+    rootTail:game.rootActionLedger.slice(-24).map(row=>({
+      ordinal:row.actionOrdinal,turnBefore:row.turnBefore,
+      turnAfter:row.turnAfter,slot:row.playerSlot,
+      action:row.action,pendingPrompt:row.pendingPrompt,
+      ...(row.card===undefined?{}:{card:row.card}),
+      ...(row.ability===undefined?{}:{ability:row.ability}),
+      ...(row.attack===undefined?{}:{attack:row.attack}),
+      ...(row.attackChoice?.attackName===undefined?{}:
+        {chosenAttack:row.attackChoice.attackName})
+    })),
+    lastPasses:decisions.filter(row=>row.action==='PassTurnAction')
+      .slice(-8).map(row=>({
+        ordinal:row.actionOrdinal,turn:row.turnBefore,slot:row.playerSlot,
+        publicBoardBeforePass:row.publicBoardBeforePass??null
+      })),
+    lastAttacks:game.attackDeclarationTrace.slice(-8).map(row=>({
+      ordinal:row.actionOrdinal,turn:row.turnBefore,
+      slot:row.playerSlot,attackName:row.attackName
+    })),
+    lastFaceUpBoard:game.finalPublicBoard??null,
+    pendingPromptTypes:game.finalPendingPromptTypes??null,
+    actionsBySeat:game.actionsBySeat,
+    finalCardCounts:game.finalState.map(row=>({
+      deckRemaining:row.deckRemaining,handSize:row.handSize
+    }))
+  } : null;
   return {
     ...trial,status:terminal?'engine-terminal':'action-cap-or-incomplete',
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
@@ -181,6 +210,7 @@ function executeArm(trial,prepared,auditOptions={}) {
     engineDeckHashes:game.deckHashes,
     sourcePolicyAudit:sourceAudit,candidatePolicyAudit:candidateAudit,
     ...(auditOptions.captureBilateralReplyPacket===true ? {sourceReplyPacket} : {}),
+    ...(auditOptions.captureFinalCapEvidence===true ? {finalCapEvidence} : {}),
     candidateAttackDeclarations:candidateDecl?.length??null,
     sourceAttackDeclarations:sourceDecl?.length??null,
     candidateChosenCopiedAttackNames:(candidateDecl||[]).filter(row=>
