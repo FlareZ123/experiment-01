@@ -1,4 +1,4 @@
-name: Hood source audit (rank11/rank6)
+name: Hood source audit (rank11/rank6/reply)
 on:
   workflow_dispatch:
     inputs:
@@ -10,6 +10,7 @@ on:
         options:
           - rank11
           - rank6
+          - rank6-reply
 jobs:
   audit:
     runs-on: ubuntu-latest
@@ -26,6 +27,9 @@ jobs:
       - name: Rank6 frozen policy unit tests
         if: ${{ inputs.study == 'rank6' }}
         run: node --test tests/early-shadow-rider-hood.test.cjs tests/protected-underworld-door.test.cjs tests/hood-initialization-policy.test.cjs tests/rank6-hood-prospective-exposure.test.cjs
+      - name: Rank6 source Hood-remover protocol tests
+        if: ${{ inputs.study == 'rank6-reply' }}
+        run: node --test tests/early-shadow-rider-hood.test.cjs tests/protected-underworld-door.test.cjs tests/hood-initialization-policy.test.cjs tests/rank6-hood-removal-policy.test.cjs tests/rank6-hood-removal-replay.test.cjs
       - run: npm ci --no-audit --no-fund
         working-directory: vendor/twinleaf/ptcg-server
       - run: npm run compile
@@ -42,6 +46,9 @@ jobs:
       - name: Frozen rank6 Hood and champion physical-deal comparison
         if: ${{ inputs.study == 'rank6' }}
         run: node simulation/twinleaf/rank6-hood-prospective-exposure.cjs > rank6-hood-prospective.json
+      - name: Frozen original-source rank6 Hood removal replay
+        if: ${{ inputs.study == 'rank6-reply' }}
+        run: node simulation/twinleaf/rank6-hood-removal-replay.cjs > rank6-hood-removal-replay.json
       - uses: actions/upload-artifact@v4
         if: ${{ inputs.study == 'rank11' }}
         with:
@@ -56,4 +63,10 @@ jobs:
         with:
           name: source-rank6-hood-paired-32
           path: rank6-hood-prospective.json
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: ${{ inputs.study == 'rank6-reply' }}
+        with:
+          name: source-rank6-hood-removal-replay
+          path: rank6-hood-removal-replay.json
           if-no-files-found: error
