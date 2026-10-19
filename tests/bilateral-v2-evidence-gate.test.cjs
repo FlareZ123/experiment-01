@@ -16,12 +16,12 @@ function fixture(){
     sourcePolicySha256:hex('d'),
     maxRootActions:280,
     candidates:[
-      {id:'reference',deckSha256:hex('1')},
-      {id:'newmoon',deckSha256:hex('2')}
+      {id:'reference',deckSha256:hex('1'),engineDeckSha256:hex('a')},
+      {id:'newmoon',deckSha256:hex('2'),engineDeckSha256:hex('b')}
     ],
     opponents:[
-      {rank:6,deckSha256:hex('3')},
-      {rank:11,deckSha256:hex('4')}
+      {rank:6,deckSha256:hex('3'),engineDeckSha256:hex('c')},
+      {rank:11,deckSha256:hex('4'),engineDeckSha256:hex('d')}
     ],
     arms:[]
   };
@@ -47,6 +47,13 @@ function fixture(){
             .deckSha256,
           candidatePolicySha256:plan.candidatePolicySha256,
           sourcePolicySha256:plan.sourcePolicySha256,
+          engineDeckHashes:seat===0?[
+            candidate.engineDeckSha256,
+            plan.opponents.find(row=>row.rank===rank).engineDeckSha256
+          ]:[
+            plan.opponents.find(row=>row.rank===rank).engineDeckSha256,
+            candidate.engineDeckSha256
+          ],
           status:'engine-terminal',engineFinished:true,engineWinner:seat,
           rootActionCount:125,actualStarterSeat:0,
           verifiedFirstTurn:true,
@@ -243,4 +250,15 @@ test('source pressure only on rank6 leaves rank11 pilot unqualified',()=>{
   assert.equal(r.mechanicalBilateralWitnesses,4);
   assert.equal(r.bothHardRanksHaveBilateralWitnesses,false);
   assert.equal(r.opportunityAndPolicyVerdict,'HOLD-OR-INCOMPLETE');
+});
+
+test('physical-print echo cannot conceal changed actual resolved game decks',()=>{
+  const {plan,archive}=fixture();
+  archive.rows[0].engineDeckHashes[0]=hex('e');
+  assert.throws(()=>auditBilateralV2(plan,archive),
+    /Actual resolved engine inputs contradict/);
+  archive.rows[0].engineDeckHashes[0]=hex('a');
+  plan.candidates[0].engineDeckSha256=undefined;
+  assert.throws(()=>auditBilateralV2(plan,archive),
+    /Candidate resolved engine 60 digest required/);
 });
