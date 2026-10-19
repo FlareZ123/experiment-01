@@ -16,8 +16,8 @@ const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  *
  * @template T
  * @param {()=>T} execute Synchronous source-dealt game.
- * @param {{counterfactualFirstRootPair?:[number,number]}} [options] Explicit
- *   one-deal chance-outcome enumeration only. Never count forced arms as games.
+ * @param {{counterfactualFirstRootPair?:[number,number],auditPlanningSamples?:boolean}} [options]
+ *   Opt-in bot-planning classification; forced pairs are diagnostic, not games.
  * @returns {{result:T,audit:object}}
  */
 function withUniformNightWatch(execute,options={}) {
@@ -44,6 +44,13 @@ function withUniformNightWatch(execute,options={}) {
   const aiProto = SimpleTacticsAi.prototype;
   const cardDescriptor = Object.getOwnPropertyDescriptor(cardProto, 'reduceEffect');
   const resolverDescriptor = Object.getOwnPropertyDescriptor(aiProto, 'resolvePrompt');
+  const decisionDescriptor=options.auditPlanningSamples===true ?
+    Object.getOwnPropertyDescriptor(aiProto,'decodeNextAction') : null;
+  if(options.auditPlanningSamples===true &&
+     typeof decisionDescriptor?.value!=='function') {
+    throw new TypeError('Pinned bot decision interface changed');
+  }
+  let decisionDepth=0;
   if (typeof cardDescriptor?.value !== 'function' ||
       typeof resolverDescriptor?.value !== 'function') {
     throw new TypeError('Pinned Night Watch card/bot interfaces changed');
@@ -57,6 +64,8 @@ function withUniformNightWatch(execute,options={}) {
   const audit = {
     schema:'night-watch-random-prompt-hook-v1',
     created:0, resolved:0, returnedCounts:[], invalid:0,
+    precommitsInBotDecision:0, precommitsOutsideBotDecision:0,
+    resolutionsInBotDecision:0, resolutionsOutsideBotDecision:0,
     counterfactualApplied:false, counterfactualFirstRootPair:rootPair||null,
     note:'Counts may include speculative Stores; independently audit root actions.'
   };
@@ -97,6 +106,8 @@ function withUniformNightWatch(execute,options={}) {
             }
             choices.set(prompt, selected);
             audit.created++;
+            if(decisionDepth>0) audit.precommitsInBotDecision++;
+            else audit.precommitsOutsideBotDecision++;
           }
         }
         return originalPrompt.call(this, sourceState, givenPrompts, callback);
@@ -121,6 +132,8 @@ function withUniformNightWatch(execute,options={}) {
         throw new Error('Precommitted Night Watch selection became invalid');
       }
       audit.resolved++;
+      if(decisionDepth>0) audit.resolutionsInBotDecision++;
+      else audit.resolutionsOutsideBotDecision++;
       audit.returnedCounts.push(precommitted.length);
       return new ResolvePromptAction(prompt.id, precommitted);
     }
@@ -138,9 +151,18 @@ function withUniformNightWatch(execute,options={}) {
   }
   Object.defineProperty(cardProto, 'reduceEffect', {...cardDescriptor, value:correctedCardReducer});
   Object.defineProperty(aiProto, 'resolvePrompt', {...resolverDescriptor, value:correctedResolver});
+  if(decisionDescriptor) Object.defineProperty(aiProto,'decodeNextAction',{
+    ...decisionDescriptor,
+    value:function observedDecision(...args) {
+      decisionDepth++;
+      try { return decisionDescriptor.value.call(this,...args); }
+      finally { decisionDepth--; }
+    }
+  });
   try {
     return {result:execute(), audit};
   } finally {
+    if(decisionDescriptor)Object.defineProperty(aiProto,'decodeNextAction',decisionDescriptor);
     Object.defineProperty(aiProto, 'resolvePrompt', resolverDescriptor);
     Object.defineProperty(cardProto, 'reduceEffect', cardDescriptor);
     if(dispatchDescriptor)Object.defineProperty(Store.prototype,'dispatch',dispatchDescriptor);
