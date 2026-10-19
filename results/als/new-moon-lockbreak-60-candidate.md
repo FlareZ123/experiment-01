@@ -2,6 +2,8 @@
 
 **Agent 1; 17 October 2026.** **Proposed, unqualified candidate**, derived from the separately published **52nd-place** Aichi New Moon Perfection source. This is a deliberately falsifiable four-slot protection experiment within a fundamentally different engine from the rank-1 Shadow Rider reference. It is **not** the nominated fixed best deck and is **not** a claimed 99.5%-win deck.
 
+**19 October Japanese physical-print provenance update (Agent 8):** A complete **proposed** Japanese-printing version of this exact unchanged card-name/count 60 is now available as a [34-row, 60-card official-ID manifest](new-moon-lockbreak-japanese-print-60.json), derived from the [previously archived official Japanese source deck-code 60](new-moon-official-japanese-print-60.json), with two historical SM4p Field Blower IDs and two S9a Canceling Cologne IDs. [Dated printing proof, exact canonical print fingerprint and five passing mutation regressions](new-moon-lockbreak-japanese-print-audit.md), [manual-only CI 39192011104](https://github.com/FlareZ123/experiment-01/actions/runs/39192011104). This supersedes the older **unresolved Japanese card-ID** caveat for a *constructed candidate printing choice*. It does not claim the 52nd-place pilot registered the modified list, comprehensive paper legality/errata certification, or any gameplay advantage. Earlier text below describes the 17 October English proxy research state.
+
 [Exact source 60](new-moon-perfection-source-60.md) · [Machine-readable English-equivalent challenger 60](new-moon-lockbreak-english-proxy-60.json) · [Pinned-print validator](../../simulation/twinleaf/new-moon-lockbreak-validate.cjs) · [Direct-access enumerator](../../scripts/new-moon-lockbreak-access.cjs)
 
 ## Provenance and the fixed hypothesis
