@@ -1,0 +1,250 @@
+{
+  "schema": "new-moon-two-gengar-one-cologne-proposed-japanese-prints-v1",
+  "status": "PROPOSED and prospective crossrank diagnostic 60. Original 52nd-place source print registrations reused and augmented by pre-event official Japanese printings. Not a historical event registration, full legality certificate, or competitiveness claim.",
+  "target_event_date": "2026-05-10",
+  "from_baseline_japanese_candidate": "results/als/new-moon-lockbreak-japanese-print-60.json",
+  "from_baseline_english_candidate": "results/als/new-moon-lockbreak-english-proxy-60.json",
+  "matched_english_structural_manifest": "results/als/new-moon-two-gengar-one-cologne-english-proxy-60.json",
+  "source_deck_code": "GxxDYx-a4rD4W-a8xYxc",
+  "source_official_url": "https://www.pokemon-card.com/deck/confirm.html/deckID/GxxDYx-a4rD4W-a8xYxc",
+  "historical_ban_snapshot": "results/legality/japan-expanded-aichi-2026.json",
+  "derivation": {
+    "remove": [
+      {
+        "name_en": "Canceling Cologne",
+        "count": 1,
+        "japanese_card_id": 41294
+      }
+    ],
+    "add": [
+      {
+        "name_en": "Gengar & Mimikyu-GX",
+        "count": 1,
+        "japanese_card_id": 35982
+      }
+    ]
+  },
+  "canonicalization": "Sort UTF-8 text rows japanese_card_id:count followed by LF for each of 34 distinct names; SHA-256",
+  "japanese_id_count_sha256": "2ac726a7ada76126ea750917194849c4ec0e8d52b18bab22ed5c63807b3c21d4",
+  "counts": {
+    "total": 60,
+    "unique": 34,
+    "pokemon": 20,
+    "trainer": 34,
+    "energy": 6
+  },
+  "entries": [
+    {
+      "name_en": "Mewtwo & Mew-GX",
+      "count": 2,
+      "japanese_card_id": 37256,
+      "japanese_set": "SM12a"
+    },
+    {
+      "name_en": "Gengar & Mimikyu-GX",
+      "count": 2,
+      "japanese_card_id": 35982,
+      "japanese_set": "SM9"
+    },
+    {
+      "name_en": "Trevenant & Dusknoir-GX",
+      "count": 1,
+      "japanese_card_id": 37257,
+      "japanese_set": "SM12a"
+    },
+    {
+      "name_en": "Tapu Lele-GX",
+      "count": 1,
+      "japanese_card_id": 35504,
+      "japanese_set": "SM8b"
+    },
+    {
+      "name_en": "Galarian Articuno V",
+      "count": 1,
+      "japanese_card_id": 40392,
+      "japanese_set": "SI"
+    },
+    {
+      "name_en": "Latias ex",
+      "count": 1,
+      "japanese_card_id": 48597,
+      "japanese_set": "M2a"
+    },
+    {
+      "name_en": "Lillie's Clefairy ex",
+      "count": 1,
+      "japanese_card_id": 49003,
+      "japanese_set": "MC"
+    },
+    {
+      "name_en": "Squawkabilly ex",
+      "count": 1,
+      "japanese_card_id": 47869,
+      "japanese_set": "MA"
+    },
+    {
+      "name_en": "Unown",
+      "count": 3,
+      "japanese_card_id": 33598,
+      "japanese_set": "XY"
+    },
+    {
+      "name_en": "Dusclops",
+      "count": 2,
+      "japanese_card_id": 45894,
+      "japanese_set": "SV6a"
+    },
+    {
+      "name_en": "Duskull",
+      "count": 2,
+      "japanese_card_id": 38541,
+      "japanese_set": "S4"
+    },
+    {
+      "name_en": "Solrock",
+      "count": 1,
+      "japanese_card_id": 34884,
+      "japanese_set": "SM6b"
+    },
+    {
+      "name_en": "Lunatone",
+      "count": 1,
+      "japanese_card_id": 43889,
+      "japanese_set": "SV3"
+    },
+    {
+      "name_en": "Klefki",
+      "count": 1,
+      "japanese_card_id": 44610,
+      "japanese_set": "SV4a"
+    },
+    {
+      "name_en": "Battle VIP Pass",
+      "count": 4,
+      "japanese_card_id": 44052,
+      "japanese_set": "SVF"
+    },
+    {
+      "name_en": "Fog Crystal",
+      "count": 4,
+      "japanese_card_id": 44174,
+      "japanese_set": "SVEM"
+    },
+    {
+      "name_en": "Mysterious Treasure",
+      "count": 2,
+      "japanese_card_id": 37338,
+      "japanese_set": "SM12a"
+    },
+    {
+      "name_en": "Hisuian Heavy Ball",
+      "count": 2,
+      "japanese_card_id": 45317,
+      "japanese_set": "SVHK"
+    },
+    {
+      "name_en": "Rescue Carrier",
+      "count": 2,
+      "japanese_card_id": 42403,
+      "japanese_set": "S12a"
+    },
+    {
+      "name_en": "Battle Compressor",
+      "count": 2,
+      "japanese_card_id": 37415,
+      "japanese_set": "XY"
+    },
+    {
+      "name_en": "Adventure Bag",
+      "count": 1,
+      "japanese_card_id": 37332,
+      "japanese_set": "SM12a"
+    },
+    {
+      "name_en": "Escape Rope",
+      "count": 1,
+      "japanese_card_id": 36398,
+      "japanese_set": "SM10"
+    },
+    {
+      "name_en": "Counter Catcher",
+      "count": 1,
+      "japanese_card_id": 34175,
+      "japanese_set": "SM4S"
+    },
+    {
+      "name_en": "Secret Box",
+      "count": 1,
+      "japanese_card_id": 45783,
+      "japanese_set": "SV6"
+    },
+    {
+      "name_en": "Powerglass",
+      "count": 2,
+      "japanese_card_id": 49399,
+      "japanese_set": "MC"
+    },
+    {
+      "name_en": "Forest Seal Stone",
+      "count": 1,
+      "japanese_card_id": 42184,
+      "japanese_set": "S12"
+    },
+    {
+      "name_en": "Lillie's Determination",
+      "count": 2,
+      "japanese_card_id": 49445,
+      "japanese_set": "MC"
+    },
+    {
+      "name_en": "Ace Trainer",
+      "count": 2,
+      "japanese_card_id": 31049,
+      "japanese_set": "XY7-B"
+    },
+    {
+      "name_en": "Sky Field",
+      "count": 2,
+      "japanese_card_id": 37432,
+      "japanese_set": "XY"
+    },
+    {
+      "name_en": "Path to the Peak",
+      "count": 2,
+      "japanese_card_id": 40316,
+      "japanese_set": "S8b"
+    },
+    {
+      "name_en": "Telepathic Psychic Energy",
+      "count": 3,
+      "japanese_card_id": 49712,
+      "japanese_set": "M3"
+    },
+    {
+      "name_en": "Basic Psychic Energy",
+      "count": 3,
+      "japanese_card_id": 48307,
+      "japanese_set": "ENE"
+    },
+    {
+      "name_en": "Field Blower",
+      "name_ja": "フィールドブロアー",
+      "count": 2,
+      "japanese_card_id": 34321,
+      "japanese_set": "SM4p",
+      "japanese_number": "093/114",
+      "card_type": "Item",
+      "printing_source": "https://www.pokemon-card.com/card-search/details.php/card/34321"
+    },
+    {
+      "name_en": "Canceling Cologne",
+      "name_ja": "キャンセルコロン",
+      "count": 1,
+      "japanese_card_id": 41294,
+      "japanese_set": "S9a",
+      "japanese_number": "063/067",
+      "card_type": "Item",
+      "printing_source": "https://www.pokemon-card.com/card-search/details.php/card/41294"
+    }
+  ]
+}
