@@ -286,6 +286,35 @@ test('both Simulator clone modes retain explicit trial-level safety blockers', (
   }));
 });
 
+test('v2 post-super clone reporting retains an unqualified safety boundary', () => {
+  const baseline = auditCampaignQuality(fixture());
+  const experimental = fixture();
+  experimental.policyFlags = {postSuperAliasRepairIsolation: true};
+  const report = auditCampaignQuality(experimental);
+  assert.equal(report.simulatorCloneProfile, 'post-super-alias-repair-experimental-v2');
+  assert.equal(report.simulatorSafetyStatus, 'experimental-clone-not-qualified');
+  assert.equal(report.simulatorSafetyBlocker, 'experimental-clone-not-qualified');
+  assert.equal(report.simulatorSafetyQualified, false);
+  assert.equal(report.winRateEvidence, false);
+  assert.equal(report.candidateRankingPermitted, false);
+  assert.ok(report.coverage.every(row => row.independentlyQualifiedGames === 0));
+  assert.ok(report.records.every(row =>
+    row.simulatorCloneProfile === 'post-super-alias-repair-experimental-v2' &&
+    row.blockers.includes('experimental-clone-not-qualified') &&
+    !row.blockers.includes('unvalidated-simulator-alias')));
+  assert.deepEqual(report.coverage, baseline.coverage);
+  assert.deepEqual(report.records.map(row => row.trialId),
+    baseline.records.map(row => row.trialId));
+
+  const incompatible = fixture();
+  incompatible.policyFlags = {
+    prototypeSafeSimulatorIsolation: true,
+    postSuperAliasRepairIsolation: true
+  };
+  assert.throws(() => auditCampaignQuality(incompatible),
+    /incompatible speculative Simulator profiles/);
+});
+
 test('physical-seat balance cannot impersonate both verified actual starting orders', () => {
   const f = fixture();
   for (const record of f.records) {
