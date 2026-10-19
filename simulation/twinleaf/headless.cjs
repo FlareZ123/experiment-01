@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const {observeFirstTurn, summarizeTurnOrder} = require('./turn-order-evidence.cjs');
+const {playerPlayLockVeto}=require('./player-play-lock-veto.cjs');
 const {installToolJammerHook} = require('./tool-jammer-hook.cjs');
 const {installGrandTreeFirstTurnHook} = require('./grand-tree-first-turn-hook.cjs');
 const {installPrototypeSafeSimulatorHook} = require('./prototype-safe-simulator-hook.cjs');
@@ -291,6 +292,10 @@ function policyRandomStreams(seed) {
  * @returns {object} Deterministic bounded match summary with trace counts and deck hashes.
  */
 function runMatch(request) {
+  if (request.enforceVisiblePlayLockSeat !== undefined &&
+      ![0,1].includes(request.enforceVisiblePlayLockSeat)) {
+    throw new Error('Live Store play-lock guard needs a physical seat 0 or 1');
+  }
   if (!Array.isArray(request.deckA) || request.deckA.length !== 60 ||
       !Array.isArray(request.deckB) || request.deckB.length !== 60) {
     throw new Error('Both decks must contain 60 concrete Twinleaf card fullNames.');
@@ -737,6 +742,7 @@ function runMatch(request) {
       throw new Error('maxActions must be a positive integer.');
     }
     let actions = 0;
+    const playLockDispatchGuardEvents=[];
     let initialBoardAtFirstTurn = null;
     const actionCounts = {};
     const actionsBySeat = [{}, {}];
@@ -839,6 +845,29 @@ function runMatch(request) {
           seats[state.activePlayer].decodeNextAction(state);
         if (!action) {
           throw new Error('Policy failed to generate a turn action.');
+        }
+      }
+      if (request.enforceVisiblePlayLockSeat !== undefined &&
+          state.phase === GamePhase.PLAYER_TURN && !pending) {
+        const owner=state.players[request.enforceVisiblePlayLockSeat];
+        const {SuperType,TrainerType,EnergyType} =
+          engine('game/store/card/card-types');
+        const reason=playerPlayLockVeto(owner,action,{
+          superTrainer:SuperType.TRAINER,superEnergy:SuperType.ENERGY,
+          stadium:TrainerType.STADIUM,specialEnergy:EnergyType.SPECIAL
+        });
+        if (reason) {
+          playLockDispatchGuardEvents.push({
+            turn:state.turn,seat:request.enforceVisiblePlayLockSeat,
+            reason,originalCard:owner.hand.cards[action.handIndex].fullName,
+            originalAction:action.constructor.name,
+            alternative:'PassTurnAction',
+            playerFlags:{stadium:owner.cannotPlayStadiumCards,
+              specialEnergy:owner.cannotPlaySpecialEnergyCards,
+              remainingTurns:owner.playLocksTurnsRemaining}
+          });
+          const {PassTurnAction}=engine('game/store/actions/game-actions');
+          action=new PassTurnAction(owner.id);
         }
       }
       if (request.strictPromptValidation === true) {
@@ -1227,6 +1256,8 @@ function runMatch(request) {
       attackTrace,
       attackDeclarationTrace,
       attackDeclarationTraceProtocol: 'real-store-attack-log-declarations-v1',
+      ...(request.enforceVisiblePlayLockSeat !== undefined ?
+        {playLockDispatchGuardEvents} : {}),
       ...(publicAttackTransitions ? {
         publicAttackTransitions,
         publicAttackTransitionsProtocol:'actual-store-public-attack-transitions-v1'
