@@ -38,10 +38,11 @@ test('same one-stage AOR access as rank15, but distinct Stoutland chain raises j
   assert.ok(Math.abs(p2-0.8606286796019404)<1e-12);
   assert.ok(Math.abs(p15-0.5747208081617351)<1e-12);
   assert.ok(Math.abs(p2-p15-0.28590787144020535)<1e-12);
-  assert.equal(rank2.itemLockStage2AvailableGivenLegalOpening.probability,
-    rank15Topology[1].givenLegalOpening.probability+
-    rank15Topology[3].givenLegalOpening.probability+
-    rank15Topology[4].givenLegalOpening.probability);
+  assert.ok(Math.abs(
+    rank2.itemLockStage2AvailableGivenLegalOpening.probability-
+    (rank15Topology[1].givenLegalOpening.probability+
+     rank15Topology[3].givenLegalOpening.probability+
+     rank15Topology[4].givenLegalOpening.probability))<1e-12);
   assert.ok(Math.abs(
     rank2.supporterLockStage2AvailableGivenLegalOpening.probability-
     0.8838689317268741)<1e-12);
