@@ -127,4 +127,18 @@ function withPlayerPlayLockVeto(seat, execute) {
   }
 }
 
-module.exports={playerPlayLockVeto,withPlayerPlayLockVeto};
+/**
+ * Decide which physical actor's final non-prompt action needs the live
+ * player-level lock gate. Both-actor policy follows the actual active seat.
+ *
+ * @param {{enforceVisiblePlayLockSeat?:0|1,enforceVisiblePlayLockBothSeats?:boolean}} request
+ * @param {0|1} activeSeat
+ * @returns {0|1|undefined}
+ */
+function visiblePlayLockGuardSeat(request,activeSeat) {
+  return request.enforceVisiblePlayLockBothSeats===true ?
+    activeSeat : request.enforceVisiblePlayLockSeat;
+}
+
+module.exports={playerPlayLockVeto,withPlayerPlayLockVeto,
+  visiblePlayLockGuardSeat};
