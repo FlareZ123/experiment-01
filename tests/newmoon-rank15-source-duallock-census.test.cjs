@@ -64,6 +64,9 @@ test('root-only post-dispatch observation records dual board and Stage1 exposure
   assert.equal(result.max.aorCount,1);
   assert.equal(result.max.busCount,1);
   assert.equal(result.max.dusclopsCount,1);
+  assert.equal(result.max.sourceStageLineSlots,2);
+  assert.equal(result.first.twoSourceStageLineSlots.sourceStageLineSlots,2);
+  assert.equal(result.first.fullSourceBenchBelowTwoStageLines,null);
   assert.equal(MockStore.prototype.dispatch,original);
 });
 
@@ -91,4 +94,29 @@ test('source-only initial six-Prize gate is annotated and leaves zones unchanged
   assert.equal(result.firstNormalTurnPrizeGate.beforeTakingPrizesEligible,false);
   assert.equal(result.firstNormalTurnPrizeGate.gloomPrized,1);
   assert.equal(JSON.stringify(store.state),before);
+});
+
+test('detect authentic full Bench with only one stage-chain position',()=>{
+  const original=Object.getOwnPropertyDescriptor(MockStore.prototype,'dispatch').value;
+  const store=new MockStore({players:[player('Oddish UNB',[])]});
+  const stageStarved={
+    players:[
+      player('Bunnelby PRC',
+        ['Oddish UNB','Budew ASC','Pidgey FLF','Buneary M2','Fan Rotom SCR']),
+      player('Mewtwo & Mew-GX UNM',[])
+    ],
+    turn:4,activePlayer:0
+  };
+  const result=observeSourceLock(MockStore,0,1,()=>{
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(Object.assign(new PlayCardAction(),{nextState:stageStarved}));
+    return 'observed';
+  });
+  assert.equal(result.result,'observed');
+  assert.equal(result.first.fullSourceBenchBelowTwoStageLines.turn,4);
+  assert.equal(result.first.fullSourceBenchBelowTwoStageLines.sourceStageLineSlots,1);
+  assert.equal(result.first.fullSourceBenchBelowTwoStageLines.occupiedSourceBench,5);
+  assert.equal(result.first.twoSourceStageLineSlots,null);
+  assert.equal(result.max.sourceStageLineSlots,1);
+  assert.equal(MockStore.prototype.dispatch,original);
 });
