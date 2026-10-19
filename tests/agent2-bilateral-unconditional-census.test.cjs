@@ -194,9 +194,11 @@ test('pressure witness helper never calls an incomplete game a negative',()=>{
   assert.equal(pressureEvidence({status:'engine-terminal',
     sourcePressure:{accepted:true,effectVerified:true,
       traceAuthenticated:true,actorSeat:1}},0),'no-witness-in-terminal');
-  assert.equal(pressureEvidence({status:'action-cap',
+  assert.equal(pressureEvidence({status:'action-cap',rootActionCount:30,
     sourcePressure:{accepted:true,effectVerified:true,
-      traceAuthenticated:true,actorSeat:0}},0),'verified-effect');
+      traceAuthenticated:true,actorSeat:0,rootActionOrdinal:5,
+      completionOrdinal:6,turnBefore:1,completionTurnBefore:1}},
+  0),'verified-effect');
 });
 
 
@@ -232,4 +234,31 @@ test('unaligned censored arms never acquire fabricated negative pressure',()=>{
   assert.equal(pair.unalignedTerminalPressureCell,null);
   assert.equal(pair.candidateArms[1].status,'action-cap');
   assert.equal(pair.candidateArms[1].engineWinner,null);
+});
+
+test('accepted pressure requires a possible source root within the archived ledger',()=>{
+  const {plan,archive}=fixture();
+  const row=rowFor(archive,6,0,'reference');
+  row.sourcePressure.completionOrdinal=row.rootActionCount;
+  const census=auditUnconditionalBilateralCensus(plan,archive);
+  assert.equal(census.byRank[6].pressureCells['second-only-witnessed'],1);
+  assert.equal(census.byRank[6].pressureCells['both-witnessed'],1);
+  assert.equal(census.pairs[0].candidateArms[0].sourcePressureEvidence,
+    'no-witness-in-terminal');
+  assert.equal(census.pairedAttemptCensusReviewable,true,
+    'Attempt accounting is independent of rejected pressure witnesses');
+});
+
+test('malformed or cross-turn effects cannot fabricate pressure evidence',()=>{
+  const {plan,archive}=fixture();
+  const row=rowFor(archive,11,1,'newmoon');
+  row.sourcePressure.completionTurnBefore++;
+  let census=auditUnconditionalBilateralCensus(plan,archive);
+  assert.equal(census.byRank[11].pressureCells['first-only-witnessed'],1);
+  assert.equal(census.pairs.find(p=>p.sourceRank===11&&p.candidateSeat===1)
+    .candidateArms[1].sourcePressureEvidence,'no-witness-in-terminal');
+  row.sourcePressure.completionTurnBefore--;
+  row.sourcePressure.rootActionOrdinal=-1;
+  census=auditUnconditionalBilateralCensus(plan,archive);
+  assert.equal(census.byRank[11].pressureCells['first-only-witnessed'],1);
 });
