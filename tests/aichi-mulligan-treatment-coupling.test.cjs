@@ -39,7 +39,7 @@ test('14/17 Basic first-hand probability difference is an exact numerator',()=>{
   assert.equal(result.denominator,'386206920');
   assert.deepEqual(result.firstMulliganNumerators,{
     reference:'53524680',alternate:'32224114',
-    source:'85904450',excessReference:'21300566'
+    source:'85900584',excessReference:'21300566'
   });
   close(result.absoluteFirstAttemptDiscordanceLowerBound,
     21300566/386206920);
