@@ -21,4 +21,17 @@ The pre-dispatch commitments are the seed and actor slot above, first observed r
 
 ## Execution and analysis
 
-*Compiled test status and archived output will be entered only after an actual workflow result is verified.*
+### First compiled execution and a discovered telemetry defect
+
+Manual [workflow 39311590506](https://github.com/FlareZ123/experiment-01/actions/runs/39311590506) **passed** at head `542c42c289ca55899d22077311e2d3369a7a2764`, including three new pure tests, two original-deal replay arms and unchanged 285-root-action/terminal-equivalence assertions. Archived JSON: [artifact 12216091430](https://github.com/FlareZ123/experiment-01/actions/runs/39311590506/artifacts/12216091430); ZIP SHA-256 `a8e08494d21cb6ffb850cdb1c14a01784ea7310512b3abb8b5995d1dc539a326`, JSON SHA-256 `bfbe351d11ec9747dc7f4f05be509da53852ec63abcea106d9ba2e34a4f7948d`.
+
+The first capture showed **Fan Rotom SCR Active with Jet Energy PAL**, **Lillipup CEC and Mr. Mime PLF** Benched, **Great Tree SCR** Stadium in play, hand `Tag Call CEC, Pidgeotto TEU, Pidgeot ex OBF, Artazon PAL`, and discard `Guzma & Hala CEC`. Opponent's public Active was Marshadow UNB; the five public Benched Pokémon included Shadow Rider Calyrex VMAX. The generic Gladion action selected **Relicanth TEF** at ordinal 47; the next real own nonprompt action at ordinal 48 played **Relicanth**, and the first later opponent nonprompt action at ordinal 58 attached **Psychic Energy**. Six source Prizes genuinely revealed at the root were `Relicanth TEF`, `Technical Machine: Evolution PAR`, `Herdier SUM`, `Vileplume-GX CEC`, `Lusamine CIN`, and `Gloom UNB`.
+
+**Correction identified on critical review:** the initial observer incorrectly interpreted `player.supporterTurn` as an absolute turn number (`===state.turn`). Pinned [Play Trainer reducer](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/effect-reducers/play-trainer-effect.ts) increments this field as a per-turn **count** (`+=1`). Consequently the original JSON's `supporterAlreadyPlayed:false` was a telemetry error and **must not be interpreted as actual Supporter availability**. The observer has been corrected to `supporterTurn>0`; the fixed extension also records the actual once-per-turn `stadiumUsedTurn===state.turn` and public own Lost Zone, with extra regression tests. Reexecute the identical fixed source seed only as a corrected replay; no new sample or independent evidence.
+
+### Tactical interpretation and remaining gates
+
+The live root contains **no Oddish on the Bench**, making a retrieved Gloom of no immediate normal-evolution use. The **Lillipup** could be a Stage-1 evolution target if its remaining Herdier is available. `Technical Machine: Evolution` is a Tool granting a Colorless-cost attack that could evolve eligible Benched Pokémon from the deck. At the same time, **Grand Tree was already in play** and its printed effect can evolve one eligible Basic Pokémon by searching for a Stage 1 and optionally its Stage 2, subject to turn-in-play and access constraints. Whether Grand Tree's use was available or already spent on that source turn, whether the relevant Herdier and Stoutland remained in deck, and how the source/defending player would respond are **not established by the first capture**. A straight substitution to TM or Gloom is therefore not justified.
+
+Both arms retain **zero competitively qualified games**. This single real-root diagnostic is a potential development fixture for Stadium-action decision-policy quality, not an unbiased demonstration of superior Gladion selection.
+
