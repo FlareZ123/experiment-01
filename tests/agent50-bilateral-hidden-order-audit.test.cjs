@@ -103,6 +103,29 @@ test('score-only sensitivity is distinct from action choice',()=>{
   assert.equal(row.classification,'hidden-order-score-sensitivity-only');
 });
 
+test('identical chosen roots still veto divergent public effects and boards',()=>{
+  const changedBoard=run(rank6,{probedRow:{
+    finalBoard:{seat0:{active:'same action, different damage'}}
+  }});
+  assert.equal(changedBoard.control.rootActions,
+    changedBoard.probed.rootActions);
+  assert.equal(changedBoard.samePlayback,false);
+  assert.equal(changedBoard.noninterferenceVerified,false);
+  assert.equal(changedBoard.classification,
+    'probe-changed-or-unverified-live-playback');
+  const changedEffect=run(rank11,{probedRow:{
+    sourceLinePacket:{publicAttack:{settled:'different'}}
+  }});
+  assert.equal(changedEffect.samePlayback,false);
+  assert.equal(changedEffect.classification,
+    'probe-changed-or-unverified-live-playback');
+  const changedDelegated=run(rank6,{probedRow:{
+    candidatePerfectionPassSamples:[{selected:'different-delegated-attack'}]
+  }});
+  assert.equal(changedDelegated.samePlayback,false);
+  assert.equal(changedDelegated.comparisonQualified,false);
+});
+
 test('root action drift vetoes a purported information-set result',()=>{
   const row=run(rank6,{
     probedRow:{rootActionLedgerSha256:'d'.repeat(64)},
