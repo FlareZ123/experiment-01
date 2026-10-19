@@ -10,12 +10,11 @@ const {PlayCardAction,PlayerType,SlotType}=
   require(path.join(output,'game/store/actions/play-card-action'));
 
 /**
- * Move the native Stadium object into the player's hand. The original
- * prepared game's Pokemon, hand, deck, prizes and all other cards remain.
- * Source-dealt Aichi card counts are NOT claimed by this small fixture.
+ * Prepare an actual pinned Store with Thunder Mountain moved to own hand.
+ * The synthetic board is only a native rule test, not an Aichi source deal.
  * @returns {{a:object,state:object,store:object,stadium:object}}
  */
-function makeHeldStadium() {
+function makeHeldStadium(){
   const prepared=prepare(true);
   const {a}=prepared;
   assert.equal(a.stadium.cards.length,1);
@@ -27,11 +26,12 @@ function makeHeldStadium() {
   return {...prepared,stadium};
 }
 
-/** @param {{a:object}} f */
-function stadiumAction(f){
-  const index=f.a.hand.cards.findIndex(c=>c.name==='Thunder Mountain Prism Star');
+/** @param {{a:object}} fixture */
+function stadiumAction(fixture){
+  const index=fixture.a.hand.cards.findIndex(
+    c=>c.name==='Thunder Mountain Prism Star');
   assert.ok(index>=0,'Stadium must be held');
-  return new PlayCardAction(f.a.id,index,{
+  return new PlayCardAction(fixture.a.id,index,{
     player:PlayerType.ANY,slot:SlotType.BOARD,index:0
   });
 }
@@ -40,16 +40,16 @@ function stadiumAction(f){
 function main(){
   const legal=makeHeldStadium();
   const locked=makeHeldStadium();
-  assert.equal(legal.state.turn,locked.state.turn);
   assert.deepEqual(legal.a.hand.cards.map(c=>c.fullName),
     locked.a.hand.cards.map(c=>c.fullName));
   assert.equal(legal.a.stadiumPlayedTurn,0);
   assert.equal(locked.a.stadiumPlayedTurn,0);
 
   legal.store.dispatch(stadiumAction(legal));
-  assert.ok(legal.a.stadium.cards.includes(legal.stadium));
-  assert.ok(!legal.a.hand.cards.includes(legal.stadium));
-  assert.equal(legal.a.stadiumPlayedTurn,legal.state.turn);
+  assert.ok(legal.store.state.players[0].stadium.cards.some(
+    c=>c.fullName===legal.stadium.fullName));
+  assert.equal(legal.store.state.players[0].stadiumPlayedTurn,
+    legal.store.state.turn);
 
   locked.a.cannotPlayStadiumCards=true;
   assert.equal(planOpeningHand([{name:'Double Colorless Energy'}],
@@ -58,27 +58,43 @@ function main(){
   try{locked.store.dispatch(stadiumAction(locked));}
   catch(error){firstReject=error?.message??String(error);}
   assert.equal(firstReject,'BLOCKED_BY_EFFECT');
-  assert.ok(locked.a.hand.cards.includes(locked.stadium));
-  assert.ok(!locked.a.stadium.cards.includes(locked.stadium));
 
-  const afterRejected=locked.a.stadiumPlayedTurn;
-  locked.a.cannotPlayStadiumCards=false;
+  const live=locked.store.state.players[0];
+  assert.notEqual(live,locked.a);
+  assert.notEqual(locked.store.state,locked.state);
+  const stalePreparedPlayerCounter=locked.a.stadiumPlayedTurn;
+  const afterRejectedLive={
+    stadiumPlayedTurn:live.stadiumPlayedTurn,
+    ownHandHasStadium:live.hand.cards.some(
+      c=>c.fullName===locked.stadium.fullName),
+    ownStadiumInPlay:live.stadium.cards.some(
+      c=>c.fullName===locked.stadium.fullName)
+  };
+  assert.equal(afterRejectedLive.stadiumPlayedTurn,0);
+  assert.equal(afterRejectedLive.ownHandHasStadium,true);
+  assert.equal(afterRejectedLive.ownStadiumInPlay,false);
+
+  live.cannotPlayStadiumCards=false;
   let afterClearingLock=null;
-  try{locked.store.dispatch(stadiumAction(locked));}
+  try{locked.store.dispatch(stadiumAction({a:live}));}
   catch(error){afterClearingLock=error?.message??String(error);}
-
+  const final=locked.store.state.players[0];
+  assert.equal(afterClearingLock,null,
+    'Unlocked live retry should be legal after rejected Stadium');
+  assert.equal(final.stadiumPlayedTurn,locked.store.state.turn);
+  assert.equal(final.stadium.cards.some(
+    c=>c.fullName===locked.stadium.fullName),true);
   const result={
-    schema:'rank6-native-rejected-stadium-state-v1',
+    schema:'rank6-native-rejected-stadium-state-v2-live-backup',
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     preparedNativeState:true,sourceAichiDeal:false,
     firstUnlockedStadiumPlaySucceeded:true,
     lockedPlayRejected:firstReject,
-    stadiumWasStillHeldAfterReject:true,
-    stadiumPlayedTurnAfterReject:afterRejected,
-    rejectedPlayConsumedStadiumAllowance:afterRejected===locked.state.turn,
+    afterRejectedLive,stalePreparedPlayerCounter,
+    playerReferenceReplaced:true,stateReferenceReplaced:true,
     laterAfterLockClearedError:afterClearingLock,
-    laterStadiumInPlay:locked.a.stadium.cards.includes(locked.stadium),
-    laterStadiumStillHeld:locked.a.hand.cards.includes(locked.stadium),
+    laterStadiumInPlay:true,
+    liveBackupPreservesAllowance:true,
     actualCompleteGame:false,qualifiedForCompetitiveInference:false
   };
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
