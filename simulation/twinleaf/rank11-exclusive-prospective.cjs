@@ -8,13 +8,16 @@ const {withRank11ExclusiveOpeners}=require('./rank11-exclusive-openers.cjs');
 const {exclusiveSeedFrame,seedFrameDigest}=
   require('./rank11-exclusive-prospective-seeds.cjs');
 const {classifyTrial}=require('./rank11-exclusive-trial-classification.cjs');
+const {withSameTargetAttachEnergySelection}=
+  require('./same-target-attach-energy-hook.cjs');
 const registration=require('../../results/aichi-2026/registrations/rank11-exclusive-openers-v1-20261019.json');
 const candidateManifest=require('../../results/als/new-moon-lockbreak-english-proxy-60.json');
 
 const ACTION_CAP=48;
 
 /** @returns {object} All prespecified source deals; errors remain in denominator. */
-function run() {
+function run({sameTargetCorrection=false}={}) {
+  assert.equal(typeof sameTargetCorrection,'boolean');
   const frame=exclusiveSeedFrame();
   assert.equal(frame.length,registration.experiment.attempts);
   assert.equal(seedFrameDigest(frame),registration.randomness.seedFrameSha256);
@@ -34,9 +37,12 @@ function run() {
   const rows=[];
   for(const {sourceSeat,repeat,seed} of frame) {
     try {
-      const observed=withRank11ExclusiveOpeners(sourceSeat,()=>runArm(
+      const play=()=>withRank11ExclusiveOpeners(sourceSeat,()=>runArm(
         candidate,source.cards,1-sourceSeat,seed,ACTION_CAP,false
       ));
+      const patch=sameTargetCorrection?
+        withSameTargetAttachEnergySelection(play):null;
+      const observed=patch?patch.result:play();
       const game=observed.result;
       const audit=observed.policyAudit;
       const classification=classifyTrial(audit,game,sourceSeat,ACTION_CAP);
@@ -51,6 +57,8 @@ function run() {
         directNextTurnLockWitness:audit.direct.nextTurnLockWitness,
         heldNextTurnLockWitness:audit.held.nextTurnLockWitness,
         competing:audit.competing,
+        botSameTargetRepairCount:patch?.audit.repairedPromptCount??0,
+        botSameTargetRepairEvents:patch?.audit.events??[],
         gameActionCount:game.actions,
         gameTurnCount:game.turns,engineFinished:game.finished,
         diagnosticOnlyEngineWinner:game.winner,
@@ -80,6 +88,10 @@ function run() {
     candidateStatus:registration.candidate.status,
     pinnedTwinleaf:registration.engine,
     actualSourceFrame:frame.length,
+    sameTargetCorrectionApplied:sameTargetCorrection,
+    sameTargetCorrectionStatus:sameTargetCorrection?
+      'post-registered engine-bot-failure repair; exploratory rerun of all original seeds' :
+      'originally preregistered unchanged baseline; abort on any engine exception',
     actualAttempted:rows.length,sourceFirst,sourceSecond,
     sourceStartVerified:verified,exceptions,
     resultClassCounts:group('resultClass',
@@ -88,6 +100,8 @@ function run() {
         'engine-exception']),
     byPhysicalSeat:group('sourceSeat',[0,1]),
     ownerLineCompleted:rows.filter(row=>row.completed===true).length,
+    botSameTargetRepairs:rows.reduce(
+      (total,row)=>total+(row.botSameTargetRepairCount??0),0),
     competingClaimAttempts:rows.reduce(
       (total,row)=>total+(row.competingClaimAttempts??0),0),
     cappedWithoutTerminal:rows.filter(row=>row.actionCapped===true).length,
@@ -102,6 +116,8 @@ function run() {
 }
 
 if(require.main===module) {
-  process.stdout.write(JSON.stringify(run(),null,2)+'\n');
+  process.stdout.write(JSON.stringify(run({
+    sameTargetCorrection:process.env.SAME_TARGET_ENERGY_CORRECTION==='true'
+  }),null,2)+'\n');
 }
 module.exports={run};
