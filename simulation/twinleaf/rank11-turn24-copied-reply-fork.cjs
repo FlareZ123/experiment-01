@@ -165,8 +165,14 @@ function run() {
     row.turnBefore===firstSourceReply.turnBefore && row.playerSlot===0);
   const sourceFirstAction=game.decisionTrace.find(row=>
     row.actionOrdinal===firstSourceReply.actionOrdinal);
+  const sourcePass=game.decisionTrace.find(row=>
+    row.turnBefore===firstSourceReply.turnBefore && row.playerSlot===0 &&
+    row.action==='PassTurnAction');
   const sourceTurnPublicPressure={
     globalTurn:firstSourceReply.turnBefore,
+    sourcePassActionOrdinal:sourcePass?.actionOrdinal??null,
+    sourceHandAtPass:sourcePass?.decisionHandBefore?.ownHandPrintings??null,
+    sourceBoardAtPass:sourcePass?.publicBoardBeforePass??null,
     initialAction:firstSourceReply,
     ownerHandAtInitialAction:sourceFirstAction?.decisionHandBefore?.ownHandPrintings??null,
     publicBoardAtInitialAction:sourceFirstAction?.publicBoardBeforePass??null,
