@@ -52,13 +52,21 @@ jobs:
       - name: Compare native legal and second-attachment rejects
         run: node simulation/twinleaf/rank6-manual-attachment-native-fixture.cjs
       - name: Characterize rejected locked Energy action's state mutation
-        run: node simulation/twinleaf/rank6-rejected-energy-state-audit.cjs > rank6-rejected-energy-state.json
+        run: |
+          node simulation/twinleaf/rank6-rejected-energy-state-audit.cjs > rank6-rejected-energy-state.json
+          cat rank6-rejected-energy-state.json
+      - name: Characterize rejected locked Stadium action's state mutation
+        run: |
+          node simulation/twinleaf/rank6-rejected-stadium-state-audit.cjs > rank6-rejected-stadium-state.json
+          cat rank6-rejected-stadium-state.json
       - name: Archive pinned rejected-action evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: rank6-rejected-energy-native
-          path: rank6-rejected-energy-state.json
+          name: rank6-rejected-trainer-energy-native
+          path: |
+            rank6-rejected-energy-state.json
+            rank6-rejected-stadium-state.json
           if-no-files-found: warn
   test:
     if: ${{ !inputs.policy_smoke_only && !inputs.native_energy_probe }}
