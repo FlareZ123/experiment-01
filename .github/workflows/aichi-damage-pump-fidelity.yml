@@ -18,6 +18,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank26_mail_starter_probe:
+        description: 'Compare four authenticated rank26 starter-Mail policy development sources'
+        type: boolean
+        required: false
+        default: false
       rank26_dce_probe:
         description: 'Compare firstturn Meloetta Lightning and DCE reservation policies'
         type: boolean
@@ -134,6 +139,19 @@ jobs:
         with:
           name: rank26-mail-scout-source-unqualified
           path: rank26-mail-source-probe.json
+          if-no-files-found: error
+      - name: Compare non-Meloetta starter Mail on four historical authentic deals
+        if: ${{ inputs.rank26_mail_starter_probe }}
+        run: node simulation/twinleaf/rank26-mail-starter-source-pair.cjs > rank26-mail-starter-development.json
+      - name: Print bounded real-source starter Mail decision outcomes
+        if: ${{ inputs.rank26_mail_starter_probe }}
+        run: node -e "const x=require('./rank26-mail-starter-development.json'); console.log(JSON.stringify({cases:x.summary.cases,v1:x.summary.sourceRealFirstTurnV1Mail,v2:x.summary.sourceRealFirstTurnV2Mail,v2Cases:x.summary.casesWithV2Mail,attacks:x.summary.casesWithSourceRootAttackV2,prizeChange:x.summary.casesWithOpponentPrizeReductionV2,qualified:x.competitiveGameQualified},null,2))"
+      - name: Archive source-conserved Mail starter policy-development paired traces
+        if: ${{ inputs.rank26_mail_starter_probe }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank26-mail-starter-development-unqualified
+          path: rank26-mail-starter-development.json
           if-no-files-found: error
       - name: Execute authentic rank26 DCE policy comparison
         if: ${{ inputs.rank26_dce_probe }}
