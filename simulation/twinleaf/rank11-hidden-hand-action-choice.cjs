@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const {makeFixture, observation} = require('./rank11-hidden-opponent-hand-poltergeist.cjs');
+const {initializeCards} = require('./headless.cjs');
 const load = name => require(path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output', name));
 
 /** Compare attacks from two states with the same actor observation. */
@@ -13,7 +14,18 @@ function run() {
   const rows=[];
   for(const damage of [0,40,80,120,160,200]) for(const gxUsed of [false,true]) {
     const samples=[makeFixture(false),makeFixture(true)];
-    for(const s of samples){s.defender.active.damage=damage;s.attacker.usedGX=gxUsed;}
+    const cards=initializeCards();
+    for(const s of samples){
+      s.defender.active.damage=damage;s.attacker.usedGX=gxUsed;
+      for(let i=0;i<39;i++){
+        const energy=cards.getCardByName('Psychic Energy MEE');
+        assert.ok(energy);
+        energy.id=5000+i;
+        s.attacker.deck.cards.push(energy);
+      }
+      assert.equal(s.attacker.deck.cards.length+s.attacker.active.cards.length+
+        s.attacker.prizes.length,60,'Staged attacker also has a physical 60');
+    }
     assert.deepEqual(observation(samples[0]),observation(samples[1]));
     assert.equal(samples[0].sourceDigest,samples[1].sourceDigest);
     const choice=samples.map(s=>{const action=new AttackTactic(options).useTactic(s.state,s.attacker);return action?.name??null;});
