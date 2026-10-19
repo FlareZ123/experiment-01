@@ -45,12 +45,15 @@ function selectLiveDeckEvolution(state, player, prompt, printedName,
  * This only acts at a legally visible Stadium prompt and owner deck searches.
  * @template T
  * @param {()=>T} execute
+ * @param {{promoteStoutland?:boolean}} [configuration]
  * @returns {{result:T,audit:object}}
  */
-function withObservedGrandTreeEvolution(execute) {
+function withObservedGrandTreeEvolution(execute,
+  {promoteStoutland = false} = {}) {
   const engine = name => require(path.join(OUTPUT, name));
   const {SimpleTacticsAi} = engine('simple-bot/simple-tactics-ai');
-  const {UseStadiumAction} = engine('game/store/actions/game-actions');
+  const {UseStadiumAction, RetreatAction} =
+    engine('game/store/actions/game-actions');
   const {ResolvePromptAction} =
     engine('game/store/actions/resolve-prompt-action');
   const {GamePhase} = engine('game/store/state/state');
@@ -58,6 +61,7 @@ function withObservedGrandTreeEvolution(execute) {
   const steps = [];
   let phase = 'before-prize-choice';
   let settledBoard = null;
+  let activeAfterRetreat = null;
 
   SimpleTacticsAi.prototype.decodeNextAction = function sourceGrandTree(state) {
     const player = state.players[SOURCE_SEAT];
@@ -131,6 +135,29 @@ function withObservedGrandTreeEvolution(execute) {
         ownActive: player.active.getPokemonCard()?.fullName ?? null
       };
       steps.push({phase: 'post-effect-board', ...settledBoard});
+      if (promoteStoutland && stoutland &&
+          player.retreatedTurn !== state.turn &&
+          player.active.energies.cards.length > 0) {
+        phase = 'retreat-to-stoutland';
+        steps.push({phase: 'request-real-retreat',
+          benchIndex: player.bench.indexOf(stoutland),
+          from: player.active.getPokemonCard()?.fullName ?? null,
+          paidEnergyCandidates: player.active.energies.cards.map(c => c.fullName),
+          turn: state.turn});
+        return new RetreatAction(player.id, player.bench.indexOf(stoutland));
+      }
+      phase = 'complete';
+    }
+    if (phase === 'retreat-to-stoutland' && !pending) {
+      activeAfterRetreat = {
+        turn: state.turn,
+        active: player.active.getPokemonCard()?.fullName ?? null,
+        ownBench: player.bench.map(s =>
+          s.getPokemonCard()?.fullName).filter(Boolean),
+        activeSupporterLockPotential:
+          player.active.getPokemonCard()?.fullName === 'Stoutland BCR'
+      };
+      steps.push({phase: 'post-real-retreat', ...activeAfterRetreat});
       phase = 'complete';
     }
     return original.call(this, state);
@@ -140,7 +167,8 @@ function withObservedGrandTreeEvolution(execute) {
     return {result, audit: {
       version: 'agent40-original-rank2-grandtree-retro-fork-v1',
       seed: SEED, sourceSeat: SOURCE_SEAT, afterRoot: PRIZE_ROOT_ORDINAL,
-      phase, steps, settledBoard, competitiveGameQualified: false
+      phase, steps, settledBoard, activeAfterRetreat,
+      promoteStoutland, competitiveGameQualified: false
     }};
   } finally {
     SimpleTacticsAi.prototype.decodeNextAction = original;
@@ -148,7 +176,7 @@ function withObservedGrandTreeEvolution(execute) {
 }
 
 /** @returns {object} */
-function runAudit() {
+function runAudit({promoteStoutland = false} = {}) {
   const file = path.resolve(__dirname,
     '../../results/aichi-2026/full-decklists.json');
   const manifest = resolveManifestFile(file, {
@@ -173,7 +201,8 @@ function runAudit() {
   assert.equal(baseline.firstTurnSlot, SOURCE_SEAT);
   assert.equal(sha256(baseline.rootActionLedger), ORIGINAL_ROOT_SHA256);
   const fork = withObservedGrandTreeEvolution(() =>
-    runWithResearchProfile(request, EXPANDED_SOURCE_PROFILE));
+    runWithResearchProfile(request, EXPANDED_SOURCE_PROFILE),
+  {promoteStoutland});
   const baseRoots = baseline.rootActionLedger.filter(row =>
     row.actionOrdinal <= PRIZE_ROOT_ORDINAL);
   const forkRoots = fork.result.rootActionLedger.filter(row =>
@@ -188,6 +217,10 @@ function runAudit() {
     'Stoutland was not established in the genuine Store');
   assert.deepEqual(fork.audit.settledBoard.stoutlandStack.slice(0, 3),
     ['Lillipup CEC', 'Herdier SUM', 'Stoutland BCR']);
+  if (promoteStoutland) {
+    assert.equal(fork.audit.activeAfterRetreat?.active, 'Stoutland BCR',
+      'Real paid Retreat did not promote Stoutland to Active');
+  }
   const nextOpponent = game => game.rootActionLedger.find(row =>
     row.actionOrdinal > PRIZE_ROOT_ORDINAL &&
     row.playerSlot !== SOURCE_SEAT &&
@@ -195,7 +228,9 @@ function runAudit() {
   assert.ok(nextOpponent(fork.result),
     'Alternative must reach an actual subsequent opponent root action');
   return {
-    schema: 'agent40-rank2-grandtree-retrospective-source-fork-v1',
+    schema: promoteStoutland ?
+      'agent40-rank2-grandtree-active-retreat-source-fork-v2' :
+      'agent40-rank2-grandtree-retrospective-source-fork-v1',
     originalDecks: [reference.player, source.player],
     sourceCardCounts: [reference.cardIds.length, source.cardIds.length],
     enginePin: baseline.engine, seed: SEED, actualFirstTurn: baseline.firstTurnSlot,
@@ -225,7 +260,8 @@ function runAudit() {
 }
 
 if (require.main === module) {
-  process.stdout.write(JSON.stringify(runAudit(), null, 2) + '\n');
+  const promoteStoutland = process.argv.includes('--promote-stoutland');
+  process.stdout.write(JSON.stringify(runAudit({promoteStoutland}), null, 2) + '\n');
 }
 module.exports = {
   SEED, SOURCE_SEAT, PRIZE_ROOT_ORDINAL, ORIGINAL_ROOT_SHA256,
