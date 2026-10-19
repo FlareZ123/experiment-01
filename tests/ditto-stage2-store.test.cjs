@@ -67,5 +67,10 @@ test('native Wobbuffet + Tool Jammer Switch attempts distinguish raw engine and 
     assert.equal(corrected.accepted, true);
     assert.ok(corrected.unresolvedPromptKinds.includes('ChoosePokemonPrompt'),
       'Accepted Switch should offer an actual Bench-target prompt');
+    assert.equal(corrected.switchPromptResolved, true);
+    assert.equal(corrected.activeAfterSwitch, 'Pidgey MEW');
+    assert.equal(corrected.originalActiveOnBench, true);
+    assert.equal(corrected.vileplumeAbilitySuppressedAfter, false);
+    assert.equal(corrected.itemLockRestoredAfterSwitch, true);
   }
 });
