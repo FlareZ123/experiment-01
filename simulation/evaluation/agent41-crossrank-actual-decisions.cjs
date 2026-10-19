@@ -158,6 +158,15 @@ function executeArm(trial,prepared,auditOptions={}) {
         attackSelection:row.attackChoice?.selection?.attackName??null,
         prizesAfter:row.prizesAfter??null}));
   const terminal=game.finished===true && [0,1,3].includes(game.winner);
+  // Retrospective-only source and reply report. The frozen campaign leaves
+  // this absent, and cannot be reinterpreted as a new prospective result.
+  const sourceReplyPacket=auditOptions.captureBilateralReplyPacket===true &&
+    sourceTriggerTurn!==null && sourceTriggerTurn!==undefined ?
+    require('./aichi-bilateral-reply-packet.cjs').buildBilateralReplyPacket(game,{
+      sourceSeat,triggerTurn:sourceTriggerTurn,
+      expectedSourceAction:trial.rank===6?'AttackAction':'PlayCardAction',
+      expectedSourceDetail:trial.rank===6?'Volt Cyclone':'Boost Shake'
+    }) : null;
   return {
     ...trial,status:terminal?'engine-terminal':'action-cap-or-incomplete',
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
@@ -168,6 +177,7 @@ function executeArm(trial,prepared,auditOptions={}) {
     candidatePrintingProxy:trial.candidateId==='new-moon-lockbreaker-v1',
     engineDeckHashes:game.deckHashes,
     sourcePolicyAudit:sourceAudit,candidatePolicyAudit:candidateAudit,
+    ...(auditOptions.captureBilateralReplyPacket===true ? {sourceReplyPacket} : {}),
     candidateAttackDeclarations:candidateDecl?.length??null,
     sourceAttackDeclarations:sourceDecl?.length??null,
     candidateChosenCopiedAttackNames:(candidateDecl||[]).filter(row=>
