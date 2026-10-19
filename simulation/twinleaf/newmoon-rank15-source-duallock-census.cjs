@@ -28,7 +28,9 @@ function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
   let firstNormalTurnPrizeGate=null;
   const first={aor:null,bus:null,busActive:null,dual:null,
     dusclops:null,dusclopsActive:null,dusclopsAgainstDual:null,
-    twoSourceStageLineSlots:null,fullSourceBenchBelowTwoStageLines:null};
+    twoSourceStageLineSlots:null,fullSourceBenchBelowTwoStageLines:null,
+    sourceBunnelbyActive:null,sourceBunnelbyActiveWithTM:null,
+    sourceBunnelbyActiveWithTMAndEnergy:null};
   const max={aorCount:0,busCount:0,dusclopsCount:0,
     sourceStageLineSlots:0};
 
@@ -71,6 +73,10 @@ function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
       'Vileplume AOR','Vileplume BUS']);
     const sourceStageLineSlots=opponentBoard.filter(n=>stageNames.has(n)).length;
     const occupiedSourceBench=opponentBoard.slice(1).filter(Boolean).length;
+    const activeBunnelby=opponentActive==='Bunnelby PRC';
+    const activeToolNames=source.active.tools.map(tool=>tool.fullName);
+    const activeEnergyNames=source.active.energies.cards.map(card=>card.fullName);
+    const activeHasTM=activeToolNames.includes('Technical Machine: Evolution PAR');
     const flags={
       aor:aorCount>0,bus:busCount>0,
       busActive:opponentActive==='Vileplume BUS',
@@ -81,7 +87,11 @@ function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
         opponentActive==='Vileplume BUS' && candidateActive==='Dusclops SFA',
       twoSourceStageLineSlots:sourceStageLineSlots>=2,
       fullSourceBenchBelowTwoStageLines:occupiedSourceBench===5 &&
-        sourceStageLineSlots<2
+        sourceStageLineSlots<2,
+      sourceBunnelbyActive:activeBunnelby,
+      sourceBunnelbyActiveWithTM:activeBunnelby&&activeHasTM,
+      sourceBunnelbyActiveWithTMAndEnergy:activeBunnelby&&activeHasTM&&
+        activeEnergyNames.length>0
     };
     rootSnapshots++;
     max.aorCount=Math.max(max.aorCount,aorCount);
@@ -95,7 +105,8 @@ function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
           ordinal:rootSnapshots,turn:this.state.turn,
           action:type,activePlayer:this.state.activePlayer,
           opponentActive,opponentBoard,candidateActive,candidateBoard,
-          occupiedSourceBench,sourceStageLineSlots
+          occupiedSourceBench,sourceStageLineSlots,
+          activeToolNames,activeEnergyNames
         };
       }
     }
