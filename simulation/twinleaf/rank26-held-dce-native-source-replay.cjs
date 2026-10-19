@@ -11,6 +11,8 @@ const {runWithResearchProfile, RANK26_PROPAGATION_PROFILE} =
   require('./policy-profiles.cjs');
 const {withRank26DceRecipientPreference} =
   require('./rank26-dce-recipient-preference.cjs');
+const {withRank26SourceEnergyObserver} =
+  require('./rank26-firstturn-energy-source-observer.cjs');
 
 const SOURCE_SEEDS = Object.freeze([
   {repeat: 61, seat: 1, seed: 293786272, originalEnergy: 'Lightning Energy'},
@@ -91,11 +93,29 @@ function compare() {
     assert.equal(control.selectedEnergy[0], item.originalEnergy,
       'Pinned baseline no longer reproduces registered Energy root');
 
-    const guarded = withRank26DceRecipientPreference(1,
-      () => runWithResearchProfile(request,RANK26_PROPAGATION_PROFILE));
+    const observed = withRank26SourceEnergyObserver(1,
+      () => withRank26DceRecipientPreference(1,
+        () => runWithResearchProfile(request,RANK26_PROPAGATION_PROFILE)));
+    const guarded = observed.result;
     const variant = sourceTurn(guarded.result, item.seed, enemy.cards, source);
     assert.ok(guarded.policyAudit.events.length > 0,
       'New first-turn DCE guard failed to intercept an eligible root');
+    const observedDce = observed.events.filter(e =>
+      e.selectedCard.startsWith('Double Colorless Energy '));
+    if (item.seed === 34971702) {
+      assert.equal(observedDce.length, 1,
+        'Native source did not actually attach the intended unique DCE');
+      const e = observedDce[0];
+      assert.equal(e.after.bench[1]?.pokemon,'Meloetta ex BLK');
+      assert.ok(e.after.bench[1].energy.includes('Double Colorless Energy SUM'),
+        'Native Store accepted DCE root without attaching to Meloetta Bench');
+      assert.equal(e.after.active.energy.some(x =>
+        x.startsWith('Double Colorless Energy ')), false,
+        'Unique DCE incorrectly attached to initial active instead');
+    } else {
+      assert.equal(observedDce.length,0,
+        'Deferred development case unexpectedly consumed unique DCE');
+    }
     cases.push({
       repeat: item.repeat, physicalSeat: 'B', seed: item.seed,
       opening: {
@@ -103,11 +123,12 @@ function compare() {
         heldDce: true
       },
       control, guard: variant, policy: guarded.policyAudit,
+      nativePostDispatchEnergy:observed.events,
       competitiveGameQualified: false
     });
   }
   return {
-    schema: 'rank26-held-dce-native-source-policy-development-v1',
+    schema: 'rank26-held-dce-native-source-policy-development-v2',
     engine: ENGINE, originalDeckCounts: [60,60],
     sourceRank: 26, opponentRank: 6,
     registeredDevelopmentCases: SOURCE_SEEDS.length,
