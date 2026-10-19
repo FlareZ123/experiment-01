@@ -29,6 +29,7 @@ function fixture() {
   const declared=[{
     kind:'engine-attack-declaration',actionOrdinal:2,
     triggerAction:'ResolvePromptAction',triggerPlayerSlot:0,
+    playerSlot:0,playerName:'research-A',
     turnBefore:1,turnAfter:2,attackName:'Poltergeist'
   }];
   return {actions:4,traceSummary:{
@@ -66,6 +67,13 @@ test('a contradictory Store log trigger or attack name fails closed',()=>{
   f.traceSummary.attackDeclarationTrace[0].attackName='Timeless-GX';
   assert.equal(inspectRootActionLedger(f).status,'root-ledger-integrity-mismatch');
 });
+test('an attacker cannot be reattributed to the opposing root player',()=>{
+  const f=fixture();
+  f.traceSummary.attackDeclarationTrace[0].playerSlot=1;
+  f.traceSummary.attackDeclarationTrace[0].playerName='research-B';
+  assert.equal(inspectRootActionLedger(f).status,'root-ledger-integrity-mismatch');
+});
+
 test('older selective-only archives remain explicitly unverified',()=>{
   const f=fixture();
   delete f.traceSummary.rootActionLedgerProtocol;
