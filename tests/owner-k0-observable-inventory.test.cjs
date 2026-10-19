@@ -114,3 +114,27 @@ test('source-printed 60-card rank6 inventory reconciles without reading 53 conce
   assert.equal(result.prizeCount,6);
   assert.equal(result.pool.length,53);
 });
+
+test('authentic owner knowledge epoch prevents false K0 after any search or full review',()=>{
+  const {createOwnerDeckKnowledgeEpoch}=
+    require('../simulation/twinleaf/owner-deck-knowledge-epoch.cjs');
+  const input=()=>({owner:ownerFixture(),registered,deckUnsearched:true});
+  const virgin=createOwnerDeckKnowledgeEpoch();
+  assert.equal(ownerK0ObservableInventory({
+    ...input(),knowledgeEpoch:virgin
+  }).pool.length,4);
+  const searched=createOwnerDeckKnowledgeEpoch();
+  searched.observeOwnerDeckSearch();
+  assert.throws(()=>ownerK0ObservableInventory({
+    ...input(),knowledgeEpoch:searched
+  }),/contradicted by owner epoch/);
+  const reviewed=createOwnerDeckKnowledgeEpoch();
+  reviewed.observeFullOwnPrizes();
+  reviewed.invalidateAfterHiddenPrizeRedeal();
+  assert.throws(()=>ownerK0ObservableInventory({
+    ...input(),knowledgeEpoch:reviewed
+  }),/contradicted by owner epoch/);
+  assert.throws(()=>ownerK0ObservableInventory({
+    ...input(),knowledgeEpoch:{}
+  }),/Authenticated owner knowledge epoch required/);
+});
