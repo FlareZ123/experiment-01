@@ -1,0 +1,39 @@
+# Partition-0 two-hard-rank source-policy disposition
+
+**Agent 6, 19 October 2026 UTC. Evidence class: independent archival review of one preregistered exploratory Twinleaf run. Zero competitively qualified games.**
+
+## Provenance and scope
+
+- Frozen [registration](registrations/agent41-crossrank-r6-r11-v1-20261019.json), original [compiled run 39193837824](https://github.com/FlareZ123/experiment-01/actions/runs/39193837824), original artifact ID 12161805529, ZIP SHA-256 recorded by Agent 41 as `59f79ff8be5fe50b19ad701614c7051b21183563f492a16d87c8b1a72aeba627`.
+- The exact 24-arm `agent41-crossrank-observed.json` was downloaded by the existing manual [archive audit CI 39196565189](https://github.com/FlareZ123/experiment-01/actions/runs/39196565189) and parsed by [source-checked, fail-closed disposition code](../../scripts/agent6-crossrank-disposition.cjs). **Raw extracted JSON SHA-256: `098efa1da50a3a3152abda50001ab3071b3ff3a99cc2e9ab63902c8c0d64960a`.** The preceding [audit CI 39196417399](https://github.com/FlareZ123/experiment-01/actions/runs/39196417399) also passed before the raw JSON digest was added.
+- Fixed published source opponents: rank 6 Iron Thorns and rank 11 Absol/Garbodor; fixed candidate rosters: champion-reference and New Moon Lockbreaker v1 English-printing proxy. Engine `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, maximum 260 root actions, 3 registered repeats and both physical candidate slots per rank. Exactly **24/24 arms** were retained, representing 12 unique rank/repeat/slot seed streams reused across two candidates.
+- `completed` in the policy adapter means its scripted action sequence reached the final step and, for rank 11, a public next-turn equipped-Garbodor witness. This field alone does not prove the exact source attack declaration, printed damage, candidate counter, complete game skill, or official tournament clock equivalence.
+
+## All four triggering arms
+
+| Frozen arm ID | Source signature and real own turn | Candidate next documented choices | Store attack declaration totals (source : candidate) | Observed terminal |
+| --- | --- | --- | ---: | --- |
+| `6:0:A:champion-reference` | Source actually second. Rank-6 global turn 2 held Guzma & Hala; discarded Player's Ceremony + Team Flare Grunt, fetched DCE + Thunder Mountain, attached DCE and emitted Volt Cyclone. Adapter `completed=true`. | Global turn 3 attached Psychic, played draw/bench pieces and actually declared **Pale Moon-GX**. | **1 : 3** | Candidate engine win, turn 7, Prizes **2 : 6** (candidate : source). Terminal opponent in-play Pokémon **1→0**. |
+| `6:0:A:new-moon-lockbreaker-v1` | Same registered seed and source second, same source opening payments and `completed=true`. | Global turn 3 attached Telepathic Psychic, then passed; global turn 5 used Mysterious Treasure and eventually declared **Hidden Power**. | **7 : 1** | Source engine win, turn 30, Prizes **6 : 0** (candidate : source). |
+| `6:2:A:new-moon-lockbreaker-v1` | Source actually first. Global turn 3 used Tag Call, Guzma & Hala, discarded Enhanced Hammer + Team Rocket's Handiwork, selected DCE and completed the Volt Cyclone dispatch. | Global turn 4 attached Psychic and played Lillie's Determination, then passed; turn 6 benched Gengar & Mimikyu-GX and again passed. | **5 : 0** | Source engine win, turn 15, Prizes **6 : 0** (candidate : source). The paired champion arm fails earlier with an engine rejection, so this is no complete paired outcome. |
+| `11:2:B:champion-reference` | Rank 11 actually second. Global turn 2 attached **Forest Seal Stone** to Trubbish, played Boost Shake, searched Garbodor and evolved the Tool bearer. A next-turn public equipped-Garbodor witness confirmed the lock board. `completed=true`. | Global turn 3 evolved Shadow Rider VMAX, attached Psychic, used Heavy Ball, benched Dialga-GX, played Guzma, then **passed without an attack**. | **6 : 1** | Candidate engine win, turn 34, **6 : 6 Prizes**. Source deck had **0** cards at the terminal transition, candidate deck **11**. This is a deck-exhaustion terminal rather than Prize-race proof of overcoming Garbotoxin. |
+
+The aggregate source attack declaration counts and adapters' `completed` flags are real archive fields. The archive does not retain each attack's complete printed-effect trace, and its candidate response projection is limited to the first 12 later actions. An attack's exact damage should remain unqualified until independently observed in the actual Store effect/reducer packet. This review does not promote the different same-seed outcomes above into a causal inventory-strength ranking.
+
+## Eleven arms without an eligible terminal
+
+**Ten reached the exact 260-root-action cap:** six against rank 6 and four against rank 11. All ten advanced to global turns 30 through 49, so the archive supports ongoing turn progression through the capped horizon. **Five of these ten recorded zero candidate attack declarations** despite further source actions. Available fields do not resolve their prompt history, pass-loop decisions, owner Energy allocation, exact end-state continuation, or whether an official 25-minute match would have ended differently.
+
+The remaining arm `6:2:A:champion-reference`, same seed `2394734225` as the third row above, threw actual Store `PlayCardAction BLOCKED_BY_EFFECT` after **33 actions**. The saved exception is a stack trace only, with no action's card printing, legal decision alternatives, contemporaneous public board or owner hand. There is **insufficient archived evidence to identify the rejecting lock**. Reproducing the exact pre-error owner-visible state under the frozen engine and policy is the specific required diagnosis.
+
+## Pairing and comparison correction
+
+The archive's **11/12** pairs with matching first recorded source own-hand SHA and actual first player are a conservative coupling statistic. The sole negative pair is **`6:2:A`**, because its champion arm errors before storing any first source hand observation. That arm's hash and start-order fields are **null**. This is **missing comparison evidence**, rather than a demonstrated different source starting hand. The report must distinguish missing data from mismatched observed data.
+
+The rank-11 `11:2:B` New Moon arm uses the same registered seed and candidate physical slot as the completed champion-Garbodor witness, yet **did not trigger the narrow rank-11 adapter** and reached the 260-action cap with **23** source attack declarations and **0** candidate declarations. Initial owner-hand agreement, if present, cannot by itself couple all subsequent decks, actions, prompts or source opportunities. Thus the champion's completed Garbodor witness has no same-seed New Moon lock-response comparison in this partition.
+
+## Decision and exact next falsification
+
+This partition validates four bounded source-policy execution sequences, gives one directly observed first candidate response to a real equipped Garbodor board, and exposes an early candidate attack-conversion difference across rank-6 arms. **None of its 13 terminal games, 10 censored games or one error game is eligible for competitive win-rate estimation.** Neither fixed 60 is advanced.
+
+Before funding partition 1 or a new candidate-strength sample: (1) reconstruct the sole rejected `PlayCardAction` with its real owner-visible board and preserve the failure as a replay regression; (2) promote each triggered arm into a source accepted-action → exact printed effect → candidate legal attack/counter → source response witness using actual reducer transitions; (3) preregister a versioned bilateral complete-game policy that improves action completion and counterplay on both hard archetypes, then sample new independent both-start deals. The initial source-run source artifact remains unchanged. All 29 published field lists are still short of the full 32 by ranks 23, 25 and 28.
