@@ -41,10 +41,11 @@ function makeFixture(trainersInOpponentHand) {
   }
   /** @param {string} fullName */
   function take(fullName) {
-    const index = remaining.indexOf(fullName);
+    const index = remaining.findIndex(name =>
+      name === fullName || name.startsWith(fullName + ' '));
     assert.ok(index >= 0, 'Published rank 11 lacks ' + fullName);
-    remaining.splice(index, 1);
-    return make(fullName);
+    const [resolvedName] = remaining.splice(index, 1);
+    return make(resolvedName);
   }
 
   const active = take('Mega Absol ex MEG');
