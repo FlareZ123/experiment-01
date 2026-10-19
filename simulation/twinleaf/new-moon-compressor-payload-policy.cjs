@@ -26,8 +26,10 @@ function shouldSeekPayload(state, player, playerTurnPhase) {
     !state.prompts.some(prompt => prompt.result === undefined) &&
     player.active.getPokemonCard()?.fullName === MEWTWO &&
     player.deck.cards.length > 0 &&
+    player.cannotPlayItemCards !== true &&
     player.hand.cards.some(card => card.name === 'Battle Compressor') &&
-    !has(player.hand.cards, GENGAR) &&
+    // Perfection only sees own Bench and discard; a held GX donor is
+    // stranded until another effect moves it into a usable zone.
     !has(player.discard.cards, GENGAR) &&
     !player.bench.some(slot => slot.getPokemonCard()?.fullName === GENGAR);
 }
