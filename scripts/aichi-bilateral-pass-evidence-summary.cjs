@@ -41,6 +41,8 @@ function summarizePassEvidence(archive) {
         turn: item.turn,
         cloneActivationAccepted: item.activationAccepted,
         promptObserved: item.choicePromptObserved,
+        pendingPromptType: item.pendingPromptType ?? null,
+        rejection: item.rejection ?? item.auditError ?? null,
         availableCopiedAttacks: item.validAttackNames ?? []
       }))
     };
