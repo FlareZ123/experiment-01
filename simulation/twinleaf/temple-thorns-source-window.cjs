@@ -156,7 +156,7 @@ function sourceGame(prepared, rank, seed, seat, observed) {
   const deckA = seat === 0 ? prepared.candidate.cards : opponent.cards;
   const deckB = seat === 1 ? prepared.candidate.cards : opponent.cards;
   // Explicit opt-in diagnostic of the already archived rank-24 source deal.
-  const traceDetail = process.env.TEMPLE_SOURCE_TRACE === '1' &&
+  const traceDetail = process.env.TEMPLE_SOURCE_TRACE === 'true' &&
     rank === 24 && seed === 2026101854 && seat === 0;
   const run = () => runWithResearchProfile({
     deckA, deckB, seed, maxActions: 220,
