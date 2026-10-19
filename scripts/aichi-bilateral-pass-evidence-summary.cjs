@@ -44,6 +44,7 @@ function summarizePassEvidence(archive) {
         pendingPromptType: item.pendingPromptType ?? null,
         rejection: item.rejection ?? item.auditError ?? null,
         publicBoard: item.publicBoardBeforePass ?? null,
+        ownerHandBeforePass: item.ownerHandBeforePass ?? null,
         publicCopySourceInventory: item.publicCopySourceInventory ?? null,
         availableCopiedAttacks: item.validAttackNames ?? []
       }))
