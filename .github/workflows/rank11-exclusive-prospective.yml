@@ -1,0 +1,40 @@
+name: Rank11 exclusive opening prospective mechanical census
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  registered-source-frame:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf source
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate seed, competition latch and outcome classifier
+        run: node --test tests/rank11-exclusive-openers.test.cjs tests/rank11-exclusive-prospective-seeds.test.cjs tests/rank11-exclusive-trial-classification.test.cjs
+      - name: Install Twinleaf pinned dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run all 128 registered authentic source openings
+        run: node simulation/twinleaf/rank11-exclusive-prospective.cjs > rank11-exclusive-prospective-v1.json
+      - name: Print denominator and both-actual-start qualification boundary
+        run: node -e "const r=require('./rank11-exclusive-prospective-v1.json'); console.log(JSON.stringify({registration:r.registrationPath,total:r.actualAttempted,sourceFirst:r.sourceFirst,sourceSecond:r.sourceSecond,verified:r.sourceStartVerified,bySeat:r.byPhysicalSeat,classes:r.resultClassCounts,exceptions:r.exceptions,completed:r.ownerLineCompleted,competing:r.competingClaimAttempts,capped:r.cappedWithoutTerminal,competitiveQualifiedGames:0},null,2)); if(r.exceptions!==0||r.sourceStartVerified!==r.actualAttempted)process.exitCode=1"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rank11-exclusive-prospective-v1-unqualified
+          path: rank11-exclusive-prospective-v1.json
+          if-no-files-found: warn
+          retention-days: 14
