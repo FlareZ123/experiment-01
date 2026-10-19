@@ -78,18 +78,20 @@ function withPostgameRootOrderProbe(
     });
     try{return originalRunMatch(request);}
     finally{
-      assert.equal(BotClass.prototype.decodeNextAction,observeActualAction,
-        'Candidate policy replaced the innermost read-only observer');
+      const preserved=BotClass.prototype.decodeNextAction===observeActualAction;
       Object.defineProperty(BotClass.prototype,'decodeNextAction',descriptor);
+      assert.ok(preserved,
+        'Candidate policy replaced the innermost read-only observer');
     }
   }
   headless.runMatch=wrappedRunMatch;
   let result;
   try {result=execute();}
   finally{
-    assert.equal(headless.runMatch,wrappedRunMatch,
-      'The headless runner changed during the observational test');
+    const preserved=headless.runMatch===wrappedRunMatch;
     headless.runMatch=originalRunMatch;
+    assert.ok(preserved,
+      'The headless runner changed during the observational test');
   }
   assert.equal(innerRunCalls,1,'Expected one physical match per trial');
   // After the live match: copy the returned game-row evidence before any
