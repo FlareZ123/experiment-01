@@ -102,6 +102,27 @@ function main(){
     fairProspectiveStrengthEvidence:false,
     qualifiedForCompetitiveInference:false
   };
+  const brief={schema:packet.schema,seed,physicalDealParityVerified:physicalPair,
+    old:{
+      ok:oldActiveOnly.ok,
+      compressorPlays:oldActiveOnly.observations?.compressorPlays,
+      payloadDiscards:oldActiveOnly.observations?.payloadDiscards,
+      copyAttacks:oldActiveOnly.observations?.nativeOrCopiedAttacks,
+      engineWinner:oldActiveOnly.observations?.engineWinner,
+      actions:oldActiveOnly.observations?.rootActions,
+      error:oldActiveOnly.error
+    },
+    benched:{
+      ok:benched.ok,
+      compressorPlays:benched.observations?.compressorPlays,
+      payloadDiscards:benched.observations?.payloadDiscards,
+      copyAttacks:benched.observations?.nativeOrCopiedAttacks,
+      engineWinner:benched.observations?.engineWinner,
+      actions:benched.observations?.rootActions,
+      error:benched.error
+    }};
+  process.stderr.write('RETROSPECTIVE_MECHANICS_ONLY ' +
+    JSON.stringify(brief)+'\n');
   process.stdout.write(JSON.stringify(packet,null,2)+'\n');
   return packet;
 }
