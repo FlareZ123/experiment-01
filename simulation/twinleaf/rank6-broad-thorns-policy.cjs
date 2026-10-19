@@ -48,7 +48,7 @@ function chooseOpeningDiscards(
  * @param {boolean} [thunderInPlay]
  * @param {string[]} [priorities]
  * @param {boolean} [conditionalTagCallPayment]
- * @param {{stadiumLocked?:boolean,specialEnergyLocked?:boolean,itemLocked?:boolean,supporterLocked?:boolean,stadiumAlreadyPlayed?:boolean}} [constraints]
+ * @param {{stadiumLocked?:boolean,specialEnergyLocked?:boolean,itemLocked?:boolean,supporterLocked?:boolean,stadiumAlreadyPlayed?:boolean,activeDceAttached?:boolean}} [constraints]
  * @returns {{channel:string,needDce:boolean,needThunder:boolean,discardCount:number}|null}
  */
 function planOpeningHand(
@@ -62,7 +62,8 @@ function planOpeningHand(
       (constraints.stadiumLocked && !thunderInPlay) ||
       (constraints.stadiumAlreadyPlayed && !thunderInPlay)) return null;
   const held = name=>hand.some(c=>c.name===name);
-  const needDce=!held('Double Colorless Energy');
+  const needDce=!held('Double Colorless Energy') &&
+    constraints.activeDceAttached!==true;
   const needThunder=!thunderInPlay && !held('Thunder Mountain Prism Star');
   if(!needDce && !needThunder) {
     return {channel:'direct',needDce:false,needThunder:false,discardCount:0};
@@ -91,12 +92,13 @@ function planOpeningHand(
  * reading deck cards is restricted to actual ChooseCardsPrompt resolution.
  * @template T
  * @param {()=>T} work
- * @param {{seat?:number,turn?:number,discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean}} [options]
+ * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean}} [options]
  * @returns {{result:T,started:boolean,completed:boolean,events:object[],abortReason:string|null,openingPlan:object|null}}
  */
 function withBroadThornsSourceAttack(work,options={}) {
   assert.equal(typeof work,'function');
   const seat=options.seat??1,turn=options.turn??2;
+  assert.ok(turn==='first-eligible'||(Number.isInteger(turn)&&turn>=1));
   const priorities=options.discardPriority??discardOrder;
   const benchBackup=options.benchBackup===true;
   const conditionalTagCallPayment=options.conditionalTagCallPayment===true;
@@ -115,6 +117,7 @@ function withBroadThornsSourceAttack(work,options={}) {
   const board={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
   const active={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0};
   let phase='idle',actorId=null,started=false,completed=false;
+  let activeTurn=null;
   let openingPlan=null,abortReason=null,backupDeployed=false;
   const events=[];
 
@@ -163,6 +166,13 @@ function withBroadThornsSourceAttack(work,options={}) {
           }));
       }
     }
+    // A source-first player may have legally attached DCE on global turn 1;
+    // no second manual Energy attachment is required on turn 3.
+    if(p.active.energies.cards.some(c=>c.name==='Double Colorless Energy')) {
+      phase='done';completed=true;
+      return select(state,'Attack with previously attached DCE',
+        new AttackAction(p.id,'Volt Cyclone'));
+    }
     if(!p.hand.cards.some(c=>c.name==='Double Colorless Energy')) {
       abort(state,'Required DCE unavailable after search');
       return null;
@@ -177,7 +187,9 @@ function withBroadThornsSourceAttack(work,options={}) {
     if(!p || this.client?.id!==p.id) return original.call(this,state);
     const prompt=state.prompts.find(x=>x.playerId===p.id&&x.result===undefined);
     if(phase==='idle') {
-      if(state.turn!==turn || state.activePlayer!==seat ||
+      const eligibleTurn=turn==='first-eligible' ?
+        (state.turn===2||state.turn===3) : state.turn===turn;
+      if(!eligibleTurn || state.activePlayer!==seat ||
          state.phase!==GamePhase.PLAYER_TURN || prompt ||
          p.active.getPokemonCard()?.name!=='Iron Thorns ex') {
         return original.call(this,state);
@@ -186,14 +198,17 @@ function withBroadThornsSourceAttack(work,options={}) {
       // decision. Reconsidering after a generic Supporter or manual Energy
       // attachment can create an illegal second Supporter/attachment.
       const inPlay=p.stadium.cards.some(c=>c.name==='Thunder Mountain Prism Star');
+      const attached=Boolean(p.active.energies.cards.some(c=>
+        c.name==='Double Colorless Energy'));
       const constraints=playLockAwareOpening ? {
         stadiumLocked:Boolean(p.cannotPlayStadiumCards),
         specialEnergyLocked:Boolean(p.cannotPlaySpecialEnergyCards),
         itemLocked:Boolean(p.cannotPlayItemCards),
         supporterLocked:Boolean(p.cannotPlaySupporterCards) ||
           p.supporterTurn>0,
-        stadiumAlreadyPlayed:p.stadiumPlayedTurn===state.turn
-      } : {};
+        stadiumAlreadyPlayed:p.stadiumPlayedTurn===state.turn,
+        activeDceAttached:attached
+      } : {activeDceAttached:attached};
       const plan=planOpeningHand(
         p.hand.cards,inPlay,priorities,conditionalTagCallPayment,constraints
       );
@@ -202,6 +217,7 @@ function withBroadThornsSourceAttack(work,options={}) {
         return original.call(this,state);
       }
       openingPlan=plan;started=true;actorId=p.id;
+      activeTurn=state.turn;
       if(plan.channel==='direct') {
         phase='direct';
         return continueAfterSearch(state,p)??original.call(this,state);
@@ -216,7 +232,7 @@ function withBroadThornsSourceAttack(work,options={}) {
        phase==='inactive') {
       return original.call(this,state);
     }
-    if(state.turn!==turn || state.activePlayer!==seat) {
+    if(state.turn!==activeTurn || state.activePlayer!==seat) {
       abort(state,'Source turn ended before complete attack');
       return original.call(this,state);
     }
