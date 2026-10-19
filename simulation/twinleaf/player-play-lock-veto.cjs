@@ -6,26 +6,36 @@ const path = require('node:path');
 const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 
 /**
- * A card-play veto using only the actor's own hand and public attack-lock
- * state. In the pinned engine the player-wide flags are set by effects
- * such as Shadow Rider Calyrex V's Shadow Mist. A switch does not clear them.
+ * Check a proposed real owner-hand card against player-level live play locks.
+ * This concerns the action's actual actor, not the bot/prompt caller. The
+ * adapter runs only when explicitly requested; it never establishes full
+ * Trainer/attachment legality, which the game Store must still check.
  *
- * @param {object} player
- * @param {object} proposedAction
- * @param {{superTrainer:number,superEnergy:number,stadium:number,specialEnergy:number}} enums
- * @returns {'stadium-lock'|'special-energy-lock'|null}
+ * @param {object} player Live owner player state.
+ * @param {object} proposedAction Proposed root action.
+ * @param {{superTrainer:number,superEnergy:number,item?:number,supporter?:number,stadium:number,tool?:number,specialEnergy:number}} enums
+ * @returns {'item-lock'|'supporter-lock'|'stadium-lock'|'tool-lock'|'energy-lock'|'special-energy-lock'|null}
  */
 function playerPlayLockVeto(player, proposedAction, enums) {
   if (proposedAction?.type !== 'PLAY_CARD_ACTION' ||
       proposedAction.id !== player.id) return null;
   const card = player.hand.cards[proposedAction.handIndex];
   if (!card) return null;
-  if (player.cannotPlayStadiumCards &&
-      card.superType === enums.superTrainer &&
-      card.trainerType === enums.stadium) return 'stadium-lock';
-  if (player.cannotPlaySpecialEnergyCards &&
-      card.superType === enums.superEnergy &&
-      card.energyType === enums.specialEnergy) return 'special-energy-lock';
+  if (card.superType === enums.superTrainer) {
+    if (card.trainerType === enums.stadium &&
+        player.cannotPlayStadiumCards) return 'stadium-lock';
+    if (enums.item !== undefined && card.trainerType === enums.item &&
+        player.cannotPlayItemCards) return 'item-lock';
+    if (enums.supporter !== undefined &&
+        card.trainerType === enums.supporter &&
+        player.cannotPlaySupporterCards) return 'supporter-lock';
+    if (enums.tool !== undefined && card.trainerType === enums.tool &&
+        player.cannotPlayToolCards) return 'tool-lock';
+  } else if (card.superType === enums.superEnergy) {
+    if (player.cannotPlayEnergyCards) return 'energy-lock';
+    if (card.energyType === enums.specialEnergy &&
+        player.cannotPlaySpecialEnergyCards) return 'special-energy-lock';
+  }
   return null;
 }
 
