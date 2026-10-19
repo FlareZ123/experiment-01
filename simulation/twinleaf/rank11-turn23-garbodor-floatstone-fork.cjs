@@ -42,9 +42,20 @@ function withGarbodorFloatStoneTarget(execute,{skipChange=false}={}) {
       const own=copy.players[1];
       const mew=own.active.getPokemonCard();
       assert.equal(mew?.name,'Mewtwo & Mew-GX');
+      const blower=cards=>cards.filter(card=>card.fullName==='Field Blower GRI').length;
+      const fieldBlowerZones={
+        ownHand:blower(own.hand.cards),
+        ownDeck:blower(own.deck.cards),
+        ownDiscard:blower(own.discard.cards),
+        ownPrizes:blower(own.prizes.flatMap(prize=>prize.cards))
+      };
       firstCandidatePower={
         turn:24,sourceSeat:0,candidateSeat:1,
         candidateActive:mew.fullName,
+        candidateUsedGX:own.usedGX,
+        fieldBlowerZones,
+        fieldBlowerConservationTotal:Object.values(fieldBlowerZones)
+          .reduce((sum,count)=>sum+count,0),
         blocked:powerCheck(shadow.store,copy,own,mew)
       };
     }
@@ -163,6 +174,15 @@ function run() {
   assert.ok(candidateAfter,'Need a genuine candidate decision after opponent Tool change');
   assert.equal(alt.firstCandidatePower?.blocked,true,
     'The real equipped Garbodor must suppress candidate active ability');
+  assert.equal(unchanged.firstCandidatePower?.candidateUsedGX,true,
+    'Earlier authentic Horror House-GX must have consumed GX allowance');
+  assert.equal(alt.firstCandidatePower?.candidateUsedGX,true,
+    'Earlier GX allowance remains spent under source Tool retarget');
+  assert.equal(alt.firstCandidatePower?.fieldBlowerConservationTotal,2,
+    'Frozen candidate has exactly two Field Blowers in its physical zones');
+  assert.deepEqual(alt.firstCandidatePower?.fieldBlowerZones,
+    unchanged.firstCandidatePower?.fieldBlowerZones,
+    'The first candidate decision must retain identical own Field Blower zones');
 
   return {
     schema:'rank11-source-retrospective-floatstone-garbodor-counterfactual-v1',
