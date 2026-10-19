@@ -85,6 +85,7 @@ function inspectRootActionLedger(record) {
       const root=events[event.actionOrdinal];
       if (!root || root.action !== event.triggerAction ||
           root.playerSlot !== event.triggerPlayerSlot ||
+          root.playerSlot !== event.playerSlot ||
           root.turnBefore !== event.turnBefore ||
           root.turnAfter !== event.turnAfter ||
           (root.attackChoice &&
