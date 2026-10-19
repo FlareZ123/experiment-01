@@ -41,9 +41,10 @@ function sourceRemovalOpportunity(state,source,opponent,sourceSeat,playerTurnPha
  * @template T
  * @param {0|1} sourceSeat
  * @param {()=>T} execute
+ * @param {{targetHoodWithFaba?:boolean}} [options] Opt-in owner-visible Faba prompt policy.
  * @returns {{result:T,policyAudit:object}}
  */
-function withRank6HoodRemoval(sourceSeat,execute){
+function withRank6HoodRemoval(sourceSeat,execute,{targetHoodWithFaba=false}={}){
   if(![0,1].includes(sourceSeat)||typeof execute!=='function'){
     throw new TypeError('Require source physical seat and synchronous runner');
   }
@@ -52,14 +53,41 @@ function withRank6HoodRemoval(sourceSeat,execute){
   const {PlayCardAction,PlayerType,SlotType}=
     load('game/store/actions/play-card-action');
   const {GamePhase}=load('game/store/state/state');
+  const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
+  const {sourceFabaHoodPromptChoice}=require('./rank6-faba-hood-target.cjs');
   const prior=SimpleTacticsAi.prototype.decodeNextAction;
   const sourceId=sourceSeat===0?101:202;
   const events=[];
   let selected=false;
+  let fabaStage=null;
+  let fabaTargetZone=null;
   function choose(state){
     const own=state.players.find(side=>side.id===this.client?.id);
-    if(own?.id!==sourceId||selected)return prior.call(this,state);
+    if(own?.id!==sourceId)return prior.call(this,state);
     const opponent=state.players[1-sourceSeat];
+    if(targetHoodWithFaba && fabaStage && fabaStage!=='done'){
+      const prompt=state.prompts.find(row=>
+        row.playerId===own.id&&row.result===undefined);
+      if(prompt){
+        const decision=sourceFabaHoodPromptChoice({
+          state,source:own,opponent,prompt,stage:fabaStage,
+          targetZone:fabaTargetZone
+        });
+        if(decision){
+          const action=new ResolvePromptAction(prompt.id,decision.result);
+          fabaStage=decision.nextStage;
+          fabaTargetZone=decision.targetZone;
+          events.push({kind:'selected-source-faba-prompt',
+            turn:state.turn,choice:decision.kind,stageAfter:fabaStage,
+            targetPokemon:fabaTargetZone?.getPokemonCard()?.fullName??null});
+          return action;
+        }
+      }else if(fabaStage==='tool'){
+        // A singly tooled target resolves directly after choosing Pokemon.
+        fabaStage='done';
+      }
+    }
+    if(selected)return prior.call(this,state);
     const opportunity=sourceRemovalOpportunity(state,own,opponent,
       sourceSeat,GamePhase.PLAYER_TURN);
     if(!opportunity)return prior.call(this,state);
@@ -73,6 +101,7 @@ function withRank6HoodRemoval(sourceSeat,execute){
       return prior.call(this,state);
     }
     selected=true;
+    if(targetHoodWithFaba&&opportunity.card==='Faba')fabaStage='choice';
     events.push({kind:'selected-source-play',turn:state.turn,
       card:own.hand.cards[index].fullName,visibleTargets:opportunity.targets,
       sourceActive:own.active.getPokemonCard()?.fullName,
@@ -83,8 +112,11 @@ function withRank6HoodRemoval(sourceSeat,execute){
   try{
     const result=execute();
     return {result,policyAudit:{
-      version:'rank6-owner-public-hood-removal-v1',
-      sourceSeat,selected,events,qualifiedCompetitiveGames:0
+      version:targetHoodWithFaba?
+        'rank6-owner-public-hood-removal-faba-target-v2':
+        'rank6-owner-public-hood-removal-v1',
+      sourceSeat,selected,targetHoodWithFaba,fabaStage,events,
+      qualifiedCompetitiveGames:0
     }};
   }finally{
     if(SimpleTacticsAi.prototype.decodeNextAction!==choose){
