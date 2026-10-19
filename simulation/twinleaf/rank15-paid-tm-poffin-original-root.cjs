@@ -8,6 +8,8 @@ const {observeSourceLock}=
   require('./newmoon-rank15-source-duallock-census.cjs');
 const {withRank15PaidTmPoffin}=
   require('./rank15-paid-tm-poffin-source-policy.cjs');
+const {withOwnerRootChoiceWindow}=
+  require('./owner-root-choice-window.cjs');
 const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {pairedCandidateSlots}=
   require('./new-moon-lockbreak-source-diagnostic.cjs');
@@ -54,8 +56,10 @@ function run(){
   };
   const baseline=observeSourceLock(Store,1,0,()=>runMatch(request));
   const alternative=observeSourceLock(Store,1,0,()=>
-    withRank15PaidTmPoffin(()=>runMatch(request),1));
-  const a=baseline.result,b=alternative.result.result;
+    withOwnerRootChoiceWindow(Store,1,()=>
+      withRank15PaidTmPoffin(()=>runMatch(request),1),
+      {turnStart:16,turnEnd:16}));
+  const a=baseline.result,b=alternative.result.result.result;
   assert.ok(a.verifiedByDrawLog&&b.verifiedByDrawLog);
   assert.equal(a.firstTurnSlot,0);
   assert.equal(a.firstTurnSlot,b.firstTurnSlot);
@@ -88,7 +92,7 @@ function run(){
       e=>e.playerSlot===1)
   });
   return {
-    schema:'rank15-retrospective-true-source-paid-tm-poffin-fork-v1',
+    schema:'rank15-retrospective-true-source-paid-tm-poffin-fork-v2',
     sourceRank:15,sourceSeat:1,candidateSeat:0,
     source:'Ryotaro Nozawa exact Aichi rank15 60',
     candidate:'frozen New Moon Lockbreaker v1 printed mechanics proxy 60',
@@ -99,7 +103,9 @@ function run(){
     policy:'single owner-visible, native-validated Poffin candidate in exact paid TM state',
     original:summary(baseline,a),
     poffinAlternative:summary(alternative,b),
-    policyAttempts:alternative.result.audit.attempts,
+    policyAttempts:alternative.result.result.audit.attempts,
+    originalRootChoiceWindow:alternative.result.trace,
+    totalStoreRootCallsInAlternative:alternative.result.rootActionCount,
     qualifications:{
       sourceDealWasRetrospectivelySelected:true,
       competitiveGamesQualified:0,
