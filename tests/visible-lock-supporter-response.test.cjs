@@ -17,7 +17,7 @@ test('finds only the held Lillie after a prohibited card proposal',()=>{
 
 test('does not propose a second Supporter during the same turn',()=>{
   assert.equal(heldLillieResponseIndex({
-    supporterTurn:3,hand:{cards:hand}
+    supporterTurn:1,hand:{cards:hand}
   },3),-1);
 });
 
