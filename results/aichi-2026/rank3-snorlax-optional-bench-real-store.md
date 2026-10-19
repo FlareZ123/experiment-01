@@ -48,3 +48,19 @@ For a 60-card list with `b` Basic cards and `s` Snorlax PGO cards, the exact leg
 `[C(60,7)-C(60-s,7)-s*C(60-b,6)]/[C(60,7)-C(60-b,7)]`.
 
 For original rank3 `b=11, s=3`, this is **26.59605424%** of valid sevens, or **65.56306460%** of Snorlax-containing legal sevens. For original rank7 `b=12, s=2`, this is **19.51187789%** of valid sevens, or **71.30572737%** of Snorlax-containing legal sevens. These are exact *available extra-Basic counts*, not observed post-setup Bench decisions. They include duplicate Snorlax as the additional Basic. Further Basic draws and earlier tactics can alter the actual next-turn action. A complete source opponent policy must explicitly decide whether to retain the lone Snorlax board under the candidate's specific attack and gust threats.
+
+## Three-arm same-deal continuation: real turn-1 source actions
+
+The next, independently compiled [manual CI 39240015623](https://github.com/FlareZ123/experiment-01/actions/runs/39240015623) passed on head `14e0e08b5c42553589b4b0e6fe400cd406f8f4cc`. It tests **two more pure tactic regressions** and reruns the original published rank-3 source 60 versus unchanged rank-1 60 on the same retrospective seed and both physical seats. The extended [source witness](../../simulation/twinleaf/snorlax-optional-bench-source-witness.cjs) now retains the genuine post-prompt Store root-action ledger through source global turn 1 for a third opt-in configuration. Pinned Twinleaf remains `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+An optional `snorlaxSoloPreserveBench:true` (requires `snorlaxSoloOpeningSeat`) replaces **only** the pinned `PlayBasicTactic` for that one source seat with a subclass that declines ordinary Basic Benching while its Active is Snorlax PGO and its Bench is empty. It does not prevent other search-card effects, override opponent choices or apply to the candidate. The original tactic order and later energy, Tool and Supporter tactics remain available.
+
+| Source opening / continued source policy | Actual source turn-1 ordinary Snorlax plays | Other first-turn source actions | Setup first-turn board |
+| --- | ---: | --- | --- |
+| Historical setup: second Snorlax already on Bench; no turn hold | **1** | Water Energy, Forest Seal Stone, Pass | Active Snorlax, Benched Snorlax |
+| Empty optional setup Bench, normal turn policy | **2** | Water Energy, Forest Seal Stone, Pass | Active Snorlax, empty Bench |
+| Empty optional setup Bench, **opt-in ordinary Basic restraint** | **0** | Water Energy, Forest Seal Stone, Pass | Active Snorlax, empty Bench |
+
+These are accepted root Store **PlayCardAction** events, not proposed policy callbacks. In the three arms, the first Snorlax play (or energy play with restraint) was global action ordinal **13**. Normal turn-only policy then played Snorlax again at ordinal **14**. The restrained branch played Water Energy at ordinal **13**, Forest Seal Stone at **14**, and passed at **15**, proving that remaining tactics continued. The historical source branch played one Snorlax at ordinal **13** and passed at **16**. All three arms returned 40-root capped records with no exceptions, and the source's genuine setup IDs 5 and 12 were authenticated.
+
+**Limit:** This is the *same retrospectively exposed deal* in three correlated branches. The exact later turn-1 publicly visible board after every Item and Ability was not archived as a separate terminal board, and no rival attack or strategy response is certified. Suppressing all own Basic Benching may be the wrong decision if the candidate could Knock Out solo Snorlax and win on no remaining Pokémon. The source decision must eventually incorporate public opposing attack readiness, opponent gust ability and anti-stall cards rather than always preserve the empty Bench. **Qualified competitive games: 0.**
