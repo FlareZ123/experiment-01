@@ -128,8 +128,9 @@ function runRank9MegaRecipient() {
 
     const provided = providedEnergy(game);
     assert.equal(provided.length, 5);
-    assert.equal(provided.every(row => row.provides.includes(CardType.DARK)), true,
-      'Four Prism on Basic and one Darkness supply required Darkness');
+    assert.equal(provided.every(row => row.provides.includes(CardType.DARK) ||
+      row.provides.includes(CardType.ANY)), true,
+      'Prism on a Basic provides a wildcard and printed Darkness provides Dark');
     const attacked = mega.attacks.find(attack => attack.name === 'Claw of Darkness');
     assert.ok(attacked);
     return {
