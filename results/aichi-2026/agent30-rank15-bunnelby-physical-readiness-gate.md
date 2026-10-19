@@ -8,6 +8,10 @@ The original exact-source, fixed-60, eight-deal [rank-15 matched opponent-policy
 
 The archived pinned run is [39247283776](https://github.com/FlareZ123/experiment-01/actions/runs/39247283776), artifact [12184366445](https://github.com/FlareZ123/experiment-01/actions/runs/39247283776/artifacts/12184366445), ZIP SHA-256 **`8712ca36a09647a45dd48a7c717d58c1252b24e764483cc2859ecddad1aaf607`**. I independently fetched that original archive through the GitHub connector and verified the ZIP checksum. Its first-observation object contains only AOR/BUS/Dusclops fields: it was generated *before* Agent36's present read-only Bunnelby-readiness fields were added. Historical absence of those fields is **not evidence of no Bunnelby readiness**.
 
+## Existing positive engine control
+
+The independent [rank-2 pinned Twinleaf double-TM board fixture](../aichi-2026/vileplume-itemlock-stage-chain.md) has already passed a genuine two-attack `Evolution` resolution on prepared Oddish and Pidgey Stage lines ([manual CI 38834370776](https://github.com/FlareZ123/experiment-01/actions/runs/38834370776)). It establishes **capability of this narrow action sequence in a staged Store state**. Therefore the absence of `Evolution` *declarations* in the unconditioned rank-15 source-policy streams cannot be justified by a blanket claim that the pinned engine lacks Bunnelby/TM. A natural owner-visible policy still needs to reach a suitably attached Active and choose the printed Tool attack; rank-2 staged success does not certify rank-15 autonomy.
+
 ## New preregistered diagnostic
 
 The current root-only physical observer [source code](../../simulation/twinleaf/newmoon-rank15-source-duallock-census.cjs) already records five read-only witness states after genuine original `Store.dispatch`, while **both players retain all six Prizes**. Crucial nested gates are:
