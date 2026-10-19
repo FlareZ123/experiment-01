@@ -19,6 +19,9 @@ function summarizePassEvidence(archive) {
     return {
       id: row.trial?.id ?? null,
       error: row.error ?? null,
+      actualStarterSeat: row.actualStarterSeat ?? null,
+      sourceDealFingerprint: row.sourceDealFingerprint ?? null,
+      rootActionLedgerSha256: row.rootActionLedgerSha256 ?? null,
       candidateDeclarations: row.attackDeclarations?.candidate ?? null,
       candidatePasses: probe.observedCandidatePasses ?? null,
       printedProbeCount: probe.boundedProbeCount ?? null,
