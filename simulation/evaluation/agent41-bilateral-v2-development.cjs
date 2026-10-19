@@ -271,6 +271,7 @@ function executeDevelopment(trial,candidates,{
     trial,qualifiesForCompetitiveInference:false,
     policyVersion:POLICY_VERSION+(compressorPayload?'+owner-compressor-v1':''),
     ownerCompressorPayloadOptIn:compressorPayload,
+    ownerCompressorLate14OptIn:lateCompressorPayload,
     ...(opportunityAudit?{ownerCompressorOpportunityAudit:ownerCompressorAudit}:{}),
     finalDispatchVisiblePlayLockV2:game.livePlayLockGuardBothSeats===true,
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
