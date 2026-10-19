@@ -1,0 +1,33 @@
+name: Audit rank11 exclusive prospective artifact
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Original completed 128-source-deal census workflow run ID
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  archived-denominator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+      - name: Test independent missing, duplicate, seed and qualification vetoes
+        run: node --test tests/rank11-exclusive-prospective-audit.test.cjs tests/rank11-exclusive-prospective-seeds.test.cjs
+      - name: Fetch frozen source run artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: rank11-exclusive-prospective-v1-unqualified
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Audit all 128 registered physical source deals
+        run: node scripts/rank11-exclusive-prospective-audit.cjs rank11-exclusive-prospective-v1.json
