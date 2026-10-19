@@ -21,3 +21,24 @@ An additional observed fault remains: the rank-6 turn-3 scripted opener later be
 The [Critic bilateral-v2 directive](../../communications/broadcast/20261019T0556Z_critic_stop_mechanical_reaudits_start_bilateral_v2.md) and [Agent 41 owner announcement](../../communications/broadcast/20261019T0616Z_agent41_bilateral_v2_integration_owner.md) supersede further duplicate same-seed mechanical reaudits. The current patch is a **documented owner-visible safeguard candidate** for common bilateral policy; it must be included and verified as a frozen executable policy by that integration owner. The historical source deal must never become a v2 held-out performance sample.
 
 **Status:** zero newly qualified games, zero claimable wins, no deck ranking inferred from this correction.
+
+
+## 19 October follow-up: explicit opening restriction is overconservative in the selected replay
+
+The source's original v1 `withBroadThornsSourceAttack` now remains **identical by default**. An experimental fifth `planOpeningHand(..., constraints)` argument and `playLockAwareOpening:true` source-wrapper option reject lines requiring currently unplayable Stadiums, Special Energy, Items, spent Supporters or a second Stadium. The original first implementation unintentionally enabled the gate by default and failed the historical root-33 regression ([manual CI 39230789366](https://github.com/FlareZ123/experiment-01/actions/runs/39230789366), 22 unit tests passed before the preservation assertion failed). The explicit opt-in restored the baseline, and a first follow-up ([CI 39231334610](https://github.com/FlareZ123/experiment-01/actions/runs/39231334610)) failed only because the runner wrongly required the new policy to propose the old illegal Stadium. Its absence is itself an allowed change in the gate treatment.
+
+The revised three-arm [development runner](../../simulation/evaluation/agent6-shadow-mist-source-supporter.cjs) retains the baseline rejection and compares (i) final-dispatch guard only against (ii) source public-lock opener eligibility plus that guard, with unchanged seed, opponent and candidate inventories. Compiled [manual CI 39231900701](https://github.com/FlareZ123/experiment-01/actions/runs/39231900701) **PASSED**; raw [artifact 12177386709](https://github.com/FlareZ123/experiment-01/actions/runs/39231900701/artifacts/12177386709) records:
+
+| Same historical deal | Final-action guard only | Guard + opt-in public-lock source opener |
+| --- | --- | --- |
+| Original forbidden Thunder proposal vetoed | Yes, once, fallback Pass | No forbidden proposal observed |
+| Source turn-3 scripted opener | Started, then aborted on changed WaitPrompt | Never started |
+| Accepted source attack declarations | 5 | **0** |
+| Accepted candidate attack declarations | 6 | 6 |
+| Root actions / elapsed global turns | 260 / 27 | 260 / 32 |
+| Final Prizes, candidate and source seats | 2 / 2 | 4 / 6 |
+| Engine terminal / qualified result | None / none | None / none |
+
+The new gate prevents consuming a projected unsupported `Tag Call → Guzma & Hala → Thunder Mountain` line during Shadow Mist. However, its full capped trajectory has **zero source attack declarations**. This is a negative operational outcome: simply declining the source's narrow opening line and handing control to the current generic bot can leave the source completely inert. The observed Prize difference is **not** a controlled deck-strength comparison and neither branch reached an engine winner. Do **not** turn this option on in Agent 41's common prospective v2 source policy without addressing the missing alternative legal action sequencing and verifying complete-game results.
+
+The general `headless.cjs` final-dispatch guard was also extended with a separately versioned `enforceVisiblePlayLockBothSeats:true` interface; it is mutually exclusive with `enforceVisiblePlayLockSeat`. The pure seat-selector regression is in [the existing lock-veto tests](../../tests/player-play-lock-veto.test.cjs), exercised by CI 39231900701. A real two-actor compiled Store scenario still needs explicit acceptance testing before certification as the bilateral v2 guard.
