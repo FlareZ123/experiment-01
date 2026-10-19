@@ -142,12 +142,13 @@ function buildBilateralReplyPacket(game, options) {
     root.actionOrdinal > sourceAction.actionOrdinal &&
     root.playerSlot === candidateSeat &&
     root.action !== 'ResolvePromptAction' &&
-    root.turnBefore > sourceAction.turnBefore) : null;
+    root.turnBefore === sourceAction.turnBefore+1) : null;
+  // A later unrelated action cannot stand in for the immediate reply.
   const sourceReturns = candidate ? roots.find(root =>
     root.actionOrdinal > candidate.actionOrdinal &&
     root.playerSlot === options.sourceSeat &&
     root.action !== 'ResolvePromptAction' &&
-    root.turnBefore > candidate.turnBefore) : null;
+    root.turnBefore === candidate.turnBefore+1) : null;
   const candidateAttackDeclarations = candidate ? attacks.filter(attack =>
     attack.playerSlot === candidateSeat &&
     attack.turnBefore === candidate.turnBefore &&
@@ -181,6 +182,22 @@ function buildBilateralReplyPacket(game, options) {
       attackName: attack.attackName
     })),
     firstCandidateNextTurnRoot: candidate ? publicAction(candidate) : null,
+    // Genuine Store turns; effect-closure provenance is audited separately.
+    immediateRootLineage: {
+      sourceActionTurnBefore: sourceAction?.turnBefore ?? null,
+      candidateReplyTurnBefore: candidate?.turnBefore ?? null,
+      sourceContinuationTurnBefore: sourceReturns?.turnBefore ?? null,
+      sourceEffectCompletionTurnBefore: (
+        sourceAction && options.expectedSourceAction === 'AttackAction'
+          ? (() => {
+            const effect = publicAttackTransitions?.find(row =>
+              row.actionOrdinal === sourceAction.actionOrdinal);
+            const complete = effect?.settled?.completionRootActionOrdinal;
+            return Number.isSafeInteger(complete) ?
+              roots[complete]?.turnBefore ?? null : null;
+          })()
+          : null)
+    },
     candidateImmediatePublicAttackTransitions: candidate ?
       publicAttackTransitions?.filter(row=>
         row.actionOrdinal>=candidate.actionOrdinal &&
