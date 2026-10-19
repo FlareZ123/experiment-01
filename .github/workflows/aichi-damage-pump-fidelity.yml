@@ -18,6 +18,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank26_prospective_integrated_probe:
+        description: 'Fresh 48-deal rank26 source-first integrated bot decision and negative-case exposure'
+        type: boolean
+        required: false
+        default: false
       rank26_dowsing_hold_probe:
         description: 'Check one authentic firstturn ACE SPEC consumption guard in four historical rank26 deals'
         type: boolean
@@ -159,6 +164,16 @@ jobs:
         with:
           name: rank26-mail-scout-source-unqualified
           path: rank26-mail-source-probe.json
+          if-no-files-found: error
+      - name: Execute 48 preregistered authentic rank26 firstturn integrated policy deals
+        if: ${{ inputs.rank26_prospective_integrated_probe }}
+        run: node simulation/twinleaf/rank26-prospective-integrated-source.cjs
+      - name: Archive all 48 source-first integrated decisions and nulls
+        if: ${{ inputs.rank26_prospective_integrated_probe }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank26-integrated-firstturn-prospective-source-unqualified
+          path: rank26-prospective-integrated-source.json
           if-no-files-found: error
       - name: Test source-first Dowsing tactic guard boundary
         run: node --test tests/rank26-dowsing-hold.test.cjs
