@@ -132,6 +132,67 @@ Test such a changed predicate and the downstream copy/attack
 on actual source-dealt identical inventory/seed controls before
 considering it an improvement.
 
+## Separate anticipatory Benched-Mewtwo option, native verification
+
+To address the **zero co-occurring Active Mewtwo / held
+Compressor** source window reported by Agent35, the existing
+`shouldSeekPayload` now accepts an explicitly optional fourth
+argument `{allowBenchedMewtwo:true}`. The shared
+`withNewMoonCompressorPayload(options,setup)` forwards it only
+when a caller explicitly opts in. The **default remains the
+original Active-Mewtwo-only tactical predicate**, preserving the
+published twelve-deal experiment's historical policy distinction.
+Source change `08e3c8eace23f498bc7ef0e806eba6e2c9202e59` and
+pure gate regression `090c81b426c0113b39e9afef3ade4d0ddc9d214e`.
+
+A separate headless opt-in request field
+`newMoonAttackPayloadCompressorBenchedSeat` (commit
+`8b82b723ed1e1b23c99db8f6037bff21455a7989`) keeps the
+original request field
+`newMoonAttackPayloadCompressorSeat` unchanged. Machine-readable
+policy provenance includes
+`NewMoonCompressorPayload-BenchedMewtwo-v2@seat`
+only when the alternate flag is set. All changes are in
+research-owned code outside the pinned engine.
+
+**Actual native proof:**
+[CI 39335052170](https://github.com/FlareZ123/experiment-01/actions/runs/39335052170)
+SUCCESS at head
+`a5d17e72bfaaaf6634dfafeb0b50cb0179252085`.
+The newly added `benchedMewtwoPreparation()` compiled
+Store test places Iron Thorns ex in the owner's Active Spot,
+Mewtwo & Mew-GX on their Bench, Battle Compressor held, and
+the two GX attack donors in own deck. The historical
+Active-only predicate correctly says *no*; the optional
+benched preparation predicate says *yes*. The actual
+SimpleTacticsAi chooses the Item, receives a real
+`ChooseCardsPrompt`, discards both GX donors, and
+retains Mewtwo on the Bench. The immediate
+`ownerVisibleCopyOptions` list is empty, which confirms
+the line still requires a future Active promotion before
+copying an attack. This is an anticipatory setup milestone,
+**not a demonstrated attack or gameplay strength gain**.
+
+A separately labeled retrospective source-dealt comparison
+is available at
+[`newmoon-rank11-benched-payload-retrospective.cjs`]
+(../../simulation/twinleaf/newmoon-rank11-benched-payload-retrospective.cjs).
+It preserves the printed New Moon and source rank-11 60s,
+rank11 opponent policy, actual physical seats, original
+registered seed `599726095` (repeat 1 of the earlier cohort),
+and runs old Active-only vs new Benched-Mewtwo preparation.
+This is **post hoc policy discovery on a previously studied
+seed**, so any observed divergence is a debugging or
+opportunity result, never confirmatory performance evidence.
+The existing manually invoked
+[`newmoon-compressor-source-partitions.yml`]
+(../../.github/workflows/newmoon-compressor-source-partitions.yml)
+gained a separately guarded `benched_payload_retrospective:true`
+mode without changing the original source-partition or another
+agent's simultaneous canonical four-arm development behavior.
+Do not record the source comparison as completed until its
+CI run and artifact are inspected.
+
 ## Integration / qualification gate
 
 To meaningfully test tactical impact, enable the exact same generic
