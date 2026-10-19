@@ -73,7 +73,7 @@ jobs:
       - name: Verify root-only hidden Prize epoch invalidation
         run: node --test tests/root-prize-knowledge-observer.test.cjs tests/bunnelby-k1-ticket-epoch.test.cjs tests/bunnelby-k1-nonredeal-root.test.cjs tests/bunnelby-k1-redeal-policy.test.cjs tests/root-prize-heavy-ball-knowledge.test.cjs
       - name: Validate authentic Gladion Prize inspection and root-scoped choice
-        run: node --test tests/gladion-visible-prize-choice.test.cjs tests/gladion-visible-prize-root.test.cjs
+        run: node --test tests/gladion-visible-prize-choice.test.cjs tests/gladion-visible-prize-root.test.cjs tests/gladion-root-prize-choice-evidence.test.cjs
       - name: Validate source-root Gladion event extraction and frozen cohort
         run: node --test tests/rank2-gladion-source-exposure.test.cjs
       - name: Run frozen source rank2 Gladion opportunity census
