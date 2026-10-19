@@ -42,7 +42,7 @@ function sourceRescueAvailability(basicCount=14){
     stoutlandAndOneSpecifiedRescuerPrized:fraction(b,bd),
     allThreeSingletonsPrized:fraction(c,cd),
     atLeastOneRescuerUnprizedGivenStoutlandPrized:
-      fraction(remaining,ad*cd*a),
+      fraction(remaining,a*cd),
     zeroRescuersUnprizedGivenStoutlandPrized:
       fraction(c*ad,a*cd),
     onlyPhysicalPrizeAvailability:true,
