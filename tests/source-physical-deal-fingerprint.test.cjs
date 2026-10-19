@@ -57,7 +57,7 @@ test('own hand and Bench order remain relevant despite identical multiset',()=>{
 });
 test('first pre-action stable root is required',()=>{
   const s=fixture();
-  assert.throws(()=>fingerprint(s,1,1),/precede any root action/);
+  assert.throws(()=>fingerprint(s,1,1),/precede any player-turn action/);
   s.phase=8;
   assert.throws(()=>fingerprint(s,1,0),/PLAYER_TURN/);
   s.phase=2;
