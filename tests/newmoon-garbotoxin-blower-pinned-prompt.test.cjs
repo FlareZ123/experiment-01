@@ -3,7 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
-const {chooseGarbotoxinTargets}=
+const {chooseGarbotoxinTargets,twoGarbotoxinBlowerOption}=
   require('../simulation/twinleaf/newmoon-garbotoxin-blower-autonomy.cjs');
 const {assertValidPromptAction}=
   require('../simulation/twinleaf/prompt-integrity.cjs');
@@ -15,6 +15,7 @@ const {Player}=load('game/store/state/player');
 const {PokemonCardList}=load('game/store/state/pokemon-card-list');
 const {PokemonCard}=load('game/store/card/pokemon-card');
 const {ChoosePokemonPrompt}=load('game/store/prompts/choose-pokemon-prompt');
+const {SelectOptionPrompt}=load('game/store/prompts/select-option-prompt');
 const {PlayerType,SlotType}=load('game/store/actions/play-card-action');
 const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
 const {GameMessage}=load('game/game-message');
@@ -69,4 +70,15 @@ test('actual pinned Stadium-plus-Tool size bound reduces to one legal target',()
   assert.deepEqual(targets,[opponent.active]);
   assert.doesNotThrow(()=>assertValidPromptAction(state,
     new ResolvePromptAction(prompt.id,targets)));
+});
+
+
+test('actual engine option prompt chooses two tools when two sources exist',()=>{
+  const {opponent}=fixture(2);
+  const options=new SelectOptionPrompt(101,GameMessage.CHOOSE_OPTION,[
+    'Discard the Stadium card and up to 1 Pokémon Tool card.',
+    'Discard up to 2 Pokémon Tool cards.'],{allowCancel:false});
+  assert.equal(twoGarbotoxinBlowerOption(options,opponent),1);
+  opponent.active.tools.length=0;
+  assert.equal(twoGarbotoxinBlowerOption(options,opponent),null);
 });
