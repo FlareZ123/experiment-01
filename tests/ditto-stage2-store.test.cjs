@@ -74,3 +74,26 @@ test('native Wobbuffet + Tool Jammer Switch attempts distinguish raw engine and 
     assert.equal(corrected.itemLockRestoredAfterSwitch, true);
   }
 });
+
+test('rank-7 Wobbuffet can equip Tool Jammer from hand while Items remain locked', () => {
+  const probe = probeDittoStage2(false, true, 'wobbuffet-jammer-hand-hooked', 1);
+  assert.deepEqual(probe.nativeToolPlay, {
+    accepted: true,
+    error: null,
+    itemLockBefore: { owner: true, opponent: true },
+    attachedToWobbuffet: true,
+    toolStillInHand: false,
+    pendingPromptKinds: []
+  });
+  assert.deepEqual(probe.itemLock, {
+    ownerBlocked: false,
+    opponentBlocked: false,
+    hoodSuppressed: true,
+    vileplumeSuppressed: true
+  });
+  assert.equal(probe.nativeItemPlay.accepted, true);
+  assert.equal(probe.nativeItemPlay.switchPromptResolved, true);
+  assert.equal(probe.nativeItemPlay.activeAfterSwitch, 'Pidgey MEW');
+  assert.equal(probe.nativeItemPlay.originalActiveOnBench, true);
+  assert.equal(probe.nativeItemPlay.itemLockRestoredAfterSwitch, true);
+});
