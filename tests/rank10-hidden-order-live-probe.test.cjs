@@ -217,3 +217,7 @@ test('fresh reconstructed bot history mismatch fails source interpretation',()=>
   assert.equal(out.events[0].sourceDecisionSensitivityInterpretable,false);
   assert.deepEqual(physical,before);
 });
+
+// Preserve the shared owner's bilateral information-boundary regressions in
+// the existing manually dispatched pinned hidden-information CI suite.
+require('./agent50-bilateral-hidden-order-audit.test.cjs');
