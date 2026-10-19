@@ -32,3 +32,15 @@ The test is included in the existing **manual-dispatch-only** `.github/workflows
 Specifying genuine pre-event Japanese printings closes **one inventory/provenance uncertainty** for the Lockbreaker proposal. It does not establish that the alternative cards improve outcomes. Prior source-dealt [rank11 Tool-Garbodor and response forks](../twinleaf/rank11-turn23-garbodor-tool-target-contrast.md) show that opponent Tool placement and candidate Perfection decisions are consequential. Two copies of Cologne cannot ensure sustained attacking under repeated Iron Thorns locks, and Field Blower's discard/search availability remains strongly conditional on hand and Item lock ([exact hand-discardability study](new-moon-secret-box-discardability-frontier.md)).
 
 **Future gate:** independently certify complete Japanese paper legality/errata and equivalent English/Twinleaf effects for every candidate card, then compare the unchanged 60 under frozen bilateral information-safe policies against at least two distinct hard Aichi archetypes, both authentic starts, with actual attacks and opposing replies. Current field remains **29/32 exact source lists**, zero competitively qualified games, no demonstrated 99.5% fixed 60.
+
+
+## 19 October dated printed-ban-screen crosscheck
+
+An additional [source-bound Japanese ban-screen adapter](../../scripts/new-moon-lockbreak-japanese-ban-screen.cjs), with [five deliberate fault tests](../../tests/new-moon-lockbreak-japanese-ban-screen.test.cjs), was executed successfully in **[manual CI 39193008053](https://github.com/FlareZ123/experiment-01/actions/runs/39193008053)** at source head `74008aa0efad79a9e8aa072d69073c2441c1eae7`. It first validates the entire proposed Japanese 60 and official origin/swap fingerprint, then compares every row against the [event-date Japanese restricted-card snapshot](../legality/japan-expanded-aichi-2026.json).
+
+The candidate has **zero explicitly listed banned-printing collisions**. Its only listed *same-name contacts* are the two known source print distinctions:
+
+- **Duskull S4 38541** differs from restricted **SM11a** Spiritborne Evolution Duskull.
+- **Unown XY 33598** differs from restricted **SM8** DAMAGE and HAND Ability Unown. Both separate prohibited traits are checked independently.
+
+The test suite deliberately substitutes restricted `SM11a` Duskull, `SM8` Unown, and a wholly prohibited Trainer name, and verifies rejection. It also rejects a mismatched historical event date and an unknown restriction selector. This adds an independently executable, **candidate-specific dated explicit-name-and-print screen** to the already validated 60-card inventory, while retaining the original-source [separate independent gate](../legality/new-moon-japanese-source-print-gate.md). The screen relies on a dated ban inventory and source printing codes; it cannot resolve every ruling about inherited card-text amendments, Japanese event exceptions, related reprint identities, or actual game play. Its explicit `fullPaperLegalityCertified: false` and `competitiveGamesQualified: 0` flags are intentional.
