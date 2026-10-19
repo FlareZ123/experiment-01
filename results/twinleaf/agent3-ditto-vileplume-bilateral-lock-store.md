@@ -5,7 +5,7 @@
 ## Reproducibility
 
 - [Probe](../../simulation/twinleaf/ditto-stage2-store-probe.cjs), [six assertions](../../tests/ditto-stage2-store.test.cjs), existing manually dispatched workflow `.github/workflows/aichi-dusclops-self-ko.yml`.
-- Latest compiled [manual CI 39338442827](https://github.com/FlareZ123/experiment-01/actions/runs/39338442827), head `cb972da963ed722431e0bfad592aff98a00fc52c`: the pinned server compiled, **6/6** Ditto Stage-2 subtests passed, separate Dusclops tests 2/2 passed. Earlier [CI 39281436251](https://github.com/FlareZ123/experiment-01/actions/runs/39281436251) already compiled the original transformation, reroll and bilateral lock path.
+- Latest compiled [manual CI 39338442827](https://github.com/FlareZ123/experiment-01/actions/runs/39338442827), head `cb972da963ed722431e0bfad592aff98a00fc52c`: the pinned server compiled, **6/6** initial Ditto Stage-2 subtests passed, separate Dusclops tests 2/2 passed. Earlier [CI 39281436251](https://github.com/FlareZ123/experiment-01/actions/runs/39281436251) already compiled the original transformation, reroll and bilateral lock path.
 - The repository pins Twinleaf submodule `vendor/twinleaf`, previously recorded as `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; the probe uses that submodule's compiled `ptcg-server/output` classes, not an independent paper rules engine.
 - In the fixture, Ditto 30C starts Active with two artificially attached Psychic Energy, Stealthy Hood UNB, and 10 damage. The player's deck has an accessible Vileplume AOR. The genuine attack resolves live coin prompts, a Stage-2 deck-choice prompt, and the deck-shuffle prompt. This is a **constructed test fixture** and deliberately bypasses all first-turn access costs.
 
@@ -24,3 +24,13 @@ These tests support the **mechanical plausibility** of using Ditto to install a 
 The test does **not** prove a legal fully dealt first-turn Ditto attack. It injects Energy, Tool, target and board state; uses one controlled coin sequence; has no authentic opposing source 60, K0/K1 prize knowledge, opponent decision policy, or 25-minute clock. It cannot establish a 60-card candidate's opening success probability, actual matchup strength, or win rate. The [exact restricted opening-route screen](../aichi-2026/agent3-ditto-prize-aware-firstturn-frontier.md) and [alternative Will path](../aichi-2026/agent3-ditto-will-natural-dce-frontier.md) remain separate, incomplete resource-access calculations.
 
 **Field status:** 29 of the Aichi Top 32 complete original lists currently sourced; zero independent competitive-qualified games; no demonstrated 99.5% fixed deck.
+
+## Follow-up native hand-play positive control, 23:13 UTC
+
+The initial effect-level test has now been tightened through real `PlayCardAction` attempts. The [second manually dispatched compiled CI 39339936525](https://github.com/FlareZ123/experiment-01/actions/runs/39339936525) **passed 8/8** Ditto tests at head `6bc03bcc4ff1dba41b1c33a69d726de1cf718a60`, with separate Dusclops 2/2. It adds a live legal Bench target (`Pidgey MEW`), places an actual `Switch SVI` in the **acting owner's hand**, sets the acting player's native turn context, and attempts `PlayCardAction` from each physical seat. The observed control distinguishes the printed lock from lack of a switch target:
+
+- Under transformed Vileplume + Stealthy Hood, both the owner and opponent's native Switch plays were rejected and the Item remained in hand.
+- With injected opponent Active Wobbuffet PHF + Tool Jammer BST, **unpatched engine** rejected both native Switch plays.
+- Under the same staged board with the existing opt-in reversible Tool Jammer hook, each physical seat's native Switch play was accepted and produced a genuine pending `ChoosePokemonPrompt` for the supplied Bench target. The regression asserts acceptance and that pending prompt; it does **not** claim the prompt was resolved or that full switch effects were audited.
+
+The original report's `PlayItemEffect` characterization therefore has an independent end-to-end hand-play admission control. This is stronger mechanical evidence, while still being a constructed turn with injected resources, not a naturally reached source-game action. No official paper ruling, full-game result, or opponent competence has been established.
