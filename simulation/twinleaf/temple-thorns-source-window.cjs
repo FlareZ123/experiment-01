@@ -155,10 +155,14 @@ function sourceGame(prepared, rank, seed, seat, observed) {
   assert.equal(opponent.cards.length, 60);
   const deckA = seat === 0 ? prepared.candidate.cards : opponent.cards;
   const deckB = seat === 1 ? prepared.candidate.cards : opponent.cards;
+  // Explicit opt-in diagnostic of the already archived rank-24 source deal.
+  const traceDetail = process.env.TEMPLE_SOURCE_TRACE === '1' &&
+    rank === 24 && seed === 2026101854 && seat === 0;
   const run = () => runWithResearchProfile({
     deckA, deckB, seed, maxActions: 220,
     isolatePolicyRandomness: true, strictPromptValidation: true,
     captureStartingBoard: true,
+    captureDecisionTrace: traceDetail,
     label: 'agent42-temple-source-rank-' + rank + '-seed-' + seed + '-seat-' + seat
   }, PROFILE);
   const wrapped = observed ? withOwnerWindowObserver(seat, run) :
@@ -168,6 +172,11 @@ function sourceGame(prepared, rank, seed, seat, observed) {
   assert.deepEqual(game.deckHashes, [digest(deckA), digest(deckB)]);
   assert.equal(game.verifiedByDrawLog, true,
     'Source player turn must have independent draw-log proof');
+  if (traceDetail) {
+    // Verify that extra trace capture did not change the authentic v3 game.
+    assert.equal(gameSignature(game),
+      '1af3f79119d6492794977146126aeeedec0c98c79aa62fc182b3bde30eaeb9bf');
+  }
   return {
     rank, seed, candidateSeat: seat,
     actualCandidateFirst: game.firstTurnSlot === seat,
@@ -186,6 +195,20 @@ function sourceGame(prepared, rank, seed, seat, observed) {
       .filter(event => event.kind === 'first-own-turn-decision'),
     ownerSetupChoices: wrapped.events
       .filter(event => event.kind === 'owner-actual-setup-choice'),
+    ...(traceDetail ? {
+      archivedActionTrace: game.rootActionLedger
+        .filter(row => row.turnBefore <= 15)
+        .map(row => ({
+          ordinal: row.actionOrdinal,
+          turn: row.turnBefore,
+          actorSeat: row.playerSlot,
+          action: row.action,
+          ...(row.card ? {card: row.card} : {}),
+          ...(row.ability ? {ability: row.ability} : {}),
+          ...(row.attack ? {attack: row.attack} : {}),
+          ...(row.pendingPrompt ? {prompt: row.pendingPrompt} : {})
+        }))
+    } : {}),
     mechanicalOnly: true
   };
 }
