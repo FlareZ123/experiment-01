@@ -166,3 +166,6 @@ test('comparison projection keeps actual root and end-state fields',()=>{
   assert.deepEqual(projection.finalPrizes,[6,6]);
   assert.equal(projection.error,null);
 });
+
+// Test nested runner-hook ownership and postgame-only detached evaluation.
+require('./agent50-bilateral-postgame-root-observer.test.cjs');
