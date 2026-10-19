@@ -6,10 +6,14 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const field = require(path.join(root, 'results/aichi-2026/full-decklists.json'));
 const sets = require(path.join(root, 'resources/sets/en.json'));
-const setCodeToId = new Map(sets.filter(set=>set.ptcgoCode)
-  .map(set=>[set.ptcgoCode.toUpperCase(),set.id]));
-setCodeToId.set('SMP','smp');
-setCodeToId.set('XYP','xyp');
+const setCodeToIds = new Map();
+for (const set of sets.filter(entry=>entry.ptcgoCode)) {
+  const code=set.ptcgoCode.toUpperCase();
+  if (!setCodeToIds.has(code)) setCodeToIds.set(code,[]);
+  setCodeToIds.get(code).push(set.id);
+}
+setCodeToIds.set('SMP',['smp']);
+setCodeToIds.set('XYP',['xyp']);
 const cache = new Map();
 
 /** @param {string|number} number */
@@ -23,7 +27,11 @@ function normalizedNumber(number) {
  */
 function resolvePrinted(deckCard) {
   const code = deckCard.printing?.set?.toUpperCase();
-  const setId = setCodeToId.get(code);
+  const setCandidates=setCodeToIds.get(code)??[];
+  const number=String(deckCard.printing?.number??'').toUpperCase();
+  const subgallery=number.startsWith('TG')?'tg':number.startsWith('GG')?'gg':null;
+  const setId=(subgallery&&setCandidates.find(id=>id.endsWith(subgallery))) ||
+    setCandidates.find(id=>!/(?:tg|gg)$/.test(id)) || setCandidates[0];
   if (!setId) return {card:null,lookup:'unknown-set:'+code};
   if (!cache.has(setId)) {
     const filename=path.join(root,'resources/cards/en',setId+'.json');
