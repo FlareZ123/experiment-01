@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent25_rank6_newmoon_pass:
+        description: 'Replay one archived New Moon first reply with read-only post-pass attack probe'
+        required: false
+        type: boolean
+        default: false
       agent6_rejected_arm:
         description: 'Audit just the archived rank6 rejected PlayCardAction at fixed source seed'
         required: false
@@ -166,15 +171,15 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify registered Agent41 two-rank schedule and corpus hashes
-        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass }}
         run: node --test tests/agent41-crossrank-actual-decisions.test.cjs
       - name: Execute frozen candidate-paired Iron Thorns and Garbodor screen
-        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass }}
         env:
           AGENT41_PARTITION: ${{ inputs.agent41_crossrank_partition || '0' }}
         run: node simulation/evaluation/agent41-crossrank-actual-decisions.cjs > agent41-crossrank-observed.json
       - name: Print bounded failures, decisions and source opportunity counts
-        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass }}
         run: node -e "const a=require('./agent41-crossrank-observed.json');console.log(JSON.stringify({partition:a.partition,recorded:a.partitionRecorded,status:a.statusCounts,opportunities:a.sourceOpportunityCounts,sourceFirst:a.actualSourceFirstCount,attackDeclarations:a.observedAttackDeclarations,matchedSourceHands:a.pairedSourceHandAgreement,paired:a.pairedTotal,errors:a.rows.filter(x=>x.status==='engine-error').map(x=>({id:x.id,error:x.error?.slice(0,250)}))},null,2))"
       - name: Replay original Agent41 rank6 rejected root and capture legal owner information
         if: ${{ inputs.agent41_crossrank_trial && inputs.agent6_rejected_arm }}
@@ -185,6 +190,15 @@ jobs:
       - name: Print bounded owner-visible reply and post-reply status
         if: ${{ inputs.agent41_crossrank_trial && inputs.agent6_shadow_mist_supporter }}
         run: node -e "const x=require('./agent6-shadow-mist-supporter.json');console.log(JSON.stringify({trial:x.frozenTrialId,choices:x.decisions,error:x.error?.slice(0,700)||null,sourcePolicy:x.result?.sourcePolicyAudit,actions:x.result?.actions,status:x.result?.status,attacks:x.result?.sourceAttackDeclarations,prizes:x.result?.prizesRemaining},null,2))"
+      - name: Test retrospective first-response probe isolation and own-hand evidence
+        if: ${{ inputs.agent41_crossrank_trial && inputs.agent25_rank6_newmoon_pass }}
+        run: node --test tests/agent25-rank6-newmoon-first-pass-audit.test.cjs
+      - name: Replay one true-source New Moon turn-three first response with after-Pass legality probe
+        if: ${{ inputs.agent41_crossrank_trial && inputs.agent25_rank6_newmoon_pass }}
+        run: node simulation/evaluation/agent25-rank6-newmoon-first-pass-audit.cjs > agent25-rank6-newmoon-first-pass.json
+      - name: Print bounded candidate Pass and probe result
+        if: ${{ inputs.agent41_crossrank_trial && inputs.agent25_rank6_newmoon_pass }}
+        run: node -e "const a=require('./agent25-rank6-newmoon-first-pass.json');console.log(JSON.stringify({trial:a.trialId,rootStable:a.sourceRootLedgerMatchesArchived,pass:a.firstCandidateTurn3?.passOrdinal,ownHand:a.firstCandidateTurn3?.ownerHandAtPass,attackCandidates:a.firstCandidateTurn3?.alreadyChosenPassAttackProbe?.tested,qualified:a.competitiveQualifiedGames},null,2))"
       - name: Verify source-locked trial adapter and guards
         run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs tests/rank11-autonomous-opener.test.cjs tests/rank11-autonomous-campaign-seat.test.cjs tests/rank11-first-turn-screen.test.cjs tests/rank11-conditional-k0-screen-run.test.cjs tests/rank11-conditional-k0-complete.test.cjs tests/rank11-k0-selected-continuations-run.test.cjs tests/aichi-campaign-attack-observer-screen.test.cjs tests/rank26-autonomous-cologne.test.cjs tests/rank26-exeggcute-pump-policy.test.cjs tests/rank26-propagation-loop.test.cjs tests/rank11-autonomous-supporter-profile.test.cjs
       - name: Verify precommitted rank11 exposure reporter and fail-closed source identity
@@ -300,6 +314,7 @@ jobs:
             agent41-crossrank-observed.json
             agent6-crossrank-rejected-root.json
             agent6-shadow-mist-supporter.json
+            agent25-rank6-newmoon-first-pass.json
             newmoon-vip-prospective.json
             aichi-rank11-newmoon-autonomous-pair.json
             newmoon-rank11-pass-observer.json
