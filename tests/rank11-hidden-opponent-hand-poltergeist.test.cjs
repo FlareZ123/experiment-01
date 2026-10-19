@@ -25,5 +25,9 @@ test('printed Poltergeist speculative score sees unrevealed source hand identity
     assert.deepEqual(result.variants.map(v => v.opponentHiddenTrainers), [0, 4]);
     assert.notEqual(result.variants[0].poltergeistScore,
       result.variants[1].poltergeistScore);
+    assert.deepEqual(result.variants.map(v => v.selectedActionClass),
+      ['AttackAction', 'AttackAction']);
+    assert.deepEqual(result.variants.map(v => v.selectedAttack),
+      ['Poltergeist', 'Poltergeist']);
     assert.equal(result.preAttackHiddenHandForecastLeak, true);
   });
