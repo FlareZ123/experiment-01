@@ -95,6 +95,7 @@ test('omitted arms remain explicit in registered denominator',()=>{
   assert.equal(r.registeredArms,8);
   assert.equal(r.observedArms,7);
   assert.equal(r.completeAttemptCensus,false);
+  assert.equal(r.noPolicyProtocolDrift,false);
   assert.equal(r.byRank[11].missing,1);
   assert.equal(r.arms.find(row=>row.status==='missing').vetoes[0],
     'missing-attempt-evidence');
@@ -225,4 +226,21 @@ test('missing first-draw evidence cannot manufacture both real-start coverage',(
   assert.equal(result.byRank[11].candidateFirst,2);
   assert.equal(result.twoRealStartsPerRankObserved,false);
   assert.equal(result.mechanicalBilateralWitnesses,6);
+});
+
+test('only a real rank6 and rank11 source adversary covers the hard-field pilot',()=>{
+  const {plan,archive}=fixture();
+  plan.opponents[1].rank=10;
+  assert.throws(()=>auditBilateralV2(plan,archive),
+    /must include hard Aichi rank 11/);
+});
+test('source pressure only on rank6 leaves rank11 pilot unqualified',()=>{
+  const {plan,archive}=fixture();
+  for(const row of archive.rows.filter(row=>row.rank===11)){
+    row.sourcePressure.effectVerified=false;
+  }
+  const r=auditBilateralV2(plan,archive);
+  assert.equal(r.mechanicalBilateralWitnesses,4);
+  assert.equal(r.bothHardRanksHaveBilateralWitnesses,false);
+  assert.equal(r.opportunityAndPolicyVerdict,'HOLD-OR-INCOMPLETE');
 });
