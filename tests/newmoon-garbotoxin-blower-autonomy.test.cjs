@@ -61,3 +61,18 @@ test('same public target predicate works beyond first game turn',()=>{
   state.turn=14;
   assert.equal(blowerOpportunity(state,own,opponent,1,7),true);
 });
+
+test('opt-in any Active allows an owner-legal public Tool response before Mewtwo setup',()=>{
+  const {own,opponent,state}=fixture();
+  own.active.getPokemonCard=()=>({fullName:'Duskull VIV'});
+  assert.equal(blowerOpportunity(state,own,opponent,1,7),false);
+  assert.equal(blowerOpportunity(state,own,opponent,1,7,true),true);
+  state.prompts=[{result:undefined}];
+  assert.equal(blowerOpportunity(state,own,opponent,1,7,true),false);
+  state.prompts=[];
+  state.activePlayer=0;
+  assert.equal(blowerOpportunity(state,own,opponent,1,7,true),false);
+  state.activePlayer=1;
+  opponent.bench[0].tools=[];
+  assert.equal(blowerOpportunity(state,own,opponent,1,7,true),false);
+});
