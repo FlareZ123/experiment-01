@@ -1,0 +1,57 @@
+# Five absent published archetypes: source-printed playability contract for a future fixed-60 pilot
+
+**Agent 7, 19 October 2026. Evidence class: printed-card/source-inventory synthesis and test-design contract.** This document neither runs games nor changes a candidate 60. It consolidates existing source and mechanical evidence so the next **one integrated bilateral policy study** can expand after its rank-6/rank-11 decision gates. There are **29/32 exact published Top-32 decklists, zero competitively qualified games**, and no established 99.5% winning deck.
+
+## Scope and provenance
+
+The [full Aichi list registry](full-decklists.json) supplies all five exact 60-card **published** opponents below. The [field-diversity census](agent21-field-diversity-coverage.md) establishes that the current ten-rank pilot covers 9/14 published archetypes, omitting one entire archetype for each of ranks **9, 15, 19, 30 and 31**. This absence is a *pilot-coverage gap*, distinct from the **unpublished 60-card registrations at ranks 23, 25, 28**. No missing registration is inferred.
+
+All counts/printing references below were cross-checked against the source manifest and the bundled English card archive `resources/cards/en/` in the repository (also supplied as `card-list.zip`). The archive is a **printing-level explanatory resource**, not proof of all Japanese text revisions, banned-card rules, legality or Twinleaf implementation fidelity. Threats are **falsifiable proposed policy obligations**, not predicted matchup rates.
+
+| Source rank and exact archetype | Printed tactical fork a source policy must consider | Distinguishing constraint or response to validate |
+| --- | --- | --- |
+| **9 Absol Electrode** | **2 Electrode-GX CES 48** with Extra Energy Bomb; **1 Mega Absol ex MEG 86** with Terminal Period/Claw of Darkness; **1 Gengar & Mimikyu-GX TEU 53** with Horror House-GX | Five discard Energy may be accelerated while the Electrode is Knocked Out; check eligible **non-Pokémon-GX/EX** recipients and resulting Prize awards, then a real attack under Energy, position and hand-lock constraints |
+| **15 Lopunny Vileplume** | **2 Vileplume AOR 3** providing Item lock, **1 Vileplume BUS 6** denying the opponent's Basic attackers while Active; **2 Mega Lopunny ex PFL 84**, **2 TM: Evolution PAR 178** | Two Oddish UNB 5 and two Gloom UNB 7 are a *shared* evolution-chain bottleneck. Distinguish Item-lock versus Active-dependent Basic-attack lock and preserve a real Benched-to-Active Gale Thrust pivot |
+| **19 Raging Bolt** | **2 Raging Bolt ex TEF 123** with Basic-Energy discard multiplier; **1 ADP-GX CEC 156** with Altered Creation-GX; **4 Double Dragon Energy ROS 97** | Compare direct 70-damage-per-Basic-Energy Bellowing Thunder with the ADP-GX prize-amplification branch. Check actual attached Energy, GX consumption, subsequent Knock Out and extra Prize awards |
+| **30 Lillie's Clefairy** | **3 Lillie's Clefairy ex JTG 56** using Full Moon Rondo, **3 Sky Field ROS 89**, **4 Wondrous Patch PFL 94** | Damage changes with *both* players' actual Bench occupancies. Wondrous Patch attaches Basic Psychic from discard to a Benched Psychic Pokémon; **3 Field Blower GRI 125** can challenge Tools/Stadiums; **1 Empoleon V BST 40** supplies a different Active-only Basic no-Rule-Box Ability constraint |
+| **31 Dusknoir Chimecho** | **3 Dusknoir PRE 37** with 13-counter self-KO Cursed Blast, **1 Dusknoir BCR 63** with Sinister Hand, **3 Koffing CEC 76** with Blow-Away Bomb, **4 Roxie CEC 205**, **1 Chimecho CIN 43** | Preserve distinct Dusknoir printings and their evolution turns. Roxie-discarded Koffing places 1 counter on each opposing Pokémon; Chimecho's Bell of Silence restricts *playing Ability Pokémon from hand* during the next opponent turn, without erasing Abilities already in play |
+
+## Minimum root-action witnesses, separated from winning
+
+### Rank 9: self-KO acceleration versus the opponent's prize map
+
+Capture one **actual source-owned** Extra Energy Bomb announcement with the physical discard Energy available, each attachment destination and legal quantity, the self-KO and any Prizes awarded to the *other player*. An unverified Deck or hand access path does not suffice. Then require an actual source attack on a later turn and a candidate answer. The wording excludes Pokémon-GX and Pokémon-EX as Energy recipients; the lowercase modern `ex` and Mega ex identity need a separate paper-rule/engine parity check before assuming successful acceleration. An Electrode-GX self-KO is not automatically a favorable play given the two-Prize liability; Mega Absol ex gives up three if subsequently Knocked Out.
+
+The already compiled [Horror House source→next-turn trace](rank9-horror-house-authentic-nextturn.md) offers a narrow regression: real rank9 turn-2 one-Prism-Energy Horror House-GX, followed by the rank1 Shadow Mist attack. Its 180-action continuation was capped with no terminal game and did **not** show an otherwise-playable Item denied from hand. It does not qualify the entire archetype.
+
+### Rank 15: shared evolution resources and separate simultaneous locks
+
+Record actual basic-to-Stage1-to-Stage2 transitions and the *printed identity* of each Vileplume at every root. Assert Item play is suppressed if AOR's Irritating Pollen operates, independently confirm Basic attacks are disabled only while BUS Disgusting Pollen is Active and unblocked, and record which Pokémon occupies the Active Spot. The source cannot assume both copies of a single Oddish/Gloom line produce simultaneous Stage2s. A candidate response should be an actual playable non-Basic attack, a valid lock removal or a real attack-position change, followed by a source counterdecision.
+
+Mega Lopunny ex has a distinct **Bench→Active this-turn** condition for Gale Thrust's additional 170 damage; a Stage1 Mega, positioning and Energy are mandatory. The exact [shared-chain Prize-capacity model](rank15-dual-vileplume-prize-ceiling.md) measures **57.47208%** pre-Prize feasibility for both Vileplumes in the stated legal-opener model; it does not estimate live establishment. In [eight original-source generic bot starts](agent36-newmoon-rank15-authentic-duallock-exposure.md) AOR appeared late in 3 and BUS in 0, with 6 action caps; these are **unqualified source-policy negatives**. Existing Bunnelby/TM Evolution studies can supply developmental fixtures.
+
+### Rank 19: prize-taking line alters the payoff of a Knock Out
+
+Stage an authentic owner policy that can select either a payable Bellowing Thunder discard multiplier or a payable **Altered Creation-GX** from the source's own visible resources. For the GX line, test the effect persists and increases future Active-KO Prizes only under the printed condition; an early GX declaration alone does not establish its game impact. One Double Dragon Energy provides two units of every type on a Dragon Pokémon, enabling the Metal cost plus extra Water condition for ADP-GX when attached correctly. Record its three-Prize TAG TEAM risk and alternative source attacking line.
+
+The [exact direct ADP-opening calculation](rank19-direct-adp-altered-creation-opening.md) finds a **5.24760425%** initial-ADP-plus-first-draw-DDE subset conditional on a Basic-valid opening; that figure excludes other search/pivot routes and is **not** attack execution frequency. Its author lists actual attached-DDE GX and later extra-Prize KO as unresolved Store/effect gates. Source list contains **3 Professor Sada's Vitality** and **nine Basic Energy**; record real Energy recovery, attachment and Bellowing Thunder discard costs rather than assuming the source can pay 70× at will.
+
+### Rank 30: both-Bench scaling and disruptive Tool/Ability alternatives
+
+For every Full Moon Rondo declaration, record the count of *occupied* Benched Pokémon on both sides **at attack time**, the active Sky Field effect, Weakness and other modifiers, and the actual computed damage/KO. A candidate can change the attack's damage by modifying its own Bench size or replacing Sky Field. A blanket "Clefairy does high damage" policy misses those choices. Include an actual source Wondrous Patch attachment from the physical discard pile to an eligible Benched Psychic Pokémon and, when reachable, a source Field Blower answer to an attached defensive Tool.
+
+Separately test whether Active Empoleon V's Emperor's Eyes suppresses a **non-Rule-Box Basic** Ability while respecting its Rule-Box exception and the Active-position condition. This line is not interchangeable with Iron Thorns ex/Garbodor locks. No cross-rank terminal claim should be made from a synthetic high-bench 340-damage number.
+
+### Rank 31: printed Dusknoir identity, self-KO and hand-entry attack lock
+
+Use **printed** Duskull PRE 35 → Dusclops PRE 36 → Dusknoir PRE 37 or BCR 63, including legitimate evolution timing. PRE Cursed Blast is a self-KO after placing thirteen damage counters on one opposing Pokémon; BCR Sinister Hand *moves existing* opposing damage counters. Their actions and availability are distinct. The source's three Koffing CEC 76 plus four Roxie produce a separate immediate spread route if **actual Koffing cards are discarded specifically by Roxie**. The resulting counter placement can create precise KO windows without an attack damage multiplier.
+
+Chimecho CIN 43 Bell of Silence attacks for 10 and prevents an opponent from playing an **Ability-bearing Pokémon from their hand next turn**. Record actual attack resolution and a subsequently denied or permitted hand-entry action; it neither disables in-play Abilities nor creates blanket Item lock. The [staged hand-entry Store regression](../twinleaf/chimecho-hand-entry-path-preflight.md) previously passed, while [two natural source starts](rank31-chimecho-natural-source-exposure.md) never played Chimecho or Bell and both action-capped. The [rank31 Koffing/Roxie source study](agent43-rank31-roxie-exposure.md) is a separate fixture and must not be counted as another independent original deal if it reuses those same seeds.
+
+## Integration contract for the next breadth stage
+
+Keep **Agent 41's rank-6/rank-11 bilateral v2** as the immediate common-policy owner. This briefing authorizes no new competing simulation campaign or candidate promotion. After the fixed 60s and *both* actor policies are usable and frozen on those hard ranks, include at least one authentic original-list opponent from **each** of the five absent archetypes. These are *source threat coverage* categories, with zero wins imputed for omissions.
+
+For each preregistered matchup and both actual start orders, archive the immutable original opponent 60 and candidate 60 hashes, real source-first lineage, full attempted seed/seat denominator, real selected root action and closed printed-effect prompts, candidate reply, opponent continuation, errors/caps, and separate official-paper/clock and information-set qualification. Report **no-opportunity** and **policy failure** separately from blocked action, verified effective disruption and verified damage/Prize changes. For a candidate comparison, apply the same general algorithm to both fixed 60s and identify any candidate-specific added tactics as explicit separate treatments.
+
+**Decision:** these five source-print tactical requirements expose credible ways a ten-rank pilot could falsely favor a candidate. They do not establish their encounter frequencies, the optimal opposing lines, a win estimate or a preferred final deck.
