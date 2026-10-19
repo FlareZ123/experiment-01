@@ -168,6 +168,7 @@ function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'no
       const { PlayCardAction, PlayerType, SlotType } =
         load('game/store/actions/play-card-action');
       const actor = store.state.players[nativeSwitchSeat];
+      const initialActive = actor.active.getPokemonCard();
       const benchSlot = new PokemonCardList();
       benchSlot.cards.push(card('Pidgey MEW'));
       actor.bench.push(benchSlot);
@@ -210,10 +211,7 @@ function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'no
         switchPromptResolved,
         activeAfterSwitch: actor.active.getPokemonCard()?.fullName ?? null,
         originalActiveOnBench: actor.bench.some(slot =>
-          slot.getPokemonCard() === (nativeSwitchSeat === 0 ? stage2 :
-            store.state.players.find(player => player.id === enemy.id)
-              ?.bench.find(slot => slot.getPokemonCard()?.name === 'Wobbuffet')
-              ?.getPokemonCard())),
+          slot.getPokemonCard() === initialActive),
         vileplumeAbilitySuppressedAfter: IS_ABILITY_BLOCKED(
           store, state, liveMine, stage2)
       };
