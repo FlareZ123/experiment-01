@@ -186,6 +186,5 @@ if (require.main === module) {
   assert.equal(typeof filename, 'string',
     'Pass the archived agent41-crossrank-observed.json file path');
   const report = JSON.parse(fs.readFileSync(filename, 'utf8'));
-  process.stdout.write(JSON.stringify(auditPartition(report), null, 2) + '
-');
+  process.stdout.write(JSON.stringify(auditPartition(report), null, 2) + '\n');
 }
