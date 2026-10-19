@@ -100,6 +100,20 @@ clock or genuine policy-controlled complete game. It establishes the narrow
 attachment rejection that motivated this guard, and cannot qualify any game
 for win-rate inference.
 
+## Rejected-action Store observer correction
+
+Follow-up [native Store live-backup audit]
+(agent32-store-rejection-live-backup.md) confirmed
+[CI 39332435517](https://github.com/FlareZ123/experiment-01/actions/runs/39332435517):
+the pinned reducer deep-clones state on a rejected action and restores
+`store.state` to that backup. A rejected DCE or Stadium play leaves
+the **continuing** game with its original normal-play allowance
+available. Earlier provisional observations of consumed counters
+came from references to the discarded in-memory working player
+and are superseded. The owner-visible preflight remains useful to
+avoid choosing an already blocked or already spent action in the first
+place; it is **not** required as a substitute for Store state rollback.
+
 ## Qualification boundary
 
 The policy is still default-off, narrow to source rank 6, and built on
