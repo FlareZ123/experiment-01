@@ -169,3 +169,34 @@ jobs:
           name: newmoon-compressor-source-partition-${{ inputs.partition }}
           path: newmoon-payload-partition-${{ inputs.partition }}.json
           if-no-files-found: warn
+
+      - name: Verify late14 held Compressor choice against original owner-turn guard
+        if: inputs.common_bilateral_late_compressor_development
+        run: node --test tests/new-moon-compressor-payload-policy.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/owner-compressor-opportunity-audit.test.cjs
+      - name: Replay same four historical hard-rank source deals with late14 owner donor policy
+        if: inputs.common_bilateral_late_compressor_development
+        env:
+          AGENT5_COMPR_LATE14_DEV: 'true'
+          AGENT5_COMPR_OPPORTUNITY_AUDIT: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent5-bilateral-late14-compressor.json
+      - name: Report actual candidate Compressor root and source response without qualifying games
+        if: inputs.common_bilateral_late_compressor_development
+        run: >-
+          node -e "const x=require('./agent5-bilateral-late14-compressor.json');
+          for(const r of x.rows){
+          console.log('LATE14_HISTORICAL_ONLY',JSON.stringify({
+          id:r.trial.id,seed:r.trial.seed,first:r.actualStarterSeat,
+          actualCompressorItemRoots:r.candidateBattleCompressorRoots??[],
+          currentEligibleTurns:r.ownerCompressorOpportunityAudit?.activeOnlyEligibleTurns,
+          attacks:r.attackDeclarations,actions:r.actionCount,
+          finished:r.finished,end:r.endReason,error:r.error?.slice(0,600)||null,
+          rootHash:r.rootActionLedgerSha256}));}
+          console.log('COMPETITIVE_QUALIFIED',x.competitiveQualifiedGames);"
+      - name: Archive all original-deal later-donor owner decisions and failures
+        if: inputs.common_bilateral_late_compressor_development && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent5-late14-canonical-compressor-dev
+          path: agent5-bilateral-late14-compressor.json
+          if-no-files-found: warn
+          retention-days: 10
