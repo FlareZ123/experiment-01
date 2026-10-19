@@ -71,6 +71,7 @@ function withUniformNightWatch(execute,options={}) {
     created:0, resolved:0, returnedCounts:[], invalid:0,
     precommitsInBotDecision:0, precommitsOutsideBotDecision:0,
     resolutionsInBotDecision:0, resolutionsOutsideBotDecision:0,
+    planningSampleWitnesses:[],
     counterfactualApplied:false, counterfactualFirstRootPair:rootPair||null,
     planningRandomOverrideEnabled:options.planningRandomSource!==undefined,
     note:'Counts may include speculative Stores; independently audit root actions.'
@@ -114,8 +115,16 @@ function withUniformNightWatch(execute,options={}) {
             }
             choices.set(prompt, selected);
             audit.created++;
-            if(decisionDepth>0) audit.precommitsInBotDecision++;
-            else audit.precommitsOutsideBotDecision++;
+            if(decisionDepth>0) {
+              audit.precommitsInBotDecision++;
+              if(options.auditPlanningSamples===true) {
+                audit.planningSampleWitnesses.push({
+                  handSize:prompt.cards.cards.length,
+                  count:selected.length,
+                  positions:selected.map(card=>prompt.cards.cards.indexOf(card))
+                });
+              }
+            } else audit.precommitsOutsideBotDecision++;
           }
         }
         return originalPrompt.call(this, sourceState, givenPrompts, callback);
