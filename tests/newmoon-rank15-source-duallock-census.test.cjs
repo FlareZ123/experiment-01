@@ -133,6 +133,11 @@ test('source root observer separates Bunnelby Active from Tool and Energy readin
   };
   state.players[0].active.tools=[{fullName:'Technical Machine: Evolution PAR'}];
   state.players[0].active.energies.cards=[{fullName:'Jet Energy PAL'}];
+  state.players[0].hand.cards=[
+    {fullName:'Buddy-Buddy Poffin TEF'},
+    {fullName:'Oddish UNB'}
+  ];
+  const before=JSON.stringify(state);
   const result=observeSourceLock(MockStore,0,1,()=>{
     store.dispatch(new AddPlayerAction());
     store.dispatch(Object.assign(new PlayCardAction(),{nextState:state}));
@@ -144,5 +149,10 @@ test('source root observer separates Bunnelby Active from Tool and Energy readin
     ['Technical Machine: Evolution PAR']);
   assert.deepEqual(result.first.sourceBunnelbyActiveWithTMAndEnergy.activeEnergyNames,
     ['Jet Energy PAL']);
+  assert.deepEqual(
+    result.first.sourceBunnelbyActiveWithTMAndEnergy.sourceOwnerHandNames,
+    ['Buddy-Buddy Poffin TEF','Oddish UNB']);
+  assert.equal(result.first.sourceBunnelbyActive.sourceOwnerHandNames,undefined);
+  assert.equal(JSON.stringify(store.state),before);
   assert.equal(MockStore.prototype.dispatch,original);
 });
