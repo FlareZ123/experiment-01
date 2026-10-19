@@ -46,6 +46,11 @@ function turn23Frontier(state) {
   const physicalCount=Object.values(patched).reduce((a,b)=>a+b,0);
   assert.equal(physicalCount,3,'Source three Dark Patch cards not conserved');
   const candidateActive=target.active;
+  const targetCard=state.players[1].active.getPokemonCard();
+  const candidatePrintedHp=targetCard?.hp??null;
+  assert.equal(targetCard?.fullName,'Mewtwo & Mew-GX UNM',
+    'Printed candidate Active drifted');
+  assert.equal(candidatePrintedHp,270,'Candidate printed HP drifted');
   const prerequisites={
     vstarAvailable:owner.usedVSTAR===false,
     darkPatchSearchable:patched.deck>0,
@@ -55,9 +60,7 @@ function turn23Frontier(state) {
     crobatHasOneDarkness:basicDarkness(crobat.energies)===1,
     shoppingCenterInPlay:owner.stadium.includes('Shopping Center EVS'),
     garbotoxinUntooled:garbodor.tools.length===0,
-    targetReachableBy70:target.active.cards.includes('Mewtwo & Mew-GX UNM') &&
-      candidateActive.hp-candidateActive.damage<=70,
-    threePrizeKnockoutWouldEndGame:owner.prizes.length<=3
+    targetReachableBy70:candidatePrintedHp-candidateActive.damage<=70
   };
   return {
     schema:'rank11-source-turn23-crobat-stone-frontier-v1',
@@ -74,8 +77,12 @@ function turn23Frontier(state) {
     sourceGarbodor:garbodor,
     sourceStadium:owner.stadium,
     candidateActive,
+    candidatePrintedHp,
+    sourcePrizeCountBeforeHypotheticalKO:owner.prizes.length,
+    sourcePrizeCountAfterHypotheticalThreePrizeKO:
+      Math.max(0,owner.prizes.length-3),
     prerequisites,
-    allPrintedResourcePrerequisitesSeen:
+    allAttackResourcePrerequisitesSeen:
       Object.values(prerequisites).every(Boolean),
     interpretiveLimit:'This is a retrospective prerequisite census, not a legal '+
       'Shopping Center/Star Alchemy/Dark Patch/retreat/attack Store fork. '+
