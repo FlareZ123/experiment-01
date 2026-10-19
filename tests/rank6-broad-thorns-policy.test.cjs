@@ -137,3 +137,62 @@ test('opt-in extra Tag Calls are last-priority and never count twice',()=>{
     hand(['Tag Call']),undefined,true
   ),[]);
 });
+
+test('Shadow Mist prevents spending Tag Call and G&H on a blocked Thunder route',()=>{
+  const h=hand(['Iron Thorns ex','Tag Call','Tropical Beach',
+    'Crushing Hammer','Thunder Mountain Prism Star',
+    'Double Colorless Energy']);
+  assert.equal(planOpeningHand(h,false,undefined,false,{
+    stadiumLocked:true,specialEnergyLocked:true
+  }),null);
+  assert.equal(planOpeningHand(h,false,undefined,false,{
+    stadiumLocked:true
+  }),null);
+});
+
+test('Stadium lock leaves an already established Thunder route open',()=>{
+  const h=hand(['Iron Thorns ex','Double Colorless Energy']);
+  assert.deepEqual(planOpeningHand(h,true,undefined,false,{
+    stadiumLocked:true
+  }),{
+    channel:'direct',needDce:false,needThunder:false,discardCount:0
+  });
+  assert.equal(planOpeningHand(h,true,undefined,false,{
+    specialEnergyLocked:true
+  }),null);
+});
+
+test('a spent or locked Supporter vetoes G&H but not a direct paid route',()=>{
+  const h=hand(['Iron Thorns ex','Guzma & Hala','Camping Gear',
+    'Crushing Hammer']);
+  assert.equal(planOpeningHand(h,false,undefined,false,{
+    supporterLocked:true
+  }),null);
+  assert.equal(planOpeningHand(hand(['Double Colorless Energy',
+    'Thunder Mountain Prism Star']),false,undefined,false,{
+    supporterLocked:true
+  })?.channel,'direct');
+});
+
+test('Item lock suppresses the Tag Call connector but permits held G&H',()=>{
+  const h=hand(['Iron Thorns ex','Tag Call','Camping Gear',
+    'Crushing Hammer']);
+  assert.equal(planOpeningHand(h,false,undefined,false,{
+    itemLocked:true
+  }),null);
+  h.push({name:'Guzma & Hala'});
+  assert.equal(planOpeningHand(h,false,undefined,false,{
+    itemLocked:true
+  })?.channel,'held-guzma-hala');
+});
+
+test('the opener will not try to replay Stadium after a Stadium this turn',()=>{
+  const h=hand(['Iron Thorns ex','Guzma & Hala',
+    'Double Colorless Energy']);
+  assert.equal(planOpeningHand(h,false,undefined,false,{
+    stadiumAlreadyPlayed:true
+  }),null);
+  assert.equal(planOpeningHand(h,true,undefined,false,{
+    stadiumAlreadyPlayed:true
+  })?.channel,'direct');
+});
