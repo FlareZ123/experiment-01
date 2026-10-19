@@ -209,14 +209,20 @@ function basicCountFromPrintedDeck(deck, root) {
   const cache = new Map();
   let basicCount = 0;
   for (const entry of deck.cards.filter(c => c.category === 'Pokémon')) {
-    const setId = setIds.get(entry.printing.set);
+    // Limitless source labels XY promos as XYP/67; TCGJSON uses
+    // PR-XY and xyp-XY67. Resolve the exact printed card, not a proxy.
+    const sourceSet = entry.printing.set === 'XYP' ?
+      'PR-XY' : entry.printing.set;
+    const setId = setIds.get(sourceSet);
     assert.ok(setId, 'Unknown source set ' + entry.printing.set);
+    const number = setId === 'xyp' && /^\\d/.test(entry.printing.number) ?
+      'XY' + entry.printing.number : entry.printing.number;
     if (!cache.has(setId)) {
       cache.set(setId, JSON.parse(fs.readFileSync(
         path.join(root, 'resources/cards/en', setId + '.json'), 'utf8')));
     }
     const card = cache.get(setId).find(c =>
-      c.number === entry.printing.number && c.name === entry.name);
+      c.number === number && c.name === entry.name);
     assert.ok(card, 'Unresolved source printing: ' + entry.name);
     if (card.subtypes.includes('Basic')) basicCount += entry.count;
   }
