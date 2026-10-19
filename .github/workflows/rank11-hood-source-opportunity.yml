@@ -11,6 +11,7 @@ on:
           - rank11
           - rank6
           - rank6-reply
+          - rank6-faba
 jobs:
   audit:
     runs-on: ubuntu-latest
@@ -28,8 +29,8 @@ jobs:
         if: ${{ inputs.study == 'rank6' }}
         run: node --test tests/early-shadow-rider-hood.test.cjs tests/protected-underworld-door.test.cjs tests/hood-initialization-policy.test.cjs tests/rank6-hood-prospective-exposure.test.cjs
       - name: Rank6 source Hood-remover protocol tests
-        if: ${{ inputs.study == 'rank6-reply' }}
-        run: node --test tests/early-shadow-rider-hood.test.cjs tests/protected-underworld-door.test.cjs tests/hood-initialization-policy.test.cjs tests/rank6-hood-removal-policy.test.cjs tests/rank6-hood-removal-replay.test.cjs
+        if: ${{ inputs.study == 'rank6-reply' || inputs.study == 'rank6-faba' }}
+        run: node --test tests/early-shadow-rider-hood.test.cjs tests/protected-underworld-door.test.cjs tests/hood-initialization-policy.test.cjs tests/rank6-hood-removal-policy.test.cjs tests/rank6-hood-removal-replay.test.cjs tests/rank6-faba-hood-target.test.cjs
       - run: npm ci --no-audit --no-fund
         working-directory: vendor/twinleaf/ptcg-server
       - run: npm run compile
@@ -49,6 +50,9 @@ jobs:
       - name: Frozen original-source rank6 Hood removal replay
         if: ${{ inputs.study == 'rank6-reply' }}
         run: node simulation/twinleaf/rank6-hood-removal-replay.cjs > rank6-hood-removal-replay.json
+      - name: Retrospective rank6 Faba target reply
+        if: ${{ inputs.study == 'rank6-faba' }}
+        run: node simulation/twinleaf/rank6-faba-hood-replay.cjs > rank6-faba-hood-replay.json
       - uses: actions/upload-artifact@v4
         if: ${{ inputs.study == 'rank11' }}
         with:
@@ -69,4 +73,10 @@ jobs:
         with:
           name: source-rank6-hood-removal-replay
           path: rank6-hood-removal-replay.json
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: ${{ inputs.study == 'rank6-faba' }}
+        with:
+          name: source-rank6-faba-hood-target-replay
+          path: rank6-faba-hood-replay.json
           if-no-files-found: error
