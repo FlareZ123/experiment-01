@@ -1,0 +1,37 @@
+name: Agent 28 historical Perfection donor diagnostic
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  historical-public-donors:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned simulator
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install simulator dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned simulator
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify hidden-zone-safe public donor observer
+        run: node --test tests/agent28-perfection-donor-context.test.cjs
+      - name: Replay four historical games with post-choice public donor snapshots
+        run: node simulation/evaluation/agent28-perfection-public-source-replay.cjs > agent28-public-copy-source.json
+      - name: Print only observed Pass preconditions, never match strength
+        run: node -e "const d=require('./agent28-public-copy-source.json'); for(const r of d.rows) console.log('HISTORICAL',JSON.stringify({id:r.id,unchanged:r.rootActionLedgerSha256,samples:r.samples}));console.log('QUALIFIED',d.competitiveQualifiedGames)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: agent28-public-perfection-historical-observation
+          path: agent28-public-copy-source.json
+          retention-days: 10
