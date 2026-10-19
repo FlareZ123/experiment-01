@@ -29,6 +29,7 @@ All four are research subjects. No source-dealt engine win should be promoted to
 ## Evidence and next decisions
 
 - [32-placement field and provenance](aichi-2026/README.md); exact source lists are missing for ranks **23, 25 and 28**.
+- [Full-field statistical claim provenance gate](aichi-2026/agent17-full-field-claim-gate.md) binds every rank-specific opponent fingerprint to the current source manifest and refuses final 32-field certification while any exact source 60 is unavailable. Its manual Node tests passed; it adds no qualified games.
 - [Three-rank qualification critical path](aichi-2026/critic-qualification-critical-path.md); [rank-10 replay packet](aichi-2026/qualification-packets/rank-10/README.md), [rank-2 packet](aichi-2026/qualification-packets/rank-02/README.md), [rank-6 packet](aichi-2026/qualification-packets/rank-06/README.md).
 - [Rank-8 Hood second-start engine game and remaining opponent lock/attack gate](aichi-2026/hood-rank8-actual-second-source.md). This game remains competitively unqualified.
 - [Rank11 four-arm common-campaign New Moon diagnostic](aichi-2026/agent21-rank11-common-newmoon-first-pilot.md): source and compiled checks passed, but the original action counters did not establish whether New Moon resolved a copied Perfection attack, because delegated attacks can evade the root `AttackAction` trace; all four candidate games started first, leaving actual second-start unresolved.
