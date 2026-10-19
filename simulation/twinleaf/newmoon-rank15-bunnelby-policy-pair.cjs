@@ -29,8 +29,24 @@ function rootPolicyTrace(game,seat) {
     [name,Object.entries(game.cardsPlayedBySeat[seat])
       .filter(([card])=>card.startsWith(name))
       .reduce((total,[,count])=>total+count,0)]));
+  // Native Store attack logs also cover prompt-delegated attack declarations
+  // which may not be represented as AttackAction in rootActionLedger.
+  const native=game.attackDeclarationTrace.filter(r=>r.playerSlot===seat);
+  const nativeEvolution=native.filter(r=>r.attackName==='Evolution');
   return {
     rootActions:roots.length,cardsPlayed,
+    nativeSourceAttackDeclarations:{
+      total:native.length,
+      evolutionAnnouncements:nativeEvolution.length,
+      firstEvolution:nativeEvolution.length?{
+        turn:nativeEvolution[0].turnBefore,
+        actionOrdinal:nativeEvolution[0].actionOrdinal,
+        triggerAction:nativeEvolution[0].triggerAction
+      }:null,
+      attackNames:Object.fromEntries([...new Set(native.map(r=>r.attackName))]
+        .sort().map(name=>[name,native.filter(r=>r.attackName===name).length])),
+      scope:'Native Store attack declarations only; not printed-effect completion'
+    },
     evolutionRootDecisions:evolutionRoots.map(r=>({
       actionOrdinal:r.actionOrdinal,turnBefore:r.turnBefore,
       action:r.action,attack:r.attack??null,
