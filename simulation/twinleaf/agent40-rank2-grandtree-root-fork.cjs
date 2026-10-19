@@ -45,11 +45,11 @@ function selectLiveDeckEvolution(state, player, prompt, printedName,
  * This only acts at a legally visible Stadium prompt and owner deck searches.
  * @template T
  * @param {()=>T} execute
- * @param {{promoteStoutland?:boolean}} [configuration]
+ * @param {{promoteStoutland?:boolean,observeOpponentTurn6?:boolean}} [configuration]
  * @returns {{result:T,audit:object}}
  */
 function withObservedGrandTreeEvolution(execute,
-  {promoteStoutland = false} = {}) {
+  {promoteStoutland = false, observeOpponentTurn6 = false} = {}) {
   const engine = name => require(path.join(OUTPUT, name));
   const {SimpleTacticsAi} = engine('simple-bot/simple-tactics-ai');
   const {UseStadiumAction, RetreatAction} =
@@ -62,8 +62,31 @@ function withObservedGrandTreeEvolution(execute,
   let phase = 'before-prize-choice';
   let settledBoard = null;
   let activeAfterRetreat = null;
+  let firstOpponentOwnerDecision = null;
 
   SimpleTacticsAi.prototype.decodeNextAction = function sourceGrandTree(state) {
+    const opponent = state.players[1 - SOURCE_SEAT];
+    if (observeOpponentTurn6 &&
+        firstOpponentOwnerDecision === null &&
+        state.turn === 6 &&
+        state.activePlayer === 1 - SOURCE_SEAT &&
+        state.phase === GamePhase.PLAYER_TURN &&
+        this.client?.id === opponent?.id &&
+        !state.prompts.some(p => p.result === undefined)) {
+      const action = original.call(this, state);
+      firstOpponentOwnerDecision = {
+        turn: state.turn,
+        opponentOwnHandPrintings: opponent.hand.cards.map(c => c.fullName),
+        opponentSupporterAlreadyPlayed: opponent.supporterTurn > 0,
+        opponentActive: opponent.active.getPokemonCard()?.fullName ?? null,
+        sourceActive: state.players[SOURCE_SEAT].active.getPokemonCard()?.fullName ?? null,
+        originalBotChosenAction: action?.constructor?.name ?? null,
+        chosenCard: action?.constructor?.name === 'PlayCardAction' ?
+          opponent.hand.cards[action.handIndex]?.fullName ?? null : null,
+        opponentOwnDeckOrPrizesAccessed: false
+      };
+      return action;
+    }
     const player = state.players[SOURCE_SEAT];
     if (this.client?.id !== player?.id ||
         state.turn !== 5 ||
@@ -168,7 +191,8 @@ function withObservedGrandTreeEvolution(execute,
       version: 'agent40-original-rank2-grandtree-retro-fork-v1',
       seed: SEED, sourceSeat: SOURCE_SEAT, afterRoot: PRIZE_ROOT_ORDINAL,
       phase, steps, settledBoard, activeAfterRetreat,
-      promoteStoutland, competitiveGameQualified: false
+      promoteStoutland, observeOpponentTurn6,
+      firstOpponentOwnerDecision, competitiveGameQualified: false
     }};
   } finally {
     SimpleTacticsAi.prototype.decodeNextAction = original;
@@ -176,7 +200,8 @@ function withObservedGrandTreeEvolution(execute,
 }
 
 /** @returns {object} */
-function runAudit({promoteStoutland = false} = {}) {
+function runAudit({promoteStoutland = false,
+  observeOpponentTurn6 = false} = {}) {
   const file = path.resolve(__dirname,
     '../../results/aichi-2026/full-decklists.json');
   const manifest = resolveManifestFile(file, {
@@ -202,7 +227,7 @@ function runAudit({promoteStoutland = false} = {}) {
   assert.equal(sha256(baseline.rootActionLedger), ORIGINAL_ROOT_SHA256);
   const fork = withObservedGrandTreeEvolution(() =>
     runWithResearchProfile(request, EXPANDED_SOURCE_PROFILE),
-  {promoteStoutland});
+  {promoteStoutland, observeOpponentTurn6});
   const baseRoots = baseline.rootActionLedger.filter(row =>
     row.actionOrdinal <= PRIZE_ROOT_ORDINAL);
   const forkRoots = fork.result.rootActionLedger.filter(row =>
@@ -220,6 +245,15 @@ function runAudit({promoteStoutland = false} = {}) {
   if (promoteStoutland) {
     assert.equal(fork.audit.activeAfterRetreat?.active, 'Stoutland BCR',
       'Real paid Retreat did not promote Stoutland to Active');
+  }
+  if (observeOpponentTurn6) {
+    assert.ok(fork.audit.firstOpponentOwnerDecision,
+      'No genuine opposing owner decision was observed on turn 6');
+    if (promoteStoutland) {
+      assert.equal(fork.audit.firstOpponentOwnerDecision.sourceActive,
+        'Stoutland BCR',
+        'Stoutland Active was not retained at first opponent decision');
+    }
   }
   const nextOpponent = game => game.rootActionLedger.find(row =>
     row.actionOrdinal > PRIZE_ROOT_ORDINAL &&
@@ -261,7 +295,10 @@ function runAudit({promoteStoutland = false} = {}) {
 
 if (require.main === module) {
   const promoteStoutland = process.argv.includes('--promote-stoutland');
-  process.stdout.write(JSON.stringify(runAudit({promoteStoutland}), null, 2) + '\n');
+  const observeOpponentTurn6 = process.argv.includes('--observe-opponent');
+  process.stdout.write(JSON.stringify(runAudit({
+    promoteStoutland, observeOpponentTurn6
+  }), null, 2) + '\n');
 }
 module.exports = {
   SEED, SOURCE_SEAT, PRIZE_ROOT_ORDINAL, ORIGINAL_ROOT_SHA256,
