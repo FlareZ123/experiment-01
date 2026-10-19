@@ -46,6 +46,11 @@ on:
           - '8'
           - '12'
           - '16'
+      dual_opener_nesting_audit:
+        description: Retrospective five-source-draw nested decoder noninterference falsification
+        required: false
+        type: boolean
+        default: false
       held_seal_coupled_reply:
         description: 'Five retrospectively selected true source held-Seal opens versus autonomous New Moon counter'
         required: false
@@ -113,6 +118,12 @@ jobs:
       - name: Print held-Seal source opportunity denominator
         if: inputs.held_seal_probe
         run: node -e "const p=require('./rank11-held-seal-source-probe.json'); console.log(JSON.stringify({trials:p.trialCount,seat:p.sourcePhysicalSeat,sourceFirst:p.sourceFirst,sourceSecond:p.sourceSecond,opportunities:p.opportunities,completed:p.completed,aborted:p.aborted,opportunityRows:p.rows.filter(r=>r.opportunityDetected)},null,2))"
+      - name: Falsify naive dual-rank11-wrapper nesting on five source-positive deals
+        if: inputs.dual_opener_nesting_audit
+        run: node simulation/twinleaf/rank11-dual-opener-nesting-probe.cjs > rank11-dual-opener-nesting-audit.json
+      - name: Summarize dual wrapper source action and competing claim
+        if: inputs.dual_opener_nesting_audit
+        run: node -e "const a=require('./rank11-dual-opener-nesting-audit.json');console.log(JSON.stringify(a.rows.map(r=>({seed:r.seed,identical:r.sourceActionsIdentical,held:r.nestedHeld.completed,direct:r.nestedDirect.completed,directOpportunity:r.nestedDirect.opportunityTurn})),null,2))"
       - name: Compare five actual held-Seal source openings with New Moon first response
         if: inputs.held_seal_coupled_reply
         run: node simulation/twinleaf/rank11-held-seal-newmoon-coupled-reply.cjs > rank11-held-seal-newmoon-coupled-reply.json
@@ -163,6 +174,7 @@ jobs:
             rank11-direct-source-probe.json
             rank11-held-seal-source-probe.json
             rank11-held-seal-newmoon-coupled-reply.json
+            rank11-dual-opener-nesting-audit.json
             rank11-direct-candidate-attack-window.json
             rank11-newmoon-first-vip-counterfactual.json
             rank11-newmoon-farewell-vip-source-pair.json
