@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const crypto=require('node:crypto');
 const source=require('../results/als/new-moon-official-japanese-print-60.json');
 const candidate=require('../results/als/new-moon-lockbreak-japanese-print-60.json');
+const englishProxy=require('../results/als/new-moon-lockbreak-english-proxy-60.json');
 
 const EXPECTED_SHA256='13bbed10dc9610e8457a653262717dc35f865324726da6434e3c1710d8db9047';
 const ADDITIONS=Object.freeze([
@@ -92,8 +93,39 @@ function validateJapanesePrintCandidate(proposed,original) {
   return {sha256,total,pokemon,trainer,energy,unique:names.size};
 }
 
-if(require.main===module) {
-  process.stdout.write(JSON.stringify(validateJapanesePrintCandidate(candidate,source),null,2)+'\n');
+/**
+ * Exact card-name/multiplicity parity between the constructed Japanese physical
+ * list and the separately pinned English Twinleaf proxy. This does not assert
+ * mechanical text equivalence, print legality or simulator implementation.
+ * @param {object} proposed
+ * @param {object} englishProxy
+ * @returns {{names:number,cards:number}}
+ */
+function validateEnglishProxyInventoryParity(proposed,englishProxy) {
+  assert.ok(Array.isArray(proposed.entries));
+  assert.ok(Array.isArray(englishProxy.entries));
+  const english=new Map();
+  for(const e of englishProxy.entries) {
+    assert.ok(!english.has(e.name_en),'Duplicate English proxy name: '+e.name_en);
+    english.set(e.name_en,e.count);
+  }
+  assert.equal(english.size,proposed.entries.length,'Proxy and paper unique-name count drift');
+  let cards=0;
+  for(const e of proposed.entries) {
+    assert.equal(english.get(e.name_en),e.count,
+      'English proxy differs from proposed Japanese count: '+e.name_en);
+    cards+=e.count;
+  }
+  assert.equal(cards,60);
+  assert.equal(englishProxy.entries.reduce((n,e)=>n+e.count,0),60);
+  return {names:english.size,cards};
 }
 
-module.exports={validateJapanesePrintCandidate,EXPECTED_SHA256,ADDITIONS};
+if(require.main===module) {
+  process.stdout.write(JSON.stringify({
+    japanese:validateJapanesePrintCandidate(candidate,source),
+    englishNameCountParity:validateEnglishProxyInventoryParity(candidate,englishProxy)
+  },null,2)+'\n');
+}
+
+module.exports={validateJapanesePrintCandidate,validateEnglishProxyInventoryParity,EXPECTED_SHA256,ADDITIONS};
