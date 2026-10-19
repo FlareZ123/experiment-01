@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank11_turn50_perfection_reply_fork:
+        description: Owner-visible Perfection replay after live source Quick Ball line
+        required: false
+        type: boolean
+        default: false
       rank11_turn49_quick_ball_fork:
         description: Retrospective live-Store Quick Ball source-pressure counterfactual, unqualified
         required: false
@@ -181,6 +186,17 @@ jobs:
             rank11-turn49-quick-ball-counterfactual.json
             rank11-turn50-pass-owner-audit.json
           if-no-files-found: warn
+          retention-days: 14
+
+      - name: Execute one real candidate Perfection choice after source Quick Ball line
+        if: ${{ inputs.rank11_turn50_perfection_reply_fork }}
+        run: node simulation/twinleaf/rank11-turn50-perfection-reply-fork.cjs > rank11-turn50-perfection-reply-fork.json
+      - name: Archive the single selected-seed candidate response
+        if: ${{ always() && inputs.rank11_turn50_perfection_reply_fork }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-turn50-perfection-reply-counterfactual
+          path: rank11-turn50-perfection-reply-fork.json
           retention-days: 14
 
       - name: Prove reversible illegal no-hand-lock intervention preserves GX and paper prototype
