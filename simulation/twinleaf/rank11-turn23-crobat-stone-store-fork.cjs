@@ -33,6 +33,7 @@ function withCrobatCounterattack(work) {
   assert.equal(typeof original?.value,'function');
   let stage=0,intervened=false;
   const actions=[];
+  const pendingHistory=[];
   const sourceTarget=(index)=>({
     player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index
   });
@@ -53,6 +54,12 @@ function withCrobatCounterattack(work) {
        state.phase!==GamePhase.PLAYER_TURN||stage===10) return ordinary;
     const source=state.players[0];
     const pending=state.prompts.find(p=>p.result===undefined);
+    if(stage>=4 && pendingHistory.length<20) {
+      pendingHistory.push({stage,turn:state.turn,
+        pending:pending?.constructor.name??null,
+        hand:source.hand.cards.map(c=>c.fullName),
+        botAction:ordinary?.constructor.name??null});
+    }
     const benchIndex=()=>source.bench.findIndex(s=>
       s.getPokemonCard()?.fullName==='Crobat V DAA');
     const latias=()=>source.bench.find(s=>
@@ -132,6 +139,9 @@ function withCrobatCounterattack(work) {
       stage=4;
       return action;
     }
+    if(stage===5 && cardIndex('Dark Patch ASR')>=0) {
+      stage=6; // Pinned resolver may settle ShuffleDeckPrompt inside the search callback.
+    }
     if(stage===6) {
       assert.equal(source.usedVSTAR,true);
       const index=cardIndex('Dark Patch ASR');
@@ -165,7 +175,7 @@ function withCrobatCounterattack(work) {
   Object.defineProperty(proto,'decodeNextAction',{...original,value:redirected});
   try {
     const result=work();
-    return {result,actions,stage,intervened};
+    return {result,actions,stage,intervened,pendingHistory};
   } finally {
     Object.defineProperty(proto,'decodeNextAction',original);
   }
@@ -194,7 +204,6 @@ function run() {
   assert.equal(changed.verifiedByDrawLog,true);
   assert.deepEqual(baseline.deckHashes,changed.deckHashes);
   assert.equal(alternative.intervened,true,'Original source decision was never reached');
-  assert.equal(alternative.stage,10,'Real Crobat attack sequence did not complete');
   const prior=game=>game.rootActionLedger.filter(r=>r.actionOrdinal<220)
     .map(r=>({
       ordinal:r.actionOrdinal,turn:r.turnBefore,slot:r.playerSlot,
@@ -205,7 +214,6 @@ function run() {
     'Source root actions changed before original Marnie choice');
   const attack=changed.attackDeclarationTrace.find(r=>
     r.turnBefore===23&&r.playerSlot===0&&r.attackName==='Venomous Fang');
-  assert.ok(attack,'Actual pinned Store Venomous Fang declaration not observed');
   const attacksBefore=baseline.attackDeclarationTrace.filter(r=>
     r.turnBefore===22&&r.playerSlot===1&&r.attackName==='Poltergeist');
   assert.equal(attacksBefore.length,1);
@@ -218,7 +226,10 @@ function run() {
     sourceDeckHashes:changed.deckHashes,engine:changed.engine,
     originalPrefixBefore220Identical:true,
     actionSteps:alternative.actions,
-    sourceAttackDeclaration:attack,
+    pendingHistory:alternative.pendingHistory,
+    finalStage:alternative.stage,
+    sequenceComplete:alternative.stage===10 && Boolean(attack),
+    sourceAttackDeclaration:attack??null,
     baseline:{
       turns:baseline.turns,actions:baseline.actions,winner:baseline.winner,
       prizes:baseline.prizesRemaining,finished:baseline.finished,
@@ -233,5 +244,9 @@ function run() {
     caveat:'Retrospective one-game forced source-owned strategy via real pinned Store. No paper damage audit, clock, other counterplay, or strong adversarial candidate policy; no win-rate inference.'
   };
 }
-if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
+if(require.main===module){
+  const result=run();
+  process.stdout.write(JSON.stringify(result,null,2)+'\n');
+  if(!result.sequenceComplete)process.exitCode=1;
+}
 module.exports={withCrobatCounterattack,run};
