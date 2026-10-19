@@ -66,6 +66,22 @@ This separates the risk of the one BUS printing from the larger, shared two-evol
 
 The partition is independently implemented as `prerequisiteFailurePartition` in the BigInt model, with exact reduced-fraction assertions and a check that every source deal falls into exactly one category.
 
+### One Vileplume versus two: five mutually exclusive physical states
+
+A second exact enumeration resolves a strategic distinction that the joint-board ceiling alone hides. With just **one** of the source's two Oddish and one Gloom outside Prizes, a single Vileplume can still be evolved. Both the AOR and BUS Stage 2 printings may be separately available, while **only one of them can actually occupy an evolution chain at a time**.
+
+| Physical chain state | Random six Prizes | Given legal initial seven |
+| --- | ---: | ---: |
+| Neither printed lock has a complete unprized chain | 1.75006% | 1.72347% |
+| Only AOR Item-lock Vileplume has a complete chain | 9.82499% | 9.88964% |
+| Only BUS Basic-attack-lock Vileplume has a complete chain | 0.78308% | 0.79293% |
+| Both individually available, but fewer than two shared evolution chains remain | 30.32137% | 30.12189% |
+| Both Vileplume can coexist on two distinct unprized chains | **57.32049%** | **57.47208%** |
+
+Consequently, **the single AOR Item-lock printing has a necessary-card path in 97.48361% of legal starts**, and the single BUS Basic-attack-lock printing has such a path in **88.38689%**. The joint-board **57.47208%** is smaller because it must reserve *both* Oddish and *both* Gloom. These numbers concern physical absence from initial Prizes only. None measures the chance of finding, evolving, protecting, activating or choosing the respective Pokémon in real play.
+
+For a resource-constrained rank-15 policy, the **30.12189%** category calls for an explicit *which Vileplume should receive the shared sole chain?* decision, informed by the opponent's board and attack type. A simulator that simply rewards the existence of both printings as two simultaneous lock edges would incorrectly overstate the state. This is a source-grounded example of connector/chain contention. The five-state topology is independently enumerated by `lockTopologyPartition` in the same model, with exact fraction and 100%-sum regression assertions.
+
 ### Independent deal sanity check
 
 A 250,000-repetition seeded full-60 Fisher-Yates style permutation experiment using the source-equivalent category multiset (2 Oddish, 2 Gloom, 2 AOR, 1 BUS, 12 other Basics, 41 other non-Basics) yielded:
