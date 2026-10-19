@@ -58,7 +58,7 @@ function lowHandLillieOpportunity(state,own,seat,playerTurnPhase) {
     state.phase===playerTurnPhase &&
     !state.prompts.some(prompt=>prompt.result===undefined) &&
     own.hand.cards.length>0 && own.hand.cards.length<=2 &&
-    own.supporterTurn!==state.turn &&
+    own.supporterTurn===0 &&
     own.prizes.filter(prize=>prize.cards.length>0).length===6 &&
     own.hand.cards.some(card=>card.fullName==="Lillie's Determination M1L");
 }
