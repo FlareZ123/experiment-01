@@ -2,12 +2,19 @@ name: Rank-11 opponent hidden-hand policy audit
 
 on:
   workflow_dispatch:
+    inputs:
+      agent23_live_bilateral:
+        description: 'Run four canonical historical rank6/rank11 postgame owner-hand counterfactuals (never competitive games)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   poltergeist-audit:
+    if: ${{ !inputs.agent23_live_bilateral }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -49,3 +56,49 @@ jobs:
         run: node --test tests/rank11-full-bot-hidden-hand-pair.test.cjs
       - name: Print complete-bot action choices under both hidden partitions
         run: node simulation/twinleaf/rank11-full-bot-hidden-hand-pair.cjs
+      - name: Pure postgame hidden-opponent comparator controls
+        run: node --test tests/opponent-hidden-live-root-probe.test.cjs tests/agent23-bilateral-opponent-hand-postgame.test.cjs
+
+  agent23-live-bilateral:
+    if: ${{ inputs.agent23_live_bilateral }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch exact pinned Twinleaf revision
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify fail-closed source-root and postgame decision controls
+        run: node --test tests/opponent-hidden-live-root-probe.test.cjs tests/agent23-bilateral-opponent-hand-postgame.test.cjs
+      - name: Replay canonical four historical arms and archive all attempts
+        env:
+          AGENT23_RESULT_OUTPUT: agent23-opponent-hidden-postgame.json
+        run: node simulation/evaluation/agent23-bilateral-opponent-hand-postgame.cjs
+      - name: Read complete historical comparison census
+        run: >-
+          node -e "const a=require('./agent23-opponent-hidden-postgame.json');
+          console.log(JSON.stringify({schema:a.schema,attempts:a.attempts,
+          noninterferingReplays:a.noninterferingReplays,
+          rootOwnerActionsReproduced:a.rootOwnerActionsReproduced,
+          conditionalActionReversals:a.conditionalActionReversals,
+          outcomes:a.rows.map(x=>({trial:x.trialId,
+          classification:x.classification,
+          retained:true})),
+          qualifiedCompetitiveGames:0},null,2));"
+      - name: Retain all genuine Store and postgame counterfactual attempts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent23-live-opponent-hidden-historical
+          path: agent23-opponent-hidden-postgame.json
+          if-no-files-found: warn
