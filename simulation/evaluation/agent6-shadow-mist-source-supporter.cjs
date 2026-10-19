@@ -24,6 +24,8 @@ function run() {
   assert.equal(baseline.rejection.playedCardName,
     'Thunder Mountain Prism Star');
   assert.equal(baseline.rejection.ownerPlayLockFlags.stadium,true);
+  assert.equal(baseline.rejection.ownerSupporterTurn,1,
+    'The original source had already played its one Supporter');
 
   const inventory=JSON.parse(fs.readFileSync(path.join(root,
     'results/aichi-2026/full-decklists.json'),'utf8'));
@@ -49,7 +51,8 @@ function run() {
     row.originalCard==='Thunder Mountain Prism Star LOT');
   assert.ok(originalDenied,
     'The live Store policy failed to observe the source Shadow Mist lock');
-  assert.equal(originalDenied.alternative,"Lillie's Determination");
+  assert.equal(originalDenied.alternative,'PassTurnAction',
+    'The source has already used a Supporter and must decline held Lillie');
   assert.ok(treated.rootActionCount>33,
     'The substituted Supporter action did not advance the Store');
 
@@ -62,7 +65,8 @@ function run() {
     archivedSourceRun:39193837824,
     historicalSelectedFailure:true,
     candidateId:trial.candidateId,sourceRank:trial.rank,
-    sourceSupporterReplacementSelected:true,
+    sourceSupporterReplacementSelected:false,
+    sourceHeldSupporterCorrectlyDeclined:true,
     guardDecisions:decisions,
     treated:{
       status:treated.status,actions:treated.actions,turns:treated.turns,
@@ -73,7 +77,7 @@ function run() {
       sourcePolicyAudit:treated.sourcePolicyAudit
     },
     competitiveQualifiedGames:0,
-    caveat:'Single previously selected source deal, one opt-in live owner-held Lillie response after a public Shadow Mist lock. This is a policy regression, not an independent game or win-rate observation.'
+    caveat:'Single previously selected source deal: Lillie is held but unavailable because supporterTurn is already positive. The opt-in live guard declines it and uses Pass. This is a legality-policy regression, not an independent game or win-rate observation.'
   };
 }
 
