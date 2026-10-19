@@ -56,6 +56,16 @@ function candidateAttackSettlement(game,candidateSeat) {
       row.actionOrdinal>completion && row.playerSlot===sourceSeat &&
       row.turnBefore===declaration.turnBefore+1 &&
       row.action!=='ResolvePromptAction'):null;
+    // Only authenticated physical source roots on the immediately following
+    // global turn; selection prompts never disclose selected hidden cards.
+    const sourceTurnActions=nextSource?roots.filter(row=>
+      row.playerSlot===sourceSeat &&
+      row.turnBefore===declaration.turnBefore+1).map(row=>({
+      ordinal:row.actionOrdinal,action:row.action,
+      ...(row.card===undefined?{}:{card:row.card}),
+      ...(row.attack===undefined?{}:{attack:row.attack}),
+      ...(row.ability===undefined?{}:{ability:row.ability})
+    })):[];
     const printed=declaration.attackName==='Poltergeist'?
       audits.find(row=>row.attackerSeat===candidateSeat &&
         row.actionOrdinal===event.actionOrdinal):null;
@@ -80,6 +90,9 @@ function candidateAttackSettlement(game,candidateSeat) {
         ...(nextSource.card===undefined?{}:{card:nextSource.card}),
         ...(nextSource.attack===undefined?{}:{attack:nextSource.attack})
       }:null,
+      nextSourceTurnActionCount:sourceTurnActions.length,
+      nextSourceTurnActions:sourceTurnActions.slice(0,24),
+      sourceTurnActionsTruncated:sourceTurnActions.length>24,
       printedPoltergeist:base?{
         trainerCount:base.sourceHandTrainerCount,
         baseDamage:base.printedBaseDamage,
