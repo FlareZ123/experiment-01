@@ -942,7 +942,8 @@ function runMatch(request) {
           tool:TrainerType.TOOL,
           specialEnergy:EnergyType.SPECIAL,
           abilityPowerType:PowerType.ABILITY,
-          evolvedStages:[Stage.STAGE_1,Stage.STAGE_2]
+          evolvedStages:[Stage.STAGE_1,Stage.STAGE_2,
+            Stage.VMAX,Stage.VSTAR,Stage.MEGA,Stage.BREAK,Stage.LV_X]
         };
         const reason=playerPlayLockVeto(owner,action,playLockEnums);
         if (reason) {
