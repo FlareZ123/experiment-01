@@ -9,7 +9,7 @@ const {withRank11HeldSeal}=require('./rank11-held-seal-policy.cjs');
 const candidateManifest=require('../../results/als/new-moon-lockbreak-english-proxy-60.json');
 
 /**
- * Fixed seed source deals with all no-opportunities retained. The 110-action
+ * Fixed seed source deals with all no-opportunities retained. The 48-action
  * diagnostic cap is too short to infer full-game strength.
  * @param {number} trialCount Number of distinct seeds.
  * @param {0|1} sourceSeat Published rank11 physical seat.
@@ -29,7 +29,7 @@ function run(trialCount=32,sourceSeat=0) {
   const rows=[];
   for (let i=0;i<seeds.length;i++) {
     const seed=seeds[i];
-    const args=[candidate,opponent.cards,1-sourceSeat,seed,110,false,
+    const args=[candidate,opponent.cards,1-sourceSeat,seed,48,false,
       false,false,false];
     const screen=withRank11HeldSeal(sourceSeat,()=>runArm(...args));
     // Full decision/pass instrumentation is expensive. Reobserve only
@@ -75,7 +75,7 @@ function run(trialCount=32,sourceSeat=0) {
     frozenCandidateHash:candidateManifest.canonical_id_count_sha256,
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     seedFrame:'aichi-decorrelated-slots-v3 date 20261018 rank11 A seeds',
-    gameActionCap:110,
+    gameActionCap:48,
     sourceFirst:rows.filter(row=>row.sourceStartedFirst).length,
     sourceSecond:rows.filter(row=>!row.sourceStartedFirst).length,
     sourceFirstTurnCensored:rows.filter(row=>!row.sourceOwnTurnReached).length,
