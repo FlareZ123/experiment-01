@@ -189,8 +189,26 @@ function auditBilateralV2(plan,archive) {
       row.candidateReply.rootActionOrdinal<
         row.sourceContinuation.rootActionOrdinal &&
       row.sourceContinuation.rootActionOrdinal<row.rootActionCount;
+    // Action ordinals alone allow an opponent move from many turns later
+    // to masquerade as the immediate bilateral reply. The producer must
+    // bind these global turn numbers to the same authenticated Store roots.
+    // A pressure attack may advance the global turn on resolution, so use
+    // the closing prompt root's turnBefore, rather than its turnAfter.
+    const pressureTurn=row.sourcePressure?.turnBefore;
+    const completionTurn=row.sourcePressure?.completionTurnBefore;
+    const candidateTurn=row.candidateReply?.turnBefore;
+    const nextSourceTurn=row.sourceContinuation?.turnBefore;
+    const sourceStartsOdd=actualSeat===sourceSeat;
+    const immediateTurnLineage=validStart&&
+      [pressureTurn,completionTurn,candidateTurn,nextSourceTurn]
+        .every(n=>Number.isSafeInteger(n)&&n>=1) &&
+      completionTurn===pressureTurn &&
+      candidateTurn===pressureTurn+1 &&
+      nextSourceTurn===pressureTurn+2 &&
+      (pressureTurn%2===1)===sourceStartsOdd;
     const bilateralWitness=validStart&&sourcePressure&&firstCandidateReply&&
-      sourceContinuation&&chronological&&row.status!=='engine-error';
+      sourceContinuation&&chronological&&immediateTurnLineage&&
+      row.status!=='engine-error';
     const vetoes=[];
     if(!validStart)vetoes.push('actual-first-player-unverified');
     if(row.status==='engine-error')vetoes.push('engine-error');
@@ -199,6 +217,7 @@ function auditBilateralV2(plan,archive) {
     if(!firstCandidateReply)vetoes.push('candidate-legal-reply-unverified');
     if(!sourceContinuation)vetoes.push('source-legal-continuation-unverified');
     if(!chronological)vetoes.push('pressure-reply-followup-order-unverified');
+    if(!immediateTurnLineage)vetoes.push('immediate-bilateral-turn-lineage-unverified');
     if(row.status==='engine-terminal'&&
       row.terminalTransitionVerified!==true) {
       vetoes.push('engine-terminal-transition-unverified');
@@ -212,6 +231,7 @@ function auditBilateralV2(plan,archive) {
       actualStarter:validStart?(row.actualStarterSeat===arm.candidateSeat?
         'candidate':'source'):null,
       validStart,mechanicalBilateralWitness:bilateralWitness,
+      immediateTurnLineage,
       sourceDealFingerprint:digest(row.sourceDealFingerprint)?
         row.sourceDealFingerprint:null,
       vetoes});
