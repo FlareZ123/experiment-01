@@ -308,7 +308,9 @@ function executeDevelopment(trial,candidates,{
 }
 
 /** @returns {object} */
-function runDevelopment({compressorPayload=false,opportunityAudit=false}={}){
+function runDevelopment({
+  compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false
+}={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
   const {loadNewMoonCandidate}=require('../../scripts/aichi-new-moon-candidate.cjs');
@@ -327,7 +329,7 @@ function runDevelopment({compressorPayload=false,opportunityAudit=false}={}){
   const rows=[];
   for(const trial of developmentTrials()){
     try { rows.push(executeDevelopment(trial,prepared,{
-      compressorPayload,opportunityAudit
+      compressorPayload,opportunityAudit,lateCompressorPayload
     })); }
     catch(error){ rows.push({
       trial,status:'engine-error',error:String(error?.stack||error),
@@ -335,16 +337,19 @@ function runDevelopment({compressorPayload=false,opportunityAudit=false}={}){
     }); }
   }
   return {
-    schema:opportunityAudit?
+    schema:lateCompressorPayload?
+      'agent5-bilateral-common-policy-development-v0c-owner-compressor-late14-v1':
+      (opportunityAudit?
       'agent5-bilateral-common-policy-development-v0c-readonly-opportunity-v1':
       (compressorPayload?
         'agent5-bilateral-common-policy-development-v0c-owner-compressor-v1':
-        'agent41-bilateral-common-policy-development-v0c-live-lock-guard'),
+        'agent41-bilateral-common-policy-development-v0c-live-lock-guard')),
     sourceRegistration:'historical v1 selection; not v2 preregistration',
     enginePin:registration.enginePin,
     candidatePolicy:POLICY_VERSION+(compressorPayload?'+owner-compressor-v1':''),
     ownerCompressorPayloadOptIn:compressorPayload,
     ownerCompressorOpportunityAudit:opportunityAudit,
+    ownerCompressorLate14OptIn:lateCompressorPayload,
     rows,attempted:rows.length,
     sourcePairs:['6:0:A','11:2:B'].map(key=>{
       const here=rows.filter(row=>row.trial?.id.startsWith(key+':'));
@@ -371,8 +376,11 @@ function runDevelopment({compressorPayload=false,opportunityAudit=false}={}){
 }
 
 if(require.main===module){
+  const lateWindow=process.env.AGENT5_COMPR_LATE14_DEV==='true';
   const result=runDevelopment({
-    compressorPayload:process.env.AGENT5_COMMON_COMPRESSOR_DEV==='true',
+    compressorPayload:lateWindow ||
+      process.env.AGENT5_COMMON_COMPRESSOR_DEV==='true',
+    lateCompressorPayload:lateWindow,
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
