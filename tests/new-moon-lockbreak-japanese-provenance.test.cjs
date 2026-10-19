@@ -4,7 +4,8 @@ const assert=require('node:assert/strict');
 const test=require('node:test');
 const original=require('../results/als/new-moon-official-japanese-print-60.json');
 const candidate=require('../results/als/new-moon-lockbreak-japanese-print-60.json');
-const {validateJapanesePrintCandidate,EXPECTED_SHA256}=
+const proxy=require('../results/als/new-moon-lockbreak-english-proxy-60.json');
+const {validateJapanesePrintCandidate,validateEnglishProxyInventoryParity,EXPECTED_SHA256}=
   require('../scripts/new-moon-lockbreak-japanese-provenance.cjs');
 
 /** @returns {object} Independent mutable snapshot for a deliberate falsifier. */
@@ -65,4 +66,14 @@ test('provenance validator refuses duplicate prints and metadata drift',()=>{
   assert.throws(()=>validateJapanesePrintCandidate(wrongTotals,original),
     /Expected values to be strictly deep-equal/);
   console.log('Refused duplicate Japanese print IDs and false type totals.');
+});
+
+test('proposed Japanese print inventory matches every unchanged English simulator proxy name/count',()=>{
+  const parity=validateEnglishProxyInventoryParity(candidate,proxy);
+  console.log('Cross-locale physical inventory parity:',parity);
+  assert.deepEqual(parity,{names:34,cards:60});
+  const drift=structuredClone(proxy);
+  drift.entries.find(e=>e.name_en==='Canceling Cologne').count=1;
+  assert.throws(()=>validateEnglishProxyInventoryParity(candidate,drift),/English proxy differs/);
+  console.log('Refused an English proxy that silently changed the 2× Cologne package.');
 });
