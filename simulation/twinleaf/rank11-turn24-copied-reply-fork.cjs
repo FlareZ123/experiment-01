@@ -118,7 +118,7 @@ function run() {
   const seed=1111464409;
   const args=[candidate,source.cards,1,seed,350,true,true,false,false];
   const control=runArm(...args);
-  const changed=withTurn24CopiedPoltergeist(()=>runArm(...args));
+  const changed=withTurn24CopiedPoltergeist(()=>runArm(...args.slice(0,-1),true));
   const game=changed.game;
   assert.equal(control.firstTurnSlot,0);
   assert.equal(game.firstTurnSlot,0);
@@ -144,6 +144,9 @@ function run() {
     row.turnBefore===24 && row.playerSlot===1 &&
     row.attackName==='Poltergeist' && row.triggerAction!=='AttackAction');
   assert.ok(copied,'Actual Store must declare delegated Poltergeist at source turn24');
+  const observedTurn24=game.poltergeistEffectTrace.find(row=>row.actionOrdinal===copied.actionOrdinal);
+  assert.ok(observedTurn24?.assessment);
+  assert.equal(observedTurn24.assessment.printedBaseDamage,observedTurn24.before[0].handTrainerCount*50);
   const firstSourceReply=game.rootActionLedger.find(row=>
     row.actionOrdinal>copied.actionOrdinal &&
     row.playerSlot===0 && row.turnBefore>=25 &&
@@ -159,6 +162,7 @@ function run() {
     identicalDeckHashes:game.deckHashes,
     firstDivergentRootOrdinal:instead.actionOrdinal,
     completePreInterventionRootParity:true,
+    turn24PrintedEffect:observedTurn24.assessment,
     chosenAction:changed.proposal,
     chosenAttack:changed.selectedAttack,
     actualCopiedAttack:{
