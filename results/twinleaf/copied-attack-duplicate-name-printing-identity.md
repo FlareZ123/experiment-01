@@ -34,3 +34,17 @@ The donor attack source is materially relevant, including damage, cost, and effe
 - Distinguish the previously verified [selection-versus-declaration root gap](copied-attack-selection-declaration-ordinal-gap.md), which affects event attribution, from this wrong-donor effect defect.
 
 The staged game is not an independently sampled source-dealt 60-vs-60 matchup. **No competitive game is qualified and the 99.5% target remains unproven.**
+
+## Research-owned correction: compiled and restored
+
+The optional research-side [exact-source hook](../../simulation/twinleaf/copy-attack-source-identity-hook.cjs) intercepts only genuine copied-attack ChooseAttackPrompt callback resolution. It compares the exact selected Attack object against the live donor array and, only if an *earlier* donor has the same attack name, places the exact donor first **for that callback's synchronous duration**. A finally clause restores the original donor-array order. It changes neither upstream source files nor print text. The [paired Store regression](../../simulation/twinleaf/copy-attack-name-collision-corrected.cjs) installs and restores this hook and exercises both printed donors.
+
+[Compiled manual CI **39179019510**](https://github.com/FlareZ123/experiment-01/actions/runs/39179019510), successful at head `725cf3ae7288073c6ffcb93705ea3cd38b31dcb2`, showed:
+
+| Configuration | Latios first | Pheromosa first |
+| --- | ---: | ---: |
+| Original pinned engine | 40 | **30** |
+| Corrected optional Store hook | **40** | **40** |
+| Original behavior after hook restoration | n/a | **30** |
+
+In all cases the selected live source remained Latios-EX ROS and the alternative Pheromosa attack remained correctly blocked by the prompt because its Grass cost was unsupported. This establishes a **reversible mechanical repair for this staged scenario**. It does not validate arbitrary copied payloads, GX end-turn semantics, ability-lock interactions, clone behavior, or competitive source-match outcomes. The hook is not yet enabled in normal campaigns. Additional regression and a genuine donor-collision exposure are prerequisites to campaign use.
