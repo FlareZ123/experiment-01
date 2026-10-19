@@ -81,7 +81,8 @@ function probeDittoStage2(useGlimwood) {
       if (!pending) break;
       const kind = pending.constructor.name;
       if (kind === 'WaitPrompt') {
-        coinWaits++;
+        // Other source animations also issue waits; count only coin flips.
+        if (pending.message === 'Coin flip animation') coinWaits++;
         store.dispatch(new ResolvePromptAction(pending.id, null));
       } else if (kind === 'ConfirmPrompt') {
         reflipPrompts++;
