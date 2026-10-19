@@ -228,6 +228,18 @@ function runAudit({promoteStoutland = false,
   const fork = withObservedGrandTreeEvolution(() =>
     runWithResearchProfile(request, EXPANDED_SOURCE_PROFILE),
   {promoteStoutland, observeOpponentTurn6});
+  const unobserved = observeOpponentTurn6 ?
+    withObservedGrandTreeEvolution(() =>
+      runWithResearchProfile(request, EXPANDED_SOURCE_PROFILE),
+    {promoteStoutland, observeOpponentTurn6: false}) : null;
+  if (unobserved) {
+    assert.deepEqual(fork.result.rootActionLedger,
+      unobserved.result.rootActionLedger,
+      'Read-only opponent owner observation altered genuine Store root actions');
+    assert.deepEqual(fork.result.prizesRemaining,
+      unobserved.result.prizesRemaining);
+    assert.equal(fork.result.actions, unobserved.result.actions);
+  }
   const baseRoots = baseline.rootActionLedger.filter(row =>
     row.actionOrdinal <= PRIZE_ROOT_ORDINAL);
   const forkRoots = fork.result.rootActionLedger.filter(row =>
@@ -271,6 +283,7 @@ function runAudit({promoteStoutland = false,
     verifiedByDrawLog: baseline.verifiedByDrawLog,
     rootChoiceOrdinal: PRIZE_ROOT_ORDINAL,
     preForkPrefixIdentical: true,
+    ownerTurn6ObservationNoninterfering: unobserved ? true : null,
     preForkPrefixSha256: sha256(baseRoots),
     originalLedgerSha256: ORIGINAL_ROOT_SHA256,
     sourceDeckHashes: baseline.deckHashes,
