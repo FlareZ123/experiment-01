@@ -9,9 +9,12 @@ const {executeArm,scheduledArms,assertManifest}=
 const {planAichi}=require('./aichi-pilot.cjs');
 
 /**
- * Retrospective original seed, with one actor-owned legal Supporter response
- * selected at the actual Store action-dispatch boundary. The independent
- * original rejected-root result is preserved unchanged.
+ * Historical same-deal three-policy diagnostic:
+ *   (1) source original fails at a real Store action;
+ *   (2) unchanged source with opt-in final-dispatch guard;
+ *   (3) opt-in source opening lock eligibility, plus the same dispatch guard.
+ * Never recycle this selected seed as a held-out sample.
+ *
  * @returns {object}
  */
 function run() {
@@ -25,7 +28,7 @@ function run() {
     'Thunder Mountain Prism Star');
   assert.equal(baseline.rejection.ownerPlayLockFlags.stadium,true);
   assert.equal(baseline.rejection.ownerSupporterTurn,1,
-    'The original source had already played its one Supporter');
+    'The original source had already spent its Supporter');
 
   const inventory=JSON.parse(fs.readFileSync(path.join(root,
     'results/aichi-2026/full-decklists.json'),'utf8'));
@@ -38,48 +41,65 @@ function run() {
       allowJapanesePromoHooks:true
     })
   }]]);
-
-  const treated=executeArm(trial,prepared,{
+  const common={
     captureRejectedActionEvidence:true,
     enforceVisiblePlayLockGuard:true,
-    visiblePlayLockSupporterResponse:true,
-    sourceOpeningPublicLocks:true
-  });
-  const decisions=treated.playLockDispatchGuardEvents;
-  const originalDenied=decisions.find(row=>
+    visiblePlayLockSupporterResponse:true
+  };
+
+  const guardOnly=executeArm(trial,prepared,common);
+  const originalDenied=guardOnly.playLockDispatchGuardEvents.find(row=>
     row.turn===3 && row.seat===1 &&
     row.reason==='stadium-lock' &&
     row.originalCard==='Thunder Mountain Prism Star LOT');
   assert.ok(originalDenied,
-    'The live Store policy failed to observe the source Shadow Mist lock');
+    'The final-dispatch guard failed to veto the original forbidden Stadium');
   assert.equal(originalDenied.alternative,'PassTurnAction',
-    'The source has already used a Supporter and must decline held Lillie');
-  assert.ok(treated.rootActionCount>33,
-    'The substituted Supporter action did not advance the Store');
+    'The source had already spent a Supporter and must decline held Lillie');
+  assert.ok(guardOnly.rootActionCount>33,
+    'The fallback Pass did not advance the Store beyond root 33');
 
+  let sourceGate=null,sourceGateError=null,sourceGateRejection=null;
+  try {
+    sourceGate=executeArm(trial,prepared,{
+      ...common,sourceOpeningPublicLocks:true
+    });
+  } catch(error) {
+    sourceGateError=String(error?.stack||error);
+    sourceGateRejection=error?.rejectedActionEvidence??null;
+  }
+  const concise=x=>x?{
+    status:x.status,rootActions:x.rootActionCount,turns:x.turns,
+    sourceAttackDeclarations:x.sourceAttackDeclarations,
+    candidateAttackDeclarations:x.candidateAttackDeclarations,
+    prizesRemaining:x.prizesRemaining,
+    engineFinished:x.engineFinished,engineWinner:x.engineWinner,
+    rootActionLedgerSha256:x.rootActionLedgerSha256,
+    sourcePolicyAudit:x.sourcePolicyAudit
+  }:null;
   return {
-    schema:'rank6-shadow-mist-one-source-supporter-response-v2',
+    schema:'rank6-shadow-mist-three-version-source-policy-regression-v3',
     frozenTrialId:trial.id,seed:trial.seed,
     originalFailureRoot:baseline.rejection.actionOrdinal,
     originalFailedAction:baseline.rejection.playedCardPrinting,
     originalPublicLock:baseline.rejection.ownerPlayLockFlags,
+    originalSupporterTurn:baseline.rejection.ownerSupporterTurn,
     archivedSourceRun:39193837824,
     historicalSelectedFailure:true,
-    candidateId:trial.candidateId,sourceRank:trial.rank,
-    sourceSupporterReplacementSelected:false,
-    sourceHeldSupporterCorrectlyDeclined:true,
-    sourceScriptPublicLockGateOptIn:true,
-    guardDecisions:decisions,
-    treated:{
-      status:treated.status,actions:treated.actions,turns:treated.turns,
-      sourceAttackDeclarations:treated.sourceAttackDeclarations,
-      candidateAttackDeclarations:treated.candidateAttackDeclarations,
-      prizesRemaining:treated.prizesRemaining,
-      engineFinished:treated.engineFinished,engineWinner:treated.engineWinner,
-      sourcePolicyAudit:treated.sourcePolicyAudit
+    sourceRank:trial.rank,candidateId:trial.candidateId,
+    guardOnly:{
+      supportedLegalAlternative:false,
+      heldSupporterDeclined:true,
+      guardDecisions:guardOnly.playLockDispatchGuardEvents,
+      game:concise(guardOnly)
     },
-    competitiveQualifiedGames:0,
-    caveat:'Single previously selected source deal: Lillie is held but unavailable because supporterTurn is already positive. Both Store-boundary guard and rank6 script source-lock gate are opt-in; original v1 source error replay remains untouched. This is a legality-policy regression, not an independent game or win-rate observation.'
+    sourceOpeningPublicLockGate:{
+      enabled:true,guardDecisions:sourceGate?.playLockDispatchGuardEvents??null,
+      game:concise(sourceGate),error:sourceGateError,
+      rejectedAction:sourceGateRejection
+    },
+    qualifiedCompetitiveGames:0,
+    caveat:'Three treatments on one retrospectively selected source deal. The original v1 source policy is preserved exactly by default. All outcomes are mechanics and policy feasibility only; no causal inventory or win-rate estimate.'
   };
 }
 
