@@ -18,6 +18,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank15_paid_tm_poffin:
+        description: 'Test one true source-owned Poffin at the historical paid-TM root'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -278,6 +283,23 @@ jobs:
         with:
           name: rank15-bench-reserved-source-unqualified
           path: rank15-bench-reserved-source.json
+          if-no-files-found: warn
+      - name: Test owner-visible rank15 paid-TM Poffin policy and root observer
+        if: ${{ inputs.rank15_paid_tm_poffin }}
+        run: node --test tests/rank15-paid-tm-poffin-source-policy.test.cjs tests/newmoon-rank15-source-duallock-census.test.cjs
+      - name: Reproduce real rank15 source paid-TM Poffin action fork
+        if: ${{ inputs.rank15_paid_tm_poffin }}
+        run: node simulation/twinleaf/rank15-paid-tm-poffin-original-root.cjs > rank15-paid-tm-poffin-root.json
+      - name: Display true source native Poffin action status
+        if: ${{ inputs.rank15_paid_tm_poffin }}
+        run: >-
+          node -e "const x=require('./rank15-paid-tm-poffin-root.json'); console.log(JSON.stringify({schema:x.schema,seed:x.seed,sourceInitialPrizeGate:x.sourceInitialPrizeGate,policyAttempts:x.policyAttempts,original:{plays:x.original.actualRootPoffinItemPlays,oddish:x.original.firstOddishOnSourceBench?.turn??null,evolution:x.original.nativeEvolutionDeclarations},alternative:{plays:x.poffinAlternative.actualRootPoffinItemPlays,oddish:x.poffinAlternative.firstOddishOnSourceBench?.turn??null,evolution:x.poffinAlternative.nativeEvolutionDeclarations},qualifications:x.qualifications},null,2))"
+      - name: Preserve historical source paid-TM native Poffin Item fork
+        if: ${{ always() && inputs.rank15_paid_tm_poffin }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank15-retrospective-owned-poffin-native-fork
+          path: rank15-paid-tm-poffin-root.json
           if-no-files-found: warn
       - name: Preserve exact pinned catalog coverage
         uses: actions/upload-artifact@v4
