@@ -1,0 +1,40 @@
+name: Aichi rank24 prospective owner-policy comparison
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-rank24:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize exact pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Check own-hand source policy and cohort integrity
+        run: |
+          node --check simulation/twinleaf/rank24-thorns-three-arm-prospective.cjs
+          node --test tests/aichi-thorns-crossrank-opening.test.cjs tests/rank6-broad-thorns-policy.test.cjs
+      - name: Install pinned engine packages
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute all twenty-four prespecified source-dealt three-arm seeds
+        run: node simulation/twinleaf/rank24-thorns-three-arm-prospective.cjs > rank24-three-arm-source.json
+      - name: Print diagnostic status and preserved non-exposures
+        run: node -e "const r=require('./rank24-three-arm-source.json'); console.log(JSON.stringify({schema:r.schema,seeds:r.precommittedSeeds.length,summary:r.summary,qualified:r.competitiveQualifiedGames,head:r.researchRevision},null,2));"
+      - name: Archive every fixed seed and arm, including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank24-three-arm-prospective-source
+          path: rank24-three-arm-source.json
+          if-no-files-found: warn
+          retention-days: 14
