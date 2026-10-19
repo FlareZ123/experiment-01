@@ -18,6 +18,10 @@ on:
         description: 'Matched source rank8 Hood Forest Seal Tool Power policy contrast'
         type: boolean
         default: false
+      hood_rank8_pressure_prospective:
+        description: 'Agent15 frozen 16-seed source rank8 Hood pressure pairs'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -157,3 +161,21 @@ jobs:
           name: rank8-autonomous-opponent-source-pair
           path: rank8-autonomous-boostshake.json
           if-no-files-found: warn
+
+      - name: Validate frozen rank8 prospective seeds and deterministic audit
+        if: inputs.hood_rank8_pressure_prospective
+        run: node --test tests/rank8-hood-pressure-registered-v1.test.cjs
+      - name: Run exact pre-registered 16 rank8 baseline/conditional pairs
+        if: inputs.hood_rank8_pressure_prospective
+        run: node simulation/twinleaf/rank8-hood-pressure-registered-v1.cjs > rank8-hood-pressure-prospective.json
+      - name: Print bounded rank8 source/candidate prospective events
+        if: inputs.hood_rank8_pressure_prospective
+        run: node -e "const x=require('./rank8-hood-pressure-prospective.json'); console.log(JSON.stringify({schema:x.schema,attempted:x.attempted,observed:x.observed,exceptions:x.exceptions,trueSourceFirst:x.trueSourceFirst,sourcePolicyAttempts:x.sourcePolicyAttempts,sourcePolicyCompletions:x.sourcePolicyCompletions,sourceEquippedGarbodor:x.sourceEquippedGarbodor,candidateReplyAttempts:x.candidateReplyAttempts,candidateVerifiedEffects:x.candidateVerifiedEffects,noOpParityViolations:x.noOpParityViolations,startOrDeckViolations:x.startOrDeckViolations,qualifiedCompetitiveGames:x.qualifiedCompetitiveGames},null,2)); if(x.attempted!==16||x.noOpParityViolations||x.startOrDeckViolations)process.exitCode=1"
+      - name: Archive frozen rank8 Hood prospective source panel
+        if: always() && inputs.hood_rank8_pressure_prospective
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank8-hood-pressure-16-paired-unqualified
+          path: rank8-hood-pressure-prospective.json
+          if-no-files-found: warn
+          retention-days: 21
