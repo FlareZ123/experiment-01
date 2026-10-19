@@ -118,6 +118,8 @@ test('detect authentic full Bench with only one stage-chain position',()=>{
   assert.equal(result.first.fullSourceBenchBelowTwoStageLines.turn,4);
   assert.equal(result.first.fullSourceBenchBelowTwoStageLines.sourceStageLineSlots,1);
   assert.equal(result.first.fullSourceBenchBelowTwoStageLines.occupiedSourceBench,5);
+  assert.equal(result.first.sourceOddishOnBench.turn,4);
+  assert.equal(result.first.sourceOddishOnBench.opponentBoard[1],'Oddish UNB');
   assert.equal(result.first.twoSourceStageLineSlots,null);
   assert.equal(result.max.sourceStageLineSlots,1);
   assert.equal(MockStore.prototype.dispatch,original);
