@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {developmentTrials,firstPostSourceDecision}=require(
+const {developmentTrials,firstPostSourceDecision,sourceLineReplyPacket}=require(
   '../simulation/evaluation/agent41-bilateral-v2-development.cjs');
 
 test('only historical source streams enter the policy development packet',()=>{
@@ -102,4 +102,87 @@ test('opponent prompt completion cannot count as an independent candidate reply'
   },0);
   assert.equal(onlyPrompt.root,null);
   assert.equal(onlyPrompt.status,'no-candidate-root-on-immediate-next-turn');
+});
+
+/** @returns {object} Minimal authentic-Store-shaped prompt-closed root fixture. */
+function promptClosedSourceGame(){
+  const roots=[
+    {actionOrdinal:0,turnBefore:2,turnAfter:2,playerSlot:1,
+      action:'AttackAction',attack:'Volt Cyclone',initiatingRootActionOrdinal:0},
+    {actionOrdinal:1,turnBefore:2,turnAfter:3,playerSlot:1,
+      action:'ResolvePromptAction',initiatingRootActionOrdinal:0},
+    {actionOrdinal:2,turnBefore:3,turnAfter:4,playerSlot:0,
+      action:'PassTurnAction',initiatingRootActionOrdinal:2},
+    {actionOrdinal:3,turnBefore:4,turnAfter:5,playerSlot:1,
+      action:'PassTurnAction',initiatingRootActionOrdinal:3}
+  ];
+  const clean=[
+    {active:{name:'Trevenant & Dusknoir-GX',damage:0}},
+    {active:{name:'Iron Thorns ex',damage:0}}
+  ];
+  const hit=[
+    {active:{name:'Trevenant & Dusknoir-GX',damage:140}},
+    {active:{name:'Iron Thorns ex',damage:0}}
+  ];
+  return {
+    actions:roots.length,rootActionLedger:roots,
+    rootActionLedgerProtocol:'actual-store-root-action-ledger-v1',
+    attackDeclarationTraceProtocol:'real-store-attack-log-declarations-v1',
+    attackDeclarationTrace:[{
+      actionOrdinal:0,turnBefore:2,turnAfter:2,playerSlot:1,
+      triggerAction:'AttackAction',triggerPlayerSlot:1,
+      attackName:'Volt Cyclone',playerName:'research-B'
+    }],
+    publicAttackTransitionsProtocol:'actual-store-public-attack-transitions-v1',
+    publicAttackTransitions:[{
+      actionOrdinal:0,turnBefore:2,turnAfter:2,
+      triggerAction:'AttackAction',triggerPlayerSlot:1,
+      initiatingRootActionOrdinal:0,
+      declarations:[{attackName:'Volt Cyclone',playerName:'research-B'}],
+      before:clean,after:clean,promptPendingAfter:true,
+      settled:{completionRootActionOrdinal:1,after:hit,
+        prizesRemaining:[6,6],deckRemaining:[35,31]}
+    }],
+    finished:false
+  };
+}
+
+test('completed rank6 source line carries independently closed public damage',()=>{
+  const packet=sourceLineReplyPacket(promptClosedSourceGame(),6,{
+    turn2:{completed:true},turn3:{completed:false}
+  },1);
+  assert.equal(packet.executedSourceRoot.action,'AttackAction');
+  assert.equal(packet.matchingSourceAttackDeclared,true);
+  assert.equal(packet.firstCandidateNextTurnRoot.action,'PassTurnAction');
+  assert.equal(packet.nextSourceTurnRoot.turn,4);
+  assert.equal(packet.sourceImmediatePublicAttackTransition.after[0].active.damage,0);
+  assert.equal(packet.sourceImmediatePublicAttackTransition.settled.after[0].active.damage,140);
+  assert.equal(packet.sourceEffectVerified,false);
+  assert.equal(packet.qualifiedCompetitiveGame,false);
+});
+
+test('an incomplete autonomous source line cannot create a tactical packet',()=>{
+  assert.equal(sourceLineReplyPacket({},6,{
+    turn2:{completed:false},turn3:{completed:false}
+  },1),null);
+  assert.equal(sourceLineReplyPacket({},11,{
+    completed:false,opportunityTurn:2
+  },1),null);
+});
+
+test('rank11 completed Boost Shake is counted as a real Item, never an attack',()=>{
+  const game=promptClosedSourceGame();
+  game.rootActionLedger[0].action='PlayCardAction';
+  delete game.rootActionLedger[0].attack;
+  game.rootActionLedger[0].card='Boost Shake';
+  game.rootActionLedger[0].turnAfter=2;
+  game.attackDeclarationTrace=[];
+  game.publicAttackTransitions=[];
+  const packet=sourceLineReplyPacket(game,11,{
+    completed:true,opportunityTurn:2
+  },1);
+  assert.equal(packet.executedSourceRoot.card,'Boost Shake');
+  assert.equal(packet.matchingSourceAttackDeclared,false);
+  assert.equal(packet.sourceImmediatePublicAttackTransition,null);
+  assert.equal(packet.sourceEffectVerified,false);
 });
