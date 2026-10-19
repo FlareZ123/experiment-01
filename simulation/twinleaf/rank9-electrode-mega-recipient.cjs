@@ -51,7 +51,7 @@ function runRank9MegaRecipient() {
   const {CardType, CardTag} = load('game/store/card/card-types');
 
   const game = stagedRaichu([], null);
-  const mega = game.card('Mega Absol ex MEG');
+  const mega = game.card('Mega Absol ex M1L');
   assert.ok(mega.hasTag(CardTag.POKEMON_ex));
   assert.ok(!mega.hasTag(CardTag.POKEMON_EX));
   assert.ok(!mega.hasTag(CardTag.POKEMON_GX));
@@ -136,6 +136,7 @@ function runRank9MegaRecipient() {
       sourceRank: source.rank, sourcePlayer: source.player,
       engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
       stagedRecipient: mega.fullName,
+      publishedPrinting: 'Mega Absol ex MEG 86',
       attached: fiveSourceEnergy.map(card => card.fullName),
       energyMap: provided,
       mandatoryPromptAccepted: true,
