@@ -15,7 +15,7 @@ const load = relativePath => require(path.join(output, relativePath));
  *
  * @param {boolean} useGlimwood
  * @param {boolean} [verifyItemLock]
- * @param {'none'|'wobbuffet-bare'|'wobbuffet-jammer-native'|'wobbuffet-jammer-hooked'|'wobbuffet-jammer-hand-hooked'} [counterMode]
+ * @param {'none'|'wobbuffet-bare'|'wobbuffet-jammer-native'|'wobbuffet-jammer-hooked'|'wobbuffet-jammer-hand-hooked'|'wobbuffet-steven-jammer-hooked'} [counterMode]
  * @param {0|1|null} [nativeSwitchSeat] Native full-card play probe seat; null skips it.
  * @returns {object}
  */
@@ -126,6 +126,7 @@ function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'no
   let itemLock;
   let nativeItemPlay;
   let nativeToolPlay;
+  let stevenSearch;
   if (verifyItemLock) {
     if (counterMode !== 'none') {
       const liveEnemy = store.state.players.find(player => player.id === enemy.id);
@@ -133,12 +134,14 @@ function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'no
       liveEnemy.active.cards.length = 0;
       liveEnemy.active.cards.push(card('Wobbuffet PHF'));
       if (counterMode !== 'wobbuffet-bare' &&
-          counterMode !== 'wobbuffet-jammer-hand-hooked') {
+          counterMode !== 'wobbuffet-jammer-hand-hooked' &&
+          counterMode !== 'wobbuffet-steven-jammer-hooked') {
         liveEnemy.active.tools.push(card('Tool Jammer BST'));
       }
     }
     const restore = (counterMode === 'wobbuffet-jammer-hooked' ||
-      counterMode === 'wobbuffet-jammer-hand-hooked')
+      counterMode === 'wobbuffet-jammer-hand-hooked' ||
+      counterMode === 'wobbuffet-steven-jammer-hooked')
       ? require('./tool-jammer-hook.cjs').installToolJammerHook()
       : null;
     try {
@@ -188,6 +191,60 @@ function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'no
         pendingPromptKinds: state.prompts
           .filter(prompt => prompt.result === undefined)
           .map(prompt => prompt.constructor.name)
+      };
+    }
+    if (counterMode === 'wobbuffet-steven-jammer-hooked') {
+      const opponent = store.state.players.find(player => player.id === enemy.id);
+      const { PlayCardAction, PlayerType, SlotType } =
+        load('game/store/actions/play-card-action');
+      const jammer = card('Tool Jammer BST');
+      opponent.deck.cards.push(jammer);
+      const steven = card("Steven's Resolve CES");
+      const handIndex = opponent.hand.cards.length;
+      opponent.hand.cards.push(steven);
+      state.phase = GamePhase.PLAYER_TURN;
+      state.activePlayer = 1;
+      state.turn = 3;
+      const itemBlockedBefore = blocked(opponent);
+      let error = null;
+      try {
+        store.dispatch(new PlayCardAction(opponent.id, handIndex, {
+          player: PlayerType.BOTTOM_PLAYER, slot: SlotType.ACTIVE, index: 0
+        }));
+      } catch (caught) {
+        error = caught.message;
+      }
+      const promptKinds = [];
+      let selected = false;
+      if (error === null) {
+        for (let i = 0; i < 12; i++) {
+          const prompt = state.prompts.find(p => p.result === undefined);
+          if (!prompt) break;
+          promptKinds.push(prompt.constructor.name);
+          if (prompt.constructor.name === 'ChooseCardsPrompt' &&
+              prompt.playerId === opponent.id && prompt.cards === opponent.deck) {
+            assert.equal(prompt.validate([jammer],state), true);
+            store.dispatch(new ResolvePromptAction(prompt.id, [jammer]));
+            selected = true;
+          } else if (prompt.constructor.name === 'ShuffleDeckPrompt') {
+            const n = opponent.deck.cards.length;
+            store.dispatch(new ResolvePromptAction(prompt.id,
+              Array.from({length:n},(_,i) => n-i-1)));
+          } else if (prompt.constructor.name === 'WaitPrompt') {
+            store.dispatch(new ResolvePromptAction(prompt.id,null));
+          } else {
+            assert.fail('Unexpected Steven prompt ' + prompt.constructor.name);
+          }
+        }
+      }
+      stevenSearch = {
+        accepted: error === null, error, itemBlockedBefore, selected,
+        promptKinds, jammerInHand: opponent.hand.cards.includes(jammer),
+        jammerStillInDeck: opponent.deck.cards.includes(jammer),
+        stevenStillInHand: opponent.hand.cards.includes(steven),
+        turnAfter: state.turn, activeSeatAfter: state.activePlayer,
+        unresolvedPromptKinds: state.prompts.filter(p => p.result === undefined)
+          .map(p => p.constructor.name)
       };
     }
     itemLock = {
@@ -266,7 +323,8 @@ function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'no
     dittoReturned: true, targetRetained: true,
     ...(verifyItemLock ? { itemLock } : {}),
     ...(nativeSwitchSeat !== null ? { nativeItemPlay } : {}),
-    ...(nativeToolPlay ? { nativeToolPlay } : {})
+    ...(nativeToolPlay ? { nativeToolPlay } : {}),
+    ...(stevenSearch ? { stevenSearch } : {})
   };
 }
 
