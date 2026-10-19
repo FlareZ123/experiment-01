@@ -32,6 +32,7 @@ test('owner-visible gating only probes a passing active Mewtwo & Mew-GX',()=>{
   assert.equal(result.playerId,202);
   assert.equal(result.activePokemon,'Mewtwo & Mew-GX');
   assert.deepEqual(result.validAttackNames,['Horror House-GX']);
+  assert.deepEqual(result.publicCopySourceInventory,{bench:[],discard:[]});
   assert.equal(result.evidenceType,'post-choice-cloned-perfection-attack-menu-v1');
 });
 
@@ -89,6 +90,10 @@ test('pinned Store clone may expose a paid Horror House-GX Perfection choice',t=
   assert.equal(Math.random,previousRandom);
   assert.equal(result.activationAccepted,true);
   assert.equal(result.choicePromptObserved,true);
+  assert.ok(result.publicCopySourceInventory.discard.some(card=>
+    card.printing==='Gengar & Mimikyu-GX TEU' &&
+    card.attacks.includes('Horror House-GX')));
+  assert.deepEqual(result.publicCopySourceInventory.bench,[]);
   assert.ok(result.validAttackNames.includes('Horror House-GX'),
     'One Psychic attached should make Gengar copy Horror House-GX selectable');
   assert.deepEqual({
