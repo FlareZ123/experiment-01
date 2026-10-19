@@ -48,7 +48,7 @@ function probe(scenario) {
   const vmax=card('Shadow Rider Calyrex VMAX CRE');
   vmaxSlot.cards.push(vmax);
   candidate.bench.push(vmaxSlot);
-  source.active.cards.push(card('Mega Absol ex MEG'));
+  source.active.cards.push(card('Bunnelby PRC'));
   const garbodorSlot=new PokemonCardList();
   garbodorSlot.cards.push(card('Trubbish FST'),card('Garbodor BKP'));
   if(scenario.equipped)garbodorSlot.tools.push(card('Float Stone BKT'));
