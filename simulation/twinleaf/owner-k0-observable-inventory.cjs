@@ -57,7 +57,8 @@ function observedOwnerZones(owner) {
  *
  * @param {{
  *   owner:object,registered:string[],deckUnsearched:true,
- *   observedDeckPrintings?:string[],observedPrizePrintings?:string[]
+ *   observedDeckPrintings?:string[],observedPrizePrintings?:string[],
+ *   knowledgeEpoch?:{snapshot:()=>object}
  * }} input
  * @returns {{
  *   pool:string[],deckCount:number,prizeCount:number,
@@ -69,6 +70,18 @@ function observedOwnerZones(owner) {
 function ownerK0ObservableInventory(input) {
   if(input?.deckUnsearched!==true)
     throw new Error('K0 requires explicit owner first-search provenance');
+  if(input.knowledgeEpoch!==undefined) {
+    if(typeof input.knowledgeEpoch?.snapshot!=='function')
+      throw new TypeError('Authenticated owner knowledge epoch required');
+    const epoch=input.knowledgeEpoch.snapshot();
+    if(!epoch||[epoch.liveSearches,epoch.fullPrizeReviews,
+      epoch.hiddenPrizeRedeals].some(value=>
+      !Number.isSafeInteger(value)||value<0))
+      throw new TypeError('Invalid owner knowledge epoch snapshot');
+    if(epoch.exactMembership===true||epoch.liveSearches>0||
+      epoch.fullPrizeReviews>0||epoch.hiddenPrizeRedeals>0)
+      throw new Error('K0 first-search claim contradicted by owner epoch');
+  }
   const {owner,registered}=input;
   if(!Array.isArray(registered)||registered.length<1||
     registered.length>60||!registered.every(
