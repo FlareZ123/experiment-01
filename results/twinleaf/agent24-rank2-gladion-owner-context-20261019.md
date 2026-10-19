@@ -35,3 +35,18 @@ The live root contains **no Oddish on the Bench**, making a retrieved Gloom of n
 
 Both arms retain **zero competitively qualified games**. This single real-root diagnostic is a potential development fixture for Stadium-action decision-policy quality, not an unbiased demonstration of superior Gladion selection.
 
+
+
+### Corrected second execution and stage-opportunity follow-up
+
+Manual [workflow 39312542980](https://github.com/FlareZ123/experiment-01/actions/runs/39312542980) **passed** at head `cdb503711657332e0881303ecec39e38837d3a75`. Its [corrected archive 12215673119](https://github.com/FlareZ123/experiment-01/actions/runs/39312542980/artifacts/12215673119) has ZIP SHA-256 `025fb7e1e4f606afee3a968376d0ec4ce51cf5341aa35d04753a6fde8ee479ab` and JSON SHA-256 `5b81b28d9951a9afdb6c25e86373c19fe063ca52c5e6acca2adac5d7f4f9ec40`. The baseline and observed source game still have identical root ledger SHA-256 `0a4ff8e373a47d71a70699ace31ad409485850ad503f7949c1b26b4b73b39b40`, 285 root actions, chosen Relicanth and next actions.
+
+The corrected **turn-5 root** metadata now records:
+- `supporterAlreadyPlayed:true`, correctly indicating that Gladion spent the Supporter for the turn.
+- `stadiumEffectUsedThisTurn:false`, so the original player had **not yet used** the Grand Tree Stadium's once-per-turn effect when choosing a Prize.
+- `stadiumPlayedThisTurn:false`, meaning Grand Tree was established before this turn.
+- An **empty own Lost Zone**, and a complete owner-visible hand, discard, field and revealed Prize set containing neither the source's only Stoutland nor its second Herdier. Subject to accurate printed source registration and no omitted zone, those evolution cards would therefore still be in the deck.
+
+One unresolved eligibility variable is whether **Lillipup entered play during global turn 5**. The printed Grand Tree effect forbids evolving a Basic placed that turn. The source has Lillipup Benched and unused Grand Tree, but the board snapshot alone omitted Pokémon entry-turn history. The third, **identical-seed read-only replay** is registered specifically to append the public `pokemonPlayedTurn===state.turn` field to each displayed Pokémon and the full actor's already-executed pre-Gladion root `PlayCardAction` history. It again compares the unmodified physical game and selected Gladion, with no changed decision policy. If Lillipup was just played, reject the immediate Grand Tree/Stoutland opportunity. If Lillipup was present from a prior turn, this supports a **candidate** legal Grand Tree `Lillipup → Herdier → Stoutland` action line that still needs a real Store action and a consequential opponent response before any improvement claim. One same-source read-only replay is appropriate for this eligibility question; do not initiate broader Gladion sampling.
+
+This is a mechanical-competence investigation of a ranked **opponent policy**, and no player-list advantage or competitively qualified game result follows from it.
