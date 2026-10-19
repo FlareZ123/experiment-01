@@ -90,9 +90,9 @@ function summarizeBunnelbyReadiness(source) {
     sourceTrialCount:rows.length,
     comparison:'Identical eight initial true physical source deals, generic vs enhanced source policy',
     sourceField:'published Aichi rank15 original 60',
-    unit:'one source-dealt game per row per arm, count any qualifying post-dispatch root snapshot',
+    unit:'one source-dealt game per row per arm, count any qualifying genuine Store post-dispatch snapshot while both players still have exactly six Prize cards',
     qualifiedForCompetitiveInference:false,
-    claimLimit:'Physical post-dispatch positions cannot certify a legal attack or that a legal choice was available. No winner or game win rate is inferred.',
+    claimLimit:'Genuine Store source observer filters out all post-Prize-changing board states. Recorded physical positions do not certify a legal attack, its available choice, or a win rate.',
     aggregate,rows
   };
 }
