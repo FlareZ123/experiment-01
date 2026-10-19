@@ -97,6 +97,25 @@ function chooseGarbotoxinTargets(prompt,opponent,state) {
 }
 
 /**
+ * Field Blower presents a Stadium-plus-one-Tool versus two-Tools choice.
+ * Prefer the latter only if two visible Garbotoxin sources have Tools.
+ * Other option prompts and single-source boards stay delegated.
+ *
+ * @param {object} prompt Acting player's pending pinned option prompt.
+ * @param {object} opponent Public opposing Active and Bench.
+ * @returns {1|null} Option index, or delegate to the generic resolver.
+ */
+function twoGarbotoxinBlowerOption(prompt,opponent){
+  if (prompt?.constructor.name!=='SelectOptionPrompt' ||
+      !Array.isArray(prompt.values) ||
+      prompt.values[0]!==
+        'Discard the Stadium card and up to 1 Pokémon Tool card.' ||
+      prompt.values[1]!=='Discard up to 2 Pokémon Tool cards.' ||
+      tooledGarbotoxinSlots(opponent).length<2)return null;
+  return 1;
+}
+
+/**
  * Versioned automatic, information-set-limited New Moon response to an
  * opposing Tool-dependent Garbotoxin board. It is invoked on every eligible
  * candidate decision, with no hard-coded seed, turn, or selected hand.
@@ -174,6 +193,14 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
       });
     }
     if (phase === 'choose') {
+      if (pending?.playerId === own.id &&
+          twoGarbotoxinBlowerOption(pending,opponent)===1) {
+        events.push({turn:state.turn,kind:'two-Tool-option',
+          card:'Field Blower',tooledGarbotoxinSources:
+            tooledGarbotoxinSlots(opponent).map(slot=>
+              slot.getPokemonCard()?.fullName)});
+        return new ResolvePromptAction(pending.id,1);
+      }
       if (pending?.constructor.name === 'ChoosePokemonPrompt' &&
           pending.playerId === own.id) {
         const targets=chooseGarbotoxinTargets(pending,opponent,state);
@@ -278,4 +305,5 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
 
 module.exports={blowerOpportunity,lowHandLillieOpportunity,tooledGarbodor,
   withNewMoonBlowerAutonomy,MEWTWO,BLOWER,GARBODOR,GARBODOR_LTR,
-  isGarbotoxinPrinting,tooledGarbotoxinSlots,chooseGarbotoxinTargets};
+  isGarbotoxinPrinting,tooledGarbotoxinSlots,chooseGarbotoxinTargets,
+  twoGarbotoxinBlowerOption};
