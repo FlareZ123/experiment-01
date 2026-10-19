@@ -298,6 +298,29 @@ jobs:
       - name: Report policy veto and subsequent Store behavior as unqualified
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent8-player-lock-veto' }}
         run: node -e "const r=require('./agent8-player-play-lock.json');console.log(JSON.stringify({source:r.frozenTrialId,prior:r.originalFailureRoot,originalPlayLocks:r.originalPlayLocks,blocked:r.policyAudit.rejections,considered:r.policyAudit.considered,vetoObserved:r.vetoObserved,originalRejectionPrevented:r.originalRejectionPrevented,guardedError:r.guardedError?.slice(0,450),guarded:r.guardedGame,qualified:r.competitivelyQualifiedGames}))"
+      - name: Verify owner-only Basic Bench fallback under pinned live lock flags
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent8-basic-bench-after-lock' }}
+        run: node --test tests/player-play-lock-veto.test.cjs tests/visible-lock-basic-bench-response.test.cjs
+      - name: Replay one already rejected rank6 owner Basic Bench alternative on its original deal
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent8-basic-bench-after-lock' }}
+        run: node simulation/evaluation/agent8-player-play-lock-basic-reply-replay.cjs > agent8-play-lock-basic-reply.json
+      - name: Print real Store alternative and unqualified source outcomes
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent8-basic-bench-after-lock' }}
+        run: >-
+          node -e "const r=require('./agent8-play-lock-basic-reply.json');
+          console.log(JSON.stringify({status:r.status,error:r.error?.slice(0,350),
+          trial:r.trial,priorBlocked:r.observedPriorKnownBlockedRoot,
+          basicPlays:r.sourceBasicBenchRootActions,
+          lockVetoCount:r.totalOwnerHandLockVetoEvents,
+          actions:r.actionCount,qualified:r.competitiveQualifiedGames}))"
+      - name: Retain complete historical owner-hand lock Basic reply diagnostic
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent8-basic-bench-after-lock' }} && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent8-owner-hand-basic-bench-historical
+          path: agent8-play-lock-basic-reply.json
+          retention-days: 10
+          if-no-files-found: warn
       - name: Assert exactly one historical rank11 New Moon source deal and both-seat Perfection control
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-rank11-mewtwo-pass-owner' }}
         run: node --test tests/agent17-rank11-mewtwo-pass-owner-context.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/perfection-post-pass-probe.test.cjs tests/aichi-bilateral-pass-evidence-summary.test.cjs
