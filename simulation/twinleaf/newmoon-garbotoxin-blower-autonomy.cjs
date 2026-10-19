@@ -35,9 +35,7 @@ function blowerOpportunity(state, own, opponent, seat, playerTurnPhase,
     !state.prompts.some(prompt => prompt.result === undefined) &&
     (allowAnyActiveBlower || own.active.getPokemonCard()?.fullName === MEWTWO) &&
     own.hand.cards.some(card => card.fullName === BLOWER) &&
-    opponent.bench.some(slot =>
-      isGarbotoxinPrinting(slot.getPokemonCard()) &&
-      slot.tools.length > 0);
+    Boolean(tooledGarbodor(opponent));
 }
 
 /**
@@ -63,8 +61,8 @@ function lowHandLillieOpportunity(state,own,seat,playerTurnPhase) {
 
 /** @param {object} opponent */
 function tooledGarbodor(opponent) {
-  return opponent.bench.find(slot =>
-    isGarbotoxinPrinting(slot.getPokemonCard()) &&
+  return [opponent.active, ...opponent.bench].find(slot =>
+    slot && isGarbotoxinPrinting(slot.getPokemonCard()) &&
     slot.tools.length > 0);
 }
 
@@ -132,8 +130,8 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
         state.phase === GamePhase.PLAYER_TURN && state.turn <= 8 &&
         state.turn !== lastObservedCandidateTurn && !pending) {
       lastObservedCandidateTurn = state.turn;
-      const garbodor = opponent.bench.find(slot =>
-        isGarbotoxinPrinting(slot.getPokemonCard()));
+      const garbodor = [opponent.active, ...opponent.bench].find(slot =>
+        slot && isGarbotoxinPrinting(slot.getPokemonCard()));
       const payload = card => card?.fullName === 'Gengar & Mimikyu-GX TEU';
       events.push({
         turn: state.turn, kind: 'read-only-own-turn-board',
