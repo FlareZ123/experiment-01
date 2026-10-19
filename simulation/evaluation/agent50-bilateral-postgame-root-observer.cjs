@@ -2,6 +2,8 @@
 
 const assert=require('node:assert/strict');
 const {isDeepStrictEqual}=require('node:util');
+const {stateGraphFingerprint}=
+  require('../twinleaf/rank10-live-decision-noninterference.cjs');
 const {
   actionSignature,compareHiddenDeckOrders
 }=require('../twinleaf/rank10-hidden-order-live-probe.cjs');
@@ -84,11 +86,14 @@ function withPostgameRootOrderProbe(
       let options=null;
       let captureError=null;
       try {
+        const sourceBefore=stateGraphFingerprint(state);
         snapshot=cloneDetached(state);
         assert.equal(typeof this.tactics?.[0]?.options,'object');
         options=cloneBotOptions({...this.tactics[0].options,
           tactics:this.tactics.map(tactic=>tactic.constructor),
           promptResolvers:this.resolvers.map(resolver=>resolver.constructor)});
+        assert.deepEqual(stateGraphFingerprint(state),sourceBefore,
+          'Detached root capture mutated the actual Store State graph');
       } catch(error) {
         captureError=String(error?.stack||error);
       }
