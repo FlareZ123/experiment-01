@@ -12,11 +12,12 @@ const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  * @template T
  * @param {0|1} sourceSeat
  * @param {()=>T} execute
- * @param {{k1AvoidMissingGarbodor?:boolean}} [configuration]
+ * @param {{k1AvoidMissingGarbodor?:boolean,k0AvoidAllGarbodorHeld?:boolean,claimOpportunity?:(kind:string,state:object,player:object,opportunity:object)=>boolean}} [configuration]
  * @returns {{result:T,policyAudit:object}}
  */
 function withRank11DirectBoostShake(sourceSeat, execute,
-  {k1AvoidMissingGarbodor = false, k0AvoidAllGarbodorHeld = false} = {}) {
+  {k1AvoidMissingGarbodor = false, k0AvoidAllGarbodorHeld = false,
+    claimOpportunity = null} = {}) {
   if (![0, 1].includes(sourceSeat) || typeof execute !== 'function') {
     throw new TypeError('Known rank11 seat and synchronous game required.');
   }
@@ -75,7 +76,8 @@ function withRank11DirectBoostShake(sourceSeat, execute,
       const found = directBoostShakeOpportunity(
         state, player, sourceSeat, GamePhase.PLAYER_TURN,
         k0AvoidAllGarbodorHeld);
-      if (found) {
+      if (found && (!claimOpportunity ||
+          claimOpportunity('direct',state,player,found))) {
         const prefix = found.route === 'vip' ? ['vip', 'trubbish-search'] :
           found.route === 'hand' ? ['trubbish-hand'] : [];
         line = {...found, turn:state.turn,
