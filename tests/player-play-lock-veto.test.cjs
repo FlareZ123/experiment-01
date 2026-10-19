@@ -5,7 +5,7 @@ const assert=require('node:assert/strict');
 const {playerPlayLockVeto,visiblePlayLockGuardSeat}=
   require('../simulation/twinleaf/player-play-lock-veto.cjs');
 
-const enums={superPokemon:1,superTrainer:2,superEnergy:3,item:0,supporter:1,stadium:2,tool:3,specialEnergy:1,abilityPowerType:2,evolvedStages:[3,4]};
+const enums={superPokemon:1,superTrainer:2,superEnergy:3,item:0,supporter:1,stadium:2,tool:3,specialEnergy:1,abilityPowerType:2,evolvedStages:[3,4,5,6,9,10,11]};
 const stadium={fullName:'Thunder Mountain Prism Star LOT',
   superType:2,trainerType:2};
 const dce={fullName:'Double Colorless Energy SUM',
@@ -174,4 +174,19 @@ test('legacy enum callers still avoid new Pokémon-class vetoes',()=>{
     stadium:2,tool:3,specialEnergy:1};
   assert.equal(playerPlayLockVeto(p,play(6),legacy),null);
   assert.equal(playerPlayLockVeto(p,play(6),enums),'pokemon-lock');
+});
+
+test('printed VMAX, VSTAR, Mega, BREAK and LV.X play locks are guarded',()=>{
+  const p=player();
+  p.cannotEvolvePokemonCards=true;
+  const stages=[5,6,9,10,11];
+  for(const stage of stages) {
+    const handIndex=p.hand.cards.length;
+    p.hand.cards.push({fullName:'Evolution stage '+stage,
+      superType:1,stage,powers:[]});
+    assert.equal(playerPlayLockVeto(p,play(handIndex),enums),
+      'evolution-lock');
+  }
+  p.cannotEvolvePokemonCards=false;
+  assert.equal(playerPlayLockVeto(p,play(10),enums),null);
 });
