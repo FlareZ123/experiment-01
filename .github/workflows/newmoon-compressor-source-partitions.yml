@@ -176,13 +176,16 @@ jobs:
 
       - name: Verify late14 held Compressor choice against original owner-turn guard
         if: inputs.common_bilateral_late_compressor_development
-        run: node --test tests/new-moon-compressor-payload-policy.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/owner-compressor-opportunity-audit.test.cjs
+        run: node --test tests/new-moon-compressor-payload-policy.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/owner-compressor-opportunity-audit.test.cjs tests/agent37-candidate-attack-settlement.test.cjs
       - name: Replay same four historical hard-rank source deals with late14 owner donor policy
         if: inputs.common_bilateral_late_compressor_development
         env:
           AGENT5_COMPR_LATE14_DEV: 'true'
           AGENT5_COMPR_OPPORTUNITY_AUDIT: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent5-bilateral-late14-compressor.json
+      - name: Read-only candidate copied-attack effect and opponent-return audit on same four canonical historical arms
+        if: inputs.common_bilateral_late_compressor_development
+        run: node simulation/evaluation/agent37-late14-public-replay.cjs > agent37-late14-public-settlement.json
       - name: Report actual candidate Compressor root and source response without qualifying games
         if: inputs.common_bilateral_late_compressor_development
         run: >-
@@ -201,6 +204,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: agent5-late14-canonical-compressor-dev
-          path: agent5-bilateral-late14-compressor.json
+          path: |
+            agent5-bilateral-late14-compressor.json
+            agent37-late14-public-settlement.json
           if-no-files-found: warn
           retention-days: 10
