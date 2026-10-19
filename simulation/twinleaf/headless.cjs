@@ -1471,12 +1471,18 @@ function runMatch(request) {
         (request.mimikyuTurn27SetupSeat !== undefined ?
           '+SourceMimikyuTurn27Setup-v1@seat' + request.mimikyuTurn27SetupSeat : '') +
         (request.passClearsLastAttackCorrection === true ? '+PassClearsLastAttack-v1' : '') +
+        (request.enforceVisiblePlayLockSeat !== undefined ?
+          '+LivePlayLockDispatchVeto-v1@seat' + request.enforceVisiblePlayLockSeat : '') +
+        (request.visiblePlayLockSupporterSeat !== undefined ?
+          '+HeldLillieIfLegalElsePass-v1@seat' + request.visiblePlayLockSupporterSeat : '') +
         (request.prototypeSafeSimulatorIsolation === true ?
           '+PrototypeSafeSimulatorIsolation-experimental-v1' : '') +
         (request.postSuperAliasRepairIsolation === true ?
           '+PostSuperAliasRepairIsolation-experimental-v2' : ''),
       prototypeSafeSimulatorIsolation: request.prototypeSafeSimulatorIsolation === true,
       postSuperAliasRepairIsolation: request.postSuperAliasRepairIsolation === true,
+      livePlayLockGuardSeat: request.enforceVisiblePlayLockSeat ?? null,
+      visiblePlayLockSupporterSeat: request.visiblePlayLockSupporterSeat ?? null,
       policyRandomIsolation: request.isolatePolicyRandomness === true,
       randomnessProtocol: request.isolatePolicyRandomness === true ?
         'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
