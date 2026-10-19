@@ -14,12 +14,15 @@ const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
  * @param {number} playerTurnPhase
  * @returns {{index:number,printing:string}|null}
  */
-function protectedDoorOpportunity(state,own,opponent,seat,playerTurnPhase) {
+function protectedDoorOpportunity(state,own,opponent,seat,playerTurnPhase,
+  lockKind = 'garbotoxin') {
   if(state.activePlayer!==seat || state.phase!==playerTurnPhase ||
      state.prompts.some(prompt=>prompt.result===undefined) ||
      !own.hand.cards.some(card=>card.name==='Psychic Energy') ||
-     ![opponent.active,...opponent.bench].some(zone=>
-       zone.getPokemonCard()?.name==='Garbodor' && zone.tools.length>0)) {
+     !(lockKind === 'initialization' ?
+       opponent.active.getPokemonCard()?.name === 'Iron Thorns ex' :
+       [opponent.active,...opponent.bench].some(zone=>
+         zone.getPokemonCard()?.name==='Garbodor' && zone.tools.length>0))) {
     return null;
   }
   const index=own.bench.findIndex(zone=>
@@ -40,9 +43,13 @@ function protectedDoorOpportunity(state,own,opponent,seat,playerTurnPhase) {
  * @param {()=>T} execute
  * @returns {{result:T,policyAudit:object}}
  */
-function withProtectedUnderworldDoor(candidateSeat,execute) {
+function withProtectedUnderworldDoor(candidateSeat,execute,
+  {lockKind = 'garbotoxin'} = {}) {
   if(![0,1].includes(candidateSeat)||typeof execute!=='function') {
     throw new TypeError('Need physical seat and a synchronous runner');
+  }
+  if(!['garbotoxin','initialization'].includes(lockKind)) {
+    throw new TypeError('Unknown source lock kind');
   }
   const load=name=>require(path.join(OUTPUT,name));
   const {SimpleTacticsAi}=load('simple-bot/simple-tactics-ai');
@@ -81,15 +88,20 @@ function withProtectedUnderworldDoor(candidateSeat,execute) {
       const drawnTwo=own.deck.cards.length===before.deckCount-2;
       const garbodorStillTooled=[opponent.active,...opponent.bench].some(zone=>
         zone.getPokemonCard()?.name==='Garbodor'&&zone.tools.length>0);
+      const ironThornsStillActive=
+        opponent.active.getPokemonCard()?.name === 'Iron Thorns ex';
+      const sourceLockStillPresent=lockKind === 'initialization' ?
+        ironThornsStillActive : garbodorStillTooled;
       const hoodStillAttached=bench.tools.some(card=>card.name==='Stealthy Hood');
-      verified=attached && drawnTwo && garbodorStillTooled && hoodStillAttached;
+      verified=attached && drawnTwo && sourceLockStillPresent && hoodStillAttached;
       events.push({turn:state.turn,kind:'verified-real-store-effect',
-        attached,drawnTwo,garbodorStillTooled,hoodStillAttached});
+        attached,drawnTwo,garbodorStillTooled,ironThornsStillActive,
+        hoodStillAttached,sourceLockStillPresent});
       phase='done';
     }
     if(phase==='idle' && !selected && !pending) {
       const opportunity=protectedDoorOpportunity(state,own,opponent,candidateSeat,
-        GamePhase.PLAYER_TURN);
+        GamePhase.PLAYER_TURN,lockKind);
       if(opportunity) {
         const action=new UseAbilityAction(own.id,'Underworld Door',{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,
@@ -102,7 +114,8 @@ function withProtectedUnderworldDoor(candidateSeat,execute) {
             psychicEnergyCount:bench.energies.cards.filter(card=>
               card.name==='Psychic Energy').length,benchIndex:opportunity.index};
           events.push({turn:state.turn,kind:'selected-live-ability',
-            ability:'Underworld Door',source:opportunity.printing,
+            ability:'Underworld Door',source:opportunity.printing,lockKind,
+            opponentActive:opponent.active.getPokemonCard()?.fullName,
             ownHand:own.hand.cards.map(card=>card.fullName),
             opponentGarbodorTools:[opponent.active,...opponent.bench].flatMap(zone=>
               zone.getPokemonCard()?.name==='Garbodor'?
@@ -119,8 +132,10 @@ function withProtectedUnderworldDoor(candidateSeat,execute) {
   try {
     const result=execute();
     return {result,policyAudit:{
-      version:'protected-benched-underworld-door-source-v1',
-      candidateSeat,selected,phaseAtEnd:phase,
+      version:lockKind === 'initialization' ?
+        'protected-benched-underworld-door-initialization-source-v2' :
+        'protected-benched-underworld-door-source-v1',
+      candidateSeat,lockKind,selected,phaseAtEnd:phase,
       realAttachmentAndDrawVerified:verified,events,
       qualifiedForCompetitiveInference:false
     }};
