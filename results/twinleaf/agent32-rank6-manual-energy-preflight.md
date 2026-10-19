@@ -70,6 +70,36 @@ attachment counter. The pinned `player.ts` declares both
   remains distinct positive evidence for the real DCE→Volt Cyclone route
   without this new guard enabled.
 
+## Native pinned Store positive/negative controls (19 October)
+
+The synthetic prepared-state [Store fixture](../../simulation/twinleaf/rank6-manual-attachment-native-fixture.cjs) uses the actual compiled
+`a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` engine. It constructs the
+same `Iron Thorns ex TWM` Active, `Thunder Mountain Prism Star LOT` in play
+and physical `Double Colorless Energy SUM` in hand, with no extra Energy
+attached. A control with `energyPlayedTurn=0` successfully dispatches an
+actual `PlayCardAction`, moving the DCE from hand to the Active Energy list.
+The companion state differs only in `energyPlayedTurn=state.turn`; a matching
+Store action throws **`ENERGY_ALREADY_ATTACHED`**, leaves DCE in hand and
+does not add it to the Active Energy list. The owner-hand planner and native
+pre-dispatch helper make the same legal versus blocked distinction.
+
+The existing manual-only workflow gained the additional
+`native_energy_probe:true` gate (commit `6a9a4d0`) with a separate
+five-minute-bounded checkout, pinned compilation and single-fixture run.
+[GitHub Actions 39330128863](https://github.com/FlareZ123/experiment-01/actions/runs/39330128863)
+**passed** at exact source SHA
+`6a9a4d0abf668fd438246e02ff4f734295fe5e6b`.
+The fixture source was committed as `72573db2`. The unmodified workflow
+default still runs the existing broader integration suite when neither small
+probe input is selected.
+
+This native test gives a real accepted/rejected Store action pair and verifies
+correct post-state physical card locations. It is a **synthetic prepared
+state**, with no source-dealt opponent, full GX/setup sequence, official match
+clock or genuine policy-controlled complete game. It establishes the narrow
+attachment rejection that motivated this guard, and cannot qualify any game
+for win-rate inference.
+
 ## Qualification boundary
 
 The policy is still default-off, narrow to source rank 6, and built on
