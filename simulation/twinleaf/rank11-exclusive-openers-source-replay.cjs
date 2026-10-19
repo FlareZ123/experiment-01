@@ -119,7 +119,7 @@ function run() {
     assert.deepEqual(exclusive.policyAudit.direct.actions,guardedAudit.actions,
       'Exclusive policy changed direct route planned actions');
     assert.deepEqual(exclusive.policyAudit.direct.aborted,guardedAudit.aborted,
-      'Exclusive policy changed direct route's abort');
+      'Exclusive policy changed direct route abort');
   }
   const negative={sourceSeat,sourceActuallyFirst:true,seed:negativeSeed,
     legacyAbort:legacy.policyAudit.aborted,
