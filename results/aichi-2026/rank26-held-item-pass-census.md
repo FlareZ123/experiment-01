@@ -6,6 +6,8 @@
 
 The [48 original rank26/rank6 source-deal archive](rank26-integrated-firstturn-source-cohort-v2.md) was frozen at head `682d9d7bb38585c793723b254761c9e0660bd138` and emitted by [manual CI 39220575144](https://github.com/FlareZ123/experiment-01/actions/runs/39220575144), artifact [12171872770](https://github.com/FlareZ123/experiment-01/actions/runs/39220575144/artifacts/12171872770), ZIP SHA256 `8fa17f5d0143aca6b12978f869d58d0f81ae475639038b802619de0cbbb09a00`. Repeats 60 through 83 inclusive, source seat A and B each, original exact 60-card rank26 Meloetta and rank6 Iron Thorns lists, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 
+The read-only calculation is preserved as [`scripts/aichi-rank26-held-item-census.cjs`](../../scripts/aichi-rank26-held-item-census.cjs) and its [overlap regression test](../../tests/aichi-rank26-held-item-census.test.cjs). That test passed locally using Node's built-in test runner, and the library exactly reproduced the archived 20-source-first case IDs, 8/7 held-Item cohorts, and 11-case union. This new test has not been separately run in compiled GitHub CI.
+
 I independently reread **all 48 case records**, selected precisely the archive's sourceActuallyFirst flag (**20 cases**), compared original first-action `opening.sourceHand` printed IDs with every accepted `control.actions` `PlayCardAction`, and checked each corresponding final `PassTurnAction`. The first-action source hand is observed after real setup and first draw. The entire population and unselected cases remain in the original archived JSON.
 
 ## Firstturn held-Item non-use
