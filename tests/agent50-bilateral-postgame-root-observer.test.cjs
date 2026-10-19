@@ -105,6 +105,24 @@ test('wrong seat or wrong turn retains game and reports zero opportunities',()=>
   assert.equal(observed.result.action.play,'generic');
 });
 
+test('snapshot mutation triggers a fail-closed owner-visible root warning',()=>{
+  const source=state();
+  const {observed,actualCalls}=scenario({
+    root:source,cloned:real=>{
+      real.players[0].deck.cards[0]='mutated-by-clone';
+      return structuredClone(real);
+    }
+  });
+  assert.equal(actualCalls,1);
+  assert.equal(source.players[0].deck.cards[0],'mutated-by-clone');
+  assert.equal(observed.events.length,1);
+  assert.equal(observed.events[0].baselineActionMatchedActual,false);
+  assert.equal(observed.events[0].liveStatePreserved,false);
+  assert.match(observed.events[0].auditError,
+    /capture mutated the actual Store State graph/);
+  assert.equal(observed.result.action.play,'generic');
+});
+
 test('failed source clone does not intercept or replace the real action',()=>{
   const {observed}=scenario({
     cloned:()=>{throw new Error('synthetic clone cannot preserve prototype')}
