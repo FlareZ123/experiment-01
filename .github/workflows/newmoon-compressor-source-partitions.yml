@@ -12,6 +12,11 @@ on:
           - '1'
           - '2'
           - '3'
+      common_bilateral_compressor_development:
+        description: 'Run original canonical historical rank6/rank11 four arms with common owner-Compressor opt-in; unqualified'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -35,14 +40,59 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Test canonical shared policy and owner-Compressor opt-in contract
+        if: inputs.common_bilateral_compressor_development
+        run: node --test tests/agent41-bilateral-common-policy.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/new-moon-compressor-payload-policy.test.cjs
+      - name: Replay unchanged historical four-arm baseline under same revision
+        if: inputs.common_bilateral_compressor_development
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent5-bilateral-baseline.json
+      - name: Replay same four source physical deals with common owner-Compressor policy
+        if: inputs.common_bilateral_compressor_development
+        env:
+          AGENT5_COMMON_COMPRESSOR_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent5-bilateral-compressor.json
+      - name: Validate all eight attempts, original source physical deals and per-arm results
+        if: inputs.common_bilateral_compressor_development
+        run: >-
+          node -e "const assert=require('node:assert/strict');
+          const a=require('./agent5-bilateral-baseline.json');
+          const b=require('./agent5-bilateral-compressor.json');
+          assert.equal(a.rows.length,4);assert.equal(b.rows.length,4);
+          assert.equal(a.ownerCompressorPayloadOptIn,false);
+          assert.equal(b.ownerCompressorPayloadOptIn,true);
+          for(let i=0;i<4;i++){
+            const x=a.rows[i],y=b.rows[i];
+            assert.equal(x.trial.id,y.trial.id);
+            assert.equal(x.trial.seed,y.trial.seed);
+            assert.equal(x.sourceDealFingerprint,y.sourceDealFingerprint);
+            assert.equal(x.actualStarterSeat,y.actualStarterSeat);
+            console.log('MECHANICAL_DEVELOPMENT_ONLY',JSON.stringify({
+              id:y.trial.id,unchangedPhysicalSource:x.sourceDealFingerprint===y.sourceDealFingerprint,
+              sameRootLedger:x.rootActionLedgerSha256===y.rootActionLedgerSha256,
+              baseline:{attacks:x.attackDeclarations,actions:x.actionCount,end:x.endReason,error:x.error||null},
+              ownerCompressor:{attacks:y.attackDeclarations,actions:y.actionCount,end:y.endReason,error:y.error||null}}));
+          }
+          console.log('NO_COMPETITIVE_QUALIFIED_GAMES',b.competitiveQualifiedGames);"
+      - name: Archive paired historical canonical four-arm variants including caps and errors
+        if: inputs.common_bilateral_compressor_development && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent5-common-compressor-historical-develop
+          path: |
+            agent5-bilateral-baseline.json
+            agent5-bilateral-compressor.json
+          if-no-files-found: warn
+          retention-days: 10
       - name: Check disjoint registered partition coverage and owner-hand payload policy
+        if: ${{ !inputs.common_bilateral_compressor_development }}
         run: node --test tests/newmoon-payload-partition-plan.test.cjs tests/new-moon-compressor-payload-policy.test.cjs
       - name: Execute same-deal control and Compressor intervention in one fixed partition
+        if: ${{ !inputs.common_bilateral_compressor_development }}
         env:
           NEWMOON_PAYLOAD_PARTITION: ${{ inputs.partition }}
         run: node simulation/twinleaf/newmoon-payload-partition-write.cjs
       - name: Preserve all source-deal attempts, including errors and action caps
-        if: always()
+        if: ${{ !inputs.common_bilateral_compressor_development && always() }}
         uses: actions/upload-artifact@v4
         with:
           name: newmoon-compressor-source-partition-${{ inputs.partition }}
