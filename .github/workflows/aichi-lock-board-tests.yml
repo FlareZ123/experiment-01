@@ -3,6 +3,11 @@ name: Aichi Temple and Wobbuffet board interactions
 on:
   workflow_dispatch:
     inputs:
+      agent35_perfection_pass_bridge_development:
+        description: 'Historical rank6/rank11 owner-only Perfection Pass bridge dev contrast, not v2'
+        required: false
+        type: boolean
+        default: false
       rank11_turn24_copied_reply:
         description: 'One authentic source-dealt candidate Poltergeist response instead of self-Path at turn24'
         required: false
@@ -440,6 +445,19 @@ jobs:
           name: aichi-tool-power-policy-diagnostic
           path: tool-power-source-pilot.json
           if-no-files-found: ignore
+      - name: Test owner-only Perfection Pass bridge on both seats
+        if: inputs.agent35_perfection_pass_bridge_development
+        run: node --test tests/owner-visible-perfection-pass-bridge.test.cjs
+      - name: Contrast historical two-rank common-policy Pass choices
+        if: inputs.agent35_perfection_pass_bridge_development
+        run: node simulation/evaluation/agent35-perfection-pass-bridge-development.cjs > agent35-perfection-pass-bridge-development.json
+      - name: Preserve honest source-dealt policy branch including exceptions
+        if: inputs.agent35_perfection_pass_bridge_development && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent35-perfection-pass-bridge-development
+          path: agent35-perfection-pass-bridge-development.json
+          if-no-files-found: warn
       - name: Source-authentic rank11 first candidate turn24 copied counterresponse
         if: inputs.rank11_turn24_copied_reply
         run: node simulation/twinleaf/rank11-turn24-copied-reply-fork.cjs > rank11-turn24-copied-reply.json
