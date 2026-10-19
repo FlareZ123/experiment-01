@@ -15,6 +15,8 @@ try {
   const {runMatch} = require('./headless.cjs');
   const {installDecisionBoundaryCardObserver} =
     require('./bot-decision-card-boundary-observer.cjs');
+  const {installPostSuperAliasRepairHook} =
+    require('./post-super-alias-repair-hook.cjs');
   const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
   const manifest = resolveManifestFile(path.resolve(__dirname,
     '../../results/aichi-2026/full-decklists.json'), {
@@ -165,9 +167,26 @@ try {
   assert.equal(game.actions,observed.roots.length);
   assert.ok(boundary.report.decisions>0,
     'Card observer must cover live source bot decisions');
-  assert.equal(boundary.report.changedFields,0,
-    'Live source physical Card primitive fields must survive bot decision unchanged: '+
-    JSON.stringify({fields:boundary.report.changesByField,samples:boundary.report.samples.slice(0,5)}));
+  assert.ok(boundary.report.changedFields>0,
+    'Historical source game must retain raw clone-Card mutation positive control');
+  const restoreDetached=installPostSuperAliasRepairHook();
+  const detachedBoundary=installDecisionBoundaryCardObserver();
+  let detachedGame;
+  try {
+    detachedGame=runMatch(request);
+  } finally {
+    detachedBoundary.restore();
+    restoreDetached();
+  }
+  assert.equal(detachedGame.verifiedByDrawLog,true);
+  assert.equal(detachedGame.firstTurnSlot,game.firstTurnSlot);
+  assert.deepEqual(detachedGame.deckHashes,game.deckHashes);
+  assert.ok(detachedBoundary.report.decisions>0,
+    'Detached control must cover real bot decisions');
+  assert.equal(detachedBoundary.report.changedFields,0,
+    'Post-super detach must eliminate observed live Card scalar mutations: '+
+    JSON.stringify({fields:detachedBoundary.report.changesByField,
+      samples:detachedBoundary.report.samples.slice(0,5)}));
   assert.equal(digest(control),digest(game),
     'Read-only live Store snapshots must preserve root choices and all compared outcome fields');
   const declarations=game.attackDeclarationTrace.filter(x=>
@@ -242,8 +261,18 @@ try {
       before:compact(row.before),after:compact(row.after)
     })),
     botDecisionCardBoundary:{
-      ...boundary.report,
-      scope:'Top-level live physical-zone Card scalars across synchronous bot decision only; excludes nested attachments and other live reducer effects'
+      raw:boundary.report,
+      postSuperDetached:detachedBoundary.report,
+      detachedOutcome:{
+        digest:digest(detachedGame),
+        rootLedgerSameAsRaw:digest(detachedGame)===digest(game),
+        actions:detachedGame.actions,
+        turns:detachedGame.turns,
+        finished:detachedGame.finished,
+        winner:detachedGame.winner,
+        prizesRemaining:detachedGame.prizesRemaining
+      },
+      scope:'Top-level live physical-zone Card scalars across synchronous bot decision; excludes nested attachments, other live reducer effects and independent proof of decision-policy competence'
     },
     rootObserverScope:{
       seen:observed.roots.length,
