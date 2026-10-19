@@ -181,7 +181,8 @@ function run(){
     forestSealSearchCorrection:true,doubleDragonRecovery:true,
     supporterDecisionCorrection:true,isolatePolicyRandomness:true,
     leleEntryAbilityLockCorrection:true,radiantGateLockCorrection:true,
-    entryDrawLockCorrection:true,captureDecisionTrace:true};
+    entryDrawLockCorrection:true,captureDecisionTrace:true,
+    capturePublicAttackTransitions:true,captureFinalPublicBoard:true};
   const {Store}=require(path.resolve(__dirname,
     '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
   const trace=execute=>withStoreDispatchTranscript(Store,execute,{
@@ -213,14 +214,39 @@ function run(){
   const restored=trace(()=>runMatch(request));
   assert.deepEqual(restored.actionTrace,control.actionTrace,
     'Crispin wrapper contaminated after-run baseline');
+  const simplified=board=>board?.map(player=>({
+    active:player.active?{
+      name:player.active.name,damage:player.active.damage,
+      energyCards:player.active.energyCards,
+      toolCards:player.active.toolCards
+    }:null,
+    bench:player.bench.map(card=>card.name)
+  }))??null;
+  const realSourceClawTransitions=(step.result.publicAttackTransitions??[])
+    .filter(event=>event.triggerPlayerSlot===0 &&
+      event.declarations?.some(row=>row.attackName==='Claw of Darkness'))
+    .map(event=>({
+      turn:event.turnBefore,rootOrdinal:event.actionOrdinal,
+      declaration:event.declarations,
+      prizesBefore:event.beforePrizesRemaining,
+      boardBefore:simplified(event.before),
+      boardAfter:simplified(event.settled?.after),
+      settledRootOrdinal:event.settled?.completionRootActionOrdinal??null,
+      prizesAfter:event.settled?.prizesRemaining??null,
+      sourcePrizesTaken:event.settled?.prizesRemaining?
+        event.beforePrizesRemaining[0]-event.settled.prizesRemaining[0]:null
+    }));
+  assert.equal(step.result.publicAttackTransitionsProtocol,
+    'actual-store-public-attack-transitions-v1');
   return {
-    schema:'rank8-four-category-secretbox-native-crispin-line-v1',
+    schema:'rank8-four-category-secretbox-native-crispin-line-v2',
     sourceSeed:1260748957,originalSourceRootPrefix:86,
     originalSource60:true,originalHood60:true,
     crispenSourceActuallyFirst:control.result.firstTurnSlot===0,
     fourCategoryNativeSearch:source.result.searchAudit,
     crispinPolicy:policy,
     originalGarbodorStillEquipped:true,
+    realSourceClawTransitions,
     originalPrefixPreserved:true,hookRestorationReplayed:true,
     noCrispinNextSourceHand:base.turn8.board[0].hand,
     attemptedCrispinNextSourceHand:source.turn8.board[0].hand,
