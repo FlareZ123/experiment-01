@@ -1,7 +1,7 @@
 # Agent 50: authentic bilateral development-root hidden-order sensitivity
 
 **Registration: 19 October 2026, before executing this new audit.**
-**Status: implementation and synthetic regressions committed; no compiled four-arm result claimed here.**
+**Status: implementation and synthetic regressions committed; no compiled four-arm hidden-order result claimed here.** The existing uninstrumented four-arm common-policy development game is independently compiled and audited (manual CI [39234692630](https://github.com/FlareZ123/experiment-01/actions/runs/39234692630)); both stream sources actually started second. In those four existing games, rank-6 reference had 3 candidate attacks before an engine terminal, rank-6 New Moon had 0 and capped at 260; rank-11 reference had 1 before an engine terminal, rank-11 New Moon had 0 and capped at 260. These outcomes are neither our hidden-order counterfactuals nor competitive game wins.
 
 ## Decision this is meant to inform
 
@@ -16,11 +16,11 @@ Use Agent 41's already-inspected historical development inputs from v1 registrat
 | Original stream | Opponent | Candidate physical seat | Single target root |
 | --- | --- | --- | --- |
 | \`6:0:A\` | Exact rank 6 Iron Thorns | A, seat 0 | Candidate global turn 3, after possible source turn-2 attack |
-| \`11:2:B\` | Exact rank 11 Absol/Garbodor | B, seat 1 | Candidate global turn 2, after possible source turn-1 lock |
+| \`11:2:B\` | Exact rank 11 Absol/Garbodor | B, seat 1 | Candidate global turn 3, after possible source turn-2 lock |
 
 Each has two fixed candidate inventory arms. **Four arms, two executions per arm:** one unmodified genuine game and one identical genuine game with a read-only-on-live-state detached diagnostic at the first candidate root matching the target turn and seat. The development seeds, printed/engine 60s, source line policies, 260-action cap, pinned engine and common resource-policy wrapper all come from the repository's existing Agent 41 runner. Record source-pressure occurrence separately: the candidate decision is an unconditional turn-root target and may exist without that pressure.
 
-The probe reuses \`withRootHiddenOrderProbe\` and \`compareHiddenDeckOrders\`. Two independently detached whole-State copies are evaluated with freshly created tactic bots under equal independent pseudorandom streams; only the acting candidate's remaining deck physical order is reversed. Source State graph remains unchanged, checked in the established observer. The real bot subsequently selects its original live action normally.
+The observer reuses \`withRootHiddenOrderProbe\` and \`compareHiddenDeckOrders\`. Two independently detached whole-State copies are evaluated with freshly created tactic bots under equal independent pseudorandom streams; only the acting candidate's remaining deck physical order is reversed. Source State graph remains unchanged, checked in the established observer. The real bot subsequently selects its original live action normally.
 
 **Fail-closed control:** compare actual source physical deal digest, first-player draw verification, root Store action ledger digest, first owner hand, actions/turn count, terminal reason, winner, prizes, declared attacks and settled attack count between the unmodified and instrumented games. A probe-world difference cannot be reported as actual decision sensitivity if live gameplay was perturbed or the root baseline fresh-bot action differs from the actual live bot action. Reconstructing the bot may lose legitimate internal history; this is tracked explicitly.
 
