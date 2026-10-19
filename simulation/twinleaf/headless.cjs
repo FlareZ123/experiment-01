@@ -4,7 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const {observeFirstTurn, summarizeTurnOrder} = require('./turn-order-evidence.cjs');
-const {playerPlayLockVeto}=require('./player-play-lock-veto.cjs');
+const {playerPlayLockVeto,visiblePlayLockGuardSeat}=
+  require('./player-play-lock-veto.cjs');
 const {createInitialSourceDealObserver}=
   require('../evaluation/source-physical-deal-fingerprint.cjs');
 const {installToolJammerHook} = require('./tool-jammer-hook.cjs');
@@ -283,6 +284,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [capturePhysicalZoneIntegrity] Opt-in read-only physical reference/attached Energy checks after each live root action.
  * @property {0|1} [captureCopycatTurnStartSeat] Opt-in candidate perspective resource snapshot once per own turn, taken before selecting the first action.
  * @property {0|1} [visiblePlayLockSupporterSeat] With enforceVisiblePlayLockSeat, substitute held legal Lillie's Determination once before falling back to Pass; historical source-policy regression only.
+ * @property {boolean} [enforceVisiblePlayLockBothSeats] Opt-in generic final-action Stadium and Special Energy lock guard for both actual actors; mutually exclusive with a single guarded seat.
  * @property {boolean} [captureAttackPassProbes] Opt-in first eight post-choice Pass attack-announcement probes; only archived when capturing decision trace.
  */
 
@@ -298,6 +300,10 @@ function runMatch(request) {
   if (request.enforceVisiblePlayLockSeat !== undefined &&
       ![0,1].includes(request.enforceVisiblePlayLockSeat)) {
     throw new Error('Live Store play-lock guard needs a physical seat 0 or 1');
+  }
+  if (request.enforceVisiblePlayLockBothSeats === true &&
+      request.enforceVisiblePlayLockSeat !== undefined) {
+    throw new Error('Select the both-player lock guard or one physical seat');
   }
   if (request.visiblePlayLockSupporterSeat !== undefined &&
       (request.visiblePlayLockSupporterSeat !== request.enforceVisiblePlayLockSeat ||
@@ -861,9 +867,11 @@ function runMatch(request) {
           throw new Error('Policy failed to generate a turn action.');
         }
       }
-      if (request.enforceVisiblePlayLockSeat !== undefined &&
+      const guardedPlayLockSeat=visiblePlayLockGuardSeat(
+        request,state.activePlayer);
+      if (guardedPlayLockSeat !== undefined &&
           state.phase === GamePhase.PLAYER_TURN && !pending) {
-        const owner=state.players[request.enforceVisiblePlayLockSeat];
+        const owner=state.players[guardedPlayLockSeat];
         const {SuperType,TrainerType,EnergyType} =
           engine('game/store/card/card-types');
         const reason=playerPlayLockVeto(owner,action,{
@@ -872,7 +880,7 @@ function runMatch(request) {
         });
         if (reason) {
           const heldLillieIndex =
-            request.visiblePlayLockSupporterSeat === request.enforceVisiblePlayLockSeat ?
+            request.visiblePlayLockSupporterSeat === guardedPlayLockSeat ?
             require('./visible-lock-supporter-response.cjs')
               .heldLillieResponseIndex(owner,state.turn) : -1;
           const {PassTurnAction}=engine('game/store/actions/game-actions');
@@ -881,7 +889,7 @@ function runMatch(request) {
           const alternative=heldLillieIndex >= 0 ?
             "Lillie's Determination" : 'PassTurnAction';
           playLockDispatchGuardEvents.push({
-            turn:state.turn,seat:request.enforceVisiblePlayLockSeat,
+            turn:state.turn,seat:guardedPlayLockSeat,
             reason,originalCard:owner.hand.cards[action.handIndex].fullName,
             originalAction:action.constructor.name,
             alternative,
@@ -1281,7 +1289,8 @@ function runMatch(request) {
       attackTrace,
       attackDeclarationTrace,
       attackDeclarationTraceProtocol: 'real-store-attack-log-declarations-v1',
-      ...(request.enforceVisiblePlayLockSeat !== undefined ?
+      ...(request.enforceVisiblePlayLockSeat !== undefined ||
+          request.enforceVisiblePlayLockBothSeats === true ?
         {playLockDispatchGuardEvents} : {}),
       ...(publicAttackTransitions ? {
         publicAttackTransitions,
@@ -1473,6 +1482,8 @@ function runMatch(request) {
         (request.passClearsLastAttackCorrection === true ? '+PassClearsLastAttack-v1' : '') +
         (request.enforceVisiblePlayLockSeat !== undefined ?
           '+LivePlayLockDispatchVeto-v1@seat' + request.enforceVisiblePlayLockSeat : '') +
+        (request.enforceVisiblePlayLockBothSeats === true ?
+          '+LivePlayLockDispatchVeto-v1@both' : '') +
         (request.visiblePlayLockSupporterSeat !== undefined ?
           '+HeldLillieIfLegalElsePass-v1@seat' + request.visiblePlayLockSupporterSeat : '') +
         (request.prototypeSafeSimulatorIsolation === true ?
@@ -1482,6 +1493,7 @@ function runMatch(request) {
       prototypeSafeSimulatorIsolation: request.prototypeSafeSimulatorIsolation === true,
       postSuperAliasRepairIsolation: request.postSuperAliasRepairIsolation === true,
       livePlayLockGuardSeat: request.enforceVisiblePlayLockSeat ?? null,
+      livePlayLockGuardBothSeats: request.enforceVisiblePlayLockBothSeats === true,
       visiblePlayLockSupporterSeat: request.visiblePlayLockSupporterSeat ?? null,
       policyRandomIsolation: request.isolatePolicyRandomness === true,
       randomnessProtocol: request.isolatePolicyRandomness === true ?
