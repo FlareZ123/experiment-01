@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {withSoloSnorlaxOpening} =
+const {withSoloSnorlaxOpening,withSoloSnorlaxBenchPreservation} =
   require('../simulation/twinleaf/snorlax-solo-opening-policy.cjs');
 
 const firstSnorlax = {fullName:'Snorlax PGO',stage:'BASIC',superType:'POKEMON'};
@@ -98,4 +98,39 @@ test('a nonoptional second prompt cannot be answered with an empty Bench selecti
   const result=resolver.resolvePrompt({},player,p);
   assert.deepEqual(result.result,[secondSnorlax]);
   assert.equal(events[0].declinedOptionalBench,false);
+});
+
+class PlayBasicTactic {
+  useTactic() {return {action:'play-basic'};}
+}
+class OtherTactic {
+  useTactic() {return {action:'draw'};}
+}
+const tacticallyEquipped=(active,bench=[])=>({
+  active:{getPokemonCard:()=>active},
+  bench:bench.map(pokemon=>({getPokemonCard:()=>pokemon}))
+});
+
+test('solo Snorlax blocks only plain Basic Benching, leaving other tactics usable',()=>{
+  const original={tactics:[PlayBasicTactic,OtherTactic]};
+  const guarded=withSoloSnorlaxBenchPreservation(original,{PlayBasicTactic});
+  assert.strictEqual(original.tactics[0],PlayBasicTactic);
+  assert.strictEqual(guarded.tactics[1],OtherTactic);
+  assert.strictEqual(withSoloSnorlaxBenchPreservation(guarded,{PlayBasicTactic}),guarded);
+  const basic=new guarded.tactics[0]();
+  const other=new guarded.tactics[1]();
+  assert.equal(basic.useTactic({},tacticallyEquipped(firstSnorlax)),undefined);
+  assert.deepEqual(other.useTactic({},tacticallyEquipped(firstSnorlax)),
+    {action:'draw'});
+  assert.deepEqual(basic.useTactic({},tacticallyEquipped(otherBasic)),
+    {action:'play-basic'});
+  assert.deepEqual(basic.useTactic({},tacticallyEquipped(firstSnorlax,
+    [secondSnorlax])),{action:'play-basic'});
+});
+
+test('invalid source tactic list is rejected before partial policy installation',()=>{
+  const original={tactics:[OtherTactic]};
+  assert.throws(()=>withSoloSnorlaxBenchPreservation(original,{PlayBasicTactic}),
+    /Pinned PlayBasicTactic missing/);
+  assert.deepEqual(original.tactics,[OtherTactic]);
 });
