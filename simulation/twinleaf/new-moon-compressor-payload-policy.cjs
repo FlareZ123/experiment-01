@@ -17,7 +17,7 @@ const MEWTWO = 'Mewtwo & Mew-GX UNM';
  * @param {object} state
  * @param {object} player
  * @param {number} playerTurnPhase
- * @param {{allowBenchedMewtwo?:boolean}} [setup] Versioned setup option.
+ * @param {{allowBenchedMewtwo?:boolean,maxGlobalTurn?:number}} [setup] Versioned setup option.
  * @returns {boolean}
  */
 function shouldSeekPayload(state, player, playerTurnPhase, setup={}) {
@@ -26,7 +26,7 @@ function shouldSeekPayload(state, player, playerTurnPhase, setup={}) {
     (setup.allowBenchedMewtwo === true &&
       player.bench.some(slot => slot.getPokemonCard()?.fullName === MEWTWO));
   return state.phase === playerTurnPhase &&
-    state.turn <= 6 &&
+    state.turn <= (setup.maxGlobalTurn ?? 6) &&
     !state.prompts.some(prompt => prompt.result === undefined) &&
     mewtwoReady &&
     player.deck.cards.length > 0 &&
@@ -62,8 +62,8 @@ function selectPayloads(visibleCards, maximum) {
  * No card inventories, Prizes, or physical deal are modified.
  *
  * @param {object} options
- * @param {{allowBenchedMewtwo?:boolean}} [setup]
- *   Explicit opt-in anticipatory preparation. Existing source-only runs
+ * @param {{allowBenchedMewtwo?:boolean,maxGlobalTurn?:number}} [setup]
+ *   Explicit opt-in anticipatory preparation or later-game window. Existing source-only runs
  *   retain their Active-only behavior unless this second argument is set.
  * @returns {object}
  */
