@@ -42,7 +42,8 @@ function run() {
   const treated=executeArm(trial,prepared,{
     captureRejectedActionEvidence:true,
     enforceVisiblePlayLockGuard:true,
-    visiblePlayLockSupporterResponse:true
+    visiblePlayLockSupporterResponse:true,
+    sourceOpeningPublicLocks:true
   });
   const decisions=treated.playLockDispatchGuardEvents;
   const originalDenied=decisions.find(row=>
@@ -67,6 +68,7 @@ function run() {
     candidateId:trial.candidateId,sourceRank:trial.rank,
     sourceSupporterReplacementSelected:false,
     sourceHeldSupporterCorrectlyDeclined:true,
+    sourceScriptPublicLockGateOptIn:true,
     guardDecisions:decisions,
     treated:{
       status:treated.status,actions:treated.actions,turns:treated.turns,
@@ -77,7 +79,7 @@ function run() {
       sourcePolicyAudit:treated.sourcePolicyAudit
     },
     competitiveQualifiedGames:0,
-    caveat:'Single previously selected source deal: Lillie is held but unavailable because supporterTurn is already positive. The opt-in live guard declines it and uses Pass. This is a legality-policy regression, not an independent game or win-rate observation.'
+    caveat:'Single previously selected source deal: Lillie is held but unavailable because supporterTurn is already positive. Both Store-boundary guard and rank6 script source-lock gate are opt-in; original v1 source error replay remains untouched. This is a legality-policy regression, not an independent game or win-rate observation.'
   };
 }
 
