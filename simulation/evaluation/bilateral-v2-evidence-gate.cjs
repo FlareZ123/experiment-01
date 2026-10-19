@@ -253,24 +253,38 @@ function auditBilateralV2(plan,archive) {
   const twoStartCoverage=[...rankMap.keys()].every(rank=>
     ['source','candidate'].every(first=>
       diagnostics.some(row=>row.rank===rank&&row.actualStarter===first)));
+  // A pooled rank can misleadingly cover both starts when one of the
+  // competing inventories was only observed under one actual turn order.
+  const twoStartCoverageByCandidate=[...rankMap.keys()].every(rank=>
+    [...candidateById.keys()].every(candidateId=>
+      ['source','candidate'].every(first=>
+        diagnostics.some(row=>row.rank===rank&&
+          row.candidateId===candidateId&&row.actualStarter===first))));
   const noPolicyProtocolDrift=coverageComplete;
   const mechanicalWitnesses=diagnostics.filter(
     d=>d.mechanicalBilateralWitness).length;
   const bothHardRanksHaveBilateralWitnesses=[6,11].every(rank=>
     byRank[rank].bilateralMechanics>0);
+  // Individually witnessed lines do not constitute candidate comparisons
+  // when no pair shares the verified initial physical opponent deal.
+  const bothHardRanksHavePairedBilateralWitnesses=[6,11].every(rank=>
+    pairRows.some(pair=>pair.rank===rank&&pair.firstObservationComparable&&
+      pair.bothBilateralWitnesses));
   return {
     schema:'aichi-bilateral-v2-intake-diagnostic-v1',
     registeredArms:arms.size,observedArms:rows.size,
     completeAttemptCensus:coverageComplete,
     twoRealStartsPerRankObserved:twoStartCoverage,
+    twoRealStartsPerCandidateAndRankObserved:twoStartCoverageByCandidate,
     noPolicyProtocolDrift,
     bothHardRanksHaveBilateralWitnesses,
+    bothHardRanksHavePairedBilateralWitnesses,
     mechanicalBilateralWitnesses:mechanicalWitnesses,
     alignedPhysicalSourcePairs:pairRows.filter(p=>
       p.firstObservationComparable).length,
     byRank,pairs:pairRows,arms:diagnostics,
-    opportunityAndPolicyVerdict:coverageComplete&&twoStartCoverage&&
-      bothHardRanksHaveBilateralWitnesses?'MECHANICAL-PILOT-REVIEWABLE':
+    opportunityAndPolicyVerdict:coverageComplete&&twoStartCoverageByCandidate&&
+      bothHardRanksHavePairedBilateralWitnesses?'MECHANICAL-PILOT-REVIEWABLE':
         'HOLD-OR-INCOMPLETE',
     competitiveStrengthClaimPermitted:false,
     gameWinRateCertified:false,
