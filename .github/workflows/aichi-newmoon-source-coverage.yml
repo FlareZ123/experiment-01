@@ -286,7 +286,7 @@ jobs:
           if-no-files-found: warn
       - name: Test owner-visible rank15 paid-TM Poffin policy and root observer
         if: ${{ inputs.rank15_paid_tm_poffin }}
-        run: node --test tests/rank15-paid-tm-poffin-source-policy.test.cjs tests/newmoon-rank15-source-duallock-census.test.cjs
+        run: node --test tests/rank15-paid-tm-poffin-source-policy.test.cjs tests/newmoon-rank15-source-duallock-census.test.cjs tests/owner-root-choice-window.test.cjs
       - name: Reproduce real rank15 source paid-TM Poffin action fork
         if: ${{ inputs.rank15_paid_tm_poffin }}
         run: node simulation/twinleaf/rank15-paid-tm-poffin-original-root.cjs > rank15-paid-tm-poffin-root.json
