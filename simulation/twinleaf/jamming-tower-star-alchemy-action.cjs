@@ -79,12 +79,16 @@ function probe(params) {
 function run(){
   const cases=[];
   for(const sourceSeat of [0,1])for(const tower of [false,true]){
-    const row=probe({sourceSeat,tower});
-    assert.equal(row.accepted,!tower,
-      'Preemptive Jamming Tower should suppress Star Alchemy Tool text');
+    cases.push(probe({sourceSeat,tower}));
+  }
+  process.stderr.write('Star Alchemy source-controlled diagnostic: '+
+    JSON.stringify(cases)+'\n');
+  for(const row of cases) {
+    assert.equal(row.accepted,!row.tower,
+      'Star Alchemy acceptance differs from printed Tool text: '+
+      JSON.stringify(row));
     assert.equal(row.sourceStoneStillAttached,true);
-    assert.equal(row.stadium.length,Number(tower));
-    cases.push(row);
+    assert.equal(row.stadium.length,Number(row.tower));
   }
   return {schema:'staged-jamming-tower-preemption-star-alchemy-v1',
     engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
