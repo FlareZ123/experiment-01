@@ -57,6 +57,8 @@ jobs:
         run: node --test tests/new-moon-lockbreak-japanese-provenance.test.cjs
       - name: Check proposed Japanese New Moon 60 against historical banned-print snapshot
         run: node --test tests/new-moon-lockbreak-japanese-ban-screen.test.cjs
+      - name: Verify structural two-Gengar Japanese 60 matches frozen source and English proxy
+        run: node --test tests/new-moon-two-gengar-japanese-provenance.test.cjs
 
   rank11-source-census:
     runs-on: ubuntu-latest
