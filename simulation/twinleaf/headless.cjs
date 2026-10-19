@@ -783,6 +783,9 @@ function runMatch(request) {
     const sourceDealObserver = request.captureInitialSourceDealFingerprintSeat ===
       undefined ? null : createInitialSourceDealObserver(
         request.captureInitialSourceDealFingerprintSeat);
+    const fullDealObserver = request.captureInitialFullPhysicalDeal === true ?
+      require('../evaluation/full-physical-deal-fingerprint.cjs')
+        .createFullPhysicalDealObserver() : null;
     const setupCompensationObserver = request.captureSetupCompensation === true ?
       require('../evaluation/setup-compensation-observer.cjs')
         .createSetupCompensationObserver({
@@ -832,6 +835,7 @@ function runMatch(request) {
       // Opt-in post-setup digest, captured before any first-turn bot decision.
       // Its private card inventory is never provided to a policy.
       if (sourceDealObserver) sourceDealObserver.observe(state);
+      if (fullDealObserver) fullDealObserver.observe(state);
       const rootedSoloSetup = rootSoloSetupSelections && pending &&
           pending.message === GameMessage.CHOOSE_STARTING_POKEMONS &&
           pending.playerId === state.players[request.snorlaxSoloOpeningSeat].id ? {
@@ -1364,6 +1368,9 @@ function runMatch(request) {
       ...(request.captureStartingBoard === true ? {initialBoardAtFirstTurn} : {}),
       ...(sourceDealObserver ? {
         initialSourceDealFingerprint:sourceDealObserver.result()
+      } : {}),
+      ...(fullDealObserver ? {
+        initialFullPhysicalDealFingerprint:fullDealObserver.result()
       } : {}),
       ...(setupCompensationObserver ? {
         initialSetupCompensation:setupCompensationObserver.result()
