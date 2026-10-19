@@ -15,7 +15,7 @@ const load = relativePath => require(path.join(output, relativePath));
  *
  * @param {boolean} useGlimwood
  * @param {boolean} [verifyItemLock]
- * @param {'none'|'wobbuffet-bare'|'wobbuffet-jammer-native'|'wobbuffet-jammer-hooked'} [counterMode]
+ * @param {'none'|'wobbuffet-bare'|'wobbuffet-jammer-native'|'wobbuffet-jammer-hooked'|'wobbuffet-jammer-hand-hooked'} [counterMode]
  * @param {0|1|null} [nativeSwitchSeat] Native full-card play probe seat; null skips it.
  * @returns {object}
  */
@@ -125,17 +125,20 @@ function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'no
   // engine's PlayItemEffect without constructing an artificial card action.
   let itemLock;
   let nativeItemPlay;
+  let nativeToolPlay;
   if (verifyItemLock) {
     if (counterMode !== 'none') {
       const liveEnemy = store.state.players.find(player => player.id === enemy.id);
       // Staged rank-7-style counter, not an asserted 60-card game line.
       liveEnemy.active.cards.length = 0;
       liveEnemy.active.cards.push(card('Wobbuffet PHF'));
-      if (counterMode !== 'wobbuffet-bare') {
+      if (counterMode !== 'wobbuffet-bare' &&
+          counterMode !== 'wobbuffet-jammer-hand-hooked') {
         liveEnemy.active.tools.push(card('Tool Jammer BST'));
       }
     }
-    const restore = counterMode === 'wobbuffet-jammer-hooked'
+    const restore = (counterMode === 'wobbuffet-jammer-hooked' ||
+      counterMode === 'wobbuffet-jammer-hand-hooked')
       ? require('./tool-jammer-hook.cjs').installToolJammerHook()
       : null;
     try {
@@ -154,6 +157,39 @@ function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'no
       }
     };
     const { IS_TOOL_BLOCKED, IS_ABILITY_BLOCKED } = load('game/store/prefabs/prefabs');
+    if (counterMode === 'wobbuffet-jammer-hand-hooked') {
+      const opponent = store.state.players.find(player => player.id === enemy.id);
+      const beforeItemLock = {
+        owner: blocked(liveMine),
+        opponent: blocked(opponent)
+      };
+      const { PlayCardAction, PlayerType, SlotType } =
+        load('game/store/actions/play-card-action');
+      const jammer = card('Tool Jammer BST');
+      const handIndex = opponent.hand.cards.length;
+      opponent.hand.cards.push(jammer);
+      state.phase = GamePhase.PLAYER_TURN;
+      state.activePlayer = 1;
+      state.turn = 3;
+      let error = null;
+      try {
+        store.dispatch(new PlayCardAction(opponent.id, handIndex, {
+          player: PlayerType.BOTTOM_PLAYER, slot: SlotType.ACTIVE, index: 0
+        }));
+      } catch (caught) {
+        error = caught.message;
+      }
+      nativeToolPlay = {
+        accepted: error === null,
+        error,
+        itemLockBefore: beforeItemLock,
+        attachedToWobbuffet: opponent.active.tools.includes(jammer),
+        toolStillInHand: opponent.hand.cards.includes(jammer),
+        pendingPromptKinds: state.prompts
+          .filter(prompt => prompt.result === undefined)
+          .map(prompt => prompt.constructor.name)
+      };
+    }
     itemLock = {
       ownerBlocked: blocked(liveMine),
       opponentBlocked: blocked(store.state.players.find(player => player.id === enemy.id)),
@@ -229,7 +265,8 @@ function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'no
     toolConserved: true, energyConserved: true, damageConserved: true,
     dittoReturned: true, targetRetained: true,
     ...(verifyItemLock ? { itemLock } : {}),
-    ...(nativeSwitchSeat !== null ? { nativeItemPlay } : {})
+    ...(nativeSwitchSeat !== null ? { nativeItemPlay } : {}),
+    ...(nativeToolPlay ? { nativeToolPlay } : {})
   };
 }
 
