@@ -50,6 +50,7 @@ const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
 const {inspectTmEvolutionPass} = require('./tm-evolution-pass-evidence.cjs');
 const {probeEvolutionAnnouncement} = require('./tm-evolution-announcement-probe.cjs');
 const {probePassedAttackOptions, nextPassProbeBucket} = require('./pass-attack-announcement-probe.cjs');
+const {probePostPassPerfection}=require('./perfection-post-pass-probe.cjs');
 const {probeKlefkiRetreatAfterPass} = require('./klefki-retreat-pass-probe.cjs');
 const {withActiveOpeningPivot} = require('./active-opening-pivot.cjs');
 const {withAttackBeforeRetreat} = require('./attack-retreat-order.cjs');
@@ -286,6 +287,7 @@ function policyRandomStreams(seed) {
  * @property {0|1} [visiblePlayLockSupporterSeat] With enforceVisiblePlayLockSeat, substitute held legal Lillie's Determination once before falling back to Pass; historical source-policy regression only.
  * @property {boolean} [enforceVisiblePlayLockBothSeats] Opt-in generic final-action Stadium and Special Energy lock guard for both actual actors; mutually exclusive with a single guarded seat.
  * @property {boolean} [captureAttackPassProbes] Opt-in first eight post-choice Pass attack-announcement probes; only archived when capturing decision trace.
+ * @property {0|1} [capturePerfectionPassProbeSeat] On up to four real Pass decisions with active Mewtwo & Mew-GX, inspect detached Perfection attack menu; observation only.
  */
 
 /**
@@ -297,6 +299,11 @@ function policyRandomStreams(seed) {
  * @returns {object} Deterministic bounded match summary with trace counts and deck hashes.
  */
 function runMatch(request) {
+  if(request.capturePerfectionPassProbeSeat!==undefined &&
+      (![0,1].includes(request.capturePerfectionPassProbeSeat) ||
+       request.captureDecisionTrace!==true)) {
+    throw new Error('Perfection Pass observation requires valid actor seat and decision trace');
+  }
   if (request.enforceVisiblePlayLockSeat !== undefined &&
       ![0,1].includes(request.enforceVisiblePlayLockSeat)) {
     throw new Error('Live Store play-lock guard needs a physical seat 0 or 1');
@@ -790,6 +797,7 @@ function runMatch(request) {
       null : [];
     let lastCopycatTurnCaptured = null;
     let attackPassProbeCount = 0;
+    let perfectionPassProbeCount=0;
     const attackPassProbeBuckets = {printed: 0, tool: 0};
     let terminalTransition = null;
     let actionLineage = null;
@@ -974,6 +982,22 @@ function runMatch(request) {
               scope: 'Observation failed without changing the selected policy action.'
             };
           }
+        }
+      }
+      let perfectionPassProbe=null;
+      if(decisionTrace && seat===request.capturePerfectionPassProbeSeat &&
+          actionName==='PassTurnAction' && perfectionPassProbeCount<4){
+        try{
+          const observed=probePostPassPerfection(state,state.players[seat].id);
+          if(observed){
+            perfectionPassProbeCount++;
+            perfectionPassProbe=observed;
+          }
+        }catch(error){
+          perfectionPassProbeCount++;
+          perfectionPassProbe={evidenceType:'post-choice-cloned-perfection-attack-menu-v1',
+            auditError:String(error?.message??error),
+            scope:'Detached post-Pass observation failed without changing the policy action.'};
         }
       }
       let klefkiRetreatPassProbe = null;
@@ -1236,6 +1260,7 @@ function runMatch(request) {
           ...(tmEvolutionBeforePass ? { tmEvolutionBeforePass } : {}),
           ...(tmEvolutionAnnouncementProbe ? { tmEvolutionAnnouncementProbe } : {}),
           ...(attackPassProbe ? { attackPassProbe } : {}),
+          ...(perfectionPassProbe ? {perfectionPassProbe} : {}),
           ...(klefkiRetreatPassProbe ? {klefkiRetreatPassProbe} : {}),
           ...(attackInfo ? { attack: attackInfo.attack,
             attacker: attackInfo.activePokemon } : {}),
