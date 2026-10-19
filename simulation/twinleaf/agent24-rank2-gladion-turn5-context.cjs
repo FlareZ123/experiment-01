@@ -74,6 +74,12 @@ function runAudit(){
     prize.printing==='Technical Machine: Evolution PAR'));
   assert.ok(context.ownerVisibleContext,'Root owner context is missing');
 
+  const beforeRoot=observed.rootActionLedger.filter(row=>
+    row.actionOrdinal<ROOT_CHOICE_ORDINAL &&
+    row.playerSlot===SOURCE_SEAT &&
+    row.action!=='ResolvePromptAction');
+  const earlierLillipupPlays=beforeRoot.filter(row=>
+    row.card==='Lillipup');
   const afterRoot=observed.rootActionLedger.filter(row=>
     row.actionOrdinal>ROOT_CHOICE_ORDINAL);
   const nextOwnAction=afterRoot.find(row=>
@@ -97,6 +103,8 @@ function runAudit(){
     chosenPrize:context.selectedPrinting,
     visiblePrizeAlternatives:context.revealedPrizes,
     ownerVisibleContext:context.ownerVisibleContext,
+    ownPriorRootActions:beforeRoot,
+    priorLillipupPlayActions:earlierLillipupPlays,
     immediateNextOwnNonpromptAction:nextOwnAction??null,
     firstSubsequentOpponentNonpromptAction:nextOpponentAction??null,
     fullRootActionLedgerSha256:digest(baseline.rootActionLedger),
