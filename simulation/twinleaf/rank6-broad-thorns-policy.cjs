@@ -58,7 +58,7 @@ function planOpeningHand(
   // This particular opener must play DCE from hand and have Thunder Mountain
   // in play before Volt Cyclone. Public player-level locks can make an
   // otherwise reachable Tag Call/G&H path impossible on the current turn.
-  if (constraints.specialEnergyLocked ||
+  if ((constraints.specialEnergyLocked && !constraints.activeDceAttached) ||
       (constraints.stadiumLocked && !thunderInPlay) ||
       (constraints.stadiumAlreadyPlayed && !thunderInPlay)) return null;
   const held = name=>hand.some(c=>c.name===name);
