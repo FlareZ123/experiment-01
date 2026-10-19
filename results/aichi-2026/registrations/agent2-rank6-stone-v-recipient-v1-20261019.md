@@ -1,0 +1,13 @@
+# Agent 2 rank-6 Forest Seal Stone recipient v1: frozen policy probe
+
+**Registered 19 October 2026 UTC before compiled intervention.** Retrospective mechanical comparison, not a prospective gameplay or win-rate sample.
+
+**Source fixture:** Agent 41 exact registered arm `6:0:A:new-moon-lockbreaker-v1`, source seed `407516727`, candidate seat A actually first, original rank-6 Iron Thorns seat B, same published source and frozen New Moon English-proxy 60, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Assert original current-baseline root ledger digest `9a9007f302a6e84084eb75c77f0a86db0e037c58384dff2076de828ba0ba913`; use `assertManifest()` for exact source inventories and registration. Source turn-2 Guzma & Hala policy completion and actual first-player must be checked again.
+
+**Arms:** baseline fixed Agent41 source/bot; intervention differs only by opt-in `simulation/twinleaf/forest-stone-v-recipient-policy.cjs` candidate-specific Tool decision. The adapter examines candidate own hand and own public Pokémon/Tool tags; when its first Tool is Forest Seal Stone, it plays it only to an untooled Pokémon V/VMAX/VSTAR/V-UNION with unspent VSTAR power, otherwise preserves it. Opposing decisions, all non-Stone Tools, cards, initial source deal, flags, and action cap remain unchanged. Real Store action validation must still accept any suggested placement. No direct deck or Prize observation is permitted.
+
+**Primary falsification:** baseline digest mismatch, original first-turn mismatch, source opener not actually completed, prohibited attachment still observed, Tool held without a usable Pokémon V entering play, or a rejected proposed action. **Secondary:** candidate first-own-turn hand, action sequence, Forest Seal Stone target and whether actual Tool attachment occurred, source first-response trace, candidate next response, printed attacks/Prize trajectory, engine exception/cap/terminal. Report failure cases without filtering. State that altered candidate actions can lawfully change subsequent opponent choices.
+
+**Prior evidence:** [Agent25's exact rank6 turn3 Pass](../agent25-rank6-newmoon-turn3-pass-and-tool.md) found Forest Seal Stone already attached to Latias ex. Pinned `forest-seal-stone.ts` gives Star Alchemy only when attached to Pokémon carrying a V-family tag; pinned `attach-tool-tactic.ts` does not enforce that recipient condition. Five local pure policy tests passed; no compiled Store result yet.
+
+**Claim boundary:** this is one retrospectively selected mechanics fixture, not tournament gameplay qualification, an improved win, new legal final 60, or evidence of 99.5%. A separate new registration and independent deals would be required for comparative performance research.
