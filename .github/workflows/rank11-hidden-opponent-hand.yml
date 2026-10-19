@@ -37,3 +37,7 @@ jobs:
         run: node --test tests/rank11-hidden-hand-action-choice.test.cjs
       - name: Print contrasting attack choices
         run: node simulation/twinleaf/rank11-hidden-hand-action-choice.cjs
+      - name: Verify opt-in delegated Perfection blindness
+        run: node --test tests/perfection-hidden-pool-ability-audit.test.cjs
+      - name: Print Perfection score differential with and without sampling
+        run: node simulation/twinleaf/perfection-hidden-pool-ability-audit.cjs
