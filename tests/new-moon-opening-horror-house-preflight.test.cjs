@@ -29,6 +29,7 @@ function policy(resolution) {
   const Tactic=makeOpeningHorrorHouseTactic();
   const tactic=Object.create(Tactic.prototype);
   tactic.simulateAction=(_state,_action)=>resolution();
+  tactic.copiedHorrorHouseSelectable=()=>true;
   tactic.getStateScore=()=>{throw new Error('Hidden-state score must not be read');};
   return tactic;
 }
@@ -44,6 +45,13 @@ test('a speculative reject cannot become a live printed GX attack',()=>{
 test('a speculative reject cannot become a live copied Perfection',()=>{
   const {state,player}=fixture('Mewtwo & Mew-GX UNM',true);
   const tactic=policy(()=>undefined);
+  assert.equal(tactic.useTactic(state,player),undefined);
+});
+
+test('copied Perfection declines an engine-blocked Horror House choice',()=>{
+  const {state,player}=fixture('Mewtwo & Mew-GX UNM',true);
+  const tactic=policy(()=>{throw new Error('Blocked copied attack must not simulate');});
+  tactic.copiedHorrorHouseSelectable=()=>false;
   assert.equal(tactic.useTactic(state,player),undefined);
 });
 
