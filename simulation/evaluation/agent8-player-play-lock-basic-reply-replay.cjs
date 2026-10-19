@@ -73,10 +73,10 @@ function run() {
   assert.equal(game.livePlayLockGuardBothSeats,true);
   assert.equal(game.visiblePlayLockBasicBenchFallback,true);
   const events=game.playLockDispatchGuardEvents||[];
-  const root=game.rootActionLedger||[];
+  const rootActions=game.rootActionLedger||[];
   const target=events.find(e=>e.seat===sourceSeat && e.turn===3 &&
     e.reason==='stadium-lock' && e.originalCard==='Thunder Mountain Prism Star LOT');
-  const sourceBasics=root.filter(row=>row.playerSlot===sourceSeat &&
+  const sourceBasics=rootActions.filter(row=>row.playerSlot===sourceSeat &&
     row.action==='PlayCardAction' &&
     String(row.card).includes('Iron Thorns ex'));
   return {
