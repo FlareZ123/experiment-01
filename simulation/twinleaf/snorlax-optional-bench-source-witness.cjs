@@ -28,21 +28,30 @@ function run() {
   const deckA=plan.candidate.cards;
   const deckB=source.cards;
   const arms=[];
-  for(const declineOptionalBench of [false,true]) {
+  for(const {declineOptionalBench,preserveBench} of [
+    {declineOptionalBench:false,preserveBench:false},
+    {declineOptionalBench:true,preserveBench:false},
+    {declineOptionalBench:true,preserveBench:true}
+  ]) {
     try {
       const game=runMatch({
         deckA,deckB,seed:SEED,maxActions:40,
         isolatePolicyRandomness:true,
         strictPromptValidation:true,
-        captureStartingBoard:true,
+        captureStartingBoard:true,captureDecisionTrace:true,
         snorlaxSoloOpeningSeat:SOURCE_SEAT,
+        snorlaxSoloPreserveBench:preserveBench,
         snorlaxSoloDeclineOptionalBench:declineOptionalBench,
         label:'snorlax-optional-bench-'+declineOptionalBench
       });
       arms.push({
-        declineOptionalBench,ok:true,
+        declineOptionalBench,preserveBench,ok:true,
         startingPromptEvents:game.snorlaxSoloOpeningEvents,
         rootSetupSelections:game.rootSoloSetupSelections,
+        sourceRootActions:(game.rootActionLedger??[])
+          .filter(row=>row.playerSlot===SOURCE_SEAT &&
+            row.pendingPrompt===null).slice(0,18),
+        sourcePlayedCards:game.cardsPlayedBySeat?.[SOURCE_SEAT]??null,
         firstTurnBoard:game.initialBoardAtFirstTurn,
         actualFirstTurnSlot:game.firstTurnSlot,
         verifiedByDrawLog:game.verifiedByDrawLog,
@@ -50,12 +59,12 @@ function run() {
         error:null,competitiveGameQualified:false
       });
     }catch(error){
-      arms.push({declineOptionalBench,ok:false,
+      arms.push({declineOptionalBench,preserveBench,ok:false,
         error:String(error?.stack||error),competitiveGameQualified:false});
     }
   }
   return {
-    schema:'snorlax-retrospective-optional-bench-source-witness-v1',
+    schema:'snorlax-retrospective-optional-bench-and-turn-hold-v2',
     provenance:'Known post hoc rank-3 source start prompt IDs 5 and 12; mechanical regression only',
     engineRevision:plan.engineRevision,rank:SOURCE_RANK,
     sourceSeat:SOURCE_SEAT,seed:SEED,
