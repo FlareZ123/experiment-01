@@ -76,4 +76,14 @@ assert.throws(()=>centers(one,2));
 assert.throws(()=>inventory({cards:[]},'name'));
 assert.throws(()=>analyze({decks:[rank(1),rank(1)]}));
 
+
+// Fixed existing pilot ranks constrain the best next distinct printed list.
+const ranked = ranks => ranks.map(n => ({rank:n,inv:inventory(rank(n),'print')}));
+assert.deepEqual(centers(ranked([6,24,29]),2,[6]),
+  {radius:5,ranks:[6,24],optimalSets:1});
+assert.equal(centers(ranked([10,12,13,14,18,20,21,27,32]),2,[10]).radius,14);
+assert.deepEqual(centers(ranked([8,11,16,22]),3,[8,11]),
+  {radius:11,ranks:[8,11,16],optimalSets:1});
+assert.throws(()=>centers(ranked([6,24,29]),2,[10]));
+
 console.log('Aichi field-list diversity tests passed on 29 printed source decks');
