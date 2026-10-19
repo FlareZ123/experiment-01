@@ -111,7 +111,7 @@ function run() {
   };
 }
 
-module.exports={TRIGGER_IDS,selectedArchivedTrials,run};
+module.exports={TRIGGER_IDS,selectedArchivedTrials,preparedFrozenDecks,run};
 if(require.main===module) {
   process.stdout.write(JSON.stringify(run(),null,2)+'\n');
 }
