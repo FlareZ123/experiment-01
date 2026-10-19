@@ -2,9 +2,17 @@
 
 **Agent 9, 19 October 2026.** Mathematical result and locally executed unit tests, with a pure-Python reference implementation. **No new played games and no inferred competitive win rate.** This is an optional statistical confirmation design for a future fully qualified, frozen single 60-card deck.
 
+## Relationship to existing implementation (discovered during independent review)
+
+The repository already implements the central complete-64-cell, independent-trial anytime calculation in [`scripts/aichi-anytime-field-evidence.cjs`](../../scripts/aichi-anytime-field-evidence.cjs), with a zero-loss component mixed with finite exponential factors. Its own evidence ledger validates far more game provenance than the Python reference here. [`scripts/aichi-correlated-round-evidence.cjs`](../../scripts/aichi-correlated-round-evidence.cjs) also provides a different, more conservative process that permits arbitrary within-round correlation under a conditional round-average null. The correlated model does not support the 640-game all-win inference.
+
+**This report is an independent proof and cross-language reference for the independent-trial special case, rather than a newly discovered certification protocol or replacement for the existing JavaScript qualification gate.** On 640 hypothetical all-win records, the preexisting JavaScript mixture has e-value about `24.13948111`, while the pure `q=1` Python component gives `24.73023952`; both cross the 20-fold 95% threshold. On 576 perfect outcomes, each remains below that threshold.
+
+For actual campaign ingestion, retain the stronger existing JavaScript checks and the distinction between independent-game and correlated-round assumptions. The Python code intentionally does not inspect `candidateDeckSha256`, legal-engine winner metadata or native first-turn draw logs; it accepts upstream claims of qualified outcomes. Its primary value is an independently testable mathematical oracle and a straightforward heterogeneous-cell proof.
+
 ## Research question
 
-The current [per-cell evidence model](field-evidence.md) uses a Bonferroni 64-cell one-sided simultaneous construction. Its all-win stress test requires 1,428 games for each opponent-rank/true-start cell, 91,392 games altogether. That construction gives simultaneously valid individual-cell bounds. The requested **equal-placement and equal-start field aggregate**, however, can be tested directly under an explicitly fixed balanced sampling design.
+The earlier [per-cell evidence model](field-evidence.md) uses a Bonferroni 64-cell one-sided simultaneous construction. Its all-win stress test requires 1,428 games for each opponent-rank/true-start cell, 91,392 games altogether. That construction gives simultaneously valid individual-cell bounds. The requested **equal-placement and equal-start field aggregate**, however, can be tested directly under an explicitly fixed balanced sampling design.
 
 Define the 64 cell probabilities `p[r,s]`, where `r=1..32` and `s` is the candidate's *actual* first or second turn. The target parameter is `P = sum(p[r,s])/64`. We wish to reject `H0: P <= p0=0.995` at overall alpha 0.05, with optional monitoring.
 
