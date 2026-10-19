@@ -139,10 +139,41 @@ function analyze(source) {
     archetypes};
 }
 
+/**
+ * Descriptive pilot coverage: missing archetypes are not inferred match losses.
+ * @param {{decks:Array<{rank:number,archetype:string,cards:Array<object>}>}} source
+ * @param {number[]} pilotRanks Exactly published rank identities
+ * @returns {object}
+ */
+function pilotCoverage(source, pilotRanks) {
+  const known = new Set(source.decks.map(d => d.rank));
+  if (!Array.isArray(pilotRanks) ||
+      new Set(pilotRanks).size !== pilotRanks.length ||
+      pilotRanks.some(r => !known.has(r))) throw new Error('Unknown pilot rank');
+  const included = new Set(pilotRanks);
+  const groups = new Map();
+  for (const deck of source.decks) {
+    if (!groups.has(deck.archetype)) groups.set(deck.archetype, []);
+    groups.get(deck.archetype).push(deck.rank);
+  }
+  const unrepresented = [...groups].filter(([,ranks]) =>
+    ranks.every(rank => !included.has(rank)))
+    .map(([archetype,ranks]) => ({archetype,ranks}));
+  return {
+    publishedTotal:known.size,
+    pilotRanks:[...included].sort((a,b)=>a-b),
+    publishedMissingFromPilot:source.decks.map(d=>d.rank)
+      .filter(rank=>!included.has(rank)).sort((a,b)=>a-b),
+    archetypeTotal:groups.size,
+    representedArchetypeCount:groups.size-unrepresented.length,
+    unrepresentedArchetypes:unrepresented
+  };
+}
+
 if (require.main === module) {
   const source = JSON.parse(fs.readFileSync(path.resolve(__dirname,
     '../results/aichi-2026/full-decklists.json'),'utf8'));
   process.stdout.write(JSON.stringify(analyze(source),null,2)+'\n');
 }
 
-module.exports = {inventory, swaps, centers, analyze};
+module.exports = {inventory, swaps, centers, analyze, pilotCoverage};
