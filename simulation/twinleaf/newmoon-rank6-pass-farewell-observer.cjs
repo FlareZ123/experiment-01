@@ -44,7 +44,7 @@ function withRank6UnownFarewellPassProbe(execute,{seat,turn}) {
   const observations=[];
   let observed=false;
 
-  SimpleTacticsAi.prototype.decodeNextAction=function probeAfterChosenPass(state) {
+  const handler=function probeAfterChosenPass(state) {
     const selected=prior.call(this,state);
     const player=state.players[seat];
     if(!observed && player && this.client?.id===player.id &&
@@ -95,11 +95,11 @@ function withRank6UnownFarewellPassProbe(execute,{seat,turn}) {
     }
     return selected;
   };
+  SimpleTacticsAi.prototype.decodeNextAction=handler;
   try {
     return {result:execute(),observations};
   } finally {
-    assert.equal(SimpleTacticsAi.prototype.decodeNextAction,
-      SimpleTacticsAi.prototype.decodeNextAction);
+    assert.equal(SimpleTacticsAi.prototype.decodeNextAction,handler);
     SimpleTacticsAi.prototype.decodeNextAction=prior;
   }
 }
