@@ -15,9 +15,11 @@ const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  * @template T
  * @param {0|1} sourceSeat Source physical seat.
  * @param {()=>T} execute Authentically deal and run one game.
+ * @param {{claimOpportunity?:(kind:string,state:object,player:object,opportunity:object)=>boolean}} [configuration]
  * @returns {{result:T,policyAudit:object}}
  */
-function withRank11HeldSeal(sourceSeat, execute) {
+function withRank11HeldSeal(sourceSeat, execute,
+  {claimOpportunity=null}={}) {
   if (![0,1].includes(sourceSeat) || typeof execute !== 'function') {
     throw new TypeError('Need source physical seat and synchronous game function');
   }
@@ -82,7 +84,8 @@ function withRank11HeldSeal(sourceSeat, execute) {
     if (!line && !pending && player.cannotPlayItemCards!==true) {
       const opening=heldSealOpportunity(state,player,sourceSeat,
         GamePhase.PLAYER_TURN,true);
-      if (opening) {
+      if (opening && (!claimOpportunity ||
+          claimOpportunity('held-seal',state,player,opening))) {
         const prep=opening.route==='vip'?['vip','trubbish-search'] :
           opening.route==='hand'?['trubbish-hand']:[];
         line={...opening,turn:state.turn,steps:[...prep,'attach-v-seal',
