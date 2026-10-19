@@ -61,4 +61,30 @@ function fingerprintInitialSourceDeal(state,sourceSeat,playerTurnActions) {
       .update(JSON.stringify(privateSourcePositions)).digest('hex')
   });
 }
-module.exports={fingerprintInitialSourceDeal};
+/**
+ * Observe the runner's Store before each action, including setup prompts.
+ * Only the first stable turn-1 board may be fingerprinted. The caller must
+ * invoke observe before every action from the beginning of setup. This
+ * detector itself never reads or modifies the bot's decision state.
+ * @param {0|1} sourceSeat Source physical seat.
+ */
+function createInitialSourceDealObserver(sourceSeat) {
+  assert.ok(sourceSeat===0||sourceSeat===1);
+  let captured=null;
+  let playerTurnRootsObserved=0;
+  return Object.freeze({
+    /** @param {object} state Real Store state before the next root action. */
+    observe(state) {
+      if(captured || state.phase!==2 ||
+        state.prompts.some(prompt=>prompt.result===undefined))return;
+      assert.equal(state.turn,1,
+        'First observed stable player turn was already past turn 1');
+      assert.equal(playerTurnRootsObserved,0);
+      captured=fingerprintInitialSourceDeal(state,sourceSeat,0);
+      playerTurnRootsObserved++;
+    },
+    /** @returns {object|null} Digest-only snapshot, never source cards. */
+    result() {return captured;}
+  });
+}
+module.exports={fingerprintInitialSourceDeal,createInitialSourceDealObserver};
