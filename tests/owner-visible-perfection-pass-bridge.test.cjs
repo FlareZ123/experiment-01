@@ -198,3 +198,26 @@ test('both physical candidate seats use the identical executable algorithm',()=>
   assert.equal(output.policyAudit.candidateSeat,1);
   assert.equal(output.policyAudit.activated,1);
 });
+
+test('all actual Pass roots are classified by own public Active and donor/hand prerequisites',()=>{
+  const e=environment();
+  const bot=new e.SimpleTacticsAi(101);
+  e.owner.discard.cards=[];
+  e.owner.hand={cards:[
+    {fullName:'Battle Compressor Team Flare Gear PHF'},
+    {fullName:'Gengar & Mimikyu-GX TEU'}]};
+  const output=withOwnerVisiblePerfectionPassBridge(0,()=>{
+    assert.ok(bot.decodeNextAction(e.state) instanceof e.PassTurnAction);
+    e.owner.active.getPokemonCard=()=>({fullName:'Klefki SVI'});
+    e.state.turn=6;
+    assert.ok(bot.decodeNextAction(e.state) instanceof e.PassTurnAction);
+    return true;
+  },e.deps);
+  assert.deepEqual(output.policyAudit.passesByOwnActive,
+    {'Mewtwo & Mew-GX UNM':1,'Klefki SVI':1});
+  assert.equal(output.policyAudit.activeMewtwoPasses,1);
+  assert.equal(output.policyAudit.activeMewtwoNoDonorPasses,1);
+  assert.equal(output.policyAudit.activeMewtwoNoDonorHeldCompressor,1);
+  assert.equal(output.policyAudit.activeMewtwoNoDonorHeldGengar,1);
+  assert.equal(output.policyAudit.opportunities,0);
+});
