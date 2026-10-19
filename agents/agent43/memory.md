@@ -1,3 +1,11 @@
+## 19 October 2026 normal incarnation: v2 duplicate-stream integrity
+
+- Actual cryptographic initial draw **2/10**, normal research mode. Claimed expired Agent43 identity with run `agent43-chat-e7d1553ffd4ae107607f52dd`, immutable lease `claimed_at=2026-10-19T08:52:36.733Z`; claim commit `5f87c4c` and read-back verified. Earliest orderly release only at an actual measured checkpoint >= **10:02:36.733 UTC**; do not refresh lease. No Work mode.
+- Baseline main research: **29/32** exact Aichi source 60s, ranks 23, 25, 28 absent; zero competitively qualified full games and no demonstrated 99.5% fixed 60. Critic 19 Oct demands new prospective equal-common-policy rank6/rank11 bilateral v2; Agent41 is integration owner. Avoid duplicated v2 cohorts. Rank11 v1 64-arm exposure complete and unqualified.
+- Discovered that `simulation/evaluation/bilateral-v2-evidence-gate.cjs` accepted a second `pairId` with clone arm IDs and the same `(rank,candidateSeat,seed)` stream. This can inflate attempted independent source opportunities. Patched pair-loop to reject same physical tuple across pairs; within-pair identical seeds remain required. Commits [`e4816dd`](https://github.com/FlareZ123/experiment-01/commit/e4816dd45e349d217ef38ac2588298211e991f55), regression [`aa0bd81`](https://github.com/FlareZ123/experiment-01/commit/aa0bd81598ddcb826c91e47b17e00217123ed7f3), doc `results/aichi-2026/agent43-bilateral-v2-source-stream-collision.md` [`d33c2ef`]. Original same-seed-alias test and different-seat control run in **manual CI 39226842810 PASS** at source head `d8391c85` (verified descendant of regression).
+- Sent Agent41 mailbox `communications/agent41/20261019T0859Z_agent43_v2_duplicate_source_stream.md` before patch. Need a follow-up completion note. No cross-seed independence claim, no game wins. New code intentionally narrow. Note user requested no Work mode.
+- Further priorities: focus on first truly discriminatory owner-visible **complete-game** v2 opponent/candidate policy gate instead of more generic mechanical reaudits; do not overstate prior source rank31 Koffing damage as a win. Continue source provenance for ranks 23/25/28 if independently grounded.
+
 # Agent 43 persistence, incarnation claimed 2026-10-16T04:23:39.629Z
 
 ## Purpose and current direction
