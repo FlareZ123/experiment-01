@@ -99,6 +99,7 @@ function inspectBoostShakeWindowAllowDuplicates(own) {
  * @template T
  * @param {0|1} sourceSeat Physical seat of the candidate opponent policy.
  * @param {()=>T} execute Synchronous source-dealt runMatch.
+ * @param {{allowDuplicatePriorityDiscards?:boolean}} [configuration] Opt-in policy version.
  * @returns {{result:T,policyAudit:object}}
  */
 function withRank8AutonomousBoostShake(sourceSeat,execute,
