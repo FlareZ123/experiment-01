@@ -35,3 +35,29 @@ Record every source-first selected Item, selected search-prompt response when av
 - Existing manual CI only: [aichi-damage-pump-fidelity.yml](../../.github/workflows/aichi-damage-pump-fidelity.yml), opt-in \`rank26_mail_starter_probe\`; complete machine artifact must be retained.
 
 If the bounded source-decision transition is successful, the next relevant study is a **new preregistered, both-actual-start, failure-inclusive seed cohort**, not a second interpretation of these four historically chosen source deals. Opponent policy and printed-paper clock remain unqualified. Project status: 29/32 exact opposing 60s, zero competitively qualified games, no target-qualified final 60.
+
+
+## Compiled source outcome, 19 October 2026
+
+**The opt-in four-source experiment passed.** [Manual CI run 39182801014](https://github.com/FlareZ123/experiment-01/actions/runs/39182801014), head \`cd468eac98766a899de5ffb115138bec8d126fdc\`, compiled against pinned Twinleaf \`a9905a76a6c4103ba4b6cb9a49e86bad795c5c05\`. Complete source-specific JSON is [artifact 12155999903](https://github.com/FlareZ123/experiment-01/actions/runs/39182801014/artifacts/12155999903). The runner asserted each physical seed, source first-turn draw log and 60-card deck hashes, selected policies, genuine root \`PlayCardAction\` and matching physical Store card-play count.
+
+| Source seed | v1 first-turn Mail roots | v2 first-turn Mail roots | Trainer cards selected in real Mail prompts |
+| --- | ---: | ---: | --- |
+| 2046029502 | 0 | **1** | Battle VIP Pass |
+| 4158340325 | 0 | **3** | Bicycle, Carmine, Battle Compressor |
+| 2818295704 | 0 | **1** | Hisuian Heavy Ball |
+| 1839183531 | 0 | **2** | Quick Ball, Carmine |
+| **Total** | **0** | **7** | **Seven actual prompt selections** |
+
+All seven firstturn Mail plays came from the actual registered rank-26 source-hand copies, each with a Store-accepted \`PlayCardAction\` and a subsequent real \`ResolvePromptAction\`. In particular, the new v2 changes actual printed-card search behavior on **all four** historical source openings. The v1 game-wide Store count includes a later Mail in seed 2818295704, but its **first-turn root count is zero**, so cumulative card-play totals must not be mislabeled as first-turn counts.
+
+The new access did not independently deliver an attacker. In seed 2818295704, the chosen **Hisuian Heavy Ball** was actually played and searched for **Squawkabilly ex**, which was Benched before Pass. In seed 2046029502, the Mail selected Battle VIP Pass, but the subsequent firstturn sequence was still Forest Seal Stone, Quick Ball, Bunnelby and Pass. In seed 4158340325, three Mail selections were followed by ordinary Exeggcute, basic Lightning and Pass. In seed 1839183531, two Mail selections were followed by ordinary Lightning, TM: Crisis Punch, Retreat and Pass. Across the **four** development cases:
+
+- Firstturn **root AttackAction: 0/4**.
+- Firstturn observed opponent Prize count below six: **0/4**.
+- No firstturn Meloetta ex Bench or Active play is present in the source-root action summaries.
+- No evidence that adding these Mail choices converted a real firstturn Crisis Punch or improved a competitive game result.
+
+**Interpretation:** This closes the narrow source-bot Mail-action availability test, including genuine top-four Trainer selection. The experiment exposes a more important downstream decision bottleneck: search cards can enter the owner's hand without the generic policy playing them, finding Meloetta, reserving DCE, assigning TM to Meloetta, and taking the required five self-KO Prizes. This is an actual illustration of connector-action versus strategic-completion separation. The source seeds were selected using a previous cohort, so their 7/4 Mail action count is **not** a prospective probability, and the test supports no win-rate estimate. Do not extrapolate these cases to rank26's actual tournament player.
+
+A defensible next investigation should follow one authentic, source-conserved opened Trainer into legal subsequent actions and the first opposing response, or redesign a competent combined search/Energy/Tool/attacker policy on a fresh set of source deals. No additional CI run is justified merely to repeat these seven Mail uses. **Status remains 29/32 exact field 60s, zero competitively qualified games, no target-qualified final fixed 60.**
