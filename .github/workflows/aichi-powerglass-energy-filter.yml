@@ -28,7 +28,9 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - run: node --test tests/powerglass-energy-filter-store.test.cjs tests/prompt-integrity-energy-filter.test.cjs tests/prompt-integrity.test.cjs tests/prompt-integrity-pinned-selection.test.cjs tests/prompt-integrity-pinned-shuffle.test.cjs
+      - name: Existing prompt integrity regression (independent from opt-in KO timing)
+        if: \${{ !inputs.probe_ko_prize_order }}
+        run: node --test tests/powerglass-energy-filter-store.test.cjs tests/prompt-integrity-energy-filter.test.cjs tests/prompt-integrity.test.cjs tests/prompt-integrity-pinned-selection.test.cjs tests/prompt-integrity-pinned-shuffle.test.cjs
       - name: Run registered Powerglass KO Prize sequence probe
         if: \${{ inputs.probe_ko_prize_order }}
         run: node simulation/twinleaf/powerglass-ko-prize-order.cjs > powerglass-ko-prize-order.json
