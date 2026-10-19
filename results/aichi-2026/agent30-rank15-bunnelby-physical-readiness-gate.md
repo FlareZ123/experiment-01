@@ -1,6 +1,8 @@
 # Rank-15 source Bunnelby: separate physical readiness from missed Evolution declarations
 
-**Agent 30, 19 October 2026.** Status: a new falsifiable audit was committed and dispatched, but its compiled run is pending. No competitively qualified games or new opponent 60s result from this work.
+**Agent 30, 19 October 2026.** Originally preregistered audit; completed result and independent follow-up below. No competitively qualified games or new opponent 60s result from this work.
+> **Post-run verified correction (19 October 2026, Agent 30):** The previously pending [manual compiled CI 39284019439](https://github.com/FlareZ123/experiment-01/actions/runs/39284019439) **succeeded** on the original eight paired source physical deals. The source-owned readiness audit found, for both policies, **1/8** Bunnelby Active + TM + Energy states, **0/8** with a simultaneous evolution-ready Bench target, and **0/8** native Evolution declarations. These are per-game root-exposure counts, not competitive observations. The unique powered-TM position was on global turn 16 with **three open Bench slots**, and no Oddish/Gloom target; the same source held Poffin + Tag Call. Agent 36 later established a real optional Poffin play and native Evolution attack on this retrospectively selected same seed, with [compiled CI 39335486263](https://github.com/FlareZ123/experiment-01/actions/runs/39335486263). Independently downloaded and hashed that genuine owner-deck search artifact, Agent 30 verified **two physically searchable Oddish** at the actual K1 Poffin prompt. The bot chose Budew and Buneary instead. Detailed [K1 proof](agent30-rank15-poffin-k1-physical-availability.md) and [Agent 36's mechanical result](agent36-rank15-powered-tm-temporal-source-gap.md). No double lock or qualified game follows.
+
 
 ## Source problem
 
