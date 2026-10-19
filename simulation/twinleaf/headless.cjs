@@ -275,6 +275,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [captureStartingBoard] Read-only physical Active/Bench at the first nonprompt player-turn opportunity.
  * @property {boolean} [captureRootConfirmationTrace] Observe only actual Store-dispatched confirmation choices and public damage.
  * @property {boolean} [capturePublicAttackTransitions] Record public board before and immediately after real Store logged attack dispatches, without hidden cards.
+ * @property {boolean} [captureFinalPublicBoard] Capture last face-up board and unresolved prompt types for capped-game forensics.
  * @property {boolean} [captureElectrodeOpportunity] Observe source Raichu/Bomb public necessary conditions only at live non-prompt decisions.
  * @property {boolean} [capturePhysicalZoneIntegrity] Opt-in read-only physical reference/attached Energy checks after each live root action.
  * @property {0|1} [captureCopycatTurnStartSeat] Opt-in candidate perspective resource snapshot once per own turn, taken before selecting the first action.
@@ -1247,6 +1248,14 @@ function runMatch(request) {
       attackPassProbeCount,
       attackPassProbeBuckets,
       terminalTransition,
+      ...(request.captureFinalPublicBoard === true ? {
+        finalPublicBoard:publicBoardSnapshot(state),
+        finalPendingPromptTypes:state.prompts.filter(prompt=>
+          prompt.result===undefined).map(prompt=>({
+            type:prompt.constructor.name,
+            actorSeat:state.players.findIndex(player=>player.id===prompt.playerId)
+          }))
+      } : {}),
       finalState: state.players.map(player => ({
         deckRemaining: player.deck.cards.length,
         handSize: player.hand.cards.length,
