@@ -274,6 +274,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
  * @property {boolean} [captureStartingBoard] Read-only physical Active/Bench at the first nonprompt player-turn opportunity.
  * @property {boolean} [captureRootConfirmationTrace] Observe only actual Store-dispatched confirmation choices and public damage.
+ * @property {boolean} [capturePublicAttackTransitions] Record public board before and immediately after real Store logged attack dispatches, without hidden cards.
  * @property {boolean} [captureElectrodeOpportunity] Observe source Raichu/Bomb public necessary conditions only at live non-prompt decisions.
  * @property {boolean} [capturePhysicalZoneIntegrity] Opt-in read-only physical reference/attached Energy checks after each live root action.
  * @property {0|1} [captureCopycatTurnStartSeat] Opt-in candidate perspective resource snapshot once per own turn, taken before selecting the first action.
@@ -741,6 +742,7 @@ function runMatch(request) {
     const cardsPlayedBySeat = [{}, {}];
     const attackTrace = [];
     const attackDeclarationTrace = [];
+    const publicAttackTransitions = request.capturePublicAttackTransitions === true ? [] : null;
     const poltergeistEffectTrace = request.capturePoltergeistEffectTrace === true ? [] : null;
     let poltergeistWindow = null;
     const horrorHouseAudit = request.captureHorrorHouseRootResolution === true ?
@@ -880,6 +882,7 @@ function runMatch(request) {
         prizeCountBefore: state.players.map(player => player.prizes.filter(prize => prize.cards.length > 0).length)
       } : undefined;
       const publicBeforeDispatch = publicSnapshot(state);
+      const publicAttackBefore = publicAttackTransitions ? publicBoardSnapshot(state) : null;
       const publicBoardBeforePass = decisionTrace && actionName === 'PassTurnAction' ?
         publicBoardSnapshot(state) : null;
       const publicBoardBeforeRetreat = decisionTrace && actionName === 'RetreatAction' ?
@@ -1014,6 +1017,19 @@ function runMatch(request) {
           turnAfter: store.state.turn,
           promptPendingAfter: store.state.prompts.some(prompt => prompt.result === undefined),
           resolutionStatus: 'not-independently-verified'
+        });
+      }
+      if (publicAttackTransitions && loggedAttacks.length) {
+        publicAttackTransitions.push({
+          actionOrdinal:actions,turnBefore,turnAfter:store.state.turn,
+          triggerAction:actionName,triggerPlayerSlot:seat,
+          declarations:loggedAttacks.map(attack=>({
+            playerName:attack.playerName,attackName:attack.attackName
+          })),
+          before:publicAttackBefore,
+          after:publicBoardSnapshot(store.state),
+          promptPendingAfter:store.state.prompts.some(prompt=>
+            prompt.result===undefined)
         });
       }
       if (poltergeistEffectTrace) {
@@ -1180,6 +1196,10 @@ function runMatch(request) {
       attackTrace,
       attackDeclarationTrace,
       attackDeclarationTraceProtocol: 'real-store-attack-log-declarations-v1',
+      ...(publicAttackTransitions ? {
+        publicAttackTransitions,
+        publicAttackTransitionsProtocol:'actual-store-public-attack-transitions-v1'
+      } : {}),
       ...(poltergeistEffectTrace ? {poltergeistEffectTrace} : {}),
       ...(horrorHouseRootTrace ? {horrorHouseRootTrace} : {}),
       abilityTrace,
