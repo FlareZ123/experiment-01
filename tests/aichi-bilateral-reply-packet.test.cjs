@@ -46,10 +46,67 @@ test('source declaration, candidate attack reply and next source turn are distin
   assert.deepEqual(out.candidateSameTurnAttackDeclarations.map(x=>x.attackName),
     ['Pale Moon-GX']);
   assert.equal(out.nextSourceTurnRoot.turn,4);
+  assert.deepEqual(out.immediateRootLineage,{
+    sourceActionTurnBefore:2,candidateReplyTurnBefore:3,
+    sourceContinuationTurnBefore:4,sourceEffectCompletionTurnBefore:null
+  });
   assert.deepEqual(out.terminal.remainingDeck,[15,12]);
   assert.equal(out.sourceEffectVerified,false);
   assert.equal(out.qualifiedCompetitiveGame,false);
   assert.equal(JSON.stringify(out).includes('should never be exported'),false);
+});
+
+
+test('later candidate root does not impersonate immediate reply',()=>{
+  const game=fixture();
+  game.rootActionLedger=[
+    {actionOrdinal:0,turnBefore:2,turnAfter:2,playerSlot:1,
+      action:'AttackAction',attack:'Volt Cyclone'},
+    {actionOrdinal:1,turnBefore:2,turnAfter:3,playerSlot:1,
+      action:'ResolvePromptAction'},
+    {actionOrdinal:2,turnBefore:3,turnAfter:4,playerSlot:0,
+      action:'ResolvePromptAction'},
+    {actionOrdinal:3,turnBefore:4,turnAfter:5,playerSlot:1,
+      action:'PassTurnAction'},
+    {actionOrdinal:4,turnBefore:5,turnAfter:6,playerSlot:0,
+      action:'PassTurnAction'},
+    {actionOrdinal:5,turnBefore:6,turnAfter:7,playerSlot:1,
+      action:'PassTurnAction'}
+  ];
+  game.actions=6;
+  game.attackDeclarationTrace=[{actionOrdinal:0,turnBefore:2,turnAfter:2,
+    playerSlot:1,triggerAction:'AttackAction',triggerPlayerSlot:1,
+    attackName:'Volt Cyclone'}];
+  const out=buildBilateralReplyPacket(game,args);
+  assert.equal(out.executedSourceRoot.turn,2);
+  assert.equal(out.firstCandidateNextTurnRoot,null);
+  assert.equal(out.nextSourceTurnRoot,null);
+  assert.equal(out.immediateRootLineage.candidateReplyTurnBefore,null);
+  assert.equal(out.immediateRootLineage.sourceContinuationTurnBefore,null);
+});
+
+test('late source root does not impersonate next-turn continuation',()=>{
+  const game=fixture();
+  game.rootActionLedger=[
+    {actionOrdinal:0,turnBefore:2,turnAfter:3,playerSlot:1,
+      action:'AttackAction',attack:'Volt Cyclone'},
+    {actionOrdinal:1,turnBefore:3,turnAfter:4,playerSlot:0,
+      action:'PassTurnAction'},
+    {actionOrdinal:2,turnBefore:4,turnAfter:5,playerSlot:1,
+      action:'ResolvePromptAction'},
+    {actionOrdinal:3,turnBefore:5,turnAfter:6,playerSlot:0,
+      action:'PassTurnAction'},
+    {actionOrdinal:4,turnBefore:6,turnAfter:7,playerSlot:1,
+      action:'PassTurnAction'}
+  ];
+  game.actions=5;
+  game.attackDeclarationTrace=[{actionOrdinal:0,turnBefore:2,turnAfter:3,
+    playerSlot:1,triggerAction:'AttackAction',triggerPlayerSlot:1,
+    attackName:'Volt Cyclone'}];
+  const out=buildBilateralReplyPacket(game,args);
+  assert.equal(out.firstCandidateNextTurnRoot.turn,3);
+  assert.equal(out.nextSourceTurnRoot,null);
+  assert.equal(out.immediateRootLineage.sourceContinuationTurnBefore,null);
 });
 
 test('proposed attack without a real Store declaration cannot be promoted',()=>{
@@ -180,6 +237,7 @@ test('attack damage settled after a real same-origin prompt, never on pending ro
   assert.equal(packet.sourceImmediatePublicAttackTransition.after[0].active.damage,0);
   assert.equal(packet.sourceImmediatePublicAttackTransition.settled.after[0].active.damage,140);
   assert.equal(packet.sourceImmediatePublicAttackTransition.settled.completionRootActionOrdinal,1);
+  assert.equal(packet.immediateRootLineage.sourceEffectCompletionTurnBefore,2);
   assert.equal(packet.firstCandidateNextTurnRoot.action,'PassTurnAction');
   assert.equal(packet.sourceEffectVerified,false);
   game.publicAttackTransitions[0].settled.completionRootActionOrdinal=3;
