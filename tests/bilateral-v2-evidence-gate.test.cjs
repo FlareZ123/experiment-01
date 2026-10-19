@@ -36,6 +36,7 @@ function fixture(){
   for(const rank of [6,11]){
     for(const seat of [0,1]) {
       const pairId=rank+':0:'+seat, seed=rank*1000+seat;
+      const sourceTurn=seat===0?2:1;
       for(const candidate of plan.candidates){
         const arm={id:pairId+':'+candidate.id,pairId,
           candidateId:candidate.id,rank,candidateSeat:seat,seed};
@@ -62,13 +63,16 @@ function fixture(){
           sourceDealFingerprint:hex(rank===6?'5':'6'),
           sourcePressure:{accepted:true,effectVerified:true,
             traceAuthenticated:true,actorSeat:1-seat,
-            rootActionOrdinal:10,completionOrdinal:12},
+            rootActionOrdinal:10,completionOrdinal:12,
+            turnBefore:sourceTurn,completionTurnBefore:sourceTurn},
           candidateReply:{observed:true,legal:true,
             ownerInformationSafe:true,traceAuthenticated:true,
-            actorSeat:seat,rootActionOrdinal:16},
+            actorSeat:seat,rootActionOrdinal:16,
+            turnBefore:sourceTurn+1},
           sourceContinuation:{observed:true,legal:true,
             ownerInformationSafe:true,traceAuthenticated:true,
-            actorSeat:1-seat,rootActionOrdinal:20},
+            actorSeat:1-seat,rootActionOrdinal:20,
+            turnBefore:sourceTurn+2},
           terminalTransitionVerified:true,
           paperRuleAuditPassed:false,tournamentClockAuditPassed:false,
           fullPolicyInformationSetAuditPassed:false
@@ -149,6 +153,56 @@ test('changed actual first player also disqualifies pair comparability',()=>{
   assert.equal(r.pairs[0].sourcePhysicalDealAligned,true);
   assert.equal(r.pairs[0].actualStartAligned,false);
   assert.equal(r.pairs[0].firstObservationComparable,false);
+});
+
+test('root ordinal order cannot disguise a candidate reply many turns later',()=>{
+  const {plan,archive}=fixture();
+  archive.rows[0].candidateReply.turnBefore=31;
+  archive.rows[0].sourceContinuation.turnBefore=32;
+  const r=auditBilateralV2(plan,archive);
+  assert.equal(r.arms[0].immediateTurnLineage,false);
+  assert.equal(r.arms[0].mechanicalBilateralWitness,false);
+  assert.ok(r.arms[0].vetoes.includes(
+    'immediate-bilateral-turn-lineage-unverified'));
+  assert.equal(r.mechanicalBilateralWitnesses,7);
+  assert.equal(r.pairs[0].bothBilateralWitnesses,false);
+});
+
+test('pressure completion and response require contiguous global turns',()=>{
+  for(const field of ['completionTurnBefore','turnBefore']) {
+    const {plan,archive}=fixture();
+    if(field==='completionTurnBefore'){
+      archive.rows[0].sourcePressure.completionTurnBefore=4;
+    }else{
+      archive.rows[0].sourceContinuation.turnBefore=6;
+    }
+    const r=auditBilateralV2(plan,archive);
+    assert.equal(r.arms[0].immediateTurnLineage,false,field);
+    assert.equal(r.arms[0].mechanicalBilateralWitness,false,field);
+  }
+});
+
+test('turn parity must match the genuinely observed first player',()=>{
+  const {plan,archive}=fixture();
+  // Source occupies B on this arm, so source turn 1 is impossible
+  // when the archived first-player identity is A.
+  archive.rows[0].sourcePressure.turnBefore=1;
+  archive.rows[0].sourcePressure.completionTurnBefore=1;
+  archive.rows[0].candidateReply.turnBefore=2;
+  archive.rows[0].sourceContinuation.turnBefore=3;
+  const r=auditBilateralV2(plan,archive);
+  assert.equal(r.arms[0].immediateTurnLineage,false);
+  assert.equal(r.arms[0].validStart,true);
+  assert.equal(r.arms[0].mechanicalBilateralWitness,false);
+});
+
+test('missing Store turn claims cannot earn a mechanical reply witness',()=>{
+  const {plan,archive}=fixture();
+  delete archive.rows[0].candidateReply.turnBefore;
+  const r=auditBilateralV2(plan,archive);
+  assert.equal(r.arms[0].immediateTurnLineage,false);
+  assert.equal(r.opportunityAndPolicyVerdict,'MECHANICAL-PILOT-REVIEWABLE');
+  assert.equal(r.mechanicalBilateralWitnesses,7);
 });
 
 test('source attack announcement alone is insufficient for bilateral witness',()=>{
