@@ -942,11 +942,37 @@ function runMatch(request) {
           ...state.players[1-seat].bench.filter(b => b.getPokemonCard()).map(b => b.damage)
         ]
       } : null;
+      // Opt-in evidence is captured before dispatch, since a rejected Store
+      // action may mutate transient state before throwing. No opposing hand,
+      // hidden deck order or Prize identities enter this snapshot.
+      const rejectionBefore = request.captureRejectedActionEvidence === true ? {
+        schema: 'rejected-root-owner-public-action-v1',
+        actionOrdinal: actions, turn: turnBefore,
+        actingSeat: seat, activePlayerSeat: state.activePlayer,
+        actionName, pendingPrompt: pending?.constructor.name ?? null,
+        playedCardName: playedCard ?? null,
+        playedCardPrinting: actionName === 'PlayCardAction' && seat >= 0 ?
+          state.players[seat].hand.cards[action.handIndex]?.fullName ?? null : null,
+        ownerHandPrintings: seat >= 0 ?
+          state.players[seat].hand.cards.map(card => card.fullName) : null,
+        ownerSupporterTurn: seat >= 0 ? state.players[seat].supporterTurn : null,
+        chosenTarget: actionName === 'PlayCardAction' ? {
+          player: action.target?.player ?? null,
+          slot: action.target?.slot ?? null,
+          index: action.target?.index ?? null
+        } : null,
+        publicBoard: publicBoardSnapshot(state)
+      } : null;
       try {
         store.dispatch(action);
       } catch (error) {
-        throw new Error('Twinleaf dispatch failed after ' + actions + ' actions (' +
-          action.constructor.name + '): ' + error.message, { cause: error });
+        const rejected = new Error('Twinleaf dispatch failed after ' +
+          actions + ' actions (' + action.constructor.name + '): ' +
+          error.message, { cause: error });
+        if (rejectionBefore) rejected.rejectedActionEvidence = {
+          ...rejectionBefore, rejectionMessage: error.message
+        };
+        throw rejected;
       }
       if (rootedSoloSetup && rootedSoloSetupChoice) {
         const source = store.state.players[request.snorlaxSoloOpeningSeat];
