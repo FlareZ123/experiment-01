@@ -44,7 +44,18 @@ function withRank26SourceEnergyObserver(seat, execute) {
   const previous = Store.prototype.dispatch;
   const sourceId = seat === 0 ? 101 : 202;
   const events = [];
+  let rootStore = null;
+  let ignoredOtherStoreActions = 0;
   const override = function rank26ObserveAcceptedEnergy(action, ...args) {
+    // The pinned bot can dispatch the same proposed Energy action inside
+    // detached legality-evaluation Stores. Only the live headless Store runs
+    // the original AddPlayerAction sequence for player 101.
+    if (!rootStore && action?.constructor?.name === 'AddPlayerAction' &&
+        action.id === 101) rootStore = this;
+    if (this !== rootStore) {
+      ignoredOtherStoreActions++;
+      return previous.call(this, action, ...args);
+    }
     const before = this.state;
     const own = before.players[seat];
     const selected = own && action instanceof PlayCardAction &&
@@ -71,7 +82,8 @@ function withRank26SourceEnergyObserver(seat, execute) {
   };
   Store.prototype.dispatch = override;
   try {
-    return {result:execute(),events};
+    return {result:execute(),events,ignoredOtherStoreActions,
+      liveStoreIdentified:rootStore!==null};
   } finally {
     assert.equal(Store.prototype.dispatch,override,
       'Rank26 source observer lost Store dispatch ownership');
