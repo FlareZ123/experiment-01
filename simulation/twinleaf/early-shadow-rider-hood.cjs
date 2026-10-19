@@ -12,13 +12,16 @@ const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  * @param {object} opponent Opponent's public board.
  * @returns {{slot:'ACTIVE'|'BENCH',index:number,pokemon:string}|null}
  */
-function chooseProtectedShadowRider(own, opponent) {
+function chooseProtectedShadowRider(own, opponent, lockKind = 'garbotoxin') {
   if (!own.hand.cards.some(card => card.name === 'Stealthy Hood')) return null;
-  const enemy = [opponent.active, ...opponent.bench];
-  if (!enemy.some(zone => zone.getPokemonCard()?.name === 'Garbodor' &&
-      zone.tools.length > 0)) return null;
-  const slots = [{zone:own.active,slot:'ACTIVE',index:0},
-    ...own.bench.map((zone,index) => ({zone,slot:'BENCH',index}))];
+  const activeThorns=opponent.active.getPokemonCard()?.name === 'Iron Thorns ex';
+  const activeGarbodor=[opponent.active,...opponent.bench].some(zone =>
+    zone.getPokemonCard()?.name === 'Garbodor' && zone.tools.length > 0);
+  if (lockKind === 'initialization' ? !activeThorns : !activeGarbodor) return null;
+  // Keep a protected attacker Benched when Active Tool Jammer is a concern.
+  const benchSlots=own.bench.map((zone,index) => ({zone,slot:'BENCH',index}));
+  const slots=lockKind === 'initialization' ? benchSlots :
+    [{zone:own.active,slot:'ACTIVE',index:0},...benchSlots];
   const eligible = slots.filter(row =>
     ['Shadow Rider Calyrex V','Shadow Rider Calyrex VMAX'].includes(
       row.zone.getPokemonCard()?.name) && row.zone.tools.length === 0);
@@ -41,9 +44,12 @@ function chooseProtectedShadowRider(own, opponent) {
  * @param {()=>T} execute Synchronous headless game.
  * @returns {{result:T,policyAudit:object}}
  */
-function withEarlyShadowRiderHood(candidateSeat, execute) {
+function withEarlyShadowRiderHood(candidateSeat, execute, {lockKind = 'garbotoxin'} = {}) {
   if (![0,1].includes(candidateSeat) || typeof execute !== 'function') {
     throw new TypeError('Expected a physical candidate seat and runner');
+  }
+  if (!['garbotoxin','initialization'].includes(lockKind)) {
+    throw new TypeError('Unknown source lock kind');
   }
   const load = name => require(path.join(output,name));
   const {SimpleTacticsAi} = load('simple-bot/simple-tactics-ai');
@@ -64,7 +70,7 @@ function withEarlyShadowRiderHood(candidateSeat, execute) {
       return previous.call(this,state);
     }
     const opponent = state.players[1-candidateSeat];
-    const target = chooseProtectedShadowRider(own,opponent);
+    const target = chooseProtectedShadowRider(own,opponent,lockKind);
     if (target) {
       const handIndex = own.hand.cards.findIndex(card => card.name === 'Stealthy Hood');
       const action = new PlayCardAction(own.id,handIndex,{
@@ -77,6 +83,7 @@ function withEarlyShadowRiderHood(candidateSeat, execute) {
         events.push({turn:state.turn,kind:'selected-root-play',
           card:own.hand.cards[handIndex].fullName,target,
           ownHand:own.hand.cards.map(card => card.fullName),
+          lockKind,opponentActive:opponent.active.getPokemonCard()?.fullName,
           sourceGarbodorTools:[opponent.active,...opponent.bench].flatMap(zone =>
             zone.getPokemonCard()?.name === 'Garbodor' ?
               zone.tools.map(card => card.fullName) : [])});
@@ -90,8 +97,10 @@ function withEarlyShadowRiderHood(candidateSeat, execute) {
   SimpleTacticsAi.prototype.decodeNextAction = choose;
   try {
     return {result:execute(),policyAudit:{
-      version:'early-shadow-rider-hood-source-v1',
-      selected,events,qualifiedForCompetitiveInference:false
+      version:lockKind === 'initialization' ?
+        'early-shadow-rider-hood-initialization-source-v2' :
+        'early-shadow-rider-hood-source-v1',
+      selected,lockKind,events,qualifiedForCompetitiveInference:false
     }};
   } finally {
     if (SimpleTacticsAi.prototype.decodeNextAction !== choose) {
