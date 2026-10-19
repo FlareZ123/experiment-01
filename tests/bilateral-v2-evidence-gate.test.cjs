@@ -182,18 +182,19 @@ test('pressure completion and response require contiguous global turns',()=>{
   }
 });
 
-test('turn parity must match the genuinely observed first player',()=>{
+test('a prior bonus turn can shift source pressure to unexpected parity',()=>{
   const {plan,archive}=fixture();
-  // Source occupies B on this arm, so source turn 1 is impossible
-  // when the archived first-player identity is A.
-  archive.rows[0].sourcePressure.turnBefore=1;
-  archive.rows[0].sourcePressure.completionTurnBefore=1;
-  archive.rows[0].candidateReply.turnBefore=2;
-  archive.rows[0].sourceContinuation.turnBefore=3;
+  // The authenticated first player is A. An earlier extra turn can make
+  // B own an odd-numbered turn while the three root actors still alternate.
+  archive.rows[0].sourcePressure.turnBefore=5;
+  archive.rows[0].sourcePressure.completionTurnBefore=5;
+  archive.rows[0].candidateReply.turnBefore=6;
+  archive.rows[0].sourceContinuation.turnBefore=7;
   const r=auditBilateralV2(plan,archive);
-  assert.equal(r.arms[0].immediateTurnLineage,false);
   assert.equal(r.arms[0].validStart,true);
-  assert.equal(r.arms[0].mechanicalBilateralWitness,false);
+  assert.equal(r.arms[0].immediateTurnLineage,true);
+  assert.equal(r.arms[0].mechanicalBilateralWitness,true);
+  assert.equal(r.mechanicalBilateralWitnesses,8);
 });
 
 test('missing Store turn claims cannot earn a mechanical reply witness',()=>{
