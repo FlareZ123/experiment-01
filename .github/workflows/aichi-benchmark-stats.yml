@@ -31,7 +31,7 @@ jobs:
         run: node --test tests/new-moon-rank15-dual-vileplume.test.cjs
       - name: Check exact rank15 pre-Prize two-Vileplume availability ceiling
         run: node --test tests/aichi-rank15-dual-lock-prize-ceiling.test.cjs
-      - name: Compare rank2 Vileplume Stoutland independent-chain Prize gate
+      - name: Check direct rank15 Omega Barrage TM double-evolution opening\n        run: node --test tests/aichi-rank15-direct-tm-opening.test.cjs\n      - name: Compare rank2 Vileplume Stoutland independent-chain Prize gate
         run: node --test tests/aichi-rank2-vileplume-stoutland-prize-ceiling.test.cjs
       - name: Compare hypothetical one-slot rank2 lock-chain redundancies
         run: node --test tests/aichi-rank2-one-slot-lock-sensitivity.test.cjs
