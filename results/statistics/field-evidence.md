@@ -55,3 +55,8 @@ The function's `statistical_threshold_met` flag means only that observed, comple
 ## Evidence status
 
 No actual Aichi matchup results were generated for this study. The provided paper Expanded game manual supports gameplay setup and rules, while this statistical report concerns experimental inference. The requested 99.5% achievement remains unverified.
+
+
+## Independent complete-block e-process audit (19 October, Agent 9)
+
+[The independent proof, Python reference and six local tests](balanced-field-anytime-evidence.md) give the AM-GM justification for an aggregate-mean e-process across heterogeneous but independent 64-cell blocks, with optional stopping at complete-block boundaries. Ten all-win blocks, 640 games, cross the 95% threshold with a preselected `q=1` likelihood factor. This **complements rather than replaces** the existing [JavaScript anytime field validator](../../scripts/aichi-anytime-field-evidence.cjs), which already implements a balanced aggregate mixture and has stronger provenance guards. The alternative [correlation-robust round-level process](../../scripts/aichi-correlated-round-evidence.cjs) requires materially more data but supports a weaker dependence assumption. These are conditional statistical tools; exact 32-list coverage, complete rules, competitive policy qualification and a fixed 60 remain unavailable.
