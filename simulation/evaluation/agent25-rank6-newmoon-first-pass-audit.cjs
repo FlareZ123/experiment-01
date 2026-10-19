@@ -1,8 +1,6 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const fs=require('node:fs');
-const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {scheduledArms,assertManifest,executeArm}=
   require('./agent41-crossrank-actual-decisions.cjs');
@@ -56,9 +54,6 @@ function run() {
   const trial=scheduledArms().find(x=>x.id===TRIAL);
   assert.ok(trial);
   assert.equal(trial.seed,407516727);
-  const root=path.resolve(__dirname,'../..');
-  const published=JSON.parse(fs.readFileSync(path.join(root,
-    'results/aichi-2026/full-decklists.json'),'utf8'));
   const {loadNewMoonCandidate}=require('../../scripts/aichi-new-moon-candidate.cjs');
   const candidate=loadNewMoonCandidate();
   const prepared=new Map([['new-moon-lockbreaker-v1',{plan:planAichi(
@@ -67,7 +62,7 @@ function run() {
       allowBasicEnergyMirrorPrintings:true,
       allowJapanesePromoHooks:true
     })}]]);
-  assert.equal(published.decks.find(x=>x.rank===6)?.cards.length,60);
+  assert.equal(prepared.get('new-moon-lockbreaker-v1').plan.opponents.find(x=>x.rank===6)?.cards.length,60);
   const headless=require('../twinleaf/headless.cjs');
   const realRun=headless.runMatch;
   let tracedGame=null;
