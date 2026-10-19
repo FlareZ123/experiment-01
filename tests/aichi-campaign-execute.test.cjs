@@ -17,6 +17,7 @@ const ECHOED_POLICY_KEYS = [
   'shadowRiderEnergyAcrossField', 'shadowRiderOpeningPivot',
   'attackBeforeRetreat', 'attackBeforeRetreatSeat',
   'bunnelbyK0SafeEvolution', 'prototypeSafeSimulatorIsolation',
+  'postSuperAliasRepairIsolation',
   'toolAttackAwareness', 'toolAttackAwarenessSeat',
   'leleEntryAbilityLockCorrection', 'radiantGateLockCorrection',
   'entryDrawLockCorrection', 'eldegossEntryLockCorrection',
@@ -478,6 +479,40 @@ test('frozen campaign forwards the experimental clone mode and verifies its echo
     sampleGame(request,{prototypeSafeSimulatorIsolation:false})});
   assert.equal(falseEcho.counts['unverified-game-environment'], EXPECTED_PILOT_TRIALS);
   assert.equal(falseEcho.counts['completed-engine-game']||0,0);
+});
+
+test('v2 campaign clone profile verifies actual echo and rejects conflicting modes', () => {
+  const policyFlags = {postSuperAliasRepairIsolation: true};
+  let calls = 0;
+  const accepted = run({policyFlags, runMatch: request => {
+    calls++;
+    assert.equal(request.postSuperAliasRepairIsolation, true);
+    return sampleGame(request);
+  }});
+  assert.equal(calls, EXPECTED_PILOT_TRIALS);
+  assert.equal(accepted.counts['completed-engine-game'], EXPECTED_PILOT_TRIALS);
+  assert.equal(accepted.engineAndPolicyQualified, false);
+  assert.ok(accepted.records.every(record =>
+    record.observedPolicyFlags.postSuperAliasRepairIsolation === true));
+
+  const falseEcho = run({policyFlags, runMatch: request =>
+    sampleGame(request, {postSuperAliasRepairIsolation: false})});
+  assert.equal(falseEcho.counts['unverified-game-environment'],
+    EXPECTED_PILOT_TRIALS);
+  assert.equal(falseEcho.counts['completed-engine-game'] || 0, 0);
+
+  const missingEcho = run({policyFlags, runMatch: request => {
+    const game = sampleGame(request);
+    delete game.postSuperAliasRepairIsolation;
+    return game;
+  }});
+  assert.equal(missingEcho.counts['unverified-game-environment'],
+    EXPECTED_PILOT_TRIALS);
+
+  assert.throws(() => run({policyFlags: {
+    prototypeSafeSimulatorIsolation: true,
+    postSuperAliasRepairIsolation: true
+  }}), /only one experimental speculative Simulator profile/);
 });
 
 test('Grand Tree first-turn correction is forwarded and its engine echo must match', () => {
