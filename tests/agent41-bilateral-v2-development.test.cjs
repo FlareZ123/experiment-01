@@ -2,7 +2,8 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {developmentTrials,firstPostSourceDecision,sourceLineReplyPacket}=require(
+const {developmentTrials,firstPostSourceDecision,sourceLineReplyPacket,
+  candidatePostChoicePassEvidence}=require(
   '../simulation/evaluation/agent41-bilateral-v2-development.cjs');
 
 test('only historical source streams enter the policy development packet',()=>{
@@ -185,4 +186,40 @@ test('rank11 completed Boost Shake is counted as a real Item, never an attack',(
   assert.equal(packet.matchingSourceAttackDeclared,false);
   assert.equal(packet.sourceImmediatePublicAttackTransition,null);
   assert.equal(packet.sourceEffectVerified,false);
+});
+
+test('bounded post-choice pass probe scopes exclusively to candidate slot',()=>{
+  const rows=[
+    {playerSlot:1,action:'PassTurnAction',turnBefore:3,actionOrdinal:21,
+      attackPassProbe:{activePokemon:'Iron Thorns ex',tested:[{
+        name:'Volt Cyclone',source:'printed',engineAcceptedAnnouncement:true
+      }]}},
+    {playerSlot:0,action:'PassTurnAction',turnBefore:4,actionOrdinal:28,
+      attackPassProbe:{activePokemon:'Gengar & Mimikyu-GX',tested:[{
+        name:'Poltergeist',source:'printed',engineAcceptedAnnouncement:true
+      }]}},
+    {playerSlot:0,action:'PlayCardAction',turnBefore:4,actionOrdinal:29},
+    {playerSlot:0,action:'PassTurnAction',turnBefore:6,actionOrdinal:34}
+  ];
+  const out=candidatePostChoicePassEvidence(rows,0);
+  assert.equal(out.summary.observedCandidatePasses,2);
+  assert.equal(out.summary.boundedProbeCount,1);
+  assert.equal(out.summary.unprobedCandidatePasses,1);
+  assert.equal(out.summary.cloneAcceptedPasses,1);
+  assert.equal(out.summary.boundedAndIncomplete,true);
+  assert.equal(out.samples[0].ordinal,28);
+  assert.equal(out.samples[0].tested[0].name,'Poltergeist');
+  assert.equal(JSON.stringify(out).includes('Iron Thorns'),false);
+});
+
+test('a cloned rejected attack never becomes a resolved tactical effect',()=>{
+  const rows=[{playerSlot:1,action:'PassTurnAction',turnBefore:3,
+    actionOrdinal:17,attackPassProbe:{
+      activePokemon:'Mewtwo & Mew-GX',auditError:null,
+      tested:[{name:'Miraculous Duo-GX',engineAcceptedAnnouncement:false}]
+    }}];
+  const out=candidatePostChoicePassEvidence(rows,1);
+  assert.equal(out.summary.cloneAcceptedPasses,0);
+  assert.equal(out.samples[0].tested[0].engineAcceptedAnnouncement,false);
+  assert.equal(out.summary.boundedAndIncomplete,true);
 });
