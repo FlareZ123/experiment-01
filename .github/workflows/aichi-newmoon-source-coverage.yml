@@ -246,6 +246,22 @@ jobs:
           name: newmoon-rank15-bunnelby-policy-pair-unqualified
           path: newmoon-rank15-bunnelby-policy-pair.json
           if-no-files-found: warn
+      - name: Test source root Bunnelby physical-readiness audit
+        if: ${{ inputs.rank15_policy_pair }}
+        run: node --test tests/aichi-rank15-bunnelby-readiness-audit.test.cjs
+      - name: Audit source Bunnelby Tool Energy and Bench prerequisites
+        if: ${{ inputs.rank15_policy_pair }}
+        run: node scripts/aichi-rank15-bunnelby-readiness-audit.cjs newmoon-rank15-bunnelby-policy-pair.json > rank15-bunnelby-readiness-audit.json
+      - name: Show actual root Bunnelby readiness by physical arm
+        if: ${{ inputs.rank15_policy_pair }}
+        run: node -e "const x=require('./rank15-bunnelby-readiness-audit.json'); console.log(JSON.stringify(x.aggregate,null,2))"
+      - name: Archive distinct source Bunnelby physical-readiness gates
+        if: ${{ always() && inputs.rank15_policy_pair }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank15-bunnelby-physical-readiness-unqualified
+          path: rank15-bunnelby-readiness-audit.json
+          if-no-files-found: warn
       - name: Test rank15 visible Bench-slot source policy and real Store snapshot
         if: ${{ inputs.rank15_bench_reservation }}
         run: node --test tests/rank15-vileplume-bench-reservation.test.cjs tests/newmoon-rank15-source-duallock-census.test.cjs tests/newmoon-rank15-bunnelby-policy-pair.test.cjs
