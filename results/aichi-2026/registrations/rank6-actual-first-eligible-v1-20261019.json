@@ -1,0 +1,43 @@
+{
+  "schema": "rank6-opponent-source-first-eligible-v1",
+  "registered_on": "2026-10-19",
+  "engine_pin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "seed_protocol": "24 uniform cryptographic uint32 draws; unique; frozen before trials",
+  "ranks": [
+    1,
+    6
+  ],
+  "physical_slot_by_rank": {
+    "1": "A",
+    "6": "B"
+  },
+  "root_action_cap": 125,
+  "seeds": [
+    4275816832,
+    3595620362,
+    665515792,
+    3630824723,
+    3926667284,
+    3363653013,
+    1688274966,
+    1317665561,
+    2983279258,
+    1562033310,
+    2453589280,
+    234408354,
+    2295572518,
+    2841708335,
+    4039283122,
+    2768991803,
+    2920412741,
+    2616902997,
+    2968731990,
+    455209561,
+    710041562,
+    584842862,
+    1086900982,
+    213782398
+  ],
+  "comparison": "same game seed and fixed source deck 60 under generic vs own-hand controlled rank6 first eligible Supporter turn",
+  "outcomes": "all source seeds, no exclusions; records complete, capped or errored; diagnostic engine paths, no win-rate inference"
+}
