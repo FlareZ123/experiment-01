@@ -16,7 +16,7 @@ test('public media parser accepts only pinned tweet/author and original photo do
   assert.equal(isTrustedPhotoUrl('http://pbs.twimg.com/media/A'), false);
   assert.equal(isTrustedPhotoUrl('https://pbs.twimg.com/profile_images/A'), false);
   const payload = { tweet: {
-    id: lead.id, author: { screen_name: lead.handle }, text: 'sample',
+    id: lead.id, author: { screen_name: lead.currentAliases?.[0] ?? lead.handle }, text: 'sample',
     media: { photos: [
       { url }, { url: 'https://malicious.test/source' }, { url }
     ] }
@@ -31,6 +31,26 @@ test('public media parser accepts only pinned tweet/author and original photo do
   assert.throws(() => decodePost({
     tweet: { ...payload.tweet, author: { screen_name: 'other' } }
   }, lead), /Post author mismatch/);
+});
+
+test('pinned rank28 original ID accepts evidenced current Replica handle only', () => {
+  const lead = LEADS[0];
+  assert.deepEqual(lead.currentAliases, ['nnaac5']);
+  const tweet = { id: lead.id,
+    author: { screen_name: 'nnaac5' }, media: { photos: [] } };
+  const resolved = decodePost({ tweet }, lead);
+  assert.equal(resolved.authorHandle, 'nnaac5');
+  assert.equal(resolved.publicTweetUrl.includes(lead.id), true);
+  assert.equal(resolved.certifiedRanked60, false);
+  assert.throws(() => decodePost({
+    tweet: { ...tweet, author: { screen_name: 'unrelated' } }
+  }, lead), /Post author mismatch/);
+  assert.throws(() => decodePost({
+    tweet: { ...tweet, id: 'unrelated-post' }
+  }, lead), /Post ID mismatch/);
+  assert.throws(() => decodePost({
+    tweet: { ...tweet, id: LEADS[1].id }
+  }, LEADS[1]), /Post author mismatch/);
 });
 
 test('VXTweet schema is accepted but never mistaken for certified deck source', () => {
