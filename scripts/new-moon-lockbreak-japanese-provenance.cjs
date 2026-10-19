@@ -28,6 +28,8 @@ function validateJapanesePrintCandidate(proposed,original) {
   assert.ok(Array.isArray(proposed.entries));
   assert.equal(original.entries.length,33);
   assert.equal(proposed.entries.length,34);
+  const ids=proposed.entries.map(e=>e.japanese_card_id);
+  assert.equal(new Set(ids).size,ids.length,'Repeated Japanese print ID');
 
   const sourceNames=new Set(original.entries.map(e=>e.name_en));
   assert.equal(sourceNames.size,original.entries.length);
