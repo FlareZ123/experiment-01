@@ -35,6 +35,40 @@ function developmentTrials(){
 const sha256=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
 /**
+ * Label post-source decisions only after the named autonomous source line
+ * actually completed. No-opportunity and aborted attempts are not replies.
+ * This is still a diagnostic ordering rule, not attack-effect certification.
+ *
+ * @param {object[]} rootTrace Genuine post-choice Store ledger.
+ * @param {6|11} rank
+ * @param {object} sourceAudit
+ * @param {0|1} candidateSeat
+ * @returns {{root:object|null,status:string,sourceTurn:number|null}}
+ */
+function firstPostSourceDecision(rootTrace,rank,sourceAudit,candidateSeat){
+  assert.ok(rank===6||rank===11);
+  assert.ok(candidateSeat===0||candidateSeat===1);
+  let sourceTurn=null;
+  if(rank===11){
+    if(sourceAudit?.completed===true &&
+        Number.isSafeInteger(sourceAudit.opportunityTurn) &&
+        sourceAudit.opportunityTurn>=1) {
+      sourceTurn=sourceAudit.opportunityTurn;
+    }
+  }else{
+    if(sourceAudit?.turn2?.completed===true) sourceTurn=2;
+    else if(sourceAudit?.turn3?.completed===true) sourceTurn=3;
+  }
+  if(sourceTurn===null) return {
+    root:null,status:'no-completed-source-line',sourceTurn:null
+  };
+  const root=rootTrace.find(row=>row.playerSlot===candidateSeat &&
+    row.turnBefore>sourceTurn)??null;
+  return {root,status:root?'candidate-root-after-source-line':
+    'no-candidate-root-after-source-line',sourceTurn};
+}
+
+/**
  * A real frozen Store development arm. The v1 source-side policy is retained,
  * the v1 candidate-only New Moon policy is deliberately replaced by common v0.
  * @param {object} trial
@@ -62,7 +96,8 @@ function executeDevelopment(trial,candidates){
     label:'agent41-bilateral-v2-common-policy-development-'+trial.id,
     ...registration.frozenFlags,
     capturePublicAttackTransitions:true,
-    captureFinalPublicBoard:true
+    captureFinalPublicBoard:true,
+    captureInitialSourceDealFingerprintSeat:sourceSeat
   };
   const common=()=>withBilateralCommonCandidatePolicy(candidateSeat,
     ()=>runMatch(request));
@@ -103,10 +138,21 @@ function executeDevelopment(trial,candidates){
     row.declarations?.length && row.settled?.after);
   const sourceFirst=game.firstTurnSlot===sourceSeat;
   const rootTrace=game.rootActionLedger||[];
+  const sourceDeal=game.initialSourceDealFingerprint;
+  assert.equal(sourceDeal?.seat,sourceSeat);
+  assert.match(sourceDeal?.digestSha256,/^[0-9a-f]{64}$/);
+  const candidateFollowup=firstPostSourceDecision(
+    rootTrace,trial.rank,sourceAudit,candidateSeat);
   return {
     trial,qualifiesForCompetitiveInference:false,
     policyVersion:POLICY_VERSION,
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
+    verifiedFirstTurn:game.verifiedByDrawLog,
+    actualStarterSeat:game.firstTurnSlot,
+    firstTurnPlayerId:game.firstTurnPlayerId,
+    firstTurnPlayerName:game.firstTurnPlayerName,
+    firstDrawLogName:game.firstDrawLogName,
+    sourceDealFingerprint:sourceDeal.digestSha256,
     sourceFirstOwnHandSha256:ownerFirst?sha256(ownerFirst):null,
     policyAudit:commonAudit,sourceAudit,
     attackDeclarations:{
@@ -119,9 +165,9 @@ function executeDevelopment(trial,candidates){
       attacker:row.triggerPlayerSlot,chosen:row.declarations,
       prizesAfter:row.settled.prizesRemaining
     })),
-    firstCandidatePostSourceRoot:rootTrace.find(row=>row.playerSlot===candidateSeat &&
-      row.turnBefore>(trial.rank===11?sourceAudit.opportunityTurn:
-        sourceAudit.turn2.started?2:sourceAudit.turn3.started?3:9999))??null,
+    firstCandidatePostSourceRoot:candidateFollowup.root,
+    candidateFollowupStatus:candidateFollowup.status,
+    candidateFollowupSourceTurn:candidateFollowup.sourceTurn,
     actionCount:game.actions,turns:game.turns,
     finished:game.finished,winner:game.finished?game.winner:null,
     endReason:game.endReason,
@@ -157,11 +203,30 @@ function runDevelopment(){
     }); }
   }
   return {
-    schema:'agent41-bilateral-common-policy-development-v0',
+    schema:'agent41-bilateral-common-policy-development-v0b',
     sourceRegistration:'historical v1 selection; not v2 preregistration',
     enginePin:registration.enginePin,
     candidatePolicy:POLICY_VERSION,
     rows,attempted:rows.length,
+    sourcePairs:['6:0:A','11:2:B'].map(key=>{
+      const here=rows.filter(row=>row.trial?.id.startsWith(key+':'));
+      const first=here.find(row=>row.trial.candidateId==='champion-reference');
+      const second=here.find(row=>row.trial.candidateId==='new-moon-lockbreaker-v1');
+      assert.ok(first&&second);
+      return {
+        pairId:key,
+        sameSourcePhysicalDeal:Boolean(first.sourceDealFingerprint &&
+          first.sourceDealFingerprint===second.sourceDealFingerprint),
+        sourceDealFingerprints:[
+          first.sourceDealFingerprint??null,second.sourceDealFingerprint??null
+        ],
+        sameActualStarter:Boolean(first.verifiedFirstTurn&&second.verifiedFirstTurn &&
+          first.actualStarterSeat===second.actualStarterSeat),
+        candidateFollowupStatuses:[first.candidateFollowupStatus??null,
+          second.candidateFollowupStatus??null],
+        comparativeStrengthQualified:false
+      };
+    }),
     errors:rows.filter(r=>r.status==='engine-error').length,
     competitiveQualifiedGames:0,winRateCertified:false
   };
@@ -171,4 +236,5 @@ if(require.main===module){
   const result=runDevelopment();
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
-module.exports={developmentTrials,executeDevelopment,runDevelopment};
+module.exports={developmentTrials,firstPostSourceDecision,
+  executeDevelopment,runDevelopment};
