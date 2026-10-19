@@ -162,9 +162,11 @@ function candidatePostChoicePassEvidence(decisionTrace,candidateSeat){
  * @param {boolean} enabled
  * @returns {{newMoonAttackPayloadCompressorSeat?:0|1}}
  */
-function commonPayloadOption(candidateSeat,enabled){
+function commonPayloadOption(candidateSeat,enabled,lateWindow=false){
   assert.ok(candidateSeat===0||candidateSeat===1);
-  return enabled?{newMoonAttackPayloadCompressorSeat:candidateSeat}:{};
+  if(!enabled)return {};
+  return lateWindow?{newMoonAttackPayloadCompressorLateSeat:candidateSeat}:
+    {newMoonAttackPayloadCompressorSeat:candidateSeat};
 }
 
 /**
@@ -175,7 +177,7 @@ function commonPayloadOption(candidateSeat,enabled){
  * @returns {object}
  */
 function executeDevelopment(trial,candidates,{
-  compressorPayload=false,opportunityAudit=false
+  compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false
 }={}){
   const {runMatch}=require('../twinleaf/headless.cjs');
   const {withRank11DirectBoostShake}=
@@ -187,7 +189,8 @@ function executeDevelopment(trial,candidates,{
   assert.equal(opponent?.status,'ready');
   const candidateSeat=trial.candidateSlot==='A'?0:1;
   const sourceSeat=1-candidateSeat;
-  const payloadResource=commonPayloadOption(candidateSeat,compressorPayload);
+  const payloadResource=commonPayloadOption(candidateSeat,
+    compressorPayload,lateCompressorPayload);
   const candidateCards=prepared.plan.candidate.cards;
   assert.equal(candidateCards.length,60);
   assert.equal(opponent.cards.length,60);
