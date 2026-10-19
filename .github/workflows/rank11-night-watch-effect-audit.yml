@@ -13,6 +13,11 @@ on:
         type: boolean
         required: false
         default: false
+      probe_planning_chance:
+        description: 'Two-arm registered planning-only Night Watch stress probe'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -50,6 +55,12 @@ jobs:
         run: node simulation/twinleaf/rank11-night-watch-random-paired.cjs > rank11-night-watch-random-paired.json
       - name: Show chance-policy contrast without private hand identities
         run: node -e "const p=require('./rank11-night-watch-random-paired.json'); console.log(JSON.stringify({seed:p.baseline.seed,firstTurnSlot:p.baseline.firstTurnSlot,baseline:{finished:p.baseline.finished,winner:p.baseline.winner,declarations:p.baseline.declarations.length},corrected:{finished:p.corrected.finished,winner:p.corrected.winner,declarations:p.corrected.declarations.length,randomResolutions:p.corrected.hook.resolved,planningPrecommits:p.corrected.hook.precommitsInBotDecision,realEffectPrecommits:p.corrected.hook.precommitsOutsideBotDecision,planningResolutions:p.corrected.hook.resolutionsInBotDecision,actualResolutions:p.corrected.hook.resolutionsOutsideBotDecision,invalid:p.corrected.hook.invalid},originalHandPositions:p.baseline.sourceHandTransitions.map(x=>({turn:x.turn,selections:x.promptSelections})),correctedHandPositions:p.corrected.sourceHandTransitions.map(x=>({turn:x.turn,selections:x.promptSelections})),qualifiedForCompetitiveInference:p.qualifiedForCompetitiveInference},null,2))"
+      - name: Run registered planning-only chance sensitivity stress
+        if: \${{ inputs.probe_planning_chance }}
+        run: node simulation/twinleaf/night-watch-planning-sensitivity.cjs > night-watch-planning-sensitivity.json
+      - name: Show mechanical decision sensitivity without raw action logs
+        if: \${{ inputs.probe_planning_chance }}
+        run: node -e "const p=require('./night-watch-planning-sensitivity.json');console.log(JSON.stringify({schema:p.schema,firstRootActionDivergenceIndex:p.firstRootActionDivergenceIndex,firstSelectiveDecisionDivergenceIndex:p.firstSelectiveDecisionDivergenceIndex,rootLedgerExactlyEqual:p.rootLedgerExactlyEqual,low:{finished:p.low.finished,winner:p.low.winner,planningPrecommits:p.low.chanceAudit.precommitsInBotDecision,rootAttacks:p.low.nightWatchDeclarations},high:{finished:p.high.finished,winner:p.high.winner,planningPrecommits:p.high.chanceAudit.precommitsInBotDecision,rootAttacks:p.high.nightWatchDeclarations},qualifiedForCompetitiveInference:p.qualifiedForCompetitiveInference},null,2))"
       - name: Execute registered 16-seed two-policy source batch
         if: ${{ inputs.run_prospective }}
         run: node simulation/twinleaf/rank11-night-watch-prospective-batch.cjs > rank11-night-watch-prospective-batch.json
@@ -64,6 +75,7 @@ jobs:
             rank11-night-watch-effect-audit.json
             rank11-night-watch-random-paired.json
             rank11-night-watch-prospective-batch.json
+            night-watch-planning-sensitivity.json
           if-no-files-found: warn
           retention-days: 14
 
