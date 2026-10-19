@@ -3,6 +3,11 @@ name: Aichi Temple and Wobbuffet board interactions
 on:
   workflow_dispatch:
     inputs:
+      rank11_turn24_copied_reply:
+        description: 'One authentic source-dealt candidate Poltergeist response instead of self-Path at turn24'
+        required: false
+        type: boolean
+        default: false
       agent34_rank11_autonomous_carmine:
         description: 'Bounded own-information Carmine response policy versus frozen New Moon, archived and registered seeds'
         required: false
@@ -391,3 +396,13 @@ jobs:
           name: aichi-tool-power-policy-diagnostic
           path: tool-power-source-pilot.json
           if-no-files-found: ignore
+      - name: Source-authentic rank11 first candidate turn24 copied counterresponse
+        if: inputs.rank11_turn24_copied_reply
+        run: node simulation/twinleaf/rank11-turn24-copied-reply-fork.cjs > rank11-turn24-copied-reply.json
+      - name: Preserve actual candidate copied reply and following source outcome
+        if: inputs.rank11_turn24_copied_reply && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-turn24-candidate-copied-reply
+          path: rank11-turn24-copied-reply.json
+          if-no-files-found: warn
