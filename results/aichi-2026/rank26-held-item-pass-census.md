@@ -36,4 +36,6 @@ The source first-turn line needs Exeggcute in discard for Propagation, a sequenc
 
 Do not treat absence of an early attack in these cases as intrinsic incapacity of the published rank26 list, nor any candidate win against this bot as competitive. A useful next narrow test is a **single genuine firstturn held-Item original-source root** with an owner-visible, native-valid Battle Compressor or VIP proposal, a complete owner-selected search prompt, conservation of cards, and an actual subsequent source decision. Then freeze the generic policy and test on fresh, both-start source deals without selecting only successful branches. Coordinate any common-bot modification with Agent41's bilateral-v2 ownership.
 
+Across the [29 exact published field lists](full-decklists.json), Battle Compressor appears in 17 lists (33 copies), Battle VIP Pass in 15 (42 copies), and at least one appears in 21 lists. This is a cross-field inventory risk footprint only; it does not establish non-use rates outside rank26.
+
 The same original 20/48 denominator must be retained; neither this report nor the source-selected DCE regressions creates new trials. The broader objective remains **29/32 recovered exact opposing decks, zero competitively qualified games, and no demonstrated 99.5% fixed deck**.
