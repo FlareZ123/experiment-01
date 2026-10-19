@@ -11,27 +11,45 @@ function run() {
   const {AttackTactic} = load('simple-bot/simple-tactics/attack-tactic');
   const defs = load('simple-bot/simple-bot-definitions');
   const options = {tactics:defs.allSimpleTactics,promptResolvers:defs.allPromptResolvers,scores:defs.defaultStateScores,arbiter:defs.defaultArbiterOptions};
-  const rows=[];
-  for(const damage of [0,40,80,120,160,200]) for(const gxUsed of [false,true]) {
+  /** @param {number} damage @param {boolean} gxUsed */
+  function pair(damage,gxUsed) {
     const samples=[makeFixture(false),makeFixture(true)];
     const cards=initializeCards();
-    for(const s of samples){
-      s.defender.active.damage=damage;s.attacker.usedGX=gxUsed;
+    for(const sample of samples){
+      sample.defender.active.damage=damage;sample.attacker.usedGX=gxUsed;
       for(let i=0;i<39;i++){
         const energy=cards.getCardByName('Psychic Energy MEE');
         assert.ok(energy);
         energy.id=5000+i;
-        s.attacker.deck.cards.push(energy);
+        sample.attacker.deck.cards.push(energy);
       }
-      assert.equal(s.attacker.deck.cards.length+s.attacker.active.cards.length+
-        s.attacker.prizes.length,60,'Staged attacker also has a physical 60');
+      assert.equal(sample.attacker.deck.cards.length+sample.attacker.active.cards.length+
+        sample.attacker.prizes.length,60);
     }
     assert.deepEqual(observation(samples[0]),observation(samples[1]));
     assert.equal(samples[0].sourceDigest,samples[1].sourceDigest);
-    const choice=samples.map(s=>{const action=new AttackTactic(options).useTactic(s.state,s.attacker);return action?.name??null;});
+    return samples;
+  }
+  const selected=sample=>new AttackTactic(options).useTactic(sample.state,sample.attacker)?.name??null;
+  const rows=[];
+  for(const damage of [0,40,80,120,160,200]) for(const gxUsed of [false,true]) {
+    const choice=pair(damage,gxUsed).map(selected);
     rows.push({damage,gxUsed,energyHand:choice[0],trainerHand:choice[1],changed:choice[0]!==choice[1]});
   }
-  return {schema:'rank11-observation-equivalent-attack-choice-v1',sourceRank:11,sourceCards:60,pairs:rows.length,reversals:rows.filter(x=>x.changed).length,rows,certifiedGames:0};
+  const blind=pair(0,false);
+  const {installOpponentHiddenPoolAttackSampling}=
+    require('./opponent-hidden-pool-attack-sampling.cjs');
+  const restore=installOpponentHiddenPoolAttackSampling({
+    seed:20261019,samples:24,
+    hiddenPoolKnownVerified:true,opponentHandUnobservedVerified:true,
+    opponentDeckOrderUnobservedVerified:true,opponentPrizeIdentityUnobservedVerified:true
+  });
+  let sampledChoices;
+  try {sampledChoices=blind.map(selected);} finally {restore();}
+  assert.equal(sampledChoices[0],sampledChoices[1],
+    'Blinded decision must depend only on observations plus the known source 60');
+  return {schema:'rank11-observation-equivalent-attack-choice-v1',sourceRank:11,sourceCards:60,pairs:rows.length,reversals:rows.filter(x=>x.changed).length,
+    sampledChoices,rows,certifiedGames:0};
 }
 if(require.main===module) process.stdout.write(JSON.stringify(run(),null,2)+'\n');
 module.exports={run};
