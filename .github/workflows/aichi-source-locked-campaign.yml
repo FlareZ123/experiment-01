@@ -186,7 +186,7 @@ jobs:
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent41-bilateral-v2-development.json
       - name: Summarize all development failures and attempted arms, without competitive outcomes
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
-        run: node -e "const d=require('./agent41-bilateral-v2-development.json');for(const r of d.rows)console.log('DEVELOPMENT',JSON.stringify({id:r.trial?.id,errors:r.error?.slice(0,350)||null,actualSourceFirst:r.sourceActuallyFirst,actions:r.actionCount,attacks:r.attackDeclarations,closed:r.settledPublicAttackCount,prizes:r.finalPrizes,finished:r.finished,policy:r.policyVersion}));console.log('UNQUALIFIED',d.competitiveQualifiedGames,'of',d.attempted)"
+        run: node -e "const d=require('./agent41-bilateral-v2-development.json');for(const r of d.rows)console.log('DEVELOPMENT',JSON.stringify({id:r.trial?.id,errors:r.error?.slice(0,350)||null,actualSourceFirst:r.sourceActuallyFirst,actions:r.actionCount,attacks:r.attackDeclarations,closed:r.settledPublicAttackCount,prizes:r.finalPrizes,finished:r.finished,policy:r.policyVersion}));console.log('SOURCE_PAIRS',JSON.stringify(d.sourcePairs.map(p=>({id:p.pairId,sameSourceDeal:p.sameSourcePhysicalDeal,sameStarter:p.sameActualStarter,followups:p.candidateFollowupStatuses}))));console.log('UNQUALIFIED',d.competitiveQualifiedGames,'of',d.attempted)"
       - uses: actions/upload-artifact@v4
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
         with:
