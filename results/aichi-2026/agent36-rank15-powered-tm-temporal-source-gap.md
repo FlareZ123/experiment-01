@@ -48,7 +48,7 @@ At global **turn 16 / source root ordinal 125**, immediately after the real Tool
 - `Buddy-Buddy Poffin TEF`
 - `Tag Call CEC`
 
-This owner-known hand is identical in the generic and enhanced source-policy arms on the same physical original deal. The source's Active remains Bunnelby with a paid Tool attack, and three Bench slots are open. The Poffin is a strong **action-falsification candidate**, because the physical source has two Oddish UNB in its originally registered 60. But initial unprized Oddish does not establish that either was still in the source deck at turn 16, nor does a held Item establish permission to play it in the face of possible attack- or Ability-based Item locks. **No native Poffin legality or Item dispatch has yet been observed at this turn.** A future live Store test must verify the actual Item play, owner-deck choice prompt, chosen Oddish, resulting Bench state and Tool-attack eligibility; if the action is blocked, preserve the exact reason.
+This owner-known hand is identical in the generic and enhanced source-policy arms on the same physical original deal. The source's Active remains Bunnelby with a paid Tool attack, and three Bench slots are open. The Poffin is a strong **action-falsification candidate**, because the physical source has two Oddish UNB in its originally registered 60. But initial unprized Oddish does not establish that either was still in the source deck at turn 16, nor does a held Item establish permission to play it in the face of possible attack- or Ability-based Item locks. **A subsequent targeted native-source fork has now proved the Poffin is playable at this exact owned-hand state**, and produced a real Evolution attack declaration. See the compiled fork result below. A future live Store test must verify the actual Item play, owner-deck choice prompt, chosen Oddish, resulting Bench state and Tool-attack eligibility; if the action is blocked, preserve the exact reason.
 
 This identifies a specific possible *setup-action omission*, rather than a need for yet another broader eight-game comparison. It also precludes explaining the sole currently observed powered-TM target miss solely through lack of a search Item **in hand**.
 
@@ -60,6 +60,26 @@ This identifies a specific possible *setup-action omission*, rather than a need 
 
 **Qualification boundary:** the opposing source and candidate both use unqualified automated decisions, event flags do not certify all attack legality/effects, and the same historical seeds have been repeatedly studied. No independent competitive matchup outcomes, complete Top-32 performance claim or 99.5% win-rate certification follow from this report. Top-32 exact list coverage remains **29/32**.
 
+
+## Native Poffin-before-attack fork: a real lost Evolution declaration
+
+The pre-registered original-source `repeat0 / candidate seatA / source seatB` paid-TM witness was used for an explicitly **retrospective one-deal mechanical intervention**. The source's *same exact 60*, challenger *same exact 60*, signed original physical first-player order, original seed **3050400820**, six-Prize arrangement, pinned engine `a9905a76...`, and all baseline hook flags were retained. The only change was to offer **one actor-owned, native-validated** `PlayCardAction` for its held **Buddy-Buddy Poffin TEF** when Active Bunnelby already carried TM: Evolution and Energy, a direct evolution target was missing, and it still had Bench room. Remaining prompt choices were handled by the existing generic source bot.
+
+**[Compiled manual CI 39333636856](https://github.com/FlareZ123/experiment-01/actions/runs/39333636856) succeeded**, including the new owner-hand/no-hidden-zone unit tests and real Store replay. [Original and Poffin-fork root JSON artifact 12225223832](https://github.com/FlareZ123/experiment-01/actions/runs/39333636856/artifacts/12225223832) was independently downloaded; ZIP SHA-256 **`68024fa1c687ed621ed8dd82c92e87e04459c40f9dba2d575d91abcb3e8c1612`**. Source runner [here](../../simulation/twinleaf/rank15-paid-tm-poffin-original-root.cjs), owner-decision hook [here](../../simulation/twinleaf/rank15-paid-tm-poffin-source-policy.cjs). Both root game logs were 260 actions long, kept the true candidate-first identity, unchanged input 60s, exact matching prepolicy zone and Prize digests, and physically zero of each required Stage category initially Prized.
+
+| Actual root event on global turn 16 | Historical bot | One Poffin option |
+| --- | --- | --- |
+| Previously paid Bunnelby/TM/Energy position | Yes | Yes |
+| Native `isValidAction` for Poffin | Not evaluated | **True** |
+| Genuine root Poffin `PlayCardAction` | **0** over whole original game | **1**, root124 |
+| Next native source actions | Tag Call at root124; Guzma & Hala at root129; eventually Pass | Actual owner-deck `ChooseCardsPrompt` root125, shuffle root126; Tag Call root127; Guzma & Hala root132; Artazon root137 |
+| Native printed `Evolution` `AttackAction` | **0** | **1**, root138 |
+| Native `Evolution` search prompts | None | `ChoosePokemonPrompt` root139, `ChooseCardsPrompt` root140, shuffle root141, confirmation root143 |
+| Any source Oddish on Bench before either player takes a Prize | First recorded at global turn36, root246 | **Never observed** |
+
+The Poffin alternative's single real Evolution declaration and subsequent native prompts establish a previously missed *action-sequencing capability*. They do **not** independently establish the actual evolution destination, Stage card chosen, complete effect, double attack, simultaneous Item/Basic Ability lock or opponent response. Neither arm's generic bot is competitively qualified, and the one physical seed was retrospectively selected precisely because this bottleneck was known. Untimed terminal outcomes are excluded from the finding.
+
+**Immediate experimental question:** identify which printed Basic(s) the real Poffin prompt put on the Bench and which evolution target the live TM prompt chose. The observer recorded no `Oddish UNB` on Bench in the Poffin arm, so a demonstrated Evolution attack has not solved the source's intended **two Vileplume** line. Capture selected live prompt responses and public evolution before formulating an Oddish-target resolver; actor deck inspection is allowed only at an actual owner-deck search prompt. This case provides a powerful **positive regression** for a shared delayed-setup action policy: mandatory verified native Poffin and Evolution declaration under one exact source witness, while retaining correct no-opportunity/locked states elsewhere.
 
 ## Completed Bench-reservation counterfactual (same original deals)
 
