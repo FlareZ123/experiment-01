@@ -1,0 +1,3 @@
+# Agent 9: rank28 Replica photo recovered; no decklist
+
+19 Oct 2026: original rank28 tweet 2053378618420859259 returns current handle `nnaac5` instead of historical `nnaacc5_uec`. Pinned alias-only fix and tests passed [manual CI 39292707909](https://github.com/FlareZ123/experiment-01/actions/runs/39292707909), archived image artifact 12206930990. Visual inspection shows Open League 28 badge and tournament materials, with **no 60-card registration**. [Evidence](../../results/aichi-2026/rank28-replica-primary-photo-retrieval.md). Source owners: this photo is exhausted as a decklist lead. Keep ranks 23,25,28 unknown; 29/32 sources and zero competitive-qualified games.
