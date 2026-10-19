@@ -155,13 +155,26 @@ function candidatePostChoicePassEvidence(decisionTrace,candidateSeat){
 }
 
 /**
+ * Apply the same owner-visible delayed-resource tactic to either candidate
+ * physical seat. This is a historical-only opt-in, not a strength treatment.
+ * The actual tactic performs owner-deck selection only in its legal prompt.
+ * @param {0|1} candidateSeat
+ * @param {boolean} enabled
+ * @returns {{newMoonAttackPayloadCompressorSeat?:0|1}}
+ */
+function commonPayloadOption(candidateSeat,enabled){
+  assert.ok(candidateSeat===0||candidateSeat===1);
+  return enabled?{newMoonAttackPayloadCompressorSeat:candidateSeat}:{};
+}
+
+/**
  * A real frozen Store development arm. The v1 source-side policy is retained,
  * the v1 candidate-only New Moon policy is deliberately replaced by common v0.
  * @param {object} trial
  * @param {Map<string,object>} candidates
  * @returns {object}
  */
-function executeDevelopment(trial,candidates){
+function executeDevelopment(trial,candidates,{compressorPayload=false}={}){
   const {runMatch}=require('../twinleaf/headless.cjs');
   const {withRank11DirectBoostShake}=
     require('../twinleaf/rank11-direct-boostshake.cjs');
@@ -172,6 +185,7 @@ function executeDevelopment(trial,candidates){
   assert.equal(opponent?.status,'ready');
   const candidateSeat=trial.candidateSlot==='A'?0:1;
   const sourceSeat=1-candidateSeat;
+  const payloadResource=commonPayloadOption(candidateSeat,compressorPayload);
   const candidateCards=prepared.plan.candidate.cards;
   assert.equal(candidateCards.length,60);
   assert.equal(opponent.cards.length,60);
@@ -186,6 +200,7 @@ function executeDevelopment(trial,candidates){
     // This changes the retrospective policy version, never the historical v1
     // deal or seed. A veto's Pass fallback is still strategically unqualified.
     enforceVisiblePlayLockBothSeats:true,
+    ...payloadResource,
     capturePublicAttackTransitions:true,
     captureFinalPublicBoard:true,
     captureAttackPassProbes:true,
@@ -241,7 +256,8 @@ function executeDevelopment(trial,candidates){
     game.decisionTrace,candidateSeat);
   return {
     trial,qualifiesForCompetitiveInference:false,
-    policyVersion:POLICY_VERSION,
+    policyVersion:POLICY_VERSION+(compressorPayload?'+owner-compressor-v1':''),
+    ownerCompressorPayloadOptIn:compressorPayload,
     finalDispatchVisiblePlayLockV2:game.livePlayLockGuardBothSeats===true,
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
     verifiedFirstTurn:game.verifiedByDrawLog,
@@ -278,7 +294,7 @@ function executeDevelopment(trial,candidates){
 }
 
 /** @returns {object} */
-function runDevelopment(){
+function runDevelopment({compressorPayload=false}={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
   const {loadNewMoonCandidate}=require('../../scripts/aichi-new-moon-candidate.cjs');
@@ -296,17 +312,20 @@ function runDevelopment(){
       allowBasicEnergyMirrorPrintings:true,allowJapanesePromoHooks:true})}]));
   const rows=[];
   for(const trial of developmentTrials()){
-    try { rows.push(executeDevelopment(trial,prepared)); }
+    try { rows.push(executeDevelopment(trial,prepared,{compressorPayload})); }
     catch(error){ rows.push({
       trial,status:'engine-error',error:String(error?.stack||error),
       qualifiesForCompetitiveInference:false
     }); }
   }
   return {
-    schema:'agent41-bilateral-common-policy-development-v0c-live-lock-guard',
+    schema:compressorPayload?
+      'agent5-bilateral-common-policy-development-v0c-owner-compressor-v1':
+      'agent41-bilateral-common-policy-development-v0c-live-lock-guard',
     sourceRegistration:'historical v1 selection; not v2 preregistration',
     enginePin:registration.enginePin,
-    candidatePolicy:POLICY_VERSION,
+    candidatePolicy:POLICY_VERSION+(compressorPayload?'+owner-compressor-v1':''),
+    ownerCompressorPayloadOptIn:compressorPayload,
     rows,attempted:rows.length,
     sourcePairs:['6:0:A','11:2:B'].map(key=>{
       const here=rows.filter(row=>row.trial?.id.startsWith(key+':'));
@@ -333,9 +352,11 @@ function runDevelopment(){
 }
 
 if(require.main===module){
-  const result=runDevelopment();
+  const result=runDevelopment({
+    compressorPayload:process.env.AGENT5_COMMON_COMPRESSOR_DEV==='true'
+  });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
-module.exports={developmentTrials,firstPostSourceDecision,
+module.exports={developmentTrials,commonPayloadOption,firstPostSourceDecision,
   sourceLineReplyPacket,candidatePostChoicePassEvidence,
   executeDevelopment,runDevelopment};
