@@ -91,9 +91,18 @@ now intentionally holds the Gengar in its owner's hand and leaves
 Trevenant in the deck. The expected legal sequence is
 Compressor Item play, genuine own-deck prompt, Trevenant chosen,
 Gengar remains held, Night Watch becomes available, Gengar's
-other attacks remain unavailable for copying. Evidence for that
-additional native case should be attached only after a compiled
-CI run has verified it.
+other attacks remain unavailable for copying. **Native verification now passed:**
+[CI 39334366607](https://github.com/FlareZ123/experiment-01/actions/runs/39334366607),
+at commit `946461c208d35dd50204153a68f396a31f3aa73d`,
+compiled the pinned engine and executed the additional genuine
+held-Gengar case. It yielded the native `ChooseCardsPrompt`,
+selected **only Trevenant & Dusknoir-GX SMP** from own deck,
+retained Gengar & Mimikyu-GX TEU in hand, and consequently exposed
+**Night Watch** but no Gengar copied attack in the owner-visible
+Perfection menu. The held-Gengar predicate correctly allowed the
+Item despite the in-hand Gengar, without treating the held card as
+an already available copy source. The original two-donor native
+control also passed in the same job.
 
 ## Existing source-dealt negative control that constrains this finding
 
