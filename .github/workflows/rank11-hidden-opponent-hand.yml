@@ -41,3 +41,7 @@ jobs:
         run: node --test tests/perfection-hidden-pool-ability-audit.test.cjs
       - name: Print Perfection score differential with and without sampling
         run: node simulation/twinleaf/perfection-hidden-pool-ability-audit.cjs
+      - name: Test staged delegated Perfection chosen-action parity
+        run: node --test tests/perfection-hidden-choice-decision.test.cjs
+      - name: Print staged Perfection action-choice thresholds
+        run: node simulation/twinleaf/perfection-hidden-choice-decision.cjs
