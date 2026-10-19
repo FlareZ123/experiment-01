@@ -25,6 +25,26 @@ With a uniformly random six-card Prize subset of a 60-card list, any specified s
 
 **Important model boundary:** this enumeration is unconditional on legal seven-card opening hands and mulligan recycling; it does not represent an exact opening-turn probability under the actual Basic-Pokémon opener rule. It models one preselected six-Prize subset and preserves every 60-card source multiplicity. It does not measure the chance Latias is accessible, on the Bench, Active, functional, or strategic, nor any player win probability.
 
+## Turn-one direct Heavy Ball access under a valid opener
+
+The joint-Prizing event above is a **backup-resource collapse**, while finding Heavy Ball immediately is a different question. A second exact model conditions on a legal seven-card starting hand containing at least one Basic Pokémon, then follows the real order **opening seven → six Prizes → first ordinary draw**. It tests the conjunction `Latias ex is Prized AND at least one Hisuian Heavy Ball is in the opening seven or first ordinary draw`. The nine original Basic counts are independently sourced from [the event's printed Basic audit](opening-hand-audit.json).
+
+| Rank | Known Basic Pokémon | Heavy Balls | Direct one-draw recovery-card presence **and** Latias Prized |
+| ---: | ---: | ---: | ---: |
+| 10 | 15 | 1 | **1.27752%** |
+| 12 | 15 | 1 | **1.27752%** |
+| 13 | 11 | 1 | **1.22781%** |
+| 14 | 14 | 1 | **1.26722%** |
+| 18 | 16 | 2 | **2.42605%** |
+| 20 | 14 | 1 | **1.26722%** |
+| 21 | 14 | 1 | **1.26722%** |
+| 27 | 15 | 1 | **1.27752%** |
+| 32 | 13 | 1 | **1.25567%** |
+
+The conditional calculation sums exact opening-seven compositions by other Basics, Heavy Ball copies and non-Basics, with Latias outside the seven. In each such opening it multiplies the probability of Latias entering six Prizes by the probability a Heavy Ball is already in hand or occupies the first ordinary draw. [The enumerator](../../scripts/aichi-regidrago-latias-prize.cjs) uses integer binomial weights; the [tests](../../tests/aichi-regidrago-latias-prize.test.cjs) compare its general formula with a separate exhaustive small-deck ordered-deal enumerator, as well as the real Basic counts.
+
+Thus **theoretical recovery from Prizes is substantially broader than immediate direct first-eight availability**. Neither measurement is a full deck-access estimate. The first-eight model excludes Quick Ball/Trainers that access Heavy Ball, Forest Seal Stone, card draws from Abilities, supporter usage, opposing mulligan bonus cards, and decisions after observing K1 Prize information. Item lock can further deny actual Heavy Ball use. It also does not establish whether Latias is needed at all in that game's first turn.
+
 ## Deck-selection implications and falsification
 
 An anti-Regidrago counter centered exclusively on *Prizing* a singleton is poorly justified. A serious candidate should test whether **an actually Active Klefki / other Basic-Ability lock** denies Latias mobility and the basic draw/search engine **after legal opponent responses**, with the Regidrago player retaining its printed Hisuian Heavy Ball, Guzma and relevant switching alternatives. This must preserve the causal cost of occupying the attacker's own Active Spot, self-locking the candidate's Basics, source opponent Supporter decisions, Item-lock contention and board evolution. Source-backed early pressure and realistic unlocked/locked reply trajectories are the intended discriminators.

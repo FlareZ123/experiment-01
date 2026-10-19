@@ -103,10 +103,81 @@ function sourceCensus(manifest) {
   };
 }
 
+
+/**
+ * Exact probability that Latias is Prized and a Heavy Ball is present in
+ * opening seven or first normal draw, conditional on a Basic-valid opener.
+ * Opening seven, setting six Prizes, then a normal draw are modeled in order.
+ * No card searches, bonus draws, opponent locks or policy decisions.
+ * @param {{size?:number,opening?:number,prizes?:number,basics:number,heavyBalls:number}} input
+ * @returns {{numerator:string,denominator:string,probability:number,percent:number}}
+ */
+function directOpeningPrizeRescue(input) {
+  const {size=60,opening=7,prizes=6,basics,heavyBalls}=input;
+  for (const n of [size,opening,prizes,basics,heavyBalls])
+    assert.ok(Number.isSafeInteger(n),'Expected integer category counts');
+  if (size<=opening+prizes || opening<1 || prizes<1 || basics<1 ||
+      heavyBalls<1 || basics+heavyBalls>size)
+    throw new RangeError('Invalid opening-Prize count');
+  const otherBasics=basics-1;
+  const otherNonBasics=size-basics-heavyBalls;
+  const valid=choose(size,opening)-choose(size-basics,opening);
+  let numerator=0n;
+  // Latias must be outside the initial seven, so a different Basic starts.
+  for(let h=0;h<=Math.min(opening,heavyBalls);h++)
+    for(let b=1;b<=Math.min(opening-h,otherBasics);b++){
+      const n=opening-h-b;
+      if(n<0||n>otherNonBasics)continue;
+      const ways=choose(heavyBalls,h)*choose(otherBasics,b)*
+        choose(otherNonBasics,n);
+      // Conditional on opening Latias exclusion, its Prize probability is
+      // prizes/(size-opening). If no Ball was in the opening, one may be
+      // the ordinary draw with chance heavyBalls/(size-opening-1).
+      numerator+=ways*BigInt(prizes)*
+        BigInt(h>0?size-opening-1:heavyBalls);
+    }
+  const denominator=valid*BigInt(size-opening)*BigInt(size-opening-1);
+  const divisor=gcd(numerator,denominator);
+  const probability=Number(numerator)/Number(denominator);
+  return {numerator:String(numerator/divisor),
+    denominator:String(denominator/divisor),
+    probability,percent:100*probability};
+}
+
+/**
+ * Resolve source Basic counts independently of Pokémon-name inference.
+ * @param {{decks:object[]}} manifest Exact original published 60s.
+ * @param {{decks:object[]}} openingAudit Printed Basic opener audit.
+ * @returns {{rows:object[],meanPercent:number,claim:string}}
+ */
+function sourceDirectRescueCensus(manifest,openingAudit){
+  assert.ok(Array.isArray(openingAudit?.decks));
+  const rows=sourceCensus(manifest).rows.map(row=>{
+    const audit=openingAudit.decks.find(x=>x.rank===row.rank);
+    assert.ok(audit && audit.basic_count_known>=1 &&
+      Array.isArray(audit.unresolved_pokemon) &&
+      audit.unresolved_pokemon.length===0,
+      'Unknown Basic opener information for Regidrago rank '+row.rank);
+    return {rank:row.rank,basics:audit.basic_count_known,
+      heavyBalls:row.hisuianHeavyBall,
+      ...directOpeningPrizeRescue({
+        basics:audit.basic_count_known,heavyBalls:row.hisuianHeavyBall
+      })};
+  });
+  return {rows,meanPercent:rows.reduce((s,row)=>s+row.percent,0)/rows.length,
+    claim:'Latias Prized and printed Heavy Ball in opening seven or first normal draw given Basic-valid opener; excludes access through search and all gameplay outcomes'};
+}
+
 if (require.main === module) {
   const manifest = JSON.parse(fs.readFileSync(path.join(__dirname,
     '../results/aichi-2026/full-decklists.json'), 'utf8'));
-  process.stdout.write(JSON.stringify(sourceCensus(manifest), null, 2) + '\n');
+  const openingAudit=JSON.parse(fs.readFileSync(path.join(__dirname,
+    '../results/aichi-2026/opening-hand-audit.json'),'utf8'));
+  process.stdout.write(JSON.stringify({
+    ...sourceCensus(manifest),
+    directOpeningPrizeRescue:sourceDirectRescueCensus(manifest,openingAudit)
+  },null,2)+'\n');
 }
 
-module.exports = {REGIDRAGO_RANKS, choose, protectedLatiasPrized, countName, sourceCensus};
+module.exports = {REGIDRAGO_RANKS, choose, protectedLatiasPrized, countName, sourceCensus,
+  directOpeningPrizeRescue, sourceDirectRescueCensus};
