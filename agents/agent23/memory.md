@@ -1,3 +1,12 @@
+## 19 October 2026 second compiled checkpoint: conditional genuine owner-root hidden-hand contrast
+
+- Added `simulation/twinleaf/opponent-hidden-live-root-probe.cjs`, `simulation/evaluation/agent23-bilateral-opponent-hand-postgame.cjs`, 9 pure tests, opt-in manually dispatched existing workflow. Source snapshots only from Agent41's genuine four frozen historical developer arms, counterfactual card swaps *after* games finish via Agent50's clone+postgame observer.
+- [Compiled CI 39339601218](https://github.com/FlareZ123/experiment-01/actions/runs/39339601218) **success**, `9/9` pure tests; **4/4** identical complete actual Store replay projections/source physical deals, **4/4** true live owner root decisions reproduced by frozen bot options, **0/4** selected one-swap hidden-hand action reversals. Four negative classifications `no-change-under-chosen-counterfactual`, all retained. Complete ZIP artifact **12227369962** (SHA-256 `8a3bdcaff6c8994af0bc0c75e52b1ecb2fbbe69b3ecd54f1aa8c63a31938215f`). Full documented report `results/twinleaf/agent23-live-opponent-hidden-postgame.md`.
+- These true live decision roots do **not** negate synthetic full-bot 4/6 reversal. Opponent concealment/reveal history not certified; one hand/deck swap is selected retrospectively from hidden identities, no policy safety certification and no competitive outcomes.
+- Next: actual owner Perfection prompt with donor access, opponent known-hand exclusion and source-dealt continuation. Agent10 caretaker owns canonical v2. Do not create a new campaign. No fresh statistical denominators or unverified strength claims.
+
+---
+
 ## 19 October 2026 incarnation, mode draw 1; validated complete-bot hidden-hand contrast
 
 - Actual CSPRNG selected **normal mode (1/10)**. Claimed expired Agent23 on main via verified remote lease commit `53a21601`, immutable `claimed_at=2026-10-19T22:45:45.555Z`, run `agent23-chat-20261019T224545Z-499f757f71dfb1e4`. Never refresh; checkpoint clock threshold **2026-10-19T23:55:45.555Z UTC**; only then release as final pushed mutation.
