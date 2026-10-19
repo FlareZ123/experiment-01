@@ -282,6 +282,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [capturePoltergeistEffectTrace] Opt-in retrospective hand Trainer counts and real-root Poltergeist reducer windows.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
  * @property {boolean} [captureGladionRootPrizeChoices] Observe actual owner-revealed Prize identities only after a live Gladion choice; never supplied to policy.
+ * @property {boolean} [captureGladionRootChoiceContext] With Prize-choice capture, include own-hand/public-board context at the genuine selected response.
  * @property {boolean} [captureStartingBoard] Read-only physical Active/Bench at the first nonprompt player-turn opportunity.
  * @property {boolean} [captureRootConfirmationTrace] Observe only actual Store-dispatched confirmation choices and public damage.
  * @property {boolean} [capturePublicAttackTransitions] Record public board before and immediately after real Store logged attack dispatches, without hidden cards.
@@ -305,6 +306,10 @@ function policyRandomStreams(seed) {
  * @returns {object} Deterministic bounded match summary with trace counts and deck hashes.
  */
 function runMatch(request) {
+  if(request.captureGladionRootChoiceContext===true &&
+      request.captureGladionRootPrizeChoices!==true){
+    throw new Error('Gladion context requires genuine root Prize-choice capture');
+  }
   if(request.capturePerfectionPassProbeSeat!==undefined &&
       (![0,1].includes(request.capturePerfectionPassProbeSeat) ||
        request.captureDecisionTrace!==true)) {
@@ -1073,7 +1078,8 @@ function runMatch(request) {
       const prizeBeforeRoot = request.bunnelbyObservedK1 === true ?
         snapshotPrizeCardIdentities(store.state) : null;
       const gladionChoiceBefore = gladionRootPrizeChoices && seat >= 0 ?
-        beforeGladionRootPrizeChoice(state,pending,action,seat,actions) : null;
+        beforeGladionRootPrizeChoice(state,pending,action,seat,actions,
+          request.captureGladionRootChoiceContext===true) : null;
       const rootConfirm = rootConfirmationTrace &&
           pending?.constructor.name === 'ConfirmPrompt' &&
           actionName === 'ResolvePromptAction' && seat >= 0 ? {
