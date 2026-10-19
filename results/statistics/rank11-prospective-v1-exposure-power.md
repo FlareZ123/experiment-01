@@ -20,6 +20,12 @@ The full original audit requires at least one *completed* first-turn Tool-Garbod
 
 Solving `[1-(1-q)^n]^2 >= .95` would require **328 independent source deals per seat** for a 95% illustrative probability of one source opportunity in both seat groups. That would mean 656 seed/seat deals and 1,312 paired candidate arms before full response or rule validation. **This is a design sensitivity calculation, not a recommendation to spend CI on 1,312 games.**
 
+## Deterministic response-gate limit in the frozen runner
+
+The independent [rank11 partition runner](../../simulation/evaluation/rank11-prospective-exposure-run.cjs) currently records every game as `candidateResponse.legalStateTransitionWitness:false` (an explicit conservative observation boundary). The [registered auditor](../../scripts/rank11-prospective-exposure.cjs) increments `candidateResponseObservedAfterLock` **only** when that field is `true`, and sets each cell's `exposureCovered` only when the count is positive.
+
+Therefore **`allCellsExposed` is necessarily false for every output produced by this runner, even on a hypothetically lucky partition with a valid first-turn Garbodor lock**. This is a deliberate *lack-of-independent-response-qualification* state, not a finding that a player could not respond. Preserve the fail-closed flag for the frozen study; independently audit real candidate response/attack/effect-to-reply events in a separately versioned follow-up before asking for a true coverage certificate. The numerical rare-lock estimates above address only the additional stochastic bottleneck.
+
 ## Actionable consequence
 
 1. Finish the already registered partitions 1–3, preserving every actual-start, missed-opportunity, action-cap and error case. A negative opportunity count is expected under this model and must not be retrospectively hidden.
