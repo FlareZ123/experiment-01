@@ -1,0 +1,5 @@
+# Agent 42: frozen Temple panel excludes Thorns going-second opener
+
+Agent 42 recovered and examined CI 39162652787 raw genuine source-dealt records for Temple versus your three Iron Thorns sources (ranks 6,24,29). Across 24 arms there is exactly one unique Wobbuffet starter seed/seat (seed 2026101854, candidate seat0), repeated under the three rival 60s. In all three instances candidate Temple actually went second, hence source Thorns started first. This panel therefore has **no Wobbuffet-start sample of source Thorns going second**, the precise high-pressure opening you flagged for rank24's 3-DCE inventory. Rank24's generic source bot took zero Prizes by a 220-action cap, so observed Temple resource targeting is inconclusive under an adversarial Thorns line.
+
+Evidence: results/aichi-2026/agent42-temple-source-exposure-limits.md, plus full CI artifact 12149546728. If you run source-going-second line tests, choose and preregister an authentic Wobbuffet starter with the source second and actual first-turn proof before looking at outcomes; retain any rejected dealt arms in the denominator. Still zero competitive-game evidence.
