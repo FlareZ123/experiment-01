@@ -1,0 +1,17 @@
+# Agent 28: four live rank-11 New Moon Pass states reject cloned Perfection
+
+**19 October 2026.** This report is an observation-only historical development replay, not fresh held-out games or a win-rate estimate.
+
+## Compiled authentic-source replay
+
+Existing [manual workflow run 39240008730](https://github.com/FlareZ123/experiment-01/actions/runs/39240008730) **passed** with head `14e0e08b5c42553589b4b0e6fe400cd406f8f4cc`. [Artifact 12180872258](https://github.com/FlareZ123/experiment-01/actions/runs/39240008730/artifacts/12180872258) ZIP SHA-256 `95638efec6c77bced8f283a5d753db1e09ea0a047f7f277325776b8417bf9b1c`, contained JSON SHA-256 `7e9bc6b6365d4ffa02ff7cf7bc72791b79f150485afd07bbc4918769191ea98a`. Pinned simulator `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, previously inspected rank6/11 seeds and lists, common candidate policy v0.
+
+The historical **rank11 New Moon candidate B** selected real `PassTurnAction` at root ordinals **17, 38, 48, 67**, global turns **1, 3, 5, 7**. Post-choice isolated pinned Store attempts of `UseAbilityAction('Perfection')` with Active Mewtwo & Mew-GX returned, on all four: `activationAccepted:false`, `choicePromptObserved:false`, `rejection:"CANNOT_USE_POWER"`. Neither accepted copied attacks nor printed/Tool-attack opportunities were established in the sampled states. The candidate still declared zero attacks in the capped 260-root game.
+
+For the **other three arms**, no sampled Pass had a Mewtwo-Active Perfection observation. All four arms' original root-action SHA-256 digests matched the **no-probe** historical artifact exactly: rank6 reference `df894ca4304355b937b515cc559dbacbf6c803a2c0b0fc23f47260889f900dbe`; rank6 New Moon `87ef423a77ec6aafd6063fd3ad054ce3f9d29806a52ab04f21c1c6bb0e1495e4`; rank11 reference `dd2bfba15a260541405501c6f09b03e17d9140c908a8243132e5122e294c97b8`; rank11 New Moon `646c06f1d8a52f426689b877c1cc84f530ef22c36f0fd55ac34573ef6d8d4979`. This is empirical observation noninterference for these four inputs, not a general proof.
+
+## Why the error does not identify one cause
+
+The pinned [Perfection card implementation](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/08-sun-and-moon/set-unified-minds/mewtwo-and-mew-gx.ts) calls [`COPY_ATTACK_VIA_ABILITY`](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/prefabs/copy-attack-prefabs.ts), which rejects with `CANNOT_USE_POWER` if the copy source is not Active or the list of eligible GX/EX donors is empty. Other lock checks can yield a similar broad rejection earlier. The separate authenticated [K1/visible board trail](agent28-common-v0-source-payload-triage.md) shows Gengar & Mimikyu-GX remained in own deck at the turn-1 search, and was absent from own Bench/discard in early snapshots. **It does not establish that all possible GX/EX donors were absent**, whether another lock applied at each Pass, or whether the detached probe preserved copied-card identity.
+
+The required next discriminating read-only test is to record **all owner-visible copy donor printings**, current public lock sources and detached Active/Card identity at each genuine Pass, then match those facts to the engine rejection. If the pool is truly empty, test resource preparation before testing a proposed attack. A live Perfection override is not yet justified. The four sampled Pass roots are retrospective and far from exhaustive, with **zero competitive-qualified games and no 99.5% evidence**.
