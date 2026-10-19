@@ -1,0 +1,56 @@
+'use strict';
+
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {playerPlayLockVeto}=
+  require('../simulation/twinleaf/player-play-lock-veto.cjs');
+
+const enums={superTrainer:2,superEnergy:3,stadium:2,specialEnergy:1};
+const stadium={fullName:'Thunder Mountain Prism Star LOT',
+  superType:2,trainerType:2};
+const dce={fullName:'Double Colorless Energy SUM',
+  superType:3,energyType:1};
+const basic={fullName:'Basic Darkness Energy SVE',
+  superType:3,energyType:0};
+const supporter={fullName:"Lillie's Determination M1L",
+  superType:2,trainerType:1};
+function player(stadiumLocked=false,specialEnergyLocked=false){
+  return {id:202,cannotPlayStadiumCards:stadiumLocked,
+    cannotPlaySpecialEnergyCards:specialEnergyLocked,
+    hand:{cards:[stadium,dce,basic,supporter]}};
+}
+const play=index=>({type:'PLAY_CARD_ACTION',id:202,handIndex:index});
+
+test('Shadow Mist denies Stadium proposals from own hand',()=>{
+  assert.equal(playerPlayLockVeto(player(true,true),play(0),enums),
+    'stadium-lock');
+});
+
+test('Shadow Mist denies Special Energy but permits Basic Energy',()=>{
+  const p=player(true,true);
+  assert.equal(playerPlayLockVeto(p,play(1),enums),
+    'special-energy-lock');
+  assert.equal(playerPlayLockVeto(p,play(2),enums),null);
+});
+
+test('Shadow Mist does not deny a legal Supporter',()=>{
+  assert.equal(playerPlayLockVeto(player(true,true),play(3),enums),null);
+});
+
+test('restriction is lifted when printed player-level flags clear',()=>{
+  const p=player(false,false);
+  assert.equal(playerPlayLockVeto(p,play(0),enums),null);
+  assert.equal(playerPlayLockVeto(p,play(1),enums),null);
+});
+
+test('attack, opposing action and missing cards are left alone',()=>{
+  const p=player(true,true);
+  assert.equal(playerPlayLockVeto(p,{type:'ATTACK_ACTION',id:202},enums),null);
+  assert.equal(playerPlayLockVeto(p,{...play(0),id:101},enums),null);
+  assert.equal(playerPlayLockVeto(p,play(8),enums),null);
+});
+
+test('the two printed lock flags are independent',()=>{
+  assert.equal(playerPlayLockVeto(player(true,false),play(1),enums),null);
+  assert.equal(playerPlayLockVeto(player(false,true),play(0),enums),null);
+});
