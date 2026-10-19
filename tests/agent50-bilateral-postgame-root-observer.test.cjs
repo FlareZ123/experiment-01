@@ -105,6 +105,36 @@ test('wrong seat or wrong turn retains game and reports zero opportunities',()=>
   assert.equal(observed.result.action.play,'generic');
 });
 
+test('distinct live tactic configurations fail closed instead of faking a bot',()=>{
+  class MixedOptionsBot extends SyntheticBot {
+    constructor(client,options) {
+      super(client,options);
+      this.tactics.push({options:structuredClone(options)});
+    }
+  }
+  const baseline=MixedOptionsBot.prototype.decodeNextAction;
+  const headless={
+    runMatch(s){
+      const bot=new MixedOptionsBot({id:101},{
+        tactics:[],promptResolvers:[],scores:{hand:{hasEnergy:7}},
+        arbiter:{flipMode:0}
+      });
+      return {realAction:bot.decodeNextAction(s)};
+    }
+  };
+  const original=headless.runMatch;
+  const result=withPostgameRootOrderProbe(
+    MixedOptionsBot,()=>headless.runMatch(state()),structuredClone,
+    {turn:3,seat:0,makeRandom:()=>()=>0.2},{headless}
+  );
+  assert.equal(result.events.length,1);
+  assert.equal(result.events[0].baselineActionMatchedActual,false);
+  assert.match(result.events[0].auditError,/Live tactic options differ/);
+  assert.equal(result.result.realAction.play,'generic');
+  assert.strictEqual(headless.runMatch,original);
+  assert.strictEqual(MixedOptionsBot.prototype.decodeNextAction,baseline);
+});
+
 test('snapshot mutation triggers a fail-closed owner-visible root warning',()=>{
   const source=state();
   const {observed,actualCalls}=scenario({
