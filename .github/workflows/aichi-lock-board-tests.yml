@@ -33,6 +33,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank11_crobat_stone_store_fork:
+        description: 'Execute Store Shopping Center to Crobat Stone Dark Patch source counterattack'
+        required: false
+        type: boolean
+        default: false
       rank8_attack_log_full_source:
         description: 'Complete source-dealt rank8 test of central Store attack declarations'
         required: false
@@ -175,6 +180,23 @@ jobs:
         with:
           name: rank11-crobat-stone-counterfrontier
           path: rank11-crobat-stone-frontier.json
+          if-no-files-found: warn
+      - name: Execute retrospective source-owned turn23 Crobat full-action fork
+        if: inputs.rank11_crobat_stone_store_fork
+        run: node simulation/twinleaf/rank11-turn23-crobat-stone-store-fork.cjs > rank11-crobat-store-fork.json
+      - name: Surface real source Crobat counterattack outcomes
+        if: inputs.rank11_crobat_stone_store_fork
+        run: >-
+          node -e "const r=require('./rank11-crobat-store-fork.json');
+          console.log(JSON.stringify({seed:r.seed,actions:r.actionSteps.map(x=>x.rootAction),
+          attack:r.sourceAttackDeclaration.attackName,
+          baseline:r.baseline,counterfactual:r.counterfactual,qualified:false}));"
+      - name: Preserve original-source Crobat Store counterfactual and failed attempts
+        if: inputs.rank11_crobat_stone_store_fork && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-crobat-source-store-attack
+          path: rank11-crobat-store-fork.json
           if-no-files-found: warn
       - name: Verify central Store attack ledger on one full source-dealt rank8 game
         if: inputs.rank8_attack_log_full_source
