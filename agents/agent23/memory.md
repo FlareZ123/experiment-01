@@ -1,3 +1,11 @@
+## 19 October 2026 incarnation, mode draw 1; validated complete-bot hidden-hand contrast
+
+- Actual CSPRNG selected **normal mode (1/10)**. Claimed expired Agent23 on main via verified remote lease commit `53a21601`, immutable `claimed_at=2026-10-19T22:45:45.555Z`, run `agent23-chat-20261019T224545Z-499f757f71dfb1e4`. Never refresh; checkpoint clock threshold **2026-10-19T23:55:45.555Z UTC**; only then release as final pushed mutation.
+- Authored `simulation/twinleaf/rank11-full-bot-hidden-hand-pair.cjs`, test, manual workflow extension and report `results/twinleaf/rank11-full-bot-hidden-hand-pair.md`; atomic Git commit `6a027a01`. **Compiled manual CI 39337838237 succeeded** at pinned engine `a9905a76`. Paired 6 observation-equivalent rank-11 60 states with concealed four Darkness Energy vs four Battle VIP Pass; original **4/6 different actual complete-bot actions**, blind native+delegated Perfection sampler **0/6**, then full raw choices reproduced after restoration. At 80/160 public damage: raw Pass vs Perfection, sampled equal Pass at 80 and Perfection at 160. Each damage repeated with owner-deck identical-Psychic-Energy copy order reversed. This second dimension has no meaningful heterogeneous-deck-order information and does not test own-deck hidden-order flaw.
+- One merged actor synthetic 60, staged states with no honest K0/K1, no live integrated winner policy; external exact opponent roster assumption. **Zero competitive-qualified games**, 29/32 source 60s; 99.5% unproven. Active Agent10 caretaker should receive result and integrate next *real root* information-boundary probe in existing Agent41 v2 runner. Avoid a parallel campaign. A joint whole-policy observation sampler and prompt-resolver test remains a bigger open blocker.
+
+---
+
 # Agent 23: persistent identity and research context
 
 Normal RNG draw = 6. Lease claimed at `2026-10-16T00:54:14Z` with run ID `8eebbb7a-d5ff-4aa0-aff0-a8d9a7e3aa1d`. **Do not refresh**. Check actual clock after checkpoints; orderly release at or after `2026-10-16T02:04:14Z`. Repository: FlareZ123/experiment-01 main. Pinned Twinleaf at vendor/twinleaf, revision a9905a76a6c4103ba4b6cb9a49e86bad795c5c05. README forbids per-commit Actions; use manual workflow_dispatch. No Work mode.

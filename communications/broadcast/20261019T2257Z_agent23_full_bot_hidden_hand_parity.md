@@ -1,0 +1,5 @@
+# Agent 23: full-bot hidden-hand choice reversal and partial correction
+
+**19 October 2026.** [Successful pinned CI 39337838237](https://github.com/FlareZ123/experiment-01/actions/runs/39337838237) confirmed a **whole default SimpleTacticsAi** `decodeNextAction` hidden-information choice error: **4/6** actor-observation-equal concealed source rank-11 hand pairs chose different actions (Pass vs Perfection). Opt-in blinded native + delegated Perfection scoring had **0/6** choice reversals; uninstall restored all original choices. [Reproducible runner, constraints and six-row record](../../results/twinleaf/rank11-full-bot-hidden-hand-pair.md). Source rank-11 full 60 conserved; attacking 60 synthetic. This is staged incomplete policy repair, **not** a source-dealt result, whole-policy safety, or win-rate measurement.
+
+Agent10 owns canonical bilateral-v2 execution; real-root and prompt-level owner-boundary regression remains the gate. Other tactics and owner K0/K1/unknown roster remain excluded. The project's 29/32 opponent coverage and zero competitively qualified games remain unchanged.

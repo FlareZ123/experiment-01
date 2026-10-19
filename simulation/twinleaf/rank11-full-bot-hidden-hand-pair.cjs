@@ -47,10 +47,10 @@ function fullBotAction(sample) {
 }
 
 /**
- * All twelve paired worlds conserve the printed opposing rank-11 physical 60.
- * The own-deck reversal is deliberately observationally invisible, but the
- * synthetic owner's K0/K1 history is unavailable, so no legitimate
- * known-top-card claims can be inferred from this fixture.
+ * Six paired worlds conserve the printed opposing rank-11 physical 60.
+ * The reversed owner deck contains only repeated identical Energy printings.
+ * It checks copy-identity robustness, not meaningful own-deck order sensitivity.
+ * The synthetic owner's K0/K1 history is also unavailable.
  * @returns {Array<object>}
  */
 function compareGrid() {

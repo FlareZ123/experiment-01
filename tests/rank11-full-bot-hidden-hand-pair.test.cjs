@@ -10,6 +10,8 @@ test('complete default bot conserves all source-60 hidden-hand comparisons and r
   assert.equal(result.ownerCards,60);
   assert.equal(result.opponentCards,60);
   assert.equal(result.pairedWorlds,6);
+  assert.equal(result.rawReversals,4);
+  assert.equal(result.partiallyBlindedReversals,0);
   assert.equal(result.raw.length,6);
   assert.equal(result.partlyBlinded.length,6);
   assert.ok(result.raw.every(r=>
