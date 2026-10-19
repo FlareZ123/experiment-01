@@ -1,10 +1,30 @@
 name: Aichi Iron Thorns first attack fixture
 on:
   workflow_dispatch:
+    inputs:
+      policy_smoke_only:
+        description: Run fast pure opening-policy checks without compiling Twinleaf
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
+  policy-smoke:
+    if: ${{ inputs.policy_smoke_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check shared source policy syntax
+        run: node --check simulation/twinleaf/rank6-broad-thorns-policy.cjs
+      - name: Run source K0 opening-policy unit regressions
+        run: node --test tests/rank6-broad-thorns-policy.test.cjs
   test:
+    if: ${{ !inputs.policy_smoke_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
