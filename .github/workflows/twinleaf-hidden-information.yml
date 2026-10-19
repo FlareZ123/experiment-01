@@ -118,6 +118,8 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify versioned archived match-outcome projection
+        run: node --test tests/rank10-result-projection.test.cjs tests/rank10-replay-acceptance.test.cjs
       - name: Check selective prefix digest negative controls
         run: node --test tests/source-prefix-digest.test.cjs tests/rank10-hidden-order-live-probe.test.cjs
       - name: Compare all 235 authentic v3 Timeless source inputs and State projections
