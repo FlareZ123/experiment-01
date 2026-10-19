@@ -96,9 +96,9 @@ test('the policy selects the tooled LTR when a BKP copy is untooled',()=>{
   assert.equal(tooledGarbodor(opponent),ltr);
 });
 
-test('other Garbodor printings are excluded without printed Garbotoxin proof',()=>{
+test('Garbodor lacking the printed Garbotoxin Ability is excluded',()=>{
   const {own,slot,opponent,state}=fixture();
-  slot.getPokemonCard=()=>({fullName:'Garbodor DRX'});
+  slot.getPokemonCard=()=>({fullName:'Garbodor GRI'});
   assert.equal(blowerOpportunity(state,own,opponent,1,7),false);
   assert.equal(tooledGarbodor(opponent),undefined);
 });
@@ -147,4 +147,15 @@ test('blocked first holder yields second allowed holder, all blocked returns nul
   assert.deepEqual(chooseGarbotoxinTargets(prompt,opponent,state),[slot]);
   prompt.validate=()=>false;
   assert.equal(chooseGarbotoxinTargets(prompt,opponent,state),null);
+});
+
+
+test('four supplied and pinned source Garbotoxin printings qualify',()=>{
+  for (const print of ['Garbodor BKP','Garbodor LTR',
+    'Garbodor DRX','Garbodor PLF']) {
+    const {own,slot,opponent,state}=fixture();
+    slot.getPokemonCard=()=>({fullName:print});
+    assert.equal(blowerOpportunity(state,own,opponent,1,7),true,print);
+    assert.equal(tooledGarbodor(opponent),slot,print);
+  }
 });
