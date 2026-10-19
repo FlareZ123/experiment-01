@@ -132,10 +132,17 @@ function auditUnconditionalBilateralCensus(plan,archive){
   // candidate/real-first pair was covered by another legitimate repeat.
   const allRegisteredArmsStartVerified=strict.arms.every(
     arm=>arm.validStart===true);
+  // Retain genuine candidate-dependent source-deal drift, but never mistake
+  // an absent or malformed physical source-start fingerprint for an
+  // authenticated registered attempt.
+  const allRegisteredSourceStartsFingerprinted=strict.arms.every(arm=>
+    typeof arm.sourceDealFingerprint==='string' &&
+    /^[0-9a-f]{64}$/.test(arm.sourceDealFingerprint));
   const unconditionalAttemptCensusReviewable=
     allRegisteredAttemptsAccounted&&
     actualStartsPerCandidateAndRankObserved&&
-    allRegisteredArmsStartVerified;
+    allRegisteredArmsStartVerified&&
+    allRegisteredSourceStartsFingerprinted;
   const alignedCompletePairedCensus=
     strict.completeAttemptCensus &&
     strict.twoRealStartsPerCandidateAndRankObserved &&
@@ -150,6 +157,7 @@ function auditUnconditionalBilateralCensus(plan,archive){
     allRegisteredAttemptsAccounted,
     actualStartsPerCandidateAndRankObserved,
     allRegisteredArmsStartVerified,
+    allRegisteredSourceStartsFingerprinted,
     // Unconditional accounting deliberately does not select on post-setup
     // source fingerprint or observed opponent lock pressure.
     unconditionalAttemptCensusReviewable,
