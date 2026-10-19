@@ -261,6 +261,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [snorlaxSoloPreserveBench] With source solo opening, suppress own ordinary Basic Benching while PGO Snorlax is alone Active.
  * @property {0|1} [newMoonAttackPayloadCompressorSeat] Candidate-only own-hand Compressor and owner-search Gengar payload policy.
  * @property {0|1} [newMoonAttackPayloadCompressorBenchedSeat] Independent opt-in: also prepare owner-deck donors when Mewtwo is Benched.
+ * @property {0|1} [newMoonAttackPayloadCompressorLateSeat] Historical diagnostic only: allow Mewtwo-Active owner donor setup through global turn 14.
  * @property {0|1} [rank31FogEnergySeat] Opponent source Chimecho Active: opt-in strict Fog-for-Basic-Psychic-Energy search.
  * @property {0|1} [rank31FogEnergyBroaderSeat] Comparison: allow other Basics in hand or Bench when finding Bell's Energy.
  * @property {0|1} [newMoonOpeningHorrorHouseSeat] Candidate-only first-going-second native or copied Horror House-GX policy.
@@ -742,11 +743,14 @@ function runMatch(request) {
           });
       }
       if (request.newMoonAttackPayloadCompressorSeat === seat ||
-          request.newMoonAttackPayloadCompressorBenchedSeat === seat) {
+          request.newMoonAttackPayloadCompressorBenchedSeat === seat ||
+          request.newMoonAttackPayloadCompressorLateSeat === seat) {
         configured = require('./new-moon-compressor-payload-policy.cjs')
           .withNewMoonCompressorPayload(configured, {
             allowBenchedMewtwo:
-              request.newMoonAttackPayloadCompressorBenchedSeat === seat
+              request.newMoonAttackPayloadCompressorBenchedSeat === seat,
+            maxGlobalTurn:
+              request.newMoonAttackPayloadCompressorLateSeat === seat ? 14 : 6
           });
       }
       if (request.rank31FogEnergySeat === seat ||
