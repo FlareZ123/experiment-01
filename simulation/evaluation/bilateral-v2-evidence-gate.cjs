@@ -57,6 +57,11 @@ function auditBilateralV2(plan,archive) {
     rankMap.set(opponent.rank,opponent);
   }
 
+  for(const hardRank of [6,11]) {
+    assert.ok(rankMap.has(hardRank),
+      'Bilateral v2 must include hard Aichi rank '+hardRank);
+  }
+
   const arms=new Map();
   const pairs=new Map();
   for(const arm of plan.arms) {
@@ -225,21 +230,25 @@ function auditBilateralV2(plan,archive) {
   const twoStartCoverage=[...rankMap.keys()].every(rank=>
     ['source','candidate'].every(first=>
       diagnostics.some(row=>row.rank===rank&&row.actualStarter===first)));
-  const noPolicyProtocolDrift=true; // Proven by fail-closed per-arm equality.
+  const noPolicyProtocolDrift=coverageComplete;
   const mechanicalWitnesses=diagnostics.filter(
     d=>d.mechanicalBilateralWitness).length;
+  const bothHardRanksHaveBilateralWitnesses=[6,11].every(rank=>
+    byRank[rank].bilateralMechanics>0);
   return {
     schema:'aichi-bilateral-v2-intake-diagnostic-v1',
     registeredArms:arms.size,observedArms:rows.size,
     completeAttemptCensus:coverageComplete,
     twoRealStartsPerRankObserved:twoStartCoverage,
     noPolicyProtocolDrift,
+    bothHardRanksHaveBilateralWitnesses,
     mechanicalBilateralWitnesses:mechanicalWitnesses,
     alignedPhysicalSourcePairs:pairRows.filter(p=>
       p.firstObservationComparable).length,
     byRank,pairs:pairRows,arms:diagnostics,
     opportunityAndPolicyVerdict:coverageComplete&&twoStartCoverage&&
-      mechanicalWitnesses>0?'MECHANICAL-PILOT-REVIEWABLE':'HOLD-OR-INCOMPLETE',
+      bothHardRanksHaveBilateralWitnesses?'MECHANICAL-PILOT-REVIEWABLE':
+        'HOLD-OR-INCOMPLETE',
     competitiveStrengthClaimPermitted:false,
     gameWinRateCertified:false,
     caveat:'No game, including an engine terminal, becomes a qualified win '+
