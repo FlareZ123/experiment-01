@@ -1,0 +1,33 @@
+name: Audit archived bilateral candidate Pass evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Existing source-locked bilateral development run containing the immutable JSON artifact
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  pass-probe-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download immutable historical development archive without recompiling Twinleaf
+        uses: actions/download-artifact@v4
+        with:
+          name: agent41-bilateral-v2-historical-development
+          run-id: \${{ inputs.source_run_id }}
+          github-token: \${{ github.token }}
+      - name: Test and report bounded candidate Pass evidence
+        run: |
+          node --test tests/aichi-bilateral-pass-evidence-summary.test.cjs
+          node scripts/aichi-bilateral-pass-evidence-summary.cjs agent41-bilateral-v2-development.json
