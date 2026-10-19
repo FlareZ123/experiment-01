@@ -31,6 +31,7 @@ function withRank11Turn49QuickBalls(sourceSeat, execute) {
   const {PlayCardAction,PlayerType,SlotType} = engine('game/store/actions/play-card-action');
   const {ResolvePromptAction} = engine('game/store/actions/resolve-prompt-action');
   const {GamePhase} = engine('game/store/state/state');
+  const {SuperType} = engine('game/store/card/card-types');
   const original = SimpleTacticsAi.prototype.decodeNextAction;
   const sourceId = sourceSeat === 0 ? 101 : 202;
   const events = [];
@@ -110,7 +111,7 @@ function withRank11Turn49QuickBalls(sourceSeat, execute) {
       if (pending) return original.call(this,state);
       completed++;
       events.push({kind:'search-resolved',turn:state.turn,completed,
-        trainersLeft:own.hand.cards.filter(c=>c.superType===2).length,
+        trainersLeft:own.hand.cards.filter(c=>c.superType===SuperType.TRAINER).length,
         hand:own.hand.cards.map(c=>c.fullName)});
       phase='play';
       if (completed===3) return original.call(this,state);
