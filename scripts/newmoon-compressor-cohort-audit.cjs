@@ -49,7 +49,8 @@ function auditCohort(packets){
   const sorted=packets.slice().sort((a,b)=>a.partitionIndex-b.partitionIndex);
   for(let i=0;i<PARTITION_COUNT;i++){
     const packet=sorted[i];
-    assert.equal(packet.partitionIndex,i);
+    assert.equal(packet.partitionIndex,i,
+      'Missing or duplicated partitionIndex in fixed source cohort');
     assert.equal(packet.partitionCount,PARTITION_COUNT);
     assert.equal(packet.fullCohortPresent,false);
     assert.deepEqual(packet.scheduledRepeats,scheduledRepeats(i));
