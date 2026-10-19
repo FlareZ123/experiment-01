@@ -8,14 +8,10 @@ const {executeArm,scheduledArms,assertManifest}=
   require('./agent41-crossrank-actual-decisions.cjs');
 const {planAichi}=require('./aichi-pilot.cjs');
 
-/** @param {string} name @returns {any} */
-const engine=name=>require(path.join(root,
-  'vendor/twinleaf/ptcg-server/output',name));
-
 /**
- * One historical deal and one owner-visible response to a printed attack lock.
- * Used as an adversarial policy regression only. Source and candidate decks,
- * game RNG, policy RNG and original independent-deal registration stay fixed.
+ * Retrospective original seed, with one actor-owned legal Supporter response
+ * selected at the actual Store action-dispatch boundary. The independent
+ * original rejected-root result is preserved unchanged.
  * @returns {object}
  */
 function run() {
@@ -23,11 +19,12 @@ function run() {
   const trial=scheduledArms().find(x=>x.id==='6:2:A:champion-reference');
   assert.ok(trial);
   assert.equal(trial.seed,2394734225);
-  const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
-  const {PlayCardAction,PlayerType,SlotType}=
-    engine('game/store/actions/play-card-action');
-  const {PassTurnAction}=engine('game/store/actions/game-actions');
-  const original=SimpleTacticsAi.prototype.decodeNextAction;
+  const baseline=require('./agent6-crossrank-rejected-root.cjs').run();
+  assert.equal(baseline.rejection.actionOrdinal,33);
+  assert.equal(baseline.rejection.playedCardName,
+    'Thunder Mountain Prism Star');
+  assert.equal(baseline.rejection.ownerPlayLockFlags.stadium,true);
+
   const inventory=JSON.parse(fs.readFileSync(path.join(root,
     'results/aichi-2026/full-decklists.json'),'utf8'));
   const champion=inventory.decks.find(x=>x.rank===1);
@@ -39,77 +36,44 @@ function run() {
       allowJapanesePromoHooks:true
     })
   }]]);
-  const choices=[];
-  const diagnosticCalls=[];
-  let supporterSelected=false,blockedFollowupDeclined=false;
-  const installedReply=function stateLimitedReply(state) {
-    const proposed=original.call(this,state);
-    const owner=state.players[1];
-    if(state.turn===3 && state.activePlayer===1 &&
-       diagnosticCalls.length<12) {
-      const logs=state.logs.filter(x=>x.message==='LOG_PLAYER_USES_ATTACK');
-      diagnosticCalls.push({clientId:this.client?.id,ownerId:owner.id,
-        turn:state.turn,proposal:proposed?.constructor.name??null,
-        proposalCard:owner.hand.cards[proposed?.handIndex]?.name??null,
-        pending:state.prompts.find(x=>x.result===undefined)?.constructor.name??null,
-        lastPublicAttack:logs.at(-1)?.params??null});
-    }
-    if(this.client?.id!==owner.id || state.activePlayer!==1 ||
-        state.turn!==3 || state.prompts.some(x=>x.result===undefined) ||
-        proposed?.constructor.name!=='PlayCardAction') return proposed;
-    const card=owner.hand.cards[proposed.handIndex];
-    const publicAttack=state.logs.filter(x=>
-      x.message==='LOG_PLAYER_USES_ATTACK').at(-1);
-    if(publicAttack?.params?.name!=='research-A' ||
-       publicAttack.params.attack!=='Shadow Mist' ||
-       !['Thunder Mountain Prism Star','Double Colorless Energy']
-         .includes(card?.name)) return proposed;
-    if(!supporterSelected &&
-       owner.supporterTurn!==state.turn &&
-       owner.hand.cards.some(x=>x.name==="Lillie's Determination")) {
-      const index=owner.hand.cards.findIndex(
-        x=>x.name==="Lillie's Determination");
-      supporterSelected=true;
-      choices.push({turn:state.turn,sourceSeat:1,ordinary:card.name,
-        replacement:"Lillie's Determination",
-        ownerHandBefore:owner.hand.cards.map(x=>x.fullName),
-        priorPublicAttack:publicAttack.params.attack});
-      return new PlayCardAction(owner.id,index,{
-        player:PlayerType.ANY,slot:SlotType.BOARD,index:0
-      });
-    }
-    blockedFollowupDeclined=true;
-    choices.push({turn:state.turn,sourceSeat:1,ordinary:card.name,
-      replacement:'PassTurnAction',priorPublicAttack:publicAttack.params.attack});
-    return new PassTurnAction(owner.id);
-  };
-  SimpleTacticsAi.prototype.decodeNextAction=installedReply;
-  let result=null,error=null;
-  try {
-    result=executeArm(trial,prepared,{captureRejectedActionEvidence:true});
-  } catch(thrown) {
-    error=String(thrown?.stack||thrown);
-  } finally {
-    assert.equal(SimpleTacticsAi.prototype.decodeNextAction,installedReply);
-    // The rank-6 wrapper restores its own temporary patch. The original
-    // prototype owner must be retained after the one-deal branch.
-    SimpleTacticsAi.prototype.decodeNextAction=original;
-  }
-  assert.equal(supporterSelected,true,
-    'Owner-visible legal alternate absent: '+JSON.stringify({
-      error,diagnosticCalls,choices
-    }).slice(0,3600));
+
+  const treated=executeArm(trial,prepared,{
+    captureRejectedActionEvidence:true,
+    enforceVisiblePlayLockGuard:true,
+    visiblePlayLockSupporterResponse:true
+  });
+  const decisions=treated.playLockDispatchGuardEvents;
+  const originalDenied=decisions.find(row=>
+    row.turn===3 && row.seat===1 &&
+    row.reason==='stadium-lock' &&
+    row.originalCard==='Thunder Mountain Prism Star LOT');
+  assert.ok(originalDenied,
+    'The live Store policy failed to observe the source Shadow Mist lock');
+  assert.equal(originalDenied.alternative,"Lillie's Determination");
+  assert.ok(treated.rootActionCount>33,
+    'The substituted Supporter action did not advance the Store');
+
   return {
-    schema:'rank6-shadow-mist-one-source-supporter-counterfactual-v1',
+    schema:'rank6-shadow-mist-one-source-supporter-response-v2',
     frozenTrialId:trial.id,seed:trial.seed,
+    originalFailureRoot:baseline.rejection.actionOrdinal,
+    originalFailedAction:baseline.rejection.playedCardPrinting,
+    originalPublicLock:baseline.rejection.ownerPlayLockFlags,
     archivedSourceRun:39193837824,
     historicalSelectedFailure:true,
     candidateId:trial.candidateId,sourceRank:trial.rank,
-    sourceSupporterReplacementSelected:supporterSelected,
-    blockedFollowupDeclined,
-    decisions:choices,diagnosticCalls,error,result,
+    sourceSupporterReplacementSelected:true,
+    guardDecisions:decisions,
+    treated:{
+      status:treated.status,actions:treated.actions,turns:treated.turns,
+      sourceAttackDeclarations:treated.sourceAttackDeclarations,
+      candidateAttackDeclarations:treated.candidateAttackDeclarations,
+      prizesRemaining:treated.prizesRemaining,
+      engineFinished:treated.engineFinished,engineWinner:treated.engineWinner,
+      sourcePolicyAudit:treated.sourcePolicyAudit
+    },
     competitiveQualifiedGames:0,
-    caveat:'Single historical seed, one source legal-decision test, no performance inference. Owner-visible public Shadow Mist and held supporter trigger, no future deck information.'
+    caveat:'Single previously selected source deal, one opt-in live owner-held Lillie response after a public Shadow Mist lock. This is a policy regression, not an independent game or win-rate observation.'
   };
 }
 
