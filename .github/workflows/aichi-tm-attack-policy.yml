@@ -48,6 +48,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank2_grandtree_active_stoutland:
+        description: Retrospective original-source paid Retreat into Stoutland Sentinel
+        type: boolean
+        required: false
+        default: false
       rank2_gladion_source_exposure:
         description: Frozen 8-game authentic rank2 Gladion root opportunity census
         type: boolean
@@ -109,6 +114,20 @@ jobs:
         with:
           name: agent40-rank2-grandtree-source-fork
           path: agent40-rank2-grandtree-fork.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Validate source Grand Tree paid Retreat follow-up interface
+        if: ${{ inputs.rank2_grandtree_active_stoutland }}
+        run: node --test tests/agent40-rank2-grandtree-root-fork.test.cjs
+      - name: Execute original-source actual paid Retreat into Stoutland
+        if: ${{ inputs.rank2_grandtree_active_stoutland }}
+        run: node simulation/twinleaf/agent40-rank2-grandtree-root-fork.cjs --promote-stoutland > agent40-rank2-grandtree-active.json
+      - name: Archive Grand Tree Active Stoutland fork with full failure provenance
+        if: ${{ always() && inputs.rank2_grandtree_active_stoutland }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent40-rank2-grandtree-stoutland-active-fork
+          path: agent40-rank2-grandtree-active.json
           if-no-files-found: warn
           retention-days: 14
       - name: Validate source-root Gladion event extraction and frozen cohort
