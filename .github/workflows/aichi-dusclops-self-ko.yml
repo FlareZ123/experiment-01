@@ -27,3 +27,5 @@ jobs:
         run: npm run compile
       - name: Characterize Cursed Blast when damage counters are prevented
         run: node --test tests/dusclops-self-ko-condition.test.cjs
+      - name: Validate source-card Ditto direct Stage-2 transformation and reroll
+        run: node --test tests/ditto-stage2-store.test.cjs
