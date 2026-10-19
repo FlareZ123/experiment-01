@@ -96,8 +96,8 @@ function main() {
   assert.ok(opposing&&field.candidate);
   assert.equal(field.candidate.cards.length,60);
   assert.equal(opposing.cards.length,60);
-  assert.equal(opposing.cards.filter(c=>c.name==='Iron Thorns ex').length,4);
-  assert.equal(opposing.cards.filter(c=>c.name==='Double Colorless Energy').length,3);
+  assert.equal(groupsForRank(24,0).thorns,4);
+  assert.equal(groupsForRank(24,0).dce,3);
   const base={
     deckA:field.candidate.cards,deckB:opposing.cards,
     maxActions:105,strictPromptValidation:true,
