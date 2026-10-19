@@ -49,6 +49,14 @@ function run(){
   assert.ok(high.hook.precommitsInBotDecision>0);
   assert.ok(Array.isArray(low.rootActionLedger));
   assert.ok(Array.isArray(high.rootActionLedger));
+  assert.equal(low.hook.planningSampleWitnesses.length,
+    low.hook.precommitsInBotDecision);
+  assert.equal(high.hook.planningSampleWitnesses.length,
+    high.hook.precommitsInBotDecision);
+  const planningI=firstDifference(low.hook.planningSampleWitnesses,
+    high.hook.planningSampleWitnesses);
+  assert.notEqual(planningI,null,
+    'Planning stress did not change any opaque sampled subset');
   const i=firstDifference(low.rootActionLedger,high.rootActionLedger);
   const decisionI=firstDifference(low.decisionTrace,high.decisionTrace);
   const choiceI=firstDifference(low.sourceHandTransitions,high.sourceHandTransitions);
@@ -70,6 +78,11 @@ function run(){
     engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     samplingMode:'deterministic-planning-only-low-versus-high-index-stress',
     actualSourceGameRandomness:'unchanged-fixed-match-seed',
+    firstPlanningSampleDivergenceIndex:planningI,
+    firstPlanningSampleDivergence:{
+      low:low.hook.planningSampleWitnesses[planningI]??null,
+      high:high.hook.planningSampleWitnesses[planningI]??null
+    },
     firstRootActionDivergenceIndex:i,
     firstRootActionDivergence:i===null?null:{
       low:low.rootActionLedger[i]??null,high:high.rootActionLedger[i]??null
