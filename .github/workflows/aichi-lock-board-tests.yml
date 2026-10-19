@@ -48,6 +48,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank11_crobat_owner_positive_control:
+        description: 'Portable owner-visible source Crobat late lethal policy, fixed retrospective mechanical regression'
+        required: false
+        type: boolean
+        default: false
       rank11_crobat_stone_store_fork:
         description: 'Execute Store Shopping Center to Crobat Stone Dark Patch source counterattack'
         required: false
@@ -235,6 +240,19 @@ jobs:
         with:
           name: rank11-crobat-stone-counterfrontier
           path: rank11-crobat-stone-frontier.json
+          if-no-files-found: warn
+      - name: Check portable owner-visible Crobat trigger without hidden deck information
+        if: inputs.rank11_crobat_owner_positive_control
+        run: node --test tests/rank11-crobat-terminal-policy.test.cjs
+      - name: Run historical positive control under actual source Store actions
+        if: inputs.rank11_crobat_owner_positive_control
+        run: node simulation/twinleaf/rank11-crobat-owner-source-positive-control.cjs > rank11-crobat-portable-policy-positive.json
+      - name: Archive portable source-Crobat policy outcome and aborted decisions
+        if: inputs.rank11_crobat_owner_positive_control && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank11-crobat-owner-policy-positive-control
+          path: rank11-crobat-portable-policy-positive.json
           if-no-files-found: warn
       - name: Execute retrospective source-owned turn23 Crobat full-action fork
         if: inputs.rank11_crobat_stone_store_fork
