@@ -19,3 +19,7 @@ The [rank-6 conservative source-resource frontier](../aichi-2026/rank6-conservat
 ## Deterministic first-turn audit
 
 The repository's existing [projected start-order algorithm](../../scripts/aichi-projected-start-order.cjs) independently predicted the correct actual starting slot for **all 12** original source seed cells using only the frozen 32-bit seed and pinned xorshift first draw. This was checked against the artifact's engine-observed draw-log attestation, without examining wins or gameplay actions. Thus a future separately registered experiment can preselect projected source-first/source-second seeds *before gameplay*, retaining every screened candidate and re-attesting the engine's actual first turn. It must never retroactively replace this already-executed cohort or claim independent source-hand equality merely from the same seed.
+
+## Terminal attack-route check
+
+Of the three two-Gengar candidate engine terminals, **two contain no candidate `Horror House-GX` or `Poltergeist` declarations**: the rank-11 candidate-B terminal records `Motivate` and `Full Moon Rondo`, while the rank-26 candidate-A terminal records `Pale Moon-GX` and `Night Watch`. The remaining rank-11 candidate-A terminal records both Gengar attacks, but the trace cannot distinguish a card effect enabled by the added second copy from the original singleton. These narrowly observed paths further prevent attributing any engine winner to the Gengar-for-Cologne structural exchange; they do not certify printed damage or opponent policy quality.
