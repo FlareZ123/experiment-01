@@ -91,7 +91,7 @@ function planOpeningHand(
  * reading deck cards is restricted to actual ChooseCardsPrompt resolution.
  * @template T
  * @param {()=>T} work
- * @param {{seat?:number,turn?:number,discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean}} [options]
+ * @param {{seat?:number,turn?:number,discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean}} [options]
  * @returns {{result:T,started:boolean,completed:boolean,events:object[],abortReason:string|null,openingPlan:object|null}}
  */
 function withBroadThornsSourceAttack(work,options={}) {
@@ -100,6 +100,7 @@ function withBroadThornsSourceAttack(work,options={}) {
   const priorities=options.discardPriority??discardOrder;
   const benchBackup=options.benchBackup===true;
   const conditionalTagCallPayment=options.conditionalTagCallPayment===true;
+  const playLockAwareOpening=options.playLockAwareOpening===true;
   const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
   /** @param {string} name */
   const engine=name=>require(path.join(root,name));
@@ -185,15 +186,16 @@ function withBroadThornsSourceAttack(work,options={}) {
       // decision. Reconsidering after a generic Supporter or manual Energy
       // attachment can create an illegal second Supporter/attachment.
       const inPlay=p.stadium.cards.some(c=>c.name==='Thunder Mountain Prism Star');
+      const constraints=playLockAwareOpening ? {
+        stadiumLocked:Boolean(p.cannotPlayStadiumCards),
+        specialEnergyLocked:Boolean(p.cannotPlaySpecialEnergyCards),
+        itemLocked:Boolean(p.cannotPlayItemCards),
+        supporterLocked:Boolean(p.cannotPlaySupporterCards) ||
+          p.supporterTurn>0,
+        stadiumAlreadyPlayed:p.stadiumPlayedTurn===state.turn
+      } : {};
       const plan=planOpeningHand(
-        p.hand.cards,inPlay,priorities,conditionalTagCallPayment,{
-          stadiumLocked:Boolean(p.cannotPlayStadiumCards),
-          specialEnergyLocked:Boolean(p.cannotPlaySpecialEnergyCards),
-          itemLocked:Boolean(p.cannotPlayItemCards),
-          supporterLocked:Boolean(p.cannotPlaySupporterCards) ||
-            p.supporterTurn>0,
-          stadiumAlreadyPlayed:p.stadiumPlayedTurn===state.turn
-        }
+        p.hand.cards,inPlay,priorities,conditionalTagCallPayment,constraints
       );
       if(!plan) {
         phase='inactive';
