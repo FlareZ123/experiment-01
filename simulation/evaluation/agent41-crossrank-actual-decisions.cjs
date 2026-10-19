@@ -133,7 +133,8 @@ function executeArm(trial,prepared,auditOptions={}) {
     const turnTwo=sourceTurnTwo;
     const turnThree=turnTwo.result;
     game=turnThree.result;
-    sourceAudit={version:'rank6-broad-30-copy-payment-first-attack-turn-v1',
+    sourceAudit={version:'rank6-broad-30-copy-payment-first-attack-turn-v1' +
+      (auditOptions.sourceOpeningPublicLocks===true?'+source-public-lock-gate-v1':''),
       sourceSeat,turn2:{started:turnTwo.started,completed:turnTwo.completed,
         abortReason:turnTwo.abortReason,events:turnTwo.events,
         openingPlan:turnTwo.openingPlan},
