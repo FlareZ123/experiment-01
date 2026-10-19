@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
-  choose, ceilingForBasicCount, prerequisiteFailurePartition, fromSourceManifest,
+  choose, ceilingForBasicCount, prerequisiteFailurePartition, lockTopologyPartition, fromSourceManifest,
 } = require('../scripts/aichi-rank15-dual-lock-prize-ceiling.cjs');
 
 test('binomial combinatorics and invalid-choice boundaries are exact', () => {
@@ -65,5 +65,26 @@ test('prioritized source six-Prize failure categories exhaust and separate cause
     total + row.givenLegalOpening.probability, 0);
   assert.ok(Math.abs(sum - 1) < 1e-12);
   assert.equal(result[4].givenLegalOpening.probability,
+    ceilingForBasicCount(14).availabilityGivenLegalFirstSeven.probability);
+});
+
+test('single-lock resource feasibility greatly exceeds true two-chain coexistence', () => {
+  const topology = lockTopologyPartition(14);
+  assert.equal(topology.length, 5);
+  assert.deepEqual(topology.map(x => x.givenLegalOpening.numerator), [
+    '822691415081','3631373723987','52937152069',
+    '287571609092921','18289402231011'
+  ]);
+  assert.deepEqual(topology.map(x => x.givenLegalOpening.denominator), [
+    '47734661694720','36718970534400','6676176460800',
+    '954693233894400','31823107796480'
+  ]);
+  const p = topology.map(x => x.givenLegalOpening.probability);
+  assert.ok(Math.abs(p.reduce((a,b)=>a+b,0) - 1) < 1e-12);
+  const singleAOR = p[1] + p[3] + p[4];
+  const singleBUS = p[2] + p[3] + p[4];
+  assert.ok(Math.abs(singleAOR - 0.9748360623134528) < 1e-12);
+  assert.ok(Math.abs(singleBUS - 0.8838689317268741) < 1e-12);
+  assert.equal(p[4],
     ceilingForBasicCount(14).availabilityGivenLegalFirstSeven.probability);
 });
