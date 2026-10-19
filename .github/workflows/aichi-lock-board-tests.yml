@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent35_newmoon_payload_12seed:
+        description: 'Existing Agent9 owner-visible Compressor source-payload prospective 12-deal mechanical pilot, unqualified'
+        required: false
+        type: boolean
+        default: false
       rank11_turn24_copied_reply:
         description: 'One authentic source-dealt candidate Poltergeist response instead of self-Path at turn24'
         required: false
@@ -457,6 +462,31 @@ jobs:
         with:
           name: agent35-perfection-pass-bridge-development
           path: agent35-perfection-pass-bridge-development.json
+          if-no-files-found: warn
+      - name: Check owner-hand Compressor payload prerequisites and legal deck search
+        if: inputs.agent35_newmoon_payload_12seed
+        run: node --test tests/new-moon-compressor-payload-policy.test.cjs
+      - name: Run all twelve prewritten New Moon source-rank11 Compressor policy contrasts
+        if: inputs.agent35_newmoon_payload_12seed
+        run: node simulation/twinleaf/newmoon-rank11-payload-prospective.cjs > agent35-newmoon-payload-12seed.json
+      - name: Summarize source-dealt Compressor decisions without competitive inference
+        if: inputs.agent35_newmoon_payload_12seed
+        run: >-
+          node -e "const v=require('./agent35-newmoon-payload-12seed.json');
+          console.log(JSON.stringify({schema:v.schema,
+          attempts:v.rows.length,
+          completed:v.rows.filter(r=>r.control.ok&&r.payload.ok).length,
+          errors:v.rows.filter(r=>!r.control.ok||!r.payload.ok).length,
+          playedControl:v.rows.reduce((n,r)=>n+(r.control.observations?.compressorPlays?.length||0),0),
+          playedPayload:v.rows.reduce((n,r)=>n+(r.payload.observations?.compressorPlays?.length||0),0),
+          selectedPayload:v.rows.reduce((n,r)=>n+(r.payload.observations?.payloadDiscards?.length||0),0),
+          qualified:v.qualifiedCompetitiveGames}));"
+      - name: Preserve every Agent9 source-dealt Compressor-policy exposure and failure
+        if: inputs.agent35_newmoon_payload_12seed && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent35-newmoon-payload-12seed
+          path: agent35-newmoon-payload-12seed.json
           if-no-files-found: warn
       - name: Source-authentic rank11 first candidate turn24 copied counterresponse
         if: inputs.rank11_turn24_copied_reply
