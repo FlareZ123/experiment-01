@@ -17,7 +17,8 @@ test('rank9 exact printed 60 contains the Electrode to Mega Absol energy path', 
 
 test('pinned Store permits printed Bomb attachment to modern lowercase Mega ex and awards self-KO Prizes', () => {
   const result = runRank9MegaRecipient();
-  assert.equal(result.stagedRecipient, 'Mega Absol ex MEG');
+  assert.equal(result.stagedRecipient, 'Mega Absol ex M1L');
+  assert.equal(result.publishedPrinting, 'Mega Absol ex MEG 86');
   assert.equal(result.attached.length, 5);
   assert.equal(result.opponentPrizesFromElectrodeSelfKO, 2);
   assert.equal(result.mandatoryPromptAccepted, true);
