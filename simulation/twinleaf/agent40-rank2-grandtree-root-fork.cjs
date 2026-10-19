@@ -77,6 +77,10 @@ function withObservedGrandTreeEvolution(execute,
       firstOpponentOwnerDecision = {
         turn: state.turn,
         opponentOwnHandPrintings: opponent.hand.cards.map(c => c.fullName),
+        opponentOwnDiscardPrintings: opponent.discard.cards.map(c => c.fullName),
+        opponentOwnRemainingPrizeSlots: opponent.prizes.filter(s => s.cards.length).length,
+        sourceRemainingPrizeSlots: state.players[SOURCE_SEAT].prizes
+          .filter(s => s.cards.length).length,
         opponentSupporterAlreadyPlayed: opponent.supporterTurn > 0,
         opponentActive: opponent.active.getPokemonCard()?.fullName ?? null,
         sourceActive: state.players[SOURCE_SEAT].active.getPokemonCard()?.fullName ?? null,
