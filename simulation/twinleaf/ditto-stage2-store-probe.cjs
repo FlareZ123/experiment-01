@@ -15,9 +15,10 @@ const load = relativePath => require(path.join(output, relativePath));
  *
  * @param {boolean} useGlimwood
  * @param {boolean} [verifyItemLock]
+ * @param {'none'|'wobbuffet-bare'|'wobbuffet-jammer-native'|'wobbuffet-jammer-hooked'} [counterMode]
  * @returns {{targetStage: string, coinWaits: number, reflipPrompts: number, choicePrompts: number, toolConserved: boolean, energyConserved: boolean, damageConserved: boolean, dittoReturned: boolean, targetRetained: boolean}}
  */
-function probeDittoStage2(useGlimwood, verifyItemLock = false) {
+function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'none') {
   const cards = initializeCards();
   let nextId = 1;
   /** @param {string} name @returns {any} */
@@ -123,6 +124,20 @@ function probeDittoStage2(useGlimwood, verifyItemLock = false) {
   // engine's PlayItemEffect without constructing an artificial card action.
   let itemLock;
   if (verifyItemLock) {
+    if (counterMode !== 'none') {
+      const liveEnemy = store.state.players.find(player => player.id === enemy.id);
+      // Staged rank-7-style counter, not an asserted 60-card game line.
+      liveEnemy.active.cards.length = 0;
+      liveEnemy.active.cards.push(card('Wobbuffet PHF'));
+      if (counterMode !== 'wobbuffet-bare') {
+        liveEnemy.active.tools.push(card('Tool Jammer BST'));
+      }
+    }
+    const restore = counterMode === 'wobbuffet-jammer-hooked'
+      ? require('./tool-jammer-hook.cjs').installToolJammerHook()
+      : null;
+    try {
+
     const { PlayItemEffect } = load('game/store/effects/play-card-effects');
     const { GameMessage } = load('game/game-message');
     const switchItem = card('Switch SVI');
@@ -136,7 +151,18 @@ function probeDittoStage2(useGlimwood, verifyItemLock = false) {
         return true;
       }
     };
-    itemLock = { ownerBlocked: blocked(liveMine), opponentBlocked: blocked(enemy) };
+    const { IS_TOOL_BLOCKED, IS_ABILITY_BLOCKED } = load('game/store/prefabs/prefabs');
+    itemLock = {
+      ownerBlocked: blocked(liveMine),
+      opponentBlocked: blocked(store.state.players.find(player => player.id === enemy.id)),
+      ...(counterMode !== 'none' ? {
+        hoodSuppressed: IS_TOOL_BLOCKED(store, state, liveMine, hood),
+        vileplumeSuppressed: IS_ABILITY_BLOCKED(store, state, liveMine, stage2)
+      } : {})
+    };
+    } finally {
+      if (restore) restore();
+    }
   }
 
   return {
