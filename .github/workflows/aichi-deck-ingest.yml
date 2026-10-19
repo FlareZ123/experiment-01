@@ -34,6 +34,8 @@ jobs:
           node-version: '20'
       - name: Check published registration identity including rank 22
         run: node --test tests/aichi-registration-fidelity.test.cjs
+      - name: Verify missing-rank primary social-source fail-closed handling
+        run: node --test tests/aichi-missing-rank-social-media.test.cjs
       - name: Assert New Moon Stadium source-field census
         run: node --test tests/aichi-new-moon-stadium-census.test.cjs
       - name: Verify exact New Moon twin-singleton rescue combinatorics
