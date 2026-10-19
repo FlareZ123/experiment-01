@@ -27,8 +27,10 @@ function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
   let root=null,rootSnapshots=0,firstNormalTurnZoneDigest=null;
   let firstNormalTurnPrizeGate=null;
   const first={aor:null,bus:null,busActive:null,dual:null,
-    dusclops:null,dusclopsActive:null,dusclopsAgainstDual:null};
-  const max={aorCount:0,busCount:0,dusclopsCount:0};
+    dusclops:null,dusclopsActive:null,dusclopsAgainstDual:null,
+    twoSourceStageLineSlots:null,fullSourceBenchBelowTwoStageLines:null};
+  const max={aorCount:0,busCount:0,dusclopsCount:0,
+    sourceStageLineSlots:0};
 
   const instrument=function(...args) {
     const action=args[0];
@@ -65,6 +67,10 @@ function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
     const aorCount=opponentBoard.filter(n=>n==='Vileplume AOR').length;
     const busCount=opponentBoard.filter(n=>n==='Vileplume BUS').length;
     const dusclopsCount=candidateBoard.filter(n=>n==='Dusclops SFA').length;
+    const stageNames=new Set(['Oddish UNB','Gloom UNB',
+      'Vileplume AOR','Vileplume BUS']);
+    const sourceStageLineSlots=opponentBoard.filter(n=>stageNames.has(n)).length;
+    const occupiedSourceBench=opponentBoard.slice(1).filter(Boolean).length;
     const flags={
       aor:aorCount>0,bus:busCount>0,
       busActive:opponentActive==='Vileplume BUS',
@@ -72,18 +78,24 @@ function observeSourceLock(Store,opponentSeat,candidateSeat,execute) {
       dusclops:dusclopsCount>0,
       dusclopsActive:candidateActive==='Dusclops SFA',
       dusclopsAgainstDual:aorCount>0 &&
-        opponentActive==='Vileplume BUS' && candidateActive==='Dusclops SFA'
+        opponentActive==='Vileplume BUS' && candidateActive==='Dusclops SFA',
+      twoSourceStageLineSlots:sourceStageLineSlots>=2,
+      fullSourceBenchBelowTwoStageLines:occupiedSourceBench===5 &&
+        sourceStageLineSlots<2
     };
     rootSnapshots++;
     max.aorCount=Math.max(max.aorCount,aorCount);
     max.busCount=Math.max(max.busCount,busCount);
     max.dusclopsCount=Math.max(max.dusclopsCount,dusclopsCount);
+    max.sourceStageLineSlots=Math.max(
+      max.sourceStageLineSlots,sourceStageLineSlots);
     for(const [name,available] of Object.entries(flags)) {
       if(available && first[name]===null) {
         first[name]={
           ordinal:rootSnapshots,turn:this.state.turn,
           action:type,activePlayer:this.state.activePlayer,
-          opponentActive,opponentBoard,candidateActive,candidateBoard
+          opponentActive,opponentBoard,candidateActive,candidateBoard,
+          occupiedSourceBench,sourceStageLineSlots
         };
       }
     }
