@@ -177,7 +177,7 @@ jobs:
         run: npm run compile
       - name: Test the identical bilateral candidate policy wrapper (development only)
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-common-policy-dev' }}
-        run: node --test tests/agent41-bilateral-common-policy.test.cjs
+        run: node --test tests/agent41-bilateral-common-policy.test.cjs tests/agent41-bilateral-v2-fingerprints.test.cjs
       - name: Verify common v2 candidate policy and historical-only development identities
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
         run: node --test tests/agent41-bilateral-common-policy.test.cjs tests/agent41-bilateral-v2-development.test.cjs
@@ -193,6 +193,9 @@ jobs:
           name: agent41-bilateral-v2-historical-development
           path: agent41-bilateral-v2-development.json
           retention-days: 10
+      - name: Print exact 60-card and shared decision-policy digests, without running games
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-common-policy-dev' }}
+        run: node -e "const a=require('./simulation/evaluation/agent41-bilateral-v2-fingerprints.cjs').buildDraftFingerprints();console.log('DRAFT_ONLY',JSON.stringify({field:a.sourceField,champion:a.fixedCandidates['champion-reference'].englishDisplayPrinting.sha256,newMoonProxy:a.fixedCandidates['new-moon-lockbreaker-v1'].englishSimulationProxy.sha256,newMoonJapanese:a.fixedCandidates['new-moon-lockbreaker-v1'].proposedJapanesePhysicalPrinting.sha256,opponent6:a.fixedSourceOpponents[6].englishDisplayPrinting.sha256,opponent11:a.fixedSourceOpponents[11].englishDisplayPrinting.sha256,candidatePolicy:a.policies.sharedCandidate.sha256,sourcePolicy:a.policies.sourceOpponent.sha256,runner:a.policies.runnerAndEngineGlue.sha256,qualified:a.competitiveQualifiedGames}))"
       - name: Verify retrospective Store packet and frozen trigger identities
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-four-trigger-forensic' }}
         run: node --test tests/aichi-bilateral-reply-packet.test.cjs tests/agent17-crossrank-trigger-replay.test.cjs
