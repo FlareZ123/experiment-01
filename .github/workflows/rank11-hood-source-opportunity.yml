@@ -11,7 +11,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20.19.0'
-      - run: node --test tests/early-shadow-rider-hood.test.cjs tests/protected-underworld-door.test.cjs tests/rank11-hood-opening-active-pivot.test.cjs
+      - run: node --test tests/early-shadow-rider-hood.test.cjs tests/protected-underworld-door.test.cjs tests/rank11-hood-opening-active-pivot.test.cjs tests/rank11-hood-prospective-exposure.test.cjs
       - run: npm ci --no-audit --no-fund
         working-directory: vendor/twinleaf/ptcg-server
       - run: npm run compile
@@ -19,6 +19,9 @@ jobs:
       - run: node simulation/twinleaf/rank11-hood-source-opportunity.cjs > hood-source.json
       - run: node simulation/twinleaf/rank11-hood-target-counterfactual.cjs > hood-target-counterfactual.json
       - run: node simulation/twinleaf/rank11-hood-opening-active-pivot.cjs > hood-opening-active-pivot.json
+      - run: node simulation/twinleaf/rank11-hood-prospective-exposure.cjs > hood-prospective.json
+      - run: |
+          node -e "const r=require('./hood-prospective.json'); const x={schema:r.schema,attempted:r.attempted,engineObserved:r.engineObserved,sourceOpportunities:r.sourceOpportunities,equippedSourceWitnesses:r.equippedSourceWitnesses,hoodAssignments:r.hoodAssignments,verifiedDoorEffects:r.verifiedDoorEffects,sourceActuallyFirst:r.records.filter(z=>z.actualSourceStartedFirst).length,candidateActuallyFirst:r.records.filter(z=>z.actualSourceStartedFirst===false).length,exceptions:r.records.filter(z=>z.status==='engine-exception').map(z=>({seed:z.seed,error:z.error.slice(0,180)})),qualifiedCompetitiveGames:0}; console.log(JSON.stringify(x,null,2)); if(r.attempted!==16)process.exitCode=1"
       - uses: actions/upload-artifact@v4
         with:
           name: source-rank11-hood-trace
@@ -26,4 +29,5 @@ jobs:
             hood-source.json
             hood-target-counterfactual.json
             hood-opening-active-pivot.json
+            hood-prospective.json
           if-no-files-found: error
