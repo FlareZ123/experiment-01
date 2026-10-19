@@ -196,15 +196,15 @@ jobs:
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-four-trigger-forensic' }}
         run: node -e "const r=require('./agent17-crossrank-resolved-audit.json');console.log('RESOLVED_AUDIT',JSON.stringify(r))"
       - name: Verify registered Agent41 two-rank schedule and corpus hashes
-        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' && inputs.trial_ids != 'agent2-stone-recipient' }}
         run: node --test tests/agent41-crossrank-actual-decisions.test.cjs
       - name: Execute frozen candidate-paired Iron Thorns and Garbodor screen
-        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' && inputs.trial_ids != 'agent2-stone-recipient' }}
         env:
           AGENT41_PARTITION: ${{ inputs.agent41_crossrank_partition || '0' }}
         run: node simulation/evaluation/agent41-crossrank-actual-decisions.cjs > agent41-crossrank-observed.json
       - name: Print bounded failures, decisions and source opportunity counts
-        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' && inputs.trial_ids != 'agent2-stone-recipient' }}
         run: node -e "const a=require('./agent41-crossrank-observed.json');console.log(JSON.stringify({partition:a.partition,recorded:a.partitionRecorded,status:a.statusCounts,opportunities:a.sourceOpportunityCounts,sourceFirst:a.actualSourceFirstCount,attackDeclarations:a.observedAttackDeclarations,matchedSourceHands:a.pairedSourceHandAgreement,paired:a.pairedTotal,errors:a.rows.filter(x=>x.status==='engine-error').map(x=>({id:x.id,error:x.error?.slice(0,250)}))},null,2))"
       - name: Replay original Agent41 rank6 rejected root and capture legal owner information
         if: ${{ inputs.agent41_crossrank_trial && inputs.agent6_rejected_arm }}
@@ -233,6 +233,15 @@ jobs:
       - name: Print actual Ability effect and post-choice continuation without strength inference
         if: ${{ inputs.agent41_crossrank_trial && inputs.agent25_rank6_farewell_live }}
         run: node -e "const x=require('./agent25-rank6-farewell-live.json');console.log(JSON.stringify({trial:x.trialId,selected:x.policyAudit.submitted,actualAbility:x.firstRealFarewellAbilityCount,turn3:x.turn3To5CandidateDecisions,game:x.outcome,error:x.error?.slice(0,600),qualified:x.competitiveQualifiedGames},null,2))"
+      - name: Verify candidate Forest Seal Stone owner-only policy
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent2-stone-recipient' }}
+        run: node --test tests/forest-stone-v-recipient-policy.test.cjs
+      - name: Replay archived rank6 seed with conservative Forest Seal Stone recipient
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent2-stone-recipient' }}
+        run: node simulation/evaluation/agent2-rank6-stone-v-recipient-pair.cjs > agent2-rank6-stone-recipient.json
+      - name: Print frozen source and candidate reply differences without strength inference
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent2-stone-recipient' }}
+        run: node -e "const x=require('./agent2-rank6-stone-recipient.json');console.log(JSON.stringify({source:x.trialId,seed:x.seed,baselineStable:x.baselineOriginalLedgerVerified,sameFirstHand:x.sameSourceFirstHand,baseline:x.baseline,treated:x.treated,stone:x.stonePolicyEvents,qualified:x.competitiveQualifiedGames},null,2))"
       - name: Verify source-locked trial adapter and guards
         run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs tests/rank11-autonomous-opener.test.cjs tests/rank11-autonomous-campaign-seat.test.cjs tests/rank11-first-turn-screen.test.cjs tests/rank11-conditional-k0-screen-run.test.cjs tests/rank11-conditional-k0-complete.test.cjs tests/rank11-k0-selected-continuations-run.test.cjs tests/aichi-campaign-attack-observer-screen.test.cjs tests/rank26-autonomous-cologne.test.cjs tests/rank26-exeggcute-pump-policy.test.cjs tests/rank26-propagation-loop.test.cjs tests/rank11-autonomous-supporter-profile.test.cjs
       - name: Verify precommitted rank11 exposure reporter and fail-closed source identity
@@ -351,6 +360,7 @@ jobs:
             agent6-crossrank-rejected-root.json
             agent6-shadow-mist-supporter.json
             agent25-rank6-newmoon-first-pass.json
+            agent2-rank6-stone-recipient.json
             agent25-rank6-farewell-live.json
             newmoon-vip-prospective.json
             aichi-rank11-newmoon-autonomous-pair.json
