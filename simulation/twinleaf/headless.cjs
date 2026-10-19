@@ -288,6 +288,7 @@ function policyRandomStreams(seed) {
  * @property {0|1} [captureCopycatTurnStartSeat] Opt-in candidate perspective resource snapshot once per own turn, taken before selecting the first action.
  * @property {0|1} [visiblePlayLockSupporterSeat] With enforceVisiblePlayLockSeat, substitute held legal Lillie's Determination once before falling back to Pass; historical source-policy regression only.
  * @property {boolean} [enforceVisiblePlayLockBothSeats] Opt-in generic final-action owner-visible Trainer and Energy play-lock guard for both actual actors; mutually exclusive with a single guarded seat.
+ * @property {boolean} [visiblePlayLockBasicBenchFallback] Opt-in both-actor fallback for legal owner-hand Basic Bench play when a live root action is locked. Experimental, unqualified.
  * @property {boolean} [captureAttackPassProbes] Opt-in first eight post-choice Pass attack-announcement probes; only archived when capturing decision trace.
  * @property {0|1} [capturePerfectionPassProbeSeat] On up to four real Pass decisions with active Mewtwo & Mew-GX, inspect detached Perfection attack menu; observation only.
  */
@@ -313,6 +314,10 @@ function runMatch(request) {
   if (request.enforceVisiblePlayLockBothSeats === true &&
       request.enforceVisiblePlayLockSeat !== undefined) {
     throw new Error('Select the both-player lock guard or one physical seat');
+  }
+  if (request.visiblePlayLockBasicBenchFallback === true &&
+      request.enforceVisiblePlayLockBothSeats !== true) {
+    throw new Error('Basic Bench reply requires the both-seat final play-lock guard');
   }
   if (request.visiblePlayLockSupporterSeat !== undefined &&
       (request.visiblePlayLockSupporterSeat !== request.enforceVisiblePlayLockSeat ||
@@ -906,7 +911,7 @@ function runMatch(request) {
       if (guardedPlayLockSeat !== undefined &&
           state.phase === GamePhase.PLAYER_TURN && !pending) {
         const owner=state.players[guardedPlayLockSeat];
-        const {SuperType,TrainerType,EnergyType} =
+        const {SuperType,TrainerType,EnergyType,Stage} =
           engine('game/store/card/card-types');
         const reason=playerPlayLockVeto(owner,action,{
           superTrainer:SuperType.TRAINER,superEnergy:SuperType.ENERGY,
@@ -922,8 +927,21 @@ function runMatch(request) {
           const {PassTurnAction}=engine('game/store/actions/game-actions');
           const {PlayCardAction,PlayerType,SlotType}=
             engine('game/store/actions/play-card-action');
-          const alternative=heldLillieIndex >= 0 ?
-            "Lillie's Determination" : 'PassTurnAction';
+          const basicResponse=request.visiblePlayLockBasicBenchFallback === true ?
+            require('./visible-lock-basic-bench-response.cjs')
+              .visibleBasicBenchResponse(state,owner,action,{
+                superTrainer:SuperType.TRAINER,superEnergy:SuperType.ENERGY,
+                superPokemon:SuperType.POKEMON,
+                stadium:TrainerType.STADIUM,specialEnergy:EnergyType.SPECIAL,
+                basicStage:Stage.BASIC,
+                abilityPowerType:engine('game/store/card/pokemon-types').PowerType.ABILITY,
+                bottomPlayerType:PlayerType.BOTTOM_PLAYER,
+                benchSlotType:SlotType.BENCH
+              },(id,handIndex,target)=>
+                new PlayCardAction(id,handIndex,target)) : null;
+          const alternative=basicResponse ?
+            'BasicBench:' + basicResponse.card :
+            heldLillieIndex >= 0 ? "Lillie's Determination" : 'PassTurnAction';
           playLockDispatchGuardEvents.push({
             turn:state.turn,seat:guardedPlayLockSeat,
             reason,originalCard:owner.hand.cards[action.handIndex].fullName,
@@ -933,10 +951,10 @@ function runMatch(request) {
               specialEnergy:owner.cannotPlaySpecialEnergyCards,
               remainingTurns:owner.playLocksTurnsRemaining}
           });
-          action=heldLillieIndex >= 0 ?
+          action=basicResponse?.action ?? (heldLillieIndex >= 0 ?
             new PlayCardAction(owner.id,heldLillieIndex,{
               player:PlayerType.ANY,slot:SlotType.BOARD,index:0
-            }) : new PassTurnAction(owner.id);
+            }) : new PassTurnAction(owner.id));
         }
       }
       if (request.strictPromptValidation === true) {
@@ -1551,6 +1569,8 @@ function runMatch(request) {
           '+LivePlayLockDispatchVeto-v2@both' : '') +
         (request.visiblePlayLockSupporterSeat !== undefined ?
           '+HeldLillieIfLegalElsePass-v1@seat' + request.visiblePlayLockSupporterSeat : '') +
+        (request.visiblePlayLockBasicBenchFallback === true ?
+          '+LiveLockBasicBenchAlternative-experimental-v1@both' : '') +
         (request.prototypeSafeSimulatorIsolation === true ?
           '+PrototypeSafeSimulatorIsolation-experimental-v1' : '') +
         (request.postSuperAliasRepairIsolation === true ?
@@ -1560,6 +1580,7 @@ function runMatch(request) {
       livePlayLockGuardSeat: request.enforceVisiblePlayLockSeat ?? null,
       livePlayLockGuardBothSeats: request.enforceVisiblePlayLockBothSeats === true,
       visiblePlayLockSupporterSeat: request.visiblePlayLockSupporterSeat ?? null,
+      visiblePlayLockBasicBenchFallback: request.visiblePlayLockBasicBenchFallback === true,
       policyRandomIsolation: request.isolatePolicyRandomness === true,
       randomnessProtocol: request.isolatePolicyRandomness === true ?
         'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
