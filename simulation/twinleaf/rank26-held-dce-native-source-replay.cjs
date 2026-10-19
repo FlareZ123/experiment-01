@@ -65,6 +65,9 @@ function compare() {
     allowJapanesePromoHooks: true
   });
   const source = plan.candidate.cards;
+  const mappedMeloetta = source.filter(name => name.startsWith('Meloetta ex '));
+  assert.equal(mappedMeloetta.length, 1,
+    'Exactly one original rank26 mapped Meloetta is required');
   const enemy = plan.opponents.find(d => d.rank === 6);
   assert.equal(source.length, 60);
   assert.equal(enemy?.status, 'ready');
@@ -106,7 +109,8 @@ function compare() {
       assert.equal(observedDce.length, 1,
         'Native source did not actually attach the intended unique DCE');
       const e = observedDce[0];
-      assert.equal(e.after.bench[1]?.pokemon,'Meloetta ex BLK');
+      assert.equal(e.after.bench[1]?.pokemon,mappedMeloetta[0],
+        'Native source Bench recipient must match exact mapped Meloetta print');
       assert.ok(e.after.bench[1].energy.includes('Double Colorless Energy SUM'),
         'Native Store accepted DCE root without attaching to Meloetta Bench');
       assert.equal(e.after.active.energy.some(x =>
