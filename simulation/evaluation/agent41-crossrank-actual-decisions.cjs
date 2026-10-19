@@ -167,7 +167,8 @@ function executeArm(trial,prepared,auditOptions={}) {
     require('./aichi-bilateral-reply-packet.cjs').buildBilateralReplyPacket(game,{
       sourceSeat,triggerTurn:sourceTriggerTurn,
       expectedSourceAction:trial.rank===6?'AttackAction':'PlayCardAction',
-      expectedSourceDetail:trial.rank===6?'Volt Cyclone':'Boost Shake'
+      expectedSourceDetail:trial.rank===6?'Volt Cyclone':'Boost Shake',
+      requirePublicAttackTransitions:true
     }) : null;
   return {
     ...trial,status:terminal?'engine-terminal':'action-cap-or-incomplete',
