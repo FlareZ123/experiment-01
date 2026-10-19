@@ -28,3 +28,19 @@ Source runner: [rank26-crisis-tool-source-pair.cjs](../../simulation/twinleaf/ra
 ### Evidence boundary
 
 The guard cannot manufacture Meloetta, DCE, Tapu Koko, five self-KO Prizes, or a correct Crisis Punch attack. Even if all five source objections are caught, printed-card targeting, complex double Tool sequencing, competent opponent response and paper game-clock qualification remain open. Source-level selected bad proposal prevention is **not** a full-game strength estimate. The central 99.5% objective remains unproven; 29/32 exact opposing lists and zero qualified competitive games persist.
+
+
+## Compiled source outcome, independently checked 19 October 2026
+
+The five retrospectively fixed authentic source-pair Tool decisions **passed** the existing manual CI [39183697103](https://github.com/FlareZ123/experiment-01/actions/runs/39183697103), head `bdfc47412c16ac647d4754ef77bde9047777831d`, under pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The complete five-pair source JSON is archived as [artifact 12157306602](https://github.com/FlareZ123/experiment-01/actions/runs/39183697103/artifacts/12157306602), `rank26-crisis-tool-source-guard-unqualified`. The successful source runner verifies the real source deal, hashes, actual first-player ordering and live Store decisions.
+
+The workflow's bounded emitted summary, directly recovered from job `117841609617`, was:
+
+| Measured source decision | Original policy | Guarded policy |
+| --- | ---: | ---: |
+| Firstturn TM: Crisis Punch plays | **5** | **0** |
+| Firstturn Float Stone plays | **2** | **0** |
+
+The guard logged **10 suppressed unsafe Tool proposals** across five historically selected cases. **No guarded firstturn root attack and no firstturn opponent Prize decrease** were observed, and `competitiveGameWinRate=false` remained in the emitted result. Some later original proposals reoccur as the bot iterates choices, explaining why proposal veto count exceeds originally executed cards. These counts demonstrate the declared narrow waste-prevention mechanism without certifying that all vetoes were strategically optimal.
+
+The intervention improves preservation of the first-turn attack Tool, yet does **not** find, place, power or promote Meloetta, assemble the necessary self-KOs, or establish a legal Crisis Punch plus opponent response. Its five selected cases are developmental positive controls, **not a random matchup denominator**. No evidence here supports the 99.5% fixed-deck target. At this checkpoint the global benchmark remains 29/32 exact opposing source 60s and zero independently qualified competitive games.
