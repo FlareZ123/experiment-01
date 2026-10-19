@@ -35,3 +35,23 @@ test('no cross-seat, opponent, prompt or later-turn interventions',()=>{
   state.players[0].active.getPokemonCard=()=>({name:'Budew'});
   assert.equal(mailOpportunity(state,own,1,12),false);
 });
+
+test('starter-agnostic Mail may search before Meloetta is in play',()=>{
+  const {own,state}=board();
+  own.active.getPokemonCard=()=>({name:'Unown'});
+  assert.equal(mailOpportunity(state,own,1,12),false,
+    'The existing v1 rule still requires Active Meloetta');
+  assert.equal(mailOpportunity(state,own,1,12,false),true,
+    'V2 source-first Mail can use its owner hand before finding Meloetta');
+  own.hand.cards.push({name:'Canceling Cologne'});
+  assert.equal(mailOpportunity(state,own,1,12,false),false);
+  own.hand.cards.pop();
+  own.stadium.cards.push({name:'Risky Ruins'});
+  assert.equal(mailOpportunity(state,own,1,12,false),false);
+  own.stadium.cards=[];
+  state.turn=2;
+  assert.equal(mailOpportunity(state,own,1,12,false),false);
+  state.turn=1;
+  state.players[0].active.getPokemonCard=()=>({name:'Budew'});
+  assert.equal(mailOpportunity(state,own,1,12,false),false);
+});
