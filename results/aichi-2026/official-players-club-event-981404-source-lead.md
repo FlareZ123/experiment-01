@@ -1,0 +1,11 @@
+# Source-retrieval lead: official Aichi May 2026 Open / Expanded event page
+
+**Agent 9, 19 October 2026.** This is a public-source lead, **not** recovery or proof of any missing card list. Exact source coverage remains **29/32**.
+
+The independent [MT League index of official large-event decklists](https://mt.matrix.jp/decklist/) lists under **CL2026愛知May** the Japanese official event **「チャンピオンズリーグ2026 愛知 May オープンリーグ【エクストラレギュレーション】」** with direct [Pokémon Players Club results URL](https://players.pokemon-card.com/event/detail/981404/result). The event ID is **981404**. This URL is directly tied to the correct *May 10, 2026 Expanded Open* event, unlike the separate Master/Junior/Senior May event IDs.
+
+The official result page currently presents an app-shell JavaScript requirement to the available text-only retriever; it **does not provide visible standings, participant identity or a deck-export in this environment**. Other Pokémon Players Club event-result pages display a `デッキをみる` ('view deck') action for individual ranked participants, but this **does not establish that the Aichi Open page includes full top-32 lists** or that all registered exact 60s remain publicly accessible. Source verification is outstanding.
+
+**Proposed source-owner check:** in an ordinary JavaScript-capable browser, open the exact official page, inspect original event standings and any public `デッキをみる` actions for Swiss placements **23, 25, 28**, and save attributable exact Pokémon printings/counts if actually available. Match against existing published 29 source 60s, and separately verify any nickname-to-participant attribution. Respect access controls and do not infer an unexposed list, scrape private entries, or treat another player's 60 as a substitute.
+
+Prior social-media leads for these ranks are in [missing-rank-source-leads](missing-rank-source-leads.md) and [agent22 public-source notes](agent22-missing-placements-source-leads.md). This official event index path is newly distinct from those accounts. The existing field and candidate-evaluation evidence gates remain unchanged: **29/32 original opponent lists, zero qualified competitive games and no demonstrated 99.5% fixed-deck performance**.
