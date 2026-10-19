@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {choose} = require('../scripts/aichi-rank15-dual-lock-prize-ceiling.cjs');
-const {calculateDirectTmOpportunity, calculatePoffinAssistedTmOpportunity, fromSourceManifest} = require(
+const {calculateDirectTmOpportunity, calculatePoffinAssistedTmOpportunity, calculateNoPivotStagePoolCeiling, fromSourceManifest} = require(
   '../scripts/aichi-rank15-direct-tm-opening.cjs');
 
 test('exact legal-seven conditional probability and strict evidence boundaries', () => {
@@ -110,4 +110,48 @@ test('independent seven-then-draw enumeration checks the Poffin union', () => {
     .conditionalOnBasicValidInitialSeven;
   assert.equal(numerator * BigInt(expected.denominator),
     denominator * BigInt(expected.numerator));
+});
+
+test('Bunnelby initially Active has a strict pre-recycling Stage2 deck ceiling', () => {
+  const stage = calculateNoPivotStagePoolCeiling();
+  assert.deepEqual([
+    stage.conditionalOnBasicValidInitialSeven.numerator,
+    stage.conditionalOnBasicValidInitialSeven.denominator
+  ], ['125366629', '1389200384']);
+  const assisted = calculatePoffinAssistedTmOpportunity();
+  assert.ok(assisted.conditionalOnBasicValidInitialSeven.probability <
+    stage.conditionalOnBasicValidInitialSeven.probability);
+  assert.equal(stage.qualifiesCompetitiveResults, false);
+});
+
+test('different initial-seven enumeration reproduces no-pivot Stage2 bound', () => {
+  const c = {b: 2, o: 2, a: 2, x: 51};
+  let favorable = 0n;
+  for (let b = 1; b <= 2; b++) {
+    for (let o = 0; o <= 2; o++) {
+      for (let a = 0; a <= 2; a++) {
+        const x = 7 - b - o - a;
+        if (x < 0 || x > 51) continue;
+        const hand = {b, o, a, x};
+        const ways = Object.entries(hand).reduce((acc, [k, n]) =>
+          acc * choose(c[k], n), 1n);
+        for (const next of Object.keys(c)) {
+          if (hand[next] === c[next]) continue;
+          const eight = {...hand, [next]: hand[next] + 1};
+          if (eight.a > 1) continue;
+          const prizes = eight.a === 0 ?
+            choose(47 + eight.o, 6) - choose(45 + eight.o, 4) :
+            choose(46 + eight.o, 6);
+          favorable += ways * BigInt(c[next] - hand[next]) * prizes;
+        }
+      }
+    }
+  }
+  const numerator = favorable * choose(60, 7);
+  const denominator = choose(60, 7) * 53n * choose(52, 6) *
+    (choose(60, 7) - choose(46, 7));
+  const actual = calculateNoPivotStagePoolCeiling()
+    .conditionalOnBasicValidInitialSeven;
+  assert.equal(numerator * BigInt(actual.denominator),
+    denominator * BigInt(actual.numerator));
 });
