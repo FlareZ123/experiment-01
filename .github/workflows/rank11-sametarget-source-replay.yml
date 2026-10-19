@@ -1,0 +1,48 @@
+name: Rank11 authentic same-target Energy selection replay
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf source
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate same-target correction, seed and classification tests
+        run: node --test tests/same-target-attach-energy-hook.test.cjs tests/rank11-exclusive-prospective-seeds.test.cjs tests/rank11-exclusive-trial-classification.test.cjs
+      - name: Install simulator pinned dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned simulator
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Replay original failed seed with and without reversible bot selection fix
+        run: node simulation/twinleaf/rank11-sametarget-source-replay.cjs > rank11-sametarget-single-seed.json
+      - name: Print original exception and actual corrected prompt
+        run: node -e "const s=require('./rank11-sametarget-single-seed.json'); console.log(JSON.stringify({seat:s.seat,repeat:s.repeat,seed:s.seed,legacyError:s.legacyException,repair:s.correction,actualFirst:s.correctedFirstTurnSlot},null,2))"
+      - name: Replay entire originally registered 128-seed frame with explicit same-target bot correction
+        env:
+          SAME_TARGET_ENERGY_CORRECTION: 'true'
+        run: node simulation/twinleaf/rank11-exclusive-prospective.cjs > rank11-exclusive-prospective-v1-corrected.json
+      - name: Reject incomplete or unverified starts in corrected run
+        run: node -e "const r=require('./rank11-exclusive-prospective-v1-corrected.json'); console.log(JSON.stringify({total:r.actualAttempted,first:r.sourceFirst,second:r.sourceSecond,verified:r.sourceStartVerified,exceptions:r.exceptions,classes:r.resultClassCounts,botRepairs:r.botSameTargetRepairs,competitiveQualifiedGames:0},null,2)); if(r.exceptions!==0||r.sourceStartVerified!==128||r.botSameTargetRepairs<1||!r.sameTargetCorrectionApplied)process.exitCode=1"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rank11-exclusive-prospective-v1-sametarget-corrected-unqualified
+          path: |
+            rank11-sametarget-single-seed.json
+            rank11-exclusive-prospective-v1-corrected.json
+          if-no-files-found: warn
+          retention-days: 14
