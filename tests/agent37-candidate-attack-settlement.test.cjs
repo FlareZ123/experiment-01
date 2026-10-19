@@ -21,6 +21,8 @@ function fixture(){
       {actionOrdinal:1,playerSlot:1,turnBefore:21,
         action:'ResolvePromptAction',initiatingRootActionOrdinal:0},
       {actionOrdinal:2,playerSlot:0,turnBefore:22,
+        action:'ResolvePromptAction',initiatingRootActionOrdinal:0},
+      {actionOrdinal:3,playerSlot:0,turnBefore:22,
         action:'PlayCardAction',card:'Dark Patch'}
     ],
     attackDeclarationTrace:[{
@@ -61,7 +63,7 @@ test('authentic prompt settlement, public board, printed base, opponent reply, r
   assert.equal(event.nextSourceRoot.action,'PlayCardAction');
   assert.equal(event.nextSourceRoot.card,'Dark Patch');
   assert.equal(event.nextSourceTurnActionCount,1);
-  assert.deepEqual(event.nextSourceTurnActions,[{ordinal:2,action:'PlayCardAction',card:'Dark Patch'}]);
+  assert.deepEqual(event.nextSourceTurnActions,[{ordinal:3,action:'PlayCardAction',card:'Dark Patch'}]);
   assert.equal(event.sourceTurnActionsTruncated,false);
   assert.equal(event.printedPoltergeist.baseDamage,150);
   assert.equal(JSON.stringify(result).includes('Secret Box'),false,
