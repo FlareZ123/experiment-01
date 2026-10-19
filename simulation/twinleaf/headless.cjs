@@ -961,6 +961,14 @@ function runMatch(request) {
           slot: action.target?.slot ?? null,
           index: action.target?.index ?? null
         } : null,
+        priorPublicAttackDeclarations: newlyLoggedAttackDeclarations(
+          state.logs, 0, {
+            actionOrdinal: actions, turnBefore,
+            triggerAction: 'historical-pre-rejection-log'
+          }).map(row => ({
+            logIndex: row.logIndex,playerName: row.playerName,
+            attackName: row.attackName
+          })),
         publicBoard: publicBoardSnapshot(state)
       } : null;
       try {
