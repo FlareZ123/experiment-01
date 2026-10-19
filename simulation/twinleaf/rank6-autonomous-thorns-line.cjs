@@ -31,36 +31,13 @@ function hasOpeningLine(hand) {
 }
 
 /**
- * Check only the currently observable hand. Search availability in the own
- * deck is inspected later and only in the actual Store ChooseCardsPrompt.
- * With Tag Call, the source can retrieve Guzma & Hala as a TAG TEAM Supporter;
- * G&H's printed search can supply both a Stadium and a Special Energy.
- * @param {{name:string}[]} hand
- * @param {{allowTagCall?:boolean,allowStadiumSearch?:boolean}} options
- * @returns {'direct'|'tag-call'|null}
- */
-function chooseOpeningRoute(hand,options={}) {
-  if (hasOpeningLine(hand)) return 'direct';
-  if (!options.allowTagCall && !options.allowStadiumSearch) return null;
-  if (hand.some(card=>card.name==='Double Colorless Energy') ||
-      chooseDiscardPair(hand).length!==2) return null;
-  const hasGuzmaHala=hand.some(card=>card.name==='Guzma & Hala');
-  const hasThunder=hand.some(card=>card.name==='Thunder Mountain Prism Star');
-  if (hasGuzmaHala && options.allowStadiumSearch) return 'direct';
-  if (!hasGuzmaHala && options.allowTagCall &&
-      (hasThunder || options.allowStadiumSearch) &&
-      hand.some(card=>card.name==='Tag Call')) return 'tag-call';
-  return null;
-}
-
-/**
  * Scope a single honest-hand policy to the actual source opponent's first
  * playing turn. It may inspect the own deck ONLY during G&H's real
  * ChooseCardsPrompt, after the legal search has begun. It never reads Prizes.
  *
  * @template T
  * @param {()=>T} work One source-dealt in-process headless match.
- * @param {{seat?:number,turn?:number,allowTagCall?:boolean,allowStadiumSearch?:boolean}} [options]
+ * @param {{seat?:number,turn?:number}} [options]
  * @returns {{result:T,started:boolean,completed:boolean,events:object[],abortReason:string|null}}
  */
 function withAutonomousThornsSourceAttack(work, options={}) {
@@ -84,7 +61,6 @@ function withAutonomousThornsSourceAttack(work, options={}) {
   let started = false;
   let completed = false;
   let abortReason = null;
-  let route=null;
 
   /** @param {object} state @param {string} reason */
   function abort(state,reason) {
@@ -117,15 +93,14 @@ function withAutonomousThornsSourceAttack(work, options={}) {
       if (state.turn!==turn || state.phase!==GamePhase.PLAYER_TURN ||
           state.activePlayer!==seat || prompt ||
           player.active.getPokemonCard()?.name!=='Iron Thorns ex' ||
-          !(route=chooseOpeningRoute(player.hand.cards,options))) {
+          !hasOpeningLine(player.hand.cards)) {
         return original.call(this,state);
       }
       started = true;
       actorId = player.id;
-      stage = route==='tag-call' ? 'tag-search' : 'mode';
-      return choose(state,route==='tag-call' ?
-        'Play held Tag Call for Guzma & Hala' : 'Play held Guzma & Hala',
-        play(player,route==='tag-call' ? 'Tag Call' : 'Guzma & Hala',
+      stage = 'mode';
+      return choose(state,'Play held Guzma & Hala',
+        play(player,'Guzma & Hala',
           {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
     }
     if (actorId!==player.id || stage==='done' || stage==='aborted') {
@@ -136,38 +111,6 @@ function withAutonomousThornsSourceAttack(work, options={}) {
       return original.call(this,state);
     }
 
-    if (stage==='tag-search' && prompt?.constructor.name==='ChooseCardsPrompt') {
-      // Own-deck read is confined to the live, authorized Tag Call search.
-      const supporter=player.deck.cards.find(c=>c.name==='Guzma & Hala');
-      if (!supporter || !prompt.validate([supporter],state)) {
-        abort(state,'Tag Call search cannot retrieve Guzma & Hala');
-        return original.call(this,state);
-      }
-      stage='tag-followup';
-      return choose(state,'Search one genuine TAG TEAM Supporter',
-        new ResolvePromptAction(prompt.id,[supporter]));
-    }
-    if (stage==='tag-followup' && prompt) {
-      if (prompt.constructor.name==='ShowCardsPrompt')
-        return choose(state,'Acknowledge Tag Call revealed card',
-          new ResolvePromptAction(prompt.id,true));
-      if (prompt.constructor.name==='WaitPrompt')
-        return choose(state,'Acknowledge Tag Call completion',
-          new ResolvePromptAction(prompt.id,null));
-      abort(state,'Unexpected Tag Call follow-up prompt '+prompt.constructor.name);
-      return original.call(this,state);
-    }
-    if (stage==='tag-followup' && !prompt &&
-        state.phase===GamePhase.PLAYER_TURN) {
-      if (!player.hand.cards.some(c=>c.name==='Guzma & Hala')) {
-        abort(state,'Tag Call did not deliver Guzma & Hala');
-        return original.call(this,state);
-      }
-      stage='mode';
-      return choose(state,'Play searched Guzma & Hala',
-        play(player,'Guzma & Hala',
-          {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
-    }
     if (stage==='mode' && prompt?.constructor.name==='SelectOptionPrompt') {
       stage='discard';
       return choose(state,'Select G&H discard/search mode',
@@ -187,20 +130,13 @@ function withAutonomousThornsSourceAttack(work, options={}) {
     if (stage==='search' && prompt?.constructor.name==='ChooseCardsPrompt') {
       // Searching our deck is legal only now, after opening this prompt.
       const dce=player.deck.cards.find(card=>card.name==='Double Colorless Energy');
-      const hasThunder=player.hand.cards.some(card=>
-        card.name==='Thunder Mountain Prism Star');
-      const thunder=hasThunder ? null : player.deck.cards.find(card=>
-        card.name==='Thunder Mountain Prism Star');
-      const selected=thunder ? [thunder,dce] : [dce];
-      if (!dce || (!hasThunder && !options.allowStadiumSearch) ||
-          (!hasThunder && !thunder) || !prompt.validate(selected,state)) {
-        abort(state,'Required DCE/Stadium inaccessible in legal G&H search');
+      if (!dce || !prompt.validate([dce],state)) {
+        abort(state,'DCE inaccessible at legal deck-search prompt');
         return original.call(this,state);
       }
       stage='followup';
-      events.push({turn:state.turn,stage:'search',cards:selected.map(c=>c.name)});
-      return choose(state,'Search G&H for eligible Stadium and Special Energy',
-        new ResolvePromptAction(prompt.id,selected));
+      return choose(state,'Search exactly one DCE',
+        new ResolvePromptAction(prompt.id,[dce]));
     }
     if (stage==='followup' && prompt) {
       if (prompt.constructor.name==='ShowCardsPrompt') {
@@ -260,5 +196,4 @@ function withAutonomousThornsSourceAttack(work, options={}) {
   }
 }
 
-module.exports={chooseDiscardPair,hasOpeningLine,chooseOpeningRoute,
-  withAutonomousThornsSourceAttack};
+module.exports={chooseDiscardPair,hasOpeningLine,withAutonomousThornsSourceAttack};
