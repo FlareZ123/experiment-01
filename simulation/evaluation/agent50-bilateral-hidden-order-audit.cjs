@@ -161,8 +161,8 @@ function runHistoricalDevelopmentAudit() {
     require('../../scripts/aichi-new-moon-candidate.cjs');
   const {initializeCards,seededRandom}=
     require('../twinleaf/headless.cjs');
-  const {withRootHiddenOrderProbe}=
-    require('../twinleaf/rank10-hidden-order-live-probe.cjs');
+  const {withPostgameRootOrderProbe}=
+    require('./agent50-bilateral-postgame-root-observer.cjs');
   const {assertVendorCloneCompatibleSource,normalizeDeepClonePrototypes}=
     require('../twinleaf/normalize-deep-clone.cjs');
   initializeCards();
@@ -193,7 +193,7 @@ function runHistoricalDevelopmentAudit() {
   const rows=developmentTrials().map(trial=>auditDevelopmentArm(
     trial,
     ()=>executeDevelopment(trial,prepared),
-    withRootHiddenOrderProbe,SimpleTacticsAi,clone,
+    withPostgameRootOrderProbe,SimpleTacticsAi,clone,
     ()=>seededRandom((trial.seed^0x5a17b9ef)>>>0)
   ));
   return {
