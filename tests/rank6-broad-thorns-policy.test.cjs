@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {chooseOpeningDiscards,planOpeningHand}=
+const {chooseOpeningDiscards,planOpeningHand,dceHandAttachmentBlocked}=
   require('../simulation/twinleaf/rank6-broad-thorns-policy.cjs');
 
 /** @param {string[]} names */
@@ -211,4 +211,49 @@ test('source-first attached Double Colorless satisfies Energy requirement',()=>{
 test('hand-only Energy restriction does not remove attached DCE',()=>{
   assert.equal(planOpeningHand(hand([]),true,undefined,false,
     {activeDceAttached:true,specialEnergyLocked:true})?.channel,'direct');
+});
+
+test('spent manual Energy attachment blocks even held DCE and Thunder',()=>{
+  const held=hand(['Iron Thorns ex','Double Colorless Energy',
+    'Thunder Mountain Prism Star']);
+  assert.equal(planOpeningHand(held,false,undefined,false,{
+    energyAlreadyAttached:true
+  }),null);
+  assert.equal(planOpeningHand(held,true,undefined,false,{
+    energyAlreadyAttached:true,activeDceAttached:true
+  })?.channel,'direct');
+});
+
+test('general Energy hand lock vetoes costly search before consuming Supporter',()=>{
+  const source=hand(['Iron Thorns ex','Guzma & Hala','Camping Gear',
+    'Crushing Hammer']);
+  assert.equal(planOpeningHand(source,false,undefined,false,{
+    energyLocked:true
+  }),null);
+  assert.equal(planOpeningHand(source,false,undefined,false,{
+    energyAlreadyAttached:true
+  }),null);
+  assert.equal(planOpeningHand(hand(['Guzma & Hala',
+    'Thunder Mountain Prism Star']),false,undefined,false,{
+    energyLocked:true,activeDceAttached:true
+  })?.channel,'direct');
+});
+
+test('live DCE eligibility reflects pinned attachment allowance and locks',()=>{
+  const state={turn:3,rules:{unlimitedEnergyAttachments:false}};
+  const player={energyPlayedTurn:3};
+  assert.equal(dceHandAttachmentBlocked(player,state),true);
+  assert.equal(dceHandAttachmentBlocked({...player,usedDragonsWish:true},
+    state),false);
+  assert.equal(dceHandAttachmentBlocked(player,{
+    turn:3,rules:{unlimitedEnergyAttachments:true}
+  }),false);
+  assert.equal(dceHandAttachmentBlocked({...player,energyPlayedTurn:2},
+    state),false);
+  assert.equal(dceHandAttachmentBlocked({
+    ...player,usedDragonsWish:true,cannotPlayEnergyCards:true
+  },state),true);
+  assert.equal(dceHandAttachmentBlocked({
+    ...player,usedDragonsWish:true,cannotPlaySpecialEnergyCards:true
+  },state),true);
 });
