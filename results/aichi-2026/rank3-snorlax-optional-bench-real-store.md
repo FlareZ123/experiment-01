@@ -38,3 +38,13 @@ This source seed was chosen **after** earlier evidence disclosed its duplicate-s
 This repairs one source-policy fidelity obstacle for future rank-3/rank-7 Stall comparisons. Next retain both real start orders and all no-Snorlax opportunities under a frozen complete-game policy. Opponent stall continuity, challenger switch/gust response, printed attack and actual next opposing decision are required before using any result for deck selection.
 
 **Field boundary remains 29/32 exact opponent 60s (unpublished 23/25/28), zero independently qualified competitive games, no demonstrated fixed 99.5% deck.**
+
+## Why continued Bench selection needs its own policy
+
+The pinned default `PlayBasicTactic` (`ptcg-server/src/simple-bot/simple-tactics/play-basic-tactic.ts`) chooses the first Basic in its own hand and plays it on the first empty Bench space whenever the tactic is reached. The repaired setup choice alone therefore does not guarantee an empty Bench during the source player's subsequent turn.
+
+For a 60-card list with `b` Basic cards and `s` Snorlax PGO cards, the exact legal-opening-seven probability of *holding Snorlax plus at least one further Basic card* is:
+
+`[C(60,7)-C(60-s,7)-s*C(60-b,6)]/[C(60,7)-C(60-b,7)]`.
+
+For original rank3 `b=11, s=3`, this is **26.59605424%** of valid sevens, or **65.56306460%** of Snorlax-containing legal sevens. For original rank7 `b=12, s=2`, this is **19.51187789%** of valid sevens, or **71.30572737%** of Snorlax-containing legal sevens. These are exact *available extra-Basic counts*, not observed post-setup Bench decisions. They include duplicate Snorlax as the additional Basic. Further Basic draws and earlier tactics can alter the actual next-turn action. A complete source opponent policy must explicitly decide whether to retain the lone Snorlax board under the candidate's specific attack and gust threats.
