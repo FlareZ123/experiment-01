@@ -227,6 +227,8 @@ test('a cloned rejected attack never becomes a resolved tactical effect',()=>{
 test('candidate Perfection sampled menu is a separate cloned Ability channel',()=>{
   const rows=[
     {playerSlot:0,action:'PassTurnAction',turnBefore:1,actionOrdinal:20,
+      publicBoardBeforePass:[{active:{name:'Mewtwo & Mew-GX'}},
+        {active:{name:'Mega Absol ex'}}],
       perfectionPassProbe:{
         evidenceType:'post-choice-cloned-perfection-attack-menu-v1',
         activationAccepted:true,choicePromptObserved:true,
@@ -250,6 +252,8 @@ test('candidate Perfection sampled menu is a separate cloned Ability channel',()
   assert.equal(out.summary.acceptedPerfectionActivations,1);
   assert.equal(out.summary.nonemptyCopiedAttackMenus,1);
   assert.equal(out.perfectionSamples[0].validAttackNames[0],'Horror House-GX');
+  assert.equal(out.perfectionSamples[0].publicBoardBeforePass[1].active.name,
+    'Mega Absol ex');
   assert.equal(out.samples.length,0);
   assert.equal(JSON.stringify(out).includes('Poltergeist'),false);
 });
