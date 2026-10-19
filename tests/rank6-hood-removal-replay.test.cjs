@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {observe,countSourceFirstDeals}=require('../simulation/twinleaf/rank6-hood-removal-replay.cjs');
+const {observe,countSourceFirstDeals,publicHoodDestinations}=require('../simulation/twinleaf/rank6-hood-removal-replay.cjs');
 
 const item={repeat:1,sourceSeat:0,candidateSeat:1,seed:42};
 function game(){
@@ -57,4 +57,17 @@ test('source-first count follows named baseline arm when original control is abs
   assert.equal(countSourceFirstDeals(records,'removal'),1);
   assert.equal(countSourceFirstDeals(records,'faba-target'),1);
   assert.equal(countSourceFirstDeals(records,'control'),0);
+});
+
+test('Faba Lost Zone and Megaton Blower discard remain separate public destinations',()=>{
+  const state={players:[{discard:{cards:[
+    {name:'Stealthy Hood'},{name:'Psychic Energy'}]},
+    lostzone:{cards:[{name:'Stealthy Hood'}]}},
+  {discard:{cards:[]},lostzone:{cards:[]}}]};
+  assert.deepEqual(publicHoodDestinations(state,0),{
+    discard:1,lostZone:1
+  });
+  assert.deepEqual(publicHoodDestinations(state,1),{
+    discard:0,lostZone:0
+  });
 });
