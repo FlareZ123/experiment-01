@@ -218,6 +218,18 @@ function run() {
     row.turnBefore===23 && row.triggerPlayerSlot===0 &&
     row.declarations.some(declaration=>declaration.attackName==='Venomous Fang'));
   assert.ok(actualAttackTransition,'Real source Venomous Fang public transition was not captured');
+  assert.deepEqual(actualAttackTransition.beforePrizesRemaining,[2,1],
+    'Two real occupied source Prizes before counterattack');
+  assert.equal(actualAttackTransition.before[1].active?.name,'Mewtwo & Mew-GX');
+  assert.equal(actualAttackTransition.before[1].active?.damage,200);
+  assert.equal(actualAttackTransition.promptPendingAfter,true,
+    'Native Crobat declaration must settle through its actual pending prompt');
+  assert.equal(actualAttackTransition.settled?.completionRootActionOrdinal,231);
+  assert.equal(actualAttackTransition.settled?.after[1].active,null,
+    'After the prompt, defending TAG TEAM must be Knocked Out');
+  assert.equal(actualAttackTransition.settled?.after[0].active?.name,'Crobat V');
+  assert.deepEqual(actualAttackTransition.settled?.prizesRemaining,[0,1],
+    'Actual TAG TEAM Knock Out should close two remaining source Prizes');
   const attacksBefore=baseline.attackDeclarationTrace.filter(r=>
     r.turnBefore===22&&r.playerSlot===1&&r.attackName==='Poltergeist');
   assert.equal(attacksBefore.length,1);
