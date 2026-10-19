@@ -50,6 +50,8 @@ function fixture(){
           status:'engine-terminal',engineFinished:true,engineWinner:seat,
           rootActionCount:125,actualStarterSeat:0,
           verifiedFirstTurn:true,
+          firstTurnPlayerId:101,firstTurnPlayerName:'research-A',
+          firstDrawLogName:'research-A',
           sourceDealFingerprint:hex(rank===6?'5':'6'),
           sourcePressure:{accepted:true,effectVerified:true,
             traceAuthenticated:true,actorSeat:1-seat,
@@ -194,4 +196,33 @@ test('booleans cannot fake a chronological prompt-closed bilateral reply',()=>{
   assert.equal(r.mechanicalBilateralWitnesses,6);
   assert.ok(r.arms[0].vetoes.includes('pressure-reply-followup-order-unverified'));
   assert.ok(r.arms[1].vetoes.includes('source-legal-continuation-unverified'));
+});
+
+
+test('claimed actual start requires matching Store player ID and first draw',()=>{
+  for(const field of ['firstTurnPlayerId','firstTurnPlayerName',
+    'firstDrawLogName','verifiedFirstTurn']) {
+    const {plan,archive}=fixture();
+    archive.rows[0][field]=field==='firstTurnPlayerId'?202:
+      field==='verifiedFirstTurn'?false:'research-B';
+    const result=auditBilateralV2(plan,archive);
+    const affected=result.arms.find(row=>row.id===archive.rows[0].id);
+    assert.equal(affected.validStart,false,field);
+    assert.equal(affected.actualStarter,null,field);
+    assert.equal(affected.mechanicalBilateralWitness,false,field);
+    assert.ok(affected.vetoes.includes('actual-first-player-unverified'),field);
+    assert.equal(result.pairs[0].firstObservationComparable,false,field);
+    assert.equal(result.mechanicalBilateralWitnesses,7,field);
+  }
+});
+
+test('missing first-draw evidence cannot manufacture both real-start coverage',()=>{
+  const {plan,archive}=fixture();
+  archive.rows.filter(row=>row.rank===11&&row.candidateSeat===1)
+    .forEach(row=>{delete row.firstDrawLogName;});
+  const result=auditBilateralV2(plan,archive);
+  assert.equal(result.byRank[11].sourceFirst,2);
+  assert.equal(result.byRank[11].candidateFirst,0);
+  assert.equal(result.twoRealStartsPerRankObserved,false);
+  assert.equal(result.mechanicalBilateralWitnesses,6);
 });
