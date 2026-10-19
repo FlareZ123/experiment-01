@@ -1,0 +1,75 @@
+{
+  "schema": "agent36-rank15-original-physical-deal-anchors-v1",
+  "sourceCI": "39245816323",
+  "sourceArtifact": "12183891165",
+  "archivedZipSha256": "011d26ebdbaadfed70c1e71c73ed4ad3774d8028c7ad6d64d4cc3022fa7bcd48",
+  "seedPlan": "decorrelated-slots-v3 20261018 pilot 15 repeats0-3 seatsA-B",
+  "deckHashesByCandidateSeat": {
+    "0": [
+      "7e9db4be171ba050342e7814555b0e9e05b8dc87b0ed16d61e1ffa386de2a95b",
+      "5d626517c9cdfc38fd5e2701459d255508adc2ff39d40b7f30ef5756111f14ac"
+    ],
+    "1": [
+      "5d626517c9cdfc38fd5e2701459d255508adc2ff39d40b7f30ef5756111f14ac",
+      "7e9db4be171ba050342e7814555b0e9e05b8dc87b0ed16d61e1ffa386de2a95b"
+    ]
+  },
+  "pairs": [
+    {
+      "repeat": 0,
+      "candidateSeat": 0,
+      "seed": 3050400820,
+      "initialZoneDigestSha256": "984e1675e4ce25b99f9a5fc2994fb9a981ad2b8732ceed1c203fbf8dd78b5df1",
+      "initialDualStagePrerequisitesEligible": true
+    },
+    {
+      "repeat": 0,
+      "candidateSeat": 1,
+      "seed": 3212188368,
+      "initialZoneDigestSha256": "08aed7e046ccbc982088c134e94dd5f0e26d049ba4827462f47f4a43ec6dafec",
+      "initialDualStagePrerequisitesEligible": true
+    },
+    {
+      "repeat": 1,
+      "candidateSeat": 0,
+      "seed": 77674528,
+      "initialZoneDigestSha256": "57bd3e3ba88c0661dadddf825324abe7c09c7e895710ded91cf44f95ccb8bc4f",
+      "initialDualStagePrerequisitesEligible": false
+    },
+    {
+      "repeat": 1,
+      "candidateSeat": 1,
+      "seed": 1281186802,
+      "initialZoneDigestSha256": "91baf57f3e0504632ac7bf7e5ab7948086dc36670677e56921b07542398ca65a",
+      "initialDualStagePrerequisitesEligible": false
+    },
+    {
+      "repeat": 2,
+      "candidateSeat": 0,
+      "seed": 814146100,
+      "initialZoneDigestSha256": "9b4ae47374e35c3f419680cbd1c37a69eed724d586ab25068c1562ef2c83ac5d",
+      "initialDualStagePrerequisitesEligible": true
+    },
+    {
+      "repeat": 2,
+      "candidateSeat": 1,
+      "seed": 2521059862,
+      "initialZoneDigestSha256": "78e95d401742e8ed90ec9f6f36b2a1fdf4c6361a95f32e94c9b37985734d5c79",
+      "initialDualStagePrerequisitesEligible": false
+    },
+    {
+      "repeat": 3,
+      "candidateSeat": 0,
+      "seed": 3479123627,
+      "initialZoneDigestSha256": "3044d3adef2dba1fcb9267060e584331182fb402ef58dfcb96fe73a1e73f8988",
+      "initialDualStagePrerequisitesEligible": true
+    },
+    {
+      "repeat": 3,
+      "candidateSeat": 1,
+      "seed": 3454160611,
+      "initialZoneDigestSha256": "39b881c03de9e63a33c456baa3d712c5ed82845a2be56c52f26b057287ea20ea",
+      "initialDualStagePrerequisitesEligible": true
+    }
+  ]
+}
