@@ -201,12 +201,39 @@ function auditBilateralV2(plan,archive) {
     // Printed extra-turn attacks such as Timeless-GX can change which
     // physical player owns odd/even global turns. Observed root actor seats
     // above, rather than inferred parity, establish the actual participants.
-    const immediateTurnLineage=validStart&&
+    const immediateFirstReply=validStart&&
       [pressureTurn,completionTurn,candidateTurn,nextSourceTurn]
         .every(n=>Number.isSafeInteger(n)&&n>=1) &&
       completionTurn===pressureTurn &&
-      candidateTurn===pressureTurn+1 &&
-      nextSourceTurn===pressureTurn+2;
+      candidateTurn===pressureTurn+1;
+    // A candidate can legally answer with Timeless-GX (including a copied
+    // attack), receive its own next turn, and delay the source return from
+    // t+2 to t+3. Never accept the gap on turn numbers alone. Require a
+    // separately recorded, prompt-closed and Store-bound source of the
+    // extra turn, plus an actual root owned by the candidate on that turn.
+    // These producer assertions still require independent root-ledger audit.
+    const bonus=row.candidateBonusTurn;
+    const candidateBonusTurnLineage=immediateFirstReply&&
+      nextSourceTurn===pressureTurn+3 &&
+      bonus?.accepted===true &&
+      bonus?.effectVerified===true &&
+      bonus?.traceAuthenticated===true &&
+      bonus?.actorSeat===arm.candidateSeat &&
+      bonus?.chosenAttack==='Timeless-GX' &&
+      bonus?.grantTurnBefore===candidateTurn &&
+      bonus?.completionTurnBefore===candidateTurn &&
+      bonus?.nextOwnTurnBefore===candidateTurn+1 &&
+      [bonus?.grantRootActionOrdinal,bonus?.completionOrdinal,
+        bonus?.nextOwnRootActionOrdinal].every(n=>
+        Number.isSafeInteger(n)&&n>=0) &&
+      row.candidateReply.rootActionOrdinal<=
+        bonus.grantRootActionOrdinal &&
+      bonus.grantRootActionOrdinal<=bonus.completionOrdinal &&
+      bonus.completionOrdinal<bonus.nextOwnRootActionOrdinal &&
+      bonus.nextOwnRootActionOrdinal<
+        row.sourceContinuation.rootActionOrdinal;
+    const immediateTurnLineage=immediateFirstReply&&
+      (nextSourceTurn===pressureTurn+2||candidateBonusTurnLineage);
     const bilateralWitness=validStart&&sourcePressure&&firstCandidateReply&&
       sourceContinuation&&chronological&&immediateTurnLineage&&
       row.status!=='engine-error';
@@ -232,7 +259,7 @@ function auditBilateralV2(plan,archive) {
       actualStarter:validStart?(row.actualStarterSeat===arm.candidateSeat?
         'candidate':'source'):null,
       validStart,mechanicalBilateralWitness:bilateralWitness,
-      immediateTurnLineage,
+      immediateTurnLineage,candidateBonusTurnLineage,
       sourceDealFingerprint:digest(row.sourceDealFingerprint)?
         row.sourceDealFingerprint:null,
       vetoes});
