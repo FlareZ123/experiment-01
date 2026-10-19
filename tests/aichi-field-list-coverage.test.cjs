@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const {inventory, swaps, centers, analyze} =
+const {inventory, swaps, centers, analyze, pilotCoverage} =
   require('../scripts/aichi-field-list-coverage.cjs');
 
 const source = JSON.parse(fs.readFileSync(path.resolve(__dirname,
@@ -85,5 +85,21 @@ assert.equal(centers(ranked([10,12,13,14,18,20,21,27,32]),2,[10]).radius,14);
 assert.deepEqual(centers(ranked([8,11,16,22]),3,[8,11]),
   {radius:11,ranks:[8,11,16],optimalSets:1});
 assert.throws(()=>centers(ranked([6,24,29]),2,[10]));
+
+
+// A ten-rank pilot leaves five entirely distinct published archetypes unseen.
+const covered = pilotCoverage(source,[1,2,3,4,5,6,8,10,11,26]);
+assert.equal(covered.publishedTotal,29);
+assert.equal(covered.publishedMissingFromPilot.length,19);
+assert.equal(covered.archetypeTotal,14);
+assert.equal(covered.representedArchetypeCount,9);
+assert.deepEqual(covered.unrepresentedArchetypes,[
+  {archetype:'Absol Electrode',ranks:[9]},
+  {archetype:'Lopunny Vileplume',ranks:[15]},
+  {archetype:'Raging Bolt',ranks:[19]},
+  {archetype:"Lillie's Clefairy",ranks:[30]},
+  {archetype:'Dusknoir Chimecho',ranks:[31]}
+]);
+assert.throws(()=>pilotCoverage(source,[1,23]));
 
 console.log('Aichi field-list diversity tests passed on 29 printed source decks');
