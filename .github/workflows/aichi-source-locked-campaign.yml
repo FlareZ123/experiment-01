@@ -195,16 +195,25 @@ jobs:
       - name: Print qualified retrospective mechanics, keeping game results excluded
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-four-trigger-forensic' }}
         run: node -e "const r=require('./agent17-crossrank-resolved-audit.json');console.log('RESOLVED_AUDIT',JSON.stringify(r))"
+      - name: Verify ten exact historical caps selected without new denominator
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-crossrank-cap-tail' }}
+        run: node --test tests/agent17-crossrank-censor-tail.test.cjs
+      - name: Replay ten original action-limit censored roots without changing the game policies
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-crossrank-cap-tail' }}
+        run: node simulation/evaluation/agent17-crossrank-censor-tail.cjs > agent17-crossrank-censor-tail.json
+      - name: Print complete ten-arm censor disposition and bounded last action samples
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-crossrank-cap-tail' }}
+        run: node -e "const x=require('./agent17-crossrank-censor-tail.json');for(const r of x.rows)console.log('CAP_TAIL',JSON.stringify({id:r.id,status:r.status,rootActions:r.actions,turn:r.turns,archiveCountsMatch:r.originalOutcomeCountsMatched,pending:r.finalCapEvidence?.pendingPromptTypes,tail:r.finalCapEvidence?.rootTail?.slice(-6),lastAttacks:r.finalCapEvidence?.lastAttacks?.slice(-2),error:r.error?.slice(0,250)}))"
       - name: Verify registered Agent41 two-rank schedule and corpus hashes
-        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' && inputs.trial_ids != 'agent2-stone-recipient' }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' && inputs.trial_ids != 'agent17-crossrank-cap-tail' && inputs.trial_ids != 'agent2-stone-recipient' }}
         run: node --test tests/agent41-crossrank-actual-decisions.test.cjs
       - name: Execute frozen candidate-paired Iron Thorns and Garbodor screen
-        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' && inputs.trial_ids != 'agent2-stone-recipient' }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' && inputs.trial_ids != 'agent17-crossrank-cap-tail' && inputs.trial_ids != 'agent2-stone-recipient' }}
         env:
           AGENT41_PARTITION: ${{ inputs.agent41_crossrank_partition || '0' }}
         run: node simulation/evaluation/agent41-crossrank-actual-decisions.cjs > agent41-crossrank-observed.json
       - name: Print bounded failures, decisions and source opportunity counts
-        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' && inputs.trial_ids != 'agent2-stone-recipient' }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' && inputs.trial_ids != 'agent17-crossrank-cap-tail' && inputs.trial_ids != 'agent2-stone-recipient' }}
         run: node -e "const a=require('./agent41-crossrank-observed.json');console.log(JSON.stringify({partition:a.partition,recorded:a.partitionRecorded,status:a.statusCounts,opportunities:a.sourceOpportunityCounts,sourceFirst:a.actualSourceFirstCount,attackDeclarations:a.observedAttackDeclarations,matchedSourceHands:a.pairedSourceHandAgreement,paired:a.pairedTotal,errors:a.rows.filter(x=>x.status==='engine-error').map(x=>({id:x.id,error:x.error?.slice(0,250)}))},null,2))"
       - name: Replay original Agent41 rank6 rejected root and capture legal owner information
         if: ${{ inputs.agent41_crossrank_trial && inputs.agent6_rejected_arm }}
@@ -357,6 +366,7 @@ jobs:
             agent41-crossrank-observed.json
             agent17-crossrank-trigger-evidence.json
             agent17-crossrank-resolved-audit.json
+            agent17-crossrank-censor-tail.json
             agent6-crossrank-rejected-root.json
             agent6-shadow-mist-supporter.json
             agent25-rank6-newmoon-first-pass.json
