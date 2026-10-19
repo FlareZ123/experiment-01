@@ -8,9 +8,10 @@ const {installNumericShuffleOrderHook}=require('./shuffle-deck-numeric-order-hoo
  * Source-inventory-locked Store fixture: actual Item, selection, shuffle and
  * animation prompts. No sampled game or tactical performance inference.
  * @param {'rank26'|'newmoon'} kind
+ * @param {boolean} useNumericHook Explicit validator-side treatment.
  * @returns {object}
  */
-function nativeSetupDiscard(kind){
+function nativeSetupDiscard(kind,useNumericHook=true){
  const {store,state,owner,goals,load}=stageSourceDeck(kind);
  const {PlayCardAction,PlayerType,SlotType}=load('game/store/actions/play-card-action');
  const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
@@ -29,9 +30,12 @@ function nativeSetupDiscard(kind){
   const permutation=Array.from({length:owner.deck.cards.length},(_,i)=>i);
   const pinnedAcceptsLegalOrder=shuffle.validate(permutation,state);
   assert.equal(pinnedAcceptsLegalOrder,false,'Pinned 11+ index lexicographic shuffle rejection');
-  const restoreNumeric=installNumericShuffleOrderHook();
-  try { assert.equal(shuffle.validate(permutation,state),true);
-  store.dispatch(new ResolvePromptAction(shuffle.id,permutation));
+  const restoreNumeric=useNumericHook ? installNumericShuffleOrderHook() : ()=>{};
+  try {
+    if(useNumericHook) assert.equal(shuffle.validate(permutation,state),true);
+    // Store.reducePrompt does not check prompt.validate; CardList.applyOrder
+    // independently applies its own numeric permutation check.
+    store.dispatch(new ResolvePromptAction(shuffle.id,permutation));
   }finally{restoreNumeric();}
   const wait=pending().find(p=>p.constructor.name==='WaitPrompt');
   assert.ok(wait);store.dispatch(new ResolvePromptAction(wait.id,null));
@@ -40,11 +44,15 @@ function nativeSetupDiscard(kind){
   for(const n of decision.printings)
    assert.ok(owner.discard.cards.some(c=>c.fullName===n));
   return {kind,physicalRegistered60:true,discarded:decision.printings,
-   pinnedAcceptsLegalOrder,numericShuffleHookValidated:true,
+   pinnedAcceptsLegalOrder,useNumericHook,
+   numericShuffleHookValidated:useNumericHook?true:null,
    nativeStoreAccepted:true,pendingPromptCount:pending().length,
    constructedMechanicalFixture:true,qualifiedCompetitiveGames:0};
  }finally{restore()}
 }
 if(require.main===module)console.log(JSON.stringify({
- rank26:nativeSetupDiscard('rank26'),newmoon:nativeSetupDiscard('newmoon')},null,2));
+ rank26WithoutHook:nativeSetupDiscard('rank26',false),
+ rank26WithHook:nativeSetupDiscard('rank26',true),
+ newmoonWithoutHook:nativeSetupDiscard('newmoon',false),
+ newmoonWithHook:nativeSetupDiscard('newmoon',true)},null,2));
 module.exports={nativeSetupDiscard};
