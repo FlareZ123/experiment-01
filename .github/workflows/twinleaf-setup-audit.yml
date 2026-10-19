@@ -47,5 +47,7 @@ jobs:
             vendor/twinleaf/ptcg-server/output
             vendor/twinleaf/ptcg-server/dist
           key: ${{ steps.compiled.outputs.cache-primary-key }}
+      - name: Check opt-in first-turn compensation telemetry and full-game noninterference
+        run: node --test tests/setup-compensation-observer.test.cjs tests/headless-initial-setup-compensation-smoke.test.cjs
       - name: Check setup mulligan statistics against exact probabilities
         run: node simulation/twinleaf/setup-audit.cjs
