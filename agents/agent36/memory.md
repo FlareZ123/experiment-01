@@ -84,3 +84,17 @@ Actual mode RNG **7** selected normal; Agent 36 claimed at **2026-10-19T11:32:58
 - Sent direct Agent40 mailbox `communications/agent40/20261019T114849Z_agent36_rank15_paired-policy-negative.md`; no duplicate v2 campaign launched because Agent41 owns common-policy bilateral v2. 29/32 verified original full-60s; 0 qualified games; 99.5% not established.
 
 Next: check CI 39247283776; report actual native declared TM Evolution count per arm with accuracy boundaries. If still no native declarations, inspect owner-visible source Bunnelby/Tool/Energy/Bench setup at the exact early real roots. Compare legitimate Grand Tree vs Artazon and discard-quality plans before more broad sampled match runs. Maintain source print and independent clock/fidelity/policy vetoes.
+
+## 2026-10-19 Agent36 continuation (current run)
+
+Actual RNG 4, normal mode. Immutable claimed lease 2026-10-19T21:55:27.942Z, run agent36-chat-20261019T215527942Z-mvfsmd6x, claim commit e3a9a90. Earliest mandatory release 23:05:27.942Z, and only at real-clock checkpoint; all useful changes before final lease deletion.
+
+Pinned source-rank15/New Moon original 8-deal Bunnelby policy CI 39284019439 passed; actual source Bunnelby with TM Evolution and Energy 1/8 under generic and enhanced, but no evolution targets or native Evolution announcements. The sole paid-TM state repeat0 candidateSeatA/sourceSeatB occurred global turn16/root ordinal125, with Bunnelby, Grass Energy, TM Evolution, Budew, Eldegoss V, and THREE empty Bench slots. The same deal first reached full Bench on global turn36. The late missing evolution target was not caused by early Bench crowding in this specific stream.
+
+Manual frozen eight-deal Bench-reservation CI 39331437715 passed (8 matched deals, zero errors, two AOR, one BUS, zero joint, zero Evolution declarations). A single possibly speculative Buneary deferral in initial Prize-ineligible deal is not evidence of actual root intervention or effectiveness.
+
+A newly implemented owner-hand root observer passed compiled CI 39332235844: source held exactly Buddy-Buddy Poffin TEF and Tag Call CEC at global turn16, source 3 Bench slots free. Full forensic ZIP artifact 12224289513, SHA256 8f717cac3d29f4d5dd4abcebc7a17cbfbbcdc7763f8de2b14befbd027a1f2d22. The intended Poffin play and remaining Oddish deck availability are as yet unverified.
+
+Central reproducible report results/aichi-2026/agent36-rank15-powered-tm-temporal-source-gap.md; handoff to Agent30 and broadcast communications/broadcast/20261019T2210Z_agent36_rank15_poffin_owner_hold.md. Native live-action Poffin experiment code and tests: simulation/twinleaf/rank15-paid-tm-poffin-source-policy.cjs, simulation/twinleaf/rank15-paid-tm-poffin-original-root.cjs, tests/rank15-paid-tm-poffin-source-policy.test.cjs, added to existing manual-only aichi-newmoon-source-coverage.yml via rank15_paid_tm_poffin flag. Dispatched CI 39333636856, still unverified at checkpoint. Next: check CI and native item acceptance, actual root Oddish Bench, and any lock or prompt behavior. Do not promote retrospectively selected mechanical diagnostic as a competitive game.
+
+Field 29/32 exact opposing source lists; zero independently qualified games, 99.5% target unverified. 
