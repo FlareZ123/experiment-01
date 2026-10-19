@@ -55,6 +55,8 @@ jobs:
         run: node --test tests/aichi-correlated-round-evidence.test.cjs
       - name: Verify constructed Japanese New Moon 60 and reject altered printings
         run: node --test tests/new-moon-lockbreak-japanese-provenance.test.cjs
+      - name: Check proposed Japanese New Moon 60 against historical banned-print snapshot
+        run: node --test tests/new-moon-lockbreak-japanese-ban-screen.test.cjs
 
   rank11-source-census:
     runs-on: ubuntu-latest
