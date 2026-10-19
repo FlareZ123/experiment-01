@@ -15,7 +15,8 @@ function names(cards) {
 }
 /**
  * Hash all source-deck physical positions at the **first stable pre-action**
- * player-turn root. Exact printings and ordered hidden zones are included
+ * player-turn root. Setup prompts have already consumed Store actions.
+ * Exact printings and ordered hidden zones are included
  * only inside the digest; the returned object contains no hidden names.
  *
  * This is offline telemetry for comparing paired *physical initial deals*.
@@ -24,12 +25,12 @@ function names(cards) {
  *
  * @param {object} state Pinned Store game state.
  * @param {0|1} sourceSeat Physical source seat.
- * @param {number} rootActionCount Number of Store actions already dispatched.
+ * @param {number} playerTurnActions Number of PLAYER_TURN actions since setup.
  * @returns {{digestSha256:string,schema:string,seat:number}}
  */
-function fingerprintInitialSourceDeal(state,sourceSeat,rootActionCount) {
+function fingerprintInitialSourceDeal(state,sourceSeat,playerTurnActions) {
   assert.ok(sourceSeat===0||sourceSeat===1);
-  assert.equal(rootActionCount,0,'Initial deal must precede any root action');
+  assert.equal(playerTurnActions,0,'Initial deal must precede any player-turn action');
   assert.equal(state.turn,1,'Expected the first global game turn');
   assert.equal(state.phase,2,'Expected the pinned PLAYER_TURN phase');
   assert.ok(!state.prompts.some(prompt=>prompt.result===undefined),
