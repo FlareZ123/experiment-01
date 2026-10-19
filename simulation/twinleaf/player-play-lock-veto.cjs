@@ -46,6 +46,10 @@ function withPlayerPlayLockVeto(seat, execute) {
   const load = name => require(path.join(OUTPUT, name));
   const {SimpleTacticsAi} = load('simple-bot/simple-tactics-ai');
   const {SuperType,TrainerType,EnergyType} = load('game/store/card/card-types');
+  const {PlayStadiumTactic}=load('simple-bot/simple-tactics/play-stadium-tactic');
+  const {PassTurnAction}=load('game/store/actions/game-actions');
+  const originalDecode=SimpleTacticsAi.prototype.decodeNextAction;
+  const originalStadium=PlayStadiumTactic.prototype.useTactic;
   const original = SimpleTacticsAi.prototype.isValidAction;
   assert.equal(typeof original, 'function');
   const enums = {
@@ -56,6 +60,32 @@ function withPlayerPlayLockVeto(seat, execute) {
   };
   const rejections = [];
   const considered = [];
+  const directProposals = [];
+  const guardedStadium=function ownerStadiumRestriction(state,player) {
+    const actorIndex=state.players.findIndex(p=>p.id===player.id);
+    if ((seat===null || seat===actorIndex) && player.cannotPlayStadiumCards) {
+      rejections.push({turn:state.turn,seat:actorIndex,
+        reason:'stadium-tactic-held',card:null,actorId:player.id,
+        proposedAction:'PlayStadiumTactic'});
+      return undefined;
+    }
+    return originalStadium.call(this,state,player);
+  };
+  const guardedDecode=function ownerDirectActionGuard(state) {
+    const proposal=originalDecode.call(this,state);
+    const actorIndex=state.players.findIndex(p=>p.id===this.client?.id);
+    if (actorIndex<0 || (seat!==null && seat!==actorIndex)) return proposal;
+    const player=state.players[actorIndex];
+    const reason=playerPlayLockVeto(player,proposal,enums);
+    if (!reason) return proposal;
+    directProposals.push({turn:state.turn,seat:actorIndex,reason,
+      card:player.hand.cards[proposal.handIndex].fullName,
+      actorId:player.id,proposedAction:proposal.type});
+    // An illegal direct proposal cannot be dispatched. This conservative
+    // last-resort guard ends the turn; stronger tactic selection is a
+    // separate research question.
+    return new PassTurnAction(player.id);
+  };
   const adapted = function pinnedPlayLockOwnerVeto(state, action) {
     const actorIndex = state.players.findIndex(p=>p.id===this.client?.id);
     if (actorIndex>=0 && (seat===null || seat===actorIndex)) {
@@ -81,13 +111,19 @@ function withPlayerPlayLockVeto(seat, execute) {
     return original.call(this,state,action);
   };
   SimpleTacticsAi.prototype.isValidAction = adapted;
+  SimpleTacticsAi.prototype.decodeNextAction = guardedDecode;
+  PlayStadiumTactic.prototype.useTactic = guardedStadium;
   try {
     const result=execute();
     return {result,audit:{version:'owner-visible-player-play-lock-v1',
-      seat,rejections,considered}};
+      seat,rejections,considered,directProposals}};
   } finally {
     assert.equal(SimpleTacticsAi.prototype.isValidAction,adapted);
+    assert.equal(SimpleTacticsAi.prototype.decodeNextAction,guardedDecode);
+    assert.equal(PlayStadiumTactic.prototype.useTactic,guardedStadium);
     SimpleTacticsAi.prototype.isValidAction = original;
+    SimpleTacticsAi.prototype.decodeNextAction = originalDecode;
+    PlayStadiumTactic.prototype.useTactic = originalStadium;
   }
 }
 
