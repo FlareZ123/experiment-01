@@ -133,6 +133,7 @@ function executeDevelopment(trial,candidates){
     ...registration.frozenFlags,
     capturePublicAttackTransitions:true,
     captureFinalPublicBoard:true,
+    captureAttackPassProbes:true,
     captureInitialSourceDealFingerprintSeat:sourceSeat
   };
   const common=()=>withBilateralCommonCandidatePolicy(candidateSeat,
@@ -180,6 +181,19 @@ function executeDevelopment(trial,candidates){
   const candidateFollowup=firstPostSourceDecision(
     rootTrace,trial.rank,sourceAudit,candidateSeat);
   const sourceLinePacket=sourceLineReplyPacket(game,trial.rank,sourceAudit,sourceSeat);
+  // This bounded post-choice clone probe is an offline diagnostic only.
+  // Its printed and Tool-visible attack enumeration omits copied attacks;
+  // no result may be fed into the decision policy or counted as game strength.
+  const candidatePasses=game.decisionTrace.filter(row=>
+    row.playerSlot===candidateSeat && row.action==='PassTurnAction');
+  const candidatePassProbes=candidatePasses.filter(row=>row.attackPassProbe)
+    .map(row=>({
+      ordinal:row.actionOrdinal,turn:row.turnBefore,
+      activePokemon:row.attackPassProbe.activePokemon??null,
+      auditError:row.attackPassProbe.auditError??null,
+      tested:row.attackPassProbe.tested??[],
+      truncated:row.attackPassProbe.truncated??false
+    }));
   return {
     trial,qualifiesForCompetitiveInference:false,
     policyVersion:POLICY_VERSION,
@@ -192,6 +206,15 @@ function executeDevelopment(trial,candidates){
     sourceDealFingerprint:sourceDeal.digestSha256,
     sourceFirstOwnHandSha256:ownerFirst?sha256(ownerFirst):null,
     policyAudit:commonAudit,sourceAudit,sourceLinePacket,
+    candidatePostChoicePassProbe:{
+      observedCandidatePasses:candidatePasses.length,
+      boundedProbeCount:candidatePassProbes.length,
+      cloneAcceptedPasses:candidatePassProbes.filter(row=>
+        row.tested.some(attack=>attack.engineAcceptedAnnouncement===true)).length,
+      boundedAndIncomplete:true,
+      caveat:'Only printed/Tool-visible attack announcements on at most 8 globally sampled Pass roots'
+    },
+    candidatePassProbeSamples:candidatePassProbes,
     attackDeclarations:{
       source:declared.filter(r=>r.playerSlot===sourceSeat).length,
       candidate:declared.filter(r=>r.playerSlot===candidateSeat).length
