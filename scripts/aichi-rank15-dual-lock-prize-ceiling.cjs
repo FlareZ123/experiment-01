@@ -246,4 +246,4 @@ if (require.main === module) {
   process.stdout.write(JSON.stringify(fromSourceManifest(), null, 2) + '\n');
 }
 
-module.exports = { choose, ceilingForBasicCount, prerequisiteFailurePartition, lockTopologyPartition, basicCountFromPrintedDeck, fromSourceManifest };
+module.exports = { choose, fraction, ceilingForBasicCount, prerequisiteFailurePartition, lockTopologyPartition, basicCountFromPrintedDeck, fromSourceManifest };
