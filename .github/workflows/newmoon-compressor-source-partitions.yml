@@ -28,6 +28,12 @@ on:
         type: boolean
         default: false
 
+      common_bilateral_late_compressor_development:
+        description: 'Historical later owner donor setup development only'
+        required: false
+        type: boolean
+        default: false
+
 permissions:
   contents: read
 
