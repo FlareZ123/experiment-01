@@ -59,11 +59,37 @@ function lowHandLillieOpportunity(state,own,seat,playerTurnPhase) {
     own.hand.cards.some(card=>card.fullName==="Lillie's Determination M1L");
 }
 
-/** @param {object} opponent */
-function tooledGarbodor(opponent) {
-  return [opponent.active, ...opponent.bench].find(slot =>
+/** @param {object} opponent @returns {object[]} */
+function tooledGarbotoxinSlots(opponent) {
+  return [opponent.active, ...opponent.bench].filter(slot =>
     slot && isGarbotoxinPrinting(slot.getPokemonCard()) &&
     slot.tools.length > 0);
+}
+
+/** @param {object} opponent @returns {object|undefined} */
+function tooledGarbodor(opponent) {
+  return tooledGarbotoxinSlots(opponent)[0];
+}
+
+/**
+ * Select up to two distinct public Garbotoxin holders if the real prompt
+ * validates that many recipients. A Stadium-and-Tool branch may permit one.
+ *
+ * @param {object} prompt Genuine pinned ChoosePokemonPrompt
+ * @param {object} opponent Public opposing board
+ * @param {object} state Pinned State used only for prompt validation
+ * @returns {object[]|null}
+ */
+function chooseGarbotoxinTargets(prompt,opponent,state) {
+  const holders=tooledGarbotoxinSlots(opponent);
+  if (holders.length>=2) {
+    const both=holders.slice(0,2);
+    if (prompt.validate(both,state)) return both;
+  }
+  for (const holder of holders) {
+    if (prompt.validate([holder],state)) return [holder];
+  }
+  return null;
 }
 
 /**
@@ -144,14 +170,16 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
       });
     }
     if (phase === 'choose') {
-      const target = tooledGarbodor(opponent);
       if (pending?.constructor.name === 'ChoosePokemonPrompt' &&
-          pending.playerId === own.id && target &&
-          pending.validate([target], state)) {
-        events.push({turn:state.turn,kind:'selected-own-prompt',
-          card:'Field Blower',target:target.getPokemonCard()?.fullName});
-        phase = 'verify';
-        return new ResolvePromptAction(pending.id,[target]);
+          pending.playerId === own.id) {
+        const targets=chooseGarbotoxinTargets(pending,opponent,state);
+        if (targets) {
+          events.push({turn:state.turn,kind:'selected-own-prompt',
+            card:'Field Blower',targets:targets.map(slot =>
+              slot.getPokemonCard()?.fullName)});
+          phase = 'verify';
+          return new ResolvePromptAction(pending.id,targets);
+        }
       }
       if (!pending) {
         events.push({turn:state.turn,kind:'unresolved-Tool-prompt'});
@@ -245,4 +273,5 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
 }
 
 module.exports={blowerOpportunity,lowHandLillieOpportunity,tooledGarbodor,
-  withNewMoonBlowerAutonomy,MEWTWO,BLOWER,GARBODOR,GARBODOR_LTR,isGarbotoxinPrinting};
+  withNewMoonBlowerAutonomy,MEWTWO,BLOWER,GARBODOR,GARBODOR_LTR,
+  isGarbotoxinPrinting,tooledGarbotoxinSlots,chooseGarbotoxinTargets};
