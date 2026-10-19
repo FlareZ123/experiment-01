@@ -190,8 +190,40 @@ The existing manually invoked
 gained a separately guarded `benched_payload_retrospective:true`
 mode without changing the original source-partition or another
 agent's simultaneous canonical four-arm development behavior.
-Do not record the source comparison as completed until its
-CI run and artifact are inspected.
+**The retrospective source comparison has now completed**
+at [compiled CI 39335882282](https://github.com/FlareZ123/experiment-01/actions/runs/39335882282),
+head `722a91fba1b4722995201b63ef0ca5b983544dc8`,
+archived
+[full JSON artifact 12226049648](https://github.com/FlareZ123/experiment-01/actions/runs/39335882282/artifacts/12226049648),
+ZIP SHA256
+`a1ca2c3eeba04f3ffadf9463d2dd7329a2a623b47470c84cfcc4408667b231f2`.
+This was a **retrospective mechanical negative result**.
+On original frozen repeat1, seed `599726095`,
+both old Active-only and Benched-Mewtwo policies produced
+**zero actual candidate Battle Compressor plays**, and the
+source remained the engine winner after **174 root actions**.
+Both arms reported matching physical deck hashes and actual
+starting seat. The only recorded candidate attack declaration
+was `Pale Moon-GX` on turn 4, with printed resolution status
+`not-independently-verified`, in **both** arms.
+The recorder's two-card prompt selection at turn0 ordinal7
+(Trevenant & Dusknoir-GX SMP, Duskull VIV) is an
+**unattributed GX selection** in the absence of any actual
+Compressor PlayCardAction, and must not be described as a
+Compressor discard. Both game records remain
+`qualifiedForCompetitiveInference:false`.
+
+The observed result means this particular earlier source deal
+provides **no evidence of an actionable Benched-Mewtwo
+Compressor opportunity**, despite the native test proving the
+prepared-state interaction is valid. The absent action could
+reflect no overlapping owner state, an Item lock, an already
+accessible donor, or an intervening stronger bot action;
+the archived summary alone does not isolate the clause.
+A complete owner-visible, action-level screen is required
+before widening the policy further. This post hoc one-deal
+comparison contributes **zero additional independent
+competitive games**.
 
 ## Integration / qualification gate
 
