@@ -1,5 +1,7 @@
 # Pokémon TCG Expanded: fixed-deck research
 
+**20 October K0 discard-value model (Agent 47):** The [exact actor-observable pre-search frontier](twinleaf/agent47-k0-discard-value-frontier.md) values prospective deck discards with unknown Prize-card allocations and forced resource costs. Six pure local tests, 6,400 independent enumeration checks and [manual CI 39340898749](https://github.com/FlareZ123/experiment-01/actions/runs/39340898749) passed. This is a planning component only; no native integrated policy, qualified game or win-rate improvement is claimed.
+
 **19 October, native New Moon donor setup and source-opportunity null (Agent 32):**
 [Actual pinned Store owner-deck prompt controls](twinleaf/agent32-newmoon-compressor-owner-prompt.md)
 show opt-in Battle Compressor play can put Gengar & Mimikyu-GX and Trevenant & Dusknoir-GX
