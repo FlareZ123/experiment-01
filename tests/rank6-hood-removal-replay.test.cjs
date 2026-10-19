@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {observe}=require('../simulation/twinleaf/rank6-hood-removal-replay.cjs');
+const {observe,countSourceFirstDeals}=require('../simulation/twinleaf/rank6-hood-removal-replay.cjs');
 
 const item={repeat:1,sourceSeat:0,candidateSeat:1,seed:42};
 function game(){
@@ -44,4 +44,17 @@ test('unqualified raw root events and missing verification never certify a compe
   assert.equal(r.engineFinished,false);
   assert.throws(()=>observe({...game(),verifiedByDrawLog:false},item,
     'control',{events:[]},{events:[]},null,[]),/true/);
+});
+
+test('source-first count follows named baseline arm when original control is absent',()=>{
+  const records=[
+    {arm:'removal',status:'engine-observed',sourceActuallyFirst:true},
+    {arm:'faba-target',status:'engine-observed',sourceActuallyFirst:true},
+    {arm:'removal',status:'engine-observed',sourceActuallyFirst:false},
+    {arm:'faba-target',status:'engine-observed',sourceActuallyFirst:false},
+    {arm:'removal',status:'engine-exception',sourceActuallyFirst:true}
+  ];
+  assert.equal(countSourceFirstDeals(records,'removal'),1);
+  assert.equal(countSourceFirstDeals(records,'faba-target'),1);
+  assert.equal(countSourceFirstDeals(records,'control'),0);
 });
