@@ -29,6 +29,7 @@ function probe(params) {
   const {PlayCardAction,PlayerType,SlotType}=
     load('game/store/actions/play-card-action');
   const {UseAbilityAction}=load('game/store/actions/game-actions');
+  const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
   const store=new Store({onStateChange(){}});
   const state=store.state;
   state.phase=GamePhase.PLAYER_TURN;
@@ -63,35 +64,37 @@ function probe(params) {
   }
   state.turn=4;state.activePlayer=params.sourceSeat;
   let error=null;
+  let resolvedAbilityAnimation=false;
   try{
     store.dispatch(new UseAbilityAction(source.id,'Star Alchemy',{
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
     }));
+    const animation=store.state.prompts.find(p=>
+      p.result===undefined && p.constructor.name==='WaitPrompt');
+    if(animation){
+      store.dispatch(new ResolvePromptAction(animation.id,null));
+      resolvedAbilityAnimation=true;
+    }
   }catch(e){error=e.message;}
-  const pending=state.prompts.filter(p=>p.result===undefined)
-    .map(p=>p.constructor.name);
-  const accepted=!error && pending.includes('ChooseCardsPrompt');
   const effective=store.state;
   const effectiveSource=effective.players[params.sourceSeat];
-  return {...params,error,accepted,pending,
-    stateReplaced:effective!==state,
-    sourceReplaced:effectiveSource!==source,
-    effectivePending:effective.prompts.filter(p=>p.result===undefined)
-      .map(p=>p.constructor.name),
-    sourceStoneStillAttached:source.active.tools.includes(stone),
-    effectiveStoneAttached:effectiveSource.active.tools.some(
+  const pending=effective.prompts.filter(p=>p.result===undefined)
+    .map(p=>p.constructor.name);
+  const accepted=!error && pending.includes('ChooseCardsPrompt') &&
+    effectiveSource.usedVSTAR===true;
+  return {...params,error,accepted,pending,resolvedAbilityAnimation,
+    sourceStoneStillAttached:effectiveSource.active.tools.some(
       item=>item.name==='Forest Seal Stone'),
-    sourceVSTARUsed:source.usedVSTAR,
-    effectiveVSTARUsed:effectiveSource.usedVSTAR,
-    stadium:candidate.stadium.cards.map(c=>c.fullName)};
+    sourceVSTARUsed:effectiveSource.usedVSTAR,
+    stadium:effective.players[1-params.sourceSeat].stadium.cards
+      .map(c=>c.fullName)};
 }
 function run(){
   const cases=[];
   for(const sourceSeat of [0,1])for(const tower of [false,true]){
     cases.push(probe({sourceSeat,tower}));
   }
-  process.stderr.write('Star Alchemy source-controlled diagnostic: '+
-    JSON.stringify(cases)+'\n');
+
   for(const row of cases) {
     assert.equal(row.accepted,!row.tower,
       'Star Alchemy acceptance differs from printed Tool text: '+
