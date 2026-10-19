@@ -187,6 +187,31 @@ function runHistorical(){
       'information-set safety certification or a competitive result.'
   };
 }
-if(require.main===module)
-  process.stdout.write(JSON.stringify(runHistorical(),null,2)+'\n');
+if(require.main===module){
+  const result=runHistorical();
+  const json=JSON.stringify(result,null,2)+'\n';
+  const dest=process.env.AGENT23_RESULT_OUTPUT;
+  if(dest){
+    // The CI writer owns this one artifact under an exclusive advisory lock.
+    // Write a unique temporary file first, and atomically rename it.
+    const absolute=path.resolve(dest);
+    const lock=absolute+'.lock';
+    const fd=fs.openSync(lock,'wx');
+    const temporary=absolute+'.tmp-'+process.pid;
+    try{
+      fs.writeFileSync(temporary,json,{flag:'wx'});
+      fs.renameSync(temporary,absolute);
+    }finally{
+      if(fs.existsSync(temporary))fs.unlinkSync(temporary);
+      fs.closeSync(fd);
+      fs.unlinkSync(lock);
+    }
+    process.stdout.write(JSON.stringify({
+      schema:result.schema,attempts:result.attempts,
+      archive:dest,competitiveQualifiedGames:0
+    })+'\n');
+  }else{
+    process.stdout.write(json);
+  }
+}
 module.exports={classifyConditionalProbe,auditHistoricalTrial,runHistorical};
