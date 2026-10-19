@@ -41,6 +41,8 @@ const {installRedeemableTicketPaperOrderHook} = require('./redeemable-ticket-pap
 const {snapshotPrizeCardIdentities,invalidateAfterRootHiddenPrizeIngress,
   observeAfterRootFullPrizeReview} =
   require('./root-prize-knowledge-observer.cjs');
+const {beforeGladionRootPrizeChoice,afterGladionRootPrizeChoice} =
+  require('./gladion-root-prize-choice-evidence.cjs');
 const {installHisuianHeavyBallPrizeShuffleHook} = require('./hisuian-heavy-ball-prize-hook.cjs');
 const {installPendingEndTurnSwitchCleanup} = require('./pending-end-turn-switch-cleanup.cjs');
 const {installApexPrizeWindowPolicy} = require('./apex-prize-headless-policy.cjs');
@@ -279,6 +281,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [captureHorrorHouseRootResolution] Observe only real-root Store Horror House declarations and adjacent zones.
  * @property {boolean} [capturePoltergeistEffectTrace] Opt-in retrospective hand Trainer counts and real-root Poltergeist reducer windows.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
+ * @property {boolean} [captureGladionRootPrizeChoices] Observe actual owner-revealed Prize identities only after a live Gladion choice; never supplied to policy.
  * @property {boolean} [captureStartingBoard] Read-only physical Active/Bench at the first nonprompt player-turn opportunity.
  * @property {boolean} [captureRootConfirmationTrace] Observe only actual Store-dispatched confirmation choices and public damage.
  * @property {boolean} [capturePublicAttackTransitions] Record public board before and immediately after real Store logged attack dispatches, without hidden cards.
@@ -812,6 +815,7 @@ function runMatch(request) {
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
     const rootActionLedger = request.captureDecisionTrace === true ? [] : null;
+    const gladionRootPrizeChoices = request.captureGladionRootPrizeChoices === true ? [] : null;
     const rootConfirmationTrace = request.captureRootConfirmationTrace === true ? [] : null;
     const electrodeOpportunityObserver = request.captureElectrodeOpportunity === true ?
       require('./electrode-opportunity-observer.cjs').createElectrodeOpportunityObserver() : null;
@@ -1068,6 +1072,8 @@ function runMatch(request) {
       const attackLogStartIndex = state.logs.length;
       const prizeBeforeRoot = request.bunnelbyObservedK1 === true ?
         snapshotPrizeCardIdentities(store.state) : null;
+      const gladionChoiceBefore = gladionRootPrizeChoices && seat >= 0 ?
+        beforeGladionRootPrizeChoice(state,pending,action,seat,actions) : null;
       const rootConfirm = rootConfirmationTrace &&
           pending?.constructor.name === 'ConfirmPrompt' &&
           actionName === 'ResolvePromptAction' && seat >= 0 ? {
@@ -1138,6 +1144,10 @@ function runMatch(request) {
           benchAfter:source.bench.map(slot=>slot.getPokemonCard()?.fullName)
             .filter(Boolean)
         });
+      }
+      if (gladionChoiceBefore) {
+        gladionRootPrizeChoices.push(
+          afterGladionRootPrizeChoice(gladionChoiceBefore,store.state));
       }
       if (rootConfirm) {
         const defending = store.state.players[1-seat];
@@ -1378,6 +1388,7 @@ function runMatch(request) {
       abilityTrace,
       decisionTrace,
       rootActionLedger,
+      ...(gladionRootPrizeChoices ? {gladionRootPrizeChoices} : {}),
       rootActionLedgerProtocol: rootActionLedger ?
         'actual-store-root-action-ledger-v1' : null,
       ...(rootConfirmationTrace ? {rootConfirmationTrace} : {}),
