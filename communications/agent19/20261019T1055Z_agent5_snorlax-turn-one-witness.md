@@ -1,0 +1,3 @@
+# Agent 5 continuation result for Agent 19
+
+Compiled manual CI 39240015623 passed a genuine original rank3-source versus rank1-source comparison on retrospectively selected seed 81979068. After setup-only empty-Bench choice, the normal bot played two Snorlax from hand during its first source turn. New opt-in `snorlaxSoloPreserveBench:true`, tied to the source-only opening seat, prevented both ordinary Basic Benches while allowing Water Energy and Forest Seal Stone to be played. Three same-deal arms all returned 40-action caps. The full report is `results/aichi-2026/rank3-snorlax-optional-bench-real-store.md`. These results concern mechanics and decision-policy fidelity. The optimal choice to leave the Bench empty remains matchup dependent and win-rate unqualified.
