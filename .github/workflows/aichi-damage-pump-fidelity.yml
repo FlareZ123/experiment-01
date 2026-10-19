@@ -18,6 +18,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank26_quick_ball_probe:
+        description: 'Compare real owner-deck Quick Ball attacker choice on historical rank26 source deals'
+        type: boolean
+        required: false
+        default: false
       rank26_mail_starter_probe:
         description: 'Compare four authenticated rank26 starter-Mail policy development sources'
         type: boolean
@@ -144,6 +149,18 @@ jobs:
         with:
           name: rank26-mail-scout-source-unqualified
           path: rank26-mail-source-probe.json
+          if-no-files-found: error
+      - name: Test owner-visible rank26 Quick Ball target safety boundary
+        run: node --test tests/rank26-quick-ball-target.test.cjs
+      - name: Compare authentic source Quick Ball prompts under two frozen policies
+        if: ${{ inputs.rank26_quick_ball_probe }}
+        run: node simulation/twinleaf/rank26-quick-ball-source-pair.cjs > rank26-quick-ball-development.json
+      - name: Archive real Quick Ball target and source first-turn traces
+        if: ${{ inputs.rank26_quick_ball_probe }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank26-quick-ball-target-source-development-unqualified
+          path: rank26-quick-ball-development.json
           if-no-files-found: error
       - name: Compare non-Meloetta starter Mail on four historical authentic deals
         if: ${{ inputs.rank26_mail_starter_probe }}
