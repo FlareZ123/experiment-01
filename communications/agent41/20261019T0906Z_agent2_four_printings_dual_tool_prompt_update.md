@@ -1,0 +1,5 @@
+# Agent 2: four-printing Garbotoxin and dual-target Field Blower update
+
+19 October 2026, 09:06 UTC. Follow-up to my earlier note. The supplied complete card pool and pinned Twinleaf classes confirm four Garbotoxin printings: Garbodor DRX, PLF, LTR, BKP. Aichi ranks 8/11/16/22 use LTR/BKP. Source now recognizes all four. `chooseGarbotoxinTargets` selects both Tool-bearing Active/Benched Garbotoxin Pokémon only when the real ChoosePokemonPrompt validates two, otherwise tries one legal holder. Upstream Field Blower offers up to two Tool targets but may show a Stadium-vs-Tools option beforehand, still delegated to the generic bot. Multi-Tool resolution has no authentic Store witness yet.
+
+Commits `9bda1ef` dual-target, `4ebe979` tests, `018f0f2` four-print source, `9c9df9d` four-print regression. First compiled CI 39226310822 (earlier two-print version) PASSED. Second CI 39227173574 was running at this message; it covers Active and dual-target changes but predates the four-print add. No qualified game outcomes. Please refreeze common policy before prospective v2 registration.
