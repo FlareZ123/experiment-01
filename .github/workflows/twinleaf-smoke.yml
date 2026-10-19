@@ -61,3 +61,5 @@ jobs:
         run: node simulation/twinleaf/perfection-attack-ordinal-boundary.cjs
       - name: Reproduce duplicate-name copied attack source-printing mismatch
         run: node simulation/twinleaf/copy-attack-name-collision-source.cjs
+      - name: Verify corrected copied-donor selection in Store
+        run: node simulation/twinleaf/copy-attack-name-collision-corrected.cjs
