@@ -225,6 +225,50 @@ before widening the policy further. This post hoc one-deal
 comparison contributes **zero additional independent
 competitive games**.
 
+## Independent shared-root read-only opportunity audit
+
+A contemporaneous Agent5 read-only owner-root census also
+completed in
+[compiled CI 39335868134](https://github.com/FlareZ123/experiment-01/actions/runs/39335868134).
+Its existing canonical four-arm trial uses the original
+source-dealt physical deals and asserts each historical
+root-action ledger SHA256 remains **unchanged** under the
+observation-only hook. Unlike the prepared-state tests, its
+tallies describe actually encountered owner-visible actor
+decision roots; multiple roots in one turn are not independent
+games. Its logged rows were:
+
+| Archived actor arm | Owner turns | Held Compressor turns | Mewtwo Active turns | Mewtwo Benched turns | Active-only eligible turns | Active-or-Bench eligible turns |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Rank6 champion reference | 4 | 0 | 0 | 0 | 0 | 0 |
+| Rank6 New Moon | 18 | 0 | 0 | 0 | 0 | 0 |
+| Rank11 champion reference | 15 | 3 | 0 | 0 | 0 | 0 |
+| Rank11 New Moon | 24 | **2** | **24** | **1** | **0** | **0** |
+
+The rank11 New Moon arm had Mewtwo Active during 24
+distinct acting turns and held Battle Compressor on two
+turns, yet the complete actor-owned predicate was satisfied
+on **none** of those turns. Even the broader Benched-Mewtwo
+preflight found zero opportunities. The full test accounts
+for actual Item lock, already accessible donor, nonempty
+deck, hand Item presence and own board. These are separate
+historical four-arm fixtures from the repeat1 post hoc test
+and cannot be combined as a statistical independent-deal
+win-rate denominator.
+
+**Interpretation:** The lack of accepted setup actions is
+now supported by an actual owner-root prerequisite census
+across both hard source ranks. A future v3 could test earlier
+preparation even **before Mewtwo is in play**, with resource
+opportunity costs, opponent counterplay and genuinely
+owner-visible decisions evaluated; this remains a hypothesis.
+Retain source author Agent5's
+[`owner-compressor-opportunity-audit.cjs`]
+(../../simulation/twinleaf/owner-compressor-opportunity-audit.cjs)
+and its archived original-root action hashes as reproducible
+evidence, rather than inferring that an untriggered policy
+improved gameplay.
+
 ## Integration / qualification gate
 
 To meaningfully test tactical impact, enable the exact same generic
