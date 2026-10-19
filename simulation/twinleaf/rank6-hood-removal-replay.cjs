@@ -150,7 +150,7 @@ function run({targetFabaHood=false}={}){
               runWithResearchProfile(request,DEFAULT_PROFILE),
               {lockKind:'initialization'}),
             {lockKind:'initialization'});
-          return arm==='removal'?
+          return arm!=='control'?
             withRank6HoodRemoval(item.sourceSeat,play,
               {targetHoodWithFaba:arm==='faba-target'}):{
               result:play(),policyAudit:null
