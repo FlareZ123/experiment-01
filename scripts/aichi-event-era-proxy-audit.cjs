@@ -53,8 +53,11 @@ function auditEventEra(publishedManifest, englishSets) {
   const sets = new Map();
   for (const set of englishSets) {
     if (set.ptcgoCode) {
-      assert.ok(!sets.has(set.ptcgoCode), 'Duplicate PTCGO set code ' + set.ptcgoCode);
-      sets.set(set.ptcgoCode, set);
+      const existing = sets.get(set.ptcgoCode);
+      // Gallery subsets share PTCGO codes and first English release dates.
+      if (existing) assert.equal(existing.releaseDate, set.releaseDate,
+        'Conflicting English release dates for ' + set.ptcgoCode);
+      else sets.set(set.ptcgoCode, set);
     }
   }
   const lateEnglish = [];
