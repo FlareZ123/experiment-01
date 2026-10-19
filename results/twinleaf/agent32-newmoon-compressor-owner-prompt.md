@@ -95,6 +95,34 @@ other attacks remain unavailable for copying. Evidence for that
 additional native case should be attached only after a compiled
 CI run has verified it.
 
+## Existing source-dealt negative control that constrains this finding
+
+The prior
+[Agent35 all-twelve source-deal study]
+(agent35-rank11-compressor-partition-recovery.md)
+already compared this original **Active-Mewtwo-only** Compressor
+tactic against an unchanged-policy control in twelve fixed
+rank-11 New Moon versus Absol/Garbodor paired physical deals.
+All 24 Store arms completed execution or reached their action caps,
+but **no Battle Compressor PlayCardAction occurred in any arm**.
+Across 60 within-game early owner-turn snapshots, Mewtwo was
+Active in 13 and Compressor held in five, with **zero
+overlapping opportunities**. The 12 paired arms therefore
+recorded identical action/terminal observations.
+
+This constrains interpretation: the new native prepared-state
+success proves an implementation path works *when its narrow
+preconditions occur*. It does not refute the source-dealt
+**zero-opportunity** result. The new held-Gengar rule correction
+and Item-lock guard alone do not solve absent co-occurrence of
+Active Mewtwo and held Compressor. To affect a real source
+game, a future explicitly versioned policy might prepare
+donors before Mewtwo moves Active, using only the owner's
+public/own Pokémon in play, or improve Mewtwo positioning.
+Test such a changed predicate and the downstream copy/attack
+on actual source-dealt identical inventory/seed controls before
+considering it an improvement.
+
 ## Integration / qualification gate
 
 To meaningfully test tactical impact, enable the exact same generic
