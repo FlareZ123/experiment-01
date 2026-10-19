@@ -164,7 +164,7 @@ jobs:
 
       - name: Validate frozen rank8 prospective seeds and deterministic audit
         if: inputs.hood_rank8_pressure_prospective
-        run: node --test tests/rank8-hood-pressure-registered-v1.test.cjs
+        run: node --test tests/rank8-hood-pressure-registered-v1.test.cjs tests/rank8-boostshake-duplicate-discard.test.cjs
       - name: Run exact pre-registered 16 rank8 baseline/conditional pairs
         if: inputs.hood_rank8_pressure_prospective
         run: node simulation/twinleaf/rank8-hood-pressure-registered-v1.cjs > rank8-hood-pressure-prospective.json
