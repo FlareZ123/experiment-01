@@ -213,7 +213,10 @@ function probeDittoStage2(useGlimwood, verifyItemLock = false, counterMode = 'no
         originalActiveOnBench: actor.bench.some(slot =>
           slot.getPokemonCard() === initialActive),
         vileplumeAbilitySuppressedAfter: IS_ABILITY_BLOCKED(
-          store, state, liveMine, stage2)
+          store, state, liveMine, stage2),
+        itemLockRestoredAfterSwitch: switchPromptResolved && 
+          blocked(liveMine) &&
+          blocked(store.state.players.find(player => player.id === enemy.id))
       };
     }
     } finally {
