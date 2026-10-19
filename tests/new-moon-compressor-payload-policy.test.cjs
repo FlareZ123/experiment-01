@@ -24,7 +24,7 @@ test('early Mewtwo and a held Compressor is an own-hand opportunity',()=>{
   assert.equal(shouldSeekPayload(state,player,3),true);
 });
 
-test('search is declined if an attack payload is already accessible',()=>{
+test('discard and Bench Gengar stop search; held Gengar does not',()=>{
   const {state,player}=fixture();
   player.discard.cards=[{fullName:GENGAR}];
   assert.equal(shouldSeekPayload(state,player,3),false);
@@ -33,7 +33,8 @@ test('search is declined if an attack payload is already accessible',()=>{
   assert.equal(shouldSeekPayload(state,player,3),false);
   player.bench[0].getPokemonCard=()=>undefined;
   player.hand.cards.push({fullName:GENGAR});
-  assert.equal(shouldSeekPayload(state,player,3),false);
+  assert.equal(shouldSeekPayload(state,player,3),true,
+    'A Gengar held in hand cannot supply the Perfection donor zone');
 });
 
 test('source turn and action gates do not read hidden card identities',()=>{
@@ -46,6 +47,14 @@ test('source turn and action gates do not read hidden card identities',()=>{
   assert.equal(shouldSeekPayload(state,player,3),false);
   state.prompts=[];player.deck.cards=[];
   assert.equal(shouldSeekPayload(state,player,3),false);
+});
+
+test('public Item lock removes the Compressor action opportunity',()=>{
+  const {state,player}=fixture();
+  player.cannotPlayItemCards=true;
+  assert.equal(shouldSeekPayload(state,player,3),false);
+  player.cannotPlayItemCards=false;
+  assert.equal(shouldSeekPayload(state,player,3),true);
 });
 
 test('owner prompt selects Gengar and Trevenant in priority order',()=>{
