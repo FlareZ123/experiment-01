@@ -114,6 +114,45 @@ function calculatePoffinAssistedTmOpportunity() {
   };
 }
 
+/**
+ * Hard structural upper bound for a Bunnelby chosen Active at setup and two
+ * on-deck Gloom plus two distinct Vileplume before any hand recycling.
+ * Ignores TM, Energy and Oddish search availability entirely.
+ */
+function calculateNoPivotStagePoolCeiling() {
+  let favorable = 0n;
+  for (let b = 1; b <= 2; b++) {
+    for (let oddish = 0; oddish <= 2; oddish++) {
+      for (let aor = 0; aor <= 1; aor++) {
+        const other = 8 - b - oddish - aor;
+        if (other < 0 || other > 51) continue;
+        const firstEightWays = choose(2, b) * choose(2, oddish) *
+          choose(2, aor) * choose(51, other);
+        const prizeWays = aor === 0 ?
+          choose(47 + oddish, 6) - choose(45 + oddish, 4) :
+          choose(46 + oddish, 6);
+        favorable += firstEightWays * BigInt(b === 1 ? 7 : 8) * prizeWays;
+      }
+    }
+  }
+  const denominator = 8n * choose(60, 8) * choose(52, 6);
+  const legalSeven = choose(60, 7) - choose(46, 7);
+  const conditional = fraction(favorable * choose(60, 7),
+    denominator * legalSeven);
+  assert.deepEqual([conditional.numerator, conditional.denominator],
+    ['125366629', '1389200384']);
+  return {
+    sourceRank: 15,
+    event: 'Bunnelby in opening seven; both Gloom, BUS and at least one AOR in deck after first eight and Prizes; both Oddish unprized',
+    conditionalOnBasicValidInitialSeven: conditional,
+    unconditioned: fraction(favorable, denominator),
+    requiresBunnelbyChosenActive: true,
+    assumesNoHandRecyclingOfStageCards: true,
+    ignoresAllToolEnergyAndSearchResources: true,
+    qualifiesCompetitiveResults: false
+  };
+}
+
 /** @param {string} root Repository root */
 function fromSourceManifest(root = path.resolve(__dirname, '..')) {
   const field = JSON.parse(fs.readFileSync(path.join(root,
@@ -135,11 +174,12 @@ function fromSourceManifest(root = path.resolve(__dirname, '..')) {
   assert.equal(count('Buddy-Buddy Poffin', 'TEF'), 3);
   // The earlier source printing audit separately verifies exactly 14 Basics.
   return {...calculateDirectTmOpportunity(),
-    poffinAssisted: calculatePoffinAssistedTmOpportunity()};
+    poffinAssisted: calculatePoffinAssistedTmOpportunity(),
+    noPivotStagePoolCeiling: calculateNoPivotStagePoolCeiling()};
 }
 
 if (require.main === module) {
   process.stdout.write(JSON.stringify(fromSourceManifest(), null, 2) + '\n');
 }
 
-module.exports = {calculateDirectTmOpportunity, calculatePoffinAssistedTmOpportunity, fromSourceManifest};
+module.exports = {calculateDirectTmOpportunity, calculatePoffinAssistedTmOpportunity, calculateNoPivotStagePoolCeiling, fromSourceManifest};
