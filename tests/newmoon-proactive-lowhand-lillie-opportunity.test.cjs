@@ -8,7 +8,7 @@ const {lowHandLillieOpportunity}=
 function fixture() {
   const state={turn:2,activePlayer:1,phase:7,prompts:[]};
   const own={
-    supporterTurn:1,
+    supporterTurn:0,
     hand:{cards:[
       {fullName:"Lillie's Determination M1L"},
       {fullName:'Psychic Energy SVE'}
@@ -35,9 +35,11 @@ test('a hand of three, no held Lillie, or no hand cannot qualify',()=>{
 
 test('a spent Supporter or fewer than six Prizes refuses',()=>{
   const {state,own}=fixture();
-  own.supporterTurn=state.turn;
-  assert.equal(lowHandLillieOpportunity(state,own,1,7),false);
   own.supporterTurn=1;
+  state.turn=9;
+  assert.equal(lowHandLillieOpportunity(state,own,1,7),false,
+    'supporterTurn is a per-turn used counter, not a global turn number');
+  own.supporterTurn=0;
   own.prizes[0].cards=[];
   assert.equal(lowHandLillieOpportunity(state,own,1,7),false);
 });
@@ -48,4 +50,18 @@ test('out-of-turn actions, wrong phase and pending prompts refuse',()=>{
   assert.equal(lowHandLillieOpportunity(state,own,1,8),false);
   state.prompts=[{result:undefined}];
   assert.equal(lowHandLillieOpportunity(state,own,1,7),false);
+});
+
+
+test('pinned turn-local Supporter counter stays legal across later global turns',()=>{
+  const {state,own}=fixture();
+  for(const turn of [1,2,5,9]){
+    state.turn=turn;
+    own.supporterTurn=0;
+    assert.equal(lowHandLillieOpportunity(state,own,1,7),true,
+      'No Supporter played this turn remains eligible on turn '+turn);
+    own.supporterTurn=1;
+    assert.equal(lowHandLillieOpportunity(state,own,1,7),false,
+      'A spent Supporter prevents another even on global turn '+turn);
+  }
 });
