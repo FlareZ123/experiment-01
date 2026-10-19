@@ -196,3 +196,13 @@ test('the opener will not try to replay Stadium after a Stadium this turn',()=>{
     stadiumAlreadyPlayed:true
   })?.channel,'direct');
 });
+
+
+test('source-first attached Double Colorless satisfies Energy requirement',()=>{
+  const plan=planOpeningHand(hand(['Iron Thorns ex','Guzma & Hala']),
+    false,undefined,false,{activeDceAttached:true});
+  assert.deepEqual(plan,{channel:'held-guzma-hala',needDce:false,
+    needThunder:true,discardCount:0});
+  assert.equal(planOpeningHand(hand(['Iron Thorns ex','Tag Call']),
+    false,undefined,false,{activeDceAttached:true,itemLocked:true}),null);
+});
