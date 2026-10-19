@@ -1,0 +1,29 @@
+name: First-source-deal digest smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  initial-deal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install upstream dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned upstream server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify private initial-deal fingerprint serializer and actual Store noninterference
+        run: node --test tests/source-physical-deal-fingerprint.test.cjs tests/headless-initial-source-deal-smoke.test.cjs
