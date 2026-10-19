@@ -8,11 +8,6 @@ on:
         required: false
         type: boolean
         default: false
-      agent5_common_compressor_dev:
-        description: 'Opt-in owner-visible Battle Compressor payload tactic on both frozen candidate decks; historical development only'
-        required: false
-        type: boolean
-        default: false
       agent25_rank6_farewell_live:
         description: 'One retrospectively selected rank6 actual-game owner Farewell-over-Pass continuation'
         required: false
@@ -188,8 +183,6 @@ jobs:
         run: node --test tests/agent41-bilateral-common-policy.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/perfection-post-pass-probe.test.cjs tests/aichi-bilateral-pass-evidence-summary.test.cjs
       - name: Run four existing v1 deals with one new common candidate policy
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
-        env:
-          AGENT5_COMMON_COMPRESSOR_DEV: ${{ inputs.agent5_common_compressor_dev }}
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent41-bilateral-v2-development.json
       - name: Summarize all development failures and attempted arms, without competitive outcomes
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
