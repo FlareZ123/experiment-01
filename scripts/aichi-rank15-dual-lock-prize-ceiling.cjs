@@ -215,7 +215,7 @@ function basicCountFromPrintedDeck(deck, root) {
       'PR-XY' : entry.printing.set;
     const setId = setIds.get(sourceSet);
     assert.ok(setId, 'Unknown source set ' + entry.printing.set);
-    const number = setId === 'xyp' && /^\\d/.test(entry.printing.number) ?
+    const number = setId === 'xyp' && !entry.printing.number.startsWith('XY') ?
       'XY' + entry.printing.number : entry.printing.number;
     if (!cache.has(setId)) {
       cache.set(setId, JSON.parse(fs.readFileSync(
