@@ -66,7 +66,7 @@ function withRootToolTransitions(candidateSeat,execute){
  * bot choices. This method does not compute a win rate.
  * @param {object} game
  * @param {object} item
- * @param {'control'|'removal'} arm
+ * @param {'control'|'removal'|'faba-target'} arm
  * @param {object} hood
  * @param {object} door
  * @param {object|null} source
@@ -95,6 +95,9 @@ function observe(game,item,arm,hood,door,source,transitions){
     sourceOwnerRemovalActions:chosenSource,
     sourceOwnerRemovalRejections:(source?.events||[]).filter(row=>
       row.kind==='pinned-source-play-rejected'),
+    sourceFabaPromptSelections:(source?.events||[]).filter(row=>
+      row.kind==='selected-source-faba-prompt'),
+    sourceFabaStage:source?.fabaStage??null,
     selectedHoodActions:chosen.length,
     hoodActualAttachments:attached.length,
     completedProtectedDoorEffects:completedDoor.length,
@@ -112,8 +115,12 @@ function observe(game,item,arm,hood,door,source,transitions){
   };
 }
 
-/** @returns {object} Historical-rank6 source policy replay on fixed frame. */
-function run(){
+/**
+ * Historical-rank6 policy counterfactual on a fixed already-observed frame.
+ * @param {{targetFabaHood?:boolean}} [options]
+ * @returns {object}
+ */
+function run({targetFabaHood=false}={}){
   const {planAichi}=require('../evaluation/aichi-pilot.cjs');
   const plan=planAichi(candidate,{
     allowEquivalentBasicEnergies:true,allowBasicEnergyMirrorPrintings:true,
@@ -123,8 +130,9 @@ function run(){
   assert.equal(rank6?.status,'ready');
   const hashes={source:digest(rank6.cards),candidate:digest(plan.candidate.cards)};
   const records=[];
+  const arms=targetFabaHood?['removal','faba-target']:['control','removal'];
   for(const item of fixedFrame()){
-    for(const arm of ['control','removal']){
+    for(const arm of arms){
       const request={
         deckA:item.sourceSeat===0?rank6.cards:plan.candidate.cards,
         deckB:item.sourceSeat===1?rank6.cards:plan.candidate.cards,
@@ -143,7 +151,8 @@ function run(){
               {lockKind:'initialization'}),
             {lockKind:'initialization'});
           return arm==='removal'?
-            withRank6HoodRemoval(item.sourceSeat,play):{
+            withRank6HoodRemoval(item.sourceSeat,play,
+              {targetHoodWithFaba:arm==='faba-target'}):{
               result:play(),policyAudit:null
             };
         });
@@ -169,8 +178,13 @@ function run(){
   const actualStarts=records.filter(row=>row.arm==='control'&&
     row.sourceActuallyFirst===true).length;
   return {
-    schema:'agent7-rank6-owner-hood-removal-retrospective-replay-v1',
-    registration:'results/aichi-2026/agent7-rank6-hood-source-reply-registration.md',
+    schema:targetFabaHood?
+      'agent7-rank6-faba-target-retrospective-replay-v2':
+      'agent7-rank6-owner-hood-removal-retrospective-replay-v1',
+    registration:targetFabaHood?
+      'results/aichi-2026/agent7-rank6-faba-target-reply-registration.md':
+      'results/aichi-2026/agent7-rank6-hood-source-reply-registration.md',
+    studyArms:arms,targetFabaHood,
     context:'Historical source deals; source-counterplay policy frozen before replay; do not count as independent prospective games',
     seedFrame:fixedFrame(),sourceRank:6,
     engine:'twinleafgg/'+plan.engineRevision,
@@ -185,6 +199,9 @@ function run(){
     actualHoodReductionDeals:count('removal','actualPhysicalHoodReductions'),
     removalHoodAttachmentDeals:count('removal','hoodActualAttachments'),
     removalDoorEffectDeals:count('removal','completedProtectedDoorEffects'),
+    fabaTargetSourceChoiceDeals:count('faba-target','sourceOwnerRemovalSelected'),
+    fabaTargetActualHoodReductionDeals:count('faba-target','actualPhysicalHoodReductions'),
+    fabaTargetProtectedDoorDeals:count('faba-target','completedProtectedDoorEffects'),
     qualifiedCompetitiveGames:0,
     records,
     warning:'All arms are opponent-decision probes on inspected prior source seeds with unqualified bots. Physical Tool reduction can also arise from KO/switch/other reducers; inspect action ledger before attributing it to Faba or Megaton Blower.'
