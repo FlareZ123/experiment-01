@@ -9,6 +9,12 @@ const engine = name => require(path.join(output, name));
 const MEWTWO = 'Mewtwo & Mew-GX UNM';
 const BLOWER = 'Field Blower GRI';
 const GARBODOR = 'Garbodor BKP';
+const GARBODOR_LTR = 'Garbodor LTR';
+const GARBOTOXIN_PRINTINGS = new Set([GARBODOR, GARBODOR_LTR]);
+
+/** @param {object|null|undefined} pokemon @returns {boolean} */
+const isGarbotoxinPrinting = pokemon =>
+  GARBOTOXIN_PRINTINGS.has(pokemon?.fullName);
 
 /**
  * A deliberately narrow public/own-hand decision predicate. It does not
@@ -30,7 +36,7 @@ function blowerOpportunity(state, own, opponent, seat, playerTurnPhase,
     (allowAnyActiveBlower || own.active.getPokemonCard()?.fullName === MEWTWO) &&
     own.hand.cards.some(card => card.fullName === BLOWER) &&
     opponent.bench.some(slot =>
-      slot.getPokemonCard()?.fullName === GARBODOR &&
+      isGarbotoxinPrinting(slot.getPokemonCard()) &&
       slot.tools.length > 0);
 }
 
@@ -58,7 +64,7 @@ function lowHandLillieOpportunity(state,own,seat,playerTurnPhase) {
 /** @param {object} opponent */
 function tooledGarbodor(opponent) {
   return opponent.bench.find(slot =>
-    slot.getPokemonCard()?.fullName === GARBODOR &&
+    isGarbotoxinPrinting(slot.getPokemonCard()) &&
     slot.tools.length > 0);
 }
 
@@ -127,7 +133,7 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
         state.turn !== lastObservedCandidateTurn && !pending) {
       lastObservedCandidateTurn = state.turn;
       const garbodor = opponent.bench.find(slot =>
-        slot.getPokemonCard()?.fullName === GARBODOR);
+        isGarbotoxinPrinting(slot.getPokemonCard()));
       const payload = card => card?.fullName === 'Gengar & Mimikyu-GX TEU';
       events.push({
         turn: state.turn, kind: 'read-only-own-turn-board',
@@ -145,7 +151,7 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
           pending.playerId === own.id && target &&
           pending.validate([target], state)) {
         events.push({turn:state.turn,kind:'selected-own-prompt',
-          card:'Field Blower',target:GARBODOR});
+          card:'Field Blower',target:target.getPokemonCard()?.fullName});
         phase = 'verify';
         return new ResolvePromptAction(pending.id,[target]);
       }
@@ -241,4 +247,4 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
 }
 
 module.exports={blowerOpportunity,lowHandLillieOpportunity,tooledGarbodor,
-  withNewMoonBlowerAutonomy,MEWTWO,BLOWER,GARBODOR};
+  withNewMoonBlowerAutonomy,MEWTWO,BLOWER,GARBODOR,GARBODOR_LTR,isGarbotoxinPrinting};
