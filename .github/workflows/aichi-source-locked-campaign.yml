@@ -3,6 +3,19 @@ name: Aichi source-locked Iron Thorns policy diagnostic
 on:
   workflow_dispatch:
     inputs:
+      agent41_crossrank_trial:
+        description: 'Execute prespecified rank 6 and rank 11 two-candidate owner-policy screen'
+        required: false
+        type: boolean
+        default: false
+      agent41_crossrank_partition:
+        description: 'Preregistered three-repeat partition, 0 or 1'
+        required: false
+        type: choice
+        options:
+          - '0'
+          - '1'
+        default: '0'
       trial_ids:
         description: 'Optional comma-separated pilot trial IDs, maximum six'
         required: false
@@ -142,6 +155,17 @@ jobs:
       - name: Compile pinned simulator
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify registered Agent41 two-rank schedule and corpus hashes
+        if: ${{ inputs.agent41_crossrank_trial }}
+        run: node --test tests/agent41-crossrank-actual-decisions.test.cjs
+      - name: Execute frozen candidate-paired Iron Thorns and Garbodor screen
+        if: ${{ inputs.agent41_crossrank_trial }}
+        env:
+          AGENT41_PARTITION: ${{ inputs.agent41_crossrank_partition || '0' }}
+        run: node simulation/evaluation/agent41-crossrank-actual-decisions.cjs > agent41-crossrank-observed.json
+      - name: Print bounded failures, decisions and source opportunity counts
+        if: ${{ inputs.agent41_crossrank_trial }}
+        run: node -e "const a=require('./agent41-crossrank-observed.json');console.log(JSON.stringify({partition:a.partition,recorded:a.partitionRecorded,status:a.statusCounts,opportunities:a.sourceOpportunityCounts,sourceFirst:a.actualSourceFirstCount,attackDeclarations:a.observedAttackDeclarations,matchedSourceHands:a.pairedSourceHandAgreement,paired:a.pairedTotal,errors:a.rows.filter(x=>x.status==='engine-error').map(x=>({id:x.id,error:x.error?.slice(0,250)}))},null,2))"
       - name: Verify source-locked trial adapter and guards
         run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs tests/aichi-comparison-campaign.test.cjs tests/aichi-new-moon-admission.test.cjs tests/rank11-autonomous-opener.test.cjs tests/rank11-autonomous-campaign-seat.test.cjs tests/rank11-first-turn-screen.test.cjs tests/rank11-conditional-k0-screen-run.test.cjs tests/rank11-conditional-k0-complete.test.cjs tests/rank11-k0-selected-continuations-run.test.cjs tests/aichi-campaign-attack-observer-screen.test.cjs tests/rank26-autonomous-cologne.test.cjs tests/rank26-exeggcute-pump-policy.test.cjs tests/rank26-propagation-loop.test.cjs tests/rank11-autonomous-supporter-profile.test.cjs
       - name: Verify precommitted rank11 exposure reporter and fail-closed source identity
@@ -196,7 +220,7 @@ jobs:
         if: ${{ inputs.newmoon_pass_probe }}
         run: node simulation/evaluation/newmoon-rank11-pass-observer.cjs > newmoon-rank11-pass-observer.json
       - name: Run up to six source-locked pilot trials
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial }}
         env:
           CAMPAIGN_INPUT_ORDER_PROTOCOL: ${{ inputs.input_order_protocol || 'source-row-order-v1' }}
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
@@ -210,19 +234,19 @@ jobs:
           CAMPAIGN_MAX_ACTIONS: '800'
         run: node simulation/evaluation/aichi-campaign-runner.cjs > aichi-campaign-report.json
       - name: Print recorded source-seat actions and attack declarations
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial }}
         env:
           CAMPAIGN_TRIAL_IDS: ${{ inputs.trial_ids || 'pilot:6:0:champion-reference:A,pilot:6:0:champion-reference:B,pilot:6:0:hood-shield-v1:A,pilot:6:0:hood-shield-v1:B,pilot:6:0:temple-v1:A,pilot:6:0:temple-v1:B' }}
         run: |
           node --test tests/aichi-source-action-brief.test.cjs
           node scripts/aichi-source-action-brief.cjs aichi-campaign-report.json
       - name: Reconcile source rank26 v3 proposed tactics and actual Store dispatch
-        if: ${{ inputs.policy_profile == 'rank26-autonomous-cologne-pump-propagation-v3' && !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe }}
+        if: ${{ inputs.policy_profile == 'rank26-autonomous-cologne-pump-propagation-v3' && !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial }}
         run: |
           node --test tests/aichi-rank26-v3-action-brief.test.cjs
           node scripts/aichi-rank26-v3-action-brief.cjs aichi-campaign-report.json
       - name: Cross-check sourced games and fingerprint evidence envelope
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial }}
         env:
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
         run: node simulation/evaluation/aichi-campaign-envelope-runner.cjs aichi-campaign-report.json aichi-campaign-envelope.json
@@ -254,6 +278,7 @@ jobs:
             rank11-conditional-K0-screen.json
             rank11-K0-continuations.json
             rank11-prospective-exposure-observed.json
+            agent41-crossrank-observed.json
             newmoon-vip-prospective.json
             aichi-rank11-newmoon-autonomous-pair.json
             newmoon-rank11-pass-observer.json
