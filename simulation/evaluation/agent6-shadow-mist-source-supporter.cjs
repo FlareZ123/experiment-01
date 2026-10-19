@@ -41,7 +41,7 @@ function run() {
   }]]);
   const choices=[];
   let supporterSelected=false,blockedFollowupDeclined=false;
-  SimpleTacticsAi.prototype.decodeNextAction=function stateLimitedReply(state) {
+  const installedReply=function stateLimitedReply(state) {
     const proposed=original.call(this,state);
     const owner=state.players[1];
     if(this.client?.id!==owner.id || state.activePlayer!==1 ||
@@ -73,14 +73,14 @@ function run() {
       replacement:'PassTurnAction',priorPublicAttack:publicAttack.params.attack});
     return new PassTurnAction(owner.id);
   };
+  SimpleTacticsAi.prototype.decodeNextAction=installedReply;
   let result=null,error=null;
   try {
     result=executeArm(trial,prepared,{captureRejectedActionEvidence:true});
   } catch(thrown) {
     error=String(thrown?.stack||thrown);
   } finally {
-    assert.equal(SimpleTacticsAi.prototype.decodeNextAction===
-      stateLimitedReply,false);
+    assert.equal(SimpleTacticsAi.prototype.decodeNextAction,installedReply);
     // The rank-6 wrapper restores its own temporary patch. The original
     // prototype owner must be retained after the one-deal branch.
     SimpleTacticsAi.prototype.decodeNextAction=original;
