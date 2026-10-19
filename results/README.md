@@ -35,6 +35,8 @@ All four are research subjects. No source-dealt engine win should be promoted to
 
 ## Evidence and next decisions
 
+- [Authentic rank-11 Crobat V lethal counterattack](twinleaf/rank11-turn23-crobat-stone-terminal-counterfactual.md): one retrospectively selected New Moon favorable engine result reverses through source-owned Shopping Center, Forest Seal Stone, Dark Patch, retreat and a prompt-settled Venomous Fang knockout. The corrected source had **2** remaining Prizes. This is a tactical policy regression, **not** matchup or 99.5% evidence.
+
 - [32-placement field and provenance](aichi-2026/README.md); exact source lists are missing for ranks **23, 25 and 28**.
 - [Full-field statistical claim provenance gate](aichi-2026/agent17-full-field-claim-gate.md) binds every rank-specific opponent fingerprint to the current source manifest and refuses final 32-field certification while any exact source 60 is unavailable. Its manual Node tests passed; it adds no qualified games.
 - [Three-rank qualification critical path](aichi-2026/critic-qualification-critical-path.md); [rank-10 replay packet](aichi-2026/qualification-packets/rank-10/README.md), [rank-2 packet](aichi-2026/qualification-packets/rank-02/README.md), [rank-6 packet](aichi-2026/qualification-packets/rank-06/README.md).
