@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {developmentTrials,firstPostSourceDecision,sourceLineReplyPacket,
+const {developmentTrials,commonPayloadOption,firstPostSourceDecision,sourceLineReplyPacket,
   candidatePostChoicePassEvidence}=require(
   '../simulation/evaluation/agent41-bilateral-v2-development.cjs');
 
@@ -19,6 +19,18 @@ test('only historical source streams enter the policy development packet',()=>{
     row.seed].join(':')));
   assert.equal(seeds.size,2,'Each source stream has two dependent candidates');
   assert.ok(rows.every(row=>[6,11].includes(row.rank)));
+});
+
+test('identical optional payload search is seat scoped and default inert',()=>{
+  assert.deepEqual(commonPayloadOption(0,false),{});
+  assert.deepEqual(commonPayloadOption(1,false),{});
+  assert.deepEqual(commonPayloadOption(0,true),{
+    newMoonAttackPayloadCompressorSeat:0
+  });
+  assert.deepEqual(commonPayloadOption(1,true),{
+    newMoonAttackPayloadCompressorSeat:1
+  });
+  assert.throws(()=>commonPayloadOption(2,true),{name:'AssertionError'});
 });
 
 test('no seed or candidate appears outside the immutable v1 manifest',()=>{
