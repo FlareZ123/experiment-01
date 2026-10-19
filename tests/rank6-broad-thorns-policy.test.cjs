@@ -206,3 +206,9 @@ test('source-first attached Double Colorless satisfies Energy requirement',()=>{
   assert.equal(planOpeningHand(hand(['Iron Thorns ex','Tag Call']),
     false,undefined,false,{activeDceAttached:true,itemLocked:true}),null);
 });
+
+
+test('hand-only Energy restriction does not remove attached DCE',()=>{
+  assert.equal(planOpeningHand(hand([]),true,undefined,false,
+    {activeDceAttached:true,specialEnergyLocked:true})?.channel,'direct');
+});
