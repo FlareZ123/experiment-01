@@ -39,6 +39,19 @@ There was no `Oddish UNB` or `Gloom UNB` on that source board. The stage-target 
 
 Other paired games *did* show early full Bench. In the generic arm, first full-Bench-under-two-line turn by registered row order was: `36, 1, 25, 20, 17, 9, 31, 6`. Those observations keep Bench reservation relevant as a separate testable hypothesis, but cannot retrospectively explain the turn-16 missing Oddish. The source-game policies repeatedly extended far into untimed turns without taking Prizes, which itself warns against competitive-strength inference.
 
+## Root owner-hand observation: Poffin + Tag Call still held
+
+After adding a **read-only actor-owned-hand snapshot to the first powered-TM genuine root event**, the same eight fixed physical deals were recompiled in **[CI 39332235844](https://github.com/FlareZ123/experiment-01/actions/runs/39332235844)**. The workflow and unit tests **passed**, preserving unchanged candidate/opponent 60s, seed schedule and the original paid-TM source snapshot. [Full paired JSON artifact 12224289513](https://github.com/FlareZ123/experiment-01/actions/runs/39332235844/artifacts/12224289513) was independently downloaded and its ZIP SHA-256 verified as `8f717cac3d29f4d5dd4abcebc7a17cbfbbcdc7763f8de2b14befbd027a1f2d22`.
+
+At global **turn 16 / source root ordinal 125**, immediately after the real Tool-attachment `PlayCardAction`, the rank-15 source **held exactly**:
+
+- `Buddy-Buddy Poffin TEF`
+- `Tag Call CEC`
+
+This owner-known hand is identical in the generic and enhanced source-policy arms on the same physical original deal. The source's Active remains Bunnelby with a paid Tool attack, and three Bench slots are open. The Poffin is a strong **action-falsification candidate**, because the physical source has two Oddish UNB in its originally registered 60. But initial unprized Oddish does not establish that either was still in the source deck at turn 16, nor does a held Item establish permission to play it in the face of possible attack- or Ability-based Item locks. **No native Poffin legality or Item dispatch has yet been observed at this turn.** A future live Store test must verify the actual Item play, owner-deck choice prompt, chosen Oddish, resulting Bench state and Tool-attack eligibility; if the action is blocked, preserve the exact reason.
+
+This identifies a specific possible *setup-action omission*, rather than a need for yet another broader eight-game comparison. It also precludes explaining the sole currently observed powered-TM target miss solely through lack of a search Item **in hand**.
+
 ## Decision gate and next research
 
 1. Establish what **rank-15-own-hand and public Stadium** resources were available at the first genuine paid Tool state before proposing an action. An **owner-hand-only**, read-only source observer has now been committed to the existing runner; this code addition requires a *new compiled output* before any result about actual held Poffin, Tag Call, Artazon or search options is claimed. No hidden deck or Prize identities are exposed to the acting policy.
