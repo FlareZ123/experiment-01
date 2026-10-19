@@ -165,6 +165,9 @@ try {
   assert.equal(game.actions,observed.roots.length);
   assert.ok(boundary.report.decisions>0,
     'Card observer must cover live source bot decisions');
+  assert.equal(boundary.report.changedFields,0,
+    'Live source physical Card primitive fields must survive bot decision unchanged: '+
+    JSON.stringify({fields:boundary.report.changesByField,samples:boundary.report.samples.slice(0,5)}));
   assert.equal(digest(control),digest(game),
     'Read-only live Store snapshots must preserve root choices and all compared outcome fields');
   const declarations=game.attackDeclarationTrace.filter(x=>
