@@ -116,6 +116,18 @@ function observe(game,item,arm,hood,door,source,transitions){
 }
 
 /**
+ * Count the actual source starter exactly once per original source deal,
+ * regardless of which two policy arms were selected for the study.
+ * @param {object[]} records Full observed attempts.
+ * @param {string} baselineArm Named baseline arm in this study.
+ * @returns {number}
+ */
+function countSourceFirstDeals(records,baselineArm){
+  return records.filter(row=>row.arm===baselineArm&&
+    row.status==='engine-observed'&&row.sourceActuallyFirst===true).length;
+}
+
+/**
  * Historical-rank6 policy counterfactual on a fixed already-observed frame.
  * @param {{targetFabaHood?:boolean}} [options]
  * @returns {object}
@@ -175,8 +187,7 @@ function run({targetFabaHood=false}={}){
   const count=(arm,key)=>records.filter(row=>
     row.arm===arm&&row.status==='engine-observed'&&row[key]>0).length;
   const success=records.filter(row=>row.status==='engine-observed').length;
-  const actualStarts=records.filter(row=>row.arm==='control'&&
-    row.sourceActuallyFirst===true).length;
+  const actualStarts=countSourceFirstDeals(records,arms[0]);
   return {
     schema:targetFabaHood?
       'agent7-rank6-faba-target-retrospective-replay-v2':
@@ -208,4 +219,4 @@ function run({targetFabaHood=false}={}){
   };
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
-module.exports={withRootToolTransitions,observe,run};
+module.exports={withRootToolTransitions,observe,countSourceFirstDeals,run};
