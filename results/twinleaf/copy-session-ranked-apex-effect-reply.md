@@ -50,3 +50,24 @@ At the previous source turn's root150, rank1's new Active **Dialga-GX** had **ze
 This is a coherent **attack declaration → exact printed copied-source selection → observed physical damage/self-damage → actual Knock Out → three Prize transfers → real opponent's subsequent actions** packet on a fully dealt published-source matchup, under one versioned policy and with explicit observer noninterference. It advances beyond an injected Card effect or an attack log disconnected from its consequences.
 
 **Unclosed qualification gates:** full root-input/reducer replay independent of these selected observations; paper-rule interaction coverage beyond the printed direct base values; ability/tool/damage modifier completeness; opponent's legal opportunities and hidden-information-safe action evaluation; candidate/opponent autonomous tactical competence; representative both-turn-order cohorts; the three unpublished 60s of the full Aichi Top32 field. The completed engine game is **not** eligible as a competitive win-rate datum, and the 99.5% target remains unproven.
+
+
+## 19 October 2026: full-game bot-decision source Card mutation and opt-in detachment
+
+**New compiled result; scope remains mechanical and diagnostic.** The original reproducible exact rank10-versus-rank1 seed `4246551499`, identical v3 flags, original pinned engine and source 60s were audited across every synchronous `SimpleTacticsAi.decodeNextAction` in `simulation/twinleaf/copy-session-ranked-effect-reply.cjs`, using the existing research-owned `bot-decision-card-boundary-observer.cjs`. The observer snapshots own primitive / flat primitive-array properties on **physical Card objects in the live game zones**, immediately before and after the bot chooses an action. It does not submit a new policy action.
+
+[Compiled CI 39236181875](https://github.com/FlareZ123/experiment-01/actions/runs/39236181875) passed and established that adding the read-only observer maintained the existing 169 genuine Store roots, first-player draw-log verification and the original versus observed root/effect/outcome digest equality. It did **not** prove that the bot's decisions were pure. A subsequent **intentional red integrity assertion** in [CI 39236870524](https://github.com/FlareZ123/experiment-01/actions/runs/39236870524) exposed **47 surviving physical Card property changes during decisions**:
+
+| Field | Changed instances |
+| --- | ---: |
+| `movedToActiveThisTurn` | 17 |
+| `damageTakenLastTurn` | 8 |
+| `cannotUseAttackUntilLeavesPlay` | 11 |
+| `whileInPlayOpponentWeakness` | 11 |
+| **Total** | **47** |
+
+The latter two fields were **added with undefined values**. At decision 5 on global turn 1 the observer found newly added fields on Tapu Lele-GX. At decision 8, `movedToActiveThisTurn` changed from false to true on Tapu Lele-GX, Mimikyu and Trevenant & Dusknoir-GX while the returning bot action was `PassTurnAction`. These are source-card mutations during action *selection*. Source damage history and turn-movement fields can be relevant to later rules or scoring, so the distinction matters. The exact observed trajectory was unchanged by *watching* those decisions; these records do not establish that the writes actually altered this game or any match winner.
+
+The third arm installs existing reversible `installPostSuperAliasRepairHook` for speculative `Simulator` copies, retains the same fixed decks, historical seed, initial deck hash and authentic start seat, and independently observes its bot Card boundaries. [Compiled CI 39237410975](https://github.com/FlareZ123/experiment-01/actions/runs/39237410975) **passed a strict assertion of zero primitive Card-field changes** across all observed decisions in that opt-in arm, with positive real-decision coverage. The script emits both trajectories' digests and an explicit `rootLedgerSameAsRaw` comparison. Matching *initial inputs* was asserted; **identical downstream actions or outcomes were not a passing precondition**, so this test must not be cited as proving repaired and stock game equivalence. The opt-in hook is not enabled in ordinary headless tests or bilateral-v2 evaluation by this result.
+
+**Limitations:** physical Card scalar snapshots exclude references nested outside canonical scanned zones, effects that mutate and restore before the decision returns, module-level registries, hidden-information use, incomplete printed card rules and independent opponent policy competence. Forty-seven is a count of detected field changes in this single frozen source game, not an exhaustive engine-wide mutation count. The repaired zero is bounded by the same observer. This source match is a retrospective regression fixture; no competitive win-rate sample or 99.5% claim follows.
