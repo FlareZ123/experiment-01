@@ -97,3 +97,19 @@ test('rank-7 Wobbuffet can equip Tool Jammer from hand while Items remain locked
   assert.equal(probe.nativeItemPlay.originalActiveOnBench, true);
   assert.equal(probe.nativeItemPlay.itemLockRestoredAfterSwitch, true);
 });
+
+test('rank-7 Steven can search Tool Jammer through live bilateral Item lock', () => {
+  const probe = probeDittoStage2(false, true, 'wobbuffet-steven-jammer-hooked');
+  assert.equal(probe.stevenSearch.accepted, true);
+  assert.equal(probe.stevenSearch.error, null);
+  assert.equal(probe.stevenSearch.itemBlockedBefore, true);
+  assert.equal(probe.stevenSearch.selected, true);
+  assert.ok(probe.stevenSearch.promptKinds.includes('ChooseCardsPrompt'));
+  assert.equal(probe.stevenSearch.jammerInHand, true);
+  assert.equal(probe.stevenSearch.jammerStillInDeck, false);
+  assert.equal(probe.stevenSearch.stevenStillInHand, false);
+  assert.deepEqual(probe.stevenSearch.unresolvedPromptKinds, []);
+  assert.equal(probe.itemLock.ownerBlocked, true,
+    'Merely searching a Tool must not suppress Hood or unlock Items');
+  assert.equal(probe.itemLock.opponentBlocked, true);
+});
