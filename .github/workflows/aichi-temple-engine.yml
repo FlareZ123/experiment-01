@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      temple_thorns_source_trace:
+        description: 'Additional archived rank-24 root-action trace, no new seeds'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -64,6 +69,7 @@ jobs:
       - name: Source-dealt Temple owner-window observations for registered rank
         env:
           TEMPLE_SOURCE_RANK: ${{ matrix.rank }}
+          TEMPLE_SOURCE_TRACE: ${{ inputs.temple_thorns_source_trace }}
         run: |
           node --check simulation/twinleaf/temple-thorns-source-window.cjs
           node simulation/twinleaf/temple-thorns-source-window.cjs > temple-thorns-source-window.json
