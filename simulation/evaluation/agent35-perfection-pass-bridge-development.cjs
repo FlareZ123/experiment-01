@@ -39,7 +39,8 @@ function developmentCandidates(){
 
 /** @param {object} row @returns {object} Small auditable outcome envelope. */
 function summarize(row){
-  if(row?.status==='engine-error')
+  if(!row)return {status:'not-executed',qualified:false};
+  if(row.status==='engine-error')
     return {status:'engine-error',error:row.error,qualified:false};
   return {
     status:row.finished?'engine-terminal':'action-cap',
