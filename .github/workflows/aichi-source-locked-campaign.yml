@@ -185,15 +185,15 @@ jobs:
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-four-trigger-forensic' }}
         run: node -e "const x=require('./agent17-crossrank-trigger-evidence.json');for(const r of x.rows)console.log('FORENSIC',JSON.stringify({id:r.id,status:r.status,source:r.sourceReplyPacket?.executedSourceRoot,sourceAttackAccepted:r.sourceReplyPacket?.matchingSourceAttackDeclared,candidateFirst:r.sourceReplyPacket?.firstCandidateNextTurnRoot,candidateAttackNames:r.sourceReplyPacket?.candidateSameTurnAttackDeclarations,nextSource:r.sourceReplyPacket?.nextSourceTurnRoot,error:r.error?.slice(0,250)}))"
       - name: Verify registered Agent41 two-rank schedule and corpus hashes
-        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && !inputs.trial_ids == 'agent17-four-trigger-forensic' }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' }}
         run: node --test tests/agent41-crossrank-actual-decisions.test.cjs
       - name: Execute frozen candidate-paired Iron Thorns and Garbodor screen
-        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && !inputs.trial_ids == 'agent17-four-trigger-forensic' }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' }}
         env:
           AGENT41_PARTITION: ${{ inputs.agent41_crossrank_partition || '0' }}
         run: node simulation/evaluation/agent41-crossrank-actual-decisions.cjs > agent41-crossrank-observed.json
       - name: Print bounded failures, decisions and source opportunity counts
-        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && !inputs.trial_ids == 'agent17-four-trigger-forensic' }}
+        if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' }}
         run: node -e "const a=require('./agent41-crossrank-observed.json');console.log(JSON.stringify({partition:a.partition,recorded:a.partitionRecorded,status:a.statusCounts,opportunities:a.sourceOpportunityCounts,sourceFirst:a.actualSourceFirstCount,attackDeclarations:a.observedAttackDeclarations,matchedSourceHands:a.pairedSourceHandAgreement,paired:a.pairedTotal,errors:a.rows.filter(x=>x.status==='engine-error').map(x=>({id:x.id,error:x.error?.slice(0,250)}))},null,2))"
       - name: Replay original Agent41 rank6 rejected root and capture legal owner information
         if: ${{ inputs.agent41_crossrank_trial && inputs.agent6_rejected_arm }}
