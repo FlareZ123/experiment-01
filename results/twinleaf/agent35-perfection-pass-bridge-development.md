@@ -6,7 +6,7 @@
 
 [Agent 41's common candidate-policy development](../aichi-2026/agent41-bilateral-common-policy-development.md) retained **zero New Moon candidate attack declarations** in its actual rank-6 and rank-11 historical source-dealt games, each capped after 260 root actions. The same trials recorded 6 and 22 source attack declarations respectively. Agent 41's common candidate wrapper did correctly remove the historical deck-ID-specific Tool/Lillie treatment, but it retained the generic simple bot's missed Perfection/attack lines. The existing [actual pinned copied-attack contract](../../simulation/twinleaf/perfection-delegated-action.cjs) shows that a copied attack is an Ability action and an attack-choice prompt, so counting root `AttackAction` alone can undercount its declarations.
 
-The [turn-50 genuine Store opponent-choice reversal](../aichi-2026/rank11-turn50-legal-perfection-reply-result.md) and [turn-24 copied response](../twinleaf/rank11-turn24-copied-reply.md) are retrospective examples, not full-game decision policies. An automated response that can select a real owner-visible copy after a generic Pass is a falsifiable next policy-development candidate.
+The [turn-50 genuine Store opponent-choice reversal](../aichi-2026/rank11-turn50-legal-perfection-reply-result.md) and [turn-24 copied response](../../simulation/twinleaf/rank11-turn24-copied-reply-fork.cjs) are retrospective examples, not full-game decision policies. An automated response that can select a real owner-visible copy after a generic Pass is a falsifiable next policy-development candidate.
 
 ## Minimal experimental code
 
