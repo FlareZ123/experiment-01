@@ -37,10 +37,10 @@ test('29 source 60s have four no-target ranks and one evolution-only rank',()=>{
 
 test('printed non-Rule Box, Future and evolution-only Abilities are distinct',()=>{
   const cards=[
-    {name:'Plain',number:'1',subtypes:['Basic'],abilities:[{name:'Block'}]},
-    {name:'Future ex',number:'2',subtypes:['Basic','ex','Future'],
+    {name:'Plain',number:'1',types:['Psychic'],subtypes:['Basic'],abilities:[{name:'Block'}]},
+    {name:'Future ex',number:'2',types:['Lightning'],subtypes:['Basic','ex','Future'],
       rules:['Pokémon ex rule'],abilities:[{name:'Future Power'}]},
-    {name:'Evolved ex',number:'3',subtypes:['Stage 2','ex'],
+    {name:'Evolved ex',number:'3',types:['Psychic'],subtypes:['Stage 2','ex'],
       rules:['Pokémon ex rule'],abilities:[{name:'Search'}]}
   ];
   const deck=(rank,keys)=>({rank,archetype:'test',
@@ -60,6 +60,6 @@ test('printed non-Rule Box, Future and evolution-only Abilities are distinct',()
   assert.equal(result.rows[0].ordinary,1);
   assert.equal(result.rows[0].future,1);
   assert.deepEqual(result.crossLockNoTarget,{
-    path:[2],klefki:[2,3],wobbuffet:[],garbotoxin:[]
+    path:[],klefki:[],wobbuffet:[2],garbotoxin:[]
   });
 });
