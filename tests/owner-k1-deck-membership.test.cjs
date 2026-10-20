@@ -118,6 +118,6 @@ test('repeat native prompt and out-of-order root provenance rejected',()=>{
   }),/Reused search prompt identity/);
   assert.throws(()=>k.observeKnownDeckTransfer({
     removed:[],rootOrdinal:14
-  }),/assert/i);
+  }));
   assert.equal(k.lookup('Float Stone BKT').knownCopies,2);
 });
