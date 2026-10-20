@@ -24,7 +24,13 @@ function attestFarewellPair(baseline,intervention,options) {
   const {seat,turn,archivedRootSha256}=options;
   const original=baseline.rootActionLedger;
   const changed=intervention.rootActionLedger;
-  const sourceComparable=baseline.seed===intervention.seed &&
+  const fullDeckIdentitiesPresent=Array.isArray(baseline.deckHashes) &&
+    baseline.deckHashes.length===2 &&
+    baseline.deckHashes.every(hash=>typeof hash==='string'&&hash.length>0) &&
+    Array.isArray(intervention.deckHashes) &&
+    intervention.deckHashes.length===2;
+  const sourceComparable=fullDeckIdentitiesPresent &&
+    baseline.seed===intervention.seed &&
     isDeepStrictEqual(baseline.deckHashes,intervention.deckHashes) &&
     baseline.verifiedByDrawLog===true &&
     intervention.verifiedByDrawLog===true &&
@@ -37,9 +43,10 @@ function attestFarewellPair(baseline,intervention,options) {
     row.playerSlot===seat && row.turnBefore===turn):[];
   const exactlyOneFarewell=instances.length===1;
   const position=exactlyOneFarewell?changed.indexOf(instances[0]):-1;
-  const baselineRoot=position>=0?original[position]:null;
+  const baselineRoot=Array.isArray(original)&&position>=0?
+    original[position]:null;
   const actualRoot=position>=0?changed[position]:null;
-  const matchedPrefix=position>=0 &&
+  const matchedPrefix=Array.isArray(original)&&position>=0 &&
     isDeepStrictEqual(original.slice(0,position),changed.slice(0,position));
   const replacedOriginalPass=baselineRoot?.action==='PassTurnAction' &&
     baselineRoot.playerSlot===seat && baselineRoot.turnBefore===turn &&
