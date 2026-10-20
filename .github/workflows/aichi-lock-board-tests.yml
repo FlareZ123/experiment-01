@@ -3,6 +3,11 @@ name: Aichi Temple and Wobbuffet board interactions
 on:
   workflow_dispatch:
     inputs:
+      agent13_actor_option_canonical_dev:
+        description: 'Unqualified owner-only SelectOption native Store smoke in historical four-arm canonical runner'
+        required: false
+        type: boolean
+        default: false
       agent35_perfection_pass_bridge_development:
         description: 'Historical rank6/rank11 owner-only Perfection Pass bridge dev contrast, not v2'
         required: false
@@ -487,6 +492,19 @@ jobs:
         with:
           name: agent35-newmoon-payload-12seed
           path: agent35-newmoon-payload-12seed.json
+          if-no-files-found: warn
+      - name: Test owner-only native SelectOption decision and live Store ownership
+        if: inputs.agent13_actor_option_canonical_dev
+        run: node --test tests/agent13-actor-only-select-option.test.cjs
+      - name: Audit native actor-only SelectOption in four canonical source-dealt games
+        if: inputs.agent13_actor_option_canonical_dev
+        run: node simulation/twinleaf/agent13-actor-option-canonical-dev.cjs > agent13-actor-option-development.json
+      - name: Preserve all actor-only SelectOption Store selections and censored arms
+        if: inputs.agent13_actor_option_canonical_dev && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent13-actor-option-canonical-development
+          path: agent13-actor-option-development.json
           if-no-files-found: warn
       - name: Source-authentic rank11 first candidate turn24 copied counterresponse
         if: inputs.rank11_turn24_copied_reply
