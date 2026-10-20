@@ -163,8 +163,14 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
     observedProjection.sourceActuallyFirst===false);
   const noninterferenceVerified=samePlayback&&actualExecutionAuthenticated;
   const event=events.length===1?events[0]:null;
+  // Native same-world replay evidence is stronger than nominal baseline flags.
+  // A mocked, stale, or absent failed native parity cannot certify this gate.
+  const nativeTapeExpected=scope.nativeTapeSameWorld===true||
+    event?.nativeSameWorldTape!=null;
   const ownerBaselineVerified=event?.baselineActionMatchedActual===true &&
-    event?.liveStatePreserved===true;
+    event?.liveStatePreserved===true &&
+    (!nativeTapeExpected||
+      event?.nativeSameWorldTape?.sameWorldDecisionParityQualified===true);
   let classification;
   if(!noninterferenceVerified) {
     classification='probe-changed-or-unverified-live-playback';
