@@ -250,13 +250,23 @@ test('independent exhaustive small-deck benchmark, 160 deterministic instances',
       availableUtility:(rand()%18)-7,
       missingUtility:(rand()%18)-9
     }));
+    const observationCost=rand()%7;
+    const postObservationPlanIds=plans.filter(()=>rand()%2===0)
+      .map(plan=>plan.id);
     const input={unknownPool:pool,unknownPrizeCount:P,
-      plans,uniformUnknownAllocation:true};
+      plans,observationCost,postObservationPlanIds,
+      uniformUnknownAllocation:true};
     const actual=k0LineInformationFrontier(input);
     const expected=brute(input);
     assert.equal(BigInt(actual.exactDenominator),BigInt(expected.denominator));
     assert.equal(BigInt(actual.preSearchExpectedNumerator),BigInt(expected.pre));
     assert.equal(BigInt(actual.afterSearchExpectedNumerator),BigInt(expected.after));
+    assert.equal(BigInt(actual.restrictedAfterExpectedNumerator),
+      BigInt(expected.afterRestricted));
+    assert.equal(BigInt(actual.netObservationExpectedNumerator),
+      BigInt(expected.afterRestricted-observationCost*expected.denominator));
+    assert.equal(BigInt(actual.netObservationAdvantageNumerator),
+      BigInt(expected.afterRestricted-observationCost*expected.denominator-expected.pre));
     assert.ok(BigInt(actual.informationValueNumerator)>=0n);
   }
 });
