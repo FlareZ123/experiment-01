@@ -15,6 +15,7 @@ function fixture() {
   const baseline={
     seed:407516727,engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     deckHashes:['source60','candidate60'],
+    initialFullPhysicalDealFingerprint:{digestSha256:'a'.repeat(64)},
     verifiedByDrawLog:true,firstTurnSlot:0,
     rootActionLedger:[
       root(0,1,2,'PlayCardAction',{card:'Guzma & Hala'}),
@@ -142,4 +143,23 @@ test('mismatched or missing engine revision does not permit cross-version attrib
   delete baseline.engine;
   assert.equal(attestFarewellPair(baseline,altered,options).classification,
     'source-deal-or-start-mismatch');
+});
+
+test('matching seed and printed 60 are insufficient if hidden physical setup changes',()=>{
+  const {baseline,altered,options}=fixture();
+  altered.initialFullPhysicalDealFingerprint={digestSha256:'b'.repeat(64)};
+  const result=attestFarewellPair(baseline,altered,options);
+  assert.equal(result.samePhysicalDeal,false);
+  assert.equal(result.sourceComparable,false);
+  assert.equal(result.genuineResolvedFarewell,false);
+});
+
+test('missing opaque complete-deal observation fails closed',()=>{
+  const {baseline,altered,options}=fixture();
+  delete baseline.initialFullPhysicalDealFingerprint;
+  assert.equal(attestFarewellPair(baseline,altered,options).classification,
+    'source-deal-or-start-mismatch');
+  delete altered.initialFullPhysicalDealFingerprint;
+  assert.equal(attestFarewellPair(baseline,altered,options).sourceComparable,
+    false);
 });
