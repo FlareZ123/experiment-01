@@ -8,6 +8,29 @@ const MELOETTA = 'Meloetta ex';
 const EXEGGCUTE = 'Exeggcute';
 const KOKO = 'Tapu Koko Prism Star';
 
+const {actorObservation} = require('./actor-observation-contract.cjs');
+
+/**
+ * Pre-search owner-only first-turn VIP opportunity from the detached,
+ * frozen actor-observation contract. No native State or opponent hidden
+ * identities are available to this decision predicate.
+ * @param {object} view Verified owner actorObservation.
+ * @param {number} phase Pinned PLAYER_TURN enum.
+ * @returns {boolean}
+ */
+function sourceVipActorEligible(view,phase) {
+  const inPlay=name=>[view.ownPublic.active,...view.ownPublic.bench]
+    .some(slot=>slot?.printing?.startsWith(name+' '));
+  const hasHand=name=>view.ownHand.some(print=>
+    print.startsWith(name+' '));
+  const free=view.ownPublic.bench.filter(slot=>slot===null).length;
+  return view.decisionKind==='owner-root' &&
+    view.globalTurn===1 && view.phase===phase &&
+    !view.ownTurnResources.itemPlayLocked &&
+    hasHand(VIP) && !inPlay(MELOETTA) && !hasHand(MELOETTA) &&
+    free > (inPlay(KOKO) ? 0 : 1);
+}
+
 /**
  * This check sees only the acting player hand and public Active/Bench.
  * Reserve one Bench slot for Koko if Koko has not entered play.
@@ -113,16 +136,25 @@ function withSourceVipAfterPass(seat, execute) {
     const action = previous.call(this,state);
     if (stage === 'available' &&
         action?.constructor?.name === 'PassTurnAction' &&
-        sourceVipAfterPassEligible(state,own,seat,GamePhase.PLAYER_TURN)) {
-      const handIndex = own.hand.cards.findIndex(c => c.name === VIP);
-      const replacement = new PlayCardAction(sourceId,handIndex,{
-        player:PlayerType.ANY,slot:SlotType.BOARD,index:0
-      });
-      const nativeValid = this.isValidAction(state,replacement);
-      events.push({kind:'source-pass-vip-opportunity',turn:state.turn,
-        nativeValid,seat,freeBench:own.bench.filter(s=>!s.getPokemonCard()).length});
-      stage = nativeValid ? 'search' : 'finished';
-      if (nativeValid) return replacement;
+        state.turn === 1 && state.phase === GamePhase.PLAYER_TURN &&
+        state.activePlayer === seat) {
+      const view = actorObservation(state,seat);
+      const eligible = sourceVipActorEligible(view,GamePhase.PLAYER_TURN);
+      assert.equal(eligible,
+        sourceVipAfterPassEligible(state,own,seat,GamePhase.PLAYER_TURN),
+        'Detached actor view changed the first-turn VIP eligibility');
+      if (eligible) {
+        const handIndex = own.hand.cards.findIndex(c => c.name === VIP);
+        const replacement = new PlayCardAction(sourceId,handIndex,{
+          player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+        });
+        const nativeValid = this.isValidAction(state,replacement);
+        events.push({kind:'source-pass-vip-opportunity',turn:state.turn,
+          nativeValid,seat,freeBench:own.bench.filter(s=>!s.getPokemonCard()).length,
+          detachedActorView:true});
+        stage = nativeValid ? 'search' : 'finished';
+        if (nativeValid) return replacement;
+      }
     }
     return action;
   };
@@ -139,4 +171,5 @@ function withSourceVipAfterPass(seat, execute) {
   }
 }
 
-module.exports={sourceVipAfterPassEligible,selectSourceVipBasics,withSourceVipAfterPass};
+module.exports={sourceVipAfterPassEligible,sourceVipActorEligible,
+  selectSourceVipBasics,withSourceVipAfterPass};
