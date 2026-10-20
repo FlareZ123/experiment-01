@@ -92,6 +92,9 @@ test('full dual-start archive is mechanically reviewable, never competitive',()=
   assert.equal(r.bothHardRanksHavePairedBilateralWitnesses,true);
   assert.equal(r.mechanicalBilateralWitnesses,8);
   assert.equal(r.alignedPhysicalSourcePairs,4);
+  assert.equal(r.sourceFirstEarlyPressurePairs,2);
+  assert.equal(
+    r.bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses,true);
   assert.equal(r.opportunityAndPolicyVerdict,'MECHANICAL-PILOT-REVIEWABLE');
   assert.equal(r.competitiveStrengthClaimPermitted,false);
   assert.equal(r.gameWinRateCertified,false);
@@ -99,6 +102,37 @@ test('full dual-start archive is mechanically reviewable, never competitive',()=
     censored:0,errors:0,missing:0,sourceFirst:2,candidateFirst:2,
     bilateralMechanics:4});
   assert.ok(r.arms.every(row=>row.vetoes.includes('paper-fidelity-unverified')));
+});
+
+test('late source-first pressure stays a bilateral observation, not an early-lock pilot',()=>{
+  const {plan,archive}=fixture();
+  for(const row of archive.rows.filter(row=>row.candidateSeat===1)) {
+    row.sourcePressure.turnBefore=3;
+    row.sourcePressure.completionTurnBefore=3;
+    row.candidateReply.turnBefore=4;
+    row.sourceContinuation.turnBefore=5;
+  }
+  const r=auditBilateralV2(plan,archive);
+  assert.equal(r.mechanicalBilateralWitnesses,8);
+  assert.equal(r.bothHardRanksHavePairedBilateralWitnesses,true);
+  assert.equal(r.sourceFirstEarlyPressurePairs,0);
+  assert.equal(r.bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses,false);
+  assert.equal(r.opportunityAndPolicyVerdict,'HOLD-OR-INCOMPLETE');
+  assert.ok(r.arms.filter(row=>row.candidateSeat===1).every(row=>
+    row.sourceFirstEarlyPressureWitness===false));
+});
+
+test('candidate-first-only rank11 pressure cannot clear source-first early gate',()=>{
+  const {plan,archive}=fixture();
+  for(const row of archive.rows.filter(row=>
+    row.rank===11&&row.candidateSeat===1)) {
+    row.sourcePressure.effectVerified=false;
+  }
+  const r=auditBilateralV2(plan,archive);
+  assert.equal(r.bothHardRanksHavePairedBilateralWitnesses,true);
+  assert.equal(r.bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses,false);
+  assert.equal(r.sourceFirstEarlyPressurePairs,1);
+  assert.equal(r.opportunityAndPolicyVerdict,'HOLD-OR-INCOMPLETE');
 });
 
 test('omitted arms remain explicit in registered denominator',()=>{
