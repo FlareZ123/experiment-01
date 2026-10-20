@@ -61,7 +61,12 @@ test('real Store accepts native typed root, with reversible hook restoration',()
   }
   class AttackAction{constructor(id,name){this.clientId=id;this.name=name;}}
   class PassTurnAction{constructor(id){this.clientId=id;}}
-  class Store{dispatch(){return true;}}
+  class Store{
+    constructor(){this.state={
+      players:[{id:10},{id:20}],activePlayer:0,prompts:[],turn:2
+    };}
+    dispatch(){return true;}
+  }
   class SimpleTacticsAi{
     constructor(id){this.client={id};}
     decodeNextAction(){throw Error('Generic hidden-state root must not run');}
@@ -73,9 +78,7 @@ test('real Store accepts native typed root, with reversible hook restoration',()
   view.ownPublic.bench=[{},null,null,null,null];
   const x=withActorOnlyRootPolicy(()=>{
     const store=new Store();store.dispatch(new AddPlayerAction());
-    const action=new SimpleTacticsAi(10).decodeNextAction({
-      players:[{id:10},{id:20}],activePlayer:0,prompts:[],turn:2
-    });
+    const action=new SimpleTacticsAi(10).decodeNextAction(store.state);
     assert.ok(action instanceof PlayCardAction);
     assert.deepEqual(action.target,{player:0,slot:1,index:0});
     store.dispatch(action);
@@ -100,10 +103,18 @@ test('pending native prompt fallback counted and never qualified',()=>{
     constructor(id){this.client={id};}
     decodeNextAction(){return 'NATIVE_PROMPT_FALLBACK';}
   }
-  class Store{dispatch(){}}
-  const result=withActorOnlyRootPolicy(()=>new SimpleTacticsAi(10)
-    .decodeNextAction({players:[{id:10},{id:20}],activePlayer:0,
-      prompts:[{playerId:10,result:undefined}]}),{
+  class AddPlayerAction{}
+  class Store{
+    constructor(){this.state={players:[{id:10},{id:20}],
+      activePlayer:0,turn:2,
+      prompts:[{playerId:10,result:undefined}]};}
+    dispatch(){}
+  }
+  const result=withActorOnlyRootPolicy(()=>{
+    const store=new Store();
+    store.dispatch(new AddPlayerAction());
+    return new SimpleTacticsAi(10).decodeNextAction(store.state);
+  },{
     SimpleTacticsAi,Store,observe:()=>base(),getCatalog:()=>catalog,
     cardActions:{PlayCardAction:class{},PlayerType:{BOTTOM_PLAYER:0},
       SlotType:{ACTIVE:1,BENCH:2}},
