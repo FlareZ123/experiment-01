@@ -19,7 +19,27 @@ function fixture() {
   };
   const original = {rootLedgerSHA256: 'a',
     first: {aor: {turn: 16}, bus: {turn: 16}},
-    nativeCandidateAttacks: [{turnBefore: 19, attackName: 'Night Watch'}]};
+    nativeCandidateAttacks: [{turnBefore: 19, attackName: 'Night Watch'}],
+    ownerSourceWindow: [
+      {rootOrdinal: 189, turnBefore: 19, action: 'ResolvePromptAction',
+        previousPrompt: null, before: {active: 'Bunnelby PRC'},
+        after: {active: null}},
+      {rootOrdinal: 190, turnBefore: 19, action: 'ResolvePromptAction',
+        previousPrompt: 'ChoosePrizePrompt', before: {active: null},
+        after: {active: null}},
+      {rootOrdinal: 191, turnBefore: 19, action: 'ResolvePromptAction',
+        previousPrompt: 'ChoosePokemonPrompt', before: {active: null},
+        after: {active: 'Eldegoss V RCL'}},
+      {rootOrdinal: 205, turnBefore: 21, action: 'ResolvePromptAction',
+        previousPrompt: null, before: {active: 'Eldegoss V RCL'},
+        after: {active: null}},
+      {rootOrdinal: 206, turnBefore: 21, action: 'ResolvePromptAction',
+        previousPrompt: 'ChoosePrizePrompt', before: {active: null},
+        after: {active: null}},
+      {rootOrdinal: 207, turnBefore: 21, action: 'ResolvePromptAction',
+        previousPrompt: 'ChoosePokemonPrompt', before: {active: null},
+        after: {active: 'Vileplume AOR'}}
+    ]};
   return {
     schema: 'rank15-retrospective-owner-bus-promotion-native-fork-v1',
     sourceRank: 15, sourceSeat: 1, candidateSeat: 0,
@@ -56,6 +76,10 @@ test('authentic accepted paid line establishes persistent board and reply', () =
   assert.equal(result.consecutivePostDispatchDualObservations, 4);
   assert.equal(result.observedDualThroughOwnTurn, 26);
   assert.equal(result.competitiveGames, 0);
+  assert.deepEqual(result.controlNativeSourceKnockoutWitnesses
+    .map(x=>[x.turn,x.prior,x.promoted]),
+    [[19,'Bunnelby PRC','Eldegoss V RCL'],
+      [21,'Eldegoss V RCL','Vileplume AOR']]);
 });
 
 test('fails closed if post-promotion board breaks before turn26', () => {
@@ -75,4 +99,12 @@ test('rejects source-return assertion with no true subsequent source action', ()
   const packet = fixture();
   packet.ownerPaysRetreat.postRetreatRootResponse.pop();
   assert.throws(() => auditRank15PaidBusLock(packet), /source return/);
+});
+
+test('does not invent source Knock Out without a native Prize prompt', () => {
+  const packet = fixture();
+  packet.nativeSecondAttackOnly.ownerSourceWindow.splice(1,1);
+  packet.proposedNativePromotion.ownerSourceWindow =
+    packet.nativeSecondAttackOnly.ownerSourceWindow;
+  assert.throws(() => auditRank15PaidBusLock(packet), /Prize prompt/);
 });
