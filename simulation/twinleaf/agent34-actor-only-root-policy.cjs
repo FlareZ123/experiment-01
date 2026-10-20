@@ -162,11 +162,11 @@ function chooseActorRootIntent(view,catalog,options={}){
         // A native Store rejection must still be reported and retained.
         return {kind:'attack',attackName:attack.name};
       }
-      const payableCost=thunder?
-        (()=>{const units=attack.cost.slice();
-          const i=units.indexOf(catalog.basicEnergyTypes.Lightning);
-          if(i>=0)units.splice(i,1);
-          return units;})():attack.cost;
+      const payableCost=attack.cost.slice();
+      if(thunder){
+        const i=payableCost.indexOf(catalog.basicEnergyTypes.Lightning);
+        if(i>=0)payableCost.splice(i,1);
+      }
       const left=attached.slice(),
         colored=payableCost.filter(t=>t!==catalog.colorlessEnergyType);
       if(colored.some(type=>{
