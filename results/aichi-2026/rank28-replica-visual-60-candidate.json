@@ -264,10 +264,13 @@
     {
       "row": 4,
       "column": 2,
-      "name": "Gladion",
+      "name": "Professor Juniper",
       "quantity": 2,
       "category": "Supporter",
-      "printing": "unverified"
+      "printing": "unverified",
+      "artwork_verified_against": "https://www.pokemon-card.com/card-search/details.php/card/27153",
+      "english_mechanical_example_id": "bw1-101",
+      "english_mechanical_example_verified_as_printing": false
     },
     {
       "row": 4,
@@ -367,5 +370,6 @@
     }
   ],
   "english_mechanical_example_notes": "Pokémon IDs are English examples for provisional attack/Ability family matching, validated to exist in the bundled complete English card database; none prove the photographed Japanese set/number. The first 15 Pokemon cells are mechanical examples only. Do not use as a certified simulator deck without further Japanese print and English rules reconciliation.",
-  "name_normalization": "Basic Fire and Basic Grass cards use canonical deck-list card names Fire Energy and Grass Energy."
+  "name_normalization": "Basic Fire and Basic Grass cards use canonical deck-list card names Fire Energy and Grass Energy.",
+  "observed_card_name_correction": "2026-10-20: R4C2 x2 was incorrectly transcribed Gladion. Official Japanese Professor Juniper art visually matches the cropped original primary image; this DOES NOT establish collector printing identity. See agent3-rank28-photo-supporter-disambiguation.md and agent43-rank28-pnote-photo-audit-20261020.md."
 }
