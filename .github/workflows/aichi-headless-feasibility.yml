@@ -92,10 +92,10 @@ jobs:
       - name: Verify native source G&H choice attribution
         run: node --test tests/agent24-mandatory-source-exposure.test.cjs
       - name: Compare real rank2 source modal null versus legal default on both physical seats
-        if: \${{ inputs.rank2_mandatory_option_pair }}
+        if: ${{ inputs.rank2_mandatory_option_pair }}
         run: node simulation/twinleaf/agent24-mandatory-source-exposure.cjs > rank2-mandatory-option-source-pair.json
       - name: Archive source-dealt modal outcomes, including absent opportunities and caps
-        if: \${{ always() && inputs.rank2_mandatory_option_pair }}
+        if: ${{ always() && inputs.rank2_mandatory_option_pair }}
         uses: actions/upload-artifact@v4
         with:
           name: rank2-mandatory-option-source-pair
