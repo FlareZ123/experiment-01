@@ -26,7 +26,8 @@ class PaperSupporterQuotaError extends Error {
  * @param {number|string} supporterType TrainerType.SUPPORTER enum value.
  * @param {()=>T} execute Synchronous original game.
  * @param {{allowAdditionalSupporter?:(context:object)=>boolean,
- *          onViolation?:(violation:object)=>void}} [options]
+ *          onViolation?:(violation:object)=>void,
+ *          onLegalSupporter?:(event:object)=>void}} [options]
  * @returns {{result:T,legalSupporterRoots:object[]}}
  */
 function withPaperSupporterQuotaGuard(Store,supporterType,execute,options={}) {
@@ -35,8 +36,10 @@ function withPaperSupporterQuotaGuard(Store,supporterType,execute,options={}) {
   assert.equal(typeof before?.value,'function');
   const allow=options.allowAdditionalSupporter??(()=>false);
   const onViolation=options.onViolation??(()=>{});
+  const onLegalSupporter=options.onLegalSupporter??(()=>{});
   assert.equal(typeof allow,'function');
   assert.equal(typeof onViolation,'function');
+  assert.equal(typeof onLegalSupporter,'function');
   let root=null,ordinal=0;
   const legalSupporterRoots=[];
 
@@ -66,7 +69,9 @@ function withPaperSupporterQuotaGuard(Store,supporterType,execute,options={}) {
         throw new PaperSupporterQuotaError(violation);
       }
       const result=before.value.apply(this,[action,...args]);
-      legalSupporterRoots.push({...details,returnedFromNativeDispatch:true});
+      const accepted={...details,returnedFromNativeDispatch:true};
+      legalSupporterRoots.push(accepted);
+      onLegalSupporter(accepted);
       return result;
     }
     return before.value.apply(this,[action,...args]);
