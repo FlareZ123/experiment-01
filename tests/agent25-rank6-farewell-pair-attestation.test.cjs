@@ -35,7 +35,7 @@ function fixture() {
     ],abilityTrace:[{seat:0,turn:3,name:'Farewell Letter'}]
   };
   const options={
-    seat:0,turn:3,
+    seat:0,turn:3,expectedFirstTurnSlot:0,
     executionRecordsVerified:true,
     ownerSettlementAudit:{
       settledZonePostcondition:true,countOnly:true,ownerDeckDecrease:1,
@@ -184,4 +184,12 @@ test('bare success flag without counted zone changes cannot certify a live draw'
   const result=attestFarewellPair(baseline,altered,options);
   assert.equal(result.classification,'owner-zone-postcondition-unverified');
   assert.equal(result.genuineResolvedFarewell,false);
+});
+
+test('different historical first-player slot invalidates retrospective causal claim',()=>{
+  const {baseline,altered,options}=fixture();
+  baseline.firstTurnSlot=1;
+  altered.firstTurnSlot=1;
+  assert.equal(attestFarewellPair(baseline,altered,options).classification,
+    'source-deal-or-start-mismatch');
 });
