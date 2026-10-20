@@ -19,10 +19,10 @@ The treatment preserved both 60-card deck hashes, same source physical deal and 
 | --- | --- | --- |
 | Earlier first candidate Poltergeist | turn21/root149, 6 Trainers, 300 printed base | Identical turn21/root149 |
 | Next candidate Poltergeist | turn25/root174, 6 Trainers, 300 base | **turn41/root252**, 6 Trainers, 300 base |
-| Native engine ending | 176 actions, global turn25 | 254 actions, global turn41 |
+| Native engine ending | 176 accepted Store actions, global turn25 | 254 accepted Store actions, global turn41 |
 | Native engine winner and Prizes | Candidate seat 1, [6,0] | Candidate seat 1, [6,0] |
 
-The **single additional legitimate Stadium play deferred the subsequent candidate Poltergeist knockout by 16 global turns and 78 Store root actions** under the same weak generic continuation policies. Source still took zero Prize cards. The new source-hand Trainer composition at second attack was Quick Ball, Carmine, Professor's Letter, Quick Ball, Boost Shake, Battle VIP Pass, again six. Both second attacks report a printed-base threshold against a fresh 280-HP Mega Absol ex with observed defender disappearance and -3 opponent Prize cards; damage modifiers and exclusive KO cause are outside this audit.
+The **single additional legitimate Stadium play deferred the subsequent candidate Poltergeist knockout by 16 global turns and 78 recorded Store actions (including prompt resolutions)** under the same weak generic continuation policies. Source still took zero Prize cards. The new source-hand Trainer composition at second attack was Quick Ball, Carmine, Professor's Letter, Quick Ball, Boost Shake, Battle VIP Pass, again six. Both second attacks report a printed-base threshold against a fresh 280-HP Mega Absol ex with observed defender disappearance and -3 opponent Prize cards; damage modifiers and exclusive KO cause are outside this audit.
 
 ## Meaning and hard limits
 
