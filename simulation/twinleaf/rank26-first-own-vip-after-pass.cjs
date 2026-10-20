@@ -214,6 +214,17 @@ function sourceKokoNativePostcondition(own){
 }
 
 /**
+ * Conservative evidence gate for complete two-target Koko acceleration.
+ * An incomplete native selection is retained as a measured outcome.
+ * @param {object|null|undefined} effect Physical next-root source zones.
+ * @returns {boolean} Whether exactly two Lightning reached distinct Bench targets.
+ */
+function sourceKokoNativeComplete(effect){
+  return effect?.prismCount===1 && effect.recipientCount===2 &&
+    effect.lightningAttached===2 && effect.discardLightning===0;
+}
+
+/**
  * Once the existing source bot proposes Pass, attempt one owner-information
  * Battle VIP Pass root, then resolve its native owner-deck search. No card
  * instances are fabricated. This is an opt-in development policy, not an
@@ -450,5 +461,5 @@ function withSourceVipAfterPass(seat, execute,
 module.exports={sourceVipAfterPassEligible,sourceVipActorEligible,
   sourceCologneAfterVipEligible,sourceSecondVipActorEligible,
   sourceCompressorAfterKokoEligible,selectSourceCompressorCards,
-  sourceKokoNativePostcondition,
+  sourceKokoNativePostcondition,sourceKokoNativeComplete,
   selectSourceVipBasics,selectSecondVipBasics,withSourceVipAfterPass};
