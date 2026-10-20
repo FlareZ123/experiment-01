@@ -78,8 +78,21 @@ function sourceFirstNativePressureVerified(row){
  * @returns {'native-blocked-eligible-power'|'no-eligible-power-present'|'unverified'}
  */
 function sourceFirstNativeExposureKind(row){
-  if(sourceFirstNativePressureVerified(row))
+  if(sourceFirstNativePressureVerified(row)){
+    if(row.rank===11){
+      const checks=row.garbotoxinWindowAudit?.before?.
+        candidateInPlayPrintedPowerChecks;
+      // The legacy stress gate accepts historical Active-only packets.
+      // The new exposure/control tier requires a complete, printing-bound
+      // native inventory so stale Active-only claims cannot certify controls.
+      if(!Array.isArray(checks)||!checks.some(power=>
+        power?.blocked===true&&
+        typeof power.printing==='string'&&power.printing.length>0&&
+        typeof power.name==='string'&&power.name.length>0))
+        return 'unverified';
+    }
     return 'native-blocked-eligible-power';
+  }
   if(row?.rank===11){
     const pressure=row.sourcePressure;
     const window=row.garbotoxinWindowAudit;
