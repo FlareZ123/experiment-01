@@ -2,7 +2,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {summarizePassEvidence} = require('../scripts/aichi-bilateral-pass-evidence-summary.cjs');
+const {summarizePassEvidence,classifiedDonorStatus} =
+  require('../scripts/aichi-bilateral-pass-evidence-summary.cjs');
 
 test('prints evidence under precise uncertainty labels', () => {
   const archive = {attempted: 2, rows: [
@@ -41,6 +42,8 @@ test('prints evidence under precise uncertainty labels', () => {
   assert.equal(result.rows[0].perfectionSamples[0].publicCopySourceInventory.discard[0].name,
     'Gengar & Mimikyu-GX');
   assert.equal(result.rows[0].perfectionSamples[0].sourceEligibility.sourcePokemonCount,1);
+  assert.equal(result.rows[0].perfectionSamples[0].donorStatus,
+    'gx-ex-source-present-validated-clone-menu');
   assert.equal(result.rows[1].error, 'sample error');
   assert.equal(result.rows[1].candidatePasses, null);
   assert.equal(result.qualification.provesPaperLegalAttack, false);
@@ -49,4 +52,28 @@ test('prints evidence under precise uncertainty labels', () => {
 
 test('rejects archive without rows', () => {
   assert.throws(() => summarizePassEvidence({}), /rows/);
+});
+
+test('donor status is a necessary-resource report, never an inferred lock',()=>{
+  assert.equal(classifiedDonorStatus({
+    sourceEligibility:{sourcePokemonCount:0},
+    activationAccepted:false,rejection:'CANNOT_USE_POWER'
+  }),'no-eligible-gx-ex-source-in-own-public-zones');
+  assert.equal(classifiedDonorStatus({
+    sourceEligibility:{sourcePokemonCount:2},
+    activationAccepted:false,rejection:'CANNOT_USE_POWER'
+  }),'gx-ex-source-present-activation-rejected');
+  assert.equal(classifiedDonorStatus({
+    sourceEligibility:{sourcePokemonCount:1},activationAccepted:true,
+    choicePromptObserved:true,validAttackNames:[]
+  }),'gx-ex-source-present-no-validated-attack');
+  assert.equal(classifiedDonorStatus({
+    sourceEligibility:{sourcePokemonCount:1},activationAccepted:true,
+    choicePromptObserved:false
+  }),'gx-ex-source-present-no-choice-prompt');
+  assert.equal(classifiedDonorStatus({activationAccepted:false}),
+    'source-inventory-not-audited');
+  assert.equal(classifiedDonorStatus({
+    sourceEligibility:{sourcePokemonCount:-1},activationAccepted:true
+  }),'source-inventory-not-audited');
 });
