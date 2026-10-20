@@ -19,6 +19,7 @@ class PlayCardAction {
     this.id = id; this.handIndex = handIndex; this.target = target;
   }
 }
+class SourceEnergyRemovalAction {}
 class ResolvePromptAction {
   /** @param {number} id @param {object[]} result */
   constructor(id, result) { this.id = id; this.result = result; }
@@ -32,6 +33,9 @@ class FakeStore {
     if (action instanceof PlayCardAction) {
       owner.active.cards.push(owner.hand.cards.splice(action.handIndex, 1)[0]);
       owner.energyPlayedTurn = this.state.turn;
+    }
+    if (action instanceof SourceEnergyRemovalAction) {
+      owner.discard.cards.push(owner.active.cards.pop());
     }
     if (action instanceof ResolvePromptAction) {
       const source = owner.discard.cards;
@@ -65,7 +69,7 @@ function fixture() {
   const psychic = basic('Psychic Energy SVE');
   const discard = basic('Psychic Energy MEE');
   const owner = {
-    id: 101, energyPlayedTurn: 26,
+    id: 101, energyPlayedTurn: 26, bench: [],
     active: {
       cards: [{superType: SuperType.POKEMON, fullName: 'Gengar & Mimikyu-GX TEU'}],
       tools: [{name: 'Powerglass', fullName: 'Powerglass SFA'}],
@@ -146,6 +150,9 @@ test('same real Store records accepted native Energy and zero-or-one Powerglass 
     store.dispatch(new ResolvePromptAction(18, [
       {card: discard, to: {player: 2, slot: SlotType.ACTIVE, index: 0}}
     ]));
+    store.state.turn = 30;
+    store.state.activePlayer = 1;
+    store.dispatch(new SourceEnergyRemovalAction());
     return 'unchanged-execution';
   }, deps);
   assert.equal(result.result, 'unchanged-execution');
@@ -153,6 +160,13 @@ test('same real Store records accepted native Energy and zero-or-one Powerglass 
   assert.equal(result.audit.candidateOwnTurns, 1);
   assert.equal(result.audit.nativeManualEnergyAccepted, 1);
   assert.equal(result.audit.likelyPowerglassPromptAccepted, 2);
+  assert.equal(result.audit.publicEnergyTransitions, 3);
+  assert.deepEqual(result.audit.publicEnergyTransitionsLedger.map(x =>
+    x.attachedCardDelta), [1, 1, -1]);
+  assert.deepEqual(result.audit.publicEnergyTransitionsLedger.map(x =>
+    x.actorSeat), [0, 0, 1]);
+  assert.equal(result.audit.publicEnergyTransitionsLedger[2].sourceCardAttribution,
+    'unverified-public-root-join-required');
   assert.deepEqual(result.audit.likelyPowerglassPrompts.map(x =>
     x.selectedCount), [0, 1]);
   assert.deepEqual(result.audit.nativeManualEnergy[0].before.heldEnergyNames,
