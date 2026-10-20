@@ -845,6 +845,9 @@ function runMatch(request) {
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
     const rootActionLedger = request.captureDecisionTrace === true ? [] : null;
+    // Preserve the public restart boundary separately from the stable root
+    // ledger protocol and SHA. A paper sudden-death replay resets turn to 0.
+    const suddenDeathClockResets = rootActionLedger ? [] : null;
     const gladionRootPrizeChoices = request.captureGladionRootPrizeChoices === true ? [] : null;
     const rootConfirmationTrace = request.captureRootConfirmationTrace === true ? [] : null;
     const electrodeOpportunityObserver = request.captureElectrodeOpportunity === true ?
@@ -1008,6 +1011,8 @@ function runMatch(request) {
         actionName === 'ResolvePromptAction' &&
         Array.isArray(action.result) ? action.result.map(card=>card.fullName) : null;
       const turnBefore = state.turn;
+      const phaseBefore = state.phase;
+      const suddenDeathBefore = state.isSuddenDeath === true;
       if (knowledgeEvents) {
         optionsBySeat.forEach((options,seat) => {
           const current=options.bunnelbyDeckKnowledgeEpoch.snapshot();
@@ -1373,6 +1378,17 @@ function runMatch(request) {
       }
       // Capture every successful root Store dispatch, including prompt actions
       // absent from the selective decision trace. This is post-choice evidence.
+      if (suddenDeathClockResets && store.state.turn < turnBefore) {
+        suddenDeathClockResets.push({
+          actionOrdinal:actions,actingSeat:seat,action:actionName,
+          pendingPrompt:pending?.constructor.name??null,
+          fromTurn:turnBefore,toTurn:store.state.turn,
+          fromPhase:phaseBefore,toPhase:store.state.phase,
+          beforeSuddenDeath:suddenDeathBefore,
+          afterSuddenDeath:store.state.isSuddenDeath===true,
+          enteredSetup:store.state.phase===GamePhase.SETUP
+        });
+      }
       if (rootActionLedger) {
         rootActionLedger.push({
           actionOrdinal: actions,
@@ -1428,6 +1444,10 @@ function runMatch(request) {
       abilityTrace,
       decisionTrace,
       rootActionLedger,
+      ...(suddenDeathClockResets ? {
+        suddenDeathClockResets,
+        suddenDeathClockResetProtocol:'actual-native-sudden-death-clock-transition-v1'
+      } : {}),
       ...(gladionRootPrizeChoices ? {gladionRootPrizeChoices} : {}),
       rootActionLedgerProtocol: rootActionLedger ?
         'actual-store-root-action-ledger-v1' : null,
