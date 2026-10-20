@@ -176,7 +176,7 @@ function runAudit() {
       x.sourceStartsFirst === false).length,
     trials: records,
     competitivelyQualifiedGames: 0,
-    caveat: 'Eight independent preselected physical source deal diagnostics under unmodified generic bot and Expanded source profile, no forced actions. Not enough for competitive inference; censored matches remain censored; ordinary bot is unqualified.'
+    caveat: 'Eight predeclared seed-by-seat physical source deal diagnostics using four seed values, with possible dependence across paired reversed seats; existing generic bot and Expanded source profile, no additional forced actions. Not enough for competitive inference; censored matches remain censored; ordinary bot is unqualified.'
   };
 }
 if (require.main === module)
