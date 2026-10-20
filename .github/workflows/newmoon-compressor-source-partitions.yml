@@ -12,6 +12,11 @@ on:
           - '1'
           - '2'
           - '3'
+      agent35_second_donor_native:
+        description: 'Compile and execute only real native staged second-donor Compressor prompt tests; no source game'
+        required: false
+        type: boolean
+        default: false
       common_bilateral_compressor_development:
         description: 'Run original canonical historical rank6/rank11 four arms with common owner-Compressor opt-in; unqualified'
         required: false
@@ -111,6 +116,19 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Test opt-in second donor predicate and genuine pinned owner-deck prompt
+        if: inputs.agent35_second_donor_native
+        run: |
+          node --test tests/new-moon-compressor-payload-policy.test.cjs
+          node simulation/twinleaf/newmoon-compressor-owner-prompt-native.cjs > agent35-second-donor-native.txt
+      - name: Archive positive or negative second-donor native control
+        if: ${{ always() && inputs.agent35_second_donor_native }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent35-second-donor-only-native
+          path: agent35-second-donor-native.txt
+          if-no-files-found: warn
+          retention-days: 10
       - name: Unit-test rank6 owner-only Energy and Powerglass replay observer
         if: inputs.agent43_rank6_energy_window
         run: |
@@ -298,15 +316,15 @@ jobs:
           if-no-files-found: warn
           retention-days: 10
       - name: Check disjoint registered partition coverage and owner-hand payload policy
-        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup && !inputs.agent43_rank6_energy_window && !inputs.agent30_rank6_source_denial_audit && !inputs.agent30_rank6_bench_energy_fork && !inputs.agent10_rank6_telepath_k1_source_fork }}
+        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup && !inputs.agent43_rank6_energy_window && !inputs.agent30_rank6_source_denial_audit && !inputs.agent30_rank6_bench_energy_fork && !inputs.agent10_rank6_telepath_k1_source_fork && !inputs.agent35_second_donor_native }}
         run: node --test tests/newmoon-payload-partition-plan.test.cjs tests/new-moon-compressor-payload-policy.test.cjs
       - name: Execute same-deal control and Compressor intervention in one fixed partition
-        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup && !inputs.agent43_rank6_energy_window && !inputs.agent30_rank6_source_denial_audit && !inputs.agent30_rank6_bench_energy_fork && !inputs.agent10_rank6_telepath_k1_source_fork }}
+        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup && !inputs.agent43_rank6_energy_window && !inputs.agent30_rank6_source_denial_audit && !inputs.agent30_rank6_bench_energy_fork && !inputs.agent10_rank6_telepath_k1_source_fork && !inputs.agent35_second_donor_native }}
         env:
           NEWMOON_PAYLOAD_PARTITION: ${{ inputs.partition }}
         run: node simulation/twinleaf/newmoon-payload-partition-write.cjs
       - name: Compare early Bench-Mewtwo owner-donor preparation on historical repeat1
-        if: ${{ !inputs.common_bilateral_compressor_development && inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup && !inputs.agent43_rank6_energy_window && !inputs.agent30_rank6_source_denial_audit && !inputs.agent30_rank6_bench_energy_fork && !inputs.agent10_rank6_telepath_k1_source_fork }}
+        if: ${{ !inputs.common_bilateral_compressor_development && inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup && !inputs.agent43_rank6_energy_window && !inputs.agent30_rank6_source_denial_audit && !inputs.agent30_rank6_bench_energy_fork && !inputs.agent10_rank6_telepath_k1_source_fork && !inputs.agent35_second_donor_native }}
         run: node simulation/twinleaf/newmoon-rank11-benched-payload-retrospective.cjs > newmoon-bench-retrospective-repeat1.json
       - name: Archive historical repeat1 bench-donor policy contrast
         if: ${{ !inputs.common_bilateral_compressor_development && inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup && always() }}
@@ -317,7 +335,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 10
       - name: Preserve all source-deal attempts, including errors and action caps
-        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup && !inputs.agent10_rank6_telepath_k1_source_fork && always() }}
+        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup && !inputs.agent10_rank6_telepath_k1_source_fork && !inputs.agent35_second_donor_native && always() }}
         uses: actions/upload-artifact@v4
         with:
           name: newmoon-compressor-source-partition-${{ inputs.partition }}
@@ -447,7 +465,7 @@ jobs:
         if: inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup
         run: node simulation/evaluation/agent9-rank11-sourcefirst-lock-transfer.cjs > agent9-rank11-sourcefirst-lock-transfer.json
       - name: Archive all eight actual source-first pressure transfer arms, including no-lock and errors
-        if: ${{ always() && inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup && !inputs.agent43_rank6_energy_window && !inputs.agent30_rank6_source_denial_audit && !inputs.agent30_rank6_bench_energy_fork && !inputs.agent10_rank6_telepath_k1_source_fork }}
+        if: ${{ always() && inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup && !inputs.agent43_rank6_energy_window && !inputs.agent30_rank6_source_denial_audit && !inputs.agent30_rank6_bench_energy_fork && !inputs.agent10_rank6_telepath_k1_source_fork && !inputs.agent35_second_donor_native }}
         uses: actions/upload-artifact@v4
         with:
           name: agent9-rank11-sourcefirst-lock-transfer-development
