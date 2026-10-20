@@ -272,7 +272,7 @@ function hasPairedTrialSchedule(left, right) {
   function cells(envelope) {
     const records = envelope?.archive?.records;
     if (!Array.isArray(records) || records.length === 0) return null;
-    const seen = new Set();
+    const seen = new Map();
     for (const row of records) {
       if (row?.status !== 'completed' ||
           !['A', 'B'].includes(row.candidateEngineSlot) ||
@@ -284,12 +284,21 @@ function hasPairedTrialSchedule(left, right) {
       const actualTurn = proof.firstTurnSlot === candidateSlot ?
         'first' : 'second';
       if (row.candidateTrueTurn !== actualTurn) return null;
+      // The opponent must resolve to the same actual engine deck in both arms.
+      // Equal published-source digests do not prove equal resolved printings.
+      const opponentSlot = 1 - candidateSlot;
+      const expected = row.expectedEngineDeckHashes;
+      const observed = row.observedEngineDeckHashes;
+      if (!Array.isArray(expected) || !Array.isArray(observed) ||
+          expected.length !== 2 || observed.length !== 2 ||
+          !/^[a-f0-9]{64}$/.test(expected[opponentSlot]) ||
+          observed[opponentSlot] !== expected[opponentSlot]) return null;
       const key = JSON.stringify([
         row.phase, row.rank, row.repeat, row.seed,
         row.candidateEngineSlot, row.opponentDigest, actualTurn
       ]);
       if (seen.has(key)) return null;
-      seen.add(key);
+      seen.set(key, expected[opponentSlot]);
     }
     return seen;
   }
@@ -297,7 +306,7 @@ function hasPairedTrialSchedule(left, right) {
   const a = cells(left);
   const b = cells(right);
   return a !== null && b !== null && a.size === b.size &&
-    [...a].every(key => b.has(key));
+    [...a].every(([key, opponentHash]) => b.get(key) === opponentHash);
 }
 
 module.exports = {
