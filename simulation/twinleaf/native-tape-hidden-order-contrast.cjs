@@ -38,7 +38,30 @@ function compareNativeHiddenDeckOrder(args) {
   assert.ok(Array.isArray(tape));
   for(const fn of [cloneState,replayDecision,
     actionSignature,fingerprint,actorView])assert.equal(typeof fn,'function');
-  const before=fingerprint(root);
+  // A successful parity result only certifies the exact root and RNG tape
+  // from which it was computed. Reject stale or unrelated successes before
+  // allowing any speculative hidden-world action comparison.
+  const before=fingerprint(root),tapeSha256=digest(tape);
+  assert.equal(parity.schema,'native-same-world-tape-parity-v1',
+    'Native parity provenance schema mismatch');
+  assert.deepStrictEqual(parity.rootAtEntry,before,
+    'Native parity root does not match hidden-contrast root');
+  assert.deepStrictEqual(parity.rootAtExit,before,
+    'Native parity source root was not unchanged');
+  assert.equal(parity.tapeSha256,tapeSha256,
+    'Native parity RNG tape does not match hidden-contrast tape');
+  assert.equal(parity.tapeDraws,tape.length,
+    'Native parity RNG draw count mismatch');
+  assert.equal(parity.consumed,tape.length,
+    'Native parity RNG consumption mismatch');
+  assert.equal(parity.sourceRootUnchanged,true,
+    'Native parity mutated the physical source State');
+  assert.equal(parity.physicalCloneMatched,true,
+    'Native parity used a mismatched physical clone');
+  assert.equal(parity.selectedActionMatched,true,
+    'Native parity failed same-world action matching');
+  assert.equal(parity.replayError,null,
+    'Native parity contains a replay failure');
   const report={
     schema:VERSION,actorSeat:seat,tapeDraws:tape.length,
     tapeSha256:digest(tape),sourceRootAtEntry:before,
