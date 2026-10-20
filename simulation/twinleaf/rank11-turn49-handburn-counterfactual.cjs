@@ -23,10 +23,11 @@ const DISCARD_ORDER = [
  * cards. Never select hidden-zone objects or the next Quick Ball to be used.
  *
  * @param {{fullName:string}[]} cards Prompt-listed physical cards.
+ * @param {readonly string[]} [priority] Owner-visible discard preference.
  * @returns {{fullName:string}|null}
  */
-function chooseTrainerDiscard(cards) {
-  for (const fullName of DISCARD_ORDER) {
+function chooseTrainerDiscard(cards, priority=DISCARD_ORDER) {
+  for (const fullName of priority) {
     const card = cards.find(item => item.fullName === fullName);
     if (card) return card;
   }
@@ -45,14 +46,15 @@ function chooseTrainerDiscard(cards) {
  * @template T
  * @param {0|1} sourceSeat
  * @param {()=>T} execute Synchronous original source-game runner.
- * @param {{turn?:number,maxQuickBalls?:number}} [options]
+ * @param {{turn?:number,maxQuickBalls?:number,discardPriority?:readonly string[]}} [options]
  * @returns {{result:T,policyAudit:object}}
  */
 function withRank11Turn49HandBurn(sourceSeat, execute,
-  {turn=49,maxQuickBalls=3}={}) {
+  {turn=49,maxQuickBalls=3,discardPriority=DISCARD_ORDER}={}) {
   if (![0,1].includes(sourceSeat) || typeof execute !== 'function' ||
       !Number.isSafeInteger(turn) || turn<1 ||
-      !Number.isSafeInteger(maxQuickBalls) || maxQuickBalls<1) {
+      !Number.isSafeInteger(maxQuickBalls) || maxQuickBalls<1 ||
+      !Array.isArray(discardPriority) || discardPriority.length===0) {
     throw new TypeError('Need source seat, source turn, positive Quick Ball goal and runner.');
   }
   const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
@@ -116,7 +118,7 @@ function withRank11Turn49HandBurn(sourceSeat, execute,
     if(phase==='discard') {
       if(pending?.constructor?.name==='ChooseCardsPrompt' &&
           pending.playerId===player.id && pending.cards!==player.deck) {
-        const selected=chooseTrainerDiscard(pending.cards.cards);
+        const selected=chooseTrainerDiscard(pending.cards.cards,discardPriority);
         if(selected && pending.validate([selected],state)) {
           events.push({turn:state.turn,step:'discard-own-Trainer',
             printing:selected.fullName});
@@ -174,7 +176,7 @@ function withRank11Turn49HandBurn(sourceSeat, execute,
     const result=execute();
     return {result,policyAudit:{
       schema:'rank11-turn49-live-Quick-Ball-Trainer-burn-v1',
-      sourceSeat,sourceTurn:turn,maxQuickBalls,
+      sourceSeat,sourceTurn:turn,maxQuickBalls,discardPriority,
       sourceTurnSeen,beforeOwnHand,afterOwnHand,
       attemptCount,completedBalls,phaseAtEnd:phase,blocked,events,
       perspective:'acting source player own hand, owner search prompt, public turn',
