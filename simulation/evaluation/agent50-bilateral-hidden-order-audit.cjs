@@ -79,13 +79,14 @@ function comparisonProjection(row) {
  * @param {Function} Bot Pinned SimpleTacticsAi, injected for pure tests.
  * @param {(state:object)=>object} clone Full detached clone.
  * @param {()=>()=>number} makeRandom Independent policy RNG factory.
- * @param {{firstFiniteScoredRoot?:boolean}} [scope]
+ * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean}} [scope]
  * @returns {object} Unqualified, failure-inclusive diagnostic.
  */
 function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) {
   const target={...candidateDevelopmentTarget(trial),
     ...(scope.firstFiniteScoredRoot===true?
-      {firstFiniteScoredRoot:true,probeFreshStoreLegality:true}:{})};
+      {firstFiniteScoredRoot:true,probeFreshStoreLegality:true}:{}),
+    ...(scope.replayCommonPolicy===true?{replayCommonPolicy:true}:{})};
   let control;
   try {
     control=execute();
@@ -173,6 +174,7 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
       actualFiniteScores:event.actualFiniteScores??null,
       ownerRootVisible:event.ownerRootVisible??null,
       freshPlayCardStoreProbe:event.freshPlayCardStoreProbe??null,
+      replayCommonPolicy:event.replayCommonPolicy===true,
       knownDeckMembershipVerified:event.knownDeckMembershipVerified===true,
       knownDeckTopOrderVerified:event.knownDeckTopOrderVerified===true
     }}:{}),
@@ -189,8 +191,10 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
  *
  * @returns {object}
  */
-function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false}={}) {
+function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
+  replayCommonPolicy=false}={}) {
   assert.equal(typeof firstFiniteScoredRoot,'boolean');
+  assert.equal(typeof replayCommonPolicy,'boolean');
   const root=path.resolve(__dirname,'../..');
   const {developmentTrials,executeDevelopment}=
     require('./agent41-bilateral-v2-development.cjs');
@@ -233,10 +237,12 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false}={}) {
     ()=>executeDevelopment(trial,prepared),
     withPostgameRootOrderProbe,SimpleTacticsAi,clone,
     ()=>seededRandom((trial.seed^0x5a17b9ef)>>>0),
-    {firstFiniteScoredRoot}
+    {firstFiniteScoredRoot,replayCommonPolicy}
   ));
   return {
-    schema:firstFiniteScoredRoot?
+    schema:replayCommonPolicy?
+      'agent50-crossrank-historical-first-finite-owner-score-v4':
+      firstFiniteScoredRoot?
       'agent50-crossrank-historical-first-finite-owner-score-v3':
       'agent50-crossrank-historical-live-hidden-order-v1',
     protocol:'same-frozen-game control/replay, one candidate root hidden order flip',
@@ -261,7 +267,8 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false}={}) {
 
 if(require.main===module) {
   process.stdout.write(JSON.stringify(runHistoricalDevelopmentAudit({
-    firstFiniteScoredRoot:process.env.AGENT50_FIRST_FINITE_ROOT==='true'
+    firstFiniteScoredRoot:process.env.AGENT50_FIRST_FINITE_ROOT==='true',
+    replayCommonPolicy:process.env.AGENT50_COMMON_POLICY_REPLAY==='true'
   }),null,2)+'\n');
 }
 module.exports={candidateDevelopmentTarget,comparisonProjection,
