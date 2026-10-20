@@ -81,7 +81,8 @@ test('authenticated known top is preserved while unknown suffix is reversed',()=
   assert.equal(report.actorObservationMatched,true);
   assert.equal(report.permutationChangedPhysicalOrder,true);
   assert.equal(report.preservedKnownTopCount,1);
-  assert.equal(report.ownerDeckKnownTopAuthenticated,true);
+  assert.equal(report.callerAssertsKnownTopVerified,true);
+  assert.equal(report.ownerDeckKnownTopAuthenticated,false);
   assert.equal(report.informationSetLeakQualified,false);
   assert.equal(JSON.stringify(args.root),snapshot);
 });
