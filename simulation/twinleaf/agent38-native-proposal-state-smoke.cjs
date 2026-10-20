@@ -11,6 +11,7 @@ const {withNativePaperSupporterDiscipline,VERSION}=
   require('./agent41-paper-supporter-discipline.cjs');
 const {installOriginalStateNoninterferenceGate}=
   require('./original-state-noninterference-gate.cjs');
+const {installNativeSupporterProposalValidationTrace}=require('./native-supporter-proposal-validation-observer.cjs');
 const {TIER_NAMES}=require('../../scripts/aichi-thorns-crossrank-opening.cjs');
 
 const SEED=2966203069;
@@ -63,6 +64,7 @@ function main() {
     '../../vendor/twinleaf/ptcg-server/output');
   const {SimpleTacticsAi}=require(path.join(compiled,
     'simple-bot/simple-tactics-ai'));
+  const {PlaySupporterTactic}=require(path.join(compiled,'simple-bot/simple-tactics/play-supporter-tactic'));
   const plan=planAichi(1,{
     allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
   });
@@ -90,11 +92,14 @@ function main() {
   const guard=installOriginalStateNoninterferenceGate(SimpleTacticsAi,{
     failOnMutation:false,maxExamples:12
   });
-  let observed,readOnlyAudit;
+  const proposals=installNativeSupporterProposalValidationTrace(SimpleTacticsAi,PlaySupporterTactic);
+  let observed,readOnlyAudit,proposalValidationAudit;
   try {
     observed=execute();
     readOnlyAudit=guard.report;
+    proposalValidationAudit=proposals.report;
   } finally {
+    proposals.restore();
     guard.restore();
   }
   const gameA=baseline.result.result;
@@ -115,6 +120,7 @@ function main() {
       .map(row=>({turn:row.turn,name:row.name,settled:row.settled,
         supporterTurnBefore:row.supporterTurnBefore})),
     proposalIntegrity:decision,
+    nativeProposalValidationTrace:proposalValidationAudit,
     competitiveQualifiedGames:0
   };
   process.stdout.write(JSON.stringify(report,null,2)+'\n');
