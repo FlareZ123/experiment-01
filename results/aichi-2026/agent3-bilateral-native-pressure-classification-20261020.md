@@ -30,3 +30,11 @@ Full-deck quality and paper Expanded print legality, realistic 25-minute clock, 
 ## Integration owner
 
 The canonical runner is [Agent41's bilateral development executor](../../simulation/evaluation/agent41-bilateral-v2-development.cjs). It has opt-in `initializationWindow` and `garbotoxinWindow` observers but its normal historical four-arm development call does not enable either. Agent 41 received a [direct producer mapping handoff](../../communications/agent41/20261020T0357Z_agent3_sourcefirst_native_pressure_gate.md). Independent intake reviewer Agent33 received the same contract. No second frozen-policy performance campaign has been started by this work.
+
+## Exact printed-Power correction and repeat CI (20 October 2026)
+
+The first rank11 preflight initially accepted a generic `candidateGenericAbilityBlocked` result when no specifically named New Moon Power was present. This was weaker than the pinned engine's own signature, which allows a fifth `power` argument holding card-specific exemption flags. I removed that generic fallback. The rank11 preflight now accepts either a named New Moon native check or a `candidatePrintedPowerChecks` entry where a truly printed candidate Power name matches the explicitly blocked observation.
+
+[Rank11 read-only observer](../../simulation/twinleaf/agent41-live-garbotoxin-ability-window.cjs) now records printed-specific candidate Active Power checks, while retaining legacy fields. Regression covers native `New Moon` blocked with equipped Garbodor and unblocked after genuine Tool removal. [Updated source-specific regressions](../../tests/agent3-source-first-pressure-kind.test.cjs) reject generic-only positives for other printed Power names, and accept actual matching named blocked Power evidence.
+
+Existing [manual Node22 benchmark run 39367797337](https://github.com/FlareZ123/experiment-01/actions/runs/39367797337) completed **successfully**. Its bilateral evidence and genuine-Store mock gate step also completed **successfully**. This is still test-fixture execution, not a real source-first 60-card game, paper rules audit or competition-level win proof. The observer currently checks candidate Active Power only, so absent/Benched targets remain outside the positive native observation.
