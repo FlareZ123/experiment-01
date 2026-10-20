@@ -28,6 +28,17 @@ The first two counts are intentionally permissive. They include Pokémon whose a
 
 The three all-Iron-Thorns decks are the clearest *printed* application of non-Rule-Box Crustle/Mimikyu protection, subject to source attack effects, setup, Energy/Tool denial, Stadiums, decking out, and game clocks. Crustle's defense protects only against Pokémon ex attack damage. Mimikyu Safeguard covers ex and V attacks. Snow Mirage requires an already executed attack and depends on the opposing attacker **currently having** an Ability; Ability denial on the opposing attacker may invalidate that condition. In each case an attack whose damage ignores defending-Pokémon effects can bypass the relevant prevention. No protection here implies a free game win.
 
+### Energy feasibility is stronger than simple co-occurrence, but still conditional
+
+The exact nine Regidrago decks also register **three or four Double Dragon Energy**, plus **at least two Basic Grass and two Basic Fire Energy** each. Regidrago VSTAR's printed Apex Dragon costs Grass + Grass + Fire. Double Dragon Energy supplies two units of any required types when attached to a Dragon Pokémon. Thus these lists contain a plausible printed Energy substrate for Apex Dragon without ever needing to pay Dialga-GX's own Metal-based **Shred** cost: the copied attack is used through Apex Dragon under Advanced Player's Rulebook II-C-18. The presence of Energy is still not proof of access, attachment sequence, survival, or timely discard of Dialga-GX.
+
+| Exact ranks | Registered Dialga-GX copies | Registered Double Dragon Energy copies |
+| --- | ---: | ---: |
+| 10, 13, 14, 18, 20, 21, 32 | 1 each | 3 or 4 each |
+| 12, 27 | 2 each | 4 each |
+
+The 80 printed Shred damage can remove an unmodified **70-HP Mimikyu PAL 97 in one successful attack**, and an unmodified **150-HP Crustle SV10 12 in two**. Any such race remains conditional on surviving setup, promotion, Energy denial, Weakness/Resistance, modifiers, and the opponent's own attacks. These observations sharpen the falsification target, without assigning counter success probability.
+
 ## Experimental implications
 
 Do not nominate or mutate the frozen Crustle list based on this printed screen. The next high-information game-state comparison is **authentic source-first Regidrago Apex Dragon → Dialga-GX Shred** versus an actually protected Active wall, with legal printed attacker, discard, Energy, full prompt chain and damage transition. An authentic Source 11 equipped-Garbodor board against an Ability-dependent wall, and a true Source 6/24 all-Thorns game with alternate Stadium/mill responses, should follow. Use the existing canonical common two-player decision evaluator once it is actor-information-safe. Test both actual starts and preserve every failed, rejected and capped branch.
