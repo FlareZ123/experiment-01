@@ -9,7 +9,7 @@ on:
         type: boolean
         default: false
       agent41_dev_options:
-        description: 'Comma-separated: mandatory-options,native-pressure,sourcefirst-retro,late-compressor,partition1 (omit for defaults)'
+        description: 'Comma-separated: mandatory-options,native-pressure,sourcefirst-retro,late-compressor,hidden-read,partition1 (omit for defaults)'
         required: false
         type: string
         default: ''
@@ -177,7 +177,7 @@ jobs:
         run: node --test tests/agent41-bilateral-common-policy.test.cjs tests/agent41-bilateral-v2-fingerprints.test.cjs
       - name: Verify common v2 candidate policy and historical-only development identities
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
-        run: node --test tests/agent41-bilateral-common-policy.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/perfection-post-pass-probe.test.cjs tests/aichi-bilateral-pass-evidence-summary.test.cjs tests/agent41-bilateral-mandatory-option-wiring.test.cjs tests/agent41-bilateral-native-pressure-wiring.test.cjs
+        run: node --test tests/agent41-bilateral-common-policy.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/perfection-post-pass-probe.test.cjs tests/aichi-bilateral-pass-evidence-summary.test.cjs tests/agent41-bilateral-mandatory-option-wiring.test.cjs tests/agent41-bilateral-native-pressure-wiring.test.cjs tests/agent41-native-opponent-hidden-read-observer.test.cjs
       - name: Run four existing v1 deals with an explicit opt-in bilateral policy variant
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
         env:
@@ -185,6 +185,7 @@ jobs:
           AGENT41_NATIVE_PRESSURE_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',native-pressure,') && 'true' || 'false' }}
           AGENT41_SOURCEFIRST_RETRO_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',sourcefirst-retro,') && 'true' || 'false' }}
           AGENT5_COMPR_LATE14_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',late-compressor,') && 'true' || 'false' }}
+          AGENT41_NATIVE_HIDDEN_READ_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',hidden-read,') && 'true' || 'false' }}
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent41-bilateral-v2-development.json
       - name: Summarize all development failures and attempted arms, without competitive outcomes
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
