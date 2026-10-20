@@ -162,7 +162,7 @@ jobs:
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify independent actor-only boundary and read-only Store observer
         run: |
-          node --test tests/actor-observation-contract.test.cjs tests/actor-observation-live-audit.test.cjs
+          node --test tests/actor-observation-contract.test.cjs tests/actor-observation-live-audit.test.cjs tests/actor-k1-search-selection-audit.test.cjs
           node --check simulation/evaluation/agent21-actor-observation-compiled.cjs
       - name: Install pinned engine
         working-directory: vendor/twinleaf/ptcg-server
@@ -181,6 +181,8 @@ jobs:
           ownerDecisions:r.actorProjectionAudit.observedActorDecisions,
           ownerPrompts:r.actorProjectionAudit.ownerPrompts,
           unchangedCanonicalRows:r.sameCompleteCanonicalRows,
+          firstOwnK1Searches:r.nativeFirstOwnerK1.length,
+          rank6NewMoonFirstK1:r.rank6NewMoonFirstOwnerK1,
           gameWinsQualified:r.competitiveQualifiedGames}));"
       - name: Preserve verified native Store parity and failure evidence
         if: always()
