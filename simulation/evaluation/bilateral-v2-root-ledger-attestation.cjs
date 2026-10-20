@@ -87,7 +87,10 @@ function attestBilateralRootClaims(row,ledger,candidateSeat){
   // Bonus-turn claims are optional unless the source next acts at t+3.
   // A matched issuer, prompt close and new-own-turn actor all are required.
   const bonus=row?.candidateBonusTurn;
-  const bonusTurnRootChain=Boolean(ordered&&bonus&&
+  // A bonus-turn grant must come from an actual native attack root.
+  const grantIsAttack=Number.isSafeInteger(bonus?.grantRootActionOrdinal)&&
+    ledger[bonus.grantRootActionOrdinal]?.action==='AttackAction';
+  const bonusTurnRootChain=Boolean(ordered&&bonus&&grantIsAttack&&
     rootMatches(bonus.grantRootActionOrdinal,candidateSeat,
       bonus.grantTurnBefore)&&
     rootMatches(bonus.completionOrdinal,candidateSeat,
