@@ -7,6 +7,10 @@ on:
         description: Execute actor-only typed native roots across canonical historical four arms (prompts unqualified)
         type: boolean
         default: false
+      agent12_lillie_fallback:
+        description: Compare actor-only Lillie draw after Pass against same historical four-arm baseline (requires agent34 flag)
+        type: boolean
+        default: false
       archival_prefix_only:
         description: Run only compiled archival rank-10 prefix falsification
         type: boolean
@@ -322,5 +326,33 @@ jobs:
         with:
           name: agent34-actor-root-canonical-fourarm
           path: agent34-actor-root-native.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Test exact actor-only Lillie decision and native typed Store dispatch
+        if: ${{ inputs.agent12_lillie_fallback }}
+        run: node --test tests/agent12-actor-only-lillie-after-pass.test.cjs
+      - name: Replay identical frozen four arms with actor-only Lillie after Pass
+        if: ${{ inputs.agent12_lillie_fallback }}
+        run: node simulation/twinleaf/agent12-actor-only-lillie-canonical-development.cjs > agent12-actor-lillie-native.json
+      - name: Compare same historical arm Lillie and native actor-root outcomes
+        if: ${{ inputs.agent12_lillie_fallback }}
+        run: >-
+          node -e "const a=require('./agent12-actor-lillie-native.json');
+          const b=require('./agent34-actor-root-native.json');
+          console.log('AGENT12_LILLIE_NATIVE_COMPARISON',JSON.stringify({
+          baseline:{accepted:b.audit.acceptedActorRoots,
+          intents:b.audit.typedIntentCounts,rows:b.rows.map(x=>({
+          id:x.trialId,actions:x.actionCount,attacks:x.attackDeclarations}))},
+          addon:{accepted:a.addon.acceptedLillieRoots,rejected:a.addon.rejectedLillieRoots,
+          events:a.addon.rootEvents.slice(0,12),baseIntents:a.actorRootBase.typedIntentCounts,
+          rows:a.rows.map(x=>({id:x.trialId,actions:x.actionCount,
+          attacks:x.attackDeclarations,supporterGate:x.nativeSupporterQuotaQualified}))},
+          competitiveQualifiedGames:0}));"
+      - name: Preserve bounded Lillie after Pass native development data
+        if: ${{ inputs.agent12_lillie_fallback }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent12-actor-lillie-fourarm
+          path: agent12-actor-lillie-native.json
           if-no-files-found: warn
           retention-days: 14
