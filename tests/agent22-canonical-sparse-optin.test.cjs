@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const test=require('node:test');
-const {withCanonicalActorOnlyPolicy}=
+const {withCanonicalActorOnlyPolicy,SPARSE_OWNER_SEARCH_VERSION}=
   require('../simulation/evaluation/agent7-canonical-actor-composition.cjs');
 
 /** @param {string} name @param {string[]} hits */
@@ -47,9 +47,23 @@ test('sparse owner-search opt-in selects the injectable adapter without default 
     const selected=use('sparse');
     assert.equal(selected.result,27);
     assert.equal(selected.audit.componentVersions.ownerSearch,'sparse-owner');
+    assert.equal(selected.audit.version,SPARSE_OWNER_SEARCH_VERSION);
+    assert.equal(selected.audit.sparseOwnerSearchOptIn,true);
+    assert.equal(normal.audit.sparseOwnerSearchOptIn,false);
     assert.ok(hits.includes('install:sparse-owner'));
     assert.equal(hits.includes('install:common-owner'),false);
     assert.equal(selected.audit.qualification.competitiveGames,0);
+    // A caller-injected wrapper overrides the env request and must keep
+    // its own provenance instead of being mislabeled as sparse.
+    const injected=withCanonicalActorOnlyPolicy(()=>13,{
+      root:adapter('root',hits),fog:adapter('fog',hits),
+      select:adapter('select',hits),option:adapter('option',hits),
+      attack:adapter('attack',hits),
+      ownerSearch:adapter('custom-injected',hits)
+    },{ownerSingleSearch:true});
+    assert.equal(injected.result,13);
+    assert.equal(injected.audit.sparseOwnerSearchOptIn,false);
+    assert.equal(injected.audit.componentVersions.ownerSearch,'custom-injected');
   }finally{
     if(priorCommon)require.cache[common]=priorCommon;
     else delete require.cache[common];
