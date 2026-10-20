@@ -13,7 +13,8 @@ const root=(actionOrdinal,playerSlot,turnBefore,action,extra={})=>({
 
 function fixture() {
   const baseline={
-    seed:407516727,deckHashes:['source60','candidate60'],
+    seed:407516727,engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+    deckHashes:['source60','candidate60'],
     verifiedByDrawLog:true,firstTurnSlot:0,
     rootActionLedger:[
       root(0,1,2,'PlayCardAction',{card:'Guzma & Hala'}),
@@ -128,4 +129,17 @@ test('even a settled WaitPrompt alone cannot certify the drawn card and zone eff
   assert.equal(result.genuineSingleRootReplacement,true);
   assert.equal(result.genuineResolvedFarewell,false);
   assert.equal(result.postPromptZoneChangeDirectlyMeasured,false);
+});
+
+test('mismatched or missing engine revision does not permit cross-version attribution',()=>{
+  const {baseline,altered,options}=fixture();
+  altered.engine='twinleafgg/changed';
+  assert.equal(attestFarewellPair(baseline,altered,options).classification,
+    'source-deal-or-start-mismatch');
+  delete altered.engine;
+  assert.equal(attestFarewellPair(baseline,altered,options)
+    .genuineResolvedFarewell,false);
+  delete baseline.engine;
+  assert.equal(attestFarewellPair(baseline,altered,options).classification,
+    'source-deal-or-start-mismatch');
 });
