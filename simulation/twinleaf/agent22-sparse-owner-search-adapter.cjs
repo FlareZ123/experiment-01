@@ -24,7 +24,11 @@ const SEARCH_MESSAGES=new Set([
  */
 function sparseObservedOwnerSearch(state,seat,observeActor=actorObservation){
   const standard=actorSingleSearchInput(state,seat,observeActor);
-  if(standard)return standard;
+  // The canonical complete-menu projection can return an empty bundle menu:
+  // it tested no individually-valid singletons, although a multi-card
+  // native-valid choice may still exist. Search the sparse path in that case.
+  if(standard&&(!Array.isArray(standard.prompt?.bundles)||
+     standard.prompt.bundles.length>0))return standard;
   assert.ok(seat===0||seat===1);
   const owner=state.players?.[seat];
   const pending=state.prompts?.find(p=>p.result===undefined);
