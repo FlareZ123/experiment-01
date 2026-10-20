@@ -33,7 +33,9 @@ function fixture() {
     ],abilityTrace:[{seat:0,turn:3,name:'Farewell Letter'}]
   };
   const options={
-    seat:0,turn:3,archivedRootSha256:createHash('sha256')
+    seat:0,turn:3,
+    ownerSettlementAudit:{settledZonePostcondition:true},
+    archivedRootSha256:createHash('sha256')
       .update(JSON.stringify(baseline.rootActionLedger)).digest('hex')
   };
   return {baseline,altered,options};
@@ -45,8 +47,9 @@ test('a real identical prefix, original Pass and settled prompt witness qualifie
   assert.equal(result.classification,
     'single-native-replacement-with-real-source-continuation');
   assert.equal(result.genuineSingleRootReplacement,true);
+  assert.equal(result.genuineResolvedFarewell,true);
   assert.equal(result.nextSourceAction?.turn,4);
-  assert.equal(result.postPromptZoneChangeDirectlyMeasured,false);
+  assert.equal(result.postPromptZoneChangeDirectlyMeasured,true);
   assert.equal(result.competitivelyQualifiedGames,0);
 });
 
@@ -115,4 +118,14 @@ test('missing deck identities cannot compare by two absent fields',()=>{
   const result=attestFarewellPair(baseline,altered,options);
   assert.equal(result.classification,'source-deal-or-start-mismatch');
   assert.equal(result.genuineSingleRootReplacement,false);
+});
+
+test('even a settled WaitPrompt alone cannot certify the drawn card and zone effects',()=>{
+  const {baseline,altered,options}=fixture();
+  delete options.ownerSettlementAudit;
+  const result=attestFarewellPair(baseline,altered,options);
+  assert.equal(result.classification,'owner-zone-postcondition-unverified');
+  assert.equal(result.genuineSingleRootReplacement,true);
+  assert.equal(result.genuineResolvedFarewell,false);
+  assert.equal(result.postPromptZoneChangeDirectlyMeasured,false);
 });
