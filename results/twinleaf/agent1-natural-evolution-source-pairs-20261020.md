@@ -20,7 +20,7 @@ Eight fixed seeds, `101, 509, 2026, 7777, 11021, 22111, 33333, 44444`, each ran 
 | 44444 | Yes | 3 | 2 / 32 | 15 / 16 | Both capped |
 | **Total** | **8/8** | **12** | **37 / 171** | **52 / 155** | **3 same native terminals, 5 censored pairs** |
 
-The 12 evolution choices were **all accepted and confirmed by a face-up Pokémon-stack transition**. They occurred in six of eight seeds: six Shadow Rider Calyrex VMAX (rank-1 seat) and six Regidrago VSTAR (rank-10 seat), counting the exact logged events across seats. There were **zero rejected actor-root Store actions** in either arm, 307 accepted default roots versus 321 enabled roots, and 100 versus 113 confirmed public root effects respectively. Generic prompt fallback remained **521 default / 508 enabled**, preventing competition-grade game inference.
+The 12 evolution choices were **all accepted and confirmed by a face-up Pokémon-stack transition**. They occurred in six of eight seeds: seven Shadow Rider Calyrex VMAX (rank-1 seat) and five Regidrago VSTAR (rank-10 seat), counting the exact logged events across seats. There were **zero rejected actor-root Store actions** in either arm, 307 accepted default roots versus 321 enabled roots, and 100 versus 113 confirmed public root effects respectively. Generic prompt fallback remained **521 default / 508 enabled**, preventing competition-grade game inference.
 
 The two no-evolution seed pairs (509, 33333) had identical action counts, root action-category counts, and recorded native terminal outcomes. This is a limited no-op check; full action-ledger equality has not been established.
 
