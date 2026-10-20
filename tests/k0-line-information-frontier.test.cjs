@@ -111,6 +111,71 @@ test('reject epistemic assumptions, repeated ids and invalid bounds',()=>{
   }),/unique/);
 });
 
+test('owner-authenticated partial deck knowledge changes only physically justified feasibility',()=>{
+  const input={
+    unknownPool:['B','C'],unknownPrizeCount:1,
+    observedDeckPrintings:['A'],uniformUnknownAllocation:true,
+    plans:[
+      {id:'A',requirements:[{printing:'A',count:1}],
+        availableUtility:8,missingUtility:-50},
+      {id:'B',requirements:[{printing:'B',count:1}],
+        availableUtility:20,missingUtility:-20}
+    ]
+  };
+  const actual=k0LineInformationFrontier(input);
+  assert.equal(actual.knownDeckCardCount,1);
+  assert.equal(actual.preSearchPlanId,'A');
+  assert.equal(actual.preSearchExpectedUtility,8);
+  assert.equal(actual.afterSearchExpectedUtility,14);
+  assert.equal(actual.informationValue,6);
+  assert.equal(actual.exactDenominator,'2');
+  // The same *unknown* physical pool without authenticated knowledge of A
+  // could never treat plan A as guaranteed available.
+  const unobserved=k0LineInformationFrontier({
+    ...input,observedDeckPrintings:[]
+  });
+  assert.equal(unobserved.preSearchPlanId,null);
+  assert.equal(unobserved.preSearchExpectedUtility,0);
+  assert.equal(unobserved.informationValue,10);
+});
+
+test('duplicate verified deck copies count toward joint requirements',()=>{
+  const actual=k0LineInformationFrontier({
+    unknownPool:['B'],unknownPrizeCount:1,
+    observedDeckPrintings:['A','A'],uniformUnknownAllocation:true,
+    plans:[{id:'two',requirements:[{printing:'A',count:2}],
+      availableUtility:13,missingUtility:-12}]
+  });
+  assert.equal(actual.preSearchExpectedUtility,13);
+  assert.equal(actual.afterSearchExpectedUtility,13);
+  assert.equal(actual.informationValue,0);
+});
+
+test('empty unknown allocation retains deterministic certified deck requirements',()=>{
+  const actual=k0LineInformationFrontier({
+    unknownPool:[],unknownPrizeCount:0,
+    observedDeckPrintings:['A'],uniformUnknownAllocation:true,
+    plans:[{id:'one',requirements:[{printing:'A',count:1}],
+      availableUtility:5,missingUtility:-1}]
+  });
+  assert.equal(actual.exactDenominator,'1');
+  assert.equal(actual.preSearchExpectedUtility,5);
+  assert.equal(actual.afterSearchExpectedUtility,5);
+  assert.equal(actual.informationValue,0);
+});
+
+test('known-printing input is bounded and must contain only real printing names',()=>{
+  const input={unknownPool:['A'],unknownPrizeCount:0,
+    uniformUnknownAllocation:true,
+    plans:[{id:'one',requirements:[],availableUtility:1,missingUtility:-1}]};
+  assert.throws(()=>k0LineInformationFrontier({
+    ...input,observedDeckPrintings:[0]
+  }),/Invalid/);
+  assert.throws(()=>k0LineInformationFrontier({
+    ...input,observedDeckPrintings:Array(60).fill('A')
+  }),/Invalid/);
+});
+
 test('independent exhaustive small-deck benchmark, 160 deterministic instances',()=>{
   let seed=343;
   const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed;};
