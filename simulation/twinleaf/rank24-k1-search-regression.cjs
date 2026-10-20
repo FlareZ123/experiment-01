@@ -13,6 +13,8 @@ const {createOwnerK1DeckMembership} =
   require('./owner-k1-deck-membership.cjs');
 const {ownerK0ObservableInventory} =
   require('./owner-k0-observable-inventory.cjs');
+const {withNativeSupporterTurnAudit} =
+  require('./native-supporter-turn-audit.cjs');
 const {TIER_NAMES} = require('../../scripts/aichi-thorns-crossrank-opening.cjs');
 
 // All three already appeared in the original 24-source-deal registered cohort.
@@ -44,6 +46,8 @@ function main() {
   initializeCards();
   const {Store}=require(path.resolve(__dirname,
     '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
+  const {TrainerType}=require(path.resolve(__dirname,
+    '../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types'));
   const plan=planAichi(1,{
     allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
   });
@@ -139,6 +143,29 @@ function main() {
       }));
     const sourceTurn2Baseline=sourceTurn2Actions(original.result);
     const sourceTurn2OptIn=sourceTurn2Actions(k1Replanned.result);
+    let nativeSupporterTurnAudit=null;
+    if(item.label==='tag-call-before-prized-stadium'){
+      const optInRecheck=withNativeSupporterTurnAudit(
+        Store,TrainerType.SUPPORTER,()=>withBroadThornsSourceAttack(
+          ()=>runMatch(request),{
+            seat:1,turn:2,discardPriority:priority,
+            k1ReplanAfterTagCall:true
+          }
+        )
+      );
+      assert.deepEqual(stableGame(optInRecheck.result.result),
+        stableGame(k1Replanned.result),
+        'Native Supporter observer must preserve opt-in source game');
+      nativeSupporterTurnAudit={
+        acceptedSupporterPlays:optInRecheck.events,
+        acceptedSecondSupporters:optInRecheck.repeatPlays,
+        observationallyIdentical:true
+      };
+      assert.ok(optInRecheck.repeatPlays.some(event=>
+        event.seat===1&&event.turn===2&&
+        event.name.startsWith('Sidney ')),
+      'Frozen native source must reproduce two accepted Supporters on turn 2');
+    }
     const sourceSearches=witnessed.events.filter(event=>
       event.globalTurn===2&&event.ownerSeat===1);
     assert.ok(ownerK1Events.length>=1,
@@ -159,6 +186,7 @@ function main() {
         events:k1Replanned.events,
         originalSourceTurn2Actions:sourceTurn2Baseline,
         optInSourceTurn2Actions:sourceTurn2OptIn,
+        ...(nativeSupporterTurnAudit?{nativeSupporterTurnAudit}:{}),
         rootActionTraceSha256:digest(k1Replanned.result.decisionTrace),
         sameGameAsOriginal:JSON.stringify(stableGame(k1Replanned.result))===
           JSON.stringify(stableGame(original.result)),
@@ -175,7 +203,7 @@ function main() {
     });
   }
   const report={
-    schema:'rank24-owner-search-k0-k1-regression-v3-opt-in-replan-diagnostic',
+    schema:'rank24-owner-search-k0-k1-regression-v4-native-supporter-limit-audit',
     evidenceType:'retrospective native Store actor-owned deck-search witness',
     fieldManifest:plan.manifestDigest,
     candidateDeckHash:digest(plan.candidate.cards),
@@ -186,7 +214,7 @@ function main() {
     targetPrinting:thunder[0],
     rows,
     competitiveQualifiedGames:0,
-    caveat:'Read-only native owner-epoch witness preserves original decisions. Separately labeled opt-in intervention only abandons its own stale Tag Call line before G&H; the fallback generic bot is unqualified and may still spend the Supporter. These selected seeds do not assess competitive win rate.'
+    caveat:'Read-only native owner-epoch and Supporter observers preserve gameplay. Opt-in K1 replanning can expose repeated Supporter plays accepted by the pinned engine, which violate normal paper rules absent an exceptional allowance. These selected seeds remain unqualified for competitive win rate.'
   };
   process.stdout.write(JSON.stringify(report,null,2)+'\n');
   return report;
