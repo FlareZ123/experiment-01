@@ -43,7 +43,7 @@ function readSource(name){
  */
 function canonicalPrinted60(entries,identity){
   assert.ok(Array.isArray(entries));
-  const lines=[];
+  const grouped=new Map();
   let total=0;
   for(const row of entries){
     assert.ok(Number.isSafeInteger(row.count)&&row.count>=1&&row.count<=60);
@@ -52,11 +52,16 @@ function canonicalPrinted60(entries,identity){
     assert.ok(tokens.every(s=>(typeof s==='string'&&s.length>0)||
       (typeof s==='number'&&Number.isSafeInteger(s)&&s>=0)));
     total+=row.count;
-    lines.push(JSON.stringify([...tokens,row.count]));
+    const key=JSON.stringify(tokens);
+    grouped.set(key,(grouped.get(key)??0)+row.count);
   }
   assert.equal(total,60,'Candidate or source must be exactly 60 physical copies');
   assert.ok(entries.length<=60&&entries.length>0);
-  return {total,uniqueRows:entries.length,
+  // Preserve the physical multiset even when the source splits one exact
+  // printing into repeated rows; row partition cannot change a deck digest.
+  const lines=[...grouped].map(([identity,count])=>
+    JSON.stringify([...JSON.parse(identity),count]));
+  return {total,uniqueRows:grouped.size,
     sha256:sha256(lines.sort().join('\n')+'\n')};
 }
 
