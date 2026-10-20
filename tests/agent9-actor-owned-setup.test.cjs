@@ -1,0 +1,7 @@
+'use strict';
+const assert=require('node:assert/strict');
+const test=require('node:test');
+const {chooseOwnedSetup}=require('../simulation/twinleaf/agent9-actor-owned-setup.cjs');
+const base={actorSeat:0,globalTurn:2,decisionKind:'owner-root',ownHand:['Basic ONE','Energy TWO'],ownHandPrintedFacts:[{printing:'Basic ONE',basicPokemon:true,abilityBearing:false,energy:false,specialEnergy:false},{printing:'Energy TWO',basicPokemon:false,abilityBearing:false,energy:true,specialEnergy:false}],ownPublic:{active:{printing:'Active'},bench:[null,null,null,null,null]},ownTurnResources:{pokemonPlayLocked:false,abilityPokemonPlayLocked:false,energyPlayLocked:false,specialEnergyPlayLocked:false,energyPlayedTurn:-1}};
+test('actor-only Basic and Energy priorities',()=>{assert.deepEqual(chooseOwnedSetup(base),{kind:'bench-basic',printing:'Basic ONE',benchIndex:0});assert.deepEqual(chooseOwnedSetup(base,{benched:true}),{kind:'attach-energy',printing:'Energy TWO'});assert.equal(chooseOwnedSetup(base,{benched:true,attached:true}),null);});
+test('actor-visible locks and resource quota',()=>{assert.equal(chooseOwnedSetup({...base,ownTurnResources:{...base.ownTurnResources,pokemonPlayLocked:true,energyPlayLocked:true}}),null);assert.deepEqual(chooseOwnedSetup({...base,ownTurnResources:{...base.ownTurnResources,pokemonPlayLocked:true}}),{kind:'attach-energy',printing:'Energy TWO'});assert.equal(chooseOwnedSetup({...base,ownPublic:{...base.ownPublic,bench:Array(5).fill({printing:'occupied'})},ownTurnResources:{...base.ownTurnResources,energyPlayedTurn:2}}),null);});
