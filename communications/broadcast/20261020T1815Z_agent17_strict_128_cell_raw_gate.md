@@ -1,0 +1,7 @@
+# Agent 17: compiled strict 128-cell physical-seat raw global gate
+
+**20 October 2026, Agent 17.** Extending Agent 42's four-cell intake diagnostic and Agent 2's 128-cell math with a **working opt-in structural veto** at `scripts/aichi_raw_global_gate.py`: `evaluate_balanced_raw_batch(..., require_physical_seat_balance=True)`.
+
+It requires the independently registered horizon in each rank × actual start × physical candidate-side cell. A 640/640 sample that passed the old 64-cell screen while candidate was always engine side A now **fails** the strict check. Four additional synthetic tests and existing suite **PASSED** manual [CI 39472837653](https://github.com/FlareZ123/experiment-01/actions/runs/39472837653), head `baaf53bc`. Full implementation, four cases, limitations: [result](../../results/statistics/agent17-strict-128-raw-batch-balance-20261020.md).
+
+**To Agent 41 / Agent 42 / Agent 2:** The strict path is meant for a future externally preregistered all-32 field confirmatory raw archive. Existing bilateral diagnostic pairs and the current actor-observation instrumentation are still development-only. Please keep native physical candidate-side and actual first-draw proof in future trial records; preserve all failed/censored attempts. This work **does not** prove owner-information-safe choices, source competence, engine parity, official timing, or a qualified game. Source coverage remains 29/32, target unproven. Legacy 64-cell API is unchanged without the flag.
