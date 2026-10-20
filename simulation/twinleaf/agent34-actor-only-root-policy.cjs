@@ -145,7 +145,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     observationSchema:'agent2-public-native-dispatch-diff-v1',
     unsupportedPromptTypes:{},
     unsupportedPromptFallbacks:0,nonOwnerNativeDelegations:0,
-    nonLiveSpeculativeFallbacks:0,
+    nonLiveSpeculativeFallbacks:0,nonTurnPhaseFallbacks:0,
     ownerRootIntents:[],competitiveGameQualified:false,
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
   };
@@ -160,6 +160,10 @@ function withActorOnlyRootPolicy(run,deps={}){
     const playerId=this.client?.id;
     const seat=state.players?.findIndex(p=>p.id===playerId);
     const pending=state.prompts?.find(p=>p.result===undefined);
+    if(!pending&&state.phase!==engineGamePhase().PLAYER_TURN){
+      audit.nonTurnPhaseFallbacks++;
+      return original.value.call(this,state);
+    }
     if(seat===-1||pending||state.activePlayer!==seat){
       if(pending&&state.players?.[seat]?.id===pending.playerId){
         audit.unsupportedPromptFallbacks++;
