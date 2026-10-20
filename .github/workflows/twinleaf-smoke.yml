@@ -27,6 +27,8 @@ jobs:
       - name: Compile upstream server without modifying vendor
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Enforce native Energy recipient legality under printed type filters
+        run: node --test tests/agent11-pinned-attach-energy-geometry.test.cjs tests/agent11-attach-energy-geometry.test.cjs
       - name: Reject unsimulatable New Moon Horror House and Perfection opening roots
         run: node --test tests/new-moon-opening-horror-house-preflight.test.cjs
       - name: Prove both Horror House channels against real printed Psychic Energy in Store
