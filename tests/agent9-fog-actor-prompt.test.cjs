@@ -99,11 +99,15 @@ test('interceptor materializes authentic owner Item and Choice and observes nati
     assert.ok(choice instanceof ResolvePromptAction);
     assert.deepEqual(choice.result,[deck.cards[0]]);
     store.dispatch(choice);
+    state.prompts=[];
+    state.players[0].hand.cards=[deck.cards[0]];
+    store.dispatch(new PlayCardAction(101,0,{player:1,slot:2,index:0}));
     return 'synthetic completed channel';
   },{engine,observe});
   assert.equal(result.result,'synthetic completed channel');
   assert.equal(result.audit.fogItemRootNativeAccepted,1);
   assert.equal(result.audit.fogPromptNativeAccepted,1);
+  assert.equal(result.audit.postSearchPhysicalCardPlays,1);
   assert.equal(result.audit.rejectedNativeChoices,0);
   assert.strictEqual(Store.prototype.dispatch,oldDispatch);
   assert.strictEqual(Bot.prototype.decodeNextAction,oldBot);
