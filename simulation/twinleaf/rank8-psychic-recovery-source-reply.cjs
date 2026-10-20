@@ -23,7 +23,7 @@ const {GamePhase}=require(path.join(root,'game/store/state/state'));
 function withRank8PsychicRecoveryReply(execute){
   const original=SimpleTacticsAi.prototype.decodeNextAction;
   const events=[];
-  let stage=0,witness=null;
+  let stage=0,witness=null,unlockedBenchAbilityProbe=null;
   const board={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
   const mark=(state,detail,action)=>{
     events.push({stage,turn:state.turn,detail,action:action.constructor.name});
@@ -70,6 +70,11 @@ function withRank8PsychicRecoveryReply(execute){
         state.phase===GamePhase.PLAYER_TURN){
       assert.ok(p.hand.cards.some(card=>card.name==='Psychic Energy'));
       assert.equal(p.active.getPokemonCard()?.name,'Shadow Rider Calyrex VMAX');
+      const {probeDoorTarget}=require('./underworld-door-source-lock-probe.cjs');
+      const benchIndex=p.bench.findIndex(slot=>
+        slot.getPokemonCard()?.name==='Shadow Rider Calyrex VMAX');
+      assert.ok(benchIndex>=0);
+      unlockedBenchAbilityProbe=probeDoorTarget(state,p.id,'bench',benchIndex);
       return mark(state,'Use Hooded Active Underworld Door',
         new UseAbilityAction(p.id,'Underworld Door',
           {player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0}));
@@ -97,7 +102,7 @@ function withRank8PsychicRecoveryReply(execute){
     }
     return original.call(this,state);
   };
-  try{return {result:execute(),events,stage,witness};}
+  try{return {result:execute(),events,stage,witness,unlockedBenchAbilityProbe};}
   finally{SimpleTacticsAi.prototype.decodeNextAction=original;}
 }
 module.exports={withRank8PsychicRecoveryReply};
