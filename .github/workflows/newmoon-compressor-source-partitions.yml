@@ -171,6 +171,23 @@ jobs:
       - name: Replay exact original rank6 and counterfactual owner Telepath K1 search
         if: inputs.agent10_rank6_telepath_k1_source_fork
         run: node simulation/evaluation/agent10-rank6-telepath-gengar-source-fork.cjs > agent10-rank6-telepath-owner-K1-sourcefork.json
+      - name: Print bounded authenticated K1 fork outcome digest
+        if: inputs.agent10_rank6_telepath_k1_source_fork
+        run: >-
+          node -e "const fs=require('node:fs');
+          const p=JSON.parse(fs.readFileSync('agent10-rank6-telepath-owner-K1-sourcefork.json','utf8'));
+          for(const label of ['original','intervened']){
+            const x=p[label];
+            console.log('AGENT10_K1_REAL_STORE_OUTCOME',JSON.stringify({
+              arm:label,root:x.rootHash,sourceDeal:x.physicalSourceDeal,
+              sourceHand:x.sourceFirstHand,actions:x.actionCount,
+              candidateAttacks:x.attackDeclarations?.candidate,
+              sourceAttacks:x.attackDeclarations?.source,
+              prizes:x.finalPrizes,finished:x.finished,winner:x.winner,
+              turn3OwnSearches:x.turn3OwnerSearches,
+              candidateSettlements:x.candidateSettlements?.declarations}));
+          }
+          console.log('AGENT10_REAL_OWNER_PROMPT',JSON.stringify(p.ownerDeckK1ForkAudit));"
       - name: Archive authentic K1 search fork including original and censored results
         if: ${{ always() && inputs.agent10_rank6_telepath_k1_source_fork }}
         uses: actions/upload-artifact@v4
