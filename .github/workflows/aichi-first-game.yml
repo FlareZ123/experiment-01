@@ -124,7 +124,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify terminal-transition and campaign regressions
-        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/printed-basic-energy-audit.test.cjs tests/aichi-basic-covered-passes.test.cjs tests/aichi-benched-basic-pass-triage.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-pass-board-audit.test.cjs tests/aichi-campaign-execute.test.cjs tests/aichi-campaign-seed-v2.test.cjs tests/aichi-campaign-seed-v3.test.cjs tests/decision-hand-evidence.test.cjs tests/aichi-opening-decision-audit.test.cjs tests/aichi-campaign-quality-screen.test.cjs tests/aichi-root-action-ledger.test.cjs tests/tm-evolution-pass-evidence.test.cjs tests/bunnelby-k0-deck-target-leak.test.cjs tests/active-opening-pivot.test.cjs tests/attack-retreat-order.test.cjs tests/retreat-transition-evidence.test.cjs tests/pass-attack-announcement-probe.test.cjs tests/aichi-pass-attack-opportunities.test.cjs tests/prompt-integrity.test.cjs tests/electrode-opportunity-observer.test.cjs
+        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/printed-basic-energy-audit.test.cjs tests/aichi-basic-covered-passes.test.cjs tests/aichi-benched-basic-pass-triage.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-pass-board-audit.test.cjs tests/aichi-campaign-execute.test.cjs tests/aichi-campaign-seed-v2.test.cjs tests/aichi-campaign-seed-v3.test.cjs tests/decision-hand-evidence.test.cjs tests/aichi-opening-decision-audit.test.cjs tests/aichi-campaign-quality-screen.test.cjs tests/aichi-root-action-ledger.test.cjs tests/tm-evolution-pass-evidence.test.cjs tests/bunnelby-k0-deck-target-leak.test.cjs tests/active-opening-pivot.test.cjs tests/attack-retreat-order.test.cjs tests/retreat-transition-evidence.test.cjs tests/pass-attack-announcement-probe.test.cjs tests/aichi-pass-attack-opportunities.test.cjs tests/prompt-integrity.test.cjs tests/electrode-opportunity-observer.test.cjs tests/agent45-rank4-position-summary.test.cjs
       - name: Install engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -168,6 +168,12 @@ jobs:
           AICHI_ATTACK_PASS_PROBE: ${{ inputs.audit_passed_attacks && '1' || '0' }}
           AICHI_PROTOTYPE_SAFE_SIM: ${{ inputs.prototype_safe_simulator_isolation && '1' || '0' }}
         run: node simulation/evaluation/aichi-campaign-execute.cjs > aichi-campaign-diagnostic.json
+      - name: Summarize authentic Raichu Bench convergence and held Rope windows
+        if: ${{ inputs.electrode_opportunity_observer && inputs.pilot_ranks == '4' }}
+        run: node scripts/agent45-rank4-position-summary.cjs aichi-campaign-diagnostic.json > aichi-rank4-position-frontier.json
+      - name: Print bounded source-owner position counts
+        if: ${{ inputs.electrode_opportunity_observer && inputs.pilot_ranks == '4' }}
+        run: node -e "const x=require('./aichi-rank4-position-frontier.json');console.log('RANK4 POSITION TOTALS',JSON.stringify({total:x.totals,gamesWithBothBenched:x.gamesWithBothBenched,gamesWithHeldRopeWindow:x.gamesWithHeldRopeWindow}));for(const r of x.perTrial)console.log('RANK4 POSITION TRIAL',JSON.stringify({id:r.trialId,sourceSeat:r.sourceSeat,counts:r.decisions}))"
       - name: Screen engine diagnostics for attacker inactivity and trace integrity
         run: node scripts/aichi-campaign-quality-screen.cjs aichi-campaign-diagnostic.json > aichi-quality-screen.json
       - name: Print bounded rank-level quality and action blockers
@@ -202,6 +208,7 @@ jobs:
           name: aichi-campaign-diagnostic
           path: |
             aichi-campaign-diagnostic.json
+            aichi-rank4-position-frontier.json
             aichi-quality-screen.json
             aichi-opening-decision-audit.json
             aichi-pass-board-audit.json
