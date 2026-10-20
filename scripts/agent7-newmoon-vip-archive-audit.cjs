@@ -101,7 +101,13 @@ function auditVipArchive(report) {
       baselineActions:row.baseline.actions,alternativeActions:row.alternative.actions,
       nativeOffer:offers.length===1,ownerSelection:choices.length===1,
       selectedNames:choices[0]?.names??[],
-      postDispatchBench:benches.length===1,status:row.status});
+      postDispatchBench:benches.length===1,status:row.status,
+      firstOwnTurnActionsEqual:JSON.stringify(row.baseline.firstOwnTurnActions)===
+        JSON.stringify(row.alternative.firstOwnTurnActions),
+      ...(offers.length?{
+        baselineFirstOwnTurnActions:row.baseline.firstOwnTurnActions,
+        alternativeFirstOwnTurnActions:row.alternative.firstOwnTurnActions
+      }:{})});
   }
   assert.equal(seen.size,16);
   assert.equal(failed,report.falseOrFailedAttempts);
@@ -116,6 +122,9 @@ function auditVipArchive(report) {
     nativeOffers,ownerSelections,postDispatchBench,
     postDispatchUnverified:ownerSelections-postDispatchBench,
     failureCount:failed,qualifiedGames:0,
+    noOfferFirstOwnActionDivergences:rows.filter(x=>
+      x.status==='original-and-candidate-policy-bounded'&&
+      !x.nativeOffer&&!x.firstOwnTurnActionsEqual).map(x=>x.trialId),
     cells:[...cells.values()].sort((a,b)=>a.cell.localeCompare(b.cell)),rows};
 }
 if(require.main===module){
