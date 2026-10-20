@@ -126,3 +126,30 @@ test('native physical witness admits Special Energy with optional hand draw',()=
     {kind:'attach-special-energy',printing:'Spiky Energy JTG'},
     before,after,{FINISHED:7}),'no-confirmed-public-effect');
 });
+
+test('payable owner attack outranks unnecessary further Special attachment',()=>{
+  const v=view();
+  v.ownHand=['Spiky Energy JTG'];
+  v.ownPublic.active.energies=[
+    'Double Colorless Energy SUM','Speed Lightning Energy RCL'
+  ];
+  assert.deepEqual(chooseActorRootIntent(v,catalog,{specialEnergyRoot:true}),{
+    kind:'attack',attackName:'Volt Cyclone'
+  });
+});
+
+test('visible Thunder Mountain makes attached DCE pay Thorns Lightning reduction',()=>{
+  const v=view();
+  v.ownPublic.active.printed={types:[4]};
+  v.ownPublic.stadium=['Thunder Mountain Prism Star LOT'];
+  v.ownPublic.active.energies=['Double Colorless Energy SUM'];
+  v.ownHand=['Speed Lightning Energy RCL'];
+  assert.deepEqual(chooseActorRootIntent(v,catalog,{specialEnergyRoot:true}),{
+    kind:'attack',attackName:'Volt Cyclone'
+  });
+  v.ownPublic.stadium=[];
+  assert.deepEqual(chooseActorRootIntent(v,catalog,{specialEnergyRoot:true}),{
+    kind:'attach-special-energy',handIndex:0,
+    printing:'Speed Lightning Energy RCL'
+  });
+});
