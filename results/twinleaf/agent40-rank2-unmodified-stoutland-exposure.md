@@ -17,3 +17,16 @@ If natural Active Stoutland appears in some genuine source games, those observat
 The single-deck decision priority remains the Agent41 canonical reference versus New Moon bilateral comparison against rank6/rank11 and then the diverse entire field. This rank2 census is a distinct owner-policy competence falsification, with **29/32** currently source-complete opponents, **0 competitively qualified games**, and no proven 99.5% fixed deck.
 
 **Run status at registration:** pending; no result yet.
+
+## Compiled eight-specimen source experiment
+
+The manual compiled [Actions run 39413599982](https://github.com/FlareZ123/experiment-01/actions/runs/39413599982), artifact **12260785566**, succeeded under pinned Twinleaf a9905a76. ZIP SHA256 `556c0d7ae4a643143d0f95205911d9a8de352383bd5f61c2f03d11d92c2cea34`; JSON SHA256 `4ec7dc85496a90674d4001e0edf3dd405e86ed12d9c6f1ac3394c3c0db02727c`. All eight predeclared seed-by-seat games executed without errors. There were **four rank2-first starts and four rank2-second starts**, **five engine terminals and three 300-action censors**. All results remain competitively unqualified.
+
+Observed first `Stoutland BCR` positions:
+
+- Seed **20261102**, rank2 seat **A**, source actually second: **Stoutland Active** at global turn **6**, native Store dispatch 94. No source `UseStadiumAction` occurred. First actual rank1 opponent owner nonprompt action with source Stoutland Active was **PassTurnAction** on global turn **7**. Game capped at 300 roots; whole original match ledger SHA256 `f5364941c7799c9fb44acf143bd095ec9a04f09119f6ce92991a91c33a7cab09`.
+- Seed **20261102**, rank2 seat **B**, source actually first: Stoutland first **Benched** on global turn **29**, native Store dispatch 270. Never observed Active by the 300-root cap.
+- Seed **20261104**, rank2 seat **A**, source actually second: Stoutland first **Benched** on turn **18**, native Store dispatch 197. Never observed Active by the 300-root cap.
+- The other **five** printed original rank1/rank2 source streams had no observed Stoutland on either board position before game terminal or cap.
+
+Thus **three of eight** separate seed-by-seat physical game streams naturally placed Stoutland in play, and **one of eight** observed it Active. This is a very small, seat-correlated developmental observation. Source line frequency, stage legality, viable owner actions during lock and game-winning causality remain open. In particular, the opponent's turn-seven Pass is an authentic action and **cannot be attributed to Sentinel from this evidence alone**.
