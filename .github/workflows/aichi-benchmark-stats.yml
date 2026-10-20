@@ -98,6 +98,8 @@ jobs:
         run: node --test tests/aichi-mulligan-treatment-coupling.test.cjs
       - name: Audit all three source Iron Thorns opening and discard tiers
         run: node --test tests/aichi-thorns-crossrank-opening.test.cjs
+      - name: Verify Iron Thorns Prize-only multi-turn Energy floors
+        run: node --test tests/aichi-rank6-energy-prize-frontier.test.cjs tests/aichi-thorns-attachment-floor.test.cjs
       - name: Check correlated-field sequential evidence and intact qualification gates
         run: node --test tests/aichi-correlated-round-evidence.test.cjs
       - name: Verify constructed Japanese New Moon 60 and reject altered printings
