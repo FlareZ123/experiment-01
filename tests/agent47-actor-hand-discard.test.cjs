@@ -53,3 +53,47 @@ test('native physical multiplicity and restricted prompt scope',()=>{
   prompt.options={min:0,max:2};
   assert.equal(observed(state),null);
 });
+
+test('real injected Store accepts an actor choice and restores both hooks',()=>{
+  class AddPlayerAction{}
+  class ResolvePromptAction{
+    constructor(id,result){this.id=id;this.result=result;}
+  }
+  class Store{
+    constructor(state){this.state=state;}
+    dispatch(action){
+      if(action instanceof ResolvePromptAction){
+        const pending=this.state.prompts.find(p=>p.id===action.id);
+        assert.equal(pending.validate(action.result),true);
+        pending.result=action.result;
+      }
+      return this.state;
+    }
+  }
+  class SimpleTacticsAi{
+    constructor(id){this.client={id};}
+    decodeNextAction(){return 'generic';}
+  }
+  const before=SimpleTacticsAi.prototype.decodeNextAction;
+  const beforeDispatch=Store.prototype.dispatch;
+  const state=setup(),store=new Store(state),bot=new SimpleTacticsAi(5);
+  const {withActorHandDiscard}=require('../simulation/twinleaf/agent47-actor-hand-discard.cjs');
+  const data=withActorHandDiscard(()=>{
+    store.dispatch(new AddPlayerAction());
+    const action=bot.decodeNextAction(store.state);
+    assert.ok(action instanceof ResolvePromptAction);
+    store.dispatch(action);
+    return 99;
+  },{Store,SimpleTacticsAi,ResolvePromptAction,validate:()=>{},
+    observe:(s,seat)=>actorHandDiscardInput(s,seat,(_s,_seat)=>({
+      ownHand:s.players[seat].hand.cards.map(c=>c.fullName),
+      globalTurn:1,decisionKind:'owner-prompt'
+    }))});
+  assert.equal(data.result,99);
+  assert.equal(data.audit.accepted,1);
+  assert.equal(data.audit.nativePromptPostconditionsConfirmed,1);
+  assert.equal(data.audit.bySeat[0],1);
+  assert.deepEqual(state.prompts[0].result.map(c=>c.fullName),['A']);
+  assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,before);
+  assert.strictEqual(Store.prototype.dispatch,beforeDispatch);
+});
