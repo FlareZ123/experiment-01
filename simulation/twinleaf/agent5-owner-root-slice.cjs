@@ -127,7 +127,10 @@ function nativeActionForIntent(intent,player,deps){
  */
 function rootPhysicalSnapshot(state,seat,intent){
   const owner=state.players[seat];
+  const target=intent.kind==='evolve-pokemon'?(intent.slot==='bench'?owner.bench[intent.index]:owner.active):null;
   return {
+    evolutionTop:target?.getPokemonCard()?.fullName??null,
+    evolutionLayers:target?.getPokemons().length??null,
     turn:state.turn,phase:state.phase,
     handCount:owner.hand.cards.length,
     activeEnergies:owner.active.energies.cards.map(c=>c.fullName),
@@ -147,6 +150,7 @@ function rootPhysicalSnapshot(state,seat,intent){
  * @returns {'confirmed-public-effect'|'no-confirmed-public-effect'|'attack-needs-declaration'}
  */
 function rootPhysicalWitness(intent,before,after,GamePhase){
+  if(intent.kind==='evolve-pokemon')return before.evolutionTop===intent.from&&after.evolutionTop===intent.printing&&after.evolutionLayers===before.evolutionLayers+1?'confirmed-public-effect':'no-confirmed-public-effect';
   if(intent.kind==='bench-basic'){
     return before.benchPrinting===null&&
       after.benchPrinting===intent.printing&&
