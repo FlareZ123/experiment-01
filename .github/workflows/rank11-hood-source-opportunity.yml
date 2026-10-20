@@ -34,7 +34,7 @@ jobs:
         run: node --test tests/early-shadow-rider-hood.test.cjs tests/protected-underworld-door.test.cjs tests/hood-initialization-policy.test.cjs tests/rank6-hood-removal-policy.test.cjs tests/rank6-hood-removal-replay.test.cjs tests/rank6-faba-hood-target.test.cjs
       - name: Test reversible common VIP root policy with mock native interfaces
         if: ${{ inputs.study == 'common-vip' }}
-        run: node --test tests/agent7-common-vip-pass-bridge.test.cjs
+        run: node --test tests/agent7-common-vip-pass-bridge.test.cjs tests/agent7-newmoon-vip-opening.test.cjs
       - run: npm ci --no-audit --no-fund
         working-directory: vendor/twinleaf/ptcg-server
       - run: npm run compile
