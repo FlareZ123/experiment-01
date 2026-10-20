@@ -64,6 +64,7 @@ test('detached input uses only owner prompt values, restrictions, and observatio
 });
 
 test('both native seats dispatch real typed prompt option with validated legality',()=>{
+  class AddPlayerAction{}
   class ResolvePromptAction{
     constructor(id,result){this.id=id;this.result=result;}
   }
@@ -81,6 +82,7 @@ test('both native seats dispatch real typed prompt option with validated legalit
   const events=[];
   const output=withActorOnlySelectOption(()=>{
     const store=new Store();
+    store.dispatch(new AddPlayerAction());
     for(const [seat,id] of [[0,101],[1,202]]){
       const bot=new SimpleTacticsAi(id);
       const state={players:[{id:101},{id:202}],activePlayer:seat,
@@ -91,7 +93,7 @@ test('both native seats dispatch real typed prompt option with validated legalit
       assert.equal(store.dispatch(a),'accepted');
       events.push([seat,a.id,a.result]);
     }
-    return store.seen.length;
+    return store.seen.filter(a=>a instanceof ResolvePromptAction).length;
   },{
     SimpleTacticsAi,Store,ResolvePromptAction,
     observe:(_state,seat)=>sampleInput({
@@ -107,6 +109,7 @@ test('both native seats dispatch real typed prompt option with validated legalit
   assert.equal(output.audit.eligiblePrompts,2);
   assert.equal(output.audit.selectedPrompts,2);
   assert.equal(output.audit.acceptedPromptActions,2);
+  assert.equal(output.audit.actualStoreInstances,1);
   assert.equal(output.audit.rejectedPromptActions,0);
   assert.equal(output.audit.competitiveGameQualified,false);
   assert.deepEqual(events,[[0,7,2],[1,7,2]]);
@@ -140,8 +143,12 @@ test('unsupported pending prompt delegates and remains unqualified',()=>{
 });
 
 test('rejected real Store actions restore both reversible prototypes',()=>{
+  class AddPlayerAction{}
   class ResolvePromptAction{constructor(id,result){this.id=id;this.result=result;}}
-  class Store{dispatch(){throw Error('REAL_STORE_REJECTION');}}
+  class Store{dispatch(action){
+    if(action instanceof AddPlayerAction)return true;
+    throw Error('REAL_STORE_REJECTION');
+  }}
   class SimpleTacticsAi{
     constructor(){this.client={id:202};}
     decodeNextAction(){throw Error('Unexpected fallback');}
@@ -151,7 +158,9 @@ test('rejected real Store actions restore both reversible prototypes',()=>{
   assert.throws(()=>withActorOnlySelectOption(()=>{
     const action=new SimpleTacticsAi().decodeNextAction({players:[
       {id:101},{id:202}],prompts:[],turn:6});
-    new Store().dispatch(action);
+    const store=new Store();
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(action);
   },{
     SimpleTacticsAi,Store,ResolvePromptAction,
     observe:()=>sampleInput(),validate:()=>{}
