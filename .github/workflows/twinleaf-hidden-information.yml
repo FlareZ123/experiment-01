@@ -27,13 +27,17 @@ on:
         description: Recreate independent common policy closure for each hypothetical world
         type: boolean
         default: false
+      agent50_native_same_world_tape:
+        description: Replay authentic owner decision tape on same physical root (diagnostic, not a hidden-state claim)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   hidden-draw-forecast:
-    if: ${{ !inputs.archival_prefix_only && !inputs.actor_observation_live_only && !inputs.agent50_live_deck_order && !inputs.agent50_first_finite_root && !inputs.agent50_common_policy_replay && !inputs.agent50_isolated_policy_worlds }}
+    if: ${{ !inputs.archival_prefix_only && !inputs.actor_observation_live_only && !inputs.agent50_live_deck_order && !inputs.agent50_first_finite_root && !inputs.agent50_common_policy_replay && !inputs.agent50_isolated_policy_worlds && !inputs.agent50_native_same_world_tape }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -115,7 +119,7 @@ jobs:
         run: node simulation/twinleaf/rank10-hidden-order-live-probe.cjs ordinal215
 
   rank10-archival-prefix:
-    if: ${{ inputs.archival_prefix_only && !inputs.actor_observation_live_only && !inputs.agent50_live_deck_order && !inputs.agent50_first_finite_root && !inputs.agent50_common_policy_replay && !inputs.agent50_isolated_policy_worlds }}
+    if: ${{ inputs.archival_prefix_only && !inputs.actor_observation_live_only && !inputs.agent50_live_deck_order && !inputs.agent50_first_finite_root && !inputs.agent50_common_policy_replay && !inputs.agent50_isolated_policy_worlds && !inputs.agent50_native_same_world_tape }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -164,7 +168,7 @@ jobs:
           if-no-files-found: warn
 
   actor-observation-live:
-    if: ${{ inputs.actor_observation_live_only && !inputs.agent50_live_deck_order && !inputs.agent50_first_finite_root && !inputs.agent50_common_policy_replay && !inputs.agent50_isolated_policy_worlds }}
+    if: ${{ inputs.actor_observation_live_only && !inputs.agent50_live_deck_order && !inputs.agent50_first_finite_root && !inputs.agent50_common_policy_replay && !inputs.agent50_isolated_policy_worlds && !inputs.agent50_native_same_world_tape }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -210,7 +214,7 @@ jobs:
           retention-days: 10
 
   agent50-live-deck-order:
-    if: ${{ (inputs.agent50_live_deck_order || inputs.agent50_first_finite_root || inputs.agent50_common_policy_replay || inputs.agent50_isolated_policy_worlds) && !inputs.archival_prefix_only && !inputs.actor_observation_live_only }}
+    if: ${{ (inputs.agent50_live_deck_order || inputs.agent50_first_finite_root || inputs.agent50_common_policy_replay || inputs.agent50_isolated_policy_worlds || inputs.agent50_native_same_world_tape) && !inputs.archival_prefix_only && !inputs.actor_observation_live_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -235,6 +239,7 @@ jobs:
           AGENT50_FIRST_FINITE_ROOT: ${{ inputs.agent50_first_finite_root || inputs.agent50_common_policy_replay || inputs.agent50_isolated_policy_worlds }}
           AGENT50_COMMON_POLICY_REPLAY: ${{ inputs.agent50_common_policy_replay || inputs.agent50_isolated_policy_worlds }}
           AGENT50_ISOLATED_POLICY_WORLDS: ${{ inputs.agent50_isolated_policy_worlds }}
+          AGENT50_NATIVE_TAPE_SAME_WORLD: ${{ inputs.agent50_native_same_world_tape }}
         run: node simulation/evaluation/agent50-bilateral-hidden-order-audit.cjs > agent50-live-deck-order-fourarm.json
       - name: Enumerate every observed and vetoed historical arm
         run: >-
