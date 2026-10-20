@@ -29,7 +29,8 @@ function state(overrides={}) {
 
 function scenario({candidateOverrides=false,root=state(),
   cloned=structuredClone,compare=null,replayPolicy=null,
-  replayCommonPolicy=false,isolateReplayPolicyPerWorld=false}={}) {
+  replayCommonPolicy=false,isolateReplayPolicyPerWorld=false,
+  nativeTapeSameWorld=false}={}) {
   const normal=SyntheticBot.prototype.decodeNextAction;
   let gameFinished=false,actualCalls=0;
   const headless={
@@ -70,7 +71,7 @@ function scenario({candidateOverrides=false,root=state(),
   const observed=withPostgameRootOrderProbe(
     SyntheticBot,execute,cloned,
     {turn:3,seat:0,makeRandom:()=>()=>0.1,
-      replayCommonPolicy,isolateReplayPolicyPerWorld},
+      replayCommonPolicy,isolateReplayPolicyPerWorld,nativeTapeSameWorld},
     {headless,compare:checkedCompare,
       ...(replayPolicy?{replayPolicy}:{})}
   );
@@ -557,4 +558,36 @@ test('independent detached worlds each start with a fresh common policy closure'
   assert.equal(observed.events[0].baselineActionMatchedActual,true);
   assert.equal(observed.events[0].isolatedReplayPolicyPerWorld,true);
   assert.strictEqual(SyntheticBot.prototype.decodeNextAction,original);
+});
+
+test('native tape replay proves same-world root/action and defers all hidden contrasts',()=>{
+  const {observed,actualCalls}=scenario({
+    nativeTapeSameWorld:true,
+    replayPolicy:(_seat,work)=>({result:work()}),
+    compare:()=>{throw new Error('Hidden contrast must not run');}
+  });
+  assert.equal(actualCalls,1);
+  assert.equal(observed.events.length,1);
+  const event=observed.events[0],parity=event.nativeSameWorldTape;
+  assert.equal(parity.tapeDraws,0);
+  assert.equal(parity.consumed,0);
+  assert.equal(parity.sameWorldDecisionParityQualified,true);
+  assert.equal(event.baselineActionMatchedActual,true);
+  assert.equal(event.counterfactualCompared,false);
+  assert.equal(event.comparedAfterRealGameFinished,true);
+  assert.equal(observed.result.action.play,'generic');
+});
+
+test('native tape branch vetoes a detached policy with a different actual action',()=>{
+  const {observed}=scenario({
+    nativeTapeSameWorld:true,candidateOverrides:true,
+    replayPolicy:(_seat,work)=>({result:work()}),
+    compare:()=>{throw new Error('No counterfactual after parity failure');}
+  });
+  const event=observed.events[0];
+  assert.equal(event.nativeSameWorldTape.selectedActionMatched,false);
+  assert.equal(event.nativeSameWorldTape.sameWorldDecisionParityQualified,false);
+  assert.equal(event.baselineActionMatchedActual,false);
+  assert.equal(event.counterfactualCompared,false);
+  assert.equal(observed.result.action.play,'special');
 });
