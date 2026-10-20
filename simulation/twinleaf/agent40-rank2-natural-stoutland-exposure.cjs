@@ -35,6 +35,8 @@ function observeUnmodifiedSourceStoutland(sourceSeat, execute) {
   let firstInPlay = null, firstActive = null;
   let inPlayRoots = 0, activeRoots = 0;
   let firstOpponentDecisionUnderActive = null;
+  const herdierFirstSeen = new WeakMap();
+  const lillipupFirstSeen = new WeakMap();
 
   Store.prototype.dispatch = function observe(...args) {
     const action = args[0];
@@ -50,11 +52,14 @@ function observeUnmodifiedSourceStoutland(sourceSeat, execute) {
       ?.fullName ?? null;
     const beforePending = stateBefore?.prompts?.find(prompt =>
       prompt.result === undefined);
+    const ownActiveStageBefore = rootAction && stateBefore?.players?.length === 2 ?
+      stateBefore.players[sourceSeat].active.cards.map(card => card.fullName) : null;
     const nativeRootBefore = {
       action: action?.constructor?.name ?? null,
       printedCardPlayed: printedPlayed,
       sourceOrOpponentTurn: stateBefore?.activePlayer ?? null,
-      pendingPrompt: beforePending?.constructor?.name ?? null
+      pendingPrompt: beforePending?.constructor?.name ?? null,
+      ownActiveStackBefore: ownActiveStageBefore
     };
     if (rootAction && firstOpponentDecisionUnderActive === null &&
         stateBefore?.players?.length === 2 &&
@@ -75,6 +80,12 @@ function observeUnmodifiedSourceStoutland(sourceSeat, execute) {
       const actor = state.players[sourceSeat];
       const boardSlots = [actor.active, ...actor.bench];
       const active = actor.active.getPokemonCard()?.fullName === SOURCE_PRINTING;
+      for (const slot of boardSlots) for (const card of slot.cards) {
+        if (card.fullName === 'Herdier SUM' && !herdierFirstSeen.has(card))
+          herdierFirstSeen.set(card, {turn: state.turn, ordinal: rootOrdinal});
+        if (card.fullName === 'Lillipup CEC' && !lillipupFirstSeen.has(card))
+          lillipupFirstSeen.set(card, {turn: state.turn, ordinal: rootOrdinal});
+      }
       const inPlay = boardSlots.some(slot =>
         slot.getPokemonCard()?.fullName === SOURCE_PRINTING);
       if (inPlay) {
@@ -98,6 +109,10 @@ function observeUnmodifiedSourceStoutland(sourceSeat, execute) {
         if (firstActive === null) firstActive = {
           turn: state.turn, ordinal: rootOrdinal,
           pokemonStageStack: actor.active.cards.map(card => card.fullName),
+          parentHerdierFirstNativeInPlay: herdierFirstSeen.get(
+            actor.active.cards.find(card => card.fullName === 'Herdier SUM')) ?? null,
+          ancestralLillipupFirstNativeInPlay: lillipupFirstSeen.get(
+            actor.active.cards.find(card => card.fullName === 'Lillipup CEC')) ?? null,
           rootBeforeNativeSettlement: nativeRootBefore
         };
       }
