@@ -58,7 +58,7 @@ function installNativeSupporterProposalValidationTrace(
         if(changed)proposalMutations++;
         const seat=state.players.indexOf(owner);
         current.proposals.push({
-          ref:result,
+          ref:result,ownerRef:owner,
           public:{
             order:current.proposals.length,seat,
             ownerIsLivePlayer:seat>=0,
@@ -73,7 +73,8 @@ function installNativeSupporterProposalValidationTrace(
     return result;
   }
   function observedValid(state,action) {
-    const actor=state?.players?.[state.activePlayer];
+    const linkedEntry=current?.proposals.findLast(entry=>entry.ref===action);
+    const actor=linkedEntry?.ownerRef??state?.players?.[state.activePlayer];
     const quotaBefore=actor?.supporterTurn??null;
     let result,errorName=null;
     try {
@@ -96,6 +97,7 @@ function installNativeSupporterProposalValidationTrace(
           action:actionSummary(state,action),accepted,errorName,
           supporterTurnBeforeValidation:quotaBefore,
           supporterTurnAfterValidation:actor?.supporterTurn??null,
+          proposalOwnerLiveSeatAtValidation:state?.players?.indexOf(actor)??null,
           linkedProposalOrder:match>=0?match:null,
           linkedProposalQuotaMutated:linked?.quotaChangedDuringProposal??null
         });
