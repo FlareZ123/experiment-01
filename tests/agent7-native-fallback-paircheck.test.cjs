@@ -118,7 +118,7 @@ test('misattributed prompt class and deepest-native fallback discrepancy veto',(
   {
     const {base,withObserver}=buildPair();
     withObserver.rows[0].actorOnlyDecisionCoverage.nativeDecisionCounts
-      .nativeGenericPromptBySeat[0].WaitPrompt=1;
+      .nativeGenericPromptBySeat[0].WaitPrompt=3;
     assert.throws(()=>assertNativeGenericFallbackNoninterference(base,withObserver),
       /Owner prompt classes/);
   }
