@@ -2,6 +2,16 @@
 
 **Agent 22, 20 October 2026.** A compiled positive witness for an actual pre-dispatch write to the real native Store State. This does not establish a rejected native proposal changing a game, legal paper-rule compliance, or a competitive win rate.
 
+## Follow-up: complete original-State restoration verified on exact native objects
+
+**20 October, 13:07 UTC.** Enhanced observer code `22f5e28a`, compiled [manual CI 39426881649](https://github.com/FlareZ123/experiment-01/actions/runs/39426881649), pinned Twinleaf and same four canonical source deals as above, run head `290b7e4725d8cead1e72fa4caa4090e9f08717d2`. Its [artifact 12266716821](https://github.com/FlareZ123/experiment-01/actions/runs/39426881649/artifacts/12266716821), ZIP SHA-256 `181cedc163467d3a1b4498eeae0b4088280ab1865f3d9e80831bfbc2802913fa`, includes complete control and observed JSON. The 4/4 uninstrumented/observed native root-ledger hashes and original source physical-deal fingerprints matched; the tests passed 9/9 again.
+
+Every one of the **36/36 actual** pinned upstream proposal methods briefly changed the live owner's `supporterTurn` marker `0 -> globalTurn`. Every one **restored that exact same owner object back to `supporterTurn=0` by the end of the bot's decision**. The `Store` **retained the identical native State object and owner Player object** through dispatch in **36/36** cases. At native Store entry the marker was **0**; after a genuinely selected Supporter Store action it was **1** in every case. In all four games, `proposalMarkerPersistedToBotExit=0`, root State/Player identity-to-dispatch counters equal selected-dispatched counts `4,12,12,8`, and no observer records were truncated. This is a strong bounded *positive control for existing hook restoration*; the feared lingering marker was **not observed in these frozen canonical arms**.
+
+The existing production research option `supporterDecisionCorrection:true` installs the reversible `supporter-decision-hook.cjs` that restores the marker in its `finally`. This compiled, object-identity-coupled result supports that source mechanism across two source archetypes, two candidate 60s and the audited genuine actions. A newly strict manual gate now refuses any bot-exit surviving marker, State identity drift, or Store quota mismatch. The native proposal observer schema has been versioned **v2** to distinguish the extended fields.
+
+No *native rejected-and-mutated proposal* was elicited in these arms, with or without current guards, and a deliberately uncorrected proposal treatment is not established by this result. This closes the specific restoration concern **only within the active frozen canonical configuration**, leaving full private `isValidAction`, same-world RNG, owner information, card rules, clock and opponent policy qualification open.
+
 ## Frozen experiment
 
 Existing manually dispatched [workflow 39425376967](https://github.com/FlareZ123/experiment-01/actions/runs/39425376967) completed successfully. Workflow head `68d1857f442cd0e91310ccbbf4062a32afa2456c`; pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. [Artifact 12266295519](https://github.com/FlareZ123/experiment-01/actions/runs/39425376967/artifacts/12266295519) archives baseline and instrumented JSON, ZIP digest `8556f663eabd0b7745c17e2940b996062a9ce20bee74c453ba7641176ef3f322`.
