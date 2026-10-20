@@ -40,6 +40,24 @@ A follow-up implementation now accepts optional `observedDeckPrintings`. These m
 
 The new regression covers a guaranteed held-in-deck A printing, and uncertain B/C (one unobserved Prize). The invented A line pays +8 deterministically; B pays +20 if available, -20 otherwise. Thus K0 chooses A for **8**, while idealized K1 chooses B in the one case where B survives and A otherwise, for **14**. Information value is **6 units**. Without any authenticated known A printing, the same unresolved B/C pool produces a different physical problem, and A must not be treated as reachable. Further tests cover duplicate known printing requirements, empty unknown populations and malformed observations. [Manual statistics CI 39389266609](https://github.com/FlareZ123/experiment-01/actions/runs/39389266609) **passed** at code/test head `91af42a38d98370c0c181bd70100da48bb95e340`. The non-overlap and provenance of the known deck subset still require caller authentication.
 
+## Connector contention and signed value of acquiring information
+
+The model now accepts `observationCost` (a fixed nonnegative integer utility payment) and `postObservationPlanIds` (the subset of initially named lines still available after spending the information-gathering action). The original **free unrestricted K1 information upper bound** remains reported separately. The additional signed calculation is
+
+```text
+restricted post-search utility = E[max(0, available U_l(j) with l in allowed post-search ids)]
+net observation utility         = restricted post-search utility - fixed observationCost
+net observation advantage       = net observation utility - K0 best-commitment utility
+```
+
+The model reports `modelPrefersObservation` only when the last number is strictly positive. The action may have **negative signed value** even when the free-information gain is positive. This is a bounded abstraction of resource and Supporter contention, not a complete representation of a turn's legal sequencing.
+
+A controlled two-card toy example, with one of A/B Prized, compares a risk-taking plan worth +10 if A is in deck and -20 otherwise with a guaranteed +3 fallback. K0 rationally chooses the safe **3**. Free K1 information would give **6.5**, an advantage of **3.5**. An information action costing 2 utility still leaves **4.5** and a +1.5 net advantage **if the safe line remains available**. If obtaining the information instead consumes the connector needed for the safe line, and has fixed cost 3, only the risk-taking plan remains; its restricted after-search expectation is **5**, net **2**, a **-1** advantage to searching. The positive 3.5 free-information value remains mathematically correct in that same case, illustrating why access alone is insufficient for a strategically good action.
+
+The cost and post-search plan menu must be **substantiated by the actual hand, board, game rules and card text** before using this as a recommendation. Treating every lost option as a fixed globally removed ID can itself be overly coarse when actions compete conditionally. These numbers are invented only as a test of the model.
+
+[Manual CI 39390235867](https://github.com/FlareZ123/experiment-01/actions/runs/39390235867) **passed** on code/test head `3e92542f819d5022d11313da02cf2897356ddb42`, including **160 randomized independent physical Prize enumerations with nontrivial modeled observation costs and restricted menus**, positive/negative controls, and exact rank24 printed roster. Its two preceding failed CI attempts were assertion-message ordering issues and are retained in the workflow history; the independently enumerated numerical cases passed even in those attempts. This checks code arithmetic, not native Twinleaf compatibility or observed turn choices.
+
 ## Explicit hypothetical worked case, not a rank-24 game estimate
 
 Suppose two different singleton printed resources `A` and `B` are unknown among 60 cards, six are Prized, and one of two mutually exclusive plans must be chosen. Each plan has *invented* +10 utility if its resource is in deck and -10 if missing; passing has zero.
