@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const test=require('node:test');
 const {VERSION,actorSingleSearchInput,chooseActorSingleSearch,
-  withActorOwnerSingleSearch}=
+  physicalBundleForPrintings,withActorOwnerSingleSearch}=
   require('../simulation/twinleaf/agent41-actor-owner-single-search.cjs');
 
 function createPrompt(owner,source,options={}){
@@ -62,6 +62,38 @@ test('permuting concealed owner deck order cannot alter the detached search menu
   assert.equal(first.prompt.offered[0].printing,'Duskull VIV');
 });
 
+test('complete multi-axis search preserves all native-valid categories and hidden-order invariance',()=>{
+  const cards=[
+    {fullName:'Handheld Fan TWM',role:'tool'},
+    {fullName:'Player\\'s Ceremony SP 127',role:'stadium'},
+    {fullName:'Capture Energy RCL',role:'special-energy'},
+    {fullName:'Irrelevant Pokemon',role:'pokemon'}
+  ];
+  const build=order=>{
+    const deck={cards:order.map(index=>({...cards[index]}))};
+    const owner={id:101,deck,hand:{cards:[]},discard:{cards:[]}};
+    const validate=selection=>{
+      if(!Array.isArray(selection)||selection.length>3)return false;
+      if(selection.some(c=>!deck.cards.includes(c)||c.role==='pokemon'))
+        return false;
+      return new Set(selection.map(c=>c.role)).size===selection.length;
+    };
+    const state={players:[owner,{id:202}],prompts:[
+      createPrompt(owner,deck,{min:0,max:3,validate})
+    ]};
+    return {state,input:actorSingleSearchInput(state,0,()=>actor(0))};
+  };
+  const first=build([0,1,2,3]),second=build([3,2,0,1]);
+  assert.deepEqual(first.input,second.input);
+  const intent=chooseActorSingleSearch(first.input);
+  assert.deepEqual(intent.printings,[
+    'Capture Energy RCL','Handheld Fan TWM',"Player's Ceremony SP 127"
+  ]);
+  const chosen=physicalBundleForPrintings(first.state.prompts[0],intent.printings);
+  assert.ok(first.state.prompts[0].validate(chosen));
+  assert.equal(chosen.length,3);
+});
+
 test('non-owner zone, non-search discard and mandatory multi-card fail closed',()=>{
   const owner={id:101,deck:{cards:[]},hand:{cards:[]},
     discard:{cards:[]}};
@@ -75,7 +107,9 @@ test('non-owner zone, non-search discard and mandatory multi-card fail closed',(
   assert.equal(actorSingleSearchInput(state,0,()=>actor(0)),null);
   state.prompts=[createPrompt(owner,owner.deck,{min:2,max:2})];
   assert.equal(actorSingleSearchInput(state,0,()=>actor(0)),null);
-  state.prompts=[createPrompt(owner,owner.deck,{min:0,max:3})];
+  // A max-three prompt uses the bundle solver only when the owner sees
+  // cards searched to hand. An owner hand target cannot hijack it.
+  state.prompts=[createPrompt(owner,owner.hand,{min:0,max:3})];
   assert.equal(actorSingleSearchInput(state,0,()=>actor(0)),null);
 });
 

@@ -4,11 +4,73 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const {actorObservation} = require('./actor-observation-contract.cjs');
 
-const VERSION = 'agent41-owner-single-search-actor-v3-exact-one-card';
+const VERSION = 'agent41-owner-bounded-search-actor-v4-complete-bundles';
 const SEARCH_MESSAGES = new Set([
   'CHOOSE_CARD_TO_HAND', 'CHOOSE_CARD_FROM_DECK',
   'CHOOSE_CARD_FROM_DISCARD', 'SEARCH_DECK_FOR_CARD'
 ]);
+
+/**
+ * Expand a genuinely owner-visible, at-most-three-card deck search into
+ * *complete* native-valid bundles. This is a bounded use of the pinned
+ * ChooseCardsPrompt validator, which remains the legality authority.
+ * The returned menu contains only sorted printing multisets, independent
+ * of the native deck array order or object IDs.
+ * @param {object} pending Authenticated original owner prompt.
+ * @param {number} max Native maximum card count.
+ * @returns {readonly object[]|null}
+ */
+function validatedCompleteBundles(pending,max){
+  const source=pending.cards.cards;
+  const eligible=source.filter(card=>pending.validate([card])===true)
+    .sort((a,b)=>a.fullName<b.fullName?-1:a.fullName>b.fullName?1:0);
+  // Enumerating C(30,3) is bounded. Broader prompts remain native fallback.
+  if(eligible.length>30)return null;
+  const menus=new Map();
+  const add=cards=>{
+    if(!pending.validate(cards))return;
+    const printings=cards.map(card=>card.fullName).sort();
+    menus.set(JSON.stringify(printings),
+      Object.freeze({printings:Object.freeze(printings)}));
+  };
+  for(let i=0;i<eligible.length;i++){
+    add([eligible[i]]);
+    for(let j=i+1;j<eligible.length;j++){
+      if(max>=2)add([eligible[i],eligible[j]]);
+      if(max>=3)for(let k=j+1;k<eligible.length;k++)
+        add([eligible[i],eligible[j],eligible[k]]);
+    }
+  }
+  // More than a bounded menu is outside the capability of this slice.
+  if(menus.size>1500)return null;
+  return Object.freeze([...menus.values()].sort((a,b)=>
+    b.printings.length-a.printings.length||
+    (JSON.stringify(a.printings)<JSON.stringify(b.printings)?-1:
+      JSON.stringify(a.printings)>JSON.stringify(b.printings)?1:0)));
+}
+
+/**
+ * Recover the exact native card objects from the chosen visible printing
+ * multiset, respecting duplicate physical cards and the original validator.
+ * @param {object} prompt Original live native owner prompt.
+ * @param {string[]} names Canonically sorted choice printing multiset.
+ * @returns {object[]|null}
+ */
+function physicalBundleForPrintings(prompt,names){
+  const chosen=[],used=new Set(),cards=prompt.cards.cards;
+  const go=index=>{
+    if(index===names.length)return prompt.validate(chosen)?[...chosen]:null;
+    for(const card of cards){
+      if(used.has(card)||card.fullName!==names[index])continue;
+      used.add(card);chosen.push(card);
+      const accepted=go(index+1);
+      if(accepted)return accepted;
+      chosen.pop();used.delete(card);
+    }
+    return null;
+  };
+  return go(0);
+}
 
 /**
  * Project an authenticated owner search into an inert, exact-printing menu.
@@ -32,10 +94,15 @@ function actorSingleSearchInput(state,seat,observe=actorObservation) {
       pending.cards===owner.hand?'own-hand':null;
   if(source===null)return null;
   const options=pending.options??{};
-  // A partial choice from a broader multi-category search would silently
-  // discard strategically required options. Delegate those prompts until a
-  // separate complete multi-card actor policy is tested.
-  if(options.min>1||options.max!==1)return null;
+  // Up to three explicit search results can now be selected as a complete
+  // native-valid bundle. Other sizes and mandatory multi-card payments
+  // retain the original resolver to avoid partial selections.
+  if(options.min>1||!Number.isInteger(options.max)||
+      options.max<1||options.max>3)return null;
+  const isComposite=options.max>1;
+  if(isComposite&&
+      (pending.message!=='CHOOSE_CARD_TO_HAND'||
+        (source!=='own-deck'&&source!=='own-discard')))return null;
   const cards=pending.cards.cards;
   if(!Array.isArray(cards))return null;
   // The live native deck array has a concealed order. The owner may inspect
@@ -48,6 +115,8 @@ function actorSingleSearchInput(state,seat,observe=actorObservation) {
   })).sort((a,b)=>a.printing<b.printing?-1:
     a.printing>b.printing?1:Number(b.selectableAlone)-Number(a.selectableAlone));
   const offered=sorted.map((entry,index)=>Object.freeze({index,...entry}));
+  const bundles=isComposite?validatedCompleteBundles(pending,options.max):null;
+  if(isComposite&&bundles===null)return null;
   const canSkip=pending.validate([])===true;
   const canCancel=pending.validate(null)===true;
   // The pure policy can inspect the complete owner's deck only while
@@ -58,7 +127,8 @@ function actorSingleSearchInput(state,seat,observe=actorObservation) {
     actor,
     prompt:Object.freeze({
       id:pending.id,message:pending.message,source,
-      offered:Object.freeze(offered),canSkip,canCancel
+      offered:Object.freeze(offered),
+      ...(isComposite?{bundles}:{}),canSkip,canCancel
     })
   });
 }
@@ -73,8 +143,11 @@ function actorSingleSearchInput(state,seat,observe=actorObservation) {
 function chooseActorSingleSearch(input){
   assert.equal(input.actor.decisionKind,'owner-prompt');
   const prompt=input.prompt;
+  if(Array.isArray(prompt.bundles)&&prompt.bundles.length>0)
+    return {printings:[...prompt.bundles[0].printings]};
   const first=prompt.offered.find(entry=>entry.selectableAlone);
-  if(first)return {indices:[first.index]};
+  if(first&&!Array.isArray(prompt.bundles))
+    return {indices:[first.index]};
   if(prompt.canSkip)return {indices:[]};
   if(prompt.canCancel)return {indices:null};
   return null;
@@ -152,22 +225,27 @@ function withActorOwnerSingleSearch(execute,deps={}){
     const physical=state.prompts.find(p=>p.id===input.prompt.id);
     // The integer is a canonical menu index. Resolve it back to the exact
     // physical native card only *after* the detached choice is finished.
-    const selected=intent.indices===null?null:intent.indices.map(index=>{
-      const row=input.prompt.offered[index];
-      assert.ok(row?.selectableAlone,'Invalid detached search menu index');
-      const card=physical.cards.cards.find(physicalCard=>
-        physicalCard.fullName===row.printing&&
-        physical.validate([physicalCard])===true);
-      assert.ok(card,'Chosen printing is no longer legal in native prompt');
-      return card;
-    });
+    const selected=intent.printings?
+      physicalBundleForPrintings(physical,intent.printings):
+      intent.indices===null?null:intent.indices.map(index=>{
+        const row=input.prompt.offered[index];
+        assert.ok(row?.selectableAlone,'Invalid detached search menu index');
+        const card=physical.cards.cards.find(physicalCard=>
+          physicalCard.fullName===row.printing&&
+          physical.validate([physicalCard])===true);
+        assert.ok(card,'Chosen printing is no longer legal in native prompt');
+        return card;
+      });
+    assert.ok(selected!==null||intent.indices===null,
+      'Complete owner bundle no longer maps to original native cards');
     assert.ok(physical.validate(selected),
       'Owner-selected search card rejected by native prompt validator');
     const action=new ResolvePromptAction(input.prompt.id,selected);
     const record={
       seat,turn:input.actor.globalTurn,
       promptId:input.prompt.id,source:input.prompt.source,
-      message:input.prompt.message,indices:intent.indices,
+      message:input.prompt.message,indices:intent.indices??null,
+      completeBundle:input.prompt.bundles!==undefined,
       printings:selected?.map(card=>card.fullName)??null
     };
     decisions.set(action,record);
@@ -216,4 +294,5 @@ function withActorOwnerSingleSearch(execute,deps={}){
 }
 
 module.exports={VERSION,actorSingleSearchInput,
-  chooseActorSingleSearch,withActorOwnerSingleSearch};
+  chooseActorSingleSearch,validatedCompleteBundles,
+  physicalBundleForPrintings,withActorOwnerSingleSearch};
