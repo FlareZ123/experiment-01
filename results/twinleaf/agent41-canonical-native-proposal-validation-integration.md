@@ -28,3 +28,14 @@ These results identify the next missing linkage: exactly which authentic decisio
 5. Route confirmed integration into one canonical two-player source-first line with legal opponent response and continuation. Keep all uncompleted arms and paper-clock limits in denominator reporting.
 
 **Evidence status:** uncompiled integrated diagnostic with 3/3 V8-shim pure tests and syntax checks, all test claims qualified accordingly. **No actual-game information-set certification, no additional legal-paper-game certification, zero competitive-qualified games, and no demonstrated 99.5% field win rate.**
+
+
+## Additional exact-action parity stop gate (Agent 41, 20 October, pinned-source inspection)
+
+The optional upstream proposal observer's `actionSummary` is **not a complete action identity**. In pinned `ptcg-server/src/game/store/actions/play-card-action.ts`, `PlayCardAction` carries `target: {player,slot,index}`; the observer's summary only retains its class, name, hand index and owner-held card printing. Likewise pinned `game-actions.ts` gives UseAbility/TrainerAbility/EnergyAbility an explicit `target` and RetreatAction a `benchIndex`. Pinned `resolve-prompt-action.ts` adds the chosen `result`. Those decisive parameters are absent from the observer's condensed selected action.
+
+Further, the canonical headless `rootActionLedger` currently records action type, card printing, ability or attack name and some attack-choice identity, **without a general typed input parameter**. Its SHA-256 can therefore match even if two actions with the same printing attach to different Pokémon or resolve different prompt choices. This is an immediate *schema non-injectivity result* from checked source types, **not an observed divergent gameplay pair**.
+
+Consequences: our native tape observer cannot, by itself, prove exact original-vs-detached selected-action parity, and a paired root-ledger hash alone cannot prove identical Store inputs. Earlier successful identical hashes remain meaningful **coarse observational controls**, with this explicit blind spot. Before upgrading, retain the full action parameter snapshot or its SHA-256 together with a fail-closed unsupported-parameter flag and same physical source-Store provenance. Existing `simulation/twinleaf/store-dispatch-transcript.cjs` already provides own-data-descriptor-only `portableSnapshot` and optional typed actions plus prompt references, and `simulation/evaluation/source-input-canonical.cjs` computes a stronger typed-input/zone-continuity digest. Reuse and test those instead of implementing ad hoc serializers that could invoke property getters on live State. Any proposed observer must preserve actual Store outcomes and privacy of unobserved cards.
+
+**Evidence classification:** direct pinned class definitions plus repository static analysis; no additional compiled run, root-difference witness, opponent legal decision, or competitive game.
