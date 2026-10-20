@@ -8,7 +8,7 @@ const {VERSION,actorHandDiscardInput,chooseActorHandDiscard,
 class ChooseCardsPrompt {
   constructor(player,cards,options={min:1,max:1}) {
     this.id=7;this.playerId=player.id;this.cards=cards;
-    this.message='CHOOSE_CARD_TO_DISCARD';this.options=options;
+    this.message='CHOOSE_CARD_TO_DISCARD';this.options={allowCancel:false,...options};
   }
   validate(result){
     return Array.isArray(result)&&
