@@ -206,7 +206,8 @@ function executeDevelopment(trial,candidates,{
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
   garbotoxinWindow=false,initializationWindow=false,
   mandatoryOptionFallback=false,paperSupporterQuota=false,
-  paperSupporterComparisonTrace=false,proposalStateAudit=false
+  paperSupporterComparisonTrace=false,proposalStateAudit=false,
+  nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
     'Initialization passive window belongs only to rank 6');
@@ -258,6 +259,7 @@ function executeDevelopment(trial,candidates,{
   let initializationWindowAudit=null;
   let paperSupporterAudit=null;
   let supporterProposalIntegrity=null;
+  let nativeValidationAudit=null;
   const runWithPowerWindow=()=>{
     if(!garbotoxinWindow)return runMatch(request);
     const observed=require('../twinleaf/agent41-live-garbotoxin-ability-window.cjs')
@@ -295,8 +297,17 @@ function executeDevelopment(trial,candidates,{
     supporterProposalIntegrity=observed.audit;
     return observed.result;
   };
+  const runWithNativeValidationAudit=()=>{
+    if(!nativeProposalValidationAudit)return runWithProposalIntegrity();
+    const observed=require('../twinleaf/agent41-native-proposal-validation-audit.cjs')
+      .withNativeProposalValidationAudit(runWithProposalIntegrity,{
+        tapeOrdinal:nativeProposalTapeOrdinal
+      });
+    nativeValidationAudit=observed.audit;
+    return observed.result;
+  };
   const common=()=>withBilateralCommonCandidatePolicy(candidateSeat,
-    runWithProposalIntegrity);
+    runWithNativeValidationAudit);
   let game,sourceAudit,commonAudit;
   if(trial.rank===11){
     const played=withRank11DirectBoostShake(sourceSeat,common,
@@ -421,6 +432,7 @@ function executeDevelopment(trial,candidates,{
       paperSupporterAudit?.nativeSupporterQuotaQualified===true:'unverified',
     paperSupporterDiscipline:paperSupporterQuota?paperSupporterAudit:null,
     ...(proposalStateAudit?{supporterProposalIntegrity}:{}),
+    ...(nativeProposalValidationAudit?{nativeValidationAudit}:{}),
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
     verifiedFirstTurn:game.verifiedByDrawLog,
     actualStarterSeat:game.firstTurnSlot,
@@ -490,7 +502,8 @@ function runDevelopment({
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
   mandatoryOptionFallback=false,nativePressureWindows=false,
   sourceFirstRetrospective=false,paperSupporterQuota=false,
-  paperSupporterComparisonTrace=false,proposalStateAudit=false
+  paperSupporterComparisonTrace=false,proposalStateAudit=false,
+  nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null
 }={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -514,7 +527,7 @@ function runDevelopment({
     try { rows.push(executeDevelopment(trial,prepared,{
       compressorPayload,opportunityAudit,lateCompressorPayload,
       mandatoryOptionFallback,paperSupporterQuota,paperSupporterComparisonTrace,
-      proposalStateAudit,
+      proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
       // An opt-in observational package, with each native Store observer
       // applicable to its own opposing source archetype only.
       initializationWindow:nativePressureWindows&&trial.rank===6,
@@ -558,6 +571,9 @@ function runDevelopment({
     paperSupporterQuotaOptIn:paperSupporterQuota,
     paperSupporterComparisonTraceOptIn:paperSupporterComparisonTrace,
     proposalStateAuditOptIn:proposalStateAudit,
+    nativeProposalValidationAuditOptIn:nativeProposalValidationAudit,
+    nativeProposalTapeOrdinal:nativeProposalValidationAudit?
+      nativeProposalTapeOrdinal:null,
     nativeSupporterQuotaQualified:paperSupporterQuota?
       rows.every(row=>row.nativeSupporterQuotaQualified===true):'unverified',
     sourceFirstRetrospective,
@@ -606,6 +622,10 @@ if(require.main===module){
     paperSupporterComparisonTrace:
       process.env.AGENT41_PAPER_SUPPORTER_TRACE_DEV==='true',
     proposalStateAudit:process.env.AGENT22_PROPOSAL_STATE_AUDIT==='true',
+    nativeProposalValidationAudit:
+      process.env.AGENT41_NATIVE_PROPOSAL_VALIDATION_DEV==='true',
+    nativeProposalTapeOrdinal:process.env.AGENT41_NATIVE_PROPOSAL_TAPE_ORDINAL?
+      Number(process.env.AGENT41_NATIVE_PROPOSAL_TAPE_ORDINAL):null,
     sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true'
   });
