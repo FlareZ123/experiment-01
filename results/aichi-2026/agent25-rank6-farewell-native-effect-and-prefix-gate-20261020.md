@@ -22,6 +22,10 @@ The older [live continuation runner](../../simulation/evaluation/agent25-rank6-f
 
 **Not performed:** the manual GitHub Actions workflow invocation returned a platform safety-check block, so neither real Node-native CI regression tests nor pinned Twinleaf integration replay ran during this incarnation. The actual root-prefix and native postprompt-zone contract therefore remain **unverified**, and the new replay's win/terminal cannot be reported. Do not substitute the older detached-Store proof for a true live continuation.
 
+## Transferability and exposed field inventory
+
+The exact-printing [29-list source archive](full-decklists.json) contains **Unown AOR 30 in five published source decks**, **18 physical copies**: rank 9 Absol Electrode ×4, rank 17 Raichu Electrode Combo ×4, rank 26 Meloetta Donk ×4, rank 30 Lillie's Clefairy ×3 and rank 31 Dusknoir Chimecho ×3. This is an inventory calculation across all published printed source rows. It neither measures active Benched-Unown opportunities nor proves any of those five native opponent bots overlook Farewell. The missing rank25 Raichu list may differ; do not infer its Unown count. A shared general policy should handle dynamic Bench capacity, protected attached Unown, ability locks and unknown-draw opportunity costs rather than hardwire the selected rank6 turn3 branch.
+
 ## Reproducible next decisive test
 
 Use the existing manually dispatched `aichi-source-locked-campaign.yml` experiment, **no new workflow**, with its registered Agent25 live-Farewell option. Read `agent25-rank6-farewell-live.json` and preserve the entire failure-inclusive control and intervention outcome, not just the printed summary. Require `pairedRootAttestation.genuineResolvedFarewell === true` **and** `sourceContinued === true` before asserting this one live source-dealt continuation. If the archived root digest differs, classify `archived-baseline-policy-drift` and reconcile exact policy revisions; if action history differs earlier, classify `pre-intervention-action-drift`. If prompt settles but there is no real owner-zone observation, classify `owner-zone-postcondition-unverified`.
