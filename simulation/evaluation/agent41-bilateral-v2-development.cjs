@@ -215,6 +215,9 @@ function executeDevelopment(trial,candidates,{
     enforceVisiblePlayLockBothSeats:true,
     // Both-seat opt-in: preserve legacy development policy if omitted.
     mandatoryOptionFallback,
+    // Reject silently canceled noncancelable prompts under the same opt-in.
+    // Frozen registration already requires strictPromptValidation.
+    enforceSelectOptionLegality:mandatoryOptionFallback,
     ...payloadResource,
     capturePublicAttackTransitions:true,
     // Read-only, post-dispatch evidence for every native or delegated
@@ -331,10 +334,11 @@ function executeDevelopment(trial,candidates,{
   return {
     trial,qualifiesForCompetitiveInference:false,
     policyVersion:POLICY_VERSION+
-      (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats':'')+
+      (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (lateCompressorPayload?
       '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')),
     mandatoryOptionFallbackBothSeats:mandatoryOptionFallback,
+    enforceSelectOptionLegalityBothSeats:mandatoryOptionFallback,
     ownerCompressorPayloadOptIn:compressorPayload,
     ownerCompressorLate14OptIn:lateCompressorPayload,
     ...(lateCompressorPayload?{
@@ -441,10 +445,11 @@ function runDevelopment({
     sourceRegistration:'historical v1 selection; not v2 preregistration',
     enginePin:registration.enginePin,
     candidatePolicy:POLICY_VERSION+
-      (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats':'')+
+      (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (lateCompressorPayload?
       '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')),
     mandatoryOptionFallbackBothSeats:mandatoryOptionFallback,
+    enforceSelectOptionLegalityBothSeats:mandatoryOptionFallback,
     ownerCompressorPayloadOptIn:compressorPayload,
     ownerCompressorOpportunityAudit:opportunityAudit,
     ownerCompressorLate14OptIn:lateCompressorPayload,
