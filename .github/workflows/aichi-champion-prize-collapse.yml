@@ -16,6 +16,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+      - name: Validate source-locked rank26 Ticket search contention
+        run: python -m unittest discover -s tests -p test_rank26_ticket_connector_opening.py -v
       - uses: actions/setup-node@v4
         with:
           node-version: '20.19.0'
@@ -29,8 +31,6 @@ jobs:
         run: node scripts/aichi-copycat-starter-prize-joint.cjs
       - name: Exhaustively check unconditional versus valid-opener Prize cuts
         run: python -m unittest discover -s tests -p test_prize_cut_marginals.py -v
-      - name: Validate source-locked rank26 Ticket search contention
-        run: python -m unittest discover -s tests -p test_rank26_ticket_connector_opening.py -v
       - name: Verify New Moon Prize feasibility
         run: python -m unittest discover -s tests -p test_combo_prize_feasibility.py -v
       - name: Source-preserving one-card Prize sensitivity
