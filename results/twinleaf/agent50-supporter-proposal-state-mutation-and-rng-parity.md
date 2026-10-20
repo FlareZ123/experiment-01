@@ -33,3 +33,15 @@ A legal Lillie candidate may be scored differently if its unknown draw was resol
 4. Keep physical ability/attack legality, card printings, opponent response, game clock, and K0/K1 owner knowledge as separate unresolved qualification gates.
 
 This note does **not** change either candidate deck, promote any historical engine terminal, or count a new qualified competitive game. The field remains 29/32 exact lists and zero qualified games.
+
+
+## Audited alternative mechanisms and a negative control
+
+A read-only scan of the pinned 12 concrete `simple-tactics/*-tactic.ts` files found only this explicit persistent `player.*` assignment in the tactic bodies. Two other tactics modify a card list **temporarily** to score a proposal:
+
+- `AttachEnergyTactic` pushes a candidate `EnergyCard` onto `PokemonCardList.cards`, calls `EnergyScore.getScore`, then pops it.
+- `AttachToolTactic` pushes a proposed Tool onto `PokemonCardList.tools`, calculates `StateScore`, then replaces `tools` with an empty array (the tactic first rejects occupied Tool slots).
+
+The apparent `AttachEnergyTactic` use of `cardList.cards` is **consistent with this pinned `EnergyScore.getMissingEnergies`**, which explicitly scans `cardList.cards` for `EnergyCard`. `PokemonCardList` simultaneously tracks `tools` and `energies`, and filters attached cards from its Pokémon stack. Do **not** relabel this single code pattern as an energy-placement bug without a real Store test. The temporary list edits can warrant exception-path auditing, but the read-only scan is not proof of a persistent mutation on successful evaluation.
+
+The Supporter proposal mutation remains materially distinct: its direct `supporterTurn` assignment is not reverted by the tactic before it returns. Future native instrumentation should count it separately from speculative `Simulator` changes.
