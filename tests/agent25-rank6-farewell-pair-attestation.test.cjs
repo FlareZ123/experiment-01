@@ -37,7 +37,10 @@ function fixture() {
   const options={
     seat:0,turn:3,
     executionRecordsVerified:true,
-    ownerSettlementAudit:{settledZonePostcondition:true},
+    ownerSettlementAudit:{
+      settledZonePostcondition:true,countOnly:true,ownerDeckDecrease:1,
+      ownerHandIncrease:1,chosenUnownRemoved:true
+    },
     archivedRootSha256:createHash('sha256')
       .update(JSON.stringify(baseline.rootActionLedger)).digest('hex')
   };
@@ -172,5 +175,13 @@ test('a rejected source executor postcondition vetoes apparently matching roots'
   assert.equal(result.samePhysicalDeal,true);
   assert.equal(result.classification,'source-executor-assertion-rejected');
   assert.equal(result.genuineSingleRootReplacement,false);
+  assert.equal(result.genuineResolvedFarewell,false);
+});
+
+test('bare success flag without counted zone changes cannot certify a live draw',()=>{
+  const {baseline,altered,options}=fixture();
+  options.ownerSettlementAudit={settledZonePostcondition:true};
+  const result=attestFarewellPair(baseline,altered,options);
+  assert.equal(result.classification,'owner-zone-postcondition-unverified');
   assert.equal(result.genuineResolvedFarewell,false);
 });
