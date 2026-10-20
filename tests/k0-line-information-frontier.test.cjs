@@ -179,6 +179,62 @@ test('known-printing input is bounded and must contain only real printing names'
   }),/Invalid/);
 });
 
+test('observing after consuming a shared connector may destroy its only useful fallback',()=>{
+  const input={
+    unknownPool:['A','B'],unknownPrizeCount:1,
+    uniformUnknownAllocation:true,
+    plans:[
+      {id:'risky',requirements:[{printing:'A',count:1}],
+        availableUtility:10,missingUtility:-20},
+      {id:'safe',requirements:[],availableUtility:3,missingUtility:3}
+    ]
+  };
+  const free=k0LineInformationFrontier(input);
+  assert.equal(free.preSearchExpectedUtility,3);
+  assert.equal(free.informationValue,3.5);
+  assert.equal(free.modelPrefersObservation,true);
+  const priced=k0LineInformationFrontier({...input,observationCost:2});
+  assert.equal(priced.netObservationExpectedUtility,4.5);
+  assert.equal(priced.netObservationAdvantage,1.5);
+  const spent=k0LineInformationFrontier({
+    ...input,observationCost:3,postObservationPlanIds:['risky']
+  });
+  assert.equal(spent.restrictedAfterExpectedUtility,5);
+  assert.equal(spent.netObservationExpectedUtility,2);
+  assert.equal(spent.netObservationAdvantage,-1);
+  assert.equal(spent.modelPrefersObservation,false);
+  // Raw free K1 information upper bound survives as an independent metric.
+  assert.equal(spent.informationValue,3.5);
+});
+
+test('observation may leave no legal follow-up plan while still spending its cost',()=>{
+  const priced=k0LineInformationFrontier({
+    unknownPool:['A'],unknownPrizeCount:0,
+    uniformUnknownAllocation:true,
+    observationCost:7,postObservationPlanIds:[],
+    plans:[{id:'only',requirements:[],availableUtility:9,missingUtility:0}]
+  });
+  assert.equal(priced.preSearchExpectedUtility,9);
+  assert.equal(priced.restrictedAfterExpectedUtility,0);
+  assert.equal(priced.netObservationExpectedUtility,-7);
+  assert.equal(priced.netObservationAdvantage,-16);
+  assert.equal(priced.modelPrefersObservation,false);
+});
+
+test('reject negative costs and post-search plans absent from the original menu',()=>{
+  const input={unknownPool:['A'],unknownPrizeCount:0,
+    uniformUnknownAllocation:true,
+    plans:[{id:'only',requirements:[],availableUtility:1,missingUtility:0}]};
+  assert.throws(()=>k0LineInformationFrontier({...input,observationCost:-1}),
+    /Invalid/);
+  assert.throws(()=>k0LineInformationFrontier({
+    ...input,postObservationPlanIds:['other']
+  }),/Unknown post-observation/);
+  assert.throws(()=>k0LineInformationFrontier({
+    ...input,postObservationPlanIds:['only','only']
+  }),/Invalid/);
+});
+
 test('independent exhaustive small-deck benchmark, 160 deterministic instances',()=>{
   let seed=343;
   const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed;};
