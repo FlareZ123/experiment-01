@@ -538,10 +538,13 @@ test('independent detached worlds each start with a fresh common policy closure'
     try {return {result:work()};}
     finally{SyntheticBot.prototype.decodeNextAction=before;}
   };
-  const compare=(source,actor,newBot)=>{
+  const compare=(source,actor,newBot,_clone,_random,worldScope)=>{
     assert.equal(actor,101);
-    const physical=actionSignature(newBot().decodeNextAction(source));
-    const reversed=actionSignature(newBot().decodeNextAction(source));
+    assert.equal(typeof worldScope,'function');
+    const physical=worldScope(()=>
+      actionSignature(newBot().decodeNextAction(source)));
+    const reversed=worldScope(()=>
+      actionSignature(newBot().decodeNextAction(source)));
     return {physicalOrder:physical,reversedOrder:reversed,
       liveStatePreserved:true,actionSensitiveToHiddenDeckOrder:false,
       tacticScoreComparison:{equalScoreTraces:true}};
