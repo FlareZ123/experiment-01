@@ -34,7 +34,8 @@ function actorHandDiscardInput(state,seat,observe=actorObservation){
       cards.some(card=>!owned.includes(card))||
       new Set(cards).size!==cards.length)return null;
   if(!Number.isInteger(min)||min<1||min>2||
-      !Number.isInteger(max)||max<min||
+      !Number.isInteger(max)||max!==min||
+      pending.options.allowCancel!==false||
       cards.length>18)return null;
   if(cards.some(card=>typeof card.fullName!=='string'||!card.fullName))return null;
   const menus=new Map();
