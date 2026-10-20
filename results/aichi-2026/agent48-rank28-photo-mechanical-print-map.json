@@ -1,0 +1,199 @@
+{
+  "status": "unverified-photo-mechanical-print-mapping",
+  "sourcePhoto": "dragon-05.png",
+  "sourceArtifactId": 12265475896,
+  "forSimulation": false,
+  "notes": "IDs are representative English mechanically matched printings, not photographic Japanese collector IDs. Identity and official registration unresolved. Do not count as verified rank28 source.",
+  "cards": [
+    {
+      "name": "Regidrago V",
+      "id": "swsh12-183",
+      "rationale": "art-work counterpart; Celestial Roar / Dragon Laser"
+    },
+    {
+      "name": "Regidrago VSTAR",
+      "id": "swsh12-136",
+      "rationale": "Legacy Star / Apex Dragon; visual rarity unresolved"
+    },
+    {
+      "name": "Dialga-GX",
+      "id": "sm5-100",
+      "rationale": "Overclock / Shred / Timeless-GX; collector print unresolved"
+    },
+    {
+      "name": "Dragapult ex",
+      "id": "sv6-130",
+      "rationale": "Jet Headbutt / Phantom Dive"
+    },
+    {
+      "name": "Koraidon ex",
+      "id": "sv5-120",
+      "rationale": "Retribution Strike / Kaiser Tackle; damage payload"
+    },
+    {
+      "name": "Hisuian Goodra VSTAR",
+      "id": "swsh11-136",
+      "rationale": "Moisture Star / Rolling Iron"
+    },
+    {
+      "name": "Noivern ex",
+      "id": "sv2-153",
+      "rationale": "Covert Flight / Dominating Echo; HP260"
+    },
+    {
+      "name": "Kyurem",
+      "id": "sv6pt5-47",
+      "rationale": "Plasma Bane / Trifrost; Japanese SV6a 047 art and printed 130HP"
+    },
+    {
+      "name": "Latias ex",
+      "id": "sv8-76",
+      "rationale": "Skyliner / Eon Blade; HP210"
+    },
+    {
+      "name": "Dedenne-GX",
+      "id": "sm10-57",
+      "rationale": "Dedechange; HP160"
+    },
+    {
+      "name": "Tapu Lele-GX",
+      "id": "sm2-60",
+      "rationale": "Wonder Tag; HP170"
+    },
+    {
+      "name": "Squawkabilly ex",
+      "id": "sv2-169",
+      "rationale": "Squawk and Seize; HP160"
+    },
+    {
+      "name": "Budew",
+      "id": "sv8pt5-4",
+      "rationale": "Itchy Pollen; HP30"
+    },
+    {
+      "name": "Marshadow",
+      "id": "sm10-81",
+      "rationale": "Resetting Hole; HP80"
+    },
+    {
+      "name": "Wobbuffet",
+      "id": "g1-RC11",
+      "rationale": "Bide Barricade; HP110; pictured radiant artwork"
+    },
+    {
+      "name": "Battle Compressor Team Flare Gear",
+      "id": "xy4-92",
+      "rationale": "Team Flare Gear item"
+    },
+    {
+      "name": "VS Seeker",
+      "id": "xy4-109",
+      "rationale": "Supporter recovery"
+    },
+    {
+      "name": "Mysterious Treasure",
+      "id": "sm6-113",
+      "rationale": "Dragon/Psychic search"
+    },
+    {
+      "name": "Quick Ball",
+      "id": "swsh1-179",
+      "rationale": "discard-to-Basic search"
+    },
+    {
+      "name": "Ultra Ball",
+      "id": "bw10-90",
+      "rationale": "discard-two Pokémon search"
+    },
+    {
+      "name": "Hisuian Heavy Ball",
+      "id": "swsh10-146",
+      "rationale": "Prizes Basic retrieval"
+    },
+    {
+      "name": "Battle VIP Pass",
+      "id": "swsh8-225",
+      "rationale": "first-turn two Basics"
+    },
+    {
+      "name": "Super Rod",
+      "id": "bw3-95",
+      "rationale": "recovery"
+    },
+    {
+      "name": "Prime Catcher",
+      "id": "sv5-157",
+      "rationale": "ACE SPEC gust"
+    },
+    {
+      "name": "Muscle Band",
+      "id": "xy1-121",
+      "rationale": "Tool damage modifier"
+    },
+    {
+      "name": "Guzma & Hala",
+      "id": "sm12-193",
+      "rationale": "multi-channel Supporter"
+    },
+    {
+      "name": "Lillie's Determination",
+      "id": "me1-119",
+      "rationale": "shuffle/draw Supporter"
+    },
+    {
+      "name": "Raihan",
+      "id": "swsh7-152",
+      "rationale": "supporter acceleration"
+    },
+    {
+      "name": "Iono",
+      "id": "sv2-185",
+      "rationale": "hand disruption"
+    },
+    {
+      "name": "Crispin",
+      "id": "sv7-133",
+      "rationale": "multi-type Energy Supporter"
+    },
+    {
+      "name": "Guzma",
+      "id": "sm3-115",
+      "rationale": "gust/switch"
+    },
+    {
+      "name": "Marnie",
+      "id": "swsh1-169",
+      "rationale": "hand disruption"
+    },
+    {
+      "name": "Faba",
+      "id": "sm8-173",
+      "rationale": "Lost Zone disruption"
+    },
+    {
+      "name": "Path to the Peak",
+      "id": "swsh10-213",
+      "rationale": "Stadium Ability disruption; gold artwork"
+    },
+    {
+      "name": "Parallel City",
+      "id": "xy8-145",
+      "rationale": "two-sided Stadium"
+    },
+    {
+      "name": "Double Dragon Energy",
+      "id": "xy6-97",
+      "rationale": "Special Dragon Energy"
+    },
+    {
+      "name": "Fire Energy",
+      "id": "bw1-106",
+      "rationale": "basic Energy stand-in"
+    },
+    {
+      "name": "Grass Energy",
+      "id": "bw1-105",
+      "rationale": "basic Energy stand-in"
+    }
+  ]
+}
