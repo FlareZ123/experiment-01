@@ -2,7 +2,8 @@
 const assert=require('node:assert/strict');
 const test=require('node:test');
 const {
-  gameplayProjection,assertNativeGenericFallbackNoninterference
+  gameplayProjection,preexistingActorAudit,
+  assertNativeGenericFallbackNoninterference
 }=require('../scripts/agent7-native-fallback-paircheck.cjs');
 
 function buildPair(){
@@ -18,11 +19,33 @@ function buildPair(){
     actorOnlyPolicyVersion:'original-v1',
     actorOnlyDecisionCoverage:{},
   }));
-  const generic=(row,i)=>({
-    genericFallbackAttributionOptIn:true,
+  const originalAudit={
+    version:'original-v1',
+    genericFallbackAttributionOptIn:false,
+    selectedHandlerPriority:['ChooseAttackPrompt','ActorOnlyRoot'],
+    componentVersions:{root:'root-v1',fog:'fog-v1'},
     nativeDecisionCounts:{
-      nativeGenericDecoderCalls:3,lastChanceGenericPromptFallbacks:3,
-      actorRootsAccepted:8,actorRootsRejected:0,
+      lastChanceGenericPromptFallbacks:3,
+      actorRootsAccepted:8,
+      actorRootsRejected:0
+    },
+    overlappingDelegationObservations:{lastChanceRoot:3},
+    detailedComponentAudits:{
+      root:{acceptedActorRoots:8,rootTrace:['action-A']},
+      fog:{accepted:0}
+    },
+    qualification:{competitiveGames:0}
+  };
+  rows.forEach(r=>r.actorOnlyDecisionCoverage=structuredClone(originalAudit));
+  const generic=(row,i)=>({
+    ...structuredClone(originalAudit),
+    version:'observer-v1',
+    genericFallbackAttributionOptIn:true,
+    componentVersions:{...originalAudit.componentVersions,
+      genericFallback:'native-fallback-v1'},
+    nativeDecisionCounts:{
+      ...originalAudit.nativeDecisionCounts,
+      nativeGenericDecoderCalls:3,
       nativeGenericDecoderBySeat:{
         0:{'owner-prompt':2,'owner-root-or-setup':0,
           'out-of-turn':0,'foreign-prompt':0},
@@ -31,9 +54,10 @@ function buildPair(){
       },
       nativeGenericPromptBySeat:{0:{WaitPrompt:2},1:{ChooseCardsPrompt:1}}
     },
-    detailedComponentAudits:{genericFallback:{
-      gameStoresSeen:1,unknownActorDelegations:0,failedGenericDecodes:0
-    }}
+    detailedComponentAudits:{...structuredClone(originalAudit.detailedComponentAudits),
+      genericFallback:{
+        gameStoresSeen:1,unknownActorDelegations:0,failedGenericDecodes:0
+      }}
   });
   const base={attempted:4,actorOnlyCompositionOptIn:true,
     actorNativeFallbackAttributionOptIn:false,
@@ -99,4 +123,26 @@ test('misattributed prompt class and deepest-native fallback discrepancy veto',(
     assert.throws(()=>assertNativeGenericFallbackNoninterference(base,withObserver),
       /deepest original fallback/);
   }
+});
+
+test('preexisting actor root acceptance, selection and individual prompt audit changes veto',()=>{
+  for(const mutate of [
+    audit=>{audit.nativeDecisionCounts.actorRootsAccepted++;},
+    audit=>{audit.nativeDecisionCounts.actorRootsRejected++;},
+    audit=>{audit.detailedComponentAudits.root.rootTrace[0]='other-action';},
+    audit=>{audit.selectedHandlerPriority.reverse();}
+  ]){
+    const {base,withObserver}=buildPair();
+    mutate(withObserver.rows[2].actorOnlyDecisionCoverage);
+    assert.throws(()=>assertNativeGenericFallbackNoninterference(base,withObserver),
+      /original root\/prompt decision audit/);
+  }
+});
+
+test('intentional instrument-only keys do not change original decision projection',()=>{
+  const {base,withObserver}=buildPair();
+  const before=base.rows[0].actorOnlyDecisionCoverage;
+  const observed=withObserver.rows[0].actorOnlyDecisionCoverage;
+  assert.deepEqual(preexistingActorAudit(observed),preexistingActorAudit(before));
+  assert.notDeepEqual(observed,before);
 });
