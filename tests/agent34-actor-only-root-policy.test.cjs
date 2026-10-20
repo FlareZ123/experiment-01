@@ -251,6 +251,9 @@ test('actual Store wrapper attests an accepted owner Basic Energy zone mutation'
     const intentAction=new SimpleTacticsAi(10).decodeNextAction(state);
     assert.ok(intentAction instanceof PlayCardAction);
     store.dispatch(intentAction);
+    assert.throws(()=>new SimpleTacticsAi(10).decodeNextAction({...state}),
+      /Hidden-State generic root used/,
+      'Speculative clone must never receive actor-only native root');
     return store.state;
   },{
     SimpleTacticsAi,Store,GamePhase:{FINISHED:999},
@@ -263,6 +266,7 @@ test('actual Store wrapper attests an accepted owner Basic Energy zone mutation'
   assert.equal(actual.audit.publicTransitionWitnesses,1);
   assert.equal(actual.audit.publicTransitionChanges,1);
   assert.equal(actual.audit.nativePhysicalConfirmed,1);
+  assert.equal(actual.audit.nonLiveSpeculativeFallbacks,1);
   assert.equal(actual.audit.nativePhysicalUnconfirmed,0);
   assert.equal(actual.audit.nativeRootAcceptances[0].nativePhysicalEffect,
     'confirmed-public-effect');
