@@ -20,8 +20,12 @@ function recordPolicyRandomTape(work,{limit=100000}={}) {
   assert.equal(typeof work,'function');
   assert.ok(Number.isSafeInteger(limit)&&limit>=0);
   const prior=Math.random,tape=[];
+  let exceeded=false;
   Math.random=function nativePolicyTapeSampler() {
-    if(tape.length>=limit)throw new Error('Native policy RNG tape limit');
+    if(tape.length>=limit) {
+      exceeded=true;
+      throw new Error('Native policy RNG tape limit');
+    }
     const value=prior();
     assert.ok(Number.isFinite(value)&&value>=0&&value<1);
     tape.push(value);
@@ -29,6 +33,8 @@ function recordPolicyRandomTape(work,{limit=100000}={}) {
   };
   try{
     const result=work();
+    assert.equal(exceeded,false,
+      'Native policy RNG tape limit was exceeded and swallowed by a tactic');
     return {result,tape,sha256:digest(tape),version:TAPE_VERSION};
   }finally{Math.random=prior;}
 }
@@ -46,13 +52,18 @@ function replayPolicyRandomTape(originalTape,work) {
   for(const value of tape)assert.ok(
     typeof value==='number'&&Number.isFinite(value)&&value>=0&&value<1
   );
-  let i=0;
+  let i=0,overread=false;
   Math.random=function nativePolicyTapeReplay(){
-    if(i>=tape.length)throw new Error('Native policy RNG replay exhausted');
+    if(i>=tape.length) {
+      overread=true;
+      throw new Error('Native policy RNG replay exhausted');
+    }
     return tape[i++];
   };
   try {
     const result=work();
+    assert.equal(overread,false,
+      'Native policy RNG replay exhaustion was swallowed by a tactic');
     if(i!==tape.length)throw new Error(
       'Native policy RNG replay consumption mismatch: '+i+'/'+tape.length
     );
