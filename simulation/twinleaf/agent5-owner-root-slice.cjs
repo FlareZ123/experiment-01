@@ -9,18 +9,19 @@ const VERSION='agent5-owner-root-slice-v1-development-unqualified';
 /**
  * Determine whether one attached Basic Energy per type covers a printed
  * attack cost. Unknown Special Energy are deliberately not credited.
- * @param {string[]} cost Printed attack symbols.
- * @param {string[]} attached Known Basic Energy types.
+ * @param {(string|number)[]} cost Printed attack symbols.
+ * @param {(string|number)[]} attached Known Basic Energy types.
+ * @param {string|number} [colorlessSymbol] Pinned numeric CardType.COLORLESS.
  * @returns {boolean}
  */
-function basicEnergyPays(cost,attached){
+function basicEnergyPays(cost,attached,colorlessSymbol='COLORLESS'){
   const left=[...attached];
-  for(const symbol of cost.filter(type=>type!=='COLORLESS')){
+  for(const symbol of cost.filter(type=>type!==colorlessSymbol)){
     const i=left.indexOf(symbol);
     if(i<0)return false;
     left.splice(i,1);
   }
-  return left.length>=cost.filter(type=>type==='COLORLESS').length;
+  return left.length>=cost.filter(type=>type===colorlessSymbol).length;
 }
 
 /**
@@ -30,9 +31,11 @@ function basicEnergyPays(cost,attached){
  * development baseline, not a complete competitive decision policy.
  * @param {object} view Detached frozen actorObservation.
  * @param {Record<string,object>} catalog Own-hand/face-up card print metadata.
+ * @param {{colorlessSymbol?:string|number}} [options] Printed type enum.
  * @returns {object}
  */
-function selectOwnerRootIntent(view,catalog){
+function selectOwnerRootIntent(view,catalog,options={}){
+  const colorlessSymbol=options.colorlessSymbol??'COLORLESS';
   assert.equal(view.decisionKind,'owner-root');
   const turn=view.globalTurn;
   const flags=view.ownTurnResources;
@@ -51,15 +54,16 @@ function selectOwnerRootIntent(view,catalog){
       handIndex:basic.index,benchSlot:free};
   }
   const attached=active.energies.map(printing=>
-    catalog[printing]?.basicEnergyType??null).filter(Boolean);
+    catalog[printing]?.basicEnergyType??null)
+    .filter(type=>type!==null);
   const attacks=active.attacks.filter(attack=>
     attack.gxAttack!==true||view.ownPublic.publicTurnRestrictions.gxUsed!==true);
   if(flags.energyPlayLocked!==true&&
       flags.energyPlayedTurn!==turn&&active){
     const basics=held.filter(row=>row.meta.basicEnergyType);
     const deficits=attacks.flatMap(attack=>
-      attack.cost.filter(symbol=>symbol!=='COLORLESS'&&
-        !basicEnergyPays([symbol],attached)));
+      attack.cost.filter(symbol=>symbol!==colorlessSymbol&&
+        !basicEnergyPays([symbol],attached,colorlessSymbol)));
     const energy=basics.find(row=>
       deficits.includes(row.meta.basicEnergyType))??basics[0];
     if(energy)return {kind:'attach-basic-energy',
@@ -78,7 +82,7 @@ function selectOwnerRootIntent(view,catalog){
          restrictions.blockedAttackNameUntilLeavesActive===attack.name||
          (restrictions.onlyAllowedAttackNameNextTurn!==null&&
           restrictions.onlyAllowedAttackNameNextTurn!==attack.name))continue;
-      if(basicEnergyPays(attack.cost,attached)){
+      if(basicEnergyPays(attack.cost,attached,colorlessSymbol)){
         return {kind:'attack',name:attack.name};
       }
     }
@@ -231,10 +235,12 @@ function withOwnerRootSlice(candidateSeat,work,deps={}){
         hasAbility:basic&&card.powers.some(power=>
           power.powerType===enums.PowerType.ABILITY),
         basicEnergyType:energy?
-          card.name.replace(/ Energy$/,'').toUpperCase():null
+          enums.CardType[card.name.replace(/ Energy$/,'').toUpperCase()]??null:null
       });
     }
-    const intent=selectOwnerRootIntent(view,catalog);
+    const intent=selectOwnerRootIntent(view,catalog,{
+      colorlessSymbol:enums.CardType.COLORLESS
+    });
     const action=nativeActionForIntent(intent,player,{
       ...actionClasses,...enums
     });
