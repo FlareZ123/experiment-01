@@ -26,6 +26,10 @@ on:
         description: 'Agent15 frozen 16-seed source rank8 Hood pressure pairs'
         type: boolean
         default: false
+      agent1_evolution_stage_native:
+        description: 'Run compiled printed evolution fidelity probe'
+        type: boolean
+        default: false
       hood_rank8_crispin_native:
         description: 'Source turn7 Secret Box Crispin native Energy choice and attack audit'
         type: boolean
@@ -52,6 +56,9 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm run compile
+      - name: Probe ordinary from-hand evolution
+        if: inputs.agent1_evolution_stage_native
+        run: node simulation/twinleaf/agent1-native-evolution-stage-probe.cjs
       - name: Test Hood position with Iron Thorns and Tool Jammer
         run: node simulation/twinleaf/hood-vs-thorns.cjs
       - name: Test Megaton Blower Tool removal and compatibility hook
