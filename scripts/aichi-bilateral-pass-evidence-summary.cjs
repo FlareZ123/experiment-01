@@ -49,6 +49,7 @@ function summarizePassEvidence(archive) {
         publicBoard: item.publicBoardBeforePass ?? null,
         ownerHandBeforePass: item.ownerHandBeforePass ?? null,
         publicCopySourceInventory: item.publicCopySourceInventory ?? null,
+        sourceEligibility: item.sourceEligibility ?? null,
         availableCopiedAttacks: item.validAttackNames ?? []
       }))
     };
