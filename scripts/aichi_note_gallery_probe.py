@@ -91,6 +91,17 @@ def main() -> None:
     response = requests.get(SOURCE, timeout=30, headers={"User-Agent": "Aichi-public-source-provenance/1.0"})
     response.raise_for_status()
     result = extract_gallery(response.text)
+    if not result["top32_heading_found"]:
+        soup = BeautifulSoup(response.text, "html.parser")
+        heading = next((h for h in soup.find_all("h2") if h.get_text(" ", strip=True) == "トップカット"), None)
+        outline = []
+        if heading is not None:
+            for tag in heading.find_all_next(["h2", "h3", "h4", "p", "figure", "img"], limit=120):
+                if tag.name == "h2":
+                    break
+                outline.append({"tag": tag.name, "text": tag.get_text(" ", strip=True)[:72],
+                                "image": bool(tag.find("img") if tag.name == "figure" else tag.name == "img")})
+        print(json.dumps({"structural_diagnostic": outline[:60]}, ensure_ascii=False))
     destination = Path("results/aichi-2026/gallery-provenance-probe.json")
     atomic_write(destination, json.dumps(result, ensure_ascii=False, indent=2) + "\n")
     print(json.dumps({"source": SOURCE, "heading_count": result["matched_article_headings"],
