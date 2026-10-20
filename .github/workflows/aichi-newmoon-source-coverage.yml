@@ -18,6 +18,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank15_oddish_prompt_fork:
+        description: 'Compare two authentic owner-deck Poffin choices on same source deal'
+        type: boolean
+        required: false
+        default: false
       rank15_paid_tm_poffin:
         description: 'Test one true source-owned Poffin at the historical paid-TM root'
         type: boolean
@@ -306,6 +311,23 @@ jobs:
         with:
           name: rank15-retrospective-owned-poffin-native-fork
           path: rank15-paid-tm-poffin-root.json
+          if-no-files-found: warn
+      - name: Check owner-only native rank15 Oddish target-selection fork
+        if: ${{ inputs.rank15_oddish_prompt_fork }}
+        run: node --test tests/rank15-poffin-oddish-prompt-fork.test.cjs tests/rank15-paid-tm-poffin-source-policy.test.cjs
+      - name: Run genuine same-deal original-vs-Oddish Poffin prompt fork
+        if: ${{ inputs.rank15_oddish_prompt_fork }}
+        run: node simulation/twinleaf/rank15-poffin-oddish-native-fork.cjs > rank15-poffin-oddish-native-fork.json
+      - name: Display native selected source Oddish and follow-on evolution actions
+        if: ${{ inputs.rank15_oddish_prompt_fork }}
+        run: >-
+          node -e "const x=require('./rank15-poffin-oddish-native-fork.json'); const s=y=>({oddishFirst:y.firstOddishOnBench?.turn??null,aor:y.aor?.turn??null,bus:y.bus?.turn??null,busActive:y.busActive?.turn??null,dual:y.dual?.turn??null,maxStages:y.maxSourceEvolutionSlots,evolutionDeclarations:y.sourceEvolutionDeclarations?.length??null}); console.log(JSON.stringify({schema:x.schema,seed:x.seed,generic:s(x.originalGenericPoffinPrompt),twoOddish:s(x.bothOddishAtOwnedPrompt),qualifications:x.qualifications},null,2))"
+      - name: Archive same-deal native rank15 Oddish target-choice diagnostic
+        if: ${{ always() && inputs.rank15_oddish_prompt_fork }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank15-native-poffin-two-oddish-physical-fork
+          path: rank15-poffin-oddish-native-fork.json
           if-no-files-found: warn
       - name: Preserve exact pinned catalog coverage
         uses: actions/upload-artifact@v4
