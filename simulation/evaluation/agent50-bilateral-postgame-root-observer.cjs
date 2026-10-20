@@ -155,8 +155,8 @@ function withPostgameRootOrderProbe(
   assert.ok([0,1].includes(target.seat));
   assert.equal(typeof target.makeRandom,'function');
   assert.ok(target.nativeTapeSameWorld!==true||
-    target.firstFiniteScoredRoot!==true,
-  'Native full-decision tape requires the pre-decision turn-3 root');
+    target.firstFiniteScoredRoot!==true||target.nativeTapeFirstFiniteScore===true,
+  'Finite-scored native tape requires explicit paired mode');
   assert.ok(target.nativeTapeHiddenOrderContrast!==true||
     target.nativeTapeSameWorld===true,
     'Hidden-order contrast requires genuine native same-world tape');
@@ -189,10 +189,32 @@ function withPostgameRootOrderProbe(
         // its speculative score can run; preserve the Store decision.
         let attemptCount=0,finiteScoreCount=0,pending=null;
         const nativeTrace=[];
-        const decisionStartFingerprint=target.nativeScoreTrace===true?
+        const decisionStartFingerprint=(target.nativeScoreTrace===true||target.nativeTapeFirstFiniteScore===true)?
           stateGraphFingerprint(state):null;
         const restorations=[];
         const ownerBot=this;
+        // Snapshot at decode entry, before tactic proposals mutate the Store.
+        let nativeEntry=null;
+        if(target.nativeTapeFirstFiniteScore===true) {
+          const before=stateGraphFingerprint(state);
+          try {
+            const source=cloneDetached(state);
+            const fidelity=verifyCapturedNativeRoot(state,source);
+            const common=this.tactics?.[0]?.options;
+            assert.ok(common&&this.tactics.every(t=>t.options===common));
+            assert.ok(this.resolvers.every(r=>r.options===common));
+            const options=cloneBotOptions({...common,
+              tactics:this.tactics.map(t=>t.constructor),
+              promptResolvers:this.resolvers.map(r=>r.constructor)});
+            assert.deepEqual(stateGraphFingerprint(state),before);
+            nativeEntry={state:source,options,
+              sourceCaptureFidelity:fidelity,captureError:null};
+          } catch(error) {
+            nativeEntry={state:null,options:null,
+              sourceCaptureFidelity:null,
+              captureError:String(error?.stack||error)};
+          }
+        }
         const captureAtScore=()=>{
           if(pending)return;
           let snapshot=null,options=null,captureError=null;
@@ -261,9 +283,15 @@ function withPostgameRootOrderProbe(
               else delete tactic.evaluateAction;
             });
           }
-          const action=descriptor.value.call(this,state);
+          const taped=target.nativeTapeFirstFiniteScore===true?
+            require('../twinleaf/native-policy-random-tape.cjs')
+              .recordPolicyRandomTape(()=>descriptor.value.call(this,state)):null;
+          const action=taped?taped.result:descriptor.value.call(this,state);
           if(finiteScoreCount>0) {
-            captured={...pending,realAction:signature(action),
+            captured={...pending,...(nativeEntry??{}),
+              captureError:nativeEntry?.captureError??pending?.captureError??null,
+              nativeRealPolicyTape:taped?.tape??null,
+              realAction:signature(action),
               chosenRootTurn:state.turn,
               actualScorerAttempts:attemptCount,
               actualFiniteScores:finiteScoreCount,
@@ -398,6 +426,12 @@ function withPostgameRootOrderProbe(
       return {result:frozenResult,events:[{
         nativeSameWorldTape:parity,
         sourceCaptureFidelity:captured.sourceCaptureFidelity,
+        ...(target.nativeTapeFirstFiniteScore===true?{
+          nativeTapeScoredRootTurn:captured.chosenRootTurn,
+          nativeTapeFiniteScores:captured.actualFiniteScores,
+          sourceStateChangedBeforeFirstScore:
+            captured.sourceStateChangedBeforeFirstScore??null
+        }:{}),
         ...(hiddenContrast?{nativeHiddenOrderContrast:hiddenContrast}:{}),
         originalSourceAction:captured.realAction,
         baselineActionMatchedActual:parity.sameWorldDecisionParityQualified,

@@ -79,7 +79,7 @@ function comparisonProjection(row) {
  * @param {Function} Bot Pinned SimpleTacticsAi, injected for pure tests.
  * @param {(state:object)=>object} clone Full detached clone.
  * @param {()=>()=>number} makeRandom Independent policy RNG factory.
- * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean,isolateReplayPolicyPerWorld?:boolean,nativeScoreTrace?:boolean,nativeTapeSameWorld?:boolean}} [scope]
+ * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean,isolateReplayPolicyPerWorld?:boolean,nativeScoreTrace?:boolean,nativeTapeSameWorld?:boolean,nativeTapeFirstFiniteScore?:boolean}} [scope]
  * @returns {object} Unqualified, failure-inclusive diagnostic.
  */
 function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) {
@@ -91,6 +91,7 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
       {isolateReplayPolicyPerWorld:true}:{}),
     ...(scope.nativeScoreTrace===true?{nativeScoreTrace:true}:{}),
     ...(scope.nativeTapeSameWorld===true?{nativeTapeSameWorld:true}:{}),
+    ...(scope.nativeTapeFirstFiniteScore===true?{nativeTapeFirstFiniteScore:true}:{}),
     ...(scope.nativeTapeHiddenOrderContrast===true?
       {nativeTapeHiddenOrderContrast:true}:{})};
   let control;
@@ -167,6 +168,10 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
       actualAction: event.originalSourceAction??null,
       auditError:event.auditError??null,
       nativeSameWorldTape:event.nativeSameWorldTape??null,
+      sourceStateChangedBeforeFirstScore:
+        event.sourceStateChangedBeforeFirstScore??null,
+      nativeTapeScoredRootTurn:event.nativeTapeScoredRootTurn??null,
+      nativeTapeFiniteScores:event.nativeTapeFiniteScores??null,
       sourceCaptureFidelity:event.sourceCaptureFidelity??null,
       nativeHiddenOrderContrast:event.nativeHiddenOrderContrast??null,
       hiddenWorldCounterfactualCompared:event.counterfactualCompared!==false,
@@ -218,17 +223,22 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
 function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   replayCommonPolicy=false,isolateReplayPolicyPerWorld=false,
   nativeScoreTrace=false,nativeTapeSameWorld=false,
-  nativeTapeHiddenOrderContrast=false}={}) {
+  nativeTapeFirstFiniteScore=false,nativeTapeHiddenOrderContrast=false}={}) {
   assert.equal(typeof firstFiniteScoredRoot,'boolean');
   assert.equal(typeof replayCommonPolicy,'boolean');
   assert.equal(typeof isolateReplayPolicyPerWorld,'boolean');
   assert.equal(typeof nativeScoreTrace,'boolean');
   assert.equal(typeof nativeTapeSameWorld,'boolean');
+  assert.equal(typeof nativeTapeFirstFiniteScore,'boolean');
+  assert.ok(!nativeTapeFirstFiniteScore||
+    (nativeTapeSameWorld&&firstFiniteScoredRoot),
+    'Finite-scored tape needs authentic native tape and scored root');
   assert.equal(typeof nativeTapeHiddenOrderContrast,'boolean');
   assert.ok(!nativeTapeHiddenOrderContrast||nativeTapeSameWorld,
     'Hidden owner order contrast requires genuine same-world tape mode');
-  assert.ok(!nativeTapeSameWorld||!firstFiniteScoredRoot,
-    'Native tape requires a complete pre-decision root');
+  assert.ok(!nativeTapeSameWorld||!firstFiniteScoredRoot||
+    nativeTapeFirstFiniteScore,
+    'Native scored-root tape requires explicit mode');
   assert.ok(!isolateReplayPolicyPerWorld||replayCommonPolicy,
     'Independent policy replay requires the common-policy opt-in');
   const root=path.resolve(__dirname,'../..');
@@ -274,10 +284,13 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
     withPostgameRootOrderProbe,SimpleTacticsAi,clone,
     ()=>seededRandom((trial.seed^0x5a17b9ef)>>>0),
     {firstFiniteScoredRoot,replayCommonPolicy,isolateReplayPolicyPerWorld,
-      nativeScoreTrace,nativeTapeSameWorld,nativeTapeHiddenOrderContrast}
+      nativeScoreTrace,nativeTapeSameWorld,nativeTapeFirstFiniteScore,
+      nativeTapeHiddenOrderContrast}
   ));
   return {
-    schema:nativeTapeHiddenOrderContrast?
+    schema:nativeTapeFirstFiniteScore?
+      'agent50-crossrank-native-first-finite-scored-tape-v1':
+      nativeTapeHiddenOrderContrast?
       'agent50-crossrank-native-tape-order-exploration-v1':
       nativeTapeSameWorld?
       'agent50-crossrank-native-same-world-tape-prerequisite-v1':
@@ -318,6 +331,8 @@ if(require.main===module) {
     isolateReplayPolicyPerWorld:process.env.AGENT50_ISOLATED_POLICY_WORLDS==='true',
     nativeScoreTrace:process.env.AGENT50_NATIVE_SCORE_TRACE==='true',
     nativeTapeSameWorld:process.env.AGENT50_NATIVE_TAPE_SAME_WORLD==='true',
+    nativeTapeFirstFiniteScore:
+      process.env.AGENT50_NATIVE_TAPE_FIRST_FINITE_SCORE==='true',
     nativeTapeHiddenOrderContrast:
       process.env.AGENT50_NATIVE_TAPE_HIDDEN_DECK_ORDER==='true'
   }),null,2)+'\n');
