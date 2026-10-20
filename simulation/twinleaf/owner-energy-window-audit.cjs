@@ -154,6 +154,8 @@ function withOwnerEnergyWindowAudit(candidateSeat, execute, deps = {}) {
   function captureRealDispatch(action) {
     if (!actual && action?.constructor?.name === 'AddPlayerAction') actual = this;
     const before = this === actual ? this.state : null;
+    const turnBefore = before?.turn;
+    const actorSeatBefore = before?.activePlayer;
     const owner = before?.players.find(p => p.id === ownerId);
     const boardEnergyBefore = owner ? ownerBoardEnergy(owner, enums) : null;
     const sourceId = candidateSeat === 0 ? 202 : 101;
@@ -180,8 +182,8 @@ function withOwnerEnergyWindowAudit(candidateSeat, execute, deps = {}) {
         const count = board => board.reduce((total, slot) =>
           total + slot.energyNames.length, 0);
         publicEnergyTransitions.push({
-          turnBefore: before.turn,
-          actorSeat: before.activePlayer,
+          turnBefore,
+          actorSeat: actorSeatBefore,
           nativeAction: action.constructor.name,
           sourcePlayedCardAtThisRoot: sourcePlay,
           attachedCardDelta: count(boardEnergyAfter) - count(boardEnergyBefore),
