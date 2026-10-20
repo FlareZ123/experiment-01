@@ -8,6 +8,7 @@ const MELOETTA = 'Meloetta ex';
 const EXEGGCUTE = 'Exeggcute';
 const KOKO = 'Tapu Koko Prism Star';
 const COLOGNE = 'Canceling Cologne';
+const SQUAWK = 'Squawkabilly ex';
 
 const {actorObservation} = require('./actor-observation-contract.cjs');
 
@@ -78,16 +79,18 @@ function sourceVipAfterPassEligible(state, own, seat, phase) {
  * @param {object} own Source player after VIP was accepted.
  * @param {object} prompt Actual owner-deck ChooseCardsPrompt.
  * @param {object} state Live state.
+ * @param {{preferSquawk?:boolean}} [options] Owner-prompt-only target prioritization.
  * @returns {object[]} Native card references, zero to two.
  */
-function selectSourceVipBasics(own, prompt, state) {
+function selectSourceVipBasics(own, prompt, state, {preferSquawk=false}={}) {
   const kokoInPlay = [own.active, ...own.bench].some(
     slot => slot.getPokemonCard()?.name === KOKO);
   const free = own.bench.filter(slot => !slot.getPokemonCard()).length;
   const budget = Math.min(2, free - (kokoInPlay ? 0 : 1));
   if (budget < 1) return [];
   const choices = [];
-  for (const name of [MELOETTA, EXEGGCUTE]) {
+  for (const name of preferSquawk ? [MELOETTA,SQUAWK,EXEGGCUTE] :
+    [MELOETTA,EXEGGCUTE]) {
     if (choices.length >= budget) break;
     const card = prompt.cards.cards.find(item =>
       item.name === name && !choices.includes(item));
@@ -108,10 +111,11 @@ function selectSourceVipBasics(own, prompt, state) {
  * @template T
  * @param {0|1} seat Source physical seat.
  * @param {()=>T} execute Synchronous native headless experiment.
- * @param {{followupCologne?:boolean}} [options] Opt-in narrow source continuation.
+ * @param {{followupCologne?:boolean,preferSquawk?:boolean}} [options] Opt-in source alternatives.
  * @returns {{result:T,policyAudit:object}}
  */
-function withSourceVipAfterPass(seat, execute, {followupCologne=false}={}) {
+function withSourceVipAfterPass(seat, execute,
+  {followupCologne=false,preferSquawk=false}={}) {
   if (![0,1].includes(seat) || typeof execute !== 'function')
     throw new TypeError('Need source seat and synchronous runner');
   const get = subpath => require(path.join(OUTPUT, subpath));
@@ -135,9 +139,11 @@ function withSourceVipAfterPass(seat, execute, {followupCologne=false}={}) {
         return previous.call(this,state);
       if (prompt.constructor.name === 'ChooseCardsPrompt' &&
           prompt.playerId === sourceId && prompt.cards === own.deck) {
-        const selected = selectSourceVipBasics(own,prompt,state);
+        const selected = selectSourceVipBasics(own,prompt,state,{preferSquawk});
         events.push({kind:'owner-deck-target',turn:state.turn,
-          cards:selected.map(c => c.fullName),nativeValid:selected.length>0});
+          cards:selected.map(c => c.fullName),nativeValid:selected.length>0,
+          searchedSquawkAvailable:prompt.cards.cards.some(c=>c.name===SQUAWK),
+          preferSquawk});
         stage = 'post';
         if (selected.length)
           return new ResolvePromptAction(prompt.id,selected);
@@ -202,9 +208,9 @@ function withSourceVipAfterPass(seat, execute, {followupCologne=false}={}) {
   SimpleTacticsAi.prototype.decodeNextAction = override;
   try {
     return {result:execute(),policyAudit:{
-      version:followupCologne ?
-        'rank26-first-own-vip-after-pass-v1+owner-cologne-followup-v1' :
-        'rank26-first-own-vip-after-pass-v1',seat,events,
+      version:'rank26-first-own-vip-after-pass-v1'+
+        (followupCologne?'+owner-cologne-followup-v1':'')+
+        (preferSquawk?'+owner-squawk-priority-v1':''),seat,events,
       finalStage:stage,competitiveGameQualified:false
     }};
   } finally {
