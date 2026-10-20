@@ -2,7 +2,8 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {cloneBotOptions,withPostgameRootOrderProbe}=
+const {cloneBotOptions,withPostgameRootOrderProbe,
+  probeFreshPlayCardInClonedStore}=
   require('../simulation/evaluation/agent50-bilateral-postgame-root-observer.cjs');
 const {actionSignature}=
   require('../simulation/twinleaf/rank10-hidden-order-live-probe.cjs');
@@ -350,6 +351,72 @@ test('first finite-score root keeps every undefined-scored owner action',()=>{
   assert.equal(output.events.length,0);
   assert.equal(output.result.turn3.play,'unscored');
   assert.equal(output.result.turn4.play,'unscored');
+});
+
+test('fresh bot PlayCard is dispatched on clone only with exact raw owner card',()=>{
+  const root=state({players:[{
+    id:101,deck:{cards:['a','b']},
+    hand:{cards:[{fullName:'Basic Psychic Energy'},{fullName:'Fog Crystal'}]},
+    energyPlayedTurn:3,supporterTurn:0
+  }]});
+  class MockAction {
+    constructor(id,handIndex,target){
+      this.id=id;
+      this.handIndex=handIndex;
+      this.target=target;
+    }
+  }
+  class MockStore {
+    constructor(){this.state=null;}
+    dispatch(action){
+      assert.equal(action.target.player,2);
+      this.state.players[0].hand.cards.splice(action.handIndex,1);
+    }
+  }
+  const sig={type:'PlayCardAction',data:JSON.stringify({
+    id:101,handIndex:0,target:{player:2,slot:1,index:0}
+  })};
+  const result=probeFreshPlayCardInClonedStore(root,sig,
+    structuredClone,{Store:MockStore,PlayCardAction:MockAction,
+      makeRandom:()=>()=>0.4});
+  assert.equal(result.proposedCardPrinting,'Basic Psychic Energy');
+  assert.equal(result.dispatchReturnedWithoutThrow,true);
+  assert.equal(result.handSizeBefore,2);
+  assert.equal(result.handSizeAfter,1);
+  assert.equal(result.energyPlayedTurn,3);
+  assert.equal(result.originalStoreUnchanged,true);
+  assert.equal(root.players[0].hand.cards.length,2);
+  assert.deepEqual(result.proposedTarget,{player:2,slot:1,index:0});
+});
+
+test('fresh cloned Store rejection preserves original root and captures failure',()=>{
+  const root=state({players:[{
+    id:101,deck:{cards:['a','b']},
+    hand:{cards:[{fullName:'Psychic Energy'}]},
+    energyPlayedTurn:3,supporterTurn:3
+  }]});
+  const before=structuredClone(root);
+  class MockAction {
+    constructor(id,handIndex,target){
+      this.id=id;this.handIndex=handIndex;this.target=target;
+    }
+  }
+  class MockStore {
+    constructor(){this.state=null;}
+    dispatch(){throw new Error('second manual Energy attachment denied');}
+  }
+  const previous=Math.random;
+  const result=probeFreshPlayCardInClonedStore(root,{
+    type:'PlayCardAction',
+    data:JSON.stringify({id:101,handIndex:0,
+      target:{player:2,slot:1,index:0}})
+  },structuredClone,{Store:MockStore,PlayCardAction:MockAction,
+    makeRandom:()=>()=>0.8});
+  assert.equal(result.dispatchReturnedWithoutThrow,false);
+  assert.match(result.dispatchRejection,/second manual Energy attachment denied/);
+  assert.equal(result.handSizeAfter,1);
+  assert.deepEqual(root,before);
+  assert.strictEqual(Math.random,previous);
 });
 
 test('postgame comparison cannot inherit future live or prior-world score mutations',()=>{
