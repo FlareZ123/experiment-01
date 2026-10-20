@@ -105,3 +105,9 @@ test('source alias mutation invalidates an otherwise matching hidden contrast',(
   assert.equal(report.contrastExecutable,false);
   assert.match(report.error,/mutated original/);
 });
+
+test('different native source roots fail before comparison',()=>{
+  const input=makeInput();
+  input.root.players[0].hand.push('unexpected');
+  assert.throws(()=>compareNativeHiddenDeckOrder(input),/Native parity root/);
+});
