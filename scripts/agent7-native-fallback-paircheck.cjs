@@ -20,6 +20,26 @@ function gameplayProjection(report){
 }
 
 /**
+ * Compare all preexisting canonical decision counters and component audits.
+ * These are observable algorithm behavior, separate from public gameplay.
+ * @param {object} audit Canonical actor composition audit.
+ * @returns {object} Shared old-schema actor decision audit.
+ */
+function preexistingActorAudit(audit){
+  const {
+    version,genericFallbackAttributionOptIn,
+    componentVersions,nativeDecisionCounts,detailedComponentAudits,...rest
+  }=audit;
+  const {genericFallback:ignoredVersion,...versions}=componentVersions;
+  const {nativeGenericDecoderCalls:ignoredCalls,
+    nativeGenericDecoderBySeat:ignoredSeat,
+    nativeGenericPromptBySeat:ignoredPrompt,...decisions}=nativeDecisionCounts;
+  const {genericFallback:ignoredAudit,...components}=detailedComponentAudits;
+  return {...rest,componentVersions:versions,nativeDecisionCounts:decisions,
+    detailedComponentAudits:components};
+}
+
+/**
  * Compare opt-out and opt-in at one exact checkout, across the same source
  * physical deals and actors. Any change to gameplay is a hard veto.
  * @param {object} control Canonical, observer disabled.
@@ -39,6 +59,12 @@ function assertNativeGenericFallbackNoninterference(control,observed){
   assert.equal(observed.competitiveQualifiedGames,0);
   assert.deepStrictEqual(gameplayProjection(observed),gameplayProjection(control),
     'Read-only fallback observer changed original gameplay or evidence fields');
+  for(let index=0;index<4;index++){
+    assert.deepStrictEqual(preexistingActorAudit(
+      observed.rows[index].actorOnlyDecisionCoverage),
+      preexistingActorAudit(control.rows[index].actorOnlyDecisionCoverage),
+      'Read-only fallback observer changed an existing root/prompt decision audit');
+  }
   const seatTotals={0:0,1:0},promptTypes={0:{},1:{}};
   let genericTotal=0,rootAccepted=0;
   for(let index=0;index<4;index++){
@@ -92,4 +118,5 @@ if(require.main===module){
   process.stdout.write('NATIVE_FALLBACK_PARITY '+JSON.stringify(
     assertNativeGenericFallbackNoninterference(control,observed))+'\n');
 }
-module.exports={VERSION,gameplayProjection,assertNativeGenericFallbackNoninterference};
+module.exports={VERSION,gameplayProjection,preexistingActorAudit,
+  assertNativeGenericFallbackNoninterference};
