@@ -197,3 +197,50 @@ test('opt-in first-turn source fingerprint detects ordered hidden-deck drift',()
   assert.equal(plain.sourcePhysicalDeal,null,
     'existing default capture must not fingerprint hidden deck order');
 });
+
+test('ordered source capture skips phase-eight setup and stops before first action',()=>{
+  const makeSlot=cards=>({
+    ...zone(cards),tools:[],energies:zone([])
+  });
+  const makePlayer=name=>({
+    hand:zone(['Hand-'+name]),
+    active:makeSlot(['Active-'+name]),
+    bench:[makeSlot(['Bench-'+name])],
+    prizes:Array.from({length:6},(_,i)=>zone(['Prize-'+name+'-'+i])),
+    deck:zone(['Top-'+name,'Bottom-'+name]),
+    discard:zone([]),lostzone:zone([]),stadium:zone([]),supporter:zone([])
+  });
+  class MockStore{
+    constructor(){
+      this.state={turn:0,phase:1,prompts:[],activePlayer:0,
+        players:[makePlayer('A'),makePlayer('B')]};
+    }
+    dispatch(action){
+      if(action==='turn-start-setup'){
+        this.state.turn=1;
+        this.state.phase=8;
+        this.state.prompts=[{result:undefined}];
+      }
+      if(action==='last-prompt'){
+        this.state.prompts=[];
+        this.state.phase=2;
+      }
+      if(action==='player-action'){
+        throw new Error('First player action was reached before observer');
+      }
+    }
+  }
+  const raw=MockStore.prototype.dispatch;
+  let checkedSetupPhase=false;
+  const observed=captureSetupOnly(MockStore,()=>{
+    const store=new MockStore();
+    store.dispatch('turn-start-setup');
+    checkedSetupPhase=store.state.phase===8;
+    store.dispatch('last-prompt');
+    store.dispatch('player-action');
+  },{sourceSeat:1});
+  assert.equal(checkedSetupPhase,true);
+  assert.equal(observed.stoppedAtFirstTurn,true);
+  assert.match(observed.sourcePhysicalDeal.digestSha256,/^[a-f0-9]{64}$/);
+  assert.equal(MockStore.prototype.dispatch,raw);
+});
