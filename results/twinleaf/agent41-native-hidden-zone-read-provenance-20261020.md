@@ -37,5 +37,19 @@ A zero-read report on one sampled native root does **not** certify universal hid
 - Canonical integration: `simulation/evaluation/agent41-bilateral-v2-development.cjs`
 - Manual workflow: `.github/workflows/aichi-source-locked-campaign.yml`
 - Commits: `55bf20e7`, `02c4989c`, `ce2e342f`, `a588c369`, `b5b05858`
-- Initial manual compiled run dispatched: [CI 39455323418](https://github.com/FlareZ123/experiment-01/actions/runs/39455323418). Its eventual result must be inspected before claiming a passing native diagnostic.
+- First manual compiled run [CI 39455323418](https://github.com/FlareZ123/experiment-01/actions/runs/39455323418) failed in unrelated existing isolated wiring mock-loader tests; all four new observer synthetic tests passed. Fixed those mocks and the cross-realm frozen-ID assertion.
+- Subsequent compiled individual runs [observed 39456348885](https://github.com/FlareZ123/experiment-01/actions/runs/39456348885) and [control 39456358608](https://github.com/FlareZ123/experiment-01/actions/runs/39456358608) both passed. The paired test below is a more rigorous source-equivalent comparison.
 - Scope: historical development seeds and genuine native State boundary only. Field remains **29/32 exact published opponent 60s, zero competitive-qualified games, no proven final deck**.
+
+## Compiled original-State paired result, 20 October 2026
+
+[Compiled manual paired CI 39457483803](https://github.com/FlareZ123/experiment-01/actions/runs/39457483803) executed **four baseline plus four observed** frozen historical game arms using the one-process `scripts/agent41-native-hidden-read-paired.cjs`. The suite itself passed, then the explicit fail-closed classifier deliberately failed the workflow because three actual native root decisions changed the original State graph while choosing an action. All four baseline and instrumented runs matched source-deal fingerprints, actual starters and complete Store root-action ledgers, with no competitive status.
+
+| Frozen development trial | Same source deal/root ledger | Native `CardList.cards` reference accesses during proposal | During direct `isValidAction` validation | Original State changed inside observed decision |
+| --- | --- | ---: | ---: | --- |
+| Rank6 champion-reference physical A | Yes | 0 | 74 | Yes |
+| Rank6 New Moon physical A | Yes | 0 | 56 | No |
+| Rank11 champion-reference physical B | Yes | 0 | 120 | Yes |
+| Rank11 New Moon physical B | Yes | 0 | 150 | Yes |
+
+**Interpretation:** all observed original-State array-reference accesses occurred during validation. Other speculative branches evaluate *detached States* and are outside this getter's direct coverage. The State mutations may be intrinsic to the pre-existing native bot's proposal, or caused by instrumentation; unchanged full root ledgers are insufficient to assign causality. A scalar-marker follow-up has been implemented to identify the changed fields, and the three altered native States remain a hard qualification veto. Only **one of four** history arms met the strict `noninterfering-native-read-census-only` classification. The design claims no hidden-identity use, non-leakage, competitive strength, or win-rate estimate.
