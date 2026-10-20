@@ -36,7 +36,7 @@ function publicDispatchState(store){
  * Pure decision from a detached owner observation plus the public print catalog.
  * No native State, opposing hidden zones, or own unknown deck identities enter.
  * @param {object} view
- * @param {{basics:Set<string>,basicEnergies:Set<string>,basicEnergyTypes:Record<string,number>,colorlessEnergyType:number,specialConditions:{ASLEEP:number,PARALYZED:number}}} catalog
+ * @param {{basics:Set<string>,abilityBasics:Set<string>,basicEnergies:Set<string>,basicEnergyTypes:Record<string,number>,colorlessEnergyType:number,specialConditions:{ASLEEP:number,PARALYZED:number}}} catalog
  * @returns {object} Native-neutral intent.
  */
 function chooseActorRootIntent(view,catalog){
@@ -44,7 +44,8 @@ function chooseActorRootIntent(view,catalog){
   const own=view.ownPublic,r=view.ownTurnResources;
   const benchIndex=own.bench.findIndex(slot=>slot===null);
   if(benchIndex>=0&&!r.pokemonPlayLocked){
-    const index=view.ownHand.findIndex(p=>catalog.basics.has(p));
+    const index=view.ownHand.findIndex(p=>catalog.basics.has(p)&&
+      !(r.abilityPokemonPlayLocked===true&&catalog.abilityBasics.has(p)));
     if(index>=0)return {kind:'bench-basic',handIndex:index,benchIndex,printing:view.ownHand[index]};
   }
   if(own.active&&!r.energyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
@@ -109,9 +110,13 @@ function withActorOnlyRootPolicy(run,deps={}){
     const {EnergyCard}=require(path.join(base,'game/store/card/energy-card'));
     const {Stage,EnergyType,CardType,SpecialCondition}=
       require(path.join(base,'game/store/card/card-types'));
+    const {PowerType}=require(path.join(base,'game/store/card/pokemon-types'));
     const all=CardManager.getInstance().getAllCards();
     return {
       basics:new Set(all.filter(c=>c instanceof PokemonCard&&c.stage===Stage.BASIC).map(c=>c.fullName)),
+      abilityBasics:new Set(all.filter(c=>c instanceof PokemonCard&&
+        c.stage===Stage.BASIC&&c.powers.some(power=>
+          power.powerType===PowerType.ABILITY)).map(c=>c.fullName)),
       basicEnergies:new Set(all.filter(c=>c instanceof EnergyCard&&c.energyType===EnergyType.BASIC).map(c=>c.fullName)),
       basicEnergyTypes:{Grass:CardType.GRASS,Fire:CardType.FIRE,Water:CardType.WATER,
         Lightning:CardType.LIGHTNING,Psychic:CardType.PSYCHIC,Fighting:CardType.FIGHTING,
