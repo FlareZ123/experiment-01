@@ -80,6 +80,8 @@ jobs:
         run: node --test tests/aichi-printing-order-audit.test.cjs
       - name: Verify exact actor-K0 expected discard utility against exhaustive Prize deals
         run: node --test tests/k0-discard-value-frontier.test.cjs tests/k0-discard-source-printings.test.cjs tests/owner-k0-observable-inventory.test.cjs tests/owner-k0-search-access.test.cjs tests/unseen-hand-category-posterior.test.cjs tests/opponent-observable-category-pool.test.cjs
+      - name: Verify exact owner K0-to-K1 mutually exclusive line information value
+        run: node --test tests/k0-line-information-frontier.test.cjs
       - name: Check familywise hard-matchup veto and adversarial provenance cases
         run: node --test tests/aichi-hard-matchup-veto.test.cjs
       - name: Verify source-deal sealed actual-start accrual and fixed-seat veto
