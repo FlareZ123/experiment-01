@@ -100,6 +100,8 @@ jobs:
         run: node --test tests/aichi-thorns-crossrank-opening.test.cjs
       - name: Verify Iron Thorns Prize-only multi-turn Energy floors
         run: node --test tests/aichi-rank6-energy-prize-frontier.test.cjs tests/aichi-thorns-attachment-floor.test.cjs
+      - name: Verify published Iron Thorns Special Energy printed payability
+        run: node --test tests/actor-energy-payability.test.cjs
       - name: Check correlated-field sequential evidence and intact qualification gates
         run: node --test tests/aichi-correlated-round-evidence.test.cjs
       - name: Verify constructed Japanese New Moon 60 and reject altered printings
