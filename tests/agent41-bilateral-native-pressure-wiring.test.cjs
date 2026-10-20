@@ -106,6 +106,7 @@ for(const flags of [
     assert.equal(fixture.requests.length,4);
     for(const request of fixture.requests){
       assert.equal(request.mandatoryOptionFallback,flags.mandatoryOptionFallback);
+      assert.equal(request.enforceSelectOptionLegality,flags.mandatoryOptionFallback);
       assert.equal(request.enforceVisiblePlayLockBothSeats,true);
       assert.equal(request.supporterDecisionCorrection,true);
     }
