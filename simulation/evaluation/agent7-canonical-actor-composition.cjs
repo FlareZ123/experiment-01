@@ -26,9 +26,14 @@ const OWNER_SEARCH_VERSION = 'agent41-canonical-actor-six-component-v3-owner-sin
 function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   assert.equal(typeof execute, 'function');
   const ownerSingleSearch = options.ownerSingleSearch===true;
+  const sparseOwnerSearch=ownerSingleSearch&&
+    process.env.AGENT22_SPARSE_OWNER_BUNDLE_DEV==='true';
   const ownerSearch = ownerSingleSearch?(adapters.ownerSearch??
-    require('../twinleaf/agent41-actor-owner-single-search.cjs')
-      .withActorOwnerSingleSearch):null;
+    (sparseOwnerSearch?
+      require('../twinleaf/agent22-sparse-owner-search-adapter.cjs')
+        .withSparseActorOwnerSearch:
+      require('../twinleaf/agent41-actor-owner-single-search.cjs')
+        .withActorOwnerSingleSearch)):null;
   const root = adapters.root ??
     require('../twinleaf/agent34-actor-only-root-policy.cjs')
       .withActorOnlyRootPolicy;
