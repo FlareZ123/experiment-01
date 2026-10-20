@@ -360,6 +360,23 @@ jobs:
           name: rank15-real-second-barrage-confirmation-fork
           path: rank15-omega-barrage-native-yes-fork.json
           if-no-files-found: warn
+      - name: Test owner-visible genuine BUS promotion selector
+        if: ${{ inputs.rank15_oddish_prompt_fork }}
+        run: node --test tests/rank15-bus-native-retreat-policy.test.cjs
+      - name: Reproduce second Omega Barrage and owner-owned BUS promotion
+        if: ${{ inputs.rank15_oddish_prompt_fork }}
+        run: node simulation/twinleaf/rank15-bus-native-retreat-fork.cjs > rank15-bus-native-retreat-fork.json
+      - name: Display actual source BUS native promotion and opponent reply
+        if: ${{ inputs.rank15_oddish_prompt_fork }}
+        run: >-
+          node -e "const x=require('./rank15-bus-native-retreat-fork.json');const a=x.nativeSecondAttackOnly,b=x.proposedNativePromotion;console.log(JSON.stringify({schema:x.schema,seed:x.seed,sourceOriginal:{dual:a.first.dual?.turn??null,busActive:a.first.busActive?.turn??null},proposed:{attempts:b.sourceProposal,nativeRetreats:b.nativeRootRetreats,dual:b.first.dual?.turn??null,busActive:b.first.busActive?.turn??null,replyRoots:b.postRetreatRootResponse.length},qualifications:x.qualifications},null,2))"
+      - name: Archive retrospective native source BUS promotion fork
+        if: ${{ always() && inputs.rank15_oddish_prompt_fork }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank15-retrospective-source-bus-native-promotion
+          path: rank15-bus-native-retreat-fork.json
+          if-no-files-found: warn
       - name: Preserve exact pinned catalog coverage
         uses: actions/upload-artifact@v4
         with:
