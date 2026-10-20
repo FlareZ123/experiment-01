@@ -5,6 +5,7 @@ legality, trace replay, game independence, engine semantics, or player skill.
 """
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Mapping
 from hashlib import sha256
 import json
@@ -38,10 +39,18 @@ def evaluate_balanced_raw_batch(
     expected_trials: list[dict],
     target: str = "0.995",
     confidence: str = "0.95",
+    require_physical_seat_balance: bool = False,
 ) -> dict:
-    """Require source inventory, 64 equal strata, exact turn proof and zero failures."""
+    """Require 64 rank/start cells, optionally also 128 rank/start/engine-seat cells.
+
+    The physical-seat option describes the target as uniformly weighted over all
+    four engine-seat and actual-start combinations per rank. It does not attest
+    independent sampling, randomization, decision-policy fidelity or paper rules.
+    """
     if type(predeclared_games_per_cell) is not int or predeclared_games_per_cell < 1:
         raise ValueError("Positive integer per-cell horizon is required")
+    if type(require_physical_seat_balance) is not bool:
+        raise ValueError("Physical-seat balance flag must be a boolean")
     if not isinstance(expected_trials, list) or not expected_trials:
         raise ValueError("Independent predeclared trial schedule is required")
     if (type(batch.get("predeclared_games_per_cell")) is not int or
@@ -82,10 +91,25 @@ def evaluate_balanced_raw_batch(
     summary = checked["statistical_result"]
     if not summary["complete"]:
         raise ValueError("The full 64-cell rank/actual-starting-seat matrix is missing")
-    if checked["finished_games"] != 64 * predeclared_games_per_cell:
+    multiplier = 2 if require_physical_seat_balance else 1
+    if checked["finished_games"] != 64 * multiplier * predeclared_games_per_cell:
         raise ValueError("Total completed games disagree with the predeclared horizon")
-    if any(cell["games"] != predeclared_games_per_cell for cell in summary["cells"]):
-        raise ValueError("One or more rank/seat cells have a different sample size")
+    if any(cell["games"] != multiplier * predeclared_games_per_cell for cell in summary["cells"]):
+        raise ValueError("One or more rank/start cells have a different sample size")
+    physical_seat_cells = []
+    if require_physical_seat_balance:
+        observed = Counter((g["rank"], g["seat"], g["candidate_side"])
+                           for g in batch["games"])
+        physical_seat_cells = [
+            {"rank": rank, "actual_start": seat, "candidate_side": side,
+             "games": observed[rank, seat, side]}
+            for rank in range(1, 33)
+            for seat in ("first", "second")
+            for side in ("A", "B")
+        ]
+        if any(cell["games"] != predeclared_games_per_cell
+               for cell in physical_seat_cells):
+            raise ValueError("The 128 rank/start/physical-seat cells are unbalanced")
 
     records = tuple(SeatRecord(
         rank=cell["rank"],
@@ -99,6 +123,8 @@ def evaluate_balanced_raw_batch(
                        "registered_candidate_deck_sha256": expected_candidate_deck_sha256},
         "raw_games": checked["raw_games"],
         "predeclared_games_per_cell": predeclared_games_per_cell,
+        "physical_seat_balance_required": require_physical_seat_balance,
+        "physical_seat_cells": physical_seat_cells,
         "completed_ties_as_nonwins": checked["finished_ties_as_nonwins"],
         "all_completed_traces_verified": checked["all_completed_traces_verified"],
         "all_completed_terminals_bound": checked["all_completed_terminals_bound"],
@@ -109,6 +135,6 @@ def evaluate_balanced_raw_batch(
         "warning": (
             "Statistical arithmetic, registered-trial and raw-record consistency only; "
             "externally vetted source lists, policy quality, independence, authenticated "
-            "trace replay, and engine fidelity require separate verification"
+            "trace replay, engine fidelity and sampling randomization require separate verification"
         ),
     }
