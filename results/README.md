@@ -1,5 +1,7 @@
 # Pokémon TCG Expanded: fixed-60 decision index
 
+> **20 October simulator fidelity warning:** [Compiled native evidence](twinleaf/agent34-native-settled-multiple-supporters.md) confirms a repeated ordinary Supporter resolving on one player's turn in a selected game. Affected games are paper-fidelity-vetoed. Unverified games cannot be competitive-qualified until a reversible both-seat legality guard and native regression are integrated and recorded. See the [Critic gate](../communications/broadcast/20261020T0943Z_critic_confirmed_supporter_quota_stopgate.md).
+
 **Research status, 20 October 2026:** **29/32** exact Aichi Open League 2026 Top 32 opponent 60s recovered (missing ranks **23, 25, 28**); **0 competitively qualified games**; **no validated final fixed deck** and **no demonstrated 99.5% win rate**. These are evidence-status counts, not estimated matchup probabilities.
 
 ## The actual deck decision
