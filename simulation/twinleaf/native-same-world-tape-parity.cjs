@@ -36,7 +36,9 @@ function verifyNativeSameWorldTapeParity(args) {
   assert.ok(Array.isArray(tape));
   for(const callback of [cloneState,replayDecision,actionSignature,fingerprint])
     assert.equal(typeof callback,'function');
-  const before=fingerprint(root);
+  // Snapshot fingerprint values: callers may return mutable object graphs.
+  // Retaining a live object makes source mutation falsely compare equal.
+  const before=structuredClone(fingerprint(root));
   const actual=actionSignature(actualAction);
   const actualSelected=actualAction!==null&&actualAction!==undefined&&
     actual!==null&&actual!==undefined;
@@ -58,7 +60,7 @@ function verifyNativeSameWorldTapeParity(args) {
     world=cloneState(root);
     assert.ok(world&&typeof world==='object');
     assert.notStrictEqual(world,root,'Replay State must be detached');
-    const cloneBefore=fingerprint(world);
+    const cloneBefore=structuredClone(fingerprint(world));
     report.clonedRootAtEntry=cloneBefore;
     report.physicalCloneMatched=isDeepStrictEqual(before,cloneBefore);
     if(!report.physicalCloneMatched)
@@ -70,13 +72,13 @@ function verifyNativeSameWorldTapeParity(args) {
     report.replayAction=actionSignature(replay.result);
     report.selectedActionMatched=isDeepStrictEqual(actual,
       report.replayAction);
-    report.cloneAfter=fingerprint(world);
+    report.cloneAfter=structuredClone(fingerprint(world));
     report.replayModifiedClonedState=
       !isDeepStrictEqual(cloneBefore,report.cloneAfter);
   } catch(error) {
     report.replayError=String(error?.message??error);
   } finally {
-    report.rootAtExit=fingerprint(root);
+    report.rootAtExit=structuredClone(fingerprint(root));
     report.sourceRootUnchanged=isDeepStrictEqual(before,
       report.rootAtExit);
   }
