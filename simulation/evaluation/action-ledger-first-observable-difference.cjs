@@ -17,6 +17,7 @@ function observedDecision(action) {
   const retreat = action.retreatTransition;
   return {
     seat: action.playerSlot ?? null,
+    turn: action.turnBefore ?? null,
     kind: action.action ?? null,
     card: action.card ?? null,
     attack: action.attack ?? null,
@@ -28,7 +29,8 @@ function observedDecision(action) {
       sourceSeat: selection.sourcePlayerSlot ?? null,
       message: selection.message ?? null,
       selectedCards: selection.selectedCards ?? null,
-      selectedIndices: selection.selectedIndices ?? null,
+      selectedIndices: selection.selectedCards == null ?
+        selection.selectedIndices ?? null : null,
       unmappedSelectedCards: selection.unmappedSelectedCards ?? null
     },
     retreatDestination: retreat == null ? null : {
