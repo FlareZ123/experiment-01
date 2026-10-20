@@ -70,6 +70,10 @@ test('actual game Store captures New Moon blocked before owner Tool removal and 
   assert.equal(response.audit.before.candidateGenericAbilityBlocked,true);
   assert.equal(response.audit.after.candidateGenericAbilityBlocked,false);
   assert.deepEqual(response.audit.before.candidatePrintedPowerNames,['New Moon']);
+  assert.deepEqual(response.audit.before.candidatePrintedPowerChecks,
+    [{name:'New Moon',blocked:true}]);
+  assert.deepEqual(response.audit.after.candidatePrintedPowerChecks,
+    [{name:'New Moon',blocked:false}]);
   assert.equal(response.audit.before.candidateActive,'Lunatone OBF');
   assert.equal(response.audit.before.publicBoard[0].garbodorTools,1);
   assert.equal(response.audit.after.publicBoard[0].garbodorTools,0);
