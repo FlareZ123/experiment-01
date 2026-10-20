@@ -136,7 +136,10 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       ...(genericFallbackAttribution?{
         nativeGenericDecoderCalls:genericFallbackAudit.liveGenericDecodes??null,
         nativeGenericDecoderBySeat:genericFallbackAudit.bySeat??null,
-        nativeGenericPromptBySeat:genericFallbackAudit.byOwnerPromptType??null
+        nativeGenericPromptBySeat:genericFallbackAudit.byOwnerPromptType??null,
+        nativeDistinctOwnerPromptObjects:genericFallbackAudit.distinctOwnerPromptObjects??null,
+        nativeDistinctOwnerPromptBySeat:genericFallbackAudit.distinctOwnerPromptBySeat??null,
+        nativeDistinctOwnerPromptTypesBySeat:genericFallbackAudit.distinctOwnerPromptType??null
       }:{})
     },
     // Every upstream interceptor also counts events it delegates downstream.
