@@ -45,6 +45,24 @@ Independent **card-name multiset** comparison to the published exact 60 of **ran
 
 Other photo name-multiset distances to published Regidrago ranks: **11** to ranks 13 and 21; **12** to rank 20; **14** to ranks 12 and 27; **15** to rank 14; **16** to rank 32; **17** to rank 18. Thus the recovered photograph represents a relatively close, potentially coverage-relevant **variation** of a tested reference archetype. Even such small changes can alter Supporter contention, prize recovery and attack access, so no matchup equivalence is inferred. The narrower 7-swap source proximity does not close the official rank-28 identity or Japanese printing validation gates.
 
+## First-seven-card structural tradeoff versus verified rank 10
+
+The seven named card substitutions change two elementary opening-hand parameters. In the supplied English card pool, the corresponding Pokémon families confirm **14 Basic Pokémon** in the photograph versus **15 Basics** in exact source rank 10: one rank-10 Budew Basic is replaced by **Noivern ex Stage 1**, which Regidrago uses as a discard attack payload but cannot start as an Active Basic. The photographed deck also has only **three ordinary draw Supporters** (Iono, Marnie, Lillie's Determination), versus **six** in rank 10 (those three, two Professor's Research and one Carmine). Here a draw Supporter is classified by its ability to draw cards from the deck rather than retrieve Prizes, accelerate Energy or gust, without asserting that it is playable on every turn.
+
+| Exact uniform seven-card starting-hand event | Published rank 10 | Photographed candidate |
+| --- | ---: | ---: |
+| Contains **no Basic Pokémon** (mulligan) | **11.75007947%** | **13.85906809%** |
+| Contains **at least one draw Supporter**, conditional on at least one Basic | **52.55085992%** | **30.21517410%** |
+| Contains **both** a Basic and a draw Supporter, unconditional | **46.37609212%** | **26.02763254%** |
+
+Calculation uses exact hypergeometric identities with 60 physical cards, opening seven, `B` Basic cards and `D` disjoint ordinary draw Supporters. With `P0(k) = C(60-k,7)/C(60,7)`:
+
+- `P(mulligan)=P0(B)`
+- `P(Basic and draw Supporter)=1-P0(B)-P0(D)+P0(B+D)`
+- `P(draw Supporter | Basic-valid seven)=[1-P0(B)-P0(D)+P0(B+D)]/[1-P0(B)]`
+
+Independent calculation used Python `math.comb`, and the pictured Basic subtype count was checked against all 15 corresponding English mechanical-example entries in the supplied complete card pool. This is a strict, **pre-effect opening-hand incidence**, before any mulligan bonus card draws, search, Pokémon Abilities, actual Supporter use, Prizes or gameplay. It does **not** measure deck consistency, first attack timing, or matchup strength. The photographed changes also add two Ultra Ball to support discarding extra Dragon payloads and two Gladion for Prize access, which may compensate in some states; no such compensation has been simulated or quantified. This illustrates why small name-level swap distances cannot justify calling two exact 60s strategically equivalent.
+
 ## Exact six-Prize physical-availability calculation for the pictured Gladion allocation
 
 The photograph carries **one Prime Catcher (ACE SPEC)** and **two Gladion**. Under a uniformly random six-card Prize sample from a 60-card physical deck:
