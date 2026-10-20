@@ -48,6 +48,8 @@ function main() {
     '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
   const {TrainerType}=require(path.resolve(__dirname,
     '../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types'));
+  const {GameLog}=require(path.resolve(__dirname,
+    '../../vendor/twinleaf/ptcg-server/output/game/game-message'));
   const plan=planAichi(1,{
     allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
   });
@@ -151,20 +153,24 @@ function main() {
             seat:1,turn:2,discardPriority:priority,
             k1ReplanAfterTagCall:true
           }
-        )
+        ),
+        {playSupporterLogMessage:GameLog.LOG_PLAYER_PLAYS_SUPPORTER}
       );
       assert.deepEqual(stableGame(optInRecheck.result.result),
         stableGame(k1Replanned.result),
         'Native Supporter observer must preserve opt-in source game');
       nativeSupporterTurnAudit={
-        acceptedSupporterPlays:optInRecheck.events,
-        acceptedSecondSupporters:optInRecheck.repeatPlays,
+        attemptedSupporterPlays:optInRecheck.events,
+        settledSameTurnSecondSupporters:optInRecheck.repeatPlays,
+        unsettledRootAttempts:optInRecheck.unsettledPlays,
         observationallyIdentical:true
       };
       assert.ok(optInRecheck.repeatPlays.some(event=>
         event.seat===1&&event.turn===2&&
-        event.name.startsWith('Sidney ')),
-      'Frozen native source must reproduce two accepted Supporters on turn 2');
+        event.name.startsWith('Sidney ')&&event.settled&&
+        event.supporterTurnBefore>=1&&event.supporterTurnAfter>=2&&
+        !event.cardInHandAfter&&event.supporterLogMatched===true),
+      'Frozen source must actually settle a second logged Supporter on turn 2');
     }
     const sourceSearches=witnessed.events.filter(event=>
       event.globalTurn===2&&event.ownerSeat===1);
@@ -203,7 +209,7 @@ function main() {
     });
   }
   const report={
-    schema:'rank24-owner-search-k0-k1-regression-v4-native-supporter-limit-audit',
+    schema:'rank24-owner-search-k0-k1-regression-v5-native-supporter-settled-postconditions',
     evidenceType:'retrospective native Store actor-owned deck-search witness',
     fieldManifest:plan.manifestDigest,
     candidateDeckHash:digest(plan.candidate.cards),
@@ -214,7 +220,7 @@ function main() {
     targetPrinting:thunder[0],
     rows,
     competitiveQualifiedGames:0,
-    caveat:'Read-only native owner-epoch and Supporter observers preserve gameplay. Opt-in K1 replanning can expose repeated Supporter plays accepted by the pinned engine, which violate normal paper rules absent an exceptional allowance. These selected seeds remain unqualified for competitive win rate.'
+    caveat:'Read-only native owner-epoch and Supporter observers preserve gameplay. Opt-in K1 replanning is checked for actually settled second same-turn Supporters by card identity, hand removal, quota increment and printed Supporter log; paper-rule exception audit remains a separate question. These selected seeds remain unqualified for competitive win rate.'
   };
   process.stdout.write(JSON.stringify(report,null,2)+'\n');
   return report;
