@@ -1,0 +1,33 @@
+name: Aichi 981404 official public JS source check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  anonymous-rendered-public-result:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Playwright for a single anonymous public event source
+        run: python -m pip install 'playwright>=1.55,<2' 'filelock>=3.13,<4'
+      - name: Install only Chromium headless shell dependencies
+        run: python -m playwright install --with-deps --only-shell chromium
+      - name: Prove fixed public URL, deck-code origin and no field promotion
+        run: python -m unittest discover -s tests -p test_aichi_official_event_public_browser.py -v
+      - name: Inspect official event 981404 public rendered DOM and screenshot only
+        run: python scripts/aichi_official_event_public_browser.py
+      - name: Archive bounded public evidence with explicit nonpromotion
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-981404-anonymous-rendered-probe
+          path: results/aichi-2026/official-event-981404-public-browser/
+          if-no-files-found: warn
+          retention-days: 14
