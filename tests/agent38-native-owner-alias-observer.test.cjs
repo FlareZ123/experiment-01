@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {inspectNativeOwnerAliases,installNativeOwnerAliasObserver:install}=
   require('../simulation/twinleaf/agent38-native-owner-alias-observer.cjs');
 function state(){
-  const actor={id:101,active:{cards:[{fullName:'Calyrex V'}],tools:[]}};
+  const actor={id:101,active:{cards:[{fullName:'Calyrex V'}],tools:[]},bench:[]};
   return {turn:2,activePlayer:0,players:[actor],
     prompts:[{player:actor}]};
 }
