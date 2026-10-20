@@ -72,6 +72,9 @@ test('actual game Store captures New Moon blocked before owner Tool removal and 
   assert.deepEqual(response.audit.before.candidatePrintedPowerNames,['New Moon']);
   assert.deepEqual(response.audit.before.candidatePrintedPowerChecks,
     [{name:'New Moon',blocked:true}]);
+  assert.deepEqual(response.audit.before.candidateInPlayPrintedPowerChecks,
+    [{zone:'Active',benchIndex:null,printing:'Lunatone OBF',
+      name:'New Moon',blocked:true}]);
   assert.deepEqual(response.audit.after.candidatePrintedPowerChecks,
     [{name:'New Moon',blocked:false}]);
   assert.equal(response.audit.before.candidateActive,'Lunatone OBF');
@@ -103,4 +106,32 @@ test('a failing real Store restores the exact original prototype descriptor',()=
   },undefined,injected),/intentional game failure/);
   assert.deepEqual(Object.getOwnPropertyDescriptor(FakeStore.prototype,'dispatch'),
     original);
+});
+
+test('native observer records Bench printed Power when Active has no Power',()=>{
+  const previous=FakeStore.prototype.dispatch;
+  const result=withLiveGarbodorAbilityWindow(()=>{
+    const real=new FakeStore();
+    const candidate=real.state.players[1];
+    candidate.active={getPokemonCard:()=>({
+      name:'Unown',fullName:'Unown AOR',powers:[]
+    })};
+    candidate.bench=[{getPokemonCard:()=>({
+      name:'Shadow Rider Calyrex VMAX',
+      fullName:'Shadow Rider Calyrex VMAX CRE',
+      powers:[{name:'Underworld Door'}]
+    })}];
+    real.dispatch(new AddPlayerAction());
+    real.dispatch(new AdvanceTurnAction());
+    return real;
+  },{sourceSeat:0,candidateSeat:1,turn:2},injected);
+  assert.equal(FakeStore.prototype.dispatch,previous);
+  assert.deepEqual(result.audit.before.candidatePrintedPowerNames,[]);
+  assert.deepEqual(result.audit.before.candidatePrintedPowerChecks,[]);
+  assert.deepEqual(result.audit.before.candidateInPlayPrintedPowerChecks,[{
+    zone:'Bench',benchIndex:0,printing:'Shadow Rider Calyrex VMAX CRE',
+    name:'Underworld Door',blocked:true
+  }]);
+  assert.equal(result.audit.before.sourceGarbodorHasTool,true);
+  assert.equal(result.audit.after,null);
 });
