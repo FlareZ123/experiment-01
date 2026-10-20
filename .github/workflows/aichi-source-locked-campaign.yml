@@ -295,7 +295,7 @@ jobs:
         run: node simulation/evaluation/agent25-rank6-farewell-continue.cjs > agent25-rank6-farewell-live.json
       - name: Print actual Ability effect and post-choice continuation without strength inference
         if: ${{ inputs.agent41_crossrank_trial && inputs.agent25_rank6_farewell_live }}
-        run: node -e "const x=require('./agent25-rank6-farewell-live.json');console.log(JSON.stringify({trial:x.trialId,selected:x.policyAudit.submitted,rootWitness:x.pairedRootAttestation,actualAbility:x.firstRealFarewellAbilityCount,turn3:x.turn3To5CandidateDecisions,game:x.outcome,error:x.error?.slice(0,600),qualified:x.competitiveQualifiedGames},null,2))"
+        run: node -e "const x=require('./agent25-rank6-farewell-live.json');console.log(JSON.stringify({trial:x.trialId,selected:x.policyAudit?.submitted??null,classification:x.classification??null,rootWitness:x.pairedRootAttestation??null,actualAbility:x.firstRealFarewellAbilityCount??null,turn3:x.turn3To5CandidateDecisions??null,game:x.outcome??null,error:x.error?.slice(0,600),qualified:x.competitiveQualifiedGames},null,2))"
       - name: Verify candidate Forest Seal Stone owner-only policy
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent2-stone-recipient' }}
         run: node --test tests/forest-stone-v-recipient-policy.test.cjs
