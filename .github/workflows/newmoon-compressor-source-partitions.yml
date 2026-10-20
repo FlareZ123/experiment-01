@@ -43,6 +43,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent6_rank11_stadium_followup:
+        description: 'Retrospective same-root source turn24 live Stadium after owner VIP discard'
+        required: false
+        type: boolean
+        default: false
       agent6_rank11_quickball_counterfactual:
         description: 'Frozen rank11 turn22 source-owned native Quick Ball counterfactual, not win-rate data'
         required: false
@@ -174,18 +179,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 10
       - name: Check disjoint registered partition coverage and owner-hand payload policy
-        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual }}
+        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup }}
         run: node --test tests/newmoon-payload-partition-plan.test.cjs tests/new-moon-compressor-payload-policy.test.cjs
       - name: Execute same-deal control and Compressor intervention in one fixed partition
-        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual }}
+        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup }}
         env:
           NEWMOON_PAYLOAD_PARTITION: ${{ inputs.partition }}
         run: node simulation/twinleaf/newmoon-payload-partition-write.cjs
       - name: Compare early Bench-Mewtwo owner-donor preparation on historical repeat1
-        if: ${{ !inputs.common_bilateral_compressor_development && inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual }}
+        if: ${{ !inputs.common_bilateral_compressor_development && inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup }}
         run: node simulation/twinleaf/newmoon-rank11-benched-payload-retrospective.cjs > newmoon-bench-retrospective-repeat1.json
       - name: Archive historical repeat1 bench-donor policy contrast
-        if: ${{ !inputs.common_bilateral_compressor_development && inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && always() }}
+        if: ${{ !inputs.common_bilateral_compressor_development && inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup && always() }}
         uses: actions/upload-artifact@v4
         with:
           name: newmoon-bench-retrospective-repeat1
@@ -193,7 +198,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 10
       - name: Preserve all source-deal attempts, including errors and action caps
-        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && always() }}
+        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup && always() }}
         uses: actions/upload-artifact@v4
         with:
           name: newmoon-compressor-source-partition-${{ inputs.partition }}
@@ -265,6 +270,26 @@ jobs:
           if-no-files-found: warn
           retention-days: 10
 
+      - name: Check native owner-Stadium intervention and source Quick Ball pure tests
+        if: inputs.agent6_rank11_stadium_followup
+        run: |
+          node --check simulation/twinleaf/agent6-rank11-source-turn24-stadium.cjs
+          node --check simulation/evaluation/agent6-rank11-turn22-quickball-fork.cjs
+          node --test tests/rank11-turn49-handburn-counterfactual.test.cjs tests/agent6-rank11-source-reply-hand.test.cjs
+      - name: Contrast genuine source turn24 Stadium play after unchanged source Quick Ball
+        if: inputs.agent6_rank11_stadium_followup
+        env:
+          AGENT6_STADIUM_FOLLOWUP: 'true'
+        run: node simulation/evaluation/agent6-rank11-turn22-quickball-fork.cjs > agent6-source-stadium-followup.json
+      - name: Preserve source native Stadium action, settled attacks and all source failures
+        if: ${{ always() && inputs.agent6_rank11_stadium_followup }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-rank11-source-stadium-followup
+          path: agent6-source-stadium-followup.json
+          if-no-files-found: warn
+          retention-days: 10
+
       - name: Unit-test source owner's explicitly selected expired VIP discard
         if: inputs.agent6_rank11_quickball_counterfactual
         run: |
@@ -300,10 +325,10 @@ jobs:
           retention-days: 10
 
       - name: Execute source-first held-Shake transfer against both unchanged candidate 60s
-        if: inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual
+        if: inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup
         run: node simulation/evaluation/agent9-rank11-sourcefirst-lock-transfer.cjs > agent9-rank11-sourcefirst-lock-transfer.json
       - name: Archive all eight actual source-first pressure transfer arms, including no-lock and errors
-        if: ${{ always() && inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual }}
+        if: ${{ always() && inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup }}
         uses: actions/upload-artifact@v4
         with:
           name: agent9-rank11-sourcefirst-lock-transfer-development
