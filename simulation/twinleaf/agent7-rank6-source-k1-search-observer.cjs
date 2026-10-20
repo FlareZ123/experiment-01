@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const {actorObservation} = require('./actor-observation-contract.cjs');
 
-const VERSION = 'agent7-rank6-source-owner-k1-search-v1';
+const VERSION = 'agent16-rank6-source-owner-k1-energy-alternatives-v2';
 const TARGETS = ['Thunder Mountain Prism Star', 'Double Colorless Energy'];
 
 /**
@@ -49,6 +49,9 @@ function sourceK1SearchSnapshot(state, seat, pending, observe=actorObservation) 
       singleCardPromptValid:card?Boolean(pending.validate([card],state)):null
     };
   });
+  // Additional owner-known physical zones only; no Prize identities or bot choices.
+  const oneUnitEnergyTargets=['Speed Lightning Energy','Capture Energy','Spiky Energy']
+    .map(name=>({name,...zoneCounts(name)}));
   const cards=TARGETS.map(name=>deck.find(x=>x.name===name));
   const pair=cards.every(Boolean)?Boolean(pending.validate(cards,state)):null;
   const selectedVisibleOwnerDeck=deck.length;
@@ -58,6 +61,7 @@ function sourceK1SearchSnapshot(state, seat, pending, observe=actorObservation) 
     promptMessage:pending.message??null,
     resolvingSupporters:names(owner.supporter.cards),
     expectedTargets:targets,
+    oneUnitEnergyTargets,
     bothTargetsAvailableInOwnerDeck:cards.every(Boolean),
     intendedPairNativePromptValid:pair,
     actualOwnDeckCount:selectedVisibleOwnerDeck,
