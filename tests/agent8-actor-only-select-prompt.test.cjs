@@ -105,6 +105,8 @@ test('both physical owners select genuine typed indices on one Store',()=>{
   assert.equal(observed.audit.version,VERSION);
   assert.equal(observed.audit.selected,2);
   assert.equal(observed.audit.accepted,2);
+  assert.equal(observed.audit.nativePromptPostconditionsConfirmed,2);
+  assert.equal(observed.audit.nativePromptPostconditionsMissing,0);
   assert.equal(observed.audit.rejected,0);
   assert.deepEqual(observed.audit.bySeat,{0:1,1:1});
   assert.equal(observed.audit.liveStores,1);
@@ -147,4 +149,29 @@ test('mandatory no-choice error unwinds all reversible wrappers',()=>{
       (_,realSeat)=>actor(realSeat))}),/no offered option/);
   assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,bot);
   assert.strictEqual(Store.prototype.dispatch,dispatch);
+});
+
+test('native Store acceptance without prompt settlement is explicitly unconfirmed',()=>{
+  class NoOpStore extends Store {
+    dispatch(action) {
+      this.received.push(action);
+      return 'accepted-but-did-not-reduce';
+    }
+  }
+  const state={turn:6,players:[{id:101},{id:202}],
+    prompts:[new SelectPrompt(101,19,['Choose A','Choose B'])]};
+  const observed=withActorOnlySelectPrompt(()=>{
+    const store=new NoOpStore(state);
+    store.dispatch(new AddPlayerAction());
+    const action=new SimpleTacticsAi(101).decodeNextAction(state);
+    assert.ok(action instanceof ResolvePromptAction);
+    assert.equal(store.dispatch(action),'accepted-but-did-not-reduce');
+    assert.equal(state.prompts[0].result,undefined);
+  },{SimpleTacticsAi,Store:NoOpStore,ResolvePromptAction,
+    observe:(s,seat)=>actorSelectPromptInput(s,seat,
+      (_,realSeat)=>actor(realSeat,6))});
+  assert.equal(observed.audit.accepted,1);
+  assert.equal(observed.audit.nativePromptPostconditionsConfirmed,0);
+  assert.equal(observed.audit.nativePromptPostconditionsMissing,1);
+  assert.equal(observed.audit.competitiveGameQualified,false);
 });
