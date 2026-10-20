@@ -221,3 +221,35 @@ test('fresh reconstructed bot history mismatch fails source interpretation',()=>
 // Preserve the shared owner's bilateral information-boundary regressions in
 // the existing manually dispatched pinned hidden-information CI suite.
 require('./agent50-bilateral-hidden-order-audit.test.cjs');
+
+
+test('isolated world policy encloses bot construction and scoring independently',()=>{
+  const physical=state(),before=structuredClone(physical);
+  const originalRandom=Math.random;
+  let policyIsActive=false,enteredWorlds=0,constructedBots=0;
+  const worldPolicy=work=>{
+    assert.equal(policyIsActive,false,'World policy contexts cannot nest');
+    policyIsActive=true;
+    enteredWorlds++;
+    try{return work();}
+    finally{policyIsActive=false;}
+  };
+  const compared=compareHiddenDeckOrders(
+    physical,202,
+    ()=>{
+      assert.equal(policyIsActive,true,
+        'Policy must be installed before constructing any world bot');
+      constructedBots++;
+      return new FakeBot({id:202},{});
+    },
+    structuredClone,()=>()=>0.25,worldPolicy
+  );
+  assert.equal(enteredWorlds,2);
+  assert.equal(constructedBots,2);
+  assert.equal(policyIsActive,false);
+  assert.equal(compared.actionSensitiveToHiddenDeckOrder,true);
+  assert.equal(compared.physicalOrder.data,'{"top":"A","random":"L"}');
+  assert.equal(compared.reversedOrder.data,'{"top":"B","random":"L"}');
+  assert.deepEqual(physical,before);
+  assert.strictEqual(Math.random,originalRandom);
+});
