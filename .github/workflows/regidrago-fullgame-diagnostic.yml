@@ -28,3 +28,13 @@ jobs:
           npm run compile
       - name: Audit real rank-10 Regidrago bot turns in four games
         run: node simulation/twinleaf/regidrago-fullgame-diagnostic.cjs
+      - name: Test owner-visible Dragon cost policy and registered seed schedule
+        run: node --test tests/regidrago-ball-dragon-cost-policy.test.cjs tests/regidrago-ball-dragon-cost-registered-panel.test.cjs
+      - name: Replay full registered source-policy diagnostic
+        run: node simulation/twinleaf/regidrago-ball-dragon-cost-registered-panel.cjs > agent20-dragon-cost-panel.json
+      - name: Archive complete failure-inclusive source-discard panel
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent20-regidrago-ball-dragon-source-panel
+          path: agent20-dragon-cost-panel.json
+          retention-days: 90
