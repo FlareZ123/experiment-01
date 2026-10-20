@@ -46,7 +46,7 @@ function cloneBotOptions(options) {
  * @param {Function} BotClass Pinned SimpleTacticsAi.
  * @param {()=>T} execute Existing authentic game runner.
  * @param {(state:object)=>object} cloneDetached Whole-State detached clone.
- * @param {{turn:number,seat:number,makeRandom:()=>()=>number}} target
+ * @param {{turn:number,seat:number,makeRandom:()=>()=>number,firstFiniteScoredRoot?:boolean}} target
  * @param {{headless?:object,compare?:Function,signature?:Function}} [dependencies]
  * @returns {{result:T,events:object[]}}
  */
@@ -74,11 +74,72 @@ function withPostgameRootOrderProbe(
       BotClass.prototype,'decodeNextAction');
     assert.ok(descriptor&&typeof descriptor.value==='function');
     function observeActualAction(state) {
-      const eligible=!captured&&state.turn===target.turn&&
+      const eligible=!captured&&
+        (target.firstFiniteScoredRoot===true?
+          state.turn>=target.turn:state.turn===target.turn)&&
         state.activePlayer===target.seat&&
         state.prompts.every(prompt=>prompt.result!==undefined)&&
         this.client?.id===actorId;
       if(!eligible)return descriptor.value.call(this,state);
+      if(target.firstFiniteScoredRoot===true) {
+        // Profile the actual owner's evaluations read-only. Capture a full
+        // physical State only on the first generic tactic evaluation, before
+        // its speculative score can run; preserve the Store decision.
+        let attemptCount=0,finiteScoreCount=0,pending=null;
+        const restorations=[];
+        const ownerBot=this;
+        const captureAtScore=()=>{
+          if(pending)return;
+          let snapshot=null,options=null,captureError=null;
+          try {
+            const before=stateGraphFingerprint(state);
+            snapshot=cloneDetached(state);
+            const commonOptions=ownerBot.tactics?.[0]?.options;
+            assert.ok(commonOptions&&typeof commonOptions==='object');
+            assert.ok(ownerBot.tactics.every(t=>t.options===commonOptions));
+            assert.ok(ownerBot.resolvers.every(r=>r.options===commonOptions));
+            options=cloneBotOptions({...commonOptions,
+              tactics:ownerBot.tactics.map(t=>t.constructor),
+              promptResolvers:ownerBot.resolvers.map(r=>r.constructor)});
+            assert.deepEqual(stateGraphFingerprint(state),before,
+              'First finite-score root observer changed live State');
+          } catch(error) {
+            captureError=String(error?.stack||error);
+          }
+          pending={state:snapshot,options,captureError};
+        };
+        try {
+          for(const tactic of new Set(this.tactics)) {
+            if(typeof tactic.evaluateAction!=='function')continue;
+            const own=Object.getOwnPropertyDescriptor(tactic,'evaluateAction');
+            const evaluate=tactic.evaluateAction;
+            Object.defineProperty(tactic,'evaluateAction',{
+              configurable:true,enumerable:own?.enumerable??false,writable:true,
+              value:function (...args){
+                captureAtScore();
+                const score=evaluate.apply(this,args);
+                attemptCount++;
+                if(Number.isFinite(score))finiteScoreCount++;
+                return score;
+              }
+            });
+            restorations.push(()=>{
+              if(own)Object.defineProperty(tactic,'evaluateAction',own);
+              else delete tactic.evaluateAction;
+            });
+          }
+          const action=descriptor.value.call(this,state);
+          if(finiteScoreCount>0) {
+            captured={...pending,realAction:signature(action),
+              chosenRootTurn:state.turn,
+              actualScorerAttempts:attemptCount,
+              actualFiniteScores:finiteScoreCount};
+          }
+          return action;
+        } finally {
+          for(const restore of restorations.reverse())restore();
+        }
+      }
       // Snapshot the complete physical decision root. The bot's tactic and
       // resolver constructor arrays may be spliced back out of global defs
       // after the match; freeze their identities *now* for detached replay.
@@ -163,6 +224,11 @@ function withPostgameRootOrderProbe(
     sourceDecisionSensitivityInterpretable:isDeepStrictEqual(
       comparison.physicalOrder,captured.realAction),
     sourceMatchExecutions:innerRunCalls,
+    ...(target.firstFiniteScoredRoot===true?{
+      chosenRootTurn:captured.chosenRootTurn,
+      actualScorerAttempts:captured.actualScorerAttempts,
+      actualFiniteScores:captured.actualFiniteScores
+    }:{}),
     comparedAfterRealGameFinished:true
   }]};
 }
