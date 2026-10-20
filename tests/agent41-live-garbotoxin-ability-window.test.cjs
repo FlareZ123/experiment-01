@@ -123,6 +123,7 @@ test('native observer records Bench printed Power when Active has no Power',()=>
     })}];
     real.dispatch(new AddPlayerAction());
     real.dispatch(new AdvanceTurnAction());
+    real.dispatch(new RemoveGarbodorToolAction());
     return real;
   },{sourceSeat:0,candidateSeat:1,turn:2},injected);
   assert.equal(FakeStore.prototype.dispatch,previous);
@@ -133,5 +134,10 @@ test('native observer records Bench printed Power when Active has no Power',()=>
     name:'Underworld Door',blocked:true
   }]);
   assert.equal(result.audit.before.sourceGarbodorHasTool,true);
-  assert.equal(result.audit.after,null);
+  assert.equal(result.audit.after.sourceGarbodorHasTool,false);
+  assert.deepEqual(result.audit.after.candidateInPlayPrintedPowerChecks,[{
+    zone:'Bench',benchIndex:0,printing:'Shadow Rider Calyrex VMAX CRE',
+    name:'Underworld Door',blocked:false
+  }]);
+  assert.deepEqual(result.audit.after.candidatePrintedPowerNames,[]);
 });
