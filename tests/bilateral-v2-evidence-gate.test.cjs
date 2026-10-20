@@ -690,3 +690,70 @@ test('rank11 historical Active-only Power claim cannot supply new native source-
   assert.equal(r.rank11PositiveControl,false);
   assert.equal(r.exposureInclusivePilotVerdict,'HOLD-OR-INCOMPLETE');
 });
+
+test('genuinely no-target rank6 and rank11 exposures need no fictional blocked-Power effect flag',()=>{
+  const {plan,archive}=fixture();
+  const thorns=archive.rows.find(row=>row.rank===6&&
+    row.candidateSeat===1&&row.candidateId==='newmoon');
+  Object.assign(thorns.rank6PassivePressure,{
+    status:'no-eligible-visible-power',nativeCapabilitySuppressed:false,
+    observedBoundaryActors:true,examinedPrintedPowerCount:0,
+    sourceTurnOneSnapshotPresent:true,candidateTurnTwoSnapshotPresent:true,
+    sourceReturnSnapshotPresent:true,targetPrinting:null,targetPowerName:null
+  });
+  const garbodor=archive.rows.find(row=>row.rank===11&&
+    row.candidateSeat===1&&row.candidateId==='newmoon');
+  const before=garbodor.garbotoxinWindowAudit.before;
+  before.candidatePrintedPowerNames=[];
+  before.candidatePrintedPowerChecks=[];
+  before.candidateInPlayPrintedPowerChecks=[];
+  for(const row of [thorns,garbodor])
+    row.sourcePressure.effectVerified=false;
+  const r=auditBilateralV2(plan,archive);
+  assert.equal(r.mechanicalBilateralWitnesses,6);
+  assert.equal(r.bothHardRanksHaveBothStartPairedBilateralWitnesses,false);
+  assert.equal(r.bothHardRanksHaveBothStartPairedExposureBilateralWitnesses,true);
+  assert.equal(r.bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses,false);
+  assert.equal(r.bothHardRanksHaveSourceFirstEarlyExposurePairedBilateralWitnesses,true);
+  assert.equal(r.rank6PositiveControl,true);
+  assert.equal(r.rank11PositiveControl,true);
+  assert.equal(r.opportunityAndPolicyVerdict,'HOLD-OR-INCOMPLETE');
+  assert.equal(r.exposureInclusivePilotVerdict,'EXPOSURE-PILOT-REVIEWABLE');
+  assert.equal(r.rootAttestedExposureInclusivePilotVerdict,'HOLD-OR-UNAUTHENTICATED');
+  for(const row of [thorns,garbodor]){
+    const d=r.arms.find(item=>item.id===row.id);
+    assert.equal(d.mechanicalBilateralWitness,false);
+    assert.equal(d.mechanicalExposureBilateralWitness,true);
+    assert.equal(d.sourceFirstEarlyPressureWitness,false);
+    assert.equal(d.sourceFirstEarlyExposureWitness,true);
+    assert.equal(d.nativeExposureKind,'no-eligible-power-present');
+    assert.ok(d.vetoes.includes('source-pressure-unverified'));
+    assert.ok(!d.vetoes.includes('source-exposure-unverified'));
+  }
+  assert.equal(r.gameWinRateCertified,false);
+});
+
+test('source no-target without accepted authentic action or legal reply cannot clear inclusive pilot',()=>{
+  for(const mutate of [
+    row=>{row.sourcePressure.accepted=false;},
+    row=>{row.sourcePressure.traceAuthenticated=false;},
+    row=>{row.candidateReply.ownerInformationSafe=false;},
+    row=>{row.sourceContinuation.legal=false;}
+  ]){
+    const {plan,archive}=fixture();
+    const noTarget=archive.rows.find(row=>row.rank===6&&
+      row.candidateSeat===1&&row.candidateId==='newmoon');
+    Object.assign(noTarget.rank6PassivePressure,{
+      status:'no-eligible-visible-power',nativeCapabilitySuppressed:false,
+      observedBoundaryActors:true,examinedPrintedPowerCount:0,
+      sourceTurnOneSnapshotPresent:true,candidateTurnTwoSnapshotPresent:true,
+      sourceReturnSnapshotPresent:true,targetPrinting:null,targetPowerName:null
+    });
+    noTarget.sourcePressure.effectVerified=false;
+    mutate(noTarget);
+    const result=auditBilateralV2(plan,archive);
+    assert.equal(result.exposureInclusivePilotVerdict,'HOLD-OR-INCOMPLETE');
+    assert.equal(result.arms.find(x=>x.id===noTarget.id).
+      mechanicalExposureBilateralWitness,false);
+  }
+});
