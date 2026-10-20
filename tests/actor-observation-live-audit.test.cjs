@@ -86,3 +86,39 @@ test('observer restores the original dispatch prototype after rejected game',()=
   }),/simulated native reducer failure/);
   assert.strictEqual(Store.prototype.dispatch,original);
 });
+
+test('first native owner K1 is captured once, after authenticated deck prompt',()=>{
+  class AddPlayerAction {}
+  class ResolvePromptAction {}
+  class Store {
+    constructor(s){this.state=s;}
+    dispatch(){return true;}
+  }
+  const s=state();
+  s.players[0].deck.cards=[
+    card('Mewtwo & Mew-GX UNM'),
+    card('Mewtwo & Mew-GX UNM'),
+    card('Psychic Energy SVE')];
+  const prompt={constructor:{name:'ChooseCardsPrompt'},id:17,
+    playerId:s.players[0].id,cards:s.players[0].deck,
+    result:undefined,
+    validate:chosen=>chosen.length===1&&
+      chosen[0].fullName==='Mewtwo & Mew-GX UNM'};
+  const {audit}=withActualStoreActorObservation(Store,()=>{
+    const native=new Store(s);
+    native.dispatch(new AddPlayerAction());
+    assert.equal(s.prompts.length,0,'Unsearched K0 owner cannot inspect deck');
+    s.prompts=[prompt];
+    native.dispatch(new ResolvePromptAction());
+    native.dispatch(new ResolvePromptAction());
+    return true;
+  },{captureFirstOwnerK1:true});
+  assert.equal(audit.firstOwnerK1Searches.length,1);
+  const record=audit.firstOwnerK1Searches[0];
+  assert.equal(record.turn,3);
+  assert.equal(record.game,1);
+  assert.equal(record.seat,0);
+  assert.equal(record.targetCounts['Mewtwo & Mew-GX UNM'],2);
+  assert.equal(record.legalSingletonChoice['Mewtwo & Mew-GX UNM'],true);
+  assert.equal(record.legalSingletonChoice['Psychic Energy SVE'],false);
+});
