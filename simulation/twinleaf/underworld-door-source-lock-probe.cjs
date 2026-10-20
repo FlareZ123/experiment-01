@@ -29,7 +29,10 @@ function probeDoorTarget(state,ownerId,source,index=0){
     dispatchAccepted=true;
   }catch(err){error=String(err?.message||err);}
   finally{Math.random=prior;}
+  const pending=detached.state.prompts.filter(p=>p.result===undefined);
   return {source,index,dispatchAccepted,error,
+    pendingPromptKinds:pending.map(p=>({kind:p.constructor.name,
+      owner:p.playerId??null})),
     attachPromptOpened:detached.state.prompts.some(p=>
       p.result===undefined && p.constructor.name==='AttachEnergyPrompt' &&
       p.playerId===ownerId)};
