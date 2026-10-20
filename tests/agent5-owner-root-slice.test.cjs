@@ -2,7 +2,8 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {basicEnergyPays,selectOwnerRootIntent,nativeActionForIntent}=
+const {basicEnergyPays,selectOwnerRootIntent,nativeActionForIntent,
+  rootPhysicalWitness,rootPhysicalSnapshot}=
   require('../simulation/twinleaf/agent5-owner-root-slice.cjs');
 
 const P='Psychic Energy SVE';
@@ -139,4 +140,47 @@ test('typed native translator uses owner hand index and public target',()=>{
   assert.throws(()=>nativeActionForIntent({
     kind:'bench-basic',printing:C,handIndex:1,benchSlot:0
   },player,deps),/Expected values to be strictly equal/);
+});
+
+
+test('native effect witness requires public card movement, not no-throw dispatch',()=>{
+  const phase={FINISHED:99};
+  const bench={kind:'bench-basic',benchSlot:0,printing:C};
+  const eb={kind:'attach-basic-energy',printing:P};
+  const pass={kind:'pass'};
+  const a={turn:2,phase:5,handCount:5,
+    activeEnergies:[P],benchPrinting:null};
+  const afterBench={...a,handCount:4,benchPrinting:C};
+  assert.equal(rootPhysicalWitness(bench,a,afterBench,phase),
+    'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(bench,a,a,phase),
+    'no-confirmed-public-effect');
+  const afterEnergy={...a,handCount:4,activeEnergies:[P,P]};
+  assert.equal(rootPhysicalWitness(eb,a,afterEnergy,phase),
+    'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(eb,a,a,phase),
+    'no-confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(pass,a,{...a,turn:3},phase),
+    'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(pass,a,a,phase),
+    'no-confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(pass,a,{...a,phase:99},phase),
+    'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness({kind:'attack',name:'Psy Bolt'},
+    a,afterEnergy,phase),'attack-needs-declaration');
+});
+
+test('physical snapshot accesses acting-owner public zones only',()=>{
+  const v=state=>(state.players[0]);
+  const p={
+    hand:{cards:[{fullName:P}]},
+    active:{energies:{cards:[{fullName:P}]}},
+    bench:[{getPokemonCard:()=>null}]
+  };
+  const hostile=new Proxy({}, {get(){throw Error('Opponent hidden read');}});
+  const s={turn:2,phase:5,players:[p,hostile]};
+  assert.deepEqual(rootPhysicalSnapshot(s,0,{
+    kind:'bench-basic',benchSlot:0,printing:C
+  }),{turn:2,phase:5,handCount:1,activeEnergies:[P],
+    benchPrinting:null});
 });
