@@ -62,7 +62,7 @@ function chooseBasicEnergyFrontier(view, catalog) {
   const player = view.ownPublic.publicTurnRestrictions ?? {};
   const viable = (active.attacks ?? []).filter(attack =>
     Array.isArray(attack.cost) &&
-    !(attack.gxAttack && (player.gxUsed || player.cannotUseGXAttacks)) &&
+    // Current shared actor root deliberately refuses GX attack declarations.\n    // Preserve that action subset until a separate legal GX policy exists.\n    attack.gxAttack !== true &&
     !rules.cannotAttackNextTurn &&
     rules.blockedAttackNameNextTurn !== attack.name &&
     rules.blockedAttackNameUntilLeavesActive !== attack.name &&
