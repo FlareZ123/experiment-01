@@ -95,6 +95,18 @@ test('native policy score replay first divergent tactic is preserved in packet',
   assert.equal(archived.competitiveGameQualified,false);
 });
 
+test('native mode cannot certify a missing parity report from baseline booleans',()=>{
+  const trial=rank11, execute=()=>successfulRow(trial);
+  const probe=(_Bot,work)=>({result:work(),events:[event()]});
+  const row=auditDevelopmentArm(trial,execute,probe,
+    function Stub(){},state=>state,()=>()=>0.5,
+    {nativeTapeSameWorld:true});
+  assert.equal(row.noninterferenceVerified,true);
+  assert.equal(row.classification,'fresh-bot-baseline-or-live-state-mismatch');
+  assert.equal(row.sameWorldParityQualified,false);
+  assert.equal(row.competitiveGameQualified,false);
+});
+
 test('matching, truncated, or absent native tactic telemetry is unambiguous',()=>{
   const source={steps:[{tactic:'A',rngStart:0,rngEnd:1,
     rngDraws:1,actionType:'AttackAction',threw:false}],rngCalls:1};
