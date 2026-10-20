@@ -37,7 +37,9 @@
       "name": "Regidrago V",
       "quantity": 4,
       "category": "Pokémon",
-      "printing": "unverified"
+      "printing": "unverified",
+      "english_mechanical_example_id": "swsh12-135",
+      "english_mechanical_example_verified_as_printing": false
     },
     {
       "row": 1,
@@ -45,7 +47,9 @@
       "name": "Regidrago VSTAR",
       "quantity": 3,
       "category": "Pokémon",
-      "printing": "unverified"
+      "printing": "unverified",
+      "english_mechanical_example_id": "swsh12-136",
+      "english_mechanical_example_verified_as_printing": false
     },
     {
       "row": 1,
@@ -53,7 +57,9 @@
       "name": "Dialga-GX",
       "quantity": 1,
       "category": "Pokémon",
-      "printing": "unverified"
+      "printing": "unverified",
+      "english_mechanical_example_id": "sm5-100",
+      "english_mechanical_example_verified_as_printing": false
     },
     {
       "row": 1,
@@ -61,7 +67,9 @@
       "name": "Dragapult ex",
       "quantity": 1,
       "category": "Pokémon",
-      "printing": "unverified"
+      "printing": "unverified",
+      "english_mechanical_example_id": "sv6-130",
+      "english_mechanical_example_verified_as_printing": false
     },
     {
       "row": 1,
@@ -69,7 +77,9 @@
       "name": "Koraidon ex",
       "quantity": 1,
       "category": "Pokémon",
-      "printing": "unverified"
+      "printing": "unverified",
+      "english_mechanical_example_id": "sv5-120",
+      "english_mechanical_example_verified_as_printing": false
     },
     {
       "row": 1,
@@ -77,7 +87,9 @@
       "name": "Hisuian Goodra VSTAR",
       "quantity": 1,
       "category": "Pokémon",
-      "printing": "unverified"
+      "printing": "unverified",
+      "english_mechanical_example_id": "swsh11-136",
+      "english_mechanical_example_verified_as_printing": false
     },
     {
       "row": 1,
@@ -85,7 +97,9 @@
       "name": "Noivern ex",
       "quantity": 1,
       "category": "Pokémon",
-      "printing": "unverified"
+      "printing": "unverified",
+      "english_mechanical_example_id": "sv2-153",
+      "english_mechanical_example_verified_as_printing": false
     },
     {
       "row": 1,
@@ -93,7 +107,9 @@
       "name": "Kyurem",
       "quantity": 1,
       "category": "Pokémon",
-      "printing": "unverified"
+      "printing": "unverified",
+      "english_mechanical_example_id": "sv6pt5-47",
+      "english_mechanical_example_verified_as_printing": false
     },
     {
       "row": 2,
@@ -101,7 +117,9 @@
       "name": "Latias ex",
       "quantity": 1,
       "category": "Pokémon",
-      "printing": "unverified"
+      "printing": "unverified",
+      "english_mechanical_example_id": "sv8-76",
+      "english_mechanical_example_verified_as_printing": false
     },
     {
       "row": 2,
@@ -109,7 +127,9 @@
       "name": "Dedenne-GX",
       "quantity": 1,
       "category": "Pokémon",
-      "printing": "unverified"
+      "printing": "unverified",
+      "english_mechanical_example_id": "sm10-57",
+      "english_mechanical_example_verified_as_printing": false
     },
     {
       "row": 2,
@@ -117,7 +137,9 @@
       "name": "Tapu Lele-GX",
       "quantity": 1,
       "category": "Pokémon",
-      "printing": "unverified"
+      "printing": "unverified",
+      "english_mechanical_example_id": "sm2-60",
+      "english_mechanical_example_verified_as_printing": false
     },
     {
       "row": 2,
@@ -125,7 +147,9 @@
       "name": "Squawkabilly ex",
       "quantity": 1,
       "category": "Pokémon",
-      "printing": "unverified"
+      "printing": "unverified",
+      "english_mechanical_example_id": "sv2-169",
+      "english_mechanical_example_verified_as_printing": false
     },
     {
       "row": 2,
@@ -133,7 +157,9 @@
       "name": "Budew",
       "quantity": 1,
       "category": "Pokémon",
-      "printing": "unverified"
+      "printing": "unverified",
+      "english_mechanical_example_id": "sv8pt5-4",
+      "english_mechanical_example_verified_as_printing": false
     },
     {
       "row": 2,
@@ -141,7 +167,9 @@
       "name": "Marshadow",
       "quantity": 1,
       "category": "Pokémon",
-      "printing": "unverified"
+      "printing": "unverified",
+      "english_mechanical_example_id": "sm10-81",
+      "english_mechanical_example_verified_as_printing": false
     },
     {
       "row": 2,
@@ -149,7 +177,9 @@
       "name": "Wobbuffet",
       "quantity": 1,
       "category": "Pokémon",
-      "printing": "unverified"
+      "printing": "unverified",
+      "english_mechanical_example_id": "xy4-36",
+      "english_mechanical_example_verified_as_printing": false
     },
     {
       "row": 2,
@@ -322,7 +352,7 @@
     {
       "row": 5,
       "column": 5,
-      "name": "Basic Fire Energy",
+      "name": "Fire Energy",
       "quantity": 3,
       "category": "Basic Energy",
       "printing": "unverified"
@@ -330,10 +360,12 @@
     {
       "row": 5,
       "column": 6,
-      "name": "Basic Grass Energy",
+      "name": "Grass Energy",
       "quantity": 4,
       "category": "Basic Energy",
       "printing": "unverified"
     }
-  ]
+  ],
+  "english_mechanical_example_notes": "Pokémon IDs are English examples for provisional attack/Ability family matching, validated to exist in the bundled complete English card database; none prove the photographed Japanese set/number. The first 15 Pokemon cells are mechanical examples only. Do not use as a certified simulator deck without further Japanese print and English rules reconciliation.",
+  "name_normalization": "Basic Fire and Basic Grass cards use canonical deck-list card names Fire Energy and Grass Energy."
 }
