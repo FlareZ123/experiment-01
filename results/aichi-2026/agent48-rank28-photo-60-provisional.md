@@ -21,7 +21,7 @@ The card grid has exactly **38 occupied cells** in five left-to-right rows: eigh
 | 1 | 1–8 | 4× Regidrago V; 3× Regidrago VSTAR; 1× Dialga-GX; 1× Dragapult ex; 1× Koraidon ex; 1× Hisuian Goodra VSTAR; 1× Noivern ex; 1× Kyurem | 13 |
 | 2 | 1–8 | 1× Latias ex; 1× Dedenne-GX; 1× Tapu Lele-GX; 1× Squawkabilly ex; 1× Budew; 1× Marshadow; 1× Wobbuffet; 1× Battle Compressor Team Flare Gear | 8 |
 | 3 | 1–8 | 3× VS Seeker; 3× Mysterious Treasure; 1× Quick Ball; 2× Ultra Ball; 1× Hisuian Heavy Ball; 3× Battle VIP Pass; 1× Super Rod; 1× Prime Catcher | 15 |
-| 4 | 1–8 | 2× Muscle Band; 2× Guzma & Hala; 1× Lillie's Determination; 1× Raihan; 1× Iono; 1× Crispin; 2× Guzma; 1× Marnie | 11 |
+| 4 | 1–8 | 2× Muscle Band; 2× Professor Juniper; 1× Lillie's Determination; 1× Raihan; 1× Iono; 1× Crispin; 2× Guzma; 1× Marnie | 11 |
 | 5 | 1–6 | 1× Faba; 1× Path to the Peak; 1× Parallel City; 3× Double Dragon Energy; 3× Fire Energy; 4× Grass Energy | 13 |
 
 **Quantity-level checks:** 38 distinct pictured positions; card counts by image row **13 + 8 + 15 + 11 + 13 = 60**. Thirty-eight normalized names matched entries in the project's supplied English card database; the individual image printings and complete paper Expanded legality remain to be checked. `Prime Catcher` is the pictured ACE SPEC Item; this inventory has one pictured ACE SPEC. Multiple named Trainers show premium alternate art.
@@ -35,6 +35,10 @@ The [mechanical English-print map](agent48-rank28-photo-mechanical-print-map.jso
 The [Japanese Pokémon TCG official Expanded regulation, updated 19 February 2026](https://www.pokemon-card.com/rules/regulation/index.html) explicitly restricts BW onward and publishes the applicable banned list. It bans a **different Marshadow**: `マーシャドー（SM3+など 特性「やぶれかぶれ」）` (Let Loose). The photograph's **80 HP Marshadow**, with **`リセットホール` (Resetting Hole)**, matches the [legal Marshadow from Japanese Night Unison 020/055 / English Unbroken Bonds 81](https://limitlesstcg.com/cards/unb/81), which has different text and artwork. This is a card-identity distinction that a name-only legality filter would miss. None of the other pictured names is an exact match to a currently listed banned card name, subject to photographic printing confirmation and set timing.
 
 Particularly consequential play-identity resolutions from photograph artwork, HP and the selected database print are **Kyurem with Plasma Bane / Trifrost (`sv6pt5-47`)**, **Wobbuffet with Bide Barricade (`g1-RC11`)**, **Budew with Itchy Pollen (`sv8pt5-4`)**, **Koraidon ex with Kaiser Tackle (`sv5-120`)**, **Noivern ex with Covert Flight (`sv2-153`)**, and **Dragapult ex with Phantom Dive (`sv6-130`)**. These checks establish plausible game-text identities only. **Twinleaf card implementation coverage, paper mechanics and the player-registration provenance have not been tested**, so the printed-photo deck is still excluded from the exact 32-deck benchmark.
+
+## 20 October independently verified R4C2 printing correction
+
+An independent inspection of the original SHA-256-matched photo found **two Professor Juniper**, rather than the initial transcription of Guzma & Hala at R4C2. [Full art, copy and rules comparison](agent3-rank28-photo-supporter-disambiguation.md) identifies the waving brown-haired Professor in a garden matching the Japanese BW1 Professor Juniper art; [bundled English text check](agent3-rank28-professor-functional-equivalence.md) confirms her effect discards the hand and draws seven, unlike Guzma & Hala. The provisional literal-cell CSV and mechanically representative English print ID were updated accordingly to `Professor Juniper` / `bw1-101`. The original photograph has not changed, and the Japanese collector printing remains unresolved. This correction leaves **38 cells, 60 copies, 20 Pokémon, 30 Trainers, 10 Energy**. The rank28 official identity/source bridge remains provisional.
 
 ## Reproduction and handoff
 
