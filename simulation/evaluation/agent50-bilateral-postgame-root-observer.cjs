@@ -154,6 +154,8 @@ function withPostgameRootOrderProbe(
           try {
             const before=stateGraphFingerprint(state);
             snapshot=cloneDetached(state);
+            assert.deepEqual(stateGraphFingerprint(snapshot),before,
+              'First-score clone differs from physical native State');
             const commonOptions=ownerBot.tactics?.[0]?.options;
             assert.ok(commonOptions&&typeof commonOptions==='object');
             assert.ok(ownerBot.tactics.every(t=>t.options===commonOptions));
@@ -237,6 +239,8 @@ function withPostgameRootOrderProbe(
       try {
         const sourceBefore=stateGraphFingerprint(state);
         snapshot=cloneDetached(state);
+        assert.deepEqual(stateGraphFingerprint(snapshot),sourceBefore,
+          'Captured replay root differs from genuine physical State');
         const commonOptions=this.tactics?.[0]?.options;
         assert.ok(commonOptions&&typeof commonOptions==='object',
           'Pinned tactic option source is missing');
