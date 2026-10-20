@@ -103,6 +103,10 @@ test('full dual-start archive is mechanically reviewable, never competitive',()=
   assert.equal(r.completeAttemptCensus,true);
   assert.equal(r.twoRealStartsPerRankObserved,true);
   assert.equal(r.twoRealStartsPerCandidateAndRankObserved,true);
+  // This fixture covers both actual starters but pairs each with one seat.
+  assert.equal(r.fourCellCoverage.allRanksTwoRealStarts,true);
+  assert.equal(r.fourCellCoverage.allRanksFourCellCovered,false);
+  assert.deepEqual(r.fourCellCoverage.confoundedRanks,[6,11]);
   assert.equal(r.bothHardRanksHavePairedBilateralWitnesses,true);
   assert.equal(r.mechanicalBilateralWitnesses,8);
   assert.equal(r.alignedPhysicalSourcePairs,4);
