@@ -81,3 +81,10 @@ test('later pressure or any other rank cannot satisfy first-turn hard-pressure p
   x.rank=7;
   assert.equal(sourceFirstNativePressureVerified(x),false);
 });
+
+test('generic-only native check stays insufficient',()=>{
+ const x=rank11();
+ x.garbotoxinWindowAudit.before.candidatePrintedPowerNames=['Underworld Door'];
+ x.garbotoxinWindowAudit.before.candidateGenericAbilityBlocked=true;
+ assert.equal(sourceFirstNativePressureVerified(x),false);
+});
