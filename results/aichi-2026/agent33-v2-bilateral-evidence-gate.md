@@ -64,3 +64,7 @@ The root attestation still accepts the producer's *raw* ledger as a premise. Ind
 ### Store global-turn continuity hardening
 
 The native-root helper now rejects full transcripts that reverse global turn numbers or jump over a turn between adjacent successful root dispatches. This closes an additional structurally impossible but previously accepted synthetic-ledger case. Code `8b7cfc7`; fixture corrections `0bd4a3a` and adversarial test `25923a9`. All **38/38** pure checks pass using the latest four GitHub-readback files in V8. This structural requirement does not authenticate the original producer or establish actual Pokémon effect resolution; native engine validation remains outstanding.
+
+### Repeated physical-source deal deduplication
+
+A pair that uses a new registration ID and numerical seed can still repeat exactly the same physical source hand/deck/Prize/board. When two aligned candidate pairs have identical source-deal fingerprints for the same source rank and candidate seat, the intake now rejects the repetition rather than counting a duplicate independent comparison. This is an attempt-accounting safeguard, not a claim that seed collisions occur regularly. Code `f38a1a5`, adversarial regression `ce73384`: **39/39** pure tests pass in the readback V8 harness. The full authentic Store transcript hash and external source-deal observer provenance still require independent audit. No newly qualified games.
