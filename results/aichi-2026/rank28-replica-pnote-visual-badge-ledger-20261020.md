@@ -46,3 +46,7 @@ Image top-to-bottom, left-to-right; each line corresponds to one image card/badg
 ```
 
 Badge row sums 13+8+15+11+13=60, and categories 20 Pokemon, 30 Trainer, 10 Energy. Name/printing identifications are visual/provisional and require independent Japanese art audits. The author handle @nnaacc5_uec self-reports qualifying rank 28, aligned with five cross-rank controls, but its linkage to official Jo Kato and the original registered sixty is unverified. Do not update exact opponent manifest, currently 29/32. No competitive game or win-rate claim is established.
+
+## Printing-sensitive finding: pictured Dragon Koraidon ex
+
+Enlarged direct pixels at **R1C5** show a **gold Dragon-type Koraidon ex, 230 HP**, with the lower printed attack ending in **280**. Among the bundled English card records, `sv5-120` is Dragon-type Koraidon ex (230 HP), **Kaiser Tackle 280** (Fire + Fighting + Fighting), with 60 self-damage. The visual artwork/attack magnitude supports this specific English comparator and disambiguates it from Fighting-type Koraidon ex cards sharing name and HP. **The exact Japanese printing ID still requires verification.** In principle Apex Dragon can copy a qualifying discarded Dragon's attack under Rulebook II-C-18, but the photo does not demonstrate discarding Koraidon, payment of Apex Dragon, or a game outcome. Any hypothetical 280-damage Regidrago mirror line remains an untested tactical possibility.
