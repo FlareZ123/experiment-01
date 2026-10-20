@@ -437,6 +437,15 @@ function auditBilateralV2(plan,archive) {
       return d.sourceFirstEarlyPressureWitness&&
         d.nativeSourceFirstRootClaimsAuthenticated;
     }));
+  const rank11PositiveControl=pairRows.some(pair=>pair.rank===11&&
+    pair.firstObservationComparable&&pair.armIds.some(id=>
+      byId.get(id).sourceFirstEarlyPressureWitness));
+  const rank11NativePositiveControl=pairRows.some(pair=>pair.rank===11&&
+    pair.firstObservationComparable&&pair.armIds.some(id=>{
+      const d=byId.get(id);
+      return d.sourceFirstEarlyPressureWitness&&
+        d.nativeSourceFirstRootClaimsAuthenticated;
+    }));
   const bothHardRanksHaveSourceFirstEarlyExposurePairedBilateralWitnesses=
     [6,11].every(rank=>pairRows.some(pair=>pair.rank===rank&&
       pair.firstObservationComparable&&
@@ -460,6 +469,7 @@ function auditBilateralV2(plan,archive) {
     bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses,
     bothHardRanksHaveSourceFirstEarlyExposurePairedBilateralWitnesses,
     rank6PositiveControl,rank6NativePositiveControl,
+    rank11PositiveControl,rank11NativePositiveControl,
     nativeRootsInBothRealStarts,
     nativeSourceFirstEarlyPressure,nativeSourceFirstEarlyExposure,
     mechanicalBilateralWitnesses:mechanicalWitnesses,
@@ -487,15 +497,18 @@ function auditBilateralV2(plan,archive) {
         'ROOT-ATTESTED-PILOT-REVIEWABLE':'HOLD-OR-UNAUTHENTICATED',
     // An explicitly separate source-lock exposure pilot. Its rank6
     // no-target branch needs a positive native suppression control elsewhere
-    // in the aligned source-first registered cohort. Both strict stress
+    // in the aligned source-first registered cohort, for each hard source rank.
+    // Both strict stress
     // verdicts above retain their original positive-suppression semantics.
     exposureInclusivePilotVerdict:coverageComplete&&twoStartCoverageByCandidate&&
-      bothHardRanksHaveBothStartPairedBilateralWitnesses&&rank6PositiveControl&&
+      bothHardRanksHaveBothStartPairedBilateralWitnesses&&
+      rank6PositiveControl&&rank11PositiveControl&&
       bothHardRanksHaveSourceFirstEarlyExposurePairedBilateralWitnesses?
         'EXPOSURE-PILOT-REVIEWABLE':'HOLD-OR-INCOMPLETE',
     rootAttestedExposureInclusivePilotVerdict:coverageComplete&&
       twoStartCoverageByCandidate&&nativeRootsInBothRealStarts&&
-      rank6NativePositiveControl&&nativeSourceFirstEarlyExposure?
+      rank6NativePositiveControl&&rank11NativePositiveControl&&
+      nativeSourceFirstEarlyExposure?
         'ROOT-ATTESTED-EXPOSURE-PILOT-REVIEWABLE':
         'HOLD-OR-UNAUTHENTICATED',
     competitiveStrengthClaimPermitted:false,
