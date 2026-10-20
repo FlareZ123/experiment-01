@@ -167,6 +167,7 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
       actualAction: event.originalSourceAction??null,
       auditError:event.auditError??null,
       nativeSameWorldTape:event.nativeSameWorldTape??null,
+      sourceCaptureFidelity:event.sourceCaptureFidelity??null,
       nativeHiddenOrderContrast:event.nativeHiddenOrderContrast??null,
       hiddenWorldCounterfactualCompared:event.counterfactualCompared!==false,
       physicalFreshAction:event.physicalOrder??null,
