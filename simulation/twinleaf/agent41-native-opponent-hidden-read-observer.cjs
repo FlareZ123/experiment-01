@@ -4,7 +4,54 @@ const assert=require('node:assert/strict');
 const {stateGraphFingerprint}=
   require('./rank10-live-decision-noninterference.cjs');
 
-const VERSION='agent41-native-owner-hidden-read-observer-v1';
+const VERSION='agent41-native-owner-hidden-read-observer-v2';
+
+const SCALAR_PLAYER_MARKERS=[
+  'supporterTurn','energyPlayedTurn','retreatedTurn','stadiumPlayedTurn',
+  'stadiumUsedTurn','usedVSTAR','usedGX','playedJanine','playedKogasTrap',
+  'playedCanari','playedPiers','usedSquawkAndSeizeThisTurn',
+  'cannotPlayItemCards','cannotPlaySupporterCards',
+  'playLocksTurnsRemaining','usedAlteredCreation',
+  'usedFullMetalWall','pokemonKnockedOutDuringOpponentsLastTurn'
+];
+
+/**
+ * Record only scalar control markers to diagnose native proposal mutation.
+ * Private hand/deck contents, card names and random choices are excluded.
+ * @param {object} state Genuine Store State.
+ * @returns {object}
+ */
+function scalarDecisionMarkers(state) {
+  const markers={
+    turn:state.turn,
+    phase:state.phase,
+    activePlayer:state.activePlayer,
+    winner:state.winner,
+    logCount:state.logs?.length??null,
+    promptCount:state.prompts?.length??null
+  };
+  for(const [i,player] of state.players.entries()){
+    for(const name of SCALAR_PLAYER_MARKERS){
+      const value=player[name];
+      if(value===null||['string','boolean','number','undefined'].includes(
+        typeof value)){
+        markers['player'+i+'.'+name]=value??null;
+      }
+    }
+  }
+  return markers;
+}
+
+/**
+ * @param {object} before
+ * @param {object} after
+ * @returns {string[]} Bounded public/internal scalar marker path names only.
+ */
+function changedScalarMarkerNames(before,after) {
+  return [...new Set([...Object.keys(before),...Object.keys(after)])]
+    .filter(key=>!Object.is(before[key],after[key]));
+}
+
 
 /**
  * Observe reads of the opponent's private CardList.cards *at a real native
@@ -42,6 +89,7 @@ function withNativeOpponentHiddenReadObserver(BotClass,execute,target) {
   const totals={proposal:0,validation:0};
   const categories={};
   let mutatedNativeRoot=false;
+  let changedVisibleScalarMarkers=[];
 
   function interceptedValidation(...args) {
     if(this!==activeBot)return validate.value.apply(this,args);
@@ -61,6 +109,7 @@ function withNativeOpponentHiddenReadObserver(BotClass,execute,target) {
     if(!eligible)return decode.value.call(this,state);
     targetSeen=true;
     const before=stateGraphFingerprint(state);
+    const beforeMarkers=scalarDecisionMarkers(state);
     const other=state.players[1-target.seat];
     const watched=[
       ['opponent-hand',other.hand],
@@ -108,6 +157,8 @@ function withNativeOpponentHiddenReadObserver(BotClass,execute,target) {
       activeBot=null;
       const after=stateGraphFingerprint(state);
       mutatedNativeRoot=before.digest!==after.digest;
+      changedVisibleScalarMarkers=changedScalarMarkerNames(beforeMarkers,
+        scalarDecisionMarkers(state));
       if(activeError&&typeof activeError==='object')
         activeError.nativeHiddenReadEvidence={
           version:VERSION,observedNativeRoot:true,target,
@@ -134,6 +185,7 @@ function withNativeOpponentHiddenReadObserver(BotClass,execute,target) {
       boundedReadEvents:observations,
       eventsTruncated:totals.proposal+totals.validation>observations.length,
       nativeRootChangedDuringDecision:targetSeen?mutatedNativeRoot:null,
+      changedVisibleScalarMarkers:targetSeen?changedVisibleScalarMarkers:null,
       privateContentsExposed:false,
       opponentPublicZoneCountsMayExplainReads:true,
       hiddenCardIdentityAccessProved:false,
@@ -146,4 +198,5 @@ function withNativeOpponentHiddenReadObserver(BotClass,execute,target) {
     Object.defineProperty(prototype,'isValidAction',validate);
   }
 }
-module.exports={VERSION,withNativeOpponentHiddenReadObserver};
+module.exports={VERSION,scalarDecisionMarkers,changedScalarMarkerNames,
+  withNativeOpponentHiddenReadObserver};
