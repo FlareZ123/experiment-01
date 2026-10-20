@@ -185,16 +185,17 @@ function assertValidPromptAction(state, action, options={}) {
     valid = typeof prompt.validate === 'function' &&
       prompt.validate(action.result, state);
   }
-  // Pinned SelectOptionPrompt inherits an excessively permissive validate().
-  // Keep the stronger paper-legality gate opt-in to preserve historical
-  // strictPromptValidation traces generated before this correction.
-  if (valid && name === 'SelectOptionPrompt' &&
+  // Both pinned SelectOptionPrompt and SelectPrompt inherit the permissive
+  // Prompt.validate(). Require a real offered index when strict mode is on.
+  // Retain the historical permissive behavior when strict mode is disabled.
+  if (valid && (name === 'SelectOptionPrompt' || name === 'SelectPrompt') &&
       options.enforceSelectOptionLegality === true) {
     const index=action.result;
-    valid=index===null ? prompt.options.allowCancel===true :
+    valid=index===null ? prompt.options?.allowCancel===true :
       Number.isInteger(index) && index>=0 &&
         index<prompt.values.length &&
-        prompt.options.disabled?.[index]!==true;
+        (name !== 'SelectOptionPrompt' ||
+          prompt.options?.disabled?.[index]!==true);
   }
   // ChooseCardsPrompt.validate verifies source membership independently for
   // each chosen card, but omits multiplicity. The same physical card cannot
