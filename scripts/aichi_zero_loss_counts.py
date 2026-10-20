@@ -65,6 +65,9 @@ def assess_zero_loss_cells(
     total = sum(counts)
     if total_wins > total:
         raise ValueError("Win count exceeds completed games")
+    p0 = Fraction(target)
+    if not 0 < p0 < 1:
+        raise ValueError("Target win probability must lie strictly between 0 and 1")
     alpha = 1 - Fraction(confidence)
     if not 0 < alpha < 1:
         raise ValueError("Confidence must lie strictly between 0 and 1")
@@ -76,7 +79,7 @@ def assess_zero_loss_cells(
         "wins": total_wins,
         "nonwins": total - total_wins,
         "unobserved_cells": counts.count(0),
-        "target": str(Fraction(target)),
+        "target": str(p0),
         "confidence": str(1 - alpha),
         "all_win_test_applicable": p is not None,
         "sharp_all_win_null_probability": p,
