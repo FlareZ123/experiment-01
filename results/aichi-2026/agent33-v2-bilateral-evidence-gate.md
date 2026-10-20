@@ -74,3 +74,7 @@ The native-root helper now rejects full transcripts that reverse global turn num
 ### Repeated physical-source deal deduplication
 
 A pair that uses a new registration ID and numerical seed can still repeat exactly the same physical source hand/deck/Prize/board. When two aligned candidate pairs have identical source-deal fingerprints for the same source rank and candidate seat, the intake now rejects the repetition rather than counting a duplicate independent comparison. This is an attempt-accounting safeguard, not a claim that seed collisions occur regularly. Code `f38a1a5`, adversarial regression `ce73384`: **39/39** pure tests pass in the readback V8 harness. The full authentic Store transcript hash and external source-deal observer provenance still require independent audit. No newly qualified games.
+
+### Native prompt-chain actors
+
+The root verifier now authenticates an unowned shuffle prompt or defender-owned prompt closure when its `initiatingRootActionOrdinal` resolves to a source-owned initiating action. This avoids falsely rejecting valid source-pressure chains and rejects unrelated origins. Source `a958962`, tests `9f40458`; **41/41** pure readback regressions passed. Native compiled prompt-close validation remains necessary.
