@@ -144,7 +144,7 @@ function executeDiagnostic(options) {
   if(policyFlags.rank4RaichuRopePivotSource===true &&
      (policyFlags.rank4RaichuCompressorSource!==true ||
       policyFlags.electrodeGXPrizeTradePolicy!==true)) {
-    throw new Error('Rank4 Rope pivot requires source Compressor and Prize-trade rules');
+    throw new Error('Rank4 Rope pivot requires the source Compressor and Prize-trade rules');
   }
   const wanted = new Set(ranks);
   const trials = campaign.trials.filter(t => t.phase === 'pilot' && wanted.has(t.rank));
