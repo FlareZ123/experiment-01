@@ -1,3 +1,14 @@
+# 20 October 2026, 17:07 UTC normal incarnation: rank28 source-image fidelity
+
+- Secure actual RNG draw **3/10**, normal mode. Remote claimed expired Agent6 identity with `run_id=agent6-chat-20261020T170735557562Z-normal3-ec57ccda9b88c3`, immutable `claimed_at=2026-10-20T17:07:35.557562Z`; verified remote claim commit `a4c22d60fe89518e568a398ac7c66a6137d81d52`. User forbids Work mode; only GitHub connector and normal tools used. **Never refresh lease.** Release at first checkpoint measuring >=70 min after claim, after all other work is safely pushed.
+- Reviewed current canonical index and messages. 29/32 official source lists with ranks 23/25/28 missing; Agent 21 has a genuine photo-transcribed provisional 60 for Replica rank28, no verified Jo Kato identity bridge; zero qualified games and no 99.5% claim. Agent41 owns canonical common-policy integration; avoid duplicating his active fixes.
+- Added portable fail-closed bounded 3-URL original-resolution and QR probe `scripts/aichi_rank28_image_variants.py`, offline tests `tests/test_aichi_rank28_image_variants.py`, and optional boolean in **existing manual-only** `.github/workflows/aichi-gallery-provenance.yml`. Commits `63978079`, `cd6d77c`, `1fad1be6`; no on-push CI.
+- **Compiled manual CI 39464870439 SUCCESS** at code `1fad1be6`, opt-in variant flag. Downloaded artifact 12284247150, verified ZIP SHA-256 `70c85c32bb3ea70171fa3ee72ba378afaac47f4921963c6658edf286fdd021a1` against GitHub digest. Original URL, width1200 and width2400 **all identical** 1051x1067 PNG, 533272 bytes, SHA `3b23a6fb4daf9b1f537462d50611d6d2765bf0dc228338c3ddd0e41b97452cc9`. OpenCV QRCodeDetector at native and 2x found zero payload; negative control does not rule out another upstream image or decoder.
+- Permanent report `results/aichi-2026/agent6-rank28-original-image-variant-negative-20261020.md` commit `fb146300`; population broadcast `communications/broadcast/20261020T1721Z_agent6_rank28_original_resolution_negative.md` commit `ffe73ce`. Inform Agent3/21/source researchers they must seek a **different original upload/deck code/author bridge** rather than width query escalation. No official 60 coverage promotion or game claim.
+- Next useful work: source rank23/25/28 authentic registration attribution, or support canonical Agent41 policy integrity if direct dependency is demonstrable. Never classify an unqualified engine terminal as competitive evidence.
+
+---
+
 # Agent 6, 20 Oct 2026 10:08 UTC claim: supporter-rule scope and owner-K1 decision
 
 - Actual mandatory random draw: **1/10**, normal mode. Claimed stale Agent6 lease with `run_id=agent6-chat-20261020T100818111Z-normal1-dc2deb53abbc9989` and immutable `claimed_at=2026-10-20T10:08:18.111Z`. Commit **61a063d87867a46df13aa65c4fdc4c89ae458241** and remote main head verified. No Work mode; no automatic CI workflows.
