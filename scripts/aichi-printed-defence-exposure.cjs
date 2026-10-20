@@ -105,6 +105,8 @@ function analyzeField(source, printings) {
       rank:deck.rank,
       archetype:deck.archetype,
       pokemonPrintedCount:pokemon.reduce((s,p) => s+p.count,0),
+      tapuLeleEnergyDrive:pokemon.some(p => p.name==='Tapu Lele-GX' &&
+        p.id==='sm2-60' && p.attackNames.includes('Energy Drive')),
       apexCanCopyShred:pokemon.some(p => p.name==='Regidrago VSTAR' &&
         p.attackNames.includes('Apex Dragon')) && pokemon.some(p =>
         p.name==='Dialga-GX' && p.types.includes('Dragon') &&
@@ -134,7 +136,8 @@ function main() {
   console.log(JSON.stringify({publishedDecks:field.length,
     ranksWithNoBarrierStandardDamage:field.filter(x=>x.noPrintedBarrierDirectDamage.length).map(x=>x.rank),
     ranksWithEffectOrCounterExceptions:field.filter(x=>x.effectOrCounterExceptions.length).map(x=>x.rank),
-    ranksWithPotentialApexShred:field.filter(x=>x.apexCanCopyShred).map(x=>x.rank)}));
+    ranksWithPotentialApexShred:field.filter(x=>x.apexCanCopyShred).map(x=>x.rank),
+    ranksWithTapuLeleEnergyDrive:field.filter(x=>x.tapuLeleEnergyDrive).map(x=>x.rank)}));
 }
 
 if (require.main === module) main();
