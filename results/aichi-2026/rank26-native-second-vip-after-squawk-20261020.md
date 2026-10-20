@@ -22,3 +22,17 @@ The hook in `simulation/twinleaf/rank26-first-own-vip-after-pass.cjs` is reversi
 This tests a sequence-level flaw of the default one-action score optimizer. A drawn setup Item may be useful even after the source bot has found, Benched and used a draw Ability, yet its successor root can still become a Pass. A second VIP could find Tapu Koko while Cologne suppresses Active Iron Thorns for this turn; **that possibility alone does not prove Lightning in discard, Energy attachments, Crisis Punch, damage-pump self-KOs, or a completed source win**. One selected source branch cannot establish how frequently the line occurs in fresh deals.
 
 Repository standing: **29/32 original source 60s; zero competitively qualified games; no validated fixed 60 at 99.5%**.
+
+## Compiled native outcome, 20 October 2026
+
+[Manually dispatched compiled CI 39441448525](https://github.com/FlareZ123/experiment-01/actions/runs/39441448525) **PASSED**, with inputs `rank26_vip_after_pass_probe=true` and `rank26_vip_cologne_followup=true`, frozen head `696b972741a0dc611463ce0fd109732c8d4b3e62`. The pure owner-view tests and genuine five-source runner passed. Artifact **12274981909**, ZIP SHA256 `0a735f17c108f06d11af8a0c43258eef936f883e8a8dc7ab314e281fbaa616e9`; JSON SHA256 `f0b28a2fe9a475207f4d93ae57bccf59e41ba64f52771ca0ba6feaca78a07706`.
+
+Under the original **rank26 seat B actually first, seed 2614852201**, native actions through the successful Squawk and Seize draw plus Exeggcute Bench were unchanged. The next default-bot Pass became a native accepted **second Battle VIP Pass FST**, a genuine owner-deck `ChooseCardsPrompt` selected physically present **Tapu Koko Prism Star TEU**, and the native public Bench postcondition included Dedenne GX, Meloetta ex, Squawkabilly ex, Exeggcute, and Tapu Koko Prism Star. The first-turn root ledger settled **two actual VIP PlayCardAction roots** and the owner-selected Koko ResolvePromptAction; the original prefix was unchanged.
+
+| Same frozen actual-source branch | Firstturn outcome | Source root attacks | Opposing Prizes remaining |
+| --- | --- | ---: | ---: |
+| Original generic bot | Float Stone → Pass | 0 | 6 |
+| VIP then Cologne then Squawk search priority | VIP→Meloetta+Squawk→Cologne→Squawk six-draw→Exeggcute→Pass | 0 | 6 |
+| Second-VIP continuation | Same prior prefix→**second VIP→Koko Bench**→Pass | **0** | **6** |
+
+This is a validated source-board **access** result. It is **not** evidence that Tapu Koko's Dance of the Ancients activated, that Lightning Energy was accelerated, or that Crisis Punch attacked. The original five selected source openings remain the only denominator, with no fresh competitive games. Both resulting candidate and opponent policies and clock remain unqualified. Next direct mechanical gate: an owner-visible **Battle Compressor** proposal followed by real owner-deck discard of available Lightning and an actual, legal Tapu Koko Ability resolution, retaining the currently observed zero-attack/zero-Prize result as the control.
