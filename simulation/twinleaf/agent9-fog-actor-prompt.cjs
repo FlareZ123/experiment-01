@@ -144,6 +144,8 @@ function withActorFogCrystalPrompt(run,deps={}) {
     if(action?.constructor?.name==='AddPlayerAction'&&this!==live) {
       live=this;
       searchedPhysicalCards.clear();
+      // No previous Store's same-turn Fog usage can carry into a new game.
+      perOwner.clear();
     }
     const choice=this===live?actions.get(action):null;
     // Evidence is checked against the same physical Card reference revealed

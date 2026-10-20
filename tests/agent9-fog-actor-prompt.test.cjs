@@ -106,10 +106,22 @@ test('interceptor materializes authentic owner Item and Choice and observes nati
     store.dispatch(new PlayCardAction(101,0,{player:1,slot:2,index:0}));
     state.players[0].hand.cards=[deck.cards[0]];
     store.dispatch(new PlayCardAction(101,0,{player:1,slot:2,index:0}));
+    // A fresh native Store can reuse the same player ID and global turn.
+    // It must still offer a new Fog Crystal action, despite the first game.
+    const secondState={players:[
+      {id:101,hand:{cards:[{fullName:'Fog Crystal CRE',trainerType:7}]},deck},
+      {id:202,hand:{cards:[]},deck:{cards:[]}}
+    ],turn:2,activePlayer:0,prompts:[]};
+    const secondStore=new Store();
+    secondStore.state=secondState;
+    secondStore.dispatch(new AddPlayerAction());
+    const secondRoot=bot.decodeNextAction(secondState);
+    assert.ok(secondRoot instanceof PlayCardAction);
+    secondStore.dispatch(secondRoot);
     return 'synthetic completed channel';
   },{engine,observe});
   assert.equal(result.result,'synthetic completed channel');
-  assert.equal(result.audit.fogItemRootNativeAccepted,1);
+  assert.equal(result.audit.fogItemRootNativeAccepted,2);
   assert.equal(result.audit.fogPromptNativeAccepted,1);
   assert.equal(result.audit.postSearchPhysicalCardPlays,1);
   assert.equal(result.audit.rejectedNativeChoices,0);
