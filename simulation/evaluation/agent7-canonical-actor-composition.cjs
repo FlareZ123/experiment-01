@@ -66,7 +66,18 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     assert.equal(typeof component, 'function');
   }
 
-  const runFog = () => fog(() => select(() => option(() => attack(execute))));
+  const handDiscard = options.actorHandDiscard===true ?
+    (adapters.handDiscard ??
+      require('../twinleaf/agent47-actor-hand-discard.cjs')
+        .withActorHandDiscard) : null;
+  let handDiscardAudit = null;
+  const runActor = () => {
+    if(!handDiscard)return execute();
+    const selected=handDiscard(execute);
+    handDiscardAudit=selected.audit;
+    return selected.result;
+  };
+  const runFog = () => fog(() => select(() => option(() => attack(runActor))));
   // Fog's already-owned deck search is the higher-priority actor handler.
   const runRoot = () => root(() => ownerSingleSearch?ownerSearch(runFog):runFog());
   const genericWrapped = genericFallbackAttribution?genericFallback(runRoot):null;
