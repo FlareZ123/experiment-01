@@ -70,3 +70,18 @@ The Boss proposal cannot be selected from the rank-15 tactical line alone. The e
 - **Vileplume ranks 2 and 15:** where an Item-locking AOR remains Benched and an Active-only BUS restricts Basic attacks, the Supporter gust creates the specific immediate Night Watch target described above. The actual unqualified same-seed source pressure is documented only for rank 15, not all Vileplume configurations.
 
 Boss's Orders also retains general tactical gust value in other matchups, but no aggregate performance estimate follows from these role relationships. An optimizer must account for the **removed slot, Supporter turn contention, unique GX use, access under lock, Bench and Energy budgets, and response by each original source opponent**. This supports a new structural hypothesis; it does not justify automatically overwriting the existing frozen 60.
+
+
+## Exact Prize floor for a newly introduced Supporter gust
+
+Under uniformly dealt six initial Prizes in a 60-card deck, a proposed gust-specific plan has an important combinatorial limitation if its only effective gust Supporter copies are themselves inaccessible in Prizes:
+
+| Boss copies in 60 | Probability **all** copies initially Prized |
+| ---: | ---: |
+| 1 | **10.000000%** |
+| 2 | **0.847458%** |
+| 3 | **0.058445%** |
+
+Each result is the exact hypergeometric probability `C(60 - n, 6 - n) / C(60, 6)` for `n <= 6`; independent Python integer binomial arithmetic verified the values. Access connectors such as Tapu Lele Wonder Tag and Forest Seal Stone cannot search a Boss card that is no longer in the main deck because it was initially Prized. This is a **necessary-access failure for that specific gust tactic**, with no claim of automatic game loss: natural Prize-taking or separate Stage1 Dusclops play may resolve the position, and other cards can produce tactical effects. The figures also say nothing about Boss being *drawn in time* or its opportunity cost under Supporter contention.
+
+A one-copy suggestion may be a useful diagnostic but should not be mistaken for robust full-field optimization. Two- and three-copy Boss structural alternatives have different opportunity costs, especially their displacement of Colonge/Blower resources against pure Iron Thorns or Tool Garbodor. Prospective frozen-60 field testing is required to choose a count.
