@@ -135,9 +135,11 @@ function withNativeOpponentHiddenReadObserver(BotClass,execute,target) {
       eventsTruncated:totals.proposal+totals.validation>observations.length,
       nativeRootChangedDuringDecision:targetSeen?mutatedNativeRoot:null,
       privateContentsExposed:false,
+      opponentPublicZoneCountsMayExplainReads:true,
+      hiddenCardIdentityAccessProved:false,
       actorInformationSetCertified:false,
       competitiveGameQualified:false,
-      interpretation:'Read provenance only. Generic Store/Simulator validation reads and direct proposal reads do not by themselves establish counterfactual action sensitivity.'
+      interpretation:'Access to a private-zone CardList.cards array, not necessarily any card identity. The native OpponentScore legitimately reads publicly countable hand/deck lengths. A positive access count never proves hidden-card knowledge or action sensitivity.'
     }};
   }finally{
     Object.defineProperty(prototype,'decodeNextAction',decode);
