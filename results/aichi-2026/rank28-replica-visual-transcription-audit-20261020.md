@@ -45,6 +45,16 @@ Independent **card-name multiset** comparison to the published exact 60 of **ran
 
 Other photo name-multiset distances to published Regidrago ranks: **11** to ranks 13 and 21; **12** to rank 20; **14** to ranks 12 and 27; **15** to rank 14; **16** to rank 32; **17** to rank 18. Thus the recovered photograph represents a relatively close, potentially coverage-relevant **variation** of a tested reference archetype. Even such small changes can alter Supporter contention, prize recovery and attack access, so no matchup equivalence is inferred. The narrower 7-swap source proximity does not close the official rank-28 identity or Japanese printing validation gates.
 
+## Exact six-Prize physical-availability calculation for the pictured Gladion allocation
+
+The photograph carries **one Prime Catcher (ACE SPEC)** and **two Gladion**. Under a uniformly random six-card Prize sample from a 60-card physical deck:
+
+- Probability that Prime Catcher itself is Prized: **10.000000%** (`6/60`).
+- Probability that Prime Catcher **and both Gladion** are simultaneously Prized: **0.05844535%** (`C(57,3)/C(60,6)`).
+- Conditional on Prime Catcher being Prized, the probability **at least one of two Gladion is outside the Prize cards**: **99.41554646%** (`1 - C(57,3)/C(59,5)`).
+
+These exact combinatorial facts count the **location of three physical cards only**. They do not establish drawing/accessing a Gladion, having a Supporter action available, retrieving an ACE SPEC in time, or the game-winning value of Prime Catcher. Other Prize configurations can collapse the connector chain. The number is **not** a recovery rate or a matchup win rate. It motivates testing the two-Gladion swap in an AMR-aware decision model rather than treating the name-level seven swaps as tactically interchangeable.
+
 ## Ranking identity hold
 
 Independent contemporaneous [community standings](https://pokekameshi.com/cl2026aichidec-extra/2/) quote this same @nnaacc5_uec account as **「予選28位トナメ1没」** (qualifying 28th, eliminated in first single-elimination round). The repository's [official placement field](field.csv) separately records **Jo Kato, Regidrago, final placement 28**. Matching the qualifying number and archetype is strong circumstantial evidence, but the official registered name and public account are not directly tied by a confirmed deck code, opponent record, or identifiable official deck registration. A further potential issue is qualifying rank versus final bracket rank. **Do not assert that this is Jo Kato's 60 or add this list to the exact rank-28 opponent manifest yet.**
