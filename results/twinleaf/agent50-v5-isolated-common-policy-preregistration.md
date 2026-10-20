@@ -1,0 +1,9 @@
+# Agent 50: preregister independent-wrapper world-order replay v5
+
+**Registered 20 October 2026 before v5 dispatch.** V4 compiled output [39367612404](https://github.com/FlareZ123/experiment-01/actions/runs/39367612404) shows one candidate rank-6 New Moon global-turn-3 root with equal Pass actions and a +1 hidden-deck-order difference in Farewell Letter's finite generic tactic score (50 physical, 51 reversed). The same wrapper object encloses both worlds. The Field Blower policy closure contains mutable phase/history fields; this is a real potential confound.
+
+**One change for v5:** instantiate the *same* current common candidate policy **separately for each cloned hypothetical world**. The live match is untouched. The original physical and reversed cloned State, full Bot options, seeded randomness, source 60s, original first-turn seats, historical seeds, four-arm denominator, and control projections stay frozen. Existing manual workflow only; no new workflow, no broad outcome study. V4 opt-in remains available. Document any failed/unmatched arm rather than dropping it.
+
+Accept as a noncompetitive scorer-order sensitivity observation only if both worlds perform the same action and score the same candidate, the genuine unmodified Store game equals its observational control, and independent wrapper lifecycles are verified. An action mismatch still vetoes baseline attribution. If the 50-vs-51 trace difference vanishes, classify v4 as closure-sensitive, without blaming the deck order. If it persists, report the narrow scorer dependence with K0/K1/top-order knowledge and historical bot state **still unverified**. The rank-6 champion mismatched replay remains a negative whatever its hypothetical scores.
+
+Even a positive result is exploratory: no independently qualified gameplay, no 25-minute paper clock, no complete opponent competency, and no proven win rate.
