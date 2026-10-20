@@ -28,7 +28,8 @@ function state(overrides={}) {
 }
 
 function scenario({candidateOverrides=false,root=state(),
-  cloned=structuredClone,compare=null}={}) {
+  cloned=structuredClone,compare=null,replayPolicy=null,
+  replayCommonPolicy=false,isolateReplayPolicyPerWorld=false}={}) {
   const normal=SyntheticBot.prototype.decodeNextAction;
   let gameFinished=false,actualCalls=0;
   const headless={
@@ -68,8 +69,10 @@ function scenario({candidateOverrides=false,root=state(),
   });
   const observed=withPostgameRootOrderProbe(
     SyntheticBot,execute,cloned,
-    {turn:3,seat:0,makeRandom:()=>()=>0.1},
-    {headless,compare:checkedCompare}
+    {turn:3,seat:0,makeRandom:()=>()=>0.1,
+      replayCommonPolicy,isolateReplayPolicyPerWorld},
+    {headless,compare:checkedCompare,
+      ...(replayPolicy?{replayPolicy}:{})}
   );
   assert.strictEqual(SyntheticBot.prototype.decodeNextAction,normal);
   assert.strictEqual(headless.runMatch,untouched);
@@ -516,4 +519,39 @@ test('postgame policy replay reconstructs live action without touching authentic
   assert.equal(observed.events[0].replayCommonPolicy,true);
   assert.equal(observed.events[0].baselineActionMatchedActual,true);
   assert.strictEqual(SyntheticBot.prototype.decodeNextAction,baseline);
+});
+
+test('independent detached worlds each start with a fresh common policy closure',()=>{
+  const original=SyntheticBot.prototype.decodeNextAction;
+  let createdContexts=0;
+  const replayPolicy=(seat,work)=>{
+    assert.equal(seat,0);
+    createdContexts++;
+    let decisionsInThisContext=0;
+    const before=SyntheticBot.prototype.decodeNextAction;
+    SyntheticBot.prototype.decodeNextAction=function (source){
+      decisionsInThisContext++;
+      assert.equal(decisionsInThisContext,1,
+        'Only one hypothetical decision may use a policy closure');
+      return {...before.call(this,source),play:'special'};
+    };
+    try {return {result:work()};}
+    finally{SyntheticBot.prototype.decodeNextAction=before;}
+  };
+  const compare=(source,actor,newBot)=>{
+    assert.equal(actor,101);
+    const physical=actionSignature(newBot().decodeNextAction(source));
+    const reversed=actionSignature(newBot().decodeNextAction(source));
+    return {physicalOrder:physical,reversedOrder:reversed,
+      liveStatePreserved:true,actionSensitiveToHiddenDeckOrder:false,
+      tacticScoreComparison:{equalScoreTraces:true}};
+  };
+  const {observed}=scenario({
+    candidateOverrides:true,replayCommonPolicy:true,
+    isolateReplayPolicyPerWorld:true,replayPolicy,compare
+  });
+  assert.equal(createdContexts,2);
+  assert.equal(observed.events[0].baselineActionMatchedActual,true);
+  assert.equal(observed.events[0].isolatedReplayPolicyPerWorld,true);
+  assert.strictEqual(SyntheticBot.prototype.decodeNextAction,original);
 });
