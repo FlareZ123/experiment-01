@@ -241,6 +241,18 @@ function withOwnerRootSlice(candidateSeat,work,deps={}){
     const record={turn:view.globalTurn,seat:candidateSeat,
       intent,printing:player.active.getPokemonCard()?.fullName??null,
       originalProposal:action.constructor.name,
+      // This is a copy of the already detached actor view. No physical
+      // deck, Prize identities or opposing hand can enter diagnostics.
+      passActorView:intent.kind==='pass'?{
+        energyPrintings:view.ownPublic.active.energies,
+        printedAttacks:view.ownPublic.active.attacks.map(attack=>({
+          name:attack.name,cost:attack.cost,gxAttack:attack.gxAttack
+        })),
+        ownerBasicEnergyHeld:view.ownHand.filter(printing=>
+          catalog[printing]?.basicEnergyType),
+        publicRestrictions:view.ownPublic.active.publicRestrictions,
+        playerWide:view.ownPublic.publicTurnRestrictions
+      }:null,
       acceptedByLiveStore:false,storeError:null};
     records.push(record);
     ownerRootProposals++;
