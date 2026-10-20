@@ -34,3 +34,21 @@ test('original exceptions and excessive capture restore underlying RNG',()=>{
     /tape limit/);
   assert.strictEqual(Math.random,previous);
 });
+
+test('caught RNG overreads never qualify as faithful parity',()=>{
+  const before=Math.random;
+  assert.throws(()=>replayPolicyRandomTape([0.25],()=>{
+    assert.equal(Math.random(),0.25);
+    try {Math.random();} catch(error) {
+      assert.match(error.message,/exhausted/);
+    }
+    return 'falsely successful';
+  }),/exhaustion was swallowed/);
+  assert.throws(()=>recordPolicyRandomTape(()=>{
+    try {Math.random();} catch(error) {
+      assert.match(error.message,/tape limit/);
+    }
+    return 'falsely successful';
+  },{limit:0}),/tape limit was exceeded and swallowed/);
+  assert.strictEqual(Math.random,before);
+});
