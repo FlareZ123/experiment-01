@@ -81,6 +81,11 @@ on:
         required: false
         type: boolean
         default: false
+      battle_compressor_positive_selection_correction:
+        description: 'Opt-in paper minimum-one-card selection for Battle Compressor, independent of rank4 tactic'
+        required: false
+        type: boolean
+        default: false
       rank4_raichu_compressor_source:
         description: 'Opt-in rank-4 source owner-first Compressor to prep Special Energy, with paper min1 correction'
         required: false
@@ -164,6 +169,7 @@ jobs:
           AICHI_ELECTRO_RAIN_DAMAGE: ${{ inputs.electro_rain_damage_correction && '1' || '0' }}
           AICHI_ELECTRODE_PRIZE_TRADE: ${{ inputs.electrode_gx_prize_trade_policy && '1' || '0' }}
           AICHI_RANK4_COMPRESSOR: ${{ inputs.rank4_raichu_compressor_source && '1' || '0' }}
+          AICHI_BATTLE_COMPRESSOR_MIN1: ${{ inputs.battle_compressor_positive_selection_correction && '1' || '0' }}
           AICHI_ELECTRODE_OPPORTUNITY: ${{ inputs.electrode_opportunity_observer && '1' || '0' }}
           AICHI_GRAND_TREE_TURN_GUARD: ${{ inputs.grand_tree_first_turn_guard && '1' || '0' }}
           AICHI_BUNNELBY_SOURCE_K0: ${{ inputs.bunnelby_source_k0 && '1' || '0' }}
