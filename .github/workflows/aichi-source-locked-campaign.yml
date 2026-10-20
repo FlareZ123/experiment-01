@@ -141,6 +141,11 @@ on:
         required: false
         type: boolean
         default: false
+      setup_source_order_audit:
+        description: 'Opt-in ordered hidden source-deck fingerprint across all five setup arms; no games'
+        required: false
+        type: boolean
+        default: false
       hood_source_turn_audit:
         description: 'Source rank6 two-start Hood/Arven decisions under unchanged generic bots; unqualified'
         required: false
@@ -456,6 +461,8 @@ jobs:
         run: node simulation/evaluation/aichi-hood-source-turn-comparison.cjs > aichi-hood-source-turn-comparison.json
       - name: Sample true source setups across ranks and independent seeds
         if: ${{ inputs.setup_multiseed_audit }}
+        env:
+          AICHI_SOURCE_FULL_DEAL_AUDIT: ${{ inputs.setup_source_order_audit && 'true' || 'false' }}
         run: node simulation/evaluation/aichi-multiseed-setup-coupling.cjs > aichi-multiseed-setup-coupling.json
       - uses: actions/upload-artifact@v4
         if: always()
