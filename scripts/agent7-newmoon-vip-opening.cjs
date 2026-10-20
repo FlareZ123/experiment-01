@@ -6,7 +6,8 @@ const field=require('../results/aichi-2026/full-decklists.json');
 
 /** @param {bigint} n @param {bigint} k @returns {bigint} */
 function choose(n,k) {
-  assert.ok(n>=0n&&k>=0n&&k<=n);
+  assert.ok(n>=0n&&k>=0n);
+  if(k>n)return 0n;
   let result=1n;
   for(let i=1n;i<=k;i++)result=result*(n-i+1n)/i;
   return result;
