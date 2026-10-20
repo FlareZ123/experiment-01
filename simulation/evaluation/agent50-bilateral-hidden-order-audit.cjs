@@ -90,7 +90,9 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
     ...(scope.isolateReplayPolicyPerWorld===true?
       {isolateReplayPolicyPerWorld:true}:{}),
     ...(scope.nativeScoreTrace===true?{nativeScoreTrace:true}:{}),
-    ...(scope.nativeTapeSameWorld===true?{nativeTapeSameWorld:true}:{})};
+    ...(scope.nativeTapeSameWorld===true?{nativeTapeSameWorld:true}:{}),
+    ...(scope.nativeTapeHiddenOrderContrast===true?
+      {nativeTapeHiddenOrderContrast:true}:{})};
   let control;
   try {
     control=execute();
@@ -164,6 +166,7 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
     ...(event?{diagnostic:{
       actualAction: event.originalSourceAction??null,
       nativeSameWorldTape:event.nativeSameWorldTape??null,
+      nativeHiddenOrderContrast:event.nativeHiddenOrderContrast??null,
       hiddenWorldCounterfactualCompared:event.counterfactualCompared!==false,
       physicalFreshAction:event.physicalOrder??null,
       reversedFreshAction:event.reversedOrder??null,
@@ -212,12 +215,16 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
  */
 function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   replayCommonPolicy=false,isolateReplayPolicyPerWorld=false,
-  nativeScoreTrace=false,nativeTapeSameWorld=false}={}) {
+  nativeScoreTrace=false,nativeTapeSameWorld=false,
+  nativeTapeHiddenOrderContrast=false}={}) {
   assert.equal(typeof firstFiniteScoredRoot,'boolean');
   assert.equal(typeof replayCommonPolicy,'boolean');
   assert.equal(typeof isolateReplayPolicyPerWorld,'boolean');
   assert.equal(typeof nativeScoreTrace,'boolean');
   assert.equal(typeof nativeTapeSameWorld,'boolean');
+  assert.equal(typeof nativeTapeHiddenOrderContrast,'boolean');
+  assert.ok(!nativeTapeHiddenOrderContrast||nativeTapeSameWorld,
+    'Hidden owner order contrast requires genuine same-world tape mode');
   assert.ok(!nativeTapeSameWorld||!firstFiniteScoredRoot,
     'Native tape requires a complete pre-decision root');
   assert.ok(!isolateReplayPolicyPerWorld||replayCommonPolicy,
@@ -265,10 +272,12 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
     withPostgameRootOrderProbe,SimpleTacticsAi,clone,
     ()=>seededRandom((trial.seed^0x5a17b9ef)>>>0),
     {firstFiniteScoredRoot,replayCommonPolicy,isolateReplayPolicyPerWorld,
-      nativeScoreTrace,nativeTapeSameWorld}
+      nativeScoreTrace,nativeTapeSameWorld,nativeTapeHiddenOrderContrast}
   ));
   return {
-    schema:nativeTapeSameWorld?
+    schema:nativeTapeHiddenOrderContrast?
+      'agent50-crossrank-native-tape-order-exploration-v1':
+      nativeTapeSameWorld?
       'agent50-crossrank-native-same-world-tape-prerequisite-v1':
       nativeScoreTrace?
       'agent50-crossrank-historical-first-finite-owner-score-v7':
@@ -306,7 +315,9 @@ if(require.main===module) {
       process.env.AGENT50_ISOLATED_POLICY_WORLDS==='true',
     isolateReplayPolicyPerWorld:process.env.AGENT50_ISOLATED_POLICY_WORLDS==='true',
     nativeScoreTrace:process.env.AGENT50_NATIVE_SCORE_TRACE==='true',
-    nativeTapeSameWorld:process.env.AGENT50_NATIVE_TAPE_SAME_WORLD==='true'
+    nativeTapeSameWorld:process.env.AGENT50_NATIVE_TAPE_SAME_WORLD==='true',
+    nativeTapeHiddenOrderContrast:
+      process.env.AGENT50_NATIVE_TAPE_HIDDEN_DECK_ORDER==='true'
   }),null,2)+'\n');
 }
 module.exports={candidateDevelopmentTarget,comparisonProjection,
