@@ -45,7 +45,7 @@ function actionIdentity(action, state, codecs) {
       sha256:createHash('sha256').update(JSON.stringify(envelope)).digest('hex')};
   } catch(error) {
     return {status:'unsupported',type,sha256:null,
-      reason:error?.message??'unknown capture error'};
+      reason:error?.constructor?.name??'unportable-input'};
   }
 }
 
@@ -174,10 +174,12 @@ function withNativeDecisionDispatchWitness(execute,options) {
     };
     throw error;
   }finally{
-    assert.strictEqual(store.dispatch,observedDispatch);
+    const stillOwnedStore=store.dispatch===observedDispatch;
+    const stillOwnedDecision=bot.decodeNextAction===observedDecode;
     Object.defineProperty(store,'dispatch',dispatch);
-    assert.strictEqual(bot.decodeNextAction,observedDecode);
     Object.defineProperty(bot,'decodeNextAction',decode);
+    assert.ok(stillOwnedStore&&stillOwnedDecision,
+      'Nested policy hook ownership changed during the witness lifetime');
   }
 }
 
