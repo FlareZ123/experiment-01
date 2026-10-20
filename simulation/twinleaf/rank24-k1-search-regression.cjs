@@ -15,6 +15,8 @@ const {ownerK0ObservableInventory} =
   require('./owner-k0-observable-inventory.cjs');
 const {withNativeSupporterTurnAudit} =
   require('./native-supporter-turn-audit.cjs');
+const {withPaperSupporterQuotaGuard} =
+  require('./paper-supporter-quota-guard.cjs');
 const {TIER_NAMES} = require('../../scripts/aichi-thorns-crossrank-opening.cjs');
 
 // All three already appeared in the original 24-source-deal registered cohort.
@@ -146,6 +148,7 @@ function main() {
     const sourceTurn2Baseline=sourceTurn2Actions(original.result);
     const sourceTurn2OptIn=sourceTurn2Actions(k1Replanned.result);
     let nativeSupporterTurnAudit=null;
+    let paperSupporterGuardDiagnostic=null;
     if(item.label==='tag-call-before-prized-stadium'){
       const optInRecheck=withNativeSupporterTurnAudit(
         Store,TrainerType.SUPPORTER,()=>withBroadThornsSourceAttack(
@@ -171,6 +174,47 @@ function main() {
         event.supporterTurnBefore>=1&&event.supporterTurnAfter>=2&&
         !event.cardInHandAfter&&event.supporterLogMatched===true),
       'Frozen source must actually settle a second logged Supporter on turn 2');
+      // The original registered source root 22 remains native-accepted,
+      // while root 24 must be blocked before the illegal second Supporter
+      // reaches Store. This is a diagnostic fork, not a substitute bot action.
+      const legalRoots=[];
+      let violation=null;
+      let guardFailure=null;
+      try {
+        withPaperSupporterQuotaGuard(Store,TrainerType.SUPPORTER,
+          ()=>withBroadThornsSourceAttack(
+            ()=>runMatch(request),{
+              seat:1,turn:2,discardPriority:priority,
+              k1ReplanAfterTagCall:true
+            }
+          ),{
+            onLegalSupporter:event=>legalRoots.push(event),
+            onViolation:event=>{violation=event;}
+          }
+        );
+      } catch(error) {
+        guardFailure=String(error?.message??error);
+      }
+      assert.ok(guardFailure?.includes('PAPER_SUPPORTER_QUOTA_VIOLATION'),
+        'Native paper-rule gate must stop the selected illegal second root');
+      assert.equal(violation?.turn,2);
+      assert.equal(violation?.seat,1);
+      assert.equal(violation?.card,'Sidney FST 241');
+      assert.equal(violation?.quotaBefore,1);
+      assert.equal(violation?.supporterZoneCountBefore,0);
+      assert.equal(violation?.rejectedBeforeNativeDispatch,true);
+      assert.ok(legalRoots.some(e=>e.turn===2&&e.seat===1&&
+        e.card==='Cynthia & Caitlin CEC'&&e.quotaBefore===0),
+        'Native first Supporter must remain legal under reversible guard');
+      paperSupporterGuardDiagnostic={
+        evidenceType:'source-native-reversible-paper-quota-v1',
+        originalSecondSupporterSettled:true,
+        acceptedPriorLegalSupporterRoots:legalRoots,
+        rejectedRoot:violation,
+        guardedGameStopped:true,
+        notAnOpponentWin:true,
+        strengthQualified:false
+      };
     }
     const sourceSearches=witnessed.events.filter(event=>
       event.globalTurn===2&&event.ownerSeat===1);
@@ -193,6 +237,7 @@ function main() {
         originalSourceTurn2Actions:sourceTurn2Baseline,
         optInSourceTurn2Actions:sourceTurn2OptIn,
         ...(nativeSupporterTurnAudit?{nativeSupporterTurnAudit}:{}),
+        ...(paperSupporterGuardDiagnostic?{paperSupporterGuardDiagnostic}:{}),
         rootActionTraceSha256:digest(k1Replanned.result.decisionTrace),
         sameGameAsOriginal:JSON.stringify(stableGame(k1Replanned.result))===
           JSON.stringify(stableGame(original.result)),
@@ -209,7 +254,7 @@ function main() {
     });
   }
   const report={
-    schema:'rank24-owner-search-k0-k1-regression-v5-native-supporter-settled-postconditions',
+    schema:'rank24-owner-search-k0-k1-regression-v6-native-paper-guard-negative-control',
     evidenceType:'retrospective native Store actor-owned deck-search witness',
     fieldManifest:plan.manifestDigest,
     candidateDeckHash:digest(plan.candidate.cards),
