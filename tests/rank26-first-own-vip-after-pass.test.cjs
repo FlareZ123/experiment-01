@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const {sourceVipAfterPassEligible, sourceVipActorEligible,
   sourceCologneAfterVipEligible,sourceSecondVipActorEligible,
   sourceCompressorAfterKokoEligible,selectSourceCompressorCards,
-  sourceKokoNativePostcondition,
+  sourceKokoNativePostcondition,sourceKokoNativeComplete,
   selectSourceVipBasics,selectSecondVipBasics,withSourceVipAfterPass} =
   require('../simulation/twinleaf/rank26-first-own-vip-after-pass.cjs');
 
@@ -253,6 +253,9 @@ test('Koko proof requires actual Lost Zone card and two distinct Bench Energy zo
   assert.equal(result.recipientCount,2);
   assert.equal(result.lightningAttached,2);
   assert.equal(result.discardLightning,0);
+  assert.equal(sourceKokoNativeComplete(result),true);
   own.bench[1].energies.cards=[];
-  assert.equal(sourceKokoNativePostcondition(own).recipientCount,1);
+  const partial=sourceKokoNativePostcondition(own);
+  assert.equal(partial.recipientCount,1);
+  assert.equal(sourceKokoNativeComplete(partial),false);
 });
