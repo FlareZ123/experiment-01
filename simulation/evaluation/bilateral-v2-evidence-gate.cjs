@@ -320,6 +320,19 @@ function auditBilateralV2(plan,archive) {
       isolatedInventoryEffectCertified:false
     });
   }
+  // Distinct registered PRNG seeds are not independent physical trials if
+  // they reproduce the exact same authenticated source opening inventory.
+  // One pair already intentionally contains two candidate arms with one deal.
+  const pairedSourceDealKeys=new Map();
+  for(const pair of pairRows){
+    if(!pair.firstObservationComparable)continue;
+    const fingerprint=byId.get(pair.armIds[0]).sourceDealFingerprint;
+    const key=JSON.stringify([pair.rank,pair.candidateSeat,fingerprint]);
+    assert.ok(!pairedSourceDealKeys.has(key),
+      'Repeated source physical deal under distinct pairs '+
+      pairedSourceDealKeys.get(key)+' and '+pair.pairId);
+    pairedSourceDealKeys.set(key,pair.pairId);
+  }
   const byRank=Object.fromEntries([...rankMap.keys()].map(rank=>{
     const local=diagnostics.filter(row=>row.rank===rank);
     return [rank,{registered:local.length,
