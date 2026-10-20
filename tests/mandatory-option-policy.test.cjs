@@ -124,3 +124,36 @@ test('headless opt-in composes the same resolver across both actual seats and re
   assert.ok(guarded.actions<=request.maxActions);
   assert.ok(baseline.actions<=request.maxActions);
 });
+
+test('optional strict gate catches real Store G&H null even with original strict validation',()=>{
+  const {assertValidPromptAction}=
+    require('../simulation/twinleaf/prompt-integrity.cjs');
+  const native=guzmaBoard();
+  const defaultBot=new SimpleTacticsAi({id:101},options(false),null);
+  const invalid=defaultBot.decodeNextAction(native.state);
+  assert.equal(invalid.result,null);
+  assert.doesNotThrow(()=>assertValidPromptAction(native.state,invalid));
+  assert.throws(()=>assertValidPromptAction(native.state,invalid,
+    {enforceSelectOptionLegality:true}),/invalid result to SelectOptionPrompt/);
+  const selected=new SimpleTacticsAi({id:101},options(true),null)
+    .decodeNextAction(native.state);
+  assert.equal(selected.result,0);
+  assert.doesNotThrow(()=>assertValidPromptAction(native.state,selected,
+    {enforceSelectOptionLegality:true}));
+});
+
+test('headless mode + fail-closed option validation are versioned and composable',()=>{
+  const {runMatch,upstreamSmokeDeck}=require('../simulation/twinleaf/headless.cjs');
+  const deck=upstreamSmokeDeck();
+  const request={deckA:deck,deckB:deck,seed:20261020,maxActions:24,
+    strictPromptValidation:true,isolatePolicyRandomness:true,
+    mandatoryOptionFallback:true,enforceSelectOptionLegality:true};
+  const result=runMatch(request);
+  assert.equal(result.mandatoryOptionFallback,true);
+  assert.equal(result.enforceSelectOptionLegality,true);
+  assert.match(result.policy,/SelectOptionLegalityGate-v1/);
+  assert.match(result.policy,/MandatoryOptionDefaultFallback-v1/);
+  assert.ok(result.actions<=request.maxActions);
+  assert.throws(()=>runMatch({...request,strictPromptValidation:false}),
+    /Option legality gate requires strictPromptValidation:true/);
+});
