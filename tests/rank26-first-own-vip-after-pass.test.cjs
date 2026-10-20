@@ -6,7 +6,7 @@ const {sourceVipAfterPassEligible, sourceVipActorEligible,
   sourceCologneAfterVipEligible,sourceSecondVipActorEligible,
   sourceCompressorAfterKokoEligible,selectSourceCompressorCards,
   sourceKokoNativePostcondition,sourceKokoNativeComplete,
-  selectSourceKokoTwoTargetTransfers,
+  selectSourceKokoTwoTargetTransfers,sourceDceK1Locations,
   selectSourceVipBasics,selectSecondVipBasics,withSourceVipAfterPass} =
   require('../simulation/twinleaf/rank26-first-own-vip-after-pass.cjs');
 
@@ -289,4 +289,20 @@ test('two-target Koko prompt selects owner physical card instances',()=>{
   own.bench[2]=slot('Squawkabilly ex');
   prompt.options.differentTargets=false;
   assert.equal(selectSourceKokoTwoTargetTransfers(prompt,own,kinds),null);
+});
+
+test('owner-first-search K1 DCE is inferred from exposed owner zones',()=>{
+  const dce={name:'Double Colorless Energy'};
+  const own={hand:{cards:[]},discard:{cards:[]},lostzone:{cards:[]},
+    active:slot('Bunnelby'),bench:[slot('Meloetta ex')]};
+  [own.active,...own.bench].forEach(s=>{s.energies={cards:[]};});
+  const prompt={cards:{cards:[dce]}};
+  assert.equal(sourceDceK1Locations(own,prompt).inDeck,1);
+  prompt.cards.cards=[];
+  assert.equal(sourceDceK1Locations(own,prompt).inferredPrized,true);
+  own.hand.cards=[dce];
+  assert.equal(sourceDceK1Locations(own,prompt).inferredPrized,false);
+  own.hand.cards=[];
+  own.bench[0].energies.cards=[dce];
+  assert.equal(sourceDceK1Locations(own,prompt).attached,1);
 });
