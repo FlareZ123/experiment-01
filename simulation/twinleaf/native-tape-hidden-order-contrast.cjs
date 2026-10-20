@@ -19,6 +19,8 @@ const VERSION='native-owner-deck-order-contrast-v1';
  *   root:object,
  *   seat:0|1,
  *   tape:number[],
+ *   knownTopCount?:number,
+ *   knownTopVerified?:boolean,
  *   cloneState:(source:object)=>object,
  *   replayDecision:(world:object)=>unknown,
  *   actionSignature:(action:unknown)=>unknown,
@@ -36,6 +38,11 @@ function compareNativeHiddenDeckOrder(args) {
   assert.ok(root&&typeof root==='object');
   assert.ok(seat===0||seat===1);
   assert.ok(Array.isArray(tape));
+  const knownTopCount=args.knownTopCount??0;
+  assert.ok(Number.isSafeInteger(knownTopCount)&&knownTopCount>=0,
+    'Known-top count must be a nonnegative safe integer');
+  assert.ok(knownTopCount===0||args.knownTopVerified===true,
+    'Protecting a known deck-top prefix requires authenticated observation');
   for(const fn of [cloneState,replayDecision,
     actionSignature,fingerprint,actorView])assert.equal(typeof fn,'function');
   // A successful parity result only certifies the exact root and RNG tape
@@ -69,7 +76,9 @@ function compareNativeHiddenDeckOrder(args) {
     tapeSha256:digest(tape),sourceRootAtEntry:before,
     sourceRootUnchanged:false,actorObservationMatched:false,
     permutationChangedPhysicalOrder:false,deckCount:null,
-    ownerDeckKnownTopAuthenticated:false,
+    preservedKnownTopCount:knownTopCount,
+    ownerDeckKnownTopAuthenticated:knownTopCount>0&&
+      args.knownTopVerified===true,
     ownerK0K1HistoryAuthenticated:false,
     replayedAction:null,
     selectedActionChanged:false,
@@ -87,10 +96,11 @@ function compareNativeHiddenDeckOrder(args) {
     const original=own?.deck?.cards;
     assert.ok(Array.isArray(original),'Owner deck is missing');
     report.deckCount=original.length;
-    if(original.length<2)throw new Error(
-      'Not enough own deck cards for a hidden-order permutation');
+    if(original.length-knownTopCount<2)throw new Error(
+      'Not enough unknown deck suffix cards for a hidden-order permutation');
     const originalOrder=original.slice();
-    original.reverse();
+    const reorderedSuffix=original.slice(knownTopCount).reverse();
+    original.splice(knownTopCount,reorderedSuffix.length,...reorderedSuffix);
     report.permutationChangedPhysicalOrder=original.some(
       (card,i)=>card!==originalOrder[i]);
     if(!report.permutationChangedPhysicalOrder)throw new Error(
