@@ -62,9 +62,16 @@ test('real Store accepts native typed root, with reversible hook restoration',()
   class AttackAction{constructor(id,name){this.clientId=id;this.name=name;}}
   class PassTurnAction{constructor(id){this.clientId=id;}}
   class Store{
-    constructor(){this.state={
-      players:[{id:10},{id:20}],activePlayer:0,prompts:[],turn:2
-    };}
+    constructor(){
+      const empty=()=>({getPokemonCard:()=>null,cards:[],damage:0,
+        specialConditions:[],energies:{cards:[]},tools:[]});
+      const player=id=>({id,active:empty(),bench:Array.from({length:5},empty),
+        hand:{cards:[]},deck:{cards:[]},prizes:[],
+        stadium:{cards:[]},discard:{cards:[]},
+        lostzone:{cards:[]},supporter:{cards:[]}});
+      this.state={players:[player(10),player(20)],
+        activePlayer:0,prompts:[],turn:2,phase:3};
+    }
     dispatch(){return true;}
   }
   class SimpleTacticsAi{
@@ -84,7 +91,7 @@ test('real Store accepts native typed root, with reversible hook restoration',()
     store.dispatch(action);
     return action;
   },{
-    SimpleTacticsAi,Store,
+    SimpleTacticsAi,Store,GamePhase:{FINISHED:999},
     observe:()=>Object.freeze(view),getCatalog:()=>catalog,
     cardActions:{PlayCardAction,PlayerType:{BOTTOM_PLAYER:0},
       SlotType:{ACTIVE:1,BENCH:2}},
