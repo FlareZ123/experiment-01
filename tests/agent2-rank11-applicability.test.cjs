@@ -11,6 +11,7 @@ function row(){
       sourceSeat:0,candidateSeat:1,turn:2,realStoreOnly:true,
       before:{globalTurn:2,sourceGarbodorHasTool:true,
         candidateActive:'Unown AOR',candidatePrintedPowerNames:[],
+        candidatePrintedPowerChecks:[],
         candidateInPlayPrintedPowerChecks:[{
           zone:'Bench',benchIndex:0,printing:'Shadow Rider Calyrex VMAX CRE',
           name:'Underworld Door',blocked:true
