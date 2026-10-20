@@ -4,7 +4,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {probePostPassPerfection,detachedPerfectionAttempt}=require(
+const {probePostPassPerfection,detachedPerfectionAttempt,
+  summarizePerfectionSourceEligibility}=require(
   '../simulation/twinleaf/perfection-post-pass-probe.cjs');
 
 test('owner-visible gating only probes a passing active Mewtwo & Mew-GX',()=>{
@@ -125,4 +126,63 @@ test('negative menu is a diagnostic and cannot be promoted to a game outcome',()
   assert.equal(out.choicePromptObserved,false);
   assert.equal(out.validAttackNames.length,0);
   assert.match(out.scope,/without competitive/);
+});
+
+test('Perfection donor census follows pinned GX/EX tag eligibility and zones',()=>{
+  const pokemon=(name,tags,attackNames=['Test Attack'])=>({
+    name,fullName:name+' TEST',
+    attacks:attackNames.map(attack=>({name:attack})),
+    hasTag:tag=>tags.includes(tag)
+  });
+  const gx=pokemon('Gengar & Mimikyu-GX',['GX'],['Poltergeist']);
+  const oldEx=pokemon('Yveltal-EX',['EX'],['Evil Ball']);
+  const newEx=pokemon('Dragapult ex',['ex'],['Phantom Dive']);
+  const v=pokemon('Galarian Articuno V',['V']);
+  const basic=pokemon('Duskull',[]);
+  const copycat=pokemon('Mewtwo & Mew-GX',['GX'],['Miraculous Duo-GX']);
+  const owner={
+    bench:[
+      {getPokemonCard:()=>gx},
+      {getPokemonCard:()=>newEx},
+      {getPokemonCard:()=>copycat},
+      {getPokemonCard:()=>v}
+    ],
+    discard:{cards:[oldEx,basic,newEx,copycat]}
+  };
+  const observed=summarizePerfectionSourceEligibility(owner);
+  assert.equal(observed.sourcePokemonCount,3);
+  assert.deepEqual(observed.bench.map(row=>row.name),
+    ['Gengar & Mimikyu-GX','Mewtwo & Mew-GX']);
+  assert.deepEqual(observed.discard.map(row=>row.name),['Yveltal-EX']);
+  assert.equal(observed.hasSourcePokemon,true);
+  assert.equal(observed.costAndAbilityStatusAssessed,false);
+  assert.deepEqual(observed.bench[0].attackNames,['Poltergeist']);
+  // GX/EX classification is by pinned CardTag, not similarly named Pokémon ex.
+  const noDonors=summarizePerfectionSourceEligibility({
+    bench:[{getPokemonCard:()=>newEx}],
+    discard:{cards:[v,basic,copycat]}
+  });
+  assert.equal(noDonors.sourcePokemonCount,0);
+  assert.equal(noDonors.hasSourcePokemon,false);
+});
+
+test('post-choice donor evidence is separate from rejected cloned activation',()=>{
+  const eligible={
+    name:'Gengar & Mimikyu-GX',fullName:'Gengar & Mimikyu-GX TEU',
+    attacks:[{name:'Poltergeist'}],
+    hasTag:tag=>tag==='GX'
+  };
+  const state={prompts:[],players:[{
+    id:202,active:{getPokemonCard:()=>({name:'Mewtwo & Mew-GX'})},
+    bench:[],discard:{cards:[eligible]}
+  }]};
+  const original=state.players[0].discard.cards.slice();
+  const observed=probePostPassPerfection(state,202,()=>({
+    activationAccepted:false,choicePromptObserved:false,
+    rejection:'CANNOT_USE_POWER',validAttackSources:[],validAttackNames:[]
+  }));
+  assert.equal(observed.sourceEligibility.sourcePokemonCount,1);
+  assert.equal(observed.activationAccepted,false);
+  assert.equal(observed.rejection,'CANNOT_USE_POWER');
+  assert.deepEqual(state.players[0].discard.cards,original);
 });
