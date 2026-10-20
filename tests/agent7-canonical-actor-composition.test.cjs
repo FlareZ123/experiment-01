@@ -28,6 +28,9 @@ test('canonical composition dispatch order preserves the exact execution result'
       fogItemRootNativeAccepted: 2, fogPromptNativeAccepted: 2,
       unsupportedPrompts: 5
     }, order),
+    select: fakeAdapter('select', {selected: 2, accepted: 2,
+      unsupportedPromptFallbacks: 4
+    }, order),
     option: fakeAdapter('option', {
       acceptedPromptActions: 1, unsupportedPromptDelegations: 6
     }, order),
@@ -41,19 +44,20 @@ test('canonical composition dispatch order preserves the exact execution result'
   }, adapters);
   assert.strictEqual(observed.result, expected);
   assert.deepEqual(order, [
-    'install:root', 'install:fog', 'install:option', 'install:attack',
+    'install:root', 'install:fog', 'install:select', 'install:option', 'install:attack',
     'native:canonical',
-    'restore:attack', 'restore:option', 'restore:fog', 'restore:root'
+    'restore:attack', 'restore:option', 'restore:select', 'restore:fog', 'restore:root'
   ]);
   assert.equal(observed.audit.version, VERSION);
   assert.deepEqual(observed.audit.selectedHandlerPriority, [
-    'ChooseAttackPrompt', 'SelectOptionPrompt',
+    'ChooseAttackPrompt', 'SelectOptionPrompt', 'SelectPrompt',
     'FogCrystalRootAndOwnerDeckSearch', 'ActorOnlyRoot'
   ]);
   assert.equal(observed.audit.nativeDecisionCounts.actorRootsAccepted, 5);
   assert.equal(observed.audit.nativeDecisionCounts.fogOwnerPromptAccepted, 2);
   assert.equal(observed.audit.nativeDecisionCounts.chooseAttackAccepted, 1);
   assert.equal(observed.audit.nativeDecisionCounts.selectOptionAccepted, 1);
+  assert.equal(observed.audit.nativeDecisionCounts.selectAccepted, 2);
 });
 
 test('nested prompt delegates are overlapping observations, not extra successes', () => {
@@ -63,12 +67,13 @@ test('nested prompt delegates are overlapping observations, not extra successes'
     {
       root: make('root', {unsupportedPromptFallbacks: 2}),
       fog: make('fog', {unsupportedPrompts: 4}),
+      select: make('select', {unsupportedPromptFallbacks: 6}),
       option: make('option', {unsupportedPromptDelegations: 5}),
       attack: make('attack', {nativeFallbacks: 9})
     });
   assert.equal(observed.audit.nativeDecisionCounts.lastChanceGenericPromptFallbacks, 2);
   assert.deepEqual(observed.audit.overlappingDelegationObservations, {
-    chooseAttack: 9, selectOption: 5, fog: 4, lastChanceRoot: 2,
+    chooseAttack: 9, selectOption: 5, select: 6, fog: 4, lastChanceRoot: 2,
     warning: 'Nested delegation counters overlap. The root is the final fallback.'
   });
   assert.equal(observed.audit.qualification.fullyActorOnly, false);
@@ -80,7 +85,7 @@ test('composing a partially implemented actor policy cannot self-certify games',
   const wrap = name => fakeAdapter(name, {}, []);
   const observed = withCanonicalActorOnlyPolicy(
     () => ({rows: [{finished: true, winner: 0}], competitiveQualifiedGames: 0}),
-    {root: wrap('root'), fog: wrap('fog'),
+    {root: wrap('root'), fog: wrap('fog'), select: wrap('select'),
       option: wrap('option'), attack: wrap('attack')}
   );
   assert.equal(observed.audit.nativeDecisionCounts.lastChanceGenericPromptFallbacks,
