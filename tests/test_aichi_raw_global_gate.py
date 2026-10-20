@@ -3,7 +3,10 @@ import hashlib
 import unittest
 
 from scripts.action_trace_integrity import action_trace_sha256
-from scripts.aichi_raw_global_gate import evaluate_balanced_raw_batch, source_inventory_digest
+from scripts.aichi_raw_global_gate import (
+    evaluate_balanced_raw_batch, evaluate_natural_start_zero_loss_raw_batch,
+    source_inventory_digest,
+)
 
 
 
@@ -140,6 +143,28 @@ def assess_four_cell(b, *, horizon=5, schedule=None):
         expected_trials=four_cell_schedule(horizon) if schedule is None else schedule,
         require_physical_seat_balance=True,
     )
+
+
+def natural_start_assessment(b, schedule):
+    return evaluate_natural_start_zero_loss_raw_batch(
+        b, field(), source_deck_digests=source_decks(),
+        expected_candidate_deck_sha256="a" * 64,
+        predeclared_total_games=640,
+        expected_trials=schedule,
+    )
+
+
+def set_actual_start(g, seat):
+    """Change only synthetic exogenous starter proof, never opponent/candidate inventory."""
+    g["seat"] = seat
+    first_side = g["candidate_side"] if seat == "first" else (
+        "A" if g["candidate_side"] == "B" else "B"
+    )
+    g["first_player_side"] = first_side
+    g["first_turn"]["firstTurnSlot"] = 0 if first_side == "A" else 1
+    g["first_turn"]["firstTurnPlayerId"] = 101 if first_side == "A" else 202
+    g["first_turn"]["firstTurnPlayerName"] = f"research-{first_side}"
+    g["first_turn"]["firstDrawLogName"] = f"research-{first_side}"
 
 class BalancedRawGateTests(unittest.TestCase):
     def test_complete_640_synthetic_wins_pass_math_gate(self):
@@ -333,6 +358,71 @@ class BalancedRawGateTests(unittest.TestCase):
         g["first_player_side"] = "A" if g["first_player_side"] == "B" else "B"
         with self.assertRaisesRegex(ValueError, "Declared first-player side"):
             assess_four_cell(b)
+
+
+    def test_natural_starters_all_a_legacy_64_significant_128_inconclusive(self):
+        b = batch()
+        b["predeclared_total_games"] = 640
+        result = natural_start_assessment(b, registered_schedule())
+        self.assertTrue(result["equal_64_rank_start"]["statistical_threshold_met"])
+        self.assertEqual(
+            result["equal_128_rank_start_physical_seat"]["unobserved_cells"], 64
+        )
+        self.assertEqual(
+            result["equal_128_rank_start_physical_seat"]["sharp_all_win_null_probability"], 1.0
+        )
+        self.assertFalse(result["competitive_evidence_qualified"])
+
+    def test_natural_starters_balanced_128_both_targets_pass_synthetic(self):
+        b = four_cell_batch()
+        b["predeclared_total_games"] = 640
+        result = natural_start_assessment(b, four_cell_schedule())
+        self.assertTrue(result["equal_64_rank_start"]["statistical_threshold_met"])
+        self.assertTrue(result["equal_128_rank_start_physical_seat"]["statistical_threshold_met"])
+        self.assertEqual(result["raw_games"], 640)
+
+    def test_natural_starters_crossed_seat_interactions_change_null(self):
+        b = four_cell_batch()
+        b["predeclared_total_games"] = 640
+        for rank in range(1, 33):
+            a_second = [g for g in b["games"] if g["rank"] == rank
+                        and g["candidate_side"] == "A" and g["seat"] == "second"]
+            b_first = [g for g in b["games"] if g["rank"] == rank
+                       and g["candidate_side"] == "B" and g["seat"] == "first"]
+            for g in a_second[:3]:
+                set_actual_start(g, "first")
+            for g in b_first[:3]:
+                set_actual_start(g, "second")
+        result = natural_start_assessment(b, four_cell_schedule())
+        self.assertTrue(result["equal_64_rank_start"]["statistical_threshold_met"])
+        physical = result["equal_128_rank_start_physical_seat"]
+        self.assertAlmostEqual(
+            physical["sharp_all_win_null_probability"], 0.99 ** 128, places=12
+        )
+        self.assertFalse(physical["statistical_threshold_met"])
+        self.assertEqual(physical["unobserved_cells"], 0)
+
+    def test_natural_starters_one_nonwin_cannot_use_zero_loss_bound(self):
+        b = four_cell_batch()
+        b["predeclared_total_games"] = 640
+        b["games"][0]["winner_side"] = None
+        b["games"][0]["engine_terminal"]["winnerIndex"] = 3
+        result = natural_start_assessment(b, four_cell_schedule())
+        self.assertFalse(result["equal_64_rank_start"]["all_win_test_applicable"])
+        self.assertFalse(result["equal_128_rank_start_physical_seat"]["statistical_threshold_met"])
+        self.assertIsNone(
+            result["equal_128_rank_start_physical_seat"]["sharp_all_win_null_probability"]
+        )
+
+    def test_natural_starters_registered_total_and_sources_still_required(self):
+        b = four_cell_batch()
+        b["predeclared_total_games"] = 641
+        with self.assertRaisesRegex(ValueError, "registered total trial count"):
+            natural_start_assessment(b, four_cell_schedule())
+        b["predeclared_total_games"] = 640
+        b["source_inventory_digest_sha256"] = "0" * 64
+        with self.assertRaisesRegex(ValueError, "source inventory"):
+            natural_start_assessment(b, four_cell_schedule())
 
 if __name__ == "__main__":
     unittest.main()
