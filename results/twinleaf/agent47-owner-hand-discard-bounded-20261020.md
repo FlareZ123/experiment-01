@@ -8,6 +8,10 @@ The adapter operates only when the *live original* Store has an unresolved `Choo
 
 The default heuristic conserves distinct printings in hand where possible. It is not optimized play, does not value Supporter turns, upcoming opponents, board-dependent Energy, UDP, Regidrago payload, or matchups, and cannot itself be used to claim any stronger deck. An absent registered printing, a hidden opponent hand, or a purely speculative cloned Store is never offered to the pure selector.
 
+## Additional negative controls (20 October 23:43 UTC)
+
+[Second manual CI 39516798127](https://github.com/FlareZ123/experiment-01/actions/runs/39516798127) passed both suites at source `ed04bbccecacfc8f9401c95de18b709b047e7376`, including physical seat B owner matching, blocked-card exclusions, no-choice fallback, opposite-hand parity, and cloned speculative Store rejection. These are pure/injected Store controls, not live compiled original Twinleaf gameplay. The still-unintegrated status remains unchanged.
+
 ## Evidence and limitations
 
 - The passing tests assert opponent-hand allocation invariance; exact native printed menu for A/A/B with the mandatory one-card choice; distinct physical A copies for a two-card payment; scope exclusion; and successful typed `ResolvePromptAction` through a **test-injected** Store and reversible prototype hooks.
