@@ -86,6 +86,7 @@ test('interceptor materializes authentic owner Item and Choice and observes nati
   const oldDispatch=Store.prototype.dispatch;
   const result=withActorFogCrystalPrompt(()=>{
     const store=new Store();
+    store.state=state;
     store.dispatch(new AddPlayerAction());
     const bot=new Bot(101);
     const root=bot.decodeNextAction(state);
