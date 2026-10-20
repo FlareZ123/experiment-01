@@ -37,12 +37,40 @@ function observed(game,seat,seed,a,b){
     e.playerSlot===seat && e.turnBefore===1);
   return {
     firstActions:first.map(e=>({kind:e.action,card:e.card??null,
-      selected:e.cardSelection?.selectedCards??null})),
+      selected:e.cardSelection?.selectedCards??null,
+      ...(e.ability?{ability:e.ability}:{})})),
     vipPlays:first.filter(e=>e.action==='PlayCardAction' &&
       e.card==='Battle VIP Pass').length,
     rootAttacks:first.filter(e=>e.action==='AttackAction').length,
     opponentPrizes:first.length?first.at(-1).prizesAfter[1-seat]:null,
     gameFinished:game.finished===true
+  };
+}
+
+/**
+ * Extract a real, actor-owned post-Ability hand transition from the already
+ * observed native decision trace. The root after the Ability provides the
+ * first settled next-decision own-hand snapshot. No hidden-zone peeking.
+ * @param {object} game Completed bounded native runner result.
+ * @param {0|1} seat Actual physical source owner.
+ * @returns {object|null} Genuine Squawk receipt, if one resolved.
+ */
+function ownerSquawkReceipt(game,seat) {
+  const own=game.decisionTrace.filter(e=>
+    e.playerSlot===seat && e.turnBefore===1);
+  const root=own.find(e=>e.action==='UseAbilityAction'&&
+    e.ability==='Squawk and Seize');
+  if(!root)return null;
+  const next=own.find(e=>e.actionOrdinal>root.actionOrdinal &&
+    e.decisionHandBefore?.perspectiveSeat===seat);
+  return {
+    ability:root.ability,actionOrdinal:root.actionOrdinal,
+    ownerHandBefore:root.decisionHandBefore?.ownHandPrintings??null,
+    ownerHandAtNextDecision:next?.decisionHandBefore.ownHandPrintings??null,
+    followingRoot:next?{action:next.action,card:next.card??null}:null,
+    nativeAbilityTraceMatches:game.abilityTrace.some(e=>
+      e.turn===1&&e.seat===seat&&e.name===root.ability),
+    firstTurnOnly:true
   };
 }
 
@@ -116,11 +144,18 @@ function run(){
         {followupCologne:true,preferSquawk:true});
       const squawkGame=observed(squawkAlternative.result.result,
         seat,entry.seed,a,b);
+      const squawkReceipt=ownerSquawkReceipt(squawkAlternative.result.result,seat);
       const ownerSearch=squawkAlternative.policyAudit.events.find(e=>
         e.kind==='owner-deck-target');
       assert.ok(ownerSearch,'Native owner-deck VIP prompt missing in alternative');
       const actualSquawk=ownerSearch.cards.some(c=>c.startsWith('Squawkabilly ex '));
       const availableSquawk=ownerSearch.searchedSquawkAvailable===true;
+      if(availableSquawk){
+        assert.equal(squawkReceipt?.nativeAbilityTraceMatches,true,
+          'Accepted VIP Squawk must have actual printed ability trace');
+        assert.equal(squawkReceipt?.ownerHandAtNextDecision?.length,6,
+          'Actual Squawk and Seize draw six must settle before next root');
+      }
       assert.equal(actualSquawk,availableSquawk,
         'Priority must choose searched Squawk when available in frozen state');
       assert.ok(ownerSearch.cards.some(c=>c.startsWith('Meloetta ex ')),
@@ -135,7 +170,7 @@ function run(){
       assert.equal(alternateCologne?.sourceDiscardHasCologne,true);
       vipThenCologne.squawkAlternative={
         policy:squawkAlternative.policyAudit,
-        observed:squawkGame,ownerSearch,
+        observed:squawkGame,ownerSearch,squawkReceipt,
         squawkInOwnerDeckPrompt:availableSquawk,
         actuallyBenchedSquawk:actualSquawk,
         rootAbilities:squawkGame.firstActions.filter(a=>
@@ -200,4 +235,4 @@ if(require.main===module){
   writeAtomic('rank26-vip-after-pass-source-pair.json',result);
   process.stdout.write(JSON.stringify(result.summary,null,2)+'\n');
 }
-module.exports={run,SEEDS};
+module.exports={run,SEEDS,ownerSquawkReceipt};
