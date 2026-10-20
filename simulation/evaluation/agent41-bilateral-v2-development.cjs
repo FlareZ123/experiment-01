@@ -213,7 +213,7 @@ function executeDevelopment(trial,candidates,{
   mandatoryOptionFallback=false,paperSupporterQuota=false,
   paperSupporterComparisonTrace=false,proposalStateAudit=false,
   nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
-  nativeOpponentHiddenReadAudit=false
+  nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
     'Initialization passive window belongs only to rank 6');
@@ -267,13 +267,26 @@ function executeDevelopment(trial,candidates,{
   let supporterProposalIntegrity=null;
   let nativeValidationAudit=null;
   let nativeHiddenReadAudit=null;
+  let nativeActionInputAudit=null;
+  const runWithActionInputWitness=()=>{
+    if(!nativeActionInputWitness)return runMatch(request);
+    const base=path.join(root,'vendor/twinleaf/ptcg-server/output');
+    const SimpleTacticsAi=require(path.join(base,
+      'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
+    const Store=require(path.join(base,'game/store/store')).Store;
+    const witnessed=require('../twinleaf/agent23-native-decision-dispatch-witness.cjs')
+      .withNativeDecisionDispatchWitness(()=>runMatch(request),
+        {SimpleTacticsAi,Store,maxRecords:512});
+    nativeActionInputAudit=witnessed.audit;
+    return witnessed.result;
+  };
   const runWithNativeHiddenReadObserver=()=>{
-    if(!nativeOpponentHiddenReadAudit)return runMatch(request);
+    if(!nativeOpponentHiddenReadAudit)return runWithActionInputWitness();
     const {SimpleTacticsAi}=require(path.join(root,
       'vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai'));
     const observed=require('../twinleaf/agent41-native-opponent-hidden-read-observer.cjs')
       .withNativeOpponentHiddenReadObserver(SimpleTacticsAi,
-        ()=>runMatch(request),{seat:candidateSeat,turn:3});
+        runWithActionInputWitness,{seat:candidateSeat,turn:3});
     nativeHiddenReadAudit=observed.audit;
     return observed.result;
   };
@@ -452,6 +465,7 @@ function executeDevelopment(trial,candidates,{
     ...(nativeProposalValidationAudit?{nativeValidationAudit}:{}),
     ...(nativeOpponentHiddenReadAudit?{
       nativeOpponentHiddenReadAudit:nativeHiddenReadAudit}:{}),
+    ...(nativeActionInputWitness?{nativeActionInputAudit}:{}),
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
     verifiedFirstTurn:game.verifiedByDrawLog,
     actualStarterSeat:game.firstTurnSlot,
@@ -524,7 +538,7 @@ function runDevelopment({
   paperSupporterComparisonTrace=false,proposalStateAudit=false,
   nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
-  actorOnlySingleSearch=false
+  actorOnlySingleSearch=false,nativeActionInputWitness=false
 }={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -550,7 +564,7 @@ function runDevelopment({
         compressorPayload,opportunityAudit,lateCompressorPayload,
         mandatoryOptionFallback,paperSupporterQuota,paperSupporterComparisonTrace,
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
-        nativeOpponentHiddenReadAudit,
+        nativeOpponentHiddenReadAudit,nativeActionInputWitness,
         // An opt-in observational package, with each native Store observer
         // applicable to its own opposing source archetype only.
         initializationWindow:nativePressureWindows&&trial.rank===6,
@@ -581,6 +595,8 @@ function runDevelopment({
           nativeValidationAudit:nativeValidation}:{}),
         ...(nativeOpponentHiddenReadAudit?{
           nativeOpponentHiddenReadAudit:nativeHiddenRead}:{}),
+        ...(nativeActionInputWitness?{
+          nativeActionInputAudit:error?.nativeDecisionDispatchEvidence??null}:{}),
         qualifiesForCompetitiveInference:false
       });
     }
@@ -613,6 +629,7 @@ function runDevelopment({
     proposalStateAuditOptIn:proposalStateAudit,
     nativeProposalValidationAuditOptIn:nativeProposalValidationAudit,
     nativeOpponentHiddenReadAuditOptIn:nativeOpponentHiddenReadAudit,
+    nativeActionInputWitnessOptIn:nativeActionInputWitness,
     actorOnlyCompositionOptIn:actorOnlyComposition,
     actorOnlyOwnerSingleSearchOptIn:actorOnlyComposition&&actorOnlySingleSearch,
     actorOnlyCompositionVersion:actorOnlyComposition?
@@ -676,6 +693,8 @@ if(require.main===module){
       Number(process.env.AGENT41_NATIVE_PROPOSAL_TAPE_ORDINAL):null,
     nativeOpponentHiddenReadAudit:
       process.env.AGENT41_NATIVE_HIDDEN_READ_DEV==='true',
+    nativeActionInputWitness:
+      process.env.AGENT23_NATIVE_INPUT_WITNESS_DEV==='true',
     actorOnlyComposition:process.env.AGENT7_CANONICAL_ACTOR_POLICY_DEV==='true',
     actorOnlySingleSearch:process.env.AGENT41_ACTOR_SINGLE_SEARCH_DEV==='true',
     sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
