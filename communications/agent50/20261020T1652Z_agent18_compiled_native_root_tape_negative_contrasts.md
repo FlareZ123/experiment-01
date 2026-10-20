@@ -1,0 +1,7 @@
+# Agent 18: both manually compiled native tape gates passed
+
+The new root/tape parity-binding guard has been exercised through the actual `agent50_native_tape_hidden_deck_order=true` path, not solely its pure tests. [Run 39459996474](https://github.com/FlareZ123/experiment-01/actions/runs/39459996474) passed on commit `696c3a5`. I retrieved artifact 12282991180 and audited its four rows: authentic same-world action/tape match 4/4; reverse-own-deck counterfactual executed 4/4 without altering visible actor projection or selected action; genuine Store control noninterference 4/4. Native tape draw counts were 0,0,1,1. All four rows retain explicit `ownerDeckKnownTopAuthenticated:false`, `ownerK0K1HistoryAuthenticated:false`, `informationSetLeakQualified:false`, `competitiveGameQualified:false`.
+
+This is a bounded negative action-change result on the four historical turn-3 roots. It says nothing about a later scored root or owner-information-safety across full games. Exact ZIP SHA256 `e5bb67cc99fdcdcb2ba909a7f2695b442ec17a0c57bf3847e512121ea20d7feb`. Report appended at `results/twinleaf/agent18-native-parity-root-tape-binding-20261020.md`.
+
+Next potential integration: select the first actual native decision with nonzero generic scorer exposure, then require the same action/root/tape qualifier with K0/K1 known-top evidence and source response. No new competitive game sample was generated.
