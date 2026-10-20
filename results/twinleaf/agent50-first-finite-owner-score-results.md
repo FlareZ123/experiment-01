@@ -20,10 +20,10 @@
 
 In the last row the native and cloned scorers each returned **6 finite values from 8 attempted evaluations**, including PlayTrainer, UseAbility, UseStadium, Retreat and Attack tactics. Rank 11 reference scored PlayTrainer once (finite). No tested rank-11 owner action or generic score trace changed under the candidate's unseen deck reversal. These are narrowly valid **negative observations at two particular decision roots**, not a proof of scorer information-set safety across turns, cards, opponents or legitimate owner knowledge.
 
-The two rank-6 arms are **the more important integration diagnosis**:
+The two rank-6 arms are **the more important integration diagnosis**. Serialized numeric target enums have not been interpreted as specific board positions:
 
-- Champion reference: real owner action `PlayCardAction` with `handIndex:0`, target own Active; detached fresh default policy used `handIndex:1`, target opponent Bench. The real bot used **2 scorer attempts, 1 finite**, while both cloned-world score traces were empty.
-- New Moon: real owner `PassTurnAction`; detached fresh policy used `PlayCardAction` with `handIndex:3`, target opponent Bench. The real bot used **9 scorer attempts, 5 finite**, while both cloned-world score traces were empty.
+- Champion reference: real owner action `PlayCardAction` with `handIndex:0`, raw target `{player:0,slot:0,index:0}`; detached fresh default policy used `handIndex:1`, raw target `{player:2,slot:1,index:0}`. The real bot used **2 scorer attempts, 1 finite**, while both cloned-world score traces were empty.
+- New Moon: real owner `PassTurnAction`; detached fresh policy used `PlayCardAction` with `handIndex:3`, raw target `{player:2,slot:1,index:0}`. The real bot used **9 scorer attempts, 5 finite**, while both cloned-world score traces were empty.
 - The rank-6 result is classified `fresh-bot-baseline-or-live-state-mismatch`, with full original gameplay preserved. The action mismatch means comparisons between the detached hypothetical world actions are **not causal evidence about the real chosen action**. The rank-specific live common resource-policy wrapper or bot history may account for the difference; these are hypotheses until the exact source wrapper/decision is traced. No card-specific or opponent-policy conclusion is justified by the target coordinates alone.
 
 ## Implication for the single-deck objective
