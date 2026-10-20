@@ -1,0 +1,45 @@
+name: Canonical bilateral actor-only decision composition
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  canonical-four-arm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Pure adapter-composition order and qualification tests
+        run: node --test tests/agent7-canonical-actor-composition.test.cjs
+      - name: Check out exact pinned upstream engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute unchanged canonical four-arm historical bilateral runner
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-actor-fourarm.json
+      - name: Fail closed on missing actor audits and silent missing arms
+        run: |
+          node -e "const assert=require('node:assert/strict');const r=require('./agent7-canonical-actor-fourarm.json');assert.equal(r.attempted,4);assert.equal(r.rows.length,4);assert.equal(r.competitiveQualifiedGames,0);assert.equal(r.actorOnlyCompositionOptIn,true);assert.equal(r.actorOnlyCellsWithAudits,4,'Any missing per-arm coverage is a failure');assert.equal(r.paperSupporterQuotaOptIn,true);for(const row of r.rows){assert.ok(row.actorOnlyDecisionCoverage,'No actor-only audit');assert.equal(row.qualifiesForCompetitiveInference,false);const a=row.actorOnlyDecisionCoverage;assert.equal(a.qualification.competitiveGames,0);assert.ok(a.nativeDecisionCounts.actorRootsAccepted>0,'No native accepted actor roots');assert.equal(a.nativeDecisionCounts.actorRootsRejected,0);}console.log('ACTOR_CANONICAL_FOURARM',JSON.stringify(r.rows.map(x=>({trial:x.trial.id,actor:x.actorOnlyDecisionCoverage.nativeDecisionCounts,sourceDeal:x.sourceDealFingerprint??null,sourceFirst:x.sourceActuallyFirst??null,sourceReply:x.candidateFollowupStatus??null,error:x.error??null}))))"
+      - name: Preserve every observed and unobserved development arm
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-canonical-actor-fourarm-development
+          path: agent7-canonical-actor-fourarm.json
+          if-no-files-found: warn
+          retention-days: 30
