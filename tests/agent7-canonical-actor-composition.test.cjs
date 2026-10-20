@@ -127,3 +127,30 @@ test('opt-in sixth owner search sits below Fog and above generic roots',()=>{
     'ActorOnlyRoot'
   ]);
 });
+
+test('opt-in outer native decoder ledger retains canonical hook order and disaggregates seats',()=>{
+  const order=[];
+  const make=(name,audit)=>fakeAdapter(name,audit,order);
+  const observed=withCanonicalActorOnlyPolicy(()=>29,{
+    genericFallback:make('genericFallback',{
+      liveGenericDecodes:5,
+      bySeat:{0:{'owner-prompt':2},1:{'owner-prompt':3}},
+      byOwnerPromptType:{0:{ChooseCardsPrompt:2},1:{WaitPrompt:3}}
+    }),
+    root:make('root',{unsupportedPromptFallbacks:5}),
+    fog:make('fog',{}),select:make('select',{}),
+    option:make('option',{}),attack:make('attack',{})
+  },{genericFallbackAttribution:true});
+  assert.equal(observed.result,29);
+  assert.deepEqual(order,[
+    'install:genericFallback','install:root','install:fog',
+    'install:select','install:option','install:attack',
+    'restore:attack','restore:option','restore:select',
+    'restore:fog','restore:root','restore:genericFallback'
+  ]);
+  assert.equal(observed.audit.genericFallbackAttributionOptIn,true);
+  assert.equal(observed.audit.nativeDecisionCounts.nativeGenericDecoderCalls,5);
+  assert.equal(observed.audit.nativeDecisionCounts.nativeGenericDecoderBySeat[1]['owner-prompt'],3);
+  assert.equal(observed.audit.nativeDecisionCounts.nativeGenericPromptBySeat[0].ChooseCardsPrompt,2);
+  assert.equal(observed.audit.qualification.competitiveGames,0);
+});
