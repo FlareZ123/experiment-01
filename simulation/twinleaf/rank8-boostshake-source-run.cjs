@@ -126,6 +126,7 @@ function main(){
           action:e.action,card:e.card,ability:e.ability,
           selectedCards:e.cardSelection?.selectedCards}))},
     psychicRecovery:{steps:recovery.events,witness:recovery.witness,
+      unlockedBenchAbilityProbe:recovery.unlockedBenchAbilityProbe,
       turn8Actions:recovery.result.result.result.decisionTrace.filter(e=>
         e.turnBefore===8 && e.playerSlot===1).map(e=>({
           action:e.action,card:e.card,ability:e.ability,
