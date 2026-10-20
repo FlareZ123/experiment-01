@@ -117,3 +117,9 @@ test('different native RNG tapes fail before comparison',()=>{
   input.tape=[0.75];
   assert.throws(()=>compareNativeHiddenDeckOrder(input),/Native parity RNG tape/);
 });
+
+test('a success flag without a parity record is insufficient',()=>{
+  const input=makeInput();
+  input.parity={sameWorldDecisionParityQualified:true};
+  assert.throws(()=>compareNativeHiddenDeckOrder(input),/parity provenance schema/);
+});
