@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 
 const VERSION = 'agent7-canonical-actor-five-component-v2';
+const OWNER_SEARCH_VERSION = 'agent41-canonical-actor-six-component-v3-owner-single-search';
 
 /**
  * Install one ordered actor-observation-only root/prompt decision chain around
@@ -17,12 +18,17 @@ const VERSION = 'agent7-canonical-actor-five-component-v2';
  *
  * @template T
  * @param {()=>T} execute Synchronous genuine pinned-Store workload.
- * @param {{root?:Function,fog?:Function,select?:Function,option?:Function,attack?:Function}} [adapters]
+ * @param {{root?:Function,fog?:Function,select?:Function,option?:Function,attack?:Function,ownerSearch?:Function}} [adapters]
  *   Test injection only. Real components have their own pinned-Store tests.
+ * @param {{ownerSingleSearch?:boolean}} [options] Default preserves v2.
  * @returns {{result:T,audit:object}}
  */
-function withCanonicalActorOnlyPolicy(execute, adapters = {}) {
+function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   assert.equal(typeof execute, 'function');
+  const ownerSingleSearch = options.ownerSingleSearch===true;
+  const ownerSearch = ownerSingleSearch?(adapters.ownerSearch??
+    require('../twinleaf/agent41-actor-owner-single-search.cjs')
+      .withActorOwnerSingleSearch):null;
   const root = adapters.root ??
     require('../twinleaf/agent34-actor-only-root-policy.cjs')
       .withActorOnlyRootPolicy;
@@ -38,12 +44,17 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}) {
   const attack = adapters.attack ??
     require('../twinleaf/agent13-actor-only-choose-attack.cjs')
       .withActorOnlyChooseAttack;
-  for (const component of [root, fog, select, option, attack]) {
+  for (const component of [root, fog, select, option, attack,
+    ...(ownerSingleSearch?[ownerSearch]:[])]) {
     assert.equal(typeof component, 'function');
   }
 
-  const rooted = root(() => fog(() => select(() => option(() => attack(execute)))));
-  const fogged = rooted.result;
+  const runFog = () => fog(() => select(() => option(() => attack(execute))));
+  // Fog's already-owned deck search is the higher-priority actor handler.
+  const rooted = root(() => ownerSingleSearch?ownerSearch(runFog):runFog());
+  const searchOrFog = rooted.result;
+  const fogged = ownerSingleSearch?searchOrFog.result:searchOrFog;
+  const ownerSearchAudit = ownerSingleSearch?searchOrFog.audit:null;
   const selected = fogged.result;
   const optioned = selected.result;
   const attacked = optioned.result;
@@ -52,7 +63,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}) {
   const selectAudit = selected.audit;
   const optionAudit = optioned.audit;
   const attackAudit = attacked.audit;
-  for (const audit of [rootAudit, fogAudit, selectAudit, optionAudit, attackAudit]) {
+  for (const audit of [rootAudit, fogAudit, selectAudit, optionAudit,
+    attackAudit,...(ownerSingleSearch?[ownerSearchAudit]:[])]) {
     assert.ok(audit && typeof audit === 'object',
       'Each actor-only adapter must return its own audit');
   }
@@ -60,14 +72,17 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}) {
   const finalGenericPromptFallbacks =
     rootAudit.unsupportedPromptFallbacks ?? null;
   const audit = {
-    version: VERSION,
+    version: ownerSingleSearch?OWNER_SEARCH_VERSION:VERSION,
     selectedHandlerPriority: [
       'ChooseAttackPrompt', 'SelectOptionPrompt', 'SelectPrompt',
-      'FogCrystalRootAndOwnerDeckSearch', 'ActorOnlyRoot'
+      'FogCrystalRootAndOwnerDeckSearch',
+      ...(ownerSingleSearch?['ActorOwnerSingleSearchPrompt']:[]),
+      'ActorOnlyRoot'
     ],
     componentVersions: {
       root: rootAudit.version ?? null,
       fog: fogAudit.version ?? null,
+      ...(ownerSingleSearch?{ownerSearch:ownerSearchAudit.version??null}:{}),
       select: selectAudit.version ?? null,
       selectOption: optionAudit.version ?? null,
       chooseAttack: attackAudit.version ?? null
@@ -82,6 +97,11 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}) {
         rootAudit.nativePhysicalConfirmed ?? null,
       fogRootAccepted: fogAudit.fogItemRootNativeAccepted ?? null,
       fogOwnerPromptAccepted: fogAudit.fogPromptNativeAccepted ?? null,
+      ...(ownerSingleSearch?{
+        ownerSearchAccepted:ownerSearchAudit.accepted??null,
+        ownerSearchSettled:ownerSearchAudit.nativePromptPostconditionsConfirmed??null,
+        ownerSearchUnverified:ownerSearchAudit.nativePromptPostconditionsUnverified??null
+      }:{}),
       selectAccepted: selectAudit.accepted ?? null,
       selectOptionAccepted: optionAudit.acceptedPromptActions ?? null,
       chooseAttackAccepted: attackAudit.accepted ?? null,
@@ -94,12 +114,14 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}) {
       selectOption: optionAudit.unsupportedPromptDelegations ?? null,
       select: selectAudit.unsupportedPromptFallbacks ?? null,
       fog: fogAudit.unsupportedPrompts ?? null,
+      ...(ownerSingleSearch?{ownerSearch:ownerSearchAudit.nativeFallbacks??null}:{}),
       lastChanceRoot: finalGenericPromptFallbacks,
       warning: 'Nested delegation counters overlap. The root is the final fallback.'
     },
     detailedComponentAudits: {
       root: rootAudit,
       fog: fogAudit,
+      ...(ownerSingleSearch?{ownerSearch:ownerSearchAudit}:{}),
       select: selectAudit,
       selectOption: optionAudit,
       chooseAttack: attackAudit
@@ -116,4 +138,4 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}) {
   return {result: attacked.result, audit};
 }
 
-module.exports = {VERSION, withCanonicalActorOnlyPolicy};
+module.exports = {VERSION, OWNER_SEARCH_VERSION, withCanonicalActorOnlyPolicy};

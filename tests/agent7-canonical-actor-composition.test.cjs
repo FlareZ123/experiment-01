@@ -94,3 +94,36 @@ test('composing a partially implemented actor policy cannot self-certify games',
   assert.equal(observed.audit.qualification.sourcePolicyCompetenceEstablished, false);
   assert.equal(observed.result.rows[0].finished, true);
 });
+
+test('opt-in sixth owner search sits below Fog and above generic roots',()=>{
+  const order=[],add=(name,audit)=>fakeAdapter(name,audit,order);
+  const adapters={
+    root:add('root',{selectedRootDecisions:2,acceptedActorRoots:2,
+      unsupportedPromptFallbacks:1}),
+    ownerSearch:add('ownerSearch',{accepted:3,
+      nativePromptPostconditionsConfirmed:3,
+      nativePromptPostconditionsUnverified:0,nativeFallbacks:5}),
+    fog:add('fog',{fogItemRootNativeAccepted:1,fogPromptNativeAccepted:1}),
+    select:add('select',{accepted:1}),
+    option:add('option',{acceptedPromptActions:1}),
+    attack:add('attack',{accepted:1})
+  };
+  const observed=withCanonicalActorOnlyPolicy(()=>17,adapters,
+    {ownerSingleSearch:true});
+  assert.equal(observed.result,17);
+  assert.deepEqual(order,[
+    'install:root','install:ownerSearch','install:fog',
+    'install:select','install:option','install:attack',
+    'restore:attack','restore:option','restore:select',
+    'restore:fog','restore:ownerSearch','restore:root'
+  ]);
+  assert.equal(observed.audit.nativeDecisionCounts.ownerSearchAccepted,3);
+  assert.equal(observed.audit.nativeDecisionCounts.ownerSearchSettled,3);
+  assert.equal(observed.audit.componentVersions.ownerSearch,'ownerSearch');
+  assert.equal(observed.audit.qualification.competitiveGames,0);
+  assert.deepEqual(observed.audit.selectedHandlerPriority,[
+    'ChooseAttackPrompt','SelectOptionPrompt','SelectPrompt',
+    'FogCrystalRootAndOwnerDeckSearch','ActorOwnerSingleSearchPrompt',
+    'ActorOnlyRoot'
+  ]);
+});

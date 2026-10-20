@@ -523,7 +523,8 @@ function runDevelopment({
   sourceFirstRetrospective=false,paperSupporterQuota=false,
   paperSupporterComparisonTrace=false,proposalStateAudit=false,
   nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
-  nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false
+  nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
+  actorOnlySingleSearch=false
 }={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -556,9 +557,10 @@ function runDevelopment({
         garbotoxinWindow:nativePressureWindows&&trial.rank===11
       });
       if(actorOnlyComposition){
-        const observed=withCanonicalActorOnlyPolicy(execute);
+        const observed=withCanonicalActorOnlyPolicy(execute,{},
+          {ownerSingleSearch:actorOnlySingleSearch});
         rows.push({...observed.result,
-          actorOnlyPolicyVersion:ACTOR_COMPOSITION_VERSION,
+          actorOnlyPolicyVersion:observed.audit.version,
           actorOnlyDecisionCoverage:observed.audit,
           qualifiesForCompetitiveInference:false});
       }else rows.push(execute());
@@ -612,8 +614,10 @@ function runDevelopment({
     nativeProposalValidationAuditOptIn:nativeProposalValidationAudit,
     nativeOpponentHiddenReadAuditOptIn:nativeOpponentHiddenReadAudit,
     actorOnlyCompositionOptIn:actorOnlyComposition,
+    actorOnlyOwnerSingleSearchOptIn:actorOnlyComposition&&actorOnlySingleSearch,
     actorOnlyCompositionVersion:actorOnlyComposition?
-      ACTOR_COMPOSITION_VERSION:null,
+      (rows.find(row=>row.actorOnlyDecisionCoverage)?.actorOnlyDecisionCoverage.version??
+        ACTOR_COMPOSITION_VERSION):null,
     actorOnlyCellsWithAudits:actorOnlyComposition?
       rows.filter(row=>row.actorOnlyDecisionCoverage).length:0,
     nativeProposalTapeOrdinal:nativeProposalValidationAudit?
@@ -673,6 +677,7 @@ if(require.main===module){
     nativeOpponentHiddenReadAudit:
       process.env.AGENT41_NATIVE_HIDDEN_READ_DEV==='true',
     actorOnlyComposition:process.env.AGENT7_CANONICAL_ACTOR_POLICY_DEV==='true',
+    actorOnlySingleSearch:process.env.AGENT41_ACTOR_SINGLE_SEARCH_DEV==='true',
     sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true'
   });
