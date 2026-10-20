@@ -198,6 +198,39 @@ function run(){
         kokoSelected:secondSearch.cards.some(c=>
           c.startsWith('Tapu Koko Prism Star ')),
         retrospectiveDevelopmentOnly:true};
+      const withCompressor=withSourceVipAfterPass(seat,()=>
+        withMailScout(seat,core,{starterAgnostic:true}),
+        {followupCologne:true,preferSquawk:true,followupSecondVip:true,
+          followupCompressor:true});
+      const compressorObserved=observed(withCompressor.result.result,
+        seat,entry.seed,a,b);
+      const compressorOffer=withCompressor.policyAudit.events.find(e=>
+        e.kind==='owner-compressor-offer');
+      const compressorSearch=withCompressor.policyAudit.events.find(e=>
+        e.kind==='owner-compressor-deck-target');
+      const compressorPost=withCompressor.policyAudit.events.find(e=>
+        e.kind==='owner-compressor-postcondition');
+      assert.equal(compressorOffer?.nativeValid,true,
+        'Actual source-held Compressor must have native-valid root');
+      assert.ok(compressorSearch?.nativeValid===true,
+        'Owner-deck Compressor selection must pass native prompt validation');
+      assert.ok(compressorPost?.discardHasCompressor,
+        'Genuine Compressor Item must settle into discard');
+      assert.equal(compressorPost.ownerHasCompressor,false);
+      assert.equal(compressorObserved.firstActions.filter(e=>
+        e.kind==='PlayCardAction'&&e.card==='Battle Compressor').length,1);
+      assert.equal(compressorObserved.vipPlays,2);
+      const earlierPrefix=secondObserved.firstActions
+        .slice(0,-1).map(a=>a.kind+':'+(a.card??a.ability??''));
+      const compressorPrefix=compressorObserved.firstActions
+        .slice(0,earlierPrefix.length)
+        .map(a=>a.kind+':'+(a.card??a.ability??''));
+      assert.deepEqual(compressorPrefix,earlierPrefix,
+        'Compressor must preserve actual preexisting second-VIP source line');
+      vipThenCologne.squawkCompressorContinuation={
+        policy:withCompressor.policyAudit,observed:compressorObserved,
+        compressorOffer,compressorSearch,compressorPost,
+        retrospectiveDevelopmentOnly:true};
       vipThenCologne.squawkAlternative={
         policy:squawkAlternative.policyAudit,
         observed:squawkGame,ownerSearch,squawkReceipt,
@@ -250,7 +283,15 @@ function run(){
         secondVipKokoSelected:cases.filter(c=>
           c.vipThenCologne?.squawkSecondVipContinuation?.kokoSelected).length,
         secondVipAttackRoots:cases.filter(c=>
-          c.vipThenCologne?.squawkSecondVipContinuation?.observed.rootAttacks>0).length} :
+          c.vipThenCologne?.squawkSecondVipContinuation?.observed.rootAttacks>0).length,
+        compressorPhysicalPlays:cases.filter(c=>
+          c.vipThenCologne?.squawkCompressorContinuation?.observed.firstActions
+            .some(a=>a.kind==='PlayCardAction'&&a.card==='Battle Compressor')).length,
+        compressorDiscardedLightning:cases.reduce((n,c)=>n+
+          (c.vipThenCologne?.squawkCompressorContinuation?.compressorPost
+            .physicalDiscardLightning??0),0),
+        compressorSourceAttacks:cases.filter(c=>
+          c.vipThenCologne?.squawkCompressorContinuation?.observed.rootAttacks>0).length} :
       null,
     cases};
 }
