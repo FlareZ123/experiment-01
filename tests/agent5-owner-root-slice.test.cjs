@@ -90,6 +90,7 @@ test('no GX after spent and no attack on first global turn',()=>{
   assert.equal(selectOwnerRootIntent(a,catalog).kind,'pass');
   a.ownPublic.publicTurnRestrictions.gxUsed=false;
   a.globalTurn=1;
+  a.ownTurnResources.energyPlayedTurn=1;
   assert.equal(selectOwnerRootIntent(a,catalog).kind,'pass');
 });
 test('owner Ability-play lock excludes ability-bearing Basics',()=>{
