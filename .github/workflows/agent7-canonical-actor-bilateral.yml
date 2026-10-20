@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank6_source_k1:
+        description: Read-only exact original source-first G&H owner-search target diagnosis
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -22,7 +27,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure adapter-composition order and qualification tests
-        run: node --test tests/agent7-canonical-actor-composition.test.cjs
+        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs
       - name: Check out exact pinned upstream engine
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned server dependencies
@@ -54,6 +59,13 @@ jobs:
         if: ${{ inputs.source_first_retrospective }}
         run: |
           node -e "const assert=require('node:assert/strict');const r=require('./agent7-canonical-sourcefirst.json');assert.equal(r.attempted,4);assert.equal(r.rows.length,4);assert.equal(r.sourceFirstRetrospective,true);assert.equal(r.competitiveQualifiedGames,0);assert.equal(r.actorOnlyCellsWithAudits,4);for(const x of r.rows){assert.ok(x.actorOnlyDecisionCoverage);assert.equal(x.qualifiesForCompetitiveInference,false);assert.equal(x.sourceActuallyFirst,true,'Physical source did not start first');assert.equal(x.actorOnlyDecisionCoverage.qualification.competitiveGames,0);}console.log('ACTOR_SOURCE_FIRST',JSON.stringify(r.rows.map(x=>({trial:x.trial.id,sourceFirst:x.sourceActuallyFirst,sourceAudit:x.sourceAudit,reply:x.candidateFollowupStatus,attacks:x.attackDeclarations,actions:x.actionCount,terminal:x.finished,winner:x.winner,actor:x.actorOnlyDecisionCoverage.nativeDecisionCounts}))))"
+      - name: Read the authentic source-owner rank6 G&H deck-search prompt without changing actions
+        if: ${{ inputs.rank6_source_k1 }}
+        run: node simulation/evaluation/agent7-rank6-k1-canonical-retrospective.cjs > agent7-rank6-source-k1.json
+      - name: Fail closed if no genuine K1 source prompt was observed
+        if: ${{ inputs.rank6_source_k1 }}
+        run: |
+          node -e "const assert=require('node:assert/strict');const x=require('./agent7-rank6-source-k1.json');assert.equal(x.competitiveQualifiedGames,0);assert.equal(x.changedPolicyChoices,false);assert.equal(x.rows.length,4);assert.ok(x.observation.authenticPromptsSeen>0);assert.ok(x.observation.expectedGuzmaHalaSearches>0);assert.equal(x.observation.decisionChanges,0);assert.equal(x.observation.storeDispatchChanges,0);console.log('K1_AUTHENTIC_OWNER_SEARCH',JSON.stringify(x.observation))"
       - name: Preserve every observed and censored development arm
         if: always()
         uses: actions/upload-artifact@v4
@@ -62,5 +74,6 @@ jobs:
           path: |
             agent7-canonical-actor-fourarm.json
             agent7-canonical-sourcefirst.json
+            agent7-rank6-source-k1.json
           if-no-files-found: warn
           retention-days: 30
