@@ -27,17 +27,30 @@ function captureSetupOnly(storeClass,play,options={}) {
   const stop=Object.freeze({kind:'research-stop-at-first-turn'});
   let setupZones=null;
   let sourcePhysicalDeal=null;
+  /**
+   * Opt-in ordered source provenance must use the first settled player-turn
+   * state, which can occur after Store first reports turn === 1 during setup.
+   * @param {object} state
+   */
+  function captureIfReady(state){
+    if(setupZones!==null || state?.turn!==1 ||
+       !Array.isArray(state.players) || state.players.length!==2)return;
+    if(options.sourceSeat!==undefined &&
+       (state.phase!==2 || !Array.isArray(state.prompts) ||
+        state.prompts.some(prompt=>prompt.result===undefined)))return;
+    const observation=openingSetupZones(state);
+    const physical=options.sourceSeat===undefined?null:
+      fingerprintInitialSourceDeal(state,options.sourceSeat,0);
+    setupZones=observation;
+    sourcePhysicalDeal=physical;
+    throw stop;
+  }
   storeClass.prototype.dispatch=function stopAfterSetup(action){
+    // When entering this wrapper in a settled turn-1 state, capture BEFORE
+    // allowing the first player-turn action to mutate any source zone.
+    if(options.sourceSeat!==undefined)captureIfReady(this.state);
     const result=original.call(this,action);
-    if(setupZones===null && this.state?.turn===1 &&
-        Array.isArray(this.state.players) && this.state.players.length===2){
-      setupZones=openingSetupZones(this.state);
-      if(options.sourceSeat!==undefined){
-        sourcePhysicalDeal=fingerprintInitialSourceDeal(
-          this.state,options.sourceSeat,0);
-      }
-      throw stop;
-    }
+    captureIfReady(this.state);
     return result;
   };
   try{
