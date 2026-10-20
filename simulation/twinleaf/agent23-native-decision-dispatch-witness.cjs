@@ -94,6 +94,9 @@ function withNativeDecisionDispatchWitness(execute,options) {
         !Array.isArray(state?.players)) return action;
     const seat=state.players.findIndex(p=>p.id===this.client?.id);
     if(seat<0) return action;
+    const pending=state.prompts?.find(p=>p.result===undefined)??null;
+    if(pending?pending.playerId!==this.client.id:state.activePlayer!==seat)
+      return action;
     const original=actionIdentity(action,state,codecs);
     const ordinal=++seenDecisions;
     if(action&&typeof action==='object'){
