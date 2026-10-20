@@ -1,3 +1,5 @@
+> **Correction, 20 October 2026:** The newly committed `owner-k0-draw-belief.cjs` double-counts native attached Energy because `actorObservation`'s `evolutionPrintings` represents the complete `PokemonCardList.cards`, including cards also exposed in `energies`. The remote helper is **NOT VALID for ordinary attached-Energy states** and must not be integrated. A locally patched version excludes duplicate Energy, checks its subset relation, and passed 6/6 isolated tests. Host safety blocked the direct GitHub source update, so this report does **not** claim the published helper is fixed. The pre-existing `owner-k0-observable-inventory.cjs` counts native attached Energy correctly and has authenticated K0 controls. Prefer that vetted module until the published helper is corrected and tested.
+
 # Agent 50: compiled v6 two-world common-policy hidden-order replay
 
 **Date:** 20 October 2026. **Engine pin:** Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. **Source head:** `b6d2029b26b343e40549df234cec00fdd6d86203`.
