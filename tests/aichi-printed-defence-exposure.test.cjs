@@ -97,3 +97,17 @@ test('all nine Apex-to-Shred rosters include Dragon Energy and mixed natural Ene
     assert.ok(count('Regidrago VSTAR') >= 3, 'rank ' + r);
   }
 });
+
+
+test('18 published GX supports have a printed Energy Drive attacker outside Safeguard', () => {
+  const lele = index.get(['GRI','60','Tapu Lele-GX'].join('\u0000'));
+  assert.ok(lele);
+  assert.ok(lele.subtypes.includes('GX'));
+  assert.ok(!lele.subtypes.includes('ex'));
+  const attack = lele.attacks.find(a => a.name === 'Energy Drive');
+  assert.deepEqual(attack.cost,['Colorless','Colorless']);
+  assert.equal(attack.damage,'20×');
+  assert.match(attack.text,/Energy attached to both Active Pokémon/);
+  assert.deepEqual(field.filter(x=>x.tapuLeleEnergyDrive).map(x=>x.rank),
+    [1,4,8,10,11,12,13,14,16,18,19,20,21,22,27,30,31,32]);
+});
