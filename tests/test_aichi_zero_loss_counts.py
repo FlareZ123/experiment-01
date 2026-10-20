@@ -59,6 +59,8 @@ class SharpUnequalZeroLossTests(unittest.TestCase):
             assess_zero_loss_cells([1], total_wins=2)
         with self.assertRaises(ValueError):
             assess_zero_loss_cells([1], total_wins=1, confidence="0")
+        with self.assertRaises(ValueError):
+            assess_zero_loss_cells([1], total_wins=0, target="1.2")
 
 
 if __name__ == "__main__":
