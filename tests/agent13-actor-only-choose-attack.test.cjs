@@ -137,6 +137,7 @@ test('unsupported native prompt is delegated and never promoted',()=>{
 
 test('native Store rejection propagates and both patches restore',()=>{
   class AddPlayerAction{}
+  class ChooseAttackPrompt{}
   class ResolvePromptAction{constructor(id,result){this.id=id;this.result=result;}}
   class Store{dispatch(action){
     if(action instanceof AddPlayerAction)return;
@@ -150,8 +151,12 @@ test('native Store rejection propagates and both patches restore',()=>{
   const originalDispatch=Store.prototype.dispatch;
   assert.throws(()=>withActorOnlyChooseAttack(()=>{
     const store=new Store();store.dispatch(new AddPlayerAction());
+    const pending=new ChooseAttackPrompt();
+    Object.assign(pending,{id:51,playerId:101,result:undefined,
+      cards:[{fullName:'Gengar & Mimikyu-GX TEU',attacks:[
+        {name:'Poltergeist'},{name:'Horror House-GX'}]}]});
     const action=new SimpleTacticsAi().decodeNextAction({
-      players:[{id:101},{id:202}],prompts:[],turn:8});
+      players:[{id:101},{id:202}],prompts:[pending],turn:8});
     store.dispatch(action);
   },{
     SimpleTacticsAi,Store,ResolvePromptAction,
