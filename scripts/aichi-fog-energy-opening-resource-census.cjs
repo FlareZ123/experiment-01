@@ -64,6 +64,7 @@ function fogEnergyOpportunity(inventory,draws){
   assert.equal(inventory.reduce((s,n)=>s+n,0),60);
   assert.ok(Number.isInteger(draws)&&draws>=1&&draws<=3);
   const successes=[0n,0n,0n,0n,0n];
+  const directSuccesses=[0n,0n,0n,0n,0n];
   let legalWeight=0n;
   allocations(7,inventory,hand=>{
     if(hand[0]===0)return;
