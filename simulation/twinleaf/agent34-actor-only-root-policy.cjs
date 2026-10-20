@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
-const VERSION='agent34-actor-only-root-slice-v1';
+const VERSION='agent34-actor-only-root-slice-v2-numeric-types';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 
 /**
