@@ -174,6 +174,9 @@ function auditUnconditionalBilateralCensus(plan,archive){
     registeredPairs:pairs.length,
     allRegisteredAttemptsAccounted,
     actualStartsPerCandidateAndRankObserved,
+    // Descriptive paired physical-seat/actual-first coverage. This does not
+    // alter unconditional attempt inclusion or competitive qualification.
+    fourCellCoverage:strict.fourCellCoverage,
     allRegisteredArmsStartVerified,
     allRegisteredSourceStartsFingerprinted,
     // Unconditional accounting deliberately does not select on post-setup
