@@ -65,8 +65,9 @@ function withNativeDecisionDispatchWitness(execute,options) {
   assert.equal(typeof dispatch?.value,'function');
   let liveStore=null,observedLiveStores=0,seenDecisions=0,selectedActions=0,
     matchedDispatches=0,unmatchedDispatches=0,rejectedDispatches=0,
-    unsupportedProposals=0,changedBetweenChoiceAndDispatch=0,
-    droppedRecords=0;
+    unsupportedProposals=0,unsupportedInputComparisons=0,
+    changedBetweenChoiceAndDispatch=0,repeatedChosenObjects=0,
+    verifiedUnchangedInputs=0,droppedRecords=0;
   const records=[];
   const proposals=new WeakMap();
   const append=row=>{
@@ -82,7 +83,10 @@ function withNativeDecisionDispatchWitness(execute,options) {
     unmatchedLiveDispatches:unmatchedDispatches,
     rejectedMatchedDispatches:rejectedDispatches,
     unsupportedProposalInputs:unsupportedProposals,
+    unsupportedInputComparisons,
     changedChoiceToDispatch:changedBetweenChoiceAndDispatch,
+    repeatedChosenObjectDispatches:repeatedChosenObjects,
+    verifiedUnchangedInputs,
     boundedRecords:records.slice(),droppedRecords,
     fullyLinked:false,
     competitiveGameQualified:false,
@@ -120,10 +124,15 @@ function withNativeDecisionDispatchWitness(execute,options) {
       return dispatch.value.apply(this,[action,...args]);
     }
     const current=actionIdentity(action,this.state,codecs);
-    const identityVerified=!found.dispatched&&
-      found.original.status==='captured'&&current.status==='captured'&&
+    const bothPortable=found.original.status==='captured'&&
+      current.status==='captured';
+    const portableEqual=bothPortable&&
       found.original.sha256===current.sha256;
-    if(!identityVerified)changedBetweenChoiceAndDispatch++;
+    if(!bothPortable)unsupportedInputComparisons++;
+    else if(!portableEqual)changedBetweenChoiceAndDispatch++;
+    if(found.dispatched)repeatedChosenObjects++;
+    const identityVerified=!found.dispatched&&portableEqual;
+    if(identityVerified)verifiedUnchangedInputs++;
     found.dispatched=true;
     matchedDispatches++;
     const entry={ordinal:found.ordinal,gameIndex:found.gameIndex,
