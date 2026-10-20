@@ -107,3 +107,20 @@ test('pinned Store processes null choice and skips compulsory G&H mode',()=>{
     'A null mode incorrectly ends this noncancelable card choice');
   assert.equal(f.a.hand.cards.some(c=>c.name==='Sky Field'),false);
 });
+
+test('headless opt-in composes the same resolver across both actual seats and records policy',()=>{
+  const {runMatch,upstreamSmokeDeck}=require('../simulation/twinleaf/headless.cjs');
+  const deck=upstreamSmokeDeck();
+  const request={deckA:deck,deckB:deck,seed:20261020,maxActions:24,
+    strictPromptValidation:true,isolatePolicyRandomness:true};
+  const baseline=runMatch(request);
+  const guarded=runMatch({...request,mandatoryOptionFallback:true});
+  assert.equal(baseline.mandatoryOptionFallback,false);
+  assert.equal(guarded.mandatoryOptionFallback,true);
+  assert.doesNotMatch(baseline.policy,/MandatoryOptionDefaultFallback/);
+  assert.match(guarded.policy,/MandatoryOptionDefaultFallback-v1/);
+  assert.deepEqual(guarded.deckHashes,baseline.deckHashes);
+  assert.equal(guarded.firstTurnSlot,baseline.firstTurnSlot);
+  assert.ok(guarded.actions<=request.maxActions);
+  assert.ok(baseline.actions<=request.maxActions);
+});
