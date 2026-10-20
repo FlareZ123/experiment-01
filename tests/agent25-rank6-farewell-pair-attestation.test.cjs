@@ -36,6 +36,7 @@ function fixture() {
   };
   const options={
     seat:0,turn:3,
+    executionRecordsVerified:true,
     ownerSettlementAudit:{settledZonePostcondition:true},
     archivedRootSha256:createHash('sha256')
       .update(JSON.stringify(baseline.rootActionLedger)).digest('hex')
@@ -162,4 +163,14 @@ test('missing opaque complete-deal observation fails closed',()=>{
   delete altered.initialFullPhysicalDealFingerprint;
   assert.equal(attestFarewellPair(baseline,altered,options).sourceComparable,
     false);
+});
+
+test('a rejected source executor postcondition vetoes apparently matching roots',()=>{
+  const {baseline,altered,options}=fixture();
+  options.executionRecordsVerified=false;
+  const result=attestFarewellPair(baseline,altered,options);
+  assert.equal(result.samePhysicalDeal,true);
+  assert.equal(result.classification,'source-executor-assertion-rejected');
+  assert.equal(result.genuineSingleRootReplacement,false);
+  assert.equal(result.genuineResolvedFarewell,false);
 });
