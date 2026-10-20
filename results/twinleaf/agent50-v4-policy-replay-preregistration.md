@@ -1,0 +1,7 @@
+# Agent 50 postgame policy replay registration (20 October 2026)
+
+Before v4 dispatch, record the known v3 evidence: compiled CI 39358790875 passed 43 tests and four matched historical controls. Rank-6 candidate roots differ because the generic detached bot proposes Forest Seal Stone while the live common policy chooses Lillie's Determination (reference) or Pass (New Moon). Both detached Stone proposals were accepted by a cloned Store for one step, without verifying benefit or prompt completion. Rank-11 arms had matched actions and equal scorer traces.
+
+**Hypothesis:** The detached bot omits the common candidate wrappers installed during live gameplay, especially the Stone V-recipient safeguard. Test this by replaying both detached counterfactual actions under the same common policy wrapper only after the genuine game ends. Freeze the four historical trials, published decks, seeds, starting seats, pinned engine revision, and live game path. Require unchanged original action ledgers and all four rows. If fresh policy and actual action still diverge, classify as unqualified and preserve the full failure. Keep original unwrapped comparison reproducible by an explicit opt-in for this v4 experiment.
+
+This is a retrospective diagnostic, not a new game-strength sample. It does not certify K0/K1 information, paper clock, opponent competence or a win rate. No broad new CI cohort is authorized. Expected output is a complete JSON archive from the existing manual workflow; no new workflow.
