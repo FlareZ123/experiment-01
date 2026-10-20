@@ -132,6 +132,7 @@ function main(){
           selectedCards:e.cardSelection?.selectedCards})),
       prizes:recovery.result.result.result.prizesRemaining},
     hoodedLiveLock:{steps:hoodedReply.events,witness:hoodedReply.witness,
+      liveLockAbilityProbes:hoodedReply.liveLockAbilityProbes,
       postDoorPassProbe:hoodedReply.postDoorPassProbe,
       turn8Actions:hoodedReply.result.result.decisionTrace.filter(e=>
         e.turnBefore===8 && e.playerSlot===1).map(e=>({
