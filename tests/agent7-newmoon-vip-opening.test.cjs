@@ -8,6 +8,8 @@ const {choose,firstEightItemGivenLegalSeven,run}=
 test('integer combinatorics conserve 60-card categories',()=>{
   assert.equal(choose(60n,7n),386206920n);
   assert.equal(choose(60n,8n),2558620845n);
+  assert.equal(choose(3n,7n),0n);
+  assert.deepEqual(firstEightItemGivenLegalSeven(55,4),{n:1n,d:1n});
   assert.deepEqual(firstEightItemGivenLegalSeven(17,0),{n:0n,d:1n});
 });
 
