@@ -143,7 +143,15 @@ function chooseActorRootIntent(view,catalog,options={}){
       [...(own.stadium??[]),...(view.opponentPublic?.stadium??[])]
         .some(p=>p.startsWith('Thunder Mountain Prism Star '));
     for(const attack of active.attacks){
-      if(attack.gxAttack||!Array.isArray(attack.cost))continue;
+      if(!Array.isArray(attack.cost))continue;
+      // Printed GX attacks share the global one-GX-per-game resource. They are
+      // disabled by default until explicitly tested as actor-owned roots.
+      // Rule-specific eligibility still belongs to the genuine native Store.
+      if(attack.gxAttack && (
+        options.printedGxRoot!==true ||
+        own.publicTurnRestrictions?.gxUsed===true ||
+        own.publicTurnRestrictions?.cannotUseGXAttacks===true
+      ))continue;
       if(restrictions?.blockedAttackNameNextTurn===attack.name||
         restrictions?.blockedAttackNameUntilLeavesActive===attack.name||
         restrictions?.cannotUseAttacksNextTurn?.includes(attack.name)||
@@ -237,6 +245,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT1_THORNS_DIRECT_ROOT_DEV==='true'),
     specialEnergyRootOptIn:deps.specialEnergyRoot??
       (process.env.AGENT3_SPECIAL_ENERGY_ROOT_DEV==='true'),
+    printedGxRootOptIn:deps.printedGxRoot??
+      (process.env.AGENT25_PRINTED_GX_ROOT_DEV==='true'),
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
     typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
     publicTransitionWitnesses:0,publicTransitionChanges:0,
@@ -277,7 +287,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     const intent=chooseActorRootIntent(view,catalog,{
       energyFrontier:audit.energyFrontierOptIn,
       thornsDirectLine:audit.thornsDirectLineOptIn,
-      specialEnergyRoot:audit.specialEnergyRootOptIn
+      specialEnergyRoot:audit.specialEnergyRootOptIn,
+      printedGxRoot:audit.printedGxRootOptIn
     });
     const ownerId=state.players[seat].id;
     let action;
