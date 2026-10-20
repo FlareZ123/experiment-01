@@ -70,6 +70,10 @@ function withLiveGarbodorAbilityWindow(execute,{
       sourceGarbodorHasTool:sourceTool,
       candidateActive:ownActive.fullName,
       candidatePrintedPowerNames:(ownActive.powers??[]).map(p=>p.name),
+      candidatePrintedPowerChecks:(ownActive.powers??[]).map(power=>({
+        name:power.name,
+        blocked:Boolean(isAbilityBlocked(this,state,candidate,ownActive,power))
+      })),
       // The generic no-Power call is historical diagnostics only. Pinned
       // IS_ABILITY_BLOCKED synthesizes a generic Ability when Power is absent,
       // which can yield a false positive for exempt printed Abilities.
