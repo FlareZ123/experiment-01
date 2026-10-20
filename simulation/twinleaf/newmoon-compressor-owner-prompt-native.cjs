@@ -262,10 +262,72 @@ function benchedMewtwoPreparation(){
   return result;
 }
 
+/**
+ * Real pinned Store regression for the independently enabled second donor.
+ * Gengar is already established in discard and only Trevenant remains in
+ * the owner deck. The archived default policy must decline to initiate an
+ * Item, while the explicit second-donor mode must play Compressor, resolve
+ * the native owner-search prompt, and expose Night Watch to Perfection.
+ * This is a synthetic position, never a source-dealt competitive game.
+ * @returns {object}
+ */
+function establishedGengarSecondDonor(){
+  const {store,a}=preparedOwnerState();
+  const {shouldSeekPayload}=require('./new-moon-compressor-payload-policy.cjs');
+  const {SimpleTacticsAi}=pinned('simple-bot/simple-tactics-ai');
+  const defs=pinned('simple-bot/simple-bot-definitions');
+  const {GamePhase}=pinned('game/store/state/state');
+  const {PlayCardAction}=pinned('game/store/actions/play-card-action');
+  const {ResolvePromptAction}=pinned('game/store/actions/resolve-prompt-action');
+  const {ChooseCardsPrompt}=pinned('game/store/prompts/choose-cards-prompt');
+  const index=a.deck.cards.findIndex(c=>c.fullName===GENGAR);
+  assert.ok(index>=0);
+  a.discard.cards.push(...a.deck.cards.splice(index,1));
+  assert.equal(shouldSeekPayload(store.state,a,GamePhase.PLAYER_TURN),false);
+  assert.equal(shouldSeekPayload(store.state,a,GamePhase.PLAYER_TURN,
+    {allowTrevenantOnly:true}),true);
+  const options=withNewMoonCompressorPayload({
+    tactics:defs.allSimpleTactics,promptResolvers:defs.allPromptResolvers,
+    scores:defs.defaultStateScores,arbiter:defs.defaultArbiterOptions
+  },{allowTrevenantOnly:true});
+  const ai=new SimpleTacticsAi({id:a.id},options,null);
+  const action=ai.decodeNextAction(store.state);
+  assert.ok(action instanceof PlayCardAction);
+  assert.equal(a.hand.cards[action.handIndex]?.name,'Battle Compressor');
+  store.dispatch(action);
+  const owner=store.state.players[0];
+  const prompt=store.state.prompts.find(p=>p.result===undefined &&
+    p instanceof ChooseCardsPrompt && p.player===owner &&
+    p.cards===owner.deck);
+  assert.ok(prompt,'Genuine Battle Compressor owner-deck prompt required');
+  const reply=ai.decodeNextAction(store.state);
+  assert.ok(reply instanceof ResolvePromptAction);
+  const selected=reply.result.map(c=>typeof c==='number'?
+    prompt.cards.cards[c]?.fullName:c?.fullName);
+  assert.deepEqual(selected,[TREV]);
+  store.dispatch(reply);
+  const finalOwner=store.state.players[0];
+  assert.ok(finalOwner.discard.cards.some(c=>c.fullName===TREV));
+  assert.ok(finalOwner.discard.cards.some(c=>c.fullName===GENGAR));
+  assert.ok(ownerVisibleCopyOptions(finalOwner).some(entry=>
+    entry.source===TREV && entry.attack==='Night Watch'));
+  const result={
+    schema:'newmoon-second-donor-genuine-native-owner-prompt-v1',
+    enginePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+    historicalDefaultInitiates:false,explicitSecondDonorInitiates:true,
+    nativeSelectedFromOwnerDeck:selected,actualItemRoot:'Battle Compressor',
+    donorAvailableForPerfection:true,
+    syntheticBoard:true,competitiveQualified:false
+  };
+  process.stdout.write(JSON.stringify(result,null,2)+'\\n');
+  return result;
+}
+
 if(require.main===module){
   main();
   heldGengarCounterexample();
   benchedMewtwoPreparation();
+  establishedGengarSecondDonor();
 }
 module.exports={main,preparedOwnerState,heldGengarCounterexample,
-  benchedMewtwoPreparation};
+  benchedMewtwoPreparation,establishedGengarSecondDonor};
