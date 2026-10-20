@@ -16,10 +16,12 @@ function legitimateEvidence(){
       nativeSameTurnSecondSupporters:[],
       nativeUnsettledRoots:[],
       legalSupporterRoots:[{
+        schema:'native-paper-supporter-pre-dispatch-v1',
         card:'Cynthia & Caitlin CEC',turn:2,seat:1,quotaBefore:0,
         returnedFromNativeDispatch:true,handCardPhysicallyPresent:true
       }],
       nativeSupporterEvents:[{
+        evidenceType:'native-Store-dispatch-postcondition-v1',
         name:'Cynthia & Caitlin CEC',turn:2,seat:1,
         settled:true,repeatOnSameTurn:false,
         supporterTurnBefore:0,supporterTurnAfter:1,
