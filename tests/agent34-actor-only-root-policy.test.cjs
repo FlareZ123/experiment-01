@@ -101,6 +101,10 @@ test('real Store accepts native typed root, with reversible hook restoration',()
   assert.strictEqual(Store.prototype.dispatch,priorStore);
   assert.equal(x.audit.selectedRootDecisions,1);
   assert.equal(x.audit.acceptedActorRoots,1);
+  assert.equal(x.audit.nativePhysicalConfirmed,0);
+  assert.equal(x.audit.nativePhysicalUnconfirmed,1,
+    'A Store submission with no mutation remains an unconfirmed effect');
+  assert.equal(x.audit.publicTransitionChanges,0);
   assert.equal(x.audit.rejectedActorRoots,0);
   assert.equal(x.audit.unsupportedPromptFallbacks,0);
   assert.equal(x.audit.competitiveGameQualified,false);
