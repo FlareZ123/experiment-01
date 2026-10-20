@@ -4,6 +4,8 @@ const assert = require('node:assert/strict');
 
 const VERSION = 'agent7-canonical-actor-five-component-v2';
 const OWNER_SEARCH_VERSION = 'agent41-canonical-actor-six-component-v3-owner-single-search';
+const SPARSE_OWNER_SEARCH_VERSION =
+  'agent22-canonical-actor-six-component-v4-sparse-owner-search';
 
 /**
  * Install one ordered actor-observation-only root/prompt decision chain around
@@ -27,6 +29,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   assert.equal(typeof execute, 'function');
   const ownerSingleSearch = options.ownerSingleSearch===true;
   const sparseOwnerSearch=ownerSingleSearch&&
+    adapters.ownerSearch===undefined&&
     process.env.AGENT22_SPARSE_OWNER_BUNDLE_DEV==='true';
   const ownerSearch = ownerSingleSearch?(adapters.ownerSearch??
     (sparseOwnerSearch?
@@ -77,7 +80,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   const finalGenericPromptFallbacks =
     rootAudit.unsupportedPromptFallbacks ?? null;
   const audit = {
-    version: ownerSingleSearch?OWNER_SEARCH_VERSION:VERSION,
+    version: sparseOwnerSearch?SPARSE_OWNER_SEARCH_VERSION:
+      ownerSingleSearch?OWNER_SEARCH_VERSION:VERSION,
+    sparseOwnerSearchOptIn:sparseOwnerSearch,
     selectedHandlerPriority: [
       'ChooseAttackPrompt', 'SelectOptionPrompt', 'SelectPrompt',
       'FogCrystalRootAndOwnerDeckSearch',
@@ -143,4 +148,5 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   return {result: attacked.result, audit};
 }
 
-module.exports = {VERSION, OWNER_SEARCH_VERSION, withCanonicalActorOnlyPolicy};
+module.exports = {VERSION, OWNER_SEARCH_VERSION,SPARSE_OWNER_SEARCH_VERSION,
+  withCanonicalActorOnlyPolicy};
