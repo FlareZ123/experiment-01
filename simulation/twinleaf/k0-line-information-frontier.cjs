@@ -29,7 +29,6 @@ function k0LineInformationFrontier(input){
   if(!Number.isSafeInteger(observationCost)||observationCost<0||
       !Array.isArray(postObservationPlanIds)||
       !postObservationPlanIds.every(id=>typeof id==='string')||
-      new Set(postObservationPlanIds).size!==postObservationPlanIds.length||
       !Array.isArray(observedDeckPrintings)||
       !observedDeckPrintings.every(x=>typeof x==='string'&&x.length>0)||
       observedDeckPrintings.length>60||
@@ -49,6 +48,8 @@ function k0LineInformationFrontier(input){
   if(new Set(plans.map(plan=>plan.id)).size!==plans.length)
     throw new TypeError('Plan ids must be unique');
   const allowedAfter=new Set(postObservationPlanIds);
+  if(allowedAfter.size!==postObservationPlanIds.length)
+    throw new TypeError('Post-observation plan ids must be unique');
   if([...allowedAfter].some(id=>!plans.some(plan=>plan.id===id)))
     throw new TypeError('Unknown post-observation plan id');
 
