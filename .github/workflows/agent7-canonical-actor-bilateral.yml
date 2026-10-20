@@ -28,6 +28,11 @@ on:
         required: false
         type: boolean
         default: false
+      actor_choose_pokemon:
+        description: Opt in both-seat actor-visible native single-Pokemon prompt choices
+        required: false
+        type: boolean
+        default: false
       native_generic_fallback:
         description: Record seat-attributed generic decoder calls without choosing actions
         required: false
@@ -57,7 +62,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure adapter-composition order and qualification tests
-        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs
+        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs
       - name: Verify optional frontier and default root parity
         run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs tests/agent3-special-energy-root.test.cjs
       - name: Check out exact pinned upstream engine
@@ -72,6 +77,7 @@ jobs:
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
           AGENT7_NATIVE_GENERIC_FALLBACK_DEV: ${{ inputs.native_generic_fallback && 'true' || 'false' }}
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
@@ -88,6 +94,7 @@ jobs:
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
           AGENT7_NATIVE_GENERIC_FALLBACK_DEV: 'false'
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
@@ -104,6 +111,7 @@ jobs:
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
           AGENT7_NATIVE_GENERIC_FALLBACK_DEV: ${{ inputs.native_generic_fallback && 'true' || 'false' }}
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
@@ -122,6 +130,7 @@ jobs:
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
           AGENT7_NATIVE_GENERIC_FALLBACK_DEV: 'false'
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
