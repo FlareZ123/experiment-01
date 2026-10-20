@@ -63,6 +63,32 @@ On candidate global turn **33** after Powerglass became attached to Active Genga
 
 **A narrowly registered second diagnostic** extends exactly the same read-only adapter to capture **all actual public owner board Energy transitions**, including source-turn reductions across both Active and Bench. It deliberately reads **no unrevealed source hand**, recording only public attached Energy and the accepted native action class and pre-action actor/turn. No printed source-card identity is inferred from an unobserved opponent hand. The second replay must reproduce the **same exact original root SHA** as the first, with all 43 actor decisions, five manual attachments, and one positive Powerglass-like prompt. Any divergence fails closed and remains an error; it cannot be added to a game-winning denominator. The point is to distinguish an intervening source removal from a change of Active position or another mechanism.
 
+## Second native replay: complete attached-Energy accounting
+
+The registered second exact-source run [manual CI 39360446476](https://github.com/FlareZ123/experiment-01/actions/runs/39360446476) **passed** with [artifact 12236683159](https://github.com/FlareZ123/experiment-01/actions/runs/39360446476/artifacts/12236683159), ZIP SHA256 `fe859b10d0785231e1a8f72d24e504691ff39759813894b4bc328db98ee0fd39`. The root SHA remained **identically** `87ef423a77ec6aafd6063fd3ad054ce3f9d29806a52ab04f21c1c6bb0e1495e4`, with 43 owner decisions, 18 own turns, five accepted normal Energy attachments and the single positive Powerglass-like prompt. The adapter observed 28 public board-Energy/slot transition events; events with zero attached-card delta are positions and do not count as physical Energy acquisition or loss.
+
+The nonzero attached-Energy transitions in the **same** rank-6 historical game are:
+
+| Global turn | Acting seat | Native accepted action | Change in candidate's publicly attached Energy cards |
+| --- | --- | --- | ---: |
+| 1 | Candidate A | PlayCardAction, manual Basic Psychic to Latias ex | +1 |
+| 3 | Candidate A | PlayCardAction, manual Telepathic Psychic to Latias ex | +1 |
+| 4 | Source B | ResolvePromptAction | **−2** (both Latias energies gone) |
+| 5 | Candidate A | PlayCardAction, manual Telepathic Psychic to Unown | +1 |
+| 5 | Candidate A | RetreatAction | **−1** (Unown's attached Telepathic Energy spent) |
+| 9 | Candidate A | PlayCardAction, manual Basic Psychic to Galarian Articuno V | +1 |
+| 10 | Source B | ResolvePromptAction | **−1** |
+| 13 | Candidate A | PlayCardAction, manual Basic Psychic to Galarian Articuno V | +1 |
+| 14 | Source B | ResolvePromptAction | **−1** |
+| 33 | Candidate A | ResolvePromptAction, accepted Basic Psychic onto Gengar from own discard with Powerglass active | +1 |
+| 34 | Source B | ResolvePromptAction | **−1** (Gengar's newly attached Psychic gone) |
+
+The accounting reconciles exactly: **six positive attached-card transfers** (five manual + one prompted) and **six attached-card losses** (five at source-prompt resolutions and one paid candidate retreat) leave zero cards attached on the final candidate board. The turn-34 loss is an **accepted real source-side native prompt resolution**, with Gengar remaining Active; it is therefore an actual resource-denial consequence in the same game history. The telemetry does **not disclose the triggering source Trainer by name**, and the adapter explicitly refuses to read the opponent's unrevealed hand. Attribution to any specific Crushing Hammer, Plumeria, Team Flare Grunt, Faba, Enhanced Hammer or other card still needs a public root/card witness.
+
+This **falsifies two simplistic causal stories** about the 260-root censor: the bot did make legal manual Energy attachments, and its turn-33 Powerglass prompt did select and attach a Basic Psychic Energy. The immediate source continuation removed that Energy before the candidate's next observed owner turn. That makes **retention and timing under repeatable source Energy denial** the demonstrated issue in this historical seed. Whether a different candidate decision sequence could force Horror House-GX before the source reply remains untested.
+
+The paired same-source-physical-deal champion reference in the original artifact did execute **Pale Moon-GX** and **two Night Watch attacks** and finished as seat-A winner at turn 7, while this candidate ended at the 260-action cap at turn 35 with five Prize cards already taken by source. This is a **single selected-development-seed contrast under an unqualified common bot**, offering a direct reason to challenge this New Moon 60 against control. It is not an unbiased matchup win-rate sample.
+
 ## Immediate causal falsification for Agent41's same runner
 
 Use the **existing canonical rank-6 fixed-seed replay** and preserve its 260-root negative as control. At the first genuine candidate root with Gengar Active, collect **only candidate-visible** hand Energy and attachment-used status plus the exact public attached Energy, current active lock, owner GX usage and pending game prompts. The pinned upstream **AttachEnergyTactic** scores each distinct held Energy on actual in-play Pokémon and only accepts score improvements; **EnergyScore** values missing printed attack/retreat costs, with active weight greater than bench weight. If an attachable Psychic Energy is genuinely held and a manual attachment is unused, test whether a native PlayCardAction offers an accepted attachment to Gengar, whether any Item/Fog search prompt resolves through the acting player's own deck, and whether a native Horror House-GX declaration settles. If not, identify the **first** legal rejection or decision-resource alternative rather than asserting that all 17 archived Passes were avoidable.
