@@ -29,7 +29,10 @@ function attestFarewellPair(baseline,intervention,options) {
     baseline.deckHashes.every(hash=>typeof hash==='string'&&hash.length>0) &&
     Array.isArray(intervention.deckHashes) &&
     intervention.deckHashes.length===2;
-  const sourceComparable=fullDeckIdentitiesPresent &&
+  const originalDeal=baseline.initialFullPhysicalDealFingerprint?.digestSha256??null;
+  const forkDeal=intervention.initialFullPhysicalDealFingerprint?.digestSha256??null;
+  const samePhysicalDeal=typeof originalDeal==='string' && originalDeal.length===64 && originalDeal===forkDeal;
+  const sourceComparable=samePhysicalDeal && fullDeckIdentitiesPresent &&
     typeof baseline.engine==='string' &&
     baseline.engine.length>0 &&
     baseline.engine===intervention.engine &&
@@ -81,7 +84,8 @@ function attestFarewellPair(baseline,intervention,options) {
     observedOwnerZoneSettlement;
   return {
     schema:'agent25-rank6-farewell-paired-native-root-attestation-v1',
-    sourceComparable,archivedSourceUnchanged,originalRootSha256,
+    sourceComparable,samePhysicalDeal,physicalDealSha256:originalDeal,
+    archivedSourceUnchanged,originalRootSha256,
     exactlyOneFarewell,alteredRootOrdinal:actualRoot?.actionOrdinal??null,
     matchedPrefix,replacedOriginalPass,waitPromptSettled,
     authenticAbilityCount,candidateContinued,sourceContinued,
