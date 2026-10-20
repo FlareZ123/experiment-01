@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const {createHash} = require('node:crypto');
 
-const VERSION = 'agent23-native-decision-dispatch-witness-v1';
+const VERSION = 'agent23-native-decision-dispatch-witness-v2-prompt-values';
 
 /**
  * Capture typed action identity without evaluating mutable game-state getters.
@@ -20,11 +20,26 @@ function actionIdentity(action, state, codecs) {
   const type=action.constructor?.name??null;
   try {
     const prompt=state?.prompts?.find(p=>p.result===undefined)??null;
-    const transport=type==='ResolvePromptAction'?'prompt-reference':'typed';
-    const payload=transport==='prompt-reference'?
-      codecs.capturePromptAction(prompt,action,state):codecs.captureAction(action);
-    if (!payload) return {status:'unsupported',type,sha256:null,
-      reason:'unsupported prompt reference'};
+    let transport='typed';
+    let payload;
+    if(type==='ResolvePromptAction'){
+      if(!prompt||action.id!==prompt.id){
+        return {status:'unsupported',type,sha256:null,
+          reason:'pending prompt identity unavailable or mismatched'};
+      }
+      payload=codecs.capturePromptAction(prompt,action,state);
+      if(payload)transport='prompt-reference';
+      else {
+        // Unsupported reference types remain unproved by the existing typed
+        // codec. Scalar/plain value prompts have a complete transport and an
+        // explicit prompt kind, without any private Card reference.
+        transport='prompt-typed-values';
+        payload={promptKind:prompt.constructor.name,
+          action:codecs.captureAction(action)};
+      }
+    }else payload=codecs.captureAction(action);
+    if(!payload)return {status:'unsupported',type,sha256:null,
+      reason:'unportable action input'};
     const envelope={schema:VERSION,transport,type,payload};
     return {status:'captured',type,transport,
       sha256:createHash('sha256').update(JSON.stringify(envelope)).digest('hex')};
