@@ -83,3 +83,32 @@ Two paired manual runs were dispatched on 20 October around 23:04 UTC with ident
 - **Treatment:** `rank4_raichu_compressor_source=true`, `battle_compressor_positive_selection_correction=true`.
 
 Test outcomes, exact CI run links/artifacts, root acceptance, prompt-shuffle completion and any treatment/control changes are pending inspection in this section. These are development runs; all resulting game outcome denominators stay **competitively unqualified**. The immediately falsifiable question is whether the previously held-and-passed Compressor becomes a Store-accepted Item, produces a genuine chosen-card discard and later enables a legal Electrode/GX/attack response. A mere increase in Item dispatches without a connected attack and actual opposing continuation leaves the larger competency gate open.
+
+
+## Completed matched source Compressor treatment: native action success, no connected Bomb attack
+
+Both manual runs completed successfully on the **identical** checkout `5872c6b4b75798bfc124654b8953b368900a37a5`, original frozen eight-trial plan, pinned upstream revision, per-trial seeds and ordered source/candidate deck hashes. The source-only policy toggle was the sole intentional change between arms. Each arm had **8/8 `completed-engine-game`**, all still **0 competitively qualified**. The raw independent artifacts and ZIP file fingerprints are:
+
+| Arm | Manual CI + diagnostic artifact | SHA-256 of downloaded ZIP |
+| --- | --- | --- |
+| Control, paper min1 ON, source tactic OFF | [run 39512568624](https://github.com/FlareZ123/experiment-01/actions/runs/39512568624), [artifact 12306710248](https://github.com/FlareZ123/experiment-01/actions/runs/39512568624/artifacts/12306710248) | `29650edf29872db8056b9fdd23c995bf476b4fa60853a6c25709fe0878c841c8` |
+| Treatment, paper min1 ON, source tactic ON | [run 39512583351](https://github.com/FlareZ123/experiment-01/actions/runs/39512583351), [artifact 12306770119](https://github.com/FlareZ123/experiment-01/actions/runs/39512583351/artifacts/12306770119) | `9db90566667c824c9098585a47bab44065c713b2208df7f1f00f56e1bcc112a2` |
+
+**Strongest action-level causal check:** all eight paired physical Store root-action ledgers are **identical up to the treatment's first Battle Compressor `PlayCardAction`**. The new Item starts at root ordinals 17, 9, 18, 9, 20, 9, 22, 9 for champion A/B, Hood A/B, Temple A/B and New Moon A/B, respectively. It is the first divergence, always executed by the rank-4 source owner on that owner's first turn (global turn 2 for physical seat 1, turn 1 for physical seat 0). All eight Item dispatches were followed in the *same actual Store* by the chain `ChooseCardsPrompt -> ShuffleDeckPrompt -> WaitPrompt`. Each actual owner's deck choice selected exactly these printed cards: **Reversal Energy PAL, Counter Energy CIN, Unit Energy LPM UPR**. Each record was validated against its original source seed, source card digest, role and first-player record. The reproducible checked comparator is [`scripts/agent45-rank4-compressor-compare.cjs`](../../scripts/agent45-rank4-compressor-compare.cjs).
+
+| Paired outcome measure, rank-4 source actor only | Control | Treatment |
+| --- | ---: | ---: |
+| Actual Battle Compressor Item plays | 0 | **8** |
+| Source attacks declared | **33** | 6 |
+| Both evolved Pokémon Benched, non-prompt decision snapshots | 14 | **31** |
+| Both Benched **and at least three** relevant Special Energy discarded | **0** | **31** |
+| Above plus held Escape Rope and favorable Prize window | **0** | **25** |
+| Actual source Extra Energy Bomb Ability dispatches | 0 | **0** |
+| Actual source Electro Rain declarations | 2 | **0** |
+| Source engine terminal wins | 1/8 | 1/8 |
+
+The two changed simulated game winners were **New Moon A and New Moon B**, in opposite directions. New Moon A switched from a source win to a source loss; New Moon B switched from a source loss to a source win. Thus the aggregate engine-winner count was unchanged even though all eight root traces diverged. **No matchup win-rate estimate follows**, especially because the baseline bot often fails to execute legal intended attacks, the outcome is conditional on this exact retrospectively selected eight-deal development cohort, and several source games have repeated non-attacking turns.
+
+**Interpretation:** the new narrow policy demonstrably repairs a *real source Item-discard mechanism*: every tested owner did physically play Compressor, pass a legal minimum-one-card selection, shuffle, and prepare three distinct Special Energy cards without prior action divergence or opponent hidden-information lookup. Nevertheless the repaired resource route alone **did not** produce an `Extra Energy Bomb -> Electro Rain` attack. Twenty-five opportunities in three of eight games now met the read-only Bench/Energy/Rope/Prize resource conjunction, often repeatedly while Alolan Raichu sat on the Bench and another Pokémon stayed Active. This is a strong next *root-action and position-choice* candidate for testing; it is **not** a proven legal pivot until the native Item/Retreat response and actual opponent selection have been checked. Its conditional tactical value and the self-KO Prize trade must still be evaluated under opponent policy competence.
+
+The treatment also sharply reduced source attacking activity from 33 to 6 declarations. This negative indicator is equally material evidence: an accessible Item and more apparently prepared Bench states can coexist with a worse playable game policy. The result should **not** be advertised as a net improvement to the rank-4 opponent or as support for the overall 99.5% deck goal. The presently strongest grounded conclusion is that the missing attack is now downstream of card-preparation in these historical games.
