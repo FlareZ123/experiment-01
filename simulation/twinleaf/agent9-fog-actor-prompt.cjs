@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 
-const VERSION='agent9-fog-crystal-owner-prompt-v1';
+const VERSION='agent9-fog-crystal-owner-prompt-v2-live-state';
 const OUTPUT=path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output');
 
@@ -64,11 +64,18 @@ function withActorFogCrystalPrompt(run,deps={}) {
     fogPromptProposals:0,fogPromptNativeAccepted:0,
     postSearchPhysicalCardPlays:0,postSearchPhysicalEvents:[],
     rejectedNativeChoices:0,unsupportedPrompts:0,
+    nonLiveSpeculativeFallbacks:0,
     events:[],competitiveGameQualified:false,
     note:'Only authentic Fog Crystal first search is actor-owned; other prompt types and all delegated root actions remain outside this policy.'
   };
   /** @param {object} state */
   function decoded(state) {
+    // A native tactic can score a hypothetical cloned State. Only the
+    // Store's authenticated current State may earn actor-only decision credit.
+    if(state!==live?.state){
+      audit.nonLiveSpeculativeFallbacks++;
+      return originalBot.value.call(this,state);
+    }
     const seat=state.players?.findIndex(p=>p.id===this.client?.id)??-1;
     const active=state.prompts?.find(p=>p.result===undefined)??null;
     if(seat<0 || (active && active.playerId!==this.client?.id))

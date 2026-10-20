@@ -83,7 +83,10 @@ test('native typed choice submits the identical donor Attack reference in real S
   const validity=[];
   const run=withActorOnlyChooseAttack(()=>{
     const store=new Store();
+    store.state=state;
     store.dispatch(new AddPlayerAction());
+    assert.throws(()=>new SimpleTacticsAi().decodeNextAction({...state}),
+      /Hidden bot fallback not allowed/);
     const action=new SimpleTacticsAi().decodeNextAction(state);
     assert.ok(action instanceof ResolvePromptAction);
     assert.strictEqual(action.result,selected);
@@ -108,6 +111,7 @@ test('native typed choice submits the identical donor Attack reference in real S
   assert.equal(run.audit.selected,1);
   assert.equal(run.audit.accepted,1);
   assert.equal(run.audit.rejected,0);
+  assert.equal(run.audit.nonLiveSpeculativeFallbacks,1);
   assert.deepEqual(run.audit.selections[0],{
     seat:1,turn:6,sourceIndex:1,attackIndex:0,
     printing:'Gengar & Mimikyu-GX TEU',attack:'Poltergeist'
@@ -117,16 +121,21 @@ test('native typed choice submits the identical donor Attack reference in real S
 });
 
 test('unsupported native prompt is delegated and never promoted',()=>{
+  class AddPlayerAction{}
   class Store{dispatch(){return true;}}
   class ResolvePromptAction{}
   class SimpleTacticsAi{
     constructor(){this.client={id:101};}
     decodeNextAction(){return 'NATIVE_UNQUALIFIED_FALLBACK';}
   }
-  const result=withActorOnlyChooseAttack(()=>
-    new SimpleTacticsAi().decodeNextAction({
-      players:[{id:101},{id:202}],prompts:[{playerId:101,result:undefined}]
-    }),{
+  const result=withActorOnlyChooseAttack(()=>{
+    const store=new Store();
+    const state={players:[{id:101},{id:202}],
+      prompts:[{playerId:101,result:undefined}]};
+    store.state=state;
+    store.dispatch(new AddPlayerAction());
+    return new SimpleTacticsAi().decodeNextAction(state);
+  },{
     SimpleTacticsAi,Store,ResolvePromptAction,
     observe:()=>null,validate:()=>{}
   });
@@ -155,8 +164,9 @@ test('native Store rejection propagates and both patches restore',()=>{
     Object.assign(pending,{id:51,playerId:101,result:undefined,
       cards:[{fullName:'Gengar & Mimikyu-GX TEU',attacks:[
         {name:'Poltergeist'},{name:'Horror House-GX'}]}]});
-    const action=new SimpleTacticsAi().decodeNextAction({
-      players:[{id:101},{id:202}],prompts:[pending],turn:8});
+    const state={players:[{id:101},{id:202}],prompts:[pending],turn:8};
+    store.state=state;
+    const action=new SimpleTacticsAi().decodeNextAction(state);
     store.dispatch(action);
   },{
     SimpleTacticsAi,Store,ResolvePromptAction,

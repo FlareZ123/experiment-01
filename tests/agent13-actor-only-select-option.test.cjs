@@ -87,6 +87,9 @@ test('both native seats dispatch real typed prompt option with validated legalit
       const bot=new SimpleTacticsAi(id);
       const state={players:[{id:101},{id:202}],activePlayer:seat,
         turn:5,prompts:[]};
+      store.state=state;
+      assert.throws(()=>bot.decodeNextAction({...state}),
+        /Hidden-State bot must not choose SelectOption/);
       const a=bot.decodeNextAction(state);
       assert.ok(a instanceof ResolvePromptAction);
       assert.equal(a.result,2);
@@ -111,6 +114,7 @@ test('both native seats dispatch real typed prompt option with validated legalit
   assert.equal(output.audit.acceptedPromptActions,2);
   assert.equal(output.audit.actualStoreInstances,1);
   assert.equal(output.audit.rejectedPromptActions,0);
+  assert.equal(output.audit.nonLiveSpeculativeFallbacks,2);
   assert.equal(output.audit.competitiveGameQualified,false);
   assert.deepEqual(events,[[0,7,2],[1,7,2]]);
   assert.deepEqual(legality,[
@@ -122,6 +126,7 @@ test('both native seats dispatch real typed prompt option with validated legalit
 });
 
 test('unsupported pending prompt delegates and remains unqualified',()=>{
+  class AddPlayerAction{}
   class ResolvePromptAction{}
   class Store{dispatch(){return true;}}
   class SimpleTacticsAi{
@@ -129,9 +134,12 @@ test('unsupported pending prompt delegates and remains unqualified',()=>{
     decodeNextAction(){return 'NATIVE_PROMPT_FALLBACK';}
   }
   const output=withActorOnlySelectOption(()=>{
-    return new SimpleTacticsAi().decodeNextAction({
-      players:[{id:101},{id:202}],prompts:[{playerId:101,result:undefined}]
-    });
+    const store=new Store();
+    const state={players:[{id:101},{id:202}],
+      prompts:[{playerId:101,result:undefined}]};
+    store.state=state;
+    store.dispatch(new AddPlayerAction());
+    return new SimpleTacticsAi().decodeNextAction(state);
   },{
     SimpleTacticsAi,Store,ResolvePromptAction,
     observe:()=>null,validate:()=>{}
@@ -156,10 +164,11 @@ test('rejected real Store actions restore both reversible prototypes',()=>{
   const bot=SimpleTacticsAi.prototype.decodeNextAction;
   const dispatch=Store.prototype.dispatch;
   assert.throws(()=>withActorOnlySelectOption(()=>{
-    const action=new SimpleTacticsAi().decodeNextAction({players:[
-      {id:101},{id:202}],prompts:[],turn:6});
+    const state={players:[{id:101},{id:202}],prompts:[],turn:6};
     const store=new Store();
+    store.state=state;
     store.dispatch(new AddPlayerAction());
+    const action=new SimpleTacticsAi().decodeNextAction(state);
     store.dispatch(action);
   },{
     SimpleTacticsAi,Store,ResolvePromptAction,

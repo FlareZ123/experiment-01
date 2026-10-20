@@ -89,6 +89,8 @@ test('interceptor materializes authentic owner Item and Choice and observes nati
     store.state=state;
     store.dispatch(new AddPlayerAction());
     const bot=new Bot(101);
+    const speculative=Object.assign({},state);
+    assert.deepEqual(bot.decodeNextAction(speculative),{type:'OLD_FALLBACK'});
     const root=bot.decodeNextAction(state);
     assert.ok(root instanceof PlayCardAction);
     assert.equal(root.handIndex,0);
@@ -111,6 +113,7 @@ test('interceptor materializes authentic owner Item and Choice and observes nati
   assert.equal(result.audit.fogPromptNativeAccepted,1);
   assert.equal(result.audit.postSearchPhysicalCardPlays,1);
   assert.equal(result.audit.rejectedNativeChoices,0);
+  assert.equal(result.audit.nonLiveSpeculativeFallbacks,1);
   assert.strictEqual(Store.prototype.dispatch,oldDispatch);
   assert.strictEqual(Bot.prototype.decodeNextAction,oldBot);
 });

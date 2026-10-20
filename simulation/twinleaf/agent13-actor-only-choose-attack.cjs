@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
-const VERSION='agent13-actor-only-copied-attack-choice-v1';
+const VERSION='agent13-actor-only-copied-attack-choice-v2-live-state';
 /**
  * Read only genuine actor-offered ChooseAttackPrompt contents and detached
  * acting-owner observation. Preserve individual printing and attack indices.
@@ -72,10 +72,16 @@ function withActorOnlyChooseAttack(run,deps={}){
   assert.equal(typeof original?.value,'function');
   assert.equal(typeof originalDispatch?.value,'function');
   const decisions=new WeakMap(),stores=new WeakSet();
+  let liveStore=null;
   const audit={version:VERSION,origin:'detached owner ChooseAttack menu',
     menus:0,selected:0,nativeStores:0,accepted:0,rejected:0,
-    nativeFallbacks:0,selections:[],competitiveGameQualified:false};
+    nativeFallbacks:0,nonLiveSpeculativeFallbacks:0,
+    selections:[],competitiveGameQualified:false};
   function decide(state){
+    if(state!==liveStore?.state){
+      audit.nonLiveSpeculativeFallbacks++;
+      return original.value.call(this,state);
+    }
     const seat=state.players.findIndex(p=>p.id===this.client?.id);
     const input=seat>=0?observe(state,seat):null;
     if(!input){
@@ -103,6 +109,7 @@ function withActorOnlyChooseAttack(run,deps={}){
     if(action?.constructor?.name==='AddPlayerAction'&&!stores.has(this)){
       stores.add(this);audit.nativeStores++;
     }
+    if(action?.constructor?.name==='AddPlayerAction')liveStore=this;
     if(!stores.has(this)||!decisions.has(action))
       return originalDispatch.value.apply(this,[action,...args]);
     try{

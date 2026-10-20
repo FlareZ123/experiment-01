@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
-const VERSION='agent13-actor-only-select-option-v1';
+const VERSION='agent13-actor-only-select-option-v2-live-state';
 
 /**
  * Provide only the answering actor's detached observation and options
@@ -83,14 +83,21 @@ function withActorOnlySelectOption(execute,deps={}){
   const originalDispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof original?.value,'function');
   assert.equal(typeof originalDispatch?.value,'function');
-  const selected=new WeakMap(),genuineStores=new WeakSet(),audit={
+  const selected=new WeakMap(),genuineStores=new WeakSet();
+  let liveStore=null;
+  const audit={
     version:VERSION,decisionOrigin:'actorObservation+visible SelectOption',
     actualStoreInstances:0,
     eligiblePrompts:0,selectedPrompts:0,acceptedPromptActions:0,
     rejectedPromptActions:0,unsupportedPromptDelegations:0,
+    nonLiveSpeculativeFallbacks:0,
     selectedIndices:[],competitiveGameQualified:false
   };
   function decide(state){
+    if(state!==liveStore?.state){
+      audit.nonLiveSpeculativeFallbacks++;
+      return original.value.call(this,state);
+    }
     const seat=state.players.findIndex(p=>p.id===this.client?.id);
     const input=seat>=0?observe(state,seat):null;
     if(!input){
@@ -120,6 +127,7 @@ function withActorOnlySelectOption(execute,deps={}){
       genuineStores.add(this);
       audit.actualStoreInstances++;
     }
+    if(action?.constructor?.name==='AddPlayerAction')liveStore=this;
     const proof=genuineStores.has(this)?selected.get(action):undefined;
     if(!proof)return originalDispatch.value.apply(this,[action,...args]);
     try{
