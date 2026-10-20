@@ -146,10 +146,10 @@ jobs:
       - name: Compile pinned Twinleaf
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Check source-first passive classification and replay syntax
+      - name: Check source-first passive classification and native Latias retreat control
         run: |
           node --check simulation/evaluation/agent41-rank6-sourcefirst-passive-replay.cjs
-          node --test tests/agent41-passive-rank6-pressure.test.cjs tests/agent39-live-initialization-window.test.cjs
+          node --test tests/agent41-passive-rank6-pressure.test.cjs tests/agent39-live-initialization-window.test.cjs tests/agent16-rank6-skyliner-retreat-native.test.cjs
       - name: Replay both fixed candidates with and without read-only native observer
         run: node simulation/evaluation/agent41-rank6-sourcefirst-passive-replay.cjs > rank6-native-sourcefirst.json
       - name: Print bounded native rank6 summary
