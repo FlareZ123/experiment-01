@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {createHash}=require('node:crypto');
 const {attestBilateralRootClaims}=
   require('./bilateral-v2-root-ledger-attestation.cjs');
-const {sourceFirstNativePressureVerified}=
+const {sourceFirstNativePressureVerified,sourceFirstNativeExposureKind}=
   require('./agent3-source-first-pressure-kind.cjs');
 
 const {auditFourCellCoverage}=require('./agent42-four-cell-coverage.cjs');
@@ -157,6 +157,7 @@ function auditBilateralV2(plan,archive) {
       diagnostics.push({...arm,status:'missing',actualStarter:null,
         validStart:false,mechanicalBilateralWitness:false,
         sourceFirstEarlyPressureWitness:false,
+        sourceFirstEarlyExposureWitness:false,
         nativeRootClaimsAuthenticated:false,
         nativeSourceFirstRootClaimsAuthenticated:false,
         sourceDealFingerprint:null,
@@ -273,14 +274,18 @@ function auditBilateralV2(plan,archive) {
     const sourceFirstEarlyPressureWitness=bilateralWitness&&
       actualSeat===sourceSeat&&pressureTurn===1&&completionTurn===1&&
       sourceFirstNativePressureVerified(row);
+    const nativeExposureKind=sourceFirstNativeExposureKind(row);
+    const sourceFirstEarlyExposureWitness=bilateralWitness&&
+      actualSeat===sourceSeat&&pressureTurn===1&&completionTurn===1&&
+      nativeExposureKind!=='unverified';
     const vetoes=[];
     if(!validStart)vetoes.push('actual-first-player-unverified');
     if(row.status==='engine-error')vetoes.push('engine-error');
     if(row.status==='action-cap')vetoes.push('action-capped');
     if(!sourcePressure)vetoes.push('source-pressure-unverified');
     if(validStart&&actualSeat===sourceSeat&&pressureTurn===1&&
-      !sourceFirstNativePressureVerified(row)){
-      vetoes.push('source-first-native-pressure-type-unverified');
+      nativeExposureKind==='unverified'){
+      vetoes.push('source-first-native-exposure-unverified');
     }
     if(!firstCandidateReply)vetoes.push('candidate-legal-reply-unverified');
     if(!sourceContinuation)vetoes.push('source-legal-continuation-unverified');
@@ -302,7 +307,8 @@ function auditBilateralV2(plan,archive) {
       actualStarter:validStart?(row.actualStarterSeat===arm.candidateSeat?
         'candidate':'source'):null,
       validStart,mechanicalBilateralWitness:bilateralWitness,
-      sourceFirstEarlyPressureWitness,
+      sourceFirstEarlyPressureWitness,sourceFirstEarlyExposureWitness,
+      nativeExposureKind,
       nativeRootClaimsAuthenticated:nativeRoots?.rootClaimsAuthenticated===true,
       nativeSourceFirstRootClaimsAuthenticated:
         nativeRoots?.sourceFirstTurnPressureAuthenticated===true,
@@ -338,6 +344,12 @@ function auditBilateralV2(plan,archive) {
         y.nativeSourceFirstRootClaimsAuthenticated,
       bothSourceFirstEarlyPressureWitnesses:x.sourceFirstEarlyPressureWitness&&
         y.sourceFirstEarlyPressureWitness,
+      bothSourceFirstEarlyExposureWitnesses:x.sourceFirstEarlyExposureWitness&&
+        y.sourceFirstEarlyExposureWitness,
+      bothNativeRootBoundEarlyExposureWitnesses:
+        x.sourceFirstEarlyExposureWitness&&y.sourceFirstEarlyExposureWitness&&
+        x.nativeSourceFirstRootClaimsAuthenticated&&
+        y.nativeSourceFirstRootClaimsAuthenticated,
       isolatedInventoryEffectCertified:false
     });
   }
@@ -413,6 +425,26 @@ function auditBilateralV2(plan,archive) {
     pairRows.some(pair=>pair.rank===rank&&
       pair.firstObservationComparable&&
       pair.bothNativeRootBoundEarlyPressureWitnesses));
+  // A same-rank, genuine positive suppression control proves the native
+  // effect can block an eligible Power; other candidate inventories may
+  // legitimately present no eligible Power. Absence alone never qualifies.
+  const rank6PositiveControl=pairRows.some(pair=>pair.rank===6&&
+    pair.firstObservationComparable&&pair.armIds.some(id=>
+      byId.get(id).sourceFirstEarlyPressureWitness));
+  const rank6NativePositiveControl=pairRows.some(pair=>pair.rank===6&&
+    pair.firstObservationComparable&&pair.armIds.some(id=>{
+      const d=byId.get(id);
+      return d.sourceFirstEarlyPressureWitness&&
+        d.nativeSourceFirstRootClaimsAuthenticated;
+    }));
+  const bothHardRanksHaveSourceFirstEarlyExposurePairedBilateralWitnesses=
+    [6,11].every(rank=>pairRows.some(pair=>pair.rank===rank&&
+      pair.firstObservationComparable&&
+      pair.bothSourceFirstEarlyExposureWitnesses));
+  const nativeSourceFirstEarlyExposure=[6,11].every(rank=>
+    pairRows.some(pair=>pair.rank===rank&&
+      pair.firstObservationComparable&&
+      pair.bothNativeRootBoundEarlyExposureWitnesses));
   const fourCellCoverage=auditFourCellCoverage(pairRows,[...rankMap.keys()]);
   return {
     schema:'aichi-bilateral-v2-intake-diagnostic-v1',
@@ -426,8 +458,10 @@ function auditBilateralV2(plan,archive) {
     bothHardRanksHavePairedBilateralWitnesses,
     bothHardRanksHaveBothStartPairedBilateralWitnesses,
     bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses,
+    bothHardRanksHaveSourceFirstEarlyExposurePairedBilateralWitnesses,
+    rank6PositiveControl,rank6NativePositiveControl,
     nativeRootsInBothRealStarts,
-    nativeSourceFirstEarlyPressure,
+    nativeSourceFirstEarlyPressure,nativeSourceFirstEarlyExposure,
     mechanicalBilateralWitnesses:mechanicalWitnesses,
     independentlyRootBoundBilateralWitnesses:diagnostics.filter(d=>
       d.mechanicalBilateralWitness&&d.nativeRootClaimsAuthenticated).length,
@@ -436,6 +470,9 @@ function auditBilateralV2(plan,archive) {
     sourceFirstEarlyPressurePairs:pairRows.filter(p=>
       p.firstObservationComparable&&
       p.bothSourceFirstEarlyPressureWitnesses).length,
+    sourceFirstEarlyExposurePairs:pairRows.filter(p=>
+      p.firstObservationComparable&&
+      p.bothSourceFirstEarlyExposureWitnesses).length,
     nativeRootBoundPairs:pairRows.filter(p=>
       p.firstObservationComparable&&
       p.bothNativeRootBoundBilateralWitnesses).length,
@@ -448,6 +485,19 @@ function auditBilateralV2(plan,archive) {
     rootAttestedPilotVerdict:coverageComplete&&twoStartCoverageByCandidate&&
       nativeRootsInBothRealStarts&&nativeSourceFirstEarlyPressure?
         'ROOT-ATTESTED-PILOT-REVIEWABLE':'HOLD-OR-UNAUTHENTICATED',
+    // An explicitly separate source-lock exposure pilot. Its rank6
+    // no-target branch needs a positive native suppression control elsewhere
+    // in the aligned source-first registered cohort. Both strict stress
+    // verdicts above retain their original positive-suppression semantics.
+    exposureInclusivePilotVerdict:coverageComplete&&twoStartCoverageByCandidate&&
+      bothHardRanksHaveBothStartPairedBilateralWitnesses&&rank6PositiveControl&&
+      bothHardRanksHaveSourceFirstEarlyExposurePairedBilateralWitnesses?
+        'EXPOSURE-PILOT-REVIEWABLE':'HOLD-OR-INCOMPLETE',
+    rootAttestedExposureInclusivePilotVerdict:coverageComplete&&
+      twoStartCoverageByCandidate&&nativeRootsInBothRealStarts&&
+      rank6NativePositiveControl&&nativeSourceFirstEarlyExposure?
+        'ROOT-ATTESTED-EXPOSURE-PILOT-REVIEWABLE':
+        'HOLD-OR-UNAUTHENTICATED',
     competitiveStrengthClaimPermitted:false,
     gameWinRateCertified:false,
     caveat:'No game, including an engine terminal, becomes a qualified win '+
