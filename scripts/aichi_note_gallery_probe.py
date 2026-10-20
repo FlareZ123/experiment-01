@@ -41,9 +41,10 @@ def extract_gallery(html: str) -> dict:
                 break
             if element.name in ("p", "h3", "h4", "strong"):
                 heading = element.get_text(" ", strip=True)
-                if heading == "TOP32":
+                if heading == "TOP32" or heading.startswith("TOP32 "):
                     state.update(top32=True, group=None)
-                elif state["top32"] and heading in SUBGROUPS:
+                    heading = heading.removeprefix("TOP32").strip()
+                if state["top32"] and heading in SUBGROUPS:
                     state["group"] = SUBGROUPS[heading]
                 elif state["top32"] and heading in (
                     "テツノイバラ単", "アブソルダスト", "ボムチリーン",
