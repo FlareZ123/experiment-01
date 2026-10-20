@@ -26,7 +26,11 @@ function k0LineInformationFrontier(input){
   const observedDeckPrintings=input.observedDeckPrintings??[];
   const observationCost=input.observationCost??0;
   const postObservationPlanIds=input.postObservationPlanIds??plans?.map(plan=>plan.id);
-  if(!Array.isArray(observedDeckPrintings)||
+  if(!Number.isSafeInteger(observationCost)||observationCost<0||
+      !Array.isArray(postObservationPlanIds)||
+      !postObservationPlanIds.every(id=>typeof id==='string')||
+      new Set(postObservationPlanIds).size!==postObservationPlanIds.length||
+      !Array.isArray(observedDeckPrintings)||
       !observedDeckPrintings.every(x=>typeof x==='string'&&x.length>0)||
       observedDeckPrintings.length>60||
       !Array.isArray(unknownPool)||
@@ -44,6 +48,9 @@ function k0LineInformationFrontier(input){
     throw new TypeError('Invalid owner unknown pool or mutually exclusive plans');
   if(new Set(plans.map(plan=>plan.id)).size!==plans.length)
     throw new TypeError('Plan ids must be unique');
+  const allowedAfter=new Set(postObservationPlanIds);
+  if([...allowedAfter].some(id=>!plans.some(plan=>plan.id===id)))
+    throw new TypeError('Unknown post-observation plan id');
 
   const counts=new Map();
   const knownDeckCounts=new Map();
