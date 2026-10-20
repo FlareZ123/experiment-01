@@ -144,7 +144,14 @@ function withOwnerRootSlice(candidateSeat,work,deps={}){
   const records=[];
   const actionRecords=new WeakMap();
   let promptFallbacks=0,sourceFallbacks=0,ownerRootProposals=0;
+  let nonLiveSpeculativeFallbacks=0,liveStore=null;
   function intercepted(state,...args){
+    // The simulator can recursively inspect speculative Store clones. Only
+    // the authenticated AddPlayerAction Store is eligible for this policy.
+    if(state!==liveStore?.state){
+      nonLiveSpeculativeFallbacks++;
+      return original.call(this,state,...args);
+    }
     const pending=state.prompts?.find(p=>p.result===undefined);
     if(pending){
       promptFallbacks++;
@@ -188,7 +195,10 @@ function withOwnerRootSlice(candidateSeat,work,deps={}){
     return action;
   }
   function tracedDispatch(action,...args){
-    const row=actionRecords.get(action);
+    if(liveStore===null&&action?.constructor?.name==='AddPlayerAction'){
+      liveStore=this;
+    }
+    const row=this===liveStore?actionRecords.get(action):null;
     try{
       const outcome=descriptor.value.call(this,action,...args);
       if(row)row.acceptedByLiveStore=true;
@@ -207,6 +217,8 @@ function withOwnerRootSlice(candidateSeat,work,deps={}){
     return {result,audit:{version:VERSION,candidateSeat,
       ownerRootProposals,promptGenericFallbacks:promptFallbacks,
       sourceGenericFallbacks:sourceFallbacks,
+      nonLiveSpeculativeFallbacks,
+      authenticatedLiveStore:liveStore!==null,
       acceptedByLiveStore:records.filter(row=>row.acceptedByLiveStore).length,
       records,hiddenInformationSafeForCompleteGame:false,
       competitiveGameQualified:false,
