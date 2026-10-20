@@ -44,6 +44,25 @@ function ownerEnergySnapshot(state, owner, enums) {
 }
 
 /**
+ * Preserve public attached-Energy occupancy of every owner's board slot.
+ * Moving Energy between slots is different from reducing attached card count.
+ *
+ * @param {object} owner Acting player's public board.
+ * @param {{superTypeEnergy:number}} enums
+ * @returns {{slot:string,pokemon:string|null,energyNames:string[]}[]}
+ */
+function ownerBoardEnergy(owner, enums) {
+  const slot = (location, pokemonList) => ({
+    slot: location,
+    pokemon: pokemonList.getPokemonCard()?.fullName ?? null,
+    energyNames: pokemonList.cards.filter(c =>
+      c?.superType === enums.superTypeEnergy).map(c => c.fullName)
+  });
+  return [slot('active', owner.active), ...owner.bench.map((x, index) =>
+    slot('bench-' + index, x))];
+}
+
+/**
  * A genuinely dispatched Powerglass-looking native discard-attachment prompt
  * is distinguished from speculative prompt rescoring. This signature does
  * not prove which reducer created the prompt if a second card grants the
@@ -118,6 +137,7 @@ function withOwnerEnergyWindowAudit(candidateSeat, execute, deps = {}) {
   const decisions = [];
   const nativeManualEnergy = [];
   const likelyPowerglassPrompts = [];
+  const publicEnergyTransitions = [];
   let actual = null;
 
   function captureOwnerDecision(state) {
@@ -135,6 +155,11 @@ function withOwnerEnergyWindowAudit(candidateSeat, execute, deps = {}) {
     if (!actual && action?.constructor?.name === 'AddPlayerAction') actual = this;
     const before = this === actual ? this.state : null;
     const owner = before?.players.find(p => p.id === ownerId);
+    const boardEnergyBefore = owner ? ownerBoardEnergy(owner, enums) : null;
+    const sourceId = candidateSeat === 0 ? 202 : 101;
+    const source = before?.players.find(p => p.id === sourceId);
+    const sourcePlay = action?.constructor?.name === 'PlayCardAction' &&
+      action.id === sourceId ? source?.hand.cards[action.handIndex]?.fullName ?? null : null;
     const manual = before?.activePlayer === candidateSeat &&
       action?.constructor?.name === 'PlayCardAction' &&
       action.id === ownerId &&
@@ -148,6 +173,24 @@ function withOwnerEnergyWindowAudit(candidateSeat, execute, deps = {}) {
     const likelyPrompt = owner && powerglassPromptSnapshot(
       before, action, owner, enums);
     const result = originalDispatch.value.call(this, action);
+    if (boardEnergyBefore) {
+      const afterOwner = this.state.players.find(p => p.id === ownerId);
+      const boardEnergyAfter = ownerBoardEnergy(afterOwner, enums);
+      if (JSON.stringify(boardEnergyBefore) !== JSON.stringify(boardEnergyAfter)) {
+        const count = board => board.reduce((total, slot) =>
+          total + slot.energyNames.length, 0);
+        publicEnergyTransitions.push({
+          turnBefore: before.turn,
+          actorSeat: before.activePlayer,
+          nativeAction: action.constructor.name,
+          sourcePlayedCardAtThisRoot: sourcePlay,
+          attachedCardDelta: count(boardEnergyAfter) - count(boardEnergyBefore),
+          before: boardEnergyBefore,
+          after: boardEnergyAfter,
+          realStoreOnly: true
+        });
+      }
+    }
     if (manual) {
       nativeManualEnergy.push({
         ...manual,
@@ -182,7 +225,9 @@ function withOwnerEnergyWindowAudit(candidateSeat, execute, deps = {}) {
         candidateOwnTurns: new Set(decisions.map(row => row.turn)).size,
         nativeManualEnergyAccepted: nativeManualEnergy.length,
         likelyPowerglassPromptAccepted: likelyPowerglassPrompts.length,
+        publicEnergyTransitions: publicEnergyTransitions.length,
         decisions, nativeManualEnergy, likelyPowerglassPrompts,
+        publicEnergyTransitionsLedger: publicEnergyTransitions,
         ownerHiddenPrizeAndDeckIdsRead: false,
         changesPolicyOrStore: false,
         qualifiesForCompetitiveInference: false
@@ -201,5 +246,6 @@ function withOwnerEnergyWindowAudit(candidateSeat, execute, deps = {}) {
 module.exports = {
   ownerEnergySnapshot,
   powerglassPromptSnapshot,
+  ownerBoardEnergy,
   withOwnerEnergyWindowAudit
 };
