@@ -38,6 +38,8 @@ function verifyNativeSameWorldTapeParity(args) {
     assert.equal(typeof callback,'function');
   const before=fingerprint(root);
   const actual=actionSignature(actualAction);
+  const actualSelected=actualAction!==null&&actualAction!==undefined&&
+    actual!==null&&actual!==undefined;
   const report={
     schema:VERSION,tapeDraws:tape.length,tapeSha256:digest(tape),
     rootAtEntry:before,actualAction:actual,
@@ -51,6 +53,8 @@ function verifyNativeSameWorldTapeParity(args) {
   };
   let world=null;
   try {
+    assert.ok(actualSelected,
+      'Native same-world parity requires a genuine selected action');
     world=cloneState(root);
     assert.ok(world&&typeof world==='object');
     assert.notStrictEqual(world,root,'Replay State must be detached');
