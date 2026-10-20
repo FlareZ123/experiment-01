@@ -125,3 +125,15 @@ test('numeric native colored and colorless attacks use numeric energy costs',()=
     assert.equal(chooseActorRootIntent(view,catalog).kind,'attack');
   }
 });
+
+test('numeric native Asleep and Paralyzed prevent a payable attack',()=>{
+  for(const status of [catalog.specialConditions.ASLEEP,catalog.specialConditions.PARALYZED]){
+    const view=base();
+    view.ownHand=[];
+    view.ownPublic.bench=[{},null,null,null,null];
+    view.ownPublic.active.energies=['Psychic Energy MEE'];
+    view.ownPublic.active.specialConditions=[status];
+    view.ownTurnResources.energyPlayedTurn=2;
+    assert.equal(chooseActorRootIntent(view,catalog).kind,'pass');
+  }
+});
