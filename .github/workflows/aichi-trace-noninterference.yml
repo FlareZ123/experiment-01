@@ -34,3 +34,5 @@ jobs:
           path: agent41-sourcefirst-garbotoxin-root-parity.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Validate live Benched Ability suppression with composed rank11 owner response
+        run: node --test tests/agent2-bilateral-composed-garbotoxin-store.test.cjs
