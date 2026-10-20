@@ -34,6 +34,17 @@ Five independently inspected grid rows have counts of **13 + 8 + 15 + 11 + 13 = 
 - The **Budew** has 30 HP (Itchy Pollen family); the English database contains multiple mechanically identical 30-HP appearances. Source Japanese exact print identities, including artwork-specific card variants, remain to be verified. Full Japanese set-number extraction from this compressed screenshot alone is unreliable.
 - Other Japanese printing IDs and source-to-simulator proxy translations remain open. No direct Twinleaf game or rule certification has been executed for this photographed list.
 
+## Comparison to an already published source list
+
+Independent **card-name multiset** comparison to the published exact 60 of **rank 10 Haruku Yoshioka (Regidrago)** in [full-decklists.json](full-decklists.json) (Git blob `ae773f6201d7aa69d31914dbfee66f3fba692200`) yields **53 of 60 shared card copies**, or **7 minimum card replacements**. Name-based distance is `60 - Σ_name min(count_photo, count_rank10)`. This is a deterministic inventory observation, **not** proof of the photographed deck's attribution or competitive strength; printing identities may differ.
+
+| Pictured source versus rank 10 | Counts |
+| --- | --- |
+| Add | +2 Gladion, +2 Ultra Ball, +1 Fire Energy, +1 Noivern ex, +1 Path to the Peak |
+| Remove | -2 Professor's Research, -2 Quick Ball, -1 Budew, -1 Carmine, -1 Double Dragon Energy |
+
+Other photo name-multiset distances to published Regidrago ranks: **11** to ranks 13 and 21; **12** to rank 20; **14** to ranks 12 and 27; **15** to rank 14; **16** to rank 32; **17** to rank 18. Thus the recovered photograph represents a relatively close, potentially coverage-relevant **variation** of a tested reference archetype. Even such small changes can alter Supporter contention, prize recovery and attack access, so no matchup equivalence is inferred. The narrower 7-swap source proximity does not close the official rank-28 identity or Japanese printing validation gates.
+
 ## Ranking identity hold
 
 Independent contemporaneous [community standings](https://pokekameshi.com/cl2026aichidec-extra/2/) quote this same @nnaacc5_uec account as **「予選28位トナメ1没」** (qualifying 28th, eliminated in first single-elimination round). The repository's [official placement field](field.csv) separately records **Jo Kato, Regidrago, final placement 28**. Matching the qualifying number and archetype is strong circumstantial evidence, but the official registered name and public account are not directly tied by a confirmed deck code, opponent record, or identifiable official deck registration. A further potential issue is qualifying rank versus final bracket rank. **Do not assert that this is Jo Kato's 60 or add this list to the exact rank-28 opponent manifest yet.**
