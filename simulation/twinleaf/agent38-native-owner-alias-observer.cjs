@@ -37,8 +37,11 @@ function inspectNativeOwnerAliases(state,choose,{
       }
     }
   }
+  const toolSlots=()=>state.players.map(p=>[p.active,...p.bench].map(slot=>slot.tools.map(c=>c.fullName)));
+  const toolsBefore=toolSlots();
   let selected,error;
   try{selected=choose();}catch(failure){error=failure;}
+  const toolsAfter=toolSlots();
   const delta=compareOwnedGraphSnapshot(snap,{maxExamples});
   let liveAliasMutatedObjects=0,changedObjects=0;
   const aliases=[];
@@ -65,7 +68,10 @@ function inspectNativeOwnerAliases(state,choose,{
     changedObjects,liveAliasMutatedObjects,
     examples:aliases,originalPathExamples:delta.examples,
     graphObjectsAtEntry:owns.size,liveObjectsAtEntry:visited.size,
-    aliasClassificationComplete:queue.length<maxObjects};
+    aliasClassificationComplete:queue.length<maxObjects,
+    publicToolsBefore:delta.changedFields>0?toolsBefore:null,
+    publicToolsAfter:delta.changedFields>0?toolsAfter:null,
+    publicToolsChanged:JSON.stringify(toolsBefore)!==JSON.stringify(toolsAfter)};
   if(error)throw error;
   return {selected,audit};
 }
