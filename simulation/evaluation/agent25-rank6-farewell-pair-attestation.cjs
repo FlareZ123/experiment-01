@@ -46,6 +46,7 @@ function attestFarewellPair(baseline,intervention,options) {
       baseline.firstTurnSlot===expectedFirstTurnSlot) &&
     Array.isArray(original) && Array.isArray(changed);
   const originalRootSha256=Array.isArray(original)?digest(original):null;
+  const alteredRootSha256=Array.isArray(changed)?digest(changed):null;
   const archivedSourceUnchanged=originalRootSha256===archivedRootSha256;
   const instances=Array.isArray(changed)?changed.filter(row=>
     row.action==='UseAbilityAction' && row.ability==='Farewell Letter' &&
@@ -94,7 +95,9 @@ function attestFarewellPair(baseline,intervention,options) {
     schema:'agent25-rank6-farewell-paired-native-root-attestation-v1',
     executionRecordsVerified,
     sourceComparable,samePhysicalDeal,physicalDealSha256:originalDeal,
-    archivedSourceUnchanged,originalRootSha256,
+    archivedSourceUnchanged,originalRootSha256,alteredRootSha256,
+    baselineRootCount:Array.isArray(original)?original.length:null,
+    alteredRootCount:Array.isArray(changed)?changed.length:null,
     exactlyOneFarewell,alteredRootOrdinal:actualRoot?.actionOrdinal??null,
     matchedPrefix,replacedOriginalPass,waitPromptSettled,
     authenticAbilityCount,candidateContinued,sourceContinued,
