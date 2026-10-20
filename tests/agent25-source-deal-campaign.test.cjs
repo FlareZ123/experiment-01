@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const {buildCampaign}=require('../scripts/aichi-comparison-campaign.cjs');
 const {executeCampaign}=require('../simulation/evaluation/aichi-campaign-runner.cjs');
 const {createHash}=require('node:crypto');
+const {auditArchive}=require('../simulation/evaluation/aichi-evidence-envelope.cjs');
 const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 function inputs(){
  const field=Array.from({length:32},(_,i)=>({rank:i+1,player:'P'+i,
@@ -56,4 +57,14 @@ test('absent or misattributed original Store proof fails before win counting',()
   assert.equal(out.records[0].status,'unverified-initial-source-deal');
   assert.equal(out.records[0].winner,null);
  }
+});
+
+test('archive audit rejects a forged source-seat hash even with valid match outcomes',()=>{
+ const plan=inputs();
+ const out=executeCampaign(plan,{...base,captureInitialSourceDeal:true,
+  runMatch:game});
+ assert.equal(auditArchive(plan,out).completed,1);
+ out.records[0].initialSourceDealFingerprint.seat=0;
+ assert.throws(()=>auditArchive(plan,out),
+   /Invalid initial source physical deal evidence/);
 });
