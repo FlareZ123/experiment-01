@@ -76,7 +76,11 @@ function attestFarewellPair(baseline,intervention,options) {
     row.playerSlot===seat && row.action!=='ResolvePromptAction' &&
     row.turnBefore>=turn):null;
   const candidateContinued=Boolean(nextCandidateRoot);
-  const observedOwnerZoneSettlement=ownerSettlementAudit?.settledZonePostcondition===true;
+  const observedOwnerZoneSettlement=ownerSettlementAudit?.settledZonePostcondition===true &&
+    ownerSettlementAudit.countOnly===true &&
+    ownerSettlementAudit.ownerDeckDecrease===1 &&
+    ownerSettlementAudit.ownerHandIncrease===1 &&
+    ownerSettlementAudit.chosenUnownRemoved===true;
   const genuineSingleRootReplacement=Boolean(executionRecordsVerified &&
     sourceComparable &&
     archivedSourceUnchanged && exactlyOneFarewell && matchedPrefix &&
