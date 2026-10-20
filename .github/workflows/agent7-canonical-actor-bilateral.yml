@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure adapter-composition order and qualification tests
-        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs
+        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs
       - name: Verify optional frontier and default root parity
         run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs
       - name: Check out exact pinned upstream engine
