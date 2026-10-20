@@ -40,9 +40,25 @@ function rank6PassivePressureEvidence(audit,rootTrace,context){
     observedBoundaryActors &&
     t1?.globalTurn===1&&t1?.sourceActiveIronThornsEx===true&&
     t2?.globalTurn===2&&t2?.sourceActiveIronThornsEx===true);
-  const nativeCapabilitySuppressed=Boolean(sourceActiveContinuity &&
-    t2?.targetPrinting&&t2?.targetPowerName&&
-    t2?.targetNativeAbilityBlocked===true);
+  // The native observer now supplies every public Rule Box Power check.
+  // An exempt first Power must not hide a later blocked printed Power.
+  // Older archived single-Power packets retain their original interpretation.
+  const printedPowerChecks=Array.isArray(t2?.nativePowerChecks)?
+    t2.nativePowerChecks:null;
+  const validPower=power=>typeof power?.printing==='string'&&
+    power.printing.length>0&&typeof power.powerName==='string'&&
+    power.powerName.length>0;
+  const anyEligiblePower=printedPowerChecks?
+    printedPowerChecks.some(validPower):
+    Boolean(t2?.targetPrinting&&t2?.targetPowerName);
+  const suppressedPower=printedPowerChecks?
+    (printedPowerChecks.find(power=>validPower(power)&&
+      power.blocked===true)??null):
+    (t2?.targetNativeAbilityBlocked===true&&anyEligiblePower?{
+      printing:t2.targetPrinting,powerName:t2.targetPowerName
+    }:null);
+  const nativeCapabilitySuppressed=Boolean(sourceActiveContinuity&&
+    suppressedPower);
   const rootedReplyAndReturn=Boolean(sourceEnd&&candidateFirst&&sourceReturn&&
     t3?.globalTurn===3&&t3?.actingSeat===sourceSeat&&
     [sourceEnd.actionOrdinal,candidateFirst.actionOrdinal,
@@ -55,7 +71,7 @@ function rank6PassivePressureEvidence(audit,rootTrace,context){
   else if(!t2||!candidateFirst)status='candidate-turn-two-boundary-unverified';
   else if(!observedBoundaryActors)status='native-boundary-actor-mismatch';
   else if(!sourceActiveContinuity)status='source-active-lock-continuity-absent';
-  else if(!t2.targetPrinting||!t2.targetPowerName)status='no-eligible-visible-power';
+  else if(!anyEligiblePower)status='no-eligible-visible-power';
   else if(!nativeCapabilitySuppressed)status='native-printed-power-block-unverified';
   else if(!rootedReplyAndReturn)status='source-return-or-reply-unverified';
   else status='native-capability-suppression-with-rooted-turn-continuity';
@@ -71,6 +87,10 @@ function rank6PassivePressureEvidence(audit,rootTrace,context){
     sourceTurnThreeFirstRoot:publicRoot(sourceReturn),
     targetPrinting:t2?.targetPrinting??null,
     targetPowerName:t2?.targetPowerName??null,
+    suppressedPowerPrinting:suppressedPower?.printing??null,
+    suppressedPowerName:suppressedPower?.powerName??null,
+    examinedPrintedPowerCount:printedPowerChecks?.length??
+      (anyEligiblePower?1:0),
     sourceTurnOneSnapshotPresent:Boolean(t1),
     candidateTurnTwoSnapshotPresent:Boolean(t2),
     sourceReturnSnapshotPresent:Boolean(t3),
