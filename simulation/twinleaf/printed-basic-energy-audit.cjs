@@ -54,4 +54,4 @@ function printedBasicEnergyAudit(active, cardType) {
   };
 }
 
-module.exports = {printedBasicEnergyAudit};
+module.exports = {printedBasicEnergyAudit, BASIC_ENERGY_TYPE};
