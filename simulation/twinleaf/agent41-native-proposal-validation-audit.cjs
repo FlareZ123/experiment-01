@@ -37,6 +37,14 @@ function withNativeProposalValidationAudit(execute,options={}){
         'agent41-canonical-native-proposal-validation-v1',
       informationSetCertified:false,competitiveGameQualified:false
     }};
+  }catch(error){
+    error.nativeProposalValidationEvidence={
+      ...observer.report,canonicalIntegrationVersion:
+        'agent41-canonical-native-proposal-validation-v1',
+      interrupted:true,informationSetCertified:false,
+      competitiveGameQualified:false
+    };
+    throw error;
   }finally{
     observer.restore();
   }
