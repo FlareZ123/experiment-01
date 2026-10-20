@@ -319,7 +319,7 @@ function establishedGengarSecondDonor(){
     donorAvailableForPerfection:true,
     syntheticBoard:true,competitiveQualified:false
   };
-  process.stdout.write(JSON.stringify(result,null,2)+'\\n');
+  process.stdout.write(JSON.stringify(result,null,2)+String.fromCharCode(10));
   return result;
 }
 
