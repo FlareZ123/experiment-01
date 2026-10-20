@@ -102,6 +102,27 @@ test('real decision exceptions restore all native methods and hidden zones',()=>
   assert.strictEqual(Bot.prototype.isValidAction,oldValidate);
 });
 
+test('native scalar marker paths distinguish pre-dispatch Supporter writes',()=>{
+  class Bot{
+    constructor(){this.client={id:101};}
+    decodeNextAction(state){
+      state.players[0].supporterTurn=state.turn;
+      return 'supporter-proposed';
+    }
+    isValidAction(){return true;}
+  }
+  const state=makeState();
+  state.players[0].supporterTurn=0;
+  const {audit}=withNativeOpponentHiddenReadObserver(Bot,
+    ()=>new Bot().decodeNextAction(state),{seat:0,turn:3});
+  assert.equal(audit.nativeRootChangedDuringDecision,true);
+  assert.deepEqual(audit.changedVisibleScalarMarkers,
+    ['player0.supporterTurn']);
+  assert.equal(audit.actorInformationSetCertified,false);
+  assert.equal(audit.proposalReads,0);
+  assert.equal(audit.validationReads,0);
+});
+
 test('real bot writes are preserved, and explicitly reported as mutation',()=>{
   class Bot{
     constructor(){this.client={id:101};}
