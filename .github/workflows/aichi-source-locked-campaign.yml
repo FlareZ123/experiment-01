@@ -8,26 +8,11 @@ on:
         required: false
         type: boolean
         default: false
-      agent41_bilateral_mandatory_options:
-        description: 'Historical four-arm both-seat mandatory option fallback (explicitly new policy, no qualification)'
+      agent41_dev_options:
+        description: 'Comma-separated: mandatory-options,native-pressure,sourcefirst-retro,late-compressor,partition1 (omit for defaults)'
         required: false
-        type: boolean
-        default: false
-      agent41_bilateral_native_pressure:
-        description: 'Read-only native rank6 Initialization and rank11 Garbotoxin windows on canonical four arms'
-        required: false
-        type: boolean
-        default: false
-      agent41_bilateral_sourcefirst_retrospective:
-        description: 'Development only: rank6 reversed seat and source-success-selected rank11 seed; not a random trial'
-        required: false
-        type: boolean
-        default: false
-      agent41_bilateral_late_compressor:
-        description: 'Apply the same historical late14 donor-compressor candidate policy to both ranks; opt-in'
-        required: false
-        type: boolean
-        default: false
+        type: string
+        default: ''
       agent25_rank6_farewell_live:
         description: 'One retrospectively selected rank6 actual-game owner Farewell-over-Pass continuation'
         required: false
@@ -48,14 +33,6 @@ on:
         type: boolean
         required: false
         default: false
-      agent41_crossrank_partition:
-        description: 'Preregistered three-repeat partition, 0 or 1'
-        required: false
-        type: choice
-        options:
-          - '0'
-          - '1'
-        default: '0'
       trial_ids:
         description: 'Pilot trial IDs (up to six); agent17-four-trigger-forensic with agent41=true selects retrospective replay'
         required: false
@@ -204,10 +181,10 @@ jobs:
       - name: Run four existing v1 deals with an explicit opt-in bilateral policy variant
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
         env:
-          AGENT41_MANDATORY_OPTION_DEV: ${{ inputs.agent41_bilateral_mandatory_options && 'true' || 'false' }}
-          AGENT41_NATIVE_PRESSURE_DEV: ${{ inputs.agent41_bilateral_native_pressure && 'true' || 'false' }}
-          AGENT41_SOURCEFIRST_RETRO_DEV: ${{ inputs.agent41_bilateral_sourcefirst_retrospective && 'true' || 'false' }}
-          AGENT5_COMPR_LATE14_DEV: ${{ inputs.agent41_bilateral_late_compressor && 'true' || 'false' }}
+          AGENT41_MANDATORY_OPTION_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',mandatory-options,') && 'true' || 'false' }}
+          AGENT41_NATIVE_PRESSURE_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',native-pressure,') && 'true' || 'false' }}
+          AGENT41_SOURCEFIRST_RETRO_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',sourcefirst-retro,') && 'true' || 'false' }}
+          AGENT5_COMPR_LATE14_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',late-compressor,') && 'true' || 'false' }}
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent41-bilateral-v2-development.json
       - name: Summarize all development failures and attempted arms, without competitive outcomes
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
@@ -261,7 +238,7 @@ jobs:
       - name: Execute frozen candidate-paired Iron Thorns and Garbodor screen
         if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' && inputs.trial_ids != 'agent17-crossrank-cap-tail' && inputs.trial_ids != 'agent2-stone-recipient' && inputs.trial_ids != 'agent2-stone-star' && inputs.trial_ids != 'agent8-player-lock-veto' && inputs.trial_ids != 'agent41-common-policy-dev' && inputs.trial_ids != 'agent41-bilateral-v2-dev' && inputs.trial_ids != 'agent17-rank11-mewtwo-pass-owner' && inputs.trial_ids != 'agent8-basic-bench-after-lock' }}
         env:
-          AGENT41_PARTITION: ${{ inputs.agent41_crossrank_partition || '0' }}
+          AGENT41_PARTITION: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',partition1,') && '1' || '0' }}
         run: node simulation/evaluation/agent41-crossrank-actual-decisions.cjs > agent41-crossrank-observed.json
       - name: Print bounded failures, decisions and source opportunity counts
         if: ${{ inputs.agent41_crossrank_trial && !inputs.agent6_rejected_arm && !inputs.agent6_shadow_mist_supporter && !inputs.agent25_rank6_newmoon_pass && !inputs.agent25_rank6_farewell_live && inputs.trial_ids != 'agent17-four-trigger-forensic' && inputs.trial_ids != 'agent17-crossrank-cap-tail' && inputs.trial_ids != 'agent2-stone-recipient' && inputs.trial_ids != 'agent2-stone-star' && inputs.trial_ids != 'agent8-player-lock-veto' && inputs.trial_ids != 'agent41-common-policy-dev' && inputs.trial_ids != 'agent41-bilateral-v2-dev' && inputs.trial_ids != 'agent17-rank11-mewtwo-pass-owner' && inputs.trial_ids != 'agent8-basic-bench-after-lock' }}
