@@ -113,6 +113,20 @@ function sourceVipAfterPassEligible(state, own, seat, phase) {
     empty > (hasInPlay(KOKO) ? 0 : 1);
 }
 
+function sourceDceK1Locations(own,prompt){
+  const name='Double Colorless Energy';
+  const n=cards=>cards.filter(c=>c.name===name).length;
+  const inDeck=n(prompt.cards.cards);
+  const inHand=n(own.hand.cards);
+  const inDiscard=n(own.discard.cards);
+  const inLostZone=n(own.lostzone.cards);
+  const attached=[own.active,...own.bench]
+    .reduce((sum,slot)=>sum+n(slot.energies.cards),0);
+  return {inDeck,inHand,inDiscard,inLostZone,attached,
+    inferredPrized:inDeck+inHand+inDiscard+inLostZone+attached===0};
+}
+
+/** Owner-only native deck-search card selection. */
 /**
  * Owner-deck inspection is permitted only after the actual owner search prompt.
  * Prefer a missing Meloetta then a physical Exeggcute without filling the
@@ -330,7 +344,7 @@ function withSourceVipAfterPass(seat, execute,
         events.push({kind:'owner-deck-target',turn:state.turn,
           cards:selected.map(c => c.fullName),nativeValid:selected.length>0,
           searchedSquawkAvailable:prompt.cards.cards.some(c=>c.name===SQUAWK),
-          preferSquawk});
+          preferSquawk,k1Dce:sourceDceK1Locations(own,prompt)});
         stage = 'post';
         if (selected.length)
           return new ResolvePromptAction(prompt.id,selected);
@@ -507,5 +521,5 @@ module.exports={sourceVipAfterPassEligible,sourceVipActorEligible,
   sourceCologneAfterVipEligible,sourceSecondVipActorEligible,
   sourceCompressorAfterKokoEligible,selectSourceCompressorCards,
   sourceKokoNativePostcondition,sourceKokoNativeComplete,
-  selectSourceKokoTwoTargetTransfers,
+  selectSourceKokoTwoTargetTransfers,sourceDceK1Locations,
   selectSourceVipBasics,selectSecondVipBasics,withSourceVipAfterPass};
