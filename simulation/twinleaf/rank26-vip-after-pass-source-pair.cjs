@@ -87,6 +87,7 @@ function run(){
   const cases=[];
   const verifyCologneFollowup=process.env.RANK26_VIP_COLOGNE_FOLLOWUP==='true';
   const verifyKokoTwoTargets=process.env.RANK26_KOKO_TWO_TARGET_PROBE==='true';
+  const verifySupporterRestore=process.env.RANK26_SUPPORTER_RESTORE_PROBE==='true';
   for(const entry of SEEDS){
     const seat=entry.seatLetter==='A'?0:1;
     const generated=deriveSlotSeeds(20261019,'pilot',26,entry.repeat);
@@ -272,6 +273,34 @@ function run(){
           baselineNativeComplete:kokoFidelity.nativeComplete,
           originalPrefixMatched:true,competitiveGameQualified:false,
           retrospectiveDevelopmentOnly:true};
+      }
+      if(verifySupporterRestore){
+        const {installSupporterDecisionHook}=require('./supporter-decision-hook.cjs');
+        const undo=installSupporterDecisionHook();
+        let replay;
+        try{replay=withSourceVipAfterPass(seat,()=>
+          withMailScout(seat,core,{starterAgnostic:true}),
+          {followupCologne:true,preferSquawk:true,followupSecondVip:true,
+            followupCompressor:true,followupKokoTwoTargets:true,
+            auditTacticMutation:true});
+        }finally{undo();}
+        const native=observed(replay.result.result,seat,entry.seed,a,b);
+        const original=compressorObserved.firstActions;
+        const restored=native.firstActions;
+        let differing=0;
+        while(differing<Math.min(original.length,restored.length)&&
+          JSON.stringify(original[differing])===JSON.stringify(restored[differing]))
+          differing++;
+        vipThenCologne.supporterProposalRestored={
+          policy:replay.policyAudit,observed:native,
+          firstDifferingActionOrdinal:differing,
+          originalAction:original[differing]??null,
+          correctedAction:restored[differing]??null,
+          originalCarmine:original.filter(e=>e.kind==='PlayCardAction'&&
+            e.card==='Carmine').length,
+          restoredCarmine:restored.filter(e=>e.kind==='PlayCardAction'&&
+            e.card==='Carmine').length,
+          retrospectiveDevelopmentOnly:true,competitiveGameQualified:false};
       }
       vipThenCologne.squawkAlternative={
         policy:squawkAlternative.policyAudit,
