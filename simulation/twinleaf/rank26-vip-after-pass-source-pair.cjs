@@ -86,6 +86,7 @@ function run(){
   assert.equal(enemy.cards.length,60);
   const cases=[];
   const verifyCologneFollowup=process.env.RANK26_VIP_COLOGNE_FOLLOWUP==='true';
+  const verifyKokoTwoTargets=process.env.RANK26_KOKO_TWO_TARGET_PROBE==='true';
   for(const entry of SEEDS){
     const seat=entry.seatLetter==='A'?0:1;
     const generated=deriveSlotSeeds(20261019,'pilot',26,entry.repeat);
@@ -245,6 +246,33 @@ function run(){
         compressorOffer,compressorSearch,compressorPost,
         kokoDeclaration,kokoEffect,kokoFidelity,scorerAudits,
         retrospectiveDevelopmentOnly:true};
+      if(verifyKokoTwoTargets){
+        const alternateKoko=withSourceVipAfterPass(seat,()=>
+          withMailScout(seat,core,{starterAgnostic:true}),
+          {followupCologne:true,preferSquawk:true,followupSecondVip:true,
+            followupCompressor:true,followupKokoTwoTargets:true,
+            auditTacticMutation:true});
+        const alternateObserved=observed(alternateKoko.result.result,
+          seat,entry.seed,a,b);
+        const offer=alternateKoko.policyAudit.events.find(e=>
+          e.kind==='source-koko-two-target-offer');
+        const effect=alternateKoko.policyAudit.events.find(e=>
+          e.kind==='source-koko-native-postcondition');
+        const baselineKokoIndex=compressorObserved.firstActions.findIndex(e=>
+          e.kind==='UseAbilityAction'&&e.ability==='Dance of the Ancients');
+        assert.ok(baselineKokoIndex>=0);
+        assert.deepEqual(
+          alternateObserved.firstActions.slice(0,baselineKokoIndex+1),
+          compressorObserved.firstActions.slice(0,baselineKokoIndex+1),
+          'Identical real source actions through Koko declaration');
+        vipThenCologne.squawkKokoTwoTargetContinuation={
+          policy:alternateKoko.policyAudit,observed:alternateObserved,
+          offer:offer??null,effect:effect??null,
+          nativeComplete:sourceKokoNativeComplete(effect),
+          baselineNativeComplete:kokoFidelity.nativeComplete,
+          originalPrefixMatched:true,competitiveGameQualified:false,
+          retrospectiveDevelopmentOnly:true};
+      }
       vipThenCologne.squawkAlternative={
         policy:squawkAlternative.policyAudit,
         observed:squawkGame,ownerSearch,squawkReceipt,
@@ -305,7 +333,13 @@ function run(){
           (c.vipThenCologne?.squawkCompressorContinuation?.compressorPost
             .physicalDiscardLightning??0),0),
         compressorSourceAttacks:cases.filter(c=>
-          c.vipThenCologne?.squawkCompressorContinuation?.observed.rootAttacks>0).length} :
+          c.vipThenCologne?.squawkCompressorContinuation?.observed.rootAttacks>0).length,
+        kokoTwoTargetOffers:cases.filter(c=>
+          c.vipThenCologne?.squawkKokoTwoTargetContinuation?.offer).length,
+        kokoTwoTargetNativeValid:cases.filter(c=>
+          c.vipThenCologne?.squawkKokoTwoTargetContinuation?.offer?.nativeValid).length,
+        kokoTwoTargetComplete:cases.filter(c=>
+          c.vipThenCologne?.squawkKokoTwoTargetContinuation?.nativeComplete).length} :
       null,
     cases};
 }
