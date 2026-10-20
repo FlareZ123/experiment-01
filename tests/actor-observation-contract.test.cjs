@@ -188,3 +188,88 @@ test('actor root authentication and invalid seat are enforced',()=>{
   assert.throws(()=>actorObservation(s,0,{ownerK1Snapshot:{epoch:-1,
     exactMembershipKnown:true}}));
 });
+
+test('both actors see temporary attack/retreat bans and Special Conditions',()=>{
+  const s=fixture(),opponent=s.players[1];
+  opponent.active.specialConditions=['ASLEEP','POISONED'];
+  opponent.active.cannotAttackNextTurn=true;
+  opponent.active.cannotUseAttacksNextTurn=['Printed Attack'];
+  opponent.active.blockedAttackNameNextTurn='Blocked Attack';
+  opponent.active.blockedAttackNameUntilLeavesActive='Persisting Block';
+  opponent.active.onlyAllowedAttackNameNextTurn='Only This';
+  opponent.active.cannotRetreatNextTurn=true;
+  opponent.active.cannotRetreatWhileActive=true;
+  opponent.active.cannotEvolveNextTurn=true;
+  const first=actorObservation(s,0);
+  const active=first.opponentPublic.active;
+  assert.deepEqual(active.specialConditions,['ASLEEP','POISONED']);
+  assert.deepEqual(active.publicRestrictions,{
+    cannotAttackNextTurn:true,
+    cannotUseAttacksNextTurn:['Printed Attack'],
+    blockedAttackNameNextTurn:'Blocked Attack',
+    blockedAttackNameUntilLeavesActive:'Persisting Block',
+    onlyAllowedAttackNameNextTurn:'Only This',
+    cannotRetreatNextTurn:true,
+    cannotRetreatWhileActive:true,
+    cannotEvolveNextTurn:true
+  });
+  assert.ok(Object.isFrozen(active.specialConditions));
+  assert.ok(Object.isFrozen(active.publicRestrictions.cannotUseAttacksNextTurn));
+  opponent.active.specialConditions.push('BURNED');
+  opponent.active.cannotUseAttacksNextTurn.push('Later Attack');
+  assert.deepEqual(active.specialConditions,['ASLEEP','POISONED']);
+  assert.deepEqual(active.publicRestrictions.cannotUseAttacksNextTurn,
+    ['Printed Attack']);
+  s.activePlayer=1;
+  const second=actorObservation(s,1);
+  assert.equal(second.ownPublic.active.publicRestrictions.cannotRetreatNextTurn,
+    true);
+  assert.deepEqual(second.ownPublic.active.specialConditions,
+    ['ASLEEP','POISONED','BURNED']);
+});
+
+test('public player-wide restrictions are visible without concealed cards',()=>{
+  const s=fixture(),opponent=s.players[1];
+  opponent.usedGX=true;
+  opponent.usedVSTAR=true;
+  opponent.cannotAttackTurnsRemaining=2;
+  opponent.cannotAttackMaxEnergy=3;
+  opponent.cannotUseGXAttacks=true;
+  opponent.cannotPlayPokemonCards=true;
+  opponent.cannotPlayPokemonWithAbilities=true;
+  opponent.cannotEvolvePokemonCards=true;
+  opponent.cannotPlayItemCards=true;
+  opponent.cannotPlaySupporterCards=true;
+  opponent.cannotPlayStadiumCards=true;
+  opponent.cannotPlayToolCards=true;
+  opponent.cannotPlayEnergyCards=true;
+  opponent.cannotPlaySpecialEnergyCards=true;
+  const view=actorObservation(s,0);
+  assert.deepEqual(view.opponentPublic.publicTurnRestrictions,{
+    gxUsed:true,vstarUsed:true,
+    attackLockTurnsRemaining:2,attackMaxEnergy:3,
+    cannotUseGXAttacks:true,pokemonPlayLocked:true,
+    abilityPokemonPlayLocked:true,evolutionPlayLocked:true,
+    itemPlayLocked:true,supporterPlayLocked:true,
+    stadiumPlayLocked:true,toolPlayLocked:true,
+    energyPlayLocked:true,specialEnergyPlayLocked:true
+  });
+  assert.ok(Object.isFrozen(view.opponentPublic.publicTurnRestrictions));
+  assert.equal(view.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining,0);
+  assert.equal(view.ownPublic.publicTurnRestrictions.attackMaxEnergy,null);
+  const other=fixture();
+  const cards=other.players[1];
+  Object.assign(cards,{
+    usedGX:true,usedVSTAR:true,cannotAttackTurnsRemaining:2,
+    cannotAttackMaxEnergy:3,cannotUseGXAttacks:true,
+    cannotPlayPokemonCards:true,cannotPlayPokemonWithAbilities:true,
+    cannotEvolvePokemonCards:true,cannotPlayItemCards:true,
+    cannotPlaySupporterCards:true,cannotPlayStadiumCards:true,
+    cannotPlayToolCards:true,cannotPlayEnergyCards:true,
+    cannotPlaySpecialEnergyCards:true
+  });
+  cards.hand.cards=[card('Secret Box TWM')];
+  cards.deck.cards=[card('Ultra Ball SVI')];
+  cards.prizes[0].cards=[card('Iono PAL')];
+  assert.deepEqual(actorObservation(s,0),actorObservation(other,0));
+});
