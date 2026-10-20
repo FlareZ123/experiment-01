@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {sourceFirstNativePressureVerified}=require(
+const {sourceFirstNativePressureVerified,sourceFirstNativeExposureKind}=require(
   '../simulation/evaluation/agent3-source-first-pressure-kind.cjs');
 
 function rank6(){
@@ -122,4 +122,38 @@ test('rank11 full in-play audit overrides stale historical Active-only positives
   const x=rank11();
   x.garbotoxinWindowAudit.before.candidateInPlayPrintedPowerChecks=[];
   assert.equal(sourceFirstNativePressureVerified(x),false);
+});
+
+test('rank6 genuine no-target is recorded as exposed without claiming a suppressed Power',()=>{
+  const x=rank6(),e=x.rank6PassivePressure;
+  e.status='no-eligible-visible-power';
+  e.nativeCapabilitySuppressed=false;
+  e.observedBoundaryActors=true;
+  e.examinedPrintedPowerCount=0;
+  e.sourceTurnOneSnapshotPresent=true;
+  e.candidateTurnTwoSnapshotPresent=true;
+  e.sourceReturnSnapshotPresent=true;
+  e.targetPrinting=null;
+  e.targetPowerName=null;
+  assert.equal(sourceFirstNativePressureVerified(x),false);
+  assert.equal(sourceFirstNativeExposureKind(x),'no-eligible-power-present');
+  e.candidateTurnTwoSnapshotPresent=false;
+  assert.equal(sourceFirstNativeExposureKind(x),'unverified');
+  e.candidateTurnTwoSnapshotPresent=true;
+  e.examinedPrintedPowerCount=1;
+  assert.equal(sourceFirstNativeExposureKind(x),'unverified');
+  e.examinedPrintedPowerCount=0;
+  x.rootActionLedger[4].action='AttackAction';
+  assert.equal(sourceFirstNativeExposureKind(x),'unverified');
+});
+
+test('native blocked control remains distinct from exempt, missing and other-rank claims',()=>{
+  const x=rank6();
+  assert.equal(sourceFirstNativeExposureKind(x),'native-blocked-eligible-power');
+  x.rank6PassivePressure.nativeCapabilitySuppressed=false;
+  assert.equal(sourceFirstNativeExposureKind(x),'unverified');
+  assert.equal(sourceFirstNativeExposureKind(rank11()),'native-blocked-eligible-power');
+  const missing=rank11();
+  delete missing.garbotoxinWindowAudit;
+  assert.equal(sourceFirstNativeExposureKind(missing),'unverified');
 });
