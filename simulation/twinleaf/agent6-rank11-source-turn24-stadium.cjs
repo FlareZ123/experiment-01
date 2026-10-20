@@ -34,7 +34,7 @@ function withRank11SourceTurn24Stadium(sourceSeat,execute,
   let firstHand=null,blockingReason=null;
   const optionsChecked=[];
 
-  SimpleTacticsAi.prototype.decodeNextAction=function sourceStadium(state) {
+  const sourceStadium=function sourceStadium(state) {
     const own=state.players.find(p=>p.id===this.client?.id);
     if(!own||own.id!==sourceId||attempted||
         state.turn!==turn||state.activePlayer!==sourceSeat||
@@ -58,6 +58,7 @@ function withRank11SourceTurn24Stadium(sourceSeat,execute,
     blockingReason='no-owner-held-native-legal-listed-Stadium';
     return original.call(this,state);
   };
+  SimpleTacticsAi.prototype.decodeNextAction=sourceStadium;
   try {
     const result=execute();
     return {result,policyAudit:{
@@ -68,8 +69,7 @@ function withRank11SourceTurn24Stadium(sourceSeat,execute,
       qualification:'retrospective exact-source-owned Store action; no game win-rate inference'
     }};
   }finally{
-    assert.equal(SimpleTacticsAi.prototype.decodeNextAction,
-      SimpleTacticsAi.prototype.decodeNextAction);
+    assert.equal(SimpleTacticsAi.prototype.decodeNextAction,sourceStadium);
     SimpleTacticsAi.prototype.decodeNextAction=original;
   }
 }
