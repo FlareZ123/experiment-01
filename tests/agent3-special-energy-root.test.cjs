@@ -7,6 +7,9 @@ const {chooseActorRootIntent} =
 const {specialEnergyUnits, missingEnergyUnits, chooseSpecialEnergyIntent} =
   require('../simulation/twinleaf/agent3-special-energy-frontier.cjs');
 
+const {rootPhysicalWitness} =
+  require('../simulation/twinleaf/agent5-owner-root-slice.cjs');
+
 const catalog = {
   basics:new Set(),abilityBasics:new Set(),basicEnergies:new Set(),
   specialEnergies:new Set([
@@ -109,4 +112,17 @@ test('opponent concealed card identities do not enter selected Special',()=>{
   b.opponentSecret=['Prize B','Hand B'];
   assert.deepEqual(chooseActorRootIntent(a,catalog,{specialEnergyRoot:true}),
     chooseActorRootIntent(b,catalog,{specialEnergyRoot:true}));
+});
+
+test('native physical witness admits Special Energy with optional hand draw',()=>{
+  const before={turn:2,phase:2,handCount:2,
+    activeEnergies:['Speed Lightning Energy RCL']};
+  const after={turn:2,phase:2,handCount:3,
+    activeEnergies:['Speed Lightning Energy RCL','Double Colorless Energy SUM']};
+  assert.equal(rootPhysicalWitness(
+    {kind:'attach-special-energy',printing:'Double Colorless Energy SUM'},
+    before,after,{FINISHED:7}),'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(
+    {kind:'attach-special-energy',printing:'Spiky Energy JTG'},
+    before,after,{FINISHED:7}),'no-confirmed-public-effect');
 });
