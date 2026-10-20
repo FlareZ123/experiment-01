@@ -191,6 +191,29 @@ function selectSourceCompressorCards(prompt,state){
 }
 
 /**
+ * Public post-Store physical-zone observation, read at a genuine next root.
+ * This does not infer action success from a selected ability declaration:
+ * Koko must have reached the Lost Zone and real Lightning cards must have
+ * reached distinct Bench recipients.
+ * @param {object} own Native physical source owner.
+ * @returns {{prismInLostZone:boolean,prismCount:number,
+ *   recipientCount:number,lightningAttached:number,
+ *   benchRecipients:object[],discardLightning:number}}
+ */
+function sourceKokoNativePostcondition(own){
+  const prismCount=own.lostzone.cards.filter(c=>c.name===KOKO).length;
+  const benchRecipients=own.bench.map((slot,index)=>({
+    index,pokemon:slot.getPokemonCard()?.fullName??null,
+    lightning:slot.energies.cards.filter(c=>c.name===LIGHTNING).length
+  }));
+  return {prismInLostZone:prismCount>0,prismCount,
+    recipientCount:benchRecipients.filter(r=>r.lightning>0).length,
+    lightningAttached:benchRecipients.reduce((n,r)=>n+r.lightning,0),
+    benchRecipients,
+    discardLightning:own.discard.cards.filter(c=>c.name===LIGHTNING).length};
+}
+
+/**
  * Once the existing source bot proposes Pass, attempt one owner-information
  * Battle VIP Pass root, then resolve its native owner-deck search. No card
  * instances are fabricated. This is an opt-in development policy, not an
@@ -318,6 +341,14 @@ function withSourceVipAfterPass(seat, execute,
         discardHasCompressor:own.discard.cards.some(c=>c.name===COMPRESSOR)});
       stage='compressor-finished';
     }
+    if(stage==='compressor-finished'&&!prompt &&
+        !events.some(e=>e.kind==='source-koko-native-postcondition')){
+      const effect=sourceKokoNativePostcondition(own);
+      if(effect.prismInLostZone){
+        events.push({kind:'source-koko-native-postcondition',turn:state.turn,
+          ...effect});
+      }
+    }
     const action = previous.call(this,state);
     if(followupCompressor && stage==='second-finished' &&
         action?.constructor?.name==='PassTurnAction' &&
@@ -400,4 +431,5 @@ function withSourceVipAfterPass(seat, execute,
 module.exports={sourceVipAfterPassEligible,sourceVipActorEligible,
   sourceCologneAfterVipEligible,sourceSecondVipActorEligible,
   sourceCompressorAfterKokoEligible,selectSourceCompressorCards,
+  sourceKokoNativePostcondition,
   selectSourceVipBasics,selectSecondVipBasics,withSourceVipAfterPass};
