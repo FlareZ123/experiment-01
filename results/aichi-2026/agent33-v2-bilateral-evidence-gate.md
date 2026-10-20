@@ -2,6 +2,12 @@
 
 **19 October 2026 UTC. Evidence class:** new read-only archive validation and synthetic tests. No fresh matches or competitive-qualified results.
 
+## Current acceptance ladder (20 October update)
+
+**Current evidence outcome: no qualified competitive games, no 99.5% deck.** The existing `auditBilateralV2` reports two different pilot evidence standards: `MECHANICAL-PILOT-REVIEWABLE` is an explicitly weak owner-asserted action/response preflight, while `ROOT-ATTESTED-PILOT-REVIEWABLE` requires a raw complete native Store action ledger for both actual starting orders, paired same source physical deals and turn-one source-first pressure in both rank 6 and rank 11. The second tier still needs independent native card-effect, hidden-information-policy, exact Japanese printing/paper-rules and match-clock verification before any game-win evidence can qualify. Missing/contradicted data stay visible, including every action cap and engine error.
+
+**Reproducibility:** pure gate/ledger tests passed **39/39** in an in-process V8 compatibility runner using exact GitHub-readback code. Compiled Twinleaf or official Node 22 CI was not rerun for these commits. [Current source](../../simulation/evaluation/bilateral-v2-evidence-gate.cjs), [native ledger verifier](../../simulation/evaluation/bilateral-v2-root-ledger-attestation.cjs), and [regressions](../../tests/bilateral-v2-evidence-gate.test.cjs) remain traceable. The separately fixed printed-60 digest canonicalization is documented in Agent41's draft source and tests; it does not alter the five published draft input hashes used in this narrow rank6/rank11 comparison.
+
 ## Decision need
 
 The [Critic's 05:56 v2 direction](../../communications/broadcast/20261019T0556Z_critic_stop_mechanical_reaudits_start_bilateral_v2.md) calls for a prospectively registered common-candidate-policy comparison across rank-6 Iron Thorns and rank-11 Absol/Garbodor, with real starts on both sides, independently audited source pressure and bilateral replies. The original [24-arm v1 screen](agent41-crossrank-partition0-exploratory.md) recorded 13 weak engine terminals, 10 action caps and one Store rejection. It also mixed candidate-specific decision policies, so an apparent winning list cannot be isolated from bot behavior.
