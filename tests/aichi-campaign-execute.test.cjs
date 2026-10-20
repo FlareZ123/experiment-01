@@ -586,3 +586,49 @@ test('Tool attack policy profile guards prevent duplicate or implicit tactics',(
     runMatch:()=>{throw Error('must not run');}
   }),/overlaps the existing Expanded tactic profile/);
 });
+
+
+test('rank4 source-only Compressor treatment follows physical source seat and requires printed corrections',()=>{
+  const campaign=loadDefaultCampaign();
+  const flags={
+    rank4RaichuCompressorSource:true,
+    battleCompressorPositiveSelectionCorrection:true,
+    electrodeGXEnergyCorrection:true,
+    electroRainDamageCorrection:true
+  };
+  const expected=TEST_CAMPAIGN.candidateRows.length*TEST_CAMPAIGN.repeats*2;
+  const seen=[];
+  const args={
+    expectedEngineRevision:EXPECTED_ENGINE,campaign,ranks:[4],
+    policyFlags:flags,
+    resolvePair:trial=>({
+      candidateDigest:trial.candidateDigest,
+      opponentDigest:trial.opponentDigest,
+      candidateCards:cards,opponentCards:cards
+    }),
+    runMatch:request=>{
+      const expectedSource=request.label.endsWith(':A')?1:0;
+      seen.push(request.rank4RaichuCompressorSeat);
+      assert.equal(request.rank4RaichuCompressorSeat,expectedSource);
+      assert.equal(request.rank4RaichuCompressorSource,undefined);
+      assert.equal(request.battleCompressorPositiveSelectionCorrection,true);
+      return sampleGame(request,{
+        rank4RaichuCompressorSeat:expectedSource,
+        battleCompressorPositiveSelectionCorrection:true,
+        policy:'synthetic+Rank4SourceCompressorSpecialEnergy-v1@seat'+expectedSource
+      });
+    }
+  };
+  const result=executeDiagnostic(args);
+  assert.equal(result.counts['completed-engine-game'],expected);
+  assert.deepEqual(seen,Array.from({length:expected},(_,i)=>i%2===0?1:0));
+  assert.ok(result.records.every(rec=>
+    rec.sourceCompressorSeat===(rec.candidateEngineSlot==='A'?1:0)));
+  assert.throws(()=>executeDiagnostic({...args,ranks:[6]}),/requires rank 4/);
+  assert.throws(()=>executeDiagnostic({...args,policyFlags:{
+    ...flags,battleCompressorPositiveSelectionCorrection:false}}),/requires rank 4/);
+  const unverified=executeDiagnostic({...args,runMatch:request=>
+    sampleGame(request,{rank4RaichuCompressorSeat:0,
+      battleCompressorPositiveSelectionCorrection:false})});
+  assert.equal(unverified.counts['unverified-game-environment'],expected);
+});
