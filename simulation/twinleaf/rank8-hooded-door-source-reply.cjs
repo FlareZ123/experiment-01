@@ -53,6 +53,7 @@ function withRank8HoodedDoorReply(execute) {
   let stage = 0;
   let witness = null;
   let beforeDoor = null;
+  let postDoorPassProbe = null;
   const board = {player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
 
   /** @param {object} state @param {string} detail @param {object} action */
@@ -160,11 +161,28 @@ function withRank8HoodedDoorReply(execute) {
       };
       stage = 7;
     }
-    return original.call(this,state);
+    const action = original.call(this,state);
+    if (stage === 7 && !pending && state.turn === 8 &&
+        action?.constructor.name === 'PassTurnAction' && postDoorPassProbe === null) {
+      const {probePassedAttackOptions} =
+        require('./pass-attack-announcement-probe.cjs');
+      const probe = probePassedAttackOptions(state,own.id);
+      postDoorPassProbe = {
+        ...probe,
+        observedAfterHoodedDoor: true,
+        activeEnergy:own.active.energies.cards.map(card=>card.fullName),
+        benchEnergy:own.bench.filter(slot=>slot.getPokemonCard()).map(slot=>({
+          pokemon:slot.getPokemonCard().fullName,
+          energy:slot.energies.cards.map(card=>card.fullName)
+        }))
+      };
+    }
+    return action;
   }
   SimpleTacticsAi.prototype.decodeNextAction = reply;
   try {
-    return {result:execute(),events,stage,witness};
+    const result = execute();
+    return {result,events,stage,witness,postDoorPassProbe};
   } finally {
     assert.equal(SimpleTacticsAi.prototype.decodeNextAction,reply);
     SimpleTacticsAi.prototype.decodeNextAction = original;
