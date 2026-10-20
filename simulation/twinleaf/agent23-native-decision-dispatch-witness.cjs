@@ -58,8 +58,9 @@ function actionIdentity(action, state, codecs) {
  * @template T
  * @param {()=>T} execute Synchronous original Store game.
  * @param {{SimpleTacticsAi:Function,Store:Function,maxRecords?:number,
- *    tapeOrdinal?:number|null,captureAction?:Function,
- *    capturePromptAction?:Function}} options
+ *    tapeOrdinal?:number|null,captureActorViewAtTape?:boolean,
+ *    actorViewDigest?:(state:object,seat:number)=>string,
+ *    captureAction?:Function,capturePromptAction?:Function}} options
  * @returns {{result:T,audit:object}}
  */
 function withNativeDecisionDispatchWitness(execute,options) {
@@ -68,6 +69,12 @@ function withNativeDecisionDispatchWitness(execute,options) {
   assert.equal(typeof options?.Store,'function');
   const maxRecords=options.maxRecords??256;
   const tapeOrdinal=options.tapeOrdinal??null;
+  const captureActorViewAtTape=options.captureActorViewAtTape===true;
+  const digestActorView=options.actorViewDigest??((state,seat)=>{
+    const {actorObservation}=require('./actor-observation-contract.cjs');
+    return createHash('sha256')
+      .update(JSON.stringify(actorObservation(state,seat))).digest('hex');
+  });
   assert.ok(Number.isSafeInteger(maxRecords)&&maxRecords>=1);
   assert.ok(tapeOrdinal===null||
     (Number.isSafeInteger(tapeOrdinal)&&tapeOrdinal>=1));
@@ -91,6 +98,14 @@ function withNativeDecisionDispatchWitness(execute,options) {
   const records=[];
   const nativePolicyTapes=[];
   const proposals=new WeakMap();
+  function safeActorView(state,seat){
+    try{
+      const sha256=digestActorView(state,seat);
+      assert.match(sha256,/^[0-9a-f]{64}$/);
+      return {sha256,error:null};
+    }catch(error){return {sha256:null,
+      error:error?.constructor?.name??'Error'};}
+  }
   const append=row=>{
     if(records.length<maxRecords)records.push(row);
     else droppedRecords++;
@@ -129,18 +144,29 @@ function withNativeDecisionDispatchWitness(execute,options) {
     const beforeSeat=actingSeat(state,this);
     const captureTape=tapeOrdinal!==null&&beforeSeat>=0&&
       seenDecisions+1===tapeOrdinal;
+    const ownerViewBefore=captureTape&&captureActorViewAtTape?
+      safeActorView(state,beforeSeat):null;
     const observed=captureTape?
       recordPolicyRandomTape(()=>decode.value.apply(this,[state,...args])):
       null;
     const action=observed?observed.result:
       decode.value.apply(this,[state,...args]);
     const seat=actingSeat(state,this);
+    const ownerViewAfter=observed&&captureActorViewAtTape&&seat>=0?
+      safeActorView(state,seat):null;
+    const ownerViewPreserved=Boolean(ownerViewBefore?.sha256&&
+      ownerViewBefore.sha256===ownerViewAfter?.sha256);
     if(seat<0){
       if(observed)nativePolicyTapes.push({
         ordinal:seenDecisions+1,gameIndex:observedLiveStores,
         seat:beforeSeat,turn:state?.turn??null,
         status:'unattributed-state-owner-after-selection',
         sha256:observed.sha256,values:observed.tape,
+        ownerObservationBeforeSha256:ownerViewBefore?.sha256??null,
+        ownerObservationAfterSha256:null,
+        ownerObservationPreserved:false,
+        ownerViewError:ownerViewBefore?.error??null,
+        ownerK1HistoryAuthenticated:false,
         selectedAction:null,dispatchAction:null,
         unchangedPortableInput:false,dispatchReturnedWithoutThrow:null
       });
@@ -152,6 +178,11 @@ function withNativeDecisionDispatchWitness(execute,options) {
       ordinal,gameIndex:observedLiveStores,seat,turn:state.turn,
       status:'original-live-decision',
       sha256:observed.sha256,values:observed.tape,
+      ownerObservationBeforeSha256:ownerViewBefore?.sha256??null,
+      ownerObservationAfterSha256:ownerViewAfter?.sha256??null,
+      ownerObservationPreserved:ownerViewPreserved,
+      ownerViewError:ownerViewBefore?.error??ownerViewAfter?.error??null,
+      ownerK1HistoryAuthenticated:false,
       selectedAction:original,dispatchAction:null,
       unchangedPortableInput:false,dispatchReturnedWithoutThrow:null
     }:null;
