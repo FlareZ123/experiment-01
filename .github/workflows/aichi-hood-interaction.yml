@@ -30,6 +30,10 @@ on:
         description: 'Run compiled printed evolution fidelity probe'
         type: boolean
         default: false
+      agent1_source_dealt_pairs:
+        description: 'Run bounded rank1 versus rank10 natural evolution root pairs'
+        type: boolean
+        default: false
       hood_rank8_crispin_native:
         description: 'Source turn7 Secret Box Crispin native Energy choice and attack audit'
         type: boolean
@@ -64,6 +68,17 @@ jobs:
         run: |
           node --check simulation/twinleaf/agent1-actor-evolution-frontier.cjs
           node --test tests/agent1-actor-evolution-frontier.test.cjs
+      - name: Run source-dealt natural evolution actor policy pairs
+        if: inputs.agent1_source_dealt_pairs
+        run: node simulation/evaluation/agent1-natural-evolution-source-pairs.cjs > agent1-evolution-source-pairs.json
+      - name: Archive evolution source-dealt paired development evidence
+        if: always() && inputs.agent1_source_dealt_pairs
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-natural-evolution-rank1-rank10-development
+          path: agent1-evolution-source-pairs.json
+          if-no-files-found: warn
+          retention-days: 21
       - name: Test Hood position with Iron Thorns and Tool Jammer
         run: node simulation/twinleaf/hood-vs-thorns.cjs
       - name: Test Megaton Blower Tool removal and compatibility hook
