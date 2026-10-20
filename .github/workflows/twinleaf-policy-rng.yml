@@ -31,6 +31,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Verify policy/game stream isolation without Twinleaf
         run: node --test tests/twinleaf-policy-rng-isolation.test.cjs
+      - name: Verify native decision-to-Store input identity negative controls
+        run: node --test tests/agent23-native-decision-dispatch-witness.test.cjs
       - name: Initialize pinned Twinleaf
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Set up upstream Node runtime
