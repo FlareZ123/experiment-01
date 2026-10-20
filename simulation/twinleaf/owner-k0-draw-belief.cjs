@@ -29,6 +29,11 @@ function ownerK0NextDrawBelief(observation, registered60, assumptions) {
   assert.ok(observation.ownerK1 === null ||
     observation.ownerK1?.exactMembershipKnown === false,
     'A K1 owner needs a separate provenance-checked deck-membership model');
+  const history=assumptions?.ownerKnowledgeEpoch;
+  assert.ok(history && history.exactMembership===false &&
+    ['liveSearches','fullPrizeReviews','hiddenPrizeRedeals'].every(key=>
+      Number.isSafeInteger(history[key])&&history[key]===0),
+    'Requires authenticated owner K0 search/Prize epoch');
   assert.ok(Array.isArray(registered60));
 
   const counts = new Map();
