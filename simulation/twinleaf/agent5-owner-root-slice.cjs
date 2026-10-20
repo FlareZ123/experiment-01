@@ -160,6 +160,15 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
       after.handCount===before.handCount-1?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
+  if(intent.kind==='attach-special-energy'||intent.kind==='attach-dce'){
+    // A Special Energy such as Speed Lightning can draw cards on attachment.
+    // Confirm the actual visible attached physical card rather than assuming
+    // a one-card hand decrease after any triggered effect or new prompt.
+    const count=cards=>cards.filter(c=>c===intent.printing).length;
+    return after.activeEnergies.length===before.activeEnergies.length+1&&
+      count(after.activeEnergies)===count(before.activeEnergies)+1?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
   if(intent.kind==='pass'){
     return after.turn>before.turn||
       (after.phase===GamePhase.FINISHED&&
