@@ -3,7 +3,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {sourceVipAfterPassEligible, sourceVipActorEligible,
-  sourceCologneAfterVipEligible, selectSourceVipBasics, withSourceVipAfterPass} =
+  sourceCologneAfterVipEligible,sourceSecondVipActorEligible,
+  selectSourceVipBasics,selectSecondVipBasics,withSourceVipAfterPass} =
   require('../simulation/twinleaf/rank26-first-own-vip-after-pass.cjs');
 
 function slot(name) {
@@ -134,4 +135,54 @@ test('optional Squawk priority uses only physical owner search choices and fallb
   own.bench=[slot('Unown'),slot('Exeggcute'),slot('Crobat V'),slot(null),slot(null)];
   assert.deepEqual(selectSourceVipBasics(own,prompt,state,{preferSquawk:true}),
     [squawk]);
+});
+
+
+test('second VIP after actual Squawk turn sees only the actor hand and public board',()=>{
+  const view={decisionKind:'owner-root',globalTurn:1,phase:3,
+    ownTurnResources:{itemPlayLocked:false},
+    ownHand:['Battle VIP Pass FST','Battle Compressor PHF'],
+    ownPublic:{active:{printing:'Bunnelby PRC'},bench:[
+      {printing:'Dedenne GX UNB'},{printing:'Meloetta ex SV11B'},
+      {printing:'Squawkabilly ex PAL'},{printing:'Exeggcute PLF'},null]},
+    opponentPublic:{active:{printing:'Iron Thorns ex TWM'},handCount:5}};
+  assert.equal(sourceSecondVipActorEligible(view,3),true);
+  const alternate=structuredClone(view);
+  alternate.opponentPublic.hiddenHand=['unknown opponent cards'];
+  alternate.opponentPublic.hiddenDeck=['unknown opponent deck'];
+  assert.equal(sourceSecondVipActorEligible(alternate,3),true);
+  alternate.ownPublic.bench[4]={printing:'Tapu Koko Prism Star TEU'};
+  assert.equal(sourceSecondVipActorEligible(alternate,3),false);
+  alternate.ownPublic.bench[4]=null;
+  alternate.ownHand=['Battle Compressor PHF'];
+  assert.equal(sourceSecondVipActorEligible(alternate,3),false);
+  alternate.ownHand=['Battle VIP Pass FST'];
+  alternate.ownTurnResources.itemPlayLocked=true;
+  assert.equal(sourceSecondVipActorEligible(alternate,3),false);
+  alternate.ownTurnResources.itemPlayLocked=false;
+  alternate.ownPublic.bench[2]=null;
+  assert.equal(sourceSecondVipActorEligible(alternate,3),false);
+  alternate.ownPublic.bench[2]={printing:'Squawkabilly ex PAL'};
+  alternate.globalTurn=2;
+  assert.equal(sourceSecondVipActorEligible(alternate,3),false);
+});
+
+test('second VIP search selects only real owner-deck Koko and legal additional Egg',()=>{
+  const {state,own}=source(['Meloetta ex','Squawkabilly ex',null,null,null],
+    ['Battle VIP Pass']);
+  const koko={name:'Tapu Koko Prism Star',fullName:'Tapu Koko Prism Star TEU'};
+  const egg={name:'Exeggcute',fullName:'Exeggcute PLF'};
+  const bunnelby={name:'Bunnelby',fullName:'Bunnelby PRC'};
+  const pool=[egg,bunnelby,koko];
+  const prompt={cards:{cards:pool.slice()},validate:cards=>cards.length<=2&&
+    cards.every(card=>prompt.cards.cards.includes(card))};
+  assert.deepEqual(selectSecondVipBasics(own,prompt,state),[koko,egg]);
+  assert.deepEqual(prompt.cards.cards,pool);
+  own.bench=[slot('Dedenne GX'),slot('Meloetta ex'),
+    slot('Squawkabilly ex'),slot('Exeggcute'),slot(null)];
+  assert.deepEqual(selectSecondVipBasics(own,prompt,state),[koko]);
+  prompt.cards.cards=[egg,bunnelby];
+  assert.deepEqual(selectSecondVipBasics(own,prompt,state),[egg]);
+  prompt.cards.cards=[bunnelby];
+  assert.deepEqual(selectSecondVipBasics(own,prompt,state),[]);
 });
