@@ -5,7 +5,7 @@ const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {BASIC_ENERGY_TYPE}=require('./printed-basic-energy-audit.cjs');
 
-const VERSION='agent5-owner-root-slice-v1-development-unqualified';
+const VERSION='agent5-owner-root-slice-v2-numeric-statuses-development-unqualified';
 
 /**
  * Determine whether one attached Basic Energy per type covers a printed
@@ -32,11 +32,13 @@ function basicEnergyPays(cost,attached,colorlessSymbol='COLORLESS'){
  * development baseline, not a complete competitive decision policy.
  * @param {object} view Detached frozen actorObservation.
  * @param {Record<string,object>} catalog Own-hand/face-up card print metadata.
- * @param {{colorlessSymbol?:string|number}} [options] Printed type enum.
+ * @param {{colorlessSymbol?:string|number,incapacitatingStatuses?:(string|number)[]}} [options] Pinned printed and status enums.
  * @returns {object}
  */
 function selectOwnerRootIntent(view,catalog,options={}){
   const colorlessSymbol=options.colorlessSymbol??'COLORLESS';
+  const incapacitatingStatuses=options.incapacitatingStatuses??
+    ['ASLEEP','PARALYZED'];
   assert.equal(view.decisionKind,'owner-root');
   const turn=view.globalTurn;
   const flags=view.ownTurnResources;
@@ -74,7 +76,7 @@ function selectOwnerRootIntent(view,catalog,options={}){
   const unable=turn===1||
     view.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining>0||
     active.specialConditions.some(condition=>
-      ['ASLEEP','PARALYZED'].includes(String(condition).toUpperCase()))||
+      incapacitatingStatuses.includes(condition))||
     restrictions.cannotAttackNextTurn===true;
   if(!unable){
     for(const attack of attacks){
@@ -240,7 +242,9 @@ function withOwnerRootSlice(candidateSeat,work,deps={}){
       });
     }
     const intent=selectOwnerRootIntent(view,catalog,{
-      colorlessSymbol:enums.CardType.COLORLESS
+      colorlessSymbol:enums.CardType.COLORLESS,
+      incapacitatingStatuses:[enums.SpecialCondition.ASLEEP,
+        enums.SpecialCondition.PARALYZED]
     });
     const action=nativeActionForIntent(intent,player,{
       ...actionClasses,...enums
