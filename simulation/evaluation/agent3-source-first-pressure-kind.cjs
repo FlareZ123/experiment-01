@@ -66,4 +66,51 @@ function sourceFirstNativePressureVerified(row){
   return false;
 }
 
-module.exports={sourceFirstNativePressureVerified};
+/**
+ * Distinguish an authenticated, actually blocked printed Power from a
+ * source-first passive lock with no eligible candidate-side Power to block.
+ * A missing target alone cannot prove Initialization is functional: the
+ * separate positive-control arm is required at the paired-intake level.
+ * Source-borne observations are still untrusted until independently tied
+ * to their authentic Store root ledger.
+ *
+ * @param {object} row Registered bilateral observation.
+ * @returns {'native-blocked-eligible-power'|'no-eligible-power-present'|'unverified'}
+ */
+function sourceFirstNativeExposureKind(row){
+  if(sourceFirstNativePressureVerified(row))
+    return 'native-blocked-eligible-power';
+  if(row?.rank!==6)return 'unverified';
+  const pressure=row.sourcePressure;
+  const evidence=row.rank6PassivePressure;
+  const sourceEnd=evidence?.sourceTurnOneEndRoot;
+  const ledger=row.rootActionLedger;
+  const root=Array.isArray(ledger)?ledger[pressure?.rootActionOrdinal]:null;
+  const exactNoTarget=pressure?.turnBefore===1 &&
+    pressure.completionTurnBefore===1 &&
+    pressure.pressureKind==='passive-ability-suppression' &&
+    evidence?.schema==='agent41-rank6-passive-initialization-root-classification-v1' &&
+    evidence.status==='no-eligible-visible-power' &&
+    evidence.sourceSeat===pressure.actorSeat &&
+    evidence.candidateSeat===1-pressure.actorSeat &&
+    evidence.sourceActuallyFirst===true &&
+    evidence.observedBoundaryActors===true &&
+    evidence.sourceActiveContinuity===true &&
+    evidence.rootedReplyAndReturn===true &&
+    evidence.nativeCapabilitySuppressed===false &&
+    evidence.examinedPrintedPowerCount===0 &&
+    evidence.sourceTurnOneSnapshotPresent===true &&
+    evidence.candidateTurnTwoSnapshotPresent===true &&
+    evidence.sourceReturnSnapshotPresent===true &&
+    evidence.targetPrinting===null &&
+    evidence.targetPowerName===null &&
+    sourceEnd?.ordinal===pressure.rootActionOrdinal &&
+    sourceEnd.turn===1 &&
+    sourceEnd.seat===pressure.actorSeat &&
+    sourceEnd.action==='PassTurnAction' &&
+    pressure.completionOrdinal===pressure.rootActionOrdinal &&
+    (!Array.isArray(ledger)||root?.action==='PassTurnAction');
+  return exactNoTarget?'no-eligible-power-present':'unverified';
+}
+
+module.exports={sourceFirstNativePressureVerified,sourceFirstNativeExposureKind};
