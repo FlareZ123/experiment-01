@@ -180,8 +180,12 @@ function commonPayloadOption(candidateSeat,enabled,lateWindow=false){
  */
 function executeDevelopment(trial,candidates,{
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
-  garbotoxinWindow=false
+  garbotoxinWindow=false,initializationWindow=false
 }={}){
+  if(initializationWindow)assert.equal(trial.rank,6,
+    'Initialization passive window belongs only to rank 6');
+  if(garbotoxinWindow)assert.equal(trial.rank,11,
+    'Garbodor power window belongs only to rank 11');
   const {runMatch}=require('../twinleaf/headless.cjs');
   const {withRank11DirectBoostShake}=
     require('../twinleaf/rank11-direct-boostshake.cjs');
@@ -220,6 +224,7 @@ function executeDevelopment(trial,candidates,{
   };
   let ownerCompressorAudit=null;
   let garbotoxinWindowAudit=null;
+  let initializationWindowAudit=null;
   const runWithPowerWindow=()=>{
     if(!garbotoxinWindow)return runMatch(request);
     const observed=require('../twinleaf/agent41-live-garbotoxin-ability-window.cjs')
@@ -236,8 +241,15 @@ function executeDevelopment(trial,candidates,{
     ownerCompressorAudit=output.audit;
     return output.result;
   };
+  const runWithInitializationWindow=()=>{
+    if(!initializationWindow)return runWithReadOnlyAudit();
+    const observed=require('../twinleaf/agent39-live-initialization-window.cjs')
+      .withLiveInitializationWindow(runWithReadOnlyAudit,{sourceSeat,candidateSeat});
+    initializationWindowAudit=observed.audit;
+    return observed.result;
+  };
   const common=()=>withBilateralCommonCandidatePolicy(candidateSeat,
-    runWithReadOnlyAudit);
+    runWithInitializationWindow);
   let game,sourceAudit,commonAudit;
   if(trial.rank===11){
     const played=withRank11DirectBoostShake(sourceSeat,common,
@@ -280,6 +292,11 @@ function executeDevelopment(trial,candidates,{
     row.declarations?.length && row.settled?.after);
   const sourceFirst=game.firstTurnSlot===sourceSeat;
   const rootTrace=game.rootActionLedger||[];
+  const passiveEvidence=initializationWindow?
+    require('./agent41-passive-rank6-pressure.cjs')
+      .rank6PassivePressureEvidence(initializationWindowAudit,rootTrace,{
+        sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst
+      }):null;
   const candidateCompressorRoots=rootTrace.filter(row=>
     row.playerSlot===candidateSeat && row.action==='PlayCardAction' &&
     row.card==='Battle Compressor');
@@ -322,6 +339,9 @@ function executeDevelopment(trial,candidates,{
     }:{}),
     ...(opportunityAudit?{ownerCompressorOpportunityAudit:ownerCompressorAudit}:{}),
     ...(garbotoxinWindow?{garbotoxinWindowAudit}:{}),
+    ...(initializationWindow?{
+      initializationWindowAudit,rank6PassivePressure:passiveEvidence
+    }:{}),
     finalDispatchVisiblePlayLockV2:game.livePlayLockGuardBothSeats===true,
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
     verifiedFirstTurn:game.verifiedByDrawLog,
