@@ -77,6 +77,7 @@ function executeDiagnostic(options) {
   }
   const allowedFlags = new Set([
     'strictPromptValidation', 'forestSealSearchCorrection',
+    'battleCompressorPositiveSelectionCorrection',
     'attachedToolPowerPolicy',
     'grandTreeFirstTurnCorrection',
     'electrodeGXEnergyCorrection',
@@ -135,8 +136,9 @@ function executeDiagnostic(options) {
   if(policyFlags.rank4RaichuCompressorSource===true &&
      (ranks.length!==1 || ranks[0]!==4 ||
       policyFlags.electrodeGXEnergyCorrection!==true ||
-      policyFlags.electroRainDamageCorrection!==true)) {
-    throw new Error('Rank4 source Compressor requires rank 4 and both printed Energy and attack corrections');
+      policyFlags.electroRainDamageCorrection!==true ||
+      policyFlags.battleCompressorPositiveSelectionCorrection!==true)) {
+    throw new Error('Rank4 source Compressor requires rank 4, paper min1, Energy and attack corrections');
   }
   const wanted = new Set(ranks);
   const trials = campaign.trials.filter(t => t.phase === 'pilot' && wanted.has(t.rank));
@@ -209,8 +211,7 @@ function executeDiagnostic(options) {
         ...(toolAttackOpponentOnly === true ?
           {toolAttackAwarenessSeat: candidateA ? 1 : 0} : {}),
         ...(sourceCompressorSeat===null?{}:{
-          rank4RaichuCompressorSeat:sourceCompressorSeat,
-          battleCompressorPositiveSelectionCorrection:true
+          rank4RaichuCompressorSeat:sourceCompressorSeat
         })
       });
       const expectedDeckHashes = [digest(deckA), digest(deckB)];
@@ -492,6 +493,7 @@ function main() {
       electroRainDamageCorrection: process.env.AICHI_ELECTRO_RAIN_DAMAGE === '1',
       electrodeGXPrizeTradePolicy: process.env.AICHI_ELECTRODE_PRIZE_TRADE === '1',
       rank4RaichuCompressorSource: process.env.AICHI_RANK4_COMPRESSOR === '1',
+      battleCompressorPositiveSelectionCorrection: process.env.AICHI_BATTLE_COMPRESSOR_MIN1 === '1',
       captureElectrodeOpportunity: process.env.AICHI_ELECTRODE_OPPORTUNITY === '1',
       raichuSightToolPolicy: process.env.AICHI_RAICHU_SIGHT === '1',
       raichuPrizeAllocationPolicy: process.env.AICHI_RAICHU_PRIZE_ALLOCATION === '1',
