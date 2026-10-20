@@ -32,3 +32,21 @@ The ratio of these particular **complete-Prize-collapse** event probabilities, o
 - **No deck-quality conclusion follows.** Complete DCE Prize collapse is a narrow hard failure for the instant DCE+Thunder line, not a bound on eventual Volt Cyclone or Iron Thorns' separate Ability/Trainer control routes. Source-side actor decisions, opponent action quality, full-turn response and the eventual frozen challenger choice remain unqualified.
 
 **Shared project status is unchanged:** 29/32 exact official source lists, zero competitive-qualified games, no demonstrated 99.5% fixed 60.
+
+
+## Joint immediate-resource Prize gate: singleton Thunder plus DCE
+
+The same conditional opening model gives a stronger source-specific question: if **the singleton Thunder Mountain** is Prized *or* **every DCE** is Prized, the immediate `DCE + Thunder Mountain` attack-cost route cannot be completed from ordinary hand/deck search without first recovering missing Prizes. Both relevant categories are non-Basic; for any set of `k` distinct required cards, the exact probability **all `k`** start Prized given a four-Thorns valid seven is
+
+`q(k) = [C(60-k,7)-C(56-k,7)]/[C(60,7)-C(56,7)] * C(53-k,6-k)/C(53,6)`.
+
+By inclusion-exclusion, `P(Thunder Prized OR every DCE Prized | valid opener) = q(1)+q(m)-q(m+1)`.
+
+| Source | Thunder-only Prized event | Every DCE Prized | Joint intersection | **At least one channel entirely Prized** |
+| --- | ---: | ---: | ---: | ---: |
+| 6 or 29, `m=1` | 10.14180% | 10.14180% | 0.87183% | **19.41178%**, `415977/2142910` |
+| 24, `m=3` | 10.14180% | 0.06100% | 0.00326% | **10.19955%**, `417026131/4088672280` |
+
+The joint-event fractions are `q(2)=7473/857164` and `q(4)=11101/340722690`. Independent seeded physical shuffle (`random.Random(24102026)`, 160,000 uniformly sampled complete 60-card deals per rank, only valid opening sevens retained) observed 19.40165%, 10.16574%, 19.52358% for ranks 6/24/29, respectively, within one binomial standard error of exact values.
+
+The event is **specific to the first eligible DCE-plus-Thunder plan**, and **does not imply a lost game or a universal inability to attack**: later Prize recovery, alternate Energy attachments, source-specific strategy, other Stadiums/Effects and evolving board states require separate analysis. Crucially, rank 24's three DCE copies do not remove the approximately 10% initial risk of Prizing its sole Thunder Mountain. This makes exact native owner-deck K1 recognition of the missing Stadium a useful paired regression alongside the rank-6 missing-DCE negative.
