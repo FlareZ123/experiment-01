@@ -94,7 +94,7 @@ function main() {
     failOnMutation:false,maxExamples:12
   });
   const aliases=installNativeOwnerAliasObserver(SimpleTacticsAi);
-  const proposals=installNativeSupporterProposalValidationTrace(SimpleTacticsAi,PlaySupporterTactic);
+  const proposals=installNativeSupporterProposalValidationTrace(SimpleTacticsAi,PlaySupporterTactic,{tapeOrdinal:23});
   let observed,readOnlyAudit,proposalValidationAudit,ownerAliasAudit;
   try {
     observed=execute();
