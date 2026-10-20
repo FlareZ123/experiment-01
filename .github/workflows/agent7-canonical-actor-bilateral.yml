@@ -2,6 +2,12 @@ name: Canonical bilateral actor-only decision composition
 
 on:
   workflow_dispatch:
+    inputs:
+      source_first_retrospective:
+        description: Also execute previously selected native source-first four-arm stress panel
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -35,11 +41,26 @@ jobs:
       - name: Fail closed on missing actor audits and silent missing arms
         run: |
           node -e "const assert=require('node:assert/strict');const r=require('./agent7-canonical-actor-fourarm.json');assert.equal(r.attempted,4);assert.equal(r.rows.length,4);assert.equal(r.competitiveQualifiedGames,0);assert.equal(r.actorOnlyCompositionOptIn,true);assert.equal(r.actorOnlyCellsWithAudits,4,'Any missing per-arm coverage is a failure');assert.equal(r.paperSupporterQuotaOptIn,true);for(const row of r.rows){assert.ok(row.actorOnlyDecisionCoverage,'No actor-only audit');assert.equal(row.qualifiesForCompetitiveInference,false);const a=row.actorOnlyDecisionCoverage;assert.equal(a.qualification.competitiveGames,0);assert.ok(a.nativeDecisionCounts.actorRootsAccepted>0,'No native accepted actor roots');assert.equal(a.nativeDecisionCounts.actorRootsRejected,0);}console.log('ACTOR_CANONICAL_FOURARM',JSON.stringify(r.rows.map(x=>({trial:x.trial.id,actor:x.actorOnlyDecisionCoverage.nativeDecisionCounts,sourceDeal:x.sourceDealFingerprint??null,sourceFirst:x.sourceActuallyFirst??null,sourceReply:x.candidateFollowupStatus??null,error:x.error??null}))))"
-      - name: Preserve every observed and unobserved development arm
+      - name: Run four retrospective source-first stress arms with same composition
+        if: ${{ inputs.source_first_retrospective }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-sourcefirst.json
+      - name: Qualify retrospective source-first evidence as development-only
+        if: ${{ inputs.source_first_retrospective }}
+        run: |
+          node -e "const assert=require('node:assert/strict');const r=require('./agent7-canonical-sourcefirst.json');assert.equal(r.attempted,4);assert.equal(r.rows.length,4);assert.equal(r.sourceFirstRetrospective,true);assert.equal(r.competitiveQualifiedGames,0);assert.equal(r.actorOnlyCellsWithAudits,4);for(const x of r.rows){assert.ok(x.actorOnlyDecisionCoverage);assert.equal(x.qualifiesForCompetitiveInference,false);assert.equal(x.sourceActuallyFirst,true,'Physical source did not start first');assert.equal(x.actorOnlyDecisionCoverage.qualification.competitiveGames,0);}console.log('ACTOR_SOURCE_FIRST',JSON.stringify(r.rows.map(x=>({trial:x.trial.id,sourceFirst:x.sourceActuallyFirst,sourceAudit:x.sourceAudit,reply:x.candidateFollowupStatus,attacks:x.attackDeclarations,actions:x.actionCount,terminal:x.finished,winner:x.winner,actor:x.actorOnlyDecisionCoverage.nativeDecisionCounts}))))"
+      - name: Preserve every observed and censored development arm
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: agent7-canonical-actor-fourarm-development
-          path: agent7-canonical-actor-fourarm.json
+          path: |
+            agent7-canonical-actor-fourarm.json
+            agent7-canonical-sourcefirst.json
           if-no-files-found: warn
           retention-days: 30
