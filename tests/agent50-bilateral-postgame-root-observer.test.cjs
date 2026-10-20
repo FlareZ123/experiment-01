@@ -270,6 +270,88 @@ test('captured mutable scores and arbiter data are isolated in every world',()=>
   assert.deepEqual(reversed.tactics,[Tactic]);
 });
 
+test('first finite-score root skips unscored turn and preserves both native actions',()=>{
+  class ScoredBot extends SyntheticBot {
+    constructor(client,options){
+      super(client,options);
+      this.tactics[0].evaluateAction=()=>1.25;
+    }
+    decodeNextAction(s){
+      if(s.turn<4)return {player:this.client.id,play:'unscored'};
+      const score=this.tactics[0].evaluateAction();
+      return {player:this.client.id,play:score===1.25?'scored':'bad'};
+    }
+  }
+  const originalDecode=ScoredBot.prototype.decodeNextAction;
+  const originalTactic=new ScoredBot({id:101},
+    {tactics:[],promptResolvers:[]}).tactics[0].evaluateAction;
+  const headless={runMatch(){
+    const bot=new ScoredBot({id:101},
+      {tactics:[],promptResolvers:[]});
+    const early=bot.decodeNextAction(state({turn:3}));
+    const late=bot.decodeNextAction(state({turn:4}));
+    assert.equal(bot.tactics[0].evaluateAction(),1.25);
+    return {early,late};
+  }};
+  const originalRun=headless.runMatch;
+  let postgameCompare=0;
+  const output=withPostgameRootOrderProbe(
+    ScoredBot,()=>headless.runMatch(),structuredClone,{
+      turn:3,seat:0,firstFiniteScoredRoot:true,makeRandom:()=>()=>0.2
+    },{headless,compare:(snapshot,actor,newBot)=>{
+      postgameCompare++;
+      assert.equal(snapshot.turn,4);
+      assert.equal(actor,101);
+      const physical=actionSignature(newBot().decodeNextAction(snapshot));
+      return {
+        physicalOrder:physical,reversedOrder:physical,
+        liveStatePreserved:true,actionSensitiveToHiddenDeckOrder:false,
+        tacticScoreComparison:{equalScoreTraces:true}
+      };
+    }}
+  );
+  assert.deepEqual(output.result,{
+    early:{player:101,play:'unscored'},
+    late:{player:101,play:'scored'}
+  });
+  assert.equal(output.events.length,1);
+  assert.equal(output.events[0].chosenRootTurn,4);
+  assert.equal(output.events[0].actualScorerAttempts,1);
+  assert.equal(output.events[0].actualFiniteScores,1);
+  assert.equal(output.events[0].baselineActionMatchedActual,true);
+  assert.equal(postgameCompare,1);
+  assert.strictEqual(ScoredBot.prototype.decodeNextAction,originalDecode);
+  assert.strictEqual(headless.runMatch,originalRun);
+  assert.equal(originalTactic(),1.25);
+});
+
+test('first finite-score root keeps every undefined-scored owner action',()=>{
+  class UnscoredBot extends SyntheticBot {
+    constructor(client,options){
+      super(client,options);
+      this.tactics[0].evaluateAction=()=>undefined;
+    }
+    decodeNextAction(){
+      this.tactics[0].evaluateAction();
+      return {player:this.client.id,play:'unscored'};
+    }
+  }
+  const headless={runMatch(){
+    const bot=new UnscoredBot({id:101},
+      {tactics:[],promptResolvers:[]});
+    return {turn3:bot.decodeNextAction(state({turn:3})),
+      turn4:bot.decodeNextAction(state({turn:4}))};
+  }};
+  const output=withPostgameRootOrderProbe(UnscoredBot,
+    ()=>headless.runMatch(),structuredClone,
+    {turn:3,seat:0,firstFiniteScoredRoot:true,makeRandom:()=>()=>0.2},
+    {headless,compare:()=>{throw Error('No scored root must skip compare');}}
+  );
+  assert.equal(output.events.length,0);
+  assert.equal(output.result.turn3.play,'unscored');
+  assert.equal(output.result.turn4.play,'unscored');
+});
+
 test('postgame comparison cannot inherit future live or prior-world score mutations',()=>{
   const baseline=SyntheticBot.prototype.decodeNextAction;
   const options={
