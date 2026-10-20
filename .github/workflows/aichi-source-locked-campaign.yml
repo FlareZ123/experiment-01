@@ -214,7 +214,7 @@ jobs:
         run: node scripts/agent41-native-hidden-read-paired.cjs > agent41-native-hidden-read-pair.json
       - name: Classify unchanged native roots and read counters, with no game win inference
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-hidden-read-native-pair' }}
-        run: node -e "const p=require('./agent41-native-hidden-read-pair.json');const a=p.attestation;for(const x of a.pairs)console.log('PAIR',JSON.stringify({trial:x.trialId,status:x.status,sourceDealMatched:x.sourceDealMatched,rootMatched:x.sourceRootMatched,proposalReads:x.proposalReads,validationReads:x.validationReads,nativeDecisionObserved:x.observedNativeRoot}));console.log('QUALIFIED_READ_CENSUS',a.fullyNoninterferingNativeReadCensuses,'of',a.attempted,'COMPETITIVE_GAMES',a.competitiveQualifiedGames);if(!a.completeNativeReadCensusQualified)process.exitCode=1"
+        run: node -e "const p=require('./agent41-native-hidden-read-pair.json');const a=p.attestation;for(const x of a.pairs)console.log('PAIR',JSON.stringify({trial:x.trialId,status:x.status,sourceDealMatched:x.sourceDealMatched,rootMatched:x.sourceRootMatched,proposalReads:x.proposalReads,validationReads:x.validationReads,mutatedMarkers:x.changedVisibleScalarMarkers,nativeDecisionObserved:x.observedNativeRoot}));console.log('QUALIFIED_READ_CENSUS',a.fullyNoninterferingNativeReadCensuses,'of',a.attempted,'COMPETITIVE_GAMES',a.competitiveQualifiedGames);if(!a.completeNativeReadCensusQualified)process.exitCode=1"
       - uses: actions/upload-artifact@v4
         if: ${{ always() && inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-hidden-read-native-pair' }}
         with:
