@@ -83,6 +83,7 @@ for(const rank of [6,11]){
         }),/CAPTURED_NATIVE_REQUEST/);
         const request=getRequest();
         assert.equal(request.mandatoryOptionFallback,enabled);
+        assert.equal(request.enforceSelectOptionLegality,enabled);
         assert.equal(request.supporterDecisionCorrection,true);
         assert.equal(request.enforceVisiblePlayLockBothSeats,true);
         assert.equal(request.deckA[0],seat==='A'?'candidate':'source');
