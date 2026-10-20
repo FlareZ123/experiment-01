@@ -1,0 +1,31 @@
+name: Actor-only root slice native development
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  retrospective-rank11:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Pure actor-root intent tests
+        run: node --test tests/agent5-owner-root-slice.test.cjs
+      - name: Native bilateral historical and source-first development
+        run: node simulation/evaluation/agent5-owner-root-bilateral-native.cjs > agent5-owner-root-result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: actor-only-root-native-retrospective-rank11
+          path: agent5-owner-root-result.json
+          retention-days: 30
