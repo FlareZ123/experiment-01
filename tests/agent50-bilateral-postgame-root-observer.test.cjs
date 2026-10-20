@@ -157,7 +157,7 @@ test('snapshot mutation triggers a fail-closed owner-visible root warning',()=>{
   assert.equal(observed.events[0].baselineActionMatchedActual,false);
   assert.equal(observed.events[0].liveStatePreserved,false);
   assert.match(observed.events[0].auditError,
-    /capture mutated the actual Store State graph/);
+    /Captured replay root differs from genuine physical State/);
   assert.equal(observed.result.action.play,'generic');
 });
 
