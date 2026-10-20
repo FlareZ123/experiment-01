@@ -7,6 +7,7 @@ const VIP = 'Battle VIP Pass';
 const MELOETTA = 'Meloetta ex';
 const EXEGGCUTE = 'Exeggcute';
 const KOKO = 'Tapu Koko Prism Star';
+const COLOGNE = 'Canceling Cologne';
 
 const {actorObservation} = require('./actor-observation-contract.cjs');
 
@@ -28,6 +29,23 @@ function sourceVipActorEligible(view,phase) {
     view.globalTurn===1 && view.phase===phase &&
     hasHand(VIP) && !inPlay(MELOETTA) && !hasHand(MELOETTA) &&
     free > (inPlay(KOKO) ? 0 : 1);
+}
+
+/**
+ * Owner-visible conditional next action after the VIP prompt has resolved.
+ * The check does not inspect concealed deck, opponent hand, or Prizes.
+ * @param {object} view Authenticated detached actor observation.
+ * @param {number} phase Pinned PLAYER_TURN enum.
+ * @returns {boolean}
+ */
+function sourceCologneAfterVipEligible(view,phase) {
+  const inPlay=[view.ownPublic.active,...view.ownPublic.bench].some(slot=>
+    slot?.printing?.startsWith(MELOETTA+' '));
+  return view.decisionKind==='owner-root' &&
+    view.globalTurn===1 && view.phase===phase &&
+    view.ownTurnResources?.itemPlayLocked!==true &&
+    view.ownHand.some(card=>card.startsWith(COLOGNE+' ')) &&
+    inPlay && view.opponentPublic.active?.printing?.startsWith('Iron Thorns ex ')===true;
 }
 
 /**
@@ -90,9 +108,10 @@ function selectSourceVipBasics(own, prompt, state) {
  * @template T
  * @param {0|1} seat Source physical seat.
  * @param {()=>T} execute Synchronous native headless experiment.
+ * @param {{followupCologne?:boolean}} [options] Opt-in narrow source continuation.
  * @returns {{result:T,policyAudit:object}}
  */
-function withSourceVipAfterPass(seat, execute) {
+function withSourceVipAfterPass(seat, execute, {followupCologne=false}={}) {
   if (![0,1].includes(seat) || typeof execute !== 'function')
     throw new TypeError('Need source seat and synchronous runner');
   const get = subpath => require(path.join(OUTPUT, subpath));
@@ -131,6 +150,29 @@ function withSourceVipAfterPass(seat, execute) {
       events.push({kind:'public-board-after',turn:state.turn,
         bench:own.bench.map(s => s.getPokemonCard()?.fullName ?? null)});
       stage = 'finished';
+      if (followupCologne) {
+        const view=actorObservation(state,seat);
+        if (sourceCologneAfterVipEligible(view,GamePhase.PLAYER_TURN)) {
+          const index=own.hand.cards.findIndex(c=>c.name===COLOGNE);
+          const next=new PlayCardAction(sourceId,index,{
+            player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+          });
+          const nativeValid=this.isValidAction(state,next);
+          events.push({kind:'owner-cologne-after-vip-offer',turn:state.turn,
+            nativeValid,card:own.hand.cards[index].fullName,
+            opponentActive:view.opponentPublic.active?.printing??null});
+          if (nativeValid) {
+            stage='cologne-post';
+            return next;
+          }
+        }
+      }
+    }
+    if (stage==='cologne-post' && !prompt) {
+      events.push({kind:'owner-cologne-postcondition',turn:state.turn,
+        sourceHasCologne:own.hand.cards.some(c=>c.name===COLOGNE),
+        sourceDiscardHasCologne:own.discard.cards.some(c=>c.name===COLOGNE)});
+      stage='finished';
     }
     const action = previous.call(this,state);
     if (stage === 'available' &&
@@ -160,7 +202,9 @@ function withSourceVipAfterPass(seat, execute) {
   SimpleTacticsAi.prototype.decodeNextAction = override;
   try {
     return {result:execute(),policyAudit:{
-      version:'rank26-first-own-vip-after-pass-v1',seat,events,
+      version:followupCologne ?
+        'rank26-first-own-vip-after-pass-v1+owner-cologne-followup-v1' :
+        'rank26-first-own-vip-after-pass-v1',seat,events,
       finalStage:stage,competitiveGameQualified:false
     }};
   } finally {
@@ -171,4 +215,4 @@ function withSourceVipAfterPass(seat, execute) {
 }
 
 module.exports={sourceVipAfterPassEligible,sourceVipActorEligible,
-  selectSourceVipBasics,withSourceVipAfterPass};
+  sourceCologneAfterVipEligible,selectSourceVipBasics,withSourceVipAfterPass};
