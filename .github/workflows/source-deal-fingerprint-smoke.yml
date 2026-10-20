@@ -2,6 +2,12 @@ name: First-source-deal digest smoke
 
 on:
   workflow_dispatch:
+    inputs:
+      full_source_setup:
+        description: 'Run 120 frozen source setups with hidden-order source fingerprint; diagnostic only'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -9,7 +15,7 @@ permissions:
 jobs:
   initial-deal:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
       - name: Check out pinned Twinleaf
@@ -26,4 +32,17 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify private initial-deal fingerprint serializer and actual Store noninterference
-        run: node --test tests/source-physical-deal-fingerprint.test.cjs tests/headless-initial-source-deal-smoke.test.cjs
+        run: node --test tests/source-physical-deal-fingerprint.test.cjs tests/headless-initial-source-deal-smoke.test.cjs tests/aichi-setup-zone-capture.test.cjs
+      - name: Compare full ordered source openings for five frozen candidate arrangements
+        if: ${{ inputs.full_source_setup }}
+        env:
+          AICHI_SOURCE_FULL_DEAL_AUDIT: 'true'
+        run: node simulation/evaluation/aichi-multiseed-setup-coupling.cjs > aichi-full-source-deal-audit.json
+      - name: Archive complete diagnostic record and mismatches
+        if: ${{ always() && inputs.full_source_setup }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-full-source-deal-setup-audit
+          path: aichi-full-source-deal-audit.json
+          if-no-files-found: warn
+          retention-days: 14
