@@ -1,0 +1,17 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const path=require('node:path');
+const base=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
+const engine=name=>require(path.join(base,name));
+const {State}=engine('game/store/state/state');
+const {Player}=engine('game/store/state/player');
+const {PokemonCard}=engine('game/store/card/pokemon-card');
+const {PokemonCardList}=engine('game/store/state/pokemon-card-list');
+const {EnergyCard}=engine('game/store/card/energy-card');
+const {CardList}=engine('game/store/state/card-list');
+const {SuperType,CardType}=engine('game/store/card/card-types');
+const {PlayerType,SlotType}=engine('game/store/actions/play-card-action');
+const {AttachEnergyPrompt}=engine('game/store/prompts/attach-energy-prompt');
+const {ResolvePromptAction}=engine('game/store/actions/resolve-prompt-action');
+const {assertValidPromptAction}=require('../simulation/twinleaf/prompt-integrity.cjs');
