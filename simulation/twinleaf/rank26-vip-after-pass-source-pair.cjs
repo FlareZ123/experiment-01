@@ -227,9 +227,19 @@ function run(){
         .map(a=>a.kind+':'+(a.card??a.ability??''));
       assert.deepEqual(compressorPrefix,earlierPrefix,
         'Compressor must preserve actual preexisting second-VIP source line');
+      const kokoEffect=withCompressor.policyAudit.events.find(e=>
+        e.kind==='source-koko-native-postcondition');
+      const kokoDeclaration=compressorObserved.firstActions.some(e=>
+        e.kind==='UseAbilityAction'&&e.ability==='Dance of the Ancients');
+      assert.equal(kokoDeclaration,true);
+      assert.equal(kokoEffect?.prismInLostZone,true);
+      assert.equal(kokoEffect.recipientCount,2);
+      assert.equal(kokoEffect.lightningAttached,2);
+      assert.equal(kokoEffect.discardLightning,0);
       vipThenCologne.squawkCompressorContinuation={
         policy:withCompressor.policyAudit,observed:compressorObserved,
         compressorOffer,compressorSearch,compressorPost,
+        kokoDeclaration,kokoEffect,
         retrospectiveDevelopmentOnly:true};
       vipThenCologne.squawkAlternative={
         policy:squawkAlternative.policyAudit,
