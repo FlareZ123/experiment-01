@@ -80,12 +80,32 @@ jobs:
           assert.equal(x.trial.id,y.trial.id);
           assert.equal(x.rootActionLedgerSha256,y.rootActionLedgerSha256,'Native Store root drift');
           assert.equal(x.sourceDealFingerprint,y.sourceDealFingerprint,'Physical source-deal drift');
-          assert.equal(y.supporterProposalIntegrity?.nativeRootIdentified,true);
+          const q=y.supporterProposalIntegrity;
+          assert.equal(q?.nativeRootIdentified,true);
+          assert.equal(q.truncatedRecords,0,'Do not silently truncate native proposal evidence');
+          assert.equal(q.proposalMarkerPersistedToBotExit,0,'Temporary marker survived bot exit');
+          assert.equal(q.physicalRootStatePreservedToDispatch,q.nativeDispatchedSelected,
+          'Native root State identity drifted before dispatch');
+          assert.equal(q.physicalRootOwnerPreservedToDispatch,q.nativeDispatchedSelected,
+          'Native owner object identity drifted before dispatch');
+          assert.equal(q.mutatedRootProposals,q.nativeDispatchedSelected,
+          'Expected every observed native marker write to be a selected and dispatched Supporter');
+          for(const entry of q.records.filter(e=>e.mutatedQuotaDuringProposal)){
+          assert.equal(entry.rootStateAliasAtBotExit,true);
+          assert.equal(entry.rootOwnerAliasAtBotExit,true);
+          assert.equal(entry.quotaAfterBotDecision,entry.quotaBeforeProposal,
+          'Existing Supporter correction did not restore real quota');
+          assert.equal(entry.quotaAtNativeDispatch,entry.quotaBeforeProposal,
+          'Native dispatch inherited premature Supporter marker');
+          assert.equal(entry.quotaAfterNativeDispatch,entry.quotaBeforeProposal+1,
+          'Native Supporter Store quota failed exact one-play postcondition');}
           console.log('NATIVE_PROPOSAL_AUDIT',JSON.stringify({id:y.trial.id,
-          stateAlias:y.supporterProposalIntegrity.realRootStateAliasProposals,
-          mutations:y.supporterProposalIntegrity.mutatedRootProposals,
-          rejectedMutation:y.supporterProposalIntegrity.rejectedAndMutatedRootProposals,
-          selectedDispatched:y.supporterProposalIntegrity.nativeDispatchedSelected}));}"
+          stateAlias:q.realRootStateAliasProposals,
+          temporaryMutations:q.mutatedRootProposals,
+          survivedBotExit:q.proposalMarkerPersistedToBotExit,
+          restoredAtDispatch:q.nativeDispatchedSelected,
+          nativeStateObjectRetained:q.physicalRootStatePreservedToDispatch,
+          rejectedMutation:q.rejectedAndMutatedRootProposals}));}"
       - name: Preserve authentic root observations, including negative results
         if: ${{ inputs.agent22_native_proposal_state && always() }}
         uses: actions/upload-artifact@v4
