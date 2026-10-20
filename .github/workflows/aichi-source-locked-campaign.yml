@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent41_bilateral_late_compressor:
+        description: 'Apply the same historical late14 donor-compressor candidate policy to both ranks; opt-in'
+        required: false
+        type: boolean
+        default: false
       agent25_rank6_farewell_live:
         description: 'One retrospectively selected rank6 actual-game owner Farewell-over-Pass continuation'
         required: false
@@ -202,6 +207,7 @@ jobs:
           AGENT41_MANDATORY_OPTION_DEV: ${{ inputs.agent41_bilateral_mandatory_options && 'true' || 'false' }}
           AGENT41_NATIVE_PRESSURE_DEV: ${{ inputs.agent41_bilateral_native_pressure && 'true' || 'false' }}
           AGENT41_SOURCEFIRST_RETRO_DEV: ${{ inputs.agent41_bilateral_sourcefirst_retrospective && 'true' || 'false' }}
+          AGENT5_COMPR_LATE14_DEV: ${{ inputs.agent41_bilateral_late_compressor && 'true' || 'false' }}
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent41-bilateral-v2-development.json
       - name: Summarize all development failures and attempted arms, without competitive outcomes
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
