@@ -8,13 +8,18 @@ on:
         required: false
         type: boolean
         default: false
+      agent11_ghetsis_scoring:
+        description: 'Pinned rank11 60 v Ghetsis Supporter native-versus-blinded hidden-hand score parity'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   poltergeist-audit:
-    if: ${{ !inputs.agent23_live_bilateral }}
+    if: ${{ !inputs.agent23_live_bilateral && !inputs.agent11_ghetsis_scoring }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -101,4 +106,37 @@ jobs:
         with:
           name: agent23-live-opponent-hidden-historical
           path: agent23-opponent-hidden-postgame.json
+          if-no-files-found: warn
+
+  agent11-ghetsis-scoring:
+    if: ${{ inputs.agent11_ghetsis_scoring && !inputs.agent23_live_bilateral }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify live-root action cloning and source-rank11 counterworld scores
+        run: |
+          node --check simulation/twinleaf/agent11-opponent-hidden-pool-all-tactic-scores.cjs
+          node --test tests/agent11-ghetsis-scores.test.cjs tests/rank11-full-bot-hidden-hand-pair.test.cjs
+      - name: Archive all raw, partial and proposed card-game score outcomes
+        run: node simulation/twinleaf/agent11-ghetsis-scores.cjs > agent11-ghetsis-score-parity.json
+      - name: Upload failed and successful score diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent11-rank11-ghetsis-source-print-scoring
+          path: agent11-ghetsis-score-parity.json
           if-no-files-found: warn
