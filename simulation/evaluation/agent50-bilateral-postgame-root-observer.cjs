@@ -9,6 +9,48 @@ const {
 }=require('../twinleaf/rank10-hidden-order-live-probe.cjs');
 
 /**
+ * Compare a candidate detached root with a genuine pinned Store root. A
+ * pinned State may itself contain temporary source-instance prototypes from
+ * vendor Simulator cloning. The tested normalizer changes those prototypes
+ * back to their stable class prototypes; requiring raw class names to match
+ * would therefore reject valid canonicalization. The descriptor/alias graph
+ * must still match completely after that class normalization is justified
+ * by stableClassPrototype's own-shadowing checks.
+ *
+ * @param {object} original Real pinned Store State.
+ * @param {object} captured Detached State snapshot.
+ * @returns {object} Redacted structural comparison, no card identities.
+ */
+function verifyCapturedNativeRoot(original,captured) {
+  const sourceFingerprint=stateGraphFingerprint(original);
+  const snapshotFingerprint=stateGraphFingerprint(captured);
+  const rawGraphMatched=isDeepStrictEqual(sourceFingerprint,
+    snapshotFingerprint);
+  const {firstNativeCloneStructureDifference:firstDiff}=
+    require('../twinleaf/native-clone-structure-diff.cjs');
+  const firstRawDifference=rawGraphMatched?null:firstDiff(original,captured);
+  const canonical=firstDiff(original,captured,{
+    canonicalClassPrototypes:true
+  });
+  if(!canonical.matched) {
+    throw new Error('Captured replay root differs from genuine physical State: '+
+      JSON.stringify({
+        originalDigest:sourceFingerprint.digest,
+        clonedDigest:snapshotFingerprint.digest,
+        firstDescriptorDifference:firstRawDifference,
+        firstCanonicalDifference:canonical
+      }));
+  }
+  return {
+    rawGraphMatched,canonicalGraphMatched:true,
+    originalDigest:sourceFingerprint.digest,
+    clonedDigest:snapshotFingerprint.digest,
+    firstRawDifference,
+    method:'class-prototypes-canonicalized-after-shadowing-audit'
+  };
+}
+
+/**
  * Snapshot the complete actual SimpleBotOptions at the owner-decision
  * boundary, while preserving tactic/resolver constructor references. The
  * pinned engine uses class constructors in these two arrays and plain data
@@ -154,11 +196,11 @@ function withPostgameRootOrderProbe(
         const captureAtScore=()=>{
           if(pending)return;
           let snapshot=null,options=null,captureError=null;
+          let sourceCaptureFidelity=null;
           try {
             const before=stateGraphFingerprint(state);
             snapshot=cloneDetached(state);
-            assert.deepEqual(stateGraphFingerprint(snapshot),before,
-              'First-score clone differs from physical native State');
+            sourceCaptureFidelity=verifyCapturedNativeRoot(state,snapshot);
             const commonOptions=ownerBot.tactics?.[0]?.options;
             assert.ok(commonOptions&&typeof commonOptions==='object');
             assert.ok(ownerBot.tactics.every(t=>t.options===commonOptions));
@@ -173,6 +215,7 @@ function withPostgameRootOrderProbe(
           }
           const owner=state.players.find(player=>player.id===actorId);
           pending={state:snapshot,options,captureError,
+            sourceCaptureFidelity,
             ...(decisionStartFingerprint?{
               sourceStateChangedBeforeFirstScore:
                 decisionStartFingerprint.digest!==
@@ -239,21 +282,11 @@ function withPostgameRootOrderProbe(
       let snapshot=null;
       let options=null;
       let captureError=null;
+      let sourceCaptureFidelity=null;
       try {
         const sourceBefore=stateGraphFingerprint(state);
         snapshot=cloneDetached(state);
-        const captureProjection=stateGraphFingerprint(snapshot);
-        if(!isDeepStrictEqual(captureProjection,sourceBefore)) {
-          const {firstNativeCloneStructureDifference}=
-            require('../twinleaf/native-clone-structure-diff.cjs');
-          const diagnostic=firstNativeCloneStructureDifference(state,snapshot);
-          throw new Error('Captured replay root differs from genuine physical State: '+
-            JSON.stringify({
-              originalDigest:sourceBefore.digest,
-              clonedDigest:captureProjection.digest,
-              firstDescriptorDifference:diagnostic
-            }));
-        }
+        sourceCaptureFidelity=verifyCapturedNativeRoot(state,snapshot);
         const commonOptions=this.tactics?.[0]?.options;
         assert.ok(commonOptions&&typeof commonOptions==='object',
           'Pinned tactic option source is missing');
@@ -277,7 +310,8 @@ function withPostgameRootOrderProbe(
           .recordPolicyRandomTape(()=>descriptor.value.call(this,state)):null;
       const action=taped?taped.result:descriptor.value.call(this,state);
       captured={state:snapshot,options,realAction:signature(action),
-        nativeRealPolicyTape:taped?.tape??null,captureError};
+        nativeRealPolicyTape:taped?.tape??null,captureError,
+        sourceCaptureFidelity};
       return action;
     }
     Object.defineProperty(BotClass.prototype,'decodeNextAction',{
@@ -363,6 +397,7 @@ function withPostgameRootOrderProbe(
       }
       return {result:frozenResult,events:[{
         nativeSameWorldTape:parity,
+        sourceCaptureFidelity:captured.sourceCaptureFidelity,
         ...(hiddenContrast?{nativeHiddenOrderContrast:hiddenContrast}:{}),
         originalSourceAction:captured.realAction,
         baselineActionMatchedActual:parity.sameWorldDecisionParityQualified,
@@ -467,4 +502,4 @@ function withPostgameRootOrderProbe(
 }
 
 module.exports={cloneBotOptions,probeFreshPlayCardInClonedStore,
-  withPostgameRootOrderProbe};
+  verifyCapturedNativeRoot,withPostgameRootOrderProbe};
