@@ -59,8 +59,22 @@ function attestBilateralRootClaims(row,ledger,candidateSeat){
   const source=row?.sourceContinuation;
   const pressureRoot=rootMatches(pressure?.rootActionOrdinal,
     sourceSeat,pressure?.turnBefore);
-  const pressureCompletion=rootMatches(pressure?.completionOrdinal,
-    sourceSeat,pressure?.completionTurnBefore);
+  // An actual source attack or search can finish on an unowned ShuffleDeck
+  // prompt (seat -1), or on a defender-owned choice. Bind that final
+  // ResolvePromptAction to its real source-owned initiating Store root.
+  const completionOrdinal=pressure?.completionOrdinal;
+  const completed=Number.isSafeInteger(completionOrdinal)?
+    ledger[completionOrdinal]:null;
+  const origin=completed?.initiatingRootActionOrdinal;
+  const promptSourceOrigin=completed?.action==='ResolvePromptAction'&&
+    Number.isSafeInteger(origin)&&origin>=pressure?.rootActionOrdinal&&
+    origin<completionOrdinal&&ledger[origin]?.playerSlot===sourceSeat&&
+    ledger[origin].action!=='ResolvePromptAction';
+  const pressureCompletion=pressureRoot&&
+    Number.isSafeInteger(completionOrdinal)&&completionOrdinal>=0&&
+    completionOrdinal<ledger.length&&
+    completed.turnBefore===pressure?.completionTurnBefore&&
+    (completed.playerSlot===sourceSeat||promptSourceOrigin);
   const candidateReply=rootMatches(candidate?.rootActionOrdinal,
     candidateSeat,candidate?.turnBefore);
   const sourceContinuation=rootMatches(source?.rootActionOrdinal,
