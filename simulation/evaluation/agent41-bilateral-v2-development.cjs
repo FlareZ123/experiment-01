@@ -8,6 +8,8 @@ const {scheduledArms,assertManifest}=
   require('./agent41-crossrank-actual-decisions.cjs');
 const {withBilateralCommonCandidatePolicy,POLICY_VERSION}=
   require('./agent41-bilateral-common-policy.cjs');
+const {candidateAttackSettlement}=
+  require('./agent37-candidate-attack-settlement.cjs');
 
 const root=path.resolve(__dirname,'../..');
 const registration=JSON.parse(fs.readFileSync(path.join(root,
@@ -207,6 +209,9 @@ function executeDevelopment(trial,candidates,{
     enforceVisiblePlayLockBothSeats:true,
     ...payloadResource,
     capturePublicAttackTransitions:true,
+    // Read-only, post-dispatch evidence for every native or delegated
+    // candidate attack, including a redacted Poltergeist-base audit.
+    capturePoltergeistEffectTrace:true,
     captureFinalPublicBoard:true,
     captureAttackPassProbes:true,
     capturePerfectionPassProbeSeat:candidateSeat,
@@ -250,6 +255,11 @@ function executeDevelopment(trial,candidates,{
   assert.equal(game.verifiedByDrawLog,true);
   assert.equal(game.promptValidationMode,'predispatch-prompt-validate');
   const declared=game.attackDeclarationTrace||[];
+  // Full, actor-filtered, prompt-closed public consequence packet.
+  // This is observational only and cannot certify a legal competitive game.
+  const candidateSettlement=candidateAttackSettlement(game,candidateSeat);
+  assert.equal(candidateSettlement.declarations,
+    declared.filter(row=>row.playerSlot===candidateSeat).length);
   const firstSource=game.decisionTrace.find(row=>
     row.playerSlot===sourceSeat &&
     Array.isArray(row.decisionHandBefore?.ownHandPrintings));
@@ -318,6 +328,9 @@ function executeDevelopment(trial,candidates,{
       candidate:declared.filter(r=>r.playerSlot===candidateSeat).length
     },
     settledPublicAttackCount:acceptedAttackEvents.length,
+    // Unlike the legacy two-event summary below, this retains EVERY
+    // candidate declaration and genuine next-source action, or its absence.
+    candidateAttackSettlement:candidateSettlement,
     firstSettledPublicAttack:acceptedAttackEvents.slice(0,2).map(row=>({
       actionOrdinal:row.actionOrdinal,turnBefore:row.turnBefore,
       attacker:row.triggerPlayerSlot,chosen:row.declarations,
