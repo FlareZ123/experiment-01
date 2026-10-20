@@ -64,6 +64,37 @@ function detachedPerfectionAttempt(state,playerId){
 }
 
 /**
+ * Mirror the pinned Mewtwo & Mew-GX UNM Perfection card-source predicate:
+ * EX/GX tags on the Bench and GX/EX from discard except Mewtwo itself.
+ * CardTag.POKEMON_EX='EX', CardTag.POKEMON_GX='GX' in pinned card-types.ts.
+ * These are potential source Pokémon, not energy-affordable attacks, and
+ * collecting them happens only after the live policy has chosen Pass.
+ *
+ * @param {object} owner The already-acting player's state.
+ * @returns {object} Owner/public-zone eligible source inventory.
+ */
+function summarizePerfectionSourceEligibility(owner){
+  const isGXorEX=card=>card && Array.isArray(card.attacks) &&
+    typeof card.hasTag==='function' &&
+    (card.hasTag('GX') || card.hasTag('EX'));
+  const describe=card=>({
+    name:card.name,printing:card.fullName,
+    attackNames:card.attacks.map(attack=>attack.name)
+  });
+  const bench=(owner.bench??[]).map(slot=>slot.getPokemonCard())
+    .filter(isGXorEX).map(describe);
+  const discard=(owner.discard?.cards??[])
+    .filter(card=>isGXorEX(card)&&card.name!=='Mewtwo & Mew-GX')
+    .map(describe);
+  return {
+    bench,discard,sourcePokemonCount:bench.length+discard.length,
+    hasSourcePokemon:bench.length+discard.length>0,
+    costAndAbilityStatusAssessed:false,
+    sourceRules:'Pinned UNM Perfection GX/EX tags; excludes discard Mewtwo & Mew-GX'
+  };
+}
+
+/**
  * Run after an already-chosen Pass, only for Mewtwo & Mew-GX occupying
  * the passing player's Active Spot. If no suitable active Pokemon is
  * present, return null without ever cloning the hidden game state.
@@ -88,13 +119,16 @@ function probePostPassPerfection(state,playerId,attempt=detachedPerfectionAttemp
       .filter(card=>card && Array.isArray(card.attacks)&&card.attacks.length>0)
       .map(candidate)
   };
+  const sourceEligibility=summarizePerfectionSourceEligibility(owner);
   const trial=attempt(state,playerId);
   return {
     evidenceType:'post-choice-cloned-perfection-attack-menu-v1',
+    sourceEligibility,
     playerId,activePokemon:owner.active.getPokemonCard().name,
     publicCopySourceInventory,
     ...trial,
     scope:'Detached pinned Store after an actual Pass; Ability activation and copied attack prompt acceptance only, without competitive or printed-paper rule certification.'
   };
 }
-module.exports={probePostPassPerfection,detachedPerfectionAttempt};
+module.exports={probePostPassPerfection,detachedPerfectionAttempt,
+  summarizePerfectionSourceEligibility};
