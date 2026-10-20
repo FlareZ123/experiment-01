@@ -189,6 +189,7 @@ function withPostgameRootOrderProbe(
         // its speculative score can run; preserve the Store decision.
         let attemptCount=0,finiteScoreCount=0,pending=null;
         const nativeTrace=[];
+        const nativeTacticObservation={steps:[],rngCalls:0};
         const decisionStartFingerprint=(target.nativeScoreTrace===true||target.nativeTapeFirstFiniteScore===true)?
           stateGraphFingerprint(state):null;
         const restorations=[];
@@ -284,13 +285,18 @@ function withPostgameRootOrderProbe(
             });
           }
           const taped=target.nativeTapeFirstFiniteScore===true?
-            require('../twinleaf/native-policy-random-tape.cjs')
-              .recordPolicyRandomTape(()=>descriptor.value.call(this,state)):null;
+            require('../twinleaf/native-policy-tactic-sequence.cjs')
+              .observeNativePolicyTacticSequence(this,()=>
+                require('../twinleaf/native-policy-random-tape.cjs')
+                  .recordPolicyRandomTape(()=>
+                    descriptor.value.call(this,state)),
+                nativeTacticObservation):null;
           const action=taped?taped.result:descriptor.value.call(this,state);
           if(finiteScoreCount>0) {
             captured={...pending,...(nativeEntry??{}),
               captureError:nativeEntry?.captureError??pending?.captureError??null,
               nativeRealPolicyTape:taped?.tape??null,
+              nativeTacticSequence:nativeTacticObservation,
               realAction:signature(action),
               chosenRootTurn:state.turn,
               actualScorerAttempts:attemptCount,
@@ -385,10 +391,15 @@ function withPostgameRootOrderProbe(
       const applyPolicy=dependencies.replayPolicy??
         require('./agent41-bilateral-common-policy.cjs')
           .withBilateralCommonCandidatePolicy;
+      const replayTacticObservation={steps:[],rngCalls:0};
       const policyReplay=world=>applyPolicy(target.seat,()=>{
         const bot=new BotClass({id:actorId},
           cloneBotOptions(captured.options),null);
-        return bot.decodeNextAction(world);
+        return target.nativeTapeFirstFiniteScore===true?
+          require('../twinleaf/native-policy-tactic-sequence.cjs')
+            .observeNativePolicyTacticSequence(bot,
+              ()=>bot.decodeNextAction(world),replayTacticObservation):
+          bot.decodeNextAction(world);
       }).result;
       const parity=verifyNativeSameWorldTapeParity({
         root:captured.state,
@@ -400,6 +411,7 @@ function withPostgameRootOrderProbe(
           typeof value.data==='string'?value:signature(value),
         fingerprint:state=>stateGraphFingerprint(state).digest
       });
+      const sameWorldTacticObservation=structuredClone(replayTacticObservation);
       let hiddenContrast=null;
       if(target.nativeTapeHiddenOrderContrast===true) {
         if(parity.sameWorldDecisionParityQualified) {
@@ -425,6 +437,10 @@ function withPostgameRootOrderProbe(
       }
       return {result:frozenResult,events:[{
         nativeSameWorldTape:parity,
+        nativeTacticSource:target.nativeTapeFirstFiniteScore===true?
+          captured.nativeTacticSequence:null,
+        nativeTacticReplay:target.nativeTapeFirstFiniteScore===true?
+          sameWorldTacticObservation:null,
         sourceCaptureFidelity:captured.sourceCaptureFidelity,
         ...(target.nativeTapeFirstFiniteScore===true?{
           nativeTapeScoredRootTurn:captured.chosenRootTurn,

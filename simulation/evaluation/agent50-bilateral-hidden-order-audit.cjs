@@ -168,6 +168,8 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
       actualAction: event.originalSourceAction??null,
       auditError:event.auditError??null,
       nativeSameWorldTape:event.nativeSameWorldTape??null,
+      nativeTacticSource:event.nativeTacticSource??null,
+      nativeTacticReplay:event.nativeTacticReplay??null,
       sourceStateChangedBeforeFirstScore:
         event.sourceStateChangedBeforeFirstScore??null,
       nativeTapeScoredRootTurn:event.nativeTapeScoredRootTurn??null,
