@@ -1,0 +1,138 @@
+'use strict';
+
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {k0LineInformationFrontier}=require('../simulation/twinleaf/k0-line-information-frontier.cjs');
+
+/** Exhaustively enumerate labelled physical Prize subsets without using the model formula. */
+function brute(input){
+  const n=input.unknownPool.length;
+  const numerators=input.plans.map(()=>0);
+  let after=0,denominator=0;
+  for(let mask=0;mask<(1<<n);mask++){
+    let prized=0;
+    for(let i=0;i<n;i++)prized+=(mask>>i)&1;
+    if(prized!==input.unknownPrizeCount)continue;
+    denominator++;
+    const available=new Map();
+    input.unknownPool.forEach((printing,i)=>{
+      if(!((mask>>i)&1))
+        available.set(printing,(available.get(printing)??0)+1);
+    });
+    let best=0;
+    input.plans.forEach((plan,i)=>{
+      const need=new Map();
+      plan.requirements.forEach(req=>
+        need.set(req.printing,(need.get(req.printing)??0)+req.count));
+      const fulfilled=[...need].every(([name,count])=>
+        (available.get(name)??0)>=count);
+      const utility=fulfilled?plan.availableUtility:plan.missingUtility;
+      numerators[i]+=utility;
+      best=Math.max(best,utility);
+    });
+    after+=best;
+  }
+  return {denominator,after,pre:Math.max(0,...numerators)};
+}
+
+test('two singleton alternative lines: full 60 with six unknown Prizes',()=>{
+  const input={
+    unknownPool:['Thunder-A','Fallback-B',...Array(58).fill('Other')],
+    unknownPrizeCount:6,uniformUnknownAllocation:true,
+    plans:['Thunder-A','Fallback-B'].map(id=>({
+      id,requirements:[{printing:id,count:1}],
+      availableUtility:10,missingUtility:-10
+    }))
+  };
+  const value=k0LineInformationFrontier(input);
+  assert.equal(value.preSearchPlanId,'Thunder-A');
+  assert.equal(value.preSearchExpectedUtility,8);
+  assert.ok(Math.abs(value.afterSearchExpectedUtility-10*117/118)<1e-12);
+  assert.ok(Math.abs(value.informationValue- (10*117/118-8))<1e-12);
+  assert.equal(value.evaluatedJointPrizeCases,4);
+});
+
+test('a reliable fallback line makes K1 choices valuable',()=>{
+  const v=k0LineInformationFrontier({
+    unknownPool:['A','B'],unknownPrizeCount:1,uniformUnknownAllocation:true,
+    plans:[
+      {id:'risky',requirements:[{printing:'A',count:1}],
+        availableUtility:10,missingUtility:-20},
+      {id:'safe',requirements:[],availableUtility:3,missingUtility:3}
+    ]
+  });
+  assert.equal(v.preSearchPlanId,'safe');
+  assert.equal(v.preSearchExpectedUtility,3);
+  assert.equal(v.afterSearchExpectedUtility,6.5);
+  assert.equal(v.informationValue,3.5);
+});
+
+test('no observation benefit if the same option dominates all allocations',()=>{
+  const v=k0LineInformationFrontier({
+    unknownPool:['A','B'],unknownPrizeCount:1,uniformUnknownAllocation:true,
+    plans:[{id:'stable',requirements:[],availableUtility:4,missingUtility:-999}]
+  });
+  assert.equal(v.informationValue,0);
+  assert.equal(v.preSearchExpectedUtility,4);
+});
+
+test('physical multiplicity and duplicate requirement counts are respected',()=>{
+  const input={
+    unknownPool:['A','A','B'],unknownPrizeCount:1,
+    uniformUnknownAllocation:true,
+    plans:[{id:'pair',requirements:[{printing:'A',count:1},
+      {printing:'A',count:1}],availableUtility:9,missingUtility:-1}]
+  };
+  const v=k0LineInformationFrontier(input);
+  assert.equal(v.preSearchExpectedUtility,7/3);
+  assert.equal(v.afterSearchExpectedUtility,3);
+  assert.equal(v.informationValue,2/3);
+});
+
+test('impossible requirements do not silently become playable',()=>{
+  const v=k0LineInformationFrontier({
+    unknownPool:['A','B'],unknownPrizeCount:1,uniformUnknownAllocation:true,
+    plans:[{id:'unavailable',requirements:[{printing:'A',count:2}],
+      availableUtility:100,missingUtility:-4}]
+  });
+  assert.equal(v.preSearchPlanId,null);
+  assert.equal(v.preSearchExpectedUtility,0);
+  assert.equal(v.afterSearchExpectedUtility,0);
+});
+
+test('reject epistemic assumptions, repeated ids and invalid bounds',()=>{
+  const input={unknownPool:['A'],unknownPrizeCount:0,
+    plans:[{id:'one',requirements:[],availableUtility:1,missingUtility:-1}]};
+  assert.throws(()=>k0LineInformationFrontier(input),/Uniform unknown/);
+  assert.throws(()=>k0LineInformationFrontier({
+    ...input,uniformUnknownAllocation:true,unknownPrizeCount:2}),/Invalid/);
+  assert.throws(()=>k0LineInformationFrontier({
+    ...input,uniformUnknownAllocation:true,plans:[...input.plans,...input.plans]
+  }),/unique/);
+});
+
+test('independent exhaustive small-deck benchmark, 160 deterministic instances',()=>{
+  let seed=343;
+  const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed;};
+  for(let trial=0;trial<160;trial++){
+    const n=3+rand()%6;
+    const pool=Array.from({length:n},()=>['A','B','C'][rand()%3]);
+    const P=rand()%Math.min(4,n+1);
+    const plans=Array.from({length:2+rand()%3},(_,i)=>({
+      id:'line'+i,
+      requirements:Array.from({length:rand()%3},()=>({
+        printing:['A','B','C','D'][rand()%4],count:1+rand()%2
+      })),
+      availableUtility:(rand()%18)-7,
+      missingUtility:(rand()%18)-9
+    }));
+    const input={unknownPool:pool,unknownPrizeCount:P,
+      plans,uniformUnknownAllocation:true};
+    const actual=k0LineInformationFrontier(input);
+    const expected=brute(input);
+    assert.equal(BigInt(actual.exactDenominator),BigInt(expected.denominator));
+    assert.equal(BigInt(actual.preSearchExpectedNumerator),BigInt(expected.pre));
+    assert.equal(BigInt(actual.afterSearchExpectedNumerator),BigInt(expected.after));
+    assert.ok(BigInt(actual.informationValueNumerator)>=0n);
+  }
+});
