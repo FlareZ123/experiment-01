@@ -100,6 +100,8 @@ test('interceptor materializes authentic owner Item and Choice and observes nati
     assert.deepEqual(choice.result,[deck.cards[0]]);
     store.dispatch(choice);
     state.prompts=[];
+    state.players[0].hand.cards=[new FogBasic()];
+    store.dispatch(new PlayCardAction(101,0,{player:1,slot:2,index:0}));
     state.players[0].hand.cards=[deck.cards[0]];
     store.dispatch(new PlayCardAction(101,0,{player:1,slot:2,index:0}));
     return 'synthetic completed channel';
