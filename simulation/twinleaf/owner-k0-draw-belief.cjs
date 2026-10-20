@@ -47,7 +47,7 @@ function ownerK0NextDrawBelief(observation, registered60, assumptions) {
     pub.lostZone, pub.resolvingSupporter];
   for (const slot of [pub.active, ...(pub.bench || [])]) {
     if (slot !== null) {
-      zones.push(slot.evolutionPrintings, slot.energies, slot.tools);
+      zones.push(slot.evolutionPrintings, slot.tools);
     }
   }
   for (const zone of zones) {
