@@ -1,0 +1,31 @@
+# New Moon Lockbreaker v1 under rank-15 dual Vileplume: printed attack-surface census
+
+**Agent 30, 20 October 2026.** Evidence class: exact fixed-60 inventory plus printed card text, pinned engine source inspection, and already-compiled staged/replayed checks. This is a structural hypothesis for realistic native decisions, not a game-win estimate.
+
+## Fixed deck and conditional board
+
+The frozen [New Moon Lockbreaker English-mechanics 60](new-moon-lockbreak-english-proxy-60.json) has **19 Pokémon cards:** **17 Basics and two Dusclops SFA 19, the only two Stage 1 cards**. Every Basic Pokémon in this 60, including the primary Mewtwo & Mew-GX attacker, falls under the printed Vileplume BUS 6 *Disgusting Pollen* attack restriction while that Ability operates and BUS is Active. Dusclops is the only printed Pokémon whose Stage permits its own ordinary attack in that state. This is a card-list census, not an assertion that the two Dusclops can be set up and powered on demand.
+
+The rank-15 source can simultaneously have **Vileplume AOR 3** with *Irritating Pollen* on the Bench. Its Item ban affects both players and therefore makes the four newly added New Moon Item-based anti-lock counters, two **Field Blower** and two **Canceling Cologne**, unplayable while the Item lock is operating. Those counters can still be valuable if played beforehand or after the lock is lifted. Neither the card-list comparison nor the archived replay establishes that every conditional suppression source stays active under all other board effects.
+
+### Printed alternative within the 60
+
+- **Dusclops SFA 19, Stage 1:** *Will-O-Wisp* does 50 damage at two Psychic Energy. It bypasses the printed BUS restriction on Basic attackers, but requires an Active Dusclops and payable Energy. The attack is printed on Dusclops itself, unlike copied GX attacks on Basic Mewtwo & Mew.
+- **Cursed Blast Ability:** each Dusclops can put five 10-damage counters on one opposing Pokémon, then knocks itself out. Two such copies alone put at most **100 damage** on a single otherwise undamaged BUS (140 HP), leaving a 40-damage gap. Using both sacrifices both Stage 1 bodies and normally concedes Prize cards. A damaged BUS, Energy-backed Will-O-Wisp, or other damage/effects can change the conclusion. BUS blocks Basic **attacks**, while Cursed Blast is an Ability.
+- **Mewtwo & Mew-GX** is Basic even when copying an Evolution GX attack through *Perfection*. Printed BUS restricts the attacking Pokémon's Stage; copying a Stage 1 or Stage 2 attack does not change that Stage.
+
+In the independently reviewed [actual native rank-15 historical paid-retreat board](../aichi-2026/agent30-rank15-paid-bus-lock-temporal-audit-20261020.md), the source established Active BUS plus Benched AOR at turn 18, and the candidate's Active was visibly **Mewtwo & Mew-GX UNM**. A **Dusclops SFA** was already on the candidate Bench in the first dual-board observation. The fact that Dusclops was present is therefore distinct from having it Active and energy-ready to attack.
+
+## Pinned source rule and independent native checks
+
+The actual pinned Twinleaf commit **a9905a76a6c4103ba4b6cb9a49e86bad795c5c05** contains `ptcg-server/src/sets/08-sun-and-moon/set-burning-shadows/vileplume.ts`: on a `UseAttackEffect`, its *Disgusting Pollen* reducer tests `effect.source.isStage(Stage.BASIC)`, confirms this Vileplume is opposing Active, checks `IS_ABILITY_BLOCKED`, then throws `GameError(GameMessage.BLOCKED_BY_ABILITY)` when its Ability applies. These are source-code facts at the pinned engine revision and explain why copied attacks from Mewtwo & Mew remain affected by the Basic attack veto.
+
+The existing [nine-case staged native Store matrix](../../simulation/twinleaf/new-moon-rank15-dual-lock-actions.cjs) passed [compiled manual CI 39145455906](https://github.com/FlareZ123/experiment-01/actions/runs/39145455906): a Basic Mewtwo & Mew-GX `Miraculous Duo-GX` is rejected by the active BUS lock with or without AOR Item lock, while a Stage 1 Dusclops's printed Will-O-Wisp damages the active Vileplume under both locks in the staged test. The matrix also proves Tool/Ability counterexamples under its injected conditions. It uses injected boards, so it does not certify the original t19 candidate's actual Energy or attack readiness.
+
+## Research implication
+
+The original lockbreaker four-Item trade pushes toward a **time-critical pre-lock release**. Once BUS Active and AOR Bench are simultaneously established, the candidate needs a genuine Stage 1 battle line, a viable non-Item lock intervention, or another legal answer. A simulator that evaluates only Basic Mewtwo-GX attack access or accepts theoretically searchable Item outs will overstate actual response realism.
+
+The strongest next test is an actual original-Store owner-visible **turn-19 Mewtwo-GX versus Active BUS attack veto**, contrasted with unchanged original-source Bunnelby Active, documenting cost satisfaction, native `UseAttackEffect` rejection and next source action. If the t19 original candidate lacks required Energy, that limitation should be recorded instead of selecting a later conveniently favorable seed. Existing producer work remains retrospective and opponent bot quality unqualified.
+
+**Benchmark status remains 29/32 exact opposing source 60s, zero competitively qualified games, and no proven fixed-60 99.5% win rate.**
