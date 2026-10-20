@@ -159,7 +159,7 @@ jobs:
         run: node simulation/twinleaf/rank8-boostshake-source-run.cjs > rank8-boostshake-fork.json
       - name: Summarize source-dealt rank8 Boost Shake counterfactual
         if: inputs.hood_rank8_boostshake_fork
-        run: node -e "const x=require('./rank8-boostshake-fork.json'); console.log(JSON.stringify({seed:x.seed,choices:x.choices,board:x.boardAtResponse,turn8:x.candidateTurn8Actions,qualified:x.qualifiedForCompetitiveInference},null,2));"
+        run: node -e "const x=require('./rank8-boostshake-fork.json'); console.log(JSON.stringify({seed:x.seed,choices:x.choices,board:x.boardAtResponse,turn8:x.candidateTurn8Actions,postDoorPassProbe:x.hoodedLiveLock?.postDoorPassProbe,qualified:x.qualifiedForCompetitiveInference},null,2));"
       - name: Archive source-dealt Boost Shake fork
         if: always() && inputs.hood_rank8_boostshake_fork
         uses: actions/upload-artifact@v4
