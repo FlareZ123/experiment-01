@@ -66,6 +66,8 @@ jobs:
         run: node --test tests/bilateral-v2-evidence-gate.test.cjs tests/bilateral-v2-root-ledger-attestation.test.cjs tests/agent3-source-first-pressure-kind.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent42-four-cell-coverage.test.cjs tests/aichi-paired-four-cell-accrual.test.cjs tests/aichi-four-cell-sampling-budget.test.cjs
       - name: Reject nonadjacent roots in bilateral Store reply packets
         run: node --test tests/aichi-bilateral-reply-packet.test.cjs
+      - name: Test verified first-root source-deal pairing
+        run: node --test tests/agent25-source-deal-pairing.test.cjs tests/agent25-source-deal-campaign.test.cjs
       - name: Verify fail-closed source campaign policy echoes
         run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs
       - name: Test archived rank8 Star Alchemy search use and hand disruption
