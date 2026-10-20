@@ -69,6 +69,17 @@ test('ledger must be contiguous and include every successful root',()=>{
     /consecutive root ordinal/);
 });
 
+test('forged native root transcript with reversed or skipped game turns rejects',()=>{
+  const {ledger,row}=fixture();
+  ledger[5].turnBefore=2;
+  assert.throws(()=>attest(row,ledger,1),
+    /cannot skip or reverse global turns/);
+  ledger[5].turnBefore=3;
+  ledger[4].turnBefore=5;
+  assert.throws(()=>attest(row,ledger,1),
+    /cannot skip or reverse global turns/);
+});
+
 test('an extra candidate turn needs its own native grant and next-turn roots',()=>{
   const {ledger,row}=fixture();
   ledger.splice(4,0,
