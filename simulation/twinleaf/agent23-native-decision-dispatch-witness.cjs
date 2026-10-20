@@ -3,7 +3,8 @@
 const assert = require('node:assert/strict');
 const {createHash} = require('node:crypto');
 
-const VERSION = 'agent23-native-decision-dispatch-witness-v2-prompt-values';
+const VERSION = 'agent23-native-decision-dispatch-witness-v3-anchored-rng-tape';
+const {recordPolicyRandomTape} = require('./native-policy-random-tape.cjs');
 
 /**
  * Capture typed action identity without evaluating mutable game-state getters.
@@ -57,7 +58,8 @@ function actionIdentity(action, state, codecs) {
  * @template T
  * @param {()=>T} execute Synchronous original Store game.
  * @param {{SimpleTacticsAi:Function,Store:Function,maxRecords?:number,
- *    captureAction?:Function,capturePromptAction?:Function}} options
+ *    tapeOrdinal?:number|null,captureAction?:Function,
+ *    capturePromptAction?:Function}} options
  * @returns {{result:T,audit:object}}
  */
 function withNativeDecisionDispatchWitness(execute,options) {
@@ -65,7 +67,10 @@ function withNativeDecisionDispatchWitness(execute,options) {
   assert.equal(typeof options?.SimpleTacticsAi,'function');
   assert.equal(typeof options?.Store,'function');
   const maxRecords=options.maxRecords??256;
+  const tapeOrdinal=options.tapeOrdinal??null;
   assert.ok(Number.isSafeInteger(maxRecords)&&maxRecords>=1);
+  assert.ok(tapeOrdinal===null||
+    (Number.isSafeInteger(tapeOrdinal)&&tapeOrdinal>=1));
   const codecs={
     captureAction:options.captureAction??
       require('./source-action-value-codec.cjs').captureAction,
@@ -84,6 +89,7 @@ function withNativeDecisionDispatchWitness(execute,options) {
     changedBetweenChoiceAndDispatch=0,repeatedChosenObjects=0,
     verifiedUnchangedInputs=0,droppedRecords=0;
   const records=[];
+  const nativePolicyTapes=[];
   const proposals=new WeakMap();
   const append=row=>{
     if(records.length<maxRecords)records.push(row);
@@ -103,26 +109,58 @@ function withNativeDecisionDispatchWitness(execute,options) {
     repeatedChosenObjectDispatches:repeatedChosenObjects,
     verifiedUnchangedInputs,
     boundedRecords:records.slice(),droppedRecords,
+    tapeOrdinalRequested:tapeOrdinal,
+    nativePolicyTapes:nativePolicyTapes.map(t=>({...t,values:t.values.slice()})),
+    sameWorldDecisionReplayQualified:false,
     fullyLinked:false,
     competitiveGameQualified:false,
     limitation:'Exact chosen-object/portable-input linkage only; action legality, full result settlement, decision competence, player information safety, and paper game clock unverified.'
   });
-  function observedDecode(state,...args) {
-    const action=decode.value.apply(this,[state,...args]);
-    if (!liveStore || state!==liveStore.state ||
-        !Array.isArray(state?.players)) return action;
-    const seat=state.players.findIndex(p=>p.id===this.client?.id);
-    if(seat<0) return action;
+  function actingSeat(state,actor){
+    if(!liveStore||state!==liveStore.state||
+       !Array.isArray(state?.players))return -1;
+    const seat=state.players.findIndex(p=>p.id===actor.client?.id);
+    if(seat<0)return -1;
     const pending=state.prompts?.find(p=>p.result===undefined)??null;
-    if(pending?pending.playerId!==this.client.id:state.activePlayer!==seat)
+    return (pending?pending.playerId===actor.client.id:
+      state.activePlayer===seat)?seat:-1;
+  }
+  function observedDecode(state,...args) {
+    const beforeSeat=actingSeat(state,this);
+    const captureTape=tapeOrdinal!==null&&beforeSeat>=0&&
+      seenDecisions+1===tapeOrdinal;
+    const observed=captureTape?
+      recordPolicyRandomTape(()=>decode.value.apply(this,[state,...args])):
+      null;
+    const action=observed?observed.result:
+      decode.value.apply(this,[state,...args]);
+    const seat=actingSeat(state,this);
+    if(seat<0){
+      if(observed)nativePolicyTapes.push({
+        ordinal:seenDecisions+1,gameIndex:observedLiveStores,
+        seat:beforeSeat,turn:state?.turn??null,
+        status:'unattributed-state-owner-after-selection',
+        sha256:observed.sha256,values:observed.tape,
+        selectedAction:null,dispatchAction:null,
+        unchangedPortableInput:false,dispatchReturnedWithoutThrow:null
+      });
       return action;
+    }
     const original=actionIdentity(action,state,codecs);
     const ordinal=++seenDecisions;
+    const tapeRecord=observed?{
+      ordinal,gameIndex:observedLiveStores,seat,turn:state.turn,
+      status:'original-live-decision',
+      sha256:observed.sha256,values:observed.tape,
+      selectedAction:original,dispatchAction:null,
+      unchangedPortableInput:false,dispatchReturnedWithoutThrow:null
+    }:null;
+    if(tapeRecord)nativePolicyTapes.push(tapeRecord);
     if(action&&typeof action==='object'){
       selectedActions++;
       if(original.status!=='captured')unsupportedProposals++;
       proposals.set(action,{ordinal,gameIndex:observedLiveStores,
-        seat,turn:state.turn,original,dispatched:false});
+        seat,turn:state.turn,original,tapeRecord,dispatched:false});
     }else append({ordinal,seat,turn:state.turn,
       proposal:original,status:'no-selected-object'});
     return action;
@@ -148,6 +186,10 @@ function withNativeDecisionDispatchWitness(execute,options) {
     if(found.dispatched)repeatedChosenObjects++;
     const identityVerified=!found.dispatched&&portableEqual;
     if(identityVerified)verifiedUnchangedInputs++;
+    if(found.tapeRecord){
+      found.tapeRecord.dispatchAction=current;
+      found.tapeRecord.unchangedPortableInput=identityVerified;
+    }
     found.dispatched=true;
     matchedDispatches++;
     const entry={ordinal:found.ordinal,gameIndex:found.gameIndex,
@@ -158,10 +200,12 @@ function withNativeDecisionDispatchWitness(execute,options) {
     try{
       const result=dispatch.value.apply(this,[action,...args]);
       entry.dispatchReturnedWithoutThrow=true;
+      if(found.tapeRecord)found.tapeRecord.dispatchReturnedWithoutThrow=true;
       return result;
     }catch(error){
       rejectedDispatches++;
       entry.dispatchError=error?.constructor?.name??'Error';
+      if(found.tapeRecord)found.tapeRecord.dispatchReturnedWithoutThrow=false;
       throw error;
     }finally{append(entry);}
   }
