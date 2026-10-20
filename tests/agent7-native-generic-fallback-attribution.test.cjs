@@ -66,6 +66,12 @@ test('live Store fallback attribution separates seats, owner prompts and generic
   assert.equal(x.unrecordedLiveDecodes,3);
   assert.equal(x.actionTypes.ResolvePromptAction,3);
   assert.equal(x.actionTypes.PassTurnAction,2);
+  assert.equal(x.distinctOwnerPromptObjects,2);
+  assert.deepEqual(x.distinctOwnerPromptBySeat,{0:1,1:1});
+  assert.deepEqual(x.distinctOwnerPromptType[0],{ChooseCardsPrompt:1});
+  assert.deepEqual(x.distinctOwnerPromptType[1],{WaitPrompt:1});
+  assert.deepEqual(x.boundedRecords.map(row=>row.firstDecoderCallForPrompt),
+    [false,true]);
   assert.ok(!JSON.stringify(x).includes('private-'));
   assert.ok(!JSON.stringify(x).includes('secret-'));
   assert.strictEqual(Bot.prototype.decodeNextAction,originalDecode);
@@ -99,4 +105,41 @@ test('original decoder errors propagate and both reversible hooks restore',()=>{
   },{SimpleTacticsAi:ThrowBot,Store}),/native-decoder-failure/);
   assert.strictEqual(ThrowBot.prototype.decodeNextAction,before);
   assert.strictEqual(Store.prototype.dispatch,beforeDispatch);
+});
+
+test('multiple original decoder polls of one native prompt count once, new object counts again',()=>{
+  const game=state(),store=new Store(game),bot=new Bot('A');
+  const seen=withNativeGenericFallbackAttribution(()=>{
+    store.dispatch(new AddPlayerAction());
+    game.prompts=[new WaitPrompt('A')];
+    for(let n=0;n<9;n++)bot.decodeNextAction(game);
+    game.prompts=[new WaitPrompt('A')];
+    for(let n=0;n<4;n++)bot.decodeNextAction(game);
+  },{SimpleTacticsAi:Bot,Store,maxRecords:24});
+  assert.equal(seen.audit.liveGenericDecodes,13);
+  assert.equal(seen.audit.distinctOwnerPromptObjects,2);
+  assert.equal(seen.audit.distinctOwnerPromptBySeat[0],2);
+  assert.equal(seen.audit.distinctOwnerPromptBySeat[1],0);
+  assert.deepEqual(seen.audit.distinctOwnerPromptType[0],{WaitPrompt:2});
+  assert.deepEqual(seen.audit.boundedRecords.map(r=>r.firstDecoderCallForPrompt),
+    [true,...Array(8).fill(false),true,...Array(3).fill(false)]);
+  assert.equal(seen.audit.qualification.competitiveGames,0);
+});
+
+test('distinct prompt identity resets on real Store turnover, never across cloned speculative states',()=>{
+  const first=state(),next=state();
+  const a=new Store(first),b=new Store(next),bot=new Bot('A');
+  const out=withNativeGenericFallbackAttribution(()=>{
+    a.dispatch(new AddPlayerAction());
+    first.prompts=[new ChooseCardsPrompt('A')];
+    bot.decodeNextAction(first);
+    bot.decodeNextAction({...first});
+    b.dispatch(new AddPlayerAction());
+    next.prompts=[new ChooseCardsPrompt('A')];
+    bot.decodeNextAction(next);
+  },{SimpleTacticsAi:Bot,Store});
+  assert.equal(out.audit.gameStoresSeen,2);
+  assert.equal(out.audit.distinctOwnerPromptObjects,2);
+  assert.equal(out.audit.nonLiveDelegations,1);
+  assert.deepEqual(out.audit.boundedRecords.map(r=>r.gameIndex),[1,2]);
 });
