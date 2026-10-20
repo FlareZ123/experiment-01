@@ -26,7 +26,6 @@ function sourceVipActorEligible(view,phase) {
   const free=view.ownPublic.bench.filter(slot=>slot===null).length;
   return view.decisionKind==='owner-root' &&
     view.globalTurn===1 && view.phase===phase &&
-    !view.ownTurnResources.itemPlayLocked &&
     hasHand(VIP) && !inPlay(MELOETTA) && !hasHand(MELOETTA) &&
     free > (inPlay(KOKO) ? 0 : 1);
 }
