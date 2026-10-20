@@ -3,6 +3,8 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {actorObservation,publicPlayer}=require('./actor-observation-contract.cjs');
+const {rootPhysicalSnapshot,rootPhysicalWitness}=
+  require('./agent5-owner-root-slice.cjs');
 const VERSION='agent34-actor-only-root-slice-v2-numeric-types';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 
@@ -125,12 +127,16 @@ function withActorOnlyRootPolicy(run,deps={}){
   const original=Object.getOwnPropertyDescriptor(SimpleTacticsAi.prototype,'decodeNextAction');
   assert.equal(typeof original?.value,'function');
   const typedDecisions=new WeakMap();
+  const engineGamePhase=()=>deps.GamePhase??
+    require(path.join(base,'game/store/state/state')).GamePhase;
   let nativeStore=null,catalog=null,actualGamesSeen=0;
   const audit={
     version:VERSION,origin:'detached-actor-observation',
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
     typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
     publicTransitionWitnesses:0,publicTransitionChanges:0,
+    nativePhysicalConfirmed:0,nativePhysicalUnconfirmed:0,
+    nativeAttackNeedsDeclaration:0,
     observationSchema:'agent2-public-native-dispatch-diff-v1',
     unsupportedPromptTypes:{},
     unsupportedPromptFallbacks:0,nonOwnerNativeDelegations:0,
@@ -168,7 +174,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       default:throw new Error('Unknown actor-only intent: '+intent.kind);
     }
     audit.selectedRootDecisions++;
-    typedDecisions.set(action,{globalTurn:view.globalTurn,seat,kind:intent.kind});
+    typedDecisions.set(action,{globalTurn:view.globalTurn,seat,kind:intent.kind,
+      intent:{...intent,benchSlot:intent.benchIndex}});
     audit.typedIntentCounts[intent.kind]=(audit.typedIntentCounts[intent.kind]??0)+1;
     if(audit.ownerRootIntents.length<40)audit.ownerRootIntents.push({
       globalTurn:view.globalTurn,seat,intent,typedAction:action.constructor.name
@@ -182,9 +189,18 @@ function withActorOnlyRootPolicy(run,deps={}){
     const choice=this===nativeStore?typedDecisions.get(action):undefined;
     if(!choice)return beforeDispatch.value.apply(this,[action,...args]);
     const before=publicDispatchState(this);
+    const ownerBefore=before===null?null:
+      rootPhysicalSnapshot(this.state,choice.seat,choice.intent);
     try{
       const result=beforeDispatch.value.apply(this,[action,...args]);
       const after=publicDispatchState(this);
+      const physical=ownerBefore===null||after===null?null:
+        rootPhysicalWitness(choice.intent,ownerBefore,
+          rootPhysicalSnapshot(this.state,choice.seat,choice.intent),
+          engineGamePhase());
+      if(physical==='confirmed-public-effect')audit.nativePhysicalConfirmed++;
+      if(physical==='no-confirmed-public-effect')audit.nativePhysicalUnconfirmed++;
+      if(physical==='attack-needs-declaration')audit.nativeAttackNeedsDeclaration++;
       const witnessed=before!==null&&after!==null;
       const publicZonesChanged=witnessed&&
         before.publicZonesSha256!==after.publicZonesSha256;
@@ -198,7 +214,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       if(audit.nativeRootAcceptances.length<64)
         audit.nativeRootAcceptances.push({...choice,accepted:true,
           publicTransitionWitnessed:witnessed,
-          publicZonesChanged,turnOrPhaseChanged,before,after});
+          publicZonesChanged,turnOrPhaseChanged,
+          nativePhysicalEffect:physical,before,after});
       return result;
     }catch(error){
       audit.rejectedActorRoots++;
