@@ -63,7 +63,7 @@ function withNativeDecisionDispatchWitness(execute,options) {
   const dispatch=Object.getOwnPropertyDescriptor(store,'dispatch');
   assert.equal(typeof decode?.value,'function');
   assert.equal(typeof dispatch?.value,'function');
-  let liveStore=null,seenDecisions=0,selectedActions=0,
+  let liveStore=null,observedLiveStores=0,seenDecisions=0,selectedActions=0,
     matchedDispatches=0,unmatchedDispatches=0,rejectedDispatches=0,
     unsupportedProposals=0,changedBetweenChoiceAndDispatch=0,
     droppedRecords=0;
@@ -75,6 +75,7 @@ function withNativeDecisionDispatchWitness(execute,options) {
   };
   const report=()=>({
     version:VERSION,observedLiveStore:Boolean(liveStore),
+    observedLiveStores,
     originalLiveDecisions:seenDecisions,
     selectedActionObjects:selectedActions,
     matchedObjectDispatches:matchedDispatches,
@@ -98,13 +99,17 @@ function withNativeDecisionDispatchWitness(execute,options) {
     if(action&&typeof action==='object'){
       selectedActions++;
       if(original.status!=='captured')unsupportedProposals++;
-      proposals.set(action,{ordinal,seat,turn:state.turn,original,dispatched:false});
+      proposals.set(action,{ordinal,gameIndex:observedLiveStores,
+        seat,turn:state.turn,original,dispatched:false});
     }else append({ordinal,seat,turn:state.turn,
       proposal:original,status:'no-selected-object'});
     return action;
   }
   function observedDispatch(action,...args) {
-    if(!liveStore&&action?.constructor?.name==='AddPlayerAction')liveStore=this;
+    if(action?.constructor?.name==='AddPlayerAction'&&this!==liveStore){
+      liveStore=this;
+      observedLiveStores++;
+    }
     if(this!==liveStore)return dispatch.value.apply(this,[action,...args]);
     const found=action&&typeof action==='object'?proposals.get(action):null;
     if(!found){
@@ -118,7 +123,8 @@ function withNativeDecisionDispatchWitness(execute,options) {
     if(!identityVerified)changedBetweenChoiceAndDispatch++;
     found.dispatched=true;
     matchedDispatches++;
-    const entry={ordinal:found.ordinal,seat:found.seat,turn:found.turn,
+    const entry={ordinal:found.ordinal,gameIndex:found.gameIndex,
+      seat:found.seat,turn:found.turn,
       proposal:found.original,dispatch:current,
       sameActionReference:true,unchangedPortableInput:identityVerified,
       dispatchReturnedWithoutThrow:false};
