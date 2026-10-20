@@ -2,6 +2,12 @@ name: Aichi public image provenance audit
 
 on:
   workflow_dispatch:
+    inputs:
+      rank28_original_variants:
+        description: 'Compare original rank28 image resolutions and QR payload'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -25,6 +31,22 @@ jobs:
         run: python -m unittest discover -s tests -p test_aichi_gallery_image_capture.py -v
       - name: Capture the unassigned original gallery images
         run: python scripts/aichi_gallery_image_capture.py
+      - name: Verify offline rank28 variant and provenance cases
+        run: python -m unittest discover -s tests -p test_aichi_rank28_image_variants.py -v
+      - name: Install optional public QR reader
+        if: inputs.rank28_original_variants
+        run: python -m pip install 'opencv-python-headless>=4.8,<5'
+      - name: Probe official host rank28 resolution variants and QR
+        if: inputs.rank28_original_variants
+        run: python scripts/aichi_rank28_image_variants.py
+      - name: Archive optional original resolution comparisons
+        if: inputs.rank28_original_variants && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-rank28-original-variant-comparison
+          path: results/aichi-2026/rank28-image-variants/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Archive inspectable original images and hashes
         if: always()
         uses: actions/upload-artifact@v4
