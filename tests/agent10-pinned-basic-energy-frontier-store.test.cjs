@@ -32,6 +32,7 @@ function pinnedBoard() {
   const {PlayCardAction, PlayerType, SlotType} =
     engine('game/store/actions/play-card-action');
   const {AttackAction} = engine('game/store/actions/game-actions');
+  const {ResolvePromptAction} = engine('game/store/actions/resolve-prompt-action');
   let cardId = 50000;
   /** @param {string} printing */
   const get = printing => {
@@ -69,7 +70,7 @@ function pinnedBoard() {
     CardType, PowerType, SpecialCondition
   });
   return {store, state, owner, opponent, catalog,
-    PlayCardAction, PlayerType, SlotType, AttackAction};
+    PlayCardAction, PlayerType, SlotType, AttackAction, ResolvePromptAction};
 }
 
 /** @param {object} board @param {number} handIndex */
@@ -101,13 +102,23 @@ test('real Store reaches printed Poltergeist after cost-aware Psychic attach', (
   assert.deepEqual(next,{kind:'attack',attackName:'Poltergeist'});
   const damageBefore = opponent.active.damage;
   store.dispatch(new AttackAction(owner.id,next.attackName));
-  assert.ok(opponent.active.damage>=damageBefore,
-    'Poltergeist native action must never heal the defending Pokemon');
+  // Pinned attack execution yields a native animation WaitPrompt before
+  // applying damage. Settle only the real pending prompt, not a fake clock.
+  let waits = 0;
+  while (opponent.active.damage === damageBefore && waits < 6) {
+    const pending = store.state.prompts.find(p => p.result === undefined);
+    assert.ok(pending, 'Native attack has no progress prompt and dealt no damage');
+    assert.equal(pending.constructor.name, 'WaitPrompt');
+    store.dispatch(new board.ResolvePromptAction(pending.id, null));
+    waits++;
+  }
+  assert.equal(opponent.active.damage, damageBefore + 50,
+    'One observed Trainer in opponent hand must yield 50 settled damage');
 });
 
 test('real Store baseline Darkness attach leaves two-Psychic attack unavailable', () => {
   const board = pinnedBoard();
-  const {store,owner,catalog} = board;
+  const {store,owner,opponent,catalog,AttackAction} = board;
   const initial = actorObservation(store.state,0);
   const baseline = chooseActorRootIntent(initial,catalog);
   assert.equal(baseline.handIndex,0);
@@ -118,4 +129,9 @@ test('real Store baseline Darkness attach leaves two-Psychic attack unavailable'
   const next = chooseActorRootIntent(actorObservation(store.state,0),catalog);
   assert.notEqual(next.kind,'attack',
     'One Psychic plus Darkness cannot pay two Psychic symbols');
+  const damageBefore = opponent.active.damage;
+  assert.throws(() => store.dispatch(new AttackAction(owner.id,'Poltergeist')),
+    'Native reducer must reject insufficient Psychic cost');
+  assert.equal(store.state.players[1].active.damage,damageBefore);
+
 });
