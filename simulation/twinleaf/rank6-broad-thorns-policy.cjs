@@ -129,7 +129,7 @@ function dceHandAttachmentBlocked(player,state) {
  * reading deck cards is restricted to actual ChooseCardsPrompt resolution.
  * @template T
  * @param {()=>T} work
- * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean}} [options]
+ * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean,k1TagCallAlternative?:'none'|'append-bellelba'|'replace-bellelba'}} [options]
  * @returns {{result:T,started:boolean,completed:boolean,events:object[],abortReason:string|null,openingPlan:object|null}}
  */
 function withBroadThornsSourceAttack(work,options={}) {
@@ -141,6 +141,11 @@ function withBroadThornsSourceAttack(work,options={}) {
   const conditionalTagCallPayment=options.conditionalTagCallPayment===true;
   const playLockAwareOpening=options.playLockAwareOpening===true;
   const k1ReplanAfterTagCall=options.k1ReplanAfterTagCall===true;
+  const k1TagCallAlternative=options.k1TagCallAlternative??'none';
+  assert.ok(['none','append-bellelba','replace-bellelba']
+    .includes(k1TagCallAlternative));
+  assert.ok(k1ReplanAfterTagCall||k1TagCallAlternative==='none',
+    'Alternative Tag Call selection requires authentic K1 replanning');
   const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
   /** @param {string} name */
   const engine=name=>require(path.join(root,name));
@@ -301,9 +306,20 @@ function withBroadThornsSourceAttack(work,options={}) {
         events.push({turn:state.turn,phase:'tag-search',
           k1MissingOpeningTargets:[...missingAfterTagCall]});
       }
+      const bellelba=missingAfterTagCall.length&&
+        k1TagCallAlternative!=='none'?
+        p.deck.cards.find(c=>c.name==='Bellelba & Brycen-Man'):null;
+      const targets=bellelba?
+        (k1TagCallAlternative==='replace-bellelba'?
+          [bellelba]:[gh,bellelba]):[gh];
+      if(!prompt.validate(targets,state)){
+        abort(state,'K1 Tag Call alternative failed native prompt validation');
+        return original.call(this,state);
+      }
       phase='tag-followup';
-      return select(state,'Tag Call finds one Guzma & Hala',
-        new ResolvePromptAction(prompt.id,[gh]));
+      return select(state,'Tag Call chooses '+
+        targets.map(card=>card.name).join(' + '),
+        new ResolvePromptAction(prompt.id,targets));
     }
     if(phase==='tag-followup') {
       if(prompt?.constructor.name==='WaitPrompt') {
