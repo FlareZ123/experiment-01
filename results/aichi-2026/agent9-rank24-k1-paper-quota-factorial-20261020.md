@@ -25,6 +25,18 @@ Across the three guarded pairs, **6/6** runs recorded `nativeSupporterQuotaQuali
 
 All six guarded arms ran **105 genuine native root actions**, with `finished=false` and `endReason=action-limit`. The K0-only guarded key seed had 8 source Supporter settlements and 8 suppressed owner proposals across its observed turns; the K1+quota key seed had 7 settlements and 7 suppressions. Different later Supporter counts reflect divergent play histories, not a controlled card-quality comparison.
 
+## Native owner-prompt target availability, independently compiled
+
+A follow-up **read-only native owner-search witness** extended the same executable to count all three TAG TEAM Supporter printings actually available in the source's own deck *at the already-authenticated deck-choice prompt*. [Compiled CI 39417167521](https://github.com/FlareZ123/experiment-01/actions/runs/39417167521) **PASS**, research code `8bc4bdd8c7e0eaf28e9d67ff0a7b3befd009b8a3`, artifact `12262215120`, ZIP SHA-256 `82d0085b9174a37bead8bdb7ec6b8e7baf5207d79afa4a5cf5acdc6e203c26db`, inner JSON SHA-256 `809a128362524b1b2e55fa6a3eb7509f4394926b45f622a7bc8b61aa83f1997a`. All three original guarded controls passed again.
+
+| Real first owner-deck search seed | Thunder Mountain ♢ in deck | Guzma & Hala CEC in deck | Cynthia & Caitlin CEC in deck | Bellelba & Brycen-Man CEC in deck |
+| --- | ---: | ---: | ---: | ---: |
+| `2966203069`, source turn 2 Tag Call, root 15 | **0** | **2** | **0** | **1** |
+| `1150814608`, source turn 2 held G&H, root 23 | 0 | 0 | 0 | 1 |
+| `2804067880`, source turn 2 G&H, root 25 | 1 | 1 | 1 | 0 |
+
+**New falsifiable opportunity-cost question:** On seed `2966203069`, the native **Tag Call owner prompt already offers Bellelba & Brycen-Man**, whereas Cynthia & Caitlin cannot be fetched from this deck at that moment. The current scripted branch retrieves G&H, discovers Thunder absent, later legally settles Cynthia & Caitlin from its subsequent owner hand. This observation establishes a **real alternative legal search target**, with no assertion that taking it is better. An eventual actor-safe policy may compare taking Bellelba alone, both TAG TEAM cards, the currently chosen G&H, or a valid empty choice, accounting for that turn's Supporter and future mill/hand resources. The full physical source-deal comparison and native paper quota must remain fixed, with every outcome retained. The cards' strategic utilities, the legal follow-through and the opponent response remain unmeasured.
+
 ## Important correction to earlier K1 narratives
 
 The older K1-only developmental continuation on seed `2966203069` was paper-invalid. Its native observer demonstrated *two* separately settled, second-same-turn ordinary Supporters: Sidney after Cynthia & Caitlin on global turn 2, then Sidney after Gladion on global turn 14. Both left hand, incremented `supporterTurn` from 1→2 and produced matching native play logs. See the [native defect report](../twinleaf/agent34-native-settled-multiple-supporters.md) and [Agent 41's quota integration](agent41-paper-supporter-bilateral-native-gate-20261020.md). A K1-only, rule-invalid improvement must never be silently compared against a quota-guarded baseline.
