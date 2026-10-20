@@ -62,3 +62,18 @@ A future explicitly opt-in native **two-target policy** would require a separate
 **Same selected original deal and fixed printed 60s:** Aichi rank26 Meloetta source, rank6 Iron Thorns source, seed 2614852201, actual source first turn in physical seat B. The new opt-in branch starts from the unchanged VIP, Cologne, Squawk draw, second VIP and Battle Compressor policy. At the genuine owner-controlled `Dance of the Ancients` `AttachEnergyPrompt`, it will request two distinct physical basic Lightning Energy already in the owner's discard, attached to the owner's actual Benched Meloetta and Squawk. The caller must verify the Native prompt is an owner-only `differentTargets:true` Bench attachment, that both Pokémon really occupy distinct Bench slots, and that both Energy cards are physically present. It must submit exact references through `ResolvePromptAction` **only after native `prompt.validate` accepts the proposed pair**. Otherwise preserve the failure, with no synthetic card or forged effect.
 
 The prior [uncensored control run 39461575004](https://github.com/FlareZ123/experiment-01/actions/runs/39461575004) supplies the identical-source baseline: Koko physically Lost Zoned, **one** Lightning attached to Dedenne-GX, **one** Lightning remaining discarded, one Bench recipient, no attack, opponent's six Prizes still in place. The new branch is a policy feasibility contrast rather than a claim that the pair is strategically optimal. Success requires the actual subsequent Store root to show the original Koko in Lost Zone, two Energy cards on two distinct real Bench Pokémon, none of those two in discard, and native prompt validation. Preserve root sequencing, printed deck hashes, all original five source openings, and both the positive and negative branches. Do not count this as a competitive game or a win-rate sample.
+
+## Compiled physical Koko contrast: full native two-target attachment
+
+**20 October 2026**: manually dispatched compiled [CI 39462767664](https://github.com/FlareZ123/experiment-01/actions/runs/39462767664) **PASSED**, source head `9102a095fc5f80fc9da5e49de034ff6178f46641`. Artifact **12283043680**, ZIP sha256 `92246daa398285fd3bef1e634d8a35fede1c78f8131e17cbce895e7826eceaa6`, preserves original five first-turn historical source cases and both frozen 83:B continuations. Same printed rank26/rank6 60s and same original seed `2614852201`, physically source B first.
+
+| Exact source and native postcondition | Stock prompt bot | Opt-in owner distinct-two prompt |
+| --- | --- | --- |
+| Koko cards physically in Lost Zone | 1 | 1 |
+| Bench Lightning Energy | 1 | **2** |
+| Distinct Bench recipients | 1 (Dedenne-GX) | **2 (Meloetta ex, Squawkabilly ex)** |
+| Lightning remaining in discard | 1 | **0** |
+| Genuine first-turn source attack | 0 | **0** |
+| Opponent remaining Prizes | 6 | **6** |
+
+Treatment's genuine owner-only prompt offer records `nativeValid:true`, two distinct physical `Lightning Energy MEE` cards, real owner Bench indices **1 and 2**, and no synthetic Energy references. The actual Store effect physically attached one to each named Pokémon and moved Koko to Lost Zone. Both source-turn root action traces are identical through Koko declaration, and both ultimately Pass without attacking. This proves one narrow **native two-target policy feasibility** case; the stock bot selected one despite two being physically available. The treatment's recipient choice, broader policy competence, paper-clock fidelity and matchup wins remain unverified. No competitive game qualifies and the 99.5% objective remains unsupported.
