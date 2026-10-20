@@ -632,3 +632,47 @@ test('rank4 source-only Compressor treatment follows physical source seat and re
       battleCompressorPositiveSelectionCorrection:false})});
   assert.equal(unverified.counts['unverified-game-environment'],expected);
 });
+
+
+test('rank4 source Rope pivot is opt-in, seat-locked, policy-attested and rule-gated',()=>{
+  const campaign=loadDefaultCampaign();
+  const flags={
+    rank4RaichuCompressorSource:true,rank4RaichuRopePivotSource:true,
+    battleCompressorPositiveSelectionCorrection:true,
+    electrodeGXEnergyCorrection:true,electroRainDamageCorrection:true,
+    electrodeGXPrizeTradePolicy:true
+  };
+  const build=runMatch=>executeDiagnostic({
+    expectedEngineRevision:EXPECTED_ENGINE,campaign,ranks:[4],
+    policyFlags:flags,
+    resolvePair:trial=>({
+      candidateDigest:trial.candidateDigest,
+      opponentDigest:trial.opponentDigest,
+      candidateCards:cards,opponentCards:cards
+    }),
+    runMatch
+  });
+  const n=TEST_CAMPAIGN.candidateRows.length*TEST_CAMPAIGN.repeats*2;
+  const success=build(request=>{
+    const source=request.label.endsWith(':A')?1:0;
+    assert.equal(request.rank4RaichuCompressorSeat,source);
+    assert.equal(request.rank4RaichuRopePivotSeat,source);
+    assert.equal(request.rank4RaichuRopePivotSource,undefined);
+    return sampleGame(request,{
+      rank4RaichuCompressorSeat:source,
+      rank4RaichuRopePivotSeat:source,
+      battleCompressorPositiveSelectionCorrection:true,
+      policy:'synthetic+Rank4SourceCompressorSpecialEnergy-v1@seat'+source+
+        '+Rank4SourceRopeRaichuPivot-v1@seat'+source
+    });
+  });
+  assert.equal(success.counts['completed-engine-game'],n);
+  assert.ok(success.records.every(r=>r.sourceCompressorSeat===r.sourceRopePivotSeat));
+  const rejected=build(request=>sampleGame(request,{policy:'synthetic-no-pivot-attestation'}));
+  assert.equal(rejected.counts['unverified-game-environment'],n);
+  assert.throws(()=>executeDiagnostic({
+    campaign,ranks:[4],policyFlags:{...flags,rank4RaichuCompressorSource:false},
+    expectedEngineRevision:EXPECTED_ENGINE,
+    resolvePair:()=>null,runMatch:()=>null
+  }),/requires the source Compressor/);
+});
