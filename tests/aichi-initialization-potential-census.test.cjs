@@ -21,6 +21,18 @@ test('29 source 60s have four no-target ranks and one evolution-only rank',()=>{
     assert.equal(byRank.get(rank).future,4);
   }
   assert.equal(x.competitiveQualifiedGames,0);
+  assert.deepEqual(x.crossLockNoTarget,{
+    path:[7],klefki:[],wobbuffet:[],garbotoxin:[]
+  });
+  assert.equal(byRank.get(7).crossLocks.path,0);
+  assert.equal(byRank.get(7).crossLocks.klefki,8);
+  assert.equal(byRank.get(7).crossLocks.wobbuffet,2);
+  assert.equal(byRank.get(7).crossLocks.garbotoxin,8);
+  for(const rank of [6,24,29]){
+    assert.deepEqual(byRank.get(rank).crossLocks,{
+      path:4,klefki:4,wobbuffet:4,garbotoxin:4
+    });
+  }
 });
 
 test('printed non-Rule Box, Future and evolution-only Abilities are distinct',()=>{
@@ -47,4 +59,7 @@ test('printed non-Rule Box, Future and evolution-only Abilities are distinct',()
   assert.deepEqual(result.evolutionOnly,[2,3]);
   assert.equal(result.rows[0].ordinary,1);
   assert.equal(result.rows[0].future,1);
+  assert.deepEqual(result.crossLockNoTarget,{
+    path:[2],klefki:[2,3],wobbuffet:[],garbotoxin:[]
+  });
 });
