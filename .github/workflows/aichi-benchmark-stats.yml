@@ -34,6 +34,10 @@ jobs:
         run: node --test tests/aichi-printing-mechanics.test.cjs
       - name: Check New Moon printed Stage 1 response under rank15 double Vileplume
         run: node --test tests/new-moon-rank15-dual-vileplume.test.cjs
+      - name: Verify rank4 and rank17 dual-evolution Prize and legal-seven capacity
+        run: |
+          node --test tests/agent45-raichu-dual-chain-prize-capacity.test.cjs
+          node scripts/agent45-raichu-dual-chain-prize-capacity.cjs
       - name: Check exact rank15 pre-Prize two-Vileplume availability ceiling
         run: node --test tests/aichi-rank15-dual-lock-prize-ceiling.test.cjs
       - name: Check direct rank15 Omega Barrage TM double-evolution opening
