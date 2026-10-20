@@ -1,6 +1,8 @@
 'use strict';
 
 const {auditBilateralV2} = require('./bilateral-v2-evidence-gate.cjs');
+const {APPLICABILITY_CELLS,rank6CandidateApplicability} =
+  require('./agent2-rank6-applicability.cjs');
 
 const PRESSURE_CELLS=[
   'both-witnessed','first-only-witnessed','second-only-witnessed',
@@ -68,6 +70,8 @@ function auditUnconditionalBilateralCensus(plan,archive){
         candidateId,armId:scheduled.id,
         status:row?.status??'missing',
         sourcePressureEvidence:pressureEvidence(row,sourceSeat),
+        rank6InPlayApplicability:pair.rank===6?
+          rank6CandidateApplicability(row,sourceSeat):null,
         // Engine terminal is retained as a state indicator, never as a
         // competitively qualified game win.
         engineTerminalObserved:row?.status==='engine-terminal',
@@ -120,6 +124,12 @@ function auditUnconditionalBilateralCensus(plan,archive){
       pairsCensoredOrMissing:subset.filter(p=>
         p.pressureCell==='censored-or-missing').length,
       pressureCells,
+      // Per-arm public in-play susceptibility; never select the cohort on
+      // these post-deal observations or promote them as independent effects.
+      rank6InPlayApplicabilityCells:opponent.rank===6?
+        Object.fromEntries(APPLICABILITY_CELLS.map(cell=>[cell,
+          subset.flatMap(pair=>pair.candidateArms).filter(arm=>
+            arm.rank6InPlayApplicability===cell).length])):null,
       // Descriptive owner-observed pressure only. These are not matched
       // source-position counterfactual comparisons.
       unalignedTerminalPressureCells
@@ -174,7 +184,9 @@ function auditUnconditionalBilateralCensus(plan,archive){
     caveat:'Unconditional attempt accounting is separate from matched '+ 
       'physical source-deal reviewability. Unaligned terminal pressure '+ 
       'cells are descriptive, not paired causal effects. '+ 
-      'Includes every registered arm regardless of pressure. Missing, failed '+
+      'Includes every registered arm regardless of pressure. Rank-6 in-play '+
+      'applicability is descriptive and cannot authenticate its own source '+
+      'lock, including when no eligible target exists. Missing, failed '+
       'and capped source games remain in the denominator. No witnessed effect '+
       'does not imply no possible pressure. An engine terminal is not a '+
       'qualified win. This census does not repair an unfair hidden-information '+
