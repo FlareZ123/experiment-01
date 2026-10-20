@@ -150,6 +150,37 @@ test('an extra candidate turn needs its own native grant and next-turn roots',()
   assert.equal(attest(row,ledger,1).bonusTurnRootChain,false);
 });
 
+test('bonus attack completion allows a rooted unowned prompt, not unrelated roots',()=>{
+  const {ledger,row}=fixture();
+  ledger.splice(4,0,
+    {actionOrdinal:4,turnBefore:2,playerSlot:-1,
+      action:'ResolvePromptAction',initiatingRootActionOrdinal:3},
+    {actionOrdinal:5,turnBefore:3,playerSlot:1,action:'PassTurnAction'});
+  ledger[6].actionOrdinal=6;
+  ledger[6].turnBefore=4;
+  ledger[7].actionOrdinal=7;
+  ledger[7].turnBefore=4;
+  row.rootActionCount=8;
+  row.sourceContinuation.rootActionOrdinal=6;
+  row.sourceContinuation.turnBefore=4;
+  row.candidateBonusTurn={
+    grantRootActionOrdinal:3,grantTurnBefore:2,
+    completionOrdinal:4,completionTurnBefore:2,
+    nextOwnRootActionOrdinal:5,nextOwnTurnBefore:3
+  };
+  assert.equal(attest(row,ledger,1).rootClaimsAuthenticated,true);
+  // Delegated or unowned prompt closure is accepted only with native origin.
+  ledger[4].initiatingRootActionOrdinal=2;
+  assert.equal(attest(row,ledger,1).rootClaimsAuthenticated,false);
+  ledger[4].initiatingRootActionOrdinal=3;
+  ledger[4].action='PlayCardAction';
+  assert.equal(attest(row,ledger,1).rootClaimsAuthenticated,false);
+  ledger[4].action='ResolvePromptAction';
+  ledger[4].playerSlot=0;
+  assert.equal(attest(row,ledger,1).rootClaimsAuthenticated,true,
+    'Defender-owned prompt can close a genuinely initiated attack');
+});
+
 test('source-first designation follows real start and source seat',()=>{
   const {ledger,row}=fixture();
   row.actualStarterSeat=1;
