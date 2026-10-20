@@ -214,6 +214,36 @@ function sourceKokoNativePostcondition(own){
 }
 
 /**
+ * Select genuine source-owner Lightning references and distinct existing Bench
+ * recipients after the native Dance of the Ancients prompt opens.
+ * This selected-seat experiment prefers Meloetta and Squawk, without reading
+ * an opposing hidden card or inventing attachments.
+ * @param {object} prompt Live native AttachEnergyPrompt.
+ * @param {object} own Acting physical source player.
+ * @param {{player:number,slot:number}} targetKinds Native target enums.
+ * @returns {object[]|null} A native-validated two-Energy assignment.
+ */
+function selectSourceKokoTwoTargetTransfers(prompt,own,targetKinds){
+  if(prompt?.constructor?.name!=='AttachEnergyPrompt' ||
+    prompt.cardList!==own.discard ||
+    prompt.playerId!==own.id ||
+    prompt.playerType!==targetKinds.player ||
+    !prompt.slots.includes(targetKinds.slot) ||
+    prompt.options?.differentTargets!==true ||
+    prompt.options.min>2 || prompt.options.max<2) return null;
+  const cards=prompt.cardList.cards.filter(card=>card.name===LIGHTNING);
+  if(cards.length<2)return null;
+  const targets=[MELOETTA,SQUAWK].map(name=>
+    own.bench.findIndex(slot=>slot.getPokemonCard()?.name===name));
+  if(targets.some(index=>index<0) || targets[0]===targets[1])return null;
+  const selected=targets.map((index,i)=>({
+    card:cards[i],
+    to:{player:targetKinds.player,slot:targetKinds.slot,index}
+  }));
+  return prompt.validate(selected)?selected:null;
+}
+
+/**
  * Conservative evidence gate for complete two-target Koko acceleration.
  * An incomplete native selection is retained as a measured outcome.
  * @param {object|null|undefined} effect Physical next-root source zones.
@@ -232,12 +262,12 @@ function sourceKokoNativeComplete(effect){
  * @template T
  * @param {0|1} seat Source physical seat.
  * @param {()=>T} execute Synchronous native headless experiment.
- * @param {{followupCologne?:boolean,preferSquawk?:boolean,followupSecondVip?:boolean,followupCompressor?:boolean,auditTacticMutation?:boolean}} [options] Opt-in source alternatives.
+ * @param {{followupCologne?:boolean,preferSquawk?:boolean,followupSecondVip?:boolean,followupCompressor?:boolean,followupKokoTwoTargets?:boolean,auditTacticMutation?:boolean}} [options] Opt-in source alternatives.
  * @returns {{result:T,policyAudit:object}}
  */
 function withSourceVipAfterPass(seat, execute,
   {followupCologne=false,preferSquawk=false,followupSecondVip=false,
-    followupCompressor=false,auditTacticMutation=false}={}) {
+    followupCompressor=false,followupKokoTwoTargets=false,auditTacticMutation=false}={}) {
   if (![0,1].includes(seat) || typeof execute !== 'function')
     throw new TypeError('Need source seat and synchronous runner');
   const get = subpath => require(path.join(OUTPUT, subpath));
@@ -360,6 +390,20 @@ function withSourceVipAfterPass(seat, execute,
           ...effect});
       }
     }
+    if(followupKokoTwoTargets && stage==='compressor-finished' &&
+       prompt?.constructor?.name==='AttachEnergyPrompt' &&
+       state.turn===1 && state.activePlayer===seat) {
+      const transfers=selectSourceKokoTwoTargetTransfers(prompt,own,
+        {player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH});
+      events.push({kind:'source-koko-two-target-offer',turn:state.turn,
+        nativeValid:transfers!==null,
+        chosen:transfers?.map(row=>({
+          printing:row.card.fullName,recipientIndex:row.to.index
+        }))??[],
+        physicalAvailableLightning:own.discard.cards
+          .filter(c=>c.name===LIGHTNING).length});
+      if(transfers)return new ResolvePromptAction(prompt.id,transfers);
+    }
     const auditBefore=auditTacticMutation && stage==='compressor-finished' &&
       !prompt && state.turn===1 && state.activePlayer===seat &&
       state.phase===GamePhase.PLAYER_TURN
@@ -447,6 +491,7 @@ function withSourceVipAfterPass(seat, execute,
         (preferSquawk?'+owner-squawk-priority-v1':'')+
         (followupSecondVip?'+owner-second-vip-v1':'')+
         (followupCompressor?'+owner-compressor-after-koko-v1':'')+
+        (followupKokoTwoTargets?'+owner-koko-distinct-two-v1':'')+
         (auditTacticMutation?'+read-only-tactic-purity-audit-v1':''),
       seat,events,
       finalStage:stage,competitiveGameQualified:false
@@ -462,4 +507,5 @@ module.exports={sourceVipAfterPassEligible,sourceVipActorEligible,
   sourceCologneAfterVipEligible,sourceSecondVipActorEligible,
   sourceCompressorAfterKokoEligible,selectSourceCompressorCards,
   sourceKokoNativePostcondition,sourceKokoNativeComplete,
+  selectSourceKokoTwoTargetTransfers,
   selectSourceVipBasics,selectSecondVipBasics,withSourceVipAfterPass};
