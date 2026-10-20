@@ -91,7 +91,10 @@ test('native typed choice submits the identical donor Attack reference in real S
     return action.result;
   },{
     SimpleTacticsAi,Store,ResolvePromptAction,
-    observe:actorChooseAttackInput,
+    observe:(s,seat)=>actorChooseAttackInput(s,seat,()=>({
+      decisionKind:'owner-prompt',globalTurn:6,
+      ownPublic:{publicTurnRestrictions:{gxUsed:false}}
+    })),
     validate:(s,a)=>{
       assert.strictEqual(s,state);
       validity.push(prompt.cards[1].attacks.includes(a.result));
