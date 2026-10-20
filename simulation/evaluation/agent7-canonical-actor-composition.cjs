@@ -6,6 +6,8 @@ const VERSION = 'agent7-canonical-actor-five-component-v2';
 const OWNER_SEARCH_VERSION = 'agent41-canonical-actor-six-component-v3-owner-single-search';
 const SPARSE_OWNER_SEARCH_VERSION =
   'agent22-canonical-actor-six-component-v4-sparse-owner-search';
+const GENERIC_FALLBACK_VERSION =
+  'agent7-canonical-actor-attributed-generic-fallback-v5';
 
 /**
  * Install one ordered actor-observation-only root/prompt decision chain around
@@ -22,12 +24,14 @@ const SPARSE_OWNER_SEARCH_VERSION =
  * @param {()=>T} execute Synchronous genuine pinned-Store workload.
  * @param {{root?:Function,fog?:Function,select?:Function,option?:Function,attack?:Function,ownerSearch?:Function}} [adapters]
  *   Test injection only. Real components have their own pinned-Store tests.
- * @param {{ownerSingleSearch?:boolean}} [options] Default preserves v2.
+ * @param {{ownerSingleSearch?:boolean,genericFallbackAttribution?:boolean}} [options]
+ * Default preserves v2.
  * @returns {{result:T,audit:object}}
  */
 function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   assert.equal(typeof execute, 'function');
   const ownerSingleSearch = options.ownerSingleSearch===true;
+  const genericFallbackAttribution = options.genericFallbackAttribution===true;
   const sparseOwnerSearch=ownerSingleSearch&&
     adapters.ownerSearch===undefined&&
     process.env.AGENT22_SPARSE_OWNER_BUNDLE_DEV==='true';
@@ -52,14 +56,22 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   const attack = adapters.attack ??
     require('../twinleaf/agent13-actor-only-choose-attack.cjs')
       .withActorOnlyChooseAttack;
+  const genericFallback = genericFallbackAttribution ?
+    (adapters.genericFallback ??
+      require('../twinleaf/agent7-native-generic-fallback-attribution.cjs')
+        .withNativeGenericFallbackAttribution) : null;
   for (const component of [root, fog, select, option, attack,
-    ...(ownerSingleSearch?[ownerSearch]:[])]) {
+    ...(ownerSingleSearch?[ownerSearch]:[]),
+    ...(genericFallbackAttribution?[genericFallback]:[])]) {
     assert.equal(typeof component, 'function');
   }
 
   const runFog = () => fog(() => select(() => option(() => attack(execute))));
   // Fog's already-owned deck search is the higher-priority actor handler.
-  const rooted = root(() => ownerSingleSearch?ownerSearch(runFog):runFog());
+  const runRoot = () => root(() => ownerSingleSearch?ownerSearch(runFog):runFog());
+  const genericWrapped = genericFallbackAttribution?genericFallback(runRoot):null;
+  const rooted = genericFallbackAttribution?genericWrapped.result:runRoot();
+  const genericFallbackAudit = genericFallbackAttribution?genericWrapped.audit:null;
   const searchOrFog = rooted.result;
   const fogged = ownerSingleSearch?searchOrFog.result:searchOrFog;
   const ownerSearchAudit = ownerSingleSearch?searchOrFog.audit:null;
@@ -72,7 +84,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   const optionAudit = optioned.audit;
   const attackAudit = attacked.audit;
   for (const audit of [rootAudit, fogAudit, selectAudit, optionAudit,
-    attackAudit,...(ownerSingleSearch?[ownerSearchAudit]:[])]) {
+    attackAudit,...(ownerSingleSearch?[ownerSearchAudit]:[]),
+    ...(genericFallbackAttribution?[genericFallbackAudit]:[])]) {
     assert.ok(audit && typeof audit === 'object',
       'Each actor-only adapter must return its own audit');
   }
@@ -80,9 +93,11 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   const finalGenericPromptFallbacks =
     rootAudit.unsupportedPromptFallbacks ?? null;
   const audit = {
-    version: sparseOwnerSearch?SPARSE_OWNER_SEARCH_VERSION:
+    version: genericFallbackAttribution?GENERIC_FALLBACK_VERSION:
+      sparseOwnerSearch?SPARSE_OWNER_SEARCH_VERSION:
       ownerSingleSearch?OWNER_SEARCH_VERSION:VERSION,
     sparseOwnerSearchOptIn:sparseOwnerSearch,
+    genericFallbackAttributionOptIn:genericFallbackAttribution,
     selectedHandlerPriority: [
       'ChooseAttackPrompt', 'SelectOptionPrompt', 'SelectPrompt',
       'FogCrystalRootAndOwnerDeckSearch',
@@ -91,6 +106,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ],
     componentVersions: {
       root: rootAudit.version ?? null,
+      ...(genericFallbackAttribution?{
+        genericFallback:genericFallbackAudit.version??null}:{}),
       fog: fogAudit.version ?? null,
       ...(ownerSingleSearch?{ownerSearch:ownerSearchAudit.version??null}:{}),
       select: selectAudit.version ?? null,
@@ -115,7 +132,12 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       selectAccepted: selectAudit.accepted ?? null,
       selectOptionAccepted: optionAudit.acceptedPromptActions ?? null,
       chooseAttackAccepted: attackAudit.accepted ?? null,
-      lastChanceGenericPromptFallbacks: finalGenericPromptFallbacks
+      lastChanceGenericPromptFallbacks: finalGenericPromptFallbacks,
+      ...(genericFallbackAttribution?{
+        nativeGenericDecoderCalls:genericFallbackAudit.liveGenericDecodes??null,
+        nativeGenericDecoderBySeat:genericFallbackAudit.bySeat??null,
+        nativeGenericPromptBySeat:genericFallbackAudit.byOwnerPromptType??null
+      }:{})
     },
     // Every upstream interceptor also counts events it delegates downstream.
     // These counters overlap and cannot be added into a decision denominator.
@@ -130,6 +152,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     },
     detailedComponentAudits: {
       root: rootAudit,
+      ...(genericFallbackAttribution?{genericFallback:genericFallbackAudit}:{}),
       fog: fogAudit,
       ...(ownerSingleSearch?{ownerSearch:ownerSearchAudit}:{}),
       select: selectAudit,
@@ -149,4 +172,5 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
 }
 
 module.exports = {VERSION, OWNER_SEARCH_VERSION,SPARSE_OWNER_SEARCH_VERSION,
+  GENERIC_FALLBACK_VERSION,
   withCanonicalActorOnlyPolicy};
