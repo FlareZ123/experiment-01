@@ -72,8 +72,8 @@ function calculate(inventory) {
   const overlapWays=fogWays+compressorWays-unionWays;
   assert.ok(overlapWays>=0n);
   return {
-    fogOnlyChannel:fraction(fogWays,denominator),
-    compressorOnlyChannel:fraction(compressorWays,denominator),
+    fogSeenChannel:fraction(fogWays,denominator),
+    compressorSeenChannel:fraction(compressorWays,denominator),
     eitherChannel:fraction(unionWays,denominator),
     bothChannels:fraction(overlapWays,denominator)
   };
