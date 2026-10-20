@@ -49,6 +49,13 @@ function buildActorCardCatalog(all,types){
     abilityBasics:new Set(all.filter(c=>c instanceof PokemonCard&&
       c.stage===Stage.BASIC&&c.powers.some(power=>
         power.powerType===PowerType.ABILITY)).map(c=>c.fullName)),
+    evolutions:new Map(all.filter(c=>c instanceof PokemonCard&&
+      [Stage.STAGE_1,Stage.STAGE_2,Stage.VMAX,Stage.VSTAR].includes(c.stage))
+      .map(c=>[c.fullName,{stage:c.stage,evolvesFrom:c.evolvesFrom,
+        hasAbility:c.powers.some(power=>power.powerType===PowerType.ABILITY)}])),
+    stages:{RESTORED:Stage.RESTORED,BASIC:Stage.BASIC,
+      STAGE_1:Stage.STAGE_1,STAGE_2:Stage.STAGE_2,
+      VMAX:Stage.VMAX,VSTAR:Stage.VSTAR},
     basicEnergies:new Set(all.filter(c=>c instanceof EnergyCard&&
       c.energyType===EnergyType.BASIC).map(c=>c.fullName)),
     specialEnergies:new Set(all.filter(c=>c instanceof EnergyCard&&
