@@ -202,6 +202,17 @@ jobs:
       - name: Test canonical shared policy and owner-Compressor opt-in contract
         if: inputs.common_bilateral_compressor_development
         run: node --test tests/agent41-bilateral-common-policy.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/new-moon-compressor-payload-policy.test.cjs
+      - name: Validate native Compressor owner prompt and the opt-in second Night Watch donor
+        if: inputs.common_bilateral_compressor_development
+        run: node simulation/twinleaf/newmoon-compressor-owner-prompt-native.cjs > agent35-second-donor-native.txt
+      - name: Archive true native second-donor prompt result, including failures
+        if: ${{ always() && inputs.common_bilateral_compressor_development }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent35-second-donor-staged-native-store
+          path: agent35-second-donor-native.txt
+          if-no-files-found: warn
+          retention-days: 10
       - name: Replay unchanged historical four-arm baseline under same revision
         if: inputs.common_bilateral_compressor_development
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent5-bilateral-baseline.json
