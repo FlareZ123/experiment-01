@@ -1,0 +1,20 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {run}=require('../simulation/twinleaf/agent11-ghetsis-scores.cjs');
+test('rank11 Ghetsis reveals distinct native concealed-Item speculative scores and reversible generic parity',()=>{
+  const r=run();
+  assert.equal(r.sourceRank,11);
+  assert.equal(r.cardsPerSide,60);
+  assert.equal(r.observationMatched,true);
+  assert.equal(r.rawGhetsisScores.length,2);
+  assert.ok(r.rawGhetsisScores.every(Number.isFinite));
+  assert.equal(r.rawLeaked,true);
+  assert.deepEqual(r.priorSamplerScores,r.rawGhetsisScores);
+  assert.equal(r.partialStillLeaks,true);
+  assert.ok(r.allTacticSampleScores.every(Number.isFinite));
+  assert.equal(r.genericParity,true);
+  assert.equal(r.hookRestored,true);
+  assert.equal(r.competitiveQualifiedGames,0);
+  assert.equal(r.informationSetCertified,false);
+});
