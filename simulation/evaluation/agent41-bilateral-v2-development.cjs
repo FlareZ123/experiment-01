@@ -540,7 +540,8 @@ function runDevelopment({
   paperSupporterComparisonTrace=false,proposalStateAudit=false,
   nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
-  actorOnlySingleSearch=false,nativeActionInputWitness=false,
+  actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
+  nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null
 }={}){
   assertManifest();
@@ -576,7 +577,8 @@ function runDevelopment({
       });
       if(actorOnlyComposition){
         const observed=withCanonicalActorOnlyPolicy(execute,{},
-          {ownerSingleSearch:actorOnlySingleSearch});
+          {ownerSingleSearch:actorOnlySingleSearch,
+            genericFallbackAttribution:actorGenericFallbackAttribution});
         rows.push({...observed.result,
           actorOnlyPolicyVersion:observed.audit.version,
           actorOnlyDecisionCoverage:observed.audit,
@@ -638,6 +640,8 @@ function runDevelopment({
       nativeActionInputTapeOrdinal:null,
     actorOnlyCompositionOptIn:actorOnlyComposition,
     actorOnlyOwnerSingleSearchOptIn:actorOnlyComposition&&actorOnlySingleSearch,
+    actorNativeFallbackAttributionOptIn:
+      actorOnlyComposition&&actorGenericFallbackAttribution,
     actorOnlyCompositionVersion:actorOnlyComposition?
       (rows.find(row=>row.actorOnlyDecisionCoverage)?.actorOnlyDecisionCoverage.version??
         ACTOR_COMPOSITION_VERSION):null,
@@ -706,6 +710,8 @@ if(require.main===module){
         Number(process.env.AGENT23_NATIVE_INPUT_TAPE_ORDINAL):null,
     actorOnlyComposition:process.env.AGENT7_CANONICAL_ACTOR_POLICY_DEV==='true',
     actorOnlySingleSearch:process.env.AGENT41_ACTOR_SINGLE_SEARCH_DEV==='true',
+    actorGenericFallbackAttribution:
+      process.env.AGENT7_NATIVE_GENERIC_FALLBACK_DEV==='true',
     sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true'
   });
