@@ -20,6 +20,21 @@ function visiblePokemon(slot){
   return {
     printing:printing(pokemon),name:pokemon.name,
     hp:pokemon.hp,damage:slot.damage,
+    // Public temporary restrictions must be visible to an attack/retreat
+    // planner. These represent effects, not a claim that a particular
+    // action is legal: the genuine Store remains the final rules authority.
+    specialConditions:[...(slot.specialConditions??[])],
+    publicRestrictions:{
+      cannotAttackNextTurn:slot.cannotAttackNextTurn===true,
+      cannotUseAttacksNextTurn:[...(slot.cannotUseAttacksNextTurn??[])],
+      blockedAttackNameNextTurn:slot.blockedAttackNameNextTurn??null,
+      blockedAttackNameUntilLeavesActive:
+        slot.blockedAttackNameUntilLeavesActive??null,
+      onlyAllowedAttackNameNextTurn:slot.onlyAllowedAttackNameNextTurn??null,
+      cannotRetreatNextTurn:slot.cannotRetreatNextTurn===true,
+      cannotRetreatWhileActive:slot.cannotRetreatWhileActive===true,
+      cannotEvolveNextTurn:slot.cannotEvolveNextTurn===true
+    },
     evolutionPrintings:slot.cards.map(printing),
     energies:slot.energies.cards.map(printing),
     tools:slot.tools.map(printing),
@@ -39,6 +54,24 @@ function publicPlayer(player){
     discard:player.discard.cards.map(printing),
     lostZone:player.lostzone.cards.map(printing),
     resolvingSupporter:player.supporter.cards.map(printing),
+    // These are public game-use and player-wide constraints. They exclude
+    // opponent concealed hand contents and the identity of any unknown cards.
+    publicTurnRestrictions:{
+      gxUsed:player.usedGX===true,
+      vstarUsed:player.usedVSTAR===true,
+      attackLockTurnsRemaining:player.cannotAttackTurnsRemaining??0,
+      attackMaxEnergy:player.cannotAttackMaxEnergy??null,
+      cannotUseGXAttacks:player.cannotUseGXAttacks===true,
+      pokemonPlayLocked:player.cannotPlayPokemonCards===true,
+      abilityPokemonPlayLocked:player.cannotPlayPokemonWithAbilities===true,
+      evolutionPlayLocked:player.cannotEvolvePokemonCards===true,
+      itemPlayLocked:player.cannotPlayItemCards===true,
+      supporterPlayLocked:player.cannotPlaySupporterCards===true,
+      stadiumPlayLocked:player.cannotPlayStadiumCards===true,
+      toolPlayLocked:player.cannotPlayToolCards===true,
+      energyPlayLocked:player.cannotPlayEnergyCards===true,
+      specialEnergyPlayLocked:player.cannotPlaySpecialEnergyCards===true
+    },
     handCount:player.hand.cards.length,
     deckCount:player.deck.cards.length,
     prizeCount:player.prizes.reduce((sum,slot)=>sum+slot.cards.length,0)
