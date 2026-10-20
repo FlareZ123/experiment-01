@@ -111,7 +111,12 @@ test('optional native Store ledger independently binds an asserted bilateral roo
   const {plan,archive}=fixture();
   const row=archive.rows[0],sourceSeat=1-row.candidateSeat;
   const ledger=Array.from({length:row.rootActionCount},(_,i)=>({
-    actionOrdinal:i,turnBefore:1,playerSlot:-1,action:'OtherRootAction'
+    actionOrdinal:i,
+    turnBefore:i<row.sourcePressure.rootActionOrdinal?1:
+      i<row.candidateReply.rootActionOrdinal?row.sourcePressure.turnBefore:
+      i<row.sourceContinuation.rootActionOrdinal?row.candidateReply.turnBefore:
+      row.sourceContinuation.turnBefore,
+    playerSlot:-1,action:'OtherRootAction'
   }));
   for(const [claim,seat,turn] of [
     [row.sourcePressure.rootActionOrdinal,sourceSeat,row.sourcePressure.turnBefore],
@@ -145,7 +150,12 @@ test('raw Store attestation elevates both real seats without licensing wins',()=
   const {plan,archive}=fixture();
   for(const row of archive.rows) {
     const ledger=Array.from({length:row.rootActionCount},(_,i)=>({
-      actionOrdinal:i,turnBefore:1,playerSlot:-1,action:'OtherRootAction'
+      actionOrdinal:i,
+    turnBefore:i<row.sourcePressure.rootActionOrdinal?1:
+      i<row.candidateReply.rootActionOrdinal?row.sourcePressure.turnBefore:
+      i<row.sourceContinuation.rootActionOrdinal?row.candidateReply.turnBefore:
+      row.sourceContinuation.turnBefore,
+    playerSlot:-1,action:'OtherRootAction'
     }));
     for(const [claim,seat,turn] of [
       [row.sourcePressure.rootActionOrdinal,1-row.candidateSeat,
