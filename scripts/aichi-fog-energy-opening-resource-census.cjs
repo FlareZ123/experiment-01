@@ -98,6 +98,8 @@ function fogEnergyOpportunity(inventory,draws){
     numPrizes:6,accessRoute:'direct Energy or Fog Crystal for Basic Psychic only',
     thresholds:Object.fromEntries([1,2,3,4].map(threshold=>[
       String(threshold),fraction(successes[threshold],legalWeight)])),
+    directOnlyThresholds:Object.fromEntries([1,2,3,4].map(threshold=>[
+      String(threshold),fraction(directSuccesses[threshold],legalWeight)])),
     interpretation:'Restricted hypothetical inventory access; no real game or qualified win'
   };
 }
