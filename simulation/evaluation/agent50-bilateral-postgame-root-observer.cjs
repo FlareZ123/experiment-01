@@ -106,7 +106,17 @@ function withPostgameRootOrderProbe(
           } catch(error) {
             captureError=String(error?.stack||error);
           }
-          pending={state:snapshot,options,captureError};
+          const owner=state.players.find(player=>player.id===actorId);
+          pending={state:snapshot,options,captureError,
+            ownerRootVisible:{
+              turn:state.turn,
+              ownHandPrintings:owner?.hand?.cards?.map(card=>
+                card.fullName??null)??null,
+              ownActivePrinting:owner?.active?.getPokemonCard?.()?.fullName??null,
+              energyPlayedTurn:owner?.energyPlayedTurn??null,
+              supporterPlayedTurn:owner?.supporterTurn??null,
+              stadiumPlayedTurn:owner?.stadiumPlayedTurn??null
+            }};
         };
         try {
           for(const tactic of new Set(this.tactics)) {
@@ -227,7 +237,8 @@ function withPostgameRootOrderProbe(
     ...(target.firstFiniteScoredRoot===true?{
       chosenRootTurn:captured.chosenRootTurn,
       actualScorerAttempts:captured.actualScorerAttempts,
-      actualFiniteScores:captured.actualFiniteScores
+      actualFiniteScores:captured.actualFiniteScores,
+      ownerRootVisible:captured.ownerRootVisible
     }:{}),
     comparedAfterRealGameFinished:true
   }]};
