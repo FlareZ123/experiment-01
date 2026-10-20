@@ -7,13 +7,17 @@ on:
         description: Run only compiled archival rank-10 prefix falsification
         type: boolean
         default: false
+      actor_observation_live_only:
+        description: Test actor-only real-Store views against the canonical historical four arms
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   hidden-draw-forecast:
-    if: ${{ !inputs.archival_prefix_only }}
+    if: ${{ !inputs.archival_prefix_only && !inputs.actor_observation_live_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -95,7 +99,7 @@ jobs:
         run: node simulation/twinleaf/rank10-hidden-order-live-probe.cjs ordinal215
 
   rank10-archival-prefix:
-    if: ${{ inputs.archival_prefix_only }}
+    if: ${{ inputs.archival_prefix_only && !inputs.actor_observation_live_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -142,3 +146,47 @@ jobs:
           name: rank10-historical-current-head-replay
           path: rank10-historical-replay-now.json
           if-no-files-found: warn
+
+  actor-observation-live:
+    if: ${{ inputs.actor_observation_live_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify independent actor-only boundary and read-only Store observer
+        run: |
+          node --test tests/actor-observation-contract.test.cjs tests/actor-observation-live-audit.test.cjs
+          node --check simulation/evaluation/agent21-actor-observation-compiled.cjs
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Compare canonical four original Store games against read-only actor observation
+        run: node simulation/evaluation/agent21-actor-observation-compiled.cjs > actor-view-live.json
+      - name: Print source-deal and actor-boundary observation status
+        run: >-
+          node -e "const r=require('./actor-view-live.json');
+          console.log('ACTOR_ONLY_NATIVE_BOUNDARY',JSON.stringify({
+          games:r.actorProjectionAudit.games,
+          rootDispatches:r.actorProjectionAudit.actualRootDispatches,
+          ownerDecisions:r.actorProjectionAudit.observedActorDecisions,
+          ownerPrompts:r.actorProjectionAudit.ownerPrompts,
+          unchangedCanonicalRows:r.sameCompleteCanonicalRows,
+          gameWinsQualified:r.competitiveQualifiedGames}));"
+      - name: Preserve verified native Store parity and failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent21-actor-view-native-fourarm
+          path: actor-view-live.json
+          if-no-files-found: warn
+          retention-days: 10
