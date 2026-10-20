@@ -12,11 +12,6 @@ on:
         required: false
         type: boolean
         default: false
-      agent9_fog_prompt_only:
-        description: Real canonical four-arm actor-owned Fog Crystal Item to K1 prompt gate
-        required: false
-        type: boolean
-        default: false
       agent9_actor_setup_only:
         description: Run three frozen development roots through actor-owned setup adapter
         required: false
