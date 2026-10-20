@@ -46,3 +46,24 @@ function fixture(options={}){
  const b={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1};
  return {state,prompt,choice,a,b};
 }
+
+test('pinned validCardTypes skips differentTargets but opt-in gate rejects',()=>{
+ const scene=fixture();
+ const repeated=scene.choice(scene.a,{...scene.a});
+ assert.equal(scene.prompt.validate(repeated,scene.state),true);
+ assert.throws(()=>assertValidPromptAction(scene.state,
+  new ResolvePromptAction(17,repeated),
+  {enforceAttachEnergyGeometry:true}),/invalid result/);
+ assert.doesNotThrow(()=>assertValidPromptAction(scene.state,
+  new ResolvePromptAction(17,scene.choice(scene.a,scene.b)),
+  {enforceAttachEnergyGeometry:true}));
+});
+test('pinned recipient block bypass is separately caught',()=>{
+ const initial=fixture();
+ const scene=fixture({blockedTo:[initial.a]});
+ const selected=scene.choice(scene.a,scene.b);
+ assert.equal(scene.prompt.validate(selected,scene.state),true);
+ assert.throws(()=>assertValidPromptAction(scene.state,
+  new ResolvePromptAction(17,selected),
+  {enforceAttachEnergyGeometry:true}),/invalid result/);
+});
