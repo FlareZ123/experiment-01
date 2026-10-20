@@ -112,8 +112,8 @@ test('asymmetric pressure stays in unconditional pair denominator',()=>{
   assert.equal(census.byRank[6].pressureCells['first-only-witnessed'],1);
   assert.equal(census.byRank[6].pressureCells['both-witnessed'],1);
   assert.equal(census.mechanicallyPairedWitnesses,3);
-  assert.equal(census.originalStrictMechanicalVerdict,'MECHANICAL-PILOT-REVIEWABLE',
-    'Strict gate may still pass with one paired witness per hard rank');
+  assert.equal(census.originalStrictMechanicalVerdict,'HOLD-OR-INCOMPLETE',
+    'Legacy synthetic pressure has no first-turn native lock witness');
   assert.equal(census.pairs[0].candidateArms[1].sourcePressureEvidence,
     'no-witness-in-terminal');
   assert.equal(census.pairs[0].sourcePressureCausalityCertified,false);
