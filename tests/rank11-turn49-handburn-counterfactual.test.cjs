@@ -43,3 +43,15 @@ test('falls through fixed published source Trainer printings without hidden info
   assert.equal(chooseTrainerDiscard(cards(['Garbodor BKP'])),null);
   assert.equal(new Set(DISCARD_ORDER).size,DISCARD_ORDER.length);
 });
+
+test('caller may prioritize an expired VIP cost over strategically live Boost Shake',()=>{
+  const hand=cards([
+    'Quick Ball FST','Boost Shake EVS','Battle VIP Pass FST',
+    'Shopping Center EVS'
+  ]);
+  assert.equal(chooseTrainerDiscard(hand)?.fullName,'Boost Shake EVS');
+  assert.equal(chooseTrainerDiscard(hand,['Battle VIP Pass FST'])?.fullName,
+    'Battle VIP Pass FST');
+  assert.equal(chooseTrainerDiscard(cards(['Quick Ball FST']),
+    ['Battle VIP Pass FST']),null);
+});
