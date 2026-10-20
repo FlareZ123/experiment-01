@@ -217,4 +217,4 @@ function withActorOnlyRootPolicy(run,deps={}){
     Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',original);
   }
 }
-module.exports={VERSION,chooseActorRootIntent,withActorOnlyRootPolicy};
+module.exports={VERSION,chooseActorRootIntent,publicDispatchState,withActorOnlyRootPolicy};
