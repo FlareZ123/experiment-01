@@ -26,10 +26,11 @@ const sha256 = value => createHash('sha256')
  *
  * @template T
  * @param {()=>T} execute
+ * @param {{attemptSupporter?:boolean}} [options]
  * @returns {{game:T|null,error:object|null,phase:string,
- *            preAction:object|null,nativeAttempt:object|null}}
+ *            preAction:object|null,nativeAttempt:object|null,legalFollowup:object|null}}
  */
-function withOwnerVisibleSeekerAttempt(execute) {
+function withOwnerVisibleSeekerAttempt(execute, {attemptSupporter = true} = {}) {
   const engine = name => require(path.join(OUTPUT, name));
   const {SimpleTacticsAi} = engine('simple-bot/simple-tactics-ai');
   const {PlayCardAction} = engine('game/store/actions/play-card-action');
@@ -40,7 +41,7 @@ function withOwnerVisibleSeekerAttempt(execute) {
     Store.prototype, 'dispatch');
   assert.equal(typeof originalDispatch?.value, 'function');
   let actualRoot = null, phase = 'await-opponent-turn';
-  let preAction = null, nativeAttempt = null;
+  let preAction = null, nativeAttempt = null, legalFollowup = null;
 
   /** @param {object} state @returns {object} */
   function view(state) {
@@ -86,6 +87,18 @@ function withOwnerVisibleSeekerAttempt(execute) {
       if (phase === 'supporter-play' && !pending) {
         assert.ok(owner.hand.cards.some(card => card.fullName === TARGET),
           'VS Seeker did not actually retrieve Lillie from own discard');
+        if (!attemptSupporter) {
+          phase = 'continued';
+          const ordinary = originalBot.call(this, state);
+          legalFollowup = {
+            ownerBeforeAction: view(state),
+            action: ordinary?.constructor?.name ?? null,
+            card: ordinary?.constructor?.name === 'PlayCardAction' ?
+              owner.hand.cards[ordinary.handIndex]?.fullName ?? null : null,
+            ownerVisibleAndGenuineRoot: true
+          };
+          return ordinary;
+        }
         phase = 'submitted';
         return new PlayCardAction(owner.id,
           owner.hand.cards.findIndex(card => card.fullName === TARGET));
@@ -141,7 +154,7 @@ function withOwnerVisibleSeekerAttempt(execute) {
       error = {name: failure?.name ?? null,
         message: String(failure?.message ?? failure)};
     }
-    return {game, error, phase, preAction, nativeAttempt};
+    return {game, error, phase, preAction, nativeAttempt, legalFollowup};
   } finally {
     SimpleTacticsAi.prototype.decodeNextAction = originalBot;
     Object.defineProperty(Store.prototype, 'dispatch', originalDispatch);
