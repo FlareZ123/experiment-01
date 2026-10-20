@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const {actorObservation} = require('./actor-observation-contract.cjs');
 
-const VERSION = 'agent41-owner-single-search-actor-v1';
+const VERSION = 'agent41-owner-single-search-actor-v2-order-independent';
 const SEARCH_MESSAGES = new Set([
   'CHOOSE_CARD_TO_HAND', 'CHOOSE_CARD_FROM_DECK',
   'CHOOSE_CARD_FROM_DISCARD', 'SEARCH_DECK_FOR_CARD'
@@ -35,10 +35,16 @@ function actorSingleSearchInput(state,seat,observe=actorObservation) {
   if(options.min>1||options.max<1)return null;
   const cards=pending.cards.cards;
   if(!Array.isArray(cards))return null;
-  const offered=cards.map((card,index)=>Object.freeze({
-    index,printing:card.fullName,
+  // The live native deck array has a concealed order. The owner may inspect
+  // card identities during a real search, but their *sequence* is not a
+  // legitimate decision input. Canonicalize the visible multiset before
+  // giving the choice menu to the pure policy.
+  const sorted=cards.map(card=>({
+    printing:card.fullName,
     selectableAlone:pending.validate([card])===true
-  }));
+  })).sort((a,b)=>a.printing<b.printing?-1:
+    a.printing>b.printing?1:Number(b.selectableAlone)-Number(a.selectableAlone));
+  const offered=sorted.map((entry,index)=>Object.freeze({index,...entry}));
   const canSkip=pending.validate([])===true;
   const canCancel=pending.validate(null)===true;
   // The pure policy can inspect the complete owner's deck only while
@@ -117,7 +123,14 @@ function withActorOwnerSingleSearch(execute,deps={}){
       return original.value.call(this,state);
     const seat=state.players?.findIndex(p=>p.id===this.client?.id)??-1;
     const pending=state.prompts?.find(p=>p.result===undefined);
-    const input=seat>=0?observe(state,seat):null;
+    const player=state.players?.[seat];
+    const canSearch=seat>=0&&
+      pending?.constructor?.name==='ChooseCardsPrompt'&&
+      pending.playerId===player?.id&&
+      SEARCH_MESSAGES.has(pending.message)&&
+      (pending.cards===player.deck||pending.cards===player.hand||
+        pending.cards===player.discard);
+    const input=canSearch?observe(state,seat):null;
     if(!input){
       if(pending?.playerId===this.client?.id &&
           pending.constructor?.name==='ChooseCardsPrompt'){
@@ -134,8 +147,17 @@ function withActorOwnerSingleSearch(execute,deps={}){
       return original.value.call(this,state);
     }
     const physical=state.prompts.find(p=>p.id===input.prompt.id);
-    const selected=intent.indices===null?null:
-      intent.indices.map(index=>physical.cards.cards[index]);
+    // The integer is a canonical menu index. Resolve it back to the exact
+    // physical native card only *after* the detached choice is finished.
+    const selected=intent.indices===null?null:intent.indices.map(index=>{
+      const row=input.prompt.offered[index];
+      assert.ok(row?.selectableAlone,'Invalid detached search menu index');
+      const card=physical.cards.cards.find(physicalCard=>
+        physicalCard.fullName===row.printing&&
+        physical.validate([physicalCard])===true);
+      assert.ok(card,'Chosen printing is no longer legal in native prompt');
+      return card;
+    });
     assert.ok(physical.validate(selected),
       'Owner-selected search card rejected by native prompt validator');
     const action=new ResolvePromptAction(input.prompt.id,selected);

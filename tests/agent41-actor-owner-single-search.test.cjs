@@ -34,11 +34,32 @@ test('detached live owner deck menu selects only validator-approved exact card',
   const input=actorSingleSearchInput(state,0,()=>actor(0));
   assert.equal(input.prompt.source,'own-deck');
   assert.deepEqual(input.prompt.offered.map(x=>x.selectableAlone),
-    [false,false,true]);
-  assert.deepEqual(chooseActorSingleSearch(input),{indices:[2]});
+    [false,true,false]);
+  assert.deepEqual(chooseActorSingleSearch(input),{indices:[1]});
   assert.ok(Object.isFrozen(input.prompt.offered));
   assert.equal(JSON.stringify(input).includes('MUST_NOT_LEAK'),false);
   assert.equal(actorSingleSearchInput(state,1,()=>actor(1)),null);
+});
+
+test('permuting concealed owner deck order cannot alter the detached search menu',()=>{
+  const names=['Ultra Ball SVI','Duskull VIV','Psychic Energy MEE'];
+  const create=(order)=>{
+    const deck={cards:order.map(fullName=>({fullName}))};
+    const owner={id:101,deck,hand:{cards:[]},discard:{cards:[]}};
+    const state={players:[owner,{id:202}],prompts:[
+      createPrompt(owner,deck,{validate:selected=>
+        Array.isArray(selected)&&selected.length===1&&
+        selected.every(card=>deck.cards.includes(card))
+      })
+    ]};
+    return actorSingleSearchInput(state,0,()=>actor(0));
+  };
+  const first=create(names);
+  const shuffled=create([names[2],names[0],names[1]]);
+  assert.deepEqual(first,shuffled);
+  const choice=chooseActorSingleSearch(first);
+  assert.deepEqual(choice,{indices:[0]});
+  assert.equal(first.prompt.offered[0].printing,'Duskull VIV');
 });
 
 test('non-owner zone, non-search discard and mandatory multi-card fail closed',()=>{
