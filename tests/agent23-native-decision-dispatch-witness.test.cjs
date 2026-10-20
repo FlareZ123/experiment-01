@@ -86,9 +86,33 @@ test('unsupported nested engine class objects fail closed',()=>{
     {...codecs,captureAction}).status,'unsupported');
 });
 
+test('scalar prompt result preserves exact native input and prompt kind',()=>{
+  class ResolvePromptAction{
+    constructor(id,result){this.id=id;this.result=result;}
+  }
+  class SelectPrompt{constructor(){this.id=5;this.result=undefined;}}
+  const prompt=new SelectPrompt();
+  const state={prompts:[prompt]};
+  const {captureAction}=require('../simulation/twinleaf/source-action-value-codec.cjs');
+  const first=actionIdentity(new ResolvePromptAction(5,1),state,{
+    captureAction,capturePromptAction:()=>null
+  });
+  const second=actionIdentity(new ResolvePromptAction(5,2),state,{
+    captureAction,capturePromptAction:()=>null
+  });
+  assert.equal(first.status,'captured');
+  assert.equal(first.transport,'prompt-typed-values');
+  assert.notEqual(first.sha256,second.sha256);
+  assert.equal(actionIdentity(new ResolvePromptAction(4,1),state,{
+    captureAction,capturePromptAction:()=>null
+  }).status,'unsupported');
+  assert.equal(actionIdentity(new ResolvePromptAction(5,1),{prompts:[]},{
+    captureAction,capturePromptAction:()=>null
+  }).status,'unsupported');
+});
+
 test('unsupported prompt input is unverified, not evidence of mutation',()=>{
   const f=fixture();
-  const action=new PlayCardAction(0,{index:0});
   f.run=()=> {
     const store=new f.Store();
     store.dispatch(new (class AddPlayerAction {})());
