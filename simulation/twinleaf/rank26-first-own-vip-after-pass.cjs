@@ -50,6 +50,26 @@ function sourceCologneAfterVipEligible(view,phase) {
 }
 
 /**
+ * Independent second VIP option after real first-turn Bench Squawk has supplied
+ * another held VIP. The decision sees only the actual owner's detached hand,
+ * the public board and ordinary Item lock flags. Whether Koko remains in deck
+ * is learned only inside the subsequent native owner search.
+ * @param {object} view Detached actor observation.
+ * @param {number} phase Native PLAYER_TURN enum.
+ * @returns {boolean}
+ */
+function sourceSecondVipActorEligible(view,phase) {
+  const inPlay=name=>[view.ownPublic.active,...view.ownPublic.bench]
+    .some(slot=>slot?.printing?.startsWith(name+' '));
+  return view.decisionKind==='owner-root' &&
+    view.globalTurn===1 && view.phase===phase &&
+    view.ownTurnResources?.itemPlayLocked!==true &&
+    view.ownHand.some(card=>card.startsWith(VIP+' ')) &&
+    inPlay(MELOETTA) && inPlay(SQUAWK) && !inPlay(KOKO) &&
+    view.ownPublic.bench.some(slot=>slot===null);
+}
+
+/**
  * This check sees only the acting player hand and public Active/Bench.
  * Reserve one Bench slot for Koko if Koko has not entered play.
  * @param {object} state Native live source state.
@@ -104,6 +124,30 @@ function selectSourceVipBasics(own, prompt, state, {preferSquawk=false}={}) {
 }
 
 /**
+ * Select available genuine physical cards only after the second native owner
+ * deck-search prompt is offered. Koko permits a potentially useful Lightning
+ * acceleration later in the same turn; no such acceleration is assumed here.
+ * @param {object} own Owner after accepted VIP.
+ * @param {object} prompt Live owner-deck ChooseCardsPrompt.
+ * @param {object} state Live native State.
+ * @returns {object[]} Actual source cards (up to two).
+ */
+function selectSecondVipBasics(own,prompt,state) {
+  const free=own.bench.filter(slot=>!slot.getPokemonCard()).length;
+  const choices=[];
+  for(const name of [KOKO,EXEGGCUTE]){
+    if(choices.length>=Math.min(2,free))break;
+    const card=prompt.cards.cards.find(c=>c.name===name&&!choices.includes(c));
+    if(card)choices.push(card);
+  }
+  for(let n=choices.length;n>=1;n--){
+    const group=choices.slice(0,n);
+    if(prompt.validate(group,state))return group;
+  }
+  return [];
+}
+
+/**
  * Once the existing source bot proposes Pass, attempt one owner-information
  * Battle VIP Pass root, then resolve its native owner-deck search. No card
  * instances are fabricated. This is an opt-in development policy, not an
@@ -111,11 +155,11 @@ function selectSourceVipBasics(own, prompt, state, {preferSquawk=false}={}) {
  * @template T
  * @param {0|1} seat Source physical seat.
  * @param {()=>T} execute Synchronous native headless experiment.
- * @param {{followupCologne?:boolean,preferSquawk?:boolean}} [options] Opt-in source alternatives.
+ * @param {{followupCologne?:boolean,preferSquawk?:boolean,followupSecondVip?:boolean}} [options] Opt-in source alternatives.
  * @returns {{result:T,policyAudit:object}}
  */
 function withSourceVipAfterPass(seat, execute,
-  {followupCologne=false,preferSquawk=false}={}) {
+  {followupCologne=false,preferSquawk=false,followupSecondVip=false}={}) {
   if (![0,1].includes(seat) || typeof execute !== 'function')
     throw new TypeError('Need source seat and synchronous runner');
   const get = subpath => require(path.join(OUTPUT, subpath));
@@ -134,6 +178,22 @@ function withSourceVipAfterPass(seat, execute,
     if (this.client?.id !== sourceId || !own)
       return previous.call(this,state);
     const prompt = state.prompts.find(p => p.result === undefined);
+    if(stage==='second-search' && prompt){
+      if(prompt.constructor.name==='WaitPrompt')
+        return previous.call(this,state);
+      if(prompt.constructor.name==='ChooseCardsPrompt' &&
+          prompt.playerId===sourceId && prompt.cards===own.deck){
+        const selected=selectSecondVipBasics(own,prompt,state);
+        events.push({kind:'second-owner-deck-target',turn:state.turn,
+          cards:selected.map(c=>c.fullName),nativeValid:selected.length>0,
+          searchedKokoAvailable:prompt.cards.cards.some(c=>c.name===KOKO)});
+        stage='second-post';
+        if(selected.length)return new ResolvePromptAction(prompt.id,selected);
+      }else{
+        events.push({kind:'second-unexpected-prompt',type:prompt.constructor.name});
+        stage='second-finished';
+      }
+    }
     if (stage === 'search' && prompt) {
       if (prompt.constructor.name === 'WaitPrompt')
         return previous.call(this,state);
@@ -180,7 +240,30 @@ function withSourceVipAfterPass(seat, execute,
         sourceDiscardHasCologne:own.discard.cards.some(c=>c.name===COLOGNE)});
       stage='finished';
     }
+    if(stage==='second-post' && !prompt){
+      events.push({kind:'second-public-board-after',turn:state.turn,
+        bench:own.bench.map(s=>s.getPokemonCard()?.fullName??null)});
+      stage='second-finished';
+    }
     const action = previous.call(this,state);
+    if(followupSecondVip && stage==='finished' &&
+        action?.constructor?.name==='PassTurnAction' &&
+        state.turn===1 && state.activePlayer===seat &&
+        state.phase===GamePhase.PLAYER_TURN){
+      const view=actorObservation(state,seat);
+      if(sourceSecondVipActorEligible(view,GamePhase.PLAYER_TURN)){
+        const index=own.hand.cards.findIndex(c=>c.name===VIP);
+        const candidate=new PlayCardAction(sourceId,index,{
+          player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+        });
+        const nativeValid=this.isValidAction(state,candidate);
+        events.push({kind:'second-vip-offer',turn:state.turn,
+          nativeValid,card:own.hand.cards[index].fullName,
+          detachedActorView:true});
+        stage=nativeValid?'second-search':'second-finished';
+        if(nativeValid)return candidate;
+      }
+    }
     if (stage === 'available' &&
         action?.constructor?.name === 'PassTurnAction' &&
         state.turn === 1 && state.phase === GamePhase.PLAYER_TURN &&
@@ -210,7 +293,8 @@ function withSourceVipAfterPass(seat, execute,
     return {result:execute(),policyAudit:{
       version:'rank26-first-own-vip-after-pass-v1'+
         (followupCologne?'+owner-cologne-followup-v1':'')+
-        (preferSquawk?'+owner-squawk-priority-v1':''),seat,events,
+        (preferSquawk?'+owner-squawk-priority-v1':'')+
+        (followupSecondVip?'+owner-second-vip-v1':''),seat,events,
       finalStage:stage,competitiveGameQualified:false
     }};
   } finally {
@@ -221,4 +305,5 @@ function withSourceVipAfterPass(seat, execute,
 }
 
 module.exports={sourceVipAfterPassEligible,sourceVipActorEligible,
-  sourceCologneAfterVipEligible,selectSourceVipBasics,withSourceVipAfterPass};
+  sourceCologneAfterVipEligible,sourceSecondVipActorEligible,
+  selectSourceVipBasics,selectSecondVipBasics,withSourceVipAfterPass};
