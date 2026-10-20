@@ -62,14 +62,22 @@ function withLiveGarbodorAbilityWindow(execute,{
       return result;
     const ownActive=candidate.active.getPokemonCard();
     if(!ownActive)return result;
+    const printedNewMoon=(ownActive.powers??[]).find(power=>
+      power.name==='New Moon')??null;
     const snap={
       action:action.constructor.name,
       globalTurn:state.turn,
       sourceGarbodorHasTool:sourceTool,
       candidateActive:ownActive.fullName,
       candidatePrintedPowerNames:(ownActive.powers??[]).map(p=>p.name),
+      // The generic no-Power call is historical diagnostics only. Pinned
+      // IS_ABILITY_BLOCKED synthesizes a generic Ability when Power is absent,
+      // which can yield a false positive for exempt printed Abilities.
       candidateGenericAbilityBlocked:isAbilityBlocked(
         this,state,candidate,ownActive),
+      candidatePrintedNewMoonBlocked:printedNewMoon?
+        Boolean(isAbilityBlocked(this,state,candidate,ownActive,printedNewMoon)):
+        null,
       publicBoard:publicBoard(state)
     };
     if(sourceTool)audit.before=snap;
