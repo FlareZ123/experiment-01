@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {sourceVipAfterPassEligible, sourceVipActorEligible,
-  selectSourceVipBasics, withSourceVipAfterPass} =
+  sourceCologneAfterVipEligible, selectSourceVipBasics, withSourceVipAfterPass} =
   require('../simulation/twinleaf/rank26-first-own-vip-after-pass.cjs');
 
 function slot(name) {
@@ -84,4 +84,30 @@ test('detached actor view preserves VIP eligibility under hidden changes',()=>{
   alternate.globalTurn=1;
   alternate.decisionKind='owner-prompt';
   assert.equal(sourceVipActorEligible(alternate,3),false);
+});
+
+test('post-search Cologne opportunity requires owner-visible Meloetta, Thorns and unlocked Item',()=>{
+  const view={decisionKind:'owner-root',globalTurn:1,phase:3,
+    ownTurnResources:{itemPlayLocked:false},
+    ownHand:['Canceling Cologne ASR'],
+    ownPublic:{active:{printing:'Unown AOR'},bench:[
+      {printing:'Meloetta ex SV11B'},null,null,null,null]},
+    opponentPublic:{active:{printing:'Iron Thorns ex TWM'},handCount:6}};
+  assert.equal(sourceCologneAfterVipEligible(view,3),true);
+  const hidden=structuredClone(view);
+  hidden.opponentPublic.secretHand=['irrelevant private identity'];
+  hidden.opponentPublic.secretDeck=['another unseen distribution'];
+  assert.equal(sourceCologneAfterVipEligible(hidden,3),true);
+  hidden.ownTurnResources.itemPlayLocked=true;
+  assert.equal(sourceCologneAfterVipEligible(hidden,3),false);
+  hidden.ownTurnResources.itemPlayLocked=false;
+  hidden.opponentPublic.active={printing:'Regidrago VSTAR SIT'};
+  assert.equal(sourceCologneAfterVipEligible(hidden,3),false);
+  hidden.opponentPublic.active={printing:'Iron Thorns ex TWM'};
+  hidden.ownPublic.bench[0]=null;
+  assert.equal(sourceCologneAfterVipEligible(hidden,3),false);
+  hidden.ownPublic.active={printing:'Meloetta ex SV11B'};
+  assert.equal(sourceCologneAfterVipEligible(hidden,3),true);
+  hidden.globalTurn=2;
+  assert.equal(sourceCologneAfterVipEligible(hidden,3),false);
 });
