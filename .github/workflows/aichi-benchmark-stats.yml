@@ -108,6 +108,8 @@ jobs:
         run: node --test tests/new-moon-two-gengar-japanese-provenance.test.cjs
       - name: Verify GX/EX case distinction in New Moon donor printings
         run: node --test tests/aichi-perfection-copy-donor-screen.test.cjs
+      - name: Cross-check rank28 provisional source ledgers without admitting missing official sixty
+        run: node --test tests/aichi-rank28-photo-ledger-parity.test.cjs
 
   rank11-source-census:
     runs-on: ubuntu-latest
