@@ -4,6 +4,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {auditUnconditionalBilateralCensus,pressureEvidence}=
   require('../simulation/evaluation/agent2-bilateral-unconditional-census.cjs');
+const {rank6CandidateApplicability}=
+  require('../simulation/evaluation/agent2-rank6-applicability.cjs');
 
 /** @param {string} c @returns {string} */
 const hex=c=>c.repeat(64);
@@ -329,4 +331,42 @@ test('rank6 no-target arm remains counted alongside blocked-power positive contr
     before.originalStrictMechanicalVerdict);
   assert.equal(census.comparativeStrengthCertified,false);
   assert.equal(census.gameWinRateCertified,false);
+});
+
+test('rank6 root-boundary packets reject spoofed actor, turn and ordinal',()=>{
+  const {archive}=fixture();
+  const row=rowFor(archive,6,1,'reference');
+  const sourceSeat=0;
+  row.rootActionLedger=Array.from({length:row.rootActionCount},(_,i)=>({
+    actionOrdinal:i,playerSlot:i<11?0:1,
+    turnBefore:i<11?1:2,
+    action:i===10?'PassTurnAction':'PlayCardAction'
+  }));
+  row.rank6PassivePressure={
+    schema:'agent41-rank6-passive-initialization-root-classification-v1',
+    sourceSeat,candidateSeat:1,sourceActuallyFirst:true,
+    sourceActiveContinuity:true,candidateTurnTwoSnapshotPresent:true,
+    sourceTurnOneEndRoot:{ordinal:10,seat:0,turn:1,action:'PassTurnAction'},
+    candidateTurnTwoFirstRoot:{ordinal:15,seat:1,turn:2,action:'PlayCardAction'},
+    examinedPrintedPowerCount:1,nativeCapabilitySuppressed:true,
+    suppressedPowerPrinting:'Latias ex SSP',
+    suppressedPowerName:'Skyliner'
+  };
+  assert.equal(rank6CandidateApplicability(row,sourceSeat),
+    'blocked-eligible-target','genuine matching roots remain reportable');
+  row.rootActionLedger[15].playerSlot=0;
+  assert.equal(rank6CandidateApplicability(row,sourceSeat),'unverified',
+    'the correct action name on a wrong actor cannot attest a reply');
+  row.rootActionLedger[15].playerSlot=1;
+  row.rootActionLedger[15].turnBefore=3;
+  assert.equal(rank6CandidateApplicability(row,sourceSeat),'unverified',
+    'the correct action name on a wrong turn cannot attest a reply');
+  row.rootActionLedger[15].turnBefore=2;
+  row.rootActionLedger[10].actionOrdinal=9;
+  assert.equal(rank6CandidateApplicability(row,sourceSeat),'unverified',
+    'a falsified ordinal cannot attest a source boundary');
+  row.rootActionLedger[10].actionOrdinal=10;
+  row.rootActionLedger.pop();
+  assert.equal(rank6CandidateApplicability(row,sourceSeat),'unverified',
+    'a partial purported full ledger is never authenticated');
 });
