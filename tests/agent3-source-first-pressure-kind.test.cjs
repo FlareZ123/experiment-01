@@ -88,3 +88,12 @@ test('generic-only native check stays insufficient',()=>{
  x.garbotoxinWindowAudit.before.candidateGenericAbilityBlocked=true;
  assert.equal(sourceFirstNativePressureVerified(x),false);
 });
+
+test('rank11 named other Power accepted only if block matches',()=>{
+ const x=rank11();
+ x.garbotoxinWindowAudit.before.candidatePrintedPowerNames=['Underworld Door'];
+ x.garbotoxinWindowAudit.before.candidatePrintedPowerChecks=[{name:'Underworld Door',blocked:true}];
+ assert.equal(sourceFirstNativePressureVerified(x),true);
+ x.garbotoxinWindowAudit.before.candidatePrintedPowerChecks=[{name:'Wrong Power',blocked:true}];
+ assert.equal(sourceFirstNativePressureVerified(x),false);
+});
