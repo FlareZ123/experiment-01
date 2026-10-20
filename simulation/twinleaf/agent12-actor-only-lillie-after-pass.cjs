@@ -16,17 +16,27 @@ const LILLIE='Lillie\'s Determination MEG';
  * @param {object} view An actorObservation result.
  * @returns {{kind:string,handIndex:number,printing:string}|null}
  */
-function chooseLillieAfterPass(view){
-  if(view?.decisionKind!=='owner-root')return null;
+function lillieExclusionReason(view){
+  if(view?.decisionKind!=='owner-root')return 'not-owner-root';
+  if(!view.ownHand?.includes(LILLIE))return 'lillie-not-held';
   const r=view.ownTurnResources;
-  if(!r||view.globalTurn<=1||r.supporterPlayLocked||
-    (Number.isInteger(r.supporterPlayedTurn)&&r.supporterPlayedTurn>0)||
-    view.ownPublic?.publicTurnRestrictions?.supporterPlayLocked||
-    view.ownPublic?.resolvingSupporter?.length>0||
-    !(view.ownPublic?.deckCount>0))return null;
-  const handIndex=view.ownHand?.indexOf(LILLIE)??-1;
-  if(handIndex<0)return null;
-  return {kind:'play-lillie-shuffle-draw',handIndex,printing:LILLIE};
+  if(!r)return 'missing-owner-turn-resources';
+  if(view.globalTurn<=1)return 'first-player-first-turn';
+  if(r.supporterPlayLocked||
+    view.ownPublic?.publicTurnRestrictions?.supporterPlayLocked)
+    return 'supporter-locked';
+  if(Number.isInteger(r.supporterPlayedTurn)&&r.supporterPlayedTurn>0)
+    return 'supporter-already-spent';
+  if(view.ownPublic?.resolvingSupporter?.length>0)
+    return 'supporter-resolution-pending';
+  if(!(view.ownPublic?.deckCount>0))return 'owner-deck-empty';
+  return null;
+}
+
+function chooseLillieAfterPass(view){
+  if(lillieExclusionReason(view)!==null)return null;
+  return {kind:'play-lillie-shuffle-draw',
+    handIndex:view.ownHand.indexOf(LILLIE),printing:LILLIE};
 }
 
 /**
@@ -60,7 +70,8 @@ function withActorOnlyLillieAfterPass(run,deps={}){
   let firstStore=null;
   const audit={version:VERSION,bothPhysicalSeats:true,
     attemptedLillieRoots:0,acceptedLillieRoots:0,rejectedLillieRoots:0,
-    rootEvents:[],nativePromptDecisionQualified:false,
+    rootEvents:[],passRootObservations:0,passRootReasonCounts:{},
+    passRootSamples:[],nativePromptDecisionQualified:false,
     hiddenInformationSafeForWholeGame:false,
     competitiveGameQualified:false,
     scope:'One held shuffle-draw Supporter after an existing actor-only Pass; all unmodified bot prompts remain unqualified'};
@@ -71,6 +82,21 @@ function withActorOnlyLillieAfterPass(run,deps={}){
     if(seat!==0&&seat!==1||state.activePlayer!==seat||
       state.prompts?.some(p=>p.result===undefined))return native;
     const view=observe(state,seat);
+    const exclusion=lillieExclusionReason(view);
+    audit.passRootObservations++;
+    const key=exclusion??'eligible';
+    audit.passRootReasonCounts[key]=(audit.passRootReasonCounts[key]??0)+1;
+    if(audit.passRootSamples.length<16||
+      (view.ownHand.includes(LILLIE)&&audit.passRootSamples.length<32)){
+      audit.passRootSamples.push({
+        seat,globalTurn:view.globalTurn,deckCount:view.ownPublic.deckCount,
+        prizeCount:view.ownPublic.prizeCount,
+        handCount:view.ownHand.length,
+        heldLillie:view.ownHand.includes(LILLIE),
+        supporterPlayedTurn:view.ownTurnResources.supporterPlayedTurn,
+        reason:key
+      });
+    }
     const intent=chooseLillieAfterPass(view);
     if(!intent)return native;
     const action=new PlayCardAction(state.players[seat].id,intent.handIndex,{
@@ -120,5 +146,5 @@ function withActorOnlyLillieAfterPass(run,deps={}){
     Object.defineProperty(Store.prototype,'dispatch',beforeDispatch);
   }
 }
-module.exports={VERSION,LILLIE,chooseLillieAfterPass,
+module.exports={VERSION,LILLIE,lillieExclusionReason,chooseLillieAfterPass,
   withActorOnlyLillieAfterPass};
