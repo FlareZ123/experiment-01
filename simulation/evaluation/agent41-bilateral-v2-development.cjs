@@ -320,6 +320,15 @@ function executeDevelopment(trial,candidates,{
     row.declarations?.length && row.settled?.after);
   const sourceFirst=game.firstTurnSlot===sourceSeat;
   const rootTrace=game.rootActionLedger||[];
+  // Independent postgame parser: count actual source/candidate G&H Play roots
+  // and immediately following native SelectOption roots for both v0 controls
+  // and the opt-in resolver. This cannot alter any gameplay decision.
+  const {sourceGuzmaChoices}=
+    require('../twinleaf/agent24-mandatory-source-exposure.cjs');
+  const sourceGuzmaModalEvidence=sourceGuzmaChoices(
+    game.decisionTrace||[],sourceSeat);
+  const candidateGuzmaModalEvidence=sourceGuzmaChoices(
+    game.decisionTrace||[],candidateSeat);
   const passiveEvidence=initializationWindow?
     require('./agent41-passive-rank6-pressure.cjs')
       .rank6PassivePressureEvidence(initializationWindowAudit,rootTrace,{
@@ -393,6 +402,20 @@ function executeDevelopment(trial,candidates,{
     // Never give the real deck membership to a pre-search K0 policy.
     candidateOwnDeckSelectionEvidence,
     policyAudit:commonAudit,sourceAudit,sourceLinePacket,
+    supporterModalEvidence:{
+      schema:'agent41-native-guzma-modal-both-seats-postgame-v1',
+      source:sourceGuzmaModalEvidence,
+      candidate:candidateGuzmaModalEvidence,
+      sourceObservedModalCount:sourceGuzmaModalEvidence.filter(row=>
+        row.nativeOptionObserved).length,
+      sourceNullModeCount:sourceGuzmaModalEvidence.filter(row=>
+        row.modeResultIsNull===true).length,
+      candidateObservedModalCount:candidateGuzmaModalEvidence.filter(row=>
+        row.nativeOptionObserved).length,
+      candidateNullModeCount:candidateGuzmaModalEvidence.filter(row=>
+        row.modeResultIsNull===true).length,
+      competitiveDecisionQualified:false
+    },
     candidatePostChoicePassProbe:passEvidence.summary,
     candidatePassProbeSamples:passEvidence.samples,
     candidatePerfectionPassSamples:passEvidence.perfectionSamples,
