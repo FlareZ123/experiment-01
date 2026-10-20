@@ -12,6 +12,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      - name: Check native RNG parity and owner-known-top information boundaries
+        run: node --test tests/native-policy-random-tape.test.cjs tests/native-same-world-tape-parity.test.cjs tests/native-tape-hidden-order-contrast.test.cjs
       - name: Initialize pinned upstream submodule
         run: git submodule update --init --depth=1 vendor/twinleaf
       - uses: actions/setup-node@v4
