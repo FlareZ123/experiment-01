@@ -9,6 +9,8 @@ const {planAichi}=require('./aichi-pilot.cjs');
 const {loadNewMoonCandidate}=require('../../scripts/aichi-new-moon-candidate.cjs');
 const {withFarewellInsteadOfFirstPass}=
   require('../twinleaf/newmoon-rank6-farewell-counterfactual.cjs');
+const {attestFarewellPair}=
+  require('./agent25-rank6-farewell-pair-attestation.cjs');
 
 const root=path.resolve(__dirname,'../..');
 const trialId='6:0:A:new-moon-lockbreaker-v1';
@@ -36,6 +38,23 @@ function run() {
   const prepared=new Map([[trial.candidateId,{plan}]]);
   const headless=require('../twinleaf/headless.cjs');
   const original=headless.runMatch;
+  // Re-execute the unchanged source-dealt control at this very revision.
+  // The archived SHA alone cannot prove the fork's pre-intervention history.
+  let baselineActual=null;
+  let baselineRecord=null;
+  let baselineError=null;
+  headless.runMatch=request=>{
+    baselineActual=original(request);
+    return baselineActual;
+  };
+  try {
+    baselineRecord=executeArm(trial,prepared);
+  }catch(e) {
+    baselineError=String(e?.stack||e);
+  }finally {
+    headless.runMatch=original;
+  }
+  assert.ok(baselineActual,'The unchanged baseline did not return a game');
   let actual=null;
   let audit=null;
   headless.runMatch=request=>{
@@ -66,6 +85,11 @@ function run() {
     e.turnBefore>=3&&e.turnBefore<=5);
   const ability=actual.abilityTrace.filter(x=>
     x.seat===0&&x.turn===3&&x.name==='Farewell Letter');
+  const pairedRootAttestation=attestFarewellPair(baselineActual,actual,{
+    seat:0,turn:3,
+    archivedRootSha256:
+      '9a9007f302a6e84084eb75c77f0a86db0e037c58384d7ff2076de828ba0ba913'
+  });
   return {
     schema:'agent25-rank6-farewell-live-source-counterfactual-v1',
     historicalSelectedDeal:true,
@@ -74,6 +98,15 @@ function run() {
     originalRootActionLedgerSha256:'9a9007f302a6e84084eb75c77f0a86db0e037c58384d7ff2076de828ba0ba913',
     opponentRank:6,trialId,seed:trial.seed,
     policyAudit:audit,
+    pairedRootAttestation,
+    baselineError,
+    baselineOutcome:baselineRecord?{
+      status:baselineRecord.status,
+      actions:baselineRecord.actions,
+      turns:baselineRecord.turns,
+      engineWinner:baselineRecord.engineWinner,
+      prizesRemaining:baselineRecord.prizesRemaining
+    }:null,
     sourcePolicyAudit:record?.sourcePolicyAudit??null,
     firstRealFarewellAbilityCount:ability.length,
     firstRealFarewellAbilities:ability,
