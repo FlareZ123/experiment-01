@@ -133,7 +133,7 @@ function withFarewellInsteadOfFirstPass(execute,{seat,turn}) {
   SimpleTacticsAi.prototype.decodeNextAction=handler;
   try {
     return {result:execute(),policyAudit:{
-      schema:'agent25-retrospective-farewell-instead-of-pass-v1',
+      schema:'agent25-retrospective-farewell-instead-of-pass-v2',
       requestedTurn:turn,candidateSeat:seat,submitted,
       settlement,
       events,competitivePolicyQualified:false
