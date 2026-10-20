@@ -62,6 +62,8 @@ function compareNativeHiddenDeckOrder(args) {
     'Native parity failed same-world action matching');
   assert.equal(parity.replayError,null,
     'Native parity contains a replay failure');
+  assert.strictEqual(parity.replayDecisionRef,replayDecision,
+    'Native parity replay-policy callback identity mismatch');
   const report={
     schema:VERSION,actorSeat:seat,tapeDraws:tape.length,
     tapeSha256:digest(tape),sourceRootAtEntry:before,
