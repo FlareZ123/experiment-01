@@ -1,0 +1,27 @@
+name: Aichi printed defensive-wall threat audit
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  printed-threat-census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exact-source 29-list and English printing regression
+        run: node --test tests/aichi-printed-defence-exposure.test.cjs
+      - name: Preserve full registered-source static threat inventory
+        run: node scripts/aichi-printed-defence-exposure.cjs > aichi-printed-defence-census.txt
+      - name: Upload reproducible static inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-printed-defence-census
+          path: aichi-printed-defence-census.txt
+          if-no-files-found: warn
