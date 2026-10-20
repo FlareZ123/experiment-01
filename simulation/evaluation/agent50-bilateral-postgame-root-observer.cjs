@@ -140,6 +140,9 @@ function withPostgameRootOrderProbe(
         // physical State only on the first generic tactic evaluation, before
         // its speculative score can run; preserve the Store decision.
         let attemptCount=0,finiteScoreCount=0,pending=null;
+        const nativeTrace=[];
+        const decisionStartFingerprint=target.nativeScoreTrace===true?
+          stateGraphFingerprint(state):null;
         const restorations=[];
         const ownerBot=this;
         const captureAtScore=()=>{
@@ -162,6 +165,13 @@ function withPostgameRootOrderProbe(
           }
           const owner=state.players.find(player=>player.id===actorId);
           pending={state:snapshot,options,captureError,
+            ...(decisionStartFingerprint?{
+              sourceStateChangedBeforeFirstScore:
+                decisionStartFingerprint.digest!==
+                  stateGraphFingerprint(state).digest,
+              sourceStartGraphDigest:decisionStartFingerprint.digest,
+              firstScoreSourceGraphDigest:stateGraphFingerprint(state).digest
+            }:{}),
             ownerRootVisible:{
               turn:state.turn,
               ownHandPrintings:owner?.hand?.cards?.map(card=>
@@ -184,6 +194,14 @@ function withPostgameRootOrderProbe(
                 const score=evaluate.apply(this,args);
                 attemptCount++;
                 if(Number.isFinite(score))finiteScoreCount++;
+                if(target.nativeScoreTrace===true)nativeTrace.push({
+                  tactic:this.constructor.name,
+                  actionType:args[2]?.constructor?.name??null,
+                  actionSignature:args[2]===undefined?
+                    null:JSON.stringify(args[2]),
+                  score:Number.isFinite(score)?score:null,
+                  undefinedScore:score===undefined
+                });
                 return score;
               }
             });
@@ -197,7 +215,10 @@ function withPostgameRootOrderProbe(
             captured={...pending,realAction:signature(action),
               chosenRootTurn:state.turn,
               actualScorerAttempts:attemptCount,
-              actualFiniteScores:finiteScoreCount};
+              actualFiniteScores:finiteScoreCount,
+              ...(target.nativeScoreTrace===true?{
+                actualNativeScoreTrace:nativeTrace
+              }:{})};
           }
           return action;
         } finally {
@@ -328,6 +349,13 @@ function withPostgameRootOrderProbe(
       chosenRootTurn:captured.chosenRootTurn,
       actualScorerAttempts:captured.actualScorerAttempts,
       actualFiniteScores:captured.actualFiniteScores,
+      ...(target.nativeScoreTrace===true?{
+        actualNativeScoreTrace:captured.actualNativeScoreTrace??[],
+        sourceStateChangedBeforeFirstScore:
+          captured.sourceStateChangedBeforeFirstScore??null,
+        sourceStartGraphDigest:captured.sourceStartGraphDigest??null,
+        firstScoreSourceGraphDigest:captured.firstScoreSourceGraphDigest??null
+      }:{}),
       ownerRootVisible:captured.ownerRootVisible
     }:{}),
     replayCommonPolicy:target.replayCommonPolicy===true,
