@@ -536,11 +536,15 @@ function runDevelopment({
     catch(error){
       const veto=error?.paperSupporterQuotaEvidence??
         error?.cause?.paperSupporterQuotaEvidence??null;
+      const nativeValidation=error?.nativeProposalValidationEvidence??
+        error?.cause?.nativeProposalValidationEvidence??null;
       rows.push({
         trial,status:veto?'paper-supporter-quota-veto':'engine-error',
         error:String(error?.stack||error),
         nativeSupporterQuotaQualified:veto?false:'unverified',
         paperSupporterDiscipline:veto,
+        ...(nativeProposalValidationAudit?{
+          nativeValidationAudit:nativeValidation}:{}),
         qualifiesForCompetitiveInference:false
       });
     }
