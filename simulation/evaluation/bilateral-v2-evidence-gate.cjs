@@ -149,6 +149,7 @@ function auditBilateralV2(plan,archive) {
     if(!row) {
       diagnostics.push({...arm,status:'missing',actualStarter:null,
         validStart:false,mechanicalBilateralWitness:false,
+        sourceFirstEarlyPressureWitness:false,
         sourceDealFingerprint:null,
         vetoes:['missing-attempt-evidence']});
       continue;
@@ -237,6 +238,11 @@ function auditBilateralV2(plan,archive) {
     const bilateralWitness=validStart&&sourcePressure&&firstCandidateReply&&
       sourceContinuation&&chronological&&immediateTurnLineage&&
       row.status!=='engine-error';
+    // A qualifying early hard-pressure comparison requires the source to
+    // start the physical game and establish its witnessed effect on turn 1.
+    // This remains an asserted mechanics witness pending raw Store audit.
+    const sourceFirstEarlyPressureWitness=bilateralWitness&&
+      actualSeat===sourceSeat&&pressureTurn===1&&completionTurn===1;
     const vetoes=[];
     if(!validStart)vetoes.push('actual-first-player-unverified');
     if(row.status==='engine-error')vetoes.push('engine-error');
@@ -259,6 +265,7 @@ function auditBilateralV2(plan,archive) {
       actualStarter:validStart?(row.actualStarterSeat===arm.candidateSeat?
         'candidate':'source'):null,
       validStart,mechanicalBilateralWitness:bilateralWitness,
+      sourceFirstEarlyPressureWitness,
       immediateTurnLineage,candidateBonusTurnLineage,
       sourceDealFingerprint:digest(row.sourceDealFingerprint)?
         row.sourceDealFingerprint:null,
@@ -281,6 +288,8 @@ function auditBilateralV2(plan,archive) {
       firstObservationComparable:sourcePhysicalDealAligned&&actualStartAligned,
       bothBilateralWitnesses:x.mechanicalBilateralWitness&&
         y.mechanicalBilateralWitness,
+      bothSourceFirstEarlyPressureWitnesses:x.sourceFirstEarlyPressureWitness&&
+        y.sourceFirstEarlyPressureWitness,
       isolatedInventoryEffectCertified:false
     });
   }
@@ -318,6 +327,12 @@ function auditBilateralV2(plan,archive) {
   const bothHardRanksHavePairedBilateralWitnesses=[6,11].every(rank=>
     pairRows.some(pair=>pair.rank===rank&&pair.firstObservationComparable&&
       pair.bothBilateralWitnesses));
+  // Stronger pilot condition: later attacks or candidate-first pressure
+  // may be useful diagnostics, but cannot stand in for source-first early locks.
+  const bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses=
+    [6,11].every(rank=>pairRows.some(pair=>pair.rank===rank&&
+      pair.firstObservationComparable&&
+      pair.bothSourceFirstEarlyPressureWitnesses));
   return {
     schema:'aichi-bilateral-v2-intake-diagnostic-v1',
     registeredArms:arms.size,observedArms:rows.size,
@@ -327,12 +342,17 @@ function auditBilateralV2(plan,archive) {
     noPolicyProtocolDrift,
     bothHardRanksHaveBilateralWitnesses,
     bothHardRanksHavePairedBilateralWitnesses,
+    bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses,
     mechanicalBilateralWitnesses:mechanicalWitnesses,
     alignedPhysicalSourcePairs:pairRows.filter(p=>
       p.firstObservationComparable).length,
+    sourceFirstEarlyPressurePairs:pairRows.filter(p=>
+      p.firstObservationComparable&&
+      p.bothSourceFirstEarlyPressureWitnesses).length,
     byRank,pairs:pairRows,arms:diagnostics,
     opportunityAndPolicyVerdict:coverageComplete&&twoStartCoverageByCandidate&&
-      bothHardRanksHavePairedBilateralWitnesses?'MECHANICAL-PILOT-REVIEWABLE':
+      bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses?
+        'MECHANICAL-PILOT-REVIEWABLE':
         'HOLD-OR-INCOMPLETE',
     competitiveStrengthClaimPermitted:false,
     gameWinRateCertified:false,
