@@ -97,3 +97,5 @@ jobs:
           if-no-files-found: warn
       - name: Compare reproducible shared- and isolated-stream smoke games
         run: node simulation/twinleaf/smoke-test.cjs
+      - name: Verify native action proposal-to-Store original-game noninterference
+        run: node simulation/twinleaf/agent23-native-witness-smoke.cjs
