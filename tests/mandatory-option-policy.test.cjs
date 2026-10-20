@@ -157,3 +157,28 @@ test('headless mode + fail-closed option validation are versioned and composable
   assert.throws(()=>runMatch({...request,strictPromptValidation:false}),
     /Option legality gate requires strictPromptValidation:true/);
 });
+
+test('published source rank2 actual G&H: fail-closed guard rejects old null, corrected policy advances',()=>{
+  const {runMatch}=require('../simulation/twinleaf/headless.cjs');
+  const {resolveManifestFile}=require('../simulation/twinleaf/resolve-field.cjs');
+  const source=resolveManifestFile(path.resolve(__dirname,
+    '../results/aichi-2026/full-decklists.json'),{
+      allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
+    });
+  const byRank=new Map(source.decks.map(deck=>[deck.rank,deck]));
+  const [rank2,rank1]=[byRank.get(2),byRank.get(1)];
+  assert.ok(rank2?.playableUnderEngine&&rank1?.playableUnderEngine);
+  const fixture={
+    deckA:rank2.cardIds,deckB:rank1.cardIds,
+    seed:20261021,maxActions:90,
+    strictPromptValidation:true,enforceSelectOptionLegality:true,
+    supporterDecisionCorrection:true,isolatePolicyRandomness:true
+  };
+  assert.throws(()=>runMatch({...fixture,mandatoryOptionFallback:false}),
+    /invalid result to SelectOptionPrompt/);
+  const corrected=runMatch({...fixture,mandatoryOptionFallback:true});
+  assert.equal(corrected.enforceSelectOptionLegality,true);
+  assert.equal(corrected.mandatoryOptionFallback,true);
+  assert.ok(corrected.actions>31);
+  assert.ok(corrected.actions<=fixture.maxActions);
+});
