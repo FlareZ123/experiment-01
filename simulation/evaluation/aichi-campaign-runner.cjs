@@ -103,7 +103,8 @@ function turnProof(game) {
  * @param {{phase?:string,trialIds?:string[],maxTrials?:number,
  *   maxActions?:number,prepareCandidate?:(candidate:object)=>object,
  *   runMatch?:(request:object)=>object,matchOptions?:object,
- *   inputOrderProtocol?:'source-row-order-v1'|'reference-aligned-v1'}} options
+ *   inputOrderProtocol?:'source-row-order-v1'|'reference-aligned-v1',
+ *   captureInitialSourceDeal?:boolean}} options
  * @returns {object} Feasibility archive, never a performance certificate.
  */
 function executeCampaign(inputs, options = {}) {
@@ -117,6 +118,10 @@ function executeCampaign(inputs, options = {}) {
   const inputOrderProtocol = options.inputOrderProtocol || 'source-row-order-v1';
   if (!['source-row-order-v1','reference-aligned-v1'].includes(inputOrderProtocol)) {
     throw new Error('Unknown candidate input-order protocol.');
+  }
+  if(options.captureInitialSourceDeal!==undefined&&
+     typeof options.captureInitialSourceDeal!=='boolean') {
+    throw new Error('captureInitialSourceDeal must be a boolean.');
   }
   const maxTrials = options.maxTrials === undefined ? 2 : options.maxTrials;
   if (!Number.isInteger(maxTrials) || maxTrials < 1 || maxTrials > 1000) {
@@ -218,7 +223,10 @@ function executeCampaign(inputs, options = {}) {
       ...policyFlags,
       strictPromptValidation: true,
       isolatePolicyRandomness: true,
-      captureDecisionTrace: options.captureDecisionTrace === true
+      captureDecisionTrace: options.captureDecisionTrace === true,
+      ...(options.captureInitialSourceDeal===true ? {
+        captureInitialSourceDealFingerprintSeat:candidateA?1:0
+      } : {})
     };
     try {
       const game = play(request, trial);
@@ -243,6 +251,13 @@ function executeCampaign(inputs, options = {}) {
         game.postSuperAliasRepairIsolation === true;
       const requestedPolicyEchoValid = Object.entries(policyFlags)
         .every(([key, value]) => game[key] === value);
+      const observedSourceDeal=game.initialSourceDealFingerprint;
+      const sourceDealValid=options.captureInitialSourceDeal!==true || (
+        observedSourceDeal?.schema==='initial-source-physical-position-sha256-v1' &&
+        observedSourceDeal.seat===(candidateA?1:0) &&
+        typeof observedSourceDeal.digestSha256==='string' &&
+        /^[0-9a-f]{64}$/.test(observedSourceDeal.digestSha256)
+      );
       const terminal = game.finished === true && [0, 1, 3].includes(game.winner);
       const status = !validSeed ? 'engine-seed-mismatch' :
         !validHashes ? 'engine-deck-mismatch' :
@@ -251,11 +266,18 @@ function executeCampaign(inputs, options = {}) {
         !profileValid ? 'policy-profile-mismatch' :
         !cloneProfileValid ? 'simulator-profile-mismatch' :
         !requestedPolicyEchoValid ? 'match-policy-echo-mismatch' :
+        !sourceDealValid ? 'unverified-initial-source-deal' :
         !proof ? 'unverified-first-turn' :
           !terminal ? 'unfinished' : 'completed';
       const candidateSlot = candidateA ? 0 : 1;
       records.push({
         ...base, status, firstTurn: proof,
+        ...(options.captureInitialSourceDeal===true ? {
+          initialSourceDealFingerprint:sourceDealValid?{
+            schema:observedSourceDeal.schema,seat:observedSourceDeal.seat,
+            digestSha256:observedSourceDeal.digestSha256
+          }:undefined
+        } : {}),
         candidateInputOrder: {
           protocol:inputOrder.protocol,
           sourceInputHash:inputOrder.sourceInputHash,
@@ -327,6 +349,7 @@ function executeCampaign(inputs, options = {}) {
     researchRevision: process.env.GITHUB_SHA || null,
     expectedPolicyProfile,
     captureDecisionTrace: options.captureDecisionTrace === true,
+    captureInitialSourceDeal:options.captureInitialSourceDeal===true,
     purpose: 'exploratory-engine-feasibility',
     competitiveWinRateCertified: false,
     rulesAndBotCompetenceCertified: false,
