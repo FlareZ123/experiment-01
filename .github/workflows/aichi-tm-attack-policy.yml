@@ -58,6 +58,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank2_natural_sentinel_owner_carmine:
+        description: Verify exact naturally Active rank2 Stoutland turn7 opponent Carmine native denial
+        type: boolean
+        required: false
+        default: false
       rank2_independent_stoutland_source:
         description: Eight predeclared unmodified rank2 source seat and seed Stoutland reachability diagnostics
         type: boolean
@@ -181,6 +186,20 @@ jobs:
         with:
           name: agent40-sentinel-seeker-legal-owner-and-source-reply
           path: agent40-sentinel-seeker-legal-reply.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Validate natural rank2 Stoutland opponent Carmine owner-view contract
+        if: ${{ inputs.rank2_natural_sentinel_owner_carmine }}
+        run: node --test tests/agent40-natural-sentinel-owner-carmine.test.cjs
+      - name: Replay authentic unmodified rank2 source followed by natural owner-held Carmine native submission
+        if: ${{ inputs.rank2_natural_sentinel_owner_carmine }}
+        run: node simulation/twinleaf/agent40-natural-sentinel-owner-carmine.cjs > agent40-natural-sentinel-owner-carmine.json
+      - name: Archive natural owner Carmine direct native evidence including abort
+        if: ${{ always() && inputs.rank2_natural_sentinel_owner_carmine }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent40-natural-stoutland-owner-carmine-native
+          path: agent40-natural-sentinel-owner-carmine.json
           if-no-files-found: warn
           retention-days: 14
       - name: Verify natural Stoutland opponent-owner resource snapshot is read-only
