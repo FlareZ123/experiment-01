@@ -4,6 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {sourceVipAfterPassEligible, sourceVipActorEligible,
   sourceCologneAfterVipEligible,sourceSecondVipActorEligible,
+  sourceCompressorAfterKokoEligible,selectSourceCompressorCards,
   selectSourceVipBasics,selectSecondVipBasics,withSourceVipAfterPass} =
   require('../simulation/twinleaf/rank26-first-own-vip-after-pass.cjs');
 
@@ -185,4 +186,50 @@ test('second VIP search selects only real owner-deck Koko and legal additional E
   assert.deepEqual(selectSecondVipBasics(own,prompt,state),[egg]);
   prompt.cards.cards=[bunnelby];
   assert.deepEqual(selectSecondVipBasics(own,prompt,state),[]);
+});
+
+
+test('third missed Compressor offer cannot see opponent hidden zones or own deck',()=>{
+  const view={decisionKind:'owner-root',globalTurn:1,phase:3,
+    ownTurnResources:{itemPlayLocked:false},
+    ownHand:['Battle Compressor PHF','Carmine TWM'],
+    ownPublic:{active:{printing:'Bunnelby PRC'},bench:[
+      {printing:'Dedenne GX UNB'},{printing:'Meloetta ex SV11B'},
+      {printing:'Squawkabilly ex PAL'},{printing:'Exeggcute PLF'},
+      {printing:'Tapu Koko Prism Star TEU'}]},
+    opponentPublic:{active:{printing:'Iron Thorns ex TWM'}}};
+  assert.equal(sourceCompressorAfterKokoEligible(view,3),true);
+  const changed=structuredClone(view);
+  changed.opponentPublic.hiddenHand=['different opponent secret'];
+  changed.ownHiddenDeck=['a hypothetical prized Lightning'];
+  assert.equal(sourceCompressorAfterKokoEligible(changed,3),true);
+  changed.ownTurnResources.itemPlayLocked=true;
+  assert.equal(sourceCompressorAfterKokoEligible(changed,3),false);
+  changed.ownTurnResources.itemPlayLocked=false;
+  changed.ownPublic.bench[4]=null;
+  assert.equal(sourceCompressorAfterKokoEligible(changed,3),false);
+  changed.ownPublic.bench[4]={printing:'Tapu Koko Prism Star TEU'};
+  changed.ownHand=['Carmine TWM'];
+  assert.equal(sourceCompressorAfterKokoEligible(changed,3),false);
+  changed.ownHand=['Battle Compressor PHF'];
+  changed.globalTurn=2;
+  assert.equal(sourceCompressorAfterKokoEligible(changed,3),false);
+});
+
+test('Compressor owner prompt selects only physical Lightning and Egg references',()=>{
+  const lightning1={name:'Lightning Energy',fullName:'Lightning Energy MEE',id:1};
+  const lightning2={name:'Lightning Energy',fullName:'Lightning Energy MEE',id:2};
+  const egg={name:'Exeggcute',fullName:'Exeggcute PLF',id:3};
+  const other={name:'Bunnelby',fullName:'Bunnelby PRC',id:4};
+  const state={};
+  const prompt={cards:{cards:[egg,other,lightning2,lightning1]},
+    validate:group=>group.length<=3&&
+      group.every(card=>prompt.cards.cards.includes(card))};
+  assert.deepEqual(selectSourceCompressorCards(prompt,state),
+    [lightning2,lightning1,egg]);
+  assert.equal(prompt.cards.cards.length,4);
+  prompt.cards.cards=[egg,other,lightning1];
+  assert.deepEqual(selectSourceCompressorCards(prompt,state),[lightning1,egg]);
+  prompt.cards.cards=[other];
+  assert.deepEqual(selectSourceCompressorCards(prompt,state),[]);
 });
