@@ -12,6 +12,7 @@ const {withNativePaperSupporterDiscipline,VERSION}=
 const {installOriginalStateNoninterferenceGate}=
   require('./original-state-noninterference-gate.cjs');
 const {installNativeSupporterProposalValidationTrace}=require('./native-supporter-proposal-validation-observer.cjs');
+const {installNativeOwnerAliasObserver}=require('./agent38-native-owner-alias-observer.cjs');
 const {TIER_NAMES}=require('../../scripts/aichi-thorns-crossrank-opening.cjs');
 
 const SEED=2966203069;
@@ -92,14 +93,17 @@ function main() {
   const guard=installOriginalStateNoninterferenceGate(SimpleTacticsAi,{
     failOnMutation:false,maxExamples:12
   });
+  const aliases=installNativeOwnerAliasObserver(SimpleTacticsAi);
   const proposals=installNativeSupporterProposalValidationTrace(SimpleTacticsAi,PlaySupporterTactic);
-  let observed,readOnlyAudit,proposalValidationAudit;
+  let observed,readOnlyAudit,proposalValidationAudit,ownerAliasAudit;
   try {
     observed=execute();
     readOnlyAudit=guard.report;
     proposalValidationAudit=proposals.report;
+    ownerAliasAudit=aliases.report;
   } finally {
     proposals.restore();
+    aliases.restore();
     guard.restore();
   }
   const gameA=baseline.result.result;
@@ -121,6 +125,7 @@ function main() {
         supporterTurnBefore:row.supporterTurnBefore})),
     proposalIntegrity:decision,
     nativeProposalValidationTrace:proposalValidationAudit,
+    nativeOwnerAliasAudit:ownerAliasAudit,
     competitiveQualifiedGames:0
   };
   process.stdout.write(JSON.stringify(report,null,2)+'\n');
