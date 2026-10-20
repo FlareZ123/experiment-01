@@ -18,6 +18,25 @@ test('printed 60 is order independent while copy counts and IDs matter',()=>{
   assert.throws(()=>canonicalPrinted60([rows[0]],identity),/exactly 60/);
 });
 
+test('splitting one exact printing into repeated rows preserves physical 60',()=>{
+  const identity=row=>[row.name,row.id];
+  const unsplit=[{count:58,name:'Energy',id:'basic-P'},
+    {count:2,name:'Tool',id:'collector-XYZ'}];
+  const split=[{count:29,name:'Energy',id:'basic-P'},
+    {count:2,name:'Tool',id:'collector-XYZ'},
+    {count:29,name:'Energy',id:'basic-P'}];
+  const x=canonicalPrinted60(unsplit,identity);
+  const y=canonicalPrinted60(split,identity);
+  assert.equal(x.sha256,y.sha256);
+  assert.equal(x.uniqueRows,2);
+  assert.equal(y.uniqueRows,2);
+  assert.equal(x.total,60);
+  assert.equal(y.total,60);
+  const altered=[{count:57,name:'Energy',id:'basic-P'},
+    {count:3,name:'Tool',id:'collector-XYZ'}];
+  assert.notEqual(x.sha256,canonicalPrinted60(altered,identity).sha256);
+});
+
 test('code source digest includes transitive named adapters and changes with options',()=>{
   const one=policyCommitment(CANDIDATE_FILES,{version:'A'});
   const again=policyCommitment(CANDIDATE_FILES.slice().reverse(),{version:'A'});
