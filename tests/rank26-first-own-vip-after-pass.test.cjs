@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const {sourceVipAfterPassEligible, sourceVipActorEligible,
   sourceCologneAfterVipEligible,sourceSecondVipActorEligible,
   sourceCompressorAfterKokoEligible,selectSourceCompressorCards,
+  sourceKokoNativePostcondition,
   selectSourceVipBasics,selectSecondVipBasics,withSourceVipAfterPass} =
   require('../simulation/twinleaf/rank26-first-own-vip-after-pass.cjs');
 
@@ -232,4 +233,26 @@ test('Compressor owner prompt selects only physical Lightning and Egg references
   assert.deepEqual(selectSourceCompressorCards(prompt,state),[lightning1,egg]);
   prompt.cards.cards=[other];
   assert.deepEqual(selectSourceCompressorCards(prompt,state),[]);
+});
+
+
+test('Koko proof requires actual Lost Zone card and two distinct Bench Energy zones',()=>{
+  const energy=()=>({name:'Lightning Energy'});
+  const own={
+    lostzone:{cards:[]},discard:{cards:[energy(),energy()]},
+    bench:[slot('Meloetta ex'),slot('Dedenne GX'),slot(null),slot(null),slot(null)]
+  };
+  own.bench.forEach(s=>{s.energies={cards:[]};});
+  assert.equal(sourceKokoNativePostcondition(own).prismInLostZone,false);
+  own.lostzone.cards.push({name:'Tapu Koko Prism Star'});
+  own.discard.cards=[];
+  own.bench[0].energies.cards=[energy()];
+  own.bench[1].energies.cards=[energy()];
+  const result=sourceKokoNativePostcondition(own);
+  assert.equal(result.prismInLostZone,true);
+  assert.equal(result.recipientCount,2);
+  assert.equal(result.lightningAttached,2);
+  assert.equal(result.discardLightning,0);
+  own.bench[1].energies.cards=[];
+  assert.equal(sourceKokoNativePostcondition(own).recipientCount,1);
 });
