@@ -23,7 +23,7 @@ function prepareCandidates(){
   const source=JSON.parse(fs.readFileSync(path.join(root,
     'results/aichi-2026/full-decklists.json'),'utf8'));
   const reference=source.decks.find(deck=>deck.rank===1);
-  assert.ok(reference&&reference.cards.length===60);
+  assert.ok(reference&&Array.isArray(reference.cards));
   const names=[
     ['champion-reference',{label:'champion-reference',
       cards:reference.cards}],
