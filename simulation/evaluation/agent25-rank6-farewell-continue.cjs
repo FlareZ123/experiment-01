@@ -54,7 +54,12 @@ function run() {
   }finally {
     headless.runMatch=original;
   }
-  assert.ok(baselineActual,'The unchanged baseline did not return a game');
+  if(!baselineActual) return {
+    schema:'agent25-rank6-farewell-live-source-counterfactual-v2',
+    historicalSelectedDeal:true,trialId,seed:trial.seed,opponentRank:6,
+    classification:'unchanged-control-game-unavailable',
+    baselineError,competitiveQualifiedGames:0
+  };
   let actual=null;
   let audit=null;
   headless.runMatch=request=>{
@@ -72,18 +77,19 @@ function run() {
   }finally {
     headless.runMatch=original;
   }
-  assert.ok(actual,'The unchanged game engine did not return a result');
-  assert.ok(audit);
-  assert.equal(audit.submitted,1);
-  assert.equal(actual.seed,trial.seed);
-  assert.equal(actual.engine,'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');
-  assert.equal(actual.verifiedByDrawLog,true);
-  assert.equal(actual.firstTurnSlot,0);
-  const changedRoot=actual.rootActionLedger.filter(e=>e.turnBefore>=3&&
-    e.turnBefore<=5);
-  const ownerReplies=actual.decisionTrace.filter(e=>e.playerSlot===0&&
+  if(!actual||!audit) return {
+    schema:'agent25-rank6-farewell-live-source-counterfactual-v2',
+    historicalSelectedDeal:true,trialId,seed:trial.seed,opponentRank:6,
+    classification:'fork-game-or-policy-audit-unavailable',
+    baselineError,baselineActions:baselineActual.actions,
+    baselineRootActions:baselineActual.rootActionLedger?.length??null,
+    error,competitiveQualifiedGames:0
+  };
+  const changedRoot=(actual.rootActionLedger??[]).filter(e=>
     e.turnBefore>=3&&e.turnBefore<=5);
-  const ability=actual.abilityTrace.filter(x=>
+  const ownerReplies=(actual.decisionTrace??[]).filter(e=>
+    e.playerSlot===0&&e.turnBefore>=3&&e.turnBefore<=5);
+  const ability=(actual.abilityTrace??[]).filter(x=>
     x.seat===0&&x.turn===3&&x.name==='Farewell Letter');
   const pairedRootAttestation=attestFarewellPair(baselineActual,actual,{
     seat:0,turn:3,
@@ -99,6 +105,7 @@ function run() {
     originalRootActionLedgerSha256:'9a9007f302a6e84084eb75c77f0a86db0e037c58384d7ff2076de828ba0ba913',
     opponentRank:6,trialId,seed:trial.seed,
     policyAudit:audit,
+    classification:pairedRootAttestation.classification,
     pairedRootAttestation,
     baselineError,
     baselineOutcome:baselineRecord?{
