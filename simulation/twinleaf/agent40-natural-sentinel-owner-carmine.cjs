@@ -139,7 +139,10 @@ function replayArm(forceCarmine, deckA, deckB, {target = TARGET} = {}) {
         physicallyInHandBefore:inHandBefore,
         physicallyInHandAfter:this.state.players[OWNER_SEAT]
           .hand.cards.includes(card),
-        logDelta:this.state.logs.length-logsBefore
+        logDelta:this.state.logs.length-logsBefore,
+        unresolvedPromptClassesAfterRoot:this.state.prompts
+          .filter(prompt => prompt.result === undefined)
+          .map(prompt => prompt.constructor?.name ?? null)
       };
       return result;
     } catch(error) {
