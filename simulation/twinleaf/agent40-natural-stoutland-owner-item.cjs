@@ -39,14 +39,18 @@ function withOwnerItemPromptTrace(execute,StoreClass=null){
     if(!isOwnerTurn||!observing||events.length>=16)
       return prior.value.apply(this,args);
 
-    const ownerResourceView=()=>({
-      hand:owner.hand.cards.map(x=>x.fullName),
-      discard:owner.discard.cards.map(x=>x.fullName),
-      deckCount:owner.deck.cards.length,
-      supporterTurn:owner.supporterTurn,
-      sourceActive:state.players[SOURCE_SEAT].active
-        .getPokemonCard()?.fullName??null
-    });
+    const ownerResourceView=()=>{
+      const live=this.state;
+      const actor=live.players[OWNER_SEAT];
+      return {
+        hand:actor.hand.cards.map(x=>x.fullName),
+        discard:actor.discard.cards.map(x=>x.fullName),
+        deckCount:actor.deck.cards.length,
+        supporterTurn:actor.supporterTurn,
+        sourceActive:live.players[SOURCE_SEAT].active
+          .getPokemonCard()?.fullName??null
+      };
+    };
     const currentPrompt=state.prompts.find(x=>x.result===undefined);
     const ownerPendingPrompt=currentPrompt?.playerId===owner.id?
       currentPrompt:null;
