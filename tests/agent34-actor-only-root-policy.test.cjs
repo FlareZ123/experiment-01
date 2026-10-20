@@ -185,3 +185,76 @@ test('native root witness hashes public transitions without reading hidden card 
   assert.equal(advanced.publicZonesSha256,after.publicZonesSha256);
   assert.equal(publicDispatchState({state:null}),null);
 });
+
+test('actual Store wrapper attests an accepted owner Basic Energy zone mutation',()=>{
+  const card=fullName=>({fullName,name:fullName,hp:210,
+    stage:2,cardType:[5],retreat:[],weakness:[],resistance:[],
+    attacks:[{name:'Shadow Mist',cost:[5]}],powers:[]});
+  const pokemon=card('Shadow Rider Calyrex V CRE');
+  const occupied=()=>({
+    getPokemonCard:()=>pokemon,cards:[pokemon],damage:0,
+    specialConditions:[],energies:{cards:[]},tools:[]
+  });
+  const empty=()=>({
+    getPokemonCard:()=>null,cards:[],damage:0,
+    specialConditions:[],energies:{cards:[]},tools:[]
+  });
+  const player=(id,held)=>({
+    id,active:occupied(),bench:[occupied(),...Array.from({length:4},empty)],
+    hand:{cards:held.map(card)},deck:{cards:[]},prizes:[],
+    stadium:{cards:[]},discard:{cards:[]},
+    lostzone:{cards:[]},supporter:{cards:[]}
+  });
+  const state={players:[player(10,['Psychic Energy MEE']),player(20,[])],
+    activePlayer:0,turn:2,phase:3,prompts:[]};
+  class AddPlayerAction{}
+  class PlayCardAction{
+    constructor(id,handIndex,target){
+      this.id=id;this.handIndex=handIndex;this.target=target;
+    }
+  }
+  class AttackAction{constructor(id,name){this.id=id;this.name=name;}}
+  class PassTurnAction{constructor(id){this.id=id;}}
+  class Store{
+    constructor(){this.state=state;}
+    dispatch(action){
+      if(action instanceof PlayCardAction){
+        const owner=this.state.players.find(p=>p.id===action.id);
+        const energy=owner.hand.cards.splice(action.handIndex,1)[0];
+        owner.active.energies.cards.push(energy);
+      }
+      return true;
+    }
+  }
+  class SimpleTacticsAi{
+    constructor(id){this.client={id};}
+    decodeNextAction(){throw new Error('Hidden-State generic root used');}
+  }
+  const view=base();
+  view.ownHand=['Psychic Energy MEE'];
+  view.ownPublic.bench=[{},null,null,null,null];
+  const actual=withActorOnlyRootPolicy(()=>{
+    const store=new Store();
+    store.dispatch(new AddPlayerAction());
+    const intentAction=new SimpleTacticsAi(10).decodeNextAction(state);
+    assert.ok(intentAction instanceof PlayCardAction);
+    store.dispatch(intentAction);
+    return store.state;
+  },{
+    SimpleTacticsAi,Store,GamePhase:{FINISHED:999},
+    observe:()=>view,getCatalog:()=>catalog,
+    cardActions:{PlayCardAction,PlayerType:{BOTTOM_PLAYER:2},
+      SlotType:{ACTIVE:1,BENCH:2}},
+    gameActions:{AttackAction,PassTurnAction}
+  });
+  assert.equal(actual.audit.acceptedActorRoots,1);
+  assert.equal(actual.audit.publicTransitionWitnesses,1);
+  assert.equal(actual.audit.publicTransitionChanges,1);
+  assert.equal(actual.audit.nativePhysicalConfirmed,1);
+  assert.equal(actual.audit.nativePhysicalUnconfirmed,0);
+  assert.equal(actual.audit.nativeRootAcceptances[0].nativePhysicalEffect,
+    'confirmed-public-effect');
+  assert.deepEqual(state.players[0].active.energies.cards.map(x=>x.fullName),
+    ['Psychic Energy MEE']);
+  assert.equal(state.players[0].hand.cards.length,0);
+});
