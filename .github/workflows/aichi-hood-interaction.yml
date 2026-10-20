@@ -59,6 +59,11 @@ jobs:
       - name: Probe ordinary from-hand evolution
         if: inputs.agent1_evolution_stage_native
         run: node simulation/twinleaf/agent1-native-evolution-stage-probe.cjs
+      - name: Test actor-only guarded natural evolution frontier
+        if: inputs.agent1_evolution_stage_native
+        run: |
+          node --check simulation/twinleaf/agent1-actor-evolution-frontier.cjs
+          node --test tests/agent1-actor-evolution-frontier.test.cjs
       - name: Test Hood position with Iron Thorns and Tool Jammer
         run: node simulation/twinleaf/hood-vs-thorns.cjs
       - name: Test Megaton Blower Tool removal and compatibility hook
