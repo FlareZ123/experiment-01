@@ -41,12 +41,19 @@ function sourceFirstNativePressureVerified(row){
     const window=row.garbotoxinWindowAudit;
     const before=window?.before;
     const names=before?.candidatePrintedPowerNames;
-    const nativeBlocked=Array.isArray(names)&&names.length>0&&
-      (Array.isArray(before.candidatePrintedPowerChecks)?
-        before.candidatePrintedPowerChecks.some(power=>
-          power?.blocked===true&&names.includes(power.name)):
-        names.includes('New Moon')&&
-          before.candidatePrintedNewMoonBlocked===true);
+    // Prefer the newer full public board audit. The historical Active-only
+    // packet remains readable, but cannot attest a Benched-only block.
+    const fullChecks=before?.candidateInPlayPrintedPowerChecks;
+    const nativeBlocked=Array.isArray(fullChecks)?
+      fullChecks.some(power=>power?.blocked===true&&
+        typeof power.printing==='string'&&power.printing.length>0&&
+        typeof power.name==='string'&&power.name.length>0):
+      Array.isArray(names)&&names.length>0&&
+        (Array.isArray(before.candidatePrintedPowerChecks)?
+          before.candidatePrintedPowerChecks.some(power=>
+            power?.blocked===true&&names.includes(power.name)):
+          names.includes('New Moon')&&
+            before.candidatePrintedNewMoonBlocked===true);
     return pressure.pressureKind==='item-enabled-ability-lock' &&
       window?.schema==='agent41-authentic-rank11-garbotoxin-ability-window-v1' &&
       window.sourceSeat===pressure.actorSeat &&
