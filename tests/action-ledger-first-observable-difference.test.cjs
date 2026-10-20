@@ -68,3 +68,16 @@ test('different number of recorded decisions has an explicit null side', () => {
   assert.equal(d.treated,null);
   assert.equal(d.treatedOrdinal,null);
 });
+
+test('same chosen names with different source-deck indices do not imply different choices', () => {
+  const base=search('Psychic Energy MEE');
+  const a={...base,cardSelection:{...base.cardSelection,selectedIndices:[5]}};
+  const b={...base,cardSelection:{...base.cardSelection,selectedIndices:[8]}};
+  assert.equal(firstObservedDecisionDifference([a],[b]),null);
+});
+
+test('different declared decision turn is observable even if chosen action matches', () => {
+  const a=search('Psychic Energy MEE');
+  const b={...a,turnBefore:18};
+  assert.equal(firstObservedDecisionDifference([a],[b]).index,0);
+});
