@@ -5,6 +5,8 @@ const {createHash} = require('node:crypto');
 const {planAichi} = require('../evaluation/aichi-pilot.cjs');
 const {runMatch,initializeCards} = require('./headless.cjs');
 const {withSpentSupporterSearch} = require('./spent-supporter-search-policy.cjs');
+const {firstObservedDecisionDifference} =
+  require('../evaluation/action-ledger-first-observable-difference.cjs');
 const {summarize,actionSignature} =
   require('./hood-rank8-stone-policy-contrast.cjs');
 const {writeLockedArtifact} =
@@ -92,6 +94,7 @@ function main() {
   const firstDifferent=Array.from({
     length:Math.max(signaturesA.length,signaturesB.length)
   },(_,i)=>i).find(i=>signaturesA[i]!==signaturesB[i])??null;
+  const firstRepresented=firstObservedDecisionDifference(traceA,traceB);
   const compact=x=>({
     engine:x.engine,seed:x.seed,actions:x.actions,turns:x.turns,
     finished:x.finished,physicalWinner:x.finished?x.winner:null,
@@ -113,6 +116,7 @@ function main() {
     candidate60Digest:digest(request.deckB),
     intervention:'candidate-seat unrestricted owner-deck one-card prompt rank changes when Supporter spent',
     correctionAudit:adapted.audit,
+    firstRepresentedDecisionDifference:firstRepresented,
     firstDecisionSignatureDifference:firstDifferent,
     firstDifferentRootDecisions:firstDifferent===null?null:{
       original:traceA[firstDifferent]??null,corrected:traceB[firstDifferent]??null
@@ -140,6 +144,7 @@ if(require.main===module){
     native:result.baseline.starSearches,
     changed:result.corrected.starSearches,
     events:result.correctionAudit.events,
+    firstRepresented:result.firstRepresentedDecisionDifference,
     firstDifference:result.firstDecisionSignatureDifference,
     baselineOutcome:{finished:result.baseline.finished,
       prizes:result.baseline.prizesRemaining,actions:result.baseline.actions},
