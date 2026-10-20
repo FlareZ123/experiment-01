@@ -152,6 +152,9 @@ jobs:
           node --test tests/agent41-passive-rank6-pressure.test.cjs tests/agent39-live-initialization-window.test.cjs
       - name: Replay both fixed candidates with and without read-only native observer
         run: node simulation/evaluation/agent41-rank6-sourcefirst-passive-replay.cjs > rank6-native-sourcefirst.json
+      - name: Print bounded native rank6 summary
+        if: always()
+        run: node -e "const fs=require('node:fs');if(fs.existsSync('rank6-native-sourcefirst.json')){const x=require('./rank6-native-sourcefirst.json');console.log(JSON.stringify({valid:x.validation,aligned:x.candidateSourcePhysicalDealsIdentical,rows:x.rows?.map(y=>({candidate:y.candidateId,status:y.pressure?.status,blocked:y.pressure?.nativeCapabilitySuppressed,unchanged:y.baseline?.rootSha256===y.observed?.rootSha256}))}));}"
       - name: Archive all attempts, including pressure-absence and action caps
         if: always()
         uses: actions/upload-artifact@v4
