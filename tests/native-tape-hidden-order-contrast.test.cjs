@@ -104,6 +104,12 @@ test('source alias mutation invalidates an otherwise matching hidden contrast',(
     args.root.players[0].hand.push('ILLEGAL');
     return {kind:'PassTurnAction'};
   };
+  // This particular fixture intentionally tests post-authentication alias
+  // interference, so bind its changed synthetic callback to fresh metadata.
+  args.parity={...args.parity};
+  Object.defineProperty(args.parity,'replayDecisionRef',{
+    value:args.replayDecision,enumerable:false
+  });
   const report=compareNativeHiddenDeckOrder(args);
   assert.equal(report.sourceRootUnchanged,false);
   assert.equal(report.contrastExecutable,false);
