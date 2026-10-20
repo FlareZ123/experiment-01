@@ -181,3 +181,41 @@ test('native RNG recorder stays off when not requested or ordinal is absent',()=
   assert.equal(noTape.audit.verifiedUnchangedInputs,1);
   assert.equal(missed.audit.verifiedUnchangedInputs,1);
 });
+
+test('one anchored actor-only view digest stays invariant across a pure choice',()=>{
+  const f=fixture();
+  const {createHash}=require('node:crypto');
+  const actorViewDigest=(state,seat)=>createHash('sha256')
+    .update(JSON.stringify({globalTurn:state.turn,seat})).digest('hex');
+  const r=withNativeDecisionDispatchWitness(f.run,{
+    ...f,...codecs,tapeOrdinal:1,captureActorViewAtTape:true,
+    actorViewDigest
+  });
+  const tape=r.audit.nativePolicyTapes[0];
+  assert.equal(tape.ownerObservationPreserved,true);
+  assert.equal(tape.ownerObservationBeforeSha256,
+    tape.ownerObservationAfterSha256);
+  assert.match(tape.ownerObservationBeforeSha256,/^[0-9a-f]{64}$/);
+  assert.equal(tape.ownerK1HistoryAuthenticated,false);
+  assert.equal(tape.unchangedPortableInput,true);
+});
+
+test('actor-visible state mutation during choice invalidates view stability',()=>{
+  const f=fixture();
+  f.SimpleTacticsAi.prototype.decodeNextAction=function mutatingScore(state){
+    state.turn++;
+    return new PlayCardAction(0,{index:1});
+  };
+  const {createHash}=require('node:crypto');
+  const actorViewDigest=(state,seat)=>createHash('sha256')
+    .update(JSON.stringify({turn:state.turn,seat})).digest('hex');
+  const r=withNativeDecisionDispatchWitness(f.run,{
+    ...f,...codecs,tapeOrdinal:1,captureActorViewAtTape:true,
+    actorViewDigest
+  });
+  assert.equal(r.audit.nativePolicyTapes.length,1);
+  assert.equal(r.audit.nativePolicyTapes[0].ownerObservationPreserved,false);
+  assert.notEqual(r.audit.nativePolicyTapes[0].ownerObservationBeforeSha256,
+    r.audit.nativePolicyTapes[0].ownerObservationAfterSha256);
+  assert.equal(r.audit.sameWorldDecisionReplayQualified,false);
+});
