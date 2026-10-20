@@ -77,8 +77,11 @@ function compareNativeHiddenDeckOrder(args) {
     sourceRootUnchanged:false,actorObservationMatched:false,
     permutationChangedPhysicalOrder:false,deckCount:null,
     preservedKnownTopCount:knownTopCount,
-    ownerDeckKnownTopAuthenticated:knownTopCount>0&&
+    callerAssertsKnownTopVerified:knownTopCount>0&&
       args.knownTopVerified===true,
+    // A boolean caller assertion cannot replace an authenticated native
+    // owner-observation ledger. Keep the stronger qualification veto closed.
+    ownerDeckKnownTopAuthenticated:false,
     ownerK0K1HistoryAuthenticated:false,
     replayedAction:null,
     selectedActionChanged:false,
