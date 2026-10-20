@@ -48,7 +48,8 @@ function compareNativeHiddenDeckOrder(args) {
   // A successful parity result only certifies the exact root and RNG tape
   // from which it was computed. Reject stale or unrelated successes before
   // allowing any speculative hidden-world action comparison.
-  const before=fingerprint(root),tapeSha256=digest(tape);
+  // Retain a detached provenance snapshot if fingerprint() returns an object.
+  const before=structuredClone(fingerprint(root)),tapeSha256=digest(tape);
   assert.equal(parity.schema,'native-same-world-tape-parity-v1',
     'Native parity provenance schema mismatch');
   assert.deepStrictEqual(parity.rootAtEntry,before,
@@ -93,7 +94,7 @@ function compareNativeHiddenDeckOrder(args) {
   try {
     const world=cloneState(root);
     assert.ok(world&&typeof world==='object'&&world!==root);
-    assert.ok(isDeepStrictEqual(fingerprint(world),before),
+    assert.ok(isDeepStrictEqual(structuredClone(fingerprint(world)),before),
       'Detached hidden world does not match source root');
     const own=world.players[seat];
     const original=own?.deck?.cards;
@@ -124,7 +125,7 @@ function compareNativeHiddenDeckOrder(args) {
   } catch(error) {
     report.error=String(error?.message??error);
   } finally {
-    report.sourceRootAtExit=fingerprint(root);
+    report.sourceRootAtExit=structuredClone(fingerprint(root));
     report.sourceRootUnchanged=isDeepStrictEqual(
       before,report.sourceRootAtExit);
   }
