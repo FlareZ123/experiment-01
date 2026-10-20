@@ -42,3 +42,17 @@ test('read-only wrapper preserves action and restores original method',()=>{
   }finally{hook.restore();}
   assert.strictEqual(Bot.prototype.decodeNextAction,saved);
 });
+
+test('separates mutated detached Tool array from still-live player slot',()=>{
+  const s=state();
+  const r=inspectNativeOwnerAliases(s,()=>{
+    s.players[0].active.tools.push({fullName:'Handheld Fan TWM'});
+    s.players[0].active.tools=[];
+    return 'play-tool';
+  });
+  assert.equal(r.audit.publicToolsChanged,false);
+  assert.equal(r.audit.changedObjects,2);
+  assert.equal(r.audit.liveAliasMutatedObjects,2);
+  assert.equal(r.audit.liveAliasAtExit,1);
+  assert.ok(r.audit.examples.some(x=>x.livePlayerExitPath===null));
+});
