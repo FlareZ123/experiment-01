@@ -40,6 +40,14 @@ function observedOwnerZones(owner) {
       throw new TypeError('Missing owner-observable zone '+zone);
     zoneCounts[zone]=list.cards.length;
     for(const card of list.cards)printings.push(visiblePrinting(card));
+    // Pinned PokemonCardList.tools is a separate canonical physical zone.
+    // Energy indexed by slot.energies is already in slot.cards: count once.
+    if((zone==='active'||zone.startsWith('bench'))&&list.tools!==undefined){
+      if(!Array.isArray(list.tools))
+        throw new TypeError('Malformed owner Tool zone '+zone);
+      if(list.tools.length)zoneCounts[zone+'Tools']=list.tools.length;
+      for(const tool of list.tools)printings.push(visiblePrinting(tool));
+    }
   }
   return {printings:printings.sort(),zoneCounts};
 }
