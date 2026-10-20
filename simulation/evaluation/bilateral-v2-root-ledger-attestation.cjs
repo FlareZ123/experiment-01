@@ -90,11 +90,19 @@ function attestBilateralRootClaims(row,ledger,candidateSeat){
   // A bonus-turn grant must come from an actual native attack root.
   const grantIsAttack=Number.isSafeInteger(bonus?.grantRootActionOrdinal)&&
     ledger[bonus.grantRootActionOrdinal]?.action==='AttackAction';
+  // Prompt closure must descend from this actual attack. Prompt actors can
+  // be unowned or defender-owned, and unrelated later roots cannot close it.
+  const bonusClose=Number.isSafeInteger(bonus?.completionOrdinal)?
+    ledger[bonus.completionOrdinal]:null;
+  const bonusClosureRooted=Boolean(bonusClose&&
+    bonusClose.turnBefore===bonus?.completionTurnBefore&&
+    (bonus.completionOrdinal===bonus.grantRootActionOrdinal ||
+      (bonusClose.action==='ResolvePromptAction'&&
+        bonusClose.initiatingRootActionOrdinal===bonus.grantRootActionOrdinal)));
   const bonusTurnRootChain=Boolean(ordered&&bonus&&grantIsAttack&&
+    bonusClosureRooted&&
     rootMatches(bonus.grantRootActionOrdinal,candidateSeat,
       bonus.grantTurnBefore)&&
-    rootMatches(bonus.completionOrdinal,candidateSeat,
-      bonus.completionTurnBefore)&&
     rootMatches(bonus.nextOwnRootActionOrdinal,candidateSeat,
       bonus.nextOwnTurnBefore)&&
     bonus.grantRootActionOrdinal<=bonus.completionOrdinal&&
