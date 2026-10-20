@@ -86,6 +86,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank4_raichu_rope_pivot_source:
+        description: 'Rank4 source owner Escape Rope -> Raichu Active when both evolved and Special Energy ready'
+        required: false
+        type: boolean
+        default: false
       rank4_raichu_compressor_source:
         description: 'Opt-in rank-4 source owner-first Compressor to prep Special Energy, with paper min1 correction'
         required: false
@@ -134,7 +139,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify terminal-transition and campaign regressions
-        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/printed-basic-energy-audit.test.cjs tests/aichi-basic-covered-passes.test.cjs tests/aichi-benched-basic-pass-triage.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-pass-board-audit.test.cjs tests/aichi-campaign-execute.test.cjs tests/aichi-campaign-seed-v2.test.cjs tests/aichi-campaign-seed-v3.test.cjs tests/decision-hand-evidence.test.cjs tests/aichi-opening-decision-audit.test.cjs tests/aichi-campaign-quality-screen.test.cjs tests/aichi-root-action-ledger.test.cjs tests/tm-evolution-pass-evidence.test.cjs tests/bunnelby-k0-deck-target-leak.test.cjs tests/active-opening-pivot.test.cjs tests/attack-retreat-order.test.cjs tests/retreat-transition-evidence.test.cjs tests/pass-attack-announcement-probe.test.cjs tests/aichi-pass-attack-opportunities.test.cjs tests/prompt-integrity.test.cjs tests/electrode-opportunity-observer.test.cjs tests/agent45-rank4-position-summary.test.cjs tests/rank4-raichu-compressor-policy.test.cjs
+        run: node --test tests/terminal-transition.test.cjs tests/public-board-telemetry.test.cjs tests/printed-basic-energy-audit.test.cjs tests/aichi-basic-covered-passes.test.cjs tests/aichi-benched-basic-pass-triage.test.cjs tests/shadow-rider-psychic-attach.test.cjs tests/aichi-pass-board-audit.test.cjs tests/aichi-campaign-execute.test.cjs tests/aichi-campaign-seed-v2.test.cjs tests/aichi-campaign-seed-v3.test.cjs tests/decision-hand-evidence.test.cjs tests/aichi-opening-decision-audit.test.cjs tests/aichi-campaign-quality-screen.test.cjs tests/aichi-root-action-ledger.test.cjs tests/tm-evolution-pass-evidence.test.cjs tests/bunnelby-k0-deck-target-leak.test.cjs tests/active-opening-pivot.test.cjs tests/attack-retreat-order.test.cjs tests/retreat-transition-evidence.test.cjs tests/pass-attack-announcement-probe.test.cjs tests/aichi-pass-attack-opportunities.test.cjs tests/prompt-integrity.test.cjs tests/electrode-opportunity-observer.test.cjs tests/agent45-rank4-position-summary.test.cjs tests/rank4-raichu-compressor-policy.test.cjs tests/rank4-raichu-rope-pivot-policy.test.cjs
       - name: Install engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -169,6 +174,7 @@ jobs:
           AICHI_ELECTRO_RAIN_DAMAGE: ${{ inputs.electro_rain_damage_correction && '1' || '0' }}
           AICHI_ELECTRODE_PRIZE_TRADE: ${{ inputs.electrode_gx_prize_trade_policy && '1' || '0' }}
           AICHI_RANK4_COMPRESSOR: ${{ inputs.rank4_raichu_compressor_source && '1' || '0' }}
+          AICHI_RANK4_ROPE_PIVOT: ${{ inputs.rank4_raichu_rope_pivot_source && '1' || '0' }}
           AICHI_BATTLE_COMPRESSOR_MIN1: ${{ inputs.battle_compressor_positive_selection_correction && '1' || '0' }}
           AICHI_ELECTRODE_OPPORTUNITY: ${{ inputs.electrode_opportunity_observer && '1' || '0' }}
           AICHI_GRAND_TREE_TURN_GUARD: ${{ inputs.grand_tree_first_turn_guard && '1' || '0' }}
