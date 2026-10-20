@@ -325,12 +325,13 @@ function executeDevelopment(trial,candidates,{
   // and the opt-in resolver. This cannot alter any gameplay decision.
   const {sourceGuzmaChoices}=
     require('../twinleaf/agent24-mandatory-source-exposure.cjs');
-  const nativeDecisionTrace=Array.isArray(game.decisionTrace)?
-    game.decisionTrace:null;
-  const sourceGuzmaModalEvidence=nativeDecisionTrace?
-    sourceGuzmaChoices(nativeDecisionTrace,sourceSeat):null;
-  const candidateGuzmaModalEvidence=nativeDecisionTrace?
-    sourceGuzmaChoices(nativeDecisionTrace,candidateSeat):null;
+  assert.ok(Array.isArray(game.decisionTrace),
+    'Native game must contain requested actual-actor decision trace');
+  const nativeDecisionTrace=game.decisionTrace;
+  const sourceGuzmaModalEvidence=
+    sourceGuzmaChoices(nativeDecisionTrace,sourceSeat);
+  const candidateGuzmaModalEvidence=
+    sourceGuzmaChoices(nativeDecisionTrace,candidateSeat);
   const passiveEvidence=initializationWindow?
     require('./agent41-passive-rank6-pressure.cjs')
       .rank6PassivePressureEvidence(initializationWindowAudit,rootTrace,{
@@ -406,18 +407,18 @@ function executeDevelopment(trial,candidates,{
     policyAudit:commonAudit,sourceAudit,sourceLinePacket,
     supporterModalEvidence:{
       schema:'agent41-native-guzma-modal-both-seats-postgame-v1',
-      nativeDecisionTraceAvailable:nativeDecisionTrace!==null,
-      nativeDecisionTraceLength:nativeDecisionTrace?.length??null,
+      nativeDecisionTraceAvailable:true,
+      nativeDecisionTraceLength:nativeDecisionTrace.length,
       source:sourceGuzmaModalEvidence,
       candidate:candidateGuzmaModalEvidence,
-      sourceObservedModalCount:sourceGuzmaModalEvidence?.filter(row=>
-        row.nativeOptionObserved).length??null,
-      sourceNullModeCount:sourceGuzmaModalEvidence?.filter(row=>
-        row.modeResultIsNull===true).length??null,
-      candidateObservedModalCount:candidateGuzmaModalEvidence?.filter(row=>
-        row.nativeOptionObserved).length??null,
-      candidateNullModeCount:candidateGuzmaModalEvidence?.filter(row=>
-        row.modeResultIsNull===true).length??null,
+      sourceObservedModalCount:sourceGuzmaModalEvidence.filter(row=>
+        row.nativeOptionObserved).length,
+      sourceNullModeCount:sourceGuzmaModalEvidence.filter(row=>
+        row.modeResultIsNull===true).length,
+      candidateObservedModalCount:candidateGuzmaModalEvidence.filter(row=>
+        row.nativeOptionObserved).length,
+      candidateNullModeCount:candidateGuzmaModalEvidence.filter(row=>
+        row.modeResultIsNull===true).length,
       competitiveDecisionQualified:false
     },
     candidatePostChoicePassProbe:passEvidence.summary,
