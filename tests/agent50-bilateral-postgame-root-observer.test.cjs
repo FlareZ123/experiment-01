@@ -30,7 +30,8 @@ function state(overrides={}) {
 function scenario({candidateOverrides=false,root=state(),
   cloned=structuredClone,compare=null,replayPolicy=null,
   replayCommonPolicy=false,isolateReplayPolicyPerWorld=false,
-  nativeTapeSameWorld=false}={}) {
+  nativeTapeSameWorld=false,nativeTapeHiddenOrderContrast=false,
+  actorView=null}={}) {
   const normal=SyntheticBot.prototype.decodeNextAction;
   let gameFinished=false,actualCalls=0;
   const headless={
@@ -71,9 +72,11 @@ function scenario({candidateOverrides=false,root=state(),
   const observed=withPostgameRootOrderProbe(
     SyntheticBot,execute,cloned,
     {turn:3,seat:0,makeRandom:()=>()=>0.1,
-      replayCommonPolicy,isolateReplayPolicyPerWorld,nativeTapeSameWorld},
+      replayCommonPolicy,isolateReplayPolicyPerWorld,nativeTapeSameWorld,
+      nativeTapeHiddenOrderContrast},
     {headless,compare:checkedCompare,
-      ...(replayPolicy?{replayPolicy}:{})}
+      ...(replayPolicy?{replayPolicy}:{}),
+      ...(actorView?{actorView}:{})}
   );
   assert.strictEqual(SyntheticBot.prototype.decodeNextAction,normal);
   assert.strictEqual(headless.runMatch,untouched);
@@ -609,4 +612,38 @@ test('physically inconsistent captured deck clone is vetoed before any taped rep
   assert.match(observed.events[0].auditError,
     /Captured replay root differs from genuine physical State/);
   assert.equal(observed.result.action.play,'generic');
+});
+
+test('authentic-tape exploratory order contrast follows same-root parity',()=>{
+  const {observed}=scenario({
+    nativeTapeSameWorld:true,nativeTapeHiddenOrderContrast:true,
+    replayPolicy:(_seat,work)=>({result:work()}),
+    actorView:root=>({
+      turn:root.turn,
+      ownerDeckSize:root.players[0].deck.cards.length
+    }),
+    compare:()=>{throw new Error('Independent older comparator must not run');}
+  });
+  const event=observed.events[0];
+  assert.equal(event.nativeSameWorldTape.sameWorldDecisionParityQualified,true);
+  assert.equal(event.nativeHiddenOrderContrast.contrastExecutable,true);
+  assert.equal(event.nativeHiddenOrderContrast.actorObservationMatched,true);
+  assert.equal(event.nativeHiddenOrderContrast.selectedActionChanged,false);
+  assert.equal(event.nativeHiddenOrderContrast.informationSetLeakQualified,false);
+  assert.equal(event.counterfactualCompared,true);
+  assert.equal(event.actionSensitiveToHiddenDeckOrder,false);
+});
+
+test('exploratory contrast is withheld if native tape parity fails first',()=>{
+  const {observed}=scenario({
+    nativeTapeSameWorld:true,nativeTapeHiddenOrderContrast:true,
+    candidateOverrides:true,
+    replayPolicy:(_seat,work)=>({result:work()}),
+    actorView:()=>{throw Error('Actor view should never be built after a parity mismatch');}
+  });
+  const event=observed.events[0];
+  assert.equal(event.nativeSameWorldTape.sameWorldDecisionParityQualified,false);
+  assert.equal(event.nativeHiddenOrderContrast.contrastExecutable,false);
+  assert.match(event.nativeHiddenOrderContrast.error,/parity failed first/);
+  assert.equal(event.counterfactualCompared,false);
 });
