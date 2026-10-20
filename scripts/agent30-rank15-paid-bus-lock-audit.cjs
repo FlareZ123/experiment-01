@@ -11,6 +11,36 @@ function dualLockBoard(board) {
 }
 
 /**
+ * Confirm a zero-Active transition, actual Prize-selection prompt, and
+ * promotion from the full successful Store root window for one source KO.
+ * @param {object[]} events Real postdispatch owner/public observations.
+ * @param {number} turn Global turn of candidate attack.
+ * @param {string} prior Source Active expected before Knock Out.
+ * @param {string} promoted Newly promoted source Active.
+ * @returns {object} Auditable native prompt and board action ordinals.
+ */
+function sourceKnockoutWitness(events, turn, prior, promoted) {
+  const window = events.filter(x => x.turnBefore === turn);
+  const down = window.findIndex(x => x.before.active === prior &&
+    x.after.active === null);
+  assert.ok(down >= 0, `No ${prior} zero-Active witness on turn ${turn}`);
+  const prize = window.slice(down + 1).find(x =>
+    x.previousPrompt === 'ChoosePrizePrompt');
+  assert.ok(prize, `No real Prize prompt after ${prior} left play`);
+  const up = window.slice(down + 1).find(x =>
+    x.previousPrompt === 'ChoosePokemonPrompt' &&
+    x.before.active === null && x.after.active === promoted);
+  assert.ok(up, `Missing native ${promoted} promotion after KO`);
+  assert.ok(prize.rootOrdinal < up.rootOrdinal);
+  return {
+    turn, prior, promoted,
+    sourceActiveRemovedRootOrdinal: window[down].rootOrdinal,
+    prizePromptRootOrdinal: prize.rootOrdinal,
+    promotedRootOrdinal: up.rootOrdinal
+  };
+}
+
+/**
  * Independently audit native source-owned BUS promotion and its observable
  * continuation from the complete archived rank-15 retrospective JSON.
  * This measures a physical-board witness and action declarations; it cannot
@@ -74,6 +104,13 @@ function auditRank15PaidBusLock(packet) {
     x.turnBefore === 20 && x.action === 'PassTurnAction'),
     'No actual source return');
 
+  const controlKnockouts = [
+    sourceKnockoutWitness(control.ownerSourceWindow, 19,
+      'Bunnelby PRC', 'Eldegoss V RCL'),
+    sourceKnockoutWitness(control.ownerSourceWindow, 21,
+      'Eldegoss V RCL', 'Vileplume AOR')
+  ];
+
   return {
     schema: 'agent30-rank15-paid-bus-lock-temporal-audit-v1',
     enginePin: packet.enginePin,
@@ -92,6 +129,7 @@ function auditRank15PaidBusLock(packet) {
     sourceReturnTurn: 20,
     controlCandidateAttackDeclarations: control.nativeCandidateAttacks.map(
       x => ({turn: x.turnBefore, attack: x.attackName})),
+    controlNativeSourceKnockoutWitnesses: controlKnockouts,
     paidCandidateAttackDeclarations: paid.nativeCandidateAttacks.map(
       x => ({turn: x.turnBefore, attack: x.attackName})),
     paidComplete: paid.finished,
@@ -101,4 +139,5 @@ function auditRank15PaidBusLock(packet) {
   };
 }
 
-module.exports = {SCHEMA, dualLockBoard, auditRank15PaidBusLock};
+module.exports = {SCHEMA, dualLockBoard, sourceKnockoutWitness,
+  auditRank15PaidBusLock};
