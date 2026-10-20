@@ -224,6 +224,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [postSuperAliasRepairIsolation] Opt-in experimental source-graph reconciliation after the pinned Simulator constructor.
  * @property {boolean} [supporterDecisionCorrection] Opt-in, reversible correction for premature Supporter turn consumption.
  * @property {boolean} [mandatoryOptionFallback] Opt-in, both-seat noncancelable SelectOptionPrompt legality fallback; enabled default, not strategic mode selection.
+ * @property {boolean} [enforceSelectOptionLegality] Opt-in fail-closed native option-index/cancel validation, requires strictPromptValidation.
  * @property {boolean} [guzmaSelfSwitchGuard] Opt-in rank-6 off-type self-switch counterfactual.
  * @property {boolean} [dialgaBenchExposureGuard] Opt-in rank-6 gust-target exposure counterfactual.
  * @property {boolean} [leleEntryAbilityLockCorrection] Opt-in correction for Tapu Lele-GX Bench-entry Ability locks.
@@ -309,6 +310,10 @@ function policyRandomStreams(seed) {
  * @returns {object} Deterministic bounded match summary with trace counts and deck hashes.
  */
 function runMatch(request) {
+  if(request.enforceSelectOptionLegality===true &&
+      request.strictPromptValidation!==true){
+    throw new Error('Option legality gate requires strictPromptValidation:true');
+  }
   if(request.captureGladionRootChoiceContext===true &&
       request.captureGladionRootPrizeChoices!==true){
     throw new Error('Gladion context requires genuine root Prize-choice capture');
@@ -986,7 +991,9 @@ function runMatch(request) {
         }
       }
       if (request.strictPromptValidation === true) {
-        assertValidPromptAction(state, action);
+        assertValidPromptAction(state, action,{
+          enforceSelectOptionLegality:request.enforceSelectOptionLegality===true
+        });
       }
       const actionName = action.constructor.name;
       const rootedSoloSetupChoice = rootedSoloSetup &&
@@ -1476,6 +1483,7 @@ function runMatch(request) {
       templeUnlockRecovery: request.templeUnlockRecovery === true,
       supporterDecisionCorrection: request.supporterDecisionCorrection === true,
       mandatoryOptionFallback: request.mandatoryOptionFallback === true,
+      enforceSelectOptionLegality: request.enforceSelectOptionLegality === true,
       guzmaSelfSwitchGuard: request.guzmaSelfSwitchGuard === true,
       dialgaBenchExposureGuard: request.dialgaBenchExposureGuard === true,
       leleEntryAbilityLockCorrection: request.leleEntryAbilityLockCorrection === true,
@@ -1545,6 +1553,7 @@ function runMatch(request) {
           '+BattleCompressorMin1-paper-v1' : '') +
         (request.supporterDecisionCorrection === true ? '+SupporterDecisionGuard-v1' : '') +
         (request.mandatoryOptionFallback === true ? '+MandatoryOptionDefaultFallback-v1' : '') +
+        (request.enforceSelectOptionLegality === true ? '+SelectOptionLegalityGate-v1' : '') +
         (request.guzmaSelfSwitchGuard === true ? '+GuzmaSelfSwitchGuard-v1' : '') +
         (request.dialgaBenchExposureGuard === true ? '+DialgaBenchExposureGuard-v1' : '') +
         (request.templeUnlockRecovery === true ? '+TempleUnlockTactic-v1' : '') +
