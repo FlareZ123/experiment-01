@@ -146,4 +146,5 @@ function normalizeDeepClonePrototypes(source,copy) {
   visit(source,copy);
   return copy;
 }
-module.exports={normalizeDeepClonePrototypes,assertVendorCloneCompatibleSource};
+module.exports={normalizeDeepClonePrototypes,assertVendorCloneCompatibleSource,
+  stableClassPrototype};
