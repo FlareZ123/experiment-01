@@ -204,7 +204,8 @@ function executeDiagnostic(options) {
       const deckA = candidateA ? pair.candidateCards : pair.opponentCards;
       const deckB = candidateA ? pair.opponentCards : pair.candidateCards;
       const {attackBeforeRetreatCandidateOnly, toolAttackOpponentOnly,
-        rank4RaichuCompressorSource,...enginePolicyFlags} = policyFlags;
+        rank4RaichuCompressorSource,rank4RaichuRopePivotSource,
+        ...enginePolicyFlags} = policyFlags;
       const sourceCompressorSeat = rank4RaichuCompressorSource === true ?
         (candidateA ? 1 : 0) : null;
       const expectedLabel = 'Aichi comparative diagnostic ' + trial.trialId;
@@ -217,7 +218,9 @@ function executeDiagnostic(options) {
         ...(toolAttackOpponentOnly === true ?
           {toolAttackAwarenessSeat: candidateA ? 1 : 0} : {}),
         ...(sourceCompressorSeat===null?{}:{
-          rank4RaichuCompressorSeat:sourceCompressorSeat
+          rank4RaichuCompressorSeat:sourceCompressorSeat,
+          ...(rank4RaichuRopePivotSource===true?
+            {rank4RaichuRopePivotSeat:sourceCompressorSeat}:{})
         })
       });
       const expectedDeckHashes = [digest(deckA), digest(deckB)];
@@ -268,6 +271,9 @@ function executeDiagnostic(options) {
            game.battleCompressorPositiveSelectionCorrection === true &&
            typeof game.policy === 'string' &&
            game.policy.includes('+Rank4SourceCompressorSpecialEnergy-v1@seat'+sourceCompressorSeat))) &&
+        (rank4RaichuRopePivotSource!==true ||
+          (game.rank4RaichuRopePivotSeat===sourceCompressorSeat &&
+           game.policy.includes('+Rank4SourceRopeRaichuPivot-v1@seat'+sourceCompressorSeat))) &&
         !policyMismatch;
       if (!environmentValid) {
         records.push({
