@@ -1,0 +1,290 @@
+{
+  "status": "provisional-image-transcription-identity-and-printings-unverified",
+  "possibleSwissRank": 28,
+  "reportedHandle": "nnaacc5_uec",
+  "imageUrl": "https://assets.st-note.com/img/1778498104-f3i2b7OUhxcapD08QlB9ywrH.png?width=1200",
+  "sourceImageSha256": "3b23a6fb4daf9b1f537462d50611d6d2765bf0dc228338c3ddd0e41b97452cc9",
+  "archivedArtifactId": 12265475896,
+  "categoryTotals": {
+    "pokemon": 20,
+    "trainer": 30,
+    "energy": 10
+  },
+  "rowTotals": [
+    13,
+    8,
+    15,
+    11,
+    13
+  ],
+  "cardRows": [
+    {
+      "row": 1,
+      "col": 1,
+      "count": 4,
+      "name": "Regidrago V",
+      "category": "Pokémon"
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "count": 3,
+      "name": "Regidrago VSTAR",
+      "category": "Pokémon"
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "count": 1,
+      "name": "Dialga-GX",
+      "category": "Pokémon"
+    },
+    {
+      "row": 1,
+      "col": 4,
+      "count": 1,
+      "name": "Dragapult ex",
+      "category": "Pokémon"
+    },
+    {
+      "row": 1,
+      "col": 5,
+      "count": 1,
+      "name": "Koraidon ex",
+      "category": "Pokémon"
+    },
+    {
+      "row": 1,
+      "col": 6,
+      "count": 1,
+      "name": "Hisuian Goodra VSTAR",
+      "category": "Pokémon"
+    },
+    {
+      "row": 1,
+      "col": 7,
+      "count": 1,
+      "name": "Noivern ex",
+      "category": "Pokémon"
+    },
+    {
+      "row": 1,
+      "col": 8,
+      "count": 1,
+      "name": "Kyurem",
+      "category": "Pokémon"
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "count": 1,
+      "name": "Latias ex",
+      "category": "Pokémon"
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "count": 1,
+      "name": "Dedenne-GX",
+      "category": "Pokémon"
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "count": 1,
+      "name": "Tapu Lele-GX",
+      "category": "Pokémon"
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "count": 1,
+      "name": "Squawkabilly ex",
+      "category": "Pokémon"
+    },
+    {
+      "row": 2,
+      "col": 5,
+      "count": 1,
+      "name": "Budew",
+      "category": "Pokémon"
+    },
+    {
+      "row": 2,
+      "col": 6,
+      "count": 1,
+      "name": "Marshadow",
+      "category": "Pokémon"
+    },
+    {
+      "row": 2,
+      "col": 7,
+      "count": 1,
+      "name": "Wobbuffet",
+      "category": "Pokémon"
+    },
+    {
+      "row": 2,
+      "col": 8,
+      "count": 1,
+      "name": "Battle Compressor",
+      "category": "Trainer"
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "count": 3,
+      "name": "VS Seeker",
+      "category": "Trainer"
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "count": 3,
+      "name": "Mysterious Treasure",
+      "category": "Trainer"
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "count": 1,
+      "name": "Quick Ball",
+      "category": "Trainer"
+    },
+    {
+      "row": 3,
+      "col": 4,
+      "count": 2,
+      "name": "Ultra Ball",
+      "category": "Trainer"
+    },
+    {
+      "row": 3,
+      "col": 5,
+      "count": 1,
+      "name": "Hisuian Heavy Ball",
+      "category": "Trainer"
+    },
+    {
+      "row": 3,
+      "col": 6,
+      "count": 3,
+      "name": "Battle VIP Pass",
+      "category": "Trainer"
+    },
+    {
+      "row": 3,
+      "col": 7,
+      "count": 1,
+      "name": "Super Rod",
+      "category": "Trainer"
+    },
+    {
+      "row": 3,
+      "col": 8,
+      "count": 1,
+      "name": "Prime Catcher",
+      "category": "Trainer"
+    },
+    {
+      "row": 4,
+      "col": 1,
+      "count": 2,
+      "name": "Muscle Band",
+      "category": "Trainer"
+    },
+    {
+      "row": 4,
+      "col": 2,
+      "count": 2,
+      "name": "Professor Juniper",
+      "category": "Trainer"
+    },
+    {
+      "row": 4,
+      "col": 3,
+      "count": 1,
+      "name": "Lillie's Determination",
+      "category": "Trainer"
+    },
+    {
+      "row": 4,
+      "col": 4,
+      "count": 1,
+      "name": "Raihan",
+      "category": "Trainer"
+    },
+    {
+      "row": 4,
+      "col": 5,
+      "count": 1,
+      "name": "Iono",
+      "category": "Trainer"
+    },
+    {
+      "row": 4,
+      "col": 6,
+      "count": 1,
+      "name": "Crispin",
+      "category": "Trainer"
+    },
+    {
+      "row": 4,
+      "col": 7,
+      "count": 2,
+      "name": "Guzma",
+      "category": "Trainer"
+    },
+    {
+      "row": 4,
+      "col": 8,
+      "count": 1,
+      "name": "Marnie",
+      "category": "Trainer"
+    },
+    {
+      "row": 5,
+      "col": 1,
+      "count": 1,
+      "name": "Faba",
+      "category": "Trainer"
+    },
+    {
+      "row": 5,
+      "col": 2,
+      "count": 1,
+      "name": "Path to the Peak",
+      "category": "Trainer"
+    },
+    {
+      "row": 5,
+      "col": 3,
+      "count": 1,
+      "name": "Parallel City",
+      "category": "Trainer"
+    },
+    {
+      "row": 5,
+      "col": 4,
+      "count": 3,
+      "name": "Double Dragon Energy",
+      "category": "Energy"
+    },
+    {
+      "row": 5,
+      "col": 5,
+      "count": 3,
+      "name": "Basic Fire Energy",
+      "category": "Energy"
+    },
+    {
+      "row": 5,
+      "col": 6,
+      "count": 4,
+      "name": "Basic Grass Energy",
+      "category": "Energy"
+    }
+  ],
+  "printingNote": "English names provisional; R1C5 depicts Dragon-type Koraidon ex Kaiser Tackle 280 similar to English sv5-120; exact Japanese IDs still unverified.",
+  "verifiedExactRegistration": false
+}
