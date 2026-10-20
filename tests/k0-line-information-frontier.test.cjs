@@ -8,7 +8,8 @@ const {k0LineInformationFrontier}=require('../simulation/twinleaf/k0-line-inform
 function brute(input){
   const n=input.unknownPool.length;
   const numerators=input.plans.map(()=>0);
-  let after=0,denominator=0;
+  let after=0,afterRestricted=0,denominator=0;
+  const allowed=new Set(input.postObservationPlanIds??input.plans.map(x=>x.id));
   for(let mask=0;mask<(1<<n);mask++){
     let prized=0;
     for(let i=0;i<n;i++)prized+=(mask>>i)&1;
@@ -19,7 +20,7 @@ function brute(input){
       if(!((mask>>i)&1))
         available.set(printing,(available.get(printing)??0)+1);
     });
-    let best=0;
+    let best=0,bestRestricted=0;
     input.plans.forEach((plan,i)=>{
       const need=new Map();
       plan.requirements.forEach(req=>
@@ -29,10 +30,12 @@ function brute(input){
       const utility=fulfilled?plan.availableUtility:plan.missingUtility;
       numerators[i]+=utility;
       best=Math.max(best,utility);
+      if(allowed.has(plan.id))bestRestricted=Math.max(bestRestricted,utility);
     });
     after+=best;
+    afterRestricted+=bestRestricted;
   }
-  return {denominator,after,pre:Math.max(0,...numerators)};
+  return {denominator,after,afterRestricted,pre:Math.max(0,...numerators)};
 }
 
 test('two singleton alternative lines: full 60 with six unknown Prizes',()=>{
