@@ -55,12 +55,22 @@ function withRank15NativeBusRetreat(execute,seat){
     const before={turn:state.turn,retreatedTurn:actor.retreatedTurn,
       active:actor.active.getPokemonCard()?.fullName,
       activeEnergy:actor.active.energies.cards.map(c=>c.fullName),
+      activeSpecialConditions:actor.active.specialConditions.slice(),
+      sourceOwnerHand:actor.hand.cards.map(c=>c.fullName),
+      ownerManualEnergyAttachmentUsed:actor.energyPlayedTurn===state.turn,
+      ownerSupporterUsed:actor.supporterTurn===state.turn,
+      stadium:actor.stadium.cards.map(c=>c.fullName),
       bench:actor.bench.map(b=>b.getPokemonCard()?.fullName||null)};
     const action=new RetreatAction(actor.id,index);
     const valid=this.isValidAction(state,action);
     const after={turn:state.turn,retreatedTurn:actor.retreatedTurn,
       active:actor.active.getPokemonCard()?.fullName,
       activeEnergy:actor.active.energies.cards.map(c=>c.fullName),
+      activeSpecialConditions:actor.active.specialConditions.slice(),
+      sourceOwnerHand:actor.hand.cards.map(c=>c.fullName),
+      ownerManualEnergyAttachmentUsed:actor.energyPlayedTurn===state.turn,
+      ownerSupporterUsed:actor.supporterTurn===state.turn,
+      stadium:actor.stadium.cards.map(c=>c.fullName),
       bench:actor.bench.map(b=>b.getPokemonCard()?.fullName||null)};
     assert.deepEqual(after,before,'Native validation changed public/owned live state');
     offered=true;
