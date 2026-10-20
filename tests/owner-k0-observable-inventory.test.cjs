@@ -138,3 +138,40 @@ test('authentic owner knowledge epoch prevents false K0 after any search or full
     ...input(),knowledgeEpoch:{}
   }),/Authenticated owner knowledge epoch required/);
 });
+
+test('Tool-equipped owner K0 counts canonical attached Tools and Energy only once',()=>{
+  const owner=ownerFixture();
+  owner.active.tools=[card('N')];
+  owner.bench[0].tools=[card('O')];
+  // Pinned energies.cards is only a secondary index into active.cards.
+  owner.active.energies={cards:[owner.active.cards[1]]};
+  const result=ownerK0ObservableInventory({
+    owner,registered:[...registered,'N','O'],deckUnsearched:true
+  });
+  assert.deepEqual(result.pool,['J','K','L','M']);
+  assert.deepEqual(result.visibleZonePrintings,[...'ABCDEFGHI','N','O'].sort());
+  assert.equal(result.zoneCounts.activeTools,1);
+  assert.equal(result.zoneCounts.bench0Tools,1);
+  assert.equal(result.zoneCounts.active,2);
+  assert.equal(result.visibleZonePrintings.filter(x=>x==='G').length,1);
+});
+
+test('Tool-equipped K0 is invariant under concealed identity permutations',()=>{
+  const prepare=(deck,prizes)=>{
+    const owner=ownerFixture(deck,prizes);
+    owner.active.tools=[card('N')];
+    owner.bench[0].tools=[card('O')];
+    return ownerK0ObservableInventory({
+      owner,registered:[...registered,'N','O'],deckUnsearched:true
+    });
+  };
+  assert.deepEqual(prepare(['J','K'],['L','M']),
+    prepare(['M','L'],['K','J']));
+});
+
+test('malformed visible Tool zone is rejected before K0 belief construction',()=>{
+  const owner=ownerFixture();
+  owner.active.tools={cards:[card('N')]};
+  assert.throws(()=>observedOwnerZones(owner),
+    /Malformed owner Tool zone active/);
+});
