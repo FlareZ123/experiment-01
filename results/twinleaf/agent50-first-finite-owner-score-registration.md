@@ -28,7 +28,7 @@ This **will not** certify competitive game wins, opponent competence, cross-matc
 Research objective status at registration: **29/32 exact field source lists, zero competitively qualified games, 99.5% not demonstrated.**
 
 
-## Post-result diagnostic addendum, registered before a second compiled run (20 October, 02:26 UTC)
+## Post-result diagnostic addendum, registered before a second compiled run (20 October, 02:24 UTC)
 
 The first [completed v2 four-arm test](agent50-first-finite-owner-score-results.md) produced two valid rank11 scored-root negatives and **two rank6 policy baseline mismatches**. We now ask a narrower mechanical question: *would the fresh, detached generic bot's first proposed `PlayCardAction` be accepted by the genuine pinned Store when dispatched only on a full independent clone of the same real owner decision State?*
 
