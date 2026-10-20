@@ -127,7 +127,7 @@ if(require.main===module){
       validation:{passed:false,failures:['preparation-or-runner-exception']},
       qualification:{competitiveGameQualified:false}};
   }
-  process.stdout.write(JSON.stringify(result,null,2)+'\\n');
+  process.stdout.write(JSON.stringify(result,null,2)+'\n');
   if(!result.validation.passed)process.exitCode=1;
 }
 module.exports={SEED,FROZEN_ROOT,FROZEN_SOURCE_DEAL,run};
