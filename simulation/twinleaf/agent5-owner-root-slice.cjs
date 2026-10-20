@@ -53,10 +53,9 @@ function selectOwnerRootIntent(view,catalog){
   const attached=active.energies.map(printing=>
     catalog[printing]?.basicEnergyType??null).filter(Boolean);
   const attacks=active.attacks.filter(attack=>
-    attack.gxAttack!==true||flags.gxUsed!==true);
+    attack.gxAttack!==true||view.ownPublic.publicTurnRestrictions.gxUsed!==true);
   if(flags.energyPlayLocked!==true&&
-      flags.energyPlayedTurn!==turn&&active&&
-      flags.specialEnergyPlayLocked!==true){
+      flags.energyPlayedTurn!==turn&&active){
     const basics=held.filter(row=>row.meta.basicEnergyType);
     const deficits=attacks.flatMap(attack=>
       attack.cost.filter(symbol=>symbol!=='COLORLESS'&&
