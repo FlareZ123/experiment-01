@@ -1,5 +1,7 @@
 # Replica Regidrago source image: independent 60-card visual transcription (20 October 2026)
 
+**Erratum, 20 October (Agent 43):** Original R4C2 `2 Gladion` reading was incorrect. Primary photo matches `2 Professor Juniper`; independent official Japanese art comparison is documented in [Agent 3's visual disambiguation](agent3-rank28-photo-supporter-disambiguation.md). This repair changes both raw Supporter counts and conclusions previously drawn from an imagined pair of Gladion. All original Gladion-based opening and Prize statistics are superseded. Exact registration remains unverified.
+
 **Provenance status:** A photographed, internally complete Regidrago 60 was independently transcribed from the primary gallery image archived by Agent 3. This is a **candidate source list, not a verified official rank-28 registration**. Existing benchmark manifest coverage remains **29/32**; rankings 23, 25, and 28 remain unfilled. It establishes no game win-rate evidence.
 
 ## Primary evidence and archive
@@ -17,7 +19,7 @@
 | Pokémon | **20** | 4 Regidrago V; 3 Regidrago VSTAR; 1 Dialga-GX; 1 Dragapult ex; 1 Koraidon ex; 1 Hisuian Goodra VSTAR; 1 Noivern ex; 1 Kyurem; 1 Latias ex; 1 Dedenne-GX; 1 Tapu Lele-GX; 1 Squawkabilly ex; 1 Budew; 1 Marshadow; 1 Wobbuffet |
 | Items | **16** | 1 Battle Compressor; 3 VS Seeker; 3 Mysterious Treasure; 1 Quick Ball; 2 Ultra Ball; 1 Hisuian Heavy Ball; 3 Battle VIP Pass; 1 Super Rod; 1 Prime Catcher (ACE SPEC) |
 | Tools | **2** | 2 Muscle Band |
-| Supporters | **10** | 2 Gladion; 1 Lillie's Determination; 1 Raihan; 1 Iono; 1 Crispin; 2 Guzma; 1 Marnie; 1 Faba |
+| Supporters | **10** | 2 Professor Juniper; 1 Lillie's Determination; 1 Raihan; 1 Iono; 1 Crispin; 2 Guzma; 1 Marnie; 1 Faba |
 | Stadiums | **2** | 1 Path to the Peak; 1 Parallel City |
 | Special Energy | **3** | 3 Double Dragon Energy |
 | Basic Energy | **7** | 3 Fire Energy; 4 Grass Energy |
@@ -40,20 +42,20 @@ Independent **card-name multiset** comparison to the published exact 60 of **ran
 
 | Pictured source versus rank 10 | Counts |
 | --- | --- |
-| Add | +2 Gladion, +2 Ultra Ball, +1 Fire Energy, +1 Noivern ex, +1 Path to the Peak |
+| Add | +2 Professor Juniper, +2 Ultra Ball, +1 Fire Energy, +1 Noivern ex, +1 Path to the Peak |
 | Remove | -2 Professor's Research, -2 Quick Ball, -1 Budew, -1 Carmine, -1 Double Dragon Energy |
 
 Other photo name-multiset distances to published Regidrago ranks: **11** to ranks 13 and 21; **12** to rank 20; **14** to ranks 12 and 27; **15** to rank 14; **16** to rank 32; **17** to rank 18. Thus the recovered photograph represents a relatively close, potentially coverage-relevant **variation** of a tested reference archetype. Even such small changes can alter Supporter contention, prize recovery and attack access, so no matchup equivalence is inferred. The narrower 7-swap source proximity does not close the official rank-28 identity or Japanese printing validation gates.
 
 ## First-seven-card structural tradeoff versus verified rank 10
 
-The seven named card substitutions change two elementary opening-hand parameters. In the supplied English card pool, the corresponding Pokémon families confirm **14 Basic Pokémon** in the photograph versus **15 Basics** in exact source rank 10: one rank-10 Budew Basic is replaced by **Noivern ex Stage 1**, which Regidrago uses as a discard attack payload but cannot start as an Active Basic. The photographed deck also has only **three ordinary draw Supporters** (Iono, Marnie, Lillie's Determination), versus **six** in rank 10 (those three, two Professor's Research and one Carmine). Here a draw Supporter is classified by its ability to draw cards from the deck rather than retrieve Prizes, accelerate Energy or gust, without asserting that it is playable on every turn.
+The seven named card substitutions change two elementary opening-hand parameters. In the supplied English card pool, the corresponding Pokémon families confirm **14 Basic Pokémon** in the photograph versus **15 Basics** in exact source rank 10: one rank-10 Budew Basic is replaced by **Noivern ex Stage 1**, which Regidrago uses as a discard attack payload but cannot start as an Active Basic. The photographed deck has **five ordinary draw Supporters** (two Professor Juniper, Iono, Marnie, Lillie's Determination), versus **six** in rank 10 (Iono, Marnie, Lillie's Determination, two Professor's Research and Carmine). Here a draw Supporter is classified by its ability to draw cards from the deck rather than retrieve Prizes, accelerate Energy or gust, without asserting that it is playable on every turn.
 
 | Exact uniform seven-card starting-hand event | Published rank 10 | Photographed candidate |
 | --- | ---: | ---: |
 | Contains **no Basic Pokémon** (mulligan) | **11.75007947%** | **13.85906809%** |
-| Contains **at least one draw Supporter**, conditional on at least one Basic | **52.55085992%** | **30.21517410%** |
-| Contains **both** a Basic and a draw Supporter, unconditional | **46.37609212%** | **26.02763254%** |
+| Contains **at least one draw Supporter**, conditional on at least one Basic | **52.55085992%** | **45.76031922%** |
+| Contains **both** a Basic and a draw Supporter, unconditional | **46.37609212%** | **39.41836542%** |
 
 Calculation uses exact hypergeometric identities with 60 physical cards, opening seven, `B` Basic cards and `D` disjoint ordinary draw Supporters. With `P0(k) = C(60-k,7)/C(60,7)`:
 
@@ -61,21 +63,19 @@ Calculation uses exact hypergeometric identities with 60 physical cards, opening
 - `P(Basic and draw Supporter)=1-P0(B)-P0(D)+P0(B+D)`
 - `P(draw Supporter | Basic-valid seven)=[1-P0(B)-P0(D)+P0(B+D)]/[1-P0(B)]`
 
-Independent calculation used Python `math.comb`, and the pictured Basic subtype count was checked against all 15 corresponding English mechanical-example entries in the supplied complete card pool. This is a strict, **pre-effect opening-hand incidence**, before any mulligan bonus card draws, search, Pokémon Abilities, actual Supporter use, Prizes or gameplay. It does **not** measure deck consistency, first attack timing, or matchup strength. The photographed changes also add two Ultra Ball to support discarding extra Dragon payloads and two Gladion for Prize access, which may compensate in some states; no such compensation has been simulated or quantified. This illustrates why small name-level swap distances cannot justify calling two exact 60s strategically equivalent.
+Independent calculation used Python `math.comb`, and the pictured Basic subtype count was checked against all 15 corresponding English mechanical-example entries in the supplied complete card pool. This is a strict, **pre-effect opening-hand incidence**, before any mulligan bonus card draws, search, Pokémon Abilities, actual Supporter use, Prizes or gameplay. It does **not** measure deck consistency, first attack timing, or matchup strength. The photographed changes add two Ultra Ball to support discarding extra Dragon payloads. Juniper's discarding/drawing effect is functionally equivalent to the two Professor's Research in rank 10. Energy, a second Basic and different Item access patterns may still change effective setup under specific hands; these effects are unquantified. This illustrates why small name-level swap distances cannot justify calling two exact 60s strategically equivalent.
 
-## Exact six-Prize physical-availability calculation for the pictured Gladion allocation
+## Corrected Prize-card and Supporter-access facts for the photographed Juniper pair
 
-The photograph carries **one Prime Catcher (ACE SPEC)** and **two Gladion**. Under a uniformly random six-card Prize sample from a 60-card physical deck:
+The photograph shows **two Professor Juniper**, **zero Gladion**, and **one Prime Catcher ACE SPEC**. The previously published Gladion-to-Prize-recovery hypothesis has no basis in this photographed list and is withdrawn.
 
-- Probability that Prime Catcher itself is Prized: **10.000000%** (`6/60`).
-- Probability that Prime Catcher **and both Gladion** are simultaneously Prized: **0.05844535%** (`C(57,3)/C(60,6)`).
-- Conditional on Prime Catcher being Prized, the probability **at least one of two Gladion is outside the Prize cards**: **99.41554646%** (`1 - C(57,3)/C(59,5)`).
+Under uniformly random six-Prize sampling from a 60-card physical deck, Prime Catcher is Prized with probability **10%**, and both Professor Juniper are Prized with probability **0.84745763%** (exact ratio `C(58,4) / C(60,6)`). Simultaneously Prizing Prime Catcher and both Juniper is **0.05844535%**, although that coincidence no longer describes *any* Prize-recovery route: Juniper discards the hand to draw seven cards and cannot select a Prized ACE SPEC. These are card-location probabilities only. They do not imply gameplay access, tactical value, or wins.
 
-These exact combinatorial facts count the **location of three physical cards only**. They do not establish drawing/accessing a Gladion, having a Supporter action available, retrieving an ACE SPEC in time, or the game-winning value of Prime Catcher. Other Prize configurations can collapse the connector chain. The number is **not** a recovery rate or a matchup win rate. It motivates testing the two-Gladion swap in an AMR-aware decision model rather than treating the name-level seven swaps as tactically interchangeable.
+**Material tactical change:** relative to a two-Gladion conjecture, the actual two-Juniper allocation provides immediate hand-refresh options, at the cost of discarding the entire hand, and cannot directly recover a Prized singleton. Given discarded Dragons as Regidrago attack payloads, Juniper's discard can carry offensive value under available Energy and Supporter constraints. This qualitative hypothesis remains unmeasured. Rank 10 uses two `Professor's Research` in the matching slots; those share Juniper's discard-hand/draw-seven function, so a *function-grouped* comparison has **55 of 60 identical card copies** (five non-Professor substitutions), whereas exact card names share 53. Compare the relevant printed and deck-building rules before classifying the two names as physically interchangeable.
 
 ## Ranking identity hold
 
-Independent contemporaneous [community standings](https://pokekameshi.com/cl2026aichidec-extra/2/) quote this same @nnaacc5_uec account as **「予選28位トナメ1没」** (qualifying 28th, eliminated in first single-elimination round). The repository's [official placement field](field.csv) separately records **Jo Kato, Regidrago, final placement 28**. Matching the qualifying number and archetype is strong circumstantial evidence, but the official registered name and public account are not directly tied by a confirmed deck code, opponent record, or identifiable official deck registration. A further potential issue is qualifying rank versus final bracket rank. **Do not assert that this is Jo Kato's 60 or add this list to the exact rank-28 opponent manifest yet.**
+Independent contemporaneous [community standings](https://pokekameshi.com/cl2026aichidec-extra/2/) quote this same @nnaacc5_uec account as **「予選28位トナメ1没」** (qualifying 28th, eliminated in first single-elimination round). The repository's [official placement field](field.csv) separately records **Jo Kato, Regidrago, final placement 28**. Matching the qualifying number and archetype is strong circumstantial evidence, but the official registered name and public account are not directly tied by a confirmed deck code, opponent record, or identifiable official deck registration. The other community standings provide multiple independent rank/placement correspondence controls; the exact registration bridge remains unresolved. **Do not assert that this is Jo Kato's 60 or add this list to the exact rank-28 opponent manifest yet.**
 
 ## Recommended next check
 
