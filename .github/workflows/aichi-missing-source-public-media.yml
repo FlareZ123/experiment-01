@@ -21,7 +21,7 @@ jobs:
         run: node scripts/aichi-missing-rank-social-media.cjs "$RUNNER_TEMP/aichi-missing-source-media"
       - name: Show post and image verification status without card inference
         run: >-
-          node -e "const fs=require('node:fs');const path=require('node:path');const m=JSON.parse(fs.readFileSync(path.join(process.env.RUNNER_TEMP,'aichi-missing-source-media','manifest.json'),'utf8'));console.log(JSON.stringify({schema:m.schema,provenanceOnly:m.provenanceOnly,full60sRecovered:m.full60sRecoveredByAutomation,results:m.results.map(r=>({key:r.key,status:r.retrievalStatus,imageCount:r.photos.filter(p=>p.file).length,imagesWithErrors:r.photos.filter(p=>p.retrievalError).length,verified60:r.certifiedRanked60}))},null,2))"
+          node -e "const fs=require('node:fs');const path=require('node:path');const m=JSON.parse(fs.readFileSync(path.join(process.env.RUNNER_TEMP,'aichi-missing-source-media','manifest.json'),'utf8'));console.log(JSON.stringify({schema:m.schema,provenanceOnly:m.provenanceOnly,full60sRecovered:m.full60sRecoveredByAutomation,results:m.results.map(r=>({key:r.key,status:r.retrievalStatus,imageCount:r.photos.filter(p=>p.file).length,imagesWithErrors:r.photos.filter(p=>p.retrievalError).length,verified60:r.certifiedRanked60,originalPublicPhotoUrls:r.photos.map(p=>p.originalUrl),photoSha256:r.photos.map(p=>p.sha256||null)}))},null,2))"
       - name: Preserve immutable public images and nonpromoted metadata
         if: always()
         uses: actions/upload-artifact@v4
