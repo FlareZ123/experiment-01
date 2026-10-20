@@ -47,6 +47,36 @@ test('printed positive booleans cannot hide a wrong physical actor',()=>{
   assert.equal(r.sourceFirstTurnPressureAuthenticated,false);
 });
 
+test('unowned source prompt closure is authenticated by native initiating root',()=>{
+  const {ledger,row}=fixture();
+  // Real headless ShuffleDeckPrompt can resolve with physical actor -1.
+  ledger[1].playerSlot=-1;
+  ledger[1].initiatingRootActionOrdinal=0;
+  let r=attest(row,ledger,1);
+  assert.equal(r.pressureCompletion,true);
+  assert.equal(r.rootClaimsAuthenticated,true);
+  ledger[1].initiatingRootActionOrdinal=null;
+  r=attest(row,ledger,1);
+  assert.equal(r.pressureCompletion,false);
+  assert.equal(r.rootClaimsAuthenticated,false);
+});
+
+test('defender prompt closure must descend from source-owned initiator',()=>{
+  const {ledger,row}=fixture();
+  ledger[1].playerSlot=1;
+  ledger[1].initiatingRootActionOrdinal=0;
+  let r=attest(row,ledger,1);
+  assert.equal(r.rootClaimsAuthenticated,true);
+  ledger[0].playerSlot=1;
+  r=attest(row,ledger,1);
+  assert.equal(r.rootClaimsAuthenticated,false);
+  // An unrelated candidate-owned root cannot launder the closure.
+  ledger[0].playerSlot=0;
+  ledger[1].initiatingRootActionOrdinal=2;
+  r=attest(row,ledger,1);
+  assert.equal(r.rootClaimsAuthenticated,false);
+});
+
 test('wrong turn and wrong source continuation fail without inventing an attack',()=>{
   const {ledger,row}=fixture();
   row.sourcePressure.completionTurnBefore=2;
