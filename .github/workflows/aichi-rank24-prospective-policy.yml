@@ -26,7 +26,8 @@ jobs:
         run: |
           node --check simulation/twinleaf/rank24-thorns-three-arm-prospective.cjs
           node --check simulation/twinleaf/rank24-k1-search-regression.cjs
-          node --test tests/aichi-thorns-crossrank-opening.test.cjs tests/rank6-broad-thorns-policy.test.cjs
+          node --check simulation/twinleaf/owner-deck-search-witness.cjs
+          node --test tests/aichi-thorns-crossrank-opening.test.cjs tests/rank6-broad-thorns-policy.test.cjs tests/owner-deck-search-witness.test.cjs tests/owner-k1-deck-membership.test.cjs tests/owner-k0-observable-inventory.test.cjs
       - name: Install pinned engine packages
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
