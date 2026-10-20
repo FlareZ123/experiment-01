@@ -43,6 +43,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent6_source_pass_hand:
+        description: 'Retrospective source owner hand at genuine rank11 turn22 Pass, no strategy inference'
+        required: false
+        type: boolean
+        default: false
       common_bilateral_late_compressor_development:
         description: 'Historical later owner donor setup development only'
         required: false
@@ -164,18 +169,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 10
       - name: Check disjoint registered partition coverage and owner-hand payload policy
-        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window }}
+        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand }}
         run: node --test tests/newmoon-payload-partition-plan.test.cjs tests/new-moon-compressor-payload-policy.test.cjs
       - name: Execute same-deal control and Compressor intervention in one fixed partition
-        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window }}
+        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand }}
         env:
           NEWMOON_PAYLOAD_PARTITION: ${{ inputs.partition }}
         run: node simulation/twinleaf/newmoon-payload-partition-write.cjs
       - name: Compare early Bench-Mewtwo owner-donor preparation on historical repeat1
-        if: ${{ !inputs.common_bilateral_compressor_development && inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window }}
+        if: ${{ !inputs.common_bilateral_compressor_development && inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand }}
         run: node simulation/twinleaf/newmoon-rank11-benched-payload-retrospective.cjs > newmoon-bench-retrospective-repeat1.json
       - name: Archive historical repeat1 bench-donor policy contrast
-        if: ${{ !inputs.common_bilateral_compressor_development && inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && always() }}
+        if: ${{ !inputs.common_bilateral_compressor_development && inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && always() }}
         uses: actions/upload-artifact@v4
         with:
           name: newmoon-bench-retrospective-repeat1
@@ -183,7 +188,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 10
       - name: Preserve all source-deal attempts, including errors and action caps
-        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && always() }}
+        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && always() }}
         uses: actions/upload-artifact@v4
         with:
           name: newmoon-compressor-source-partition-${{ inputs.partition }}
@@ -255,11 +260,28 @@ jobs:
           if-no-files-found: warn
           retention-days: 10
 
+      - name: Pure-test historical owner source reply without compiling policy changes
+        if: inputs.agent6_source_pass_hand
+        run: |
+          node --check simulation/evaluation/agent6-rank11-source-reply-hand.cjs
+          node --test tests/agent6-rank11-source-reply-hand.test.cjs
+      - name: Replay original four unchanged late14 Store roots and observe real source turn22 owner hand
+        if: inputs.agent6_source_pass_hand
+        run: node simulation/evaluation/agent6-rank11-source-reply-hand.cjs > agent6-rank11-owner-pass.json
+      - name: Preserve diagnostic owner hand, source pass and all frozen root digests
+        if: ${{ always() && inputs.agent6_source_pass_hand }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-rank11-source-reply-owner-hand
+          path: agent6-rank11-owner-pass.json
+          if-no-files-found: warn
+          retention-days: 10
+
       - name: Execute source-first held-Shake transfer against both unchanged candidate 60s
-        if: inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window
+        if: inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand
         run: node simulation/evaluation/agent9-rank11-sourcefirst-lock-transfer.cjs > agent9-rank11-sourcefirst-lock-transfer.json
       - name: Archive all eight actual source-first pressure transfer arms, including no-lock and errors
-        if: ${{ always() && inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window }}
+        if: ${{ always() && inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand }}
         uses: actions/upload-artifact@v4
         with:
           name: agent9-rank11-sourcefirst-lock-transfer-development
