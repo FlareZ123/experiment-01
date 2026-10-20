@@ -50,12 +50,20 @@ function rank6CandidateApplicability(row,sourceSeat){
     e.examinedPrintedPowerCount<0){
     return 'unverified';
   }
-  // When the unabridged root ledger is present, reject a contradictory
-  // boundary instead of relying on the classification packet alone.
-  if(Array.isArray(row.rootActionLedger) &&
-    (row.rootActionLedger[end.ordinal]?.action!==end.action ||
-      row.rootActionLedger[reply.ordinal]?.action!==reply.action)){
-    return 'unverified';
+  // When full actual Store roots are attached, bind the claimed boundaries
+  // to real ordinal, seat, turn and action identities. Matching action names
+  // alone would accept an action performed by the wrong actor or on a
+  // different turn. Historical packets without roots remain descriptive.
+  if(Array.isArray(row.rootActionLedger)){
+    const matches=boundary=>{
+      const root=row.rootActionLedger[boundary.ordinal];
+      return root?.actionOrdinal===boundary.ordinal &&
+        root.playerSlot===boundary.seat &&
+        root.turnBefore===boundary.turn &&
+        root.action===boundary.action;
+    };
+    if(row.rootActionLedger.length!==row.rootActionCount ||
+      !matches(end)||!matches(reply))return 'unverified';
   }
   if(e.nativeCapabilitySuppressed===true &&
     e.examinedPrintedPowerCount>0 &&
