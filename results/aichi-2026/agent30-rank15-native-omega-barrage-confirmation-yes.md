@@ -27,6 +27,12 @@ In the confirmed arm, the first BUS snapshot reports opponent board `Bunnelby PR
 
 Each attack-declaration journal entry is explicitly labeled `resolutionStatus: not-independently-verified`, so report the corroborating post-prompt board transitions as separate evidence. Two Stage2 cards appearing on the post-resolution board are stronger mechanical evidence than the two declaration entries alone. The root-observer `dual` condition is precisely `AOR in play && BUS Active`, and was absent in the confirmed arm.
 
+## Printed-lock semantics: the two policy arms are tactically incomparable
+
+The supplied full-card database independently identifies **Vileplume AOR 3** (`xy7-3`) with **Irritating Pollen**, preventing *both players* from playing Item cards from hand **while that Ability is operative**; this Ability does not require Vileplume AOR to be Active. It identifies **Vileplume BUS 6** (`sm3-6`) with **Disgusting Pollen**, preventing the opponent's **Basic Pokémon from attacking only while BUS is Active**. These are distinct locks, and other Ability suppression, positioning and target-type constraints can make either inapplicable.
+
+Consequently the confirmed arm has a **potential Bench-based AOR Item lock already at turn16**, even though it never satisfies the *combined position condition* for BUS's Active-dependent Basic-attack lock. The declined arm instead reaches BUS Active at turn21 before acquiring AOR on turn32. Neither policy unconditionally dominates the other, and this archive does not independently attest each Ability's effective suppression of eligible opponent actions. The observer's `dual` flag is a board-position predicate, **not** a direct proof of opponent-denial strength.
+
 ## Interpretation and next discriminating gate
 
 This falsifies any **unconditional** claim that maximizing turn-16 Stage2 setup automatically maximizes lock exposure. The increased evolution tempo does not by itself establish opponent denial; Active-position control and subsequent decisions are required. The baseline's slower dual-board state and the enhanced arm's zero Active BUS incidence are outcomes of *different later, unqualified policy trajectories*. The first difference is the native confirmation at root150; this single controlled branch does **not** isolate the causal reason for all subsequent positioning differences.
