@@ -63,6 +63,12 @@ function main() {
   const thunder=source.cards.filter(fullName=>
     fullName.startsWith('Thunder Mountain Prism Star '));
   assert.equal(thunder.length,1,'Need exact singleton printed identity');
+  const tagTeamNames=['Guzma & Hala','Cynthia & Caitlin',
+    'Bellelba & Brycen-Man'];
+  const tagTeamPrintings=[...new Set(source.cards.filter(printing=>
+    tagTeamNames.some(name=>printing.startsWith(name+' '))))];
+  assert.equal(tagTeamPrintings.length,3,
+    'Published rank24 deck should register the three named TAG TEAM Supporters');
 
   const base={
     deckA:plan.candidate.cards,deckB:source.cards,
@@ -105,7 +111,8 @@ function main() {
     const ownerK1=createOwnerK1DeckMembership();
     const ownerK1Events=[];
     const witnessed=withOwnerDeckSearchWitness(
-      Store,1,thunder,experiment,({owner,prompt,rootOrdinal,globalTurn})=>{
+      Store,1,[...thunder,...tagTeamPrintings],experiment,
+      ({owner,prompt,rootOrdinal,globalTurn})=>{
         ownerEpoch.observeOwnerDeckSearch();
         const learned=ownerK1.observeSearch({owner,prompt,rootOrdinal});
         const stadium=ownerK1.requirementStatus([
@@ -124,6 +131,9 @@ function main() {
           ownerK1Epoch:learned.epoch,
           stadiumAvailability:stadium.status,
           stadiumAvailableCopies:ownerK1.lookup(thunder[0]).knownCopies,
+          tagTeamAvailableAtNativeSearch:tagTeamPrintings.map(printing=>({
+            printing,copies:ownerK1.lookup(printing).knownCopies
+          })),
           staleK0ClaimRejected:true
         });
       }
@@ -153,6 +163,7 @@ function main() {
     // Compare K1 alone, paper quota alone, and their composition on identical
     // physical source deals. The original unguarded K1 branch contains a
     // genuinely settled second Supporter; it cannot be a paper-valid control.
+    /** @param {boolean} k1Enabled Native K1 replanning policy toggle. */
     const guardedLine=(k1Enabled)=>{
       const run=withNativePaperSupporterDiscipline(
         ()=>withBroadThornsSourceAttack(()=>runMatch(request),{
@@ -329,7 +340,7 @@ function main() {
     });
   }
   const report={
-    schema:'rank24-owner-search-k0-k1-regression-v7-paper-quota-factorial',
+    schema:'rank24-owner-search-k0-k1-regression-v8-tag-team-choice-availability',
     evidenceType:'retrospective native Store actor-owned deck-search witness',
     fieldManifest:plan.manifestDigest,
     candidateDeckHash:digest(plan.candidate.cards),
@@ -338,6 +349,7 @@ function main() {
     enginePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     researchRevision:process.env.GITHUB_SHA??null,
     targetPrinting:thunder[0],
+    alternatePrintedTagTeamTargets:tagTeamPrintings,
     rows,
     competitiveQualifiedGames:0,
     caveat:'Retrospective 2x2 K1 by reversible native paper-Supporter-quota contrast. Same-source paired physical deals are verified. Guarded branches pass narrow native quota audit; unguarded root sequences cannot by themselves establish legal Supporter settlement. Selected seeds remain unqualified for competitive win-rate inference.'
