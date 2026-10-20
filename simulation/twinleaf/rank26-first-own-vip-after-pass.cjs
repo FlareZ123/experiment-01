@@ -221,12 +221,12 @@ function sourceKokoNativePostcondition(own){
  * @template T
  * @param {0|1} seat Source physical seat.
  * @param {()=>T} execute Synchronous native headless experiment.
- * @param {{followupCologne?:boolean,preferSquawk?:boolean,followupSecondVip?:boolean,followupCompressor?:boolean}} [options] Opt-in source alternatives.
+ * @param {{followupCologne?:boolean,preferSquawk?:boolean,followupSecondVip?:boolean,followupCompressor?:boolean,auditTacticMutation?:boolean}} [options] Opt-in source alternatives.
  * @returns {{result:T,policyAudit:object}}
  */
 function withSourceVipAfterPass(seat, execute,
   {followupCologne=false,preferSquawk=false,followupSecondVip=false,
-    followupCompressor=false}={}) {
+    followupCompressor=false,auditTacticMutation=false}={}) {
   if (![0,1].includes(seat) || typeof execute !== 'function')
     throw new TypeError('Need source seat and synchronous runner');
   const get = subpath => require(path.join(OUTPUT, subpath));
@@ -349,7 +349,25 @@ function withSourceVipAfterPass(seat, execute,
           ...effect});
       }
     }
+    const auditBefore=auditTacticMutation && stage==='compressor-finished' &&
+      !prompt && state.turn===1 && state.activePlayer===seat &&
+      state.phase===GamePhase.PLAYER_TURN
+      ?actorObservation(state,seat):null;
     const action = previous.call(this,state);
+    if(auditBefore){
+      const auditAfter=actorObservation(state,seat);
+      events.push({kind:'source-bot-root-scorer-mutation-audit',
+        turn:state.turn,action:action?.constructor?.name??null,
+        beforeSupporterTurn:auditBefore.ownTurnResources.supporterPlayedTurn,
+        afterSupporterTurn:auditAfter.ownTurnResources.supporterPlayedTurn,
+        beforeHand:auditBefore.ownHand,
+        afterHand:auditAfter.ownHand,
+        heldCarmine:auditBefore.ownHand.some(c=>c.startsWith('Carmine ')),
+        supporterTurnChanged:auditBefore.ownTurnResources.supporterPlayedTurn!==
+          auditAfter.ownTurnResources.supporterPlayedTurn,
+        ownerHandChanged:JSON.stringify(auditBefore.ownHand)!==
+          JSON.stringify(auditAfter.ownHand)});
+    }
     if(followupCompressor && stage==='second-finished' &&
         action?.constructor?.name==='PassTurnAction' &&
         state.turn===1 && state.activePlayer===seat &&
@@ -417,7 +435,8 @@ function withSourceVipAfterPass(seat, execute,
         (followupCologne?'+owner-cologne-followup-v1':'')+
         (preferSquawk?'+owner-squawk-priority-v1':'')+
         (followupSecondVip?'+owner-second-vip-v1':'')+
-        (followupCompressor?'+owner-compressor-after-koko-v1':''),
+        (followupCompressor?'+owner-compressor-after-koko-v1':'')+
+        (auditTacticMutation?'+read-only-tactic-purity-audit-v1':''),
       seat,events,
       finalStage:stage,competitiveGameQualified:false
     }};
