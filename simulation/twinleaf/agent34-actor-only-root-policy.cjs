@@ -5,7 +5,7 @@ const {createHash}=require('node:crypto');
 const {actorObservation,publicPlayer}=require('./actor-observation-contract.cjs');
 const {rootPhysicalSnapshot,rootPhysicalWitness}=
   require('./agent5-owner-root-slice.cjs');
-const VERSION='agent34-actor-only-root-slice-v2-numeric-types';
+const VERSION='agent34-actor-only-root-slice-v3-optional-energy-frontier';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 
 /**
@@ -71,7 +71,7 @@ function buildActorCardCatalog(all,types){
  * @param {{basics:Set<string>,abilityBasics:Set<string>,basicEnergies:Set<string>,basicEnergyTypes:Record<string,number>,colorlessEnergyType:number,specialConditions:{ASLEEP:number,PARALYZED:number}}} catalog
  * @returns {object} Native-neutral intent.
  */
-function chooseActorRootIntent(view,catalog){
+function chooseActorRootIntent(view,catalog,options={}){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,r=view.ownTurnResources;
   const benchIndex=own.bench.findIndex(slot=>slot===null);
@@ -81,8 +81,16 @@ function chooseActorRootIntent(view,catalog){
     if(index>=0)return {kind:'bench-basic',handIndex:index,benchIndex,printing:view.ownHand[index]};
   }
   if(own.active&&!r.energyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
-    const index=view.ownHand.findIndex(p=>catalog.basicEnergies.has(p));
-    if(index>=0)return {kind:'attach-basic-energy',handIndex:index,printing:view.ownHand[index]};
+    const first=view.ownHand.findIndex(p=>catalog.basicEnergies.has(p));
+    if(first>=0){
+      // Development opt-in: choose one-unit Basic Energy using the detached
+      // actor view, while preserving the original branch when not enabled.
+      const planned=options.energyFrontier?
+        require('./agent10-basic-energy-frontier.cjs')
+          .chooseBasicEnergyFrontier(view,catalog):null;
+      const index=planned?.handIndex??first;
+      return {kind:'attach-basic-energy',handIndex:index,printing:view.ownHand[index]};
+    }
   }
   const active=own.active,restrictions=active?.publicRestrictions;
   const locked=own.publicTurnRestrictions?.attackLockTurnsRemaining>0||
@@ -160,6 +168,8 @@ function withActorOnlyRootPolicy(run,deps={}){
   let nativeStore=null,catalog=null,actualGamesSeen=0;
   const audit={
     version:VERSION,origin:'detached-actor-observation',
+    energyFrontierOptIn:deps.energyFrontier??
+      (process.env.AGENT10_BASIC_ENERGY_FRONTIER_DEV==='true'),
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
     typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
     publicTransitionWitnesses:0,publicTransitionChanges:0,
@@ -197,7 +207,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     if(catalog===null)catalog=getCatalog();
     const view=observe(state,seat);
-    const intent=chooseActorRootIntent(view,catalog);
+    const intent=chooseActorRootIntent(view,catalog,{energyFrontier:audit.energyFrontierOptIn});
     const ownerId=state.players[seat].id;
     let action;
     switch(intent.kind){
