@@ -1,6 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const {isDeepStrictEqual}=require('node:util');
 const fs=require('node:fs');
 const path=require('node:path');
 const {executeDevelopment}=require('./agent41-bilateral-v2-development.cjs');
@@ -36,58 +37,79 @@ function run(){
     id:'11:sourcefirst-mechanic:2:B:new-moon-lockbreaker-v1'};
   const candidates=prepare();
   const options={compressorPayload:true,lateCompressorPayload:true};
-  const original=executeDevelopment(trial,candidates,options);
-  const watched=executeDevelopment(trial,candidates,{
-    ...options,garbotoxinWindow:true
-  });
-  assert.equal(original.error,undefined);
-  assert.equal(watched.error,undefined);
-  for(const row of [original,watched]){
-    assert.equal(row.sourceActuallyFirst,true);
-    assert.equal(row.sourceAudit.completed,true);
-    assert.equal(row.sourceAudit.opportunityTurn,1);
-    assert.equal(row.sourceDealFingerprint,FROZEN_SOURCE_DEAL);
-    assert.equal(row.rootActionLedgerSha256,FROZEN_ROOT,
-      'Original historical source-first selected action history drifted');
+  const execute=extra=>{
+    try{return executeDevelopment(trial,candidates,{...options,...extra});}
+    catch(error){return {status:'runner-exception',
+      error:String(error?.stack??error).slice(0,2400)};}
+  };
+  const original=execute({});
+  const watched=execute({garbotoxinWindow:true});
+  const failures=[];
+  const requireCheck=(condition,message)=>{
+    if(!condition)failures.push(message);
+  };
+  for(const [name,row] of [['baseline',original],['observer',watched]]){
+    requireCheck(!row.error,name+' Store execution error: '+(row.error??''));
+    requireCheck(row.sourceActuallyFirst===true,name+' source was not actually first');
+    requireCheck(row.sourceAudit?.completed===true,
+      name+' source Tool-Garbodor line did not complete');
+    requireCheck(row.sourceAudit?.opportunityTurn===1,
+      name+' source Tool-Garbodor line did not finish on first turn');
+    requireCheck(row.sourceDealFingerprint===FROZEN_SOURCE_DEAL,
+      name+' source physical deal drifted from prior archive');
+    requireCheck(row.rootActionLedgerSha256===FROZEN_ROOT,
+      name+' root action history changed from prior selected deal');
   }
-  for(const key of ['sourceDealFingerprint','actualStarterSeat',
+  const comparable=['sourceDealFingerprint','actualStarterSeat',
     'rootActionLedgerSha256','actionCount','turns','endReason',
     'finished','winner','finalPrizes','finalBoard','attackDeclarations',
-    'candidateAttackSettlement','sourceAudit','firstCandidatePostSourceRoot']){
-    assert.deepEqual(watched[key],original[key],
-      'Read-only power check changed game or candidate action: '+key);
+    'candidateAttackSettlement','sourceAudit','firstCandidatePostSourceRoot'];
+  for(const key of comparable){
+    requireCheck(isDeepStrictEqual(watched[key],original[key]),
+      'Read-only observation altered game field '+key);
   }
-  const first=watched.firstCandidatePostSourceRoot;
-  assert.equal(first?.action,'PlayCardAction');
-  assert.equal(first?.card,'Field Blower');
-  assert.equal(first?.turnBefore,2);
-  const power=watched.garbotoxinWindowAudit;
-  assert.ok(power?.before && power?.after,
-    'Native actual turn-two suppression-before/tool-removal-after pair missing');
-  assert.equal(power.before.candidateActive,'Lunatone OBF');
-  assert.equal(power.after.candidateActive,'Lunatone OBF');
-  assert.ok(power.before.candidatePrintedPowerNames.includes('New Moon'),
-    'Probe should check a real printed Ability, New Moon');
-  assert.ok(power.after.candidatePrintedPowerNames.includes('New Moon'));
-  assert.equal(power.before.sourceGarbodorHasTool,true);
-  assert.equal(power.after.sourceGarbodorHasTool,false);
-  assert.equal(power.before.candidateGenericAbilityBlocked,true,
-    'Garbodor should block real New Moon before Field Blower');
-  assert.equal(power.after.candidateGenericAbilityBlocked,false,
-    'New Moon should no longer be ability-locked after removing the Tool');
+  const first=watched.firstCandidatePostSourceRoot??null;
+  requireCheck(first?.action==='PlayCardAction'&&first?.card==='Field Blower'&&
+    first?.turnBefore===2,'Original first candidate response was not turn-two Field Blower');
+  const power=watched.garbotoxinWindowAudit??null;
+  requireCheck(Boolean(power?.before&&power?.after),
+    'Missing genuine Store before/after Tool-removal power checks');
+  const before=power?.before??null,after=power?.after??null;
+  requireCheck(before?.candidateActive==='Lunatone OBF'&&
+    after?.candidateActive==='Lunatone OBF',
+    'Same real Lunatone did not remain Active across removal');
+  requireCheck(before?.candidatePrintedPowerNames?.includes('New Moon')&&
+    after?.candidatePrintedPowerNames?.includes('New Moon'),
+    'Power check did not concern the printed New Moon Ability');
+  requireCheck(before?.sourceGarbodorHasTool===true &&
+    after?.sourceGarbodorHasTool===false,
+    'Source Tool did not transition from attached to removed');
+  requireCheck(before?.candidateGenericAbilityBlocked===true &&
+    after?.candidateGenericAbilityBlocked===false,
+    'Native PowerEffect did not confirm suppression then restored Ability');
   return {
     schema:'agent41-authentic-sourcefirst-ability-window-equivalence-v1',
     evidenceType:'historical seed selected by previous source-success replay',
-    candidate:trial.candidateId,seed:SEED,
-    opponentRank:11,sourceActuallyFirst:true,
-    sourceLockLineCompleted:true,
+    candidate:trial.candidateId,seed:SEED,opponentRank:11,
+    originalSourceArtifact:'GitHub Actions 39346205829 / artifact 12231322666',
+    originalRootSha256:original.rootActionLedgerSha256??null,
+    observerRootSha256:watched.rootActionLedgerSha256??null,
+    sourceActuallyFirst:watched.sourceActuallyFirst??null,
+    sourceLockLineCompleted:watched.sourceAudit?.completed??null,
     firstCandidateResponse:first,
-    originalRootSha256:original.rootActionLedgerSha256,
-    observerRootSha256:watched.rootActionLedgerSha256,
-    sameSourceDeal:true,
-    sameActualPlayAndPublicEffects:true,
-    powerWindow:watched.garbotoxinWindowAudit,
-    candidateAttackSettlement:watched.candidateAttackSettlement,
+    sameSourceDeal:original.sourceDealFingerprint===FROZEN_SOURCE_DEAL &&
+      watched.sourceDealFingerprint===FROZEN_SOURCE_DEAL,
+    sameActualPlayAndPublicEffects:comparable.every(key=>
+      isDeepStrictEqual(watched[key],original[key])),
+    powerWindow:power,
+    candidateAttackSettlement:watched.candidateAttackSettlement??null,
+    baselineExecution:{status:original.status??'completed',
+      error:original.error??null,actions:original.actionCount??null,
+      endReason:original.endReason??null},
+    observedExecution:{status:watched.status??'completed',
+      error:watched.error??null,actions:watched.actionCount??null,
+      endReason:watched.endReason??null},
+    validation:{passed:failures.length===0,failures},
     qualification:{
       ownerInformationSetSafe:false,paperRulesVerified:false,
       competitiveGameQualified:false,prospectiveStrengthTrial:false,
@@ -96,6 +118,16 @@ function run(){
   };
 }
 if(require.main===module){
-  process.stdout.write(JSON.stringify(run(),null,2)+'\n');
+  let result;
+  try{result=run();}
+  catch(error){
+    result={schema:'agent41-authentic-sourcefirst-ability-window-equivalence-v1',
+      status:'preparation-or-runner-exception',
+      error:String(error?.stack??error).slice(0,2400),
+      validation:{passed:false,failures:['preparation-or-runner-exception']},
+      qualification:{competitiveGameQualified:false}};
+  }
+  process.stdout.write(JSON.stringify(result,null,2)+'\\n');
+  if(!result.validation.passed)process.exitCode=1;
 }
 module.exports={SEED,FROZEN_ROOT,FROZEN_SOURCE_DEAL,run};
