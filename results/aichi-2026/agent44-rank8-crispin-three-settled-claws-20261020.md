@@ -33,6 +33,13 @@ The final observed Prize delta is one because the source had only one Prize card
 
 At 152 Store roots the Crispin branch reported `finished=true, prizesRemaining=[0,6]`. The same physical-deal, four-category-search, equipped-Garbodor comparison **without Crispin** reported `finished=false, actions=200, prizesRemaining=[1,6]`. This difference is evidence of a possible paid attacking line and correlated subsequent game histories. It cannot be interpreted as a causal estimate of win probability: the original source-positive branch is retrospectively selected, scripted at a particular opportunity, and later turns are handled by inadequately qualified generic bots; re-search and game-state differences can also change shuffle and opponent behavior.
 
+
+## Printed damage and the pinned attack reducer
+
+Independently checked the supplied English card database printings: `Mega Absol ex MEG 86` has `Claw of Darkness` at **200 Darkness-type damage**, a **Darkness + Darkness + Colorless** Energy cost, and an additional opponent-hand reveal/discard effect. `Shadow Rider Calyrex VMAX CRE 75` has **320 HP** and Darkness **×2** Weakness; `Latias ex SSP 76` has **210 HP** and Darkness **×2** Weakness. On the clean Active targets explicitly recorded in this archive, the printed base damage under ordinary Weakness is therefore **400**, sufficient for either knockout before considering any further modifiers or damage prevention. This arithmetic is a **card-text/rules check**, separate from the native settled-Prize observations.
+
+The [exact pinned Mega Absol ex reducer](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/11-mega-evolution/set-mega-evolution/mega-absol-ex.ts) implements the second attack using a `ChooseCardsPrompt` over the revealed opponent hand followed by `MOVE_CARDS` to discard a selected card. This is **source inspection** of the pinned engine and shows the intended attack-effect path. The v2 public transition artifact confirms attack settlement and Prize changes but does not itself enumerate those opponent-hand reveal/discard prompt outcomes, so that part of the attack remains outside this specific runtime witness.
+
 ## Artifact integrity and next falsification
 
 [Artifact 12271920569](https://github.com/FlareZ123/experiment-01/actions/runs/39435658098/artifacts/12271920569):
