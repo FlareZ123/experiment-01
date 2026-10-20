@@ -7,6 +7,8 @@ const {attestBilateralRootClaims}=
 const {sourceFirstNativePressureVerified}=
   require('./agent3-source-first-pressure-kind.cjs');
 
+const {auditFourCellCoverage}=require('./agent42-four-cell-coverage.cjs');
+
 const SHA256=/^[0-9a-f]{64}$/;
 const STATUSES=new Set(['engine-terminal','action-cap','engine-error']);
 /** @param {unknown} value @returns {boolean} */
@@ -411,12 +413,14 @@ function auditBilateralV2(plan,archive) {
     pairRows.some(pair=>pair.rank===rank&&
       pair.firstObservationComparable&&
       pair.bothNativeRootBoundEarlyPressureWitnesses));
+  const fourCellCoverage=auditFourCellCoverage(pairRows,[...rankMap.keys()]);
   return {
     schema:'aichi-bilateral-v2-intake-diagnostic-v1',
     registeredArms:arms.size,observedArms:rows.size,
     completeAttemptCensus:coverageComplete,
     twoRealStartsPerRankObserved:twoStartCoverage,
     twoRealStartsPerCandidateAndRankObserved:twoStartCoverageByCandidate,
+    fourCellCoverage,
     noPolicyProtocolDrift,
     bothHardRanksHaveBilateralWitnesses,
     bothHardRanksHavePairedBilateralWitnesses,
