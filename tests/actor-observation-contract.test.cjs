@@ -301,3 +301,63 @@ test('face-up attack metadata and vulnerabilities stay detached',()=>{
   assert.equal(p.attacks[0].damage,130);
   assert.equal(p.abilityDetails[0].text,'Printed power description');
 });
+
+test('observation-only attack veto catches Asleep and named prohibitions',()=>{
+  const {certainAttackBlockers}=require(
+    '../simulation/twinleaf/actor-observation-negative-action-gates.cjs');
+  const s=fixture();
+  s.players[0].active.specialConditions=[2];
+  s.players[0].active.cannotUseAttacksNextTurn=['Printed Attack'];
+  const view=actorObservation(s,0);
+  assert.deepEqual(certainAttackBlockers(view,'Printed Attack'),
+    ['asleep','named-attack-lock']);
+  assert.deepEqual(certainAttackBlockers(view,'Copycat'),['asleep']);
+  assert.deepEqual(view.ownPublic.active.specialConditions,[2]);
+});
+
+test('observation-only retreat veto catches Paralyzed and missing Bench',()=>{
+  const {certainRetreatBlockers}=require(
+    '../simulation/twinleaf/actor-observation-negative-action-gates.cjs');
+  const s=fixture();
+  s.players[0].active.specialConditions=[0];
+  s.players[0].active.cannotRetreatWhileActive=true;
+  const v=actorObservation(s,0);
+  assert.deepEqual(certainRetreatBlockers(v),
+    ['paralyzed','while-active-retreat-lock','no-benched-pokemon']);
+  s.players[0].active.specialConditions=[1];
+  s.players[0].active.cannotRetreatWhileActive=false;
+  s.players[0].bench[0]=pokemon('Dedenne-GX UNM');
+  assert.deepEqual(certainRetreatBlockers(actorObservation(s,0)),[],
+    'Confusion does not categorically prohibit retreat');
+});
+
+test('observation-only negative gates handle public whole-player attack lock',()=>{
+  const {certainAttackBlockers}=require(
+    '../simulation/twinleaf/actor-observation-negative-action-gates.cjs');
+  const s=fixture();
+  s.players[0].cannotAttackTurnsRemaining=1;
+  s.players[0].active.blockedAttackNameNextTurn='Announced Copy';
+  s.players[0].active.blockedAttackNameUntilLeavesActive='Lasting';
+  s.players[0].active.onlyAllowedAttackNameNextTurn='Printed Attack';
+  const v=actorObservation(s,0);
+  assert.deepEqual(certainAttackBlockers(v,'Announced Copy'),
+    ['player-attack-lock','blocked-next-turn-attack',
+      'only-other-attack-allowed']);
+  assert.deepEqual(certainAttackBlockers(v,'Lasting'),
+    ['player-attack-lock','blocked-until-leaves-active',
+      'only-other-attack-allowed']);
+});
+
+test('absence of observed blockers is unknown legality, including copied attacks',()=>{
+  const {certainAttackBlockers,certainRetreatBlockers}=require(
+    '../simulation/twinleaf/actor-observation-negative-action-gates.cjs');
+  const s=fixture();
+  s.players[0].bench[0]=pokemon('Dedenne-GX UNM');
+  const v=actorObservation(s,0);
+  const frozen=JSON.stringify(v);
+  assert.deepEqual(certainAttackBlockers(v,'Apex Dragon'),[],
+    'A copied attack can be legal despite being absent from printed attacks');
+  assert.deepEqual(certainRetreatBlockers(v),[],
+    'Empty veto list is not permission to bypass Store');
+  assert.equal(JSON.stringify(v),frozen,'Neither policy gate mutates its input');
+});
