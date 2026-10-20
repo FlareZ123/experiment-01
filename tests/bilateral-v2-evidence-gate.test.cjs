@@ -105,6 +105,40 @@ test('full dual-start archive is mechanically reviewable, never competitive',()=
   assert.ok(r.arms.every(row=>row.vetoes.includes('paper-fidelity-unverified')));
 });
 
+test('optional native Store ledger independently binds an asserted bilateral root claim',()=>{
+  const {plan,archive}=fixture();
+  const row=archive.rows[0],sourceSeat=1-row.candidateSeat;
+  const ledger=Array.from({length:row.rootActionCount},(_,i)=>({
+    actionOrdinal:i,turnBefore:1,playerSlot:-1,action:'OtherRootAction'
+  }));
+  for(const [claim,seat,turn] of [
+    [row.sourcePressure.rootActionOrdinal,sourceSeat,row.sourcePressure.turnBefore],
+    [row.sourcePressure.completionOrdinal,sourceSeat,row.sourcePressure.completionTurnBefore],
+    [row.candidateReply.rootActionOrdinal,row.candidateSeat,row.candidateReply.turnBefore],
+    [row.sourceContinuation.rootActionOrdinal,sourceSeat,row.sourceContinuation.turnBefore]
+  ]) Object.assign(ledger[claim],{playerSlot:seat,turnBefore:turn});
+  row.rootActionLedger=ledger;
+  row.rootActionLedgerProtocol='actual-store-root-action-ledger-v1';
+  let result=auditBilateralV2(plan,archive);
+  assert.equal(result.arms[0].nativeRootClaimsAuthenticated,true);
+  assert.equal(result.independentlyRootBoundBilateralWitnesses,1);
+  assert.ok(!result.arms[0].vetoes.includes('actual-store-root-claims-unverified'));
+  ledger[row.candidateReply.rootActionOrdinal].playerSlot=sourceSeat;
+  result=auditBilateralV2(plan,archive);
+  assert.equal(result.arms[0].mechanicalBilateralWitness,true);
+  assert.equal(result.arms[0].nativeRootClaimsAuthenticated,false);
+  assert.ok(result.arms[0].vetoes.includes('actual-store-root-claims-unverified'));
+  assert.equal(result.independentlyRootBoundBilateralWitnesses,0);
+});
+
+test('incomplete native Store transcript rejects even with positive producer flags',()=>{
+  const {plan,archive}=fixture();
+  archive.rows[0].rootActionLedgerProtocol='actual-store-root-action-ledger-v1';
+  archive.rows[0].rootActionLedger=[];
+  assert.throws(()=>auditBilateralV2(plan,archive),
+    /every successful Store root/);
+});
+
 test('real first-turn draw alone cannot cover a mechanically failed other seat',()=>{
   const {plan,archive}=fixture();
   for(const row of archive.rows.filter(row=>
