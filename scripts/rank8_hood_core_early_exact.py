@@ -72,9 +72,56 @@ def exact(allow_same_name_duplicates=False):
     }
 
 
+def paired_unique_core_probability(total, basic_count, opener=7):
+    """Two named singleton Items among the opener plus one normal draw.
+
+    The two singleton cards are non-Basic. Count the first `opener` cards as
+    an unordered starting hand and the next draw as one of the remaining cards.
+    Six random Prize cards dealt between those steps do not alter the marginal
+    first-draw distribution. The starting hand must contain a Basic.
+    All card effects, other needed cards and real-game locks remain excluded.
+    """
+    remaining = total - opener
+    other_nonbasic = total - 2 - basic_count
+    valid_opener = comb(total, opener) - comb(total - basic_count, opener)
+
+    # Both unique Items are in the opener; the normal draw is any remaining
+    # card. The other opener cards must include at least one Basic.
+    both_in_opener = remaining * (
+        comb(total - 2, opener - 2)
+        - comb(other_nonbasic, opener - 2)
+    )
+    # Exactly one unique Item is in the opener and the other is next drawn.
+    one_then_draw = 2 * (
+        comb(total - 2, opener - 1)
+        - comb(other_nonbasic, opener - 1)
+    )
+    favorable = both_in_opener + one_then_draw
+    all_deals = comb(total, opener) * remaining
+    valid_deals = valid_opener * remaining
+    return {
+        "valid_start_seven": Fraction(valid_opener, comb(total, opener)),
+        "all_held_and_valid_start": Fraction(favorable, all_deals),
+        "conditional_on_valid_start": Fraction(favorable, valid_deals),
+        "favorable_start_draw_pairs": favorable,
+        "valid_start_draw_pairs": valid_deals,
+    }
+
+
+def rank8_flexible_box_shake_ceiling():
+    """Source-locked hand-only ceiling before owner deck search and payment."""
+    basic, (box, shake, _), _, _ = source_categories()
+    assert (box, shake) == (1, 1)
+    return paired_unique_core_probability(60, basic)
+
+
 if __name__ == "__main__":
     for mode in (False, True):
         print("allow_same_name_duplicates:", mode)
         for name, value in exact(mode).items():
             print(f"{name}: {value} = {float(value):.12%}")
-    print("Interpretation: a narrow initial eight-card hand predicate only.")
+    print("flexible Box + Shake hand-only ceiling:")
+    for name, value in rank8_flexible_box_shake_ceiling().items():
+        print(f"{name}: {value} = {float(value):.12%}" if isinstance(value, Fraction)
+              else f"{name}: {value}")
+    print("Interpretation: structural initial-eight opportunities, not gameplay rates.")
