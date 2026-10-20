@@ -26,8 +26,10 @@ jobs:
         run: |
           node --check simulation/twinleaf/rank24-thorns-three-arm-prospective.cjs
           node --check simulation/twinleaf/rank24-k1-search-regression.cjs
+          node --check simulation/twinleaf/agent41-paper-supporter-discipline.cjs
+          node --check simulation/twinleaf/agent41-rank24-paper-supporter-canonical-native.cjs
           node --check simulation/twinleaf/owner-deck-search-witness.cjs
-          node --test tests/aichi-thorns-crossrank-opening.test.cjs tests/rank6-broad-thorns-policy.test.cjs tests/owner-deck-search-witness.test.cjs tests/owner-k1-deck-membership.test.cjs tests/owner-k0-observable-inventory.test.cjs tests/native-supporter-turn-audit.test.cjs tests/paper-supporter-quota-guard.test.cjs tests/supporter-proposal-paper-quota.test.cjs
+          node --test tests/aichi-thorns-crossrank-opening.test.cjs tests/rank6-broad-thorns-policy.test.cjs tests/owner-deck-search-witness.test.cjs tests/owner-k1-deck-membership.test.cjs tests/owner-k0-observable-inventory.test.cjs tests/native-supporter-turn-audit.test.cjs tests/paper-supporter-quota-guard.test.cjs tests/supporter-proposal-paper-quota.test.cjs tests/agent41-paper-supporter-discipline.test.cjs
       - name: Install pinned engine packages
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -53,6 +55,8 @@ jobs:
         run: |
           node simulation/twinleaf/rank24-k1-search-regression.cjs > rank24-k1-search-regression.json
           node simulation/twinleaf/rank24-paper-supporter-proposal-native.cjs > rank24-paper-supporter-proposal-native.json
+          node simulation/twinleaf/agent41-rank24-paper-supporter-canonical-native.cjs > agent41-rank24-paper-supporter-canonical-native.json
+          node -e "const x=require('./agent41-rank24-paper-supporter-canonical-native.json');console.log('AGENT41_RANK24_CANONICAL_SUPPORTER_NEGATIVE',JSON.stringify({first:x.guarded.firstSourceSupporter?.name,turn:x.guarded.firstSourceSupporter?.turn,sourceDeal:x.guarded.sourcePhysicalDeal?.digestSha256,actions:x.guarded.totalActions,suppressed:x.guarded.suppressionCount,quotaQualified:x.guarded.nativeSupporterQuotaQualified,invalidRoots:x.guarded.rejectedDirectRoots.length,competitive:x.competitiveQualifiedGames}))"
       - name: Archive three native K1 search cases with unchanged policy control
         if: ${{ always() && inputs.k1_probe_only }}
         uses: actions/upload-artifact@v4
@@ -61,5 +65,6 @@ jobs:
           path: |
             rank24-k1-search-regression.json
             rank24-paper-supporter-proposal-native.json
+            agent41-rank24-paper-supporter-canonical-native.json
           if-no-files-found: warn
           retention-days: 14
