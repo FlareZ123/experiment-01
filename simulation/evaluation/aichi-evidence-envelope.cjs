@@ -144,6 +144,19 @@ function auditArchive(inputs, archive) {
       }
       observedInputHashesByCandidate.set(row.candidateId,current);
     }
+    // Optional native first-stable-root source positions are opaque metadata.
+    // If present, reject misattributed seats or malformed hashes. Legacy
+    // envelopes intentionally remain schedule-only rather than inferred proof.
+    if (row.initialSourceDealFingerprint !== undefined) {
+      const physical=row.initialSourceDealFingerprint;
+      const sourceSeat=row.candidateEngineSlot==='A'?1:0;
+      if (physical?.schema!=='initial-source-physical-position-sha256-v1' ||
+          physical.seat!==sourceSeat ||
+          typeof physical.digestSha256!=='string' ||
+          !/^[0-9a-f]{64}$/.test(physical.digestSha256)) {
+        throw new Error('Invalid initial source physical deal evidence: '+row.trialId);
+      }
+    }
     const actualTurn = proof ?
       (proof.firstTurnSlot === candidateSeat ? 'first' : 'second') : 'unverified';
     if (row.candidateTrueTurn !== undefined && row.candidateTrueTurn !== actualTurn) {
@@ -309,7 +322,48 @@ function hasPairedTrialSchedule(left, right) {
     [...a].every(([key, opponentHash]) => b.get(key) === opponentHash);
 }
 
+/**
+ * Require the *observed source positions* to match within each scheduled pair.
+ * The old schedule-only comparator deliberately remains a weaker prerequisite.
+ * Full ordered source hand/deck/Prize state is hashed at the native first
+ * stable player-turn root. Its hidden card identities must not reach policies.
+ * This function cannot establish later RNG parity, policy skill or game wins.
+ *
+ * @param {object} left Validated evidence envelope.
+ * @param {object} right Validated evidence envelope.
+ * @returns {boolean} Whether every scheduled pair has the same observed deal.
+ */
+function hasPairedInitialSourceDeals(left,right) {
+  if (!hasPairedTrialSchedule(left,right)) return false;
+  /** @param {object} envelope @returns {Map<string,string>|null} */
+  function physicalCells(envelope) {
+    const cells=new Map();
+    for(const row of envelope.archive.records) {
+      const proof=row.firstTurn&&turnProof(row.firstTurn);
+      const sourceSeat=row.candidateEngineSlot==='A'?1:0;
+      const fingerprint=row.initialSourceDealFingerprint;
+      if(!proof || fingerprint?.schema!==
+          'initial-source-physical-position-sha256-v1' ||
+          fingerprint.seat!==sourceSeat ||
+          typeof fingerprint.digestSha256!=='string' ||
+          !/^[0-9a-f]{64}$/.test(fingerprint.digestSha256)) return null;
+      const candidateSeat=1-sourceSeat;
+      const actualTurn=proof.firstTurnSlot===candidateSeat?'first':'second';
+      const key=JSON.stringify([
+        row.phase,row.rank,row.repeat,row.seed,row.candidateEngineSlot,
+        row.opponentDigest,actualTurn
+      ]);
+      if(cells.has(key)) return null;
+      cells.set(key,fingerprint.digestSha256);
+    }
+    return cells;
+  }
+  const a=physicalCells(left),b=physicalCells(right);
+  return a!==null && b!==null && a.size===b.size &&
+    [...a].every(([key,sourceDigest])=>b.get(key)===sourceDigest);
+}
+
 module.exports = {
   auditArchive, createEvidenceEnvelope, hasMatchingResearchConditions,
-  hasPairedTrialSchedule
+  hasPairedTrialSchedule, hasPairedInitialSourceDeals
 };
