@@ -43,3 +43,12 @@ This strengthens the **observed initial-condition coupling** of the frozen champ
 Do not infer this invariance for New Moon, other candidates, all 32 ranks, additional seeds, other simulator versions, or distinct policies. Candidate-specific mulligans can legitimately lead to different source setup states; the mismatch must be retained and analyzed as a causal setup consequence, including its effect on source bonus-draw opportunities.
 
 **Strategic status unchanged:** 29 of 32 source 60s verified (23, 25, 28 missing); **0 competitively qualified full games**; no evidenced 99.5% single-deck win rate.
+
+
+## Mandatory timing qualification discovered by compiled native boundary test
+
+A follow-on **opt-in** complete-source-deal observer initially failed on **all 120/120** original scheduled Store captures in [manual compiled CI #39399041181](https://github.com/FlareZ123/experiment-01/actions/runs/39399041181), while the pure source fingerprint and fake-Store tests passed. Its exact first failure was: `Twinleaf dispatch failed after 10 actions (ResolvePromptAction): Expected the pinned PLAYER_TURN phase; 8 !== 2`.
+
+This reveals that the original `captureSetupOnly` stops on the earliest `turn===1` transition, which **can still have Store phase 8** rather than the required settled **phase 2** player-turn root. Therefore the earlier report's label **post-setup** and the 96/96 source-zone parity are limited to **that early turn-1 observation boundary**, not yet authenticated final pre-action physical deals. The source hand, deck and Prize state may still change through outstanding setup processing before player decisions. The 96/96 statistic itself is retained for reproducibility but **cannot be promoted to full settled-source comparability**. This is a genuine observation-design qualification, and the failed optional run must stay in the historical record.
+
+A source-fingerprint capture mode is being tested that waits for the first stable `phase===2` state with settled prompts, records the source's ordered hidden deck and full initial card positions through the existing `fingerprintInitialSourceDeal`, and stops before the first normal action. Such a digest could disambiguate the setup timing issue; do not claim its result until compiled archived evidence succeeds. The existing default v1 historical sampler and its artifacts were not rewritten.
