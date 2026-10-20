@@ -83,6 +83,12 @@ function verifyNativeSameWorldTapeParity(args) {
   );
   report.counterfactualHiddenStateComparisonPermitted=
     report.sameWorldDecisionParityQualified;
+  // Keep the exact replay policy callback identity for the immediate
+  // hypothetical contrast. This nonserializable evidence stays local:
+  // archived JSON may document parity but cannot authorize a new callback.
+  Object.defineProperty(report,'replayDecisionRef',{
+    value:replayDecision,enumerable:false
+  });
   return report;
 }
 
