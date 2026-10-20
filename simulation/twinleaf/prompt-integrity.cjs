@@ -1,4 +1,5 @@
 'use strict';
+const {validAttachEnergyTargets}=require('./attach-energy-targets.cjs');
 
 
 /** @param {unknown} result @param {number|undefined} length @returns {boolean} */
@@ -26,7 +27,7 @@ function isIndexPermutation(result, length) {
  *
  * @param {{prompts:Array<{id:number,result?:unknown,validate:(result:unknown,state:object)=>boolean}>}} state
  * @param {{id?:number,result?:unknown,constructor?:{name?:string}}} action
- * @param {{enforceSelectOptionLegality?:boolean}} [options] Additional fail-closed gate for native option indices; default retains archived strict mode.
+ * @param {{enforceSelectOptionLegality?:boolean,enforceAttachEnergyGeometry?:boolean}} [options] Additional fail-closed gate for native option indices; default retains archived strict mode.
  * @returns {void}
  */
 /** @param {object} a @param {object} b */
@@ -265,6 +266,14 @@ function assertValidPromptAction(state, action, options={}) {
       used.add(card);
       return true;
     });
+  }
+  // Opt-in stricter geometric check, independent of the pinned engine's
+  // validCardTypes early return. Live Store recipient ownership and supported
+  // zones must be audited before a result can count as paper-faithful.
+  if (valid && name === 'AttachEnergyPrompt' &&
+      action.result !== null && options.enforceAttachEnergyGeometry === true) {
+    valid = validAttachEnergyTargets(action.result,
+      eligiblePokemonTargets(state, prompt), prompt.options);
   }
   if (!valid) {
     const detail = name === 'AttachEnergyPrompt' ?
