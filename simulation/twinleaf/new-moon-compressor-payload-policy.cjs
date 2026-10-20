@@ -17,7 +17,7 @@ const MEWTWO = 'Mewtwo & Mew-GX UNM';
  * @param {object} state
  * @param {object} player
  * @param {number} playerTurnPhase
- * @param {{allowBenchedMewtwo?:boolean,maxGlobalTurn?:number}} [setup] Versioned setup option.
+ * @param {{allowBenchedMewtwo?:boolean,allowTrevenantOnly?:boolean,maxGlobalTurn?:number}} [setup] Versioned setup option.
  * @returns {boolean}
  */
 function shouldSeekPayload(state, player, playerTurnPhase, setup={}) {
@@ -32,10 +32,15 @@ function shouldSeekPayload(state, player, playerTurnPhase, setup={}) {
     player.deck.cards.length > 0 &&
     player.cannotPlayItemCards !== true &&
     player.hand.cards.some(card => card.name === 'Battle Compressor') &&
-    // Perfection only sees own Bench and discard; a held GX donor is
-    // stranded until another effect moves it into a usable zone.
-    !has(player.discard.cards, GENGAR) &&
-    !player.bench.some(slot => slot.getPokemonCard()?.fullName === GENGAR);
+    // Perfection sees donors on the Bench or in discard. Preserve the
+    // historical Gengar-only trigger unless the second donor is explicitly
+    // requested. A held Trevenant cannot be reached by a deck-only search.
+    ((!has(player.discard.cards, GENGAR) &&
+      !player.bench.some(slot => slot.getPokemonCard()?.fullName === GENGAR)) ||
+     (setup.allowTrevenantOnly === true &&
+      !has(player.discard.cards, TREV) &&
+      !has(player.hand.cards, TREV) &&
+      !player.bench.some(slot => slot.getPokemonCard()?.fullName === TREV)));
 }
 
 /**
@@ -62,8 +67,8 @@ function selectPayloads(visibleCards, maximum) {
  * No card inventories, Prizes, or physical deal are modified.
  *
  * @param {object} options
- * @param {{allowBenchedMewtwo?:boolean,maxGlobalTurn?:number}} [setup]
- *   Explicit opt-in anticipatory preparation or later-game window. Existing source-only runs
+ * @param {{allowBenchedMewtwo?:boolean,allowTrevenantOnly?:boolean,maxGlobalTurn?:number}} [setup]
+ *   Explicit opt-in anticipatory preparation, second-donor search or later-game window. Existing source-only runs
  *   retain their Active-only behavior unless this second argument is set.
  * @returns {object}
  */
