@@ -88,7 +88,10 @@ function sourceFirstNativeExposureKind(row){
     const root=Array.isArray(ledger)?ledger[pressure?.rootActionOrdinal]:null;
     const noTarget=pressure?.pressureKind==='item-enabled-ability-lock' &&
       pressure.turnBefore===1&&pressure.completionTurnBefore===1 &&
-      pressure.completionOrdinal===pressure.rootActionOrdinal &&
+      Number.isSafeInteger(pressure.rootActionOrdinal) &&
+      Number.isSafeInteger(pressure.completionOrdinal) &&
+      pressure.rootActionOrdinal>=0 &&
+      pressure.rootActionOrdinal<=pressure.completionOrdinal &&
       window?.schema==='agent41-authentic-rank11-garbotoxin-ability-window-v1' &&
       window.sourceSeat===pressure.actorSeat &&
       window.candidateSeat===1-pressure.actorSeat &&
