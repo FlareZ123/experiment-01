@@ -630,3 +630,40 @@ test('two no-target arms without any rank6 native positive control cannot clear 
   assert.equal(r.exposureInclusivePilotVerdict,'HOLD-OR-INCOMPLETE');
   assert.equal(r.competitiveStrengthClaimPermitted,false);
 });
+
+test('rank11 source-first Tool-Garbodor with no candidate Power retains a positive reference control',()=>{
+  const {plan,archive}=fixture();
+  const immune=archive.rows.find(row=>row.rank===11&&
+    row.candidateSeat===1&&row.candidateId==='newmoon');
+  const before=immune.garbotoxinWindowAudit.before;
+  before.candidatePrintedPowerNames=[];
+  before.candidatePrintedPowerChecks=[];
+  before.candidateInPlayPrintedPowerChecks=[];
+  let r=auditBilateralV2(plan,archive);
+  assert.equal(r.rank11PositiveControl,true);
+  assert.equal(r.bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses,false);
+  assert.equal(r.bothHardRanksHaveSourceFirstEarlyExposurePairedBilateralWitnesses,true);
+  assert.equal(r.opportunityAndPolicyVerdict,'HOLD-OR-INCOMPLETE');
+  assert.equal(r.exposureInclusivePilotVerdict,'EXPOSURE-PILOT-REVIEWABLE');
+  assert.equal(r.arms.find(row=>row.id===immune.id).nativeExposureKind,
+    'no-eligible-power-present');
+  before.sourceGarbodorHasTool=false;
+  r=auditBilateralV2(plan,archive);
+  assert.equal(r.exposureInclusivePilotVerdict,'HOLD-OR-INCOMPLETE');
+});
+
+test('all-source-first no-target rank11 observations cannot substitute for a native affected Power control',()=>{
+  const {plan,archive}=fixture();
+  for(const row of archive.rows.filter(row=>row.rank===11&&
+    row.candidateSeat===1)){
+    const before=row.garbotoxinWindowAudit.before;
+    before.candidatePrintedPowerNames=[];
+    before.candidatePrintedPowerChecks=[];
+    before.candidateInPlayPrintedPowerChecks=[];
+  }
+  const r=auditBilateralV2(plan,archive);
+  assert.equal(r.rank11PositiveControl,false);
+  assert.equal(r.bothHardRanksHaveSourceFirstEarlyExposurePairedBilateralWitnesses,true);
+  assert.equal(r.exposureInclusivePilotVerdict,'HOLD-OR-INCOMPLETE');
+  assert.equal(r.competitiveStrengthClaimPermitted,false);
+});
