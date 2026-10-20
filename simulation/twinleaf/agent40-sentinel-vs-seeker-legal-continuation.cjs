@@ -65,6 +65,12 @@ function runAudit() {
       row.playerSlot === 1 - SOURCE_SEAT && row.turnBefore === 6 &&
       row.actionOrdinal > PRIZE_ROOT_ORDINAL &&
       row.action !== 'ResolvePromptAction');
+    const ownerTurnSixRoots = game.rootActionLedger.filter(row =>
+      row.playerSlot === 1 - SOURCE_SEAT && row.turnBefore === 6).map(row => ({
+      actionOrdinal: row.actionOrdinal,
+      action: row.action, card: row.card ?? null,
+      pendingPrompt: row.pendingPrompt ?? null
+    }));
     const followingSource = game.rootActionLedger.find(row =>
       row.playerSlot === SOURCE_SEAT && row.turnBefore > 6 &&
       row.action !== 'ResolvePromptAction');
@@ -73,6 +79,7 @@ function runAudit() {
       firstOwner: fork.result.preAction,
       followupDecision: fork.result.legalFollowup,
       firstOwnerRoot: followingOwner ?? null,
+      ownerTurnSixRoots,
       firstLaterSourceRoot: followingSource ?? null,
       finished: game.finished, actions: game.actions,
       finalPrizes: game.prizesRemaining,
@@ -84,6 +91,12 @@ function runAudit() {
   const active = scenario(true);
   assert.deepEqual(benched.firstOwner.ownerHand, active.firstOwner.ownerHand);
   assert.deepEqual(benched.firstOwner.ownerDiscard, active.firstOwner.ownerDiscard);
+  assert.equal(benched.rootLedgerSha256,
+    '1509f57a2d72cc35c19a3791db297c3390ac9a0b5e72aaf652069b8d3394c07a',
+    'Read-only root chronology changed existing Benched continuation');
+  assert.equal(active.rootLedgerSha256,
+    'ec0316d80214b73da18a9cb809cc7c538112aed048e3f2a2d7a4f585fee2fd67',
+    'Read-only root chronology changed existing Active continuation');
   assert.equal(benched.firstOwner.sourceActive, 'Fan Rotom SCR');
   assert.equal(active.firstOwner.sourceActive, 'Stoutland BCR');
   assert.ok(benched.firstLaterSourceRoot &&
