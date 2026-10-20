@@ -438,12 +438,16 @@ function auditBilateralV2(plan,archive) {
         d.nativeSourceFirstRootClaimsAuthenticated;
     }));
   const rank11PositiveControl=pairRows.some(pair=>pair.rank===11&&
-    pair.firstObservationComparable&&pair.armIds.some(id=>
-      byId.get(id).sourceFirstEarlyPressureWitness));
+    pair.firstObservationComparable&&pair.armIds.some(id=>{
+      const d=byId.get(id);
+      return d.sourceFirstEarlyPressureWitness&&
+        d.nativeExposureKind==='native-blocked-eligible-power';
+    }));
   const rank11NativePositiveControl=pairRows.some(pair=>pair.rank===11&&
     pair.firstObservationComparable&&pair.armIds.some(id=>{
       const d=byId.get(id);
       return d.sourceFirstEarlyPressureWitness&&
+        d.nativeExposureKind==='native-blocked-eligible-power'&&
         d.nativeSourceFirstRootClaimsAuthenticated;
     }));
   const bothHardRanksHaveSourceFirstEarlyExposurePairedBilateralWitnesses=
