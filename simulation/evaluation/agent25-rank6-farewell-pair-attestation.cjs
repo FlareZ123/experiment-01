@@ -17,12 +17,12 @@ function digest(value) {
  *
  * @param {object} baseline Original executed source-dealt game.
  * @param {object} intervention The same source game with one Farewell action.
- * @param {{seat:number,turn:number,archivedRootSha256:string,ownerSettlementAudit?:object,executionRecordsVerified?:boolean}} options
+ * @param {{seat:number,turn:number,archivedRootSha256:string,ownerSettlementAudit?:object,executionRecordsVerified?:boolean,expectedFirstTurnSlot?:0|1}} options
  * @returns {object} Failure-inclusive, noncompetitive attestation.
  */
 function attestFarewellPair(baseline,intervention,options) {
   const {seat,turn,archivedRootSha256,ownerSettlementAudit=null,
-    executionRecordsVerified=false}=options;
+    executionRecordsVerified=false,expectedFirstTurnSlot=null}=options;
   const original=baseline.rootActionLedger;
   const changed=intervention.rootActionLedger;
   const fullDeckIdentitiesPresent=Array.isArray(baseline.deckHashes) &&
@@ -42,6 +42,8 @@ function attestFarewellPair(baseline,intervention,options) {
     baseline.verifiedByDrawLog===true &&
     intervention.verifiedByDrawLog===true &&
     baseline.firstTurnSlot===intervention.firstTurnSlot &&
+    (expectedFirstTurnSlot===null ||
+      baseline.firstTurnSlot===expectedFirstTurnSlot) &&
     Array.isArray(original) && Array.isArray(changed);
   const originalRootSha256=Array.isArray(original)?digest(original):null;
   const archivedSourceUnchanged=originalRootSha256===archivedRootSha256;
