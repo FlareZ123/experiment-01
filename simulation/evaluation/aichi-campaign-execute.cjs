@@ -82,7 +82,7 @@ function executeDiagnostic(options) {
     'grandTreeFirstTurnCorrection',
     'electrodeGXEnergyCorrection',
     'electrodeGXPrizeTradePolicy', 'electroRainDamageCorrection',
-    'rank4RaichuCompressorSource',
+    'rank4RaichuCompressorSource', 'rank4RaichuRopePivotSource',
     'raichuSightToolPolicy', 'raichuPrizeAllocationPolicy',
     'doubleDragonRecovery',  'templeUnlockRecovery',
     'supporterDecisionCorrection', 'isolatePolicyRandomness',
@@ -106,6 +106,7 @@ function executeDiagnostic(options) {
     'strictPromptValidation', 'isolatePolicyRandomness',
     'captureDecisionTrace', 'captureAttackPassProbes',
     'captureElectrodeOpportunity', 'rank4RaichuCompressorSource',
+    'rank4RaichuRopePivotSource',
     'attackBeforeRetreatCandidateOnly',
     'toolAttackOpponentOnly'
   ]);
@@ -139,6 +140,11 @@ function executeDiagnostic(options) {
       policyFlags.electroRainDamageCorrection!==true ||
       policyFlags.battleCompressorPositiveSelectionCorrection!==true)) {
     throw new Error('Rank4 source Compressor requires rank 4, paper min1, Energy and attack corrections');
+  }
+  if(policyFlags.rank4RaichuRopePivotSource===true &&
+     (policyFlags.rank4RaichuCompressorSource!==true ||
+      policyFlags.electrodeGXPrizeTradePolicy!==true)) {
+    throw new Error('Rank4 Rope pivot requires source Compressor and Prize-trade rules');
   }
   const wanted = new Set(ranks);
   const trials = campaign.trials.filter(t => t.phase === 'pilot' && wanted.has(t.rank));
