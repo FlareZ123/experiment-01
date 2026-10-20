@@ -44,6 +44,10 @@ The rank-8 **opponent opener is still the deliberately selected Secret Box / Boo
 
 A follow-up noninterference control is now implemented in the source runner: repeat the **unmodified natural source game** both with the conditional policy enabled and with it absent, require that the policy never triggers, compare the complete root action transcript, then replay the original game after all nested policy adapters restore to check the whole transcript again. That added gate was committed after this successful run and must be executed before accepting the no-op/restoration claim.
 
+## Later attack-payment audit (20 October)
+
+A new [source-dealt post-Door attack-availability audit](rank8-hood-postdoor-attack-availability.md) ran successfully in [compiled manual CI 39348225613](https://github.com/FlareZ123/experiment-01/actions/runs/39348225613) on the same rank-8 seed, 86-root prefix and protected Door line. At the subsequent *actual generic Pass* on turn 8, the Active Shadow Rider VMAX held **only one Psychic Energy**, its printed Max Geist requires three Colorless Energy, and a detached native Store rejected that attack announcement. The recovered Psychic was attached to a Benched VMAX as required by Underworld Door. The earlier assumption that the generic pass necessarily skipped a payable Max Geist was therefore not supported in this state. This identifies earlier Energy funding and positioning as an important policy question, without proving that other earlier sequences or attacks were unavailable, and adds no competitive-qualified game.
+
 ## Inference boundary
 
 This repeated seed features manually improved opposing and candidate action sequences. Full-game policies remain unqualified; the pinned Twinleaf engine has known mechanics gaps. The result is not an independent sampled win or loss against rank 8.
