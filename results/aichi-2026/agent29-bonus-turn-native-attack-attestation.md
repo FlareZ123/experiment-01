@@ -37,3 +37,13 @@ The root attestor still does not prove the `AttackAction` actually chose **Timel
 Agent 41's canonical bilateral runner and Agent 33's evidence qualification should retain this guard without changing source-vs-candidate deck identities, existing starts or opponent response policies. The positive synthetic fixture must never be counted as an Aichi Top 32 success.
 
 **Current external project status unchanged:** 29/32 exact source 60s recovered; ranks 23, 25 and 28 unavailable; zero competitively qualified games; no demonstrated 99.5% single-deck result.
+
+## Follow-up: native completion lineage
+
+A second code review exposed another forgery channel. Once the granting root had the correct `AttackAction` class, the prior attestor could still treat an arbitrary later candidate-owned root on the same turn as the attack's `completionOrdinal`. That would incorrectly conflate attack declaration with resolved effect.
+
+The [follow-up patch d3b55d9](https://github.com/FlareZ123/experiment-01/commit/d3b55d91135b633111bca255bb8c460a646a9ad6) now requires completion at the **same actual granting attack root**, or at a genuine `ResolvePromptAction` whose Store-provided `initiatingRootActionOrdinal` is the granting attack root. It accepts unowned/defender-owned native prompt closures when this origin matches. Other completion action types or mismatched origins fail closed.
+
+The [new regression test a0e2b4a](https://github.com/FlareZ123/experiment-01/commit/a0e2b4a49bb38ee961c3d13d958112c085586bbe) checks a valid unowned prompt closure, a defender-owned closure with correct initiating root, and rejected mismatched-origin or unrelated-`PlayCardAction` completions. The **second manual [benchmark CI 39372125149](https://github.com/FlareZ123/experiment-01/actions/runs/39372125149) passed** at precisely `a0e2b4a49bb38ee961c3d13d958112c085586bbe`.
+
+These are conservative action-provenance predicates. Timeless-GX selection, copied-attack effect, causation of the extra turn and game-strength claims still require independent Store evidence.
