@@ -28,8 +28,8 @@ test('Basic Prism and Dragon-only Double Dragon eligibility',()=>{
 
 test('exact colored matching backtracks over flexible unit assignment',()=>{
   assert.equal(readiness(['P','L'],[
-    'Unit Energy LPM UPR','Psychic Energy MEE']).payable,true);
-  assert.equal(readiness(['P','L'],['Unit Energy LPM UPR']).payable,false);
+    'Unit Energy LightningPsychicMetal UPR','Psychic Energy MEE']).payable,true);
+  assert.equal(readiness(['P','L'],['Unit Energy LightningPsychicMetal UPR']).payable,false);
   assert.equal(canPaySymbols(['P','L'],[['P','L'],['P']]),true);
   assert.equal(canPaySymbols(['P','L'],[['P'],['P']]),false);
 });
