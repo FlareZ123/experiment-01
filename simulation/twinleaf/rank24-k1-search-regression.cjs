@@ -17,6 +17,8 @@ const {withNativeSupporterTurnAudit} =
   require('./native-supporter-turn-audit.cjs');
 const {withPaperSupporterQuotaGuard} =
   require('./paper-supporter-quota-guard.cjs');
+const {withNativePaperSupporterDiscipline,VERSION:paperQuotaVersion} =
+  require('./agent41-paper-supporter-discipline.cjs');
 const {TIER_NAMES} = require('../../scripts/aichi-thorns-crossrank-opening.cjs');
 
 // All three already appeared in the original 24-source-deal registered cohort.
@@ -67,7 +69,8 @@ function main() {
     maxActions:105,strictPromptValidation:true,
     forestSealSearchCorrection:true,doubleDragonRecovery:true,
     supporterDecisionCorrection:true,isolatePolicyRandomness:true,
-    captureDecisionTrace:true,leleEntryAbilityLockCorrection:true,
+    captureDecisionTrace:true,captureInitialSourceDealFingerprintSeat:1,
+    leleEntryAbilityLockCorrection:true,
     radiantGateLockCorrection:true,entryDrawLockCorrection:true
   };
   const priority=TIER_NAMES.slice(1,4).flat();
@@ -147,6 +150,77 @@ function main() {
       }));
     const sourceTurn2Baseline=sourceTurn2Actions(original.result);
     const sourceTurn2OptIn=sourceTurn2Actions(k1Replanned.result);
+    // Compare K1 alone, paper quota alone, and their composition on identical
+    // physical source deals. The original unguarded K1 branch contains a
+    // genuinely settled second Supporter; it cannot be a paper-valid control.
+    const guardedLine=(k1Enabled)=>{
+      const run=withNativePaperSupporterDiscipline(
+        ()=>withBroadThornsSourceAttack(()=>runMatch(request),{
+          seat:1,turn:2,discardPriority:priority,
+          k1ReplanAfterTagCall:k1Enabled
+        })
+      );
+      const game=run.result.result;
+      const audit=run.audit;
+      assert.equal(game.verifiedByDrawLog,true);
+      assert.equal(game.firstTurnSlot,0);
+      assert.equal(game.initialSourceDealFingerprint?.seat,1);
+      assert.equal(audit.nativeSupporterQuotaQualified,true,
+        'Guarded policy must pass its native both-seat paper-quota audit');
+      assert.equal(audit.rootDispatchVetoes.length,0,
+        'Guarded policy submitted an illegal Supporter to native Store');
+      return {
+        k1Enabled,paperQuotaEnabled:true,
+        policyVersion:paperQuotaVersion,
+        nativeSupporterQuotaQualified:true,
+        physicalSourceDealSha256:
+          game.initialSourceDealFingerprint.digestSha256,
+        sourceTurn2Actions:sourceTurn2Actions(game),
+        sourceSupporterEvents:audit.nativeSupporterEvents
+          .filter(event=>event.seat===1)
+          .map(event=>({
+            turn:event.turn,name:event.name,settled:event.settled,
+            repeatOnSameTurn:event.repeatOnSameTurn,
+            supporterTurnBefore:event.supporterTurnBefore,
+            supporterTurnAfter:event.supporterTurnAfter
+          })),
+        suppressedOwnerProposals:audit.ownerProposalSuppressionCount,
+        actions:game.actions,finished:game.finished,
+        endReason:game.endReason,
+        rootActionTraceSha256:digest(game.decisionTrace??[]),
+        // Internal only; used to assert noninterference in the two controls.
+        game
+      };
+    };
+    const guardedK0=guardedLine(false);
+    const guardedK1=guardedLine(true);
+    assert.equal(guardedK0.physicalSourceDealSha256,
+      guardedK1.physicalSourceDealSha256,
+      'K1 intervention must preserve exact source physical starting deal');
+    if(item.label!=='tag-call-before-prized-stadium'){
+      assert.deepEqual(stableGame(guardedK1.game),stableGame(guardedK0.game),
+        'K1 policy unexpectedly changed an inapplicable quota-guarded control');
+    }
+    // Exclude full private-bearing games from the portable evidence record.
+    const {game:ignoredK0,...quotaOnly}=guardedK0;
+    const {game:ignoredK1,...quotaPlusK1}=guardedK1;
+    const paperQuotaFactorial={
+      evidenceType:'same-deal-native-k1-by-paper-quota-2x2-v1',
+      sourceRank:24,candidateRank:1,sourceSeat:1,
+      k0Unrestricted:{
+        k1Enabled:false,paperQuotaEnabled:false,
+        sourceTurn2Actions:sourceTurn2Baseline,
+        actualSecondSupporterSettlement:'not-independently-audited-in-this-arm'
+      },
+      k1Unrestricted:{
+        k1Enabled:true,paperQuotaEnabled:false,
+        sourceTurn2Actions:sourceTurn2OptIn,
+        actualSecondSupporterSettlement:item.label===
+          'tag-call-before-prized-stadium'?'audited-below':'unexercised'
+      },
+      quotaOnly,quotaPlusK1,
+      competitiveQualifiedGames:0
+    };
     let nativeSupporterTurnAudit=null;
     let paperSupporterGuardDiagnostic=null;
     if(item.label==='tag-call-before-prized-stadium'){
@@ -236,6 +310,7 @@ function main() {
         events:k1Replanned.events,
         originalSourceTurn2Actions:sourceTurn2Baseline,
         optInSourceTurn2Actions:sourceTurn2OptIn,
+        paperQuotaFactorial,
         ...(nativeSupporterTurnAudit?{nativeSupporterTurnAudit}:{}),
         ...(paperSupporterGuardDiagnostic?{paperSupporterGuardDiagnostic}:{}),
         rootActionTraceSha256:digest(k1Replanned.result.decisionTrace),
@@ -254,7 +329,7 @@ function main() {
     });
   }
   const report={
-    schema:'rank24-owner-search-k0-k1-regression-v6-native-paper-guard-negative-control',
+    schema:'rank24-owner-search-k0-k1-regression-v7-paper-quota-factorial',
     evidenceType:'retrospective native Store actor-owned deck-search witness',
     fieldManifest:plan.manifestDigest,
     candidateDeckHash:digest(plan.candidate.cards),
@@ -265,7 +340,7 @@ function main() {
     targetPrinting:thunder[0],
     rows,
     competitiveQualifiedGames:0,
-    caveat:'Read-only native owner-epoch and Supporter observers preserve gameplay. Opt-in K1 replanning is checked for actually settled second same-turn Supporters by card identity, hand removal, quota increment and printed Supporter log; paper-rule exception audit remains a separate question. These selected seeds remain unqualified for competitive win rate.'
+    caveat:'Retrospective 2x2 K1 by reversible native paper-Supporter-quota contrast. Same-source paired physical deals are verified. Guarded branches pass narrow native quota audit; unguarded root sequences cannot by themselves establish legal Supporter settlement. Selected seeds remain unqualified for competitive win-rate inference.'
   };
   process.stdout.write(JSON.stringify(report,null,2)+'\n');
   return report;
