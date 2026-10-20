@@ -44,7 +44,7 @@ function createOwnerK1DeckMembership(){
       'K1 requires a native owner-deck search choice');
     assert.equal(prompt.playerId,owner.id,
       'Opponent deck search cannot establish owner K1');
-    assert.strictEqual(prompt.cards,owner.deck,
+    assert.ok(prompt.cards===owner.deck,
       'The exact owner deck object must be the searched zone');
     assert.ok(prompt.result===undefined,
       'The actor must actually have access to this pending search');
