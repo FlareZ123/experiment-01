@@ -79,10 +79,12 @@ function comparisonProjection(row) {
  * @param {Function} Bot Pinned SimpleTacticsAi, injected for pure tests.
  * @param {(state:object)=>object} clone Full detached clone.
  * @param {()=>()=>number} makeRandom Independent policy RNG factory.
+ * @param {{firstFiniteScoredRoot?:boolean}} [scope]
  * @returns {object} Unqualified, failure-inclusive diagnostic.
  */
-function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom) {
-  const target=candidateDevelopmentTarget(trial);
+function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) {
+  const target={...candidateDevelopmentTarget(trial),
+    ...(scope.firstFiniteScoredRoot===true?{firstFiniteScoredRoot:true}:{})};
   let control;
   try {
     control=execute();
@@ -165,6 +167,9 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom) {
           event.tacticScoreComparison.physicalScoreSummary.finiteScores>0 &&
           event.tacticScoreComparison.counterfactualScoreSummary.finiteScores>0:null,
       deckCards:event.deckCards??null,
+      chosenRootTurn:event.chosenRootTurn??null,
+      actualScorerAttempts:event.actualScorerAttempts??null,
+      actualFiniteScores:event.actualFiniteScores??null,
       knownDeckMembershipVerified:event.knownDeckMembershipVerified===true,
       knownDeckTopOrderVerified:event.knownDeckTopOrderVerified===true
     }}:{}),
@@ -181,7 +186,8 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom) {
  *
  * @returns {object}
  */
-function runHistoricalDevelopmentAudit() {
+function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false}={}) {
+  assert.equal(typeof firstFiniteScoredRoot,'boolean');
   const root=path.resolve(__dirname,'../..');
   const {developmentTrials,executeDevelopment}=
     require('./agent41-bilateral-v2-development.cjs');
@@ -223,12 +229,17 @@ function runHistoricalDevelopmentAudit() {
     trial,
     ()=>executeDevelopment(trial,prepared),
     withPostgameRootOrderProbe,SimpleTacticsAi,clone,
-    ()=>seededRandom((trial.seed^0x5a17b9ef)>>>0)
+    ()=>seededRandom((trial.seed^0x5a17b9ef)>>>0),
+    {firstFiniteScoredRoot}
   ));
   return {
-    schema:'agent50-crossrank-historical-live-hidden-order-v1',
+    schema:firstFiniteScoredRoot?
+      'agent50-crossrank-historical-first-finite-owner-score-v2':
+      'agent50-crossrank-historical-live-hidden-order-v1',
     protocol:'same-frozen-game control/replay, one candidate root hidden order flip',
-    targetRankAndActualSeat:'6:0:A candidate seat A turn 3; 11:2:B candidate seat B turn 3',
+    targetRankAndActualSeat:firstFiniteScoredRoot?
+      'First candidate root at/after global turn 3 returning a finite tactic score for each arm':
+      '6:0:A candidate seat A turn 3; 11:2:B candidate seat B turn 3',
     source:'Agent 41 previously inspected v1 development streams; excluded from prospective v2',
     allAttemptsRetained:true,attempts:rows.length,rows,
     liveProbeNoninterfering:rows.filter(r=>r.noninterferenceVerified).length,
@@ -246,7 +257,9 @@ function runHistoricalDevelopmentAudit() {
 }
 
 if(require.main===module) {
-  process.stdout.write(JSON.stringify(runHistoricalDevelopmentAudit(),null,2)+'\n');
+  process.stdout.write(JSON.stringify(runHistoricalDevelopmentAudit({
+    firstFiniteScoredRoot:process.env.AGENT50_FIRST_FINITE_ROOT==='true'
+  }),null,2)+'\n');
 }
 module.exports={candidateDevelopmentTarget,comparisonProjection,
   auditDevelopmentArm,runHistoricalDevelopmentAudit};
