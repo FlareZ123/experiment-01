@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {chooseActorRootIntent,withActorOnlyRootPolicy}=
+const {chooseActorRootIntent,publicDispatchState,withActorOnlyRootPolicy}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 const catalog={
   basics:new Set(['Shadow Rider Calyrex V CRE','Trubbish FST']),
@@ -136,4 +136,52 @@ test('numeric native Asleep and Paralyzed prevent a payable attack',()=>{
     view.ownTurnResources.energyPlayedTurn=2;
     assert.equal(chooseActorRootIntent(view,catalog).kind,'pass');
   }
+});
+
+/**
+ * Test only public Twinleaf-shaped zones. The opponent's concealed card
+ * identities must never enter the native Store action witness.
+ */
+test('native root witness hashes public transitions without reading hidden card identities',()=>{
+  const held=fullName=>({fullName});
+  const activeCard={
+    fullName:'Shadow Rider Calyrex V CRE',name:'Shadow Rider Calyrex V',
+    hp:210,stage:2,cardType:[5],retreat:[9],weakness:[],resistance:[],
+    attacks:[],powers:[]
+  };
+  const active=()=>({
+    getPokemonCard:()=>activeCard,cards:[activeCard],damage:0,
+    specialConditions:[],energies:{cards:[]},tools:[]
+  });
+  const empty=()=>({
+    getPokemonCard:()=>null,cards:[],damage:0,
+    specialConditions:[],energies:{cards:[]},tools:[]
+  });
+  const player=()=>({
+    active:active(),bench:Array.from({length:5},empty),
+    hand:{cards:[held('One concealed card')]},
+    deck:{cards:[held('Secret first card')]},prizes:[{cards:[held('Prize card')]}],
+    stadium:{cards:[]},discard:{cards:[]},lostzone:{cards:[]},
+    supporter:{cards:[]}
+  });
+  const state={turn:2,activePlayer:0,phase:3,players:[player(),player()]};
+  const before=publicDispatchState({state});
+  assert.equal(before.handCounts[1],1);
+  assert.equal(before.attachedEnergyCounts[0],0);
+  state.players[1].hand.cards[0]=held('Different concealed card');
+  state.players[0].deck.cards[0]=held('Different unknown deck card');
+  state.players[0].prizes[0].cards[0]=held('Different unknown Prize');
+  assert.equal(publicDispatchState({state}).publicZonesSha256,
+    before.publicZonesSha256,'unknown card identities must be omitted');
+  state.players[0].active.energies.cards.push(held('Psychic Energy MEE'));
+  const after=publicDispatchState({state});
+  assert.notEqual(after.publicZonesSha256,before.publicZonesSha256);
+  assert.deepEqual(after.attachedEnergyCounts,[1,0]);
+  assert.deepEqual(after.activePrintings,
+    ['Shadow Rider Calyrex V CRE','Shadow Rider Calyrex V CRE']);
+  state.turn=3;
+  const advanced=publicDispatchState({state});
+  assert.equal(advanced.turn,3);
+  assert.equal(advanced.publicZonesSha256,after.publicZonesSha256);
+  assert.equal(publicDispatchState({state:null}),null);
 });
