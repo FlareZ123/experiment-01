@@ -126,6 +126,19 @@ function main() {
       'Source must actually start second for this historical fixture');
     assert.equal(witnessed.result.result.verifiedByDrawLog,true);
 
+    // Keep just owner-root actions from the actual decision traces so we can
+    // distinguish abandoning the scripted line from the generic fallback's
+    // potentially identical Supporter spend. Opponent private zones omitted.
+    const sourceTurn2Actions=game=>(game.decisionTrace??[])
+      .filter(row=>row.playerSlot===1&&row.turnBefore===2)
+      .map(row=>({
+        actionOrdinal:row.actionOrdinal,
+        action:row.action,
+        card:row.card??null,
+        attackName:row.attackName??null
+      }));
+    const sourceTurn2Baseline=sourceTurn2Actions(original.result);
+    const sourceTurn2OptIn=sourceTurn2Actions(k1Replanned.result);
     const sourceSearches=witnessed.events.filter(event=>
       event.globalTurn===2&&event.ownerSeat===1);
     assert.ok(ownerK1Events.length>=1,
@@ -144,6 +157,8 @@ function main() {
         openingPlan:k1Replanned.openingPlan,
         abortReason:k1Replanned.abortReason,
         events:k1Replanned.events,
+        originalSourceTurn2Actions:sourceTurn2Baseline,
+        optInSourceTurn2Actions:sourceTurn2OptIn,
         rootActionTraceSha256:digest(k1Replanned.result.decisionTrace),
         sameGameAsOriginal:JSON.stringify(stableGame(k1Replanned.result))===
           JSON.stringify(stableGame(original.result)),
