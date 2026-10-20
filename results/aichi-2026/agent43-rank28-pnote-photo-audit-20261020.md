@@ -19,14 +19,14 @@ Image card positions are indexed by visual **row (1–5), column (1–8)**. Row 
 | R1 C5 | 1 | Koraidon ex | high |
 | R1 C6 | 1 | Hisuian Goodra VSTAR | high |
 | R1 C7 | 1 | Noivern ex | high |
-| R1 C8 | 1 | Kyurem | high; printing/attack unspecified |
+| R1 C8 | 1 | **Kyurem SV6a 047/064** | high visual match to Shiburingaru art; **Plasma Bane / Trifrost** Pokémon, 130 HP |
 | R2 C1 | 1 | Latias ex | high |
 | R2 C2 | 1 | Dedenne-GX | high |
 | R2 C3 | 1 | Tapu Lele-GX | high; **do not misclassify as Radiant Greninja** |
 | R2 C4 | 1 | Squawkabilly ex | high |
 | R2 C5 | 1 | Budew | high |
-| R2 C6 | 1 | Marshadow | high; printing/Ability unspecified |
-| R2 C7 | 1 | Wobbuffet | high; printing/Ability unspecified |
+| R2 C6 | 1 | **Marshadow SM9a 020/055** | high visual match to chibi's forest art; **Reset Hole** Stadium-discard Ability, 80 HP |
+| R2 C7 | 1 | **Wobbuffet CP3 013/032** | high visual match to Yukiko Baba's pink dressing-room art; **Bide Barricade** Active-dependent Ability, 110 HP |
 | R2 C8 | 1 | Battle Compressor | high |
 | R3 C1 | 3 | VS Seeker | high |
 | R3 C2 | 3 | Mysterious Treasure | high |
@@ -64,7 +64,7 @@ Image card positions are indexed by visual **row (1–5), column (1–8)**. Row 
 
 1. **Do not register as rank 28 in exact opponent inputs.** Independently verify the account behind the published list corresponds to the official Jo Kato entry, and that the pictured 60 was the one registered at the event.
 2. R4 C1 has now been independently matched to **2 Muscle Band Pokémon Tools**, XY-P 019 promotional artwork. Preserve the printing distinction: the photo's small printed collector number cannot be read. Confirm if the official rank-28 registered list used this exact print rather than an alternative printing.
-3. Japanese **Temple of Sinnoh S10P 087/067 UR** and **Parallel City** card art now match independently, but R5 C3 collector number and Pokémon printings with differing abilities or attacks (especially Kyurem, Marshadow and Wobbuffet) still need confirmation. The supplied English database is a search resource, not a print reconciliation.
+3. Japanese **Temple of Sinnoh S10P 087/067 UR**, **Parallel City**, **Kyurem SV6a 047/064**, **Marshadow SM9a 020/055**, and **Wobbuffet CP3 013/032** now have visually matched primary card-art references. R5 C3 collector number and other small/unreadable print IDs remain uncertain; actual official tournament submission still must be established. The supplied English database is a search resource, not a print reconciliation.
 4. Image provenance, 60-count and all named slots are valuable **source leads**. They are **not two-player gameplay evidence**; they do not change the 29/32 certified field coverage, the zero qualified games, or the unsupported 99.5% win-rate target.
 
 ## Independent card-art cross-check added 20 October 2026
@@ -72,6 +72,8 @@ Image card positions are indexed by visual **row (1–5), column (1–8)**. Row 
 The original screenshot (`dragon-05.png`, original image SHA-256 above) visibly contains a **yellow tied band with a pink-red triangular emblem against a red concentric vortex** at R4 C1. This matches the official Japanese [Muscle Band XY-P 019 promotional card](https://www.pokemon-card.com/card-search/details.php/card/30338) and an independently found full-size print image. The Japanese card name is **ちからのハチマキ**. Its effect is +20 damage to the opponent's Active Pokémon from attacks of the attached Pokémon. This has materially different game semantics from a discardable search Item; it occupies a Tool slot and does not modify Bench damage. The supplied Advanced Player's Rulebook B-02 says older Tools remain Tools despite their historical `Item` heading. Visual confidence is high, while printing-number proof remains unavailable because of screenshot resolution.
 
 R5 C2's gold temple art matches the official Japanese [S10P 087/067 Temple of Sinnoh](https://www.pokemon-card.com/card-search/details.php/card/44888). R5 C3's distinctive inverted two-sided city matches the [official Parallel City promo art](https://www.pokemon-card.com/card-search/details.php/card/49631). These image comparisons resolve the stadium names more strongly; artwork is insufficient to prove the registered tournament print numbers.
+
+Further visual comparison resolves three strategically relevant Pokémon printings: [Kyurem SV6a 047/064 (Plasma Bane, Trifrost)](https://www.pokemon-card.com/card-search/details.php/card/45922), [Marshadow SM9a 020/055 (Reset Hole)](https://www.pokemon-card.com/card-search/details.php/card/36165), and [Wobbuffet CP3 013/032 (Bide Barricade)](https://www.pokemon-card.com/card-search/details.php/card/31613). Official art distinctly matches the icy gold-bordered Kyurem, dark grey forest Marshadow, and pink-room Wobbuffet in the photographed rows. These effects are strategically critical, so database or simulator mapping must use the correct print family. The screenshots support high-confidence artwork identification, not a reading of microscopic collector-number symbols.
 
 ## Method limits
 
