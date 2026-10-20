@@ -42,6 +42,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Verify official champion 33-print bilingual parity and dated ban screen
+        run: node --test tests/aichi-champion-jp-audit.test.cjs
       - name: Check published registration identity including rank 22
         run: node --test tests/aichi-registration-fidelity.test.cjs
       - name: Verify missing-rank primary social-source fail-closed handling
