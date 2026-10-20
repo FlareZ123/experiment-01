@@ -203,7 +203,7 @@ jobs:
           retention-days: 10
       - name: Verify fail-closed same-native-world read pair contract
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-hidden-read-native-pair' }}
-        run: node --test tests/agent41-hidden-read-pair-attestation.test.cjs tests/agent41-native-opponent-hidden-read-observer.test.cjs tests/agent41-bilateral-v2-development.test.cjs
+        run: node --test tests/agent41-hidden-read-pair-attestation.test.cjs tests/agent41-native-opponent-hidden-read-observer.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent41-native-opponent-score-public-count-invariance.test.cjs
       - name: Replay exact four historical original Stores with native read probe off and on
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-hidden-read-native-pair' }}
         env:
