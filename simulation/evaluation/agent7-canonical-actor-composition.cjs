@@ -6,6 +6,7 @@ const VERSION = 'agent7-canonical-actor-five-component-v2';
 const OWNER_SEARCH_VERSION = 'agent41-canonical-actor-six-component-v3-owner-single-search';
 const SPARSE_OWNER_SEARCH_VERSION =
   'agent22-canonical-actor-six-component-v4-sparse-owner-search';
+const HAND_DISCARD_VERSION = 'agent47-canonical-hand-discard-v6';
 const GENERIC_FALLBACK_VERSION =
   'agent7-canonical-actor-attributed-generic-fallback-v5';
 
@@ -74,6 +75,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   const runActor = () => {
     if(!handDiscard)return execute();
     const selected=handDiscard(execute);
+    assert.ok(selected.audit && typeof selected.audit==='object',
+      'Actor hand-discard adapter must expose an audit');
     handDiscardAudit=selected.audit;
     return selected.result;
   };
@@ -83,6 +86,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   const genericWrapped = genericFallbackAttribution?genericFallback(runRoot):null;
   const rooted = genericFallbackAttribution?genericWrapped.result:runRoot();
   const genericFallbackAudit = genericFallbackAttribution?genericWrapped.audit:null;
+  if(handDiscard)assert.ok(handDiscardAudit,
+    'Actor hand-discard option requires an executed adapter');
   const searchOrFog = rooted.result;
   const fogged = ownerSingleSearch?searchOrFog.result:searchOrFog;
   const ownerSearchAudit = ownerSingleSearch?searchOrFog.audit:null;
@@ -104,15 +109,18 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   const finalGenericPromptFallbacks =
     rootAudit.unsupportedPromptFallbacks ?? null;
   const audit = {
-    version: genericFallbackAttribution?GENERIC_FALLBACK_VERSION:
+    version: handDiscard?HAND_DISCARD_VERSION:
+      genericFallbackAttribution?GENERIC_FALLBACK_VERSION:
       sparseOwnerSearch?SPARSE_OWNER_SEARCH_VERSION:
       ownerSingleSearch?OWNER_SEARCH_VERSION:VERSION,
     sparseOwnerSearchOptIn:sparseOwnerSearch,
+    actorHandDiscardOptIn:Boolean(handDiscard),
     genericFallbackAttributionOptIn:genericFallbackAttribution,
     selectedHandlerPriority: [
       'ChooseAttackPrompt', 'SelectOptionPrompt', 'SelectPrompt',
       'FogCrystalRootAndOwnerDeckSearch',
       ...(ownerSingleSearch?['ActorOwnerSingleSearchPrompt']:[]),
+      ...(handDiscard?['ActorHandDiscardPrompt']:[]),
       'ActorOnlyRoot'
     ],
     componentVersions: {
@@ -123,7 +131,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       ...(ownerSingleSearch?{ownerSearch:ownerSearchAudit.version??null}:{}),
       select: selectAudit.version ?? null,
       selectOption: optionAudit.version ?? null,
-      chooseAttack: attackAudit.version ?? null
+      chooseAttack: attackAudit.version ?? null,
+      ...(handDiscard?{handDiscard:handDiscardAudit.version??null}:{})
     },
     nativeDecisionCounts: {
       actorRootsSelected: rootAudit.selectedRootDecisions ?? null,
@@ -139,6 +148,11 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
         ownerSearchAccepted:ownerSearchAudit.accepted??null,
         ownerSearchSettled:ownerSearchAudit.nativePromptPostconditionsConfirmed??null,
         ownerSearchUnverified:ownerSearchAudit.nativePromptPostconditionsUnverified??null
+      }:{}),
+      ...(handDiscard?{
+        handDiscardAccepted:handDiscardAudit.accepted??null,
+        handDiscardBySeat:handDiscardAudit.bySeat??null,
+        handDiscardSettled:handDiscardAudit.nativePromptPostconditionsConfirmed??null
       }:{}),
       selectAccepted: selectAudit.accepted ?? null,
       selectOptionAccepted: optionAudit.acceptedPromptActions ?? null,
@@ -162,6 +176,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       fog: fogAudit.unsupportedPrompts ?? null,
       ...(ownerSingleSearch?{ownerSearch:ownerSearchAudit.nativeFallbacks??null}:{}),
       lastChanceRoot: finalGenericPromptFallbacks,
+      ...(handDiscard?{handDiscard:handDiscardAudit.nativeFallbacks??null}:{}),
       warning: 'Nested delegation counters overlap. The root is the final fallback.'
     },
     detailedComponentAudits: {
@@ -171,7 +186,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       ...(ownerSingleSearch?{ownerSearch:ownerSearchAudit}:{}),
       select: selectAudit,
       selectOption: optionAudit,
-      chooseAttack: attackAudit
+      chooseAttack: attackAudit,
+      ...(handDiscard?{handDiscard:handDiscardAudit}:{})
     },
     qualification: {
       fullyActorOnly: false,
@@ -186,5 +202,6 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
 }
 
 module.exports = {VERSION, OWNER_SEARCH_VERSION,SPARSE_OWNER_SEARCH_VERSION,
+  HAND_DISCARD_VERSION,
   GENERIC_FALLBACK_VERSION,
   withCanonicalActorOnlyPolicy};
