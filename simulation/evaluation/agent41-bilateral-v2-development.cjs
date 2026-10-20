@@ -541,6 +541,7 @@ function runDevelopment({
   nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
+  actorHandDiscard=false,
   nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null
 }={}){
@@ -578,7 +579,8 @@ function runDevelopment({
       if(actorOnlyComposition){
         const observed=withCanonicalActorOnlyPolicy(execute,{},
           {ownerSingleSearch:actorOnlySingleSearch,
-            genericFallbackAttribution:actorGenericFallbackAttribution});
+            genericFallbackAttribution:actorGenericFallbackAttribution,
+            actorHandDiscard});
         rows.push({...observed.result,
           actorOnlyPolicyVersion:observed.audit.version,
           actorOnlyDecisionCoverage:observed.audit,
@@ -640,6 +642,7 @@ function runDevelopment({
       nativeActionInputTapeOrdinal:null,
     actorOnlyCompositionOptIn:actorOnlyComposition,
     actorOnlyOwnerSingleSearchOptIn:actorOnlyComposition&&actorOnlySingleSearch,
+    actorHandDiscardOptIn:actorOnlyComposition&&actorHandDiscard,
     actorNativeFallbackAttributionOptIn:
       actorOnlyComposition&&actorGenericFallbackAttribution,
     actorOnlyCompositionVersion:actorOnlyComposition?
@@ -712,6 +715,7 @@ if(require.main===module){
     actorOnlySingleSearch:process.env.AGENT41_ACTOR_SINGLE_SEARCH_DEV==='true',
     actorGenericFallbackAttribution:
       process.env.AGENT7_NATIVE_GENERIC_FALLBACK_DEV==='true',
+    actorHandDiscard:process.env.AGENT47_ACTOR_HAND_DISCARD_DEV==='true',
     sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true'
   });
