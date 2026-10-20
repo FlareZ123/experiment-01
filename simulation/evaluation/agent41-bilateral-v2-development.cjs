@@ -206,7 +206,7 @@ function executeDevelopment(trial,candidates,{
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
   garbotoxinWindow=false,initializationWindow=false,
   mandatoryOptionFallback=false,paperSupporterQuota=false,
-  paperSupporterComparisonTrace=false
+  paperSupporterComparisonTrace=false,proposalStateAudit=false
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
     'Initialization passive window belongs only to rank 6');
@@ -257,6 +257,7 @@ function executeDevelopment(trial,candidates,{
   let garbotoxinWindowAudit=null;
   let initializationWindowAudit=null;
   let paperSupporterAudit=null;
+  let supporterProposalIntegrity=null;
   const runWithPowerWindow=()=>{
     if(!garbotoxinWindow)return runMatch(request);
     const observed=require('../twinleaf/agent41-live-garbotoxin-ability-window.cjs')
@@ -287,8 +288,15 @@ function executeDevelopment(trial,candidates,{
     paperSupporterAudit=guarded.audit;
     return guarded.result;
   };
+  const runWithProposalIntegrity=()=>{
+    if(!proposalStateAudit)return runWithPaperSupporterQuota();
+    const observed=require('../twinleaf/agent22-supporter-proposal-state-audit.cjs')
+      .withSupporterProposalStateAudit(runWithPaperSupporterQuota);
+    supporterProposalIntegrity=observed.audit;
+    return observed.result;
+  };
   const common=()=>withBilateralCommonCandidatePolicy(candidateSeat,
-    runWithPaperSupporterQuota);
+    runWithProposalIntegrity);
   let game,sourceAudit,commonAudit;
   if(trial.rank===11){
     const played=withRank11DirectBoostShake(sourceSeat,common,
@@ -412,6 +420,7 @@ function executeDevelopment(trial,candidates,{
     nativeSupporterQuotaQualified:paperSupporterQuota?
       paperSupporterAudit?.nativeSupporterQuotaQualified===true:'unverified',
     paperSupporterDiscipline:paperSupporterQuota?paperSupporterAudit:null,
+    ...(proposalStateAudit?{supporterProposalIntegrity}:{}),
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
     verifiedFirstTurn:game.verifiedByDrawLog,
     actualStarterSeat:game.firstTurnSlot,
@@ -481,7 +490,7 @@ function runDevelopment({
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
   mandatoryOptionFallback=false,nativePressureWindows=false,
   sourceFirstRetrospective=false,paperSupporterQuota=false,
-  paperSupporterComparisonTrace=false
+  paperSupporterComparisonTrace=false,proposalStateAudit=false
 }={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -505,6 +514,7 @@ function runDevelopment({
     try { rows.push(executeDevelopment(trial,prepared,{
       compressorPayload,opportunityAudit,lateCompressorPayload,
       mandatoryOptionFallback,paperSupporterQuota,paperSupporterComparisonTrace,
+      proposalStateAudit,
       // An opt-in observational package, with each native Store observer
       // applicable to its own opposing source archetype only.
       initializationWindow:nativePressureWindows&&trial.rank===6,
@@ -547,6 +557,7 @@ function runDevelopment({
     nativePressureWindowsOptIn:nativePressureWindows,
     paperSupporterQuotaOptIn:paperSupporterQuota,
     paperSupporterComparisonTraceOptIn:paperSupporterComparisonTrace,
+    proposalStateAuditOptIn:proposalStateAudit,
     nativeSupporterQuotaQualified:paperSupporterQuota?
       rows.every(row=>row.nativeSupporterQuotaQualified===true):'unverified',
     sourceFirstRetrospective,
@@ -594,6 +605,7 @@ if(require.main===module){
     paperSupporterQuota:process.env.AGENT41_PAPER_SUPPORTER_DEV==='true',
     paperSupporterComparisonTrace:
       process.env.AGENT41_PAPER_SUPPORTER_TRACE_DEV==='true',
+    proposalStateAudit:process.env.AGENT22_PROPOSAL_STATE_AUDIT==='true',
     sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true'
   });
