@@ -113,3 +113,15 @@ test('pending native prompt fallback counted and never qualified',()=>{
   assert.equal(result.audit.selectedRootDecisions,0);
   assert.equal(result.audit.competitiveGameQualified,false);
 });
+
+test('numeric native colored and colorless attacks use numeric energy costs',()=>{
+  for(const cost of [[5],[9],[5,9]]){
+    const view=base();
+    view.ownHand=[];
+    view.ownPublic.bench=[{},null,null,null,null];
+    view.ownPublic.active.energies=cost.length===2?['Psychic Energy MEE','Psychic Energy MEE']:['Psychic Energy MEE'];
+    view.ownPublic.active.attacks=[{name:'Paid Attack',cost,gxAttack:false}];
+    view.ownTurnResources.energyPlayedTurn=2;
+    assert.equal(chooseActorRootIntent(view,catalog).kind,'attack');
+  }
+});
