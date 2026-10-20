@@ -197,6 +197,12 @@ jobs:
       - name: Read-only candidate copied-attack effect and opponent-return audit on same four canonical historical arms
         if: inputs.common_bilateral_late_compressor_development
         run: node simulation/evaluation/agent37-late14-public-replay.cjs > agent37-late14-public-settlement.json
+      - name: Gate all canonical candidate effects against independent observer and frozen root history
+        if: inputs.common_bilateral_late_compressor_development
+        run: |
+          node --test tests/agent41-canonical-candidate-settlement-gate.test.cjs tests/agent37-candidate-attack-settlement.test.cjs
+          node scripts/agent41-canonical-candidate-settlement-gate.cjs agent5-bilateral-late14-compressor.json agent37-late14-public-settlement.json > agent41-integrated-candidate-settlement-gate.json
+          node -e "const x=require('./agent41-integrated-candidate-settlement-gate.json');console.log('INTEGRATED_CANDIDATE_ATTACK_GATE',JSON.stringify(x))"
       - name: Report actual candidate Compressor root and source response without qualifying games
         if: inputs.common_bilateral_late_compressor_development
         run: >-
@@ -218,6 +224,7 @@ jobs:
           path: |
             agent5-bilateral-late14-compressor.json
             agent37-late14-public-settlement.json
+            agent41-integrated-candidate-settlement-gate.json
           if-no-files-found: warn
           retention-days: 10
 
