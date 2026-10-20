@@ -34,7 +34,7 @@ function runCompiledActorObservation(){
     candidateSeat:observed.result.rows[event.game-1].candidateSeat
   }));
   const rank6NewMoon=nativeK1.filter(event=>
-    event.trialId.startsWith('6:0:A:new-moon-lockbreaker-v1:') &&
+    event.trialId==='6:0:A:new-moon-lockbreaker-v1' &&
     event.seat===0);
   assert.equal(rank6NewMoon.length,1,
     'Historical rank6 New Moon must have exactly one first candidate K1 search');
