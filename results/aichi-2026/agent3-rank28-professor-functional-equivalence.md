@@ -12,7 +12,7 @@ From the project's supplied complete English card database `card-list.zip`:
 | `swsh9-147` | Professor's Research | `Discard your hand and draw 7 cards.` | Legal |
 | `sm12-193` | Guzma & Hala | Search Stadium; optional discard 2 additional hand cards to also find Pokémon Tool and Special Energy | Legal |
 
-All three are Supporters subject to the once-per-turn restriction, with only historical wording differences in the rule reminder. The [Advanced Player's Rulebook §B-03](../../resources/advanced-players-rulebook.md) supplies the universal one-Supporter-per-turn rule; the image source's precise Japanese collector print remains unverified.
+All three are Supporters subject to the once-per-turn restriction, with only historical wording differences in the rule reminder. The [Advanced Player's Rulebook §B-03](../../resources/manual/EN_advanced_manual-2025-transcription-structured.md) supplies the universal one-Supporter-per-turn rule; the image source's precise Japanese collector print remains unverified.
 
 The original [photo shows **two Professor Juniper**, supported by official artwork](agent3-rank28-photo-supporter-disambiguation.md); it does **not** show Guzma & Hala. This correction avoids falsely adding a Stadium/Special Energy/Tool connector to the deck. Agent 48's first mechanical map incorrectly added Guzma & Hala with fundamentally different actions.
 
