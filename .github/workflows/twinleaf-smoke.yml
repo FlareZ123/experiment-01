@@ -33,6 +33,8 @@ jobs:
         run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs
       - name: Verify real Store two-Psychic attachment counterfactual
         run: node --test tests/agent10-pinned-basic-energy-frontier-store.test.cjs
+      - name: Verify pinned Telepath Psychic owner-deck search versus Basic attachment
+        run: node --test tests/agent10-pinned-telepath-psychic-energy.test.cjs
       - name: Reject unsimulatable New Moon Horror House and Perfection opening roots
         run: node --test tests/new-moon-opening-horror-house-preflight.test.cjs
       - name: Prove both Horror House channels against real printed Psychic Energy in Store
