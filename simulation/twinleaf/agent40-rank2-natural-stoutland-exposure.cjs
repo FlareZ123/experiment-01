@@ -13,6 +13,40 @@ const TRIAL_SEEDS = Object.freeze([20261101, 20261102, 20261103, 20261104]);
 const ACTION_LIMIT = 300;
 const SOURCE_PRINTING = 'Stoutland BCR';
 
+/**
+ * Public source Active and the acting opponent's own resource information,
+ * captured only after the ordinary bot has already selected a real action.
+ * No field is consulted by the decision policy.
+ *
+ * @param {object} state Actual pinned Store state before dispatch.
+ * @param {0|1} sourceSeat
+ * @param {{SUPPORTER:string|number, ITEM:string|number}} TrainerType
+ * @returns {object}
+ */
+function opponentOwnerResourceSnapshot(state, sourceSeat, TrainerType) {
+  const ownerSeat = 1 - sourceSeat;
+  const owner = state.players[ownerSeat];
+  return {
+    ownerSeat,
+    sourcePublicActive: state.players[sourceSeat].active
+      .getPokemonCard()?.fullName ?? null,
+    ownerHandPrintings: owner.hand.cards.map(card => card.fullName),
+    ownerHandSupporters: owner.hand.cards
+      .filter(card => card.trainerType === TrainerType.SUPPORTER)
+      .map(card => card.fullName),
+    ownerHandItems: owner.hand.cards
+      .filter(card => card.trainerType === TrainerType.ITEM)
+      .map(card => card.fullName),
+    ownerDiscardSupporters: owner.discard.cards
+      .filter(card => card.trainerType === TrainerType.SUPPORTER)
+      .map(card => card.fullName),
+    ownerSupporterTurn: owner.supporterTurn,
+    ownerActive: owner.active.getPokemonCard()?.fullName ?? null,
+    ownerBench: owner.bench.map(slot =>
+      slot.getPokemonCard()?.fullName ?? null)
+  };
+}
+
 /** @param {unknown} value @returns {string} */
 const sha256 = value => createHash('sha256')
   .update(JSON.stringify(value)).digest('hex');
@@ -29,6 +63,8 @@ const sha256 = value => createHash('sha256')
 function observeUnmodifiedSourceStoutland(sourceSeat, execute) {
   assert.ok(sourceSeat === 0 || sourceSeat === 1);
   const {Store} = require(path.join(OUTPUT, 'game/store/store'));
+  const {TrainerType} =
+    require(path.join(OUTPUT, 'game/store/card/card-types'));
   const prior = Object.getOwnPropertyDescriptor(Store.prototype, 'dispatch');
   assert.equal(typeof prior?.value, 'function');
   let root = null, rootOrdinal = 0;
@@ -71,7 +107,9 @@ function observeUnmodifiedSourceStoutland(sourceSeat, execute) {
       firstOpponentDecisionUnderActive = {
         turn: stateBefore.turn, rootOrdinal,
         action: action?.constructor?.name ?? null,
-        sourceActive: SOURCE_PRINTING
+        sourceActive: SOURCE_PRINTING,
+        opponentOwnerResources: opponentOwnerResourceSnapshot(
+          stateBefore, sourceSeat, TrainerType)
       };
     }
     const result = prior.value.apply(this, args);
@@ -227,5 +265,6 @@ if (require.main === module)
   process.stdout.write(JSON.stringify(runAudit(), null, 2) + '\n');
 
 module.exports = {
-  TRIAL_SEEDS, ACTION_LIMIT, observeUnmodifiedSourceStoutland, runAudit
+  TRIAL_SEEDS, ACTION_LIMIT, opponentOwnerResourceSnapshot,
+  observeUnmodifiedSourceStoutland, runAudit
 };
