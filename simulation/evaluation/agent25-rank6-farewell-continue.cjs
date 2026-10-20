@@ -92,7 +92,7 @@ function run() {
   const ability=(actual.abilityTrace??[]).filter(x=>
     x.seat===0&&x.turn===3&&x.name==='Farewell Letter');
   const pairedRootAttestation=attestFarewellPair(baselineActual,actual,{
-    seat:0,turn:3,
+    seat:0,turn:3,expectedFirstTurnSlot:0,
     ownerSettlementAudit:audit.settlement??null,
     executionRecordsVerified:baselineError===null && error===null &&
       baselineRecord!==null && record!==null,
