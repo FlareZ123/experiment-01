@@ -92,7 +92,7 @@ function run() {
       '9a9007f302a6e84084eb75c77f0a86db0e037c58384d7ff2076de828ba0ba913'
   });
   return {
-    schema:'agent25-rank6-farewell-live-source-counterfactual-v1',
+    schema:'agent25-rank6-farewell-live-source-counterfactual-v2',
     historicalSelectedDeal:true,
     frozenRegistration:'results/aichi-2026/registrations/agent41-crossrank-r6-r11-v1-20261019.json',
     originalSourceRun:39193837824,
