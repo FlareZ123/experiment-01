@@ -64,16 +64,33 @@ function withLiveGarbodorAbilityWindow(execute,{
     if(!ownActive)return result;
     const printedNewMoon=(ownActive.powers??[]).find(power=>
       power.name==='New Moon')??null;
+    const activePowerChecks=(ownActive.powers??[]).map(power=>({
+      name:power.name,
+      blocked:Boolean(isAbilityBlocked(this,state,candidate,ownActive,power))
+    }));
+    // Garbotoxin affects publicly visible Benched Powers as well as the
+    // Active Power. Keep the old Active-only fields for frozen packet readers.
+    const inPlayPowerChecks=[
+      ...activePowerChecks.map(check=>({
+        zone:'Active',benchIndex:null,printing:ownActive.fullName,...check
+      })),
+      ...candidate.bench.flatMap((slot,index)=>{
+        const pokemon=slot.getPokemonCard();
+        return (pokemon?.powers??[]).map(power=>({
+          zone:'Bench',benchIndex:index,printing:pokemon.fullName,
+          name:power.name,
+          blocked:Boolean(isAbilityBlocked(this,state,candidate,pokemon,power))
+        }));
+      })
+    ];
     const snap={
       action:action.constructor.name,
       globalTurn:state.turn,
       sourceGarbodorHasTool:sourceTool,
       candidateActive:ownActive.fullName,
       candidatePrintedPowerNames:(ownActive.powers??[]).map(p=>p.name),
-      candidatePrintedPowerChecks:(ownActive.powers??[]).map(power=>({
-        name:power.name,
-        blocked:Boolean(isAbilityBlocked(this,state,candidate,ownActive,power))
-      })),
+      candidatePrintedPowerChecks:activePowerChecks,
+      candidateInPlayPrintedPowerChecks:inPlayPowerChecks,
       // The generic no-Power call is historical diagnostics only. Pinned
       // IS_ABILITY_BLOCKED synthesizes a generic Ability when Power is absent,
       // which can yield a false positive for exempt printed Abilities.
