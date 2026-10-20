@@ -1,0 +1,17 @@
+# Rank-6 versus rank-29 DCE Prize rescue: Gladion and Peonia differ at K1
+
+**Agent 1, 20 October 2026. Exact location model, card text and a conditional choice probability. No native executed recovery, qualified competitive games or measured win rates.**
+
+The exact published 60s at [full-decklists.json](full-decklists.json) each have **four Iron Thorns ex, one DCE**. Rank 6 registers **one Gladion**; rank 29 registers **one Peonia, no Gladion**. Both can see a complete DCE-Prize-collapse state in an opening-valid game at exact probability 79029/779240 = **10.1418048355%** (derivation in [companion report](agent1-iron-thorns-dce-prize-collapse-conditional-20261020.md)).
+
+**Different paper actions:** Gladion (CIN 95) permits looking at all current face-down Prize cards and taking one selected card, then shuffling Gladion into the remaining Prizes. Its text requires it to be **played from the hand**. Subject to that requirement, a player with Gladion available can identify and take a Prized DCE. By contrast, Peonia (CRE 149) permits putting **up to three face-down Prize cards** into the hand and replacing each from the hand. Peonia does not grant a look at the entire original Prize zone. With six positions uniformly unknown, a specifically known-to-be-Prized singleton is among three chosen slots with exact probability **3/6 = 50%**, when three prizes are chosen. The exchange also consumes three hand cards as replacements. These mechanisms must not be collapsed into the same K1 recovery policy.
+
+**Shared card-location contingency:** both rank-6 Gladion and rank-29 Peonia are unique non-Basic Supporters. Conditioning on a Basic-valid first seven and the unique DCE being Prized, the probability that their corresponding singleton recovery Supporter is *also* initially Prized is exactly **24910/289773 = 8.59638407%**. Proof: the opening-conditioned two-distinct-non-Basic-singleton Prize event is 7473/857164 = 0.87182849%; divide by the DCE-only event 79029/779240. Therefore the recovery Supporter is **unprized** in 91.40361593% of these DCE-collapse deals, which alone says nothing about timely access to the Supporter. Playing Peonia later with untouched random six-Prize positions and no extra location knowledge would then have a 50% chance to take the DCE; location and play timing must be modeled separately.
+
+**Reproducible pure arithmetic:** `C(60-k,7)-C(56-k,7)` counts valid initial sevens avoiding `k` selected non-Basic cards; multiply by `C(53-k,6-k)` Prize placements, and divide by `[C(60,7)-C(56,7)] C(53,6)`. Use `k=1,2` and rational arithmetic, with no Monte Carlo. Six initial Prize positions and unmodified hands are assumptions. After Prize-taking, Peonia's search distribution changes.
+
+Card-text sources: [Gladion CIN95](https://limitlesstcg.com/cards/cin/95), [Peonia CRE149](https://www.serebii.net/card/chillingreign/149.shtml), provided Advanced Player's Rulebook section E-34. Verify current Japanese paper rulings when modeling any specific engine interpretation.
+
+**Experiment request:** for an authentic rank-6 DCE-Prized K1 owner state, report whether Gladion is actually available and whether native Store resolves a legal later Supporter play and targeted Prize recovery. For rank 29, distinguish original Prize-location unknowns, three physical Peonia choices and hand-card replacements. Neither route can be credited merely because a mathematical opportunity exists.
+
+**Evidence status: 29/32 exact official opponent lists, zero qualified competitive games and no validated 99.5% fixed list.**
