@@ -203,7 +203,7 @@ function commonPayloadOption(candidateSeat,enabled,lateWindow=false){
 function executeDevelopment(trial,candidates,{
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
   garbotoxinWindow=false,initializationWindow=false,
-  mandatoryOptionFallback=false
+  mandatoryOptionFallback=false,paperSupporterQuota=false
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
     'Initialization passive window belongs only to rank 6');
@@ -253,6 +253,7 @@ function executeDevelopment(trial,candidates,{
   let ownerCompressorAudit=null;
   let garbotoxinWindowAudit=null;
   let initializationWindowAudit=null;
+  let paperSupporterAudit=null;
   const runWithPowerWindow=()=>{
     if(!garbotoxinWindow)return runMatch(request);
     const observed=require('../twinleaf/agent41-live-garbotoxin-ability-window.cjs')
@@ -276,8 +277,15 @@ function executeDevelopment(trial,candidates,{
     initializationWindowAudit=observed.audit;
     return observed.result;
   };
+  const runWithPaperSupporterQuota=()=>{
+    if(!paperSupporterQuota)return runWithInitializationWindow();
+    const guarded=require('../twinleaf/agent41-paper-supporter-discipline.cjs')
+      .withNativePaperSupporterDiscipline(runWithInitializationWindow);
+    paperSupporterAudit=guarded.audit;
+    return guarded.result;
+  };
   const common=()=>withBilateralCommonCandidatePolicy(candidateSeat,
-    runWithInitializationWindow);
+    runWithPaperSupporterQuota);
   let game,sourceAudit,commonAudit;
   if(trial.rank===11){
     const played=withRank11DirectBoostShake(sourceSeat,common,
@@ -368,6 +376,7 @@ function executeDevelopment(trial,candidates,{
   return {
     trial,qualifiesForCompetitiveInference:false,
     policyVersion:POLICY_VERSION+
+      (paperSupporterQuota?'+NativePaperSupporterDiscipline-v1-both-seats':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (lateCompressorPayload?
       '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')),
@@ -393,6 +402,9 @@ function executeDevelopment(trial,candidates,{
       initializationWindowAudit,rank6PassivePressure:passiveEvidence
     }:{}),
     finalDispatchVisiblePlayLockV2:game.livePlayLockGuardBothSeats===true,
+    nativeSupporterQuotaQualified:paperSupporterQuota?
+      paperSupporterAudit?.nativeSupporterQuotaQualified===true:'unverified',
+    paperSupporterDiscipline:paperSupporterQuota?paperSupporterAudit:null,
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
     verifiedFirstTurn:game.verifiedByDrawLog,
     actualStarterSeat:game.firstTurnSlot,
@@ -453,7 +465,7 @@ function executeDevelopment(trial,candidates,{
 function runDevelopment({
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
   mandatoryOptionFallback=false,nativePressureWindows=false,
-  sourceFirstRetrospective=false
+  sourceFirstRetrospective=false,paperSupporterQuota=false
 }={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -476,16 +488,23 @@ function runDevelopment({
   for(const trial of scheduled){
     try { rows.push(executeDevelopment(trial,prepared,{
       compressorPayload,opportunityAudit,lateCompressorPayload,
-      mandatoryOptionFallback,
+      mandatoryOptionFallback,paperSupporterQuota,
       // An opt-in observational package, with each native Store observer
       // applicable to its own opposing source archetype only.
       initializationWindow:nativePressureWindows&&trial.rank===6,
       garbotoxinWindow:nativePressureWindows&&trial.rank===11
     })); }
-    catch(error){ rows.push({
-      trial,status:'engine-error',error:String(error?.stack||error),
-      qualifiesForCompetitiveInference:false
-    }); }
+    catch(error){
+      const veto=error?.paperSupporterQuotaEvidence??
+        error?.cause?.paperSupporterQuotaEvidence??null;
+      rows.push({
+        trial,status:veto?'paper-supporter-quota-veto':'engine-error',
+        error:String(error?.stack||error),
+        nativeSupporterQuotaQualified:veto?false:'unverified',
+        paperSupporterDiscipline:veto,
+        qualifiesForCompetitiveInference:false
+      });
+    }
   }
   return {
     schema:lateCompressorPayload?
@@ -500,6 +519,7 @@ function runDevelopment({
       'historical v1 selection; not v2 preregistration',
     enginePin:registration.enginePin,
     candidatePolicy:POLICY_VERSION+
+      (paperSupporterQuota?'+NativePaperSupporterDiscipline-v1-both-seats':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (lateCompressorPayload?
       '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')),
@@ -509,6 +529,9 @@ function runDevelopment({
     ownerCompressorOpportunityAudit:opportunityAudit,
     ownerCompressorLate14OptIn:lateCompressorPayload,
     nativePressureWindowsOptIn:nativePressureWindows,
+    paperSupporterQuotaOptIn:paperSupporterQuota,
+    nativeSupporterQuotaQualified:paperSupporterQuota?
+      rows.every(row=>row.nativeSupporterQuotaQualified===true):'unverified',
     sourceFirstRetrospective,
     retrospectiveSeedProvenance:sourceFirstRetrospective?{
       6:{seed:407516727,seat:'B',selection:'reversed physical source seat'},
@@ -537,6 +560,8 @@ function runDevelopment({
       };
     }),
     errors:rows.filter(r=>r.status==='engine-error').length,
+    paperSupporterQuotaVetoes:rows.filter(r=>
+      r.status==='paper-supporter-quota-veto').length,
     competitiveQualifiedGames:0,winRateCertified:false
   };
 }
@@ -549,6 +574,7 @@ if(require.main===module){
     lateCompressorPayload:lateWindow,
     mandatoryOptionFallback:process.env.AGENT41_MANDATORY_OPTION_DEV==='true',
     nativePressureWindows:process.env.AGENT41_NATIVE_PRESSURE_DEV==='true',
+    paperSupporterQuota:process.env.AGENT41_PAPER_SUPPORTER_DEV==='true',
     sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true'
   });
