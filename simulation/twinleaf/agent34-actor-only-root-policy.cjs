@@ -80,6 +80,30 @@ function chooseActorRootIntent(view,catalog,options={}){
       !(r.abilityPokemonPlayLocked===true&&catalog.abilityBasics.has(p)));
     if(index>=0)return {kind:'bench-basic',handIndex:index,benchIndex,printing:view.ownHand[index]};
   }
+  // Explicit development-only Iron Thorns ALS. Real native Store remains the
+  // authority for Stadium, Special Energy and attack legality. No K0 deck or
+  // Prize truth is consulted. This line is deliberately absent by default.
+  if(options.thornsDirectLine===true&&own.active?.name==='Iron Thorns ex'){
+    const stadiumName='Thunder Mountain Prism Star';
+    const energyName='Double Colorless Energy';
+    const stadiumUp=own.stadium.some(p=>p.startsWith(stadiumName+' '));
+    const alreadyCharged=own.active.energies.some(p=>
+      p.startsWith(energyName+' '));
+    const stadiumIndex=view.ownHand.findIndex(p=>
+      p.startsWith(stadiumName+' '));
+    if(!stadiumUp&&stadiumIndex>=0&&!r.stadiumPlayLocked&&
+       r.stadiumPlayedTurn!==view.globalTurn){
+      return {kind:'play-thunder-mountain',handIndex:stadiumIndex,
+        printing:view.ownHand[stadiumIndex]};
+    }
+    const energyIndex=view.ownHand.findIndex(p=>
+      p.startsWith(energyName+' '));
+    if(!alreadyCharged&&energyIndex>=0&&!r.energyPlayLocked&&
+       !r.specialEnergyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
+      return {kind:'attach-dce',handIndex:energyIndex,
+        printing:view.ownHand[energyIndex]};
+    }
+  }
   if(own.active&&!r.energyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
     const first=view.ownHand.findIndex(p=>catalog.basicEnergies.has(p));
     if(first>=0){
@@ -111,6 +135,19 @@ function chooseActorRootIntent(view,catalog,options={}){
         restrictions?.cannotUseAttacksNextTurn?.includes(attack.name)||
         (restrictions?.onlyAllowedAttackNameNextTurn&&
           restrictions.onlyAllowedAttackNameNextTurn!==attack.name))continue;
+      if(options.thornsDirectLine===true&&active.name==='Iron Thorns ex'&&
+         attack.name==='Volt Cyclone'&&attack.cost.length===3&&
+         attack.cost[0]===catalog.basicEnergyTypes.Lightning&&
+         attack.cost[1]===catalog.colorlessEnergyType&&
+         attack.cost[2]===catalog.colorlessEnergyType&&
+         active.printed?.types?.includes(catalog.basicEnergyTypes.Lightning)&&
+         own.stadium.some(p=>p.startsWith('Thunder Mountain Prism Star '))&&
+         active.energies.some(p=>p.startsWith('Double Colorless Energy '))){
+        // Printed Lightning + Colorless + Colorless with public Thunder
+        // reducing Lightning and attached DCE supplying both Colorless.
+        // A native Store rejection must still be reported and retained.
+        return {kind:'attack',attackName:attack.name};
+      }
       const left=attached.slice(),colored=attack.cost.filter(t=>t!==catalog.colorlessEnergyType);
       if(colored.some(type=>{
         const index=left.indexOf(type);
@@ -170,6 +207,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     version:VERSION,origin:'detached-actor-observation',
     energyFrontierOptIn:deps.energyFrontier??
       (process.env.AGENT10_BASIC_ENERGY_FRONTIER_DEV==='true'),
+    thornsDirectLineOptIn:deps.thornsDirectLine??
+      (process.env.AGENT1_THORNS_DIRECT_ROOT_DEV==='true'),
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
     typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
     publicTransitionWitnesses:0,publicTransitionChanges:0,
@@ -207,7 +246,10 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     if(catalog===null)catalog=getCatalog();
     const view=observe(state,seat);
-    const intent=chooseActorRootIntent(view,catalog,{energyFrontier:audit.energyFrontierOptIn});
+    const intent=chooseActorRootIntent(view,catalog,{
+      energyFrontier:audit.energyFrontierOptIn,
+      thornsDirectLine:audit.thornsDirectLineOptIn
+    });
     const ownerId=state.players[seat].id;
     let action;
     switch(intent.kind){
@@ -216,6 +258,14 @@ function withActorOnlyRootPolicy(run,deps={}){
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:intent.benchIndex});
         break;
       case 'attach-basic-energy':
+        action=new PlayCardAction(ownerId,intent.handIndex,{
+          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+        break;
+      case 'play-thunder-mountain':
+        action=new PlayCardAction(ownerId,intent.handIndex,{
+          player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
+        break;
+      case 'attach-dce':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
         break;
