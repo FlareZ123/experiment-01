@@ -268,32 +268,24 @@ function withPostgameRootOrderProbe(
   }
   let comparison;
   try {
-    const detachedBot=()=>{
-      const bot=new BotClass({id:actorId},cloneBotOptions(captured.options),null);
-      if(target.isolateReplayPolicyPerWorld===true) {
-        // Each world receives a fresh transient Field Blower policy state.
-        // The actual scorer's historical closure is still not reconstructed.
-        bot.decodeNextAction=function (world) {
-          const applyPolicy=dependencies.replayPolicy??
-            require('./agent41-bilateral-common-policy.cjs')
-              .withBilateralCommonCandidatePolicy;
-          return applyPolicy(target.seat,()=>
-            BotClass.prototype.decodeNextAction.call(this,world)).result;
-        };
-      }
-      return bot;
-    };
+    const detachedBot=()=>new BotClass(
+      {id:actorId},cloneBotOptions(captured.options),null);
+    const applyPolicy=dependencies.replayPolicy??
+      require('./agent41-bilateral-common-policy.cjs')
+        .withBilateralCommonCandidatePolicy;
+    const isolatedWorld=target.isolateReplayPolicyPerWorld===true?
+      evaluate=>applyPolicy(target.seat,evaluate).result:null;
+    // World policy hooks must be installed BEFORE bot construction. The
+    // injected Star Alchemy tactic is part of its constructor-time tactic list.
     const compareWorlds=()=>compare(
-      captured.state,actorId,detachedBot,cloneDetached,target.makeRandom
+      captured.state,actorId,detachedBot,cloneDetached,target.makeRandom,
+      isolatedWorld
     );
     // The actual game has Field Blower, Stone-recipient and Star Alchemy
     // adapters around the bot. An unwrapped fresh bot is a different policy.
     // Apply identical adapters only to detached postgame counterfactuals.
     if(target.replayCommonPolicy===true &&
         target.isolateReplayPolicyPerWorld!==true) {
-      const applyPolicy=dependencies.replayPolicy??
-        require('./agent41-bilateral-common-policy.cjs')
-          .withBilateralCommonCandidatePolicy;
       comparison=applyPolicy(target.seat,compareWorlds).result;
     } else {
       comparison=compareWorlds();
