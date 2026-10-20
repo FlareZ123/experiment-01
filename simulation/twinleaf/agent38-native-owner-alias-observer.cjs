@@ -54,6 +54,11 @@ function inspectNativeOwnerAliases(state,choose,{
       const changed=compareOwnedGraphSnapshot(single,{maxExamples:1});
       if(changed.changedFields===0)continue;
       changedObjects++;
+      const current=Object.getOwnPropertyDescriptors(obj);
+      const primitiveChanges=['damageTakenLastTurn','movedToActiveThisTurn'].flatMap(k=>{
+        const old=entry.descriptors[k]?.value,now=current[k]?.value;
+        return Object.is(old,now)?[]:[{key:k,before:old??null,after:now??null}];
+      });
       const path=ownPlayerGraph.get(obj);
       const exitPath=postPaths.get(obj)??null;
       if(exitPath!==null)liveAliasAtExit++;
@@ -62,7 +67,7 @@ function inspectNativeOwnerAliases(state,choose,{
         if(aliases.length<maxExamples)aliases.push({
           entryPath:snap.paths.get(obj),
           livePlayerPath:path,livePlayerExitPath:exitPath,
-          changedFields:changed.changedFields,
+          changedFields:changed.changedFields,primitiveChanges,
           firstMutationKind:changed.examples[0]?.kind??null
         });
       }
