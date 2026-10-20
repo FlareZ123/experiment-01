@@ -19,6 +19,8 @@ jobs:
         run: node --test tests/aichi_opening_audit.test.cjs
       - name: Actor-visible Special Energy payability regression
         run: node --test tests/actor-energy-payability.test.cjs
+      - name: Actor-only native option prompt regression
+        run: node --test tests/agent13-actor-only-select-option.test.cjs
       - name: Optional bonus draw exact-model tests
         run: node --test tests/aichi_bonus_draws.test.cjs
       - name: Bilateral bonus offers and 29-source-rank sensitivity
