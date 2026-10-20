@@ -11,7 +11,13 @@ const view=()=>({ownerK1:null,ownHand:['A','A','B'],ownPublic:{
   stadium:[],discard:['C','C','C','C'],lostZone:[],resolvingSupporter:[],
   deckCount:45,prizeCount:6
 }});
-const assumptions={assumeFullyExchangeableUnseenCards:true};
+const assumptions={
+  assumeFullyExchangeableUnseenCards:true,
+  ownerKnowledgeEpoch:{
+    exactMembership:false,liveSearches:0,
+    fullPrizeReviews:0,hiddenPrizeRedeals:0
+  }
+};
 
 test('attached Energy is counted once although present in two views',()=>{
   const result=ownerK0NextDrawBelief(view(),registered60,assumptions);
@@ -47,4 +53,17 @@ test('source accounting refuses incompatible public zones',()=>{
   wrong.ownPublic.deckCount=44;
   assert.throws(()=>ownerK0NextDrawBelief(wrong,registered60,assumptions),
     /do not account/);
+});
+
+
+test('a searched deck or unauthenticated K0 epoch fails closed',()=>{
+  const unverified={assumeFullyExchangeableUnseenCards:true};
+  assert.throws(()=>ownerK0NextDrawBelief(view(),registered60,unverified),
+    /authenticated owner K0/);
+  const searched={
+    ...assumptions,
+    ownerKnowledgeEpoch:{...assumptions.ownerKnowledgeEpoch,liveSearches:1}
+  };
+  assert.throws(()=>ownerK0NextDrawBelief(view(),registered60,searched),
+    /authenticated owner K0/);
 });
