@@ -94,7 +94,9 @@ function actorObservation(state,seat,options={}){
     actorSeat:seat,globalTurn:state.turn,phase:state.phase,
     decisionKind:pending?'owner-prompt':'owner-root',
     pendingPromptType:pending?.constructor.name??null,
-    pendingOwnerDeckSearch:Boolean(pending&&pending.cards===owner.deck),
+    pendingOwnerDeckSearch:Boolean(pending&&
+      pending.constructor?.name==='ChooseCardsPrompt'&&
+      pending.cards===owner.deck),
     ownHand:owner.hand.cards.map(printing),
     ownPublic:publicPlayer(owner),
     opponentPublic:publicPlayer(state.players[1-seat]),
