@@ -50,4 +50,3 @@ class AttachEnergyPrompt {
 }
 AttachEnergyPrompt.one={provides:['LIGHTNING']};
 AttachEnergyPrompt.two={provides:['LIGHTNING']};
-function nativeState(prompt){return {prompts:[prompt],players:[]};}
