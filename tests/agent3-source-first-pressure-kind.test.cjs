@@ -1,0 +1,83 @@
+'use strict';
+
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {sourceFirstNativePressureVerified}=require(
+  '../simulation/evaluation/agent3-source-first-pressure-kind.cjs');
+
+function rank6(){
+  const pressure={pressureKind:'passive-ability-suppression',
+    rootActionOrdinal:4,completionOrdinal:4,
+    actorSeat:0,turnBefore:1,completionTurnBefore:1};
+  return {rank:6,sourcePressure:pressure,
+    rank6PassivePressure:{
+      schema:'agent41-rank6-passive-initialization-root-classification-v1',
+      status:'native-capability-suppression-with-rooted-turn-continuity',
+      sourceActiveContinuity:true,nativeCapabilitySuppressed:true,
+      rootedReplyAndReturn:true,
+      sourceTurnOneEndRoot:{ordinal:4,seat:0,turn:1,
+        action:'PassTurnAction'}
+    },rootActionLedger:[
+      {},{},{},{},{action:'PassTurnAction',turnBefore:1,playerSlot:0}]
+  };
+}
+function rank11(){
+  return {rank:11,sourcePressure:{
+    pressureKind:'item-enabled-ability-lock',actorSeat:0,
+    rootActionOrdinal:3,completionOrdinal:3,
+    turnBefore:1,completionTurnBefore:1
+  },garbotoxinWindowAudit:{
+    schema:'agent41-authentic-rank11-garbotoxin-ability-window-v1',
+    before:{globalTurn:2,sourceGarbodorHasTool:true,
+      candidatePrintedPowerNames:['New Moon'],
+      candidatePrintedNewMoonBlocked:true}
+  },rootActionLedger:[{},{},{},
+    {action:'PlayCardAction',card:'Boost Shake',turnBefore:1,
+      playerSlot:0}]};
+}
+
+test('rank6 native passive lock passes its typed, rooted evidence preflight',()=>{
+  assert.equal(sourceFirstNativePressureVerified(rank6()),true);
+});
+test('rank6 cannot substitute a first-turn attack for passive suppression',()=>{
+  const x=rank6();
+  x.sourcePressure.pressureKind='attack-settlement';
+  assert.equal(sourceFirstNativePressureVerified(x),false);
+  x.sourcePressure.pressureKind='passive-ability-suppression';
+  x.rootActionLedger[4].action='AttackAction';
+  assert.equal(sourceFirstNativePressureVerified(x),false);
+});
+test('rank6 demands printed native suppression and an actual source-return',()=>{
+  const x=rank6();
+  x.rank6PassivePressure.nativeCapabilitySuppressed=false;
+  assert.equal(sourceFirstNativePressureVerified(x),false);
+  x.rank6PassivePressure.nativeCapabilitySuppressed=true;
+  x.rank6PassivePressure.rootedReplyAndReturn=false;
+  assert.equal(sourceFirstNativePressureVerified(x),false);
+});
+test('rank11 requires both the paid Boost Shake root and blocked printed Ability',()=>{
+  const x=rank11();
+  assert.equal(sourceFirstNativePressureVerified(x),true);
+  x.garbotoxinWindowAudit.before.candidatePrintedNewMoonBlocked=false;
+  assert.equal(sourceFirstNativePressureVerified(x),false);
+  x.garbotoxinWindowAudit.before.candidatePrintedNewMoonBlocked=true;
+  x.rootActionLedger[3].card='Research';
+  assert.equal(sourceFirstNativePressureVerified(x),false);
+});
+test('unobserved native pressure must fail closed without throwing',()=>{
+  for(const x of [rank6(),rank11()]){
+    delete x.rank6PassivePressure;
+    delete x.garbotoxinWindowAudit;
+    assert.equal(sourceFirstNativePressureVerified(x),false);
+    delete x.rootActionLedger;
+    assert.equal(sourceFirstNativePressureVerified(x),false);
+  }
+});
+test('later pressure or any other rank cannot satisfy first-turn hard-pressure preflight',()=>{
+  const x=rank6();
+  x.sourcePressure.turnBefore=2;
+  assert.equal(sourceFirstNativePressureVerified(x),false);
+  x.sourcePressure.turnBefore=1;
+  x.rank=7;
+  assert.equal(sourceFirstNativePressureVerified(x),false);
+});
