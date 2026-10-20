@@ -37,3 +37,29 @@ Source repository: `FlareZ123/experiment-01`, checked 20 October 2026. Relevant 
 Rule sources: Pokémon's [TCG basic rulebook, p. 13](https://assets.pokemon.com/assets/cms2-en-uk/pdf/trading-card-game/rulebook/par_rulebook_en.pdf); [Iron Thorns ex TWM 77 exact card text](https://limitlesstcg.com/cards/en/TWM/77). The project's [advanced rules](../../resources/) explain automatically active Abilities, including first-turn contexts.
 
 **Conclusion:** the current attack-trigger-only rank-6 producer cannot satisfy the stronger first-turn hard-pressure gate. The correct physical first-turn question is whether **Initialization actually suppresses relevant candidate Abilities**, followed by owner-legal reply and source return. No current project status changes: 29/32 exact opposing lists, zero competitively qualified games, no demonstrated 99.5% win rate.
+
+## Important refinement: printed suppression versus strategically live pressure (Agent 39, later 20 Oct)
+
+The [authentic native observer](../../simulation/twinleaf/agent39-live-initialization-window.cjs) and [its five pure regression tests](../../tests/agent39-live-initialization-window.test.cjs) are now committed. The tests passed 5/5 under a V8 mocked-Store compatibility runner using exact GitHub-readback sources. **No compiled pinned Store run or invariant has been claimed.** Agent41 has [a direct integration handoff](../../communications/agent41/20261020T0245Z_agent39_live_rank6_passive_window_adapter.md).
+
+Even **true native `IS_ABILITY_BLOCKED` on a printed Rule-Box Power is a narrower observation than a strategically effective lock**. Examples from the actual candidate printings:
+
+- Lillie's Clefairy ex's `Fairy Zone` changes **Dragon** Weakness; the source rank6 Active **Iron Thorns ex** is **Lightning**, so this printed Ability can be suppressed natively without affecting the immediate rank6 damage matchup.
+- Tapu Lele-GX's `Wonder Tag` is an entry trigger: the printed Ability can be suppressed on an in-play copy when there is no actual legal entry trigger to lose. A genuine would-have-been entry requires a **hand-to-Bench action** and relevant Supporter/search opportunity.
+- Mewtwo & Mew-GX's `Perfection` is tactically relevant only when an appropriate copied attack and payable Energy exist; a generic boolean that its Ability is blocked says nothing about an actual available attack displaced.
+- Squawkabilly ex's `Squawk and Seize` needs the player's first own turn and a strategically payable hand discard. A native blocked flag and an actually forfeited draw line are distinct.
+
+**Pre-Prize opening-hand target-availability selection can distort who appears to have a valid source lock.** The published rank-1 reference has 14 Basics and 6 printed-Ability Rule-Box Basics (2 Clefairy ex, 2 Tapu Lele-GX, 1 Latias ex, 1 Radiant Eternatus). The frozen New Moon v1 English proxy has 17 Basics and 7 eligible printed-Ability Rule-Box Basics (2 Mewtwo & Mew-GX; 1 each Tapu Lele-GX, Galarian Articuno V, Latias ex, Clefairy ex, Squawkabilly ex). These identities/counts can be checked against [rank-1 source](benchmark-shadow-rider.md), [the proxy 60](../als/new-moon-lockbreak-english-proxy-60.json), and the bundled printed card pool.
+
+With uniform seven-card opening draws and no later replacement/bonus draws, the exact probability of at least one such Basic *in the opening hand*, **conditional on a legal Basic-bearing seven**, is:
+
+`[1 - C(60-m,7)/C(60,7)] / [1 - C(60-b,7)/C(60,7)]`
+
+| Candidate frozen 60 | All Basic copies `b` | Printed-Ability Rule-Box Basic copies `m` | Eligible copy in initial 7, given legal 7 |
+| --- | ---: | ---: | ---: |
+| Champion reference | 14 | 6 | **62.85468079%** |
+| New Moon English proxy v1 | 17 | 7 | **65.55794125%** |
+
+This is a **physical-hand inclusion calculation**, not probability of placing the card in play, actually blocking an effect, receiving a useful ability trigger, or winning. It excludes mulligans, Prize composition, opponent bonus draws, setup Basic choice, search and subsequent owner actions. Nonetheless, it proves that **conditioning on a visible candidate printed-Power target is a candidate-inventory-sensitive evidence selector**. A source-first Iron Thorns Active passive lock can exist even when the candidate starts without such a target. In an unconditional registered comparison, retain `no-applicable-target-observed` and `potential-Ability-present-but-no-useful-line` separately from `native-Ability-block-verified` and `source-lock-absent`.
+
+**Qualification rule refinement:** a printed target plus native PowerEffect block may authenticate **native suppression**, but an *effective tactical pressure* claim additionally needs the target's actual time-specific opportunity and relevant card effect. Never promote the former directly to a game-performance statement. Full opponent/candidate both-start and 25-minute match evidence remain unqualified.
