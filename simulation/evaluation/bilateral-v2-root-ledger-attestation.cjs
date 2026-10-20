@@ -35,6 +35,11 @@ function attestBilateralRootClaims(row,ledger,candidateSeat){
       'Store root physical actor slot required');
     assert.ok(typeof root.action==='string'&&root.action.length>0,
       'Store root action class required');
+    if(i>0){
+      const previous=ledger[i-1].turnBefore;
+      assert.ok(root.turnBefore>=previous && root.turnBefore<=previous+1,
+        'Complete Store ledger cannot skip or reverse global turns');
+    }
   }
   const sourceSeat=1-candidateSeat;
   /**
