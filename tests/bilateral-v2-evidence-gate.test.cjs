@@ -255,7 +255,7 @@ test('missing Store turn claims cannot earn a mechanical reply witness',()=>{
   delete archive.rows[0].candidateReply.turnBefore;
   const r=auditBilateralV2(plan,archive);
   assert.equal(r.arms[0].immediateTurnLineage,false);
-  assert.equal(r.opportunityAndPolicyVerdict,'MECHANICAL-PILOT-REVIEWABLE');
+  assert.equal(r.opportunityAndPolicyVerdict,'HOLD-OR-INCOMPLETE');
   assert.equal(r.mechanicalBilateralWitnesses,7);
 });
 
