@@ -25,6 +25,7 @@ function audit(field,sets,readCards){
   const rows=field.decks.map(deck=>{
     assert.equal(deck.cards.reduce((n,c)=>n+c.count,0),60);
     let eligible=0,eligibleBasic=0,ordinary=0,future=0;
+    const crossLocks={path:0,klefki:0,wobbuffet:0,garbotoxin:0};
     const matches=[];
     for(const entry of deck.cards.filter(c=>c.category==='Pokémon')){
       const code=entry.printing.set;
@@ -41,6 +42,11 @@ function audit(field,sets,readCards){
         'Missing or ambiguous '+deck.rank+' '+entry.name+' '+code+' '+number);
       const card=printed[0];
       if(!card.abilities?.length)continue;
+      if(card.rules?.length)crossLocks.path+=entry.count;
+      if(card.subtypes.includes('Basic'))crossLocks.klefki+=entry.count;
+      if(!card.types.includes('Psychic'))crossLocks.wobbuffet+=entry.count;
+      if(card.abilities.some(a=>a.name!=='Garbotoxin'))
+        crossLocks.garbotoxin+=entry.count;
       if(!card.rules?.length){ordinary+=entry.count;continue;}
       if(card.subtypes.includes('Future')){future+=entry.count;continue;}
       eligible+=entry.count;
@@ -49,7 +55,7 @@ function audit(field,sets,readCards){
         count:entry.count,abilities:card.abilities.map(a=>a.name)});
     }
     return {rank:deck.rank,archetype:deck.archetype,eligible,
-      eligibleBasic,ordinary,future,matches};
+      eligibleBasic,ordinary,future,matches,crossLocks};
   });
   return {schema:'aichi-initialization-static-potential-v1',
     published:rows.length,
@@ -58,6 +64,9 @@ function audit(field,sets,readCards){
     evolutionOnly:rows.filter(x=>x.eligible>0&&x.eligibleBasic===0)
       .map(x=>x.rank),
     basicPossible:rows.filter(x=>x.eligibleBasic>0).map(x=>x.rank),
+    crossLockNoTarget:Object.fromEntries(
+      ['path','klefki','wobbuffet','garbotoxin'].map(key=>
+        [key,rows.filter(row=>row.crossLocks[key]===0).map(row=>row.rank)])),
     competitiveQualifiedGames:0,rows};
 }
 
