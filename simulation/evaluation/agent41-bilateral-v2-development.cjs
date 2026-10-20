@@ -179,7 +179,8 @@ function commonPayloadOption(candidateSeat,enabled,lateWindow=false){
  * @returns {object}
  */
 function executeDevelopment(trial,candidates,{
-  compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false
+  compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
+  garbotoxinWindow=false
 }={}){
   const {runMatch}=require('../twinleaf/headless.cjs');
   const {withRank11DirectBoostShake}=
@@ -218,10 +219,20 @@ function executeDevelopment(trial,candidates,{
     captureInitialSourceDealFingerprintSeat:sourceSeat
   };
   let ownerCompressorAudit=null;
+  let garbotoxinWindowAudit=null;
+  const runWithPowerWindow=()=>{
+    if(!garbotoxinWindow)return runMatch(request);
+    const observed=require('../twinleaf/agent41-live-garbotoxin-ability-window.cjs')
+      .withLiveGarbodorAbilityWindow(()=>runMatch(request),{
+        sourceSeat,candidateSeat,turn:2
+      });
+    garbotoxinWindowAudit=observed.audit;
+    return observed.result;
+  };
   const runWithReadOnlyAudit=()=>{
-    if(!opportunityAudit)return runMatch(request);
+    if(!opportunityAudit)return runWithPowerWindow();
     const output=require('../twinleaf/owner-compressor-opportunity-audit.cjs')
-      .withOwnerCompressorOpportunityAudit(candidateSeat,()=>runMatch(request));
+      .withOwnerCompressorOpportunityAudit(candidateSeat,runWithPowerWindow);
     ownerCompressorAudit=output.audit;
     return output.result;
   };
@@ -310,6 +321,7 @@ function executeDevelopment(trial,candidates,{
         attackName:row.attackName}))
     }:{}),
     ...(opportunityAudit?{ownerCompressorOpportunityAudit:ownerCompressorAudit}:{}),
+    ...(garbotoxinWindow?{garbotoxinWindowAudit}:{}),
     finalDispatchVisiblePlayLockV2:game.livePlayLockGuardBothSeats===true,
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
     verifiedFirstTurn:game.verifiedByDrawLog,
