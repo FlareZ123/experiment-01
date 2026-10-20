@@ -60,3 +60,7 @@ The root attestation still accepts the producer's *raw* ledger as a premise. Ind
 ### Separate root-authenticated readiness (20 October)
 
 `rootAttestedPilotVerdict` now requires matched authentic source-deal pairs with Store root actor/turn attestations for both starting orders of rank 6 and rank 11, plus first-turn source-first pressure root attestations for each rank. The older `opportunityAndPolicyVerdict` remains a weaker mechanical preflight. A missing native transcript returns `HOLD-OR-UNAUTHENTICATED`. Additional fields identify native-root paired witnesses by actual seat and source rank. Code `a61dfb7`, test `c18bfd7`; 37/37 pure V8 compatibility checks passed, including a false positive with a wrong actor that leaves the older verdict unchanged. Compiled Twinleaf CI, authentic native lock-effect checking, paper-rules fidelity, opponent-policy quality and match-clock certification remain outstanding.
+
+### Store global-turn continuity hardening
+
+The native-root helper now rejects full transcripts that reverse global turn numbers or jump over a turn between adjacent successful root dispatches. This closes an additional structurally impossible but previously accepted synthetic-ledger case. Code `8b7cfc7`; fixture corrections `0bd4a3a` and adversarial test `25923a9`. All **38/38** pure checks pass using the latest four GitHub-readback files in V8. This structural requirement does not authenticate the original producer or establish actual Pokémon effect resolution; native engine validation remains outstanding.
