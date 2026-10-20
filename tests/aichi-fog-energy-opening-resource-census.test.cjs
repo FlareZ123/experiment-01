@@ -37,6 +37,24 @@ test('exact resource probabilities match independent integer-combination audit',
   exact(prob(newMoon,3,3),'470041050379','2510675107850');
 });
 
+test('Item-lock channel retains direct Energy and forbids Fog search',()=>{
+  const c=fogEnergyOpportunity(champion,1);
+  const n=fogEnergyOpportunity(newMoon,1);
+  exact(c.directOnlyThresholds[2],'2874711','6678848');
+  exact(n.directOnlyThresholds[2],'92698039','551796727');
+  exact(c.directOnlyThresholds[3],'454643','3339424');
+  exact(n.directOnlyThresholds[3],'26035373','1103593454');
+  for(const inventory of [champion,newMoon]){
+    for(const draws of [1,2,3]){
+      const r=fogEnergyOpportunity(inventory,draws);
+      for(const threshold of [1,2,3,4]){
+        assert.ok(r.directOnlyThresholds[threshold].probability<=
+          r.thresholds[threshold].probability);
+      }
+    }
+  }
+});
+
 test('source rank-1 has more restricted Fog-plus-Energy access for each draw',()=>{
   for(const drawCount of [1,2,3]){
     const a=fogEnergyOpportunity(champion,drawCount);
