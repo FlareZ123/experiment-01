@@ -133,3 +133,10 @@ test('a success flag without a parity record is insufficient',()=>{
   input.parity={sameWorldDecisionParityQualified:true};
   assert.throws(()=>compareNativeHiddenDeckOrder(input),/parity provenance schema/);
 });
+
+test('native replay callback identity must remain the same',()=>{
+  const input=makeInput();
+  input.replayDecision=()=>({kind:'PassTurnAction'});
+  assert.throws(()=>compareNativeHiddenDeckOrder(input),
+    /Native parity replay-policy callback identity mismatch/);
+});
