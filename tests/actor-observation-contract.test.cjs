@@ -148,6 +148,39 @@ test('a deck alias is not a deck search without a native choice prompt',()=>{
   assert.equal(native.ownPublic.deckCount,4);
 });
 
+test('all pinned public player-level card-play locks reach actor-only decisions',()=>{
+  const s=fixture(),owner=s.players[0];
+  const locked=[
+    ['cannotPlayPokemonCards','pokemonPlayLocked'],
+    ['cannotPlayPokemonWithAbilities','abilityPokemonPlayLocked'],
+    ['cannotEvolvePokemonCards','evolutionPlayLocked'],
+    ['cannotPlayItemCards','itemPlayLocked'],
+    ['cannotPlaySupporterCards','supporterPlayLocked'],
+    ['cannotPlayStadiumCards','stadiumPlayLocked'],
+    ['cannotPlayToolCards','toolPlayLocked'],
+    ['cannotPlayEnergyCards','energyPlayLocked'],
+    ['cannotPlaySpecialEnergyCards','specialEnergyPlayLocked']
+  ];
+  const base=actorObservation(s,0);
+  for(const [,field] of locked)assert.equal(base.ownTurnResources[field],false);
+  for(const [native,field] of locked){
+    owner[native]=true;
+    const current=actorObservation(s,0);
+    assert.equal(current.ownTurnResources[field],true);
+    for(const [,other] of locked) {
+      if(other!==field)assert.equal(current.ownTurnResources[other],false);
+    }
+    owner[native]=false;
+  }
+  // With the second seat active, the first player's lock flags must never
+  // become owner resource flags or disclose any concealed player state.
+  s.activePlayer=1;
+  s.players[0].cannotPlayPokemonWithAbilities=true;
+  s.players[0].cannotPlayEnergyCards=true;
+  const other=actorObservation(s,1);
+  for(const [,field] of locked)assert.equal(other.ownTurnResources[field],false);
+});
+
 test('actor root authentication and invalid seat are enforced',()=>{
   const s=fixture();
   assert.throws(()=>actorObservation(s,1),/Actor-only/);
