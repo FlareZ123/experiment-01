@@ -308,6 +308,13 @@ function auditBilateralV2(plan,archive) {
       firstObservationComparable:sourcePhysicalDealAligned&&actualStartAligned,
       bothBilateralWitnesses:x.mechanicalBilateralWitness&&
         y.mechanicalBilateralWitness,
+      bothNativeRootBoundBilateralWitnesses:
+        x.mechanicalBilateralWitness&&y.mechanicalBilateralWitness&&
+        x.nativeRootClaimsAuthenticated&&y.nativeRootClaimsAuthenticated,
+      bothNativeRootBoundEarlyPressureWitnesses:
+        x.sourceFirstEarlyPressureWitness&&y.sourceFirstEarlyPressureWitness&&
+        x.nativeSourceFirstRootClaimsAuthenticated&&
+        y.nativeSourceFirstRootClaimsAuthenticated,
       bothSourceFirstEarlyPressureWitnesses:x.sourceFirstEarlyPressureWitness&&
         y.sourceFirstEarlyPressureWitness,
       isolatedInventoryEffectCertified:false
@@ -360,6 +367,18 @@ function auditBilateralV2(plan,archive) {
     [6,11].every(rank=>pairRows.some(pair=>pair.rank===rank&&
       pair.firstObservationComparable&&
       pair.bothSourceFirstEarlyPressureWitnesses));
+  // The weaker mechanical verdict remains useful when legacy archives lack
+  // native root transcripts. A stronger read-only intake verdict needs
+  // independent raw-Store actor/turn attestation for every paired witness.
+  const nativeRootsInBothRealStarts=[6,11].every(rank=>
+    ['source','candidate'].every(first=>pairRows.some(pair=>
+      pair.rank===rank&&pair.actualStarter===first&&
+      pair.firstObservationComparable&&
+      pair.bothNativeRootBoundBilateralWitnesses)));
+  const nativeSourceFirstEarlyPressure=[6,11].every(rank=>
+    pairRows.some(pair=>pair.rank===rank&&
+      pair.firstObservationComparable&&
+      pair.bothNativeRootBoundEarlyPressureWitnesses));
   return {
     schema:'aichi-bilateral-v2-intake-diagnostic-v1',
     registeredArms:arms.size,observedArms:rows.size,
@@ -371,6 +390,8 @@ function auditBilateralV2(plan,archive) {
     bothHardRanksHavePairedBilateralWitnesses,
     bothHardRanksHaveBothStartPairedBilateralWitnesses,
     bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses,
+    nativeRootsInBothRealStarts,
+    nativeSourceFirstEarlyPressure,
     mechanicalBilateralWitnesses:mechanicalWitnesses,
     independentlyRootBoundBilateralWitnesses:diagnostics.filter(d=>
       d.mechanicalBilateralWitness&&d.nativeRootClaimsAuthenticated).length,
@@ -379,12 +400,18 @@ function auditBilateralV2(plan,archive) {
     sourceFirstEarlyPressurePairs:pairRows.filter(p=>
       p.firstObservationComparable&&
       p.bothSourceFirstEarlyPressureWitnesses).length,
+    nativeRootBoundPairs:pairRows.filter(p=>
+      p.firstObservationComparable&&
+      p.bothNativeRootBoundBilateralWitnesses).length,
     byRank,pairs:pairRows,arms:diagnostics,
     opportunityAndPolicyVerdict:coverageComplete&&twoStartCoverageByCandidate&&
       bothHardRanksHaveBothStartPairedBilateralWitnesses&&
       bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses?
         'MECHANICAL-PILOT-REVIEWABLE':
         'HOLD-OR-INCOMPLETE',
+    rootAttestedPilotVerdict:coverageComplete&&twoStartCoverageByCandidate&&
+      nativeRootsInBothRealStarts&&nativeSourceFirstEarlyPressure?
+        'ROOT-ATTESTED-PILOT-REVIEWABLE':'HOLD-OR-UNAUTHENTICATED',
     competitiveStrengthClaimPermitted:false,
     gameWinRateCertified:false,
     caveat:'No game, including an engine terminal, becomes a qualified win '+
