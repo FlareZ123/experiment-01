@@ -43,3 +43,36 @@ test('small-population exhaustive enumeration agrees with distribution', () => {
   assert.deepEqual(rows.map(row=>Number(row.ways)), counts);
   assert.equal(rows[0].total,56n);
 });
+
+
+test('all-DCE Prized conditional on valid seven follows published three-Thorns source counts', () => {
+  const manifest=require('../results/aichi-2026/full-decklists.json');
+  const valid=choose(60,7)-choose(56,7);
+  const denom=valid*choose(53,6);
+  /** @param {number} k Distinct non-Basic singleton targets required in Prizes. */
+  const allPrized=k=>(choose(60-k,7)-choose(56-k,7))*
+    choose(53-k,6-k);
+  const expected={
+    6:{dce:1,allNum:79029n,allDen:779240n,
+      unionNum:415977n,unionDen:2142910n},
+    24:{dce:3,allNum:2353n,allDen:3857238n,
+      unionNum:417026131n,unionDen:4088672280n},
+    29:{dce:1,allNum:79029n,allDen:779240n,
+      unionNum:415977n,unionDen:2142910n}
+  };
+  for(const [rankString,exp] of Object.entries(expected)) {
+    const rank=Number(rankString);
+    const deck=manifest.decks.find(row=>row.rank===rank);
+    assert.ok(deck,'published Aichi rank '+rank);
+    assert.equal(deck.cards.reduce((n,c)=>n+c.count,0),60);
+    assert.deepEqual(deck.cards.filter(c=>c.category==='Pokémon')
+      .map(c=>[c.name,c.count]),[['Iron Thorns ex',4]]);
+    const count=name=>deck.cards.filter(c=>c.name===name)
+      .reduce((n,c)=>n+c.count,0);
+    assert.equal(count('Double Colorless Energy'),exp.dce);
+    assert.equal(count('Thunder Mountain ♢'),1);
+    assert.equal(allPrized(exp.dce)*exp.allDen,denom*exp.allNum);
+    const union=allPrized(1)+allPrized(exp.dce)-allPrized(exp.dce+1);
+    assert.equal(union*exp.unionDen,denom*exp.unionNum);
+  }
+});
