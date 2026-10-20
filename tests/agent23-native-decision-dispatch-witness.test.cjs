@@ -129,3 +129,14 @@ test('unsupported prompt input is unverified, not evidence of mutation',()=>{
   assert.equal(r.audit.verifiedUnchangedInputs,0);
   assert.equal(r.audit.matchedObjectDispatches,1);
 });
+
+test('unexpected inner Store method overwrite still restores both native hooks',()=>{
+  const f=fixture();
+  const beforeDispatch=f.Store.prototype.dispatch;
+  const beforeDecode=f.SimpleTacticsAi.prototype.decodeNextAction;
+  assert.throws(()=>withNativeDecisionDispatchWitness(()=>{
+    f.Store.prototype.dispatch=function displacedNativeDispatch(){};
+  },{...f,...codecs}),/Nested policy hook ownership changed/);
+  assert.strictEqual(f.Store.prototype.dispatch,beforeDispatch);
+  assert.strictEqual(f.SimpleTacticsAi.prototype.decodeNextAction,beforeDecode);
+});
