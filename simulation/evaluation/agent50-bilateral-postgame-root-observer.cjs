@@ -333,8 +333,9 @@ function withPostgameRootOrderProbe(
         if(parity.sameWorldDecisionParityQualified) {
           const {compareNativeHiddenDeckOrder}=
             require('../twinleaf/native-tape-hidden-order-contrast.cjs');
-          const {actorObservation}=
-            require('../twinleaf/actor-observation-contract.cjs');
+          const actorView=dependencies.actorView??
+            require('../twinleaf/actor-observation-contract.cjs')
+              .actorObservation;
           hiddenContrast=compareNativeHiddenDeckOrder({
             parity,root:captured.state,seat:target.seat,
             tape:captured.nativeRealPolicyTape,
@@ -342,7 +343,7 @@ function withPostgameRootOrderProbe(
             actionSignature:value=>value&&typeof value.type==='string'&&
               typeof value.data==='string'?value:signature(value),
             fingerprint:state=>stateGraphFingerprint(state).digest,
-            actorView:actorObservation
+            actorView
           });
         } else hiddenContrast={
           contrastExecutable:false,
