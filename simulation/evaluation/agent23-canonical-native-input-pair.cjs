@@ -10,12 +10,14 @@ const opts={
   mandatoryOptionFallback:true
 };
 const control=runDevelopment(opts);
-const observed=runDevelopment({...opts,nativeActionInputWitness:true});
+const observed=runDevelopment({...opts,nativeActionInputWitness:true,
+  nativeActionInputTapeOrdinal:10});
 
 /** @param {object} report @returns {object} */
 function omitInstrumentation(report){
   const copy=JSON.parse(JSON.stringify(report));
   delete copy.nativeActionInputWitnessOptIn;
+  delete copy.nativeActionInputTapeOrdinal;
   for(const row of copy.rows)delete row.nativeActionInputAudit;
   return copy;
 }
@@ -50,6 +52,15 @@ const report={
       rootDigestPreserved:Boolean(row.rootActionLedgerSha256&&
         row.rootActionLedgerSha256===baseline?.rootActionLedgerSha256),
       nativeWitnessPresent:Boolean(audit),
+      authenticNativePolicyRngTape:(audit?.nativePolicyTapes??[]).map(t=>({
+        gameIndex:t.gameIndex,ordinal:t.ordinal,seat:t.seat,turn:t.turn,
+        recorderStatus:t.status,sha256:t.sha256,values:t.values,
+        selectedActionInputSha256:t.selectedAction?.sha256??null,
+        actualDispatchInputSha256:t.dispatchAction?.sha256??null,
+        unchangedPortableInput:t.unchangedPortableInput,
+        dispatchReturnedWithoutThrow:t.dispatchReturnedWithoutThrow,
+        detachedSameWorldDecisionReplayQualified:false
+      })),
       observedLiveStores:audit?.observedLiveStores??null,
       originalNativeDecisions:audit?.originalLiveDecisions??null,
       selectedObjectDispatches:audit?.matchedObjectDispatches??null,
