@@ -3,6 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
+const {BASIC_ENERGY_TYPE}=require('./printed-basic-energy-audit.cjs');
 
 const VERSION='agent5-owner-root-slice-v1-development-unqualified';
 
@@ -235,7 +236,7 @@ function withOwnerRootSlice(candidateSeat,work,deps={}){
         hasAbility:basic&&card.powers.some(power=>
           power.powerType===enums.PowerType.ABILITY),
         basicEnergyType:energy?
-          enums.CardType[card.name.replace(/ Energy$/,'').toUpperCase()]??null:null
+          enums.CardType[BASIC_ENERGY_TYPE[card.name]]??null:null
       });
     }
     const intent=selectOwnerRootIntent(view,catalog,{
