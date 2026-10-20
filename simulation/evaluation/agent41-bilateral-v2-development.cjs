@@ -180,7 +180,8 @@ function commonPayloadOption(candidateSeat,enabled,lateWindow=false){
  */
 function executeDevelopment(trial,candidates,{
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
-  garbotoxinWindow=false,initializationWindow=false
+  garbotoxinWindow=false,initializationWindow=false,
+  mandatoryOptionFallback=false
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
     'Initialization passive window belongs only to rank 6');
@@ -212,6 +213,8 @@ function executeDevelopment(trial,candidates,{
     // This changes the retrospective policy version, never the historical v1
     // deal or seed. A veto's Pass fallback is still strategically unqualified.
     enforceVisiblePlayLockBothSeats:true,
+    // Both-seat opt-in: preserve legacy development policy if omitted.
+    mandatoryOptionFallback,
     ...payloadResource,
     capturePublicAttackTransitions:true,
     // Read-only, post-dispatch evidence for every native or delegated
@@ -327,8 +330,11 @@ function executeDevelopment(trial,candidates,{
     game.decisionTrace,candidateSeat);
   return {
     trial,qualifiesForCompetitiveInference:false,
-    policyVersion:POLICY_VERSION+(lateCompressorPayload?
+    policyVersion:POLICY_VERSION+
+      (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats':'')+
+      (lateCompressorPayload?
       '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')),
+    mandatoryOptionFallbackBothSeats:mandatoryOptionFallback,
     ownerCompressorPayloadOptIn:compressorPayload,
     ownerCompressorLate14OptIn:lateCompressorPayload,
     ...(lateCompressorPayload?{
@@ -391,7 +397,8 @@ function executeDevelopment(trial,candidates,{
 
 /** @returns {object} */
 function runDevelopment({
-  compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false
+  compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
+  mandatoryOptionFallback=false
 }={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -411,7 +418,8 @@ function runDevelopment({
   const rows=[];
   for(const trial of developmentTrials()){
     try { rows.push(executeDevelopment(trial,prepared,{
-      compressorPayload,opportunityAudit,lateCompressorPayload
+      compressorPayload,opportunityAudit,lateCompressorPayload,
+      mandatoryOptionFallback
     })); }
     catch(error){ rows.push({
       trial,status:'engine-error',error:String(error?.stack||error),
@@ -428,8 +436,11 @@ function runDevelopment({
         'agent41-bilateral-common-policy-development-v0c-live-lock-guard')),
     sourceRegistration:'historical v1 selection; not v2 preregistration',
     enginePin:registration.enginePin,
-    candidatePolicy:POLICY_VERSION+(lateCompressorPayload?
+    candidatePolicy:POLICY_VERSION+
+      (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats':'')+
+      (lateCompressorPayload?
       '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')),
+    mandatoryOptionFallbackBothSeats:mandatoryOptionFallback,
     ownerCompressorPayloadOptIn:compressorPayload,
     ownerCompressorOpportunityAudit:opportunityAudit,
     ownerCompressorLate14OptIn:lateCompressorPayload,
@@ -464,6 +475,7 @@ if(require.main===module){
     compressorPayload:lateWindow ||
       process.env.AGENT5_COMMON_COMPRESSOR_DEV==='true',
     lateCompressorPayload:lateWindow,
+    mandatoryOptionFallback:process.env.AGENT41_MANDATORY_OPTION_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
