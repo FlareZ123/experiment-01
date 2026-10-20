@@ -2,6 +2,11 @@ name: Aichi rank24 prospective owner-policy comparison
 on:
   workflow_dispatch:
     inputs:
+      agent9_actor_setup_only:
+        description: Run three frozen development roots through actor-owned setup adapter
+        required: false
+        type: boolean
+        default: false
       k1_probe_only:
         description: Run three-source-deal actor-owned search regression
         required: false
@@ -11,6 +16,7 @@ permissions:
   contents: read
 jobs:
   source-rank24:
+    if: ${{ !inputs.agent9_actor_setup_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -72,3 +78,38 @@ jobs:
             agent41-rank24-paper-supporter-opposite-seat-native.json
           if-no-files-found: warn
           retention-days: 14
+
+  agent9-actor-owned-setup:
+    if: ${{ inputs.agent9_actor_setup_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Exercise deterministic actor-only choice logic
+        run: node --test tests/agent9-actor-owned-setup.test.cjs
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Genuine Store source-dealt owner-choice acceptance
+        run: node simulation/evaluation/agent9-actor-owned-setup-native.cjs > agent9-actor-native.json
+      - name: Summarize accepted live owner setup proposals
+        if: always()
+        run: node -e "const fs=require('node:fs');if(fs.existsSync('agent9-actor-native.json')){const r=require('./agent9-actor-native.json');console.log(JSON.stringify({successes:r.successfulNativeRuns,proposals:r.actorOnlyProposals,rootMatches:r.matchedNativeRootProposals,rows:r.rows.map(x=>({rank:x.rank,status:x.status,proposals:x.actorOnlyProposals,native:x.matchedNativeRootProposals,error:x.error??null}))}));}"
+      - name: Preserve complete developmental status and censored arms
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-actor-owned-native-development
+          path: agent9-actor-native.json
+          if-no-files-found: warn
+          retention-days: 10
