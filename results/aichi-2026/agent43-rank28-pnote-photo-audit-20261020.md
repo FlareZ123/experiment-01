@@ -36,7 +36,7 @@ Image card positions are indexed by visual **row (1–5), column (1–8)**. Row 
 | R3 C6 | 3 | Battle VIP Pass | high |
 | R3 C7 | 1 | Super Rod | moderate; artwork and text appear to fit |
 | R3 C8 | 1 | Prime Catcher (ACE SPEC) | high |
-| R4 C1 | 2 | **Unresolved Item** | name and specific printing cannot be positively read; yellow device against red vortex |
+| R4 C1 | 2 | **Muscle Band / ちからのハチマキ** (Pokémon Tool) | **High**: pictured yellow band, pink triangular accent and red spiral precisely match official XY-P 019 promo art; microscopic card-number characters are unreadable |
 | R4 C2 | 2 | **Professor Juniper / アララギ博士** | high; confirms an identifiable art match to Japanese [BKR 015/018](https://www.pokemon-card.com/card-search/details.php/card/27619) depicting Juniper, Minccino and Pidove under blue sky |
 | R4 C3 | 1 | Lillie's Determination | high |
 | R4 C4 | 1 | Boss's Orders | high |
@@ -45,8 +45,8 @@ Image card positions are indexed by visual **row (1–5), column (1–8)**. Row 
 | R4 C7 | 2 | Guzma | high |
 | R4 C8 | 1 | Serena | high |
 | R5 C1 | 1 | Faba | high |
-| R5 C2 | 1 | **Temple of Sinnoh**, gold printing | probable based on architectural gold UR art, independent printing match still needed |
-| R5 C3 | 1 | **Parallel City** | probable based on name silhouette/art; printing match still needed |
+| R5 C2 | 1 | **Temple of Sinnoh / シンオウ神殿**, gold printing | high: structure/sky/gold art visually match Japanese S10P 087/067 UR; tiny numbering unreadable |
+| R5 C3 | 1 | **Parallel City / パラレルシティ** | high: Japanese title and inverted blue-white town visually match official art; specific promo set number still uncertain |
 | R5 C4 | 3 | Double Dragon Energy | high |
 | R5 C5 | 3 | Basic Fire Energy | high |
 | R5 C6 | 4 | Basic Grass Energy | high |
@@ -54,17 +54,24 @@ Image card positions are indexed by visual **row (1–5), column (1–8)**. Row 
 ### Count and classification invariant
 
 - Pokémon: row 1 **13** + row 2 first seven **7** = **20**.
-- Items: row 2 last one **1** + row 3 **15** + row 4 first item **2** = **18**.
+- Items: row 2 last one **1** + row 3 **15** = **16**.
+- Pokémon Tools: row 4 first slot, **2 Muscle Band** (older printing has historical `グッズ` text; current rulebook B-02 expressly treats pre-Sword/Shield Tools as Tools rather than Items).
 - Supporters: row 4 other seven **9** + row 5 Faba **1** = **10**.
 - Stadiums **2**, Energy **10**.
-- **20 + 18 + 10 + 2 + 10 = 60**. The **entire photographic card count is accounted for**, including **two unresolved copies of one Item**. This count is a direct photographic badge sum. It cannot independently establish tournament registration or the exact printed identities of every card.
+- **20 Pokémon + 16 Items + 2 Tools + 10 Supporters + 2 Stadiums + 10 Energy = 60**. All 60 card **names** are now provisionally resolved from the screenshot. Badge counts are direct photographic observations. This does not independently establish tournament registration or every card's printed identity.
 
 ## Explicit blockers and treatment
 
 1. **Do not register as rank 28 in exact opponent inputs.** Independently verify the account behind the published list corresponds to the official Jo Kato entry, and that the pictured 60 was the one registered at the event.
-2. Resolve R4 C1's **2 Item copies** against the original art and Japanese name. Visually different from common Pal Pad, Rare Candy, Rescue Stretcher, and Lost Sweeper printings checked during this audit; those negative matches are not an exhaustive elimination.
-3. Confirm the precise Japanese prints for R5 C2/C3 and for Pokémon whose abilities or attacks depend on print (particularly Kyurem, Marshadow and Wobbuffet). The current supplied English card database is a search resource, and it is not a substitute for print reconciliation.
-4. Image provenance and visual 60-count are valuable **source leads**. They are **not two-player gameplay evidence**; they do not change the 29/32 certified field coverage, the zero qualified games, or the unsupported 99.5% win-rate target.
+2. R4 C1 has now been independently matched to **2 Muscle Band Pokémon Tools**, XY-P 019 promotional artwork. Preserve the printing distinction: the photo's small printed collector number cannot be read. Confirm if the official rank-28 registered list used this exact print rather than an alternative printing.
+3. Japanese **Temple of Sinnoh S10P 087/067 UR** and **Parallel City** card art now match independently, but R5 C3 collector number and Pokémon printings with differing abilities or attacks (especially Kyurem, Marshadow and Wobbuffet) still need confirmation. The supplied English database is a search resource, not a print reconciliation.
+4. Image provenance, 60-count and all named slots are valuable **source leads**. They are **not two-player gameplay evidence**; they do not change the 29/32 certified field coverage, the zero qualified games, or the unsupported 99.5% win-rate target.
+
+## Independent card-art cross-check added 20 October 2026
+
+The original screenshot (`dragon-05.png`, original image SHA-256 above) visibly contains a **yellow tied band with a pink-red triangular emblem against a red concentric vortex** at R4 C1. This matches the official Japanese [Muscle Band XY-P 019 promotional card](https://www.pokemon-card.com/card-search/details.php/card/30338) and an independently found full-size print image. The Japanese card name is **ちからのハチマキ**. Its effect is +20 damage to the opponent's Active Pokémon from attacks of the attached Pokémon. This has materially different game semantics from a discardable search Item; it occupies a Tool slot and does not modify Bench damage. The supplied Advanced Player's Rulebook B-02 says older Tools remain Tools despite their historical `Item` heading. Visual confidence is high, while printing-number proof remains unavailable because of screenshot resolution.
+
+R5 C2's gold temple art matches the official Japanese [S10P 087/067 Temple of Sinnoh](https://www.pokemon-card.com/card-search/details.php/card/44888). R5 C3's distinctive inverted two-sided city matches the [official Parallel City promo art](https://www.pokemon-card.com/card-search/details.php/card/49631). These image comparisons resolve the stadium names more strongly; artwork is insufficient to prove the registered tournament print numbers.
 
 ## Method limits
 
