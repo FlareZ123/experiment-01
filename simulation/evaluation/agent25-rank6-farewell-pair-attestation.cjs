@@ -17,11 +17,11 @@ function digest(value) {
  *
  * @param {object} baseline Original executed source-dealt game.
  * @param {object} intervention The same source game with one Farewell action.
- * @param {{seat:number,turn:number,archivedRootSha256:string}} options
+ * @param {{seat:number,turn:number,archivedRootSha256:string,ownerSettlementAudit?:object}} options
  * @returns {object} Failure-inclusive, noncompetitive attestation.
  */
 function attestFarewellPair(baseline,intervention,options) {
-  const {seat,turn,archivedRootSha256}=options;
+  const {seat,turn,archivedRootSha256,ownerSettlementAudit=null}=options;
   const original=baseline.rootActionLedger;
   const changed=intervention.rootActionLedger;
   const fullDeckIdentitiesPresent=Array.isArray(baseline.deckHashes) &&
@@ -69,10 +69,13 @@ function attestFarewellPair(baseline,intervention,options) {
     row.playerSlot===seat && row.action!=='ResolvePromptAction' &&
     row.turnBefore>=turn):null;
   const candidateContinued=Boolean(nextCandidateRoot);
+  const observedOwnerZoneSettlement=ownerSettlementAudit?.settledZonePostcondition===true;
   const genuineSingleRootReplacement=Boolean(sourceComparable &&
     archivedSourceUnchanged && exactlyOneFarewell && matchedPrefix &&
     replacedOriginalPass && waitPromptSettled &&
     authenticAbilityCount===1);
+  const genuineResolvedFarewell=genuineSingleRootReplacement &&
+    observedOwnerZoneSettlement;
   return {
     schema:'agent25-rank6-farewell-paired-native-root-attestation-v1',
     sourceComparable,archivedSourceUnchanged,originalRootSha256,
@@ -83,7 +86,8 @@ function attestFarewellPair(baseline,intervention,options) {
       actionOrdinal:nextSourceRoot.actionOrdinal,
       turn:nextSourceRoot.turnBefore,action:nextSourceRoot.action
     }:null,
-    genuineSingleRootReplacement,
+    genuineSingleRootReplacement,genuineResolvedFarewell,
+    observedOwnerZoneSettlement,
     classification:!sourceComparable?'source-deal-or-start-mismatch':
       !archivedSourceUnchanged?'archived-baseline-policy-drift':
       !exactlyOneFarewell?'missing-or-multiple-native-farewell':
@@ -91,12 +95,13 @@ function attestFarewellPair(baseline,intervention,options) {
       !replacedOriginalPass?'original-choice-not-pass':
       !waitPromptSettled?'farewell-prompt-unsettled':
       authenticAbilityCount!==1?'ability-declaration-unverified':
+      !observedOwnerZoneSettlement?'owner-zone-postcondition-unverified':
       !sourceContinued?'single-native-replacement-no-source-continuation':
       'single-native-replacement-with-real-source-continuation',
-    // Real resolved zones are not directly attested by this ledger. A prior
-    // compiled detached-Store clone independently proved 42->41, 4->5 and
-    // removed Bench Unown at the original historical chosen-Pass state.
-    postPromptZoneChangeDirectlyMeasured:false,
+    // Zone evidence comes from the next real owner decision, not the action
+    // ledger itself. A prior detached-Store probe independently observed
+    // the same 42->41 deck / 4->5 hand / Bench-Unown removal transition.
+    postPromptZoneChangeDirectlyMeasured:observedOwnerZoneSettlement,
     competitivelyQualifiedGames:0
   };
 }
