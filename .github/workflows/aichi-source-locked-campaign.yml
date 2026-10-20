@@ -201,6 +201,27 @@ jobs:
           name: agent41-bilateral-v2-historical-development
           path: agent41-bilateral-v2-development.json
           retention-days: 10
+      - name: Verify fail-closed same-native-world read pair contract
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-hidden-read-native-pair' }}
+        run: node --test tests/agent41-hidden-read-pair-attestation.test.cjs tests/agent41-native-opponent-hidden-read-observer.test.cjs tests/agent41-bilateral-v2-development.test.cjs
+      - name: Replay exact four historical original Stores with native read probe off and on
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-hidden-read-native-pair' }}
+        env:
+          AGENT41_MANDATORY_OPTION_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',mandatory-options,') && 'true' || 'false' }}
+          AGENT41_PAPER_SUPPORTER_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',paper-supporter,') && 'true' || 'false' }}
+          AGENT41_NATIVE_PRESSURE_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',native-pressure,') && 'true' || 'false' }}
+          AGENT41_SOURCEFIRST_RETRO_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',sourcefirst-retro,') && 'true' || 'false' }}
+        run: node scripts/agent41-native-hidden-read-paired.cjs > agent41-native-hidden-read-pair.json
+      - name: Classify unchanged native roots and read counters, with no game win inference
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-hidden-read-native-pair' }}
+        run: node -e "const p=require('./agent41-native-hidden-read-pair.json');const a=p.attestation;for(const x of a.pairs)console.log('PAIR',JSON.stringify({trial:x.trialId,status:x.status,sourceDealMatched:x.sourceDealMatched,rootMatched:x.sourceRootMatched,proposalReads:x.proposalReads,validationReads:x.validationReads,nativeDecisionObserved:x.observedNativeRoot}));console.log('QUALIFIED_READ_CENSUS',a.fullyNoninterferingNativeReadCensuses,'of',a.attempted,'COMPETITIVE_GAMES',a.competitiveQualifiedGames);if(!a.completeNativeReadCensusQualified)process.exitCode=1"
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-hidden-read-native-pair' }}
+        with:
+          name: agent41-native-hidden-read-paired-historical
+          path: agent41-native-hidden-read-pair.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Print exact 60-card and shared decision-policy digests, without running games
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-common-policy-dev' }}
         run: node -e "const a=require('./simulation/evaluation/agent41-bilateral-v2-fingerprints.cjs').buildDraftFingerprints();console.log('DRAFT_ONLY',JSON.stringify({field:a.sourceField,champion:a.fixedCandidates['champion-reference'].englishDisplayPrinting.sha256,newMoonProxy:a.fixedCandidates['new-moon-lockbreaker-v1'].englishSimulationProxy.sha256,newMoonJapanese:a.fixedCandidates['new-moon-lockbreaker-v1'].proposedJapanesePhysicalPrinting.sha256,opponent6:a.fixedSourceOpponents[6].englishDisplayPrinting.sha256,opponent11:a.fixedSourceOpponents[11].englishDisplayPrinting.sha256,candidatePolicy:a.policies.sharedCandidate.sha256,sourcePolicy:a.policies.sourceOpponent.sha256,runner:a.policies.runnerAndEngineGlue.sha256,qualified:a.competitiveQualifiedGames}))"
