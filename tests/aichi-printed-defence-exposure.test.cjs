@@ -77,3 +77,23 @@ test('Garbodor Ability suppression and copied attack exceptions remain explicit 
     assert.ok(rank(r).effectOrCounterExceptions.some(p=>p.name==='Dragapult ex'));
   }
 });
+
+
+test('all nine Apex-to-Shred rosters include Dragon Energy and mixed natural Energy substrate', () => {
+  const drago = index.get(['SIT','136','Regidrago VSTAR'].join('\u0000'));
+  assert.deepEqual(drago.attacks.find(a => a.name === 'Apex Dragon').cost,
+    ['Grass','Grass','Fire']);
+  const doubleDragon = index.get(['ROS','97','Double Dragon Energy'].join('\u0000'));
+  assert.ok(doubleDragon);
+  assert.match(doubleDragon.rules.join(' '), /provides every type of Energy.*2 Energy at a time/i);
+  for (const r of [10,12,13,14,18,20,21,27,32]) {
+    const rows = source.decks.find(d => d.rank === r).cards;
+    const count = name => rows.filter(c => c.name === name)
+      .reduce((sum,c) => sum + c.count,0);
+    assert.ok(count('Double Dragon Energy') >= 3, 'rank ' + r);
+    assert.ok(count('Grass Energy') >= 2, 'rank ' + r);
+    assert.ok(count('Fire Energy') >= 2, 'rank ' + r);
+    assert.ok(count('Dialga-GX') >= 1, 'rank ' + r);
+    assert.ok(count('Regidrago VSTAR') >= 3, 'rank ' + r);
+  }
+});
