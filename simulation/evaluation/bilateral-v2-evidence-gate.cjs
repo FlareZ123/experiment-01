@@ -1,6 +1,8 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const {attestBilateralRootClaims}=
+  require('./bilateral-v2-root-ledger-attestation.cjs');
 
 const SHA256=/^[0-9a-f]{64}$/;
 const STATUSES=new Set(['engine-terminal','action-cap','engine-error']);
@@ -150,12 +152,23 @@ function auditBilateralV2(plan,archive) {
       diagnostics.push({...arm,status:'missing',actualStarter:null,
         validStart:false,mechanicalBilateralWitness:false,
         sourceFirstEarlyPressureWitness:false,
+        nativeRootClaimsAuthenticated:false,
+        nativeSourceFirstRootClaimsAuthenticated:false,
         sourceDealFingerprint:null,
         vetoes:['missing-attempt-evidence']});
       continue;
     }
     const sourceSeat=1-arm.candidateSeat;
     const actualSeat=row.actualStarterSeat;
+    // Optional independent ledger attestation for a producer that preserves
+    // every accepted native root. Legacy development observations remain
+    // visible, with their missing root authentication explicitly vetoed.
+    if(row.rootActionLedger!==undefined){
+      assert.equal(row.rootActionLedgerProtocol,
+        'actual-store-root-action-ledger-v1');
+    }
+    const nativeRoots=Array.isArray(row.rootActionLedger)?
+      attestBilateralRootClaims(row,row.rootActionLedger,arm.candidateSeat):null;
     // The boolean is a producer assertion. Require the Store-observed player
     // and first turn draw log to agree with the claimed physical seat.
     const validStart=row.verifiedFirstTurn===true &&
@@ -261,11 +274,17 @@ function auditBilateralV2(plan,archive) {
     if(row.fullPolicyInformationSetAuditPassed!==true) {
       vetoes.push('full-policy-information-boundary-unverified');
     }
+    if(nativeRoots?.rootClaimsAuthenticated!==true){
+      vetoes.push('actual-store-root-claims-unverified');
+    }
     diagnostics.push({...arm,status:row.status,
       actualStarter:validStart?(row.actualStarterSeat===arm.candidateSeat?
         'candidate':'source'):null,
       validStart,mechanicalBilateralWitness:bilateralWitness,
       sourceFirstEarlyPressureWitness,
+      nativeRootClaimsAuthenticated:nativeRoots?.rootClaimsAuthenticated===true,
+      nativeSourceFirstRootClaimsAuthenticated:
+        nativeRoots?.sourceFirstTurnPressureAuthenticated===true,
       immediateTurnLineage,candidateBonusTurnLineage,
       sourceDealFingerprint:digest(row.sourceDealFingerprint)?
         row.sourceDealFingerprint:null,
@@ -353,6 +372,8 @@ function auditBilateralV2(plan,archive) {
     bothHardRanksHaveBothStartPairedBilateralWitnesses,
     bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses,
     mechanicalBilateralWitnesses:mechanicalWitnesses,
+    independentlyRootBoundBilateralWitnesses:diagnostics.filter(d=>
+      d.mechanicalBilateralWitness&&d.nativeRootClaimsAuthenticated).length,
     alignedPhysicalSourcePairs:pairRows.filter(p=>
       p.firstObservationComparable).length,
     sourceFirstEarlyPressurePairs:pairRows.filter(p=>
