@@ -32,6 +32,38 @@ function publicDispatchState(store){
   };
 }
 
+
+/**
+ * Translate pinned public card catalog metadata into the actor-only types.
+ * This pure adapter has no access to deck order, Prize identities, or State.
+ * @param {object[]} all Public printed card definitions.
+ * @param {object} types Pinned native card classes and enum constants.
+ * @returns {object} Detached Basic, Energy, type and status lookup.
+ */
+function buildActorCardCatalog(all,types){
+  const {PokemonCard,EnergyCard,Stage,EnergyType,CardType,
+    PowerType,SpecialCondition}=types;
+  return {
+    basics:new Set(all.filter(c=>c instanceof PokemonCard&&
+      c.stage===Stage.BASIC).map(c=>c.fullName)),
+    abilityBasics:new Set(all.filter(c=>c instanceof PokemonCard&&
+      c.stage===Stage.BASIC&&c.powers.some(power=>
+        power.powerType===PowerType.ABILITY)).map(c=>c.fullName)),
+    basicEnergies:new Set(all.filter(c=>c instanceof EnergyCard&&
+      c.energyType===EnergyType.BASIC).map(c=>c.fullName)),
+    basicEnergyTypes:{
+      Grass:CardType.GRASS,Fire:CardType.FIRE,Water:CardType.WATER,
+      Lightning:CardType.LIGHTNING,Psychic:CardType.PSYCHIC,
+      Fighting:CardType.FIGHTING,Darkness:CardType.DARK,
+      Metal:CardType.METAL,Fairy:CardType.FAIRY
+    },
+    colorlessEnergyType:CardType.COLORLESS,
+    specialConditions:{
+      ASLEEP:SpecialCondition.ASLEEP,PARALYZED:SpecialCondition.PARALYZED
+    }
+  };
+}
+
 /**
  * Pure decision from a detached owner observation plus the public print catalog.
  * No native State, opposing hidden zones, or own unknown deck identities enter.
@@ -111,19 +143,10 @@ function withActorOnlyRootPolicy(run,deps={}){
     const {Stage,EnergyType,CardType,SpecialCondition}=
       require(path.join(base,'game/store/card/card-types'));
     const {PowerType}=require(path.join(base,'game/store/card/pokemon-types'));
-    const all=CardManager.getInstance().getAllCards();
-    return {
-      basics:new Set(all.filter(c=>c instanceof PokemonCard&&c.stage===Stage.BASIC).map(c=>c.fullName)),
-      abilityBasics:new Set(all.filter(c=>c instanceof PokemonCard&&
-        c.stage===Stage.BASIC&&c.powers.some(power=>
-          power.powerType===PowerType.ABILITY)).map(c=>c.fullName)),
-      basicEnergies:new Set(all.filter(c=>c instanceof EnergyCard&&c.energyType===EnergyType.BASIC).map(c=>c.fullName)),
-      basicEnergyTypes:{Grass:CardType.GRASS,Fire:CardType.FIRE,Water:CardType.WATER,
-        Lightning:CardType.LIGHTNING,Psychic:CardType.PSYCHIC,Fighting:CardType.FIGHTING,
-        Darkness:CardType.DARK,Metal:CardType.METAL,Fairy:CardType.FAIRY},
-      colorlessEnergyType:CardType.COLORLESS,
-      specialConditions:{ASLEEP:SpecialCondition.ASLEEP,PARALYZED:SpecialCondition.PARALYZED}
-    };
+    return buildActorCardCatalog(CardManager.getInstance().getAllCards(),{
+      PokemonCard,EnergyCard,Stage,EnergyType,CardType,
+      PowerType,SpecialCondition
+    });
   });
   const observe=deps.observe??actorObservation;
   const Store=deps.Store??require(path.join(base,'game/store/store')).Store;
@@ -251,4 +274,5 @@ function withActorOnlyRootPolicy(run,deps={}){
     Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',original);
   }
 }
-module.exports={VERSION,chooseActorRootIntent,publicDispatchState,withActorOnlyRootPolicy};
+module.exports={VERSION,buildActorCardCatalog,chooseActorRootIntent,
+  publicDispatchState,withActorOnlyRootPolicy};
