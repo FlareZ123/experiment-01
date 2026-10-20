@@ -33,7 +33,11 @@ function preexistingActorAudit(audit){
   const {genericFallback:ignoredVersion,...versions}=componentVersions;
   const {nativeGenericDecoderCalls:ignoredCalls,
     nativeGenericDecoderBySeat:ignoredSeat,
-    nativeGenericPromptBySeat:ignoredPrompt,...decisions}=nativeDecisionCounts;
+    nativeGenericPromptBySeat:ignoredPrompt,
+    nativeDistinctOwnerPromptObjects:ignoredDistinct,
+    nativeDistinctOwnerPromptBySeat:ignoredDistinctSeat,
+    nativeDistinctOwnerPromptTypesBySeat:ignoredDistinctType,
+    ...decisions}=nativeDecisionCounts;
   const {genericFallback:ignoredAudit,...components}=detailedComponentAudits;
   return {...rest,componentVersions:versions,nativeDecisionCounts:decisions,
     detailedComponentAudits:components};
@@ -66,7 +70,8 @@ function assertNativeGenericFallbackNoninterference(control,observed){
       'Read-only fallback observer changed an existing root/prompt decision audit');
   }
   const seatTotals={0:0,1:0},promptTypes={0:{},1:{}};
-  let genericTotal=0,rootAccepted=0;
+  const distinctSeatTotals={0:0,1:0},distinctPromptTypes={0:{},1:{}};
+  let genericTotal=0,rootAccepted=0,distinctPromptTotal=0;
   for(let index=0;index<4;index++){
     const row=observed.rows[index];
     assert.equal(row.qualifiesForCompetitiveInference,false);
@@ -85,11 +90,32 @@ function assertNativeGenericFallbackNoninterference(control,observed){
     assert.equal(counts.actorRootsRejected,0);
     rootAccepted+=counts.actorRootsAccepted;
     genericTotal+=counts.nativeGenericDecoderCalls;
-    let seats=0;
+    const distinct=counts.nativeDistinctOwnerPromptObjects;
+    assert.ok(Number.isSafeInteger(distinct)&&distinct>=0&&
+      distinct<=counts.nativeGenericDecoderCalls);
+    assert.equal(distinct,raw.distinctOwnerPromptObjects,
+      'Distinct prompt total must match original native ledger');
+    distinctPromptTotal+=distinct;
+    let seats=0,distinctSeats=0;
     for(const seat of [0,1]){
       const entries=Object.values(counts.nativeGenericDecoderBySeat[seat]);
       const n=entries.reduce((a,b)=>a+b,0);
       const promptCounts=counts.nativeGenericPromptBySeat[seat];
+      const distinctBySeat=counts.nativeDistinctOwnerPromptBySeat[seat];
+      const distinctClasses=counts.nativeDistinctOwnerPromptTypesBySeat[seat];
+      assert.ok(Number.isSafeInteger(distinctBySeat)&&distinctBySeat>=0&&
+        distinctBySeat<=counts.nativeGenericDecoderBySeat[seat]['owner-prompt']);
+      assert.equal(distinctBySeat,
+        Object.values(distinctClasses).reduce((a,b)=>a+b,0),
+        'Distinct owner prompt classes must partition distinct owner prompts');
+      distinctSeatTotals[seat]+=distinctBySeat;
+      distinctSeats+=distinctBySeat;
+      for(const [name,value] of Object.entries(distinctClasses)){
+        assert.ok(Number.isSafeInteger(value)&&value>=0&&
+          value<= (promptCounts[name]??0));
+        distinctPromptTypes[seat][name]=
+          (distinctPromptTypes[seat][name]??0)+value;
+      }
       const ownerPrompts=Object.values(promptCounts).reduce((a,b)=>a+b,0);
       assert.equal(ownerPrompts,counts.nativeGenericDecoderBySeat[seat]['owner-prompt'],
         'Owner prompt classes fail to partition owner prompt decodes');
@@ -100,12 +126,18 @@ function assertNativeGenericFallbackNoninterference(control,observed){
     }
     assert.equal(seats,counts.nativeGenericDecoderCalls,
       'Authentic actor seats fail to partition all live native decodes');
+    assert.equal(distinctSeats,distinct,
+      'Actor seats fail to partition distinct native owner prompt objects');
   }
   assert.equal(seatTotals[0]+seatTotals[1],genericTotal);
+  assert.equal(distinctSeatTotals[0]+distinctSeatTotals[1],distinctPromptTotal);
   return {version:VERSION,pairedArms:4,gameplayIdentical:true,
     actorRootsAccepted:rootAccepted,nativeGenericFallbacks:genericTotal,
     nativeGenericFallbacksBySeat:seatTotals,
     nativeGenericOwnerPromptClassesBySeat:promptTypes,
+    distinctOwnerPromptObjects:distinctPromptTotal,
+    distinctOwnerPromptObjectsBySeat:distinctSeatTotals,
+    distinctOwnerPromptClassesBySeat:distinctPromptTypes,
     qualifiedCompetitiveGames:0,
     warning:'Same-commit historical parity and native decision counts are development-only, not policy strength or paper-clock validation.'};
 }
