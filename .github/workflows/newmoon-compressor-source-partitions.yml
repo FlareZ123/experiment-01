@@ -63,6 +63,11 @@ on:
         type: boolean
         default: false
 
+      agent9_rank6_owner_k1_native:
+        description: 'Read-only first native owner deck search and exact Prize inference for selected rank6 New Moon censor'
+        required: false
+        type: boolean
+        default: false
       agent9_sourcefirst_lock_transfer:
         description: Retrospective actual source-first held-Shake pressure through canonical bilateral policies
         required: false
@@ -523,5 +528,23 @@ jobs:
         with:
           name: agent47-rank11-true-owner-search
           path: agent47-rank11-own-search-repeat1.json
+          if-no-files-found: warn
+          retention-days: 10
+
+      - name: Validate owner K1 Prize inference and actor boundary
+        if: inputs.agent9_rank6_owner_k1_native
+        run: |
+          node --check simulation/evaluation/agent9-rank6-newmoon-owner-k1-native.cjs
+          node --check simulation/twinleaf/owner-k1-prize-inference.cjs
+          node --test tests/owner-k1-prize-inference.test.cjs
+      - name: Reconstruct candidate Prizes only at genuine first native owner-deck search
+        if: inputs.agent9_rank6_owner_k1_native
+        run: node simulation/evaluation/agent9-rank6-newmoon-owner-k1-native.cjs > agent9-rank6-newmoon-owner-k1-native.json
+      - name: Archive same-deal owner K1 and all negative findings
+        if: ${{ always() && inputs.agent9_rank6_owner_k1_native }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-rank6-newmoon-first-owner-k1
+          path: agent9-rank6-newmoon-owner-k1-native.json
           if-no-files-found: warn
           retention-days: 10
