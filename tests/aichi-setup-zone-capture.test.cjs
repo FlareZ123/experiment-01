@@ -140,3 +140,60 @@ test('opening conservation rejects a missing or replaced source printing copy',(
   ]),false);
   assert.equal(openingInventoriesMatch(null,physicalSourceDecks),false);
 });
+
+test('opt-in first-turn source fingerprint detects ordered hidden-deck drift',()=>{
+  /** @param {string} id */
+  const physicalPlayer=id=>{
+    const p=player(id);
+    p.active.tools=[];
+    p.active.energies=zone([]);
+    p.bench.forEach(slot=>{
+      slot.tools=[];slot.energies=zone([]);
+    });
+    p.discard=zone([]);
+    p.lostzone=zone([]);
+    p.stadium=zone([]);
+    p.supporter=zone([]);
+    p.deck=zone(['First-'+id,'Second-'+id,'Third-'+id]);
+    return p;
+  };
+  class MockStore{
+    constructor(){
+      this.state={
+        turn:0,phase:1,activePlayer:0,prompts:[],
+        players:[physicalPlayer('A'),physicalPlayer('B')]
+      };
+    }
+    dispatch(action){
+      if(action==='first'){
+        this.state.turn=1;
+        this.state.phase=2;
+      }
+    }
+  }
+  const original=MockStore.prototype.dispatch;
+  const sample=reversedSource=>captureSetupOnly(MockStore,()=>{
+    const store=new MockStore();
+    if(reversedSource)store.state.players[1].deck.cards.reverse();
+    store.dispatch('first');
+  },{sourceSeat:1});
+  const a=sample(false),b=sample(false),c=sample(true);
+  assert.equal(a.stoppedAtFirstTurn,true);
+  assert.equal(a.sourcePhysicalDeal?.schema,
+    'initial-source-physical-position-sha256-v1');
+  assert.match(a.sourcePhysicalDeal.digestSha256,/^[a-f0-9]{64}$/);
+  assert.equal(a.sourcePhysicalDeal.digestSha256,
+    b.sourcePhysicalDeal.digestSha256);
+  assert.notEqual(a.sourcePhysicalDeal.digestSha256,
+    c.sourcePhysicalDeal.digestSha256);
+  assert.equal(MockStore.prototype.dispatch,original);
+  assert.equal(JSON.stringify(a.sourcePhysicalDeal).includes('First-B'),false);
+  assert.throws(()=>captureSetupOnly(MockStore,()=>{},{
+    sourceSeat:2
+  }),/Source seat/);
+  const plain=captureSetupOnly(MockStore,()=>{
+    new MockStore().dispatch('first');
+  });
+  assert.equal(plain.sourcePhysicalDeal,null,
+    'existing default capture must not fingerprint hidden deck order');
+});
