@@ -49,12 +49,13 @@ function observedSeat(setup,slot){
  * Independent v3 seeds, paper-source 60s, real pinned Twinleaf setup. The
  * synthetic stop at first game turn prevents normal attacking decisions and
  * provides zero actual game outcomes.
- * @param {{ranks?:number[],repeats?:number}} [options]
+ * @param {{ranks?:number[],repeats?:number,sourcePhysicalDealAudit?:boolean}} [options]
  * @returns {object}
  */
 function sampleSourceCoupling(options={}){
   const ranks=options.ranks||[6,8,10];
   const repeats=options.repeats??4;
+  const orderedSourceAudit=options.sourcePhysicalDealAudit===true;
   if(!Array.isArray(ranks)||!ranks.length||new Set(ranks).size!==ranks.length||
      ranks.some(rank=>!Number.isInteger(rank)||rank<1||rank>32)||
      !Number.isInteger(repeats)||repeats<1||repeats>20){
@@ -110,7 +111,8 @@ function sampleSourceCoupling(options={}){
             let capture;
             let error=null;
             try{
-              capture=captureSetupOnly(Store,()=>runMatch(request));
+              capture=captureSetupOnly(Store,()=>runMatch(request),
+                orderedSourceAudit ? {sourceSeat:1-candidateSeat} : {});
             }catch(failure){
               error=String(failure?.message||failure);
             }
@@ -128,6 +130,10 @@ function sampleSourceCoupling(options={}){
               actualPostSetup:observation,
               stoppedAtFirstTurn:capture?.stoppedAtFirstTurn===true,
               openingInventoriesVerified,
+              ...(orderedSourceAudit ? {
+                sourcePhysicalDealDigest:capture?.sourcePhysicalDeal?.digestSha256||null,
+                sourcePhysicalDealSchema:capture?.sourcePhysicalDeal?.schema||null
+              } : {}),
               error
             };
             local.push(sample);
@@ -161,7 +167,13 @@ function sampleSourceCoupling(options={}){
                 aligned.actualPostSetup.opponentDigest:null,
             exposedNative,exposedAligned,prizesNative,prizesAligned,
             exposedDifference:available?exposedAligned-exposedNative:null,
-            prizeDifference:available?prizesAligned-prizesNative:null
+            prizeDifference:available?prizesAligned-prizesNative:null,
+            ...(orderedSourceAudit ? {
+              sourceDealNativeMatchesReference:available?
+                baseline.sourcePhysicalDealDigest===native.sourcePhysicalDealDigest:null,
+              sourceDealAlignedMatchesReference:available?
+                baseline.sourcePhysicalDealDigest===aligned.sourcePhysicalDealDigest:null
+            } : {})
           });
         }
       }
@@ -170,7 +182,11 @@ function sampleSourceCoupling(options={}){
   // A syntactically successful CI run with zero captured Store setups is
   // misleading evidence. Require every predeclared source arm to reach turn 1.
   const failed=samples.filter(row=>row.error || !row.stoppedAtFirstTurn ||
-    !row.actualPostSetup || !row.openingInventoriesVerified);
+    !row.actualPostSetup || !row.openingInventoriesVerified ||
+    (orderedSourceAudit &&
+      (!/^[a-f0-9]{64}$/.test(row.sourcePhysicalDealDigest||'') ||
+       row.sourcePhysicalDealSchema!==
+         'initial-source-physical-position-sha256-v1')));
   if(failed.length){
     const example=failed[0];
     throw new Error('Source setup-coupling capture failed in '+failed.length+'/'+
@@ -197,12 +213,20 @@ function sampleSourceCoupling(options={}){
         prizeTied:valid.filter(row=>row.prizeDifference===0).length,
         prizeWorsened:valid.filter(row=>row.prizeDifference<0).length,
         physicalTurnMatched:valid.filter(row=>row.matchesPhysicalTurn).length,
-        opponentZonesIdentical:valid.filter(row=>row.opponentZoneSameNativeAligned).length
+        opponentZonesIdentical:valid.filter(row=>row.opponentZoneSameNativeAligned).length,
+        ...(orderedSourceAudit ? {
+          fullSourceDealMatchesReference:valid.reduce((count,row)=>count+
+            Number(row.sourceDealNativeMatchesReference===true)+
+            Number(row.sourceDealAlignedMatchesReference===true),0),
+          fullSourceDealComparisons:valid.length*2
+        } : {})
       });
     }
   }
   return {
-    schema:'aichi-actual-source-postsetup-paired-sampler-v1',
+    schema:orderedSourceAudit ?
+      'aichi-actual-source-ordered-deal-paired-sampler-v2' :
+      'aichi-actual-source-postsetup-paired-sampler-v1',
     researchRevision:process.env.GITHUB_SHA||null,
     engineRevision:plans.get(reference.id).engineRevision,
     sourceFieldCount:inputs.source.decks.length,
@@ -212,16 +236,20 @@ function sampleSourceCoupling(options={}){
     status:'initial-setup-only-not-games',
     qualifiedCompetitiveGames:0,
     stopsBeforeNormalTurnDecisions:true,
+    orderedSourceAudit,
     assumptions:'Actual Store post-setup snapshots, optional mulligan draws and K0 hidden Prize knowledge never given to bots. Samples are fixed-seed diagnostics; not independent competitive games.',
     summary,contrasts,samples
   };
 }
 
 if(require.main===module){
-  const result=sampleSourceCoupling();
+  const result=sampleSourceCoupling({
+    sourcePhysicalDealAudit:process.env.AICHI_SOURCE_FULL_DEAL_AUDIT==='true'
+  });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
   process.stderr.write(JSON.stringify({
     schema:result.schema,ranks:result.ranks,repeats:result.repeats,
+    orderedSourceAudit:result.orderedSourceAudit,
     capturedSetups:result.samples.filter(row=>row.stoppedAtFirstTurn).length,
     setupErrors:result.samples.filter(row=>row.error).map(row=>({
       rank:row.rank,repeat:row.repeat,candidateId:row.candidateId,
