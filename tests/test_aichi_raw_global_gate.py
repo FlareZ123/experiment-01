@@ -101,6 +101,46 @@ def batch(horizon=10, missing_rank=None):
     }
 
 
+
+def relocate_candidate_to_engine_side(g, side):
+    """Synthetic setup mutation with consistent actual first draw and terminal."""
+    g["candidate_side"] = side
+    g["winner_side"] = side
+    g["engine_terminal"]["winnerIndex"] = 0 if side == "A" else 1
+    first_side = side if g["seat"] == "first" else ("A" if side == "B" else "B")
+    g["first_player_side"] = first_side
+    g["first_turn"]["firstTurnSlot"] = 0 if first_side == "A" else 1
+    g["first_turn"]["firstTurnPlayerId"] = 101 if first_side == "A" else 202
+    g["first_turn"]["firstTurnPlayerName"] = f"research-{first_side}"
+    g["first_turn"]["firstDrawLogName"] = f"research-{first_side}"
+
+
+def four_cell_schedule(horizon=5):
+    """External synthetic preregistration, independent of observed batch rows."""
+    return [
+        {**entry, "candidate_side": "A" if int(entry["game_id"].rsplit("-", 1)[1]) < horizon else "B"}
+        for entry in registered_schedule(horizon * 2)
+    ]
+
+
+def four_cell_batch(horizon=5):
+    b = batch(horizon * 2)
+    b["predeclared_games_per_cell"] = horizon
+    for g in b["games"]:
+        if int(g["game_id"].rsplit("-", 1)[1]) >= horizon:
+            relocate_candidate_to_engine_side(g, "B")
+    return b
+
+
+def assess_four_cell(b, *, horizon=5, schedule=None):
+    return evaluate_balanced_raw_batch(
+        b, field(), source_deck_digests=source_decks(),
+        expected_candidate_deck_sha256="a" * 64,
+        predeclared_games_per_cell=horizon,
+        expected_trials=four_cell_schedule(horizon) if schedule is None else schedule,
+        require_physical_seat_balance=True,
+    )
+
 class BalancedRawGateTests(unittest.TestCase):
     def test_complete_640_synthetic_wins_pass_math_gate(self):
         x = assess(batch(), field(),
@@ -260,6 +300,39 @@ class BalancedRawGateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Unscheduled trial"):
             assess(b, field(), predeclared_games_per_cell=10)
 
+
+
+    def test_strict_128_cell_physical_seat_balance_passes_640_synthetic_wins(self):
+        outcome = assess_four_cell(four_cell_batch())
+        self.assertEqual(outcome["raw_games"], 640)
+        self.assertTrue(outcome["physical_seat_balance_required"])
+        self.assertEqual(len(outcome["physical_seat_cells"]), 128)
+        self.assertEqual({c["games"] for c in outcome["physical_seat_cells"]}, {5})
+        self.assertEqual(outcome["global_test"]["games_per_cell"], 10)
+        self.assertTrue(outcome["global_test"]["statistical_threshold_met"])
+        self.assertFalse(outcome["competitive_evidence_qualified"])
+
+    def test_strict_gate_rejects_one_engine_seat_even_when_64_cells_pass(self):
+        all_a = batch()
+        self.assertTrue(assess(all_a, field(), predeclared_games_per_cell=10)["global_test"]["statistical_threshold_met"])
+        all_a["predeclared_games_per_cell"] = 5
+        with self.assertRaisesRegex(ValueError, "128 rank/start/physical-seat cells"):
+            assess_four_cell(all_a, schedule=registered_schedule(10))
+
+    def test_strict_gate_rejects_predeclared_but_unbalanced_physical_seats(self):
+        b = four_cell_batch()
+        relocate_candidate_to_engine_side(b["games"][0], "B")
+        schedule = four_cell_schedule()
+        schedule[0]["candidate_side"] = "B"
+        with self.assertRaisesRegex(ValueError, "128 rank/start/physical-seat cells"):
+            assess_four_cell(b, schedule=schedule)
+
+    def test_strict_gate_rejects_wrong_actual_starter_on_engine_seat_b(self):
+        b = four_cell_batch()
+        g = next(g for g in b["games"] if g["candidate_side"] == "B")
+        g["first_player_side"] = "A" if g["first_player_side"] == "B" else "B"
+        with self.assertRaisesRegex(ValueError, "Declared first-player side"):
+            assess_four_cell(b)
 
 if __name__ == "__main__":
     unittest.main()
