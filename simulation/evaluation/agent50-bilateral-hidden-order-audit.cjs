@@ -79,14 +79,16 @@ function comparisonProjection(row) {
  * @param {Function} Bot Pinned SimpleTacticsAi, injected for pure tests.
  * @param {(state:object)=>object} clone Full detached clone.
  * @param {()=>()=>number} makeRandom Independent policy RNG factory.
- * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean}} [scope]
+ * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean,isolateReplayPolicyPerWorld?:boolean}} [scope]
  * @returns {object} Unqualified, failure-inclusive diagnostic.
  */
 function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) {
   const target={...candidateDevelopmentTarget(trial),
     ...(scope.firstFiniteScoredRoot===true?
       {firstFiniteScoredRoot:true,probeFreshStoreLegality:true}:{}),
-    ...(scope.replayCommonPolicy===true?{replayCommonPolicy:true}:{})};
+    ...(scope.replayCommonPolicy===true?{replayCommonPolicy:true}:{}),
+    ...(scope.isolateReplayPolicyPerWorld===true?
+      {isolateReplayPolicyPerWorld:true}:{})};
   let control;
   try {
     control=execute();
@@ -175,6 +177,7 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
       ownerRootVisible:event.ownerRootVisible??null,
       freshPlayCardStoreProbe:event.freshPlayCardStoreProbe??null,
       replayCommonPolicy:event.replayCommonPolicy===true,
+      isolatedReplayPolicyPerWorld:event.isolatedReplayPolicyPerWorld===true,
       knownDeckMembershipVerified:event.knownDeckMembershipVerified===true,
       knownDeckTopOrderVerified:event.knownDeckTopOrderVerified===true
     }}:{}),
@@ -192,9 +195,12 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
  * @returns {object}
  */
 function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
-  replayCommonPolicy=false}={}) {
+  replayCommonPolicy=false,isolateReplayPolicyPerWorld=false}={}) {
   assert.equal(typeof firstFiniteScoredRoot,'boolean');
   assert.equal(typeof replayCommonPolicy,'boolean');
+  assert.equal(typeof isolateReplayPolicyPerWorld,'boolean');
+  assert.ok(!isolateReplayPolicyPerWorld||replayCommonPolicy,
+    'Independent policy replay requires the common-policy opt-in');
   const root=path.resolve(__dirname,'../..');
   const {developmentTrials,executeDevelopment}=
     require('./agent41-bilateral-v2-development.cjs');
@@ -237,10 +243,12 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
     ()=>executeDevelopment(trial,prepared),
     withPostgameRootOrderProbe,SimpleTacticsAi,clone,
     ()=>seededRandom((trial.seed^0x5a17b9ef)>>>0),
-    {firstFiniteScoredRoot,replayCommonPolicy}
+    {firstFiniteScoredRoot,replayCommonPolicy,isolateReplayPolicyPerWorld}
   ));
   return {
-    schema:replayCommonPolicy?
+    schema:isolateReplayPolicyPerWorld?
+      'agent50-crossrank-historical-first-finite-owner-score-v5':
+      replayCommonPolicy?
       'agent50-crossrank-historical-first-finite-owner-score-v4':
       firstFiniteScoredRoot?
       'agent50-crossrank-historical-first-finite-owner-score-v3':
@@ -268,7 +276,9 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
 if(require.main===module) {
   process.stdout.write(JSON.stringify(runHistoricalDevelopmentAudit({
     firstFiniteScoredRoot:process.env.AGENT50_FIRST_FINITE_ROOT==='true',
-    replayCommonPolicy:process.env.AGENT50_COMMON_POLICY_REPLAY==='true'
+    replayCommonPolicy:process.env.AGENT50_COMMON_POLICY_REPLAY==='true'||
+      process.env.AGENT50_ISOLATED_POLICY_WORLDS==='true',
+    isolateReplayPolicyPerWorld:process.env.AGENT50_ISOLATED_POLICY_WORLDS==='true'
   }),null,2)+'\n');
 }
 module.exports={candidateDevelopmentTarget,comparisonProjection,
