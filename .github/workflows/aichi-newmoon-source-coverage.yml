@@ -343,6 +343,23 @@ jobs:
           name: rank15-native-barrage-post-evolution-confirmation
           path: rank15-omega-barrage-root-confirm.json
           if-no-files-found: warn
+      - name: Check actor-owned second Omega Barrage confirmation gate
+        if: ${{ inputs.rank15_oddish_prompt_fork }}
+        run: node --test tests/rank15-second-barrage-native-confirm-policy.test.cjs
+      - name: Fork genuine second Omega Barrage confirmation No vs Yes
+        if: ${{ inputs.rank15_oddish_prompt_fork }}
+        run: node simulation/twinleaf/rank15-omega-barrage-native-yes-fork.cjs > rank15-omega-barrage-native-yes-fork.json
+      - name: Display legal Bunnelby second confirmation effects
+        if: ${{ inputs.rank15_oddish_prompt_fork }}
+        run: >-
+          node -e "const x=require('./rank15-omega-barrage-native-yes-fork.json');const s=y=>({roots:y.actualRootActions,firstAor:y.stageSnapshots.aor?.turn??null,firstBus:y.stageSnapshots.bus?.turn??null,firstDual:y.stageSnapshots.dual?.turn??null,evolutionDeclarations:y.sourceEvolutionDeclarations.length,confirmation:y.promptEvents.find(e=>e.promptType==='ConfirmPrompt')?.ownerResponse});console.log(JSON.stringify({schema:x.schema,seed:x.seed,no:s(x.genericDecline),yes:s(x.ownerConfirmsSecondAttack),qualification:x.qualifications},null,2))"
+      - name: Archive unchanged-deal native second Omega Barrage response fork
+        if: ${{ always() && inputs.rank15_oddish_prompt_fork }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank15-real-second-barrage-confirmation-fork
+          path: rank15-omega-barrage-native-yes-fork.json
+          if-no-files-found: warn
       - name: Preserve exact pinned catalog coverage
         uses: actions/upload-artifact@v4
         with:
