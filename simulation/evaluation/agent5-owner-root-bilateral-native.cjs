@@ -66,6 +66,11 @@ function summarize(arm,audit){
     unconfirmedPublicEffects:audit.unconfirmedPublicEffects,
     unconfirmedSamples:audit.records.filter(row=>
       row.nativeEffectStatus!=='confirmed-public-effect').slice(0,8),
+    passOwnerViewSamples:audit.records.filter(row=>
+      row.intent.kind==='pass').slice(0,12).map(row=>({
+        turn:row.turn,active:row.printing,view:row.passActorView,
+        nativeEffectStatus:row.nativeEffectStatus
+      })),
     rejectedOrUncorroborated:audit.records.filter(
       row=>!row.acceptedByLiveStore).length,
     proposalBreakdown:Object.fromEntries(
