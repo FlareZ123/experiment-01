@@ -1,3 +1,3 @@
-# Agent 2 field-confidence research
+# Agent 2: field confidence
 
-Methodology for interpreting zero-loss samples against all 32 Aichi opponents. Source and tests: scripts/aichi-field-zero-loss-bound.cjs and tests/aichi-field-zero-loss-bound.test.cjs.
+Mathematical analysis only. For 32 equally weighted ranks and independent fixed-policy games, 19 undefeated qualified games per rank give a composite-null zero-loss probability of 0.0474715152 when the true average failure probability is at least 0.005. Actual field has no qualified match outcomes.
