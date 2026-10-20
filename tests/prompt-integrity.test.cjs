@@ -195,3 +195,39 @@ test('invalid AttachEnergyPrompt reports bounded post-choice card identity diagn
     return true;
   });
 });
+
+class SelectOptionPrompt {
+  constructor(values,{allowCancel=false,disabled=[]}={}) {
+    this.id=27;
+    this.result=undefined;
+    this.values=values;
+    this.options={allowCancel,disabled};
+  }
+  validate(){return true;}
+}
+
+test('option-legality opt-in vetoes native null, disabled indices and foreign choices',()=>{
+  const prompt=new SelectOptionPrompt(['Stadium','discard and multiaxis']);
+  const state={prompts:[prompt]};
+  assert.doesNotThrow(()=>assertValidPromptAction(
+    state,new ResolvePromptAction(27,null)),
+    'Historical strict mode deliberately retains permissive upstream validator');
+  for(const invalid of [null,-1,2,1.5,'0',[],undefined]){
+    assert.throws(()=>assertValidPromptAction(
+      state,new ResolvePromptAction(27,invalid),
+      {enforceSelectOptionLegality:true}),/invalid result/);
+  }
+  for(const legal of [0,1]) assert.doesNotThrow(()=>assertValidPromptAction(
+    state,new ResolvePromptAction(27,legal),
+    {enforceSelectOptionLegality:true}));
+  prompt.options.disabled=[true,false];
+  assert.throws(()=>assertValidPromptAction(state,new ResolvePromptAction(27,0),
+    {enforceSelectOptionLegality:true}),/invalid result/);
+  assert.doesNotThrow(()=>assertValidPromptAction(
+    state,new ResolvePromptAction(27,1),
+    {enforceSelectOptionLegality:true}));
+  prompt.options.allowCancel=true;
+  assert.doesNotThrow(()=>assertValidPromptAction(
+    state,new ResolvePromptAction(27,null),
+    {enforceSelectOptionLegality:true}));
+});
