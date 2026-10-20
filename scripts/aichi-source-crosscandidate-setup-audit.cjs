@@ -3,6 +3,8 @@
 const fs=require('node:fs');
 
 const SOURCE_SCHEMA='aichi-actual-source-postsetup-paired-sampler-v1';
+const ORDERED_SOURCE_SCHEMA='aichi-actual-source-ordered-deal-paired-sampler-v2';
+const ORDERED_FINGERPRINT_SCHEMA='initial-source-physical-position-sha256-v1';
 const ARMS=Object.freeze([
   ['champion-reference','source-row-order-v1'],
   ['hood-shield-v1','source-row-order-v1'],
@@ -14,16 +16,18 @@ const ARM_KEYS=new Set(ARMS.map(parts=>JSON.stringify(parts)));
 const SHA256=/^[a-f0-9]{64}$/;
 
 /**
- * Compare source post-setup zone digests across all five arms of each frozen
- * seed/physical-seat block. Digest equality covers the observed source hand,
- * Active, Bench, Prizes and remaining deck length, but NOT remaining deck order.
- * This read-only researcher audit is not a completed-game or win-rate metric.
+ * Independently inspect either early-turn source-zone-only snapshots (v1) or
+ * settled pre-action complete ordered-source fingerprints (v2). The v1 source
+ * zone digest omits remaining deck order; the v2 digest includes full ordered
+ * source card positions, but no internal RNG state. Neither is a game result.
  *
  * @param {object} archive Original 120-row setup-only JSON artifact.
  * @returns {object} Descriptive source-zone parity by opponent and arm.
  */
 function auditCrossCandidateSourceZones(archive){
-  if(archive?.schema!==SOURCE_SCHEMA ||
+  const ordered=archive?.schema===ORDERED_SOURCE_SCHEMA;
+  if(![SOURCE_SCHEMA,ORDERED_SOURCE_SCHEMA].includes(archive?.schema) ||
+     (ordered && archive.orderedSourceAudit!==true) ||
      archive.status!=='initial-setup-only-not-games' ||
      archive.qualifiedCompetitiveGames!==0 ||
      archive.sourceAndCandidate60Unchanged!==true ||
@@ -41,7 +45,9 @@ function auditCrossCandidateSourceZones(archive){
        row.openingInventoriesVerified!==true ||
        row.error!==null ||
        !SHA256.test(row.actualPostSetup?.opponentDigest) ||
-       typeof row.actualPostSetup?.firstTurn!=='boolean'){
+       typeof row.actualPostSetup?.firstTurn!=='boolean' ||
+       (ordered && (!SHA256.test(row.sourcePhysicalDealDigest) ||
+         row.sourcePhysicalDealSchema!==ORDERED_FINGERPRINT_SCHEMA))){
       throw new Error('Incomplete or unverified source opening observation');
     }
     const armKey=JSON.stringify([row.candidateId,row.inputOrderProtocol]);
@@ -74,7 +80,11 @@ function auditCrossCandidateSourceZones(archive){
           reference.actualPostSetup.opponentDigest,
         actualFirstTurnEqual:
           row.actualPostSetup.firstTurn===
-          reference.actualPostSetup.firstTurn
+          reference.actualPostSetup.firstTurn,
+        ...(ordered?{
+          orderedSourceDealEqual:
+            row.sourcePhysicalDealDigest===reference.sourcePhysicalDealDigest
+        }:{})
       });
     }
   }
@@ -84,21 +94,31 @@ function auditCrossCandidateSourceZones(archive){
       return {
         rank,comparisons:rows.length,
         sameSourcePostsetup:rows.filter(row=>row.sourcePostsetupEqual).length,
-        sameActualFirstTurn:rows.filter(row=>row.actualFirstTurnEqual).length
+        sameActualFirstTurn:rows.filter(row=>row.actualFirstTurnEqual).length,
+        ...(ordered?{
+          sameOrderedSourceDeal:rows.filter(row=>row.orderedSourceDealEqual).length
+        }:{})
       };
     });
   return {
-    auditSchema:'frozen-cross-candidate-source-postsetup-parity-v1',
-    sourceArchiveSchema:SOURCE_SCHEMA,
+    auditSchema:ordered?
+      'frozen-cross-candidate-full-ordered-source-parity-v2':
+      'frozen-cross-candidate-source-postsetup-parity-v1',
+    sourceArchiveSchema:archive.schema,
     setupBlocks:blocks.size,
     setupArms:archive.samples.length,
     comparisons:comparisons.length,
     sameSourcePostsetup:comparisons.filter(x=>x.sourcePostsetupEqual).length,
     differentSourcePostsetup:comparisons.filter(x=>!x.sourcePostsetupEqual).length,
     sameActualFirstTurn:comparisons.filter(x=>x.actualFirstTurnEqual).length,
+    ...(ordered?{
+      sameOrderedSourceDeal:comparisons.filter(x=>x.orderedSourceDealEqual).length,
+      differentOrderedSourceDeal:comparisons.filter(x=>!x.orderedSourceDealEqual).length
+    }:{}),
     byRank,
     mismatches:comparisons.filter(x=>
-      !x.sourcePostsetupEqual || !x.actualFirstTurnEqual)
+      !x.sourcePostsetupEqual || !x.actualFirstTurnEqual ||
+      (ordered && !x.orderedSourceDealEqual))
   };
 }
 
