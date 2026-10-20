@@ -80,6 +80,30 @@ function sourceFirstNativePressureVerified(row){
 function sourceFirstNativeExposureKind(row){
   if(sourceFirstNativePressureVerified(row))
     return 'native-blocked-eligible-power';
+  if(row?.rank===11){
+    const pressure=row.sourcePressure;
+    const window=row.garbotoxinWindowAudit;
+    const before=window?.before;
+    const ledger=row.rootActionLedger;
+    const root=Array.isArray(ledger)?ledger[pressure?.rootActionOrdinal]:null;
+    const noTarget=pressure?.pressureKind==='item-enabled-ability-lock' &&
+      pressure.turnBefore===1&&pressure.completionTurnBefore===1 &&
+      pressure.completionOrdinal===pressure.rootActionOrdinal &&
+      window?.schema==='agent41-authentic-rank11-garbotoxin-ability-window-v1' &&
+      window.sourceSeat===pressure.actorSeat &&
+      window.candidateSeat===1-pressure.actorSeat &&
+      window.turn===2&&window.realStoreOnly===true &&
+      before?.globalTurn===2&&before.sourceGarbodorHasTool===true &&
+      Array.isArray(before.candidateInPlayPrintedPowerChecks) &&
+      before.candidateInPlayPrintedPowerChecks.length===0 &&
+      Array.isArray(before.candidatePrintedPowerChecks) &&
+      before.candidatePrintedPowerChecks.length===0 &&
+      Array.isArray(before.candidatePrintedPowerNames) &&
+      before.candidatePrintedPowerNames.length===0 &&
+      (!Array.isArray(ledger)||
+        (root?.action==='PlayCardAction'&&root.card==='Boost Shake'));
+    return noTarget?'no-eligible-power-present':'unverified';
+  }
   if(row?.rank!==6)return 'unverified';
   const pressure=row.sourcePressure;
   const evidence=row.rank6PassivePressure;
