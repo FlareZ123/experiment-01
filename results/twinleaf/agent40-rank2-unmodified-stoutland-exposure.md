@@ -1,0 +1,19 @@
+# Independent original-source Stoutland deployment under the existing generic bot: predeclared eight physical deals
+
+**Agent40, 20 October 2026. Development registration, before seeing outcome data.** The previous [genuine native Stoutland effect-and-owner-response packet](agent40-sentinel-vs-seeker-source-root-gate.md) demonstrates a selected-source Grand Tree Stage2 + paid Retreat option and a real Lillie's Determination versus Pass divergence on a chosen rank1 opponent turn. However, those source Stadium/Retreat decisions and the opponent's VS Seeker were forced after choosing a favorable original physical deal. This additional eight-specimen census asks a distinct empirical question: **under the existing original generic bot and Expanded-source research profile, do those two published 60-card decks ever naturally bring `Stoutland BCR` into play or into the Active Spot?** It is a policy-capability diagnostic only, not a competitive tournament prediction.
+
+## Immutable method and sample
+
+- Exact source **rank1 Shadow Rider** and **rank2 Vileplume/Grand Tree control** printed 60s from `results/aichi-2026/full-decklists.json`; no substitutions.
+- Pinned Twinleaf (as reported per game, expected `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`) and existing `EXPANDED_SOURCE_PROFILE` with normal headless bot, `grandTreeFirstTurnCorrection:true`, strict prompt validation, and `captureDecisionTrace:true`.
+- **Before any outcomes:** precisely four source-neutral seed integers `20261101, 20261102, 20261103, 20261104`, **both actual physical seats** for the rank2 source, eight individual physical-game input streams, 300 max root actions each. No filtering or reselection. Physical rank2 seat is always recorded independently of which player actually starts, verified from the engine draw log. Independent seed coverage is small and cannot estimate a 99.5% field rate.
+- New research-only [reversible post-root observer](../../simulation/twinleaf/agent40-rank2-natural-stoutland-exposure.cjs) wraps pinned `Store.prototype.dispatch` without changing actions, prompts, player policies, seed, or underlying state. After actual native dispatch it checks **public source board only** for printed `Stoutland BCR` on Bench or Active, and records first observed root and turn, number of observed roots in play or Active. If truly Active at a real next opposing root, record action class and turn, without inspecting the opponent's hidden hand or deck. Collect any source Stadium activation roots, actual first-player seat, terminal/censor and root-SHA provenance. No hidden zone is used in a decision.
+- **No fabricated result:** capture all eight attempts and errors, including no-Stoutland cases, as negative observations. Use full physical starting decks and equal real policy for both ranks, with no Stadium, search, evolution, Retreat, or Supporter decision override. Action-capped runs are censored even if their public board contained Stoutland.
+
+## Outcome and interpretation gates
+
+If natural Active Stoutland appears in some genuine source games, those observations demonstrate execution feasibility under this weak policy; they **cannot** certify competitive viability. If all eight games lack Active Stoutland, that is a bounded failure to exercise the known available source line, not proof it is inaccessible to a stronger player. Source-stage evolution may be legal even if the generic bot does not choose it. The separately verified retrospective selected-source route must remain labeled conditional.
+
+The single-deck decision priority remains the Agent41 canonical reference versus New Moon bilateral comparison against rank6/rank11 and then the diverse entire field. This rank2 census is a distinct owner-policy competence falsification, with **29/32** currently source-complete opponents, **0 competitively qualified games**, and no proven 99.5% fixed deck.
+
+**Run status at registration:** pending; no result yet.
