@@ -112,7 +112,7 @@ test('both physical seats execute genuine owner-native typed searches',()=>{
   },{
     SimpleTacticsAi,Store,ResolvePromptAction,
     GamePhase:{PLAYER_TURN:5},
-    observe:(state,seat)=>actor(seat,state.turn),
+    observe:(state,seat)=>actorSingleSearchInput(state,seat,()=>actor(seat,state.turn)),
     // The injected observer returns a detached *prompt DTO* as in the native path.
     choose:chooseActorSingleSearch
   });
@@ -171,7 +171,7 @@ test('Store rejection restores both prototype methods',()=>{
     store.dispatch(new SimpleTacticsAi().decodeNextAction(store.state));
   },{SimpleTacticsAi,Store,ResolvePromptAction,
     GamePhase:{PLAYER_TURN:5},
-    observe:state=>actor(0,state.turn)}),/STORE_REJECTION/);
+    observe:state=>actorSingleSearchInput(state,0,()=>actor(0,state.turn))}),/STORE_REJECTION/);
   assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,before);
   assert.strictEqual(Store.prototype.dispatch,beforeDispatch);
 });
