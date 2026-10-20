@@ -89,6 +89,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       !(r.abilityPokemonPlayLocked===true&&catalog.abilityBasics.has(p)));
     if(index>=0)return {kind:'bench-basic',handIndex:index,benchIndex,printing:view.ownHand[index]};
   }
+  if(options.naturalEvolutionRoot===true){
+    const evolution=require('./agent1-actor-evolution-frontier.cjs')
+      .chooseNaturalEvolutionIntent(view,catalog);
+    if(evolution)return evolution;
+  }
   // Explicit development-only Iron Thorns ALS. Real native Store remains the
   // authority for Stadium, Special Energy and attack legality. No K0 deck or
   // Prize truth is consulted. This line is deliberately absent by default.
@@ -252,6 +257,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT1_THORNS_DIRECT_ROOT_DEV==='true'),
     specialEnergyRootOptIn:deps.specialEnergyRoot??
       (process.env.AGENT3_SPECIAL_ENERGY_ROOT_DEV==='true'),
+    naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
+      (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
     printedGxRootOptIn:deps.printedGxRoot??
       (process.env.AGENT25_PRINTED_GX_ROOT_DEV==='true'),
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
@@ -295,11 +302,18 @@ function withActorOnlyRootPolicy(run,deps={}){
       energyFrontier:audit.energyFrontierOptIn,
       thornsDirectLine:audit.thornsDirectLineOptIn,
       specialEnergyRoot:audit.specialEnergyRootOptIn,
-      printedGxRoot:audit.printedGxRootOptIn
+      printedGxRoot:audit.printedGxRootOptIn,
+      naturalEvolutionRoot:audit.naturalEvolutionRootOptIn
     });
     const ownerId=state.players[seat].id;
     let action;
     switch(intent.kind){
+      case 'evolve-pokemon':
+        action=new PlayCardAction(ownerId,intent.handIndex,{
+          player:PlayerType.BOTTOM_PLAYER,
+          slot:intent.slot==='bench'?SlotType.BENCH:SlotType.ACTIVE,
+          index:intent.index});
+        break;
       case 'bench-basic':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:intent.benchIndex});
