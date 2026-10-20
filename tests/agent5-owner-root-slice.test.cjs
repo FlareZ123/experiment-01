@@ -30,7 +30,7 @@ function view(){
         }
       },
       bench:[null,null,null,null,null],
-      publicTurnRestrictions:{gxUsed:false}
+      publicTurnRestrictions:{gxUsed:false,attackLockTurnsRemaining:0}
     },
     ownTurnResources:{
       energyPlayedTurn:0,pokemonPlayLocked:false,
@@ -76,6 +76,9 @@ test('no repeat attachment, then legal attack by Basic-only energy',()=>{
     kind:'attack',name:'Psy Bolt'
   });
   a.ownPublic.active.publicRestrictions.cannotAttackNextTurn=true;
+  assert.equal(selectOwnerRootIntent(a,catalog).kind,'pass');
+  a.ownPublic.active.publicRestrictions.cannotAttackNextTurn=false;
+  a.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining=1;
   assert.equal(selectOwnerRootIntent(a,catalog).kind,'pass');
 });
 test('no GX after spent and no attack on first global turn',()=>{
