@@ -52,11 +52,17 @@ function buildPair(){
         1:{'owner-prompt':1,'owner-root-or-setup':0,
           'out-of-turn':0,'foreign-prompt':0}
       },
-      nativeGenericPromptBySeat:{0:{WaitPrompt:2},1:{ChooseCardsPrompt:1}}
+      nativeGenericPromptBySeat:{0:{WaitPrompt:2},1:{ChooseCardsPrompt:1}},
+      nativeDistinctOwnerPromptObjects:3,
+      nativeDistinctOwnerPromptBySeat:{0:2,1:1},
+      nativeDistinctOwnerPromptTypesBySeat:{
+        0:{WaitPrompt:2},1:{ChooseCardsPrompt:1}
+      }
     },
     detailedComponentAudits:{...structuredClone(originalAudit.detailedComponentAudits),
       genericFallback:{
-        gameStoresSeen:1,unknownActorDelegations:0,failedGenericDecodes:0
+        gameStoresSeen:1,unknownActorDelegations:0,failedGenericDecodes:0,
+        distinctOwnerPromptObjects:3
       }}
   });
   const base={attempted:4,actorOnlyCompositionOptIn:true,
