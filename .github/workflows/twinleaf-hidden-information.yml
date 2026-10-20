@@ -244,7 +244,7 @@ jobs:
         run: node --test tests/agent50-bilateral-hidden-order-audit.test.cjs tests/agent50-bilateral-postgame-root-observer.test.cjs tests/rank10-hidden-order-live-probe.test.cjs tests/native-clone-structure-diff.test.cjs tests/native-tape-hidden-order-contrast.test.cjs tests/agent50-native-first-finite-tape.test.cjs
       - name: Replay authentic historical common-policy decisions and detached order contrasts
         env:
-          AGENT50_FIRST_FINITE_ROOT: ${{ inputs.agent50_first_finite_root || inputs.agent50_common_policy_replay || inputs.agent50_isolated_policy_worlds }}
+          AGENT50_FIRST_FINITE_ROOT: ${{ inputs.agent50_first_finite_root || inputs.agent50_common_policy_replay || inputs.agent50_isolated_policy_worlds || inputs.agent50_native_first_finite_tape }}
           AGENT50_COMMON_POLICY_REPLAY: ${{ inputs.agent50_common_policy_replay || inputs.agent50_isolated_policy_worlds }}
           AGENT50_ISOLATED_POLICY_WORLDS: ${{ inputs.agent50_isolated_policy_worlds }}
           AGENT50_NATIVE_TAPE_SAME_WORLD: ${{ inputs.agent50_native_same_world_tape || inputs.agent50_native_tape_hidden_deck_order || inputs.agent50_native_first_finite_tape }}
