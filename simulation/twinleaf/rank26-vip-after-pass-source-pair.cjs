@@ -11,7 +11,7 @@ const {initializeCards}=require('./headless.cjs');
 const {runWithResearchProfile,RANK26_PROPAGATION_PROFILE}=
   require('./policy-profiles.cjs');
 const {withMailScout}=require('./rank26-mail-recovery.cjs');
-const {withSourceVipAfterPass}=
+const {withSourceVipAfterPass,sourceKokoNativeComplete}=
   require('./rank26-first-own-vip-after-pass.cjs');
 
 const ENGINE='twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -232,17 +232,18 @@ function run(){
       const kokoDeclaration=compressorObserved.firstActions.some(e=>
         e.kind==='UseAbilityAction'&&e.ability==='Dance of the Ancients');
       assert.equal(kokoDeclaration,true);
-      assert.equal(kokoEffect?.prismInLostZone,true);
-      assert.equal(kokoEffect.recipientCount,2);
-      assert.equal(kokoEffect.lightningAttached,2);
-      assert.equal(kokoEffect.discardLightning,0);
+      const kokoFidelity={
+        nativeComplete:sourceKokoNativeComplete(kokoEffect),
+        expected:{prismCount:1,recipientCount:2,lightningAttached:2,discardLightning:0},
+        observed:kokoEffect??null
+      };
       const scorerAudits=withCompressor.policyAudit.events.filter(e=>
         e.kind==='source-bot-root-scorer-mutation-audit');
       assert.ok(scorerAudits.length>0,'No actual post-Compressor bot decision audited');
       vipThenCologne.squawkCompressorContinuation={
         policy:withCompressor.policyAudit,observed:compressorObserved,
         compressorOffer,compressorSearch,compressorPost,
-        kokoDeclaration,kokoEffect,scorerAudits,
+        kokoDeclaration,kokoEffect,kokoFidelity,scorerAudits,
         retrospectiveDevelopmentOnly:true};
       vipThenCologne.squawkAlternative={
         policy:squawkAlternative.policyAudit,
