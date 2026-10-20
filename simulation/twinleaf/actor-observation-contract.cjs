@@ -20,6 +20,20 @@ function visiblePokemon(slot){
   return {
     printing:printing(pokemon),name:pokemon.name,
     hp:pokemon.hp,damage:slot.damage,
+    // Fully face-up printed information needed to compare attack options,
+    // vulnerabilities, and retreat. Printed values are not a final damage
+    // or retreat-cost calculation; effects may modify them in the Store.
+    printed:{
+      stage:pokemon.stage??null,
+      types:[...(pokemon.cardType??[])],
+      retreatCost:[...(pokemon.retreat??[])],
+      weakness:(pokemon.weakness??[]).map(weakness=>({
+        type:weakness.type,value:weakness.value??null
+      })),
+      resistance:(pokemon.resistance??[]).map(resistance=>({
+        type:resistance.type,value:resistance.value
+      }))
+    },
     // Public temporary restrictions must be visible to an attack/retreat
     // planner. These represent effects, not a claim that a particular
     // action is legal: the genuine Store remains the final rules authority.
@@ -39,9 +53,18 @@ function visiblePokemon(slot){
     energies:slot.energies.cards.map(printing),
     tools:slot.tools.map(printing),
     attacks:pokemon.attacks.map(attack=>({
-      name:attack.name,cost:[...attack.cost]
+      name:attack.name,cost:[...attack.cost],
+      damage:attack.damage??null,
+      damageCalculation:attack.damageCalculation??null,
+      text:attack.text??null,
+      gxAttack:attack.gxAttack===true,
+      barrage:attack.barrage===true
     })),
-    abilities:pokemon.powers.map(power=>power.name)
+    abilities:pokemon.powers.map(power=>power.name),
+    abilityDetails:pokemon.powers.map(power=>({
+      name:power.name,powerType:power.powerType??null,
+      text:power.text??null
+    }))
   };
 }
 
