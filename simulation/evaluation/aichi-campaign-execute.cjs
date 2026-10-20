@@ -291,6 +291,7 @@ function executeDiagnostic(options) {
           observedToolAttackAwarenessSeat: game.toolAttackAwarenessSeat ?? null,
           observedRaichuCompressorSeat:game.rank4RaichuCompressorSeat ?? null,
           expectedRaichuCompressorSeat:sourceCompressorSeat,
+          observedRaichuRopePivotSeat:game.rank4RaichuRopePivotSeat??null,
           expectedToolAttackPolicy: expectedToolPolicy,
           observedToolAttackPolicy: game.policy ?? null,
           error: 'Engine revision, trial label, rules, or requested policy evidence did not match.'
@@ -361,6 +362,7 @@ function executeDiagnostic(options) {
         turnEvidence: turn, winnerIndex: game.winner ?? null,
         engineRevision: game.engine || null, policy: game.policy || null,
         sourceCompressorSeat,
+        sourceRopePivotSeat:rank4RaichuRopePivotSource===true?sourceCompressorSeat:null,
         observedPolicyFlags: Object.fromEntries(echoedPolicyKeys
           .filter(key => Object.hasOwn(enginePolicyFlags, key))
           .map(key => [key, game[key]])),
@@ -505,6 +507,7 @@ function main() {
       electroRainDamageCorrection: process.env.AICHI_ELECTRO_RAIN_DAMAGE === '1',
       electrodeGXPrizeTradePolicy: process.env.AICHI_ELECTRODE_PRIZE_TRADE === '1',
       rank4RaichuCompressorSource: process.env.AICHI_RANK4_COMPRESSOR === '1',
+      rank4RaichuRopePivotSource: process.env.AICHI_RANK4_ROPE_PIVOT === '1',
       battleCompressorPositiveSelectionCorrection: process.env.AICHI_BATTLE_COMPRESSOR_MIN1 === '1',
       captureElectrodeOpportunity: process.env.AICHI_ELECTRODE_OPPORTUNITY === '1',
       raichuSightToolPolicy: process.env.AICHI_RAICHU_SIGHT === '1',
