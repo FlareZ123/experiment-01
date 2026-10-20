@@ -10,7 +10,8 @@ const STATUSES = new Set([
   'unverified-first-turn', 'unfinished', 'engine-exception',
   'engine-seed-mismatch', 'engine-revision-mismatch',
   'engine-protocol-mismatch', 'policy-profile-mismatch',
-  'simulator-profile-mismatch', 'match-policy-echo-mismatch'
+  'simulator-profile-mismatch', 'match-policy-echo-mismatch',
+  'unverified-initial-source-deal'
 ]);
 
 /** @param {unknown} value @returns {string} */
