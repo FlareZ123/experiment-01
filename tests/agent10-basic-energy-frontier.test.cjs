@@ -56,6 +56,14 @@ test('shortest reachable attack wins, excluding a spent GX choice', () => {
   assert.equal(pick.printing,'Darkness Energy MEE');
 });
 
+test('unspent GX cannot divert Basic Energy from root-executable attack', () => {
+  const v=view({attached:[],cost:[P,P],other:[
+    {name:'Unspent GX',cost:[D],gxAttack:true}]});
+  const pick=chooseBasicEnergyFrontier(v,catalog);
+  assert.equal(pick.printing,'Psychic Energy MEE');
+  assert.equal(pick.attackName,'Repeated Psychic');
+});
+
 test('no Basic in hand is null; irrelevant legal Energy retains existing first-choice behavior', () => {
   assert.equal(chooseBasicEnergyFrontier(view({held:[]}),catalog),null);
   const pick=chooseBasicEnergyFrontier(view({cost:[P],
