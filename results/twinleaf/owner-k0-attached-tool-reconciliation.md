@@ -28,3 +28,7 @@ The source-first rank-11 Absol/Garbodor pressure case depends on an equipped Gar
 **Follow-up:** run the existing K0 pure test suite on a pinned-engine build, then capture one genuine actor-owned pre-search, equipped-board snapshot with physical zone counts to verify this corrected observed pool against the already-existing canonical Card ledger. Do not substitute physical deck/prize identities into policy inputs, even in source-locked research.
 
 Research objective unchanged: exact published opponent lists **29/32**, **zero** competitively qualified matches and no demonstrated 99.5% fixed deck.
+
+### CI readback, 20 October 2026
+
+The existing manual [Aichi benchmark statistical workflow run 39359149162](https://github.com/FlareZ123/experiment-01/actions/runs/39359149162) completed **successfully** on commit `18905858758c430c3e79bae3fcb252450f6c78b2` after the K0 Tool regression and actor-blind category tests were added to its existing owner-K0 step. This workflow uses GitHub-hosted **Node 22** and checks the real checked-out repository sources. No new workflow was added. It does not compile or execute Twinleaf matches; game policy, source-first lock function and competitive qualification remain open.
