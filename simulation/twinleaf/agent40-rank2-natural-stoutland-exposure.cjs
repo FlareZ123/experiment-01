@@ -43,6 +43,19 @@ function observeUnmodifiedSourceStoutland(sourceSeat, execute) {
     const rootAction = this === root;
     if (rootAction) rootOrdinal++;
     const stateBefore = this.state;
+    const actorBefore = rootAction && stateBefore?.players?.length === 2 &&
+      action?.constructor?.name === 'PlayCardAction' ?
+      stateBefore.players.find(player => player.id === action.id) : null;
+    const printedPlayed = actorBefore?.hand?.cards?.[action.handIndex]
+      ?.fullName ?? null;
+    const beforePending = stateBefore?.prompts?.find(prompt =>
+      prompt.result === undefined);
+    const nativeRootBefore = {
+      action: action?.constructor?.name ?? null,
+      printedCardPlayed: printedPlayed,
+      sourceOrOpponentTurn: stateBefore?.activePlayer ?? null,
+      pendingPrompt: beforePending?.constructor?.name ?? null
+    };
     if (rootAction && firstOpponentDecisionUnderActive === null &&
         stateBefore?.players?.length === 2 &&
         stateBefore?.players?.[sourceSeat]?.active
@@ -66,15 +79,26 @@ function observeUnmodifiedSourceStoutland(sourceSeat, execute) {
         slot.getPokemonCard()?.fullName === SOURCE_PRINTING);
       if (inPlay) {
         inPlayRoots++;
-        if (firstInPlay === null) firstInPlay = {
-          turn: state.turn, ordinal: rootOrdinal,
-          position: active ? 'Active' : 'Bench'
-        };
+        if (firstInPlay === null) {
+          const slot = boardSlots.find(board =>
+            board.getPokemonCard()?.fullName === SOURCE_PRINTING);
+          firstInPlay = {
+            turn: state.turn, ordinal: rootOrdinal,
+            position: active ? 'Active' : 'Bench',
+            pokemonStageStack: slot?.cards?.map(card => card.fullName) ?? [],
+            sourceActivePrinting: actor.active.getPokemonCard()?.fullName ?? null,
+            sourceBenchPrintings: actor.bench.map(board =>
+              board.getPokemonCard()?.fullName ?? null),
+            rootBeforeNativeSettlement: nativeRootBefore
+          };
+        }
       }
       if (active) {
         activeRoots++;
         if (firstActive === null) firstActive = {
-          turn: state.turn, ordinal: rootOrdinal
+          turn: state.turn, ordinal: rootOrdinal,
+          pokemonStageStack: actor.active.cards.map(card => card.fullName),
+          rootBeforeNativeSettlement: nativeRootBefore
         };
       }
     }
@@ -132,6 +156,11 @@ function runAudit() {
         assert.ok(game.rootActionLedger.length <=
           observation.observedRootDispatches,
           'In-game ledger cannot exceed root Store dispatches including setup');
+        if (seed === 20261102 && rank2Seat === 0) {
+          assert.equal(sha256(game.rootActionLedger),
+            'f5364941c7799c9fb44acf143bd095ec9a04f09119f6ce92991a91c33a7cab09',
+            'Add-only source stage observer changed genuine Store actions');
+        }
         records.push({
           ...trial, engine: game.engine,
           verifiedFirstTurn: game.verifiedByDrawLog,
