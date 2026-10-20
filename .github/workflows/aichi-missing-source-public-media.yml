@@ -2,6 +2,13 @@ name: Aichi missing ranked source public media
 
 on:
   workflow_dispatch:
+    inputs:
+      preview_lead:
+        description: 'Optional source-photo visual review, no certified card list'
+        required: true
+        default: 'none'
+        type: choice
+        options: ['none', 'rank28-replica', 'rank25-kume']
 
 permissions:
   contents: read
@@ -22,6 +29,13 @@ jobs:
       - name: Show post and image verification status without card inference
         run: >-
           node -e "const fs=require('node:fs');const path=require('node:path');const m=JSON.parse(fs.readFileSync(path.join(process.env.RUNNER_TEMP,'aichi-missing-source-media','manifest.json'),'utf8'));console.log(JSON.stringify({schema:m.schema,provenanceOnly:m.provenanceOnly,full60sRecovered:m.full60sRecoveredByAutomation,results:m.results.map(r=>({key:r.key,status:r.retrievalStatus,imageCount:r.photos.filter(p=>p.file).length,imagesWithErrors:r.photos.filter(p=>p.retrievalError).length,verified60:r.certifiedRanked60,originalPublicPhotoUrls:r.photos.map(p=>p.originalUrl),photoSha256:r.photos.map(p=>p.sha256||null)}))},null,2))"
+      - name: Emit bounded source-photo preview for human review
+        if: ${{ inputs.preview_lead != 'none' }}
+        env:
+          PREVIEW_LEAD: ${{ inputs.preview_lead }}
+        run: |
+          python3 -m pip install --quiet Pillow
+          python3 scripts/aichi_public_photo_preview.py "$RUNNER_TEMP/aichi-missing-source-media" "$PREVIEW_LEAD"
       - name: Preserve immutable public images and nonpromoted metadata
         if: always()
         uses: actions/upload-artifact@v4
