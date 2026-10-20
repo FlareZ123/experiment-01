@@ -3,6 +3,11 @@ name: Twinleaf policy RNG isolation audit
 on:
   workflow_dispatch:
     inputs:
+      agent13_actor_both_prompts_dev:
+        description: 'Unqualified actor-owned SelectOption and copied Attack prompt native Store smoke'
+        required: false
+        type: boolean
+        default: false
       agent13_actor_option_canonical_dev:
         description: 'Unqualified SelectOption native Store canonical development (four historical arms)'
         required: false
@@ -47,6 +52,27 @@ jobs:
         with:
           name: agent13-actor-option-canonical-development
           path: agent13-actor-option-development.json
+          if-no-files-found: warn
+      - name: Confirm actor-only prompt Store acceptance counts
+        if: inputs.agent13_actor_option_canonical_dev
+        run: >-
+          node -e "const r=require('./agent13-actor-option-development.json');console.log(JSON.stringify({selected:r.selectedNativeOptions,accepted:r.acceptedNativeOptions,Stores:r.actorOptionAudit.actualStoreInstances,cases:r.rows.length,qualified:0}));"
+      - name: Test owner-only copied Attack prompt source identity
+        if: inputs.agent13_actor_both_prompts_dev
+        run: node --test tests/agent13-actor-only-choose-attack.test.cjs tests/agent13-actor-only-select-option.test.cjs
+      - name: Execute both actor-only native prompt adapters in four historical arms
+        if: inputs.agent13_actor_both_prompts_dev
+        run: node simulation/twinleaf/agent13-actor-prompts-canonical-dev.cjs > agent13-actor-prompts-development.json
+      - name: Show accepted copied Attack and option counts without win inference
+        if: inputs.agent13_actor_both_prompts_dev
+        run: >-
+          node -e "const r=require('./agent13-actor-prompts-development.json');console.log(JSON.stringify({options:r.optionAudit.acceptedPromptActions,attacks:r.chooseAttackAudit.accepted,cases:r.rows.length,errors:r.rows.filter(x=>x.error).length,qualified:0}));"
+      - name: Archive source-original native prompt outcomes
+        if: inputs.agent13_actor_both_prompts_dev && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent13-actor-both-prompts-canonical-development
+          path: agent13-actor-prompts-development.json
           if-no-files-found: warn
       - name: Compare reproducible shared- and isolated-stream smoke games
         run: node simulation/twinleaf/smoke-test.cjs
