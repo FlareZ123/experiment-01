@@ -3,6 +3,8 @@
 const assert=require('node:assert/strict');
 const {attestBilateralRootClaims}=
   require('./bilateral-v2-root-ledger-attestation.cjs');
+const {sourceFirstNativePressureVerified}=
+  require('./agent3-source-first-pressure-kind.cjs');
 
 const SHA256=/^[0-9a-f]{64}$/;
 const STATUSES=new Set(['engine-terminal','action-cap','engine-error']);
@@ -255,12 +257,17 @@ function auditBilateralV2(plan,archive) {
     // start the physical game and establish its witnessed effect on turn 1.
     // This remains an asserted mechanics witness pending raw Store audit.
     const sourceFirstEarlyPressureWitness=bilateralWitness&&
-      actualSeat===sourceSeat&&pressureTurn===1&&completionTurn===1;
+      actualSeat===sourceSeat&&pressureTurn===1&&completionTurn===1&&
+      sourceFirstNativePressureVerified(row);
     const vetoes=[];
     if(!validStart)vetoes.push('actual-first-player-unverified');
     if(row.status==='engine-error')vetoes.push('engine-error');
     if(row.status==='action-cap')vetoes.push('action-capped');
     if(!sourcePressure)vetoes.push('source-pressure-unverified');
+    if(validStart&&actualSeat===sourceSeat&&pressureTurn===1&&
+      !sourceFirstNativePressureVerified(row)){
+      vetoes.push('source-first-native-pressure-type-unverified');
+    }
     if(!firstCandidateReply)vetoes.push('candidate-legal-reply-unverified');
     if(!sourceContinuation)vetoes.push('source-legal-continuation-unverified');
     if(!chronological)vetoes.push('pressure-reply-followup-order-unverified');
