@@ -339,6 +339,10 @@ function executeDevelopment(trial,candidates,{
   assert.ok(Array.isArray(game.decisionTrace),
     'Native game must contain requested actual-actor decision trace');
   const nativeDecisionTrace=game.decisionTrace;
+  // Post-game, both-seat native prompt choices are a separate semantic witness.
+  // Preserve the older root-skeleton SHA unchanged for archived comparisons.
+  const nativePromptChoices=require('../twinleaf/native-prompt-choice-evidence.cjs')
+    .nativePromptChoiceEvidence(nativeDecisionTrace);
   const sourceGuzmaModalEvidence=
     sourceGuzmaChoices(nativeDecisionTrace,sourceSeat);
   const candidateGuzmaModalEvidence=
@@ -419,6 +423,7 @@ function executeDevelopment(trial,candidates,{
     // Read-only owner K1 deck-search choices, for all historical arms.
     // Never give the real deck membership to a pre-search K0 policy.
     candidateOwnDeckSelectionEvidence,
+    nativePromptChoices,
     policyAudit:commonAudit,sourceAudit,sourceLinePacket,
     supporterModalEvidence:{
       schema:'agent41-native-guzma-modal-both-seats-postgame-v1',
