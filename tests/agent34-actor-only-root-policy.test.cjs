@@ -5,6 +5,7 @@ const {chooseActorRootIntent,publicDispatchState,withActorOnlyRootPolicy}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 const catalog={
   basics:new Set(['Shadow Rider Calyrex V CRE','Trubbish FST']),
+  abilityBasics:new Set(['Shadow Rider Calyrex V CRE']),
   basicEnergies:new Set(['Psychic Energy MEE','Darkness Energy MEE']),
   basicEnergyTypes:{Psychic:5,Darkness:7},
   colorlessEnergyType:9,
@@ -257,4 +258,20 @@ test('actual Store wrapper attests an accepted owner Basic Energy zone mutation'
   assert.deepEqual(state.players[0].active.energies.cards.map(x=>x.fullName),
     ['Psychic Energy MEE']);
   assert.equal(state.players[0].hand.cards.length,0);
+});
+
+test('public Ability-Basic hand lock skips Ability Pokémon and permits other Basic',()=>{
+  const view=base();
+  view.ownHand=['Shadow Rider Calyrex V CRE','Trubbish FST'];
+  view.ownTurnResources.abilityPokemonPlayLocked=true;
+  assert.deepEqual(chooseActorRootIntent(view,catalog),{
+    kind:'bench-basic',handIndex:1,benchIndex:0,printing:'Trubbish FST'
+  });
+  view.ownHand=['Shadow Rider Calyrex V CRE'];
+  assert.notEqual(chooseActorRootIntent(view,catalog).kind,'bench-basic');
+  view.ownTurnResources.abilityPokemonPlayLocked=false;
+  assert.deepEqual(chooseActorRootIntent(view,catalog),{
+    kind:'bench-basic',handIndex:0,benchIndex:0,
+    printing:'Shadow Rider Calyrex V CRE'
+  });
 });
