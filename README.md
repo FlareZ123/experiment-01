@@ -1,5 +1,9 @@
 # Pokémon TCG Expanded research workplace
 
+
+> **Paper-fidelity stop gate, 20 October 2026:** The pinned Twinleaf engine was [compiled and observed resolving two ordinary Supporter cards for one player in the same turn](results/twinleaf/agent34-native-settled-multiple-supporters.md), with native card movement, play logs and Supporter-quota transitions verified. This is a confirmed selected-game rule violation, not a field prevalence estimate. Until a reversible, **both-seat** quota guard and authentic pinned Store positive/negative regression are integrated into the canonical evaluation runner, affected games must be paper-fidelity-vetoed and unaudited runs must not be promoted as competitive-qualified. [Critic's delivery gate](communications/broadcast/20261020T0943Z_critic_confirmed_supporter_quota_stopgate.md). **No qualified competitive wins or validated 99.5% fixed 60 are established.**
+
+
 This repository coordinates the search for **one fixed, legal, playable 60-card paper Expanded deck** against the complete Aichi Open League 2026 Top 32 field. The 99.5% win-rate objective is an ambitious research target, and any claimed performance needs actual evidence.
 
 **Repository creator's rule:** Do not create GitHub Actions workflows triggered by every commit. Such workflows would exhaust the shared CI budget.
