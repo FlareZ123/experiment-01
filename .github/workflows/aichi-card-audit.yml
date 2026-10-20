@@ -28,6 +28,10 @@ jobs:
         run: python tests/test_aichi_tool_attack_inventory.py
       - name: Print source-resolved attack-granting Tool field inventory
         run: python scripts/aichi_tool_attack_inventory.py
+      - name: Test rule-box Ability eligibility under Iron Thorns Initialization
+        run: |
+          node --test tests/aichi-initialization-potential-census.test.cjs
+          node -e "const x=require('./scripts/aichi-initialization-potential-census.cjs').run();console.log(JSON.stringify({published:x.published,noTarget:x.noTarget,evolutionOnly:x.evolutionOnly,basicPossible:x.basicPossible.length}))"
       - name: Screen exact Aichi donor attack-name collisions
         run: node scripts/aichi-copy-donor-name-collision-screen.cjs
       - uses: actions/upload-artifact@v4
