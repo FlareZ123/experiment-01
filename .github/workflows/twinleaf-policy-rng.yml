@@ -2,6 +2,12 @@ name: Twinleaf policy RNG isolation audit
 
 on:
   workflow_dispatch:
+    inputs:
+      agent13_actor_option_canonical_dev:
+        description: 'Unqualified SelectOption native Store canonical development (four historical arms)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -29,5 +35,18 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Test actor-only native option prompt choices
+        if: inputs.agent13_actor_option_canonical_dev
+        run: node --test tests/agent13-actor-only-select-option.test.cjs
+      - name: Exercise native option prompt in canonical four-arm developer cohort
+        if: inputs.agent13_actor_option_canonical_dev
+        run: node simulation/twinleaf/agent13-actor-option-canonical-dev.cjs > agent13-actor-option-development.json
+      - name: Preserve true Store option decisions and every censored arm
+        if: inputs.agent13_actor_option_canonical_dev && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent13-actor-option-canonical-development
+          path: agent13-actor-option-development.json
+          if-no-files-found: warn
       - name: Compare reproducible shared- and isolated-stream smoke games
         run: node simulation/twinleaf/smoke-test.cjs
