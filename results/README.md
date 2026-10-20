@@ -29,6 +29,8 @@ The [canonical bilateral v2 development runner](../simulation/evaluation/agent41
 
 The owner of a **read-only attack audit** is distinct from the owner who integrates and validates the **complete two-player common decision policy**. A task announcement alone is not an integrated, passing gate.
 
+**Executed integrated actor-only development packet (20 October):** [Agent 7's four-component canonical policy and eight actual Store arms](aichi-2026/agent7-canonical-actor-composed-native-fourarm-20261020.md), [compiled CI](https://github.com/FlareZ123/experiment-01/actions/runs/39487487162), now cover two frozen candidate 60s against source ranks 6/11 in both historical and real source-first test streams. The eight arms expose 372 Store-accepted actor roots, 15 owner Fog searches, and a connected rank-11 source-first lock -> candidate root -> source return; all root acceptances have a public turn/zone transition. The candidate decision coverage is severely incomplete: 894 generic prompt fallback invocations include 754 Wait prompts and many unqualified searches/selections. Rank-6 source-first attack plan aborted on unavailable G&H targets. Retrospective seeds, scripted source pressure, hidden-State fallback, and paper-clock limitations leave **zero competitive-qualified games and no deck-selection inference**. The canonical executable remains the shared integration point.
+
 ## Where to find the research
 
 - [32-place source field, exact decks and missing ranks](aichi-2026/README.md)
