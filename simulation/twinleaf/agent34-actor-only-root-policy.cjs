@@ -51,6 +51,8 @@ function buildActorCardCatalog(all,types){
         power.powerType===PowerType.ABILITY)).map(c=>c.fullName)),
     basicEnergies:new Set(all.filter(c=>c instanceof EnergyCard&&
       c.energyType===EnergyType.BASIC).map(c=>c.fullName)),
+    specialEnergies:new Set(all.filter(c=>c instanceof EnergyCard&&
+      c.energyType===EnergyType.SPECIAL).map(c=>c.fullName)),
     basicEnergyTypes:{
       Grass:CardType.GRASS,Fire:CardType.FIRE,Water:CardType.WATER,
       Lightning:CardType.LIGHTNING,Psychic:CardType.PSYCHIC,
@@ -116,6 +118,12 @@ function chooseActorRootIntent(view,catalog,options={}){
       return {kind:'attach-basic-energy',handIndex:index,printing:view.ownHand[index]};
     }
   }
+  if(options.specialEnergyRoot===true&&own.active&&!r.energyPlayLocked&&
+     !r.specialEnergyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
+    const special=require('./agent3-special-energy-frontier.cjs')
+      .chooseSpecialEnergyIntent(view,catalog);
+    if(special)return special;
+  }
   const active=own.active,restrictions=active?.publicRestrictions;
   const locked=own.publicTurnRestrictions?.attackLockTurnsRemaining>0||
     restrictions?.cannotAttackNextTurn===true||
@@ -123,7 +131,15 @@ function chooseActorRootIntent(view,catalog,options={}){
       x===catalog.specialConditions.PARALYZED);
   if(active&&!locked&&view.globalTurn!==1){
     const attached=[];
+    const temple=options.specialEnergyRoot===true&&
+      [...(own.stadium??[]),...(view.opponentPublic?.stadium??[])]
+        .some(p=>p.startsWith('Temple of Sinnoh '));
     for(const printing of active.energies){
+      if(options.specialEnergyRoot===true){
+        const units=require('./agent3-special-energy-frontier.cjs')
+          .specialEnergyUnits(printing,catalog,temple);
+        if(units!==null){attached.push(...units);continue;}
+      }
       if(!catalog.basicEnergies.has(printing))continue;
       const kind=ENERGY_NAMES.find(k=>printing.startsWith(k+' Energy '));
       if(kind)attached.push(catalog.basicEnergyTypes[kind]);
@@ -209,6 +225,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT10_BASIC_ENERGY_FRONTIER_DEV==='true'),
     thornsDirectLineOptIn:deps.thornsDirectLine??
       (process.env.AGENT1_THORNS_DIRECT_ROOT_DEV==='true'),
+    specialEnergyRootOptIn:deps.specialEnergyRoot??
+      (process.env.AGENT3_SPECIAL_ENERGY_ROOT_DEV==='true'),
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
     typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
     publicTransitionWitnesses:0,publicTransitionChanges:0,
@@ -248,7 +266,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     const view=observe(state,seat);
     const intent=chooseActorRootIntent(view,catalog,{
       energyFrontier:audit.energyFrontierOptIn,
-      thornsDirectLine:audit.thornsDirectLineOptIn
+      thornsDirectLine:audit.thornsDirectLineOptIn,
+      specialEnergyRoot:audit.specialEnergyRootOptIn
     });
     const ownerId=state.players[seat].id;
     let action;
@@ -257,6 +276,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:intent.benchIndex});
         break;
+      case 'attach-special-energy':
       case 'attach-basic-energy':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
