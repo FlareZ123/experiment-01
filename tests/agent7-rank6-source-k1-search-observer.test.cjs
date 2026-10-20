@@ -107,3 +107,25 @@ test('the read-only live Store owner hook restores methods without changing acti
   assert.deepEqual(Object.getOwnPropertyDescriptor(
     Store.prototype,'dispatch'),priorStore);
 });
+
+test('genuine owner K1 snapshot records source one-unit Energy without Prize reads',()=>{
+  const data=fixture({missingDce:true});
+  data.owner.deck.cards.push(card('Speed Lightning Energy'));
+  data.owner.deck.cards.push(card('Capture Energy'));
+  data.owner.hand.cards.push(card('Spiky Energy'));
+  data.owner.active.energies.cards.push(card('Capture Energy'));
+  data.owner.discard.cards.push(card('Speed Lightning Energy'));
+  const snapshot=sourceK1SearchSnapshot(
+    data.state,0,data.prompt,data.observe);
+  assert.equal(snapshot.expectedTargets[1].ownerDeck,0);
+  assert.deepEqual(snapshot.oneUnitEnergyTargets.map(x=>x.name),[
+    'Speed Lightning Energy','Capture Energy','Spiky Energy'
+  ]);
+  assert.equal(snapshot.oneUnitEnergyTargets[0].ownerDeck,1);
+  assert.equal(snapshot.oneUnitEnergyTargets[0].ownerDiscard,1);
+  assert.equal(snapshot.oneUnitEnergyTargets[1].ownerDeck,1);
+  assert.equal(snapshot.oneUnitEnergyTargets[1].ownerActiveAttached,1);
+  assert.equal(snapshot.oneUnitEnergyTargets[2].ownerHand,1);
+  assert.equal(snapshot.prizeIdentitiesInspected,false);
+  assert.equal(snapshot.opponentConcealedIdentitiesInspected,false);
+});
