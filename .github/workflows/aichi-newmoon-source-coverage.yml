@@ -290,6 +290,12 @@ jobs:
       - name: Reproduce real rank15 source paid-TM Poffin action fork
         if: ${{ inputs.rank15_paid_tm_poffin }}
         run: node simulation/twinleaf/rank15-paid-tm-poffin-original-root.cjs > rank15-paid-tm-poffin-root.json
+      - name: Verify authenticated K1 Poffin Oddish availability in native Store archive
+        if: ${{ inputs.rank15_paid_tm_poffin }}
+        run: RANK15_NATIVE_POFFIN_JSON=rank15-paid-tm-poffin-root.json node --test tests/rank15-poffin-owner-choice-audit.test.cjs
+      - name: Display physically available but unselected source Oddish evidence
+        if: ${{ inputs.rank15_paid_tm_poffin }}
+        run: node -e "const x=require('./rank15-paid-tm-poffin-root.json'); console.log(JSON.stringify(require('./scripts/rank15-poffin-owner-choice-audit.cjs').auditRank15PoffinChoice(x),null,2))"
       - name: Display true source native Poffin action status
         if: ${{ inputs.rank15_paid_tm_poffin }}
         run: >-
