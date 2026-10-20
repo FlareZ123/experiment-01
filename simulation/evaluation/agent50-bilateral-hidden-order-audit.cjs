@@ -79,7 +79,7 @@ function comparisonProjection(row) {
  * @param {Function} Bot Pinned SimpleTacticsAi, injected for pure tests.
  * @param {(state:object)=>object} clone Full detached clone.
  * @param {()=>()=>number} makeRandom Independent policy RNG factory.
- * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean,isolateReplayPolicyPerWorld?:boolean,nativeScoreTrace?:boolean}} [scope]
+ * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean,isolateReplayPolicyPerWorld?:boolean,nativeScoreTrace?:boolean,nativeTapeSameWorld?:boolean}} [scope]
  * @returns {object} Unqualified, failure-inclusive diagnostic.
  */
 function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) {
@@ -89,7 +89,8 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
     ...(scope.replayCommonPolicy===true?{replayCommonPolicy:true}:{}),
     ...(scope.isolateReplayPolicyPerWorld===true?
       {isolateReplayPolicyPerWorld:true}:{}),
-    ...(scope.nativeScoreTrace===true?{nativeScoreTrace:true}:{})};
+    ...(scope.nativeScoreTrace===true?{nativeScoreTrace:true}:{}),
+    ...(scope.nativeTapeSameWorld===true?{nativeTapeSameWorld:true}:{})};
   let control;
   try {
     control=execute();
@@ -136,6 +137,10 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
     classification='probe-changed-or-unverified-live-playback';
   } else if(!event) {
     classification=events.length?'ambiguous-multiple-root-probes':'no-matching-candidate-root';
+  } else if(event.nativeSameWorldTape) {
+    classification=ownerBaselineVerified?
+      'authentic-tape-same-world-parity-only':
+      'authentic-tape-same-world-parity-veto';
   } else if(!ownerBaselineVerified) {
     classification='fresh-bot-baseline-or-live-state-mismatch';
   } else if(event.actionSensitiveToHiddenDeckOrder===true) {
@@ -158,6 +163,8 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
     rootProbeEvents:events.length,
     ...(event?{diagnostic:{
       actualAction: event.originalSourceAction??null,
+      nativeSameWorldTape:event.nativeSameWorldTape??null,
+      hiddenWorldCounterfactualCompared:event.counterfactualCompared!==false,
       physicalFreshAction:event.physicalOrder??null,
       reversedFreshAction:event.reversedOrder??null,
       liveStatePreserved:event.liveStatePreserved===true,
@@ -187,7 +194,10 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
       knownDeckMembershipVerified:event.knownDeckMembershipVerified===true,
       knownDeckTopOrderVerified:event.knownDeckTopOrderVerified===true
     }}:{}),
-    comparisonQualified:noninterferenceVerified&&ownerBaselineVerified,
+    comparisonQualified:scope.nativeTapeSameWorld!==true&&
+      noninterferenceVerified&&ownerBaselineVerified,
+    sameWorldParityQualified:scope.nativeTapeSameWorld===true&&
+      noninterferenceVerified&&ownerBaselineVerified,
     competitiveGameQualified:false,
     caveat:'Historical development seed. Order observation/K0/K1 not certified; '+
       'the default full-game bot remains hidden-information-unsafe.'
@@ -202,11 +212,14 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
  */
 function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   replayCommonPolicy=false,isolateReplayPolicyPerWorld=false,
-  nativeScoreTrace=false}={}) {
+  nativeScoreTrace=false,nativeTapeSameWorld=false}={}) {
   assert.equal(typeof firstFiniteScoredRoot,'boolean');
   assert.equal(typeof replayCommonPolicy,'boolean');
   assert.equal(typeof isolateReplayPolicyPerWorld,'boolean');
   assert.equal(typeof nativeScoreTrace,'boolean');
+  assert.equal(typeof nativeTapeSameWorld,'boolean');
+  assert.ok(!nativeTapeSameWorld||!firstFiniteScoredRoot,
+    'Native tape requires a complete pre-decision root');
   assert.ok(!isolateReplayPolicyPerWorld||replayCommonPolicy,
     'Independent policy replay requires the common-policy opt-in');
   const root=path.resolve(__dirname,'../..');
@@ -252,10 +265,12 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
     withPostgameRootOrderProbe,SimpleTacticsAi,clone,
     ()=>seededRandom((trial.seed^0x5a17b9ef)>>>0),
     {firstFiniteScoredRoot,replayCommonPolicy,isolateReplayPolicyPerWorld,
-      nativeScoreTrace}
+      nativeScoreTrace,nativeTapeSameWorld}
   ));
   return {
-    schema:nativeScoreTrace?
+    schema:nativeTapeSameWorld?
+      'agent50-crossrank-native-same-world-tape-prerequisite-v1':
+      nativeScoreTrace?
       'agent50-crossrank-historical-first-finite-owner-score-v7':
       isolateReplayPolicyPerWorld?
       'agent50-crossrank-historical-first-finite-owner-score-v5':
@@ -290,7 +305,8 @@ if(require.main===module) {
     replayCommonPolicy:process.env.AGENT50_COMMON_POLICY_REPLAY==='true'||
       process.env.AGENT50_ISOLATED_POLICY_WORLDS==='true',
     isolateReplayPolicyPerWorld:process.env.AGENT50_ISOLATED_POLICY_WORLDS==='true',
-    nativeScoreTrace:process.env.AGENT50_NATIVE_SCORE_TRACE==='true'
+    nativeScoreTrace:process.env.AGENT50_NATIVE_SCORE_TRACE==='true',
+    nativeTapeSameWorld:process.env.AGENT50_NATIVE_TAPE_SAME_WORLD==='true'
   }),null,2)+'\n');
 }
 module.exports={candidateDevelopmentTarget,comparisonProjection,
