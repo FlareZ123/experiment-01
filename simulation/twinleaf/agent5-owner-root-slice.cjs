@@ -111,6 +111,59 @@ function nativeActionForIntent(intent,player,deps){
 }
 
 /**
+ * Only physically observable owner root consequences are read here.
+ * A settled attack requires the separate actual-game declaration log.
+ * @param {object} state Authenticated live native Store State.
+ * @param {0|1} seat
+ * @param {object} intent
+ * @returns {object}
+ */
+function rootPhysicalSnapshot(state,seat,intent){
+  const owner=state.players[seat];
+  return {
+    turn:state.turn,phase:state.phase,
+    handCount:owner.hand.cards.length,
+    activeEnergies:owner.active.energies.cards.map(c=>c.fullName),
+    benchPrinting:intent.kind==='bench-basic'?
+      owner.bench[intent.benchSlot].getPokemonCard()?.fullName??null:null
+  };
+}
+
+/**
+ * Native dispatch need not throw when a proposed action fails to settle.
+ * Confirm the expected owner/public-zone physical change without reading
+ * concealed card identities or mistaking a successful dispatch for an attack.
+ * @param {object} intent
+ * @param {object} before
+ * @param {object} after
+ * @param {object} GamePhase Pinned phase enum.
+ * @returns {'confirmed-public-effect'|'no-confirmed-public-effect'|'attack-needs-declaration'}
+ */
+function rootPhysicalWitness(intent,before,after,GamePhase){
+  if(intent.kind==='bench-basic'){
+    return before.benchPrinting===null&&
+      after.benchPrinting===intent.printing&&
+      after.handCount===before.handCount-1?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='attach-basic-energy'){
+    const count=cards=>cards.filter(c=>c===intent.printing).length;
+    return after.activeEnergies.length===before.activeEnergies.length+1&&
+      count(after.activeEnergies)===count(before.activeEnergies)+1&&
+      after.handCount===before.handCount-1?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='pass'){
+    return after.turn>before.turn||
+      (after.phase===GamePhase.FINISHED&&
+        before.phase!==GamePhase.FINISHED)?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  assert.equal(intent.kind,'attack');
+  return 'attack-needs-declaration';
+}
+
+/**
  * A narrowly scoped, reversible actual-Store prototype.
  * The candidate root is actor-only; pending prompt and source decisions
  * retain the generic policy and are explicitly counted as unqualified.
@@ -199,9 +252,17 @@ function withOwnerRootSlice(candidateSeat,work,deps={}){
       liveStore=this;
     }
     const row=this===liveStore?actionRecords.get(action):null;
+    const physicalBefore=row?
+      rootPhysicalSnapshot(this.state,row.seat,row.intent):null;
     try{
       const outcome=descriptor.value.call(this,action,...args);
-      if(row)row.acceptedByLiveStore=true;
+      if(row){
+        row.acceptedByLiveStore=true;
+        const physicalAfter=rootPhysicalSnapshot(
+          this.state,row.seat,row.intent);
+        row.nativeEffectStatus=rootPhysicalWitness(
+          row.intent,physicalBefore,physicalAfter,GamePhase);
+      }
       return outcome;
     }catch(error){
       if(row)row.storeError=String(error);
@@ -220,6 +281,10 @@ function withOwnerRootSlice(candidateSeat,work,deps={}){
       nonLiveSpeculativeFallbacks,
       authenticatedLiveStore:liveStore!==null,
       acceptedByLiveStore:records.filter(row=>row.acceptedByLiveStore).length,
+      confirmedPublicEffects:records.filter(row=>
+        row.nativeEffectStatus==='confirmed-public-effect').length,
+      unconfirmedPublicEffects:records.filter(row=>
+        row.nativeEffectStatus==='no-confirmed-public-effect').length,
       records,hiddenInformationSafeForCompleteGame:false,
       competitiveGameQualified:false,
       scope:'Owner-root intents only; all other bot decisions remain unqualified'}};
@@ -232,4 +297,5 @@ function withOwnerRootSlice(candidateSeat,work,deps={}){
 }
 
 module.exports={VERSION,basicEnergyPays,selectOwnerRootIntent,
-  nativeActionForIntent,withOwnerRootSlice};
+  nativeActionForIntent,rootPhysicalSnapshot,rootPhysicalWitness,
+  withOwnerRootSlice};
