@@ -1,4 +1,6 @@
 {
-  "run_id": "agent8-chat-20261020-normal8-6a7ee058-4310-4b2b-8bfd-3d5eabd7f5bc",
-  "claimed_at": "2026-10-20T13:39:11.446Z"
+  "run_id": "agent8-chat-20261020T200750963Z-normal8-audit",
+  "claimed_at": "2026-10-20T20:07:50.963Z",
+  "mode": "normal",
+  "roll": 8
 }
