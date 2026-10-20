@@ -111,3 +111,27 @@ test('post-search Cologne opportunity requires owner-visible Meloetta, Thorns an
   hidden.globalTurn=2;
   assert.equal(sourceCologneAfterVipEligible(hidden,3),false);
 });
+
+
+test('optional Squawk priority uses only physical owner search choices and fallback',()=>{
+  const {state,own}=source(['Unown',null,null,null,null],['Battle VIP Pass']);
+  const egg={name:'Exeggcute',fullName:'Exeggcute PLF'};
+  const meloetta={name:'Meloetta ex',fullName:'Meloetta ex SV11B'};
+  const squawk={name:'Squawkabilly ex',fullName:'Squawkabilly ex PAL'};
+  const original=[egg,meloetta,squawk];
+  const prompt={cards:{cards:original.slice()},validate:cards=>cards.length<=2&&
+    cards.every(card=>prompt.cards.cards.includes(card))};
+  assert.deepEqual(selectSourceVipBasics(own,prompt,state),[meloetta,egg]);
+  assert.deepEqual(selectSourceVipBasics(own,prompt,state,{preferSquawk:true}),
+    [meloetta,squawk]);
+  assert.deepEqual(prompt.cards.cards,original);
+  prompt.cards.cards=[egg,meloetta];
+  assert.deepEqual(selectSourceVipBasics(own,prompt,state,{preferSquawk:true}),
+    [meloetta,egg]);
+  prompt.cards.cards=[egg,squawk];
+  assert.deepEqual(selectSourceVipBasics(own,prompt,state,{preferSquawk:true}),
+    [squawk,egg]);
+  own.bench=[slot('Unown'),slot('Exeggcute'),slot('Crobat V'),slot(null),slot(null)];
+  assert.deepEqual(selectSourceVipBasics(own,prompt,state,{preferSquawk:true}),
+    [squawk]);
+});
