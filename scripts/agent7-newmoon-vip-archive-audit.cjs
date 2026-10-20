@@ -102,6 +102,9 @@ function auditVipArchive(report) {
       nativeOffer:offers.length===1,ownerSelection:choices.length===1,
       selectedNames:choices[0]?.names??[],
       postDispatchBench:benches.length===1,status:row.status,
+      postVipBenchNames:benches[0]?.names??null,
+      freeBenchImmediatelyAfterVip:benches.length?
+        benches[0].names.filter(name=>name===null).length:null,
       firstOwnTurnActionsEqual:JSON.stringify(row.baseline.firstOwnTurnActions)===
         JSON.stringify(row.alternative.firstOwnTurnActions),
       ...(offers.length?{
