@@ -157,3 +157,20 @@ test('native blocked control remains distinct from exempt, missing and other-ran
   delete missing.garbotoxinWindowAudit;
   assert.equal(sourceFirstNativeExposureKind(missing),'unverified');
 });
+
+test('rank11 no-target requires the entire authentic in-play Power inventory and tooled source',()=>{
+  const x=rank11(),before=x.garbotoxinWindowAudit.before;
+  before.candidatePrintedPowerNames=[];
+  before.candidatePrintedPowerChecks=[];
+  before.candidateInPlayPrintedPowerChecks=[];
+  assert.equal(sourceFirstNativePressureVerified(x),false);
+  assert.equal(sourceFirstNativeExposureKind(x),'no-eligible-power-present');
+  delete before.candidateInPlayPrintedPowerChecks;
+  assert.equal(sourceFirstNativeExposureKind(x),'unverified');
+  before.candidateInPlayPrintedPowerChecks=[];
+  before.sourceGarbodorHasTool=false;
+  assert.equal(sourceFirstNativeExposureKind(x),'unverified');
+  before.sourceGarbodorHasTool=true;
+  x.rootActionLedger[3].card='Professor Research';
+  assert.equal(sourceFirstNativeExposureKind(x),'unverified');
+});
