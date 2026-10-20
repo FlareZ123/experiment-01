@@ -79,7 +79,7 @@ function comparisonProjection(row) {
  * @param {Function} Bot Pinned SimpleTacticsAi, injected for pure tests.
  * @param {(state:object)=>object} clone Full detached clone.
  * @param {()=>()=>number} makeRandom Independent policy RNG factory.
- * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean,isolateReplayPolicyPerWorld?:boolean}} [scope]
+ * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean,isolateReplayPolicyPerWorld?:boolean,nativeScoreTrace?:boolean}} [scope]
  * @returns {object} Unqualified, failure-inclusive diagnostic.
  */
 function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) {
@@ -88,7 +88,8 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
       {firstFiniteScoredRoot:true,probeFreshStoreLegality:true}:{}),
     ...(scope.replayCommonPolicy===true?{replayCommonPolicy:true}:{}),
     ...(scope.isolateReplayPolicyPerWorld===true?
-      {isolateReplayPolicyPerWorld:true}:{})};
+      {isolateReplayPolicyPerWorld:true}:{}),
+    ...(scope.nativeScoreTrace===true?{nativeScoreTrace:true}:{})};
   let control;
   try {
     control=execute();
@@ -174,6 +175,11 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
       chosenRootTurn:event.chosenRootTurn??null,
       actualScorerAttempts:event.actualScorerAttempts??null,
       actualFiniteScores:event.actualFiniteScores??null,
+      actualNativeScoreTrace:event.actualNativeScoreTrace??null,
+      sourceStateChangedBeforeFirstScore:
+        event.sourceStateChangedBeforeFirstScore??null,
+      sourceStartGraphDigest:event.sourceStartGraphDigest??null,
+      firstScoreSourceGraphDigest:event.firstScoreSourceGraphDigest??null,
       ownerRootVisible:event.ownerRootVisible??null,
       freshPlayCardStoreProbe:event.freshPlayCardStoreProbe??null,
       replayCommonPolicy:event.replayCommonPolicy===true,
@@ -195,10 +201,12 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
  * @returns {object}
  */
 function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
-  replayCommonPolicy=false,isolateReplayPolicyPerWorld=false}={}) {
+  replayCommonPolicy=false,isolateReplayPolicyPerWorld=false,
+  nativeScoreTrace=false}={}) {
   assert.equal(typeof firstFiniteScoredRoot,'boolean');
   assert.equal(typeof replayCommonPolicy,'boolean');
   assert.equal(typeof isolateReplayPolicyPerWorld,'boolean');
+  assert.equal(typeof nativeScoreTrace,'boolean');
   assert.ok(!isolateReplayPolicyPerWorld||replayCommonPolicy,
     'Independent policy replay requires the common-policy opt-in');
   const root=path.resolve(__dirname,'../..');
@@ -243,10 +251,13 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
     ()=>executeDevelopment(trial,prepared),
     withPostgameRootOrderProbe,SimpleTacticsAi,clone,
     ()=>seededRandom((trial.seed^0x5a17b9ef)>>>0),
-    {firstFiniteScoredRoot,replayCommonPolicy,isolateReplayPolicyPerWorld}
+    {firstFiniteScoredRoot,replayCommonPolicy,isolateReplayPolicyPerWorld,
+      nativeScoreTrace}
   ));
   return {
-    schema:isolateReplayPolicyPerWorld?
+    schema:nativeScoreTrace?
+      'agent50-crossrank-historical-first-finite-owner-score-v7':
+      isolateReplayPolicyPerWorld?
       'agent50-crossrank-historical-first-finite-owner-score-v5':
       replayCommonPolicy?
       'agent50-crossrank-historical-first-finite-owner-score-v4':
@@ -278,7 +289,8 @@ if(require.main===module) {
     firstFiniteScoredRoot:process.env.AGENT50_FIRST_FINITE_ROOT==='true',
     replayCommonPolicy:process.env.AGENT50_COMMON_POLICY_REPLAY==='true'||
       process.env.AGENT50_ISOLATED_POLICY_WORLDS==='true',
-    isolateReplayPolicyPerWorld:process.env.AGENT50_ISOLATED_POLICY_WORLDS==='true'
+    isolateReplayPolicyPerWorld:process.env.AGENT50_ISOLATED_POLICY_WORLDS==='true',
+    nativeScoreTrace:process.env.AGENT50_NATIVE_SCORE_TRACE==='true'
   }),null,2)+'\n');
 }
 module.exports={candidateDevelopmentTarget,comparisonProjection,
