@@ -33,6 +33,60 @@ function cloneBotOptions(options) {
 }
 
 /**
+ * Test a reconstructed bot's proposed PlayCard action only in an independently
+ * cloned pinned Store after the authentic game has ended. Preserve the raw
+ * numeric board target and acting owner's resource state. A returned dispatch
+ * does not alone prove final effect settlement or legality in paper Expanded.
+ *
+ * @param {object} snapshot Complete genuine native root State.
+ * @param {{type:string,data:string}} signature Reconstructed fresh action.
+ * @param {(state:object)=>object} clone Detached source State copier.
+ * @param {{Store:Function,PlayCardAction:Function,makeRandom?:()=>()=>number}} deps
+ * @returns {object}
+ */
+function probeFreshPlayCardInClonedStore(snapshot,signature,clone,deps) {
+  assert.equal(signature.type,'PlayCardAction');
+  const data=JSON.parse(signature.data);
+  assert.ok(Number.isSafeInteger(data.id));
+  assert.ok(Number.isSafeInteger(data.handIndex)&&data.handIndex>=0);
+  const prior=stateGraphFingerprint(snapshot);
+  const detached=new deps.Store({onStateChange(){}});
+  detached.state=clone(snapshot);
+  const owner=detached.state.players.find(p=>p.id===data.id);
+  assert.ok(owner,'Fresh action owner must exist on the source root');
+  const handAtRoot=owner.hand.cards.map(card=>card.fullName);
+  const beforeHand=handAtRoot.length;
+  const energyPlayedTurn=owner.energyPlayedTurn??null;
+  const supporterTurn=owner.supporterTurn??null;
+  let returned=false,rejection=null;
+  const previousRandom=Math.random;
+  Math.random=deps.makeRandom?deps.makeRandom():()=>0.5;
+  try {
+    const action=new deps.PlayCardAction(data.id,data.handIndex,data.target);
+    detached.dispatch(action);
+    returned=true;
+  } catch(error) {
+    rejection=String(error?.stack||error);
+  } finally {
+    Math.random=previousRandom;
+  }
+  assert.deepEqual(stateGraphFingerprint(snapshot),prior,
+    'Fresh cloned Store proposal mutated the historical State');
+  return {
+    proposedHandIndex:data.handIndex,
+    proposedCardPrinting:handAtRoot[data.handIndex]??null,
+    proposedTarget:data.target??null,
+    handSizeBefore:beforeHand,
+    handSizeAfter:detached.state.players.find(p=>p.id===data.id)?.hand.cards.length??null,
+    energyPlayedTurn,supporterTurn,
+    dispatchReturnedWithoutThrow:returned,
+    ...(rejection?{dispatchRejection:rejection}:{}),
+    originalStoreUnchanged:true,
+    caveat:'Hypothetical clone-only one-step Store dispatch; unresolved prompts and paper legality remain unqualified'
+  };
+}
+
+/**
  * Capture a single actual source-dealt candidate decision under *all* common
  * outer policy hooks, preserving the real Store action. Compare the
  * counterfactual unseen deck orders only after the match and all reversible
@@ -46,7 +100,7 @@ function cloneBotOptions(options) {
  * @param {Function} BotClass Pinned SimpleTacticsAi.
  * @param {()=>T} execute Existing authentic game runner.
  * @param {(state:object)=>object} cloneDetached Whole-State detached clone.
- * @param {{turn:number,seat:number,makeRandom:()=>()=>number,firstFiniteScoredRoot?:boolean}} target
+ * @param {{turn:number,seat:number,makeRandom:()=>()=>number,firstFiniteScoredRoot?:boolean,probeFreshStoreLegality?:boolean}} target
  * @param {{headless?:object,compare?:Function,signature?:Function}} [dependencies]
  * @returns {{result:T,events:object[]}}
  */
@@ -226,8 +280,27 @@ function withPostgameRootOrderProbe(
       auditError:String(error?.stack||error)
     }]};
   }
+  let freshPlayCardStoreProbe=null;
+  if(target.probeFreshStoreLegality===true &&
+    !isDeepStrictEqual(comparison.physicalOrder,captured.realAction) &&
+    comparison.physicalOrder?.type==='PlayCardAction') {
+    try {
+      const path=require('node:path');
+      const output=path.resolve(__dirname,
+        '../../vendor/twinleaf/ptcg-server/output');
+      const {Store}=require(path.join(output,'game/store/store'));
+      const {PlayCardAction}=
+        require(path.join(output,'game/store/actions/play-card-action'));
+      freshPlayCardStoreProbe=probeFreshPlayCardInClonedStore(
+        captured.state,comparison.physicalOrder,cloneDetached,
+        {Store,PlayCardAction,makeRandom:target.makeRandom});
+    } catch(error) {
+      freshPlayCardStoreProbe={auditError:String(error?.stack||error)};
+    }
+  }
   return {result:frozenResult,events:[{
     ...comparison,
+    ...(freshPlayCardStoreProbe?{freshPlayCardStoreProbe}:{}),
     originalSourceAction:captured.realAction,
     baselineActionMatchedActual:isDeepStrictEqual(
       comparison.physicalOrder,captured.realAction),
@@ -244,4 +317,5 @@ function withPostgameRootOrderProbe(
   }]};
 }
 
-module.exports={cloneBotOptions,withPostgameRootOrderProbe};
+module.exports={cloneBotOptions,probeFreshPlayCardInClonedStore,
+  withPostgameRootOrderProbe};
