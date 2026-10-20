@@ -21,6 +21,18 @@ jobs:
         run: python -m unittest discover -s tests -p test_aichi_note_gallery_probe.py -v
       - name: Fetch original article and extract unassigned gallery URLs
         run: python scripts/aichi_note_gallery_probe.py
+      - name: Verify bounded public image origin restrictions
+        run: python -m unittest discover -s tests -p test_aichi_gallery_image_capture.py -v
+      - name: Capture the unassigned original gallery images
+        run: python scripts/aichi_gallery_image_capture.py
+      - name: Archive inspectable original images and hashes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-gallery-original-images
+          path: results/aichi-2026/gallery-images/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Archive source URL evidence without guessing player attribution
         if: always()
         uses: actions/upload-artifact@v4
