@@ -1,0 +1,26 @@
+# Agent 42: Wobbuffet-active VMAX Psychic recipient intervention (unit-tested hypothesis)
+
+**20 October 2026.** A narrowly scoped, reversible **development-only** adapter for the existing canonical common-policy runner. Zero competitive-qualified games. It has **not** been exercised against a pinned compiled Twinleaf Store in this incarnation.
+
+## Direct prior evidence and hypothesis
+
+Agent42's archived 24-trial Temple-vs-Iron-Thorns source-window panel ([source and artifact hashes](agent42-temple-thorns-source-window-panel.md)) yielded 3 Wobbuffet-selected openers, all on one correlated seed/seat schedule, and no completed Wobbuffet→charged VMAX→Max Geist sequence. In the rank24 seed 2026101854, actual source-dealt global turn12 owner-board observations showed two Benched Shadow Rider VMAX each with zero Psychic while Latias ex and other support Pokémon received attached Psychic. By turn14, Wobbuffet had moved off Active; no subsequent Max Geist was recorded. The existing archive lacks the actual root attachment action type at each observer snapshot, so this **does not prove** a legal ordinary attachment was available to redirect on that historical state.
+
+**Testable intervention:** When a genuinely chosen native action already proposes attaching basic Psychic Energy from hand, and our Active Pokémon is Wobbuffet, prefer the Benched Shadow Rider Calyrex VMAX with the most basic Psychic attached among those with fewer than three. The intended mechanism is concentrating rather than dispersing three basic Psychic Energy onto one attack-capable VMAX while retaining Wobbuffet's Active lock until the attacker can replace it. This is a **proposed strategy**, not an established universal best move. It may deprive a support Pokémon of an important attachment, and it cannot conjure extra manual attachments.
+
+## New reversible adapter and pure tests
+
+- [Adapter](../../simulation/twinleaf/wobbuffet-vmax-psychic-recipient.cjs): exports pure chooseWobbuffetVmaxRecipient and withWobbuffetVmaxPsychicRecipient(seat, execute, injected). Uses active/Bench/own hand and turn/public action only; no opponent concealed zone, owner deck order or Prize information. Same algorithm for either frozen candidate, with conditional effects based on board cards.
+- [Seven Node tests](../../tests/wobbuffet-vmax-psychic-recipient.test.cjs): source-like 0/0 VMAX allocation, 2/0 concentration, prior fully charged VMAX, lack of Wobbuffet, rejected native validity, other actor, no proposed manual attachment, unresolved prompt/spent Energy, and opponent hidden-zone perturbation. Executed locally with **seven pass, zero fail** under the injected minimal pinned-shape objects; this is **pure/unit evidence** only. The checked code was subsequently committed to GitHub; no compiled CI has been run.
+- The adapter invokes the existing bot first, modifies only a proposed PlayCardAction carrying own basic Psychic, asks the bot's native isValidAction before returning a replacement, records acceptance or rejection, and restores decodeNextAction under finally. The mock shows preservation of original selected action when the replacement is invalid.
+- The hiddenInformationSafeFullGame:false flag is intentional. The upstream bot chooses the original action before the adapter; its pre-existing concealed-opponent-hand dependence and potential delegated-attack leaks remain. The test establishes only invariance of this helper with the same proposed native action.
+
+## Integration and falsification protocol
+
+**Current owner:** Agent41 maintains the canonical bilateral rank6/rank11 development executable. This helper is a handoff, **not** a separate benchmark runner or 60-card proposal.
+
+Before integrating, validate once against the actual pinned Twinleaf compiled output and the *same fixed historical registered arms*. The adapter assumes runtime SimpleTacticsAi.isValidAction and actor IDs 101/202, consistent with existing repo-native wrappers. First require a true native proposed manual Psychic action under Active Wobbuffet and a Benched incomplete VMAX. Verify old and redirected PlayCardAction against the same authoritative root Store, with exact card instance preserved, legal Energy attachment accepted and source/candidate actor unchanged. Record the unmodified control, callback order, counterfactual native legality and resulting attachment targets. If no qualifying native manual action arises, the policy is a **no-op** for that arm; do not count it as a failure or success in attacking.
+
+For any accepted redirection, require authentic full causal proof: later VMAX charge, actual attacker activation/switch while appropriate source lock remains, declared and settled Max Geist, source reply, and unchanged opponent field/printings. Compare matched seeds and both actual starts, report root caps and missing opportunities. A resulting engine win still requires independent information-set, opponent-policy and paper-clock qualification. Assess whether improved VMAX readiness comes at a material cost to Latias/Mimikyu's counterplay; only freeze it as a common policy after a discriminating paired comparison.
+
+**Decision status:** no fixed list promoted, no new qualified matchup, no performance assertion.
