@@ -53,7 +53,7 @@ jobs:
       - name: Test owner-visible Perfection Pass rescue without private-zone reads
         run: node --test tests/owner-visible-perfection-pass-bridge.test.cjs
       - name: Reject fabricated bilateral v2 actual-first-turn evidence
-        run: node --test tests/bilateral-v2-evidence-gate.test.cjs tests/agent3-source-first-pressure-kind.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs
+        run: node --test tests/bilateral-v2-evidence-gate.test.cjs tests/bilateral-v2-root-ledger-attestation.test.cjs tests/agent3-source-first-pressure-kind.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs
       - name: Reject nonadjacent roots in bilateral Store reply packets
         run: node --test tests/aichi-bilateral-reply-packet.test.cjs
       - name: Verify fail-closed source campaign policy echoes
