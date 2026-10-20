@@ -127,6 +127,27 @@ test('a prompted opponent can observe its own choice without active-turn ownersh
   assert.throws(()=>actorObservation(s,0),/prompted actor/);
 });
 
+test('a deck alias is not a deck search without a native choice prompt',()=>{
+  const state=fixture();
+  state.players[0].id=101;
+  const hidden=new Proxy({length:4},{get(target,key){
+    if(key==='length')return target.length;
+    throw new Error('Illegal K0 physical deck read '+String(key));
+  }});
+  state.players[0].deck.cards=hidden;
+  state.prompts=[{constructor:{name:'SelectPrompt'},playerId:101,
+    cards:state.players[0].deck,result:undefined}];
+  const alias=actorObservation(state,0);
+  assert.equal(alias.decisionKind,'owner-prompt');
+  assert.equal(alias.pendingPromptType,'SelectPrompt');
+  assert.equal(alias.pendingOwnerDeckSearch,false);
+  assert.equal(alias.ownPublic.deckCount,4);
+  state.prompts[0].constructor={name:'ChooseCardsPrompt'};
+  const native=actorObservation(state,0);
+  assert.equal(native.pendingOwnerDeckSearch,true);
+  assert.equal(native.ownPublic.deckCount,4);
+});
+
 test('actor root authentication and invalid seat are enforced',()=>{
   const s=fixture();
   assert.throws(()=>actorObservation(s,1),/Actor-only/);
