@@ -19,7 +19,8 @@ function runCompiledActorObservation(){
     '../../vendor/twinleaf/ptcg-server/output');
   const {Store}=require(path.join(output,'game/store/store'));
   const original=runDevelopment();
-  const observed=withActualStoreActorObservation(Store,()=>runDevelopment());
+  const observed=withActualStoreActorObservation(Store,()=>runDevelopment(),
+    {captureFirstOwnerK1:true});
   assert.deepEqual(observed.result,original,
     'Read-only actor projection changed canonical source-dealt Store games');
   assert.equal(original.rows.length,4);
@@ -28,14 +29,26 @@ function runCompiledActorObservation(){
   assert.equal(observed.audit.games,4);
   assert.ok(observed.audit.observedActorDecisions>0);
   assert.ok(observed.audit.ownerPrompts>0);
+  const nativeK1=observed.audit.firstOwnerK1Searches.map(event=>({
+    ...event,trialId:observed.result.rows[event.game-1].trial.id,
+    candidateSeat:observed.result.rows[event.game-1].candidateSeat
+  }));
+  const rank6NewMoon=nativeK1.filter(event=>
+    event.trialId.startsWith('6:0:A:new-moon-lockbreaker-v1:') &&
+    event.seat===0);
+  assert.equal(rank6NewMoon.length,1,
+    'Historical rank6 New Moon must have exactly one first candidate K1 search');
+  assert.ok(rank6NewMoon[0].targetCounts['Mewtwo & Mew-GX UNM']>=0);
   return {
-    schema:'agent21-native-actor-view-observation-v1',
+    schema:'agent21-native-actor-view-plus-k1-observation-v2',
     evidence:'retrospective 4-arm physical source-deal Store noninterference',
     originalCandidates:original.rows.map(row=>row.trial?.id),
     unchangedPhysicalDeals:original.sourcePairs.every(pair=>
       pair.sameSourcePhysicalDeal===true),
     sameCompleteCanonicalRows:true,
     actorProjectionAudit:observed.audit,
+    nativeFirstOwnerK1:nativeK1,
+    rank6NewMoonFirstOwnerK1:rank6NewMoon[0],
     enginePin:original.enginePin,
     competitiveQualifiedGames:0,
     policyInformationSetQualified:false,
