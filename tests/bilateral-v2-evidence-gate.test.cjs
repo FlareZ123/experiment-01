@@ -99,6 +99,8 @@ test('full dual-start archive is mechanically reviewable, never competitive',()=
   assert.equal(r.opportunityAndPolicyVerdict,'MECHANICAL-PILOT-REVIEWABLE');
   assert.equal(r.competitiveStrengthClaimPermitted,false);
   assert.equal(r.gameWinRateCertified,false);
+  assert.equal(r.rootAttestedPilotVerdict,'HOLD-OR-UNAUTHENTICATED');
+  assert.equal(r.nativeRootBoundPairs,0);
   assert.deepEqual(r.byRank[6],{registered:4,observed:4,terminal:4,
     censored:0,errors:0,missing:0,sourceFirst:2,candidateFirst:2,
     bilateralMechanics:4});
@@ -137,6 +139,42 @@ test('incomplete native Store transcript rejects even with positive producer fla
   archive.rows[0].rootActionLedger=[];
   assert.throws(()=>auditBilateralV2(plan,archive),
     /every successful Store root/);
+});
+
+test('raw Store attestation elevates both real seats without licensing wins',()=>{
+  const {plan,archive}=fixture();
+  for(const row of archive.rows) {
+    const ledger=Array.from({length:row.rootActionCount},(_,i)=>({
+      actionOrdinal:i,turnBefore:1,playerSlot:-1,action:'OtherRootAction'
+    }));
+    for(const [claim,seat,turn] of [
+      [row.sourcePressure.rootActionOrdinal,1-row.candidateSeat,
+        row.sourcePressure.turnBefore],
+      [row.sourcePressure.completionOrdinal,1-row.candidateSeat,
+        row.sourcePressure.completionTurnBefore],
+      [row.candidateReply.rootActionOrdinal,row.candidateSeat,
+        row.candidateReply.turnBefore],
+      [row.sourceContinuation.rootActionOrdinal,1-row.candidateSeat,
+        row.sourceContinuation.turnBefore]
+    ]) Object.assign(ledger[claim],{playerSlot:seat,turnBefore:turn});
+    row.rootActionLedgerProtocol='actual-store-root-action-ledger-v1';
+    row.rootActionLedger=ledger;
+  }
+  let r=auditBilateralV2(plan,archive);
+  assert.equal(r.nativeRootBoundPairs,4);
+  assert.equal(r.independentlyRootBoundBilateralWitnesses,8);
+  assert.equal(r.nativeRootsInBothRealStarts,true);
+  assert.equal(r.nativeSourceFirstEarlyPressure,true);
+  assert.equal(r.rootAttestedPilotVerdict,'ROOT-ATTESTED-PILOT-REVIEWABLE');
+  assert.equal(r.competitiveStrengthClaimPermitted,false);
+  assert.equal(r.gameWinRateCertified,false);
+  const altered=archive.rows[0];
+  altered.rootActionLedger[altered.candidateReply.rootActionOrdinal].playerSlot=
+    1-altered.candidateSeat;
+  r=auditBilateralV2(plan,archive);
+  assert.equal(r.opportunityAndPolicyVerdict,'MECHANICAL-PILOT-REVIEWABLE');
+  assert.equal(r.nativeRootBoundPairs,3);
+  assert.equal(r.rootAttestedPilotVerdict,'HOLD-OR-UNAUTHENTICATED');
 });
 
 test('real first-turn draw alone cannot cover a mechanically failed other seat',()=>{
