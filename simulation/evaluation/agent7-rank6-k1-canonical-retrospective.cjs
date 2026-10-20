@@ -14,14 +14,18 @@ const {withSourceOwnerK1SearchObserver,VERSION} =
  * @returns {object} Diagnostic evidence, never competitive performance.
  */
 function main() {
+  const flags={
+    actorOnlyComposition:true,
+    sourceFirstRetrospective:true,
+    paperSupporterQuota:true,
+    mandatoryOptionFallback:true,
+    nativePressureWindows:true
+  };
+  // Control must run without any observer before the source K1 inspection.
+  // Both loops receive identical fixed seeds, decklists and policy hooks.
+  const control=runDevelopment(flags);
   const observed=withSourceOwnerK1SearchObserver(
-    ()=>runDevelopment({
-      actorOnlyComposition:true,
-      sourceFirstRetrospective:true,
-      paperSupporterQuota:true,
-      mandatoryOptionFallback:true,
-      nativePressureWindows:true
-    }),
+    ()=>runDevelopment(flags),
     {sourceSeat:0,sourceTurn:3}
   );
   const dev=observed.result, k1=observed.audit;
@@ -31,14 +35,34 @@ function main() {
   assert.equal(dev.competitiveQualifiedGames,0);
   assert.equal(dev.actorOnlyCellsWithAudits,4);
   assert.equal(dev.sourcePairs[0].sameSourcePhysicalDeal,true);
-  const rows=dev.rows.map(row=>({
-    id:row.trial.id,rank:row.trial.rank,sourceFirst:row.sourceActuallyFirst,
-    sourceDeal:row.sourceDealFingerprint,
-    sourceLine:row.sourceAudit,sourceReply:row.candidateFollowupStatus,
-    nativeActorAcceptances:
-      row.actorOnlyDecisionCoverage.nativeDecisionCounts.actorRootsAccepted,
-    error:row.error??null
-  }));
+  assert.equal(control.rows.length,dev.rows.length);
+  const rows=dev.rows.map((row,index)=>{
+    const baseline=control.rows[index];
+    assert.equal(row.trial.id,baseline.trial.id);
+    const rootParity=row.rootActionLedgerSha256===
+      baseline.rootActionLedgerSha256;
+    const sourceDealParity=row.sourceDealFingerprint===
+      baseline.sourceDealFingerprint;
+    const starterParity=row.actualStarterSeat===baseline.actualStarterSeat;
+    const attackParity=JSON.stringify(row.attackDeclarations)===
+      JSON.stringify(baseline.attackDeclarations);
+    assert.equal(sourceDealParity,true,'K1 observer changed physical source deal');
+    assert.equal(starterParity,true,'K1 observer changed true starting seat');
+    assert.equal(rootParity,true,'K1 observer changed native root action ledger');
+    assert.equal(attackParity,true,'K1 observer changed attack declarations');
+    return {
+      id:row.trial.id,rank:row.trial.rank,
+      sourceFirst:row.sourceActuallyFirst,
+      sourceDeal:row.sourceDealFingerprint,
+      rootActionLedgerSha256:row.rootActionLedgerSha256,
+      controlRootActionLedgerSha256:baseline.rootActionLedgerSha256,
+      rootParity,sourceDealParity,starterParity,attackParity,
+      sourceLine:row.sourceAudit,sourceReply:row.candidateFollowupStatus,
+      nativeActorAcceptances:
+        row.actorOnlyDecisionCoverage.nativeDecisionCounts.actorRootsAccepted,
+      error:row.error??null
+    };
+  });
   const out={
     schema:'agent7-rank6-retrospective-source-owner-k1-v1',
     observerVersion:VERSION,enginePin:dev.enginePin,
@@ -46,6 +70,8 @@ function main() {
     sourceRegistration:dev.sourceRegistration,
     changedPolicyChoices:false,
     unchangedOriginalDeckAndSeed:true,
+    nativeRootLedgerParityAllArms:rows.every(row=>row.rootParity),
+    publicAttackDeclarationParityAllArms:rows.every(row=>row.attackParity),
     observation:k1,
     rows,competitiveQualifiedGames:0,
     caveat:'Authentic acting-source own-deck prompt only, source-first seed selected retrospectively. No Prize identity read or altered action. A G&H search abort remains an invalid source-pressure exposure regardless of cause.'
