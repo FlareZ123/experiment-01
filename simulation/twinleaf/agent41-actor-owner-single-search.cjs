@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const {actorObservation} = require('./actor-observation-contract.cjs');
 
-const VERSION = 'agent41-owner-single-search-actor-v2-order-independent';
+const VERSION = 'agent41-owner-single-search-actor-v3-exact-one-card';
 const SEARCH_MESSAGES = new Set([
   'CHOOSE_CARD_TO_HAND', 'CHOOSE_CARD_FROM_DECK',
   'CHOOSE_CARD_FROM_DISCARD', 'SEARCH_DECK_FOR_CARD'
@@ -32,7 +32,10 @@ function actorSingleSearchInput(state,seat,observe=actorObservation) {
       pending.cards===owner.hand?'own-hand':null;
   if(source===null)return null;
   const options=pending.options??{};
-  if(options.min>1||options.max<1)return null;
+  // A partial choice from a broader multi-category search would silently
+  // discard strategically required options. Delegate those prompts until a
+  // separate complete multi-card actor policy is tested.
+  if(options.min>1||options.max!==1)return null;
   const cards=pending.cards.cards;
   if(!Array.isArray(cards))return null;
   // The live native deck array has a concealed order. The owner may inspect

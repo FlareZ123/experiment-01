@@ -75,6 +75,8 @@ test('non-owner zone, non-search discard and mandatory multi-card fail closed',(
   assert.equal(actorSingleSearchInput(state,0,()=>actor(0)),null);
   state.prompts=[createPrompt(owner,owner.deck,{min:2,max:2})];
   assert.equal(actorSingleSearchInput(state,0,()=>actor(0)),null);
+  state.prompts=[createPrompt(owner,owner.deck,{min:0,max:3})];
+  assert.equal(actorSingleSearchInput(state,0,()=>actor(0)),null);
 });
 
 test('pure chooser handles legal empty, legal cancel and unsupported forced choice',()=>{
