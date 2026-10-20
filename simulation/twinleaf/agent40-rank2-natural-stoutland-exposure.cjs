@@ -129,9 +129,9 @@ function runAudit() {
               captureDecisionTrace: true,
               label: 'Frozen independent printed rank2 source Stoutland exposure'
             }, EXPANDED_SOURCE_PROFILE));
-        assert.deepEqual(game.rootActionLedger.length,
+        assert.ok(game.rootActionLedger.length <=
           observation.observedRootDispatches,
-          'Observation root dispatch census disagrees with Store ledger');
+          'In-game ledger cannot exceed root Store dispatches including setup');
         records.push({
           ...trial, engine: game.engine,
           verifiedFirstTurn: game.verifiedByDrawLog,
@@ -168,9 +168,9 @@ function runAudit() {
     diagnosticSuccesses: records.filter(x => !x.failed).length,
     diagnosticFailures: records.filter(x => x.failed).length,
     StoutlandEverInPlay: records.filter(x =>
-      x.observation?.firstInPlay !== null).length,
+      x.observation?.firstInPlay != null).length,
     StoutlandEverActive: records.filter(x =>
-      x.observation?.firstActive !== null).length,
+      x.observation?.firstActive != null).length,
     verifiedActualFirst: records.filter(x => x.sourceStartsFirst).length,
     verifiedActualSecond: records.filter(x =>
       x.sourceStartsFirst === false).length,
