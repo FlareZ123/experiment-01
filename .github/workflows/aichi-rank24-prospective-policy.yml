@@ -144,7 +144,7 @@ jobs:
         run: node simulation/twinleaf/agent9-fog-actor-canonical-development.cjs > agent9-fog-canonical.json
       - name: Log every authentic Fog root, prompt and fallback
         if: always()
-        run: node -e "const fs=require('node:fs');if(fs.existsSync('agent9-fog-canonical.json')){const a=require('./agent9-fog-canonical.json');console.log(JSON.stringify({itemProposals:a.fogAudit.fogItemRootProposals,itemNative:a.fogAudit.fogItemRootNativeAccepted,promptProposals:a.fogAudit.fogPromptProposals,promptNative:a.fogAudit.fogPromptNativeAccepted,rejects:a.fogAudit.rejectedNativeChoices,rows:a.rows.map(x=>({id:x.trialId,error:x.error||null}))}));}"
+        run: node -e "const fs=require('node:fs');if(fs.existsSync('agent9-fog-canonical.json')){const a=require('./agent9-fog-canonical.json');console.log(JSON.stringify({itemProposals:a.fogAudit.fogItemRootProposals,itemNative:a.fogAudit.fogItemRootNativeAccepted,promptProposals:a.fogAudit.fogPromptProposals,promptNative:a.fogAudit.fogPromptNativeAccepted,physicalFollowthrough:a.fogAudit.postSearchPhysicalCardPlays,followthroughEvents:a.fogAudit.postSearchPhysicalEvents,rejects:a.fogAudit.rejectedNativeChoices,rows:a.rows.map(x=>({id:x.trialId,error:x.error||null}))}));}"
       - name: Archive four-arm native Fog channel and all censored outcomes
         if: always()
         uses: actions/upload-artifact@v4
