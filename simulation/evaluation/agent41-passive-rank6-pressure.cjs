@@ -33,18 +33,27 @@ function rank6PassivePressureEvidence(audit,rootTrace,context){
   const t1=audit.sourceTurn1;
   const t2=audit.candidateTurn2;
   const t3=audit.sourceReturnTurn3;
+  const observedBoundaryActors=Boolean(
+    t1?.actingSeat===sourceSeat &&
+    t2?.actingSeat===candidateSeat);
   const sourceActiveContinuity=Boolean(sourceActuallyFirst &&
+    observedBoundaryActors &&
     t1?.globalTurn===1&&t1?.sourceActiveIronThornsEx===true&&
     t2?.globalTurn===2&&t2?.sourceActiveIronThornsEx===true);
   const nativeCapabilitySuppressed=Boolean(sourceActiveContinuity &&
     t2?.targetPrinting&&t2?.targetPowerName&&
     t2?.targetNativeAbilityBlocked===true);
   const rootedReplyAndReturn=Boolean(sourceEnd&&candidateFirst&&sourceReturn&&
-    t3?.globalTurn===3);
+    t3?.globalTurn===3&&t3?.actingSeat===sourceSeat&&
+    [sourceEnd.actionOrdinal,candidateFirst.actionOrdinal,
+      sourceReturn.actionOrdinal].every(Number.isSafeInteger)&&
+    sourceEnd.actionOrdinal<candidateFirst.actionOrdinal&&
+    candidateFirst.actionOrdinal<sourceReturn.actionOrdinal);
   let status;
   if(!sourceActuallyFirst)status='source-was-not-first';
   else if(!t1||!sourceEnd)status='source-turn-one-boundary-unverified';
   else if(!t2||!candidateFirst)status='candidate-turn-two-boundary-unverified';
+  else if(!observedBoundaryActors)status='native-boundary-actor-mismatch';
   else if(!sourceActiveContinuity)status='source-active-lock-continuity-absent';
   else if(!t2.targetPrinting||!t2.targetPowerName)status='no-eligible-visible-power';
   else if(!nativeCapabilitySuppressed)status='native-printed-power-block-unverified';
@@ -55,7 +64,8 @@ function rank6PassivePressureEvidence(audit,rootTrace,context){
     schema:'agent41-rank6-passive-initialization-root-classification-v1',
     pressureKind:'passive-ability-suppression',
     status,sourceSeat,candidateSeat,sourceActuallyFirst,
-    sourceActiveContinuity,nativeCapabilitySuppressed,rootedReplyAndReturn,
+    observedBoundaryActors,sourceActiveContinuity,
+    nativeCapabilitySuppressed,rootedReplyAndReturn,
     sourceTurnOneEndRoot:publicRoot(sourceEnd),
     candidateTurnTwoFirstRoot:publicRoot(candidateFirst),
     sourceTurnThreeFirstRoot:publicRoot(sourceReturn),
