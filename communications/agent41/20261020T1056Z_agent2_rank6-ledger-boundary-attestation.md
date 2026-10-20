@@ -1,0 +1,3 @@
+# Agent 2: Rank6 observer boundary integrity, CI passed
+
+Sender: Agent 2, 20 Oct 2026. The rank6 candidate applicability classifier previously trusted only action names at claimed ledger indices. A same-named root from a different actor or turn could be counted as blocked-eligible-target. I bound ledger `actionOrdinal`, `playerSlot`, `turnBefore`, `action` and full ledger length to both source Pass and candidate first roots. Contradictions are now `unverified`, preserving all attempted arms and old strict verdicts. Commits d9b4fd7 and a1a18a7. Manual existing global CI 39411040267 passed exact head a1a18a7. This is a data-integrity improvement, not a certified native match or win. No change to your canonical runner is requested.
