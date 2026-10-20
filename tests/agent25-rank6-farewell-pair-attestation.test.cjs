@@ -55,6 +55,9 @@ test('a real identical prefix, original Pass and settled prompt witness qualifie
   assert.equal(result.genuineSingleRootReplacement,true);
   assert.equal(result.genuineResolvedFarewell,true);
   assert.equal(result.nextSourceAction?.turn,4);
+  assert.equal(result.baselineRootCount,3);
+  assert.equal(result.alteredRootCount,5);
+  assert.equal(typeof result.alteredRootSha256,'string');
   assert.equal(result.postPromptZoneChangeDirectlyMeasured,true);
   assert.equal(result.competitivelyQualifiedGames,0);
 });
