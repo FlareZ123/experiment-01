@@ -81,6 +81,7 @@ function executeDiagnostic(options) {
     'grandTreeFirstTurnCorrection',
     'electrodeGXEnergyCorrection',
     'electrodeGXPrizeTradePolicy', 'electroRainDamageCorrection',
+    'rank4RaichuCompressorSource',
     'raichuSightToolPolicy', 'raichuPrizeAllocationPolicy',
     'doubleDragonRecovery',  'templeUnlockRecovery',
     'supporterDecisionCorrection', 'isolatePolicyRandomness',
@@ -103,7 +104,8 @@ function executeDiagnostic(options) {
   const nonEchoPolicyFlags = new Set([
     'strictPromptValidation', 'isolatePolicyRandomness',
     'captureDecisionTrace', 'captureAttackPassProbes',
-    'captureElectrodeOpportunity', 'attackBeforeRetreatCandidateOnly',
+    'captureElectrodeOpportunity', 'rank4RaichuCompressorSource',
+    'attackBeforeRetreatCandidateOnly',
     'toolAttackOpponentOnly'
   ]);
   const echoedPolicyKeys = [...allowedFlags].filter(
@@ -129,6 +131,12 @@ function executeDiagnostic(options) {
   if (policyFlags.attackBeforeRetreatCandidateOnly === true &&
       policyFlags.attackBeforeRetreat !== true) {
     throw new Error('Candidate-only preference requires Attack-before-Retreat policy.');
+  }
+  if(policyFlags.rank4RaichuCompressorSource===true &&
+     (ranks.length!==1 || ranks[0]!==4 ||
+      policyFlags.electrodeGXEnergyCorrection!==true ||
+      policyFlags.electroRainDamageCorrection!==true)) {
+    throw new Error('Rank4 source Compressor requires rank 4 and both printed Energy and attack corrections');
   }
   const wanted = new Set(ranks);
   const trials = campaign.trials.filter(t => t.phase === 'pilot' && wanted.has(t.rank));
@@ -188,7 +196,9 @@ function executeDiagnostic(options) {
       const deckA = candidateA ? pair.candidateCards : pair.opponentCards;
       const deckB = candidateA ? pair.opponentCards : pair.candidateCards;
       const {attackBeforeRetreatCandidateOnly, toolAttackOpponentOnly,
-        ...enginePolicyFlags} = policyFlags;
+        rank4RaichuCompressorSource,...enginePolicyFlags} = policyFlags;
+      const sourceCompressorSeat = rank4RaichuCompressorSource === true ?
+        (candidateA ? 1 : 0) : null;
       const expectedLabel = 'Aichi comparative diagnostic ' + trial.trialId;
       const game = runMatch({
         deckA, deckB, seed: trial.seed, maxActions,
@@ -197,7 +207,11 @@ function executeDiagnostic(options) {
         ...(attackBeforeRetreatCandidateOnly === true ?
           {attackBeforeRetreatSeat: candidateA ? 0 : 1} : {}),
         ...(toolAttackOpponentOnly === true ?
-          {toolAttackAwarenessSeat: candidateA ? 1 : 0} : {})
+          {toolAttackAwarenessSeat: candidateA ? 1 : 0} : {}),
+        ...(sourceCompressorSeat===null?{}:{
+          rank4RaichuCompressorSeat:sourceCompressorSeat,
+          battleCompressorPositiveSelectionCorrection:true
+        })
       });
       const expectedDeckHashes = [digest(deckA), digest(deckB)];
       if (game.seed !== trial.seed ||
@@ -242,6 +256,11 @@ function executeDiagnostic(options) {
           (game.toolAttackAwarenessSeat === expectedToolSeat &&
            typeof game.policy === 'string' &&
            game.policy.includes(expectedToolPolicy))) &&
+        (sourceCompressorSeat === null ||
+          (game.rank4RaichuCompressorSeat === sourceCompressorSeat &&
+           game.battleCompressorPositiveSelectionCorrection === true &&
+           typeof game.policy === 'string' &&
+           game.policy.includes('+Rank4SourceCompressorSpecialEnergy-v1@seat'+sourceCompressorSeat))) &&
         !policyMismatch;
       if (!environmentValid) {
         records.push({
@@ -257,6 +276,8 @@ function executeDiagnostic(options) {
           observedRandomnessProtocol: game.randomnessProtocol ?? null,
           observedAttackBeforeRetreatSeat: game.attackBeforeRetreatSeat ?? null,
           observedToolAttackAwarenessSeat: game.toolAttackAwarenessSeat ?? null,
+          observedRaichuCompressorSeat:game.rank4RaichuCompressorSeat ?? null,
+          expectedRaichuCompressorSeat:sourceCompressorSeat,
           expectedToolAttackPolicy: expectedToolPolicy,
           observedToolAttackPolicy: game.policy ?? null,
           error: 'Engine revision, trial label, rules, or requested policy evidence did not match.'
@@ -326,6 +347,7 @@ function executeDiagnostic(options) {
           (turn.firstTurnSlot === candidateSlot ? 'first' : 'second') : 'unverified',
         turnEvidence: turn, winnerIndex: game.winner ?? null,
         engineRevision: game.engine || null, policy: game.policy || null,
+        sourceCompressorSeat,
         observedPolicyFlags: Object.fromEntries(echoedPolicyKeys
           .filter(key => Object.hasOwn(enginePolicyFlags, key))
           .map(key => [key, game[key]])),
@@ -469,6 +491,7 @@ function main() {
       electrodeGXEnergyCorrection: process.env.AICHI_ELECTRODE_GX_ENERGY === '1',
       electroRainDamageCorrection: process.env.AICHI_ELECTRO_RAIN_DAMAGE === '1',
       electrodeGXPrizeTradePolicy: process.env.AICHI_ELECTRODE_PRIZE_TRADE === '1',
+      rank4RaichuCompressorSource: process.env.AICHI_RANK4_COMPRESSOR === '1',
       captureElectrodeOpportunity: process.env.AICHI_ELECTRODE_OPPORTUNITY === '1',
       raichuSightToolPolicy: process.env.AICHI_RAICHU_SIGHT === '1',
       raichuPrizeAllocationPolicy: process.env.AICHI_RAICHU_PRIZE_ALLOCATION === '1',
