@@ -3,6 +3,7 @@
 const assert=require('node:assert/strict');
 const {countPolicyRandomDraws}=require('./policy-random-draw-audit.cjs');
 
+const {recordPolicyRandomTape}=require('./native-policy-random-tape.cjs');
 const VERSION='native-supporter-proposal-validation-observer-v1';
 
 /**
@@ -16,11 +17,12 @@ const VERSION='native-supporter-proposal-validation-observer-v1';
  * @returns {{report:object,restore:()=>void}}
  */
 function installNativeSupporterProposalValidationTrace(
-  BotClass,SupporterTacticClass,{maxDecisions=256}={}
+  BotClass,SupporterTacticClass,{maxDecisions=256,tapeOrdinal=null}={}
 ) {
   assert.equal(typeof BotClass,'function');
   assert.equal(typeof SupporterTacticClass,'function');
   assert.ok(Number.isSafeInteger(maxDecisions)&&maxDecisions>=1);
+  assert.ok(tapeOrdinal===null||(Number.isSafeInteger(tapeOrdinal)&&tapeOrdinal>=1));
   const bot=BotClass.prototype,tactic=SupporterTacticClass.prototype;
   const decision=Object.getOwnPropertyDescriptor(bot,'decodeNextAction');
   const valid=Object.getOwnPropertyDescriptor(bot,'isValidAction');
@@ -114,15 +116,17 @@ function installNativeSupporterProposalValidationTrace(
       actorId:actor?.id??null,
       supporterTurnAtEntry:actor?.supporterTurn??null,
       proposals:[],validations:[],
-      selected:null,rngDraws:null,rngDigestSha256:null,
+      selected:null,rngDraws:null,rngDigestSha256:null,rngTape:null,
       supporterTurnAtExit:null,errorName:null
     };
     current=event;
     try {
-      const observed=countPolicyRandomDraws(()=>
-        decision.value.apply(this,arguments));
-      event.rngDraws=observed.draws;
-      event.rngDigestSha256=observed.drawDigest;
+      const observed=ordinal===tapeOrdinal?
+        recordPolicyRandomTape(()=>decision.value.apply(this,arguments)):
+        countPolicyRandomDraws(()=>decision.value.apply(this,arguments));
+      event.rngDraws=observed.draws??observed.tape.length;
+      event.rngDigestSha256=observed.drawDigest??observed.sha256;
+      event.rngTape=observed.tape??null;
       event.selected=actionSummary(state,observed.result);
       return observed.result;
     } catch(error) {
@@ -148,7 +152,7 @@ function installNativeSupporterProposalValidationTrace(
   return {
     get report() {
       return {
-        version:VERSION,decisionsObserved:calls,
+        version:VERSION,decisionsObserved:calls,tapeOrdinal,
         proposalObservations:proposals,proposalQuotaMutations:proposalMutations,
         rejectedValidations:rejected,
         rejectedValidationsLinkedToMutatedQuota:rejectedMutatedQuota,
