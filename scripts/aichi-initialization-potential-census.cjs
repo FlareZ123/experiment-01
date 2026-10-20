@@ -35,7 +35,7 @@ function audit(field,sets,readCards){
       const printed=ids.flatMap(id=>{
         if(!loaded.has(id))loaded.set(id,readCards(id));
         return loaded.get(id).filter(c=>
-          c.number===number&&c.name===entry.name);
+          c.number===number&&c.name.replaceAll('♢','◇')===entry.name.replaceAll('♢','◇'));
       });
       assert.equal(printed.length,1,
         'Missing or ambiguous '+deck.rank+' '+entry.name+' '+code+' '+number);
