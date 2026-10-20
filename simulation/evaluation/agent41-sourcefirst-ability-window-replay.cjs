@@ -5,6 +5,8 @@ const {isDeepStrictEqual}=require('node:util');
 const fs=require('node:fs');
 const path=require('node:path');
 const {executeDevelopment}=require('./agent41-bilateral-v2-development.cjs');
+const {rank11CandidateApplicability}=
+  require('./agent2-rank11-applicability.cjs');
 const {planAichi}=require('./aichi-pilot.cjs');
 const {loadNewMoonCandidate}=
   require('../../scripts/aichi-new-moon-candidate.cjs');
@@ -87,6 +89,16 @@ function run(){
   requireCheck(before?.candidatePrintedNewMoonBlocked===true &&
     after?.candidatePrintedNewMoonBlocked===false,
     'Native printed New Moon PowerEffect did not confirm suppression then restoration');
+  const newMoon=checks=>checks?.find(power=>
+    power.zone==='Active'&&power.printing==='Lunatone OBF'&&
+    power.name==='New Moon');
+  requireCheck(newMoon(before?.candidateInPlayPrintedPowerChecks)?.blocked===true,
+    'Complete in-play printed Power list omitted blocked Active New Moon');
+  requireCheck(newMoon(after?.candidateInPlayPrintedPowerChecks)?.blocked===false,
+    'Complete in-play printed Power list omitted released Active New Moon');
+  const applicability=rank11CandidateApplicability({...watched,rank:11},0);
+  requireCheck(applicability==='blocked-eligible-target',
+    'Rank11 native census failed to classify authentic printed Power block');
   return {
     schema:'agent41-authentic-sourcefirst-ability-window-equivalence-v1',
     evidenceType:'historical seed selected by previous source-success replay',
@@ -101,7 +113,7 @@ function run(){
       watched.sourceDealFingerprint===FROZEN_SOURCE_DEAL,
     sameActualPlayAndPublicEffects:comparable.every(key=>
       isDeepStrictEqual(watched[key],original[key])),
-    powerWindow:power,
+    powerWindow:power,rank11CandidateApplicability:applicability,
     candidateAttackSettlement:watched.candidateAttackSettlement??null,
     baselineExecution:{status:original.status??'completed',
       error:original.error??null,actions:original.actionCount??null,
