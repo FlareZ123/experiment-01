@@ -215,6 +215,48 @@ function main() {
     // Exclude full private-bearing games from the portable evidence record.
     const {game:ignoredK0,...quotaOnly}=guardedK0;
     const {game:ignoredK1,...quotaPlusK1}=guardedK1;
+    const k1TagCallTargetAlternatives=[];
+    if(item.label==='tag-call-before-prized-stadium') {
+      for(const targetMode of ['replace-bellelba','append-bellelba']) {
+        const changed=withNativePaperSupporterDiscipline(
+          ()=>withBroadThornsSourceAttack(()=>runMatch(request),{
+            seat:1,turn:2,discardPriority:priority,
+            k1ReplanAfterTagCall:true,k1TagCallAlternative:targetMode
+          })
+        );
+        const game=changed.result.result;
+        assert.equal(game.verifiedByDrawLog,true);
+        assert.equal(game.firstTurnSlot,0);
+        assert.equal(game.initialSourceDealFingerprint?.digestSha256,
+          guardedK1.physicalSourceDealSha256,
+          'Alternative Tag Call must preserve source physical deal');
+        assert.equal(changed.audit.nativeSupporterQuotaQualified,true);
+        assert.equal(changed.audit.rootDispatchVetoes.length,0);
+        assert.ok(changed.result.events.some(event=>
+          event.action?.includes('Bellelba & Brycen-Man')),
+        'Authentic Tag Call choice must select Bellelba');
+        k1TagCallTargetAlternatives.push({
+          targetMode,
+          evidenceType:'native-owner-k1-choice-prompt-and-settled-followthrough',
+          sourceDealSha256:game.initialSourceDealFingerprint.digestSha256,
+          selectedTargetEvent:changed.result.events.find(event=>
+            event.action?.startsWith('Tag Call chooses'))??null,
+          actualSourceTurn2Roots:sourceTurn2Actions(game),
+          printedSourceSupporters:changed.audit.nativeSupporterEvents
+            .filter(event=>event.seat===1).map(event=>({
+              turn:event.turn,name:event.name,settled:event.settled,
+              supporterTurnBefore:event.supporterTurnBefore,
+              supporterTurnAfter:event.supporterTurnAfter
+            })),
+          quotaAuditPassed:true,forbiddenDirectRoots:0,
+          sourceOwnerSuppressionCount:changed.audit.ownerProposalSuppressionCount,
+          actions:game.actions,finished:game.finished,
+          endReason:game.endReason,
+          rootDecisionTraceSha256:digest(game.decisionTrace??[]),
+          competitiveQualifiedGames:0
+        });
+      }
+    }
     const paperQuotaFactorial={
       evidenceType:'same-deal-native-k1-by-paper-quota-2x2-v1',
       sourceRank:24,candidateRank:1,sourceSeat:1,
@@ -230,6 +272,7 @@ function main() {
           'tag-call-before-prized-stadium'?'audited-below':'unexercised'
       },
       quotaOnly,quotaPlusK1,
+      k1TagCallTargetAlternatives,
       competitiveQualifiedGames:0
     };
     let nativeSupporterTurnAudit=null;
@@ -340,7 +383,7 @@ function main() {
     });
   }
   const report={
-    schema:'rank24-owner-search-k0-k1-regression-v8-tag-team-choice-availability',
+    schema:'rank24-owner-search-k0-k1-regression-v9-native-alternative-tag-call-choice',
     evidenceType:'retrospective native Store actor-owned deck-search witness',
     fieldManifest:plan.manifestDigest,
     candidateDeckHash:digest(plan.candidate.cards),
