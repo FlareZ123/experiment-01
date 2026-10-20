@@ -74,3 +74,35 @@ test('reversible hook restores exactly even when source execution throws',()=>{
   }),/native source failure/);
   assert.strictEqual(Store.prototype.dispatch,base);
 });
+
+test('optional knowledge handoff fires only at an authenticated owner search',()=>{
+  const {Store,hiddenReads}=fixture(),events=[];
+  withOwnerDeckSearchWitness(Store,1,['Mewtwo & Mew-GX UNM'],()=>{
+    const store=new Store();
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new OpenOpponentSearch());
+    store.dispatch(new OpenOwnSearch());
+    store.dispatch(new TickAction());
+  },({owner,prompt,rootOrdinal,globalTurn})=>{
+    assert.strictEqual(prompt.cards,owner.deck);
+    assert.strictEqual(prompt.player,owner);
+    assert.equal(prompt.result,undefined);
+    assert.equal(rootOrdinal,3);
+    events.push({turn:globalTurn,printings:prompt.cards.cards.map(c=>c.fullName)});
+  });
+  assert.equal(hiddenReads(),2);
+  assert.deepEqual(events,[{turn:2,printings:[
+    'Mewtwo & Mew-GX UNM','Other Card FST'
+  ]}]);
+});
+
+test('knowledge hook failure restores native dispatch descriptor',()=>{
+  const {Store}=fixture(),base=Store.prototype.dispatch;
+  assert.throws(()=>withOwnerDeckSearchWitness(Store,1,[],()=>{
+    const store=new Store();
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new OpenOwnSearch());
+  },()=>{throw new Error('knowledge observer failed');}),
+  /knowledge observer failed/);
+  assert.strictEqual(Store.prototype.dispatch,base);
+});
