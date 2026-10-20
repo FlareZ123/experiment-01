@@ -35,6 +35,7 @@ function withSupporterProposalStateAudit(execute,deps={}) {
   const records=[];
   let rootStore=null,rootOrdinal=0,decisionOrdinal=0,currentDecision=null;
   const selectedByAction=new WeakMap();
+  const originByEntry=new WeakMap();
   const idOf=action=>action?.constructor?.name??null;
   function observedTactic(state,owner) {
     const before=owner.supporterTurn;
@@ -51,13 +52,19 @@ function withSupporterProposalStateAudit(execute,deps={}) {
         ownerProposedCard:action?.constructor?.name==='PlayCardAction'?
           owner.hand.cards[action.handIndex]?.fullName??null:null,
         quotaBeforeProposal:before,quotaAfterProposal:after,
+        quotaAfterBotDecision:null,
+        rootStateAliasAtBotExit:null,
+        rootOwnerAliasAtBotExit:null,
         mutatedQuotaDuringProposal:before!==after,
         selectedByBot:false,proposedButNotSelected:false,
         botFinalAction:null,nativeRootDispatchOrdinal:null,
         quotaAtNativeDispatch:null,quotaAfterNativeDispatch:null,
+        rootStateAliasAtDispatch:null,
+        rootOwnerAliasAtDispatch:null,
         nativeDispatchOutcome:'not-dispatched'
       };
       records.push(entry);
+      originByEntry.set(entry,{state,owner});
       decision.proposals.push({action,entry});
     }
     return action;
@@ -71,6 +78,12 @@ function withSupporterProposalStateAudit(execute,deps={}) {
       for(const proposal of decision.proposals){
         const entry=proposal.entry;
         entry.botFinalAction=idOf(finalAction);
+        const origin=originByEntry.get(entry);
+        entry.quotaAfterBotDecision=origin.owner.supporterTurn;
+        entry.rootStateAliasAtBotExit=
+          rootStore!==null&&origin.state===rootStore.state;
+        entry.rootOwnerAliasAtBotExit=
+          rootStore!==null&&rootStore.state.players.includes(origin.owner);
         entry.selectedByBot=proposal.action!==undefined&&
           proposal.action===finalAction;
         entry.proposedButNotSelected=proposal.action!==undefined&&
@@ -95,6 +108,9 @@ function withSupporterProposalStateAudit(execute,deps={}) {
     if(entry){
       entry.nativeRootDispatchOrdinal=rootOrdinal;
       entry.quotaAtNativeDispatch=owner?.supporterTurn??null;
+      const origin=originByEntry.get(entry);
+      entry.rootStateAliasAtDispatch=origin.state===this.state;
+      entry.rootOwnerAliasAtDispatch=origin.owner===owner;
     }
     try{
       const result=dispatch.value.apply(this,args);
@@ -139,6 +155,15 @@ function withSupporterProposalStateAudit(execute,deps={}) {
         x.mutatedQuotaDuringProposal).length,
       nativeDispatchedSelected:relevant.filter(x=>
         x.nativeDispatchOutcome!=='not-dispatched').length,
+      proposalMarkerPersistedToBotExit:relevant.filter(x=>
+        x.mutatedQuotaDuringProposal&&
+        x.quotaAfterBotDecision===x.quotaAfterProposal).length,
+      physicalRootStatePreservedToDispatch:relevant.filter(x=>
+        x.nativeDispatchOutcome!=='not-dispatched'&&
+        x.rootStateAliasAtDispatch).length,
+      physicalRootOwnerPreservedToDispatch:relevant.filter(x=>
+        x.nativeDispatchOutcome!=='not-dispatched'&&
+        x.rootOwnerAliasAtDispatch).length,
       records:records.slice(0,128),
       truncatedRecords:Math.max(0,records.length-128),
       qualification:'Observation only: not proof of policy correctness or game legality'
