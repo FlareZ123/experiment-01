@@ -285,6 +285,7 @@ function auditBilateralV2(plan,archive) {
     pairRows.push({pairId,rank:x.rank,candidateSeat:x.candidateSeat,
       armIds:[x.id,y.id],
       sourcePhysicalDealAligned,actualStartAligned,
+      actualStarter:actualStartAligned?x.actualStarter:null,
       firstObservationComparable:sourcePhysicalDealAligned&&actualStartAligned,
       bothBilateralWitnesses:x.mechanicalBilateralWitness&&
         y.mechanicalBilateralWitness,
@@ -327,6 +328,13 @@ function auditBilateralV2(plan,archive) {
   const bothHardRanksHavePairedBilateralWitnesses=[6,11].every(rank=>
     pairRows.some(pair=>pair.rank===rank&&pair.firstObservationComparable&&
       pair.bothBilateralWitnesses));
+  // A reviewable two-sided comparison also needs a *paired* legal bilateral
+  // observation in each actual starting order for both source ranks. A valid
+  // first draw in an otherwise rejected or aborted arm is insufficient.
+  const bothHardRanksHaveBothStartPairedBilateralWitnesses=[6,11].every(rank=>
+    ['source','candidate'].every(first=>pairRows.some(pair=>
+      pair.rank===rank&&pair.actualStarter===first&&
+      pair.firstObservationComparable&&pair.bothBilateralWitnesses)));
   // Stronger pilot condition: later attacks or candidate-first pressure
   // may be useful diagnostics, but cannot stand in for source-first early locks.
   const bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses=
@@ -342,6 +350,7 @@ function auditBilateralV2(plan,archive) {
     noPolicyProtocolDrift,
     bothHardRanksHaveBilateralWitnesses,
     bothHardRanksHavePairedBilateralWitnesses,
+    bothHardRanksHaveBothStartPairedBilateralWitnesses,
     bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses,
     mechanicalBilateralWitnesses:mechanicalWitnesses,
     alignedPhysicalSourcePairs:pairRows.filter(p=>
@@ -351,6 +360,7 @@ function auditBilateralV2(plan,archive) {
       p.bothSourceFirstEarlyPressureWitnesses).length,
     byRank,pairs:pairRows,arms:diagnostics,
     opportunityAndPolicyVerdict:coverageComplete&&twoStartCoverageByCandidate&&
+      bothHardRanksHaveBothStartPairedBilateralWitnesses&&
       bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses?
         'MECHANICAL-PILOT-REVIEWABLE':
         'HOLD-OR-INCOMPLETE',
