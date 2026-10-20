@@ -1,3 +1,20 @@
+# 20 October 2026 ~07:45 UTC: contingent-line information value model, normal draw 6
+
+Actual securely executed mode RNG returned **6/10** (normal). Reclaimed expired Agent47 via GitHub CAS lease, claim commit **99c3c49d99fcd1289a542fd36052d696e5d64aa8**, immutable `claimed_at=2026-10-20T07:31:37.273Z`, run `agent47-chat-20261020T073128Z-normal6-7ed7d76b964e`. Verified immediate remote content. **Do not refresh lease.** First possible orderly release is after actual-clock checkpoint at or after **08:41:37.273Z UTC**. User explicitly forbids Work mode; all commits via GitHub connector.
+
+**Completed model:**
+- New exact `simulation/twinleaf/k0-line-information-frontier.cjs` (commit **8b90f45a**) computes best **K0 presearch fixed decision** versus idealized **K1 post-owner-search contingent action** across mutually exclusive line plans with joint exact-printing-count prerequisites and caller-assigned net integer utilities, using grouped multivariate hypergeometric Prize multiplicities. Its information-value output is an **upper bound before accounting for obtaining search information**, never a policy or win rate. Uses no private deck/prize identities. Uniform unknown Prize allocation must be authenticated externally.
+- `tests/k0-line-information-frontier.test.cjs` (commit **aa571ac**) independently enumerates 160 seeded toy physical Prize subsets, checks exact BigInt numerators/denominators, two-target N60/P6 + fallback + zero gap + duplicate-printing/requirement cases. `tests/k0-line-information-source-printings.test.cjs` (commit **c4854871**) checks rank24 published 60 with both distinct singleton Stadium printings, strictly hypothetical held Tag Call, Iron Thorns ex and DCE; idealized information upper bound 2.011278 utility units only under invented symmetric +10/-10 utilities.
+- Existing **manual-only** `.github/workflows/aichi-benchmark-stats.yml` updated to execute both tests (commits **81363b0** and **c070908**), no per-push CI. [Pure statistical CI 39387833796](https://github.com/FlareZ123/experiment-01/actions/runs/39387833796) **passed**; [updated physical roster CI 39388390565](https://github.com/FlareZ123/experiment-01/actions/runs/39388390565) **passed** at head **c070908**.
+- Reproducible report `results/twinleaf/agent47-k0-line-information-value.md` (creation **4922c52**, CI status **e6c7560**, rank24 printing addendum **7edc4d5**), **not** results/README since human index requires strategic decision-level changes.
+- Sent Agent41 canonical owner exact handoff `communications/agent41/20261020T0742Z_agent47_k0-k1-joint-line-information-model.md` (commit **7b4bdf8**) and Agent9 rank24 source auditor `communications/agent9/20261020T0745Z_agent47_rank24-contingent-line-info-bridge.md` (commit **d12edad**). No sibling compiled game campaign.
+- Supplemental public source scan of missing Aichi ranks 23/25/28 found no new exact 60: existing Pokekameshi/nayuta gallery and alias leads remain insufficient.
+
+**Research limitations:** These are pure tests, not pinned Twinleaf Store execution. All plan utilities invented; K1 actor must gain exact deck membership from an *actual owner-deck prompt*, and action feasibility/payments, hidden-state parity, Supporter contention, full match decisions/clock remain unverified. Field still 29/32 exact opponent sources, **0 competitively qualified games** and no proven 99.5%.
+**Next:** If canonical caretaker supplies one concrete first-censored owner decision with a documented pair of legal printed-card lines, instantiate the model's feasibility on that real actor K0 pool and authenticate actual K1 via Store. Alternatively inspect current rank24 genuine Tag Call/G&H follower for a genuinely legal alternative Supporter and report to Agent9 without claiming a win. Do not duplicate Agent8's ongoing second-Supporter settlement test or Agent41's single canonical runner.
+
+---
+
 # Agent 47 research continuity
 
 Current normal invocation: draw 7, COUNTER incremented 142→143; claimed at `2026-10-17T06:51:43.366Z` (never refresh the lease). The lease must remain until a **measured** >=70-minute checkpoint; final mutation on release deletes the lease.
