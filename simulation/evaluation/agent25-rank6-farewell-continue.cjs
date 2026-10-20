@@ -87,6 +87,7 @@ function run() {
     x.seat===0&&x.turn===3&&x.name==='Farewell Letter');
   const pairedRootAttestation=attestFarewellPair(baselineActual,actual,{
     seat:0,turn:3,
+    ownerSettlementAudit:audit.settlement??null,
     archivedRootSha256:
       '9a9007f302a6e84084eb75c77f0a86db0e037c58384d7ff2076de828ba0ba913'
   });
