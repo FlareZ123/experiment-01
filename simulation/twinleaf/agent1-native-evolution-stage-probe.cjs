@@ -12,7 +12,7 @@ const engine = name => require(path.join(base, name));
  * Attempt one ordinary from-hand native evolution with a Basic that has
  * already survived a complete owner turn. No injected PlayPokemonEffect.
  * This is a paper-fidelity diagnostic, never a competitive match.
- * @param {{basic:string,evolution:string,expectedStage:number}} choice
+ * @param {{basic:string,evolution:string,expectedStage:number,turn?:number,playedTurn?:number,evolutionLocked?:boolean}} choice
  * @returns {object} Native Store outcome and actual public board transition.
  */
 function probeNativeHandEvolution(choice) {
@@ -39,7 +39,8 @@ function probeNativeHandEvolution(choice) {
   p0.id=101;p0.name='Evolution probe';
   p1.id=202;p1.name='Passive rival';
   p0.active.cards.push(basic);
-  p0.active.pokemonPlayedTurn=1;
+  p0.active.pokemonPlayedTurn=choice.playedTurn??1;
+  p0.cannotEvolvePokemonCards=choice.evolutionLocked===true;
   p0.hand.cards.push(evolution);
   p1.active.cards.push(card('Mewtwo & Mew-GX UNM'));
   p1.active.pokemonPlayedTurn=1;
@@ -53,7 +54,7 @@ function probeNativeHandEvolution(choice) {
   }
   const state = new State();
   state.phase=GamePhase.PLAYER_TURN;
-  state.turn=3;
+  state.turn=choice.turn??3;
   state.activePlayer=0;
   state.players=[p0,p1];
   const store = new Store({onStateChange(){}});
@@ -68,6 +69,8 @@ function probeNativeHandEvolution(choice) {
   }
   return {
     basic:choice.basic,evolution:choice.evolution,
+    globalTurn:state.turn,playedTurn:p0.active.pokemonPlayedTurn,
+    evolutionLocked:choice.evolutionLocked===true,
     basicStage:basic.stage,evolutionStage:evolution.stage,
     printedEvolvesFrom:evolution.evolvesFrom,
     nativeAccepted:error===null,
@@ -93,6 +96,11 @@ function run() {
       evolution:'Garbodor BKP',expectedStage:Stage.STAGE_1}
   ];
   const observed=choices.map(probeNativeHandEvolution);
+  for(const row of observed){
+    assert.equal(row.evolved,true,'A known legal evolved action failed: '+JSON.stringify(row));
+    assert.equal(row.handStillContainsEvolution,false,
+      'Successful evolution retained the card in hand');
+  }
   return {
     schema:'agent1-pinned-native-hand-evolution-fidelity-v1',
     engineCommit:PIN,
