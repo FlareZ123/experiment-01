@@ -80,6 +80,16 @@ test('pinned Store clone may expose a paid Horror House-GX Perfection choice',t=
   state.activePlayer=1;
   state.phase=GamePhase.PLAYER_TURN;
   state.gameSettings.format=Format.EXPANDED;
+  // Native negative control: identical Store and owning Active, but zero
+  // GX/EX donors. The pinned helper rejects this with CANNOT_USE_POWER even
+  // though no opponent Ability lock has been established in this board.
+  const ownDonor=attacker.discard.cards.pop();
+  assert.equal(ownDonor?.name,'Gengar & Mimikyu-GX');
+  const noDonor=probePostPassPerfection(state,attacker.id);
+  assert.equal(noDonor.sourceEligibility.sourcePokemonCount,0);
+  assert.equal(noDonor.activationAccepted,false);
+  assert.equal(noDonor.rejection,'CANNOT_USE_POWER');
+  attacker.discard.cards.push(ownDonor);
   const before={
     sourceDiscard:attacker.discard.cards.map(x=>x.fullName),
     sourceEnergy:attacker.active.energies.cards.map(x=>x.fullName),
@@ -89,6 +99,7 @@ test('pinned Store clone may expose a paid Horror House-GX Perfection choice',t=
   const previousRandom=Math.random;
   const result=probePostPassPerfection(state,attacker.id);
   assert.equal(Math.random,previousRandom);
+  assert.equal(result.sourceEligibility.sourcePokemonCount,1);
   assert.equal(result.activationAccepted,true);
   assert.equal(result.choicePromptObserved,true);
   assert.ok(result.publicCopySourceInventory.discard.some(card=>
