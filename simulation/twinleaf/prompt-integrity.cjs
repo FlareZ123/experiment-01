@@ -26,6 +26,7 @@ function isIndexPermutation(result, length) {
  *
  * @param {{prompts:Array<{id:number,result?:unknown,validate:(result:unknown,state:object)=>boolean}>}} state
  * @param {{id?:number,result?:unknown,constructor?:{name?:string}}} action
+ * @param {{enforceSelectOptionLegality?:boolean}} [options] Additional fail-closed gate for native option indices; default retains archived strict mode.
  * @returns {void}
  */
 /** @param {object} a @param {object} b */
@@ -152,7 +153,7 @@ function attachEnergyFailureEvidence(prompt, action, state) {
   });
 }
 
-function assertValidPromptAction(state, action) {
+function assertValidPromptAction(state, action, options={}) {
   const unresolved = state.prompts.filter(prompt => prompt.result === undefined);
   if (unresolved.length === 0) return;
   if (action?.constructor?.name !== 'ResolvePromptAction') {
@@ -182,6 +183,17 @@ function assertValidPromptAction(state, action) {
   } else {
     valid = typeof prompt.validate === 'function' &&
       prompt.validate(action.result, state);
+  }
+  // Pinned SelectOptionPrompt inherits an excessively permissive validate().
+  // Keep the stronger paper-legality gate opt-in to preserve historical
+  // strictPromptValidation traces generated before this correction.
+  if (valid && name === 'SelectOptionPrompt' &&
+      options.enforceSelectOptionLegality === true) {
+    const index=action.result;
+    valid=index===null ? prompt.options.allowCancel===true :
+      Number.isInteger(index) && index>=0 &&
+        index<prompt.values.length &&
+        prompt.options.disabled?.[index]!==true;
   }
   // ChooseCardsPrompt.validate verifies source membership independently for
   // each chosen card, but omits multiplicity. The same physical card cannot
