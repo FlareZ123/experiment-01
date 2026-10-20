@@ -33,6 +33,28 @@ function developmentTrials(){
   return selected;
 }
 
+/**
+ * Previously selected development-only actual-source-first test streams.
+ * Rank 11 was selected after observing a successful Tool-Garbodor source
+ * setup (Agent 9/11), so this sample MUST NOT enter a prospective denominator.
+ * Rank 6 reverses the candidate physical seat of the archived 6:0:A seed;
+ * that creates a distinct physical deal, never an interchangeable replay.
+ * @returns {object[]}
+ */
+function sourceFirstPressureTrials(){
+  const originals=developmentTrials();
+  return originals.map(row=>{
+    const candidateSlot='B';
+    const seed=row.rank===11?482443328:407516727;
+    const id=[row.rank,'retrospective-sourcefirst',row.repeat,
+      candidateSlot,row.candidateId].join(':');
+    return {...row,candidateSlot,seed,id,
+      retrospectiveSelection:row.rank===11?
+        'post-observation Tool-Garbodor source success':
+        'opposite physical seat of historical rank6 seed'};
+  });
+}
+
 /** @param {unknown} value @returns {string} */
 const sha256=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
@@ -402,7 +424,8 @@ function executeDevelopment(trial,candidates,{
 /** @returns {object} */
 function runDevelopment({
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
-  mandatoryOptionFallback=false,nativePressureWindows=false
+  mandatoryOptionFallback=false,nativePressureWindows=false,
+  sourceFirstRetrospective=false
 }={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -420,7 +443,9 @@ function runDevelopment({
     [id,{plan:planAichi(manifest,{allowEquivalentBasicEnergies:true,
       allowBasicEnergyMirrorPrintings:true,allowJapanesePromoHooks:true})}]));
   const rows=[];
-  for(const trial of developmentTrials()){
+  const scheduled=sourceFirstRetrospective?
+    sourceFirstPressureTrials():developmentTrials();
+  for(const trial of scheduled){
     try { rows.push(executeDevelopment(trial,prepared,{
       compressorPayload,opportunityAudit,lateCompressorPayload,
       mandatoryOptionFallback,
@@ -442,7 +467,9 @@ function runDevelopment({
       (compressorPayload?
         'agent5-bilateral-common-policy-development-v0c-owner-compressor-v1':
         'agent41-bilateral-common-policy-development-v0c-live-lock-guard')),
-    sourceRegistration:'historical v1 selection; not v2 preregistration',
+    sourceRegistration:sourceFirstRetrospective?
+      'Retrospective source-first selected exposure; rank11 chosen after source Tool-Garbodor success; not preregistered':
+      'historical v1 selection; not v2 preregistration',
     enginePin:registration.enginePin,
     candidatePolicy:POLICY_VERSION+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
@@ -454,8 +481,15 @@ function runDevelopment({
     ownerCompressorOpportunityAudit:opportunityAudit,
     ownerCompressorLate14OptIn:lateCompressorPayload,
     nativePressureWindowsOptIn:nativePressureWindows,
+    sourceFirstRetrospective,
+    retrospectiveSeedProvenance:sourceFirstRetrospective?{
+      6:{seed:407516727,seat:'B',selection:'reversed physical source seat'},
+      11:{seed:482443328,seat:'B',selection:'post-observed source success'}
+    }:null,
     rows,attempted:rows.length,
-    sourcePairs:['6:0:A','11:2:B'].map(key=>{
+    sourcePairs:(sourceFirstRetrospective?
+      ['6:retrospective-sourcefirst:0:B','11:retrospective-sourcefirst:2:B']:
+      ['6:0:A','11:2:B']).map(key=>{
       const here=rows.filter(row=>row.trial?.id.startsWith(key+':'));
       const first=here.find(row=>row.trial.candidateId==='champion-reference');
       const second=here.find(row=>row.trial.candidateId==='new-moon-lockbreaker-v1');
@@ -487,10 +521,12 @@ if(require.main===module){
     lateCompressorPayload:lateWindow,
     mandatoryOptionFallback:process.env.AGENT41_MANDATORY_OPTION_DEV==='true',
     nativePressureWindows:process.env.AGENT41_NATIVE_PRESSURE_DEV==='true',
+    sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
-module.exports={developmentTrials,commonPayloadOption,firstPostSourceDecision,
+module.exports={developmentTrials,sourceFirstPressureTrials,
+  commonPayloadOption,firstPostSourceDecision,
   sourceLineReplyPacket,candidatePostChoicePassEvidence,
   executeDevelopment,runDevelopment};
