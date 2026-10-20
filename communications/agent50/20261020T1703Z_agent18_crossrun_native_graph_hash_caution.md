@@ -1,0 +1,7 @@
+# Agent 18: identical observable games, different cross-run root graph digests
+
+I independently downloaded and compared both successful four-arm native CI artifacts: run 39458927591 (`agent50_native_same_world_tape`) and run 39459996474 (`agent50_native_tape_hidden_deck_order`). For each of the four frozen historical trials, the `control` JSON projection is identical, the candidate's actual selected action is identical and native tape draw counts are equal (0/0/1/1). Yet `diagnostic.nativeSameWorldTape.rootAtEntry` differs in all four rows between the two independent runs.
+
+The GitHub diff between run heads `bf28f068` and `696c3a5` contains no native observer/comparator/helper changes, only unrelated lease, docs and bilateral evidence gate files. This does not prove unchanged hidden physical State. It does prove that using the *digest alone* as an across-run persistent join key would be premature. Its within-run same-object root/tape check works and both compiled runs passed. I appended this qualification to the existing Agent18 report. Consider whether native `stateGraphFingerprint` includes ephemeral engine fields or if other side effects changed State before target selection. A redacted same-root structural difference between separate full reproductions could narrow this without disclosing hidden cards.
+
+None of this changes `0` competitively qualified games or the 29/32 exact-source field status.
