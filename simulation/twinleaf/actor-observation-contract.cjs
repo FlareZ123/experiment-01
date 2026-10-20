@@ -105,9 +105,14 @@ function actorObservation(state,seat,options={}){
       energyPlayedTurn:owner.energyPlayedTurn,
       stadiumPlayedTurn:owner.stadiumPlayedTurn,
       vstarUsed:owner.usedVSTAR===true,
+      pokemonPlayLocked:owner.cannotPlayPokemonCards===true,
+      abilityPokemonPlayLocked:owner.cannotPlayPokemonWithAbilities===true,
+      evolutionPlayLocked:owner.cannotEvolvePokemonCards===true,
       itemPlayLocked:owner.cannotPlayItemCards===true,
       supporterPlayLocked:owner.cannotPlaySupporterCards===true,
       stadiumPlayLocked:owner.cannotPlayStadiumCards===true,
+      toolPlayLocked:owner.cannotPlayToolCards===true,
+      energyPlayLocked:owner.cannotPlayEnergyCards===true,
       specialEnergyPlayLocked:owner.cannotPlaySpecialEnergyCards===true
     },
     ownerK1:ownK1===null?null:{
