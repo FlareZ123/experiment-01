@@ -44,7 +44,7 @@ function run() {
   let baselineRecord=null;
   let baselineError=null;
   headless.runMatch=request=>{
-    baselineActual=original(request);
+    baselineActual=original({...request,captureInitialFullPhysicalDeal:true});
     return baselineActual;
   };
   try {
@@ -59,7 +59,7 @@ function run() {
   let audit=null;
   headless.runMatch=request=>{
     const replay=withFarewellInsteadOfFirstPass(
-      ()=>original(request),{seat:0,turn:3});
+      ()=>original({...request,captureInitialFullPhysicalDeal:true}),{seat:0,turn:3});
     actual=replay.result;
     audit=replay.policyAudit;
     return actual;
