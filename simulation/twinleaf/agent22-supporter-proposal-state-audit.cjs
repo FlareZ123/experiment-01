@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent22-authentic-supporter-proposal-state-observer-v1';
+const VERSION='agent22-authentic-supporter-proposal-state-observer-v2';
 
 /**
  * Observe the exact native decision-to-dispatch path without changing any
