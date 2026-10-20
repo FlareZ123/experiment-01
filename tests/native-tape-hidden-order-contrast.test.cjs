@@ -5,14 +5,23 @@ const assert=require('node:assert/strict');
 const {compareNativeHiddenDeckOrder}=
   require('../simulation/twinleaf/native-tape-hidden-order-contrast.cjs');
 
+const {digest}=require('../simulation/twinleaf/native-policy-random-tape.cjs');
+
 const makeInput=(overrides={})=>{
   const root={turn:3,activePlayer:0,players:[
     {hand:['A'],deck:{cards:['topX','topY','topZ']}},
     {hand:['hidden'],deck:{cards:['other']}}
   ]};
   return {
-    parity:{sameWorldDecisionParityQualified:true,
-      actualAction:{kind:'PlayCardAction',name:'A'}},
+    parity:{
+      schema:'native-same-world-tape-parity-v1',
+      sameWorldDecisionParityQualified:true,
+      actualAction:{kind:'PlayCardAction',name:'A'},
+      rootAtEntry:JSON.stringify(root),rootAtExit:JSON.stringify(root),
+      tapeSha256:digest([0.25]),tapeDraws:1,consumed:1,
+      sourceRootUnchanged:true,physicalCloneMatched:true,
+      selectedActionMatched:true,replayError:null
+    },
     root,seat:0,tape:[0.25],
     cloneState:structuredClone,
     fingerprint:JSON.stringify,
@@ -55,6 +64,8 @@ test('actual same-world parity is mandatory before any hidden contrast',()=>{
 test('owner deck below two cards yields no comparison',()=>{
   const args=makeInput();
   args.root.players[0].deck.cards=['only'];
+  args.parity.rootAtEntry=JSON.stringify(args.root);
+  args.parity.rootAtExit=JSON.stringify(args.root);
   const report=compareNativeHiddenDeckOrder(args);
   assert.equal(report.contrastExecutable,false);
   assert.match(report.error,/Not enough/);
