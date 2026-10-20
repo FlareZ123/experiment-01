@@ -9,6 +9,7 @@ const SPARSE_OWNER_SEARCH_VERSION =
 const HAND_DISCARD_VERSION = 'agent47-canonical-hand-discard-v6';
 const GENERIC_FALLBACK_VERSION =
   'agent7-canonical-actor-attributed-generic-fallback-v5';
+const POKEMON_PROMPT_VERSION = 'agent8-canonical-actor-choose-pokemon-v7';
 
 /**
  * Install one ordered actor-observation-only root/prompt decision chain around
@@ -23,9 +24,9 @@ const GENERIC_FALLBACK_VERSION =
  *
  * @template T
  * @param {()=>T} execute Synchronous genuine pinned-Store workload.
- * @param {{root?:Function,fog?:Function,select?:Function,option?:Function,attack?:Function,ownerSearch?:Function}} [adapters]
+ * @param {{root?:Function,fog?:Function,select?:Function,option?:Function,attack?:Function,ownerSearch?:Function,pokemon?:Function}} [adapters]
  *   Test injection only. Real components have their own pinned-Store tests.
- * @param {{ownerSingleSearch?:boolean,genericFallbackAttribution?:boolean}} [options]
+ * @param {{ownerSingleSearch?:boolean,genericFallbackAttribution?:boolean,actorChoosePokemon?:boolean}} [options]
  * Default preserves v2.
  * @returns {{result:T,audit:object}}
  */
@@ -33,6 +34,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   assert.equal(typeof execute, 'function');
   const ownerSingleSearch = options.ownerSingleSearch===true;
   const genericFallbackAttribution = options.genericFallbackAttribution===true;
+  const actorChoosePokemon = options.actorChoosePokemon===true;
   const sparseOwnerSearch=ownerSingleSearch&&
     adapters.ownerSearch===undefined&&
     process.env.AGENT22_SPARSE_OWNER_BUNDLE_DEV==='true';
@@ -57,13 +59,18 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   const attack = adapters.attack ??
     require('../twinleaf/agent13-actor-only-choose-attack.cjs')
       .withActorOnlyChooseAttack;
+  const pokemon = actorChoosePokemon ?
+    (adapters.pokemon ??
+      require('../twinleaf/agent8-actor-only-choose-pokemon.cjs')
+        .withActorOnlyChoosePokemon) : null;
   const genericFallback = genericFallbackAttribution ?
     (adapters.genericFallback ??
       require('../twinleaf/agent7-native-generic-fallback-attribution.cjs')
         .withNativeGenericFallbackAttribution) : null;
   for (const component of [root, fog, select, option, attack,
     ...(ownerSingleSearch?[ownerSearch]:[]),
-    ...(genericFallbackAttribution?[genericFallback]:[])]) {
+    ...(genericFallbackAttribution?[genericFallback]:[]),
+    ...(actorChoosePokemon?[pokemon]:[])]) {
     assert.equal(typeof component, 'function');
   }
 
@@ -72,6 +79,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       require('../twinleaf/agent47-actor-hand-discard.cjs')
         .withActorHandDiscard) : null;
   let handDiscardAudit = null;
+  let pokemonAudit = null;
   const runActor = () => {
     if(!handDiscard)return execute();
     const selected=handDiscard(execute);
@@ -80,12 +88,22 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     handDiscardAudit=selected.audit;
     return selected.result;
   };
-  const runFog = () => fog(() => select(() => option(() => attack(runActor))));
+  const runPokemon = () => {
+    if(!pokemon)return runActor();
+    const selected=pokemon(runActor);
+    assert.ok(selected.audit && typeof selected.audit==='object',
+      'Actor ChoosePokemon requires an executed adapter audit');
+    pokemonAudit=selected.audit;
+    return selected.result;
+  };
+  const runFog = () => fog(() => select(() => option(() => attack(runPokemon))));
   // Fog's already-owned deck search is the higher-priority actor handler.
   const runRoot = () => root(() => ownerSingleSearch?ownerSearch(runFog):runFog());
   const genericWrapped = genericFallbackAttribution?genericFallback(runRoot):null;
   const rooted = genericFallbackAttribution?genericWrapped.result:runRoot();
   const genericFallbackAudit = genericFallbackAttribution?genericWrapped.audit:null;
+  if(actorChoosePokemon)assert.ok(pokemonAudit,
+    'Actor ChoosePokemon option requires an executed adapter');
   if(handDiscard)assert.ok(handDiscardAudit,
     'Actor hand-discard option requires an executed adapter');
   const searchOrFog = rooted.result;
@@ -101,7 +119,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   const attackAudit = attacked.audit;
   for (const audit of [rootAudit, fogAudit, selectAudit, optionAudit,
     attackAudit,...(ownerSingleSearch?[ownerSearchAudit]:[]),
-    ...(genericFallbackAttribution?[genericFallbackAudit]:[])]) {
+    ...(genericFallbackAttribution?[genericFallbackAudit]:[]),
+    ...(actorChoosePokemon?[pokemonAudit]:[])]) {
     assert.ok(audit && typeof audit === 'object',
       'Each actor-only adapter must return its own audit');
   }
@@ -109,14 +128,17 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   const finalGenericPromptFallbacks =
     rootAudit.unsupportedPromptFallbacks ?? null;
   const audit = {
-    version: handDiscard?HAND_DISCARD_VERSION:
+    version: (handDiscard?HAND_DISCARD_VERSION:
       genericFallbackAttribution?GENERIC_FALLBACK_VERSION:
       sparseOwnerSearch?SPARSE_OWNER_SEARCH_VERSION:
-      ownerSingleSearch?OWNER_SEARCH_VERSION:VERSION,
+      ownerSingleSearch?OWNER_SEARCH_VERSION:VERSION)+
+      (actorChoosePokemon?'+'+POKEMON_PROMPT_VERSION:''),
     sparseOwnerSearchOptIn:sparseOwnerSearch,
     actorHandDiscardOptIn:Boolean(handDiscard),
+    actorChoosePokemonOptIn:actorChoosePokemon,
     genericFallbackAttributionOptIn:genericFallbackAttribution,
     selectedHandlerPriority: [
+      ...(actorChoosePokemon?['ChoosePokemonPrompt']:[]),
       'ChooseAttackPrompt', 'SelectOptionPrompt', 'SelectPrompt',
       'FogCrystalRootAndOwnerDeckSearch',
       ...(ownerSingleSearch?['ActorOwnerSingleSearchPrompt']:[]),
@@ -132,6 +154,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       select: selectAudit.version ?? null,
       selectOption: optionAudit.version ?? null,
       chooseAttack: attackAudit.version ?? null,
+      ...(actorChoosePokemon?{choosePokemon:pokemonAudit.version??null}:{}),
       ...(handDiscard?{handDiscard:handDiscardAudit.version??null}:{})
     },
     nativeDecisionCounts: {
@@ -157,6 +180,11 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       selectAccepted: selectAudit.accepted ?? null,
       selectOptionAccepted: optionAudit.acceptedPromptActions ?? null,
       chooseAttackAccepted: attackAudit.accepted ?? null,
+      ...(actorChoosePokemon?{
+        choosePokemonAccepted:pokemonAudit.accepted??null,
+        choosePokemonSettled:pokemonAudit.postconditionsConfirmed??null,
+        choosePokemonBySeat:pokemonAudit.bySeat??null
+      }:{}),
       lastChanceGenericPromptFallbacks: finalGenericPromptFallbacks,
       ...(genericFallbackAttribution?{
         nativeGenericDecoderCalls:genericFallbackAudit.liveGenericDecodes??null,
@@ -171,6 +199,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     // These counters overlap and cannot be added into a decision denominator.
     overlappingDelegationObservations: {
       chooseAttack: attackAudit.nativeFallbacks ?? null,
+      ...(actorChoosePokemon?{choosePokemon:pokemonAudit.unsupportedNativeFallbacks??null}:{}),
       selectOption: optionAudit.unsupportedPromptDelegations ?? null,
       select: selectAudit.unsupportedPromptFallbacks ?? null,
       fog: fogAudit.unsupportedPrompts ?? null,
@@ -187,6 +216,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       select: selectAudit,
       selectOption: optionAudit,
       chooseAttack: attackAudit,
+      ...(actorChoosePokemon?{choosePokemon:pokemonAudit}:{}),
       ...(handDiscard?{handDiscard:handDiscardAudit}:{})
     },
     qualification: {
@@ -203,5 +233,5 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
 
 module.exports = {VERSION, OWNER_SEARCH_VERSION,SPARSE_OWNER_SEARCH_VERSION,
   HAND_DISCARD_VERSION,
-  GENERIC_FALLBACK_VERSION,
+  GENERIC_FALLBACK_VERSION,POKEMON_PROMPT_VERSION,
   withCanonicalActorOnlyPolicy};
