@@ -95,6 +95,7 @@ function withActorOnlySelectPrompt(execute,deps={}){
     version:VERSION,
     decisionOrigin:'detached-owner-observation-and-offered-SelectPrompt',
     liveStores:0,selected:0,accepted:0,rejected:0,
+    nativePromptPostconditionsConfirmed:0,nativePromptPostconditionsMissing:0,
     unsupportedPromptFallbacks:0,nonLiveFallbacks:0,
     bySeat:{0:0,1:0},boundedSelections:[],
     competitiveGameQualified:false
@@ -139,8 +140,17 @@ function withActorOnlySelectPrompt(execute,deps={}){
     const choice=this===realStore?chosen.get(action):undefined;
     if(!choice)return originalDispatch.value.apply(this,[action,...args]);
     try{
+      const pending=this.state?.prompts?.find(p=>
+        p.id===choice.promptId&&p.result===undefined);
       const result=originalDispatch.value.apply(this,[action,...args]);
+      const after=Array.isArray(result?.prompts)?result:this.state;
+      const resolved=after?.prompts?.find(p=>p.id===choice.promptId);
+      const confirmed=Boolean(pending&&
+        (resolved===undefined||
+          Object.is(resolved.result,choice.optionIndex)));
       audit.accepted++;
+      if(confirmed)audit.nativePromptPostconditionsConfirmed++;
+      else audit.nativePromptPostconditionsMissing++;
       return result;
     }catch(error){
       audit.rejected++;
