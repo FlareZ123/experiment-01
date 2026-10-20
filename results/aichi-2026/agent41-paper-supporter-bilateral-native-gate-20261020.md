@@ -53,6 +53,20 @@ Actual printed Store facts from the run log:
 
 This closes the **selected rank-24 native proposal-continuation acceptance** of the unified v2 adapter. Actual opposite physical actor/first-player and entire multi-archetype paper-fidelity remain to be tested. These are source-selected regressions, not estimated odds of paper legality or performance.
 
+## Real source reversed into physical seat A: all three frozen rank-24 opening seeds
+
+[The source-A compiled pinned CI **39408693904** succeeded](https://github.com/FlareZ123/experiment-01/actions/runs/39408693904), head `fba9443e`, using [opposite-seat native script](../../simulation/twinleaf/agent41-rank24-paper-supporter-opposite-seat-native.cjs) through the same manual workflow. The source is the **exact rank-24 published 60** at physical seat A, the candidate reference rank-1 60 at physical seat B; `withBroadThornsSourceAttack` uses its original *first-eligible* turn condition. This changes source deal and is **not** a pairable off/on treatment of the earlier source-B seed despite reuse of seed integers. All **three** prior rank24 source-opening seeds were retained without selecting favorable outcomes.
+
+| Predeclared seed | Actual source starts first? | Physical source Supporters settled during 105 roots | Source-owner proposal suppressions observed | Full narrow native quota audit | Illegal Store roots |
+|---|---|---:|---:|---|---:|
+| `2966203069` | yes | 2 | 1 | true | 0 |
+| `1150814608` | yes | 4 | 4 | true | 0 |
+| `2804067880` | yes | 5 | 3 | true | 0 |
+
+All attempts ran **105 actual native root actions** and passed verified-first-draw and whole-game both-actor Supporter postconditions. No game was treated as a competitive win. The original selected source-B seed puts the source second, so across the **different** authentic source-dealt specimens we have one real source-B-second and three real source-A-first bounded mechanical checks. This covers native actor seat routing with positive legal Supporter settlement and suppression, but does not furnish within-deal matched actual-first/second counterfactuals or uniform two-seat statistical evidence.
+
+[Archived complete four-report bundle **12257839309**](https://github.com/FlareZ123/experiment-01/actions/runs/39408693904/artifacts/12257839309), ZIP SHA-256 `04b31da732b1aa2c514d034c8fafa6f99da5bfa21272e3dbaac2ecb9cb7b4fe7`. The combined Store guard + shared tactic filter is now *mechanically exercised* in both real physical seats, with native actual global-turn Supporter use and no illegal dispatch in these four selected rank24 specimens. Stage-wide complete game rule equivalence, adequate opponent competence, actor information-set fidelity and tournament-clock legality remain unproven; **qualified competitive games: 0**.
+
 ## Next failure-focused acceptance
 
 Reuse Agent 8's already compiled proposal wrapper rather than replicate its rank-24 evidence. Move toward one shared native/audited integration boundary, and use an authentic native rank-24 actor-swapped fork with actual second-Supporter opportunity as a falsification test. The aggregate historical runner has no qualifying competitive games because hidden-information exposure, source-first lock/responses, official paper clock, and other rules defects are unresolved. Any future fresh evaluation must preserve all published field opponents, printed cards, both actual starting seats, and predeclared policy versions.
