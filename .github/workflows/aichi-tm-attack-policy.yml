@@ -58,6 +58,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank2_sentinel_vsseeker_native:
+        description: Source-authentic active Stoutland versus Bench native VS Seeker root control
+        type: boolean
+        required: false
+        default: false
       rank2_gladion_source_exposure:
         description: Frozen 8-game authentic rank2 Gladion root opportunity census
         type: boolean
@@ -144,6 +149,17 @@ jobs:
         with:
           name: agent40-stoutland-opponent-first-owner-root
           path: agent40-stoutland-first-opponent.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Probe authentic opponent VS Seeker to Supporter under Active versus Benched Stoutland
+        if: ${{ inputs.rank2_sentinel_vsseeker_native }}
+        run: node simulation/twinleaf/agent40-sentinel-vs-seeker-root-probe.cjs > agent40-sentinel-vsseeker-native.json
+      - name: Archive both matched native root attempts, including failures
+        if: ${{ always() && inputs.rank2_sentinel_vsseeker_native }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent40-sentinel-vsseeker-native-source-probe
+          path: agent40-sentinel-vsseeker-native.json
           if-no-files-found: warn
           retention-days: 14
       - name: Validate source-root Gladion event extraction and frozen cohort
