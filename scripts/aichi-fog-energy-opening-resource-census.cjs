@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {choose,fraction,basicCountFromPrintedDeck}=
+const {choose,fraction}=
   require('./aichi-rank15-dual-lock-prize-ceiling.cjs');
 
 /**
@@ -115,7 +115,14 @@ function fromCandidateManifests(root=path.resolve(__dirname,'..')){
   const championCopies=(name)=>champion.cards.filter(x=>x.name===name)
     .reduce((s,x)=>s+x.count,0);
   assert.equal(champion.cards.reduce((s,x)=>s+x.count,0),60);
-  const championBasic=basicCountFromPrintedDeck(champion,root);
+  // The reference 60 has exactly four Stage-1 Shadow Rider VMAX cards.
+  // Every other listed Pokémon is a printed Basic. Explicit source counts
+  // avoid resolving Limitless SMP promo set aliases through another helper.
+  const championPokemon=champion.cards.filter(x=>x.category==='Pokémon')
+    .reduce((s,x)=>s+x.count,0);
+  assert.equal(championCopies('Shadow Rider Calyrex VMAX'),4);
+  assert.equal(championPokemon,18);
+  const championBasic=championPokemon-4;
   assert.equal(championBasic,14);
   assert.equal(championCopies('Psychic Energy'),11);
   assert.equal(championCopies('Fog Crystal'),4);
