@@ -103,6 +103,36 @@ test('score-only sensitivity is distinct from action choice',()=>{
   assert.equal(row.classification,'hidden-order-score-sensitivity-only');
 });
 
+test('equal empty generic-score traces remain an untested scoring boundary',()=>{
+  const row=run(rank6,{events:[event({
+    tacticScoreComparison:{
+      equalScoreTraces:true,
+      physicalEvaluations:0,counterfactualEvaluations:0,
+      physicalScoreSummary:{finiteScores:0},
+      counterfactualScoreSummary:{finiteScores:0}
+    }
+  })]});
+  assert.equal(row.noninterferenceVerified,true);
+  assert.equal(row.diagnostic.bothWorldsFiniteScoring,false);
+  assert.equal(row.classification,
+    'no-generic-tactic-evaluations-on-tested-root');
+  assert.equal(row.competitiveGameQualified,false);
+});
+
+test('paired finite tactic valuations establish scorer exposure only',()=>{
+  const row=run(rank11,{events:[event({
+    tacticScoreComparison:{
+      equalScoreTraces:true,
+      physicalEvaluations:2,counterfactualEvaluations:2,
+      physicalScoreSummary:{finiteScores:1},
+      counterfactualScoreSummary:{finiteScores:1}
+    }
+  })]});
+  assert.equal(row.diagnostic.bothWorldsFiniteScoring,true);
+  assert.equal(row.classification,'no-sensitivity-on-tested-root');
+  assert.equal(row.competitiveGameQualified,false);
+});
+
 test('identical chosen roots still veto divergent public effects and boards',()=>{
   const changedBoard=run(rank6,{probedRow:{
     finalBoard:{seat0:{active:'same action, different damage'}}
