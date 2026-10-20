@@ -3,6 +3,24 @@
 const fs = require('node:fs');
 
 /**
+ * The printed GX/EX source filter is a necessary precondition for Perfection.
+ * This post-Pass status does not diagnose whether a legal attack was payable or
+ * whether the live game was affected by an Ability lock.
+ * @param {object} sample An already-frozen detached Store diagnostic.
+ * @returns {string}
+ */
+function classifiedDonorStatus(sample){
+  const count=sample?.sourceEligibility?.sourcePokemonCount;
+  if(!Number.isSafeInteger(count)||count<0)return 'source-inventory-not-audited';
+  if(count===0)return 'no-eligible-gx-ex-source-in-own-public-zones';
+  if(sample.activationAccepted!==true)return 'gx-ex-source-present-activation-rejected';
+  if(sample.choicePromptObserved!==true)return 'gx-ex-source-present-no-choice-prompt';
+  if(!Array.isArray(sample.validAttackNames)||sample.validAttackNames.length===0)
+    return 'gx-ex-source-present-no-validated-attack';
+  return 'gx-ex-source-present-validated-clone-menu';
+}
+
+/**
  * Summarize archived development pass probes without promoting cloned
  * announcements or copied-attack menus to competitive gameplay evidence.
  * @param {object} archive
@@ -50,6 +68,7 @@ function summarizePassEvidence(archive) {
         ownerHandBeforePass: item.ownerHandBeforePass ?? null,
         publicCopySourceInventory: item.publicCopySourceInventory ?? null,
         sourceEligibility: item.sourceEligibility ?? null,
+        donorStatus: classifiedDonorStatus(item),
         availableCopiedAttacks: item.validAttackNames ?? []
       }))
     };
@@ -74,4 +93,4 @@ if (require.main === module) {
   process.stdout.write(JSON.stringify(summarizePassEvidence(archive), null, 2) + '\n');
 }
 
-module.exports = { summarizePassEvidence };
+module.exports = { summarizePassEvidence, classifiedDonorStatus };
