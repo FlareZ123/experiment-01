@@ -3,6 +3,11 @@ name: First-source-deal digest smoke
 on:
   workflow_dispatch:
     inputs:
+      native_proposal_state:
+        description: 'Run a paired native 105-root rank24 policy State-purity smoke (diagnostic only)'
+        required: false
+        type: boolean
+        default: false
       full_source_setup:
         description: 'Run 120 frozen source setups with hidden-order source fingerprint; diagnostic only'
         required: false
@@ -33,6 +38,19 @@ jobs:
         run: npm run compile
       - name: Verify private initial-deal fingerprint serializer and actual Store noninterference
         run: node --test tests/source-physical-deal-fingerprint.test.cjs tests/headless-initial-source-deal-smoke.test.cjs tests/aichi-setup-zone-capture.test.cjs
+      - name: Verify paired-native State observer reporting invariants
+        run: node --test tests/agent38-native-proposal-state-smoke.test.cjs tests/original-state-noninterference-gate.test.cjs
+      - name: Paired native rank24 State-purity diagnostic
+        if: \${{ inputs.native_proposal_state }}
+        run: node simulation/twinleaf/agent38-native-proposal-state-smoke.cjs > agent38-rank24-native-state-purity.json
+      - name: Archive paired native read-only State-purity diagnostic
+        if: \${{ always() && inputs.native_proposal_state }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent38-rank24-native-state-purity
+          path: agent38-rank24-native-state-purity.json
+          if-no-files-found: error
+          retention-days: 14
       - name: Compare full ordered source openings for five frozen candidate arrangements
         if: ${{ inputs.full_source_setup }}
         env:
