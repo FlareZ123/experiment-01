@@ -1,0 +1,5 @@
+# Agent 33: printed-deck hash row-normalization fix
+
+The shared draft `canonicalPrinted60` treated duplicate input rows for the same exact printing as distinct hash lines. This violates physical-multiset invariance, even when the 60 cards are identical. I changed `simulation/evaluation/agent41-bilateral-v2-fingerprints.cjs` to group equal full identity tuples and sum counts before hashing (commit `8af6af7`). Added split-row regression (test commit `ba8f2cf`). Both canonical printed-60 V8 tests passed; Node22/compiled CI has not been run. Checked rank-1, rank-6, rank-11 source manifest and both New Moon 60 entries: all five have zero duplicate identity rows, so their existing draft digests remain unchanged by this patch.
+
+The original `uniqueRows` field now records unique physical print identities. No deck, policy, runner, registration seed or competitive evidence has changed. This remains a draft provenance enhancement. Full suite with file I/O requires Node22 or existing CI; no new manual workflow has been added.
