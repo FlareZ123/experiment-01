@@ -2,6 +2,11 @@ name: Aichi rank24 prospective owner-policy comparison
 on:
   workflow_dispatch:
     inputs:
+      agent9_fog_prompt_only:
+        description: Real canonical four-arm actor-owned Fog Crystal Item to K1 prompt gate
+        required: false
+        type: boolean
+        default: false
       agent9_actor_setup_only:
         description: Run three frozen development roots through actor-owned setup adapter
         required: false
@@ -16,7 +21,7 @@ permissions:
   contents: read
 jobs:
   source-rank24:
-    if: ${{ !inputs.agent9_actor_setup_only }}
+    if: ${{ !inputs.agent9_actor_setup_only && !inputs.agent9_fog_prompt_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -80,7 +85,7 @@ jobs:
           retention-days: 14
 
   agent9-actor-owned-setup:
-    if: ${{ inputs.agent9_actor_setup_only }}
+    if: ${{ inputs.agent9_actor_setup_only && !inputs.agent9_fog_prompt_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -113,3 +118,38 @@ jobs:
           path: agent9-actor-native.json
           if-no-files-found: warn
           retention-days: 10
+
+  agent9-fog-prompt-canonical:
+    if: ${{ inputs.agent9_fog_prompt_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize exact pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Test actor-visible Fog prompt and typed action acceptance
+        run: node --test tests/agent9-fog-actor-prompt.test.cjs
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Replay authentic owner prompt in canonical four registered arms
+        run: node simulation/twinleaf/agent9-fog-actor-canonical-development.cjs > agent9-fog-canonical.json
+      - name: Log every authentic Fog root, prompt and fallback
+        if: always()
+        run: node -e "const fs=require('node:fs');if(fs.existsSync('agent9-fog-canonical.json')){const a=require('./agent9-fog-canonical.json');console.log(JSON.stringify({itemProposals:a.fogAudit.fogItemRootProposals,itemNative:a.fogAudit.fogItemRootNativeAccepted,promptProposals:a.fogAudit.fogPromptProposals,promptNative:a.fogAudit.fogPromptNativeAccepted,rejects:a.fogAudit.rejectedNativeChoices,rows:a.rows.map(x=>({id:x.trialId,error:x.error||null}))}));}"
+      - name: Archive four-arm native Fog channel and all censored outcomes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-fog-actor-canonical-dev
+          path: agent9-fog-canonical.json
+          if-no-files-found: warn
+          retention-days: 14
