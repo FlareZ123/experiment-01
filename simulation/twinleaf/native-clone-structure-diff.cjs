@@ -1,6 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const {stableClassPrototype}=require('./normalize-deep-clone.cjs');
 
 /**
  * Find the earliest graph descriptor, primitive, class or identity-alias
@@ -13,11 +14,12 @@ const assert=require('node:assert/strict');
  *
  * @param {unknown} source
  * @param {unknown} copy
- * @param {{maxNodes?:number}} [options]
+ * @param {{maxNodes?:number,canonicalClassPrototypes?:boolean}} [options]
  * @returns {{matched:boolean,category:string|null,path:string[],
  *   nodesChecked:number,sourceType?:string,copyType?:string}}
  */
-function firstNativeCloneStructureDifference(source,copy,{maxNodes=200000}={}) {
+function firstNativeCloneStructureDifference(source,copy,
+  {maxNodes=200000,canonicalClassPrototypes=false}={}) {
   assert.ok(Number.isSafeInteger(maxNodes)&&maxNodes>=1);
   const queue=[{a:source,b:copy,parent:-1,key:'State'}];
   const seenA=new WeakMap(),seenB=new WeakMap();
@@ -35,7 +37,8 @@ function firstNativeCloneStructureDifference(source,copy,{maxNodes=200000}={}) {
     nodesChecked:checked,...detail
   });
   const className=value=>{
-    const proto=Object.getPrototypeOf(value);
+    const proto=canonicalClassPrototypes?
+      stableClassPrototype(value):Object.getPrototypeOf(value);
     const descriptor=proto&&Object.getOwnPropertyDescriptor(proto,'constructor');
     return typeof descriptor?.value==='function'?
       descriptor.value.name:Array.isArray(value)?'Array':'object';
