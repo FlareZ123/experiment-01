@@ -13,13 +13,17 @@ const assert=require('node:assert/strict');
  * @param {0|1} ownerSeat Physical acting seat.
  * @param {string[]} targetNames Printing names to count at legal searches.
  * @param {()=>T} execute Executes the unchanged original Store game.
+ * @param {Function} [onAuthenticatedSearch] Optional synchronous owner-only
+ *   callback at the live unresolved deck prompt; must remain observational.
  * @returns {{result:T,events:object[]}}
  */
-function withOwnerDeckSearchWitness(Store,ownerSeat,targetNames,execute){
+function withOwnerDeckSearchWitness(Store,ownerSeat,targetNames,execute,onAuthenticatedSearch){
   assert.ok(ownerSeat===0||ownerSeat===1);
   assert.ok(Array.isArray(targetNames)&&targetNames.every(x=>
     typeof x==='string'&&x.length>0));
   assert.equal(typeof execute,'function');
+  assert.ok(onAuthenticatedSearch===undefined||
+    typeof onAuthenticatedSearch==='function');
   const descriptor=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.ok(descriptor&&typeof descriptor.value==='function');
   const seen=new Set(),events=[];
@@ -47,6 +51,9 @@ function withOwnerDeckSearchWitness(Store,ownerSeat,targetNames,execute){
         ownerCanInspectDeck:true,deckCount:printings.length,
         targetCounts:Object.fromEntries(targetNames.map(name=>[name,
           printings.filter(value=>value===name).length]))
+      });
+      if(onAuthenticatedSearch)onAuthenticatedSearch({
+        owner,prompt,rootOrdinal:ordinal,globalTurn:state.turn
       });
     }
     return output;
