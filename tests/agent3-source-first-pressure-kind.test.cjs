@@ -99,3 +99,27 @@ test('rank11 named other Power accepted only if block matches',()=>{
  x.garbotoxinWindowAudit.before.candidatePrintedPowerChecks=[{name:'Wrong Power',blocked:true}];
  assert.equal(sourceFirstNativePressureVerified(x),false);
 });
+
+
+test('rank11 accepts a native Benched-only printed Power block',()=>{
+  const x=rank11();
+  const before=x.garbotoxinWindowAudit.before;
+  before.candidatePrintedPowerNames=[];
+  before.candidatePrintedPowerChecks=[];
+  before.candidateInPlayPrintedPowerChecks=[{
+    zone:'Bench',benchIndex:0,printing:'Shadow Rider Calyrex VMAX CRE',
+    name:'Underworld Door',blocked:true
+  }];
+  assert.equal(sourceFirstNativePressureVerified(x),true);
+  before.candidateInPlayPrintedPowerChecks[0].blocked=false;
+  assert.equal(sourceFirstNativePressureVerified(x),false);
+  before.candidateInPlayPrintedPowerChecks[0].blocked=true;
+  before.candidateInPlayPrintedPowerChecks[0].printing='';
+  assert.equal(sourceFirstNativePressureVerified(x),false);
+});
+
+test('rank11 full in-play audit overrides stale historical Active-only positives',()=>{
+  const x=rank11();
+  x.garbotoxinWindowAudit.before.candidateInPlayPrintedPowerChecks=[];
+  assert.equal(sourceFirstNativePressureVerified(x),false);
+});
