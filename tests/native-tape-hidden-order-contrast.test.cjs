@@ -59,6 +59,68 @@ test('executable action reversal is explicitly unqualified without owner knowled
   assert.equal(JSON.stringify(source.root),snapshot);
 });
 
+
+test('authenticated known top is preserved while unknown suffix is reversed',()=>{
+  const args=makeInput({
+    knownTopCount:1,knownTopVerified:true,
+    actorView:(state,seat)=>({
+      ownHand:state.players[seat].hand.slice(),
+      observedTop:state.players[seat].deck.cards[0],
+      ownDeckSize:state.players[seat].deck.cards.length
+    }),
+    replayDecision:state=>{
+      assert.equal(Math.random(),0.25);
+      assert.deepEqual(state.players[0].deck.cards,
+        ['topX','topZ','topY']);
+      return {kind:'PassTurnAction'};
+    }
+  });
+  const snapshot=JSON.stringify(args.root);
+  const report=compareNativeHiddenDeckOrder(args);
+  assert.equal(report.contrastExecutable,true);
+  assert.equal(report.actorObservationMatched,true);
+  assert.equal(report.permutationChangedPhysicalOrder,true);
+  assert.equal(report.preservedKnownTopCount,1);
+  assert.equal(report.ownerDeckKnownTopAuthenticated,true);
+  assert.equal(report.informationSetLeakQualified,false);
+  assert.equal(JSON.stringify(args.root),snapshot);
+});
+
+test('known-top assertions require authenticated observed prefix',()=>{
+  for(const opts of [
+    {knownTopCount:1},
+    {knownTopCount:1,knownTopVerified:false},
+    {knownTopCount:-1,knownTopVerified:true},
+    {knownTopCount:0.5,knownTopVerified:true}
+  ]){
+    assert.throws(()=>compareNativeHiddenDeckOrder(
+      makeInput(opts)),/authenticated observation|nonnegative safe integer/);
+  }
+});
+
+test('cannot permute a suffix containing fewer than two cards',()=>{
+  const args=makeInput({
+    knownTopCount:2,knownTopVerified:true,
+    replayDecision:()=>{throw new Error('must not be called');}
+  });
+  const report=compareNativeHiddenDeckOrder(args);
+  assert.equal(report.contrastExecutable,false);
+  assert.equal(report.preservedKnownTopCount,2);
+  assert.match(report.error,/Not enough unknown deck suffix/);
+});
+
+test('entire-deck reversal is rejected when known top is exposed',()=>{
+  const args=makeInput({
+    actorView:(state,seat)=>({
+      exposedTop:state.players[seat].deck.cards[0],
+      ownDeckSize:state.players[seat].deck.cards.length
+    })
+  });
+  const report=compareNativeHiddenDeckOrder(args);
+  assert.equal(report.contrastExecutable,false);
+  assert.equal(report.actorObservationMatched,false);
+});
+
 test('actual same-world parity is mandatory before any hidden contrast',()=>{
   assert.throws(()=>compareNativeHiddenDeckOrder(makeInput({
     parity:{sameWorldDecisionParityQualified:false}
