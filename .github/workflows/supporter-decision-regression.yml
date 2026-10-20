@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent22_native_proposal_state:
+        description: 'Run canonical both-seat pre-dispatch Supporter State-purity audit and control'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -50,3 +55,44 @@ jobs:
       - name: Optional v2-v3 GH paired diagnostic
         if: ${{ inputs.run_expanded_fixture }}
         run: node simulation/twinleaf/expanded-gh-search-pair.cjs
+      - name: Verify authentic proposal observer, K0 epoch prerequisites and cleanup
+        if: ${{ inputs.agent22_native_proposal_state }}
+        run: node --test tests/agent22-supporter-proposal-state-audit.test.cjs tests/owner-k0-draw-belief.test.cjs
+      - name: Uninstrumented native paper Supporter control, four canonical historical arms
+        if: ${{ inputs.agent22_native_proposal_state }}
+        env:
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent22-proposal-control.json
+      - name: Read-only native proposal instrumentation, same four historical arms
+        if: ${{ inputs.agent22_native_proposal_state }}
+        env:
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT22_PROPOSAL_STATE_AUDIT: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent22-proposal-observed.json
+      - name: Fail closed on baseline action drift or incomplete native proposal packets
+        if: ${{ inputs.agent22_native_proposal_state }}
+        run: >-
+          node -e "const assert=require('node:assert/strict');
+          const a=require('./agent22-proposal-control.json'),b=require('./agent22-proposal-observed.json');
+          assert.equal(a.attempted,4);assert.equal(b.attempted,4);
+          assert.equal(a.competitiveQualifiedGames,0);assert.equal(b.competitiveQualifiedGames,0);
+          for(let i=0;i<4;i++){const x=a.rows[i],y=b.rows[i];
+          assert.equal(x.trial.id,y.trial.id);
+          assert.equal(x.rootActionLedgerSha256,y.rootActionLedgerSha256,'Native Store root drift');
+          assert.equal(x.sourceDealFingerprint,y.sourceDealFingerprint,'Physical source-deal drift');
+          assert.equal(y.supporterProposalIntegrity?.nativeRootIdentified,true);
+          console.log('NATIVE_PROPOSAL_AUDIT',JSON.stringify({id:y.trial.id,
+          stateAlias:y.supporterProposalIntegrity.realRootStateAliasProposals,
+          mutations:y.supporterProposalIntegrity.mutatedRootProposals,
+          rejectedMutation:y.supporterProposalIntegrity.rejectedAndMutatedRootProposals,
+          selectedDispatched:y.supporterProposalIntegrity.nativeDispatchedSelected}));}"
+      - name: Preserve authentic root observations, including negative results
+        if: ${{ inputs.agent22_native_proposal_state && always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent22-native-supporter-proposal-state-observer
+          path: |
+            agent22-proposal-control.json
+            agent22-proposal-observed.json
+          if-no-files-found: warn
+          retention-days: 10
