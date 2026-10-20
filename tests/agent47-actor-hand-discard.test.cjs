@@ -42,7 +42,7 @@ test('detached actor-only hand-discard menu and deterministic choice',()=>{
 
 test('native physical multiplicity and restricted prompt scope',()=>{
   const state=setup(),prompt=state.prompts[0];
-  prompt.options={min:2,max:2};
+  prompt.options={min:2,max:2,allowCancel:false};
   const choice=resolvePhysicalHandCards(prompt,['A','A']);
   assert.equal(choice.length,2);
   assert.notStrictEqual(choice[0],choice[1]);
