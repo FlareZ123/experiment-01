@@ -57,7 +57,7 @@ function inspectPaperSupporterQuota(record) {
       !audit || audit.appliesToBothSeats!==true ||
       audit.nativeSupporterQuotaQualified!==true ||
       typeof audit.version!=='string' ||
-      !audit.version.startsWith('agent41-bilateral-native-paper-supporter-discipline-') ||
+      audit.version.trim().length===0 ||
       !Array.isArray(audit.legalSupporterRoots) ||
       !Array.isArray(audit.nativeSupporterEvents) ||
       !Array.isArray(audit.rootDispatchVetoes) ||
@@ -72,7 +72,9 @@ function inspectPaperSupporterQuota(record) {
   for(let i=0;i<audit.nativeSupporterEvents.length;i++){
     const legal=audit.legalSupporterRoots[i];
     const settled=audit.nativeSupporterEvents[i];
-    if(legal?.quotaBefore!==0 || legal?.returnedFromNativeDispatch!==true ||
+    if(legal?.schema!=='native-paper-supporter-pre-dispatch-v1' ||
+        settled?.evidenceType!=='native-Store-dispatch-postcondition-v1' ||
+        legal?.quotaBefore!==0 || legal?.returnedFromNativeDispatch!==true ||
         legal?.handCardPhysicallyPresent!==true ||
         settled?.settled!==true || settled?.repeatOnSameTurn!==false ||
         settled?.supporterTurnBefore!==0 ||
