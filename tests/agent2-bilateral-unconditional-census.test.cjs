@@ -6,6 +6,7 @@ const {auditUnconditionalBilateralCensus,pressureEvidence}=
   require('../simulation/evaluation/agent2-bilateral-unconditional-census.cjs');
 const {rank6CandidateApplicability}=
   require('../simulation/evaluation/agent2-rank6-applicability.cjs');
+require('./agent2-rank11-applicability.test.cjs');
 
 /** @param {string} c @returns {string} */
 const hex=c=>c.repeat(64);
