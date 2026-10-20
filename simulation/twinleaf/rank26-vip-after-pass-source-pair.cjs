@@ -57,6 +57,7 @@ function run(){
   assert.equal(enemy?.status,'ready');
   assert.equal(enemy.cards.length,60);
   const cases=[];
+  const verifyCologneFollowup=process.env.RANK26_VIP_COLOGNE_FOLLOWUP==='true';
   for(const entry of SEEDS){
     const seat=entry.seatLetter==='A'?0:1;
     const generated=deriveSlotSeeds(20261019,'pilot',26,entry.repeat);
@@ -85,10 +86,37 @@ function run(){
     const event=changed.policyAudit.events.find(e=>
       e.kind==='source-pass-vip-opportunity');
     assert.ok(event,'No historical source-first native VIP opportunity inspected');
+    let vipThenCologne=null;
+    if (verifyCologneFollowup && entry.repeat===83 && seat===1) {
+      assert.ok(root.attackerHand.some(c=>c.startsWith('Canceling Cologne ')),
+        'Frozen 83:B source hand must physically contain its Cologne');
+      const continuation=withSourceVipAfterPass(seat,()=>
+        withMailScout(seat,core,{starterAgnostic:true}),
+        {followupCologne:true});
+      const observedFollowup=observed(continuation.result.result,
+        seat,entry.seed,a,b);
+      const offer=continuation.policyAudit.events.find(e=>
+        e.kind==='owner-cologne-after-vip-offer');
+      const post=continuation.policyAudit.events.find(e=>
+        e.kind==='owner-cologne-postcondition');
+      assert.ok(offer,'No owner-visible Cologne continuation after real VIP');
+      assert.equal(offer.nativeValid,true,
+        'Recorded held Cologne must be a native-valid action');
+      assert.equal(observedFollowup.vipPlays,1);
+      assert.equal(observedFollowup.firstActions.filter(e=>
+        e.kind==='PlayCardAction'&&e.card==='Canceling Cologne').length,1,
+        'After VIP, the Store must settle one real Cologne Item');
+      assert.equal(post?.sourceHasCologne,false);
+      assert.equal(post?.sourceDiscardHasCologne,true);
+      vipThenCologne={policy:continuation.policyAudit,
+        observed:observedFollowup,offer,post,
+        retrospectiveDevelopmentOnly:true};
+    }
     cases.push({...entry,seat,sourceOpening:{active:root.attackerActive,
       bench:root.attackerBench,hand:root.attackerHand},
       control:baseline,candidate,policy:changed.policyAudit,
       nativeVipAcceptance:event.nativeValid,
+      ...(vipThenCologne?{vipThenCologne}:{}),
       competitiveGameQualified:false});
   }
   return {schema:'rank26-first-own-held-vip-retrospective-development-v1',
@@ -102,7 +130,15 @@ function run(){
       variantsPlayingVip:cases.reduce((n,c)=>n+c.candidate.vipPlays,0),
       variantRootAttacks:cases.filter(c=>c.candidate.rootAttacks>0).length,
       variantPrizeReduction:cases.filter(c=>c.candidate.opponentPrizes<6).length},
-    qualifiedCompetitiveGames:0,cases};
+    qualifiedCompetitiveGames:0,
+    optionalFollowup:verifyCologneFollowup ?
+      {sourceDeal:'83:B',developmentOnly:true,
+        offers:cases.filter(c=>c.vipThenCologne?.offer.nativeValid).length,
+        playedCologne:cases.filter(c=>c.vipThenCologne?.observed.firstActions.some(
+          a=>a.kind==='PlayCardAction'&&a.card==='Canceling Cologne')).length,
+        firstTurnAttacks:cases.filter(c=>c.vipThenCologne?.observed.rootAttacks>0).length} :
+      null,
+    cases};
 }
 
 /** @param {string} name @param {object} value */
