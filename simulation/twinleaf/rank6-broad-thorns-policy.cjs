@@ -88,6 +88,26 @@ function planOpeningHand(
 }
 
 /**
+ * Identify requirements rendered physically unreachable by an authenticated
+ * owner-deck Tag Call search. Call only while its unresolved native
+ * ChooseCardsPrompt exposes the acting player's own deck. Earlier K0 play
+ * cannot inspect these card identities.
+ * @param {{needThunder:boolean,needDce:boolean}} plan
+ * @param {{name:string}[]} deckCards Visible at actual own-deck prompt.
+ * @param {{name:string}[]} handCards Already held by the acting owner.
+ * @returns {string[]} Missing requirements for this specific opening line.
+ */
+function missingTagCallK1Requirements(plan,deckCards,handCards) {
+  const required=[
+    ...(plan.needThunder?['Thunder Mountain Prism Star']:[]),
+    ...(plan.needDce?['Double Colorless Energy']:[])
+  ];
+  return required.filter(name=>
+    !deckCards.some(card=>card.name===name) &&
+    !handCards.some(card=>card.name===name));
+}
+
+/**
  * True if a manual DCE attachment would violate a public, player-level
  * hand-play restriction or the already-spent attachment allowance.
  * Pin: play-card-reducer.ts at a9905a76. This is an owner-visible check.
@@ -109,7 +129,7 @@ function dceHandAttachmentBlocked(player,state) {
  * reading deck cards is restricted to actual ChooseCardsPrompt resolution.
  * @template T
  * @param {()=>T} work
- * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean}} [options]
+ * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean}} [options]
  * @returns {{result:T,started:boolean,completed:boolean,events:object[],abortReason:string|null,openingPlan:object|null}}
  */
 function withBroadThornsSourceAttack(work,options={}) {
@@ -120,6 +140,7 @@ function withBroadThornsSourceAttack(work,options={}) {
   const benchBackup=options.benchBackup===true;
   const conditionalTagCallPayment=options.conditionalTagCallPayment===true;
   const playLockAwareOpening=options.playLockAwareOpening===true;
+  const k1ReplanAfterTagCall=options.k1ReplanAfterTagCall===true;
   const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
   /** @param {string} name */
   const engine=name=>require(path.join(root,name));
@@ -136,6 +157,7 @@ function withBroadThornsSourceAttack(work,options={}) {
   let phase='idle',actorId=null,started=false,completed=false;
   let activeTurn=null;
   let openingPlan=null,abortReason=null,backupDeployed=false;
+  let missingAfterTagCall=[];
   const events=[];
 
   /** @param {object} state @param {string} action @param {object} result */
@@ -264,10 +286,20 @@ function withBroadThornsSourceAttack(work,options={}) {
 
     if(phase==='tag-search' && prompt?.constructor.name==='ChooseCardsPrompt') {
       // Own deck can be inspected only once the Tag Call search is underway.
+      if(prompt.playerId!==p.id || prompt.cards!==p.deck){
+        abort(state,'Tag Call has no authenticated owner-deck prompt');
+        return original.call(this,state);
+      }
       const gh=p.deck.cards.find(c=>c.name==='Guzma & Hala');
       if(!gh || !prompt.validate([gh],state)) {
         abort(state,'Tag Call cannot fetch a legal Guzma & Hala');
         return original.call(this,state);
+      }
+      if(k1ReplanAfterTagCall) {
+        missingAfterTagCall=missingTagCallK1Requirements(
+          openingPlan,p.deck.cards,p.hand.cards);
+        events.push({turn:state.turn,phase:'tag-search',
+          k1MissingOpeningTargets:[...missingAfterTagCall]});
       }
       phase='tag-followup';
       return select(state,'Tag Call finds one Guzma & Hala',
@@ -283,6 +315,13 @@ function withBroadThornsSourceAttack(work,options={}) {
           new ResolvePromptAction(prompt.id,true));
       }
       if(!prompt && state.phase===GamePhase.PLAYER_TURN) {
+        if(k1ReplanAfterTagCall && missingAfterTagCall.length){
+          abort(state,'K1 invalidated opening line: '+
+            missingAfterTagCall.join(', '));
+          // Let the ordinary bot reconsider alternative uses of the held
+          // Supporter. This does not certify that its fallback is competent.
+          return original.call(this,state);
+        }
         return useSupporter(state,p);
       }
     }
@@ -376,4 +415,6 @@ function withBroadThornsSourceAttack(work,options={}) {
   }
 }
 
-module.exports={discardOrder,chooseOpeningDiscards,planOpeningHand,dceHandAttachmentBlocked,withBroadThornsSourceAttack};
+module.exports={discardOrder,chooseOpeningDiscards,planOpeningHand,
+  missingTagCallK1Requirements,dceHandAttachmentBlocked,
+  withBroadThornsSourceAttack};
