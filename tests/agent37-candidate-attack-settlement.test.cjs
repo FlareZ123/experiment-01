@@ -101,3 +101,40 @@ test('candidate without any declarations has an empty transport packet',()=>{
   assert.equal(out.declarations,0);
   assert.deepEqual(out.attacks,[]);
 });
+
+test('all candidate declarations survive after unrelated earlier public attacks',()=>{
+  const game=fixture();
+  game.rootActionLedger.push(
+    {actionOrdinal:4,playerSlot:1,turnBefore:23,
+      action:'ResolvePromptAction',initiatingRootActionOrdinal:4},
+    {actionOrdinal:5,playerSlot:1,turnBefore:23,
+      action:'ResolvePromptAction',initiatingRootActionOrdinal:4}
+  );
+  game.attackDeclarationTrace.push({
+    actionOrdinal:4,playerSlot:1,turnBefore:23,
+    triggerAction:'ResolvePromptAction',attackName:'Poltergeist',
+    playerName:'research-B'
+  });
+  game.publicAttackTransitions.unshift({
+    actionOrdinal:3,triggerPlayerSlot:0,
+    declarations:[{attackName:'Source Attack',playerName:'research-A'}]
+  });
+  game.publicAttackTransitions.push({
+    actionOrdinal:4,triggerPlayerSlot:1,
+    initiatingRootActionOrdinal:4,turnBefore:23,
+    triggerAction:'ResolvePromptAction',
+    declarations:[{attackName:'Poltergeist',playerName:'research-B'}],
+    before:[{active:{name:'Mega Absol ex',damage:0}},{}],
+    beforePrizesRemaining:[3,3],
+    settled:{completionRootActionOrdinal:5,after:[{active:null},{}],
+      prizesRemaining:[0,3]}
+  });
+  const out=candidateAttackSettlement(game,1);
+  assert.equal(out.declarations,2);
+  assert.equal(out.settled,2);
+  assert.deepEqual(out.attacks.map(row=>row.actionOrdinal),[0,4]);
+  assert.equal(out.attacks[0].nextSourceRoot.card,'Dark Patch');
+  assert.equal(out.attacks[1].nextSourceRoot,null);
+  assert.deepEqual(out.attacks[1].prizesAfter,[0,3]);
+  assert.equal(JSON.stringify(out).includes('Secret Box'),false);
+});
