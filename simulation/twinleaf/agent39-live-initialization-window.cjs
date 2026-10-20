@@ -36,6 +36,13 @@ function initializationSnapshot(
     Array.isArray(pokemon.powers)&&pokemon.powers.length>0);
   const target=eligible[0]??null;
   const targetPower=target?.powers[0]??null;
+  // Public printed Power names are known from the visible board. Inspect
+  // every eligible Power because an exempt first Power can mask a blocked
+  // later Power when a snapshot records only powers[0] from eligible[0].
+  const nativePowerChecks=eligible.flatMap(pokemon=>pokemon.powers.map(power=>({
+    printing:pokemon.fullName,powerName:power.name,
+    blocked:Boolean(blocked(store,state,candidate,pokemon,power))
+  })));
   return {
     globalTurn:state.turn,
     actingSeat:state.activePlayer,
@@ -48,7 +55,9 @@ function initializationSnapshot(
     targetPrinting:target?.fullName??null,
     targetPowerName:targetPower?.name??null,
     targetNativeAbilityBlocked:targetPower?
-      Boolean(blocked(store,state,candidate,target,targetPower)):null,
+      (nativePowerChecks[0]?.blocked??false):null,
+    nativePowerChecks,
+    anyNativePowerBlocked:nativePowerChecks.some(power=>power.blocked),
     publicBoard:board(state)
   };
 }
