@@ -5,9 +5,9 @@ const TYPES=Object.freeze(['G','R','W','L','P','F','D','M','Y','C']);
 const BASIC=Object.freeze({Grass:'G',Fire:'R',Water:'W',Lightning:'L',Psychic:'P',Fighting:'F',Darkness:'D',Metal:'M',Fairy:'Y'});
 const ANY=TYPES;
 const UNIT_SETS=Object.freeze({
-  'Unit Energy GRW':['G','R','W'],
-  'Unit Energy LPM':['L','P','M'],
-  'Unit Energy FDY':['F','D','Y']
+  'Unit Energy GrassFireWater':['G','R','W'],
+  'Unit Energy LightningPsychicMetal':['L','P','M'],
+  'Unit Energy FightingDarknessFairy':['F','D','Y']
 });
 /** @param {string} printing @param {string} name @returns {boolean} */
 const named=(printing,name)=>printing.startsWith(name+' ');
