@@ -43,7 +43,7 @@ function sourceFirstNativePressureVerified(row){
         before.candidatePrintedNewMoonBlocked===true:
         before.candidateGenericAbilityBlocked===true);
     return pressure.pressureKind==='item-enabled-ability-lock' &&
-      window.schema==='agent41-authentic-rank11-garbotoxin-ability-window-v1' &&
+      window?.schema==='agent41-authentic-rank11-garbotoxin-ability-window-v1' &&
       before?.globalTurn===2&&before.sourceGarbodorHasTool===true&&
       nativeBlocked &&
       (!hasLedger||(root?.action==='PlayCardAction'&&root.card==='Boost Shake'));
