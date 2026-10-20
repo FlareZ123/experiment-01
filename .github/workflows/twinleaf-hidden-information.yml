@@ -15,13 +15,17 @@ on:
         description: Audit owner unseen-deck-order sensitivity on canonical historical four arms
         type: boolean
         default: false
+      agent50_first_finite_root:
+        description: First authentic scored candidate root in canonical historical four arms
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   hidden-draw-forecast:
-    if: ${{ !inputs.archival_prefix_only && !inputs.actor_observation_live_only && !inputs.agent50_live_deck_order }}
+    if: ${{ !inputs.archival_prefix_only && !inputs.actor_observation_live_only && !inputs.agent50_live_deck_order && !inputs.agent50_first_finite_root }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -103,7 +107,7 @@ jobs:
         run: node simulation/twinleaf/rank10-hidden-order-live-probe.cjs ordinal215
 
   rank10-archival-prefix:
-    if: ${{ inputs.archival_prefix_only && !inputs.actor_observation_live_only && !inputs.agent50_live_deck_order }}
+    if: ${{ inputs.archival_prefix_only && !inputs.actor_observation_live_only && !inputs.agent50_live_deck_order && !inputs.agent50_first_finite_root }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -152,7 +156,7 @@ jobs:
           if-no-files-found: warn
 
   actor-observation-live:
-    if: ${{ inputs.actor_observation_live_only && !inputs.agent50_live_deck_order }}
+    if: ${{ inputs.actor_observation_live_only && !inputs.agent50_live_deck_order && !inputs.agent50_first_finite_root }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -198,7 +202,7 @@ jobs:
           retention-days: 10
 
   agent50-live-deck-order:
-    if: ${{ inputs.agent50_live_deck_order && !inputs.archival_prefix_only && !inputs.actor_observation_live_only }}
+    if: ${{ (inputs.agent50_live_deck_order || inputs.agent50_first_finite_root) && !inputs.archival_prefix_only && !inputs.actor_observation_live_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -219,6 +223,8 @@ jobs:
       - name: Verify retrospective source-deal and detached observer controls
         run: node --test tests/agent50-bilateral-hidden-order-audit.test.cjs tests/agent50-bilateral-postgame-root-observer.test.cjs
       - name: Replay authentic historical common-policy decisions and detached order contrasts
+        env:
+          AGENT50_FIRST_FINITE_ROOT: ${{ inputs.agent50_first_finite_root }}
         run: node simulation/evaluation/agent50-bilateral-hidden-order-audit.cjs > agent50-live-deck-order-fourarm.json
       - name: Enumerate every observed and vetoed historical arm
         run: >-
@@ -230,7 +236,11 @@ jobs:
           noninterference:r.noninterferenceVerified,
           baseline:r.diagnostic?.baselineActionMatchedActual,
           actionFlip:r.diagnostic?.actionSensitiveToHiddenDeckOrder,
-          auditError:r.diagnostic?.auditError||r.error||null}));"
+          auditError:r.diagnostic?.auditError||r.error||null,
+          chosenTurn:r.diagnostic?.chosenRootTurn||null,
+          scorerAttempts:r.diagnostic?.actualScorerAttempts||null,
+          actualFiniteScores:r.diagnostic?.actualFiniteScores||null,
+          bothWorldsFinite:r.diagnostic?.bothWorldsFiniteScoring||false}));"
       - name: Archive complete control, probe and negative evidence
         if: always()
         uses: actions/upload-artifact@v4
