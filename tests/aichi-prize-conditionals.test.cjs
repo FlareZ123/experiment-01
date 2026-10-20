@@ -76,3 +76,23 @@ test('all-DCE Prized conditional on valid seven follows published three-Thorns s
     assert.equal(union*exp.unionDen,denom*exp.unionNum);
   }
 });
+
+
+test('two-player mutually invalid redraw rule gives exact champion-versus-Thorns bonus opportunities', () => {
+  const total=choose(60,7);
+  const championFails=choose(46,7); // Rank-1 reference has 14 Basics.
+  const thornsFails=choose(56,7); // Ranks 6, 24, 29 each have 4 Basics.
+  // Both players redraw together while both fail. After one valid hand,
+  // only the player without a Basic redraws and accrues opponent bonuses.
+  const normalizer=total*total-championFails*thornsFails;
+  const championBonus=(total-championFails)*thornsFails;
+  const thornsBonus=(total-thornsFails)*championFails;
+  assert.equal(championBonus*1189081591n,normalizer*670920640n);
+  assert.equal(thornsBonus*1189081591n,normalizer*71812279n);
+  const championMean=Number(championBonus*total)/
+    Number(normalizer*(total-thornsFails));
+  const thornsMean=Number(thornsBonus*total)/
+    Number(normalizer*(total-championFails));
+  assert.ok(Math.abs(championMean-1.4123525560019536)<1e-12);
+  assert.ok(Math.abs(thornsMean-0.07010959980469617)<1e-12);
+});
