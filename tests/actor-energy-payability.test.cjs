@@ -65,3 +65,24 @@ test('one any-type unit cannot pay two typed requirements',()=>{
   assert.throws(()=>canPaySymbols(['P','unrecognized'],[['P']]),
     {name:'AssertionError'});
 });
+
+test('published Iron Thorns source Speed, Capture and Spiky provide one typed unit each',()=>{
+  assert.deepEqual(energyUnits('Speed Lightning Energy RCL',basic),[['L']]);
+  assert.deepEqual(energyUnits('Capture Energy RCL',basic),[['C']]);
+  assert.deepEqual(energyUnits('Spiky Energy JTG',basic),[['C']]);
+  assert.equal(readiness(['L','C','C'],[
+    'Speed Lightning Energy RCL','Capture Energy RCL','Spiky Energy JTG'
+  ]).payable,true);
+  assert.equal(readiness(['L','C','C'],[
+    'Speed Lightning Energy RCL','Double Colorless Energy SUM'
+  ]).payable,true);
+  assert.equal(readiness(['C','C'],[
+    'Speed Lightning Energy RCL','Capture Energy RCL'
+  ]).payable,true);
+  assert.equal(readiness(['L','C','C'],[
+    'Speed Lightning Energy RCL','Capture Energy RCL'
+  ]).payable,false);
+  assert.equal(readiness(['L','C','C'],[
+    'Double Colorless Energy SUM','Capture Energy RCL'
+  ]).payable,false);
+});
