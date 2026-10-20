@@ -58,10 +58,11 @@ class FakeStore {
 }
 const deps={
   Store:FakeStore,GamePhase:{PLAYER_TURN:1},futureTag:'FUTURE',
-  isAbilityBlocked:(store,state,player,pokemon)=>{
+  isAbilityBlocked:(store,state,player,pokemon,power)=>{
     assert.ok(store instanceof FakeStore);
     assert.equal(player,state.players[1]);
     assert.equal(pokemon,mewtwo);
+    assert.equal(power,mewtwo.powers[0]);
     return state.players[0].active.getPokemonCard()?.name==='Iron Thorns ex';
   },
   publicBoardSnapshot:state=>({
@@ -92,6 +93,7 @@ test('authentic source-first Store boundaries witness passive block then removal
   assert.equal(result.audit.sourceTurn1.globalTurn,1);
   assert.equal(result.audit.sourceTurn1.sourceActiveIronThornsEx,true);
   assert.equal(result.audit.sourceTurn1.targetPrinting,mewtwo.fullName);
+  assert.equal(result.audit.sourceTurn1.targetPowerName,'Perfection');
   assert.equal(result.audit.sourceTurn1.targetNativeAbilityBlocked,true);
   assert.equal(result.audit.sourceTurn1.entryAfterAction,'StartTurnAction');
   assert.equal(result.audit.candidateTurn2.globalTurn,2);
@@ -160,4 +162,19 @@ test('public snapshot has no hidden opponent hand/deck/prize dependence',()=>{
   assert.deepEqual(a,b);
   assert.deepEqual(a.eligibleRuleBoxPowerTargets,
     [{printing:mewtwo.fullName,powers:['Perfection']}]);
+});
+
+test('native probe passes the printed power exemptions rather than a generic stub',()=>{
+  const printed={...mewtwo,powers:[{name:'Exempt fixture',exemptFromInitialize:true}]};
+  const real=new FakeStore(printed);
+  real.state.turn=2;real.state.activePlayer=1;real.state.phase=1;
+  let receivedPower=null;
+  const snap=initializationSnapshot(real,real.state,0,1,
+    (_store,_state,_player,_pokemon,power)=>{
+      receivedPower=power;
+      return power.exemptFromInitialize!==true;
+    },deps.publicBoardSnapshot,'FUTURE');
+  assert.equal(receivedPower,printed.powers[0]);
+  assert.equal(snap.targetPowerName,'Exempt fixture');
+  assert.equal(snap.targetNativeAbilityBlocked,false);
 });

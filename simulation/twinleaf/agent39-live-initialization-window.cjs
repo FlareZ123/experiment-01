@@ -35,6 +35,7 @@ function initializationSnapshot(
     typeof pokemon.hasTag==='function'&&!pokemon.hasTag(futureTag)&&
     Array.isArray(pokemon.powers)&&pokemon.powers.length>0);
   const target=eligible[0]??null;
+  const targetPower=target?.powers[0]??null;
   return {
     globalTurn:state.turn,
     actingSeat:state.activePlayer,
@@ -45,8 +46,9 @@ function initializationSnapshot(
       powers:card.powers.map(power=>power.name)
     })),
     targetPrinting:target?.fullName??null,
-    targetNativeAbilityBlocked:target?
-      Boolean(blocked(store,state,candidate,target)):null,
+    targetPowerName:targetPower?.name??null,
+    targetNativeAbilityBlocked:targetPower?
+      Boolean(blocked(store,state,candidate,target,targetPower)):null,
     publicBoard:board(state)
   };
 }
