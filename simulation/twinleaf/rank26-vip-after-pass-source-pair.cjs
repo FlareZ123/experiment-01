@@ -201,7 +201,7 @@ function run(){
       const withCompressor=withSourceVipAfterPass(seat,()=>
         withMailScout(seat,core,{starterAgnostic:true}),
         {followupCologne:true,preferSquawk:true,followupSecondVip:true,
-          followupCompressor:true});
+          followupCompressor:true,auditTacticMutation:true});
       const compressorObserved=observed(withCompressor.result.result,
         seat,entry.seed,a,b);
       const compressorOffer=withCompressor.policyAudit.events.find(e=>
@@ -236,10 +236,13 @@ function run(){
       assert.equal(kokoEffect.recipientCount,2);
       assert.equal(kokoEffect.lightningAttached,2);
       assert.equal(kokoEffect.discardLightning,0);
+      const scorerAudits=withCompressor.policyAudit.events.filter(e=>
+        e.kind==='source-bot-root-scorer-mutation-audit');
+      assert.ok(scorerAudits.length>0,'No actual post-Compressor bot decision audited');
       vipThenCologne.squawkCompressorContinuation={
         policy:withCompressor.policyAudit,observed:compressorObserved,
         compressorOffer,compressorSearch,compressorPost,
-        kokoDeclaration,kokoEffect,
+        kokoDeclaration,kokoEffect,scorerAudits,
         retrospectiveDevelopmentOnly:true};
       vipThenCologne.squawkAlternative={
         policy:squawkAlternative.policyAudit,
