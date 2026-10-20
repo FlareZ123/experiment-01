@@ -17,11 +17,12 @@ function digest(value) {
  *
  * @param {object} baseline Original executed source-dealt game.
  * @param {object} intervention The same source game with one Farewell action.
- * @param {{seat:number,turn:number,archivedRootSha256:string,ownerSettlementAudit?:object}} options
+ * @param {{seat:number,turn:number,archivedRootSha256:string,ownerSettlementAudit?:object,executionRecordsVerified?:boolean}} options
  * @returns {object} Failure-inclusive, noncompetitive attestation.
  */
 function attestFarewellPair(baseline,intervention,options) {
-  const {seat,turn,archivedRootSha256,ownerSettlementAudit=null}=options;
+  const {seat,turn,archivedRootSha256,ownerSettlementAudit=null,
+    executionRecordsVerified=false}=options;
   const original=baseline.rootActionLedger;
   const changed=intervention.rootActionLedger;
   const fullDeckIdentitiesPresent=Array.isArray(baseline.deckHashes) &&
@@ -76,7 +77,8 @@ function attestFarewellPair(baseline,intervention,options) {
     row.turnBefore>=turn):null;
   const candidateContinued=Boolean(nextCandidateRoot);
   const observedOwnerZoneSettlement=ownerSettlementAudit?.settledZonePostcondition===true;
-  const genuineSingleRootReplacement=Boolean(sourceComparable &&
+  const genuineSingleRootReplacement=Boolean(executionRecordsVerified &&
+    sourceComparable &&
     archivedSourceUnchanged && exactlyOneFarewell && matchedPrefix &&
     replacedOriginalPass && waitPromptSettled &&
     authenticAbilityCount===1);
@@ -84,6 +86,7 @@ function attestFarewellPair(baseline,intervention,options) {
     observedOwnerZoneSettlement;
   return {
     schema:'agent25-rank6-farewell-paired-native-root-attestation-v1',
+    executionRecordsVerified,
     sourceComparable,samePhysicalDeal,physicalDealSha256:originalDeal,
     archivedSourceUnchanged,originalRootSha256,
     exactlyOneFarewell,alteredRootOrdinal:actualRoot?.actionOrdinal??null,
@@ -95,7 +98,8 @@ function attestFarewellPair(baseline,intervention,options) {
     }:null,
     genuineSingleRootReplacement,genuineResolvedFarewell,
     observedOwnerZoneSettlement,
-    classification:!sourceComparable?'source-deal-or-start-mismatch':
+    classification:!executionRecordsVerified?'source-executor-assertion-rejected':
+      !sourceComparable?'source-deal-or-start-mismatch':
       !archivedSourceUnchanged?'archived-baseline-policy-drift':
       !exactlyOneFarewell?'missing-or-multiple-native-farewell':
       !matchedPrefix?'pre-intervention-action-drift':
