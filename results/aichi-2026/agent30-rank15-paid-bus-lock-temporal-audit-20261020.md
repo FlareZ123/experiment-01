@@ -46,3 +46,17 @@ This is a **retrospectively selected, partly scripted source line** with an unqu
 The next valuable native regression is narrower than another broad campaign: at the **authentic t19 candidate decision** in both matched arms, collect the printed Active attacker, paid attack-cost state, applicable Abilities, attack legality, and a real post-action response. Probe the attempted copied *Night Watch* or another mechanically payable candidate attack under the live BUS+AOR board, with a legitimate actor-only decision and a verified native Store rejection/acceptance. This will distinguish true lock operation from passive generic-bot choice suppression, while retaining candidate Dusclops as a possible Stage-1 counter. Source skill, policy hidden-information safety, opponent continuation and clock fidelity would still need separate validation.
 
 **Global benchmark status unchanged:** 29/32 exact opposing source 60s, zero competitively qualified games and no established fixed-60 99.5% performance.
+
+
+## Subsequent pinned-engine decision-flow inspection
+
+After the artifact audit, I inspected the **actual pinned** Twinleaf source, not the later upstream HEAD:
+
+- `ptcg-server/src/sets/08-sun-and-moon/set-burning-shadows/vileplume.ts`: on `UseAttackEffect`, *Disgusting Pollen* checks that the attacking source is `Stage.BASIC`, that this printed Vileplume is the opposing Active, and that the Ability is not suppressed. It throws `GameError(GameMessage.BLOCKED_BY_ABILITY)` when applicable.
+- `ptcg-server/src/simple-bot/simple-tactics/attack-tactic.ts`: generic `AttackTactic` evaluates prospective `AttackAction` via `evaluateAction` and selects an attack only when its simulated score exists and exceeds the threshold.
+- `ptcg-server/src/simple-bot/simple-tactics/simple-tactics.ts`: the bot's speculative `Simulator.dispatch` catches an exception and returns `undefined`, so the invalid attack's score does not qualify.
+- `ptcg-server/src/simple-bot/simple-tactics-ai.ts`: `decodePlayerTurnAction` ultimately returns `PassTurnAction` when no tactic provides a valid action.
+
+This is a **source-level mechanism compatible with** the paid-arm candidate's failure to declare Basic attacks after BUS reached Active. A real Basic `Mewtwo & Mew-GX` was Active in the source's actual turn-18 joint-board snapshot. The source also had live Item-locking AOR Benched. The earlier [compiled staged Store nine-case matrix](../../simulation/twinleaf/new-moon-rank15-dual-lock-actions.cjs) checked the same BUS attack block and the Stage1 Dusclops exception under a deliberately injected board.
+
+**Causal qualification:** the original historical full-game artifact does not export every live candidate t19 Energy/Ability context or each rejected hypothetical action. Therefore the engine decision-flow and the observed zero candidate declarations increase mechanistic confidence, but do not prove which individual failed tactical proposals occurred in that physical paid arm. An actual original-Store t19 selected action and linked native `UseAttackEffect` rejection remains the decisive next verification.
