@@ -13,4 +13,4 @@ jobs:
         with:
           node-version: '22'
       - name: Pure and original-Store adapter injection tests
-        run: node --test tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs
+        run: node --test tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent7-native-fallback-paircheck.test.cjs
