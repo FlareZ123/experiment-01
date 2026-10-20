@@ -1,9 +1,13 @@
 """Independent original-seven, six-Prize, one-draw rank-8 hand gate tests."""
 from fractions import Fraction
+from itertools import combinations
 import random
 import unittest
 
-from scripts.rank8_hood_core_early_exact import exact, source_categories
+from scripts.rank8_hood_core_early_exact import (
+    exact, source_categories, paired_unique_core_probability,
+    rank8_flexible_box_shake_ceiling,
+)
 
 
 class Rank8HoodCoreEarlyTests(unittest.TestCase):
@@ -25,6 +29,39 @@ class Rank8HoodCoreEarlyTests(unittest.TestCase):
                          Fraction(148540, 379377339))
         self.assertGreater(expanded["conditional_on_valid_start"],
                            result["conditional_on_valid_start"])
+
+    def test_flexible_two_singletons_exact_fraction_and_legacy_scope(self):
+        flexible = rank8_flexible_box_shake_ceiling()
+        self.assertEqual(flexible["valid_start_seven"],
+                         Fraction(216911, 292581))
+        self.assertEqual(flexible["conditional_on_valid_start"],
+                         Fraction(789802, 57481415))
+        self.assertEqual(flexible["favorable_start_draw_pairs"], 208507728)
+        self.assertEqual(flexible["valid_start_draw_pairs"], 15175093560)
+        old = exact()["conditional_on_valid_start"]
+        self.assertGreater(flexible["conditional_on_valid_start"], old)
+        self.assertGreater(float(flexible["conditional_on_valid_start"] / old), 60)
+
+    def test_flexible_probability_against_exhaustive_toy_physical_deals(self):
+        # Eight physical cards: two Basics, two distinct singleton Items,
+        # four other non-Basics; the original three must contain a Basic.
+        total, basics, opening = 8, 2, 3
+        box, shake = basics, basics + 1
+        legal = hits = 0
+        for first in combinations(range(total), opening):
+            if not any(card < basics for card in first):
+                continue
+            for next_card in range(total):
+                if next_card in first:
+                    continue
+                legal += 1
+                if box in (*first, next_card) and shake in (*first, next_card):
+                    hits += 1
+        exact_toy = paired_unique_core_probability(total, basics, opening)
+        self.assertEqual(exact_toy["favorable_start_draw_pairs"], hits)
+        self.assertEqual(exact_toy["valid_start_draw_pairs"], legal)
+        self.assertEqual(exact_toy["conditional_on_valid_start"],
+                         Fraction(hits, legal))
 
     def test_independent_physical_deal(self):
         rng = random.Random(20261019)
