@@ -13,7 +13,7 @@ const {choose}=require('./redeal-posterior.cjs');
  * K0 chooses one fixed plan; K1 can choose after an AUTHENTIC owner search.
  *
  * @param {{unknownPool:string[],unknownPrizeCount:number,
- *  uniformUnknownAllocation:true,
+ *  observedDeckPrintings?:string[],uniformUnknownAllocation:true,
  *  plans:Array<{id:string,requirements:Array<{printing:string,count:number}>,
  *    availableUtility:number,missingUtility:number}>}} input
  * @returns {object} Exact common-denominator BigInt numerators as strings,
@@ -23,7 +23,12 @@ function k0LineInformationFrontier(input){
   if(input?.uniformUnknownAllocation!==true)
     throw new Error('Uniform unknown owner Prize allocation is required');
   const {unknownPool,unknownPrizeCount:P,plans}=input;
-  if(!Array.isArray(unknownPool)||unknownPool.length>60||
+  const observedDeckPrintings=input.observedDeckPrintings??[];
+  if(!Array.isArray(observedDeckPrintings)||
+      !observedDeckPrintings.every(x=>typeof x==='string'&&x.length>0)||
+      observedDeckPrintings.length>60||
+      !Array.isArray(unknownPool)||
+      unknownPool.length+observedDeckPrintings.length>60||
       !unknownPool.every(x=>typeof x==='string'&&x.length>0)||
       !Number.isSafeInteger(P)||P<0||P>unknownPool.length||
       !Array.isArray(plans)||plans.length<1||
@@ -39,8 +44,11 @@ function k0LineInformationFrontier(input){
     throw new TypeError('Plan ids must be unique');
 
   const counts=new Map();
+  const knownDeckCounts=new Map();
   for(const printing of unknownPool)
     counts.set(printing,(counts.get(printing)??0)+1);
+  for(const printing of observedDeckPrintings)
+    knownDeckCounts.set(printing,(knownDeckCounts.get(printing)??0)+1);
   const normalized=plans.map(plan=>{
     const requirements=new Map();
     for(const req of plan.requirements)
@@ -67,7 +75,8 @@ function k0LineInformationFrontier(input){
       for(let i=0;i<normalized.length;i++){
         const plan=normalized[i];
         const available=[...plan.requirements].every(([printing,required])=>
-          (counts.get(printing)??0)-(prizedByPrinting.get(printing)??0)>=required);
+          (counts.get(printing)??0)+(knownDeckCounts.get(printing)??0)-
+            (prizedByPrinting.get(printing)??0)>=required);
         const value=available?plan.availableUtility:plan.missingUtility;
         lineNumerators[i]+=ways*BigInt(value);
         if(value>best)best=value;
@@ -95,6 +104,7 @@ function k0LineInformationFrontier(input){
   const asNumber=n=>Number(n)/Number(denominator);
   return {
     unknownCardCount:unknownPool.length,
+    knownDeckCardCount:observedDeckPrintings.length,
     unknownPrizeCount:P,
     exactDenominator:denominator.toString(),
     preSearchPlanId:k0PlanId,
