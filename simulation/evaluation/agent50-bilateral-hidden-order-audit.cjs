@@ -165,6 +165,7 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
     rootProbeEvents:events.length,
     ...(event?{diagnostic:{
       actualAction: event.originalSourceAction??null,
+      auditError:event.auditError??null,
       nativeSameWorldTape:event.nativeSameWorldTape??null,
       nativeHiddenOrderContrast:event.nativeHiddenOrderContrast??null,
       hiddenWorldCounterfactualCompared:event.counterfactualCompared!==false,
