@@ -1,0 +1,339 @@
+{
+  "study": "Independent visual transcription of replica / @nnaacc5_uec publicly pictured Regidrago grid",
+  "status": "candidate photographed 60; rank-28 official identity and Japanese printing IDs unverified; NOT an admitted Aichi rank-28 source deck",
+  "event": "Aichi Open League 2026 Top 32",
+  "source": {
+    "original_gallery": "https://note.com/nayuta_poke/n/n7e3d0552090b",
+    "original_image": "https://assets.st-note.com/img/1778498104-f3i2b7OUhxcapD08QlB9ywrH.png?width=1200",
+    "original_image_sha256": "3b23a6fb4daf9b1f537462d50611d6d2765bf0dc228338c3ddd0e41b97452cc9",
+    "archive_artifact": "https://github.com/FlareZ123/experiment-01/actions/runs/39424823375/artifacts/12265475896",
+    "attribution_note": "Official registry labels rank 28 Jo Kato. Replica self-reported qualifier 28th, but identity/registered-deck mapping has not been authenticated.",
+    "parallel_city_printing_reference": "https://www.pokemon-card.com/card-search/details.php/card/31367"
+  },
+  "observed_total": 60,
+  "observed_distinct_grid_cards": 38,
+  "observed_row_subtotals": [
+    13,
+    8,
+    15,
+    11,
+    13
+  ],
+  "observed_category_subtotals": {
+    "Pokémon": 20,
+    "Item": 16,
+    "Pokémon Tool": 2,
+    "Supporter": 10,
+    "Stadium": 2,
+    "Special Energy": 3,
+    "Basic Energy": 7
+  },
+  "all_japanese_printings_resolved": false,
+  "approved_for_rank28_manifest": false,
+  "cards": [
+    {
+      "row": 1,
+      "column": 1,
+      "name": "Regidrago V",
+      "quantity": 4,
+      "category": "Pokémon",
+      "printing": "unverified"
+    },
+    {
+      "row": 1,
+      "column": 2,
+      "name": "Regidrago VSTAR",
+      "quantity": 3,
+      "category": "Pokémon",
+      "printing": "unverified"
+    },
+    {
+      "row": 1,
+      "column": 3,
+      "name": "Dialga-GX",
+      "quantity": 1,
+      "category": "Pokémon",
+      "printing": "unverified"
+    },
+    {
+      "row": 1,
+      "column": 4,
+      "name": "Dragapult ex",
+      "quantity": 1,
+      "category": "Pokémon",
+      "printing": "unverified"
+    },
+    {
+      "row": 1,
+      "column": 5,
+      "name": "Koraidon ex",
+      "quantity": 1,
+      "category": "Pokémon",
+      "printing": "unverified"
+    },
+    {
+      "row": 1,
+      "column": 6,
+      "name": "Hisuian Goodra VSTAR",
+      "quantity": 1,
+      "category": "Pokémon",
+      "printing": "unverified"
+    },
+    {
+      "row": 1,
+      "column": 7,
+      "name": "Noivern ex",
+      "quantity": 1,
+      "category": "Pokémon",
+      "printing": "unverified"
+    },
+    {
+      "row": 1,
+      "column": 8,
+      "name": "Kyurem",
+      "quantity": 1,
+      "category": "Pokémon",
+      "printing": "unverified"
+    },
+    {
+      "row": 2,
+      "column": 1,
+      "name": "Latias ex",
+      "quantity": 1,
+      "category": "Pokémon",
+      "printing": "unverified"
+    },
+    {
+      "row": 2,
+      "column": 2,
+      "name": "Dedenne-GX",
+      "quantity": 1,
+      "category": "Pokémon",
+      "printing": "unverified"
+    },
+    {
+      "row": 2,
+      "column": 3,
+      "name": "Tapu Lele-GX",
+      "quantity": 1,
+      "category": "Pokémon",
+      "printing": "unverified"
+    },
+    {
+      "row": 2,
+      "column": 4,
+      "name": "Squawkabilly ex",
+      "quantity": 1,
+      "category": "Pokémon",
+      "printing": "unverified"
+    },
+    {
+      "row": 2,
+      "column": 5,
+      "name": "Budew",
+      "quantity": 1,
+      "category": "Pokémon",
+      "printing": "unverified"
+    },
+    {
+      "row": 2,
+      "column": 6,
+      "name": "Marshadow",
+      "quantity": 1,
+      "category": "Pokémon",
+      "printing": "unverified"
+    },
+    {
+      "row": 2,
+      "column": 7,
+      "name": "Wobbuffet",
+      "quantity": 1,
+      "category": "Pokémon",
+      "printing": "unverified"
+    },
+    {
+      "row": 2,
+      "column": 8,
+      "name": "Battle Compressor",
+      "quantity": 1,
+      "category": "Item",
+      "printing": "unverified"
+    },
+    {
+      "row": 3,
+      "column": 1,
+      "name": "VS Seeker",
+      "quantity": 3,
+      "category": "Item",
+      "printing": "unverified"
+    },
+    {
+      "row": 3,
+      "column": 2,
+      "name": "Mysterious Treasure",
+      "quantity": 3,
+      "category": "Item",
+      "printing": "unverified"
+    },
+    {
+      "row": 3,
+      "column": 3,
+      "name": "Quick Ball",
+      "quantity": 1,
+      "category": "Item",
+      "printing": "unverified"
+    },
+    {
+      "row": 3,
+      "column": 4,
+      "name": "Ultra Ball",
+      "quantity": 2,
+      "category": "Item",
+      "printing": "unverified"
+    },
+    {
+      "row": 3,
+      "column": 5,
+      "name": "Hisuian Heavy Ball",
+      "quantity": 1,
+      "category": "Item",
+      "printing": "unverified"
+    },
+    {
+      "row": 3,
+      "column": 6,
+      "name": "Battle VIP Pass",
+      "quantity": 3,
+      "category": "Item",
+      "printing": "unverified"
+    },
+    {
+      "row": 3,
+      "column": 7,
+      "name": "Super Rod",
+      "quantity": 1,
+      "category": "Item",
+      "printing": "unverified"
+    },
+    {
+      "row": 3,
+      "column": 8,
+      "name": "Prime Catcher",
+      "quantity": 1,
+      "category": "Item",
+      "printing": "unverified"
+    },
+    {
+      "row": 4,
+      "column": 1,
+      "name": "Muscle Band",
+      "quantity": 2,
+      "category": "Pokémon Tool",
+      "printing": "unverified"
+    },
+    {
+      "row": 4,
+      "column": 2,
+      "name": "Gladion",
+      "quantity": 2,
+      "category": "Supporter",
+      "printing": "unverified"
+    },
+    {
+      "row": 4,
+      "column": 3,
+      "name": "Lillie's Determination",
+      "quantity": 1,
+      "category": "Supporter",
+      "printing": "unverified"
+    },
+    {
+      "row": 4,
+      "column": 4,
+      "name": "Raihan",
+      "quantity": 1,
+      "category": "Supporter",
+      "printing": "unverified"
+    },
+    {
+      "row": 4,
+      "column": 5,
+      "name": "Iono",
+      "quantity": 1,
+      "category": "Supporter",
+      "printing": "unverified"
+    },
+    {
+      "row": 4,
+      "column": 6,
+      "name": "Crispin",
+      "quantity": 1,
+      "category": "Supporter",
+      "printing": "unverified"
+    },
+    {
+      "row": 4,
+      "column": 7,
+      "name": "Guzma",
+      "quantity": 2,
+      "category": "Supporter",
+      "printing": "unverified"
+    },
+    {
+      "row": 4,
+      "column": 8,
+      "name": "Marnie",
+      "quantity": 1,
+      "category": "Supporter",
+      "printing": "unverified"
+    },
+    {
+      "row": 5,
+      "column": 1,
+      "name": "Faba",
+      "quantity": 1,
+      "category": "Supporter",
+      "printing": "unverified"
+    },
+    {
+      "row": 5,
+      "column": 2,
+      "name": "Path to the Peak",
+      "quantity": 1,
+      "category": "Stadium",
+      "printing": "unverified"
+    },
+    {
+      "row": 5,
+      "column": 3,
+      "name": "Parallel City",
+      "quantity": 1,
+      "category": "Stadium",
+      "printing": "unverified"
+    },
+    {
+      "row": 5,
+      "column": 4,
+      "name": "Double Dragon Energy",
+      "quantity": 3,
+      "category": "Special Energy",
+      "printing": "unverified"
+    },
+    {
+      "row": 5,
+      "column": 5,
+      "name": "Basic Fire Energy",
+      "quantity": 3,
+      "category": "Basic Energy",
+      "printing": "unverified"
+    },
+    {
+      "row": 5,
+      "column": 6,
+      "name": "Basic Grass Energy",
+      "quantity": 4,
+      "category": "Basic Energy",
+      "printing": "unverified"
+    }
+  ]
+}
