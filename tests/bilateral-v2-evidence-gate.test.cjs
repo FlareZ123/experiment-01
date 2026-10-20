@@ -93,6 +93,7 @@ test('full dual-start archive is mechanically reviewable, never competitive',()=
   assert.equal(r.mechanicalBilateralWitnesses,8);
   assert.equal(r.alignedPhysicalSourcePairs,4);
   assert.equal(r.sourceFirstEarlyPressurePairs,2);
+  assert.equal(r.bothHardRanksHaveBothStartPairedBilateralWitnesses,true);
   assert.equal(
     r.bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses,true);
   assert.equal(r.opportunityAndPolicyVerdict,'MECHANICAL-PILOT-REVIEWABLE');
@@ -102,6 +103,24 @@ test('full dual-start archive is mechanically reviewable, never competitive',()=
     censored:0,errors:0,missing:0,sourceFirst:2,candidateFirst:2,
     bilateralMechanics:4});
   assert.ok(r.arms.every(row=>row.vetoes.includes('paper-fidelity-unverified')));
+});
+
+test('real first-turn draw alone cannot cover a mechanically failed other seat',()=>{
+  const {plan,archive}=fixture();
+  for(const row of archive.rows.filter(row=>
+    row.rank===11&&row.candidateSeat===0)) {
+    row.sourcePressure.effectVerified=false;
+  }
+  const r=auditBilateralV2(plan,archive);
+  assert.equal(r.twoRealStartsPerCandidateAndRankObserved,true);
+  assert.equal(r.bothHardRanksHavePairedBilateralWitnesses,true);
+  assert.equal(r.bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses,true);
+  assert.equal(r.bothHardRanksHaveBothStartPairedBilateralWitnesses,false);
+  assert.equal(r.opportunityAndPolicyVerdict,'HOLD-OR-INCOMPLETE');
+  const sourceFirst=r.pairs.find(row=>row.rank===11&&
+    row.actualStarter==='source');
+  assert.ok(sourceFirst);
+  assert.equal(sourceFirst.bothBilateralWitnesses,true);
 });
 
 test('late source-first pressure stays a bilateral observation, not an early-lock pilot',()=>{
