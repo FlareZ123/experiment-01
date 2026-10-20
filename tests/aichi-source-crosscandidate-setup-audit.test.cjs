@@ -82,3 +82,57 @@ test('unverified, altered and falsely certified source archives fail closed',()=
   certified.qualifiedCompetitiveGames=1;
   assert.throws(()=>auditCrossCandidateSourceZones(certified),/uncertified setup-only/);
 });
+
+test('settled ordered-source mode compares the full physical source fingerprint',()=>{
+  const archive=fixture();
+  archive.schema='aichi-actual-source-ordered-deal-paired-sampler-v2';
+  archive.orderedSourceAudit=true;
+  for(const row of archive.samples){
+    row.sourcePhysicalDealDigest='c'.repeat(64);
+    row.sourcePhysicalDealSchema='initial-source-physical-position-sha256-v1';
+  }
+  const result=auditCrossCandidateSourceZones(archive);
+  assert.equal(result.auditSchema,
+    'frozen-cross-candidate-full-ordered-source-parity-v2');
+  assert.equal(result.sameSourcePostsetup,4);
+  assert.equal(result.sameOrderedSourceDeal,4);
+  assert.equal(result.differentOrderedSourceDeal,0);
+  assert.equal(result.mismatches.length,0);
+  assert.deepEqual(result.byRank,[{
+    rank:6,comparisons:4,sameSourcePostsetup:4,sameActualFirstTurn:4,
+    sameOrderedSourceDeal:4
+  }]);
+
+  // Earlier source-zone equality cannot conceal a changed deck order.
+  archive.samples[2].sourcePhysicalDealDigest='d'.repeat(64);
+  const divergent=auditCrossCandidateSourceZones(archive);
+  assert.equal(divergent.sameSourcePostsetup,4);
+  assert.equal(divergent.sameOrderedSourceDeal,3);
+  assert.equal(divergent.differentOrderedSourceDeal,1);
+  assert.deepEqual(divergent.mismatches.map(row=>row.candidateId),
+    ['hood-shield-v1']);
+  assert.deepEqual(divergent.mismatches.map(row=>row.inputOrderProtocol),
+    ['reference-aligned-v1']);
+});
+
+test('ordered-source mode requires settled typed fingerprint and explicit opt-in',()=>{
+  const archive=fixture();
+  archive.schema='aichi-actual-source-ordered-deal-paired-sampler-v2';
+  archive.orderedSourceAudit=true;
+  for(const row of archive.samples){
+    row.sourcePhysicalDealDigest='a'.repeat(64);
+    row.sourcePhysicalDealSchema='initial-source-physical-position-sha256-v1';
+  }
+  archive.samples[0].sourcePhysicalDealDigest=null;
+  assert.throws(()=>auditCrossCandidateSourceZones(archive),
+    /Incomplete or unverified/);
+  archive.samples[0].sourcePhysicalDealDigest='a'.repeat(64);
+  archive.samples[0].sourcePhysicalDealSchema='premature-turn1-v1';
+  assert.throws(()=>auditCrossCandidateSourceZones(archive),
+    /Incomplete or unverified/);
+  archive.samples[0].sourcePhysicalDealSchema=
+    'initial-source-physical-position-sha256-v1';
+  archive.orderedSourceAudit=false;
+  assert.throws(()=>auditCrossCandidateSourceZones(archive),
+    /uncertified setup-only/);
+});
