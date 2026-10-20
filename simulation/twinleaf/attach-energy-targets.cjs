@@ -1,5 +1,19 @@
 'use strict';
+/**
+ * Match native recipient coordinates independent of object identity.
+ * @param {object} a
+ * @param {object} b
+ * @returns {boolean}
+ */
 function sameTarget(a,b){return !!a && !!b && a.player===b.player && a.slot===b.slot && a.index===b.index;}
+/**
+ * Check native recipient side, occupancy and distinct-target constraints.
+ * This is supplementary to the existing source-card and count validator.
+ * @param {object[]} assignments
+ * @param {{target:object,list:object}[]} eligibleEntries
+ * @param {object} promptOptions
+ * @returns {boolean}
+ */
 function validAttachEnergyTargets(assignments,eligibleEntries,promptOptions={}){
  if(!Array.isArray(assignments)||!Array.isArray(eligibleEntries))return false;
  const blocked=promptOptions.blockedTo===undefined?[]:promptOptions.blockedTo;
