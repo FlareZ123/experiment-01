@@ -464,3 +464,56 @@ test('postgame comparison cannot inherit future live or prior-world score mutati
   assert.strictEqual(headless.runMatch,original);
   assert.strictEqual(SyntheticBot.prototype.decodeNextAction,baseline);
 });
+
+
+test('postgame policy replay reconstructs live action without touching authentic Store',()=>{
+  const baseline=SyntheticBot.prototype.decodeNextAction;
+  const root=state();
+  let finished=false,policyReplays=0;
+  const headless={runMatch(s){
+    const bot=new SyntheticBot({id:101},{tactics:[],promptResolvers:[]});
+    return {source:'real-game',action:bot.decodeNextAction(s)};
+  }};
+  const execute=()=>{
+    const original=SyntheticBot.prototype.decodeNextAction;
+    SyntheticBot.prototype.decodeNextAction=function actualCommonPolicy(s){
+      return {...original.call(this,s),play:'stone-protected'};
+    };
+    try{return headless.runMatch(root);}
+    finally{
+      SyntheticBot.prototype.decodeNextAction=original;
+      finished=true;
+    }
+  };
+  const replayPolicy=(seat,work)=>{
+    assert.equal(finished,true,'Policy replay must be postgame only');
+    assert.equal(seat,0);
+    policyReplays++;
+    const original=SyntheticBot.prototype.decodeNextAction;
+    SyntheticBot.prototype.decodeNextAction=function detachedCommonPolicy(s){
+      return {...original.call(this,s),play:'stone-protected'};
+    };
+    try{return {result:work()};}
+    finally{SyntheticBot.prototype.decodeNextAction=original;}
+  };
+  const compare=(_source,actor,newBot)=>{
+    assert.equal(actor,101);
+    const physical=actionSignature(newBot().decodeNextAction(root));
+    const reversed=actionSignature(newBot().decodeNextAction(root));
+    return {
+      physicalOrder:physical,reversedOrder:reversed,
+      liveStatePreserved:true,actionSensitiveToHiddenDeckOrder:false,
+      tacticScoreComparison:{equalScoreTraces:true}
+    };
+  };
+  const observed=withPostgameRootOrderProbe(
+    SyntheticBot,execute,structuredClone,
+    {turn:3,seat:0,makeRandom:()=>()=>0.1,replayCommonPolicy:true},
+    {headless,compare,replayPolicy}
+  );
+  assert.equal(policyReplays,1);
+  assert.equal(observed.result.action.play,'stone-protected');
+  assert.equal(observed.events[0].replayCommonPolicy,true);
+  assert.equal(observed.events[0].baselineActionMatchedActual,true);
+  assert.strictEqual(SyntheticBot.prototype.decodeNextAction,baseline);
+});
