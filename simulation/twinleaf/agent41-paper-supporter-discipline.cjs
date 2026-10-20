@@ -4,19 +4,20 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const {withNativeSupporterTurnAudit} = require('./native-supporter-turn-audit.cjs');
 const {withPaperSupporterQuotaGuard} = require('./paper-supporter-quota-guard.cjs');
+const {withOwnerVisibleSupporterQuotaProposals} =
+  require('./supporter-proposal-paper-quota.cjs');
 
-const VERSION = 'agent41-bilateral-native-paper-supporter-discipline-v1';
+const VERSION = 'agent41-bilateral-native-paper-supporter-discipline-v2-shared-owner-tactic';
 
 /**
- * Reversible, both-actor paper Supporter quota policy and genuine Store audit.
- * The native bot confuses supporterTurn (a count) with state.turn (a timestamp).
- * Suppress proposals after quota is spent, and independently veto any root
- * PlayCardAction that bypasses this tactic (for example a scripted source).
- * This intentionally fail-closes ordinary Supporters; a demonstrated printed
- * exception requires an explicit card-specific policy and allowance.
+ * Reversible native paper Supporter guard for both actual actors. Reuse Agent
+ * 8's owner-visible proposal filter, Agent 34's original Store interception,
+ * and the independent printed-log postcondition audit. The Store remains the
+ * final veto for any directly scripted Supporter outside the ordinary tactic.
+ * This is a quota-only proof, not a legal-game or competitive qualification.
  *
  * @template T
- * @param {()=>T} execute Synchronous headless game.
+ * @param {()=>T} execute Synchronous headless match.
  * @param {{Store?:Function,TrainerType?:object,GameLog?:object,
  *          PlaySupporterTactic?:Function,allowAdditionalSupporter?:Function}} [deps]
  * @returns {{result:T,audit:object}}
@@ -32,39 +33,30 @@ function withNativePaperSupporterDiscipline(execute,deps={}) {
   const PlaySupporterTactic=deps.PlaySupporterTactic??
     require(path.join(base,'simple-bot/simple-tactics/play-supporter-tactic'))
       .PlaySupporterTactic;
-  const previous=Object.getOwnPropertyDescriptor(
-    PlaySupporterTactic.prototype,'useTactic');
-  assert.equal(typeof previous?.value,'function');
   const allowAdditionalSupporter=deps.allowAdditionalSupporter??(()=>false);
   assert.equal(typeof allowAdditionalSupporter,'function');
   const proposalSuppressions=[],nativeVetoes=[];
-
-  function quotaAwareTactic(state,player) {
-    if(player.supporterTurn>=1&&!allowAdditionalSupporter({
-      state,owner:player,card:null,phase:'bot-proposal'
-    })){
-      proposalSuppressions.push({
-        turn:state.turn,actorId:player.id,
-        seat:state.players.indexOf(player),quota:player.supporterTurn,
-        suppressedAction:'PlaySupporterTactic'
-      });
-      return undefined;
-    }
-    return previous.value.call(this,state,player);
-  }
-  Object.defineProperty(PlaySupporterTactic.prototype,'useTactic',{
-    ...previous,value:quotaAwareTactic
-  });
+  let suppressionCount=0;
   try {
-    const observed=withNativeSupporterTurnAudit(
-      Store,TrainerType.SUPPORTER,
-      ()=>withPaperSupporterQuotaGuard(
-        Store,TrainerType.SUPPORTER,execute,{
-          allowAdditionalSupporter,
-          onViolation:event=>nativeVetoes.push(event)
+    const proposed=withOwnerVisibleSupporterQuotaProposals(
+      PlaySupporterTactic,TrainerType.SUPPORTER,
+      ()=>withNativeSupporterTurnAudit(
+        Store,TrainerType.SUPPORTER,
+        ()=>withPaperSupporterQuotaGuard(
+          Store,TrainerType.SUPPORTER,execute,{
+            allowAdditionalSupporter,
+            onViolation:event=>nativeVetoes.push(event)
+          }),{
+          playSupporterLogMessage:GameLog.LOG_PLAYER_PLAYS_SUPPORTER
         }),{
-        playSupporterLogMessage:GameLog.LOG_PLAYER_PLAYS_SUPPORTER
+        allowAdditionalSupporter:({state,owner})=>
+          allowAdditionalSupporter({state,owner,card:null,phase:'bot-proposal'}),
+        onSuppressed:event=>{
+          suppressionCount++;
+          if(proposalSuppressions.length<64)proposalSuppressions.push(event);
+        }
       });
+    const observed=proposed.result;
     const accepted=observed.result.legalSupporterRoots;
     const settled=observed.events;
     const qualified=nativeVetoes.length===0 &&
@@ -73,11 +65,14 @@ function withNativePaperSupporterDiscipline(execute,deps={}) {
       accepted.length===settled.length &&
       settled.every(event=>event.settled &&
         event.supporterTurnBefore===0);
+    assert.equal(suppressionCount,proposed.suppressionCount);
     return {
       result:observed.result.result,
       audit:{
         version:VERSION,appliesToBothSeats:true,
         ownerProposalSuppressions:proposalSuppressions,
+        ownerProposalSuppressionCount:suppressionCount,
+        nativeProposalFilterVersion:proposed.version,
         rootDispatchVetoes:nativeVetoes,
         legalSupporterRoots:accepted,
         nativeSupporterEvents:settled,
@@ -92,12 +87,10 @@ function withNativePaperSupporterDiscipline(execute,deps={}) {
       version:VERSION,appliesToBothSeats:true,
       nativeSupporterQuotaQualified:false,
       rootDispatchVetoes:nativeVetoes,
-      ownerProposalSuppressions:proposalSuppressions
+      ownerProposalSuppressions:proposalSuppressions,
+      ownerProposalSuppressionCount:suppressionCount
     };
     throw error;
-  } finally {
-    assert.strictEqual(PlaySupporterTactic.prototype.useTactic,quotaAwareTactic);
-    Object.defineProperty(PlaySupporterTactic.prototype,'useTactic',previous);
   }
 }
 
