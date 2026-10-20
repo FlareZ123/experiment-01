@@ -42,6 +42,52 @@ function sha256(value) {
 }
 
 /**
+ * An archive's native Supporter quota claim is only self-reported evidence.
+ * Require both actual actor seats, real native postconditions and complete
+ * counts before recognizing even this *narrow* paper-mechanics condition.
+ * Missing v0 provenance and contradictory newer metadata fail closed.
+ * @param {object} record Diagnostic attempt.
+ * @returns {string} Explicit native Supporter quota provenance class.
+ */
+function inspectPaperSupporterQuota(record) {
+  const audit=record?.paperSupporterDiscipline;
+  if(audit?.rootDispatchVetoes?.length)return 'rejected-illegal-native-root';
+  if(audit?.nativeSameTurnSecondSupporters?.length)return 'settled-same-turn-repeat';
+  if(record?.nativeSupporterQuotaQualified!==true ||
+      !audit || audit.appliesToBothSeats!==true ||
+      audit.nativeSupporterQuotaQualified!==true ||
+      typeof audit.version!=='string' ||
+      !audit.version.startsWith('agent41-bilateral-native-paper-supporter-discipline-') ||
+      !Array.isArray(audit.legalSupporterRoots) ||
+      !Array.isArray(audit.nativeSupporterEvents) ||
+      !Array.isArray(audit.rootDispatchVetoes) ||
+      !Array.isArray(audit.nativeUnsettledRoots) ||
+      !Array.isArray(audit.nativeSameTurnSecondSupporters) ||
+      audit.rootDispatchVetoes.length!==0 ||
+      audit.nativeUnsettledRoots.length!==0 ||
+      audit.nativeSameTurnSecondSupporters.length!==0 ||
+      audit.legalSupporterRoots.length!==audit.nativeSupporterEvents.length) {
+    return 'unverified';
+  }
+  for(let i=0;i<audit.nativeSupporterEvents.length;i++){
+    const legal=audit.legalSupporterRoots[i];
+    const settled=audit.nativeSupporterEvents[i];
+    if(legal?.quotaBefore!==0 || legal?.returnedFromNativeDispatch!==true ||
+        legal?.handCardPhysicallyPresent!==true ||
+        settled?.settled!==true || settled?.repeatOnSameTurn!==false ||
+        settled?.supporterTurnBefore!==0 ||
+        settled?.supporterTurnAfter!==1 ||
+        settled?.quotaAdvanced!==true ||
+        settled?.cardInHandAfter!==false ||
+        settled?.supporterLogMatched!==true ||
+        legal.turn!==settled.turn ||
+        legal.seat!==settled.seat ||
+        legal.card!==settled.name) return 'unverified';
+  }
+  return 'self-reported-native-quota-complete';
+}
+
+/**
  * A post-run evidence audit, never a game-strength evaluator.
  * Finished engine games remain unqualified until rules and both policies
  * have independent matchup-specific validation.
@@ -171,6 +217,10 @@ function auditCampaignQuality(archive) {
     opponentDigests.set(record.opponentRank, record.opponentDigest);
     ids.add(record.trialId);
     const reasons = [simulatorSafetyBlocker];
+    const supporterQuotaStatus=inspectPaperSupporterQuota(record);
+    if(supporterQuotaStatus!=='self-reported-native-quota-complete'){
+      reasons.push('paper-supporter-quota:'+supporterQuotaStatus);
+    }
     if (record.status !== 'completed-engine-game') {
       reasons.push('engine-status:' + record.status);
     }
@@ -283,6 +333,9 @@ function auditCampaignQuality(archive) {
       simulatorCloneProfile,
       simulatorSafetyStatus,
       simulatorSafetyBlocker,
+      paperSupporterQuotaStatus:supporterQuotaStatus,
+      paperSupporterQuotaSelfReported:
+        supporterQuotaStatus==='self-reported-native-quota-complete',
       engineSlot: record.candidateEngineSlot,
       actualTurn,
       status: record.status,
@@ -484,6 +537,10 @@ function auditCampaignQuality(archive) {
           row.pairedFirstTurnStatus === 'unverified').length,
         mechanismExposure,
         completedEngineGames: subset.filter(row => row.status === 'completed-engine-game').length,
+        paperSupporterQuotaSelfReportedTrials: subset.filter(row =>
+          row.paperSupporterQuotaSelfReported).length,
+        paperSupporterQuotaUnverifiedTrials: subset.filter(row =>
+          !row.paperSupporterQuotaSelfReported).length,
         zeroCandidateAttackTrials: subset.filter(row =>
           row.candidateAttacks === 0).length,
         zeroOpponentAttackTrials: subset.filter(row =>
@@ -539,6 +596,10 @@ function auditCampaignQuality(archive) {
     pairedStartOrderComparable: candidates.size > 1 &&
       pairedStartOrderIssues.length === 0,
     totalTrials: rows.length,
+    paperSupporterQuotaSelfReportedTrials:rows.filter(row=>
+      row.paperSupporterQuotaSelfReported).length,
+    paperSupporterQuotaUnverifiedTrials:rows.filter(row=>
+      !row.paperSupporterQuotaSelfReported).length,
     repeatsVerified: repeats, fullPilotMatrixVerified: true,
     candidateRankingPermitted: false,
     winRateEvidence: false,
@@ -555,4 +616,4 @@ if (require.main === module) {
   process.stdout.write(JSON.stringify(auditCampaignQuality(archive), null, 2) + '\n');
 }
 
-module.exports = {auditCampaignQuality};
+module.exports = {auditCampaignQuality,inspectPaperSupporterQuota};
