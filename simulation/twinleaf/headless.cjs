@@ -263,6 +263,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [snorlaxSoloPreserveBench] With source solo opening, suppress own ordinary Basic Benching while PGO Snorlax is alone Active.
  * @property {0|1} [newMoonAttackPayloadCompressorSeat] Candidate-only own-hand Compressor and owner-search Gengar payload policy.
  * @property {0|1} [rank4RaichuCompressorSeat] Source-only held Compressor, printed Energy discard; requires min1 rule correction.
+ * @property {0|1} [rank4RaichuRopePivotSeat] Source-only held Rope pivot to real Benched Raichu, after printed Energy discard.
  * @property {0|1} [newMoonAttackPayloadCompressorBenchedSeat] Independent opt-in: also prepare owner-deck donors when Mewtwo is Benched.
  * @property {0|1} [newMoonAttackPayloadCompressorSecondDonorSeat] Independent opt-in: seek still-missing Trevenant after Gengar is established.
  * @property {0|1} [newMoonAttackPayloadCompressorLateSeat] Historical diagnostic only: allow Mewtwo-Active owner donor setup through global turn 14.
@@ -366,6 +367,14 @@ function runMatch(request) {
      (![0,1].includes(request.rank4RaichuCompressorSeat) ||
       request.battleCompressorPositiveSelectionCorrection!==true)) {
     throw new Error('Rank4 source Compressor needs a valid physical seat and paper min1 correction');
+  }
+  if(request.rank4RaichuRopePivotSeat!==undefined &&
+     (![0,1].includes(request.rank4RaichuRopePivotSeat) ||
+      request.rank4RaichuRopePivotSeat!==request.rank4RaichuCompressorSeat ||
+      request.electrodeGXPrizeTradePolicy!==true ||
+      request.electrodeGXEnergyCorrection!==true ||
+      request.electroRainDamageCorrection!==true)) {
+    throw new Error('Rank4 Rope pivot needs the same source Compressor seat and corrected Bomb and Electro Rain');
   }
   for (const seat of [request.newMoonAttackPayloadCompressorSeat,
     request.newMoonAttackPayloadCompressorBenchedSeat,
@@ -778,6 +787,10 @@ function runMatch(request) {
       if (request.rank4RaichuCompressorSeat === seat) {
         configured = require('./rank4-raichu-compressor-policy.cjs')
           .withRank4RaichuCompressor(configured);
+      }
+      if (request.rank4RaichuRopePivotSeat === seat) {
+        configured = require('./rank4-raichu-rope-pivot-policy.cjs')
+          .withRank4RopePivot(configured);
       }
       if (request.rank31FogEnergySeat === seat ||
           request.rank31FogEnergyBroaderSeat === seat) {
@@ -1562,6 +1575,7 @@ function runMatch(request) {
       snorlaxSoloOpeningSeat: request.snorlaxSoloOpeningSeat ?? null,
       newMoonAttackPayloadCompressorSeat: request.newMoonAttackPayloadCompressorSeat ?? null,
       rank4RaichuCompressorSeat: request.rank4RaichuCompressorSeat ?? null,
+      rank4RaichuRopePivotSeat: request.rank4RaichuRopePivotSeat ?? null,
       newMoonAttackPayloadCompressorBenchedSeat:
         request.newMoonAttackPayloadCompressorBenchedSeat ?? null,
       newMoonAttackPayloadCompressorSecondDonorSeat:
@@ -1620,6 +1634,8 @@ function runMatch(request) {
           '+NewMoonCompressorPayload-v1@seat' + request.newMoonAttackPayloadCompressorSeat : '') +
         (request.rank4RaichuCompressorSeat !== undefined ?
           '+Rank4SourceCompressorSpecialEnergy-v1@seat' + request.rank4RaichuCompressorSeat : '') +
+        (request.rank4RaichuRopePivotSeat !== undefined ?
+          '+Rank4SourceRopeRaichuPivot-v1@seat' + request.rank4RaichuRopePivotSeat : '') +
         (request.newMoonAttackPayloadCompressorBenchedSeat !== undefined ?
           '+NewMoonCompressorPayload-BenchedMewtwo-v2@seat' +
             request.newMoonAttackPayloadCompressorBenchedSeat : '') +
