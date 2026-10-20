@@ -14,13 +14,14 @@ const assert=require('node:assert/strict');
  *
  * @template T
  * @param {Function} PlaySupporterTactic Actual pinned tactic class.
+ * @param {number|string} supporterType Actual TrainerType.SUPPORTER.
  * @param {()=>T} execute Synchronous original game.
  * @param {{allowAdditionalSupporter?:(context:object)=>boolean,
  *          onSuppressed?:(record:object)=>void}} [options]
  * @returns {{result:T,suppressedCalls:object[],version:string}}
  */
-function withOwnerVisibleSupporterQuotaProposals(PlaySupporterTactic,execute,
-  options={}) {
+function withOwnerVisibleSupporterQuotaProposals(PlaySupporterTactic,
+  supporterType,execute,options={}) {
   assert.equal(typeof execute,'function');
   const original=Object.getOwnPropertyDescriptor(
     PlaySupporterTactic.prototype,'useTactic');
@@ -42,7 +43,7 @@ function withOwnerVisibleSupporterQuotaProposals(PlaySupporterTactic,execute,
         actorId:owner.id,seat:state.players.indexOf(owner),
         priorSupporterCount:quota,
         ownerHeldSupporters:owner.hand.cards.filter(card=>
-          card.trainerType===7).map(card=>card.fullName),
+          card.trainerType===supporterType).map(card=>card.fullName),
         suppressesOnlyThisTactic:true
       };
       suppressionCount++;
