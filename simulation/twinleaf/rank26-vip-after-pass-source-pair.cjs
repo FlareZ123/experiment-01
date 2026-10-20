@@ -168,6 +168,36 @@ function run(){
       assert.ok(alternateOffer?.nativeValid===true);
       assert.equal(alternateCologne?.sourceHasCologne,false);
       assert.equal(alternateCologne?.sourceDiscardHasCologne,true);
+      const secondVip=withSourceVipAfterPass(seat,()=>
+        withMailScout(seat,core,{starterAgnostic:true}),
+        {followupCologne:true,preferSquawk:true,followupSecondVip:true});
+      const secondObserved=observed(secondVip.result.result,
+        seat,entry.seed,a,b);
+      const secondOffer=secondVip.policyAudit.events.find(e=>
+        e.kind==='second-vip-offer');
+      const secondSearch=secondVip.policyAudit.events.find(e=>
+        e.kind==='second-owner-deck-target');
+      const secondBoard=secondVip.policyAudit.events.find(e=>
+        e.kind==='second-public-board-after');
+      assert.equal(secondOffer?.nativeValid,true,
+        'Real Squawk replacement hand must offer held second VIP');
+      assert.ok(secondSearch,'No actual owner-deck second VIP search observed');
+      assert.ok(secondBoard,'No native second VIP Bench observation');
+      assert.equal(secondObserved.vipPlays,2,
+        'Both physical VIP Items must settle in source first turn');
+      const firstBranchPrefix=squawkGame.firstActions.map(a=>a.kind+':'+(a.card??a.ability??''));
+      const followupPrefix=secondObserved.firstActions
+        .slice(0,squawkGame.firstActions.length-1)
+        .map(a=>a.kind+':'+(a.card??a.ability??''));
+      assert.deepEqual(followupPrefix,firstBranchPrefix.slice(0,-1),
+        'Second VIP must preserve source actions before formerly passed root');
+      vipThenCologne.squawkSecondVipContinuation={
+        policy:secondVip.policyAudit,observed:secondObserved,
+        secondOffer,secondSearch,secondBoard,
+        nativeKokoSearchAvailable:secondSearch.searchedKokoAvailable,
+        kokoSelected:secondSearch.cards.some(c=>
+          c.startsWith('Tapu Koko Prism Star ')),
+        retrospectiveDevelopmentOnly:true};
       vipThenCologne.squawkAlternative={
         policy:squawkAlternative.policyAudit,
         observed:squawkGame,ownerSearch,squawkReceipt,
@@ -210,7 +240,17 @@ function run(){
         squawkAbilityRoots:cases.reduce((n,c)=>n+
           (c.vipThenCologne?.squawkAlternative?.rootAbilities.length??0),0),
         squawkBranchAttackRoots:cases.filter(c=>
-          c.vipThenCologne?.squawkAlternative?.observed.rootAttacks>0).length} :
+          c.vipThenCologne?.squawkAlternative?.observed.rootAttacks>0).length,
+        secondVipNativeOffers:cases.filter(c=>
+          c.vipThenCologne?.squawkSecondVipContinuation?.secondOffer.nativeValid).length,
+        secondVipPhysicalPlays:cases.reduce((n,c)=>n+
+          (c.vipThenCologne?.squawkSecondVipContinuation?.observed.vipPlays??0),0),
+        secondVipKokoSearchAvailable:cases.filter(c=>
+          c.vipThenCologne?.squawkSecondVipContinuation?.nativeKokoSearchAvailable).length,
+        secondVipKokoSelected:cases.filter(c=>
+          c.vipThenCologne?.squawkSecondVipContinuation?.kokoSelected).length,
+        secondVipAttackRoots:cases.filter(c=>
+          c.vipThenCologne?.squawkSecondVipContinuation?.observed.rootAttacks>0).length} :
       null,
     cases};
 }
