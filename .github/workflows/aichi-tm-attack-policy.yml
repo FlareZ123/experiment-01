@@ -183,6 +183,9 @@ jobs:
           path: agent40-sentinel-seeker-legal-reply.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Verify natural Stoutland opponent-owner resource snapshot is read-only
+        if: ${{ inputs.rank2_independent_stoutland_source }}
+        run: node --test tests/agent40-natural-stoutland-owner-opportunity.test.cjs
       - name: Audit source rank2 native Stoutland exposure across eight independent physical deals
         if: ${{ inputs.rank2_independent_stoutland_source }}
         run: node simulation/twinleaf/agent40-rank2-natural-stoutland-exposure.cjs > agent40-rank2-natural-stoutland-exposure.json
