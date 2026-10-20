@@ -63,8 +63,16 @@ function fixture(){
           sourceDealFingerprint:hex(rank===6?'5':'6'),
           sourcePressure:{accepted:true,effectVerified:true,
             traceAuthenticated:true,actorSeat:1-seat,
-            rootActionOrdinal:10,completionOrdinal:12,
+            rootActionOrdinal:10,completionOrdinal:rank===6&&sourceTurn===1?10:12,
+            pressureKind:rank===6?'passive-ability-suppression':'item-enabled-ability-lock',
             turnBefore:sourceTurn,completionTurnBefore:sourceTurn},
+          rank6PassivePressure:{schema:'agent41-rank6-passive-initialization-root-classification-v1',
+            status:'native-capability-suppression-with-rooted-turn-continuity',
+            sourceActiveContinuity:true,nativeCapabilitySuppressed:true,rootedReplyAndReturn:true,
+            sourceTurnOneEndRoot:{ordinal:10,turn:1,seat:1-seat,action:'PassTurnAction'}},
+          garbotoxinWindowAudit:{schema:'agent41-authentic-rank11-garbotoxin-ability-window-v1',
+            before:{globalTurn:2,sourceGarbodorHasTool:true,
+              candidatePrintedPowerNames:['New Moon'],candidatePrintedNewMoonBlocked:true}},
           candidateReply:{observed:true,legal:true,
             ownerInformationSafe:true,traceAuthenticated:true,
             actorSeat:seat,rootActionOrdinal:16,
@@ -167,6 +175,10 @@ test('raw Store attestation elevates both real seats without licensing wins',()=
       [row.sourceContinuation.rootActionOrdinal,1-row.candidateSeat,
         row.sourceContinuation.turnBefore]
     ]) Object.assign(ledger[claim],{playerSlot:seat,turnBefore:turn});
+    if(row.candidateSeat===1){
+      ledger[10].action=row.rank===6?'PassTurnAction':'PlayCardAction';
+      if(row.rank===11)ledger[10].card='Boost Shake';
+    }
     row.rootActionLedgerProtocol='actual-store-root-action-ledger-v1';
     row.rootActionLedger=ledger;
   }
