@@ -116,6 +116,9 @@ function k0LineInformationFrontier(input){
     }
   }
   const asNumber=n=>Number(n)/Number(denominator);
+  const netObservationNumerator=restrictedAfterNumerator-
+    BigInt(observationCost)*denominator;
+  const observationAdvantageNumerator=netObservationNumerator-k0Numerator;
   return {
     unknownCardCount:unknownPool.length,
     knownDeckCardCount:observedDeckPrintings.length,
@@ -125,15 +128,23 @@ function k0LineInformationFrontier(input){
     preSearchExpectedNumerator:k0Numerator.toString(),
     afterSearchExpectedNumerator:k1Numerator.toString(),
     informationValueNumerator:(k1Numerator-k0Numerator).toString(),
+    observationCost,postObservationPlanIds:[...postObservationPlanIds],
+    restrictedAfterExpectedNumerator:restrictedAfterNumerator.toString(),
+    netObservationExpectedNumerator:netObservationNumerator.toString(),
+    netObservationAdvantageNumerator:observationAdvantageNumerator.toString(),
     preSearchExpectedUtility:asNumber(k0Numerator),
     afterSearchExpectedUtility:asNumber(k1Numerator),
     informationValue:asNumber(k1Numerator-k0Numerator),
+    restrictedAfterExpectedUtility:asNumber(restrictedAfterNumerator),
+    netObservationExpectedUtility:asNumber(netObservationNumerator),
+    netObservationAdvantage:asNumber(observationAdvantageNumerator),
+    modelPrefersObservation:observationAdvantageNumerator>0n,
     perPlan:plans.map((plan,i)=>({
       id:plan.id,expectedNumerator:lineNumerators[i].toString(),
       expectedUtility:asNumber(lineNumerators[i])
     })),
     evaluatedJointPrizeCases:caseCount,
-    caveat:'Hypothetical utilities and free K1 observation; no legal-game action, search opportunity cost or game win inference'
+    caveat:'Hypothetical utilities and fixed modeled observation costs; no legal-game action, full search opportunity cost or game win inference'
   };
 }
 
