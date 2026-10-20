@@ -5,13 +5,16 @@ const {chooseActorRootIntent,withActorOnlyRootPolicy}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 const catalog={
   basics:new Set(['Shadow Rider Calyrex V CRE','Trubbish FST']),
-  basicEnergies:new Set(['Psychic Energy MEE','Darkness Energy MEE'])
+  basicEnergies:new Set(['Psychic Energy MEE','Darkness Energy MEE']),
+  basicEnergyTypes:{Psychic:5,Darkness:7},
+  colorlessEnergyType:9,
+  specialConditions:{ASLEEP:2,PARALYZED:0}
 };
 const base=()=>({
   decisionKind:'owner-root',globalTurn:2,
   ownHand:['Shadow Rider Calyrex V CRE','Psychic Energy MEE'],
   ownPublic:{
-    active:{energies:[],attacks:[{name:'Shadow Mist',cost:['P'],gxAttack:false}],
+    active:{energies:[],attacks:[{name:'Shadow Mist',cost:[5],gxAttack:false}],
       specialConditions:[],publicRestrictions:{}},
     bench:[null,null,null,null,null],publicTurnRestrictions:{attackLockTurnsRemaining:0}
   },
