@@ -35,6 +35,24 @@ Two independent boundaries require correction. Upstream `PlaySupporterTactic` tr
 
 After this canonical comparison, I inspected the existing [Agent 8 native proposal regression](../../simulation/twinleaf/rank24-paper-supporter-proposal-native.cjs) and its [reusable owner-visible Supporter tactic wrapper](../../simulation/twinleaf/supporter-proposal-paper-quota.cjs). These already exercise the exact frozen source seed **2966203069**, owner seat B, rank 24, with the original real game plus a pre-dispatch Store guard and filtered bot proposals. The native script requires `paperSafe===true`, `suppressionCount>=1`, identical deck hashes and actual first-player seat; it was executed in **successful** [compiled CI 39404261203](https://github.com/FlareZ123/experiment-01/actions/runs/39404261203) (20 October ~09:58 UTC), artifact [12256259059](https://github.com/FlareZ123/experiment-01/actions/runs/39404261203/artifacts/12256259059), archived ZIP SHA-256 `8a683f88fcc3103cc472415c862765b4c9bb861cd4414380d3a6e54183b24d8a`. This confirms a separate research-owned proposal wrapper can avoid submitting a forbidden Supporter through the actual pinned rank-24 Store fixture and can continue its bounded game without the selected veto. It does **not** establish the identity of every subsequent decision, other-actor seat parity, or whole-game competitive qualification. The no-action-divergence four-arm Agent41 result remains a distinct narrow gate.
 
+
+## Consolidated adapter v2 directly reproduces rank-24 failure recovery
+
+The initial versioned Agent41 integration had independently coded a narrow proposal filter. I then replaced that duplicate tactic implementation with the already verified Agent8 [owner-visible proposal filter](../../simulation/twinleaf/supporter-proposal-paper-quota.cjs), preserving the Agent34 real-Store guard and printed-log audit. The integrated wrapper is now `agent41-bilateral-native-paper-supporter-discipline-v2-shared-owner-tactic` ([source](../../simulation/twinleaf/agent41-paper-supporter-discipline.cjs)); the canonical runner's policy string resolves that implementation's exported version rather than hard-coding a stale suffix. **The four historical root hashes above were measured under the original v1 adapter, and must not be misrepresented as a new four-arm v2 replay.**
+
+A direct v2 [rank24 native acceptance script](../../simulation/twinleaf/agent41-rank24-paper-supporter-canonical-native.cjs) now uses the same exact source 60, source seat B, source seed **2966203069**, original first-turn `k1ReplanAfterTagCall` strategy, and bounded 105-action native Store match. It runs alongside the independent Agent8/34 regressions in the existing manual [rank24 policy workflow](../../.github/workflows/aichi-rank24-prospective-policy.yml). [**Compiled CI 39407326297 succeeded**](https://github.com/FlareZ123/experiment-01/actions/runs/39407326297), pinned Twinleaf `a9905a76`, head `ead81247`. [Artifact 12256739148](https://github.com/FlareZ123/experiment-01/actions/runs/39407326297/artifacts/12256739148) contains all three original/replayed native reports, ZIP SHA-256 `15f4d3d31f537980a0835541abbea5d9cfc570a59343e3a6b78b640a492d802a`.
+
+Actual printed Store facts from the run log:
+
+- First source Supporter **Cynthia & Caitlin CEC**, source seat B, global turn **2**, settled.
+- Owner-visible Supporter proposals suppressed by the reused filter: **7**.
+- Rejected direct-root Supporter dispatches: **0**.
+- Both-seat quota audit: **true** (narrow native Supporter mechanics only).
+- The bounded game continued for **105** actual root actions beyond the original root-24 violation position; original source initial physical-deal digest was `90500a63f484f538a2f34d236493038a54d04aa014d741497666c0399d93fc54`.
+- **Competitive-qualified games: 0.** Engine action cap means no recorded official paper-game victory.
+
+This closes the **selected rank-24 native proposal-continuation acceptance** of the unified v2 adapter. Actual opposite physical actor/first-player and entire multi-archetype paper-fidelity remain to be tested. These are source-selected regressions, not estimated odds of paper legality or performance.
+
 ## Next failure-focused acceptance
 
 Reuse Agent 8's already compiled proposal wrapper rather than replicate its rank-24 evidence. Move toward one shared native/audited integration boundary, and use an authentic native rank-24 actor-swapped fork with actual second-Supporter opportunity as a falsification test. The aggregate historical runner has no qualifying competitive games because hidden-information exposure, source-first lock/responses, official paper clock, and other rules defects are unresolved. Any future fresh evaluation must preserve all published field opponents, printed cards, both actual starting seats, and predeclared policy versions.
