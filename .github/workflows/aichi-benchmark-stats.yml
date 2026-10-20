@@ -46,6 +46,8 @@ jobs:
         run: node --test tests/aichi-rank2-vileplume-stoutland-prize-ceiling.test.cjs
       - name: Compare hypothetical one-slot rank2 lock-chain redundancies
         run: node --test tests/aichi-rank2-one-slot-lock-sensitivity.test.cjs
+      - name: Verify restricted Psychic/Fog early-resource contrast of both frozen candidates
+        run: node --test tests/aichi-fog-energy-opening-resource-census.test.cjs
       - name: Check Ditto first-eight target-in-deck and prize-aware direct path
         run: node --test tests/ditto-direct-path-frontier.test.cjs
       - name: Check exact Ditto Guzma-Hala and three-resource prize access
