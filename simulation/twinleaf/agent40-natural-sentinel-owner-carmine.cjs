@@ -59,9 +59,10 @@ function ownerView(state) {
  * @param {boolean} forceCarmine
  * @param {string[]} deckA Rank2 physical 60.
  * @param {string[]} deckB Rank1 physical 60.
+ * @param {{target?:string}} [options] A single observed, owner-held printing for the intervention.
  * @returns {object}
  */
-function replayArm(forceCarmine, deckA, deckB) {
+function replayArm(forceCarmine, deckA, deckB, {target = TARGET} = {}) {
   const engine = name => require(path.join(OUTPUT, name));
   const {SimpleTacticsAi} = engine('simple-bot/simple-tactics-ai');
   const {PlayCardAction} = engine('game/store/actions/play-card-action');
@@ -98,7 +99,7 @@ function replayArm(forceCarmine, deckA, deckB) {
       firstChoice = {ownerView:view,
         originalBotAction: originalAction.constructor.name};
       if (forceCarmine) {
-        const index = owner.hand.cards.findIndex(card=>card.fullName===TARGET);
+        const index = owner.hand.cards.findIndex(card=>card.fullName===target);
         assert.ok(index >= 0);
         chosenForcedAction = new PlayCardAction(owner.id,index);
         return chosenForcedAction;
@@ -126,7 +127,7 @@ function replayArm(forceCarmine, deckA, deckB) {
       return baselineDispatch.value.apply(this,args);
     assert.equal(nativeAttempt,null);
     const card = owner.hand.cards[action.handIndex];
-    assert.equal(card?.fullName,TARGET);
+    assert.equal(card?.fullName,target);
     const logsBefore = this.state.logs.length;
     const before = ownerView(this.state);
     const inHandBefore = owner.hand.cards.includes(card);
