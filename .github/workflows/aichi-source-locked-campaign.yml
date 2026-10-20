@@ -172,6 +172,24 @@ jobs:
       - name: Compile pinned simulator
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify both-seat actor-only root and authenticated Fog decision seams
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-actor-sourcefirst-v1' }}
+        run: |
+          node --check simulation/twinleaf/agent17-actor-fog-sourcefirst-development.cjs
+          node --test tests/agent34-actor-only-root-policy.test.cjs tests/agent9-fog-actor-prompt.test.cjs
+      - name: Run retrospective source-first rank6 and rank11 under the identical actor policy
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-actor-sourcefirst-v1' }}
+        run: node simulation/twinleaf/agent17-actor-fog-sourcefirst-development.cjs > agent17-actor-sourcefirst.json
+      - name: Summarize source pressure opportunities and real Store acceptances
+        if: ${{ always() && inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-actor-sourcefirst-v1' }}
+        run: node -e "const fs=require('node:fs');if(fs.existsSync('agent17-actor-sourcefirst.json')){const r=require('./agent17-actor-sourcefirst.json');console.log(JSON.stringify({roots:r.nativeRootAudit,fog:r.fogAudit,errors:r.errorCount,rows:r.rows.map(x=>({trial:x.trial,status:x.status,actualSourceFirst:x.actualSourceFirst,sourceLine:x.sourceLine,candidateReplyStatus:x.candidateReplyStatus,error:x.error?.slice(0,350)||null}))},null,2));}"
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-actor-sourcefirst-v1' }}
+        with:
+          name: agent17-actor-sourcefirst-hardrank-development
+          path: agent17-actor-sourcefirst.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Test the identical bilateral candidate policy wrapper (development only)
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-common-policy-dev' }}
         run: node --test tests/agent41-bilateral-common-policy.test.cjs tests/agent41-bilateral-v2-fingerprints.test.cjs
