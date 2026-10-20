@@ -1,6 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const {createHash}=require('node:crypto');
 const {attestBilateralRootClaims}=
   require('./bilateral-v2-root-ledger-attestation.cjs');
 const {sourceFirstNativePressureVerified}=
@@ -168,6 +169,17 @@ function auditBilateralV2(plan,archive) {
     if(row.rootActionLedger!==undefined){
       assert.equal(row.rootActionLedgerProtocol,
         'actual-store-root-action-ledger-v1');
+      assert.ok(Array.isArray(row.rootActionLedger),
+        'Actual Store root ledger must be an array');
+      assert.ok(digest(row.rootActionLedgerSha256),
+        'Preserved Store root ledger SHA-256 required');
+      // Match the source runner's exact ordered JSON serialization.
+      // The archive itself still needs an independently frozen hash or
+      // external provenance; a mutable row digest alone is insufficient.
+      const observedDigest=createHash('sha256')
+        .update(JSON.stringify(row.rootActionLedger)).digest('hex');
+      assert.equal(observedDigest,row.rootActionLedgerSha256,
+        'Preserved Store root ledger SHA-256 mismatch');
     }
     const nativeRoots=Array.isArray(row.rootActionLedger)?
       attestBilateralRootClaims(row,row.rootActionLedger,arm.candidateSeat):null;
