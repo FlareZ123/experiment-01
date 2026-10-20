@@ -271,3 +271,39 @@ test('paired schedule requires actual first-turn parity and accepts record reord
   assert.equal(hasMatchingResearchConditions(a,b),true);
   assert.equal(hasPairedTrialSchedule(a,b),false);
 });
+
+test('paired source cells require equal actual opponent engine-deck hashes', () => {
+  const baseline=fixture();
+  const left=createEvidenceEnvelope(baseline.inputs,baseline.archive,
+    baseline.provenance);
+
+  const changedCandidate=fixture();
+  for (const row of changedCandidate.archive.records) {
+    const candidateSlot=row.candidateEngineSlot==='A'?0:1;
+    row.expectedEngineDeckHashes[candidateSlot]='d'.repeat(64);
+    row.observedEngineDeckHashes[candidateSlot]='d'.repeat(64);
+  }
+  const candidateVariant=createEvidenceEnvelope(changedCandidate.inputs,
+    changedCandidate.archive,changedCandidate.provenance);
+  assert.equal(hasMatchingResearchConditions(left,candidateVariant),true);
+  assert.equal(hasPairedTrialSchedule(left,candidateVariant),true,
+    'candidate treatment is allowed to change its resolved deck');
+
+  const changedOpponent=fixture();
+  const sourceRow=changedOpponent.archive.records[0];
+  const sourceSlot=sourceRow.candidateEngineSlot==='A'?1:0;
+  sourceRow.expectedEngineDeckHashes[sourceSlot]='c'.repeat(64);
+  sourceRow.observedEngineDeckHashes[sourceSlot]='c'.repeat(64);
+  const opponentVariant=createEvidenceEnvelope(changedOpponent.inputs,
+    changedOpponent.archive,changedOpponent.provenance);
+  assert.equal(hasMatchingResearchConditions(left,opponentVariant),true);
+  assert.equal(auditArchive(changedOpponent.inputs,changedOpponent.archive)
+    .completed,2,'an internally consistent trial can still have a different source deck');
+  assert.equal(hasPairedTrialSchedule(left,opponentVariant),false,
+    'identical source digest and seed cannot hide changed resolved source printings');
+
+  const unobserved=structuredClone(candidateVariant);
+  delete unobserved.archive.records[0].observedEngineDeckHashes;
+  assert.equal(hasPairedTrialSchedule(left,unobserved),false,
+    'missing per-arm engine observation must fail closed');
+});
