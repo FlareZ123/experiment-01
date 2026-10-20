@@ -62,6 +62,10 @@ function summarize(arm,audit){
     rootActionLedgerSha256:arm.rootActionLedgerSha256,
     actorOnlyRootProposals:audit.ownerRootProposals,
     acceptedByNativeStore:audit.acceptedByLiveStore,
+    confirmedPublicEffects:audit.confirmedPublicEffects,
+    unconfirmedPublicEffects:audit.unconfirmedPublicEffects,
+    unconfirmedSamples:audit.records.filter(row=>
+      row.nativeEffectStatus!=='confirmed-public-effect').slice(0,8),
     rejectedOrUncorroborated:audit.records.filter(
       row=>!row.acceptedByLiveStore).length,
     proposalBreakdown:Object.fromEntries(
@@ -115,6 +119,8 @@ function runNativeActorRootBilateral(){
     historical:2,retrospectiveSourceFirst:2,attempted:outcomes.length,
     nativeAcceptedRootActions:outcomes.reduce((sum,row)=>
       sum+(row.acceptedByNativeStore??0),0),
+    confirmedNativePublicEffects:outcomes.reduce((sum,row)=>
+      sum+(row.confirmedPublicEffects??0),0),
     policy:'Actor-view owner-root subset; prompted choices/source decisions still generic',
     candidatePolicyComplete:false,hiddenInformationSafeFullGames:false,
     engineClockCertified:false,competitiveQualifiedGames:0,
