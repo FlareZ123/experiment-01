@@ -206,3 +206,19 @@ test('pinned numeric attack cost symbols admit genuine payable Colorless',()=>{
     kind:'attack',name:'Get Lost'
   });
 });
+
+test('native numeric Special Conditions prohibit payable attacks',()=>{
+  const v=view();
+  v.ownPublic.bench[0]={printing:C};
+  v.ownPublic.active.energies=[P,P];
+  v.ownTurnResources.energyPlayedTurn=2;
+  v.ownPublic.active.attacks=[{name:'Paid',cost:[5,9],gxAttack:false}];
+  const meta={...catalog,[P]:{basicEnergyType:5}};
+  const options={colorlessSymbol:9,incapacitatingStatuses:[0,2]};
+  for(const status of [0,2]){
+    v.ownPublic.active.specialConditions=[status];
+    assert.equal(selectOwnerRootIntent(v,meta,options).kind,'pass');
+  }
+  v.ownPublic.active.specialConditions=[];
+  assert.equal(selectOwnerRootIntent(v,meta,options).kind,'attack');
+});
