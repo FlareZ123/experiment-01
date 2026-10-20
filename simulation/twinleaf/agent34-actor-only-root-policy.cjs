@@ -145,10 +145,18 @@ function withActorOnlyRootPolicy(run,deps={}){
     observationSchema:'agent2-public-native-dispatch-diff-v1',
     unsupportedPromptTypes:{},
     unsupportedPromptFallbacks:0,nonOwnerNativeDelegations:0,
+    nonLiveSpeculativeFallbacks:0,
     ownerRootIntents:[],competitiveGameQualified:false,
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
   };
   function wrapped(state){
+    // A bot may evaluate hypothetical cloned States in its own tactics.
+    // Never make an actor-root policy decision against such a speculative
+    // state or count it as a genuine Store-root action.
+    if(state!==nativeStore?.state){
+      audit.nonLiveSpeculativeFallbacks++;
+      return original.value.call(this,state);
+    }
     const playerId=this.client?.id;
     const seat=state.players?.findIndex(p=>p.id===playerId);
     const pending=state.prompts?.find(p=>p.result===undefined);
