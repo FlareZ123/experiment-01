@@ -30,6 +30,9 @@ function attestFarewellPair(baseline,intervention,options) {
     Array.isArray(intervention.deckHashes) &&
     intervention.deckHashes.length===2;
   const sourceComparable=fullDeckIdentitiesPresent &&
+    typeof baseline.engine==='string' &&
+    baseline.engine.length>0 &&
+    baseline.engine===intervention.engine &&
     baseline.seed===intervention.seed &&
     isDeepStrictEqual(baseline.deckHashes,intervention.deckHashes) &&
     baseline.verifiedByDrawLog===true &&
