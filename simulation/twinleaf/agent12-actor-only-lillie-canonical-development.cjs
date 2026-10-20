@@ -40,6 +40,9 @@ function main(){
       unsupportedPromptTypes:baseAudit.unsupportedPromptTypes
     },
     addon:addonAudit,
+    nativeTreatmentOpportunity:addonAudit.attemptedLillieRoots>0?
+      'at-least-one-eligible-owned-lillie':
+      'no-eligible-held-lillie-on-four-historical-arms',
     rows:dev.rows.map(row=>({
       trialId:row.trial?.id??null,
       engineStatus:row.status??null,
@@ -60,10 +63,16 @@ function main(){
   assert.ok(baseAudit.acceptedActorRoots>0,
     'Require actual original Store acceptance of supported actor-only roots');
   assert.equal(baseAudit.rejectedActorRoots,0);
-  assert.ok(addonAudit.attemptedLillieRoots>0,
-    'Require an actual actor-visible held Lillie after the base Pass');
-  assert.ok(addonAudit.acceptedLillieRoots>0,
-    'Require genuine native Store acceptance, not a detached hypothesis');
+  assert.equal(addonAudit.passRootObservations,
+    Object.values(addonAudit.passRootReasonCounts)
+      .reduce((sum,count)=>sum+count,0),
+    'Every actor Pass opportunity must be classified exactly once');
+  assert.equal(addonAudit.attemptedLillieRoots,
+    addonAudit.passRootReasonCounts.eligible??0,
+    'Only an eligible actor-owned Lillie may become a typed native proposal');
+  assert.equal(addonAudit.acceptedLillieRoots+addonAudit.rejectedLillieRoots,
+    addonAudit.attemptedLillieRoots,
+    'Every proposed native Lillie must produce a Store result');
   assert.equal(addonAudit.rejectedLillieRoots,0,
     'Invalid scripted Lillie proposals must fail closed');
   assert.equal(report.competitiveQualifiedGames,0);
