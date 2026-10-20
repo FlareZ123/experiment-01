@@ -541,7 +541,7 @@ function runDevelopment({
   nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
-  actorHandDiscard=false,
+  actorHandDiscard=false,actorChoosePokemon=false,
   nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null
 }={}){
@@ -580,7 +580,7 @@ function runDevelopment({
         const observed=withCanonicalActorOnlyPolicy(execute,{},
           {ownerSingleSearch:actorOnlySingleSearch,
             genericFallbackAttribution:actorGenericFallbackAttribution,
-            actorHandDiscard});
+            actorHandDiscard,actorChoosePokemon});
         rows.push({...observed.result,
           actorOnlyPolicyVersion:observed.audit.version,
           actorOnlyDecisionCoverage:observed.audit,
@@ -643,6 +643,7 @@ function runDevelopment({
     actorOnlyCompositionOptIn:actorOnlyComposition,
     actorOnlyOwnerSingleSearchOptIn:actorOnlyComposition&&actorOnlySingleSearch,
     actorHandDiscardOptIn:actorOnlyComposition&&actorHandDiscard,
+    actorChoosePokemonOptIn:actorOnlyComposition&&actorChoosePokemon,
     actorNativeFallbackAttributionOptIn:
       actorOnlyComposition&&actorGenericFallbackAttribution,
     actorOnlyCompositionVersion:actorOnlyComposition?
@@ -716,6 +717,7 @@ if(require.main===module){
     actorGenericFallbackAttribution:
       process.env.AGENT7_NATIVE_GENERIC_FALLBACK_DEV==='true',
     actorHandDiscard:process.env.AGENT47_ACTOR_HAND_DISCARD_DEV==='true',
+    actorChoosePokemon:process.env.AGENT8_ACTOR_CHOOSE_POKEMON_DEV==='true',
     sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true'
   });
