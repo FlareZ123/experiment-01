@@ -42,6 +42,26 @@ test('exact authentic tape, root and decision admit same-world parity only',()=>
   assert.strictEqual(Math.random,previous);
 });
 
+
+test('missing real action or omitted action signature cannot certify parity',()=>{
+  const cases=[
+    {actualAction:undefined,
+      replayDecision:()=>{Math.random();Math.random();return undefined;}},
+    {actualAction:null,
+      replayDecision:()=>{Math.random();Math.random();return null;}},
+    {actualAction:{name:'play-A'},
+      actionSignature:()=>undefined}
+  ];
+  for(const opts of cases) {
+    const result=verifyNativeSameWorldTapeParity(input(opts));
+    assert.equal(result.sameWorldDecisionParityQualified,false);
+    assert.equal(result.counterfactualHiddenStateComparisonPermitted,false);
+    assert.equal(result.selectedActionMatched,false);
+    assert.match(result.replayError,/genuine selected action/);
+    assert.equal(result.sourceRootUnchanged,true);
+  }
+});
+
 test('same source, same RNG, distinct selected action vetoes counterfactual',()=>{
   const result=verifyNativeSameWorldTapeParity(input({
     replayDecision:()=>{Math.random();Math.random();return {name:'pass'};}
