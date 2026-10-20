@@ -24,6 +24,47 @@ function eligiblePassFarewell(state,own,turn,seat) {
   return availableUnown(own);
 }
 
+
+/**
+ * Capture count-only owner zones before and after a genuine Store action.
+ * Drawn identities and private opposing state are intentionally excluded.
+ * @param {object} state Pinned Store state.
+ * @param {number} seat Owner seat.
+ * @param {number} benchIndex Chosen Farewell target.
+ * @returns {object}
+ */
+function farewellOwnerCounts(state,seat,benchIndex) {
+  const own=state.players[seat];
+  return {
+    ownerDeckCount:own.deck.cards.length,
+    ownerHandCount:own.hand.cards.length,
+    targetUnownPresent:
+      own.bench[benchIndex]?.getPokemonCard()?.fullName==='Unown AOR'
+  };
+}
+
+/**
+ * Confirm zone change observed at the next native owner decision, after the
+ * Farewell WaitPrompt is no longer pending. No intermediate voluntary
+ * candidate action may occur if the root-prefix gate also passes.
+ * @param {object} before
+ * @param {object} after
+ * @returns {object}
+ */
+function farewellZoneChange(before,after) {
+  const ownerDeckDecrease=before.ownerDeckCount-after.ownerDeckCount;
+  const ownerHandIncrease=after.ownerHandCount-before.ownerHandCount;
+  return {
+    ownerDeckDecrease,ownerHandIncrease,
+    chosenUnownRemoved:before.targetUnownPresent===true &&
+      after.targetUnownPresent===false,
+    countOnly:true,
+    settledZonePostcondition:ownerDeckDecrease===1 &&
+      ownerHandIncrease===1 && before.targetUnownPresent===true &&
+      after.targetUnownPresent===false
+  };
+}
+
 /**
  * Run an actual original-source game under a reversible single-root policy:
  * when the candidate generic bot first decides to pass on the requested
@@ -47,9 +88,20 @@ function withFarewellInsteadOfFirstPass(execute,{seat,turn}) {
   const prior=SimpleTacticsAi.prototype.decodeNextAction;
   const clientId=seat===0?101:202;
   let submitted=0;
+  let preFarewellCounts=null;
+  let settlement=null;
   const events=[];
 
   const handler=function farewellOnPass(state) {
+    // Observed on the real bot's next non-prompt owner decision. This occurs
+    // after a WaitPrompt reply, and before any further tactic simulation.
+    if(submitted===1 && settlement===null &&
+       this.client?.id===clientId && state.turn===turn &&
+       state.activePlayer===seat &&
+       !state.prompts.some(p=>p.result===undefined)) {
+      settlement=farewellZoneChange(preFarewellCounts,
+        farewellOwnerCounts(state,seat,events[0].benchIndex));
+    }
     const action=prior.call(this,state);
     if(this.client?.id!==clientId ||
        state.phase!==GamePhase.PLAYER_TURN ||
@@ -63,6 +115,7 @@ function withFarewellInsteadOfFirstPass(execute,{seat,turn}) {
     const replacement=new UseAbilityAction(own.id,'Farewell Letter',{
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index
     });
+    preFarewellCounts=farewellOwnerCounts(state,seat,index);
     submitted++;
     events.push({
       kind:'selected-live-owner-farewell-instead-of-pass',
@@ -82,6 +135,7 @@ function withFarewellInsteadOfFirstPass(execute,{seat,turn}) {
     return {result:execute(),policyAudit:{
       schema:'agent25-retrospective-farewell-instead-of-pass-v1',
       requestedTurn:turn,candidateSeat:seat,submitted,
+      settlement,
       events,competitivePolicyQualified:false
     }};
   } finally {
@@ -90,4 +144,5 @@ function withFarewellInsteadOfFirstPass(execute,{seat,turn}) {
   }
 }
 
-module.exports={eligiblePassFarewell,withFarewellInsteadOfFirstPass};
+module.exports={eligiblePassFarewell,farewellZoneChange,
+  withFarewellInsteadOfFirstPass};
