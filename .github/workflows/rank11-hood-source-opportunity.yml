@@ -12,7 +12,6 @@ on:
           - rank6
           - rank6-reply
           - rank6-faba
-          - common-vip
 jobs:
   audit:
     runs-on: ubuntu-latest
@@ -32,9 +31,6 @@ jobs:
       - name: Rank6 source Hood-remover protocol tests
         if: ${{ inputs.study == 'rank6-reply' || inputs.study == 'rank6-faba' }}
         run: node --test tests/early-shadow-rider-hood.test.cjs tests/protected-underworld-door.test.cjs tests/hood-initialization-policy.test.cjs tests/rank6-hood-removal-policy.test.cjs tests/rank6-hood-removal-replay.test.cjs tests/rank6-faba-hood-target.test.cjs
-      - name: Test reversible common VIP root policy with mock native interfaces
-        if: ${{ inputs.study == 'common-vip' }}
-        run: node --test tests/agent7-common-vip-pass-bridge.test.cjs tests/agent7-newmoon-vip-opening.test.cjs
       - run: npm ci --no-audit --no-fund
         working-directory: vendor/twinleaf/ptcg-server
       - run: npm run compile
@@ -57,16 +53,6 @@ jobs:
       - name: Retrospective rank6 Faba target reply
         if: ${{ inputs.study == 'rank6-faba' }}
         run: node simulation/twinleaf/rank6-faba-hood-replay.cjs > rank6-faba-hood-replay.json
-      - name: Two authentic source-first seats, shared held VIP root fallback
-        if: ${{ inputs.study == 'common-vip' }}
-        run: node simulation/twinleaf/agent7-common-vip-native-replay.cjs > agent7-common-vip-native.json
-      - name: Archive common VIP historical paired native Store evidence
-        if: ${{ always() && inputs.study == 'common-vip' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: agent7-common-vip-two-seat-native-v1
-          path: agent7-common-vip-native.json
-          if-no-files-found: warn
       - uses: actions/upload-artifact@v4
         if: ${{ inputs.study == 'rank11' }}
         with:
