@@ -100,7 +100,7 @@ function probeFreshPlayCardInClonedStore(snapshot,signature,clone,deps) {
  * @param {Function} BotClass Pinned SimpleTacticsAi.
  * @param {()=>T} execute Existing authentic game runner.
  * @param {(state:object)=>object} cloneDetached Whole-State detached clone.
- * @param {{turn:number,seat:number,makeRandom:()=>()=>number,firstFiniteScoredRoot?:boolean,probeFreshStoreLegality?:boolean}} target
+ * @param {{turn:number,seat:number,makeRandom:()=>()=>number,firstFiniteScoredRoot?:boolean,probeFreshStoreLegality?:boolean,nativeTapeSameWorld?:boolean}} target
  * @param {{headless?:object,compare?:Function,signature?:Function}} [dependencies]
  * @returns {{result:T,events:object[]}}
  */
@@ -112,6 +112,9 @@ function withPostgameRootOrderProbe(
   assert.ok(target&&Number.isSafeInteger(target.turn)&&target.turn>=1);
   assert.ok([0,1].includes(target.seat));
   assert.equal(typeof target.makeRandom,'function');
+  assert.ok(target.nativeTapeSameWorld!==true||
+    target.firstFiniteScoredRoot!==true,
+  'Native full-decision tape requires the pre-decision turn-3 root');
   const headless=dependencies.headless??require('../twinleaf/headless.cjs');
   const compare=dependencies.compare??compareHiddenDeckOrders;
   const signature=dependencies.signature??actionSignature;
@@ -249,9 +252,15 @@ function withPostgameRootOrderProbe(
       } catch(error) {
         captureError=String(error?.stack||error);
       }
-      const action=descriptor.value.call(this,state);
+      // Record only the genuine native decision, not a newly seeded bot.
+      // Sampling the existing source Math.random preserves the owner's
+      // authentic advanced policy stream and original selected Store action.
+      const taped=target.nativeTapeSameWorld===true?
+        require('../twinleaf/native-policy-random-tape.cjs')
+          .recordPolicyRandomTape(()=>descriptor.value.call(this,state)):null;
+      const action=taped?taped.result:descriptor.value.call(this,state);
       captured={state:snapshot,options,realAction:signature(action),
-        captureError};
+        nativeRealPolicyTape:taped?.tape??null,captureError};
       return action;
     }
     Object.defineProperty(BotClass.prototype,'decodeNextAction',{
@@ -286,6 +295,53 @@ function withPostgameRootOrderProbe(
       baselineActionMatchedActual:false,liveStatePreserved:false,
       auditError:captured.captureError
     }]};
+  }
+  if(target.nativeTapeSameWorld===true) {
+    // This first-stage gate replays only the same physical world. No altered
+    // hidden state may be inspected until source action, replay RNG and the
+    // detached physical root all agree with this authentic selection.
+    try {
+      const {verifyNativeSameWorldTapeParity}=
+        require('../twinleaf/native-same-world-tape-parity.cjs');
+      const applyPolicy=dependencies.replayPolicy??
+        require('./agent41-bilateral-common-policy.cjs')
+          .withBilateralCommonCandidatePolicy;
+      const policyReplay=world=>applyPolicy(target.seat,()=>{
+        const bot=new BotClass({id:actorId},
+          cloneBotOptions(captured.options),null);
+        return bot.decodeNextAction(world);
+      }).result;
+      const parity=verifyNativeSameWorldTapeParity({
+        root:captured.state,
+        actualAction:captured.realAction,
+        tape:captured.nativeRealPolicyTape,
+        cloneState:cloneDetached,
+        replayDecision:policyReplay,
+        actionSignature:value=>value&&typeof value.type==='string'&&
+          typeof value.data==='string'?value:signature(value),
+        fingerprint:state=>stateGraphFingerprint(state).digest
+      });
+      return {result:frozenResult,events:[{
+        nativeSameWorldTape:parity,
+        originalSourceAction:captured.realAction,
+        baselineActionMatchedActual:parity.sameWorldDecisionParityQualified,
+        liveStatePreserved:parity.sourceRootUnchanged,
+        actionSensitiveToHiddenDeckOrder:null,
+        counterfactualCompared:false,
+        comparedAfterRealGameFinished:true,
+        sourceMatchExecutions:innerRunCalls,
+        replayCommonPolicy:true,
+        qualification:'same-physical-world-parity-only; no hidden-world comparison'
+      }]};
+    } catch(error) {
+      return {result:frozenResult,events:[{
+        originalSourceAction:captured.realAction,
+        baselineActionMatchedActual:false,
+        liveStatePreserved:false,
+        counterfactualCompared:false,
+        auditError:String(error?.stack||error)
+      }]};
+    }
   }
   let comparison;
   try {
