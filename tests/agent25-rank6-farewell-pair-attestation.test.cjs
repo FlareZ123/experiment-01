@@ -99,3 +99,20 @@ test('absence of a next source turn is retained as a separate negative',()=>{
   assert.equal(result.genuineSingleRootReplacement,true);
   assert.equal(result.sourceContinued,false);
 });
+
+test('missing baseline root capture cannot become a positive witness',()=>{
+  const {baseline,altered,options}=fixture();
+  delete baseline.rootActionLedger;
+  const result=attestFarewellPair(baseline,altered,options);
+  assert.equal(result.classification,'source-deal-or-start-mismatch');
+  assert.equal(result.genuineSingleRootReplacement,false);
+});
+
+test('missing deck identities cannot compare by two absent fields',()=>{
+  const {baseline,altered,options}=fixture();
+  delete baseline.deckHashes;
+  delete altered.deckHashes;
+  const result=attestFarewellPair(baseline,altered,options);
+  assert.equal(result.classification,'source-deal-or-start-mismatch');
+  assert.equal(result.genuineSingleRootReplacement,false);
+});
