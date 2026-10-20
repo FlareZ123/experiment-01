@@ -51,6 +51,10 @@ function exercise(candidateSeat){
   state.gameSettings.format=Format.EXPANDED;
   const mew=card('Mewtwo & Mew-GX UNM');
   owner.active.cards.push(mew);
+  const lele=card('Tapu Lele-GX GRI');
+  const ownerBench=new PokemonCardList();
+  ownerBench.cards.push(lele);
+  owner.bench.push(ownerBench);
   opponent.active.cards.push(card('Trubbish FST'),card('Garbodor LTR'));
   const bench=new PokemonCardList();
   bench.cards.push(card('Trubbish FST'),card('Garbodor BKP'));
@@ -71,9 +75,15 @@ function exercise(candidateSeat){
     }
   }
   const power=mew.powers.find(x=>x.name==='Perfection');
+  const benchPower=lele.powers.find(x=>x.name==='Wonder Tag');
   assert.ok(power);
+  assert.ok(benchPower,'Benched printed Wonder Tag needed for native control');
   const blocked=()=>IS_ABILITY_BLOCKED(store,state,owner,mew,power);
+  const benchedBlocked=()=>
+    IS_ABILITY_BLOCKED(store,state,owner,lele,benchPower);
   assert.equal(blocked(),true);
+  assert.equal(benchedBlocked(),true,
+    'Garbotoxin must also block the real Benched Rule Box Power');
 
   const ai=new SimpleTacticsAi({id:owner.id},
     {tactics:[],promptResolvers:[]},null);
@@ -98,6 +108,8 @@ function exercise(candidateSeat){
     store.dispatch(resolvedTargets);
     assert.equal(state.prompts.find(p=>p.result===undefined),undefined);
     assert.equal(blocked(),false);
+    assert.equal(benchedBlocked(),false,
+      'Benched Wonder Tag must be unblocked after both Tools are removed');
     assert.equal(StateUtils.getStadiumCard(state),stadium);
     assert.ok(owner.discard.cards.some(x=>x.id===blower.id));
     assert.equal(tools.filter(tool=>
