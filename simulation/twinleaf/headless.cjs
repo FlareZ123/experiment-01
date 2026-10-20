@@ -223,6 +223,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [prototypeSafeSimulatorIsolation] Opt-in experimental detached speculative Cards/prototypes, not certified for competitive inference.
  * @property {boolean} [postSuperAliasRepairIsolation] Opt-in experimental source-graph reconciliation after the pinned Simulator constructor.
  * @property {boolean} [supporterDecisionCorrection] Opt-in, reversible correction for premature Supporter turn consumption.
+ * @property {boolean} [mandatoryOptionFallback] Opt-in, both-seat noncancelable SelectOptionPrompt legality fallback; enabled default, not strategic mode selection.
  * @property {boolean} [guzmaSelfSwitchGuard] Opt-in rank-6 off-type self-switch counterfactual.
  * @property {boolean} [dialgaBenchExposureGuard] Opt-in rank-6 gust-target exposure counterfactual.
  * @property {boolean} [leleEntryAbilityLockCorrection] Opt-in correction for Tapu Lele-GX Bench-entry Ability locks.
@@ -589,6 +590,9 @@ function runMatch(request) {
     let options = request.doubleDragonRecovery === true ?
       ddeAdapter.withDoubleDragonRecovery(baseOptions) : baseOptions;
     if (request.templeUnlockRecovery === true) options = require('./temple-unlock-tactic.cjs').withTempleUnlockRecovery(options);
+    if (request.mandatoryOptionFallback === true) {
+      options = require('./mandatory-option-policy.cjs').withMandatoryOptionFallback(options);
+    }
     if (request.electrodeGXPrizeTradePolicy === true) options = withElectrodePrizeTradePolicy(options);
     if (request.attachedToolPowerPolicy === true) options = withAttachedToolPowerPolicy(options);
     if (request.raichuSightToolPolicy === true) {
@@ -1471,6 +1475,7 @@ function runMatch(request) {
       ...(request.doubleDragonArchiveV3 === true ? {doubleDragonArchiveV3:true} : {}),
       templeUnlockRecovery: request.templeUnlockRecovery === true,
       supporterDecisionCorrection: request.supporterDecisionCorrection === true,
+      mandatoryOptionFallback: request.mandatoryOptionFallback === true,
       guzmaSelfSwitchGuard: request.guzmaSelfSwitchGuard === true,
       dialgaBenchExposureGuard: request.dialgaBenchExposureGuard === true,
       leleEntryAbilityLockCorrection: request.leleEntryAbilityLockCorrection === true,
@@ -1539,6 +1544,7 @@ function runMatch(request) {
         (request.battleCompressorPositiveSelectionCorrection === true ?
           '+BattleCompressorMin1-paper-v1' : '') +
         (request.supporterDecisionCorrection === true ? '+SupporterDecisionGuard-v1' : '') +
+        (request.mandatoryOptionFallback === true ? '+MandatoryOptionDefaultFallback-v1' : '') +
         (request.guzmaSelfSwitchGuard === true ? '+GuzmaSelfSwitchGuard-v1' : '') +
         (request.dialgaBenchExposureGuard === true ? '+DialgaBenchExposureGuard-v1' : '') +
         (request.templeUnlockRecovery === true ? '+TempleUnlockTactic-v1' : '') +
