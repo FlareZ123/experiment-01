@@ -65,7 +65,7 @@ test('permuting concealed owner deck order cannot alter the detached search menu
 test('complete multi-axis search preserves all native-valid categories and hidden-order invariance',()=>{
   const cards=[
     {fullName:'Handheld Fan TWM',role:'tool'},
-    {fullName:'Player\\'s Ceremony SP 127',role:'stadium'},
+    {fullName:"Player's Ceremony SP 127",role:'stadium'},
     {fullName:'Capture Energy RCL',role:'special-energy'},
     {fullName:'Irrelevant Pokemon',role:'pokemon'}
   ];
