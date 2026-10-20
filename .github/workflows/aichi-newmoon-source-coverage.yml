@@ -329,6 +329,20 @@ jobs:
           name: rank15-native-poffin-two-oddish-physical-fork
           path: rank15-poffin-oddish-native-fork.json
           if-no-files-found: warn
+      - name: Audit owner-root Omega Barrage second-attack confirmation
+        if: ${{ inputs.rank15_oddish_prompt_fork }}
+        run: node simulation/twinleaf/rank15-omega-barrage-real-root-prompt.cjs > rank15-omega-barrage-root-confirm.json
+      - name: Show native owner prompt answers after first Evolution attack
+        if: ${{ inputs.rank15_oddish_prompt_fork }}
+        run: >-
+          node -e "const x=require('./rank15-omega-barrage-root-confirm.json');console.log(JSON.stringify({schema:x.schema,rootSHA:x.exactPriorOddishRootLedgerSHA256,prompts:x.rootBarragePromptEvents.map(e=>({ordinal:e.rootOrdinal,action:e.actionType,type:e.promptType,response:e.ownerResponse,promptMessage:e.promptMessage,owner:e.ownerPrompt,turnAfter:e.turnAfter,following:e.nextPendingPrompts}))},null,2))"
+      - name: Archive genuine post-Evolution Omega Barrage owner choices
+        if: ${{ always() && inputs.rank15_oddish_prompt_fork }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank15-native-barrage-post-evolution-confirmation
+          path: rank15-omega-barrage-root-confirm.json
+          if-no-files-found: warn
       - name: Preserve exact pinned catalog coverage
         uses: actions/upload-artifact@v4
         with:
