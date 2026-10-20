@@ -131,6 +131,21 @@ test('an extra candidate turn needs its own native grant and next-turn roots',()
   r=attest(row,ledger,1);
   assert.equal(r.bonusTurnRootChain,true);
   assert.equal(r.rootClaimsAuthenticated,true);
+  // Owner/turn order alone cannot authenticate an extra-turn attack grant.
+  for(const nonAttack of ['PlayCardAction','PassTurnAction',
+    'ResolvePromptAction']){
+    ledger[3].action=nonAttack;
+    const forged=attest(row,ledger,1);
+    assert.equal(forged.bonusTurnRootChain,false,nonAttack);
+    assert.equal(forged.rootClaimsAuthenticated,false,nonAttack);
+  }
+  ledger[3].action='AttackAction';
+  row.candidateBonusTurn.grantRootActionOrdinal=2;
+  row.candidateBonusTurn.completionOrdinal=2;
+  assert.equal(attest(row,ledger,1).rootClaimsAuthenticated,false,
+    'A candidate Trainer root cannot be relabeled as Timeless-GX');
+  row.candidateBonusTurn.grantRootActionOrdinal=3;
+  row.candidateBonusTurn.completionOrdinal=3;
   ledger[4].playerSlot=0;
   assert.equal(attest(row,ledger,1).bonusTurnRootChain,false);
 });
