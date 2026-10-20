@@ -289,3 +289,44 @@ test('malformed or cross-turn effects cannot fabricate pressure evidence',()=>{
   census=auditUnconditionalBilateralCensus(plan,archive);
   assert.equal(census.byRank[11].pressureCells['first-only-witnessed'],1);
 });
+
+
+test('rank6 no-target arm remains counted alongside blocked-power positive control',()=>{
+  const {plan,archive}=fixture();
+  const before=auditUnconditionalBilateralCensus(plan,archive);
+  const base={
+    schema:'agent41-rank6-passive-initialization-root-classification-v1',
+    sourceSeat:0,candidateSeat:1,sourceActuallyFirst:true,
+    sourceActiveContinuity:true,candidateTurnTwoSnapshotPresent:true,
+    sourceTurnOneEndRoot:{ordinal:10,turn:1,seat:0,action:'PassTurnAction'},
+    candidateTurnTwoFirstRoot:{ordinal:15,turn:2,seat:1,action:'PlayCardAction'}
+  };
+  const ref=rowFor(archive,6,1,'reference');
+  const resistant=rowFor(archive,6,1,'newmoon');
+  ref.rank6PassivePressure={
+    ...base,status:'native-capability-suppression-with-rooted-turn-continuity',
+    examinedPrintedPowerCount:2,nativeCapabilitySuppressed:true,
+    suppressedPowerPrinting:'Latias ex SSP',suppressedPowerName:'Skyliner'
+  };
+  resistant.rank6PassivePressure={
+    ...base,status:'no-eligible-visible-power',
+    examinedPrintedPowerCount:0,nativeCapabilitySuppressed:false
+  };
+  const census=auditUnconditionalBilateralCensus(plan,archive);
+  const cells=census.byRank[6].rank6InPlayApplicabilityCells;
+  assert.equal(cells['candidate-first'],2);
+  assert.equal(cells['blocked-eligible-target'],1);
+  assert.equal(cells['no-eligible-target'],1);
+  assert.equal(cells.unverified,0);
+  const pair=census.pairs.find(row=>row.sourceRank===6&&
+    row.candidateSeat===1);
+  assert.deepEqual(pair.candidateArms.map(row=>row.rank6InPlayApplicability),
+    ['blocked-eligible-target','no-eligible-target']);
+  assert.equal(census.byRank[6].pressureCells['both-witnessed'],2);
+  assert.equal(census.pairedAttemptCensusReviewable,
+    before.pairedAttemptCensusReviewable);
+  assert.equal(census.originalStrictMechanicalVerdict,
+    before.originalStrictMechanicalVerdict);
+  assert.equal(census.comparativeStrengthCertified,false);
+  assert.equal(census.gameWinRateCertified,false);
+});
