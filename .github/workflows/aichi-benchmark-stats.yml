@@ -55,6 +55,8 @@ jobs:
         run: node --test tests/aichi-campaign-runner.test.cjs tests/aichi-setup-zone-capture.test.cjs
       - name: Test archived rank8 Star Alchemy search use and hand disruption
         run: node --test tests/rank8-stone-archive-inspector.test.cjs
+      - name: Detect source prompt-card divergence before root action-type divergence
+        run: node --test tests/action-ledger-first-observable-difference.test.cjs
       - name: Audit spent-Supporter unrestricted search choice and reversible policy
         run: node --test tests/spent-supporter-search-policy.test.cjs
       - name: Verify Regidrago source-name panel scheduling
