@@ -12,6 +12,8 @@ const {candidateAttackSettlement}=
   require('./agent37-candidate-attack-settlement.cjs');
 const {withNativePaperSupporterDiscipline,VERSION:PAPER_SUPPORTER_VERSION}=
   require('../twinleaf/agent41-paper-supporter-discipline.cjs');
+const {withCanonicalActorOnlyPolicy,VERSION:ACTOR_COMPOSITION_VERSION}=
+  require('./agent7-canonical-actor-composition.cjs');
 
 const root=path.resolve(__dirname,'../..');
 const registration=JSON.parse(fs.readFileSync(path.join(root,
@@ -521,7 +523,7 @@ function runDevelopment({
   sourceFirstRetrospective=false,paperSupporterQuota=false,
   paperSupporterComparisonTrace=false,proposalStateAudit=false,
   nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
-  nativeOpponentHiddenReadAudit=false
+  nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false
 }={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -542,16 +544,25 @@ function runDevelopment({
   const scheduled=sourceFirstRetrospective?
     sourceFirstPressureTrials():developmentTrials();
   for(const trial of scheduled){
-    try { rows.push(executeDevelopment(trial,prepared,{
-      compressorPayload,opportunityAudit,lateCompressorPayload,
-      mandatoryOptionFallback,paperSupporterQuota,paperSupporterComparisonTrace,
-      proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
-      nativeOpponentHiddenReadAudit,
-      // An opt-in observational package, with each native Store observer
-      // applicable to its own opposing source archetype only.
-      initializationWindow:nativePressureWindows&&trial.rank===6,
-      garbotoxinWindow:nativePressureWindows&&trial.rank===11
-    })); }
+    try {
+      const execute=()=>executeDevelopment(trial,prepared,{
+        compressorPayload,opportunityAudit,lateCompressorPayload,
+        mandatoryOptionFallback,paperSupporterQuota,paperSupporterComparisonTrace,
+        proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
+        nativeOpponentHiddenReadAudit,
+        // An opt-in observational package, with each native Store observer
+        // applicable to its own opposing source archetype only.
+        initializationWindow:nativePressureWindows&&trial.rank===6,
+        garbotoxinWindow:nativePressureWindows&&trial.rank===11
+      });
+      if(actorOnlyComposition){
+        const observed=withCanonicalActorOnlyPolicy(execute);
+        rows.push({...observed.result,
+          actorOnlyPolicyVersion:ACTOR_COMPOSITION_VERSION,
+          actorOnlyDecisionCoverage:observed.audit,
+          qualifiesForCompetitiveInference:false});
+      }else rows.push(execute());
+    }
     catch(error){
       const veto=error?.paperSupporterQuotaEvidence??
         error?.cause?.paperSupporterQuotaEvidence??null;
@@ -600,6 +611,11 @@ function runDevelopment({
     proposalStateAuditOptIn:proposalStateAudit,
     nativeProposalValidationAuditOptIn:nativeProposalValidationAudit,
     nativeOpponentHiddenReadAuditOptIn:nativeOpponentHiddenReadAudit,
+    actorOnlyCompositionOptIn:actorOnlyComposition,
+    actorOnlyCompositionVersion:actorOnlyComposition?
+      ACTOR_COMPOSITION_VERSION:null,
+    actorOnlyCellsWithAudits:actorOnlyComposition?
+      rows.filter(row=>row.actorOnlyDecisionCoverage).length:0,
     nativeProposalTapeOrdinal:nativeProposalValidationAudit?
       nativeProposalTapeOrdinal:null,
     nativeSupporterQuotaQualified:paperSupporterQuota?
@@ -656,6 +672,7 @@ if(require.main===module){
       Number(process.env.AGENT41_NATIVE_PROPOSAL_TAPE_ORDINAL):null,
     nativeOpponentHiddenReadAudit:
       process.env.AGENT41_NATIVE_HIDDEN_READ_DEV==='true',
+    actorOnlyComposition:process.env.AGENT7_CANONICAL_ACTOR_POLICY_DEV==='true',
     sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true'
   });
