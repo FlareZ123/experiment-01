@@ -302,6 +302,20 @@ jobs:
         run: node --test tests/agent34-actor-only-root-policy.test.cjs
       - name: Dispatch actor-only roots on canonical frozen four-arm development cohort
         run: node simulation/twinleaf/agent34-actor-only-canonical-development.cjs > agent34-actor-root-native.json
+      - name: Print bounded original Store actor-only execution summary
+        run: >-
+          node -e "const r=require('./agent34-actor-root-native.json');
+          console.log('AGENT34_ACTOR_NATIVE_ROOTS',JSON.stringify({
+          accepted:r.audit.acceptedActorRoots,rejected:r.audit.rejectedActorRoots,
+          selected:r.audit.selectedRootDecisions,actualGamesSeen:r.audit.actualGamesSeen,
+          intents:r.audit.typedIntentCounts,
+          promptFallbacks:r.audit.unsupportedPromptFallbacks,
+          promptTypes:r.audit.unsupportedPromptTypes,
+          nativeEvents:r.audit.nativeRootAcceptances.slice(0,12),
+          rows:r.rows.map(x=>({trial:x.trialId,status:x.status,
+          actions:x.actionCount,attacks:x.attackDeclarations,
+          supporterGate:x.nativeSupporterQuotaQualified})),
+          qualified:r.competitiveQualifiedGames}));"
       - name: Preserve native Store acceptance, failed roots and prompt fallback counts
         if: always()
         uses: actions/upload-artifact@v4
