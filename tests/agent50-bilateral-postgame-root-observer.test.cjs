@@ -3,7 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {cloneBotOptions,withPostgameRootOrderProbe,
-  probeFreshPlayCardInClonedStore}=
+  probeFreshPlayCardInClonedStore,verifyCapturedNativeRoot}=
   require('../simulation/evaluation/agent50-bilateral-postgame-root-observer.cjs');
 const {actionSignature}=
   require('../simulation/twinleaf/rank10-hidden-order-live-probe.cjs');
@@ -160,7 +160,7 @@ test('snapshot mutation triggers a fail-closed owner-visible root warning',()=>{
   assert.equal(observed.events[0].baselineActionMatchedActual,false);
   assert.equal(observed.events[0].liveStatePreserved,false);
   assert.match(observed.events[0].auditError,
-    /Captured replay root differs from genuine physical State/);
+    /Captured replay root differs from genuine physical State|Detached root capture mutated the actual Store State graph/);
   assert.equal(observed.result.action.play,'generic');
 });
 
@@ -646,4 +646,35 @@ test('exploratory contrast is withheld if native tape parity fails first',()=>{
   assert.equal(event.nativeHiddenOrderContrast.contrastExecutable,false);
   assert.match(event.nativeHiddenOrderContrast.error,/parity failed first/);
   assert.equal(event.counterfactualCompared,false);
+});
+
+test('canonical root verification accepts shadowed native intermediate class prototypes',()=>{
+  class NativeCard {
+    constructor(){this.damage=30;}
+  }
+  const realCard=new NativeCard();
+  const inherited=Object.create(realCard);
+  inherited.damage=30;
+  const original={lastAttack:inherited};
+  const captured={lastAttack:new NativeCard()};
+  const report=verifyCapturedNativeRoot(original,captured);
+  assert.equal(report.rawGraphMatched,false);
+  assert.equal(report.canonicalGraphMatched,true);
+  assert.equal(report.firstRawDifference.category,'prototype-class-mismatch');
+  assert.deepEqual(report.firstRawDifference.path,['State','lastAttack']);
+  assert.ok(!JSON.stringify(report).includes('NativeCard')||
+    report.method==='class-prototypes-canonicalized-after-shadowing-audit');
+});
+
+test('canonical root verification rejects substantive hidden card changes',()=>{
+  const original={ownDeck:{cards:['SECRET-A','SECRET-B']}};
+  const captured=structuredClone(original);
+  captured.ownDeck.cards[0]='SECRET-X';
+  assert.throws(()=>verifyCapturedNativeRoot(original,captured),error=>{
+    assert.match(error.message,/Captured replay root differs/);
+    assert.match(error.message,/primitive-value-mismatch/);
+    assert.ok(!error.message.includes('SECRET-A'));
+    assert.ok(!error.message.includes('SECRET-X'));
+    return true;
+  });
 });
