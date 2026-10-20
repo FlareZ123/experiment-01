@@ -75,3 +75,18 @@ The [archive audit code](../../scripts/agent7-newmoon-vip-archive-audit.cjs), [f
 - Rank6 repeat3 seat B, seed 1756476188: baseline executes Secret Box and passes after Path to the Peak, whereas VIP arm adds a Powerglass play before Path and Pass. The additional later choice is mechanically observed, with strategic value unmeasured.
 
 All four alternatives used their authentic native owner-deck search to put Gengar & Mimikyu-GX alongside Mewtwo & Mew-GX or Squawkabilly onto the public Bench. These four first-turn divergences remain **mechanical sequencing evidence**, because the parent bot's subsequent attacking policy is not qualified. The no-op parity check is confined to candidate first-own-turn reported decisions; it does not certify identical full-game action ledgers or independent RNG replay.
+
+## Bench-capacity attribution from original archived events
+
+An additional replay-free [CI 39430206247](https://github.com/FlareZ123/experiment-01/actions/runs/39430206247), using the same immutable experiment archive and four passing tests, exposed the **public five-slot Bench snapshot immediately after each successful VIP native prompt**:
+
+| Source, seat, repeat | Public Bench immediately after VIP | Free slots |
+| --- | --- | ---: |
+| Rank 6, A, 0 | Unown, Gengar & Mimikyu-GX, Mewtwo & Mew-GX | 2 |
+| Rank 6, A, 1 | Duskull, Galarian Articuno V, Gengar & Mimikyu-GX, Mewtwo & Mew-GX | **1** |
+| Rank 6, B, 3 | Gengar & Mimikyu-GX, Squawkabilly ex | 3 |
+| Rank 11, A, 1 | Lillie's Clefairy ex, Gengar & Mimikyu-GX, Mewtwo & Mew-GX | 2 |
+
+In the rank-6 repeat1 seat-A positive, the intervened candidate then physically plays another Duskull onto its sole open Bench slot, before retrieving Squawkabilly ex with Hisuian Heavy Ball. No Squawkabilly ex Bench play follows. The archived public Bench snapshot, actual first-own-turn Duskull play and standard five-slot Bench rule jointly support **Bench occupancy as the immediate mechanical obstruction**. The original paired control instead plays the retrieved Squawkabilly ex and had no VIP targets occupying those two spaces. A substitute future play might have a different value: the relative utility of the Gengar/Mewtwo line and Squawkabilly remains unmeasured.
+
+Methodological implication: even a printed-legal, native-accepted first-turn search can consume Bench capacity and crowd out an otherwise executable draw-support Basic. Conditional tactical opportunity costs must enter deck and common-policy evaluation alongside Item access probabilities. No wider 60-card or matchup superiority is inferred.
