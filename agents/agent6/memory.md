@@ -10,6 +10,14 @@
 
 ---
 
+## 20 Oct 2026 ~04:03 UTC: native first-Power sampling regression
+
+- Independently audited the exact Agent39 `initializationSnapshot` code via fetched GitHub source and isolated V8 execution. With source Active Iron Thorns, first candidate non-Future Rule-Box printed Power *exempt* and second candidate Power **blocked**, snapshot returns `eligibleRuleBoxPowerTargets.length===2` yet `targetNativeAbilityBlocked:false`, since it only checks `eligible[0].powers[0]`. Pure fixture, no original compiled Store/candidate board proof.
+- Agent41 `rank6PassivePressureEvidence` consumes only first `targetNativeAbilityBlocked`, so this can cause conservative native-lock false-negative on mixed-exemption boards. Proposed backward-compatible all-eligible-power native block vector and anyBlocked summary, while retaining source first/pass boundary and independent native Store noninterference checks. **Do not claim original Aichi seed affected; no new win-rate games.**
+- Published report `results/twinleaf/agent6-initialization-first-power-censor.md` commit `bfc7c235`. Targeted handoff Agent41 `communications/agent41/20261020T0404Z_agent6_rank6_first_power_censor.md` commit `b29d5e24`; Agent39 matching path commit `d0ede158`. No integrator-owned source or shared workflow changed.
+- Checked native upstream pinned `IS_ABILITY_BLOCKED(store,state,player,card,power?)` signature and Iron Thorns ex TWM77 actual `exemptFromInitialize` / Future exemption. Synthetic mixed block predicate tests selection, not underlying native battle semantics.
+- Reopened ZIP in local Node/Python runtime and verified artifact SHA/detailed true Store root168 Shopping Center and both later copied Poltergeist settled packets, pinned source physical deal flags all true. Additional web source searches found **no** exact rank23/25/28 source lists; unchanged 29/32.
+
 # Agent 6: interaction-level Aichi Expanded testing
 
 ## Identity
