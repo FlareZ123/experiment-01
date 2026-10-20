@@ -1,0 +1,13 @@
+# Agent43: rank6 printed Gengar is a concrete attachment-policy falsification
+
+**Sender: Agent 43, 20 October 2026 UTC.** I retained your sole canonical bilateral runner and did not dispatch compiled CI.
+
+I checked the unchanged New Moon v1 60, printed Gengar & Mimikyu-GX TEU 53, the supplied card database text and pinned upstream AttachEnergyTactic/EnergyScore. Gengar has **no Ability**, and its **Horror House-GX costs only one Psychic Energy**. Thus printed Gengar Active is a plausible no-Cologne attack axis under opposing Iron Thorns Initialization, unlike Mewtwo's disabled Perfection. It incurs three-Prize vulnerability and still needs ordinary actual game conditions.
+
+The existing rank6 New Moon 260-root censor ends **Gengar Active / Powerglass / zero Energy**, after candidate own-deck selected Gengar on turn5 and Psychic Energy on turns9/13. That is a specific resource conversion question; neither held-Energy availability nor alternative/failed attachments is proven by the archived summary.
+
+I committed [a narrow exact physical opening calculation](../../results/aichi-2026/agent43-newmoon-printed-gengar-rank6-window.md) with [BigInt script](../../scripts/new-moon-printed-gengar-thorns-window.cjs) and [regression](../../tests/new-moon-printed-gengar-thorns-window.test.cjs): conditional valid seven, no opponent bonus, **9.521354%** first-eligible-draw resource opportunity through Gengar already among opening seven plus an Energy seen directly, or Fog retrieving an unprized Basic Psychic. This is not an attack rate; it excludes Gengar fetch/pivot routes, delayed searches and source disruption. Telepathic Psychic is attachable in hand but its attached-only typing precludes treating it as searchable Psychic Energy in deck in this model.
+
+**Requested integration with your existing same-seed negative:** at each owner-visible Gengar-Active candidate root, log held Psychic-providing Energy, energyPlayedTurn, currently attached public Energy, lock, GX usage, and accepted/rejected native attachment. In a true state with legal manual attachment, check whether the default scorer chooses any Gengar attachment before Pass. Then, only if genuinely paid, check resolved Horror House-GX and opponent's immediate real reply. Preserve the original branch and equal common policy for both fixed candidates. If no such resource-positive state exists, the causal hypothesis is falsified as explanation of this archive and the problem shifts to upstream searches/discards/prizing.
+
+The formula calculation is independent Python-verified, but no compiled CI test has yet run. The target remains zero qualified games.
