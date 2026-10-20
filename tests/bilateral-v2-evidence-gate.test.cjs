@@ -2,10 +2,16 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
+const {createHash}=require('node:crypto');
 const {auditBilateralV2}=
   require('../simulation/evaluation/bilateral-v2-evidence-gate.cjs');
 
 const hex=c=>c.repeat(64);
+/** @param {{rootActionLedger:object[],rootActionLedgerSha256?:string}} row */
+const commitNativeLedger=row=>{
+  row.rootActionLedgerSha256=createHash('sha256')
+    .update(JSON.stringify(row.rootActionLedger)).digest('hex');
+};
 function fixture(){
   const plan={
     schema:'aichi-bilateral-common-policy-plan-v2',
@@ -134,11 +140,13 @@ test('optional native Store ledger independently binds an asserted bilateral roo
   ]) Object.assign(ledger[claim],{playerSlot:seat,turnBefore:turn});
   row.rootActionLedger=ledger;
   row.rootActionLedgerProtocol='actual-store-root-action-ledger-v1';
+  commitNativeLedger(row);
   let result=auditBilateralV2(plan,archive);
   assert.equal(result.arms[0].nativeRootClaimsAuthenticated,true);
   assert.equal(result.independentlyRootBoundBilateralWitnesses,1);
   assert.ok(!result.arms[0].vetoes.includes('actual-store-root-claims-unverified'));
   ledger[row.candidateReply.rootActionOrdinal].playerSlot=sourceSeat;
+  commitNativeLedger(row);
   result=auditBilateralV2(plan,archive);
   assert.equal(result.arms[0].mechanicalBilateralWitness,true);
   assert.equal(result.arms[0].nativeRootClaimsAuthenticated,false);
@@ -146,10 +154,32 @@ test('optional native Store ledger independently binds an asserted bilateral roo
   assert.equal(result.independentlyRootBoundBilateralWitnesses,0);
 });
 
+test('native Store ledger requires a real digest and rejects silent transcript edits',()=>{
+  const {plan,archive}=fixture();
+  const row=archive.rows[0];
+  row.rootActionLedgerProtocol='actual-store-root-action-ledger-v1';
+  row.rootActionLedger=Array.from({length:row.rootActionCount},(_,i)=>({
+    actionOrdinal:i,turnBefore:1,playerSlot:0,action:'PassTurnAction'
+  }));
+  assert.throws(()=>auditBilateralV2(plan,archive),
+    /Preserved Store root ledger SHA-256 required/);
+  commitNativeLedger(row);
+  assert.doesNotThrow(()=>auditBilateralV2(plan,archive));
+  row.rootActionLedger[0].action='PlayCardAction';
+  assert.throws(()=>auditBilateralV2(plan,archive),
+    /Preserved Store root ledger SHA-256 mismatch/);
+  commitNativeLedger(row);
+  assert.doesNotThrow(()=>auditBilateralV2(plan,archive));
+  row.rootActionLedgerSha256='00';
+  assert.throws(()=>auditBilateralV2(plan,archive),
+    /Preserved Store root ledger SHA-256 required/);
+});
+
 test('incomplete native Store transcript rejects even with positive producer flags',()=>{
   const {plan,archive}=fixture();
   archive.rows[0].rootActionLedgerProtocol='actual-store-root-action-ledger-v1';
   archive.rows[0].rootActionLedger=[];
+  commitNativeLedger(archive.rows[0]);
   assert.throws(()=>auditBilateralV2(plan,archive),
     /every successful Store root/);
 });
@@ -181,6 +211,7 @@ test('raw Store attestation elevates both real seats without licensing wins',()=
     }
     row.rootActionLedgerProtocol='actual-store-root-action-ledger-v1';
     row.rootActionLedger=ledger;
+    commitNativeLedger(row);
   }
   let r=auditBilateralV2(plan,archive);
   assert.equal(r.nativeRootBoundPairs,4);
@@ -193,6 +224,7 @@ test('raw Store attestation elevates both real seats without licensing wins',()=
   const altered=archive.rows[0];
   altered.rootActionLedger[altered.candidateReply.rootActionOrdinal].playerSlot=
     1-altered.candidateSeat;
+  commitNativeLedger(altered);
   r=auditBilateralV2(plan,archive);
   assert.equal(r.opportunityAndPolicyVerdict,'MECHANICAL-PILOT-REVIEWABLE');
   assert.equal(r.nativeRootBoundPairs,3);
