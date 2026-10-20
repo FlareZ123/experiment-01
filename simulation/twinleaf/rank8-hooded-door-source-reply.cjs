@@ -54,6 +54,7 @@ function withRank8HoodedDoorReply(execute) {
   let witness = null;
   let beforeDoor = null;
   let postDoorPassProbe = null;
+  let liveLockAbilityProbes = null;
   const board = {player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
 
   /** @param {object} state @param {string} detail @param {object} action */
@@ -116,6 +117,12 @@ function withRank8HoodedDoorReply(execute) {
       const destination = own.bench.findIndex(slot =>
         slot.getPokemonCard()?.name === 'Shadow Rider Calyrex VMAX');
       assert.ok(destination >= 0);
+      const {probeDoorTarget} =
+        require('./underworld-door-source-lock-probe.cjs');
+      liveLockAbilityProbes = {
+        hoodedActive:probeDoorTarget(state,own.id,'active',0),
+        unhoodedBench:probeDoorTarget(state,own.id,'bench',destination)
+      };
       beforeDoor = {
         handCount:own.hand.cards.length,
         deckCount:own.deck.cards.length,
@@ -182,7 +189,7 @@ function withRank8HoodedDoorReply(execute) {
   SimpleTacticsAi.prototype.decodeNextAction = reply;
   try {
     const result = execute();
-    return {result,events,stage,witness,postDoorPassProbe};
+    return {result,events,stage,witness,postDoorPassProbe,liveLockAbilityProbes};
   } finally {
     assert.equal(SimpleTacticsAi.prototype.decodeNextAction,reply);
     SimpleTacticsAi.prototype.decodeNextAction = original;
