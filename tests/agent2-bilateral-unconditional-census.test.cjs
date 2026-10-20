@@ -380,6 +380,7 @@ test('rank11 Bench-only suppression and no-target source-first arms remain count
     sourceSeat:0,candidateSeat:1,turn:2,realStoreOnly:true,
     before:{globalTurn:2,sourceGarbodorHasTool:true,
       candidateActive:'Unown AOR',candidatePrintedPowerNames:[],
+        candidatePrintedPowerChecks:[],
       candidateInPlayPrintedPowerChecks:checks}
   });
   rowFor(archive,11,1,'reference').garbotoxinWindowAudit=make([
