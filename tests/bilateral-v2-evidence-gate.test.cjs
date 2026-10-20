@@ -472,6 +472,21 @@ test('another pair ID cannot re-count an identical physical source deal',()=>{
     /Duplicate physical source stream/);
 });
 
+test('renamed seed cannot double count an identical actual source physical deal',()=>{
+  const {plan,archive}=fixture();
+  const existing=plan.arms.filter(row=>row.rank===6&&row.candidateSeat===0);
+  for(const original of existing){
+    const clone={...original,id:'resample:'+original.id,
+      seed:original.seed+91999,pairId:'same-physical-opening-other-seed'};
+    plan.arms.push(clone);
+    const originalRow=archive.rows.find(row=>row.id===original.id);
+    archive.rows.push({...originalRow,id:clone.id,pairId:clone.pairId,
+      seed:clone.seed});
+  }
+  assert.throws(()=>auditBilateralV2(plan,archive),
+    /Repeated source physical deal under distinct pairs/);
+});
+
 test('different real source seats may use the same numerical seed',()=>{
   const {plan,archive}=fixture();
   const rows=plan.arms.filter(row=>row.rank===6&&row.candidateSeat===1);
