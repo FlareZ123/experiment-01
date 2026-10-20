@@ -7,6 +7,12 @@ const {planAichi} = require('../evaluation/aichi-pilot.cjs');
 const {runMatch, initializeCards} = require('./headless.cjs');
 const {withBroadThornsSourceAttack} = require('./rank6-broad-thorns-policy.cjs');
 const {withOwnerDeckSearchWitness} = require('./owner-deck-search-witness.cjs');
+const {createOwnerDeckKnowledgeEpoch} =
+  require('./owner-deck-knowledge-epoch.cjs');
+const {createOwnerK1DeckMembership} =
+  require('./owner-k1-deck-membership.cjs');
+const {ownerK0ObservableInventory} =
+  require('./owner-k0-observable-inventory.cjs');
 const {TIER_NAMES} = require('../../scripts/aichi-thorns-crossrank-opening.cjs');
 
 // All three already appeared in the original 24-source-deal registered cohort.
@@ -64,8 +70,34 @@ function main() {
       ()=>runMatch(request),{seat:1,turn:2,discardPriority:priority}
     );
     const original=experiment();
+    // The same native search that exposes a complete deck to its owner is
+    // the only event permitted to turn this source actor from K0 into K1.
+    const ownerEpoch=createOwnerDeckKnowledgeEpoch();
+    const ownerK1=createOwnerK1DeckMembership();
+    const ownerK1Events=[];
     const witnessed=withOwnerDeckSearchWitness(
-      Store,1,thunder,experiment
+      Store,1,thunder,experiment,({owner,prompt,rootOrdinal,globalTurn})=>{
+        ownerEpoch.observeOwnerDeckSearch();
+        const learned=ownerK1.observeSearch({owner,prompt,rootOrdinal});
+        const stadium=ownerK1.requirementStatus([
+          {printing:thunder[0],count:1}
+        ]);
+        // A stale first-search claim is now impossible even if a caller
+        // supplies the owner's true deck and Prize containers.
+        assert.throws(()=>ownerK0ObservableInventory({
+          owner,registered:source.cards,deckUnsearched:true,
+          knowledgeEpoch:ownerEpoch
+        }),/K0 first-search claim contradicted/);
+        assert.equal(learned.exactMembershipKnown,true);
+        ownerK1Events.push({
+          rootActionOrdinal:rootOrdinal,globalTurn,
+          ownerEpoch:ownerEpoch.snapshot().epoch,
+          ownerK1Epoch:learned.epoch,
+          stadiumAvailability:stadium.status,
+          stadiumAvailableCopies:ownerK1.lookup(thunder[0]).knownCopies,
+          staleK0ClaimRejected:true
+        });
+      }
     );
     assert.deepEqual(stableGame(witnessed.result.result),
       stableGame(original.result),
@@ -78,9 +110,16 @@ function main() {
 
     const sourceSearches=witnessed.events.filter(event=>
       event.globalTurn===2&&event.ownerSeat===1);
+    assert.ok(ownerK1Events.length>=1,
+      'Frozen source must actually conduct a native deck search');
+    const expectedStatus=item.seed===2804067880 ?
+      'physically-available' : 'impossible';
+    assert.equal(ownerK1Events[0].stadiumAvailability,expectedStatus,
+      'First own-search K1 must distinguish the two Prized negatives');
     rows.push({
       ...item,
       observedNativeSourceSearches:sourceSearches,
+      actorK0ToK1:ownerK1Events,
       policyEvents:original.events,
       openingPlan:original.openingPlan,
       abortReason:original.abortReason,
@@ -92,7 +131,7 @@ function main() {
     });
   }
   const report={
-    schema:'rank24-owner-search-k0-k1-regression-v1',
+    schema:'rank24-owner-search-k0-k1-regression-v2-formal-owner-epoch',
     evidenceType:'retrospective native Store actor-owned deck-search witness',
     fieldManifest:plan.manifestDigest,
     candidateDeckHash:digest(plan.candidate.cards),
@@ -103,7 +142,7 @@ function main() {
     targetPrinting:thunder[0],
     rows,
     competitiveQualifiedGames:0,
-    caveat:'This diagnostic compares unchanged source-dealt policy on three previously selected seeds. It does not assess stronger replanning, paper-clock limits, or competitive win rate.'
+    caveat:'This read-only native K0-to-K1 observer proves when a stale K0 assertion becomes invalid, while preserving all original decisions. It does not implement a better Supporter choice or assess competitive win rate.'
   };
   process.stdout.write(JSON.stringify(report,null,2)+'\n');
   return report;
