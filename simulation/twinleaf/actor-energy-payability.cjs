@@ -28,6 +28,8 @@ function energyUnits(printing,context){
   for(const [name,symbol] of Object.entries(BASIC)){
     if(named(printing,name+' Energy'))return [[symbol]];
   }
+  if(named(printing,'Speed Lightning Energy'))return [['L']];
+  if(named(printing,'Capture Energy')||named(printing,'Spiky Energy'))return [['C']];
   if(named(printing,'Double Colorless Energy'))return [['C'],['C']];
   if(named(printing,'Double Dragon Energy'))return context.isDragon?[ANY,ANY]:null;
   if(named(printing,'Prism Energy'))return [context.isBasic?ANY:['C']];
