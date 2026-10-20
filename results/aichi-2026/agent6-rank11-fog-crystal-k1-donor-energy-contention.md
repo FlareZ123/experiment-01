@@ -29,3 +29,15 @@ Consequently **selecting the known in-deck Gengar was a printed-legal alternativ
 ## Reproducible next falsification
 
 At the unchanged source-dealt root10, branch only the **owner's legal Fog Crystal prompt** to Gengar rather than Energy. Confirm the actual native prompt accepted its card choice and all preceding roots remained identical; record attempted Gengar placement, lost/improved Energy attachment access, later Perfection activation, any source gust/lock response, capped/aborted outcomes and real turn order. Run the untouched Energy branch as control under the same opponent decision policy and disclose any follow-on bot changes. No branch may count as a prospective competitive win; unknown three opposing lists, common hidden-information-policy issues, and paper clock remain unresolved.
+
+
+## Pinned native prompt-filter review (independent of the archived observation)
+
+Inspected the actual upstream revision pinned by this project:
+
+- [Fog Crystal reducer](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/09-sword-and-shield/set-chilling-reign/fog-crystal.ts) enumerates the acting owner's deck and permits a `PokemonCard` satisfying `pokemonHasCardType(c, CardType.PSYCHIC)` and `c.stage === Stage.BASIC`, alongside Basic Psychic Energy. It records disallowed indices and builds an actual `ChooseCardsPrompt` with `maxPokemons`, `maxTrainers`, and at most one choice. Both resource categories can be options when present.
+- [Gengar & Mimikyu-GX TEU implementation](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/08-sun-and-moon/set-team-up/gengar-and-mimikyu-gx.ts) has `Stage.BASIC`, Psychic card type, and GX tag. Thus this concrete in-deck card satisfies the source filter's positive branch without any invented card-text equivalence.
+- [ChooseCardsPrompt validation](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/prompts/choose-cards-prompt.ts) checks chosen-object membership in the prompt's own card list, blocked indices, explicit count/type maxima, and the supplied filter. This pin-specific inspection supports the *available option* inference. The archive already confirms Gengar was still in the searched deck; no additional native option was submitted or accepted during this investigation.
+- [Mewtwo & Mew-GX Perfection implementation](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/08-sun-and-moon/set-unified-minds/mewtwo-and-mew-gx.ts) takes eligible GX/EX donors from owner Bench or discard, excluding Active as a donor, confirming that merely fetching Gengar into hand is **insufficient**. A separate legal Bench/discard transition and Energy are required.
+
+These are verified **pinned code predicates**, not a tested alternative `ResolvePromptAction` in the original Store. They reinforce the resource contention finding while preserving its limited game-outcome claim.
