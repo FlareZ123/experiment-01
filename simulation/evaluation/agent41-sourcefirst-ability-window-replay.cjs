@@ -61,6 +61,20 @@ function run(){
   assert.equal(first?.action,'PlayCardAction');
   assert.equal(first?.card,'Field Blower');
   assert.equal(first?.turnBefore,2);
+  const power=watched.garbotoxinWindowAudit;
+  assert.ok(power?.before && power?.after,
+    'Native actual turn-two suppression-before/tool-removal-after pair missing');
+  assert.equal(power.before.candidateActive,'Lunatone OBF');
+  assert.equal(power.after.candidateActive,'Lunatone OBF');
+  assert.ok(power.before.candidatePrintedPowerNames.includes('New Moon'),
+    'Probe should check a real printed Ability, New Moon');
+  assert.ok(power.after.candidatePrintedPowerNames.includes('New Moon'));
+  assert.equal(power.before.sourceGarbodorHasTool,true);
+  assert.equal(power.after.sourceGarbodorHasTool,false);
+  assert.equal(power.before.candidateGenericAbilityBlocked,true,
+    'Garbodor should block real New Moon before Field Blower');
+  assert.equal(power.after.candidateGenericAbilityBlocked,false,
+    'New Moon should no longer be ability-locked after removing the Tool');
   return {
     schema:'agent41-authentic-sourcefirst-ability-window-equivalence-v1',
     evidenceType:'historical seed selected by previous source-success replay',
