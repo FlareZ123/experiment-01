@@ -83,8 +83,9 @@ function withActorOnlySelectOption(execute,deps={}){
   const originalDispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof original?.value,'function');
   assert.equal(typeof originalDispatch?.value,'function');
-  const selected=new WeakMap(),audit={
+  const selected=new WeakMap(),genuineStores=new WeakSet(),audit={
     version:VERSION,decisionOrigin:'actorObservation+visible SelectOption',
+    actualStoreInstances:0,
     eligiblePrompts:0,selectedPrompts:0,acceptedPromptActions:0,
     rejectedPromptActions:0,unsupportedPromptDelegations:0,
     selectedIndices:[],competitiveGameQualified:false
@@ -114,7 +115,12 @@ function withActorOnlySelectOption(execute,deps={}){
     return action;
   }
   function dispatch(action,...args){
-    const proof=selected.get(action);
+    if(action?.constructor?.name==='AddPlayerAction'&&
+        !genuineStores.has(this)){
+      genuineStores.add(this);
+      audit.actualStoreInstances++;
+    }
+    const proof=genuineStores.has(this)?selected.get(action):undefined;
     if(!proof)return originalDispatch.value.apply(this,[action,...args]);
     try{
       const result=originalDispatch.value.apply(this,[action,...args]);
