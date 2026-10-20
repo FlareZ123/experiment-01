@@ -78,7 +78,10 @@ function fixture(){
             sourceTurnOneEndRoot:{ordinal:10,turn:1,seat:1-seat,action:'PassTurnAction'}},
           garbotoxinWindowAudit:{schema:'agent41-authentic-rank11-garbotoxin-ability-window-v1',sourceSeat:1-seat,candidateSeat:seat,turn:2,realStoreOnly:true,
             before:{globalTurn:2,sourceGarbodorHasTool:true,
-              candidatePrintedPowerNames:['New Moon'],candidatePrintedNewMoonBlocked:true}},
+              candidatePrintedPowerNames:['New Moon'],candidatePrintedNewMoonBlocked:true,
+              candidatePrintedPowerChecks:[{name:'New Moon',blocked:true}],
+              candidateInPlayPrintedPowerChecks:[{zone:'Active',benchIndex:null,
+                printing:'Lunatone OBF',name:'New Moon',blocked:true}]}},
           candidateReply:{observed:true,legal:true,
             ownerInformationSafe:true,traceAuthenticated:true,
             actorSeat:seat,rootActionOrdinal:16,
@@ -666,4 +669,24 @@ test('all-source-first no-target rank11 observations cannot substitute for a nat
   assert.equal(r.bothHardRanksHaveSourceFirstEarlyExposurePairedBilateralWitnesses,true);
   assert.equal(r.exposureInclusivePilotVerdict,'HOLD-OR-INCOMPLETE');
   assert.equal(r.competitiveStrengthClaimPermitted,false);
+});
+
+test('rank11 historical Active-only Power claim cannot supply new native source-lock control',()=>{
+  const {plan,archive}=fixture();
+  const oldReference=archive.rows.find(row=>row.rank===11&&
+    row.candidateSeat===1&&row.candidateId==='reference');
+  const immune=archive.rows.find(row=>row.rank===11&&
+    row.candidateSeat===1&&row.candidateId==='newmoon');
+  delete oldReference.garbotoxinWindowAudit.before.candidateInPlayPrintedPowerChecks;
+  const before=immune.garbotoxinWindowAudit.before;
+  before.candidatePrintedPowerNames=[];
+  before.candidatePrintedPowerChecks=[];
+  before.candidateInPlayPrintedPowerChecks=[];
+  const r=auditBilateralV2(plan,archive);
+  assert.equal(r.arms.find(row=>row.id===oldReference.id).
+    sourceFirstEarlyPressureWitness,true);
+  assert.equal(r.arms.find(row=>row.id===oldReference.id).
+    nativeExposureKind,'unverified');
+  assert.equal(r.rank11PositiveControl,false);
+  assert.equal(r.exposureInclusivePilotVerdict,'HOLD-OR-INCOMPLETE');
 });
