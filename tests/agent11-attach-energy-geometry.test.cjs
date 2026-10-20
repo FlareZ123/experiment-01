@@ -25,3 +25,28 @@ test('invalid and outside-player locations fail with real target geometry',()=>{
  assert.equal(validAttachEnergyTargets([{}],pool),false);
  assert.equal(validAttachEnergyTargets(null,pool),false);
 });
+const {assertValidPromptAction}=require('../simulation/twinleaf/prompt-integrity.cjs');
+class ResolvePromptAction {
+ constructor(id,result){this.id=id;this.result=result;}
+}
+class AttachEnergyPrompt {
+ constructor(options={}){
+  this.id=17;this.result=undefined;this.playerId=101;
+  this.slots=[2];this.playerType=2;this.message='Attach Energy';
+  this.options={min:1,max:2,blockedTo:[],...options};
+  this.cardList={cards:[this.one,this.two],filter(fn){return this.cards.filter(fn);}};
+  this.filter=()=>true;
+ }
+ get one(){return AttachEnergyPrompt.one;}
+ get two(){return AttachEnergyPrompt.two;}
+ getPerspectivePlayerId(){return this.playerId;}
+ validate(result){
+  if(!Array.isArray(result)||result.length<1||result.length>2)return false;
+  if(this.options.validCardTypes){
+   return result.every(x=>this.options.validCardTypes.includes(x.card?.provides?.[0]));
+  }
+  return true;
+ }
+}
+AttachEnergyPrompt.one={provides:['LIGHTNING']};
+AttachEnergyPrompt.two={provides:['LIGHTNING']};
