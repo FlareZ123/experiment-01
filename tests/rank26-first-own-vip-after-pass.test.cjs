@@ -6,6 +6,7 @@ const {sourceVipAfterPassEligible, sourceVipActorEligible,
   sourceCologneAfterVipEligible,sourceSecondVipActorEligible,
   sourceCompressorAfterKokoEligible,selectSourceCompressorCards,
   sourceKokoNativePostcondition,sourceKokoNativeComplete,
+  selectSourceKokoTwoTargetTransfers,
   selectSourceVipBasics,selectSecondVipBasics,withSourceVipAfterPass} =
   require('../simulation/twinleaf/rank26-first-own-vip-after-pass.cjs');
 
@@ -258,4 +259,34 @@ test('Koko proof requires actual Lost Zone card and two distinct Bench Energy zo
   const partial=sourceKokoNativePostcondition(own);
   assert.equal(partial.recipientCount,1);
   assert.equal(sourceKokoNativeComplete(partial),false);
+});
+
+test('two-target Koko prompt selects owner physical card instances',()=>{
+  class AttachEnergyPrompt{
+    constructor(owner){this.playerId=owner.id;this.cardList=owner.discard;
+      this.playerType=1;this.slots=[2];
+      this.options={min:1,max:2,differentTargets:true};
+      this.validate=rows=>rows.length===2 &&
+        rows.every(row=>this.cardList.cards.includes(row.card)) &&
+        rows[0].card!==rows[1].card && rows[0].to.index!==rows[1].to.index;
+    }
+  }
+  const a={name:'Lightning Energy',fullName:'Lightning Energy MEE'};
+  const b={name:'Lightning Energy',fullName:'Lightning Energy MEE'};
+  const own={id:202,discard:{cards:[a,b]},bench:[
+    slot('Dedenne GX'),slot('Meloetta ex'),slot('Squawkabilly ex'),
+    slot('Exeggcute'),slot('Tapu Koko Prism Star')]};
+  const prompt=new AttachEnergyPrompt(own),kinds={player:1,slot:2};
+  const picked=selectSourceKokoTwoTargetTransfers(prompt,own,kinds);
+  assert.deepEqual(picked.map(row=>row.to.index),[1,2]);
+  assert.deepEqual(picked.map(row=>row.card),[a,b]);
+  assert.equal(prompt.validate(picked),true);
+  own.discard.cards=[a];
+  assert.equal(selectSourceKokoTwoTargetTransfers(prompt,own,kinds),null);
+  own.discard.cards=[a,b];
+  own.bench[2]=slot(null);
+  assert.equal(selectSourceKokoTwoTargetTransfers(prompt,own,kinds),null);
+  own.bench[2]=slot('Squawkabilly ex');
+  prompt.options.differentTargets=false;
+  assert.equal(selectSourceKokoTwoTargetTransfers(prompt,own,kinds),null);
 });
