@@ -203,7 +203,8 @@ function commonPayloadOption(candidateSeat,enabled,lateWindow=false){
 function executeDevelopment(trial,candidates,{
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
   garbotoxinWindow=false,initializationWindow=false,
-  mandatoryOptionFallback=false,paperSupporterQuota=false
+  mandatoryOptionFallback=false,paperSupporterQuota=false,
+  paperSupporterComparisonTrace=false
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
     'Initialization passive window belongs only to rank 6');
@@ -457,6 +458,13 @@ function executeDevelopment(trial,candidates,{
     endReason:game.endReason,
     finalPrizes:game.prizesRemaining,finalBoard:game.finalPublicBoard??null,
     rootActionLedgerSha256:sha256(rootTrace),
+    ...(paperSupporterComparisonTrace?{
+      paperSupporterComparisonTrace:rootTrace.map(row=>({
+        actionOrdinal:row.actionOrdinal,turnBefore:row.turnBefore,
+        playerSlot:row.playerSlot,action:row.action,
+        card:row.card??null,attack:row.attack??null
+      }))
+    }:{}),
     caveat:'Retrospectively selected development deal; common policy is not hidden-information safe or clock-calibrated'
   };
 }
@@ -465,7 +473,8 @@ function executeDevelopment(trial,candidates,{
 function runDevelopment({
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
   mandatoryOptionFallback=false,nativePressureWindows=false,
-  sourceFirstRetrospective=false,paperSupporterQuota=false
+  sourceFirstRetrospective=false,paperSupporterQuota=false,
+  paperSupporterComparisonTrace=false
 }={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -488,7 +497,7 @@ function runDevelopment({
   for(const trial of scheduled){
     try { rows.push(executeDevelopment(trial,prepared,{
       compressorPayload,opportunityAudit,lateCompressorPayload,
-      mandatoryOptionFallback,paperSupporterQuota,
+      mandatoryOptionFallback,paperSupporterQuota,paperSupporterComparisonTrace,
       // An opt-in observational package, with each native Store observer
       // applicable to its own opposing source archetype only.
       initializationWindow:nativePressureWindows&&trial.rank===6,
@@ -530,6 +539,7 @@ function runDevelopment({
     ownerCompressorLate14OptIn:lateCompressorPayload,
     nativePressureWindowsOptIn:nativePressureWindows,
     paperSupporterQuotaOptIn:paperSupporterQuota,
+    paperSupporterComparisonTraceOptIn:paperSupporterComparisonTrace,
     nativeSupporterQuotaQualified:paperSupporterQuota?
       rows.every(row=>row.nativeSupporterQuotaQualified===true):'unverified',
     sourceFirstRetrospective,
@@ -575,6 +585,8 @@ if(require.main===module){
     mandatoryOptionFallback:process.env.AGENT41_MANDATORY_OPTION_DEV==='true',
     nativePressureWindows:process.env.AGENT41_NATIVE_PRESSURE_DEV==='true',
     paperSupporterQuota:process.env.AGENT41_PAPER_SUPPORTER_DEV==='true',
+    paperSupporterComparisonTrace:
+      process.env.AGENT41_PAPER_SUPPORTER_TRACE_DEV==='true',
     sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true'
   });
