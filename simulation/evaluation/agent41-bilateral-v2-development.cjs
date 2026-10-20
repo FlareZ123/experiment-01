@@ -28,10 +28,13 @@ function developmentTrials(){
   const selected=scheduledArms().filter(row=>
     tests.has([row.rank,row.repeat,row.candidateSlot].join(':')));
   assert.equal(selected.length,4);
-  assert.deepEqual(selected.map(row=>row.id).sort(),[
-    '11:2:B:champion-reference','11:2:B:new-moon-lockbreaker-v1',
-    '6:0:A:champion-reference','6:0:A:new-moon-lockbreaker-v1'
-  ].sort());
+  // Structural list equality must also survive isolated VM tests whose
+  // scheduledArms fixture returns arrays from a distinct JavaScript realm.
+  assert.equal(JSON.stringify(selected.map(row=>row.id).sort()),
+    JSON.stringify([
+      '11:2:B:champion-reference','11:2:B:new-moon-lockbreaker-v1',
+      '6:0:A:champion-reference','6:0:A:new-moon-lockbreaker-v1'
+    ].sort()));
   return selected;
 }
 
