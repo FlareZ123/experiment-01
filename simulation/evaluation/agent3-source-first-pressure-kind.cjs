@@ -39,9 +39,11 @@ function sourceFirstNativePressureVerified(row){
     const before=window?.before;
     const names=before?.candidatePrintedPowerNames;
     const nativeBlocked=Array.isArray(names)&&names.length>0&&
-      (names.includes('New Moon')?
-        before.candidatePrintedNewMoonBlocked===true:
-        false);
+      (Array.isArray(before.candidatePrintedPowerChecks)?
+        before.candidatePrintedPowerChecks.some(power=>
+          power?.blocked===true&&names.includes(power.name)):
+        names.includes('New Moon')&&
+          before.candidatePrintedNewMoonBlocked===true);
     return pressure.pressureKind==='item-enabled-ability-lock' &&
       window?.schema==='agent41-authentic-rank11-garbotoxin-ability-window-v1' &&
       before?.globalTurn===2&&before.sourceGarbodorHasTool===true&&
