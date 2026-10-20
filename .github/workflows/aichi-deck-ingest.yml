@@ -25,6 +25,16 @@ jobs:
           path: results/als/deck-code-retrieval/new-moon-official-viewer.*
           if-no-files-found: error
           retention-days: 30
+      - name: Validate official champion print parser without network
+        run: python -m unittest discover -s tests -p 'test_aichi_champion_official_deck.py' -v
+      - name: Capture official Aichi Open champion Japanese print identities
+        run: python scripts/aichi_official_champion_deck.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aichi-champion-official-japanese-print-source
+          path: results/aichi-2026/official-champion-retrieval/champion-*
+          if-no-files-found: error
+          retention-days: 30
       - name: Test parser on deterministic fixtures
         run: python -m unittest discover -s tests -p 'test_ingest_aichi.py' -v
       - name: Validate simultaneous 32-placement evidence statistics
