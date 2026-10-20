@@ -2,7 +2,8 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {LILLIE,chooseLillieAfterPass,withActorOnlyLillieAfterPass}=
+const {LILLIE,lillieExclusionReason,
+  chooseLillieAfterPass,withActorOnlyLillieAfterPass}=
   require('../simulation/twinleaf/agent12-actor-only-lillie-after-pass.cjs');
 
 function observed(seat=0){
@@ -45,6 +46,7 @@ test('paper first-player turn, spent Supporter, lock and empty deck are vetoed',
   x.ownPublic.publicTurnRestrictions.supporterPlayLocked=false;
   x.ownHand=['Iono PAL'];
   assert.equal(chooseLillieAfterPass(x),null);
+  assert.equal(lillieExclusionReason(x),'lillie-not-held');
   x.ownHand=[LILLIE];
   x.decisionKind='owner-prompt';
   assert.equal(chooseLillieAfterPass(x),null);
@@ -87,6 +89,8 @@ test('real native typed root dispatch uses only actor view and restores hooks',(
     return store.dispatched.length;
   },deps);
   assert.equal(result.result,2);
+  assert.equal(result.audit.passRootObservations,1);
+  assert.equal(result.audit.passRootReasonCounts.eligible,1);
   assert.equal(result.audit.attemptedLillieRoots,1);
   assert.equal(result.audit.acceptedLillieRoots,1);
   assert.equal(result.audit.rejectedLillieRoots,0);
