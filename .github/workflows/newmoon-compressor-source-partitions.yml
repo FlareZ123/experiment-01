@@ -185,7 +185,10 @@ jobs:
               sourceAttacks:x.attackDeclarations?.source,
               prizes:x.finalPrizes,finished:x.finished,winner:x.winner,
               turn3OwnSearches:x.turn3OwnerSearches,
-              candidateSettlements:x.candidateSettlements?.declarations}));
+              candidateSettlements:x.candidateSettlements?.declarations,
+              manualEnergy:x.energy?.nativeManualEnergy,
+              glassPrompts:x.energy?.powerglassLikePromptAccepted,
+              sourceEnergyLosses:x.energy?.realPublicEnergyTransfers?.filter(e=>e.actorSeat===1&&e.attachedCardDelta<0).map(e=>({turn:e.turn,delta:e.attachedCardDelta}))}));
           }
           console.log('AGENT10_REAL_OWNER_PROMPT',JSON.stringify(p.ownerDeckK1ForkAudit));"
       - name: Archive authentic K1 search fork including original and censored results
@@ -303,7 +306,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 10
       - name: Preserve all source-deal attempts, including errors and action caps
-        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup && always() }}
+        if: ${{ !inputs.common_bilateral_compressor_development && !inputs.benched_payload_retrospective && !inputs.owner_compressor_opportunity_audit && !inputs.common_bilateral_late_compressor_development && !inputs.agent47_owner_fogcrystal_audit && !inputs.agent9_sourcefirst_lock_transfer && !inputs.agent41_sourcefirst_ability_window && !inputs.agent6_source_pass_hand && !inputs.agent6_rank11_quickball_counterfactual && !inputs.agent6_rank11_stadium_followup && !inputs.agent10_rank6_telepath_k1_source_fork && always() }}
         uses: actions/upload-artifact@v4
         with:
           name: newmoon-compressor-source-partition-${{ inputs.partition }}
