@@ -29,6 +29,8 @@ function rank11CandidateApplicability(row,sourceSeat){
     window.turn!==2||window.realStoreOnly!==true||
     before?.globalTurn!==2||before.sourceGarbodorHasTool!==true||
     typeof before.candidateActive!=='string'||!before.candidateActive||
+    !Array.isArray(before.candidatePrintedPowerNames)||
+    !Array.isArray(before.candidatePrintedPowerChecks)||
     !Array.isArray(checks))return 'unverified';
 
   const valid=power=>power&&typeof power.printing==='string'&&
@@ -36,16 +38,19 @@ function rank11CandidateApplicability(row,sourceSeat){
     typeof power.blocked==='boolean'&&
     (power.zone==='Active'&&power.benchIndex===null||
       power.zone==='Bench'&&Number.isSafeInteger(power.benchIndex)&&
-      power.benchIndex>=0);
+      power.benchIndex>=0&&power.benchIndex<5);
   if(!checks.every(valid))return 'unverified';
 
   // Legacy Active-only fields are preserved by the native observer. They
   // must not contradict its complete Active/Bench Power inventory.
-  if(Array.isArray(before.candidatePrintedPowerNames)){
-    const active=checks.filter(power=>power.zone==='Active');
-    if(active.length!==before.candidatePrintedPowerNames.length||
-      active.some((power,i)=>power.name!==before.candidatePrintedPowerNames[i]||
-        power.printing!==before.candidateActive))return 'unverified';
+  const active=checks.filter(power=>power.zone==='Active');
+  if(active.length!==before.candidatePrintedPowerNames.length||
+    active.length!==before.candidatePrintedPowerChecks.length||
+    active.some((power,i)=>power.name!==before.candidatePrintedPowerNames[i]||
+      power.printing!==before.candidateActive||
+      power.name!==before.candidatePrintedPowerChecks[i]?.name||
+      power.blocked!==before.candidatePrintedPowerChecks[i]?.blocked)){
+    return 'unverified';
   }
   if(checks.some(power=>power.blocked))return 'blocked-eligible-target';
   if(checks.length===0)return 'no-eligible-target';
