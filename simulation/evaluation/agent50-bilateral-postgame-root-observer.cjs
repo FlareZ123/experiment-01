@@ -115,6 +115,9 @@ function withPostgameRootOrderProbe(
   assert.ok(target.nativeTapeSameWorld!==true||
     target.firstFiniteScoredRoot!==true,
   'Native full-decision tape requires the pre-decision turn-3 root');
+  assert.ok(target.nativeTapeHiddenOrderContrast!==true||
+    target.nativeTapeSameWorld===true,
+    'Hidden-order contrast requires genuine native same-world tape');
   const headless=dependencies.headless??require('../twinleaf/headless.cjs');
   const compare=dependencies.compare??compareHiddenDeckOrders;
   const signature=dependencies.signature??actionSignature;
@@ -325,17 +328,45 @@ function withPostgameRootOrderProbe(
           typeof value.data==='string'?value:signature(value),
         fingerprint:state=>stateGraphFingerprint(state).digest
       });
+      let hiddenContrast=null;
+      if(target.nativeTapeHiddenOrderContrast===true) {
+        if(parity.sameWorldDecisionParityQualified) {
+          const {compareNativeHiddenDeckOrder}=
+            require('../twinleaf/native-tape-hidden-order-contrast.cjs');
+          const {actorObservation}=
+            require('../twinleaf/actor-observation-contract.cjs');
+          hiddenContrast=compareNativeHiddenDeckOrder({
+            parity,root:captured.state,seat:target.seat,
+            tape:captured.nativeRealPolicyTape,
+            cloneState:cloneDetached,replayDecision:policyReplay,
+            actionSignature:value=>value&&typeof value.type==='string'&&
+              typeof value.data==='string'?value:signature(value),
+            fingerprint:state=>stateGraphFingerprint(state).digest,
+            actorView:actorObservation
+          });
+        } else hiddenContrast={
+          contrastExecutable:false,
+          error:'Genuine same-world native tape parity failed first',
+          informationSetLeakQualified:false
+        };
+      }
       return {result:frozenResult,events:[{
         nativeSameWorldTape:parity,
+        ...(hiddenContrast?{nativeHiddenOrderContrast:hiddenContrast}:{}),
         originalSourceAction:captured.realAction,
         baselineActionMatchedActual:parity.sameWorldDecisionParityQualified,
-        liveStatePreserved:parity.sourceRootUnchanged,
-        actionSensitiveToHiddenDeckOrder:null,
-        counterfactualCompared:false,
+        liveStatePreserved:parity.sourceRootUnchanged &&
+          (hiddenContrast?.sourceRootUnchanged!==false),
+        actionSensitiveToHiddenDeckOrder:
+          hiddenContrast?.contrastExecutable===true?
+            hiddenContrast.selectedActionChanged:null,
+        counterfactualCompared:hiddenContrast?.contrastExecutable===true,
         comparedAfterRealGameFinished:true,
         sourceMatchExecutions:innerRunCalls,
         replayCommonPolicy:true,
-        qualification:'same-physical-world-parity-only; no hidden-world comparison'
+        qualification:hiddenContrast?
+          'exploratory-tape-order-contrast-with-unverified-K0-K1-known-top':
+          'same-physical-world-parity-only; no hidden-world comparison'
       }]};
     } catch(error) {
       return {result:frozenResult,events:[{
