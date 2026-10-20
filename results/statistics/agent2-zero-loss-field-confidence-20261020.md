@@ -16,3 +16,4 @@ Any claim requires valid paper mechanics, real clock, competent opposing policy,
 
 When the equal-weight target is over 32 ranks times four seat/starting-order cells, each independent cell has its own failure probability. Five zero-loss games per cell, 640 total, give sharp worst-case p-value 0.0404363249.
 Four per cell (512 total) give 0.0768099251. Even 608 all-win games with 5,5,5,4 per rank give worst-case p-value 0.0753247482 under equal weights across 128 cells.
+The earlier 608 rank-level condition presumes rank-specific iid Bernoulli outcomes over the intended starter/seat mixture. The uniform 128-cell target has different sampling requirements. Both local four-cell unit tests passed.
