@@ -70,7 +70,7 @@ test('real Store accepts native typed root, with reversible hook restoration',()
         stadium:{cards:[]},discard:{cards:[]},
         lostzone:{cards:[]},supporter:{cards:[]}});
       this.state={players:[player(10),player(20)],
-        activePlayer:0,prompts:[],turn:2,phase:3};
+        activePlayer:0,prompts:[],turn:2,phase:2};
     }
     dispatch(){return true;}
   }
@@ -91,7 +91,7 @@ test('real Store accepts native typed root, with reversible hook restoration',()
     store.dispatch(action);
     return action;
   },{
-    SimpleTacticsAi,Store,GamePhase:{FINISHED:999},
+    SimpleTacticsAi,Store,GamePhase:{PLAYER_TURN:2,FINISHED:7},
     observe:()=>Object.freeze(view),getCatalog:()=>catalog,
     cardActions:{PlayCardAction,PlayerType:{BOTTOM_PLAYER:0},
       SlotType:{ACTIVE:1,BENCH:2}},
@@ -225,7 +225,7 @@ test('actual Store wrapper attests an accepted owner Basic Energy zone mutation'
     lostzone:{cards:[]},supporter:{cards:[]}
   });
   const state={players:[player(10,['Psychic Energy MEE']),player(20,[])],
-    activePlayer:0,turn:2,phase:3,prompts:[]};
+    activePlayer:0,turn:2,phase:2,prompts:[]};
   class AddPlayerAction{}
   class PlayCardAction{
     constructor(id,handIndex,target){
@@ -263,7 +263,7 @@ test('actual Store wrapper attests an accepted owner Basic Energy zone mutation'
       'Speculative clone must never receive actor-only native root');
     return store.state;
   },{
-    SimpleTacticsAi,Store,GamePhase:{FINISHED:999},
+    SimpleTacticsAi,Store,GamePhase:{PLAYER_TURN:2,FINISHED:7},
     observe:()=>view,getCatalog:()=>catalog,
     cardActions:{PlayCardAction,PlayerType:{BOTTOM_PLAYER:2},
       SlotType:{ACTIVE:1,BENCH:2}},
