@@ -58,7 +58,13 @@ function buildBilateralReplyPacket(game, options) {
       Number.isSafeInteger(event.turnBefore) &&
       Number.isSafeInteger(event.turnAfter) &&
       event.turnAfter >= event.turnBefore,
-    'Malformed chronological Store root');
+    'Malformed chronological Store root at ordinal '+ordinal+
+    ' of '+roots.length+'; public='+JSON.stringify({
+      actionOrdinal:event?.actionOrdinal,playerSlot:event?.playerSlot,
+      action:event?.action,turnBefore:event?.turnBefore,
+      turnAfter:event?.turnAfter,
+      priorTurnAfter:ordinal?roots[ordinal-1]?.turnAfter:null
+    }));
     if (ordinal) assert.equal(event.turnBefore, roots[ordinal-1].turnAfter,
       'Discontinuous Store turn clock');
   }
