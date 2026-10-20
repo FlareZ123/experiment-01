@@ -123,6 +123,22 @@ test('source-graph alias mutation vetoes parity even if action matches',()=>{
   assert.equal(result.sameWorldDecisionParityQualified,false);
 });
 
+
+test('object-valued fingerprint is snapped before any source mutation',()=>{
+  const args=input({fingerprint:state=>state});
+  args.replayDecision=()=>{
+    Math.random();Math.random();
+    args.root.players[0].hand[0]='ILLEGAL';
+    return {name:'play-A'};
+  };
+  const report=verifyNativeSameWorldTapeParity(args);
+  assert.equal(report.selectedActionMatched,true);
+  assert.equal(report.sourceRootUnchanged,false);
+  assert.equal(report.sameWorldDecisionParityQualified,false);
+  assert.deepEqual(report.rootAtEntry.players[0].hand,['A']);
+  assert.deepEqual(report.rootAtExit.players[0].hand,['ILLEGAL']);
+});
+
 test('a thrown detached policy action is archived as unqualified',()=>{
   const before=Math.random;
   const result=verifyNativeSameWorldTapeParity(input({
