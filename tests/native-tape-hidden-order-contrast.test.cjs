@@ -12,7 +12,7 @@ const makeInput=(overrides={})=>{
     {hand:['A'],deck:{cards:['topX','topY','topZ']}},
     {hand:['hidden'],deck:{cards:['other']}}
   ]};
-  return {
+  const input={
     parity:{
       schema:'native-same-world-tape-parity-v1',
       sameWorldDecisionParityQualified:true,
@@ -39,6 +39,10 @@ const makeInput=(overrides={})=>{
     actionSignature:action=>action,
     ...overrides
   };
+  Object.defineProperty(input.parity,'replayDecisionRef',{
+    value:input.replayDecision,enumerable:false
+  });
+  return input;
 };
 
 test('executable action reversal is explicitly unqualified without owner knowledge',()=>{
