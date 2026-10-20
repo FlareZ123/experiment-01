@@ -19,6 +19,7 @@ function scene(telepath) {
   const {Store} = engine('game/store/store');
   const {Player} = engine('game/store/state/player');
   const {CardList} = engine('game/store/state/card-list');
+  const {PokemonCardList} = engine('game/store/state/pokemon-card-list');
   const {GamePhase} = engine('game/store/state/state');
   const {Format} = engine('game/store/card/card-types');
   const {PlayCardAction, PlayerType, SlotType} =
@@ -41,6 +42,7 @@ function scene(telepath) {
   state.activePlayer=0;
   state.gameSettings.format=Format.EXPANDED;
   owner.active.cards.push(card('Mewtwo & Mew-GX UNM'));
+  for (let i=0; i<5; i++) owner.bench.push(new PokemonCardList());
   opponent.active.cards.push(card('Bunnelby PRC'));
   owner.hand.cards.push(card('Telepath [P] Energy M3'),card('Psychic Energy MEE'));
   const available = [
