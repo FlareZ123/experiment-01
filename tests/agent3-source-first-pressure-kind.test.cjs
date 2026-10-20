@@ -152,7 +152,14 @@ test('native blocked control remains distinct from exempt, missing and other-ran
   assert.equal(sourceFirstNativeExposureKind(x),'native-blocked-eligible-power');
   x.rank6PassivePressure.nativeCapabilitySuppressed=false;
   assert.equal(sourceFirstNativeExposureKind(x),'unverified');
-  assert.equal(sourceFirstNativeExposureKind(rank11()),'native-blocked-eligible-power');
+  const legacy=rank11();
+  assert.equal(sourceFirstNativePressureVerified(legacy),true);
+  assert.equal(sourceFirstNativeExposureKind(legacy),'unverified');
+  legacy.garbotoxinWindowAudit.before.candidateInPlayPrintedPowerChecks=[{
+    zone:'Active',benchIndex:null,printing:'Lunatone OBF',
+    name:'New Moon',blocked:true
+  }];
+  assert.equal(sourceFirstNativeExposureKind(legacy),'native-blocked-eligible-power');
   const missing=rank11();
   delete missing.garbotoxinWindowAudit;
   assert.equal(sourceFirstNativeExposureKind(missing),'unverified');
