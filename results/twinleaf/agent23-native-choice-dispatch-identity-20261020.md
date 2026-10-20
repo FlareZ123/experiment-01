@@ -27,3 +27,24 @@ Agent 41's existing canonical bilateral runner is the integration owner. Install
 The observed original Store may be replaced by a new Store on the next genuine `AddPlayerAction`. If upstream headless changes begin creating speculative AddPlayerAction Stores, the live-store classification itself must be tightened and requalified. This wrapper has no validated tournament clock, no guarantee that every action came from the interceptable bot, and no separate K0/K1 owner-knowledge certificate.
 
 **Evidence status:** one narrow, useful input-identity prerequisite with successful pure compiled regression. No complete source-pressure/reply match is certified by this change; no field opponent, candidate win, or 99.5% claim follows.
+
+## Subsequent compiled genuine-Store validation: full portable selected-input coverage
+
+The [manual-only pinned-engine run 39510427272](https://github.com/FlareZ123/experiment-01/actions/runs/39510427272) **succeeded** against the same real two-player 60-card smoke at head `fe13b28a2518aa3c6f137b7e4da158f0bbb1a0f5`. The observer's new version `agent23-native-decision-dispatch-witness-v2-prompt-values` uses existing exact prompt-reference transports first and safely falls back to the existing strict typed-action codec for primitive/plain-value prompt results, always verifying matching pending prompt ID and retaining its class. Nested card instances remain unportable and fail closed.
+
+Extracted directly from that successful original Store job's `storeAudit` log, without treating the runtime as a competitive game:
+
+| Native decision action | Selected objects and genuine Store dispatches | Exact portable input match |
+| --- | ---: | ---: |
+| ResolvePromptAction | 62 | 62 |
+| PlayCardAction | 13 | 13 |
+| PassTurnAction | 8 | 8 |
+| UseAbilityAction | 1 | 1 |
+| AttackAction | 10 | 10 |
+| **Total** | **94** | **94** |
+
+The real seeded baseline and instrumented `runMatch` returned deeply equal complete results. There was one identified genuine Store, 94 actor-owned decisions, 94 corresponding **same-object** Store dispatches, **zero changed portable inputs**, **zero unsupported paired inputs**, **zero native dispatch exceptions**, and eight additional unlinked live Store setup dispatches. These numbers are instrumented object identity and typed argument comparisons. They say nothing about optimal move selection or whether the default bot respects the player's information set. Full code result and version remain anchored to the CI head, not projected from these counts.
+
+The v1 first native run [39509690724](https://github.com/FlareZ123/experiment-01/actions/runs/39509690724) had 50 unportable prompts and 44 portable matches, while all 94 references dispatched. Its early `changedChoiceToDispatch` counter incorrectly combined unportable comparisons with actual mutations. That classification was corrected with separate `unsupportedInputComparisons` and `changedChoiceToDispatch` fields before v2's zero/zero values were reported. **No observed mutation was established by that earlier counter.**
+
+The [canonical bilateral runner](../../simulation/evaluation/agent41-bilateral-v2-development.cjs) now supports default-off `AGENT23_NATIVE_INPUT_WITNESS_DEV=true` installed at the real innermost `runMatch` boundary so the actor-only policy wrappers are already installed. The [historical four-arm parity runner](../../simulation/evaluation/agent23-canonical-native-input-pair.cjs) compares the same composed policy with witness disabled/enabled and fails on a reported-game mismatch; it remains retrospective and unqualified. A manually dispatched comparative CI result must be checked independently before making claims about four-arm noninterference.
