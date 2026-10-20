@@ -3,13 +3,13 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const VERSION='agent34-actor-only-root-slice-v1';
-const ENERGY_TYPE={Grass:'G',Fire:'R',Water:'W',Lightning:'L',Psychic:'P',Fighting:'F',Darkness:'D',Metal:'M',Fairy:'Y'};
+const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 
 /**
  * Pure decision from a detached owner observation plus the public print catalog.
  * No native State, opposing hidden zones, or own unknown deck identities enter.
  * @param {object} view
- * @param {{basics:Set<string>,basicEnergies:Set<string>}} catalog
+ * @param {{basics:Set<string>,basicEnergies:Set<string>,basicEnergyTypes:Record<string,number>,colorlessEnergyType:number,specialConditions:{ASLEEP:number,PARALYZED:number}}} catalog
  * @returns {object} Native-neutral intent.
  */
 function chooseActorRootIntent(view,catalog){
@@ -27,13 +27,14 @@ function chooseActorRootIntent(view,catalog){
   const active=own.active,restrictions=active?.publicRestrictions;
   const locked=own.publicTurnRestrictions?.attackLockTurnsRemaining>0||
     restrictions?.cannotAttackNextTurn===true||
-    active?.specialConditions?.some(x=>/ASLEEP|PARALYZED/i.test(String(x)));
+    active?.specialConditions?.some(x=>x===catalog.specialConditions.ASLEEP||
+      x===catalog.specialConditions.PARALYZED);
   if(active&&!locked&&view.globalTurn!==1){
     const attached=[];
     for(const printing of active.energies){
       if(!catalog.basicEnergies.has(printing))continue;
-      const kind=Object.keys(ENERGY_TYPE).find(k=>printing.startsWith(k+' Energy '));
-      if(kind)attached.push(ENERGY_TYPE[kind]);
+      const kind=ENERGY_NAMES.find(k=>printing.startsWith(k+' Energy '));
+      if(kind)attached.push(catalog.basicEnergyTypes[kind]);
     }
     for(const attack of active.attacks){
       if(attack.gxAttack||!Array.isArray(attack.cost))continue;
@@ -42,7 +43,7 @@ function chooseActorRootIntent(view,catalog){
         restrictions?.cannotUseAttacksNextTurn?.includes(attack.name)||
         (restrictions?.onlyAllowedAttackNameNextTurn&&
           restrictions.onlyAllowedAttackNameNextTurn!==attack.name))continue;
-      const left=attached.slice(),colored=attack.cost.filter(t=>t!=='C');
+      const left=attached.slice(),colored=attack.cost.filter(t=>t!==catalog.colorlessEnergyType);
       if(colored.some(type=>{
         const index=left.indexOf(type);
         if(index<0)return true;
@@ -79,11 +80,17 @@ function withActorOnlyRootPolicy(run,deps={}){
     const {CardManager}=require(path.join(base,'game/cards/card-manager'));
     const {PokemonCard}=require(path.join(base,'game/store/card/pokemon-card'));
     const {EnergyCard}=require(path.join(base,'game/store/card/energy-card'));
-    const {Stage,EnergyType}=require(path.join(base,'game/store/card/card-types'));
+    const {Stage,EnergyType,CardType,SpecialCondition}=
+      require(path.join(base,'game/store/card/card-types'));
     const all=CardManager.getInstance().getAllCards();
     return {
       basics:new Set(all.filter(c=>c instanceof PokemonCard&&c.stage===Stage.BASIC).map(c=>c.fullName)),
-      basicEnergies:new Set(all.filter(c=>c instanceof EnergyCard&&c.energyType===EnergyType.BASIC).map(c=>c.fullName))
+      basicEnergies:new Set(all.filter(c=>c instanceof EnergyCard&&c.energyType===EnergyType.BASIC).map(c=>c.fullName)),
+      basicEnergyTypes:{Grass:CardType.GRASS,Fire:CardType.FIRE,Water:CardType.WATER,
+        Lightning:CardType.LIGHTNING,Psychic:CardType.PSYCHIC,Fighting:CardType.FIGHTING,
+        Darkness:CardType.DARK,Metal:CardType.METAL,Fairy:CardType.FAIRY},
+      colorlessEnergyType:CardType.COLORLESS,
+      specialConditions:{ASLEEP:SpecialCondition.ASLEEP,PARALYZED:SpecialCondition.PARALYZED}
     };
   });
   const observe=deps.observe??actorObservation;
