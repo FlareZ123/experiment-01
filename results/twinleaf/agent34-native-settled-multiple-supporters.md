@@ -43,6 +43,19 @@ The second Supporter on each turn is confirmed independently by (a) the same act
 - `simulation/twinleaf/rank24-k1-search-regression.cjs`: original exact source test now supplies the pinned `GameLog.LOG_PLAYER_PLAYS_SUPPORTER` code and asserts the second Sidney's genuine card/log/quota settlement without editing native decisions.
 - All six unit regressions and the same three-source-deal native compiled test passed in the existing manually dispatched workflow. The usual different source branches were retained.
 
+## Reversible paper-quota negative control, compiled after original witness
+
+Added [`paper-supporter-quota-guard.cjs`](../../simulation/twinleaf/paper-supporter-quota-guard.cjs), a research-owned pre-dispatch guard that sees the exact owner's held physical Supporter and `supporterTurn` before the pinned Store handles `PlayCardAction`. When quota is already positive, it records a specific veto and raises `PaperSupporterQuotaError` **without submitting the action**. It supports an explicit evidence-backed exceptional allowance callback, but none is used here. It does not silently select a replacement, change the opponent's deck, alter an earlier legal action or turn an interrupted run into a win.
+
+The same frozen rank24 seed 2966203069 was replayed again as an independent guarded fork, retaining untouched baseline source and K1 opt-in outcomes. Under the guard:
+
+- **Native root 22**: `Cynthia & Caitlin CEC` remains submitted to genuine Store at quota 0.
+- **Proposed root 24**: `Sidney FST 241`, same owner and global turn 2, quota 1, earlier Supporter zone empty, actual card held, is **rejected before** Store reduction.
+- This guarded fork **stops on a policy-illegal root** and is classified as neither candidate win nor loss. The corresponding unguarded game still genuinely resolves the second Supporter.
+- Five synthetic adversarial tests cover legal first Supporter, exact physical pre-dispatch rejection without state mutation, explicit allowance, proper hook restoration, and isolation from another Store instance.
+
+**Compiled real-engine confirmation:** existing manually dispatched [GitHub Actions 39403142408](https://github.com/FlareZ123/experiment-01/actions/runs/39403142408), head `7bc9d4b53454612ee6971cefa04905cf4e4fb432`, success. [Artifact 12256666916](https://github.com/FlareZ123/experiment-01/actions/runs/39403142408/artifacts/12256666916), ZIP SHA-256 `d0282486e61a5c33a77591f193eb38dbcda96dc92c05b3f62ae7f10aeb7266bf`, inner `rank24-k1-search-regression.json` SHA-256 `e55def8c159dc067db3130be6494dc988ef0c81efbdb1c1dad832b4b342406c9`. Earlier original-game matching and settled-violation assertions still pass in the same pinned compiled job. This is a **mechanical legality interception test**; full-game policy competence remains unresolved.
+
 ## Impact and next gate
 
 The current engine and unmodified bot can produce playable-looking transcripts that **violate the paper Supporter rule**, even when a root dispatch succeeds and the resulting game continues. Such affected complete-game outcomes must carry a paper-fidelity veto; they cannot be counted as competitive wins. Do not retroactively assume every historical game was affected or assign a rate from this selected fixture.
