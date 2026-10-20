@@ -31,7 +31,7 @@ jobs:
         run: node --test tests/agent11-pinned-attach-energy-geometry.test.cjs tests/agent11-attach-energy-geometry.test.cjs
       - name: Regress optional actor-only typed Energy frontier and unchanged root
         run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs
-      - name: Reject unsimulatable New Moon Horror House and Perfection opening roots
+      - name: Verify real Store two-Psychic attachment counterfactual\n        run: node --test tests/agent10-pinned-basic-energy-frontier-store.test.cjs\n      - name: Reject unsimulatable New Moon Horror House and Perfection opening roots
         run: node --test tests/new-moon-opening-horror-house-preflight.test.cjs
       - name: Prove both Horror House channels against real printed Psychic Energy in Store
         run: node --test tests/new-moon-opening-horror-house-store-preflight.test.cjs
