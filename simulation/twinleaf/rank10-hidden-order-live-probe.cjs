@@ -37,9 +37,12 @@ function actionSignature(action) {
  * @param {()=>object} newBot Builds an independent bot for one world.
  * @param {(state:object)=>object} cloneState Detaches every mutable source Card.
  * @param {()=>()=>number} makeRandom Fresh equal-seeded policy PRNG.
+ * @param {((evaluate:()=>object)=>object)|null} [wrapWorld] Optional
+ *   isolated adapter context around each world's bot construction and score.
  * @returns {object} Nonprivate comparison record.
  */
-function compareHiddenDeckOrders(state,actorId,newBot,cloneState,makeRandom) {
+function compareHiddenDeckOrders(state,actorId,newBot,cloneState,makeRandom,
+  wrapWorld=null) {
   const realPlayer=state.players.find(p=>p.id===actorId);
   assert.ok(realPlayer,'Source world has no acting player');
   const pre=stateGraphFingerprint(state);
@@ -52,13 +55,18 @@ function compareHiddenDeckOrders(state,actorId,newBot,cloneState,makeRandom) {
   assert.ok(before.length>=2,'Counterfactual requires two deck cards');
   player.deck.cards.reverse();
   assert.deepEqual(player.deck.cards.map(c=>[c.fullName,c.id]).reverse(),before);
+  assert.ok(wrapWorld===null||typeof wrapWorld==='function',
+    'Optional world policy context must be a function');
   const evaluate=world=>{
     const randomBefore=Math.random;
     Math.random=makeRandom();
     try {
-      const bot=newBot();
-      const scored=captureTacticScores(bot,()=>bot.decodeNextAction(world));
-      return {action:actionSignature(scored.result),scores:scored.trace};
+      const evaluateWithFreshBot=()=>{
+        const bot=newBot();
+        const scored=captureTacticScores(bot,()=>bot.decodeNextAction(world));
+        return {action:actionSignature(scored.result),scores:scored.trace};
+      };
+      return wrapWorld?wrapWorld(evaluateWithFreshBot):evaluateWithFreshBot();
     } finally {
       Math.random=randomBefore;
     }
