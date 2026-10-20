@@ -179,6 +179,29 @@ test('source alias mutation invalidates an otherwise matching hidden contrast',(
   assert.match(report.error,/mutated original/);
 });
 
+
+test('object-valued source fingerprint cannot mask post-replay source changes',()=>{
+  const args=makeInput({fingerprint:state=>state});
+  args.parity.rootAtEntry=structuredClone(args.root);
+  args.parity.rootAtExit=structuredClone(args.root);
+  args.replayDecision=()=>{
+    Math.random();
+    args.root.players[0].hand.push('ILLEGAL');
+    return {kind:'PassTurnAction'};
+  };
+  args.parity={...args.parity};
+  Object.defineProperty(args.parity,'replayDecisionRef',{
+    value:args.replayDecision,enumerable:false
+  });
+  const report=compareNativeHiddenDeckOrder(args);
+  assert.equal(report.actorObservationMatched,true);
+  assert.equal(report.sourceRootUnchanged,false);
+  assert.equal(report.contrastExecutable,false);
+  assert.deepEqual(report.sourceRootAtEntry.players[0].hand,['A']);
+  assert.deepEqual(report.sourceRootAtExit.players[0].hand,
+    ['A','ILLEGAL']);
+});
+
 test('different native source roots fail before comparison',()=>{
   const input=makeInput();
   input.root.players[0].hand.push('unexpected');
