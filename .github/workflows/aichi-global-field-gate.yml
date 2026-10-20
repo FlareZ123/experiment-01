@@ -26,6 +26,8 @@ jobs:
           node-version: '20'
       - name: Audit source deck fingerprints and missing-rank seal
         run: node --test tests/aichi_source_fingerprint_map.test.cjs
+      - name: Reject seat-confounded zero-loss evidence under a four-cell estimand
+        run: node --test tests/aichi-physical-seat-imbalance.test.cjs
       - name: Verify source-deck positioning census and corner cases
         run: node tests/aichi-positioning-census.test.cjs
       - name: Verify event-era Japanese origin of late English print proxies
