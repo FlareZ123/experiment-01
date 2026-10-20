@@ -25,6 +25,9 @@ function sourceFirstNativePressureVerified(row){
     return pressure.pressureKind==='passive-ability-suppression' &&
       evidence?.schema==='agent41-rank6-passive-initialization-root-classification-v1' &&
       evidence.status==='native-capability-suppression-with-rooted-turn-continuity' &&
+      evidence.sourceSeat===pressure.actorSeat &&
+      evidence.candidateSeat===1-pressure.actorSeat &&
+      evidence.sourceActuallyFirst===true &&
       evidence.sourceActiveContinuity===true &&
       evidence.nativeCapabilitySuppressed===true &&
       evidence.rootedReplyAndReturn===true &&
@@ -46,6 +49,9 @@ function sourceFirstNativePressureVerified(row){
           before.candidatePrintedNewMoonBlocked===true);
     return pressure.pressureKind==='item-enabled-ability-lock' &&
       window?.schema==='agent41-authentic-rank11-garbotoxin-ability-window-v1' &&
+      window.sourceSeat===pressure.actorSeat &&
+      window.candidateSeat===1-pressure.actorSeat &&
+      window.turn===2&&window.realStoreOnly===true&&
       before?.globalTurn===2&&before.sourceGarbodorHasTool===true&&
       nativeBlocked &&
       (!hasLedger||(root?.action==='PlayCardAction'&&root.card==='Boost Shake'));
