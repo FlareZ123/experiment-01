@@ -43,7 +43,9 @@ function inspectNativeOwnerAliases(state,choose,{
   try{selected=choose();}catch(failure){error=failure;}
   const toolsAfter=toolSlots();
   const delta=compareOwnedGraphSnapshot(snap,{maxExamples});
-  let liveAliasMutatedObjects=0,changedObjects=0;
+  let liveAliasMutatedObjects=0,liveAliasAtExit=0,changedObjects=0;
+  const postPaths=delta.changedFields>0?
+    snapshotOwnedGraph({players:state.players}).paths:null;
   const aliases=[];
   if(delta.changedFields>0){
     for(const [obj,entry] of owns){
@@ -53,11 +55,13 @@ function inspectNativeOwnerAliases(state,choose,{
       if(changed.changedFields===0)continue;
       changedObjects++;
       const path=ownPlayerGraph.get(obj);
+      const exitPath=postPaths.get(obj)??null;
+      if(exitPath!==null)liveAliasAtExit++;
       if(path!==undefined){
         liveAliasMutatedObjects++;
         if(aliases.length<maxExamples)aliases.push({
           entryPath:snap.paths.get(obj),
-          livePlayerPath:path,
+          livePlayerPath:path,livePlayerExitPath:exitPath,
           changedFields:changed.changedFields,
           firstMutationKind:changed.examples[0]?.kind??null
         });
@@ -65,7 +69,7 @@ function inspectNativeOwnerAliases(state,choose,{
     }
   }
   const audit={changedFields:delta.changedFields,
-    changedObjects,liveAliasMutatedObjects,
+    changedObjects,liveAliasMutatedObjects,liveAliasAtExit,
     examples:aliases,originalPathExamples:delta.examples,
     graphObjectsAtEntry:owns.size,liveObjectsAtEntry:visited.size,
     aliasClassificationComplete:queue.length<maxObjects,
