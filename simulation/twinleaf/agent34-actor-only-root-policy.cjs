@@ -28,7 +28,7 @@ function chooseActorRootIntent(view,catalog){
   const locked=own.publicTurnRestrictions?.attackLockTurnsRemaining>0||
     restrictions?.cannotAttackNextTurn===true||
     active?.specialConditions?.some(x=>/ASLEEP|PARALYZED/i.test(String(x)));
-  if(active&&!locked){
+  if(active&&!locked&&view.globalTurn!==1){
     const attached=[];
     for(const printing of active.energies){
       if(!catalog.basicEnergies.has(printing))continue;
@@ -93,11 +93,12 @@ function withActorOnlyRootPolicy(run,deps={}){
   const original=Object.getOwnPropertyDescriptor(SimpleTacticsAi.prototype,'decodeNextAction');
   assert.equal(typeof original?.value,'function');
   const typedDecisions=new WeakMap();
-  let nativeStore=null,catalog=null;
+  let nativeStore=null,catalog=null,actualGamesSeen=0;
   const audit={
     version:VERSION,origin:'detached-actor-observation',
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
-    typedIntentCounts:{},nativeRootAcceptances:[],
+    typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
+    unsupportedPromptTypes:{},
     unsupportedPromptFallbacks:0,nonOwnerNativeDelegations:0,
     ownerRootIntents:[],competitiveGameQualified:false,
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
@@ -107,8 +108,11 @@ function withActorOnlyRootPolicy(run,deps={}){
     const seat=state.players?.findIndex(p=>p.id===playerId);
     const pending=state.prompts?.find(p=>p.result===undefined);
     if(seat===-1||pending||state.activePlayer!==seat){
-      if(pending&&state.players?.[seat]?.id===pending.playerId)audit.unsupportedPromptFallbacks++;
-      else audit.nonOwnerNativeDelegations++;
+      if(pending&&state.players?.[seat]?.id===pending.playerId){
+        audit.unsupportedPromptFallbacks++;
+        const name=pending.constructor?.name??'unknown';
+        audit.unsupportedPromptTypes[name]=(audit.unsupportedPromptTypes[name]??0)+1;
+      }else audit.nonOwnerNativeDelegations++;
       return original.value.call(this,state);
     }
     if(catalog===null)catalog=getCatalog();
@@ -138,7 +142,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     return action;
   }
   function dispatchObserved(action,...args){
-    if(nativeStore===null&&action?.constructor?.name==='AddPlayerAction')nativeStore=this;
+    if(action?.constructor?.name==='AddPlayerAction'&&this!==nativeStore){
+      nativeStore=this;actualGamesSeen++;audit.actualGamesSeen=actualGamesSeen;
+    }
     const choice=this===nativeStore?typedDecisions.get(action):undefined;
     if(!choice)return beforeDispatch.value.apply(this,[action,...args]);
     try{
