@@ -84,9 +84,9 @@ function run(){
   requireCheck(before?.sourceGarbodorHasTool===true &&
     after?.sourceGarbodorHasTool===false,
     'Source Tool did not transition from attached to removed');
-  requireCheck(before?.candidateGenericAbilityBlocked===true &&
-    after?.candidateGenericAbilityBlocked===false,
-    'Native PowerEffect did not confirm suppression then restored Ability');
+  requireCheck(before?.candidatePrintedNewMoonBlocked===true &&
+    after?.candidatePrintedNewMoonBlocked===false,
+    'Native printed New Moon PowerEffect did not confirm suppression then restoration');
   return {
     schema:'agent41-authentic-sourcefirst-ability-window-equivalence-v1',
     evidenceType:'historical seed selected by previous source-success replay',
