@@ -554,6 +554,8 @@ function runDevelopment({
         error?.cause?.paperSupporterQuotaEvidence??null;
       const nativeValidation=error?.nativeProposalValidationEvidence??
         error?.cause?.nativeProposalValidationEvidence??null;
+      const nativeHiddenRead=error?.nativeHiddenReadEvidence??
+        error?.cause?.nativeHiddenReadEvidence??null;
       rows.push({
         trial,status:veto?'paper-supporter-quota-veto':'engine-error',
         error:String(error?.stack||error),
@@ -561,6 +563,8 @@ function runDevelopment({
         paperSupporterDiscipline:veto,
         ...(nativeProposalValidationAudit?{
           nativeValidationAudit:nativeValidation}:{}),
+        ...(nativeOpponentHiddenReadAudit?{
+          nativeOpponentHiddenReadAudit:nativeHiddenRead}:{}),
         qualifiesForCompetitiveInference:false
       });
     }
