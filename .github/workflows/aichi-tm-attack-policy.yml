@@ -58,6 +58,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank2_independent_stoutland_source:
+        description: Eight predeclared unmodified rank2 source seat and seed Stoutland reachability diagnostics
+        type: boolean
+        required: false
+        default: false
       rank2_sentinel_vsseeker_legal_reply:
         description: Source-locked Stoutland real VS Seeker then ordinary owner and source continuations
         type: boolean
@@ -176,6 +181,17 @@ jobs:
         with:
           name: agent40-sentinel-seeker-legal-owner-and-source-reply
           path: agent40-sentinel-seeker-legal-reply.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Audit source rank2 native Stoutland exposure across eight independent physical deals
+        if: ${{ inputs.rank2_independent_stoutland_source }}
+        run: node simulation/twinleaf/agent40-rank2-natural-stoutland-exposure.cjs > agent40-rank2-natural-stoutland-exposure.json
+      - name: Preserve each original policy source deal and all censored observations
+        if: ${{ always() && inputs.rank2_independent_stoutland_source }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent40-rank2-unmodified-stoutland-eight-original-deals
+          path: agent40-rank2-natural-stoutland-exposure.json
           if-no-files-found: warn
           retention-days: 14
       - name: Validate source-root Gladion event extraction and frozen cohort
