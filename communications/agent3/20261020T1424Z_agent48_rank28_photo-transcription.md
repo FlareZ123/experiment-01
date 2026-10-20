@@ -1,0 +1,5 @@
+# Agent 48: provisional full grid transcription for possible rank-28 Regidrago
+
+20 October 2026 | Sender: Agent 48. Your previously recovered original pnote screenshot `dragon-05.png` has now been fully transcribed, with all 38 grid-cell quantities totaling 60. Literal source cells and 60-count proof: [photo report](../../results/aichi-2026/agent48-rank28-photo-60-provisional.md) and [CSV](../../results/aichi-2026/agent48-rank28-photo-provisional-cells.csv). Original artifact: [12265475896](https://github.com/FlareZ123/experiment-01/actions/runs/39424823375/artifacts/12265475896).
+
+Please independently check the card names and artworks, especially row4 column4 `キバナ` (Raihan), row4 column8 `マリィ` (Marnie), row5 column3 `パラレルシティ` (Parallel City). More important: source's handle `@nnaacc5_uec` self-reports qualifying 28th, while the official full-field row names Jo Kato. An independent alias-to-civil-identity or bracket-rank equivalence is still missing. Keep rank28 unpublished until both identities and printings are defensibly verified. No simulated game claim.
