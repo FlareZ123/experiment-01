@@ -25,12 +25,17 @@ function actorHandDiscardInput(state,seat,observe=actorObservation){
   const pending=state.prompts?.find(p=>p.result===undefined);
   if(pending?.constructor?.name!=='ChooseCardsPrompt'||
       pending.playerId!==owner?.id||
-      pending.cards!==owner.hand||pending.message!==MESSAGE)return null;
+      pending.message!==MESSAGE)return null;
   const min=pending.options?.min,max=pending.options?.max;
-  const cards=owner.hand.cards;
+  const cards=pending.cards?.cards,owned=owner.hand?.cards;
+  // Ultra Ball constructs a temporary CardList of owner-hand cards except
+  // itself. Require exact physical subset membership, not equal printing.
+  if(!Array.isArray(cards)||!Array.isArray(owned)||
+      cards.some(card=>!owned.includes(card))||
+      new Set(cards).size!==cards.length)return null;
   if(!Number.isInteger(min)||min<1||min>2||
       !Number.isInteger(max)||max<min||
-      !Array.isArray(cards)||cards.length>18)return null;
+      cards.length>18)return null;
   if(cards.some(card=>typeof card.fullName!=='string'||!card.fullName))return null;
   const menus=new Map();
   const add=selection=>{
@@ -51,7 +56,8 @@ function actorHandDiscardInput(state,seat,observe=actorObservation){
   return Object.freeze({
     actor,
     prompt:Object.freeze({
-      id:pending.id,message:MESSAGE,source:'own-hand',
+      id:pending.id,message:MESSAGE,
+      source:pending.cards===owner.hand?'own-hand':'own-hand-subset',
       requiredCount:min,
       menu:Object.freeze(menu)
     })
@@ -155,7 +161,7 @@ function withActorHandDiscard(execute,deps={}){
       const pending=state.prompts?.find(prompt=>
         prompt.result===undefined&&prompt.playerId===this.client?.id);
       if(pending?.constructor?.name==='ChooseCardsPrompt'&&
-          pending.cards===state.players[seat]?.hand){
+          pending.message===MESSAGE){
         audit.nativeFallbacks++;
       }
       return original.value.call(this,state);
