@@ -31,31 +31,15 @@ def source_inventory_digest(source_deck_digests: Mapping[int, str]) -> str:
     return sha256(serialized).hexdigest()
 
 
-def evaluate_balanced_raw_batch(
+def _verify_frozen_source_raw_batch(
     batch: dict, field_csv: str, *,
     source_deck_digests: Mapping[int, str],
     expected_candidate_deck_sha256: str,
-    predeclared_games_per_cell: int,
     expected_trials: list[dict],
-    target: str = "0.995",
-    confidence: str = "0.95",
-    require_physical_seat_balance: bool = False,
-) -> dict:
-    """Require 64 rank/start cells, optionally also 128 rank/start/engine-seat cells.
-
-    The physical-seat option describes the target as uniformly weighted over all
-    four engine-seat and actual-start combinations per rank. It does not attest
-    independent sampling, randomization, decision-policy fidelity or paper rules.
-    """
-    if type(predeclared_games_per_cell) is not int or predeclared_games_per_cell < 1:
-        raise ValueError("Positive integer per-cell horizon is required")
-    if type(require_physical_seat_balance) is not bool:
-        raise ValueError("Physical-seat balance flag must be a boolean")
+) -> tuple[dict, str]:
+    """Shared exact-field, frozen candidate, full-trace and schedule preflight."""
     if not isinstance(expected_trials, list) or not expected_trials:
         raise ValueError("Independent predeclared trial schedule is required")
-    if (type(batch.get("predeclared_games_per_cell")) is not int or
-            batch["predeclared_games_per_cell"] != predeclared_games_per_cell):
-        raise ValueError("The batch's declared horizon disagrees with the evaluation horizon")
     if any(not p.published for p in read_manifest(field_csv)):
         raise ValueError("Exact list provenance for all 32 ranks is required")
 
@@ -88,6 +72,40 @@ def evaluate_balanced_raw_batch(
     for game in batch["games"]:
         if game["opponent_deck_sha256"] != source_deck_digests[game["rank"]]:
             raise ValueError(f"Opponent rank {game['rank']} deck does not match its exact source digest")
+    return checked, expected_source_sha
+
+
+def evaluate_balanced_raw_batch(
+    batch: dict, field_csv: str, *,
+    source_deck_digests: Mapping[int, str],
+    expected_candidate_deck_sha256: str,
+    predeclared_games_per_cell: int,
+    expected_trials: list[dict],
+    target: str = "0.995",
+    confidence: str = "0.95",
+    require_physical_seat_balance: bool = False,
+) -> dict:
+    """Require 64 rank/start cells, optionally also 128 rank/start/engine-seat cells.
+
+    The physical-seat option describes the target as uniformly weighted over all
+    four engine-seat and actual-start combinations per rank. It does not attest
+    independent sampling, randomization, decision-policy fidelity or paper rules.
+    """
+    if type(predeclared_games_per_cell) is not int or predeclared_games_per_cell < 1:
+        raise ValueError("Positive integer per-cell horizon is required")
+    if type(require_physical_seat_balance) is not bool:
+        raise ValueError("Physical-seat balance flag must be a boolean")
+    if not isinstance(expected_trials, list) or not expected_trials:
+        raise ValueError("Independent predeclared trial schedule is required")
+    if (type(batch.get("predeclared_games_per_cell")) is not int or
+            batch["predeclared_games_per_cell"] != predeclared_games_per_cell):
+        raise ValueError("The batch's declared horizon disagrees with the evaluation horizon")
+    checked, expected_source_sha = _verify_frozen_source_raw_batch(
+        batch, field_csv,
+        source_deck_digests=source_deck_digests,
+        expected_candidate_deck_sha256=expected_candidate_deck_sha256,
+        expected_trials=expected_trials,
+    )
     summary = checked["statistical_result"]
     if not summary["complete"]:
         raise ValueError("The full 64-cell rank/actual-starting-seat matrix is missing")
