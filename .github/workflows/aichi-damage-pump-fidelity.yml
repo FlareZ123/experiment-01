@@ -73,6 +73,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank26_supporter_restore_probe:
+        description: 'Original rank26 selected source Supporter proposal mutation correction pair'
+        type: boolean
+        required: false
+        default: false
       rank26_ticket_prize_probe:
         description: 'Verify rank26 source DCE Prize transfer with actual Redeemable Ticket'
         type: boolean
@@ -284,6 +289,7 @@ jobs:
         env:
           RANK26_VIP_COLOGNE_FOLLOWUP: ${{ inputs.rank26_vip_cologne_followup }}
           RANK26_KOKO_TWO_TARGET_PROBE: ${{ inputs.rank26_koko_two_target_probe }}
+          RANK26_SUPPORTER_RESTORE_PROBE: ${{ inputs.rank26_supporter_restore_probe }}
         run: node simulation/twinleaf/rank26-vip-after-pass-source-pair.cjs
       - name: Archive rank26 native VIP action, Bench and negative paths
         if: ${{ inputs.rank26_vip_after_pass_probe }}
