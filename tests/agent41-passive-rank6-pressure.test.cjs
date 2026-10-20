@@ -110,6 +110,39 @@ test('reject return snapshot from the candidate seat',()=>{
   assert.equal(result.status,'source-return-or-reply-unverified');
 });
 
+test('a blocked later public Power counts despite an exempt first Power',()=>{
+  const audit=makeAudit();
+  audit.candidateTurn2.targetNativeAbilityBlocked=false;
+  audit.candidateTurn2.nativePowerChecks=[
+    {printing:'Mewtwo & Mew-GX UNM',
+      powerName:'Perfection',blocked:false},
+    {printing:'Tapu Lele-GX GRI',
+      powerName:'Wonder Tag',blocked:true}
+  ];
+  const result=evidence(audit);
+  assert.equal(result.nativeCapabilitySuppressed,true);
+  assert.equal(result.status,
+    'native-capability-suppression-with-rooted-turn-continuity');
+  assert.equal(result.targetPowerName,'Perfection');
+  assert.equal(result.suppressedPowerPrinting,'Tapu Lele-GX GRI');
+  assert.equal(result.suppressedPowerName,'Wonder Tag');
+  assert.equal(result.examinedPrintedPowerCount,2);
+});
+
+test('new native Power-array evidence fails closed on contradictory first target',()=>{
+  const audit=makeAudit();
+  audit.candidateTurn2.nativePowerChecks=[
+    {printing:'Mewtwo & Mew-GX UNM',
+      powerName:'Perfection',blocked:false}
+  ];
+  assert.equal(evidence(audit).status,
+    'native-printed-power-block-unverified');
+  audit.candidateTurn2.nativePowerChecks=[];
+  const absent=evidence(audit);
+  assert.equal(absent.status,'no-eligible-visible-power');
+  assert.equal(absent.examinedPrintedPowerCount,0);
+});
+
 test('reject mismatched source seat or observer provenance',()=>{
   assert.throws(()=>evidence({...makeAudit(),sourceSeat:1}),{
     name:'AssertionError'
