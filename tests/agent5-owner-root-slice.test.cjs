@@ -184,3 +184,25 @@ test('physical snapshot accesses acting-owner public zones only',()=>{
   }),{turn:2,phase:5,handCount:1,activeEnergies:[P],
     benchPrinting:null});
 });
+
+
+test('pinned numeric attack cost symbols admit genuine payable Colorless',()=>{
+  const numeric={9:9,5:5};
+  assert.equal(basicEnergyPays([9],[5],numeric[9]),true);
+  assert.equal(basicEnergyPays([5,9],[5,5],9),true);
+  assert.equal(basicEnergyPays([5,5,9],[5,5],9),false);
+  assert.equal(basicEnergyPays([5,5,9],[5,5,5],9),true);
+  // The engine's printed cost arrives as numbers, and the owner holding a
+  // Psychic Basic Energy must be encoded with the *same* native CardType.
+  const a=view();
+  a.ownPublic.active.attacks=[{
+    name:'Get Lost',cost:[9],gxAttack:false
+  }];
+  a.ownPublic.active.energies=[P];
+  a.ownPublic.bench[0]={printing:C};
+  a.ownTurnResources.energyPlayedTurn=a.globalTurn;
+  assert.deepEqual(selectOwnerRootIntent(a,{...catalog,
+    [P]:{basicEnergyType:5}},{colorlessSymbol:9}),{
+    kind:'attack',name:'Get Lost'
+  });
+});
