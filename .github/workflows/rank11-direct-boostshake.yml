@@ -36,15 +36,12 @@ on:
         type: boolean
         default: false
       vip_prospective_trials:
-        description: Prospectively fixed VIP trial count, 0 disables
+        description: Frozen 16-source-deal New Moon first-own-turn VIP study, 0 disables
         required: false
         default: '0'
         type: choice
         options:
           - '0'
-          - '4'
-          - '8'
-          - '12'
           - '16'
       dual_opener_nesting_audit:
         description: Retrospective five-source-draw nested decoder noninterference falsification
@@ -150,6 +147,12 @@ jobs:
       - name: Print candidate-first response evidence
         if: inputs.attack_window_probe
         run: node scripts/rank11-candidate-first-pass-summary.cjs
+      - name: Execute pre-registered 16 original-source New Moon VIP study
+        if: ${{ inputs.vip_prospective_trials == '16' }}
+        run: node simulation/evaluation/newmoon-first-own-vip-prospective.cjs > newmoon-first-own-vip-prospective.json
+      - name: Report all fixed VIP opportunities and failures, without win inference
+        if: ${{ inputs.vip_prospective_trials == '16' }}
+        run: node -e "const p=require('./newmoon-first-own-vip-prospective.json');console.log(JSON.stringify({registered:p.registeredSourceDeals,observed:p.observedAttempts,startsVerified:p.verifiedActualStartingOrders,legalVIP:p.legalVIPDispatches,ownerSelections:p.ownerPromptValidSelections,errors:p.falseOrFailedAttempts,qualified:p.competitivelyQualifiedGames},null,2));if(p.registeredSourceDeals!==16||p.observedAttempts!==16)process.exitCode=1"
       - name: Compare real first-turn candidate VIP play with untouched source Pass
         if: inputs.vip_counterfactual
         run: node simulation/twinleaf/rank11-newmoon-first-vip-counterfactual.cjs > rank11-newmoon-first-vip-counterfactual.json
@@ -189,6 +192,7 @@ jobs:
             rank11-exclusive-openers-source-replay.json
             rank11-direct-candidate-attack-window.json
             rank11-newmoon-first-vip-counterfactual.json
+            newmoon-first-own-vip-prospective.json
             rank11-newmoon-farewell-vip-source-pair.json
             rank11-newmoon-farewell-vip-reservation.json
             rank11-hybrid-source-replay.json
