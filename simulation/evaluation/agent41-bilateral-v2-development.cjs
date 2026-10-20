@@ -10,6 +10,8 @@ const {withBilateralCommonCandidatePolicy,POLICY_VERSION}=
   require('./agent41-bilateral-common-policy.cjs');
 const {candidateAttackSettlement}=
   require('./agent37-candidate-attack-settlement.cjs');
+const {withNativePaperSupporterDiscipline,VERSION:PAPER_SUPPORTER_VERSION}=
+  require('../twinleaf/agent41-paper-supporter-discipline.cjs');
 
 const root=path.resolve(__dirname,'../..');
 const registration=JSON.parse(fs.readFileSync(path.join(root,
@@ -280,8 +282,8 @@ function executeDevelopment(trial,candidates,{
   };
   const runWithPaperSupporterQuota=()=>{
     if(!paperSupporterQuota)return runWithInitializationWindow();
-    const guarded=require('../twinleaf/agent41-paper-supporter-discipline.cjs')
-      .withNativePaperSupporterDiscipline(runWithInitializationWindow);
+    const guarded=withNativePaperSupporterDiscipline(
+      runWithInitializationWindow);
     paperSupporterAudit=guarded.audit;
     return guarded.result;
   };
@@ -377,7 +379,7 @@ function executeDevelopment(trial,candidates,{
   return {
     trial,qualifiesForCompetitiveInference:false,
     policyVersion:POLICY_VERSION+
-      (paperSupporterQuota?'+NativePaperSupporterDiscipline-v1-both-seats':'')+
+      (paperSupporterQuota?'+'+PAPER_SUPPORTER_VERSION:'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (lateCompressorPayload?
       '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')),
@@ -528,7 +530,7 @@ function runDevelopment({
       'historical v1 selection; not v2 preregistration',
     enginePin:registration.enginePin,
     candidatePolicy:POLICY_VERSION+
-      (paperSupporterQuota?'+NativePaperSupporterDiscipline-v1-both-seats':'')+
+      (paperSupporterQuota?'+'+PAPER_SUPPORTER_VERSION:'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (lateCompressorPayload?
       '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')),
