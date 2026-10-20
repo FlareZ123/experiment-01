@@ -135,7 +135,7 @@ test('preexisting actor root acceptance, selection and individual prompt audit c
     const {base,withObserver}=buildPair();
     mutate(withObserver.rows[2].actorOnlyDecisionCoverage);
     assert.throws(()=>assertNativeGenericFallbackNoninterference(base,withObserver),
-      /original root\/prompt decision audit/);
+      /existing root\/prompt decision audit/);
   }
 });
 
