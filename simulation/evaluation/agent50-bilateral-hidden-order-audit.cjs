@@ -135,6 +135,11 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom) {
     classification='hidden-order-action-sensitivity-observed';
   } else if(event.tacticScoreComparison?.equalScoreTraces===false) {
     classification='hidden-order-score-sensitivity-only';
+  } else if(event.tacticScoreComparison?.physicalEvaluations===0 &&
+    event.tacticScoreComparison?.counterfactualEvaluations===0) {
+    // Equal empty score traces cannot assess hidden-information leakage
+    // through the generic tactic scorer.
+    classification='no-generic-tactic-evaluations-on-tested-root';
   } else {
     classification='no-sensitivity-on-tested-root';
   }
@@ -152,6 +157,13 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom) {
       baselineActionMatchedActual:event.baselineActionMatchedActual===true,
       actionSensitiveToHiddenDeckOrder:event.actionSensitiveToHiddenDeckOrder===true,
       tacticScoreComparison:event.tacticScoreComparison??null,
+      // Null means not measured. False flags either zero finite results or
+      // zero generic scorer calls; only positive values prove actual exposure.
+      bothWorldsFiniteScoring:
+        typeof event.tacticScoreComparison?.physicalScoreSummary?.finiteScores==='number' &&
+        typeof event.tacticScoreComparison?.counterfactualScoreSummary?.finiteScores==='number' ?
+          event.tacticScoreComparison.physicalScoreSummary.finiteScores>0 &&
+          event.tacticScoreComparison.counterfactualScoreSummary.finiteScores>0:null,
       deckCards:event.deckCards??null,
       knownDeckMembershipVerified:event.knownDeckMembershipVerified===true,
       knownDeckTopOrderVerified:event.knownDeckTopOrderVerified===true
@@ -222,6 +234,10 @@ function runHistoricalDevelopmentAudit() {
     liveProbeNoninterfering:rows.filter(r=>r.noninterferenceVerified).length,
     sensitivityObserved:rows.filter(r=>
       r.classification==='hidden-order-action-sensitivity-observed').length,
+    bothWorldsFiniteScorerExposures:rows.filter(r=>
+      r.diagnostic?.bothWorldsFiniteScoring===true).length,
+    scorerAbsentAtBothWorlds:rows.filter(r=>
+      r.classification==='no-generic-tactic-evaluations-on-tested-root').length,
     independentlyQualifiedCompetitiveGames:0,
     gameWinRateCertified:false,
     interpretation:'This diagnoses the existing policy at its real decisions. It '+
