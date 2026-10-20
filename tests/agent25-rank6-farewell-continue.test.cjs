@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {eligiblePassFarewell}=require(
+const {eligiblePassFarewell,farewellZoneChange}=require(
   '../simulation/twinleaf/newmoon-rank6-farewell-counterfactual.cjs');
 
 const slot=(fullName,attached=false)=>({
@@ -37,4 +37,32 @@ test('does not draw from empty deck or sacrifice an attached Unown',()=>{
   assert.equal(eligiblePassFarewell({
     activePlayer:0,turn:3,prompts:[]
   },{...own,bench:[slot('Unown AOR',true),slot('Latias ex SSP')]},3,0),-1);
+});
+
+test('owner-count postcondition verifies exact Farewell draw and Bench removal',()=>{
+  const result=farewellZoneChange({
+    ownerDeckCount:42,ownerHandCount:4,targetUnownPresent:true
+  },{
+    ownerDeckCount:41,ownerHandCount:5,targetUnownPresent:false
+  });
+  assert.equal(result.ownerDeckDecrease,1);
+  assert.equal(result.ownerHandIncrease,1);
+  assert.equal(result.chosenUnownRemoved,true);
+  assert.equal(result.settledZonePostcondition,true);
+  assert.equal(Object.hasOwn(result,'drawnCardIdentity'),false);
+});
+
+test('a returned dispatch without matching owner zones cannot certify resolution',()=>{
+  const before={
+    ownerDeckCount:42,ownerHandCount:4,targetUnownPresent:true
+  };
+  assert.equal(farewellZoneChange(before,{
+    ownerDeckCount:42,ownerHandCount:4,targetUnownPresent:true
+  }).settledZonePostcondition,false);
+  assert.equal(farewellZoneChange(before,{
+    ownerDeckCount:41,ownerHandCount:5,targetUnownPresent:true
+  }).settledZonePostcondition,false);
+  assert.equal(farewellZoneChange(before,{
+    ownerDeckCount:40,ownerHandCount:5,targetUnownPresent:false
+  }).settledZonePostcondition,false);
 });
