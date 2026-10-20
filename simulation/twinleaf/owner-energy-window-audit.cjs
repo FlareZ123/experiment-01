@@ -158,10 +158,6 @@ function withOwnerEnergyWindowAudit(candidateSeat, execute, deps = {}) {
     const actorSeatBefore = before?.activePlayer;
     const owner = before?.players.find(p => p.id === ownerId);
     const boardEnergyBefore = owner ? ownerBoardEnergy(owner, enums) : null;
-    const sourceId = candidateSeat === 0 ? 202 : 101;
-    const source = before?.players.find(p => p.id === sourceId);
-    const sourcePlay = action?.constructor?.name === 'PlayCardAction' &&
-      action.id === sourceId ? source?.hand.cards[action.handIndex]?.fullName ?? null : null;
     const manual = before?.activePlayer === candidateSeat &&
       action?.constructor?.name === 'PlayCardAction' &&
       action.id === ownerId &&
@@ -185,7 +181,7 @@ function withOwnerEnergyWindowAudit(candidateSeat, execute, deps = {}) {
           turnBefore,
           actorSeat: actorSeatBefore,
           nativeAction: action.constructor.name,
-          sourcePlayedCardAtThisRoot: sourcePlay,
+          sourceCardAttribution: 'unverified-public-root-join-required',
           attachedCardDelta: count(boardEnergyAfter) - count(boardEnergyBefore),
           before: boardEnergyBefore,
           after: boardEnergyAfter,
