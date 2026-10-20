@@ -18,17 +18,21 @@ const engine=relative=>require(path.join(output,relative));
  * @template T
  * @param {()=>T} execute Pinned synchronous canonical game.
  * @param {{sourceSeat?:0|1,candidateSeat?:0|1,turn?:number}} [options]
+ * @param {{Store?:Function,GamePhase?:object,isAbilityBlocked?:Function,
+ *   publicBoardSnapshot?:Function}} [deps] Pure test-only injected boundary.
  * @returns {{result:T,audit:object}}
  */
 function withLiveGarbodorAbilityWindow(execute,{
   sourceSeat=0,candidateSeat=1,turn=2
-}={}){
+}={},deps={}){
   assert.equal(typeof execute,'function');
   assert.ok((sourceSeat===0||sourceSeat===1)&&candidateSeat===1-sourceSeat);
   assert.ok(Number.isSafeInteger(turn)&&turn>0);
-  const {Store}=engine('game/store/store');
-  const {GamePhase}=engine('game/store/state/state');
-  const {IS_ABILITY_BLOCKED}=engine('game/store/prefabs/prefabs');
+  const Store=deps.Store??engine('game/store/store').Store;
+  const GamePhase=deps.GamePhase??engine('game/store/state/state').GamePhase;
+  const isAbilityBlocked=deps.isAbilityBlocked??
+    engine('game/store/prefabs/prefabs').IS_ABILITY_BLOCKED;
+  const publicBoard=deps.publicBoardSnapshot??publicBoardSnapshot;
   const previous=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof previous?.value,'function');
   let actual=null;
@@ -64,9 +68,9 @@ function withLiveGarbodorAbilityWindow(execute,{
       sourceGarbodorHasTool:sourceTool,
       candidateActive:ownActive.fullName,
       candidatePrintedPowerNames:(ownActive.powers??[]).map(p=>p.name),
-      candidateGenericAbilityBlocked:IS_ABILITY_BLOCKED(
+      candidateGenericAbilityBlocked:isAbilityBlocked(
         this,state,candidate,ownActive),
-      publicBoard:publicBoardSnapshot(state)
+      publicBoard:publicBoard(state)
     };
     if(sourceTool)audit.before=snap;
     else audit.after=snap;
