@@ -45,6 +45,12 @@ function isolatedCampaign(){
     if(specifier==='./agent37-candidate-attack-settlement.cjs')return{
       candidateAttackSettlement:()=>({})
     };
+    if(specifier==='../twinleaf/agent41-paper-supporter-discipline.cjs')return{
+      VERSION:'test-native-paper-supporter-v2',
+      withNativePaperSupporterDiscipline:execute=>({
+        result:execute(),audit:{nativeSupporterQuotaQualified:false}
+      })
+    };
     if(specifier==='./aichi-pilot.cjs')return{
       planAichi:manifest=>({
         candidate:{cards:manifest.cards},
