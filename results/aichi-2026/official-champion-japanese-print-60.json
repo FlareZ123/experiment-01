@@ -1,0 +1,358 @@
+{
+  "schema": "aichi-champion-official-japanese-prints-v1",
+  "event_date": "2026-05-10",
+  "source_code": "QnLLQ9-qvPVqa-g9gi6Q",
+  "official_url": "https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvPVqa-g9gi6Q/",
+  "official_interview": "https://www.pokemon-card.com/info/005499.html",
+  "github_actions_run": 39424838770,
+  "github_artifact": 12264974409,
+  "original_html_sha256": "56ba95ec097422274d5c3a62fc2b0b513fa820133a8be5c6bf79305a7c5ff2f6",
+  "source_rank": 1,
+  "source_player": "Yasunori Kato",
+  "source_archetype": "Shadow Rider Calyrex",
+  "official_printing_rows": 33,
+  "printed_copies": 60,
+  "category_counts": {
+    "pokemon": 18,
+    "trainer": 31,
+    "energy": 11
+  },
+  "english_source": "results/aichi-2026/full-decklists.json",
+  "english_name_count_and_category_equivalence_verified": true,
+  "exact_japanese_card_ids_from_official_deck_viewer": true,
+  "event_registered_deck_identical_to_official_saved_deck_independently_verified": false,
+  "historical_reprint_errata_and_paper_legality_fully_verified": false,
+  "full_game_simulation_qualified": false,
+  "entries": [
+    {
+      "name_en": "Shadow Rider Calyrex VMAX",
+      "count": 4,
+      "japanese_name": "こくばバドレックスVMAX",
+      "japanese_card_id": 39468,
+      "japanese_set": "S6K",
+      "japanese_official_print_label": "こくばバドレックスVMAX(S6K 037/070)",
+      "section": "deck_pke",
+      "variant": 1
+    },
+    {
+      "name_en": "Shadow Rider Calyrex V",
+      "count": 3,
+      "japanese_name": "こくばバドレックスV",
+      "japanese_card_id": 39516,
+      "japanese_set": "S6K",
+      "japanese_official_print_label": "こくばバドレックスV(S6K 075/070)",
+      "section": "deck_pke",
+      "variant": 1
+    },
+    {
+      "name_en": "Trevenant & Dusknoir-GX",
+      "count": 1,
+      "japanese_name": "オーロット&ヨノワールGX",
+      "japanese_card_id": 37446,
+      "japanese_set": "SM12a",
+      "japanese_official_print_label": "オーロット&ヨノワールGX(SM12a 178/173)",
+      "section": "deck_pke",
+      "variant": 1
+    },
+    {
+      "name_en": "Lillie's Clefairy ex",
+      "count": 2,
+      "japanese_name": "リーリエのピッピex",
+      "japanese_card_id": 47235,
+      "japanese_set": "SV9",
+      "japanese_official_print_label": "リーリエのピッピex(SV9 115/100)",
+      "section": "deck_pke",
+      "variant": 1
+    },
+    {
+      "name_en": "Tapu Lele-GX",
+      "count": 2,
+      "japanese_name": "カプ・テテフGX",
+      "japanese_card_id": 35631,
+      "japanese_set": "SM2L",
+      "japanese_official_print_label": "カプ・テテフGX(SM2L 052/050)",
+      "section": "deck_pke",
+      "variant": 1
+    },
+    {
+      "name_en": "Latias ex",
+      "count": 1,
+      "japanese_name": "ラティアスex",
+      "japanese_card_id": 46324,
+      "japanese_set": "SV7a",
+      "japanese_official_print_label": "ラティアスex(SV7a 078/064)",
+      "section": "deck_pke",
+      "variant": 1
+    },
+    {
+      "name_en": "Dialga-GX",
+      "count": 1,
+      "japanese_name": "ディアルガGX",
+      "japanese_card_id": 35683,
+      "japanese_set": "SM5S",
+      "japanese_official_print_label": "ディアルガGX(SM5S 069/066)",
+      "section": "deck_pke",
+      "variant": 1
+    },
+    {
+      "name_en": "Mimikyu",
+      "count": 1,
+      "japanese_name": "ミミッキュ",
+      "japanese_card_id": 34271,
+      "japanese_set": "SM4p",
+      "japanese_official_print_label": "ミミッキュ(SM4p 043/114)",
+      "section": "deck_pke",
+      "variant": 1
+    },
+    {
+      "name_en": "Girafarig",
+      "count": 1,
+      "japanese_name": "キリンリキ",
+      "japanese_card_id": 35337,
+      "japanese_set": "SM8",
+      "japanese_official_print_label": "キリンリキ(SM8 045/095)",
+      "section": "deck_pke",
+      "variant": 1
+    },
+    {
+      "name_en": "Marshadow",
+      "count": 1,
+      "japanese_name": "マーシャドー",
+      "japanese_card_id": 37268,
+      "japanese_set": "SM12a",
+      "japanese_official_print_label": "マーシャドー(SM12a 064/173)",
+      "section": "deck_pke",
+      "variant": 1
+    },
+    {
+      "name_en": "Radiant Eternatus",
+      "count": 1,
+      "japanese_name": "かがやくムゲンダイナ",
+      "japanese_card_id": 42376,
+      "japanese_set": "S12a",
+      "japanese_official_print_label": "かがやくムゲンダイナ(S12a 115/172)",
+      "section": "deck_pke",
+      "variant": 1
+    },
+    {
+      "name_en": "Mysterious Treasure",
+      "count": 4,
+      "japanese_name": "ミステリートレジャー",
+      "japanese_card_id": 36840,
+      "japanese_set": "SM11",
+      "japanese_official_print_label": "ミステリートレジャー",
+      "section": "deck_gds",
+      "variant": 1
+    },
+    {
+      "name_en": "Fog Crystal",
+      "count": 4,
+      "japanese_name": "霧の水晶",
+      "japanese_card_id": 41934,
+      "japanese_set": "SPD",
+      "japanese_official_print_label": "霧の水晶",
+      "section": "deck_gds",
+      "variant": 1
+    },
+    {
+      "name_en": "Quick Ball",
+      "count": 1,
+      "japanese_name": "クイックボール",
+      "japanese_card_id": 39570,
+      "japanese_set": "SGI",
+      "japanese_official_print_label": "クイックボール",
+      "section": "deck_gds",
+      "variant": 1
+    },
+    {
+      "name_en": "Hisuian Heavy Ball",
+      "count": 1,
+      "japanese_name": "ヒスイのヘビーボール",
+      "japanese_card_id": 42495,
+      "japanese_set": "S12a",
+      "japanese_official_print_label": "ヒスイのヘビーボール",
+      "section": "deck_gds",
+      "variant": 1
+    },
+    {
+      "name_en": "VS Seeker",
+      "count": 3,
+      "japanese_name": "バトルサーチャー",
+      "japanese_card_id": 31970,
+      "japanese_set": "CP4",
+      "japanese_official_print_label": "バトルサーチャー",
+      "section": "deck_gds",
+      "variant": 1
+    },
+    {
+      "name_en": "Battle Compressor",
+      "count": 1,
+      "japanese_name": "バトルコンプレッサー（フレア団ギア）",
+      "japanese_card_id": 33794,
+      "japanese_set": "XY",
+      "japanese_official_print_label": "バトルコンプレッサー（フレア団ギア）",
+      "section": "deck_gds",
+      "variant": 1
+    },
+    {
+      "name_en": "Field Blower",
+      "count": 1,
+      "japanese_name": "フィールドブロアー",
+      "japanese_card_id": 34321,
+      "japanese_set": "SM4p",
+      "japanese_official_print_label": "フィールドブロアー",
+      "section": "deck_gds",
+      "variant": 1
+    },
+    {
+      "name_en": "Night Stretcher",
+      "count": 1,
+      "japanese_name": "夜のタンカ",
+      "japanese_card_id": 46960,
+      "japanese_set": "SV8a",
+      "japanese_official_print_label": "夜のタンカ",
+      "section": "deck_gds",
+      "variant": 1
+    },
+    {
+      "name_en": "Unfair Stamp",
+      "count": 1,
+      "japanese_name": "アンフェアスタンプ",
+      "japanese_card_id": 49349,
+      "japanese_set": "MC",
+      "japanese_official_print_label": "アンフェアスタンプ(ACE SPEC)",
+      "section": "deck_gds",
+      "variant": 1
+    },
+    {
+      "name_en": "Float Stone",
+      "count": 1,
+      "japanese_name": "かるいし",
+      "japanese_card_id": 31974,
+      "japanese_set": "CP4",
+      "japanese_official_print_label": "かるいし",
+      "section": "deck_tool",
+      "variant": 1
+    },
+    {
+      "name_en": "Forest Seal Stone",
+      "count": 1,
+      "japanese_name": "森の封印石",
+      "japanese_card_id": 42184,
+      "japanese_set": "S12",
+      "japanese_official_print_label": "森の封印石",
+      "section": "deck_tool",
+      "variant": 1
+    },
+    {
+      "name_en": "Lillie's Determination",
+      "count": 2,
+      "japanese_name": "リーリエの決心",
+      "japanese_card_id": 48443,
+      "japanese_set": "M1L",
+      "japanese_official_print_label": "リーリエの決心",
+      "section": "deck_sup",
+      "variant": 1
+    },
+    {
+      "name_en": "Carmine",
+      "count": 1,
+      "japanese_name": "ゼイユ",
+      "japanese_card_id": 45865,
+      "japanese_set": "SV6",
+      "japanese_official_print_label": "ゼイユ",
+      "section": "deck_sup",
+      "variant": 1
+    },
+    {
+      "name_en": "Iono",
+      "count": 1,
+      "japanese_name": "ナンジャモ",
+      "japanese_card_id": 43659,
+      "japanese_set": "SV2D",
+      "japanese_official_print_label": "ナンジャモ",
+      "section": "deck_sup",
+      "variant": 1
+    },
+    {
+      "name_en": "Teammates",
+      "count": 1,
+      "japanese_name": "センパイとコウハイ",
+      "japanese_card_id": 35791,
+      "japanese_set": "XY5-Bg",
+      "japanese_official_print_label": "センパイとコウハイ",
+      "section": "deck_sup",
+      "variant": 1
+    },
+    {
+      "name_en": "Raihan",
+      "count": 1,
+      "japanese_name": "キバナ",
+      "japanese_card_id": 39934,
+      "japanese_set": "S7D",
+      "japanese_official_print_label": "キバナ",
+      "section": "deck_sup",
+      "variant": 1
+    },
+    {
+      "name_en": "Acerola",
+      "count": 1,
+      "japanese_name": "アセロラ",
+      "japanese_card_id": 35646,
+      "japanese_set": "SM2p",
+      "japanese_official_print_label": "アセロラ",
+      "section": "deck_sup",
+      "variant": 1
+    },
+    {
+      "name_en": "Guzma",
+      "count": 1,
+      "japanese_name": "グズマ",
+      "japanese_card_id": 36041,
+      "japanese_set": "SM8b",
+      "japanese_official_print_label": "グズマ",
+      "section": "deck_sup",
+      "variant": 1
+    },
+    {
+      "name_en": "Tulip",
+      "count": 1,
+      "japanese_name": "リップ",
+      "japanese_card_id": 44466,
+      "japanese_set": "SV4M",
+      "japanese_official_print_label": "リップ",
+      "section": "deck_sup",
+      "variant": 1
+    },
+    {
+      "name_en": "Sky Field",
+      "count": 2,
+      "japanese_name": "スカイフィールド",
+      "japanese_card_id": 33838,
+      "japanese_set": "XY",
+      "japanese_official_print_label": "スカイフィールド",
+      "section": "deck_sta",
+      "variant": 1
+    },
+    {
+      "name_en": "Dimension Valley",
+      "count": 1,
+      "japanese_name": "次元の谷",
+      "japanese_card_id": 33836,
+      "japanese_set": "XY",
+      "japanese_official_print_label": "次元の谷",
+      "section": "deck_sta",
+      "variant": 1
+    },
+    {
+      "name_en": "Psychic Energy",
+      "count": 11,
+      "japanese_name": "基本超エネルギー",
+      "japanese_card_id": 44962,
+      "japanese_set": "SV2a",
+      "japanese_official_print_label": "基本超エネルギー",
+      "section": "deck_ene",
+      "variant": 1
+    }
+  ]
+}
