@@ -11,13 +11,17 @@ on:
         description: Test actor-only real-Store views against the canonical historical four arms
         type: boolean
         default: false
+      agent50_live_deck_order:
+        description: Audit owner unseen-deck-order sensitivity on canonical historical four arms
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   hidden-draw-forecast:
-    if: ${{ !inputs.archival_prefix_only && !inputs.actor_observation_live_only }}
+    if: ${{ !inputs.archival_prefix_only && !inputs.actor_observation_live_only && !inputs.agent50_live_deck_order }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -99,7 +103,7 @@ jobs:
         run: node simulation/twinleaf/rank10-hidden-order-live-probe.cjs ordinal215
 
   rank10-archival-prefix:
-    if: ${{ inputs.archival_prefix_only && !inputs.actor_observation_live_only }}
+    if: ${{ inputs.archival_prefix_only && !inputs.actor_observation_live_only && !inputs.agent50_live_deck_order }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -148,7 +152,7 @@ jobs:
           if-no-files-found: warn
 
   actor-observation-live:
-    if: ${{ inputs.actor_observation_live_only }}
+    if: ${{ inputs.actor_observation_live_only && !inputs.agent50_live_deck_order }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -190,5 +194,48 @@ jobs:
         with:
           name: agent21-actor-view-native-fourarm
           path: actor-view-live.json
+          if-no-files-found: warn
+          retention-days: 10
+
+  agent50-live-deck-order:
+    if: ${{ inputs.agent50_live_deck_order && !inputs.archival_prefix_only && !inputs.actor_observation_live_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize exact pinned Twinleaf engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify retrospective source-deal and detached observer controls
+        run: node --test tests/agent50-bilateral-hidden-order-audit.test.cjs tests/agent50-bilateral-postgame-root-observer.test.cjs
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Replay authentic historical common-policy decisions and detached order contrasts
+        run: node simulation/evaluation/agent50-bilateral-hidden-order-audit.cjs > agent50-live-deck-order-fourarm.json
+      - name: Enumerate every observed and vetoed historical arm
+        run: >-
+          node -e "const a=require('./agent50-live-deck-order-fourarm.json');
+          if(a.attempts!==4||a.rows.length!==4||a.independentlyQualifiedCompetitiveGames!==0)
+          throw Error('Incomplete or wrongly qualified retrospective protocol');
+          for(const r of a.rows)console.log('OWNER_ORDER_DIAGNOSTIC',JSON.stringify({
+          id:r.trialId,status:r.classification,samePlayback:r.samePlayback,
+          noninterference:r.noninterferenceVerified,
+          baseline:r.diagnostic?.baselineActionMatchedActual,
+          actionFlip:r.diagnostic?.actionSensitiveToHiddenDeckOrder,
+          auditError:r.diagnostic?.auditError||r.error||null}));"
+      - name: Archive complete control, probe and negative evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent50-live-deck-order-historical-fourarm
+          path: agent50-live-deck-order-fourarm.json
           if-no-files-found: warn
           retention-days: 10
