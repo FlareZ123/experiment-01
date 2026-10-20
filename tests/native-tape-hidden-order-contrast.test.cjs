@@ -111,3 +111,9 @@ test('different native source roots fail before comparison',()=>{
   input.root.players[0].hand.push('unexpected');
   assert.throws(()=>compareNativeHiddenDeckOrder(input),/Native parity root/);
 });
+
+test('different native RNG tapes fail before comparison',()=>{
+  const input=makeInput();
+  input.tape=[0.75];
+  assert.throws(()=>compareNativeHiddenDeckOrder(input),/Native parity RNG tape/);
+});
