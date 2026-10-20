@@ -154,8 +154,9 @@ function withNativeDecisionDispatchWitness(execute,options) {
     const seat=actingSeat(state,this);
     const ownerViewAfter=observed&&captureActorViewAtTape&&seat>=0?
       safeActorView(state,seat):null;
-    const ownerViewPreserved=Boolean(ownerViewBefore?.sha256&&
-      ownerViewBefore.sha256===ownerViewAfter?.sha256);
+    const ownerViewPreserved=captureActorViewAtTape?Boolean(
+      ownerViewBefore?.sha256&&
+      ownerViewBefore.sha256===ownerViewAfter?.sha256):null;
     if(seat<0){
       if(observed)nativePolicyTapes.push({
         ordinal:seenDecisions+1,gameIndex:observedLiveStores,
