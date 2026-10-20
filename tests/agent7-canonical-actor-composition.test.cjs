@@ -154,3 +154,34 @@ test('opt-in outer native decoder ledger retains canonical hook order and disagg
   assert.equal(observed.audit.nativeDecisionCounts.nativeGenericPromptBySeat[0].ChooseCardsPrompt,2);
   assert.equal(observed.audit.qualification.competitiveGames,0);
 });
+
+
+test('opt-in actor ChoosePokemon runs inside the one existing canonical composition',()=>{
+  const order=[],make=(name,audit)=>fakeAdapter(name,audit,order);
+  const observed=withCanonicalActorOnlyPolicy(()=>42,{
+    root:make('root',{acceptedActorRoots:4}),
+    fog:make('fog',{}),
+    select:make('select',{}),
+    option:make('option',{}),
+    attack:make('attack',{}),
+    pokemon:make('pokemon',{
+      accepted:2,postconditionsConfirmed:2,
+      bySeat:{0:1,1:1},unsupportedNativeFallbacks:1
+    })
+  },{actorChoosePokemon:true});
+  assert.equal(observed.result,42);
+  assert.deepEqual(order,[
+    'install:root','install:fog','install:select',
+    'install:option','install:attack','install:pokemon',
+    'restore:pokemon','restore:attack','restore:option',
+    'restore:select','restore:fog','restore:root'
+  ]);
+  assert.equal(observed.audit.actorChoosePokemonOptIn,true);
+  assert.ok(observed.audit.version.includes('agent8-canonical-actor-choose-pokemon-v7'));
+  assert.equal(observed.audit.nativeDecisionCounts.choosePokemonAccepted,2);
+  assert.equal(observed.audit.nativeDecisionCounts.choosePokemonSettled,2);
+  assert.deepEqual(observed.audit.nativeDecisionCounts.choosePokemonBySeat,{0:1,1:1});
+  assert.equal(observed.audit.componentVersions.choosePokemon,'pokemon');
+  assert.equal(observed.audit.selectedHandlerPriority[0],'ChoosePokemonPrompt');
+  assert.equal(observed.audit.qualification.competitiveGames,0);
+});
