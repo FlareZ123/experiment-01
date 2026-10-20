@@ -31,3 +31,9 @@ A genuine large search may contain many acceptable bundles. Choosing the first c
 4. Before trusting its choices, compare the sparse legal bundle with a resource-cost-aware alternative on owner-equivalent hidden-state permutations and independently check printed effect/turn continuation.
 
 **Status:** 29/32 exact published source lists, 0 competitively qualified matches, no verified 99.5% fixed deck. This improves a narrow development decision path only if genuine owner-search opportunities are demonstrated.
+
+## Optional canonical-chain integration, same day
+
+The existing `simulation/evaluation/agent7-canonical-actor-composition.cjs` now selects the Agent22 sparse wrapper only when `ownerSingleSearch:true` **and** the explicit development flag `AGENT22_SPARSE_OWNER_BUNDLE_DEV=true`. Its original Agent41 implementation remains the default. GitHub commit `39678e1`; a separate opt-in/default selector regression in `tests/agent22-canonical-sparse-optin.test.cjs` was committed at `a966998`.
+
+An exact GitHub-readback V8 execution with mocked native modules confirmed default `common` versus explicit `sparse` wrapper selection, identical return value, and continued `competitiveGames:0` reporting. This test is source-level only. The existing manual workflow was not updated because its shared-file edit was rejected. The new env flag is a development treatment and still requires a compiled genuine Store opportunity before making a policy-effect claim.
