@@ -67,7 +67,7 @@ function selectOwnerRootIntent(view,catalog){
   }
   const restrictions=active.publicRestrictions;
   const unable=turn===1||
-    flags.attackLockTurnsRemaining>0||
+    view.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining>0||
     active.specialConditions.some(condition=>
       ['ASLEEP','PARALYZED'].includes(String(condition).toUpperCase()))||
     restrictions.cannotAttackNextTurn===true;
