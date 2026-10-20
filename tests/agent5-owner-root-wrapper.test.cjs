@@ -69,6 +69,7 @@ function deps(){
     enums:{
       SuperType:{POKEMON:'POKEMON',ENERGY:'ENERGY'},
       Stage:{BASIC:'BASIC'},EnergyType:{BASIC:'BASIC'},
+      CardType:{COLORLESS:9,PSYCHIC:5},
       PowerType:{ABILITY:'ABILITY'},
       PlayerType:{BOTTOM_PLAYER:1},SlotType:{BENCH:2,ACTIVE:3}
     }
