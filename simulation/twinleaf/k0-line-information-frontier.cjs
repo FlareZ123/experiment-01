@@ -24,6 +24,8 @@ function k0LineInformationFrontier(input){
     throw new Error('Uniform unknown owner Prize allocation is required');
   const {unknownPool,unknownPrizeCount:P,plans}=input;
   const observedDeckPrintings=input.observedDeckPrintings??[];
+  const observationCost=input.observationCost??0;
+  const postObservationPlanIds=input.postObservationPlanIds??plans?.map(plan=>plan.id);
   if(!Array.isArray(observedDeckPrintings)||
       !observedDeckPrintings.every(x=>typeof x==='string'&&x.length>0)||
       observedDeckPrintings.length>60||
