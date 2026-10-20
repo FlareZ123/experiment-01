@@ -195,7 +195,7 @@ jobs:
           retention-days: 14
       - name: Validate natural owner-held Item root contract
         if: ${{ inputs.rank2_natural_stoutland_owner_item }}
-        run: node --test tests/agent40-natural-stoutland-owner-item.test.cjs
+        run: node --test tests/agent40-natural-stoutland-owner-item.test.cjs tests/agent40-natural-stoutland-owner-item-prompt.test.cjs
       - name: Replay actual owner-held Mysterious Treasure first native Item root
         if: ${{ inputs.rank2_natural_stoutland_owner_item }}
         run: node simulation/twinleaf/agent40-natural-stoutland-owner-item.cjs > agent40-natural-stoutland-owner-item.json
