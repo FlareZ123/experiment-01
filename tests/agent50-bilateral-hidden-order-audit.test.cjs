@@ -3,7 +3,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
-  candidateDevelopmentTarget,comparisonProjection,auditDevelopmentArm
+  candidateDevelopmentTarget,comparisonProjection,auditDevelopmentArm,
+  nativeTacticSequenceComparison
 }=require('../simulation/evaluation/agent50-bilateral-hidden-order-audit.cjs');
 
 const rank6={
@@ -62,6 +63,48 @@ function run(trial,overrides={}) {
   assert.equal(calls,2);
   return output;
 }
+
+
+test('native policy score replay first divergent tactic is preserved in packet',()=>{
+  const source={steps:[
+    {tactic:'A',rngStart:0,rngEnd:2,rngDraws:2,actionType:'PlayCardAction',threw:false},
+    {tactic:'B',rngStart:2,rngEnd:4,rngDraws:2,actionType:null,threw:false}
+  ],rngCalls:4};
+  const replay={steps:[
+    {...source.steps[0]},
+    {tactic:'B',rngStart:2,rngEnd:5,rngDraws:3,actionType:null,threw:true}
+  ],rngCalls:5};
+  const cmp=nativeTacticSequenceComparison(source,replay);
+  assert.equal(cmp.sourceCalls,2);
+  assert.equal(cmp.replayCalls,2);
+  assert.equal(cmp.sameSteps,false);
+  assert.equal(cmp.firstDivergence.stepIndex,1);
+  assert.equal(cmp.firstDivergence.source.rngDraws,2);
+  assert.equal(cmp.firstDivergence.replay.rngDraws,3);
+  assert.equal(cmp.firstDivergence.replay.threw,true);
+  assert.equal(cmp.sourceRngCalls,4);
+  assert.equal(cmp.replayRngCalls,5);
+  const archived=run(rank6,{events:[event({
+    nativeTacticSource:source,nativeTacticReplay:replay,
+    nativeSameWorldTape:{sameWorldDecisionParityQualified:false}
+  })]});
+  assert.equal(archived.classification,'authentic-tape-same-world-parity-veto');
+  assert.equal(archived.diagnostic.nativeTacticComparison.firstDivergence.stepIndex,1);
+  assert.deepEqual(archived.diagnostic.nativeTacticSource,source);
+  assert.deepEqual(archived.diagnostic.nativeTacticReplay,replay);
+  assert.equal(archived.competitiveGameQualified,false);
+});
+
+test('matching, truncated, or absent native tactic telemetry is unambiguous',()=>{
+  const source={steps:[{tactic:'A',rngStart:0,rngEnd:1,
+    rngDraws:1,actionType:'AttackAction',threw:false}],rngCalls:1};
+  assert.equal(nativeTacticSequenceComparison(source,structuredClone(source)).sameSteps,true);
+  const truncated=nativeTacticSequenceComparison(source,{steps:[],rngCalls:0});
+  assert.equal(truncated.sameSteps,false);
+  assert.equal(truncated.firstDivergence.stepIndex,0);
+  assert.equal(truncated.firstDivergence.replay,null);
+  assert.equal(nativeTacticSequenceComparison(source,null),null);
+});
 
 test('the two authentic development streams target the next candidate turn',()=>{
   assert.deepEqual(candidateDevelopmentTarget(rank6),{turn:3,seat:0});
