@@ -20,6 +20,7 @@ function visiblePokemon(slot){
   return {
     printing:printing(pokemon),name:pokemon.name,
     hp:pokemon.hp,damage:slot.damage,
+    lastPlayedOrEvolvedTurn:slot.pokemonPlayedTurn,
     // Fully face-up printed information needed to compare attack options,
     // vulnerabilities, and retreat. Printed values are not a final damage
     // or retreat-cost calculation; effects may modify them in the Store.
