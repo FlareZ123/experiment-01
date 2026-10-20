@@ -262,6 +262,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [snorlaxSoloDeclineOptionalBench] With solo policy, decline a later legal optional Bench prompt after Snorlax is already alone Active.
  * @property {boolean} [snorlaxSoloPreserveBench] With source solo opening, suppress own ordinary Basic Benching while PGO Snorlax is alone Active.
  * @property {0|1} [newMoonAttackPayloadCompressorSeat] Candidate-only own-hand Compressor and owner-search Gengar payload policy.
+ * @property {0|1} [rank4RaichuCompressorSeat] Source-only held Compressor, printed Energy discard; requires min1 rule correction.
  * @property {0|1} [newMoonAttackPayloadCompressorBenchedSeat] Independent opt-in: also prepare owner-deck donors when Mewtwo is Benched.
  * @property {0|1} [newMoonAttackPayloadCompressorSecondDonorSeat] Independent opt-in: seek still-missing Trevenant after Gengar is established.
  * @property {0|1} [newMoonAttackPayloadCompressorLateSeat] Historical diagnostic only: allow Mewtwo-Active owner donor setup through global turn 14.
@@ -360,6 +361,11 @@ function runMatch(request) {
       (![0, 1].includes(request.newMoonNativeOpeningPivotSeat) ||
         request.shadowRiderOpeningPivot === true)) {
     throw new Error('New Moon setup pivot needs one physical seat and no other setup pivot');
+  }
+  if(request.rank4RaichuCompressorSeat!==undefined &&
+     (![0,1].includes(request.rank4RaichuCompressorSeat) ||
+      request.battleCompressorPositiveSelectionCorrection!==true)) {
+    throw new Error('Rank4 source Compressor needs a valid physical seat and paper min1 correction');
   }
   for (const seat of [request.newMoonAttackPayloadCompressorSeat,
     request.newMoonAttackPayloadCompressorBenchedSeat,
@@ -768,6 +774,10 @@ function runMatch(request) {
             maxGlobalTurn:
               request.newMoonAttackPayloadCompressorLateSeat === seat ? 14 : 6
           });
+      }
+      if (request.rank4RaichuCompressorSeat === seat) {
+        configured = require('./rank4-raichu-compressor-policy.cjs')
+          .withRank4RaichuCompressor(configured);
       }
       if (request.rank31FogEnergySeat === seat ||
           request.rank31FogEnergyBroaderSeat === seat) {
@@ -1551,6 +1561,7 @@ function runMatch(request) {
       newMoonNativeOpeningPivotSeat: request.newMoonNativeOpeningPivotSeat ?? null,
       snorlaxSoloOpeningSeat: request.snorlaxSoloOpeningSeat ?? null,
       newMoonAttackPayloadCompressorSeat: request.newMoonAttackPayloadCompressorSeat ?? null,
+      rank4RaichuCompressorSeat: request.rank4RaichuCompressorSeat ?? null,
       newMoonAttackPayloadCompressorBenchedSeat:
         request.newMoonAttackPayloadCompressorBenchedSeat ?? null,
       newMoonAttackPayloadCompressorSecondDonorSeat:
@@ -1607,6 +1618,8 @@ function runMatch(request) {
           '+NewMoonNativeOpeningPivot-v1@seat' + request.newMoonNativeOpeningPivotSeat : '') +
         (request.newMoonAttackPayloadCompressorSeat !== undefined ?
           '+NewMoonCompressorPayload-v1@seat' + request.newMoonAttackPayloadCompressorSeat : '') +
+        (request.rank4RaichuCompressorSeat !== undefined ?
+          '+Rank4SourceCompressorSpecialEnergy-v1@seat' + request.rank4RaichuCompressorSeat : '') +
         (request.newMoonAttackPayloadCompressorBenchedSeat !== undefined ?
           '+NewMoonCompressorPayload-BenchedMewtwo-v2@seat' +
             request.newMoonAttackPayloadCompressorBenchedSeat : '') +
