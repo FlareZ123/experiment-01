@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const path=require('node:path');
-const VERSION='agent7-native-generic-fallback-attribution-v1';
+const VERSION='agent7-native-generic-fallback-attribution-v2-distinct-prompts';
 
 /**
  * Read-only accounting of real Store decoder calls which reached the original
@@ -26,19 +26,23 @@ function withNativeGenericFallbackAttribution(run,deps={}){
   const dispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof decode?.value,'function');
   assert.equal(typeof dispatch?.value,'function');
-  let liveStore=null,gameIndex=0;
+  let liveStore=null,gameIndex=0,seenNativePrompts=new WeakSet();
   const byKind=()=>({'owner-prompt':0,'owner-root-or-setup':0,
     'foreign-prompt':0,'out-of-turn':0});
   const audit={version:VERSION,readOnly:true,gameStoresSeen:0,
     liveGenericDecodes:0,nonLiveDelegations:0,unknownActorDelegations:0,
     failedGenericDecodes:0,bySeat:{0:byKind(),1:byKind()},
-    byOwnerPromptType:{0:{},1:{}},actionTypes:{},
+    byOwnerPromptType:{0:{},1:{}},
+    distinctOwnerPromptObjects:0,
+    distinctOwnerPromptBySeat:{0:0,1:0},
+    distinctOwnerPromptType:{0:{},1:{}},actionTypes:{},
     boundedRecords:[],unrecordedLiveDecodes:0,
     qualification:{fullyActorOnly:false,competitiveGames:0},
     limitation:'Decoder calls represent fallback exposure, not accepted actions, playing strength or hidden-information safety.'};
   function observedDispatch(action,...args){
     if(action?.constructor?.name==='AddPlayerAction'&&this!==liveStore){
       liveStore=this;
+      seenNativePrompts=new WeakSet();
       gameIndex++;
       audit.gameStoresSeen=gameIndex;
     }
@@ -63,6 +67,14 @@ function withNativeGenericFallbackAttribution(run,deps={}){
       state.activePlayer===seat?'owner-root-or-setup':'out-of-turn';
     const promptType=owned?(pending.constructor?.name??'UnknownPrompt'):null;
     const actionType=action?.constructor?.name??'NoAction';
+    const newPrompt=owned&&!seenNativePrompts.has(pending);
+    if(newPrompt){
+      seenNativePrompts.add(pending);
+      audit.distinctOwnerPromptObjects++;
+      audit.distinctOwnerPromptBySeat[seat]++;
+      const distinct=audit.distinctOwnerPromptType[seat];
+      distinct[promptType]=(distinct[promptType]??0)+1;
+    }
     audit.liveGenericDecodes++;
     audit.bySeat[seat][kind]++;
     audit.actionTypes[actionType]=(audit.actionTypes[actionType]??0)+1;
@@ -72,7 +84,8 @@ function withNativeGenericFallbackAttribution(run,deps={}){
     }
     if(audit.boundedRecords.length<maxRecords)
       audit.boundedRecords.push({gameIndex,seat,turn:state.turn,
-        phase:state.phase,decisionKind:kind,promptType,actionType});
+        phase:state.phase,decisionKind:kind,promptType,actionType,
+        firstDecoderCallForPrompt:newPrompt});
     else audit.unrecordedLiveDecodes++;
     return action;
   }
