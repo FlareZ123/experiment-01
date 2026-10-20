@@ -9,6 +9,8 @@ const EXEGGCUTE = 'Exeggcute';
 const KOKO = 'Tapu Koko Prism Star';
 const COLOGNE = 'Canceling Cologne';
 const SQUAWK = 'Squawkabilly ex';
+const COMPRESSOR = 'Battle Compressor';
+const LIGHTNING = 'Lightning Energy';
 
 const {actorObservation} = require('./actor-observation-contract.cjs');
 
@@ -67,6 +69,25 @@ function sourceSecondVipActorEligible(view,phase) {
     view.ownHand.some(card=>card.startsWith(VIP+' ')) &&
     inPlay(MELOETTA) && inPlay(SQUAWK) && !inPlay(KOKO) &&
     view.ownPublic.bench.some(slot=>slot===null);
+}
+
+/**
+ * A third missed setup Item at the ordinary root after Koko enters the Bench.
+ * Only actor hand and public board determine whether to *offer* the Item.
+ * Actual available Lightning and other deck cards are inspected exclusively
+ * after the real owner's deck-search prompt opens.
+ * @param {object} view Detached actor observation.
+ * @param {number} phase Native player's first-turn phase.
+ * @returns {boolean}
+ */
+function sourceCompressorAfterKokoEligible(view,phase) {
+  const inPlay=name=>[view.ownPublic.active,...view.ownPublic.bench]
+    .some(slot=>slot?.printing?.startsWith(name+' '));
+  return view.decisionKind==='owner-root' &&
+    view.globalTurn===1 && view.phase===phase &&
+    view.ownTurnResources?.itemPlayLocked!==true &&
+    view.ownHand.some(card=>card.startsWith(COMPRESSOR+' ')) &&
+    inPlay(MELOETTA) && inPlay(KOKO);
 }
 
 /**
@@ -148,6 +169,28 @@ function selectSecondVipBasics(own,prompt,state) {
 }
 
 /**
+ * Select only genuine owner-deck cards in the native Battle Compressor prompt.
+ * Prepare available basic Lightning cards for the printed Koko acceleration;
+ * any remaining slot may put a physical Exeggcute into the discard pile.
+ * This is a tactical experiment and does not establish optimal discard value.
+ * @param {object} prompt Genuine owner ChooseCardsPrompt.
+ * @param {object} state Native Store state.
+ * @returns {object[]} References from this exact owner's prompted deck.
+ */
+function selectSourceCompressorCards(prompt,state){
+  const found=[];
+  for(const name of [LIGHTNING,LIGHTNING,EXEGGCUTE]){
+    const card=prompt.cards.cards.find(c=>c.name===name&&!found.includes(c));
+    if(card)found.push(card);
+  }
+  for(let n=found.length;n>=1;n--){
+    const group=found.slice(0,n);
+    if(prompt.validate(group,state))return group;
+  }
+  return [];
+}
+
+/**
  * Once the existing source bot proposes Pass, attempt one owner-information
  * Battle VIP Pass root, then resolve its native owner-deck search. No card
  * instances are fabricated. This is an opt-in development policy, not an
@@ -155,11 +198,12 @@ function selectSecondVipBasics(own,prompt,state) {
  * @template T
  * @param {0|1} seat Source physical seat.
  * @param {()=>T} execute Synchronous native headless experiment.
- * @param {{followupCologne?:boolean,preferSquawk?:boolean,followupSecondVip?:boolean}} [options] Opt-in source alternatives.
+ * @param {{followupCologne?:boolean,preferSquawk?:boolean,followupSecondVip?:boolean,followupCompressor?:boolean}} [options] Opt-in source alternatives.
  * @returns {{result:T,policyAudit:object}}
  */
 function withSourceVipAfterPass(seat, execute,
-  {followupCologne=false,preferSquawk=false,followupSecondVip=false}={}) {
+  {followupCologne=false,preferSquawk=false,followupSecondVip=false,
+    followupCompressor=false}={}) {
   if (![0,1].includes(seat) || typeof execute !== 'function')
     throw new TypeError('Need source seat and synchronous runner');
   const get = subpath => require(path.join(OUTPUT, subpath));
@@ -178,6 +222,25 @@ function withSourceVipAfterPass(seat, execute,
     if (this.client?.id !== sourceId || !own)
       return previous.call(this,state);
     const prompt = state.prompts.find(p => p.result === undefined);
+    if(stage==='compressor-search' && prompt){
+      if(prompt.constructor.name==='WaitPrompt')
+        return previous.call(this,state);
+      if(prompt.constructor.name==='ChooseCardsPrompt' &&
+          prompt.playerId===sourceId && prompt.cards===own.deck){
+        const selected=selectSourceCompressorCards(prompt,state);
+        const lightningAvailable=prompt.cards.cards
+          .filter(c=>c.name===LIGHTNING).length;
+        events.push({kind:'owner-compressor-deck-target',turn:state.turn,
+          nativeValid:prompt.validate(selected,state),
+          physicalAvailableLightning:lightningAvailable,
+          cards:selected.map(c=>c.fullName)});
+        stage='compressor-post';
+        return new ResolvePromptAction(prompt.id,selected);
+      }
+      events.push({kind:'compressor-unexpected-prompt',
+        type:prompt.constructor.name});
+      stage='compressor-finished';
+    }
     if(stage==='second-search' && prompt){
       if(prompt.constructor.name==='WaitPrompt')
         return previous.call(this,state);
@@ -245,7 +308,35 @@ function withSourceVipAfterPass(seat, execute,
         bench:own.bench.map(s=>s.getPokemonCard()?.fullName??null)});
       stage='second-finished';
     }
+    if(stage==='compressor-post' && !prompt){
+      events.push({kind:'owner-compressor-postcondition',turn:state.turn,
+        physicalDiscardLightning:own.discard.cards
+          .filter(c=>c.name===LIGHTNING).length,
+        physicalDiscardEgg:own.discard.cards
+          .filter(c=>c.name===EXEGGCUTE).length,
+        ownerHasCompressor:own.hand.cards.some(c=>c.name===COMPRESSOR),
+        discardHasCompressor:own.discard.cards.some(c=>c.name===COMPRESSOR)});
+      stage='compressor-finished';
+    }
     const action = previous.call(this,state);
+    if(followupCompressor && stage==='second-finished' &&
+        action?.constructor?.name==='PassTurnAction' &&
+        state.turn===1 && state.activePlayer===seat &&
+        state.phase===GamePhase.PLAYER_TURN){
+      const view=actorObservation(state,seat);
+      if(sourceCompressorAfterKokoEligible(view,GamePhase.PLAYER_TURN)){
+        const index=own.hand.cards.findIndex(c=>c.name===COMPRESSOR);
+        const replacement=new PlayCardAction(sourceId,index,{
+          player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+        });
+        const nativeValid=this.isValidAction(state,replacement);
+        events.push({kind:'owner-compressor-offer',turn:state.turn,
+          nativeValid,card:own.hand.cards[index].fullName,
+          detachedActorView:true});
+        stage=nativeValid?'compressor-search':'compressor-finished';
+        if(nativeValid)return replacement;
+      }
+    }
     if(followupSecondVip && stage==='finished' &&
         action?.constructor?.name==='PassTurnAction' &&
         state.turn===1 && state.activePlayer===seat &&
@@ -294,7 +385,9 @@ function withSourceVipAfterPass(seat, execute,
       version:'rank26-first-own-vip-after-pass-v1'+
         (followupCologne?'+owner-cologne-followup-v1':'')+
         (preferSquawk?'+owner-squawk-priority-v1':'')+
-        (followupSecondVip?'+owner-second-vip-v1':''),seat,events,
+        (followupSecondVip?'+owner-second-vip-v1':'')+
+        (followupCompressor?'+owner-compressor-after-koko-v1':''),
+      seat,events,
       finalStage:stage,competitiveGameQualified:false
     }};
   } finally {
@@ -306,4 +399,5 @@ function withSourceVipAfterPass(seat, execute,
 
 module.exports={sourceVipAfterPassEligible,sourceVipActorEligible,
   sourceCologneAfterVipEligible,sourceSecondVipActorEligible,
+  sourceCompressorAfterKokoEligible,selectSourceCompressorCards,
   selectSourceVipBasics,selectSecondVipBasics,withSourceVipAfterPass};
