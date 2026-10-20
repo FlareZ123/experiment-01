@@ -44,6 +44,12 @@ Suppose two different singleton printed resources `A` and `B` are unknown among 
 
 No real card is claimed to have these utilities, and no real game promises this knowledge was gained at zero cost. The example shows why a static utility estimate of an individually playable line can undervalue learning the deck before committing the sole Supporter.
 
+## Published rank-24 source-printing control
+
+The [additional source-identity regression](../../tests/k0-line-information-source-printings.test.cjs) uses **the actual published 60 physical printings** for Aichi rank 24 Ryoya Fujii. Both **Thunder Mountain ♢ LOT 191** and **Wondrous Labyrinth ♢ TEU 158** occur as separate singleton Stadium cards. Conditional on a deliberately **hypothetical** visibly held Tag Call, Iron Thorns ex and Double Colorless Energy, the K0 unknown pool is 57 printings with six unknown Prizes.
+
+Assigning the same *invented* +10/-10 utility to merely accessing either one of those distinct Stadium printings yields K0 best-plan expectation **150/19 ≈ 7.894737**, after-search idealized expectation **≈ 9.906015**, and information upper bound **≈ 2.011278 units**. This supports physical-printing arithmetic and joint Prize enumeration for a real sourced roster. It **does not** imply the two Stadiums have equivalent game effects, that both can enable Volt Cyclone, that those three held cards occurred in any historical source game, or that a particular alternative Supporter was legally optimal at seed 2966203069.
+
 ## Verification and next bridge
 
 Seven Node tests include 160 deterministic independently brute-enumerated labelled-card toy instances with varying 3–8-card multiset pools, 0–3 unknown Prize slots, random duplicate prerequisites, utilities and 2–4 exclusive plans. Regression coverage also includes the 60-card exact two-singleton case, an always-available safe alternative, zero information gap, two-copy joint requirement and impossibility/no-op handling.
