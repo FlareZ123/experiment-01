@@ -35,3 +35,31 @@ The archived detailed JSON should be independently audited before promoting any 
 4. Extend to genuine all-field, legal/Japanese-print and paper-clock coverage only after the shared source and reply fidelity gates are met. Exactly 29 of 32 complete source lists remain available; ranks 23, 25 and 28 are still missing.
 
 **Classification:** a pre-registered, compiled, source-real policy **mechanics** result. It advances native first-own-turn Item/prompt coverage and leaves **0 competitive-qualified games and no validated 99.5% deck**.
+
+## Independent full archive audit, 20 October 2026
+
+The previously missing 16-row original-artifact examination passed [manual archive CI 39429115085](https://github.com/FlareZ123/experiment-01/actions/runs/39429115085), check-out SHA `c795ce3dad00de4e8bf7689a01dbe0d369790f54`, without replaying a single source deal. The existing archival workflow downloaded the exact run 39426668350 artifact, ran four passing negative-and-positive tests, and executed [an independent denominator, seed, native proposal and Bench auditor](../../scripts/agent7-newmoon-vip-archive-audit.cjs).
+
+| Audited field | Result |
+| --- | ---: |
+| Registered original deals present | 16/16 |
+| True source first, drawn starting-order verified | 11 |
+| True candidate first, drawn starting-order verified | 5 |
+| Native legal VIP offers | 4 |
+| Native accepted owner-deck prompt selections | 4 |
+| Public post-dispatch Bench containing the selected Basics | **4** |
+| Exceptions or missed registered attempts | 0 |
+| Competitive qualified games | **0** |
+
+Source-rank and physical-seat strata:
+
+| Source | Candidate seat | Candidate first | Source first | VIP Bench witnesses |
+| --- | --- | ---: | ---: | ---: |
+| Rank 6 Iron Thorns | A | 1 | 3 | 2 |
+| Rank 6 Iron Thorns | B | 2 | 2 | 1 |
+| Rank 11 Absol/Garbodor | A | 0 | 4 | 1 |
+| Rank 11 Absol/Garbodor | B | 2 | 2 | 0 |
+
+Three positive witnesses placed both Gengar & Mimikyu-GX TEU and Mewtwo & Mew-GX UNM onto the post-dispatch public Bench. The other selected Gengar & Mimikyu-GX TEU with Squawkabilly ex PAL. Three witnessed offers occurred when the candidate started second, one when it started first. All **32 paired baseline and alternative trajectories hit the 90-action cap**. The archived per-row actual-start and action counts can be independently inspected in the audit CI log.
+
+The [archive audit code](../../scripts/agent7-newmoon-vip-archive-audit.cjs), [four regressions](../../tests/agent7-newmoon-vip-archive-audit.test.cjs), and archive-only mode on the existing manual `.github/workflows/aichi-rank11-artifact-audit.yml` are committed. This validates bounded actual VIP owner-search and public-Bench execution. It does not establish better attacks, competitive player skill, opponent decision safety, Japanese legality or match wins.
