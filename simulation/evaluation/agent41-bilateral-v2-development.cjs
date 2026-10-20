@@ -327,7 +327,6 @@ function executeDevelopment(trial,candidates,{
     ...(lateCompressorPayload?{
       candidateBattleCompressorRoots:candidateCompressorRoots.map(row=>({
         turn:row.turnBefore,ordinal:row.actionOrdinal,card:row.card})),
-      candidateOwnDeckSelectionEvidence,
       candidateAttackDeclarationEvidence:declared.filter(row=>
         row.playerSlot===candidateSeat).map(row=>({
         ordinal:row.actionOrdinal,turn:row.turnBefore,
@@ -351,6 +350,9 @@ function executeDevelopment(trial,candidates,{
     firstDrawLogName:game.firstDrawLogName,
     sourceDealFingerprint:sourceDeal.digestSha256,
     sourceFirstOwnHandSha256:ownerFirst?sha256(ownerFirst):null,
+    // Read-only owner K1 deck-search choices, for all historical arms.
+    // Never give the real deck membership to a pre-search K0 policy.
+    candidateOwnDeckSelectionEvidence,
     policyAudit:commonAudit,sourceAudit,sourceLinePacket,
     candidatePostChoicePassProbe:passEvidence.summary,
     candidatePassProbeSamples:passEvidence.samples,
