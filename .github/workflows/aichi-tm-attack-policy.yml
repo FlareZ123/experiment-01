@@ -58,6 +58,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank2_sentinel_vsseeker_legal_reply:
+        description: Source-locked Stoutland real VS Seeker then ordinary owner and source continuations
+        type: boolean
+        required: false
+        default: false
       rank2_sentinel_vsseeker_native:
         description: Source-authentic active Stoutland versus Bench native VS Seeker root control
         type: boolean
@@ -160,6 +165,17 @@ jobs:
         with:
           name: agent40-sentinel-vsseeker-native-source-probe
           path: agent40-sentinel-vsseeker-native.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Continue ordinary bot after owner-visible real VS Seeker with and without Sentinel
+        if: ${{ inputs.rank2_sentinel_vsseeker_legal_reply }}
+        run: node simulation/twinleaf/agent40-sentinel-vs-seeker-legal-continuation.cjs > agent40-sentinel-seeker-legal-reply.json
+      - name: Preserve real owner follow-up and next source turn, including failure
+        if: ${{ always() && inputs.rank2_sentinel_vsseeker_legal_reply }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent40-sentinel-seeker-legal-owner-and-source-reply
+          path: agent40-sentinel-seeker-legal-reply.json
           if-no-files-found: warn
           retention-days: 14
       - name: Validate source-root Gladion event extraction and frozen cohort
