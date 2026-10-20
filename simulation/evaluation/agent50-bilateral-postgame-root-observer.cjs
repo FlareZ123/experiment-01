@@ -268,11 +268,22 @@ function withPostgameRootOrderProbe(
   }
   let comparison;
   try {
-    comparison=compare(
+    const compareWorlds=()=>compare(
       captured.state,actorId,
       ()=>new BotClass({id:actorId},cloneBotOptions(captured.options),null),
       cloneDetached,target.makeRandom
     );
+    // The actual game has Field Blower, Stone-recipient and Star Alchemy
+    // adapters around the bot. An unwrapped fresh bot is a different policy.
+    // Apply identical adapters only to detached postgame counterfactuals.
+    if(target.replayCommonPolicy===true) {
+      const applyPolicy=dependencies.replayPolicy??
+        require('./agent41-bilateral-common-policy.cjs')
+          .withBilateralCommonCandidatePolicy;
+      comparison=applyPolicy(target.seat,compareWorlds).result;
+    } else {
+      comparison=compareWorlds();
+    }
   } catch(error) {
     return {result:frozenResult,events:[{
       originalSourceAction:captured.realAction,
@@ -313,6 +324,7 @@ function withPostgameRootOrderProbe(
       actualFiniteScores:captured.actualFiniteScores,
       ownerRootVisible:captured.ownerRootVisible
     }:{}),
+    replayCommonPolicy:target.replayCommonPolicy===true,
     comparedAfterRealGameFinished:true
   }]};
 }
