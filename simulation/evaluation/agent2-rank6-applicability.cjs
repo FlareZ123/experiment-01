@@ -21,12 +21,14 @@ const APPLICABILITY_CELLS=[
  */
 function rank6CandidateApplicability(row,sourceSeat){
   if(!row || row.rank!==6 || ![0,1].includes(sourceSeat))return 'unverified';
-  if(row.actualStarterSeat===1-sourceSeat && row.verifiedFirstTurn===true){
-    return 'candidate-first';
-  }
-  if(row.actualStarterSeat!==sourceSeat || row.verifiedFirstTurn!==true){
-    return 'unverified';
-  }
+  const seat=row.actualStarterSeat;
+  const validStart=row.verifiedFirstTurn===true && [0,1].includes(seat) &&
+    row.firstTurnPlayerId===(seat===0?101:202) &&
+    row.firstTurnPlayerName===(seat===0?'research-A':'research-B') &&
+    row.firstDrawLogName===row.firstTurnPlayerName;
+  if(!validStart)return 'unverified';
+  if(seat===1-sourceSeat)return 'candidate-first';
+  if(seat!==sourceSeat)return 'unverified';
   const e=row.rank6PassivePressure;
   const end=e?.sourceTurnOneEndRoot;
   const reply=e?.candidateTurnTwoFirstRoot;
