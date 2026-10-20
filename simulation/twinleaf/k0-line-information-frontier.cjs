@@ -71,6 +71,7 @@ function k0LineInformationFrontier(input){
   const denominator=choose(unknownPool.length,P);
   const lineNumerators=plans.map(()=>0n);
   let k1Numerator=0n;
+  let restrictedAfterNumerator=0n;
   let caseCount=0;
   const prizedByPrinting=new Map();
 
@@ -81,6 +82,7 @@ function k0LineInformationFrontier(input){
       if(++caseCount>1000000)
         throw new RangeError('Too many relevant Prize cases; reduce plan requirements');
       let best=0;
+      let bestRestricted=0;
       for(let i=0;i<normalized.length;i++){
         const plan=normalized[i];
         const available=[...plan.requirements].every(([printing,required])=>
@@ -89,8 +91,11 @@ function k0LineInformationFrontier(input){
         const value=available?plan.availableUtility:plan.missingUtility;
         lineNumerators[i]+=ways*BigInt(value);
         if(value>best)best=value;
+        if(allowedAfter.has(plan.id)&&value>bestRestricted)
+          bestRestricted=value;
       }
       k1Numerator+=ways*BigInt(best);
+      restrictedAfterNumerator+=ways*BigInt(bestRestricted);
       return;
     }
     const {printing,copies}=relevant[index];
