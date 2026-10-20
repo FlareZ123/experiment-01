@@ -60,3 +60,17 @@ After the artifact audit, I inspected the **actual pinned** Twinleaf source, not
 This is a **source-level mechanism compatible with** the paid-arm candidate's failure to declare Basic attacks after BUS reached Active. A real Basic `Mewtwo & Mew-GX` was Active in the source's actual turn-18 joint-board snapshot. The source also had live Item-locking AOR Benched. The earlier [compiled staged Store nine-case matrix](../../simulation/twinleaf/new-moon-rank15-dual-lock-actions.cjs) checked the same BUS attack block and the Stage1 Dusclops exception under a deliberately injected board.
 
 **Causal qualification:** the original historical full-game artifact does not export every live candidate t19 Energy/Ability context or each rejected hypothetical action. Therefore the engine decision-flow and the observed zero candidate declarations increase mechanistic confidence, but do not prove which individual failed tactical proposals occurred in that physical paid arm. An actual original-Store t19 selected action and linked native `UseAttackEffect` rejection remains the decisive next verification.
+
+
+## Additional native knockout outcomes from archived control history
+
+I strengthened the independent JSON auditor to require a three-step **actual Store transition sequence**, rather than relying on attack-declaration logs alone: prior source Active -> **no Active after native root**, a real `ChoosePrizePrompt`, then a `ChoosePokemonPrompt` followed by actual new source Active. Re-running it on the same SHA-verified CI archive yields two validated control continuations:
+
+| Candidate turn | Source Active lost | Native zero-Active root | Prize prompt root | New source Active / promotion root |
+| --- | --- | ---: | ---: | --- |
+| 19 | Bunnelby PRC | 189 | 190 | Eldegoss V RCL, root 191 |
+| 21 | Eldegoss V RCL | 205 | 206 | Vileplume AOR, root 207 |
+
+Both occur after the corresponding archived native candidate attack declarations (*Night Watch* t19; *Miraculous Duo-GX* t21). This directly corroborates actual source Active removal plus Prize and promotion processing in the original no-BUS-Active arm. The audit does not re-run damage calculation or guarantee which effect contributed every damage counter, although the event ordering and printed attack outputs are consistent with these attacks completing KOs. The source remains **BUS Active** throughout the corresponding paid-arm postdispatch window, and the paid arm still has no candidate attack declaration.
+
+Code updates: [independent auditor](../../scripts/agent30-rank15-paid-bus-lock-audit.cjs) now exports `sourceKnockoutWitness`, with **five locally passing Node22 regression tests**, including a new adversarial test that removes the actual Prize prompt and must fail closed. This is a stronger mechanical continuation observation and leaves the same global **zero competitively qualified game** count. Pinned engine, original CI artifact hash, decks, seed, and opponent-policy limitations remain unchanged.
