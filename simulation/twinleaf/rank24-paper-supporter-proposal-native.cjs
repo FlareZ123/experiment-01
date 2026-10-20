@@ -122,6 +122,9 @@ function main() {
     qualifiedForCompetitiveInference:false,
     note:'A PaperSupporterQuotaError is a failed policy attempt, not a match loss. Neither fork has a hidden-information-safe or timed competitive policy.'
   };
+  // Keep a complete source-deal-negative packet even if this opt-in policy
+  // still requests an illegal root and CI intentionally fails the gate.
+  process.stdout.write(JSON.stringify(report,null,2)+'\n');
   assert.equal(report.baseline.actualVerifiedStart,true);
   assert.ok(report.baseline.originalSourceTurn2Actions.some(x=>
     x.card==='Cynthia & Caitlin'));
@@ -131,7 +134,6 @@ function main() {
     'Native tactic must actually consult post-Supporter owner quota');
   assert.equal(correctedGame.firstTurnSlot,baseline.result.firstTurnSlot);
   assert.deepEqual(correctedGame.deckHashes,baseline.result.deckHashes);
-  process.stdout.write(JSON.stringify(report,null,2)+'\n');
   return report;
 }
 if(require.main===module)main();
