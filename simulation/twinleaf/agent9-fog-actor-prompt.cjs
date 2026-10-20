@@ -56,11 +56,13 @@ function withActorFogCrystalPrompt(run,deps={}) {
   assert.equal(typeof originalDispatch?.value,'function');
   const observe=deps.observe??actorObservation;
   const actions=new WeakMap(),perOwner=new Map();
+  const searchedPhysicalCards=new Map();
   let live=null;
   const audit={
     version:VERSION,
     fogItemRootProposals:0,fogItemRootNativeAccepted:0,
     fogPromptProposals:0,fogPromptNativeAccepted:0,
+    postSearchPhysicalCardPlays:0,postSearchPhysicalEvents:[],
     rejectedNativeChoices:0,unsupportedPrompts:0,
     events:[],competitiveGameQualified:false,
     note:'Only authentic Fog Crystal first search is actor-owned; other prompt types and all delegated root actions remain outside this policy.'
@@ -103,7 +105,7 @@ function withActorFogCrystalPrompt(run,deps={}) {
         history.awaitingFog=false;
         const action=new ResolvePromptAction(active.id,selected);
         actions.set(action,{kind:'fog-search',seat,turn:state.turn,
-          chosen:chosen??null});
+          chosen:chosen??null,selectedCard:selected[0]??null});
         audit.fogPromptProposals++;
         return action;
       }
@@ -132,18 +134,52 @@ function withActorFogCrystalPrompt(run,deps={}) {
     return action;
   }
   function dispatch(action,...rest) {
-    if(action?.constructor?.name==='AddPlayerAction')live=this;
+    if(action?.constructor?.name==='AddPlayerAction'&&this!==live) {
+      live=this;
+      searchedPhysicalCards.clear();
+    }
     const choice=this===live?actions.get(action):null;
-    if(!choice)return originalDispatch.value.apply(this,[action,...rest]);
+    // Evidence is checked against the same physical Card reference revealed
+    // by the native owner-deck prompt. Equal printing names do not suffice.
+    const player=this===live&&action?.constructor?.name==='PlayCardAction'?
+      this.state?.players?.find(p=>p.id===action.id):null;
+    const played=player?.hand?.cards?.[action.handIndex]??null;
+    const queued=searchedPhysicalCards.get(player?.id)??[];
+    const consumed=queued.find(entry=>entry.card===played)??null;
+    if(!choice) {
+      const result=originalDispatch.value.apply(this,[action,...rest]);
+      if(consumed) {
+        audit.postSearchPhysicalCardPlays++;
+        audit.postSearchPhysicalEvents.push({
+          sourceFogTurn:consumed.sourceTurn,
+          actualPlayTurn:this.state.turn,seat:consumed.seat,
+          printing:consumed.printing,action:action.constructor.name,
+          destinationSlot:action.target?.slot??null,
+          nativeStoreAccepted:true
+        });
+        queued.splice(queued.indexOf(consumed),1);
+      }
+      return result;
+    }
+    const {selectedCard,...logged}=choice;
     try {
       const result=originalDispatch.value.apply(this,[action,...rest]);
       if(choice.kind==='fog-item')audit.fogItemRootNativeAccepted++;
-      else audit.fogPromptNativeAccepted++;
-      audit.events.push({...choice,nativeStoreAccepted:true});
+      else {
+        audit.fogPromptNativeAccepted++;
+        if(selectedCard) {
+          const id=this.state.players[choice.seat].id;
+          const previous=searchedPhysicalCards.get(id)??[];
+          previous.push({card:selectedCard,printing:choice.chosen,
+            sourceTurn:choice.turn,seat:choice.seat});
+          searchedPhysicalCards.set(id,previous);
+        }
+      }
+      audit.events.push({...logged,nativeStoreAccepted:true});
       return result;
     }catch(err) {
       audit.rejectedNativeChoices++;
-      audit.events.push({...choice,nativeStoreAccepted:false,
+      audit.events.push({...logged,nativeStoreAccepted:false,
         error:String(err?.message??err)});
       throw err;
     }
