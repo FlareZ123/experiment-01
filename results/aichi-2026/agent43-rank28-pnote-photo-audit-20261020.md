@@ -39,13 +39,13 @@ Image card positions are indexed by visual **row (1–5), column (1–8)**. Row 
 | R4 C1 | 2 | **Muscle Band / ちからのハチマキ** (Pokémon Tool) | **High**: pictured yellow band, pink triangular accent and red spiral precisely match official XY-P 019 promo art; microscopic card-number characters are unreadable |
 | R4 C2 | 2 | **Professor Juniper / アララギ博士** | high; confirms an identifiable art match to Japanese [BKR 015/018](https://www.pokemon-card.com/card-search/details.php/card/27619) depicting Juniper, Minccino and Pidove under blue sky |
 | R4 C3 | 1 | Lillie's Determination | high |
-| R4 C4 | 1 | Boss's Orders | high |
+| R4 C4 | 1 | **Raihan / キバナ S12a 237/172 SAR** | high official artwork match: crouching Raihan signing ball for child (not Boss's Orders) |
 | R4 C5 | 1 | Iono | high |
 | R4 C6 | 1 | Crispin | high |
 | R4 C7 | 2 | Guzma | high |
-| R4 C8 | 1 | Serena | high |
+| R4 C8 | 1 | **Marnie / マリィ S4a 198/190 SR** | high matching full-art portrait, grey jersey, dark pigtails, pastel prismatic background (not Serena) |
 | R5 C1 | 1 | Faba | high |
-| R5 C2 | 1 | **Temple of Sinnoh / シンオウ神殿**, gold printing | high: structure/sky/gold art visually match Japanese S10P 087/067 UR; tiny numbering unreadable |
+| R5 C2 | 1 | **Path to the Peak / 頂への雪道 S10b 088/067 UR** | high snowy mountain, snowflake borders and diagonal trail; gold print (not Temple of Sinnoh) |
 | R5 C3 | 1 | **Parallel City / パラレルシティ** | high: Japanese title and inverted blue-white town visually match official art; specific promo set number still uncertain |
 | R5 C4 | 3 | Double Dragon Energy | high |
 | R5 C5 | 3 | Basic Fire Energy | high |
@@ -64,14 +64,16 @@ Image card positions are indexed by visual **row (1–5), column (1–8)**. Row 
 
 1. **Do not register as rank 28 in exact opponent inputs.** Independently verify the account behind the published list corresponds to the official Jo Kato entry, and that the pictured 60 was the one registered at the event.
 2. R4 C1 has now been independently matched to **2 Muscle Band Pokémon Tools**, XY-P 019 promotional artwork. Preserve the printing distinction: the photo's small printed collector number cannot be read. Confirm if the official rank-28 registered list used this exact print rather than an alternative printing.
-3. Japanese **Temple of Sinnoh S10P 087/067 UR**, **Parallel City**, **Kyurem SV6a 047/064**, **Marshadow SM9a 020/055**, and **Wobbuffet CP3 013/032** now have visually matched primary card-art references. R5 C3 collector number and other small/unreadable print IDs remain uncertain; actual official tournament submission still must be established. The supplied English database is a search resource, not a print reconciliation.
+3. Japanese **Path to the Peak S10b 088/067 UR**, **Parallel City**, **Raihan S12a 237/172 SAR**, **Marnie S4a 198/190 SR**, **Kyurem SV6a 047/064**, **Marshadow SM9a 020/055**, and **Wobbuffet CP3 013/032** now have visually matched primary card-art references. R5 C3 collector number and other small/unreadable print IDs remain uncertain; actual official tournament submission still must be established. The supplied English database is a search resource, not a print reconciliation.
 4. Image provenance, 60-count and all named slots are valuable **source leads**. They are **not two-player gameplay evidence**; they do not change the 29/32 certified field coverage, the zero qualified games, or the unsupported 99.5% win-rate target.
 
 ## Independent card-art cross-check added 20 October 2026
 
 The original screenshot (`dragon-05.png`, original image SHA-256 above) visibly contains a **yellow tied band with a pink-red triangular emblem against a red concentric vortex** at R4 C1. This matches the official Japanese [Muscle Band XY-P 019 promotional card](https://www.pokemon-card.com/card-search/details.php/card/30338) and an independently found full-size print image. The Japanese card name is **ちからのハチマキ**. Its effect is +20 damage to the opponent's Active Pokémon from attacks of the attached Pokémon. This has materially different game semantics from a discardable search Item; it occupies a Tool slot and does not modify Bench damage. The supplied Advanced Player's Rulebook B-02 says older Tools remain Tools despite their historical `Item` heading. Visual confidence is high, while printing-number proof remains unavailable because of screenshot resolution.
 
-R5 C2's gold temple art matches the official Japanese [S10P 087/067 Temple of Sinnoh](https://www.pokemon-card.com/card-search/details.php/card/44888). R5 C3's distinctive inverted two-sided city matches the [official Parallel City promo art](https://www.pokemon-card.com/card-search/details.php/card/49631). These image comparisons resolve the stadium names more strongly; artwork is insufficient to prove the registered tournament print numbers.
+**Correction after adversarial visual review**: R5 C2 has a snowy slope, blue/grey trail and gold snowflake overlays matching Japanese **Path to the Peak S10b 088/067 UR**, [photo reference](https://ec.treasure-f.com/item/1009007646081009), with its Rule Box Ability suppression. It is visually incompatible with [Temple of Sinnoh S10P 087/067 UR](https://www.pokemon-card.com/card-search/details.php/card/44888), whose art depicts a cylindrical stone temple. My initial Temple identification in commit 1326e5d was incorrect and is superseded here. R5 C3's distinctive inverted two-sided city matches the [official Parallel City promo art](https://www.pokemon-card.com/card-search/details.php/card/49631).
+
+**Correction after comparison against other agents' independent source maps**: R4 C4 is **Raihan (キバナ), S12a 237/172 SAR**, whose [official GIDORA art](https://www.pokemon-card.com/card-search/details.php/card/42887) shows Raihan signing a ball for a child. This is visibly the R4 C4 person-and-child painting and not Boss's Orders. R4 C8 is **Marnie (マリィ), S4a 198/190 SR**, [art reference](https://ec.treasure-f.com/item/1017004962653019), with pigtails, grey jersey, Poké Ball and prismatic pastel background. This is not Serena. These swaps change play: Raihan provides conditional Energy acceleration after a KO and search; Marnie disrupts both hands; Path removes Rule Box Abilities. They cannot be silently merged into an incorrect printed-deck profile. The earlier classifications in commits 1326e5d / 8cd9417 are explicitly superseded.
 
 Further visual comparison resolves three strategically relevant Pokémon printings: [Kyurem SV6a 047/064 (Plasma Bane, Trifrost)](https://www.pokemon-card.com/card-search/details.php/card/45922), [Marshadow SM9a 020/055 (Reset Hole)](https://www.pokemon-card.com/card-search/details.php/card/36165), and [Wobbuffet CP3 013/032 (Bide Barricade)](https://www.pokemon-card.com/card-search/details.php/card/31613). Official art distinctly matches the icy gold-bordered Kyurem, dark grey forest Marshadow, and pink-room Wobbuffet in the photographed rows. These effects are strategically critical, so database or simulator mapping must use the correct print family. The screenshots support high-confidence artwork identification, not a reading of microscopic collector-number symbols.
 
