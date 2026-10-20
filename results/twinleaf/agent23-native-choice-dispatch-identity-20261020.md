@@ -48,3 +48,19 @@ The real seeded baseline and instrumented `runMatch` returned deeply equal compl
 The v1 first native run [39509690724](https://github.com/FlareZ123/experiment-01/actions/runs/39509690724) had 50 unportable prompts and 44 portable matches, while all 94 references dispatched. Its early `changedChoiceToDispatch` counter incorrectly combined unportable comparisons with actual mutations. That classification was corrected with separate `unsupportedInputComparisons` and `changedChoiceToDispatch` fields before v2's zero/zero values were reported. **No observed mutation was established by that earlier counter.**
 
 The [canonical bilateral runner](../../simulation/evaluation/agent41-bilateral-v2-development.cjs) now supports default-off `AGENT23_NATIVE_INPUT_WITNESS_DEV=true` installed at the real innermost `runMatch` boundary so the actor-only policy wrappers are already installed. The [historical four-arm parity runner](../../simulation/evaluation/agent23-canonical-native-input-pair.cjs) compares the same composed policy with witness disabled/enabled and fails on a reported-game mismatch; it remains retrospective and unqualified. A manually dispatched comparative CI result must be checked independently before making claims about four-arm noninterference.
+
+## Canonical actor-only four-arm native Store identity parity
+
+[Manually dispatched Actions run 39511299980](https://github.com/FlareZ123/experiment-01/actions/runs/39511299980), head `734262df6315f07a383bd4db6c77984ad3ceae18`, completed **successfully**. This run used the frozen four historical rank-6 and rank-11 arm seeds, the existing canonical actor-only composite policy, mandatory option legality handling and paper Supporter quota. The [paired runner](../../simulation/evaluation/agent23-canonical-native-input-pair.cjs) executed each arm without and with the new observer and required deep equality of the **complete existing reported development record** after removing only the added instrumentation field.
+
+| Frozen arm | Live native choice objects matched by original reference and full typed input | Unlinked setup/other dispatches |
+| --- | ---: | ---: |
+| Rank 6, champion reference | 30 / 30 | 7 |
+| Rank 6, New Moon | 191 / 191 | 11 |
+| Rank 11, champion reference | 253 / 253 | 9 |
+| Rank 11, New Moon | 255 / 255 | 7 |
+| **All four** | **729 / 729** | **34** |
+
+Every arm retained the exact source-deal and actual root-ledger fingerprints; no selected input mutations, rejected matched dispatches or unportable selected inputs were observed. The recorded `exactSameReportedNativeDevelopmentGameData` flag was true, with four control and four instrumented arms. The 34 unlinked genuine Store calls remain explicit rather than silently being attributed to chosen policy actions.
+
+This authentic original-game evidence validates the narrow observer's placement inside the already-composed policy. It does **not** validate each action against paper Expanded rules, prove correct handling of concealed-zone history, restore a cloned native-policy RNG history, or establish the field's competitive game strength. All four arms were selected retrospectively and **zero games qualify for the target win rate**. The original frozen champion and New Moon candidates remain unchanged.
