@@ -591,3 +591,22 @@ test('native tape branch vetoes a detached policy with a different actual action
   assert.equal(event.counterfactualCompared,false);
   assert.equal(observed.result.action.play,'special');
 });
+
+test('physically inconsistent captured deck clone is vetoed before any taped replay',()=>{
+  const {observed}=scenario({
+    nativeTapeSameWorld:true,
+    cloned:source=>{
+      const copy=structuredClone(source);
+      copy.players[0].deck.cards[0]='unknown-alternate';
+      return copy;
+    },
+    replayPolicy:(_seat,work)=>({result:work()}),
+    compare:()=>{throw new Error('No hidden contrast after bad physical clone');}
+  });
+  assert.equal(observed.events.length,1);
+  assert.equal(observed.events[0].baselineActionMatchedActual,false);
+  assert.equal(observed.events[0].liveStatePreserved,false);
+  assert.match(observed.events[0].auditError,
+    /Captured replay root differs from genuine physical State/);
+  assert.equal(observed.result.action.play,'generic');
+});
