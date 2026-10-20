@@ -574,3 +574,59 @@ test('separate valid source replies never certify unpaired bilateral comparison'
   assert.equal(r.bothHardRanksHavePairedBilateralWitnesses,false);
   assert.equal(r.opportunityAndPolicyVerdict,'HOLD-OR-INCOMPLETE');
 });
+
+test('rank6 no eligible candidate Power passes exposure comparison only with a positive control',()=>{
+  const {plan,archive}=fixture();
+  const noTarget=archive.rows.find(row=>
+    row.rank===6&&row.candidateSeat===1&&row.candidateId==='newmoon');
+  const e=noTarget.rank6PassivePressure;
+  e.status='no-eligible-visible-power';
+  e.nativeCapabilitySuppressed=false;
+  e.observedBoundaryActors=true;
+  e.examinedPrintedPowerCount=0;
+  e.sourceTurnOneSnapshotPresent=true;
+  e.candidateTurnTwoSnapshotPresent=true;
+  e.sourceReturnSnapshotPresent=true;
+  e.targetPrinting=null;
+  e.targetPowerName=null;
+
+  let r=auditBilateralV2(plan,archive);
+  assert.equal(r.rank6PositiveControl,true);
+  assert.equal(r.bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses,false);
+  assert.equal(r.bothHardRanksHaveSourceFirstEarlyExposurePairedBilateralWitnesses,true);
+  assert.equal(r.sourceFirstEarlyPressurePairs,1);
+  assert.equal(r.sourceFirstEarlyExposurePairs,2);
+  assert.equal(r.opportunityAndPolicyVerdict,'HOLD-OR-INCOMPLETE');
+  assert.equal(r.exposureInclusivePilotVerdict,'EXPOSURE-PILOT-REVIEWABLE');
+  assert.equal(r.rootAttestedExposureInclusivePilotVerdict,'HOLD-OR-UNAUTHENTICATED');
+  const diagnostic=r.arms.find(row=>row.id===noTarget.id);
+  assert.equal(diagnostic.nativeExposureKind,'no-eligible-power-present');
+  assert.equal(diagnostic.sourceFirstEarlyExposureWitness,true);
+  assert.equal(diagnostic.sourceFirstEarlyPressureWitness,false);
+  assert.ok(!diagnostic.vetoes.includes('source-first-native-exposure-unverified'));
+  assert.equal(r.gameWinRateCertified,false);
+
+  e.candidateTurnTwoSnapshotPresent=false;
+  r=auditBilateralV2(plan,archive);
+  assert.equal(r.arms.find(row=>row.id===noTarget.id).nativeExposureKind,'unverified');
+  assert.equal(r.exposureInclusivePilotVerdict,'HOLD-OR-INCOMPLETE');
+});
+
+test('two no-target arms without any rank6 native positive control cannot clear exposure tier',()=>{
+  const {plan,archive}=fixture();
+  for(const row of archive.rows.filter(row=>
+    row.rank===6&&row.candidateSeat===1)){
+    const e=row.rank6PassivePressure;
+    Object.assign(e,{
+      status:'no-eligible-visible-power',nativeCapabilitySuppressed:false,
+      observedBoundaryActors:true,examinedPrintedPowerCount:0,
+      sourceTurnOneSnapshotPresent:true,candidateTurnTwoSnapshotPresent:true,
+      sourceReturnSnapshotPresent:true,targetPrinting:null,targetPowerName:null
+    });
+  }
+  const r=auditBilateralV2(plan,archive);
+  assert.equal(r.rank6PositiveControl,false);
+  assert.equal(r.bothHardRanksHaveSourceFirstEarlyExposurePairedBilateralWitnesses,true);
+  assert.equal(r.exposureInclusivePilotVerdict,'HOLD-OR-INCOMPLETE');
+  assert.equal(r.competitiveStrengthClaimPermitted,false);
+});
