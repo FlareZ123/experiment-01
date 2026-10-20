@@ -11,6 +11,7 @@ from hashlib import sha256
 import json
 
 from scripts.aichi_balanced_global_gate import balanced_global_test
+from scripts.aichi_zero_loss_counts import assess_zero_loss_cells
 from scripts.aichi_evidence import read_manifest
 from scripts.match_record_contract import evaluate_raw_batch
 from scripts.matchup_evidence import SeatRecord
@@ -154,5 +155,74 @@ def evaluate_balanced_raw_batch(
             "Statistical arithmetic, registered-trial and raw-record consistency only; "
             "externally vetted source lists, policy quality, independence, authenticated "
             "trace replay, engine fidelity and sampling randomization require separate verification"
+        ),
+    }
+
+
+def evaluate_natural_start_zero_loss_raw_batch(
+    batch: dict, field_csv: str, *,
+    source_deck_digests: Mapping[int, str],
+    expected_candidate_deck_sha256: str,
+    predeclared_total_games: int,
+    expected_trials: list[dict],
+    target: str = "0.995",
+    confidence: str = "0.95",
+) -> dict:
+    """Sharp all-win nulls for fixed trial schedules with random actual starts.
+
+    The 64- and 128-cell reports refer to separate predeclared equal-weight
+    estimands. Each result is conditional on the observed sampling allocation,
+    independent games, legitimate registration and a valid frozen game policy.
+    A non-win makes both all-win tests inapplicable, never silently a win.
+    """
+    if type(predeclared_total_games) is not int or predeclared_total_games < 1:
+        raise ValueError("A positive predeclared total game count is required")
+    if (type(batch.get("predeclared_total_games")) is not int or
+            batch["predeclared_total_games"] != predeclared_total_games or
+            len(expected_trials) != predeclared_total_games):
+        raise ValueError("Externally registered total trial count disagrees with the batch")
+    checked, expected_source_sha = _verify_frozen_source_raw_batch(
+        batch, field_csv,
+        source_deck_digests=source_deck_digests,
+        expected_candidate_deck_sha256=expected_candidate_deck_sha256,
+        expected_trials=expected_trials,
+    )
+    if checked["finished_games"] != predeclared_total_games:
+        raise ValueError("Completed matches do not cover the predeclared total horizon")
+    cells64 = checked["statistical_result"]["cells"]
+    observed128 = Counter((g["rank"], g["seat"], g["candidate_side"])
+                          for g in batch["games"])
+    cells128 = [
+        {"rank": rank, "actual_start": start, "candidate_side": side,
+         "games": observed128[rank, start, side]}
+        for rank in range(1, 33)
+        for start in ("first", "second")
+        for side in ("A", "B")
+    ]
+    wins = sum(c["wins"] for c in cells64)
+    counts64 = [c["games"] for c in cells64]
+    counts128 = [c["games"] for c in cells128]
+    assert sum(counts64) == sum(counts128) == predeclared_total_games
+    return {
+        "provenance": {**checked["provenance"],
+                       "source_inventory_digest_sha256": expected_source_sha,
+                       "registered_candidate_deck_sha256": expected_candidate_deck_sha256},
+        "raw_games": checked["raw_games"],
+        "predeclared_total_games": predeclared_total_games,
+        "all_completed_traces_verified": checked["all_completed_traces_verified"],
+        "all_completed_terminals_bound": checked["all_completed_terminals_bound"],
+        "schedule_bound": checked["schedule_bound"],
+        "all_scheduled_trials_accounted": checked["all_scheduled_trials_accounted"],
+        "actual_start_cells": cells64,
+        "physical_seat_start_cells": cells128,
+        "equal_64_rank_start": assess_zero_loss_cells(
+            counts64, total_wins=wins, target=target, confidence=confidence),
+        "equal_128_rank_start_physical_seat": assess_zero_loss_cells(
+            counts128, total_wins=wins, target=target, confidence=confidence),
+        "competitive_evidence_qualified": False,
+        "warning": (
+            "All-win composite-null arithmetic conditional on actual random starts. "
+            "Natural starting-order randomization, physical-seat fairness, independent "
+            "outcomes, policy skill, paper rules and tournament clock remain unqualified."
         ),
     }
