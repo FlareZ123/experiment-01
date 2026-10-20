@@ -107,6 +107,14 @@ jobs:
       - name: Paired canonical four-arm actual Store native input identity regression
         if: inputs.agent23_canonical_native_input_pair
         run: node simulation/evaluation/agent23-canonical-native-input-pair.cjs > agent23-native-input-canonical-fourarm.json
+      - name: Print bounded four-arm same-world witness and failure classification
+        if: inputs.agent23_canonical_native_input_pair
+        run: >-
+          node -e "const a=require('./agent23-native-input-canonical-fourarm.json');
+          console.log('CANONICAL_NATIVE_INPUT',JSON.stringify({schema:a.schema,
+          same:a.exactSameReportedNativeDevelopmentGameData,
+          control:a.controlCases,observed:a.observedCases,
+          rows:a.rows,qualified:a.competitiveQualifiedGames}));"
       - name: Archive original-policy matched and unmatched native input evidence
         if: inputs.agent23_canonical_native_input_pair && always()
         uses: actions/upload-artifact@v4
