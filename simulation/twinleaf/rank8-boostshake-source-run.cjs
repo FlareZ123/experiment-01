@@ -71,6 +71,8 @@ function main(){
     control.actionTrace.slice(0,86),'Autonomous reply changed source prefix');
   assert.equal(hoodedReply.stage,7);
   assert.equal(hoodedReply.result.stage,11);
+  assert.equal(hoodedReply.postDoorPassProbe?.observedAfterHoodedDoor,true,
+    'Expected the source-dealt candidate to pass after Hooded Door setup');
   assert.equal(hoodedReply.witness?.sourceGarbodorStillEquipped,true);
   assert.equal(hoodedReply.witness?.heldFieldBlowerPreserved,true);
   assert.deepEqual(hooded.result.actionTrace.slice(0,86),
@@ -130,6 +132,7 @@ function main(){
           selectedCards:e.cardSelection?.selectedCards})),
       prizes:recovery.result.result.result.prizesRemaining},
     hoodedLiveLock:{steps:hoodedReply.events,witness:hoodedReply.witness,
+      postDoorPassProbe:hoodedReply.postDoorPassProbe,
       turn8Actions:hoodedReply.result.result.decisionTrace.filter(e=>
         e.turnBefore===8 && e.playerSlot===1).map(e=>({
           action:e.action,card:e.card,ability:e.ability,
