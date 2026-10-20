@@ -242,8 +242,18 @@ function withPostgameRootOrderProbe(
       try {
         const sourceBefore=stateGraphFingerprint(state);
         snapshot=cloneDetached(state);
-        assert.deepEqual(stateGraphFingerprint(snapshot),sourceBefore,
-          'Captured replay root differs from genuine physical State');
+        const captureProjection=stateGraphFingerprint(snapshot);
+        if(!isDeepStrictEqual(captureProjection,sourceBefore)) {
+          const {firstNativeCloneStructureDifference}=
+            require('../twinleaf/native-clone-structure-diff.cjs');
+          const diagnostic=firstNativeCloneStructureDifference(state,snapshot);
+          throw new Error('Captured replay root differs from genuine physical State: '+
+            JSON.stringify({
+              originalDigest:sourceBefore.digest,
+              clonedDigest:captureProjection.digest,
+              firstDescriptorDifference:diagnostic
+            }));
+        }
         const commonOptions=this.tactics?.[0]?.options;
         assert.ok(commonOptions&&typeof commonOptions==='object',
           'Pinned tactic option source is missing');
