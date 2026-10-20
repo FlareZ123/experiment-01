@@ -74,7 +74,7 @@ jobs:
       - name: Fail closed if no genuine K1 source prompt was observed
         if: ${{ inputs.rank6_source_k1 }}
         run: |
-          node -e "const assert=require('node:assert/strict');const x=require('./agent7-rank6-source-k1.json');assert.equal(x.competitiveQualifiedGames,0);assert.equal(x.changedPolicyChoices,false);assert.equal(x.rows.length,4);assert.ok(x.observation.authenticPromptsSeen>0);assert.ok(x.observation.expectedGuzmaHalaSearches>0);assert.equal(x.observation.decisionChanges,0);assert.equal(x.observation.storeDispatchChanges,0);console.log('K1_AUTHENTIC_OWNER_SEARCH',JSON.stringify(x.observation))"
+          node -e "const assert=require('node:assert/strict');const x=require('./agent7-rank6-source-k1.json');assert.equal(x.competitiveQualifiedGames,0);assert.equal(x.changedPolicyChoices,false);assert.equal(x.rows.length,4);assert.ok(x.observation.authenticPromptsSeen>0);assert.ok(x.observation.expectedGuzmaHalaSearches>0);assert.equal(x.observation.decisionChanges,0);assert.equal(x.observation.storeDispatchChanges,0);assert.equal(x.nativeRootLedgerParityAllArms,true);assert.equal(x.publicAttackDeclarationParityAllArms,true);console.log('K1_AUTHENTIC_OWNER_SEARCH',JSON.stringify(x.observation))"
       - name: Preserve every observed and censored development arm
         if: always()
         uses: actions/upload-artifact@v4
