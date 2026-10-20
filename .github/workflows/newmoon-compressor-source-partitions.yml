@@ -127,7 +127,7 @@ jobs:
           node --check simulation/twinleaf/agent41-paper-supporter-discipline.cjs
           node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
           node --check scripts/agent41-paper-supporter-paired-replay.cjs
-          node --test tests/paper-supporter-quota-guard.test.cjs tests/native-supporter-turn-audit.test.cjs tests/agent41-paper-supporter-discipline.test.cjs tests/agent41-paper-supporter-paired-replay.test.cjs tests/agent41-bilateral-v2-development.test.cjs
+          node --test tests/paper-supporter-quota-guard.test.cjs tests/native-supporter-turn-audit.test.cjs tests/agent41-paper-supporter-discipline.test.cjs tests/agent41-paper-supporter-paired-replay.test.cjs tests/native-prompt-choice-evidence.test.cjs tests/agent41-bilateral-v2-development.test.cjs
       - name: Replay original historical four arms under unmodified paper quota policy
         if: inputs.agent41_paper_supporter_development
         env:
