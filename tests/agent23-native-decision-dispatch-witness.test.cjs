@@ -47,6 +47,9 @@ test('original policy action reference and value reach real dispatch',()=>{
   const r=withNativeDecisionDispatchWitness(f.run,{...f,...codecs});
   assert.equal(r.audit.matchedObjectDispatches,1);
   assert.equal(r.audit.boundedRecords[0].unchangedPortableInput,true);
+  assert.equal(r.audit.verifiedUnchangedInputs,1);
+  assert.equal(r.audit.unsupportedInputComparisons,0);
+  assert.equal(r.audit.changedChoiceToDispatch,0);
   assert.equal(r.audit.boundedRecords[0].dispatchReturnedWithoutThrow,true);
   assert.strictEqual(f.Store.prototype.dispatch,prior);
 });
@@ -54,6 +57,8 @@ test('mutation between decision and dispatch invalidates exact input',()=>{
   const f=fixture(true);
   const r=withNativeDecisionDispatchWitness(f.run,{...f,...codecs});
   assert.equal(r.audit.changedChoiceToDispatch,1);
+  assert.equal(r.audit.unsupportedInputComparisons,0);
+  assert.equal(r.audit.verifiedUnchangedInputs,0);
   assert.equal(r.audit.boundedRecords[0].unchangedPortableInput,false);
 });
 test('rejection preserves evidence and restores native hooks',()=>{
@@ -79,4 +84,24 @@ test('unsupported nested engine class objects fail closed',()=>{
   const action=new PlayCardAction(0,{nested:new PlayCardAction(1,{})});
   assert.equal(actionIdentity(action,{prompts:[]},
     {...codecs,captureAction}).status,'unsupported');
+});
+
+test('unsupported prompt input is unverified, not evidence of mutation',()=>{
+  const f=fixture();
+  const action=new PlayCardAction(0,{index:0});
+  f.run=()=> {
+    const store=new f.Store();
+    store.dispatch(new (class AddPlayerAction {})());
+    const bot=new f.SimpleTacticsAi();
+    const selected=bot.decodeNextAction(store.state);
+    return store.dispatch(selected);
+  };
+  const r=withNativeDecisionDispatchWitness(f.run,{...f,
+    captureAction:()=>{throw new TypeError('unsupported prompt');},
+    capturePromptAction:()=>null});
+  assert.equal(r.audit.unsupportedProposalInputs,1);
+  assert.equal(r.audit.unsupportedInputComparisons,1);
+  assert.equal(r.audit.changedChoiceToDispatch,0);
+  assert.equal(r.audit.verifiedUnchangedInputs,0);
+  assert.equal(r.audit.matchedObjectDispatches,1);
 });
