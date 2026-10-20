@@ -58,6 +58,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank2_natural_stoutland_owner_item:
+        description: Probe actual owner-held Mysterious Treasure native Item under natural Stoutland
+        type: boolean
+        required: false
+        default: false
       rank2_natural_sentinel_owner_carmine:
         description: Verify exact naturally Active rank2 Stoutland turn7 opponent Carmine native denial
         type: boolean
@@ -186,6 +191,20 @@ jobs:
         with:
           name: agent40-sentinel-seeker-legal-owner-and-source-reply
           path: agent40-sentinel-seeker-legal-reply.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Validate natural owner-held Item root contract
+        if: ${{ inputs.rank2_natural_stoutland_owner_item }}
+        run: node --test tests/agent40-natural-stoutland-owner-item.test.cjs
+      - name: Replay actual owner-held Mysterious Treasure first native Item root
+        if: ${{ inputs.rank2_natural_stoutland_owner_item }}
+        run: node simulation/twinleaf/agent40-natural-stoutland-owner-item.cjs > agent40-natural-stoutland-owner-item.json
+      - name: Archive Item native accepted or rejected root and all failures
+        if: ${{ always() && inputs.rank2_natural_stoutland_owner_item }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent40-natural-stoutland-owner-item-native
+          path: agent40-natural-stoutland-owner-item.json
           if-no-files-found: warn
           retention-days: 14
       - name: Validate natural rank2 Stoutland opponent Carmine owner-view contract
