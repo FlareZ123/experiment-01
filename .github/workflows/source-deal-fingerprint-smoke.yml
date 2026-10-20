@@ -39,7 +39,7 @@ jobs:
       - name: Verify private initial-deal fingerprint serializer and actual Store noninterference
         run: node --test tests/source-physical-deal-fingerprint.test.cjs tests/headless-initial-source-deal-smoke.test.cjs tests/aichi-setup-zone-capture.test.cjs
       - name: Verify paired-native State observer reporting invariants
-        run: node --test tests/agent38-native-proposal-state-smoke.test.cjs tests/original-state-noninterference-gate.test.cjs tests/native-supporter-proposal-validation-observer.test.cjs tests/agent38-native-owner-alias-observer.test.cjs tests/native-policy-random-tape.test.cjs
+        run: node --test tests/agent38-native-proposal-state-smoke.test.cjs tests/original-state-noninterference-gate.test.cjs tests/native-supporter-proposal-validation-observer.test.cjs tests/agent38-native-owner-alias-observer.test.cjs tests/native-policy-random-tape.test.cjs tests/native-same-world-tape-parity.test.cjs
       - name: Paired native rank24 State-purity diagnostic
         if: ${{ inputs.native_proposal_state }}
         run: node simulation/twinleaf/agent38-native-proposal-state-smoke.cjs > agent38-rank24-native-state-purity.json
