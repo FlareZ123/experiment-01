@@ -13,6 +13,7 @@ function rank6(){
     rank6PassivePressure:{
       schema:'agent41-rank6-passive-initialization-root-classification-v1',
       status:'native-capability-suppression-with-rooted-turn-continuity',
+      sourceSeat:0,candidateSeat:1,sourceActuallyFirst:true,
       sourceActiveContinuity:true,nativeCapabilitySuppressed:true,
       rootedReplyAndReturn:true,
       sourceTurnOneEndRoot:{ordinal:4,seat:0,turn:1,
@@ -28,6 +29,7 @@ function rank11(){
     turnBefore:1,completionTurnBefore:1
   },garbotoxinWindowAudit:{
     schema:'agent41-authentic-rank11-garbotoxin-ability-window-v1',
+    sourceSeat:0,candidateSeat:1,turn:2,realStoreOnly:true,
     before:{globalTurn:2,sourceGarbodorHasTool:true,
       candidatePrintedPowerNames:['New Moon'],
       candidatePrintedNewMoonBlocked:true}
