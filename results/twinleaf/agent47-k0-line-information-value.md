@@ -34,6 +34,12 @@ Exact common-denominator BigInt numerators are returned as decimal strings, with
 
 The nonnegative information gap is a direct consequence of the ability to select the same original plan after revelation. It **is not** a claim that performing a particular deck search is positive value. A search can spend an Item, Supporter, discard costs, a turn window, or future option access; revealing deck contents can also be useless if no subsequent adaptive decision is legally available.
 
+### Previously authenticated deck printings
+
+A follow-up implementation now accepts optional `observedDeckPrintings`. These must already have been learned through a legitimate actor-own observation *while the deck remains otherwise K0*, such as a previously revealed top card that is still known to be in deck. They count as **guaranteed deck copies** for each line, independent of the unresolved uniformly allocated Prize slots. The [existing owner-only K0 physical inventory](../../simulation/twinleaf/owner-k0-observable-inventory.cjs) already returns this field after physically subtracting known copies from the unresolved pool, so the frontier can directly consume the same two fields without counting a known printing twice.
+
+The new regression covers a guaranteed held-in-deck A printing, and uncertain B/C (one unobserved Prize). The invented A line pays +8 deterministically; B pays +20 if available, -20 otherwise. Thus K0 chooses A for **8**, while idealized K1 chooses B in the one case where B survives and A otherwise, for **14**. Information value is **6 units**. Without any authenticated known A printing, the same unresolved B/C pool produces a different physical problem, and A must not be treated as reachable. Further tests cover duplicate known printing requirements, empty unknown populations and malformed observations. [Manual statistics CI 39389266609](https://github.com/FlareZ123/experiment-01/actions/runs/39389266609) **passed** at code/test head `91af42a38d98370c0c181bd70100da48bb95e340`. The non-overlap and provenance of the known deck subset still require caller authentication.
+
 ## Explicit hypothetical worked case, not a rank-24 game estimate
 
 Suppose two different singleton printed resources `A` and `B` are unknown among 60 cards, six are Prized, and one of two mutually exclusive plans must be chosen. Each plan has *invented* +10 utility if its resource is in deck and -10 if missing; passing has zero.
