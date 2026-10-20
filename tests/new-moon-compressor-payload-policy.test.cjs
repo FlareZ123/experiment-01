@@ -77,6 +77,37 @@ test('benched Mewtwo can trigger anticipatory setup only in explicit v2 mode',()
   }),false,'Existing donor must suppress anticipatory discard');
 });
 
+test('explicit second-donor activation repairs Gengar-established Night Watch blind spot',()=>{
+  const {state,player}=fixture();
+  player.discard.cards=[{fullName:GENGAR}];
+  assert.equal(shouldSeekPayload(state,player,3),false,
+    'The archived first-donor policy must remain unchanged');
+  assert.equal(shouldSeekPayload(state,player,3,{allowTrevenantOnly:true}),true,
+    'A missing Trevenant donor can justify owner Compressor after Gengar is established');
+  player.hand.cards.push({fullName:TREV});
+  assert.equal(shouldSeekPayload(state,player,3,{allowTrevenantOnly:true}),false,
+    'A held Trevenant is unavailable to the deck search and must not trigger it');
+  player.hand.cards.pop();
+  player.discard.cards.push({fullName:TREV});
+  assert.equal(shouldSeekPayload(state,player,3,{allowTrevenantOnly:true}),false);
+  player.discard.cards.pop();
+  player.bench[0].getPokemonCard=()=>({fullName:TREV});
+  assert.equal(shouldSeekPayload(state,player,3,{allowTrevenantOnly:true}),false);
+  player.bench[0].getPokemonCard=()=>undefined;
+  player.cannotPlayItemCards=true;
+  assert.equal(shouldSeekPayload(state,player,3,{allowTrevenantOnly:true}),false);
+  player.cannotPlayItemCards=false;
+  player.deck.cards=[{name:'Unknown A'},{name:'Unknown B'}];
+  assert.equal(shouldSeekPayload(state,player,3,{allowTrevenantOnly:true}),true,
+    'Pre-search decision must be independent of unidentified owner deck-card identities');
+  player.deck.cards=[{name:'Unknown C'},{name:'Unknown D'}];
+  assert.equal(shouldSeekPayload(state,player,3,{allowTrevenantOnly:true}),true);
+  player.discard.cards=[];
+  player.bench[0].getPokemonCard=()=>({fullName:GENGAR});
+  assert.equal(shouldSeekPayload(state,player,3),false);
+  assert.equal(shouldSeekPayload(state,player,3,{allowTrevenantOnly:true}),true);
+});
+
 test('versioned late turn window opens the observed owner-only midgame opportunity',()=>{
   const {state,player}=fixture();
   state.turn=11;
