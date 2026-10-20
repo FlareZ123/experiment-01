@@ -3,6 +3,11 @@ name: Twinleaf policy RNG isolation audit
 on:
   workflow_dispatch:
     inputs:
+      agent23_canonical_native_input_pair:
+        description: 'Compare unchanged four canonical actor-only historical games with exact typed input witness off/on'
+        required: false
+        type: boolean
+        default: false
       agent13_actor_attack_source_positive:
         description: 'One historical rank11 real Store printed copied Attack response, unqualified'
         required: false
@@ -99,3 +104,14 @@ jobs:
         run: node simulation/twinleaf/smoke-test.cjs
       - name: Verify native action proposal-to-Store original-game noninterference
         run: node simulation/twinleaf/agent23-native-witness-smoke.cjs
+      - name: Paired canonical four-arm actual Store native input identity regression
+        if: inputs.agent23_canonical_native_input_pair
+        run: node simulation/evaluation/agent23-canonical-native-input-pair.cjs > agent23-native-input-canonical-fourarm.json
+      - name: Archive original-policy matched and unmatched native input evidence
+        if: inputs.agent23_canonical_native_input_pair && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent23-native-input-canonical-historical-fourarm
+          path: agent23-native-input-canonical-fourarm.json
+          if-no-files-found: warn
+          retention-days: 10
