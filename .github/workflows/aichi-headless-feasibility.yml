@@ -48,6 +48,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank2_live_gh_same_state_fork:
+        description: Fork first real source G&H mode on the exact same native preprompt root
+        required: false
+        type: boolean
+        default: false
       rank2_mandatory_option_pair:
         description: Genuine exact-source rank2 both-seat null-vs-mode0 native choice exposure
         required: false
@@ -100,6 +105,20 @@ jobs:
         with:
           name: rank2-mandatory-option-source-pair
           path: rank2-mandatory-option-source-pair.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Verify first real source G&H option-only fork restores native decoder
+        run: node --test tests/agent24-live-source-gh-modal-fork.test.cjs
+      - name: Compare the same authentic source-prefork roots and first corrected G&H mode
+        if: ${{ inputs.rank2_live_gh_same_state_fork }}
+        run: node simulation/twinleaf/agent24-live-source-gh-modal-fork.cjs > rank2-gh-native-same-state-fork.json
+      - name: Archive genuine matched native G&H option forks and all negative outcomes
+        if: ${{ always() && inputs.rank2_live_gh_same_state_fork }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank2-gh-native-same-state-fork
+          path: rank2-gh-native-same-state-fork.json
           if-no-files-found: warn
           retention-days: 14
 
