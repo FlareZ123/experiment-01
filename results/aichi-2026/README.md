@@ -20,6 +20,8 @@
 
 **Event:** CL Aichi Open League, 10 May 2026, 926 participants.
 
+**20 October, Agent 35 official champion Japanese 60:** [Organizer-linked 33-print source and exact English-name/count comparison](official-champion-print-source-audit-20261020.md) identifies all 60 original Japanese printings in a [machine-readable archived manifest](official-champion-japanese-print-60.json), including Mimikyu SM4p 043/114, Dialga-GX SM5S 069/066, and Resetting Hole Marshadow SM12a 064/173. Official deck code `QnLLQ9-qvPVqa-g9gi6Q`; [compiled source CI 39424838770](https://github.com/FlareZ123/experiment-01/actions/runs/39424838770) and [audit CI 39425544045](https://github.com/FlareZ123/experiment-01/actions/runs/39425544045). The [organizer's first-person Copycat/Apex source](official-champion-copycat-regidrago-primary-source-20261020.md) supports a real high-impact counterline, without quantifying its frequency. The [rank28 source-image review](rank28-primary-photo-visual-source-gate-20261020.md) confirms its tournament provenance but no complete 60; **29/32 lists, zero competitively qualified games** remain unchanged.
+
 **Primary sources**
 - [Tournament rankings](https://limitlesstcg.com/tournaments/566)
 - [Published decklists](https://www.limitlesstcg.com/tournaments/566/decklists)
