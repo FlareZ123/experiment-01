@@ -2,7 +2,8 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {chooseOpeningDiscards,planOpeningHand,dceHandAttachmentBlocked}=
+const {chooseOpeningDiscards,planOpeningHand,
+  missingTagCallK1Requirements,dceHandAttachmentBlocked}=
   require('../simulation/twinleaf/rank6-broad-thorns-policy.cjs');
 
 /** @param {string[]} names */
@@ -256,4 +257,31 @@ test('live DCE eligibility reflects pinned attachment allowance and locks',()=>{
   assert.equal(dceHandAttachmentBlocked({
     ...player,usedDragonsWish:true,cannotPlaySpecialEnergyCards:true
   },state),true);
+});
+
+test('K1 acquired at Tag Call can invalidate just the missing printed target',()=>{
+  const plan={needThunder:true,needDce:true};
+  const ownedDeck=hand(['Guzma & Hala','Double Colorless Energy']);
+  assert.deepEqual(missingTagCallK1Requirements(plan,ownedDeck,[]),[
+    'Thunder Mountain Prism Star'
+  ]);
+  assert.deepEqual(missingTagCallK1Requirements(plan,hand([
+    'Guzma & Hala','Thunder Mountain Prism Star'
+  ]),[]),['Double Colorless Energy']);
+  assert.deepEqual(missingTagCallK1Requirements(plan,ownedDeck,
+    hand(['Thunder Mountain Prism Star'])),[]);
+});
+
+test('K1 check preserves a viable Tag Call target and needed-only scope',()=>{
+  const deck=hand(['Guzma & Hala','Thunder Mountain Prism Star',
+    'Double Colorless Energy']);
+  assert.deepEqual(missingTagCallK1Requirements({
+    needThunder:true,needDce:true
+  },deck,[]),[]);
+  assert.deepEqual(missingTagCallK1Requirements({
+    needThunder:false,needDce:true
+  },hand(['Guzma & Hala']),[]),['Double Colorless Energy']);
+  assert.deepEqual(missingTagCallK1Requirements({
+    needThunder:false,needDce:false
+  },[],[]),[]);
 });
