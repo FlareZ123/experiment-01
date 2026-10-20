@@ -77,7 +77,7 @@ function installOpponentHiddenPoolAllTacticScores(options) {
   const types={PlayCardAction,...load('game/store/actions/game-actions')};
   const original=SimpleTactic.prototype.evaluateAction;
 
-  SimpleTactic.prototype.evaluateAction=function sampledAllActions(
+  const sampledAllActions=function sampledAllActions(
     state,playerId,action,passTurnScore
   ){
     assertVendorCloneCompatibleSource(state);
@@ -128,6 +128,7 @@ function installOpponentHiddenPoolAllTacticScores(options) {
     }
     return total/options.samples;
   };
+  SimpleTactic.prototype.evaluateAction=sampledAllActions;
 
   return function restore(){
     assert.strictEqual(SimpleTactic.prototype.evaluateAction,
