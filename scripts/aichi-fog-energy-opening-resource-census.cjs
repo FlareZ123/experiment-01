@@ -82,6 +82,7 @@ function fogEnergyOpportunity(inventory,draws){
         const reachable=directlySeen+Math.min(heldFog,deckPsychic);
         for(let threshold=1;threshold<=4;threshold++){
           if(reachable>=threshold)successes[threshold]+=weight;
+          if(directlySeen>=threshold)directSuccesses[threshold]+=weight;
         }
       });
     });
