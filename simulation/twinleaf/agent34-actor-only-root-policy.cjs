@@ -1,9 +1,34 @@
 'use strict';
 const assert=require('node:assert/strict');
 const path=require('node:path');
-const {actorObservation}=require('./actor-observation-contract.cjs');
+const {createHash}=require('node:crypto');
+const {actorObservation,publicPlayer}=require('./actor-observation-contract.cjs');
 const VERSION='agent34-actor-only-root-slice-v2-numeric-types';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
+
+/**
+ * Read only publicly exposed native Store zones before or after dispatch.
+ * A successful action can still fail to produce the intended game mutation.
+ * @param {object} store Genuine Store with current State.
+ * @returns {object|null} Detached public-zone/turn transition witness.
+ */
+function publicDispatchState(store){
+  const state=store?.state;
+  if(!Array.isArray(state?.players)||state.players.length!==2)return null;
+  const views=state.players.map(publicPlayer);
+  const digest=createHash('sha256').update(JSON.stringify(views)).digest('hex');
+  return {
+    turn:state.turn,
+    activePlayer:state.activePlayer,
+    phase:state.phase,
+    publicZonesSha256:digest,
+    handCounts:views.map(view=>view.handCount),
+    benchCounts:views.map(view=>view.bench.filter(Boolean).length),
+    activePrintings:views.map(view=>view.active?.printing??null),
+    attachedEnergyCounts:views.map(view=>
+      [view.active,...view.bench].reduce((sum,slot)=>sum+(slot?.energies.length??0),0))
+  };
+}
 
 /**
  * Pure decision from a detached owner observation plus the public print catalog.
@@ -105,6 +130,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     version:VERSION,origin:'detached-actor-observation',
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
     typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
+    publicTransitionWitnesses:0,publicTransitionChanges:0,
+    observationSchema:'agent2-public-native-dispatch-diff-v1',
     unsupportedPromptTypes:{},
     unsupportedPromptFallbacks:0,nonOwnerNativeDelegations:0,
     ownerRootIntents:[],competitiveGameQualified:false,
@@ -154,11 +181,24 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     const choice=this===nativeStore?typedDecisions.get(action):undefined;
     if(!choice)return beforeDispatch.value.apply(this,[action,...args]);
+    const before=publicDispatchState(this);
     try{
       const result=beforeDispatch.value.apply(this,[action,...args]);
+      const after=publicDispatchState(this);
+      const witnessed=before!==null&&after!==null;
+      const publicZonesChanged=witnessed&&
+        before.publicZonesSha256!==after.publicZonesSha256;
+      const turnOrPhaseChanged=witnessed&&
+        (before.turn!==after.turn||
+          before.activePlayer!==after.activePlayer||
+          before.phase!==after.phase);
       audit.acceptedActorRoots++;
+      if(witnessed)audit.publicTransitionWitnesses++;
+      if(publicZonesChanged||turnOrPhaseChanged)audit.publicTransitionChanges++;
       if(audit.nativeRootAcceptances.length<64)
-        audit.nativeRootAcceptances.push({...choice,accepted:true});
+        audit.nativeRootAcceptances.push({...choice,accepted:true,
+          publicTransitionWitnessed:witnessed,
+          publicZonesChanged,turnOrPhaseChanged,before,after});
       return result;
     }catch(error){
       audit.rejectedActorRoots++;
