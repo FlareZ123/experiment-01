@@ -48,6 +48,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank2_mandatory_option_pair:
+        description: Genuine exact-source rank2 both-seat null-vs-mode0 native choice exposure
+        required: false
+        type: boolean
+        default: false
       absol_rank11_shopping_observer:
         description: Read-only source rank 11 Shopping Center and Crobat opportunity audit
         required: false
@@ -83,6 +88,20 @@ jobs:
 
       - name: Test native mandatory-option fallback and symmetric headless opt-in
         run: node --test tests/mandatory-option-policy.test.cjs
+
+      - name: Verify native source G&H choice attribution
+        run: node --test tests/agent24-mandatory-source-exposure.test.cjs
+      - name: Compare real rank2 source modal null versus legal default on both physical seats
+        if: \${{ inputs.rank2_mandatory_option_pair }}
+        run: node simulation/twinleaf/agent24-mandatory-source-exposure.cjs > rank2-mandatory-option-source-pair.json
+      - name: Archive source-dealt modal outcomes, including absent opportunities and caps
+        if: \${{ always() && inputs.rank2_mandatory_option_pair }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank2-mandatory-option-source-pair
+          path: rank2-mandatory-option-source-pair.json
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Test optional prompt-integrity helper (pure CJS)
         run: node --test tests/prompt-integrity.test.cjs
