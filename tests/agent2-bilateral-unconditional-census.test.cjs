@@ -370,3 +370,35 @@ test('rank6 root-boundary packets reject spoofed actor, turn and ordinal',()=>{
   assert.equal(rank6CandidateApplicability(row,sourceSeat),'unverified',
     'a partial purported full ledger is never authenticated');
 });
+
+test('rank11 Bench-only suppression and no-target source-first arms remain counted',()=>{
+  const {plan,archive}=fixture();
+  const baseline=auditUnconditionalBilateralCensus(plan,archive);
+  const make=checks=>({
+    schema:'agent41-authentic-rank11-garbotoxin-ability-window-v1',
+    sourceSeat:0,candidateSeat:1,turn:2,realStoreOnly:true,
+    before:{globalTurn:2,sourceGarbodorHasTool:true,
+      candidateActive:'Unown AOR',candidatePrintedPowerNames:[],
+      candidateInPlayPrintedPowerChecks:checks}
+  });
+  rowFor(archive,11,1,'reference').garbotoxinWindowAudit=make([
+    {zone:'Bench',benchIndex:0,
+      printing:'Shadow Rider Calyrex VMAX CRE',
+      name:'Underworld Door',blocked:true}
+  ]);
+  rowFor(archive,11,1,'newmoon').garbotoxinWindowAudit=make([]);
+  const result=auditUnconditionalBilateralCensus(plan,archive);
+  assert.deepEqual(result.pairs.find(p=>p.sourceRank===11&&
+    p.candidateSeat===1).candidateArms.map(x=>x.rank11InPlayApplicability),
+    ['blocked-eligible-target','no-eligible-target']);
+  const cells=result.byRank[11].rank11InPlayApplicabilityCells;
+  assert.equal(cells['candidate-first'],2);
+  assert.equal(cells['blocked-eligible-target'],1);
+  assert.equal(cells['no-eligible-target'],1);
+  assert.equal(cells.unverified,0);
+  assert.equal(result.unconditionalAttemptCensusReviewable,
+    baseline.unconditionalAttemptCensusReviewable);
+  assert.equal(result.originalStrictMechanicalVerdict,
+    baseline.originalStrictMechanicalVerdict);
+  assert.equal(result.gameWinRateCertified,false);
+});
