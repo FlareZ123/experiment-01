@@ -232,7 +232,7 @@ test('reject negative costs and post-search plans absent from the original menu'
   }),/Unknown post-observation/);
   assert.throws(()=>k0LineInformationFrontier({
     ...input,postObservationPlanIds:['only','only']
-  }),/Invalid/);
+  }),/unique/);
 });
 
 test('independent exhaustive small-deck benchmark, 160 deterministic instances',()=>{
