@@ -3,6 +3,8 @@ const assert=require('node:assert/strict');
 const {isDeepStrictEqual}=require('node:util');
 const {createHash}=require('node:crypto');
 const {actorObservation}=require('./actor-observation-contract.cjs');
+const {actorK1SearchSelectionAudit}=
+  require('./actor-k1-search-selection-audit.cjs');
 
 /**
  * A structural replica in which face-down card arrays expose their length
@@ -47,14 +49,16 @@ function obscureHiddenIdentities(state,seat){
  * @template T
  * @param {Function} Store
  * @param {()=>T} run
+ * @param {{captureFirstOwnerK1?:boolean}} [options] K1 only inside real Store.
  * @returns {{result:T,audit:object}}
  */
-function withActualStoreActorObservation(Store,run){
+function withActualStoreActorObservation(Store,run,options={}){
   assert.equal(typeof run,'function');
   const descriptor=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof descriptor?.value,'function');
   let live=null,games=0,dispatches=0,observed=0,prompts=0;
-  const samples=[];
+  const samples=[],firstOwnerK1Searches=[];
+  const firstSeen=new Set();
   function observedDispatch(action,...args){
     if(action?.constructor?.name==='AddPlayerAction'&&this!==live){
       live=this;
@@ -74,6 +78,17 @@ function withActualStoreActorObservation(Store,run){
             'Changing face-down identities altered actor-only observation');
           observed++;
           if(prompt)prompts++;
+          const firstKey=games+':'+seat;
+          if(options.captureFirstOwnerK1===true && prompt &&
+              !firstSeen.has(firstKey)){
+            const k1=actorK1SearchSelectionAudit(state,seat,prompt);
+            if(k1){
+              firstSeen.add(firstKey);
+              firstOwnerK1Searches.push({
+                game:games,rootDispatchOrdinal:dispatches,...k1
+              });
+            }
+          }
           if(samples.length<24)samples.push({
             game:games,dispatch:dispatches,turn:actual.globalTurn,seat,
             kind:actual.decisionKind,prompt:actual.pendingPromptType,
@@ -98,6 +113,7 @@ function withActualStoreActorObservation(Store,run){
       games,actualRootDispatches:dispatches,
       observedActorDecisions:observed,ownerPrompts:prompts,
       allShadowParityChecksPassed:true,samples,
+      firstOwnerK1Searches,
       competitiveQualifiedGames:0
     }};
   }finally{
