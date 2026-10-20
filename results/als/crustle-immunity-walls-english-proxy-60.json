@@ -1,0 +1,115 @@
+{
+  "schema": "aichi-crustle-ex-wall-english-snapshot-v0",
+  "status": "unqualified-structural-challenger",
+  "sourceCardPool": "resources/cards/en, English snapshot; regional Japanese bans and errata unverified",
+  "cards": [
+    {
+      "count": 4,
+      "name": "Dwebble",
+      "id": "sv10-11",
+      "category": "Pokemon"
+    },
+    {
+      "count": 4,
+      "name": "Crustle",
+      "id": "sv10-12",
+      "category": "Pokemon"
+    },
+    {
+      "count": 3,
+      "name": "Mimikyu",
+      "id": "sv2-97",
+      "category": "Pokemon"
+    },
+    {
+      "count": 5,
+      "name": "Basic Grass Energy",
+      "id": "sve-1",
+      "category": "Energy"
+    },
+    {
+      "count": 3,
+      "name": "Basic Psychic Energy",
+      "id": "sve-5",
+      "category": "Energy"
+    },
+    {
+      "count": 4,
+      "name": "Double Colorless Energy",
+      "id": "sm1-136",
+      "category": "Energy"
+    },
+    {
+      "count": 4,
+      "name": "Buddy-Buddy Poffin",
+      "id": "sv5-144",
+      "category": "Trainer"
+    },
+    {
+      "count": 4,
+      "name": "Nest Ball",
+      "id": "sv1-181",
+      "category": "Trainer"
+    },
+    {
+      "count": 4,
+      "name": "Professor's Research",
+      "id": "sv9-155",
+      "category": "Trainer"
+    },
+    {
+      "count": 4,
+      "name": "Lillie's Determination",
+      "id": "me1-119",
+      "category": "Trainer"
+    },
+    {
+      "count": 4,
+      "name": "VS Seeker",
+      "id": "xy4-109",
+      "category": "Trainer"
+    },
+    {
+      "count": 3,
+      "name": "Ultra Ball",
+      "id": "me1-131",
+      "category": "Trainer"
+    },
+    {
+      "count": 3,
+      "name": "Temple of Sinnoh",
+      "id": "swsh10-155",
+      "category": "Trainer"
+    },
+    {
+      "count": 3,
+      "name": "Dimension Valley",
+      "id": "xy4-93",
+      "category": "Trainer"
+    },
+    {
+      "count": 2,
+      "name": "Field Blower",
+      "id": "sm2-125",
+      "category": "Trainer"
+    },
+    {
+      "count": 2,
+      "name": "Rescue Carrier",
+      "id": "swsh7-154",
+      "category": "Trainer"
+    },
+    {
+      "count": 2,
+      "name": "Enhanced Hammer",
+      "id": "sv6-148",
+      "category": "Trainer"
+    },
+    {
+      "count": 2,
+      "name": "Boss's Orders (Ghetsis)",
+      "id": "sv2-172",
+      "category": "Trainer"
+    }
+  ]
+}
