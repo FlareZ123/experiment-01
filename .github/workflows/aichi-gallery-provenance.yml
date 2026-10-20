@@ -8,6 +8,11 @@ on:
         type: boolean
         required: false
         default: false
+      natsumegu_visual60_relation:
+        description: 'Verify unassigned Natsumegu post-to-deck-grid visual match'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -33,8 +38,8 @@ jobs:
         run: python scripts/aichi_gallery_image_capture.py
       - name: Verify offline rank28 variant and provenance cases
         run: python -m unittest discover -s tests -p test_aichi_rank28_image_variants.py -v
-      - name: Install optional public QR reader
-        if: inputs.rank28_original_variants
+      - name: Install optional visual-source verifier
+        if: inputs.rank28_original_variants || inputs.natsumegu_visual60_relation
         run: python -m pip install 'opencv-python-headless>=4.8,<5'
       - name: Probe official host rank28 resolution variants and QR
         if: inputs.rank28_original_variants
@@ -45,6 +50,20 @@ jobs:
         with:
           name: aichi-rank28-original-variant-comparison
           path: results/aichi-2026/rank28-image-variants/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Validate Natsumegu gallery relation audit offline
+        if: inputs.natsumegu_visual60_relation
+        run: python -m unittest discover -s tests -p test_aichi_natsumegu_gallery_link.py -v
+      - name: Compare genuine Natsumegu social post and 60-card grid
+        if: inputs.natsumegu_visual60_relation
+        run: python scripts/aichi_natsumegu_gallery_link.py
+      - name: Archive provisional photographed 60 relation evidence
+        if: inputs.natsumegu_visual60_relation && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-natsumegu-unassigned-grid-photo-relation
+          path: results/aichi-2026/natsumegu-visual60-gallery-relation.json
           if-no-files-found: warn
           retention-days: 14
       - name: Archive inspectable original images and hashes
