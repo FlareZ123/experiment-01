@@ -164,6 +164,36 @@ test('public snapshot has no hidden opponent hand/deck/prize dependence',()=>{
     [{printing:mewtwo.fullName,powers:['Perfection']}]);
 });
 
+test('all visible Rule Box Powers are checked, including a blocked second Power',()=>{
+  const card={...mewtwo,powers:[
+    {name:'Exempt printed Power'},
+    {name:'Blocked printed Power'}
+  ]};
+  const real=new FakeStore(card);
+  real.state.turn=2;
+  real.state.activePlayer=1;
+  real.state.phase=1;
+  const seen=[];
+  const snap=initializationSnapshot(real,real.state,0,1,
+    (_store,_state,player,pokemon,power)=>{
+      assert.equal(player,real.state.players[1]);
+      assert.equal(pokemon,card);
+      seen.push(power.name);
+      return power.name==='Blocked printed Power';
+    },deps.publicBoardSnapshot,'FUTURE');
+  assert.deepEqual(seen,['Exempt printed Power','Blocked printed Power']);
+  assert.equal(snap.targetPowerName,'Exempt printed Power');
+  assert.equal(snap.targetNativeAbilityBlocked,false);
+  assert.deepEqual(snap.nativePowerChecks,[
+    {printing:card.fullName,powerName:'Exempt printed Power',blocked:false},
+    {printing:card.fullName,powerName:'Blocked printed Power',blocked:true}
+  ]);
+  assert.equal(snap.anyNativePowerBlocked,true);
+  assert.deepEqual(snap.eligibleRuleBoxPowerTargets,[
+    {printing:card.fullName,powers:seen}
+  ]);
+});
+
 test('native probe passes the printed power exemptions rather than a generic stub',()=>{
   const printed={...mewtwo,powers:[{name:'Exempt fixture',exemptFromInitialize:true}]};
   const real=new FakeStore(printed);
