@@ -49,3 +49,36 @@ test('both historical and new schedules retain different immutable identities', 
   assert.notEqual(v2.trials[0].seed, v3.trials[0].seed);
   assert.deepEqual(v2.candidateRows, v3.candidateRows);
 });
+
+test('canonical manual Actions dispatcher stays within 25 inputs with packed Agent41 modes',()=>{
+  const content=workflow('aichi-source-locked-campaign.yml');
+  manualOnly(content);
+  const inputs=content.split('    inputs:\n')[1].split('\npermissions:')[0];
+  const declarations=inputs.match(/^      [a-z][a-z0-9_]*:/gm)||[];
+  assert.equal(declarations.length,25,
+    'GitHub workflow_dispatch allows no more than 25 named inputs');
+  assert.ok(declarations.includes('      agent41_dev_options:'));
+  for(const legacy of [
+    'agent41_bilateral_mandatory_options',
+    'agent41_bilateral_native_pressure',
+    'agent41_bilateral_sourcefirst_retrospective',
+    'agent41_bilateral_late_compressor',
+    'agent41_crossrank_partition'
+  ]){
+    assert.equal(declarations.includes('      '+legacy+':'),false);
+  }
+  for(const [token,env] of [
+    ['mandatory-options','AGENT41_MANDATORY_OPTION_DEV'],
+    ['native-pressure','AGENT41_NATIVE_PRESSURE_DEV'],
+    ['sourcefirst-retro','AGENT41_SOURCEFIRST_RETRO_DEV'],
+    ['late-compressor','AGENT5_COMPR_LATE14_DEV'],
+    ['partition1','AGENT41_PARTITION']
+  ]){
+    const declaration=content.split('          '+env+': ')[1]?.split('\n')[0];
+    assert.ok(declaration?.includes(
+      "contains(format(',{0},', inputs.agent41_dev_options)"),
+      'Expected packed input expression for '+env);
+    assert.ok(declaration?.includes("',"+token+",'"),
+      'Expected comma-delimited option token for '+env);
+  }
+});
