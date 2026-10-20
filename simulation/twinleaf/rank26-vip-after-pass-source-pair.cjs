@@ -111,6 +111,37 @@ function run(){
       vipThenCologne={policy:continuation.policyAudit,
         observed:observedFollowup,offer,post,
         retrospectiveDevelopmentOnly:true};
+      const squawkAlternative=withSourceVipAfterPass(seat,()=>
+        withMailScout(seat,core,{starterAgnostic:true}),
+        {followupCologne:true,preferSquawk:true});
+      const squawkGame=observed(squawkAlternative.result.result,
+        seat,entry.seed,a,b);
+      const ownerSearch=squawkAlternative.policyAudit.events.find(e=>
+        e.kind==='owner-deck-target');
+      assert.ok(ownerSearch,'Native owner-deck VIP prompt missing in alternative');
+      const actualSquawk=ownerSearch.cards.some(c=>c.startsWith('Squawkabilly ex '));
+      const availableSquawk=ownerSearch.searchedSquawkAvailable===true;
+      assert.equal(actualSquawk,availableSquawk,
+        'Priority must choose searched Squawk when available in frozen state');
+      assert.ok(ownerSearch.cards.some(c=>c.startsWith('Meloetta ex ')),
+        'Retain physical attacker selection in Squawk branch');
+      assert.equal(squawkGame.vipPlays,1);
+      const alternateCologne=squawkAlternative.policyAudit.events.find(e=>
+        e.kind==='owner-cologne-postcondition');
+      const alternateOffer=squawkAlternative.policyAudit.events.find(e=>
+        e.kind==='owner-cologne-after-vip-offer');
+      assert.ok(alternateOffer?.nativeValid===true);
+      assert.equal(alternateCologne?.sourceHasCologne,false);
+      assert.equal(alternateCologne?.sourceDiscardHasCologne,true);
+      vipThenCologne.squawkAlternative={
+        policy:squawkAlternative.policyAudit,
+        observed:squawkGame,ownerSearch,
+        squawkInOwnerDeckPrompt:availableSquawk,
+        actuallyBenchedSquawk:actualSquawk,
+        rootAbilities:squawkGame.firstActions.filter(a=>
+          a.kind==='UseAbilityAction'),
+        retrospectiveDevelopmentOnly:true
+      };
     }
     cases.push({...entry,seat,sourceOpening:{active:root.attackerActive,
       bench:root.attackerBench,hand:root.attackerHand},
@@ -136,7 +167,15 @@ function run(){
         offers:cases.filter(c=>c.vipThenCologne?.offer.nativeValid).length,
         playedCologne:cases.filter(c=>c.vipThenCologne?.observed.firstActions.some(
           a=>a.kind==='PlayCardAction'&&a.card==='Canceling Cologne')).length,
-        firstTurnAttacks:cases.filter(c=>c.vipThenCologne?.observed.rootAttacks>0).length} :
+        firstTurnAttacks:cases.filter(c=>c.vipThenCologne?.observed.rootAttacks>0).length,
+        squawkSearchAvailable:cases.filter(c=>
+          c.vipThenCologne?.squawkAlternative?.squawkInOwnerDeckPrompt).length,
+        squawkSelected:cases.filter(c=>
+          c.vipThenCologne?.squawkAlternative?.actuallyBenchedSquawk).length,
+        squawkAbilityRoots:cases.reduce((n,c)=>n+
+          (c.vipThenCologne?.squawkAlternative?.rootAbilities.length??0),0),
+        squawkBranchAttackRoots:cases.filter(c=>
+          c.vipThenCologne?.squawkAlternative?.observed.rootAttacks>0).length} :
       null,
     cases};
 }
