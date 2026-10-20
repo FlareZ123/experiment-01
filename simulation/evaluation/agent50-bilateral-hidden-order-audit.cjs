@@ -84,7 +84,8 @@ function comparisonProjection(row) {
  */
 function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) {
   const target={...candidateDevelopmentTarget(trial),
-    ...(scope.firstFiniteScoredRoot===true?{firstFiniteScoredRoot:true}:{})};
+    ...(scope.firstFiniteScoredRoot===true?
+      {firstFiniteScoredRoot:true,probeFreshStoreLegality:true}:{})};
   let control;
   try {
     control=execute();
@@ -171,6 +172,7 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
       actualScorerAttempts:event.actualScorerAttempts??null,
       actualFiniteScores:event.actualFiniteScores??null,
       ownerRootVisible:event.ownerRootVisible??null,
+      freshPlayCardStoreProbe:event.freshPlayCardStoreProbe??null,
       knownDeckMembershipVerified:event.knownDeckMembershipVerified===true,
       knownDeckTopOrderVerified:event.knownDeckTopOrderVerified===true
     }}:{}),
@@ -235,7 +237,7 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false}={}) {
   ));
   return {
     schema:firstFiniteScoredRoot?
-      'agent50-crossrank-historical-first-finite-owner-score-v2':
+      'agent50-crossrank-historical-first-finite-owner-score-v3':
       'agent50-crossrank-historical-live-hidden-order-v1',
     protocol:'same-frozen-game control/replay, one candidate root hidden order flip',
     targetRankAndActualSeat:firstFiniteScoredRoot?
