@@ -398,7 +398,7 @@ function executeDevelopment(trial,candidates,{
 /** @returns {object} */
 function runDevelopment({
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
-  mandatoryOptionFallback=false
+  mandatoryOptionFallback=false,nativePressureWindows=false
 }={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -419,7 +419,11 @@ function runDevelopment({
   for(const trial of developmentTrials()){
     try { rows.push(executeDevelopment(trial,prepared,{
       compressorPayload,opportunityAudit,lateCompressorPayload,
-      mandatoryOptionFallback
+      mandatoryOptionFallback,
+      // An opt-in observational package, with each native Store observer
+      // applicable to its own opposing source archetype only.
+      initializationWindow:nativePressureWindows&&trial.rank===6,
+      garbotoxinWindow:nativePressureWindows&&trial.rank===11
     })); }
     catch(error){ rows.push({
       trial,status:'engine-error',error:String(error?.stack||error),
@@ -444,6 +448,7 @@ function runDevelopment({
     ownerCompressorPayloadOptIn:compressorPayload,
     ownerCompressorOpportunityAudit:opportunityAudit,
     ownerCompressorLate14OptIn:lateCompressorPayload,
+    nativePressureWindowsOptIn:nativePressureWindows,
     rows,attempted:rows.length,
     sourcePairs:['6:0:A','11:2:B'].map(key=>{
       const here=rows.filter(row=>row.trial?.id.startsWith(key+':'));
@@ -476,6 +481,7 @@ if(require.main===module){
       process.env.AGENT5_COMMON_COMPRESSOR_DEV==='true',
     lateCompressorPayload:lateWindow,
     mandatoryOptionFallback:process.env.AGENT41_MANDATORY_OPTION_DEV==='true',
+    nativePressureWindows:process.env.AGENT41_NATIVE_PRESSURE_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
