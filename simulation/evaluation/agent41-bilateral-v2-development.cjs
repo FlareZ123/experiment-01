@@ -207,7 +207,8 @@ function executeDevelopment(trial,candidates,{
   garbotoxinWindow=false,initializationWindow=false,
   mandatoryOptionFallback=false,paperSupporterQuota=false,
   paperSupporterComparisonTrace=false,proposalStateAudit=false,
-  nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null
+  nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
+  nativeOpponentHiddenReadAudit=false
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
     'Initialization passive window belongs only to rank 6');
@@ -260,10 +261,21 @@ function executeDevelopment(trial,candidates,{
   let paperSupporterAudit=null;
   let supporterProposalIntegrity=null;
   let nativeValidationAudit=null;
+  let nativeHiddenReadAudit=null;
+  const runWithNativeHiddenReadObserver=()=>{
+    if(!nativeOpponentHiddenReadAudit)return runMatch(request);
+    const {SimpleTacticsAi}=require(path.join(root,
+      'vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai'));
+    const observed=require('../twinleaf/agent41-native-opponent-hidden-read-observer.cjs')
+      .withNativeOpponentHiddenReadObserver(SimpleTacticsAi,
+        ()=>runMatch(request),{seat:candidateSeat,turn:3});
+    nativeHiddenReadAudit=observed.audit;
+    return observed.result;
+  };
   const runWithPowerWindow=()=>{
-    if(!garbotoxinWindow)return runMatch(request);
+    if(!garbotoxinWindow)return runWithNativeHiddenReadObserver();
     const observed=require('../twinleaf/agent41-live-garbotoxin-ability-window.cjs')
-      .withLiveGarbodorAbilityWindow(()=>runMatch(request),{
+      .withLiveGarbodorAbilityWindow(runWithNativeHiddenReadObserver,{
         sourceSeat,candidateSeat,turn:2
       });
     garbotoxinWindowAudit=observed.audit;
@@ -433,6 +445,8 @@ function executeDevelopment(trial,candidates,{
     paperSupporterDiscipline:paperSupporterQuota?paperSupporterAudit:null,
     ...(proposalStateAudit?{supporterProposalIntegrity}:{}),
     ...(nativeProposalValidationAudit?{nativeValidationAudit}:{}),
+    ...(nativeOpponentHiddenReadAudit?{
+      nativeOpponentHiddenReadAudit:nativeHiddenReadAudit}:{}),
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
     verifiedFirstTurn:game.verifiedByDrawLog,
     actualStarterSeat:game.firstTurnSlot,
@@ -503,7 +517,8 @@ function runDevelopment({
   mandatoryOptionFallback=false,nativePressureWindows=false,
   sourceFirstRetrospective=false,paperSupporterQuota=false,
   paperSupporterComparisonTrace=false,proposalStateAudit=false,
-  nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null
+  nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
+  nativeOpponentHiddenReadAudit=false
 }={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -528,6 +543,7 @@ function runDevelopment({
       compressorPayload,opportunityAudit,lateCompressorPayload,
       mandatoryOptionFallback,paperSupporterQuota,paperSupporterComparisonTrace,
       proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
+      nativeOpponentHiddenReadAudit,
       // An opt-in observational package, with each native Store observer
       // applicable to its own opposing source archetype only.
       initializationWindow:nativePressureWindows&&trial.rank===6,
@@ -576,6 +592,7 @@ function runDevelopment({
     paperSupporterComparisonTraceOptIn:paperSupporterComparisonTrace,
     proposalStateAuditOptIn:proposalStateAudit,
     nativeProposalValidationAuditOptIn:nativeProposalValidationAudit,
+    nativeOpponentHiddenReadAuditOptIn:nativeOpponentHiddenReadAudit,
     nativeProposalTapeOrdinal:nativeProposalValidationAudit?
       nativeProposalTapeOrdinal:null,
     nativeSupporterQuotaQualified:paperSupporterQuota?
@@ -630,6 +647,8 @@ if(require.main===module){
       process.env.AGENT41_NATIVE_PROPOSAL_VALIDATION_DEV==='true',
     nativeProposalTapeOrdinal:process.env.AGENT41_NATIVE_PROPOSAL_TAPE_ORDINAL?
       Number(process.env.AGENT41_NATIVE_PROPOSAL_TAPE_ORDINAL):null,
+    nativeOpponentHiddenReadAudit:
+      process.env.AGENT41_NATIVE_HIDDEN_READ_DEV==='true',
     sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true'
   });
