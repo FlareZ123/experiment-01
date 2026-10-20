@@ -140,3 +140,44 @@ test('unexpected inner Store method overwrite still restores both native hooks',
   assert.strictEqual(f.Store.prototype.dispatch,beforeDispatch);
   assert.strictEqual(f.SimpleTacticsAi.prototype.decodeNextAction,beforeDecode);
 });
+
+test('one genuine owner action binds exact selected input to its native RNG tape',()=>{
+  const f=fixture();
+  f.SimpleTacticsAi.prototype.decodeNextAction=function randomTarget(){
+    const roll=Math.random();
+    return new PlayCardAction(0,{player:0,index:roll<0.5?1:2});
+  };
+  const savedRandom=Math.random;
+  const witnessed=withNativeDecisionDispatchWitness(f.run,{
+    ...f,...codecs,tapeOrdinal:1
+  });
+  assert.strictEqual(Math.random,savedRandom);
+  assert.equal(witnessed.audit.originalLiveDecisions,1);
+  assert.equal(witnessed.audit.nativePolicyTapes.length,1);
+  const tape=witnessed.audit.nativePolicyTapes[0];
+  assert.equal(tape.ordinal,1);
+  assert.equal(tape.status,'original-live-decision');
+  assert.equal(tape.values.length,1);
+  assert.equal(tape.unchangedPortableInput,true);
+  assert.equal(tape.dispatchReturnedWithoutThrow,true);
+  assert.equal(tape.selectedAction.sha256,tape.dispatchAction.sha256);
+  const {replayPolicyRandomTape,digest}=
+    require('../simulation/twinleaf/native-policy-random-tape.cjs');
+  assert.equal(tape.sha256,digest(tape.values));
+  const replay=replayPolicyRandomTape(tape.values,()=>Math.random());
+  assert.equal(replay.result,tape.values[0]);
+  assert.equal(replay.consumed,1);
+  assert.equal(witnessed.audit.sameWorldDecisionReplayQualified,false);
+});
+
+test('native RNG recorder stays off when not requested or ordinal is absent',()=>{
+  const f=fixture();
+  const noTape=withNativeDecisionDispatchWitness(f.run,{...f,...codecs});
+  const missed=withNativeDecisionDispatchWitness(f.run,{
+    ...f,...codecs,tapeOrdinal:2
+  });
+  assert.deepEqual(noTape.audit.nativePolicyTapes,[]);
+  assert.deepEqual(missed.audit.nativePolicyTapes,[]);
+  assert.equal(noTape.audit.verifiedUnchangedInputs,1);
+  assert.equal(missed.audit.verifiedUnchangedInputs,1);
+});
