@@ -70,6 +70,24 @@ function main() {
       ()=>runMatch(request),{seat:1,turn:2,discardPriority:priority}
     );
     const original=experiment();
+    const k1Replanned=withBroadThornsSourceAttack(
+      ()=>runMatch(request),{
+        seat:1,turn:2,discardPriority:priority,
+        k1ReplanAfterTagCall:true
+      }
+    );
+    assert.equal(k1Replanned.result.verifiedByDrawLog,true);
+    assert.equal(k1Replanned.result.firstTurnSlot,0);
+    assert.deepEqual(k1Replanned.result.deckHashes,original.result.deckHashes);
+    if(item.label==='tag-call-before-prized-stadium') {
+      assert.match(k1Replanned.abortReason??'',
+        /K1 invalidated opening line: Thunder Mountain Prism Star/);
+      assert.ok(k1Replanned.events.some(event=>
+        event.k1MissingOpeningTargets?.includes('Thunder Mountain Prism Star')));
+    } else {
+      assert.deepEqual(stableGame(k1Replanned.result),stableGame(original.result),
+        'K1 guard must not change an already-viable or non-Tag-Call route');
+    }
     // The same native search that exposes a complete deck to its owner is
     // the only event permitted to turn this source actor from K0 into K1.
     const ownerEpoch=createOwnerDeckKnowledgeEpoch();
@@ -121,6 +139,17 @@ function main() {
       observedNativeSourceSearches:sourceSearches,
       actorK0ToK1:ownerK1Events,
       policyEvents:original.events,
+      k1OptInReplanDiagnostic:{
+        policyOption:'k1ReplanAfterTagCall',
+        openingPlan:k1Replanned.openingPlan,
+        abortReason:k1Replanned.abortReason,
+        events:k1Replanned.events,
+        rootActionTraceSha256:digest(k1Replanned.result.decisionTrace),
+        sameGameAsOriginal:JSON.stringify(stableGame(k1Replanned.result))===
+          JSON.stringify(stableGame(original.result)),
+        gameFinished:k1Replanned.result.finished,
+        strengthQualified:false
+      },
       openingPlan:original.openingPlan,
       abortReason:original.abortReason,
       proposedAttack:original.completed,
@@ -131,7 +160,7 @@ function main() {
     });
   }
   const report={
-    schema:'rank24-owner-search-k0-k1-regression-v2-formal-owner-epoch',
+    schema:'rank24-owner-search-k0-k1-regression-v3-opt-in-replan-diagnostic',
     evidenceType:'retrospective native Store actor-owned deck-search witness',
     fieldManifest:plan.manifestDigest,
     candidateDeckHash:digest(plan.candidate.cards),
@@ -142,7 +171,7 @@ function main() {
     targetPrinting:thunder[0],
     rows,
     competitiveQualifiedGames:0,
-    caveat:'This read-only native K0-to-K1 observer proves when a stale K0 assertion becomes invalid, while preserving all original decisions. It does not implement a better Supporter choice or assess competitive win rate.'
+    caveat:'Read-only native owner-epoch witness preserves original decisions. Separately labeled opt-in intervention only abandons its own stale Tag Call line before G&H; the fallback generic bot is unqualified and may still spend the Supporter. These selected seeds do not assess competitive win rate.'
   };
   process.stdout.write(JSON.stringify(report,null,2)+'\n');
   return report;
