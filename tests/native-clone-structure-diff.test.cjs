@@ -51,3 +51,24 @@ test('descriptor writable flag mutation is visible',()=>{
   assert.equal(result.category,'writable-descriptor-mismatch');
   assert.deepEqual(result.path,['State','resource']);
 });
+
+test('dynamic source-instance prototype canonicalizes only under shadowing',()=>{
+  class AttackHistory {
+    constructor(){this.lastAttack='none';}
+  }
+  const origin=new AttackHistory();
+  const genuine=Object.create(origin);
+  genuine.lastAttack='none';
+  const normalized=new AttackHistory();
+  const raw=firstDiff(genuine,normalized);
+  assert.equal(raw.category,'prototype-class-mismatch');
+  const canonical=firstDiff(genuine,normalized,{
+    canonicalClassPrototypes:true
+  });
+  assert.equal(canonical.matched,true);
+
+  const invalid=Object.create(origin);
+  assert.throws(()=>firstDiff(invalid,normalized,{
+    canonicalClassPrototypes:true
+  }),/non-class dynamic prototype/);
+});
