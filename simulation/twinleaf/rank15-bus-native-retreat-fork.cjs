@@ -18,6 +18,8 @@ const {withRank15SecondBarrageYes}=
   require('./rank15-second-barrage-native-confirm-policy.cjs');
 const {withRank15NativeBusRetreat}=
   require('./rank15-bus-native-retreat-policy.cjs');
+const {withRank15NativePaidBusRetreat}=
+  require('./rank15-bus-native-paid-retreat-policy.cjs');
 const {withOwnerRootChoiceWindow}=
   require('./owner-root-choice-window.cjs');
 
@@ -48,7 +50,8 @@ function run(){
     bunnelbyTargetAwareEvolution:true,bunnelbyGuzmaHalaMode1:true,
     bunnelbyGuzmaHalaSearch:true
   };
-  function arm(offerRetreat){
+  function arm(mode){
+    assert.ok(['control','unpaid','paid'].includes(mode));
     let poffin,oddish,second,retreat=null;
     const x=observeSourceLock(Store,1,0,()=>
       withOwnerRootChoiceWindow(Store,1,()=>{
@@ -62,8 +65,10 @@ function run(){
           },1);
           second=r.audit;return r.result;
         };
-        if(!offerRetreat)return inner();
-        const r=withRank15NativeBusRetreat(inner,1);
+        if(mode==='control')return inner();
+        const r=mode==='unpaid'?
+          withRank15NativeBusRetreat(inner,1):
+          withRank15NativePaidBusRetreat(inner,1);
         retreat=r.audit;return r.result;
       },{turnStart:16,turnEnd:26}));
     const game=x.result.result;
@@ -79,15 +84,24 @@ function run(){
       first:{aor:x.first.aor,bus:x.first.bus,busActive:x.first.busActive,
         dual:x.first.dual},max:x.max};
   }
-  const control=arm(false),promotion=arm(true);
+  const control=arm('control'),promotion=arm('unpaid'),paid=arm('paid');
   assert.equal(control.sourceZone,promotion.sourceZone,
     'Physical deal differed before policy selection');
   assert.deepEqual(control.prizes,promotion.prizes);
   assert.deepEqual(control.game.deckHashes,promotion.game.deckHashes);
+  assert.equal(control.sourceZone,paid.sourceZone);
+  assert.deepEqual(control.prizes,paid.prizes);
+  assert.deepEqual(control.game.deckHashes,paid.game.deckHashes);
+  assert.deepEqual(
+    control.game.rootActionLedger.filter(x=>x.turnBefore<18),
+    paid.game.rootActionLedger.filter(x=>x.turnBefore<18),
+    'Source original root sequence before t18 was not preserved');
   assert.equal(control.first.bus?.turn,16);
   assert.equal(control.first.aor?.turn,16);
   assert.equal(promotion.first.bus?.turn,16);
   assert.equal(promotion.first.aor?.turn,16);
+  assert.equal(paid.first.bus?.turn,16);
+  assert.equal(paid.first.aor?.turn,16);
   const summarize=x=>{
     const retreats=x.game.rootActionLedger.filter(e=>
       e.playerSlot===1&&e.action==='RetreatAction');
@@ -116,6 +130,7 @@ function run(){
     initialPrizeGate:control.prizes,
     nativeSecondAttackOnly:summarize(control),
     proposedNativePromotion:summarize(promotion),
+    ownerPaysRetreat:summarize(paid),
     qualifications:{oneRetrospectivelySelectedSeed:true,
       noIndependentClock:true,independentCompetitiveGames:0,
       opponentResponseQualificationRequired:true,
