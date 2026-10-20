@@ -53,18 +53,27 @@ function buildBilateralReplyPacket(game, options) {
   assert(Number.isSafeInteger(game.actions) && roots.length === game.actions,
     'Missing successful root Store dispatch');
   for (const [ordinal, event] of roots.entries()) {
-    assert(event && event.actionOrdinal === ordinal &&
+    const chronological=event && event.actionOrdinal===ordinal &&
       [-1,0,1].includes(event.playerSlot) &&
       Number.isSafeInteger(event.turnBefore) &&
       Number.isSafeInteger(event.turnAfter) &&
-      event.turnAfter >= event.turnBefore,
-    'Malformed chronological Store root at ordinal '+ordinal+
-    ' of '+roots.length+'; public='+JSON.stringify({
-      actionOrdinal:event?.actionOrdinal,playerSlot:event?.playerSlot,
-      action:event?.action,turnBefore:event?.turnBefore,
-      turnAfter:event?.turnAfter,
-      priorTurnAfter:ordinal?roots[ordinal-1]?.turnAfter:null
-    }));
+      event.turnAfter>=event.turnBefore;
+    if(!chronological){
+      const nearby=roots.slice(Math.max(0,ordinal-2),
+        Math.min(roots.length,ordinal+4)).map(row=>({
+          ordinal:row?.actionOrdinal,
+          seat:row?.playerSlot,
+          action:row?.action,
+          prompt:row?.pendingPrompt??null,
+          parentRoot:row?.initiatingRootActionOrdinal??null,
+          before:row?.turnBefore,
+          after:row?.turnAfter,
+          ...(row?.attack?{attack:row.attack}:{})
+        }));
+      assert.fail('Malformed chronological Store root at ordinal '+
+        ordinal+' of '+roots.length+
+        '; publicNeighborhood='+JSON.stringify(nearby));
+    }
     if (ordinal) assert.equal(event.turnBefore, roots[ordinal-1].turnAfter,
       'Discontinuous Store turn clock');
   }
