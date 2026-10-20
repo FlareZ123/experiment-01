@@ -170,6 +170,7 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
       chosenRootTurn:event.chosenRootTurn??null,
       actualScorerAttempts:event.actualScorerAttempts??null,
       actualFiniteScores:event.actualFiniteScores??null,
+      ownerRootVisible:event.ownerRootVisible??null,
       knownDeckMembershipVerified:event.knownDeckMembershipVerified===true,
       knownDeckTopOrderVerified:event.knownDeckTopOrderVerified===true
     }}:{}),
