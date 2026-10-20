@@ -41,10 +41,10 @@ jobs:
       - name: Verify paired-native State observer reporting invariants
         run: node --test tests/agent38-native-proposal-state-smoke.test.cjs tests/original-state-noninterference-gate.test.cjs
       - name: Paired native rank24 State-purity diagnostic
-        if: \${{ inputs.native_proposal_state }}
+        if: ${{ inputs.native_proposal_state }}
         run: node simulation/twinleaf/agent38-native-proposal-state-smoke.cjs > agent38-rank24-native-state-purity.json
       - name: Archive paired native read-only State-purity diagnostic
-        if: \${{ always() && inputs.native_proposal_state }}
+        if: ${{ always() && inputs.native_proposal_state }}
         uses: actions/upload-artifact@v4
         with:
           name: agent38-rank24-native-state-purity
