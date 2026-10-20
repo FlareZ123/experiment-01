@@ -999,7 +999,8 @@ function runMatch(request) {
       }
       if (request.strictPromptValidation === true) {
         assertValidPromptAction(state, action,{
-          enforceSelectOptionLegality:request.enforceSelectOptionLegality===true
+          enforceSelectOptionLegality:request.enforceSelectOptionLegality===true,
+          enforceAttachEnergyGeometry:request.enforceAttachEnergyGeometry===true
         });
       }
       const actionName = action.constructor.name;
