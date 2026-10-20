@@ -125,6 +125,7 @@ function withActorOnlySelectPrompt(execute,deps={}){
     if(audit.boundedSelections.length<64)
       audit.boundedSelections.push({
         seat,turn:input.actor.globalTurn,
+        promptMessage:input.prompt.message,
         optionIndex:intent.optionIndex,
         offeredOptions:input.prompt.values.length
       });
