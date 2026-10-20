@@ -156,6 +156,7 @@ function auditBilateralV2(plan,archive) {
     if(!row) {
       diagnostics.push({...arm,status:'missing',actualStarter:null,
         validStart:false,mechanicalBilateralWitness:false,
+        mechanicalExposureBilateralWitness:false,
         sourceFirstEarlyPressureWitness:false,
         sourceFirstEarlyExposureWitness:false,
         nativeRootClaimsAuthenticated:false,
@@ -193,10 +194,17 @@ function auditBilateralV2(plan,archive) {
       row.firstTurnPlayerId===(actualSeat===0?101:202) &&
       row.firstTurnPlayerName===(actualSeat===0?'research-A':'research-B') &&
       row.firstDrawLogName===row.firstTurnPlayerName;
-    const sourcePressure=row.sourcePressure?.accepted===true &&
-      row.sourcePressure?.effectVerified===true &&
+    const sourceActionAuthenticated=row.sourcePressure?.accepted===true &&
       row.sourcePressure?.traceAuthenticated===true &&
       row.sourcePressure?.actorSeat===sourceSeat;
+    const sourcePressure=sourceActionAuthenticated&&
+      row.sourcePressure?.effectVerified===true;
+    // No eligible Power can be suppressed. A genuine typed no-target
+    // native board can witness source lock exposure without falsely
+    // claiming a blocked printed Power.
+    const nativeExposureKind=sourceFirstNativeExposureKind(row);
+    const sourceExposure=sourceActionAuthenticated&&
+      (sourcePressure||nativeExposureKind==='no-eligible-power-present');
     const firstCandidateReply=row.candidateReply?.observed===true &&
       row.candidateReply?.legal===true &&
       row.candidateReply?.ownerInformationSafe===true &&
@@ -268,14 +276,16 @@ function auditBilateralV2(plan,archive) {
     const bilateralWitness=validStart&&sourcePressure&&firstCandidateReply&&
       sourceContinuation&&chronological&&immediateTurnLineage&&
       row.status!=='engine-error';
+    const exposureBilateralWitness=validStart&&sourceExposure&&
+      firstCandidateReply&&sourceContinuation&&chronological&&
+      immediateTurnLineage&&row.status!=='engine-error';
     // A qualifying early hard-pressure comparison requires the source to
     // start the physical game and establish its witnessed effect on turn 1.
     // This remains an asserted mechanics witness pending raw Store audit.
     const sourceFirstEarlyPressureWitness=bilateralWitness&&
       actualSeat===sourceSeat&&pressureTurn===1&&completionTurn===1&&
       sourceFirstNativePressureVerified(row);
-    const nativeExposureKind=sourceFirstNativeExposureKind(row);
-    const sourceFirstEarlyExposureWitness=bilateralWitness&&
+    const sourceFirstEarlyExposureWitness=exposureBilateralWitness&&
       actualSeat===sourceSeat&&pressureTurn===1&&completionTurn===1&&
       nativeExposureKind!=='unverified';
     const vetoes=[];
@@ -283,6 +293,7 @@ function auditBilateralV2(plan,archive) {
     if(row.status==='engine-error')vetoes.push('engine-error');
     if(row.status==='action-cap')vetoes.push('action-capped');
     if(!sourcePressure)vetoes.push('source-pressure-unverified');
+    if(!sourceExposure)vetoes.push('source-exposure-unverified');
     if(validStart&&actualSeat===sourceSeat&&pressureTurn===1&&
       nativeExposureKind==='unverified'){
       vetoes.push('source-first-native-exposure-unverified');
@@ -307,6 +318,7 @@ function auditBilateralV2(plan,archive) {
       actualStarter:validStart?(row.actualStarterSeat===arm.candidateSeat?
         'candidate':'source'):null,
       validStart,mechanicalBilateralWitness:bilateralWitness,
+      mechanicalExposureBilateralWitness:exposureBilateralWitness,
       sourceFirstEarlyPressureWitness,sourceFirstEarlyExposureWitness,
       nativeExposureKind,
       nativeRootClaimsAuthenticated:nativeRoots?.rootClaimsAuthenticated===true,
@@ -335,8 +347,14 @@ function auditBilateralV2(plan,archive) {
       firstObservationComparable:sourcePhysicalDealAligned&&actualStartAligned,
       bothBilateralWitnesses:x.mechanicalBilateralWitness&&
         y.mechanicalBilateralWitness,
+      bothExposureBilateralWitnesses:x.mechanicalExposureBilateralWitness&&
+        y.mechanicalExposureBilateralWitness,
       bothNativeRootBoundBilateralWitnesses:
         x.mechanicalBilateralWitness&&y.mechanicalBilateralWitness&&
+        x.nativeRootClaimsAuthenticated&&y.nativeRootClaimsAuthenticated,
+      bothNativeRootBoundExposureBilateralWitnesses:
+        x.mechanicalExposureBilateralWitness&&
+        y.mechanicalExposureBilateralWitness&&
         x.nativeRootClaimsAuthenticated&&y.nativeRootClaimsAuthenticated,
       bothNativeRootBoundEarlyPressureWitnesses:
         x.sourceFirstEarlyPressureWitness&&y.sourceFirstEarlyPressureWitness&&
@@ -407,6 +425,11 @@ function auditBilateralV2(plan,archive) {
     ['source','candidate'].every(first=>pairRows.some(pair=>
       pair.rank===rank&&pair.actualStarter===first&&
       pair.firstObservationComparable&&pair.bothBilateralWitnesses)));
+  const bothHardRanksHaveBothStartPairedExposureBilateralWitnesses=
+    [6,11].every(rank=>['source','candidate'].every(first=>
+      pairRows.some(pair=>pair.rank===rank&&
+        pair.actualStarter===first&&pair.firstObservationComparable&&
+        pair.bothExposureBilateralWitnesses)));
   // Stronger pilot condition: later attacks or candidate-first pressure
   // may be useful diagnostics, but cannot stand in for source-first early locks.
   const bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses=
@@ -421,6 +444,11 @@ function auditBilateralV2(plan,archive) {
       pair.rank===rank&&pair.actualStarter===first&&
       pair.firstObservationComparable&&
       pair.bothNativeRootBoundBilateralWitnesses)));
+  const nativeExposureRootsInBothRealStarts=[6,11].every(rank=>
+    ['source','candidate'].every(first=>pairRows.some(pair=>
+      pair.rank===rank&&pair.actualStarter===first&&
+      pair.firstObservationComparable&&
+      pair.bothNativeRootBoundExposureBilateralWitnesses)));
   const nativeSourceFirstEarlyPressure=[6,11].every(rank=>
     pairRows.some(pair=>pair.rank===rank&&
       pair.firstObservationComparable&&
@@ -470,11 +498,12 @@ function auditBilateralV2(plan,archive) {
     bothHardRanksHaveBilateralWitnesses,
     bothHardRanksHavePairedBilateralWitnesses,
     bothHardRanksHaveBothStartPairedBilateralWitnesses,
+    bothHardRanksHaveBothStartPairedExposureBilateralWitnesses,
     bothHardRanksHaveSourceFirstEarlyPressurePairedBilateralWitnesses,
     bothHardRanksHaveSourceFirstEarlyExposurePairedBilateralWitnesses,
     rank6PositiveControl,rank6NativePositiveControl,
     rank11PositiveControl,rank11NativePositiveControl,
-    nativeRootsInBothRealStarts,
+    nativeRootsInBothRealStarts,nativeExposureRootsInBothRealStarts,
     nativeSourceFirstEarlyPressure,nativeSourceFirstEarlyExposure,
     mechanicalBilateralWitnesses:mechanicalWitnesses,
     independentlyRootBoundBilateralWitnesses:diagnostics.filter(d=>
@@ -505,12 +534,12 @@ function auditBilateralV2(plan,archive) {
     // Both strict stress
     // verdicts above retain their original positive-suppression semantics.
     exposureInclusivePilotVerdict:coverageComplete&&twoStartCoverageByCandidate&&
-      bothHardRanksHaveBothStartPairedBilateralWitnesses&&
+      bothHardRanksHaveBothStartPairedExposureBilateralWitnesses&&
       rank6PositiveControl&&rank11PositiveControl&&
       bothHardRanksHaveSourceFirstEarlyExposurePairedBilateralWitnesses?
         'EXPOSURE-PILOT-REVIEWABLE':'HOLD-OR-INCOMPLETE',
     rootAttestedExposureInclusivePilotVerdict:coverageComplete&&
-      twoStartCoverageByCandidate&&nativeRootsInBothRealStarts&&
+      twoStartCoverageByCandidate&&nativeExposureRootsInBothRealStarts&&
       rank6NativePositiveControl&&rank11NativePositiveControl&&
       nativeSourceFirstEarlyExposure?
         'ROOT-ATTESTED-EXPOSURE-PILOT-REVIEWABLE':
