@@ -3,6 +3,11 @@ name: Twinleaf policy RNG isolation audit
 on:
   workflow_dispatch:
     inputs:
+      agent13_actor_attack_source_positive:
+        description: 'One historical rank11 real Store printed copied Attack response, unqualified'
+        required: false
+        type: boolean
+        default: false
       agent13_actor_both_prompts_dev:
         description: 'Unqualified actor-owned SelectOption and copied Attack prompt native Store smoke'
         required: false
@@ -73,6 +78,20 @@ jobs:
         with:
           name: agent13-actor-both-prompts-canonical-development
           path: agent13-actor-prompts-development.json
+          if-no-files-found: warn
+      - name: Native copied Attack from authentic rank11 source
+        if: inputs.agent13_actor_attack_source_positive
+        run: node simulation/twinleaf/agent13-copied-attack-source-smoke.cjs > agent13-source-copied-attack.json
+      - name: Summarize actual Store accepted copied attacks and next source reply
+        if: inputs.agent13_actor_attack_source_positive
+        run: >-
+          node -e "const r=require('./agent13-source-copied-attack.json');console.log(JSON.stringify({accepted:r.decisions.accepted,prompts:r.decisions.menus,copies:r.candidateChoices.length,nextSource:r.sourceRank11ActionsAfterFirstCopy.length,qualified:0}));"
+      - name: Preserve source-dealt copied attack print identity and next source action
+        if: inputs.agent13_actor_attack_source_positive && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent13-source-copied-attack-positive
+          path: agent13-source-copied-attack.json
           if-no-files-found: warn
       - name: Compare reproducible shared- and isolated-stream smoke games
         run: node simulation/twinleaf/smoke-test.cjs
