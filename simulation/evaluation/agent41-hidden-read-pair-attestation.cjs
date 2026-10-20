@@ -90,6 +90,7 @@ function compareNativeReadArchives(control,observed) {
       proposalReads:audit?.proposalReads??null,
       validationReads:audit?.validationReads??null,
       observedNativeRoot:audit?.observedNativeRoot??null,
+      changedVisibleScalarMarkers:audit?.changedVisibleScalarMarkers??null,
       actorInformationSetCertified:false,
       competitiveGameQualified:false
     });
