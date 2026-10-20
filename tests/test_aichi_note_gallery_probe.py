@@ -15,7 +15,7 @@ class GalleryProbeTests(unittest.TestCase):
     def test_isolates_top32_and_deduplicates_without_attributing_rank(self):
         html = '''<h2>目次</h2><p>TOP32</p><p>レジドラゴ</p><img src="/fake.png">
         <h2>トップカット</h2><p>優勝</p><img src="/champ.png">
-        <p>TOP32</p><p>レジドラゴ</p><img src="https://example.org/a.png" alt="deck A">
+        <p>TOP32 レジドラゴ</p><img src="https://example.org/a.png" alt="deck A">
         <p>レジドラゴ</p><img data-src="https://example.org/a.png">
         <img src="https://example.org/b.png" />
         <p>テツノイバラ単</p><img src="https://example.org/no.png">
