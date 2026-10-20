@@ -50,3 +50,17 @@ test('malformed native field and stale active-only count fail closed',()=>{
   b.candidatePrintedPowerNames=['New Moon'];
   assert.equal(classify(r,0),'unverified');
 });
+
+test('an Active Power contradiction cannot fabricate a native block',()=>{
+  const r=row();const before=r.garbotoxinWindowAudit.before;
+  before.candidateActive='Mewtwo & Mew-GX UNM';
+  before.candidatePrintedPowerNames=['Perfection'];
+  before.candidatePrintedPowerChecks=[{name:'Perfection',blocked:false}];
+  before.candidateInPlayPrintedPowerChecks=[{
+    zone:'Active',benchIndex:null,printing:'Mewtwo & Mew-GX UNM',
+    name:'Perfection',blocked:true
+  }];
+  assert.equal(classify(r,0),'unverified');
+  before.candidatePrintedPowerChecks[0].blocked=true;
+  assert.equal(classify(r,0),'blocked-eligible-target');
+});
