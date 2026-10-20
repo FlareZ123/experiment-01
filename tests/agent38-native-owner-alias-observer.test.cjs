@@ -56,3 +56,18 @@ test('separates mutated detached Tool array from still-live player slot',()=>{
   assert.equal(r.audit.liveAliasAtExit,1);
   assert.ok(r.audit.examples.some(x=>x.livePlayerExitPath===null));
 });
+
+test('records original actor status scalar change without invoking getters',()=>{
+  const s=state();
+  s.players[0].active.cards[0].damageTakenLastTurn=0;
+  const result=inspectNativeOwnerAliases(s,()=>{
+    s.players[0].active.cards[0].damageTakenLastTurn=80;
+    return 'attack';
+  });
+  const sample=result.audit.examples.find(x=>x.primitiveChanges?.length);
+  assert.ok(sample);
+  assert.deepEqual(sample.primitiveChanges,[
+    {key:'damageTakenLastTurn',before:0,after:80}
+  ]);
+  assert.equal(result.audit.liveAliasAtExit,1);
+});
