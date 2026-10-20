@@ -118,12 +118,6 @@ function chooseActorRootIntent(view,catalog,options={}){
       return {kind:'attach-basic-energy',handIndex:index,printing:view.ownHand[index]};
     }
   }
-  if(options.specialEnergyRoot===true&&own.active&&!r.energyPlayLocked&&
-     !r.specialEnergyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
-    const special=require('./agent3-special-energy-frontier.cjs')
-      .chooseSpecialEnergyIntent(view,catalog);
-    if(special)return special;
-  }
   const active=own.active,restrictions=active?.publicRestrictions;
   const locked=own.publicTurnRestrictions?.attackLockTurnsRemaining>0||
     restrictions?.cannotAttackNextTurn===true||
@@ -144,6 +138,10 @@ function chooseActorRootIntent(view,catalog,options={}){
       const kind=ENERGY_NAMES.find(k=>printing.startsWith(k+' Energy '));
       if(kind)attached.push(catalog.basicEnergyTypes[kind]);
     }
+    const thunder=options.specialEnergyRoot===true&&
+      active.printed?.types?.includes(catalog.basicEnergyTypes.Lightning)&&
+      [...(own.stadium??[]),...(view.opponentPublic?.stadium??[])]
+        .some(p=>p.startsWith('Thunder Mountain Prism Star '));
     for(const attack of active.attacks){
       if(attack.gxAttack||!Array.isArray(attack.cost))continue;
       if(restrictions?.blockedAttackNameNextTurn===attack.name||
@@ -164,17 +162,29 @@ function chooseActorRootIntent(view,catalog,options={}){
         // A native Store rejection must still be reported and retained.
         return {kind:'attack',attackName:attack.name};
       }
-      const left=attached.slice(),colored=attack.cost.filter(t=>t!==catalog.colorlessEnergyType);
+      const payableCost=thunder?
+        (()=>{const units=attack.cost.slice();
+          const i=units.indexOf(catalog.basicEnergyTypes.Lightning);
+          if(i>=0)units.splice(i,1);
+          return units;})():attack.cost;
+      const left=attached.slice(),
+        colored=payableCost.filter(t=>t!==catalog.colorlessEnergyType);
       if(colored.some(type=>{
         const index=left.indexOf(type);
         if(index<0)return true;
         left.splice(index,1);
         return false;
       }))continue;
-      if(left.length>=attack.cost.length-colored.length){
+      if(left.length>=payableCost.length-colored.length){
         return {kind:'attack',attackName:attack.name};
       }
     }
+  }
+  if(options.specialEnergyRoot===true&&own.active&&!r.energyPlayLocked&&
+     !r.specialEnergyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
+    const special=require('./agent3-special-energy-frontier.cjs')
+      .chooseSpecialEnergyIntent(view,catalog);
+    if(special)return special;
   }
   return {kind:'pass',reason:'no-supported-owner-visible-root'};
 }
