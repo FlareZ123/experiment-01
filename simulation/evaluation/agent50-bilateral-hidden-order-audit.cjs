@@ -11,6 +11,36 @@ const evidenceDigest=value=>createHash('sha256')
   .update(JSON.stringify(value??null)).digest('hex');
 
 /**
+ * The first observed native tactic divergence is useful even when strict
+ * tape playback aborts. All fields were captured at actual tactic boundaries;
+ * no extra scorer evaluation or hidden-card inspection is performed.
+ * @param {object|null} source Read-only live bot sequence.
+ * @param {object|null} replay Detached same-root sequence.
+ * @returns {object|null} A bounded, printing-free diagnostic.
+ */
+function nativeTacticSequenceComparison(source,replay) {
+  if(!source||!replay)return null;
+  const first=(source.steps??[]),second=(replay.steps??[]);
+  let mismatch=null;
+  const fields=['tactic','rngStart','rngEnd','rngDraws','actionType','threw'];
+  for(let i=0;i<Math.max(first.length,second.length);i++){
+    const a=first[i]??null,b=second[i]??null;
+    if(!isDeepStrictEqual(a,b)){
+      mismatch={stepIndex:i,source:a,replay:b};break;
+    }
+  }
+  return {
+    sourceCalls:first.length,replayCalls:second.length,
+    sourceRngCalls:source.rngCalls??null,
+    replayRngCalls:replay.rngCalls??null,
+    sameSteps:mismatch===null,
+    firstDivergence:mismatch,
+    comparedFields:fields,
+    scope:'Retrospective native-policy replay trace; no information-set or game qualification'
+  };
+}
+
+/**
  * The source-first opponent line at 6:0:A is expected on global turn 2,
  * and the candidate's next own turn is 3. At 11:2:B, the source player
  * actually starts second and any turn-2 Boost Shake precedes candidate
@@ -170,6 +200,8 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
       nativeSameWorldTape:event.nativeSameWorldTape??null,
       nativeTacticSource:event.nativeTacticSource??null,
       nativeTacticReplay:event.nativeTacticReplay??null,
+      nativeTacticComparison:nativeTacticSequenceComparison(
+        event.nativeTacticSource??null,event.nativeTacticReplay??null),
       sourceStateChangedBeforeFirstScore:
         event.sourceStateChangedBeforeFirstScore??null,
       nativeTapeScoredRootTurn:event.nativeTapeScoredRootTurn??null,
@@ -340,4 +372,4 @@ if(require.main===module) {
   }),null,2)+'\n');
 }
 module.exports={candidateDevelopmentTarget,comparisonProjection,
-  auditDevelopmentArm,runHistoricalDevelopmentAudit};
+  nativeTacticSequenceComparison,auditDevelopmentArm,runHistoricalDevelopmentAudit};
