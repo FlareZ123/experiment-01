@@ -15,11 +15,13 @@ const POLICY_VERSION = 'agent41-bilateral-common-resource-policy-v0';
  * @template T
  * @param {0|1} candidateSeat Real physical seat of either frozen candidate.
  * @param {()=>T} execute Synchronous pinned headless match.
- * @param {{toolRemoval?:Function,stoneRecipient?:Function,starAlchemy?:Function}} [adapters]
+ * @param {{toolRemoval?:Function,stoneRecipient?:Function,starAlchemy?:Function,
+ *          actorOnlyRootTactics?:Function}} [adapters]
  *   Pure-test seam; omitted dependencies load the research-owned adapters.
+ * @param {{actorOnlyRootTactics?:boolean}} [options] Development-only native execution.
  * @returns {{result:T,policyAudit:object}}
  */
-function withBilateralCommonCandidatePolicy(candidateSeat, execute, adapters={}) {
+function withBilateralCommonCandidatePolicy(candidateSeat, execute, adapters={}, options={}) {
   assert.ok(candidateSeat === 0 || candidateSeat === 1,
     'Candidate must occupy a real physical seat');
   assert.equal(typeof execute, 'function');
@@ -38,11 +40,16 @@ function withBilateralCommonCandidatePolicy(candidateSeat, execute, adapters={})
 
   // Each adapter installs a reversible hook, calls its child synchronously,
   // and restores the original engine methods in its finally block.
-  const tool = toolRemoval(candidateSeat,
+  const run=()=>toolRemoval(candidateSeat,
     () => stoneRecipient(candidateSeat,
       () => starAlchemy(candidateSeat, execute)),
     {automaticFieldBlower:true,allowAnyActiveBlower:true,
       lowHandLillieAfterBlower:false,proactiveLowHandLillie:false});
+  const nativeSlice=options.actorOnlyRootTactics===true?
+    (adapters.actorOnlyRootTactics??
+      require('../twinleaf/actor-only-native-tactic-slice.cjs')
+        .withActorOnlyNativeRootTactics)(run):null;
+  const tool=nativeSlice?nativeSlice.result:run();
 
   return {
     result:tool.result.result.result,
@@ -52,6 +59,7 @@ function withBilateralCommonCandidatePolicy(candidateSeat, execute, adapters={})
       frozenCommonProfile:true,
       candidateIdentityUsedForDecisions:false,
       components:{
+        actorOnlyRootTactics:nativeSlice?.audit??null,
         fieldBlower:tool.policyAudit,
         forestStoneRecipient:tool.result.audit,
         starAlchemy:tool.result.result.audit
