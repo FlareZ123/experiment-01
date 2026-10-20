@@ -1,0 +1,101 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+
+/**
+ * Independently bind a proposed v2 bilateral pressure/reply claim to actual
+ * successful Store root actions. The source and candidate policies never read
+ * these postgame observations.
+ *
+ * This verifier authenticates actor, turn, ordinal and dispatch continuity
+ * against the supplied root transcript. A transcript must separately be
+ * preserved and SHA-256 checked against the frozen artifact. It does not
+ * interpret native Pokémon effects, prove paper legality or certify a match.
+ *
+ * @param {object} row Proposed bilateral observation with sourcePressure,
+ *   candidateReply, sourceContinuation and rootActionCount.
+ * @param {object[]} ledger Raw actual-store-root-action-ledger-v1 rows.
+ * @param {0|1} candidateSeat Physical candidate seat.
+ * @returns {object} Read-only source and reply claim evidence.
+ */
+function attestBilateralRootClaims(row,ledger,candidateSeat){
+  assert.ok(candidateSeat===0||candidateSeat===1);
+  assert.ok(Array.isArray(ledger),'Actual Store root ledger required');
+  assert.ok(Number.isSafeInteger(row?.rootActionCount)&&
+    row.rootActionCount>=0);
+  assert.equal(ledger.length,row.rootActionCount,
+    'Preserved ledger must include every successful Store root');
+  for(let i=0;i<ledger.length;i++){
+    const root=ledger[i];
+    assert.equal(root?.actionOrdinal,i,
+      'Store ledger must preserve every consecutive root ordinal');
+    assert.ok(Number.isSafeInteger(root.turnBefore)&&root.turnBefore>=0,
+      'Store root turn required');
+    assert.ok([-1,0,1].includes(root.playerSlot),
+      'Store root physical actor slot required');
+    assert.ok(typeof root.action==='string'&&root.action.length>0,
+      'Store root action class required');
+  }
+  const sourceSeat=1-candidateSeat;
+  /**
+   * @param {unknown} ordinal
+   * @param {0|1} seat
+   * @param {unknown} turn
+   * @returns {boolean}
+   */
+  function rootMatches(ordinal,seat,turn){
+    return Number.isSafeInteger(ordinal)&&ordinal>=0&&
+      ordinal<ledger.length&&Number.isSafeInteger(turn)&&turn>=1&&
+      ledger[ordinal].playerSlot===seat&&
+      ledger[ordinal].turnBefore===turn;
+  }
+  const pressure=row?.sourcePressure;
+  const candidate=row?.candidateReply;
+  const source=row?.sourceContinuation;
+  const pressureRoot=rootMatches(pressure?.rootActionOrdinal,
+    sourceSeat,pressure?.turnBefore);
+  const pressureCompletion=rootMatches(pressure?.completionOrdinal,
+    sourceSeat,pressure?.completionTurnBefore);
+  const candidateReply=rootMatches(candidate?.rootActionOrdinal,
+    candidateSeat,candidate?.turnBefore);
+  const sourceContinuation=rootMatches(source?.rootActionOrdinal,
+    sourceSeat,source?.turnBefore);
+  const ordered=pressureRoot&&pressureCompletion&&candidateReply&&
+    sourceContinuation&&
+    pressure.rootActionOrdinal<=pressure.completionOrdinal&&
+    pressure.completionOrdinal<candidate.rootActionOrdinal&&
+    candidate.rootActionOrdinal<source.rootActionOrdinal;
+  // Bonus-turn claims are optional unless the source next acts at t+3.
+  // A matched issuer, prompt close and new-own-turn actor all are required.
+  const bonus=row?.candidateBonusTurn;
+  const bonusTurnRootChain=Boolean(ordered&&bonus&&
+    rootMatches(bonus.grantRootActionOrdinal,candidateSeat,
+      bonus.grantTurnBefore)&&
+    rootMatches(bonus.completionOrdinal,candidateSeat,
+      bonus.completionTurnBefore)&&
+    rootMatches(bonus.nextOwnRootActionOrdinal,candidateSeat,
+      bonus.nextOwnTurnBefore)&&
+    bonus.grantRootActionOrdinal<=bonus.completionOrdinal&&
+    bonus.completionOrdinal<bonus.nextOwnRootActionOrdinal&&
+    candidate.rootActionOrdinal<=bonus.grantRootActionOrdinal&&
+    bonus.nextOwnRootActionOrdinal<source.rootActionOrdinal);
+  const consecutive=ordered&&
+    pressure.completionTurnBefore===pressure.turnBefore&&
+    candidate.turnBefore===pressure.turnBefore+1&&
+    (source.turnBefore===pressure.turnBefore+2||
+      (source.turnBefore===pressure.turnBefore+3&&bonusTurnRootChain));
+  return Object.freeze({
+    schema:'bilateral-v2-actual-store-root-claim-attestation-v1',
+    checkedRoots:ledger.length,
+    pressureRoot,pressureCompletion,candidateReply,sourceContinuation,
+    ordered,consecutive,bonusTurnRootChain,
+    rootClaimsAuthenticated:Boolean(ordered&&consecutive),
+    sourceFirstTurnPressureAuthenticated:Boolean(ordered&&consecutive&&
+      pressure.turnBefore===1&&
+      row.actualStarterSeat===sourceSeat),
+    effectAndPaperFidelityAuthenticated:false,
+    hiddenPolicyInformationSetAuthenticated:false
+  });
+}
+
+module.exports={attestBilateralRootClaims};
