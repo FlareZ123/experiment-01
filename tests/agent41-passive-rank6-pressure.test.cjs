@@ -13,7 +13,8 @@ const roots=[
     actionOrdinal:12,card:'Professor\'s Research'}
 ];
 const snapshot=(turn,active,blocked=true,hasPower=true)=>({
-  globalTurn:turn,sourceActiveIronThornsEx:active,
+  globalTurn:turn,actingSeat:turn===2?1:0,
+  sourceActiveIronThornsEx:active,
   targetPrinting:hasPower?'Mewtwo & Mew-GX UNM':null,
   targetPowerName:hasPower?'Perfection':null,
   targetNativeAbilityBlocked:hasPower?blocked:null
@@ -77,6 +78,36 @@ test('source return and candidate first nonprompt roots must actually exist',()=
     {...roots[1],action:'ResolvePromptAction'},roots[2]];
   assert.equal(evidence(makeAudit(),promptOnly).status,
     'candidate-turn-two-boundary-unverified');
+});
+
+test('reject incorrect native actor seats even if turns and target appear valid',()=>{
+  const wrong=makeAudit();
+  wrong.candidateTurn2.actingSeat=0;
+  const result=evidence(wrong);
+  assert.equal(result.observedBoundaryActors,false);
+  assert.equal(result.nativeCapabilitySuppressed,false);
+  assert.equal(result.status,'native-boundary-actor-mismatch');
+});
+
+test('reject fabricated chronology despite three matching turn-labelled roots',()=>{
+  const reordered=roots.map(row=>({...row}));
+  reordered[0].actionOrdinal=30;
+  const result=evidence(makeAudit(),reordered);
+  assert.equal(result.observedBoundaryActors,true);
+  assert.equal(result.rootedReplyAndReturn,false);
+  assert.equal(result.status,'source-return-or-reply-unverified');
+  const invalid=roots.map(row=>({...row}));
+  invalid[1].actionOrdinal=NaN;
+  assert.equal(evidence(makeAudit(),invalid).rootedReplyAndReturn,false);
+});
+
+test('reject return snapshot from the candidate seat',()=>{
+  const wrong=makeAudit();
+  wrong.sourceReturnTurn3.actingSeat=1;
+  const result=evidence(wrong);
+  assert.equal(result.nativeCapabilitySuppressed,true);
+  assert.equal(result.rootedReplyAndReturn,false);
+  assert.equal(result.status,'source-return-or-reply-unverified');
 });
 
 test('reject mismatched source seat or observer provenance',()=>{
