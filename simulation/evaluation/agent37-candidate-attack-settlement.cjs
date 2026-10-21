@@ -41,7 +41,16 @@ function candidateAttackSettlement(game,candidateSeat) {
     'Candidate public attack and root action disagree');
     const completion=event.settled?.completionRootActionOrdinal;
     const closingRoot=Number.isSafeInteger(completion)?roots[completion]:null;
-    const settled=Boolean(closingRoot && completion>=event.actionOrdinal &&
+    // A terminal attack can immediately trigger a native sudden-death replay.
+    // Its next Store snapshot then belongs to a freshly dealt game. Never
+    // interpret that replay opening as damage or Prizes caused in this epoch.
+    const settlementCrossesClockReset=Number.isSafeInteger(completion) &&
+      roots.some(row=>row.actionOrdinal>=event.actionOrdinal &&
+        row.actionOrdinal<=completion &&
+        Number.isSafeInteger(row.turnBefore) &&
+        Number.isSafeInteger(row.turnAfter) &&
+        row.turnAfter<row.turnBefore);
+    const settled=Boolean(!settlementCrossesClockReset && closingRoot && completion>=event.actionOrdinal &&
       Array.isArray(event.before) && event.before.length===2 &&
       Array.isArray(event.settled.after) && event.settled.after.length===2 &&
       Array.isArray(event.beforePrizesRemaining) &&
@@ -104,6 +113,7 @@ function candidateAttackSettlement(game,candidateSeat) {
       triggerAction:event.triggerAction,
       delegatedCopy:declaration.triggerAction==='ResolvePromptAction',
       settledPromptChain:settled,
+      settlementCrossesClockReset,
       completionRootOrdinal:settled?completion:null,
       publicBoardBefore:event.before,
       publicBoardAfter:settled?event.settled.after:null,
@@ -140,6 +150,8 @@ function candidateAttackSettlement(game,candidateSeat) {
     candidateSeat,
     declarations:attacks.length,
     settled:attacks.filter(row=>row.settledPromptChain).length,
+    crossEpochSettlementsRejected:attacks.filter(row=>
+      row.settlementCrossesClockReset).length,
     withImmediateSourceReturn:attacks.filter(row=>row.nextSourceRoot).length,
     withVerifiedSameEpochSourceReturn:attacks.filter(row=>
       row.nextSourceSameEpochProven).length,
