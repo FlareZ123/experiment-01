@@ -21,7 +21,7 @@ const TYPES=['Grass','Fire','Water','Lightning','Psychic',
  *
  * @param {object} view Detached actorObservation
  * @param {object} catalog Public exact printing and native type catalog
- * @param {{preferNearTermDamage?:boolean}} [options] Explicit experimental branch
+ * @param {{preferNearTermDamage?:boolean,preferGuzmaPivot?:boolean}} [options] Explicit experimental branch
  * @returns {{handIndex:number,printing:string,slot:'active'|'bench',
  * index:number,attackName:string,gapBefore:number,gapAfter:number,
  * knownBasicEnergyOnly:true}|null}
@@ -106,14 +106,16 @@ function chooseActorEnergyRecipient(view,catalog,options={}){
   let winner=possibilities[0];
   // An unaffordable exposed Active can monopolize every attachment under
   // the usual Active-first rule. Experimentally admit a *known*, faster
-  // damaging Bench route only when an owner-held Switch/Escape Rope gives
-  // a public, Item-unlocked route to promote it later. This does not assert
-  // that the switch or attack is optimal, or even yet affordable.
+  // damaging Bench route only with an owner-held route to promote it later.
+  // Guzma is a future Supporter option, never the same-turn Marnie play.
+  // This does not assert that the switch or attack is guaranteed.
+  const canPromoteWithItem=view.ownTurnResources?.itemPlayLocked!==true&&
+    ownHand.some(p=>p.startsWith('Switch ')||p.startsWith('Escape Rope '));
+  const canPlanFutureGuzma=options.preferGuzmaPivot===true&&
+    ownHand.includes('Guzma BUS')&&
+    view.opponentPublic?.bench?.some(Boolean)===true;
   if(options.preferNearTermDamage===true && winner.slot==='active' &&
-      winner.after>=2 &&
-      view.ownTurnResources?.itemPlayLocked!==true &&
-      ownHand.some(p=>p.startsWith('Switch ')||
-        p.startsWith('Escape Rope '))){
+      winner.after>=2 && (canPromoteWithItem||canPlanFutureGuzma)){
     const short=possibilities.filter(p=>p.slot==='bench'&&
       p.positivePrintedDamage&&p.after<=1&&p.after<winner.after)
       .sort((a,b)=>a.after-b.after||a.cost-b.cost||
