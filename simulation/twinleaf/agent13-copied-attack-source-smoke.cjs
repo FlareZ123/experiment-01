@@ -9,6 +9,8 @@ const {withNewMoonBlowerAutonomy}=
   require('./newmoon-garbotoxin-blower-autonomy.cjs');
 const {withActorOnlyChooseAttack,VERSION}=
   require('./agent13-actor-only-choose-attack.cjs');
+const {withRank11Turn49QuickBalls}=
+  require('./rank11-turn49-quick-ball-counterfactual.cjs');
 /**
  * The archived rank-11 source-dealt seed (selected in earlier research,
  * inadmissible for win-rate estimates) previously demonstrated three legal
@@ -17,6 +19,9 @@ const {withActorOnlyChooseAttack,VERSION}=
  */
 function main(){
   const preferGengarPoltergeist=process.env.AGENT13_COPY_POLTERGEIST_PRIORITY==='true';
+  const sourceTurn49QuickBalls=process.env.AGENT13_SOURCE_TURN49_QUICK_BALL==='true';
+  assert.ok(!sourceTurn49QuickBalls || preferGengarPoltergeist,
+    'Quick Ball source response is defined only for the Poltergeist branch');
   const deck=loadNewMoonCandidate();
   const plan=planAichi({label:deck.id,cards:deck.cards},{
     allowEquivalentBasicEnergies:true,allowBasicEnergyMirrorPrintings:true,
@@ -35,10 +40,14 @@ function main(){
   };
   const run=withActorOnlyChooseAttack(()=>
     withNewMoonBlowerAutonomy(1,
-      ()=>runWithResearchProfile(request,RANK11_AUTONOMOUS_PROFILE),
+      ()=>sourceTurn49QuickBalls?
+        withRank11Turn49QuickBalls(0,
+          ()=>runWithResearchProfile(request,RANK11_AUTONOMOUS_PROFILE)):
+        runWithResearchProfile(request,RANK11_AUTONOMOUS_PROFILE),
       {lowHandLillieAfterBlower:true}),
     {preferGengarPoltergeist});
-  const game=run.result.result;
+  const game=sourceTurn49QuickBalls?run.result.result.result:run.result.result;
+  const sourceQuickBallAudit=sourceTurn49QuickBalls?run.result.result.audit:null;
   const candidateSelections=(game.decisionTrace??[]).filter(row=>
     row.playerSlot===1&&row.attackChoice?.selection).map(row=>({
       rootOrdinal:row.actionOrdinal,turn:row.turnBefore,
@@ -78,7 +87,8 @@ function main(){
     sourceRank:11,sourceSeed:1244180408,
     retrospectivelySelected:true,sourceSeat:0,candidateSeat:1,
     attackerPolicyVersion:run.audit.version,
-    preferGengarPoltergeist,remainingFallbacksUnqualified:true,
+    preferGengarPoltergeist,sourceTurn49QuickBalls,
+    sourceQuickBallAudit,remainingFallbacksUnqualified:true,
     candidateAndSourceDecksUnchanged:true,
     firstTurnSlot:game.firstTurnSlot,
     sourceLineCompleted:game.rank11AutonomousPolicy?.completeAtDecisionBoundary===true,
@@ -104,6 +114,11 @@ function main(){
   assert.equal(game.verifiedByDrawLog,true);
   assert.equal(packet.sourceLineCompleted,true);
   assert.equal(run.audit.rejected,0);
+  if(sourceTurn49QuickBalls){
+    assert.equal(sourceQuickBallAudit.activated,true);
+    assert.equal(sourceQuickBallAudit.successfulSearchPromptCycles,3,
+      'Native opponent must actually pay all three Quick Ball costs');
+  }
   if(preferGengarPoltergeist){
     assert.equal(copiedEffects.length,candidateSelections.filter(x=>
       x.attackName==='Poltergeist').length,
