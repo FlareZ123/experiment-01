@@ -19,6 +19,8 @@ const {withRank11Turn49QuickBalls}=
  */
 function main(){
   const preferGengarPoltergeist=process.env.AGENT13_COPY_POLTERGEIST_PRIORITY==='true';
+  const preferZeroHandPrintedDamage=
+    process.env.AGENT50_PUBLIC_ZERO_HAND_POLTERGEIST_DEV==='true';
   const sourceTurn49QuickBalls=process.env.AGENT13_SOURCE_TURN49_QUICK_BALL==='true';
   assert.ok(!sourceTurn49QuickBalls || preferGengarPoltergeist,
     'Quick Ball source response is defined only for the Poltergeist branch');
@@ -45,7 +47,7 @@ function main(){
           ()=>runWithResearchProfile(request,RANK11_AUTONOMOUS_PROFILE)):
         runWithResearchProfile(request,RANK11_AUTONOMOUS_PROFILE),
       {lowHandLillieAfterBlower:true}),
-    {preferGengarPoltergeist});
+    {preferGengarPoltergeist,preferZeroHandPrintedDamage});
   const game=sourceTurn49QuickBalls?run.result.result.result:run.result.result;
   const sourceQuickBallAudit=sourceTurn49QuickBalls?run.result.result.audit:null;
   const candidateSelections=(game.decisionTrace??[]).filter(row=>
@@ -91,7 +93,8 @@ function main(){
     sourceRank:11,sourceSeed:1244180408,
     retrospectivelySelected:true,sourceSeat:0,candidateSeat:1,
     attackerPolicyVersion:run.audit.version,
-    preferGengarPoltergeist,sourceTurn49QuickBalls,
+    preferGengarPoltergeist,preferZeroHandPrintedDamage,
+    sourceTurn49QuickBalls,
     sourceQuickBallAudit,remainingFallbacksUnqualified:true,
     candidateAndSourceDecksUnchanged:true,
     firstTurnSlot:game.firstTurnSlot,
