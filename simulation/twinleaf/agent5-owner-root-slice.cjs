@@ -168,6 +168,11 @@ function rootPhysicalSnapshot(state,seat,intent){
       supporterTurn:owner.supporterTurn,
       marnieSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
+    }:{}),
+    ...(intent.kind==='play-stranded-guzma'?{
+      supporterTurn:owner.supporterTurn,
+      guzmaSpent:[...owner.discard.cards,...owner.supporter.cards]
+        .filter(card=>card.fullName===intent.printing).length
     }:{})
   };
 }
@@ -222,6 +227,13 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
     return before.supporterTurn===0 &&
       after.supporterTurn>before.supporterTurn &&
       after.aceTrainerSpent>before.aceTrainerSpent?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='play-stranded-guzma'){
+    // The native Supporter can first open its target/switch prompts; credit
+    // only the publicly spent original Supporter and its per-turn quota.
+    return after.guzmaSpent>before.guzmaSpent&&
+      after.supporterTurn>before.supporterTurn?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(intent.kind==='play-stranded-marnie'){
