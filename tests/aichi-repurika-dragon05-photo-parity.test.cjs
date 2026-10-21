@@ -51,6 +51,8 @@ test('original photo has 38 distinct visible cells and exactly 60 copies',()=>{
     'Supporter':10,'Stadium':2,'Special Energy':3,'Basic Energy':7
   });
   assert.equal(photo.japanese_printing_ids_verified,false);
+  assert.deepEqual(photo.cells.filter(x=>x.cell==='R4C1').map(x=>[x.english,x.japanese,x.count]),
+    [['Muscle Band','ちからのハチマキ',2]]);
   assert.equal(photo.civil_name_linkage_verified,false);
 });
 
@@ -64,7 +66,7 @@ test('photo is distinct at English name/count level from 29 published ranks',()=
     rank:deck.rank,shared:overlap(target,multiset(deck.cards))
   })).sort((a,b)=>b.shared-a.shared);
   assert.equal(scores[0].rank,10);
-  assert.equal(scores[0].shared,51);
+  assert.equal(scores[0].shared,53);
   assert.ok(scores.every(row=>row.shared<60),
     'Poster name inventory must not be silently duplicated as a published rank');
   assert.deepEqual(photo.published_29_name_multiplicity_nearest,
