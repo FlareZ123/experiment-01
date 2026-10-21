@@ -29,6 +29,8 @@ function fixture(marked){
       'actual-native-sudden-death-clock-transition-v1',
     rootActionLedger:roots,suddenDeathClockResets:resets,
     attackDeclarationTrace:[],actions:roots.length,
+    initialSourceDealFingerprint:{seat:1,digestSha256:'f'.repeat(64)},
+    firstTurnSlot:1,verifiedByDrawLog:true,
     hiddenOpponentHand:['never-export'],unseenPrizeCards:['never-export']
   };
 }
@@ -38,6 +40,11 @@ test('strict source-line rejection retains verified native episode boundary',()=
   assert.throws(()=>sourceLineReplyPacket(game,6,
     {turn2:{completed:true}},1),error=>{
       assert.match(error.message,/Malformed chronological Store root/);
+      assert.equal(error.nativePublicRootArchive.sourceDealFingerprint,
+        'f'.repeat(64));
+      assert.equal(error.nativePublicRootArchive.sourceDealFingerprintSeat,1);
+      assert.equal(error.nativePublicRootArchive.actualStarterSeat,1);
+      assert.equal(error.nativePublicRootArchive.verifiedFirstTurn,true);
       assert.equal(error.nativeEpochBoundaryEvidence.nativeMarkersAuthentic,true);
       assert.equal(error.nativeEpochStructuralPartitionFailure,undefined);
       const partition=error.nativeEpochStructuralPartition;
