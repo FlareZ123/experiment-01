@@ -791,7 +791,7 @@ function runDevelopment({
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
-  nativeActionInputWitness=false,
+  actorChargedPromotion=false,nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,
   paperTerminalAttackKo=false,
   rank6K1AlternativeEnergy=false,
@@ -799,6 +799,8 @@ function runDevelopment({
   candidateScopedSpecialEnergyRoot=false
 }={}){
   assertManifest();
+  assert.ok(!actorChargedPromotion||(actorOnlyComposition&&actorChoosePokemon),
+    'Charged promotion requires actor-only composition and ChoosePokemon');
   const {planAichi}=require('./aichi-pilot.cjs');
   const {loadNewMoonCandidate}=require('../../scripts/aichi-new-moon-candidate.cjs');
   const roster=JSON.parse(fs.readFileSync(path.join(root,
@@ -850,7 +852,15 @@ function runDevelopment({
               specialEnergyRoot:true,
               specialEnergyRootOwnerSeat:targetSeat
             })};
-        const observed=withCanonicalActorOnlyPolicy(execute,scopedRoot,
+        const chargedPokemon=actorChargedPromotion?{
+          pokemon:work=>require('../twinleaf/agent8-actor-only-choose-pokemon.cjs')
+            .withActorOnlyChoosePokemon(work,{
+              choose:require('../twinleaf/agent1-charged-promotion-choice.cjs')
+                .chooseChargedOwnPromotion
+            })
+        }:{};
+        const observed=withCanonicalActorOnlyPolicy(execute,
+          {...scopedRoot,...chargedPokemon},
           {ownerSingleSearch:actorOnlySingleSearch,
             genericFallbackAttribution:actorGenericFallbackAttribution,
             actorHandDiscard,actorChoosePokemon,
@@ -951,6 +961,7 @@ function runDevelopment({
     actorOnlyOwnerSingleSearchOptIn:actorOnlyComposition&&actorOnlySingleSearch,
     actorHandDiscardOptIn:actorOnlyComposition&&actorHandDiscard,
     actorChoosePokemonOptIn:actorOnlyComposition&&actorChoosePokemon,
+    actorChargedPromotionOptIn:actorOnlyComposition&&actorChargedPromotion,
     actorNativeFallbackAttributionOptIn:
       actorOnlyComposition&&actorGenericFallbackAttribution,
     actorOnlyCompositionVersion:actorOnlyComposition?
@@ -1037,6 +1048,7 @@ if(require.main===module){
       process.env.AGENT7_NATIVE_GENERIC_FALLBACK_DEV==='true',
     actorHandDiscard:process.env.AGENT47_ACTOR_HAND_DISCARD_DEV==='true',
     actorChoosePokemon:process.env.AGENT8_ACTOR_CHOOSE_POKEMON_DEV==='true',
+    actorChargedPromotion:process.env.AGENT1_CHARGED_PROMOTION_DEV==='true',
     sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true',
     rank6K1AlternativeEnergy:
