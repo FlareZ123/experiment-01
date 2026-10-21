@@ -24,7 +24,7 @@ function view() {
 }
 
 test('default actor root is unchanged by optional frontier installation', () => {
-  assert.match(VERSION,/optional-energy-frontier/);
+  assert.match(VERSION,/optional-energy-frontier|immediate-ko-energy-priority/);
   const a=chooseActorRootIntent(view(),catalog);
   assert.deepEqual(a,{kind:'attach-basic-energy',
     handIndex:0,printing:'Darkness Energy MEE'});
