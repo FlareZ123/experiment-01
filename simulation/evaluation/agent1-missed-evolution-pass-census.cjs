@@ -6,7 +6,7 @@ const {runDevelopment}=
 
 /**
  * Repeat only the frozen historical source-deal four-arm diagnostic.
- * A passive Store wrapper enumerates native accepted Pass roots where a
+ * A passive Store wrapper enumerates native accepted turn-ending roots where a
  * public-board/owner-hand natural evolution was still apparently eligible.
  * Same roster, registered seeds and unchanged candidate 60s.
  *
@@ -23,13 +23,13 @@ function runMissedEvolutionCensus(){
     }));
   const {result,audit}=observed;
   return {
-    schema:'agent1-native-pinned-actor-missed-evolution-pass-census-v1',
+    schema:'agent1-native-pinned-actor-missed-evolution-turn-ending-census-v2',
     enginePin:result.enginePin,
     actorNaturalEvolutionRootOptIn:
       process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true',
     actorOnlyComposition:result.actorOnlyCompositionOptIn,
     attempted:result.attempted,competitiveQualifiedGames:0,
-    auditedPasses:audit,
+    auditedTurnEnds:audit,
     rows:result.rows.map(row=>({
       trial:row.trial?.id??null,
       status:row.status??null,
