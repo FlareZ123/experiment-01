@@ -20,6 +20,7 @@ function observedDecision(action) {
     turn: action.turnBefore ?? null,
     kind: action.action ?? null,
     card: action.card ?? null,
+    declaredTarget: action.declaredTarget ?? null,
     attack: action.attack ?? null,
     attacker: action.attacker ?? null,
     ability: action.ability ?? null,
