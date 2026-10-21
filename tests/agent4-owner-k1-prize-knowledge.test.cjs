@@ -97,13 +97,13 @@ test('deck draw stales deck membership; Prize taking or swap invalidates Prize b
   const {state,view}=ownerSearch(false);
   const original=captureOwnerK1(state,0,REGISTERED,null,()=>view);
   assert.strictEqual(advanceOwnerK1(original,{currentOwnPrizeCount:6,
-    deckMayHaveChanged:false}),original);
+    deckMayHaveChanged:false,prizeCompositionMayHaveChanged:false}),original);
   const moved=advanceOwnerK1(original,{currentOwnPrizeCount:6,
-    deckMayHaveChanged:true});
+    deckMayHaveChanged:true,prizeCompositionMayHaveChanged:false});
   assert.equal(moved.exactMembershipKnown,false);
   assert.equal(assessRequiredDeckPrinting(moved,THUNDER),'known-prized');
   const taken=advanceOwnerK1(moved,{currentOwnPrizeCount:5,
-    deckMayHaveChanged:false});
+    deckMayHaveChanged:false,prizeCompositionMayHaveChanged:false});
   assert.equal(taken.prizeInferenceCertified,false);
   assert.equal(taken.exactMembershipKnown,false);
   assert.equal(assessRequiredDeckPrinting(taken,THUNDER),'unknown');
@@ -111,6 +111,8 @@ test('deck draw stales deck membership; Prize taking or swap invalidates Prize b
     deckMayHaveChanged:false,prizeCompositionMayHaveChanged:true});
   assert.equal(swapped.prizeInferenceCertified,false);
   assert.equal(assessRequiredDeckPrinting(swapped,THUNDER),'unknown');
+  assert.throws(()=>advanceOwnerK1(original,{currentOwnPrizeCount:6,
+    deckMayHaveChanged:false}),/boolean/);
 });
 
 test('wrong owner, a copied deck zone or prompt mismatch blocks deck access',()=>{
