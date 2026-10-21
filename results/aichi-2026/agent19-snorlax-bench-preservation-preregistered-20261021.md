@@ -25,4 +25,4 @@ Report before interpreting any native winner: number of 12 trials with both arms
 
 Neither the optional-Bench rule fix, Block retreat hook, untimed engine terminal, nor a native difference verifies original paper Japanese card effects, human-quality decisions or official time treatment. Qualified competitive game count starts at **zero** and cannot increase from this trial. The follow-up needed for the common-policy gate is a conditional source decision to retain or abandon solo Snorlax based on publicly visible lethal counterthreat and actual next opponent reply, followed by a fresh precommitted cohort with one unchanged candidate across the field.
 
-**Code:** `simulation/twinleaf/snorlax-bench-preservation-prospective.cjs` and `tests/snorlax-bench-preservation-prospective.test.cjs`. **Dispatch:** manual-only workflow `.github/workflows/aichi-snorlax-bench-preservation.yml`.
+**Code:** `simulation/twinleaf/snorlax-bench-preservation-prospective.cjs` and `tests/snorlax-bench-preservation-prospective.test.cjs`. **Dispatch:** the existing manually dispatched `.github/workflows/aichi-snorlax-root-setup.yml` (extended with one registered paired trial).
