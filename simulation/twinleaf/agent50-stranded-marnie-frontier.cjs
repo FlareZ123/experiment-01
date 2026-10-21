@@ -21,7 +21,7 @@ function chooseStrandedMarnie(view){
   if(view.globalTurn<=1||!own?.active||
       own.active.energies.length!==0||
       !own.bench.some(pokemon=>pokemon&&pokemon.energies.length>0)||
-      turn.supporterPlayedTurn===view.globalTurn||
+      turn.supporterPlayedTurn>=1||
       turn.supporterPlayLocked===true||
       own.publicTurnRestrictions?.supporterPlayLocked===true||
       view.ownHand.length>5||
