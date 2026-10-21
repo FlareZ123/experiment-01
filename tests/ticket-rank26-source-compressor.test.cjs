@@ -9,6 +9,8 @@ test('source 60 stage confirms Ticket and Compressor effect path',()=>{
  assert.equal(x.postFirstDrawDeckCount,46);
  assert.equal(x.postCompressorDeckCount,45);
  assert.equal(x.mandatoryCompressorDiscardAccepted,true);
+ assert.equal(x.zeroSelectionRejected,true);
+ assert.equal(x.paperMinimumCorrection,true);
  assert.equal(x.conditionalSevenCardAccess,7/45);
  assert.equal(x.ticketAndCompressorItemsDispatched,true);
  assert.equal(x.dceReturnedToBottomThenShuffledToTop,true);
