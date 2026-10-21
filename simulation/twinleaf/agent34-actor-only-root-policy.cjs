@@ -200,7 +200,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       // Printed GX attacks share the global one-GX-per-game resource. They are
       // disabled by default until explicitly tested as actor-owned roots.
       // Rule-specific eligibility still belongs to the genuine native Store.
-      if(attack.gxAttack && (
+      // Some pinned printed GX attacks (e.g. Miraculous Duo-GX) omit
+      // gxAttack=true in the upstream card data despite enforcing GX quota.
+      // The public printed "-GX" suffix is a conservative native-neutral alias.
+      const isGxAttack=attack.gxAttack===true||attack.name.endsWith('-GX');
+      if(isGxAttack && (
         options.printedGxRoot!==true ||
         own.publicTurnRestrictions?.gxUsed===true ||
         own.publicTurnRestrictions?.cannotUseGXAttacks===true
