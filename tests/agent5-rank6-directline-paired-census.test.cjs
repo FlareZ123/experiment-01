@@ -44,6 +44,26 @@ test('physical paired native root accounting retains errors and exact seats',()=
     'confirmed-public-effect');
   assert.equal(report.qualifiedCompetitiveGames,0);
 });
+test('absent event key means zero only when full actor audit exists',()=>{
+  const a=sample(false),b=sample(true);
+  delete a.rows[0].actorOnlyDecisionCoverage
+    .detailedComponentAudits.root.typedIntentCounts['play-thunder-mountain'];
+  delete b.rows[1].actorOnlyDecisionCoverage
+    .detailedComponentAudits.root.typedIntentCounts['play-thunder-mountain'];
+  const x=compare(a,b);
+  assert.deepEqual(x.rows[0].typedStadiumRootSelections,[0,1]);
+  assert.deepEqual(x.rows[1].typedStadiumRootSelections,[0,0]);
+  assert.equal(x.rows[0].firstCappedNativeRootDifference.index,0);
+  assert.equal(x.rows[0].firstCappedNativeRootDifference.baseline,null);
+  assert.equal(x.rows[0].firstCappedNativeRootDifference.treatment.kind,
+    'play-thunder-mountain');
+  assert.deepEqual(x.rows[0].terminals,[{
+    finished:null,winner:null,endReason:null,finalPrizes:null
+  },{
+    finished:null,winner:null,endReason:null,finalPrizes:null
+  }]);
+});
+
 test('missing physical witness stays unknown and seed alteration is rejected',()=>{
   const a=sample(false),b=sample(true);
   a.rows[0].sourceDealFingerprint=null;
