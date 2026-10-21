@@ -172,6 +172,22 @@ jobs:
       - name: Compile pinned simulator
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify source-only Float Stone actor-root mobility selection
+        if: ${{ inputs.trial_ids == 'agent1-floatstone-native-pair' }}
+        run: node --test tests/agent1-owner-float-stone-mobility.test.cjs tests/agent34-actor-only-root-policy.test.cjs
+      - name: Reuse exact historical source-first Store deals with and without owner Float Stone roots
+        if: ${{ inputs.trial_ids == 'agent1-floatstone-native-pair' }}
+        run: node scripts/agent1-floatstone-native-pair.cjs > agent1-floatstone-native-pair.json
+      - name: Classify accepted genuine source mobility and game limitations
+        if: ${{ inputs.trial_ids == 'agent1-floatstone-native-pair' }}
+        run: node -e "const r=require('./agent1-floatstone-native-pair.json');console.log('DEALS_MATCH',r.sameFourPhysicalSourceDeals,'STARTS_MATCH',r.sameFourActualStarters,'SOURCE_FIRST',r.actualSourceFirstAll);for(const p of r.pairs)console.log('FLOAT_PAIR',JSON.stringify({id:p.id,actionEqual:p.identicalRootLedger,controlRoots:p.baselineRoots,treatmentRoots:p.treatmentRoots,firstChange:p.firstDifferingTreatmentRoot,selected:p.sourceMobilitySelectedRootCounts,accepted:p.acceptedMobilityRoots,controlWinner:p.baselineWinner,treatmentWinner:p.treatmentWinner,controlPrizes:p.baselinePrizes,treatmentPrizes:p.treatmentPrizes}));console.log('COMPETITIVE_GAMES',r.competitiveQualifiedGames)"
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.trial_ids == 'agent1-floatstone-native-pair' }}
+        with:
+          name: agent1-source-floatstone-original-store-pair
+          path: agent1-floatstone-native-pair.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Test generic own-Bench charged promotion selector
         if: ${{ inputs.trial_ids == 'agent1-charged-promotion-pair' }}
         run: node --test tests/agent1-charged-promotion-choice.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent41-bilateral-v2-development.test.cjs
@@ -451,7 +467,7 @@ jobs:
         if: ${{ inputs.newmoon_pass_probe }}
         run: node simulation/evaluation/newmoon-rank11-pass-observer.cjs > newmoon-rank11-pass-observer.json
       - name: Run up to six source-locked pilot trials
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent1-charged-promotion-pair' }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent1-charged-promotion-pair' && inputs.trial_ids != 'agent1-floatstone-native-pair' }}
         env:
           CAMPAIGN_INPUT_ORDER_PROTOCOL: ${{ inputs.input_order_protocol || 'source-row-order-v1' }}
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
@@ -465,19 +481,19 @@ jobs:
           CAMPAIGN_MAX_ACTIONS: '800'
         run: node simulation/evaluation/aichi-campaign-runner.cjs > aichi-campaign-report.json
       - name: Print recorded source-seat actions and attack declarations
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent1-charged-promotion-pair' }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent1-charged-promotion-pair' && inputs.trial_ids != 'agent1-floatstone-native-pair' }}
         env:
           CAMPAIGN_TRIAL_IDS: ${{ inputs.trial_ids || 'pilot:6:0:champion-reference:A,pilot:6:0:champion-reference:B,pilot:6:0:hood-shield-v1:A,pilot:6:0:hood-shield-v1:B,pilot:6:0:temple-v1:A,pilot:6:0:temple-v1:B' }}
         run: |
           node --test tests/aichi-source-action-brief.test.cjs
           node scripts/aichi-source-action-brief.cjs aichi-campaign-report.json
       - name: Reconcile source rank26 v3 proposed tactics and actual Store dispatch
-        if: ${{ inputs.policy_profile == 'rank26-autonomous-cologne-pump-propagation-v3' && !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent1-charged-promotion-pair' }}
+        if: ${{ inputs.policy_profile == 'rank26-autonomous-cologne-pump-propagation-v3' && !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent1-charged-promotion-pair' && inputs.trial_ids != 'agent1-floatstone-native-pair' }}
         run: |
           node --test tests/aichi-rank26-v3-action-brief.test.cjs
           node scripts/aichi-rank26-v3-action-brief.cjs aichi-campaign-report.json
       - name: Cross-check sourced games and fingerprint evidence envelope
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent1-charged-promotion-pair' }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent1-charged-promotion-pair' && inputs.trial_ids != 'agent1-floatstone-native-pair' }}
         env:
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
         run: node simulation/evaluation/aichi-campaign-envelope-runner.cjs aichi-campaign-report.json aichi-campaign-envelope.json
