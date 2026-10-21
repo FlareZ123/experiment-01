@@ -1,0 +1,274 @@
+{
+  "rank": 0,
+  "player": "Agent 15 exploratory post-event expanded challenger",
+  "archetype": "Mega Darkrai ex / Special Condition / Max Elixir",
+  "label": "Abyss Eye v0: experimental fixed 60, unqualified",
+  "scope": "Hypothetical October 2026 current paper Expanded vs frozen May 2026 Aichi field; 3 source ranks unknown. No comparative gameplay validation.",
+  "category_counts": {
+    "Pokémon": 11,
+    "Trainer": 36,
+    "Energy": 13
+  },
+  "cards": [
+    {
+      "category": "Pokémon",
+      "count": 4,
+      "name": "Mega Darkrai ex",
+      "printing": {
+        "set": "PBL",
+        "number": "48",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Radiant Greninja",
+      "printing": {
+        "set": "ASR",
+        "number": "46",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Pecharunt ex",
+      "printing": {
+        "set": "SFA",
+        "number": "39",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Crobat V",
+      "printing": {
+        "set": "DAA",
+        "number": "104",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Tapu Lele-GX",
+      "printing": {
+        "set": "GRI",
+        "number": "60",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Lumineon V",
+      "printing": {
+        "set": "BRS",
+        "number": "40",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Fezandipiti ex",
+      "printing": {
+        "set": "SFA",
+        "number": "38",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Galarian Moltres V",
+      "printing": {
+        "set": "CRE",
+        "number": "97",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "name": "Hypnotoxic Laser",
+      "printing": {
+        "set": "PLS",
+        "number": "123",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "name": "Dark Bell",
+      "printing": {
+        "set": "PBL",
+        "number": "75",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "name": "Max Elixir",
+      "printing": {
+        "set": "BKP",
+        "number": "102",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 3,
+      "name": "Dark Patch",
+      "printing": {
+        "set": "ASR",
+        "number": "139",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "name": "Quick Ball",
+      "printing": {
+        "set": "FST",
+        "number": "237",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Ultra Ball",
+      "printing": {
+        "set": "SVI",
+        "number": "196",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 3,
+      "name": "Janine's Secret Art",
+      "printing": {
+        "set": "SFA",
+        "number": "59",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Professor's Research",
+      "printing": {
+        "set": "PGO",
+        "number": "78",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Lillie's Determination",
+      "printing": {
+        "set": "MEG",
+        "number": "119",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Boss's Orders",
+      "printing": {
+        "set": "MEG",
+        "number": "114",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "VS Seeker",
+      "printing": {
+        "set": "PHF",
+        "number": "109",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Computer Search",
+      "printing": {
+        "set": "BCR",
+        "number": "137",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Switch",
+      "printing": {
+        "set": "MEG",
+        "number": "130",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Escape Rope",
+      "printing": {
+        "set": "BST",
+        "number": "125",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Field Blower",
+      "printing": {
+        "set": "GRI",
+        "number": "125",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Dark City",
+      "printing": {
+        "set": "UNM",
+        "number": "193",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Energy Switch",
+      "printing": {
+        "set": "CES",
+        "number": "129",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Energy",
+      "count": 13,
+      "name": "Darkness Energy",
+      "printing": {
+        "set": "MEE",
+        "number": "15",
+        "language": "en"
+      }
+    }
+  ]
+}
