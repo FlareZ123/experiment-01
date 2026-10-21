@@ -791,7 +791,8 @@ function runDevelopment({
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
-  actorChargedPromotion=false,nativeActionInputWitness=false,
+  actorChargedPromotion=false,sourceFloatStoneMobility=false,
+  nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,
   paperTerminalAttackKo=false,
   rank6K1AlternativeEnergy=false,
@@ -801,6 +802,8 @@ function runDevelopment({
   assertManifest();
   assert.ok(!actorChargedPromotion||(actorOnlyComposition&&actorChoosePokemon),
     'Charged promotion requires actor-only composition and ChoosePokemon');
+  assert.ok(!sourceFloatStoneMobility||actorOnlyComposition,
+    'Source Float Stone rescue requires actor-only composition');
   const {planAichi}=require('./aichi-pilot.cjs');
   const {loadNewMoonCandidate}=require('../../scripts/aichi-new-moon-candidate.cjs');
   const roster=JSON.parse(fs.readFileSync(path.join(root,
@@ -846,11 +849,17 @@ function runDevelopment({
           sourceScopedSpecialEnergyRoot?'source':
             candidateScopedSpecialEnergyRoot?'candidate':'none',
           trial.candidateSlot);
-        const scopedRoot=targetSeat===null?{}:
+        const scopedRoot=(targetSeat===null&&!sourceFloatStoneMobility)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
-              specialEnergyRoot:true,
-              specialEnergyRootOwnerSeat:targetSeat
+              ...(targetSeat!==null?{
+                specialEnergyRoot:true,
+                specialEnergyRootOwnerSeat:targetSeat
+              }:{}),
+              ...(sourceFloatStoneMobility?{
+                floatStoneMobility:true,
+                floatStoneMobilityOwnerSeat:1-(trial.candidateSlot==='A'?0:1)
+              }:{})
             })};
         const chargedPokemon=actorChargedPromotion?{
           pokemon:work=>require('../twinleaf/agent8-actor-only-choose-pokemon.cjs')
@@ -962,6 +971,7 @@ function runDevelopment({
     actorHandDiscardOptIn:actorOnlyComposition&&actorHandDiscard,
     actorChoosePokemonOptIn:actorOnlyComposition&&actorChoosePokemon,
     actorChargedPromotionOptIn:actorOnlyComposition&&actorChargedPromotion,
+    sourceFloatStoneMobilityOptIn:actorOnlyComposition&&sourceFloatStoneMobility,
     actorNativeFallbackAttributionOptIn:
       actorOnlyComposition&&actorGenericFallbackAttribution,
     actorOnlyCompositionVersion:actorOnlyComposition?
@@ -1049,6 +1059,8 @@ if(require.main===module){
     actorHandDiscard:process.env.AGENT47_ACTOR_HAND_DISCARD_DEV==='true',
     actorChoosePokemon:process.env.AGENT8_ACTOR_CHOOSE_POKEMON_DEV==='true',
     actorChargedPromotion:process.env.AGENT1_CHARGED_PROMOTION_DEV==='true',
+    sourceFloatStoneMobility:
+      process.env.AGENT1_SOURCE_FLOAT_MOBILITY_DEV==='true',
     sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true',
     rank6K1AlternativeEnergy:
