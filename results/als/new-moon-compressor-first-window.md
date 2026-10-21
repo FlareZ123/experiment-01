@@ -77,8 +77,8 @@ There are 17 total Basics, so every counted hand is also a valid starting seven.
 
 | Resource branch | Exact **unconditional** probability | Probability conditional on a valid initial seven |
 | --- | --- | --- |
-| Gengar in first eight | 162109 / 21455940 = **0.75554369%** | **0.824352%** |
-| Gengar unprized with Compressor in first eight | 47526671 / 4093793352 = **1.16094455%** | **1.266599%** |
+| Gengar in first eight | 162109 / 21455940 = **0.75554369%** | **0.82432309%** |
+| Gengar unprized with Compressor in first eight | 47526671 / 4093793352 = **1.16094455%** | **1.26662881%** |
 | **Either branch** | **392285341 / 20468966760 = 1.91648824%** | **392285341 / 18761088718 = 2.09095190%** |
 
 For Gengar absent from the first eight but Compressor observed, its conditional probability of avoiding the six Prizes is **46/52**, because Gengar occupies one of the 52 unseen post-draw physical positions. For the direct-Gengar branch, Gengar is already available and cannot be Prized. The independent seeded Python 400,000-deal experiment physically placed seven initial cards, six Prizes and a subsequent ordinary draw; **7,679 / 400,000 = 1.91975%** met the unconditional union, consistent with the exact figure.
