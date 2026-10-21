@@ -262,6 +262,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseSpecialEnergyIntent(view,catalog);
     if(special)return special;
   }
+  if(options.strandedMarnieRoot===true){
+    const planned=require('./agent50-stranded-marnie-frontier.cjs')
+      .chooseStrandedMarnie(view);
+    if(planned)return planned;
+  }
   return {kind:'pass',reason:'no-supported-owner-visible-root'};
 }
 
@@ -348,6 +353,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV==='true'),
     powerglassRootOptIn:deps.powerglassRoot??
       (process.env.AGENT41_ACTOR_POWERGLASS_ROOT_DEV==='true'),
+    strandedMarnieRootOptIn:deps.strandedMarnieRoot??
+      (process.env.AGENT50_STRANDED_MARNIE_DEV==='true'),
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
     typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
     publicTransitionWitnesses:0,publicTransitionChanges:0,
@@ -377,6 +384,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent35-public-donor-funding-pivot-v1';
   if(audit.powerglassRootOptIn)
     audit.version+='+agent41-owner-visible-powerglass-root-v1';
+  if(audit.strandedMarnieRootOptIn)
+    audit.version+='+'+
+      require('./agent50-stranded-marnie-frontier.cjs').VERSION;
   function wrapped(state){
     // A bot may evaluate hypothetical cloned States in its own tactics.
     // Never make an actor-root policy decision against such a speculative
@@ -416,7 +426,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       knownDeadAttackRoot:audit.knownDeadAttackRootOptIn,
       naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
       quickBallRoot:audit.quickBallRootOptIn,
-      powerglassRoot:audit.powerglassRootOptIn
+      powerglassRoot:audit.powerglassRootOptIn,
+      strandedMarnieRoot:audit.strandedMarnieRootOptIn
     });
     const ownerId=state.players[seat].id;
     let action;
@@ -441,6 +452,10 @@ function withActorOnlyRootPolicy(run,deps={}){
           player:PlayerType.BOTTOM_PLAYER,
           slot:intent.slot==='bench'?SlotType.BENCH:SlotType.ACTIVE,
           index:intent.slot==='bench'?intent.index:0});
+        break;
+      case 'play-stranded-marnie':
+        action=new PlayCardAction(ownerId,intent.handIndex,{
+          player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
       case 'play-quick-ball':
         action=new PlayCardAction(ownerId,intent.handIndex,{
