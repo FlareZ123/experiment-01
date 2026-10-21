@@ -208,3 +208,25 @@ test('missing or discontinuous turnAfter does not certify same-epoch return',()=
   assert.equal(out.withVerifiedSameEpochSourceReturn,0,
     'A native chronological discontinuity must remain uncertified');
 });
+
+test('replay opening cannot masquerade as a settled attacking game board',()=>{
+  const game=fixture();
+  game.rootActionLedger[0].turnAfter=21;
+  game.rootActionLedger[1].turnAfter=0;
+  game.publicAttackTransitions[0].settled={
+    completionRootActionOrdinal:1,
+    after:[{active:{name:'Replay starter',damage:0}},{}],
+    prizesRemaining:[6,6]
+  };
+  const out=candidateAttackSettlement(game,1);
+  assert.equal(out.declarations,1);
+  assert.equal(out.settled,0);
+  assert.equal(out.crossEpochSettlementsRejected,1);
+  assert.equal(out.withImmediateSourceReturn,0);
+  assert.equal(out.attacks[0].settlementCrossesClockReset,true);
+  assert.equal(out.attacks[0].settledPromptChain,false);
+  assert.equal(out.attacks[0].publicBoardAfter,null);
+  assert.equal(out.attacks[0].prizesAfter,null);
+  assert.equal(out.attacks[0].completionRootOrdinal,null);
+  assert.equal(out.attacks[0].firstClockResetAfterAttackOrdinal,1);
+});
