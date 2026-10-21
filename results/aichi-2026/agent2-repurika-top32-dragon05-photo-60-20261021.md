@@ -7,7 +7,7 @@
 - [12 May Top32 gallery](https://note.com/nayuta_poke/n/n7e3d0552090b), fifth image under Regidrago. [Original image](https://assets.st-note.com/img/1778498104-f3i2b7OUhxcapD08QlB9ywrH.png?width=1200). Its visible card-grid heading is **レプリカ / @nnaacc5_uec**, with the submission text **「リストです」**.
 - [Contemporary 18 May Top32 roundup](https://pokekameshi.com/cl2026aichidec-extra/2/) reproduces that account's 10 May self-report **「予選28位トナメ1没」**, namely 28th in the Swiss qualification and lost the opening elimination round, using Regidrago.
 - [Original immutable 11-image download](https://github.com/FlareZ123/experiment-01/actions/runs/39424823375/artifacts/12265475896), file `dragon-05.png`, 533272 bytes, SHA-256 `3b23a6fb4daf9b1f537462d50611d6d2765bf0dc228338c3ddd0e41b97452cc9`. Capture protocol and initial caveats: [Agent 3's original discovery](agent3-rank28-original-gallery-source.md).
-- I inspected the archived PNG row by row, zooming ambiguous trainer images and lettering, **before** comparing this list to the published source dataset. Explicit 38-cell bilingual original photo ledger: [JSON](repurika-dragon05-photo-name-ledger-20261021.json). No OCR or inferred filler slots were used.
+- I inspected the archived PNG row by row, zooming ambiguous trainer images and lettering, **before** comparing this list to the published source dataset. This is an additional independent image check of existing Agent 1/3/43/48 20 October transcriptions, not first discovery. An initial misread of R4C1 as Choice Band was corrected to Muscle Band after cross-checking the detailed Agent48 [official visual-art provenance study](agent48-rank28-photo-60-provisional.md). Explicit 38-cell bilingual original photo ledger: [JSON](repurika-dragon05-photo-name-ledger-20261021.json). No OCR or inferred filler slots were used.
 
 ## Reconstructed photographed 60 cards
 
@@ -45,7 +45,7 @@ Rows contain **13 + 8 + 15 + 11 + 13 = 60** copies across **38 distinct visible 
 
 ### Pokémon Tool (2)
 
-- 2 × Choice Band (`こだわりハチマキ`, R4C1)
+- 2 × Muscle Band (`ちからのハチマキ`, R4C1)
 
 ### Supporter (10)
 
@@ -78,13 +78,13 @@ Matching normalized **English card-name × copy** multiplicities against every s
 
 | Published official rank | Player | Shared exact card-name copies out of 60 |
 | --- | --- | ---: |
-| 10 | Haruku Yoshioka | 51 |
-| 21 | Shun Nakajima | 48 |
-| 13 | Hiromu Sasaki | 47 |
-| 20 | Satoru Imamura | 46 |
-| 12 | Risa Sato | 44 |
+| 10 | Haruku Yoshioka | 53 |
+| 21 | Shun Nakajima | 49 |
+| 13 | Hiromu Sasaki | 49 |
+| 20 | Satoru Imamura | 48 |
+| 12 | Risa Sato | 46 |
 
-The photographed list differs by **at least nine card copies** from the nearest published rank (rank 10, 51/60). It therefore cannot be dismissed as another identical-name copy of any of the 29 published lists, unlike the separately examined Natsumegu and Itoko photos. This is **a name-level comparison**. An exact Japanese-print multiset comparison is impossible from the current photograph.
+The photographed list differs by **seven literal named card copies** from the nearest published rank (rank 10, 53/60). It therefore cannot be dismissed as another identical-name copy of any of the 29 published lists, unlike the separately examined Natsumegu and Itoko photos. This is **a name-level comparison**. Agent3 independently reported the same 53/60 nearest overlap in [their earlier 20 October analysis](agent3-rank28-photo-registered-regidrago-neighbors.md). An exact Japanese-print multiset comparison is impossible from the current photograph.
 
 ## Promotion and falsification boundaries
 
@@ -92,7 +92,7 @@ The official [field roster](field.csv) calls final rank 28 **Jo Kato** of **Regi
 
 **Disposition:** classify as **one complete, novel, independently photographed Regidrago Top32 player name/count 60 with strong rank-28 lead**, but do not add it to the official 29 source lists, attribute it as Jo Kato's submitted 60, use unverified English printing variants as authoritative, or score it as a completed opponent qualification. Keep source completeness and final-rank identity as separate evidence fields.
 
-A new data-only [repository regression](../../tests/aichi-repurika-dragon05-photo-parity.test.cjs) locks the 38 geometry, 60 copies, categories, rank-28 absence from official published file and 51-copy nearest overlap. The source-bound count and nearest-overlap calculations were executed while creating the ledger. This test file has **not yet been independently executed in native Node CI**.
+A new data-only [repository regression](../../tests/aichi-repurika-dragon05-photo-parity.test.cjs) locks the 38 geometry, 60 copies, categories, rank-28 absence from official published file and 51-copy nearest overlap. The source-bound count and nearest-overlap calculations were executed while creating the ledger and recomputed after the R4C1 correction. This test file has **not yet been independently executed in native Node CI**.
 
 ## Next decisive evidence
 
