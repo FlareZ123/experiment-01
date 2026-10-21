@@ -120,3 +120,63 @@ test('Perfection root physical observer waits for native copied-attack declarati
   assert.equal(rootPhysicalWitness({kind:'perfection'}, {},{},{}),
     'attack-needs-declaration');
 });
+
+test('optional root policy emits native-typed Perfection Ability action and restores hooks',()=>{
+  const {withActorOnlyRootPolicy}=require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  class AddPlayerAction{}
+  class PlayCardAction{}
+  class AttackAction{}
+  class PassTurnAction{}
+  class RetreatAction{}
+  class UseAbilityAction{
+    constructor(id,name,target){this.id=id;this.name=name;this.target=target;}
+  }
+  const pokemonCard={fullName:'Mewtwo & Mew-GX UNM',
+    name:'Mewtwo & Mew-GX',stage:1,cardType:[P],hp:270,
+    weakness:[],resistance:[],retreat:[],attacks:[],
+    powers:[{name:'Perfection'}]};
+  const active=()=>({getPokemonCard:()=>pokemonCard,
+    getPokemons:()=>[pokemonCard],cards:[pokemonCard],damage:0,
+    energies:{cards:[]},tools:[],specialConditions:[]});
+  const player=id=>({id,active:active(),bench:[],
+    hand:{cards:[]},deck:{cards:[]},prizes:[],
+    stadium:{cards:[]},discard:{cards:[]},lostzone:{cards:[]},
+    supporter:{cards:[]}});
+  class Store{
+    constructor(){this.state={turn:3,phase:2,activePlayer:0,
+      prompts:[],players:[player(11),player(22)]};}
+    dispatch(){return true;}
+  }
+  class SimpleTacticsAi{
+    constructor(id){this.client={id};}
+    decodeNextAction(){throw Error('Unqualified fallback');}
+  }
+  const oldBot=SimpleTacticsAi.prototype.decodeNextAction;
+  const oldDispatch=Store.prototype.dispatch;
+  const v=view();
+  v.globalTurn=3;
+  const result=withActorOnlyRootPolicy(()=>{
+    const store=new Store();
+    store.dispatch(new AddPlayerAction());
+    const choice=new SimpleTacticsAi(11).decodeNextAction(store.state);
+    assert.ok(choice instanceof UseAbilityAction);
+    assert.equal(choice.name,'Perfection');
+    assert.deepEqual(choice.target,{player:0,slot:1,index:0});
+    store.dispatch(choice);
+    return choice;
+  },{
+    SimpleTacticsAi,Store,GamePhase:{PLAYER_TURN:2,FINISHED:7},
+    getCatalog:()=>({...energyCatalog,perfectionDonors:donorCatalog,
+      basics:new Set(),abilityBasics:new Set(),specialConditions:{ASLEEP:2,PARALYZED:0}}),
+    observe:()=>v,perfectionRoot:true,
+    cardActions:{PlayCardAction,PlayerType:{BOTTOM_PLAYER:0,ANY:2},
+      SlotType:{ACTIVE:1,BENCH:2,BOARD:3}},
+    gameActions:{AttackAction,PassTurnAction,RetreatAction,UseAbilityAction}
+  });
+  assert.equal(result.audit.perfectionRootOptIn,true);
+  assert.equal(result.audit.acceptedActorRoots,1);
+  assert.equal(result.audit.rejectedActorRoots,0);
+  assert.equal(result.audit.nativeAttackNeedsDeclaration,1);
+  assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,oldBot);
+  assert.strictEqual(Store.prototype.dispatch,oldDispatch);
+});
