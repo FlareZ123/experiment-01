@@ -34,6 +34,7 @@ def source_inventory_digest(source_deck_digests: Mapping[int, str]) -> str:
 
 NATIVE_ROOT_PROTOCOL = "actual-store-root-action-ledger-v1"
 NATIVE_CLOCK_PROTOCOL = "actual-native-sudden-death-clock-transition-v1"
+NATIVE_TRACE_PROOF_PROTOCOL = "native-clock-capsule-v1"
 
 
 def _verify_single_native_epoch(game: dict) -> None:
@@ -46,9 +47,19 @@ def _verify_single_native_epoch(game: dict) -> None:
     evidence = game.get("native_clock_evidence")
     if not isinstance(evidence, dict):
         raise ValueError("Missing native clock evidence for registered trial")
-    if (evidence.get("game_id") != game["game_id"] or
-            evidence.get("action_trace_sha256") != game["trace_sha256"]):
+    if evidence.get("game_id") != game["game_id"]:
         raise ValueError("Native clock evidence is not bound to this recorded trial")
+    # evaluate_raw_batch has already verified the complete action_trace digest.
+    # Require the same clock capsule inside that authenticated-by-hash record,
+    # otherwise a clean detached capsule could mask a reset in the trace.
+    anchors = [
+        event.get("native_clock_evidence")
+        for event in game["action_trace"]
+        if isinstance(event, dict) and
+        event.get("protocol") == NATIVE_TRACE_PROOF_PROTOCOL
+    ]
+    if len(anchors) != 1 or anchors[0] != evidence:
+        raise ValueError("Native clock evidence is not anchored to the hashed action trace")
     if (evidence.get("rootActionLedgerProtocol") != NATIVE_ROOT_PROTOCOL or
             evidence.get("suddenDeathClockResetProtocol") != NATIVE_CLOCK_PROTOCOL):
         raise ValueError("Native clock evidence has unrecognized Store protocols")
