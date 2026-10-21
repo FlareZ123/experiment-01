@@ -17,12 +17,14 @@ function fixture(enabled){
       finalPrizes:enabled?[6,0]:[0,6],rootActionCount:enabled?94:260,
       rootActionLedgerSha256:'same-source-sha-is-not-required-after-treatment',
       actorOnlyDecisionCoverage:{
-        paidRetreatRootOptIn:enabled,
-        typedIntentCounts:enabled?{'paid-retreat':1}:{},
-        nativeRootAcceptances:enabled?[{
-          kind:'paid-retreat',accepted:true,
-          nativePhysicalEffect:'confirmed-public-effect'
-        }]:[]
+        detailedComponentAudits:{root:{
+          paidRetreatRootOptIn:enabled,
+          typedIntentCounts:enabled?{'paid-retreat':1}:{},
+          nativeRootAcceptances:enabled?[{
+            kind:'paid-retreat',accepted:true,
+            nativePhysicalEffect:'confirmed-public-effect'
+          }]:[]
+        }}
       },
       candidateAttackSettlement:{attacks:enabled?[{
         actionOrdinal:54,turnBefore:13,attackName:'Full Moon Rondo',
@@ -55,9 +57,9 @@ test('altered physical deals remain visible as a separate failed match',()=>{
 
 test('missing an actor switch or changing the experimental source fails closed',()=>{
   const baseline=fixture(false),treatment=fixture(true);
-  treatment.rows[2].actorOnlyDecisionCoverage.paidRetreatRootOptIn=false;
+  treatment.rows[2].actorOnlyDecisionCoverage.detailedComponentAudits.root.paidRetreatRootOptIn=false;
   assert.throws(()=>comparePackets(baseline,treatment));
-  treatment.rows[2].actorOnlyDecisionCoverage.paidRetreatRootOptIn=true;
+  treatment.rows[2].actorOnlyDecisionCoverage.detailedComponentAudits.root.paidRetreatRootOptIn=true;
   treatment.enginePin='other-engine';
   assert.throws(()=>comparePackets(baseline,treatment));
 });
