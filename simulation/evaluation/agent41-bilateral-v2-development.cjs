@@ -668,7 +668,7 @@ function runDevelopment({
       const genericAbort=error?.nativeGenericFallbackEvidence??
         error?.cause?.nativeGenericFallbackEvidence??null;
       rows.push({
-        trial,status:veto?'paper-supporter-quota-veto':'engine-error',
+        trial,status:veto?.rootDispatchVetoes?.length>0?'paper-supporter-quota-veto':'engine-error',
         error:String(error?.stack||error),
         nativeStoreCauseStack:error?.cause?.stack??null,
         ...(error?.nativePublicRootArchive??{}),
