@@ -14,6 +14,8 @@ const {withNativePaperSupporterDiscipline,VERSION:PAPER_SUPPORTER_VERSION}=
   require('../twinleaf/agent41-paper-supporter-discipline.cjs');
 const {withCancelingCologneOncePerTurnHook}=
   require('../twinleaf/canceling-cologne-once-per-turn-hook.cjs');
+const {auditAcceptedCologneRoots}=
+  require('./agent48-cologne-native-ledger-audit.cjs');
 const {withCanonicalActorOnlyPolicy,VERSION:ACTOR_COMPOSITION_VERSION}=
   require('./agent7-canonical-actor-composition.cjs');
 
@@ -389,6 +391,11 @@ function executeDevelopment(trial,candidates,{
     row.declarations?.length && row.settled?.after);
   const sourceFirst=game.firstTurnSlot===sourceSeat;
   const rootTrace=game.rootActionLedger||[];
+  const cologneNativePlayAudit=auditAcceptedCologneRoots(rootTrace);
+  if(paperCologneQuota){
+    assert.equal(cologneNativePlayAudit.acceptedOncePerSeatTurn,true,
+      'Paper Cologne guard permitted two successful plays by one actor in one turn');
+  }
   // Independent postgame parser: count actual source/candidate G&H Play roots
   // and immediately following native SelectOption roots for both v0 controls
   // and the opt-in resolver. This cannot alter any gameplay decision.
@@ -469,6 +476,7 @@ function executeDevelopment(trial,candidates,{
     }:{}),
     finalDispatchVisiblePlayLockV2:game.livePlayLockGuardBothSeats===true,
     paperCologneQuotaOptIn:paperCologneQuota,
+    paperCologneNativePlayAudit:cologneNativePlayAudit,
     nativeSupporterQuotaQualified:paperSupporterQuota?
       paperSupporterAudit?.nativeSupporterQuotaQualified===true:'unverified',
     paperSupporterDiscipline:paperSupporterQuota?paperSupporterAudit:null,
