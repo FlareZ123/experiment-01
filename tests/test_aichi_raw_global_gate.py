@@ -454,6 +454,8 @@ def anchor_native_clock(game_record):
         anchors[0]["native_clock_evidence"] = deepcopy(game_record["native_clock_evidence"])
     else:
         game_record["action_trace"].append({
+            "step": len(game_record["action_trace"]),
+            "action": "native-clock-capsule",
             "protocol": "native-clock-capsule-v1",
             "native_clock_evidence": deepcopy(game_record["native_clock_evidence"]),
         })
