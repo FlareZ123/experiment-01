@@ -758,6 +758,21 @@ function classifyNativeAbort(evidence){
       'paper-supporter-quota-veto':'engine-error';
 }
 
+/**
+ * Isolate exactly one actor's Special Energy root for a paired source-deal
+ * comparison. Null keeps the default fully unchanged native bot.
+ * @param {'none'|'source'|'candidate'} scope
+ * @param {'A'|'B'} candidateSlot
+ * @returns {0|1|null}
+ */
+function scopedSpecialEnergyActorSeat(scope,candidateSlot){
+  assert.ok(['none','source','candidate'].includes(scope));
+  assert.ok(['A','B'].includes(candidateSlot));
+  if(scope==='none')return null;
+  const candidateSeat=candidateSlot==='A'?0:1;
+  return scope==='candidate'?candidateSeat:1-candidateSeat;
+}
+
 /** @returns {object} */
 function runDevelopment({
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
@@ -819,10 +834,10 @@ function runDevelopment({
         assert.ok(!(sourceScopedSpecialEnergyRoot&&
           candidateScopedSpecialEnergyRoot),
           'A single-source test cannot change both actors');
-        const targetSeat=sourceScopedSpecialEnergyRoot?
-          (trial.candidateSlot==='A'?1:0):
-          candidateScopedSpecialEnergyRoot?
-            (trial.candidateSlot==='A'?0:1):null;
+        const targetSeat=scopedSpecialEnergyActorSeat(
+          sourceScopedSpecialEnergyRoot?'source':
+            candidateScopedSpecialEnergyRoot?'candidate':'none',
+          trial.candidateSlot);
         const scopedRoot=targetSeat===null?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
@@ -1030,5 +1045,5 @@ if(require.main===module){
 module.exports={developmentTrials,sourceFirstPressureTrials,
   commonPayloadOption,firstPostSourceDecision,
   sourceLineReplyPacket,candidatePostChoicePassEvidence,
-  candidateRepliesAfterSourceAttacks,
+  candidateRepliesAfterSourceAttacks,scopedSpecialEnergyActorSeat,
   executeDevelopment,runDevelopment,classifyNativeAbort};
