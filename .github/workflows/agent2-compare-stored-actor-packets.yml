@@ -11,6 +11,11 @@ on:
         description: Existing paid-retreat historical native workflow run ID
         required: true
         type: string
+      source_first_stress:
+        description: Compare preserved outcome-selected source-first stress rows instead of original historical rows
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -41,5 +46,9 @@ jobs:
           run-id: ${{ inputs.treatment_run }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: treatment
-      - name: Compare authentic Store source fingerprints and paid-retreat receipts
+      - name: Compare original historical native Store root evidence
+        if: ${{ !inputs.source_first_stress }}
         run: node scripts/agent2-paid-retreat-pair-audit.cjs baseline/agent7-canonical-actor-fourarm.json treatment/agent7-canonical-actor-fourarm.json
+      - name: Compare selected source-first Store stress separately
+        if: ${{ inputs.source_first_stress }}
+        run: node scripts/agent2-paid-retreat-pair-audit.cjs baseline/agent7-canonical-sourcefirst.json treatment/agent7-canonical-sourcefirst.json
