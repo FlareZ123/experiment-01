@@ -352,6 +352,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
     publicTransitionWitnesses:0,publicTransitionChanges:0,
     nativePhysicalConfirmed:0,nativePhysicalUnconfirmed:0,
+    nativePhysicalConfirmedByIntent:{},nativePhysicalUnconfirmedByIntent:{},
     nativeAttackNeedsDeclaration:0,
     observationSchema:'agent2-public-native-dispatch-diff-v1',
     unsupportedPromptTypes:{},
@@ -489,8 +490,16 @@ function withActorOnlyRootPolicy(run,deps={}){
         rootPhysicalWitness(choice.intent,ownerBefore,
           rootPhysicalSnapshot(this.state,choice.seat,choice.intent),
           engineGamePhase());
-      if(physical==='confirmed-public-effect')audit.nativePhysicalConfirmed++;
-      if(physical==='no-confirmed-public-effect')audit.nativePhysicalUnconfirmed++;
+      if(physical==='confirmed-public-effect'){
+        audit.nativePhysicalConfirmed++;
+        audit.nativePhysicalConfirmedByIntent[choice.kind]=
+          (audit.nativePhysicalConfirmedByIntent[choice.kind]??0)+1;
+      }
+      if(physical==='no-confirmed-public-effect'){
+        audit.nativePhysicalUnconfirmed++;
+        audit.nativePhysicalUnconfirmedByIntent[choice.kind]=
+          (audit.nativePhysicalUnconfirmedByIntent[choice.kind]??0)+1;
+      }
       if(physical==='attack-needs-declaration')audit.nativeAttackNeedsDeclaration++;
       const witnessed=before!==null&&after!==null;
       const publicZonesChanged=witnessed&&
