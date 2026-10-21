@@ -128,7 +128,8 @@ function nativeActionForIntent(intent,player,deps){
 function rootPhysicalSnapshot(state,seat,intent){
   const owner=state.players[seat];
   const target=intent.kind==='evolve-pokemon'?(intent.slot==='bench'?owner.bench[intent.index]:owner.active):null;
-  const energyRecipient=intent.kind==='attach-basic-energy'&&
+  const energyRecipient=intent.kind==='paid-retreat'?
+    owner.bench[intent.benchIndex]:intent.kind==='attach-basic-energy'&&
     intent.slot==='bench'?owner.bench[intent.index]:owner.active;
   return {
     evolutionTop:target?.getPokemonCard()?.fullName??null,
@@ -137,6 +138,12 @@ function rootPhysicalSnapshot(state,seat,intent){
     handCount:owner.hand.cards.length,
     stadiumPrintings:owner.stadium?.cards?.map(c=>c.fullName)??[],
     activeEnergies:owner.active.energies.cards.map(c=>c.fullName),
+    ...(intent.kind==='paid-retreat'?{
+      activePokemonPrinting:owner.active.getPokemonCard()?.fullName??null,
+      targetPokemonPrinting:
+        owner.bench[intent.benchIndex]?.getPokemonCard()?.fullName??null,
+      retreatedTurn:owner.retreatedTurn
+    }:{}),
     targetEnergies:energyRecipient?.energies?.cards.map(c=>c.fullName)??null,
     benchPrinting:intent.kind==='bench-basic'?
       owner.bench[intent.benchSlot].getPokemonCard()?.fullName??null:null,
@@ -198,6 +205,19 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
       count(after.stadiumPrintings)===1&&
       count(before.stadiumPrintings)===0&&
       after.handCount===before.handCount-1?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='paid-retreat'){
+    return before.activePokemonPrinting!==null&&
+      before.targetPokemonPrinting===intent.printing&&
+      before.activePokemonPrinting!==intent.printing&&
+      after.activePokemonPrinting===intent.printing&&
+      after.targetPokemonPrinting===before.activePokemonPrinting&&
+      Array.isArray(before.activeEnergies)&&
+      before.activeEnergies.length===1&&
+      Array.isArray(after.targetEnergies)&&
+      after.targetEnergies.length===0&&
+      after.retreatedTurn===before.turn?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(intent.kind==='pass'){
