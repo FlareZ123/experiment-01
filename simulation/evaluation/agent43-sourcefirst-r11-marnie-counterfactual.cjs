@@ -54,6 +54,11 @@ function run(){
     SimpleTacticsAi:Bot
   });
   const treatment=observed.result;
+  const withGuzma=process.env.AGENT43_GUZMA_T9==='true'?
+    withSourceMarnieAfterPass(execute,{
+      SimpleTacticsAi:Bot,guzmaT9:true
+    }):null;
+  const guzmaTreatment=withGuzma?.result??null;
   const baselineAuthenticated=control.sourceDealFingerprint===
       ORIGINAL_SOURCE_DEAL&&control.rootActionLedgerSha256===
       ORIGINAL_LEDGER&&control.actionCount===175&&
@@ -74,6 +79,11 @@ function run(){
   while(commonPrefix<Math.min(controlLedger.length,testLedger.length)&&
     actionKey(controlLedger[commonPrefix])===
     actionKey(testLedger[commonPrefix]))commonPrefix++;
+  const guzmaLedger=guzmaTreatment?.rootActionLedger??[];
+  let marnieOnlyPrefix=0;
+  while(marnieOnlyPrefix<Math.min(testLedger.length,guzmaLedger.length)&&
+    actionKey(testLedger[marnieOnlyPrefix])===
+      actionKey(guzmaLedger[marnieOnlyPrefix]))marnieOnlyPrefix++;
   const summary=row=>({
     sourceDealFingerprint:row.sourceDealFingerprint,
     actionLedgerSha256:row.rootActionLedgerSha256,
@@ -98,6 +108,13 @@ function run(){
     firstControlOnlyAction:controlLedger[commonPrefix]??null,
     firstTreatmentOnlyAction:testLedger[commonPrefix]??null,
     sourceMarnieRoot:observed.audit,
+    sourceGuzmaT9:withGuzma?.audit??null,
+    marnieOnlyPrefix:guzmaTreatment?marnieOnlyPrefix:null,
+    firstMarnieOnlyAction:guzmaTreatment?
+      testLedger[marnieOnlyPrefix]??null:null,
+    firstGuzmaTreatmentAction:guzmaTreatment?
+      guzmaLedger[marnieOnlyPrefix]??null:null,
+    guzmaTreatment:guzmaTreatment?summary(guzmaTreatment):null,
     control:summary(control),
     treatment:summary(treatment),
     competitiveQualifiedGames:0,winRateCertified:false,
@@ -114,6 +131,20 @@ function run(){
   assert.equal(observed.audit.eligibleMarniePasses,1);
   assert.equal(observed.audit.StoreAccepted,1);
   assert.equal(observed.audit.StoreRejected,0);
+  if(withGuzma){
+    assert.equal(guzmaTreatment.sourceDealFingerprint,
+      ORIGINAL_SOURCE_DEAL,'Guzma fork changed original physical deal');
+    assert.equal(guzmaTreatment.actualStarterSeat,0);
+    assert.equal(withGuzma.audit.StoreAccepted,2,
+      'Must accept exactly one real Marnie and one real Guzma');
+    assert.equal(withGuzma.audit.StoreRejected,0);
+    assert.equal(withGuzma.audit.guzmaT9Proposals,1);
+    assert.equal(withGuzma.audit.guzmaT9Accepted,1);
+    assert.equal(withGuzma.audit.guzmaT9Rejected,0);
+    assert.ok(marnieOnlyPrefix>46,
+      'Source Guzma fork must preserve Marnie and post-Marnie roots');
+    assert.equal(report.competitiveQualifiedGames,0);
+  }
   assert.equal(treatment.rootActionLedgerSha256,
     'cfa5672e609ca7854d63e062424b6140d986c7cd220d804b8f18a785921e96e6',
     'Read-only owner-hand auditing changed original Marnie game actions');
@@ -129,7 +160,15 @@ if(require.main===module){
     original:{winner:r.control.winner,prizes:r.control.prizes,
       attacks:r.control.settledPublicAttacks},
     treatment:{winner:r.treatment.winner,prizes:r.treatment.prizes,
-      attacks:r.treatment.settledPublicAttacks}
+      attacks:r.treatment.settledPublicAttacks},
+    guzma:r.guzmaTreatment?{
+      winner:r.guzmaTreatment.winner,prizes:r.guzmaTreatment.prizes,
+      attacks:r.guzmaTreatment.settledPublicAttacks,
+      sourceSettled:r.guzmaTreatment.sourceAttacks?.settled,
+      pairPrefix:r.marnieOnlyPrefix,
+      storeAccepted:r.sourceGuzmaT9.guzmaT9Accepted,
+      prompts:r.sourceGuzmaT9.guzmaPromptResponses
+    }:null
   })+'\n');
 }
 module.exports={run,ORIGINAL_SOURCE_DEAL,ORIGINAL_LEDGER};
