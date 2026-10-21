@@ -179,6 +179,9 @@ function chooseActorRootIntent(view,catalog,options={}){
       [...(own.stadium??[]),...(view.opponentPublic?.stadium??[])]
         .some(p=>p.startsWith('Thunder Mountain Prism Star '));
     for(const attack of active.attacks){
+      if(options.fullBenchCallForFamilyRoot===true&&
+        require('./agent39-fullbench-call-for-family.cjs')
+          .skipEmptyTrubbishCallForFamily(view,attack))continue;
       if(!Array.isArray(attack.cost))continue;
       // Printed GX attacks share the global one-GX-per-game resource. They are
       // disabled by default until explicitly tested as actor-owned roots.
@@ -293,6 +296,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT44_ACTOR_ENERGY_RECIPIENT_DEV==='true'),
     paidRetreatRootOptIn:deps.paidRetreatRoot??
       (process.env.AGENT6_PAID_RETREAT_ROOT_DEV==='true'),
+    fullBenchCallForFamilyRootOptIn:deps.fullBenchCallForFamilyRoot??
+      (process.env.AGENT39_FULL_BENCH_CALL_FOR_FAMILY_DEV==='true'),
     thornsDirectLineOptIn:deps.thornsDirectLine??
       (process.env.AGENT1_THORNS_DIRECT_ROOT_DEV==='true'),
     specialEnergyRootOptIn:deps.specialEnergyRoot??
@@ -326,6 +331,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent49-public-potential-ko-v2';
   if(audit.knownDeadAttackRootOptIn)
     audit.version+='+agent1-known-dead-leading-attack-v1';
+  if(audit.fullBenchCallForFamilyRootOptIn)
+    audit.version+='+agent39-full-bench-call-for-family-v1';
   function wrapped(state){
     // A bot may evaluate hypothetical cloned States in its own tactics.
     // Never make an actor-root policy decision against such a speculative
@@ -355,6 +362,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       energyFrontier:audit.energyFrontierOptIn,
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
       paidRetreatRoot:audit.paidRetreatRootOptIn,
+      fullBenchCallForFamilyRoot:audit.fullBenchCallForFamilyRootOptIn,
       thornsDirectLine:audit.thornsDirectLineOptIn,
       specialEnergyRoot:audit.specialEnergyRootOptIn,
       printedGxRoot:audit.printedGxRootOptIn,
