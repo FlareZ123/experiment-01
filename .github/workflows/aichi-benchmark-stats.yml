@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank6_k1_alternative_energy:
+        description: 'Paired original-Store K1 source fallback, development only'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -200,5 +205,48 @@ jobs:
         with:
           name: agent3-rank6-sourcefirst-native-development
           path: rank6-native-sourcefirst.json
+          if-no-files-found: warn
+          retention-days: 10
+
+  rank6-k1-energy-contrast:
+    if: inputs.rank6_k1_alternative_energy
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Pure owner-K1 and source-policy regressions
+        run: node --test tests/rank6-broad-thorns-policy.test.cjs tests/agent49-rank6-k1-alternate.test.cjs
+      - name: Fetch pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install exact upstream dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Frozen same-head retrospective source-first OFF/ON
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+        run: |
+          AGENT49_RANK6_K1_ALT_ENERGY_DEV=false node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent49-k1-off.json
+          AGENT49_RANK6_K1_ALT_ENERGY_DEV=true node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent49-k1-on.json
+          node scripts/agent49-rank6-k1-native-pair.cjs agent49-k1-off.json agent49-k1-on.json > agent49-k1-pair.json
+          node -e "const r=require('./agent49-k1-pair.json');console.log('K1_NATIVE_PAIRS',JSON.stringify(r.pairs.map(x=>({id:x.id,fullDeal:x.sameFullDeal,off:x.baseline.sourceAudit,on:x.treatment.sourceAudit,divergence:x.rootDiff?.firstDifferentRoot??null}))))"
+      - name: Preserve all trial rows, rejected and capped
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent49-rank6-k1-source-first-pair
+          path: |
+            agent49-k1-off.json
+            agent49-k1-on.json
+            agent49-k1-pair.json
           if-no-files-found: warn
           retention-days: 10
