@@ -181,8 +181,9 @@ test('physical snapshot accesses acting-owner public zones only',()=>{
   const s={turn:2,phase:5,players:[p,hostile]};
   assert.deepEqual(rootPhysicalSnapshot(s,0,{
     kind:'bench-basic',benchSlot:0,printing:C
-  }),{turn:2,phase:5,handCount:1,activeEnergies:[P],
-    benchPrinting:null});
+  }),{evolutionTop:null,evolutionLayers:null,
+    turn:2,phase:5,handCount:1,activeEnergies:[P],
+    targetEnergies:[P],benchPrinting:null});
 });
 
 
