@@ -264,6 +264,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseSpecialEnergyIntent(view,catalog);
     if(special)return special;
   }
+  if(options.emergencyAceTrainerRoot===true){
+    const reset=require('./agent8-actor-ace-trainer-frontier.cjs')
+      .chooseEmergencyAceTrainer(view);
+    if(reset)return reset;
+  }
   return {kind:'pass',reason:'no-supported-owner-visible-root'};
 }
 
@@ -329,6 +334,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT44_ACTOR_ENERGY_RECIPIENT_DEV==='true'),
     nearTermDamageRecipientOptIn:deps.nearTermDamageRecipient??
       (process.env.AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV==='true'),
+    emergencyAceTrainerRootOptIn:deps.emergencyAceTrainerRoot??
+      (process.env.AGENT8_ACE_TRAINER_EMERGENCY_DEV==='true'),
     perfectionRootOptIn:deps.perfectionRoot??
       (process.env.AGENT30_PERFECTION_ROOT_DEV==='true'),
     perfectionTransitionRootOptIn:deps.perfectionTransitionRoot??
@@ -372,6 +379,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.nearTermDamageRecipientOptIn)
     audit.version+='+'+
       require('./agent44-actor-energy-recipient.cjs').NEAR_TERM_DAMAGE_VERSION;
+  if(audit.emergencyAceTrainerRootOptIn)
+    audit.version+='+'+
+      require('./agent8-actor-ace-trainer-frontier.cjs').VERSION;
   if(audit.specialEnergyRootOwnerSeat!==null)
     audit.version+='+agent49-source-seat-special-v1';
   if(audit.quickBallRootOptIn)
@@ -416,6 +426,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       energyFrontier:audit.energyFrontierOptIn,
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
       nearTermDamageRecipient:audit.nearTermDamageRecipientOptIn,
+      emergencyAceTrainerRoot:audit.emergencyAceTrainerRootOptIn,
       paidRetreatRoot:audit.paidRetreatRootOptIn,
       perfectionRoot:audit.perfectionRootOptIn,
       perfectionTransitionRoot:audit.perfectionTransitionRootOptIn,
@@ -453,6 +464,7 @@ function withActorOnlyRootPolicy(run,deps={}){
           slot:intent.slot==='bench'?SlotType.BENCH:SlotType.ACTIVE,
           index:intent.slot==='bench'?intent.index:0});
         break;
+      case 'play-ace-trainer':
       case 'play-quick-ball':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
