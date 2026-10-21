@@ -26,7 +26,8 @@ function choose(n,k){
 /** @param {bigint} numerator @param {bigint} denominator */
 function fraction(numerator,denominator){
   if(denominator<=0n)throw new RangeError('Zero or negative denominator');
-  return Object.freeze({numerator,denominator,
+  return Object.freeze({numerator:numerator.toString(),
+    denominator:denominator.toString(),
     decimal:Number(numerator)/Number(denominator)});
 }
 
