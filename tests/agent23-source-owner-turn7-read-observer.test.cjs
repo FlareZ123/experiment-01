@@ -96,3 +96,43 @@ test('observer always restores original hooks if native game throws',()=>{
   assert.strictEqual(Bot.prototype.decodeNextAction,original);
   assert.strictEqual(headless.runMatch,before);
 });
+
+test('original source owner ConfirmPrompt response captured without replay or override',()=>{
+  class ConfirmPrompt{constructor(){
+    this.playerId=101;this.id=42;this.message='Use Dark Asset?';
+    this.result=undefined;
+  }}
+  class ResolvePromptAction{
+    constructor(id,result){this.id=id;this.result=result;}
+  }
+  class Bot{
+    constructor(){this.client={id:101};}
+    decodeNextAction(){return new ResolvePromptAction(42,false);}
+  }
+  const prompt=new ConfirmPrompt();
+  const state={turn:7,activePlayer:0,
+    players:[{id:101,hand:{cards:['a','b','c','d','e']}},{id:202}],
+    prompts:[prompt]};
+  const before=structuredClone(state);
+  const prior=Bot.prototype.decodeNextAction;
+  const headless={runMatch:()=>{
+    const r=new Bot().decodeNextAction(state);
+    return {selected:r.result};
+  }};
+  const r=withOwnedTurnRootReadObserver(Bot,
+    ()=>headless.runMatch(),{seat:0,turn:7},{
+      headless,makeObservation:()=>{throw Error('root observer not for prompt');}
+    });
+  assert.equal(r.result.selected,false);
+  assert.equal(r.observationAudit.seenRoots,0);
+  assert.equal(r.observationAudit.hookErrors,0);
+  assert.equal(r.observationAudit.sourceConfirmPromptCount,1);
+  assert.deepEqual(r.observationAudit.boundedSourceConfirmPromptResponses[0],{
+    turn:7,seat:0,promptId:42,promptKind:'ConfirmPrompt',
+    promptMessage:'Use Dark Asset?',sourceHandSizeBefore:5,
+    selectedActionType:'ResolvePromptAction',selectedResult:false,
+    primitiveResultSupported:true
+  });
+  assert.deepEqual(state,before);
+  assert.strictEqual(Bot.prototype.decodeNextAction,prior);
+});
