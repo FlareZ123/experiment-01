@@ -93,9 +93,7 @@ function chooseActorEnergyRecipient(view,catalog){
       }
     }
   }
-  // A fully funded printed attack takes precedence over an unready attacker.
-  // Future Bench promotion and damage exposure still require native replay.
-  possibilities.sort((a,b)=>a.after-b.after||a.priority-b.priority||
+  possibilities.sort((a,b)=>a.priority-b.priority||a.after-b.after||
     a.cost-b.cost||a.recipientIndex-b.recipientIndex||
     a.handIndex-b.handIndex);
   if(!possibilities.length)return null;
