@@ -625,6 +625,8 @@ function runDevelopment({
         error?.cause?.nativeProposalValidationEvidence??null;
       const nativeHiddenRead=error?.nativeHiddenReadEvidence??
         error?.cause?.nativeHiddenReadEvidence??null;
+      const genericAbort=error?.nativeGenericFallbackEvidence??
+        error?.cause?.nativeGenericFallbackEvidence??null;
       rows.push({
         trial,status:veto?'paper-supporter-quota-veto':'engine-error',
         error:String(error?.stack||error),
@@ -640,6 +642,8 @@ function runDevelopment({
           nativeOpponentHiddenReadAudit:nativeHiddenRead}:{}),
         ...(nativeActionInputWitness?{
           nativeActionInputAudit:error?.nativeDecisionDispatchEvidence??null}:{}),
+        ...(actorOnlyComposition&&actorGenericFallbackAttribution?{
+          nativeGenericFallbackAbortEvidence:genericAbort}:{}),
         qualifiesForCompetitiveInference:false
       });
     }
