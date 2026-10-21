@@ -4,6 +4,7 @@ const path=require('node:path');
 const {initializeCards}=require('./headless.cjs');
 const {fixture}=require('./redeemable-ticket-paper-regression.cjs');
 const {installRedeemableTicketPaperOrderHook}=require('./redeemable-ticket-paper-hook.cjs');
+const {installBattleCompressorMinimumHook}=require('./battle-compressor-minimum-hook.cjs');
 const load=p=>require(path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output',p));
 /** Actual patched Ticket then mandatory non-DCE Battle Compressor discard and shuffle. */
 function ticketCompressorWitness(){
@@ -14,7 +15,8 @@ function ticketCompressorWitness(){
  assert.ok(compressor);compressor.id=1001;
  f.a.hand.cards.push(compressor);
  const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
- const restore=installRedeemableTicketPaperOrderHook();
+ const restoreTicket=installRedeemableTicketPaperOrderHook();
+ const restoreCompressor=installBattleCompressorMinimumHook();
  try {
   f.store.reduceEffect(f.state,new f.TrainerEffect(f.a,f.ticket));
   assert.ok(f.a.deck.cards.slice(-6).includes(dce));
@@ -22,6 +24,8 @@ function ticketCompressorWitness(){
   f.store.reduceEffect(f.state,new f.TrainerEffect(f.a,compressor));
   const choose=f.state.prompts.find(p=>p.constructor.name==='ChooseCardsPrompt'&&p.result===undefined);
   assert.ok(choose,'Compressor must expose an actual deck search prompt');
+  assert.equal(choose.options.min,1);
+  assert.equal(choose.validate([]),false);
   const discardTarget=f.a.deck.cards.find(c=>c!==dce);
   assert.ok(discardTarget,'Compressor needs a non-DCE deck card to discard');
   assert.equal(choose.validate([discardTarget]),true,'One non-DCE card is selectable');
@@ -39,10 +43,11 @@ function ticketCompressorWitness(){
   assert.ok(f.a.hand.cards.includes(dce),'Next ordinary draw can reach returned DCE');
   return {oldPrizeDceReturnedToBottom:true,
     compressorDeckSearchPrompt:true,oneMandatoryDiscardAccepted:true,
+    zeroSelectionRejected:true,paperMinimumCorrection:true,
     compressorShufflePrompt:true,dceMovedToTopByValidShuffle:true,
     dceAccessibleToDraw:true,sourceRank:26,
     scope:'Constructed Store witness, not automatic turn sequence or win probability'};
- }finally{restore();}
+ }finally{restoreCompressor();restoreTicket();}
 }
 if(require.main===module)console.log(JSON.stringify(ticketCompressorWitness(),null,2));
 module.exports={ticketCompressorWitness};
