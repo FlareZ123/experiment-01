@@ -146,6 +146,26 @@ function sourceLineReplyPacket(game,rank,sourceAudit,sourceSeat){
       error.nativeEpochBoundaryEvidence=
         require('./agent44-native-epoch-boundary-audit.cjs')
           .auditNativeEpochBoundaries(game);
+      // Validate and retain the whole native root sequence as an explicit
+      // diagnostic episode partition before the strict one-epoch packet throws.
+      // A valid partition cannot turn this development error into a game win.
+      try {
+        const partition=require('./native-clock-episodes.cjs')
+          .segmentNativeClockEpisodes(game);
+        error.nativeEpochStructuralPartition={
+          modelVersion:partition.modelVersion,
+          actionCount:partition.actionCount,
+          outerRegisteredTrials:partition.outerRegisteredTrials,
+          observedEpisodeCount:partition.observedEpisodeCount,
+          boundaries:partition.boundaries,
+          competitiveQualified:false,
+          requiresPerEpisodeDealAndTiebreakCertification:
+            partition.requiresPerEpisodeDealAndTiebreakCertification
+        };
+      }catch(partitionError){
+        error.nativeEpochStructuralPartitionFailure=
+          String(partitionError?.message||partitionError);
+      }
     }
     throw error;
   }
@@ -633,6 +653,13 @@ function runDevelopment({
         nativeStoreCauseStack:error?.cause?.stack??null,
         ...(error?.nativeEpochBoundaryEvidence?{
           nativeEpochBoundaryEvidence:error.nativeEpochBoundaryEvidence
+        }:{}),
+        ...(error?.nativeEpochStructuralPartition?{
+          nativeEpochStructuralPartition:error.nativeEpochStructuralPartition
+        }:{}),
+        ...(error?.nativeEpochStructuralPartitionFailure?{
+          nativeEpochStructuralPartitionFailure:
+            error.nativeEpochStructuralPartitionFailure
         }:{}),
         nativeSupporterQuotaQualified:veto?false:'unverified',
         paperSupporterDiscipline:veto,
