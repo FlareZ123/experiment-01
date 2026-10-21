@@ -25,7 +25,7 @@ A future verified native runner can construct `game["native_clock_evidence"]` us
 The new `SingleNativeEpochGateTests` in [the existing test module](../../tests/test_aichi_raw_global_gate.py) cover accepted synthetic single-epoch ledgers, missing proof, unbound trace digest, an unreported turn reversal, a reported plausible replay, a gap between otherwise nondecreasing roots, incorrect count/ordinal, and both balanced and natural-start raw intake paths.
 
 - [Initial manual CI, failure from an incorrect *negative-test fixture*](https://github.com/FlareZ123/experiment-01/actions/runs/39519047474): the intended gap test accidentally made `turnAfter < turnBefore`, so it triggered the reversal branch correctly.
-- [Corrected manual CI](https://github.com/FlareZ123/experiment-01/actions/runs/39519158809): check the recorded conclusion before treating the suite as fully passed.
+- [Corrected manual CI 39519158809](https://github.com/FlareZ123/experiment-01/actions/runs/39519158809): **PASS** at code commit `4ae8efb`, including the eight new single-native-epoch regressions and the existing statistical and source-identity checks.
 
 Neither the fixture nor its result is a competitive match. It uses fabricated 640 synthetic records purely to exercise bookkeeping conditions.
 
