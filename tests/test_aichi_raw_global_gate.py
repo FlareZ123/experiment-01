@@ -424,5 +424,99 @@ class BalancedRawGateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "source inventory"):
             natural_start_assessment(b, four_cell_schedule())
 
+
+def native_single_epoch_batch():
+    b = batch()
+    for g in b["games"]:
+        g["native_clock_evidence"] = {
+            "game_id": g["game_id"],
+            "action_trace_sha256": g["trace_sha256"],
+            "rootActionLedgerProtocol": "actual-store-root-action-ledger-v1",
+            "suddenDeathClockResetProtocol": "actual-native-sudden-death-clock-transition-v1",
+            "suddenDeathClockResets": [],
+            "actions": 2,
+            "rootActionLedger": [
+                {"actionOrdinal": 0, "turnBefore": 1, "turnAfter": 2,
+                 "playerSlot": 0, "action": "PassTurnAction"},
+                {"actionOrdinal": 1, "turnBefore": 2, "turnAfter": 3,
+                 "playerSlot": 1, "action": "PassTurnAction"},
+            ],
+        }
+    return b
+
+
+def single_epoch_assessment(b):
+    return evaluate_balanced_raw_batch(
+        b, field(), source_deck_digests=source_decks(),
+        expected_candidate_deck_sha256="a" * 64,
+        predeclared_games_per_cell=10,
+        expected_trials=registered_schedule(),
+        require_single_native_epoch=True,
+    )
+
+
+class SingleNativeEpochGateTests(unittest.TestCase):
+    def test_native_single_epoch_capsules_pass_structural_veto(self):
+        result = single_epoch_assessment(native_single_epoch_batch())
+        self.assertTrue(result["single_native_epoch_structural_veto_passed"])
+        self.assertFalse(result["competitive_evidence_qualified"])
+
+    def test_missing_native_clock_proof_is_rejected(self):
+        b = native_single_epoch_batch()
+        del b["games"][0]["native_clock_evidence"]
+        with self.assertRaisesRegex(ValueError, "Missing native clock evidence"):
+            single_epoch_assessment(b)
+
+    def test_unbound_native_clock_proof_is_rejected(self):
+        b = native_single_epoch_batch()
+        b["games"][0]["native_clock_evidence"]["action_trace_sha256"] = "0" * 64
+        with self.assertRaisesRegex(ValueError, "not bound"):
+            single_epoch_assessment(b)
+
+    def test_unreported_turn_reversal_is_rejected(self):
+        b = native_single_epoch_batch()
+        roots = b["games"][0]["native_clock_evidence"]["rootActionLedger"]
+        roots[1]["turnAfter"] = 0
+        with self.assertRaisesRegex(ValueError, "turn reversal"):
+            single_epoch_assessment(b)
+
+    def test_reported_sudden_death_replay_requires_separate_epoch_model(self):
+        b = native_single_epoch_batch()
+        b["games"][0]["native_clock_evidence"]["suddenDeathClockResets"] = [
+            {"actionOrdinal": 1, "fromTurn": 3, "toTurn": 0,
+             "afterSuddenDeath": True, "enteredSetup": True}
+        ]
+        with self.assertRaisesRegex(ValueError, "Sudden-death clock reset"):
+            single_epoch_assessment(b)
+
+    def test_discontinuous_root_clock_is_rejected(self):
+        b = native_single_epoch_batch()
+        b["games"][0]["native_clock_evidence"]["rootActionLedger"][1]["turnBefore"] = 5
+        with self.assertRaisesRegex(ValueError, "discontinuous"):
+            single_epoch_assessment(b)
+
+    def test_root_action_count_and_ordinal_are_rejected_when_inconsistent(self):
+        b = native_single_epoch_batch()
+        b["games"][0]["native_clock_evidence"]["actions"] = 1
+        with self.assertRaisesRegex(ValueError, "invalid action count"):
+            single_epoch_assessment(b)
+        b["games"][0]["native_clock_evidence"]["actions"] = 2
+        b["games"][0]["native_clock_evidence"]["rootActionLedger"][1]["actionOrdinal"] = 3
+        with self.assertRaisesRegex(ValueError, "ordinal"):
+            single_epoch_assessment(b)
+
+    def test_natural_start_raw_gate_can_require_native_single_epoch(self):
+        b = native_single_epoch_batch()
+        b["predeclared_total_games"] = 640
+        result = evaluate_natural_start_zero_loss_raw_batch(
+            b, field(), source_deck_digests=source_decks(),
+            expected_candidate_deck_sha256="a" * 64,
+            predeclared_total_games=640, expected_trials=registered_schedule(),
+            require_single_native_epoch=True,
+        )
+        self.assertTrue(result["single_native_epoch_structural_veto_passed"])
+        self.assertFalse(result["competitive_evidence_qualified"])
+
+
 if __name__ == "__main__":
     unittest.main()
