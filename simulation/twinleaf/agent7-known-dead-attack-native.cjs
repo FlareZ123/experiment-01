@@ -138,9 +138,11 @@ function arm({damage,flag}){
 }
 
 function run(){
+  // Shadow Rider V has 210 HP, so 10 existing damage makes Claw's 200
+  // lethal while still disproving Terminal Period's exact-60 condition.
   const arms=[
-    arm({damage:0,flag:false}),
-    arm({damage:0,flag:true}),
+    arm({damage:10,flag:false}),
+    arm({damage:10,flag:true}),
     arm({damage:60,flag:false}),
     arm({damage:60,flag:true})
   ];
