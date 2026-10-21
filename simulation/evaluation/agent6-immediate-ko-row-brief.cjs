@@ -65,7 +65,7 @@ function rowSummary(row){
 
 /** @returns {void} */
 function main(){
-  const filename='agent7-canonical-actor-fourarm.json';
+  const filename=process.argv[2]??'agent7-canonical-actor-fourarm.json';
   if(!fs.existsSync(filename)){
     console.log('AGENT6_DIAGNOSTIC_MISSING_ARCHIVE '+filename);
     return;
