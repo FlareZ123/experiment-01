@@ -417,6 +417,7 @@ function executeDevelopment(trial,candidates,{
     paperTerminalAttackKoCorrection:paperTerminalAttackKo
   };
   let ownerCompressorAudit=null;
+  let ownerAuthenticatedBasicSearchCounts=null;
   let garbotoxinWindowAudit=null;
   let initializationWindowAudit=null;
   let paperSupporterAudit=null;
@@ -459,8 +460,20 @@ function executeDevelopment(trial,candidates,{
   };
   const runWithReadOnlyAudit=()=>{
     if(!opportunityAudit)return runWithPowerWindow();
+    const withOwnedBasicSearchProof=()=>{
+      // Observe each real owner-deck search prompt. This authorizes an exact
+      // K1 count *only at the legal search*, never an arbitrary deck peek.
+      // It does not alter selections, search outcomes or bot root actions.
+      const nativeBase=path.join(root,'vendor/twinleaf/ptcg-server/output');
+      const Store=require(path.join(nativeBase,'game/store/store')).Store;
+      const data=require('../twinleaf/owner-deck-search-witness.cjs')
+        .withOwnerDeckSearchWitness(Store,candidateSeat,
+          ['Psychic Energy MEE'],runWithPowerWindow);
+      ownerAuthenticatedBasicSearchCounts=data.events;
+      return data.result;
+    };
     const output=require('../twinleaf/owner-compressor-opportunity-audit.cjs')
-      .withOwnerCompressorOpportunityAudit(candidateSeat,runWithPowerWindow);
+      .withOwnerCompressorOpportunityAudit(candidateSeat,withOwnedBasicSearchProof);
     ownerCompressorAudit=output.audit;
     return output.result;
   };
@@ -645,7 +658,8 @@ function executeDevelopment(trial,candidates,{
         ordinal:row.actionOrdinal,turn:row.turnBefore,
         attackName:row.attackName}))
     }:{}),
-    ...(opportunityAudit?{ownerCompressorOpportunityAudit:ownerCompressorAudit}:{}),
+    ...(opportunityAudit?{ownerCompressorOpportunityAudit:ownerCompressorAudit,
+      ownerAuthenticatedBasicSearchCounts}:{}),
     ...(garbotoxinWindow?{garbotoxinWindowAudit}:{}),
     ...(initializationWindow?{
       initializationWindowAudit,rank6PassivePressure:passiveEvidence
