@@ -22,6 +22,8 @@ test('capture exact selected physical printings from a hand-discard prompt',()=>
   assert.equal(evidence.sourceZone,'hand');
   assert.equal(evidence.sourcePlayerSlot,0);
   assert.equal(evidence.sourceZoneCardCountBefore,3);
+  assert.equal(evidence.publicDiscardCardNamesBefore,null,
+    'Hand identities may never enter the public discard-name channel');
   assert.deepEqual(evidence.selectedCards,['Guzma BUS 115','Lusamine CIN 96']);
   assert.deepEqual(evidence.selectedIndices,[0,2]);
   assert.equal(evidence.message,'DISCARD_TWO');
@@ -82,4 +84,24 @@ test('capture choice number and source menu text for tagged Supporter',()=>{
   assert.equal(info.message,'CHOOSE_OPTION');
   assert.equal(info.selectedText,prompt.values[1]);
   assert.equal(selectedOptionEvidence(new CoinFlipPrompt(),action),null);
+});
+
+
+test('only public discard prompt exposes pre-choice cards and native selection bounds',()=>{
+  const discard={cards:[{fullName:'Mega Absol ex M1L'}]};
+  const state={players:[{discard,hand:{cards:[{fullName:'PRIVATE'}]}}]};
+  const prompt=new ChooseCardsPrompt();
+  prompt.cards=discard;
+  prompt.options={min:2,max:2,allowCancel:true};
+  const action=new ResolvePromptAction();
+  action.result=null;
+  const before=JSON.stringify(state);
+  const choice=selectedCardsEvidence(prompt,action,state);
+  assert.deepEqual(choice.publicDiscardCardNamesBefore,['Mega Absol ex M1L']);
+  assert.equal(choice.sourceZoneCardCountBefore,1);
+  assert.equal(choice.nativePromptMin,2);
+  assert.equal(choice.nativePromptMax,2);
+  assert.equal(choice.nativePromptAllowCancel,true);
+  assert.equal(choice.selectedCards,null);
+  assert.equal(JSON.stringify(state),before);
 });
