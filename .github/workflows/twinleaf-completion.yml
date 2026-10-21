@@ -26,6 +26,8 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm run compile
+      - name: Check pinned Girafarig Get Lost paper choices in real Store
+        run: node --test tests/agent29-girafarig-getlost-paper-hook.native.test.cjs
       - name: Probe one complete game with a firm 1200-action limit
         run: node simulation/twinleaf/completion-fixture.cjs
       - name: Probe real Aichi decks from both seats
