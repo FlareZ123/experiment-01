@@ -50,6 +50,26 @@ test('supporter recovery only after consuming an available Basic Energy root',()
   });
   assert.ok(VERSION.startsWith('agent8-'));
 });
+test('Ace Trainer remains legal and selectable as a one-card emergency topdeck',()=>{
+  for(const hand of [
+    ['Ace Trainer AOR'],
+    ['Ace Trainer AOR','Field Blower GRI'],
+    ['Ace Trainer AOR','Field Blower GRI','Escape Rope BST']
+  ]){
+    const v=view();
+    v.ownHand=hand;
+    v.ownTurnResources.energyPlayedTurn=v.globalTurn;
+    assert.deepEqual(chooseEmergencyAceTrainer(v),{
+      kind:'play-ace-trainer',handIndex:0,printing:'Ace Trainer AOR'
+    });
+    assert.deepEqual(chooseActorRootIntent(v,catalog,{
+      emergencyAceTrainerRoot:true
+    }),{kind:'play-ace-trainer',handIndex:0,printing:'Ace Trainer AOR'});
+  }
+  const v=view();
+  v.ownHand=['Field Blower GRI','Ace Trainer AOR'];
+  assert.equal(chooseEmergencyAceTrainer(v).handIndex,1);
+});
 test('default canonical root remains a Pass for the same stalled owner',()=>{
   const v=view();
   v.ownTurnResources.energyPlayedTurn=22;
