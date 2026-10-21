@@ -116,6 +116,15 @@ function run(){
     const event=changed.policyAudit.events.find(e=>
       e.kind==='source-pass-vip-opportunity');
     assert.ok(event,'No historical source-first native VIP opportunity inspected');
+    const firstSearch=changed.policyAudit.events.find(e=>
+      e.kind==='owner-deck-target');
+    assert.ok(firstSearch?.k1Dce,
+      'First native VIP deck search must expose owner-only DCE K1');
+    const firstK1=firstSearch.k1Dce;
+    const knownCount=firstK1.inDeck+firstK1.inHand+
+      firstK1.inDiscard+firstK1.inLostZone+firstK1.attached;
+    assert.equal(knownCount+Number(firstK1.inferredPrized),1,
+      'Exact printed rank26 sole DCE must occur once in licensed zones or Prizes');
     let vipThenCologne=null;
     if (verifyCologneFollowup && entry.repeat===83 && seat===1) {
       assert.ok(root.attackerHand.some(c=>c.startsWith('Canceling Cologne ')),
@@ -150,6 +159,9 @@ function run(){
       const ownerSearch=squawkAlternative.policyAudit.events.find(e=>
         e.kind==='owner-deck-target');
       assert.ok(ownerSearch,'Native owner-deck VIP prompt missing in alternative');
+      assert.deepEqual(ownerSearch.k1Dce,firstK1,
+        'First source-owned K1 search must be invariant across later target policies');
+      vipThenCologne.firstOwnerK1Dce=firstK1;
       const actualSquawk=ownerSearch.cards.some(c=>c.startsWith('Squawkabilly ex '));
       const availableSquawk=ownerSearch.searchedSquawkAvailable===true;
       if(availableSquawk){
@@ -316,6 +328,7 @@ function run(){
       bench:root.attackerBench,hand:root.attackerHand},
       control:baseline,candidate,policy:changed.policyAudit,
       nativeVipAcceptance:event.nativeValid,
+      firstOwnerK1Dce:firstK1,
       ...(vipThenCologne?{vipThenCologne}:{}),
       competitiveGameQualified:false});
   }
@@ -361,6 +374,7 @@ function run(){
         compressorDiscardedLightning:cases.reduce((n,c)=>n+
           (c.vipThenCologne?.squawkCompressorContinuation?.compressorPost
             .physicalDiscardLightning??0),0),
+        firstVipK1Dce:cases.find(c=>c.repeat===83&&c.seat===1)?.firstOwnerK1Dce??null,
         compressorSourceAttacks:cases.filter(c=>
           c.vipThenCologne?.squawkCompressorContinuation?.observed.rootAttacks>0).length,
         kokoTwoTargetOffers:cases.filter(c=>
