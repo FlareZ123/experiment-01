@@ -46,6 +46,8 @@ function buildActorCardCatalog(all,types){
   const {PokemonCard,EnergyCard,Stage,EnergyType,CardType,
     PowerType,SpecialCondition}=types;
   return {
+    perfectionDonors:require('./agent30-known-perfection-options.cjs')
+      .knownPerfectionDonorCatalog(all),
     basics:new Set(all.filter(c=>c instanceof PokemonCard&&
       c.stage===Stage.BASIC).map(c=>c.fullName)),
     abilityBasics:new Set(all.filter(c=>c instanceof PokemonCard&&
