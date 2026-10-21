@@ -83,6 +83,7 @@ function executeDiagnostic(options) {
     'electrodeGXEnergyCorrection',
     'electrodeGXPrizeTradePolicy', 'electroRainDamageCorrection',
     'rank4RaichuCompressorSource', 'rank4RaichuRopePivotSource',
+    'rank4RaichuBombRecipientSource',
     'raichuSightToolPolicy', 'raichuPrizeAllocationPolicy',
     'doubleDragonRecovery',  'templeUnlockRecovery',
     'supporterDecisionCorrection', 'isolatePolicyRandomness',
@@ -108,7 +109,7 @@ function executeDiagnostic(options) {
     'captureDecisionTrace', 'captureAttackPassProbes',
     'captureElectrodeOpportunity', 'capturePublicAttackTransitions',
     'rank4RaichuCompressorSource',
-    'rank4RaichuRopePivotSource',
+    'rank4RaichuRopePivotSource', 'rank4RaichuBombRecipientSource',
     'attackBeforeRetreatCandidateOnly',
     'toolAttackOpponentOnly'
   ]);
@@ -147,6 +148,10 @@ function executeDiagnostic(options) {
      (policyFlags.rank4RaichuCompressorSource!==true ||
       policyFlags.electrodeGXPrizeTradePolicy!==true)) {
     throw new Error('Rank4 Rope pivot requires the source Compressor and Prize-trade rules');
+  }
+  if (policyFlags.rank4RaichuBombRecipientSource === true &&
+      policyFlags.rank4RaichuRopePivotSource !== true) {
+    throw new Error('Rank4 recipient priority requires same owner Rope and corrected Bomb chain');
   }
   const wanted = new Set(ranks);
   const trials = campaign.trials.filter(t => t.phase === 'pilot' && wanted.has(t.rank));
@@ -207,7 +212,7 @@ function executeDiagnostic(options) {
       const deckB = candidateA ? pair.opponentCards : pair.candidateCards;
       const {attackBeforeRetreatCandidateOnly, toolAttackOpponentOnly,
         rank4RaichuCompressorSource,rank4RaichuRopePivotSource,
-        ...enginePolicyFlags} = policyFlags;
+        rank4RaichuBombRecipientSource,...enginePolicyFlags} = policyFlags;
       const sourceCompressorSeat = rank4RaichuCompressorSource === true ?
         (candidateA ? 1 : 0) : null;
       const expectedLabel = 'Aichi comparative diagnostic ' + trial.trialId;
@@ -222,7 +227,9 @@ function executeDiagnostic(options) {
         ...(sourceCompressorSeat===null?{}:{
           rank4RaichuCompressorSeat:sourceCompressorSeat,
           ...(rank4RaichuRopePivotSource===true?
-            {rank4RaichuRopePivotSeat:sourceCompressorSeat}:{})
+            {rank4RaichuRopePivotSeat:sourceCompressorSeat}:{}),
+          ...(rank4RaichuBombRecipientSource===true?
+            {rank4RaichuBombRecipientSeat:sourceCompressorSeat}:{})
         })
       });
       const expectedDeckHashes = [digest(deckA), digest(deckB)];
@@ -276,6 +283,9 @@ function executeDiagnostic(options) {
         (rank4RaichuRopePivotSource!==true ||
           (game.rank4RaichuRopePivotSeat===sourceCompressorSeat &&
            game.policy.includes('+Rank4SourceRopeRaichuPivot-v1@seat'+sourceCompressorSeat))) &&
+        (rank4RaichuBombRecipientSource!==true ||
+          (game.rank4RaichuBombRecipientSeat===sourceCompressorSeat &&
+           game.policy.includes('+Rank4SourceBombRaichuRecipient-v1@seat'+sourceCompressorSeat))) &&
         !policyMismatch;
       if (!environmentValid) {
         records.push({
@@ -365,6 +375,7 @@ function executeDiagnostic(options) {
         engineRevision: game.engine || null, policy: game.policy || null,
         sourceCompressorSeat,
         sourceRopePivotSeat:rank4RaichuRopePivotSource===true?sourceCompressorSeat:null,
+        sourceBombRecipientSeat:rank4RaichuBombRecipientSource===true?sourceCompressorSeat:null,
         observedPolicyFlags: Object.fromEntries(echoedPolicyKeys
           .filter(key => Object.hasOwn(enginePolicyFlags, key))
           .map(key => [key, game[key]])),
@@ -514,6 +525,7 @@ function main() {
       electrodeGXPrizeTradePolicy: process.env.AICHI_ELECTRODE_PRIZE_TRADE === '1',
       rank4RaichuCompressorSource: process.env.AICHI_RANK4_COMPRESSOR === '1',
       rank4RaichuRopePivotSource: process.env.AICHI_RANK4_ROPE_PIVOT === '1',
+      rank4RaichuBombRecipientSource: process.env.AICHI_RANK4_BOMB_RECIPIENT === '1',
       battleCompressorPositiveSelectionCorrection: process.env.AICHI_BATTLE_COMPRESSOR_MIN1 === '1',
       captureElectrodeOpportunity: process.env.AICHI_ELECTRODE_OPPORTUNITY === '1',
       capturePublicAttackTransitions: process.env.AICHI_RANK4_PUBLIC_ATTACK_AUDIT === '1',
