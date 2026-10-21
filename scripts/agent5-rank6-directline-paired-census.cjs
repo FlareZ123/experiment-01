@@ -99,5 +99,25 @@ function main(argv=process.argv.slice(2)){
   process.stdout.write(JSON.stringify(report,null,2)+'\n');
   return report;
 }
-if(require.main===module)main();
+if(require.main===module){
+  const report=main();
+  process.stderr.write('AGENT5_THORNS_SOURCEFIRST_PAIR '+JSON.stringify({
+    schema:report.schema,
+    checkout:report.researchCheckout,
+    physicalSourcePairsCertified:report.physicalSourcePairsCertified,
+    actualStarterPairsCertified:report.actualStarterPairsCertified,
+    completeActorRootAudits:report.completeActorRootAudits,
+    observedTreatmentStadiumSelections:report.observedTreatmentStadiumSelections,
+    rows:report.rows.map(x=>({
+      trial:x.trial,rank:x.rank,
+      sourcePhysicalParity:x.sameSourcePhysicalDeal,
+      starterParity:x.sameActualStarter,
+      statuses:x.statuses,actionCounts:x.actionCounts,
+      stadiumRoots:x.typedStadiumRootSelections,
+      stadiumFirst64:x.stadiumRootWitnessesInFirst64,
+      errors:x.nativeErrors.map(e=>e===null?null:String(e).slice(0,180))
+    })),
+    competitiveQualifiedGames:0
+  })+'\\n');
+}
 module.exports={VERSION,compare,main};
