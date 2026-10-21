@@ -433,6 +433,8 @@ jobs:
           path: rank31-fog-breadth-source.json
           if-no-files-found: warn
       - run: node --test tests/battle-compressor-minimum.test.cjs tests/new-moon-compressor-payload-policy.test.cjs
+      - name: Verify late-turn owner Compressor in pinned native Store
+        run: node simulation/twinleaf/newmoon-compressor-owner-prompt-native.cjs
       - run: node --test tests/twinleaf-attached-tool-power-tactic.test.cjs
       - name: Bounded published 60-card Tool-Power policy diagnostic
         run: node simulation/twinleaf/attached-tool-power-source-pilot.cjs > tool-power-source-pilot.json
