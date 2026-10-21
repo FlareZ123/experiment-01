@@ -269,6 +269,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseSpecialEnergyIntent(view,catalog);
     if(special)return special;
   }
+  if(options.heldGuzmaMobility===true){
+    const mobility=require('./agent2-held-guzma-mobility-frontier.cjs')
+      .chooseHeldGuzmaMobility(view,catalog);
+    if(mobility)return mobility;
+  }
   if(options.strandedMarnieRoot===true){
     const planned=require('./agent50-stranded-marnie-frontier.cjs')
       .chooseStrandedMarnie(view);
@@ -364,6 +369,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT41_ACTOR_POWERGLASS_ROOT_DEV==='true'),
     floatStoneMobilityOptIn:deps.floatStoneMobility===true,
     floatStoneMobilityOwnerSeat:deps.floatStoneMobilityOwnerSeat??null,
+    heldGuzmaMobilityOptIn:deps.heldGuzmaMobility??
+      (process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV==='true'),
     strandedMarnieRootOptIn:deps.strandedMarnieRoot??
       (process.env.AGENT50_STRANDED_MARNIE_DEV==='true'),
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
@@ -394,6 +401,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent1-known-dead-leading-attack-v1';
   if(audit.perfectionRootOptIn)
     audit.version+='+agent30-known-perfection-root-v1';
+  if(audit.heldGuzmaMobilityOptIn)
+    audit.version+='+'+
+      require('./agent2-held-guzma-mobility-frontier.cjs').VERSION;
   if(audit.mobilityAwareRecipientOptIn)
     audit.version+='+agent2-owner-held-mobility-recipient-v1';
   if(audit.perfectionTransitionRootOptIn)
@@ -447,6 +457,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       floatStoneMobility:actorSpecialEnergyEnabled(
         audit.floatStoneMobilityOptIn,
         audit.floatStoneMobilityOwnerSeat,seat),
+      heldGuzmaMobility:audit.heldGuzmaMobilityOptIn,
       strandedMarnieRoot:audit.strandedMarnieRootOptIn
     });
     const ownerId=state.players[seat].id;
@@ -476,6 +487,10 @@ function withActorOnlyRootPolicy(run,deps={}){
           player:PlayerType.BOTTOM_PLAYER,
           slot:intent.slot==='bench'?SlotType.BENCH:SlotType.ACTIVE,
           index:intent.slot==='bench'?intent.index:0});
+        break;
+      case 'play-held-guzma-mobility':
+        action=new PlayCardAction(ownerId,intent.handIndex,{
+          player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
       case 'play-stranded-marnie':
         action=new PlayCardAction(ownerId,intent.handIndex,{
