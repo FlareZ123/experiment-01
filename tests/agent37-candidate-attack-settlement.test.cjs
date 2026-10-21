@@ -232,3 +232,11 @@ test('replay opening cannot masquerade as a settled attacking game board',()=>{
   assert.equal(out.attacks[0].completionRootOrdinal,null);
   assert.equal(out.attacks[0].firstClockResetAfterAttackOrdinal,1);
 });
+
+const {firstRootDivergence} = require('../simulation/evaluation/agent37-first-divergent-native-attack-pair.cjs');
+test('first native printed-attack root change is identified by accepted root ordinal',()=>{
+  const x=[{actionOrdinal:0,action:'PlayCardAction'}, {actionOrdinal:1,action:'AttackAction',attack:'Terminal Period'}];
+  const y=[{actionOrdinal:0,action:'PlayCardAction'}, {actionOrdinal:1,action:'AttackAction',attack:'Claw of Darkness'}];
+  assert.equal(firstRootDivergence(x,y).ordinal,1);
+  assert.equal(firstRootDivergence(x,x),null);
+});
