@@ -263,7 +263,8 @@ function executeDevelopment(trial,candidates,{
   paperSupporterComparisonTrace=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
-  nativeActionInputTapeOrdinal=null
+  nativeActionInputTapeOrdinal=null,
+  maxRootActions=registration.maxRootActions
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
     'Initialization passive window belongs only to rank 6');
@@ -287,7 +288,7 @@ function executeDevelopment(trial,candidates,{
   const request={
     deckA:candidateSeat===0?candidateCards:opponent.cards,
     deckB:candidateSeat===1?candidateCards:opponent.cards,
-    seed:trial.seed,maxActions:registration.maxRootActions,
+    seed:trial.seed,maxActions:maxRootActions,
     label:'agent41-bilateral-v2-common-policy-development-'+trial.id,
     ...registration.frozenFlags,
     // Shared v2 mechanical integration: intercept every actual actor's
