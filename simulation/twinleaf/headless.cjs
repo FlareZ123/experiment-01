@@ -55,7 +55,7 @@ const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
 const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
 const {inspectTmEvolutionPass} = require('./tm-evolution-pass-evidence.cjs');
 const {probeEvolutionAnnouncement} = require('./tm-evolution-announcement-probe.cjs');
-const {probePassedAttackOptions, nextPassProbeBucket} = require('./pass-attack-announcement-probe.cjs');
+const {probePassedAttackOptions, nextPassProbeBucket, probeHeldTelepathPass} = require('./pass-attack-announcement-probe.cjs');
 const {probePostPassPerfection}=require('./perfection-post-pass-probe.cjs');
 const {probeKlefkiRetreatAfterPass} = require('./klefki-retreat-pass-probe.cjs');
 const {withActiveOpeningPivot} = require('./active-opening-pivot.cjs');
@@ -1126,6 +1126,22 @@ function runMatch(request) {
         inspectTmEvolutionPass(state.players[seat]) : null;
       const tmEvolutionAnnouncementProbe = tmEvolutionBeforePass ?
         probeEvolutionAnnouncement(state, state.players[seat].id) : null;
+      // After the candidate has already chosen Pass, test one physically
+      // held Telepath Energy on its public Active in a detached native Store.
+      // The returned fact is never supplied to the decision policy.
+      let heldTelepathPassProbe=null;
+      if(decisionTrace && actionName==='PassTurnAction' &&
+          seat>=0 && seat===request.captureHeldTelepathPassProbeSeat){
+        try{
+          heldTelepathPassProbe=probeHeldTelepathPass(
+            state,state.players[seat].id);
+        }catch(error){
+          heldTelepathPassProbe={
+            schema:'agent4-native-cloned-owner-telepath-active-attachment-v1',
+            auditError:String(error?.message??error)
+          };
+        }
+      }
       let attackPassProbe = null;
       if (decisionTrace && request.captureAttackPassProbes === true &&
           actionName === 'PassTurnAction' && seat >= 0 && attackPassProbeCount < 8) {
@@ -1454,6 +1470,7 @@ function runMatch(request) {
           ...(tmEvolutionBeforePass ? { tmEvolutionBeforePass } : {}),
           ...(tmEvolutionAnnouncementProbe ? { tmEvolutionAnnouncementProbe } : {}),
           ...(attackPassProbe ? { attackPassProbe } : {}),
+          ...(heldTelepathPassProbe ? { heldTelepathPassProbe } : {}),
           ...(perfectionPassProbe ? {perfectionPassProbe} : {}),
           ...(klefkiRetreatPassProbe ? {klefkiRetreatPassProbe} : {}),
           ...(attackInfo ? { attack: attackInfo.attack,
