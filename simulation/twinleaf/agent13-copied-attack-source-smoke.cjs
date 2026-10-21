@@ -65,6 +65,10 @@ function main(){
     firstChoiceOrdinal!==null&&row.actionOrdinal<firstChoiceOrdinal);
   const prefixDigest=createHash('sha256').update(JSON.stringify(firstChoicePrefix))
     .digest('hex');
+  const beforeSourceResponse=(game.rootActionLedger??[]).filter(row=>
+    row.turnBefore<49);
+  const beforeSourceResponseSha256=createHash('sha256')
+    .update(JSON.stringify(beforeSourceResponse)).digest('hex');
   // Referee-only post-attack effect data: NEVER feed hidden Trainer counts
   // back into the acting player's pre-attack copied-attack selector.
   const copiedEffects=(game.poltergeistEffectTrace??[]).filter(row=>
@@ -95,6 +99,8 @@ function main(){
     deckHashes:game.deckHashes,
     firstCopyPrecedingRootCount:firstChoicePrefix.length,
     firstCopyPrecedingRootSha256:prefixDigest,
+    sourceTurn49PrecedingRootCount:beforeSourceResponse.length,
+    sourceTurn49PrecedingRootSha256:beforeSourceResponseSha256,
     copiedPoltergeistEffects:copiedEffects,
     decisions:run.audit,
     candidateChoices:candidateSelections,
