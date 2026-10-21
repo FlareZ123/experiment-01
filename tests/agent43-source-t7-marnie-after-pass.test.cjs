@@ -101,3 +101,32 @@ test('native dispatch abort restores every hook without swallowing the Store err
   assert.strictEqual(f.Store.prototype.dispatch,bs);
   assert.strictEqual(f.headless.runMatch,br);
 });
+
+test('post-Marnie owner observation records later reachable cards without changing Pass',()=>{
+  const f=fixture();
+  let reads=0;
+  f.deps.observe=()=>{
+    reads++;
+    return reads===1?view():{
+      ...view(),ownHand:['Float Stone BKT','Darkness Energy MEE']
+    };
+  };
+  f.headless.runMatch=()=>{
+    const first=f.bot.decodeNextAction(f.active);
+    f.store.dispatch(first);
+    const second=f.bot.decodeNextAction(f.active);
+    return f.store.dispatch(second);
+  };
+  const {result,audit}=withSourceMarnieAfterPass(
+    ()=>f.headless.runMatch(),f.deps);
+  assert.ok(result instanceof PassTurnAction);
+  assert.equal(audit.StoreAccepted,1);
+  assert.equal(audit.postMarnieOwnerDecisionRoots.length,1);
+  const snap=audit.postMarnieOwnerDecisionRoots[0];
+  assert.deepEqual(snap.sourceOwnedHand,
+    ['Float Stone BKT','Darkness Energy MEE']);
+  assert.equal(snap.globalTurn,7);
+  assert.equal(snap.originalBotAction,'PassTurnAction');
+  assert.equal(snap.observationPassedToPolicy,false);
+  assert.equal(f.active.players[1].hand.cards[0],'OPPONENT_SECRET');
+});
