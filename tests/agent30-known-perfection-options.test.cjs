@@ -107,3 +107,10 @@ test('own Mewtwo must be active, and unknown GX donor must stay unsupported',()=
   unknown.ownPublic.discard=['Arceus & Dialga & Palkia-GX CEC'];
   assert.equal(knownPerfectionReadyOptions(unknown,energyCatalog,donorCatalog).length,0);
 });
+
+test('global turn one has no legal copied-attack readiness',()=>{
+  const v=view();
+  v.globalTurn=1;
+  assert.equal(publicPerfectionVeto(v),'first-turn');
+  assert.equal(knownPerfectionReadyOptions(v,energyCatalog,donorCatalog).length,0);
+});
