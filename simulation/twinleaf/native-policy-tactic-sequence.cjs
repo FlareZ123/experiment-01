@@ -26,7 +26,7 @@ const assert=require('node:assert/strict');
  */
 function nativeEngineRandomCallsite(){
   const stack=new Error().stack??'';
-  const match=stack.match(/ptcg-server[\\/]output[\\/]([^\\n]+?):(\\d+):\\d+/);
+  const match=stack.match(/ptcg-server\/output\/(.+?):(\d+):\d+/);
   return match?match[1].replaceAll('\\\\','/')+':'+match[2]:'unlocated';
 }
 
