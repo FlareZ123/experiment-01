@@ -64,6 +64,7 @@ function auditNativeEpochBoundaries(game){
   return {
     version:VERSION,sourceProtocol,shapeOk:true,rootCount:roots.length,
     rootProtocol:game.rootActionLedgerProtocol??null,
+    sourceDealEpochs:game.sourceDealEpochs??null,
     clockReversals:evidence,orphanMarkers,
     nativeMarkersAuthentic:
       sourceProtocol==='actual-native-sudden-death-clock-transition-v1' &&
