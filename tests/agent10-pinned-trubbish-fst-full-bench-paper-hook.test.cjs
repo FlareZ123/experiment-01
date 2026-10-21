@@ -33,7 +33,8 @@ test('pinned native FST 168 full-Bench Call for Family skips search', () => {
   const original = Trubbish.prototype.reduceEffect;
 
   // The pinned engine's prefabricated search throws when Bench slots are full.
-  assert.throws(() => trubbish.reduceEffect(store,state,effect));
+  assert.throws(() => trubbish.reduceEffect(store,state,effect),
+    error => error.message === 'NO_BENCH_SLOTS_AVAILABLE');
 
   const executed = withTrubbishFullBenchPaperHook(() =>
     trubbish.reduceEffect(store,state,effect));
