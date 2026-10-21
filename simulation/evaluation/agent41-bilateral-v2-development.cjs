@@ -410,6 +410,8 @@ function executeDevelopment(trial,candidates,{
     // candidate attack, including a redacted Poltergeist-base audit.
     capturePoltergeistEffectTrace:true,
     captureFinalPublicBoard:true,
+    captureRejectedActionEvidence:
+      process.env.AGENT30_CAPTURE_REJECTED_ACTION_DEV==='true',
     captureAttackPassProbes:true,
     capturePerfectionPassProbeSeat:candidateSeat,
     captureHeldTelepathPassProbeSeat:candidateSeat,
@@ -898,6 +900,10 @@ function runDevelopment({
         trial,status:classifyNativeAbort(veto),
         error:String(error?.stack||error),
         nativeStoreCauseStack:error?.cause?.stack??null,
+        ...(process.env.AGENT30_CAPTURE_REJECTED_ACTION_DEV==='true'?{
+          nativeRejectedActionEvidence:error?.rejectedActionEvidence??
+            error?.cause?.rejectedActionEvidence??null
+        }:{}),
         ...(error?.nativePublicRootArchive??{}),
         ...(error?.nativeEpochBoundaryEvidence?{
           nativeEpochBoundaryEvidence:error.nativeEpochBoundaryEvidence
