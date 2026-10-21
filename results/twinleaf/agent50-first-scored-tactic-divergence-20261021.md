@@ -27,3 +27,20 @@ A stricter, read-only per-`evaluateAction` observation records original and deta
 - The typed original selected-action-to-Store-dispatch bridge is independently being requested from Agent23 via `communications/agent23/20261021T0021Z_agent50_native_finite_score_dispatch_handoff.md`. The compiled tactic-sequence findings were handed to the canonical caretaker Agent41 via `communications/agent41/20261021T0032Z_agent50_native_scorer_tactic_rng_divergence.md`.
 
 **Limits:** owner K0/K1 positional knowledge and known-top evidence, hidden-state policy safety, accurate actual source pressure and response, full paper Expanded card fidelity, tournament clock and complete Top32 coverage are not qualified. Current public benchmark is 29/32 exact published opponent 60s, zero qualified competitive games, and no validated 99.5% fixed 60.
+
+## First scored-candidate audit: compiled confirmation (21 October 2026)
+
+**Confirmed:** manually dispatched [run 39521510683](https://github.com/FlareZ123/experiment-01/actions/runs/39521510683), source head `c7ba05c0a5b82769552011817eb3db5b5f91f228`, passed compiled Twinleaf and the expanded pure suite; [artifact 12310679937](https://github.com/FlareZ123/experiment-01/actions/runs/39521510683/artifacts/12310679937), SHA256 `edc76982d265a67e3fc1b6cc86eed9c4badba10d69e459fa41669f73a4d9220e`. All four original historical game controls remained noninterfering, the three same-world parity vetoes and one narrow passing root remain unchanged.
+
+The additional per-evaluation tracer locates the **first diverging speculative candidate**, measured at the same fully canonicalized physical State and authentic original random tape:
+
+| Arm | First mismatched `evaluateAction` | Original result | Detached reconstruction |
+| --- | --- | --- | --- |
+| Rank6 champion | `PlaySupporterTactic` owner-hand index **0** (evaluation #0) | 40 draws, finite score **-24** | tries 41st draw, score undefined |
+| Rank6 NewMoon | `PlayTrainerTactic` owner-hand index **2** (evaluation #2; first two evaluations match) | 40 draws, finite score **69** | tries 41st draw, score undefined |
+| Rank11 champion | One `PlayTrainerTactic` evaluation; no mismatch | 5 draws, original score reproduced | strict action and tape parity **PASS** |
+| Rank11 NewMoon | `PlayTrainerTactic` owner-hand index **1** (evaluation #1; first evaluation matches) | 41 draws, finite score **235** | tries 42nd draw, score undefined |
+
+The trapped out-of-tape exception is caught inside the speculative `simulateAction` path and produces an undefined candidate score, which can change the choice or leave a tactic without a proposal. The strict outer replay nevertheless marks `Native policy RNG replay exhaustion was swallowed by a tactic` and refuses certification. Matching initial evaluations in two NewMoon arms make an arbitrary upfront bot-setup or tape-offset error less likely; they **do not prove** physical-equivalent simulator behavior inside the later candidate's effect. This is a concrete per-action deterministic-fidelity defect to investigate before hidden-order policy comparisons. There is still **one** narrow qualified replay root, **zero** qualified competitive games and no evidence of 99.5% win rate.
+
+Next experiment should compare the original and reconstructed inner scoring candidate's ordered RNG **call sites** and game-effect paths at the exact original hand index, with a diagnostic extra-draw sentinel if needed. It must retain strict real-tape abort and original-game replay noninterference, use read-only traces, and avoid authorizing a padded tape as valid parity. A difference in random draw count alone cannot identify whether the source is clone semantics, resolver choice or a missing policy history field.
