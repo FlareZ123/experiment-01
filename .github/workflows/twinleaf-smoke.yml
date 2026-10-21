@@ -7,6 +7,10 @@ on:
         description: Retrospective source-only turn7 own-hand observer from archived native Rope arm
         type: boolean
         default: false
+      agent43_source_marnie_counter:
+        description: Retrospective rank11 source-owned T7 held Marnie versus Pass native pair
+        type: boolean
+        default: false
       agent23_source_crobat_counter:
         description: Paired original Store source Crobat V optional Ability reply counterfactual
         type: boolean
@@ -17,7 +21,7 @@ permissions:
 
 jobs:
   smoke:
-    if: ${{ !inputs.agent23_source_turn7 && !inputs.agent23_source_crobat_counter }}
+    if: ${{ !inputs.agent23_source_turn7 && !inputs.agent23_source_crobat_counter && !inputs.agent43_source_marnie_counter }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -89,7 +93,7 @@ jobs:
         run: node simulation/twinleaf/copy-attack-name-collision-corrected.cjs
 
   agent23-source-owner-turn7:
-    if: ${{ inputs.agent23_source_turn7 || inputs.agent23_source_crobat_counter }}
+    if: ${{ inputs.agent23_source_turn7 || inputs.agent23_source_crobat_counter || inputs.agent43_source_marnie_counter }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -98,7 +102,7 @@ jobs:
         with:
           node-version: '22'
       - name: Regress source owner read and native optional confirmation adapters
-        run: node --test tests/agent23-source-owner-turn7-read-observer.test.cjs tests/agent23-source-crobat-confirm-counterfactual.test.cjs
+        run: node --test tests/agent23-source-owner-turn7-read-observer.test.cjs tests/agent23-source-crobat-confirm-counterfactual.test.cjs tests/agent43-source-t7-marnie-after-pass.test.cjs
       - name: Initialize original pinned Twinleaf
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install original pinned Twinleaf
@@ -164,6 +168,37 @@ jobs:
           originalPrizes:r.control.prizes,
           alteredPrizes:r.treatment.prizes,
           ownerHandAfter:r.nativeCrobatConfirmation.postDispatch?.sourceHandSize}));"
+      - name: Contrast actually held source-owned Marnie against original T7 Pass
+        if: ${{ inputs.agent43_source_marnie_counter }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: 'true'
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: 'true'
+          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'true'
+          AGENT8_ACE_TRAINER_EMERGENCY_DEV: 'false'
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT42_ESCAPE_ROPE_DEV: 'true'
+          AGENT42_ESCAPE_ROPE_OWNER_SEAT: '1'
+        run: node simulation/evaluation/agent43-sourcefirst-r11-marnie-counterfactual.cjs > agent43-marnie-paired.json
+      - name: Validate original source deal and genuine accepted alternative
+        if: ${{ inputs.agent43_source_marnie_counter }}
+        run: >-
+          node -e "const r=require('./agent43-marnie-paired.json');
+          if(!r.baselineAuthenticated||!r.sourceDealPaired||
+          !r.starterPaired||r.sourceMarnieRoot.StoreAccepted!==1||
+          r.sourceMarnieRoot.StoreRejected!==0||
+          r.competitiveQualifiedGames!==0)
+          throw Error('Native source Marnie pair unauthenticated');
+          console.log('MARNIE_T7_NATIVE_PAIR',JSON.stringify({
+          original:r.control.winner,treatment:r.treatment.winner,
+          originalPrizes:r.control.prizes,treatmentPrizes:r.treatment.prizes,
+          commonActionPrefix:r.commonActionRootPrefix,
+          sourceRoot:r.sourceMarnieRoot,
+          originalSourceAttacks:r.control.sourceAttacks,
+          treatmentSourceAttacks:r.treatment.sourceAttacks}));"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -171,5 +206,6 @@ jobs:
           path: |
             agent23-source-t7.json
             agent23-crobat-paired.json
+            agent43-marnie-paired.json
           if-no-files-found: warn
           retention-days: 10
