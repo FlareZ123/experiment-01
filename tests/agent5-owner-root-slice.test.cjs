@@ -170,6 +170,22 @@ test('native effect witness requires public card movement, not no-throw dispatch
     a,afterEnergy,phase),'attack-needs-declaration');
 });
 
+test('Thunder Mountain native root needs a real public Stadium transition',()=>{
+  const intent={kind:'play-thunder-mountain',
+    printing:'Thunder Mountain Prism Star LOT'};
+  const before={turn:2,phase:5,handCount:3,
+    stadiumPrintings:[],activeEnergies:[],benchPrinting:null};
+  const after={...before,handCount:2,
+    stadiumPrintings:[intent.printing]};
+  assert.equal(rootPhysicalWitness(intent,before,after,{FINISHED:99}),
+    'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(intent,before,before,{FINISHED:99}),
+    'no-confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(intent,before,{
+    ...after,stadiumPrintings:['Dimension Valley PHF']
+  },{FINISHED:99}),'no-confirmed-public-effect');
+});
+
 test('physical snapshot accesses acting-owner public zones only',()=>{
   const v=state=>(state.players[0]);
   const p={
@@ -182,8 +198,8 @@ test('physical snapshot accesses acting-owner public zones only',()=>{
   assert.deepEqual(rootPhysicalSnapshot(s,0,{
     kind:'bench-basic',benchSlot:0,printing:C
   }),{evolutionTop:null,evolutionLayers:null,
-    turn:2,phase:5,handCount:1,activeEnergies:[P],
-    targetEnergies:[P],benchPrinting:null});
+    turn:2,phase:5,handCount:1,stadiumPrintings:[],
+    activeEnergies:[P],targetEnergies:[P],benchPrinting:null});
 });
 
 
