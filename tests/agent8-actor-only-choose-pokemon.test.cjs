@@ -58,7 +58,7 @@ test('cross-player perspective and blocked slots use actual legal targets',()=>{
   const a=player(1,'A'),b=player(2,'B');
   const p=new ChoosePokemonPrompt(1,{perspectivePlayerId:2,
     playerType:2,slots:[1,2],blocked:[b.bench[0]]});
-  const s={turn:5,players:[a,b],prompts:[p],
+  const s={phase:2,turn:5,players:[a,b],prompts:[p],
     privateOpponentHand:['sentinel-hidden-value']};
   const i=observe(s,0);
   assert.deepEqual(i.prompt.offered.map(x=>x.printing),['B Active','B Two']);
@@ -72,7 +72,7 @@ test('cross-player perspective and blocked slots use actual legal targets',()=>{
 });
 
 test('real State only: both seats execute actual native prompt responses',()=>{
-  const s={turn:8,players:[player(1,'A'),player(2,'B')],prompts:[]};
+  const s={phase:2,turn:8,players:[player(1,'A'),player(2,'B')],prompts:[]};
   const oldBot=SimpleTacticsAi.prototype.decodeNextAction;
   const oldStore=Store.prototype.dispatch;
   const r=withActorOnlyChoosePokemon(()=>{
@@ -99,7 +99,7 @@ test('real State only: both seats execute actual native prompt responses',()=>{
 });
 
 test('unsupported multi-target and off-Store clones stay generic',()=>{
-  const s={turn:3,players:[player(1,'A'),player(2,'B')],
+  const s={phase:2,turn:3,players:[player(1,'A'),player(2,'B')],
     prompts:[new ChoosePokemonPrompt(1,{min:2,max:2})]};
   const r=withActorOnlyChoosePokemon(()=>{
     const store=new Store(s);store.dispatch(new AddPlayerAction());
@@ -113,7 +113,7 @@ test('unsupported multi-target and off-Store clones stay generic',()=>{
 });
 
 test('chooser rejects invalid index and restores all reversible hooks',()=>{
-  const s={turn:3,players:[player(1,'A'),player(2,'B')],
+  const s={phase:2,turn:3,players:[player(1,'A'),player(2,'B')],
     prompts:[new ChoosePokemonPrompt(1)]};
   const oldBot=SimpleTacticsAi.prototype.decodeNextAction;
   const oldStore=Store.prototype.dispatch;
@@ -127,7 +127,7 @@ test('chooser rejects invalid index and restores all reversible hooks',()=>{
 });
 
 test('optional empty target set permits native cancellation',()=>{
-  const s={turn:4,players:[player(1,'A'),player(2,'B')],
+  const s={phase:2,turn:4,players:[player(1,'A'),player(2,'B')],
     prompts:[new ChoosePokemonPrompt(1,{slots:[],allowCancel:true})]};
   assert.deepEqual(chooseActorPokemon(observe(s,0)),{index:null});
 });
