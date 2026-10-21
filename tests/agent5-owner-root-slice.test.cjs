@@ -199,7 +199,7 @@ test('physical snapshot accesses acting-owner public zones only',()=>{
     kind:'bench-basic',benchSlot:0,printing:C
   }),{evolutionTop:null,evolutionLayers:null,
     turn:2,phase:5,handCount:1,stadiumPrintings:[],
-    activeEnergies:[P],targetEnergies:[P],benchPrinting:null});
+    activeEnergies:[P],activeToolPrintings:[],targetEnergies:[P],benchPrinting:null});
 });
 
 
