@@ -86,3 +86,17 @@ test('only actor counts are needed; unknown identities never supplied',()=>{
   assert.equal(Object.hasOwn(actor.opponentPublic,'hand'),false);
   assert.equal(chooseStrandedMarnie(actor)?.kind,'play-stranded-marnie');
 });
+
+
+test('real root physical receipt requires a publicly spent Marnie and Supporter quota',()=>{
+  const {rootPhysicalWitness}=require(
+    '../simulation/twinleaf/agent5-owner-root-slice.cjs');
+  const intent={kind:'play-stranded-marnie',printing:'Marnie SSH'};
+  const before={marnieSpent:0,supporterTurn:0};
+  assert.equal(rootPhysicalWitness(intent,before,
+    {marnieSpent:1,supporterTurn:7},{}),'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(intent,before,
+    {marnieSpent:0,supporterTurn:7},{}),'no-confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(intent,before,
+    {marnieSpent:1,supporterTurn:0},{}),'no-confirmed-public-effect');
+});
