@@ -9,7 +9,8 @@ const SHA256=/^[a-f0-9]{64}$/;
 
 /**
  * Accrue four physical seat x actual first-player strata from a precommitted,
- * ordered two-candidate source-setup-only stream. Every attempted comparison
+ * ordered two-candidate source-setup-only stream. The preregistration fixes
+ * the exact 60-printing candidate and source deck SHA-256 digests. Every attempted comparison
  * remains in the census, including misaligned setups and blocked observations.
  * Never consult outcomes, policy decisions, terminal status or Prize results.
  *
@@ -18,7 +19,7 @@ const SHA256=/^[a-f0-9]{64}$/;
  * @returns {object} Pre-outcome design diagnostic; no competitive win inference.
  */
 function accruePairedFourCells(plan,observations){
-  assert.equal(plan?.schema,'aichi-fourcell-paired-start-plan-v1');
+  assert.equal(plan?.schema,'aichi-fourcell-paired-start-plan-v2');
   assert.equal(plan?.status,'precommitted');
   assert.ok(Array.isArray(plan.candidateIds) && plan.candidateIds.length===2);
   assert.equal(new Set(plan.candidateIds).size,2);
@@ -26,6 +27,16 @@ function accruePairedFourCells(plan,observations){
   assert.ok(Array.isArray(plan.ranks)&&plan.ranks.length>0);
   assert.equal(new Set(plan.ranks).size,plan.ranks.length);
   assert.ok(plan.ranks.every(r=>Number.isSafeInteger(r)&&r>=1&&r<=32));
+  assert.ok(plan.candidateDeckHashes && typeof plan.candidateDeckHashes==='object');
+  assert.deepEqual(Object.keys(plan.candidateDeckHashes).sort(),
+    [...plan.candidateIds].sort(),'Must pin both candidate rosters');
+  assert.ok(plan.candidateIds.every(id=>SHA256.test(plan.candidateDeckHashes[id])),
+    'Candidate printing-list SHA-256 required');
+  assert.ok(plan.sourceDeckHashes && typeof plan.sourceDeckHashes==='object');
+  assert.deepEqual(Object.keys(plan.sourceDeckHashes).sort(),
+    plan.ranks.map(String).sort(),'Must pin every opposing source roster');
+  assert.ok(plan.ranks.every(rank=>SHA256.test(plan.sourceDeckHashes[rank])),
+    'Source printing-list SHA-256 required');
   assert.ok(Array.isArray(plan.attempts)&&plan.attempts.length>0);
   assert.ok(Array.isArray(observations)&&observations.length<=plan.attempts.length);
   assert.ok(plan.quotas&&typeof plan.quotas==='object');
@@ -81,6 +92,8 @@ function accruePairedFourCells(plan,observations){
       return name!==null && arm.verifiedByDrawLog===true &&
         arm.firstTurnPlayerId===(slot===0?101:202) &&
         arm.firstTurnPlayerName===name && arm.firstDrawLogName===name &&
+        arm.candidateDeckSha256===plan.candidateDeckHashes[arm.candidateId] &&
+        arm.sourceDeckSha256===plan.sourceDeckHashes[expected.rank] &&
         typeof arm.sourcePhysicalDealSha256==='string' &&
         SHA256.test(arm.sourcePhysicalDealSha256);
     });
@@ -115,10 +128,12 @@ function accruePairedFourCells(plan,observations){
     Object.fromEntries(CELLS.map(cell=>[
       cell,plan.quotas[rank][cell]-counts[rank][cell]]))]));
   return {
-    schema:'aichi-fourcell-paired-start-accrual-v1',
+    schema:'aichi-fourcell-paired-start-accrual-v2',
     complete,blocked,
     consumedPairs:retainedAttempts.length,
     retainedAttempts,plannedPairs,counts,remainingQuotas,
+    candidateDeckHashes:{...plan.candidateDeckHashes},
+    sourceDeckHashes:{...plan.sourceDeckHashes},
     conditionalOnMatchedSourceDeals:true,
     unconditionalGameRateCertified:false,
     competitiveWinRateCertified:false
