@@ -2,8 +2,18 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {attestBilateralRootClaims:attest}=
+const {attestBilateralRootClaims:rawAttest}=
   require('../simulation/evaluation/bilateral-v2-root-ledger-attestation.cjs');
+
+// Existing synthetic fixtures enumerate pre-action turns only. Construct
+// the normal contiguous Store after-action turn for each synthetic root.
+// Adversarial epoch-boundary tests below call rawAttest on unmodified data.
+function attest(row,ledger,seat){
+  const native=ledger.map((root,i)=>({
+    ...root,turnAfter:ledger[i+1]?.turnBefore??root.turnBefore
+  }));
+  return rawAttest(row,native,seat);
+}
 
 /** Source seat 0 plays turn 1; candidate seat 1 responds on turn 2. */
 function fixture(){
@@ -203,4 +213,27 @@ test('supplying a raw trace never certifies lock effects or paper rules',()=>{
   assert.equal(r.rootClaimsAuthenticated,true);
   assert.equal(r.effectAndPaperFidelityAuthenticated,false);
   assert.equal(r.hiddenPolicyInformationSetAuthenticated,false);
+});
+
+test('native before-after continuity refuses forged and replay-spliced roots',()=>{
+  const {ledger,row}=fixture();
+  const native=ledger.map((root,i)=>({
+    ...root,turnAfter:ledger[i+1]?.turnBefore??root.turnBefore
+  }));
+  assert.equal(rawAttest(row,native,1).rootClaimsAuthenticated,true);
+
+  const missing=structuredClone(native);
+  delete missing[1].turnAfter;
+  assert.throws(()=>rawAttest(row,missing,1),
+    /Native Store turnAfter required/);
+
+  const replay=structuredClone(native);
+  replay[1].turnAfter=0;
+  assert.throws(()=>rawAttest(row,replay,1),
+    /replay reset needs epoch attestation/);
+
+  const splice=structuredClone(native);
+  splice[1].turnAfter=3;
+  assert.throws(()=>rawAttest(row,splice,1),
+    /before\/after turn continuity/);
 });
