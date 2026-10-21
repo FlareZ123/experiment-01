@@ -5,7 +5,8 @@ const {withNativeEvolutionOpportunityAudit,VERSION}=
   require('../simulation/twinleaf/agent1-native-evolution-opportunity-audit.cjs');
 
 class AddPlayerAction{}
-class PassTurnAction{constructor(id){this.id=id;}}
+class PassTurnAction{constructor(clientId){this.clientId=clientId;}}
+class AttackAction{constructor(clientId,name){this.clientId=clientId;this.name=name;}}
 class FakeStore{
   constructor(){
     this.state={
@@ -16,7 +17,8 @@ class FakeStore{
   }
   dispatch(action){
     this.actions.push(action.constructor.name);
-    if(action instanceof PassTurnAction)this.state.turn++;
+    if(action instanceof PassTurnAction||action instanceof AttackAction)
+      this.state.turn++;
     return this.state;
   }
 }
@@ -35,7 +37,7 @@ const offer=()=>({
   from:'Shadow Rider Calyrex V CRE',slot:'bench',index:0
 });
 const deps={
-  Store:FakeStore,PassTurnAction,
+  Store:FakeStore,PassTurnAction,AttackAction,
   GamePhase:{PLAYER_TURN:2},
   catalog:{},
   observe:ownView,choose:offer
@@ -53,12 +55,29 @@ test('accepted real owner Pass is recorded without changing submitted action',()
   assert.equal(x.audit.version,VERSION);
   assert.equal(x.audit.actualGamesSeen,1);
   assert.equal(x.audit.realPassRoots,1);
+  assert.equal(x.audit.realAttackRoots,0);
   assert.equal(x.audit.eligiblePassRoots,1);
+  assert.equal(x.audit.eligibleTurnEndingRoots,1);
   assert.deepEqual(x.result.actions,['AddPlayerAction','PassTurnAction']);
   assert.equal(x.result.result.turn,4);
   assert.equal(x.audit.storedWitnesses[0].evolutionPrinting,
     'Shadow Rider Calyrex VMAX CRE');
   assert.equal(x.audit.qualification.counterfactualNativeLegal,false);
+});
+
+test('real first paid attack with eligible hand evolution is a terminal-root omission',()=>{
+  const x=withNativeEvolutionOpportunityAudit(()=>{
+    const store=new FakeStore();
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new AttackAction(10,'Future Sight'));
+    return store.actions;
+  },deps);
+  assert.deepEqual(x.result,['AddPlayerAction','AttackAction']);
+  assert.equal(x.audit.realAttackRoots,1);
+  assert.equal(x.audit.realPassRoots,0);
+  assert.equal(x.audit.eligibleAttackRoots,1);
+  assert.equal(x.audit.storedWitnesses[0].declaredAttackName,'Future Sight');
+  assert.equal(x.audit.storedWitnesses[0].terminatingRootKind,'attack');
 });
 
 test('opponent, setup, pending prompt and non-live stores do not create witnesses',()=>{
