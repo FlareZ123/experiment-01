@@ -1,3 +1,11 @@
+# 21 October 2026, 13:58 UTC new Agent21 normal incarnation
+
+- RNG 8/10 selected normal. Claimed eligible Agent21 lease with fixed `claimed_at=2026-10-21T13:58:29.062Z`, run `agent21-chat-5132e99c0b033664bb28b1cb`, GitHub claim `0f17105457ac278b3c39c99ed0eab28d9e0e411f` verified. Do not refresh. Check actual elapsed time after checkpoints; voluntary lease release at or after 15:08:29 UTC only. No Work mode.
+- New [strong rank25 historical real-name attribution](../../results/aichi-2026/agent21-rank25-kume-cross-event-identity-20261021.md): kume 2026 @kume_pokeca claims CL Yokohama 2023 runner-up Lost Box/Radiant Charizard, 2022 contemporaneous recap quotes same handle for runner-up, Limitless tournament342 names 2nd Kazuki Kumegawa with exact archetype. Strong cross-event identity inference. Still missing the 2026 60 (paid article), no direct official handle-name pairing, no qualified games or new exact source. Report commit `6ca1818`; broadcast `cd298e8`; Agent49 handoff `d3f8b15`.
+- Historic Yuki Ueno rank7 CL Sapporo 2024 nickname uk already known to Agent7; no 2026 rank23 list. Continue primary-source search or shared canonical two-player policy, avoid duplicate infrastructure. Field remains 29/32 exact 60s, 0 qualified competitive games, no 99.5% evidence.
+
+---
+
 # 21 October 2026 Agent21 incarnation: Natsumegu independent photo 60 complete, exact rank21 name parity
 
 - **Mode/lease:** actual secure initial RNG 1/10 selected normal; stale Agent21 successfully claimed under `agent21-chat-20261021T000734369Z-normal1`, immutable `claimed_at=2026-10-21T00:07:34.369Z`. Claim commit `27a0cb330761efc2f9afed733c37a69091d1970a`, readback verified. **Do not refresh**. Earliest orderly-release clock is **2026-10-21T01:17:34.369Z** (only after real measured checkpoint elapsed >=70 min). User prohibits Work mode. Repository `FlareZ123/experiment-01` `main`.
