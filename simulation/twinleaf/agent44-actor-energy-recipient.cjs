@@ -3,24 +3,23 @@
 const assert=require('node:assert/strict');
 const {remainingBasicAttachments}=
   require('./agent10-basic-energy-frontier.cjs');
+const {specialEnergyUnits}=
+  require('./agent3-special-energy-frontier.cjs');
 
-const VERSION='agent44-owner-visible-multislot-basic-recipient-v1';
+const VERSION='agent30-owner-visible-known-special-recipient-v2';
 const TYPES=['Grass','Fire','Water','Lightning','Psychic',
   'Fighting','Darkness','Metal','Fairy'];
 
 /**
- * Select a Basic Energy card and public Pokémon recipient that genuinely
- * reduces a printed, non-GX attack's remaining one-unit Basic requirements.
- * This is deliberately only a cost frontier. It does not value attack effects,
- * predict future evolution or guarantee gameplay strength.
- *
- * The acting player's own hand and face-up in-play Pokémon are the only
- * variable inputs. Both opposing hidden state and the acting deck/Prizes are
- * irrelevant. Unknown attached Special Energy makes a slot ineligible rather
- * than giving fictitious Energy units. The Store decides actual legality.
+ * Choose a held Basic Energy and visible recipient that reduces a printed,
+ * non-GX attack's remaining cost. Attached Basic Energy and the exact
+ * Special Energy printings supported by specialEnergyUnits contribute units.
+ * Every unmodeled Special Energy makes its own Pokémon ineligible.
+ * The native Store remains responsible for legality, continuous effects and
+ * resolving any Telepathic on-attachment search.
  *
  * @param {object} view Detached actorObservation
- * @param {object} catalog Public printed card catalog
+ * @param {object} catalog Public exact printing and native type catalog
  * @returns {{handIndex:number,printing:string,slot:'active'|'bench',
  * index:number,attackName:string,gapBefore:number,gapAfter:number,
  * knownBasicEnergyOnly:true}|null}
@@ -44,32 +43,46 @@ function chooseActorEnergyRecipient(view,catalog){
     ...ownPublic.bench.flatMap((pokemon,index)=>
       pokemon?[{slot:'bench',index,pokemon}]:[])
   ];
-  const viable=(pokemon,attached)=> (pokemon.attacks??[]).filter(attack=>
+  const stadium=[...(ownPublic.stadium??[]),
+    ...(view.opponentPublic?.stadium??[])];
+  const temple=stadium.some(p=>p.startsWith('Temple of Sinnoh '));
+  const attachedUnits=pokemon=>{
+    const units=[];
+    for(const printing of pokemon.energies??[]){
+      const basic=basicKind(printing);
+      if(basic!==null){
+        units.push(basic);
+        continue;
+      }
+      const special=specialEnergyUnits(printing,catalog,temple);
+      if(special===null)return null;
+      units.push(...special);
+    }
+    return units;
+  };
+  const viable=(pokemon,attached)=>(pokemon.attacks??[]).filter(attack=>
     Array.isArray(attack.cost)&&attack.gxAttack!==true&&
     attack.cost.every(Number.isSafeInteger)&&
     Number.isSafeInteger(catalog.colorlessEnergyType)&&
-    !(pokemon.publicRestrictions?.cannotUseAttacksNextTurn??[]).includes(attack.name)
+    !(pokemon.publicRestrictions?.cannotUseAttacksNextTurn??[])
+      .includes(attack.name)
   ).map(attack=>({
     attack,missing:remainingBasicAttachments(
       attack.cost,attached,catalog.colorlessEnergyType)
   }));
-  const ready=targets[0].pokemon.energies.every(p=>
-    basicKind(p)!==null)&&
-    viable(targets[0].pokemon,targets[0].pokemon.energies.map(basicKind))
-      .some(x=>x.missing===0);
+  const activeUnits=attachedUnits(targets[0].pokemon);
+  const ready=activeUnits!==null&&
+    viable(targets[0].pokemon,activeUnits).some(x=>x.missing===0);
   const possibilities=[];
   for(const target of targets){
-    // No card-specific special-energy rules are inferred.
-    const attached=(target.pokemon.energies??[]).map(basicKind);
-    if(attached.includes(null))continue;
+    const attached=attachedUnits(target.pokemon);
+    if(attached===null)continue;
     for(const {attack,missing} of viable(target.pokemon,attached)){
       if(missing===0)continue;
       for(const energy of held){
         const after=remainingBasicAttachments(attack.cost,
           [...attached,energy.type],catalog.colorlessEnergyType);
         if(after>=missing)continue;
-        // When the Active already has a payable attack, favor charging a
-        // Benched alternative rather than infinitely overcharging Active.
         const priority=target.slot==='active'?(ready?2:0):1;
         possibilities.push({
           priority,after,cost:attack.cost.length,
