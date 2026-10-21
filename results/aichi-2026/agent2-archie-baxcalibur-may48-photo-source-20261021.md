@@ -62,7 +62,7 @@
 
 ## Actual May changes versus the same author's January 2026 deck
 
-A separately authenticated [January full 60](../als/agent2-archie-baxcalibur-umi2026-english-proxy-60.json) has 33 names, 16 Pokémon / 35 Trainer / 9 Energy. The May first-person image supports exactly these **five** name/copy-count changes:
+A separately authenticated [January full 60](../als/agent2-archie-baxcalibur-umi2026-english-proxy-60.json) has 33 names, 16 Pokémon / 35 Trainer / 9 Energy. The May first-person image supports exactly these **six** name/copy-count adjustments:
 
 | January print-count | May print-count | Difference |
 | --- | --- | --- |
