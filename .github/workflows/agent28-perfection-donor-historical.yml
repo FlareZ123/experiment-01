@@ -42,7 +42,7 @@ jobs:
           retention-days: 10
       - name: Verify opted-in public-zero-hand copied attack chooser
         if: inputs.agent50_zero_hand_poltergeist == true
-        run: node --test tests/agent13-actor-only-choose-attack.test.cjs tests/agent50-zero-hand-poltergeist-choice.test.cjs
+        run: node --test tests/agent13-actor-only-choose-attack.test.cjs tests/agent50-zero-hand-poltergeist-choice.test.cjs tests/agent50-zero-hand-native-pair.test.cjs
       - name: Original source-locked Poltergeist-preferring attack policy
         if: inputs.agent50_zero_hand_poltergeist == true
         env:
