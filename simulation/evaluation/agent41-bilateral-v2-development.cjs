@@ -239,13 +239,15 @@ function candidatePostChoicePassEvidence(decisionTrace,candidateSeat){
  * The actual tactic performs owner-deck selection only in its legal prompt.
  * @param {0|1} candidateSeat
  * @param {boolean} enabled
- * @returns {{newMoonAttackPayloadCompressorSeat?:0|1}}
+ * @returns {{newMoonAttackPayloadCompressorSeat?:0|1,
+ *   newMoonAttackPayloadCompressorAnyTurnSeat?:0|1}}
  */
-function commonPayloadOption(candidateSeat,enabled,lateWindow=false){
+function commonPayloadOption(candidateSeat,enabled,lateWindow=false,anyTurn=false){
   assert.ok(candidateSeat===0||candidateSeat===1);
   if(!enabled)return {};
-  return lateWindow?{newMoonAttackPayloadCompressorLateSeat:candidateSeat}:
-    {newMoonAttackPayloadCompressorSeat:candidateSeat};
+  return anyTurn?{newMoonAttackPayloadCompressorAnyTurnSeat:candidateSeat}:
+    (lateWindow?{newMoonAttackPayloadCompressorLateSeat:candidateSeat}:
+      {newMoonAttackPayloadCompressorSeat:candidateSeat});
 }
 
 /**
@@ -257,6 +259,7 @@ function commonPayloadOption(candidateSeat,enabled,lateWindow=false){
  */
 function executeDevelopment(trial,candidates,{
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
+  anyTurnCompressorPayload=false,
   garbotoxinWindow=false,initializationWindow=false,
   mandatoryOptionFallback=false,paperSupporterQuota=false,
   paperCologneQuota=false,paperSupporterComparisonTrace=false,
@@ -280,7 +283,7 @@ function executeDevelopment(trial,candidates,{
   const candidateSeat=trial.candidateSlot==='A'?0:1;
   const sourceSeat=1-candidateSeat;
   const payloadResource=commonPayloadOption(candidateSeat,
-    compressorPayload,lateCompressorPayload);
+    compressorPayload,lateCompressorPayload,anyTurnCompressorPayload);
   const candidateCards=prepared.plan.candidate.cards;
   assert.equal(candidateCards.length,60);
   assert.equal(opponent.cards.length,60);
@@ -498,13 +501,15 @@ function executeDevelopment(trial,candidates,{
       (paperSupporterQuota?'+'+PAPER_SUPPORTER_VERSION:'')+
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
-      (lateCompressorPayload?
-      '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')),
+      (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
+        (lateCompressorPayload?
+        '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':''))),
     mandatoryOptionFallbackBothSeats:mandatoryOptionFallback,
     enforceSelectOptionLegalityBothSeats:mandatoryOptionFallback,
     ownerCompressorPayloadOptIn:compressorPayload,
     ownerCompressorLate14OptIn:lateCompressorPayload,
-    ...(lateCompressorPayload?{
+    ownerCompressorAnyTurnOptIn:anyTurnCompressorPayload,
+    ...((lateCompressorPayload||anyTurnCompressorPayload)?{
       candidateBattleCompressorRoots:candidateCompressorRoots.map(row=>({
         turn:row.turnBefore,ordinal:row.actionOrdinal,card:row.card})),
       candidateAttackDeclarationEvidence:declared.filter(row=>
@@ -607,6 +612,7 @@ function executeDevelopment(trial,candidates,{
 /** @returns {object} */
 function runDevelopment({
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
+  anyTurnCompressorPayload=false,
   mandatoryOptionFallback=false,nativePressureWindows=false,
   sourceFirstRetrospective=false,paperSupporterQuota=false,
   paperCologneQuota=false,paperSupporterComparisonTrace=false,
@@ -640,6 +646,7 @@ function runDevelopment({
     try {
       const execute=()=>executeDevelopment(trial,prepared,{
         compressorPayload,opportunityAudit,lateCompressorPayload,
+        anyTurnCompressorPayload,
         mandatoryOptionFallback,paperSupporterQuota,paperCologneQuota,
         paperSupporterComparisonTrace,
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
@@ -700,13 +707,15 @@ function runDevelopment({
     }
   }
   return {
-    schema:lateCompressorPayload?
+    schema:anyTurnCompressorPayload?
+      'agent32-bilateral-common-policy-development-v0c-owner-compressor-anyturn-v1':
+      (lateCompressorPayload?
       'agent5-bilateral-common-policy-development-v0c-owner-compressor-late14-v1':
       (opportunityAudit?
       'agent5-bilateral-common-policy-development-v0c-readonly-opportunity-v1':
       (compressorPayload?
         'agent5-bilateral-common-policy-development-v0c-owner-compressor-v1':
-        'agent41-bilateral-common-policy-development-v0c-live-lock-guard')),
+        'agent41-bilateral-common-policy-development-v0c-live-lock-guard'))),
     sourceRegistration:sourceFirstRetrospective?
       'Retrospective source-first selected exposure; rank11 chosen after source Tool-Garbodor success; not preregistered':
       'historical v1 selection; not v2 preregistration',
@@ -715,13 +724,15 @@ function runDevelopment({
       (paperSupporterQuota?'+'+PAPER_SUPPORTER_VERSION:'')+
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
-      (lateCompressorPayload?
-      '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')),
+      (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
+        (lateCompressorPayload?
+        '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':''))),
     mandatoryOptionFallbackBothSeats:mandatoryOptionFallback,
     enforceSelectOptionLegalityBothSeats:mandatoryOptionFallback,
     ownerCompressorPayloadOptIn:compressorPayload,
     ownerCompressorOpportunityAudit:opportunityAudit,
     ownerCompressorLate14OptIn:lateCompressorPayload,
+    ownerCompressorAnyTurnOptIn:anyTurnCompressorPayload,
     nativePressureWindowsOptIn:nativePressureWindows,
     paperSupporterQuotaOptIn:paperSupporterQuota,
     paperCologneQuotaOptIn:paperCologneQuota,
@@ -783,10 +794,12 @@ function runDevelopment({
 
 if(require.main===module){
   const lateWindow=process.env.AGENT5_COMPR_LATE14_DEV==='true';
+  const anyTurn=process.env.AGENT32_COMPR_ANYTURN_DEV==='true';
   const result=runDevelopment({
-    compressorPayload:lateWindow ||
+    compressorPayload:anyTurn || lateWindow ||
       process.env.AGENT5_COMMON_COMPRESSOR_DEV==='true',
     lateCompressorPayload:lateWindow,
+    anyTurnCompressorPayload:anyTurn,
     mandatoryOptionFallback:process.env.AGENT41_MANDATORY_OPTION_DEV==='true',
     nativePressureWindows:process.env.AGENT41_NATIVE_PRESSURE_DEV==='true',
     paperSupporterQuota:process.env.AGENT41_PAPER_SUPPORTER_DEV==='true',
