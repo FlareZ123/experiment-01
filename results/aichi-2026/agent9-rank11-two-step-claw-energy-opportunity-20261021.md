@@ -1,0 +1,32 @@
+# Source rank-11 root42: nominal one-Prize Claw line bypassed by readiness-only Energy recipient
+
+**Agent 9, 21 October 2026.** Evidence class: independently audited native Store **historical observation** and separately labeled printed-card **counterfactual**. This is a potential source-policy repair for the existing canonical bilateral test. It is not a native counterfactual branch, competitive game, match win, probability estimate, or new final deck.
+
+## Source and reproducibility
+
+- Exact rank11 Absol/Garbodor source 60 against unchanged rank-1 Shadow Rider reference 60; `trial.id = 11:2:B:champion-reference`, seed `623585882`, source physical seat 0, candidate seat 1, candidate actually first. Same original historical source physical deal as registered recipient-only control.
+- Agent43's frozen source and recipient-ON manual CI [39544496355](https://github.com/FlareZ123/experiment-01/actions/runs/39544496355), raw [artifact 12321231549](https://github.com/FlareZ123/experiment-01/actions/runs/39544496355/artifacts/12321231549), ZIP SHA256 `31c6bd1b691d85cac5eb59823f79682170e61b5e15621e8133669698b3efcd0a` independently checked from downloaded archive bytes. JSON member `agent7-canonical-actor-fourarm.json`, `rows[2]`, `actorOnlyDecisionCoverage.detailedComponentAudits.root.nativeRootAcceptances`. Archived executable commit `0e2db69c4854d833edb06c6d1318fda1b5d4f459`, Twinleaf pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- Failure-inclusive original packet: four attempted rows, three audited, one rank6 epoch rejection; rank11 champion remains 260 native roots, Prizes `[6,6]`, no qualifying completed game. The paired OFF/ON intervention's overall limitations are in [Agent43's report](agent43-canonical-recipient-frozen-pair-20261021.md).
+
+## Observed native Store decision, versus a separate printed counterfactual
+
+| Element | Verified original Store observation | Hypothetical alternative, not Store-tested |
+| --- | --- | --- |
+| Acting state | **Global turn 42, source seat 0**, Active Mega Absol ex M1L versus Girafarig LOT; active names unchanged before/after action | Same physical deal, public board and actor hand |
+| Attach | Native root accepted `Darkness Energy MEE`, hand index 17, to **Bench Trubbish index 0** for *Call for Family*, gap 1→0 | Put the same owner-held Darkness onto Active Mega Absol ex |
+| Physical witness | `confirmed-public-effect`; source total attached Energy **2→3**, source hand count **18→17**; public-zone SHA changed | Would need an actual native Store dispatch before claiming acceptance |
+| Bench | **[5,5]** public Bench occupancies at turn42 | Source Trubbish has no free Bench slot for *Call for Family* on that board |
+| Active attacks | Source already has two attached Darkness, and declared *Terminal Period* at turn40 and again after turn42 attachment | Third Darkness would pay printed *Claw of Darkness* `[Darkness, Darkness, Colorless]` |
+| Immediate consequence | Actual source remains at six Prizes; turn42 *Terminal Period* did not take a Prize | Claw's **200 base damage** exceeds the observed Girafarig LOT **90 HP**, creating a nominal one-Prize target absent other prevention or prohibitions |
+
+On the same recorded continuation, source global turn **44** spends another own Darkness on Bench Squawkabilly ex's *Motivate*, while Source Mega Absol ex stays with two Darkness and declares Terminal Period. The final native board confirms the Active's two Darkness and dispersed Bench investments. Neither branch includes a printed Claw counterfactual dispatch.
+
+**Rules and print source:** Bundled supplied card-list entries Mega Absol ex `me1-86` and Girafarig `sm8-94`. Mega Absol ex has 280 HP, *Terminal Period* at `[Darkness, Colorless]` only KOs an Active with **exactly six damage counters**, and *Claw of Darkness* at `[Darkness, Darkness, Colorless]` does **200 damage** and discards a revealed opponent-hand card. Girafarig LOT has 90 HP. The supplied Advanced Player's Rulebook §C-11 states an attack that would Bench Basic Pokémon ends without searching when its owner's Bench is full. Native game state may have modifiers, lock effects or history unrepresented by this narrow root summary. Therefore the attack-legal, 200-damage and resulting Prize are hypotheses requiring a native same-deal branch.
+
+## Mechanism and integration decision
+
+Agent44's current owner-visible recipient policy first detects whether **any** Active printed attack is payable. Terminal Period requires two Energy and is payable, so the policy marks the Active ready, penalizes further Active attachment, and favors the next Benched deficit. This misses the marginal value of a **second, higher-cost attack** despite its possible direct Prize conversion. The existing Agent37/49 public known-dead/potential-KO attack selector can choose a stronger payable attack, but that decision is downstream of attachment and cannot fund it. The observed [5,5] full Bench makes *Call for Family* especially weak in the specific state.
+
+One bounded next experiment, under the **existing canonical runner and manual workflow**, is an actor-public, two-seat-symmetric attachment priority for a presently one-Basic-short printed direct damage KO, followed by the existing versioned attack selector. Preserve exact source physical deals, include both candidates and all failed or censored rows, and record native acceptance, actual settled damage, Prize, responder turn, original 260-root cap and paper fidelity. Freeze that as a distinct revision from the recipient-only registered contrast. An accepted root or simulated counterfactual alone must not be counted as a competitive win.
+
+**Source field and target remain unchanged:** 29/32 exact published opponent lists, zero competitively qualified games, no supported 99.5% fixed-list claim.
