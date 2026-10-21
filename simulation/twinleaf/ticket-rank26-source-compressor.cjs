@@ -51,8 +51,12 @@ function sourceRank26TicketCompressor(){
   s.dispatch(action(compressor));
   const choose=state.prompts.find(x=>x.constructor.name==='ChooseCardsPrompt'&&x.result===undefined);
   assert.ok(choose,'Source Compressor must produce a deck search prompt');
-  assert.equal(choose.validate([]),true);
-  s.dispatch(new ResolvePromptAction(choose.id,[]));
+  const discardTarget=p.deck.cards.find(x=>x!==dceCard);
+  assert.ok(discardTarget,'Compressor must discard a non-DCE card');
+  assert.equal(choose.validate([discardTarget]),true);
+  s.dispatch(new ResolvePromptAction(choose.id,[discardTarget]));
+  assert.ok(p.discard.cards.includes(discardTarget));
+  assert.equal(p.deck.cards.length,45);
   const shuffle=state.prompts.find(x=>x.constructor.name==='ShuffleDeckPrompt'&&x.result===undefined);
   assert.ok(shuffle);
   const access=expectedTopWindowValue({knownTop:[],
@@ -60,14 +64,14 @@ function sourceRank26TicketCompressor(){
    unrevealedPrizes:0,window:7,
    rewardByName:{'Double Colorless Energy SUM':1},missValue:0,
    uniformUnknownOrder:true});
-  assert.ok(Math.abs(access.expectedValue-7/46)<1e-12);
+  assert.ok(Math.abs(access.expectedValue-7/45)<1e-12);
   const index=p.deck.cards.indexOf(dceCard);
   const order=[index,...Array.from({length:p.deck.cards.length},(_,i)=>i).filter(i=>i!==index)];
   s.dispatch(new ResolvePromptAction(shuffle.id,order));
   assert.strictEqual(p.deck.cards[0],dceCard);
   return {sourceRank:26,sourceDigest:plan.candidateDigest,
    exactRegisteredCopies:60,postFirstDrawDeckCount:46,
-   ticketAndCompressorItemsDispatched:true,zeroCompressorSelectionValid:true,
+   ticketAndCompressorItemsDispatched:true,mandatoryCompressorDiscardAccepted:true,postCompressorDeckCount:45,
    dceReturnedToBottomThenShuffledToTop:true,
    conditionalSevenCardAccess:access.expectedValue,
    modeledOpponentResponse:false,attackTested:false,winRateMeasured:false};
