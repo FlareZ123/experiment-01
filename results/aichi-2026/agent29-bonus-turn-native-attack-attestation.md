@@ -47,3 +47,18 @@ The [follow-up patch d3b55d9](https://github.com/FlareZ123/experiment-01/commit/
 The [new regression test a0e2b4a](https://github.com/FlareZ123/experiment-01/commit/a0e2b4a49bb38ee961c3d13d958112c085586bbe) checks a valid unowned prompt closure, a defender-owned closure with correct initiating root, and rejected mismatched-origin or unrelated-`PlayCardAction` completions. The **second manual [benchmark CI 39372125149](https://github.com/FlareZ123/experiment-01/actions/runs/39372125149) passed** at precisely `a0e2b4a49bb38ee961c3d13d958112c085586bbe`.
 
 These are conservative action-provenance predicates. Timeless-GX selection, copied-attack effect, causation of the extra turn and game-strength claims still require independent Store evidence.
+
+
+## 21 October continuation: authenticate the named direct attack
+
+The preceding Action-class safeguard still permitted a native **ordinary attack**, such as a source-available `Claw of Darkness`, to masquerade as a Timeless-GX grant if caller-supplied turn/ordinal labels were otherwise consistent. An `AttackAction` proves an attack attempt, not the claimed **kind** of attack. This is again a synthetic trace-integrity counterexample, not an observed dishonest native game.
+
+The pinned headless producer already records the actual native attack name as `rootActionLedger[].attack` from `AttackAction.name`; no new telemetry or simulator patch was needed. The attestor now requires `action === 'AttackAction'` **and** `attack === 'Timeless-GX'` for a **direct printed** extra-turn-grant origin. Existing source/seat/turn/causal prompt checks remain intact. A synthetic attack named `Claw of Darkness` is rejected with all ordinal and turn fields unchanged; the direct Timeless-GX-shaped positive case remains accepted.
+
+- Validator commit [c5f1b5e](https://github.com/FlareZ123/experiment-01/commit/c5f1b5ef63f633fee19eb6ddc40997ac5f67378b).
+- Regression commit [d22a174](https://github.com/FlareZ123/experiment-01/commit/d22a174a7c266abff19a3ac39c667fec6c4a05c2).
+- [Manual benchmark run 39536329383](https://github.com/FlareZ123/experiment-01/actions/runs/39536329383) **passed** on source-inclusive checkout `b7a7cd9b7b1749bd0b05874e79d87b23a3eb352d`; commit comparison confirms the validator/test commits are its ancestors.
+
+**Fail-closed limitation:** genuine copied Timeless-GX through Apex Dragon, Perfection or Copycat may have another root action/name. This strict direct-name attestor will **not** authenticate those paths without separate copied-attack declaration/effect evidence, even if they grant an extra turn. Its result still does not certify resolution of Timeless-GX, an actual extra turn caused by it, or any competent match outcome. For joint policy work, validate a direct attack first, then add explicit native effect evidence rather than relaxing the name check.
+
+Benchmark status stays **29/32 exact attributed sources, zero qualified games, no verified 99.5% fixed 60**.
