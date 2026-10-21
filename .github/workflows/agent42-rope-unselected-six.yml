@@ -1,0 +1,48 @@
+name: Agent42 predeclared six-seed Escape Rope native comparison
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  six-paired-original-store-games:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit generic Escape Rope pure actor tests
+        run: node --test tests/agent42-actor-escape-rope-frontier.test.cjs
+      - name: Check out pinned native game engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned game engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute all preregistered new seeds with paired common policy
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: 'true'
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: 'true'
+          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'true'
+          AGENT8_ACE_TRAINER_EMERGENCY_DEV: 'false'
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+        run: node simulation/evaluation/agent42-rope-six-seed-native.cjs > agent42-six-native.json
+      - name: Verify all six registered pairs remain visible
+        run: node -e "const a=require('./agent42-six-native.json');if(a.attemptedPairs!==6||a.attemptedArms!==12||a.pairs.length!==6||a.competitiveQualifiedGames!==0)throw Error('Missing registered trial');console.log('ATTEMPTED',a.attemptedArms,'NATIVE_TERMINALS',a.pairs.flatMap(p=>[p.control,p.treatment]).filter(r=>r.finished).length)"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agent42-rope-six-new-seed-original-store
+          path: agent42-six-native.json
+          if-no-files-found: warn
+          retention-days: 14
