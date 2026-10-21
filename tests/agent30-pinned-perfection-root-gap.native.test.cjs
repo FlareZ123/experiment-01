@@ -81,6 +81,13 @@ test('supported public Mewtwo state passes in root, yet native Perfection offers
   });
   assert.equal(intent.kind,'pass',
     'This test documents the missing safe Perfection initiating root');
+  const enabled=chooseActorRootIntent(view,catalog,{
+    energyRecipientFrontier:true,specialEnergyRoot:true,
+    perfectionRoot:true
+  });
+  assert.deepEqual(enabled,{kind:'perfection',
+    donorPrinting:'Gengar & Mimikyu-GX TEU',
+    attackName:'Horror House-GX'});
 
   const {UseAbilityAction}=engine('game/store/actions/game-actions');
   const {PlayerType,SlotType}=engine('game/store/actions/play-card-action');
