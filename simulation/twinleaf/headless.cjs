@@ -884,6 +884,9 @@ function runMatch(request) {
     // Preserve the public restart boundary separately from the stable root
     // ledger protocol and SHA. A paper sudden-death replay resets turn to 0.
     const suddenDeathClockResets = rootActionLedger ? [] : null;
+    // Bounded, public-count-only context for an actual native restart.
+    // Excludes face-down setup and is retained only with a reset marker.
+    const recentNativePublicRoots = suddenDeathClockResets ? [] : null;
     // Read-only fresh Deal identity for each native replay episode. Existing
     // initial source digest and live decisions remain unchanged.
     const sourceDealEpochObserver = sourceDealObserver ?
@@ -1214,6 +1217,15 @@ function runMatch(request) {
       // dispatch. This is offline evidence and never enters a bot decision.
       const nativeResetPrestate = suddenDeathClockResets ?
         captureNativeResetPrestate(state) : null;
+      if (recentNativePublicRoots && state.turn>=1 &&
+          [GamePhase.PLAYER_TURN,GamePhase.ATTACK,GamePhase.BETWEEN_TURNS].includes(state.phase)) {
+        recentNativePublicRoots.push({
+          actionOrdinal:actions,turnBefore,playerSlot:seat,
+          action:actionName,pendingPrompt:pending?.constructor.name??null,
+          before:publicSnapshot(state)
+        });
+        if (recentNativePublicRoots.length>16) recentNativePublicRoots.shift();
+      }
       try {
         store.dispatch(action);
         if (setupCompensationObserver) {
@@ -1435,7 +1447,8 @@ function runMatch(request) {
           beforeSuddenDeath:suddenDeathBefore,
           afterSuddenDeath:store.state.isSuddenDeath===true,
           enteredSetup:store.state.phase===GamePhase.SETUP,
-          preDispatchWinPredicates:nativeResetPrestate
+          preDispatchWinPredicates:nativeResetPrestate,
+          recentNativePublicRootWindow:recentNativePublicRoots.slice()
         });
       }
       if (rootActionLedger) {
