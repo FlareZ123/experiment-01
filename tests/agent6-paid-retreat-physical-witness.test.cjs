@@ -5,7 +5,7 @@ const assert=require('node:assert/strict');
 const {rootPhysicalSnapshot,rootPhysicalWitness}=
   require('../simulation/twinleaf/agent5-owner-root-slice.cjs');
 
-const printing=name=>name?{fullName:name}:null;
+const printing=name=>name?{fullName:name,powers:name==='Latias ex SSP'?[{name:'Skyliner'}]:[]}:null;
 function slot(name,energies=[]){
   return {getPokemonCard:()=>printing(name),
     energies:{cards:energies.map(printing)}};
@@ -50,6 +50,22 @@ test('public paid-retreat witness requires swapped Pokémon and discarded one En
     'no-confirmed-public-effect');
   assert.equal(rootPhysicalWitness(intent,before,before,GamePhase),
     'no-confirmed-public-effect');
+});
+
+test('Skyliner public ability explains a zero-Energy-cost native retreat',()=>{
+  const target={...intent,benchIndex:1,printing:'Shadow Rider Calyrex V CRE',attackName:'Shadow Mist'};
+  const before=rootPhysicalSnapshot(state(
+    slot('Girafarig LOT',['Psychic Energy MEE']),
+    [slot('Latias ex SSP'),slot('Shadow Rider Calyrex V CRE',['Psychic Energy MEE'])],
+    0),0,target);
+  const after=rootPhysicalSnapshot(state(
+    slot('Shadow Rider Calyrex V CRE',['Psychic Energy MEE']),
+    [slot('Latias ex SSP'),slot('Girafarig LOT',['Psychic Energy MEE'])],
+    9),0,target);
+  assert.equal(before.publicSkylinerPresent,true);
+  assert.equal(rootPhysicalWitness(target,before,after,{FINISHED:4}),'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(target,{...before,publicSkylinerPresent:false},
+    after,{FINISHED:4}),'no-confirmed-public-effect');
 });
 
 test('witness fails closed when identical printed Active and target have no distinguishable identity',()=>{
