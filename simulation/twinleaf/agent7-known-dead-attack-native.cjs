@@ -63,6 +63,8 @@ function fixture(defenderDamage){
       prize.cards.push(card('Darkness Energy SVE'));
       player.prizes.push(prize);
     }
+    // Keep the post-attack turn from ending through artificial deck exhaustion.
+    for(let j=0;j<4;j++)player.deck.cards.push(card('Darkness Energy SVE'));
   }
 
   const state=new State();
@@ -114,20 +116,38 @@ function arm({damage,flag}){
   x.store.dispatch(new AttackAction(x.attacker.id,intent.attackName));
   const {ResolvePromptAction}=
     load('game/store/actions/resolve-prompt-action');
-  const waitResolved=[];
+  const resolvedPrompts=[];
   for(let count=0;count<12;count++){
     const prompt=x.store.state.prompts.find(p=>p.result===undefined);
     if(!prompt)break;
-    if(prompt.constructor.name!=='WaitPrompt')break;
-    x.store.dispatch(new ResolvePromptAction(prompt.id,null));
-    waitResolved.push(prompt.id);
+    const kind=prompt.constructor.name;
+    let result;
+    if(kind==='WaitPrompt'){
+      result=null;
+    }else if(kind==='ChoosePrizePrompt'){
+      const player=x.store.state.players.find(p=>
+        p.id===prompt.getPerspectivePlayerId());
+      assert.ok(player);
+      result=player.prizes.filter(p=>p.cards.length>0)
+        .slice(0,prompt.options.count);
+    }else if(kind==='ChoosePokemonPrompt'){
+      const player=x.store.state.players.find(p=>
+        p.id===prompt.getPerspectivePlayerId());
+      const first=player?.bench.find(p=>p.cards.length>0);
+      assert.ok(first,'Expected legal surviving Benched promotion');
+      result=[first];
+    }else{
+      throw new Error('Unmodeled actual native prompt '+kind);
+    }
+    x.store.dispatch(new ResolvePromptAction(prompt.id,result));
+    resolvedPrompts.push({id:prompt.id,kind});
   }
   const pending=x.store.state.prompts.filter(p=>p.result===undefined)
     .map(p=>p.constructor.name);
   const latest=x.store.state;
   const after={damage:latest.players[1].active.damage,
     ownerPrizes:latest.players[0].prizes.length,
-    pending,phase:latest.phase,waitResolved,
+    pending,phase:latest.phase,resolvedPrompts,
     activeAfter:latest.players[1].active.getPokemonCard()?.fullName??null};
   return {
     actorVisibleOnly:true,knownDeadAttackRoot:flag,
