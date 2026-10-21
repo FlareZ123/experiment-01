@@ -55,12 +55,16 @@ jobs:
         run: |
           node --test tests/agent50-stranded-marnie-frontier.test.cjs
           node simulation/evaluation/agent50-sourcefirst-stranded-marnie-native-pair.cjs > agent50-marnie-native-pair.json
+          node --test tests/agent50-stranded-guzma-frontier.test.cjs
+          node simulation/evaluation/agent50-sourcefirst-stranded-guzma-native-pair.cjs > agent50-guzma-native-pair.json
       - name: Preserve all original Store Marnie recovery arms
         if: ${{ always() && inputs.agent50_marnie_native_pair }}
         uses: actions/upload-artifact@v4
         with:
           name: agent50-sourcefirst-stranded-marnie-native-pair
-          path: agent50-marnie-native-pair.json
+          path: |
+            agent50-marnie-native-pair.json
+            agent50-guzma-native-pair.json
           if-no-files-found: warn
           retention-days: 14
       - name: Enforce native Energy recipient legality under printed type filters
