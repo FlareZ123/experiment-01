@@ -40,5 +40,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: aichi-snorlax-root-setup
-          path: |\n            aichi-snorlax-root-setup.json\n            aichi-snorlax-bench-prospective.json
+          path: |
+            aichi-snorlax-root-setup.json
+            aichi-snorlax-bench-prospective.json
           if-no-files-found: warn
