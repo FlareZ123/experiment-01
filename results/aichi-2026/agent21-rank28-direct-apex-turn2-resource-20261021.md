@@ -77,3 +77,10 @@ The frozen [rank-6 source 60](full-decklists.json) contains **4 Iron Thorns ex a
 - **Dominating Echo** could stop *all eight printed Energy cards* from being played **from hand** on the next opposing turn, as well as any playable Stadium from hand. It does not remove already attached Energy, block non-hand attachment or necessarily prevent an already powered Iron Thorns attack.
 
 Rank 6 also has **3 Guzma**, which may gust around attack-specific damage protection when a vulnerable Bench target exists, plus Energy-disruption cards against the Regidrago plan. The photographed Regidrago must still reach turn-two VSTAR, discard the singleton Noivern and pay Apex Dragon. Source deck lists alone cannot establish a lock duration, likelihood of a successful attack or a win probability. This rank-6 interaction is consequently a **matchup-specific hypothesis with exact textual prerequisites**, suitable for a later authenticated source-dealt native/paper test, and is why the lower direct resource incidence in this report cannot determine the stronger 60.
+
+
+### The Noivern hypothesis already has verified-list controls
+
+In the 29-card-list official source manifest, exactly **nine** fully published Regidrago archetype inventories exist at ranks 10, 12, 13, 14, 18, 20, 21, 27, and 32. **Seven of those nine** (12, 13, 14, 20, 21, 27, 32) each carry one PAL 153 Noivern ex. Ranks **10 and 18** carry none. The photographed off-manifest candidate would also carry one. These are exact manifest counts, with no comparative game outcomes.
+
+A high-value follow-up can test the Noivern payload's activation and opponent response against the exact rank-6 Iron Thorns source using an **already verified Noivern-containing Regidrago printed source 60**. That avoids needing to accept the photographed rank-28 identity prematurely. Predeclare the actual source/opponent seats, printed donor, Energy and discard setup, native attack settlement, Guzma bypass opportunities and censored cases. No such test was executed here.
