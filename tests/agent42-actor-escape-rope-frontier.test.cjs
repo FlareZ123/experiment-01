@@ -88,3 +88,12 @@ test('known ready attack retains priority over disruptive rope and no hidden rea
   b.opponentHidden={hand:['private marker'],deck:['private'],prizes:[]};
   assert.deepEqual(chooseEscapeRope(a),chooseEscapeRope(b));
 });
+
+test('Rope physical witness checks spent Item and hand change',()=>{
+  const witness=require('../simulation/twinleaf/agent5-owner-root-slice.cjs').rootPhysicalWitness;
+  const intent={kind:'play-escape-rope',printing:'Escape Rope BST'};
+  assert.equal(witness(intent,{escapeRopeSpent:0,handCount:3},
+    {escapeRopeSpent:1,handCount:2},{}),'confirmed-public-effect');
+  assert.equal(witness(intent,{escapeRopeSpent:0,handCount:3},
+    {escapeRopeSpent:0,handCount:2},{}),'no-confirmed-public-effect');
+});
