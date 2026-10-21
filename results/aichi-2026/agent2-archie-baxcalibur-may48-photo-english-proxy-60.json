@@ -1,0 +1,482 @@
+{
+  "schema": "aichi-agent2-archie-baxcalibur-aichi-may48-firstperson-photo-english-proxy-60-v1",
+  "status": "Direct first-person dated May11 Aichi48 self-reported source grid, manual visual exact names and counts; English mechanical proxies, Japanese printing ids not certified, no official registration proof, 0 qualified games, outside Top32.",
+  "source_url": "https://note.com/primarina_2002/n/n70b7e01cd474",
+  "original_japanese_deck_code": "4xYGc4-dWhjRd-G8c8GD",
+  "source_public_image_url": "https://assets.st-note.com/img/1778453413-q0mPkiER6BesWlMSy1oCHLhv.png",
+  "source_image_sha256": "8b3ca0d1084bce3c1de1473c99902580990c1350c0e10704412a54227c830f2d",
+  "source_image_pixel_dimensions": [
+    1024,
+    512
+  ],
+  "native_source_capture": "https://github.com/FlareZ123/experiment-01/actions/runs/39645716988",
+  "english_proxy_source": "results/aichi-2026/agent2-archie-baxcalibur-may48-photo-source-20261021.md",
+  "prior_january_source": "results/als/agent2-archie-baxcalibur-umi2026-english-proxy-60.json",
+  "counts": {
+    "total": 60,
+    "distinct": 35,
+    "Pokemon": 16,
+    "Trainer": 35,
+    "Energy": 9
+  },
+  "cards": [
+    {
+      "count": 1,
+      "name": "Chien-Pao ex",
+      "id": "sv2-61",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Suicune V",
+      "id": "swsh7-31",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Kyogre",
+      "id": "cel25-3",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Radiant Greninja",
+      "id": "swsh10-46",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Klefki",
+      "id": "sv1-96",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Mew ex",
+      "id": "sv3pt5-151",
+      "category": "Pokémon"
+    },
+    {
+      "count": 2,
+      "name": "Baxcalibur",
+      "id": "sv2-60",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Flutter Mane",
+      "id": "sv5-78",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Exeggcute",
+      "id": "bw9-4",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Pidgeot V",
+      "id": "swsh11-137",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Tapu Lele-GX",
+      "id": "sm2-60",
+      "category": "Pokémon"
+    },
+    {
+      "count": 2,
+      "name": "Dedenne-GX",
+      "id": "sm10-57",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Crobat V",
+      "id": "swsh3-104",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Squawkabilly ex",
+      "id": "sv2-169",
+      "category": "Pokémon"
+    },
+    {
+      "count": 4,
+      "name": "Ultra Ball",
+      "id": "swsh9-150",
+      "category": "Trainer"
+    },
+    {
+      "count": 4,
+      "name": "Quick Ball",
+      "id": "swsh1-179",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Hisuian Heavy Ball",
+      "id": "swsh10-146",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Pokémon Communication",
+      "id": "bw1-99",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Bicycle",
+      "id": "bw8-117",
+      "category": "Trainer"
+    },
+    {
+      "count": 2,
+      "name": "Trainers' Mail",
+      "id": "xy6-92",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Ordinary Rod",
+      "id": "swsh1-171",
+      "category": "Trainer"
+    },
+    {
+      "count": 2,
+      "name": "VS Seeker",
+      "id": "xy4-109",
+      "category": "Trainer"
+    },
+    {
+      "count": 4,
+      "name": "Superior Energy Retrieval",
+      "id": "bw9-103",
+      "category": "Trainer"
+    },
+    {
+      "count": 2,
+      "name": "Battle Compressor Team Flare Gear",
+      "id": "xy4-92",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Escape Rope",
+      "id": "swsh5-125",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Telescopic Sight",
+      "id": "swsh4-160",
+      "category": "Trainer"
+    },
+    {
+      "count": 2,
+      "name": "Field Blower",
+      "id": "sm2-125",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Computer Search",
+      "id": "bw7-137",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Forest Seal Stone",
+      "id": "swsh12-156",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Klara",
+      "id": "swsh6-145",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Guzma",
+      "id": "sm3-115",
+      "category": "Trainer"
+    },
+    {
+      "count": 2,
+      "name": "Archie's Ace in the Hole",
+      "id": "xy5-124",
+      "category": "Trainer"
+    },
+    {
+      "count": 2,
+      "name": "Sky Field",
+      "id": "xy6-89",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Team Rocket's Watchtower",
+      "id": "sv10-180",
+      "category": "Trainer"
+    },
+    {
+      "count": 9,
+      "name": "Water Energy",
+      "id": "bw1-107",
+      "category": "Energy"
+    }
+  ],
+  "visual_source_cells": [
+    {
+      "row": 1,
+      "cardInRow": 1,
+      "japanese": "パオジアンex",
+      "english": "Chien-Pao ex",
+      "count": 1
+    },
+    {
+      "row": 1,
+      "cardInRow": 2,
+      "japanese": "スイクンV",
+      "english": "Suicune V",
+      "count": 1
+    },
+    {
+      "row": 1,
+      "cardInRow": 3,
+      "japanese": "カイオーガ",
+      "english": "Kyogre",
+      "count": 1
+    },
+    {
+      "row": 1,
+      "cardInRow": 4,
+      "japanese": "かがやくゲッコウガ",
+      "english": "Radiant Greninja",
+      "count": 1
+    },
+    {
+      "row": 1,
+      "cardInRow": 5,
+      "japanese": "ミュウex",
+      "english": "Mew ex",
+      "count": 1
+    },
+    {
+      "row": 1,
+      "cardInRow": 6,
+      "japanese": "セグレイブ",
+      "english": "Baxcalibur",
+      "count": 2
+    },
+    {
+      "row": 1,
+      "cardInRow": 7,
+      "japanese": "ハバタクカミ",
+      "english": "Flutter Mane",
+      "count": 1
+    },
+    {
+      "row": 1,
+      "cardInRow": 8,
+      "japanese": "クレッフィ",
+      "english": "Klefki",
+      "count": 1
+    },
+    {
+      "row": 1,
+      "cardInRow": 9,
+      "japanese": "タマタマ",
+      "english": "Exeggcute",
+      "count": 1
+    },
+    {
+      "row": 2,
+      "cardInRow": 1,
+      "japanese": "ピジョットV",
+      "english": "Pidgeot V",
+      "count": 1
+    },
+    {
+      "row": 2,
+      "cardInRow": 2,
+      "japanese": "カプ・テテフGX",
+      "english": "Tapu Lele-GX",
+      "count": 1
+    },
+    {
+      "row": 2,
+      "cardInRow": 3,
+      "japanese": "デデンネGX",
+      "english": "Dedenne-GX",
+      "count": 2
+    },
+    {
+      "row": 2,
+      "cardInRow": 4,
+      "japanese": "クロバットV",
+      "english": "Crobat V",
+      "count": 1
+    },
+    {
+      "row": 2,
+      "cardInRow": 5,
+      "japanese": "イキリンコex",
+      "english": "Squawkabilly ex",
+      "count": 1
+    },
+    {
+      "row": 2,
+      "cardInRow": 6,
+      "japanese": "ハイパーボール",
+      "english": "Ultra Ball",
+      "count": 4
+    },
+    {
+      "row": 2,
+      "cardInRow": 7,
+      "japanese": "クイックボール",
+      "english": "Quick Ball",
+      "count": 4
+    },
+    {
+      "row": 2,
+      "cardInRow": 8,
+      "japanese": "ヒスイのヘビーボール",
+      "english": "Hisuian Heavy Ball",
+      "count": 1
+    },
+    {
+      "row": 2,
+      "cardInRow": 9,
+      "japanese": "ポケモン通信",
+      "english": "Pokémon Communication",
+      "count": 1
+    },
+    {
+      "row": 3,
+      "cardInRow": 1,
+      "japanese": "じてんしゃ",
+      "english": "Bicycle",
+      "count": 1
+    },
+    {
+      "row": 3,
+      "cardInRow": 2,
+      "japanese": "トレーナーズポスト",
+      "english": "Trainers' Mail",
+      "count": 2
+    },
+    {
+      "row": 3,
+      "cardInRow": 3,
+      "japanese": "ふつうのつりざお",
+      "english": "Ordinary Rod",
+      "count": 1
+    },
+    {
+      "row": 3,
+      "cardInRow": 4,
+      "japanese": "バトルサーチャー",
+      "english": "VS Seeker",
+      "count": 2
+    },
+    {
+      "row": 3,
+      "cardInRow": 5,
+      "japanese": "スーパーエネルギー回収",
+      "english": "Superior Energy Retrieval",
+      "count": 4
+    },
+    {
+      "row": 3,
+      "cardInRow": 6,
+      "japanese": "バトルコンプレッサー",
+      "english": "Battle Compressor Team Flare Gear",
+      "count": 2
+    },
+    {
+      "row": 3,
+      "cardInRow": 7,
+      "japanese": "あなぬけのヒモ",
+      "english": "Escape Rope",
+      "count": 1
+    },
+    {
+      "row": 3,
+      "cardInRow": 8,
+      "japanese": "フィールドブロアー",
+      "english": "Field Blower",
+      "count": 2
+    },
+    {
+      "row": 3,
+      "cardInRow": 9,
+      "japanese": "パソコン通信",
+      "english": "Computer Search",
+      "count": 1
+    },
+    {
+      "row": 4,
+      "cardInRow": 1,
+      "japanese": "望遠スコープ",
+      "english": "Telescopic Sight",
+      "count": 1
+    },
+    {
+      "row": 4,
+      "cardInRow": 2,
+      "japanese": "森の封印石",
+      "english": "Forest Seal Stone",
+      "count": 1
+    },
+    {
+      "row": 4,
+      "cardInRow": 3,
+      "japanese": "クララ",
+      "english": "Klara",
+      "count": 1
+    },
+    {
+      "row": 4,
+      "cardInRow": 4,
+      "japanese": "グズマ",
+      "english": "Guzma",
+      "count": 1
+    },
+    {
+      "row": 4,
+      "cardInRow": 5,
+      "japanese": "アオギリの切り札",
+      "english": "Archie's Ace in the Hole",
+      "count": 2
+    },
+    {
+      "row": 4,
+      "cardInRow": 6,
+      "japanese": "スカイフィールド",
+      "english": "Sky Field",
+      "count": 2
+    },
+    {
+      "row": 4,
+      "cardInRow": 7,
+      "japanese": "ロケット団の監視塔",
+      "english": "Team Rocket's Watchtower",
+      "count": 1
+    },
+    {
+      "row": 4,
+      "cardInRow": 8,
+      "japanese": "基本水エネルギー",
+      "english": "Water Energy",
+      "count": 9
+    }
+  ],
+  "methodology": "Each 1024x512 original note.com deck-grid cell transcribed visually and compared to independent 11 May article explanations plus separately archived January 60. Mechanical proxy printings are supplied card database identifiers, not claims that May author held those exact English cards."
+}
