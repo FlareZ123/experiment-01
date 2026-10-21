@@ -379,7 +379,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     unsupportedPromptTypes:{},
     unsupportedPromptFallbacks:0,nonOwnerNativeDelegations:0,
     nonLiveSpeculativeFallbacks:0,nonTurnPhaseFallbacks:0,
-    ownerRootIntents:[],competitiveGameQualified:false,
+    ownerRootIntents:[],
+    agent42SourceMobilityPasses:[],competitiveGameQualified:false,
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
   };
   assert.ok([null,0,1].includes(audit.specialEnergyRootOwnerSeat));
@@ -459,6 +460,30 @@ function withActorOnlyRootPolicy(run,deps={}){
       powerglassRoot:audit.powerglassRootOptIn
     });
     const ownerId=state.players[seat].id;
+    // Research-only post-decision witness of a source player's OWN concealed
+    // hand and publicly observable switching gap. Never enters policy choice.
+    if(audit.escapeRopeRootOptIn&&seat!==audit.escapeRopeOwnerSeat&&
+      intent.kind==='pass'&&audit.agent42SourceMobilityPasses.length<24){
+      const active=view.ownPublic.active,bench=view.ownPublic.bench
+        .filter(Boolean);
+      if(active&&bench.some(p=>p.energies.length>0)&&
+          active.energies.length===0){
+        audit.agent42SourceMobilityPasses.push({
+          turn:view.globalTurn,seat,active:active.printing,
+          activeTools:active.tools,
+          activeRetreatCost:active.printed.retreatCost,
+          activeCanRetreat:!active.publicRestrictions.cannotRetreatNextTurn,
+          benchAttackers:bench.filter(p=>p.energies.length>0)
+            .map(p=>({printing:p.printing,energyCount:p.energies.length})),
+          handMobility:view.ownHand.filter(p=>
+            /^(Float Stone |Escape Rope |Guzma |Switch )/.test(p)),
+          itemLocked:view.ownTurnResources.itemPlayLocked===true,
+          supporterLocked:view.ownTurnResources.supporterPlayLocked===true,
+          supporterPlayed:view.ownTurnResources.supporterPlayedTurn===
+            view.globalTurn
+        });
+      }
+    }
     let action;
     switch(intent.kind){
       case 'evolve-pokemon':
