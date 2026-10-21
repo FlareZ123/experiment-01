@@ -64,6 +64,8 @@ jobs:
         run: node --test tests/aichi-setup-zone-capture.test.cjs tests/agent42-registered-setup-native-bridge.test.cjs
       - name: Test owner-visible Perfection Pass rescue without private-zone reads
         run: node --test tests/owner-visible-perfection-pass-bridge.test.cjs
+      - name: Verify native read-only prompt choices retain pre-choice zone counts
+        run: node --test tests/twinleaf-selected-cards-evidence.test.cjs tests/native-prompt-choice-evidence.test.cjs
       - name: Reject fabricated bilateral v2 actual-first-turn evidence
         run: node --test tests/bilateral-v2-evidence-gate.test.cjs tests/bilateral-v2-root-ledger-attestation.test.cjs tests/agent3-source-first-pressure-kind.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent42-four-cell-coverage.test.cjs tests/aichi-paired-four-cell-accrual.test.cjs tests/aichi-four-cell-sampling-budget.test.cjs
       - name: Reject nonadjacent roots in bilateral Store reply packets
