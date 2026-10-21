@@ -4,11 +4,31 @@ const assert=require('node:assert/strict');
 const {paysWithBasics}=
   require('./agent7-actor-free-retreat-frontier.cjs');
 
-const VERSION='agent6-owner-visible-paid-one-energy-retreat-v1';
+const VERSION='agent6-owner-visible-printed-retreat-and-damage-v2';
+const MIN_PROJECTED_DAMAGE=80;
+
+/**
+ * One explicitly verified printed formula. Public Bench occupancy is known
+ * to both players; the returned number is pre-modifier attack damage, not a
+ * guarantee of what the native Store will apply after locks and resistance.
+ * @param {object} view Detached public battlefield.
+ * @param {object} pokemon Candidate public Pokémon.
+ * @param {object} attack Its printed attack.
+ * @returns {number|null}
+ */
+function projectedPrintedDamage(view,pokemon,attack){
+  if(pokemon.printing==='Lillie\'s Clefairy ex JTG'&&
+      attack.name==='Full Moon Rondo'&&attack.damage===20){
+    const benchCount=[...(view.ownPublic?.bench??[]),
+      ...(view.opponentPublic?.bench??[])].filter(Boolean).length;
+    return 20+20*benchCount;
+  }
+  return Number.isSafeInteger(attack.damage)?attack.damage:null;
+}
 
 /**
  * Pick a single legal-looking paid retreat from a zero-damage Active attack
- * to a Benched attacker whose printed positive-damage attack is payable.
+ * to a Benched attacker whose printed substantive-damage attack is payable.
  *
  * This is a conservative owner-observation planner, not a complete paper
  * Retreat legality oracle. The genuine Store must accept the RetreatAction
@@ -54,8 +74,9 @@ function choosePaidRetreatToDamagingBench(view,catalog){
          x===catalog.specialConditions.ASLEEP||
          x===catalog.specialConditions.PARALYZED))continue;
     for(const attack of pokemon.attacks??[]){
-      if(attack.gxAttack===true||
-         !Number.isSafeInteger(attack.damage)||attack.damage<=0||
+      const expected=projectedPrintedDamage(view,pokemon,attack);
+      if(attack.gxAttack===true||expected===null||
+         expected<MIN_PROJECTED_DAMAGE||
          !paysWithBasics(pokemon,attack,catalog))continue;
       if(pokemon.publicRestrictions?.blockedAttackNameNextTurn===attack.name||
          pokemon.publicRestrictions?.blockedAttackNameUntilLeavesActive===attack.name||
@@ -64,12 +85,14 @@ function choosePaidRetreatToDamagingBench(view,catalog){
           pokemon.publicRestrictions.onlyAllowedAttackNameNextTurn!==attack.name))continue;
       options.push({kind:'paid-retreat',benchIndex:index,
         printing:pokemon.printing,attackName:attack.name,
-        baseDamage:attack.damage,retreatCostUnits:1});
+        baseDamage:attack.damage,projectedPrintedDamage:expected,
+        retreatCostUnits:1});
     }
   }
-  options.sort((a,b)=>b.baseDamage-a.baseDamage||
+  options.sort((a,b)=>b.projectedPrintedDamage-a.projectedPrintedDamage||
     a.benchIndex-b.benchIndex||a.attackName.localeCompare(b.attackName));
   return options[0]??null;
 }
 
-module.exports={VERSION,choosePaidRetreatToDamagingBench};
+module.exports={VERSION,MIN_PROJECTED_DAMAGE,projectedPrintedDamage,
+  choosePaidRetreatToDamagingBench};
