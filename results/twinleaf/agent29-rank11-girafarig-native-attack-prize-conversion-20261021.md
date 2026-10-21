@@ -10,7 +10,7 @@ Same original source rank 11 / champion-reference 60s, seed **623585882**, candi
 
 ## Settled native AttackAction sequence
 
-The baseline root continued choosing Girafarig's printed `Get Lost` at every eligible attack, with **25 settled** `Get Lost` declarations, zero actual Prize changes, and one more incomplete if any depending on record cap. The v2 publicly safe root switched at candidate global turn **7**, after the three Psychic Energy cost for `Mind Shock` became payable. At that moment, native public board shows the source's Active Mega Absol ex at **zero damage**, one Darkness Energy attached, Girafarig Active with **three Psychic Energy** and no Tool. Only the candidate attack-selection treatment was changed in the experiment.
+The baseline root continued choosing Girafarig's printed `Get Lost` at every eligible attack, with **24 settled** `Get Lost` declarations and zero actual Prize changes in that source-locked off arm. The v2 publicly safe root switched at candidate global turn **7**, after the three Psychic Energy cost for `Mind Shock` became payable. At that moment, native public board shows the source's Active Mega Absol ex at **zero damage**, one Darkness Energy attached, Girafarig Active with **three Psychic Energy** and no Tool. Only the candidate attack-selection treatment was changed in the experiment.
 
 The v2 artifact `candidateAttackSettlement.attacks[]` contains the following genuine *settled* `AttackAction` public-board transitions:
 
