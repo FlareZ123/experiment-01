@@ -9,7 +9,7 @@ function view(){
     decisionKind:'owner-root',actorSeat:0,globalTurn:7,
     ownHand:['Marnie SSH','Garbodor BKP','Shopping Center EVS'],
     ownPublic:{
-      active:{printing:'Garbodor BKP',energies:[]},
+      active:{printing:'Garbodor BKP',energies:[],tools:[]},
       bench:[{printing:'Oranguru V ASR',energies:['Darkness Energy MEE']}],
       deckCount:20,publicTurnRestrictions:{supporterPlayLocked:false}
     },
