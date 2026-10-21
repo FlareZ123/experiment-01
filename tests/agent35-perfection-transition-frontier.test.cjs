@@ -139,3 +139,22 @@ test('status, retreat quota, costly retreat and useful immediate attacker block 
   v.ownPublic.active.attacks=[{name:'Good Attack',damage:110,cost:[P]}];
   assert.equal(choosePerfectionTransition(v,catalog),null);
 });
+
+test('shared root keeps original Active attachment when off and funds Bench when on',()=>{
+  const {chooseActorRootIntent}=
+    require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const v=state();
+  catalog.basics=new Set();
+  catalog.abilityBasics=new Set();
+  v.ownTurnResources.pokemonPlayLocked=true;
+  const control=chooseActorRootIntent(v,catalog,{});
+  assert.equal(control.kind,'attach-basic-energy');
+  assert.equal(control.slot,undefined,
+    'Historical root keeps its original Active attachment');
+  const treatment=chooseActorRootIntent(v,catalog,{
+    perfectionRoot:true,perfectionTransitionRoot:true
+  });
+  assert.equal(treatment.kind,'attach-basic-energy');
+  assert.equal(treatment.slot,'bench');
+  assert.equal(treatment.index,0);
+});
