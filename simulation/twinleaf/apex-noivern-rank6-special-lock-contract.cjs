@@ -59,7 +59,7 @@ function stagedEchoDceReply(lockCopied){
     f.defending.hand.cards.push(dce);
     const dceIndex=f.defending.hand.cards.indexOf(dce);
     assert.ok(dceIndex>=0,'DCE must be a physical held card');
-    const target={player:PlayerType.TOP_PLAYER,slot:SlotType.ACTIVE,index:0};
+    const target={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0};
     let rejectedByDispatch=false;
     let errorName=null;
     let errorMessage=null;
@@ -72,8 +72,9 @@ function stagedEchoDceReply(lockCopied){
     }
     const dceAttached=f.defending.active.energies.cards.includes(dce);
     const handRetained=f.defending.hand.cards.includes(dce);
-    // Do not treat a blocked control as proof of Echo's effect. Archive
-    // native rejection/target evidence before choosing a different target.
+    // Native prompt coordinates are relative to the acting player:
+    // BOTTOM_PLAYER addresses the current owner even when actor seat is 1.
+    // Preserve zone/rejection evidence for the paired control and lock.
     const otherActiveAttachment=f.attacking.active.energies.cards.includes(dce);
     const pending=f.state.prompts.filter(p=>p.result===undefined)
       .map(p=>p.constructor.name);
@@ -82,6 +83,13 @@ function stagedEchoDceReply(lockCopied){
       inDefenderDiscard:f.defending.discard.cards.includes(dce),
       inAttackerDiscard:f.attacking.discard.cards.includes(dce),
       otherActiveAttachment,pending};
+    assert.equal(otherActiveAttachment,false,
+      'Opponent-owned Energy cannot be routed onto Regidrago Active');
+    assert.equal(dceAttached,!lockCopied,
+      lockCopied?'Dominating Echo must block hand Special Energy attachment':
+        'No-lock control must attach its DCE to its own Active Iron Thorns');
+    assert.equal(handRetained,lockCopied,
+      'Only copied hand lock should leave DCE in owner hand');
 
     return {copiedAttack:attackName,sourceAttackDamage:f.defending.active.damage,
       nativeBeforeManualNextTurn:nativeBefore,
@@ -100,7 +108,7 @@ function compareEchoAgainstRank6Dce(){
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     control:stagedEchoDceReply(false),
     treatment:stagedEchoDceReply(true),
-    qualification:'Diagnostic only: control attachment must succeed before Echo lock can be inferred; genuine Store turn handoff from staged board, no actual opening/search/policy or competitive game',
+    qualification:'Asserted native control-vs-Echo hand-DCE blocker after genuine Store turn handoff from injected board; no actual opening/search/policy or competitive game',
     competitiveGamesQualified:0};
 }
 if(require.main===module)process.stdout.write(
