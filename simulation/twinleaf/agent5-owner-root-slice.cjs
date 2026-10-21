@@ -151,6 +151,11 @@ function rootPhysicalSnapshot(state,seat,intent){
     targetEnergies:energyRecipient?.energies?.cards.map(c=>c.fullName)??null,
     benchPrinting:intent.kind==='bench-basic'?
       owner.bench[intent.benchSlot].getPokemonCard()?.fullName??null:null,
+    ...(intent.kind==='play-ace-trainer'?{
+      supporterTurn:owner.supporterTurn,
+      aceTrainerSpent:[...owner.discard.cards,...owner.supporter.cards]
+        .filter(card=>card.fullName===intent.printing).length
+    }:{}),
     ...(intent.kind==='play-quick-ball'?{
       quickBallSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
@@ -200,6 +205,14 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
     const count=cards=>cards.filter(c=>c===intent.printing).length;
     return after.activeEnergies.length===before.activeEnergies.length+1&&
       count(after.activeEnergies)===count(before.activeEnergies)+1?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='play-ace-trainer'){
+    // The printed Supporter is publicly resolving or spent, even when hand
+    // shuffle/draw prompts have not completely settled at root dispatch.
+    return before.supporterTurn===0 &&
+      after.supporterTurn>before.supporterTurn &&
+      after.aceTrainerSpent>before.aceTrainerSpent?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(intent.kind==='play-quick-ball'){
