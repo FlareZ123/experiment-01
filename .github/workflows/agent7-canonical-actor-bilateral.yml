@@ -18,7 +18,321 @@ on:
         required: false
         type: boolean
         default: false
-      owner_early_bench_compressor_pair:
+      actor_paid_retreat:
+        description: Development-only owner-visible paid retreat to funded damaging attacker
+        required: false
+        type: boolean
+        default: false
+      actor_energy_recipient:
+        description: Development-only owner-visible Active or Bench Basic Energy recipient frontier
+        required: false
+        type: boolean
+        default: false
+      owner_single_search:
+        description: Enable one-card-legal owner-visible native search selector inside canonical policy
+        required: false
+        type: boolean
+        default: false
+      special_energy_root:
+        description: Opt in rank6 source-bounded actor Special Energy attachment and numeric unit planning
+        required: false
+        type: boolean
+        default: false
+      natural_evolution_root:
+        description: Development-only both-seat actor-visible ordinary evolution roots
+        required: false
+        type: boolean
+        default: false
+      known_dead_attack_root:
+        description: Opt in actor-visible known-dead printed attack choice (Mega Absol/Girafarig)
+        required: false
+        type: boolean
+        default: false
+      agent37_public_attack_first_divergence:
+        description: 'Same-deal both-seat first printed attack choice settlement, development only'
+        required: false
+        type: boolean
+        default: false
+      native_known_dead_attack_gate:
+        description: Run injected pinned Store attack and Prize pairing (development-only)
+        required: false
+        type: boolean
+        default: false
+      audit_missed_evolution:
+        description: Run read-only natural-evolution missed-turn-end paired native census
+        required: false
+        type: boolean
+        default: false
+      actor_hand_discard:
+        description: Opt in bounded actor-only native owner-hand discard prompts
+        required: false
+        type: boolean
+        default: false
+      actor_choose_pokemon:
+        description: Opt in both-seat actor-visible native single-Pokemon prompt choices
+        required: false
+        type: boolean
+        default: false
+      potential_ko_root:
+        description: Development-only public fixed-damage potential-KO attack priority
+        required: false
+        type: boolean
+        default: false
+      actor_quick_ball_root:
+        description: Opt in conservative actor Item Quick Ball setup-root line
+        required: false
+        type: boolean
+        default: false
+      quick_ball_paircheck:
+        description: Same-checkout actor Quick Ball off/on paired development audit
+        required: false
+        type: boolean
+        default: false
+      native_generic_fallback:
+        description: Record seat-attributed generic decoder calls without choosing actions
+        required: false
+        type: boolean
+        default: false
+      native_fallback_paircheck:
+        description: Run identical historical arms with native observer disabled to check no game mutation
+        required: false
+        type: boolean
+        default: false
+      paper_cologne_quota:
+        description: Opt in reversible paper same-turn Canceling Cologne veto for both players
+        required: false
+        type: boolean
+        default: false
+      rank6_source_k1:
+        description: Read-only exact original source-first G&H owner-search target diagnosis
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  canonical-four-arm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Pure adapter-composition order and qualification tests
+        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent8-canonical-quickball-paircheck.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent7-known-dead-attack-root.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent6-actor-paid-retreat-frontier.test.cjs tests/agent6-paid-retreat-physical-witness.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent3-native-epoch-partition-error.test.cjs tests/source-deal-epoch-observer.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent49-discrete-attack-gate.test.cjs
+      - name: Regress owner-visible paid retreat and native physical receipt
+        run: node --test tests/agent6-actor-paid-retreat-frontier.test.cjs tests/agent6-paid-retreat-physical-witness.test.cjs
+      - name: Verify optional frontier and default root parity
+        run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs tests/agent3-special-energy-root.test.cjs
+      - name: Check out exact pinned upstream engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Native sudden-death Prize threshold audit
+        run: node --test tests/agent3-paper-tiebreak-native-check.test.cjs
+      - name: Agent37 paired actual Store first attack decision and opponent reply
+        if: ${{ inputs.agent37_public_attack_first_divergence }}
+        run: |
+          node --test tests/agent37-candidate-attack-settlement.test.cjs
+          node simulation/evaluation/agent37-first-divergent-native-attack-pair.cjs > agent37-public-first-attack-pair.json
+      - name: Archive both native policy branches including censored games
+        if: ${{ always() && inputs.agent37_public_attack_first_divergence }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent37-first-divergent-native-attack-pair
+          path: agent37-public-first-attack-pair.json
+          if-no-files-found: warn
+          retention-days: 10
+      - name: Native paired printed attack settlement under owner-visible selector
+        if: ${{ inputs.native_known_dead_attack_gate }}
+        run: node simulation/twinleaf/agent7-known-dead-attack-native.cjs > agent7-native-known-dead-attacks.json
+      - name: Paired native missed-evolution-at-turn-end observational census
+        if: ${{ inputs.audit_missed_evolution }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+        run: |
+          AGENT1_NATURAL_EVOLUTION_ROOT_DEV=false node simulation/evaluation/agent1-missed-evolution-pass-census.cjs > agent1-evolution-pass-baseline.json
+          AGENT1_NATURAL_EVOLUTION_ROOT_DEV=true node simulation/evaluation/agent1-missed-evolution-pass-census.cjs > agent1-evolution-pass-optin.json
+          node -e "const assert=require('node:assert/strict'); const base=require('./agent1-evolution-pass-baseline.json'); const opt=require('./agent1-evolution-pass-optin.json'); for(const r of [base,opt]) {assert.equal(r.attempted,4);assert.equal(r.competitiveQualifiedGames,0);assert.ok(r.auditedTurnEnds.actualGamesSeen>=4);} assert.equal(base.actorNaturalEvolutionRootOptIn,false);assert.equal(opt.actorNaturalEvolutionRootOptIn,true); for(let i=0;i<4;i++){assert.equal(base.rows[i].trial,opt.rows[i].trial); assert.ok(base.rows[i].sourceDealFingerprint,'Baseline missing authentic source fingerprint');assert.equal(base.rows[i].sourceDealFingerprint,opt.rows[i].sourceDealFingerprint,'Source deal changed between actor flags'); assert.equal(base.rows[i].actualStarterSeat,opt.rows[i].actualStarterSeat);} console.log('EVOLUTION_MISSED_PASS_PAIR',JSON.stringify({baseline:{pass:base.auditedTurnEnds.realPassRoots,attack:base.auditedTurnEnds.realAttackRoots,missedPass:base.auditedTurnEnds.eligiblePassRoots,missedAttack:base.auditedTurnEnds.eligibleAttackRoots,rows:base.rows.map(x=>({trial:x.trial,roots:x.typedRootIntents}))},optin:{pass:opt.auditedTurnEnds.realPassRoots,attack:opt.auditedTurnEnds.realAttackRoots,missedPass:opt.auditedTurnEnds.eligiblePassRoots,missedAttack:opt.auditedTurnEnds.eligibleAttackRoots,rows:opt.rows.map(x=>({trial:x.trial,roots:x.typedRootIntents}))}}))"
+
+      - name: Pinned real-Store Cologne duplicate and replay-epoch gate
+        if: ${{ inputs.paper_cologne_quota }}
+        run: node simulation/twinleaf/canceling-cologne-repeat-paper-gate.cjs > agent48-cologne-native-gate.json
+      - name: Execute unchanged canonical four-arm historical bilateral runner
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
+          AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: ${{ inputs.native_generic_fallback && 'true' || 'false' }}
+          AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
+          AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-actor-fourarm.json
+      - name: Fail closed on missing actor audits and silent missing arms
+        run: |
+          node -e "const assert=require('node:assert/strict');const r=require('./agent7-canonical-actor-fourarm.json');assert.equal(r.attempted,4);assert.equal(r.rows.length,4);assert.equal(r.competitiveQualifiedGames,0);assert.equal(r.actorOnlyCompositionOptIn,true);assert.equal(r.actorOnlyCellsWithAudits,4,'Any missing per-arm coverage is a failure');assert.equal(r.paperSupporterQuotaOptIn,true);for(const row of r.rows){assert.ok(row.actorOnlyDecisionCoverage,'No actor-only audit');assert.equal(row.qualifiesForCompetitiveInference,false);const a=row.actorOnlyDecisionCoverage;assert.equal(a.qualification.competitiveGames,0);assert.ok(a.nativeDecisionCounts.actorRootsAccepted>0,'No native accepted actor roots');assert.equal(a.nativeDecisionCounts.actorRootsRejected,0);}console.log('ACTOR_CANONICAL_FOURARM',JSON.stringify(r.rows.map(x=>({trial:x.trial.id,actor:x.actorOnlyDecisionCoverage.nativeDecisionCounts,sourceDeal:x.sourceDealFingerprint??null,sourceFirst:x.sourceActuallyFirst??null,sourceReply:x.candidateFollowupStatus??null,error:x.error??null}))))"
+      - name: Fail closed if paired comparison requested without Quick Ball enabled
+        if: ${{ inputs.quick_ball_paircheck && !inputs.actor_quick_ball_root }}
+        run: node -e "throw new Error('Quick Ball paircheck requires actor_quick_ball_root=true')"
+      - name: Execute paired actor Quick Ball OFF using same canonical runner
+        if: ${{ inputs.quick_ball_paircheck && inputs.actor_quick_ball_root }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
+          AGENT8_ACTOR_QUICK_BALL_DEV: 'false'
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: ${{ inputs.native_generic_fallback && 'true' || 'false' }}
+          AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
+          AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent8-quick-ball-off.json
+      - name: Compare native actor Quick Ball on/off historical four arms
+        if: ${{ inputs.quick_ball_paircheck && inputs.actor_quick_ball_root }}
+        run: node scripts/agent8-canonical-quickball-paircheck.cjs agent8-quick-ball-off.json agent7-canonical-actor-fourarm.json > agent8-quick-ball-paircheck.json
+      - name: Verify both-seat native Cologne quota on canonical four arms
+        if: ${{ inputs.paper_cologne_quota }}
+        run: node -e "const assert=require('node:assert/strict');const r=require('./agent7-canonical-actor-fourarm.json');assert.equal(r.paperCologneQuotaOptIn,true);for(const x of r.rows){assert.equal(x.paperCologneQuotaOptIn,true);assert.equal(x.paperCologneNativePlayAudit.acceptedOncePerSeatTurn,true);}console.log('PAPER_COLOGNE_CANONICAL',JSON.stringify(r.rows.map(x=>({id:x.trial.id,quota:x.paperCologneNativePlayAudit}))))"
+      - name: Paired same-checkout canonical four-arm observer-disabled control
+        if: ${{ inputs.native_fallback_paircheck }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
+          AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: 'false'
+          AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
+          AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-actor-fourarm-control.json
+      - name: Verify original four-arm gameplay and native-seat ledger invariance
+        if: ${{ inputs.native_fallback_paircheck }}
+        run: node scripts/agent7-native-fallback-paircheck.cjs agent7-canonical-actor-fourarm-control.json agent7-canonical-actor-fourarm.json
+      - name: Run four retrospective source-first stress arms with same composition
+        # Run this development-only stress panel even when the preserved
+        # historical 3/4 epoch-completeness gate fails; keep that failure red.
+        if: ${{ always() && inputs.source_first_retrospective }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
+          AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: ${{ inputs.native_generic_fallback && 'true' || 'false' }}
+          AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
+          AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-sourcefirst.json
+      - name: Qualify retrospective source-first evidence as development-only
+        if: ${{ inputs.source_first_retrospective }}
+        run: |
+          node -e "const assert=require('node:assert/strict');const r=require('./agent7-canonical-sourcefirst.json');assert.equal(r.attempted,4);assert.equal(r.rows.length,4);assert.equal(r.sourceFirstRetrospective,true);assert.equal(r.competitiveQualifiedGames,0);assert.equal(r.actorOnlyCellsWithAudits,4);for(const x of r.rows){assert.ok(x.actorOnlyDecisionCoverage);assert.equal(x.qualifiesForCompetitiveInference,false);assert.equal(x.sourceActuallyFirst,true,'Physical source did not start first');assert.equal(x.actorOnlyDecisionCoverage.qualification.competitiveGames,0);}console.log('ACTOR_SOURCE_FIRST',JSON.stringify(r.rows.map(x=>({trial:x.trial.id,sourceFirst:x.sourceActuallyFirst,sourceAudit:x.sourceAudit,reply:x.candidateFollowupStatus,attacks:x.attackDeclarations,actions:x.actionCount,terminal:x.finished,winner:x.winner,actor:x.actorOnlyDecisionCoverage.nativeDecisionCounts}))))"
+      - name: Verify both-seat native Cologne quota on source-first stress arms
+        if: ${{ inputs.paper_cologne_quota && inputs.source_first_retrospective }}
+        run: node -e "const assert=require('node:assert/strict');const r=require('./agent7-canonical-sourcefirst.json');assert.equal(r.paperCologneQuotaOptIn,true);for(const x of r.rows){assert.equal(x.paperCologneQuotaOptIn,true);assert.equal(x.paperCologneNativePlayAudit.acceptedOncePerSeatTurn,true);}console.log('PAPER_COLOGNE_SOURCEFIRST',JSON.stringify(r.rows.map(x=>({id:x.trial.id,quota:x.paperCologneNativePlayAudit}))))"
+      - name: Paired same-checkout source-first observer-disabled control
+        if: ${{ inputs.native_fallback_paircheck && inputs.source_first_retrospective }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
+          AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: 'false'
+          AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
+          AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-sourcefirst-control.json
+      - name: Verify source-first gameplay and native-seat ledger invariance
+        if: ${{ inputs.native_fallback_paircheck && inputs.source_first_retrospective }}
+        run: node scripts/agent7-native-fallback-paircheck.cjs agent7-canonical-sourcefirst-control.json agent7-canonical-sourcefirst.json
+      - name: Read the authentic source-owner rank6 G&H deck-search prompt without changing actions
+        if: ${{ inputs.rank6_source_k1 }}
+        run: node simulation/evaluation/agent7-rank6-k1-canonical-retrospective.cjs > agent7-rank6-source-k1.json
+      - name: Fail closed if no genuine K1 source prompt was observed
+        if: ${{ inputs.rank6_source_k1 }}
+        run: |
+          node -e "const assert=require('node:assert/strict');const x=require('./agent7-rank6-source-k1.json');assert.equal(x.competitiveQualifiedGames,0);assert.equal(x.changedPolicyChoices,false);assert.equal(x.rows.length,4);assert.ok(x.observation.authenticPromptsSeen>0);assert.ok(x.observation.expectedGuzmaHalaSearches>0);assert.equal(x.observation.decisionChanges,0);assert.equal(x.observation.storeDispatchChanges,0);assert.equal(x.nativeRootLedgerParityAllArms,true);assert.equal(x.publicAttackDeclarationParityAllArms,true);console.log('K1_AUTHENTIC_OWNER_SEARCH',JSON.stringify(x.observation))"
+      - name: Preserve every observed and censored development arm
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-canonical-actor-fourarm-development
+          path: |
+            agent7-canonical-actor-fourarm.json
+            agent8-quick-ball-off.json
+            agent8-quick-ball-paircheck.json
+            agent7-canonical-sourcefirst.json
+            agent7-canonical-actor-fourarm-control.json
+            agent7-canonical-sourcefirst-control.json
+            agent7-rank6-source-k1.json
+            agent48-cologne-native-gate.json
+            agent1-evolution-pass-baseline.json
+            agent1-evolution-pass-optin.json
+            agent7-native-known-dead-attacks.json
+          if-no-files-found: warn
+          retention-days: 30      owner_early_bench_compressor_pair:
         description: Paired genuine owner turn3 Benched Mewtwo donor preparation, development only
         required: false
         type: boolean
@@ -193,6 +507,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
@@ -217,6 +532,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
@@ -248,6 +564,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
@@ -275,6 +592,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
@@ -299,6 +617,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
@@ -328,6 +647,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
