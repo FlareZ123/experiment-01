@@ -338,6 +338,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent49-public-potential-ko-v2';
   if(audit.knownDeadAttackRootOptIn)
     audit.version+='+agent1-known-dead-leading-attack-v1';
+  if(audit.perfectionRootOptIn)
+    audit.version+='+agent30-known-perfection-root-v1';
   function wrapped(state){
     // A bot may evaluate hypothetical cloned States in its own tactics.
     // Never make an actor-root policy decision against such a speculative
