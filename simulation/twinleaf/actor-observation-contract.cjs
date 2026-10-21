@@ -162,6 +162,8 @@ function actorObservation(state,seat,options={}){
     // physically face-down. Reveal only occupied slot geometry until start.
     opponentPublic:publicPlayer(state.players[1-seat],state.phase===0||state.phase===1),
     ownTurnResources:{
+      // Unlike Energy/Stadium last-used global indices, supporterTurn is
+      // Twinleaf's count of Supporters used in this owner's current turn.
       supporterPlayedTurn:owner.supporterTurn,
       retreatedTurn:owner.retreatedTurn,
       energyPlayedTurn:owner.energyPlayedTurn,
