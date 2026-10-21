@@ -104,7 +104,7 @@ function run(seed=482443328){
     firstDifference:{control:a[prefix]??null,treatment:b[prefix]??null},
     sourceDealEqual:control.sourceDealFingerprint!==null&&
       control.sourceDealFingerprint===treatment.sourceDealFingerprint,
-    expectedOriginalSourceDeal:SOURCE_DEAL,
+    expectedOriginalSourceDeal:seed===482443328?SOURCE_DEAL:null,
     control,treatment,
     attemptedArms:2,competitiveQualifiedGames:0,winRateCertified:false,
     caveat:'Retrospectively selected one source-first physical deal; source prompt chooser selects the first native-legal visible Pokémon and is not known to be competent'
