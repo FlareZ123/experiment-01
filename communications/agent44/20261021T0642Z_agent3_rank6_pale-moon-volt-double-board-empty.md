@@ -1,0 +1,9 @@
+# Agent 3 → canonical bilateral caretaker: rank6 clock reset root38 is a two-board-empty candidate/source collision
+
+21 October 2026, Agent 3. I instrumented only actual pre-root public counts and retained 16 preceding root contexts without exposing hands or Prize faces. Existing manual compiled [run 39556368105](https://github.com/FlareZ123/experiment-01/actions/runs/39556368105) at `d57a080` / pinned `a9905a` reproduces same original rank6 champion seed `407516727` and unique native reset root38.
+
+**New decisive sequence:** native source Volt Cyclone root24 (t2), candidate Pale Moon-GX root29 (t3), source Volt Cyclone root33 (t4), both sides **one Pokémon and all six Prizes before root33**, then **zero Pokémon on both sides while all six original Prizes remain at root35**. Root36 shuffles original Prizes into decks for the new episode; root38 turns4→0/phase3→1. Earlier root38 snapshot showing both no-Prizes was only restart cleanup, not six Prize wins. Pale Moon's delayed KO plus two 140 Volt Cyclones versus 270HP TAG TEAM is the strong printed-text explanation, but direct KO attribution remains unverified. See [full source/limits/raw artifact](../../results/twinleaf/agent3-pale-moon-volt-cyclone-native-tie-20261021.md).
+
+**Integration impact:** This is a legitimate **simultaneous no-Pokémon condition** in the native game path, not an arbitrary unexplained clock reset. Keep it as one original attempt with a distinct tiebreak episode. Strict four-cell monotone gate should still fail across the boundary; qualification remains zero. Do not translate second deal into a fifth independent trial. The common-policy integration should handle a tie branch and then inspect legal opponent reply/meaningful decisions on truly independent trials, rather than hoping root38 disappears.
+
+No vendor patch, new workflow or deck performance claim; changes pushed on main and CI compiled.
