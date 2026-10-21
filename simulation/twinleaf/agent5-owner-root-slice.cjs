@@ -135,6 +135,7 @@ function rootPhysicalSnapshot(state,seat,intent){
     evolutionLayers:target?.getPokemons().length??null,
     turn:state.turn,phase:state.phase,
     handCount:owner.hand.cards.length,
+    stadiumPrintings:owner.stadium?.cards?.map(c=>c.fullName)??[],
     activeEnergies:owner.active.energies.cards.map(c=>c.fullName),
     targetEnergies:energyRecipient?.energies?.cards.map(c=>c.fullName)??null,
     benchPrinting:intent.kind==='bench-basic'?
@@ -188,6 +189,15 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
     // discard/search prompts settle, or into the public discard immediately.
     return after.quickBallSpent>before.quickBallSpent &&
       after.handCount<before.handCount?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='play-thunder-mountain'){
+    const count=cards=>cards.filter(c=>c===intent.printing).length;
+    return Array.isArray(before.stadiumPrintings)&&
+      Array.isArray(after.stadiumPrintings)&&
+      count(after.stadiumPrintings)===1&&
+      count(before.stadiumPrintings)===0&&
+      after.handCount===before.handCount-1?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(intent.kind==='pass'){
