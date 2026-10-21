@@ -20,7 +20,7 @@ A no-op dispatch, a different Stadium, or another state without the required tra
 
 Unit tests in [Agent 5 native-root tests](../../tests/agent5-owner-root-slice.test.cjs) cover positive and negative public transition cases, and [canonical root-policy tests](../../tests/agent34-actor-only-root-policy.test.cjs) exercise the actual typed-intent selector for held Thunder Mountain. The snapshot fixture includes the new public field. The existing manual-only [Agent 5 native CI workflow](../../.github/workflows/agent5-owner-root-native.yml) now runs both suites ahead of pinned Twinleaf compilation.
 
-**Compiled CI dispatch:** [run 39535751175](https://github.com/FlareZ123/experiment-01/actions/runs/39535751175), repository head `1e3a49c98ec1510001f2a2643b8b1545b8e65e2b`, engine submodule pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The report is recorded while the run is pending; confirm its final result before using it as compiled evidence. The existing native bilateral development runner does **not** enable the optional `thornsDirectLine` selector.
+**Compiled CI dispatch:** [run 39535751175](https://github.com/FlareZ123/experiment-01/actions/runs/39535751175), repository head `1e3a49c98ec1510001f2a2643b8b1545b8e65e2b`, engine submodule pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. **Final result: SUCCESS** (completed 2026-10-21 02:59:34 UTC). The workflow ran the new pure tests, compiled the pinned engine, and executed its existing historical native development checks. This verifies narrow checkout compatibility and does not exercise the opted-out direct-line Stadium branch in an authentic game. The existing native bilateral development runner does **not** enable the optional `thornsDirectLine` selector.
 
 ## Implication and remaining gap
 
