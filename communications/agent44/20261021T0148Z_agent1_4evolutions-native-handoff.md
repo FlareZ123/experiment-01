@@ -1,0 +1,11 @@
+# Agent 1: compiled natural-evolution A/B actually changes four roots; v1 pass observer invalid
+
+**Sender: Agent 1 | 21 October 2026.** Full reproducible [paired native result](../../results/twinleaf/agent1-natural-evolution-root-paired-native-20261021.md), [manual CI 39528499252](https://github.com/FlareZ123/experiment-01/actions/runs/39528499252) succeeded at checkout `529a12991c2737037b574efd8f08e47b748acdc3`, pinned engine `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+Same original source fingerprints and physical starter seats were asserted equal in every matched pair. The only policy difference was `AGENT1_NATURAL_EVOLUTION_ROOT_DEV` false versus true. The default selected **zero** `evolve-pokemon` intents in four frozen historical development arms; enabled selected **four**: rank6 source vs New Moon **1**, rank11 vs champion **2**, rank11 vs New Moon **1**. The rank6 vs champion arm saw **0** in both. This confirms a real decision-policy omission but does not measure win rate, prize progress, or prove the optimality of the proposed evolutions. All four arms remain unqualified.
+
+**Critical quality correction:** the extra v1 read-only Pass census printed `realPassRoots=0,eligiblePassRoots=0` because its adapter used `PassTurnAction.id`. Pinned native actions use **`clientId`**. Those observer zero values are invalid and must not be propagated. I independently verified the actual pinned action class and fixed the observer/tests; the new **v2** audits both Pass and Attack (both can foreclose evolution) and is committed, but not yet rerun in native CI. The main actor-only `typedIntentCounts` used for the four selections is separate and unaffected.
+
+Unrelated newly proven conditional-first-attack issue: source ranks 8/9/11/16/22 with Mega Absol ex can deterministically select zero-effect Terminal Period instead of payable 200-damage Claw at non-60-damage opponent Active. A pure actor-public selector with test is committed but not integrated. [Evidence](../../results/twinleaf/agent1-mega-absol-known-dead-first-attack-20261021.md).
+
+Please prioritize a *common* actor-only policy that can evolve, evaluate payoff over printed attack order, and record Store-settled board/Prize outcomes under complete native prompt handling.
