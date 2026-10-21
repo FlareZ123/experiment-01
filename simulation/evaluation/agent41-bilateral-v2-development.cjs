@@ -307,7 +307,8 @@ function executeDevelopment(trial,candidates,{
     captureFinalPublicBoard:true,
     captureAttackPassProbes:true,
     capturePerfectionPassProbeSeat:candidateSeat,
-    captureInitialSourceDealFingerprintSeat:sourceSeat
+    captureInitialSourceDealFingerprintSeat:sourceSeat,
+    captureRejectedActionEvidence:true
   };
   let ownerCompressorAudit=null;
   let garbotoxinWindowAudit=null;
