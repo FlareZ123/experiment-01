@@ -1,0 +1,362 @@
+{
+  "schema": "aichi-unassigned-top32-itoko-official-saved-deck-jp-print60-with-bilingual-crosswalk-v1",
+  "source_author": "いとこ / @itoko_pokemon",
+  "event": "CL Aichi Open League paper Expanded 2026-05-10",
+  "source_article": "https://note.com/itoko_/n/n0758eccdf029",
+  "source_article_deck_code": "ySpy2S-Ey5WAe-RX3Rpp",
+  "official_saved_deck_url": "https://www.pokemon-card.com/deck/confirm.html/deckID/ySpy2S-Ey5WAe-RX3Rpp/",
+  "evidence_kind": "Public first-person article and official Japanese saved-deck viewer, not independently verified tournament registration",
+  "photo_transcription_used": false,
+  "github_actions_run": 39521742767,
+  "github_workflow_artifact": 12310554878,
+  "raw_official_html_sha256": "171125d4ec175adc90b4684b61201ae27c05fe711277465c5b1d2f86a53c5c1d",
+  "artifact_zip_sha256": "ac5aa9ddd5f6b9de4cbb229180cb528ded447012f515fcdc1c88982a0b0c94e5",
+  "retrieved_printing_identifiers_from_official_viewer": true,
+  "english_names_source": "explicit manually audited Japanese-to-English translation of official saved-deck card names",
+  "official_final_rank_authenticated": false,
+  "player_civil_identity_authenticated": false,
+  "event_registered_inventory_authenticated": false,
+  "all_printings_paper_legality_verified": false,
+  "competitive_games_qualified": 0,
+  "source_field_membership_permitted": false,
+  "number_of_distinct_japanese_print_ids": 37,
+  "total_copies": 60,
+  "category_counts": {
+    "pokemon": 20,
+    "trainer": 30,
+    "energy": 10
+  },
+  "ranked_field_name_inventory_comparison": {
+    "matched_published_rank": 27,
+    "matched_published_player": "Yuya Nagatsuma",
+    "name_level_shared_copies": 60,
+    "english_name_inventory_exact_match": true,
+    "nearest_published_regidrago": [
+      {
+        "rank": 27,
+        "player": "Yuya Nagatsuma",
+        "name_shared_copies": 60
+      },
+      {
+        "rank": 12,
+        "player": "Risa Sato",
+        "name_shared_copies": 54
+      },
+      {
+        "rank": 20,
+        "player": "Satoru Imamura",
+        "name_shared_copies": 50
+      },
+      {
+        "rank": 21,
+        "player": "Shun Nakajima",
+        "name_shared_copies": 49
+      },
+      {
+        "rank": 14,
+        "player": "Manaya Asano",
+        "name_shared_copies": 48
+      }
+    ],
+    "registration_identity_conclusion": "No legal-name or registered-rank link between いとこ/@itoko_pokemon and Yuya Nagatsuma; inventory equality is not identity proof",
+    "counted_toward_missing_rank_recovery": false
+  },
+  "entries": [
+    {
+      "japanese_name": "レジドラゴVSTAR",
+      "english_name": "Regidrago VSTAR",
+      "japanese_card_id": 42169,
+      "japanese_set": "S12",
+      "quantity": 3,
+      "section": "deck_pke"
+    },
+    {
+      "japanese_name": "レジドラゴV",
+      "english_name": "Regidrago V",
+      "japanese_card_id": 42168,
+      "japanese_set": "S12",
+      "quantity": 4,
+      "section": "deck_pke"
+    },
+    {
+      "japanese_name": "ドラパルトex",
+      "english_name": "Dragapult ex",
+      "japanese_card_id": 45772,
+      "japanese_set": "SV6",
+      "quantity": 1,
+      "section": "deck_pke"
+    },
+    {
+      "japanese_name": "オンバーンex",
+      "english_name": "Noivern ex",
+      "japanese_card_id": 43194,
+      "japanese_set": "SV2D",
+      "quantity": 1,
+      "section": "deck_pke"
+    },
+    {
+      "japanese_name": "コライドンex",
+      "english_name": "Koraidon ex",
+      "japanese_card_id": 49267,
+      "japanese_set": "MC",
+      "quantity": 1,
+      "section": "deck_pke"
+    },
+    {
+      "japanese_name": "ディアルガGX",
+      "english_name": "Dialga-GX",
+      "japanese_card_id": 34427,
+      "japanese_set": "SM5S",
+      "quantity": 2,
+      "section": "deck_pke"
+    },
+    {
+      "japanese_name": "キュレム",
+      "english_name": "Kyurem",
+      "japanese_card_id": 45922,
+      "japanese_set": "SV6a",
+      "quantity": 1,
+      "section": "deck_pke"
+    },
+    {
+      "japanese_name": "ワタシラガV",
+      "english_name": "Eldegoss V",
+      "japanese_card_id": 37894,
+      "japanese_set": "S2",
+      "quantity": 1,
+      "section": "deck_pke"
+    },
+    {
+      "japanese_name": "クロバットV",
+      "english_name": "Crobat V",
+      "japanese_card_id": 38191,
+      "japanese_set": "S3",
+      "quantity": 1,
+      "section": "deck_pke"
+    },
+    {
+      "japanese_name": "デデンネGX",
+      "english_name": "Dedenne-GX",
+      "japanese_card_id": 36161,
+      "japanese_set": "SM9a",
+      "quantity": 1,
+      "section": "deck_pke"
+    },
+    {
+      "japanese_name": "ラティアスex",
+      "english_name": "Latias ex",
+      "japanese_card_id": 46248,
+      "japanese_set": "SV7a",
+      "quantity": 1,
+      "section": "deck_pke"
+    },
+    {
+      "japanese_name": "カプ・テテフGX",
+      "english_name": "Tapu Lele-GX",
+      "japanese_card_id": 33438,
+      "japanese_set": "SM2L",
+      "quantity": 1,
+      "section": "deck_pke"
+    },
+    {
+      "japanese_name": "マーシャドー",
+      "english_name": "Marshadow",
+      "japanese_card_id": 36165,
+      "japanese_set": "SM9a",
+      "quantity": 1,
+      "section": "deck_pke"
+    },
+    {
+      "japanese_name": "スボミー",
+      "english_name": "Budew",
+      "japanese_card_id": 46662,
+      "japanese_set": "SV8a",
+      "quantity": 1,
+      "section": "deck_pke"
+    },
+    {
+      "japanese_name": "ミステリートレジャー",
+      "english_name": "Mysterious Treasure",
+      "japanese_card_id": 34757,
+      "japanese_set": "SM6",
+      "quantity": 4,
+      "section": "deck_gds"
+    },
+    {
+      "japanese_name": "クイックボール",
+      "english_name": "Quick Ball",
+      "japanese_card_id": 37722,
+      "japanese_set": "S1H",
+      "quantity": 4,
+      "section": "deck_gds"
+    },
+    {
+      "japanese_name": "ハイパーボール",
+      "english_name": "Ultra Ball",
+      "japanese_card_id": 34627,
+      "japanese_set": "SMG",
+      "quantity": 1,
+      "section": "deck_gds"
+    },
+    {
+      "japanese_name": "ネットボール",
+      "english_name": "Net Ball",
+      "japanese_card_id": 35279,
+      "japanese_set": "SM7b",
+      "quantity": 1,
+      "section": "deck_gds"
+    },
+    {
+      "japanese_name": "ヒスイのヘビーボール",
+      "english_name": "Hisuian Heavy Ball",
+      "japanese_card_id": 41490,
+      "japanese_set": "S10P",
+      "quantity": 1,
+      "section": "deck_gds"
+    },
+    {
+      "japanese_name": "プライムキャッチャー",
+      "english_name": "Prime Catcher",
+      "japanese_card_id": 45279,
+      "japanese_set": "SV5M",
+      "quantity": 1,
+      "section": "deck_gds"
+    },
+    {
+      "japanese_name": "バトルサーチャー",
+      "english_name": "VS Seeker",
+      "japanese_card_id": 34527,
+      "japanese_set": "XY",
+      "quantity": 2,
+      "section": "deck_gds"
+    },
+    {
+      "japanese_name": "バトルコンプレッサー（フレア団ギア）",
+      "english_name": "Battle Compressor",
+      "japanese_card_id": 33666,
+      "japanese_set": "XY",
+      "quantity": 1,
+      "section": "deck_gds"
+    },
+    {
+      "japanese_name": "やまびこホーン",
+      "english_name": "Echoing Horn",
+      "japanese_card_id": 39331,
+      "japanese_set": "S5a",
+      "quantity": 1,
+      "section": "deck_gds"
+    },
+    {
+      "japanese_name": "すごいつりざお",
+      "english_name": "Super Rod",
+      "japanese_card_id": 43273,
+      "japanese_set": "SV2P",
+      "quantity": 1,
+      "section": "deck_gds"
+    },
+    {
+      "japanese_name": "ちからのハチマキ",
+      "english_name": "Muscle Band",
+      "japanese_card_id": 33677,
+      "japanese_set": "XY",
+      "quantity": 2,
+      "section": "deck_tool"
+    },
+    {
+      "japanese_name": "プラターヌ博士",
+      "english_name": "Professor Sycamore",
+      "japanese_card_id": 30330,
+      "japanese_set": "XYA",
+      "quantity": 2,
+      "section": "deck_sup"
+    },
+    {
+      "japanese_name": "ゼイユ",
+      "english_name": "Carmine",
+      "japanese_card_id": 49431,
+      "japanese_set": "MC",
+      "quantity": 1,
+      "section": "deck_sup"
+    },
+    {
+      "japanese_name": "N",
+      "english_name": "N",
+      "japanese_card_id": 31826,
+      "japanese_set": "XYG",
+      "quantity": 1,
+      "section": "deck_sup"
+    },
+    {
+      "japanese_name": "マリィ",
+      "english_name": "Marnie",
+      "japanese_card_id": 37741,
+      "japanese_set": "SB",
+      "quantity": 1,
+      "section": "deck_sup"
+    },
+    {
+      "japanese_name": "アカマツ",
+      "english_name": "Crispin",
+      "japanese_card_id": 46036,
+      "japanese_set": "SV7",
+      "quantity": 1,
+      "section": "deck_sup"
+    },
+    {
+      "japanese_name": "キバナ",
+      "english_name": "Raihan",
+      "japanese_card_id": 39732,
+      "japanese_set": "S7D",
+      "quantity": 1,
+      "section": "deck_sup"
+    },
+    {
+      "japanese_name": "グズマ",
+      "english_name": "Guzma",
+      "japanese_card_id": 33963,
+      "japanese_set": "SM3N",
+      "quantity": 2,
+      "section": "deck_sup"
+    },
+    {
+      "japanese_name": "頂への雪道",
+      "english_name": "Path to the Peak",
+      "japanese_card_id": 40316,
+      "japanese_set": "S8b",
+      "quantity": 1,
+      "section": "deck_sta"
+    },
+    {
+      "japanese_name": "パラレルシティ",
+      "english_name": "Parallel City",
+      "japanese_card_id": 33711,
+      "japanese_set": "XY",
+      "quantity": 1,
+      "section": "deck_sta"
+    },
+    {
+      "japanese_name": "基本草エネルギー",
+      "english_name": "Grass Energy",
+      "japanese_card_id": 47903,
+      "japanese_set": "ENE",
+      "quantity": 4,
+      "section": "deck_ene"
+    },
+    {
+      "japanese_name": "基本炎エネルギー",
+      "english_name": "Fire Energy",
+      "japanese_card_id": 47904,
+      "japanese_set": "ENE",
+      "quantity": 2,
+      "section": "deck_ene"
+    },
+    {
+      "japanese_name": "ダブルドラゴンエネルギー",
+      "english_name": "Double Dragon Energy",
+      "japanese_card_id": 33723,
+      "japanese_set": "XY",
+      "quantity": 4,
+      "section": "deck_ene"
+    }
+  ]
+}
