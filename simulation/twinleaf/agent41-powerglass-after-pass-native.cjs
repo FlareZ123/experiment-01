@@ -91,7 +91,7 @@ function powerglassAfterPassNative(){
   }
   assert.ok(prompt,'Passing without an attack did not trigger Powerglass');
   assert.strictEqual(prompt.cardList,me.discard,
-    'Powerglass prompt must expose only the owner's discard');
+    "Powerglass prompt must expose only the owner's discard");
   assert.equal(prompt.options.min,0);
   assert.equal(prompt.options.max,1);
   const assignment=[{
