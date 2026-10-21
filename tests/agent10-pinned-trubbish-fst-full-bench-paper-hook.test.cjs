@@ -6,6 +6,8 @@ const path = require('node:path');
 const root = path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 const {Trubbish} = require(path.join(root,
   'sets/09-sword-and-shield/set-fusion-strike/trubbish'));
+const {Pidgey} = require(path.join(root,
+  'sets/10-scarlet-and-violet/set-pokemon-151/pidgey'));
 const {Player} = require(path.join(root,'game/store/state/player'));
 const {PokemonCardList} = require(path.join(root,'game/store/state/pokemon-card-list'));
 const {AttackEffect} = require(path.join(root,'game/store/effects/game-effects'));
@@ -39,4 +41,23 @@ test('pinned native FST 168 full-Bench Call for Family skips search', () => {
   assert.equal(executed.audit.skippedFullBenchSearches,1);
   assert.equal(nativePrompts,0);
   assert.strictEqual(Trubbish.prototype.reduceEffect,original);
+});
+
+test('pinned native MEW Pidgey Call for Family already obeys full-Bench C-11', () => {
+  const pidgey = new Pidgey();
+  assert.equal(pidgey.fullName,'Pidgey MEW');
+  assert.equal(pidgey.setNumber,'16');
+  assert.equal(pidgey.attacks[0].damage,0);
+
+  const owner = new Player();
+  const opponent = new Player();
+  owner.bench = Array.from({length:5}, () => new PokemonCardList());
+  for (const slot of owner.bench) slot.cards.push(new Pidgey());
+  owner.deck.cards.push(new Pidgey());
+  const effect = new AttackEffect(owner, opponent, pidgey.attacks[0]);
+  const state = {source:'pinned-full-bench-control'};
+  let prompted = false;
+  const store = {prompt() { prompted = true; throw new Error('unexpected prompt'); }};
+  assert.strictEqual(pidgey.reduceEffect(store,state,effect),state);
+  assert.equal(prompted,false);
 });
