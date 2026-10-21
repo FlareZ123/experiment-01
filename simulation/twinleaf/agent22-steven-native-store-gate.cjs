@@ -114,7 +114,13 @@ function run() {
         originalProjection:'unavailable-above-30',nativeValid:true,
         nativeSearchSettled:true,chosenPrintings:printings,
         remainingDeck:owner.deck.cards.length,
-        resultingTurn:state.turn,ownHandCount:owner.hand.cards.length};
+        resultingTurn:store.state.turn,
+        postActiveSeat:store.state.activePlayer,
+        postPhase:store.state.phase,
+        unresolvedPromptTypes:store.state.prompts.filter(prompt=>
+          prompt.result===undefined).map(prompt=>prompt.constructor.name),
+        nativeStoreHasPrompts:store.hasPrompts(),
+        ownHandCount:owner.hand.cards.length};
     });
     records.push(wrapped.result);
     audits.push(wrapped.audit);
