@@ -41,6 +41,11 @@ function compareQuickBallPair(off,on){
     assert.ok(original&&modified,'Missing actor Store audit at '+a.trial.id);
     assert.equal(original.quickBallRootOptIn,false);
     assert.equal(modified.quickBallRootOptIn,true);
+    for(const key of Object.keys(original).filter(k=>
+      k.endsWith('OptIn')&&k!=='quickBallRootOptIn')){
+      assert.deepEqual(original[key],modified[key],
+        'Other actor root policy flag drift: '+key);
+    }
     assert.equal(original.typedIntentCounts?.['play-quick-ball']??0,0);
     const roots=(modified.nativeRootAcceptances??[])
       .filter(row=>row.kind==='play-quick-ball');
