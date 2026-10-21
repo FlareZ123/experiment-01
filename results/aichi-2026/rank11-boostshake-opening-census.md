@@ -78,3 +78,28 @@ The eleven source-locked category counts are 2 Oranguru V, 4 VIP, 3 Float, 2 Sea
 Earlier tables on this page counted Float Stone only as Tool; they are preserved strict-subset scenarios. The **9.66626737%** is the current two-route structural access estimate under the more complete card-text treatment. Actual lock activation remains unobserved in a qualified independent game. Opponent actions, Ability locks and resource sequencing may prevent the line; additional search and card draw may increase access. This is not a competitive win-rate result.
 
 **Next action:** implement and validate the two autonomous source-dealt opponent Tool routes with genuine decision logs, independent starts and meaningful candidate responses. Competitive games qualified: **zero**.
+
+
+## Exact raw held-hand direct access beyond the opening (Agent 10, 21 October 2026)
+
+This is a **different, narrower event** from the earlier first-turn direct/VIP and Forest Seal Stone search unions. It models a source that has **held** one Boost Shake, one of the six Pokémon Tools attachable to Trubbish, and one Trubbish itself in hand after `d` natural turn draws, while **at least one Garbodor BKP 57 remains in the unprized deck**. The initial seven must contain a Basic. There are no searches, voluntary plays, Supporter draws, extra mulligan draws, deck manipulation, Tool removals, or opposing effects, and it presumes a Trubbish can be brought into play when needed. In particular, this event does **not** credit Battle VIP Pass to find Trubbish or a Forest Seal Stone VSTAR Power to find Shake. It is a raw resource-access indicator, **not** the chance of executing the legal lock or winning.
+
+The exact source 60 collapses to six mutually exclusive categories:
+
+`(Shake, any Tool, Trubbish, Garbodor, other Basic, other) = (2,6,2,2,9,39)`.
+
+Choose the initial seven, condition on at least one of the eleven Basics, set six uniformly random Prizes from the remaining 53, and take `d` normal draws from the remaining deck. Equivalently, marginalize over Prize placement by selecting `d` uniformly from the 53 initially unheld cards and then selecting six Prize cards from the `53-d` others. Enumerate all 378 possible legal category-count starting hands; for each, inclusion-exclusion counts the `d`-draw subsets that supply every still-missing member of Shake/Tool/Trubbish. If `g` Garbodor remain outside the drawn hand before prizes, the chance at least one avoids all six Prizes is 0 for `g=0`, `(47-d)/(53-d)` for `g=1`, and `1-30/((53-d)(52-d))` for `g=2`. Weight each hand by products of binomial counts, and divide by `[C(60,7)-C(49,7)] C(53,d)`. All arithmetic was exact Python integer-binomial and rational arithmetic, with an independent seeded 600,000-physical-deal Monte Carlo sanity check.
+
+| Natural draws `d` since initial seven | Exact conditional held-hand access | Decimal |
+| ---: | ---: | ---: |
+| 1 | `1354685947 / 39971455836` | **3.389133%** |
+| 2 | `16792255737 / 366405011830` | 4.582977% |
+| 3 | `1941522290961 / 32643355599400` | **5.947680%** |
+| 4 | `30640326108393 / 410373613249600` | 7.466446% |
+| 5 | `175890979115021 / 1928755982273120` | 9.119400% |
+| 6 | `33799813147533733 / 310529713145972320` | 10.884567% |
+| 7 | `5651065146375867 / 44361387592281760` | **12.738702%** |
+
+These are cumulative resource-in-hand probabilities under the **all-unplayed** simplification, and naturally increase as cards accumulate. They neither predict legal board occupancy nor establish actual later-turn source decision quality. The current [first-turn-only direct policy predicate](../../simulation/twinleaf/rank11-direct-opportunity.cjs) rejects all global turns after turn 2 even when owner-visible later-turn hand/Bench conditions could allow Boost Shake. A policy-horizon change must preserve the fact that **Battle VIP Pass is limited to the first turn**, satisfy paper evolution/Tool rules, and be tested with native source decisions and consequential candidate replies. Extending a time gate alone is not progress toward competitive certification.
+
+**Scope note:** the earlier 9.66626737% opening union on this page also credits hand-VIP, broader Tool access, and a separate held-Seal VSTAR search route; direct numerical comparison to this narrower hand-Trubbish-only event is invalid. These fresh calculations are analytical research evidence, with no newly qualified game or decklist.
