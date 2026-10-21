@@ -135,7 +135,11 @@ function rootPhysicalSnapshot(state,seat,intent){
     handCount:owner.hand.cards.length,
     activeEnergies:owner.active.energies.cards.map(c=>c.fullName),
     benchPrinting:intent.kind==='bench-basic'?
-      owner.bench[intent.benchSlot].getPokemonCard()?.fullName??null:null
+      owner.bench[intent.benchSlot].getPokemonCard()?.fullName??null:null,
+    ...(intent.kind==='play-quick-ball'?{
+      quickBallSpent:[...owner.discard.cards,...owner.supporter.cards]
+        .filter(card=>card.fullName===intent.printing).length
+    }:{})
   };
 }
 
@@ -171,6 +175,13 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
     const count=cards=>cards.filter(c=>c===intent.printing).length;
     return after.activeEnergies.length===before.activeEnergies.length+1&&
       count(after.activeEnergies)===count(before.activeEnergies)+1?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='play-quick-ball'){
+    // Native Quick Ball moves into the resolving Trainer zone before the
+    // discard/search prompts settle, or into the public discard immediately.
+    return after.quickBallSpent>before.quickBallSpent &&
+      after.handCount<before.handCount?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(intent.kind==='pass'){
