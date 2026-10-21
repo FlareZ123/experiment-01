@@ -131,3 +131,17 @@ test('optional empty target set permits native cancellation',()=>{
     prompts:[new ChoosePokemonPrompt(1,{slots:[],allowCancel:true})]};
   assert.deepEqual(chooseActorPokemon(observe(s,0)),{index:null});
 });
+
+test('face-down setup prompt delegates before any actor board projection',()=>{
+  const s={phase:1,turn:0,players:[player(1,'A'),player(2,'B')],
+    prompts:[new ChoosePokemonPrompt(1)]};
+  assert.equal(observe(s,0),null);
+  const r=withActorOnlyChoosePokemon(()=>{
+    const store=new Store(s);
+    store.dispatch(new AddPlayerAction());
+    return new SimpleTacticsAi(1).decodeNextAction(s);
+  },{Store,SimpleTacticsAi,ResolvePromptAction,observe});
+  assert.equal(r.result,'GENERIC');
+  assert.equal(r.audit.selected,0);
+  assert.equal(r.audit.unsupportedNativeFallbacks,1);
+});
