@@ -37,6 +37,10 @@ function compare(before,after){
       actualCompressor:row.candidateBattleCompressorRoots??[],
       candidateAttacks:row.candidateAttackDeclarationEvidence??[],
       nativeRootWitnesses:rootAudit(row)?.nativePhysicalConfirmed??null,
+      nativePhysicalConfirmedByIntent:
+        rootAudit(row)?.nativePhysicalConfirmedByIntent??null,
+      nativePhysicalUnconfirmedByIntent:
+        rootAudit(row)?.nativePhysicalUnconfirmedByIntent??null,
       nativeRejectedActorRoots:rootAudit(row)?.rejectedActorRoots??null,
       rootIntentCounts:rootAudit(row)?.typedIntentCounts??null,
       actualCandidateRetreatRoots:(row.rootActionLedger??[])
@@ -95,6 +99,8 @@ if(require.main===module){
           attacks:r.control.candidateAttacks.map(x=>x.attackName)},
         on:{actions:r.treatment.actions,terminal:r.treatment.finished,
           intents:r.treatment.rootIntentCounts,
+          physicallySettledByIntent:r.treatment.nativePhysicalConfirmedByIntent,
+          physicallyUnconfirmedByIntent:r.treatment.nativePhysicalUnconfirmedByIntent,
           attacks:r.treatment.candidateAttacks.map(x=>x.attackName),
           retreats:r.treatment.actualCandidateRetreatRoots,
           perfections:r.treatment.actualCandidatePerfectionAbilityRoots,
