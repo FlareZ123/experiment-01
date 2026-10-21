@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      owner_anyturn_compressor_pair:
+        description: Paired same-checkout retrospective owner donor setup, no competitive claims
+        required: false
+        type: boolean
+        default: false
       owner_discard_energy_audit:
         description: Read-only actor held Compressor/Powerglass and discarded Basic Psychic at genuine roots
         required: false
@@ -171,6 +176,7 @@ jobs:
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
+          AGENT32_COMPR_ANYTURN_DEV: ${{ inputs.owner_anyturn_compressor_pair && 'true' || 'false' }}
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
           AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
           AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
@@ -188,6 +194,33 @@ jobs:
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-actor-fourarm.json
+      - name: Same-deal donor recovery control under identical real-game policies
+        if: ${{ inputs.owner_anyturn_compressor_pair }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
+          AGENT32_COMPR_ANYTURN_DEV: 'false'
+          AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
+          AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: ${{ inputs.native_generic_fallback && 'true' || 'false' }}
+          AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
+          AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
+          AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent32-anyturn-compressor-control.json
+      - name: Compare registered physical deals, replay roots and actual owner donor actions
+        if: ${{ inputs.owner_anyturn_compressor_pair }}
+        run: |
+          node -e "const assert=require('node:assert/strict');const control=require('./agent32-anyturn-compressor-control.json'),treat=require('./agent7-canonical-actor-fourarm.json');assert.equal(control.attempted,4);assert.equal(treat.attempted,4);assert.equal(control.ownerCompressorAnyTurnOptIn,false);assert.equal(treat.ownerCompressorAnyTurnOptIn,true);assert.equal(control.competitiveQualifiedGames,0);assert.equal(treat.competitiveQualifiedGames,0);for(let i=0;i<4;i++){const a=control.rows[i],b=treat.rows[i];assert.equal(a.trial.id,b.trial.id);assert.equal(a.trial.seed,b.trial.seed);assert.equal(a.sourceDealFingerprint,b.sourceDealFingerprint);assert.equal(a.actualStarterSeat,b.actualStarterSeat);assert.ok(a.actorOnlyDecisionCoverage&&b.actorOnlyDecisionCoverage);assert.equal(a.qualifiesForCompetitiveInference,false);assert.equal(b.qualifiesForCompetitiveInference,false);console.log('DONOR_PAIR',JSON.stringify({id:a.trial.id,physical:a.sourceDealFingerprint,control:{actions:a.actionCount,terminal:a.finished,winner:a.winner,root:a.rootActionLedgerSha256,discards:a.ownerCompressorOpportunityAudit?.events?.filter(x=>x.anyTurnEligible).map(x=>({turn:x.turn,psychic:x.ownerDiscardBasicPsychicCount,powerglass:x.heldPowerglassCount}))??[]},treatment:{actions:b.actionCount,terminal:b.finished,winner:b.winner,root:b.rootActionLedgerSha256,played:b.candidateBattleCompressorRoots??[],attacks:b.candidateAttackDeclarationEvidence??[]},competitiveQualified:false}));}"
       - name: Fail closed on missing actor audits and silent missing arms
         run: |
           node -e "const assert=require('node:assert/strict');const r=require('./agent7-canonical-actor-fourarm.json');assert.equal(r.attempted,4);assert.equal(r.rows.length,4);assert.equal(r.competitiveQualifiedGames,0);assert.equal(r.actorOnlyCompositionOptIn,true);assert.equal(r.actorOnlyCellsWithAudits,4,'Any missing per-arm coverage is a failure');assert.equal(r.paperSupporterQuotaOptIn,true);for(const row of r.rows){assert.ok(row.actorOnlyDecisionCoverage,'No actor-only audit');assert.equal(row.qualifiesForCompetitiveInference,false);const a=row.actorOnlyDecisionCoverage;assert.equal(a.qualification.competitiveGames,0);assert.ok(a.nativeDecisionCounts.actorRootsAccepted>0,'No native accepted actor roots');assert.equal(a.nativeDecisionCounts.actorRootsRejected,0);}console.log('ACTOR_CANONICAL_FOURARM',JSON.stringify(r.rows.map(x=>({trial:x.trial.id,actor:x.actorOnlyDecisionCoverage.nativeDecisionCounts,sourceDeal:x.sourceDealFingerprint??null,sourceFirst:x.sourceActuallyFirst??null,sourceReply:x.candidateFollowupStatus??null,error:x.error??null}))))"
@@ -313,6 +346,7 @@ jobs:
           name: agent7-canonical-actor-fourarm-development
           path: |
             agent7-canonical-actor-fourarm.json
+            agent32-anyturn-compressor-control.json
             agent8-quick-ball-off.json
             agent8-quick-ball-paircheck.json
             agent7-canonical-sourcefirst.json
