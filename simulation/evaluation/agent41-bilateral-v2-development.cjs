@@ -308,7 +308,9 @@ function candidateRepliesAfterSourceAttacks(trace,sourceSettlement,candidateSeat
         publicBoardBeforePass:finalPassDecision?.publicBoardBeforePass??null,
         printedBasicEnergyBeforePass:
           finalPassDecision?.printedBasicEnergyBeforePass??null,
-        postChoiceAttackProbe:finalPassDecision?.attackPassProbe??null
+        postChoiceAttackProbe:finalPassDecision?.attackPassProbe??null,
+        clonedHeldTelepathActiveAttachment:
+          finalPassDecision?.heldTelepathPassProbe??null
       }:null,
       status:!next?'no-followup-root':!sameEpoch?'unverified-epoch':
         !response?'trace-row-missing':isPass?'candidate-passed':
@@ -321,6 +323,8 @@ function candidateRepliesAfterSourceAttacks(trace,sourceSettlement,candidateSeat
         (response?.printedBasicEnergyBeforePass??null):null,
       postChoiceAttackProbe:isPass?
         (response?.attackPassProbe??null):null,
+      clonedHeldTelepathActiveAttachment:isPass?
+        (response?.heldTelepathPassProbe??null):null,
       caveat:'Post-choice owner hand and public board; no alternate-action legality assertion'
     };
   });
@@ -408,6 +412,7 @@ function executeDevelopment(trial,candidates,{
     captureFinalPublicBoard:true,
     captureAttackPassProbes:true,
     capturePerfectionPassProbeSeat:candidateSeat,
+    captureHeldTelepathPassProbeSeat:candidateSeat,
     captureInitialSourceDealFingerprintSeat:sourceSeat,
     paperTerminalAttackKoCorrection:paperTerminalAttackKo
   };
