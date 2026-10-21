@@ -6,8 +6,7 @@ const {planElectroRainDamage} =
 
 /** A pure public-board test double, without vendor engine or private zones. */
 function caseState({sight=true, jamming=false, budget=16}={}) {
-  const codes={attackPhase:3, opponentSide:1, activeSlot:1, benchSlot:2,
-    lightningType:4};
+  const codes={attackPhase:3, opponentSide:1, activeSlot:1, benchSlot:2};
   const mkPokemon=(name,hp,tags)=>({fullName:name,hp,tags});
   const mkSlot=(pokemon)=>({
     hp:pokemon.hp,
@@ -190,14 +189,14 @@ function test() {
   assert.ok(mimeActivePlan.every(row=>row.target.slot===1),
     'An Active Bench Barrier Pokemon itself still takes attack damage');
 
-  const pidgeotBehindMime=caseState({budget:5,sight:false});
+  const pidgeotBehindMime=caseState({budget:10,sight:false});
   const barrierBoard=pidgeotBehindMime.state.players[1];
   barrierBoard.active.hp=280;
   barrierBoard.active.getPokemonCard=()=>({
     name:'Pidgeot ex',fullName:'Pidgeot ex OBF',hp:280,
     tags:['ex'],weakness:[{type:4}],resistance:[]
   });
-  pidgeotBehindMime.prompt.maxAllowedDamage[0].damage=430;
+  pidgeotBehindMime.prompt.maxAllowedDamage[0].damage=580;
   barrierBoard.bench.push({
     hp:70,hpBonus:0,damage:0,tools:[],getPokemonCard:()=>mrMime
   });
@@ -205,55 +204,35 @@ function test() {
     pidgeotBehindMime.own,pidgeotBehindMime.prompt,
     pidgeotBehindMime.codes);
   assert.deepEqual(openActive.map(({target,damage})=>
-    [target.slot,target.index,damage]),[[1,0,150]],
-    'An Active Lightning-weak Pidgeot can be KOed behind Benched Mr. Mime');
+    [target.slot,target.index,damage]),[[1,0,300]],
+    'Ten printed packets KO Active Pidgeot without harming barrier-protected Bench');
 
-  // Exact Aichi source targets: rank2/15 Pidgeot ex OBF164 (280 HP),
-  // and rank30 Empoleon V BST40 (210 HP) are Lightning-weak.
-  // Five printed 30 packets double to 300 on Active Pidgeot ex.
+  // Alolan Raichu UNM: Electro Rain ignores Weakness and Resistance.
+  // Pidgeot ex OBF has 280 HP and Lightning Weakness, but five packets
+  // remain 150 attack damage and cannot KO it.
   const flying=caseState({budget:5,sight:false});
-  const defending=flying.state.players[1];
-  defending.bench=[];
-  defending.active.hp=280;
-  defending.active.getPokemonCard=()=>({
-    name:'Pidgeot ex',fullName:'Pidgeot ex OBF',hp:280,
-    tags:['ex'],weakness:[{type:4}],resistance:[]
-  });
-  flying.prompt.maxAllowedDamage[0].damage=430;
-  const flyingKO=planElectroRainDamage(flying.state,
-    flying.own,flying.prompt,flying.codes);
-  assert.deepEqual(flyingKO.map(({target,damage})=>
-    [target.slot,target.index,damage]),[[1,0,150]]);
-  defending.active.noWeaknessNextTurn=true;
-  assert.equal(planElectroRainDamage(flying.state,
-    flying.own,flying.prompt,flying.codes),null,
-    'No-Weakness effect must prevent a false Pidgeot KO');
-  defending.active.noWeaknessNextTurn=false;
-  defending.active.weaknessOverrideType=2;
-  assert.equal(planElectroRainDamage(flying.state,
-    flying.own,flying.prompt,flying.codes),null,
-    'A non-Lightning Weakness override prevents the x2 forecast');
-  defending.active.weaknessOverrideType=4;
-  assert.deepEqual(planElectroRainDamage(flying.state,
-    flying.own,flying.prompt,flying.codes),flyingKO);
-  defending.active.weaknessOverrideType=undefined;
-  defending.active.damageReductionBeforeWeaknessNextTurn=20;
-  assert.equal(planElectroRainDamage(flying.state,
-    flying.own,flying.prompt,flying.codes),null,
-    'Before-Weakness mitigation reduces 150 to 130, then x2 to 260');
-  defending.active.damageReductionBeforeWeaknessNextTurn=0;
-  defending.active.damageReductionNextTurn=30;
-  assert.equal(planElectroRainDamage(flying.state,
-    flying.own,flying.prompt,flying.codes),null,
-    'After-Weakness mitigation reduces 300 to 270');
-  defending.active.damageReductionNextTurn=0;
-  defending.active.getPokemonCard=()=>({
+  flying.state.players[1].bench=[];
+  flying.state.players[1].active.hp=280;
+  flying.state.players[1].active.getPokemonCard=()=>({
     name:'Pidgeot ex',fullName:'Pidgeot ex OBF',hp:280,
     tags:['ex'],weakness:[{type:4}],resistance:[{type:4,value:-30}]
   });
+  flying.prompt.maxAllowedDamage[0].damage=430;
   assert.equal(planElectroRainDamage(flying.state,
     flying.own,flying.prompt,flying.codes),null,
-    'Synthetic Lightning Resistance reduces 300 to 270');
+    'Five packets cannot exploit Pidgeot Lightning Weakness');
+
+  const enough=caseState({budget:10,sight:false});
+  enough.state.players[1].bench=[];
+  enough.state.players[1].active.hp=280;
+  enough.state.players[1].active.getPokemonCard=
+    flying.state.players[1].active.getPokemonCard;
+  enough.prompt.maxAllowedDamage[0].damage=580;
+  const ten=planElectroRainDamage(enough.state,
+    enough.own,enough.prompt,enough.codes);
+  assert.deepEqual(ten.map(({target,damage})=>
+    [target.slot,target.index,damage]),[[1,0,300]],
+    'Ten printed packets are enough independent of Weakness or Resistance');
   const penguin=caseState({budget:4,sight:false});
   penguin.state.players[1].bench=[];
   penguin.state.players[1].active.hp=210;
@@ -262,9 +241,9 @@ function test() {
     tags:['V'],weakness:[{type:4}],resistance:[]
   });
   penguin.prompt.maxAllowedDamage[0].damage=330;
-  assert.deepEqual(planElectroRainDamage(penguin.state,
-    penguin.own,penguin.prompt,penguin.codes).map(({target,damage})=>
-    [target.slot,target.index,damage]),[[1,0,120]]);
+  assert.equal(planElectroRainDamage(penguin.state,
+    penguin.own,penguin.prompt,penguin.codes),null,
+    'Four packets cannot exploit Empoleon V Lightning Weakness');
 
   const insufficient=caseState({budget:1});
   assert.equal(planElectroRainDamage(insufficient.state,insufficient.own,
