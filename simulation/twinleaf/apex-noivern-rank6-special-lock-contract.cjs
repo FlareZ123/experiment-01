@@ -56,12 +56,13 @@ function stagedEchoDceReply(lockCopied){
     f.state.turn=5;
     f.state.phase=GamePhase.PLAYER_TURN;
     f.defending.hand.cards.push(dce);
-    assert.equal(f.defending.hand.cards.indexOf(dce),0);
+    const dceIndex=f.defending.hand.cards.indexOf(dce);
+    assert.ok(dceIndex>=0,'DCE must be a physical held card');
     const target={player:PlayerType.TOP_PLAYER,slot:SlotType.ACTIVE,index:0};
     let rejectedByDispatch=false;
     let errorName=null;
     try {
-      f.store.dispatch(new PlayCardAction(202,0,target));
+      f.store.dispatch(new PlayCardAction(202,dceIndex,target));
     } catch(e){
       rejectedByDispatch=true;
       errorName=e.constructor?.name??'Error';
