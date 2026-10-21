@@ -35,3 +35,17 @@ This is a natural candidate for a **multi-action common-policy** repair alongsid
 ## Boundaries
 
 This note establishes a real source-first **held Item + actual Pass + board state** observation, checked independently against the archived full root ledger and supplied card text. It **does not prove native playability at this exact root, tactical superiority, a competitive match win, or a validated field win rate**. Other teammates may already be exploring mobility; check their current leased work before implementation. Existing project status: 29/32 exact source 60s (ranks 23,25,28 missing), **zero competitive-qualified games**, no demonstrated 99.5% fixed-60 target.
+
+
+## Repeated failure, not a single isolated pass
+
+I also exhaustively checked every **serialized after-Pass owner-hand/public-board snapshot** in the rank-11 New Moon row of the archived `agent8-near-term-no-ace-sourcefirst.json` control:
+
+- **15/15** captured candidate final Pass snapshots at global turns **20,22,24,26,28,30,32,36,38,40,42,44,46,48,50** hold the same `Escape Rope BST`. Every recorded public board has **at least one source and one candidate Benched Pokémon**, so there is an actual switching target on each side.
+- Every snapshot shows **Oranguru V** as source Active with three Darkness Energy. The candidate has no native attack in the long late-game string after its two earlier `Moon Press` attacks, and all of these repeated owner turns ended in Pass after whatever other roots the bot selected.
+- The separate `agent8-near-term-control-sourcefirst.json` policy control retains the same Rope in **14/14** captured final Pass snapshots on turns **20,22,24,26,28,30,32,36,38,40,42,44,46,48**; both Benches are populated in each. These are **two correlated replays of one selected physical source deal**, so do not count 29 snapshots as independent matches or independent strategic opportunities.
+- Both controls also held `Ace Trainer AOR` throughout those respective snapshots. In the available *after-Pass* snapshots where Ace was shown, the smallest hand had nine cards in rank11, and the rank6 New Moon controls showed Ace at hand sizes 10 and 24. Consequently the separate possible low-hand Ace cutoff problem did **not** bind in this archived panel.
+
+**Reproduction from the ZIP without hidden-opponent inspection:** for each `row` with `trial.rank===11` and `trial.candidateId==='new-moon-lockbreaker-v1'`, iterate `candidateRepliesAfterSourceAttacks`, retain non-null `candidateReplyTurnFinalPass` with an `ownerHandAfterDecision` and `publicBoardBeforePass`, then evaluate `ownerHandAfterDecision.includes('Escape Rope BST')` and the lengths of `publicBoardBeforePass[0].bench` and `[1].bench`. This is a census of the archive's serialized **snapshots**, not of all owner-root decisions; no Store counterfactual or paper lock evaluator is present in this read-only dataset.
+
+The persistence makes a *generic mobility-root coverage gap* a more compelling research priority than another isolated mobility flag. Any proposed repair must still beat the unchanged control through authentic Store prompt resolution and source continuation, and should handle the fact the opponent chooses its own new Active.
