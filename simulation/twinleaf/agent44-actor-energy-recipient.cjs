@@ -47,7 +47,8 @@ function chooseActorEnergyRecipient(view,catalog,options={}){
   const itemEligible=resources.itemPlayLocked===false&&
     publicRules.itemPlayLocked!==true;
   const itemMobility=itemEligible&&ownHand.some(printing=>
-    printing.startsWith('Switch ')||printing.startsWith('Escape Rope '));
+    /^Switch [A-Z0-9]{2,6}(?: [0-9]+)?$/.test(printing)||
+    /^Escape Rope [A-Z0-9]{2,6}(?: [0-9]+)?$/.test(printing));
   const opponentHasBench=view.opponentPublic?.bench?.some(Boolean)===true;
   const supporterEligible=view.globalTurn!==1&&
     resources.supporterPlayLocked===false&&
@@ -55,7 +56,8 @@ function chooseActorEnergyRecipient(view,catalog,options={}){
     Number.isSafeInteger(resources.supporterPlayedTurn)&&
     resources.supporterPlayedTurn!==view.globalTurn;
   const supporterMobility=supporterEligible&&opponentHasBench&&
-    ownHand.some(printing=>printing.startsWith('Guzma '));
+    ownHand.some(printing=>
+      /^Guzma [A-Z0-9]{2,6}(?: [0-9]+)?$/.test(printing));
   const mobilityAvailable=options.mobilityAware===true&&
     (itemMobility||supporterMobility);
   const targets=[
