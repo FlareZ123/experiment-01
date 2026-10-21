@@ -155,6 +155,12 @@ test('optional root policy emits native-typed Perfection Ability action and rest
   const oldDispatch=Store.prototype.dispatch;
   const v=view();
   v.globalTurn=3;
+  v.ownHand=[];
+  v.ownTurnResources={energyPlayedTurn:0,energyPlayLocked:false,
+    pokemonPlayLocked:false,specialEnergyPlayLocked:false};
+  v.ownPublic.active.attacks=[{name:'Miraculous Duo-GX',
+    cost:[P,P,C],gxAttack:true}];
+  v.ownPublic.active.printed={types:[P]};
   const result=withActorOnlyRootPolicy(()=>{
     const store=new Store();
     store.dispatch(new AddPlayerAction());
