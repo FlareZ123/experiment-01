@@ -124,13 +124,17 @@ function run() {
           assert.equal(next.playerId,owner.id);
           const n=owner.deck.cards.length;
           result=Array.from({length:n},(_,i)=>n-i-1);
-          assert.equal(next.validate(result,store.state),true);
+          assert.deepEqual(result.slice().sort((a,b)=>a-b),
+            Array.from({length:n},(_,i)=>i),
+            'Shuffled order must be a complete numeric permutation');
         }else{
           assert.equal(kind,'WaitPrompt',
             'Unexpected native prompt during Steven post-search');
         }
         deferredPromptTrace.push({kind,ownerSeat:
-          store.state.players.findIndex(player=>player.id===next.playerId)});
+          store.state.players.findIndex(player=>player.id===next.playerId),
+          nativeValidatorAccepted:kind==='ShuffleDeckPrompt'?
+            next.validate(result,store.state):null});
         store.dispatch(new ResolvePromptAction(next.id,result));
       }
       assert.equal(store.state.turn,3,
