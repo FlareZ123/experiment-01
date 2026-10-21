@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent13_actor_attack_priority_pair:
+        description: 'Matched historical rank11 copied-attack donor-choice A/B (unqualified)'
+        required: false
+        type: boolean
+        default: false
       agent13_actor_both_prompts_dev:
         description: 'Unqualified actor-owned SelectOption and copied Attack prompt native Store smoke'
         required: false
@@ -99,6 +104,38 @@ jobs:
         with:
           name: agent13-source-copied-attack-positive
           path: agent13-source-copied-attack.json
+          if-no-files-found: warn
+      - name: Test alternate owner-only copied attack donor priority
+        if: inputs.agent13_actor_attack_priority_pair
+        run: node --test tests/agent13-actor-only-choose-attack.test.cjs
+      - name: Run original rank11 physical deal with unchanged first-eligible actor choice
+        if: inputs.agent13_actor_attack_priority_pair
+        run: node simulation/twinleaf/agent13-copied-attack-source-smoke.cjs > agent13-first-eligible-original.json
+      - name: Run same source/candidate 60 and deal with owner-only printed Poltergeist priority
+        if: inputs.agent13_actor_attack_priority_pair
+        env:
+          AGENT13_COPY_POLTERGEIST_PRIORITY: 'true'
+        run: node simulation/twinleaf/agent13-copied-attack-source-smoke.cjs > agent13-poltergeist-priority.json
+      - name: Print original-deal first-choice divergence and full outcomes without win inference
+        if: inputs.agent13_actor_attack_priority_pair
+        run: >-
+          node -e "const a=require('./agent13-first-eligible-original.json'),b=require('./agent13-poltergeist-priority.json');
+          const first=x=>x.candidateChoices[0];
+          console.log(JSON.stringify({sameDecks:a.candidateAndSourceDecksUnchanged&&b.candidateAndSourceDecksUnchanged,
+          sameActualStart:a.firstTurnSlot===b.firstTurnSlot,sameSeed:a.sourceSeed===b.sourceSeed,
+          baselineFirst:first(a),alternativeFirst:first(b),baselineAccepted:a.decisions.accepted,
+          alternativeAccepted:b.decisions.accepted,baselineActions:a.nativeActionCount,
+          alternativeActions:b.nativeActionCount,baselineEnd:a.endReason,alternativeEnd:b.endReason,
+          baselineSourceReplies:a.sourceRank11ActionsAfterFirstCopy.length,
+          alternativeSourceReplies:b.sourceRank11ActionsAfterFirstCopy.length,qualified:0}));"
+      - name: Preserve both full authentic source-deal arms including censored outcomes
+        if: inputs.agent13_actor_attack_priority_pair && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent13-copied-attack-priority-pair
+          path: |
+            agent13-first-eligible-original.json
+            agent13-poltergeist-priority.json
           if-no-files-found: warn
       - name: Compare reproducible shared- and isolated-stream smoke games
         run: node simulation/twinleaf/smoke-test.cjs
