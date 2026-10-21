@@ -40,6 +40,9 @@ function selectedCardsEvidence(prompt, action, state) {
     promptKind: 'ChooseCardsPrompt',
     message: prompt.message ?? null,
     sourceZone, sourcePlayerSlot,
+    // Read-only actual zone size before resolution. Native prompt filters
+    // may further restrict which of these cards are eligible for selection.
+    sourceZoneCardCountBefore:prompt.cards.cards.length,
     selectedCards,
     selectedIndices: indices,
     unmappedSelectedCards: selectedCards?.filter(name => name === null).length ?? 0
