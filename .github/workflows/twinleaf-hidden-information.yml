@@ -47,13 +47,17 @@ on:
         description: Replay full authentic owner RNG tape from first finite-scored decision entry
         type: boolean
         default: false
+      agent23_native_opponent_hand_tape:
+        description: Conditional opponent hidden-hand exchange after authentic owner same-world tape parity
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   hidden-draw-forecast:
-    if: ${{ !inputs.agent34_actor_root_execution && !inputs.archival_prefix_only && !inputs.actor_observation_live_only && !inputs.agent50_live_deck_order && !inputs.agent50_first_finite_root && !inputs.agent50_common_policy_replay && !inputs.agent50_isolated_policy_worlds && !inputs.agent50_native_same_world_tape && !inputs.agent50_native_tape_hidden_deck_order && !inputs.agent50_native_first_finite_tape }}
+    if: ${{ !inputs.agent34_actor_root_execution && !inputs.archival_prefix_only && !inputs.actor_observation_live_only && !inputs.agent50_live_deck_order && !inputs.agent50_first_finite_root && !inputs.agent50_common_policy_replay && !inputs.agent50_isolated_policy_worlds && !inputs.agent50_native_same_world_tape && !inputs.agent50_native_tape_hidden_deck_order && !inputs.agent50_native_first_finite_tape && !inputs.agent23_native_opponent_hand_tape }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -135,7 +139,7 @@ jobs:
         run: node simulation/twinleaf/rank10-hidden-order-live-probe.cjs ordinal215
 
   rank10-archival-prefix:
-    if: ${{ !inputs.agent34_actor_root_execution && inputs.archival_prefix_only && !inputs.actor_observation_live_only && !inputs.agent50_live_deck_order && !inputs.agent50_first_finite_root && !inputs.agent50_common_policy_replay && !inputs.agent50_isolated_policy_worlds && !inputs.agent50_native_same_world_tape && !inputs.agent50_native_tape_hidden_deck_order && !inputs.agent50_native_first_finite_tape }}
+    if: ${{ !inputs.agent34_actor_root_execution && inputs.archival_prefix_only && !inputs.actor_observation_live_only && !inputs.agent50_live_deck_order && !inputs.agent50_first_finite_root && !inputs.agent50_common_policy_replay && !inputs.agent50_isolated_policy_worlds && !inputs.agent50_native_same_world_tape && !inputs.agent50_native_tape_hidden_deck_order && !inputs.agent50_native_first_finite_tape && !inputs.agent23_native_opponent_hand_tape }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -184,7 +188,7 @@ jobs:
           if-no-files-found: warn
 
   actor-observation-live:
-    if: ${{ !inputs.agent34_actor_root_execution && inputs.actor_observation_live_only && !inputs.agent50_live_deck_order && !inputs.agent50_first_finite_root && !inputs.agent50_common_policy_replay && !inputs.agent50_isolated_policy_worlds && !inputs.agent50_native_same_world_tape && !inputs.agent50_native_tape_hidden_deck_order && !inputs.agent50_native_first_finite_tape }}
+    if: ${{ !inputs.agent34_actor_root_execution && inputs.actor_observation_live_only && !inputs.agent50_live_deck_order && !inputs.agent50_first_finite_root && !inputs.agent50_common_policy_replay && !inputs.agent50_isolated_policy_worlds && !inputs.agent50_native_same_world_tape && !inputs.agent50_native_tape_hidden_deck_order && !inputs.agent50_native_first_finite_tape && !inputs.agent23_native_opponent_hand_tape }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -230,7 +234,7 @@ jobs:
           retention-days: 10
 
   agent50-live-deck-order:
-    if: ${{ !inputs.agent34_actor_root_execution && (inputs.agent50_live_deck_order || inputs.agent50_first_finite_root || inputs.agent50_common_policy_replay || inputs.agent50_isolated_policy_worlds || inputs.agent50_native_same_world_tape || inputs.agent50_native_tape_hidden_deck_order || inputs.agent50_native_first_finite_tape) && !inputs.archival_prefix_only && !inputs.actor_observation_live_only }}
+    if: ${{ !inputs.agent34_actor_root_execution && (inputs.agent50_live_deck_order || inputs.agent50_first_finite_root || inputs.agent50_common_policy_replay || inputs.agent50_isolated_policy_worlds || inputs.agent50_native_same_world_tape || inputs.agent50_native_tape_hidden_deck_order || inputs.agent50_native_first_finite_tape || inputs.agent23_native_opponent_hand_tape) && !inputs.archival_prefix_only && !inputs.actor_observation_live_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -250,14 +254,17 @@ jobs:
         run: npm run compile
       - name: Verify retrospective source-deal and detached observer controls
         run: node --test tests/agent50-bilateral-hidden-order-audit.test.cjs tests/agent50-bilateral-postgame-root-observer.test.cjs tests/rank10-hidden-order-live-probe.test.cjs tests/native-clone-structure-diff.test.cjs tests/native-tape-hidden-order-contrast.test.cjs tests/agent50-native-first-finite-tape.test.cjs tests/native-policy-tactic-sequence.test.cjs tests/agent50-native-control-gate.test.cjs tests/agent50-zero-hand-poltergeist-choice.test.cjs
+      - name: Verify authentic native tape opponent hand contrast with six fail-closed controls
+        run: node --test tests/native-tape-opponent-hidden-hand-contrast.test.cjs
       - name: Replay authentic historical common-policy decisions and detached order contrasts
         env:
           AGENT50_FIRST_FINITE_ROOT: ${{ inputs.agent50_first_finite_root || inputs.agent50_common_policy_replay || inputs.agent50_isolated_policy_worlds || inputs.agent50_native_first_finite_tape }}
           AGENT50_COMMON_POLICY_REPLAY: ${{ inputs.agent50_common_policy_replay || inputs.agent50_isolated_policy_worlds }}
           AGENT50_ISOLATED_POLICY_WORLDS: ${{ inputs.agent50_isolated_policy_worlds }}
-          AGENT50_NATIVE_TAPE_SAME_WORLD: ${{ inputs.agent50_native_same_world_tape || inputs.agent50_native_tape_hidden_deck_order || inputs.agent50_native_first_finite_tape }}
+          AGENT50_NATIVE_TAPE_SAME_WORLD: ${{ inputs.agent50_native_same_world_tape || inputs.agent50_native_tape_hidden_deck_order || inputs.agent50_native_first_finite_tape || inputs.agent23_native_opponent_hand_tape }}
           AGENT50_NATIVE_TAPE_HIDDEN_DECK_ORDER: ${{ inputs.agent50_native_tape_hidden_deck_order }}
           AGENT50_NATIVE_TAPE_FIRST_FINITE_SCORE: ${{ inputs.agent50_native_first_finite_tape }}
+          AGENT23_NATIVE_OPPONENT_HAND_TAPE: ${{ inputs.agent23_native_opponent_hand_tape }}
         run: node simulation/evaluation/agent50-bilateral-hidden-order-audit.cjs > agent50-live-deck-order-fourarm.json
       - name: Reject aborted or unauthenticated native historical controls
         run: node simulation/evaluation/agent50-native-control-gate.cjs agent50-live-deck-order-fourarm.json
@@ -271,6 +278,8 @@ jobs:
           noninterference:r.noninterferenceVerified,
           baseline:r.diagnostic?.baselineActionMatchedActual,
           actionFlip:r.diagnostic?.actionSensitiveToHiddenDeckOrder,
+          opponentHandFlip:r.diagnostic?.nativeOpponentHiddenHandContrast?.selectedActionChanged??null,
+          opponentHandContrastExecutable:r.conditionalOpponentHandContrastExecutable??false,
           auditError:r.diagnostic?.auditError||r.error||null,
           chosenTurn:r.diagnostic?.chosenRootTurn||null,
           scorerAttempts:r.diagnostic?.actualScorerAttempts||null,
