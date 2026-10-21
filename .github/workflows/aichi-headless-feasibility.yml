@@ -48,6 +48,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent24_cynthia_same_state_fork:
+        description: Four fixed authentic source first C&C null-vs-mode0 single-action forks
+        required: false
+        type: boolean
+        default: false
       agent24_cynthia_source_exposure:
         description: Fixed 4 authentic rank6/rank24 source first and opposite-seat C&C mode census
         required: false
@@ -119,6 +124,20 @@ jobs:
         with:
           name: agent24-cynthia-source-exposure
           path: agent24-cynthia-source-exposure.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Verify first native source C&C option fork and restoration
+        run: node --test tests/agent24-cynthia-same-state-fork.test.cjs
+      - name: Compare first genuine source-owned C&C null versus legal recovery on identical real prefixes
+        if: ${{ inputs.agent24_cynthia_same_state_fork }}
+        run: node simulation/twinleaf/agent24-cynthia-native-same-state-fork.cjs > agent24-cynthia-same-state-fork.json
+      - name: Archive authentic C&C same-root causal modes and no-op controls
+        if: ${{ always() && inputs.agent24_cynthia_same_state_fork }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent24-cynthia-same-state-fork
+          path: agent24-cynthia-same-state-fork.json
           if-no-files-found: warn
           retention-days: 14
 
