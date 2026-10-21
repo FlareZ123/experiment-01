@@ -107,7 +107,9 @@ function chooseActorRootIntent(view,catalog,options={}){
   if(options.thornsDirectLine===true&&own.active?.name==='Iron Thorns ex'){
     const stadiumName='Thunder Mountain Prism Star';
     const energyName='Double Colorless Energy';
-    const stadiumUp=own.stadium.some(p=>p.startsWith(stadiumName+' '));
+    const stadiumUp=[...(own.stadium??[]),
+      ...(view.opponentPublic?.stadium??[])]
+      .some(p=>p.startsWith(stadiumName+' '));
     const alreadyCharged=own.active.energies.some(p=>
       p.startsWith(energyName+' '));
     const stadiumIndex=view.ownHand.findIndex(p=>
