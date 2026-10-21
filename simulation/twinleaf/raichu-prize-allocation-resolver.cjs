@@ -36,7 +36,8 @@ function planElectroRainDamage(state, player, prompt, codes) {
 
   // Wave Veil and Bench Barrier can prevent attack damage to all
   // opposing Benched Pokémon. Ability suppression is not modeled here,
-  // so decline the speculative multi-KO forecast if either is visible.
+  // so conservatively exclude Bench targets while either is visible.
+  // Those Abilities do not protect the opponent's Active Pokémon.
   let possibleBenchBarrier = false;
   opponent.forEachPokemon(codes.opponentSide, (_slot, pokemon) => {
     if ((pokemon.name === 'Manaphy' &&
@@ -46,7 +47,6 @@ function planElectroRainDamage(state, player, prompt, codes) {
       possibleBenchBarrier = true;
     }
   });
-  if (possibleBenchBarrier) return null;
   const hasSight = player.active.tools.some(card =>
     card.fullName === 'Telescopic Sight VIV');
   const jammingTower = state.players.some(side =>
@@ -61,6 +61,7 @@ function planElectroRainDamage(state, player, prompt, codes) {
   const entries = [];
 
   opponent.forEachPokemon(codes.opponentSide, (slot, pokemon, target) => {
+    if (possibleBenchBarrier && target.slot === codes.benchSlot) return;
     if (blocked.some(row => row.player === target.player &&
         row.slot === target.slot && row.index === target.index)) return;
     const limit = prompt.maxAllowedDamage.find(row =>
