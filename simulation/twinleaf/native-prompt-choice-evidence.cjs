@@ -21,7 +21,8 @@ function nativePromptChoiceEvidence(decisionTrace) {
       sourceZone:choice.sourceZone,
       sourcePlayerSlot:choice.sourcePlayerSlot,
       selectedCards:choice.selectedCards,
-      selectedIndices:choice.selectedIndices
+      selectedIndices:choice.selectedIndices,
+      sourceZoneCardCountBefore:choice.sourceZoneCardCountBefore??null
     } : {
       kind:'SelectOptionPrompt',
       selectedOption:choice.selectedOption,
@@ -37,7 +38,7 @@ function nativePromptChoiceEvidence(decisionTrace) {
   const sha256 = createHash('sha256').update(JSON.stringify(events))
     .digest('hex');
   return {
-    schema:'headless-native-prompt-choice-evidence-v1',
+    schema:'headless-native-prompt-choice-evidence-v2-zone-count',
     events,sha256
   };
 }
