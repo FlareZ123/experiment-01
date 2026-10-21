@@ -91,7 +91,8 @@ function chooseHeldGuzmaMobility(view,catalog){
      own.publicTurnRestrictions?.attackLockTurnsRemaining>0||
      r?.supporterPlayLocked!==false||
      !Number.isSafeInteger(r.supporterPlayedTurn)||
-     r.supporterPlayedTurn===view.globalTurn)return null;
+     // Pinned Twinleaf uses a per-owner-turn Supporter play count, reset to 0.
+     r.supporterPlayedTurn!==0)return null;
   const handIndex=view.ownHand.findIndex(isGuzma);
   if(handIndex<0)return null;
 
