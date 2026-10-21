@@ -36,10 +36,6 @@ The original source action was `PlayCardAction Crobat V`. Native source-owned T7
 
 Registered **before** altering the native policy wrapper in `results/aichi-2026/registrations/agent23-source-t7-crobat-draw-counterfactual-20261021.md`. We ran the same physical rank11 game twice. Control completely reproduced the original 175-action record and source deal. The source-only treatment changed one prompt at native source turn7 from the original bot's `false` to **`true`**, on the real source-owned `WANT_TO_USE_ABILITY` prompt with Crobat V now on its Bench, source hand below six, unequipped Garbodor Active, and native `pending.validate(true,state)===true`. The real Store accepted the `ResolvePromptAction(true)`; the source hand immediately grew from five to **six**. No candidate code or opponent hidden card was read to choose the action.
 
-<escape>
-
-</escape>
-
 | Native game measure | Original source policy | Accept Crobat confirmation |
 | --- | ---: | ---: |
 | Same physical initial source deal | Yes | Yes |
