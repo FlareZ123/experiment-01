@@ -26,6 +26,8 @@ jobs:
         run: node --test tests/aichi-meloetta-prize-ticket.test.cjs
       - name: Audit registered rank26 unavoidable first-turn barriers
         run: node --test tests/aichi-rank26-crisis-barriers.test.cjs
+      - name: Extend hard rank26 first-turn Energy and Ticket Prize collapse
+        run: node --test tests/aichi-rank26-energy-ticket-collapse.test.cjs
       - name: Enumerate immediate Ticket plus Compressor shuffle routes
         run: node --test tests/aichi-meloetta-ticket-compressor.test.cjs
       - name: Validate Ticket recovery-to-draw location model
