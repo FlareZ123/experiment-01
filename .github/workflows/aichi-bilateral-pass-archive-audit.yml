@@ -7,6 +7,14 @@ on:
         description: Existing source-locked bilateral development run containing the immutable JSON artifact
         required: true
         type: string
+      audit_type:
+        description: 'Choose original bilateral Pass or previously saved charged-promotion pair evidence'
+        required: true
+        type: choice
+        options:
+          - bilateral-pass
+          - charged-promotion-pair
+        default: bilateral-pass
 
 permissions:
   actions: read
@@ -24,12 +32,26 @@ jobs:
       - name: Validate native Store before-after continuity and bilateral v2 intake
         run: node --test tests/bilateral-v2-root-ledger-attestation.test.cjs tests/bilateral-v2-evidence-gate.test.cjs
       - name: Download immutable historical development archive without recompiling Twinleaf
+        if: ${{ inputs.audit_type != 'charged-promotion-pair' }}
         uses: actions/download-artifact@v4
         with:
           name: agent41-bilateral-v2-historical-development
           run-id: ${{ inputs.source_run_id }}
           github-token: ${{ github.token }}
+      - name: Retrieve same-checkout charged-promotion pair without rebuilding native simulator
+        if: ${{ inputs.audit_type == 'charged-promotion-pair' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: agent1-charged-promotion-historical-native-pair
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ github.token }}
+      - name: Report native prompt and post-Pass owner-card evidence from saved pair
+        if: ${{ inputs.audit_type == 'charged-promotion-pair' }}
+        run: |
+          node --test tests/agent1-charged-promotion-archive-audit.test.cjs
+          node scripts/agent1-charged-promotion-archive-audit.cjs agent1-charged-promotion-native-pair.json
       - name: Test and report bounded candidate Pass evidence
+        if: ${{ inputs.audit_type != 'charged-promotion-pair' }}
         run: |
           node --test tests/aichi-bilateral-pass-evidence-summary.test.cjs
           node scripts/aichi-bilateral-pass-evidence-summary.cjs agent41-bilateral-v2-development.json
