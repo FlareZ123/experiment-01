@@ -262,7 +262,8 @@ function executeDevelopment(trial,candidates,{
   paperCologneQuota=false,paperSupporterComparisonTrace=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
-  nativeActionInputTapeOrdinal=null
+  nativeActionInputTapeOrdinal=null,
+  paperTerminalAttackKo=false
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
     'Initialization passive window belongs only to rank 6');
@@ -307,7 +308,8 @@ function executeDevelopment(trial,candidates,{
     captureFinalPublicBoard:true,
     captureAttackPassProbes:true,
     capturePerfectionPassProbeSeat:candidateSeat,
-    captureInitialSourceDealFingerprintSeat:sourceSeat
+    captureInitialSourceDealFingerprintSeat:sourceSeat,
+    paperTerminalAttackKoCorrection:paperTerminalAttackKo
   };
   let ownerCompressorAudit=null;
   let garbotoxinWindowAudit=null;
@@ -588,6 +590,7 @@ function executeDevelopment(trial,candidates,{
     rootActionLedgerProtocol:game.rootActionLedgerProtocol,
     rootActionCount:rootTrace.length,
     rootActionLedger:rootTrace,
+    terminalAttackKoBeforeEndTurnAudit:game.terminalAttackKoBeforeEndTurnAudit??null,
     sourceDealEpochs:game.sourceDealEpochs??null,
     suddenDeathClockResets:game.suddenDeathClockResets??[],
     ...(paperSupporterComparisonTrace?{
@@ -612,7 +615,8 @@ function runDevelopment({
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   nativeActionInputWitness=false,
-  nativeActionInputTapeOrdinal=null
+  nativeActionInputTapeOrdinal=null,
+  paperTerminalAttackKo=false
 }={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -640,7 +644,7 @@ function runDevelopment({
         paperSupporterComparisonTrace,
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
-        nativeActionInputTapeOrdinal,
+        nativeActionInputTapeOrdinal,paperTerminalAttackKo,
         // An opt-in observational package, with each native Store observer
         // applicable to its own opposing source archetype only.
         initializationWindow:nativePressureWindows&&trial.rank===6,
@@ -798,6 +802,8 @@ if(require.main===module){
       process.env.AGENT41_NATIVE_HIDDEN_READ_DEV==='true',
     nativeActionInputWitness:
       process.env.AGENT23_NATIVE_INPUT_WITNESS_DEV==='true',
+    paperTerminalAttackKo:
+      process.env.AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV==='true',
     nativeActionInputTapeOrdinal:
       process.env.AGENT23_NATIVE_INPUT_TAPE_ORDINAL?
         Number(process.env.AGENT23_NATIVE_INPUT_TAPE_ORDINAL):null,
