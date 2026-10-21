@@ -20,11 +20,12 @@ const TYPES=['Grass','Fire','Water','Lightning','Psychic',
  *
  * @param {object} view Detached actorObservation
  * @param {object} catalog Public exact printing and native type catalog
+ * @param {{mobilityAware?:boolean}} [options] Opt-in held, owner-legal mobility signal.
  * @returns {{handIndex:number,printing:string,slot:'active'|'bench',
  * index:number,attackName:string,gapBefore:number,gapAfter:number,
  * knownBasicEnergyOnly:true}|null}
  */
-function chooseActorEnergyRecipient(view,catalog){
+function chooseActorEnergyRecipient(view,catalog,options={}){
   assert.equal(view.decisionKind,'owner-root');
   const {ownPublic,ownHand}=view;
   if(!ownPublic?.active||!Array.isArray(ownPublic.bench))return null;
@@ -38,6 +39,25 @@ function chooseActorEnergyRecipient(view,catalog){
     return type===null?[]:[{handIndex,printing,type}];
   });
   if(!held.length)return null;
+  // Switching a stranded Active can make an otherwise remote Bench attack
+  // the shorter route. Count only mobility visible in the actor's own hand
+  // that is not publicly locked or already consumed for this turn.
+  const resources=view.ownTurnResources??{};
+  const publicRules=ownPublic.publicTurnRestrictions??{};
+  const itemEligible=resources.itemPlayLocked===false&&
+    publicRules.itemPlayLocked!==true;
+  const itemMobility=itemEligible&&ownHand.some(printing=>
+    printing.startsWith('Switch ')||printing.startsWith('Escape Rope '));
+  const opponentHasBench=view.opponentPublic?.bench?.some(Boolean)===true;
+  const supporterEligible=view.globalTurn!==1&&
+    resources.supporterPlayLocked===false&&
+    publicRules.supporterPlayLocked!==true&&
+    Number.isSafeInteger(resources.supporterPlayedTurn)&&
+    resources.supporterPlayedTurn!==view.globalTurn;
+  const supporterMobility=supporterEligible&&opponentHasBench&&
+    ownHand.some(printing=>printing.startsWith('Guzma '));
+  const mobilityAvailable=options.mobilityAware===true&&
+    (itemMobility||supporterMobility);
   const targets=[
     {slot:'active',index:0,pokemon:ownPublic.active},
     ...ownPublic.bench.flatMap((pokemon,index)=>
@@ -105,7 +125,11 @@ function chooseActorEnergyRecipient(view,catalog){
       }
     }
   }
-  possibilities.sort((a,b)=>a.priority-b.priority||a.after-b.after||
+  possibilities.sort((a,b)=>
+    (mobilityAvailable&&!ready?
+      a.after-b.after||
+        (a.slot==='bench'?0:1)-(b.slot==='bench'?0:1):
+      a.priority-b.priority||a.after-b.after)||
     a.cost-b.cost||a.recipientIndex-b.recipientIndex||
     a.handIndex-b.handIndex);
   if(!possibilities.length)return null;
