@@ -31,7 +31,8 @@ test('legacy picks first payable Call for Family',()=>{
 test('full-Bench opt-in skips empty exact-print setup attack',()=>{
   const v=view();
   assert.equal(skipEmptyTrubbishCallForFamily(v,v.ownPublic.active.attacks[0]),true);
-  assert.deepEqual(chooseActorRootIntent(v,catalog,{fullBenchCallForFamilyRoot:true}),{kind:'pass'});
+  assert.deepEqual(chooseActorRootIntent(v,catalog,{fullBenchCallForFamilyRoot:true}),
+    {kind:'pass',reason:'no-supported-owner-visible-root'});
 });
 test('one free Bench space allows printed Call for Family',()=>{
   const v=view();v.ownPublic.bench[3]=null;
