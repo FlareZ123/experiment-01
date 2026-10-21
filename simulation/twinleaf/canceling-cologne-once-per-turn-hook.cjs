@@ -69,4 +69,21 @@ function installCancelingCologneOncePerTurnHook() {
   return restore;
 }
 
-module.exports = {installCancelingCologneOncePerTurnHook};
+/**
+ * Apply the existing reversible paper rule around a synchronous real game.
+ * A test can inject a fake installer without loading compiled Twinleaf.
+ * @template T
+ * @param {()=>T} execute
+ * @param {()=>()=>void} [install]
+ * @returns {T}
+ */
+function withCancelingCologneOncePerTurnHook(
+  execute, install=installCancelingCologneOncePerTurnHook
+) {
+  if (typeof execute !== 'function') throw new TypeError('execute must be a function');
+  const restore=install();
+  try { return execute(); } finally { restore(); }
+}
+
+module.exports = {installCancelingCologneOncePerTurnHook,
+  withCancelingCologneOncePerTurnHook};
