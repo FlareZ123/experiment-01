@@ -116,6 +116,25 @@ jobs:
         env:
           AGENT13_COPY_POLTERGEIST_PRIORITY: 'true'
         run: node simulation/twinleaf/agent13-copied-attack-source-smoke.cjs > agent13-poltergeist-priority.json
+      - name: Replay same Poltergeist branch with three live source Quick Ball owner actions on turn49
+        if: inputs.agent13_actor_attack_priority_pair
+        env:
+          AGENT13_COPY_POLTERGEIST_PRIORITY: 'true'
+          AGENT13_SOURCE_TURN49_QUICK_BALL: 'true'
+        run: node simulation/twinleaf/agent13-copied-attack-source-smoke.cjs > agent13-poltergeist-source-quickball.json
+      - name: Check original-deal source-turn49 same-root prefix and successful owner counterplay
+        if: inputs.agent13_actor_attack_priority_pair
+        run: >-
+          node -e "const a=require('./agent13-poltergeist-priority.json'),b=require('./agent13-poltergeist-source-quickball.json');
+          const count=b.sourceQuickBallAudit?.successfulSearchPromptCycles;
+          if(!b.sourceQuickBallAudit?.activated||count!==3)throw Error('Source counterplay never executed');
+          if(JSON.stringify(a.deckHashes)!==JSON.stringify(b.deckHashes))throw Error('Deck identity changed');
+          if(a.firstCopyPrecedingRootSha256!==b.firstCopyPrecedingRootSha256)throw Error('Pre-copy root actions changed');
+          console.log(JSON.stringify({originalSeed:a.sourceSeed,sourceTurn49:49,
+          quickBallCount:count,sourceCounterplay:b.sourceQuickBallAudit,
+          originalOutcome:{winner:a.winnerSeat,prizes:a.prizesRemaining,actions:a.nativeActionCount},
+          sourceCounterplayOutcome:{winner:b.winnerSeat,prizes:b.prizesRemaining,actions:b.nativeActionCount},
+          exactSourceDeck:a.deckHashes[0]===b.deckHashes[0],qualified:0}));"
       - name: Print original-deal first-choice divergence and full outcomes without win inference
         if: inputs.agent13_actor_attack_priority_pair
         run: >-
@@ -136,6 +155,7 @@ jobs:
           path: |
             agent13-first-eligible-original.json
             agent13-poltergeist-priority.json
+            agent13-poltergeist-source-quickball.json
           if-no-files-found: warn
       - name: Compare reproducible shared- and isolated-stream smoke games
         run: node simulation/twinleaf/smoke-test.cjs
