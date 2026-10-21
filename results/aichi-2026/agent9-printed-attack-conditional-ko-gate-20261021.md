@@ -40,3 +40,7 @@ This proposed guard has **not** been merged or compiled. Do not count a hypothet
 ## Initial implementation status, 21 October
 
 A reusable isolated public-condition helper was committed at `simulation/twinleaf/agent9-public-conditional-attack-guard.cjs` (version `agent9-conditional-printed-damage-priority-v1`). Seven locally replicated Node 22 assertions passed: no Stadium veto, either side's Stadium clearing it, unknown condition veto, coin-tails veto, plain Claw unchanged, and opponent-affecting text unchanged. These were a **standalone replication of the helper function**, rather than a CI run of the repository module, and no native Store game or fully integrated selector decision was tested. A proposed repository `tests/` file and integration edits did not complete; retain the status as unmerged until tested with the actual module and native source continuation.
+
+### Subsequent exact-file test
+
+Exact Git blobs (helper `f6e138d8`, test `23b5cb8e`) were run locally on Node 22 with 3/3 tests passing. This validates the new standalone module; the common game policy remains unchanged and untested with this filter.
