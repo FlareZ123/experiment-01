@@ -774,7 +774,8 @@ function runDevelopment({
   nativeActionInputTapeOrdinal=null,
   paperTerminalAttackKo=false,
   rank6K1AlternativeEnergy=false,
-  sourceScopedSpecialEnergyRoot=false
+  sourceScopedSpecialEnergyRoot=false,
+  candidateScopedSpecialEnergyRoot=false
 }={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -815,12 +816,19 @@ function runDevelopment({
         // Development-only source-seat intervention: the candidate never
         // receives this alternate Special Energy root. Native Store still
         // validates each physical decision by the real actor.
-        const scopedRoot=sourceScopedSpecialEnergyRoot?
+        assert.ok(!(sourceScopedSpecialEnergyRoot&&
+          candidateScopedSpecialEnergyRoot),
+          'A single-source test cannot change both actors');
+        const targetSeat=sourceScopedSpecialEnergyRoot?
+          (trial.candidateSlot==='A'?1:0):
+          candidateScopedSpecialEnergyRoot?
+            (trial.candidateSlot==='A'?0:1):null;
+        const scopedRoot=targetSeat===null?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
               specialEnergyRoot:true,
-              specialEnergyRootOwnerSeat:trial.candidateSlot==='A'?1:0
-            })}:{};
+              specialEnergyRootOwnerSeat:targetSeat
+            })};
         const observed=withCanonicalActorOnlyPolicy(execute,scopedRoot,
           {ownerSingleSearch:actorOnlySingleSearch,
             genericFallbackAttribution:actorGenericFallbackAttribution,
@@ -936,6 +944,7 @@ function runDevelopment({
     sourceFirstRetrospective,
     rank6K1AlternativeEnergyOptIn:rank6K1AlternativeEnergy,
     sourceScopedSpecialEnergyRootOptIn:sourceScopedSpecialEnergyRoot,
+    candidateScopedSpecialEnergyRootOptIn:candidateScopedSpecialEnergyRoot,
     retrospectiveSeedProvenance:sourceFirstRetrospective?{
       6:{seed:407516727,seat:'B',selection:'reversed physical source seat'},
       11:{seed:482443328,seat:'B',selection:'post-observed source success'}
@@ -1012,7 +1021,9 @@ if(require.main===module){
     rank6K1AlternativeEnergy:
       process.env.AGENT49_RANK6_K1_ALT_ENERGY_DEV==='true',
     sourceScopedSpecialEnergyRoot:
-      process.env.AGENT49_SOURCE_SCOPED_SPECIAL_DEV==='true'
+      process.env.AGENT49_SOURCE_SCOPED_SPECIAL_DEV==='true',
+    candidateScopedSpecialEnergyRoot:
+      process.env.AGENT4_CANDIDATE_SPECIAL_ROOT_DEV==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
