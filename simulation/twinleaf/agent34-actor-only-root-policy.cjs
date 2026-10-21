@@ -147,7 +147,8 @@ function chooseActorRootIntent(view,catalog,options={}){
       if(options.energyRecipientFrontier===true){
         const recipient=require('./agent44-actor-energy-recipient.cjs')
           .chooseActorEnergyRecipient(view,catalog,{
-            preferNearTermDamage:options.nearTermDamageRecipient===true
+            preferNearTermDamage:options.nearTermDamageRecipient===true,
+            preferGuzmaPivot:options.guzmaEnergyStaging===true
           });
         if(recipient)return {kind:'attach-basic-energy',...recipient};
         // Preserve a held Basic when all publicly known attack deficits
@@ -349,6 +350,11 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT44_ACTOR_ENERGY_RECIPIENT_DEV==='true'),
     nearTermDamageRecipientOptIn:deps.nearTermDamageRecipient??
       (process.env.AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV==='true'),
+    guzmaEnergyStagingOptIn:deps.guzmaEnergyStaging??
+      (process.env.AGENT50_GUZMA_ENERGY_STAGING_DEV==='true'),
+    guzmaEnergyStagingOwnerSeat:deps.guzmaEnergyStagingOwnerSeat??
+      (process.env.AGENT50_GUZMA_ENERGY_STAGING_OWNER_SEAT===undefined?null:
+        Number(process.env.AGENT50_GUZMA_ENERGY_STAGING_OWNER_SEAT)),
     emergencyAceTrainerRootOptIn:deps.emergencyAceTrainerRoot??
       (process.env.AGENT8_ACE_TRAINER_EMERGENCY_DEV==='true'),
     escapeRopeRootOptIn:deps.escapeRopeRoot??
@@ -410,6 +416,12 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.nearTermDamageRecipientOptIn)
     audit.version+='+'+
       require('./agent44-actor-energy-recipient.cjs').NEAR_TERM_DAMAGE_VERSION;
+  assert.ok(!audit.guzmaEnergyStagingOptIn||(
+    [0,1].includes(audit.guzmaEnergyStagingOwnerSeat)&&
+    audit.nearTermDamageRecipientOptIn&&audit.energyRecipientFrontierOptIn),
+    'Guzma-connected Energy staging requires scoped native owner Energy planning');
+  if(audit.guzmaEnergyStagingOptIn)
+    audit.version+='+agent50-source-owner-guzma-energy-staging-v1';
   if(audit.emergencyAceTrainerRootOptIn)
     audit.version+='+'+
       require('./agent8-actor-ace-trainer-frontier.cjs').VERSION;
@@ -475,6 +487,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       energyFrontier:audit.energyFrontierOptIn,
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
       nearTermDamageRecipient:audit.nearTermDamageRecipientOptIn,
+      guzmaEnergyStaging:audit.guzmaEnergyStagingOptIn&&
+        audit.guzmaEnergyStagingOwnerSeat===seat,
       emergencyAceTrainerRoot:audit.emergencyAceTrainerRootOptIn,
       escapeRopeRoot:audit.escapeRopeRootOptIn&&
         seat===audit.escapeRopeOwnerSeat,
