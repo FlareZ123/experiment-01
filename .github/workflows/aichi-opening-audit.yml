@@ -17,6 +17,11 @@ jobs:
           node-version: '22'
       - name: Unit tests
         run: node --test tests/aichi_opening_audit.test.cjs
+      - name: Verify exact printed Basic stage and unconditional opener distribution
+        run: |
+          node --test tests/aichi-opening-basics.test.cjs
+          node scripts/aichi-opening-basics.cjs > aichi-printed-opening-basics.json
+          node -e "const a=require('./aichi-printed-opening-basics.json'); if(a.published!==29||a.printedPokemonValidated<100||a.rows.filter(r=>r.basicCount===4).map(r=>r.rank).join(',')!=='6,24,29')throw Error('Opening Basic source field changed');"
       - name: Source rank11 actor-visible direct-KO Energy frontier
         run: node --test tests/agent9-actor-immediate-ko-energy.test.cjs
       - name: Actor-visible Special Energy payability regression
@@ -140,6 +145,7 @@ jobs:
           name: aichi-opening-audit
           path: |
             aichi-opening-audit.md
+            aichi-printed-opening-basics.json
             aichi-absol-garbotoxin-window.json
             aichi-absol-boost-shake-direct.json
             absol-garbotoxin-direct-lock.json
