@@ -686,6 +686,20 @@ function executeDevelopment(trial,candidates,{
     firstDrawLogName:game.firstDrawLogName,
     sourceDealFingerprint:sourceDeal.digestSha256,
     sourceFirstOwnHandSha256:ownerFirst?sha256(ownerFirst):null,
+    // Retrospective source-owner-only read. Existing decisionTrace snapshots
+    // were already captured after real native actions had been selected;
+    // this cannot influence either actor. Exclude all opponent-owned hands.
+    ...(trial.rank===11&&trial.seed===482443328?{
+      agent50SourceOwnerTurnSevenHandTrace:nativeDecisionTrace.filter(row=>
+        row.playerSlot===sourceSeat&&row.turnBefore===7&&
+        row.decisionHandBefore?.perspectiveSeat===sourceSeat&&
+        Array.isArray(row.decisionHandBefore.ownHandPrintings))
+        .map(row=>({
+          ordinal:row.actionOrdinal,action:row.action,
+          sourceOwnerOwnHand:[...row.decisionHandBefore.ownHandPrintings],
+          publicBoardBeforeDecision:row.publicBoardBeforePass??null
+        }))
+    }:{}),
     // Read-only owner K1 deck-search choices, for all historical arms.
     // Never give the real deck membership to a pre-search K0 policy.
     candidateOwnDeckSelectionEvidence,
