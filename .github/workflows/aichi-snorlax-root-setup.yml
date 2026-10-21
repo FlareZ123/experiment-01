@@ -41,6 +41,8 @@ jobs:
         run: node simulation/twinleaf/snorlax-threat-aware-prospective.cjs > aichi-snorlax-threat-aware-prospective.json
       - name: Assert latent zero-Energy attacking threat in pinned Store
         run: node --test tests/snorlax-zero-energy-arceus-counterexample.test.cjs
+      - name: Record native single-attachment attack and sole-Pokemon board
+        run: node simulation/twinleaf/snorlax-zero-energy-arceus-counterexample.cjs > aichi-snorlax-zero-energy-threat.json
       - name: Archive actual setup selection roots
         if: always()
         uses: actions/upload-artifact@v4
