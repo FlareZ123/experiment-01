@@ -151,7 +151,9 @@ function chooseActorRootIntent(view,catalog,options={}){
       // actor view, while preserving the original branch when not enabled.
       if(options.energyRecipientFrontier===true){
         const recipient=require('./agent44-actor-energy-recipient.cjs')
-          .chooseActorEnergyRecipient(view,catalog);
+          .chooseActorEnergyRecipient(view,catalog,{
+            mobilityAware:options.mobilityAwareRecipient===true
+          });
         if(recipient)return {kind:'attach-basic-energy',...recipient};
         // Preserve a held Basic when all publicly known attack deficits
         // are already satisfied; a later legal turn may use the resource.
@@ -335,6 +337,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT10_BASIC_ENERGY_FRONTIER_DEV==='true'),
     energyRecipientFrontierOptIn:deps.energyRecipientFrontier??
       (process.env.AGENT44_ACTOR_ENERGY_RECIPIENT_DEV==='true'),
+    mobilityAwareRecipientOptIn:deps.mobilityAwareRecipient??
+      (process.env.AGENT2_MOBILITY_ENERGY_RECIPIENT_DEV==='true'),
     perfectionRootOptIn:deps.perfectionRoot??
       (process.env.AGENT30_PERFECTION_ROOT_DEV==='true'),
     perfectionTransitionRootOptIn:deps.perfectionTransitionRoot??
@@ -390,6 +394,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent1-known-dead-leading-attack-v1';
   if(audit.perfectionRootOptIn)
     audit.version+='+agent30-known-perfection-root-v1';
+  if(audit.mobilityAwareRecipientOptIn)
+    audit.version+='+agent2-owner-held-mobility-recipient-v1';
   if(audit.perfectionTransitionRootOptIn)
     audit.version+='+agent35-public-donor-funding-pivot-v1';
   if(audit.powerglassRootOptIn)
@@ -425,6 +431,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     const intent=chooseActorRootIntent(view,catalog,{
       energyFrontier:audit.energyFrontierOptIn,
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
+      mobilityAwareRecipient:audit.mobilityAwareRecipientOptIn,
       paidRetreatRoot:audit.paidRetreatRootOptIn,
       perfectionRoot:audit.perfectionRootOptIn,
       perfectionTransitionRoot:audit.perfectionTransitionRootOptIn,
