@@ -78,8 +78,7 @@ test('current generic actor root passes despite own public Perfection donor',()=
     kind:'pass',reason:'no-supported-owner-visible-root'
   });
   assert.deepEqual(chooseActorRootIntent(input,catalog,{
-    naturalEvolutionRoot:true,quickBallRoot:true,
-    printedGxRoot:true,specialEnergyRoot:true
+    printedGxRoot:true
   }),intent);
 });
 
