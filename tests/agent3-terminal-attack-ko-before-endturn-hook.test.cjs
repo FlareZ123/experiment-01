@@ -71,6 +71,33 @@ test('damage below HP or a surviving Bench skips correction',()=>{
   }
 });
 
+test('terminal attacking Pokemon self-KO is settled before queued end-turn effects',()=>{
+  const f=setup(0,1);
+  f.source.active.damage=230;
+  try{
+    const out=f.real.reduceEffect(f.state,new EndTurnEffect(f.source));
+    assert.equal(out.phase,GamePhase.FINISHED);
+    assert.equal(out.unpatchedEnds,0);
+    assert.equal(f.getChecked(),1);
+    const event=f.hook.evidence().events[0];
+    assert.deepEqual(event.terminalKnockOutSeats,[1]);
+    assert.equal(event.defenderEffectiveHp,null);
+    assert.equal(event.defenderDamage,0);
+  }finally{f.hook.restore();}
+});
+
+test('simultaneous terminal damage runs one native simultaneous-KO check',()=>{
+  const f=setup(280);
+  f.source.active.damage=230;
+  try{
+    const out=f.real.reduceEffect(f.state,new EndTurnEffect(f.source));
+    assert.equal(out.phase,GamePhase.FINISHED);
+    assert.equal(out.unpatchedEnds,0);
+    assert.equal(f.getChecked(),1);
+    assert.deepEqual(f.hook.evidence().events[0].terminalKnockOutSeats,[0,1]);
+  }finally{f.hook.restore();}
+});
+
 test('speculative Store remains unchanged and restoration reinstates native reducer',()=>{
   const f=setup(280);
   const {real,speculative,source,state}=f;
