@@ -1,5 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');
+const {createHash}=require('node:crypto');
 const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {loadNewMoonCandidate}=require('../../scripts/aichi-new-moon-candidate.cjs');
 const {runWithResearchProfile,RANK11_AUTONOMOUS_PROFILE}=
@@ -50,8 +51,29 @@ function main(){
       ordinal:x.actionOrdinal,turn:x.turnBefore,
       attack:x.attackName,resolution:x.resolutionStatus
     }));
+  const firstChoiceOrdinal=candidateSelections[0]?.rootOrdinal??null;
+  const firstChoicePrefix=(game.rootActionLedger??[]).filter(row=>
+    firstChoiceOrdinal!==null&&row.actionOrdinal<firstChoiceOrdinal);
+  const prefixDigest=createHash('sha256').update(JSON.stringify(firstChoicePrefix))
+    .digest('hex');
+  // Referee-only post-attack effect data: NEVER feed hidden Trainer counts
+  // back into the acting player's pre-attack copied-attack selector.
+  const copiedEffects=(game.poltergeistEffectTrace??[]).filter(row=>
+    candidateSelections.some(choice=>choice.rootOrdinal===row.actionOrdinal&&
+      choice.attackName==='Poltergeist')).map(row=>({
+      actionOrdinal:row.actionOrdinal,turnBefore:row.turnBefore,
+      refereeOpposingTrainerCount:row.before?.[0]?.handTrainerCount??null,
+      printedBaseDamage:row.assessment?.printedBaseDamage??null,
+      assessment:row.assessment??null,
+      nativeSteps:(row.steps??[]).map(step=>({
+        actionOrdinal:step.actionOrdinal,actionName:step.actionName,
+        pendingPrompt:step.pendingPrompt,
+        beforePrizes:step.before?.map(s=>s.prizesRemaining),
+        afterPrizes:step.after?.map(s=>s.prizesRemaining)
+      }))
+    }));
   const packet={
-    schema:'agent13-actor-only-copied-attack-original-source-v1',
+    schema:'agent13-actor-only-copied-attack-original-source-v2',
     enginePin:plan.engineRevision,researchSha:process.env.GITHUB_SHA??null,
     sourceRank:11,sourceSeed:1244180408,
     retrospectivelySelected:true,sourceSeat:0,candidateSeat:1,
@@ -60,6 +82,10 @@ function main(){
     candidateAndSourceDecksUnchanged:true,
     firstTurnSlot:game.firstTurnSlot,
     sourceLineCompleted:game.rank11AutonomousPolicy?.completeAtDecisionBoundary===true,
+    deckHashes:game.deckHashes,
+    firstCopyPrecedingRootCount:firstChoicePrefix.length,
+    firstCopyPrecedingRootSha256:prefixDigest,
+    copiedPoltergeistEffects:copiedEffects,
     decisions:run.audit,
     candidateChoices:candidateSelections,
     declarations:candidateAttackDeclarations,
@@ -69,7 +95,7 @@ function main(){
     nativeActionCount:game.actions,
     prizesRemaining:game.prizesRemaining??null,
     sourceActionLedgerDigest:game.sourceActionLedgerDigest??null,
-    finished:game.finished,endReason:game.endReason,
+    finished:game.finished,endReason:game.endReason,winnerSeat:game.winner,
     competitiveQualifiedGames:0,
     caveat:'One retrospective native source-dealt regression. Native opponent decisions and the printed paper game clock remain unqualified.'
   };
@@ -78,6 +104,16 @@ function main(){
   assert.equal(game.verifiedByDrawLog,true);
   assert.equal(packet.sourceLineCompleted,true);
   assert.equal(run.audit.rejected,0);
+  if(preferGengarPoltergeist){
+    assert.equal(copiedEffects.length,candidateSelections.filter(x=>
+      x.attackName==='Poltergeist').length,
+    'Every native copied Poltergeist requires one real Store effect window');
+    for(const effect of copiedEffects){
+      assert.ok(Number.isInteger(effect.refereeOpposingTrainerCount));
+      assert.equal(effect.printedBaseDamage,
+        effect.refereeOpposingTrainerCount*50);
+    }
+  }
   assert.ok(run.audit.accepted>=1,
     'Require at least one genuine Store-accepted actor-only donor Attack');
   return packet;
