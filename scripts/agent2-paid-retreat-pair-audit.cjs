@@ -25,6 +25,9 @@ function summarizeRow(row){
     sourceFingerprint:row.sourceDealFingerprint??null,
     actualStarter:row.actualStarterSeat??null,
     sourceTurnLineCompleted:row.sourceAudit?.completed===true,
+    actualSourceFirst:row.sourceActuallyFirst===true,
+    sourceAuditStatus:row.sourceAudit?.status??null,
+    sourcePressureCompleted:row.sourceAudit?.completed===true,
     actorCoveragePresent:Boolean(row.actorOnlyDecisionCoverage),
     actorPaidRetreatEnabled:
       root?.paidRetreatRootOptIn??null,
@@ -48,6 +51,29 @@ function summarizeRow(row){
   };
 }
 
+/**
+ * Locate the first actual Store action that differs, preserving matching roots
+ * as evidence of a common replay prefix without conflating later stochastic
+ * continuations with a parallel-world source response.
+ * @param {object} baseline
+ * @param {object} treatment
+ * @returns {object|null}
+ */
+function firstNativeRootDifference(baseline,treatment){
+  const left=baseline.rootActionLedger,right=treatment.rootActionLedger;
+  if(!Array.isArray(left)||!Array.isArray(right))return null;
+  let ordinal=0;
+  while(ordinal<left.length&&ordinal<right.length&&
+    JSON.stringify(left[ordinal])===JSON.stringify(right[ordinal]))ordinal++;
+  if(ordinal===left.length&&ordinal===right.length)return null;
+  const printable=root=>root?{
+    seat:root.playerSlot,turnBefore:root.turnBefore,action:root.action,
+    card:root.card??null,attack:root.attack??null
+  }:null;
+  return {ordinal,baseline:printable(left[ordinal]),
+    treatment:printable(right[ordinal])};
+}
+
 /** Pair historical source-deal attempts under one engine and unchanged 60s. */
 function comparePackets(control,treatment){
   assert.equal(control.attempted,4);
@@ -55,6 +81,7 @@ function comparePackets(control,treatment){
   assert.equal(control.competitiveQualifiedGames,0);
   assert.equal(treatment.competitiveQualifiedGames,0);
   assert.equal(control.enginePin,treatment.enginePin);
+  assert.equal(control.sourceFirstRetrospective,treatment.sourceFirstRetrospective);
   assert.equal(control.rows.length,4);
   assert.equal(treatment.rows.length,4);
   const pairs=control.rows.map((left,index)=>{
@@ -75,13 +102,16 @@ function comparePackets(control,treatment){
       trialId:left.trial.id,exactSourcePhysical,matchingStarter,
       completeBothActorAudits:Boolean(left.actorOnlyDecisionCoverage&&
         right.actorOnlyDecisionCoverage),
+      firstNativeRootDivergence:firstNativeRootDifference(left,right),
       control:summarizeRow(left),treatment:summarizeRow(right)
     };
   });
   return {
     schema:'agent2-paid-retreat-paired-store-artifact-audit-v1',
     comparison:'one-flag-actor-paid-retreat-control-vs-treatment',
-    enginePin:control.enginePin,unchangedHistoricalAttempts:4,
+    enginePin:control.enginePin,registeredAttempts:4,
+    exposure:control.sourceFirstRetrospective===true?
+      'outcome-selected-retrospective-source-first':'original-historical',
     fullyMatchedPhysicalPairs:pairs.filter(row=>
       row.exactSourcePhysical&&row.matchingStarter).length,
     pairs,
@@ -99,4 +129,4 @@ if(require.main===module){
     comparePackets(baseline,treatment)));
 }
 
-module.exports={comparePackets,summarizeRow};
+module.exports={comparePackets,summarizeRow,firstNativeRootDifference};
