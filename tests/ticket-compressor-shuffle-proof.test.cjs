@@ -6,6 +6,8 @@ test('corrected Ticket and actual Compressor search permit a later DCE draw',()=
  const r=ticketCompressorWitness();
  assert.equal(r.oldPrizeDceReturnedToBottom,true);
  assert.equal(r.oneMandatoryDiscardAccepted,true);
+ assert.equal(r.zeroSelectionRejected,true);
+ assert.equal(r.paperMinimumCorrection,true);
  assert.equal(r.compressorShufflePrompt,true);
  assert.equal(r.dceAccessibleToDraw,true);
 });
