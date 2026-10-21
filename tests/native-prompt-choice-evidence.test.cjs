@@ -11,7 +11,9 @@ const makeRow=(selectedCards)=>({
   cardSelection:{
     sourceZone:'deck',sourcePlayerSlot:1,
     selectedCards,selectedIndices:null,
-    sourceZoneCardCountBefore:3
+    sourceZoneCardCountBefore:3,
+    publicDiscardCardNamesBefore:null,
+    nativePromptMin:null,nativePromptMax:null,nativePromptAllowCancel:null
   }
 });
 
@@ -22,11 +24,13 @@ test('different owner search selections break semantic equality even when every 
     ordinal:10,turn:1,actorSeat:1,kind:'ChooseCardsPrompt',
     sourceZone:'deck',sourcePlayerSlot:1,
     selectedCards:['Psychic Energy MEE'],selectedIndices:null,
-    sourceZoneCardCountBefore:3
+    sourceZoneCardCountBefore:3,
+    publicDiscardCardNamesBefore:null,
+    nativePromptMin:null,nativePromptMax:null,nativePromptAllowCancel:null
   });
   assert.notEqual(energy.sha256,gengar.sha256);
   assert.equal(energy.events.length,1);
-  assert.equal(energy.schema,'headless-native-prompt-choice-evidence-v2-zone-count');
+  assert.equal(energy.schema,'headless-native-prompt-choice-evidence-v3-public-discard-prompt-bounds');
 });
 
 test('preserves seat identity for source and candidate and real modal alternatives',()=>{
@@ -68,4 +72,21 @@ test('null native choices retain observed nonempty and empty source zones distin
   assert.equal(missing.events[0].sourceZoneCardCountBefore,null);
   assert.notEqual(declined.sha256,empty.sha256);
   assert.notEqual(declined.sha256,missing.sha256);
+});
+
+
+test('v3 serializer preserves public discard source and prompt bounds while maintaining null selection',()=>{
+  const row=makeRow(null);
+  row.cardSelection={...row.cardSelection,
+    sourceZone:'discard',sourcePlayerSlot:0,
+    sourceZoneCardCountBefore:1,
+    publicDiscardCardNamesBefore:['Mega Absol ex M1L'],
+    nativePromptMin:2,nativePromptMax:2,nativePromptAllowCancel:true};
+  const event=nativePromptChoiceEvidence([row]).events[0];
+  assert.deepEqual(event.publicDiscardCardNamesBefore,['Mega Absol ex M1L']);
+  assert.equal(event.sourceZoneCardCountBefore,1);
+  assert.equal(event.nativePromptMin,2);
+  assert.equal(event.nativePromptMax,2);
+  assert.equal(event.nativePromptAllowCancel,true);
+  assert.equal(event.selectedCards,null);
 });
