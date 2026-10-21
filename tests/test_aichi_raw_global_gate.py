@@ -491,7 +491,9 @@ class SingleNativeEpochGateTests(unittest.TestCase):
 
     def test_discontinuous_root_clock_is_rejected(self):
         b = native_single_epoch_batch()
-        b["games"][0]["native_clock_evidence"]["rootActionLedger"][1]["turnBefore"] = 5
+        roots = b["games"][0]["native_clock_evidence"]["rootActionLedger"]
+        roots[1]["turnBefore"] = 5
+        roots[1]["turnAfter"] = 6
         with self.assertRaisesRegex(ValueError, "discontinuous"):
             single_epoch_assessment(b)
 
