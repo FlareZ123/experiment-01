@@ -175,3 +175,33 @@ test('native Store rejection propagates and both patches restore',()=>{
   assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,original);
   assert.strictEqual(Store.prototype.dispatch,originalDispatch);
 });
+
+test('opt-in printed Poltergeist priority changes only eligible donor ordering',()=>{
+  const prompt={
+    kind:'ChooseAttackPrompt',id:89,allowCancel:false,
+    offered:[
+      {index:0,printing:'Tapu Lele-GX GRI',attacks:[
+        {index:0,name:'Energy Drive',gxAttack:false,blocked:false}]},
+      {index:1,printing:'Gengar & Mimikyu-GX TEU',attacks:[
+        {index:0,name:'Poltergeist',gxAttack:false,blocked:false},
+        {index:1,name:'Horror House-GX',gxAttack:true,blocked:false}]}
+    ]
+  };
+  const input={actor:{decisionKind:'owner-prompt',
+    ownPublic:{publicTurnRestrictions:{gxUsed:false}},
+    opponentPublic:{handCount:8}},
+    prompt};
+  assert.deepEqual(chooseActorCopiedAttack(input),{sourceIndex:0,attackIndex:0});
+  assert.deepEqual(chooseActorCopiedAttack(input,{preferGengarPoltergeist:true}),
+    {sourceIndex:1,attackIndex:0});
+  prompt.offered[1].attacks[0].blocked=true;
+  assert.deepEqual(chooseActorCopiedAttack(input,{preferGengarPoltergeist:true}),
+    {sourceIndex:0,attackIndex:0});
+  prompt.offered[1].attacks[0].blocked=false;
+  const changedHidden={...input,opponentHiddenHand:['SECRET_CARD']};
+  assert.deepEqual(chooseActorCopiedAttack(changedHidden,
+    {preferGengarPoltergeist:true}),{sourceIndex:1,attackIndex:0});
+  input.actor.ownPublic.publicTurnRestrictions.gxUsed=true;
+  assert.deepEqual(chooseActorCopiedAttack(input,{preferGengarPoltergeist:true}),
+    {sourceIndex:1,attackIndex:0});
+});
