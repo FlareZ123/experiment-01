@@ -11,7 +11,8 @@ function fixture(){
     {actionOrdinal:0,turnBefore:1,playerSlot:0,action:'PlayCardAction'},
     {actionOrdinal:1,turnBefore:1,playerSlot:0,action:'ResolvePromptAction'},
     {actionOrdinal:2,turnBefore:2,playerSlot:1,action:'PlayCardAction'},
-    {actionOrdinal:3,turnBefore:2,playerSlot:1,action:'AttackAction'},
+    {actionOrdinal:3,turnBefore:2,playerSlot:1,action:'AttackAction',
+      attack:'Timeless-GX'},
     {actionOrdinal:4,turnBefore:3,playerSlot:0,action:'PlayCardAction'},
     {actionOrdinal:5,turnBefore:3,playerSlot:0,action:'PassTurnAction'}
   ];
@@ -140,6 +141,10 @@ test('an extra candidate turn needs its own native grant and next-turn roots',()
     assert.equal(forged.rootClaimsAuthenticated,false,nonAttack);
   }
   ledger[3].action='AttackAction';
+  ledger[3].attack='Claw of Darkness';
+  assert.equal(attest(row,ledger,1).bonusTurnRootChain,false,
+    'A genuine ordinary attack cannot authenticate a Timeless-GX turn');
+  ledger[3].attack='Timeless-GX';
   row.candidateBonusTurn.grantRootActionOrdinal=2;
   row.candidateBonusTurn.completionOrdinal=2;
   assert.equal(attest(row,ledger,1).rootClaimsAuthenticated,false,
