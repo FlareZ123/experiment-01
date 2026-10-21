@@ -116,3 +116,67 @@ test('native legal C&C recovery mode physically returns original Supporter', () 
   assert.equal(fixture.player.hand.cards.includes(fixture.recoverable), true);
   assert.equal(fixture.player.discard.cards.includes(fixture.recoverable), false);
 });
+
+
+test('printed C&C source-tagged native prompt gets legal recovery through opt-in resolver', () => {
+  const {isPrintedCynthiaCaitlinRecovery,withPrintedCynthiaCaitlinRecovery} =
+    require('../simulation/twinleaf/cynthia-caitlin-required-recovery.cjs');
+  const original = board();
+  assert.equal(original.prompt.sourceCard?.fullName, 'Cynthia & Caitlin CEC');
+  assert.equal(isPrintedCynthiaCaitlinRecovery(original.prompt), true);
+  const bot = new SimpleTacticsAi({id: original.player.id},
+    withPrintedCynthiaCaitlinRecovery(options(false)), null);
+  const chosen = bot.decodeNextAction(original.state);
+  assert.ok(chosen instanceof ResolvePromptAction);
+  assert.equal(chosen.id, original.prompt.id);
+  assert.equal(chosen.result, 0);
+  assert.doesNotThrow(() => assertValidPromptAction(original.state, chosen,
+    {enforcePrintedCynthiaRecovery: true}));
+  original.store.dispatch(chosen);
+  const next = original.state.prompts.find(p =>
+    p.result === undefined && p instanceof ChooseCardsPrompt);
+  assert.ok(next, 'Printed recovery must offer a genuine discard choice');
+  original.store.dispatch(new ResolvePromptAction(next.id, [original.recoverable]));
+  assert.equal(original.player.hand.cards.includes(original.recoverable), true);
+  assert.equal(original.player.discard.cards.includes(original.recoverable), false);
+});
+
+test('exact-source printed guard vetoes metadata-cancelled C&C while leaving other modal untouched', () => {
+  const {isPrintedCynthiaCaitlinRecovery,withPrintedCynthiaCaitlinRecovery} =
+    require('../simulation/twinleaf/cynthia-caitlin-required-recovery.cjs');
+  const original = board();
+  const action = new ResolvePromptAction(original.prompt.id, null);
+  assert.doesNotThrow(() => assertValidPromptAction(original.state, action,
+    {enforceSelectOptionLegality: true}),
+  'Generic gate honors upstream allowCancel true');
+  assert.throws(() => assertValidPromptAction(original.state, action,
+    {enforceSelectOptionLegality: true,enforcePrintedCynthiaRecovery: true}),
+  /invalid result to SelectOptionPrompt/);
+  assert.equal(isPrintedCynthiaCaitlinRecovery({
+    ...original.prompt,
+    sourceCard: {fullName: 'Guzma & Hala CEC'}
+  }), false);
+  const compound = withPrintedCynthiaCaitlinRecovery(options(true));
+  assert.throws(() => withPrintedCynthiaCaitlinRecovery(compound),
+    /already installed/);
+});
+
+test('full headless records opt-in correction and fails closed without strict gate', () => {
+  const {runMatch,upstreamSmokeDeck} =
+    require('../simulation/twinleaf/headless.cjs');
+  const deck = upstreamSmokeDeck();
+  const request = {
+    deckA: deck,deckB: deck,seed: 20261021,maxActions: 20,
+    strictPromptValidation: true,isolatePolicyRandomness: true,
+    printedCynthiaCaitlinRecovery: true,enforcePrintedCynthiaRecovery: true,
+    enforceSelectOptionLegality: true,mandatoryOptionFallback: true
+  };
+  const game=runMatch(request);
+  assert.equal(game.printedCynthiaCaitlinRecovery,true);
+  assert.equal(game.enforcePrintedCynthiaRecovery,true);
+  assert.match(game.policy,/CynthiaCaitlinPrintedMandatoryRecovery-v1/);
+  assert.match(game.policy,/CynthiaCaitlinPrintedRecoveryGate-v1/);
+  assert.ok(game.actions<=request.maxActions);
+  assert.throws(()=>runMatch({...request,strictPromptValidation:false}),
+    /Printed C&C recovery gate requires strictPromptValidation:true/);
+});
