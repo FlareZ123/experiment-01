@@ -2,6 +2,7 @@
 
 const {openingSetupZones}=require('../twinleaf/opening-setup-zones.cjs');
 const {fingerprintInitialSourceDeal}=require('./source-physical-deal-fingerprint.cjs');
+const {summarizeTurnOrder}=require('../twinleaf/turn-order-evidence.cjs');
 
 /**
  * Stop a synchronous pinned Store run as soon as its first real turn begins.
@@ -12,13 +13,17 @@ const {fingerprintInitialSourceDeal}=require('./source-physical-deal-fingerprint
  *
  * @param {object} storeClass Pinned Store constructor.
  * @param {() => unknown} play Calls runMatch without swallowing exceptions.
- * @param {{sourceSeat?:0|1}} [options] Opt-in opaque ordered source-deal hash.
- * @returns {{setupZones:object|null,stoppedAtFirstTurn:boolean,sourcePhysicalDeal:object|null}}
+ * @param {{sourceSeat?:0|1,captureFirstTurnEvidence?:boolean}} [options]
+ *   Optional settled first-turn draw-log attestation requires sourceSeat.
+ * @returns {{setupZones:object|null,stoppedAtFirstTurn:boolean,sourcePhysicalDeal:object|null,firstTurnEvidence?:object|null}}
  */
 function captureSetupOnly(storeClass,play,options={}) {
   if (typeof storeClass?.prototype?.dispatch!=='function' ||
       typeof play!=='function') {
     throw new TypeError('Pinned Store dispatch and synchronous play required');
+  }
+  if(options.captureFirstTurnEvidence===true && options.sourceSeat===undefined){
+    throw new RangeError('First turn draw proof requires settled source-seat capture');
   }
   if(options.sourceSeat!==undefined && ![0,1].includes(options.sourceSeat)){
     throw new RangeError('Source seat must be a physical player slot');
@@ -27,6 +32,7 @@ function captureSetupOnly(storeClass,play,options={}) {
   const stop=Object.freeze({kind:'research-stop-at-first-turn'});
   let setupZones=null;
   let sourcePhysicalDeal=null;
+  let firstTurnEvidence=null;
   /**
    * Opt-in ordered source provenance must use the first settled player-turn
    * state, which can occur after Store first reports turn === 1 during setup.
@@ -38,6 +44,12 @@ function captureSetupOnly(storeClass,play,options={}) {
     if(options.sourceSeat!==undefined &&
        (state.phase!==2 || !Array.isArray(state.prompts) ||
         state.prompts.some(prompt=>prompt.result===undefined)))return;
+    if(options.captureFirstTurnEvidence===true){
+      const actor=state.players[state.activePlayer];
+      firstTurnEvidence=summarizeTurnOrder({
+        slot:state.activePlayer,playerId:actor.id,playerName:actor.name
+      },state.logs);
+    }
     const observation=openingSetupZones(state);
     const physical=options.sourceSeat===undefined?null:
       fingerprintInitialSourceDeal(state,options.sourceSeat,0);
@@ -63,7 +75,8 @@ function captureSetupOnly(storeClass,play,options={}) {
       if(error!==stop && error?.cause!==stop)throw error;
     }
     return {setupZones,stoppedAtFirstTurn:setupZones!==null,
-      sourcePhysicalDeal};
+      sourcePhysicalDeal,
+      ...(options.captureFirstTurnEvidence===true?{firstTurnEvidence}:{})};
   }finally{
     storeClass.prototype.dispatch=original;
   }
