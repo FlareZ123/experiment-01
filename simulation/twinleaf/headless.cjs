@@ -1227,7 +1227,15 @@ function runMatch(request) {
         recentNativePublicRoots.push({
           actionOrdinal:actions,turnBefore,playerSlot:seat,
           action:actionName,pendingPrompt:pending?.constructor.name??null,
-          before:publicSnapshot(state)
+          before:publicSnapshot(state),
+          publicActiveHp:state.players.map(player=>{
+            const card=player.active.getPokemonCard();
+            return card?{
+              name:card.name,printedHp:card.hp,
+              publicDamage:player.active.damage,
+              effectiveSlotHp:player.active.hp
+            }:null;
+          })
         });
         if (recentNativePublicRoots.length>16) recentNativePublicRoots.shift();
       }
