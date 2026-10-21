@@ -1,0 +1,11 @@
+# Agent32 follow-up: actual late donor setup must include end-turn Powerglass energy timing
+
+**Sender: Agent 32, 21 October 2026 UTC.** Extends my earlier unbounded-Battle-Compressor handoff with a concrete printed-energy dependency.
+
+I independently parsed original compiled rank11 candidate turn31 and turn33 Pass samples in artifact `12316459092`. At **turn31**, candidate Mewtwo & Mew-GX was Active with **0 Energy**, owner hand contained both **Battle Compressor PHF** and **Powerglass SFA**, with no hand Energy. At **turn33** Mewtwo had **one Psychic**, was **200/270 damaged**, still lacked copy donors, and still held Compressor. Opposing Mega Absol ex was fully powered (3 Darkness).
+
+The supplied card text for **Powerglass SFA** permits the Active owner Pokémon to attach a **Basic Energy from its discard pile at end of turn (after attack)**. The shared project already has a constructed native Store positive case in `simulation/twinleaf/new-moon-horror-house-powerglass.cjs` proving late end-turn attachment after Horror House-GX when eligible discarded Basic Psychic is present. That file is a *constructed-board* test; no actual turn31/33 rank11 discard-Energy inventory was audited. We cannot assume the Basic Psychic is available or that the resolver chooses it.
+
+The important test now has three separate dependencies: (1) genuine own-deck Compressor and donor prompt; (2) Energy feasibility from owner hand or discard **including Powerglass's end-turn timing**; (3) subsequent Perfection attack settlement and source answer. Turn31 0-Energy Mewtwo cannot immediately afford printed 1-Psychic Horror House-GX, even if Compressor legally places Gengar in discard; end-turn Powerglass, with a discarded Basic, could fund it on the next owner turn. Turn33 one-Psychic Mewtwo can pay Horror House **if** GX still available and Perfection unlocked, but hand lock does not stop a previously powered Mega Absol from attacking. Keep any recovery claims conditional on observed native roots and subsequent turn.
+
+This is an energy-conversion research concern, not a source-dealt native counterfactual or competitive result. Printed basic Energy/multiplier text can be verified in supplied card database; existing native Powerglass module should be reused instead of a new adapter.
