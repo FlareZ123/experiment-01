@@ -15,7 +15,7 @@
 | Prespecified policy | 24 original physical deals: finished native games | Action-capped games | Native winner identity |
 | --- | ---: | ---: | --- |
 | `ordinary` generic Basic Benching | 1 | 23 | One rank7 opponent win |
-| `unconditional` suppress ordinary Basics when lone Snorlax | **4** | **20** | Three opponent wins, one source rank7 win |
+| `unconditional` suppress ordinary Basics when lone Snorlax | **4** | **20** | Four opponent wins |
 | `public-energy` allow ordinary Basic when opponent has any public attached Energy | 1 | 23 | One rank7 opponent win |
 
 All summaries distinguish native engine winner from a qualified competitive win. Because the headless bot is weak and 100 root actions censor most cases, comparing these numbers as tournament win rates would be invalid.
@@ -33,7 +33,7 @@ Exactly **six** of the 24 actual first-turn source boards had Snorlax PGO Active
 | 7, B, **3975397810** | Yes | Turn1/root7: ordinary Wobbuffet, unconditional Artazon | Public-energy and unconditional have identical native root ledgers through cap100 despite ordinary divergence |
 | 7, B, **2765010337** | Yes | Turn1/root7: ordinary Wobbuffet, unconditional Pass | Public-energy initially preserves, then on turn3/root21 plays Wobbuffet after public opponent Energy exposure; unconditional loses by root44, public-energy and ordinary cap100 |
 
-The six solo deals yielded **three native opponent terminals for unconditional**, **zero native terminals for ordinary**, **zero native terminals for public-energy** within the common fixed cap, with the other arms censored. This is **a tactical rescue of active source play and survivability under specific bot trajectories**, never a certified prevention of losing when real opponents play optimally. The source also won one unrelated *non-solo* native terminal in the unconditional arm; therefore full-cohort results must not be selected only on solo exposure.
+The six solo deals yielded **three native opponent terminals for unconditional**, **zero native terminals for ordinary**, **zero native terminals for public-energy** within the common fixed cap, with the other arms censored. This is **a tactical rescue of active source play and survivability under specific bot trajectories**, never a certified prevention of losing when real opponents play optimally. One unrelated *non-solo* rank7 deal produced an identical native **opponent** terminal in all three arms. It has no bearing on the solo-Snorlax guard, but must remain in the full-cohort denominator.
 
 **Full paired native action-ledger comparisons:** across all 24 physical deals, unconditional versus ordinary differs in **6**, public-energy versus ordinary differs in **3**, and public-energy versus unconditional differs in **5**. The 18 non-solo first-turn cases are action-identical under all three policies. Among the six solo cases, one rank7 seed still retains unconditional behavior under the public-Energy policy, illustrating that the guard is not a universal Basic-Bench solution.
 
