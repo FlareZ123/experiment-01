@@ -61,3 +61,28 @@ A twelve-seed source-dealt A/B screen is therefore unlikely to encounter many fi
 - **Not yet compiled or source-run in CI:** a proposed change to the existing manual rank-11 workflow was blocked by repository-operation safety checks. This is a recorded blocker. No test pass, actual Compressor selection, attack, or terminal game is claimed for this new policy.
 
 The full Aichi field still has only **29/32 verified source lists**, and **zero independently qualified competitive games**. The target of a single 99.5%-winning fixed 60 remains unproven.
+
+
+## 21 October Agent 1 addendum: Basic Psychic plus either known-Gengar source
+
+A separate, narrower **attack-funding resource screen** adds the New Moon candidate's three Basic Psychic Energy to the first-window calculation. It also counts the mutually exclusive **Gengar directly observed** channel, which the original 4.3322994055% Battle Compressor-only event expressly excluded.
+
+For a uniformly randomized fixed 60 containing 2 Mewtwo & Mew-GX, 1 Gengar & Mimikyu-GX, 3 Basic Psychic, 2 Battle Compressor and 52 remaining physical cards, require:
+
+1. At least one Mewtwo in the opening seven, permitting an initial Active Mewtwo selection.
+2. At least one Basic Psychic in those seven or the first mandatory ordinary draw.
+3. Either Gengar in those eight cards (potential Bench donor), **or** an observed Battle Compressor with Gengar outside the eight and outside the six Prize cards (potential discard donor).
+
+There are 17 total Basics, so every counted hand is also a valid starting seven. The two donor branches are disjoint. A 7-card multivariate count, followed by one unseen ordinary draw, gives:
+
+| Resource branch | Exact **unconditional** probability | Probability conditional on a valid initial seven |
+| --- | --- | --- |
+| Gengar in first eight | 162109 / 21455940 = **0.75554369%** | **0.824352%** |
+| Gengar unprized with Compressor in first eight | 47526671 / 4093793352 = **1.16094455%** | **1.266599%** |
+| **Either branch** | **392285341 / 20468966760 = 1.91648824%** | **392285341 / 18761088718 = 2.09095190%** |
+
+For Gengar absent from the first eight but Compressor observed, its conditional probability of avoiding the six Prizes is **46/52**, because Gengar occupies one of the 52 unseen post-draw physical positions. For the direct-Gengar branch, Gengar is already available and cannot be Prized. The independent seeded Python 400,000-deal experiment physically placed seven initial cards, six Prizes and a subsequent ordinary draw; **7,679 / 400,000 = 1.91975%** met the unconditional union, consistent with the exact figure.
+
+The original **4.3323%** event requires Mewtwo and Compressor but expressly does **not** require any Psychic Energy, and excludes a Gengar held in the first eight. Its event is therefore different; the two percentages are neither competing estimates nor additive.
+
+This is a **potential resource configuration**. It does not assert that the player can safely select Mewtwo Active, attach Energy, play Compressor through Item lock, put Gengar onto a free Bench slot, activate Perfection, settle Horror House-GX, or survive an opponent response. It omits Fog Crystal, VIP Pass, additional draw/search, optional opponent mulligan bonuses, and already available Telepathic Psychic Energy. It is **not** a bound on total GX access or any win probability. This addendum is independent exact combinatorial evidence, not compiled Twinleaf behavior, and changes none of the source lists or frozen candidate 60s.
