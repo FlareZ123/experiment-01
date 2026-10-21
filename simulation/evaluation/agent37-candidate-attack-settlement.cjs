@@ -52,14 +52,39 @@ function candidateAttackSettlement(game,candidateSeat) {
         (closingRoot.action==='ResolvePromptAction' &&
          closingRoot.initiatingRootActionOrdinal===
            event.initiatingRootActionOrdinal)));
+    // A native sudden-death restart is a new game with its own deal. A
+    // later replay can revisit the same numeric turn; never join it to an
+    // attack from the previous episode. This veto applies even when the
+    // restart has not yet been authenticated as a legal paper replay.
+    const firstReset=roots.find(row=>
+      row.actionOrdinal>=event.actionOrdinal &&
+      Number.isSafeInteger(row.turnBefore) &&
+      Number.isSafeInteger(row.turnAfter) &&
+      row.turnAfter<row.turnBefore);
+    const sameEpoch=row=>!firstReset ||
+      row.actionOrdinal<firstReset.actionOrdinal;
     const nextSource=settled?roots.find(row=>
-      row.actionOrdinal>completion && row.playerSlot===sourceSeat &&
+      row.actionOrdinal>completion && sameEpoch(row) &&
+      row.playerSlot===sourceSeat &&
       row.turnBefore===declaration.turnBefore+1 &&
       row.action!=='ResolvePromptAction'):null;
+    const returnSpan=nextSource?roots.filter(row=>
+      row.actionOrdinal>=event.actionOrdinal &&
+      row.actionOrdinal<=nextSource.actionOrdinal):[];
+    const nextSourceSameEpochProven=Boolean(nextSource &&
+      returnSpan.length>0 &&
+      returnSpan.every((row,index)=>
+        Number.isSafeInteger(row.turnBefore) &&
+        Number.isSafeInteger(row.turnAfter) &&
+        row.turnAfter>=row.turnBefore &&
+        (index===0 || (
+          row.actionOrdinal===returnSpan[index-1].actionOrdinal+1 &&
+          row.turnBefore===returnSpan[index-1].turnAfter
+        ))));
     // Only authenticated physical source roots on the immediately following
     // global turn; selection prompts never disclose selected hidden cards.
     const sourceTurnActions=nextSource?roots.filter(row=>
-      row.actionOrdinal>=nextSource.actionOrdinal &&
+      row.actionOrdinal>=nextSource.actionOrdinal && sameEpoch(row) &&
       row.playerSlot===sourceSeat &&
       row.turnBefore===declaration.turnBefore+1).map(row=>({
       ordinal:row.actionOrdinal,action:row.action,
@@ -84,6 +109,10 @@ function candidateAttackSettlement(game,candidateSeat) {
       publicBoardAfter:settled?event.settled.after:null,
       prizesBefore:event.beforePrizesRemaining,
       prizesAfter:settled?event.settled.prizesRemaining:null,
+      // Historical records without complete native turnAfter chronology
+      // retain their observation, but are not certified same-epoch returns.
+      nextSourceSameEpochProven,
+      firstClockResetAfterAttackOrdinal:firstReset?.actionOrdinal??null,
       nextSourceRoot:nextSource?{
         ordinal:nextSource.actionOrdinal,
         turn:nextSource.turnBefore,
@@ -112,6 +141,8 @@ function candidateAttackSettlement(game,candidateSeat) {
     declarations:attacks.length,
     settled:attacks.filter(row=>row.settledPromptChain).length,
     withImmediateSourceReturn:attacks.filter(row=>row.nextSourceRoot).length,
+    withVerifiedSameEpochSourceReturn:attacks.filter(row=>
+      row.nextSourceSameEpochProven).length,
     withRetrospectivePoltergeistBase:attacks.filter(row=>row.printedPoltergeist).length,
     attacks,
     paperRuleAuditPassed:false,
