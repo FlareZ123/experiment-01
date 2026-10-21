@@ -100,6 +100,9 @@ jobs:
       - name: Verify native Lost Vacuum required cost and legal physical removal
         run: node --test tests/agent24-lost-vacuum-native-choice.test.cjs
 
+      - name: Probe pinned optional C&C modal versus printed mandatory recovery
+        run: node --test tests/agent24-cynthia-caitlin-native-choice.test.cjs
+
       - name: Verify native source G&H choice attribution
         run: node --test tests/agent24-mandatory-source-exposure.test.cjs
       - name: Compare real rank2 source modal null versus legal default on both physical seats
