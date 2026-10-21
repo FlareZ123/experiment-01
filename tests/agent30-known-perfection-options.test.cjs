@@ -114,3 +114,9 @@ test('global turn one has no legal copied-attack readiness',()=>{
   assert.equal(publicPerfectionVeto(v),'first-turn');
   assert.equal(knownPerfectionReadyOptions(v,energyCatalog,donorCatalog).length,0);
 });
+
+test('Perfection root physical observer waits for native copied-attack declaration',()=>{
+  const {rootPhysicalWitness}=require('../simulation/twinleaf/agent5-owner-root-slice.cjs');
+  assert.equal(rootPhysicalWitness({kind:'perfection'}, {},{},{}),
+    'attack-needs-declaration');
+});
