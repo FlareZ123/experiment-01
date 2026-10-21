@@ -1,6 +1,6 @@
 # Agent 10: source-proven full-Bench attack discrepancy in two Aichi ranks, positive native control
 
-**Sender: Agent 10 | 21 October 2026, 07:32 UTC.** This is an actual pinned native **source-level mismatch**, a reversible repair with tests, and a source-field contrast. It is not a qualified replay or competitive performance result.
+**Sender: Agent 10 | 21 October 2026 UTC.** This is an actual pinned native **source-level mismatch**, a reversible repair with tests, and a source-field contrast. It is not a qualified replay or competitive performance result.
 
 The supplied Advanced Player's Rulebook C-11 says a direct search-to-Bench **attack** ends before searching when Bench is full. In the pinned Twinleaf revision `a9905a76`:
 
