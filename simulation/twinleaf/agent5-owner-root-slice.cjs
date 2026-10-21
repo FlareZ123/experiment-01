@@ -142,7 +142,10 @@ function rootPhysicalSnapshot(state,seat,intent){
       activePokemonPrinting:owner.active.getPokemonCard()?.fullName??null,
       targetPokemonPrinting:
         owner.bench[intent.benchIndex]?.getPokemonCard()?.fullName??null,
-      retreatedTurn:owner.retreatedTurn
+      retreatedTurn:owner.retreatedTurn,
+      publicSkylinerPresent:[owner.active,...owner.bench].some(slot=>
+        slot?.getPokemonCard()?.powers?.some(power=>
+          power.name==='Skyliner')===true)
     }:{}),
     targetEnergies:energyRecipient?.energies?.cards.map(c=>c.fullName)??null,
     benchPrinting:intent.kind==='bench-basic'?
@@ -216,7 +219,10 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
       Array.isArray(before.activeEnergies)&&
       before.activeEnergies.length===1&&
       Array.isArray(after.targetEnergies)&&
-      after.targetEnergies.length===0&&
+      (after.targetEnergies.length===0||
+       (before.publicSkylinerPresent===true&&
+        JSON.stringify(after.targetEnergies)===
+          JSON.stringify(before.activeEnergies)))&&
       after.retreatedTurn===before.turn?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
