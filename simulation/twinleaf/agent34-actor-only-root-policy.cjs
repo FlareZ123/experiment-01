@@ -94,6 +94,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseNaturalEvolutionIntent(view,catalog);
     if(evolution)return evolution;
   }
+  if(options.quickBallRoot===true){
+    const item=require('./agent8-actor-quick-ball-frontier.cjs')
+      .chooseQuickBallRootIntent(view);
+    if(item)return item;
+  }
   // Explicit development-only Iron Thorns ALS. Real native Store remains the
   // authority for Stadium, Special Energy and attack legality. No K0 deck or
   // Prize truth is consulted. This line is deliberately absent by default.
@@ -259,6 +264,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT3_SPECIAL_ENERGY_ROOT_DEV==='true'),
     naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
       (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
+    quickBallRootOptIn:deps.quickBallRoot??
+      (process.env.AGENT8_ACTOR_QUICK_BALL_DEV==='true'),
     printedGxRootOptIn:deps.printedGxRoot??
       (process.env.AGENT25_PRINTED_GX_ROOT_DEV==='true'),
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
@@ -273,6 +280,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     ownerRootIntents:[],competitiveGameQualified:false,
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
   };
+  if(audit.quickBallRootOptIn)
+    audit.version=VERSION+'+agent8-actor-quick-ball-v1';
   function wrapped(state){
     // A bot may evaluate hypothetical cloned States in its own tactics.
     // Never make an actor-root policy decision against such a speculative
@@ -303,7 +312,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       thornsDirectLine:audit.thornsDirectLineOptIn,
       specialEnergyRoot:audit.specialEnergyRootOptIn,
       printedGxRoot:audit.printedGxRootOptIn,
-      naturalEvolutionRoot:audit.naturalEvolutionRootOptIn
+      naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
+      quickBallRoot:audit.quickBallRootOptIn
     });
     const ownerId=state.players[seat].id;
     let action;
@@ -322,6 +332,10 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'attach-basic-energy':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+        break;
+      case 'play-quick-ball':
+        action=new PlayCardAction(ownerId,intent.handIndex,{
+          player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
       case 'play-thunder-mountain':
         action=new PlayCardAction(ownerId,intent.handIndex,{
