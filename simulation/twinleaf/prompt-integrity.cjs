@@ -1,5 +1,7 @@
 'use strict';
 const {validAttachEnergyTargets}=require('./attach-energy-targets.cjs');
+const {isPrintedCynthiaCaitlinRecovery}=
+  require('./cynthia-caitlin-required-recovery.cjs');
 
 
 /** @param {unknown} result @param {number|undefined} length @returns {boolean} */
@@ -27,7 +29,7 @@ function isIndexPermutation(result, length) {
  *
  * @param {{prompts:Array<{id:number,result?:unknown,validate:(result:unknown,state:object)=>boolean}>}} state
  * @param {{id?:number,result?:unknown,constructor?:{name?:string}}} action
- * @param {{enforceSelectOptionLegality?:boolean,enforceAttachEnergyGeometry?:boolean}} [options] Additional fail-closed gate for native option indices; default retains archived strict mode.
+ * @param {{enforceSelectOptionLegality?:boolean,enforcePrintedCynthiaRecovery?:boolean,enforceAttachEnergyGeometry?:boolean}} [options] Opt-in native prompt legality gates; historical defaults unchanged.
  * @returns {void}
  */
 /** @param {object} a @param {object} b */
@@ -196,6 +198,13 @@ function assertValidPromptAction(state, action, options={}) {
         index<prompt.values.length &&
         (name !== 'SelectOptionPrompt' ||
           prompt.options?.disabled?.[index]!==true);
+  }
+  // Native Cynthia & Caitlin exposes allowCancel:true despite the first
+  // printed Supporter recovery being mandatory when this modal exists.
+  // The real Store stamps sourceCard; never guess from prompt text alone.
+  if (valid && options.enforcePrintedCynthiaRecovery === true &&
+      isPrintedCynthiaCaitlinRecovery(prompt) && action.result === null) {
+    valid = false;
   }
   // ChooseCardsPrompt.validate verifies source membership independently for
   // each chosen card, but omits multiplicity. The same physical card cannot
