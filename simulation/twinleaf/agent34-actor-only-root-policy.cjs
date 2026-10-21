@@ -134,6 +134,11 @@ function chooseActorRootIntent(view,catalog,options={}){
         printing:view.ownHand[energyIndex]};
     }
   }
+  if(options.perfectionTransitionRoot===true){
+    const planned=require('./agent35-perfection-transition-frontier.cjs')
+      .choosePerfectionTransition(view,catalog);
+    if(planned)return planned;
+  }
   if(own.active&&!r.energyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
     const first=view.ownHand.findIndex(p=>catalog.basicEnergies.has(p));
     if(first>=0){
@@ -322,6 +327,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT44_ACTOR_ENERGY_RECIPIENT_DEV==='true'),
     perfectionRootOptIn:deps.perfectionRoot??
       (process.env.AGENT30_PERFECTION_ROOT_DEV==='true'),
+    perfectionTransitionRootOptIn:deps.perfectionTransitionRoot??
+      (process.env.AGENT35_PERFECTION_TRANSITION_ROOT_DEV==='true'),
     paidRetreatRootOptIn:deps.paidRetreatRoot??
       (process.env.AGENT6_PAID_RETREAT_ROOT_DEV==='true'),
     thornsDirectLineOptIn:deps.thornsDirectLine??
@@ -365,6 +372,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent1-known-dead-leading-attack-v1';
   if(audit.perfectionRootOptIn)
     audit.version+='+agent30-known-perfection-root-v1';
+  if(audit.perfectionTransitionRootOptIn)
+    audit.version+='+agent35-public-donor-funding-pivot-v1';
   if(audit.powerglassRootOptIn)
     audit.version+='+agent41-owner-visible-powerglass-root-v1';
   function wrapped(state){
@@ -397,6 +406,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
       paidRetreatRoot:audit.paidRetreatRootOptIn,
       perfectionRoot:audit.perfectionRootOptIn,
+      perfectionTransitionRoot:audit.perfectionTransitionRootOptIn,
       thornsDirectLine:audit.thornsDirectLineOptIn,
       specialEnergyRoot:actorSpecialEnergyEnabled(
         audit.specialEnergyRootOptIn,audit.specialEnergyRootOwnerSeat,seat),
