@@ -153,7 +153,7 @@ jobs:
       - name: Native sudden-death Prize threshold audit
         run: node --test tests/agent3-paper-tiebreak-native-check.test.cjs tests/agent3-paper-attack-self-terminal-native.test.cjs
       - name: Verify printed Telepath M3 cost on genuine pinned Store
-        run: node --test tests/agent30-pinned-telepath-cost.native.test.cjs
+        run: node --test tests/agent30-pinned-telepath-cost.native.test.cjs tests/agent30-pinned-perfection-root-gap.native.test.cjs
       - name: Agent37 paired actual Store first attack decision and opponent reply
         if: ${{ inputs.agent37_public_attack_first_divergence }}
         run: |
