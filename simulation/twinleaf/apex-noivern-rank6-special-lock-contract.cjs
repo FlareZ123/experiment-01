@@ -10,9 +10,9 @@ const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const load=p=>require(path.join(output,p));
 
 /**
- * Verify whether a paid copied Dominating Echo blocks a subsequent
- * hand-played DCE on an opposing Basic. The next turn is manually staged,
- * so even a passing test is not proof of engine-driven turn transitions.
+ * Verify whether a paid copied Dominating Echo blocks a hand-played DCE
+ * on an opposing Basic after the native Store's actual next-turn transition.
+ * Initial Pokémon, Energy and held reply card remain injected fixtures.
  * @param {boolean} lockCopied
  * @returns {object}
  */
@@ -52,9 +52,10 @@ function stagedEchoDceReply(lockCopied){
     }
     const nativeBefore={turn:f.state.turn,activePlayer:f.state.activePlayer,
       phase:f.state.phase};
-    f.state.activePlayer=1;
-    f.state.turn=5;
-    f.state.phase=GamePhase.PLAYER_TURN;
+    assert.equal(f.state.activePlayer,1,
+      'Native copied attack/Waits must hand off to opposing player');
+    assert.equal(f.state.turn,5);
+    assert.equal(f.state.phase,GamePhase.PLAYER_TURN);
     f.defending.hand.cards.push(dce);
     const dceIndex=f.defending.hand.cards.indexOf(dce);
     assert.ok(dceIndex>=0,'DCE must be a physical held card');
@@ -77,7 +78,7 @@ function stagedEchoDceReply(lockCopied){
     return {copiedAttack:attackName,sourceAttackDamage:f.defending.active.damage,
       nativeBeforeManualNextTurn:nativeBefore,
       replyDcePrinting:dce.fullName,rejectedByDispatch,errorName,
-      dceAttached,handRetained,storeOwnTurnHandoff:false,
+      dceAttached,handRetained,storeOwnTurnHandoff:true,
       competitiveGameQualified:false};
   }finally{
     clearCopyAttackSessionsForTests();
@@ -90,7 +91,7 @@ function compareEchoAgainstRank6Dce(){
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     control:stagedEchoDceReply(false),
     treatment:stagedEchoDceReply(true),
-    qualification:'Staged next opponent turn, no authentic own-turn handoff, searching or competitive game',
+    qualification:'Genuine Store turn handoff from staged board, no actual opening/search/policy or competitive game',
     competitiveGamesQualified:0};
 }
 if(require.main===module)process.stdout.write(
