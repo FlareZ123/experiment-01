@@ -229,6 +229,8 @@ function policyRandomStreams(seed) {
  * @property {boolean} [supporterDecisionCorrection] Opt-in, reversible correction for premature Supporter turn consumption.
  * @property {boolean} [mandatoryOptionFallback] Opt-in, both-seat noncancelable SelectOptionPrompt legality fallback; enabled default, not strategic mode selection.
  * @property {boolean} [enforceSelectOptionLegality] Opt-in fail-closed native option-index/cancel validation, requires strictPromptValidation.
+ * @property {boolean} [printedCynthiaCaitlinRecovery] Opt-in exact-source legal mode-zero fallback for printed mandatory C&C recovery.
+ * @property {boolean} [enforcePrintedCynthiaRecovery] Opt-in fail-closed mandatory C&C recovery validation, requires strictPromptValidation.
  * @property {boolean} [guzmaSelfSwitchGuard] Opt-in rank-6 off-type self-switch counterfactual.
  * @property {boolean} [dialgaBenchExposureGuard] Opt-in rank-6 gust-target exposure counterfactual.
  * @property {boolean} [leleEntryAbilityLockCorrection] Opt-in correction for Tapu Lele-GX Bench-entry Ability locks.
@@ -323,6 +325,10 @@ function runMatch(request) {
   if(request.enforceSelectOptionLegality===true &&
       request.strictPromptValidation!==true){
     throw new Error('Option legality gate requires strictPromptValidation:true');
+  }
+  if (request.enforcePrintedCynthiaRecovery === true &&
+      request.strictPromptValidation !== true) {
+    throw new Error('Printed C&C recovery gate requires strictPromptValidation:true');
   }
   if(request.captureGladionRootChoiceContext===true &&
       request.captureGladionRootPrizeChoices!==true){
@@ -631,6 +637,10 @@ function runMatch(request) {
     if (request.templeUnlockRecovery === true) options = require('./temple-unlock-tactic.cjs').withTempleUnlockRecovery(options);
     if (request.mandatoryOptionFallback === true) {
       options = require('./mandatory-option-policy.cjs').withMandatoryOptionFallback(options);
+    }
+    if (request.printedCynthiaCaitlinRecovery === true) {
+      options = require('./cynthia-caitlin-required-recovery.cjs')
+        .withPrintedCynthiaCaitlinRecovery(options);
     }
     if (request.electrodeGXPrizeTradePolicy === true) options = withElectrodePrizeTradePolicy(options);
     if (request.attachedToolPowerPolicy === true) options = withAttachedToolPowerPolicy(options);
@@ -1069,6 +1079,7 @@ function runMatch(request) {
       if (request.strictPromptValidation === true) {
         assertValidPromptAction(state, action,{
           enforceSelectOptionLegality:request.enforceSelectOptionLegality===true,
+          enforcePrintedCynthiaRecovery:request.enforcePrintedCynthiaRecovery===true,
           enforceAttachEnergyGeometry:request.enforceAttachEnergyGeometry===true
         });
       }
@@ -1624,6 +1635,8 @@ function runMatch(request) {
       supporterDecisionCorrection: request.supporterDecisionCorrection === true,
       mandatoryOptionFallback: request.mandatoryOptionFallback === true,
       enforceSelectOptionLegality: request.enforceSelectOptionLegality === true,
+      printedCynthiaCaitlinRecovery: request.printedCynthiaCaitlinRecovery === true,
+      enforcePrintedCynthiaRecovery: request.enforcePrintedCynthiaRecovery === true,
       guzmaSelfSwitchGuard: request.guzmaSelfSwitchGuard === true,
       dialgaBenchExposureGuard: request.dialgaBenchExposureGuard === true,
       leleEntryAbilityLockCorrection: request.leleEntryAbilityLockCorrection === true,
@@ -1699,6 +1712,8 @@ function runMatch(request) {
         (request.supporterDecisionCorrection === true ? '+SupporterDecisionGuard-v1' : '') +
         (request.mandatoryOptionFallback === true ? '+MandatoryOptionDefaultFallback-v1' : '') +
         (request.enforceSelectOptionLegality === true ? '+SelectOptionLegalityGate-v1' : '') +
+        (request.printedCynthiaCaitlinRecovery === true ? '+CynthiaCaitlinPrintedMandatoryRecovery-v1' : '') +
+        (request.enforcePrintedCynthiaRecovery === true ? '+CynthiaCaitlinPrintedRecoveryGate-v1' : '') +
         (request.guzmaSelfSwitchGuard === true ? '+GuzmaSelfSwitchGuard-v1' : '') +
         (request.dialgaBenchExposureGuard === true ? '+DialgaBenchExposureGuard-v1' : '') +
         (request.templeUnlockRecovery === true ? '+TempleUnlockTactic-v1' : '') +
