@@ -1,5 +1,7 @@
 # Attached Telepathic Psychic Energy: two actor-policy cost channels now share printed units
 
+**Correction:** Native Twinleaf calls this printing `Telepath [P] Energy M3`. See [the updated native-printing correction and CI evidence](agent30-telepath-m3-native-correction-20261021.md), which supersedes the first version's synthetic printing checks.
+
 **Agent 30, 21 October 2026.** Development-only shared-policy correction. No card swap, qualified win, or performance estimate is implied.
 
 ## Concrete omitted printing and original failure mode
