@@ -122,6 +122,30 @@ test('versioned late turn window opens the observed owner-only midgame opportuni
   assert.equal(shouldSeekPayload(state,player,3,{maxGlobalTurn:14}),false);
 });
 
+test('observed turn-31 and turn-33 owner Compressor frontier requires explicit any-turn opt-in',()=>{
+  const {state,player}=fixture();
+  const anyTurn={maxGlobalTurn:Number.POSITIVE_INFINITY};
+  for(const turn of [31,33]){
+    state.turn=turn;
+    assert.equal(shouldSeekPayload(state,player,3),false);
+    assert.equal(shouldSeekPayload(state,player,3,{maxGlobalTurn:14}),false);
+    assert.equal(shouldSeekPayload(state,player,3,anyTurn),true);
+  }
+  // Pre-search decisions must not inspect identities in the unknown deck.
+  player.deck.cards=[{fullName:'Opaque A'}];
+  assert.equal(shouldSeekPayload(state,player,3,anyTurn),true);
+  player.deck.cards=[{fullName:'Opaque B'}];
+  assert.equal(shouldSeekPayload(state,player,3,anyTurn),true);
+  player.cannotPlayItemCards=true;
+  assert.equal(shouldSeekPayload(state,player,3,anyTurn),false);
+  player.cannotPlayItemCards=false;
+  player.discard.cards=[{fullName:GENGAR}];
+  assert.equal(shouldSeekPayload(state,player,3,anyTurn),false);
+  player.discard.cards=[];
+  state.prompts=[{result:undefined}];
+  assert.equal(shouldSeekPayload(state,player,3,anyTurn),false);
+});
+
 test('owner prompt selects Gengar and Trevenant in priority order',()=>{
   const gengar={fullName:GENGAR},trev={fullName:TREV};
   const junk={fullName:'Battle VIP Pass FST'};
