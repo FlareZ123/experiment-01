@@ -99,7 +99,7 @@ function main(){
     sourceQuickBallAudit,remainingFallbacksUnqualified:true,
     candidateAndSourceDecksUnchanged:true,
     firstTurnSlot:game.firstTurnSlot,
-    sourceDealFingerprint:game.sourceDealFingerprint??null,
+    sourceDealFingerprint:game.initialSourceDealFingerprint?.digestSha256??null,
     rootActionLedgerCount:(game.rootActionLedger??[]).length,
     rootActionLedgerSha256:createHash('sha256')
       .update(JSON.stringify(game.rootActionLedger??[])).digest('hex'),
