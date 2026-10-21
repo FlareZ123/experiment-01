@@ -362,14 +362,14 @@ jobs:
           if-no-files-found: warn
       - name: Test owner-visible genuine BUS promotion selector
         if: ${{ inputs.rank15_oddish_prompt_fork }}
-        run: node --test tests/rank15-bus-native-retreat-policy.test.cjs tests/rank15-bus-native-paid-retreat-policy.test.cjs
+        run: node --test tests/rank15-bus-native-retreat-policy.test.cjs tests/rank15-bus-native-paid-retreat-policy.test.cjs tests/rank15-candidate-t19-readonly.test.cjs
       - name: Reproduce second Omega Barrage and owner-owned BUS promotion
         if: ${{ inputs.rank15_oddish_prompt_fork }}
         run: node simulation/twinleaf/rank15-bus-native-retreat-fork.cjs > rank15-bus-native-retreat-fork.json
       - name: Display actual source BUS native promotion and opponent reply
         if: ${{ inputs.rank15_oddish_prompt_fork }}
         run: >-
-          node -e "const x=require('./rank15-bus-native-retreat-fork.json');const a=x.nativeSecondAttackOnly,b=x.proposedNativePromotion,p=x.ownerPaysRetreat;console.log(JSON.stringify({schema:x.schema,seed:x.seed,sourceOriginal:{dual:a.first.dual?.turn??null,busActive:a.first.busActive?.turn??null},unpaid:{attempts:b.sourceProposal,nativeRetreats:b.nativeRootRetreats},paid:{attempts:p.sourceProposal,nativeRetreats:p.nativeRootRetreats,dual:p.first.dual?.turn??null,busActive:p.first.busActive?.turn??null,replyRoots:p.postRetreatRootResponse.length},qualifications:x.qualifications},null,2))"
+          node -e "const x=require('./rank15-bus-native-retreat-fork.json');const a=x.nativeSecondAttackOnly,b=x.proposedNativePromotion,p=x.ownerPaysRetreat;console.log(JSON.stringify({schema:x.schema,seed:x.seed,sourceOriginal:{dual:a.first.dual?.turn??null,busActive:a.first.busActive?.turn??null},unpaid:{attempts:b.sourceProposal,nativeRetreats:b.nativeRootRetreats},paid:{attempts:p.sourceProposal,nativeRetreats:p.nativeRootRetreats,dual:p.first.dual?.turn??null,busActive:p.first.busActive?.turn??null,replyRoots:p.postRetreatRootResponse.length,t19OwnerDecisions:p.candidateTurn19ReadOnly?.map(y=>({active:y.candidateActive,attacks:y.candidatePrintedAttacks,sourceActive:y.sourceActive,sourceBench:y.sourceBench.map(s=>s.pokemon),selected:y.chosenNativeAction}))},controlT19:a.candidateTurn19ReadOnly?.length,qualifications:x.qualifications},null,2))"
       - name: Archive retrospective native source BUS promotion fork
         if: ${{ always() && inputs.rank15_oddish_prompt_fork }}
         uses: actions/upload-artifact@v4
