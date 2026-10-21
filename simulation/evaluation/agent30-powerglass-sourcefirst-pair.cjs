@@ -20,7 +20,8 @@ const commonEnvironment = Object.freeze({
   AGENT7_NATIVE_GENERIC_FALLBACK_DEV: 'true',
   AGENT41_PAPER_SUPPORTER_DEV: 'true',
   AGENT41_MANDATORY_OPTION_DEV: 'true',
-  AGENT41_NATIVE_PRESSURE_DEV: 'true'
+  AGENT41_NATIVE_PRESSURE_DEV: 'true',
+  AGENT30_CAPTURE_REJECTED_ACTION_DEV: 'true'
 });
 const sha256 = value => createHash('sha256').update(
   typeof value === 'string' ? value : JSON.stringify(value)).digest('hex');
@@ -148,6 +149,7 @@ function summarize(row) {
     ownerRootNativeRejected: rootAudit?.rejectedActorRoots ?? null,
     ownerRootPerfectionProposals: rootAudit?.typedIntentCounts?.perfection ?? 0,
     nativePromptFallbacks: rootAudit?.unsupportedPromptTypes ?? null,
+    nativeRejectedActionEvidence: row.nativeRejectedActionEvidence ?? null,
     competitiveQualified: false
   };
 }
@@ -221,6 +223,7 @@ if (require.main === module) {
       treatmentPowerglass: p.treatment.ownerRootPowerglassProposals,
       treatmentToolConfirmed:
         p.treatment.ownerRootPowerglassPhysicallyConfirmed,
+      treatmentRejectedAction: p.treatment.nativeRejectedActionEvidence ?? null,
       controlAttacks: p.control.candidateAttackDeclarationEvidence?.length ?? null,
       treatmentAttacks: p.treatment.candidateAttackDeclarationEvidence?.length ?? null
     })),
