@@ -33,6 +33,11 @@ on:
         required: false
         type: boolean
         default: false
+      known_dead_attack_root:
+        description: Opt in actor-visible known-dead printed attack choice (Mega Absol/Girafarig)
+        required: false
+        type: boolean
+        default: false
       audit_missed_evolution:
         description: Run read-only natural-evolution missed-turn-end paired native census
         required: false
@@ -87,7 +92,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure adapter-composition order and qualification tests
-        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs tests/agent49-actor-potential-knockout.test.cjs
+        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent7-known-dead-attack-root.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs tests/agent49-actor-potential-knockout.test.cjs
       - name: Verify optional frontier and default root parity
         run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs tests/agent3-special-energy-root.test.cjs
       - name: Check out exact pinned upstream engine
@@ -126,6 +131,7 @@ jobs:
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
           AGENT41_MANDATORY_OPTION_DEV: 'true'
@@ -150,6 +156,7 @@ jobs:
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
           AGENT41_MANDATORY_OPTION_DEV: 'true'
@@ -171,6 +178,7 @@ jobs:
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
           AGENT41_MANDATORY_OPTION_DEV: 'true'
@@ -197,6 +205,7 @@ jobs:
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
           AGENT41_MANDATORY_OPTION_DEV: 'true'
