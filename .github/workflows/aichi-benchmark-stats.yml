@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank6_k1_special_energy_followup:
+        description: 'Also test existing bilateral Special Energy root after K1 backup'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -239,6 +244,18 @@ jobs:
           AGENT49_RANK6_K1_ALT_ENERGY_DEV=true node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent49-k1-on.json
           node scripts/agent49-rank6-k1-native-pair.cjs agent49-k1-off.json agent49-k1-on.json > agent49-k1-pair.json
           node -e "const r=require('./agent49-k1-pair.json');console.log('K1_NATIVE_PAIRS',JSON.stringify(r.pairs.map(x=>({id:x.id,fullDeal:x.sameFullDeal,off:x.baseline.sourceAudit,on:x.treatment.sourceAudit,divergence:x.rootDiff?.firstDifferentRoot??null}))))"
+      - name: Existing common Special Energy root after K1 backup
+        if: inputs.rank6_k1_special_energy_followup
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+        run: |
+          AGENT49_RANK6_K1_ALT_ENERGY_DEV=true AGENT3_SPECIAL_ENERGY_ROOT_DEV=true node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent49-k1-special-on.json
+          node scripts/agent49-rank6-k1-native-pair.cjs agent49-k1-on.json agent49-k1-special-on.json special-energy-followup > agent49-k1-special-pair.json
+          node -e "const r=require('./agent49-k1-special-pair.json');console.log('K1_SPECIAL_FOLLOWUP',JSON.stringify(r.pairs.map(x=>({id:x.id,matched:x.sameFullDeal,firstDifference:x.rootDiff?.firstDifferentRoot??null,control:x.baseline.sourceAudit,followup:x.treatment.sourceAudit,roots:[x.baseline.roots,x.treatment.roots]}))))"
       - name: Preserve all trial rows, rejected and capped
         if: always()
         uses: actions/upload-artifact@v4
@@ -248,5 +265,7 @@ jobs:
             agent49-k1-off.json
             agent49-k1-on.json
             agent49-k1-pair.json
+            agent49-k1-special-on.json
+            agent49-k1-special-pair.json
           if-no-files-found: warn
           retention-days: 10
