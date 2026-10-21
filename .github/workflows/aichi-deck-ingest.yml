@@ -83,6 +83,8 @@ jobs:
         run: python -m pip install 'requests>=2.31,<3' 'filelock>=3.13,<4'
       - name: Verify rank-unassigned viewer parser on synthetic offline fixtures
         run: python -m unittest discover -s tests -p 'test_aichi_public_top32_deck_code.py' -v
+      - name: Validate independent Japanese-photo and official-code 60-name comparisons
+        run: node --test tests/aichi-natsumegu-photo-name-parity.test.cjs tests/aichi-itoko-official-rank27-name-parity.test.cjs
       - name: Capture one public primary Itoko saved-deck code without assigning rank
         run: python scripts/aichi_public_top32_deck_code.py
       - name: Preserve official viewer source HTML and unassigned print-60 inventory
