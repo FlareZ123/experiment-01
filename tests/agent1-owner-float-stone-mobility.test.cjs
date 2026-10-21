@@ -56,8 +56,10 @@ test('printed no-retreat-cost uses no Tool and prefers highest card count',()=>{
 });
 
 test('cannot assert Tool mobility under known public Jamming Tower',()=>{
-  const view=sample();view.ownPublic.active.tools=[FLOAT_STONE];
+  const view=sample();
   view.opponentPublic.stadium=['Jamming Tower TWM'];
+  assert.equal(chooseOwnerFloatStoneMobility(view,catalog),null);
+  view.ownPublic.active.tools=[FLOAT_STONE];
   assert.equal(chooseOwnerFloatStoneMobility(view,catalog),null);
 });
 
