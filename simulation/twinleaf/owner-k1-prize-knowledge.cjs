@@ -86,6 +86,7 @@ function captureOwnerK1(state, ownerSeat, registeredPrintings,
   return Object.freeze({
     ownerSeat, epoch: (previous?.epoch ?? 0) + 1,
     exactMembershipKnown: true, deckMembershipStale: false,
+    registeredPrintings: Object.freeze(sortedCounts(registered)),
     knownPrintings: Object.freeze(sortedCounts(deck)),
     knownPrized: prizedCertified ? Object.freeze(sortedCounts(unaccounted)) : null,
     prizeInferenceCertified: prizedCertified,
@@ -139,10 +140,10 @@ function advanceOwnerK1(snapshot, transition) {
 function assessRequiredDeckPrinting(snapshot, target) {
   if (!snapshot?.prizeInferenceCertified || snapshot.knownPrized === null)
     return 'unknown';
+  const registered = snapshot.registeredPrintings.find(x => x.printing === target)?.copies ?? 0;
   const knownPrized = snapshot.knownPrized.find(x => x.printing === target)?.copies ?? 0;
-  return knownPrized > 0 &&
-    !snapshot.knownPrintings.some(x => x.printing === target) ?
-      'known-prized' : 'unknown';
+  return registered > 0 && knownPrized === registered ?
+    'known-prized' : 'unknown';
 }
 
 module.exports = {
