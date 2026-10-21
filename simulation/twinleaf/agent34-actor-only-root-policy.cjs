@@ -103,6 +103,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseQuickBallRootIntent(view);
     if(item)return item;
   }
+  if(options.floatStoneMobility===true){
+    const mobility=require('./agent1-owner-float-stone-mobility.cjs')
+      .chooseOwnerFloatStoneMobility(view,catalog);
+    if(mobility)return mobility;
+  }
   if(options.powerglassRoot===true){
     const tool=require('./agent41-powerglass-root-frontier.cjs')
       .choosePowerglassRootIntent(view,catalog);
@@ -353,6 +358,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV==='true'),
     powerglassRootOptIn:deps.powerglassRoot??
       (process.env.AGENT41_ACTOR_POWERGLASS_ROOT_DEV==='true'),
+    floatStoneMobilityOptIn:deps.floatStoneMobility===true,
+    floatStoneMobilityOwnerSeat:deps.floatStoneMobilityOwnerSeat??null,
     strandedMarnieRootOptIn:deps.strandedMarnieRoot??
       (process.env.AGENT50_STRANDED_MARNIE_DEV==='true'),
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
@@ -369,6 +376,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
   };
   assert.ok([null,0,1].includes(audit.specialEnergyRootOwnerSeat));
+  assert.ok([null,0,1].includes(audit.floatStoneMobilityOwnerSeat));
+  if(audit.floatStoneMobilityOptIn)
+    audit.version+='+agent1-owner-public-floatstone-mobility-v1';
   if(audit.specialEnergyRootOwnerSeat!==null)
     audit.version+='+agent49-source-seat-special-v1';
   if(audit.quickBallRootOptIn)
@@ -427,6 +437,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
       quickBallRoot:audit.quickBallRootOptIn,
       powerglassRoot:audit.powerglassRootOptIn,
+      floatStoneMobility:actorSpecialEnergyEnabled(
+        audit.floatStoneMobilityOptIn,
+        audit.floatStoneMobilityOwnerSeat,seat),
       strandedMarnieRoot:audit.strandedMarnieRootOptIn
     });
     const ownerId=state.players[seat].id;
@@ -441,6 +454,10 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'bench-basic':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:intent.benchIndex});
+        break;
+      case 'attach-emergency-floatstone':
+        action=new PlayCardAction(ownerId,intent.handIndex,{
+          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
         break;
       case 'equip-powerglass':
         action=new PlayCardAction(ownerId,intent.handIndex,{
@@ -468,6 +485,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'attach-dce':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+        break;
+      case 'retreat-emergency-floatstone':
+        action=new RetreatAction(ownerId,intent.benchIndex);
         break;
       case 'paid-retreat':
         action=new RetreatAction(ownerId,intent.benchIndex);
