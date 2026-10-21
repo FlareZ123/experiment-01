@@ -96,5 +96,26 @@ function run(){
     paperClockQualified:false
   };
 }
-if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
+if(require.main===module){
+  const report=run();
+  process.stdout.write(JSON.stringify(report,null,2)+'\\n');
+  process.stderr.write(JSON.stringify({
+    schema:report.schema,
+    attemptedPairs:report.attemptedPairs,
+    registeredPairs:report.plan.attempts.length,
+    verifiedArms:report.observations.flatMap(row=>row.arms)
+      .filter(row=>row.settledSetupVerified).length,
+    sourceAlignedPairs:report.intake.retainedAttempts.filter(row=>
+      row.reason==='accepted-preoutcome-quota' ||
+      row.reason==='surplus-preoutcome-stratum').length,
+    failedOrUnverified:report.intake.retainedAttempts.filter(row=>
+      row.reason==='unverified-setup').map(row=>row.pairId),
+    retainedReasons:report.intake.retainedAttempts.map(row=>row.reason),
+    firstPlayerCells:report.intake.counts,
+    evidenceQualified:false
+  })+'\\n');
+  if(report.intake.blocked ||
+    report.attemptedPairs!==report.plan.attempts.length ||
+    report.observations.some(row=>!row.allArmsVerified))process.exitCode=1;
+}
 module.exports={SCHEDULE,IDS,SETTINGS,run};
