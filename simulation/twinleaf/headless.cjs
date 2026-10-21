@@ -1515,6 +1515,11 @@ function runMatch(request) {
           initiatingRootActionOrdinal:
             actionLineage?.initiatingAction?.actionOrdinal ?? null,
           ...(playedCard ? {card: playedCard} : {}),
+          ...(request.captureRootActionTargets===true &&
+             actionName==='PlayCardAction' && action.target ? {
+               declaredTarget:{player:action.target.player,
+                 slot:action.target.slot,index:action.target.index}
+             } : {}),
           ...(abilityInfo ? {ability: abilityInfo.name} : {}),
           ...(attackInfo ? {attack: attackInfo.attack} : {}),
           ...(attackChoice?.selection ? {attackChoice: {
