@@ -103,19 +103,10 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseQuickBallRootIntent(view);
     if(item)return item;
   }
-  // Development-only recovery Tool. All inputs are detached actor-visible data.
-  if(options.powerglassRoot===true&&
-     own.active?.printing==='Mewtwo & Mew-GX UNM'&&
-     (own.active.tools??[]).length===0&&!r.toolPlayLocked&&
-     own.publicTurnRestrictions?.toolPlayLocked!==true&&
-     [...(own.bench??[]).map(p=>p?.printing),
-       ...(own.discard??[])].includes('Gengar & Mimikyu-GX TEU')&&
-     (own.discard??[]).some(p=>catalog.basicEnergies.has(p)&&
-       p.startsWith('Psychic Energy '))){
-    const index=view.ownHand.findIndex(p=>p.startsWith('Powerglass SFA'));
-    if(index>=0)return {
-      kind:'equip-powerglass',handIndex:index,printing:view.ownHand[index]
-    };
+  if(options.powerglassRoot===true){
+    const tool=require('./agent41-powerglass-root-frontier.cjs')
+      .choosePowerglassRootIntent(view,catalog);
+    if(tool)return tool;
   }
   // Explicit development-only Iron Thorns ALS. Real native Store remains the
   // authority for Stadium, Special Energy and attack legality. No K0 deck or
