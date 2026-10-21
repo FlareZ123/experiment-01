@@ -38,6 +38,20 @@ function compare(baseline,treatment){
     const newRoots=newAudit?.nativeRootAcceptances??[];
     const stadiumRoots=newRoots.filter(x=>
       x.intent?.kind==='play-thunder-mountain');
+    const briefRoot=x=>x?{
+      globalTurn:x.globalTurn,seat:x.seat,kind:x.kind,
+      printing:x.intent?.printing??null,
+      attackName:x.intent?.attackName??null
+    }:null;
+    const divergenceIndex=Array.from({length:Math.max(
+      oldRoots.length,newRoots.length)},(_,index)=>index)
+      .find(index=>JSON.stringify(briefRoot(oldRoots[index]))!==
+        JSON.stringify(briefRoot(newRoots[index])));
+    const rootFirstDifference=divergenceIndex===undefined?null:{
+      index:divergenceIndex,
+      baseline:briefRoot(oldRoots[divergenceIndex]),
+      treatment:briefRoot(newRoots[divergenceIndex])
+    };
     const fp0=old.sourceDealFingerprint??null;
     const fp1=next.sourceDealFingerprint??null;
     return {
@@ -57,9 +71,15 @@ function compare(baseline,treatment){
       nativeErrors:[old.error??null,next.error??null],
       actionCounts:[old.actionCount??null,next.actionCount??null],
       typedStadiumRootSelections:[
-        oldAudit?.typedIntentCounts?.['play-thunder-mountain']??null,
-        newAudit?.typedIntentCounts?.['play-thunder-mountain']??null
+        oldAudit?(oldAudit.typedIntentCounts?.['play-thunder-mountain']??0):null,
+        newAudit?(newAudit.typedIntentCounts?.['play-thunder-mountain']??0):null
       ],
+      firstCappedNativeRootDifference:rootFirstDifference,
+      nativeRootTraceCappedAt64:oldRoots.length===64||newRoots.length===64,
+      terminals:[old,next].map(row=>({
+        finished:row.finished??null,winner:row.winner??null,
+        endReason:row.endReason??null,finalPrizes:row.finalPrizes??null
+      })),
       stadiumRootWitnessesInFirst64:stadiumRoots.map(x=>({
         globalTurn:x.globalTurn,seat:x.seat,
         accepted:x.accepted,
@@ -115,6 +135,9 @@ if(require.main===module){
       statuses:x.statuses,actionCounts:x.actionCounts,
       stadiumRoots:x.typedStadiumRootSelections,
       stadiumFirst64:x.stadiumRootWitnessesInFirst64,
+      rootFirstDifference:x.firstCappedNativeRootDifference,
+      nativeTraceCapped:x.nativeRootTraceCappedAt64,
+      terminalStates:x.terminals,
       errors:x.nativeErrors.map(e=>e===null?null:String(e).slice(0,180))
     })),
     competitiveQualifiedGames:0
