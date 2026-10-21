@@ -43,6 +43,11 @@ on:
         required: false
         type: boolean
         default: false
+      actor_perfection_root:
+        description: Development-only actor-visible copied GX attack root
+        required: false
+        type: boolean
+        default: false
       special_energy_root:
         description: Opt in rank6 source-bounded actor Special Energy attachment and numeric unit planning
         required: false
