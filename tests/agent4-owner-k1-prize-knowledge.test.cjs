@@ -63,6 +63,13 @@ test('source deck actually containing singleton prevents false Prize veto',()=>{
   assert.equal(k1.knownPrintings.some(x=>x.printing===THUNDER),true);
   assert.equal(assessRequiredDeckPrinting(k1,THUNDER),'unknown');
   assert.equal(k1.knownPrized.find(x=>x.printing===PRIZES[0]).copies,1);
+  const dualRegistered=[...REGISTERED];
+  dualRegistered[dualRegistered.indexOf(PRIZES[1])]=THUNDER;
+  const dual=captureOwnerK1(state,0,dualRegistered,null,()=>view);
+  assert.equal(dual.prizeInferenceCertified,true);
+  assert.equal(dual.knownPrized.find(x=>x.printing===THUNDER)?.copies,1);
+  assert.equal(dual.registeredPrintings.find(x=>x.printing===THUNDER)?.copies,2);
+  assert.equal(assessRequiredDeckPrinting(dual,THUNDER),'unknown');
 });
 
 test('opponent secrets and hidden deck order cannot affect owner's K1 evidence',()=>{
