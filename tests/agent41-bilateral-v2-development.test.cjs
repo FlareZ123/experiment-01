@@ -350,3 +350,60 @@ test('source-attack reply join distinguishes same-epoch non-Pass and missing tra
   assert.throws(()=>candidateRepliesAfterSourceAttacks([],attacks,3),
     {name:'AssertionError'});
 });
+
+test('later Pass after candidate Play on the immediate reply turn is the first actionable omission',()=>{
+  const trace=[
+    {playerSlot:1,actionOrdinal:107,turnBefore:22,
+      action:'PlayCardAction',decisionHandBefore:{
+        perspectiveSeat:1,ownHandPrintings:['Unown AOR']}},
+    {playerSlot:1,actionOrdinal:108,turnBefore:22,
+      action:'PassTurnAction',decisionHandBefore:{
+        perspectiveSeat:1,ownHandPrintings:['Telepath [P] Energy M3']},
+      publicBoardBeforePass:[{active:{name:'Iron Thorns ex'}},
+        {active:{name:'Trevenant & Dusknoir-GX',energyCards:[]}}]}
+  ];
+  const roots=[
+    {playerSlot:0,actionOrdinal:101,turnBefore:21,action:'AttackAction',
+      pendingPrompt:null},
+    {playerSlot:1,actionOrdinal:107,turnBefore:22,action:'PlayCardAction',
+      card:'Unown',pendingPrompt:null},
+    {playerSlot:1,actionOrdinal:108,turnBefore:22,action:'PassTurnAction',
+      pendingPrompt:null},
+    {playerSlot:1,actionOrdinal:109,turnBefore:22,action:'ResolvePromptAction',
+      pendingPrompt:'WaitPrompt'},
+    {playerSlot:0,actionOrdinal:110,turnBefore:23,action:'ResolvePromptAction',
+      pendingPrompt:'WaitPrompt'},
+    {playerSlot:0,actionOrdinal:111,turnBefore:23,action:'AttackAction',
+      pendingPrompt:null}
+  ];
+  const row=candidateRepliesAfterSourceAttacks(trace,{attacks:[{
+    actionOrdinal:101,turnBefore:21,attackName:'Volt Cyclone',
+    nextSourceSameEpochProven:true,nextSourceRoot:{
+      ordinal:107,turn:22,action:'PlayCardAction'}
+  }]},1,roots)[0];
+  assert.equal(row.status,'candidate-other-action');
+  assert.deepEqual(row.candidateReplyTurnRootSequence,[
+    {ordinal:107,action:'PlayCardAction',card:'Unown',attack:null},
+    {ordinal:108,action:'PassTurnAction',card:null,attack:null}
+  ]);
+  assert.equal(row.candidateReplyTurnFinalPass.ordinal,108);
+  assert.deepEqual(row.candidateReplyTurnFinalPass.ownerHandAfterDecision,
+    ['Telepath [P] Energy M3']);
+  assert.equal(row.candidateReplyTurnFinalPass.publicBoardBeforePass[1]
+    .active.name,'Trevenant & Dusknoir-GX');
+  assert.equal(JSON.stringify(row).includes('Iron Thorns ex'),true);
+  assert.equal(JSON.stringify(row).includes('WaitPrompt'),false);
+});
+
+test('unverified next epoch does not open candidate turn trace',()=>{
+  const result=candidateRepliesAfterSourceAttacks([
+    {playerSlot:1,actionOrdinal:25,action:'PassTurnAction'}
+  ],{attacks:[{actionOrdinal:20,turnBefore:3,attackName:'Volt Cyclone',
+    nextSourceSameEpochProven:false,
+    nextSourceRoot:{ordinal:25,turn:4,action:'PassTurnAction'}}]},1,[
+    {playerSlot:1,actionOrdinal:25,turnBefore:4,action:'PassTurnAction',
+      pendingPrompt:null}
+  ])[0];
+  assert.deepEqual(result.candidateReplyTurnRootSequence,[]);
+  assert.equal(result.candidateReplyTurnFinalPass,null);
+});
