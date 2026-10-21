@@ -1520,6 +1520,11 @@ function runMatch(request) {
                declaredTarget:{player:action.target.player,
                  slot:action.target.slot,index:action.target.index}
              } : {}),
+          ...(request.captureRootActionTargets===true &&
+             actionName==='RetreatAction' &&
+             Number.isSafeInteger(action.benchIndex) ? {
+               declaredTarget:{benchIndex:action.benchIndex}
+             } : {}),
           ...(abilityInfo ? {ability: abilityInfo.name} : {}),
           ...(attackInfo ? {attack: attackInfo.attack} : {}),
           ...(attackChoice?.selection ? {attackChoice: {
