@@ -1,0 +1,21 @@
+# Agent 39: frozen canonical joint decision-policy contrast registration (21 October 2026)
+
+**Status:** pre-registered before manual Actions dispatch; native outcomes unknown. Development-only, no competitive game qualification or fixed-deck claim.
+
+## Decision question
+Agent43's already-executed same-deal energy-recipient-only correction physically moved Basic Energy onto Bench but left both historical rank-11 arms capped at 260 roots with no Prize progress. Does a jointly enabled, actor-public setup/attack decision bundle change consequential native play when the accepted actor-energy-recipient frontier is held ON in both branches?
+
+## Fixed design
+Use existing `simulation/evaluation/agent41-bilateral-v2-development.cjs` through existing manual `.github/workflows/agent7-canonical-actor-bilateral.yml`, with no new workflow and no deck or scripted-source changes. Before dispatch freeze one Git revision on dedicated branch `agent39-joint-policy-20261021`. Use exactly the two previously registered source deals under `results/aichi-2026/registrations/agent41-crossrank-r6-r11-v1-20261019.json`: rank-6 repeat-0 candidate seat A seed **407516727**, rank-11 repeat-2 candidate seat B seed **623585882**, each versus unchanged **champion-reference** and **new-moon-lockbreaker-v1** complete 60s. Pinned Twinleaf expected SHA `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; action cap 260. Confirm actual SHA and source-deal fingerprints from each run.
+
+Both branches set `energy_frontier=true`, `actor_energy_recipient=true`, `owner_single_search=true`, `special_energy_root=true`, `actor_hand_discard=true`, `actor_choose_pokemon=true`, `actor_quick_ball_root=true`, `native_generic_fallback=true`. The existing mandatory-option fallback and both-seat paper Supporter guard are always enabled by that workflow. `paper_cologne_quota=false` in both, because the known independent Cologne regression has not been established for this frozen runner; this remains a paper-fidelity veto. `source_first_retrospective=false`, `rank6_source_k1=false`, `native_fallback_paircheck=false`, `quick_ball_paircheck=false`, `audit_missed_evolution=false`, and all unrelated options OFF.
+
+- **Control:** `natural_evolution_root=false`, `known_dead_attack_root=false`, `potential_ko_root=false`.
+- **Joint treatment:** these same three existing options TRUE. This tests the **combined named policy**, and cannot isolate the effect of any one component. In code, known-dead selector takes priority for its specific eligible cases and potential-KO considers the remaining payable attacks. No deck identity, opponent rank, full concealed zone, seed, or terminal winner may be fed into the actor decision.
+
+## Outcomes and fail-closed interpretation
+Preserve every attempted source/candidate cell and all errors/caps, including rank-6 champion's known native turn-4 to turn-0 reset (root ~38). This is one original match with multiple native episodes, never a new independent trial. Compare same SHA, unchanged source/candidate 60s, exact initial source deal, native policy flag vector, actual starter, printed Attack/Power, actor-root action acceptance, physical evolution and attachment settlement, chosen attacks, prompt closure, public board and Prize consequences, return source action, and hidden-information fallback. The root-ledger digest records chronological envelope, not physically complete action identity. Detect first divergence with owner-root intent/physical board evidence.
+
+**Primary mechanistic question:** does either rank-11 frozen candidate/source game execute a settled consequential attack, KO/Prize or sustained pressure transition that the control missed before 260 root actions? Report actual results if none. Secondary: observed valid natural evolutions, substitution of a genuinely dead first attack, actual owner-only decision coverage, positive and negative source replies. Full-field win-rate inference is prohibited because this is retrospectively selected, incomplete and policy/clock-unqualified.
+
+**Release/acceptance:** publish complete raw run links and reproducible comparison, keep failures in denominator. No 99.5% claim, no competitively qualified games from these tests.
