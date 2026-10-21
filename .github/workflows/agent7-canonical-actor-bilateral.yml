@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      native_fullbench_paper:
+        description: Reversible pinned Trubbish printed reducer full-Bench paper C-11 correction
+        required: false
+        type: boolean
+        default: false
       actor_energy_recipient:
         description: Development-only owner-visible Active or Bench Basic Energy recipient frontier
         required: false
@@ -133,6 +138,8 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Native exact-print Trubbish C-11 card reducer tests
+        run: node --test tests/agent38-paper-fullbench-callforfamily-hook.test.cjs tests/agent38-trubbish-fst-fullbench-native.test.cjs
       - name: Native sudden-death Prize threshold audit
         run: node --test tests/agent3-paper-tiebreak-native-check.test.cjs
       - name: Agent37 paired actual Store first attack decision and opponent reply
@@ -178,6 +185,7 @@ jobs:
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
           AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT38_PAPER_FULLBENCH_TRUBBISH_DEV: ${{ inputs.native_fullbench_paper && 'true' || 'false' }}
           AGENT39_FULL_BENCH_CALL_FOR_FAMILY_DEV: ${{ inputs.full_bench_call_for_family && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
@@ -206,6 +214,7 @@ jobs:
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
           AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT38_PAPER_FULLBENCH_TRUBBISH_DEV: ${{ inputs.native_fullbench_paper && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
@@ -233,6 +242,7 @@ jobs:
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
           AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT38_PAPER_FULLBENCH_TRUBBISH_DEV: ${{ inputs.native_fullbench_paper && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
@@ -259,6 +269,7 @@ jobs:
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
           AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT38_PAPER_FULLBENCH_TRUBBISH_DEV: ${{ inputs.native_fullbench_paper && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
@@ -288,6 +299,7 @@ jobs:
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
           AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT38_PAPER_FULLBENCH_TRUBBISH_DEV: ${{ inputs.native_fullbench_paper && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
