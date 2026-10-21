@@ -2,11 +2,11 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent30-telepathic-five-special-energy-frontier-v2';
+const VERSION='agent30-telepath-m3-native-special-energy-frontier-v3';
 
 /**
  * Bounded printed-text numeric model for four rank-6 Special Energy printings
- * and the New Moon candidate's Telepathic Psychic Energy (me3-88).
+ * and the New Moon candidate's native Telepath [P] Energy M3, the\n * engine equivalent of me3-88 Telepathic Psychic Energy.
  * Temple of Sinnoh turns each Special Energy card into one Colorless.
  * Unknown printings remain unsupported, rather than providing invented units.
  *
@@ -27,7 +27,7 @@ function specialEnergyUnits(printing,catalog,temple=false){
     units=[lightning];
   }else if(printing==='Capture Energy RCL'||printing==='Spiky Energy JTG'){
     units=[colorless];
-  }else if(printing.startsWith('Telepathic Psychic Energy ')){
+  }else if(printing==='Telepath [P] Energy M3'){
     units=[catalog.basicEnergyTypes.Psychic];
   }else{
     return null;
