@@ -1,0 +1,29 @@
+# Agent 30: owner-visible Perfection donor readiness, v1
+
+**21 October 2026. Pinned-store diagnosis plus conservative public-text planning, without a live policy change or competitive claim.**
+
+## Why a new action category matters
+
+The already-published [native Perfection root counterexample](agent30-perfection-owner-root-reachability-20261021.md) stages `Mewtwo & Mew-GX UNM` Active, with one attached `Telepath [P] Energy M3` and `Gengar & Mimikyu-GX TEU` in its own public discard. The common actor-only root chooses `PassTurnAction` despite genuine native Store accepting `UseAbilityAction('Perfection')` and a prompt-validated `Horror House-GX`. The previously verified Telepath Energy correction addresses the Energy attachment channel, leaving the separate missing copied-attack **root** unresolved.
+
+## Bounded policy-independent remedy
+
+New `simulation/twinleaf/agent30-known-perfection-options.cjs` defines a **pure, owner-information-safe feasibility frontier**. It intentionally does not mutate the Store or propose a native action. Public exact-printing native card definitions are the source of printed attacks for two supported donors: `Gengar & Mimikyu-GX TEU` and `Trevenant & Dusknoir-GX SMP`. Owners' face-up Bench and public discard cards supply possible donor printings. Only native numeric printed attack costs and the known attached Basic/Special Energy units are used. The source remains the genuine native prompt validator when this is eventually wired to a player.
+
+`knownMewtwoEnergyUnits` counts actual `Telepath [P] Energy M3` as Psychic, or Colorless under public Temple of Sinnoh, and rejects unknown attached Special Energy instead of silently inventing its output. Spent `usedGX` bars GX copies, but still permits known payable non-GX donor attacks. Owner-observation-only inputs exclude all concealed opposing zones and unknown own deck/Prize identities.
+
+`publicPerfectionVeto` conservatively excludes absent/unqualified Mewtwo Active, public attack restrictions and Special Conditions, visible Path to the Peak/Silent Lab, opponent Active Initialization/Neutralizing Gas/Bide Barricade, in-play equipped Garbotoxin, and in-play Power of Alchemy. These are **sufficient conservative reasons to hold**, not a complete rules implementation. Some legal action opportunities may be omitted. The gate cannot model every global lock, Tool, evolution or continuous-effect interaction and must not become a legal oracle.
+
+## Verifiable result
+
+The 7-case pure regression `tests/agent30-known-perfection-options.test.cjs` checks paid Horror House with a single M3, additional two-Psychic Poltergeist, spent GX, Temple conversion, unknown Special fail-closed, opponent Initialization and equipped Garbotoxin, public Path, public Bench donor, private-zone invariance, unsupported donor and non-Mewtwo Active. The existing staged genuine Store test `tests/agent30-pinned-perfection-root-gap.native.test.cjs` was extended to call the exact `CardManager.getAllCards()` donor catalog and expect precisely `Horror House-GX` before actually dispatching and resolving Perfection.
+
+**[Manual compiled canonical actor CI run 39571362652](https://github.com/FlareZ123/experiment-01/actions/runs/39571362652)**: success on head `4fba78e8a95181a9a1a6f14d11cc310eeeed7f6b`; pure regression bundle, compiled genuine pinned Store and existing strict 4/4 historical actor-policy coverage all passed. Vendor pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; [all development rows artifact 12331817832](https://github.com/FlareZ123/experiment-01/actions/runs/39571362652/artifacts/12331817832), SHA-256 `fa86d041ae2e2269af6dd09b37fd3c553af46c741edda7de7e117b146df12041`. This pass validates **diagnostic feasibility and current canonical behavior**; new option enumeration is **not** wired to live actor-root selection.
+
+Source commits: `8ffb775` helper, `191193d` pure tests, `d813c4e` native prompt comparison, `4fba78e` registration in existing manual workflow. No extra CI workflow or new candidate 60 was created.
+
+## Next integration gate
+
+A shared common actor-owned root must translate one of these ready options into authentic `UseAbilityAction(owner.id,'Perfection',Active)`, then let the real native `ChooseAttackPrompt` and exact donor source/attack validator decide, using already-present `agent13-actor-only-choose-attack.cjs` and source-identity hooks. First run paired unchanged source openings, both seats, public locked/unlocked negative controls, all source responses and every capped/rejected trial. Initializing Perfection globally without these legality guards would turn a model repair into a source-dependent confounder. The first observable source-dealt New Moon rank6 bot still declared **zero attacks** even after its newfound Telepath attachment; the opponent's Iron Thorns Active may correctly lock Perfection, and another Active Pokémon may prevent using the Ability altogether.
+
+This is no evidence for the aspirational **99.5%** win rate, and there are **zero competitively qualified games** against the currently **29/32 exact-source** field.
