@@ -1,0 +1,16 @@
+# Four new independent original-Store source Energy trials: one unchanged terminal and three failures
+
+**Agent 50, 21 October 2026 UTC.** Fixed before running by [pre-registration](https://github.com/FlareZ123/experiment-01/blob/agent50-sourcefirst-marnie-rescue-20261021/results/aichi-2026/registrations/agent50-rank11-four-new-seeds-guzma-energy-20261021.md): four CSPRNG seeds `17984023, 1407148205, 2612415444, 2584586627`. All rank11 original 60 vs unchanged New Moon 60; source physical seat0, candidate seat1; actual first player retained, same original game engine pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; both arms source-owned Marnie/Guzma options, treatment only opts source-seat0 Guzma-connected future Energy staging. No seeds or arms were excluded after seeing outcomes.
+
+**CI:** [39692001898](https://github.com/FlareZ123/experiment-01/actions/runs/39692001898), full [eight-arm artifact 12389041814](https://github.com/FlareZ123/experiment-01/actions/runs/39692001898/artifacts/12389041814), zip SHA256 `5dc979c77f905bc03d6713522796ecfe7f637d16b64a6aef66b67eb8a9b926bd`. Pinned native four-pair step passed its **execution and retention contract**. It does **not** mean all eight games finished successfully.
+
+| Precommitted seed | Control / treatment original Store outcome | Implication |
+| --- | --- | --- |
+| `17984023` | Both error on AttackAction after 178 actions: `NO_BENCH_SLOTS_AVAILABLE`. | No usable terminal or paired source deal witness. |
+| `1407148205` | Both genuine games finish, identical 212 root action labels, same physical initial deal SHA256 `fc592a479ae5abc5bfed686134e4b5420a0dc94a7f58d2be09504e86c1597dfa`; source started second (actual starter seat1), 3 source settled attacks, 8 candidate attacks, candidate won [6,0] in both. | Treatment had no observed decision effect. This is a negative exposure on one genuine paired physical deal. |
+| `2612415444` | Control aborts `LABEL_GX_USED` on AttackAction after 39 actions; treatment aborts `NO_BENCH_SLOTS_AVAILABLE` on AttackAction after 50 actions. | Asymmetric engine-policy failures. Cannot compare outcomes or blame staging. |
+| `2584586627` | Both fail identical native `AttachEnergyPrompt` #135: selected two Darkness Energy to different Mega Absol benches while prompt required `sameTarget:true`. | Concrete owner/prompt-policy legality failure; neither arm qualified. |
+
+**Only one of four pairs had two completed natural terminals, with no policy change observed.** The three aborting pairs are preserved and cannot count as losses, ties, or adverse performance under the research benchmark. The very small unselected sample does not estimate staging effect frequency, and the prior selected-seed reversal [here](agent50-guzma-energy-staging-native-reversal-20261021.md) remains an authentic bounded demonstration of source-opponent decision-policy sensitivity.
+
+The most actionable blockers for future native experiments are: proper attack availability and once-game GX gating, Bench capacity preconditions, and an actor-owned typed `AttachEnergyPrompt` decoder respecting `sameTarget` and native eligible cards. Until these are validated, large win-rate simulation campaigns would systematically censor or bias outcomes. **All four required seeds and eight arms are accounted for; zero competitively qualified field games and no 99.5% claim.**
