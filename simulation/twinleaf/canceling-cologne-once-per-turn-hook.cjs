@@ -29,11 +29,13 @@ function installCancelingCologneOncePerTurnHook() {
   const {Store} = pinned('game/store/store');
   const {PlayItemEffect} = pinned('game/store/effects/play-card-effects');
   const {GameError} = pinned('game/game-error');
-  const {GameMessage} = pinned('game/game-message');
+  const {GameMessage,GameLog} = pinned('game/game-message');
   const priorStoreReduceEffect = Store.prototype.reduceEffect;
+  const priorLog = Store.prototype.log;
   const priorCanPlay = prototype.canPlay;
   const priorReduceEffect = prototype.reduceEffect;
-  if (typeof priorCanPlay !== 'function' || typeof priorReduceEffect !== 'function') {
+  if (typeof priorCanPlay !== 'function' ||
+      typeof priorReduceEffect !== 'function' || typeof priorLog !== 'function') {
     throw new Error('Pinned Cologne hooks unavailable');
   }
   // The pinned PlayCard reducer dispatches Items without consulting canPlay.
@@ -46,6 +48,18 @@ function installCancelingCologneOncePerTurnHook() {
       throw new GameError(GameMessage.CANNOT_PLAY_THIS_CARD);
     }
     return priorStoreReduceEffect.call(this, state, effect);
+  };
+  // Pinned sudden death restarts the game in-place with the SAME Player
+  // objects (check-effect.ts: initiateSuddenDeath). Numeric turn numbers
+  // are reused after setup. Clear the per-player quota on the native reset
+  // announcement so a legal first Cologne in the replay is not blocked.
+  // This callback never changes pre-reset actions or other Trainer logs.
+  Store.prototype.log = function paperCologneEpochLog(state,message,...args) {
+    const result=priorLog.call(this,state,message,...args);
+    if(message===GameLog.LOG_SUDDEN_DEATH){
+      for(const player of state.players)delete player[FIELD];
+    }
+    return result;
   };
   prototype.canPlay = function paperCologneCanPlay(store, state, player) {
     return player[FIELD] !== state.turn &&
@@ -61,6 +75,7 @@ function installCancelingCologneOncePerTurnHook() {
   const restore = () => {
     if (!activeInstallation) return;
     Store.prototype.reduceEffect = priorStoreReduceEffect;
+    Store.prototype.log = priorLog;
     prototype.canPlay = priorCanPlay;
     prototype.reduceEffect = priorReduceEffect;
     activeInstallation = null;
