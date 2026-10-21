@@ -152,6 +152,13 @@ function sourceLineReplyPacket(game,rank,sourceAudit,sourceSeat){
         rootActionLedger:roots,
         rootActionCount:roots.length,
         rootActionLedgerSha256:sha256(roots),
+        // Retain a physical source-deal identity even if later strict
+        // one-epoch reply attestation fails on an authenticated reset.
+        // No hidden card identities are included in this public digest.
+        sourceDealFingerprint:game.initialSourceDealFingerprint?.digestSha256??null,
+        sourceDealFingerprintSeat:game.initialSourceDealFingerprint?.seat??null,
+        actualStarterSeat:game.firstTurnSlot??null,
+        verifiedFirstTurn:game.verifiedByDrawLog??null,
         sourceDealEpochs:game.sourceDealEpochs??null,
         suddenDeathClockResets:game.suddenDeathClockResets??[]
       };
