@@ -36,3 +36,22 @@ The conditional action plan is: if a legitimate owner deck search establishes at
 A useful follow-up must first check owner-search-available deck contents under proper K0/K1 information provenance, then run a **native legal Item root, owner deck selection, Tool root, end-turn attachment**, record the exact full attack, source next turn and final matchup. Pre-register one fixed initial physical deal, preserve controls, failures and the original source 60. A staged Store fixture can validate rule implementation but cannot stand in for a fully source-dealt result.
 
 The companion [rank11 T22 Energy recipient experiment](agent8-native-t22-shorter-damage-route-negative-20261021.md) similarly showed a valid closer Bench target without more attacks. Both cases motivate policy planning that reaches a genuinely powered and movable attacker. No competitive-strength or win-rate promotion is authorized. Full field still **29/32 exact opponent 60s**, missing ranks 23, 25 and 28, and **zero competitively qualified games** toward the single 99.5% fixed deck target.
+
+
+## Audited K1 source-deck membership: strong positive prerequisite, 21 October follow-up
+
+A new branch-only read-only sourcefirst replay added the existing authenticated `withOwnerDeckSearchWitness` inside the observation wrapper. This observer traverses exact own-deck printings **only when an actual unresolved `ChooseCardsPrompt` is addressed to this owner and references their exact real deck object**. It captures no future deck order, no opponent hidden cards, no unknown Prize identities and does not modify actions. Native manual [CI 39662310666](https://github.com/FlareZ123/experiment-01/actions/runs/39662310666), checkout `612cc2b994b3b5265c672a0ab46b59c6fc2c126a`, sourcefirst paired strict gate **passed**; overall job still failed only on original independent candidate-first rank6 epoch gate. Full [four-arm artifact 12375756080](https://github.com/FlareZ123/experiment-01/actions/runs/39662310666/artifacts/12375756080), downloaded ZIP SHA256 `af728bc7c2733f3a535424887a0cab5f696fbe0360d2c0c755de236bbd509796`.
+
+For the exact rank6 New Moon actual physical deal, authenticated owner-seat 1 native deck-search snapshots were:
+
+| Search turn | Root action ordinal | Owner deck cards | `Psychic Energy MEE` in deck |
+| --- | ---: | ---: | ---: |
+| **2** | 18 | 45 | **3** |
+| **14** | 76 | 37 | **3** |
+| **16** | 100 | 37 | **3** |
+
+Thus **all three Basic Psychic Energy were genuinely present and visible in the player's own remaining deck at three separate legitimate search moments**, establishing K1 for this resource. No copy was initially Prized. This directly weakens the earlier uncertainty that an unlucky initial Prize layout might make the later Compressor route impossible. The same actor at turn34 had one Psychic Energy on Active Articuno, zero in public discard, none in the archived owner hand, and none attached to its public Bench. The new K1 snapshot shows the other copies were available earlier; further chronological movement/zone accounting from T16 to T34 is still required before asserting an exact **turn34** deck inventory or a legal on-demand Compressor effect. The engine may otherwise have cards in untracked zones, and the actor cannot automatically know later draw order.
+
+For control context, the exact rank11 New Moon replay likewise observed K1 deck Basic counts 3 at T2, 2 at T14/T16 and 0 at T26, demonstrating why per-turn cached membership must be updated or invalidated and cannot be treated as timeless. All sourcefirst arms kept their archived deals and strict action result status. **No Basic was actually discarded by Compressor at turn34 and no Powerglass attached in these original roots**; the winning capability claim remains unproved.
+
+The full feasibility question is now sharper: the actor had a confirmed full resource supply at T16 and held both tools at T34 while passing. Next, certify the remaining two Basic copy movements, then test an owner-authenticated conditional two-root sequence with a real native deck-choice prompt, end-turn Tool trigger, subsequent attack and source reply. Keep every selected no-opportunity and failed case.
