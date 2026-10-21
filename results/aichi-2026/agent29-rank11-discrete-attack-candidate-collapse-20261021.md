@@ -44,3 +44,18 @@ Within **Agent 44's existing canonical bilateral runner**, keep source rank11/Ne
 The source's selector correction itself should remain identical in both comparison branches; otherwise attack-policy changes and candidate-root changes are confounded. Maintain both actors' paper Supporter guard and actor-only information boundary, and audit native game epochs. No expansion of workflows or competing bilateral runner is requested.
 
 **Project qualification unchanged:** exact official 60s **29/32** (ranks 23/25/28 unresolved), competitively qualified games **0**, final best 60 **unvalidated**, 99.5% **unproven**.
+
+## Additional native effect channel: source Claw opponent-hand selections
+
+The archived v2 `nativePromptChoices.events` also includes four **source-seat0** `ChooseCardsPrompt` replies whose `sourceZone='hand'` and `sourcePlayerSlot=1` identify the **candidate's** hand. All occur on source Claw turns after the first divergence. The attached research recorder reports exactly these selected card names:
+
+| Global source turn | Actual native choice ordinal | Card selected from candidate hand |
+| ---: | ---: | --- |
+| 30 | 147 | Dusclops SFA |
+| 32 | 159 | Solrock CES |
+| 34 | 169 | Tapu Lele-GX GRI |
+| 36 | 182 | Field Blower GRI |
+
+This is a separate **decision and disruption axis** beyond the source's printed 200 damage. The exact hand identities were visible through the native resolving `ChooseCardsPrompt`; they were never granted to a pre-attack actor policy as hidden information. The candidate's turn-31 and turn-33 own-hand Pass snapshots corroborate absence of earlier selected cards, including Dusclops after turn30 and Solrock after turn32. These observations support the factual conclusion that Claw introduced **real prompted opponent-hand choices in the native game**. They do **not** show that the generic source policy chose the most consequential targets, or that the source would have drawn, established Garbodor, or attacked this way under a tournament-competent policy.
+
+In any follow-up attack-prompt policy, preserve the correct information boundary: an opponent-hand choice is legal only **after** the native effect has revealed or exposed the selectable hand to the active player; a general before-attack decision should not inspect those card identities. The one-change source attack-policy treatment also changes future candidate resources through these prompted selections, so later win/loss and Pass states are no longer isolated damage-only effects.
