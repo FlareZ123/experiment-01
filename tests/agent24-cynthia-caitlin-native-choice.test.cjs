@@ -177,6 +177,7 @@ test('full headless records opt-in correction and fails closed without strict ga
   assert.match(game.policy,/CynthiaCaitlinPrintedMandatoryRecovery-v1/);
   assert.match(game.policy,/CynthiaCaitlinPrintedRecoveryGate-v1/);
   assert.ok(game.actions<=request.maxActions);
-  assert.throws(()=>runMatch({...request,strictPromptValidation:false}),
+  assert.throws(()=>runMatch({...request,strictPromptValidation:false,
+    enforceSelectOptionLegality:false}),
     /Printed C&C recovery gate requires strictPromptValidation:true/);
 });
