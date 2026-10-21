@@ -8,6 +8,7 @@ const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 const VERSION = 'agent8-actor-only-choose-pokemon-v1';
 const ANY = 0, TOP = 1, BOTTOM = 2;
 const ACTIVE = 1, BENCH = 2;
+const FACE_UP_PHASES = new Set([2, 3, 4, 5, 6, 8]);
 
 /**
  * Enumerate only physically eligible Pokémon lists for a pending native
@@ -50,6 +51,7 @@ function nativeSinglePokemonChoices(state, pending) {
  */
 function actorChoosePokemonInput(state, seat, observe = actorObservation) {
   assert.ok(seat === 0 || seat === 1);
+  if (!FACE_UP_PHASES.has(state.phase)) return null;
   const pending = state.prompts?.find(p => p.result === undefined);
   if (pending?.constructor?.name !== 'ChoosePokemonPrompt' ||
       pending.playerId !== state.players?.[seat]?.id ||
