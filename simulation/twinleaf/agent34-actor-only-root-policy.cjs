@@ -313,7 +313,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
   };
   if(audit.quickBallRootOptIn)
-    audit.version=VERSION+'+agent8-actor-quick-ball-v1';
+    audit.version=VERSION+'+'+
+      require('./agent8-actor-quick-ball-frontier.cjs').VERSION;
   if(audit.potentialKoRootOptIn)
     audit.version+='+agent49-public-potential-ko-v2';
   if(audit.knownDeadAttackRootOptIn)
