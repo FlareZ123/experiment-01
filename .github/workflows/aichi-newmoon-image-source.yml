@@ -14,6 +14,11 @@ on:
         required: false
         default: false
         type: boolean
+      public_deck_code:
+        description: 'Optional other public 6-6-6 Japanese deck code; archived separately, unverified event printings'
+        required: false
+        default: ''
+        type: string
 
 permissions:
   contents: read
@@ -65,17 +70,32 @@ jobs:
       - name: Retrieve official Japanese source deck code
         if: ${{ inputs.probe_deck_code }}
         shell: bash
+        env:
+          PUBLIC_DECK_CODE: ${{ inputs.public_deck_code }}
         run: |
-          curl --silent --show-error --location --max-time 45 --retry 1 \
+          code="${PUBLIC_DECK_CODE:-GxxDYx-a4rD4W-a8xYxc}"
+          if [[ ! "$code" =~ ^[A-Za-z0-9]{6}-[A-Za-z0-9]{6}-[A-Za-z0-9]{6}$ ]]; then
+            echo 'Invalid public deck code format' >&2
+            exit 2
+          fi
+          printf '%s\\n' "$code" > newmoon-official-code.txt
+          curl --fail --silent --show-error --location --max-time 45 --retry 1 \
             --user-agent 'Mozilla/5.0 (compatible; ExpandedResearch/1.0)' \
             --dump-header newmoon-official-headers.txt \
             --output newmoon-official-deck.html \
-            --write-out 'Official viewer HTTP status %{http_code}; downloaded %{size_download} bytes\n' \
-            'https://www.pokemon-card.com/deck/confirm.html/deckID/GxxDYx-a4rD4W-a8xYxc'
-          python3 -c "from pathlib import Path; h=Path('newmoon-official-deck.html').read_text(encoding='utf-8',errors='replace'); print('Viewer bytes:', len(h), 'source_code_present:', 'GxxDYx-a4rD4W-a8xYxc' in h, 'Mewtwo Japanese name present:', 'ミュウツー' in h); print('Head:',repr(h[:600]))"
+            --write-out 'Official viewer HTTP status %{http_code}; downloaded %{size_download} bytes\\n' \
+            "https://www.pokemon-card.com/deck/confirm.html/deckID/$code"
+          python3 -c "from pathlib import Path; h=Path('newmoon-official-deck.html').read_text(encoding='utf-8',errors='replace'); print('Viewer bytes:', len(h), 'source_code_present:', Path('newmoon-official-code.txt').read_text().strip() in h)"
       - name: Verify archived Japanese 60
-        if: ${{ inputs.probe_deck_code }}
+        if: ${{ inputs.probe_deck_code && inputs.public_deck_code == '' }}
         run: python3 scripts/newmoon_official_print_replay.py newmoon-official-deck.html
+      - name: Extract alternate public code as non-promoted snapshot
+        if: ${{ inputs.probe_deck_code && inputs.public_deck_code != '' }}
+        env:
+          PUBLIC_DECK_CODE: ${{ inputs.public_deck_code }}
+        run: |
+          python3 -m pip install --quiet filelock
+          python3 scripts/official_jp_public_deck_snapshot.py newmoon-official-deck.html "$PUBLIC_DECK_CODE" public-jp-deck-snapshot.json
       - name: Preserve official deck viewer evidence
         if: ${{ inputs.probe_deck_code }}
         uses: actions/upload-artifact@v4
@@ -84,4 +104,6 @@ jobs:
           path: |
             newmoon-official-headers.txt
             newmoon-official-deck.html
+            newmoon-official-code.txt
+            public-jp-deck-snapshot.json
           if-no-files-found: error
