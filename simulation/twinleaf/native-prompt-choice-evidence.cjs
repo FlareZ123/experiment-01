@@ -22,7 +22,11 @@ function nativePromptChoiceEvidence(decisionTrace) {
       sourcePlayerSlot:choice.sourcePlayerSlot,
       selectedCards:choice.selectedCards,
       selectedIndices:choice.selectedIndices,
-      sourceZoneCardCountBefore:choice.sourceZoneCardCountBefore??null
+      sourceZoneCardCountBefore:choice.sourceZoneCardCountBefore??null,
+      publicDiscardCardNamesBefore:choice.publicDiscardCardNamesBefore??null,
+      nativePromptMin:choice.nativePromptMin??null,
+      nativePromptMax:choice.nativePromptMax??null,
+      nativePromptAllowCancel:choice.nativePromptAllowCancel??null
     } : {
       kind:'SelectOptionPrompt',
       selectedOption:choice.selectedOption,
@@ -38,7 +42,7 @@ function nativePromptChoiceEvidence(decisionTrace) {
   const sha256 = createHash('sha256').update(JSON.stringify(events))
     .digest('hex');
   return {
-    schema:'headless-native-prompt-choice-evidence-v2-zone-count',
+    schema:'headless-native-prompt-choice-evidence-v3-public-discard-prompt-bounds',
     events,sha256
   };
 }
