@@ -269,6 +269,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseEmergencyAceTrainer(view);
     if(reset)return reset;
   }
+  if(options.escapeRopeRoot===true){
+    const mobility=require('./agent42-actor-escape-rope-frontier.cjs')
+      .chooseEscapeRope(view);
+    if(mobility)return mobility;
+  }
   return {kind:'pass',reason:'no-supported-owner-visible-root'};
 }
 
@@ -336,6 +341,11 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV==='true'),
     emergencyAceTrainerRootOptIn:deps.emergencyAceTrainerRoot??
       (process.env.AGENT8_ACE_TRAINER_EMERGENCY_DEV==='true'),
+    escapeRopeRootOptIn:deps.escapeRopeRoot??
+      (process.env.AGENT42_ESCAPE_ROPE_DEV==='true'),
+    escapeRopeOwnerSeat:deps.escapeRopeOwnerSeat??
+      (process.env.AGENT42_ESCAPE_ROPE_OWNER_SEAT===undefined?null:
+        Number(process.env.AGENT42_ESCAPE_ROPE_OWNER_SEAT)),
     perfectionRootOptIn:deps.perfectionRoot??
       (process.env.AGENT30_PERFECTION_ROOT_DEV==='true'),
     perfectionTransitionRootOptIn:deps.perfectionTransitionRoot??
@@ -382,6 +392,12 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.emergencyAceTrainerRootOptIn)
     audit.version+='+'+
       require('./agent8-actor-ace-trainer-frontier.cjs').VERSION;
+  assert.ok(!audit.escapeRopeRootOptIn ||
+    [0,1].includes(audit.escapeRopeOwnerSeat),
+    'Escape Rope development root requires exact candidate physical seat');
+  if(audit.escapeRopeRootOptIn)
+    audit.version+='+'+
+      require('./agent42-actor-escape-rope-frontier.cjs').VERSION;
   if(audit.specialEnergyRootOwnerSeat!==null)
     audit.version+='+agent49-source-seat-special-v1';
   if(audit.quickBallRootOptIn)
@@ -427,6 +443,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
       nearTermDamageRecipient:audit.nearTermDamageRecipientOptIn,
       emergencyAceTrainerRoot:audit.emergencyAceTrainerRootOptIn,
+      escapeRopeRoot:audit.escapeRopeRootOptIn&&
+        seat===audit.escapeRopeOwnerSeat,
       paidRetreatRoot:audit.paidRetreatRootOptIn,
       perfectionRoot:audit.perfectionRootOptIn,
       perfectionTransitionRoot:audit.perfectionTransitionRootOptIn,
@@ -464,6 +482,7 @@ function withActorOnlyRootPolicy(run,deps={}){
           slot:intent.slot==='bench'?SlotType.BENCH:SlotType.ACTIVE,
           index:intent.slot==='bench'?intent.index:0});
         break;
+      case 'play-escape-rope':
       case 'play-ace-trainer':
       case 'play-quick-ball':
         action=new PlayCardAction(ownerId,intent.handIndex,{
