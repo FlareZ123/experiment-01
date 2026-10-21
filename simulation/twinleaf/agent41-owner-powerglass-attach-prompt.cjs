@@ -14,7 +14,7 @@ const VERSION='agent41-owner-only-powerglass-basic-psychic-prompt-v1';
  *
  * @param {object} state Genuine native Store State.
  * @param {0|1} seat Authenticated responding seat.
- * @param {{basicEnergyType:number,bottomPlayer:number,activeSlot:number}} types
+ * @param {{basicEnergyType:number,energySuperType:number,attachMessage:string,bottomPlayer:number,activeSlot:number}} types
  * @param {Function} [observe] Detached acting-player observer.
  * @returns {object|null} Frozen owner-observable prompt input.
  */
@@ -22,16 +22,23 @@ function ownerPowerglassAttachInput(state,seat,types,observe=actorObservation){
   assert.ok(seat===0||seat===1);
   const owner=state.players?.[seat];
   const pending=state.prompts?.find(p=>p.result===undefined);
+  // Match the pinned Powerglass prompt contract precisely. Other cards may
+  // attach Energy from the same public discard while this Tool is in play.
   if(pending?.constructor?.name!=='AttachEnergyPrompt'||
      pending.playerId!==owner?.id||
      typeof pending.getPerspectivePlayerId!=='function'||
      pending.getPerspectivePlayerId()!==owner.id||
+     pending.message!==types.attachMessage||
      pending.cardList!==owner.discard||
+     pending.playerType!==types.bottomPlayer||
+     pending.options?.allowCancel!==false||
      pending.options?.min!==0||
-     pending.options?.max<1||
+     pending.options?.max!==1||
      !Array.isArray(pending.slots)||
-     !pending.slots.includes(types.activeSlot)||
-     ![0,types.bottomPlayer].includes(pending.playerType))return null;
+     pending.slots.length!==1||
+     pending.slots[0]!==types.activeSlot||
+     pending.filter?.superType!==types.energySuperType||
+     pending.filter?.energyType!==types.basicEnergyType)return null;
 
   const blockedTarget={player:types.bottomPlayer,slot:types.activeSlot,index:0};
   if((pending.options.blockedTo??[]).some(t=>
@@ -98,10 +105,13 @@ function withOwnerPowerglassAttachPrompt(execute,deps={}){
   const ResolvePromptAction=deps.ResolvePromptAction??
     pinned('game/store/actions/resolve-prompt-action').ResolvePromptAction;
   const types=deps.types??(()=>{
-    const {EnergyType}=pinned('game/store/card/card-types');
+    const {EnergyType,SuperType}=pinned('game/store/card/card-types');
+    const {GameMessage}=pinned('game/game-message');
     const {PlayerType,SlotType}=
       pinned('game/store/actions/play-card-action');
     return {basicEnergyType:EnergyType.BASIC,
+      energySuperType:SuperType.ENERGY,
+      attachMessage:GameMessage.ATTACH_ENERGY_TO_ACTIVE,
       bottomPlayer:PlayerType.BOTTOM_PLAYER,activeSlot:SlotType.ACTIVE};
   })();
   const observe=deps.observe??actorObservation;
