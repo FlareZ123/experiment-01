@@ -26,6 +26,9 @@ const inventory=row=>({
   sourceAttackNames:(row.sourceAttackSettlement?.attacks??[]).map(x=>({
     turn:x.turnBefore,attack:x.attackName
   })),
+  candidateAttackProof:(row.candidateAttackSettlement?.attacks??[])
+    .map(x=>({turn:x.turnBefore,attack:x.attackName,
+      before:x.prizesBefore,after:x.prizesAfter})),
   acePlays:acePlays(row).map(x=>({
     turn:x.globalTurn,seat:x.seat,intent:x.intent,
     accepted:x.accepted,
@@ -62,35 +65,50 @@ function compare(control,treatment){
       'ACE control must retain default-off root behavior');
     pairs.push({control:inventory(a),treatment:inventory(b)});
   }
-  const idx=control.rows.findIndex(row=>row.trial.rank===11&&
-    row.trial.candidateId==='new-moon-lockbreaker-v1');
-  assert.ok(idx>=0,'Rank11 source-first New Moon fixture missing');
-  const base=control.rows[idx],on=treatment.rows[idx];
-  const staged=(r)=>roots(r).find(x=>x.globalTurn===22&&
-    x.seat===r.candidateSeat&&x.kind==='attach-basic-energy');
-  for(const row of [base,on]){
-    const e=staged(row);
-    assert.equal(e?.intent?.slot,'bench');
-    assert.equal(e?.intent?.attackName,'Poltergeist');
-    assert.equal(e?.accepted,true);
+  const chosen=[];
+  for(let i=0;i<control.rows.length;i++){
+    const base=control.rows[i],on=treatment.rows[i];
+    const decisions=acePlays(on).filter(x=>x.seat===on.candidateSeat);
+    for(const decision of decisions){
+      assert.equal(decision.accepted,true,'Native Ace Trainer rejected');
+      assert.equal(decision.nativePhysicalEffect,'confirmed-public-effect',
+        'Native Ace Trainer missing public Supporter spend');
+      const sourceReply=on.rootActionLedger.find(x=>
+        x.playerSlot===on.sourceSeat&&
+        x.turnBefore>decision.globalTurn&&
+        x.action==='AttackAction');
+      assert.ok(sourceReply,
+        'Opponent source did not continue with a real printed attack');
+      chosen.push({trial:on.trial.id,turn:decision.globalTurn,
+        actionOrdinal:on.rootActionLedger.find(x=>
+          x.turnBefore===decision.globalTurn&&
+          x.playerSlot===on.candidateSeat&&
+          x.action==='PlayCardAction'&&x.card==='Ace Trainer')?.actionOrdinal??null,
+        supported:true,sourceReply:{
+          turn:sourceReply.turnBefore,actionOrdinal:sourceReply.actionOrdinal,
+          attack:sourceReply.attack
+        }});
+    }
   }
-  const decided=acePlays(on).filter(x=>x.seat===on.candidateSeat);
-  assert.ok(decided.length>0,
-    'Owner Ace Trainer root never selected under actual Prize deficit');
-  assert.ok(decided.some(x=>x.accepted===true&&
-    x.nativePhysicalEffect==='confirmed-public-effect'),
-  'Owner Ace Trainer must be publicly confirmed after native Store play');
+  const onlyNewMoon=chosen.filter(x=>
+    x.trial.includes('new-moon-lockbreaker-v1'));
+  assert.equal(onlyNewMoon.length,2,
+    'Expected two confirmed owner Ace Trainer developments');
+  assert.deepEqual(onlyNewMoon.map(x=>x.turn),[14,20],
+    'First intervention clock changed from registered fixture');
+  for(const pair of pairs.filter(x=>
+    x.control.id.includes('champion-reference'))){
+    assert.equal(pair.control.rootDigest,pair.treatment.rootDigest,
+      'Ace absent but champion source-first replay changed');
+  }
   return {
-    schema:'agent8-emergency-ace-trainer-sourcefirst-same-deal-v1',
-    originalBranch:'near-term damaging recipient enabled in both arms',
-    modifiedFactor:'actor-owned printed Ace Trainer emergency Supporter',
-    selectedNativeOwnerRoots:decided.map(x=>({
-      turn:x.globalTurn,kind:x.kind,intent:x.intent,
-      accepted:x.accepted,nativePhysicalEffect:x.nativePhysicalEffect
-    })),
+    schema:'agent8-emergency-ace-trainer-sourcefirst-same-deal-v2',
+    independentVariable:'Owner-only emergency Ace Trainer Supporter root',
+    otherPolicy:'Near-term damaging Energy recipient enabled in both arms',
+    confirmedSourceReplyAfterAce:chosen,
     pairs,
     competitiveQualified:false,
-    caveat:'Selected historical source-first games and unqualified native policy; altered attacks/engine terminal are development-only, not field win evidence'
+    caveat:'Selected historical same-initial-deal source-first games; one new owner decision changes subsequent RNG/plays and proves no expected win rate'
   };
 }
 if(require.main===module){
