@@ -14,17 +14,17 @@ const {compact,SOURCE_DEAL}=
 const CONTROL_GUZMA_LEDGER='b6ccc668fa4bf99058e57606e4efe7b01e629a9c7505cb2f897b9ea1b6357468';
 
 /** @returns {object} Development-only original Store control/treatment pair. */
-function run(){
+function run(seed=482443328){
   const candidate=loadNewMoonCandidate();
   const plan=planAichi({label:candidate.id,cards:candidate.cards},{
     allowEquivalentBasicEnergies:true,allowBasicEnergyMirrorPrintings:true,
     allowJapanesePromoHooks:true
   });
   assert.equal(plan.candidate.cards.length,60);
-  const row=sourceFirstPressureTrials().find(x=>
+  const registered=sourceFirstPressureTrials().find(x=>
     x.rank===11&&x.candidateId==='new-moon-lockbreaker-v1');
-  assert.ok(row);
-  assert.equal(row.seed,482443328);
+  assert.ok(registered);
+  const row={...registered,seed,id:'agent50-source-energy-'+seed};
   assert.equal(row.candidateSlot,'B');
   const decks=new Map([['new-moon-lockbreaker-v1',{plan}]]);
   const originalGuzma=process.env.AGENT50_STRANDED_GUZMA_DEV;
@@ -98,7 +98,7 @@ function run(){
   return {
     schema:'agent50-guzma-future-energy-staging-paired-original-store-v1',
     registration:'results/aichi-2026/registrations/agent50-guzma-energy-route-counterfactual-20261021.md',
-    sourceSeed:482443328,rank:11,sourceSeat:0,candidateSeat:1,
+    sourceSeed:seed,rank:11,sourceSeat:0,candidateSeat:1,
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     unchangedNativePrefixCount:prefix,
     firstDifference:{control:a[prefix]??null,treatment:b[prefix]??null},
