@@ -12,7 +12,8 @@ function attackCounts(attacks){
 /** Summarize real Store-root receipts without converting native endings into wins. */
 function summarizeRow(row){
   const attacks=row.candidateAttackSettlement?.attacks??[];
-  const roots=row.actorOnlyDecisionCoverage?.nativeRootAcceptances??[];
+  const root=row.actorOnlyDecisionCoverage?.detailedComponentAudits?.root;
+  const roots=root?.nativeRootAcceptances??[];
   const retreats=roots.filter(event=>event.kind==='paid-retreat');
   const seat=row.candidateSeat;
   const prizes=attacks.filter(event=>event.settledPromptChain&&
@@ -26,8 +27,8 @@ function summarizeRow(row){
     sourceTurnLineCompleted:row.sourceAudit?.completed===true,
     actorCoveragePresent:Boolean(row.actorOnlyDecisionCoverage),
     actorPaidRetreatEnabled:
-      row.actorOnlyDecisionCoverage?.paidRetreatRootOptIn??null,
-    paidRetreatSelected:row.actorOnlyDecisionCoverage?.typedIntentCounts?.['paid-retreat']??0,
+      root?.paidRetreatRootOptIn??null,
+    paidRetreatSelected:root?.typedIntentCounts?.['paid-retreat']??0,
     paidRetreatAccepted:retreats.filter(event=>event.accepted===true).length,
     paidRetreatPhysicalConfirmed:retreats.filter(event=>
       event.accepted===true&&event.nativePhysicalEffect==='confirmed-public-effect').length,
@@ -60,10 +61,10 @@ function comparePackets(control,treatment){
     const right=treatment.rows[index];
     assert.deepEqual(left.trial,right.trial);
     if(left.actorOnlyDecisionCoverage){
-      assert.equal(left.actorOnlyDecisionCoverage.paidRetreatRootOptIn,false);
+      assert.equal(left.actorOnlyDecisionCoverage.detailedComponentAudits?.root?.paidRetreatRootOptIn,false);
     }
     if(right.actorOnlyDecisionCoverage){
-      assert.equal(right.actorOnlyDecisionCoverage.paidRetreatRootOptIn,true);
+      assert.equal(right.actorOnlyDecisionCoverage.detailedComponentAudits?.root?.paidRetreatRootOptIn,true);
     }
     const exactSourcePhysical=Boolean(left.sourceDealFingerprint&&
       right.sourceDealFingerprint&&
