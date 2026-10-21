@@ -48,6 +48,8 @@ function ownerCompressorOpportunity(state,player,phase) {
       (player.active.energies?.cards??[]).map(c=>c.fullName),
     ownerActiveDamage:player.active.damage??null,
     activeOnlyEligible:shouldSeekPayload(state,player,phase),
+    anyTurnEligible:shouldSeekPayload(state,player,phase,
+      {maxGlobalTurn:Number.POSITIVE_INFINITY}),
     activeOrBenchEligible:shouldSeekPayload(state,player,phase,
       {allowBenchedMewtwo:true})
   };
@@ -72,6 +74,7 @@ function summarizeOpportunity(events) {
     mewtwoActiveTurns:distinct('mewtwoActive'),
     mewtwoBenchedTurns:distinct('mewtwoBenched'),
     activeOnlyEligibleTurns:distinct('activeOnlyEligible'),
+    anyTurnEligibleTurns:distinct('anyTurnEligible'),
     activeOrBenchEligibleTurns:distinct('activeOrBenchEligible'),
     benchExtensionOnlyTurns:new Set(events.filter(row=>
       row.activeOrBenchEligible&&!row.activeOnlyEligible).map(row=>row.turn)).size,
