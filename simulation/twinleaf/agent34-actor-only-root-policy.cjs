@@ -261,6 +261,20 @@ function chooseActorRootIntent(view,catalog,options={}){
 }
 
 /**
+ * Restrict this opt-in to one genuine physical player without changing its
+ * actor-owned search/hand observation. Null means the original both-seat opt-in.
+ * @param {boolean} enabled
+ * @param {0|1|null} allowedSeat
+ * @param {0|1} actorSeat
+ * @returns {boolean}
+ */
+function actorSpecialEnergyEnabled(enabled,allowedSeat,actorSeat){
+  assert.ok(allowedSeat===null||allowedSeat===0||allowedSeat===1);
+  assert.ok(actorSeat===0||actorSeat===1);
+  return enabled===true&&(allowedSeat===null||allowedSeat===actorSeat);
+}
+
+/**
  * Reversible real-bot decision override and independent actual Store acceptance
  * counter. Prompts explicitly delegate to the native bot and are unqualified.
  * Static printing metadata comes only from CardManager's public card pool.
@@ -314,6 +328,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT1_THORNS_DIRECT_ROOT_DEV==='true'),
     specialEnergyRootOptIn:deps.specialEnergyRoot??
       (process.env.AGENT3_SPECIAL_ENERGY_ROOT_DEV==='true'),
+    specialEnergyRootOwnerSeat:deps.specialEnergyRootOwnerSeat??null,
     naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
       (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
     quickBallRootOptIn:deps.quickBallRoot??
@@ -338,6 +353,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     ownerRootIntents:[],competitiveGameQualified:false,
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
   };
+  assert.ok([null,0,1].includes(audit.specialEnergyRootOwnerSeat));
+  if(audit.specialEnergyRootOwnerSeat!==null)
+    audit.version+='+agent49-source-seat-special-v1';
   if(audit.quickBallRootOptIn)
     audit.version=VERSION+'+'+
       require('./agent8-actor-quick-ball-frontier.cjs').VERSION;
@@ -380,7 +398,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       paidRetreatRoot:audit.paidRetreatRootOptIn,
       perfectionRoot:audit.perfectionRootOptIn,
       thornsDirectLine:audit.thornsDirectLineOptIn,
-      specialEnergyRoot:audit.specialEnergyRootOptIn,
+      specialEnergyRoot:actorSpecialEnergyEnabled(
+        audit.specialEnergyRootOptIn,audit.specialEnergyRootOwnerSeat,seat),
       printedGxRoot:audit.printedGxRootOptIn,
       potentialKoRoot:audit.potentialKoRootOptIn,
       knownDeadAttackRoot:audit.knownDeadAttackRootOptIn,
@@ -497,4 +516,4 @@ function withActorOnlyRootPolicy(run,deps={}){
   }
 }
 module.exports={VERSION,buildActorCardCatalog,chooseActorRootIntent,
-  publicDispatchState,withActorOnlyRootPolicy};
+  actorSpecialEnergyEnabled,publicDispatchState,withActorOnlyRootPolicy};
