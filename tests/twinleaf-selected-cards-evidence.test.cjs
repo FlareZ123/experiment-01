@@ -21,6 +21,7 @@ test('capture exact selected physical printings from a hand-discard prompt',()=>
   const evidence=selectedCardsEvidence(prompt,action,state);
   assert.equal(evidence.sourceZone,'hand');
   assert.equal(evidence.sourcePlayerSlot,0);
+  assert.equal(evidence.sourceZoneCardCountBefore,3);
   assert.deepEqual(evidence.selectedCards,['Guzma BUS 115','Lusamine CIN 96']);
   assert.deepEqual(evidence.selectedIndices,[0,2]);
   assert.equal(evidence.message,'DISCARD_TWO');
@@ -36,7 +37,14 @@ test('distinguish deck search and canceled selection without editing card order'
   action.result=[0];
   assert.equal(selectedCardsEvidence(prompt,action,state).sourceZone,'deck');
   action.result=null;
-  assert.equal(selectedCardsEvidence(prompt,action,state).selectedCards,null);
+  const declined=selectedCardsEvidence(prompt,action,state);
+  assert.equal(declined.selectedCards,null);
+  assert.equal(declined.sourceZoneCardCountBefore,1,
+    'Null response should not erase actual pre-dispatch zone size');
+  action.result=[];
+  const empty=selectedCardsEvidence(prompt,action,state);
+  assert.deepEqual(empty.selectedCards,[]);
+  assert.equal(empty.sourceZoneCardCountBefore,1);
   assert.equal(deck.cards[0].fullName,'Double Colorless Energy SUM 136');
 });
 
