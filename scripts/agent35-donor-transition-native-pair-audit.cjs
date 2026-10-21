@@ -39,6 +39,26 @@ function compare(before,after){
       nativeRootWitnesses:rootAudit(row)?.nativePhysicalConfirmed??null,
       nativeRejectedActorRoots:rootAudit(row)?.rejectedActorRoots??null,
       rootIntentCounts:rootAudit(row)?.typedIntentCounts??null,
+      actualCandidateRetreatRoots:(row.rootActionLedger??[])
+        .filter(x=>x.playerSlot===row.candidateSeat&&
+          x.action==='RetreatAction')
+        .map(x=>({ordinal:x.actionOrdinal,turn:x.turnBefore,
+          action:x.action})),
+      actualCandidatePerfectionAbilityRoots:(row.rootActionLedger??[])
+        .filter(x=>x.playerSlot===row.candidateSeat&&
+          x.action==='UseAbilityAction'&&x.ability==='Perfection')
+        .map(x=>({ordinal:x.actionOrdinal,turn:x.turnBefore,
+          ability:x.ability})),
+      nativeAttackSettlements:(row.candidateAttackSettlement?.attacks??[])
+        .map(x=>({ordinal:x.actionOrdinal,turn:x.turnBefore,
+          attackName:x.attackName,triggerAction:x.triggerAction,
+          settledPromptChain:x.settledPromptChain,
+          settlementCrossesClockReset:x.settlementCrossesClockReset,
+          prizesBefore:x.prizesBefore,prizesAfter:x.prizesAfter,
+          nextSourceSameEpochProven:x.nextSourceSameEpochProven,
+          nextSourceRoot:x.nextSourceRoot,
+          nextSourceTurnActions:x.nextSourceTurnActions})),
+      finalPrizes:row.finalPrizes,
       competitiveQualified:false
     });
     return {trial:a.trial.id,
@@ -75,7 +95,11 @@ if(require.main===module){
           attacks:r.control.candidateAttacks.map(x=>x.attackName)},
         on:{actions:r.treatment.actions,terminal:r.treatment.finished,
           intents:r.treatment.rootIntentCounts,
-          attacks:r.treatment.candidateAttacks.map(x=>x.attackName)},
+          attacks:r.treatment.candidateAttacks.map(x=>x.attackName),
+          retreats:r.treatment.actualCandidateRetreatRoots,
+          perfections:r.treatment.actualCandidatePerfectionAbilityRoots,
+          settlements:r.treatment.nativeAttackSettlements,
+          finalPrizes:r.treatment.finalPrizes},
         qualifiedCompetitiveGames:0})+'\n');
   }
 }
