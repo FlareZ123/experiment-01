@@ -1,0 +1,214 @@
+{
+  "schema": "aichi-agent2-archie-baxcalibur-umi-january-english-proxy-60-v1",
+  "status": "Historical January 2026 Umi-Ex first-person 60, English mechanically representative printings; not May 2026 Aichi 48th deck, no 2026 Top32 source identity, not qualified as a 99.5% finalist.",
+  "source_url": "https://note.com/primarina_2002/n/n54aaf39a820c",
+  "original_japanese_deck_code": "vV51k5-obw7qd-VkkkkV",
+  "english_proxy_source": "results/als/agent2-archie-baxcalibur-umi2026-english-proxy-60.md",
+  "counts": {
+    "total": 60,
+    "distinct": 33,
+    "Pokemon": 16,
+    "Trainer": 35,
+    "Energy": 9
+  },
+  "cards": [
+    {
+      "count": 1,
+      "name": "Chien-Pao ex",
+      "id": "sv2-61",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Suicune V",
+      "id": "swsh7-31",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Kyogre",
+      "id": "cel25-3",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Radiant Greninja",
+      "id": "swsh10-46",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Empoleon V",
+      "id": "swsh5-40",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Mew ex",
+      "id": "sv3pt5-151",
+      "category": "Pokémon"
+    },
+    {
+      "count": 2,
+      "name": "Baxcalibur",
+      "id": "sv2-60",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Flutter Mane",
+      "id": "sv5-78",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Exeggcute",
+      "id": "bw9-4",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Pidgeot V",
+      "id": "swsh11-137",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Tapu Lele-GX",
+      "id": "sm2-60",
+      "category": "Pokémon"
+    },
+    {
+      "count": 2,
+      "name": "Dedenne-GX",
+      "id": "sm10-57",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Crobat V",
+      "id": "swsh3-104",
+      "category": "Pokémon"
+    },
+    {
+      "count": 1,
+      "name": "Squawkabilly ex",
+      "id": "sv2-169",
+      "category": "Pokémon"
+    },
+    {
+      "count": 4,
+      "name": "Ultra Ball",
+      "id": "swsh9-150",
+      "category": "Trainer"
+    },
+    {
+      "count": 4,
+      "name": "Quick Ball",
+      "id": "swsh1-179",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Hisuian Heavy Ball",
+      "id": "swsh10-146",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Pokémon Communication",
+      "id": "bw1-99",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Bicycle",
+      "id": "bw8-117",
+      "category": "Trainer"
+    },
+    {
+      "count": 3,
+      "name": "Trainers' Mail",
+      "id": "xy6-92",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Ordinary Rod",
+      "id": "swsh1-171",
+      "category": "Trainer"
+    },
+    {
+      "count": 2,
+      "name": "VS Seeker",
+      "id": "xy4-109",
+      "category": "Trainer"
+    },
+    {
+      "count": 4,
+      "name": "Superior Energy Retrieval",
+      "id": "bw9-103",
+      "category": "Trainer"
+    },
+    {
+      "count": 3,
+      "name": "Battle Compressor Team Flare Gear",
+      "id": "xy4-92",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Escape Rope",
+      "id": "swsh5-125",
+      "category": "Trainer"
+    },
+    {
+      "count": 2,
+      "name": "Field Blower",
+      "id": "sm2-125",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Computer Search",
+      "id": "bw7-137",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Forest Seal Stone",
+      "id": "swsh12-156",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Klara",
+      "id": "swsh6-145",
+      "category": "Trainer"
+    },
+    {
+      "count": 1,
+      "name": "Guzma",
+      "id": "sm3-115",
+      "category": "Trainer"
+    },
+    {
+      "count": 2,
+      "name": "Archie's Ace in the Hole",
+      "id": "xy5-124",
+      "category": "Trainer"
+    },
+    {
+      "count": 2,
+      "name": "Sky Field",
+      "id": "xy6-89",
+      "category": "Trainer"
+    },
+    {
+      "count": 9,
+      "name": "Water Energy",
+      "id": "bw1-107",
+      "category": "Energy"
+    }
+  ]
+}
