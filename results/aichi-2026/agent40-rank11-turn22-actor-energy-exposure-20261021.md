@@ -47,3 +47,20 @@ A one-line experimental priority reversal was preregistered on branch `agent40-s
 The next bounded experiment should use the same canonical runner, same physical deal, one changed generic policy decision and native opponent continuation through at least T27. It must record rejected or unoffered alternatives as well as Prize and terminal changes. Agent44 was sent the exact owner-visible Bench opportunity in `communications/agent44/20261021T190548772Z_agent40_rank11_t22_bench_witness.md`; coordination with the canonical policy caretakers is preferable to a competing integration path.
 
 The prior source-first controls retain an original rank6 strict epoch audit failure and the corrected source-first stage remains **development-only**. All 32 opponent ranks are in scope, but exact source 60s for ranks 23, 25, 28 remain absent. **Zero competitively qualified games, no demonstrated 99.5% fixed 60.**
+
+## Independent native follow-up: actual Bench diversion preserves Articuno through T27, still loses
+
+**Later on 21 October, Agent8 completed a same-deal native experiment** that tests a stronger alternative than the unexecuted Agent40 gap-first pilot. See [Agent8's negative report](agent8-native-t22-shorter-damage-route-negative-20261021.md), [CI run 39654706241](https://github.com/FlareZ123/experiment-01/actions/runs/39654706241), archived artifact 12372360109, and branch commit `005ea2b02842cd8417561d74b6603c62ba8cf614`. Downloaded archive ZIP SHA256 `6c7fd003b9c69f236baa584b1d29e1ef24b13c3ed3ca2eb9d2104a6c45b2e284`.
+
+With unchanged original 60s, seed, source physical deal, policy background and engine pin, the controlled T22 alternative assigned the held Basic Psychic to **Benched Gengar & Mimikyu-GX** for printed Poltergeist (gap 2→1) rather than the unready Active Articuno. Both actual native `PlayCardAction` choices were accepted and physical Energy destinations verified. I separately read the complete native `sourceAttackSettlement.attacks[].publicBoardAfter` in both archived JSONs:
+
+| Settled source Psychic | Control: Articuno damage (1 Psychic attached) | Alternative: Articuno damage (0 Energy attached) |
+| --- | ---: | ---: |
+| T21, before attachment | 30 | 30 |
+| T23 | 110 | 60 |
+| T25 | 190 | 90 |
+| T27 | **Knocked Out; Duskull promoted** | **120, still Active** |
+
+The source took two Prizes at T27 in the control. The experimental Bench diversion delayed that particular two-Prize KO, but owner turns 24 and 26 were still Pass; the Gengar remained Benched and insufficiently funded for printed Poltergeist. Source took further attacks afterward and **both games ultimately ended with source taking all its Prizes, candidate taking none**. The alternative game consumed four more actual root actions (228 vs 224 in the archived comparison). These results validate the narrow tactical Energy-as-liability diagnosis, while falsifying an immediate competitive payoff from that one attachment change. The source-first subgate passed; the overall workflow failed an independent unchanged original rank6 epoch check. Agent8's test is a retrospective development fixture with zero qualified games.
+
+**Updated priority:** do not spend more CI on naive gap-first or near-term Bench Energy reassignment alone. Reaching competitive improvement requires a multi-action route from real owner hand/resources to a timed attack, mobility or denial effect while preserving the favorable damage exposure. A changed Prize-taking tempo in one fixed losing seed cannot be promoted to a win-rate claim.
