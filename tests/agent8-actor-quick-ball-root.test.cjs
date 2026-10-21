@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {VERSION,QUICK_BALL,chooseQuickBallRootIntent}=
+const {VERSION,QUICK_BALL,QUICK_BALL_PRINTINGS,chooseQuickBallRootIntent}=
   require('../simulation/twinleaf/agent8-actor-quick-ball-frontier.cjs');
 const {chooseActorRootIntent}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
@@ -27,12 +27,38 @@ const catalog={basics:new Set(),abilityBasics:new Set(),
   specialConditions:{ASLEEP:2,PARALYZED:0}};
 test('existing root unchanged until explicit Item opt-in',()=>{
   const v=view();
-  assert.equal(VERSION,'agent8-actor-quick-ball-root-v1-duplicate-cost-gate');
+  assert.equal(VERSION,'agent8-actor-quick-ball-root-v2-fst-printing-parity');
   assert.equal(chooseActorRootIntent(v,catalog).kind,'pass');
   const wanted={kind:'play-quick-ball',handIndex:0,printing:'Quick Ball SSH'};
   assert.deepEqual(chooseQuickBallRootIntent(v),wanted);
   assert.deepEqual(chooseActorRootIntent(v,catalog,{quickBallRoot:true}),wanted);
 });
+test('Aichi FST Quick Ball is an exact-printing native root, default policy unchanged',()=>{
+  const v=view();
+  v.ownHand=['Quick Ball FST','Switch SVI','Switch SVI'];
+  assert.deepEqual(QUICK_BALL_PRINTINGS,[QUICK_BALL,'Quick Ball FST']);
+  assert.equal(chooseActorRootIntent(v,catalog).kind,'pass');
+  const expected={kind:'play-quick-ball',handIndex:0,printing:'Quick Ball FST'};
+  assert.deepEqual(chooseQuickBallRootIntent(v),expected);
+  assert.deepEqual(chooseActorRootIntent(v,catalog,{quickBallRoot:true}),expected);
+  v.ownHand=['Switch SVI','Switch SVI','Quick Ball FST'];
+  assert.deepEqual(chooseQuickBallRootIntent(v),{
+    ...expected,handIndex:2
+  });
+});
+
+test('alternate Quick Ball printing cannot satisfy discard-surplus condition',()=>{
+  const v=view();
+  v.ownHand=['Quick Ball FST','Quick Ball SSH','Boss Orders PAL'];
+  assert.equal(chooseQuickBallRootIntent(v),null);
+  v.ownHand=['Quick Ball FST','Quick Ball SSH','Switch SVI','Switch SVI'];
+  assert.deepEqual(chooseQuickBallRootIntent(v),{
+    kind:'play-quick-ball',handIndex:0,printing:'Quick Ball FST'
+  });
+  v.ownHand=['Quick Ball FST','Switch SVI','Mysterious Treasure FLI'];
+  assert.equal(chooseQuickBallRootIntent(v),null);
+});
+
 test('a distinct redundant printing is required before Item discard',()=>{
   const v=view();
   v.ownHand=[QUICK_BALL,'Ultra Ball SVI','Forest Seal Stone SIT'];
