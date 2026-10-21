@@ -232,6 +232,7 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
         before.phase!==GamePhase.FINISHED)?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
+  if(intent.kind==='perfection')return 'attack-needs-declaration';
   assert.equal(intent.kind,'attack');
   return 'attack-needs-declaration';
 }
