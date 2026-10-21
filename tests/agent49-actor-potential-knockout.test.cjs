@@ -28,7 +28,7 @@ test('frozen common public-only scorer ranks a potential exact-base KO',()=>{
   const v=view(),moves=v.ownPublic.active.attacks;
   Object.freeze(moves);Object.freeze(v.opponentPublic.active);
   assert.equal(choosePotentialKnockout(v,moves),moves[1]);
-  assert.equal(VERSION,'agent49-public-printed-potential-ko-v1');
+  assert.equal(VERSION,'agent49-public-printed-potential-ko-v2-discrete-safe');
 });
 
 test('native-neutral root opt-in changes only printed payable attack choice',()=>{
