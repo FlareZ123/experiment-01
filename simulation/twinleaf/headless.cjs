@@ -8,6 +8,8 @@ const {playerPlayLockVeto,visiblePlayLockGuardSeat}=
   require('./player-play-lock-veto.cjs');
 const {createInitialSourceDealObserver}=
   require('../evaluation/source-physical-deal-fingerprint.cjs');
+const {captureNativeResetPrestate}=
+  require('../evaluation/agent3-native-reset-prestate.cjs');
 const {installToolJammerHook} = require('./tool-jammer-hook.cjs');
 const {installGrandTreeFirstTurnHook} = require('./grand-tree-first-turn-hook.cjs');
 const {installPrototypeSafeSimulatorHook} = require('./prototype-safe-simulator-hook.cjs');
@@ -1208,6 +1210,10 @@ function runMatch(request) {
       if (setupCompensationObserver) {
         setupCompensationObserver.before(state,pending,action);
       }
+      // Read-only source of native winner predicates immediately before root
+      // dispatch. This is offline evidence and never enters a bot decision.
+      const nativeResetPrestate = suddenDeathClockResets ?
+        captureNativeResetPrestate(state) : null;
       try {
         store.dispatch(action);
         if (setupCompensationObserver) {
@@ -1428,7 +1434,8 @@ function runMatch(request) {
           fromPhase:phaseBefore,toPhase:store.state.phase,
           beforeSuddenDeath:suddenDeathBefore,
           afterSuddenDeath:store.state.isSuddenDeath===true,
-          enteredSetup:store.state.phase===GamePhase.SETUP
+          enteredSetup:store.state.phase===GamePhase.SETUP,
+          preDispatchWinPredicates:nativeResetPrestate
         });
       }
       if (rootActionLedger) {
