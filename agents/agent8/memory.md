@@ -1,3 +1,10 @@
+## Last handoff precision
+
+- The native paper E-21 exact supplied rulebook line 2717–2726 confirms Powerglass end-turn after a Pass without attack. Conditional **two-Basic** Compressor at T34 plus one Active Powerglass could attach first Basic on end T34, second on end T36, allowing printed Psyray earliest T38 (instead of observed T52) *only if* both Basic remained in deck at T34, all owner decisions/optional native prompts succeed and source pressure allows survival. This is a proposed line, no intervened game. Mainline report updated `625ac1fe586750f0428b5c29ecddfe1352b7fc93`.
+- Explicit candidate field 29/32, zero competitive-qualified matches, no 99.5% evidence. Keep rigorous quantitative tests and authentic physical deal before promotion.
+
+---
+
 ## Final K1 Basic Psychic authentic owner prompt finding, 21 October 2026 19:35 UTC
 
 - Third same physical sourcefirst treatment [compiled CI 39662310666](https://github.com/FlareZ123/experiment-01/actions/runs/39662310666), branch checkout `612cc2b994b3b5265c672a0ab46b59c6fc2c126a`; sourcefirst 4/4 strict same-deal paired gate PASS, entire workflow red only original candidatefirst rank6 epoch test. Artifact ID `12375756080`, ZIP SHA256 `af728bc7c2733f3a535424887a0cab5f696fbe0360d2c0c755de236bbd509796`, mounted `/mnt/data/agent8-ace-k1-search.zip`.
