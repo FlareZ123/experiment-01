@@ -130,6 +130,8 @@ jobs:
           if(!b.sourceQuickBallAudit?.activated||count!==3)throw Error('Source counterplay never executed');
           if(JSON.stringify(a.deckHashes)!==JSON.stringify(b.deckHashes))throw Error('Deck identity changed');
           if(a.firstCopyPrecedingRootSha256!==b.firstCopyPrecedingRootSha256)throw Error('Pre-copy root actions changed');
+          if(a.sourceTurn49PrecedingRootSha256!==b.sourceTurn49PrecedingRootSha256)throw Error('Pre-source-turn49 root actions changed');
+          if(a.sourceTurn49PrecedingRootCount!==b.sourceTurn49PrecedingRootCount)throw Error('Pre-source-turn49 root count changed');
           console.log(JSON.stringify({originalSeed:a.sourceSeed,sourceTurn49:49,
           quickBallCount:count,sourceCounterplay:b.sourceQuickBallAudit,
           originalOutcome:{winner:a.winnerSeat,prizes:a.prizesRemaining,actions:a.nativeActionCount},
