@@ -54,7 +54,8 @@ function chooseActorEnergyRecipient(view,catalog,options={}){
     resources.supporterPlayLocked===false&&
     publicRules.supporterPlayLocked!==true&&
     Number.isSafeInteger(resources.supporterPlayedTurn)&&
-    resources.supporterPlayedTurn!==view.globalTurn;
+    // This is an owner-turn play count, not the global turn index.
+    resources.supporterPlayedTurn===0;
   const supporterMobility=supporterEligible&&opponentHasBench&&
     ownHand.some(printing=>
       /^Guzma [A-Z0-9]{2,6}(?: [0-9]+)?$/.test(printing));
