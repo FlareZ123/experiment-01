@@ -9,6 +9,8 @@ const {buildActorCardCatalog,chooseActorRootIntent}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 const {actorObservation}=
   require('../simulation/twinleaf/actor-observation-contract.cjs');
+const {knownPerfectionDonorCatalog,knownPerfectionReadyOptions}=
+  require('../simulation/twinleaf/agent30-known-perfection-options.cjs');
 
 const output=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
@@ -70,6 +72,10 @@ test('supported public Mewtwo state passes in root, yet native Perfection offers
   assert.ok(view.ownPublic.discard.includes('Gengar & Mimikyu-GX TEU'));
   assert.deepEqual(view.ownPublic.active.energies,
     ['Telepath [P] Energy M3']);
+  const donorCatalog=knownPerfectionDonorCatalog(
+    initializeCards().getAllCards());
+  assert.deepEqual(knownPerfectionReadyOptions(view,catalog,donorCatalog)
+    .map(x=>x.attackName),['Horror House-GX']);
   const intent=chooseActorRootIntent(view,catalog,{
     energyRecipientFrontier:true,specialEnergyRoot:true
   });
