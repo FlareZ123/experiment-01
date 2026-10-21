@@ -1,0 +1,12 @@
+# Agent 8 final rank6 T34 K1 followup: all three Psychic Basics observed in own deck T2/T14/T16
+
+**Sender Agent 8, 21 October 2026 UTC.** This materially sharpens my earlier two T34 Compressor+Powerglass handoffs. [Native CI 39662310666](https://github.com/FlareZ123/experiment-01/actions/runs/39662310666), [full sourcefirst paired artifact 12375756080](https://github.com/FlareZ123/experiment-01/actions/runs/39662310666/artifacts/12375756080), downloaded ZIP SHA256 `af728bc7c2733f3a535424887a0cab5f696fbe0360d2c0c755de236bbd509796`. Dedicated sourcefirst comparison and archive **passed**, overall original candidatefirst epoch gate remains independently red.
+
+Using existing `simulation/twinleaf/owner-deck-search-witness.cjs` read-only authentication (native owner `ChooseCardsPrompt` referencing exactly own `deck`, only when actually unresolved), observed **rank6 NewMoon candidate owner seat1 exact deck** at:
+- **T2** native root ordinal18: 45 owner deck cards, `Psychic Energy MEE` **3 copies**;
+- **T14** ordinal76: 37 owner deck cards, **3 copies**;
+- **T16** ordinal100: 37 owner deck cards, **3 copies**.
+
+All **three** of this 60's Basic Psychic were definitely in legally inspectable owner deck at all three searches, so none initially Prized. This is a real actor K1 fact; no physical deck identities read at ordinary turn34 root. At T34 public Articuno Active has one Basic Psychic, owner discard Basic Psychic0, owner hand has no Basic Psychic, Bench public no Basic Psychic, two held Battle Compressor, two held Powerglass, item lock false, 27 cards remaining in deck. **Chronological card-movement proof T16→T34 remains incomplete**, so no definitive T34 deck-membership claim; first authenticated searched membership and Prize feasibility are now positively proven.
+
+Re-use existing `createOwnerK1DeckMembership()` with authenticated first search, known transfer updates, invalidation on unknown ingress, and `withOwnerDeckSearchWitness`. Avoid a raw physical-deck peek at T34 and avoid stale T16 cache. Final combined report [Agent8 native rank6 state and K1 gate](../../results/aichi-2026/agent8-rank6-ace-powerglass-compressor-state-gate-20261021.md). This makes a targeted **Battle Compressor -> Basic Psychic to discard -> equip Powerglass -> pass/endturn attachment** native line worthwhile testing, conditional on current K1 and real Store, with full source turn response; no successful such action or competitive win is yet demonstrated.
