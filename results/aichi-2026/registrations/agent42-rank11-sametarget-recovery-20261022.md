@@ -1,0 +1,7 @@
+# Agent 42 same-target native replay registration
+
+Pre-execution registration, 22 October 2026 UTC. Source: original rank-11 Absol/Garbodor 60 versus unchanged New Moon 60, source seat 0, candidate seat 1. Twinleaf pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Frozen starting research branch `agent50-sourcefirst-marnie-rescue-20261021`, commit `242b57930c67b7c733a7f0ba4911f3be9125ed79`.
+
+Primary seed `2584586627` previously failed with an AttachEnergyPrompt `sameTarget:true` split assignment. Other original Agent50 historical development seeds: `17984023`, `1407148205`, `2612415444`. For each tested seed compare baseline vs existing reversible `withSameTargetAttachEnergySelection` bot resolver guard, keeping both original stage-Energy OFF/ON arms and all frozen Marnie/Guzma options. Do not change either deck, source policy, pinned vendor, or actual seat.
+
+Record all outcomes, errors/caps, correction event counts, prompt resolution and continuation, real first-player seat, and matching physical source-deal fingerprints. Native continuation past the formerly failing prompt is positive repair evidence; a proposed correction without acceptance is insufficient. Preserve new downstream failures. These are retrospective diagnostic replays, not prospective win-rate trials. The generic scoring bot is still strategically unqualified and paper clock unsupported. No competitive win-rate inference, no new workflow, no vendor changes.
