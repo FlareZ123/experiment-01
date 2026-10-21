@@ -6,6 +6,7 @@ const {initializeCards}=require('./headless.cjs');
 const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {pairedCandidateSlots}=require('./new-moon-lockbreak-source-diagnostic.cjs');
 const {runArm}=require('./new-moon-second-start-paired.cjs');
+const {supporterAlreadyUsed}=require('./owner-turn-resource-semantics.cjs');
 
 const SERVER=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} relative */
@@ -61,7 +62,8 @@ function withOpponentTurn5Lillie(execute,preferCaptureEnergy=false) {
       const index=player.hand.cards.findIndex(card=>card.fullName===LILLIE);
       assert.ok(index>=0,'Source turn5 Lillie printing unexpectedly absent');
       assert.equal(player.prizes.filter(prize=>prize.cards.length).length,6);
-      assert.notEqual(player.supporterTurn,state.turn,'Opponent Supporter already spent');
+      assert.equal(supporterAlreadyUsed(player),false,
+        'Opponent Supporter already spent');
       const sourceHand=player.hand.cards.map(card=>card.fullName);
       assert.equal(sourceHand.filter(card=>card===LILLIE).length,1);
       interventions.push({
