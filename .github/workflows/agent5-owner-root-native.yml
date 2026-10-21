@@ -28,6 +28,8 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm run compile
+      - name: Native staged Iron Thorns Stadium root in both seats
+        run: node simulation/twinleaf/agent5-thunder-mountain-native-gate.cjs > agent5-thunder-mountain-native-gate.json
       - name: Native staged rank-7 Steven three-card owner search both seats
         run: node simulation/twinleaf/agent22-steven-native-store-gate.cjs > agent22-steven-native-store-result.json
       - name: Native bilateral historical and source-first development
@@ -37,6 +39,7 @@ jobs:
         with:
           name: actor-only-root-native-retrospective-rank11
           path: |
+            agent5-thunder-mountain-native-gate.json
             agent5-owner-root-result.json
             agent22-steven-native-store-result.json
           retention-days: 30
