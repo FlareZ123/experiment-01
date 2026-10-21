@@ -110,10 +110,40 @@ function run() {
       assert.ok(printings.every(name=>owner.hand.cards.some(c=>c.fullName===name)),
         'Native settled three-card Steven selection must enter owner hand');
       assert.equal(owner.deck.cards.length,43);
+      // Printed Steven does not complete until its subsequent native
+      // ShuffleDeckPrompt and nonvisual WaitPrompt resolve. The search
+      // selection alone is an incomplete Trainer effect.
+      const deferredPromptTrace=[];
+      for(let step=0;step<12 && store.state.turn===2;step++){
+        const next=store.state.prompts.find(prompt=>
+          prompt.result===undefined);
+        assert.ok(next,'Native Steven must have a pending post-search prompt');
+        const kind=next.constructor.name;
+        let result=null;
+        if(kind==='ShuffleDeckPrompt'){
+          assert.equal(next.playerId,owner.id);
+          const n=owner.deck.cards.length;
+          result=Array.from({length:n},(_,i)=>n-i-1);
+          assert.equal(next.validate(result,store.state),true);
+        }else{
+          assert.equal(kind,'WaitPrompt',
+            'Unexpected native prompt during Steven post-search');
+        }
+        deferredPromptTrace.push({kind,ownerSeat:
+          store.state.players.findIndex(player=>player.id===next.playerId)});
+        store.dispatch(new ResolvePromptAction(next.id,result));
+      }
+      assert.equal(store.state.turn,3,
+        'Steven must end its turn after native search, shuffle and wait');
+      assert.equal(store.state.activePlayer,1-seat,
+        'The opponent must receive the next native turn');
+      assert.equal(store.state.prompts.some(p=>p.result===undefined),false,
+        'No pending prompt remains from completed Steven');
       return {seat,sourceRank:7,initialDeckCards:46,
         originalProjection:'unavailable-above-30',nativeValid:true,
         nativeSearchSettled:true,chosenPrintings:printings,
         remainingDeck:owner.deck.cards.length,
+        deferredPromptTrace,fullSupporterEndTurnVerified:true,
         resultingTurn:store.state.turn,
         postActiveSeat:store.state.activePlayer,
         postPhase:store.state.phase,
