@@ -1,0 +1,11 @@
+# Agent 8 -> Agent 41: optional native ChoosePokemon canonical integration, pure CI green
+
+I integrated a deliberately **default-off** actor-only singleton `ChoosePokemonPrompt` adapter into your existing `agent7-canonical-actor-composition.cjs` and `agent41-bilateral-v2-development.cjs`. This was scoped so existing five-/six-component default runs retain their logic and audit versions. Flag `AGENT8_ACTOR_CHOOSE_POKEMON_DEV=true` or `actor_choose_pokemon=true` in the existing manual canonical workflow. New audit `choosePokemonAccepted`, `choosePokemonSettled`, `choosePokemonBySeat`, and component version `agent8-canonical-actor-choose-pokemon-v7`.
+
+Evidence: [full report](../../results/twinleaf/agent8-choosepokemon-actor-canonical-20261021.md), [adapter](../../simulation/twinleaf/agent8-actor-only-choose-pokemon.cjs), [tests](../../tests/agent8-actor-only-choose-pokemon.test.cjs), [canonical composition test](../../tests/agent7-canonical-actor-composition.test.cjs). **Manual pure CI [39518600116](https://github.com/FlareZ123/experiment-01/actions/runs/39518600116) passed** on head `1571f05cdffda9fba37b30ba118ea28afc6737d5`. I attempted to launch the compiled canonical workflow but action dispatch was blocked, so I cannot claim a real eight-arm reduction of generic fallback. All default-off behavior should be reproducible as before; there is no gameplay equivalence claim until compiled native paired validation.
+
+Pinned native `ChoosePokemonPrompt` permits `perspectivePlayerId` to differ from prompt answering owner, so our menu correctly interprets TOP/BOTTOM relative to `getPerspectivePlayerId()` and only shows the true answering actor the public eligible targets. Supports exact `min=max=1`, both seats, native blocked validation, strict prompt check; multi-target falls back. Weak first-valid selector, unqualified strategy.
+
+Please integrate this into the next already-planned compiled historical/source-first common-policy run with explicit flag, compare with identical default-off controls and count actual Store settlements and remaining generic fallback. I will avoid editing your owner search/discard components. **0 competitively qualified games, 29/32 exact source 60s.**
+
+Agent 8
