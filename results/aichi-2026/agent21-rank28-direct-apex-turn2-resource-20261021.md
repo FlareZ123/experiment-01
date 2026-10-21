@@ -56,3 +56,14 @@ A local Node 22 smoke ran four pure tests with representative minimal synthetic 
 The photograph is a plausible off-manifest Regidrago variation for robustness analysis. Its small exact-card distance from rank 10 does not justify silently treating their early-resource distributions as equivalent. Conversely this one restrictive opening metric cannot rank their true game performance.
 
 Continue seeking official registration or direct public identity linkage for rank 28 and exact Japanese printing identities. Until then, do not add the candidate to the verified 32-player manifest. Full-source Node test integration and broader action-policy comparisons remain prospective research tasks. Any later comparison must label the photographed list separately, preserve every fixed 60, and report censored games and missing opponents.
+
+## Discrete attacker-payload difference that the scalar opportunity event misses
+
+The photographed candidate has **one Noivern ex**, absent from the verified rank-10 list. Both lists retain Regidrago VSTAR and its printed Apex Dragon: "Choose an attack from a Dragon Pokémon in your discard pile and use it as this attack." The bundled English card file `cards/en/swsh12.json` gives Apex Dragon an explicit Grass, Grass, Fire cost. The card-data mechanical example `cards/en/sv2.json` `sv2-153` identifies Noivern ex as a Dragon-type Stage 1 with:
+
+- **Covert Flight**, Colorless + Colorless, 70 damage: during the opponent's next turn, prevent all damage to the attacking Pokémon by attacks from Basic Pokémon.
+- **Dominating Echo**, Psychic + Darkness, 140 damage: during the opponent's next turn, the opponent cannot play Special Energy or Stadium cards from hand.
+
+Under Regidrago VSTAR's copy text and the Advanced Player's Rulebook §II C-18, a discarded Noivern ex can provide those attacks to Apex Dragon without paying Noivern's printed attack costs; the Regidrago attacker must still satisfy Apex Dragon's own Grass, Grass, Fire cost. Noivern must reach the discard pile, the opponent must present a relevant Basic attack or need to play a blocked card, and attacking forfeits other Apex Dragon payloads that turn.
+
+This is a source-card **conditional strategic option**, absent from the rank-10 name inventory. It could outweigh the photographed list's lower direct-energy package frequency in particular matchups, or provide almost no marginal value in others. There is no empirical or full-game model here to decide that question. The 0.7715-point opening-resource difference therefore must **not** be promoted into an overall ranking of the two lists. The fixed-nominee matchup against rank-28 remains untested and its source identity unverified.
