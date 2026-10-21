@@ -237,7 +237,7 @@ jobs:
       - name: Compile pinned native Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Frozen same-head retrospective source-first OFF/ON
+      - name: Test native detached Pass-attachment proof without changing actual Store\n        run: node --test tests/pass-attack-announcement-probe.test.cjs\n      - name: Frozen same-head retrospective source-first OFF/ON
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
