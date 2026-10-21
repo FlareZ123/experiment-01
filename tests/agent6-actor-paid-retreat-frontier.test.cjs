@@ -2,7 +2,8 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {choosePaidRetreatToDamagingBench,VERSION}=
+const {choosePaidRetreatToDamagingBench,projectedPrintedDamage,
+  MIN_PROJECTED_DAMAGE,VERSION}=
   require('../simulation/twinleaf/agent6-actor-paid-retreat-frontier.cjs');
 
 function fixture(){
@@ -34,7 +35,8 @@ function fixture(){
     decisionKind:'owner-root',globalTurn:9,ownHand:[],
     ownTurnResources:{retreatedTurn:0},
     ownPublic:{active,bench:[calyrex,clefairy,null],
-      publicTurnRestrictions:{attackLockTurnsRemaining:0}}
+      publicTurnRestrictions:{attackLockTurnsRemaining:0}},
+    opponentPublic:{active:{name:'Mega Absol ex'},bench:[{name:'Trubbish'},{name:'Squawkabilly ex'}]}
   };
   Object.defineProperty(view,'opponentPrivate',{
     get(){throw Error('Illegal opponent hidden-state access');}
@@ -45,10 +47,12 @@ function fixture(){
 test('prefers a fully paid damage line over a zero-damage Active attack',()=>{
   const {view,catalog}=fixture();
   assert.match(VERSION,/agent6/);
+  assert.equal(MIN_PROJECTED_DAMAGE,80);
   assert.deepEqual(choosePaidRetreatToDamagingBench(view,catalog),{
     kind:'paid-retreat',benchIndex:1,
     printing:"Lillie's Clefairy ex JTG",
-    attackName:'Full Moon Rondo',baseDamage:20,retreatCostUnits:1
+    attackName:'Full Moon Rondo',baseDamage:20,
+    projectedPrintedDamage:100,retreatCostUnits:1
   });
 });
 test('retreat remains one per turn and impossible on opening turn',()=>{
@@ -93,7 +97,17 @@ test('respects observed retreat, attack and special-condition locks',()=>{
   assert.equal(choosePaidRetreatToDamagingBench(view,catalog),null);
   view.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining=0;
   clefairy.publicRestrictions.cannotAttackNextTurn=true;
-  assert.equal(choosePaidRetreatToDamagingBench(view,catalog)?.benchIndex,0);
+  assert.equal(choosePaidRetreatToDamagingBench(view,catalog),null);
+});
+test('rejects premature weak Shadow Mist pivot, then values verified Rondo Bench scaling',()=>{
+  const {view,catalog,clefairy}=fixture();
+  clefairy.energies=[];
+  assert.equal(choosePaidRetreatToDamagingBench(view,catalog),null);
+  clefairy.energies=['Psychic Energy MEE','Psychic Energy MEE'];
+  assert.equal(projectedPrintedDamage(view,clefairy,clefairy.attacks[0]),100);
+  view.opponentPublic.bench=[];
+  assert.equal(projectedPrintedDamage(view,clefairy,clefairy.attacks[0]),60);
+  assert.equal(choosePaidRetreatToDamagingBench(view,catalog),null);
 });
 test('no owner revelation of hidden cards, no mutation of observation',()=>{
   const {view,catalog}=fixture();
