@@ -5,7 +5,7 @@ const {createHash}=require('node:crypto');
 const {actorObservation,publicPlayer}=require('./actor-observation-contract.cjs');
 const {rootPhysicalSnapshot,rootPhysicalWitness}=
   require('./agent5-owner-root-slice.cjs');
-const VERSION='agent34-actor-only-root-slice-v3-optional-energy-frontier';
+const VERSION='agent34-actor-only-root-slice-v4-immediate-ko-energy-priority';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 
 /**
@@ -145,6 +145,12 @@ function chooseActorRootIntent(view,catalog,options={}){
       // Development opt-in: choose one-unit Basic Energy using the detached
       // actor view, while preserving the original branch when not enabled.
       if(options.energyRecipientFrontier===true){
+        // Actor-visible nominal one-attachment KO takes precedence over
+        // generic ready-attack/Bench-gap ranking. Final attack legality,
+        // damage, and Prize settlement remain the native Store's authority.
+        const knockout=require('./agent9-actor-immediate-ko-energy.cjs')
+          .chooseImmediateKoEnergyIntent(view,catalog);
+        if(knockout)return {kind:'attach-basic-energy',...knockout};
         const recipient=require('./agent44-actor-energy-recipient.cjs')
           .chooseActorEnergyRecipient(view,catalog);
         if(recipient)return {kind:'attach-basic-energy',...recipient};
