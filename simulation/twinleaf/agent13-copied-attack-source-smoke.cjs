@@ -15,6 +15,7 @@ const {withActorOnlyChooseAttack,VERSION}=
  * test our donor-index-preserving actor-only generic attack choice.
  */
 function main(){
+  const preferGengarPoltergeist=process.env.AGENT13_COPY_POLTERGEIST_PRIORITY==='true';
   const deck=loadNewMoonCandidate();
   const plan=planAichi({label:deck.id,cards:deck.cards},{
     allowEquivalentBasicEnergies:true,allowBasicEnergyMirrorPrintings:true,
@@ -34,7 +35,8 @@ function main(){
   const run=withActorOnlyChooseAttack(()=>
     withNewMoonBlowerAutonomy(1,
       ()=>runWithResearchProfile(request,RANK11_AUTONOMOUS_PROFILE),
-      {lowHandLillieAfterBlower:true}));
+      {lowHandLillieAfterBlower:true}),
+    {preferGengarPoltergeist});
   const game=run.result.result;
   const candidateSelections=(game.decisionTrace??[]).filter(row=>
     row.playerSlot===1&&row.attackChoice?.selection).map(row=>({
@@ -53,7 +55,8 @@ function main(){
     enginePin:plan.engineRevision,researchSha:process.env.GITHUB_SHA??null,
     sourceRank:11,sourceSeed:1244180408,
     retrospectivelySelected:true,sourceSeat:0,candidateSeat:1,
-    attackerPolicyVersion:VERSION,remainingFallbacksUnqualified:true,
+    attackerPolicyVersion:run.audit.version,
+    preferGengarPoltergeist,remainingFallbacksUnqualified:true,
     candidateAndSourceDecksUnchanged:true,
     firstTurnSlot:game.firstTurnSlot,
     sourceLineCompleted:game.rank11AutonomousPolicy?.completeAtDecisionBoundary===true,
@@ -64,6 +67,8 @@ function main(){
       x.playerSlot===0&&
       x.turnBefore>(candidateSelections[0]?.turn??Infinity)).slice(0,12),
     nativeActionCount:game.actions,
+    prizesRemaining:game.prizesRemaining??null,
+    sourceActionLedgerDigest:game.sourceActionLedgerDigest??null,
     finished:game.finished,endReason:game.endReason,
     competitiveQualifiedGames:0,
     caveat:'One retrospective native source-dealt regression. Native opponent decisions and the printed paper game clock remain unqualified.'
