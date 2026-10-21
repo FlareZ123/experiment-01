@@ -274,6 +274,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseEscapeRope(view);
     if(mobility)return mobility;
   }
+  if(options.strandedGuzmaRoot===true){
+    const planned=require('./agent50-stranded-guzma-frontier.cjs')
+      .chooseStrandedGuzma(view,catalog);
+    if(planned)return planned;
+  }
   if(options.strandedMarnieRoot===true){
     const planned=require('./agent50-stranded-marnie-frontier.cjs')
       .chooseStrandedMarnie(view);
@@ -379,6 +384,11 @@ function withActorOnlyRootPolicy(run,deps={}){
     strandedMarnieOwnerSeat:deps.strandedMarnieOwnerSeat??
       (process.env.AGENT50_STRANDED_MARNIE_OWNER_SEAT===undefined?null:
         Number(process.env.AGENT50_STRANDED_MARNIE_OWNER_SEAT)),
+    strandedGuzmaRootOptIn:deps.strandedGuzmaRoot??
+      (process.env.AGENT50_STRANDED_GUZMA_DEV==='true'),
+    strandedGuzmaOwnerSeat:deps.strandedGuzmaOwnerSeat??
+      (process.env.AGENT50_STRANDED_GUZMA_OWNER_SEAT===undefined?null:
+        Number(process.env.AGENT50_STRANDED_GUZMA_OWNER_SEAT)),
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
     typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
     publicTransitionWitnesses:0,publicTransitionChanges:0,
@@ -430,6 +440,12 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.strandedMarnieRootOptIn)
     audit.version+='+'+
       require('./agent50-stranded-marnie-frontier.cjs').VERSION;
+  assert.ok(!audit.strandedGuzmaRootOptIn||
+    [0,1].includes(audit.strandedGuzmaOwnerSeat),
+    'Guzma rescue must be scoped to the physical source seat');
+  if(audit.strandedGuzmaRootOptIn)
+    audit.version+='+'+
+      require('./agent50-stranded-guzma-frontier.cjs').VERSION;
   function wrapped(state){
     // A bot may evaluate hypothetical cloned States in its own tactics.
     // Never make an actor-root policy decision against such a speculative
@@ -475,7 +491,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       quickBallRoot:audit.quickBallRootOptIn,
       powerglassRoot:audit.powerglassRootOptIn,
       strandedMarnieRoot:audit.strandedMarnieRootOptIn&&
-        audit.strandedMarnieOwnerSeat===seat
+        audit.strandedMarnieOwnerSeat===seat,
+      strandedGuzmaRoot:audit.strandedGuzmaRootOptIn&&
+        audit.strandedGuzmaOwnerSeat===seat
     });
     const ownerId=state.players[seat].id;
     // Research-only post-decision witness of a source player's OWN concealed
@@ -527,6 +545,10 @@ function withActorOnlyRootPolicy(run,deps={}){
         break;
       case 'play-escape-rope':
       case 'play-ace-trainer':
+      case 'play-stranded-guzma':
+        action=new PlayCardAction(ownerId,intent.handIndex,{
+          player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
+        break;
       case 'play-stranded-marnie':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
