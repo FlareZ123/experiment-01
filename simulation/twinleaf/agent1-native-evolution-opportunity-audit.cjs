@@ -7,17 +7,17 @@ const {buildActorCardCatalog}=
 const {chooseNaturalEvolutionIntent}=
   require('./agent1-actor-evolution-frontier.cjs');
 
-const VERSION='agent1-readonly-native-missed-natural-evolution-on-pass-v1';
+const VERSION='agent1-readonly-native-missed-natural-evolution-turn-end-v2';
 
 /**
  * Read-only native-Store audit. When the actual actor ends a paper turn with
- * PassTurnAction, inspect only owner hand and public board to ask whether an
- * ordinary evolution could have been proposed. This does not mutate decisions,
+ * PassTurnAction or announces an AttackAction, inspect only owner hand and
+ * public board to ask whether an ordinary evolution could have been proposed. This does not mutate decisions,
  * search the physical deck/Prizes, or prove full legality of the counterfactual.
  *
  * @template T
  * @param {()=>T} execute One synchronous pinned-Store experiment.
- * @param {{Store?:Function,PassTurnAction?:Function,GamePhase?:object,
+ * @param {{Store?:Function,PassTurnAction?:Function,AttackAction?:Function,GamePhase?:object,
  *   observe?:Function,catalog?:object,choose?:Function}} [deps]
  * @returns {{result:T,audit:object}}
  */
@@ -25,9 +25,10 @@ function withNativeEvolutionOpportunityAudit(execute,deps={}){
   assert.equal(typeof execute,'function');
   const base=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
   const Store=deps.Store??require(path.join(base,'game/store/store')).Store;
-  const {PassTurnAction}=deps.PassTurnAction?
-    {PassTurnAction:deps.PassTurnAction}:
-    require(path.join(base,'game/store/actions/game-actions'));
+  const {PassTurnAction,AttackAction}=
+    deps.PassTurnAction&&deps.AttackAction?
+      {PassTurnAction:deps.PassTurnAction,AttackAction:deps.AttackAction}:
+      require(path.join(base,'game/store/actions/game-actions'));
   const {GamePhase}=deps.GamePhase?
     {GamePhase:deps.GamePhase}:
     require(path.join(base,'game/store/state/state'));
@@ -36,7 +37,8 @@ function withNativeEvolutionOpportunityAudit(execute,deps={}){
   const previous=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof previous?.value,'function');
   let catalog=deps.catalog??null,liveStore=null,gameIndex=0;
-  let realPassRoots=0,decisionsConsidered=0,eligiblePassRoots=0;
+  let realPassRoots=0,realAttackRoots=0,decisionsConsidered=0,
+    eligiblePassRoots=0,eligibleAttackRoots=0;
   const witnesses=[];
   function publicCatalog(){
     if(catalog!==null)return catalog;
@@ -59,30 +61,35 @@ function withNativeEvolutionOpportunityAudit(execute,deps={}){
     }
     let witness=null;
     const state=this.state;
-    if(this===liveStore&&action instanceof PassTurnAction&&
+    if(this===liveStore&&
+      (action instanceof PassTurnAction||action instanceof AttackAction)&&
       state?.phase===GamePhase.PLAYER_TURN&&
       !state.prompts?.some(prompt=>prompt.result===undefined)){
-      const seat=state.players?.findIndex(p=>p.id===action.id);
+      const seat=state.players?.findIndex(p=>p.id===action.clientId);
       if(seat===state.activePlayer&&(seat===0||seat===1)){
-        realPassRoots++;
+        if(action instanceof PassTurnAction)realPassRoots++;
+        else realAttackRoots++;
         const view=observe(state,seat);
         decisionsConsidered++;
         const intent=choose(view,publicCatalog());
         if(intent){
           witness={gameIndex,seat,turn:state.turn,
+            terminatingRootKind:action instanceof PassTurnAction?'pass':'attack',
+            declaredAttackName:action instanceof AttackAction?action.name:null,
             activePrinting:view.ownPublic.active?.printing??null,
             evolutionPrinting:intent.printing,
             evolvesFrom:intent.from,
             slot:intent.slot,benchIndex:intent.index,
             ownerHandCount:view.ownHand.length,
             ownerDeckCount:view.ownPublic.deckCount,
-            note:'Owner-visible eligible evolution at selected Pass root; counterfactual not played'};
+            note:'Owner-visible eligible evolution at turn-ending root; counterfactual not played'};
         }
       }
     }
     const result=previous.value.apply(this,[action,...args]);
     if(witness){
-      eligiblePassRoots++;
+      if(witness.terminatingRootKind==='pass')eligiblePassRoots++;
+      else eligibleAttackRoots++;
       if(witnesses.length<128)witnesses.push(witness);
     }
     return result;
@@ -93,9 +100,12 @@ function withNativeEvolutionOpportunityAudit(execute,deps={}){
     const result=execute();
     return {result,audit:{
       version:VERSION,kind:'read-only-actor-decision-omission',
-      actualGamesSeen:gameIndex,realPassRoots,decisionsConsidered,
-      eligiblePassRoots,storedWitnesses:witnesses,
-      storedWitnessTruncated:eligiblePassRoots>witnesses.length,
+      actualGamesSeen:gameIndex,realPassRoots,realAttackRoots,
+      decisionsConsidered,eligiblePassRoots,eligibleAttackRoots,
+      eligibleTurnEndingRoots:eligiblePassRoots+eligibleAttackRoots,
+      storedWitnesses:witnesses,
+      storedWitnessTruncated:
+        eligiblePassRoots+eligibleAttackRoots>witnesses.length,
       qualification:{
         sourceGameWinRate:false,fullGamePolicyCertified:false,
         actorHiddenIdentityRead:false,counterfactualNativeLegal:false
