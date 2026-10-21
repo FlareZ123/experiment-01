@@ -28,6 +28,8 @@ This is demonstrable in one published, historically selected, authentic Store tr
 - Rank6 New Moon negative control: 75 roots / engine winner physical source seat1 / Prizes `[6,0]` in both arms; no hook event.
 - Rank11 champion and New Moon negative controls: same respective 260-root action-limit, unchanged root sequences and six-six original Prizes in both arms; no hook event.
 
+**Negative-control bitwise reproduction:** the three unaffected genuine Store root-ledger SHA256 values are byte-identical across OFF/ON: rank6 New Moon `9a2e795cf6ea5d953676a07894cd1ae6e7e8708162b3befcde7750f58efc11e7`, rank11 champion `b55152340296c3e0c64baee895e669864cde83be1f949a67573a59bc892abf33`, rank11 New Moon `d36f2d0cea103453dd7338363116ec9413eb43d1443e08b9e05ec202e36d1001`. Source original opening full-deal SHA is also preserved as recorded above. These are historical matched regression identities and do not validate opponent policy quality.
+
 All four original trials in both arms remain **development-only**, zero qualified competitive games. ON's strict 4/4 actor audits are protocol coverage, not win-rate evidence.
 
 ## Reversible correction design, tests and limits
