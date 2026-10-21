@@ -96,7 +96,7 @@ function withArticunoPowerglass(seat,execute,deps={}){
     nativeRoots:0,searchPrompts:0,toolRoots:0,energyPrompts:0,
     accepted:0,physicalConfirmed:0,failedPhysical:0,
     genericFallbacks:0,speculativeFallbacks:0,
-    events:[],competitiveGameQualified:false};
+    gateSnapshots:[],events:[],competitiveGameQualified:false};
 
   /** @param {object} item Bounded event with no deck/Prize/opponent secrets. */
   function log(item){if(audit.events.length<64)audit.events.push(item);}
@@ -161,6 +161,21 @@ function withArticunoPowerglass(seat,execute,deps={}){
       return original.value.call(this,state,...args);
     }
     const view=actorObservation(state,seat);
+    if(state.turn>=audit.minTurn&&state.turn<=audit.minTurn+4&&
+      audit.gateSnapshots.length<12){
+      const own=view.ownPublic.active;
+      audit.gateSnapshots.push({
+        turn:view.globalTurn,seat,
+        active:own?.printing??null,
+        activeEnergies:own?.energies??[],
+        activeTools:own?.tools??[],
+        heldCompressor:view.ownHand.filter(c=>c===COMPRESSOR).length,
+        heldPowerglass:view.ownHand.filter(c=>c===POWERGLASS).length,
+        discardPsychic:view.ownPublic.discard.filter(c=>c===BASIC).length,
+        itemLocked:view.ownTurnResources.itemPlayLocked,
+        toolLocked:view.ownTurnResources.toolPlayLocked
+      });
+    }
     const choice=chooseRoot(view,audit.minTurn);
     if(!choice){
       audit.genericFallbacks++;
