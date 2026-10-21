@@ -49,6 +49,24 @@ test('one correctly attributed native restart produces bounded evidence only',()
   assert.equal(JSON.stringify(game),before);
 });
 
+test('public pre-dispatch win predicates survive reset projection without hidden zones',()=>{
+  const game=fixture();
+  game.suddenDeathClockResets[0].preDispatchWinPredicates={
+    schema:'agent3-native-reset-public-win-prestate-v1',
+    players:[{noActive:true,noPrizes:false,occupiedBenchSlots:0},
+      {noActive:true,noPrizes:false,occupiedBenchSlots:0}],
+    nativeCheckWinnerPointsIfCheckedNow:[1,1],
+    bothSeatsWouldScoreIfCheckedNow:true,
+    preDispatchOnly:true,provesTransitionCause:false,
+    competitiveQualified:false
+  };
+  const out=auditNativeEpochBoundaries(game);
+  assert.deepEqual(out.clockReversals[0].marker.preDispatchWinPredicates,
+    game.suddenDeathClockResets[0].preDispatchWinPredicates);
+  assert.equal(out.nativeMarkersAuthentic,true);
+  assert.equal(JSON.stringify(out).includes('must-not-escape'),false);
+});
+
 test('unmarked turn reversal remains a hard authentication failure',()=>{
   const game=fixture();
   game.suddenDeathClockResets=[];
