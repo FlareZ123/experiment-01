@@ -267,3 +267,106 @@ test('common priority ignores hidden opponent identities and respects restrictio
   });
   assert.equal(blocked.slot,'bench');
 });
+
+
+const {printedActiveEnergyScaling,guardActiveEnergyExposure}=
+  require('../simulation/twinleaf/agent6-active-energy-exposure.cjs');
+
+/**
+ * Synthetic public/owner image of the reported rank11 source-first Articuno
+ * exposure. Card printings, damage wording and Basic attack gap are grounded
+ * in publicly visible card text; no native game outcome is asserted.
+ * @returns {object}
+ */
+function energyScalingThreatView(){
+  const a=(name,energies,attacks)=>({
+    name,energies,attacks,publicRestrictions:{},specialConditions:[]
+  });
+  return {
+    decisionKind:'owner-root',globalTurn:22,
+    ownHand:['Psychic Energy MEE'],
+    ownTurnResources:{energyPlayedTurn:0,energyPlayLocked:false,
+      pokemonPlayLocked:false},
+    ownPublic:{
+      active:a('Galarian Articuno V',[],[
+        {name:'Psyray',cost:[P,C,C],damage:'110',gxAttack:false}
+      ]),
+      bench:[a('Mewtwo & Mew-GX',[],[]),
+        a('Duskull',[],[]),a('Solrock',[],[]),
+        a('Clefairy',[],[]),a('Mew',[],[])],
+      publicTurnRestrictions:{attackLockTurnsRemaining:0}
+    },
+    opponentPublic:{
+      active:a('Oranguru V',[
+        'Double Colorless Energy XY','Double Colorless Energy XY'],[
+        {name:'Psychic',cost:[C,C,C],damage:'30+',
+          text:"This attack does 50 more damage for each Energy attached to your opponent's Active Pokémon.",
+          gxAttack:false}
+      ])
+    },
+    opponentHidden:{hand:['unknown'],prizes:['unknown']}
+  };
+}
+
+test('public opposing energy-scaled attack defers unready Active Basic attachment',()=>{
+  const v=energyScalingThreatView();
+  assert.equal(printedActiveEnergyScaling(v.opponentPublic),50);
+  const baseline=chooseActorEnergyRecipient(v,catalog);
+  assert.equal(baseline.slot,'active');
+  assert.equal(baseline.gapBefore,3);
+  assert.equal(baseline.gapAfter,2);
+  const guarded=guardActiveEnergyExposure(v,catalog,baseline);
+  assert.deepEqual(guarded,{triggered:true,recipient:null,bonusDamage:50});
+  const root=chooseActorRootIntent(v,catalog,{
+    energyFrontier:true,energyRecipientFrontier:true
+  });
+  assert.equal(root.kind,'pass');
+  assert.equal(root.reason,'withheld-basic-from-active-energy-scaling');
+  assert.equal(root.opponentPrintedScalingPerEnergy,50);
+});
+
+test('public Energy-scaling risk favors a credited Bench line',()=>{
+  const v=energyScalingThreatView();
+  v.ownPublic.bench[0].attacks=[
+    {name:'Bench Attack',cost:[P],damage:'40',gxAttack:false}
+  ];
+  const root=chooseActorRootIntent(v,catalog,{
+    energyFrontier:true,energyRecipientFrontier:true
+  });
+  assert.equal(root.kind,'attach-basic-energy');
+  assert.equal(root.slot,'bench');
+  assert.equal(root.index,0);
+  assert.equal(root.attackName,'Bench Attack');
+  assert.equal(root.avoidedActiveEnergyScaling,true);
+  assert.equal(root.opponentPrintedScalingPerEnergy,50);
+});
+
+test('non-scaling threats and immediately funded Active attacks retain attachment',()=>{
+  const v=energyScalingThreatView();
+  v.opponentPublic.active.attacks[0].text='This attack does 30 damage.';
+  assert.equal(printedActiveEnergyScaling(v.opponentPublic),0);
+  assert.equal(chooseActorRootIntent(v,catalog,{
+    energyFrontier:true,energyRecipientFrontier:true
+  }).slot,'active');
+  v.opponentPublic.active.attacks[0].text=
+    "This attack does 50 more damage for each Energy attached to your opponent's Active Pokémon.";
+  v.ownPublic.active.energies=[
+    'Psychic Energy MEE','Psychic Energy MEE'];
+  const root=chooseActorRootIntent(v,catalog,{
+    energyFrontier:true,energyRecipientFrontier:true
+  });
+  assert.equal(root.slot,'active');
+  assert.equal(root.gapAfter,0);
+});
+
+test('energy-exposure decision is invariant to opponent concealed information',()=>{
+  const v=energyScalingThreatView();
+  const original=chooseActorRootIntent(v,catalog,{
+    energyFrontier:true,energyRecipientFrontier:true
+  });
+  v.opponentHidden={hand:['different'],prizes:['different']};
+  v.ownSecretDeck=['hidden'];
+  assert.deepEqual(chooseActorRootIntent(v,catalog,{
+    energyFrontier:true,energyRecipientFrontier:true
+  }),original);
+});
