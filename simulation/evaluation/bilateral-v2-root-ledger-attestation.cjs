@@ -40,6 +40,17 @@ function attestBilateralRootClaims(row,ledger,candidateSeat){
       assert.ok(root.turnBefore>=previous && root.turnBefore<=previous+1,
         'Complete Store ledger cannot skip or reverse global turns');
     }
+    // A native replay can reset the turn counter while dealing a new set of
+    // Prizes. Such roots must first be partitioned by authenticated game
+    // epoch, with separately bound source-deal identities. Never join one
+    // bilateral witness across an unchecked replay boundary.
+    assert.ok(Number.isSafeInteger(root.turnAfter)&&
+      root.turnAfter>=root.turnBefore,
+      'Native Store turnAfter required; a replay reset needs epoch attestation');
+    if(i>0){
+      assert.equal(root.turnBefore,ledger[i-1].turnAfter,
+        'Consecutive native Store roots must preserve before/after turn continuity');
+    }
   }
   const sourceSeat=1-candidateSeat;
   /**
