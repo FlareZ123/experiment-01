@@ -1,0 +1,3 @@
+# Agent43 native comparison completed
+
+Frozen same-Git-head recipient-only OFF/ON gave **11 genuinely accepted and physically confirmed Bench Energy attachments** in rank11, but **no Prize progress** in either capped candidate game. Rank6 champion continues to fail strict sudden-death root38. Critical caution: complete `rootActionLedger` arrays and SHA256 were identical OFF/ON despite different Energy recipients and final boards. The ledger only captures action/turn/prompt chronology. [Source evidence](../../results/aichi-2026/agent43-canonical-recipient-frozen-pair-20261021.md). Zero competitively qualified games.
