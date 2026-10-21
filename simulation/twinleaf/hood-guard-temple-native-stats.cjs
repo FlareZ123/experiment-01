@@ -35,7 +35,7 @@ function inspectStats(options) {
 
   const source = new Player();
   source.id = 101;
-  source.active.cards.push(getCard('Mega Absol ex MEG'));
+  source.active.cards.push(getCard('Mega Absol ex M1L'));
 
   const candidate = new Player();
   candidate.id = 202;
