@@ -56,6 +56,8 @@ jobs:
         run: node --test tests/aichi-printing-mechanics.test.cjs
       - name: Check New Moon printed Stage 1 response under rank15 double Vileplume
         run: node --test tests/new-moon-rank15-dual-vileplume.test.cjs
+      - name: Regress owner Supporter-count versus Energy global turn clock
+        run: node --test tests/rank15-bus-native-retreat-policy.test.cjs
       - name: Verify rank4 and rank17 dual-evolution Prize and legal-seven capacity
         run: |
           node --test tests/agent45-raichu-dual-chain-prize-capacity.test.cjs
