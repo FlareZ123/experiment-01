@@ -18,11 +18,6 @@ on:
         required: false
         type: boolean
         default: false
-      near_term_damage_recipient:
-        description: Experimental near-term damaging Bench recipient override (requires actor_energy_recipient)
-        required: false
-        type: boolean
-        default: false
       actor_paid_retreat:
         description: Development-only owner-visible paid retreat to funded damaging attacker
         required: false
@@ -214,7 +209,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
-          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: ${{ inputs.near_term_damage_recipient && 'true' || 'false' }}
+          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'false'
           AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
@@ -241,7 +236,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
-          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: ${{ inputs.near_term_damage_recipient && 'true' || 'false' }}
+          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'false'
           AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
@@ -273,7 +268,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
-          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: ${{ inputs.near_term_damage_recipient && 'true' || 'false' }}
+          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'false'
           AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
@@ -318,7 +313,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
-          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: ${{ inputs.near_term_damage_recipient && 'true' || 'false' }}
+          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'false'
           AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
@@ -349,7 +344,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
-          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: ${{ inputs.near_term_damage_recipient && 'true' || 'false' }}
+          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'false'
           AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
@@ -379,7 +374,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
-          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: ${{ inputs.near_term_damage_recipient && 'true' || 'false' }}
+          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'true'
           AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
@@ -397,7 +392,7 @@ jobs:
       - name: Same-checkout source-first T22 Energy staging control
         # Preserve independent source-first evidence despite an earlier strict
         # original-panel audit failure. Do not run after cancellation.
-        if: ${{ !cancelled() && inputs.source_first_retrospective && inputs.near_term_damage_recipient }}
+        if: ${{ !cancelled() && inputs.source_first_retrospective && inputs.actor_energy_recipient }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
@@ -423,10 +418,10 @@ jobs:
           AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent8-near-term-control-sourcefirst.json
       - name: Compare exact paired source-first native T22 Energy decision
-        if: ${{ !cancelled() && inputs.source_first_retrospective && inputs.near_term_damage_recipient }}
+        if: ${{ !cancelled() && inputs.source_first_retrospective && inputs.actor_energy_recipient }}
         run: node scripts/agent8-near-term-damage-native-paircheck.cjs agent8-near-term-control-sourcefirst.json agent7-canonical-sourcefirst.json > agent8-near-term-damage-native-paircheck.json
       - name: Archive same-checkout source-first alternative and frozen baseline
-        if: ${{ always() && inputs.source_first_retrospective && inputs.near_term_damage_recipient }}
+        if: ${{ always() && inputs.source_first_retrospective && inputs.actor_energy_recipient }}
         uses: actions/upload-artifact@v4
         with:
           name: agent8-sourcefirst-near-term-damage-native-pair
@@ -456,7 +451,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
-          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: ${{ inputs.near_term_damage_recipient && 'true' || 'false' }}
+          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'false'
           AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
