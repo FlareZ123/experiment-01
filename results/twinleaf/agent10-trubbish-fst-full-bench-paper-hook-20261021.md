@@ -12,6 +12,18 @@ The supplied Advanced Player's Rulebook, Section I/II **C-11** (p.31, immediatel
 
 In the same pinned engine, [`player-turn-reducer.ts`](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/reducers/player-turn-reducer.ts) translates the actor's `AttackAction` into `UseAttackEffect`. [`game-effect.ts`](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/effect-reducers/game-effect.ts) runs `useAttack`: after legal attack-cost checking, it enters `GamePhase.ATTACK`, invokes `store.reduceEffect(state, attackEffect)`, then proceeds through attack animation, damage and `AfterAttackEffect` handling, finally scheduling `EndTurnEffect` in the non-Barrage branch. Thus suppressing **only** Trubbish's illegal full-Bench search in its printed attack reducer allows the engine to *attempt* the ordinary attack continuation. This is a source-level control-flow trace and not proof that the real Store fully settles without another exception or timing problem. The original rank-11 aborted branch remains a genuine unresolved game until a full native replay.
 
+## Published-Aichi field exposure and independent native contrast
+
+The supplied English card pool was screened for printings with attack text of the form *search deck, then put Pokémon onto Bench*. I compared those **165 broad text-pattern candidates** with the printing IDs in the repository's [29 published source 60s](../aichi-2026/full-decklists.json). Three ranks matched this textual screen, which is **not an exhaustive simulator implementation census**:
+
+| Published rank | Exact printed card | Copies in source 60 | Native code behavior on full Bench |
+| --- | --- | ---: | --- |
+| 2, Vileplume Control | Pidgey MEW 16, Call for Family | 2 | [Pinned bespoke reducer](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/10-scarlet-and-violet/set-pokemon-151/pidgey.ts) sets `max=Math.min(openSlots,2)` and directly returns State when `max===0`; **paper-correct** for this condition |
+| 11, Absol/Garbodor | Trubbish FST 168, Call for Family | 2 | Unconditional generic prefab call reaches `BLOCK_IF_NO_SLOTS`; **paper discrepancy** |
+| 22, Absol/Garbodor | Trubbish FST 168, Call for Family | 1 | Same printed class and risk as rank 11 |
+
+The rank-2 Pidgey behavior is a useful *positive implementation control*: it shows that the exact paper full-Bench termination is already represented correctly in one pinned native reducer. It avoids generalizing Trubbish's fault to every search-to-Bench attack. I extended the existing pinned-class regression to assert that a genuine Pidgey `AttackEffect` with five occupied Bench slots returns the unchanged State without prompting. The Pidgey test is **source-reviewed, not yet executed against compiled Twinleaf**. No additional opponent lists were discovered, and exact coverage remains 29/32.
+
 ## Implementation and verification level
 
 [Research-owned reversible hook](../../simulation/twinleaf/agent10-trubbish-fst-full-bench-paper-hook.cjs) intercepts only genuine `AttackEffect` class instances whose `attack` is **the first printed attack of a pinned FST Trubbish instance**, while the attacking player's full Bench has no empty native slots. It returns the unchanged game State, suppressing only the forbidden search; the native engine continues the ordinary attack/turn resolution. Every other reducer call delegates to the original native implementation. `finally` restores the original prototype even when execution fails. Audit counters count reducer calls, **not** physical matches or legitimate game outcomes.
