@@ -270,6 +270,7 @@ function policyRandomStreams(seed) {
  * @property {0|1} [newMoonAttackPayloadCompressorBenchedSeat] Independent opt-in: also prepare owner-deck donors when Mewtwo is Benched.
  * @property {0|1} [newMoonAttackPayloadCompressorSecondDonorSeat] Independent opt-in: seek still-missing Trevenant after Gengar is established.
  * @property {0|1} [newMoonAttackPayloadCompressorLateSeat] Historical diagnostic only: allow Mewtwo-Active owner donor setup through global turn 14.
+ * @property {0|1} [newMoonAttackPayloadCompressorAnyTurnSeat] Historical diagnostic only: allow an owner-visible late donor setup beyond turn 14.
  * @property {0|1} [rank31FogEnergySeat] Opponent source Chimecho Active: opt-in strict Fog-for-Basic-Psychic-Energy search.
  * @property {0|1} [rank31FogEnergyBroaderSeat] Comparison: allow other Basics in hand or Bench when finding Bell's Energy.
  * @property {0|1} [newMoonOpeningHorrorHouseSeat] Candidate-only first-going-second native or copied Horror House-GX policy.
@@ -388,6 +389,7 @@ function runMatch(request) {
   for (const seat of [request.newMoonAttackPayloadCompressorSeat,
     request.newMoonAttackPayloadCompressorBenchedSeat,
     request.newMoonAttackPayloadCompressorLateSeat,
+    request.newMoonAttackPayloadCompressorAnyTurnSeat,
     request.newMoonAttackPayloadCompressorSecondDonorSeat,
     request.newMoonOpeningHorrorHouseSeat]) {
     if (seat !== undefined && ![0,1].includes(seat)) {
@@ -782,6 +784,7 @@ function runMatch(request) {
       if (request.newMoonAttackPayloadCompressorSeat === seat ||
           request.newMoonAttackPayloadCompressorBenchedSeat === seat ||
           request.newMoonAttackPayloadCompressorLateSeat === seat ||
+          request.newMoonAttackPayloadCompressorAnyTurnSeat === seat ||
           request.newMoonAttackPayloadCompressorSecondDonorSeat === seat) {
         configured = require('./new-moon-compressor-payload-policy.cjs')
           .withNewMoonCompressorPayload(configured, {
@@ -790,7 +793,9 @@ function runMatch(request) {
             allowTrevenantOnly:
               request.newMoonAttackPayloadCompressorSecondDonorSeat === seat,
             maxGlobalTurn:
-              request.newMoonAttackPayloadCompressorLateSeat === seat ? 14 : 6
+              request.newMoonAttackPayloadCompressorAnyTurnSeat === seat ?
+                Number.POSITIVE_INFINITY :
+                (request.newMoonAttackPayloadCompressorLateSeat === seat ? 14 : 6)
           });
       }
       if (request.rank4RaichuCompressorSeat === seat) {
