@@ -110,6 +110,12 @@ test('real owner-visible M3 attachment closes printed Dusclops attack with Basic
   }),{kind:'attack',attackName:'Will-o-Wisp'});
   const {AttackAction}=engine('game/store/actions/game-actions');
   store.dispatch(new AttackAction(owner.id,'Will-o-Wisp'));
+  const {ResolvePromptAction}=engine('game/store/actions/resolve-prompt-action');
+  for(let i=0;i<10;i++){
+    const next=store.state.prompts.find(p=>p.result===undefined);
+    if(!next||next.constructor.name!=='WaitPrompt')break;
+    store.dispatch(new ResolvePromptAction(next.id,null));
+  }
   assert.equal(opponent.active.damage,50,
     'Attack resolves real pinned Store damage after paid two-Psychic cost');
 });
