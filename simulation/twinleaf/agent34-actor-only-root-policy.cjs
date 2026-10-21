@@ -148,6 +148,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       }
     }
   }
+  if(options.paidRetreatRoot===true){
+    const retreat=require('./agent6-actor-paid-retreat-frontier.cjs')
+      .choosePaidRetreatToDamagingBench(view,catalog);
+    if(retreat)return retreat;
+  }
   const active=own.active,restrictions=active?.publicRestrictions;
   const locked=own.publicTurnRestrictions?.attackLockTurnsRemaining>0||
     restrictions?.cannotAttackNextTurn===true||
@@ -256,7 +261,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     require(path.join(base,'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
   const {PlayCardAction,PlayerType,SlotType}=deps.cardActions??
     require(path.join(base,'game/store/actions/play-card-action'));
-  const {AttackAction,PassTurnAction}=deps.gameActions??
+  const {AttackAction,PassTurnAction,RetreatAction}=deps.gameActions??
     require(path.join(base,'game/store/actions/game-actions'));
   const getCatalog=deps.getCatalog??(()=>{
     const {CardManager}=require(path.join(base,'game/cards/card-manager'));
@@ -286,6 +291,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT10_BASIC_ENERGY_FRONTIER_DEV==='true'),
     energyRecipientFrontierOptIn:deps.energyRecipientFrontier??
       (process.env.AGENT44_ACTOR_ENERGY_RECIPIENT_DEV==='true'),
+    paidRetreatRootOptIn:deps.paidRetreatRoot??
+      (process.env.AGENT6_PAID_RETREAT_ROOT_DEV==='true'),
     thornsDirectLineOptIn:deps.thornsDirectLine??
       (process.env.AGENT1_THORNS_DIRECT_ROOT_DEV==='true'),
     specialEnergyRootOptIn:deps.specialEnergyRoot??
@@ -347,6 +354,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     const intent=chooseActorRootIntent(view,catalog,{
       energyFrontier:audit.energyFrontierOptIn,
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
+      paidRetreatRoot:audit.paidRetreatRootOptIn,
       thornsDirectLine:audit.thornsDirectLineOptIn,
       specialEnergyRoot:audit.specialEnergyRootOptIn,
       printedGxRoot:audit.printedGxRootOptIn,
@@ -386,6 +394,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'attach-dce':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+        break;
+      case 'paid-retreat':
+        action=new RetreatAction(ownerId,intent.benchIndex);
         break;
       case 'attack':action=new AttackAction(ownerId,intent.attackName);break;
       case 'pass':action=new PassTurnAction(ownerId);break;
