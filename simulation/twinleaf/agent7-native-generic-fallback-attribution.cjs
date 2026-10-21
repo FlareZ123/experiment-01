@@ -93,6 +93,16 @@ function withNativeGenericFallbackAttribution(run,deps={}){
   Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',{
     ...decode,value:observedDecode});
   try{return {result:run(),audit};}
+  catch(error){
+    // Aborted original-Store games retain their observed fallback denominator.
+    // The audit stores decision metadata only, never native hands or Prizes.
+    if(error&&typeof error==='object'){
+      error.nativeGenericFallbackEvidence={
+        ...audit,interrupted:true
+      };
+    }
+    throw error;
+  }
   finally{
     assert.strictEqual(Store.prototype.dispatch,observedDispatch);
     assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,observedDecode);
