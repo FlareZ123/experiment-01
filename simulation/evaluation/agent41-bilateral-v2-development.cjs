@@ -365,7 +365,8 @@ function executeDevelopment(trial,candidates,{
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,
   paperTerminalAttackKo=false,
-  rank6K1AlternativeEnergy=false
+  rank6K1AlternativeEnergy=false,
+  articunoPowerglass=false
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
     'Initialization passive window belongs only to rank 6');
@@ -417,6 +418,7 @@ function executeDevelopment(trial,candidates,{
     paperTerminalAttackKoCorrection:paperTerminalAttackKo
   };
   let ownerCompressorAudit=null;
+  let articunoPowerglassAudit=null;
   let ownerAuthenticatedBasicSearchCounts=null;
   let garbotoxinWindowAudit=null;
   let initializationWindowAudit=null;
@@ -458,8 +460,15 @@ function executeDevelopment(trial,candidates,{
     garbotoxinWindowAudit=observed.audit;
     return observed.result;
   };
+  const runWithArticunoPowerglass=()=>{
+    if(!articunoPowerglass||trial.rank!==6)return runWithPowerWindow();
+    const native=require('../twinleaf/agent5-articuno-powerglass-native.cjs')
+      .withArticunoPowerglass(candidateSeat,runWithPowerWindow,{minTurn:34});
+    articunoPowerglassAudit=native.audit;
+    return native.result;
+  };
   const runWithReadOnlyAudit=()=>{
-    if(!opportunityAudit)return runWithPowerWindow();
+    if(!opportunityAudit)return runWithArticunoPowerglass();
     const withOwnedBasicSearchProof=()=>{
       // Observe each real owner-deck search prompt. This authorizes an exact
       // K1 count *only at the legal search*, never an arbitrary deck peek.
@@ -468,7 +477,7 @@ function executeDevelopment(trial,candidates,{
       const Store=require(path.join(nativeBase,'game/store/store')).Store;
       const data=require('../twinleaf/owner-deck-search-witness.cjs')
         .withOwnerDeckSearchWitness(Store,candidateSeat,
-          ['Psychic Energy MEE'],runWithPowerWindow);
+          ['Psychic Energy MEE'],runWithArticunoPowerglass);
       ownerAuthenticatedBasicSearchCounts=data.events;
       return data.result;
     };
@@ -660,6 +669,7 @@ function executeDevelopment(trial,candidates,{
     }:{}),
     ...(opportunityAudit?{ownerCompressorOpportunityAudit:ownerCompressorAudit,
       ownerAuthenticatedBasicSearchCounts}:{}),
+    ...(articunoPowerglass?{articunoPowerglassAudit}:{}),
     ...(garbotoxinWindow?{garbotoxinWindowAudit}:{}),
     ...(initializationWindow?{
       initializationWindowAudit,rank6PassivePressure:passiveEvidence
@@ -804,7 +814,8 @@ function runDevelopment({
   paperTerminalAttackKo=false,
   rank6K1AlternativeEnergy=false,
   sourceScopedSpecialEnergyRoot=false,
-  candidateScopedSpecialEnergyRoot=false
+  candidateScopedSpecialEnergyRoot=false,
+  articunoPowerglass=false
 }={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -831,6 +842,7 @@ function runDevelopment({
         anyTurnCompressorPayload,earlyBenchedCompressorPayload,
         mandatoryOptionFallback,paperSupporterQuota,paperCologneQuota,
         paperFullBenchCallForFamily,
+        articunoPowerglass,
         paperSupporterComparisonTrace,
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
@@ -885,6 +897,9 @@ function runDevelopment({
         error?.cause?.nativeGenericFallbackEvidence??null;
       rows.push({
         trial,status:classifyNativeAbort(veto),
+        ...(articunoPowerglass?{
+          articunoPowerglassAudit:error?.agent5ArticunoPowerglassAudit??null
+        }:{}),
         error:String(error?.stack||error),
         nativeStoreCauseStack:error?.cause?.stack??null,
         ...(error?.nativePublicRootArchive??{}),
@@ -945,6 +960,7 @@ function runDevelopment({
     ownerCompressorAnyTurnOptIn:anyTurnCompressorPayload,
     ownerCompressorBenchedOptIn:earlyBenchedCompressorPayload,
     nativePressureWindowsOptIn:nativePressureWindows,
+    articunoPowerglassOptIn:articunoPowerglass,
     paperSupporterQuotaOptIn:paperSupporterQuota,
     paperCologneQuotaOptIn:paperCologneQuota,
     paperFullBenchCallForFamilyOptIn:paperFullBenchCallForFamily,
@@ -1047,6 +1063,7 @@ if(require.main===module){
     actorChoosePokemon:process.env.AGENT8_ACTOR_CHOOSE_POKEMON_DEV==='true',
     sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true',
+    articunoPowerglass:process.env.AGENT5_ARTICUNO_POWERGLASS_DEV==='true',
     rank6K1AlternativeEnergy:
       process.env.AGENT49_RANK6_K1_ALT_ENERGY_DEV==='true',
     sourceScopedSpecialEnergyRoot:
