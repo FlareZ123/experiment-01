@@ -185,6 +185,7 @@ jobs:
           AICHI_ELECTRODE_PRIZE_TRADE: ${{ inputs.electrode_gx_prize_trade_policy && '1' || '0' }}
           AICHI_RANK4_COMPRESSOR: ${{ inputs.rank4_raichu_compressor_source && '1' || '0' }}
           AICHI_RANK4_ROPE_PIVOT: ${{ inputs.rank4_raichu_rope_pivot_source && '1' || '0' }}
+          AICHI_RANK4_BOMB_RECIPIENT: ${{ inputs.rank4_raichu_bomb_recipient_source && '1' || '0' }}
           AICHI_BATTLE_COMPRESSOR_MIN1: ${{ inputs.battle_compressor_positive_selection_correction && '1' || '0' }}
           AICHI_ELECTRODE_OPPORTUNITY: ${{ inputs.electrode_opportunity_observer && '1' || '0' }}
           AICHI_RANK4_PUBLIC_ATTACK_AUDIT: ${{ inputs.rank4_public_attack_audit && '1' || '0' }}
