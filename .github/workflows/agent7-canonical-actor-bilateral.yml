@@ -3,11 +3,6 @@ name: Canonical bilateral actor-only decision composition
 on:
   workflow_dispatch:
     inputs:
-      agent42_new_seed_pairs:
-        description: Precommitted 6 new rank11/rank6 New Moon same-deal Rope vs no Rope experiment
-        required: false
-        type: boolean
-        default: false
       source_first_retrospective:
         description: Also execute previously selected native source-first four-arm stress panel
         required: false
@@ -553,27 +548,6 @@ jobs:
       - name: Verify source-first gameplay and native-seat ledger invariance
         if: ${{ inputs.native_fallback_paircheck && inputs.source_first_retrospective }}
         run: node scripts/agent7-native-fallback-paircheck.cjs agent7-canonical-sourcefirst-control.json agent7-canonical-sourcefirst.json
-      - name: Run Agent42 precommitted six new source-deal pairs without seed filtering
-        if: ${{ !cancelled() && inputs.agent42_new_seed_pairs }}
-        env:
-          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
-          AGENT10_BASIC_ENERGY_FRONTIER_DEV: 'true'
-          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: 'true'
-          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'true'
-          AGENT8_ACE_TRAINER_EMERGENCY_DEV: 'false'
-          AGENT3_SPECIAL_ENERGY_ROOT_DEV: 'true'
-          AGENT41_PAPER_SUPPORTER_DEV: 'true'
-          AGENT41_MANDATORY_OPTION_DEV: 'true'
-          AGENT41_NATIVE_PRESSURE_DEV: 'true'
-        run: node simulation/evaluation/agent42-rope-six-seed-native.cjs > agent42-rope-six-seed-native.json
-      - name: Archive all six Agent42 prospective seed contrasts including failures
-        if: ${{ always() && inputs.agent42_new_seed_pairs }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: agent42-rope-six-new-seed-original-store
-          path: agent42-rope-six-seed-native.json
-          if-no-files-found: warn
-          retention-days: 14
       - name: Read the authentic source-owner rank6 G&H deck-search prompt without changing actions
         if: ${{ inputs.rank6_source_k1 }}
         run: node simulation/evaluation/agent7-rank6-k1-canonical-retrospective.cjs > agent7-rank6-source-k1.json
