@@ -52,10 +52,11 @@ function chooseOwnerFloatStoneMobility(view,catalog){
   // Printed zero Retreat Cost does not require consuming an Item or Tool.
   const naturalFree=active.printed.retreatCost.length===0;
   const floatAttached=active.tools?.includes(FLOAT_STONE)===true;
+  const toolsBlanked=[...(own.stadium??[]),
+    ...(view.opponentPublic?.stadium??[])].some(s=>
+    s.startsWith('Jamming Tower '));
+  if(!naturalFree&&toolsBlanked)return null;
   if(naturalFree||floatAttached){
-    if(floatAttached&&[...(own.stadium??[]),
-      ...(view.opponentPublic?.stadium??[])].some(s=>
-      s.startsWith('Jamming Tower ')))return null;
     return {kind:'retreat-emergency-floatstone',benchIndex,
       printing:p.printing};
   }
