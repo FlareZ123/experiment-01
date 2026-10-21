@@ -26,6 +26,9 @@ function compact(row){
     actorRootVersion:row.actorAudit?.componentVersions?.root??null,
     actorRootIntents:(row.actorAudit?.detailedComponentAudits?.root?.ownerRootIntents??[])
       .filter(x=>x.intent?.kind==='play-stranded-marnie'),
+    sourceOwnerTurnSevenHandTrace:row.agent50SourceOwnerTurnSevenHandTrace??null,
+    marnieNativeRootReceipts:(row.actorAudit?.detailedComponentAudits?.root?.nativeRootAcceptances??[])
+      .filter(x=>x.kind==='play-stranded-marnie'),
     actualMarnieRoots:roots.filter(x=>x.playerSlot===0&&
       x.action==='PlayCardAction'&&x.card==='Marnie').map(x=>({
         ordinal:x.actionOrdinal,turn:x.turnBefore,card:x.card
@@ -39,6 +42,7 @@ function compact(row){
     winner:row.winner??null,finished:row.finished??false,
     endReason:row.endReason??null,
     abort:row.status??null,error:row.error??null,
+    fullOriginalNativeRootActionLedger:roots,
     firstThirtyAfterT7:roots.filter(x=>x.turnBefore>=7).slice(0,30)
   };
 }
