@@ -3,7 +3,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {developmentTrials,commonPayloadOption,firstPostSourceDecision,sourceLineReplyPacket,
-  candidatePostChoicePassEvidence,candidateRepliesAfterSourceAttacks}=require(
+  candidatePostChoicePassEvidence,candidateRepliesAfterSourceAttacks,
+  scopedSpecialEnergyActorSeat}=require(
   '../simulation/evaluation/agent41-bilateral-v2-development.cjs');
 
 test('only historical source streams enter the policy development packet',()=>{
@@ -406,4 +407,17 @@ test('unverified next epoch does not open candidate turn trace',()=>{
   ])[0];
   assert.deepEqual(result.candidateReplyTurnRootSequence,[]);
   assert.equal(result.candidateReplyTurnFinalPass,null);
+});
+
+test('single-actor Special Energy treatment maps candidate and source oppositely',()=>{
+  assert.equal(scopedSpecialEnergyActorSeat('none','A'),null);
+  assert.equal(scopedSpecialEnergyActorSeat('none','B'),null);
+  assert.equal(scopedSpecialEnergyActorSeat('candidate','A'),0);
+  assert.equal(scopedSpecialEnergyActorSeat('source','A'),1);
+  assert.equal(scopedSpecialEnergyActorSeat('candidate','B'),1);
+  assert.equal(scopedSpecialEnergyActorSeat('source','B'),0);
+  assert.throws(()=>scopedSpecialEnergyActorSeat('both','B'),
+    {name:'AssertionError'});
+  assert.throws(()=>scopedSpecialEnergyActorSeat('candidate','C'),
+    {name:'AssertionError'});
 });
