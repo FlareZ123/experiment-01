@@ -124,12 +124,29 @@ function dceHandAttachmentBlocked(player,state) {
 }
 
 /**
+ * Choose a printed fallback when the genuine owner-deck G&H prompt proves
+ * the only DCE is inaccessible. This helper must ONLY receive the actual
+ * prompt owner's deck contents after that deck is legitimately searchable.
+ * It neither infers physical Prize identities at K0 nor proves an attack.
+ * @param {{name:string}[]} searchableOwnDeck
+ * @returns {string|null}
+ */
+function chooseK1AlternateSpecialEnergy(searchableOwnDeck){
+  if(searchableOwnDeck.some(card=>card.name==='Double Colorless Energy'))
+    return null;
+  for(const name of ['Speed Lightning Energy','Capture Energy','Spiky Energy']){
+    if(searchableOwnDeck.some(card=>card.name===name))return name;
+  }
+  return null;
+}
+
+/**
  * Opt-in broad source-opponent attack tactic, still deliberately simple.
  * Selects using own hand, public stadium and legal search prompts only;
  * reading deck cards is restricted to actual ChooseCardsPrompt resolution.
  * @template T
  * @param {()=>T} work
- * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean,k1TagCallAlternative?:'none'|'append-bellelba'|'replace-bellelba'}} [options]
+ * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean,k1AlternativeEnergy?:boolean,k1TagCallAlternative?:'none'|'append-bellelba'|'replace-bellelba'}} [options]
  * @returns {{result:T,started:boolean,completed:boolean,events:object[],abortReason:string|null,openingPlan:object|null}}
  */
 function withBroadThornsSourceAttack(work,options={}) {
@@ -141,6 +158,7 @@ function withBroadThornsSourceAttack(work,options={}) {
   const conditionalTagCallPayment=options.conditionalTagCallPayment===true;
   const playLockAwareOpening=options.playLockAwareOpening===true;
   const k1ReplanAfterTagCall=options.k1ReplanAfterTagCall===true;
+  const k1AlternativeEnergy=options.k1AlternativeEnergy===true;
   const k1TagCallAlternative=options.k1TagCallAlternative??'none';
   assert.ok(['none','append-bellelba','replace-bellelba']
     .includes(k1TagCallAlternative));
@@ -163,6 +181,7 @@ function withBroadThornsSourceAttack(work,options={}) {
   let activeTurn=null;
   let openingPlan=null,abortReason=null,backupDeployed=false;
   let missingAfterTagCall=[];
+  let backupEnergyName=null;
   const events=[];
 
   /** @param {object} state @param {string} action @param {object} result */
@@ -218,6 +237,16 @@ function withBroadThornsSourceAttack(work,options={}) {
         new AttackAction(p.id,'Volt Cyclone'));
     }
     if(!p.hand.cards.some(c=>c.name==='Double Colorless Energy')) {
+      if(k1AlternativeEnergy&&backupEnergyName&&
+         p.hand.cards.some(c=>c.name===backupEnergyName)){
+        phase='fallback-deferred';
+        if(dceHandAttachmentBlocked(p,state)){
+          events.push({turn:state.turn,phase,action:'Preserve K1 backup: Energy attachment spent'});
+          return null;
+        }
+        return select(state,'Attach K1 backup '+backupEnergyName,
+          play(p,backupEnergyName,active));
+      }
       abort(state,'Required DCE unavailable after search');
       return null;
     }
@@ -281,7 +310,7 @@ function withBroadThornsSourceAttack(work,options={}) {
       return useSupporter(state,p);
     }
     if(actorId!==p.id || phase==='done' || phase==='aborted' ||
-       phase==='inactive') {
+       phase==='inactive' || phase==='fallback-deferred') {
       return original.call(this,state);
     }
     if(state.turn!==activeTurn || state.activePlayer!==seat) {
@@ -361,15 +390,24 @@ function withBroadThornsSourceAttack(work,options={}) {
         new ResolvePromptAction(prompt.id,payment));
     }
     if(phase==='search' && prompt?.constructor.name==='ChooseCardsPrompt') {
+      if(prompt.playerId!==p.id || prompt.cards!==p.deck){
+        abort(state,'G&H search lacks authenticated owner-deck prompt');
+        return original.call(this,state);
+      }
+      const backup=k1AlternativeEnergy&&openingPlan.needDce?
+        chooseK1AlternateSpecialEnergy(p.deck.cards):null;
       const targets=[
         ...(openingPlan.needThunder?['Thunder Mountain Prism Star']:[]),
-        ...(openingPlan.needDce?['Double Colorless Energy']:[])
+        ...(openingPlan.needDce?[backup??'Double Colorless Energy']:[])
       ];
       const searched=targets.map(name=>p.deck.cards.find(c=>c.name===name));
       if(searched.some(card=>!card) || !prompt.validate(searched,state)) {
         abort(state,'G&H prompted search could not retrieve planned targets');
         return original.call(this,state);
       }
+      backupEnergyName=backup;
+      if(backup)events.push({turn:state.turn,phase:'search',
+        action:'K1 DCE absent, search '+backup});
       phase='followup';
       return select(state,'Fetch '+targets.join(' plus '),
         new ResolvePromptAction(prompt.id,searched));
@@ -418,13 +456,14 @@ function withBroadThornsSourceAttack(work,options={}) {
   };
   try {
     const result=work();
-    return {result,started,completed,events,abortReason,openingPlan};
+    return {result,started,completed,events,abortReason,openingPlan,
+      backupEnergyName};
   } catch(error) {
     // Preserve the local decision witness when the Store rejects an action.
     // This is a diagnostic property on the already-thrown error, not a
     // substitute for a legal result.
     error.rank6PolicyEvidence={started,completed,abortReason,
-      openingPlan,events:events.slice()};
+      openingPlan,backupEnergyName,events:events.slice()};
     throw error;
   } finally {
     SimpleTacticsAi.prototype.decodeNextAction=original;
@@ -433,4 +472,4 @@ function withBroadThornsSourceAttack(work,options={}) {
 
 module.exports={discardOrder,chooseOpeningDiscards,planOpeningHand,
   missingTagCallK1Requirements,dceHandAttachmentBlocked,
-  withBroadThornsSourceAttack};
+  chooseK1AlternateSpecialEnergy,withBroadThornsSourceAttack};
