@@ -179,3 +179,91 @@ test('authentic owner Root proposal addresses the Bench, with reversible hooks',
   assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,botOriginal);
   assert.strictEqual(Store.prototype.dispatch,storeOriginal);
 });
+
+
+/**
+ * Public counterpart of the verified rank-11 source decision.
+ * Only synthetic actor views are supplied here. The published Agent12
+ * pinned-Store comparison is separate evidence of actual native settlement.
+ * @param {number} defendingHP
+ * @returns {object}
+ */
+function oneAttachmentClawView(defendingHP=90){
+  const darkness='Darkness Energy MEE',D=7;
+  const p=(name,energies,attacks)=>({
+    name,energies,attacks,publicRestrictions:{},specialConditions:[]
+  });
+  return {
+    decisionKind:'owner-root',globalTurn:42,
+    ownHand:[darkness],
+    ownTurnResources:{energyPlayedTurn:0,energyPlayLocked:false,
+      pokemonPlayLocked:false},
+    ownPublic:{
+      active:p('Mega Absol ex',[darkness,darkness],[
+        {name:'Terminal Period',cost:[D,C],damage:'',gxAttack:false},
+        {name:'Claw of Darkness',cost:[D,D,C],damage:'200',
+          gxAttack:false}
+      ]),
+      bench:[p('Trubbish',[],[
+        {name:'Call for Family',cost:[D],damage:'',gxAttack:false}
+      ]),p('Bench 1',[],[]),p('Bench 2',[],[]),
+        p('Bench 3',[],[]),p('Bench 4',[],[])],
+      publicTurnRestrictions:{attackLockTurnsRemaining:0,
+        attackMaxEnergy:null}
+    },
+    opponentPublic:{active:p('Girafarig',[],[]),
+      handCount:4},
+    opponentHidden:{hand:['unknown'],prizes:['unknown']}
+  };
+}
+
+test('common policy prioritizes printed one-attachment nominal KO over a Bench gap',()=>{
+  const v=oneAttachmentClawView();
+  v.opponentPublic.active.hp=90;
+  v.opponentPublic.active.damage=0;
+  const old=chooseActorEnergyRecipient(v,catalog);
+  assert.equal(old.slot,'bench','Unmodified generic recipient remains a baseline');
+  const intent=chooseActorRootIntent(v,catalog,{
+    energyFrontier:true,energyRecipientFrontier:true
+  });
+  assert.equal(intent.kind,'attach-basic-energy');
+  assert.equal(intent.slot,'active');
+  assert.equal(intent.attackName,'Claw of Darkness');
+  assert.equal(intent.gapBefore,1);
+  assert.equal(intent.gapAfter,0);
+  assert.equal(intent.projectedBaseDamage,200);
+  assert.equal(intent.opponentRemainingHP,90);
+  assert.equal(intent.printing,'Darkness Energy MEE');
+});
+
+test('common policy retains ordinary recipient for insufficient printed damage',()=>{
+  const v=oneAttachmentClawView();
+  v.opponentPublic.active.hp=280;
+  v.opponentPublic.active.damage=0;
+  const intent=chooseActorRootIntent(v,catalog,{
+    energyFrontier:true,energyRecipientFrontier:true
+  });
+  assert.equal(intent.slot,'bench');
+  assert.equal(intent.attackName,'Call for Family');
+});
+
+test('common priority ignores hidden opponent identities and respects restrictions',()=>{
+  const v=oneAttachmentClawView();
+  v.opponentPublic.active.hp=90;
+  v.opponentPublic.active.damage=0;
+  const intent=chooseActorRootIntent(v,catalog,{
+    energyFrontier:true,energyRecipientFrontier:true
+  });
+  v.opponentHidden={hand:['different'],prizes:[]};
+  v.ownSecretDeck=['inaccessible'];
+  assert.deepEqual(chooseActorRootIntent(v,catalog,{
+    energyFrontier:true,energyRecipientFrontier:true
+  }),intent);
+  v.ownPublic.active.publicRestrictions.cannotUseAttacksNextTurn=[
+    'Claw of Darkness'
+  ];
+  const blocked=chooseActorRootIntent(v,catalog,{
+    energyFrontier:true,energyRecipientFrontier:true
+  });
+  assert.equal(blocked.slot,'bench');
+});
