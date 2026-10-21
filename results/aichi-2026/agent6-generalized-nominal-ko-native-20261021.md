@@ -29,7 +29,7 @@ For inspectable CI stdout without downloading artifact bytes, **both** test bran
 
 ## Complete unselected-outcome census
 
-This fixed source comparison uses the exact old rank6/rank11 historical original source deals. Native source rank11 fingerprint for **every paired row**: `9bc69d70743d1c2d0e1406076a817309a0ae1fd73a68da3c27e1e76900d2b5f5`. Candidate physical seat **B/1 actually starts first**; source is A/0. Rank6 source fingerprint: `2ce05954cf7a87661c3dc42c242ec6c10f23613744d1`.
+This fixed source comparison uses the exact old rank6/rank11 historical original source deals. Native source rank11 fingerprint for **every paired row**: `9bc69d70743d1c2d0e1406076a817309a0ae1fd73a68da3c27e1e76900d2b5f5`. Candidate physical seat **B/1 actually starts first**; source is A/0. Rank6 source fingerprint: `2ce05954cf7a87661c3dc42c242ec6c10f8c9caa9a4a60c0d3580f23613744d1`.
 
 | Original trial | Control | Treatment | Selected-owner decision or error |
 | --- | --- | --- | --- |
