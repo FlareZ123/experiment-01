@@ -1,6 +1,11 @@
 name: Agent 28 historical Perfection donor diagnostic
 on:
   workflow_dispatch:
+    inputs:
+      agent50_zero_hand_poltergeist:
+        description: Replay a frozen rank11 copied attack with public zero-hand alternative, development only
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -34,4 +39,32 @@ jobs:
         with:
           name: agent28-public-perfection-historical-observation
           path: agent28-public-copy-source.json
+          retention-days: 10
+      - name: Verify opted-in public-zero-hand copied attack chooser
+        if: inputs.agent50_zero_hand_poltergeist == true
+        run: node --test tests/agent13-actor-only-choose-attack.test.cjs tests/agent50-zero-hand-poltergeist-choice.test.cjs
+      - name: Original source-locked Poltergeist-preferring attack policy
+        if: inputs.agent50_zero_hand_poltergeist == true
+        env:
+          AGENT13_COPY_POLTERGEIST_PRIORITY: 'true'
+        run: node simulation/twinleaf/agent13-copied-attack-source-smoke.cjs > agent50-copy-baseline.json
+      - name: Identical source deal with only zero-hand copied attack choice changed
+        if: inputs.agent50_zero_hand_poltergeist == true
+        env:
+          AGENT13_COPY_POLTERGEIST_PRIORITY: 'true'
+          AGENT50_PUBLIC_ZERO_HAND_POLTERGEIST_DEV: 'true'
+        run: node simulation/twinleaf/agent13-copied-attack-source-smoke.cjs > agent50-copy-optin.json
+      - name: Compare retrospective source-dealt decisions without competitive inference
+        if: inputs.agent50_zero_hand_poltergeist == true
+        run: node simulation/evaluation/agent50-zero-hand-native-pair.cjs agent50-copy-baseline.json agent50-copy-optin.json > agent50-zero-hand-native-pair.json
+      - name: Archive all source-locked baseline, treatment and complete negative evidence
+        if: ${{ always() && inputs.agent50_zero_hand_poltergeist }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent50-zero-hand-native-decision-development
+          path: |
+            agent50-copy-baseline.json
+            agent50-copy-optin.json
+            agent50-zero-hand-native-pair.json
+          if-no-files-found: warn
           retention-days: 10
