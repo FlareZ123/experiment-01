@@ -24,6 +24,11 @@ on:
         required: false
         default: false
         type: boolean
+      probe_primarina_may_image:
+        description: 'Retrieve directly linked first-person Aichi 48th deck-image source for visual audit'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -34,7 +39,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Retrieve linked public tournament deck image
-        if: ${{ !inputs.probe_deck_code && !inputs.probe_primarina_may }}
+        if: ${{ !inputs.probe_deck_code && !inputs.probe_primarina_may && !inputs.probe_primarina_may_image }}
         shell: bash
         run: |
           curl --fail --silent --show-error --location --retry 2 --max-time 30 \
@@ -43,7 +48,7 @@ jobs:
             --output "$RUNNER_TEMP/newmoon-deck-source.png"
           file "$RUNNER_TEMP/newmoon-deck-source.png"
       - name: Visually inspect three source-grid segments in selected row
-        if: ${{ !inputs.probe_deck_code && !inputs.probe_primarina_may }}
+        if: ${{ !inputs.probe_deck_code && !inputs.probe_primarina_may && !inputs.probe_primarina_may_image }}
         shell: bash
         env:
           ROW_NUMBER: ${{ inputs.row }}
@@ -70,6 +75,45 @@ jobs:
                   print(f"NMROW{row}GROUP{group}CHUNK{i//4000:04d}:" + encoded[i:i+4000])
               print(f"NMROW{row}GROUP{group}TOTAL:{len(buffer.getvalue())}")
           PY
+      - name: Retrieve original linked May Aichi 48th deck grid
+        if: ${{ inputs.probe_primarina_may_image }}
+        shell: bash
+        run: |
+          curl --fail --silent --show-error --location --retry 2 --max-time 40 \
+            --user-agent 'Mozilla/5.0 (compatible; ExpandedResearch/1.0)' \
+            'https://assets.st-note.com/img/1778453413-q0mPkiER6BesWlMSy1oCHLhv.png' \
+            --output primarina-may-original-deck.png
+          python3 -m pip install --quiet Pillow
+          python3 - <<'PY'
+          import base64, hashlib, io, json, math
+          from pathlib import Path
+          from PIL import Image
+          source=Path('primarina-may-original-deck.png').read_bytes()
+          original=Image.open(io.BytesIO(source)).convert('RGB')
+          assert 400<=original.width<=5000 and 200<=original.height<=5000
+          print('PRIMARINA_ORIGINAL_IMAGE',json.dumps({'width':original.width,'height':original.height,'bytes':len(source),'sha256':hashlib.sha256(source).hexdigest()}))
+          count=4
+          for band in range(count):
+            y0=original.height*band//count
+            y1=original.height*(band+1)//count
+            crop=original.crop((0,y0,original.width,y1))
+            factor=min(3,max(1,math.ceil(1700/original.width)))
+            crop=crop.resize((crop.width*factor,crop.height*factor),Image.Resampling.LANCZOS)
+            buffer=io.BytesIO()
+            crop.save(buffer,format='JPEG',quality=89,optimize=True)
+            encoded=base64.b64encode(buffer.getvalue()).decode('ascii')
+            for i in range(0,len(encoded),3800):
+              print('PRIMARINABAND',band,'CHUNK',i//3800,'BASE64',encoded[i:i+3800])
+            print('PRIMARINABAND',band,'TOTAL_CHUNKS',math.ceil(len(encoded)/3800),'BYTES',len(buffer.getvalue()))
+          PY
+      - name: Archive original public Aichi48 deck grid
+        if: ${{ inputs.probe_primarina_may_image }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi48-primarina-original-public-deck-grid
+          path: primarina-may-original-deck.png
+          if-no-files-found: error
+          retention-days: 30
       - name: Retrieve public May Aichi48 author note for image provenance
         if: ${{ inputs.probe_primarina_may }}
         shell: bash
