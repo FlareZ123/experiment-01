@@ -95,12 +95,26 @@ function actorChoosePokemonInput(state, seat, observe = actorObservation) {
  * native acceptance and audit coverage; it does not establish strategic
  * choice competence for gust, promotion, Bench, or attack sequencing.
  * @param {object} input Detached actor-only prompt input.
+ * @param {{preferChargedOwnBench?:boolean}} [options] Opt-in mobility proxy.
  * @returns {{index:number|null}|null}
  */
-function chooseActorPokemon(input) {
+function chooseActorPokemon(input, options = {}) {
   assert.equal(input.actor?.decisionKind, 'owner-prompt');
   assert.equal(input.prompt.kind, 'ChoosePokemonPrompt');
-  if (input.prompt.offered.length) return {index: 0};
+  const offered = input.prompt.offered;
+  // Opt-in and information-set safe: a stranded, uncharged Active Pokémon
+  // can prefer an Energy-equipped own Bench candidate when choosing its new
+  // Active. This is an Energy-count proxy, not a proof of attack payability,
+  // tactical value, or a competent policy. Never apply it to gust targets.
+  if (options.preferChargedOwnBench === true && offered.length > 1 &&
+      input.actor.ownPublic?.active?.energies?.length === 0 &&
+      offered.every(p => p.side === 'own' && p.zone === 'bench')) {
+    const charged = offered.filter(p => p.attachedEnergyCount > 0)
+      .sort((a, b) => b.attachedEnergyCount - a.attachedEnergyCount ||
+        a.index - b.index);
+    if (charged.length > 0) return {index: charged[0].index};
+  }
+  if (offered.length) return {index: 0};
   if (input.prompt.allowCancel) return {index: null};
   return null;
 }
@@ -124,7 +138,9 @@ function withActorOnlyChoosePokemon(execute, deps = {}) {
   const ResolvePromptAction = deps.ResolvePromptAction ??
     require(path.join(base, 'game/store/actions/resolve-prompt-action')).ResolvePromptAction;
   const observe = deps.observe ?? actorChoosePokemonInput;
-  const choose = deps.choose ?? chooseActorPokemon;
+  const preferChargedOwnBench = deps.preferChargedOwnBench === true;
+  const choose = deps.choose ??
+    (input => chooseActorPokemon(input, {preferChargedOwnBench}));
   const validate = deps.validate ?? assertValidPromptAction;
   const original = Object.getOwnPropertyDescriptor(
     SimpleTacticsAi.prototype, 'decodeNextAction');
@@ -136,8 +152,10 @@ function withActorOnlyChoosePokemon(execute, deps = {}) {
   let liveStore = null;
   const selected = new WeakMap();
   const audit = {
-    version: VERSION,
+    version: preferChargedOwnBench ? VERSION + '+charged-own-bench-optin-v1' : VERSION,
     decisionOrigin: 'actorObservation-and-owner-visible-legal-Pokemon-menu',
+    preferChargedOwnBench,
+    chargedOwnBenchSelections: 0,
     nativeStores: 0, selected: 0, accepted: 0, rejected: 0,
     postconditionsConfirmed: 0, postconditionsMissing: 0,
     unsupportedNativeFallbacks: 0, nonLiveFallbacks: 0,
@@ -186,6 +204,12 @@ function withActorOnlyChoosePokemon(execute, deps = {}) {
       perspectiveIsAnsweringOwner: input.prompt.perspectiveIsAnsweringOwner
     };
     selected.set(action, record);
+    if (preferChargedOwnBench && deps.choose === undefined &&
+        intent.index !== null && intent.index !== 0 &&
+        input.prompt.offered[intent.index]?.side === 'own' &&
+        input.prompt.offered[intent.index]?.attachedEnergyCount > 0) {
+      audit.chargedOwnBenchSelections++;
+    }
     audit.selected++;
     audit.bySeat[seat]++;
     if (audit.boundedSelections.length < 64)
