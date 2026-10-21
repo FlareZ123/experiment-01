@@ -44,6 +44,40 @@ function rowSummary(row){
       ordinal:a.actionOrdinal,turn:a.turnBefore,action:a.action,
       card:a.card??null,attack:a.attack??null
     }));
+  const candidateSeat=row.trial?.candidateSlot==='A'?0:1;
+  const exposeSourceFirstTurn22=Boolean(
+    row.trial?.id?.startsWith('11:retrospective-sourcefirst:2:B:new-moon'));
+  const nearTurn22Root=exposeSourceFirstTurn22?acceptances
+    .filter(a=>a.seat===candidateSeat&&
+      a.globalTurn>=20&&a.globalTurn<=28&&
+      ['attach-basic-energy','attach-special-energy','pass'].includes(a.kind))
+    .map(a=>({
+      globalTurn:a.globalTurn,kind:a.kind,intent:a.intent,
+      accepted:a.accepted,
+      nativePhysicalEffect:a.nativePhysicalEffect,
+      beforePublicEnergy:a.before?.attachedEnergyCounts,
+      afterPublicEnergy:a.after?.attachedEnergyCounts,
+      publicZonesChanged:a.publicZonesChanged,
+      error:a.error??null
+    })):[];
+  const projectedActive=board=>{
+    const slot=Array.isArray(board)?board[candidateSeat]?.active:null;
+    return slot?{name:slot.name,damage:slot.damage,
+      energyCards:slot.energyCards,toolCards:slot.toolCards}:null;
+  };
+  const sourceScalingAttacks=exposeSourceFirstTurn22?
+    (row.sourceAttackSettlement?.attacks??[])
+      .filter(a=>a.attackName==='Psychic'&&
+        a.turnBefore>=19&&a.turnBefore<=33)
+      .map(a=>({
+        ordinal:a.actionOrdinal,turn:a.turnBefore,
+        attacker:'source',attackName:a.attackName,
+        candidateBefore:projectedActive(a.publicBoardBefore),
+        candidateAfter:projectedActive(a.publicBoardAfter),
+        prizesBefore:a.prizesBefore,prizesAfter:a.prizesAfter,
+        nextCandidateRoot:a.nextSourceRoot,
+        settledPromptChain:a.settledPromptChain
+      })):[];
   return {
     trial:row.trial?.id,status:row.status,
     error:row.error?.slice(0,320)??null,
@@ -57,6 +91,8 @@ function rowSummary(row){
     sourceNativeEnergyAndClawRoots:sourceRoots,
     matchedNativeEnergyIntents:attachmentIntents,
     sourceClawAttackSettlement:nativeSourceClaw,
+    sourcefirstTurn22OwnerRoots:nearTurn22Root,
+    sourcefirstOranguruPsychicSettlement:sourceScalingAttacks,
     actorNativeRootsAccepted:root?.acceptedActorRoots??null,
     actorNativeRootsRejected:root?.rejectedActorRoots??null,
     competitiveQualified:false
