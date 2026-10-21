@@ -67,7 +67,7 @@ function isPrintedBasic(card, setsByCode, loadSet) {
   assert.ok(ids?.length, `Unknown set code ${card.printing.set}`);
   const matches = ids.flatMap(id => loadSet(id).filter(candidate =>
     candidate.supertype === 'Pokémon' &&
-    candidate.name === card.name &&
+    candidate.name.replaceAll('♢', '◇') === card.name.replaceAll('♢', '◇') &&
     canonicalNumber(candidate.number) === canonicalNumber(card.printing.number)
   ));
   assert.ok(matches.length, `Printing unavailable: ${card.name} ${card.printing.set}-${card.printing.number}`);
