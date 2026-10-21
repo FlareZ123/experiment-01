@@ -103,6 +103,20 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseQuickBallRootIntent(view);
     if(item)return item;
   }
+  // Development-only recovery Tool. All inputs are detached actor-visible data.
+  if(options.powerglassRoot===true&&
+     own.active?.printing==='Mewtwo & Mew-GX UNM'&&
+     (own.active.tools??[]).length===0&&!r.toolPlayLocked&&
+     own.publicTurnRestrictions?.toolPlayLocked!==true&&
+     [...(own.bench??[]).map(p=>p?.printing),
+       ...(own.discard??[])].includes('Gengar & Mimikyu-GX TEU')&&
+     (own.discard??[]).some(p=>catalog.basicEnergies.has(p)&&
+       p.startsWith('Psychic Energy '))){
+    const index=view.ownHand.findIndex(p=>p.startsWith('Powerglass SFA'));
+    if(index>=0)return {
+      kind:'equip-powerglass',handIndex:index,printing:view.ownHand[index]
+    };
+  }
   // Explicit development-only Iron Thorns ALS. Real native Store remains the
   // authority for Stadium, Special Energy and attack legality. No K0 deck or
   // Prize truth is consulted. This line is deliberately absent by default.
@@ -319,6 +333,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT49_POTENTIAL_KO_ROOT_DEV==='true'),
     knownDeadAttackRootOptIn:deps.knownDeadAttackRoot??
       (process.env.AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV==='true'),
+    powerglassRootOptIn:deps.powerglassRoot??
+      (process.env.AGENT41_ACTOR_POWERGLASS_ROOT_DEV==='true'),
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
     typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
     publicTransitionWitnesses:0,publicTransitionChanges:0,
@@ -340,6 +356,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent1-known-dead-leading-attack-v1';
   if(audit.perfectionRootOptIn)
     audit.version+='+agent30-known-perfection-root-v1';
+  if(audit.powerglassRootOptIn)
+    audit.version+='+agent41-owner-visible-powerglass-root-v1';
   function wrapped(state){
     // A bot may evaluate hypothetical cloned States in its own tactics.
     // Never make an actor-root policy decision against such a speculative
@@ -376,7 +394,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       potentialKoRoot:audit.potentialKoRootOptIn,
       knownDeadAttackRoot:audit.knownDeadAttackRootOptIn,
       naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
-      quickBallRoot:audit.quickBallRootOptIn
+      quickBallRoot:audit.quickBallRootOptIn,
+      powerglassRoot:audit.powerglassRootOptIn
     });
     const ownerId=state.players[seat].id;
     let action;
@@ -390,6 +409,10 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'bench-basic':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:intent.benchIndex});
+        break;
+      case 'equip-powerglass':
+        action=new PlayCardAction(ownerId,intent.handIndex,{
+          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
         break;
       case 'attach-special-energy':
       case 'attach-basic-energy':
