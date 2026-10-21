@@ -217,9 +217,15 @@ function chooseActorRootIntent(view,catalog,options={}){
       }
     }
     if(payable.length>0){
-      const chosen=options.potentialKoRoot===true?
-        require('./agent49-actor-potential-knockout.cjs')
-          .choosePotentialKnockout(view,payable):payable[0];
+      const knownDead=options.knownDeadAttackRoot===true?
+        require('./agent1-actor-dead-first-attack-frontier.cjs')
+          .chooseKnownDeadLeadingAttack(view,payable):null;
+      const chosen=knownDead?
+        payable.find(attack=>attack.name===knownDead.attackName):
+        options.potentialKoRoot===true?
+          require('./agent49-actor-potential-knockout.cjs')
+            .choosePotentialKnockout(view,payable):payable[0];
+      assert.ok(chosen,'Known-dead attack selector must choose a payable attack');
       return {kind:'attack',attackName:chosen.name};
     }
   }
@@ -290,6 +296,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT25_PRINTED_GX_ROOT_DEV==='true'),
     potentialKoRootOptIn:deps.potentialKoRoot??
       (process.env.AGENT49_POTENTIAL_KO_ROOT_DEV==='true'),
+    knownDeadAttackRootOptIn:deps.knownDeadAttackRoot??
+      (process.env.AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV==='true'),
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
     typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
     publicTransitionWitnesses:0,publicTransitionChanges:0,
@@ -306,6 +314,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version=VERSION+'+agent8-actor-quick-ball-v1';
   if(audit.potentialKoRootOptIn)
     audit.version+='+agent49-public-potential-ko-v1';
+  if(audit.knownDeadAttackRootOptIn)
+    audit.version+='+agent1-known-dead-leading-attack-v1';
   function wrapped(state){
     // A bot may evaluate hypothetical cloned States in its own tactics.
     // Never make an actor-root policy decision against such a speculative
@@ -338,6 +348,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       specialEnergyRoot:audit.specialEnergyRootOptIn,
       printedGxRoot:audit.printedGxRootOptIn,
       potentialKoRoot:audit.potentialKoRootOptIn,
+      knownDeadAttackRoot:audit.knownDeadAttackRootOptIn,
       naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
       quickBallRoot:audit.quickBallRootOptIn
     });
