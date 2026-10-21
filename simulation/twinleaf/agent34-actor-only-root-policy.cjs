@@ -271,7 +271,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     require(path.join(base,'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
   const {PlayCardAction,PlayerType,SlotType}=deps.cardActions??
     require(path.join(base,'game/store/actions/play-card-action'));
-  const {AttackAction,PassTurnAction,RetreatAction}=deps.gameActions??
+  const {AttackAction,PassTurnAction,RetreatAction,UseAbilityAction}=deps.gameActions??
     require(path.join(base,'game/store/actions/game-actions'));
   const getCatalog=deps.getCatalog??(()=>{
     const {CardManager}=require(path.join(base,'game/cards/card-manager'));
@@ -301,6 +301,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT10_BASIC_ENERGY_FRONTIER_DEV==='true'),
     energyRecipientFrontierOptIn:deps.energyRecipientFrontier??
       (process.env.AGENT44_ACTOR_ENERGY_RECIPIENT_DEV==='true'),
+    perfectionRootOptIn:deps.perfectionRoot??
+      (process.env.AGENT30_PERFECTION_ROOT_DEV==='true'),
     paidRetreatRootOptIn:deps.paidRetreatRoot??
       (process.env.AGENT6_PAID_RETREAT_ROOT_DEV==='true'),
     thornsDirectLineOptIn:deps.thornsDirectLine??
@@ -365,6 +367,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       energyFrontier:audit.energyFrontierOptIn,
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
       paidRetreatRoot:audit.paidRetreatRootOptIn,
+      perfectionRoot:audit.perfectionRootOptIn,
       thornsDirectLine:audit.thornsDirectLineOptIn,
       specialEnergyRoot:audit.specialEnergyRootOptIn,
       printedGxRoot:audit.printedGxRootOptIn,
@@ -407,6 +410,10 @@ function withActorOnlyRootPolicy(run,deps={}){
         break;
       case 'paid-retreat':
         action=new RetreatAction(ownerId,intent.benchIndex);
+        break;
+      case 'perfection':
+        action=new UseAbilityAction(ownerId,'Perfection',{
+          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
         break;
       case 'attack':action=new AttackAction(ownerId,intent.attackName);break;
       case 'pass':action=new PassTurnAction(ownerId);break;
