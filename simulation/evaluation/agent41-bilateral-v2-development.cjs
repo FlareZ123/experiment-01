@@ -455,8 +455,11 @@ function executeDevelopment(trial,candidates,{
   // Full, actor-filtered, prompt-closed public consequence packet.
   // This is observational only and cannot certify a legal competitive game.
   const candidateSettlement=candidateAttackSettlement(game,candidateSeat);
+  const sourceSettlement=candidateAttackSettlement(game,sourceSeat);
   assert.equal(candidateSettlement.declarations,
     declared.filter(row=>row.playerSlot===candidateSeat).length);
+  assert.equal(sourceSettlement.declarations,
+    declared.filter(row=>row.playerSlot===sourceSeat).length);
   const firstSource=game.decisionTrace.find(row=>
     row.playerSlot===sourceSeat &&
     Array.isArray(row.decisionHandBefore?.ownHandPrintings));
@@ -610,6 +613,13 @@ function executeDevelopment(trial,candidates,{
     // Unlike the legacy two-event summary below, this retains EVERY
     // candidate declaration and genuine next-source action, or its absence.
     candidateAttackSettlement:candidateSettlement,
+    // Symmetric, postgame native settlement. In the reused reducer's schema,
+    // nextSourceRoot is the opponent's next root: the CANDIDATE here.
+    sourceAttackSettlement:{
+      ...sourceSettlement,
+      auditedActorRole:'source',
+      nextSourceRootRole:'candidate'
+    },
     firstSettledPublicAttack:acceptedAttackEvents.slice(0,2).map(row=>({
       actionOrdinal:row.actionOrdinal,turnBefore:row.turnBefore,
       attacker:row.triggerPlayerSlot,chosen:row.declarations,
