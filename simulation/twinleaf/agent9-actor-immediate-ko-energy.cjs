@@ -30,6 +30,10 @@ function chooseImmediateKoEnergyIntent(view, catalog) {
   if (!Number.isFinite(target.hp) || !Number.isFinite(target.damage)) return null;
   const remainingHP = target.hp - target.damage;
   if (remainingHP <= 0) return null;
+  const ownerTurn = view.ownTurnResources ?? {};
+  if (ownerTurn.energyPlayedTurn === view.globalTurn
+      || ownerTurn.energyPlayLocked === true
+      || own.publicTurnRestrictions?.energyPlayLocked === true) return null;
 
   const activeRules = active.publicRestrictions ?? {};
   const playerRules = own.publicTurnRestrictions ?? {};
