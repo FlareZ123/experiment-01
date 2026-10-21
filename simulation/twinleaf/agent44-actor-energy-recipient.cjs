@@ -129,6 +129,8 @@ function chooseActorEnergyRecipient(view,catalog,options={}){
   }
   possibilities.sort((a,b)=>
     (mobilityAvailable&&!ready?
+      (a.slot==='active'&&a.after===0?0:1)-
+        (b.slot==='active'&&b.after===0?0:1)||
       a.after-b.after||
         (a.slot==='bench'?0:1)-(b.slot==='bench'?0:1):
       a.priority-b.priority||a.after-b.after)||
