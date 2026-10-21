@@ -17,6 +17,8 @@ jobs:
           node-version: '22'
       - name: Unit tests
         run: node --test tests/aichi_opening_audit.test.cjs
+      - name: Source rank11 actor-visible direct-KO Energy frontier
+        run: node --test tests/agent9-actor-immediate-ko-energy.test.cjs
       - name: Actor-visible Special Energy payability regression
         run: node --test tests/actor-energy-payability.test.cjs
       - name: Actor-only native option prompt regression
