@@ -259,7 +259,7 @@ function commonPayloadOption(candidateSeat,enabled,lateWindow=false,anyTurn=fals
  */
 function executeDevelopment(trial,candidates,{
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
-  anyTurnCompressorPayload=false,
+  anyTurnCompressorPayload=false,earlyBenchedCompressorPayload=false,
   garbotoxinWindow=false,initializationWindow=false,
   mandatoryOptionFallback=false,paperSupporterQuota=false,
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
@@ -283,8 +283,10 @@ function executeDevelopment(trial,candidates,{
   assert.equal(opponent?.status,'ready');
   const candidateSeat=trial.candidateSlot==='A'?0:1;
   const sourceSeat=1-candidateSeat;
-  const payloadResource=commonPayloadOption(candidateSeat,
-    compressorPayload,lateCompressorPayload,anyTurnCompressorPayload);
+  const payloadResource=earlyBenchedCompressorPayload?
+    {newMoonAttackPayloadCompressorBenchedSeat:candidateSeat}:
+    commonPayloadOption(candidateSeat,compressorPayload,
+      lateCompressorPayload,anyTurnCompressorPayload);
   const candidateCards=prepared.plan.candidate.cards;
   assert.equal(candidateCards.length,60);
   assert.equal(opponent.cards.length,60);
@@ -514,15 +516,18 @@ function executeDevelopment(trial,candidates,{
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
       (paperFullBenchCallForFamily?'+agent38-paper-fullbench-trubbish-fst-v1':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
-      (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
+      (earlyBenchedCompressorPayload?'+owner-compressor-benched-v1':
+        (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
         (lateCompressorPayload?
-        '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':''))),
+        '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')))),
     mandatoryOptionFallbackBothSeats:mandatoryOptionFallback,
     enforceSelectOptionLegalityBothSeats:mandatoryOptionFallback,
     ownerCompressorPayloadOptIn:compressorPayload,
     ownerCompressorLate14OptIn:lateCompressorPayload,
     ownerCompressorAnyTurnOptIn:anyTurnCompressorPayload,
-    ...((lateCompressorPayload||anyTurnCompressorPayload)?{
+    ownerCompressorBenchedOptIn:earlyBenchedCompressorPayload,
+    ...((lateCompressorPayload||anyTurnCompressorPayload||
+      earlyBenchedCompressorPayload)?{
       candidateBattleCompressorRoots:candidateCompressorRoots.map(row=>({
         turn:row.turnBefore,ordinal:row.actionOrdinal,card:row.card})),
       candidateAttackDeclarationEvidence:declared.filter(row=>
@@ -628,7 +633,7 @@ function executeDevelopment(trial,candidates,{
 /** @returns {object} */
 function runDevelopment({
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
-  anyTurnCompressorPayload=false,
+  anyTurnCompressorPayload=false,earlyBenchedCompressorPayload=false,
   mandatoryOptionFallback=false,nativePressureWindows=false,
   sourceFirstRetrospective=false,paperSupporterQuota=false,
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
@@ -663,7 +668,7 @@ function runDevelopment({
     try {
       const execute=()=>executeDevelopment(trial,prepared,{
         compressorPayload,opportunityAudit,lateCompressorPayload,
-        anyTurnCompressorPayload,
+        anyTurnCompressorPayload,earlyBenchedCompressorPayload,
         mandatoryOptionFallback,paperSupporterQuota,paperCologneQuota,
         paperFullBenchCallForFamily,
         paperSupporterComparisonTrace,
@@ -680,9 +685,11 @@ function runDevelopment({
           {ownerSingleSearch:actorOnlySingleSearch,
             genericFallbackAttribution:actorGenericFallbackAttribution,
             actorHandDiscard,actorChoosePokemon,
-            ...(anyTurnCompressorPayload?{
+            ...((anyTurnCompressorPayload||earlyBenchedCompressorPayload)?{
               ownerDonorSetup:{seat:trial.candidateSlot==='A'?0:1,
-                setup:{maxGlobalTurn:Number.POSITIVE_INFINITY}}
+                setup:earlyBenchedCompressorPayload?
+                  {allowBenchedMewtwo:true,maxGlobalTurn:6}:
+                  {maxGlobalTurn:Number.POSITIVE_INFINITY}}
             }:{})});
         rows.push({...observed.result,
           actorOnlyPolicyVersion:observed.audit.version,
@@ -729,7 +736,9 @@ function runDevelopment({
     }
   }
   return {
-    schema:anyTurnCompressorPayload?
+    schema:earlyBenchedCompressorPayload?
+      'agent32-bilateral-common-policy-development-v0c-owner-compressor-benched-v1':
+      (anyTurnCompressorPayload?
       'agent32-bilateral-common-policy-development-v0c-owner-compressor-anyturn-v1':
       (lateCompressorPayload?
       'agent5-bilateral-common-policy-development-v0c-owner-compressor-late14-v1':
@@ -737,7 +746,7 @@ function runDevelopment({
       'agent5-bilateral-common-policy-development-v0c-readonly-opportunity-v1':
       (compressorPayload?
         'agent5-bilateral-common-policy-development-v0c-owner-compressor-v1':
-        'agent41-bilateral-common-policy-development-v0c-live-lock-guard'))),
+        'agent41-bilateral-common-policy-development-v0c-live-lock-guard')))),
     sourceRegistration:sourceFirstRetrospective?
       'Retrospective source-first selected exposure; rank11 chosen after source Tool-Garbodor success; not preregistered':
       'historical v1 selection; not v2 preregistration',
@@ -747,15 +756,17 @@ function runDevelopment({
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
       (paperFullBenchCallForFamily?'+agent38-paper-fullbench-trubbish-fst-v1':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
-      (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
+      (earlyBenchedCompressorPayload?'+owner-compressor-benched-v1':
+        (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
         (lateCompressorPayload?
-        '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':''))),
+        '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')))),
     mandatoryOptionFallbackBothSeats:mandatoryOptionFallback,
     enforceSelectOptionLegalityBothSeats:mandatoryOptionFallback,
     ownerCompressorPayloadOptIn:compressorPayload,
     ownerCompressorOpportunityAudit:opportunityAudit,
     ownerCompressorLate14OptIn:lateCompressorPayload,
     ownerCompressorAnyTurnOptIn:anyTurnCompressorPayload,
+    ownerCompressorBenchedOptIn:earlyBenchedCompressorPayload,
     nativePressureWindowsOptIn:nativePressureWindows,
     paperSupporterQuotaOptIn:paperSupporterQuota,
     paperCologneQuotaOptIn:paperCologneQuota,
@@ -819,11 +830,13 @@ function runDevelopment({
 if(require.main===module){
   const lateWindow=process.env.AGENT5_COMPR_LATE14_DEV==='true';
   const anyTurn=process.env.AGENT32_COMPR_ANYTURN_DEV==='true';
+  const earlyBenched=process.env.AGENT32_COMPR_BENCHED_DEV==='true';
   const result=runDevelopment({
-    compressorPayload:anyTurn || lateWindow ||
+    compressorPayload:earlyBenched || anyTurn || lateWindow ||
       process.env.AGENT5_COMMON_COMPRESSOR_DEV==='true',
     lateCompressorPayload:lateWindow,
     anyTurnCompressorPayload:anyTurn,
+    earlyBenchedCompressorPayload:earlyBenched,
     mandatoryOptionFallback:process.env.AGENT41_MANDATORY_OPTION_DEV==='true',
     nativePressureWindows:process.env.AGENT41_NATIVE_PRESSURE_DEV==='true',
     paperSupporterQuota:process.env.AGENT41_PAPER_SUPPORTER_DEV==='true',
