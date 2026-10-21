@@ -277,3 +277,29 @@ test('comparison projection keeps actual root and end-state fields',()=>{
 
 // Test nested runner-hook ownership and postgame-only detached evaluation.
 require('./agent50-bilateral-postgame-root-observer.test.cjs');
+
+
+test('scored native replay localizes the first speculative candidate overread',()=>{
+  const first={tactic:'PlayTrainerTactic',actionType:'PlayCardAction',
+    handIndex:1,rngStart:0,rngEnd:2,rngDraws:2,
+    finiteScore:true,score:17,undefinedScore:false,threw:false};
+  const second={...first,handIndex:2,rngStart:2,rngEnd:3,
+    rngDraws:1,score:null,finiteScore:false,undefinedScore:true};
+  const source={steps:[],rngCalls:3,evaluations:[first,second]};
+  const replay={steps:[],rngCalls:4,evaluations:[
+    structuredClone(first),{...second,rngEnd:4,rngDraws:2}
+  ]};
+  const compared=nativeTacticSequenceComparison(source,replay);
+  assert.equal(compared.sameSteps,true);
+  assert.equal(compared.scoreTraceObserved,true);
+  assert.equal(compared.sourceEvaluations,2);
+  assert.equal(compared.replayEvaluations,2);
+  assert.equal(compared.sameEvaluations,false);
+  assert.equal(compared.firstEvaluationDivergence.evaluationIndex,1);
+  assert.equal(compared.firstEvaluationDivergence.source.rngDraws,1);
+  assert.equal(compared.firstEvaluationDivergence.replay.rngDraws,2);
+  const old=nativeTacticSequenceComparison({steps:[]},{steps:[]});
+  assert.equal(old.scoreTraceObserved,false);
+  assert.equal(old.sameEvaluations,null);
+  assert.equal(old.firstEvaluationDivergence,null);
+});
