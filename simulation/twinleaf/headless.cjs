@@ -882,6 +882,12 @@ function runMatch(request) {
     // Preserve the public restart boundary separately from the stable root
     // ledger protocol and SHA. A paper sudden-death replay resets turn to 0.
     const suddenDeathClockResets = rootActionLedger ? [] : null;
+    // Read-only fresh Deal identity for each native replay episode. Existing
+    // initial source digest and live decisions remain unchanged.
+    const sourceDealEpochObserver = sourceDealObserver ?
+      require('../evaluation/source-deal-epoch-observer.cjs')
+        .createSourceDealEpochObserver(
+          request.captureInitialSourceDealFingerprintSeat) : null;
     const gladionRootPrizeChoices = request.captureGladionRootPrizeChoices === true ? [] : null;
     const rootConfirmationTrace = request.captureRootConfirmationTrace === true ? [] : null;
     const electrodeOpportunityObserver = request.captureElectrodeOpportunity === true ?
@@ -911,6 +917,8 @@ function runMatch(request) {
       // Opt-in post-setup digest, captured before any first-turn bot decision.
       // Its private card inventory is never provided to a policy.
       if (sourceDealObserver) sourceDealObserver.observe(state);
+      if (sourceDealEpochObserver)
+        sourceDealEpochObserver.observe(state,actions,suddenDeathClockResets.length);
       if (fullDealObserver) fullDealObserver.observe(state);
       const rootedSoloSetup = rootSoloSetupSelections && pending &&
           pending.message === GameMessage.CHOOSE_STARTING_POKEMONS &&
@@ -1493,6 +1501,9 @@ function runMatch(request) {
       ...(request.captureStartingBoard === true ? {initialBoardAtFirstTurn} : {}),
       ...(sourceDealObserver ? {
         initialSourceDealFingerprint:sourceDealObserver.result()
+      } : {}),
+      ...(sourceDealEpochObserver ? {
+        sourceDealEpochs:sourceDealEpochObserver.result(suddenDeathClockResets.length)
       } : {}),
       ...(fullDealObserver ? {
         initialFullPhysicalDealFingerprint:fullDealObserver.result()
