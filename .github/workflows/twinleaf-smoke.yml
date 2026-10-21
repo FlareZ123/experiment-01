@@ -7,13 +7,17 @@ on:
         description: Retrospective source-only turn7 own-hand observer from archived native Rope arm
         type: boolean
         default: false
+      agent23_source_crobat_counter:
+        description: Paired original Store source Crobat V optional Ability reply counterfactual
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   smoke:
-    if: ${{ !inputs.agent23_source_turn7 }}
+    if: ${{ !inputs.agent23_source_turn7 && !inputs.agent23_source_crobat_counter }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -85,7 +89,7 @@ jobs:
         run: node simulation/twinleaf/copy-attack-name-collision-corrected.cjs
 
   agent23-source-owner-turn7:
-    if: ${{ inputs.agent23_source_turn7 }}
+    if: ${{ inputs.agent23_source_turn7 || inputs.agent23_source_crobat_counter }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -93,8 +97,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Regress pure source-owned read-only native observer
-        run: node --test tests/agent23-source-owner-turn7-read-observer.test.cjs
+      - name: Regress source owner read and native optional confirmation adapters
+        run: node --test tests/agent23-source-owner-turn7-read-observer.test.cjs tests/agent23-source-crobat-confirm-counterfactual.test.cjs
       - name: Initialize original pinned Twinleaf
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install original pinned Twinleaf
@@ -104,6 +108,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Replay exact archived rank11 source-first turn7 with source-only read observer
+        if: ${{ inputs.agent23_source_turn7 }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: 'true'
@@ -118,6 +123,7 @@ jobs:
           AGENT42_ESCAPE_ROPE_OWNER_SEAT: '1'
         run: node simulation/evaluation/agent23-sourcefirst-r11-turn7-recovery.cjs > agent23-source-t7.json
       - name: Enforce archived physical game and genuine source-owned turn7 root
+        if: ${{ inputs.agent23_source_turn7 }}
         run: >-
           node -e "const r=require('./agent23-source-t7.json');
           if(r.physicalArchiveMatches!==true||r.observationUsable!==true||
@@ -129,10 +135,41 @@ jobs:
           active:r.observationAudit.boundedRoots[0]?.root?.active?.printing,
           tools:r.observationAudit.boundedRoots[0]?.root?.active?.tools,
           originalQualifiedWins:r.competitiveQualifiedGames}));"
+      - name: Compare identical-source-deal Crobat ability confirmation choice
+        if: ${{ inputs.agent23_source_crobat_counter }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: 'true'
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: 'true'
+          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'true'
+          AGENT8_ACE_TRAINER_EMERGENCY_DEV: 'false'
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT42_ESCAPE_ROPE_DEV: 'true'
+          AGENT42_ESCAPE_ROPE_OWNER_SEAT: '1'
+        run: node simulation/evaluation/agent23-sourcefirst-r11-crobat-counterfactual.cjs > agent23-crobat-paired.json
+      - name: Report both native Crobat source outcomes
+        if: ${{ inputs.agent23_source_crobat_counter }}
+        run: >-
+          node -e "const r=require('./agent23-crobat-paired.json');
+          if(!r.baselineAuthenticated||!r.sourceDealPaired||
+          r.nativeCrobatConfirmation.nativeYesAccepted!==1||
+          r.competitiveQualifiedGames!==0)throw Error('unmatched native source pair');
+          console.log('CROBAT_NATIVE_PAIR',JSON.stringify({
+          firstDifferentAction:r.firstTreatmentOnlyAction,
+          originally:r.control.winner,
+          proposed:r.treatment.winner,
+          originalPrizes:r.control.prizes,
+          alteredPrizes:r.treatment.prizes,
+          ownerHandAfter:r.nativeCrobatConfirmation.postDispatch?.sourceHandSize}));"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: agent23-sourcefirst-owner-turn7-verified-read
-          path: agent23-source-t7.json
+          path: |
+            agent23-source-t7.json
+            agent23-crobat-paired.json
           if-no-files-found: warn
           retention-days: 10
