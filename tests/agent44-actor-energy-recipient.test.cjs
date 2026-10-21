@@ -129,8 +129,25 @@ test('authentic owner Root proposal addresses the Bench, with reversible hooks',
   class AttackAction{constructor(id,name){this.id=id;this.name=name;}}
   class PassTurnAction{constructor(id){this.id=id;}}
   class Store{
-    constructor(){this.state={turn:3,phase:2,activePlayer:0,
-      prompts:[],players:[{id:11},{id:22}]};}
+    constructor(){
+      const makeSlot=name=>{
+        const p={fullName:name,name,stage:1,cardType:[P],hp:100,
+          weakness:[],resistance:[],retreat:[],attacks:[],powers:[]};
+        return {getPokemonCard:()=>p,cards:[p],damage:0,
+          specialConditions:[],energies:{cards:[]},tools:[]};
+      };
+      const empty=()=>({getPokemonCard:()=>null,cards:[],damage:0,
+        specialConditions:[],energies:{cards:[]},tools:[]});
+      const player=id=>({id,active:makeSlot('Girafarig LOT'),
+        bench:[makeSlot('Shadow Rider Calyrex V CRE'),
+          ...Array.from({length:4},empty)],
+        hand:{cards:[{fullName:'Psychic Energy MEE'}]},
+        deck:{cards:[]},prizes:[],
+        stadium:{cards:[]},discard:{cards:[]},
+        lostzone:{cards:[]},supporter:{cards:[]}});
+      this.state={turn:3,phase:2,activePlayer:0,
+        prompts:[],players:[player(11),player(22)]};
+    }
     dispatch(){return true;}
   }
   class SimpleTacticsAi{
