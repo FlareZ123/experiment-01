@@ -47,6 +47,8 @@ const {beforeGladionRootPrizeChoice,afterGladionRootPrizeChoice} =
   require('./gladion-root-prize-choice-evidence.cjs');
 const {installHisuianHeavyBallPrizeShuffleHook} = require('./hisuian-heavy-ball-prize-hook.cjs');
 const {installPendingEndTurnSwitchCleanup} = require('./pending-end-turn-switch-cleanup.cjs');
+const {installTerminalAttackKoBeforeEndTurnHook} =
+  require('./terminal-attack-ko-before-endturn-hook.cjs');
 const {installApexPrizeWindowPolicy} = require('./apex-prize-headless-policy.cjs');
 const {publicSnapshot, observeTerminalTransition, advanceActionLineage} = require('./terminal-transition.cjs');
 const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
@@ -453,6 +455,7 @@ function runMatch(request) {
   let restoreRedeemableTicketPaperOrderHook;
   let restoreHisuianHeavyBallPrizeShuffleHook;
   let pendingEndTurnSwitchCleanupHook;
+  let terminalAttackKoBeforeEndTurnHook;
   let restoreApexPrizeWindowPolicy;
   let restoreSpentGxCopyPolicy;
   let restoreMimikyuNonGxCopycatHook;
@@ -689,6 +692,14 @@ function runMatch(request) {
     });
     store.state.gameSettings = settings;
     store.state.rules = settings.rules;
+    if (request.paperTerminalAttackKoCorrection === true) {
+      const {EndTurnEffect}=engine('game/store/effects/game-phase-effects');
+      const {CheckHpEffect}=engine('game/store/effects/check-effects');
+      const {checkState}=engine('game/store/effect-reducers/check-effect');
+      terminalAttackKoBeforeEndTurnHook=installTerminalAttackKoBeforeEndTurnHook({
+        Store,rootStore:store,EndTurnEffect,CheckHpEffect,GamePhase,checkState
+      });
+    }
     const attackPreferenceOptions = request.attackBeforeRetreat === true ?
       withAttackBeforeRetreat(options, {
         AttackTactic: engine('simple-bot/simple-tactics/attack-tactic').AttackTactic,
@@ -1519,6 +1530,9 @@ function runMatch(request) {
       abilityTrace,
       decisionTrace,
       rootActionLedger,
+      ...(terminalAttackKoBeforeEndTurnHook ? {
+        terminalAttackKoBeforeEndTurnAudit:terminalAttackKoBeforeEndTurnHook.evidence()
+      } : {}),
       ...(suddenDeathClockResets ? {
         suddenDeathClockResets,
         suddenDeathClockResetProtocol:'actual-native-sudden-death-clock-transition-v1'
@@ -1774,6 +1788,7 @@ function runMatch(request) {
     if (restoreElectroRainDamageHook) restoreElectroRainDamageHook();
     if (restoreElectrodeGXEnergyHook) restoreElectrodeGXEnergyHook();
     if (restoreHisuianHeavyBallPrizeShuffleHook) restoreHisuianHeavyBallPrizeShuffleHook();
+    if (terminalAttackKoBeforeEndTurnHook) terminalAttackKoBeforeEndTurnHook.restore();
     if (pendingEndTurnSwitchCleanupHook) pendingEndTurnSwitchCleanupHook.restore();
     if (restoreSpentGxCopyPolicy) restoreSpentGxCopyPolicy();
     if (restoreApexPrizeWindowPolicy) restoreApexPrizeWindowPolicy();
