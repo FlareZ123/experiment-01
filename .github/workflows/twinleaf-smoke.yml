@@ -40,6 +40,9 @@ jobs:
       - name: Test Agent28 native source T3
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: 'true'
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: 'true'
+          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'true'
           AGENT42_ESCAPE_ROPE_DEV: 'true'
           AGENT42_ESCAPE_ROPE_OWNER_SEAT: '1'
         run: node simulation/evaluation/agent28-source-t3-backorder-native.cjs
