@@ -29,6 +29,19 @@ The **overall workflow conclusion was failure for an unrelated unconditional pil
 
 An earlier canonical opt-in CI run [39682764751](https://github.com/FlareZ123/experiment-01/actions/runs/39682764751) compiled successfully but failed in a stale isolated `agent41-bilateral-mandatory-option-wiring.test.cjs` module-resolution fixture, with 11 `MODULE_NOT_FOUND` tests. A focused path-resolution repair was committed separately as `11b01ca0de042932856b834044bf8afac4f7c4b1`; that edit was subsequent to the paired run and is not represented by its checkout.
 
+## Archive-only follow-up: real prompt and owner-held card observability
+
+Independent manual [archive-only CI 39684685027](https://github.com/FlareZ123/experiment-01/actions/runs/39684685027) at `260fd8fc29c84e69e29ca62b22ee4a850dacdaaf` downloaded the existing 39683418107 source artifact, ran 51 existing bilateral attestation tests and 2 new pure archive-audit tests, and **completed successfully without rebuilding Twinleaf or replaying a game**. The new `scripts/agent1-charged-promotion-archive-audit.cjs` counted post-choice native prompt selections and source-only held mobility on each unchanged control row.
+
+| Source rank / candidate | Native ChoosePokemon decisions (baseline / treatment) | Source Pass roots | Source Passes holding one of Float Stone, Guzma, Escape Rope |
+| --- | ---: | ---: | ---: |
+| 6 / champion | 0 / 0 | 5 | 2 |
+| 6 / New Moon | 1 / 1 | 32 | 29 |
+| 11 / champion | 2 / 2 | 8 | 4 |
+| 11 / New Moon | 2 / 2 | 8 | 4 |
+
+Each row had the same genuine root history in both variants. Source-owned post-Pass observational hands exist for every row, but **there were zero source Passes with an untooled Active Garbodor** in these four *no-Rope* controls. Thus the held-mobility counts are useful generic source-policy deficiency indicators, while they cannot answer whether the **different**, original rank-11 Rope treatment had a legal T7 escape. The new pure tests validate the aggregation and source-trial attribution. Held printing alone does not prove legal play or best choice.
+
 ## Decision and next executable requirement
 
 Keep the selector **opt-in**. The present authentic comparison contains no demonstrated improvement, and new paper-strength claims would be unjustified. The next meaningful policy test requires an actor-held, legally executable source recovery move at the actual same-deal T7 root after New Moon's T6 Rope, followed by native Store validation of the chosen target and a subsequent opposing candidate turn. Agent 17 owns a source-only post-Pass hand/mobility observer in the canonical runner; that observer can distinguish an unreachable printed recovery card from a held but ignored legal option. This generic Bench selection can be tested only after such a true source-owner mobility root exists.
