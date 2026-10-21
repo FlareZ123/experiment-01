@@ -35,6 +35,32 @@ function chooseSourceMarnie(view){
 }
 
 /**
+ * T9 Guzma extension to the genuinely held post-Marnie source root.
+ * Called only after a native Pass by the source; the Store validates all
+ * targeting and prompt rules. No opponent-concealed zones are considered.
+ * @param {object} view Authenticated source-only owner-root observation.
+ * @returns {{handIndex:number,printing:string}|null}
+ */
+function chooseSourceGuzmaT9(view){
+  if(view?.decisionKind!=='owner-root'||view.actorSeat!==0||
+     view.globalTurn!==9)return null;
+  const own=view.ownPublic,r=view.ownTurnResources;
+  if(!r||r.supporterPlayLocked===true||
+     own?.publicTurnRestrictions?.supporterPlayLocked===true||
+     r.supporterPlayedTurn!==0||
+     own.active?.printing!=='Garbodor BKP'||
+     !Array.isArray(own.active.tools)||
+     own.active.tools.length>0||
+     !Array.isArray(own.bench)||
+     !own.bench.some(p=>p?.printing==='Oranguru V ASR'&&
+       Array.isArray(p.energies)&&p.energies.length>0)||
+     !Array.isArray(view.opponentPublic?.bench)||
+     !view.opponentPublic.bench.some(Boolean))return null;
+  const handIndex=view.ownHand.indexOf('Guzma BUS');
+  return handIndex<0?null:{handIndex,printing:'Guzma BUS'};
+}
+
+/**
  * @template T
  * @param {()=>T} execute Existing exact-match synchronous runner.
  * @param {{SimpleTacticsAi?:Function,Store?:Function,headless?:object,
@@ -61,7 +87,9 @@ function withSourceMarnieAfterPass(execute,deps={}){
     originalOtherActionsPreserved:0,firstProposal:null,postDispatch:null,
     candidateConcealedCardsRead:false,competitiveQualifiedGames:0,
     postMarnieOwnerDecisionRoots:[],
-    sourceOwnerReadOnlyObservation:true
+    sourceOwnerReadOnlyObservation:true,
+    guzmaT9Proposals:0,guzmaT9Accepted:0,guzmaT9Rejected:0,
+    guzmaPromptResponses:[]
   };
   function wrappedRun(request){
     audit.liveMatchCalls++;
@@ -95,6 +123,24 @@ function withSourceMarnieAfterPass(execute,deps={}){
           observationPassedToPolicy:false
         });
       }
+      if(deps.guzmaT9===true&&audit.StoreAccepted>0&&
+         state.turn===9&&state.activePlayer===0&&
+         actor?.id===this.client?.id&&
+         !state.prompts?.some(p=>p.result===undefined)&&
+         original?.constructor?.name==='PassTurnAction'){
+        const ownerView=observe(state,0);
+        const guzma=chooseSourceGuzmaT9(ownerView);
+        if(guzma){
+          const action=new PlayCardAction(actor.id,guzma.handIndex,{
+            player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+          });
+          selected.set(action,{kind:'guzma-t9',sourceTurn:9,
+            handIndex:guzma.handIndex,printing:guzma.printing,
+            previous:'PassTurnAction'});
+          audit.guzmaT9Proposals++;
+          return action;
+        }
+      }
       if(state.turn!==7||state.activePlayer!==0||
          actor?.id!==this.client?.id||
          state.prompts?.some(p=>p.result===undefined)||
@@ -109,7 +155,7 @@ function withSourceMarnieAfterPass(execute,deps={}){
       const action=new PlayCardAction(actor.id,proposal.handIndex,{
         player:PlayerType.ANY,slot:SlotType.BOARD,index:0
       });
-      selected.set(action,{sourceTurn:7,handIndex:proposal.handIndex,
+      selected.set(action,{kind:'marnie-t7',sourceTurn:7,handIndex:proposal.handIndex,
         printing:proposal.printing,previous:'PassTurnAction'});
       audit.eligibleMarniePasses++;
       audit.firstProposal??={
@@ -123,10 +169,30 @@ function withSourceMarnieAfterPass(execute,deps={}){
     }
     function dispatch(action,...args){
       const proposed=selected.get(action);
-      if(!proposed)return store.value.apply(this,[action,...args]);
+      if(!proposed){
+        const pending=this.state?.prompts?.find(p=>p.result===undefined);
+        const capture=deps.guzmaT9===true&&audit.guzmaT9Accepted>0&&
+          this.state?.turn===9&&
+          action?.constructor?.name==='ResolvePromptAction'&&
+          pending?.constructor?.name==='ChoosePokemonPrompt';
+        const result=store.value.apply(this,[action,...args]);
+        if(capture&&audit.guzmaPromptResponses.length<6){
+          audit.guzmaPromptResponses.push({
+            promptOwnerId:pending.playerId,
+            choiceResultType:action.constructor.name,
+            sourceActive:this.state.players[0].active
+              .getPokemonCard?.()?.fullName??null,
+            candidateActive:this.state.players[1].active
+              .getPokemonCard?.()?.fullName??null,
+            nativeAccepted:true
+          });
+        }
+        return result;
+      }
       try{
         const outcome=store.value.apply(this,[action,...args]);
         audit.StoreAccepted++;
+        if(proposed.kind==='guzma-t9')audit.guzmaT9Accepted++;
         audit.postDispatch={
           ...proposed,
           sourceHandSize:this.state?.players?.[0]?.hand?.cards?.length??null,
@@ -136,6 +202,7 @@ function withSourceMarnieAfterPass(execute,deps={}){
         return outcome;
       }catch(error){
         audit.StoreRejected++;
+        if(proposed.kind==='guzma-t9')audit.guzmaT9Rejected++;
         audit.postDispatch={...proposed,error:String(error?.message??error)};
         throw error;
       }
@@ -161,4 +228,4 @@ function withSourceMarnieAfterPass(execute,deps={}){
 }
 
 module.exports={VERSION,PRINTING,chooseSourceMarnie,
-  withSourceMarnieAfterPass};
+  chooseSourceGuzmaT9,withSourceMarnieAfterPass};
