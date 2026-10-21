@@ -53,7 +53,9 @@ function auditNativeEpochBoundaries(game){
         afterSuddenDeath:marker.afterSuddenDeath,
         enteredSetup:marker.enteredSetup,
         ...(marker.preDispatchWinPredicates ?
-          {preDispatchWinPredicates:marker.preDispatchWinPredicates} : {})
+          {preDispatchWinPredicates:marker.preDispatchWinPredicates} : {}),
+        ...(Array.isArray(marker.recentNativePublicRootWindow) ?
+          {recentNativePublicRootWindow:marker.recentNativePublicRootWindow} : {})
       }:null
     });
   }
