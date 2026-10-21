@@ -2,8 +2,10 @@
 
 const assert = require('node:assert/strict');
 
-const VERSION = 'agent8-actor-quick-ball-root-v1-duplicate-cost-gate';
+const VERSION = 'agent8-actor-quick-ball-root-v2-fst-printing-parity';
 const QUICK_BALL = 'Quick Ball SSH';
+const QUICK_BALL_PRINTINGS = Object.freeze([QUICK_BALL, 'Quick Ball FST']);
+const QUICK_BALL_SET = new Set(QUICK_BALL_PRINTINGS);
 
 /**
  * Deliberately narrow, actor-only Quick Ball root opportunity.
@@ -22,7 +24,7 @@ function chooseQuickBallRootIntent(view) {
   const held = view.ownHand;
   const own = view.ownPublic;
   const resources = view.ownTurnResources;
-  const index = held.indexOf(QUICK_BALL);
+  const index = held.findIndex(printing => QUICK_BALL_SET.has(printing));
   if (index < 0 ||
       own.bench.findIndex(slot => slot === null) < 0 ||
       own.deckCount <= 0 ||
@@ -31,11 +33,11 @@ function chooseQuickBallRootIntent(view) {
 
   const counts = new Map();
   for (let i = 0; i < held.length; i++) {
-    if (i === index || held[i] === QUICK_BALL) continue;
+    if (i === index || QUICK_BALL_SET.has(held[i])) continue;
     counts.set(held[i], (counts.get(held[i]) ?? 0) + 1);
   }
   if (![...counts.values()].some(count => count >= 2)) return null;
-  return {kind:'play-quick-ball',handIndex:index,printing:QUICK_BALL};
+  return {kind:'play-quick-ball',handIndex:index,printing:held[index]};
 }
 
-module.exports = {VERSION,QUICK_BALL,chooseQuickBallRootIntent};
+module.exports = {VERSION,QUICK_BALL,QUICK_BALL_PRINTINGS,chooseQuickBallRootIntent};
