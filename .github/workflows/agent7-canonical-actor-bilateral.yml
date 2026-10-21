@@ -198,6 +198,21 @@ jobs:
       - name: Reject ambiguous simultaneous late and benched donor treatments
         if: ${{ inputs.owner_anyturn_compressor_pair && inputs.owner_early_bench_compressor_pair }}
         run: node -e "throw new Error('Only one donor treatment may run per paired experiment')"
+      - name: Agent30 same-deal native Powerglass source-first ON/OFF diagnostic
+        if: ${{ inputs.source_first_retrospective && inputs.owner_discard_energy_audit && inputs.actor_perfection_root }}
+        run: node simulation/evaluation/agent30-powerglass-sourcefirst-pair.cjs > agent30-powerglass-stdout.json
+      - name: Preserve both complete actual-deal Powerglass treatment ledgers
+        if: ${{ always() && inputs.source_first_retrospective && inputs.owner_discard_energy_audit && inputs.actor_perfection_root }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent30-powerglass-sourcefirst-samehead-unqualified
+          path: |
+            agent30-powerglass-control.json
+            agent30-powerglass-treatment.json
+            agent30-powerglass-pair-summary.json
+            agent30-powerglass-stdout.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Execute unchanged canonical four-arm historical bilateral runner
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
