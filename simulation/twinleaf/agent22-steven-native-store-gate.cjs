@@ -15,7 +15,8 @@ const PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 /**
  * Reproducible native Store/printed-card integration fixture. The opening and
  * exact opponent board are deliberately staged; no real-deal frequency or
- * game-strength inference is permitted. Both actors use rank-7 source 60.
+ * game-strength inference is permitted. Each owner seat uses the published
+ * rank-7 source 60 against a staged visible opposing Active Pokémon.
  * @returns {object}
  */
 function run() {
@@ -38,11 +39,11 @@ function run() {
     native('game/store/actions/resolve-prompt-action');
   const {SimpleTacticsAi} = native('simple-bot/simple-tactics-ai');
 
-  const records=[];
+  const records=[],audits=[];
   const originalBot=SimpleTacticsAi.prototype.decodeNextAction;
   const originalDispatch=Store.prototype.dispatch;
-  const wrapped=withSparseActorOwnerSearch(()=>{
-    for(const seat of [0,1]) {
+  for(const seat of [0,1]) {
+    const wrapped=withSparseActorOwnerSearch(()=>{
       const store=new Store({onStateChange(){}});
       store.state.gameSettings.format=Format.EXPANDED;
       const ownerId=101+seat;
@@ -109,23 +110,25 @@ function run() {
       assert.ok(printings.every(name=>owner.hand.cards.some(c=>c.fullName===name)),
         'Native settled three-card Steven selection must enter owner hand');
       assert.equal(owner.deck.cards.length,43);
-      records.push({seat,sourceRank:7,initialDeckCards:46,
+      return {seat,sourceRank:7,initialDeckCards:46,
         originalProjection:'unavailable-above-30',nativeValid:true,
         nativeSearchSettled:true,chosenPrintings:printings,
         remainingDeck:owner.deck.cards.length,
-        resultingTurn:state.turn,ownHandCount:owner.hand.cards.length});
-    }
-    return records;
-  });
+        resultingTurn:state.turn,ownHandCount:owner.hand.cards.length};
+    });
+    records.push(wrapped.result);
+    audits.push(wrapped.audit);
+  }
   assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,originalBot);
   assert.strictEqual(Store.prototype.dispatch,originalDispatch);
-  assert.equal(wrapped.audit.accepted,2);
-  assert.equal(wrapped.audit.nativePromptPostconditionsConfirmed,2);
+  assert.equal(audits.reduce((n,a)=>n+a.accepted,0),2);
+  assert.equal(audits.reduce((n,a)=>
+    n+a.nativePromptPostconditionsConfirmed,0),2);
   assert.equal(records.length,2);
   assert.deepEqual(records[0].chosenPrintings,records[1].chosenPrintings);
   return {schema:'agent22-steven-authentic-card-staged-native-store-v1',
     pin:PIN,printedSourceRank:7,staged:true,actorObservationOriginal:true,
-    ownerPhysicalSeats:[0,1],records,audit:wrapped.audit,
+    ownerPhysicalSeats:[0,1],records,audits,
     competitiveQualifiedGames:0};
 }
 
