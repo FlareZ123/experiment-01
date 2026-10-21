@@ -38,6 +38,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent37_public_attack_first_divergence:
+        description: 'Same-deal both-seat first printed attack choice settlement, development only'
+        required: false
+        type: boolean
+        default: false
       native_known_dead_attack_gate:
         description: Run injected pinned Store attack and Prize pairing (development-only)
         required: false
@@ -120,6 +125,19 @@ jobs:
         run: npm run compile
       - name: Native sudden-death Prize threshold audit
         run: node --test tests/agent3-paper-tiebreak-native-check.test.cjs
+      - name: Agent37 paired actual Store first attack decision and opponent reply
+        if: ${{ inputs.agent37_public_attack_first_divergence }}
+        run: |
+          node --test tests/agent37-candidate-attack-settlement.test.cjs
+          node simulation/evaluation/agent37-first-divergent-native-attack-pair.cjs > agent37-public-first-attack-pair.json
+      - name: Archive both native policy branches including censored games
+        if: ${{ always() && inputs.agent37_public_attack_first_divergence }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent37-first-divergent-native-attack-pair
+          path: agent37-public-first-attack-pair.json
+          if-no-files-found: warn
+          retention-days: 10
       - name: Native paired printed attack settlement under owner-visible selector
         if: ${{ inputs.native_known_dead_attack_gate }}
         run: node simulation/twinleaf/agent7-known-dead-attack-native.cjs > agent7-native-known-dead-attacks.json
