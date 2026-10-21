@@ -1179,6 +1179,9 @@ function runMatch(request) {
         actionOrdinal: actions, turn: turnBefore,
         actingSeat: seat, activePlayerSeat: state.activePlayer,
         actionName, pendingPrompt: pending?.constructor.name ?? null,
+        rejectedAttackName: actionName === 'AttackAction' ? action.name : null,
+        prizesRemainingBefore: state.players.map(player =>
+          player.prizes.filter(prize => prize.cards.length > 0).length),
         playedCardName: playedCard ?? null,
         playedCardPrinting: actionName === 'PlayCardAction' && seat >= 0 ?
           state.players[seat].hand.cards[action.handIndex]?.fullName ?? null : null,
