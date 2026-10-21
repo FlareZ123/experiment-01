@@ -26,7 +26,8 @@ const POKEMON_PROMPT_VERSION = 'agent8-canonical-actor-choose-pokemon-v7';
  * @param {()=>T} execute Synchronous genuine pinned-Store workload.
  * @param {{root?:Function,fog?:Function,select?:Function,option?:Function,attack?:Function,ownerSearch?:Function,pokemon?:Function}} [adapters]
  *   Test injection only. Real components have their own pinned-Store tests.
- * @param {{ownerSingleSearch?:boolean,genericFallbackAttribution?:boolean,actorChoosePokemon?:boolean}} [options]
+ * @param {{ownerSingleSearch?:boolean,genericFallbackAttribution?:boolean,
+ *   actorChoosePokemon?:boolean,ownerDonorSetup?:{seat:0|1,setup?:object}}} [options]
  * Default preserves v2.
  * @returns {{result:T,audit:object}}
  */
@@ -80,9 +81,17 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
         .withActorHandDiscard) : null;
   let handDiscardAudit = null;
   let pokemonAudit = null;
+  let ownerDonorAudit = null;
+  const runOwnerDonor=()=>{
+    if(!options.ownerDonorSetup)return execute();
+    const selected=require('../twinleaf/agent32-canonical-owner-donor-root.cjs')
+      .withCanonicalOwnerDonorRoot(execute,options.ownerDonorSetup);
+    ownerDonorAudit=selected.audit;
+    return selected.result;
+  };
   const runActor = () => {
-    if(!handDiscard)return execute();
-    const selected=handDiscard(execute);
+    if(!handDiscard)return runOwnerDonor();
+    const selected=handDiscard(runOwnerDonor);
     assert.ok(selected.audit && typeof selected.audit==='object',
       'Actor hand-discard adapter must expose an audit');
     handDiscardAudit=selected.audit;
@@ -106,6 +115,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     'Actor ChoosePokemon option requires an executed adapter');
   if(handDiscard)assert.ok(handDiscardAudit,
     'Actor hand-discard option requires an executed adapter');
+  if(options.ownerDonorSetup)assert.ok(ownerDonorAudit,
+    'Enabled owner donor root must return its actual canonical audit');
   const searchOrFog = rooted.result;
   const fogged = ownerSingleSearch?searchOrFog.result:searchOrFog;
   const ownerSearchAudit = ownerSingleSearch?searchOrFog.audit:null;
@@ -155,7 +166,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       selectOption: optionAudit.version ?? null,
       chooseAttack: attackAudit.version ?? null,
       ...(actorChoosePokemon?{choosePokemon:pokemonAudit.version??null}:{}),
-      ...(handDiscard?{handDiscard:handDiscardAudit.version??null}:{})
+      ...(handDiscard?{handDiscard:handDiscardAudit.version??null}:{}),
+      ...(ownerDonorAudit?{ownerDonor:ownerDonorAudit.version??null}:{})
     },
     nativeDecisionCounts: {
       actorRootsSelected: rootAudit.selectedRootDecisions ?? null,
@@ -186,6 +198,13 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
         choosePokemonBySeat:pokemonAudit.bySeat??null
       }:{}),
       lastChanceGenericPromptFallbacks: finalGenericPromptFallbacks,
+      ...(ownerDonorAudit?{
+        ownerDonorEligible:ownerDonorAudit.eligibleRoots,
+        ownerDonorChosen:ownerDonorAudit.chosenRoots,
+        ownerDonorAccepted:ownerDonorAudit.dispatchAccepted,
+        ownerDonorRejected:ownerDonorAudit.dispatchRejected,
+        ownerDonorTurns:ownerDonorAudit.chosenTurns
+      }:{}),
       ...(genericFallbackAttribution?{
         nativeGenericDecoderCalls:genericFallbackAudit.liveGenericDecodes??null,
         nativeGenericDecoderBySeat:genericFallbackAudit.bySeat??null,
@@ -195,6 +214,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
         nativeDistinctOwnerPromptTypesBySeat:genericFallbackAudit.distinctOwnerPromptType??null
       }:{})
     },
+    ownerDonorAudit,
     // Every upstream interceptor also counts events it delegates downstream.
     // These counters overlap and cannot be added into a decision denominator.
     overlappingDelegationObservations: {
