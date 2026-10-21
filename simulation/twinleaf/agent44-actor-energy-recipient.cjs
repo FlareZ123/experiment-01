@@ -6,7 +6,7 @@ const {remainingBasicAttachments}=
 const {specialEnergyUnits}=
   require('./agent3-special-energy-frontier.cjs');
 
-const VERSION='agent30-owner-visible-known-special-recipient-v2';
+const VERSION='agent44-owner-visible-known-special-recipient-v3-public-attack-bars';
 const TYPES=['Grass','Fire','Water','Lightning','Psychic',
   'Fighting','Darkness','Metal','Fairy'];
 
@@ -60,16 +60,28 @@ function chooseActorEnergyRecipient(view,catalog){
     }
     return units;
   };
-  const viable=(pokemon,attached)=>(pokemon.attacks??[]).filter(attack=>
-    Array.isArray(attack.cost)&&attack.gxAttack!==true&&
-    attack.cost.every(Number.isSafeInteger)&&
-    Number.isSafeInteger(catalog.colorlessEnergyType)&&
-    !(pokemon.publicRestrictions?.cannotUseAttacksNextTurn??[])
-      .includes(attack.name)
-  ).map(attack=>({
-    attack,missing:remainingBasicAttachments(
-      attack.cost,attached,catalog.colorlessEnergyType)
-  }));
+  // Restrict currently usable printed attacks using only actor-visible
+  // effects. This still cannot predict switching, evolving or opponent turns.
+  const viable=(pokemon,attached)=>{
+    const rules=pokemon.publicRestrictions??{};
+    const inactive=rules.cannotAttackNextTurn===true||
+      (pokemon.specialConditions??[]).some(status=>
+        status===catalog.specialConditions?.ASLEEP||
+        status===catalog.specialConditions?.PARALYZED);
+    return (pokemon.attacks??[]).filter(attack=>
+      !inactive&&Array.isArray(attack.cost)&&attack.gxAttack!==true&&
+      attack.cost.every(Number.isSafeInteger)&&
+      Number.isSafeInteger(catalog.colorlessEnergyType)&&
+      rules.blockedAttackNameNextTurn!==attack.name&&
+      rules.blockedAttackNameUntilLeavesActive!==attack.name&&
+      !(rules.cannotUseAttacksNextTurn??[]).includes(attack.name)&&
+      (!rules.onlyAllowedAttackNameNextTurn||
+        rules.onlyAllowedAttackNameNextTurn===attack.name)
+    ).map(attack=>({
+      attack,missing:remainingBasicAttachments(
+        attack.cost,attached,catalog.colorlessEnergyType)
+    }));
+  };
   const activeUnits=attachedUnits(targets[0].pokemon);
   const ready=activeUnits!==null&&
     viable(targets[0].pokemon,activeUnits).some(x=>x.missing===0);
