@@ -1,0 +1,145 @@
+{
+  "schema": "itoko-unassigned-top32-official-JP-to-bundled-EN-mechanical-family-spotcheck-v1",
+  "research_date": "2026-10-21",
+  "source_inventory": "results/aichi-2026/itoko-public-official-saveddeck-japanese-print60-unassigned-20261021.json",
+  "english_card_database": "provided complete card-list.zip cards/en/*",
+  "official_japanese_card_pages": "https://www.pokemon-card.com/card-search/details.php/card/<japanese_card_id>",
+  "spotchecks": 11,
+  "spotcheck_scope": "These 11 key cards have matching mechanically significant names and effects in Japanese official pages and English supplied card database. This is a targeted semantic spot-check, not a 37-print comprehensive ruling.",
+  "event_registration_authenticated": false,
+  "all_37_prints_covered": false,
+  "all_legalities_certified": false,
+  "source_rank_authenticated": false,
+  "full_simulator_semantics_certified": false,
+  "pokemon_rules_certified": false,
+  "checks": [
+    {
+      "japanese_card_id": 42169,
+      "japanese_name": "レジドラゴVSTAR",
+      "english_name": "Regidrago VSTAR",
+      "english_reference_id": "swsh12-136",
+      "ability": "Legacy Star",
+      "attacks": [
+        "Apex Dragon"
+      ],
+      "evidence": "Discard-pile Dragon attack copy and once/game VSTAR mill-seven reclaim-up-to-two",
+      "official_url": "https://www.pokemon-card.com/card-search/details.php/card/42169/regu/all"
+    },
+    {
+      "japanese_card_id": 42168,
+      "japanese_name": "レジドラゴV",
+      "english_name": "Regidrago V",
+      "english_reference_id": "swsh12-135",
+      "attacks": [
+        "Celestial Roar",
+        "Dragon Laser"
+      ],
+      "evidence": "Discard three top cards and attach revealed Energy; Dragon Laser 130 plus 30 to one opposing Benched Pokémon",
+      "official_url": "https://www.pokemon-card.com/card-search/details.php/card/42168"
+    },
+    {
+      "japanese_card_id": 34427,
+      "japanese_name": "ディアルガGX",
+      "english_name": "Dialga-GX",
+      "english_reference_id": "sm5-100",
+      "attacks": [
+        "Overclock",
+        "Shred",
+        "Timeless-GX"
+      ],
+      "evidence": "Timeless-GX 150 and immediate extra turn; Shred bypasses effects on defending Active Pokémon",
+      "official_url": "https://www.pokemon-card.com/card-search/details.php/card/34427"
+    },
+    {
+      "japanese_card_id": 45772,
+      "japanese_name": "ドラパルトex",
+      "english_name": "Dragapult ex",
+      "english_reference_id": "sv6-130",
+      "attacks": [
+        "Jet Headbutt",
+        "Phantom Dive"
+      ],
+      "evidence": "Phantom Dive 200 plus 6 damage counters distributed among opponent Benched Pokémon",
+      "official_url": "https://www.pokemon-card.com/card-search/details.php/card/45772"
+    },
+    {
+      "japanese_card_id": 43194,
+      "japanese_name": "オンバーンex",
+      "english_name": "Noivern ex",
+      "english_reference_id": "sv2-153",
+      "attacks": [
+        "Covert Flight",
+        "Dominating Echo"
+      ],
+      "evidence": "Covert Flight 70 guards damage from Basic Pokémon next opposing turn; Dominating Echo 140 prevents opponent hand Special Energy and Stadium",
+      "official_url": "https://www.pokemon-card.com/card-search/details.php/card/43194"
+    },
+    {
+      "japanese_card_id": 49267,
+      "japanese_name": "コライドンex",
+      "english_name": "Koraidon ex",
+      "english_reference_id": "sv5-120",
+      "attacks": [
+        "Retribution Strike",
+        "Kaiser Tackle"
+      ],
+      "evidence": "Kaiser Tackle does 280 and 60 self-damage; Retribution Strike increases 10 per existing damage counter",
+      "official_url": "https://www.pokemon-card.com/card-search/details.php/card/49267"
+    },
+    {
+      "japanese_card_id": 45922,
+      "japanese_name": "キュレム",
+      "english_name": "Kyurem",
+      "english_reference_id": "sv6pt5-47",
+      "ability": "Plasma Bane",
+      "attacks": [
+        "Trifrost"
+      ],
+      "evidence": "Trifrost 110 to 3 opponent Pokémon, discards all attached Energy; Plasma Bane reduces attack cost upon opposing Colress-named discard",
+      "official_url": "https://www.pokemon-card.com/card-search/details.php/card/45922/regu/all"
+    },
+    {
+      "japanese_card_id": 46662,
+      "japanese_name": "スボミー",
+      "english_name": "Budew",
+      "english_reference_id": "sv8pt5-4",
+      "attacks": [
+        "Itchy Pollen"
+      ],
+      "evidence": "Itchy Pollen 10 and next-turn Item-from-hand lock",
+      "official_url": "https://www.pokemon-card.com/card-search/details.php/card/46662"
+    },
+    {
+      "japanese_card_id": 36165,
+      "japanese_name": "マーシャドー",
+      "english_name": "Marshadow",
+      "english_reference_id": "sm10-81",
+      "ability": "Resetting Hole",
+      "attacks": [
+        "Red Knuckles"
+      ],
+      "evidence": "Bench-based Stadium removal followed by self-discard and Red Knuckles boosted versus Ultra Beasts",
+      "official_url": "https://www.pokemon-card.com/card-search/details.php/card/36165"
+    },
+    {
+      "japanese_card_id": 37894,
+      "japanese_name": "ワタシラガV",
+      "english_name": "Eldegoss V",
+      "english_reference_id": "swsh2-19",
+      "ability": "Happy Match",
+      "attacks": [
+        "Float Up"
+      ],
+      "evidence": "One Supporter from discard upon hand-to-Bench play, 50-damage Float Up optional shuffle self and attachments",
+      "official_url": "https://www.pokemon-card.com/card-search/details.php/card/37894/regu/all"
+    },
+    {
+      "japanese_card_id": 45279,
+      "japanese_name": "プライムキャッチャー",
+      "english_name": "Prime Catcher",
+      "english_reference_id": "sv5-157",
+      "item_effect": "Gust an opponent Bench Pokémon, then switch your own Active with your Bench; one ACE SPEC",
+      "official_url": "https://www.pokemon-card.com/card-search/details.php/card/45279"
+    }
+  ]
+}
