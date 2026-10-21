@@ -44,6 +44,21 @@ test('Iron Thorns direct line offers typed Thunder Mountain public root',()=>{
   });
 });
 
+test('Iron Thorns does not re-play opponent-visible same-name Stadium',()=>{
+  const view=base();
+  view.ownHand=['Thunder Mountain Prism Star LOT'];
+  view.ownPublic.active.name='Iron Thorns ex';
+  view.ownPublic.stadium=[];
+  view.opponentPublic={stadium:['Thunder Mountain Prism Star LOT']};
+  assert.equal(chooseActorRootIntent(view,catalog,{
+    thornsDirectLine:true
+  }).kind,'pass','The opponent already has the same Stadium in play');
+  view.opponentPublic.stadium=[];
+  assert.equal(chooseActorRootIntent(view,catalog,{
+    thornsDirectLine:true
+  }).kind,'play-thunder-mountain');
+});
+
 test('Energy then printed-cost attack follows the same actor-only view',()=>{
   const view=base();
   view.ownHand=['Psychic Energy MEE','Energy Retrieval SVI'];
