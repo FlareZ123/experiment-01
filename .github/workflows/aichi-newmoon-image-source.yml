@@ -75,6 +75,11 @@ jobs:
                   print(f"NMROW{row}GROUP{group}CHUNK{i//4000:04d}:" + encoded[i:i+4000])
               print(f"NMROW{row}GROUP{group}TOTAL:{len(buffer.getvalue())}")
           PY
+      - uses: actions/checkout@v4
+        if: ${{ inputs.probe_primarina_may_image }}
+      - name: Regress May 48th original-grid counts and exact Prize feasibility
+        if: ${{ inputs.probe_primarina_may_image }}
+        run: python3 -m unittest discover -s tests -p 'test_aichi48_archie_photo_prize_ceiling.py' -v
       - name: Retrieve original linked May Aichi 48th deck grid
         if: ${{ inputs.probe_primarina_may_image }}
         shell: bash
