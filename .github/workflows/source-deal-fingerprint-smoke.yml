@@ -41,6 +41,8 @@ jobs:
       - name: Compile pinned upstream server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify paper C-11 full-Bench Trubbish native reducer correction
+        run: node --test tests/agent38-paper-fullbench-callforfamily-hook.test.cjs tests/agent38-trubbish-fst-fullbench-native.test.cjs
       - name: Verify private initial-deal fingerprint serializer and actual Store noninterference
         run: node --test tests/source-physical-deal-fingerprint.test.cjs tests/headless-initial-source-deal-smoke.test.cjs tests/aichi-setup-zone-capture.test.cjs
       - name: Verify paired-native State observer reporting invariants
