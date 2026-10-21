@@ -28,6 +28,7 @@ function powerglassAfterPassNative(){
   const {Store}=pinned('game/store/store');
   const {Player}=pinned('game/store/state/player');
   const {CardList}=pinned('game/store/state/card-list');
+  const {PokemonCardList}=pinned('game/store/state/pokemon-card-list');
   const {GamePhase}=pinned('game/store/state/state');
   const {Format}=pinned('game/store/card/card-types');
   const {PlayCardAction,PlayerType,SlotType}=
@@ -51,6 +52,7 @@ function powerglassAfterPassNative(){
   const tool=card('Powerglass SFA');
   const psychic=card('Psychic Energy MEE');
   me.active.cards.push(mewtwo);
+  me.bench.push(new PokemonCardList());
   me.bench[0].cards.push(gengar);
   me.hand.cards.push(tool);
   me.discard.cards.push(psychic);
