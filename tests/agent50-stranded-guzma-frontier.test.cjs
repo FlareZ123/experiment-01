@@ -22,7 +22,7 @@ function view(){
   return {
     decisionKind:'owner-root',globalTurn:9,
     ownHand:['Marnie SSH','Guzma BUS','Temple of Sinnoh ASR'],
-    ownTurnResources:{supporterPlayedTurn:7,
+    ownTurnResources:{supporterPlayedTurn:0,
       supporterPlayLocked:false,pokemonPlayLocked:false,
       energyPlayedTurn:9,energyPlayLocked:false},
     ownPublic:{
@@ -55,7 +55,7 @@ test('held Guzma becomes actor-only optional pivot at exhausted source root',()=
 
 test('Supporter quota, real own Bench and opponent Bench constrain pivot',()=>{
   const changes=[
-    v=>{v.ownTurnResources.supporterPlayedTurn=9;},
+    v=>{v.ownTurnResources.supporterPlayedTurn=1;},
     v=>{v.ownTurnResources.supporterPlayLocked=true;},
     v=>{v.ownPublic.publicTurnRestrictions.supporterPlayLocked=true;},
     v=>{v.ownPublic.bench[0].energies=[];},
