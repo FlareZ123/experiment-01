@@ -24,6 +24,8 @@ const {withOwnerRootChoiceWindow}=
   require('./owner-root-choice-window.cjs');
 const {withRank15CandidateTurn19ReadOnly}=
   require('./rank15-candidate-t19-readonly.cjs');
+const {withRank15T19GenuineBasicAttackVeto}=
+  require('./rank15-t19-genuine-basic-attack-veto.cjs');
 
 const sha=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -52,10 +54,10 @@ function run(){
     bunnelbyTargetAwareEvolution:true,bunnelbyGuzmaHalaMode1:true,
     bunnelbyGuzmaHalaSearch:true
   };
-  function arm(mode){
+  function arm(mode,nativeAttackProbe=false){
     assert.ok(['control','unpaid','paid'].includes(mode));
     let poffin,oddish,second,retreat=null,candidateT19=null;
-    const x=observeSourceLock(Store,1,0,()=>
+    const sourceReplay=()=>observeSourceLock(Store,1,0,()=>
       withOwnerRootChoiceWindow(Store,1,()=>{
         const inner=()=>{
           const readOnly=withRank15CandidateTurn19ReadOnly(()=>{
@@ -77,6 +79,14 @@ function run(){
           withRank15NativePaidBusRetreat(inner,1);
         retreat=r.audit;return r.result;
       },{turnStart:16,turnEnd:26}));
+    if(nativeAttackProbe){
+      const audit=withRank15T19GenuineBasicAttackVeto(Store,sourceReplay,0);
+      assert.equal(audit.stoppedAtProbe,true,
+        'Original dealt fork never reached candidate t19 printed-attack root');
+      assert.ok(audit.attempt);
+      return {audit};
+    }
+    const x=sourceReplay();
     const game=x.result.result;
     assert.equal(game.verifiedByDrawLog,true);
     assert.equal(game.firstTurnSlot,0);
@@ -91,6 +101,7 @@ function run(){
         dual:x.first.dual},max:x.max};
   }
   const control=arm('control'),promotion=arm('unpaid'),paid=arm('paid');
+  const nativeAttackVeto=arm('paid',true).audit;
   assert.equal(control.sourceZone,promotion.sourceZone,
     'Physical deal differed before policy selection');
   assert.deepEqual(control.prizes,promotion.prizes);
@@ -138,6 +149,7 @@ function run(){
     nativeSecondAttackOnly:summarize(control),
     proposedNativePromotion:summarize(promotion),
     ownerPaysRetreat:summarize(paid),
+    nativeT19PrintedAttackVeto:nativeAttackVeto,
     qualifications:{oneRetrospectivelySelectedSeed:true,
       noIndependentClock:true,independentCompetitiveGames:0,
       opponentResponseQualificationRequired:true,
