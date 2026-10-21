@@ -43,6 +43,11 @@ jobs:
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: 'true'
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: 'true'
           AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'true'
+          AGENT8_ACE_TRAINER_EMERGENCY_DEV: 'false'
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
           AGENT42_ESCAPE_ROPE_DEV: 'true'
           AGENT42_ESCAPE_ROPE_OWNER_SEAT: '1'
         run: node simulation/evaluation/agent28-source-t3-backorder-native.cjs
