@@ -50,6 +50,8 @@ jobs:
         run: node --test tests/rank19-adp-direct-gx-opening.test.cjs
       - name: Audit deck-name incidence without merging printing mechanics
         run: node --test tests/aichi-source-incidence.test.cjs
+      - name: Audit printed source 60 mobility inventory and recovery channels
+        run: node --test tests/agent7-source-mobility-roster.test.cjs
       - name: Compare exact source card Abilities across mixed printings
         run: node --test tests/aichi-printing-mechanics.test.cjs
       - name: Check New Moon printed Stage 1 response under rank15 double Vileplume
