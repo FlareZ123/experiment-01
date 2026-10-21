@@ -140,6 +140,7 @@ function run(){
     'Terminal Period','Claw of Darkness',
     'Terminal Period','Terminal Period'
   ]);
+  console.error('AGENT7_NATIVE_ARM_DIAGNOSTIC '+JSON.stringify(arms));
   assert.deepEqual(arms.map(x=>x.prizesTaken),[0,2,2,2]);
   assert.ok(arms.every(x=>x.after.pending.length===0));
   return {
