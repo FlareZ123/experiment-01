@@ -216,7 +216,7 @@ function executeDevelopment(trial,candidates,{
   garbotoxinWindow=false,initializationWindow=false,
   mandatoryOptionFallback=false,paperSupporterQuota=false,
   paperCologneQuota=false,paperSupporterComparisonTrace=false,
-  nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
+  proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null
 }={}){
@@ -555,7 +555,7 @@ function runDevelopment({
   mandatoryOptionFallback=false,nativePressureWindows=false,
   sourceFirstRetrospective=false,paperSupporterQuota=false,
   paperCologneQuota=false,paperSupporterComparisonTrace=false,
-  nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
+  proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
