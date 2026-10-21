@@ -23,7 +23,7 @@ Among attacks the existing actor-only numeric cost checker already marks afforda
 | Rank 11 vs champion reference | Yes | **No** | 68 → 74 | 260-root action cap → same |
 | Rank 11 vs New Moon v1 | Yes | **No** | 63 → 73 | 260-root action cap → same |
 
-Both rank-11 source-first/candidate-second rows retain exactly the same original source-deal SHA and true actual starter. Their first different **selected actor root intents** in bounded native provenance ledgers occurred on source seat 0:
+Both rank-11 rows place the source in seat 0 and candidate in seat 1, but **the candidate actually started first**. Each row retains the same initial source-deal SHA and true actual starter across off/on treatments. Their first different **selected actor root intents** in bounded native provenance ledgers occurred on source seat 0:
 - Champion row: source global turn **36**, default **`Terminal Period`**, opt-in **`Claw of Darkness`** (within first 64 recorded actor acceptances, index 49).
 - New Moon row: source global turn **30**, default **`Terminal Period`**, opt-in **`Claw of Darkness`** (within first 64 recorded actor acceptances, index 37).
 
