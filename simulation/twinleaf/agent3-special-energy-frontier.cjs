@@ -58,6 +58,70 @@ function missingEnergyUnits(cost,provided,colorless){
 }
 
 /**
+ * Preserve Telepath Energy for a public Psychic attack channel and choose a
+ * recipient with a real printed Psychic requirement. A cheap Colorless-only
+ * attack on Unown or Duskull must not automatically consume the same
+ * singleton Energy that could establish a Gengar or Trevenant response.
+ * This is a deterministic owner-visible heuristic, not an attack certificate.
+ *
+ * @param {object} view Detached actor-only observation.
+ * @param {object} catalog Exact printing and energy-type catalog.
+ * @returns {{kind:string,handIndex:number,printing:string,
+ *   slot:'active'|'bench',index:number}|null}
+ */
+function chooseTelepathPsychicRecipient(view,catalog){
+  const telepath='Telepath [P] Energy M3';
+  const handIndex=view.ownHand.indexOf(telepath);
+  if(handIndex<0)return null;
+  const p=catalog.basicEnergyTypes.Psychic;
+  const colorless=catalog.colorlessEnergyType;
+  const typeNames=Object.keys(catalog.basicEnergyTypes);
+  const stadium=[...(view.ownPublic.stadium??[]),
+    ...(view.opponentPublic?.stadium??[])];
+  const temple=stadium.some(name=>name.startsWith('Temple of Sinnoh '));
+  const provided=specialEnergyUnits(telepath,catalog,temple);
+  if(provided===null)return null;
+  const slots=[
+    {slot:'active',index:0,pokemon:view.ownPublic.active},
+    ...(view.ownPublic.bench??[]).map((pokemon,index)=>({
+      slot:'bench',index,pokemon
+    }))
+  ];
+  const options=[];
+  for(const target of slots){
+    const pokemon=target.pokemon;
+    if(!pokemon?.printed?.types?.includes(p))continue;
+    const energies=[];
+    let known=true;
+    for(const printing of pokemon.energies??[]){
+      const special=specialEnergyUnits(printing,catalog,temple);
+      if(special!==null){energies.push(...special);continue;}
+      if(!catalog.basicEnergies.has(printing)){known=false;break;}
+      const name=typeNames.find(t=>printing.startsWith(t+' Energy '));
+      if(name===undefined){known=false;break;}
+      energies.push(catalog.basicEnergyTypes[name]);
+    }
+    if(!known)continue;
+    for(const attack of pokemon.attacks??[]){
+      if(attack.gxAttack===true||!Array.isArray(attack.cost)||
+          !attack.cost.includes(p))continue;
+      const before=missingEnergyUnits(attack.cost,energies,colorless);
+      const after=missingEnergyUnits(attack.cost,
+        [...energies,...provided],colorless);
+      if(before<=after)continue;
+      options.push({...target,after,gain:before-after,
+        attackCost:attack.cost.length});
+    }
+  }
+  options.sort((a,b)=>a.after-b.after||
+    (a.slot==='active'?0:1)-(b.slot==='active'?0:1)||
+    b.gain-a.gain||a.attackCost-b.attackCost||a.index-b.index);
+  const best=options[0];
+  return best?{kind:'attach-special-energy',handIndex,
+    printing:telepath,slot:best.slot,index:best.index}:null;
+}
+
+/**
  * Choose a bounded one-attachment Special Energy on an existing Active.
  * Printed attack cost is a heuristic, with native Store retaining legality.
  * The Telepathic on-attachment Bench search is deliberately not scored here.
@@ -67,6 +131,8 @@ function missingEnergyUnits(cost,provided,colorless){
  */
 function chooseSpecialEnergyIntent(view,catalog){
   assert.equal(view.decisionKind,'owner-root');
+  const telepath=chooseTelepathPsychicRecipient(view,catalog);
+  if(telepath)return telepath;
   const active=view.ownPublic.active;
   if(!active)return null;
   const stadium=[...(view.ownPublic.stadium??[]),
@@ -90,6 +156,8 @@ function chooseSpecialEnergyIntent(view,catalog){
   let best=null;
   for(let handIndex=0;handIndex<view.ownHand.length;handIndex++){
     const printing=view.ownHand[handIndex];
+    // Telepath remains reserved if no typed Psychic attack channel exists.
+    if(printing==='Telepath [P] Energy M3')continue;
     const units=specialEnergyUnits(printing,catalog,temple);
     if(units===null)continue;
     const costs=attacks.map(attack=>({
@@ -112,4 +180,4 @@ function chooseSpecialEnergyIntent(view,catalog){
 }
 
 module.exports={VERSION,specialEnergyUnits,missingEnergyUnits,
-  chooseSpecialEnergyIntent};
+  chooseTelepathPsychicRecipient,chooseSpecialEnergyIntent};
