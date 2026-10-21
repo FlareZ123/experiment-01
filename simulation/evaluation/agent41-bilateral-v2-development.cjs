@@ -131,12 +131,24 @@ function sourceLineReplyPacket(game,rank,sourceAudit,sourceSeat){
   if(turn===null)return null;
   const {buildBilateralReplyPacket}=
     require('./aichi-bilateral-reply-packet.cjs');
-  return buildBilateralReplyPacket(game,{
+  const options={
     sourceSeat,triggerTurn:turn,
     expectedSourceAction:rank===6?'AttackAction':'PlayCardAction',
     expectedSourceDetail:rank===6?'Volt Cyclone':'Boost Shake',
     requirePublicAttackTransitions:true
-  });
+  };
+  try {
+    return buildBilateralReplyPacket(game,options);
+  } catch(error) {
+    // Do not silently accept a reverse Store clock. Keep the original
+    // bilateral failure and attach only matching public native reset data.
+    if(error && typeof error==='object') {
+      error.nativeEpochBoundaryEvidence=
+        require('./agent44-native-epoch-boundary-audit.cjs')
+          .auditNativeEpochBoundaries(game);
+    }
+    throw error;
+  }
 }
 
 /**
@@ -617,6 +629,9 @@ function runDevelopment({
         trial,status:veto?'paper-supporter-quota-veto':'engine-error',
         error:String(error?.stack||error),
         nativeStoreCauseStack:error?.cause?.stack??null,
+        ...(error?.nativeEpochBoundaryEvidence?{
+          nativeEpochBoundaryEvidence:error.nativeEpochBoundaryEvidence
+        }:{}),
         nativeSupporterQuotaQualified:veto?false:'unverified',
         paperSupporterDiscipline:veto,
         ...(nativeProposalValidationAudit?{
