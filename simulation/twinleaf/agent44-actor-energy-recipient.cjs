@@ -7,6 +7,7 @@ const {specialEnergyUnits}=
   require('./agent3-special-energy-frontier.cjs');
 
 const VERSION='agent30-owner-visible-known-special-recipient-v2';
+const NEAR_TERM_DAMAGE_VERSION='agent8-owner-visible-near-term-damage-v1';
 const TYPES=['Grass','Fire','Water','Lightning','Psychic',
   'Fighting','Darkness','Metal','Fairy'];
 
@@ -20,11 +21,12 @@ const TYPES=['Grass','Fire','Water','Lightning','Psychic',
  *
  * @param {object} view Detached actorObservation
  * @param {object} catalog Public exact printing and native type catalog
+ * @param {{preferNearTermDamage?:boolean}} [options] Explicit experimental branch
  * @returns {{handIndex:number,printing:string,slot:'active'|'bench',
  * index:number,attackName:string,gapBefore:number,gapAfter:number,
  * knownBasicEnergyOnly:true}|null}
  */
-function chooseActorEnergyRecipient(view,catalog){
+function chooseActorEnergyRecipient(view,catalog,options={}){
   assert.equal(view.decisionKind,'owner-root');
   const {ownPublic,ownHand}=view;
   if(!ownPublic?.active||!Array.isArray(ownPublic.bench))return null;
@@ -86,6 +88,10 @@ function chooseActorEnergyRecipient(view,catalog){
         const priority=target.slot==='active'?(ready?2:0):1;
         possibilities.push({
           priority,after,cost:attack.cost.length,
+          // Positive printed base damage is only a staging signal. The
+          // native Store and actual opponent hand determine real damage.
+          positivePrintedDamage:Number.isFinite(attack.damage)&&
+            attack.damage>0,
           recipientIndex:target.index,handIndex:energy.handIndex,
           printing:energy.printing,slot:target.slot,index:target.index,
           attackName:attack.name,gapBefore:missing,gapAfter:after
@@ -97,8 +103,26 @@ function chooseActorEnergyRecipient(view,catalog){
     a.cost-b.cost||a.recipientIndex-b.recipientIndex||
     a.handIndex-b.handIndex);
   if(!possibilities.length)return null;
-  const {priority,after,cost,recipientIndex,...pick}=possibilities[0];
+  let winner=possibilities[0];
+  // An unaffordable exposed Active can monopolize every attachment under
+  // the usual Active-first rule. Experimentally admit a *known*, faster
+  // damaging Bench route only when an owner-held Switch/Escape Rope gives
+  // a public, Item-unlocked route to promote it later. This does not assert
+  // that the switch or attack is optimal, or even yet affordable.
+  if(options.preferNearTermDamage===true && winner.slot==='active' &&
+      winner.after>=2 &&
+      view.ownTurnResources?.itemPlayLocked!==true &&
+      ownHand.some(p=>p.startsWith('Switch ')||
+        p.startsWith('Escape Rope '))){
+    const short=possibilities.filter(p=>p.slot==='bench'&&
+      p.positivePrintedDamage&&p.after<=1&&p.after<winner.after)
+      .sort((a,b)=>a.after-b.after||a.cost-b.cost||
+        a.recipientIndex-b.recipientIndex||a.handIndex-b.handIndex);
+    if(short.length)winner={...short[0],shorterDamagingPath:true};
+  }
+  const {priority,after,cost,recipientIndex,positivePrintedDamage,
+    ...pick}=winner;
   return {...pick,knownBasicEnergyOnly:true};
 }
 
-module.exports={VERSION,chooseActorEnergyRecipient};
+module.exports={VERSION,NEAR_TERM_DAMAGE_VERSION,chooseActorEnergyRecipient};
