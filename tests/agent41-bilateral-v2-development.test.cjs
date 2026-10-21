@@ -3,7 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {developmentTrials,commonPayloadOption,firstPostSourceDecision,sourceLineReplyPacket,
-  candidatePostChoicePassEvidence}=require(
+  candidatePostChoicePassEvidence,candidateRepliesAfterSourceAttacks}=require(
   '../simulation/evaluation/agent41-bilateral-v2-development.cjs');
 
 test('only historical source streams enter the policy development packet',()=>{
@@ -280,4 +280,73 @@ test('candidate Perfection sampled menu is a separate cloned Ability channel',()
     'Mega Absol ex');
   assert.equal(out.samples.length,0);
   assert.equal(JSON.stringify(out).includes('Poltergeist'),false);
+});
+
+
+test('source attack replies reveal owner-only late Pass frontier, retaining all failures',()=>{
+  const native=[
+    {playerSlot:1,actionOrdinal:115,turnBefore:24,
+      action:'PassTurnAction',
+      decisionHandBefore:{perspectiveSeat:1,ownHandPrintings:[
+        'Psychic Energy MEE','Ultra Ball SUM'
+      ],opponentHandSize:4},
+      publicBoardBeforePass:[{active:{name:'Iron Thorns ex'}},
+        {active:{name:'Trevenant & Dusknoir-GX',energyCards:[]}}],
+      printedBasicEnergyBeforePass:{count:0}},
+    {playerSlot:0,actionOrdinal:116,turnBefore:25,
+      action:'PassTurnAction',decisionHandBefore:{
+        perspectiveSeat:0,ownHandPrintings:['forbidden source hand']}},
+    {playerSlot:1,actionOrdinal:124,turnBefore:26,
+      action:'PassTurnAction',decisionHandBefore:{perspectiveSeat:0,
+        ownHandPrintings:['invalid opponent-perspective evidence']}}
+  ];
+  const attacks={attacks:[
+    {actionOrdinal:111,turnBefore:23,attackName:'Volt Cyclone',
+      nextSourceSameEpochProven:true,nextSourceRoot:{
+        ordinal:115,turn:24,action:'PassTurnAction'}},
+    {actionOrdinal:118,turnBefore:25,attackName:'Volt Cyclone',
+      nextSourceSameEpochProven:true,nextSourceRoot:{
+        ordinal:124,turn:26,action:'PassTurnAction'}},
+    {actionOrdinal:127,turnBefore:27,attackName:'Volt Cyclone',
+      nextSourceSameEpochProven:false,nextSourceRoot:{
+        ordinal:131,turn:28,action:'PassTurnAction'}},
+    {actionOrdinal:134,turnBefore:29,attackName:'Volt Cyclone',
+      nextSourceSameEpochProven:false,nextSourceRoot:null}
+  ]};
+  const rows=candidateRepliesAfterSourceAttacks(native,attacks,1);
+  assert.equal(rows.length,4);
+  assert.equal(rows[0].status,'candidate-passed');
+  assert.deepEqual(rows[0].ownerHandAfterDecision,[
+    'Psychic Energy MEE','Ultra Ball SUM'
+  ]);
+  assert.equal(rows[0].publicBoardBeforePass[1].active.name,
+    'Trevenant & Dusknoir-GX');
+  assert.equal(rows[0].printedBasicEnergyBeforePass.count,0);
+  assert.equal(rows[1].ownerHandAfterDecision,null,
+    'A forged mismatched actor perspective must never supply card identities');
+  assert.equal(rows[2].status,'unverified-epoch');
+  assert.equal(rows[2].ownerHandAfterDecision,null);
+  assert.equal(rows[3].status,'no-followup-root');
+  assert.equal(JSON.stringify(rows).includes('forbidden source hand'),false);
+});
+
+test('source-attack reply join distinguishes same-epoch non-Pass and missing trace',()=>{
+  const seen=[{playerSlot:0,actionOrdinal:9,
+    action:'PlayCardAction',turnBefore:3,decisionHandBefore:{
+      perspectiveSeat:0,ownHandPrintings:['Unown']}}];
+  const attacks={attacks:[
+    {actionOrdinal:1,turnBefore:2,attackName:'Psychic',
+      nextSourceSameEpochProven:true,nextSourceRoot:{
+        ordinal:9,turn:3,action:'PlayCardAction'}},
+    {actionOrdinal:2,turnBefore:4,attackName:'Psychic',
+      nextSourceSameEpochProven:true,nextSourceRoot:{
+        ordinal:20,turn:5,action:'PassTurnAction'}}
+  ]};
+  const rows=candidateRepliesAfterSourceAttacks(seen,attacks,0);
+  assert.equal(rows[0].status,'candidate-other-action');
+  assert.equal(rows[0].ownerHandAfterDecision,null);
+  assert.equal(rows[1].status,'trace-row-missing');
+  assert.equal(rows[1].ownerHandAfterDecision,null);
+  assert.throws(()=>candidateRepliesAfterSourceAttacks([],attacks,3),
+    /AssertionError/);
 });
