@@ -240,3 +240,46 @@ test('first native printed-attack root change is identified by accepted root ord
   assert.equal(firstRootDivergence(x,y).ordinal,1);
   assert.equal(firstRootDivergence(x,x),null);
 });
+
+test('first-divergence native actor settlement reuses public attack witness',()=>{
+  const {sourceAttackAtRoot} = require(
+    '../simulation/evaluation/agent37-first-divergent-native-attack-pair.cjs');
+  const game=fixture();
+  const event=sourceAttackAtRoot(game,1,0);
+  assert.equal(event.attackName,'Poltergeist');
+  assert.equal(event.actorSeat,1);
+  assert.equal(event.promptSettled,true);
+  assert.equal(event.nativePublicBoardAfter[0].active.damage,150);
+  assert.equal(event.prizesAfter[0],6);
+  assert.equal(event.settlementCrossesClockReset,false);
+  assert.equal(sourceAttackAtRoot(game,1,1234),null);
+});
+
+test('first-divergence native runner restores process and Store capture hook',()=>{
+  const {replayNativePolicy}=require(
+    '../simulation/evaluation/agent37-first-divergent-native-attack-pair.cjs');
+  const headless=require('../simulation/twinleaf/headless.cjs');
+  const original=headless.runMatch;
+  const saved=process.env.AGENT49_POTENTIAL_KO_ROOT_DEV;
+  process.env.AGENT49_POTENTIAL_KO_ROOT_DEV='before-test';
+  try{
+    assert.throws(()=>replayNativePolicy(true,()=>{
+      assert.equal(process.env.AGENT49_POTENTIAL_KO_ROOT_DEV,'true');
+      assert.notStrictEqual(headless.runMatch,original);
+      throw new Error('test-executor-abort');
+    }),/test-executor-abort/);
+    assert.strictEqual(headless.runMatch,original);
+    assert.equal(process.env.AGENT49_POTENTIAL_KO_ROOT_DEV,'before-test');
+    const result=replayNativePolicy(false,opts=>{
+      assert.equal(process.env.AGENT49_POTENTIAL_KO_ROOT_DEV,'false');
+      assert.equal(opts.actorOnlyComposition,true);
+      assert.equal(opts.paperSupporterQuota,true);
+      return {rows:Array.from({length:4},()=>({}))};
+    });
+    assert.equal(result.games.size,0);
+    assert.strictEqual(headless.runMatch,original);
+  }finally{
+    if(saved===undefined)delete process.env.AGENT49_POTENTIAL_KO_ROOT_DEV;
+    else process.env.AGENT49_POTENTIAL_KO_ROOT_DEV=saved;
+  }
+});
