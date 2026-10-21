@@ -20,6 +20,7 @@ function brutePhysicalDeal(deck, opening, prizes) {
   let direct = 0;
   let compressed = 0;
   let funded = 0;
+  let dual = 0;
   let valid = 0;
   const depths = opening + prizes + 2;
   /** @param {string[]} seen @param {number[]} remaining */
@@ -42,6 +43,14 @@ function brutePhysicalDeal(deck, opening, prizes) {
       times(firstEight, "D") + times(firstEight, "G") > 0 &&
       times(observed, "R") > 0 && times(observed, "D") > 0 &&
       times(observed, "D") + times(observed, "G") >= 2;
+    const dualAllowed = times(firstEight, "V") === 0 &&
+      times(firstEight, "N") > 0 && times(firstEight, "S") > 0 &&
+      times(firstEight, "D") + times(firstEight, "G") > 0 &&
+      times(observed, "R") > 0 && times(observed, "D") > 0 &&
+      times(observed, "D") + times(observed, "G") >= 2 &&
+      (seen[opening + prizes + 1] === "V" ||
+        remaining.some(i => deck[i] === "V"));
+    if (dualAllowed) dual++;
     if (!powered) return;
     funded++;
     const hand = observed.includes("N") && observed.includes("S");
@@ -55,7 +64,8 @@ function brutePhysicalDeal(deck, opening, prizes) {
   }
   visit([], deck.map((_, i) => i));
   return {funded: funded / valid, hand: direct / valid,
-    comp: compressed / valid, union: opportunities / valid};
+    comp: compressed / valid, union: opportunities / valid,
+    dual: dual / valid, expanded: (opportunities + dual) / valid};
 }
 
 /** @param {string[]} cards @param {number} opening @param {number} prizes */
@@ -79,7 +89,8 @@ test("physical Prize placements and all funded Noivern routes match enumeration"
     const actual = brutePhysicalDeal(cards, 4, 1);
     for (const [modelField, actualField] of [
       ["funded", "funded"], ["handDiscard", "hand"],
-      ["deckCompressor", "comp"], ["fundedAndPayload", "union"]]) {
+      ["deckCompressor", "comp"], ["fundedAndPayload", "union"],
+      ["dualSearcherFetchV", "dual"], ["expandedJoint", "expanded"]]) {
       assert.ok(Math.abs(model[modelField].probability -
         actual[actualField]) < 1e-12,
       modelField + " failed for " + cards.join(""));
@@ -101,6 +112,8 @@ test("source-independent exact rank-10 funded envelope and controls", () => {
     0.24314772406194726) < 1e-10);
   assert.equal(donor.deckCompressor.percent, 0);
   assert.ok(donor.fundedAndPayload.percent < donor.funded.percent);
+  assert.ok(Math.abs(donor.expandedJoint.percent - 0.5628418) < 1e-6);
+  assert.ok(donor.dualSearcherFetchV.percent > 0);
   assert.throws(() => fundedNoivernOpportunity({v:4,
     otherBasics:10, vstar:3, doubleDragon:4, basicGF:6,
     noivern:2, oneDiscard:8, compressor:1}), RangeError);
@@ -124,4 +137,6 @@ test("published source 60s and Basic audit produce seven donor controls", () => 
   assert.ok(census.rows.filter(r => !r.noivern)
     .every(r => r.fundedAndPayload.probability === 0));
   assert.ok(census.meansSevenDonorRanks.fundedAndPayload > 0);
+  assert.ok(Math.abs(census.meansSevenDonorRanks.expandedJoint -
+    0.8491388897585238) < 1e-9);
 });
