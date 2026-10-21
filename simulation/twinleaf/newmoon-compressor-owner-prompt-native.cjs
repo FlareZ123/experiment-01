@@ -323,11 +323,72 @@ function establishedGengarSecondDonor(){
   return result;
 }
 
+/**
+ * Prepared genuine native Store late-turn donor recovery after an existing
+ * actor's turn-6 and turn-14 setup gates would have closed. This is not a
+ * historical source-dealt turn-31 state or evidence of a playable reply.
+ * @returns {object}
+ */
+function lateTurnOwnerPayload(){
+  const {store}=preparedOwnerState();
+  const {GamePhase}=pinned('game/store/state/state');
+  const {SimpleTacticsAi}=pinned('simple-bot/simple-tactics-ai');
+  const defs=pinned('simple-bot/simple-bot-definitions');
+  const {PlayCardAction}=pinned('game/store/actions/play-card-action');
+  const {ResolvePromptAction}=pinned('game/store/actions/resolve-prompt-action');
+  const {ChooseCardsPrompt}=pinned('game/store/prompts/choose-cards-prompt');
+  const {shouldSeekPayload}=require('./new-moon-compressor-payload-policy.cjs');
+  store.state.turn=31;
+  const owner=store.state.players[0];
+  assert.equal(shouldSeekPayload(store.state,owner,GamePhase.PLAYER_TURN),false);
+  assert.equal(shouldSeekPayload(store.state,owner,GamePhase.PLAYER_TURN,
+    {maxGlobalTurn:14}),false);
+  assert.equal(shouldSeekPayload(store.state,owner,GamePhase.PLAYER_TURN,
+    {maxGlobalTurn:Number.POSITIVE_INFINITY}),true);
+  const options=withNewMoonCompressorPayload({
+    tactics:defs.allSimpleTactics,promptResolvers:defs.allPromptResolvers,
+    scores:defs.defaultStateScores,arbiter:defs.defaultArbiterOptions
+  },{maxGlobalTurn:Number.POSITIVE_INFINITY});
+  const ai=new SimpleTacticsAi({id:owner.id},options,null);
+  const first=ai.decodeNextAction(store.state);
+  assert.ok(first instanceof PlayCardAction);
+  assert.equal(owner.hand.cards[first.handIndex]?.name,'Battle Compressor');
+  store.dispatch(first);
+  const live=store.state.players[0];
+  const prompt=store.state.prompts.find(p=>p.result===undefined &&
+    p instanceof ChooseCardsPrompt && p.player===live && p.cards===live.deck);
+  assert.ok(prompt,'Native owner must receive actual late Compressor deck prompt');
+  const answer=ai.decodeNextAction(store.state);
+  assert.ok(answer instanceof ResolvePromptAction);
+  const selected=answer.result.map(c=>typeof c==='number'?
+    prompt.cards.cards[c]?.fullName:c?.fullName);
+  assert.deepEqual(selected,[GENGAR,TREV]);
+  store.dispatch(answer);
+  const settled=store.state.players[0];
+  assert.ok(settled.discard.cards.some(c=>c.fullName===GENGAR));
+  assert.ok(settled.discard.cards.some(c=>c.fullName===TREV));
+  const copy=ownerVisibleCopyOptions(settled);
+  assert.ok(copy.some(x=>x.source===GENGAR&&x.attack==='Horror House-GX'));
+  return {
+    schema:'agent32-native-late-compressor-prompt-v1',
+    sourceGame:false,syntheticBoard:true,
+    virtualNativeTurn:31,original6And14GatesWouldBlock:true,
+    newTacticSelected:'Battle Compressor PHF',
+    prompt:prompt.constructor.name,selected,
+    copyAvailable:copy.some(x=>x.source===GENGAR),
+    equippedEnergy:settled.active.energies.cards.length,
+    attackSettlementTested:false,opponentReplyTested:false,
+    competitiveQualified:false
+  };
+}
+
 if(require.main===module){
   main();
   heldGengarCounterexample();
   benchedMewtwoPreparation();
   establishedGengarSecondDonor();
+  process.stdout.write(JSON.stringify(lateTurnOwnerPayload())+'\\n');
 }
 module.exports={main,preparedOwnerState,heldGengarCounterexample,
-  benchedMewtwoPreparation,establishedGengarSecondDonor};
+  benchedMewtwoPreparation,establishedGengarSecondDonor,
+  lateTurnOwnerPayload};
