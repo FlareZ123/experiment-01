@@ -12,7 +12,7 @@ KINDS = (
 )
 
 
-def fixture(*, energy_count: int = 53, omit: str = "") -> bytes:
+def fixture(*, energy_count: int = 54, omit: str = "") -> bytes:
     rows = []
     for index, kind in enumerate(KINDS, 1):
         if kind == omit:
@@ -39,14 +39,14 @@ class SnapshotTests(unittest.TestCase):
         observed = parse_viewer(fixture(), CODE)
         self.assertEqual(observed["cards"], 60)
         self.assertEqual(len(observed["entries"]), 7)
-        self.assertEqual(observed["entries"][6]["count"], 53)
+        self.assertEqual(observed["entries"][6]["count"], 54)
         self.assertEqual(
             observed["entries"][6]["japanese_set_slug"], "S0"
         )
 
     def test_rejects_partial_or_wrong_viewer(self) -> None:
         with self.assertRaises(ValueError):
-            parse_viewer(fixture(energy_count=52), CODE)
+            parse_viewer(fixture(energy_count=53), CODE)
         with self.assertRaises(ValueError):
             parse_viewer(fixture(omit="deck_sta"), CODE)
         with self.assertRaises(ValueError):
