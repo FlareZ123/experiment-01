@@ -114,6 +114,9 @@ function run(){
   assert.equal(observed.audit.eligibleMarniePasses,1);
   assert.equal(observed.audit.StoreAccepted,1);
   assert.equal(observed.audit.StoreRejected,0);
+  assert.equal(treatment.rootActionLedgerSha256,
+    'cfa5672e609ca7854d63e062424b6140d986c7cd220d804b8f18a785921e96e6',
+    'Read-only owner-hand auditing changed original Marnie game actions');
   return report;
 }
 if(require.main===module){
