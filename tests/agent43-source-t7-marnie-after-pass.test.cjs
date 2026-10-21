@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {chooseSourceMarnie,withSourceMarnieAfterPass}=
+const {chooseSourceMarnie,chooseSourceGuzmaT9,withSourceMarnieAfterPass}=
   require('../simulation/twinleaf/agent43-source-t7-marnie-after-pass.cjs');
 
 function view(){
@@ -128,5 +128,55 @@ test('post-Marnie owner observation records later reachable cards without changi
   assert.equal(snap.globalTurn,7);
   assert.equal(snap.originalBotAction,'PassTurnAction');
   assert.equal(snap.observationPassedToPolicy,false);
+  assert.equal(f.active.players[1].hand.cards[0],'OPPONENT_SECRET');
+});
+
+test('real owner-visible T9 Guzma opportunity needs Supporter entitlement and both Benches',()=>{
+  const base=view();
+  const eligible={...base,globalTurn:9,ownHand:['Guzma BUS','Dark Patch ASR'],
+    opponentPublic:{bench:[{printing:'Gengar & Mimikyu-GX TEU'}]}};
+  assert.deepEqual(chooseSourceGuzmaT9(eligible),{
+    handIndex:0,printing:'Guzma BUS'
+  });
+  assert.equal(chooseSourceGuzmaT9({...eligible,globalTurn:7}),null);
+  assert.equal(chooseSourceGuzmaT9({...eligible,ownHand:['Marnie SSH']}),null);
+  assert.equal(chooseSourceGuzmaT9({...eligible,
+    opponentPublic:{bench:[]}}),null);
+  assert.equal(chooseSourceGuzmaT9({...eligible,ownTurnResources:{
+    supporterPlayedTurn:7,supporterPlayLocked:false}}),null);
+  assert.equal(chooseSourceGuzmaT9({...eligible,ownPublic:{
+    ...eligible.ownPublic,bench:[{printing:'Oranguru V ASR',energies:[]}]
+  }}),null);
+});
+test('optional two-root native source Marnie plus held Guzma preserves both actor choices',()=>{
+  const f=fixture();
+  let reads=0;
+  f.deps.guzmaT9=true;
+  f.deps.observe=()=>{
+    reads++;
+    return reads===1?view():{
+      ...view(),globalTurn:9,
+      ownHand:['Guzma BUS','Dark Patch ASR'],
+      opponentPublic:{bench:[{printing:'Duskull CEC'}]}
+    };
+  };
+  f.headless.runMatch=()=>{
+    const first=f.bot.decodeNextAction(f.active);
+    f.store.dispatch(first);
+    f.active.turn=9;
+    const second=f.bot.decodeNextAction(f.active);
+    return f.store.dispatch(second);
+  };
+  const {result,audit}=withSourceMarnieAfterPass(
+    ()=>f.headless.runMatch(),f.deps);
+  assert.ok(result instanceof PlayCardAction);
+  assert.equal(result.handIndex,0);
+  assert.equal(audit.StoreAccepted,2);
+  assert.equal(audit.guzmaT9Proposals,1);
+  assert.equal(audit.guzmaT9Accepted,1);
+  assert.equal(audit.guzmaT9Rejected,0);
+  assert.equal(audit.postDispatch.kind,'guzma-t9');
+  assert.equal(audit.postMarnieOwnerDecisionRoots.length,1);
+  assert.equal(audit.postMarnieOwnerDecisionRoots[0].globalTurn,9);
   assert.equal(f.active.players[1].hand.cards[0],'OPPONENT_SECRET');
 });
