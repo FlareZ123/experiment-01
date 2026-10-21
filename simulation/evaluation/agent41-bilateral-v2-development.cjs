@@ -241,6 +241,54 @@ function candidatePostChoicePassEvidence(decisionTrace,candidateSeat){
 }
 
 /**
+ * Join already-settled source attacks to the candidate's actual next owner
+ * decision. This is a postgame read-only inventory of the actor's hand and
+ * face-up board, recorded AFTER the bot chose the action. It cannot prove
+ * another action was legal and never feeds private cards back to the bot.
+ * Missing and non-Pass replies remain explicit in the denominator.
+ * @param {object[]} trace Authentic post-choice native decision trace.
+ * @param {object} sourceSettlement Existing strict source-attack settlement.
+ * @param {0|1} candidateSeat Candidate's physical seat.
+ * @returns {object[]} Observations aligned to every source declaration.
+ */
+function candidateRepliesAfterSourceAttacks(trace,sourceSettlement,candidateSeat){
+  assert.ok(candidateSeat===0||candidateSeat===1);
+  assert.ok(Array.isArray(trace));
+  assert.ok(Array.isArray(sourceSettlement?.attacks));
+  const byOrdinal=new Map(trace.filter(row=>
+    row.playerSlot===candidateSeat).map(row=>[row.actionOrdinal,row]));
+  return sourceSettlement.attacks.map(attack=>{
+    const next=attack.nextSourceRoot??null;
+    const sameEpoch=attack.nextSourceSameEpochProven===true;
+    const response=next&&sameEpoch?byOrdinal.get(next.ordinal):null;
+    const hasOwnerHand=response?.decisionHandBefore?.perspectiveSeat===
+      candidateSeat && Array.isArray(response.decisionHandBefore.ownHandPrintings);
+    const isPass=next?.action==='PassTurnAction';
+    return {
+      sourceAttackOrdinal:attack.actionOrdinal,
+      sourceTurn:attack.turnBefore,
+      sourceAttackName:attack.attackName,
+      sameEpochCandidateReplyVerified:sameEpoch,
+      candidateReplyOrdinal:next?.ordinal??null,
+      candidateReplyTurn:next?.turn??null,
+      candidateReplyAction:next?.action??null,
+      status:!next?'no-followup-root':!sameEpoch?'unverified-epoch':
+        !response?'trace-row-missing':isPass?'candidate-passed':
+        'candidate-other-action',
+      ownerHandAfterDecision:isPass&&hasOwnerHand?
+        [...response.decisionHandBefore.ownHandPrintings]:null,
+      publicBoardBeforePass:isPass?
+        (response?.publicBoardBeforePass??null):null,
+      printedBasicEnergyBeforePass:isPass?
+        (response?.printedBasicEnergyBeforePass??null):null,
+      postChoiceAttackProbe:isPass?
+        (response?.attackPassProbe??null):null,
+      caveat:'Post-choice owner hand and public board; no alternate-action legality assertion'
+    };
+  });
+}
+
+/**
  * Apply the same owner-visible delayed-resource tactic to either candidate
  * physical seat. This is a historical-only opt-in, not a strength treatment.
  * The actual tactic performs owner-deck selection only in its legal prompt.
@@ -605,6 +653,8 @@ function executeDevelopment(trial,candidates,{
     candidatePostChoicePassProbe:passEvidence.summary,
     candidatePassProbeSamples:passEvidence.samples,
     candidatePerfectionPassSamples:passEvidence.perfectionSamples,
+    candidateRepliesAfterSourceAttacks:candidateRepliesAfterSourceAttacks(
+      game.decisionTrace,sourceSettlement,candidateSeat),
     attackDeclarations:{
       source:declared.filter(r=>r.playerSlot===sourceSeat).length,
       candidate:declared.filter(r=>r.playerSlot===candidateSeat).length
@@ -926,4 +976,5 @@ if(require.main===module){
 module.exports={developmentTrials,sourceFirstPressureTrials,
   commonPayloadOption,firstPostSourceDecision,
   sourceLineReplyPacket,candidatePostChoicePassEvidence,
+  candidateRepliesAfterSourceAttacks,
   executeDevelopment,runDevelopment,classifyNativeAbort};
