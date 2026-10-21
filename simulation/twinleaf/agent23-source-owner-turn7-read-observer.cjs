@@ -67,6 +67,7 @@ function withOwnedTurnRootReadObserver(BotClass,execute,target,deps={}){
   assert.equal(typeof headless.runMatch,'function');
   const originalRun=headless.runMatch;
   let matchCalls=0,seenRoots=0,selectedRecords=[];
+  let seenConfirmPrompts=0,confirmResponses=[];
   let hookErrors=0;
   function observedRun(request){
     matchCalls++;
@@ -75,11 +76,33 @@ function withOwnedTurnRootReadObserver(BotClass,execute,target,deps={}){
     assert.equal(typeof descriptor?.value,'function');
     function observedDecode(state,...args){
       const actor=state.players?.[target.seat];
-      const eligible=state.turn===target.turn &&
+      const actorOwnsTurn=state.turn===target.turn &&
         state.activePlayer===target.seat &&
-        state.prompts?.every(prompt=>prompt.result!==undefined) &&
         actor?.id===this.client?.id;
-      if(!eligible)return descriptor.value.apply(this,[state,...args]);
+      if(!actorOwnsTurn)return descriptor.value.apply(this,[state,...args]);
+      const pending=state.prompts?.find(p=>p.result===undefined)??null;
+      if(pending?.constructor?.name==='ConfirmPrompt'&&
+        pending.playerId===actor.id){
+        seenConfirmPrompts++;
+        const beforeHand=actor.hand.cards.length;
+        const message=typeof pending.message==='string'?
+          pending.message.slice(0,200):null;
+        const selected=descriptor.value.apply(this,[state,...args]);
+        const value=selected?.result;
+        const primitive=(value===null||
+          ['string','number','boolean'].includes(typeof value))?
+          value:null;
+        if(confirmResponses.length<12)confirmResponses.push({
+          turn:state.turn,seat:target.seat,promptId:pending.id,
+          promptKind:pending.constructor.name,promptMessage:message,
+          sourceHandSizeBefore:beforeHand,
+          selectedActionType:selected?.constructor?.name??null,
+          selectedResult:primitive,
+          primitiveResultSupported:value===primitive
+        });
+        return selected;
+      }
+      if(pending)return descriptor.value.apply(this,[state,...args]);
       seenRoots++;
       let event;
       try{
@@ -113,6 +136,8 @@ function withOwnedTurnRootReadObserver(BotClass,execute,target,deps={}){
     return {result,observationAudit:{
       version:VERSION,target,matchCalls,seenRoots,hookErrors,
       boundedRoots:selectedRecords,
+      sourceConfirmPromptCount:seenConfirmPrompts,
+      boundedSourceConfirmPromptResponses:confirmResponses,
       originalPolicyActionsPreservedByDesign:true,
       qualification:{
         fullGameUnchangedRequiresIndependentNativeLedgerCheck:true,
