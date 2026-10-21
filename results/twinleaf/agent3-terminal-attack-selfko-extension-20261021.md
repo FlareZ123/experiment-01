@@ -25,3 +25,7 @@ The existing four-armed historical canonical development panel and its pure test
 ## Open validation
 
 The most consequential next adversarial cases are a real attack with self-damage leading to last-Pokémon KO, an attack causing two simultaneous terminal KOs with actual Prize prompts, and nonterminal attack KOs that require Active promotion before delayed end-of-turn effects. The presently patched boundary is intentionally narrow and still default-off. The research-wide count is **29/32 exact Aichi Top32 source lists, zero competitively qualified games, no validated 99.5% deck**.
+
+## 08:28 UTC stronger printed-attack follow-up
+
+[Manual compiled run 39569157378](https://github.com/FlareZ123/experiment-01/actions/runs/39569157378) passed at pinned head `ef696f69e403f19099c2f8a0da73db5eb5efa1bb`. An added test dispatches real `AttackAction(101,'Thunder Jolt')` with Electrike MEG49, one attached Lightning Energy, 60 prior damage on its 70 HP, and a lone opposing Shadow Rider Calyrex V. Real native prompts settle; printed 30 opposing damage and 10 self-recoil settle, then the hook records terminal attacker seat 0, native opponent winner, and Electrike in discard. This supersedes the above open question about a genuine printed recoil action, while remaining a pre-established board fixture outside a 60-card opening game. Real simultaneous double-terminal Knock Outs, bench promotions and official-match equivalence remain unverified.
