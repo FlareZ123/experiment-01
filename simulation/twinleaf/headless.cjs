@@ -1581,6 +1581,9 @@ function runMatch(request) {
       ...(gladionRootPrizeChoices ? {gladionRootPrizeChoices} : {}),
       rootActionLedgerProtocol: rootActionLedger ?
         'actual-store-root-action-ledger-v1' : null,
+      ...(rootActionLedger && request.captureRootActionTargets===true ? {
+        rootActionTargetProtocol:'store-accepted-root-declared-target-v1'
+      } : {}),
       ...(rootConfirmationTrace ? {rootConfirmationTrace} : {}),
       ...(electrodeOpportunityObserver ?
         {electrodeOpportunitySummary: electrodeOpportunityObserver.snapshot()} : {}),
