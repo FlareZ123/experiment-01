@@ -52,4 +52,5 @@ jobs:
             aichi-snorlax-root-setup.json
             aichi-snorlax-bench-prospective.json
             aichi-snorlax-threat-aware-prospective.json
+            aichi-snorlax-zero-energy-threat.json
           if-no-files-found: warn
