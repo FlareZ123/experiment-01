@@ -138,6 +138,7 @@ function rootPhysicalSnapshot(state,seat,intent){
     handCount:owner.hand.cards.length,
     stadiumPrintings:owner.stadium?.cards?.map(c=>c.fullName)??[],
     activeEnergies:owner.active.energies.cards.map(c=>c.fullName),
+    activeToolPrintings:owner.active.tools.map(c=>c.fullName),
     ...(intent.kind==='paid-retreat'?{
       activePokemonPrinting:owner.active.getPokemonCard()?.fullName??null,
       targetPokemonPrinting:
@@ -172,6 +173,13 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
   if(intent.kind==='bench-basic'){
     return before.benchPrinting===null&&
       after.benchPrinting===intent.printing&&
+      after.handCount===before.handCount-1?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='equip-powerglass'){
+    const count=cards=>cards.filter(c=>c===intent.printing).length;
+    return count(before.activeToolPrintings)===0&&
+      count(after.activeToolPrintings)===1&&
       after.handCount===before.handCount-1?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
