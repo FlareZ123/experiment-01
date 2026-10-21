@@ -71,6 +71,8 @@ function chooseActorCopiedAttack(input,options={}){
       picked?.printing==='Gengar & Mimikyu-GX TEU' &&
       picked.attackName==='Poltergeist'){
     picked=eligible.find(candidate=>
+      (candidate.sourceIndex!==picked.sourceIndex ||
+       candidate.attackIndex!==picked.attackIndex) &&
       candidate.gxAttack!==true &&
       Number.isSafeInteger(candidate.damage) && candidate.damage>0 &&
       (candidate.damageCalculation===null ||
