@@ -23,6 +23,9 @@ function actorChooseAttackInput(state,seat,observe=actorObservation){
     index,printing:card.fullName,
     attacks:Object.freeze(card.attacks.map((attack,j)=>Object.freeze({
       index:j,name:attack.name,gxAttack:attack.gxAttack===true,
+      // Printed attack characteristics are public and remain unmodified.
+      damage:attack.damage??null,
+      damageCalculation:attack.damageCalculation??null,
       blocked:blocked.some(b=>b.index===index&&b.attack===attack.name)
     })))
   }));
@@ -47,19 +50,34 @@ function chooseActorCopiedAttack(input,options={}){
     for(const attack of source.attacks)
       if(!attack.blocked&&!(gxUsed&&attack.gxAttack))
         eligible.push({sourceIndex:source.index,attackIndex:attack.index,
-          printing:source.printing,attackName:attack.name});
-  // A/B-only tactical hypothesis: try printed Poltergeist before an earlier
-  // unrelated donor. No opponent hand identities or hidden Trainer count are
-  // consulted. Its actual damage and performance must be observed, not assumed.
+          printing:source.printing,attackName:attack.name,
+          gxAttack:attack.gxAttack,damage:attack.damage??null,
+          damageCalculation:attack.damageCalculation??null});
+  // An opt-in Poltergeist hypothesis can prefer the printed donor. The
+  // opponent hand *count* is public; the identities of its cards are not.
+  let picked=eligible[0]??null;
   if(options.preferGengarPoltergeist===true){
-    const alternate=eligible.find(candidate=>
+    picked=eligible.find(candidate=>
       candidate.printing==='Gengar & Mimikyu-GX TEU'&&
-      candidate.attackName==='Poltergeist');
-    if(alternate)return {sourceIndex:alternate.sourceIndex,
-      attackIndex:alternate.attackIndex};
+      candidate.attackName==='Poltergeist')??picked;
   }
-  if(eligible.length>0)return {sourceIndex:eligible[0].sourceIndex,
-    attackIndex:eligible[0].attackIndex};
+  // With a publicly empty opposing hand, printed Poltergeist (50 times
+  // their Trainer count) deals zero base damage. A later fixed-positive
+  // printed attack is a potential improvement, subject to real Store effects.
+  // Keep this default-off: printed damage cannot represent all tactical
+  // effects, Weakness, Resistance, protection, or evolving game state.
+  if(options.preferZeroHandPrintedDamage===true &&
+      input.actor.opponentPublic?.handCount===0 &&
+      picked?.printing==='Gengar & Mimikyu-GX TEU' &&
+      picked.attackName==='Poltergeist'){
+    picked=eligible.find(candidate=>
+      candidate.gxAttack!==true &&
+      Number.isSafeInteger(candidate.damage) && candidate.damage>0 &&
+      (candidate.damageCalculation===null ||
+       candidate.damageCalculation===undefined))??picked;
+  }
+  if(picked)return {sourceIndex:picked.sourceIndex,
+    attackIndex:picked.attackIndex};
   if(input.prompt.allowCancel)return {sourceIndex:null,attackIndex:null};
   throw Error('Mandatory ChooseAttack has no permitted printed attack');
 }
@@ -88,10 +106,12 @@ function withActorOnlyChooseAttack(run,deps={}){
   const decisions=new WeakMap(),stores=new WeakSet();
   let liveStore=null;
   const preferGengarPoltergeist=deps.preferGengarPoltergeist===true;
-  const audit={version:preferGengarPoltergeist?
-    VERSION+'+agent13-gengar-poltergeist-first-v1':VERSION,
+  const preferZeroHandPrintedDamage=deps.preferZeroHandPrintedDamage===true;
+  const audit={version:VERSION+
+    (preferGengarPoltergeist?'+agent13-gengar-poltergeist-first-v1':'')+
+    (preferZeroHandPrintedDamage?'+agent50-zero-hand-poltergeist-v1':''),
     origin:'detached owner ChooseAttack menu',
-    preferGengarPoltergeist,
+    preferGengarPoltergeist,preferZeroHandPrintedDamage,
     menus:0,selected:0,nativeStores:0,accepted:0,rejected:0,
     nativeFallbacks:0,nonLiveSpeculativeFallbacks:0,
     selections:[],competitiveGameQualified:false};
@@ -108,7 +128,8 @@ function withActorOnlyChooseAttack(run,deps={}){
       return original.value.call(this,state);
     }
     audit.menus++;
-    const intent=chooseActorCopiedAttack(input,{preferGengarPoltergeist});
+    const intent=chooseActorCopiedAttack(input,
+      {preferGengarPoltergeist,preferZeroHandPrintedDamage});
     const prompt=state.prompts.find(p=>p.result===undefined);
     const selected=intent.sourceIndex===null?null:
       prompt.cards[intent.sourceIndex].attacks[intent.attackIndex];
