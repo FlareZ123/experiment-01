@@ -67,6 +67,11 @@ jobs:
           PY
       - uses: actions/checkout@v4
         if: ${{ inputs.probe_deck_code }}
+      - name: Test public Japanese deck snapshot parser
+        if: ${{ inputs.probe_deck_code && inputs.public_deck_code != '' }}
+        run: |
+          python3 -m pip install --quiet filelock
+          python3 -m unittest discover -s tests -p 'test_official_jp_public_deck_snapshot.py' -v
       - name: Retrieve official Japanese source deck code
         if: ${{ inputs.probe_deck_code }}
         shell: bash
