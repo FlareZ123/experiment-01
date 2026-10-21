@@ -8,11 +8,6 @@ on:
         required: false
         type: boolean
         default: false
-      stranded_marnie_root:
-        description: Opt in both-seat actor-only last-chance Marnie for uncharged Active against energized Bench
-        required: false
-        type: boolean
-        default: false
       energy_frontier:
         description: Opt in one-unit Basic Energy planning on both actor roots
         required: false
@@ -186,7 +181,6 @@ jobs:
         if: ${{ inputs.audit_missed_evolution }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
-          AGENT50_STRANDED_MARNIE_DEV: ${{ inputs.stranded_marnie_root && 'true' || 'false' }}
           AGENT7_NATIVE_GENERIC_FALLBACK_DEV: 'true'
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT41_MANDATORY_OPTION_DEV: 'true'
@@ -205,7 +199,6 @@ jobs:
       - name: Execute unchanged canonical four-arm historical bilateral runner
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
-          AGENT50_STRANDED_MARNIE_DEV: ${{ inputs.stranded_marnie_root && 'true' || 'false' }}
           AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
           AGENT32_COMPR_ANYTURN_DEV: ${{ inputs.owner_anyturn_compressor_pair && 'true' || 'false' }}
           AGENT32_COMPR_BENCHED_DEV: ${{ inputs.owner_early_bench_compressor_pair && 'true' || 'false' }}
@@ -232,7 +225,6 @@ jobs:
         if: ${{ inputs.owner_anyturn_compressor_pair || inputs.owner_early_bench_compressor_pair }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
-          AGENT50_STRANDED_MARNIE_DEV: ${{ inputs.stranded_marnie_root && 'true' || 'false' }}
           AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
           AGENT32_COMPR_ANYTURN_DEV: 'false'
           AGENT32_COMPR_BENCHED_DEV: 'false'
@@ -263,7 +255,6 @@ jobs:
         if: ${{ inputs.owner_early_bench_compressor_pair && inputs.actor_perfection_root }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
-          AGENT50_STRANDED_MARNIE_DEV: ${{ inputs.stranded_marnie_root && 'true' || 'false' }}
           AGENT35_PERFECTION_TRANSITION_ROOT_DEV: 'true'
           AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
           AGENT32_COMPR_ANYTURN_DEV: ${{ inputs.owner_anyturn_compressor_pair && 'true' || 'false' }}
@@ -312,7 +303,6 @@ jobs:
         if: ${{ inputs.quick_ball_paircheck && inputs.actor_quick_ball_root }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
-          AGENT50_STRANDED_MARNIE_DEV: ${{ inputs.stranded_marnie_root && 'true' || 'false' }}
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
           AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
           AGENT8_ACTOR_QUICK_BALL_DEV: 'false'
@@ -343,7 +333,6 @@ jobs:
         if: ${{ inputs.native_fallback_paircheck }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
-          AGENT50_STRANDED_MARNIE_DEV: ${{ inputs.stranded_marnie_root && 'true' || 'false' }}
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
           AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
           AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
@@ -373,7 +362,6 @@ jobs:
         if: ${{ !cancelled() && inputs.source_first_retrospective }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
-          AGENT50_STRANDED_MARNIE_DEV: ${{ inputs.stranded_marnie_root && 'true' || 'false' }}
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
           AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
           AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
@@ -408,7 +396,6 @@ jobs:
         if: ${{ inputs.native_fallback_paircheck && inputs.source_first_retrospective }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
-          AGENT50_STRANDED_MARNIE_DEV: ${{ inputs.stranded_marnie_root && 'true' || 'false' }}
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
           AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
           AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
