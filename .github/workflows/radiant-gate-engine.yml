@@ -37,6 +37,9 @@ jobs:
       - name: Execute seeded headless match with strict prompt and Forest Seal Stone correction
         run: node simulation/twinleaf/forest-seal-opt-in-smoke.cjs
 
+      - name: Validate official Path to the Peak Forest Seal Stone exception in both seats
+        run: node simulation/twinleaf/forest-seal-path-to-peak-action.cjs
+
       - name: Probe Temple Wobbuffet Active suppression of Radiant Gate
         run: node simulation/twinleaf/radiant-wobbuffet-active-probe.cjs
 
