@@ -9,6 +9,7 @@ const load = name => require(path.join(output, name));
 
 /**
  * Choose a full Electro Rain allocation by immediate projected Prize value.
+ * Printed Electro Rain ignores Weakness and Resistance for all targets.
  * Each packet is 30 printed attack damage. Telescopic Sight adds a single
  * 30-damage bonus to each eligible Benched V/GX target, if not Stadium-blocked.
  *
@@ -18,7 +19,7 @@ const load = name => require(path.join(output, name));
  * @param {object} state Pinned Twinleaf State
  * @param {object} player Acting source Raichu player
  * @param {object} prompt Pinned PutDamagePrompt
- * @param {{attackPhase:number,opponentSide:number,activeSlot:number,benchSlot:number,lightningType:number}} codes
+ * @param {{attackPhase:number,opponentSide:number,activeSlot:number,benchSlot:number}} codes
  * @returns {Array<{target:object,damage:number}>|null}
  */
 function planElectroRainDamage(state, player, prompt, codes) {
@@ -85,24 +86,9 @@ function planElectroRainDamage(state, player, prompt, codes) {
     const reduction = Math.max(0, slot.damageReductionNextTurn || 0);
     const beforeWeaknessReduction =
       Math.max(0, slot.damageReductionBeforeWeaknessNextTurn || 0);
-    let weaknessMultiplier = 1;
-    let resistance = 0;
-    if (target.slot === codes.activeSlot) {
-      const weakness = slot.weaknessOverrideType !== undefined
-        ? (slot.weaknessOverrideType === codes.lightningType
-          ? {value: 2} : undefined)
-        : pokemon.weakness?.find(row => row.type === codes.lightningType);
-      if (!slot.noWeaknessNextTurn && weakness) {
-        weaknessMultiplier = weakness.value ?? 2;
-      }
-      const resistant = pokemon.resistance?.find(row =>
-        row.type === codes.lightningType);
-      resistance = Math.max(0, -(resistant?.value || 0));
-    }
-    // Incoming Active damage applies Weakness, then Resistance, then
-    // target-side reduction. Bench targets have neither modifier.
-    const required = ((remaining + reduction + resistance) /
-      weaknessMultiplier) + beforeWeaknessReduction - bonus;
+    // Electro Rain explicitly ignores Weakness and Resistance, including
+    // on the opposing Active. Keep actual pre/post damage reductions.
+    const required = remaining + reduction + beforeWeaknessReduction - bonus;
     entries.push({
       target,
       cap,
@@ -184,7 +170,6 @@ function raichuPrizeAllocationResolverClass() {
   const {ResolvePromptAction} =
     load('game/store/actions/resolve-prompt-action');
   const {GamePhase} = load('game/store/state/state');
-  const {CardType} = load('game/store/card/card-types');
   const {PlayerType, SlotType} =
     load('game/store/actions/play-card-action');
 
@@ -196,8 +181,7 @@ function raichuPrizeAllocationResolverClass() {
           attackPhase: GamePhase.ATTACK,
           opponentSide: PlayerType.TOP_PLAYER,
           activeSlot: SlotType.ACTIVE,
-          benchSlot: SlotType.BENCH,
-          lightningType: CardType.LIGHTNING
+          benchSlot: SlotType.BENCH
         });
         if (plan) return new ResolvePromptAction(prompt.id, plan);
       }
