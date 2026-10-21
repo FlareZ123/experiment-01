@@ -671,7 +671,7 @@ function runDevelopment({
         trial,status:veto?.rootDispatchVetoes?.length>0?'paper-supporter-quota-veto':'engine-error',
         error:String(error?.stack||error),
         nativeStoreCauseStack:error?.cause?.stack??null,
-        ...(error?.rejectedActionEvidence?{rejectedActionEvidence:error.rejectedActionEvidence}:{})
+        ...(error?.rejectedActionEvidence?{rejectedActionEvidence:error.rejectedActionEvidence}:{}),
         ...(error?.nativePublicRootArchive??{}),
         ...(error?.nativeEpochBoundaryEvidence?{
           nativeEpochBoundaryEvidence:error.nativeEpochBoundaryEvidence
