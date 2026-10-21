@@ -18,7 +18,7 @@ const load = name => require(path.join(output, name));
  * @param {object} state Pinned Twinleaf State
  * @param {object} player Acting source Raichu player
  * @param {object} prompt Pinned PutDamagePrompt
- * @param {{attackPhase:number,opponentSide:number,activeSlot:number,benchSlot:number}} codes
+ * @param {{attackPhase:number,opponentSide:number,activeSlot:number,benchSlot:number,lightningType:number}} codes
  * @returns {Array<{target:object,damage:number}>|null}
  */
 function planElectroRainDamage(state, player, prompt, codes) {
@@ -82,10 +82,30 @@ function planElectroRainDamage(state, player, prompt, codes) {
     // Treat positive target-side reduction as live unless verified otherwise;
     // this may miss a KO if a source-specific filter actually excludes Raichu.
     const reduction = Math.max(0, slot.damageReductionNextTurn || 0);
+    const beforeWeaknessReduction =
+      Math.max(0, slot.damageReductionBeforeWeaknessNextTurn || 0);
+    let weaknessMultiplier = 1;
+    let resistance = 0;
+    if (target.slot === codes.activeSlot) {
+      const weakness = slot.weaknessOverrideType !== undefined
+        ? (slot.weaknessOverrideType === codes.lightningType
+          ? {value: 2} : undefined)
+        : pokemon.weakness?.find(row => row.type === codes.lightningType);
+      if (!slot.noWeaknessNextTurn && weakness) {
+        weaknessMultiplier = weakness.value ?? 2;
+      }
+      const resistant = pokemon.resistance?.find(row =>
+        row.type === codes.lightningType);
+      resistance = Math.max(0, -(resistant?.value || 0));
+    }
+    // Incoming Active damage applies Weakness, then Resistance, then
+    // target-side reduction. Bench targets have neither modifier.
+    const required = ((remaining + reduction + resistance) /
+      weaknessMultiplier) + beforeWeaknessReduction - bonus;
     entries.push({
       target,
       cap,
-      packetsForKO: Math.max(1, Math.ceil((remaining + reduction - bonus) / 30)),
+      packetsForKO: Math.max(1, Math.ceil(required / 30)),
       prizes: nominalKnockoutPrizes(pokemon, slot)
     });
   });
@@ -163,6 +183,7 @@ function raichuPrizeAllocationResolverClass() {
   const {ResolvePromptAction} =
     load('game/store/actions/resolve-prompt-action');
   const {GamePhase} = load('game/store/state/state');
+  const {CardType} = load('game/store/card/card-types');
   const {PlayerType, SlotType} =
     load('game/store/actions/play-card-action');
 
@@ -174,7 +195,8 @@ function raichuPrizeAllocationResolverClass() {
           attackPhase: GamePhase.ATTACK,
           opponentSide: PlayerType.TOP_PLAYER,
           activeSlot: SlotType.ACTIVE,
-          benchSlot: SlotType.BENCH
+          benchSlot: SlotType.BENCH,
+          lightningType: CardType.LIGHTNING
         });
         if (plan) return new ResolvePromptAction(prompt.id, plan);
       }
