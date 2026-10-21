@@ -130,11 +130,20 @@ function chooseActorRootIntent(view,catalog,options={}){
     if(first>=0){
       // Development opt-in: choose one-unit Basic Energy using the detached
       // actor view, while preserving the original branch when not enabled.
-      const planned=options.energyFrontier?
-        require('./agent10-basic-energy-frontier.cjs')
-          .chooseBasicEnergyFrontier(view,catalog):null;
-      const index=planned?.handIndex??first;
-      return {kind:'attach-basic-energy',handIndex:index,printing:view.ownHand[index]};
+      if(options.energyRecipientFrontier===true){
+        const recipient=require('./agent44-actor-energy-recipient.cjs')
+          .chooseActorEnergyRecipient(view,catalog);
+        if(recipient)return {kind:'attach-basic-energy',...recipient};
+        // Preserve a held Basic when all publicly known attack deficits
+        // are already satisfied; a later legal turn may use the resource.
+      }else{
+        const planned=options.energyFrontier?
+          require('./agent10-basic-energy-frontier.cjs')
+            .chooseBasicEnergyFrontier(view,catalog):null;
+        const index=planned?.handIndex??first;
+        return {kind:'attach-basic-energy',handIndex:index,
+          printing:view.ownHand[index]};
+      }
     }
   }
   const active=own.active,restrictions=active?.publicRestrictions;
@@ -260,6 +269,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     version:VERSION,origin:'detached-actor-observation',
     energyFrontierOptIn:deps.energyFrontier??
       (process.env.AGENT10_BASIC_ENERGY_FRONTIER_DEV==='true'),
+    energyRecipientFrontierOptIn:deps.energyRecipientFrontier??
+      (process.env.AGENT44_ACTOR_ENERGY_RECIPIENT_DEV==='true'),
     thornsDirectLineOptIn:deps.thornsDirectLine??
       (process.env.AGENT1_THORNS_DIRECT_ROOT_DEV==='true'),
     specialEnergyRootOptIn:deps.specialEnergyRoot??
@@ -311,6 +322,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     const view=observe(state,seat);
     const intent=chooseActorRootIntent(view,catalog,{
       energyFrontier:audit.energyFrontierOptIn,
+      energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
       thornsDirectLine:audit.thornsDirectLineOptIn,
       specialEnergyRoot:audit.specialEnergyRootOptIn,
       printedGxRoot:audit.printedGxRootOptIn,
@@ -333,7 +345,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'attach-special-energy':
       case 'attach-basic-energy':
         action=new PlayCardAction(ownerId,intent.handIndex,{
-          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+          player:PlayerType.BOTTOM_PLAYER,
+          slot:intent.slot==='bench'?SlotType.BENCH:SlotType.ACTIVE,
+          index:intent.slot==='bench'?intent.index:0});
         break;
       case 'play-quick-ball':
         action=new PlayCardAction(ownerId,intent.handIndex,{
