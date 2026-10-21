@@ -10,8 +10,9 @@ const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const load=p=>require(path.join(output,p));
 
 /**
- * Staged Store-copy followed by a deliberately staged opponent action. This
- * is a mechanical contrast, NOT a legal engine-controlled turn handoff.
+ * Source-card-staged board followed by genuine native Store attack,
+ * Wait closure, next-turn handoff and opponent attack. It is still not a
+ * source-dealt game or a complete policy qualification.
  * @param {'Tail Snap'|'Covert Flight'} attackName
  * @returns {object}
  */
@@ -57,11 +58,11 @@ function stagedIronThornsResponse(attackName){
       phase:fixture.state.phase,
       pending:fixture.state.prompts.filter(p=>p.result===undefined)
         .map(p=>p.constructor.name)};
-    // Only the opponent action is staged; the prior copy was actually
-    // executed and the effect was installed through the real Store.
-    fixture.state.activePlayer=1;
-    fixture.state.turn=5;
-    fixture.state.phase=GamePhase.PLAYER_TURN;
+    // Closing native Wait prompts has genuinely advanced the Store to the
+    // opposing turn. Reject artificial clock mutations or staged replies.
+    assert.equal(fixture.state.activePlayer,1);
+    assert.equal(fixture.state.turn,5);
+    assert.equal(fixture.state.phase,GamePhase.PLAYER_TURN);
     fixture.store.dispatch(new AttackAction(202,'Volt Cyclone'));
     for(let i=0;i<12;i++){
       const pending=fixture.state.prompts.find(p=>p.result===undefined);
@@ -77,7 +78,7 @@ function stagedIronThornsResponse(attackName){
       afterCopyBeforeManualAdvance:initial,
       replyState:{turn:fixture.state.turn,activePlayer:fixture.state.activePlayer,
         phase:fixture.state.phase},
-      nativeStoreUsedForBothAttacks:true,storeOwnTurnHandoff:false,
+      nativeStoreUsedForBothAttacks:true,storeOwnTurnHandoff:true,
       qualifiedGame:false};
   }finally{
     clearCopyAttackSessionsForTests();
@@ -94,7 +95,7 @@ function noivernResponseContrast(){
     'Copied Covert Flight should prevent Basic Volt Cyclone damage');
   return {kind:'native-staged-regidrago-noivern-basic-response-v1',
     control,protectedCase,
-    boundary:'Native paid attacks but manually staged next opponent action. No full Store turn/Checkup transition or legal opening',
+    boundary:'Genuine Store attack/Wait/turn handoff and next native AttackAction on an injected established board; no source-dealt opening or legal action policy',
     competitiveGamesQualified:0};
 }
 
