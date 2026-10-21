@@ -58,6 +58,34 @@ test('public Item lock and owner-known accessible donor prohibit proposal',()=>{
   assert.equal(ownerCompressorOpportunity(state,owner,3).activeOrBenchEligible,false);
 });
 
+test('late owner-only Powerglass and discarded Psychic are observed without hidden zones',()=>{
+  const {owner,state}=fixture();
+  owner.active.getPokemonCard=()=>({fullName:MEWTWO});
+  owner.active.tools=[{fullName:'Powerglass SFA'}];
+  owner.active.energies={cards:[{fullName:'Psychic Energy MEE'}]};
+  owner.active.damage=200;
+  owner.hand.cards.push({fullName:'Powerglass SFA'});
+  owner.discard.cards=[
+    {name:'Psychic Energy',fullName:'Psychic Energy MEE'},
+    {name:'Telepathic Psychic Energy',fullName:'Telepathic Psychic Energy MEG'},
+    {name:'Psychic Energy',fullName:'Psychic Energy MEE'}
+  ];
+  state.turn=33;
+  const baseline=ownerCompressorOpportunity(state,owner,3);
+  assert.equal(baseline.heldPowerglassCount,1);
+  assert.equal(baseline.activePowerglassEquipped,true);
+  assert.equal(baseline.ownerDiscardBasicPsychicCount,2);
+  assert.equal(baseline.ownerActiveDamage,200);
+  assert.deepEqual(baseline.ownerActiveEnergyPrintings,['Psychic Energy MEE']);
+  assert.equal(baseline.activeOnlyEligible,false,'Historical turn limit unchanged');
+  state.players[1].hand.cards=[{name:'Psychic Energy'}];
+  state.players[1].deck.cards=[{name:'Psychic Energy'}];
+  owner.deck.cards=[{fullName:'opaque hidden identity C'}];
+  assert.deepEqual(ownerCompressorOpportunity(state,owner,3),{
+    ...baseline,ownDeckCardsRemaining:1
+  },'Observer must ignore concealed owner/opponent deck identities');
+});
+
 test('opposing concealed zones cannot change owner eligibility or telemetry',()=>{
   const {owner,state}=fixture();
   const first=ownerCompressorOpportunity(state,owner,3);
