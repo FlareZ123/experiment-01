@@ -228,7 +228,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure owner-K1 and source-policy regressions
-        run: node --test tests/rank6-broad-thorns-policy.test.cjs tests/agent49-rank6-k1-alternate.test.cjs tests/agent49-source-scoped-special-energy.test.cjs
+        run: node --test tests/rank6-broad-thorns-policy.test.cjs tests/agent49-rank6-k1-alternate.test.cjs tests/agent49-source-scoped-special-energy.test.cjs tests/agent41-bilateral-v2-development.test.cjs
       - name: Fetch pinned Twinleaf submodule
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install exact upstream dependencies
