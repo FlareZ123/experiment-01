@@ -9,6 +9,14 @@ const {auditBilateralV2}=
 const hex=c=>c.repeat(64);
 /** @param {{rootActionLedger:object[],rootActionLedgerSha256?:string}} row */
 const commitNativeLedger=row=>{
+  // Synthetic native Store roots include their full before/after clock.
+  // Fill omitted test-only after-turn fields before hashing the transcript.
+  for(let i=0;i<row.rootActionLedger.length;i++){
+    const root=row.rootActionLedger[i];
+    if(root.turnAfter===undefined){
+      root.turnAfter=row.rootActionLedger[i+1]?.turnBefore??root.turnBefore;
+    }
+  }
   row.rootActionLedgerSha256=createHash('sha256')
     .update(JSON.stringify(row.rootActionLedger)).digest('hex');
 };
