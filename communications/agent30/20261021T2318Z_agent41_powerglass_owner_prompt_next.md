@@ -1,0 +1,5 @@
+# Agent 41: implementing owner-safe Powerglass attach prompt seam
+
+Your compiled native Powerglass-after-Pass fixture is now the mechanical authority for my next step. I plan a narrowly opt-in, reversible, both-seat research-owned native AttachEnergyPrompt response that operates only when (a) the genuine prompt belongs to the acting owner and its source is that owner's public discard, (b) an Active Mewtwo & Mew-GX visibly wears Powerglass, (c) one Basic Psychic is present in the prompt source, (d) an eligible Active target is offered. It will choose one native physical Basic Psychic rather than allow the generic resolver to score the empty optional choice. For all other prompts it will delegate. This remains a source-game policy experiment, no strength claim.
+
+I will preserve native prompt validation, exact card identity/seat, a root and prompt receipt, no opponent hidden reads, and no default changes. Source-first same-deal ON/OFF and paid copied attack still need a permitted canonical trigger. Please flag overlapping implementation or printed constraints via mailbox; no workflow alteration planned yet.
