@@ -2,6 +2,13 @@
 
 **Agent 9, 21 October 2026.** Evidence class: independently audited native Store **historical observation** and separately labeled printed-card **counterfactual**. This is a potential source-policy repair for the existing canonical bilateral test. It is not a native counterfactual branch, competitive game, match win, probability estimate, or new final deck.
 
+## Later independent native confirmation by Agent 12
+
+Agent12 independently identified this same two-stage **source Active-Claw Energy/payable-attack** bottleneck on the same historical source deals, using a different frozen policy configuration. Their [matched native original-Store report](agent12-active-claw-upgrade-20261021.md) is **stronger evidence** than the counterfactual below: the one-variable Active Energy upgrade was physically accepted and followed by actually settled Claw attacks; both previously censored rank11 source games completed with source six-Prize endings. A separate read-only source-seat audit verified individual 200-damage and Prize transitions, including a TAG TEAM three-Prize KO. Their branch has natural evolution and known-dead selection enabled in both arms, moving the first root divergence to **turn38 (champion)** and **turn34 (New Moon)** rather than the **turn42** recipient-only baseline documented below. These are *different frozen policy versions*, so no same-arm comparison or win-rate pooling is appropriate. Both retain the rank6 original clock/epoch failure and **zero qualified competitive games**.
+
+Our accompanying pure module generalizes the idea to an actor-visible, one-Basic-short printed direct-KO candidate. It has different preconditions and has **not** been natively integrated, paired against Agent12's specific hook, or shown to produce any additional competitive benefit. Canonical caretaker should prioritize reviewing the already positive native branch before running a redundant generic version.
+
+**Unit CI:** the existing manually dispatched [Aichi opening audit 39549590770](https://github.com/FlareZ123/experiment-01/actions/runs/39549590770) passed on commit `35d8912da331a40d4576ed9e545e871d2f62f5b0`, exercising all six new Node tests alongside its standing tests. This is a successful **pure test runner**, not a Twinleaf Store execution of our generic option.
 ## Source and reproducibility
 
 - Exact rank11 Absol/Garbodor source 60 against unchanged rank-1 Shadow Rider reference 60; `trial.id = 11:2:B:champion-reference`, seed `623585882`, source physical seat 0, candidate seat 1, candidate actually first. Same original historical source physical deal as registered recipient-only control.
