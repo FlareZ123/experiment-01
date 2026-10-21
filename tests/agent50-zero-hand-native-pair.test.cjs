@@ -25,6 +25,9 @@ function packet(enabled){
         attack:'Poltergeist'
       }]},
     candidateChoices:[],declarations:[],deckHashes:['same','both'],
+    sourceDealFingerprint:'a'.repeat(64),
+    rootActionLedgerSha256:'b'.repeat(64),
+    rootActionLedgerCount:123,
     firstCopyPrecedingRootCount:42,
     firstCopyPrecedingRootSha256:'SAME_REAL_PREFIX',
     nativeActionCount:123,prizesRemaining:[3,5],winnerSeat:0,
