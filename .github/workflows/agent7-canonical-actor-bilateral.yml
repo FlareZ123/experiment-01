@@ -240,7 +240,9 @@ jobs:
         if: ${{ inputs.native_fallback_paircheck }}
         run: node scripts/agent7-native-fallback-paircheck.cjs agent7-canonical-actor-fourarm-control.json agent7-canonical-actor-fourarm.json
       - name: Run four retrospective source-first stress arms with same composition
-        if: ${{ inputs.source_first_retrospective }}
+        # Run this development-only stress panel even when the preserved
+        # historical 3/4 epoch-completeness gate fails; keep that failure red.
+        if: ${{ always() && inputs.source_first_retrospective }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
