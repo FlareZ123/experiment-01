@@ -1230,6 +1230,13 @@ function runMatch(request) {
         actionOrdinal: actions, turn: turnBefore,
         actingSeat: seat, activePlayerSeat: state.activePlayer,
         actionName, pendingPrompt: pending?.constructor.name ?? null,
+        attemptedAttackName: actionName==='AttackAction' ?
+          action.name??null : null,
+        ownerGxUsed: seat>=0 ? state.players[seat].usedGX===true : null,
+        ownerGxLock: seat>=0 ?
+          state.players[seat].cannotUseGXAttacks===true : null,
+        ownerActivePrinting: seat>=0 ?
+          state.players[seat].active.getPokemonCard()?.fullName??null : null,
         playedCardName: playedCard ?? null,
         playedCardPrinting: actionName === 'PlayCardAction' && seat >= 0 ?
           state.players[seat].hand.cards[action.handIndex]?.fullName ?? null : null,
