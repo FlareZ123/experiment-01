@@ -1,0 +1,45 @@
+name: Audit two archived canonical paid-retreat arms
+
+on:
+  workflow_dispatch:
+    inputs:
+      baseline_run:
+        description: Existing no-retreat historical native workflow run ID
+        required: true
+        type: string
+      treatment_run:
+        description: Existing paid-retreat historical native workflow run ID
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Regress read-only artifact auditor
+        run: node --test tests/agent2-paid-retreat-pair-audit.test.cjs
+      - name: Fetch frozen native control, including all censored attempts
+        uses: actions/download-artifact@v4
+        with:
+          name: agent7-canonical-actor-fourarm-development
+          run-id: ${{ inputs.baseline_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: baseline
+      - name: Fetch frozen native treatment, including all censored attempts
+        uses: actions/download-artifact@v4
+        with:
+          name: agent7-canonical-actor-fourarm-development
+          run-id: ${{ inputs.treatment_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: treatment
+      - name: Compare authentic Store source fingerprints and paid-retreat receipts
+        run: node scripts/agent2-paid-retreat-pair-audit.cjs baseline/agent7-canonical-actor-fourarm.json treatment/agent7-canonical-actor-fourarm.json
