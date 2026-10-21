@@ -376,6 +376,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT41_ACTOR_POWERGLASS_ROOT_DEV==='true'),
     strandedMarnieRootOptIn:deps.strandedMarnieRoot??
       (process.env.AGENT50_STRANDED_MARNIE_DEV==='true'),
+    strandedMarnieOwnerSeat:deps.strandedMarnieOwnerSeat??
+      (process.env.AGENT50_STRANDED_MARNIE_OWNER_SEAT===undefined?null:
+        Number(process.env.AGENT50_STRANDED_MARNIE_OWNER_SEAT)),
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
     typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
     publicTransitionWitnesses:0,publicTransitionChanges:0,
@@ -421,6 +424,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent35-public-donor-funding-pivot-v1';
   if(audit.powerglassRootOptIn)
     audit.version+='+agent41-owner-visible-powerglass-root-v1';
+  assert.ok(!audit.strandedMarnieRootOptIn||
+    [0,1].includes(audit.strandedMarnieOwnerSeat),
+    'Stranded Marnie treatment must specify the physical source owner');
   if(audit.strandedMarnieRootOptIn)
     audit.version+='+'+
       require('./agent50-stranded-marnie-frontier.cjs').VERSION;
@@ -468,7 +474,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
       quickBallRoot:audit.quickBallRootOptIn,
       powerglassRoot:audit.powerglassRootOptIn,
-      strandedMarnieRoot:audit.strandedMarnieRootOptIn
+      strandedMarnieRoot:audit.strandedMarnieRootOptIn&&
+        audit.strandedMarnieOwnerSeat===seat
     });
     const ownerId=state.players[seat].id;
     // Research-only post-decision witness of a source player's OWN concealed
