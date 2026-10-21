@@ -40,3 +40,17 @@ test('rejects unresolved prompts, spent retreat or wrong Active',()=>{
   actor.retreatedTurn=0;actor.active=slot('Vileplume BUS');
   assert.equal(busRetreatBenchIndex(state,actor,1,2),-1);
 });
+
+test('Supporter use is a per-turn count while Energy attachment uses global turn',()=>{
+  const {ownerTurnResourceUsage}=require('../simulation/twinleaf/owner-turn-resource-semantics.cjs');
+  for(const turn of [5,18,22]){
+    const unused={supporterTurn:0,energyPlayedTurn:turn-1};
+    const spent={supporterTurn:1,energyPlayedTurn:turn};
+    assert.deepEqual(ownerTurnResourceUsage({turn},unused),{
+      ownerSupporterUsed:false,ownerManualEnergyAttachmentUsed:false
+    });
+    assert.deepEqual(ownerTurnResourceUsage({turn},spent),{
+      ownerSupporterUsed:true,ownerManualEnergyAttachmentUsed:true
+    });
+  }
+});
