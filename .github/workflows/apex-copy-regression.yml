@@ -33,6 +33,8 @@ jobs:
         run: node simulation/twinleaf/apex-haxorus-basic-ko.cjs
       - name: Check Regidrago VSTAR Phantom Dive copying
         run: node simulation/twinleaf/apex-phantom-dive.cjs
+      - name: Verify Noivern PAL copied attack settlement versus Iron Thorns
+        run: node simulation/twinleaf/apex-noivern-rank6-attack-contract.cjs
       - name: Check upstream copied-attack selection policy
         run: node simulation/twinleaf/apex-policy-choice.cjs
       - name: Test optional Regidrago Bench Prize resolver
