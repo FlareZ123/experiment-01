@@ -37,6 +37,8 @@ jobs:
         run: node simulation/twinleaf/snorlax-bench-preservation-prospective.cjs > aichi-snorlax-bench-prospective.json
       - name: Verify source-visible Energy Bench policy
         run: node --test tests/snorlax-threat-aware-bench.test.cjs tests/snorlax-threat-aware-prospective.test.cjs
+      - name: Run fresh preregistered source-policy treatment cohort
+        run: node simulation/twinleaf/snorlax-threat-aware-prospective.cjs > aichi-snorlax-threat-aware-prospective.json
       - name: Archive actual setup selection roots
         if: always()
         uses: actions/upload-artifact@v4
