@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '22'
       - name: Exact counter-access unit and source tests
-        run: node --test tests/regidrago-temple-answers.test.cjs tests/regidrago-temple-search.test.cjs tests/regidrago-temple-discard-sensitivity.test.cjs tests/regidrago-temple-protected-energy.test.cjs tests/aichi-regidrago-latias-prize.test.cjs tests/aichi-regidrago-dragapult-opening.test.cjs
+        run: node --test tests/regidrago-temple-answers.test.cjs tests/regidrago-temple-search.test.cjs tests/regidrago-temple-discard-sensitivity.test.cjs tests/regidrago-temple-protected-energy.test.cjs tests/aichi-regidrago-latias-prize.test.cjs tests/aichi-regidrago-dragapult-opening.test.cjs tests/aichi-regidrago-noivern-funded.test.cjs
       - name: Print source-derived rank table
         run: node scripts/regidrago-temple-answers.cjs
       - name: Print idealized source-card search results
@@ -29,3 +29,5 @@ jobs:
         run: node scripts/aichi-regidrago-latias-prize.cjs
       - name: Print nine-source Dragapult first-draw discard opportunities
         run: node scripts/aichi-regidrago-dragapult-opening.cjs
+      - name: Print jointly funded Noivern payload opportunity
+        run: node scripts/aichi-regidrago-noivern-funded.cjs
