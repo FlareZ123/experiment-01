@@ -67,6 +67,22 @@ test('public pre-dispatch win predicates survive reset projection without hidden
   assert.equal(JSON.stringify(out).includes('must-not-escape'),false);
 });
 
+test('pre-reset public aggregate root chronology survives strict reset audit',()=>{
+  const game=fixture();
+  game.suddenDeathClockResets[0].recentNativePublicRootWindow=[
+    {actionOrdinal:0,turnBefore:4,playerSlot:0,action:'AttackAction',
+      pendingPrompt:null,before:{turn:4,phase:2,players:[
+        {inPlayPokemon:1,prizesRemaining:6,handSize:2,deckRemaining:30},
+        {inPlayPokemon:1,prizesRemaining:6,handSize:2,deckRemaining:30}
+      ]}}
+  ];
+  const out=auditNativeEpochBoundaries(game);
+  assert.deepEqual(out.clockReversals[0].marker.recentNativePublicRootWindow,
+    game.suddenDeathClockResets[0].recentNativePublicRootWindow);
+  assert.equal(out.nativeMarkersAuthentic,true);
+  assert.equal(JSON.stringify(out).includes('must-not-escape'),false);
+});
+
 test('unmarked turn reversal remains a hard authentication failure',()=>{
   const game=fixture();
   game.suddenDeathClockResets=[];
