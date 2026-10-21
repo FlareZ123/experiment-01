@@ -448,17 +448,9 @@ def native_single_epoch_batch():
 
 def anchor_native_clock(game_record):
     """Embed the clock capsule in the cryptographically checked action trace."""
-    anchors = [event for event in game_record["action_trace"]
-               if event.get("protocol") == "native-clock-capsule-v1"]
-    if anchors:
-        anchors[0]["native_clock_evidence"] = deepcopy(game_record["native_clock_evidence"])
-    else:
-        game_record["action_trace"].append({
-            "step": len(game_record["action_trace"]),
-            "action": "native-clock-capsule",
-            "protocol": "native-clock-capsule-v1",
-            "native_clock_evidence": deepcopy(game_record["native_clock_evidence"]),
-        })
+    anchor = game_record["action_trace"][0]
+    anchor["protocol"] = "native-clock-capsule-v1"
+    anchor["native_clock_evidence"] = deepcopy(game_record["native_clock_evidence"])
     game_record["trace_sha256"] = action_trace_sha256(game_record["action_trace"])
 
 
