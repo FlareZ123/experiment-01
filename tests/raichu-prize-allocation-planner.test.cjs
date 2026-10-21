@@ -207,6 +207,27 @@ function test() {
     [target.slot,target.index,damage]),[[1,0,300]],
     'Ten printed packets KO Active Pidgeot without harming barrier-protected Bench');
 
+  // Rank 2 carries Stoutland BCR122 (140 HP, Active Sentinel lock)
+  // and Mr. Mime PLF47. A Benched Bench Barrier must not veto a
+  // five-packet KO of an unprotected Active Stoutland.
+  const stoutlandBehindMime=caseState({budget:5,sight:false});
+  const lockBoard=stoutlandBehindMime.state.players[1];
+  lockBoard.active.hp=140;
+  lockBoard.active.getPokemonCard=()=>({
+    name:'Stoutland',fullName:'Stoutland BCR',hp:140,
+    tags:[],weakness:[{type:5}],resistance:[]
+  });
+  stoutlandBehindMime.prompt.maxAllowedDamage[0].damage=290;
+  lockBoard.bench.push({
+    hp:70,hpBonus:0,damage:0,tools:[],getPokemonCard:()=>mrMime
+  });
+  const exposedLock=planElectroRainDamage(stoutlandBehindMime.state,
+    stoutlandBehindMime.own,stoutlandBehindMime.prompt,
+    stoutlandBehindMime.codes);
+  assert.deepEqual(exposedLock.map(({target,damage})=>
+    [target.slot,target.index,damage]),[[1,0,150]],
+    'Benched Mr. Mime must leave a five-packet Active Stoutland KO');
+
   // Alolan Raichu UNM: Electro Rain ignores Weakness and Resistance.
   // Pidgeot ex OBF has 280 HP and Lightning Weakness, but five packets
   // remain 150 attack damage and cannot KO it.
