@@ -163,6 +163,11 @@ function rootPhysicalSnapshot(state,seat,intent){
     ...(intent.kind==='play-escape-rope'?{
       escapeRopeSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
+    }:{}),
+    ...(intent.kind==='play-stranded-marnie'?{
+      supporterTurn:owner.supporterTurn,
+      marnieSpent:[...owner.discard.cards,...owner.supporter.cards]
+        .filter(card=>card.fullName===intent.printing).length
     }:{})
   };
 }
@@ -217,6 +222,14 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
     return before.supporterTurn===0 &&
       after.supporterTurn>before.supporterTurn &&
       after.aceTrainerSpent>before.aceTrainerSpent?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='play-stranded-marnie'){
+    // The Supporter first moves from the owner's hand into the resolving
+    // public Supporter area. Its later shuffle/draw need not finish during
+    // the same Store dispatch, so avoid asserting drawn-hand size here.
+    return after.marnieSpent>before.marnieSpent&&
+      after.supporterTurn>before.supporterTurn?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(intent.kind==='play-quick-ball'){
