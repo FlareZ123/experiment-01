@@ -172,6 +172,22 @@ jobs:
       - name: Compile pinned simulator
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Test generic own-Bench charged promotion selector
+        if: ${{ inputs.trial_ids == 'agent1-charged-promotion-pair' }}
+        run: node --test tests/agent1-charged-promotion-choice.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent41-bilateral-v2-development.test.cjs
+      - name: Execute full historical same-deal baseline versus charged promotion
+        if: ${{ inputs.trial_ids == 'agent1-charged-promotion-pair' }}
+        run: node scripts/agent1-charged-promotion-native-pair.cjs > agent1-charged-promotion-native-pair.json
+      - name: Summarize physical deals, genuine prompt selection and result limitations
+        if: ${{ inputs.trial_ids == 'agent1-charged-promotion-pair' }}
+        run: node -e "const r=require('./agent1-charged-promotion-native-pair.json');console.log('UNCHANGED_DEALS',r.allFourSameSourceDeals,'UNCHANGED_STARTS',r.allFourSameActualStarters);for(const p of r.pairs)console.log('HISTORICAL_PAIR',JSON.stringify({id:p.id,status:[p.baselineStatus,p.treatmentStatus],sameDeal:p.sameSourceDeal,sameStarter:p.sameActualStarter,firstDifference:p.commonPrefixRootCount,rootEqual:p.identicalRootLedger,win:[p.baselineWinner,p.treatmentWinner],prizes:[p.baselinePrizes,p.treatmentPrizes]}));console.log('COMPETITIVE_GAMES',r.competitiveQualifiedGames)"
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.trial_ids == 'agent1-charged-promotion-pair' }}
+        with:
+          name: agent1-charged-promotion-historical-native-pair
+          path: agent1-charged-promotion-native-pair.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify both-seat actor-only root and authenticated Fog decision seams
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-actor-sourcefirst-v1' }}
         run: |
