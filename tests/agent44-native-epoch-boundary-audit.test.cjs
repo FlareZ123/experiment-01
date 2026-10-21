@@ -79,6 +79,7 @@ test('orphan reset marker is rejected even with otherwise monotone roots',()=>{
   const game=fixture();
   game.rootActionLedger[1].turnAfter=4;
   game.rootActionLedger[2].turnBefore=4;
+  game.rootActionLedger[2].turnAfter=4;
   const out=auditNativeEpochBoundaries(game);
   assert.equal(out.clockReversals.length,0);
   assert.equal(out.orphanMarkers.length,1);
