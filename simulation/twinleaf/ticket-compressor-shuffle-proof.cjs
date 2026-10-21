@@ -5,7 +5,7 @@ const {initializeCards}=require('./headless.cjs');
 const {fixture}=require('./redeemable-ticket-paper-regression.cjs');
 const {installRedeemableTicketPaperOrderHook}=require('./redeemable-ticket-paper-hook.cjs');
 const load=p=>require(path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output',p));
-/** Actual patched Ticket then Battle Compressor optional empty search and shuffle. */
+/** Actual patched Ticket then mandatory non-DCE Battle Compressor discard and shuffle. */
 function ticketCompressorWitness(){
  const f=fixture(16),manager=initializeCards();
  const dce=f.old.find(c=>c.name==='Double Colorless Energy');
@@ -22,8 +22,12 @@ function ticketCompressorWitness(){
   f.store.reduceEffect(f.state,new f.TrainerEffect(f.a,compressor));
   const choose=f.state.prompts.find(p=>p.constructor.name==='ChooseCardsPrompt'&&p.result===undefined);
   assert.ok(choose,'Compressor must expose an actual deck search prompt');
-  assert.equal(choose.validate([]),true,'Choosing zero cards must be legal');
-  f.store.dispatch(new ResolvePromptAction(choose.id,[]));
+  const discardTarget=f.a.deck.cards.find(c=>c!==dce);
+  assert.ok(discardTarget,'Compressor needs a non-DCE deck card to discard');
+  assert.equal(choose.validate([discardTarget]),true,'One non-DCE card is selectable');
+  f.store.dispatch(new ResolvePromptAction(choose.id,[discardTarget]));
+  assert.ok(f.a.discard.cards.includes(discardTarget));
+  assert.equal(f.a.deck.cards.length,15);
   const shuffle=f.state.prompts.find(p=>p.constructor.name==='ShuffleDeckPrompt'&&p.result===undefined);
   assert.ok(shuffle,'Compressor must shuffle after optional search');
   const index=f.a.deck.cards.indexOf(dce);
@@ -34,7 +38,7 @@ function ticketCompressorWitness(){
   f.DRAW_CARDS(f.store,f.state,f.a,1);
   assert.ok(f.a.hand.cards.includes(dce),'Next ordinary draw can reach returned DCE');
   return {oldPrizeDceReturnedToBottom:true,
-    compressorDeckSearchPrompt:true,zeroSelectionLegal:true,
+    compressorDeckSearchPrompt:true,oneMandatoryDiscardAccepted:true,
     compressorShufflePrompt:true,dceMovedToTopByValidShuffle:true,
     dceAccessibleToDraw:true,sourceRank:26,
     scope:'Constructed Store witness, not automatic turn sequence or win probability'};
