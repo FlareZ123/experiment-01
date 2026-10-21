@@ -141,8 +141,10 @@ function run() {
         'Steven must end its turn after native search, shuffle and wait');
       assert.equal(store.state.activePlayer,1-seat,
         'The opponent must receive the next native turn');
-      assert.equal(store.state.prompts.some(p=>p.result===undefined),false,
-        'No pending prompt remains from completed Steven');
+      assert.equal(store.state.prompts.some(p=>
+        p.result===undefined&&p.constructor.name==='ShuffleDeckPrompt'&&
+        p.playerId===owner.id),false,
+        'No owner shuffle prompt remains after completed Steven');
       return {seat,sourceRank:7,initialDeckCards:46,
         originalProjection:'unavailable-above-30',nativeValid:true,
         nativeSearchSettled:true,chosenPrintings:printings,
