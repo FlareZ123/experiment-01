@@ -43,6 +43,13 @@ function selectedCardsEvidence(prompt, action, state) {
     // Read-only actual zone size before resolution. Native prompt filters
     // may further restrict which of these cards are eligible for selection.
     sourceZoneCardCountBefore:prompt.cards.cards.length,
+    // Only an actual discard pile is public; never expose source hand/deck
+    // identities through this public diagnostic card-name channel.
+    publicDiscardCardNamesBefore:sourceZone==='discard' ?
+      prompt.cards.cards.map(card=>card.fullName) : null,
+    nativePromptMin:prompt.options?.min??null,
+    nativePromptMax:prompt.options?.max??null,
+    nativePromptAllowCancel:prompt.options?.allowCancel??null,
     selectedCards,
     selectedIndices: indices,
     unmappedSelectedCards: selectedCards?.filter(name => name === null).length ?? 0
