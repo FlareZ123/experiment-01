@@ -189,7 +189,8 @@ function withPostgameRootOrderProbe(
         // its speculative score can run; preserve the Store decision.
         let attemptCount=0,finiteScoreCount=0,pending=null;
         const nativeTrace=[];
-        const nativeTacticObservation={steps:[],rngCalls:0};
+        const nativeTacticObservation={steps:[],rngCalls:0,
+          traceEngineRandomSites:target.nativeTapeFirstFiniteScore===true};
         const decisionStartFingerprint=(target.nativeScoreTrace===true||target.nativeTapeFirstFiniteScore===true)?
           stateGraphFingerprint(state):null;
         const restorations=[];
@@ -391,7 +392,8 @@ function withPostgameRootOrderProbe(
       const applyPolicy=dependencies.replayPolicy??
         require('./agent41-bilateral-common-policy.cjs')
           .withBilateralCommonCandidatePolicy;
-      const replayTacticObservation={steps:[],rngCalls:0};
+      const replayTacticObservation={steps:[],rngCalls:0,
+          traceEngineRandomSites:target.nativeTapeFirstFiniteScore===true};
       const policyReplay=world=>applyPolicy(target.seat,()=>{
         const bot=new BotClass({id:actorId},
           cloneBotOptions(captured.options),null);
