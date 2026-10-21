@@ -14,9 +14,10 @@ const load = modulePath => require(path.join(output, modulePath));
  * This is conditional attack-effect fidelity, not a real-game win claim.
  * @param {boolean} toolAttached
  * @param {'active'|'bench'|null} [barrierPosition]
+ * @param {boolean} [activeWeaknessTarget] Whether to select Active Pidgeot ex.
  * @returns {object}
  */
-function electroRainVsBenchedV(toolAttached, barrierPosition=null) {
+function electroRainVsBenchedV(toolAttached, barrierPosition=null, activeWeaknessTarget=false) {
   const f = stagedRaichu(['Unit Energy LPM UPR'], null);
   const {PokemonCardList} = load('game/store/state/pokemon-card-list');
   const {CardList} = load('game/store/state/card-list');
@@ -42,6 +43,11 @@ function electroRainVsBenchedV(toolAttached, barrierPosition=null) {
       guard.cards.push(mime);
       f.b.bench.push(guard);
     }
+  }
+  if (activeWeaknessTarget) {
+    const pidgeot = f.card('Pidgeot ex OBF');
+    pidgeot.id = 2004;
+    f.b.active.cards.splice(0, f.b.active.cards.length, pidgeot);
   }
   if (toolAttached) f.a.active.tools.push(f.card('Telescopic Sight VIV'));
   for (const player of [f.a, f.b]) {
@@ -69,7 +75,11 @@ function electroRainVsBenchedV(toolAttached, barrierPosition=null) {
       events.push({prompt: 'ChooseCardsPrompt', chosen: selection.map(c => c.fullName)});
     } else if (prompt.constructor.name === 'PutDamagePrompt') {
       assert.equal(prompt.damage, 30);
-      selection = [{target: {player: PlayerType.TOP_PLAYER, slot: SlotType.BENCH, index: 0}, damage: 30}];
+      selection = [{target: {
+        player: PlayerType.TOP_PLAYER,
+        slot: activeWeaknessTarget ? SlotType.ACTIVE : SlotType.BENCH,
+        index: 0
+      }, damage: 30}];
       events.push({prompt: 'PutDamagePrompt', selections: selection});
     } else if (prompt.constructor.name === 'WaitPrompt') {
       selection = null;
@@ -86,6 +96,7 @@ function electroRainVsBenchedV(toolAttached, barrierPosition=null) {
   return {
     toolAttached,
     barrierPosition,
+    activeWeaknessTarget,
     activeTargetDamage: f.b.active.damage,
     benchedVTargetDamage: target.damage,
     discardedUnitEnergy: f.a.discard.cards.some(c => c.fullName === 'Unit Energy LPM UPR'),
@@ -105,6 +116,9 @@ function verify() {
     electroRainVsBenchedV(true,'bench'));
   const activeBarrier = withElectroRainDamageHook(() =>
     electroRainVsBenchedV(true,'active'));
+  const nativePidgeot = electroRainVsBenchedV(false,null,true);
+  const correctedPidgeot = withElectroRainDamageHook(() =>
+    electroRainVsBenchedV(false,null,true));
   assert.equal(Store.prototype.reduceEffect, originalReducer,
     'Experimental research hook must restore the vendor reducer exactly');
   assert.equal(withoutTool.activeTargetDamage, 0);
@@ -121,6 +135,12 @@ function verify() {
     'PLF Mr. Mime on Bench prevents Electro Rain damage to Benched V');
   assert.equal(activeBarrier.benchedVTargetDamage, 0,
     'PLF Mr. Mime Active also prevents Electro Rain damage to Benched V');
+  assert.equal(nativePidgeot.activeTargetDamage, 30,
+    'Vendor counter-placement ignores Active Pidgeot Lightning Weakness');
+  assert.equal(correctedPidgeot.activeTargetDamage, 30,
+    'Corrected attack damage still ignores printed Weakness against Active Pidgeot');
+  assert.equal(correctedPidgeot.benchedVTargetDamage, 0,
+    'Active-target Electro Rain leaves the unselected Bench untouched');
   assert.equal(electroRainVsBenchedV(true).benchedVTargetDamage, 30,
     'Research hook restoration must recover original pinned behavior');
   return {
@@ -134,6 +154,8 @@ function verify() {
     correctedWithoutTool,
     benchBarrier,
     activeBarrier,
+    nativePidgeot,
+    correctedPidgeot,
     note: 'Conditional engine action only, not evidence of matchup wins'
   };
 }
