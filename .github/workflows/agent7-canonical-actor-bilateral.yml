@@ -386,6 +386,9 @@ jobs:
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
           AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-sourcefirst.json
+      - name: Agent6 read-only actual source-first Energy and Claw receipt
+        if: ${{ always() && inputs.source_first_retrospective }}
+        run: node simulation/evaluation/agent6-immediate-ko-row-brief.cjs agent7-canonical-sourcefirst.json
       - name: Audit all source-first attempts and preserve failed arms
         # Preserve independent source-first evidence despite an earlier strict
         # original-panel audit failure. Do not run after cancellation.
