@@ -101,6 +101,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank4_public_attack_audit:
+        description: 'Read-only public attack boards in source replay'
+        required: false
+        type: boolean
+        default: false
       grand_tree_first_turn_guard:
         description: 'Correct Grand Tree SCR first-turn illegal evolution in pinned Twinleaf; engine fidelity only'
         required: false
@@ -177,6 +182,7 @@ jobs:
           AICHI_RANK4_ROPE_PIVOT: ${{ inputs.rank4_raichu_rope_pivot_source && '1' || '0' }}
           AICHI_BATTLE_COMPRESSOR_MIN1: ${{ inputs.battle_compressor_positive_selection_correction && '1' || '0' }}
           AICHI_ELECTRODE_OPPORTUNITY: ${{ inputs.electrode_opportunity_observer && '1' || '0' }}
+          AICHI_RANK4_PUBLIC_ATTACK_AUDIT: ${{ inputs.rank4_public_attack_audit && '1' || '0' }}
           AICHI_GRAND_TREE_TURN_GUARD: ${{ inputs.grand_tree_first_turn_guard && '1' || '0' }}
           AICHI_BUNNELBY_SOURCE_K0: ${{ inputs.bunnelby_source_k0 && '1' || '0' }}
           AICHI_TOOL_ATTACK: ${{ inputs.tool_attack_awareness && '1' || '0' }}
