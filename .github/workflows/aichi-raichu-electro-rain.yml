@@ -38,6 +38,8 @@ jobs:
         run: node simulation/twinleaf/raichu-six-energy-prize-regression.cjs
       - name: Verify continuous Raichu Energy attachment and attack sequence
         run: node simulation/twinleaf/raichu-manual-bomb-attack-sequence.cjs
+      - name: Probe historical root183 five-unit double Unown KO in actual Store
+        run: node simulation/twinleaf/agent45-rank4-two-unown-native.cjs
       - name: Verify source Electro Rain Prize-aware target allocation versus generic bot
         run: node simulation/twinleaf/raichu-prize-allocation-regression.cjs
       - name: Verify source Raichu Telescopic Sight reserve-and-equip policy
