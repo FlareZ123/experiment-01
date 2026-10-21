@@ -143,6 +143,18 @@ function sourceLineReplyPacket(game,rank,sourceAudit,sourceSeat){
     // Do not silently accept a reverse Store clock. Keep the original
     // bilateral failure and attach only matching public native reset data.
     if(error && typeof error==='object') {
+      // All fields in the Store root ledger are public, post-dispatch
+      // choices. Preserve the actual roots on rejected replay cases too:
+      // a digest alone prevents independent review of turn continuity.
+      const roots=game.rootActionLedger||[];
+      error.nativePublicRootArchive={
+        rootActionLedgerProtocol:game.rootActionLedgerProtocol,
+        rootActionLedger:roots,
+        rootActionCount:roots.length,
+        rootActionLedgerSha256:sha256(roots),
+        sourceDealEpochs:game.sourceDealEpochs??null,
+        suddenDeathClockResets:game.suddenDeathClockResets??[]
+      };
       error.nativeEpochBoundaryEvidence=
         require('./agent44-native-epoch-boundary-audit.cjs')
           .auditNativeEpochBoundaries(game);
@@ -571,6 +583,13 @@ function executeDevelopment(trial,candidates,{
     endReason:game.endReason,
     finalPrizes:game.prizesRemaining,finalBoard:game.finalPublicBoard??null,
     rootActionLedgerSha256:sha256(rootTrace),
+    // Retain actual post-Store public roots for independent checksum and
+    // epoch-continuity review. They are diagnostic, never a win certificate.
+    rootActionLedgerProtocol:game.rootActionLedgerProtocol,
+    rootActionCount:rootTrace.length,
+    rootActionLedger:rootTrace,
+    sourceDealEpochs:game.sourceDealEpochs??null,
+    suddenDeathClockResets:game.suddenDeathClockResets??[],
     ...(paperSupporterComparisonTrace?{
       paperSupporterComparisonTrace:rootTrace.map(row=>({
         actionOrdinal:row.actionOrdinal,turnBefore:row.turnBefore,
@@ -651,6 +670,7 @@ function runDevelopment({
         trial,status:veto?'paper-supporter-quota-veto':'engine-error',
         error:String(error?.stack||error),
         nativeStoreCauseStack:error?.cause?.stack??null,
+        ...(error?.nativePublicRootArchive??{}),
         ...(error?.nativeEpochBoundaryEvidence?{
           nativeEpochBoundaryEvidence:error.nativeEpochBoundaryEvidence
         }:{}),
