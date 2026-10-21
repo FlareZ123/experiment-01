@@ -5,6 +5,8 @@ const {CELLS,accruePairedFourCells}=
   require('../scripts/aichi-paired-four-cell-accrual.cjs');
 
 const digest='a'.repeat(64);
+const candidateDigests={champion:'b'.repeat(64),newmoon:'c'.repeat(64)};
+const sourceDigest='d'.repeat(64);
 /** @param {number} rank @param {number} seat @param {number} seed */
 function planPair(rank,seat,seed){
   const id=`${rank}:${seat}:${seed}`;
@@ -12,8 +14,9 @@ function planPair(rank,seat,seed){
     arms:['champion','newmoon'].map(candidateId=>({
       armId:id+':'+candidateId,candidateId}))};
 }
-function plan(){return {schema:'aichi-fourcell-paired-start-plan-v1',
+function plan(){return {schema:'aichi-fourcell-paired-start-plan-v2',
   status:'precommitted',candidateIds:['champion','newmoon'],ranks:[6],
+  candidateDeckHashes:{...candidateDigests},sourceDeckHashes:{6:sourceDigest},
   quotas:{6:Object.fromEntries(CELLS.map(cell=>[cell,1]))},
   attempts:[planPair(6,0,10),planPair(6,1,11),planPair(6,0,12),
     planPair(6,1,13),planPair(6,0,14),planPair(6,1,15)]};}
@@ -25,7 +28,10 @@ function obs(p,firstSlot,options={}){
       const name=slot===0?'research-A':'research-B';
       const sourcePhysicalDealSha256=i===1 && options.mismatchedDeal?
         'b'.repeat(64):digest;
-      return {...arm,firstTurnSlot:slot,verifiedByDrawLog:true,
+      return {...arm,
+        candidateDeckSha256:candidateDigests[arm.candidateId],
+        sourceDeckSha256:sourceDigest,
+        firstTurnSlot:slot,verifiedByDrawLog:true,
         firstTurnPlayerId:slot===0?101:202,firstTurnPlayerName:name,
         firstDrawLogName:name,sourcePhysicalDealSha256};
     })};
@@ -95,4 +101,39 @@ test('registration and observed identity must remain immutable and unique',()=>{
   assert.throws(()=>accruePairedFourCells(p,[obs(p.attempts[1],0)]),/frozen pair order/);
   const bad=obs(p.attempts[0],0);bad.arms[1].armId='renamed';
   assert.throws(()=>accruePairedFourCells(p,[bad]),/renamed/);
+});
+
+test('identical initial source positions cannot mask swapped candidate or opponent 60s',()=>{
+  const p=plan(),o=obs(p.attempts[0],0);
+  o.arms[1].candidateDeckSha256='e'.repeat(64);
+  const mismatchedCandidate=accruePairedFourCells(p,[o]);
+  assert.equal(mismatchedCandidate.blocked,true);
+  assert.equal(mismatchedCandidate.plannedPairs.length,0);
+  assert.equal(mismatchedCandidate.retainedAttempts[0].reason,'unverified-setup');
+
+  const source=obs(p.attempts[0],0);
+  source.arms[0].sourceDeckSha256='e'.repeat(64);
+  const mismatchedSource=accruePairedFourCells(p,[source]);
+  assert.equal(mismatchedSource.blocked,true);
+  assert.equal(mismatchedSource.plannedPairs.length,0);
+  assert.equal(mismatchedSource.retainedAttempts[0].reason,'unverified-setup');
+
+  const missing=obs(p.attempts[0],0);
+  delete missing.arms[0].candidateDeckSha256;
+  assert.equal(accruePairedFourCells(p,[missing]).blocked,true);
+  assert.deepEqual(accruePairedFourCells(p,[obs(p.attempts[0],0)])
+    .candidateDeckHashes,candidateDigests);
+});
+
+test('registration must pin both candidate 60s and every source 60',()=>{
+  const p=plan();
+  assert.throws(()=>accruePairedFourCells({...p,
+    candidateDeckHashes:{champion:digest}},[]),/Must pin both candidate rosters/);
+  assert.throws(()=>accruePairedFourCells({...p,
+    candidateDeckHashes:{...candidateDigests,newmoon:'invalid'}},[]),
+    /Candidate printing-list SHA-256/);
+  assert.throws(()=>accruePairedFourCells({...p,
+    sourceDeckHashes:{}},[]),/Must pin every opposing source roster/);
+  assert.throws(()=>accruePairedFourCells({...p,
+    sourceDeckHashes:{6:'invalid'}},[]),/Source printing-list SHA-256/);
 });
