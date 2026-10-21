@@ -32,7 +32,10 @@ function gcd(a, b) {
  *    seen by draw nine, allowing the two manual attachments to fund GGF;
  * 3. Either Noivern + a one-discard Quick Ball/Mysterious Treasure in nine,
  *    or no Noivern seen, an observed Battle Compressor, and Noivern unprized;
- * 4. The first two turns do not suffer any opposing interference.
+ * 4. If V is absent from the first eight, Noivern plus a one-discard
+ *    searcher in those eight can simultaneously discard Noivern and fetch V
+ *    from an unprized deck. The V search must occur on own turn one.
+ * 5. The first two turns do not suffer any opposing interference.
  *
  * The third line counts distinct physical opportunities. Searcher play,
  * discard payment, avoiding connector contention, ability/attack permission,
@@ -42,7 +45,8 @@ function gcd(a, b) {
  *  otherBasics:number,vstar:number,doubleDragon:number,basicGF:number,
  *  noivern:number,oneDiscard:number,compressor:number}} input
  * @returns {{funded:object,handDiscard:object,deckCompressor:object,
- *  fundedAndPayload:object,conditionalPayloadGivenFunded:number}}
+ *  fundedAndPayload:object,dualSearcherFetchV:object,expandedJoint:object,
+ *  conditionalPayloadGivenFunded:number}}
  */
 function fundedNoivernOpportunity(input) {
   const {size = 60, opening = 7, prizes = 6, v, otherBasics, vstar,
@@ -51,7 +55,8 @@ function fundedNoivernOpportunity(input) {
     noivern, oneDiscard, compressor];
   if (![size, opening, prizes, ...groups].every(Number.isSafeInteger) ||
       opening < 1 || prizes < 0 || size <= opening + prizes + 2 ||
-      groups.some(n => n < 0) || v < 1 || noivern > 1 ||
+      groups.some(n => n < 0) || v < 1 ||
+      v > size - opening - 2 || noivern > 1 ||
       groups.reduce((a, b) => a + b, 0) > size) {
     throw new RangeError("Invalid disjoint source-card categories or chronology");
   }
@@ -68,6 +73,9 @@ function fundedNoivernOpportunity(input) {
   let funded = 0n;
   let hand = 0n;
   let compressed = 0n;
+  let dual = 0n;
+  const vPrizeDenominator = choose(unseenAfterNine, v);
+  const vAllPrizeWeight = choose(prizes, v);
 
   /** @param {number} idx @param {number} left @param {bigint} ways */
   function enumerate(idx, left, ways) {
@@ -92,8 +100,16 @@ function fundedNoivernOpportunity(input) {
             Number(ninth === 3);
           const totalGF = selected[4] + Number(eighth === 4) +
             Number(ninth === 4);
-          if (!firstV || !firstEnergy || !totalVstar || !totalDDE ||
+          if (!firstEnergy || !totalVstar || !totalDDE ||
               totalDDE + totalGF < 2) continue;
+          const openingNoivern = selected[5] + Number(eighth === 5);
+          const openingSearcher = selected[6] + Number(eighth === 6);
+          if (noivern && !firstV && openingNoivern && openingSearcher) {
+            const someVUnprized = ninth === 0 ? vPrizeDenominator :
+              vPrizeDenominator - vAllPrizeWeight;
+            dual += physicalWeight * BigInt(unseenAfterNine) * someVUnprized;
+          }
+          if (!firstV) continue;
           funded += physicalWeight * BigInt(unseenAfterNine);
           if (!noivern) continue;
           const observedDonor = selected[5] + Number(eighth === 5) +
@@ -122,16 +138,19 @@ function fundedNoivernOpportunity(input) {
   assert.equal(normalization, denominator,
     "Opening, draw, and Prize partition failed normalization");
   /** @param {bigint} numerator */
-  const fraction = numerator => {
-    const d = gcd(numerator, denominator);
+  const fraction = (numerator, denominatorValue = denominator) => {
+    const d = gcd(numerator, denominatorValue);
     return {numerator: String(numerator / d),
-      denominator: String(denominator / d),
-      probability: Number(numerator) / Number(denominator),
-      percent: 100 * Number(numerator) / Number(denominator)};
+      denominator: String(denominatorValue / d),
+      probability: Number(numerator) / Number(denominatorValue),
+      percent: 100 * Number(numerator) / Number(denominatorValue)};
   };
   return {funded: fraction(funded), handDiscard: fraction(hand),
     deckCompressor: fraction(compressed),
     fundedAndPayload: fraction(hand + compressed),
+    dualSearcherFetchV: fraction(dual, denominator * vPrizeDenominator),
+    expandedJoint: fraction((hand + compressed) * vPrizeDenominator + dual,
+      denominator * vPrizeDenominator),
     conditionalPayloadGivenFunded: funded ?
       Number(hand + compressed) / Number(funded) : 0};
 }
@@ -169,7 +188,9 @@ function noivernSourceCensus(manifest, audit) {
   return {rows, meansSevenDonorRanks:{funded:mean("funded"),
     handDiscard:mean("handDiscard"),
     deckCompressor:mean("deckCompressor"),
-    fundedAndPayload:mean("fundedAndPayload")},
+    fundedAndPayload:mean("fundedAndPayload"),
+    dualSearcherFetchV:mean("dualSearcherFetchV"),
+    expandedJoint:mean("expandedJoint")},
     interpretation:"Direct first-nine resource opportunity only; no search, live action, lock, opponent, or win inference"};
 }
 
