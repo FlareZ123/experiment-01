@@ -159,6 +159,10 @@ function rootPhysicalSnapshot(state,seat,intent){
     ...(intent.kind==='play-quick-ball'?{
       quickBallSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
+    }:{}),
+    ...(intent.kind==='play-escape-rope'?{
+      escapeRopeSpent:[...owner.discard.cards,...owner.supporter.cards]
+        .filter(card=>card.fullName===intent.printing).length
     }:{})
   };
 }
@@ -219,6 +223,14 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
     // Native Quick Ball moves into the resolving Trainer zone before the
     // discard/search prompts settle, or into the public discard immediately.
     return after.quickBallSpent>before.quickBallSpent &&
+      after.handCount<before.handCount?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='play-escape-rope'){
+    // Root dispatch may only open opponent-first switching prompts; the
+    // public Bench promotion is validated from the later Store snapshots.
+    // An unspent pending Item remains unconfirmed, not an assertion failure.
+    return after.escapeRopeSpent>before.escapeRopeSpent&&
       after.handCount<before.handCount?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
