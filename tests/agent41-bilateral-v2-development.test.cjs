@@ -34,6 +34,14 @@ test('identical optional payload search is seat scoped and default inert',()=>{
     newMoonAttackPayloadCompressorLateSeat:1
   });
   assert.deepEqual(commonPayloadOption(0,false,true),{});
+  assert.deepEqual(commonPayloadOption(0,true,false,true),{
+    newMoonAttackPayloadCompressorAnyTurnSeat:0
+  });
+  assert.deepEqual(commonPayloadOption(1,true,true,true),{
+    newMoonAttackPayloadCompressorAnyTurnSeat:1
+  },'Explicit any-turn override supersedes archived turn14 gate');
+  assert.deepEqual(commonPayloadOption(0,false,false,true),{},
+    'A disabled candidate policy must stay inert');
   assert.throws(()=>commonPayloadOption(2,true),{name:'AssertionError'});
 });
 
