@@ -119,6 +119,8 @@ function verify() {
   const nativePidgeot = electroRainVsBenchedV(false,null,true);
   const correctedPidgeot = withElectroRainDamageHook(() =>
     electroRainVsBenchedV(false,null,true));
+  const pidgeotBehindMime = withElectroRainDamageHook(() =>
+    electroRainVsBenchedV(false,'bench',true));
   assert.equal(Store.prototype.reduceEffect, originalReducer,
     'Experimental research hook must restore the vendor reducer exactly');
   assert.equal(withoutTool.activeTargetDamage, 0);
@@ -141,6 +143,9 @@ function verify() {
     'Corrected attack damage still ignores printed Weakness against Active Pidgeot');
   assert.equal(correctedPidgeot.benchedVTargetDamage, 0,
     'Active-target Electro Rain leaves the unselected Bench untouched');
+  assert.equal(pidgeotBehindMime.activeTargetDamage, 30,
+    'Benched Mr. Mime must not prevent Active Pidgeot receiving 30 damage');
+  assert.equal(pidgeotBehindMime.benchedVTargetDamage, 0);
   assert.equal(electroRainVsBenchedV(true).benchedVTargetDamage, 30,
     'Research hook restoration must recover original pinned behavior');
   return {
@@ -156,6 +161,7 @@ function verify() {
     activeBarrier,
     nativePidgeot,
     correctedPidgeot,
+    pidgeotBehindMime,
     note: 'Conditional engine action only, not evidence of matchup wins'
   };
 }
