@@ -142,7 +142,7 @@ function probeFreshPlayCardInClonedStore(snapshot,signature,clone,deps) {
  * @param {Function} BotClass Pinned SimpleTacticsAi.
  * @param {()=>T} execute Existing authentic game runner.
  * @param {(state:object)=>object} cloneDetached Whole-State detached clone.
- * @param {{turn:number,seat:number,makeRandom:()=>()=>number,firstFiniteScoredRoot?:boolean,probeFreshStoreLegality?:boolean,nativeTapeSameWorld?:boolean}} target
+ * @param {{turn:number,seat:number,makeRandom:()=>()=>number,firstFiniteScoredRoot?:boolean,probeFreshStoreLegality?:boolean,nativeTapeSameWorld?:boolean,nativeTapeHiddenOpponentHandContrast?:boolean}} target
  * @param {{headless?:object,compare?:Function,signature?:Function}} [dependencies]
  * @returns {{result:T,events:object[]}}
  */
@@ -160,6 +160,9 @@ function withPostgameRootOrderProbe(
   assert.ok(target.nativeTapeHiddenOrderContrast!==true||
     target.nativeTapeSameWorld===true,
     'Hidden-order contrast requires genuine native same-world tape');
+  assert.ok(target.nativeTapeHiddenOpponentHandContrast!==true||
+    target.nativeTapeSameWorld===true,
+    'Opponent hidden-hand contrast requires genuine native same-world tape');
   const headless=dependencies.headless??require('../twinleaf/headless.cjs');
   const compare=dependencies.compare??compareHiddenDeckOrders;
   const signature=dependencies.signature??actionSignature;
@@ -437,6 +440,29 @@ function withPostgameRootOrderProbe(
           informationSetLeakQualified:false
         };
       }
+      let hiddenOpponentHandContrast=null;
+      if(target.nativeTapeHiddenOpponentHandContrast===true){
+        if(parity.sameWorldDecisionParityQualified){
+          const {compareNativeOpponentHiddenHand}=
+            require('../twinleaf/native-tape-opponent-hidden-hand-contrast.cjs');
+          const actorView=dependencies.actorView??
+            require('../twinleaf/actor-observation-contract.cjs')
+              .actorObservation;
+          hiddenOpponentHandContrast=compareNativeOpponentHiddenHand({
+            parity,root:captured.state,seat:target.seat,
+            tape:captured.nativeRealPolicyTape,
+            cloneState:cloneDetached,replayDecision:policyReplay,
+            actionSignature:value=>value&&typeof value.type==='string'&&
+              typeof value.data==='string'?value:signature(value),
+            fingerprint:state=>stateGraphFingerprint(state).digest,
+            actorView
+          });
+        }else hiddenOpponentHandContrast={
+          contrastExecutable:false,
+          error:'Genuine same-world native tape parity failed first',
+          informationSetLeakQualified:false
+        };
+      }
       return {result:frozenResult,events:[{
         nativeSameWorldTape:parity,
         nativeTacticSource:target.nativeTapeFirstFiniteScore===true?
@@ -452,18 +478,28 @@ function withPostgameRootOrderProbe(
             captured.sourceStateChangedBeforeFirstScore??null
         }:{}),
         ...(hiddenContrast?{nativeHiddenOrderContrast:hiddenContrast}:{}),
+        ...(hiddenOpponentHandContrast?{
+          nativeOpponentHiddenHandContrast:hiddenOpponentHandContrast
+        }:{}),
         originalSourceAction:captured.realAction,
         baselineActionMatchedActual:parity.sameWorldDecisionParityQualified,
         liveStatePreserved:parity.sourceRootUnchanged &&
-          (hiddenContrast?.sourceRootUnchanged!==false),
+          (hiddenContrast?.sourceRootUnchanged!==false) &&
+          (hiddenOpponentHandContrast?.sourceRootUnchanged!==false),
         actionSensitiveToHiddenDeckOrder:
           hiddenContrast?.contrastExecutable===true?
             hiddenContrast.selectedActionChanged:null,
-        counterfactualCompared:hiddenContrast?.contrastExecutable===true,
+        actionSensitiveToOpponentHiddenHand:
+          hiddenOpponentHandContrast?.contrastExecutable===true?
+            hiddenOpponentHandContrast.selectedActionChanged:null,
+        counterfactualCompared:hiddenContrast?.contrastExecutable===true||
+          hiddenOpponentHandContrast?.contrastExecutable===true,
         comparedAfterRealGameFinished:true,
         sourceMatchExecutions:innerRunCalls,
         replayCommonPolicy:true,
-        qualification:hiddenContrast?
+        qualification:hiddenOpponentHandContrast?
+          'exploratory-tape-opponent-hidden-hand-with-unverified-reveal-history':
+          hiddenContrast?
           'exploratory-tape-order-contrast-with-unverified-K0-K1-known-top':
           'same-physical-world-parity-only; no hidden-world comparison'
       }]};
