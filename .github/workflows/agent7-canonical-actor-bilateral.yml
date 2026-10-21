@@ -161,6 +161,17 @@ jobs:
         run: node --test tests/agent3-paper-tiebreak-native-check.test.cjs tests/agent3-paper-attack-self-terminal-native.test.cjs
       - name: Verify printed Telepath M3 cost on genuine pinned Store
         run: node --test tests/agent30-pinned-telepath-cost.native.test.cjs tests/agent30-pinned-perfection-root-gap.native.test.cjs
+      - name: Inventory all native -GX printed attack marker gaps
+        if: ${{ inputs.source_first_retrospective && inputs.owner_discard_energy_audit && inputs.actor_perfection_root }}
+        run: node simulation/twinleaf/agent30-gx-marker-census.cjs > agent30-gx-marker-census.json
+      - name: Archive pin-scope printed GX marker census
+        if: ${{ always() && inputs.source_first_retrospective && inputs.owner_discard_energy_audit && inputs.actor_perfection_root }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent30-native-gx-suffix-metadata-census
+          path: agent30-gx-marker-census.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify real pinned missing Mewtwo GX flag versus marked donor
         run: node --test tests/agent30-mewtwo-native-gx-marker.test.cjs
       - name: Verify genuine Powerglass after-Pass native attachment
