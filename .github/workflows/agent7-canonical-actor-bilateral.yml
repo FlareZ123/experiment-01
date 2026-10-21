@@ -53,6 +53,11 @@ on:
         required: false
         type: boolean
         default: false
+      potential_ko_root:
+        description: Development-only public fixed-damage potential-KO attack priority
+        required: false
+        type: boolean
+        default: false
       actor_quick_ball_root:
         description: Opt in conservative actor Item Quick Ball setup-root line
         required: false
@@ -129,6 +134,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
           AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
@@ -154,6 +160,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
           AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
@@ -176,6 +183,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
           AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
@@ -203,6 +211,7 @@ jobs:
           AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
           AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
