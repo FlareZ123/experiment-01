@@ -4,7 +4,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const {visibleActiveAttacks, probePassedAttackOptions, nextPassProbeBucket} =
+const {visibleActiveAttacks, probePassedAttackOptions, nextPassProbeBucket,
+  probeHeldTelepathPass} =
   require('../simulation/twinleaf/pass-attack-announcement-probe.cjs');
 
 /** @param {string[]} names */
@@ -152,4 +153,53 @@ test('full-Card Store clone contains resolved Tool attack damage without live Ca
   assert.equal(detached.damageTakenLastTurn, 280);
   assert.equal(live.damageTakenLastTurn, before,
     'Resolving detached Tool attack must not leak history onto live Card');
+});
+
+test('selected owner Pass, held Telepath is probed only on that real actor',()=>{
+  const state={
+    activePlayer:1,prompts:[],
+    players:[
+      {id:7,hand:{cards:[{fullName:'private source-only card'}]},
+        active:{getPokemonCard:()=>({name:'Iron Thorns ex'})},
+        bench:[]},
+      {id:8,hand:{cards:[{fullName:'Telepath [P] Energy M3'},
+        {fullName:'Canceling Cologne ASR'}]},
+        active:{getPokemonCard:()=>({name:'Trevenant & Dusknoir-GX'})},
+        bench:Array.from({length:5},()=>({
+          getPokemonCard:()=>({name:'Duskull'})
+        }))}
+    ]
+  };
+  let calls=0;
+  const packet=probeHeldTelepathPass(state,8,(_state,id,index)=>{
+    calls++;
+    assert.equal(id,8);
+    assert.equal(index,0);
+    return {nativeAccepted:true,physicalEnergyAttached:true,
+      unresolvedPromptTypes:[]};
+  });
+  assert.equal(calls,1);
+  assert.equal(packet.nativeAccepted,true);
+  assert.equal(packet.physicalEnergyAttached,true);
+  assert.equal(packet.openBenchSlots,0);
+  assert.equal(packet.activePokemon,'Trevenant & Dusknoir-GX');
+  assert.equal(JSON.stringify(packet).includes('private source-only card'),false);
+  assert.equal(probeHeldTelepathPass(state,7,()=>{throw Error('wrong player');}),null);
+  state.prompts.push({result:undefined});
+  assert.equal(probeHeldTelepathPass(state,8,()=>{throw Error('prompt open');}),null);
+});
+
+test('Telepath post-choice probe skips absent printing and preserves Pass policy',()=>{
+  const player={id:42,hand:{cards:[{fullName:'Psychic Energy SVE'}]},
+    active:{getPokemonCard:()=>({name:'Gengar & Mimikyu-GX'})},
+    bench:[]};
+  const state={activePlayer:0,prompts:[],players:[player]};
+  assert.equal(probeHeldTelepathPass(state,42,()=>{
+    throw Error('must not dispatch');
+  }),null);
+  player.hand.cards=[{fullName:'Telepath [P] Energy M3'}];
+  assert.deepEqual(probeHeldTelepathPass(state,42,()=>({
+    nativeAccepted:false,physicalEnergyAttached:false,
+    nativeRejection:'ENERGY_ALREADY_PLAYED'
+  })).nativeRejection,'ENERGY_ALREADY_PLAYED');
 });
