@@ -135,7 +135,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       if(options.energyRecipientFrontier===true){
         const recipient=require('./agent44-actor-energy-recipient.cjs')
           .chooseActorEnergyRecipient(view,catalog);
-        if(recipient)return {kind:'attach-basic-energy',...recipient};
+        const activeUpgrade=options.activeClawUpgrade===true?
+          require('./agent12-active-claw-upgrade.cjs')
+            .choosePublicClawUpgrade(view,catalog,recipient):null;
+        if(activeUpgrade||recipient)
+          return {kind:'attach-basic-energy',...(activeUpgrade??recipient)};
         // Preserve a held Basic when all publicly known attack deficits
         // are already satisfied; a later legal turn may use the resource.
       }else{
@@ -286,6 +290,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT10_BASIC_ENERGY_FRONTIER_DEV==='true'),
     energyRecipientFrontierOptIn:deps.energyRecipientFrontier??
       (process.env.AGENT44_ACTOR_ENERGY_RECIPIENT_DEV==='true'),
+    activeClawUpgradeOptIn:deps.activeClawUpgrade??
+      (process.env.AGENT12_ACTIVE_CLAW_UPGRADE_DEV==='true'),
     thornsDirectLineOptIn:deps.thornsDirectLine??
       (process.env.AGENT1_THORNS_DIRECT_ROOT_DEV==='true'),
     specialEnergyRootOptIn:deps.specialEnergyRoot??
@@ -312,6 +318,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     ownerRootIntents:[],competitiveGameQualified:false,
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
   };
+  if(audit.activeClawUpgradeOptIn)
+    audit.version+='+'+require('./agent12-active-claw-upgrade.cjs').VERSION;
   if(audit.quickBallRootOptIn)
     audit.version=VERSION+'+'+
       require('./agent8-actor-quick-ball-frontier.cjs').VERSION;
@@ -347,6 +355,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     const intent=chooseActorRootIntent(view,catalog,{
       energyFrontier:audit.energyFrontierOptIn,
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
+      activeClawUpgrade:audit.activeClawUpgradeOptIn,
       thornsDirectLine:audit.thornsDirectLineOptIn,
       specialEnergyRoot:audit.specialEnergyRootOptIn,
       printedGxRoot:audit.printedGxRootOptIn,
