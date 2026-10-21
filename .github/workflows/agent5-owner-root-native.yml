@@ -72,6 +72,11 @@ jobs:
         if: ${{ inputs.rank6_powerglass_paired }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_ACTOR_SINGLE_SEARCH_DEV: 'true'
+          AGENT47_ACTOR_HAND_DISCARD_DEV: 'true'
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: 'true'
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: 'true'
+          AGENT5_COMPR_OPPORTUNITY_AUDIT: 'true'
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
@@ -82,6 +87,11 @@ jobs:
         if: ${{ inputs.rank6_powerglass_paired }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_ACTOR_SINGLE_SEARCH_DEV: 'true'
+          AGENT47_ACTOR_HAND_DISCARD_DEV: 'true'
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: 'true'
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: 'true'
+          AGENT5_COMPR_OPPORTUNITY_AUDIT: 'true'
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
