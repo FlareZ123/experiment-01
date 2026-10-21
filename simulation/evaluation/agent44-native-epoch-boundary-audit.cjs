@@ -51,7 +51,9 @@ function auditNativeEpochBoundaries(game){
         fromPhase:marker.fromPhase??null,toPhase:marker.toPhase??null,
         beforeSuddenDeath:marker.beforeSuddenDeath??null,
         afterSuddenDeath:marker.afterSuddenDeath,
-        enteredSetup:marker.enteredSetup
+        enteredSetup:marker.enteredSetup,
+        ...(marker.preDispatchWinPredicates ?
+          {preDispatchWinPredicates:marker.preDispatchWinPredicates} : {})
       }:null
     });
   }
