@@ -77,3 +77,5 @@ jobs:
         run: node simulation/twinleaf/copy-attack-name-collision-source.cjs
       - name: Verify corrected copied-donor selection in Store
         run: node simulation/twinleaf/copy-attack-name-collision-corrected.cjs
+      - name: Run Agent28 source T3 native replay
+        run: node simulation/evaluation/agent28-source-t3-backorder-native.cjs
