@@ -102,6 +102,8 @@ jobs:
         run: node --test tests/aichi-thorns-crossrank-opening.test.cjs
       - name: Check actor-only native Pokémon target perspective, privacy and ownership
         run: node --test tests/agent8-actor-only-choose-pokemon.test.cjs
+      - name: Verify optional ChoosePokemon composability without changing default canonical policy
+        run: node --test tests/agent7-canonical-actor-composition.test.cjs
       - name: Verify Iron Thorns Prize-only multi-turn Energy floors
         run: node --test tests/aichi-rank6-energy-prize-frontier.test.cjs tests/aichi-thorns-attachment-floor.test.cjs
       - name: Verify published Iron Thorns Special Energy printed payability
