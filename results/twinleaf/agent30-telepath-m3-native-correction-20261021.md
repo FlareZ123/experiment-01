@@ -1,0 +1,11 @@
+# Agent 30: correct the native M3 printing identity
+
+**21 October 2026, development only. Supersedes the Telepath printing predicate of the earlier** [cost bridge](agent30-telepathic-known-energy-cost-bridge-20261021.md).
+
+The paper card database identifies `me3-88` as **Telepathic Psychic Energy**. The frozen candidate uses the pinned Twinleaf mechanical equivalent `Telepath [P] Energy M3`, as recorded in `results/als/new-moon-perfection-english-map.json` and instantiated in `tests/agent10-pinned-telepath-psychic-energy.test.cjs`. The original code change mistakenly looked for the database-style name, so its intended runtime effect was unreachable.
+
+**Correction commit `2042681`** uses the exact native fullName with a public catalog-membership check in `simulation/twinleaf/agent3-special-energy-frontier.cjs`. The public attached-Special recipient model delegates to that same helper. **Test correction commit `1479825`** uses `Telepath [P] Energy M3` and candidate-style Basic Psychic SVE. **Workflow commit `a8e8095`** adds the five-case new regression to an existing manually dispatched actor CI job. No automatic workflow was created.
+
+The first [compiled four-arm workflow 39567395642](https://github.com/FlareZ123/experiment-01/actions/runs/39567395642), at earlier head `a7ea62d`, is a **failed** qualification gate: 4 attempted, 3 actor audits, and one archived rank6 champion native t4→0 reset at root38 after Volt Cyclone/Pale Moon-GX. It matches the already-known paper KO-order defect investigated in `results/twinleaf/agent3-paper-terminal-attack-ko-priority-native-paired-20261021.md`. The artifact [12329679921](https://github.com/FlareZ123/experiment-01/actions/runs/39567395642/artifacts/12329679921) retains all four source-dealt attempted outcomes. The first five in-memory checks had exercised a fabricated fullName and cannot validate the corrected branch.
+
+The correct hypothesis remains modest: with the actor flags explicitly enabled, **the printed Psychic unit is available to cost analysis**, with Temple turning it to one Colorless and unknown Specials remaining excluded. No test of the candidate's changed native play under a paid attached M3 has yet been certified. The overall benchmark still has **29/32 official opponent 60s and zero competitively qualified games**.
