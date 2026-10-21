@@ -22,6 +22,8 @@ const {withRank15NativePaidBusRetreat}=
   require('./rank15-bus-native-paid-retreat-policy.cjs');
 const {withOwnerRootChoiceWindow}=
   require('./owner-root-choice-window.cjs');
+const {withRank15CandidateTurn19ReadOnly}=
+  require('./rank15-candidate-t19-readonly.cjs');
 
 const sha=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -52,10 +54,11 @@ function run(){
   };
   function arm(mode){
     assert.ok(['control','unpaid','paid'].includes(mode));
-    let poffin,oddish,second,retreat=null;
+    let poffin,oddish,second,retreat=null,candidateT19=null;
     const x=observeSourceLock(Store,1,0,()=>
       withOwnerRootChoiceWindow(Store,1,()=>{
         const inner=()=>{
+          const readOnly=withRank15CandidateTurn19ReadOnly(()=>{
           const r=withRank15SecondBarrageYes(()=>{
             const o=withRank15OddishPoffinPrompt(()=>{
               const p=withRank15PaidTmPoffin(()=>runMatch(request),1);
@@ -64,6 +67,9 @@ function run(){
             oddish=o.audit;return o.result;
           },1);
           second=r.audit;return r.result;
+          },0);
+          candidateT19=readOnly.observations;
+          return readOnly.result;
         };
         if(mode==='control')return inner();
         const r=mode==='unpaid'?
@@ -80,7 +86,7 @@ function run(){
     assert.equal(second.attempts.length,1);
     return {game,retreat,sourceZone:x.firstNormalTurnZoneDigest,
       prizes:x.firstNormalTurnPrizeGate,
-      choiceWindow:x.result.trace,
+      choiceWindow:x.result.trace,candidateT19,
       first:{aor:x.first.aor,bus:x.first.bus,busActive:x.first.busActive,
         dual:x.first.dual},max:x.max};
   }
@@ -114,6 +120,7 @@ function run(){
       nativeCandidateAttacks:x.game.attackDeclarationTrace.filter(
         e=>e.playerSlot===0),
       first:x.first,ownerSourceWindow:x.choiceWindow,
+      candidateTurn19ReadOnly:x.candidateT19,
       sourceProposal:x.retreat?.attempts||[],
       nativeRootRetreats:retreats,
       postRetreatRootResponse:firstProposalRoot===null?[]:
