@@ -97,6 +97,9 @@ jobs:
       - name: Verify native Field Blower mandatory mode and physical Stadium effect
         run: node --test tests/agent24-field-blower-native-choice.test.cjs
 
+      - name: Verify native Lost Vacuum required cost and legal physical removal
+        run: node --test tests/agent24-lost-vacuum-native-choice.test.cjs
+
       - name: Verify native source G&H choice attribution
         run: node --test tests/agent24-mandatory-source-exposure.test.cjs
       - name: Compare real rank2 source modal null versus legal default on both physical seats
