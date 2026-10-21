@@ -49,6 +49,25 @@ test('four hypothetical Gengar-copy resource probabilities are exact rationals',
     r.cases.gengar1.eitherRoute.probability);
 });
 
+test('native-Gengar slot compares favorably on this window to two non-Basic resources',()=>{
+  const r=main();
+  const expected={
+    extraOneCologne:'1427579923/18761088718',
+    extraTwoCologne:'9496584971/121947076667',
+    extraTwoCompressor:'18917665487/243894153334',
+    extraTwoPsychicEnergy:'10915264107/121947076667',
+    extraOneCologneAndCompressor:'9591268996/121947076667'
+  };
+  for(const [name,fraction] of Object.entries(expected)){
+    const value=r.alternatives[name].eitherRoute;
+    assert.equal(value.numerator+'/'+value.denominator,fraction,name);
+  }
+  assert.ok(r.cases.gengar2.eitherRoute.probability>
+    r.alternatives.extraTwoPsychicEnergy.eitherRoute.probability);
+  assert.ok(r.cases.gengar2.eitherRoute.probability>
+    r.alternatives.extraTwoCologne.eitherRoute.probability);
+});
+
 test('new baseline copied-Compressor subcase equals independent eight-card inclusion-exclusion',()=>{
   const baseline=sourceCounts();
   const r=countDirectHorrorHouse(baseline);
