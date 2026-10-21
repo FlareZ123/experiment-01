@@ -244,3 +244,68 @@ test('ordered source capture skips phase-eight setup and stops before first acti
   assert.match(observed.sourcePhysicalDeal.digestSha256,/^[a-f0-9]{64}$/);
   assert.equal(MockStore.prototype.dispatch,raw);
 });
+
+test('settled draw-log first-player proof is opt-in and rejects false identities',()=>{
+  const makeSlot=cards=>({...zone(cards),tools:[],energies:zone([])});
+  const makePlayer=(id,name)=>({
+    id,name,hand:zone(['Hand-'+name]),active:makeSlot(['Active-'+name]),
+    bench:[],prizes:Array.from({length:6},(_,i)=>zone(['Prize-'+name+'-'+i])),
+    deck:zone(['Remaining-'+name]),discard:zone([]),lostzone:zone([]),
+    stadium:zone([]),supporter:zone([])
+  });
+  class MockStore{
+    constructor(){
+      this.state={turn:0,phase:1,prompts:[],activePlayer:1,
+        logs:[],players:[makePlayer(101,'research-A'),makePlayer(202,'research-B')]};
+    }
+    dispatch(action){
+      if(action==='early'){
+        this.state.turn=1;
+        this.state.phase=8;
+        this.state.prompts=[{result:undefined}];
+      }
+      if(action==='draw'){
+        this.state.logs=[{message:'LOG_PLAYER_DRAWS_CARD',
+          params:{name:'research-B'}}];
+        this.state.phase=2;
+        this.state.prompts=[];
+      }
+      if(action==='unreachable')throw Error('First player turn advanced before proof');
+    }
+  }
+  const original=MockStore.prototype.dispatch;
+  const run=()=>captureSetupOnly(MockStore,()=>{
+    const store=new MockStore();
+    store.dispatch('early');
+    store.dispatch('draw');
+    store.dispatch('unreachable');
+  },{sourceSeat:0,captureFirstTurnEvidence:true});
+  const observed=run();
+  assert.equal(observed.stoppedAtFirstTurn,true);
+  assert.deepEqual(observed.firstTurnEvidence,{
+    firstTurnSlot:1,firstTurnPlayerId:202,
+    firstTurnPlayerName:'research-B',
+    firstDrawLogName:'research-B',verifiedByDrawLog:true
+  });
+  assert.equal(MockStore.prototype.dispatch,original);
+
+  assert.throws(()=>captureSetupOnly(MockStore,()=>{},{
+    captureFirstTurnEvidence:true
+  }),/requires settled source-seat/);
+  class WrongLogStore extends MockStore{
+    dispatch(action){
+      super.dispatch(action);
+      if(action==='draw'){
+        this.state.logs=[{message:'LOG_PLAYER_DRAWS_CARD',
+          params:{name:'research-A'}}];
+      }
+    }
+  }
+  const wrong=WrongLogStore.prototype.dispatch;
+  assert.throws(()=>captureSetupOnly(WrongLogStore,()=>{
+    const store=new WrongLogStore();
+    store.dispatch('early');
+    store.dispatch('draw');
+  },{sourceSeat:0,captureFirstTurnEvidence:true}),/contradicts first draw/);
+  assert.equal(WrongLogStore.prototype.dispatch,wrong);
+});
