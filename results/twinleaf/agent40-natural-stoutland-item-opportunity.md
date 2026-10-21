@@ -28,3 +28,24 @@ Interpretation: The native source Stoutland position **did deny direct held Carm
 ### Preregistered direct follow-up: actual owner Item discard and search
 
 Reuse **the exact same original source seat×seed and single natural root98 Item intervention**. Add only read-only root observer fields around its actual native `ChooseCardsPrompt` and subsequent owner selections: prompt class, native choice card printing where owner-visible, actual owner discard change, searched-card identity if public or owner-selected, and a bounded immediate post-Item action chronology. Preserve the frozen original control digest and identical pre-intervention owner/public state. The alternate post-Item root digest `0d6a13c2...` must also remain unchanged if the probe is read-only. If no true prompt resolution is observed, mark incomplete. This is a resource opportunity diagnostic with one retrospectively selected intervention, **not** a competitive experiment.
+
+## Follow-up: actual native prompt choices and physical resource deltas (21 October audit)
+
+The already dispatched manual [CI run 39424535527](https://github.com/FlareZ123/experiment-01/actions/runs/39424535527) **succeeded**, at source SHA `061aa61fdb3e4d4a672e062c5a13a5078506281c`. Its original archive artifact is [12264983333](https://github.com/FlareZ123/experiment-01/actions/runs/39424535527/artifacts/12264983333), named `agent40-natural-stoutland-owner-item-native`. Independent download on 21 October: ZIP SHA256 `f84f02702ae3f837ca9a424e7e4789257b6edd262503f600fac1df48098a5e00`; contained JSON SHA256 `eff6a2004980c771b8ca410dbd34d9d2044f06bb634a47cecbbd7d13c835b548`. The small archive contains eight owner-root events (ordinals 98–105), despite the telemetry field name `firstSixteenActualOwnerRoots`.
+
+The original owner-visible turn-7 state is unchanged. With source `Stoutland BCR` Active, rank-1 owner has `Latias ex SSP` Active, **all five Bench slots occupied**, and the held `Mysterious Treasure FLI`, `Carmine TWM`, `Tapu Lele-GX GRI`, `Unfair Stamp TWM`, `Tulip PAR`. Relative to the original root-98 `PassTurnAction`, the one retrospective intervention produces the following native observations:
+
+| Native root | Actual selected action or owner prompt | Physical owner result |
+| --- | --- | --- |
+| 98 | `PlayCardAction` for held `Mysterious Treasure FLI` | Accepted; Item leaves hand; `ChooseCardsPrompt` begins |
+| 99 | `ChooseCardsPrompt` selects **`Carmine TWM`** | Carmine leaves hand and enters own discard as search cost |
+| 100 | `ChooseCardsPrompt` selects **`Girafarig LOT`** | Girafarig enters own hand and deck count changes 30 to 29 |
+| 101–103 | Remaining native prompt, `ShuffleDeckPrompt`, `WaitPrompt` | All accepted; Item later enters discard, no additional own-hand selection |
+| 104 | `PassTurnAction` | Accepted; no owner Pokémon entered Bench during this bounded window |
+| 105 | `WaitPrompt` | Accepted |
+
+These are **real owner-prompt choices and matching zone deltas**, beyond mere initial Item acceptance. The archive's conservative summary still says `completedCardSearchEffectProven:false`; do not override its scope with an unqualified claim about complete card resolution or ultimate search payoff. The physical hand/deck/discard changes are independently readable from each root snapshot. Both whole-game arms still end at the native root cap, original `[1,6]` and retrospective Item `[3,3]`, without a completed match.
+
+**Strategic implication, bounded:** the fallback prompt policy discarded a currently Stoutland-locked Supporter, preserving `Tapu Lele-GX`, `Unfair Stamp`, and `Tulip`, then obtained a Psychic Basic while Bench was full. It did **not** create an immediate usable Bench place or proven attack improvement. The more general consequence is that an Item's initial legal availability is insufficient to score its value; an actor policy must account for its required discard, the card actually retrieved, and room to convert access into an active line. This result is a single selected owner position, with actual source continuation but no performance counterfactual, and therefore must stay outside any qualified win-rate denominator.
+
+Next decision work should stay inside the shared canonical bilateral executable. Re-running this diagnostic adds little unless a specific transferable common-policy choice is at issue.
