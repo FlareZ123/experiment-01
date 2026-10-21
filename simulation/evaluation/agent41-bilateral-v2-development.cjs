@@ -12,6 +12,8 @@ const {candidateAttackSettlement}=
   require('./agent37-candidate-attack-settlement.cjs');
 const {withNativePaperSupporterDiscipline,VERSION:PAPER_SUPPORTER_VERSION}=
   require('../twinleaf/agent41-paper-supporter-discipline.cjs');
+const {withCancelingCologneOncePerTurnHook}=
+  require('../twinleaf/canceling-cologne-once-per-turn-hook.cjs');
 const {withCanonicalActorOnlyPolicy,VERSION:ACTOR_COMPOSITION_VERSION}=
   require('./agent7-canonical-actor-composition.cjs');
 
@@ -211,7 +213,7 @@ function executeDevelopment(trial,candidates,{
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
   garbotoxinWindow=false,initializationWindow=false,
   mandatoryOptionFallback=false,paperSupporterQuota=false,
-  paperSupporterComparisonTrace=false,proposalStateAudit=false,
+  paperCologneQuota=false,paperSupporterComparisonTrace=false,
   nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null
@@ -315,10 +317,15 @@ function executeDevelopment(trial,candidates,{
     initializationWindowAudit=observed.audit;
     return observed.result;
   };
+  // The scoped Cologne correction applies to both real players and is
+  // installed inside the independent Supporter discipline wrapper.
+  const runWithPaperCologneQuota=()=>paperCologneQuota?
+    withCancelingCologneOncePerTurnHook(runWithInitializationWindow):
+    runWithInitializationWindow();
   const runWithPaperSupporterQuota=()=>{
-    if(!paperSupporterQuota)return runWithInitializationWindow();
+    if(!paperSupporterQuota)return runWithPaperCologneQuota();
     const guarded=withNativePaperSupporterDiscipline(
-      runWithInitializationWindow);
+      runWithPaperCologneQuota);
     paperSupporterAudit=guarded.audit;
     return guarded.result;
   };
@@ -435,6 +442,7 @@ function executeDevelopment(trial,candidates,{
     trial,qualifiesForCompetitiveInference:false,
     policyVersion:POLICY_VERSION+
       (paperSupporterQuota?'+'+PAPER_SUPPORTER_VERSION:'')+
+      (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (lateCompressorPayload?
       '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')),
@@ -460,6 +468,7 @@ function executeDevelopment(trial,candidates,{
       initializationWindowAudit,rank6PassivePressure:passiveEvidence
     }:{}),
     finalDispatchVisiblePlayLockV2:game.livePlayLockGuardBothSeats===true,
+    paperCologneQuotaOptIn:paperCologneQuota,
     nativeSupporterQuotaQualified:paperSupporterQuota?
       paperSupporterAudit?.nativeSupporterQuotaQualified===true:'unverified',
     paperSupporterDiscipline:paperSupporterQuota?paperSupporterAudit:null,
@@ -537,7 +546,7 @@ function runDevelopment({
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
   mandatoryOptionFallback=false,nativePressureWindows=false,
   sourceFirstRetrospective=false,paperSupporterQuota=false,
-  paperSupporterComparisonTrace=false,proposalStateAudit=false,
+  paperCologneQuota=false,paperSupporterComparisonTrace=false,
   nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
@@ -567,7 +576,8 @@ function runDevelopment({
     try {
       const execute=()=>executeDevelopment(trial,prepared,{
         compressorPayload,opportunityAudit,lateCompressorPayload,
-        mandatoryOptionFallback,paperSupporterQuota,paperSupporterComparisonTrace,
+        mandatoryOptionFallback,paperSupporterQuota,paperCologneQuota,
+        paperSupporterComparisonTrace,
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
         nativeActionInputTapeOrdinal,
@@ -623,6 +633,7 @@ function runDevelopment({
     enginePin:registration.enginePin,
     candidatePolicy:POLICY_VERSION+
       (paperSupporterQuota?'+'+PAPER_SUPPORTER_VERSION:'')+
+      (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (lateCompressorPayload?
       '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')),
@@ -633,6 +644,7 @@ function runDevelopment({
     ownerCompressorLate14OptIn:lateCompressorPayload,
     nativePressureWindowsOptIn:nativePressureWindows,
     paperSupporterQuotaOptIn:paperSupporterQuota,
+    paperCologneQuotaOptIn:paperCologneQuota,
     paperSupporterComparisonTraceOptIn:paperSupporterComparisonTrace,
     proposalStateAuditOptIn:proposalStateAudit,
     nativeProposalValidationAuditOptIn:nativeProposalValidationAudit,
@@ -698,6 +710,7 @@ if(require.main===module){
     mandatoryOptionFallback:process.env.AGENT41_MANDATORY_OPTION_DEV==='true',
     nativePressureWindows:process.env.AGENT41_NATIVE_PRESSURE_DEV==='true',
     paperSupporterQuota:process.env.AGENT41_PAPER_SUPPORTER_DEV==='true',
+    paperCologneQuota:process.env.AGENT48_PAPER_COLOGNE_DEV==='true',
     paperSupporterComparisonTrace:
       process.env.AGENT41_PAPER_SUPPORTER_TRACE_DEV==='true',
     proposalStateAudit:process.env.AGENT22_PROPOSAL_STATE_AUDIT==='true',
