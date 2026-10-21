@@ -36,6 +36,20 @@ The hard requirement of the new root is **own Active Mewtwo & Mew-GX**, a known 
 
 The present owner's Basic Energy recipient search considers **printed non-GX attacks** in `simulation/twinleaf/agent44-actor-energy-recipient.cjs`. Mewtwo's printed attack is GX; it does not score paid copied attacks from public own donors. The paid-retreat utility `agent6-actor-paid-retreat-frontier.cjs` prioritizes already funded Bench attackers. These code facts identify one possible missing policy trajectory: conserve/attach relevant Psychic to a Mewtwo while Benched, then position it Active using actual legal native actions when appropriate. That is a **hypothesis**, not a proven winning line, and can lose tempo or expose the board. A further natural-state actor-only conditional Perfection recipient/retreat test should precede whole-game advocacy.
 
+## Stronger actual-source reason the attempted copy could not resolve
+
+The rank11 **source-first New Moon** is an especially clean retrospective negative: the game's existing post-Pass cloned native Perfection observer recorded **four accepted Ability activations** (out-of-band probes) with genuine `ChooseAttackPrompt` objects and **zero valid/payable copied attacks**. At source-root ordinal 198, global turn 42, **Mewtwo & Mew-GX is Active with zero Energy**, with the exact `Gengar & Mimikyu-GX TEU` available on its own Bench. The actor-visible hand has no Energy and includes unused switching/search Items; the source board has Garbodor on the Bench with no Tool. At turn 44 the same Mewtwo remains Active, now damaged and still has zero Energy. The probe is a clone, so the game's actual root decision remained a Pass; copying did not occur.
+
+The candidate's full accepted typed native Energy history in this source-first arm confirms where early attachments went:
+- Global turn 2: special `Telepath [P] Energy M3` played before the Mewtwo had appeared, on the then Active.
+- Turn 8 and 16: two Basic Psychic attachments on the then Active `Lunatone`, pursuing its printed `Moon Press`.
+- Turn 22: another Basic Psychic on the then Active `Latias ex`, pursuing printed `Eon Blade`.
+- Turn 30: Mewtwo & Mew-GX finally Benched; by turn 42 it had moved Active via other gameplay, with no Energy left attached.
+
+The exact cards in these public snapshots and typed intent audit make the **resource allocation/forward planning gap** much stronger than a speculative abstract weakness of Perfection. A one-turn locally improving printed-attack deficit heuristic spent each attachment elsewhere while the key GX copy was later present but never payable. Whether changing those allocations improves a counterfactual match remains untested, especially when the source can react.
+
+The corrected source-first reporter committed at `5ce7a304` was additionally executed locally on **both archived JSONs under Node 22**, each exiting 0 and reporting `attempted=4, audited=3, failed=1`. This checks the reporter against the frozen experiment artifacts; it does not retroactively change the two failed CI conclusions.
+
 ## Classification and next research decision
 
 This is a high-quality **negative exposure result** and a maintained 8-attempt panel per side: seven fully matched source deals and one real common engine abort, no hidden successes. It is not evidence that Perfection is weak where available, and no strength improvement is supported. Retain direct source-first pressure and enforce owner-only hidden-information and printed-lock legality. In the next bounded experiment prioritize a genuinely payable, owner-observed Mewtwo Energy/Active positioning opportunity on a source-dealt board, with a real copied-attack prompt and actual consequence. Avoid further wholesale flag suites, and fix/trace the rank6 `LABEL_GX_USED` abort separately.
