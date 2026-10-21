@@ -54,8 +54,9 @@ jobs:
           node scripts/agent6-newmoon-fog-compressor-first8.cjs
       - name: Exact New Moon copied GX anti-Thorns source-and-attack resource conjunction
         run: |
-          node --test tests/newmoon-thorns-gx-lockline-window.test.cjs
+          node --test tests/newmoon-thorns-gx-lockline-window.test.cjs tests/newmoon-direct-horror-house-physical-window.test.cjs
           node scripts/newmoon-thorns-gx-lockline-window.cjs
+          node scripts/newmoon-direct-horror-house-physical-window.cjs
       - name: Check Ditto first-eight target-in-deck and prize-aware direct path
         run: node --test tests/ditto-direct-path-frontier.test.cjs
       - name: Check exact Ditto Guzma-Hala and three-resource prize access
