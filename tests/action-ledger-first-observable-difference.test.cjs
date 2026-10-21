@@ -81,3 +81,23 @@ test('different declared decision turn is observable even if chosen action match
   const b={...a,turnBefore:18};
   assert.equal(firstObservedDecisionDifference([a],[b]).index,0);
 });
+
+test('equal PlayCard labels can conceal different accepted Energy recipients',()=>{
+  const common={action:'PlayCardAction',playerSlot:0,turnBefore:7,
+    actionOrdinal:49,card:'Darkness Energy'};
+  const active={...common,declaredTarget:{player:2,slot:0,index:0}};
+  const bench={...common,declaredTarget:{player:2,slot:1,index:1}};
+  assert.equal(firstObservedDecisionDifference([common],[common]),null);
+  const first=firstObservedDecisionDifference([active],[bench]);
+  assert.equal(first.index,0);
+  assert.deepEqual(first.original.declaredTarget,active.declaredTarget);
+  assert.deepEqual(first.treated.declaredTarget,bench.declaredTarget);
+});
+
+test('retreat target geometry differs even with same class and turn',()=>{
+  const common={action:'RetreatAction',playerSlot:1,turnBefore:9};
+  const one={...common,declaredTarget:{benchIndex:1}};
+  const two={...common,declaredTarget:{benchIndex:2}};
+  assert.equal(firstObservedDecisionDifference([one],[two]).index,0);
+  assert.equal(firstObservedDecisionDifference([one],[{...one}]),null);
+});
