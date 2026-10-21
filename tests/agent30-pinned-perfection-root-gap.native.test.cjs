@@ -100,6 +100,6 @@ test('supported public Mewtwo state passes in root, yet native Perfection offers
   for(let i=0;pending()?.constructor.name==='WaitPrompt'&&i<10;i++){
     store.dispatch(new ResolvePromptAction(pending().id,true));
   }
-  assert.equal(state.players[1].gxAttackUsed,true,
+  assert.equal(state.players[1].usedGX,true,
     'A native payable copied GX attack consumes the GX allowance');
 });
