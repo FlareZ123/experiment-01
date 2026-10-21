@@ -92,7 +92,29 @@ function withSoloSnorlaxOpening(options, types, events,
  * @param {{PlayBasicTactic: Function}} types Pinned tactic class.
  * @returns {object} New options preserving original tactics array.
  */
-function withSoloSnorlaxBenchPreservation(options,{PlayBasicTactic}) {
+/**
+ * Visible opponent attachments are a deliberately coarse public threat
+ * signal. Energy in a hand or deck is never consulted. Attacks can be
+ * possible with zero attached Energy, so this is not a lethal oracle.
+ * @param {object} state Actual current state, including two player boards.
+ * @param {object} player Source-side owner.
+ * @returns {boolean} Whether an opposing in-play Pokémon has Energy.
+ */
+function opponentHasVisibleAttachedEnergy(state,player) {
+  const opponent=state.players.find(other=>other.id!==player.id);
+  return [opponent.active,...opponent.bench].some(slot=>
+    !!slot.getPokemonCard() && slot.energies.cards.length>0);
+}
+
+/**
+ * @param {object} options Per-seat pinned SimpleBotOptions.
+ * @param {{PlayBasicTactic: Function}} types Pinned tactic class.
+ * @param {{allowBackupOnVisibleOppEnergy?:boolean}} [policy] Opt-in
+ *   owner-information-safe escape from unconditional solo Bench restraint.
+ * @returns {object} New tactics array without mutating the original.
+ */
+function withSoloSnorlaxBenchPreservation(options,{PlayBasicTactic},
+  {allowBackupOnVisibleOppEnergy=false}={}) {
   if(options.tactics.some(Tactic=>
     Tactic.name==='SoloSnorlaxBenchPreservationTactic')) return options;
   const index=options.tactics.indexOf(PlayBasicTactic);
@@ -101,7 +123,10 @@ function withSoloSnorlaxBenchPreservation(options,{PlayBasicTactic}) {
     /** @param {object} state @param {object} player */
     useTactic(state,player) {
       if(player.active.getPokemonCard()?.fullName==='Snorlax PGO' &&
-          !player.bench.some(slot=>slot.getPokemonCard())) return undefined;
+          !player.bench.some(slot=>slot.getPokemonCard())) {
+        if(!allowBackupOnVisibleOppEnergy ||
+            !opponentHasVisibleAttachedEnergy(state,player)) return undefined;
+      }
       return super.useTactic(state,player);
     }
   }
@@ -111,4 +136,4 @@ function withSoloSnorlaxBenchPreservation(options,{PlayBasicTactic}) {
 }
 
 module.exports={chooseSoloSnorlax,withSoloSnorlaxOpening,
-  withSoloSnorlaxBenchPreservation};
+  withSoloSnorlaxBenchPreservation,opponentHasVisibleAttachedEnergy};
