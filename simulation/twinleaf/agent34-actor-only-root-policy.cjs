@@ -238,6 +238,14 @@ function chooseActorRootIntent(view,catalog,options={}){
       return {kind:'attack',attackName:chosen.name};
     }
   }
+  if(options.perfectionRoot===true&&view.globalTurn!==1&&
+     catalog.perfectionDonors instanceof Map){
+    const ready=require('./agent30-known-perfection-options.cjs')
+      .knownPerfectionReadyOptions(view,catalog,catalog.perfectionDonors);
+    if(ready.length>0)return {kind:'perfection',
+      donorPrinting:ready[0].sourcePrinting,
+      attackName:ready[0].attackName};
+  }
   if(options.specialEnergyRoot===true&&own.active&&!r.energyPlayLocked&&
      !r.specialEnergyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
     const special=require('./agent3-special-energy-frontier.cjs')
