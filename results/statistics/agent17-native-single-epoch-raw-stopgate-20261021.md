@@ -29,6 +29,7 @@ The `SingleNativeEpochGateTests` in [the existing test module](../../tests/test_
 - [Hashed capsule test correction CI 39519975134](https://github.com/FlareZ123/experiment-01/actions/runs/39519975134): **PASS** for canonical trace-anchored proof.
 - [Existing-event trace anchor CI 39520094311](https://github.com/FlareZ123/experiment-01/actions/runs/39520094311): **PASS**, preserving the existing action count.
 - [End-to-end public native clock adapter CI 39520466945](https://github.com/FlareZ123/experiment-01/actions/runs/39520466945): **PASS** at head `ca1086d`, including the four Node adapter tests and the Python raw-v2 gate tests.
+- [Direct Node-to-Python clock witness CI 39521966350](https://github.com/FlareZ123/experiment-01/actions/runs/39521966350): **PASS** including three cross-language tests: Python accepted the precisely hash-bound Node single-epoch capsule, rejected a Node-produced reset capsule and rejected a substituted detached proof. [Cross-language test code](../../tests/native-clock-python-bridge.test.cjs).
 
 Neither the fixture nor its result is a competitive match. It uses fabricated 640 synthetic records purely to exercise bookkeeping conditions.
 
