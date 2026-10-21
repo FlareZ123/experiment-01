@@ -251,16 +251,44 @@ function candidatePostChoicePassEvidence(decisionTrace,candidateSeat){
  * @param {0|1} candidateSeat Candidate's physical seat.
  * @returns {object[]} Observations aligned to every source declaration.
  */
-function candidateRepliesAfterSourceAttacks(trace,sourceSettlement,candidateSeat){
+function candidateRepliesAfterSourceAttacks(trace,sourceSettlement,candidateSeat,rootTrace=[]){
   assert.ok(candidateSeat===0||candidateSeat===1);
   assert.ok(Array.isArray(trace));
   assert.ok(Array.isArray(sourceSettlement?.attacks));
+  assert.ok(Array.isArray(rootTrace));
   const byOrdinal=new Map(trace.filter(row=>
     row.playerSlot===candidateSeat).map(row=>[row.actionOrdinal,row]));
   return sourceSettlement.attacks.map(attack=>{
     const next=attack.nextSourceRoot??null;
     const sameEpoch=attack.nextSourceSameEpochProven===true;
     const response=next&&sameEpoch?byOrdinal.get(next.ordinal):null;
+    // The first independent reply may be a setup Play followed by a Pass on
+    // that very same candidate turn. Retain the full owner-root sequence so
+    // the earliest omitted action remains visible rather than credited as
+    // meaningful resistance merely because its first root was a Play.
+    const sameTurnRoots=[];
+    if(next&&sameEpoch&&rootTrace.length){
+      let started=false;
+      for(const root of rootTrace){
+        if(root.actionOrdinal===next.ordinal)started=true;
+        if(!started)continue;
+        if(root.turnBefore!==next.turn || root.playerSlot!==candidateSeat)break;
+        if(root.pendingPrompt===null){
+          if(sameTurnRoots.length===32)break;
+          sameTurnRoots.push({
+            ordinal:root.actionOrdinal,action:root.action,
+            card:root.card??null,attack:root.attack??null
+          });
+        }
+      }
+    }
+    const finalPass=sameTurnRoots.findLast(root=>
+      root.action==='PassTurnAction')??null;
+    const finalPassDecision=finalPass?
+      byOrdinal.get(finalPass.ordinal):null;
+    const passHasOwnerHand=finalPassDecision?.decisionHandBefore?.perspectiveSeat===
+      candidateSeat && Array.isArray(
+        finalPassDecision.decisionHandBefore.ownHandPrintings);
     const hasOwnerHand=response?.decisionHandBefore?.perspectiveSeat===
       candidateSeat && Array.isArray(response.decisionHandBefore.ownHandPrintings);
     const isPass=next?.action==='PassTurnAction';
@@ -272,6 +300,16 @@ function candidateRepliesAfterSourceAttacks(trace,sourceSettlement,candidateSeat
       candidateReplyOrdinal:next?.ordinal??null,
       candidateReplyTurn:next?.turn??null,
       candidateReplyAction:next?.action??null,
+      candidateReplyTurnRootSequence:sameTurnRoots,
+      candidateReplyTurnFinalPass:finalPass?{
+        ordinal:finalPass.ordinal,turn:next.turn,
+        ownerHandAfterDecision:passHasOwnerHand?
+          [...finalPassDecision.decisionHandBefore.ownHandPrintings]:null,
+        publicBoardBeforePass:finalPassDecision?.publicBoardBeforePass??null,
+        printedBasicEnergyBeforePass:
+          finalPassDecision?.printedBasicEnergyBeforePass??null,
+        postChoiceAttackProbe:finalPassDecision?.attackPassProbe??null
+      }:null,
       status:!next?'no-followup-root':!sameEpoch?'unverified-epoch':
         !response?'trace-row-missing':isPass?'candidate-passed':
         'candidate-other-action',
@@ -654,7 +692,7 @@ function executeDevelopment(trial,candidates,{
     candidatePassProbeSamples:passEvidence.samples,
     candidatePerfectionPassSamples:passEvidence.perfectionSamples,
     candidateRepliesAfterSourceAttacks:candidateRepliesAfterSourceAttacks(
-      game.decisionTrace,sourceSettlement,candidateSeat),
+      game.decisionTrace,sourceSettlement,candidateSeat,rootTrace),
     attackDeclarations:{
       source:declared.filter(r=>r.playerSlot===sourceSeat).length,
       candidate:declared.filter(r=>r.playerSlot===candidateSeat).length
