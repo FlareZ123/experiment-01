@@ -613,6 +613,11 @@ function executeDevelopment(trial,candidates,{
   const candidateFollowup=firstPostSourceDecision(
     rootTrace,trial.rank,sourceAudit,candidateSeat);
   const sourceLinePacket=sourceLineReplyPacket(game,trial.rank,sourceAudit,sourceSeat);
+  // Read-only source-owner hand witness after each already-chosen Pass.
+  // Never feed these post-decision observations back into either policy.
+  const sourceOwnerPostPassMobility=
+    require('./agent17-source-own-postpass-mobility.cjs')
+      .sourceOwnerPostPassMobility(game.decisionTrace,rootTrace,sourceSeat);
   const passEvidence=candidatePostChoicePassEvidence(
     game.decisionTrace,candidateSeat);
   return {
@@ -677,6 +682,7 @@ function executeDevelopment(trial,candidates,{
     candidateOwnDeckSelectionEvidence,
     nativePromptChoices,
     policyAudit:commonAudit,sourceAudit,sourceLinePacket,
+    sourceOwnerPostPassMobility,
     supporterModalEvidence:{
       schema:'agent41-native-guzma-modal-both-seats-postgame-v1',
       nativeDecisionTraceAvailable:true,
