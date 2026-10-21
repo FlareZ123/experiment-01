@@ -138,7 +138,7 @@ function rootPhysicalSnapshot(state,seat,intent){
     handCount:owner.hand.cards.length,
     stadiumPrintings:owner.stadium?.cards?.map(c=>c.fullName)??[],
     activeEnergies:owner.active.energies.cards.map(c=>c.fullName),
-    activeToolPrintings:owner.active.tools.map(c=>c.fullName),
+    activeToolPrintings:owner.active.tools?.map(c=>c.fullName)??[],
     ...(intent.kind==='paid-retreat'?{
       activePokemonPrinting:owner.active.getPokemonCard()?.fullName??null,
       targetPokemonPrinting:
