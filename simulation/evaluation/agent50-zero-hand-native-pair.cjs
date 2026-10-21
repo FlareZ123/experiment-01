@@ -29,6 +29,10 @@ function compareNativePair(baseline,treatment){
     assert.ok(row.decisions.accepted>=1);
     assert.ok(Array.isArray(row.decisions.selections));
     assert.ok(Array.isArray(row.candidateChoices));
+    assert.match(row.sourceDealFingerprint,/^[a-f0-9]{64}$/);
+    assert.match(row.rootActionLedgerSha256,/^[a-f0-9]{64}$/);
+    assert.ok(Number.isSafeInteger(row.rootActionLedgerCount)&&
+      row.rootActionLedgerCount>0);
   }
   assert.equal(baseline.preferZeroHandPrintedDamage,false);
   assert.equal(treatment.preferZeroHandPrintedDamage,true);
@@ -41,6 +45,8 @@ function compareNativePair(baseline,treatment){
   // Require actual original-source starter and pre-first-copy Store prefix
   // plus physical list fingerprints to coincide.
   assert.deepEqual(treatment.deckHashes,baseline.deckHashes);
+  assert.equal(treatment.sourceDealFingerprint,
+    baseline.sourceDealFingerprint);
   assert.ok(baseline.firstCopyPrecedingRootCount>0);
   assert.equal(treatment.firstCopyPrecedingRootCount,
     baseline.firstCopyPrecedingRootCount);
@@ -52,7 +58,8 @@ function compareNativePair(baseline,treatment){
     row.zeroHandAlternativeApplied===true);
   for(const selection of changedSelections){
     assert.equal(selection.publicOpponentHandCount,0);
-    assert.deepEqual(selection.withoutZeroHandOption?.constructor,Object);
+    assert.ok(selection.withoutZeroHandOption &&
+      typeof selection.withoutZeroHandOption==='object');
     assert.ok(selection.withoutZeroHandOption.sourceIndex>=0);
     assert.notEqual(selection.attack,'Poltergeist',
       'Treatment must actually select another printed attack');
@@ -80,6 +87,13 @@ function compareNativePair(baseline,treatment){
     sameNativePrefixBeforeFirstCopy:true,
     firstCopyPrefixSha256:baseline.firstCopyPrecedingRootSha256,
     samePhysicalPrintingsFingerprint:true,
+    originalSourceDealSha256:baseline.sourceDealFingerprint,
+    baselineNativeRootSha256:baseline.rootActionLedgerSha256,
+    treatmentNativeRootSha256:treatment.rootActionLedgerSha256,
+    baselineNativeRootActions:baseline.rootActionLedgerCount,
+    treatmentNativeRootActions:treatment.rootActionLedgerCount,
+    sameFullNativeRootLedger:
+      baseline.rootActionLedgerSha256===treatment.rootActionLedgerSha256,
     onlyIntendedDifference:'preferZeroHandPrintedDamage false versus true',
     baselineVersion:baseline.attackerPolicyVersion,
     treatmentVersion:treatment.attackerPolicyVersion,
@@ -104,8 +118,6 @@ function compareNativePair(baseline,treatment){
       finished:treatment.finished,endReason:treatment.endReason,
       sourceResponseRoots:treatment.sourceRank11ActionsAfterFirstCopy
     },
-    sameFullNativeRootDigest:
-      baseline.sourceActionLedgerDigest===treatment.sourceActionLedgerDigest,
     interpretation:changedSelections.length>0?
       'At least one genuinely Store-selected alternative was triggered by publicly zero opponent hand; inspect effect and response before tactical inference':
       'No changed copy prompt was observed; this selected retrospective source game does not exercise the proposed treatment',
