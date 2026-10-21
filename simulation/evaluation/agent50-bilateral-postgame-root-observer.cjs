@@ -444,6 +444,7 @@ function withPostgameRootOrderProbe(
         nativeTacticReplay:target.nativeTapeFirstFiniteScore===true?
           sameWorldTacticObservation:null,
         sourceCaptureFidelity:captured.sourceCaptureFidelity,
+        ownerRootVisible:captured.ownerRootVisible??null,
         ...(target.nativeTapeFirstFiniteScore===true?{
           nativeTapeScoredRootTurn:captured.chosenRootTurn,
           nativeTapeFiniteScores:captured.actualFiniteScores,
