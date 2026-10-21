@@ -36,6 +36,29 @@ All percentages condition on a legal Basic-containing opening seven.
 
 **Interpretation:** In this deliberately restrictive, first-nine-direct-card model, only roughly **0.24%-0.86%** of legal-opening deals have the complete jointly funded early Noivern payload opportunity. The figure is neither a true gameplay success rate nor an upper bound on attainable Noivern lines: real decks have Ultra Ball, Supporters, draw, search, acceleration and later turns that this model omits. Also, card-location opportunity can fail because of DCI/UDP contention, Item lock or other action sequencing even if the exact cards are visible. The source-wide mean weights the seven lists equally; it is not a metagame-weighted win rate.
 
+## Expansion: discard Noivern and fetch Regidrago V with the same Ball
+
+**21 October follow-up, additionally confirmed by [manual source-manifest CI 39664929191](https://github.com/FlareZ123/experiment-01/actions/runs/39664929191) at head `4f9c68b586183da1fd1f0e431a0ac579ab759c6b`.** The preceding table is the originally registered **direct-Regidrago-V-only subset**. A valid alternative uses the same held Quick Ball or Mysterious Treasure on **own turn one** both to discard Noivern ex and **search for Regidrago V**. It can satisfy the copy-payload and Basic-attacker setup axes in one action. This was absent from the first strict model and materially changes the direct restricted opportunity estimate.
+
+For an additional, **disjoint** event, require *no Regidrago V* among the first eight observed cards; require **Noivern plus at least one Quick Ball/Mysterious Treasure among the first eight**, a relevant Energy by then, and VSTAR plus two Energy including a Double Dragon Energy by the second ordinary draw. To use the Ball for V on first own turn, at least one V must exist outside the six Prize cards. If the second normal draw itself is a V, this is guaranteed because that card was still in the searchable deck on first own turn. Otherwise, conditional on all `v` physical V copies outside the nine observed cards, the exact searchable probability is `1 - C(6,v)/C(51,v)`. The added route is disjoint from the first-eight **held** Regidrago V route; its exact fraction is therefore added without double-counting. It presupposes an Item-permitted action, affordable discard, correct chosen target and subsequent evolution/attachments. These remain unverified gameplay requirements.
+
+| Verified Aichi rank | Earlier direct-V+payload | Additional dual-purpose Ball fetch V | Expanded restricted union |
+| ---: | ---: | ---: | ---: |
+| 10, no Noivern | 0% | 0% | **0%** |
+| 12 | 0.24315% | 0.31969% | **0.56284%** |
+| 13 | 0.85535% | 0.18827% | **1.04362%** |
+| 14 | 0.63357% | 0.30578% | **0.93935%** |
+| 18, no Noivern | 0% | 0% | **0%** |
+| 20 | 0.60965% | 0.27599% | **0.88564%** |
+| 21 | 0.40068% | 0.28425% | **0.68493%** |
+| 27 | 0.62128% | 0.31969% | **0.94098%** |
+| 32 | 0.62422% | 0.26240% | **0.88662%** |
+| **Equal mean over seven donor lists** | **0.56970%** | **0.27944%** | **0.84914%** |
+
+All percentages are conditional on a Basic-valid opening seven and exclude actual opposing actions. The expanded union **still leaves out many legitimate routes**: an observed V fetched through another connector, Ultra Ball that both discards Noivern and searches V (its two-card discard is strategically costly), professor hand discard, draw/search that finds missing Energy or VSTAR, Forest Seal Stone, and later-turn play. Reuse of the same one-discard Ball is logically plausible under printed effects, but does not ensure that spending it on V beats searching a competing Pokémon or preserving it to reach another piece. This is a strict resource-location model with one specifically admitted setup action, **not a measured turn-two attack incidence, success probability, or opponent matchup strength**.
+
+The independent small-deck enumerator now checks both the *ninth-draw-is-V* case and exact six-Prize V unavailability inside each physical permutation; the source-loaded suite passes in the second manual CI above. The added result shows precisely why connector opportunity cost should be modeled as **multi-channel action fulfillment** rather than treating each Ball as only one resource route.
+
 ## Matchup hypothesis and causal limitation
 
 The [exact rank-6 Iron Thorns source](full-decklists.json) has four Basic Iron Thorns ex attackers and eight Special Energy (four Speed Lightning, two Capture, one Spiky, one Double Colorless). Noivern ex PAL153's **Covert Flight** can protect the copied Regidrago attacker from attack damage by Basics on the following opposing turn; **Dominating Echo** can stop Special Energy and Stadium cards played *from hand* on that next opposing turn. Iron Thorns's Initialization removes Regidrago VSTAR's Ability, while its printed **Apex Dragon remains an attack**. The copy's required Energy cost remains Apex Dragon's GGF; the selected Noivern attack's own cost is not additionally paid (Advanced Player's Rulebook C-18).
