@@ -426,6 +426,11 @@ function executeDevelopment(trial,candidates,{
   const candidateSettlement=candidateAttackSettlement(game,candidateSeat);
   assert.equal(candidateSettlement.declarations,
     declared.filter(row=>row.playerSlot===candidateSeat).length);
+  // Read-only symmetric source-seat settlement witness for the frozen source
+  // Claw counterfactual. Decoded only AFTER the original real Store game.
+  const sourceSettlement=candidateAttackSettlement(game,sourceSeat);
+  assert.equal(sourceSettlement.declarations,
+    declared.filter(row=>row.playerSlot===sourceSeat).length);
   const firstSource=game.decisionTrace.find(row=>
     row.playerSlot===sourceSeat &&
     Array.isArray(row.decisionHandBefore?.ownHandPrintings));
@@ -570,6 +575,7 @@ function executeDevelopment(trial,candidates,{
     // Unlike the legacy two-event summary below, this retains EVERY
     // candidate declaration and genuine next-source action, or its absence.
     candidateAttackSettlement:candidateSettlement,
+    sourceAttackSettlement:sourceSettlement,
     firstSettledPublicAttack:acceptedAttackEvents.slice(0,2).map(row=>({
       actionOrdinal:row.actionOrdinal,turnBefore:row.turnBefore,
       attacker:row.triggerPlayerSlot,chosen:row.declarations,
