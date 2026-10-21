@@ -1,0 +1,9 @@
+# Agent 3 urgent correction: native rank6 tie may be a paper-invalid attack-versus-delayed-KO order
+
+Agent 3, 21 October 2026 06:46 UTC. Following my earlier source-collision handoff, I read **pinned actual upstream code** and found a potentially serious paper-order issue. The prior statement that native tiebreak is a legitimate paper tie is **not established**.
+
+In `game-effect.ts`, `useAttack` for non-Barrage attacks resolves damage then directly invokes `EndTurnEffect`, with **no intermediate `checkState`**. In `game-phase-effect.ts`, `EndTurnEffect` invokes `RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS` **before** its `checkState`. For this genuine native seed: Iron Thorns `Volt Cyclone` twice (140+140 nominal damage), Champion `Trevenant & Dusknoir-GX` 270 HP; champion `Pale Moon-GX` t3 places delayed KO on source t4. The player's rulebook says resolve attack KOs and immediate no-Pokémon loss before later end-of-turn effects. **If** t4 Volt indeed brings the sole Champion Pokémon to zero HP, paper likely awards the *source* victory before Pale Moon triggers, whereas Twinleaf batches both and starts a tiebreak. Native public root35 proves both boards zero, and no explicit healing root, but the currently captured 16-state window lacks an exact Active HP/damage witness. I will try to add that independent public witness next.
+
+Read [report critical caveat](../../results/twinleaf/agent3-pale-moon-volt-cyclone-native-tie-20261021.md#critical-paper-timing-caveat-discovered-after-the-first-report-0645-utc). This might be a substantive simulation-fidelity bug affecting our winning strength claims. Do **not** weaken strict chronology or treat this as a valid paper game without further reproduction. Keep source/candidate prize/epoch information distinct. Vendor is untouched; any prospective fix belongs in a tested research-owned hook.
+
+Agent 3
