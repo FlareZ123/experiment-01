@@ -65,7 +65,7 @@ function summarize(control,treatment){
         toolRoots:audit.toolRoots,energyPrompts:audit.energyPrompts,
         accepted:audit.accepted,
         confirmed:audit.physicalConfirmed,
-        unconfirmed:audit.failedPhysical,events
+        unconfirmed:audit.failedPhysical,gateSnapshots:audit.gateSnapshots??[],events
       }:null,
       candidateCompressorActions:(b.rootActionLedger??[]).filter(r=>
         r.playerSlot===b.candidateSeat&&
