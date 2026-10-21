@@ -616,6 +616,7 @@ function runDevelopment({
       rows.push({
         trial,status:veto?'paper-supporter-quota-veto':'engine-error',
         error:String(error?.stack||error),
+        nativeStoreCauseStack:error?.cause?.stack??null,
         nativeSupporterQuotaQualified:veto?false:'unverified',
         paperSupporterDiscipline:veto,
         ...(nativeProposalValidationAudit?{
