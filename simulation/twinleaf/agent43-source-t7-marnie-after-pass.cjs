@@ -59,7 +59,9 @@ function withSourceMarnieAfterPass(execute,deps={}){
     version:VERSION,liveMatchCalls:0,passRootsAtSourceT7:0,
     eligibleMarniePasses:0,StoreAccepted:0,StoreRejected:0,
     originalOtherActionsPreserved:0,firstProposal:null,postDispatch:null,
-    candidateConcealedCardsRead:false,competitiveQualifiedGames:0
+    candidateConcealedCardsRead:false,competitiveQualifiedGames:0,
+    postMarnieOwnerDecisionRoots:[],
+    sourceOwnerReadOnlyObservation:true
   };
   function wrappedRun(request){
     audit.liveMatchCalls++;
@@ -71,6 +73,28 @@ function withSourceMarnieAfterPass(execute,deps={}){
     function decide(state,...args){
       const original=bot.value.apply(this,[state,...args]);
       const actor=state.players?.[0];
+      if(audit.StoreAccepted>0&&state.turn>=7&&state.turn<=13&&
+         state.activePlayer===0&&actor?.id===this.client?.id&&
+         !state.prompts?.some(p=>p.result===undefined)&&
+         audit.postMarnieOwnerDecisionRoots.length<12){
+        const owned=observe(state,0);
+        audit.postMarnieOwnerDecisionRoots.push({
+          globalTurn:owned.globalTurn,
+          sourceOwnedHand:owned.ownHand.slice(),
+          sourceOwnDeckCount:owned.ownPublic.deckCount,
+          sourceSupporterPlayedTurn:owned.ownTurnResources.supporterPlayedTurn,
+          active:{
+            printing:owned.ownPublic.active?.printing??null,
+            energies:owned.ownPublic.active?.energies??[],
+            tools:owned.ownPublic.active?.tools??[]
+          },
+          bench:owned.ownPublic.bench.filter(Boolean).map(p=>({
+            printing:p.printing,energies:p.energies,tools:p.tools
+          })),
+          originalBotAction:original?.constructor?.name??null,
+          observationPassedToPolicy:false
+        });
+      }
       if(state.turn!==7||state.activePlayer!==0||
          actor?.id!==this.client?.id||
          state.prompts?.some(p=>p.result===undefined)||
