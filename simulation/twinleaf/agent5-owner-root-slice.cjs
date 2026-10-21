@@ -128,12 +128,15 @@ function nativeActionForIntent(intent,player,deps){
 function rootPhysicalSnapshot(state,seat,intent){
   const owner=state.players[seat];
   const target=intent.kind==='evolve-pokemon'?(intent.slot==='bench'?owner.bench[intent.index]:owner.active):null;
+  const energyRecipient=intent.kind==='attach-basic-energy'&&
+    intent.slot==='bench'?owner.bench[intent.index]:owner.active;
   return {
     evolutionTop:target?.getPokemonCard()?.fullName??null,
     evolutionLayers:target?.getPokemons().length??null,
     turn:state.turn,phase:state.phase,
     handCount:owner.hand.cards.length,
     activeEnergies:owner.active.energies.cards.map(c=>c.fullName),
+    targetEnergies:energyRecipient?.energies?.cards.map(c=>c.fullName)??null,
     benchPrinting:intent.kind==='bench-basic'?
       owner.bench[intent.benchSlot].getPokemonCard()?.fullName??null:null,
     ...(intent.kind==='play-quick-ball'?{
@@ -163,8 +166,11 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
   }
   if(intent.kind==='attach-basic-energy'){
     const count=cards=>cards.filter(c=>c===intent.printing).length;
-    return after.activeEnergies.length===before.activeEnergies.length+1&&
-      count(after.activeEnergies)===count(before.activeEnergies)+1&&
+    const ownBefore=intent.slot==='bench'?before.targetEnergies:before.activeEnergies;
+    const ownAfter=intent.slot==='bench'?after.targetEnergies:after.activeEnergies;
+    return Array.isArray(ownBefore)&&Array.isArray(ownAfter)&&
+      ownAfter.length===ownBefore.length+1&&
+      count(ownAfter)===count(ownBefore)+1&&
       after.handCount===before.handCount-1?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
