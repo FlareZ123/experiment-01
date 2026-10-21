@@ -13,7 +13,7 @@ const VERSION='agent3-paper-terminal-attack-ko-before-endturn-v1';
  * the defender's *last* Pokémon to 0 HP, the paper game must resolve first.
  *
  * This hook uses the engine's own CheckHpEffect and checkState and only acts
- * when its genuine root Store has a lethal Active damaged from an attack,
+ * when its genuine root Store has at least one lethally damaged Active
  * with no reserve Bench. Speculative bot Stores are untouched. Promptful
  * preflight is rejected: more comprehensive KO ordering needs a continuation.
  *
@@ -36,18 +36,26 @@ function installTerminalAttackKoBeforeEndTurnHook(types){
     const defenderSeat=1-attackerSeat;
     const defender=state.players[defenderSeat];
     const defenderCard=defender.active.getPokemonCard();
-    if(!defenderCard || defender.bench.some(slot=>slot.getPokemonCard()))
-      return original.call(this,state,effect);
-    const hpEffect=new CheckHpEffect(defender,defender.active);
-    state=original.call(this,state,hpEffect);
-    if(defender.active.damage<hpEffect.hp)
+    const terminalKnockOutSeats=[];
+    let defenderEffectiveHp=null;
+    for(let seat=0;seat<state.players.length;seat++){
+      const player=state.players[seat];
+      const card=player.active.getPokemonCard();
+      if(!card || player.bench.some(slot=>slot.getPokemonCard()))continue;
+      const hpEffect=new CheckHpEffect(player,player.active);
+      state=original.call(this,state,hpEffect);
+      if(seat===defenderSeat)defenderEffectiveHp=hpEffect.hp;
+      if(player.active.damage>=hpEffect.hp)terminalKnockOutSeats.push(seat);
+    }
+    if(terminalKnockOutSeats.length===0)
       return original.call(this,state,effect);
     possible++;
     const before={
       attackerSeat,defenderSeat,turn:state.turn,
-      defenderName:defenderCard.name,
+      terminalKnockOutSeats,
+      defenderName:defenderCard?.name??null,
       defenderDamage:defender.active.damage,
-      defenderEffectiveHp:hpEffect.hp,
+      defenderEffectiveHp,
       nativeDelayedEffects:effect.player.pendingEndOfTurnEffects.map(item=>({
         type:item.type,attack:item.attack?.name??null
       })),
