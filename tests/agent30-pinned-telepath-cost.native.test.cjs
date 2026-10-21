@@ -50,8 +50,10 @@ function staged(){
   state.turn=3;
   state.activePlayer=0;
   state.gameSettings.format=Format.EXPANDED;
-  owner.active.cards.push(card('Dusclops SFA'));
-  owner.active.energies.cards.push(card('Telepath [P] Energy M3'));
+  owner.active.cards.push(card('Duskull VIV'),card('Dusclops SFA'));
+  const attached=card('Telepath [P] Energy M3');
+  owner.active.cards.push(attached);
+  owner.active.energies.cards.push(attached);
   owner.hand.cards.push(card('Psychic Energy SVE'));
   opponent.active.cards.push(card('Bunnelby PRC'));
   for(const player of state.players){
@@ -83,7 +85,7 @@ test('real owner-visible M3 attachment closes printed Dusclops attack with Basic
   const pick=chooseActorEnergyRecipient(view,catalog);
   assert.ok(pick);
   assert.equal(pick.slot,'active');
-  assert.equal(pick.attackName,'Will-O-Wisp');
+  assert.equal(pick.attackName,'Will-o-Wisp');
   assert.equal(pick.gapBefore,1);
   assert.equal(pick.gapAfter,0);
   const intent=chooseActorRootIntent(view,catalog,{
@@ -105,9 +107,9 @@ test('real owner-visible M3 attachment closes printed Dusclops attack with Basic
   const after=actorObservation(state,0);
   assert.deepEqual(chooseActorRootIntent(after,catalog,{
     energyRecipientFrontier:true,specialEnergyRoot:true
-  }),{kind:'attack',attackName:'Will-O-Wisp'});
+  }),{kind:'attack',attackName:'Will-o-Wisp'});
   const {AttackAction}=engine('game/store/actions/game-actions');
-  store.dispatch(new AttackAction(owner.id,'Will-O-Wisp'));
+  store.dispatch(new AttackAction(owner.id,'Will-o-Wisp'));
   assert.equal(opponent.active.damage,50,
     'Attack resolves real pinned Store damage after paid two-Psychic cost');
 });
