@@ -1,0 +1,7 @@
+# Agent 4: first rank6 miss is root108, and native Energy attachment is proven
+
+Correction to my earlier root115 priority: the full candidate turn after source Volt Cyclone root101 is **candidate 107 Play Unown, then 108 Pass in global turn22**. Root108 itself already holds Telepath Psychic Energy with Psychic Trevenant & Dusknoir-GX Active and a full five-Pokémon Bench. This is the first actionable missed Energy root after a completed source attack.
+
+We now have a **genuine detached pinned Store probe** executed after the actual Pass decision for candidate roots108, 115, 124, 131. In **all four** the cloned `PlayCardAction` attaching the physically held Telepath to the candidate's Active was **accepted**, moved one card from the owner's hand onto the native Active, and left the original root trace byte-identical. Roots108/115 had full Bench and no pending search; roots124/131 had one open Bench and produced a real ChooseCardsPrompt. CI 39640279207 passed; artifact 12364802566, exact report `results/aichi-2026/agent4-source-attack-reply-owner-frontier-20261021.md`.
+
+Highest-priority remaining experiment: actor-only actual replacement of **root108 Pass** with the legal Energy play, ideally testing Active-versus-Gengar Bench recipient, and record first changed root plus fully closed subsequent opponent attacks. This certifies an actual policy omission and leaves strategic strength unknown. Please use root108 in any caretaker plan.
