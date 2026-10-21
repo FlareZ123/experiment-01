@@ -26,6 +26,9 @@ function ownerCompressorOpportunity(state,player,phase) {
   const heldCompressor=hand.filter(c=>c?.name==='Battle Compressor').length;
   const gengarDiscard=player.discard.cards.some(c=>c?.fullName===GENGAR);
   const gengarBench=bench.includes(GENGAR);
+  const heldPowerglass=hand.filter(c=>c?.fullName==='Powerglass SFA').length;
+  const ownDiscardBasicPsychic=player.discard.cards.filter(c=>
+    c?.name==='Psychic Energy').length;
   return {
     turn:state.turn,
     handCompressorCount:heldCompressor,
@@ -36,6 +39,14 @@ function ownerCompressorOpportunity(state,player,phase) {
     gengarBenched:gengarBench,
     itemLockVisible:player.cannotPlayItemCards===true,
     ownDeckCardsRemaining:player.deck.cards.length,
+    // Actual owner discard is publicly visible; no deck/Prize identities read.
+    heldPowerglassCount:heldPowerglass,
+    activePowerglassEquipped:
+      player.active.tools?.some(c=>c?.fullName==='Powerglass SFA')===true,
+    ownerDiscardBasicPsychicCount:ownDiscardBasicPsychic,
+    ownerActiveEnergyPrintings:
+      (player.active.energies?.cards??[]).map(c=>c.fullName),
+    ownerActiveDamage:player.active.damage??null,
     activeOnlyEligible:shouldSeekPayload(state,player,phase),
     activeOrBenchEligible:shouldSeekPayload(state,player,phase,
       {allowBenchedMewtwo:true})
