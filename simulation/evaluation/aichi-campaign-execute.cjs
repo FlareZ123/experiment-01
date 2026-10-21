@@ -88,6 +88,7 @@ function executeDiagnostic(options) {
     'supporterDecisionCorrection', 'isolatePolicyRandomness',
     'prototypeSafeSimulatorIsolation', 'postSuperAliasRepairIsolation',
     'captureDecisionTrace', 'captureAttackPassProbes', 'captureElectrodeOpportunity',
+    'capturePublicAttackTransitions',
     'snorlaxRetreatStartCorrection',
     'shadowRiderEnergyPriority', 'shadowRiderEnergyAcrossField',
     'shadowRiderOpeningPivot', 'latiasAttackReadyAttachment',
@@ -105,7 +106,8 @@ function executeDiagnostic(options) {
   const nonEchoPolicyFlags = new Set([
     'strictPromptValidation', 'isolatePolicyRandomness',
     'captureDecisionTrace', 'captureAttackPassProbes',
-    'captureElectrodeOpportunity', 'rank4RaichuCompressorSource',
+    'captureElectrodeOpportunity', 'capturePublicAttackTransitions',
+    'rank4RaichuCompressorSource',
     'rank4RaichuRopePivotSource',
     'attackBeforeRetreatCandidateOnly',
     'toolAttackOpponentOnly'
@@ -414,7 +416,11 @@ function executeDiagnostic(options) {
           rootActionLedgerCoversEveryStoreDispatch: rootLedgerValid,
           coversAllActionsAndPromptResolutions: false,
           electrodeOpportunitySummary: opportunityRequested && opportunityValid ?
-            game.electrodeOpportunitySummary : null
+            game.electrodeOpportunitySummary : null,
+          publicAttackTransitions: policyFlags.capturePublicAttackTransitions === true ?
+            (game.publicAttackTransitions || []) : null,
+          publicAttackTransitionsProtocol: policyFlags.capturePublicAttackTransitions === true ?
+            (game.publicAttackTransitionsProtocol || null) : null
         }
       });
     } catch (error) {
@@ -510,6 +516,7 @@ function main() {
       rank4RaichuRopePivotSource: process.env.AICHI_RANK4_ROPE_PIVOT === '1',
       battleCompressorPositiveSelectionCorrection: process.env.AICHI_BATTLE_COMPRESSOR_MIN1 === '1',
       captureElectrodeOpportunity: process.env.AICHI_ELECTRODE_OPPORTUNITY === '1',
+      capturePublicAttackTransitions: process.env.AICHI_RANK4_PUBLIC_ATTACK_AUDIT === '1',
       raichuSightToolPolicy: process.env.AICHI_RAICHU_SIGHT === '1',
       raichuPrizeAllocationPolicy: process.env.AICHI_RAICHU_PRIZE_ALLOCATION === '1',
       doubleDragonRecovery: true, supporterDecisionCorrection: true,
