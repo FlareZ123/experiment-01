@@ -103,4 +103,77 @@ function nextPassProbeBucket(player, counts) {
   return counts[bucket] < 4 ? bucket : null;
 }
 
-module.exports = {visibleActiveAttacks, clonedStoreAcceptsAttack, probePassedAttackOptions, nextPassProbeBucket};
+/**
+ * Exact Store clone: can the chosen passing player manually attach the held
+ * Telepath Energy to its current Active before the Pass?
+ * @param {object} state Native pre-Pass state.
+ * @param {number} ownerId Real acting player ID.
+ * @param {number} handIndex Observed own-hand printing index.
+ * @returns {object} Cloned Store acceptance and physical placement.
+ */
+function clonedStoreTelepathActive(state,ownerId,handIndex){
+  const load=name=>require(path.join(output,name));
+  const {deepClone}=load('utils');
+  const {Store}=load('game/store/store');
+  const {PlayCardAction,PlayerType,SlotType}=
+    load('game/store/actions/play-card-action');
+  const clone=new Store({onStateChange(){}});
+  clone.state=deepClone(state);
+  const before=clone.state.players.find(p=>p.id===ownerId);
+  const countBefore=before.active.energies.cards.length;
+  const handBefore=before.hand.cards.length;
+  const randomBefore=Math.random;
+  Math.random=()=>0.5;
+  try{
+    clone.dispatch(new PlayCardAction(ownerId,handIndex,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    const after=clone.state.players.find(p=>p.id===ownerId);
+    return {
+      nativeAccepted:true,
+      physicalEnergyAttached:after.active.energies.cards.length===
+        countBefore+1&&after.hand.cards.length===handBefore-1&&
+        after.active.energies.cards.some(card=>
+          card.fullName==='Telepath [P] Energy M3'),
+      unresolvedPromptTypes:clone.state.prompts
+        .filter(prompt=>prompt.result===undefined)
+        .map(prompt=>prompt.constructor.name),
+      nativeRejection:null
+    };
+  }catch(error){
+    return {nativeAccepted:false,physicalEnergyAttached:false,
+      unresolvedPromptTypes:null,
+      nativeRejection:String(error?.message??error)};
+  }finally{
+    Math.random=randomBefore;
+  }
+}
+
+/**
+ * Observational only, after the real bot chose Pass. Native acceptance
+ * concerns one precise Active target and does not validate attack value.
+ * @param {object} state Native pre-Pass state.
+ * @param {number} ownerId Acting player ID.
+ * @param {(state:object,id:number,idx:number)=>object} [attempt]
+ * @returns {object|null} Owner-only cloned-attachment witness.
+ */
+function probeHeldTelepathPass(state,ownerId,
+  attempt=clonedStoreTelepathActive){
+  if(state.prompts.some(prompt=>prompt.result===undefined))return null;
+  const p=state.players.find(player=>player.id===ownerId);
+  if(!p || p!==state.players[state.activePlayer])return null;
+  const index=p.hand.cards.findIndex(card=>
+    card.fullName==='Telepath [P] Energy M3');
+  const active=p.active.getPokemonCard();
+  if(index<0||!active)return null;
+  return {
+    schema:'agent4-native-cloned-owner-telepath-active-attachment-v1',
+    activePokemon:active.name,heldPrinting:'Telepath [P] Energy M3',
+    openBenchSlots:p.bench.filter(slot=>!slot.getPokemonCard()).length,
+    ...attempt(state,ownerId,index),
+    note:'Post-choice detached Store test only; no alternate-policy success or competitive claim'
+  };
+}
+
+module.exports = {visibleActiveAttacks, clonedStoreAcceptsAttack, probePassedAttackOptions, nextPassProbeBucket,
+  clonedStoreTelepathActive, probeHeldTelepathPass};
