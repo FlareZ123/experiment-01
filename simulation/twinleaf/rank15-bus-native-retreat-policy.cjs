@@ -2,6 +2,7 @@
 
 const assert=require('node:assert/strict');
 const path=require('node:path');
+const {ownerTurnResourceUsage}=require('./owner-turn-resource-semantics.cjs');
 const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 
 /**
@@ -57,8 +58,7 @@ function withRank15NativeBusRetreat(execute,seat){
       activeEnergy:actor.active.energies.cards.map(c=>c.fullName),
       activeSpecialConditions:actor.active.specialConditions.slice(),
       sourceOwnerHand:actor.hand.cards.map(c=>c.fullName),
-      ownerManualEnergyAttachmentUsed:actor.energyPlayedTurn===state.turn,
-      ownerSupporterUsed:actor.supporterTurn===state.turn,
+      ...ownerTurnResourceUsage(state,actor),
       stadium:actor.stadium.cards.map(c=>c.fullName),
       bench:actor.bench.map(b=>b.getPokemonCard()?.fullName||null)};
     const action=new RetreatAction(actor.id,index);
@@ -68,8 +68,7 @@ function withRank15NativeBusRetreat(execute,seat){
       activeEnergy:actor.active.energies.cards.map(c=>c.fullName),
       activeSpecialConditions:actor.active.specialConditions.slice(),
       sourceOwnerHand:actor.hand.cards.map(c=>c.fullName),
-      ownerManualEnergyAttachmentUsed:actor.energyPlayedTurn===state.turn,
-      ownerSupporterUsed:actor.supporterTurn===state.turn,
+      ...ownerTurnResourceUsage(state,actor),
       stadium:actor.stadium.cards.map(c=>c.fullName),
       bench:actor.bench.map(b=>b.getPokemonCard()?.fullName||null)};
     assert.deepEqual(after,before,'Native validation changed public/owned live state');
