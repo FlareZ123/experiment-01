@@ -71,3 +71,73 @@ test('throwing original tactic restores its instance method and global RNG',()=>
   assert.strictEqual(tactic.useTactic,original);
   assert.strictEqual(Math.random,prior);
 });
+
+
+test('per-candidate score trace preserves finite scoring and exact RNG without identity leakage',()=>{
+  class ScoredAction {constructor(handIndex){this.handIndex=handIndex;}}
+  class ScoredTactic {
+    evaluateAction(_state,_id,action){
+      Math.random();
+      return action.handIndex+10;
+    }
+    useTactic(){
+      const action=new ScoredAction(4);
+      this.evaluateAction({},101,action);
+      return action;
+    }
+  }
+  const tactic=new ScoredTactic(),evalMethod=tactic.evaluateAction;
+  const useMethod=tactic.useTactic,prior=Math.random;
+  const actual={steps:[],rngCalls:0};
+  const replayObservation={steps:[],rngCalls:0};
+  try{
+    Math.random=()=>0.375;
+    const recorded=observe({tactics:[tactic]},
+      ()=>recordPolicyRandomTape(()=>tactic.useTactic()),actual);
+    assert.deepEqual(recorded.tape,[0.375]);
+    assert.deepEqual(actual.evaluations,[{
+      tactic:'ScoredTactic',actionType:'ScoredAction',handIndex:4,
+      rngStart:0,rngEnd:1,rngDraws:1,
+      finiteScore:true,score:14,undefinedScore:false,threw:false
+    }]);
+    const copy=new ScoredTactic();
+    const replay=replayPolicyRandomTape(recorded.tape,()=>observe(
+      {tactics:[copy]},()=>copy.useTactic(),replayObservation));
+    assert.equal(replay.consumed,1);
+    assert.deepEqual(replayObservation.evaluations,actual.evaluations);
+    assert.strictEqual(tactic.evaluateAction,evalMethod);
+    assert.strictEqual(tactic.useTactic,useMethod);
+    assert.equal(Math.random(),0.375);
+  }finally{Math.random=prior;}
+});
+
+test('swallowed RNG overread is localized to the exact score candidate',()=>{
+  class Candidate {
+    constructor(){this.handIndex=2;}
+  }
+  class OverreadTactic {
+    evaluateAction(){
+      Math.random();
+      try{Math.random();}catch(error){
+        assert.match(error.message,/exhausted/);
+      }
+      return undefined;
+    }
+    useTactic(){
+      this.evaluateAction({},101,new Candidate());
+      return undefined;
+    }
+  }
+  const tactic=new OverreadTactic(),prior=Math.random;
+  const original=tactic.evaluateAction,observation={steps:[],rngCalls:0};
+  assert.throws(()=>replayPolicyRandomTape([0.2],()=>observe(
+    {tactics:[tactic]},()=>tactic.useTactic(),observation)),
+  /exhaustion was swallowed/);
+  assert.deepEqual(observation.evaluations,[{
+    tactic:'OverreadTactic',actionType:'Candidate',handIndex:2,
+    rngStart:0,rngEnd:2,rngDraws:2,
+    finiteScore:false,score:null,undefinedScore:true,threw:false
+  }]);
+  assert.strictEqual(tactic.evaluateAction,original);
+  assert.strictEqual(Math.random,prior);
+});
