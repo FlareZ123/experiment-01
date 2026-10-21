@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank6_directline_paired:
+        description: Compare frozen original source-first arms with the Iron Thorns direct-line root off versus on
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -22,7 +27,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure actor-root intent tests
-        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs
+        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs
       - run: git submodule update --init --depth=1 vendor/twinleaf
       - working-directory: vendor/twinleaf/ptcg-server
         run: |
@@ -35,6 +40,29 @@ jobs:
       - name: Native bilateral historical and source-first development
         if: ${{ ! inputs.native_search_only }}
         run: node simulation/evaluation/agent5-owner-root-bilateral-native.cjs > agent5-owner-root-result.json
+      - name: Fixed source-first development baseline without Thorns direct-line
+        if: ${{ inputs.rank6_directline_paired }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+          AGENT1_THORNS_DIRECT_ROOT_DEV: 'false'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent5-thorns-baseline-sourcefirst.json
+      - name: Fixed source-first development treatment with Thorns direct-line
+        if: ${{ inputs.rank6_directline_paired }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+          AGENT1_THORNS_DIRECT_ROOT_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent5-thorns-treatment-sourcefirst.json
+      - name: Preserve all matched, censored and aborting direct-line contrast arms
+        if: ${{ inputs.rank6_directline_paired }}
+        run: node scripts/agent5-rank6-directline-paired-census.cjs agent5-thorns-baseline-sourcefirst.json agent5-thorns-treatment-sourcefirst.json > agent5-thorns-directline-contrast.json
       - uses: actions/upload-artifact@v4
         with:
           name: actor-only-root-native-retrospective-rank11
@@ -42,4 +70,7 @@ jobs:
             agent5-thunder-mountain-native-gate.json
             agent5-owner-root-result.json
             agent22-steven-native-store-result.json
+            agent5-thorns-baseline-sourcefirst.json
+            agent5-thorns-treatment-sourcefirst.json
+            agent5-thorns-directline-contrast.json
           retention-days: 30
