@@ -68,6 +68,11 @@ on:
         required: false
         type: boolean
         default: false
+      quick_ball_paircheck:
+        description: Same-checkout actor Quick Ball off/on paired development audit
+        required: false
+        type: boolean
+        default: false
       native_generic_fallback:
         description: Record seat-attributed generic decoder calls without choosing actions
         required: false
@@ -102,7 +107,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure adapter-composition order and qualification tests
-        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent7-known-dead-attack-root.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent3-native-epoch-partition-error.test.cjs tests/source-deal-epoch-observer.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent49-discrete-attack-gate.test.cjs
+        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent8-canonical-quickball-paircheck.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent7-known-dead-attack-root.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent3-native-epoch-partition-error.test.cjs tests/source-deal-epoch-observer.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent49-discrete-attack-gate.test.cjs
       - name: Verify optional frontier and default root parity
         run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs tests/agent3-special-energy-root.test.cjs
       - name: Check out exact pinned upstream engine
@@ -156,6 +161,32 @@ jobs:
       - name: Fail closed on missing actor audits and silent missing arms
         run: |
           node -e "const assert=require('node:assert/strict');const r=require('./agent7-canonical-actor-fourarm.json');assert.equal(r.attempted,4);assert.equal(r.rows.length,4);assert.equal(r.competitiveQualifiedGames,0);assert.equal(r.actorOnlyCompositionOptIn,true);assert.equal(r.actorOnlyCellsWithAudits,4,'Any missing per-arm coverage is a failure');assert.equal(r.paperSupporterQuotaOptIn,true);for(const row of r.rows){assert.ok(row.actorOnlyDecisionCoverage,'No actor-only audit');assert.equal(row.qualifiesForCompetitiveInference,false);const a=row.actorOnlyDecisionCoverage;assert.equal(a.qualification.competitiveGames,0);assert.ok(a.nativeDecisionCounts.actorRootsAccepted>0,'No native accepted actor roots');assert.equal(a.nativeDecisionCounts.actorRootsRejected,0);}console.log('ACTOR_CANONICAL_FOURARM',JSON.stringify(r.rows.map(x=>({trial:x.trial.id,actor:x.actorOnlyDecisionCoverage.nativeDecisionCounts,sourceDeal:x.sourceDealFingerprint??null,sourceFirst:x.sourceActuallyFirst??null,sourceReply:x.candidateFollowupStatus??null,error:x.error??null}))))"
+      - name: Fail closed if paired comparison requested without Quick Ball enabled
+        if: ${{ inputs.quick_ball_paircheck && !inputs.actor_quick_ball_root }}
+        run: node -e "throw new Error('Quick Ball paircheck requires actor_quick_ball_root=true')"
+      - name: Execute paired actor Quick Ball OFF using same canonical runner
+        if: ${{ inputs.quick_ball_paircheck && inputs.actor_quick_ball_root }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
+          AGENT8_ACTOR_QUICK_BALL_DEV: 'false'
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: ${{ inputs.native_generic_fallback && 'true' || 'false' }}
+          AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
+          AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent8-quick-ball-off.json
+      - name: Compare native actor Quick Ball on/off historical four arms
+        if: ${{ inputs.quick_ball_paircheck && inputs.actor_quick_ball_root }}
+        run: node scripts/agent8-canonical-quickball-paircheck.cjs agent8-quick-ball-off.json agent7-canonical-actor-fourarm.json > agent8-quick-ball-paircheck.json
       - name: Verify both-seat native Cologne quota on canonical four arms
         if: ${{ inputs.paper_cologne_quota }}
         run: node -e "const assert=require('node:assert/strict');const r=require('./agent7-canonical-actor-fourarm.json');assert.equal(r.paperCologneQuotaOptIn,true);for(const x of r.rows){assert.equal(x.paperCologneQuotaOptIn,true);assert.equal(x.paperCologneNativePlayAudit.acceptedOncePerSeatTurn,true);}console.log('PAPER_COLOGNE_CANONICAL',JSON.stringify(r.rows.map(x=>({id:x.trial.id,quota:x.paperCologneNativePlayAudit}))))"
@@ -248,6 +279,8 @@ jobs:
           name: agent7-canonical-actor-fourarm-development
           path: |
             agent7-canonical-actor-fourarm.json
+            agent8-quick-ball-off.json
+            agent8-quick-ball-paircheck.json
             agent7-canonical-sourcefirst.json
             agent7-canonical-actor-fourarm-control.json
             agent7-canonical-sourcefirst-control.json
