@@ -6,7 +6,8 @@ const {ownerPowerglassAttachInput,chooseOwnerPowerglassAttach,
   withOwnerPowerglassAttachPrompt}=
   require('../simulation/twinleaf/agent41-owner-powerglass-attach-prompt.cjs');
 
-const TYPES={basicEnergyType:0,bottomPlayer:2,activeSlot:1};
+const TYPES={basicEnergyType:0,energySuperType:2,
+  attachMessage:'ATTACH_ENERGY_TO_ACTIVE',bottomPlayer:2,activeSlot:1};
 
 /** @param {0|1} seat */
 function fixture(seat=0){
@@ -25,10 +26,11 @@ function fixture(seat=0){
     constructor(){
       this.id=70+seat;this.playerId=owner.id;
       this.cardList=owner.discard;this.playerType=2;
-      this.slots=[1];this.filter={};
+      this.message='ATTACH_ENERGY_TO_ACTIVE';
+      this.slots=[1];this.filter={superType:2,energyType:0};
       this.result=undefined;
       this.options={min:0,max:1,blocked:[],blockedTo:[],
-        allowCancel:true};
+        allowCancel:false};
     }
     getPerspectivePlayerId(){return owner.id;}
     validate(result){
@@ -90,6 +92,18 @@ test('spent, blocked, wrong-zone and wrong-Tool prompts delegate',()=>{
   f.pending.playerId=f.other.id;
   assert.equal(ownerPowerglassAttachInput(f.state,0,TYPES,f.observe),null);
   f.pending.playerId=f.owner.id;
+  f.pending.message='ATTACH_ENERGY_TO_BENCH';
+  assert.equal(ownerPowerglassAttachInput(f.state,0,TYPES,f.observe),null);
+  f.pending.message=TYPES.attachMessage;
+  f.pending.filter={superType:TYPES.energySuperType,energyType:1};
+  assert.equal(ownerPowerglassAttachInput(f.state,0,TYPES,f.observe),null);
+  f.pending.filter={superType:TYPES.energySuperType,energyType:0};
+  f.pending.options.allowCancel=true;
+  assert.equal(ownerPowerglassAttachInput(f.state,0,TYPES,f.observe),null);
+  f.pending.options.allowCancel=false;
+  f.pending.slots=[1,2];
+  assert.equal(ownerPowerglassAttachInput(f.state,0,TYPES,f.observe),null);
+  f.pending.slots=[1];
   const wrongTool=()=>({decisionKind:'owner-prompt',globalTurn:42,
     ownPublic:{active:{printing:'Mewtwo & Mew-GX UNM',
       tools:[]}}});
