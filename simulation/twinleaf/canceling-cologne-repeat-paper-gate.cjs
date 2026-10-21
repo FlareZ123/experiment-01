@@ -141,10 +141,19 @@ function runTwoCologneBoard() {
     first);
   const nextTurnCanPlay = second.canPlay(store,{...currentState,
     turn:currentState.turn+2},currentMine);
+  // Real pinned native sudden-death setup logs LOG_SUDDEN_DEATH and reuses
+  // Player objects. A quota stored only as numeric turn would otherwise
+  // block the first legal Cologne in a replay when that turn number repeats.
+  const {GameLog}=pinned('game/game-message');
+  store.log(currentState,GameLog.LOG_PLAYER_PLAYS_SUPPORTER);
+  const canPlayAfterUnrelatedLog=second.canPlay(store,currentState,currentMine);
+  store.log(currentState,GameLog.LOG_SUDDEN_DEATH);
+  const canPlayAfterRestartLog=second.canPlay(store,currentState,currentMine);
   return {
     firstEligible,afterFirst,secondEligible,speculative,originalUntouchedByClone,
     secondDispatchError,stateReplacedAfterFailure,secondInHand,secondInDiscard,
     secondMarker,firstInDiscard,firstMarker,nextTurnCanPlay,
+    canPlayAfterUnrelatedLog,canPlayAfterRestartLog,
     pending:currentState.prompts.filter(p=>p.result===undefined).length
   };
 }
@@ -201,6 +210,10 @@ function run() {
     'The real Store must veto before moving the second Item out of hand');
   assert.equal(corrected.nextTurnCanPlay,true,
     'A separate future turn must not remain blocked');
+  assert.equal(corrected.canPlayAfterUnrelatedLog,false,
+    'Unrelated Trainer log must not erase current-turn Cologne quota');
+  assert.equal(corrected.canPlayAfterRestartLog,true,
+    'Authentic native sudden-death announcement must renew Cologne quota');
   assert.deepEqual(restored,unpatched,'Uninstall must restore stock behavior');
   return {
     engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
