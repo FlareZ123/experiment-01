@@ -33,6 +33,11 @@ on:
         required: false
         type: boolean
         default: false
+      audit_missed_evolution:
+        description: Run read-only natural-evolution missed-Pass paired native census
+        required: false
+        type: boolean
+        default: false
       actor_hand_discard:
         description: Opt in bounded actor-only native owner-hand discard prompts
         required: false
@@ -82,7 +87,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure adapter-composition order and qualification tests
-        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs
+        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs
       - name: Verify optional frontier and default root parity
         run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs tests/agent3-special-energy-root.test.cjs
       - name: Check out exact pinned upstream engine
@@ -93,6 +98,19 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Paired native missed-evolution-on-Pass observational census
+        if: ${{ inputs.audit_missed_evolution }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+        run: |
+          AGENT1_NATURAL_EVOLUTION_ROOT_DEV=false node simulation/evaluation/agent1-missed-evolution-pass-census.cjs > agent1-evolution-pass-baseline.json
+          AGENT1_NATURAL_EVOLUTION_ROOT_DEV=true node simulation/evaluation/agent1-missed-evolution-pass-census.cjs > agent1-evolution-pass-optin.json
+          node -e "const assert=require('node:assert/strict'); const base=require('./agent1-evolution-pass-baseline.json'); const opt=require('./agent1-evolution-pass-optin.json'); for(const r of [base,opt]) {assert.equal(r.attempted,4);assert.equal(r.competitiveQualifiedGames,0);assert.ok(r.auditedPasses.actualGamesSeen>=4);} assert.equal(base.actorNaturalEvolutionRootOptIn,false);assert.equal(opt.actorNaturalEvolutionRootOptIn,true); console.log('EVOLUTION_MISSED_PASS_PAIR',JSON.stringify({baseline:{pass:base.auditedPasses.realPassRoots,missed:base.auditedPasses.eligiblePassRoots,rows:base.rows.map(x=>({trial:x.trial,roots:x.typedRootIntents}))},optin:{pass:opt.auditedPasses.realPassRoots,missed:opt.auditedPasses.eligiblePassRoots,rows:opt.rows.map(x=>({trial:x.trial,roots:x.typedRootIntents}))}}))"
+
       - name: Pinned real-Store Cologne duplicate and replay-epoch gate
         if: ${{ inputs.paper_cologne_quota }}
         run: node simulation/twinleaf/canceling-cologne-repeat-paper-gate.cjs > agent48-cologne-native-gate.json
@@ -207,5 +225,7 @@ jobs:
             agent7-canonical-sourcefirst-control.json
             agent7-rank6-source-k1.json
             agent48-cologne-native-gate.json
+            agent1-evolution-pass-baseline.json
+            agent1-evolution-pass-optin.json
           if-no-files-found: warn
           retention-days: 30
