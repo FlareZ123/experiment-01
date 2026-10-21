@@ -103,10 +103,12 @@ function captureOwnerK1(state, ownerSeat, registeredPrintings,
  * can restore information without ever inspecting hidden Prize contents.
  * @param {object} snapshot Prior authenticated K1.
  * @param {{currentOwnPrizeCount:number,deckMayHaveChanged:boolean,
- *   prizeCompositionMayHaveChanged?:boolean}} transition
+ *   prizeCompositionMayHaveChanged:boolean}} transition
  * @returns {object}
  */
 function advanceOwnerK1(snapshot, transition) {
+  assert.equal(typeof transition.deckMayHaveChanged, 'boolean');
+  assert.equal(typeof transition.prizeCompositionMayHaveChanged, 'boolean');
   assert.ok(Number.isSafeInteger(transition.currentOwnPrizeCount) &&
     transition.currentOwnPrizeCount >= 0 &&
     transition.currentOwnPrizeCount <= 6);
