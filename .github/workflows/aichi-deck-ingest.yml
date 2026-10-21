@@ -2,12 +2,19 @@ name: Validate Aichi published decks
 
 on:
   workflow_dispatch:
+    inputs:
+      unassigned_itoko_code:
+        description: 'Capture the publicly posted, official saved-deck 60 for rank-unassigned Itoko'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   ingest:
+    if: ${{ !inputs.unassigned_itoko_code }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -61,4 +68,30 @@ jobs:
           name: aichi-published-name-level
           path: results/aichi-2026/published-name-level.json
           if-no-files-found: error
+          retention-days: 30
+
+  capture-unassigned-itoko:
+    if: ${{ inputs.unassigned_itoko_code }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install bounded public-source parser dependencies
+        run: python -m pip install 'requests>=2.31,<3' 'filelock>=3.13,<4'
+      - name: Verify rank-unassigned viewer parser on synthetic offline fixtures
+        run: python -m unittest discover -s tests -p 'test_aichi_public_top32_deck_code.py' -v
+      - name: Capture one public primary Itoko saved-deck code without assigning rank
+        run: python scripts/aichi_public_top32_deck_code.py
+      - name: Preserve official viewer source HTML and unassigned print-60 inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-itoko-public-top32-japanese-printed60-unassigned
+          path: |
+            results/aichi-2026/public-top32-saved-deck-capture/itoko-official-viewer.html
+            results/aichi-2026/public-top32-saved-deck-capture/itoko-japanese-printed60.json
+          if-no-files-found: warn
           retention-days: 30
