@@ -55,7 +55,7 @@ function isolateRunner(){
       withBroadThornsSourceAttack:execute=>execute(),
       discardOrder:Array(8).fill('unused')
     };
-    return require(specifier);
+    return require(require.resolve(specifier,{paths:[path.dirname(sourcePath)]}));
   };
   const isolatedModule={exports:{}};
   vm.runInNewContext(source,{
