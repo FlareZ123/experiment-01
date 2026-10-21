@@ -29,6 +29,21 @@ test('visible Basic bench precedes basic Energy',()=>{
   assert.deepEqual(intent,{kind:'bench-basic',handIndex:0,benchIndex:0,
     printing:'Shadow Rider Calyrex V CRE'});
 });
+test('Iron Thorns direct line offers typed Thunder Mountain public root',()=>{
+  const view=base();
+  view.ownHand=['Thunder Mountain Prism Star LOT'];
+  view.ownPublic.active.name='Iron Thorns ex';
+  view.ownPublic.stadium=[];
+  view.ownTurnResources.stadiumPlayedTurn=0;
+  view.ownTurnResources.stadiumPlayLocked=false;
+  assert.deepEqual(chooseActorRootIntent(view,catalog,{
+    thornsDirectLine:true
+  }),{
+    kind:'play-thunder-mountain',handIndex:0,
+    printing:'Thunder Mountain Prism Star LOT'
+  });
+});
+
 test('Energy then printed-cost attack follows the same actor-only view',()=>{
   const view=base();
   view.ownHand=['Psychic Energy MEE','Energy Retrieval SVI'];
