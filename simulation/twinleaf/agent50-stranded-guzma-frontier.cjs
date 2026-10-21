@@ -23,7 +23,7 @@ function chooseStrandedGuzma(view,catalog){
       !Array.isArray(other?.bench)||!other.bench.some(Boolean)||
       !Array.isArray(own.bench)||
       !own.bench.some(slot=>slot&&slot.energies?.length>0)||
-      resources.supporterPlayedTurn===view.globalTurn||
+      resources.supporterPlayedTurn>=1||
       resources.supporterPlayLocked===true||
       own.publicTurnRestrictions?.supporterPlayLocked===true)return null;
   const handIndex=view.ownHand.indexOf('Guzma BUS');
