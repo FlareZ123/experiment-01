@@ -348,5 +348,5 @@ test('source-attack reply join distinguishes same-epoch non-Pass and missing tra
   assert.equal(rows[1].status,'trace-row-missing');
   assert.equal(rows[1].ownerHandAfterDecision,null);
   assert.throws(()=>candidateRepliesAfterSourceAttacks([],attacks,3),
-    /AssertionError/);
+    {name:'AssertionError'});
 });
