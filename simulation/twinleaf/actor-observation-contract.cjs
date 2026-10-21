@@ -69,11 +69,13 @@ function visiblePokemon(slot){
   };
 }
 
-/** @param {object} player @returns {object} */
-function publicPlayer(player){
+/** @param {object} player @param {boolean} [hidePokemon] @returns {object} */
+function publicPlayer(player,hidePokemon=false){
+  const pokemonView=slot=>hidePokemon ?
+    (slot.cards.length>0?{concealed:true}:null):visiblePokemon(slot);
   return {
-    active:visiblePokemon(player.active),
-    bench:player.bench.map(visiblePokemon),
+    active:pokemonView(player.active),
+    bench:player.bench.map(pokemonView),
     stadium:player.stadium.cards.map(printing),
     discard:player.discard.cards.map(printing),
     lostZone:player.lostzone.cards.map(printing),
@@ -156,7 +158,9 @@ function actorObservation(state,seat,options={}){
       pending.cards===owner.deck),
     ownHand:owner.hand.cards.map(printing),
     ownPublic:publicPlayer(owner),
-    opponentPublic:publicPlayer(state.players[1-seat]),
+    // In SETUP/WAITING_FOR_PLAYERS the other side's chosen Pokémon are
+    // physically face-down. Reveal only occupied slot geometry until start.
+    opponentPublic:publicPlayer(state.players[1-seat],state.phase===0||state.phase===1),
     ownTurnResources:{
       supporterPlayedTurn:owner.supporterTurn,
       energyPlayedTurn:owner.energyPlayedTurn,
