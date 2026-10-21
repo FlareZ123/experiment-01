@@ -83,6 +83,9 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Pinned real-Store Cologne duplicate and replay-epoch gate
+        if: ${{ inputs.paper_cologne_quota }}
+        run: node simulation/twinleaf/canceling-cologne-repeat-paper-gate.cjs > agent48-cologne-native-gate.json
       - name: Execute unchanged canonical four-arm historical bilateral runner
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
@@ -185,5 +188,6 @@ jobs:
             agent7-canonical-actor-fourarm-control.json
             agent7-canonical-sourcefirst-control.json
             agent7-rank6-source-k1.json
+            agent48-cologne-native-gate.json
           if-no-files-found: warn
           retention-days: 30
