@@ -112,11 +112,23 @@ function arm({damage,flag}){
   const before={damage:x.defender.active.damage,
     ownerPrizes:x.attacker.prizes.length};
   x.store.dispatch(new AttackAction(x.attacker.id,intent.attackName));
-  const pending=x.state.prompts.filter(p=>p.result===undefined)
+  const {ResolvePromptAction}=
+    load('game/store/actions/resolve-prompt-action');
+  const waitResolved=[];
+  for(let count=0;count<12;count++){
+    const prompt=x.store.state.prompts.find(p=>p.result===undefined);
+    if(!prompt)break;
+    if(prompt.constructor.name!=='WaitPrompt')break;
+    x.store.dispatch(new ResolvePromptAction(prompt.id,null));
+    waitResolved.push(prompt.id);
+  }
+  const pending=x.store.state.prompts.filter(p=>p.result===undefined)
     .map(p=>p.constructor.name);
-  const after={damage:x.defender.active.damage,
-    ownerPrizes:x.attacker.prizes.length,
-    pending,phase:x.state.phase};
+  const latest=x.store.state;
+  const after={damage:latest.players[1].active.damage,
+    ownerPrizes:latest.players[0].prizes.length,
+    pending,phase:latest.phase,waitResolved,
+    activeAfter:latest.players[1].active.getPokemonCard()?.fullName??null};
   return {
     actorVisibleOnly:true,knownDeadAttackRoot:flag,
     victimDamageBefore:damage,publicInitialBoardSha256:x.publicDigest,
