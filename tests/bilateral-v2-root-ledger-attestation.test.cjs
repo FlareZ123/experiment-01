@@ -115,7 +115,7 @@ test('forged native root transcript with reversed or skipped game turns rejects'
   ledger[5].turnBefore=2;
   assert.throws(()=>attest(row,ledger,1),
     /replay reset needs epoch attestation/);
-  ledger[5].turnBefore=3;
+  ledger[5].turnBefore=5;
   ledger[4].turnBefore=5;
   assert.throws(()=>attest(row,ledger,1),
     /cannot skip or reverse global turns/);
