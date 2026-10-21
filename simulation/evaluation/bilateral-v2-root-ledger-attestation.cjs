@@ -87,9 +87,11 @@ function attestBilateralRootClaims(row,ledger,candidateSeat){
   // Bonus-turn claims are optional unless the source next acts at t+3.
   // A matched issuer, prompt close and new-own-turn actor all are required.
   const bonus=row?.candidateBonusTurn;
-  // A bonus-turn grant must come from an actual native attack root.
+  // Only a direct printed Timeless-GX attack can be attested here.
+  // A copied bonus-turn attack needs separate native copied-effect evidence.
   const grantIsAttack=Number.isSafeInteger(bonus?.grantRootActionOrdinal)&&
-    ledger[bonus.grantRootActionOrdinal]?.action==='AttackAction';
+    ledger[bonus.grantRootActionOrdinal]?.action==='AttackAction'&&
+    ledger[bonus.grantRootActionOrdinal]?.attack==='Timeless-GX';
   // Prompt closure must descend from this actual attack. Prompt actors can
   // be unowned or defender-owned, and unrelated later roots cannot close it.
   const bonusClose=Number.isSafeInteger(bonus?.completionOrdinal)?
