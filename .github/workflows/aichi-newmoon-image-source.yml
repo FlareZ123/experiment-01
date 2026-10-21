@@ -86,6 +86,11 @@ jobs:
           normalized=html.unescape(raw.replace('\\\\/','/').replace('\\\\u0026','&'))
           images=sorted(set(re.findall(r'https://assets\\.st-note\\.com/img/[A-Za-z0-9._?=&%/-]+', normalized)))
           digest=__import__('hashlib').sha256(raw.encode()).hexdigest()
+          for key in ['4xYGc4','assets.st-note.com','production/uploads/images','imageUrl','image_url','<img','og:image','https%3A','\\\\/img\\\\/']:
+            i=raw.find(key)
+            print('PUBLIC_NOTE_TOKEN',key,'count',raw.count(key),'firstIndex',i,'surrounding',repr(raw[max(i-200,0):i+400] if i>=0 else ''))
+          print('PUBLIC_NOTE_LINK_SAMPLE',json.dumps(re.findall(r'(?:https?:|https%3A|https\\\\/\\\\/)[^"\\s<]{5,200}?(?:png|jpe?g|webp)',raw)[:25]))
+
           Path('primarina-may-public-image-leads.json').write_text(json.dumps({'firstPersonNote':'https://note.com/primarina_2002/n/n70b7e01cd474','sha256':digest,'viewerCodeReferenced':'4xYGc4-dWhjRd-G8c8GD' in raw,'imageUrls':images,'unverifiedCardImages':True},indent=2)+'\\n')
           print('PUBLIC_AUTHOR_NOTE',json.dumps({'bytes':len(raw),'sha256':digest,'mayCodePresent':'4xYGc4-dWhjRd-G8c8GD' in raw,'imageCount':len(images),'imageUrls':images[:40]}))
           PY
