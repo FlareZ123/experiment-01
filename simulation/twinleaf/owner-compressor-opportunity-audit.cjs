@@ -27,8 +27,15 @@ function ownerCompressorOpportunity(state,player,phase) {
   const gengarDiscard=player.discard.cards.some(c=>c?.fullName===GENGAR);
   const gengarBench=bench.includes(GENGAR);
   const heldPowerglass=hand.filter(c=>c?.fullName==='Powerglass SFA').length;
-  const ownDiscardBasicPsychic=player.discard.cards.filter(c=>
-    c?.name==='Psychic Energy').length;
+  const basicPsychic=card=>card?.name==='Psychic Energy';
+  const ownDiscardBasicPsychic=player.discard.cards.filter(basicPsychic).length;
+  // These are the owner's own hand or already public zones. Never read any
+  // unrevealed deck identities or face-down Prize cards to infer inventory.
+  const ownHandBasicPsychic=hand.filter(basicPsychic).length;
+  const ownBenchBasicPsychic=player.bench.reduce((n,slot)=>
+    n+(slot.energies?.cards??[]).filter(basicPsychic).length,0);
+  const ownLostZoneBasicPsychic=(player.lostzone?.cards??[])
+    .filter(basicPsychic).length;
   return {
     turn:state.turn,
     handCompressorCount:heldCompressor,
@@ -44,6 +51,9 @@ function ownerCompressorOpportunity(state,player,phase) {
     activePowerglassEquipped:
       player.active.tools?.some(c=>c?.fullName==='Powerglass SFA')===true,
     ownerDiscardBasicPsychicCount:ownDiscardBasicPsychic,
+    ownerHandBasicPsychicCount:ownHandBasicPsychic,
+    ownerBenchBasicPsychicCount:ownBenchBasicPsychic,
+    ownerLostZoneBasicPsychicCount:ownLostZoneBasicPsychic,
     ownerActiveEnergyPrintings:
       (player.active.energies?.cards??[]).map(c=>c.fullName),
     ownerActiveDamage:player.active.damage??null,

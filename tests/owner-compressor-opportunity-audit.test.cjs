@@ -87,6 +87,27 @@ test('late owner-only Powerglass and discarded Psychic are observed without hidd
   },'Observer must ignore concealed owner/opponent deck identities');
 });
 
+test('late owner-visible Basic Psychic census excludes hidden deck and Prizes',()=>{
+  const {owner,state}=fixture();
+  owner.hand.cards.push({name:'Psychic Energy',fullName:'Psychic Energy MEE'});
+  owner.bench[0].energies={cards:[
+    {name:'Psychic Energy',fullName:'Psychic Energy MEE'},
+    {name:'Telepathic Psychic Energy',fullName:'Telepathic Psychic Energy SIT'}
+  ]};
+  owner.lostzone={cards:[{name:'Psychic Energy',fullName:'Psychic Energy MEE'}]};
+  owner.discard.cards.push({name:'Psychic Energy',fullName:'Psychic Energy MEE'});
+  const first=ownerCompressorOpportunity(state,owner,3);
+  assert.equal(first.ownerHandBasicPsychicCount,1);
+  assert.equal(first.ownerBenchBasicPsychicCount,1);
+  assert.equal(first.ownerLostZoneBasicPsychicCount,1);
+  assert.equal(first.ownerDiscardBasicPsychicCount,1);
+  state.players[1].hand.cards=[{name:'Psychic Energy'}];
+  owner.deck.cards=[{name:'Psychic Energy'}];
+  assert.deepEqual(ownerCompressorOpportunity(state,owner,3),{
+    ...first,ownDeckCardsRemaining:1
+  },'Changing concealed deck identities must not affect owner public counts');
+});
+
 test('opposing concealed zones cannot change owner eligibility or telemetry',()=>{
   const {owner,state}=fixture();
   const first=ownerCompressorOpportunity(state,owner,3);
