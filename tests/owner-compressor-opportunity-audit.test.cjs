@@ -78,6 +78,7 @@ test('late owner-only Powerglass and discarded Psychic are observed without hidd
   assert.equal(baseline.ownerActiveDamage,200);
   assert.deepEqual(baseline.ownerActiveEnergyPrintings,['Psychic Energy MEE']);
   assert.equal(baseline.activeOnlyEligible,false,'Historical turn limit unchanged');
+  assert.equal(baseline.anyTurnEligible,true,'Unbounded proposal is owner-visible');
   state.players[1].hand.cards=[{name:'Psychic Energy'}];
   state.players[1].deck.cards=[{name:'Psychic Energy'}];
   owner.deck.cards=[{fullName:'opaque hidden identity C'}];
