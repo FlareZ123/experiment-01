@@ -38,6 +38,11 @@ on:
         required: false
         type: boolean
         default: false
+      native_known_dead_attack_gate:
+        description: Run injected pinned Store attack and Prize pairing (development-only)
+        required: false
+        type: boolean
+        default: false
       audit_missed_evolution:
         description: Run read-only natural-evolution missed-turn-end paired native census
         required: false
@@ -108,6 +113,9 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Native paired printed attack settlement under owner-visible selector
+        if: ${{ inputs.native_known_dead_attack_gate }}
+        run: node simulation/twinleaf/agent7-known-dead-attack-native.cjs > agent7-native-known-dead-attacks.json
       - name: Paired native missed-evolution-at-turn-end observational census
         if: ${{ inputs.audit_missed_evolution }}
         env:
@@ -245,5 +253,6 @@ jobs:
             agent48-cologne-native-gate.json
             agent1-evolution-pass-baseline.json
             agent1-evolution-pass-optin.json
+            agent7-native-known-dead-attacks.json
           if-no-files-found: warn
           retention-days: 30
