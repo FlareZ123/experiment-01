@@ -12,6 +12,39 @@ const PRESSURE_CELLS=[
 ];
 
 /**
+ * Cross-check source pressure's claimed ordinal and turn against a preserved
+ * Store root transcript when one exists. The strict v2 audit separately
+ * verifies the full ledger digest and consecutive turn lineage. Legacy rows
+ * without a transcript remain descriptive producer claims only.
+ *
+ * @param {object} row
+ * @param {object} pressure
+ * @param {0|1} sourceSeat
+ * @returns {boolean}
+ */
+function pressureLedgerAligned(row,pressure,sourceSeat){
+  if(row.rootActionLedger===undefined)return true;
+  const roots=row.rootActionLedger;
+  if(!Array.isArray(roots)||roots.length!==row.rootActionCount)return false;
+  const start=roots[pressure.rootActionOrdinal];
+  const close=roots[pressure.completionOrdinal];
+  if(start?.actionOrdinal!==pressure.rootActionOrdinal||
+      start.playerSlot!==sourceSeat||
+      start.turnBefore!==pressure.turnBefore||
+      start.action==='ResolvePromptAction'||
+      close?.actionOrdinal!==pressure.completionOrdinal||
+      close.turnBefore!==pressure.completionTurnBefore)return false;
+  if(close.playerSlot===sourceSeat)return true;
+  const origin=close.initiatingRootActionOrdinal;
+  return close.action==='ResolvePromptAction'&&
+    Number.isSafeInteger(origin)&&
+    origin>=pressure.rootActionOrdinal&&
+    origin<pressure.completionOrdinal&&
+    roots[origin]?.playerSlot===sourceSeat&&
+    roots[origin]?.action!=='ResolvePromptAction';
+}
+
+/**
  * A qualified pressure witness is an authenticated Store effect, with the
  * physical source as actor. The absence of a witness is not evidence that
  * the human source would not create pressure. In particular, a capped or
@@ -36,7 +69,8 @@ function pressureEvidence(row,sourceSeat){
     pressure.rootActionOrdinal<=pressure.completionOrdinal &&
     pressure.completionOrdinal<row.rootActionCount &&
     pressure.turnBefore>=1 &&
-    pressure.completionTurnBefore===pressure.turnBefore;
+    pressure.completionTurnBefore===pressure.turnBefore &&
+    pressureLedgerAligned(row,pressure,sourceSeat);
   if(bounded && pressure.accepted===true &&
       pressure.effectVerified===true &&
       pressure.traceAuthenticated===true &&
@@ -207,4 +241,4 @@ function auditUnconditionalBilateralCensus(plan,archive){
   };
 }
 
-module.exports={auditUnconditionalBilateralCensus,pressureEvidence};
+module.exports={auditUnconditionalBilateralCensus,pressureEvidence,pressureLedgerAligned};
