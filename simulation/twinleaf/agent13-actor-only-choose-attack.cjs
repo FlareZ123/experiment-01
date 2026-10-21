@@ -132,6 +132,8 @@ function withActorOnlyChooseAttack(run,deps={}){
     audit.menus++;
     const intent=chooseActorCopiedAttack(input,
       {preferGengarPoltergeist,preferZeroHandPrintedDamage});
+    const controlIntent=preferZeroHandPrintedDamage?
+      chooseActorCopiedAttack(input,{preferGengarPoltergeist}):null;
     const prompt=state.prompts.find(p=>p.result===undefined);
     const selected=intent.sourceIndex===null?null:
       prompt.cards[intent.sourceIndex].attacks[intent.attackIndex];
@@ -141,7 +143,13 @@ function withActorOnlyChooseAttack(run,deps={}){
       sourceIndex:intent.sourceIndex,attackIndex:intent.attackIndex,
       printing:intent.sourceIndex===null?null:
         input.prompt.offered[intent.sourceIndex].printing,
-      attack:selected?.name??null};
+      attack:selected?.name??null,
+      ...(preferZeroHandPrintedDamage?{
+        publicOpponentHandCount:input.actor.opponentPublic?.handCount??null,
+        zeroHandAlternativeApplied:controlIntent.sourceIndex!==intent.sourceIndex||
+          controlIntent.attackIndex!==intent.attackIndex,
+        withoutZeroHandOption:controlIntent
+      }:{})};
     decisions.set(action,fact);audit.selected++;
     if(audit.selections.length<64)audit.selections.push(fact);
     return action;
