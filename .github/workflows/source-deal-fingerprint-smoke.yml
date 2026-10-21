@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      registered_pair_setup:
+        description: 'Four frozen original-Store champion/New Moon paired setups; setup only, no games'
+        required: false
+        type: boolean
+        default: false
       full_source_setup:
         description: 'Run 120 frozen source setups with hidden-order source fingerprint; diagnostic only'
         required: false
@@ -50,6 +55,20 @@ jobs:
           name: agent38-rank24-native-state-purity
           path: agent38-rank24-native-state-purity.json
           if-no-files-found: error
+          retention-days: 14
+      - name: Verify frozen two-candidate native pre-outcome Store setup contracts
+        if: ${{ inputs.registered_pair_setup }}
+        run: node --test tests/aichi-setup-zone-capture.test.cjs tests/agent42-registered-setup-native-bridge.test.cjs
+      - name: Capture four frozen original-Store source setup pairs without game decisions
+        if: ${{ inputs.registered_pair_setup }}
+        run: node simulation/evaluation/agent42-native-fourcell-setup-smoke.cjs > agent42-native-fourcell-setup.json
+      - name: Archive complete attempted setup receipts
+        if: ${{ always() && inputs.registered_pair_setup }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent42-registered-fourcell-setup
+          path: agent42-native-fourcell-setup.json
+          if-no-files-found: warn
           retention-days: 14
       - name: Compare full ordered source openings for five frozen candidate arrangements
         if: ${{ inputs.full_source_setup }}
