@@ -48,11 +48,6 @@ on:
         required: false
         type: boolean
         default: false
-      actor_powerglass_root:
-        description: Owner-visible held Powerglass Tool opportunity, development only
-        required: false
-        type: boolean
-        default: false
       special_energy_root:
         description: Opt in rank6 source-bounded actor Special Energy attachment and numeric unit planning
         required: false
@@ -220,7 +215,6 @@ jobs:
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT30_PERFECTION_ROOT_DEV: ${{ inputs.actor_perfection_root && 'true' || 'false' }}
-          AGENT41_ACTOR_POWERGLASS_ROOT_DEV: ${{ inputs.actor_powerglass_root && 'true' || 'false' }}
           AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
           AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
@@ -247,7 +241,6 @@ jobs:
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT30_PERFECTION_ROOT_DEV: ${{ inputs.actor_perfection_root && 'true' || 'false' }}
-          AGENT41_ACTOR_POWERGLASS_ROOT_DEV: ${{ inputs.actor_powerglass_root && 'true' || 'false' }}
           AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
           AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
@@ -279,7 +272,6 @@ jobs:
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT30_PERFECTION_ROOT_DEV: ${{ inputs.actor_perfection_root && 'true' || 'false' }}
-          AGENT41_ACTOR_POWERGLASS_ROOT_DEV: ${{ inputs.actor_powerglass_root && 'true' || 'false' }}
           AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
           AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
@@ -324,7 +316,6 @@ jobs:
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT30_PERFECTION_ROOT_DEV: ${{ inputs.actor_perfection_root && 'true' || 'false' }}
-          AGENT41_ACTOR_POWERGLASS_ROOT_DEV: ${{ inputs.actor_powerglass_root && 'true' || 'false' }}
           AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
           AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
@@ -355,7 +346,6 @@ jobs:
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT30_PERFECTION_ROOT_DEV: ${{ inputs.actor_perfection_root && 'true' || 'false' }}
-          AGENT41_ACTOR_POWERGLASS_ROOT_DEV: ${{ inputs.actor_powerglass_root && 'true' || 'false' }}
           AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
           AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
@@ -385,7 +375,6 @@ jobs:
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT30_PERFECTION_ROOT_DEV: ${{ inputs.actor_perfection_root && 'true' || 'false' }}
-          AGENT41_ACTOR_POWERGLASS_ROOT_DEV: ${{ inputs.actor_powerglass_root && 'true' || 'false' }}
           AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
           AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
@@ -420,7 +409,6 @@ jobs:
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
           AGENT30_PERFECTION_ROOT_DEV: ${{ inputs.actor_perfection_root && 'true' || 'false' }}
-          AGENT41_ACTOR_POWERGLASS_ROOT_DEV: ${{ inputs.actor_powerglass_root && 'true' || 'false' }}
           AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
           AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
