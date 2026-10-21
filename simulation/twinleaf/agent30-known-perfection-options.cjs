@@ -71,6 +71,7 @@ function knownMewtwoEnergyUnits(view,energyCatalog){
 function publicPerfectionVeto(view){
   const active=view.ownPublic?.active;
   const opponent=view.opponentPublic;
+  if(view.globalTurn===1)return 'first-turn';
   if(active?.printing!=='Mewtwo & Mew-GX UNM')return 'not-mewtwo-active';
   if(!(active.abilities??[]).includes('Perfection'))return 'no-printed-perfection';
   if(view.ownPublic?.publicTurnRestrictions?.attackLockTurnsRemaining>0||
