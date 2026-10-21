@@ -11,9 +11,9 @@ const evidenceDigest=value=>createHash('sha256')
   .update(JSON.stringify(value??null)).digest('hex');
 
 /**
- * The first observed native tactic divergence is useful even when strict
- * tape playback aborts. All fields were captured at actual tactic boundaries;
- * no extra scorer evaluation or hidden-card inspection is performed.
+ * The first observed tactic or scored-candidate divergence is useful even
+ * when strict tape playback aborts. Native observations add no extra scorer
+ * evaluation or hidden-card inspection; absent score traces remain unknown.
  * @param {object|null} source Read-only live bot sequence.
  * @param {object|null} replay Detached same-root sequence.
  * @returns {object|null} A bounded, printing-free diagnostic.
@@ -29,6 +29,19 @@ function nativeTacticSequenceComparison(source,replay) {
       mismatch={stepIndex:i,source:a,replay:b};break;
     }
   }
+  const evaluationsObserved=Array.isArray(source.evaluations)&&
+    Array.isArray(replay.evaluations);
+  const original=evaluationsObserved?source.evaluations:[];
+  const reconstructed=evaluationsObserved?replay.evaluations:[];
+  let scoreMismatch=null;
+  if(evaluationsObserved){
+    for(let i=0;i<Math.max(original.length,reconstructed.length);i++){
+      const a=original[i]??null,b=reconstructed[i]??null;
+      if(!isDeepStrictEqual(a,b)){
+        scoreMismatch={evaluationIndex:i,source:a,replay:b};break;
+      }
+    }
+  }
   return {
     sourceCalls:first.length,replayCalls:second.length,
     sourceRngCalls:source.rngCalls??null,
@@ -36,6 +49,11 @@ function nativeTacticSequenceComparison(source,replay) {
     sameSteps:mismatch===null,
     firstDivergence:mismatch,
     comparedFields:fields,
+    scoreTraceObserved:evaluationsObserved,
+    sourceEvaluations:evaluationsObserved?original.length:null,
+    replayEvaluations:evaluationsObserved?reconstructed.length:null,
+    sameEvaluations:evaluationsObserved?scoreMismatch===null:null,
+    firstEvaluationDivergence:scoreMismatch,
     scope:'Retrospective native-policy replay trace; no information-set or game qualification'
   };
 }
