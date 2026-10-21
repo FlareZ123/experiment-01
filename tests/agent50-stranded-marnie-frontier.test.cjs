@@ -54,7 +54,7 @@ test('requires actual stranded board and acting-owner unspent Supporter',()=>{
   const scenarios=[
     v=>{v.ownPublic.active.energies=['Psychic Energy SWSH'];},
     v=>{v.ownPublic.bench[0].energies=[];},
-    v=>{v.ownTurnResources.supporterPlayedTurn=7;},
+    v=>{v.ownTurnResources.supporterPlayedTurn=1;},
     v=>{v.ownTurnResources.supporterPlayLocked=true;},
     v=>{v.ownPublic.publicTurnRestrictions.supporterPlayLocked=true;},
     v=>{v.ownHand[0]='Guzma BUS';},
