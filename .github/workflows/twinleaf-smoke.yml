@@ -27,6 +27,8 @@ jobs:
       - name: Compile upstream server without modifying vendor
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Run Agent28 source T3 native replay
+        run: node simulation/evaluation/agent28-source-t3-backorder-native.cjs
       - name: Enforce native Energy recipient legality under printed type filters
         run: node --test tests/agent11-pinned-attach-energy-geometry.test.cjs tests/agent11-attach-energy-geometry.test.cjs
       - name: Regress optional actor-only typed Energy frontier and unchanged root
@@ -77,5 +79,3 @@ jobs:
         run: node simulation/twinleaf/copy-attack-name-collision-source.cjs
       - name: Verify corrected copied-donor selection in Store
         run: node simulation/twinleaf/copy-attack-name-collision-corrected.cjs
-      - name: Run Agent28 source T3 native replay
-        run: node simulation/evaluation/agent28-source-t3-backorder-native.cjs
