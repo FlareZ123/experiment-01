@@ -141,3 +141,29 @@ test('swallowed RNG overread is localized to the exact score candidate',()=>{
   assert.strictEqual(tactic.evaluateAction,original);
   assert.strictEqual(Math.random,prior);
 });
+
+test('read-only speculative RNG site trace preserves genuine tape and restores Math.random',()=>{
+  class CardAction{constructor(){this.handIndex=0;}}
+  class CandidateTactic{
+    evaluateAction(){
+      Math.random();
+      Math.random();
+      return 8;
+    }
+    useTactic(){return this.evaluateAction({},101,new CardAction());}
+  }
+  const tactic=new CandidateTactic(),original=tactic.evaluateAction,
+    previous=Math.random,sink={steps:[],rngCalls:0,traceEngineRandomSites:true};
+  try{
+    Math.random=()=>0.2;
+    const recorded=observe({tactics:[tactic]},()=>recordPolicyRandomTape(
+      ()=>tactic.useTactic()),sink);
+    assert.deepEqual(recorded.tape,[0.2,0.2]);
+    assert.equal(sink.rngCalls,2);
+    assert.equal(sink.evaluations.length,1);
+    assert.deepEqual(sink.evaluations[0].rngSites,['unlocated','unlocated']);
+    assert.equal(sink.evaluations[0].finiteScore,true);
+    assert.strictEqual(tactic.evaluateAction,original);
+    assert.equal(Math.random(),0.2);
+  }finally{Math.random=previous;}
+});
