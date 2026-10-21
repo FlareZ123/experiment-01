@@ -19,6 +19,17 @@ const assert=require('node:assert/strict');
  * @param {{steps:object[],rngCalls:number}} observation Mutable output sink.
  * @returns {T} Original decision or recording result, unchanged.
  */
+/**
+ * Return a stable pinned-engine callsite without card identities or hidden
+ * state. Stack inspection is diagnostic only and cannot itself consume RNG.
+ * @returns {string}
+ */
+function nativeEngineRandomCallsite(){
+  const stack=new Error().stack??'';
+  const match=stack.match(/ptcg-server[\\/]output[\\/]([^\\n]+?):(\\d+):\\d+/);
+  return match?match[1].replaceAll('\\\\','/')+':'+match[2]:'unlocated';
+}
+
 function observeNativePolicyTacticSequence(bot,work,observation){
   assert.ok(bot&&Array.isArray(bot.tactics));
   assert.equal(typeof work,'function');
@@ -41,6 +52,14 @@ function observeNativePolicyTacticSequence(bot,work,observation){
           writable:true,
           value:function (...args){
             const start=count,action=args[2];
+            const traceSites=observation.traceEngineRandomSites===true;
+            const previous=traceSites?Math.random:null,sites=[];
+            if(traceSites){
+              Math.random=function tracedCandidateRng(){
+                sites.push(nativeEngineRandomCallsite());
+                return previous();
+              };
+            }
             let score,threw=false;
             try{
               score=evaluate.apply(this,args);
@@ -49,6 +68,7 @@ function observeNativePolicyTacticSequence(bot,work,observation){
               threw=true;
               throw error;
             }finally{
+              if(traceSites)Math.random=previous;
               observation.evaluations.push({
                 tactic:this.constructor?.name??'unknown',
                 actionType:action?.constructor?.name??null,
@@ -57,7 +77,8 @@ function observeNativePolicyTacticSequence(bot,work,observation){
                 rngStart:start,rngEnd:count,rngDraws:count-start,
                 finiteScore:Number.isFinite(score),
                 score:Number.isFinite(score)?score:null,
-                undefinedScore:score===undefined,threw
+                undefinedScore:score===undefined,threw,
+                ...(traceSites?{rngSites:sites}:{})
               });
             }
           }
