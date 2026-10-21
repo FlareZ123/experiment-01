@@ -8,8 +8,10 @@ const assert=require('node:assert/strict');
  * around a native RNG tape recorder or invoke it inside its strict replay.
  * The same external observation sink remains available when a replay throws.
  *
- * The observer reports only tactic class names, action *types*, RNG offsets
- * and thrown/error flags. No card identity, hand, deck or Prize is logged.
+ * The observer reports tactic class names, action types, owner-hand
+ * indices, finite candidate scores, RNG offsets and errors. Evaluations are
+ * observed in order without adding any calls. No card identity, hand contents,
+ * deck or Prize is logged.
  *
  * @template T
  * @param {object} bot Actual or reconstructed SimpleTacticsAi.
@@ -24,12 +26,48 @@ function observeNativePolicyTacticSequence(bot,work,observation){
   const previousRandom=Math.random;
   let count=0;
   const restorations=[];
+  observation.evaluations??=[];
   Math.random=function countedPolicyRandom(){
     count++;
     return previousRandom();
   };
   try {
     for(const tactic of new Set(bot.tactics)){
+      if(typeof tactic.evaluateAction==='function'){
+        const ownEvaluation=Object.getOwnPropertyDescriptor(tactic,'evaluateAction');
+        const evaluate=tactic.evaluateAction;
+        Object.defineProperty(tactic,'evaluateAction',{
+          configurable:true,enumerable:ownEvaluation?.enumerable??false,
+          writable:true,
+          value:function (...args){
+            const start=count,action=args[2];
+            let score,threw=false;
+            try{
+              score=evaluate.apply(this,args);
+              return score;
+            }catch(error){
+              threw=true;
+              throw error;
+            }finally{
+              observation.evaluations.push({
+                tactic:this.constructor?.name??'unknown',
+                actionType:action?.constructor?.name??null,
+                handIndex:Number.isSafeInteger(action?.handIndex)?
+                  action.handIndex:null,
+                rngStart:start,rngEnd:count,rngDraws:count-start,
+                finiteScore:Number.isFinite(score),
+                score:Number.isFinite(score)?score:null,
+                undefinedScore:score===undefined,threw
+              });
+            }
+          }
+        });
+        restorations.push(()=>{
+          if(ownEvaluation)Object.defineProperty(tactic,'evaluateAction',
+            ownEvaluation);
+          else delete tactic.evaluateAction;
+        });
+      }
       if(typeof tactic.useTactic!=='function')continue;
       const own=Object.getOwnPropertyDescriptor(tactic,'useTactic');
       const use=tactic.useTactic;
