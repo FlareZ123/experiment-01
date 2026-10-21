@@ -16,7 +16,9 @@ function ownerRecoverySnapshot(view){
   const names=[
     'Float Stone BKT','Guzma BUS','Escape Rope BST',
     'VS Seeker PHF','Secret Box TWM','Shopping Center EVS',
-    'Darkness Energy MEE','Dark Patch ASR','Professor\'s Letter BKT'
+    'Darkness Energy MEE','Dark Patch ASR','Professor\'s Letter BKT',
+    'Quick Ball FST','Battle VIP Pass FST','Tapu Lele-GX GRI',
+    'Carmine TWM','Marnie SSH','Crobat V DAA'
   ];
   const held=Object.fromEntries(names.map(name=>[
     name,view.ownHand.filter(card=>card===name).length
@@ -31,6 +33,7 @@ function ownerRecoverySnapshot(view){
   return {
     turn:view.globalTurn,actorSeat:view.actorSeat,
     handSize:view.ownHand.length,
+    ownHandPrintingsAtDecision:view.ownHand.slice(),
     heldRecoveryPrintings:held,
     active:visible(active),
     benched:own.bench.map(visible),
