@@ -1,6 +1,7 @@
 """End-to-end synthetic raw-game controls for the balanced 32-by-two evidence gate."""
 import hashlib
 import unittest
+from copy import deepcopy
 
 from scripts.action_trace_integrity import action_trace_sha256
 from scripts.aichi_raw_global_gate import (
@@ -430,7 +431,6 @@ def native_single_epoch_batch():
     for g in b["games"]:
         g["native_clock_evidence"] = {
             "game_id": g["game_id"],
-            "action_trace_sha256": g["trace_sha256"],
             "rootActionLedgerProtocol": "actual-store-root-action-ledger-v1",
             "suddenDeathClockResetProtocol": "actual-native-sudden-death-clock-transition-v1",
             "suddenDeathClockResets": [],
@@ -442,7 +442,22 @@ def native_single_epoch_batch():
                  "playerSlot": 1, "action": "PassTurnAction"},
             ],
         }
+        anchor_native_clock(g)
     return b
+
+
+def anchor_native_clock(game_record):
+    """Embed the clock capsule in the cryptographically checked action trace."""
+    anchors = [event for event in game_record["action_trace"]
+               if event.get("protocol") == "native-clock-capsule-v1"]
+    if anchors:
+        anchors[0]["native_clock_evidence"] = deepcopy(game_record["native_clock_evidence"])
+    else:
+        game_record["action_trace"].append({
+            "protocol": "native-clock-capsule-v1",
+            "native_clock_evidence": deepcopy(game_record["native_clock_evidence"]),
+        })
+    game_record["trace_sha256"] = action_trace_sha256(game_record["action_trace"])
 
 
 def single_epoch_assessment(b):
@@ -469,14 +484,29 @@ class SingleNativeEpochGateTests(unittest.TestCase):
 
     def test_unbound_native_clock_proof_is_rejected(self):
         b = native_single_epoch_batch()
-        b["games"][0]["native_clock_evidence"]["action_trace_sha256"] = "0" * 64
+        g = b["games"][0]
+        g["native_clock_evidence"]["game_id"] = "wrong-trial"
+        anchor_native_clock(g)
         with self.assertRaisesRegex(ValueError, "not bound"):
+            single_epoch_assessment(b)
+
+    def test_clock_capsule_substitution_is_rejected_before_temporal_checks(self):
+        b = native_single_epoch_batch()
+        b["games"][0]["native_clock_evidence"]["rootActionLedger"][1]["turnAfter"] = 0
+        with self.assertRaisesRegex(ValueError, "not anchored"):
+            single_epoch_assessment(b)
+
+    def test_tampered_hashed_clock_capsule_is_rejected(self):
+        b = native_single_epoch_batch()
+        b["games"][0]["action_trace"][-1]["native_clock_evidence"]["actions"] = 3
+        with self.assertRaisesRegex(ValueError, "does not match"):
             single_epoch_assessment(b)
 
     def test_unreported_turn_reversal_is_rejected(self):
         b = native_single_epoch_batch()
         roots = b["games"][0]["native_clock_evidence"]["rootActionLedger"]
         roots[1]["turnAfter"] = 0
+        anchor_native_clock(b["games"][0])
         with self.assertRaisesRegex(ValueError, "turn reversal"):
             single_epoch_assessment(b)
 
@@ -486,6 +516,7 @@ class SingleNativeEpochGateTests(unittest.TestCase):
             {"actionOrdinal": 1, "fromTurn": 3, "toTurn": 0,
              "afterSuddenDeath": True, "enteredSetup": True}
         ]
+        anchor_native_clock(b["games"][0])
         with self.assertRaisesRegex(ValueError, "Sudden-death clock reset"):
             single_epoch_assessment(b)
 
@@ -494,16 +525,19 @@ class SingleNativeEpochGateTests(unittest.TestCase):
         roots = b["games"][0]["native_clock_evidence"]["rootActionLedger"]
         roots[1]["turnBefore"] = 5
         roots[1]["turnAfter"] = 6
+        anchor_native_clock(b["games"][0])
         with self.assertRaisesRegex(ValueError, "discontinuous"):
             single_epoch_assessment(b)
 
     def test_root_action_count_and_ordinal_are_rejected_when_inconsistent(self):
         b = native_single_epoch_batch()
         b["games"][0]["native_clock_evidence"]["actions"] = 1
+        anchor_native_clock(b["games"][0])
         with self.assertRaisesRegex(ValueError, "invalid action count"):
             single_epoch_assessment(b)
         b["games"][0]["native_clock_evidence"]["actions"] = 2
         b["games"][0]["native_clock_evidence"]["rootActionLedger"][1]["actionOrdinal"] = 3
+        anchor_native_clock(b["games"][0])
         with self.assertRaisesRegex(ValueError, "ordinal"):
             single_epoch_assessment(b)
 
