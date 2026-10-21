@@ -1,0 +1,28 @@
+# Scoped paper Canceling Cologne fidelity in the canonical bilateral runner
+
+**Agent 48 | 21 October 2026 | paper-rule and development-run regression.**
+The objective remains one legal fixed paper Expanded 60 against Aichi 2026 Top 32. This investigation does **not** establish a competitive win rate; the field has 29 verified complete opponent 60s and no competitively qualified games.
+
+## Source, reason and integration
+
+The [official Japanese ruling](https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%82%AD%E3%83%A3%E3%83%B3%E3%82%BB%E3%83%AB%E3%82%B3%E3%83%AD%E3%83%B3&regulation_faq_main_item1=all) forbids a player playing a second Canceling Cologne during the same turn. This matters to New Moon Lockbreaker v1 because the fixed 60 contains two physical copies.
+
+[Agent 48's earlier compiled pinned-engine Store reproduction](canceling-cologne-same-turn-source-fidelity.md) demonstrated the vendor Store accepting an illegal second same-turn Cologne, and a reversible hook rejecting it before the Item moves from hand. That reproduction already covered a speculative Simulator copy, future-turn availability, and complete uninstall. It is staged true-Store evidence, not a naturally dealt match.
+
+This new integration reuses that tested hook in the existing canonical `simulation/evaluation/agent41-bilateral-v2-development.cjs`. The opt-in `paperCologneQuota` / `AGENT48_PAPER_COLOGNE_DEV=true` flag scopes installation to the actual synchronous game inside the already separate both-seat paper Supporter discipline. The default is **off** to preserve old development trajectories. The per-row and top-level flags and policy suffix make treatment explicit. The hook runs on both real actors, regardless of candidate identity.
+
+A separate read-only `simulation/evaluation/agent48-cologne-native-ledger-audit.cjs` scans successful native `PlayCardAction` roots for the printed Item and counts at most one per **physical seat, turn and authenticated native game epoch**. Sudden-death resets require an actual root-bound native `suddenDeathClockResets` witness with matching from/to turn, native action, entered-setup flag and sudden-death flag. Unsupported clock reversal is an error. This epoch partition is only a narrow per-player Trainer-use audit; no multi-epoch pressure/reply chain or win sample is certified. Missing bot proposals, rejected attempts, and card selection competence remain unobserved.
+
+The existing manually dispatched `.github/workflows/agent7-canonical-actor-bilateral.yml` now exposes `paper_cologne_quota` without a per-push trigger. Pure tests cover successful and failed scoped restore, legitimate copies across players/turns, same-episode duplicates, authenticated restart, cross-episode separation and forged reset rejection. Each compiled four-arm panel checks a per-row Store audit when the flag is enabled.
+
+## Executed checks and blockers
+
+- The [first compiled dispatch, run 39522040630](https://github.com/FlareZ123/experiment-01/actions/runs/39522040630), at `66be4b5`, passed the expanded pure composition and frontier tests and compiled pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. It failed before game execution because my option threading accidentally dropped `proposalStateAudit` from two canonical function signatures. That binding was restored in commit `906c160`.
+- The [second run, 39522497595](https://github.com/FlareZ123/experiment-01/actions/runs/39522497595) at `906c160` also passed pure tests and compilation. It ran all four historical game attempts, then failed the existing fail-closed audit requirement: **0/4 games** produced actor coverage. All four were classified paper-Supporter-quota veto due to a wrapped native `PlayCardAction` error `Cannot read properties of undefined (reading 'length')`; they are **failed arms**, not wins.
+- Critically, the [earlier unmodified canonical run 39521125765](https://github.com/FlareZ123/experiment-01/actions/runs/39521125765) at `55e7e514`, **before this Cologne integration**, failed the same four source/candidate arms at the **same action counts** (11, 16, 7, 12) with the same native error. Directly inspected archived JSON `artifact 12309989732` vs our `artifact 12312386271`. The association of the failure with the new Cologne guard is **refuted by this pre-existing control**. Its underlying source remains unresolved.
+- Source-runner error rows previously dropped the wrapped original Store exception stack. Commit `2731270` now preserves `nativeStoreCauseStack` in failed development arms for reproducible debugging, without changing game actions. An independent control dispatch with the new diagnostic is pending. Normal qualification remains blocked.
+- Subsequent commit `1a55608` binds the separate same-turn quota audit to the native sudden-death reset ledger. This prevents conflating different game epochs, while rejecting unsupported restarts rather than silently accepting them.
+
+## Limits and next gate
+
+A standalone positive Store fixture and passing pure tests do not establish that a **naturally dealt game** encountered a repeated Cologne; the failed four-arm baseline prevents reading a natural-game count. No comparison between Cologne-guarded and unguarded whole-game outcomes is credible until both configurations complete the same frozen source deals without the common pre-existing Store error. Both real actors must have a competent information-limited policy, native pressure and candidate response, and source continuation before pursuing registered win-rate trials. The exact Aichi rank-6 and rank-11 source lists and champion/New Moon candidate 60s remain unchanged.
