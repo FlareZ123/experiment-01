@@ -297,11 +297,16 @@ jobs:
       - name: Validate experimental full 60 against pinned engine
         if: inputs.mega_darkrai_60_probe
         run: node simulation/twinleaf/mega-darkrai-printing-admission.cjs > mega-darkrai-deck-60-admission.json
+      - name: Execute staged genuine Dark Bell to Abyss Eye attack controls
+        if: inputs.mega_darkrai_60_probe
+        run: node simulation/twinleaf/mega-darkrai-bell-abyss-native.cjs > mega-darkrai-bell-abyss-native.json
       - name: Archive exploratory printability and exact early-resource gate
         if: always() && inputs.mega_darkrai_60_probe
         uses: actions/upload-artifact@v4
         with:
           name: mega-darkrai-deck-60-admission
-          path: mega-darkrai-deck-60-admission.json
+          path: |
+            mega-darkrai-deck-60-admission.json
+            mega-darkrai-bell-abyss-native.json
           if-no-files-found: warn
           retention-days: 14
