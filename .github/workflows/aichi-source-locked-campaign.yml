@@ -172,6 +172,22 @@ jobs:
       - name: Compile pinned simulator
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Test Agent42 same-target native replay contract
+        if: ${{ inputs.trial_ids == 'agent42-sametarget-pair' }}
+        run: node --test tests/same-target-attach-energy-hook.test.cjs tests/agent42-native-sametarget-repair-pair.test.cjs
+      - name: Replay baseline and corrected original Store under frozen seed
+        if: ${{ inputs.trial_ids == 'agent42-sametarget-pair' }}
+        run: node simulation/evaluation/agent42-native-sametarget-repair-pair.cjs > agent42-sametarget-native-pair.json
+      - name: Check native correction was selected and preserve error classification
+        if: ${{ inputs.trial_ids == 'agent42-sametarget-pair' }}
+        run: node -e "const p=require('./agent42-sametarget-native-pair.json'),x=p.records[0];console.log(JSON.stringify({seed:x.seed,attempted:p.attemptedStoreArms,prompt:x.repairAudit,base:[x.baseline.noStaging.status,x.baseline.staging.status],corrected:[x.repair.noStaging.status,x.repair.staging.status],sourceDealEquality:x.crossPolicySourceDealEquality},null,2));if(p.attemptedStoreArms!==4||x.repairAudit.repairedPromptCount<1)process.exitCode=1"
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.trial_ids == 'agent42-sametarget-pair' }}
+        with:
+          name: agent42-rank11-sametarget-native-pair
+          path: agent42-sametarget-native-pair.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify both-seat actor-only root and authenticated Fog decision seams
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-actor-sourcefirst-v1' }}
         run: |
