@@ -74,6 +74,10 @@ jobs:
         run: |
           node --test tests/agent6-newmoon-fog-compressor-first8.test.cjs
           node scripts/agent6-newmoon-fog-compressor-first8.cjs
+      - name: Check New Moon early Field Blower and later Escape Rope direct joint timing
+        run: |
+          node --test tests/aichi-newmoon-two-item-timing.test.cjs
+          node scripts/aichi-newmoon-two-item-timing.cjs
       - name: Exact New Moon copied GX anti-Thorns source-and-attack resource conjunction
         run: |
           node --test tests/newmoon-thorns-gx-lockline-window.test.cjs tests/newmoon-direct-horror-house-physical-window.test.cjs
