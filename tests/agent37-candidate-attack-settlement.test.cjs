@@ -138,3 +138,73 @@ test('all candidate declarations survive after unrelated earlier public attacks'
   assert.deepEqual(out.attacks[1].prizesAfter,[0,3]);
   assert.equal(JSON.stringify(out).includes('Secret Box'),false);
 });
+
+test('native clock reset cannot splice later replay source roots onto earlier attack',()=>{
+  const game=fixture();
+  game.rootActionLedger[0].turnAfter=21;
+  game.rootActionLedger[1].turnAfter=22;
+  // A real Store reset has decreasing turnAfter. A separate replay may later
+  // revisit turn 22; matching its turn number alone is insufficient.
+  game.rootActionLedger[2].turnAfter=0;
+  game.rootActionLedger[3].turnAfter=22;
+  const out=candidateAttackSettlement(game,1);
+  assert.equal(out.settled,1);
+  assert.equal(out.withImmediateSourceReturn,0);
+  assert.equal(out.withVerifiedSameEpochSourceReturn,0);
+  assert.equal(out.attacks[0].nextSourceRoot,null);
+  assert.equal(out.attacks[0].firstClockResetAfterAttackOrdinal,2);
+  assert.deepEqual(out.attacks[0].nextSourceTurnActions,[]);
+});
+
+test('complete contiguous Store chronology certifies same-episode source return',()=>{
+  const game=fixture();
+  game.rootActionLedger[0].turnAfter=21;
+  game.rootActionLedger[1].turnAfter=22;
+  game.rootActionLedger[2].turnAfter=22;
+  game.rootActionLedger[3].turnAfter=22;
+  const out=candidateAttackSettlement(game,1);
+  assert.equal(out.withImmediateSourceReturn,1);
+  assert.equal(out.withVerifiedSameEpochSourceReturn,1);
+  assert.equal(out.attacks[0].nextSourceRoot.ordinal,3);
+  assert.equal(out.attacks[0].nextSourceSameEpochProven,true);
+  assert.equal(out.attacks[0].firstClockResetAfterAttackOrdinal,null);
+});
+
+test('source turn actions stop at the later restart even after genuine reply',()=>{
+  const game=fixture();
+  game.rootActionLedger[0].turnAfter=21;
+  game.rootActionLedger[1].turnAfter=22;
+  game.rootActionLedger[2].turnAfter=22;
+  game.rootActionLedger[3].turnAfter=22;
+  game.rootActionLedger.push(
+    {actionOrdinal:4,playerSlot:0,turnBefore:22,turnAfter:0,
+      action:'ResolvePromptAction',initiatingRootActionOrdinal:4},
+    {actionOrdinal:5,playerSlot:0,turnBefore:22,turnAfter:22,
+      action:'PlayCardAction',card:'Replay-only-stadium'}
+  );
+  const out=candidateAttackSettlement(game,1);
+  assert.equal(out.withVerifiedSameEpochSourceReturn,1);
+  assert.equal(out.attacks[0].firstClockResetAfterAttackOrdinal,4);
+  assert.deepEqual(out.attacks[0].nextSourceTurnActions,[
+    {ordinal:3,action:'PlayCardAction',card:'Dark Patch'}
+  ]);
+  assert.equal(JSON.stringify(out).includes('Replay-only-stadium'),false);
+});
+
+test('missing or discontinuous turnAfter does not certify same-epoch return',()=>{
+  const baseline=candidateAttackSettlement(fixture(),1);
+  assert.equal(baseline.withImmediateSourceReturn,1,
+    'Historical observation retained for backward-compatible reports');
+  assert.equal(baseline.withVerifiedSameEpochSourceReturn,0,
+    'Absent turnAfter fields do not prove uninterrupted Store epoch');
+  const game=fixture();
+  game.rootActionLedger[0].turnAfter=21;
+  game.rootActionLedger[1].turnAfter=22;
+  game.rootActionLedger[2].turnAfter=22;
+  game.rootActionLedger[3].turnAfter=23; 
+  game.rootActionLedger[2].turnBefore=23;
+  const out=candidateAttackSettlement(game,1);
+  assert.equal(out.withImmediateSourceReturn,1);
+  assert.equal(out.withVerifiedSameEpochSourceReturn,0,
+    'A native chronological discontinuity must remain uncertified');
+});
