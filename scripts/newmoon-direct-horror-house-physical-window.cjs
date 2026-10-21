@@ -120,6 +120,25 @@ function main(){
       ...source,gengar:copies,basics:source.basics+copies-1
     });
   }
+  // These are resource-count-only counterfactuals, with unspecified
+  // non-Basic cuts; none represents a newly approved complete decklist.
+  const alternatives={
+    extraOneCologne:countDirectHorrorHouse({
+      ...source,cologne:source.cologne+1
+    }),
+    extraTwoCologne:countDirectHorrorHouse({
+      ...source,cologne:source.cologne+2
+    }),
+    extraTwoCompressor:countDirectHorrorHouse({
+      ...source,compressor:source.compressor+2
+    }),
+    extraTwoPsychicEnergy:countDirectHorrorHouse({
+      ...source,psychicEnergy:source.psychicEnergy+2
+    }),
+    extraOneCologneAndCompressor:countDirectHorrorHouse({
+      ...source,cologne:source.cologne+1,compressor:source.compressor+1
+    })
+  };
   const donorNaive=require('./new-moon-thorns-starter-joint.cjs')
     .main().eitherDirectGXChannel.firstDraw;
   return {
@@ -131,6 +150,7 @@ function main(){
     sampling:'Legal initial seven, six random Prizes, first mandatory draw; no mulligan bonuses',
     hypotheticalSwap:'One to three unspecified non-Basic slots replaced by additional Gengar & Mimikyu-GX, total 60',
     cases,
+    alternatives,
     previousDonorAgnosticVisibilityUnion:donorNaive,
     scope:'Conjunctive resources and intended starting Active only. Search, draw, Item/Ability interaction, Energy attachment, GX rule use and tactics are not simulated.',
     qualifiedCompetitiveGames:0
