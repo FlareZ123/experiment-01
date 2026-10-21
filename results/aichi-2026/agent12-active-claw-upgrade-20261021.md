@@ -64,3 +64,33 @@ The paired frozen archives prove actual source Claw declarations and final full 
 
 Predefined success: on the rank11 treatment arms, reconcile each exact source Claw `AttackAction` ordinal with `publicAttackTransitions`, actual post-prompt board, explicit `prizesBefore`/`prizesAfter`, and any relevant subsequent candidate turn; require same source-deal/full-physical deal fingerprints, all actor accepted-root counts, action-ledger digest, final Prizes, end reasons and caps as the original treatment archived at `12322562899`. A same-root ledger alone does not prove state equality; compare public board and native root accepted evidence too. Report source-attack settlement failures, reset crossings and rejected rows. This additional observer **cannot retroactively upgrade competitive qualification**. Its purpose is exact causal-mechanism fidelity and a reusable source-vs-candidate settlement proof.
 
+
+### Independent source-seat attack settlement audit, executed
+
+The preregistered read-only audit branch `agent12-claw-source-settlement-audit-20261021` at `48c52ac36303938f510e205a9d0c5d6b5ec5b0e8` added only **post-game** `candidateAttackSettlement(game,sourceSeat)` to the canonical report, under the field `sourceAttackSettlement`. Original Store dispatch, opponent/candidate decision hooks, fixed 60s and source deals were unchanged. Executed via the same existing manual workflow [39548900642](https://github.com/FlareZ123/experiment-01/actions/runs/39548900642); saved archive `12322003486`, ZIP SHA256 `1ab645e0e5654b156291a36ce8f421f19ae26c74235c0418be7c36239aa837ea`.
+
+**Noninterference:** All four arms' `rootActionLedgerSha256`, reported terminal, final Prizes, source-deal/full-physical fingerprints, actor accepted root counts and public final boards **exactly matched** prior treatment [39548055639](https://github.com/FlareZ123/experiment-01/actions/runs/39548055639). Only an additional postgame settlement object appears on three audited arms; the pre-existing rank6 champion epoch-error message remains a failure. The audit again has 4 attempted, 3 audited, 1 error, 0 competitive-qualified. On both rank11 games, **every source attack** is verified settled in the same deal episode: 16/16 and 13/13 respectively, **zero cross-epoch settlement joins**. No source attack was retrospectively inferred from an Action skeleton alone.
+
+**Champion reference, opponent source Mega Absol Claw settlement (source seat 0):**
+
+| Global turn / real AttackAction root | Source Prizes before → after | Candidate Active before → after | Source return evidence |
+| --- | --- | --- | --- |
+| **38 / 197** | 6 → **5** | Girafarig → Shadow Rider Calyrex VMAX | Same-epoch candidate turn39 root204 (Tapu Lele-GX play) |
+| **40 / 209** | 5 → **2** | Shadow Rider Calyrex VMAX → Tapu Lele-GX | Same-epoch candidate turn41 root216 (Trevenant & Dusknoir-GX play) |
+| **42 / 221** | 2 → **0** | Tapu Lele-GX → empty Active, engine game ends | Terminal, no next candidate turn |
+
+All three Claw attacks have `settledPromptChain=true`, valid corresponding printed attack declarations, post-prompt public board/Prize snapshots and a completion root ordinal (203,215,223). The second attack took **three** actual Prizes after KO of Shadow Rider Calyrex VMAX; the third took two. No root crossed an epoch clock reset.
+
+**New Moon Lockbreaker, opponent source Mega Absol Claw settlement (source seat 0):**
+
+| Global turn / real AttackAction root | Source Prizes before → after | Candidate Active before → after | Source return evidence |
+| --- | --- | --- | --- |
+| **34 / 177** | 6 → **5** | Duskull → Mewtwo & Mew-GX | Candidate turn35 root184 (Solrock play) |
+| **36 / 188** | 5 → **5** | Mewtwo & Mew-GX, 0 damage → **200 damage** | Candidate turn37 root193 Pass |
+| **38 / 196** | 5 → **2** | Mewtwo & Mew-GX, 200 damage → Solrock | Candidate turn39 root203 (Clefairy play) |
+| **40 / 208** | 2 → **1** | Solrock → Lillie's Clefairy ex | Candidate turn41 root215 (Psychic Energy play) |
+| **42 / 219** | 1 → **0** | Lillie's Clefairy ex → empty Active, engine game ends | Terminal, no next candidate turn |
+
+All five Claw attacks have `settledPromptChain=true`, completion root ordinals 183,192,202,214,221, and same-epoch nonterminal candidate return where applicable. Notably the turn36 first Claw against Mewtwo & Mew-GX **did not yet take a Prize**; it really placed 200 damage. Turn38 then took **three** Prizes when knocking out the damaged TAG TEAM, which distinguishes attack settlement from mere declaration or engine terminal. Thus the full source Prize path is directly observed rather than extrapolated from [0,6] final Prizes.
+
+**Conclusion strengthened, qualification unchanged:** The exact actor-owned Dark attachment at turn38/34 leads to actual paid Claw declarations, post-prompt 200 damage when an opponent survives, subsequent meaningful Knock Outs, three- and two-Prize rules in native Store, real candidate response turns, and finally source takes all six Prizes on both original physical deals. These are two authenticated positive native game-mechanics trajectories and a causal matched policy correction. They still do **not** constitute competitive match results, independent opponent-playing competence, universal paper fidelity, source-first coverage or an estimate of true win probability.
