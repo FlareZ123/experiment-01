@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {specialEnergyUnits}=
+const {specialEnergyUnits,chooseSpecialEnergyIntent}=
   require('../simulation/twinleaf/agent3-special-energy-frontier.cjs');
 const {chooseActorEnergyRecipient}=
   require('../simulation/twinleaf/agent44-actor-energy-recipient.cjs');
@@ -70,4 +70,55 @@ test('conserves Basic hand and public information boundary',()=>{
   b.ownHiddenDeck=['hidden owner'];
   assert.deepEqual(chooseActorEnergyRecipient(a,catalog),
     chooseActorEnergyRecipient(b,catalog));
+});
+
+test('preserves Telepath for Psychic and directs it to Gengar Bench over Unown',()=>{
+  const visible={
+    decisionKind:'owner-root',globalTurn:6,
+    ownHand:[TELEPATHIC],
+    ownPublic:{
+      active:{name:'Unown',printed:{types:[C]},energies:[],
+        attacks:[{name:'Hidden Power',cost:[C],gxAttack:false}]},
+      bench:[
+        {name:'Duskull',printed:{types:[P]},energies:[],
+          attacks:[{name:'Future Sight',cost:[C],gxAttack:false}]},
+        {name:'Gengar & Mimikyu-GX',printed:{types:[P]},energies:[],
+          attacks:[{name:'Poltergeist',cost:[P,P],gxAttack:false},
+            {name:'Horror House-GX',cost:[P],gxAttack:true}]},
+        null,null,null
+      ],
+      stadium:[]
+    },
+    opponentPublic:{stadium:[]}
+  };
+  assert.deepEqual(chooseSpecialEnergyIntent(visible,catalog),{
+    kind:'attach-special-energy',handIndex:0,printing:TELEPATHIC,
+    slot:'bench',index:1
+  });
+  visible.ownPublic.bench[1]=null;
+  assert.equal(chooseSpecialEnergyIntent(visible,catalog),null,
+    'Only cheap Colorless attacks remain: preserve Telepath');
+  visible.ownPublic.active={
+    name:'Trevenant & Dusknoir-GX',
+    printed:{types:[P]},energies:[],
+    attacks:[{name:'Night Watch',cost:[P,P,P],gxAttack:false}]
+  };
+  assert.deepEqual(chooseSpecialEnergyIntent(visible,catalog),{
+    kind:'attach-special-energy',handIndex:0,printing:TELEPATHIC,
+    slot:'active',index:0
+  });
+});
+
+test('known DCE behavior on Colorless Active remains independent of Telepath',()=>{
+  const v={
+    decisionKind:'owner-root',ownHand:[TELEPATHIC,'Double Colorless Energy SUM'],
+    ownPublic:{active:{name:'Unown',printed:{types:[C]},energies:[],
+      attacks:[{name:'Hidden Power',cost:[C],gxAttack:false}]},
+      bench:[],stadium:[]},
+    opponentPublic:{stadium:[]}
+  };
+  assert.deepEqual(chooseSpecialEnergyIntent(v,catalog),{
+    kind:'attach-special-energy',handIndex:1,
+    printing:'Double Colorless Energy SUM'
+  });
 });
