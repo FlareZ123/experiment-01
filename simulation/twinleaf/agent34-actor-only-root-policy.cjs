@@ -152,6 +152,7 @@ function chooseActorRootIntent(view,catalog,options={}){
     active?.specialConditions?.some(x=>x===catalog.specialConditions.ASLEEP||
       x===catalog.specialConditions.PARALYZED);
   if(active&&!locked&&view.globalTurn!==1){
+    const payable=[];
     const attached=[];
     const temple=options.specialEnergyRoot===true&&
       [...(own.stadium??[]),...(view.opponentPublic?.stadium??[])]
@@ -212,8 +213,14 @@ function chooseActorRootIntent(view,catalog,options={}){
         return false;
       }))continue;
       if(left.length>=payableCost.length-colored.length){
-        return {kind:'attack',attackName:attack.name};
+        payable.push(attack);
       }
+    }
+    if(payable.length>0){
+      const chosen=options.potentialKoRoot===true?
+        require('./agent49-actor-potential-knockout.cjs')
+          .choosePotentialKnockout(view,payable):payable[0];
+      return {kind:'attack',attackName:chosen.name};
     }
   }
   if(options.specialEnergyRoot===true&&own.active&&!r.energyPlayLocked&&
@@ -281,6 +288,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT8_ACTOR_QUICK_BALL_DEV==='true'),
     printedGxRootOptIn:deps.printedGxRoot??
       (process.env.AGENT25_PRINTED_GX_ROOT_DEV==='true'),
+    potentialKoRootOptIn:deps.potentialKoRoot??
+      (process.env.AGENT49_POTENTIAL_KO_ROOT_DEV==='true'),
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
     typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
     publicTransitionWitnesses:0,publicTransitionChanges:0,
@@ -295,6 +304,8 @@ function withActorOnlyRootPolicy(run,deps={}){
   };
   if(audit.quickBallRootOptIn)
     audit.version=VERSION+'+agent8-actor-quick-ball-v1';
+  if(audit.potentialKoRootOptIn)
+    audit.version+='+agent49-public-potential-ko-v1';
   function wrapped(state){
     // A bot may evaluate hypothetical cloned States in its own tactics.
     // Never make an actor-root policy decision against such a speculative
@@ -326,6 +337,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       thornsDirectLine:audit.thornsDirectLineOptIn,
       specialEnergyRoot:audit.specialEnergyRootOptIn,
       printedGxRoot:audit.printedGxRootOptIn,
+      potentialKoRoot:audit.potentialKoRootOptIn,
       naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
       quickBallRoot:audit.quickBallRootOptIn
     });
