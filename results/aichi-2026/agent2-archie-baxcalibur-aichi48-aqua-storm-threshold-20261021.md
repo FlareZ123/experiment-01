@@ -48,6 +48,23 @@ The January report explicitly lists **nine Basic Water Energy** for its prior Um
 ### Why the next probability table is deliberately a control, not the strategy
 
 The hypergeometric table immediately below applies **only before deliberate topdeck construction**, and cannot describe the above engineered endgame. The relevant performance quantities are **probability of getting an uninterrupted legal five-Energy Pidgeot/Archie/Kyogre/Sight line** and probability of two susceptible opposing Benched VSTAR targets, including their responses. Unconditionally multiplying random five-Energy probabilities into this planned line would massively underestimate it. Assuming the existence of this line without verifying actual access, Item/Ability locks, Pidgeot shuffle timing, Bench space and complete Prize race would conversely overestimate it.
+## Joint six-Prize Energy-capacity floor for the authenticated January 60
+
+The January original list contains exactly **9 Basic Water Energy**. With the source printed Kyogre's [Water, Water, Colorless] and **only Basic Water Energy** as its Energy category, a Kyogre powered with **3 Water** plus Pidgeot holding **5 Water** needs **8 distinct physical Water cards available** before Vanishing Wings. This is a physical-card simultaneous allocation requirement; a single card cannot stay attached to both Pokémon. Powering the Kyogre with any other suitable Energy would change it, but that is not part of the archived January 60.
+
+Under a uniform random six-card Prize selection from 60 cards, let X be the number of the 9 Water Energy Prized. The exact opening marginal law is:
+
+```text
+P(X = k) = C(9,k) C(51,6-k) / C(60,6)
+```
+
+| Critical initial Prize capacity | Exact probability |
+| --- | ---: |
+| All five Pidgeot Water plus three Kyogre Water potentially outside Prizes (`X≤1`) | **78.2021202520%** |
+| Four Pidgeot Water plus three Kyogre Water potentially outside Prizes (`X≤2`) | **96.1719691610%** |
+| All nine Water outside Prizes (`X=0`) | **35.9729753159%** |
+
+Computed using exact integer `math.comb` fractions, `C(60,6)=50,063,860`; the first two exact reduced fractions are `279650/357599` and `343910/357599`. **These are opening static allocation bounds, never setup or game-win probabilities.** The deck still must get Water from its hand, draw pile or discard into play, and `Archie's Ace in the Hole`/Baxcalibur plus Pidgeot plus Kyogre must execute. Water Prized early can return to hand through earlier Prizes, so the static bound is not a deterministic failure rate. Starting with exactly 2 Water Prized allows 4+3 physical allocation, making an engineered Aqua Storm **200 per Bench target (230 with Sight)**, which fails to one-shot an undamaged 280-HP Regidrago VSTAR. Five Water discarded are required to realize the May player's intended two-VSTAR Tool threshold. The May revised 60 may have different Energy quantity and therefore must **not** inherit these numerical probabilities.
 ## Quantitative rarity of an unengineered five-Energy top-deck event
 
 If a shuffled remaining deck has **N** cards and exactly **E** of them are Energy, and no selection/stacking or information-conditioned effects are used,
