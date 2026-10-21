@@ -34,6 +34,11 @@ function runMissedEvolutionCensus(){
       trial:row.trial?.id??null,
       status:row.status??null,
       nativeClockError:row.nativeEpochBoundaryEvidence??null,
+      sourceDealFingerprint:row.sourceDealFingerprint??null,
+      actualStarterSeat:row.actualStarterSeat??null,
+      sourceActuallyFirst:row.sourceActuallyFirst??null,
+      finished:row.finished??null,
+      winner:row.winner??null,
       acceptedActorRoots:row.actorOnlyDecisionCoverage?.
         nativeDecisionCounts.actorRootsAccepted??null,
       typedRootIntents:row.actorOnlyDecisionCoverage?.
