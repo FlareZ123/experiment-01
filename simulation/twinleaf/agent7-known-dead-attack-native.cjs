@@ -112,7 +112,7 @@ function arm({damage,flag}){
   assert.equal(intent.kind,'attack');
   const {AttackAction}=load('game/store/actions/game-actions');
   const before={damage:x.defender.active.damage,
-    ownerPrizes:x.attacker.prizes.length};
+    ownerPrizes:x.attacker.prizes.filter(p=>p.cards.length>0).length};
   x.store.dispatch(new AttackAction(x.attacker.id,intent.attackName));
   const {ResolvePromptAction}=
     load('game/store/actions/resolve-prompt-action');
@@ -146,7 +146,7 @@ function arm({damage,flag}){
     .map(p=>p.constructor.name);
   const latest=x.store.state;
   const after={damage:latest.players[1].active.damage,
-    ownerPrizes:latest.players[0].prizes.length,
+    ownerPrizes:latest.players[0].prizes.filter(p=>p.cards.length>0).length,
     pending,phase:latest.phase,resolvedPrompts,
     activeAfter:latest.players[1].active.getPokemonCard()?.fullName??null};
   return {
