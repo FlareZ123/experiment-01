@@ -679,7 +679,11 @@ function runDevelopment({
         const observed=withCanonicalActorOnlyPolicy(execute,{},
           {ownerSingleSearch:actorOnlySingleSearch,
             genericFallbackAttribution:actorGenericFallbackAttribution,
-            actorHandDiscard,actorChoosePokemon});
+            actorHandDiscard,actorChoosePokemon,
+            ...(anyTurnCompressorPayload?{
+              ownerDonorSetup:{seat:trial.candidateSlot==='A'?0:1,
+                setup:{maxGlobalTurn:Number.POSITIVE_INFINITY}}
+            }:{})});
         rows.push({...observed.result,
           actorOnlyPolicyVersion:observed.audit.version,
           actorOnlyDecisionCoverage:observed.audit,
