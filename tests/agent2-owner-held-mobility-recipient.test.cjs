@@ -28,7 +28,7 @@ function view(held){
     ownHand:['Psychic Energy MEE',...held],
     ownTurnResources:{energyPlayedTurn:0,energyPlayLocked:false,
       pokemonPlayLocked:false,itemPlayLocked:false,
-      supporterPlayLocked:false,supporterPlayedTurn:7},
+      supporterPlayLocked:false,supporterPlayedTurn:0},
     ownPublic:{
       active:pokemon('Stranded Active',[P,P,P]),
       bench:[pokemon('Near-term Bench',[P]),null,null,null,null],
@@ -81,7 +81,7 @@ test('held playable Guzma qualifies with public opposing Bench',()=>{
 
 test('Guzma requires unspent Supporter, no lock, opposing Bench and legal turn',()=>{
   const spent=view(['Guzma BUS']);
-  spent.ownTurnResources.supporterPlayedTurn=spent.globalTurn;
+  spent.ownTurnResources.supporterPlayedTurn=1;
   assert.equal(pick(spent).slot,'active');
   const locked=view(['Guzma BUS']);
   locked.ownTurnResources.supporterPlayLocked=true;
