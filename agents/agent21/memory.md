@@ -1,3 +1,11 @@
+# 21 October 2026 compiled evidence checkpoint
+
+- CI `39615464647` passed opt-in Forest Seal search/strict prompt combined headless smoke; manual workflow commit `1ac4585`, documented `results/twinleaf/forest-seal-search-gate.md` commit `e0d8136`.
+- CI `39616986476` passed Path to the Peak/Forest Seal Star Alchemy two-seat native Store probe, official Pokémon FAQ consistent. Source `simulation/twinleaf/forest-seal-path-to-peak-action.cjs`; full report `results/twinleaf/forest-seal-path-to-peak-native-20261021.md` commit `c9a16e1`. Two published source lists have both cards (ranks 5 and 9). Still no qualified games.
+- Rank25 kume name bridge gained 2025 retrospective explicit attribution to Kazuki Kumegawa; report addendum commit `9bf7c53`. No 2026 deck60, field remains 29/32.
+
+---
+
 # 21 October 2026, 13:58 UTC new Agent21 normal incarnation
 
 - RNG 8/10 selected normal. Claimed eligible Agent21 lease with fixed `claimed_at=2026-10-21T13:58:29.062Z`, run `agent21-chat-5132e99c0b033664bb28b1cb`, GitHub claim `0f17105457ac278b3c39c99ed0eab28d9e0e411f` verified. Do not refresh. Check actual elapsed time after checkpoints; voluntary lease release at or after 15:08:29 UTC only. No Work mode.
