@@ -198,3 +198,44 @@ test('public paralysis favors eligible Bench deficit',()=>{
   const pick=chooseActorEnergyRecipient(v,catalog);
   assert.equal(pick.slot,'bench');
 });
+
+test('mobility funding counts ordinary Supporter uses, not global turns',()=>{
+  const make=played=>{
+    const v=view();
+    v.ownPublic.active=pokemon('Stranded Active',[],[
+      {name:'Three Energy',cost:[P,P,P],gxAttack:false}
+    ]);
+    v.ownPublic.bench=[pokemon('Bench Attacker',[],[
+      {name:'One Energy',cost:[P],gxAttack:false}
+    ]),null,null,null,null];
+    v.opponentPublic={bench:[pokemon('Target',[],[])]};
+    v.ownHand=['Psychic Energy MEE','Guzma BUS'];
+    v.ownTurnResources={
+      supporterPlayedTurn:played,supporterPlayLocked:false,
+      itemPlayLocked:false
+    };
+    v.ownPublic.publicTurnRestrictions={
+      supporterPlayLocked:false,itemPlayLocked:false
+    };
+    return v;
+  };
+  assert.equal(chooseActorEnergyRecipient(make(0),catalog,{
+    mobilityAware:true
+  }).slot,'bench','Unused Supporter permits genuine Guzma mobility');
+  assert.equal(chooseActorEnergyRecipient(make(1),catalog,{
+    mobilityAware:true
+  }).slot,'active','Spent Supporter cannot grant Guzma mobility');
+  assert.equal(chooseActorEnergyRecipient(make(2),catalog,{
+    mobilityAware:true
+  }).slot,'active','Invalid double-use cannot grant mobility');
+  const first=make(0);
+  first.globalTurn=1;
+  assert.equal(chooseActorEnergyRecipient(first,catalog,{
+    mobilityAware:true
+  }).slot,'active','First-turn Supporter prohibition still applies');
+  const locked=make(0);
+  locked.ownTurnResources.supporterPlayLocked=true;
+  assert.equal(chooseActorEnergyRecipient(locked,catalog,{
+    mobilityAware:true
+  }).slot,'active','Public Supporter lock blocks mobility');
+});
