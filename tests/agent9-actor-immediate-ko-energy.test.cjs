@@ -95,3 +95,11 @@ test('explicit attack restriction prevents tempting nominal KO', () => {
   view.ownPublic.active.publicRestrictions.blockedAttackNameNextTurn = 'Claw of Darkness';
   assert.equal(chooseImmediateKoEnergyIntent(view, catalog), null);
 });
+
+test('normal Energy attachment already spent is not proposed a second time', () => {
+  const view = publicTurn42();
+  view.opponentPublic.active.hp = 90;
+  view.opponentPublic.active.damage = 0;
+  view.ownTurnResources = {energyPlayedTurn: 42};
+  assert.equal(chooseImmediateKoEnergyIntent(view, catalog), null);
+});
