@@ -154,6 +154,11 @@ function rootPhysicalSnapshot(state,seat,intent){
     ...(intent.kind==='play-quick-ball'?{
       quickBallSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
+    }:{}),
+    ...(intent.kind==='play-stranded-marnie'?{
+      supporterTurn:owner.supporterTurn,
+      marnieSpent:[...owner.discard.cards,...owner.supporter.cards]
+        .filter(card=>card.fullName===intent.printing).length
     }:{})
   };
 }
@@ -200,6 +205,13 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
     const count=cards=>cards.filter(c=>c===intent.printing).length;
     return after.activeEnergies.length===before.activeEnergies.length+1&&
       count(after.activeEnergies)===count(before.activeEnergies)+1?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='play-stranded-marnie'){
+    // The genuine Store first moves the Supporter into its publicly
+    // resolving zone; subsequent hand redraws may require more prompts.
+    return after.marnieSpent>before.marnieSpent&&
+      after.supporterTurn>before.supporterTurn?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(intent.kind==='play-quick-ball'){
