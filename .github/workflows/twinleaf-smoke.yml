@@ -31,6 +31,8 @@ jobs:
         run: node --test tests/agent11-pinned-attach-energy-geometry.test.cjs tests/agent11-attach-energy-geometry.test.cjs
       - name: Regress optional actor-only typed Energy frontier and unchanged root
         run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs
+      - name: Regress full-Bench FST Trubbish paper attack correction
+        run: node --test tests/agent10-trubbish-fst-full-bench-paper-hook.test.cjs tests/agent10-pinned-trubbish-fst-full-bench-paper-hook.test.cjs
       - name: Verify real Store two-Psychic attachment counterfactual
         run: node --test tests/agent10-pinned-basic-energy-frontier-store.test.cjs
       - name: Verify pinned Telepath Psychic owner-deck search versus Basic attachment
