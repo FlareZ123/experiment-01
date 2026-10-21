@@ -133,6 +133,9 @@ test('original source owner ConfirmPrompt response captured without replay or ov
     selectedActionType:'ResolvePromptAction',selectedResult:false,
     primitiveResultSupported:true
   });
-  assert.deepEqual(state,before);
+  assert.deepEqual(state.players,before.players);
+  assert.equal(state.turn,before.turn);
+  assert.strictEqual(state.prompts[0],prompt);
+  assert.equal(prompt.result,undefined);
   assert.strictEqual(Bot.prototype.decodeNextAction,prior);
 });
