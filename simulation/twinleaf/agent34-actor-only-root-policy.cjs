@@ -17,7 +17,9 @@ const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Dar
 function publicDispatchState(store){
   const state=store?.state;
   if(!Array.isArray(state?.players)||state.players.length!==2)return null;
-  const views=state.players.map(publicPlayer);
+  // Explicit unary callback: Array.map passes index as a second argument,
+  // which must never become publicPlayer's hidePokemon flag.
+  const views=state.players.map(player=>publicPlayer(player));
   const digest=createHash('sha256').update(JSON.stringify(views)).digest('hex');
   return {
     turn:state.turn,
