@@ -259,7 +259,8 @@ function executeDevelopment(trial,candidates,{
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
   garbotoxinWindow=false,initializationWindow=false,
   mandatoryOptionFallback=false,paperSupporterQuota=false,
-  paperCologneQuota=false,paperSupporterComparisonTrace=false,
+  paperCologneQuota=false,paperFullBenchCallForFamily=false,
+  paperSupporterComparisonTrace=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null
@@ -313,6 +314,7 @@ function executeDevelopment(trial,candidates,{
   let garbotoxinWindowAudit=null;
   let initializationWindowAudit=null;
   let paperSupporterAudit=null;
+  let fullBenchTrubbishAudit=null;
   let supporterProposalIntegrity=null;
   let nativeValidationAudit=null;
   let nativeHiddenReadAudit=null;
@@ -363,11 +365,21 @@ function executeDevelopment(trial,candidates,{
     initializationWindowAudit=observed.audit;
     return observed.result;
   };
+  // Paper C-11: Trubbish FST Call for Family ends without searching when
+  // every Bench slot is filled. Keep this reversible correction both-seat
+  // and off in all historical default comparison arms.
+  const runWithPaperFullBench=()=>{
+    if(!paperFullBenchCallForFamily)return runWithInitializationWindow();
+    const observed=require('../twinleaf/agent38-paper-fullbench-callforfamily-hook.cjs')
+      .withPaperFullBenchTrubbishHook(runWithInitializationWindow);
+    fullBenchTrubbishAudit=observed.audit;
+    return observed.result;
+  };
   // The scoped Cologne correction applies to both real players and is
   // installed inside the independent Supporter discipline wrapper.
   const runWithPaperCologneQuota=()=>paperCologneQuota?
-    withCancelingCologneOncePerTurnHook(runWithInitializationWindow):
-    runWithInitializationWindow();
+    withCancelingCologneOncePerTurnHook(runWithPaperFullBench):
+    runWithPaperFullBench();
   const runWithPaperSupporterQuota=()=>{
     if(!paperSupporterQuota)return runWithPaperCologneQuota();
     const guarded=withNativePaperSupporterDiscipline(
@@ -495,6 +507,7 @@ function executeDevelopment(trial,candidates,{
     policyVersion:POLICY_VERSION+
       (paperSupporterQuota?'+'+PAPER_SUPPORTER_VERSION:'')+
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
+      (paperFullBenchCallForFamily?'+agent38-paper-fullbench-trubbish-fst-v1':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (lateCompressorPayload?
       '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')),
@@ -521,6 +534,9 @@ function executeDevelopment(trial,candidates,{
     }:{}),
     finalDispatchVisiblePlayLockV2:game.livePlayLockGuardBothSeats===true,
     paperCologneQuotaOptIn:paperCologneQuota,
+    paperFullBenchCallForFamilyOptIn:paperFullBenchCallForFamily,
+    paperFullBenchCallForFamilyAudit:paperFullBenchCallForFamily?
+      fullBenchTrubbishAudit:null,
     paperCologneNativePlayAudit:cologneNativePlayAudit,
     nativeSupporterQuotaQualified:paperSupporterQuota?
       paperSupporterAudit?.nativeSupporterQuotaQualified===true:'unverified',
@@ -606,7 +622,8 @@ function runDevelopment({
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
   mandatoryOptionFallback=false,nativePressureWindows=false,
   sourceFirstRetrospective=false,paperSupporterQuota=false,
-  paperCologneQuota=false,paperSupporterComparisonTrace=false,
+  paperCologneQuota=false,paperFullBenchCallForFamily=false,
+  paperSupporterComparisonTrace=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
@@ -637,6 +654,7 @@ function runDevelopment({
       const execute=()=>executeDevelopment(trial,prepared,{
         compressorPayload,opportunityAudit,lateCompressorPayload,
         mandatoryOptionFallback,paperSupporterQuota,paperCologneQuota,
+        paperFullBenchCallForFamily,
         paperSupporterComparisonTrace,
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
@@ -710,6 +728,7 @@ function runDevelopment({
     candidatePolicy:POLICY_VERSION+
       (paperSupporterQuota?'+'+PAPER_SUPPORTER_VERSION:'')+
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
+      (paperFullBenchCallForFamily?'+agent38-paper-fullbench-trubbish-fst-v1':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (lateCompressorPayload?
       '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')),
@@ -721,6 +740,7 @@ function runDevelopment({
     nativePressureWindowsOptIn:nativePressureWindows,
     paperSupporterQuotaOptIn:paperSupporterQuota,
     paperCologneQuotaOptIn:paperCologneQuota,
+    paperFullBenchCallForFamilyOptIn:paperFullBenchCallForFamily,
     paperSupporterComparisonTraceOptIn:paperSupporterComparisonTrace,
     proposalStateAuditOptIn:proposalStateAudit,
     nativeProposalValidationAuditOptIn:nativeProposalValidationAudit,
@@ -787,6 +807,8 @@ if(require.main===module){
     nativePressureWindows:process.env.AGENT41_NATIVE_PRESSURE_DEV==='true',
     paperSupporterQuota:process.env.AGENT41_PAPER_SUPPORTER_DEV==='true',
     paperCologneQuota:process.env.AGENT48_PAPER_COLOGNE_DEV==='true',
+    paperFullBenchCallForFamily:
+      process.env.AGENT38_PAPER_FULLBENCH_TRUBBISH_DEV==='true',
     paperSupporterComparisonTrace:
       process.env.AGENT41_PAPER_SUPPORTER_TRACE_DEV==='true',
     proposalStateAudit:process.env.AGENT22_PROPOSAL_STATE_AUDIT==='true',
