@@ -38,6 +38,7 @@ function main(){
     battleCompressorPositiveSelectionCorrection:true,
     isolatePolicyRandomness:true,captureDecisionTrace:true,
     capturePoltergeistEffectTrace:true,
+    captureInitialSourceDealFingerprintSeat:0,
     label:'agent13-actor-only-copied-attack-source-original-dev'
   };
   const run=withActorOnlyChooseAttack(()=>
@@ -98,6 +99,10 @@ function main(){
     sourceQuickBallAudit,remainingFallbacksUnqualified:true,
     candidateAndSourceDecksUnchanged:true,
     firstTurnSlot:game.firstTurnSlot,
+    sourceDealFingerprint:game.sourceDealFingerprint??null,
+    rootActionLedgerCount:(game.rootActionLedger??[]).length,
+    rootActionLedgerSha256:createHash('sha256')
+      .update(JSON.stringify(game.rootActionLedger??[])).digest('hex'),
     sourceLineCompleted:game.rank11AutonomousPolicy?.completeAtDecisionBoundary===true,
     deckHashes:game.deckHashes,
     firstCopyPrecedingRootCount:firstChoicePrefix.length,
