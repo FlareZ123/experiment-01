@@ -6,7 +6,8 @@ const {planElectroRainDamage} =
 
 /** A pure public-board test double, without vendor engine or private zones. */
 function caseState({sight=true, jamming=false, budget=16}={}) {
-  const codes={attackPhase:3, opponentSide:1, activeSlot:1, benchSlot:2};
+  const codes={attackPhase:3, opponentSide:1, activeSlot:1, benchSlot:2,
+    lightningType:4};
   const mkPokemon=(name,hp,tags)=>({fullName:name,hp,tags});
   const mkSlot=(pokemon)=>({
     hp:pokemon.hp,
@@ -176,6 +177,47 @@ function test() {
   assert.equal(planElectroRainDamage(mimeActive.state,mimeActive.own,
     mimeActive.prompt,mimeActive.codes),null,
     'Bench Barrier remains relevant while Mr. Mime is Active');
+
+  // Exact Aichi source targets: rank2/15 Pidgeot ex OBF164 (280 HP),
+  // and rank30 Empoleon V BST40 (210 HP) are Lightning-weak.
+  // Five printed 30 packets double to 300 on Active Pidgeot ex.
+  const flying=caseState({budget:5,sight:false});
+  const defending=flying.state.players[1];
+  defending.bench=[];
+  defending.active.hp=280;
+  defending.active.getPokemonCard=()=>({
+    name:'Pidgeot ex',fullName:'Pidgeot ex OBF',hp:280,
+    tags:['ex'],weakness:[{type:4}],resistance:[]
+  });
+  flying.prompt.maxAllowedDamage[0].damage=430;
+  const flyingKO=planElectroRainDamage(flying.state,
+    flying.own,flying.prompt,flying.codes);
+  assert.deepEqual(flyingKO.map(({target,damage})=>
+    [target.slot,target.index,damage]),[[1,0,150]]);
+  defending.active.noWeaknessNextTurn=true;
+  assert.equal(planElectroRainDamage(flying.state,
+    flying.own,flying.prompt,flying.codes),null,
+    'No-Weakness effect must prevent a false Pidgeot KO');
+  defending.active.noWeaknessNextTurn=false;
+  defending.active.weaknessOverrideType=2;
+  assert.equal(planElectroRainDamage(flying.state,
+    flying.own,flying.prompt,flying.codes),null,
+    'A non-Lightning Weakness override prevents the x2 forecast');
+  defending.active.weaknessOverrideType=4;
+  assert.deepEqual(planElectroRainDamage(flying.state,
+    flying.own,flying.prompt,flying.codes),flyingKO);
+  defending.active.weaknessOverrideType=undefined;
+  const penguin=caseState({budget:4,sight:false});
+  penguin.state.players[1].bench=[];
+  penguin.state.players[1].active.hp=210;
+  penguin.state.players[1].active.getPokemonCard=()=>({
+    name:'Empoleon V',fullName:'Empoleon V BST',hp:210,
+    tags:['V'],weakness:[{type:4}],resistance:[]
+  });
+  penguin.prompt.maxAllowedDamage[0].damage=330;
+  assert.deepEqual(planElectroRainDamage(penguin.state,
+    penguin.own,penguin.prompt,penguin.codes).map(({target,damage})=>
+    [target.slot,target.index,damage]),[[1,0,120]]);
 
   const insufficient=caseState({budget:1});
   assert.equal(planElectroRainDamage(insufficient.state,insufficient.own,
