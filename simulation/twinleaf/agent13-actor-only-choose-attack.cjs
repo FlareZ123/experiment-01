@@ -38,14 +38,28 @@ function actorChooseAttackInput(state,seat,observe=actorObservation){
  * @param {object} input Detached actor-owned prompt.
  * @returns {{sourceIndex:number|null,attackIndex:number|null}}
  */
-function chooseActorCopiedAttack(input){
+function chooseActorCopiedAttack(input,options={}){
   assert.equal(input.actor.decisionKind,'owner-prompt');
   assert.equal(input.prompt.kind,'ChooseAttackPrompt');
   const gxUsed=input.actor.ownPublic?.publicTurnRestrictions?.gxUsed===true;
+  const eligible=[];
   for(const source of input.prompt.offered)
     for(const attack of source.attacks)
       if(!attack.blocked&&!(gxUsed&&attack.gxAttack))
-        return {sourceIndex:source.index,attackIndex:attack.index};
+        eligible.push({sourceIndex:source.index,attackIndex:attack.index,
+          printing:source.printing,attackName:attack.name});
+  // A/B-only tactical hypothesis: try printed Poltergeist before an earlier
+  // unrelated donor. No opponent hand identities or hidden Trainer count are
+  // consulted. Its actual damage and performance must be observed, not assumed.
+  if(options.preferGengarPoltergeist===true){
+    const alternate=eligible.find(candidate=>
+      candidate.printing==='Gengar & Mimikyu-GX TEU'&&
+      candidate.attackName==='Poltergeist');
+    if(alternate)return {sourceIndex:alternate.sourceIndex,
+      attackIndex:alternate.attackIndex};
+  }
+  if(eligible.length>0)return {sourceIndex:eligible[0].sourceIndex,
+    attackIndex:eligible[0].attackIndex};
   if(input.prompt.allowCancel)return {sourceIndex:null,attackIndex:null};
   throw Error('Mandatory ChooseAttack has no permitted printed attack');
 }
@@ -73,7 +87,11 @@ function withActorOnlyChooseAttack(run,deps={}){
   assert.equal(typeof originalDispatch?.value,'function');
   const decisions=new WeakMap(),stores=new WeakSet();
   let liveStore=null;
-  const audit={version:VERSION,origin:'detached owner ChooseAttack menu',
+  const preferGengarPoltergeist=deps.preferGengarPoltergeist===true;
+  const audit={version:preferGengarPoltergeist?
+    VERSION+'+agent13-gengar-poltergeist-first-v1':VERSION,
+    origin:'detached owner ChooseAttack menu',
+    preferGengarPoltergeist,
     menus:0,selected:0,nativeStores:0,accepted:0,rejected:0,
     nativeFallbacks:0,nonLiveSpeculativeFallbacks:0,
     selections:[],competitiveGameQualified:false};
@@ -90,7 +108,7 @@ function withActorOnlyChooseAttack(run,deps={}){
       return original.value.call(this,state);
     }
     audit.menus++;
-    const intent=chooseActorCopiedAttack(input);
+    const intent=chooseActorCopiedAttack(input,{preferGengarPoltergeist});
     const prompt=state.prompts.find(p=>p.result===undefined);
     const selected=intent.sourceIndex===null?null:
       prompt.cards[intent.sourceIndex].attacks[intent.attackIndex];
