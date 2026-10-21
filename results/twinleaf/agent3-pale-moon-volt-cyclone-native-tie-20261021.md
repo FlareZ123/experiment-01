@@ -39,3 +39,16 @@ All original attempts were retained: rank6 champion 121 roots / reset / strict e
 ## Next decision impact
 
 This exact source/candidate collision appears to be a **real simultaneous no-Pokémon condition under the simulator's chosen policy** rather than an arbitrary clock-wrap artifact. Preserve it as a tiebreak branch and explicit censor in the common-policy qualification gate. Prioritize owner-legal game continuation, opponent response and decision competence; do not weaken strict same-epoch packet validation, pool replay episodes, or introduce a win-rate from this fixture. If paper-level KO attribution becomes critical, add a source-specific pre/end-of-turn damage/effect audit with explicit counterfactuals rather than a broad new telemetry system.
+
+
+## Critical paper-timing caveat discovered after the first report (06:45 UTC)
+
+**Do not yet interpret the simultaneous native no-Pokémon state as a legal paper tie.** Pinned upstream source reveals a possible **attack-KO versus delayed-KO resolution-order defect**:
+
+- `ptcg-server/src/game/store/effect-reducers/game-effect.ts` `useAttack` deals attack damage and runs post-attack effects, then for a non-Barrage attack goes directly to `EndTurnEffect`; unlike the Barrage branch, it does not explicitly `checkState` to resolve KOs/game-ending conditions before EndTurn.
+- `ptcg-server/src/game/store/effect-reducers/game-phase-effect.ts` `EndTurnEffect` first runs `RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS` (including Pale Moon's delayed KO), and only **later** runs `checkState`. At that check, both sides may have zero Pokémon.
+- The supplied Advanced Player’s Rulebook §I.A-01 checks KOs in attack step 7, and §I.E starts game resolution as soon as either player has no Pokémon in play. A terminal KO from damage at the end of Volt Cyclone **should trigger loss resolution before a later end-of-turn Pale Moon delayed KO**, if that attack actually Knocked Out the champion's last Pokémon.
+
+The actual live public count trace proves both boards became empty within source t4's resolution. It does **not yet show the champion Active's live damage/HP immediately before source t4**. Printed Volt Cyclone 140 twice versus 270HP TAG TEAM, with no visible intermediate healing action in the root ledger, makes the attack KO very likely. But to claim a demonstrated **paper rules defect**, obtain an independent public damage/HP witness immediately before source's second attack and confirm the exact attack KO, prevention and phase timing. Any correction must be a reversible research-owned hook outside the pinned Twinleaf vendor submodule and tested on an authentic native trial. Until then this is a high-priority **likely paper-fidelity issue**, and the native tiebreak still requires censoring.
+
+This caveat **supersedes any implication** above or in the initial Agent44 handoff that the tiebreak itself was necessarily a paper-correct outcome.
