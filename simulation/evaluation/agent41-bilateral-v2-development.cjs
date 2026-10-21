@@ -663,7 +663,8 @@ function runDevelopment({
   nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,
   paperTerminalAttackKo=false,
-  rank6K1AlternativeEnergy=false
+  rank6K1AlternativeEnergy=false,
+  sourceScopedSpecialEnergyRoot=false
 }={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -701,7 +702,16 @@ function runDevelopment({
         garbotoxinWindow:nativePressureWindows&&trial.rank===11
       });
       if(actorOnlyComposition){
-        const observed=withCanonicalActorOnlyPolicy(execute,{},
+        // Development-only source-seat intervention: the candidate never
+        // receives this alternate Special Energy root. Native Store still
+        // validates each physical decision by the real actor.
+        const scopedRoot=sourceScopedSpecialEnergyRoot?
+          {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
+            .withActorOnlyRootPolicy(work,{
+              specialEnergyRoot:true,
+              specialEnergyRootOwnerSeat:trial.candidateSlot==='A'?1:0
+            })}:{};
+        const observed=withCanonicalActorOnlyPolicy(execute,scopedRoot,
           {ownerSingleSearch:actorOnlySingleSearch,
             genericFallbackAttribution:actorGenericFallbackAttribution,
             actorHandDiscard,actorChoosePokemon,
@@ -815,6 +825,7 @@ function runDevelopment({
       rows.every(row=>row.nativeSupporterQuotaQualified===true):'unverified',
     sourceFirstRetrospective,
     rank6K1AlternativeEnergyOptIn:rank6K1AlternativeEnergy,
+    sourceScopedSpecialEnergyRootOptIn:sourceScopedSpecialEnergyRoot,
     retrospectiveSeedProvenance:sourceFirstRetrospective?{
       6:{seed:407516727,seat:'B',selection:'reversed physical source seat'},
       11:{seed:482443328,seat:'B',selection:'post-observed source success'}
@@ -889,7 +900,9 @@ if(require.main===module){
     sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
     opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true',
     rank6K1AlternativeEnergy:
-      process.env.AGENT49_RANK6_K1_ALT_ENERGY_DEV==='true'
+      process.env.AGENT49_RANK6_K1_ALT_ENERGY_DEV==='true',
+    sourceScopedSpecialEnergyRoot:
+      process.env.AGENT49_SOURCE_SCOPED_SPECIAL_DEV==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
