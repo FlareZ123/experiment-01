@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 
-const VERSION='agent3-paper-terminal-attack-ko-before-endturn-v1';
+const VERSION='agent3-paper-terminal-attack-ko-before-endturn-v2';
 
 /**
  * Research-owned opt-in correction for a terminal attack KO which must
@@ -10,7 +10,7 @@ const VERSION='agent3-paper-terminal-attack-ko-before-endturn-v1';
  * Pinned game-effect.ts normally enters EndTurnEffect after non-Barrage
  * attack damage. Pinned game-phase-effect.ts then resolves queued end-turn
  * effects before its first checkState. If the attack itself already reduces
- * the defender's *last* Pokémon to 0 HP, the paper game must resolve first.
+ * either player's *last* Pokémon to 0 HP, paper KO resolution goes first.
  *
  * This hook uses the engine's own CheckHpEffect and checkState and only acts
  * when its genuine root Store has at least one lethally damaged Active
