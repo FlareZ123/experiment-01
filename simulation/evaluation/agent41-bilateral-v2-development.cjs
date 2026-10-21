@@ -630,6 +630,19 @@ function executeDevelopment(trial,candidates,{
   };
 }
 
+/**
+ * The wrapper attaches quota evidence on every downstream exception. Only an
+ * actual Store-level Supporter rejection identifies a quota veto. An aborted
+ * attack or unrelated Store error must retain its original engine category.
+ * @param {object|null|undefined} evidence Native paper-quota abort audit.
+ * @returns {'paper-supporter-quota-veto'|'engine-error'}
+ */
+function classifyNativeAbort(evidence){
+  return Array.isArray(evidence?.rootDispatchVetoes)&&
+    evidence.rootDispatchVetoes.length>0?
+      'paper-supporter-quota-veto':'engine-error';
+}
+
 /** @returns {object} */
 function runDevelopment({
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
@@ -707,7 +720,7 @@ function runDevelopment({
       const genericAbort=error?.nativeGenericFallbackEvidence??
         error?.cause?.nativeGenericFallbackEvidence??null;
       rows.push({
-        trial,status:veto?'paper-supporter-quota-veto':'engine-error',
+        trial,status:classifyNativeAbort(veto),
         error:String(error?.stack||error),
         nativeStoreCauseStack:error?.cause?.stack??null,
         ...(error?.nativePublicRootArchive??{}),
@@ -873,4 +886,4 @@ if(require.main===module){
 module.exports={developmentTrials,sourceFirstPressureTrials,
   commonPayloadOption,firstPostSourceDecision,
   sourceLineReplyPacket,candidatePostChoicePassEvidence,
-  executeDevelopment,runDevelopment};
+  executeDevelopment,runDevelopment,classifyNativeAbort};
