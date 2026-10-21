@@ -265,6 +265,7 @@ function policyRandomStreams(seed) {
  * @property {0|1} [snorlaxSoloOpeningSeat] Rank3/7 source-locked, own-starting-hand solo Snorlax Active policy.
  * @property {boolean} [snorlaxSoloDeclineOptionalBench] With solo policy, decline a later legal optional Bench prompt after Snorlax is already alone Active.
  * @property {boolean} [snorlaxSoloPreserveBench] With source solo opening, suppress own ordinary Basic Benching while PGO Snorlax is alone Active.
+ * @property {boolean} [snorlaxSoloThreatAwareBench] With preservation active, allow ordinary source Basic Benching when an opponent in-play Pokémon visibly has attached Energy.
  * @property {0|1} [newMoonAttackPayloadCompressorSeat] Candidate-only own-hand Compressor and owner-search Gengar payload policy.
  * @property {0|1} [rank4RaichuCompressorSeat] Source-only held Compressor, printed Energy discard; requires min1 rule correction.
  * @property {0|1} [rank4RaichuRopePivotSeat] Source-only held Rope pivot to real Benched Raichu, after printed Energy discard.
@@ -781,6 +782,8 @@ function runMatch(request) {
         configured = require('./snorlax-solo-opening-policy.cjs')
           .withSoloSnorlaxBenchPreservation(configured, {
             PlayBasicTactic:engine('simple-bot/simple-tactics/play-basic-tactic').PlayBasicTactic
+          }, {
+            allowBackupOnVisibleOppEnergy:request.snorlaxSoloThreatAwareBench===true
           });
       }
       if (request.newMoonNativeOpeningPivotSeat === seat) {
