@@ -14,6 +14,7 @@ on:
         options:
           - bilateral-pass
           - charged-promotion-pair
+          - floatstone-pair
         default: bilateral-pass
 
 permissions:
@@ -32,7 +33,7 @@ jobs:
       - name: Validate native Store before-after continuity and bilateral v2 intake
         run: node --test tests/bilateral-v2-root-ledger-attestation.test.cjs tests/bilateral-v2-evidence-gate.test.cjs
       - name: Download immutable historical development archive without recompiling Twinleaf
-        if: ${{ inputs.audit_type != 'charged-promotion-pair' }}
+        if: ${{ inputs.audit_type == 'bilateral-pass' }}
         uses: actions/download-artifact@v4
         with:
           name: agent41-bilateral-v2-historical-development
@@ -50,8 +51,20 @@ jobs:
         run: |
           node --test tests/agent1-charged-promotion-archive-audit.test.cjs
           node scripts/agent1-charged-promotion-archive-audit.cjs agent1-charged-promotion-native-pair.json
+      - name: Download frozen original-Store Float Stone source-paired archive
+        if: ${{ inputs.audit_type == 'floatstone-pair' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: agent1-source-floatstone-original-store-pair
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ github.token }}
+      - name: Verify source-only Float Stone adapter was installed and archive is unqualified
+        if: ${{ inputs.audit_type == 'floatstone-pair' }}
+        run: |
+          node --test tests/agent1-owner-float-stone-mobility.test.cjs
+          node -e "const assert=require('node:assert/strict');const p=require('./agent1-floatstone-native-pair.json');assert.equal(p.pairs.length,4);assert.equal(p.competitiveQualifiedGames,0);for(let i=0;i<4;i++){const a=p.baseline.rows[i],b=p.treatment.rows[i],c=a.actorOnlyDecisionCoverage?.detailedComponentAudits?.root,t=b.actorOnlyDecisionCoverage?.detailedComponentAudits?.root;assert.equal(c?.floatStoneMobilityOptIn,false);assert.equal(t?.floatStoneMobilityOptIn,true);assert.equal(t.floatStoneMobilityOwnerSeat,b.sourceSeat);assert.match(t.version,/floatstone-mobility/);console.log('SOURCE_FLOAT_AUDIT',JSON.stringify({id:b.trial.id,sourceSeat:b.sourceSeat,installed:t.floatStoneMobilityOptIn,sourceScoped:t.floatStoneMobilityOwnerSeat===b.sourceSeat,baseRoot:c.version,variantRoot:t.version,selectedEquip:t.typedIntentCounts['attach-emergency-floatstone']??0,selectedRetreat:t.typedIntentCounts['retreat-emergency-floatstone']??0,identicalRoot:p.pairs[i].identicalRootLedger,heldFloatPasses:(a.sourceOwnerPostPassMobility?.observations??[]).filter(x=>x.mobilityHeld?.['Float Stone']>0).length}));}console.log('ARCHIVE_ONLY_ZERO_COMPETITIVE',p.competitiveQualifiedGames)"
       - name: Test and report bounded candidate Pass evidence
-        if: ${{ inputs.audit_type != 'charged-promotion-pair' }}
+        if: ${{ inputs.audit_type == 'bilateral-pass' }}
         run: |
           node --test tests/aichi-bilateral-pass-evidence-summary.test.cjs
           node scripts/aichi-bilateral-pass-evidence-summary.cjs agent41-bilateral-v2-development.json
