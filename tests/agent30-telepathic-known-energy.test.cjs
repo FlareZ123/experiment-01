@@ -8,8 +8,8 @@ const {chooseActorEnergyRecipient}=
   require('../simulation/twinleaf/agent44-actor-energy-recipient.cjs');
 
 const P=5,C=9;
-const TELEPATHIC='Telepathic Psychic Energy MEE';
-const BASIC='Psychic Energy MEE';
+const TELEPATHIC='Telepath [P] Energy M3';
+const BASIC='Psychic Energy SVE';
 const catalog={
   basicEnergies:new Set([BASIC]),
   specialEnergies:new Set([TELEPATHIC,'Double Colorless Energy SUM',
