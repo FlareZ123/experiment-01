@@ -42,6 +42,10 @@ on:
         description: 'Optional pinned Guard Energy versus Temple and equipped Garbotoxin stats matrix'
         type: boolean
         default: false
+      mega_darkrai_60_probe:
+        description: 'Optional post-event Mega Darkrai exploratory printing and exact opening census'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -281,5 +285,23 @@ jobs:
         with:
           name: hood-guard-temple-native-stats
           path: hood-guard-temple-native-stats.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Test post-event Mega Darkrai exact opening claims
+        if: inputs.mega_darkrai_60_probe
+        run: |
+          node --check scripts/mega-darkrai-opening-direct.cjs
+          node --check simulation/twinleaf/mega-darkrai-printing-admission.cjs
+          node --test tests/mega-darkrai-opening-direct.test.cjs
+      - name: Validate experimental full 60 against pinned engine
+        if: inputs.mega_darkrai_60_probe
+        run: node simulation/twinleaf/mega-darkrai-printing-admission.cjs > mega-darkrai-deck-60-admission.json
+      - name: Archive exploratory printability and exact early-resource gate
+        if: always() && inputs.mega_darkrai_60_probe
+        uses: actions/upload-artifact@v4
+        with:
+          name: mega-darkrai-deck-60-admission
+          path: mega-darkrai-deck-60-admission.json
           if-no-files-found: warn
           retention-days: 14
