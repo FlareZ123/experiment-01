@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank6_k1_source_scoped_special:
+        description: 'Source-only Special Energy followup against unchanged candidate'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -223,7 +228,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure owner-K1 and source-policy regressions
-        run: node --test tests/rank6-broad-thorns-policy.test.cjs tests/agent49-rank6-k1-alternate.test.cjs
+        run: node --test tests/rank6-broad-thorns-policy.test.cjs tests/agent49-rank6-k1-alternate.test.cjs tests/agent49-source-scoped-special-energy.test.cjs
       - name: Fetch pinned Twinleaf submodule
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install exact upstream dependencies
@@ -256,6 +261,18 @@ jobs:
           AGENT49_RANK6_K1_ALT_ENERGY_DEV=true AGENT3_SPECIAL_ENERGY_ROOT_DEV=true node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent49-k1-special-on.json
           node scripts/agent49-rank6-k1-native-pair.cjs agent49-k1-on.json agent49-k1-special-on.json special-energy-followup > agent49-k1-special-pair.json
           node -e "const r=require('./agent49-k1-special-pair.json');console.log('K1_SPECIAL_FOLLOWUP',JSON.stringify(r.pairs.map(x=>({id:x.id,matched:x.sameFullDeal,firstDifference:x.rootDiff?.firstDifferentRoot??null,control:x.baseline.sourceAudit,followup:x.treatment.sourceAudit,roots:[x.baseline.roots,x.treatment.roots]}))))"
+      - name: Source-only actor Special Energy follow-up, candidate unchanged
+        if: inputs.rank6_k1_source_scoped_special
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+        run: |
+          AGENT49_RANK6_K1_ALT_ENERGY_DEV=true AGENT49_SOURCE_SCOPED_SPECIAL_DEV=true node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent49-k1-scoped-special-on.json
+          node scripts/agent49-rank6-k1-native-pair.cjs agent49-k1-on.json agent49-k1-scoped-special-on.json special-energy-followup > agent49-k1-scoped-pair.json
+          node -e "const r=require('./agent49-k1-scoped-pair.json');console.log('K1_SOURCE_SCOPED',JSON.stringify(r.pairs.map(x=>({id:x.id,matched:x.sameFullDeal,firstDifference:x.rootDiff?.firstDifferentRoot??null,roots:[x.baseline.roots,x.treatment.roots]}))))"
       - name: Preserve all trial rows, rejected and capped
         if: always()
         uses: actions/upload-artifact@v4
@@ -267,5 +284,7 @@ jobs:
             agent49-k1-pair.json
             agent49-k1-special-on.json
             agent49-k1-special-pair.json
+            agent49-k1-scoped-special-on.json
+            agent49-k1-scoped-pair.json
           if-no-files-found: warn
           retention-days: 10
