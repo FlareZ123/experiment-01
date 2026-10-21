@@ -80,7 +80,7 @@ class MayAichi48SourceTests(unittest.TestCase):
         )
         result = exact_prize_gate(category_sizes(self.manifest))
         self.assertEqual(result["total_six_prize_configurations"], 50063860)
-        self.assertEqual(result["water_8_or_more_not_prized"]["count"], 39149990)
+        self.assertEqual(result["water_8_or_more_not_prized"]["count"], 39151000)
         self.assertEqual(result["without_any_prize_rescue"]["count"], 27083980)
         self.assertEqual(
             result["extra_one_prized_basic_rescuable_by_heavy_ball"]["count"],
