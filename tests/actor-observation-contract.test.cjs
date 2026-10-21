@@ -361,3 +361,27 @@ test('absence of observed blockers is unknown legality, including copied attacks
     'Empty veto list is not permission to bypass Store');
   assert.equal(JSON.stringify(v),frozen,'Neither policy gate mutates its input');
 });
+
+test('setup masks face-down opposing Pokemon without reading physical names',()=>{
+  const state=fixture();
+  state.phase=1;
+  state.turn=0;
+  const enemy=state.players[1];
+  enemy.bench[0]=pokemon('Concealed Bench MEE');
+  enemy.active.getPokemonCard=()=>{
+    throw new Error('Read forbidden setup Active identity');
+  };
+  enemy.bench[0].getPokemonCard=()=>{
+    throw new Error('Read forbidden setup Bench identity');
+  };
+  const own=actorObservation(state,0);
+  assert.equal(own.ownPublic.active.printing,'Mewtwo & Mew-GX UNM');
+  assert.deepEqual(own.opponentPublic.active,{concealed:true});
+  assert.deepEqual(own.opponentPublic.bench[0],{concealed:true});
+  assert.equal(own.opponentPublic.bench[1],null);
+  assert.equal(JSON.stringify(own).includes('Concealed Bench MEE'),false);
+  assert.ok(Object.isFrozen(own.opponentPublic.active));
+  state.phase=2;
+  assert.throws(()=>actorObservation(state,0),
+    /Read forbidden setup Active identity/);
+});
