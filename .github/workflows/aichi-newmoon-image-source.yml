@@ -19,6 +19,11 @@ on:
         required: false
         default: ''
         type: string
+      probe_primarina_may:
+        description: 'Inspect publicly accessible 2026 Aichi 48th Primarina first-person note image URLs'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -29,7 +34,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Retrieve linked public tournament deck image
-        if: ${{ !inputs.probe_deck_code }}
+        if: ${{ !inputs.probe_deck_code && !inputs.probe_primarina_may }}
         shell: bash
         run: |
           curl --fail --silent --show-error --location --retry 2 --max-time 30 \
@@ -38,7 +43,7 @@ jobs:
             --output "$RUNNER_TEMP/newmoon-deck-source.png"
           file "$RUNNER_TEMP/newmoon-deck-source.png"
       - name: Visually inspect three source-grid segments in selected row
-        if: ${{ !inputs.probe_deck_code }}
+        if: ${{ !inputs.probe_deck_code && !inputs.probe_primarina_may }}
         shell: bash
         env:
           ROW_NUMBER: ${{ inputs.row }}
@@ -65,6 +70,36 @@ jobs:
                   print(f"NMROW{row}GROUP{group}CHUNK{i//4000:04d}:" + encoded[i:i+4000])
               print(f"NMROW{row}GROUP{group}TOTAL:{len(buffer.getvalue())}")
           PY
+      - name: Retrieve public May Aichi48 author note for image provenance
+        if: ${{ inputs.probe_primarina_may }}
+        shell: bash
+        run: |
+          curl --fail --silent --show-error --location --max-time 40 --retry 1 \
+            --user-agent 'Mozilla/5.0 (compatible; ExpandedResearch/1.0)' \
+            --dump-header primarina-may-public-note-headers.txt \
+            --output primarina-may-public-note.html \
+            'https://note.com/primarina_2002/n/n70b7e01cd474'
+          python3 - <<'PY'
+          import html, json, re
+          from pathlib import Path
+          raw=Path('primarina-may-public-note.html').read_text(encoding='utf-8',errors='replace')
+          normalized=html.unescape(raw.replace('\\\\/','/').replace('\\\\u0026','&'))
+          images=sorted(set(re.findall(r'https://assets\\.st-note\\.com/img/[A-Za-z0-9._?=&%/-]+', normalized)))
+          digest=__import__('hashlib').sha256(raw.encode()).hexdigest()
+          Path('primarina-may-public-image-leads.json').write_text(json.dumps({'firstPersonNote':'https://note.com/primarina_2002/n/n70b7e01cd474','sha256':digest,'viewerCodeReferenced':'4xYGc4-dWhjRd-G8c8GD' in raw,'imageUrls':images,'unverifiedCardImages':True},indent=2)+'\\n')
+          print('PUBLIC_AUTHOR_NOTE',json.dumps({'bytes':len(raw),'sha256':digest,'mayCodePresent':'4xYGc4-dWhjRd-G8c8GD' in raw,'imageCount':len(images),'imageUrls':images[:40]}))
+          PY
+      - name: Preserve original public author note source imagery leads
+        if: ${{ inputs.probe_primarina_may }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi48-primarina-public-note-image-leads
+          path: |
+            primarina-may-public-note.html
+            primarina-may-public-note-headers.txt
+            primarina-may-public-image-leads.json
+          if-no-files-found: warn
+          retention-days: 10
       - uses: actions/checkout@v4
         if: ${{ inputs.probe_deck_code }}
       - name: Test public Japanese deck snapshot parser
