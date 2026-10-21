@@ -62,22 +62,31 @@ function stagedEchoDceReply(lockCopied){
     const target={player:PlayerType.TOP_PLAYER,slot:SlotType.ACTIVE,index:0};
     let rejectedByDispatch=false;
     let errorName=null;
+    let errorMessage=null;
     try {
       f.store.dispatch(new PlayCardAction(202,dceIndex,target));
     } catch(e){
       rejectedByDispatch=true;
       errorName=e.constructor?.name??'Error';
+      errorMessage=String(e?.message??e).slice(0,450);
     }
     const dceAttached=f.defending.active.energies.cards.includes(dce);
     const handRetained=f.defending.hand.cards.includes(dce);
-    assert.equal(dceAttached,!lockCopied,
-      lockCopied?'Copied Echo must block hand DCE attachment':
-        'Unprotected control must allow native DCE hand attachment');
-    assert.equal(handRetained,lockCopied,
-      'DCE should remain held iff hand-play lock applies');
+    // Do not treat a blocked control as proof of Echo's effect. Archive
+    // native rejection/target evidence before choosing a different target.
+    const otherActiveAttachment=f.attacking.active.energies.cards.includes(dce);
+    const pending=f.state.prompts.filter(p=>p.result===undefined)
+      .map(p=>p.constructor.name);
+    const nativeTarget={requested:target,
+      sourceEnergyPlayed:f.defending.energyPlayed,
+      inDefenderDiscard:f.defending.discard.cards.includes(dce),
+      inAttackerDiscard:f.attacking.discard.cards.includes(dce),
+      otherActiveAttachment,pending};
+
     return {copiedAttack:attackName,sourceAttackDamage:f.defending.active.damage,
       nativeBeforeManualNextTurn:nativeBefore,
       replyDcePrinting:dce.fullName,rejectedByDispatch,errorName,
+      errorMessage,handIndex:dceIndex,nativeTarget,
       dceAttached,handRetained,storeOwnTurnHandoff:true,
       competitiveGameQualified:false};
   }finally{
@@ -91,7 +100,7 @@ function compareEchoAgainstRank6Dce(){
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     control:stagedEchoDceReply(false),
     treatment:stagedEchoDceReply(true),
-    qualification:'Genuine Store turn handoff from staged board, no actual opening/search/policy or competitive game',
+    qualification:'Diagnostic only: control attachment must succeed before Echo lock can be inferred; genuine Store turn handoff from staged board, no actual opening/search/policy or competitive game',
     competitiveGamesQualified:0};
 }
 if(require.main===module)process.stdout.write(
