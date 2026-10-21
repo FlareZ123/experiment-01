@@ -313,7 +313,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.quickBallRootOptIn)
     audit.version=VERSION+'+agent8-actor-quick-ball-v1';
   if(audit.potentialKoRootOptIn)
-    audit.version+='+agent49-public-potential-ko-v1';
+    audit.version+='+agent49-public-potential-ko-v2';
   if(audit.knownDeadAttackRootOptIn)
     audit.version+='+agent1-known-dead-leading-attack-v1';
   function wrapped(state){
