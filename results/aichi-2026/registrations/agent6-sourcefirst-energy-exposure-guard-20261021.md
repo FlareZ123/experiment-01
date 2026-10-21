@@ -19,3 +19,9 @@ Both arms set true: source_first_retrospective, energy_frontier, actor_energy_re
 ## Prespecified native observables
 
 Inspect the **first actual candidate New Moon source-first T22 root**: actor-held Energy, selected Active/Bench/none; native Store accepted public changes; actual next source Oranguru Psychic T23 and beyond; Articuno damage/2-Prize KO timing, candidate response and later source return. Compare all rank11 champion and rank6 source-first arms, plus all four original historical arms. Preserve start fingerprints, exact ledgers, epoch and clock errors, cap and terminal status, and physical recipient changes; root SHA alone omits target-slot evidence. A beneficial delay is not a game-strength or competitive win estimate. Selected seeds, incomplete prompt/clock/rules policy and missing exact ranks23/25/28 remain. Zero qualified games and no 99.5% evidence.
+
+## Frozen final manual native revision, added before dispatch
+
+- Control checkout SHA: `93cea353a91a079c435331526a8156fa3f922b95`.
+- Treatment checkout SHA: `4c0a9ee5bc69148bddce772775a34f8f0cfd00ca`.
+- Both contain byte-identical postgame-only source-first Energy/Oranguru reporters; the treatment additionally has one generic owner-root guard and its regression updates. The previous generic one-Basic nominal-KO prioritizer and all existing fixed-list manifests remain unchanged.
