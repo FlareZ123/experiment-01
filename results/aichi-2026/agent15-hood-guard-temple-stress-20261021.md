@@ -55,3 +55,22 @@ The last row represents an especially narrow *direct-sighting* conjunction that 
 **Proposed native stress test before deck promotion:** in the existing joint-profile runner, keep both published decks fixed and only create a controlled counterfactual branch from an authenticated source-observable pre-Claw state: attach a genuine Guard to the threatened VMAX through a legal earlier player action; preserve its Hood and the opponent's equipped Garbodor; compare actual Claw damage/Prize settlement with Temple absent versus present. Confirm legal Stadium replacement and a subsequent source response, then screen any changed fixed 60 under one actor-only common policy. A synthetic injected board may test effect fidelity, but **cannot** count as a game win. The precise failure to record is whether the guarding Energy is attached and surviving at the actual damage boundary, and whether Temple nullifies it.
 
 **Decision:** hold this as an **unpromoted, Temple-vulnerable structural hypothesis**. The existing resource/attack-funding and common-policy qualification gaps dominate the evidence for competitive ranking. The research index should keep all four current fixed lists unranked. **29/32 published source 60s, zero qualified competitive games, and no demonstrated 99.5% solution.**
+
+## Compiled pinned-Store effect-level differential (21 October)
+
+The research-owned [native stats/Ability fixture](../../simulation/twinleaf/hood-guard-temple-native-stats.cjs) was executed using the exact pinned Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` in the existing opt-in manual Hood workflow. [CI run 39527323363](https://github.com/FlareZ123/experiment-01/actions/runs/39527323363) **completed successfully** on head `8e54d70059f0083f8978090bd3e4596c89125f22`; the `hood-guard-temple-native-stats` artifact is [12313873886](https://github.com/FlareZ123/experiment-01/actions/runs/39527323363/artifacts/12313873886) (ZIP SHA-256 `05efc6c5b296e8ad2b6acddfbaa1c645e4a093a381f1fc62d2f857c7b4f591c9`). All four independent exact-math Node regressions also passed in that run.
+
+The six injected case assertions checked:
+
+| Injected board | Native VMAX Darkness Weakness entries | Hood protects Underworld Door through Tool-Garbodor? |
+| --- | ---: | --- |
+| Base VMAX | 1 | Not tested |
+| VMAX + Guard Energy | 0 | Not tested |
+| VMAX + Guard + Temple | 1 | Not tested |
+| VMAX + Hood, source equipped Garbodor | 1 | Yes |
+| VMAX + Hood + Guard, source equipped Garbodor | 0 | Yes |
+| VMAX + Hood + Guard + Temple, source equipped Garbodor | 1 | Yes |
+
+The pinned Store `CheckPokemonStatsEffect` and `CheckPokemonPowersEffect` accepted the assertions for every case. This is an **engine behavior** witness of the intended separate-Tool/Energy axes and Temple's counter. It does not execute damage, an `AttackAction`, a natural Energy attachment, a complete game or a match policy, and therefore cannot certify the proposed revised 60's playing strength. The existing four nominated lists remain unaltered.
+
+The first [CI run 39526871348](https://github.com/FlareZ123/experiment-01/actions/runs/39526871348) failed solely because the fixture looked up `Mega Absol ex MEG` where this exact pinned simulator uses the internal `Mega Absol ex M1L` fullName; the later run fixed that test-harness error. That first failure is preserved as an executed negative setup attempt and did not contain a rejected Guard/Temple rule transition.
