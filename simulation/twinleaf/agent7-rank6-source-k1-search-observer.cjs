@@ -50,8 +50,14 @@ function sourceK1SearchSnapshot(state, seat, pending, observe=actorObservation) 
     };
   });
   // Additional owner-known physical zones only; no Prize identities or bot choices.
+  const thunder=deck.find(card=>card.name==='Thunder Mountain Prism Star');
   const oneUnitEnergyTargets=['Speed Lightning Energy','Capture Energy','Spiky Energy']
-    .map(name=>({name,...zoneCounts(name)}));
+    .map(name=>{
+      const energy=deck.find(card=>card.name===name);
+      return {name,...zoneCounts(name),
+        pairedThunderSearchNativeValid:thunder&&energy?
+          Boolean(pending.validate([thunder,energy],state)):null};
+    });
   const cards=TARGETS.map(name=>deck.find(x=>x.name===name));
   const pair=cards.every(Boolean)?Boolean(pending.validate(cards,state)):null;
   const selectedVisibleOwnerDeck=deck.length;
