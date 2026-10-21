@@ -391,7 +391,8 @@ function executeDevelopment(trial,candidates,{
     row.declarations?.length && row.settled?.after);
   const sourceFirst=game.firstTurnSlot===sourceSeat;
   const rootTrace=game.rootActionLedger||[];
-  const cologneNativePlayAudit=auditAcceptedCologneRoots(rootTrace);
+  const cologneNativePlayAudit=auditAcceptedCologneRoots(
+    rootTrace,game.suddenDeathClockResets??[]);
   if(paperCologneQuota){
     assert.equal(cologneNativePlayAudit.acceptedOncePerSeatTurn,true,
       'Paper Cologne guard permitted two successful plays by one actor in one turn');
