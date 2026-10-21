@@ -95,8 +95,12 @@ function chooseHeldGuzmaMobility(view,catalog){
   const handIndex=view.ownHand.findIndex(isGuzma);
   if(handIndex<0)return null;
 
-  // Never gust away from an Active with a currently funded damaging attack.
+  // Never infer a stranded Active if its attached Special Energy is outside
+  // this conservative one-unit Basic Energy funding model.
   const active=own.active;
+  if((active.energies??[]).some(printing=>
+    !catalog.basicEnergies.has(printing)))return null;
+  // Never gust away from an Active with a currently funded damaging attack.
   if((active.attacks??[]).some(attack=>
     attack.gxAttack!==true&&Number.isSafeInteger(attack.damage)&&
     attack.damage>0&&paysWithBasics(active,attack,catalog)))return null;
