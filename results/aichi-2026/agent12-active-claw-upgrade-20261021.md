@@ -1,0 +1,19 @@
+# Preregistered live source Claw upgrade contrast, 21 October 2026
+
+**Agent 12.** This preregistration precedes the new active-Energy upgrade code and both planned native runs. The objective is to falsify a precise common-policy source-opportunity bottleneck on the frozen Aichi rank11 real physical deal, not to claim competitive win rates.
+
+## Known pre-treatment problem
+
+On Agent43's fixed rank11 source seat 0 deal, Mega Absol ex M1L reaches two attached Darkness but its Actor-only Energy-recipient frontier subsequently allocates Darkness to Benched Trubbish (global turn 38 champion and 34 New Moon) and Squawkabilly ex (turn42 New Moon). The Active's payable **Terminal Period** is conditionally useless when the public opposing Active has other than six damage counters; the printed **Claw of Darkness** costs three Energy including two Darkness and deals 200. The actor-only selector's current `ready` condition treats *any* affordable attack as sufficient and downgrades Active Energy priority beneath Bench. Exact source evidence, both-seat policy caveats and preserved failures: [the prior Agent12 paired analysis](agent12-natural-evolution-on-recipient-frozen-contrast-20261021.md).
+
+## Frozen single-variable A/B
+
+Create branch `agent12-active-claw-20261021` from `0e2db69c4854d833edb06c6d1318fda1b5d4f459` and add an **off-by-default, source-and-candidate symmetric owner-observation-only** rescue of precisely one missed setup line: a held Basic Darkness can go to Active Mega Absol ex M1L when its already funded Terminal Period is deterministically dead against the public defender and exactly one Basic Darkness would unlock Claw of Darkness. Check actual printed printing, cost, defender damage, current attack restrictions and public/owned Energy; use no opponent concealed state, deck or Prize identity. Native Store performs final legality/settlement. Keep current generic recipient algorithm unchanged otherwise.
+
+Use existing `agent7-canonical-actor-bilateral.yml` manual workflow and canonical `simulation/evaluation/agent41-bilateral-v2-development.cjs`. Both control and treatment must run on **the same final commit** and identical four historical original source-deal arms: rank6 candidate physical A / seed 407516727; rank11 candidate physical B / seed 623585882; champion reference and New Moon 60 unchanged. In both arms hold true: energy_frontier, actor_energy_recipient, owner_single_search, special_energy_root, actor_hand_discard, actor_choose_pokemon, actor_quick_ball_root, native_generic_fallback, natural_evolution_root, and **known_dead_attack_root** (the latter is necessary to select Claw when payable). Hold all others false including paper Cologne, source-first retrospective and other attack selectors. Treatment enables only `active_claw_upgrade`, control disables only that flag. No new workflow, vendor mutation, or deck change.
+
+### Prespecified observables
+
+Match exact worktree SHA, cards/physical source-deal hash, seat/turn, flag vector, error and censor denominators. For source rank11, count eligible observed Claw-upgrade roots, chosen Active vs Bench Energy targets, accepted and physically witnessed Energy attachment, whether third Darkness made Claw payable, subsequent actual Claw declarations and settled public HP/Prizes, genuine candidate response and later source return. Report any source lost paper-rule/clock equivalence or unsupported generic-prompt intervention. Keep source rank6 prior sudden-death epoch root38 failure, independent of whether a new flag changes it. Report negative and zero-opportunity branches.
+
+**No engine terminal is a competitive-qualified match.** The field still lacks ranks 23,25,28 full source lists. The fully exposed source/candidate policy remains unqualified; this is a mechanical causal comparison toward a future playable policy.
