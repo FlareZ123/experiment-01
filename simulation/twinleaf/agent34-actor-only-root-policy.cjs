@@ -5,7 +5,7 @@ const {createHash}=require('node:crypto');
 const {actorObservation,publicPlayer}=require('./actor-observation-contract.cjs');
 const {rootPhysicalSnapshot,rootPhysicalWitness}=
   require('./agent5-owner-root-slice.cjs');
-const VERSION='agent34-actor-only-root-slice-v4-immediate-ko-energy-priority';
+const VERSION='agent34-actor-only-root-slice-v5-public-active-energy-scaling-guard';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 
 /**
@@ -139,6 +139,7 @@ function chooseActorRootIntent(view,catalog,options={}){
       .choosePerfectionTransition(view,catalog);
     if(planned)return planned;
   }
+  let withheldActiveScaling=0;
   if(own.active&&!r.energyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
     const first=view.ownHand.findIndex(p=>catalog.basicEnergies.has(p));
     if(first>=0){
@@ -153,7 +154,15 @@ function chooseActorRootIntent(view,catalog,options={}){
         if(knockout)return {kind:'attach-basic-energy',...knockout};
         const recipient=require('./agent44-actor-energy-recipient.cjs')
           .chooseActorEnergyRecipient(view,catalog);
-        if(recipient)return {kind:'attach-basic-energy',...recipient};
+        const exposure=require('./agent6-active-energy-exposure.cjs')
+          .guardActiveEnergyExposure(view,catalog,recipient);
+        if(exposure.recipient)return {kind:'attach-basic-energy',
+          ...exposure.recipient,
+          ...(exposure.triggered?{
+            avoidedActiveEnergyScaling:true,
+            opponentPrintedScalingPerEnergy:exposure.bonusDamage
+          }:{})};
+        if(exposure.triggered)withheldActiveScaling=exposure.bonusDamage;
         // Preserve a held Basic when all publicly known attack deficits
         // are already satisfied; a later legal turn may use the resource.
       }else{
@@ -268,7 +277,10 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseSpecialEnergyIntent(view,catalog);
     if(special)return special;
   }
-  return {kind:'pass',reason:'no-supported-owner-visible-root'};
+  return withheldActiveScaling>0?
+    {kind:'pass',reason:'withheld-basic-from-active-energy-scaling',
+      opponentPrintedScalingPerEnergy:withheldActiveScaling}:
+    {kind:'pass',reason:'no-supported-owner-visible-root'};
 }
 
 /**
