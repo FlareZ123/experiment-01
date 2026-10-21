@@ -4,6 +4,7 @@ const path=require('node:path');
 const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {initializeCards}=require('./headless.cjs');
 const {installRedeemableTicketPaperOrderHook}=require('./redeemable-ticket-paper-hook.cjs');
+const {installBattleCompressorMinimumHook}=require('./battle-compressor-minimum-hook.cjs');
 const {expectedTopWindowValue}=require('./observation-search-value.cjs');
 const load=name=>require(path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output',name));
 /** Source-locked artificial rank-26 opening with singleton DCE initially Prized. */
@@ -43,7 +44,8 @@ function sourceRank26TicketCompressor(){
  assert.equal(totalCardIds.size,60);
  const action=name=>new PlayCardAction(p.id,p.hand.cards.findIndex(x=>x.fullName===name),
   {player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
- const restore=installRedeemableTicketPaperOrderHook();
+ const restoreTicket=installRedeemableTicketPaperOrderHook();
+ const restoreCompressor=installBattleCompressorMinimumHook();
  try {
   s.dispatch(action(ticket));
   assert.ok(p.deck.cards.slice(-6).includes(dceCard));
@@ -51,6 +53,8 @@ function sourceRank26TicketCompressor(){
   s.dispatch(action(compressor));
   const choose=state.prompts.find(x=>x.constructor.name==='ChooseCardsPrompt'&&x.result===undefined);
   assert.ok(choose,'Source Compressor must produce a deck search prompt');
+  assert.equal(choose.options.min,1);
+  assert.equal(choose.validate([]),false);
   const discardTarget=p.deck.cards.find(x=>x!==dceCard);
   assert.ok(discardTarget,'Compressor must discard a non-DCE card');
   assert.equal(choose.validate([discardTarget]),true);
@@ -72,10 +76,11 @@ function sourceRank26TicketCompressor(){
   return {sourceRank:26,sourceDigest:plan.candidateDigest,
    exactRegisteredCopies:60,postFirstDrawDeckCount:46,
    ticketAndCompressorItemsDispatched:true,mandatoryCompressorDiscardAccepted:true,postCompressorDeckCount:45,
+   zeroSelectionRejected:true,paperMinimumCorrection:true,
    dceReturnedToBottomThenShuffledToTop:true,
    conditionalSevenCardAccess:access.expectedValue,
    modeledOpponentResponse:false,attackTested:false,winRateMeasured:false};
- }finally{restore();}
+ }finally{restoreCompressor();restoreTicket();}
 }
 if(require.main===module)console.log(JSON.stringify(sourceRank26TicketCompressor(),null,2));
 module.exports={sourceRank26TicketCompressor};
