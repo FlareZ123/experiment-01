@@ -207,6 +207,23 @@ function test() {
   assert.deepEqual(planElectroRainDamage(flying.state,
     flying.own,flying.prompt,flying.codes),flyingKO);
   defending.active.weaknessOverrideType=undefined;
+  defending.active.damageReductionBeforeWeaknessNextTurn=20;
+  assert.equal(planElectroRainDamage(flying.state,
+    flying.own,flying.prompt,flying.codes),null,
+    'Before-Weakness mitigation reduces 150 to 130, then x2 to 260');
+  defending.active.damageReductionBeforeWeaknessNextTurn=0;
+  defending.active.damageReductionNextTurn=30;
+  assert.equal(planElectroRainDamage(flying.state,
+    flying.own,flying.prompt,flying.codes),null,
+    'After-Weakness mitigation reduces 300 to 270');
+  defending.active.damageReductionNextTurn=0;
+  defending.active.getPokemonCard=()=>({
+    name:'Pidgeot ex',fullName:'Pidgeot ex OBF',hp:280,
+    tags:['ex'],weakness:[{type:4}],resistance:[{type:4,value:-30}]
+  });
+  assert.equal(planElectroRainDamage(flying.state,
+    flying.own,flying.prompt,flying.codes),null,
+    'Synthetic Lightning Resistance reduces 300 to 270');
   const penguin=caseState({budget:4,sight:false});
   penguin.state.players[1].bench=[];
   penguin.state.players[1].active.hp=210;
