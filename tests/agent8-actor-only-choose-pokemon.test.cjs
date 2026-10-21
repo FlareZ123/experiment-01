@@ -145,3 +145,79 @@ test('face-down setup prompt delegates before any actor board projection',()=>{
   assert.equal(r.audit.selected,0);
   assert.equal(r.audit.unsupportedNativeFallbacks,1);
 });
+
+test('opt-in charged own Bench choice is actor-only and leaves mixed or risky prompts alone',()=>{
+  const input=(offered,activeEnergies=[])=>({
+    actor:{decisionKind:'owner-prompt',ownPublic:{active:{
+      energies:activeEnergies}},opponentPublic:{privateHand:'never-consult'}},
+    prompt:{kind:'ChoosePokemonPrompt',offered,allowCancel:false}
+  });
+  const own=(index,attachedEnergyCount)=>({
+    index,side:'own',zone:'bench',attachedEnergyCount
+  });
+  const opponent=(index,attachedEnergyCount)=>({
+    index,side:'opponent',zone:'bench',attachedEnergyCount
+  });
+  const multi=input([own(0,0),own(1,1),own(2,2)]);
+  assert.deepEqual(chooseActorPokemon(multi),{index:0});
+  assert.deepEqual(chooseActorPokemon(multi,{
+    preferChargedOwnBench:true}),{index:2});
+  assert.deepEqual(chooseActorPokemon(input([own(0,0),own(1,0)]),{
+    preferChargedOwnBench:true}),{index:0});
+  assert.deepEqual(chooseActorPokemon(input([own(0,0),own(1,2)],['Psychic']),{
+    preferChargedOwnBench:true}),{index:0});
+  assert.deepEqual(chooseActorPokemon(input([opponent(0,0),opponent(1,2)]),{
+    preferChargedOwnBench:true}),{index:0});
+  assert.deepEqual(chooseActorPokemon(input([own(0,0),opponent(1,2)]),{
+    preferChargedOwnBench:true}),{index:0});
+  assert.deepEqual(chooseActorPokemon(input([own(0,0)]),{
+    preferChargedOwnBench:true}),{index:0});
+});
+
+test('opt-in chooses owner charged Bench through real Store mock, both-seat safe and reversible',()=>{
+  const a=player(1,'A'),b=player(2,'B');
+  for(const p of [a,b]){
+    p.active.energyCount=0;
+    p.bench[0].energyCount=0;
+    p.bench[1].energyCount=2;
+  }
+  const project=x=>({
+    printing:x.cards[0].fullName,hp:90,damage:0,
+    energies:Array(x.energyCount??0).fill('Psychic Energy'),
+    attacks:[{name:'Move'}]
+  });
+  const observeOwner=(s,seat)=>actorChoosePokemonInput(s,seat,(state,ownerSeat)=>({
+    decisionKind:'owner-prompt',globalTurn:state.turn,
+    ownPublic:{
+      active:project(state.players[ownerSeat].active),
+      bench:state.players[ownerSeat].bench.map(project)
+    },
+    opponentPublic:{
+      active:project(state.players[1-ownerSeat].active),
+      bench:state.players[1-ownerSeat].bench.map(project)
+    }
+  }));
+  const s={phase:2,turn:9,players:[a,b],prompts:[]};
+  const oldBot=SimpleTacticsAi.prototype.decodeNextAction;
+  const oldStore=Store.prototype.dispatch;
+  const result=withActorOnlyChoosePokemon(()=>{
+    const store=new Store(s);
+    store.dispatch(new AddPlayerAction());
+    for(const [seat,id] of [[0,1],[1,2]]){
+      s.prompts=[new ChoosePokemonPrompt(id,{id:id+100,playerType:2})];
+      const action=new SimpleTacticsAi(id).decodeNextAction(s);
+      assert.ok(action instanceof ResolvePromptAction);
+      assert.strictEqual(action.result[0],s.players[seat].bench[1]);
+      assert.equal(store.dispatch(action),true);
+    }
+  },{Store,SimpleTacticsAi,ResolvePromptAction,
+    preferChargedOwnBench:true,observe:observeOwner,
+    validate:(state,action)=>assert.ok(state.prompts[0].validate(action.result))});
+  assert.equal(result.audit.version,VERSION+'+charged-own-bench-optin-v1');
+  assert.equal(result.audit.chargedOwnBenchSelections,2);
+  assert.equal(result.audit.accepted,2);
+  assert.equal(result.audit.postconditionsConfirmed,2);
+  assert.deepEqual(result.audit.bySeat,{0:1,1:1});
+  assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,oldBot);
+  assert.strictEqual(Store.prototype.dispatch,oldStore);
+});
