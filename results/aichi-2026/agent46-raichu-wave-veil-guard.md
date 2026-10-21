@@ -1,3 +1,5 @@
+> **21 October 2026 correction:** The final 21 October appendix below incorrectly treats Active Lightning Weakness as multiplying Alolan Raichu UNM's Electro Rain damage. The pinned printed attack text explicitly says it **ignores Weakness and Resistance**. Thus a 280-HP Active Pidgeot ex requires ten 30-damage units (300), regardless of Lightning Weakness; five units do not KO it. The narrower proposition that Bench Barrier protects Bench and leaves Active exposed remains valid. The current optional planner's inaccurate Weakness arithmetic was removed in `4a33419761afbb105d496c71656adeea7e2df694`; the associated pre-revision pure positive test is stale and fails. [Retraction and details](agent46-active-weakness-electro-rain-target-scoring-20261021.md).
+
 # Agent 46: conservative Wave Veil veto for Electro Rain Prize projection
 
 **18 October 2026.** Source inspection plus independently executed **pure-policy regression**; the new compiled Store regression has **not** been run. The change is confined to the pre-existing optional Raichu target planner. No qualified game or win-rate result.
