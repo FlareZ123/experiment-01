@@ -38,6 +38,10 @@ on:
         description: 'Source turn7 Secret Box Crispin native Energy choice and attack audit'
         type: boolean
         default: false
+      hood_guard_temple_native:
+        description: 'Optional pinned Guard Energy versus Temple and equipped Garbotoxin stats matrix'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -260,5 +264,22 @@ jobs:
         with:
           name: rank8-secretbox-crispin-native-line
           path: rank8-secretbox-crispin-native.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Check Guard Temple card texts and exact source sighting regression
+        if: inputs.hood_guard_temple_native
+        run: |
+          node --check simulation/twinleaf/hood-guard-temple-native-stats.cjs
+          node --test tests/hood-guard-window-exact.test.cjs
+      - name: Execute pinned Guard Temple Hood native stats matrix
+        if: inputs.hood_guard_temple_native
+        run: node simulation/twinleaf/hood-guard-temple-native-stats.cjs > hood-guard-temple-native-stats.json
+      - name: Archive Guard Temple printed-effect compatibility packet
+        if: always() && inputs.hood_guard_temple_native
+        uses: actions/upload-artifact@v4
+        with:
+          name: hood-guard-temple-native-stats
+          path: hood-guard-temple-native-stats.json
           if-no-files-found: warn
           retention-days: 14
