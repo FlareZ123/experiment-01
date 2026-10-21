@@ -1,0 +1,411 @@
+{
+  "schema": "aichi-repurika-dragon05-visual-name-ledger-v1",
+  "status": "unassigned-Top32-community-list; rank28 official registration linkage unverified",
+  "source_gallery": "https://note.com/nayuta_poke/n/n7e3d0552090b",
+  "original_image": "https://assets.st-note.com/img/1778498104-f3i2b7OUhxcapD08QlB9ywrH.png?width=1200",
+  "archived_png_sha256": "3b23a6fb4daf9b1f537462d50611d6d2765bf0dc228338c3ddd0e41b97452cc9",
+  "archived_artifact": "https://github.com/FlareZ123/experiment-01/actions/runs/39424823375/artifacts/12265475896",
+  "poster": "レプリカ / @nnaacc5_uec",
+  "poster_swiss_qualifier_rank": 28,
+  "poster_top32_elimination": "lost first round",
+  "official_rank28_entry": "Jo Kato / Regidrago",
+  "civil_name_linkage_verified": false,
+  "independent_38_cell_visual_transcription": true,
+  "Japanese_printing_ids_verified": false,
+  "row_copy_totals": [
+    13,
+    8,
+    15,
+    11,
+    13
+  ],
+  "total_copies": 60,
+  "distinct_grid_cells": 38,
+  "category_copy_totals": {
+    "Pokémon": 20,
+    "Item": 16,
+    "Pokémon Tool": 2,
+    "Supporter": 10,
+    "Stadium": 2,
+    "Special Energy": 3,
+    "Basic Energy": 7
+  },
+  "notes": [
+    "Transcribed by visual inspection of original archived dragon-05.png before comparing against published rank source JSON.",
+    "Full English card-name and count inventory is photograph-derived, not official tournament deck registration. Japanese print collector IDs are not verified.",
+    "Professor Juniper denotes visible アララギ博士 and is kept distinct from differently named Professor's Research.",
+    "The poster's reported qualifier 28th and official listed final rank 28 cannot by themselves prove civil name, event deck registration, or printing-specific attribution.",
+    "Do not add this image to full-decklists.json, count it as a 30th verified rank, or claim competitive performance on this basis."
+  ],
+  "cells": [
+    {
+      "cell": "R1C1",
+      "japanese": "レジドラゴV",
+      "english": "Regidrago V",
+      "count": 4,
+      "category": "Pokémon",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R1C2",
+      "japanese": "レジドラゴVSTAR",
+      "english": "Regidrago VSTAR",
+      "count": 3,
+      "category": "Pokémon",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R1C3",
+      "japanese": "ディアルガGX",
+      "english": "Dialga-GX",
+      "count": 1,
+      "category": "Pokémon",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R1C4",
+      "japanese": "ドラパルトex",
+      "english": "Dragapult ex",
+      "count": 1,
+      "category": "Pokémon",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R1C5",
+      "japanese": "コライドンex",
+      "english": "Koraidon ex",
+      "count": 1,
+      "category": "Pokémon",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R1C6",
+      "japanese": "ヒスイヌメルゴンVSTAR",
+      "english": "Hisuian Goodra VSTAR",
+      "count": 1,
+      "category": "Pokémon",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R1C7",
+      "japanese": "オンバーンex",
+      "english": "Noivern ex",
+      "count": 1,
+      "category": "Pokémon",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R1C8",
+      "japanese": "キュレム",
+      "english": "Kyurem",
+      "count": 1,
+      "category": "Pokémon",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R2C1",
+      "japanese": "ラティアスex",
+      "english": "Latias ex",
+      "count": 1,
+      "category": "Pokémon",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R2C2",
+      "japanese": "デデンネGX",
+      "english": "Dedenne-GX",
+      "count": 1,
+      "category": "Pokémon",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R2C3",
+      "japanese": "カプ・テテフGX",
+      "english": "Tapu Lele-GX",
+      "count": 1,
+      "category": "Pokémon",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R2C4",
+      "japanese": "イキリンコex",
+      "english": "Squawkabilly ex",
+      "count": 1,
+      "category": "Pokémon",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R2C5",
+      "japanese": "スボミー",
+      "english": "Budew",
+      "count": 1,
+      "category": "Pokémon",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R2C6",
+      "japanese": "マーシャドー",
+      "english": "Marshadow",
+      "count": 1,
+      "category": "Pokémon",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R2C7",
+      "japanese": "ソーナンス",
+      "english": "Wobbuffet",
+      "count": 1,
+      "category": "Pokémon",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R2C8",
+      "japanese": "バトルコンプレッサー",
+      "english": "Battle Compressor",
+      "count": 1,
+      "category": "Item",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R3C1",
+      "japanese": "バトルサーチャー",
+      "english": "VS Seeker",
+      "count": 3,
+      "category": "Item",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R3C2",
+      "japanese": "ミステリートレジャー",
+      "english": "Mysterious Treasure",
+      "count": 3,
+      "category": "Item",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R3C3",
+      "japanese": "クイックボール",
+      "english": "Quick Ball",
+      "count": 1,
+      "category": "Item",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R3C4",
+      "japanese": "ハイパーボール",
+      "english": "Ultra Ball",
+      "count": 2,
+      "category": "Item",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R3C5",
+      "japanese": "ヒスイのヘビーボール",
+      "english": "Hisuian Heavy Ball",
+      "count": 1,
+      "category": "Item",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R3C6",
+      "japanese": "バトルVIPパス",
+      "english": "Battle VIP Pass",
+      "count": 3,
+      "category": "Item",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R3C7",
+      "japanese": "すごいつりざお",
+      "english": "Super Rod",
+      "count": 1,
+      "category": "Item",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R3C8",
+      "japanese": "プライムキャッチャー",
+      "english": "Prime Catcher",
+      "count": 1,
+      "category": "Item",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R4C1",
+      "japanese": "こだわりハチマキ",
+      "english": "Choice Band",
+      "count": 2,
+      "category": "Pokémon Tool",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R4C2",
+      "japanese": "アララギ博士",
+      "english": "Professor Juniper",
+      "count": 2,
+      "category": "Supporter",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R4C3",
+      "japanese": "リーリエの決心",
+      "english": "Lillie's Determination",
+      "count": 1,
+      "category": "Supporter",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R4C4",
+      "japanese": "キバナ",
+      "english": "Raihan",
+      "count": 1,
+      "category": "Supporter",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R4C5",
+      "japanese": "ナンジャモ",
+      "english": "Iono",
+      "count": 1,
+      "category": "Supporter",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R4C6",
+      "japanese": "アカマツ",
+      "english": "Crispin",
+      "count": 1,
+      "category": "Supporter",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R4C7",
+      "japanese": "グズマ",
+      "english": "Guzma",
+      "count": 2,
+      "category": "Supporter",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R4C8",
+      "japanese": "マリィ",
+      "english": "Marnie",
+      "count": 1,
+      "category": "Supporter",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R5C1",
+      "japanese": "ザオボー",
+      "english": "Faba",
+      "count": 1,
+      "category": "Supporter",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R5C2",
+      "japanese": "頂への雪道",
+      "english": "Path to the Peak",
+      "count": 1,
+      "category": "Stadium",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R5C3",
+      "japanese": "パラレルシティ",
+      "english": "Parallel City",
+      "count": 1,
+      "category": "Stadium",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R5C4",
+      "japanese": "ダブルドラゴンエネルギー",
+      "english": "Double Dragon Energy",
+      "count": 3,
+      "category": "Special Energy",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R5C5",
+      "japanese": "基本炎エネルギー",
+      "english": "Fire Energy",
+      "count": 3,
+      "category": "Basic Energy",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    },
+    {
+      "cell": "R5C6",
+      "japanese": "基本草エネルギー",
+      "english": "Grass Energy",
+      "count": 4,
+      "category": "Basic Energy",
+      "visual_confidence": "high",
+      "japanese_printing_id_verified": false
+    }
+  ],
+  "published_29_name_multiplicity_nearest": [
+    {
+      "rank": 10,
+      "player": "Haruku Yoshioka",
+      "shared_copies": 51
+    },
+    {
+      "rank": 21,
+      "player": "Shun Nakajima",
+      "shared_copies": 48
+    },
+    {
+      "rank": 13,
+      "player": "Hiromu Sasaki",
+      "shared_copies": 47
+    },
+    {
+      "rank": 20,
+      "player": "Satoru Imamura",
+      "shared_copies": 46
+    },
+    {
+      "rank": 12,
+      "player": "Risa Sato",
+      "shared_copies": 44
+    }
+  ]
+}
