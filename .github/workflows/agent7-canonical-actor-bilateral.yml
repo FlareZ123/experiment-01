@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      owner_early_bench_compressor_pair:
+        description: Paired genuine owner turn3 Benched Mewtwo donor preparation, development only
+        required: false
+        type: boolean
+        default: false
       owner_anyturn_compressor_pair:
         description: Paired same-checkout retrospective owner donor setup, no competitive claims
         required: false
@@ -172,11 +177,15 @@ jobs:
       - name: Pinned real-Store Cologne duplicate and replay-epoch gate
         if: ${{ inputs.paper_cologne_quota }}
         run: node simulation/twinleaf/canceling-cologne-repeat-paper-gate.cjs > agent48-cologne-native-gate.json
+      - name: Reject ambiguous simultaneous late and benched donor treatments
+        if: ${{ inputs.owner_anyturn_compressor_pair && inputs.owner_early_bench_compressor_pair }}
+        run: node -e "throw new Error('Only one donor treatment may run per paired experiment')"
       - name: Execute unchanged canonical four-arm historical bilateral runner
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
           AGENT32_COMPR_ANYTURN_DEV: ${{ inputs.owner_anyturn_compressor_pair && 'true' || 'false' }}
+          AGENT32_COMPR_BENCHED_DEV: ${{ inputs.owner_early_bench_compressor_pair && 'true' || 'false' }}
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
           AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
           AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
@@ -195,11 +204,12 @@ jobs:
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-actor-fourarm.json
       - name: Same-deal donor recovery control under identical real-game policies
-        if: ${{ inputs.owner_anyturn_compressor_pair }}
+        if: ${{ inputs.owner_anyturn_compressor_pair || inputs.owner_early_bench_compressor_pair }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
           AGENT32_COMPR_ANYTURN_DEV: 'false'
+          AGENT32_COMPR_BENCHED_DEV: 'false'
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
           AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
           AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
@@ -218,7 +228,7 @@ jobs:
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent32-anyturn-compressor-control.json
       - name: Compare registered physical deals, replay roots and actual owner donor actions
-        if: ${{ inputs.owner_anyturn_compressor_pair }}
+        if: ${{ inputs.owner_anyturn_compressor_pair || inputs.owner_early_bench_compressor_pair }}
         run: |
           node -e "const assert=require('node:assert/strict');const control=require('./agent32-anyturn-compressor-control.json'),treat=require('./agent7-canonical-actor-fourarm.json');assert.equal(control.attempted,4);assert.equal(treat.attempted,4);assert.equal(control.ownerCompressorAnyTurnOptIn,false);assert.equal(treat.ownerCompressorAnyTurnOptIn,true);assert.equal(control.competitiveQualifiedGames,0);assert.equal(treat.competitiveQualifiedGames,0);for(let i=0;i<4;i++){const a=control.rows[i],b=treat.rows[i];assert.equal(a.trial.id,b.trial.id);assert.equal(a.trial.seed,b.trial.seed);assert.equal(a.sourceDealFingerprint,b.sourceDealFingerprint);assert.equal(a.actualStarterSeat,b.actualStarterSeat);assert.ok(a.actorOnlyDecisionCoverage&&b.actorOnlyDecisionCoverage);assert.equal(a.qualifiesForCompetitiveInference,false);assert.equal(b.qualifiesForCompetitiveInference,false);console.log('DONOR_PAIR',JSON.stringify({id:a.trial.id,physical:a.sourceDealFingerprint,control:{actions:a.actionCount,terminal:a.finished,winner:a.winner,root:a.rootActionLedgerSha256,discards:a.ownerCompressorOpportunityAudit?.events?.filter(x=>x.anyTurnEligible).map(x=>({turn:x.turn,psychic:x.ownerDiscardBasicPsychicCount,powerglass:x.heldPowerglassCount}))??[]},treatment:{actions:b.actionCount,terminal:b.finished,winner:b.winner,root:b.rootActionLedgerSha256,played:b.candidateBattleCompressorRoots??[],attacks:b.candidateAttackDeclarationEvidence??[]},competitiveQualified:false}));}"
       - name: Fail closed on missing actor audits and silent missing arms
