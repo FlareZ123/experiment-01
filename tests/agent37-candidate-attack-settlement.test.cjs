@@ -201,8 +201,10 @@ test('missing or discontinuous turnAfter does not certify same-epoch return',()=
   game.rootActionLedger[0].turnAfter=21;
   game.rootActionLedger[1].turnAfter=22;
   game.rootActionLedger[2].turnAfter=22;
-  game.rootActionLedger[3].turnAfter=23; 
-  game.rootActionLedger[2].turnBefore=23;
+  // The prior prompt claims advancement to 23, but the next physical
+  // dispatch starts at 22. This is a gap, without a decreasing clock.
+  game.rootActionLedger[2].turnAfter=23;
+  game.rootActionLedger[3].turnAfter=22;
   const out=candidateAttackSettlement(game,1);
   assert.equal(out.withImmediateSourceReturn,1);
   assert.equal(out.withVerifiedSameEpochSourceReturn,0,
