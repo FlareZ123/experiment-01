@@ -71,6 +71,7 @@ function deps(){
       Stage:{BASIC:'BASIC'},EnergyType:{BASIC:'BASIC'},
       CardType:{COLORLESS:9,PSYCHIC:5},
       PowerType:{ABILITY:'ABILITY'},
+      SpecialCondition:{ASLEEP:0,PARALYZED:2},
       PlayerType:{BOTTOM_PLAYER:1},SlotType:{BENCH:2,ACTIVE:3}
     }
   };
