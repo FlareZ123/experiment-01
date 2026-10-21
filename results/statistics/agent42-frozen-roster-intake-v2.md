@@ -24,3 +24,25 @@ Two additional [pure tests](../../tests/aichi-paired-four-cell-accrual.test.cjs)
 - Agent 44/41 canonical integration should maintain one profile's hash manifest and attach actual original-Store `deckHashes` plus setup observer evidence before later using this v2 planning helper. Keep all other qualification vetoes and the paper-clock limit.
 
 **Benchmark status unchanged:** 29/32 exact source lists available; zero independently competitive-qualified games; no demonstrated 99.5% single fixed 60.
+
+## 21 October native settled setup-only execution
+
+The protocol now has a read-only bridge from **real pinned Twinleaf Store setup** to the v2 preregistration inputs:
+
+- `simulation/evaluation/aichi-setup-only-capture.cjs` optionally reports `firstTurnEvidence` from the actual first `PLAYER_TURN` root and original `LOG_PLAYER_DRAWS_CARD`; it continues to stop before any normal player action. Its opt-in source fingerprint still includes the complete ordered physical source positions.
+- `simulation/evaluation/agent42-registered-setup-native-bridge.cjs` checks SHA-256 of the **ordered original resolved engine printing IDs** against the frozen rank and candidate maps *before* running either setup. Each Store capture verifies complete 60-copy opening multiset conservation, settled first-turn ID/name/draw-log agreement and ordered source-deal fingerprint. A failed/missing proof is retained as unverified and blocks subsequent registered accrual.
+- `simulation/evaluation/agent42-native-fourcell-setup-smoke.cjs` fixes in version-controlled source a bounded schedule against authentic rank **6 Iron Thorns** and **11 Absol/Garbodor**, both physical candidate seats, **champion-reference** and **new-moon-lockbreaker-v1** unchanged. It runs source setup only, with no game policy decision or winner recorded. The in-process roster hashes are mechanically reproducible from the source checkout, but this smoke **does not establish an independently timestamped external preregistration**.
+
+**Compiled result:** [manual pinned Store CI run 39531694443](https://github.com/FlareZ123/experiment-01/actions/runs/39531694443), source head `775659ace8ed53f33954a12bf113b5d934ec9b5b`, completed **success**, with 14/14 relevant pure tests passing. The actual native execution reported:
+
+| Published source rank | Candidate seat 0 actual starter | Candidate seat 1 actual starter | Settled native paired setup matches |
+| --- | --- | --- | ---: |
+| 6, Iron Thorns | Source first | Candidate first | 2 of 2 |
+| 11, Absol Garbodor | Candidate first | Source first | 2 of 2 |
+| **Total** | | | **4 of 4** |
+
+All **eight** original-Store arm setups were verified before any normal turn decision. All four comparison pairs reported identical complete ordered source-position digests across the champion/New Moon arms, identical actual first-player identities and matching resolved roster hashes. No attempted pair was unverified or excluded. The original first-player strata are **two occupied cells per source rank out of the required four**. Neither rank satisfies a complete four-cell quota; this remains an intentionally small mechanical compatibility smoke.
+
+The entire bounded receipt archive is preserved as [GitHub Actions artifact 12315761766](https://github.com/FlareZ123/experiment-01/actions/runs/39531694443/artifacts/12315761766), ZIP SHA-256 `ebd18bc0676a0128ed436442acb86578552bfaa75789d5b62ab6443d6fa6e64a`, artifact size **2029 bytes**. Those bytes have **not** been independently downloaded and rehashed here; the digest and dimensions are the GitHub Actions uploader's recorded attestation. The bounded native summary was retrieved from the corresponding job logs.
+
+**Limits:** The printable engine-ID hashes identify the *resolved English/mechanical proxy lists and their input order*, and do not independently authenticate the precise original Japanese physical printings, ban/errata legality or tournament registration. Both pilot candidates are represented by only four fixed pair seeds; source first-player/physical seat and rank are not randomized into full balanced four-cell strata. Equal initial source positions do not certify comparable future RNG trajectories. There are zero completed or competitively qualified matches. The canonical bilateral game runner, player policies and paper clock were not modified by this probe. Use this emitter only as a pregame attestation service for Agent44's canonical profile after genuine external plan freezing.
