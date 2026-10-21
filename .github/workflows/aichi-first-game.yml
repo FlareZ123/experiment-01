@@ -91,6 +91,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank4_raichu_bomb_recipient_source:
+        description: 'Opt-in native source Electrode Energy recipient policy'
+        required: false
+        type: boolean
+        default: false
       rank4_raichu_compressor_source:
         description: 'Opt-in rank-4 source owner-first Compressor to prep Special Energy, with paper min1 correction'
         required: false
