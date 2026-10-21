@@ -146,7 +146,9 @@ function chooseActorRootIntent(view,catalog,options={}){
       // actor view, while preserving the original branch when not enabled.
       if(options.energyRecipientFrontier===true){
         const recipient=require('./agent44-actor-energy-recipient.cjs')
-          .chooseActorEnergyRecipient(view,catalog);
+          .chooseActorEnergyRecipient(view,catalog,{
+            preferNearTermDamage:options.nearTermDamageRecipient===true
+          });
         if(recipient)return {kind:'attach-basic-energy',...recipient};
         // Preserve a held Basic when all publicly known attack deficits
         // are already satisfied; a later legal turn may use the resource.
@@ -325,6 +327,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT10_BASIC_ENERGY_FRONTIER_DEV==='true'),
     energyRecipientFrontierOptIn:deps.energyRecipientFrontier??
       (process.env.AGENT44_ACTOR_ENERGY_RECIPIENT_DEV==='true'),
+    nearTermDamageRecipientOptIn:deps.nearTermDamageRecipient??
+      (process.env.AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV==='true'),
     perfectionRootOptIn:deps.perfectionRoot??
       (process.env.AGENT30_PERFECTION_ROOT_DEV==='true'),
     perfectionTransitionRootOptIn:deps.perfectionTransitionRoot??
@@ -362,6 +366,12 @@ function withActorOnlyRootPolicy(run,deps={}){
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
   };
   assert.ok([null,0,1].includes(audit.specialEnergyRootOwnerSeat));
+  assert.ok(!audit.nearTermDamageRecipientOptIn||
+    audit.energyRecipientFrontierOptIn,
+    'Near-term damaging Bench priority requires owner Energy recipient');
+  if(audit.nearTermDamageRecipientOptIn)
+    audit.version+='+'+
+      require('./agent44-actor-energy-recipient.cjs').NEAR_TERM_DAMAGE_VERSION;
   if(audit.specialEnergyRootOwnerSeat!==null)
     audit.version+='+agent49-source-seat-special-v1';
   if(audit.quickBallRootOptIn)
@@ -405,6 +415,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     const intent=chooseActorRootIntent(view,catalog,{
       energyFrontier:audit.energyFrontierOptIn,
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
+      nearTermDamageRecipient:audit.nearTermDamageRecipientOptIn,
       paidRetreatRoot:audit.paidRetreatRootOptIn,
       perfectionRoot:audit.perfectionRootOptIn,
       perfectionTransitionRoot:audit.perfectionTransitionRootOptIn,
