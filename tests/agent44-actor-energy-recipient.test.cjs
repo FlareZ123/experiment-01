@@ -179,3 +179,22 @@ test('authentic owner Root proposal addresses the Bench, with reversible hooks',
   assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,botOriginal);
   assert.strictEqual(Store.prototype.dispatch,storeOriginal);
 });
+
+test('public blocked low-cost attack does not suppress Active upgrade',()=>{
+  const v=view();
+  v.ownPublic.active.energies=['Psychic Energy MEE','Psychic Energy MEE'];
+  v.ownPublic.active.publicRestrictions.blockedAttackNameNextTurn='Get Lost';
+  const pick=chooseActorEnergyRecipient(v,catalog);
+  assert.equal(pick.slot,'active');
+  assert.equal(pick.attackName,'Mind Shock');
+  assert.equal(pick.gapAfter,0);
+});
+
+test('public paralysis favors eligible Bench deficit',()=>{
+  const v=view();
+  v.ownPublic.active.energies=[];
+  v.ownPublic.active.attacks=[{name:'Mind Shock',cost:[P]}];
+  v.ownPublic.active.specialConditions=[catalog.specialConditions.PARALYZED];
+  const pick=chooseActorEnergyRecipient(v,catalog);
+  assert.equal(pick.slot,'bench');
+});
