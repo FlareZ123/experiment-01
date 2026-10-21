@@ -29,6 +29,13 @@ jobs:
         run: npm run compile
       - name: Run Agent28 source T3 native replay
         run: node simulation/evaluation/agent28-source-t3-backorder-native.cjs
+      - name: Archive Agent28 T3 Back Order packet
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent28-t3-backorder-native
+          path: agent28-t3-backorder-native.json
+          if-no-files-found: warn
       - name: Enforce native Energy recipient legality under printed type filters
         run: node --test tests/agent11-pinned-attach-energy-geometry.test.cjs tests/agent11-attach-energy-geometry.test.cjs
       - name: Regress optional actor-only typed Energy frontier and unchanged root
