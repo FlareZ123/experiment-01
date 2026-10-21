@@ -267,7 +267,8 @@ function executeDevelopment(trial,candidates,{
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,
-  paperTerminalAttackKo=false
+  paperTerminalAttackKo=false,
+  rank6K1AlternativeEnergy=false
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
     'Initialization passive window belongs only to rank 6');
@@ -423,13 +424,17 @@ function executeDevelopment(trial,candidates,{
     const allowedDiscards=discardOrder.slice(0,-5);
     const played=withBroadThornsSourceAttack(()=>
       withBroadThornsSourceAttack(common,
-        {seat:sourceSeat,turn:3,discardPriority:allowedDiscards}),
-      {seat:sourceSeat,turn:2,discardPriority:allowedDiscards});
+        {seat:sourceSeat,turn:3,discardPriority:allowedDiscards,
+          k1AlternativeEnergy:rank6K1AlternativeEnergy}),
+      {seat:sourceSeat,turn:2,discardPriority:allowedDiscards,
+        k1AlternativeEnergy:rank6K1AlternativeEnergy});
     sourceAudit={
       turn2:{started:played.started,completed:played.completed,
-        abortReason:played.abortReason},
+        abortReason:played.abortReason,
+        k1BackupEnergyName:played.backupEnergyName??null},
       turn3:{started:played.result.started,completed:played.result.completed,
-        abortReason:played.result.abortReason}
+        abortReason:played.result.abortReason,
+        k1BackupEnergyName:played.result.backupEnergyName??null}
     };
     commonAudit=played.result.result.policyAudit;
     game=played.result.result.result;
@@ -657,7 +662,8 @@ function runDevelopment({
   actorHandDiscard=false,actorChoosePokemon=false,
   nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,
-  paperTerminalAttackKo=false
+  paperTerminalAttackKo=false,
+  rank6K1AlternativeEnergy=false
 }={}){
   assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -688,6 +694,7 @@ function runDevelopment({
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
         nativeActionInputTapeOrdinal,paperTerminalAttackKo,
+        rank6K1AlternativeEnergy,
         // An opt-in observational package, with each native Store observer
         // applicable to its own opposing source archetype only.
         initializationWindow:nativePressureWindows&&trial.rank===6,
@@ -807,6 +814,7 @@ function runDevelopment({
     nativeSupporterQuotaQualified:paperSupporterQuota?
       rows.every(row=>row.nativeSupporterQuotaQualified===true):'unverified',
     sourceFirstRetrospective,
+    rank6K1AlternativeEnergyOptIn:rank6K1AlternativeEnergy,
     retrospectiveSeedProvenance:sourceFirstRetrospective?{
       6:{seed:407516727,seat:'B',selection:'reversed physical source seat'},
       11:{seed:482443328,seat:'B',selection:'post-observed source success'}
@@ -879,7 +887,9 @@ if(require.main===module){
     actorHandDiscard:process.env.AGENT47_ACTOR_HAND_DISCARD_DEV==='true',
     actorChoosePokemon:process.env.AGENT8_ACTOR_CHOOSE_POKEMON_DEV==='true',
     sourceFirstRetrospective:process.env.AGENT41_SOURCEFIRST_RETRO_DEV==='true',
-    opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true'
+    opportunityAudit:process.env.AGENT5_COMPR_OPPORTUNITY_AUDIT==='true',
+    rank6K1AlternativeEnergy:
+      process.env.AGENT49_RANK6_K1_ALT_ENERGY_DEV==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
