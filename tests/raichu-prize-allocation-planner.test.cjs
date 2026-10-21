@@ -155,9 +155,15 @@ function test() {
     hp:70,hpBonus:0,damage:0,tools:[],
     getPokemonCard:()=>manaphy
   });
+  const waveTarget=planElectroRainDamage(waveVeil.state,waveVeil.own,
+    waveVeil.prompt,waveVeil.codes);
+  assert.ok(waveTarget?.length);
+  assert.ok(waveTarget.every(row=>row.target.slot===1),
+    'Wave Veil must exclude all Benched targets, preserving Active only');
+  waveVeil.prompt.options.blocked.push({player:1,slot:1,index:0});
   assert.equal(planElectroRainDamage(waveVeil.state,waveVeil.own,
     waveVeil.prompt,waveVeil.codes),null,
-    'Wave Veil might block the projected two-Bench five-Prize line');
+    'With protected Bench and unavailable Active, fall back safely');
 
   const mrMime={
     name:'Mr. Mime',fullName:'Mr. Mime PLF',hp:70,tags:[],
@@ -168,15 +174,39 @@ function test() {
     hp:70,hpBonus:0,damage:0,tools:[],
     getPokemonCard:()=>mrMime
   });
-  assert.equal(planElectroRainDamage(mimeBench.state,mimeBench.own,
-    mimeBench.prompt,mimeBench.codes),null,
-    'Aichi rank-2 Mr. Mime prevents projected Bench damage');
+  const mimeBenchPlan=planElectroRainDamage(mimeBench.state,mimeBench.own,
+    mimeBench.prompt,mimeBench.codes);
+  assert.ok(mimeBenchPlan?.length);
+  assert.ok(mimeBenchPlan.every(row=>row.target.slot===1),
+    'Aichi rank-2 Mr. Mime prevents projected Bench damage only');
 
   const mimeActive=caseState();
   mimeActive.state.players[1].active.getPokemonCard=()=>mrMime;
-  assert.equal(planElectroRainDamage(mimeActive.state,mimeActive.own,
-    mimeActive.prompt,mimeActive.codes),null,
-    'Bench Barrier remains relevant while Mr. Mime is Active');
+  mimeActive.state.players[1].active.hp=70;
+  mimeActive.prompt.maxAllowedDamage[0].damage=550;
+  const mimeActivePlan=planElectroRainDamage(mimeActive.state,mimeActive.own,
+    mimeActive.prompt,mimeActive.codes);
+  assert.ok(mimeActivePlan?.length);
+  assert.ok(mimeActivePlan.every(row=>row.target.slot===1),
+    'An Active Bench Barrier Pokemon itself still takes attack damage');
+
+  const pidgeotBehindMime=caseState({budget:5,sight:false});
+  const barrierBoard=pidgeotBehindMime.state.players[1];
+  barrierBoard.active.hp=280;
+  barrierBoard.active.getPokemonCard=()=>({
+    name:'Pidgeot ex',fullName:'Pidgeot ex OBF',hp:280,
+    tags:['ex'],weakness:[{type:4}],resistance:[]
+  });
+  pidgeotBehindMime.prompt.maxAllowedDamage[0].damage=430;
+  barrierBoard.bench.push({
+    hp:70,hpBonus:0,damage:0,tools:[],getPokemonCard:()=>mrMime
+  });
+  const openActive=planElectroRainDamage(pidgeotBehindMime.state,
+    pidgeotBehindMime.own,pidgeotBehindMime.prompt,
+    pidgeotBehindMime.codes);
+  assert.deepEqual(openActive.map(({target,damage})=>
+    [target.slot,target.index,damage]),[[1,0,150]],
+    'An Active Lightning-weak Pidgeot can be KOed behind Benched Mr. Mime');
 
   // Exact Aichi source targets: rank2/15 Pidgeot ex OBF164 (280 HP),
   // and rank30 Empoleon V BST40 (210 HP) are Lightning-weak.
