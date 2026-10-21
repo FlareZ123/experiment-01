@@ -42,3 +42,21 @@ This deliberately reuses a retrospective favorable seed and original source auto
 The most useful extension is one same-checkout, matched first-different-action native public board and settled prompt/effect check, followed by integration into the existing bilateral **both-seat** root-and-prompt common policy under a named opt-in. A literal source-printing preference can overfit and should not be adopted globally merely because the named attack proved reachable.
 
 **Full reproducibility:** source file paths above; workflow run and artifact, exact research and pinned engine commits; source rank 11/seed `1244180408`; original physical seats 0/1; `AGENT13_COPY_POLTERGEIST_PRIORITY` false/true.
+
+## 21 October 2026 follow-up: native effect and first-divergence verification
+
+A fresh run at the exact same two-arm plan, [compiled manual CI 39608031647](https://github.com/FlareZ123/experiment-01/actions/runs/39608031647), **passed** at head `58ecdf1dc5ea9bee281f07bd9e60e669b6f4034c`. The revised artifact **12350046336** is a complete replacement pair (ZIP SHA256 `d596b5d737f86240c891d389f46227b93ecaf434cc07dfe681dd4c85cdd64474`), including a referee-only `poltergeistEffectTrace`. Code-side assertions require an effect window for each selected Poltergeist and exactly the printed `50 × number of opponent Trainer cards in hand` base damage.
+
+**A proven matched first-decision prefix.** In both arms, the deck hashes were exactly `ca1a7ce02983c438146f30bf01f303cf8210836f9e442e0d21a2513850ffcb18` (source) and `99969539010abfa11c4e671a5744ed4d97f23cf2f7f275399ac35f5bc1013c0f` (candidate), actual seat 0 started, source seed remained `1244180408`. The **87 preceding native root records** had identical SHA256 `9502143ca90b8edc490a1d964f24d88a0f0851aad27b45617ed88fc7da34bc4e`. The next copied menu differed at ordinal 87 solely in selected donor/attack.
+
+The alternate's three settled copied attacks produced:
+
+| Global turn / native root | Referee-only source Trainer cards in hand | Printed base damage | Source defender | Resolved candidate Prize reduction |
+| --- | ---: | ---: | --- | ---: |
+| 8 / 87 | 4 | 200 | Crobat V (180 HP) | 2 |
+| 48 / 282 | 9 | 450 | Mega Absol ex (280 HP) | 3 |
+| 50 / 297 | 10 | 500 | Mega Absol ex (280 HP) | 1 (only one Prize remained) |
+
+The source Trainer counts and names were read strictly **after the player's decision** for referee measurement; the choice policy never sees them. Store `ResolvePromptAction` windows recorded source-defender removal and prize taking. For the first two copies the Prize reduction occurred during `ChoosePrizePrompt` resolution; for the final copy it occurred on the subsequent `AttachEnergyPrompt` resolution. The latter delayed settlement is exactly why a root-only attack declaration count can misattribute Knock Outs. The existing telemetry explicitly cautions that its printed-HP and source-disappearance evidence does not independently prove every damage modifier or exact knockout causal mechanism; no additional paper-fidelity inference follows.
+
+The control still produced 11 native Energy Drives and the identical ultimate engine Prize state `[source,candidate]=[6,0]` under its unchanged starting deal and policy. The tested donor choice was causally the first change to a matching native action prefix; **it produced a major difference in attack route, with no change to the untimed engine winner**. Stronger source opposition remains a required counterfactual, especially the archived legal rank11 turn-49 Quick Ball reply. Archive these as fixed-policy development results rather than qualified prospective games.
