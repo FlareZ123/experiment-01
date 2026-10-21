@@ -163,6 +163,7 @@ function actorObservation(state,seat,options={}){
     opponentPublic:publicPlayer(state.players[1-seat],state.phase===0||state.phase===1),
     ownTurnResources:{
       supporterPlayedTurn:owner.supporterTurn,
+      retreatedTurn:owner.retreatedTurn,
       energyPlayedTurn:owner.energyPlayedTurn,
       stadiumPlayedTurn:owner.stadiumPlayedTurn,
       vstarUsed:owner.usedVSTAR===true,
