@@ -142,7 +142,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure adapter-composition order and qualification tests
-        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent8-canonical-quickball-paircheck.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent7-known-dead-attack-root.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent8-near-term-damage-recipient.test.cjs tests/agent30-telepathic-known-energy.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent3-native-epoch-partition-error.test.cjs tests/agent3-native-reset-prestate.test.cjs tests/agent3-terminal-attack-ko-before-endturn-hook.test.cjs tests/source-deal-epoch-observer.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent49-discrete-attack-gate.test.cjs tests/agent49-rank6-k1-alternate.test.cjs tests/agent32-canonical-owner-donor-root.test.cjs tests/agent41-native-abort-classification.test.cjs
+        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent8-canonical-quickball-paircheck.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent7-known-dead-attack-root.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent8-near-term-damage-recipient.test.cjs tests/agent8-actor-ace-trainer-frontier.test.cjs tests/agent30-telepathic-known-energy.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent3-native-epoch-partition-error.test.cjs tests/agent3-native-reset-prestate.test.cjs tests/agent3-terminal-attack-ko-before-endturn-hook.test.cjs tests/source-deal-epoch-observer.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent49-discrete-attack-gate.test.cjs tests/agent49-rank6-k1-alternate.test.cjs tests/agent32-canonical-owner-donor-root.test.cjs tests/agent41-native-abort-classification.test.cjs
       - name: Validate owner-visible donor funding and paid retreat planner
         run: node --test tests/agent35-perfection-transition-frontier.test.cjs
       - name: Regress owner-visible paid retreat and native physical receipt
@@ -375,6 +375,7 @@ jobs:
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
           AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'true'
+          AGENT8_ACE_TRAINER_EMERGENCY_DEV: 'true'
           AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
@@ -403,6 +404,7 @@ jobs:
           AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
           AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
           AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'false'
+          AGENT8_ACE_TRAINER_EMERGENCY_DEV: 'false'
           AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
           AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
@@ -417,9 +419,41 @@ jobs:
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
           AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent8-near-term-control-sourcefirst.json
+      - name: Same-checkout source-first near-term staging without Ace Trainer
+        # Preserve independent source-first evidence despite an earlier strict
+        # original-panel audit failure. Do not run after cancellation.
+        if: ${{ !cancelled() && inputs.source_first_retrospective && inputs.actor_energy_recipient }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
+          AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: ${{ inputs.native_generic_fallback && 'true' || 'false' }}
+          AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'true'
+          AGENT8_ACE_TRAINER_EMERGENCY_DEV: 'false'
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
+          AGENT30_PERFECTION_ROOT_DEV: ${{ inputs.actor_perfection_root && 'true' || 'false' }}
+          AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
+          AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
+          AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent8-near-term-no-ace-sourcefirst.json
       - name: Compare exact paired source-first native T22 Energy decision
         if: ${{ !cancelled() && inputs.source_first_retrospective && inputs.actor_energy_recipient }}
         run: node scripts/agent8-near-term-damage-native-paircheck.cjs agent8-near-term-control-sourcefirst.json agent7-canonical-sourcefirst.json > agent8-near-term-damage-native-paircheck.json
+      - name: Compare same-deal root and source response with emergency Ace Trainer
+        if: ${{ !cancelled() && inputs.source_first_retrospective && inputs.actor_energy_recipient }}
+        run: node scripts/agent8-ace-trainer-native-paircheck.cjs agent8-near-term-no-ace-sourcefirst.json agent7-canonical-sourcefirst.json > agent8-emergency-ace-native-paircheck.json
       - name: Archive same-checkout source-first alternative and frozen baseline
         if: ${{ always() && inputs.source_first_retrospective && inputs.actor_energy_recipient }}
         uses: actions/upload-artifact@v4
@@ -428,6 +462,8 @@ jobs:
           path: |
             agent7-canonical-sourcefirst.json
             agent8-near-term-control-sourcefirst.json
+            agent8-near-term-no-ace-sourcefirst.json
+            agent8-emergency-ace-native-paircheck.json
             agent8-near-term-damage-native-paircheck.json
           if-no-files-found: warn
           retention-days: 10
