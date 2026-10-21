@@ -127,7 +127,7 @@ function comparisonProjection(row) {
  * @param {Function} Bot Pinned SimpleTacticsAi, injected for pure tests.
  * @param {(state:object)=>object} clone Full detached clone.
  * @param {()=>()=>number} makeRandom Independent policy RNG factory.
- * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean,isolateReplayPolicyPerWorld?:boolean,nativeScoreTrace?:boolean,nativeTapeSameWorld?:boolean,nativeTapeFirstFiniteScore?:boolean}} [scope]
+ * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean,isolateReplayPolicyPerWorld?:boolean,nativeScoreTrace?:boolean,nativeTapeSameWorld?:boolean,nativeTapeFirstFiniteScore?:boolean,nativeTapeHiddenOpponentHandContrast?:boolean}} [scope]
  * @returns {object} Unqualified, failure-inclusive diagnostic.
  */
 function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) {
@@ -141,7 +141,9 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
     ...(scope.nativeTapeSameWorld===true?{nativeTapeSameWorld:true}:{}),
     ...(scope.nativeTapeFirstFiniteScore===true?{nativeTapeFirstFiniteScore:true}:{}),
     ...(scope.nativeTapeHiddenOrderContrast===true?
-      {nativeTapeHiddenOrderContrast:true}:{})};
+      {nativeTapeHiddenOrderContrast:true}:{}),
+    ...(scope.nativeTapeHiddenOpponentHandContrast===true?
+      {nativeTapeHiddenOpponentHandContrast:true}:{})};
   let control;
   try {
     control=execute();
@@ -195,9 +197,16 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
   } else if(!event) {
     classification=events.length?'ambiguous-multiple-root-probes':'no-matching-candidate-root';
   } else if(event.nativeSameWorldTape) {
-    classification=ownerBaselineVerified?
-      'authentic-tape-same-world-parity-only':
-      'authentic-tape-same-world-parity-veto';
+    if(!ownerBaselineVerified)
+      classification='authentic-tape-same-world-parity-veto';
+    else if(scope.nativeTapeHiddenOpponentHandContrast===true) {
+      const hand=event.nativeOpponentHiddenHandContrast;
+      classification=hand?.contrastExecutable!==true?
+        'authentic-tape-opponent-hidden-hand-contrast-veto':
+        hand.selectedActionChanged===true?
+          'conditional-tape-opponent-hidden-hand-action-reversal':
+          'conditional-tape-opponent-hidden-hand-no-action-change';
+    } else classification='authentic-tape-same-world-parity-only';
   } else if(!ownerBaselineVerified) {
     classification='fresh-bot-baseline-or-live-state-mismatch';
   } else if(event.actionSensitiveToHiddenDeckOrder===true) {
@@ -232,6 +241,8 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
       nativeTapeFiniteScores:event.nativeTapeFiniteScores??null,
       sourceCaptureFidelity:event.sourceCaptureFidelity??null,
       nativeHiddenOrderContrast:event.nativeHiddenOrderContrast??null,
+      nativeOpponentHiddenHandContrast:
+        event.nativeOpponentHiddenHandContrast??null,
       hiddenWorldCounterfactualCompared:event.counterfactualCompared!==false,
       physicalFreshAction:event.physicalOrder??null,
       reversedFreshAction:event.reversedOrder??null,
@@ -262,6 +273,16 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
       knownDeckMembershipVerified:event.knownDeckMembershipVerified===true,
       knownDeckTopOrderVerified:event.knownDeckTopOrderVerified===true
     }}:{}),
+    conditionalOpponentHandContrastExecutable:
+      scope.nativeTapeHiddenOpponentHandContrast===true&&
+      noninterferenceVerified&&ownerBaselineVerified&&
+      event?.nativeOpponentHiddenHandContrast?.contrastExecutable===true,
+    conditionalOpponentHandActionDifference:
+      scope.nativeTapeHiddenOpponentHandContrast===true&&
+      noninterferenceVerified&&ownerBaselineVerified&&
+      event?.nativeOpponentHiddenHandContrast?.contrastExecutable===true&&
+      event.nativeOpponentHiddenHandContrast.selectedActionChanged===true,
+    informationSetLeakQualified:false,
     comparisonQualified:scope.nativeTapeSameWorld!==true&&
       noninterferenceVerified&&ownerBaselineVerified,
     sameWorldParityQualified:scope.nativeTapeSameWorld===true&&
@@ -281,7 +302,8 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
 function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   replayCommonPolicy=false,isolateReplayPolicyPerWorld=false,
   nativeScoreTrace=false,nativeTapeSameWorld=false,
-  nativeTapeFirstFiniteScore=false,nativeTapeHiddenOrderContrast=false}={}) {
+  nativeTapeFirstFiniteScore=false,nativeTapeHiddenOrderContrast=false,
+  nativeTapeHiddenOpponentHandContrast=false}={}) {
   assert.equal(typeof firstFiniteScoredRoot,'boolean');
   assert.equal(typeof replayCommonPolicy,'boolean');
   assert.equal(typeof isolateReplayPolicyPerWorld,'boolean');
@@ -294,6 +316,9 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   assert.equal(typeof nativeTapeHiddenOrderContrast,'boolean');
   assert.ok(!nativeTapeHiddenOrderContrast||nativeTapeSameWorld,
     'Hidden owner order contrast requires genuine same-world tape mode');
+  assert.equal(typeof nativeTapeHiddenOpponentHandContrast,'boolean');
+  assert.ok(!nativeTapeHiddenOpponentHandContrast||nativeTapeSameWorld,
+    'Opponent hand contrast requires genuine same-world tape mode');
   assert.ok(!nativeTapeSameWorld||!firstFiniteScoredRoot||
     nativeTapeFirstFiniteScore,
     'Native scored-root tape requires explicit mode');
@@ -343,11 +368,13 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
     ()=>seededRandom((trial.seed^0x5a17b9ef)>>>0),
     {firstFiniteScoredRoot,replayCommonPolicy,isolateReplayPolicyPerWorld,
       nativeScoreTrace,nativeTapeSameWorld,nativeTapeFirstFiniteScore,
-      nativeTapeHiddenOrderContrast}
+      nativeTapeHiddenOrderContrast,nativeTapeHiddenOpponentHandContrast}
   ));
   return {
     schema:nativeTapeFirstFiniteScore?
       'agent50-crossrank-native-first-finite-scored-tape-v1':
+      nativeTapeHiddenOpponentHandContrast?
+      'agent23-crossrank-native-tape-opponent-hand-exploration-v1':
       nativeTapeHiddenOrderContrast?
       'agent50-crossrank-native-tape-order-exploration-v1':
       nativeTapeSameWorld?
@@ -392,7 +419,9 @@ if(require.main===module) {
     nativeTapeFirstFiniteScore:
       process.env.AGENT50_NATIVE_TAPE_FIRST_FINITE_SCORE==='true',
     nativeTapeHiddenOrderContrast:
-      process.env.AGENT50_NATIVE_TAPE_HIDDEN_DECK_ORDER==='true'
+      process.env.AGENT50_NATIVE_TAPE_HIDDEN_DECK_ORDER==='true',
+    nativeTapeHiddenOpponentHandContrast:
+      process.env.AGENT23_NATIVE_OPPONENT_HAND_TAPE==='true'
   }),null,2)+'\n');
 }
 module.exports={candidateDevelopmentTarget,comparisonProjection,
