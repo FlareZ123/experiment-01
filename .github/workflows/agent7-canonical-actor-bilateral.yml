@@ -163,6 +163,8 @@ jobs:
         run: node --test tests/agent30-pinned-telepath-cost.native.test.cjs tests/agent30-pinned-perfection-root-gap.native.test.cjs
       - name: Verify genuine Powerglass after-Pass native attachment
         run: node simulation/twinleaf/agent41-powerglass-after-pass-native.cjs
+      - name: Verify owner-safe Powerglass prompt on genuine Store in both seats
+        run: node simulation/twinleaf/agent41-powerglass-owner-native-contract.cjs
       - name: Agent37 paired actual Store first attack decision and opponent reply
         if: ${{ inputs.agent37_public_attack_first_divergence }}
         run: |
