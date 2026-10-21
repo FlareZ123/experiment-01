@@ -129,3 +129,31 @@ test('genuine owner K1 snapshot records source one-unit Energy without Prize rea
   assert.equal(snapshot.prizeIdentitiesInspected,false);
   assert.equal(snapshot.opponentConcealedIdentitiesInspected,false);
 });
+
+test('K1 native G&H validates Stadium plus one-unit Special Energy without Prize lookup',()=>{
+  const source=fixture();
+  for(const name of ['Speed Lightning Energy','Capture Energy','Spiky Energy']){
+    source.owner.deck.cards.push(card(name));
+  }
+  const snapshot=sourceK1SearchSnapshot(
+    source.state,0,source.prompt,source.observe);
+  assert.equal(snapshot.intendedPairNativePromptValid,true);
+  assert.equal(snapshot.oneUnitEnergyTargets.length,3);
+  assert.deepEqual(snapshot.oneUnitEnergyTargets.map(x=>
+    x.pairedThunderSearchNativeValid),[true,true,true]);
+  assert.equal(snapshot.prizeIdentitiesInspected,false);
+
+  const refused=fixture({validPair:false});
+  refused.owner.deck.cards.push(card('Speed Lightning Energy'));
+  const negative=sourceK1SearchSnapshot(refused.state,0,
+    refused.prompt,refused.observe);
+  assert.deepEqual(negative.oneUnitEnergyTargets.map(x=>
+    x.pairedThunderSearchNativeValid),[false,null,null]);
+
+  const noThunder=fixture();
+  noThunder.owner.deck.cards.splice(0,1);
+  noThunder.owner.deck.cards.push(card('Speed Lightning Energy'));
+  const absent=sourceK1SearchSnapshot(noThunder.state,0,
+    noThunder.prompt,noThunder.observe);
+  assert.equal(absent.oneUnitEnergyTargets[0].pairedThunderSearchNativeValid,null);
+});
