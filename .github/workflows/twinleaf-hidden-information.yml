@@ -249,7 +249,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify retrospective source-deal and detached observer controls
-        run: node --test tests/agent50-bilateral-hidden-order-audit.test.cjs tests/agent50-bilateral-postgame-root-observer.test.cjs tests/rank10-hidden-order-live-probe.test.cjs tests/native-clone-structure-diff.test.cjs tests/native-tape-hidden-order-contrast.test.cjs tests/agent50-native-first-finite-tape.test.cjs tests/native-policy-tactic-sequence.test.cjs
+        run: node --test tests/agent50-bilateral-hidden-order-audit.test.cjs tests/agent50-bilateral-postgame-root-observer.test.cjs tests/rank10-hidden-order-live-probe.test.cjs tests/native-clone-structure-diff.test.cjs tests/native-tape-hidden-order-contrast.test.cjs tests/agent50-native-first-finite-tape.test.cjs tests/native-policy-tactic-sequence.test.cjs tests/agent50-native-control-gate.test.cjs
       - name: Replay authentic historical common-policy decisions and detached order contrasts
         env:
           AGENT50_FIRST_FINITE_ROOT: ${{ inputs.agent50_first_finite_root || inputs.agent50_common_policy_replay || inputs.agent50_isolated_policy_worlds || inputs.agent50_native_first_finite_tape }}
@@ -259,6 +259,8 @@ jobs:
           AGENT50_NATIVE_TAPE_HIDDEN_DECK_ORDER: ${{ inputs.agent50_native_tape_hidden_deck_order }}
           AGENT50_NATIVE_TAPE_FIRST_FINITE_SCORE: ${{ inputs.agent50_native_first_finite_tape }}
         run: node simulation/evaluation/agent50-bilateral-hidden-order-audit.cjs > agent50-live-deck-order-fourarm.json
+      - name: Reject aborted or unauthenticated native historical controls
+        run: node simulation/evaluation/agent50-native-control-gate.cjs agent50-live-deck-order-fourarm.json
       - name: Enumerate every observed and vetoed historical arm
         run: >-
           node -e "const a=require('./agent50-live-deck-order-fourarm.json');
