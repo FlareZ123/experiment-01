@@ -32,13 +32,65 @@ def source_inventory_digest(source_deck_digests: Mapping[int, str]) -> str:
     return sha256(serialized).hexdigest()
 
 
+NATIVE_ROOT_PROTOCOL = "actual-store-root-action-ledger-v1"
+NATIVE_CLOCK_PROTOCOL = "actual-native-sudden-death-clock-transition-v1"
+
+
+def _verify_single_native_epoch(game: dict) -> None:
+    """Check a source-bound native root clock capsule and reject all replay epochs.
+
+    This is a conservative structural veto, not proof that the capsule was
+    independently captured from Store or that a terminal follows paper rules.
+    A legitimate sudden-death replay needs a separate episode-aware validator.
+    """
+    evidence = game.get("native_clock_evidence")
+    if not isinstance(evidence, dict):
+        raise ValueError("Missing native clock evidence for registered trial")
+    if (evidence.get("game_id") != game["game_id"] or
+            evidence.get("action_trace_sha256") != game["trace_sha256"]):
+        raise ValueError("Native clock evidence is not bound to this recorded trial")
+    if (evidence.get("rootActionLedgerProtocol") != NATIVE_ROOT_PROTOCOL or
+            evidence.get("suddenDeathClockResetProtocol") != NATIVE_CLOCK_PROTOCOL):
+        raise ValueError("Native clock evidence has unrecognized Store protocols")
+    resets = evidence.get("suddenDeathClockResets")
+    if not isinstance(resets, list):
+        raise ValueError("Native sudden-death reset ledger must be present")
+    if resets:
+        raise ValueError("Sudden-death clock reset requires an independently validated episode model")
+    roots = evidence.get("rootActionLedger")
+    actions = evidence.get("actions")
+    if (not isinstance(roots, list) or not roots or
+            type(actions) is not int or actions != len(roots)):
+        raise ValueError("Native root ledger has an invalid action count")
+    previous_turn = None
+    for ordinal, event in enumerate(roots):
+        if not isinstance(event, dict):
+            raise ValueError("Malformed native root event")
+        before, after = event.get("turnBefore"), event.get("turnAfter")
+        if (type(event.get("actionOrdinal")) is not int or
+                event["actionOrdinal"] != ordinal or
+                type(before) is not int or type(after) is not int or
+                before < 0 or after < before or
+                type(event.get("playerSlot")) is not int or
+                event["playerSlot"] not in (-1, 0, 1) or
+                not isinstance(event.get("action"), str) or
+                not event["action"]):
+            raise ValueError("Native root ordinal or turn reversal is invalid")
+        if previous_turn is not None and before != previous_turn:
+            raise ValueError("Native root clock is discontinuous between Store actions")
+        previous_turn = after
+
+
 def _verify_frozen_source_raw_batch(
     batch: dict, field_csv: str, *,
     source_deck_digests: Mapping[int, str],
     expected_candidate_deck_sha256: str,
     expected_trials: list[dict],
+    require_single_native_epoch: bool = False,
 ) -> tuple[dict, str]:
     """Shared exact-field, frozen candidate, full-trace and schedule preflight."""
+    if type(require_single_native_epoch) is not bool:
+        raise ValueError("Single-native-epoch flag must be boolean")
     if not isinstance(expected_trials, list) or not expected_trials:
         raise ValueError("Independent predeclared trial schedule is required")
     if any(not p.published for p in read_manifest(field_csv)):
@@ -71,6 +123,8 @@ def _verify_frozen_source_raw_batch(
     if not checked["sampling_frame_input_integrity_promotion_eligible"]:
         raise ValueError("Full source, candidate, trace, terminal and schedule integrity required")
     for game in batch["games"]:
+        if require_single_native_epoch:
+            _verify_single_native_epoch(game)
         if game["opponent_deck_sha256"] != source_deck_digests[game["rank"]]:
             raise ValueError(f"Opponent rank {game['rank']} deck does not match its exact source digest")
     return checked, expected_source_sha
@@ -85,6 +139,7 @@ def evaluate_balanced_raw_batch(
     target: str = "0.995",
     confidence: str = "0.95",
     require_physical_seat_balance: bool = False,
+    require_single_native_epoch: bool = False,
 ) -> dict:
     """Require 64 rank/start cells, optionally also 128 rank/start/engine-seat cells.
 
@@ -106,6 +161,7 @@ def evaluate_balanced_raw_batch(
         source_deck_digests=source_deck_digests,
         expected_candidate_deck_sha256=expected_candidate_deck_sha256,
         expected_trials=expected_trials,
+        require_single_native_epoch=require_single_native_epoch,
     )
     summary = checked["statistical_result"]
     if not summary["complete"]:
@@ -149,6 +205,7 @@ def evaluate_balanced_raw_batch(
         "all_completed_terminals_bound": checked["all_completed_terminals_bound"],
         "schedule_bound": checked["schedule_bound"],
         "scheduled_trial_count": checked["scheduled_trial_count"],
+        "single_native_epoch_structural_veto_passed": require_single_native_epoch,
         "competitive_evidence_qualified": False,
         "global_test": global_result,
         "warning": (
@@ -167,6 +224,7 @@ def evaluate_natural_start_zero_loss_raw_batch(
     expected_trials: list[dict],
     target: str = "0.995",
     confidence: str = "0.95",
+    require_single_native_epoch: bool = False,
 ) -> dict:
     """Sharp all-win nulls for fixed trial schedules with random actual starts.
 
@@ -186,6 +244,7 @@ def evaluate_natural_start_zero_loss_raw_batch(
         source_deck_digests=source_deck_digests,
         expected_candidate_deck_sha256=expected_candidate_deck_sha256,
         expected_trials=expected_trials,
+        require_single_native_epoch=require_single_native_epoch,
     )
     if checked["finished_games"] != predeclared_total_games:
         raise ValueError("Completed matches do not cover the predeclared total horizon")
@@ -219,6 +278,7 @@ def evaluate_natural_start_zero_loss_raw_batch(
             counts64, total_wins=wins, target=target, confidence=confidence),
         "equal_128_rank_start_physical_seat": assess_zero_loss_cells(
             counts128, total_wins=wins, target=target, confidence=confidence),
+        "single_native_epoch_structural_veto_passed": require_single_native_epoch,
         "competitive_evidence_qualified": False,
         "warning": (
             "All-win composite-null arithmetic conditional on actual random starts. "
