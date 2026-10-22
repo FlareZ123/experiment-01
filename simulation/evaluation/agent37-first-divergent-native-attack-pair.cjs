@@ -178,6 +178,10 @@ function compareNativePairs(a,b){
     const bGame=[...b.games.entries()].find(([label])=>
       label.endsWith(treatment.trial.id))?.[1];
     const nativeGamePair=Boolean(aGame&&bGame);
+    const promptFor=(bundle,id)=>[...(bundle.promptAudits??new Map()).entries()]
+      .find(([label])=>label.endsWith(id))?.[1]??null;
+    const aPrompt=promptFor(a,control.trial.id);
+    const bPrompt=promptFor(b,treatment.trial.id);
     const firstDifference=nativeGamePair?
       firstRootDivergence(aGame.rootActionLedger,bGame.rootActionLedger):null;
     const acceptedTargetComparison=acceptedTargetContrast(
