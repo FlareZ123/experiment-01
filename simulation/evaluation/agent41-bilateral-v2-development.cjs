@@ -477,7 +477,15 @@ function executeDevelopment(trial,candidates,{
       const Store=require(path.join(nativeBase,'game/store/store')).Store;
       const data=require('../twinleaf/owner-deck-search-witness.cjs')
         .withOwnerDeckSearchWitness(Store,candidateSeat,
-          ['Psychic Energy MEE'],runWithArticunoPowerglass);
+          ['Psychic Energy MEE',
+            'Mewtwo & Mew-GX UNM',
+            'Gengar & Mimikyu-GX TEU',
+            'Trevenant & Dusknoir-GX SMP',
+            'Klefki SVI','Galarian Articuno V CRE',
+            'Tapu Lele-GX GRI','Latias ex SSP',
+            "Lillie's Clefairy ex JTG",
+            'Unown AOR','Duskull VIV'
+          ],runWithArticunoPowerglass);
       ownerAuthenticatedBasicSearchCounts=data.events;
       return data.result;
     };
