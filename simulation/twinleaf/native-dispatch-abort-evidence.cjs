@@ -36,7 +36,10 @@ function nativeDispatchAbortEvidence(evidence) {
   const failureStage=evidence.failureStage??'store-dispatch';
   assert.ok(['store-dispatch','strict-prompt-validation','bot-decoder'].includes(failureStage));
   assert.ok(evidence.actingSeat === 0 || evidence.actingSeat === 1);
-  if(evidence.redactedMessageDigest!==undefined &&
+  if(failureStage==='bot-decoder'||
+     failureStage==='strict-prompt-validation'){
+    assert.match(evidence.redactedMessageDigest??'',/^[0-9a-f]{64}$/);
+  }else if(evidence.redactedMessageDigest!==undefined &&
      evidence.redactedMessageDigest!==null){
     assert.match(evidence.redactedMessageDigest,/^[0-9a-f]{64}$/);
   }
