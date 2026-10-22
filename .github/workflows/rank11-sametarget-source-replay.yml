@@ -25,7 +25,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Validate same-target correction, seed and classification tests
-        run: node --test tests/same-target-attach-energy-hook.test.cjs tests/rank11-exclusive-prospective-seeds.test.cjs tests/rank11-exclusive-trial-classification.test.cjs
+        run: node --test tests/same-target-attach-energy-hook.test.cjs tests/rank11-exclusive-prospective-seeds.test.cjs tests/rank11-exclusive-trial-classification.test.cjs tests/native-accepted-target-sidecar.test.cjs tests/native-accepted-target-store-observer.test.cjs
       - name: Install simulator pinned dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -50,11 +50,35 @@ jobs:
         if: ${{ inputs.canonical_v2_only }}
         env:
           AGENT12_SAME_TARGET_ATTACH_DEV: 'true'
+          AGENT12_NATIVE_TARGET_SIDECAR_DEV: 'true'
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > canonical-v2-sametarget-sourcefirst.json
+      - name: Same-checkout sidecar-disabled control for root invariance
+        if: ${{ inputs.canonical_v2_only }}
+        env:
+          AGENT12_SAME_TARGET_ATTACH_DEV: 'true'
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > canonical-v2-sametarget-sourcefirst-control.json
+      - name: Validate original accepted root hashes against unobserved control
+        if: ${{ inputs.canonical_v2_only }}
+        run: >-
+          node -e "const a=require('node:assert/strict');const t=require('./canonical-v2-sametarget-sourcefirst.json'),c=require('./canonical-v2-sametarget-sourcefirst-control.json');
+          a.equal(t.rows.length,4);a.equal(c.rows.length,4);
+          for(let i=0;i<4;i++){const x=t.rows[i],y=c.rows[i];
+          a.equal(x.trial.id,y.trial.id);a.equal(x.sourceDealFingerprint,y.sourceDealFingerprint);
+          a.equal(x.rootActionLedgerSha256,y.rootActionLedgerSha256);
+          a.equal(x.finished,y.finished);a.equal(x.winner,y.winner);
+          if(!x.status){a.ok(x.nativeAcceptedTargetSidecar);
+          a.equal(x.nativeAcceptedTargetSidecar.rootOrdinalLinked,true);
+          a.equal(x.nativeAcceptedTargetSidecar.targetUnobserved,0);
+          a.ok(x.nativeAcceptedTargetSidecar.observedTargetActions>0);}}
+          console.log('PHYSICAL_SIDECAR_READONLY_VERIFIED',t.rows.map(x=>({id:x.trial.id,hash:x.nativeAcceptedTargetSidecar?.sha256??null,accepted:x.nativeAcceptedTargetSidecar?.observedTargetActions??null,linked:x.nativeAcceptedTargetSidecar?.rootOrdinalLinked??null})))"
       - name: Preserve every canonical native arm and correction count
         if: ${{ inputs.canonical_v2_only }}
         run: >-
@@ -76,5 +100,6 @@ jobs:
             rank11-sametarget-single-seed.json
             rank11-exclusive-prospective-v1-corrected.json
             canonical-v2-sametarget-sourcefirst.json
+            canonical-v2-sametarget-sourcefirst-control.json
           if-no-files-found: warn
           retention-days: 14
