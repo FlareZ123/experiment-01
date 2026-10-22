@@ -57,6 +57,7 @@ jobs:
           node simulation/evaluation/agent50-sourcefirst-stranded-marnie-native-pair.cjs > agent50-marnie-native-pair.json
           node --test tests/agent50-stranded-guzma-frontier.test.cjs
           node simulation/evaluation/agent50-sourcefirst-stranded-guzma-native-pair.cjs > agent50-guzma-native-pair.json
+          node --test tests/native-accepted-target-store-observer.test.cjs tests/native-accepted-target-sidecar.test.cjs
           node --test tests/agent50-guzma-energy-staging.test.cjs
           node simulation/evaluation/agent50-sourcefirst-guzma-energy-staging-pair.cjs > agent50-guzma-energy-pair.json
       - name: Preserve all original Store Marnie recovery arms
