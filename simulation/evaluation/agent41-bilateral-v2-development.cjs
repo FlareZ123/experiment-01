@@ -909,6 +909,8 @@ function runDevelopment({
         error?.cause?.nativeHiddenReadEvidence??null;
       const genericAbort=error?.nativeGenericFallbackEvidence??
         error?.cause?.nativeGenericFallbackEvidence??null;
+      const sameTargetAbort=error?.nativeSameTargetEnergyEvidence??
+        error?.cause?.nativeSameTargetEnergyEvidence??null;
       rows.push({
         trial,status:classifyNativeAbort(veto),
         error:String(error?.stack||error),
@@ -932,6 +934,8 @@ function runDevelopment({
           nativeOpponentHiddenReadAudit:nativeHiddenRead}:{}),
         ...(nativeActionInputWitness?{
           nativeActionInputAudit:error?.nativeDecisionDispatchEvidence??null}:{}),
+        ...(paperSameTargetAttachEnergy?{
+          paperSameTargetAttachEnergyAbortEvidence:sameTargetAbort}:{}),
         ...(actorOnlyComposition&&actorGenericFallbackAttribution?{
           nativeGenericFallbackAbortEvidence:genericAbort}:{}),
         qualifiesForCompetitiveInference:false
