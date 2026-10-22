@@ -301,6 +301,46 @@ test('first-divergence native actor settlement reuses public attack witness',()=
   assert.equal(sourceAttackAtRoot(game,1,1234),null);
 });
 
+test('same-head accepted-target observer parity gates complete native projections',()=>{
+  const {compareObserverProjection}=require(
+    '../simulation/evaluation/agent37-first-divergent-native-attack-pair.cjs');
+  const source=i=>({
+    trial:{id:'fixture-'+i,seed:100+i},
+    sourceDealFingerprint:'deal-'+i,actualStarterSeat:i%2,
+    verifiedFirstTurn:true,actionCount:12,finished:true,
+    winner:0,finalPrizes:[4,6],endReason:'engine-game-end'
+  });
+  const sidecar={rootOrdinalLinked:true};
+  const sourceRows=Array.from({length:4},(_,i)=>source(i));
+  const makeBundle=(observed=false)=>({
+    development:{rows:sourceRows.map(row=>({
+      ...row,...(observed?{nativeAcceptedTargetSidecar:sidecar}:{})
+    }))},
+    games:new Map(sourceRows.map(row=>['native-'+row.trial.id,{
+      rootActionLedger:[{actionOrdinal:0,action:'PlayCardAction',
+        playerSlot:0,turnBefore:1}]
+    }]))
+  });
+  const off=makeBundle(),on=makeBundle(true);
+  const pass=compareObserverProjection(off,on);
+  assert.equal(pass.checked,4);
+  assert.equal(pass.passed,4);
+  assert.equal(pass.complete,true);
+  on.games.get('native-fixture-1').rootActionLedger[0].action=
+    'RetreatAction';
+  const changed=compareObserverProjection(off,on);
+  assert.equal(changed.complete,false);
+  assert.equal(changed.passed,3);
+  assert.equal(changed.rows[1].rootLabelsEqual,false);
+  on.games.get('native-fixture-1').rootActionLedger[0].action=
+    'PlayCardAction';
+  on.development.rows[2].nativeAcceptedTargetSidecar.rootOrdinalLinked=false;
+  const unlinked=compareObserverProjection(off,on);
+  assert.equal(unlinked.complete,false);
+  assert.equal(unlinked.rows[0].targetLinked,false,
+    'Shared sidecar fixture must flag every row if linkage is rejected');
+});
+
 test('first-divergence native runner restores process and Store capture hook',()=>{
   const {replayNativePolicy}=require(
     '../simulation/evaluation/agent37-first-divergent-native-attack-pair.cjs');
@@ -324,6 +364,11 @@ test('first-divergence native runner restores process and Store capture hook',()
       return {rows:Array.from({length:4},()=>({}))};
     });
     assert.equal(result.games.size,0);
+    const disabled=replayNativePolicy(false,opts=>{
+      assert.equal(opts.nativeAcceptedTargets,false);
+      return {rows:Array.from({length:4},()=>({}))};
+    },false);
+    assert.equal(disabled.games.size,0);
     assert.strictEqual(headless.runMatch,original);
   }finally{
     if(saved===undefined)delete process.env.AGENT49_POTENTIAL_KO_ROOT_DEV;
