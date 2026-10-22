@@ -171,6 +171,7 @@ jobs:
         if: ${{ inputs.agent37_public_attack_first_divergence }}
         run: |
           node --test tests/agent37-candidate-attack-settlement.test.cjs
+          node --test tests/native-accepted-target-store-observer.test.cjs
           node simulation/evaluation/agent37-first-divergent-native-attack-pair.cjs > agent37-public-first-attack-pair.json
       - name: Archive both native policy branches including censored games
         if: ${{ always() && inputs.agent37_public_attack_first_divergence }}
