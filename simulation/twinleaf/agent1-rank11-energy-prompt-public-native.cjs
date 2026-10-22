@@ -64,7 +64,9 @@ function run(){
     nativeActions:game.actions,
     sameCheckoutUnobservedControlCompared:true,
     nativePublicReplaysEqual:true,
-    comparedRootCount:game.rootActionLedger.length,
+    comparedRootCount:Array.isArray(game.rootActionLedger)?
+      game.rootActionLedger.length:null,
+    legacyRootLedgerCaptured:Array.isArray(game.rootActionLedger),
     nativeSameTargetRepairs:fix.repairedPromptCount,
     energyPromptPublicWitness:witnessed.audit,
     competitiveQualifiedGames:0,
