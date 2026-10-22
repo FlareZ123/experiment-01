@@ -30,9 +30,16 @@ function withAcceptedTargetWitness(execute,deps={}){
     const roots=result?.rootActionLedger?.filter(row=>
       row.action==='PlayCardAction'||row.action==='RetreatAction')??null;
     const linked=roots!==null && roots.length===records.length &&
-      roots.every((row,i)=>row.action===records[i].action &&
-        row.playerSlot===records[i].playerSlot &&
-        row.turnBefore===records[i].turnBefore);
+      roots.every((row,i)=>{
+        const record=records[i];
+        const printing=record.declared.ownerHandPrinting;
+        const cardMatch=row.action!=='PlayCardAction'||
+          (typeof row.card==='string'&&typeof printing==='string'&&
+            (printing===row.card||printing.startsWith(row.card+' ')));
+        return row.action===record.action &&
+          row.playerSlot===record.playerSlot &&
+          row.turnBefore===record.turnBefore && cardMatch;
+      });
     const events=records.map((record,i)=>({
       ...record,rootActionOrdinal:linked?roots[i].actionOrdinal:null
     }));
