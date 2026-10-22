@@ -173,10 +173,10 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Test Agent42 same-target native replay contract
-        if: ${{ inputs.trial_ids == 'agent42-sametarget-pair' }}
+        if: ${{ (inputs.trial_ids == 'agent42-sametarget-pair' || inputs.trial_ids == 'agent42-sametarget-panel') }}
         run: node --test tests/same-target-attach-energy-hook.test.cjs tests/agent42-native-sametarget-repair-pair.test.cjs
       - name: Replay baseline and corrected original Store under frozen seed
-        if: ${{ inputs.trial_ids == 'agent42-sametarget-pair' }}
+        if: ${{ (inputs.trial_ids == 'agent42-sametarget-pair' || inputs.trial_ids == 'agent42-sametarget-panel') }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT47_ACTOR_HAND_DISCARD_DEV: 'true'
@@ -194,12 +194,13 @@ jobs:
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT42_SAMETARGET_ALL_FOUR: ${{ inputs.trial_ids == 'agent42-sametarget-panel' && 'true' || 'false' }}
         run: node simulation/evaluation/agent42-native-sametarget-repair-pair.cjs > agent42-sametarget-native-pair.json
       - name: Check native correction was selected and preserve error classification
-        if: ${{ inputs.trial_ids == 'agent42-sametarget-pair' }}
-        run: node -e "const p=require('./agent42-sametarget-native-pair.json'),x=p.records[0];console.log(JSON.stringify({seed:x.seed,attempted:p.attemptedStoreArms,prompt:x.repairAudit,base:[x.baseline.noStaging.status,x.baseline.staging.status],corrected:[x.repair.noStaging.status,x.repair.staging.status],sourceDealEquality:x.crossPolicySourceDealEquality},null,2));if(p.attemptedStoreArms!==4||x.repairAudit.repairedPromptCount<1)process.exitCode=1"
+        if: ${{ (inputs.trial_ids == 'agent42-sametarget-pair' || inputs.trial_ids == 'agent42-sametarget-panel') }}
+        run: node -e "const p=require('./agent42-sametarget-native-pair.json');for(const x of p.records)console.log('PAIR',JSON.stringify({seed:x.seed,baseline:[x.baseline.noStaging.status,x.baseline.staging.status],corrected:[x.repair.noStaging.status,x.repair.staging.status],prompts:x.repairAudit.repairedPromptCount,deals:x.crossPolicySourceDealEquality}));console.log('TOTAL',p.attemptedStoreArms);if(p.attemptedStoreArms!==4*p.seeds.length||!p.records.some(x=>x.repairAudit.repairedPromptCount>0))process.exitCode=1"
       - uses: actions/upload-artifact@v4
-        if: ${{ always() && inputs.trial_ids == 'agent42-sametarget-pair' }}
+        if: ${{ always() && (inputs.trial_ids == 'agent42-sametarget-pair' || inputs.trial_ids == 'agent42-sametarget-panel') }}
         with:
           name: agent42-rank11-sametarget-native-pair
           path: agent42-sametarget-native-pair.json
@@ -465,7 +466,7 @@ jobs:
         if: ${{ inputs.newmoon_pass_probe }}
         run: node simulation/evaluation/newmoon-rank11-pass-observer.cjs > newmoon-rank11-pass-observer.json
       - name: Run up to six source-locked pilot trials
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent42-sametarget-pair' }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent42-sametarget-pair' && inputs.trial_ids != 'agent42-sametarget-panel' }}
         env:
           CAMPAIGN_INPUT_ORDER_PROTOCOL: ${{ inputs.input_order_protocol || 'source-row-order-v1' }}
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
@@ -479,19 +480,19 @@ jobs:
           CAMPAIGN_MAX_ACTIONS: '800'
         run: node simulation/evaluation/aichi-campaign-runner.cjs > aichi-campaign-report.json
       - name: Print recorded source-seat actions and attack declarations
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent42-sametarget-pair' }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent42-sametarget-pair' && inputs.trial_ids != 'agent42-sametarget-panel' }}
         env:
           CAMPAIGN_TRIAL_IDS: ${{ inputs.trial_ids || 'pilot:6:0:champion-reference:A,pilot:6:0:champion-reference:B,pilot:6:0:hood-shield-v1:A,pilot:6:0:hood-shield-v1:B,pilot:6:0:temple-v1:A,pilot:6:0:temple-v1:B' }}
         run: |
           node --test tests/aichi-source-action-brief.test.cjs
           node scripts/aichi-source-action-brief.cjs aichi-campaign-report.json
       - name: Reconcile source rank26 v3 proposed tactics and actual Store dispatch
-        if: ${{ inputs.policy_profile == 'rank26-autonomous-cologne-pump-propagation-v3' && !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent42-sametarget-pair' }}
+        if: ${{ inputs.policy_profile == 'rank26-autonomous-cologne-pump-propagation-v3' && !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent42-sametarget-pair' && inputs.trial_ids != 'agent42-sametarget-panel' }}
         run: |
           node --test tests/aichi-rank26-v3-action-brief.test.cjs
           node scripts/aichi-rank26-v3-action-brief.cjs aichi-campaign-report.json
       - name: Cross-check sourced games and fingerprint evidence envelope
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent42-sametarget-pair' }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent42-sametarget-pair' && inputs.trial_ids != 'agent42-sametarget-panel' }}
         env:
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
         run: node simulation/evaluation/aichi-campaign-envelope-runner.cjs aichi-campaign-report.json aichi-campaign-envelope.json
