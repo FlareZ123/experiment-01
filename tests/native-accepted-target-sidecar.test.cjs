@@ -112,3 +112,13 @@ test('capture never reads concealed opponent hand, deck or Prize identities',()=
   assert.equal(after.storeAccepted,true);
   assert.deepEqual(after.publicBoardChanges,[]);
 });
+
+test('unlinked native Store targets veto first physical root assertions',()=>{
+  const one=acceptedEnergy(ACTIVE,'active');
+  const two=acceptedEnergy(BENCH,'bench');
+  one.rootOrdinalLinked=false;
+  two.rootOrdinalLinked=true;
+  assert.deepEqual(firstPhysicalTargetDifference(one,two),{
+    status:'target-unobserved',reason:'unlinked-Store-root-ordinals'
+  });
+});
