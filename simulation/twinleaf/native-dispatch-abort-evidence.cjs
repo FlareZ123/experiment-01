@@ -1,0 +1,73 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const {createHash} = require('node:crypto');
+
+const VERSION = 'headless-native-abort-public-v1';
+
+/** @param {unknown} value @returns {any} */
+function detached(value) {
+  return value == null ? null : JSON.parse(JSON.stringify(value));
+}
+
+/**
+ * Build a post-choice, pre-dispatch public failure witness. The caller supplies
+ * detached snapshots taken BEFORE Store.dispatch, because the pinned reducer
+ * can mutate state even when it throws. This observer is never given to the bot.
+ *
+ * The legacy root ledger omits physical targets. A matching ledger digest must
+ * never be interpreted as matching Energy or retreat destinations.
+ *
+ * @param {{actionOrdinal:number, actionName:string, turnBefore:number,
+ *   phaseBefore:number, actingSeat:number, attackName?:string|null,
+ *   attackingPokemon?:string|null, errorMessage:string,
+ *   sourceDeal?:{seat:number,digestSha256:string}|null,
+ *   rootActionLedger?:object[]|null, preDispatchPublic:object,
+ *   preDispatchBoard:object[]|null}} evidence
+ * @returns {object} Serialized, owner-information-safe abort evidence.
+ */
+function nativeDispatchAbortEvidence(evidence) {
+  assert.ok(Number.isSafeInteger(evidence.actionOrdinal) &&
+    evidence.actionOrdinal >= 0);
+  assert.equal(typeof evidence.actionName, 'string');
+  assert.equal(typeof evidence.errorMessage, 'string');
+  assert.ok(evidence.actingSeat === 0 || evidence.actingSeat === 1);
+  const sourceDeal = evidence.sourceDeal ?? null;
+  if (sourceDeal) {
+    assert.ok(sourceDeal.seat === 0 || sourceDeal.seat === 1);
+    assert.match(sourceDeal.digestSha256, /^[0-9a-f]{64}$/);
+  }
+  const roots = evidence.rootActionLedger == null ? null :
+    detached(evidence.rootActionLedger);
+  assert.ok(roots === null || Array.isArray(roots));
+  // Ordinary Store actions increment this counter only upon acceptance.
+  if (roots) assert.equal(roots.length, evidence.actionOrdinal);
+  return {
+    schema: VERSION,
+    actionOrdinal: evidence.actionOrdinal,
+    actionName: evidence.actionName,
+    turnBefore: evidence.turnBefore,
+    phaseBefore: evidence.phaseBefore,
+    actingSeat: evidence.actingSeat,
+    attackName: evidence.actionName === 'AttackAction' ?
+      evidence.attackName ?? null : null,
+    attackingPokemon: evidence.actionName === 'AttackAction' ?
+      evidence.attackingPokemon ?? null : null,
+    errorMessage: evidence.errorMessage,
+    sourceDealFingerprint: sourceDeal ? {
+      seat:sourceDeal.seat,digestSha256:sourceDeal.digestSha256
+    } : null,
+    rootActionCount: roots?.length ?? null,
+    rootActionLedgerSha256: roots ? createHash('sha256')
+      .update(JSON.stringify(roots)).digest('hex') : null,
+    rootActionLedger: roots,
+    // Explicitly deny the invalid inference documented by Agent 8.
+    legacyLedgerOmitsPhysicalTargets: true,
+    physicalActionParityCertified: false,
+    preDispatchPublic: detached(evidence.preDispatchPublic),
+    preDispatchBoard: detached(evidence.preDispatchBoard),
+    competitiveGameQualified: false
+  };
+}
+
+module.exports = {VERSION,nativeDispatchAbortEvidence};
