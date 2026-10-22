@@ -19,7 +19,10 @@ function stagedGuzmaBypass(gust){
   const f=preparedRegidrago();
   f.attachFire();
   f.attacking.discard.cards.push(noivern);
-  f.attacking.bench[0].cards.push(v);
+  const {PokemonCardList}=load('game/store/state/pokemon-card-list');
+  const benched=new PokemonCardList();
+  benched.cards.push(v);
+  f.attacking.bench.push(benched);
   f.defending.active.cards.splice(0,1,thorns);
   for(const energy of [lightning,dce]){
     f.defending.active.cards.push(energy);
