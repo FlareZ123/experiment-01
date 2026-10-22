@@ -363,7 +363,7 @@ function executeDevelopment(trial,candidates,{
   paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
-  nativeActionInputTapeOrdinal=null,
+  nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
   paperTerminalAttackKo=false,
   rank6K1AlternativeEnergy=false
 }={}){
@@ -426,6 +426,7 @@ function executeDevelopment(trial,candidates,{
   let nativeHiddenReadAudit=null;
   let nativeActionInputAudit=null;
   let sameTargetAttachEnergyAudit=null;
+  let nativeAcceptedTargetAudit=null;
   // Development-only, both-seat correction for the original bot's split
   // AttachEnergyPrompt selection when the printed prompt requires sameTarget.
   // A native Store or strict prompt failure still aborts the trial.
@@ -436,14 +437,23 @@ function executeDevelopment(trial,candidates,{
     sameTargetAttachEnergyAudit=observed.audit;
     return observed.result;
   };
+  const runWithNativeAcceptedTargets=()=>{
+    if(!nativeAcceptedTargets)return runWithSameTargetAttachEnergy();
+    const Store=require(path.join(root,
+      'vendor/twinleaf/ptcg-server/output/game/store/store')).Store;
+    const observed=require('../twinleaf/native-accepted-target-store-observer.cjs')
+      .withAcceptedTargetWitness(runWithSameTargetAttachEnergy,{Store});
+    nativeAcceptedTargetAudit=observed.audit;
+    return observed.result;
+  };
   const runWithActionInputWitness=()=>{
-    if(!nativeActionInputWitness)return runWithSameTargetAttachEnergy();
+    if(!nativeActionInputWitness)return runWithNativeAcceptedTargets();
     const base=path.join(root,'vendor/twinleaf/ptcg-server/output');
     const SimpleTacticsAi=require(path.join(base,
       'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
     const Store=require(path.join(base,'game/store/store')).Store;
     const witnessed=require('../twinleaf/agent23-native-decision-dispatch-witness.cjs')
-      .withNativeDecisionDispatchWitness(runWithSameTargetAttachEnergy,
+      .withNativeDecisionDispatchWitness(runWithNativeAcceptedTargets,
         {SimpleTacticsAi,Store,maxRecords:512,
           tapeOrdinal:nativeActionInputTapeOrdinal});
     nativeActionInputAudit=witnessed.audit;
@@ -684,6 +694,8 @@ function executeDevelopment(trial,candidates,{
     ...(nativeOpponentHiddenReadAudit?{
       nativeOpponentHiddenReadAudit:nativeHiddenReadAudit}:{}),
     ...(nativeActionInputWitness?{nativeActionInputAudit}:{}),
+    ...(nativeAcceptedTargets?{
+      nativeAcceptedTargetSidecar:nativeAcceptedTargetAudit}:{}),
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
     verifiedFirstTurn:game.verifiedByDrawLog,
     actualStarterSeat:game.firstTurnSlot,
@@ -808,7 +820,7 @@ function runDevelopment({
   actorHandDiscard=false,actorChoosePokemon=false,
   actorChargedPromotion=false,sourceFloatStoneMobility=false,
   nativeActionInputWitness=false,
-  nativeActionInputTapeOrdinal=null,
+  nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
   paperTerminalAttackKo=false,
   rank6K1AlternativeEnergy=false,
   sourceScopedSpecialEnergyRoot=false,
@@ -846,6 +858,7 @@ function runDevelopment({
         paperSupporterComparisonTrace,
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
+        nativeAcceptedTargets,
         nativeActionInputTapeOrdinal,paperTerminalAttackKo,
         rank6K1AlternativeEnergy,
         // An opt-in observational package, with each native Store observer
@@ -934,6 +947,10 @@ function runDevelopment({
           nativeOpponentHiddenReadAudit:nativeHiddenRead}:{}),
         ...(nativeActionInputWitness?{
           nativeActionInputAudit:error?.nativeDecisionDispatchEvidence??null}:{}),
+        ...(nativeAcceptedTargets?{
+          nativeAcceptedTargetSidecarAbort:
+            error?.nativeAcceptedTargetEvidence??
+            error?.cause?.nativeAcceptedTargetEvidence??null}:{}),
         ...(paperSameTargetAttachEnergy?{
           paperSameTargetAttachEnergyAbortEvidence:sameTargetAbort}:{}),
         ...(actorOnlyComposition&&actorGenericFallbackAttribution?{
@@ -985,6 +1002,7 @@ function runDevelopment({
     nativeProposalValidationAuditOptIn:nativeProposalValidationAudit,
     nativeOpponentHiddenReadAuditOptIn:nativeOpponentHiddenReadAudit,
     nativeActionInputWitnessOptIn:nativeActionInputWitness,
+    nativeAcceptedTargetsOptIn:nativeAcceptedTargets,
     nativeActionInputTapeOrdinal:nativeActionInputWitness?
       nativeActionInputTapeOrdinal:null,
     actorOnlyCompositionOptIn:actorOnlyComposition,
@@ -1070,6 +1088,8 @@ if(require.main===module){
       process.env.AGENT41_NATIVE_HIDDEN_READ_DEV==='true',
     nativeActionInputWitness:
       process.env.AGENT23_NATIVE_INPUT_WITNESS_DEV==='true',
+    nativeAcceptedTargets:
+      process.env.AGENT12_NATIVE_TARGET_SIDECAR_DEV==='true',
     paperTerminalAttackKo:
       process.env.AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV==='true',
     nativeActionInputTapeOrdinal:
