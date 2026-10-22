@@ -123,6 +123,11 @@ on:
         required: false
         type: boolean
         default: false
+      paper_same_target_attach:
+        description: Repair split native Energy assignments when one recipient is required, both players
+        required: false
+        type: boolean
+        default: false
       rank6_source_k1:
         description: Read-only exact original source-first G&H owner-search target diagnosis
         required: false
@@ -142,7 +147,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure adapter-composition order and qualification tests
-        run: node --test tests/agent50-stranded-marnie-frontier.test.cjs tests/agent7-canonical-actor-composition.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent8-canonical-quickball-paircheck.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent7-known-dead-attack-root.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent30-telepathic-known-energy.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent41-actor-powerglass-root.test.cjs tests/agent41-owner-powerglass-attach-prompt.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent3-native-epoch-partition-error.test.cjs tests/agent3-native-reset-prestate.test.cjs tests/agent3-terminal-attack-ko-before-endturn-hook.test.cjs tests/source-deal-epoch-observer.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent49-discrete-attack-gate.test.cjs tests/agent49-rank6-k1-alternate.test.cjs tests/agent32-canonical-owner-donor-root.test.cjs tests/agent41-native-abort-classification.test.cjs
+        run: node --test tests/agent50-stranded-marnie-frontier.test.cjs tests/agent7-canonical-actor-composition.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent8-canonical-quickball-paircheck.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent7-known-dead-attack-root.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent30-telepathic-known-energy.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent41-actor-powerglass-root.test.cjs tests/agent41-owner-powerglass-attach-prompt.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent3-native-epoch-partition-error.test.cjs tests/agent3-native-reset-prestate.test.cjs tests/agent3-terminal-attack-ko-before-endturn-hook.test.cjs tests/source-deal-epoch-observer.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent49-discrete-attack-gate.test.cjs tests/agent49-rank6-k1-alternate.test.cjs tests/agent32-canonical-owner-donor-root.test.cjs tests/agent41-native-abort-classification.test.cjs tests/same-target-attach-energy-hook.test.cjs
       - name: Validate owner-visible donor funding and paid retreat planner
         run: node --test tests/agent35-perfection-transition-frontier.test.cjs
       - name: Regress owner-visible paid retreat and native physical receipt
@@ -222,6 +227,7 @@ jobs:
           AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT12_SAME_TARGET_ATTACH_DEV: ${{ inputs.paper_same_target_attach && 'true' || 'false' }}
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-actor-fourarm.json
@@ -248,6 +254,7 @@ jobs:
           AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT12_SAME_TARGET_ATTACH_DEV: ${{ inputs.paper_same_target_attach && 'true' || 'false' }}
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent32-anyturn-compressor-control.json
@@ -279,6 +286,7 @@ jobs:
           AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT12_SAME_TARGET_ATTACH_DEV: ${{ inputs.paper_same_target_attach && 'true' || 'false' }}
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent35-donor-transition-fourarm.json
@@ -324,6 +332,7 @@ jobs:
           AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT12_SAME_TARGET_ATTACH_DEV: ${{ inputs.paper_same_target_attach && 'true' || 'false' }}
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent8-quick-ball-off.json
@@ -354,6 +363,7 @@ jobs:
           AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT12_SAME_TARGET_ATTACH_DEV: ${{ inputs.paper_same_target_attach && 'true' || 'false' }}
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-actor-fourarm-control.json
@@ -383,6 +393,7 @@ jobs:
           AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT12_SAME_TARGET_ATTACH_DEV: ${{ inputs.paper_same_target_attach && 'true' || 'false' }}
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
           AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
@@ -417,6 +428,7 @@ jobs:
           AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT12_SAME_TARGET_ATTACH_DEV: ${{ inputs.paper_same_target_attach && 'true' || 'false' }}
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
           AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
