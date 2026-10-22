@@ -84,6 +84,13 @@
           "number": "271",
           "artist": "DOM",
           "source": "bundled English card-list.zip"
+        },
+        "pinnedTwinleaf": {
+          "cardManagerKey": "Mega Dragonite ex2 ASC",
+          "set": "ASC",
+          "setNumber": "271",
+          "class": "MegaDragoniteex2ASC",
+          "source": "ptcg-server/src/sets/11-mega-evolution/set-ascended-heroes/other-prints.ts"
         }
       }
     },
@@ -327,6 +334,6 @@
     "source_attribution": "social post confirmed; official legal name and Japanese printing IDs unverified",
     "final_benchmark_rank_assigned": false,
     "competitive_games_qualified": 0,
-    "single_printing_confirmed": "R1C8 M2a 232/193 / English equivalent me2pt5-271; remaining photo printings unconfirmed"
+    "single_printing_confirmed": "R1C8 Japanese M2a 232/193 (DOM), English equivalent me2pt5-271, pinned Twinleaf registered key Mega Dragonite ex2 ASC. Other photo printings not yet verified."
   }
 }
