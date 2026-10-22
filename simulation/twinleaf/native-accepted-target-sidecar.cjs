@@ -154,7 +154,19 @@ function firstPhysicalTargetDifference(left,right){
         !Number.isSafeInteger(r.rootActionOrdinal)))
       return {status:'target-unobserved',index:i,
         reason:'missing-authenticated-root-ordinal'};
-    if(!isDeepStrictEqual(l,r))
+    // A native Store dispatcher counts prompt/setup calls in addition to
+    // accepted roots. Those bookkeeping calls are not observed physical
+    // target choices. Retain their ordinals in the full sidecar SHA, but
+    // compare only the target/action and publicly witnessed board effects.
+    const physical=row=>({
+      rootActionOrdinal:nativeLinked?row.rootActionOrdinal:null,
+      turnBefore:row.turnBefore,playerSlot:row.playerSlot,
+      action:row.action,declared:row.declared,
+      storeAccepted:row.storeAccepted,
+      publicBoardChanges:row.publicBoardChanges,
+      visibility:row.visibility
+    });
+    if(!isDeepStrictEqual(physical(l),physical(r)))
       return {status:'different',index:i,
         firstOrdinal:nativeLinked?l.rootActionOrdinal:l.actionOrdinal,
         secondOrdinal:nativeLinked?r.rootActionOrdinal:r.actionOrdinal};
