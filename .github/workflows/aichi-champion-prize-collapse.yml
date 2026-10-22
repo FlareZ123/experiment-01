@@ -21,6 +21,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20.19.0'
+      - name: Verify fixed-60 forced TAG TEAM and multi-Prize opening census
+        run: |
+          node --test tests/aichi_forced_tag_openers.test.cjs
+          node scripts/aichi_forced_tag_openers.cjs
       - name: Verify registered-source Supporter copy census against card subtypes
         run: node --test tests/aichi-supporter-density.test.cjs
       - name: Check exact Prize combinatorics against exhaustive physical slots
