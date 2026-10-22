@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure actor-root intent tests
-        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-articuno-powerglass-native.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs
+        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-articuno-powerglass-native.test.cjs tests/agent5-rank6-native-t34-registered-receipt.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs
       - run: git submodule update --init --depth=1 vendor/twinleaf
       - working-directory: vendor/twinleaf/ptcg-server
         run: |
@@ -114,6 +114,7 @@ jobs:
         if: ${{ inputs.rank6_powerglass_paired }}
         run: node scripts/agent5-articuno-powerglass-native-audit.cjs agent5-powerglass-control.json agent5-powerglass-treatment.json > agent5-powerglass-paired-audit.json
       - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
         with:
           name: actor-only-root-native-retrospective-rank11
           path: |
@@ -126,4 +127,5 @@ jobs:
             agent5-powerglass-control.json
             agent5-powerglass-treatment.json
             agent5-powerglass-paired-audit.json
+          if-no-files-found: warn
           retention-days: 30
