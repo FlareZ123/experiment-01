@@ -119,10 +119,16 @@ function replayNativePolicy(enabled,execute=runDevelopment,nativeAcceptedTargets
   const original=headless.runMatch;
   const savedFlag=process.env.AGENT49_POTENTIAL_KO_ROOT_DEV;
   const games=new Map();
+  const promptAudits=new Map();
   headless.runMatch=request=>{
-    const game=original(request);
+    const observed=nativePromptPublicDeltas?
+      require('../twinleaf/accepted-energy-prompt-public-witness.cjs')
+        .withAcceptedEnergyPromptPublicWitness(()=>original(request)):
+      {result:original(request),audit:null};
+    const game=observed.result;
     assert.ok(!games.has(request.label),'Duplicate frozen native match label');
     games.set(request.label,game);
+    if(observed.audit)promptAudits.set(request.label,observed.audit);
     return game;
   };
   let development;
