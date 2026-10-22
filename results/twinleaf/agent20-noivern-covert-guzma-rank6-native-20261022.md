@@ -27,7 +27,7 @@ The fixture and reusable comparison live in [`simulation/twinleaf/apex-noivern-r
 
 - [CI 39708094074](https://github.com/FlareZ123/experiment-01/actions/runs/39708094074) failed on our own initially missing native Bench slot construction. It did not exercise the gust mechanism.
 - [CI 39708320523](https://github.com/FlareZ123/experiment-01/actions/runs/39708320523) **passed the full workflow** after constructing a real `PokemonCardList`. However, that historical version used Basic Lightning Energy absent from rank 6, so it is only an engine-mechanics proof.
-- [CI 39708979239](https://github.com/FlareZ123/experiment-01/actions/runs/39708979239), checkout `67469a2bc05f97a0b3546887ece6e3b103085a73`, **passed the targeted compiled native Guzma step** with source-correct Speed Lightning Energy and runtime source-60 count assertions. The full workflow conclusion is separately tracked and must be checked; targeted native success already establishes the narrow reported contrast.
+- [CI 39708979239](https://github.com/FlareZ123/experiment-01/actions/runs/39708979239), checkout `67469a2bc05f97a0b3546887ece6e3b103085a73`, **passed the targeted compiled native Guzma step and the full manual regression workflow** with source-correct Speed Lightning Energy and runtime source-60 count assertions. Other pinned Apex regression steps also passed; this validates staged mechanics at the stated scope.
 
 ## Decision relevance and limits
 
