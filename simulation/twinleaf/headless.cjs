@@ -1269,6 +1269,20 @@ function runMatch(request) {
         });
         if (recentNativePublicRoots.length>16) recentNativePublicRoots.shift();
       }
+      // Preserve immutable public pre-dispatch data for failed actions.
+      // The upstream Store may mutate board objects before throwing.
+      const nativeAbortBefore=request.captureNativeAbortEvidence===true &&
+          (seat===0||seat===1)?{
+        actionOrdinal:actions,actionName,turnBefore,phaseBefore,actingSeat:seat,
+        attackName:actionName==='AttackAction'?action.name??null:null,
+        attackingPokemon:actionName==='AttackAction'?
+          state.players[seat].active.getPokemonCard()?.fullName??null:null,
+        pendingPrompt:pending?.constructor.name??null,
+        sourceDeal:sourceDealObserver?.result()??null,
+        rootActionLedger,
+        preDispatchPublic:publicSnapshot(state),
+        preDispatchBoard:publicBoardSnapshot(state)
+      }:null;
       try {
         store.dispatch(action);
         if (setupCompensationObserver) {
@@ -1281,6 +1295,15 @@ function runMatch(request) {
         if (rejectionBefore) rejected.rejectedActionEvidence = {
           ...rejectionBefore, rejectionMessage: error.message
         };
+        if(nativeAbortBefore){
+          rejected.nativeAbortEvidence=
+            require('./native-dispatch-abort-evidence.cjs')
+              .nativeDispatchAbortEvidence({
+                ...nativeAbortBefore,
+                failureStage:'store-dispatch',
+                errorMessage:String(error.message)
+              });
+        }
         throw rejected;
       }
       if (rootedSoloSetup && rootedSoloSetupChoice) {
