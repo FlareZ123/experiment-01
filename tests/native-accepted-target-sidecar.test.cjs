@@ -122,3 +122,26 @@ test('unlinked native Store targets veto first physical root assertions',()=>{
     status:'target-unobserved',reason:'unlinked-Store-root-ordinals'
   });
 });
+
+test('authenticated native game-root ordinals differ from raw Store dispatch counters',()=>{
+  const control=acceptedEnergy(ACTIVE,'active');
+  const treatment=acceptedEnergy(BENCH,'bench');
+  control.rootOrdinalLinked=true;
+  treatment.rootOrdinalLinked=true;
+  control.events[0].actionOrdinal=52;
+  treatment.events[0].actionOrdinal=52;
+  control.events[0].rootActionOrdinal=49;
+  treatment.events[0].rootActionOrdinal=49;
+  assert.deepEqual(firstPhysicalTargetDifference(control,treatment),{
+    status:'different',index:0,firstOrdinal:49,secondOrdinal:49
+  });
+  delete treatment.events[0].rootActionOrdinal;
+  assert.deepEqual(firstPhysicalTargetDifference(control,treatment),{
+    status:'target-unobserved',index:0,
+    reason:'missing-authenticated-root-ordinal'
+  });
+  treatment.rootOrdinalLinked=false;
+  assert.deepEqual(firstPhysicalTargetDifference(control,treatment),{
+    status:'target-unobserved',reason:'unlinked-Store-root-ordinals'
+  });
+});
