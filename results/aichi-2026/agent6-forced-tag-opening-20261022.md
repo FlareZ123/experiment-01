@@ -45,6 +45,22 @@ For context, unconditional original-seven probabilities *before redrawing invali
 
 **Interpretation:** New Moon's forced three-Prize opener exposure is **3.0770 times** the published champion's, a difference of **5.848 percentage points**. The broader exposure pattern reverses: the champion has **24.932 percentage points more** forced two-or-more-Prize opener exposure than New Moon. Thus the evidence supports a specific *three-Prize concentrated* weakness in New Moon while rejecting the simplistic claim that it is forced to open a multi-Prize Pokémon more often overall.
 
+## One-slot structural sensitivity, deliberately unadopted
+
+To make the metric a deck-building decision rather than an isolated alarm, test one legal-card-count *hypothesis only*: replace **one of New Moon's four Battle VIP Pass** with a **fourth Unown AOR 30**, leaving all four TAG TEAM copies, the two Mewtwo & Mew-GX copies and the remaining 59 slots unchanged. This 60 is **not** a submitted or nominated deck. The fourth Unown is a single-Prize Basic; Battle VIP Pass is a non-Basic Item usable only during the first turn.
+
+| Restricted conditional direct-opening metric | Frozen New Moon 4 VIP / 3 Unown | Hypothetical 3 VIP / 4 Unown | Change |
+| --- | ---: | ---: | ---: |
+| At least one Basic in original seven, unconditional | 91.6563% | 93.0145% | +1.3583 pp |
+| Forced TAG TEAM Active given valid seven | 8.6635% | 7.3898% | **−1.2737 pp** |
+| Direct sight of ≥1 Battle VIP Pass by opening seven plus first mandatory draw, given valid opening seven | 43.4453% | 34.6070% | **−8.8382 pp** |
+
+The conditional first-eight VIP event is an exact *without-replacement* intersection, not an approximate independent draw. For a 60-card population with B Basics and V non-Basic target cards, define `D = C(60,7) − C(60−B,7)` and `Z = C(60−V,7) − C(60−V−B,7)`. Since every V remains among the 53 cards after a valid seven without VIP, `P(VIP visible by eighth | legal seven) = 1 − (Z/D)×((53−V)/53)`. It integrates Prize uncertainty by exchangeability before setup and omits search cards and optional opponent-mulligan draws.
+
+In the case study the candidate's forced TAG event becomes **553049/7483929**. VIP direct visibility changes from **479458943/1103593454** to **19265703/55669928**. These exact fractions are asserted in the added deterministic test, with an independent exhaustive miniature deal including the next draw. The first-eight VIP rate may be strategically more valuable than a small change in three-Prize initial exposure. This is a concrete illustration of setup-resource opportunity cost, **not** support for making the substitution.
+
+**Extended focused test:** [manual workflow 39711719273](https://github.com/FlareZ123/experiment-01/actions/runs/39711719273), frozen revision `1be548281b72bcc9b48ed7044b9c33cd9a519651`, passed **7/7** targeted Node regressions including exhaustive small-deck drawing and exact one-slot fractions. The workflow remained RED at its separate previously failing Trainer classification census, which occurs after the focused tests.
+
 ## Strategic and empirical boundaries
 
 - A forced TAG TEAM Active is a structural **Prize-liability opportunity**. It is not an automatic loss. The opponent must execute a knock-out, and the candidate may legally move the Pokémon to the Bench or defend it. A three-Prize Knock Out may be recoverable.
