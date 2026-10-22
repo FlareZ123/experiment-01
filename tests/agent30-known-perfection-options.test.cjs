@@ -186,3 +186,8 @@ test('optional root policy emits native-typed Perfection Ability action and rest
   assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,oldBot);
   assert.strictEqual(Store.prototype.dispatch,oldDispatch);
 });
+
+test('suffix GX catalog recovery',()=>{
+ const d=knownPerfectionDonorCatalog([{fullName:'Gengar & Mimikyu-GX TEU',attacks:[{name:'Horror House-GX',cost:[P],gxAttack:false}]}]);
+ assert.equal(d.get('Gengar & Mimikyu-GX TEU')[0].gxAttack,true);
+});
