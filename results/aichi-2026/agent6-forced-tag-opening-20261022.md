@@ -54,6 +54,12 @@ For context, unconditional original-seven probabilities *before redrawing invali
 - Specific Japanese printing identities still require their separate paper-legality evidence and should not be conflated with the English mechanical proxy.
 - The primary current outcome gates remain **29/32 exact opposing 60s, zero competitively qualified games**, and no validated final single 60.
 
+## Actual native CI verification (22 October)
+
+**Targeted exact model passed 5/5 Node tests with genuine repository manifest loading** in the manually dispatched [run 39711082183](https://github.com/FlareZ123/experiment-01/actions/runs/39711082183), checked out at commit `59f2f792d0a4aec391fdbb97a7ed100629ccfd56`. The test suite independently exhausts the small-deck physical deals and verifies each large-deck exact reduced rational. The immediately following real Node invocation printed matching JSON including the separate TAG TEAM, specifically Mewtwo, and broader multi-Prize censuses.
+
+**The workflow as a whole is RED for an unrelated preexisting category-audit failure:** `tests/aichi-supporter-density.test.cjs` reports unclassified Trainer names including `Battle Compressor`, `Palace Belt`, `Palace Book`, `Player's Ceremony`, `Robo Substitute`, `Target Whistle`, `Thunder Mountain ♢`, and `Wondrous Labyrinth ♢`. That failure occurs after the new focused step passes and is not attributed to the mathematical study. Do not claim the whole workflow is green. An independently verified targeted test success is distinct from a broader workflow pass.
+
 ## Reproduction and falsification
 
 - [Exact BigInt calculator](../../scripts/aichi_forced_tag_openers.cjs) exports `choose`, `exactForcedOpening`, `countFrozenInventory` and `frozenOpeningAudit`. The command's JSON output includes reduced exact fractions and rounded percentages.
