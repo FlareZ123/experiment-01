@@ -161,6 +161,8 @@ jobs:
         run: node --test tests/agent3-paper-tiebreak-native-check.test.cjs tests/agent3-paper-attack-self-terminal-native.test.cjs
       - name: Verify printed Telepath M3 cost on genuine pinned Store
         run: node --test tests/agent30-pinned-telepath-cost.native.test.cjs tests/agent30-pinned-perfection-root-gap.native.test.cjs
+      - name: Verify original-Store abort preserves source-deal and accepted root evidence
+        run: node --test tests/native-dispatch-abort-archive.pinned.test.cjs
       - name: Verify genuine Powerglass after-Pass native attachment
         run: node simulation/twinleaf/agent41-powerglass-after-pass-native.cjs
       - name: Verify owner-safe Powerglass prompt on genuine Store in both seats
