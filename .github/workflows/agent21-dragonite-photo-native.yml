@@ -1,0 +1,37 @@
+name: Agent21 source-photo Dragonite printed attack receipt
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  photo-source-receipt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out research and pinned Twinleaf
+        uses: actions/checkout@v4
+      - name: Check out pinned submodule only
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install and compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Compare regular ASC152 and exact photograph ASC271 native source-board
+        run: node simulation/twinleaf/agent21-asc271-source-board-receipt.cjs > agent21-asc271-source-board-native.json
+      - name: Summarize machine-readable Store receipt
+        run: node -e "const r=require('./agent21-asc271-source-board-native.json'); console.log(JSON.stringify({sourcePrint:r.sourceJapanesePrint,nativeKey:r.sourceNativeKey,oneDdeEffectCompleted:r.exactPhotoPrint.oneDdeEffectCompleted,discardContainsDoubleDragon:r.exactPhotoPrint.discardContainsDoubleDragon,qualifiedCompetitiveGames:r.qualifiedCompetitiveGames},null,2))"
+      - name: Preserve native exact source-board artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent21-source-photo-m2a232-asc271-native
+          path: agent21-asc271-source-board-native.json
