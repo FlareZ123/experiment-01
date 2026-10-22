@@ -109,7 +109,9 @@ function sourceAttackAtRoot(game,physicalSeat,ordinal){
  *
  * @param {boolean} enabled Enable the potential-knockout selector.
  * @param {(options:object)=>object} [execute] Test dependency seam.
- * @returns {{development:object,games:Map<string,object>}}
+ * @param {boolean} [nativeAcceptedTargets] Original Store target observer.
+ * @param {boolean} [nativePromptPublicDeltas] Accepted public prompt deltas.
+ * @returns {{development:object,games:Map<string,object>,promptAudits:Map<string,object>}}
  */
 function replayNativePolicy(enabled,execute=runDevelopment,nativeAcceptedTargets=true,
   nativePromptPublicDeltas=true){
