@@ -145,3 +145,25 @@ test('authenticated native game-root ordinals differ from raw Store dispatch cou
     status:'target-unobserved',reason:'unlinked-Store-root-ordinals'
   });
 });
+
+test('equal linked public root and target ignore different Store dispatch bookkeeping',()=>{
+  const control=acceptedEnergy(BENCH,'bench');
+  const extraPrompt=acceptedEnergy(BENCH,'bench');
+  control.rootOrdinalLinked=true;
+  extraPrompt.rootOrdinalLinked=true;
+  control.events[0].rootActionOrdinal=49;
+  extraPrompt.events[0].rootActionOrdinal=49;
+  control.events[0].actionOrdinal=52;
+  extraPrompt.events[0].actionOrdinal=59;
+  assert.deepEqual(firstPhysicalTargetDifference(control,extraPrompt),{
+    status:'same-observed-targets',observed:1,
+    scope:'Only PlayCardAction and RetreatAction targets'
+  });
+  // A visible physical result still differs, even when selected card and
+  // declared target geometry are identical. Do not hide board deltas.
+  extraPrompt.events[0].publicBoardChanges[0].after.energies.push(
+    'Basic Fighting Energy MEE');
+  assert.deepEqual(firstPhysicalTargetDifference(control,extraPrompt),{
+    status:'different',index:0,firstOrdinal:49,secondOrdinal:49
+  });
+});
