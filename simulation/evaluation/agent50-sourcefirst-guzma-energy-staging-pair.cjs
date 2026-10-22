@@ -1,6 +1,10 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const {withAcceptedTargetWitness}=
+  require('../twinleaf/native-accepted-target-store-observer.cjs');
+const {firstPhysicalTargetDifference}=
+  require('../twinleaf/native-accepted-target-sidecar.cjs');
 const {planAichi}=require('./aichi-pilot.cjs');
 const {sourceFirstPressureTrials,executeDevelopment}=
   require('./agent41-bilateral-v2-development.cjs');
@@ -47,7 +51,12 @@ function run(seed=482443328){
           mandatoryOptionFallback:true,paperSupporterQuota:true,
           garbotoxinWindow:true
         });
-        const observed=withCanonicalActorOnlyPolicy(execute,{},{
+        const witnessEnabled=process.env.AGENT8_AGENT50_PHYSICAL_TARGET_DEV==='true';
+        const executeObserved=witnessEnabled?()=>{
+          const witness=withAcceptedTargetWitness(execute);
+          return {...witness.result,agent8AcceptedTargetSidecar:witness.audit};
+        }:execute;
+        const observed=withCanonicalActorOnlyPolicy(executeObserved,{},{
           ownerSingleSearch:true,genericFallbackAttribution:true,
           actorHandDiscard:true,actorChoosePokemon:true
         });
@@ -77,6 +86,8 @@ function run(seed=482443328){
     const choosePokemon=result.actorAudit?.detailedComponentAudits?.choosePokemon??{};
     return {
       ...c,
+      ...(result.agent8AcceptedTargetSidecar?{
+        physicalTargetSidecar:result.agent8AcceptedTargetSidecar}:{}),
       actualGuzmaRoots:roots.filter(x=>x.playerSlot===0&&
         x.action==='PlayCardAction'&&x.card==='Guzma')
         .map(x=>({ordinal:x.actionOrdinal,turn:x.turnBefore})),
@@ -101,6 +112,10 @@ function run(seed=482443328){
     sourceSeed:seed,rank:11,sourceSeat:0,candidateSeat:1,
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     unchangedNativePrefixCount:prefix,
+    ...(control.physicalTargetSidecar&&treatment.physicalTargetSidecar?{
+      firstPhysicalTargetDifference:firstPhysicalTargetDifference(
+        control.physicalTargetSidecar,treatment.physicalTargetSidecar)
+    }:{}),
     firstDifference:{control:a[prefix]??null,treatment:b[prefix]??null},
     sourceDealEqual:control.sourceDealFingerprint!==null&&
       control.sourceDealFingerprint===treatment.sourceDealFingerprint,
@@ -119,5 +134,31 @@ if(require.main===module){
   assert.equal(report.sourceDealEqual,true);
   assert.ok(report.unchangedNativePrefixCount>45,
     'Energy staging changed before the established Marnie source turn');
+  if(process.env.AGENT8_AGENT50_PHYSICAL_TARGET_DEV==='true'){
+    const control=report.control.physicalTargetSidecar;
+    const treatment=report.treatment.physicalTargetSidecar;
+    assert.ok(control&&treatment,'Both native accepted-target audits required');
+    assert.equal(control.rootOrdinalLinked,true);
+    assert.equal(treatment.rootOrdinalLinked,true);
+    assert.equal(control.targetUnobserved,0);
+    assert.equal(treatment.targetUnobserved,0);
+    assert.deepEqual(report.firstPhysicalTargetDifference,{
+      status:'different',index:report.firstPhysicalTargetDifference.index,
+      firstOrdinal:49,secondOrdinal:49
+    },'First authentic target-bearing divergence must be rank11 source T7 root49');
+    for(const ordinal of [49,64]){
+      const original=control.events.find(e=>e.rootActionOrdinal===ordinal);
+      const intervention=treatment.events.find(e=>e.rootActionOrdinal===ordinal);
+      assert.ok(original&&intervention,
+        'Missing an accepted original Store Energy destination root '+ordinal);
+      assert.equal(original.declared.kind,'play-card');
+      assert.equal(intervention.declared.kind,'play-card');
+      assert.match(original.declared.ownerHandPrinting,/Darkness Energy/);
+      assert.equal(original.declared.target.slot!==intervention.declared.target.slot,true,
+        'Matched native Energy card must have a changed physical target');
+      assert.ok(original.publicBoardChanges?.length>0);
+      assert.ok(intervention.publicBoardChanges?.length>0);
+    }
+  }
 }
 module.exports={run,CONTROL_GUZMA_LEDGER};
