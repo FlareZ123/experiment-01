@@ -76,4 +76,23 @@ function withAcceptedTargetWitness(execute,deps={}){
     Object.defineProperty(proto,'dispatch',previous);
   }
 }
-module.exports={VERSION,withAcceptedTargetWitness};
+/**
+ * The headless runner wraps a rejected Store action in an Error with a cause;
+ * policy adapters may add another cause. Recover the nearest authentic
+ * receipt without fabricating a successful result.
+ * @param {unknown} error
+ * @returns {object|null}
+ */
+function acceptedTargetAbortEvidence(error){
+  const seen=new Set();
+  for(let current=error,depth=0;current&&typeof current==='object'&&
+      depth<12&&!seen.has(current);current=current.cause,depth++){
+    seen.add(current);
+    if(current.nativeAcceptedTargetEvidence?.schema===
+        'actual-store-declared-target-sidecar-v1')
+      return current.nativeAcceptedTargetEvidence;
+  }
+  return null;
+}
+
+module.exports={VERSION,withAcceptedTargetWitness,acceptedTargetAbortEvidence};
