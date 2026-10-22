@@ -19,9 +19,10 @@ function detached(value) {
  * never be interpreted as matching Energy or retreat destinations.
  *
  * @param {{actionOrdinal:number, actionName:string, turnBefore:number,
- *   failureStage?:'store-dispatch'|'strict-prompt-validation',
+ *   failureStage?:'store-dispatch'|'strict-prompt-validation'|'bot-decoder',
  *   phaseBefore:number, actingSeat:number, attackName?:string|null,
  *   attackingPokemon?:string|null, errorMessage:string,
+ *   pendingPrompt?:string|null, redactedMessageDigest?:string|null,
  *   sourceDeal?:{seat:number,digestSha256:string}|null,
  *   rootActionLedger?:object[]|null, preDispatchPublic:object,
  *   preDispatchBoard:object[]|null}} evidence
@@ -33,8 +34,12 @@ function nativeDispatchAbortEvidence(evidence) {
   assert.equal(typeof evidence.actionName, 'string');
   assert.equal(typeof evidence.errorMessage, 'string');
   const failureStage=evidence.failureStage??'store-dispatch';
-  assert.ok(['store-dispatch','strict-prompt-validation'].includes(failureStage));
+  assert.ok(['store-dispatch','strict-prompt-validation','bot-decoder'].includes(failureStage));
   assert.ok(evidence.actingSeat === 0 || evidence.actingSeat === 1);
+  if(evidence.redactedMessageDigest!==undefined &&
+     evidence.redactedMessageDigest!==null){
+    assert.match(evidence.redactedMessageDigest,/^[0-9a-f]{64}$/);
+  }
   const sourceDeal = evidence.sourceDeal ?? null;
   if (sourceDeal) {
     assert.ok(sourceDeal.seat === 0 || sourceDeal.seat === 1);
@@ -48,6 +53,8 @@ function nativeDispatchAbortEvidence(evidence) {
   return {
     schema: VERSION,
     failureStage,
+    pendingPrompt:evidence.pendingPrompt??null,
+    redactedMessageDigest:evidence.redactedMessageDigest??null,
     actionOrdinal: evidence.actionOrdinal,
     actionName: evidence.actionName,
     turnBefore: evidence.turnBefore,
