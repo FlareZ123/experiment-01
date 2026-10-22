@@ -169,7 +169,10 @@ function chooseSpecialEnergyIntent(view,catalog){
     const minAfter=costs.length?Math.min(...costs.map(x=>x.after)):Infinity;
     const maxGain=costs.length?
       Math.max(...costs.map(x=>x.before-x.after)):0;
-    // A search-free Energy attachment must advance at least one printed\n    // attack cost; otherwise reserve the resource for a later board state.\n    if(maxGain===0)continue;\n    if(best===null||minAfter<best.minAfter||
+    // A search-free Energy attachment must advance at least one printed
+    // attack cost; otherwise reserve the resource for a later board state.
+    if(maxGain===0)continue;
+    if(best===null||minAfter<best.minAfter||
       (minAfter===best.minAfter&&maxGain>best.maxGain)){
       best={kind:'attach-special-energy',handIndex,printing,minAfter,maxGain};
     }
