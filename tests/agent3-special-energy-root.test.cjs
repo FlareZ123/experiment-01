@@ -186,3 +186,12 @@ test('visible Thunder Mountain makes attached DCE pay Thorns Lightning reduction
     printing:'Speed Lightning Energy RCL'
   });
 });
+
+test('printed GX name is excluded even with missing engine flag',()=>{
+  const v=view();
+  v.ownHand=['Double Colorless Energy SUM'];
+  v.ownPublic.active.attacks=[{
+    name:'Miraculous Duo-GX',cost:[9,9],gxAttack:false
+  }];
+  assert.equal(chooseSpecialEnergyIntent(v,catalog),null);
+});
