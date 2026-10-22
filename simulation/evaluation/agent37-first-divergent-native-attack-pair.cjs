@@ -221,8 +221,10 @@ function compareNativePairs(a,b){
       rootShaMatchesCanonicalOutput:nativeGamePair&&
         ROOT_SHA(aGame.rootActionLedger)===control.rootActionLedgerSha256&&
         ROOT_SHA(bGame.rootActionLedger)===treatment.rootActionLedgerSha256,
-      priorNativeRootsIdentical:Boolean(firstDifference),
-      priorNativeRootLabelsIdentical:Boolean(firstDifference),
+      priorNativeRootsIdentical:nativeGamePair&&
+        (firstDifference===null||firstDifference.ordinal>0),
+      priorNativeRootLabelsIdentical:nativeGamePair&&
+        (firstDifference===null||firstDifference.ordinal>0),
       acceptedTargetComparison,
       acceptedPromptComparison:{left:aPrompt?.sha256??null,
         right:bPrompt?.sha256??null,
