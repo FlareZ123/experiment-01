@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent30-telepath-m3-native-special-energy-frontier-v5-perfection-public-donors';
+const VERSION='agent30-telepath-m3-native-special-energy-frontier-v6-printed-gx-failclosed';
 
 /**
  * Bounded printed-text numeric model for four rank-6 Special Energy printings
@@ -121,7 +121,7 @@ function chooseTelepathPsychicRecipient(view,catalog){
       }
     }
     for(const attack of attacks){
-      if(attack.gxAttack===true||!Array.isArray(attack.cost)||
+      if((attack.gxAttack===true||attack.name?.endsWith('-GX'))||!Array.isArray(attack.cost)||
           !attack.cost.includes(p))continue;
       const before=missingEnergyUnits(attack.cost,energies,colorless);
       const after=missingEnergyUnits(attack.cost,
@@ -170,7 +170,7 @@ function chooseSpecialEnergyIntent(view,catalog){
     if(typeName)attached.push(catalog.basicEnergyTypes[typeName]);
   }
   const attacks=active.attacks.filter(attack=>
-    !attack.gxAttack&&Array.isArray(attack.cost));
+    !attack.gxAttack&&!attack.name?.endsWith('-GX')&&Array.isArray(attack.cost));
   let best=null;
   for(let handIndex=0;handIndex<view.ownHand.length;handIndex++){
     const printing=view.ownHand[handIndex];
