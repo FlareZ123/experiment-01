@@ -928,18 +928,14 @@ function runDevelopment({
         error?.cause?.nativeGenericFallbackEvidence??null;
       const sameTargetAbort=error?.nativeSameTargetEnergyEvidence??
         error?.cause?.nativeSameTargetEnergyEvidence??null;
-      const nativeAbort=error?.nativeAbortEvidence??
-        error?.cause?.nativeAbortEvidence??null;
-      const concealedSelectionError=nativeAbort &&
-        ['bot-decoder','strict-prompt-validation'].includes(nativeAbort.failureStage);
+      const {error:archivedError,nativeStoreCauseStack,
+        nativeAbortEvidence:nativeAbort}=
+        require('../twinleaf/native-dispatch-abort-evidence.cjs')
+          .publicNativeAbortError(error);
       rows.push({
         trial,status:classifyNativeAbort(veto),
-        error:concealedSelectionError?
-          'Redacted '+nativeAbort.failureStage+
-          ' failure; exception SHA256 '+nativeAbort.redactedMessageDigest:
-          String(error?.stack||error),
-        nativeStoreCauseStack:concealedSelectionError?
-          null:(error?.cause?.stack??null),
+        error:archivedError,
+        nativeStoreCauseStack,
         ...(error?.nativePublicRootArchive??{}),
         nativeAbortEvidence:nativeAbort,
         ...(error?.nativeEpochBoundaryEvidence?{
