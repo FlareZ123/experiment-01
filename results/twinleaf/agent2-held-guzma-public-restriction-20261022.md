@@ -1,0 +1,5 @@
+# Held-Guzma restriction audit, 22 October 2026
+
+The owner-only selector previously vetoed a switch whenever the Active could pay a printed damage attack's Energy cost, even if a public move restriction made that attack unusable. Commit 2ef020cc5173a7945504f404e1fdcaab27e07168 now applies a shared public-attack-eligibility filter both to attack funding and the veto. It covers named attack restrictions, inability to attack next turn, and Asleep/Paralyzed. The existing source-independent, opt-in selector and native Store legality gate remain in place.
+
+Nine pure regression tests are committed in tests/agent2-held-guzma-mobility-frontier.test.cjs (4617ebcd78ec7fea1980903b1b409cb0cbcff45a). No actual Node CI or original Store trial was completed. An attempt to add the test to the canonical manual workflow was blocked by the available editing interface; the workflow remains unchanged. The next validation is to run that test file on a real Node checkout, followed by native source/candidate response on a genuine restricted Active root. No competitive outcome or win-rate inference follows.
