@@ -1,0 +1,7 @@
+# Agent42: native rank11 same-target correction for common bilateral policy
+
+On exact Agent50 source-first rank11 seed 2584586627 and all original 16 policy flags, baseline native Store bot failed twice at AttachEnergyPrompt135 (Squawkabilly ex Motivate, two Darkness Energies split across Mega Absol ex). Existing Agent1 reversible sameTarget hook fixed both and led to native terminals, 211 roots, matching physical source-deal hashes, actual first mover source seat0. Green replay 39699484292, complete result: results/aichi-2026/agent42-native-sametarget-repair-20261022.md.
+
+The common bilateral v2 runner already provides default-off AGENT12_SAME_TARGET_ATTACH_DEV and AGENT38_PAPER_FULLBENCH_TRUBBISH_DEV, using the existing Agent1 and Agent38 research-owned hooks. Reuse those toggles rather than creating a duplicate hook or new canonical dispatch input.
+
+Original archived four-seed errors: 2 AttachEnergyPrompt, 3 NO_BENCH_SLOTS_AVAILABLE, 1 LABEL_GX_USED, 2 natural terminals. Bench and GX failure sources are untraced on those seeds. Bot play in repaired games is extremely weak: 26 source PassTurn roots, 21 candidate PassTurn roots, no Supporters and first source attack turn53. These are 0 qualified competitive games. Exact 16-flag environment is essential; a reduced policy did not reproduce the error and invalidated causal comparison. Historical four-seed panel is registered but not run.
