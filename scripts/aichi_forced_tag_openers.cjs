@@ -116,6 +116,21 @@ function countFrozenInventory(rows, evolutions) {
   return {deckSize:total,basics:basicCount,tagTeams,mewtwo,multiPrizeBasics};
 }
 
+/**
+ * Exact one-draw visibility of non-Basic target cards after valid Basic seven.
+ * @param {{deckSize:number,openingSize:number,basics:number,targets:number}} c
+ */
+function directTargetByOneDraw(c) {
+  const {deckSize:n,openingSize:k,basics:b,targets:t}=c;
+  assert.ok([n,k,b,t].every(x=>Number.isSafeInteger(x)&&x>=0));
+  assert.ok(k<n && b>0 && t>0 && b+t<=n && t<=n-k);
+  const all=choose(n,k),valid=all-choose(n-b,k);
+  const noTargetValid=choose(n-t,k)-choose(n-t-b,k);
+  const unseen=BigInt(n-k);
+  return fraction(valid*unseen-noTargetValid*BigInt(n-k-t),
+    valid*unseen);
+}
+
 /** @returns {object} Independently auditable immutable-deck results. */
 function frozenOpeningAudit() {
   const source = require(path.resolve(__dirname,
@@ -166,7 +181,7 @@ function frozenOpeningAudit() {
 }
 
 module.exports = {
-  choose, fraction, exactForcedOpening, countFrozenInventory,
+  choose, fraction, exactForcedOpening, directTargetByOneDraw, countFrozenInventory,
   frozenOpeningAudit
 };
 
