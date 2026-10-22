@@ -71,9 +71,11 @@ function auditPair(control,treatment){
       Number.isSafeInteger(firstPhysicalOrdinal)&&
       (rootBeforeLabel===null||
         firstPhysicalOrdinal<rootBeforeLabel.actionOrdinal),
-    physicalParityCertified:sourceDealEqual&&authenticReceipt&&
+    observedPlayCardRetreatParity:sourceDealEqual&&authenticReceipt&&
       physical.status==='same-observed-targets'&&
       labelPrefix===a.length&&labelPrefix===b.length,
+    physicalParityCertified:false,
+    unobservedPhysicalChannels:['typed-prompt-energy-attachments'],
     limitedToAcceptedPlayCardAndRetreat:true,
     competitiveQualifiedGames:0
   };
