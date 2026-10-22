@@ -1077,11 +1077,37 @@ function runMatch(request) {
         }
       }
       if (request.strictPromptValidation === true) {
-        assertValidPromptAction(state, action,{
-          enforceSelectOptionLegality:request.enforceSelectOptionLegality===true,
-          enforcePrintedCynthiaRecovery:request.enforcePrintedCynthiaRecovery===true,
-          enforceAttachEnergyGeometry:request.enforceAttachEnergyGeometry===true
-        });
+        try {
+          assertValidPromptAction(state, action,{
+            enforceSelectOptionLegality:request.enforceSelectOptionLegality===true,
+            enforcePrintedCynthiaRecovery:request.enforcePrintedCynthiaRecovery===true,
+            enforceAttachEnergyGeometry:request.enforceAttachEnergyGeometry===true
+          });
+        } catch (error) {
+          // This failed before Store.dispatch, so the earlier accepted root
+          // history and original source-deal digest must survive separately.
+          if (request.captureNativeAbortEvidence===true) {
+            const actingId=pending?pending.playerId:(action.clientId??action.id);
+            const actingSeat=state.players.findIndex(p=>p.id===actingId);
+            error.nativeAbortEvidence=
+              require('./native-dispatch-abort-evidence.cjs')
+                .nativeDispatchAbortEvidence({
+                  failureStage:'strict-prompt-validation',
+                  actionOrdinal:actions,actionName:action.constructor.name,
+                  turnBefore:state.turn,phaseBefore:state.phase,actingSeat,
+                  attackName:action.constructor.name==='AttackAction'?
+                    action.name:null,
+                  attackingPokemon:action.constructor.name==='AttackAction'?
+                    state.players[actingSeat].active.getPokemonCard()?.fullName??null:null,
+                  errorMessage:error.message,
+                  sourceDeal:sourceDealObserver?.result()??null,
+                  rootActionLedger,
+                  preDispatchPublic:publicSnapshot(state),
+                  preDispatchBoard:publicBoardSnapshot(state)
+                });
+          }
+          throw error;
+        }
       }
       const actionName = action.constructor.name;
       const rootedSoloSetupChoice = rootedSoloSetup &&
