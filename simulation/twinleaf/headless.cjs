@@ -991,6 +991,7 @@ function runMatch(request) {
         lastCopycatTurnCaptured = state.turn;
       }
       let action;
+      try {
       if (pending instanceof ShuffleDeckPrompt) {
         const ownerId = pending.getPerspectivePlayerId();
         const owner = state.players.find(player => player.id === ownerId);
@@ -1018,6 +1019,35 @@ function runMatch(request) {
         if (!action) {
           throw new Error('Policy failed to generate a turn action.');
         }
+      }
+      } catch (error) {
+        // The bot may throw before returning a typed action. Archive the
+        // native prompt type, public state, accepted history, and a digest of
+        // the detailed exception without copying potentially concealed cards.
+        if (request.captureNativeAbortEvidence===true &&
+            error && typeof error==='object') {
+          const failedSeat=pending?
+            state.players.findIndex(p=>p.id===pending.playerId):
+            state.activePlayer;
+          if(failedSeat===0||failedSeat===1){
+            error.nativeAbortEvidence=
+              require('./native-dispatch-abort-evidence.cjs')
+                .nativeDispatchAbortEvidence({
+                  failureStage:'bot-decoder',actionOrdinal:actions,
+                  actionName:'BotDecodeFailure',turnBefore:state.turn,
+                  phaseBefore:state.phase,actingSeat:failedSeat,
+                  pendingPrompt:pending?.constructor.name??null,
+                  errorMessage:'Actor action decoding failed; details redacted',
+                  redactedMessageDigest:crypto.createHash('sha256')
+                    .update(String(error.message??error)).digest('hex'),
+                  sourceDeal:sourceDealObserver?.result()??null,
+                  rootActionLedger,
+                  preDispatchPublic:publicSnapshot(state),
+                  preDispatchBoard:publicBoardSnapshot(state)
+                });
+          }
+        }
+        throw error;
       }
       const guardedPlayLockSeat=visiblePlayLockGuardSeat(
         request,state.activePlayer);
