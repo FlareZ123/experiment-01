@@ -202,7 +202,7 @@ function chooseActorRootIntent(view,catalog,options={}){
       // Printed GX attacks share the global one-GX-per-game resource. They are
       // disabled by default until explicitly tested as actor-owned roots.
       // Rule-specific eligibility still belongs to the genuine native Store.
-      if(attack.gxAttack && (
+      if((attack.gxAttack===true||attack.name.endsWith('-GX')) && (
         options.printedGxRoot!==true ||
         own.publicTurnRestrictions?.gxUsed===true ||
         own.publicTurnRestrictions?.cannotUseGXAttacks===true
