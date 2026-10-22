@@ -91,11 +91,67 @@ function summarize(control,treatment){
   };
 }
 
+/**
+ * Fail closed when a workflow silently follows a different owner policy or
+ * its actor-only fork never reaches the registered physical T34 opportunity.
+ * This is a fixed single-deal receipt, not a general competitive evaluator.
+ * @param {object} paired Observational four-arm report.
+ * @returns {object} Confirmed immutable native receipt.
+ */
+function verifyRegisteredT34(paired){
+  assert.equal(paired.observedArms,4);
+  assert.equal(paired.allNonTargetActionLedgersUnchanged,true,
+    'Non-target root ledger changed under candidate-only treatment');
+  assert.equal(paired.competitiveQualifiedGames,0);
+  const s=paired.selectedFork;
+  assert.equal(s?.id,
+    '6:retrospective-sourcefirst:0:B:new-moon-lockbreaker-v1');
+  assert.equal(s.sourceFirstControl,true);
+  assert.equal(s.sourceFirstTreatment,true);
+  assert.equal(s.sourceDeal,
+    '14549caa34487d41ae4100c0c3542085d6fe57ed33b9d7da89b79bc55379b5de');
+  assert.equal(s.control.rootsSha,
+    '20203d34d1f9149f7229b147a4906e8a4a80b7192e129a293d68cdc69bfcb419',
+    'Original archived T34 control trajectory not reproduced');
+  assert.notEqual(s.treatment.rootsSha,s.control.rootsSha,
+    'Actor policy proposed nothing and left original trajectory unchanged');
+  const a=s.nativePolicyAudit;
+  assert.ok(a,'Native owner-only treatment audit missing');
+  assert.deepEqual([a.nativeRoots,a.searchPrompts,a.toolRoots,
+    a.energyPrompts,a.accepted,a.confirmed,a.unconfirmed],
+    [2,1,1,2,5,5,0],'Native Compressor Powerglass receipt incomplete');
+  assert.deepEqual(a.events.map(e=>[e.kind,e.turn,e.physicallyConfirmed]),
+    [['compressor',34,true],['search',34,true],['tool',34,true],
+      ['endturn-energy',34,true],['endturn-energy',36,true]]);
+  assert.deepEqual(a.events.find(e=>e.kind==='search')?.selected,
+    ['Psychic Energy MEE','Psychic Energy MEE'],
+    'Two genuine native owner-deck Basics not selected');
+  assert.deepEqual(s.control.candidateAttacks
+    .filter(e=>e.attack==='Psyray').map(e=>e.turn),[52,54,56]);
+  assert.deepEqual(s.treatment.candidateAttacks
+    .filter(e=>e.attack==='Psyray').map(e=>e.turn),[38,40,42]);
+  assert.deepEqual([s.control.finished,s.treatment.finished],[true,true]);
+  assert.deepEqual([s.control.winner,s.treatment.winner],[0,0]);
+  assert.deepEqual([s.control.prizes,s.treatment.prizes],[[0,4],[0,4]]);
+  return {
+    label:'native-physical-T34-Compressor-Powerglass-confirmed',
+    frozenControlRootSha256:s.control.rootsSha,
+    treatmentRootSha256:s.treatment.rootsSha,
+    nativeActionsAccepted:a.accepted,
+    nativeActionsPhysicallyConfirmed:a.confirmed,
+    firstPsyrayGlobalTurnControl:52,
+    firstPsyrayGlobalTurnTreatment:38,
+    competitiveQualifiedGames:0,
+    terminalReversal:false
+  };
+}
+
 if(require.main===module){
   assert.equal(process.argv.length,4,'Expected baseline and treatment filenames');
   const read=file=>JSON.parse(fs.readFileSync(file,'utf8'));
-  process.stdout.write(JSON.stringify(summarize(
-    read(process.argv[2]),read(process.argv[3])),null,2)+'\n');
+  const report=summarize(read(process.argv[2]),read(process.argv[3]));
+  report.registeredT34Verification=verifyRegisteredT34(report);
+  process.stdout.write(JSON.stringify(report,null,2)+'\n');
 }
 
-module.exports={summarize};
+module.exports={summarize,verifyRegisteredT34};
