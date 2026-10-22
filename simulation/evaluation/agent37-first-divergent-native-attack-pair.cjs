@@ -224,6 +224,7 @@ function compareNativePairs(a,b){
       priorNativeRootsIdentical:Boolean(firstDifference),
       priorNativeRootLabelsIdentical:Boolean(firstDifference),
       acceptedTargetComparison,
+      acceptedPromptComparison:{left:aPrompt?.sha256??null,right:bPrompt?.sha256??null},
       firstDifference,
       firstDifferenceIsSameActorPrintedAttack:attackClassChange,
       baselineNativeAttackSettlement:baselineAttack,
