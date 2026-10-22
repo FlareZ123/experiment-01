@@ -32,6 +32,8 @@ jobs:
         run: node --test tests/aichi_source_fingerprint_map.test.cjs
       - name: Validate native Store public clock binding to portable action trace
         run: node --test tests/native-clock-trace-adapter.test.cjs tests/native-clock-episodes.test.cjs tests/native-clock-python-bridge.test.cjs
+      - name: Distinguish physical recipient witness from nonboard PlayCard target coordinates
+        run: node --test tests/agent10-native-declared-target-census.test.cjs
       - name: Reject seat-confounded zero-loss evidence under a four-cell estimand
         run: node --test tests/aichi-physical-seat-imbalance.test.cjs
       - name: Verify source-deck positioning census and corner cases
