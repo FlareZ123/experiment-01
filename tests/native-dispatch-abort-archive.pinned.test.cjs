@@ -120,3 +120,52 @@ test('real bot decoder exception preserves prior roots without leaking its detai
   assert.equal(Store.prototype.dispatch,originalDispatch.value);
   assert.equal(SimpleTacticsAi.prototype.decodeNextAction,originalDecode.value);
 });
+
+
+test('strict validation of a real native prompt retains accepted history',()=>{
+  const {SimpleTacticsAi}=require(path.join(output,'simple-bot/simple-tactics-ai'));
+  const {ResolvePromptAction}=require(path.join(output,
+    'game/store/actions/resolve-prompt-action'));
+  const oldStore=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  const oldDecode=Object.getOwnPropertyDescriptor(SimpleTacticsAi.prototype,'decodeNextAction');
+  let liveStore=null, injected=false, failure=null;
+  function observe(action,...args){
+    if(liveStore===null&&action.constructor.name==='AddPlayerAction') liveStore=this;
+    return oldStore.value.apply(this,[action,...args]);
+  }
+  function invalidPrompt(state,...args){
+    const prompt=state.prompts?.find(p=>p.result===undefined);
+    if(!injected&&state===liveStore?.state&&
+       state.phase===GamePhase.PLAYER_TURN&&state.turn>=1&&prompt&&
+       !['ShuffleDeckPrompt','CoinFlipPrompt'].includes(prompt.constructor.name)){
+      injected=true;
+      return new ResolvePromptAction(prompt.id+1000000,[]);
+    }
+    return oldDecode.value.apply(this,[state,...args]);
+  }
+  Object.defineProperty(Store.prototype,'dispatch',{...oldStore,value:observe});
+  Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',
+    {...oldDecode,value:invalidPrompt});
+  try{
+    const cards=upstreamSmokeDeck();
+    try{
+      runMatch({deckA:cards,deckB:cards,seed:471144321,maxActions:300,
+        strictPromptValidation:true,captureDecisionTrace:true,
+        captureNativeAbortEvidence:true,captureInitialSourceDealFingerprintSeat:0});
+    }catch(error){failure=error;}
+  }finally{
+    Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',oldDecode);
+    Object.defineProperty(Store.prototype,'dispatch',oldStore);
+  }
+  assert.equal(injected,true,'No native prompted action appeared after setup');
+  assert.match(failure?.message??'',/unknown or already-resolved prompt ID/);
+  const receipt=failure.nativeAbortEvidence;
+  assert.equal(receipt?.failureStage,'strict-prompt-validation');
+  assert.ok(receipt.pendingPrompt);
+  assert.match(receipt.redactedMessageDigest,/^[0-9a-f]{64}$/);
+  assert.match(receipt.sourceDealFingerprint.digestSha256,/^[0-9a-f]{64}$/);
+  assert.ok(receipt.actionOrdinal>0);
+  assert.equal(receipt.rootActionLedger.length,receipt.actionOrdinal);
+  assert.equal(Store.prototype.dispatch,oldStore.value);
+  assert.equal(SimpleTacticsAi.prototype.decodeNextAction,oldDecode.value);
+});
