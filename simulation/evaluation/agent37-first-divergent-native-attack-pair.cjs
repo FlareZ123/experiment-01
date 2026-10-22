@@ -111,7 +111,8 @@ function sourceAttackAtRoot(game,physicalSeat,ordinal){
  * @param {(options:object)=>object} [execute] Test dependency seam.
  * @returns {{development:object,games:Map<string,object>}}
  */
-function replayNativePolicy(enabled,execute=runDevelopment,nativeAcceptedTargets=true){
+function replayNativePolicy(enabled,execute=runDevelopment,nativeAcceptedTargets=true,
+  nativePromptPublicDeltas=true){
   assert.equal(typeof nativeAcceptedTargets,'boolean');
   assert.equal(typeof execute,'function');
   const original=headless.runMatch;
