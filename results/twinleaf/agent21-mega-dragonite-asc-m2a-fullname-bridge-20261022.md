@@ -32,3 +32,19 @@ A focused real compiled Store test should check:
 4. whether `ASC 271` alter-print is separately exposed, and whether the deck translator can map the authenticated original `M2a 232` to a same-mechanics engine card without pretending the artwork matches.
 
 If the source lookup alias is the only obstacle, solve it through the **research-owned name/printing mapper**, avoiding any direct vendor edits. A successful staged source-board attack verifies only that interaction, not ranked win strength. Preserve existing runner and coordinate changes with its owner.
+
+## Resolution: the *exact matching English artwork* already has a pinned manager key
+
+After the first source-code audit, inspected the same pinned [Ascended Heroes `other-prints.ts`](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/11-mega-evolution/set-ascended-heroes/other-prints.ts). It declares:
+
+```ts
+export class MegaDragoniteex2ASC extends MegaDragoniteexASC152 {
+  public setNumber = '271';
+  public fullName: string = 'Mega Dragonite ex2 ASC';
+  public set = 'ASC';
+}
+```
+
+The Ascended Heroes index registers `new MegaDragoniteex2ASC()`, so the pinned card manager should also index **`Mega Dragonite ex2 ASC`** for the exact English `ASC 271` art equivalent of the original **Japanese M2a #232/193** photo. This eliminates the need to mechanically proxy ASC152 when testing the authenticated physical singleton. The prefix `ex2` is an idiosyncratic but **intentional upstream printing suffix**, which differs from the often guessed canonical key `Mega Dragonite ex ASC`. Do not rename the source's photo-card English equivalent or write directly into the submodule. **For a live Store deck, use this exact pinned key** and verify a full-game seed/prompt receipt. The original no-alias finding for bare `Mega Dragonite ex ASC` remains valid.
+
+Revised recommendation: prioritize trying the **existing registered `Mega Dragonite ex2 ASC`** first. A new research alias layer is unnecessary for this printing if the actual CardManager recognizes the already registered class. The existing source-board runner searches ASC152 and therefore does not by itself prove ASC271's exact object was used. No gameplay verification is claimed from this static inspection.
