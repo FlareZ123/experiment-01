@@ -7,6 +7,31 @@ const {withSameTargetAttachEnergySelection}=
 
 const HISTORICAL_SEEDS=Object.freeze([2584586627,17984023,1407148205,2612415444]);
 const PINNED_ENGINE='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
+const ORIGINAL_ENV_PROFILE=Object.freeze({
+  AGENT7_CANONICAL_ACTOR_POLICY_DEV:'true',
+  AGENT47_ACTOR_HAND_DISCARD_DEV:'true',
+  AGENT8_ACTOR_CHOOSE_POKEMON_DEV:'true',
+  AGENT8_ACTOR_QUICK_BALL_DEV:'true',
+  AGENT7_NATIVE_GENERIC_FALLBACK_DEV:'true',
+  AGENT41_ACTOR_SINGLE_SEARCH_DEV:'true',
+  AGENT10_BASIC_ENERGY_FRONTIER_DEV:'true',
+  AGENT44_ACTOR_ENERGY_RECIPIENT_DEV:'true',
+  AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV:'true',
+  AGENT8_ACE_TRAINER_EMERGENCY_DEV:'false',
+  AGENT42_ESCAPE_ROPE_DEV:'true',
+  AGENT42_ESCAPE_ROPE_OWNER_SEAT:'1',
+  AGENT3_SPECIAL_ENERGY_ROOT_DEV:'true',
+  AGENT41_PAPER_SUPPORTER_DEV:'true',
+  AGENT41_MANDATORY_OPTION_DEV:'true',
+  AGENT41_NATIVE_PRESSURE_DEV:'true'
+});
+
+/** @param {Record<string,string|undefined>} [env] */
+function assertOriginalPolicyEnvironment(env=process.env){
+  for(const [name,value] of Object.entries(ORIGINAL_ENV_PROFILE))
+    assert.equal(env[name],value,'Original frozen native policy requires '+name);
+}
+
 
 /** @param {object} arm @returns {object} */
 function armReceipt(arm){
@@ -46,6 +71,7 @@ function pairReceipt(pair){
  */
 function compareSeed(seed,deps={}){
   assert.ok(HISTORICAL_SEEDS.includes(seed));
+  if(!deps.nativeRun)assertOriginalPolicyEnvironment();
   const nativeRun=deps.nativeRun??run;
   const withRepair=deps.withRepair??withSameTargetAttachEnergySelection;
   const baseline=nativeRun(seed);
@@ -91,5 +117,5 @@ if(require.main===module){
     [...HISTORICAL_SEEDS]:[HISTORICAL_SEEDS[0]]);
   process.stdout.write(JSON.stringify(panel,null,2)+'\n');
 }
-module.exports={HISTORICAL_SEEDS,PINNED_ENGINE,armReceipt,pairReceipt,
-  compareSeed,runPanel};
+module.exports={HISTORICAL_SEEDS,PINNED_ENGINE,ORIGINAL_ENV_PROFILE,
+  assertOriginalPolicyEnvironment,armReceipt,pairReceipt,compareSeed,runPanel};
