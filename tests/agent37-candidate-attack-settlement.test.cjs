@@ -241,6 +241,52 @@ test('first native printed-attack root change is identified by accepted root ord
   assert.equal(firstRootDivergence(x,x),null);
 });
 
+test('native accepted target sidecar detects a label-silent earlier choice',()=>{
+  const {acceptedTargetContrast}=require(
+    '../simulation/evaluation/agent37-first-divergent-native-attack-pair.cjs');
+  const sidecar=(ordinal,target)=>({
+    schema:'actual-store-declared-target-sidecar-v1',
+    rootOrdinalLinked:true,sha256:'fixture-'+target,
+    observedTargetActions:1,events:[{
+      rootActionOrdinal:ordinal,actionOrdinal:ordinal,
+      playerSlot:0,turnBefore:7,action:'PlayCardAction',
+      declared:{status:'captured',target:{player:2,slot:target,index:0}},
+      visibility:'public-after-dispatch',storeAccepted:true,
+      publicBoardChanges:[]
+    }]
+  });
+  const baseline={nativeAcceptedTargetSidecar:sidecar(49,1)};
+  const treatment={nativeAcceptedTargetSidecar:sidecar(49,2)};
+  const divergence={ordinal:144};
+  const result=acceptedTargetContrast(baseline,treatment,divergence);
+  assert.equal(result.status,'different');
+  assert.equal(result.observedPhysicalTargetChangeBeforeRootLabelChange,true);
+  assert.deepEqual(result.firstDifferingAcceptedRootOrdinals,{
+    baseline:49,treatment:49
+  });
+  assert.equal(result.baseline.rootOrdinalLinked,true);
+  assert.equal(result.treatment.acceptedTargetRoots,1);
+  const same=acceptedTargetContrast(baseline,baseline,divergence);
+  assert.equal(same.status,'same-observed-targets');
+  assert.equal(same.observedPhysicalTargetChangeBeforeRootLabelChange,false);
+  const earlierLabels=acceptedTargetContrast(baseline,treatment,{ordinal:39});
+  assert.equal(earlierLabels.observedPhysicalTargetChangeBeforeRootLabelChange,
+    false,'later physical change cannot explain an earlier root-label change');
+  const silentLabels=acceptedTargetContrast(baseline,treatment,null);
+  assert.equal(silentLabels.observedPhysicalTargetChangeBeforeRootLabelChange,
+    true,'identical full labels still cannot prove equal physical targets');
+});
+
+test('missing native accepted target evidence remains explicitly unobserved',()=>{
+  const {acceptedTargetContrast}=require(
+    '../simulation/evaluation/agent37-first-divergent-native-attack-pair.cjs');
+  const observation=acceptedTargetContrast({}, {}, {ordinal:39});
+  assert.equal(observation.status,'target-unobserved');
+  assert.equal(observation.observedPhysicalTargetChangeBeforeRootLabelChange,
+    false);
+  assert.equal(observation.baseline.acceptedTargetRoots,null);
+});
+
 test('first-divergence native actor settlement reuses public attack witness',()=>{
   const {sourceAttackAtRoot} = require(
     '../simulation/evaluation/agent37-first-divergent-native-attack-pair.cjs');
@@ -273,6 +319,7 @@ test('first-divergence native runner restores process and Store capture hook',()
     const result=replayNativePolicy(false,opts=>{
       assert.equal(process.env.AGENT49_POTENTIAL_KO_ROOT_DEV,'false');
       assert.equal(opts.actorOnlyComposition,true);
+      assert.equal(opts.nativeAcceptedTargets,true);
       assert.equal(opts.paperSupporterQuota,true);
       return {rows:Array.from({length:4},()=>({}))};
     });
