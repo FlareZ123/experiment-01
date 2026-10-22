@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {missingEnergyUnits,specialEnergyUnits}=
   require('./agent3-special-energy-frontier.cjs');
 
-const VERSION='agent30-known-public-perfection-donor-frontier-v1';
+const VERSION='agent4-public-perfection-donor-frontier-v2-gx-suffix';
 const DONORS=new Set([
   'Gengar & Mimikyu-GX TEU',
   'Trevenant & Dusknoir-GX SMP'
@@ -28,7 +28,7 @@ function knownPerfectionDonorCatalog(nativeCardDefinitions){
     assert.ok(Array.isArray(card.attacks));
     donors.set(card.fullName,Object.freeze(card.attacks.map(a=>
       Object.freeze({name:a.name,cost:Object.freeze([...a.cost]),
-        gxAttack:a.gxAttack===true}))));
+        gxAttack:a.gxAttack===true||a.name.endsWith('-GX')}))));
   }
   return donors;
 }
