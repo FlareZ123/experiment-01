@@ -103,3 +103,25 @@ test('unmatched root enumeration is explicitly unverified',()=>{
   assert.equal(r.audit.rootOrdinalLinked,false);
   assert.equal(r.audit.events[0].rootActionOrdinal,null);
 });
+
+test('same-turn accepted card roots with swapped names fail closed',()=>{
+  const result=withAcceptedTargetWitness(()=>{
+    const store=new FakeStore();
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PlayCardAction(100,0,{player:2,slot:1,index:0}));
+    store.state.players[0].hand.cards.push({fullName:'Lightning Energy SVE 4'});
+    store.dispatch(new PlayCardAction(100,0,{player:2,slot:2,index:0}));
+    return {rootActionLedger:[
+      {actionOrdinal:49,turnBefore:7,playerSlot:0,
+        action:'PlayCardAction',card:'Lightning Energy'},
+      {actionOrdinal:50,turnBefore:7,playerSlot:0,
+        action:'PlayCardAction',card:'Darkness Energy'}
+    ]};
+  },{Store:FakeStore});
+  assert.equal(result.audit.acceptedTargetDispatches,2);
+  assert.equal(result.audit.rootOrdinalLinked,false);
+  assert.deepEqual(result.audit.events.map(row=>row.rootActionOrdinal),
+    [null,null]);
+  assert.equal(result.audit.targetUnobserved,0,
+    'Native target was captured even though root ordinal cannot be trusted');
+});
