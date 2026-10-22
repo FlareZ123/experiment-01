@@ -151,7 +151,7 @@ function replayNativePolicy(enabled,execute=runDevelopment,nativeAcceptedTargets
   }
   assert.strictEqual(headless.runMatch,original,'Native read-only capture restored');
   assert.equal(development.rows.length,4,'Original fixed four arms required');
-  return {development,games};
+  return {development,games,promptAudits};
 }
 
 /**
@@ -306,8 +306,8 @@ function compareObserverProjection(off,on){
 function run(){
   const original=replayNativePolicy(false);
   const treatment=replayNativePolicy(true);
-  const observerOffControl=replayNativePolicy(false,runDevelopment,false);
-  const observerOffTreatment=replayNativePolicy(true,runDevelopment,false);
+  const observerOffControl=replayNativePolicy(false,runDevelopment,false,false);
+  const observerOffTreatment=replayNativePolicy(true,runDevelopment,false,false);
   const paired=compareNativePairs(original,treatment);
   paired.nativeTargetObserverProjectionParity={
     printedAttackOff:compareObserverProjection(observerOffControl,original),
