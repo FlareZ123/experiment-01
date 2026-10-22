@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent30-telepath-m3-native-special-energy-frontier-v3';
+const VERSION='agent30-telepath-m3-native-special-energy-frontier-v4-zero-gain-veto';
 
 /**
  * Bounded printed-text numeric model for four rank-6 Special Energy printings
@@ -169,7 +169,7 @@ function chooseSpecialEnergyIntent(view,catalog){
     const minAfter=costs.length?Math.min(...costs.map(x=>x.after)):Infinity;
     const maxGain=costs.length?
       Math.max(...costs.map(x=>x.before-x.after)):0;
-    if(best===null||minAfter<best.minAfter||
+    // A search-free Energy attachment must advance at least one printed\n    // attack cost; otherwise reserve the resource for a later board state.\n    if(maxGain===0)continue;\n    if(best===null||minAfter<best.minAfter||
       (minAfter===best.minAfter&&maxGain>best.maxGain)){
       best={kind:'attach-special-energy',handIndex,printing,minAfter,maxGain};
     }
