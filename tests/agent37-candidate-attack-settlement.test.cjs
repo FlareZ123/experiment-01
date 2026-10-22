@@ -375,3 +375,11 @@ test('first-divergence native runner restores process and Store capture hook',()
     else process.env.AGENT49_POTENTIAL_KO_ROOT_DEV=saved;
   }
 });
+
+test('unchanged Store roots certify complete legacy label equality',()=>{
+  const {compareNativePairs}=require('../simulation/evaluation/agent37-first-divergent-native-attack-pair.cjs');
+  const rows=Array.from({length:4},(_,i)=>({trial:{id:'same-'+i,seed:i},sourceDealFingerprint:'deal',verifiedFirstTurn:true,actualStarterSeat:0}));
+  const games=new Map(rows.map(row=>['trial-'+row.trial.id,{rootActionLedger:[{actionOrdinal:0,turnBefore:1,playerSlot:0,action:'PassTurnAction'}]}]));
+  const b={development:{rows},games};
+  assert.equal(compareNativePairs(b,b).pairs.every(row=>row.priorNativeRootLabelsIdentical),true);
+});
