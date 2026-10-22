@@ -45,7 +45,7 @@ function run(seed=482443328){
       try{
         const execute=()=>executeDevelopment(row,decks,{
           mandatoryOptionFallback:true,paperSupporterQuota:true,
-          garbotoxinWindow:true
+          garbotoxinWindow:true,paperFullBenchCallForFamily:true
         });
         const observed=withCanonicalActorOnlyPolicy(execute,{},{
           ownerSingleSearch:true,genericFallbackAttribution:true,
