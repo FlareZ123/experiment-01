@@ -30,10 +30,24 @@ function run(){
   const candidate=pairedCandidateSlots().lockbreak;
   const play=()=>withRank11ExclusiveOpeners(sourceSeat,()=>runArm(
     candidate,source.cards,1-sourceSeat,seed,48,false));
+  const control=withSameTargetAttachEnergySelection(play);
   const witnessed=withAcceptedEnergyPromptPublicWitness(()=>
     withSameTargetAttachEnergySelection(play));
+  const unobservedGame=control.result.result;
   const game=witnessed.result.result.result;
   const fix=witnessed.result.audit;
+  const publicIdentity=g=>({
+    actions:g.actions,turns:g.turns,finished:g.finished,
+    winner:g.winner,firstTurnSlot:g.firstTurnSlot,
+    prizesRemaining:g.prizesRemaining,
+    rootActionLedger:g.rootActionLedger,
+    attackTrace:g.attackTrace,abilityTrace:g.abilityTrace,
+    cardsPlayedBySeat:g.cardsPlayedBySeat
+  });
+  assert.deepEqual(publicIdentity(game),publicIdentity(unobservedGame),
+    'Read-only prompt witness changed genuine native public replay');
+  assert.equal(fix.repairedPromptCount,control.audit.repairedPromptCount,
+    'Read-only witness changed resolver correction calls');
   assert.equal(game.verifiedByDrawLog,true);
   assert.ok(fix.repairedPromptCount>=1);
   assert.ok(witnessed.audit.acceptedEnergyPromptResolutions>=1,
@@ -48,6 +62,9 @@ function run(){
     pinnedTwinleaf:plan.engineRevision,
     actualStarter:game.firstTurnSlot,
     nativeActions:game.actions,
+    sameCheckoutUnobservedControlCompared:true,
+    nativePublicReplaysEqual:true,
+    comparedRootCount:game.rootActionLedger.length,
     nativeSameTargetRepairs:fix.repairedPromptCount,
     energyPromptPublicWitness:witnessed.audit,
     competitiveQualifiedGames:0,
