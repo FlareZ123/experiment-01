@@ -27,6 +27,35 @@ jobs:
       - name: Compile upstream server without modifying vendor
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Compare original rank11 Energy fork with authenticated native physical targets
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT47_ACTOR_HAND_DISCARD_DEV: 'true'
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: 'true'
+          AGENT8_ACTOR_QUICK_BALL_DEV: 'true'
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: 'true'
+          AGENT41_ACTOR_SINGLE_SEARCH_DEV: 'true'
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: 'true'
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: 'true'
+          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'true'
+          AGENT8_ACE_TRAINER_EMERGENCY_DEV: 'false'
+          AGENT42_ESCAPE_ROPE_DEV: 'true'
+          AGENT42_ESCAPE_ROPE_OWNER_SEAT: '1'
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+        run: |
+          node --test tests/agent50-rank11-native-target-parity.test.cjs
+          node simulation/evaluation/agent50-rank11-native-target-parity.cjs > agent50-rank11-native-target-parity.json
+      - name: Archive both arms and native physical target receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent50-rank11-native-target-parity
+          path: agent50-rank11-native-target-parity.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Enforce native Energy recipient legality under printed type filters
         run: node --test tests/agent11-pinned-attach-energy-geometry.test.cjs tests/agent11-attach-energy-geometry.test.cjs
       - name: Regress optional actor-only typed Energy frontier and unchanged root
