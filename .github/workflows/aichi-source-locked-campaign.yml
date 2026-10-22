@@ -177,6 +177,9 @@ jobs:
         run: node --test tests/same-target-attach-energy-hook.test.cjs tests/agent42-native-sametarget-repair-pair.test.cjs
       - name: Replay baseline and corrected original Store under frozen seed
         if: ${{ inputs.trial_ids == 'agent42-sametarget-pair' }}
+        env:
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: 'true'
+          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'true'
         run: node simulation/evaluation/agent42-native-sametarget-repair-pair.cjs > agent42-sametarget-native-pair.json
       - name: Check native correction was selected and preserve error classification
         if: ${{ inputs.trial_ids == 'agent42-sametarget-pair' }}
