@@ -414,6 +414,10 @@ function executeDevelopment(trial,candidates,{
     capturePerfectionPassProbeSeat:candidateSeat,
     captureHeldTelepathPassProbeSeat:candidateSeat,
     captureInitialSourceDealFingerprintSeat:sourceSeat,
+    // Preserve the actual failed Store root, pre-dispatch public board,
+    // accepted label ledger, and source physical-deal digest on abort.
+    // This post-choice observer cannot affect either player's bot policy.
+    captureNativeAbortEvidence:true,
     paperTerminalAttackKoCorrection:paperTerminalAttackKo
   };
   let ownerCompressorAudit=null;
@@ -929,6 +933,8 @@ function runDevelopment({
         error:String(error?.stack||error),
         nativeStoreCauseStack:error?.cause?.stack??null,
         ...(error?.nativePublicRootArchive??{}),
+        nativeAbortEvidence:error?.nativeAbortEvidence??
+          error?.cause?.nativeAbortEvidence??null,
         ...(error?.nativeEpochBoundaryEvidence?{
           nativeEpochBoundaryEvidence:error.nativeEpochBoundaryEvidence
         }:{}),
