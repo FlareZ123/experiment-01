@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 const {
   choose,exactForcedOpening,directTargetByOneDraw,
+  forcedTagVipLatiasWindow,
   countFrozenInventory,frozenOpeningAudit
 }=require('../scripts/aichi_forced_tag_openers.cjs');
 
@@ -128,6 +129,44 @@ test('one fourth Unown for fourth VIP would trade first-turn access for forced-T
   assert.ok(editTag.forcedMarkedGivenValid.percent <
     oldTag.forcedMarkedGivenValid.percent);
   assert.ok(editVip.percent<oldVip.percent);
+});
+
+test('physical prizes and first draw certify the VIP plus Latias resource window',()=>{
+  const cards=['T','T','L','S','S','S','V','V','O','O'];
+  let total=0,matched=0;
+  for(let a=0;a<10;a++)for(let b=a+1;b<10;b++)for(let c=b+1;c<10;c++){
+    const hand=[a,b,c];
+    if(!hand.some(i=>cards[i]==='T')||hand.some(i=>
+      cards[i]==='L'||cards[i]==='S'))continue;
+    const rest=cards.map((_,i)=>i).filter(i=>!hand.includes(i));
+    for(let d=0;d<7;d++)for(let e=d+1;e<7;e++){
+      const prizes=[rest[d],rest[e]];
+      for(const next of rest.filter(i=>!prizes.includes(i))){
+        total++;
+        if(!prizes.some(i=>cards[i]==='L')&&
+           (hand.some(i=>cards[i]==='V')||cards[next]==='V'))matched++;
+      }
+    }
+  }
+  const ratio=forcedTagVipLatiasWindow({
+    deckSize:10,openingSize:3,tagBasics:2,otherBasics:4,
+    vipCopies:2,prizeCount:2
+  }).vipAndLatiasUnprizedGivenForced;
+  assert.equal(BigInt(matched)*BigInt(ratio.denominator),
+    BigInt(total)*BigInt(ratio.numerator));
+});
+
+test('real frozen New Moon has an exact conditional VIP Latias window',()=>{
+  const a=forcedTagVipLatiasWindow({
+    deckSize:60,openingSize:7,tagBasics:4,
+    otherBasics:13,vipCopies:4,prizeCount:6
+  });
+  assert.deepEqual([
+    a.vipAndLatiasUnprizedGivenForced.numerator,
+    a.vipAndLatiasUnprizedGivenForced.denominator,
+    a.vipAndLatiasUnprizedGivenValid.numerator,
+    a.vipAndLatiasUnprizedGivenValid.denominator
+  ],['141867342','325074281','354668355','9380544359']);
 });
 
 test('invalid or inconsistent grouped populations reject',()=>{
