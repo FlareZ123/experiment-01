@@ -48,3 +48,18 @@ test('unpaid cost, first turn, sleep and attack lock veto optional GX',()=>{
   assert.equal(chooseActorRootIntent(v,catalog,{printedGxRoot:true}).kind,'pass');
  }
 });
+
+test('printed GX suffix protects quota when native gxAttack flag is false',()=>{
+  const v=view();
+  v.ownPublic.active.attacks[0].gxAttack=false;
+  assert.equal(chooseActorRootIntent(v,catalog).kind,'pass');
+  assert.equal(chooseActorRootIntent(v,catalog,{printedGxRoot:true}).attackName,
+    'Power-GX');
+  v.ownPublic.publicTurnRestrictions.gxUsed=true;
+  assert.equal(chooseActorRootIntent(v,catalog,{printedGxRoot:true}).kind,
+    'pass');
+  v.ownPublic.publicTurnRestrictions.gxUsed=false;
+  v.ownPublic.publicTurnRestrictions.cannotUseGXAttacks=true;
+  assert.equal(chooseActorRootIntent(v,catalog,{printedGxRoot:true}).kind,
+    'pass');
+});
