@@ -151,6 +151,10 @@ jobs:
         run: node --test tests/aichi-rank6-energy-prize-frontier.test.cjs tests/aichi-thorns-attachment-floor.test.cjs
       - name: Verify rank6 first-turn DCE Thunder Gladion Prize triplet obstruction
         run: node --test tests/aichi-rank6-firstturn-energy-triplet.test.cjs
+      - name: Verify Basic-valid rank6 Speed DCE Guzma second-own-turn direct packet
+        run: |
+          node --test tests/aichi-rank6-guzma-energy-direct.test.cjs
+          node scripts/aichi-rank6-guzma-energy-direct.cjs
       - name: Verify published Iron Thorns Special Energy printed payability
         run: node --test tests/actor-energy-payability.test.cjs
       - name: Check correlated-field sequential evidence and intact qualification gates
