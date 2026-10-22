@@ -19,6 +19,7 @@ function detached(value) {
  * never be interpreted as matching Energy or retreat destinations.
  *
  * @param {{actionOrdinal:number, actionName:string, turnBefore:number,
+ *   failureStage?:'store-dispatch'|'strict-prompt-validation',
  *   phaseBefore:number, actingSeat:number, attackName?:string|null,
  *   attackingPokemon?:string|null, errorMessage:string,
  *   sourceDeal?:{seat:number,digestSha256:string}|null,
@@ -31,6 +32,8 @@ function nativeDispatchAbortEvidence(evidence) {
     evidence.actionOrdinal >= 0);
   assert.equal(typeof evidence.actionName, 'string');
   assert.equal(typeof evidence.errorMessage, 'string');
+  const failureStage=evidence.failureStage??'store-dispatch';
+  assert.ok(['store-dispatch','strict-prompt-validation'].includes(failureStage));
   assert.ok(evidence.actingSeat === 0 || evidence.actingSeat === 1);
   const sourceDeal = evidence.sourceDeal ?? null;
   if (sourceDeal) {
@@ -44,6 +47,7 @@ function nativeDispatchAbortEvidence(evidence) {
   if (roots) assert.equal(roots.length, evidence.actionOrdinal);
   return {
     schema: VERSION,
+    failureStage,
     actionOrdinal: evidence.actionOrdinal,
     actionName: evidence.actionName,
     turnBefore: evidence.turnBefore,
