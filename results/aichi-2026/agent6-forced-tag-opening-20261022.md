@@ -55,7 +55,7 @@ To make the metric a deck-building decision rather than an isolated alarm, test 
 | Forced TAG TEAM Active given valid seven | 8.6635% | 7.3898% | **−1.2737 pp** |
 | Direct sight of ≥1 Battle VIP Pass by opening seven plus first mandatory draw, given valid opening seven | 43.4453% | 34.6070% | **−8.8382 pp** |
 
-The conditional first-eight VIP event is an exact *without-replacement* intersection, not an approximate independent draw. For a 60-card population with B Basics and V non-Basic target cards, define `D = C(60,7) − C(60−B,7)` and `Z = C(60−V,7) − C(60−V−B,7)`. Since every V remains among the 53 cards after a valid seven without VIP, `P(VIP visible by eighth | legal seven) = 1 − (Z/D)×((53−V)/53)`. It integrates Prize uncertainty by exchangeability before setup and omits search cards and optional opponent-mulligan draws.
+The conditional first-eight VIP event is an exact *without-replacement* intersection, not an approximate independent draw. For a 60-card population with B Basics and V non-Basic target cards, define `D = C(60,7) − C(60−B,7)` and `Z = C(60−V,7) − C(60−V−B,7)`. Since every V remains among the 53 cards after a valid seven without VIP, `P(VIP visible by eighth | legal seven) = 1 − (Z/D)×((53−V)/53)`. It integrates Prize uncertainty by exchangeability before setup and **assumes zero optional opponent-mulligan bonus draws**. Search cards and effects beyond the next mandatory draw are omitted.
 
 In the case study the candidate's forced TAG event becomes **553049/7483929**. VIP direct visibility changes from **479458943/1103593454** to **19265703/55669928**. These exact fractions are asserted in the added deterministic test, with an independent exhaustive miniature deal including the next draw. The first-eight VIP rate may be strategically more valuable than a small change in three-Prize initial exposure. This is a concrete illustration of setup-resource opportunity cost, **not** support for making the substitution.
 
@@ -69,7 +69,7 @@ This specific conditional line has genuine necessary conditions: Latias must avo
 
 ### Exact joint visibility and Prize access
 
-Let F be the number of initial seven-card subsets containing at least one of T=4 TAG TEAM Basics and no other B=13 Basics. Let F0 be the subset that also contains no V=4 VIP Pass. There are R=53 cards left after seven have been drawn. The first six of R are Prizes; the seventh is the next ordinary draw. Latias is one of these R because forced TAG forbids it in the original seven.
+Let F be the number of initial seven-card subsets containing at least one of T=4 TAG TEAM Basics and no other B=13 Basics. Let F0 be the subset that also contains no V=4 VIP Pass. There are R=53 cards left after seven have been drawn. **Assume zero optional opponent-mulligan bonus draws.** The first six of R are Prizes; the seventh is then the next ordinary draw. If opponent mulligans supply optional bonus draws that are accepted, this ordering and the direct first-eight probability must be rederived for that different setup protocol. Latias is one of these R because forced TAG forbids it in the original seven.
 
 ```text
 F  = C(60-B,7) - C(60-B-T,7)
