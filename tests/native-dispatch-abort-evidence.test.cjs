@@ -19,7 +19,7 @@ function sample() {
     ],
     preDispatchPublic:{turn:9,players:[{handSize:2},{handSize:5}]},
     preDispatchBoard:[{active:{name:'Mega Absol ex'},bench:[]},
-      {active:{name:'Trubbish'},bench:Array.from({length:5},(_,i)=>({name:'X'+i}))]
+      {active:{name:'Trubbish'},bench:Array.from({length:5},(_,i)=>({name:'X'+i}))}]
   };
 }
 
@@ -79,4 +79,14 @@ test('non-AttackAction failures do not inherit a stale attack label',()=>{
   const output=nativeDispatchAbortEvidence(input);
   assert.equal(output.attackName,null);
   assert.equal(output.attackingPokemon,null);
+});
+
+test('marks strict prompt validation separately from native Store dispatch',()=>{
+  const input=sample();
+  input.failureStage='strict-prompt-validation';
+  const result=nativeDispatchAbortEvidence(input);
+  assert.equal(result.failureStage,'strict-prompt-validation');
+  assert.equal(result.rootActionCount,2);
+  input.failureStage='invalid-stage';
+  assert.throws(()=>nativeDispatchAbortEvidence(input));
 });
