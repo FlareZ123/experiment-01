@@ -84,4 +84,28 @@ function nativeDispatchAbortEvidence(evidence) {
   };
 }
 
-module.exports = {VERSION,nativeDispatchAbortEvidence};
+/**
+ * Publish only redacted diagnostics when the bot or strict prompt gate may
+ * have embedded concealed selected card printings in its exception. Store
+ * dispatch failures retain the legacy stack for forensic compatibility.
+ *
+ * @param {Error&{cause?:Error,nativeAbortEvidence?:object}} error
+ * @returns {{error:string,nativeStoreCauseStack:string|null,
+ *   nativeAbortEvidence:object|null}}
+ */
+function publicNativeAbortError(error) {
+  const receipt=error?.nativeAbortEvidence??
+    error?.cause?.nativeAbortEvidence??null;
+  const concealed=receipt &&
+    ['bot-decoder','strict-prompt-validation'].includes(receipt.failureStage);
+  return {
+    error:concealed?
+      'Redacted '+receipt.failureStage+
+      ' failure; exception SHA256 '+receipt.redactedMessageDigest:
+      String(error?.stack||error),
+    nativeStoreCauseStack:concealed?null:(error?.cause?.stack??null),
+    nativeAbortEvidence:receipt
+  };
+}
+
+module.exports = {VERSION,nativeDispatchAbortEvidence,publicNativeAbortError};
