@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {withAcceptedTargetWitness}=require(
+const {withAcceptedTargetWitness,rootLabelMatchesNativePrinting}=require(
   '../simulation/twinleaf/native-accepted-target-store-observer.cjs');
 
 class AddPlayerAction{}
@@ -124,4 +124,42 @@ test('same-turn accepted card roots with swapped names fail closed',()=>{
     [null,null]);
   assert.equal(result.audit.targetUnobserved,0,
     'Native target was captured even though root ordinal cannot be trusted');
+});
+
+
+test('native Telepath Energy printing links the exact legacy public card name',()=>{
+  const original=Object.getOwnPropertyDescriptor(FakeStore.prototype,'dispatch');
+  const observed=withAcceptedTargetWitness(()=>{
+    const store=new FakeStore();
+    store.state.players[0].hand.cards[0]=
+      {fullName:'Telepath [P] Energy M3'};
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PlayCardAction(100,0,{player:2,slot:1,index:0}));
+    return {rootActionLedger:[{
+      actionOrdinal:21,turnBefore:7,playerSlot:0,
+      action:'PlayCardAction',card:'Telepathic Psychic Energy'
+    }]};
+  },{Store:FakeStore});
+  assert.equal(observed.audit.rootOrdinalLinked,true);
+  assert.equal(observed.audit.events[0].rootActionOrdinal,21);
+  assert.equal(observed.audit.events[0].declared.ownerHandPrinting,
+    'Telepath [P] Energy M3');
+  assert.deepEqual(Object.getOwnPropertyDescriptor(
+    FakeStore.prototype,'dispatch'),original);
+});
+
+test('alias matching rejects different printings and approximate spellings',()=>{
+  assert.equal(rootLabelMatchesNativePrinting('Telepathic Psychic Energy',
+    'Telepath [P] Energy M3'),true);
+  assert.equal(rootLabelMatchesNativePrinting('Telepathic Psychic Energy',
+    'Telepath [P] Energy M4'),false);
+  assert.equal(rootLabelMatchesNativePrinting('Telepathic Psychic Energy',
+    'Telepath [P] Energy'),false);
+  assert.equal(rootLabelMatchesNativePrinting('Telepathic Psychic Energy 2',
+    'Telepath [P] Energy M3'),false);
+  assert.equal(rootLabelMatchesNativePrinting('Something Else',
+    'Telepath [P] Energy M3'),false);
+  assert.equal(rootLabelMatchesNativePrinting('__proto__','Object'),false);
+  assert.equal(rootLabelMatchesNativePrinting('Darkness Energy',
+    'Darkness Energy SVE 7'),true);
 });
