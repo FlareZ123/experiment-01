@@ -31,7 +31,9 @@ The rank-11 champion branch started this decision with **three Psychic Energy** 
 
 Both rank-11 attack resolutions had actual Store attack declarations and complete settled prompt chains. The stricter `nextSourceSameEpochProven` was **true** for both branches of both divergent attacks. None of the four attack settlements crossed a native backward turn-clock reset. This gives direct evidence of immediate native settled damage and Prize changes under the two selected attacks.
 
-At each first different action, the **entire accepted root-action history before the action was identical between arms**. The exact publicly exposed game boards were also equal before each attack. The changed attack selection is therefore the first documented native action difference at that branch point. The subsequent turn sequences diverged because the physical game states had changed.
+At each first different action, the entire **legacy accepted root-label history** before the action was identical between arms. The exact publicly exposed game boards were also equal before each attack. This establishes the first **root-label** difference. It does not, by itself, establish that earlier physical target choices were identical, because the legacy labels omit `PlayCardAction.target` and `RetreatAction.benchIndex`. The subsequent turn sequences diverged because the physical game states had changed.
+
+**22 October qualification addendum:** [A separate compiled Store replay and accepted-target sidecar audit](../aichi-2026/agent37-paired-native-printed-attack-20261022.md) covers those two target kinds. In both rank-11 pairs, the first *observed* accepted physical target difference appeared only after the first attack-label difference. This restricts the earlier provenance caveat for those target classes, while leaving typed prompt choices unobserved. The later checkout also changed rank-6 champion root count from 35 to 51, so old and new policy-revision results must not be silently pooled.
 
 ## Full historical native trial outcomes (unqualified)
 
