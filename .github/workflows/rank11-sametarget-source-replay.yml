@@ -25,13 +25,16 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Validate same-target correction, seed and classification tests
-        run: node --test tests/same-target-attach-energy-hook.test.cjs tests/rank11-exclusive-prospective-seeds.test.cjs tests/rank11-exclusive-trial-classification.test.cjs tests/native-accepted-target-sidecar.test.cjs tests/native-accepted-target-store-observer.test.cjs
+        run: node --test tests/same-target-attach-energy-hook.test.cjs tests/rank11-exclusive-prospective-seeds.test.cjs tests/rank11-exclusive-trial-classification.test.cjs tests/native-accepted-target-sidecar.test.cjs tests/native-accepted-target-store-observer.test.cjs tests/accepted-energy-prompt-public-witness.test.cjs
       - name: Install simulator pinned dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned simulator
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Native accepted AttachEnergyPrompt public recipient witness
+        if: ${{ inputs.canonical_v2_only }}
+        run: node simulation/twinleaf/agent1-rank11-energy-prompt-public-native.cjs > agent1-rank11-energy-prompt-native.json
       - name: Replay original failed seed with and without reversible bot selection fix
         if: ${{ !inputs.canonical_v2_only }}
         run: node simulation/twinleaf/rank11-sametarget-source-replay.cjs > rank11-sametarget-single-seed.json
@@ -101,5 +104,6 @@ jobs:
             rank11-exclusive-prospective-v1-corrected.json
             canonical-v2-sametarget-sourcefirst.json
             canonical-v2-sametarget-sourcefirst-control.json
+            agent1-rank11-energy-prompt-native.json
           if-no-files-found: warn
           retention-days: 14
