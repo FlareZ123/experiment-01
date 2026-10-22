@@ -111,7 +111,8 @@ function sourceAttackAtRoot(game,physicalSeat,ordinal){
  * @param {(options:object)=>object} [execute] Test dependency seam.
  * @returns {{development:object,games:Map<string,object>}}
  */
-function replayNativePolicy(enabled,execute=runDevelopment){
+function replayNativePolicy(enabled,execute=runDevelopment,nativeAcceptedTargets=true){
+  assert.equal(typeof nativeAcceptedTargets,'boolean');
   assert.equal(typeof execute,'function');
   const original=headless.runMatch;
   const savedFlag=process.env.AGENT49_POTENTIAL_KO_ROOT_DEV;
@@ -127,7 +128,7 @@ function replayNativePolicy(enabled,execute=runDevelopment){
     process.env.AGENT49_POTENTIAL_KO_ROOT_DEV=enabled?'true':'false';
     development=execute({
       actorOnlyComposition:true,
-      nativeAcceptedTargets:true,
+      nativeAcceptedTargets,
       mandatoryOptionFallback:true,
       nativePressureWindows:true,
       paperSupporterQuota:true,
@@ -242,15 +243,74 @@ function compareNativePairs(a,b){
   };
 }
 
+/**
+ * Same-checkout, same-printed-attack-policy observer OFF/ON check. The native
+ * Store's accepted action labels, source deal and public outcome must agree;
+ * this remains a projection-level test because OFF has no target receipts.
+ * @param {object} off Actual four-arm replay without target observer.
+ * @param {object} on Actual four-arm replay with read-only target observer.
+ */
+function compareObserverProjection(off,on){
+  assert.equal(off.development.rows.length,4);
+  assert.equal(on.development.rows.length,4);
+  const rows=off.development.rows.map((before,i)=>{
+    const after=on.development.rows[i];
+    const registrationMatched=before.trial?.id===after.trial?.id&&
+      before.trial?.seed===after.trial?.seed;
+    const sourceDealMatched=Boolean(before.sourceDealFingerprint&&
+      before.sourceDealFingerprint===after.sourceDealFingerprint);
+    const startMatched=before.actualStarterSeat===after.actualStarterSeat&&
+      before.verifiedFirstTurn===true&&after.verifiedFirstTurn===true;
+    const matchingGame=(bundle,trialId)=>[...bundle.games.entries()]
+      .find(([name])=>name.endsWith(trialId))?.[1]??null;
+    const a=matchingGame(off,before.trial?.id);
+    const b=matchingGame(on,after.trial?.id);
+    const bothComplete=Boolean(a&&b);
+    const rootLabelsEqual=bothComplete&&
+      ROOT_SHA(a.rootActionLedger)===ROOT_SHA(b.rootActionLedger);
+    const outcomesEqual=before.status===after.status&&
+      before.error===after.error&&
+      before.actionCount===after.actionCount&&
+      before.finished===after.finished&&
+      before.winner===after.winner&&
+      JSON.stringify(before.finalPrizes)===JSON.stringify(after.finalPrizes)&&
+      before.endReason===after.endReason;
+    const targetLinked=after.nativeAcceptedTargetSidecar?.rootOrdinalLinked===true;
+    return {
+      trialId:before.trial?.id??null,registrationMatched,
+      sourceDealMatched,startMatched,bothComplete,rootLabelsEqual,
+      outcomesEqual,targetLinked,
+      projectionParity:registrationMatched&&sourceDealMatched&&startMatched&&
+        bothComplete&&rootLabelsEqual&&outcomesEqual&&targetLinked
+    };
+  });
+  return {schema:'agent37-native-target-observer-projection-parity-v1',
+    checked:rows.length,passed:rows.filter(row=>row.projectionParity).length,
+    complete:rows.every(row=>row.projectionParity),
+    rows,limitations:[
+      'Identical accepted root labels and terminal results are not full physical noninterference',
+      'OFF arm has no independent capture of prompt targets or card attachments',
+      'Each matched pair retains the same source seed and actual physical starter'
+    ]};
+}
+
 /** @returns {object} Full read-only paired native source decision packet. */
 function run(){
   const original=replayNativePolicy(false);
   const treatment=replayNativePolicy(true);
-  return compareNativePairs(original,treatment);
+  const observerOffControl=replayNativePolicy(false,runDevelopment,false);
+  const observerOffTreatment=replayNativePolicy(true,runDevelopment,false);
+  const paired=compareNativePairs(original,treatment);
+  paired.nativeTargetObserverProjectionParity={
+    printedAttackOff:compareObserverProjection(observerOffControl,original),
+    printedAttackOn:compareObserverProjection(observerOffTreatment,treatment)
+  };
+  return paired;
 }
 
 if(require.main===module)
   process.stdout.write(JSON.stringify(run(),null,2)+'\n');
 
 module.exports={VERSION,firstRootDivergence,acceptedTargetContrast,
-  sourceAttackAtRoot,replayNativePolicy,compareNativePairs,run};
+  sourceAttackAtRoot,replayNativePolicy,compareNativePairs,
+  compareObserverProjection,run};
