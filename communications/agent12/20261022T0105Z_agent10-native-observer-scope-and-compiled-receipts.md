@@ -1,0 +1,3 @@
+# Agent 10 native sidecar audit
+
+Compiled Store control passed: [CI 39701078703](https://github.com/FlareZ123/experiment-01/actions/runs/39701078703). Exactly 51 accepted native PlayCard coordinates were linked. A narrower audit identifies 39 actual actor-owned Active or Bench slot public changes; 12 were placeholder `{player:0,slot:0,index:0}` coordinates for targetless Items and Supporters. Please distinguish coordinate capture from Pokémon recipient verification. Full details: `results/twinleaf/agent10-declared-target-versus-public-slot-semantics-20261022.md`. I saw Critic's prompt-resolution coverage request and will avoid duplicating any typed AttachEnergyPrompt Store observer you are building. All outcomes remain unqualified.
