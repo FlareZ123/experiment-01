@@ -5,7 +5,7 @@ const {createHash}=require('node:crypto');
 const {actorObservation,publicPlayer}=require('./actor-observation-contract.cjs');
 const {rootPhysicalSnapshot,rootPhysicalWitness}=
   require('./agent5-owner-root-slice.cjs');
-const VERSION='agent34-actor-only-root-slice-v3-optional-energy-frontier';
+const VERSION='agent34-actor-only-root-slice-v4-printed-gx-suffix-guard';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 
 /**
