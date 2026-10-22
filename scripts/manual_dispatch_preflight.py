@@ -89,13 +89,14 @@ def inspect_workflow(path: Path) -> tuple[set[str], int]:
                 f"workflow_dispatch declares {count} inputs; GitHub limit is {MAX_DISPATCH_INPUTS}"
             )
 
-        if path.name == CANONICAL_WORKFLOW:
-            if set(events) != {"workflow_dispatch"}:
-                raise PreflightError("canonical engine workflow must be manual-only")
+        if path.name == CANONICAL_WORKFLOW and set(events) != {"workflow_dispatch"}:
+            raise PreflightError("canonical engine workflow must be manual-only")
+        if path.name == CANONICAL_WORKFLOW or count >= 20:
             for name, definition in inputs.items():
                 if not isinstance(name, str) or not isinstance(definition, dict):
                     raise PreflightError(f"malformed canonical dispatch input: {name!r}")
             # Inspect parsed job expressions, never YAML comments or unused metadata.
+            # Cap-adjacent workflows need the same selector-usage integrity gate.
             references = set(REFERENCE_PATTERN.findall(
                 "\n".join(_scalar_values(root.get("jobs", {})))
             ))
