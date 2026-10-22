@@ -297,6 +297,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [captureHorrorHouseRootResolution] Observe only real-root Store Horror House declarations and adjacent zones.
  * @property {boolean} [capturePoltergeistEffectTrace] Opt-in retrospective hand Trainer counts and real-root Poltergeist reducer windows.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
+ * @property {boolean} [captureNativeAbortEvidence] On failed live root, retain the original source-position SHA, accepted public root labels, and pre-dispatch public board; never expose the snapshot to bot decisions.
  * @property {boolean} [captureGladionRootPrizeChoices] Observe actual owner-revealed Prize identities only after a live Gladion choice; never supplied to policy.
  * @property {boolean} [captureGladionRootChoiceContext] With Prize-choice capture, include own-hand/public-board context at the genuine selected response.
  * @property {boolean} [captureStartingBoard] Read-only physical Active/Bench at the first nonprompt player-turn opportunity.
