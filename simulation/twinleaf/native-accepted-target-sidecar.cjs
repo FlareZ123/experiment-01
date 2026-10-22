@@ -137,15 +137,27 @@ function firstPhysicalTargetDifference(left,right){
       right.rootOrdinalLinked!==true))
     return {status:'target-unobserved',reason:'unlinked-Store-root-ordinals'};
   const a=left.events,b=right.events;
+  const nativeLinked=left.rootOrdinalLinked===true;
+  if(nativeLinked!==(right.rootOrdinalLinked===true))
+    return {status:'target-unobserved',reason:'incompatible-root-linkage-status'};
   for(let i=0;i<Math.max(a.length,b.length);i++){
     const l=a[i],r=b[i];
     if(!l||!r)return {status:'different',index:i,reason:'target-root-count'};
     if(l.declared.status!=='captured'||r.declared.status!=='captured'||
       l.visibility!=='public-after-dispatch'||r.visibility!=='public-after-dispatch')
       return {status:'target-unobserved',index:i,reason:'missing-physical-target'};
+    // The observer's actionOrdinal is the Store.dispatch count, including
+    // non-root setup and prompts. Accepted game roots carry a separate,
+    // authenticated rootActionOrdinal. Never report a Store ordinal as a
+    // game-action root when the native sidecar was actually linked.
+    if(nativeLinked&&(!Number.isSafeInteger(l.rootActionOrdinal)||
+        !Number.isSafeInteger(r.rootActionOrdinal)))
+      return {status:'target-unobserved',index:i,
+        reason:'missing-authenticated-root-ordinal'};
     if(!isDeepStrictEqual(l,r))
       return {status:'different',index:i,
-        firstOrdinal:l.actionOrdinal,secondOrdinal:r.actionOrdinal};
+        firstOrdinal:nativeLinked?l.rootActionOrdinal:l.actionOrdinal,
+        secondOrdinal:nativeLinked?r.rootActionOrdinal:r.actionOrdinal};
   }
   return {status:'same-observed-targets',observed:a.length,
     scope:'Only PlayCardAction and RetreatAction targets'};
