@@ -128,6 +128,14 @@ function firstPhysicalTargetDifference(left,right){
   if(left?.schema!==SCHEMA||right?.schema!==SCHEMA||
     !Array.isArray(left.events)||!Array.isArray(right.events))
     return {status:'target-unobserved',reason:'missing-or-wrong-protocol'};
+  // The live Store observer explicitly reports whether target-bearing
+  // dispatches can be matched to the original root ledger. Do not claim a
+  // first physical root when that match fails.
+  if((Object.hasOwn(left,'rootOrdinalLinked')&&
+      left.rootOrdinalLinked!==true)||
+     (Object.hasOwn(right,'rootOrdinalLinked')&&
+      right.rootOrdinalLinked!==true))
+    return {status:'target-unobserved',reason:'unlinked-Store-root-ordinals'};
   const a=left.events,b=right.events;
   for(let i=0;i<Math.max(a.length,b.length);i++){
     const l=a[i],r=b[i];
