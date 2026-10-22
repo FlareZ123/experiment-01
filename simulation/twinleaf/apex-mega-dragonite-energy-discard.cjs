@@ -10,14 +10,18 @@ const load=name=>require(path.join(root,name));
  * The real Store owns every prompt. This is an established synthetic board,
  * not a dealt or competitively qualified source game.
  */
-function inspectRyunoGlideDiscard(){
+function inspectRyunoGlideDiscard({setNumber='152'}={}){
+  assert.ok(['152','271'].includes(setNumber),'Unsupported audited Dragonite print');
   const manager=initializeCards();
   const f=preparedRegidrago();
   f.attachFire();
   const mega=manager.getAllCards().find(c=>
-    c.name==='Mega Dragonite ex'&&c.set==='ASC'&&String(c.setNumber)==='152');
+    c.name==='Mega Dragonite ex'&&c.set==='ASC'&&String(c.setNumber)===setNumber);
   const doubleDragon=manager.getCardByName('Double Dragon Energy ROS');
-  assert.ok(mega&&doubleDragon,'Missing rank14 printed payload or Energy');
+  assert.ok(mega&&doubleDragon,'Missing pinned ASC Dragonite print '+setNumber+' or Energy');
+  const printByExactManagerKey=manager.getCardByName(mega.fullName);
+  assert.ok(printByExactManagerKey,'Pinned CardManager did not resolve '+mega.fullName);
+  assert.equal(String(printByExactManagerKey.setNumber),setNumber);
   f.attacking.discard.cards.push(mega);
   f.attacking.active.cards.push(doubleDragon);
   f.attacking.active.energies.cards.push(doubleDragon);
@@ -57,6 +61,7 @@ function inspectRyunoGlideDiscard(){
   return {
     schema:'apex-mega-dragonite-discard-source-board-v1',
     printedPayload:mega.fullName,printedAttack:mega.attacks[0],
+    printedSetNumber:setNumber,exactManagerKeyResolved:true,
     engineEnergyProvision:'3 Basic Energy + 1 Double Dragon Energy',
     beforeAttached:attached.map(c=>c.fullName),
     afterAttached:f.attacking.active.energies.cards.map(c=>c.fullName),
