@@ -61,6 +61,38 @@ In the case study the candidate's forced TAG event becomes **553049/7483929**. V
 
 **Extended focused test:** [manual workflow 39711719273](https://github.com/FlareZ123/experiment-01/actions/runs/39711719273), frozen revision `1be548281b72bcc9b48ed7044b9c33cd9a519651`, passed **7/7** targeted Node regressions including exhaustive small-deck drawing and exact one-slot fractions. The workflow remained RED at its separate previously failing Trainer classification census, which occurs after the focused tests.
 
+## Forced-TAG first-turn escape resource via printed Battle VIP Pass + Latias ex
+
+The original forced-TAG statistic measures *initial setup exposure*. It does not imply a TAG TEAM must remain Active at the end of turn one. In the frozen 60, [Latias ex SSP 76](../../resources/cards/en/sv8.json) is a single non-TAG Basic with the printed Ability **Skyliner** (the player's Basic Pokémon have no Retreat Cost). [Battle VIP Pass FST 225](../../resources/cards/en/swsh8.json) is an Item playable only on the player's first turn and can place up to two searched Basic Pokémon onto the Bench. Under a legal, unblocked first turn, a single VIP Pass can place both Latias ex and a single-Prize Basic onto the Bench; Skyliner then permits the initial TAG TEAM Basic to retreat without paying Energy into the chosen single-Prize Basic. The one-retreat-per-turn rule still applies.
+
+This specific conditional line has genuine necessary conditions: Latias must avoid the six Prize cards; the VIP must be directly seen in the first seven or next mandatory draw; the Item must remain playable; Skyliner must be active; normal retreat must be permitted; and the player must actually choose to follow the line. **It does not require the TAG TEAM to be Knocked Out, a search via a second connector, or using a Supporter.** The actual card database supplies **eight** single-Prize Basics in the frozen 60 (three Unown, two Duskull, Solrock, Lunatone and Klefki). Under the forced-TAG original seven, none of those eight are in hand. Six face-down Prizes cannot conceal all eight. Even after a first mandatory draw, at least one single-Prize Basic therefore remains findable in the deck, or one has already entered the hand. The original seven contains at most four TAG TEAM Basics, leaving at least two ordinary Bench positions if they were all Benched, and the player may choose fewer at setup.
+
+### Exact joint visibility and Prize access
+
+Let F be the number of initial seven-card subsets containing at least one of T=4 TAG TEAM Basics and no other B=13 Basics. Let F0 be the subset that also contains no V=4 VIP Pass. There are R=53 cards left after seven have been drawn. The first six of R are Prizes; the seventh is the next ordinary draw. Latias is one of these R because forced TAG forbids it in the original seven.
+
+```text
+F  = C(60-B,7) - C(60-B-T,7)
+F0 = C(60-B-V,7) - C(60-B-T-V,7)
+
+P(VIP seen by eighth AND Latias unprized | forced TAG)
+  = (1-F0/F) × (R-6)/R
+    + (F0/F) × (V/R) × (R-1-6)/(R-1).
+```
+
+The first term counts VIP already in the original seven, with Latias among the 47 non-Prize positions. The second counts opening-seven hands without VIP, where the mandatory draw must be one of the four VIP cards and Latias must avoid the six Prizes among the other 52 cards. This accounting preserves the negative dependence of the top-draw VIP and Latias's Prize location.
+
+| Exact direct resource conjunction | Probability |
+| --- | ---: |
+| VIP in original seven or first draw, **Latias not Prized**, **given forced TAG original seven** | **43.64151528%** = 141867342/325074281 |
+| Same conjunction, **given a valid initial seven** | **3.78089311%** = 354668355/9380544359 |
+
+The [nine passing Node regressions in manually run CI 39712678518](https://github.com/FlareZ123/experiment-01/actions/runs/39712678518) include independently exhaustive miniature deals counting opening-three hands, real Prize subsets and a next draw, then compare exactly to the symbolic fractions above. This is a validated combinatorial *resource* window; no native full-game policy or match result was executed by this study. The workflow's unrelated pre-existing Supporter-subtype failure continues after the focused 9/9 pass.
+
+**Important matchup counterexample:** [Agent16's staged native Iron Thorns vs Latias paper-retreat experiment](agent16-rank6-latias-mobility-pressure-window.md) confirms that Active Iron Thorns ex can suppress Skyliner and render a zero-Energy Latias retreat unavailable. Against rank6/24/29 Thorns, merely holding VIP and finding Latias cannot guarantee this escape line. Active Klefki or a functioning Garbotoxin-style Ability lock creates related eligibility concerns. Opposing attack/status effects and future gust lines also need examination.
+
+Previously executed [New Moon first-turn VIP native Store tests](agent7-newmoon-vip-registered16-compiled-20261020.md) demonstrate actual owner-deck Basic searches and public Bench placements, while also documenting that normal bots may pass after the first-turn setup. Our exact joint metric connects these separate rule/engine witnesses, and it should **not** be interpreted as a 43.6% actual first-turn rescue rate in games.
+
 ## Strategic and empirical boundaries
 
 - A forced TAG TEAM Active is a structural **Prize-liability opportunity**. It is not an automatic loss. The opponent must execute a knock-out, and the candidate may legally move the Pokémon to the Bench or defend it. A three-Prize Knock Out may be recoverable.
