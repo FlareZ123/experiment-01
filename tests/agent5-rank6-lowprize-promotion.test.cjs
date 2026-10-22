@@ -51,3 +51,14 @@ test('decision is pure on a detached frozen offered menu',()=>{
   assert.deepEqual(chooseRegisteredPromotion(state,15),{index:1});
   assert.equal(state.prompt.offered[1].printing,TARGET);
 });
+
+test('separately registered T17 second Duskull is opt-in only',()=>{
+  assert.equal(chooseRegisteredPromotion(input(),17),null);
+  assert.deepEqual(chooseRegisteredPromotion(input(),17,true),{index:1});
+  assert.equal(chooseRegisteredPromotion(input(),18,true),null);
+  assert.equal(chooseRegisteredPromotion(input({
+    prompt:{...input().prompt,offered:[
+      {side:'own',zone:'bench',printing:'Mewtwo & Mew-GX UNM'},
+      {side:'own',zone:'bench',printing:'Unown AOR'}]}
+  }),17,true),null);
+});
