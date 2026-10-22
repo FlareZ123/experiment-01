@@ -2,7 +2,8 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {withAcceptedEnergyPromptPublicWitness,VERSION}=
+const {withAcceptedEnergyPromptPublicWitness,VERSION,
+  acceptedEnergyPromptPublicAbortEvidence}=
   require('../simulation/twinleaf/accepted-energy-prompt-public-witness.cjs');
 
 class AddPlayerAction {}
@@ -105,4 +106,19 @@ test('settlement with no immediate board change is explicitly unobserved',()=>{
   },{Store:DelayedStore});
   assert.equal(trial.audit.publicDeltaUnobserved,1);
   assert.equal(trial.audit.publiclyChangedResolutions,0);
+});
+
+test('nested native causes retain authentic accepted Energy prompt abort proof',()=>{
+  const proof=run(0).audit;
+  const root=new Error('outer');
+  const middle=new Error('headless wrapper');
+  const native=new Error('Store failure');
+  root.cause=middle;
+  middle.cause=native;
+  native.acceptedEnergyPromptPublicEvidence=proof;
+  assert.strictEqual(acceptedEnergyPromptPublicAbortEvidence(root),proof);
+  assert.equal(acceptedEnergyPromptPublicAbortEvidence(new Error('no witness')),null);
+  const loop=new Error('cyclic cause');
+  loop.cause=loop;
+  assert.equal(acceptedEnergyPromptPublicAbortEvidence(loop),null);
 });
