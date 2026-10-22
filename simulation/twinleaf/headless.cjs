@@ -1067,10 +1067,41 @@ function runMatch(request) {
         }
       }
       if (request.strictPromptValidation === true) {
-        assertValidPromptAction(state, action,{
-          enforceSelectOptionLegality:request.enforceSelectOptionLegality===true,
-          enforceAttachEnergyGeometry:request.enforceAttachEnergyGeometry===true
-        });
+        try{
+          assertValidPromptAction(state, action,{
+            enforceSelectOptionLegality:request.enforceSelectOptionLegality===true,
+            enforceAttachEnergyGeometry:request.enforceAttachEnergyGeometry===true
+          });
+        }catch(error){
+          // Strict prompt diagnostics can contain concealed selected cards.
+          // Retain only a digest and public pre-choice physical evidence.
+          if(request.captureNativeAbortEvidence===true &&
+              error && typeof error==='object'){
+            const actingSeat=pending?
+              state.players.findIndex(p=>p.id===pending.playerId):
+              state.activePlayer;
+            if(actingSeat===0||actingSeat===1){
+              error.nativeAbortEvidence=
+                require('./native-dispatch-abort-evidence.cjs')
+                  .nativeDispatchAbortEvidence({
+                    failureStage:'strict-prompt-validation',
+                    actionOrdinal:actions,
+                    actionName:action.constructor.name,
+                    turnBefore:state.turn,phaseBefore:state.phase,
+                    actingSeat,
+                    pendingPrompt:pending?.constructor.name??null,
+                    redactedMessageDigest:crypto.createHash('sha256')
+                      .update(String(error.message??error)).digest('hex'),
+                    errorMessage:'Strict prompt validation failed; details redacted',
+                    sourceDeal:sourceDealObserver?.result()??null,
+                    rootActionLedger,
+                    preDispatchPublic:publicSnapshot(state),
+                    preDispatchBoard:publicBoardSnapshot(state)
+                  });
+            }
+          }
+          throw error;
+        }
       }
       const actionName = action.constructor.name;
       const rootedSoloSetupChoice = rootedSoloSetup &&
