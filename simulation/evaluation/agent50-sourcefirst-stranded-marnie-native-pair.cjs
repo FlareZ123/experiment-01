@@ -42,6 +42,10 @@ function compact(row){
     winner:row.winner??null,finished:row.finished??false,
     endReason:row.endReason??null,
     abort:row.status??null,error:row.error??null,
+    // A rejected root must retain its real accepted prefix, original
+    // source physical-deal digest and the post-choice public error receipt.
+    // Never infer physical-target parity from compact root action labels.
+    nativeAbortEvidence:row.nativeAbortEvidence??null,
     fullOriginalNativeRootActionLedger:roots,
     firstThirtyAfterT7:roots.filter(x=>x.turnBefore>=7).slice(0,30)
   };
