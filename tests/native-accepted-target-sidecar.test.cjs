@@ -32,9 +32,6 @@ function acceptedEnergy(to,recipient){
   const state=game();
   const choice=new PlayCardAction(0,to);
   const before=beforeAcceptedTarget(state,choice,0,49,7);
-  state.players[0][recipient==='active'?'active':'bench'][
-    recipient==='active'?'energies':0
-  ];
   const target=recipient==='active'?state.players[0].active:
     state.players[0].bench[0];
   target.energies.cards.push(state.players[0].hand.cards[0]);
