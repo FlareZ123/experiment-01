@@ -6,7 +6,7 @@ const {remainingBasicAttachments}=
 const {paysWithBasics}=
   require('./agent7-actor-free-retreat-frontier.cjs');
 
-const VERSION='agent2-held-guzma-owner-stranded-mobility-v1';
+const VERSION='agent2-held-guzma-owner-stranded-mobility-v2-public-attack-restrictions';
 
 /**
  * Explicit printed Guzma Supporter, excluding Guzma & Hala.
@@ -16,6 +16,31 @@ const VERSION='agent2-held-guzma-owner-stranded-mobility-v1';
  */
 function isGuzma(fullName){
   return /^Guzma [A-Z0-9]{2,6}(?: [0-9]+)?$/.test(fullName);
+}
+
+/**
+ * A payable attack is not a usable attack when the owner's public board
+ * already records a move-specific lock or Active Special Condition. Check
+ * this before vetoing a Guzma switch; native Store remains final authority.
+ * @param {object} pokemon Detached public Pokemon.
+ * @param {object} attack Printed attack.
+ * @param {object} catalog Public numeric condition catalog.
+ * @returns {boolean}
+ */
+function eligibleDamagingAttack(pokemon,attack,catalog){
+  const rules=pokemon.publicRestrictions??{};
+  return attack.gxAttack!==true&&Array.isArray(attack.cost)&&
+    attack.cost.every(Number.isSafeInteger)&&
+    Number.isSafeInteger(attack.damage)&&attack.damage>0&&
+    rules.cannotAttackNextTurn!==true&&
+    rules.blockedAttackNameNextTurn!==attack.name&&
+    rules.blockedAttackNameUntilLeavesActive!==attack.name&&
+    !(rules.cannotUseAttacksNextTurn??[]).includes(attack.name)&&
+    (!rules.onlyAllowedAttackNameNextTurn||
+      rules.onlyAllowedAttackNameNextTurn===attack.name)&&
+    !(pokemon.specialConditions??[]).some(condition=>
+      condition===catalog.specialConditions?.ASLEEP||
+      condition===catalog.specialConditions?.PARALYZED);
 }
 
 /**
@@ -35,14 +60,7 @@ function attackFunding(pokemon,catalog){
     provided.push(catalog.basicEnergyTypes[type]);
   }
   const eligible=(pokemon.attacks??[]).filter(attack=>
-    !attack.gxAttack&&Array.isArray(attack.cost)&&
-    attack.cost.every(Number.isSafeInteger)&&
-    Number.isSafeInteger(attack.damage)&&attack.damage>0&&
-    pokemon.publicRestrictions?.cannotAttackNextTurn!==true&&
-    pokemon.publicRestrictions?.blockedAttackNameNextTurn!==attack.name&&
-    pokemon.publicRestrictions?.blockedAttackNameUntilLeavesActive!==attack.name&&
-    !(pokemon.publicRestrictions?.cannotUseAttacksNextTurn??[])
-      .includes(attack.name));
+    eligibleDamagingAttack(pokemon,attack,catalog));
   if(!eligible.length)return null;
   const estimate=eligible.map(attack=>{
     const unused=provided.slice();
@@ -103,8 +121,8 @@ function chooseHeldGuzmaMobility(view,catalog){
     !catalog.basicEnergies.has(printing)))return null;
   // Never gust away from an Active with a currently funded damaging attack.
   if((active.attacks??[]).some(attack=>
-    attack.gxAttack!==true&&Number.isSafeInteger(attack.damage)&&
-    attack.damage>0&&paysWithBasics(active,attack,catalog)))return null;
+    eligibleDamagingAttack(active,attack,catalog)&&
+    paysWithBasics(active,attack,catalog)))return null;
   const activeFunding=attackFunding(active,catalog);
   const destinations=[];
   for(let benchIndex=0;benchIndex<own.bench.length;benchIndex++){
