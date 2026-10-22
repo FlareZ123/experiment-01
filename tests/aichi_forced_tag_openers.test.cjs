@@ -63,8 +63,8 @@ test('the original seven can force a marked Basic despite extra draws later',()=
 
 test('source manifests retain the published count identity and risk split',()=>{
   const a=frozenOpeningAudit();
-  assert.deepEqual(a.champion,{deckSize:60,basics:14,tagTeams:1,mewtwo:0});
-  assert.deepEqual(a.newMoon,{deckSize:60,basics:17,tagTeams:4,mewtwo:2});
+  assert.deepEqual(a.champion,{deckSize:60,basics:14,tagTeams:1,mewtwo:0,multiPrizeBasics:10});
+  assert.deepEqual(a.newMoon,{deckSize:60,basics:17,tagTeams:4,mewtwo:2,multiPrizeBasics:9});
   assert.deepEqual([
     a.championRisk.forcedMarkedGivenValid.numerator,
     a.championRisk.forcedMarkedGivenValid.denominator,
@@ -78,6 +78,12 @@ test('source manifests retain the published count identity and risk split',()=>{
   ]);
   assert.ok(a.newMoonRisk.forcedMarkedGivenValid.percent >
     3*a.championRisk.forcedMarkedGivenValid.percent);
+  assert.equal(a.championMultiPrize.forcedMarkedGivenValid.numerator,'6143');
+  assert.equal(a.championMultiPrize.forcedMarkedGivenValid.denominator,'11456');
+  assert.equal(a.newMoonMultiPrize.forcedMarkedGivenValid.numerator,'50780223');
+  assert.equal(a.newMoonMultiPrize.forcedMarkedGivenValid.denominator,'176991403');
+  assert.ok(a.championMultiPrize.forcedMarkedGivenValid.percent >
+    a.newMoonMultiPrize.forcedMarkedGivenValid.percent);
 });
 
 test('invalid or inconsistent grouped populations reject',()=>{
