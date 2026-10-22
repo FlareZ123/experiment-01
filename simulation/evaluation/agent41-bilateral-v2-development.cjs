@@ -928,13 +928,20 @@ function runDevelopment({
         error?.cause?.nativeGenericFallbackEvidence??null;
       const sameTargetAbort=error?.nativeSameTargetEnergyEvidence??
         error?.cause?.nativeSameTargetEnergyEvidence??null;
+      const nativeAbort=error?.nativeAbortEvidence??
+        error?.cause?.nativeAbortEvidence??null;
+      const concealedSelectionError=nativeAbort &&
+        ['bot-decoder','strict-prompt-validation'].includes(nativeAbort.failureStage);
       rows.push({
         trial,status:classifyNativeAbort(veto),
-        error:String(error?.stack||error),
-        nativeStoreCauseStack:error?.cause?.stack??null,
+        error:concealedSelectionError?
+          'Redacted '+nativeAbort.failureStage+
+          ' failure; exception SHA256 '+nativeAbort.redactedMessageDigest:
+          String(error?.stack||error),
+        nativeStoreCauseStack:concealedSelectionError?
+          null:(error?.cause?.stack??null),
         ...(error?.nativePublicRootArchive??{}),
-        nativeAbortEvidence:error?.nativeAbortEvidence??
-          error?.cause?.nativeAbortEvidence??null,
+        nativeAbortEvidence:nativeAbort,
         ...(error?.nativeEpochBoundaryEvidence?{
           nativeEpochBoundaryEvidence:error.nativeEpochBoundaryEvidence
         }:{}),
