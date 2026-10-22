@@ -15,10 +15,11 @@ const TARGET='Duskull VIV';
  * public source board exposed through detached actorChoosePokemonInput.
  * @param {object|null} input Detached native actor prompt.
  * @param {number} turn Native global turn.
+ * @param {boolean} [secondTurn] Allow separately preregistered T17 follow-up.
  * @returns {{index:number}|null}
  */
-function chooseRegisteredPromotion(input,turn){
-  if(turn!==15||!input||input.actor?.decisionKind!=='owner-prompt'||
+function chooseRegisteredPromotion(input,turn,secondTurn=false){
+  if(!(turn===15||(secondTurn&&turn===17))||!input||input.actor?.decisionKind!=='owner-prompt'||
       input.prompt?.kind!=='ChoosePokemonPrompt'||
       input.prompt.perspectiveIsAnsweringOwner!==true)return null;
   const offered=input.prompt.offered;
@@ -58,7 +59,9 @@ function withRegisteredLowPrizePromotion(seat,execute,deps={}){
   assert.equal(typeof oldDispatch?.value,'function');
   let liveStore=null;
   const selections=new WeakMap();
-  const audit={version:VERSION,seat,target:TARGET,registeredTurn:15,
+  const audit={version:deps.secondTurn===true?VERSION+'-T17-followup':VERSION,
+    seat,target:TARGET,registeredTurn:15,
+    secondRegisteredTurn:deps.secondTurn===true?17:null,
     opportunitySeen:0,selected:0,accepted:0,rejected:0,
     physicallyConfirmed:0,failedPhysical:0,nonLiveFallbacks:0,
     events:[],competitiveQualifiedGames:0};
@@ -67,7 +70,8 @@ function withRegisteredLowPrizePromotion(seat,execute,deps={}){
       audit.nonLiveFallbacks++;
       return original.value.call(this,state,...args);
     }
-    if(state.turn!==15||this.client?.id!==state.players?.[seat]?.id)
+    if(!(state.turn===15||(deps.secondTurn===true&&state.turn===17))||
+        this.client?.id!==state.players?.[seat]?.id)
       return original.value.call(this,state,...args);
     const pending=state.prompts?.find(p=>p.result===undefined);
     if(pending?.constructor?.name!=='ChoosePokemonPrompt'||
@@ -76,7 +80,8 @@ function withRegisteredLowPrizePromotion(seat,execute,deps={}){
     const input=actorChoosePokemonInput(state,seat);
     if(!input)return original.value.call(this,state,...args);
     audit.opportunitySeen++;
-    const intent=chooseRegisteredPromotion(input,state.turn);
+    const intent=chooseRegisteredPromotion(input,state.turn,
+      deps.secondTurn===true);
     const record={turn:state.turn,
       sourceActive:input.actor.opponentPublic.active?.printing??null,
       offered:input.prompt.offered.map(x=>({printing:x.printing,
