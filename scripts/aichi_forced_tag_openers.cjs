@@ -153,6 +153,20 @@ function countFrozenInventory(rows, evolutions) {
 }
 
 /**
+ * Probability a designated Basic subtype is the only Basic in the original
+ * opening seven, conditioned on a valid opening. Distinct physical copies.
+ * @param {{deckSize:number,openingSize:number,basics:number,subsetBasics:number}} p
+ */
+function loneBasicSubtype(p) {
+  const {deckSize:n,openingSize:k,basics:b,subsetBasics:s}=p;
+  assert.ok([n,k,b,s].every(x=>Number.isSafeInteger(x)&&x>=0));
+  assert.ok(k>=1&&k<=n&&b>=1&&b<=n&&s<=b);
+  const valid=choose(n,k)-choose(n-b,k);
+  const lone=BigInt(s)*choose(n-b,k-1);
+  return fraction(lone,valid);
+}
+
+/**
  * Exact one-draw visibility of non-Basic target cards after valid Basic seven.
  * @param {{deckSize:number,openingSize:number,basics:number,targets:number}} c
  */
@@ -217,7 +231,8 @@ function frozenOpeningAudit() {
 }
 
 module.exports = {
-  choose, fraction, exactForcedOpening, directTargetByOneDraw,
+  choose, fraction, exactForcedOpening, loneBasicSubtype,
+  directTargetByOneDraw,
   forcedTagVipLatiasWindow, countFrozenInventory,
   frozenOpeningAudit
 };
