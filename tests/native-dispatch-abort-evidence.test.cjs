@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {createHash} = require('node:crypto');
-const {nativeDispatchAbortEvidence,VERSION} =
+const {nativeDispatchAbortEvidence,publicNativeAbortError,VERSION} =
   require('../simulation/twinleaf/native-dispatch-abort-evidence.cjs');
 
 const digest = '1'.repeat(64);
@@ -109,4 +109,31 @@ test('bot decoder archive rejects missing exception digests and stores no concea
   assert.equal(receipt.errorMessage,input.errorMessage);
   assert.equal(receipt.preDispatchPublic.players[0].handSize,2);
   assert.equal(JSON.stringify(receipt).includes('concealed-card-printing'),false);
+});
+
+test('public canonical error formatter removes concealed decoder and prompt selection detail',()=>{
+  for(const stage of ['bot-decoder','strict-prompt-validation']){
+    const original=new Error('PRIVATE_CARD_NAME_AND_HIDDEN_SOURCE_PRINTING');
+    original.nativeAbortEvidence={
+      failureStage:stage,redactedMessageDigest:'c'.repeat(64)
+    };
+    const wrapped=new Error('Wrapper also PRIVATE_CARD_NAME_AND_HIDDEN_SOURCE_PRINTING',
+      {cause:original});
+    const publicResult=publicNativeAbortError(wrapped);
+    assert.equal(publicResult.nativeStoreCauseStack,null);
+    assert.equal(publicResult.nativeAbortEvidence,original.nativeAbortEvidence);
+    assert.equal(publicResult.error,
+      'Redacted '+stage+' failure; exception SHA256 '+'c'.repeat(64));
+    assert.equal(JSON.stringify(publicResult).includes('PRIVATE_CARD_NAME'),false);
+  }
+});
+
+test('Store dispatch aborts retain their original public engine category',()=>{
+  const error=new Error('NO_BENCH_SLOTS_AVAILABLE');
+  error.nativeAbortEvidence={
+    failureStage:'store-dispatch',redactedMessageDigest:null
+  };
+  const published=publicNativeAbortError(error);
+  assert.match(published.error,/NO_BENCH_SLOTS_AVAILABLE/);
+  assert.equal(published.nativeAbortEvidence,error.nativeAbortEvidence);
 });
