@@ -1124,6 +1124,8 @@ function runMatch(request) {
         prizeCountBefore: state.players.map(player => player.prizes.filter(prize => prize.cards.length > 0).length)
       } : undefined;
       const publicBeforeDispatch = publicSnapshot(state);
+      const preDispatchAttackerPrinting=actionName==='AttackAction'&&seat>=0?
+        state.players[seat].active.getPokemonCard()?.fullName??null:null;
       // Snapshot before Store dispatch: a rejected reducer can mutate the live
       // state, so post-error board inspection is not a reliable precondition.
       const preDispatchAbortBoard=request.captureNativeAbortEvidence===true ?
@@ -1302,8 +1304,7 @@ function runMatch(request) {
               .nativeDispatchAbortEvidence({
                 actionOrdinal:actions,actionName,turnBefore,phaseBefore,
                 actingSeat:seat,attackName:attackInfo?.attack??null,
-                attackingPokemon:seat>=0?
-                  state.players[seat].active.getPokemonCard()?.fullName??null:null,
+                attackingPokemon:preDispatchAttackerPrinting,
                 errorMessage:error.message,
                 sourceDeal:sourceDealObserver?.result()??null,
                 rootActionLedger,
