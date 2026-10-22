@@ -9,6 +9,23 @@ const {
 const VERSION='actual-store-physical-target-witness-v1';
 
 /**
+ * One exact alias observed between a Store full printing and the established
+ * accepted-root public card label. Keep this narrowly scoped: a loose
+ * normalization could wrongly link distinct physical cards.
+ */
+const EXACT_ROOT_PRINTING_ALIASES=Object.freeze({
+  'Telepathic Psychic Energy':'Telepath [P] Energy M3'
+});
+
+/** @param {string} rootName @param {string} printing @returns {boolean} */
+function rootLabelMatchesNativePrinting(rootName,printing){
+  if(typeof rootName!=='string'||typeof printing!=='string')return false;
+  if(printing===rootName||printing.startsWith(rootName+' '))return true;
+  return Object.hasOwn(EXACT_ROOT_PRINTING_ALIASES,rootName)&&
+    EXACT_ROOT_PRINTING_ALIASES[rootName]===printing;
+}
+
+/**
  * Post-decision, read-only native Store dispatch observer. It never feeds
  * identities or snapshots to the bot, and does not alter any action.
  * @template T
@@ -34,8 +51,7 @@ function withAcceptedTargetWitness(execute,deps={}){
         const record=records[i];
         const printing=record.declared.ownerHandPrinting;
         const cardMatch=row.action!=='PlayCardAction'||
-          (typeof row.card==='string'&&typeof printing==='string'&&
-            (printing===row.card||printing.startsWith(row.card+' ')));
+          rootLabelMatchesNativePrinting(row.card,printing);
         return row.action===record.action &&
           row.playerSlot===record.playerSlot &&
           row.turnBefore===record.turnBefore && cardMatch;
@@ -102,4 +118,5 @@ function acceptedTargetAbortEvidence(error){
   return null;
 }
 
-module.exports={VERSION,withAcceptedTargetWitness,acceptedTargetAbortEvidence};
+module.exports={VERSION,withAcceptedTargetWitness,acceptedTargetAbortEvidence,
+  rootLabelMatchesNativePrinting};
