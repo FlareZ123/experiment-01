@@ -54,8 +54,18 @@ function run(seed=482443328){
         arms.push({enabled:stageEnergy,
           result:{...observed.result,actorAudit:observed.audit}});
       }catch(error){
+        const archived=require('../twinleaf/native-dispatch-abort-evidence.cjs')
+          .publicNativeAbortError(error);
+        const receipt=archived.nativeAbortEvidence;
         arms.push({enabled:stageEnergy,result:{
-          status:'engine-error',error:String(error?.stack??error).slice(0,7000)}});
+          status:'engine-error',error:archived.error.slice(0,7000),
+          nativeStoreCauseStack:archived.nativeStoreCauseStack,
+          nativeAbortEvidence:receipt,
+          sourceDealFingerprint:receipt?.sourceDealFingerprint?.digestSha256??null,
+          rootActionLedger:receipt?.rootActionLedger??[],
+          rootActionLedgerSha256:receipt?.rootActionLedgerSha256??null,
+          rootActionCount:receipt?.rootActionCount??null
+        }});
       }
     }
   }finally{
