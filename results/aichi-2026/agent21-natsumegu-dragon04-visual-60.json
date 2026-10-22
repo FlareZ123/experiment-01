@@ -69,7 +69,23 @@
       "col": 8,
       "name": "Mega Dragonite ex",
       "count": 1,
-      "category": "Pokémon"
+      "category": "Pokémon",
+      "printingEvidence": {
+        "japanese": {
+          "set": "M2a",
+          "number": "232/193",
+          "rarity": "MA",
+          "artist": "DOM",
+          "officialCardUrl": "https://www.pokemon-card.com/card-search/details.php/card/49992"
+        },
+        "englishEquivalent": {
+          "id": "me2pt5-271",
+          "set": "ASC",
+          "number": "271",
+          "artist": "DOM",
+          "source": "bundled English card-list.zip"
+        }
+      }
     },
     {
       "row": 1,
@@ -310,6 +326,7 @@
   "qualification": {
     "source_attribution": "social post confirmed; official legal name and Japanese printing IDs unverified",
     "final_benchmark_rank_assigned": false,
-    "competitive_games_qualified": 0
+    "competitive_games_qualified": 0,
+    "single_printing_confirmed": "R1C8 M2a 232/193 / English equivalent me2pt5-271; remaining photo printings unconfirmed"
   }
 }
