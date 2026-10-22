@@ -84,9 +84,29 @@ test('non-AttackAction failures do not inherit a stale attack label',()=>{
 test('marks strict prompt validation separately from native Store dispatch',()=>{
   const input=sample();
   input.failureStage='strict-prompt-validation';
+  input.pendingPrompt='AttachEnergyPrompt';
+  input.errorMessage='Strict prompt validation failed; details redacted';
+  input.redactedMessageDigest='a'.repeat(64);
   const result=nativeDispatchAbortEvidence(input);
   assert.equal(result.failureStage,'strict-prompt-validation');
+  assert.equal(result.pendingPrompt,'AttachEnergyPrompt');
+  assert.equal(result.redactedMessageDigest,'a'.repeat(64));
   assert.equal(result.rootActionCount,2);
   input.failureStage='invalid-stage';
   assert.throws(()=>nativeDispatchAbortEvidence(input));
+});
+
+test('bot decoder archive rejects missing exception digests and stores no concealed printings',()=>{
+  const input=sample();
+  input.failureStage='bot-decoder';
+  input.errorMessage='Actor action decoding failed; details redacted';
+  input.pendingPrompt='AttachEnergyPrompt';
+  assert.throws(()=>nativeDispatchAbortEvidence(input));
+  input.redactedMessageDigest='b'.repeat(64);
+  const receipt=nativeDispatchAbortEvidence(input);
+  assert.equal(receipt.failureStage,'bot-decoder');
+  assert.equal(receipt.pendingPrompt,'AttachEnergyPrompt');
+  assert.equal(receipt.errorMessage,input.errorMessage);
+  assert.equal(receipt.preDispatchPublic.players[0].handSize,2);
+  assert.equal(JSON.stringify(receipt).includes('concealed-card-printing'),false);
 });
