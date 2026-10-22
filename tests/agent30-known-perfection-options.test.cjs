@@ -190,4 +190,6 @@ test('optional root policy emits native-typed Perfection Ability action and rest
 test('suffix GX catalog recovery',()=>{
  const d=knownPerfectionDonorCatalog([{fullName:'Gengar & Mimikyu-GX TEU',attacks:[{name:'Horror House-GX',cost:[P],gxAttack:false}]}]);
  assert.equal(d.get('Gengar & Mimikyu-GX TEU')[0].gxAttack,true);
+ const v=view();v.ownPublic.publicTurnRestrictions.gxUsed=true;
+ assert.equal(knownPerfectionReadyOptions(v,energyCatalog,d).length,0);
 });
