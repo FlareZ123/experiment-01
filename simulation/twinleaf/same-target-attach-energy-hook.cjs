@@ -39,22 +39,29 @@ function repairSameTargetSelection(prompt,proposed) {
  * synchronous pinned Twinleaf headless run. No vendor file is changed.
  * @template T
  * @param {()=>T} execute
+ * @param {{AttachEnergyPromptResolver?:Function,AttachEnergyPrompt?:Function}} [dependencies] Test seam for pinned prompt classes.
  * @returns {{result:T,audit:object}}
  */
-function withSameTargetAttachEnergySelection(execute) {
-  const {AttachEnergyPromptResolver}=require(path.join(output,
-    'simple-bot/prompt-resolver/attach-energy-prompt-resolver'));
-  const {AttachEnergyPrompt}=require(path.join(output,
-    'game/store/prompts/attach-energy-prompt'));
+function withSameTargetAttachEnergySelection(execute,dependencies={}) {
+  const AttachEnergyPromptResolver=dependencies.AttachEnergyPromptResolver ??
+    require(path.join(output,
+      'simple-bot/prompt-resolver/attach-energy-prompt-resolver'))
+      .AttachEnergyPromptResolver;
+  const AttachEnergyPrompt=dependencies.AttachEnergyPrompt ??
+    require(path.join(output,
+      'game/store/prompts/attach-energy-prompt')).AttachEnergyPrompt;
   const proto=AttachEnergyPromptResolver.prototype;
   const prior=proto.getPromptResult;
   const events=[];
+  const audit={schema:'bot-same-target-energy-selection-v1',
+    repairedPromptCount:0,events,competitiveStrengthQualified:false};
   proto.getPromptResult=function sameTargetGet(state,prompt) {
     const result=prior.call(this,state,prompt);
     if(!(prompt instanceof AttachEnergyPrompt) ||
         prompt.options.sameTarget!==true) return result;
     const repaired=repairSameTargetSelection(prompt,result);
     if(repaired.changed) {
+      audit.repairedPromptCount++;
       events.push({promptId:prompt.id,message:prompt.message,
         selectedCardCount:repaired.value.length,
         fixedDestination:repaired.value[0].to});
@@ -63,9 +70,13 @@ function withSameTargetAttachEnergySelection(execute) {
   };
   try {
     const result=execute();
-    return {result,audit:{schema:'bot-same-target-energy-selection-v1',
-      repairedPromptCount:events.length,events,
-      competitiveStrengthQualified:false}};
+    return {result,audit};
+  } catch(error) {
+    // The trial's native exception remains authoritative. Preserve partial
+    // correction evidence for the caller's failure-inclusive output.
+    if(error&&typeof error==='object')
+      error.nativeSameTargetEnergyEvidence=audit;
+    throw error;
   } finally {
     proto.getPromptResult=prior;
   }
