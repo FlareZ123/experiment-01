@@ -12,10 +12,11 @@ function stagedGuzmaBypass(gust){
   const noivern=get('Noivern ex PAL');
   const v=get('Regidrago V SIT');
   const thorns=get('Iron Thorns ex TWM');
-  const lightning=get('Lightning Energy MEE');
+  const lightning=get('Speed Lightning Energy RCL');
   const dce=get('Double Colorless Energy SUM');
   const guzma=get('Guzma BUS');
-  assert.ok(noivern&&v&&thorns&&lightning&&dce&&guzma);
+  assert.ok(noivern&&v&&thorns&&lightning&&dce&&guzma,
+    'Require exact published rank-6 source-print Guzma and Special Energies');
   const f=preparedRegidrago();
   f.attachFire();
   f.attacking.discard.cards.push(noivern);
