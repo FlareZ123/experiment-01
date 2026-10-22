@@ -949,8 +949,8 @@ function runDevelopment({
           nativeActionInputAudit:error?.nativeDecisionDispatchEvidence??null}:{}),
         ...(nativeAcceptedTargets?{
           nativeAcceptedTargetSidecarAbort:
-            error?.nativeAcceptedTargetEvidence??
-            error?.cause?.nativeAcceptedTargetEvidence??null}:{}),
+            require('../twinleaf/native-accepted-target-store-observer.cjs')
+              .acceptedTargetAbortEvidence(error)}:{}),
         ...(paperSameTargetAttachEnergy?{
           paperSameTargetAttachEnergyAbortEvidence:sameTargetAbort}:{}),
         ...(actorOnlyComposition&&actorGenericFallbackAttribution?{
