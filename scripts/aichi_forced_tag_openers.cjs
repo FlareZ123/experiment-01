@@ -88,6 +88,42 @@ function exactForcedOpening(counts) {
 }
 
 /**
+ * Joint resource window: original seven forces TAG, a directly held VIP Pass
+ * is available by the one mandatory draw, and a designated non-TAG Latias ex
+ * is absent from the six Prize cards. Latias is among "otherBasics".
+ *
+ * Conditional activity assumes VIP may be used and Skyliner is not blocked.
+ * No arbitrary prize subset or speculative engine state is inspected.
+ *
+ * @param {{deckSize:number,openingSize:number,tagBasics:number,
+ *   otherBasics:number,vipCopies:number,prizeCount:number}} p
+ */
+function forcedTagVipLatiasWindow(p) {
+  const {deckSize:n,openingSize:k,tagBasics:t,
+    otherBasics:o,vipCopies:v,prizeCount:prizes}=p;
+  assert.ok([n,k,t,o,v,prizes].every(x=>Number.isSafeInteger(x)&&x>=0));
+  assert.ok(t>0 && o>0 && v>0 && t+o+v<=n);
+  const remaining=n-k;
+  assert.ok(k<n && prizes<remaining-1 && v<=remaining);
+  const forced=choose(n-o,k)-choose(n-o-t,k);
+  const noVip=choose(n-o-v,k)-choose(n-o-t-v,k);
+  const valid=choose(n,k)-choose(n-o-t,k);
+  const r=BigInt(remaining);
+  const numerator=(forced-noVip)*(r-BigInt(prizes))*(r-1n)+
+    noVip*BigInt(v)*(r-1n-BigInt(prizes));
+  const denominator=r*(r-1n);
+  return {
+    forcedSevenCount:String(forced),
+    forcedWithoutVipCount:String(noVip),
+    vipAndLatiasUnprizedGivenForced:
+      fraction(numerator,forced*denominator),
+    vipAndLatiasUnprizedGivenValid:
+      fraction(numerator,valid*denominator),
+    scope:'Direct first-turn resource window only; cannot certify a retreat or match win'
+  };
+}
+
+/**
  * Categorize the two immutable published/proposed inventories by card name.
  * The only non-Basic Pokémon in these particular lists are checked explicitly
  * rather than inferred from a generic string suffix.
@@ -181,7 +217,8 @@ function frozenOpeningAudit() {
 }
 
 module.exports = {
-  choose, fraction, exactForcedOpening, directTargetByOneDraw, countFrozenInventory,
+  choose, fraction, exactForcedOpening, directTargetByOneDraw,
+  forcedTagVipLatiasWindow, countFrozenInventory,
   frozenOpeningAudit
 };
 
