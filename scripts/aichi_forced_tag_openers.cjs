@@ -9,6 +9,14 @@ const TAG_TEAM_NAMES = new Set([
   'Trevenant & Dusknoir-GX'
 ]);
 
+const MULTI_PRIZE_BASICS = new Set([
+  'Mewtwo & Mew-GX', 'Gengar & Mimikyu-GX',
+  'Trevenant & Dusknoir-GX', 'Tapu Lele-GX',
+  'Galarian Articuno V', 'Latias ex',
+  "Lillie's Clefairy ex", 'Squawkabilly ex',
+  'Shadow Rider Calyrex V', 'Dialga-GX'
+]);
+
 /**
  * Exact binomial coefficient.
  * @param {number} n Nonnegative population size.
@@ -85,7 +93,7 @@ function exactForcedOpening(counts) {
  * rather than inferred from a generic string suffix.
  * @param {Array<{name:string,count:number,category?:string,type?:string}>} rows
  * @param {Set<string>} evolutions
- * @returns {{deckSize:number,basics:number,tagTeams:number,mewtwo:number}}
+ * @returns {{deckSize:number,basics:number,tagTeams:number,mewtwo:number,multiPrizeBasics:number}}
  */
 function countFrozenInventory(rows, evolutions) {
   const total = rows.reduce((sum, row) => sum + row.count, 0);
@@ -102,7 +110,10 @@ function countFrozenInventory(rows, evolutions) {
     .reduce((sum, row) => sum + row.count, 0);
   const mewtwo = basics.filter(row => row.name === 'Mewtwo & Mew-GX')
     .reduce((sum, row) => sum + row.count, 0);
-  return {deckSize:total,basics:basicCount,tagTeams,mewtwo};
+  const multiPrizeBasics = basics.filter(row =>
+    MULTI_PRIZE_BASICS.has(row.name))
+    .reduce((sum, row) => sum + row.count, 0);
+  return {deckSize:total,basics:basicCount,tagTeams,mewtwo,multiPrizeBasics};
 }
 
 /** @returns {object} Independently auditable immutable-deck results. */
@@ -120,8 +131,8 @@ function frozenOpeningAudit() {
   })), new Set(['Dusclops']));
   assert.deepEqual(
     [champion.basics,champion.tagTeams,newMoon.basics,newMoon.tagTeams,
-      newMoon.mewtwo],
-    [14,1,17,4,2]
+      newMoon.mewtwo,champion.multiPrizeBasics,newMoon.multiPrizeBasics],
+    [14,1,17,4,2,10,9]
   );
   const championRisk = exactForcedOpening({
     deckSize:60,openingSize:7,
@@ -138,8 +149,19 @@ function frozenOpeningAudit() {
     markedBasics:newMoon.mewtwo,
     otherBasics:newMoon.basics-newMoon.mewtwo
   });
+  const championMultiPrize = exactForcedOpening({
+    deckSize:60,openingSize:7,
+    markedBasics:champion.multiPrizeBasics,
+    otherBasics:champion.basics-champion.multiPrizeBasics
+  });
+  const newMoonMultiPrize = exactForcedOpening({
+    deckSize:60,openingSize:7,
+    markedBasics:newMoon.multiPrizeBasics,
+    otherBasics:newMoon.basics-newMoon.multiPrizeBasics
+  });
   return {sourcePublishedRank:1,newMoonCandidate:proposed.schema,
     champion,newMoon,championRisk,newMoonRisk,mewtwoOnly,
+    championMultiPrize,newMoonMultiPrize,
     interpretation:'Opening Active exposure event only; not a KO or game loss'};
 }
 
