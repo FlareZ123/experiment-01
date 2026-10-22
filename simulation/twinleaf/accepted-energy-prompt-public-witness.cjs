@@ -98,4 +98,22 @@ function withAcceptedEnergyPromptPublicWitness(execute,dependencies={}) {
   }
 }
 
-module.exports={VERSION,withAcceptedEnergyPromptPublicWitness};
+/**
+ * Rejected native actions may wrap their cause across policy and headless
+ * adapters. Return only a genuine prior accepted prompt receipt.
+ * @param {unknown} error
+ * @returns {object|null}
+ */
+function acceptedEnergyPromptPublicAbortEvidence(error){
+  const visited=new Set();
+  for(let e=error,depth=0;e&&typeof e==='object'&&
+      depth<12&&!visited.has(e);e=e.cause,depth++){
+    visited.add(e);
+    if(e.acceptedEnergyPromptPublicEvidence?.schema===VERSION)
+      return e.acceptedEnergyPromptPublicEvidence;
+  }
+  return null;
+}
+
+module.exports={VERSION,withAcceptedEnergyPromptPublicWitness,
+  acceptedEnergyPromptPublicAbortEvidence};
