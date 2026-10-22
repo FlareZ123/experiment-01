@@ -1,0 +1,117 @@
+'use strict';
+
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {
+  SCHEMA,publicTargetBoard,beforeAcceptedTarget,afterAcceptedTarget,
+  targetSidecar,firstPhysicalTargetDifference
+}=require('../simulation/twinleaf/native-accepted-target-sidecar.cjs');
+
+class PlayCardAction {
+  constructor(handIndex,target){this.handIndex=handIndex;this.target=target;}
+}
+class RetreatAction {
+  constructor(benchIndex){this.benchIndex=benchIndex;}
+}
+function slot(name=null){
+  return {pokemon:name?{fullName:name}:null,energies:{cards:[]},tools:[],
+    getPokemonCard(){return this.pokemon;}};
+}
+function player(pokemon){
+  return {hand:{cards:[{fullName:'Darkness Energy SVE 7'}]},
+    active:slot(pokemon),bench:[slot('Crobat V DAA 104'),slot()]};
+}
+function game(){
+  return {phase:3,players:[
+    player('Garbodor BKP 57'),player('Meloetta FST 124')
+  ]};
+}
+const ACTIVE={player:2,slot:1,index:0};
+const BENCH={player:2,slot:2,index:0};
+function acceptedEnergy(to,recipient){
+  const state=game();
+  const choice=new PlayCardAction(0,to);
+  const before=beforeAcceptedTarget(state,choice,0,49,7);
+  state.players[0][recipient==='active'?'active':'bench'][
+    recipient==='active'?'energies':0
+  ];
+  const target=recipient==='active'?state.players[0].active:
+    state.players[0].bench[0];
+  target.energies.cards.push(state.players[0].hand.cards[0]);
+  state.players[0].hand.cards.shift();
+  return targetSidecar([afterAcceptedTarget(before,state)]);
+}
+
+test('equal old root labels lose genuine accepted Energy recipient difference',()=>{
+  const oldA=[{actionOrdinal:49,turnBefore:7,playerSlot:0,
+    action:'PlayCardAction',card:'Darkness Energy'}];
+  const oldB=structuredClone(oldA);
+  assert.deepEqual(oldA,oldB);
+  const active=acceptedEnergy(ACTIVE,'active');
+  const benched=acceptedEnergy(BENCH,'bench');
+  assert.equal(active.schema,SCHEMA);
+  assert.notEqual(active.sha256,benched.sha256);
+  assert.equal(active.events[0].storeAccepted,true);
+  assert.equal(benched.events[0].storeAccepted,true);
+  assert.deepEqual(active.events[0].declared.target,ACTIVE);
+  assert.deepEqual(benched.events[0].declared.target,BENCH);
+  assert.deepEqual(active.events[0].publicBoardChanges.map(x=>x.position),
+    ['active']);
+  assert.deepEqual(benched.events[0].publicBoardChanges.map(x=>x.position),
+    ['bench']);
+  assert.deepEqual(firstPhysicalTargetDifference(active,benched),{
+    status:'different',index:0,firstOrdinal:49,secondOrdinal:49
+  });
+});
+
+test('identical physical accepted target and public effect have stable digest',()=>{
+  const one=acceptedEnergy(BENCH,'bench');
+  const two=acceptedEnergy({...BENCH},'bench');
+  assert.equal(one.sha256,two.sha256);
+  assert.deepEqual(firstPhysicalTargetDifference(one,two),{
+    status:'same-observed-targets',observed:1,
+    scope:'Only PlayCardAction and RetreatAction targets'
+  });
+});
+
+test('retreat Bench recipient is retained without private card identities',()=>{
+  const state=game();
+  const before=beforeAcceptedTarget(state,new RetreatAction(0),0,64,9);
+  const prior=state.players[0].active;
+  state.players[0].active=state.players[0].bench[0];
+  state.players[0].bench[0]=prior;
+  const after=afterAcceptedTarget(before,state);
+  assert.equal(after.declared.benchIndex,0);
+  assert.equal(after.publicBoardChanges.length,2);
+  assert.deepEqual(after.publicBoardChanges.map(x=>x.position),
+    ['active','bench']);
+});
+
+test('absent coordinates or setup identities forbid physical identity claim',()=>{
+  const state=game();
+  const missing=beforeAcceptedTarget(state,
+    new PlayCardAction(0,{player:2,slot:2}),0,17,5);
+  const sidecar=targetSidecar([afterAcceptedTarget(missing,state)]);
+  assert.equal(sidecar.targetUnobserved,1);
+  assert.equal(firstPhysicalTargetDifference(sidecar,sidecar).status,
+    'target-unobserved');
+  state.phase=0;
+  assert.equal(publicTargetBoard(state),null);
+  const setup=beforeAcceptedTarget(state,new PlayCardAction(0,BENCH),0,1,0);
+  const recorded=afterAcceptedTarget(setup,state);
+  assert.equal(recorded.visibility,'target-unobserved');
+});
+
+test('capture never reads concealed opponent hand, deck or Prize identities',()=>{
+  const state=game();
+  for(const key of ['hand','deck','prizes']){
+    Object.defineProperty(state.players[1],key,{get(){
+      throw new Error('Illegal concealed read: '+key);
+    }});
+  }
+  const before=beforeAcceptedTarget(state,new PlayCardAction(0,BENCH),0,2,2);
+  assert.equal(before.declared.status,'captured');
+  const after=afterAcceptedTarget(before,state);
+  assert.equal(after.storeAccepted,true);
+  assert.deepEqual(after.publicBoardChanges,[]);
+});
