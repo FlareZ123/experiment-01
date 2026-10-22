@@ -79,7 +79,10 @@ test('observed target equality stays explicitly scope-limited',()=>{
   const report=auditPair(row(a,sidecar(0)),row(a,sidecar(0)));
   assert.equal(report.firstPhysicalTargetDifference.status,
     'same-observed-targets');
-  assert.equal(report.physicalParityCertified,true);
+  assert.equal(report.physicalParityCertified,false);
+  assert.equal(report.observedPlayCardRetreatParity,true);
+  assert.deepEqual(report.unobservedPhysicalChannels,
+    ['typed-prompt-energy-attachments']);
   assert.equal(report.limitedToAcceptedPlayCardAndRetreat,true);
   assert.equal(report.firstPhysicalPrecedesLabelDifference,false);
 });
