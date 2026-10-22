@@ -16,8 +16,10 @@ const {withRegisteredLowPrizePromotion}=
 function runRegisteredPromotion(options={}){
   const treatment=options.treatment===true;
   const secondTurn=options.secondTurn===true;
+  const sourceMobilityObserver=options.sourceMobilityObserver===true;
   const original=headless.runMatch;
   const receipts=[];
+  const sourceMobilityObservations=[];
   let seen=0;
   headless.runMatch=function(request){
     const target=String(request.label).includes(
@@ -26,7 +28,13 @@ function runRegisteredPromotion(options={}){
     seen++;
     try{
       const native=withRegisteredLowPrizePromotion(1,
-        ()=>original(request),{secondTurn});
+        ()=>{
+          if(!sourceMobilityObserver)return original(request);
+          const observed=require('../twinleaf/agent5-rank6-source-mobility-observer.cjs')
+            .withSourceOwnerMobilityObservation(0,()=>original(request));
+          sourceMobilityObservations.push(observed.audit);
+          return observed.result;
+        },{secondTurn});
       receipts.push({label:request.label,audit:native.audit});
       return native.result;
     }catch(error){
@@ -47,7 +55,8 @@ function runRegisteredPromotion(options={}){
     });
     return {...result,registeredLowPrizePromotion:{
       schema:'agent5-rank6-lowprize-promotion-wrapper-v1',
-      treatment,secondTurn,attemptedTargets:seen,receipts,
+      treatment,secondTurn,sourceMobilityObserver,
+      sourceMobilityObservations,attemptedTargets:seen,receipts,
       competitiveQualifiedGames:0
     }};
   }finally{headless.runMatch=original;}
@@ -56,7 +65,8 @@ function runRegisteredPromotion(options={}){
 if(require.main===module){
   const mode=process.env.AGENT5_LOWPRIZE_PROMOTION_DEV;
   const result=runRegisteredPromotion({
-    treatment:mode==='true'||mode==='double',secondTurn:mode==='double'
+    treatment:mode==='true'||mode==='double',secondTurn:mode==='double',
+    sourceMobilityObserver:process.env.AGENT5_SOURCE_MOBILITY_OBSERVER_DEV==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
