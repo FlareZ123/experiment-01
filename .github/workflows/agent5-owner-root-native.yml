@@ -159,10 +159,14 @@ jobs:
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
           AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
           AGENT5_LOWPRIZE_PROMOTION_DEV: 'true'
-        run: node simulation/evaluation/agent5-rank6-lowprize-development.cjs > agent5-lowprize-treatment.json
+        run: |
+          node simulation/evaluation/agent5-rank6-lowprize-development.cjs > agent5-lowprize-treatment.json
+          AGENT5_LOWPRIZE_PROMOTION_DEV=double node simulation/evaluation/agent5-rank6-lowprize-development.cjs > agent5-double-duskull-treatment.json
       - name: Audit exact registered native T15 owner promotion and preserve other three paired arms
         if: ${{ inputs.rank6_lowprize_paired }}
-        run: node scripts/agent5-rank6-lowprize-native-audit.cjs agent5-lowprize-control.json agent5-lowprize-treatment.json > agent5-lowprize-paired-audit.json
+        run: |
+          node scripts/agent5-rank6-lowprize-native-audit.cjs agent5-lowprize-control.json agent5-lowprize-treatment.json > agent5-lowprize-paired-audit.json
+          node scripts/agent5-rank6-double-duskull-native-audit.cjs agent5-lowprize-control.json agent5-lowprize-treatment.json agent5-double-duskull-treatment.json > agent5-double-duskull-audit.json
       - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
@@ -180,5 +184,7 @@ jobs:
             agent5-lowprize-control.json
             agent5-lowprize-treatment.json
             agent5-lowprize-paired-audit.json
+            agent5-double-duskull-treatment.json
+            agent5-double-duskull-audit.json
           if-no-files-found: warn
           retention-days: 30
