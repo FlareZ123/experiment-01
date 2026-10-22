@@ -195,3 +195,16 @@ test('printed GX name is excluded even with missing engine flag',()=>{
   }];
   assert.equal(chooseSpecialEnergyIntent(v,catalog),null);
 });
+
+test('actor root respects spent GX with incomplete metadata',()=>{
+  const v=view();
+  v.ownHand=[];
+  v.ownPublic.active.energies=['Double Colorless Energy SUM',
+    'Speed Lightning Energy RCL'];
+  v.ownPublic.active.attacks=[{
+    name:'Volt Cyclone-GX',cost:[4,9,9],gxAttack:false
+  }];
+  v.ownPublic.publicTurnRestrictions.gxUsed=true;
+  assert.equal(chooseActorRootIntent(v,catalog,{specialEnergyRoot:true,
+    printedGxRoot:true}).kind,'pass');
+});
