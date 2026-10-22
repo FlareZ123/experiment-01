@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent30-telepath-m3-native-special-energy-frontier-v4-zero-gain-veto';
+const VERSION='agent30-telepath-m3-native-special-energy-frontier-v5-perfection-public-donors';
 
 /**
  * Bounded printed-text numeric model for four rank-6 Special Energy printings
@@ -102,7 +102,25 @@ function chooseTelepathPsychicRecipient(view,catalog){
       energies.push(catalog.basicEnergyTypes[name]);
     }
     if(!known)continue;
-    for(const attack of pokemon.attacks??[]){
+    // Perfection grants Mewtwo public donor attacks from its own Bench and
+    // discard. Consider only verified catalog printings and currently usable
+    // public Ability state; K0 deck and concealed Prize cards are irrelevant.
+    let attacks=pokemon.attacks??[];
+    if(target.slot==='active'&&pokemon.printing==='Mewtwo & Mew-GX UNM'&&
+       catalog.perfectionDonors instanceof Map){
+      const {publicPerfectionVeto}=
+        require('./agent30-known-perfection-options.cjs');
+      if(publicPerfectionVeto(view)===null){
+        const sources=new Set([
+          ...(view.ownPublic.discard??[]),
+          ...(view.ownPublic.bench??[]).flatMap(p=>p?[p.printing]:[])
+        ]);
+        attacks=[...attacks,...[...catalog.perfectionDonors]
+          .filter(([printing])=>sources.has(printing))
+          .flatMap(([,donorAttacks])=>donorAttacks)];
+      }
+    }
+    for(const attack of attacks){
       if(attack.gxAttack===true||!Array.isArray(attack.cost)||
           !attack.cost.includes(p))continue;
       const before=missingEnergyUnits(attack.cost,energies,colorless);
