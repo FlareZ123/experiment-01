@@ -122,3 +122,59 @@ test('known DCE behavior on Colorless Active remains independent of Telepath',()
     printing:'Double Colorless Energy SUM'
   });
 });
+
+test('Perfection donor Telepath attachment needs a public source',()=>{
+  const v=view([]);
+  v.globalTurn=4;
+  v.ownHand=[TELEPATHIC];
+  v.ownPublic.active={
+    printing:'Mewtwo & Mew-GX UNM',
+    name:'Mewtwo & Mew-GX',printed:{types:[P]},
+    energies:[],abilities:['Perfection'],
+    attacks:[{name:'Miraculous Duo-GX',cost:[P,P,C],gxAttack:true}],
+    specialConditions:[],publicRestrictions:{}
+  };
+  v.ownPublic.bench=[null,null,null,null,null];
+  v.ownPublic.discard=['Gengar & Mimikyu-GX TEU'];
+  v.ownPublic.publicTurnRestrictions={attackLockTurnsRemaining:0};
+  const knownCatalog={...catalog,perfectionDonors:new Map([
+    ['Gengar & Mimikyu-GX TEU',[
+      {name:'Poltergeist',cost:[P,P],gxAttack:false}
+    ]]
+  ])};
+  assert.deepEqual(chooseSpecialEnergyIntent(v,knownCatalog),{
+    kind:'attach-special-energy',handIndex:0,
+    printing:TELEPATHIC,slot:'active',index:0
+  });
+  v.ownPublic.discard=[];
+  assert.equal(chooseSpecialEnergyIntent(v,knownCatalog),null,
+    'Unseen owner-deck or Prize donor is not public');
+  v.ownPublic.bench[0]={printing:'Gengar & Mimikyu-GX TEU'};
+  assert.equal(chooseSpecialEnergyIntent(v,knownCatalog).slot,'active',
+    'Public Benched donor is also legitimate');
+  v.opponentPublic.active={abilities:['Initialization']};
+  assert.equal(chooseSpecialEnergyIntent(v,knownCatalog),null,
+    'Known active Ability lock defeats the Perfection option');
+});
+
+test('opponent hidden identities cannot steer public Perfection attachment',()=>{
+  const v=view([]);
+  v.globalTurn=4;
+  v.ownHand=[TELEPATHIC];
+  v.ownPublic.active={
+    printing:'Mewtwo & Mew-GX UNM',printed:{types:[P]},
+    energies:[],abilities:['Perfection'],attacks:[],
+    specialConditions:[],publicRestrictions:{}
+  };
+  v.ownPublic.discard=['Gengar & Mimikyu-GX TEU'];
+  v.ownPublic.publicTurnRestrictions={attackLockTurnsRemaining:0};
+  const knownCatalog={...catalog,perfectionDonors:new Map([
+    ['Gengar & Mimikyu-GX TEU',[
+      {name:'Poltergeist',cost:[P,P],gxAttack:false}
+    ]]
+  ])};
+  const a={...v,opponentHidden:{hand:['A'],prizes:['A']}};
+  const b={...v,opponentHidden:{hand:['B'],prizes:['B']}};
+  assert.deepEqual(chooseSpecialEnergyIntent(a,knownCatalog),
+    chooseSpecialEnergyIntent(b,knownCatalog));
+});
