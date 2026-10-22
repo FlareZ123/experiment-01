@@ -17,9 +17,11 @@ function runRegisteredPromotion(options={}){
   const treatment=options.treatment===true;
   const secondTurn=options.secondTurn===true;
   const sourceMobilityObserver=options.sourceMobilityObserver===true;
+  const sourceGuzma=options.sourceGuzma===true;
   const original=headless.runMatch;
   const receipts=[];
   const sourceMobilityObservations=[];
+  const sourceGuzmaReceipts=[];
   let seen=0;
   headless.runMatch=function(request){
     const target=String(request.label).includes(
@@ -27,11 +29,18 @@ function runRegisteredPromotion(options={}){
     if(!treatment||!target)return original(request);
     seen++;
     try{
+      const withSourceGuzma=()=>{
+        if(!sourceGuzma)return original(request);
+        const r=require('../twinleaf/agent5-rank6-source-guzma-t35.cjs')
+          .withSourceGuzmaT35(0,()=>original(request));
+        sourceGuzmaReceipts.push(r.audit);
+        return r.result;
+      };
       const native=withRegisteredLowPrizePromotion(1,
         ()=>{
-          if(!sourceMobilityObserver)return original(request);
+          if(!sourceMobilityObserver)return withSourceGuzma();
           const observed=require('../twinleaf/agent5-rank6-source-mobility-observer.cjs')
-            .withSourceOwnerMobilityObservation(0,()=>original(request));
+            .withSourceOwnerMobilityObservation(0,withSourceGuzma);
           sourceMobilityObservations.push(observed.audit);
           return observed.result;
         },{secondTurn});
@@ -55,8 +64,9 @@ function runRegisteredPromotion(options={}){
     });
     return {...result,registeredLowPrizePromotion:{
       schema:'agent5-rank6-lowprize-promotion-wrapper-v1',
-      treatment,secondTurn,sourceMobilityObserver,
-      sourceMobilityObservations,attemptedTargets:seen,receipts,
+      treatment,secondTurn,sourceMobilityObserver,sourceGuzma,
+      sourceMobilityObservations,sourceGuzmaReceipts,
+      attemptedTargets:seen,receipts,
       competitiveQualifiedGames:0
     }};
   }finally{headless.runMatch=original;}
@@ -66,7 +76,8 @@ if(require.main===module){
   const mode=process.env.AGENT5_LOWPRIZE_PROMOTION_DEV;
   const result=runRegisteredPromotion({
     treatment:mode==='true'||mode==='double',secondTurn:mode==='double',
-    sourceMobilityObserver:process.env.AGENT5_SOURCE_MOBILITY_OBSERVER_DEV==='true'
+    sourceMobilityObserver:process.env.AGENT5_SOURCE_MOBILITY_OBSERVER_DEV==='true',
+    sourceGuzma:process.env.AGENT5_SOURCE_GUZMA_T35_DEV==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
