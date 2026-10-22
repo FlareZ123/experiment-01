@@ -414,6 +414,9 @@ function executeDevelopment(trial,candidates,{
     capturePerfectionPassProbeSeat:candidateSeat,
     captureHeldTelepathPassProbeSeat:candidateSeat,
     captureInitialSourceDealFingerprintSeat:sourceSeat,
+    // Read-only original-Store abort receipts: preserve the source deal and
+    // all accepted roots when a retrospective development game aborts.
+    captureNativeAbortEvidence:true,
     paperTerminalAttackKoCorrection:paperTerminalAttackKo
   };
   let ownerCompressorAudit=null;
