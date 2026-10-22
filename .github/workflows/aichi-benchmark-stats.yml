@@ -46,6 +46,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Preserve source-deal and public root evidence on native Store abort
+        run: node --test tests/native-dispatch-abort-evidence.test.cjs
       - name: Regress rank19 direct ADP Altered Creation resources
         run: node --test tests/rank19-adp-direct-gx-opening.test.cjs
       - name: Audit deck-name incidence without merging printing mechanics
