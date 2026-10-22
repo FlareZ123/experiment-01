@@ -114,6 +114,7 @@ function sourceAttackAtRoot(game,physicalSeat,ordinal){
 function replayNativePolicy(enabled,execute=runDevelopment,nativeAcceptedTargets=true,
   nativePromptPublicDeltas=true){
   assert.equal(typeof nativeAcceptedTargets,'boolean');
+  assert.equal(typeof nativePromptPublicDeltas,'boolean');
   assert.equal(typeof execute,'function');
   const original=headless.runMatch;
   const savedFlag=process.env.AGENT49_POTENTIAL_KO_ROOT_DEV;
