@@ -6,6 +6,8 @@ const headless=require('../twinleaf/headless.cjs');
 const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
 const {candidateAttackSettlement}=
   require('./agent37-candidate-attack-settlement.cjs');
+const {firstPhysicalTargetDifference}=
+  require('../twinleaf/native-accepted-target-sidecar.cjs');
 
 const VERSION='agent37-first-divergent-native-attack-pair-v1';
 const ROOT_SHA=rows=>createHash('sha256').update(JSON.stringify(rows))
@@ -27,6 +29,45 @@ function firstRootDivergence(baseline,treatment){
       treatment:treatment[i]??null};
   }
   return null;
+}
+
+/**
+ * Compare only *accepted* native target-bearing roots, at original root
+ * ordinals. An earlier physical target choice defeats causal isolation of a
+ * later legacy label divergence. Prompt choices remain outside this witness.
+ * @param {object} control Canonical trial with optional target-sidecar.
+ * @param {object} treatment Paired canonical trial.
+ * @param {object|null} labelDifference First root-label divergence.
+ * @returns {object} Scoped physical target comparison with fail-closed status.
+ */
+function acceptedTargetContrast(control,treatment,labelDifference){
+  const left=control?.nativeAcceptedTargetSidecar;
+  const right=treatment?.nativeAcceptedTargetSidecar;
+  const comparison=firstPhysicalTargetDifference(left,right);
+  const index=comparison.index;
+  const a=Number.isSafeInteger(index)?left?.events?.[index]:null;
+  const b=Number.isSafeInteger(index)?right?.events?.[index]:null;
+  const ordinalA=a?.rootActionOrdinal??null;
+  const ordinalB=b?.rootActionOrdinal??null;
+  const linked=Number.isSafeInteger(ordinalA)&&
+    Number.isSafeInteger(ordinalB);
+  const beforeLabel=Boolean(comparison.status==='different'&&
+    (labelDifference===null||(linked&&
+      Math.min(ordinalA,ordinalB)<labelDifference.ordinal)));
+  return {
+    ...comparison,
+    baseline:{sha256:left?.sha256??null,
+      acceptedTargetRoots:left?.observedTargetActions??null,
+      rootOrdinalLinked:left?.rootOrdinalLinked??null},
+    treatment:{sha256:right?.sha256??null,
+      acceptedTargetRoots:right?.observedTargetActions??null,
+      rootOrdinalLinked:right?.rootOrdinalLinked??null},
+    firstDifferingAcceptedRootOrdinals:comparison.status==='different'?
+      {baseline:ordinalA,treatment:ordinalB}:null,
+    observedPhysicalTargetChangeBeforeRootLabelChange:beforeLabel,
+    firstObservedPhysicalDifferenceIsCausallyPriorToLabel:beforeLabel,
+    evidenceScope:'Accepted PlayCardAction / RetreatAction targets only; typed prompts and hidden state unobserved'
+  };
 }
 
 /**
@@ -86,6 +127,7 @@ function replayNativePolicy(enabled,execute=runDevelopment){
     process.env.AGENT49_POTENTIAL_KO_ROOT_DEV=enabled?'true':'false';
     development=execute({
       actorOnlyComposition:true,
+      nativeAcceptedTargets:true,
       mandatoryOptionFallback:true,
       nativePressureWindows:true,
       paperSupporterQuota:true,
@@ -129,6 +171,8 @@ function compareNativePairs(a,b){
     const nativeGamePair=Boolean(aGame&&bGame);
     const firstDifference=nativeGamePair?
       firstRootDivergence(aGame.rootActionLedger,bGame.rootActionLedger):null;
+    const acceptedTargetComparison=acceptedTargetContrast(
+      control,treatment,firstDifference);
     const attackClassChange=Boolean(firstDifference &&
       firstDifference.baseline?.action==='AttackAction' &&
       firstDifference.treatment?.action==='AttackAction' &&
@@ -165,6 +209,8 @@ function compareNativePairs(a,b){
         ROOT_SHA(aGame.rootActionLedger)===control.rootActionLedgerSha256&&
         ROOT_SHA(bGame.rootActionLedger)===treatment.rootActionLedgerSha256,
       priorNativeRootsIdentical:Boolean(firstDifference),
+      priorNativeRootLabelsIdentical:Boolean(firstDifference),
+      acceptedTargetComparison,
       firstDifference,
       firstDifferenceIsSameActorPrintedAttack:attackClassChange,
       baselineNativeAttackSettlement:baselineAttack,
@@ -189,7 +235,8 @@ function compareNativePairs(a,b){
       'Original generic bot fallback and source-pressure policy remain unqualified',
       'Native paper card mechanics and official tournament clock unverified',
       'Source and candidate use the same optional attack choice policy',
-      'First divergent attack proves policy sensitivity, not an independent win rate'
+      'First divergent attack proves policy sensitivity, not an independent win rate',
+      'Native target sidecar proves accepted PlayCard/Retreat geometry only; prompt targets remain unobserved'
     ],
     qualifiedCompetitiveGames:0
   };
@@ -205,5 +252,5 @@ function run(){
 if(require.main===module)
   process.stdout.write(JSON.stringify(run(),null,2)+'\n');
 
-module.exports={VERSION,firstRootDivergence,sourceAttackAtRoot,
-  replayNativePolicy,compareNativePairs,run};
+module.exports={VERSION,firstRootDivergence,acceptedTargetContrast,
+  sourceAttackAtRoot,replayNativePolicy,compareNativePairs,run};
