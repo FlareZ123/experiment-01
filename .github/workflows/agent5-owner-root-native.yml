@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank6_lowprize_paired:
+        description: Preregistered source-first rank6 native T15 physical promotion comparison
+        required: false
+        type: boolean
+        default: false
       rank6_directline_paired:
         description: Compare frozen original source-first arms with the Iron Thorns direct-line root off versus on
         required: false
@@ -32,7 +37,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure actor-root intent tests
-        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-articuno-powerglass-native.test.cjs tests/agent5-rank6-native-t34-registered-receipt.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs
+        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-articuno-powerglass-native.test.cjs tests/agent5-rank6-lowprize-promotion.test.cjs tests/agent5-rank6-native-t34-registered-receipt.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs
       - run: git submodule update --init --depth=1 vendor/twinleaf
       - working-directory: vendor/twinleaf/ptcg-server
         run: |
@@ -113,6 +118,51 @@ jobs:
       - name: Preserve all four paired Powerglass arms, rejections and source replies
         if: ${{ inputs.rank6_powerglass_paired }}
         run: node scripts/agent5-articuno-powerglass-native-audit.cjs agent5-powerglass-control.json agent5-powerglass-treatment.json > agent5-powerglass-paired-audit.json
+      - name: Rank6 T15 low-Prize promotion unchanged control
+        if: ${{ inputs.rank6_lowprize_paired }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_ACTOR_SINGLE_SEARCH_DEV: 'true'
+          AGENT47_ACTOR_HAND_DISCARD_DEV: 'true'
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: 'true'
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: 'true'
+          AGENT5_COMPR_OPPORTUNITY_AUDIT: 'true'
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: 'true'
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: 'true'
+          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'true'
+          AGENT8_ACE_TRAINER_EMERGENCY_DEV: 'true'
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: 'true'
+          AGENT8_ACTOR_QUICK_BALL_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+          AGENT5_LOWPRIZE_PROMOTION_DEV: 'false'
+        run: node simulation/evaluation/agent5-rank6-lowprize-development.cjs > agent5-lowprize-control.json
+      - name: Rank6 T15 low-Prize promotion native treatment
+        if: ${{ inputs.rank6_lowprize_paired }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_ACTOR_SINGLE_SEARCH_DEV: 'true'
+          AGENT47_ACTOR_HAND_DISCARD_DEV: 'true'
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: 'true'
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: 'true'
+          AGENT5_COMPR_OPPORTUNITY_AUDIT: 'true'
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: 'true'
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: 'true'
+          AGENT8_NEAR_TERM_DAMAGE_RECIPIENT_DEV: 'true'
+          AGENT8_ACE_TRAINER_EMERGENCY_DEV: 'true'
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: 'true'
+          AGENT8_ACTOR_QUICK_BALL_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+          AGENT5_LOWPRIZE_PROMOTION_DEV: 'true'
+        run: node simulation/evaluation/agent5-rank6-lowprize-development.cjs > agent5-lowprize-treatment.json
+      - name: Audit exact registered native T15 owner promotion and preserve other three paired arms
+        if: ${{ inputs.rank6_lowprize_paired }}
+        run: node scripts/agent5-rank6-lowprize-native-audit.cjs agent5-lowprize-control.json agent5-lowprize-treatment.json > agent5-lowprize-paired-audit.json
       - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
@@ -127,5 +177,8 @@ jobs:
             agent5-powerglass-control.json
             agent5-powerglass-treatment.json
             agent5-powerglass-paired-audit.json
+            agent5-lowprize-control.json
+            agent5-lowprize-treatment.json
+            agent5-lowprize-paired-audit.json
           if-no-files-found: warn
           retention-days: 30
