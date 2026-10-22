@@ -6,7 +6,22 @@ const {preparedRegidrago}=require('./apex-attack-action.cjs');
 const out=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const load=name=>require(path.join(out,name));
 
+function assertRank6SourcePrints(){
+  const manifest=require('../../results/aichi-2026/full-decklists.json');
+  const deck=manifest.decks.find(d=>d.rank===6);
+  assert.ok(deck,'Published rank-6 source missing');
+  assert.equal(deck.cards.reduce((sum,card)=>sum+card.count,0),60);
+  const printed=(name,set,number)=>deck.cards.filter(card=>
+    card.name===name&&card.printing?.set===set&&
+    card.printing?.number===number).reduce((sum,card)=>sum+card.count,0);
+  assert.equal(printed('Iron Thorns ex','TWM','77'),4);
+  assert.equal(printed('Guzma','BUS','115'),3);
+  assert.equal(printed('Speed Lightning Energy','RCL','173'),4);
+  assert.equal(printed('Double Colorless Energy','SUM','136'),1);
+}
+
 function stagedGuzmaBypass(gust){
+  assertRank6SourcePrints();
   const cards=initializeCards();
   const get=name=>cards.getCardByName(name);
   const noivern=get('Noivern ex PAL');
