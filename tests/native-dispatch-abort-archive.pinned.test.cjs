@@ -65,3 +65,58 @@ test('a rejected real Store dispatch retains source deal and accepted public roo
   assert.equal(receipt.competitiveGameQualified,false);
   assert.equal(Store.prototype.dispatch,previous.value);
 });
+
+
+test('real bot decoder exception preserves prior roots without leaking its detail',()=>{
+  const {SimpleTacticsAi}=require(path.join(output,'simple-bot/simple-tactics-ai'));
+  const originalDispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  const originalDecode=Object.getOwnPropertyDescriptor(SimpleTacticsAi.prototype,
+    'decodeNextAction');
+  assert.equal(typeof originalDecode?.value,'function');
+  let actualStore=null;
+  let injected=false;
+  const concealedSentinel='AGENT31_ARTIFICIAL_UNREVEALED_CARD_EXAMPLE';
+  function observedDispatch(action,...args){
+    if(actualStore===null&&action.constructor.name==='AddPlayerAction')
+      actualStore=this;
+    return originalDispatch.value.apply(this,[action,...args]);
+  }
+  function fakeDecodeFailure(state,...args){
+    if(!injected&&state===actualStore?.state&&
+       state.phase===GamePhase.PLAYER_TURN&&state.turn>=2){
+      injected=true;
+      throw new Error('Simulated bot failure including '+concealedSentinel);
+    }
+    return originalDecode.value.apply(this,[state,...args]);
+  }
+  Object.defineProperty(Store.prototype,'dispatch',
+    {...originalDispatch,value:observedDispatch});
+  Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',
+    {...originalDecode,value:fakeDecodeFailure});
+  let failure=null;
+  try{
+    const cards=upstreamSmokeDeck();
+    try{
+      runMatch({deckA:cards,deckB:cards,seed:471144321,maxActions:180,
+        captureDecisionTrace:true,captureNativeAbortEvidence:true,
+        captureInitialSourceDealFingerprintSeat:0});
+    }catch(error){failure=error;}
+  }finally{
+    Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',
+      originalDecode);
+    Object.defineProperty(Store.prototype,'dispatch',originalDispatch);
+  }
+  assert.equal(injected,true);
+  assert.match(failure?.message??'',/AGENT31_ARTIFICIAL_UNREVEALED_CARD_EXAMPLE/);
+  const receipt=failure.nativeAbortEvidence;
+  assert.equal(receipt?.schema,'headless-native-abort-public-v1');
+  assert.equal(receipt.failureStage,'bot-decoder');
+  assert.equal(receipt.actionName,'BotDecodeFailure');
+  assert.match(receipt.redactedMessageDigest,/^[0-9a-f]{64}$/);
+  assert.equal(JSON.stringify(receipt).includes(concealedSentinel),false);
+  assert.match(receipt.sourceDealFingerprint.digestSha256,/^[0-9a-f]{64}$/);
+  assert.ok(receipt.actionOrdinal>0);
+  assert.equal(receipt.rootActionLedger.length,receipt.actionOrdinal);
+  assert.equal(Store.prototype.dispatch,originalDispatch.value);
+  assert.equal(SimpleTacticsAi.prototype.decodeNextAction,originalDecode.value);
+});
