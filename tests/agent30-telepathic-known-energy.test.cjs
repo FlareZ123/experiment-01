@@ -155,6 +155,15 @@ test('Perfection donor Telepath attachment needs a public source',()=>{
   v.opponentPublic.active={abilities:['Initialization']};
   assert.equal(chooseSpecialEnergyIntent(v,knownCatalog),null,
     'Known active Ability lock defeats the Perfection option');
+  v.opponentPublic.active=null;
+  v.ownPublic.discard=['Gengar & Mimikyu-GX TEU'];
+  knownCatalog.perfectionDonors.set('Gengar & Mimikyu-GX TEU',[
+    {name:'Horror House-GX',cost:[P],gxAttack:false}
+  ]);
+  v.ownPublic.bench[0]=null;
+  assert.equal(chooseSpecialEnergyIntent(v,knownCatalog),null,
+    'The native donor omitted gxAttack but printed GX suffix remains');
+
 });
 
 test('opponent hidden identities cannot steer public Perfection attachment',()=>{
