@@ -40,3 +40,18 @@ The complete accepted-root ledger contains **26 source PassTurnAction roots** an
 ### Clean CI and bit-identical independent replay
 
 After excluding only this diagnostic trial selector from four unrelated default campaign steps, [replay 39699484292](https://github.com/FlareZ123/experiment-01/actions/runs/39699484292) at commit `5638081d8002d940db728c0782b5a71a1ed0b0bb` finished **successfully**. Its [artifact 12391962361](https://github.com/FlareZ123/experiment-01/actions/runs/39699484292/artifacts/12391962361) contains **205,069 bytes of JSON** with SHA256 `c872db1b67d9b829f5b34a8400ccee20f7115f919b104f0824fcd02d44dfb650`. A direct byte-for-byte comparison with the original run 39698402358 artifact JSON matched exactly. This confirms a reproducible full native correction and telemetry capture on the frozen seed. ZIP archives differ in metadata and therefore have different ZIP hashes. Both executions are the same historical fixture and count as no independent competitive trials.
+
+### Frozen Agent50 four-seed failure census
+
+The source [Agent50 full four-seed archive](https://github.com/FlareZ123/experiment-01/actions/runs/39692001898/artifacts/12389041814), `agent50-four-new-seed-energy-pairs.json`, contains eight originally attempted Store arms. Independent reinspection of all eight raw entries gives the following error class by source seed. This is the **original pre-repair** census, not a claim that the three remaining seeds have been replayed with the hook.
+
+| Seed | Source staging OFF | Source staging ON |
+| --- | --- | --- |
+| `17984023` | native `NO_BENCH_SLOTS_AVAILABLE` after 178 actions | same error after 178 actions |
+| `1407148205` | genuine terminal, 212 roots, candidate seat1 winner, final Prizes `[6,0]` | identical terminal |
+| `2612415444` | native `LABEL_GX_USED` after 39 actions | native `NO_BENCH_SLOTS_AVAILABLE` after 50 actions |
+| `2584586627` | native `AttachEnergyPrompt #135` invalid split target | same error |
+
+**Original eight-arm census:** 2 natural terminals, 2 same-target prompt errors, 3 no-Bench-slots errors, and 1 GX-used label error. The two last-row prompt errors are the only ones directly corrected and replayed here. The full original historical four-seed panel with the correction was preregistered but has **not been executed**; do not present these eight originally attempted arms as post-correction outcomes.
+
+The repository separately provides a *tested, scope-restricted* full-Bench Trubbish FST `Call for Family` paper C-11 hook, `simulation/twinleaf/agent38-paper-fullbench-callforfamily-hook.cjs`, and the canonical `AGENT38_PAPER_FULLBENCH_TRUBBISH_DEV` opt-in, with [a different rank11 seed's Store acceptance witness](../twinleaf/agent38-paper-fullbench-trubbish-fst-20261021.md). The three present `NO_BENCH_SLOTS_AVAILABLE` errors cannot be attributed to that printed attack without an action-name and public Bench trace at their actual failing roots. The canonical runner also already offers `paperSameTargetAttachEnergy` / `AGENT12_SAME_TARGET_ATTACH_DEV` default-off as a both-seat versioned wrapper around the same Agent1 hook. Future full-field reruns should reuse these existing scopes rather than duplicating incompatible versions.
