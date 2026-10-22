@@ -239,3 +239,7 @@ test('mobility funding counts ordinary Supporter uses, not global turns',()=>{
     mobilityAware:true
   }).slot,'active','Public Supporter lock blocks mobility');
 });
+
+// Keep the existing canonical actor recipient test command exercising the
+// dependent, separately versioned held-Guzma public restriction regression.
+require('./agent2-held-guzma-mobility-frontier.test.cjs');
