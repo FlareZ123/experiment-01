@@ -44,6 +44,19 @@ class ManualDispatchPreflightTests(unittest.TestCase):
         with self.assertRaisesRegex(PreflightError, "choice_2"):
             inspect_workflow(self.path)
 
+    def test_other_cap_adjacent_workflow_cannot_have_unused_selectors(self):
+        self.fixture(22, unused=True)
+        other = self.path.with_name("aichi-lock-board-tests.yml")
+        self.path.rename(other)
+        with self.assertRaisesRegex(PreflightError, "choice_21"):
+            inspect_workflow(other)
+
+    def test_small_manual_workflow_can_omit_unused_optional_selectors(self):
+        self.fixture(2, unused=True)
+        other = self.path.with_name("aichi-budew-opening.yml")
+        self.path.rename(other)
+        self.assertEqual(inspect_workflow(other), ({"workflow_dispatch"}, 2))
+
     def test_undeclared_selector_reference_is_rejected(self):
         self.fixture(1)
         self.path.write_text(
