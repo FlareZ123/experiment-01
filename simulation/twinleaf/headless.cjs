@@ -1129,7 +1129,10 @@ function runMatch(request) {
                     action.name:null,
                   attackingPokemon:action.constructor.name==='AttackAction'?
                     state.players[actingSeat].active.getPokemonCard()?.fullName??null:null,
-                  errorMessage:error.message,
+                  pendingPrompt:pending?.constructor.name??null,
+                  errorMessage:'Strict prompt validation failed; details redacted',
+                  redactedMessageDigest:crypto.createHash('sha256')
+                    .update(String(error.message??error)).digest('hex'),
                   sourceDeal:sourceDealObserver?.result()??null,
                   rootActionLedger,
                   preDispatchPublic:publicSnapshot(state),
