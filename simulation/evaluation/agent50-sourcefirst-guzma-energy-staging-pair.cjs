@@ -8,6 +8,10 @@ const {withCanonicalActorOnlyPolicy}=
   require('./agent7-canonical-actor-composition.cjs');
 const {loadNewMoonCandidate}=
   require('../../scripts/aichi-new-moon-candidate.cjs');
+const {withAcceptedTargetWitness,acceptedTargetAbortEvidence}=
+  require('../twinleaf/native-accepted-target-store-observer.cjs');
+const {firstPhysicalTargetDifference}=
+  require('../twinleaf/native-accepted-target-sidecar.cjs');
 const {compact,SOURCE_DEAL}=
   require('./agent50-sourcefirst-stranded-marnie-native-pair.cjs');
 
@@ -47,15 +51,21 @@ function run(seed=482443328){
           mandatoryOptionFallback:true,paperSupporterQuota:true,
           garbotoxinWindow:true
         });
-        const observed=withCanonicalActorOnlyPolicy(execute,{},{
-          ownerSingleSearch:true,genericFallbackAttribution:true,
-          actorHandDiscard:true,actorChoosePokemon:true
-        });
+        // Observe the exact original Store dispatch AFTER actor selection.
+        // The original outcome and policy are unchanged.
+        const watched=withAcceptedTargetWitness(()=>
+          withCanonicalActorOnlyPolicy(execute,{},{
+            ownerSingleSearch:true,genericFallbackAttribution:true,
+            actorHandDiscard:true,actorChoosePokemon:true
+          }));
+        const observed=watched.result;
         arms.push({enabled:stageEnergy,
-          result:{...observed.result,actorAudit:observed.audit}});
+          result:{...observed.result,actorAudit:observed.audit,
+            nativeAcceptedTargetSidecar:watched.audit}});
       }catch(error){
         arms.push({enabled:stageEnergy,result:{
-          status:'engine-error',error:String(error?.stack??error).slice(0,7000)}});
+          status:'engine-error',error:String(error?.stack??error).slice(0,7000),
+          nativeAcceptedTargetSidecarAbort:acceptedTargetAbortEvidence(error)}});
       }
     }
   }finally{
@@ -77,6 +87,8 @@ function run(seed=482443328){
     const choosePokemon=result.actorAudit?.detailedComponentAudits?.choosePokemon??{};
     return {
       ...c,
+      nativeAcceptedTargetSidecar:result.nativeAcceptedTargetSidecar??null,
+      nativeAcceptedTargetSidecarAbort:result.nativeAcceptedTargetSidecarAbort??null,
       actualGuzmaRoots:roots.filter(x=>x.playerSlot===0&&
         x.action==='PlayCardAction'&&x.card==='Guzma')
         .map(x=>({ordinal:x.actionOrdinal,turn:x.turnBefore})),
@@ -102,6 +114,18 @@ function run(seed=482443328){
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     unchangedNativePrefixCount:prefix,
     firstDifference:{control:a[prefix]??null,treatment:b[prefix]??null},
+    nativeAcceptedPhysicalTargetComparison:firstPhysicalTargetDifference(
+      control.nativeAcceptedTargetSidecar,
+      treatment.nativeAcceptedTargetSidecar),
+    targetObserverCoverage:{
+      controlLinked:control.nativeAcceptedTargetSidecar?.rootOrdinalLinked??false,
+      treatmentLinked:treatment.nativeAcceptedTargetSidecar?.rootOrdinalLinked??false,
+      controlStoreTargetActions:
+        control.nativeAcceptedTargetSidecar?.acceptedTargetDispatches??null,
+      treatmentStoreTargetActions:
+        treatment.nativeAcceptedTargetSidecar?.acceptedTargetDispatches??null,
+      remainingUnobserved:['typed-prompt-energy-targets']
+    },
     sourceDealEqual:control.sourceDealFingerprint!==null&&
       control.sourceDealFingerprint===treatment.sourceDealFingerprint,
     expectedOriginalSourceDeal:seed===482443328?SOURCE_DEAL:null,
