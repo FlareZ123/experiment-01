@@ -28,3 +28,7 @@ The correction did not change the staged-vs-unstaged source line in this game. N
 The specific native diagnostic step **succeeded**. The surrounding manual workflow was marked **failed** later when its unrelated default campaign step received diagnostic selector `agent42-sametarget-pair` and rejected that unscheduled campaign ID. Artifact and all native outcomes were retained.
 
 The repaired games rely on a scoring bot with unresolved hidden-information and strategic-fidelity deficiencies. **Competitive-qualified games: zero.** No field-wide win rate, and no 99.5% evidence, follows. A stronger follow-up is an actor-visible, both-seat native same-target decision policy with direct Store acceptance receipts.
+
+### Attack ancestry and printed restriction
+
+The corrected native action ledger identifies source seat0 `AttackAction` **Motivate** at global turn53, root ordinal203, followed by an accepted `AttachEnergyPrompt` resolution at ordinal205. In the supplied card database, **Squawkabilly ex** (Paldea Evolved `sv2-169`) has Motivate for 20 damage and attaches up to 2 Basic Energy from the discard pile to **one Benched Pokémon**. This independently supports the prompt's `sameTarget:true` requirement. The baseline bot split its chosen two Darkness Energy between different Mega Absol ex benches. The corrected action targeted one. The very late first source attack illustrates why this is a weak-policy diagnostic.
