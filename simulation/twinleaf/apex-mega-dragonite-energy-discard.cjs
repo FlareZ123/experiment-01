@@ -10,11 +10,20 @@ const load=name=>require(path.join(root,name));
  * The real Store owns every prompt. This is an established synthetic board,
  * not a dealt or competitively qualified source game.
  */
-function inspectRyunoGlideDiscard({setNumber='152'}={}){
+function inspectRyunoGlideDiscard({setNumber='152',energyScenario='overfunded'}={}){
   assert.ok(['152','271'].includes(setNumber),'Unsupported audited Dragonite print');
+  assert.ok(['overfunded','exact-apex'].includes(energyScenario),'Unsupported staged Energy scenario');
   const manager=initializeCards();
   const f=preparedRegidrago();
-  f.attachFire();
+  if(energyScenario==='overfunded'){
+    f.attachFire();
+  }else{
+    const surplusGrass=f.attacking.active.energies.cards.pop();
+    assert.ok(surplusGrass&&surplusGrass.name==='Grass Energy');
+    const idx=f.attacking.active.cards.indexOf(surplusGrass);
+    assert.ok(idx>=0);
+    f.attacking.active.cards.splice(idx,1);
+  }
   const mega=manager.getAllCards().find(c=>
     c.name==='Mega Dragonite ex'&&c.set==='ASC'&&String(c.setNumber)===setNumber);
   const doubleDragon=manager.getCardByName('Double Dragon Energy ROS');
@@ -62,7 +71,10 @@ function inspectRyunoGlideDiscard({setNumber='152'}={}){
     schema:'apex-mega-dragonite-discard-source-board-v1',
     printedPayload:mega.fullName,printedAttack:mega.attacks[0],
     printedSetNumber:setNumber,exactManagerKeyResolved:true,
-    engineEnergyProvision:'3 Basic Energy + 1 Double Dragon Energy',
+    energyScenario,
+    engineEnergyProvision:energyScenario==='exact-apex'?
+      '1 Basic Grass + 1 Double Dragon Energy':
+      '3 Basic Energy + 1 Double Dragon Energy',
     beforeAttached:attached.map(c=>c.fullName),
     afterAttached:f.attacking.active.energies.cards.map(c=>c.fullName),
     pending:outcomes,
