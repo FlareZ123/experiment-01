@@ -1,0 +1,315 @@
+{
+  "schema": "natsumegu-dragon04-38cell-manual-photo-transcription-v1",
+  "capture": {
+    "original_url": "https://assets.st-note.com/img/1778498023-e8KQGOJTRPIDjqX3Cwf6UY5H.png?width=1200",
+    "sha256": "bbfc196a6297d515692cc00ed4530541e3eb3be7c0afb4bd459dfa585fb650f7",
+    "gallery_source": "https://note.com/nayuta_poke/n/n7e3d0552090b",
+    "archived_artifact_run": 39467320444,
+    "archive_artifact_id": 12265475896
+  },
+  "attribution": {
+    "public_alias": "Natsumegu / @yamatodaisuki",
+    "role": "author-linked 2026 Aichi photo (Agent6's image match)",
+    "swiss_finish": 16,
+    "elimination": "Top32 first-round loss",
+    "official_named_rank": null
+  },
+  "entries": [
+    {
+      "row": 1,
+      "col": 1,
+      "name": "Regidrago V",
+      "count": 3,
+      "category": "Pokémon"
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "name": "Regidrago VSTAR",
+      "count": 3,
+      "category": "Pokémon"
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "name": "Dialga-GX",
+      "count": 1,
+      "category": "Pokémon"
+    },
+    {
+      "row": 1,
+      "col": 4,
+      "name": "Dragapult ex",
+      "count": 1,
+      "category": "Pokémon"
+    },
+    {
+      "row": 1,
+      "col": 5,
+      "name": "Hisuian Goodra VSTAR",
+      "count": 1,
+      "category": "Pokémon"
+    },
+    {
+      "row": 1,
+      "col": 6,
+      "name": "Koraidon ex",
+      "count": 1,
+      "category": "Pokémon"
+    },
+    {
+      "row": 1,
+      "col": 7,
+      "name": "Kyurem",
+      "count": 1,
+      "category": "Pokémon"
+    },
+    {
+      "row": 1,
+      "col": 8,
+      "name": "Mega Dragonite ex",
+      "count": 1,
+      "category": "Pokémon"
+    },
+    {
+      "row": 1,
+      "col": 9,
+      "name": "Dedenne-GX",
+      "count": 1,
+      "category": "Pokémon"
+    },
+    {
+      "row": 1,
+      "col": 10,
+      "name": "Crobat V",
+      "count": 1,
+      "category": "Pokémon"
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "name": "Squawkabilly ex",
+      "count": 1,
+      "category": "Pokémon"
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "name": "Tapu Lele-GX",
+      "count": 1,
+      "category": "Pokémon"
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "name": "Marshadow",
+      "count": 1,
+      "category": "Pokémon"
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "name": "Budew",
+      "count": 1,
+      "category": "Pokémon"
+    },
+    {
+      "row": 2,
+      "col": 5,
+      "name": "Latias ex",
+      "count": 1,
+      "category": "Pokémon"
+    },
+    {
+      "row": 2,
+      "col": 6,
+      "name": "Wobbuffet",
+      "count": 1,
+      "category": "Pokémon"
+    },
+    {
+      "row": 2,
+      "col": 7,
+      "name": "Battle Compressor",
+      "count": 1,
+      "category": "Item"
+    },
+    {
+      "row": 2,
+      "col": 8,
+      "name": "VS Seeker",
+      "count": 3,
+      "category": "Item"
+    },
+    {
+      "row": 2,
+      "col": 9,
+      "name": "Mysterious Treasure",
+      "count": 4,
+      "category": "Item"
+    },
+    {
+      "row": 2,
+      "col": 10,
+      "name": "Quick Ball",
+      "count": 4,
+      "category": "Item"
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "name": "Hisuian Heavy Ball",
+      "count": 1,
+      "category": "Item"
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "name": "Ultra Ball",
+      "count": 1,
+      "category": "Item"
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "name": "Super Rod",
+      "count": 1,
+      "category": "Item"
+    },
+    {
+      "row": 3,
+      "col": 4,
+      "name": "Counter Catcher",
+      "count": 1,
+      "category": "Item"
+    },
+    {
+      "row": 3,
+      "col": 5,
+      "name": "Megaton Blower",
+      "count": 1,
+      "category": "ACE SPEC Item"
+    },
+    {
+      "row": 3,
+      "col": 6,
+      "name": "Muscle Band",
+      "count": 1,
+      "category": "Pokémon Tool"
+    },
+    {
+      "row": 3,
+      "col": 7,
+      "name": "Guzma",
+      "count": 2,
+      "category": "Supporter"
+    },
+    {
+      "row": 3,
+      "col": 8,
+      "name": "N",
+      "count": 1,
+      "category": "Supporter"
+    },
+    {
+      "row": 3,
+      "col": 9,
+      "name": "Professor's Research",
+      "count": 2,
+      "category": "Supporter"
+    },
+    {
+      "row": 3,
+      "col": 10,
+      "name": "Marnie",
+      "count": 1,
+      "category": "Supporter"
+    },
+    {
+      "row": 4,
+      "col": 1,
+      "name": "Raihan",
+      "count": 1,
+      "category": "Supporter"
+    },
+    {
+      "row": 4,
+      "col": 2,
+      "name": "Crispin",
+      "count": 2,
+      "category": "Supporter"
+    },
+    {
+      "row": 4,
+      "col": 3,
+      "name": "Lillie's Determination",
+      "count": 1,
+      "category": "Supporter"
+    },
+    {
+      "row": 4,
+      "col": 4,
+      "name": "Parallel City",
+      "count": 1,
+      "category": "Stadium"
+    },
+    {
+      "row": 4,
+      "col": 5,
+      "name": "Path to the Peak",
+      "count": 1,
+      "category": "Stadium"
+    },
+    {
+      "row": 4,
+      "col": 6,
+      "name": "Grass Energy",
+      "count": 4,
+      "category": "Basic Energy"
+    },
+    {
+      "row": 4,
+      "col": 7,
+      "name": "Fire Energy",
+      "count": 3,
+      "category": "Basic Energy"
+    },
+    {
+      "row": 4,
+      "col": 8,
+      "name": "Double Dragon Energy",
+      "count": 3,
+      "category": "Special Energy"
+    }
+  ],
+  "audits": {
+    "cell_count": 38,
+    "badge_sum": 60,
+    "row_badge_sums": [
+      14,
+      18,
+      12,
+      16
+    ],
+    "category_counts": {
+      "Pokémon": 20,
+      "Item": 16,
+      "ACE SPEC Item": 1,
+      "Pokémon Tool": 1,
+      "Supporter": 10,
+      "Stadium": 2,
+      "Basic Energy": 7,
+      "Special Energy": 3
+    },
+    "rank21_name_overlap": 59,
+    "rank21_exact_substitution": {
+      "photograph_only": "Mega Dragonite ex",
+      "published_rank21_only": "Noivern ex"
+    }
+  },
+  "qualification": {
+    "source_attribution": "social post confirmed; official legal name and Japanese printing IDs unverified",
+    "final_benchmark_rank_assigned": false,
+    "competitive_games_qualified": 0
+  }
+}
