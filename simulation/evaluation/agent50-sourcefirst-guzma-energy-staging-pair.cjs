@@ -51,17 +51,21 @@ function run(seed=482443328){
           mandatoryOptionFallback:true,paperSupporterQuota:true,
           garbotoxinWindow:true
         });
-        // Observe the exact original Store dispatch AFTER actor selection.
-        // The original outcome and policy are unchanged.
-        const watched=withAcceptedTargetWitness(()=>
-          withCanonicalActorOnlyPolicy(execute,{},{
-            ownerSingleSearch:true,genericFallbackAttribution:true,
-            actorHandDiscard:true,actorChoosePokemon:true
-          }));
-        const observed=watched.result;
+        // Observe the Store during the genuine game, while passing the
+        // *direct headless result* to its strict root-ordinal join.
+        // A wrapper object ({result, actorAudit}) would mask the root ledger.
+        let nativeAcceptedTargetSidecar=null;
+        const observed=withCanonicalActorOnlyPolicy(()=>{
+          const watched=withAcceptedTargetWitness(execute);
+          nativeAcceptedTargetSidecar=watched.audit;
+          return watched.result;
+        },{},{
+          ownerSingleSearch:true,genericFallbackAttribution:true,
+          actorHandDiscard:true,actorChoosePokemon:true
+        });
         arms.push({enabled:stageEnergy,
           result:{...observed.result,actorAudit:observed.audit,
-            nativeAcceptedTargetSidecar:watched.audit}});
+            nativeAcceptedTargetSidecar}});
       }catch(error){
         arms.push({enabled:stageEnergy,result:{
           status:'engine-error',error:String(error?.stack??error).slice(0,7000),
