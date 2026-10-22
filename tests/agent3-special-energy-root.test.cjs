@@ -114,6 +114,39 @@ test('opponent concealed card identities do not enter selected Special',()=>{
     chooseActorRootIntent(b,catalog,{specialEnergyRoot:true}));
 });
 
+test('zero-progress Colorless does not consume an attachment',()=>{
+  const v=view();
+  v.ownHand=['Double Colorless Energy SUM'];
+  v.ownPublic.active.attacks=[{
+    name:'Psychic Gate',cost:[5,5],gxAttack:false
+  }];
+  assert.equal(chooseSpecialEnergyIntent(v,catalog),null);
+  assert.equal(chooseActorRootIntent(v,catalog,{specialEnergyRoot:true}).kind,
+    'pass');
+});
+
+test('no printed attack leaves held Special Energy intact',()=>{
+  const v=view();
+  v.ownHand=['Double Colorless Energy SUM'];
+  v.ownPublic.active.attacks=[];
+  assert.equal(chooseSpecialEnergyIntent(v,catalog),null);
+});
+
+test('positive colored-plus-Colorless progress still attaches DCE',()=>{
+  const v=view();
+  v.ownHand=['Double Colorless Energy SUM'];
+  v.ownPublic.active.energies=['Psychic Energy SVE'];
+  v.ownPublic.active.attacks=[{
+    name:'Psychic Gate',cost:[5,9,9],gxAttack:false
+  }];
+  const knownCatalog={...catalog,
+    basicEnergies:new Set(['Psychic Energy SVE'])};
+  assert.deepEqual(chooseSpecialEnergyIntent(v,knownCatalog),{
+    kind:'attach-special-energy',handIndex:0,
+    printing:'Double Colorless Energy SUM'
+  });
+});
+
 test('native physical witness admits Special Energy with optional hand draw',()=>{
   const before={turn:2,phase:2,handCount:2,
     activeEnergies:['Speed Lightning Energy RCL']};
