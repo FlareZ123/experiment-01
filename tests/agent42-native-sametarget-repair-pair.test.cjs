@@ -1,7 +1,8 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {compareSeed,HISTORICAL_SEEDS,PINNED_ENGINE}=require(
+const {compareSeed,HISTORICAL_SEEDS,PINNED_ENGINE,ORIGINAL_ENV_PROFILE,
+  assertOriginalPolicyEnvironment}=require(
   '../simulation/evaluation/agent42-native-sametarget-repair-pair.cjs');
 
 /** @param {number} seed @param {string|null} deal */
@@ -60,4 +61,17 @@ test('wrong vendor pin, incomplete pair or unregistered seed fail closed',()=>{
     }));
   }
   assert.throws(()=>compareSeed(42,{nativeRun:()=>f,withRepair:()=>null}));
+});
+
+
+test('native replay requires all sixteen historical environment switches',()=>{
+  assert.equal(Object.keys(ORIGINAL_ENV_PROFILE).length,16);
+  assert.doesNotThrow(()=>assertOriginalPolicyEnvironment({...ORIGINAL_ENV_PROFILE}));
+  for(const key of Object.keys(ORIGINAL_ENV_PROFILE)){
+    const missing={...ORIGINAL_ENV_PROFILE};
+    delete missing[key];
+    assert.throws(()=>assertOriginalPolicyEnvironment(missing),new RegExp(key));
+    const wrong={...ORIGINAL_ENV_PROFILE,[key]:'different'};
+    assert.throws(()=>assertOriginalPolicyEnvironment(wrong),new RegExp(key));
+  }
 });
