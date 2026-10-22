@@ -360,7 +360,7 @@ function executeDevelopment(trial,candidates,{
   garbotoxinWindow=false,initializationWindow=false,
   mandatoryOptionFallback=false,paperSupporterQuota=false,
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
-  paperSupporterComparisonTrace=false,
+  paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,
@@ -425,14 +425,25 @@ function executeDevelopment(trial,candidates,{
   let nativeValidationAudit=null;
   let nativeHiddenReadAudit=null;
   let nativeActionInputAudit=null;
+  let sameTargetAttachEnergyAudit=null;
+  // Development-only, both-seat correction for the original bot's split
+  // AttachEnergyPrompt selection when the printed prompt requires sameTarget.
+  // A native Store or strict prompt failure still aborts the trial.
+  const runWithSameTargetAttachEnergy=()=>{
+    if(!paperSameTargetAttachEnergy)return runMatch(request);
+    const observed=require('../twinleaf/same-target-attach-energy-hook.cjs')
+      .withSameTargetAttachEnergySelection(()=>runMatch(request));
+    sameTargetAttachEnergyAudit=observed.audit;
+    return observed.result;
+  };
   const runWithActionInputWitness=()=>{
-    if(!nativeActionInputWitness)return runMatch(request);
+    if(!nativeActionInputWitness)return runWithSameTargetAttachEnergy();
     const base=path.join(root,'vendor/twinleaf/ptcg-server/output');
     const SimpleTacticsAi=require(path.join(base,
       'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
     const Store=require(path.join(base,'game/store/store')).Store;
     const witnessed=require('../twinleaf/agent23-native-decision-dispatch-witness.cjs')
-      .withNativeDecisionDispatchWitness(()=>runMatch(request),
+      .withNativeDecisionDispatchWitness(runWithSameTargetAttachEnergy,
         {SimpleTacticsAi,Store,maxRecords:512,
           tapeOrdinal:nativeActionInputTapeOrdinal});
     nativeActionInputAudit=witnessed.audit;
@@ -626,6 +637,7 @@ function executeDevelopment(trial,candidates,{
       (paperSupporterQuota?'+'+PAPER_SUPPORTER_VERSION:'')+
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
       (paperFullBenchCallForFamily?'+agent38-paper-fullbench-trubbish-fst-v1':'')+
+      (paperSameTargetAttachEnergy?'+bot-same-target-energy-selection-v1':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (earlyBenchedCompressorPayload?'+owner-compressor-benched-v1':
         (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
@@ -658,6 +670,9 @@ function executeDevelopment(trial,candidates,{
     finalDispatchVisiblePlayLockV2:game.livePlayLockGuardBothSeats===true,
     paperCologneQuotaOptIn:paperCologneQuota,
     paperFullBenchCallForFamilyOptIn:paperFullBenchCallForFamily,
+    paperSameTargetAttachEnergyOptIn:paperSameTargetAttachEnergy,
+    paperSameTargetAttachEnergyAudit:paperSameTargetAttachEnergy?
+      sameTargetAttachEnergyAudit:null,
     paperFullBenchCallForFamilyAudit:paperFullBenchCallForFamily?
       fullBenchTrubbishAudit:null,
     paperCologneNativePlayAudit:cologneNativePlayAudit,
@@ -786,7 +801,7 @@ function runDevelopment({
   mandatoryOptionFallback=false,nativePressureWindows=false,
   sourceFirstRetrospective=false,paperSupporterQuota=false,
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
-  paperSupporterComparisonTrace=false,
+  paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
@@ -827,7 +842,7 @@ function runDevelopment({
         compressorPayload,opportunityAudit,lateCompressorPayload,
         anyTurnCompressorPayload,earlyBenchedCompressorPayload,
         mandatoryOptionFallback,paperSupporterQuota,paperCologneQuota,
-        paperFullBenchCallForFamily,
+        paperFullBenchCallForFamily,paperSameTargetAttachEnergy,
         paperSupporterComparisonTrace,
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
@@ -943,6 +958,7 @@ function runDevelopment({
       (paperSupporterQuota?'+'+PAPER_SUPPORTER_VERSION:'')+
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
       (paperFullBenchCallForFamily?'+agent38-paper-fullbench-trubbish-fst-v1':'')+
+      (paperSameTargetAttachEnergy?'+bot-same-target-energy-selection-v1':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (earlyBenchedCompressorPayload?'+owner-compressor-benched-v1':
         (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
@@ -959,6 +975,7 @@ function runDevelopment({
     paperSupporterQuotaOptIn:paperSupporterQuota,
     paperCologneQuotaOptIn:paperCologneQuota,
     paperFullBenchCallForFamilyOptIn:paperFullBenchCallForFamily,
+    paperSameTargetAttachEnergyOptIn:paperSameTargetAttachEnergy,
     paperSupporterComparisonTraceOptIn:paperSupporterComparisonTrace,
     proposalStateAuditOptIn:proposalStateAudit,
     nativeProposalValidationAuditOptIn:nativeProposalValidationAudit,
@@ -1036,6 +1053,8 @@ if(require.main===module){
     paperCologneQuota:process.env.AGENT48_PAPER_COLOGNE_DEV==='true',
     paperFullBenchCallForFamily:
       process.env.AGENT38_PAPER_FULLBENCH_TRUBBISH_DEV==='true',
+    paperSameTargetAttachEnergy:
+      process.env.AGENT12_SAME_TARGET_ATTACH_DEV==='true',
     paperSupporterComparisonTrace:
       process.env.AGENT41_PAPER_SUPPORTER_TRACE_DEV==='true',
     proposalStateAudit:process.env.AGENT22_PROPOSAL_STATE_AUDIT==='true',
