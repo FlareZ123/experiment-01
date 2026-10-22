@@ -2,6 +2,11 @@ name: Rank11 authentic same-target Energy selection replay
 
 on:
   workflow_dispatch:
+    inputs:
+      canonical_v2_only:
+        description: Run canonical bilateral v2 source-first both-seat policy using same-target repair
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -28,15 +33,41 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Replay original failed seed with and without reversible bot selection fix
+        if: ${{ !inputs.canonical_v2_only }}
         run: node simulation/twinleaf/rank11-sametarget-source-replay.cjs > rank11-sametarget-single-seed.json
       - name: Print original exception and actual corrected prompt
+        if: ${{ !inputs.canonical_v2_only }}
         run: node -e "const s=require('./rank11-sametarget-single-seed.json'); console.log(JSON.stringify({seat:s.seat,repeat:s.repeat,seed:s.seed,legacyError:s.legacyException,repair:s.correction,actualFirst:s.correctedFirstTurnSlot},null,2))"
       - name: Replay entire originally registered 128-seed frame with explicit same-target bot correction
+        if: ${{ !inputs.canonical_v2_only }}
         env:
           SAME_TARGET_ENERGY_CORRECTION: 'true'
         run: node simulation/twinleaf/rank11-exclusive-prospective.cjs > rank11-exclusive-prospective-v1-corrected.json
       - name: Reject incomplete or unverified starts in corrected run
+        if: ${{ !inputs.canonical_v2_only }}
         run: node -e "const r=require('./rank11-exclusive-prospective-v1-corrected.json'); console.log(JSON.stringify({total:r.actualAttempted,first:r.sourceFirst,second:r.sourceSecond,verified:r.sourceStartVerified,exceptions:r.exceptions,classes:r.resultClassCounts,botRepairs:r.botSameTargetRepairs,competitiveQualifiedGames:0},null,2)); if(r.exceptions!==0||r.sourceStartVerified!==128||r.botSameTargetRepairs<1||!r.sameTargetCorrectionApplied)process.exitCode=1"
+      - name: Run canonical bilateral v2 both-seat same-target correction
+        if: ${{ inputs.canonical_v2_only }}
+        env:
+          AGENT12_SAME_TARGET_ATTACH_DEV: 'true'
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > canonical-v2-sametarget-sourcefirst.json
+      - name: Preserve every canonical native arm and correction count
+        if: ${{ inputs.canonical_v2_only }}
+        run: >-
+          node -e "const a=require('node:assert/strict');const r=require('./canonical-v2-sametarget-sourcefirst.json');
+          a.equal(r.attempted,4);a.equal(r.paperSameTargetAttachEnergyOptIn,true);
+          for(const x of r.rows){a.equal(x.qualifiesForCompetitiveInference,false);
+          if(!x.status){a.equal(x.paperSameTargetAttachEnergyOptIn,true);
+          a.ok(x.paperSameTargetAttachEnergyAudit);}}
+          console.log(JSON.stringify({schema:r.schema,attempted:r.attempted,
+          errors:r.errors,qualified:r.competitiveQualifiedGames,
+          rows:r.rows.map(x=>({id:x.trial.id,status:x.status||'native-complete',
+          repaired:x.paperSameTargetAttachEnergyAudit?.repairedPromptCount??null,
+          actions:x.actionCount??null,finished:x.finished??null,winner:x.winner??null}))},null,2))"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -44,5 +75,6 @@ jobs:
           path: |
             rank11-sametarget-single-seed.json
             rank11-exclusive-prospective-v1-corrected.json
+            canonical-v2-sametarget-sourcefirst.json
           if-no-files-found: warn
           retention-days: 14
