@@ -1124,6 +1124,10 @@ function runMatch(request) {
         prizeCountBefore: state.players.map(player => player.prizes.filter(prize => prize.cards.length > 0).length)
       } : undefined;
       const publicBeforeDispatch = publicSnapshot(state);
+      // Snapshot before Store dispatch: a rejected reducer can mutate the live
+      // state, so post-error board inspection is not a reliable precondition.
+      const preDispatchAbortBoard=request.captureNativeAbortEvidence===true ?
+        publicBoardSnapshot(state) : null;
       const publicAttackBefore = publicAttackTransitions ? publicBoardSnapshot(state) : null;
       const publicBoardBeforePass = decisionTrace && actionName === 'PassTurnAction' ?
         publicBoardSnapshot(state) : null;
@@ -1292,6 +1296,21 @@ function runMatch(request) {
         if (rejectionBefore) rejected.rejectedActionEvidence = {
           ...rejectionBefore, rejectionMessage: error.message
         };
+        if (request.captureNativeAbortEvidence===true) {
+          rejected.nativeAbortEvidence =
+            require('./native-dispatch-abort-evidence.cjs')
+              .nativeDispatchAbortEvidence({
+                actionOrdinal:actions,actionName,turnBefore,phaseBefore,
+                actingSeat:seat,attackName:attackInfo?.attack??null,
+                attackingPokemon:seat>=0?
+                  state.players[seat].active.getPokemonCard()?.fullName??null:null,
+                errorMessage:error.message,
+                sourceDeal:sourceDealObserver?.result()??null,
+                rootActionLedger,
+                preDispatchPublic:publicBeforeDispatch,
+                preDispatchBoard:preDispatchAbortBoard
+              });
+        }
         throw rejected;
       }
       if (rootedSoloSetup && rootedSoloSetupChoice) {
