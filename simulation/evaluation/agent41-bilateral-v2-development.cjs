@@ -366,6 +366,7 @@ function executeDevelopment(trial,candidates,{
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
   paperTerminalAttackKo=false,
   rank6K1AlternativeEnergy=false,
+  rank11SourceSupporterPassRescue=false,
   registeredTrial=false
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
@@ -551,8 +552,15 @@ function executeDevelopment(trial,candidates,{
   const common=()=>withBilateralCommonCandidatePolicy(candidateSeat,
     runWithNativeValidationAudit);
   let game,sourceAudit,commonAudit;
+  let sourceSupporterRescueAudit=null;
   if(trial.rank===11){
-    const played=withRank11DirectBoostShake(sourceSeat,common,
+    const runSource=rank11SourceSupporterPassRescue?()=>{
+      const r=require('../twinleaf/agent41-rank11-source-pass-supporter.cjs')
+        .withRank11SourcePassSupporter(sourceSeat,common);
+      sourceSupporterRescueAudit=r.audit;
+      return r.result;
+    }:common;
+    const played=withRank11DirectBoostShake(sourceSeat,runSource,
       {k0AvoidAllGarbodorHeld:true,k1AvoidMissingGarbodor:true});
     sourceAudit=played.policyAudit;
     game=played.result.result;
@@ -676,6 +684,8 @@ function executeDevelopment(trial,candidates,{
     game.decisionTrace,candidateSeat);
   return {
     trial,qualifiesForCompetitiveInference:false,
+    rank11SourceSupporterPassRescueOptIn:rank11SourceSupporterPassRescue,
+    rank11SourceSupporterRescueAudit:sourceSupporterRescueAudit,
     policyVersion:POLICY_VERSION+
       (paperSupporterQuota?'+'+PAPER_SUPPORTER_VERSION:'')+
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
@@ -867,6 +877,7 @@ function runDevelopment({
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
   paperTerminalAttackKo=false,
   rank6K1AlternativeEnergy=false,
+  rank11SourceSupporterPassRescue=false,
   sourceScopedSpecialEnergyRoot=false,
   candidateScopedSpecialEnergyRoot=false,
   registeredTrials=null,registeredFrameName=null
@@ -938,6 +949,7 @@ function runDevelopment({
         nativeAcceptedTargets,
         nativeActionInputTapeOrdinal,paperTerminalAttackKo,
         rank6K1AlternativeEnergy,
+        rank11SourceSupporterPassRescue,
         registeredTrial:registeredTrials!==null,
         // An opt-in observational package, with each native Store observer
         // applicable to its own opposing source archetype only.
@@ -1112,6 +1124,7 @@ function runDevelopment({
     sourceFirstRetrospective,
     registeredTrialFrame:registeredTrials!==null?registeredFrameName:null,
     rank6K1AlternativeEnergyOptIn:rank6K1AlternativeEnergy,
+    rank11SourceSupporterPassRescueOptIn:rank11SourceSupporterPassRescue,
     sourceScopedSpecialEnergyRootOptIn:sourceScopedSpecialEnergyRoot,
     candidateScopedSpecialEnergyRootOptIn:candidateScopedSpecialEnergyRoot,
     retrospectiveSeedProvenance:sourceFirstRetrospective?{
