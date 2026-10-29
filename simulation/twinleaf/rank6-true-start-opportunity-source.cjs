@@ -34,7 +34,8 @@ function summarize(game) {
 function oneTrial(base,seed) {
   const input={...base,seed};
   const row={seed,control:null,treatment:null,policy:null,
-    controlError:null,treatmentError:null};
+    stageSpeed:null,stageSpeedPolicy:null,
+    controlError:null,treatmentError:null,stageSpeedError:null};
   try {
     row.control=summarize(runMatch(input));
   } catch(error) {
@@ -51,6 +52,36 @@ function oneTrial(base,seed) {
   } catch(error) {
     row.treatmentError=String(error?.message??error);
     row.policy=error?.rank6PolicyEvidence??null;
+  }
+  // Third, predeclared source actor treatment for this exact same physical
+  // seed. Previous control and treatment remain unchanged and separately
+  // auditable; these seeds were originally registered in October 19.
+  try {
+    const speed=withBroadThornsSourceAttack(()=>runMatch(input),{
+      turn:'first-eligible',playLockAwareOpening:true,benchBackup:true,
+      liveSpeedLightningAlternative:true,stageSpeedLightningFirstTurn:true
+    });
+    row.stageSpeed=summarize(speed.result);
+    row.stageSpeedPolicy={started:speed.started,completed:speed.completed,
+      openingPlan:speed.openingPlan,abortReason:speed.abortReason,
+      speedStagingSelected:speed.speedStagingSelected,
+      speedStagingConfirmed:speed.speedStagingConfirmed,
+      ownerSelectedActions:speed.events};
+  } catch(error) {
+    row.stageSpeedError=String(error?.message??error);
+    row.stageSpeedPolicy=error?.rank6PolicyEvidence??null;
+  }
+  if(row.control&&row.stageSpeed) {
+    assert.equal(row.control.actualFirstEngineSlot,
+      row.stageSpeed.actualFirstEngineSlot,'Speed arm changed native first actor');
+    assert.deepEqual(row.control.sourceDeckHashes,row.stageSpeed.sourceDeckHashes,
+      'Speed arm altered original source/candidate 60 inventory');
+    assert.equal(row.stageSpeed.drawLogVerified,true);
+    if(row.stageSpeedPolicy.speedStagingConfirmed){
+      assert.equal(row.stageSpeedPolicy.speedStagingSelected,true);
+      assert.equal(row.stageSpeed.actualFirstEngineSlot,1,
+        'T1 source Speed stage requires source actually going first');
+    }
   }
   if(row.control&&row.treatment) {
     assert.equal(row.control.actualFirstEngineSlot,
@@ -103,13 +134,30 @@ function main() {
       x.treatment?.sourceFirstEligibleVoltAttacks>0).length,
     sourceSecondAttacks:rows.filter(x=>
       x.treatment?.actualFirstEngineSlot===0 &&
-      x.treatment?.sourceFirstEligibleVoltAttacks>0).length
+      x.treatment?.sourceFirstEligibleVoltAttacks>0).length,
+    speedArmNativeExceptions:rows.filter(x=>x.stageSpeedError).length,
+    speedArmOriginalStartVerified:rows.filter(x=>x.stageSpeed?.drawLogVerified).length,
+    speedT1ActionsSelected:rows.filter(x=>x.stageSpeedPolicy?.speedStagingSelected).length,
+    speedT1AttachedConfirmed:rows.filter(x=>x.stageSpeedPolicy?.speedStagingConfirmed).length,
+    speedArmFirstEligibleVoltAttacks:rows.filter(x=>
+      x.stageSpeed?.sourceFirstEligibleVoltAttacks>0).length,
+    speedArmFirstEligibleVoltAttacksSourceFirst:rows.filter(x=>
+      x.stageSpeed?.actualFirstEngineSlot===1 &&
+      x.stageSpeed?.sourceFirstEligibleVoltAttacks>0).length,
+    speedArmFirstEligibleVoltAttacksSourceSecond:rows.filter(x=>
+      x.stageSpeed?.actualFirstEngineSlot===0 &&
+      x.stageSpeed?.sourceFirstEligibleVoltAttacks>0).length
   };
   const report={schema:'rank6-true-start-source-mechanics-v1',
     registration:'results/aichi-2026/registrations/rank6-actual-first-eligible-v1-20261019.json',
     sourceRanks:[1,6],enginePin:registration.engine_pin,
     researchRevision:process.env.GITHUB_SHA??null,
     treatmentOptions:{turn:'first-eligible',playLockAwareOpening:true,benchBackup:true},
+    agent39SpeedThirdArmRegistration:
+      'results/aichi-2026/registrations/agent39-rank6-t1-speed-native-source-20261029.md',
+    agent39SpeedThirdArmOptions:{turn:'first-eligible',playLockAwareOpening:true,
+      benchBackup:true,liveSpeedLightningAlternative:true,
+      stageSpeedLightningFirstTurn:true},
     summary,rows,competitiveQualifiedGames:0,
     sourceReplayMechanicsVerified:false,
     claimScope:'Authentic source-dealt engine decisions with unqualified policies and no calibrated event clock. Retain every failure and cap; no competitive win percentage.'
