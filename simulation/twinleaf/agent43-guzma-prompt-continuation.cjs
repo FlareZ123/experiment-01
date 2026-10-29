@@ -188,6 +188,11 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
       throw error;
     }
     if(candidate){
+      trace({step:'accepted-root',seat:candidate.seat,
+        ownerId:candidate.ownerId,turn:candidate.turn,
+        plan:candidate.plan??null,
+        turnAfter:this.state.turn,
+        activePlayerAfter:this.state.activePlayer});
       audit.acceptedGuzmaRoots++;
       const handCountAfter=this.state.players[candidate.seat].hand.cards.length;
       const consumed=handCountAfter===candidate.handCountBefore-1;
