@@ -175,15 +175,25 @@ function withSourceMarnieAfterPass(execute,deps={}){
           this.state?.turn===9&&
           action?.constructor?.name==='ResolvePromptAction'&&
           pending?.constructor?.name==='ChoosePokemonPrompt';
+        // Active Pokémon are public. Preserve physical native card IDs before
+        // and after each accepted prompt, since two same-print Lunatone cards
+        // would otherwise make a real opponent switch invisible in name logs.
+        const publicActives=state=>state.players.map(player=>{
+          const card=player.active.getPokemonCard?.();
+          return {printing:card?.fullName??null,physicalId:card?.id??null};
+        });
+        const beforeActives=capture?publicActives(this.state):null;
         const result=store.value.apply(this,[action,...args]);
         if(capture&&audit.guzmaPromptResponses.length<6){
+          const afterActives=publicActives(this.state);
           audit.guzmaPromptResponses.push({
             promptOwnerId:pending.playerId,
+            promptId:pending.id,
             choiceResultType:action.constructor.name,
-            sourceActive:this.state.players[0].active
-              .getPokemonCard?.()?.fullName??null,
-            candidateActive:this.state.players[1].active
-              .getPokemonCard?.()?.fullName??null,
+            beforeActives,
+            afterActives,
+            sourceActive:afterActives[0].printing,
+            candidateActive:afterActives[1].printing,
             nativeAccepted:true
           });
         }
