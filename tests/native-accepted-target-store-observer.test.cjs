@@ -163,3 +163,6 @@ test('alias matching rejects different printings and approximate spellings',()=>
   assert.equal(rootLabelMatchesNativePrinting('Darkness Energy',
     'Darkness Energy SVE 7'),true);
 });
+
+// Existing manual native-target CI also exercises both nested public witnesses.
+require('./agent41-bilateral-dual-target-evidence.test.cjs');
