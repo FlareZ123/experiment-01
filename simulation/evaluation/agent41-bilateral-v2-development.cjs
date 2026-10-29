@@ -690,6 +690,11 @@ function executeDevelopment(trial,candidates,{
   const sourceOwnerPostPassMobility=
     require('./agent17-source-own-postpass-mobility.cjs')
       .sourceOwnerPostPassMobility(game.decisionTrace,rootTrace,sourceSeat);
+  // Read-only, actor-owned first-turn hand resource census. These detached
+  // counts are post-policy evidence and are never visible to a bot.
+  const sourceFirstOwnedAffordances=
+    require('./agent1-source-first-owned-affordances.cjs')
+      .sourceFirstOwnedAffordances(game.decisionTrace,sourceSeat,sourceFirst);
   const passEvidence=candidatePostChoicePassEvidence(
     game.decisionTrace,candidateSeat);
   return {
@@ -775,6 +780,7 @@ function executeDevelopment(trial,candidates,{
     nativePromptChoices,
     policyAudit:commonAudit,sourceAudit,sourceLinePacket,
     sourceOwnerPostPassMobility,
+    sourceFirstOwnedAffordances,
     supporterModalEvidence:{
       schema:'agent41-native-guzma-modal-both-seats-postgame-v1',
       nativeDecisionTraceAvailable:true,
