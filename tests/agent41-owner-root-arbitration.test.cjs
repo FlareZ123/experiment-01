@@ -12,6 +12,7 @@ const view=()=>({decisionKind:'owner-root',globalTurn:4,
     energyPlayLocked:false,specialEnergyPlayLocked:false,
     energyPlayedTurn:0},
   ownPublic:{prizeCount:6,bench:[null,{name:'Regidrago V',
+    printing:'Regidrago V SIT',
     attacks:[{name:'Raging Claws',cost:[5,9]}]},null,null,null]},
   opponentPrivate:{hand:['hidden']},
   unseenOwnedDeckOrder:['hidden']});
@@ -24,6 +25,10 @@ test('bounded positive: fund public Bench before terminal attack',()=>{
     printing:offered.printing,handIndex:0,slot:'bench',index:1});
   assert.equal(result.receipt.candidateCount,1);
   assert.equal(result.receipt.nativePlayability,'unverified');
+  assert.deepEqual(result.receipt.selectedTarget,{
+    slot:'bench',index:1,pokemonPrinting:'Regidrago V SIT',
+    pokemonName:'Regidrago V'
+  });
 });
 
 test('conservative potential final-Prize attack preserves terminal root',()=>{
