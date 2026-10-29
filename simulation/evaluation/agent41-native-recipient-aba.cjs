@@ -3,6 +3,7 @@
 const assert=require('node:assert/strict');
 const {comparePairedAcceptedTargets,VERSION:TARGET_AUDIT_VERSION}=
   require('./agent41-native-paired-target-audit.cjs');
+const {isDeepStrictEqual}=require('node:util');
 
 const VERSION='agent41-same-60-native-energy-recipient-aba-v1';
 const COMMON_OPTIONS=Object.freeze({
@@ -32,6 +33,87 @@ const FIXED_ROOT_ENV=Object.freeze({
   AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV:'false',
   AGENT50_STRANDED_MARNIE_DEV:'false'
 });
+
+/**
+ * Describe a native first target divergence without claiming that two
+ * successive distinct root actions are a same-intent recipient treatment.
+ * All fields come from Store-accepted public card-play target receipts.
+ *
+ * @param {object} original
+ * @param {object} treatment
+ * @param {object} audit
+ * @returns {object|null}
+ */
+function describeRootTargetDivergence(original,treatment,audit){
+  if(audit.root?.status!=='different')return null;
+  const index=audit.root.index;
+  const a=original.nativeAcceptedTargetSidecar?.events?.[index]??null;
+  const b=treatment.nativeAcceptedTargetSidecar?.events?.[index]??null;
+  const sameRootAndPrinting=Boolean(a&&b&&
+    a.rootActionOrdinal===b.rootActionOrdinal&&
+    a.playerSlot===b.playerSlot&&a.action===b.action&&
+    a.declared?.kind===b.declared?.kind&&
+    a.declared?.ownerHandPrinting===b.declared?.ownerHandPrinting&&
+    a.declared?.handIndex===b.declared?.handIndex);
+  const firstTarget=a?.declared?.target??null;
+  const secondTarget=b?.declared?.target??null;
+  const targetChanged=!isDeepStrictEqual(firstTarget,secondTarget);
+  return {
+    index,originalRootOrdinal:a?.rootActionOrdinal??null,
+    treatmentRootOrdinal:b?.rootActionOrdinal??null,
+    originalAction:a?.action??null,treatmentAction:b?.action??null,
+    printedOriginalCard:a?.declared?.ownerHandPrinting??null,
+    printedTreatmentCard:b?.declared?.ownerHandPrinting??null,
+    originalDeclaredTarget:firstTarget,treatmentDeclaredTarget:secondTarget,
+    sameRootAndPrintedCard:sameRootAndPrinting,
+    causalAttribution:sameRootAndPrinting&&targetChanged?
+      'same-accepted-card-different-declared-target':
+      (sameRootAndPrinting?
+        'same-accepted-card-different-public-poststate':
+        'different-root-or-card-path'),
+    scope:'Only accepted PlayCardAction and RetreatAction'
+  };
+}
+
+/**
+ * A/B experimental interpretation depends on A/A-repeat native stability.
+ * Failure or missing prompt/target evidence is an explicit noncertificate.
+ *
+ * @param {object} original
+ * @param {object} repeat
+ * @param {object} audit
+ * @returns {object}
+ */
+function sameDealRepeatStability(original,repeat,audit){
+  const reasons=[];
+  if(audit.status!=='selective-physical-evidence')
+    reasons.push('incomparable-original-deal-or-runtime');
+  if(audit.root?.status!=='same-observed-targets')
+    reasons.push('root-physical-target-not-reproduced');
+  if(audit.energyPrompt?.status!=='same-observed-prompt-effects')
+    reasons.push('accepted-energy-prompt-not-reproduced');
+  if(!original.rootActionLedgerSha256||
+      original.rootActionLedgerSha256!==repeat.rootActionLedgerSha256)
+    reasons.push('legacy-root-label-ledger-changed');
+  if(!original.nativeAcceptedTargetSidecar?.sha256||
+      original.nativeAcceptedTargetSidecar.sha256!==
+        repeat.nativeAcceptedTargetSidecar?.sha256)
+    reasons.push('physical-target-sidecar-hash-changed');
+  if(!original.nativeAcceptedEnergyPromptSidecar?.sha256||
+      original.nativeAcceptedEnergyPromptSidecar.sha256!==
+        repeat.nativeAcceptedEnergyPromptSidecar?.sha256)
+    reasons.push('energy-prompt-sidecar-hash-changed');
+  if(original.status!==repeat.status||
+      original.finished!==repeat.finished||
+      original.winner!==repeat.winner||
+      original.actionCount!==repeat.actionCount)
+    reasons.push('native-terminal-or-action-count-changed');
+  return {
+    status:reasons.length?'not-reproduced-or-unverified':
+      'identical-accepted-physical-repeat',
+    reasons,fullInformationSetParityCertified:false
+  };
+}
 
 /**
  * Pure, fail-closed readout of three complete four-arm reports. An error is
@@ -82,6 +164,9 @@ function summarizeRecipientABA(baseline,treatment,repeat){
         finished:replay.finished??false,winner:replay.winner??null,
         actions:replay.actionCount??null},
       physicalAB:ab,physicalARepeat:aa,
+      firstABRootDivergence:
+        describeRootTargetDivergence(original,newRecipient,ab),
+      repeatStability:sameDealRepeatStability(original,replay,aa),
       nominalPolicyExposureEvidence:newRecipient.actorOnlyDecisionCoverage?.
         detailedComponentAudits?.root?.energyRecipientFrontierOptIn===true,
       sameLegacyLedgerAB:Boolean(original.rootActionLedgerSha256&&
@@ -100,6 +185,11 @@ function summarizeRecipientABA(baseline,treatment,repeat){
         p.physicalAB.status==='selective-physical-evidence').length,
       comparableDeterminismPairs:pairs.filter(p=>
         p.physicalARepeat.status==='selective-physical-evidence').length,
+      independentlyReproducedSameDealControls:pairs.filter(p=>
+        p.repeatStability.status==='identical-accepted-physical-repeat').length,
+      sameCardChangedPhysicalTarget:pairs.filter(p=>
+        p.firstABRootDivergence?.causalAttribution===
+          'same-accepted-card-different-declared-target').length,
       observedRootTargetDifferences:pairs.filter(p=>
         p.physicalAB.root?.status==='different').length,
       observedPromptTargetDifferences:pairs.filter(p=>
@@ -166,4 +256,5 @@ if(require.main===module){
 }
 
 module.exports={VERSION,COMMON_OPTIONS,FIXED_ROOT_ENV,
+  describeRootTargetDivergence,sameDealRepeatStability,
   summarizeRecipientABA,executeRecipientABA};
