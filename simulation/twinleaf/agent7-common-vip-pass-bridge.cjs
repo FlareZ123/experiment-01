@@ -87,6 +87,8 @@ function withCommonVipPassBridge(seat, execute, deps = {}) {
   const {ResolvePromptAction} = deps.promptActions ??
     engine('game/store/actions/resolve-prompt-action');
   const {GamePhase} = deps.phase ?? engine('game/store/state/state');
+  const chooseBasics = deps.chooseBasics ?? chooseCommonVipBasics;
+  assert.equal(typeof chooseBasics, 'function');
   const original = SimpleTacticsAi.prototype.decodeNextAction;
   const target = {player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
   const events = [];
@@ -97,7 +99,7 @@ function withCommonVipPassBridge(seat, execute, deps = {}) {
     const pending = state.prompts.find(p => p.result === undefined);
     if (phase === 'search' && pending?.constructor?.name === 'ChooseCardsPrompt' &&
         pending.playerId === own.id && pending.cards === own.deck) {
-      const chosen = chooseCommonVipBasics(own, pending, state);
+      const chosen = chooseBasics(own, pending, state);
       if (chosen.length) {
         phase = 'post';
         events.push({kind:'native-owner-vip-search',turn:state.turn,
