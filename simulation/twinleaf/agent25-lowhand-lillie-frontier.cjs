@@ -1,7 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const {LILLIE,chooseLillieAfterPass}=
+const {LILLIE,lillieExclusionReason}=
   require('./agent12-actor-only-lillie-after-pass.cjs');
 
 const VERSION='agent25-actor-only-lowhand-lillie-before-attack-v1';
@@ -19,18 +19,23 @@ const VERSION='agent25-actor-only-lowhand-lillie-before-attack-v1';
  * @param {object} view Frozen detached actorObservation for the acting owner.
  * @returns {{kind:'play-lowhand-lillie',handIndex:number,printing:string}|null}
  */
+function lowHandLillieExclusionReason(view){
+  const baseline=lillieExclusionReason(view);
+  if(baseline!==null)return baseline;
+  if(view.ownTurnResources.supporterPlayedTurn!==0)
+    return 'supporter-quota-unconfirmed';
+  if(!view.ownPublic.active)return 'no-active';
+  if(view.ownHand.length>3)return 'hand-too-large';
+  if(view.ownPublic.deckCount<8)return 'deck-below-eight';
+  return null;
+}
+/** @param {object} view @returns {object|null} Owner-only low-hand intent. */
 function chooseLowHandLillieBeforeAttack(view){
   assert.equal(view?.decisionKind,'owner-root');
-  const candidate=chooseLillieAfterPass(view);
-  if(!candidate || candidate.printing!==LILLIE)return null;
-  if(view.ownTurnResources.supporterPlayedTurn!==0)return null;
-  // Drawing six (or eight at six Prizes) is a reliable *resource* opportunity
-  // from a very small hand, without consuming a singleton discard cost.
-  // This conservative floor avoids proposing a late-game deck-out and is not
-  // a claim that the proposed play maximizes game-winning probability.
-  if(view.ownHand.length>3 || view.ownPublic.deckCount<8)return null;
-  return {kind:'play-lowhand-lillie',handIndex:candidate.handIndex,
-    printing:LILLIE};
+  if(lowHandLillieExclusionReason(view)!==null)return null;
+  return {kind:'play-lowhand-lillie',
+    handIndex:view.ownHand.indexOf(LILLIE),printing:LILLIE};
 }
 
-module.exports={VERSION,chooseLowHandLillieBeforeAttack};
+module.exports={VERSION,lowHandLillieExclusionReason,
+  chooseLowHandLillieBeforeAttack};
