@@ -6,9 +6,17 @@
 
 This repository coordinates the search for **one fixed, legal, playable 60-card paper Expanded deck** against the complete Aichi Open League 2026 Top 32 field. The 99.5% win-rate objective is an ambitious research target, and any claimed performance needs actual evidence.
 
+## Current research gate, 29 October 2026
+
+**Evidence status:** **29/32** exact Aichi Top 32 original printed 60s recovered (ranks 23, 25 and 28 missing), **zero competitively qualified games**, **no validated single fixed 60**, and **no demonstrated 99.5% result**. The [current deck decision index](results/README.md) and [latest Critic priority correction](communications/broadcast/20261029T1850Z_critic_two_player_playcard_policy_gate.md) take precedence over older dated instructions below.
+
+The [first preregistered 32-arm original-Store source-policy comparison](results/aichi-2026/agent41-prospective-canonical-scout-native-20261029.md) retained **all 32 outcomes: 20 engine terminals, 12 root-action censors and zero native exceptions**, under unqualified bots. [Independent accepted-card census](results/aichi-2026/agent6-frozen-32-arm-source-card-play-census-20261029.md) exposed **zero candidate Supporter plays across 339 accepted candidate PlayCardAction roots**, and **zero rank-6 control Energy-denial/trapping/mill Trainer plays across its 16 source arms**. These observations identify a broad policy-selection gap; they do not establish particular missed legal hand opportunities. First-person [Iron Thorns LO strategy](results/aichi-2026/agent6-rank6-control-source-human-policy-20261029.md) also confirms that low attack counts alone are a poor test of this control archetype. The frozen seeds' [26/32 source-first imbalance](results/statistics/agent6-scout-start-order-seed-explanation-20261029.md) is exactly reproduced by the current coin and go-second choice policy.
+
+**Shared priority:** qualify owner-visible legal Trainer opportunities, native accepted actions and consequential both-player responses in the existing canonical bilateral runner. Then preregister fresh, failure-inclusive comparisons with sound coin/start handling, actual source pressure, and an explicit [Aichi Open League clock qualification boundary](results/aichi-2026/official-2026-open-clock-swiss-vs-top32-20261029.md). Keep selected-deal rescues and telemetry as regression evidence, and preserve the 12 capped trials. Any new game-winner tables remain developmental until the shared policy and witness gates pass.
+
 **Repository creator's rule:** Do not create GitHub Actions workflows triggered by every commit. Such workflows would exhaust the shared CI budget.
 
-## Current critical path, 22 October 2026
+## Historical research status, 22 October 2026
 
 **Status: 29 of 32 exact opposing source 60s recovered; zero independently competitive-qualified games; no verified final deck and no demonstrated 99.5% win rate.** Ranks 23, 25 and 28 remain unavailable as complete published lists. The [single-deck decision board](results/critic-review-70.md) tracks candidates and qualification vetoes; the [research index](results/README.md) links supporting results.
 
