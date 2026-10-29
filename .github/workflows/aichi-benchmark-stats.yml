@@ -54,6 +54,8 @@ jobs:
         run: node --test tests/agent50-empty-discard-getlost-causal-census.test.cjs tests/agent50-generic-prompt-fallback-census.test.cjs
       - name: Audit deck-name incidence without merging printing mechanics
         run: node --test tests/aichi-source-incidence.test.cjs
+      - name: Check exact Basic-valid natural Special Energy opening exposure
+        run: node --test tests/agent17-special-only-opening-exposure.test.cjs
       - name: Audit printed source 60 mobility inventory and recovery channels
         run: node --test tests/agent7-source-mobility-roster.test.cjs
       - name: Compare exact source card Abilities across mixed printings
