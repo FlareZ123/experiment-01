@@ -33,6 +33,29 @@ function lightningUnitCount(printings,context,temple,specialPrintings){
   return count;
 }
 
+
+/**
+ * Maximum number of opposing targets whose printed remaining HP could be
+ * exhausted by N freely distributable 30-damage Electro Rain packets.
+ * Equal-KO-value assumption is for a conservative action opportunity
+ * witness; Prize values and defensive effects are unmodelled.
+ *
+ * @param {number[]} remainingHP Face-up positive printed remaining HP.
+ * @param {number} packets Available Lightning-energy selections.
+ * @returns {number}
+ */
+function maximumRawKnockouts(remainingHP,packets){
+  assert.ok(Number.isSafeInteger(packets)&&packets>=0);
+  const costs=remainingHP.filter(value=>Number.isFinite(value)&&value>0)
+    .map(value=>Math.ceil(value/30)).sort((a,b)=>a-b);
+  let used=0,knockouts=0;
+  for(const cost of costs){
+    if(used+cost>packets)break;
+    used+=cost;knockouts++;
+  }
+  return knockouts;
+}
+
 /**
  * Demonstrate a narrowly scoped omitted action: Electro Rain is already
  * payable, yet one source-held Special Energy crosses a printed Knock Out
@@ -80,9 +103,10 @@ function chooseRaichuPrintedKnockoutAttachment(view,catalog){
   if(current===null||current<1)return null;
   const targets=[view.opponentPublic?.active,
     ...(view.opponentPublic?.bench??[])].filter(Boolean);
-  const thresholds=targets.map(p=>p.hp-p.damage).filter(remaining=>
-    Number.isFinite(remaining)&&remaining>current*30);
-  if(thresholds.length===0)return null;
+  const remainingHP=targets.map(p=>p.hp-p.damage).filter(remaining=>
+    Number.isFinite(remaining)&&remaining>0);
+  const currentKOs=maximumRawKnockouts(remainingHP,current);
+  if(remainingHP.length===0)return null;
   let best=null;
   for(let handIndex=0;handIndex<view.ownHand.length;handIndex++){
     const printing=view.ownHand[handIndex];
@@ -91,9 +115,9 @@ function chooseRaichuPrintedKnockoutAttachment(view,catalog){
     const addition=lightningUnitCount([printing],context,temple,
       catalog.specialEnergies);
     if(addition===null||addition<1)continue;
-    const threshold=thresholds.filter(value=>value<=(current+addition)*30);
-    if(threshold.length===0)continue;
-    const score=threshold.length*100+addition;
+    const futureKOs=maximumRawKnockouts(remainingHP,current+addition);
+    if(futureKOs<=currentKOs)continue;
+    const score=(futureKOs-currentKOs)*1000+futureKOs*100+addition;
     if(best===null||score>best.score)
       best={score,handIndex,printing};
   }
@@ -105,4 +129,4 @@ function chooseRaichuPrintedKnockoutAttachment(view,catalog){
 }
 
 module.exports={VERSION,RAICHU,BOUNDED_SPECIALS,lightningUnitCount,
-  chooseRaichuPrintedKnockoutAttachment};
+  maximumRawKnockouts,chooseRaichuPrintedKnockoutAttachment};
