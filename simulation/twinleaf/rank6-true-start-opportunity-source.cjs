@@ -162,6 +162,37 @@ function main() {
     sourceReplayMechanicsVerified:false,
     claimScope:'Authentic source-dealt engine decisions with unqualified policies and no calibrated event clock. Retain every failure and cap; no competitive win percentage.'
   };
+  // Human-readable CI stderr receipt, independent of the original JSON
+  // stdout artifact. Summarizes all 24 predeclared source-deal rows.
+  const speedStageReceipt={
+    schema:'agent39-rank6-stage-speed-native-24-receipt-v1',
+    registration:report.agent39SpeedThirdArmRegistration,
+    sourcePolicyHead:process.env.GITHUB_SHA??null,
+    sourceSeedCount:rows.length,
+    sourceFirst:summary.actualSourceFirst,
+    sourceSecond:summary.actualSourceSecond,
+    speedT1Selected:summary.speedT1ActionsSelected,
+    speedT1Confirmed:summary.speedT1AttachedConfirmed,
+    nativeExceptions:summary.speedArmNativeExceptions,
+    speedArmVerifiedActualStarts:summary.speedArmOriginalStartVerified,
+    baselineAttacks:summary.actualAttacks,
+    speedArmAttacks:summary.speedArmFirstEligibleVoltAttacks,
+    sourceFirstSpeedArmAttacks:summary.speedArmFirstEligibleVoltAttacksSourceFirst,
+    receipts:rows.map(row=>({
+      seed:row.seed,sourceActuallyFirst:row.control?.actualFirstEngineSlot===1,
+      controlAttack:row.control?.sourceFirstEligibleVoltAttacks??null,
+      oldPolicyAttack:row.treatment?.sourceFirstEligibleVoltAttacks??null,
+      speedPolicyAttack:row.stageSpeed?.sourceFirstEligibleVoltAttacks??null,
+      speedStageSelected:row.stageSpeedPolicy?.speedStagingSelected??false,
+      speedStageConfirmed:row.stageSpeedPolicy?.speedStagingConfirmed??false,
+      speedActionEvents:row.stageSpeedPolicy?.ownerSelectedActions?.filter(
+        event=>event.action?.includes('Speed Lightning'))??[],
+      error:row.stageSpeedError
+    })),
+    qualifiedCompetitiveGames:0
+  };
+  process.stderr.write('AGENT39_SPEED_STAGE_NATIVE_SUMMARY='+
+    JSON.stringify(speedStageReceipt)+'\n');
   process.stdout.write(JSON.stringify(report,null,2)+'\n');
   return report;
 }
