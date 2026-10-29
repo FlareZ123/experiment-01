@@ -95,14 +95,18 @@ function scenario(setup,force){
       return store.value.apply(this,args);
     assert.equal(settlement,null);
     const before=visibleFirstRoot(this.state);
+    const playedPhysicalCard=this.state.players[before.ownerSeat]
+      .hand.cards[action.handIndex];
+    assert.equal(playedPhysicalCard?.fullName,CARMINE);
     const logCount=this.state.logs.length;
     try{
       const response=store.value.apply(this,args);
       const after=visibleFirstRoot(this.state);
       settlement={status:'accepted',
-        before,after,cardPhysicallyInHandAfter:
-          this.state.players[before.ownerSeat].hand.cards.some(
-            c=>c.fullName===CARMINE),
+        before,after,playedPhysicalCardStillInHand:
+          this.state.players[before.ownerSeat].hand.cards.includes(
+            playedPhysicalCard),
+        ownerDeckCardsDrawn:before.ownerDeckCount-after.ownerDeckCount,
         supporterQuotaChange:
           after.ownerSupporterTurn-before.ownerSupporterTurn,
         logEvents:this.state.logs.slice(logCount).map(x=>({
@@ -188,6 +192,9 @@ function runAudit(){
       assert.equal(forced.settlement.status,'accepted',
         'Pinned Store rejected printed first-player first-turn Carmine');
       assert.equal(forced.settlement.supporterQuotaChange,1);
+      assert.equal(forced.settlement.playedPhysicalCardStillInHand,false);
+      assert.equal(forced.settlement.ownerDeckCardsDrawn,5);
+      assert.equal(forced.settlement.after.ownerHand.length,5);
     }else assert.equal(forced.settlement,null,
       'No source-held native Carmine opportunity may be forced');
     attempts.push({seed,originalSourceRanks:[1,11],
