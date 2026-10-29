@@ -89,6 +89,17 @@ test('exact direct eight-card gate conditions given a basic-valid opening seven'
     0.01768396295934967) < 1e-14);
 });
 
+test('independent inclusion-exclusion validates strict opening count', () => {
+  const fullEight = choose(56, 8) - choose(54, 8) - choose(52, 8) -
+    choose(53, 8) + choose(50, 8) + choose(51, 8) +
+    choose(49, 8) - choose(47, 8);
+  const oranguruOnlyAsEighth = 2n * (choose(54, 7) -
+    choose(50, 7) - choose(51, 7) + choose(47, 7));
+  assert.equal(8n * fullEight - oranguruOnlyAsEighth, 361972450n);
+  assert.equal(favorableOrderedOutcomes(true),
+    8n * fullEight - oranguruOnlyAsEighth);
+});
+
 test('holding Forest Seal Stone or Boost Shake removes direct v1 opportunities', () => {
   const strict = favorableOrderedOutcomes(true);
   const relaxed = favorableOrderedOutcomes(false);
