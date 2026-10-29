@@ -89,8 +89,10 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   // precedes the very first policy proposal, with all choices unchanged.
   const runWithOwnerSupporterAudit=()=>{
     if(!supporterOpportunityOptIn)return execute();
-    const observed=require('../twinleaf/agent7-owner-supporter-opportunity.cjs')
-      .withOwnerSupporterOpportunity(execute);
+    const observer=adapters.supporterOpportunity??
+      require('../twinleaf/agent7-owner-supporter-opportunity.cjs')
+        .withOwnerSupporterOpportunity;
+    const observed=observer(execute);
     ownerSupporterOpportunityAudit=observed.audit;
     return observed.result;
   };
