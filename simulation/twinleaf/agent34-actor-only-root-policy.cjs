@@ -278,11 +278,20 @@ function chooseActorRootIntent(view,catalog,options={}){
       donorPrinting:ready[0].sourcePrinting,
       attackName:ready[0].attackName};
   }
-  if(options.specialEnergyRoot===true&&own.active&&!r.energyPlayLocked&&
-     !r.specialEnergyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
-    const special=require('./agent3-special-energy-frontier.cjs')
-      .chooseSpecialEnergyIntent(view,catalog);
-    if(special)return special;
+  if((options.specialEnergyRoot===true||
+      options.publicContextSpecialEnergy===true)&&own.active&&
+     !r.energyPlayLocked&&!r.specialEnergyPlayLocked&&
+     r.energyPlayedTurn!==view.globalTurn){
+    if(options.publicContextSpecialEnergy===true){
+      const planned=require('./agent17-public-context-special-energy.cjs')
+        .choosePublicContextSpecialEnergy(view,catalog);
+      if(planned)return planned;
+    }
+    if(options.specialEnergyRoot===true){
+      const special=require('./agent3-special-energy-frontier.cjs')
+        .chooseSpecialEnergyIntent(view,catalog);
+      if(special)return special;
+    }
   }
   if(options.heldGuzmaMobility===true){
     const mobility=require('./agent2-held-guzma-mobility-frontier.cjs')
