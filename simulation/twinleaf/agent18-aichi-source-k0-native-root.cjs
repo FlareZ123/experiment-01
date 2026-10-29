@@ -31,10 +31,48 @@ function observeSourceK0(execute){
   assert.equal(typeof oldDispatch?.value,'function');
   assert.equal(typeof oldDecode?.value,'function');
   let live=null;
-  const seen=new Set(),rows=[];
+  const seen=new Set(),rows=[],pendingFirstRoots=new WeakMap();
   function dispatch(action,...args){
     if(action?.constructor?.name==='AddPlayerAction'&&live===null)live=this;
-    return oldDispatch.value.apply(this,[action,...args]);
+    const receipt=this===live&&action&&typeof action==='object'?
+      pendingFirstRoots.get(action):null;
+    const beforeOwner=receipt?this.state.players[receipt.seat]:null;
+    const beforeHandCard=receipt?.nativeBotProposedHandIndex!==null?
+      beforeOwner.hand.cards[receipt.nativeBotProposedHandIndex]:null;
+    const beforeBoard=receipt?{
+      ownerHandCount:beforeOwner.hand.cards.length,
+      ownerBenchCount:beforeOwner.bench.filter(slot=>slot.cards.length>0).length,
+      opponentHandCount:this.state.players[1-receipt.seat].hand.cards.length
+    }:null;
+    try{
+      const result=oldDispatch.value.apply(this,[action,...args]);
+      if(receipt){
+        const afterOwner=this.state.players[receipt.seat];
+        receipt.nativeStoreFirstActionDispatched=true;
+        receipt.nativeStoreFirstActionAccepted=true;
+        receipt.nativeStoreFirstActionCardLeftHand=beforeHandCard?
+          !afterOwner.hand.cards.includes(beforeHandCard):null;
+        receipt.nativeStoreFirstActionPublicBefore=beforeBoard;
+        receipt.nativeStoreFirstActionPublicAfter={
+          ownerHandCount:afterOwner.hand.cards.length,
+          ownerBenchCount:afterOwner.bench
+            .filter(slot=>slot.cards.length>0).length,
+          opponentHandCount:this.state.players[1-receipt.seat].hand.cards.length
+        };
+        if(beforeHandCard&&receipt.nativeBotProposedHandPrinting!==null)
+          assert.equal(beforeHandCard.fullName,
+            receipt.nativeBotProposedHandPrinting,
+            'Source first native action hand printing changed before Store dispatch');
+      }
+      return result;
+    }catch(error){
+      if(receipt){
+        receipt.nativeStoreFirstActionDispatched=true;
+        receipt.nativeStoreFirstActionAccepted=false;
+        receipt.nativeStoreFirstActionError=String(error?.message??error);
+      }
+      throw error;
+    }
   }
   function decode(state){
     let annotatedRow=null;
@@ -88,8 +126,19 @@ function observeSourceK0(execute){
       annotatedRow=row;
     }
     const nativeBotAction=oldDecode.value.call(this,state);
-    if(annotatedRow)annotatedRow.nativeBotProposedActionClass=
-      nativeBotAction?.constructor?.name??null;
+    if(annotatedRow){
+      annotatedRow.nativeBotProposedActionClass=
+        nativeBotAction?.constructor?.name??null;
+      const index=Number.isInteger(nativeBotAction?.handIndex)?
+        nativeBotAction.handIndex:null;
+      annotatedRow.nativeBotProposedHandIndex=index;
+      annotatedRow.nativeBotProposedHandPrinting=index===null?
+        null:(annotatedRow.ownerKnownHand?.[index]??null);
+      annotatedRow.nativeStoreFirstActionDispatched=false;
+      annotatedRow.nativeStoreFirstActionAccepted=false;
+      if(nativeBotAction&&typeof nativeBotAction==='object')
+        pendingFirstRoots.set(nativeBotAction,annotatedRow);
+    }
     return nativeBotAction;
   }
   Object.defineProperty(Store.prototype,'dispatch',{...oldDispatch,value:dispatch});
@@ -144,12 +193,15 @@ function run(){
       'Both original printed 60-card seats need an actual owner root');
     assert.ok(observed.rows.every(r=>
       r.status==='K0-native-source-owner-invariant'&&
-      r.physicalObjectsRestored===true));
+      r.physicalObjectsRestored===true&&
+      r.nativeStoreFirstActionDispatched===true&&
+      r.nativeStoreFirstActionAccepted===true),
+      'First genuine original Store actions must be dispatched and accepted');
     arms.push({rankA:first,rankB:second,seed:SEED,
       sourceNativeRoots:observed.rows,
       sameOutcomeWithObserver:true,outcome:outcome(unobserved)});
   }
-  return {schema:'agent18-aichi-source-K0-native-root-v2',
+  return {schema:'agent18-aichi-source-K0-native-root-v3',
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     arms,originalFullSixties:true,competitiveQualifiedGames:0,
     caveat:'First owner roots in real 60-card source games, temporary hidden permutation restored before original bot decision; no opponent policy qualification or win-rate evidence.'};
