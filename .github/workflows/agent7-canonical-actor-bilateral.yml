@@ -124,12 +124,7 @@ on:
         type: boolean
         default: false
       rank6_source_k1:
-        description: Read-only exact original source-first G&H owner-search target diagnosis
-        required: false
-        type: boolean
-        default: false
-      rank6_passive_same_seed_replay:
-        description: Recheck 16 frozen rank6 arms with and without passive lock observer
+        description: Read-only rank6 source K1 search plus paired passive lock witness
         required: false
         type: boolean
         default: false
@@ -442,7 +437,7 @@ jobs:
         run: |
           node -e "const assert=require('node:assert/strict');const x=require('./agent7-rank6-source-k1.json');assert.equal(x.competitiveQualifiedGames,0);assert.equal(x.changedPolicyChoices,false);assert.equal(x.rows.length,4);assert.ok(x.observation.authenticPromptsSeen>0);assert.ok(x.observation.expectedGuzmaHalaSearches>0);assert.equal(x.observation.decisionChanges,0);assert.equal(x.observation.storeDispatchChanges,0);assert.equal(x.nativeRootLedgerParityAllArms,true);assert.equal(x.publicAttackDeclarationParityAllArms,true);console.log('K1_AUTHENTIC_OWNER_SEARCH',JSON.stringify(x.observation))"
       - name: Read-only rank6 passive lock, same-seed native noninterference replay
-        if: ${{ inputs.rank6_passive_same_seed_replay }}
+        if: ${{ inputs.rank6_source_k1 }}
         run: node simulation/evaluation/agent50-rank6-passive-32same-seed-replay.cjs > agent50-rank6-passive-same-seed.json
       - name: Preserve every observed and censored development arm
         if: always()
