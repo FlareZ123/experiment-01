@@ -15,12 +15,12 @@ const offering=(flag,order,name,returned)=>({
   flag,order,name,load:()=>()=>returned
 });
 
-test('real chooser first-return masks a later numeric-energy heuristic',()=>{
+test('printed Arceus V attack-first masks same-root DCE funding',()=>{
   const {chooseActorRootIntent}=require(
     '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
   const catalog={
     basics:new Set(),abilityBasics:new Set(),
-    basicEnergies:new Set(['Psychic Energy SVE']),
+    basicEnergies:new Set(),
     specialEnergies:new Set(['Double Colorless Energy SUM']),
     basicEnergyTypes:{Psychic:5,Lightning:4},colorlessEnergyType:9,
     specialConditions:{ASLEEP:2,PARALYZED:0}
@@ -30,10 +30,11 @@ test('real chooser first-return masks a later numeric-energy heuristic',()=>{
     ownTurnResources:{energyPlayedTurn:0,energyPlayLocked:false,
       specialEnergyPlayLocked:false,pokemonPlayLocked:false},
     ownPublic:{
-      active:{name:'synthetic two-attack Basic',energies:['Psychic Energy SVE'],
+      active:{name:'Arceus V',printing:'Arceus V BRS',
+        energies:['Double Colorless Energy SUM'],
         attacks:[
-          {name:'Ready Attack',cost:[5],gxAttack:false},
-          {name:'Higher-Cost Attack',cost:[5,9,9],gxAttack:false}
+          {name:'Trinity Charge',cost:[9,9],gxAttack:false},
+          {name:'Power Edge',cost:[9,9,9],gxAttack:false}
         ],specialConditions:[],publicRestrictions:{}},
       bench:[null,null,null,null,null],stadium:[],
       publicTurnRestrictions:{attackLockTurnsRemaining:0,gxUsed:false}
@@ -41,7 +42,7 @@ test('real chooser first-return masks a later numeric-energy heuristic',()=>{
   };
   const options={specialEnergyRoot:true};
   const selected=chooseActorRootIntent(v,catalog,options);
-  assert.deepEqual(selected,{kind:'attack',attackName:'Ready Attack'});
+  assert.deepEqual(selected,{kind:'attack',attackName:'Trinity Charge'});
   const receipt=collectOwnerContention(v,catalog,options,selected);
   assert.equal(receipt.alternatives.length,1);
   assert.deepEqual(receipt.alternatives.map(a=>[a.kind,a.printing,a.reason]),[
