@@ -1,0 +1,998 @@
+{
+  "schema": "agent39-rank11-direct-active-256-natural-native-v1",
+  "registeredBeforeDispatch": "results/aichi-2026/registrations/agent39-rank11-active-route-source-20261029.md",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "input": "exact Aichi rank11 original 60 vs exact original champion reference 60, unchanged, strict prompt native Store, max 48 roots",
+  "sample": {
+    "trials": 256,
+    "seatCount": 128,
+    "actualSourceFirst": 128,
+    "actualSourceSecond": 128,
+    "opportunities": 21,
+    "completed": 20,
+    "aborts": 1,
+    "nativeExceptions": 0
+  },
+  "sourceRuns": [
+    {
+      "sourceSeat": 0,
+      "runId": 40929005931,
+      "jobId": 123642131052,
+      "artifactId": 12921463859,
+      "artifactSha256": "19d1f08e061538da9ebc88b11c3b22bc5a3fdd974c20e8131c391d87e427677f",
+      "seedProtocol": "decorrelated-v2",
+      "trials": 128,
+      "starts": {
+        "slot0": 61,
+        "slot1": 67,
+        "unobserved": 0
+      },
+      "sourceFirst": 61,
+      "opportunities": 9,
+      "completed": 8,
+      "aborts": 1,
+      "interesting": [
+        {
+          "seed": 1769876458,
+          "firstTurnSlot": 1,
+          "sourceActuallyFirst": false,
+          "sourceOpportunity": 2,
+          "selectedRoute": "vip",
+          "selectedTool": "Muscle Band",
+          "selectedActions": [
+            {
+              "turn": 2,
+              "step": "vip",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "trubbish-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 3,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 1325646358,
+          "firstTurnSlot": 0,
+          "sourceActuallyFirst": true,
+          "sourceOpportunity": 1,
+          "selectedRoute": "active",
+          "selectedTool": "Forest Seal Stone",
+          "selectedActions": [
+            {
+              "turn": 1,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 2,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 2809154458,
+          "firstTurnSlot": 1,
+          "sourceActuallyFirst": false,
+          "sourceOpportunity": 2,
+          "selectedRoute": "bench",
+          "selectedTool": "Muscle Band",
+          "selectedActions": [
+            {
+              "turn": 2,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 3,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 3316498962,
+          "firstTurnSlot": 0,
+          "sourceActuallyFirst": true,
+          "sourceOpportunity": 1,
+          "selectedRoute": "vip",
+          "selectedTool": "Forest Seal Stone",
+          "selectedActions": [
+            {
+              "turn": 1,
+              "step": "vip",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "trubbish-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 1,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 2,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 482443328,
+          "firstTurnSlot": 0,
+          "sourceActuallyFirst": true,
+          "sourceOpportunity": 1,
+          "selectedRoute": "vip",
+          "selectedTool": "Float Stone",
+          "selectedActions": [
+            {
+              "turn": 1,
+              "step": "vip",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "trubbish-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 1,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 2,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 3861968885,
+          "firstTurnSlot": 0,
+          "sourceActuallyFirst": true,
+          "sourceOpportunity": 1,
+          "selectedRoute": "vip",
+          "selectedTool": "Float Stone",
+          "selectedActions": [
+            {
+              "turn": 1,
+              "step": "vip",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "trubbish-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 1,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 2,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 3973440352,
+          "firstTurnSlot": 1,
+          "sourceActuallyFirst": false,
+          "sourceOpportunity": 2,
+          "selectedRoute": "vip",
+          "selectedTool": "Muscle Band",
+          "selectedActions": [
+            {
+              "turn": 2,
+              "step": "vip",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "trubbish-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 3,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 207674218,
+          "firstTurnSlot": 0,
+          "sourceActuallyFirst": true,
+          "sourceOpportunity": 1,
+          "selectedRoute": "vip",
+          "selectedTool": "Float Stone",
+          "selectedActions": [
+            {
+              "turn": 1,
+              "step": "vip",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "trubbish-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 1,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            }
+          ],
+          "aborted": {
+            "turn": 1,
+            "stepIndex": 4,
+            "step": "garbodor-search",
+            "prompt": "ChooseCardsPrompt",
+            "ownerDeckSearch": true,
+            "garbodorInOwnerSearch": 0,
+            "garbodorWithValidSelection": 0,
+            "garbodorInOwnHand": 1
+          },
+          "nextTurnLockWitness": null,
+          "completed": false,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 2966199893,
+          "firstTurnSlot": 1,
+          "sourceActuallyFirst": false,
+          "sourceOpportunity": 2,
+          "selectedRoute": "vip",
+          "selectedTool": "Float Stone",
+          "selectedActions": [
+            {
+              "turn": 2,
+              "step": "vip",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "trubbish-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 3,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        }
+      ],
+      "sourcePolicyHead": "869fc87314c4bb130597ebbc1a97e4b70e0bfdeb",
+      "nativeExceptions": 0
+    },
+    {
+      "sourceSeat": 1,
+      "runId": 40929015628,
+      "jobId": 123642165671,
+      "artifactId": 12922251643,
+      "artifactSha256": "0ace9914ea0d2a64b98eee6323680efce32cd650c3273960f34b3b9b56000c2d",
+      "seedProtocol": "decorrelated-v2",
+      "trials": 128,
+      "starts": {
+        "slot0": 61,
+        "slot1": 67,
+        "unobserved": 0
+      },
+      "sourceFirst": 67,
+      "opportunities": 12,
+      "completed": 12,
+      "aborts": 0,
+      "interesting": [
+        {
+          "seed": 4188921502,
+          "firstTurnSlot": 1,
+          "sourceActuallyFirst": true,
+          "sourceOpportunity": 1,
+          "selectedRoute": "vip",
+          "selectedTool": "Muscle Band",
+          "selectedActions": [
+            {
+              "turn": 1,
+              "step": "vip",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "trubbish-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 1,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 2,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 1281807771,
+          "firstTurnSlot": 1,
+          "sourceActuallyFirst": true,
+          "sourceOpportunity": 1,
+          "selectedRoute": "vip",
+          "selectedTool": "Float Stone",
+          "selectedActions": [
+            {
+              "turn": 1,
+              "step": "vip",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "trubbish-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 1,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 2,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 1050426099,
+          "firstTurnSlot": 0,
+          "sourceActuallyFirst": false,
+          "sourceOpportunity": 2,
+          "selectedRoute": "vip",
+          "selectedTool": "Float Stone",
+          "selectedActions": [
+            {
+              "turn": 2,
+              "step": "vip",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "trubbish-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 3,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 924917475,
+          "firstTurnSlot": 0,
+          "sourceActuallyFirst": false,
+          "sourceOpportunity": 2,
+          "selectedRoute": "vip",
+          "selectedTool": "Forest Seal Stone",
+          "selectedActions": [
+            {
+              "turn": 2,
+              "step": "vip",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "trubbish-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 3,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 1497638016,
+          "firstTurnSlot": 1,
+          "sourceActuallyFirst": true,
+          "sourceOpportunity": 1,
+          "selectedRoute": "bench",
+          "selectedTool": "Float Stone",
+          "selectedActions": [
+            {
+              "turn": 1,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 2,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 156822005,
+          "firstTurnSlot": 0,
+          "sourceActuallyFirst": false,
+          "sourceOpportunity": 2,
+          "selectedRoute": "vip",
+          "selectedTool": "Muscle Band",
+          "selectedActions": [
+            {
+              "turn": 2,
+              "step": "vip",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "trubbish-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 3,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 1229657270,
+          "firstTurnSlot": 1,
+          "sourceActuallyFirst": true,
+          "sourceOpportunity": 1,
+          "selectedRoute": "bench",
+          "selectedTool": "Forest Seal Stone",
+          "selectedActions": [
+            {
+              "turn": 1,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 2,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 2674826499,
+          "firstTurnSlot": 0,
+          "sourceActuallyFirst": false,
+          "sourceOpportunity": 2,
+          "selectedRoute": "hand",
+          "selectedTool": "Forest Seal Stone",
+          "selectedActions": [
+            {
+              "turn": 2,
+              "step": "trubbish-hand",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 3,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 2758305025,
+          "firstTurnSlot": 0,
+          "sourceActuallyFirst": false,
+          "sourceOpportunity": 2,
+          "selectedRoute": "active",
+          "selectedTool": "Forest Seal Stone",
+          "selectedActions": [
+            {
+              "turn": 2,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 3,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 3322063539,
+          "firstTurnSlot": 0,
+          "sourceActuallyFirst": false,
+          "sourceOpportunity": 2,
+          "selectedRoute": "active",
+          "selectedTool": "Float Stone",
+          "selectedActions": [
+            {
+              "turn": 2,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 3,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 748425613,
+          "firstTurnSlot": 1,
+          "sourceActuallyFirst": true,
+          "sourceOpportunity": 1,
+          "selectedRoute": "hand",
+          "selectedTool": "Float Stone",
+          "selectedActions": [
+            {
+              "turn": 1,
+              "step": "trubbish-hand",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 1,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 2,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        },
+        {
+          "seed": 895840195,
+          "firstTurnSlot": 0,
+          "sourceActuallyFirst": false,
+          "sourceOpportunity": 2,
+          "selectedRoute": "vip",
+          "selectedTool": "Float Stone",
+          "selectedActions": [
+            {
+              "turn": 2,
+              "step": "vip",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "trubbish-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "attach-tool",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "boost-shake",
+              "className": "PlayCardAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-search",
+              "className": "ResolvePromptAction"
+            },
+            {
+              "turn": 2,
+              "step": "garbodor-target",
+              "className": "ResolvePromptAction"
+            }
+          ],
+          "aborted": null,
+          "nextTurnLockWitness": {
+            "turn": 3,
+            "equippedGarbodor": true
+          },
+          "completed": true,
+          "engineFinished": false,
+          "qualifiedForCompetitiveInference": false
+        }
+      ],
+      "sourcePolicyHead": "869fc87314c4bb130597ebbc1a97e4b70e0bfdeb",
+      "nativeExceptions": 0
+    }
+  ],
+  "competitiveQualifiedGames": 0,
+  "note": "This permanently archives every printed GitHub Actions selected-opportunity row and complete count denominator. No-opportunity individual seeds remain exactly reproducible from deterministic seedFrame(128,'decorrelated-v2') and the pinned code. Full native original-deal JSON archived as expiring GitHub Actions artifacts; no game winner is interpreted as competitive performance."
+}
