@@ -13,7 +13,7 @@ function smoke(){
   isolatePolicyRandomness:true
  }));
  assert.ok(witness.audit);
- assert.ok(witness.audit.rank11);
+ assert.equal(witness.audit.rank11.backOrderNarrow,true);
  return {audit:witness.audit,qualified:false};
 }
 if(require.main===module)console.log(JSON.stringify(smoke(),null,2));
