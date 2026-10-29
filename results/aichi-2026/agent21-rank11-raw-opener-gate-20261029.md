@@ -1,6 +1,6 @@
 # Agent 21: rank-11 opener direct-hand prerequisite is exceptionally narrow
 
-**29 October 2026 | exact combinatorial card-location diagnostic, not a win-rate estimate.** This audit tests the predicate in [rank11-autonomous-opener.cjs](../../simulation/twinleaf/rank11-autonomous-opener.cjs) against the fixed Aichi rank-11 Wataru Yano [source 60](full-decklists.json). It does not recreate the full bilateral actor or infer any competitive game outcome.
+**29 October 2026 | exact combinatorial card-location diagnostic, not a win-rate estimate.** This audit tests the **older Oranguru/Back Order-only predicate** in [rank11-autonomous-opener.cjs](../../simulation/twinleaf/rank11-autonomous-opener.cjs) against the fixed Aichi rank-11 Wataru Yano [source 60](full-decklists.json). It does not recreate the full bilateral actor or infer any competitive game outcome.
 
 ## Mechanism
 
@@ -26,7 +26,11 @@ Unconditional strict event across all original-seven-plus-next-card samples: **1
 
 **Next falsifiable shared-runner step:** at rank-11 owner decision boundaries in global turns 1/2, record the exact owner-visible reason the existing predicate passes/fails: real Active, free Bench, VIP/Float/Forest/Boost in hand, VSTAR spent, Trubbish already Benched, and whether previous legal search/draw changed the hand. Then classify legal alternates for already-held setup cards and alternative starters, preserving natural owner choices, opponent response, source timing, all capped/error arms, frozen policy version and source-deal receipts. Route improvements to the **existing common policy**, with a fresh preregistration before competitive comparison. Do not spin another selected-seed win branch.
 
-**Reproduction:** [pure BigInt binomial regression](../../tests/agent21-rank11-raw-opening-gate.test.cjs) reads the original source 60 and checks three invariant/probability assertions. Local Node v22.16.0 executed all **5/5 passing** tests against an independently constructed exact-count rank-11 fixture, with the combinatorics also cross-checked by a separate Python calculation. These checks validate the arithmetic; no new native engine run or paper-game qualification is claimed.
+**Reproduction:** [pure BigInt binomial regression](../../tests/agent21-rank11-raw-opening-gate.test.cjs) reads the original source 60 and checks three invariant/probability assertions. Local Node v22.16.0 executed all **6/6 passing** tests against an independently constructed exact-count rank-11 fixture, with the combinatorics also cross-checked by a separate Python calculation. These checks validate the arithmetic; no new native engine run or paper-game qualification is claimed.
+
+## Existing canonical policy already implements direct Boost Shake
+
+**Important scope correction:** The current [canonical bilateral runner](../../simulation/evaluation/agent41-bilateral-v2-development.cjs) already invokes [rank11-direct-boostshake.cjs](../../simulation/twinleaf/rank11-direct-boostshake.cjs), which uses the [owner-visible direct opportunity predicate](../../simulation/twinleaf/rank11-direct-opportunity.cjs). This predicate **already supports held Boost Shake plus Trubbish in hand, an already Bench/Active Trubbish, or Battle VIP Pass**, with Muscle Band, Float Stone or Forest Seal Stone as suitable Tools. Thus the restricted 2.274% calculation pertains only to the older *Oranguru-exclusive* policy and **must not** be used as an estimate of the current canonical rank-11 source policy's opportunity frequency. The newer direct route is implemented, tested in the repository, and invoked in the prospective scout. The remaining potential card-access branch is **Quick Ball-only Trubbish search**, which the current direct predicate does not select. This is a retrospective code-coverage audit, not a suggestion to reimplement the existing direct route.
 
 ## Independent alternative: direct held Boost Shake + any Tool
 
@@ -38,9 +42,12 @@ A separate exact enumeration partitions the actual source as **Trubbish 2; other
 | --- | ---: | ---: |
 | Held Boost, any Tool, and Basic Pokémon search/Trubbish access | 1,422,950,438 | **8.94024476%** |
 | Same, additionally a *non-Trubbish Basic* already in original seven for a separate Active | 1,192,975,377 | **7.49533615%** |
+| Existing canonical *hand Trubbish or VIP* direct-search subset (Quick Ball excluded) | 1,070,319,020 | **6.72469944%** |
+| Quick Ball-only incremental raw location (no hand Trubbish/VIP) | 352,631,418 | **2.21554532 percentage points** |
+| Existing direct subset with non-Trubbish Basic already opening | 840,343,959 | **5.27979083%** |
 
 This screen **does not prove a legal completed opening**: Quick Ball must have a genuinely discardable second hand card and an unprized Trubbish search target, VIP is usable only on that player's first turn, and the actual board must permit the intended attachment and evolution before Boost Shake ends the turn. It does not confirm the original Store's card implementation, opponent counterplay, or target competence. Its conditions overlap with the Oranguru gate; the 8.94% and 2.27% figures **must not be added** or interpreted as simulated lock probabilities. Neither is a complete source-line access model.
 
-The arithmetic supplies a falsifiable design priority: on own-hand decisions, inspect direct held Boost+Tool+Trubbish/search opportunities before assuming all source lock play must route through Oranguru. Preserve the important multi-action-cost, discardability, and opponent-response qualifications, and test the actual printed line in the original native Store.
+The arithmetic supplies a falsifiable design priority: **evaluate Quick Ball-only source lines and log why the existing canonical held-Boost policy declined them**, rather than reimplementing already-covered hand-Trubbish/VIP pathways. Preserve the important multi-action-cost, discardability, and opponent-response qualifications, and test the actual printed line in the original native Store.
 
 **Field status unchanged:** 29/32 original opposing sixties, missing ranks 23/25/28; zero qualified competitive games, no evidence-backed 99.5% list.
