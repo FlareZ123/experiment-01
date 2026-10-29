@@ -67,6 +67,8 @@ jobs:
         run: node --test tests/twinleaf-policy-rng-isolation.test.cjs
       - name: Execute bounded deterministic smoke game
         run: node simulation/twinleaf/smoke-test.cjs
+      - name: Verify guarded source-print last-Bench Dedenne versus Regidrago native forks in both seats
+        run: node simulation/twinleaf/agent11-native-last-bench-locked-dedenne.cjs
       - name: Audit all published Aichi printings against Twinleaf card implementations
         run: node simulation/twinleaf/card-coverage.cjs
       - name: Resolve Aichi opponent decks with explicit, tracked substitutions
