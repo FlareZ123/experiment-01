@@ -107,6 +107,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent48_carmine_policy_census:
+        description: '24 fixed source owner-root Carmine default versus optional activation audits, no qualified wins'
+        required: false
+        type: boolean
+        default: false
       agent48_carmine_first_native:
         description: '24 fixed first-player source-deal Store Carmine rule controls, no competitive games'
         required: false
@@ -137,6 +142,20 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Measure optional actual actor Carmine decisions in 24 matched original source deals
+        if: inputs.agent48_carmine_policy_census
+        run: node simulation/twinleaf/agent48-carmine-owner-policy-census.cjs > agent48-carmine-actor-census.json
+      - name: Surface actual actor Carmine proposal and invalid-root frequency
+        if: inputs.agent48_carmine_policy_census
+        run: >-
+          node -e "const r=require('./agent48-carmine-actor-census.json');console.log(JSON.stringify({schema:r.schema,pairs:r.pairs,selected:r.actualOptionalCarmineRoots,rejected:r.optInRejectedActorRoots,errors:r.errors,qualified:r.competitiveGameQualified}));"
+      - name: Archive every original source owner-root Carmine trial
+        if: inputs.agent48_carmine_policy_census && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent48-carmine-actor-source-census
+          path: agent48-carmine-actor-census.json
+          if-no-files-found: warn
       - name: Probe original source first-player Carmine with native settled effect
         if: inputs.agent48_carmine_first_native
         run: node simulation/twinleaf/agent48-firstturn-carmine-native-probe.cjs > agent48-carmine-first-native.json
