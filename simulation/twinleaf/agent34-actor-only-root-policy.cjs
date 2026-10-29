@@ -438,6 +438,10 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT16_OWNER_ARBITRATION_CENSUS_DEV==='true'),
     ownerArbitration:require('./agent16-owner-priority-contention.cjs')
       .newOwnerContentionAudit(),
+    terminalArbitrationOptIn:deps.terminalArbitration??
+      (process.env.AGENT41_OWNER_TERMINAL_ARBITRATION_DEV==='true'),
+    terminalArbitration:require('./agent41-owner-root-arbitration.cjs')
+      .newOwnerArbitrationAudit(),
     strandedMarnieRootOptIn:deps.strandedMarnieRoot??
       (process.env.AGENT50_STRANDED_MARNIE_DEV==='true'),
     lowHandLillieRootCensus:{
@@ -467,6 +471,13 @@ function withActorOnlyRootPolicy(run,deps={}){
   }else{
     delete audit.ownerArbitrationCensusOptIn;
     delete audit.ownerArbitration;
+  }
+  if(audit.terminalArbitrationOptIn){
+    audit.version+='+'+
+      require('./agent41-owner-root-arbitration.cjs').VERSION;
+  }else{
+    delete audit.terminalArbitrationOptIn;
+    delete audit.terminalArbitration;
   }
   assert.ok([null,0,1].includes(audit.specialEnergyRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.knownDeadAttackRootOwnerSeat));
@@ -609,7 +620,16 @@ function withActorOnlyRootPolicy(run,deps={}){
       seekerLillieRoot:audit.seekerLillieRootOptIn,
       conservativeShuffleBeforeAttack:audit.conservativeShuffleBeforeAttackOptIn
     };
-    const intent=chooseActorRootIntent(view,catalog,rootOptions);
+    const firstIntent=chooseActorRootIntent(view,catalog,rootOptions);
+    const arbitration=audit.terminalArbitrationOptIn?
+      require('./agent41-owner-root-arbitration.cjs')
+        .arbitrateOwnerRootIntent(view,catalog,firstIntent,rootOptions):null;
+    if(arbitration){
+      require('./agent41-owner-root-arbitration.cjs')
+        .recordOwnerArbitration(audit.terminalArbitration,
+          seat,view.globalTurn,arbitration.receipt);
+    }
+    const intent=arbitration?.intent??firstIntent;
     if(audit.ownerArbitrationCensusOptIn){
       const diagnostics=require('./agent16-owner-priority-contention.cjs');
       const receipt=diagnostics.collectOwnerContention(
