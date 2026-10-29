@@ -159,6 +159,11 @@ function rootPhysicalSnapshot(state,seat,intent){
       supporterTurn:owner.supporterTurn,
       supporterSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
+    }:{}),
+    // Preserve the existing observable field for downstream Marnie fixtures.
+    ...(intent.kind==='play-stranded-marnie'?{
+      marnieSpent:[...owner.discard.cards,...owner.supporter.cards]
+        .filter(card=>card.fullName===intent.printing).length
     }:{})
   };
 }
