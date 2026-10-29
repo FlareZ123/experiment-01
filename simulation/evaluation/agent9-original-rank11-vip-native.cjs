@@ -110,6 +110,7 @@ function run(){
       sourceDealFingerprint:control.sourceDealFingerprint,
       rootActionLedgerSha256:control.rootActionLedgerSha256,
       rootActionCount:control.rootActionCount,
+      firstSourceOwnTurn:control.firstSourceOwnTurn??null,
       finished:control.finished,winner:control.winner
     },
     treatment,
