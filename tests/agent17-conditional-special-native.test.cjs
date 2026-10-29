@@ -186,3 +186,4 @@ for(const energy of ['Reversal Energy PAL','Counter Energy CIN']){
 
 // Share the existing pinned-native Energy regression gate with Plumeria denial.
 require('./agent4-plumeria-pinned-native.test.cjs');
+require('./agent4-plumeria-headless-native.test.cjs');
