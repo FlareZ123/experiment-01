@@ -1,0 +1,335 @@
+{
+  "schema": "agent39-rank6-stage-speed-native-24-receipt-v1",
+  "registration": "results/aichi-2026/registrations/agent39-rank6-t1-speed-native-source-20261029.md",
+  "sourcePolicyHead": "25dc2d4943aee5cc33d80f8bb1e41c78c01f8a2b",
+  "sourceSeedCount": 24,
+  "sourceFirst": 13,
+  "sourceSecond": 11,
+  "speedT1Selected": 4,
+  "speedT1Confirmed": 4,
+  "nativeExceptions": 0,
+  "speedArmVerifiedActualStarts": 24,
+  "baselineAttacks": 3,
+  "speedArmAttacks": 4,
+  "sourceFirstSpeedArmAttacks": 2,
+  "receipts": [
+    {
+      "seed": 4275816832,
+      "sourceActuallyFirst": true,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 3595620362,
+      "sourceActuallyFirst": true,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 665515792,
+      "sourceActuallyFirst": true,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": true,
+      "speedStageConfirmed": true,
+      "speedActionEvents": [
+        {
+          "turn": 1,
+          "phase": "idle",
+          "action": "Opt-in T1 attached Speed Lightning"
+        },
+        {
+          "turn": 1,
+          "phase": "speed-staged",
+          "action": "Native attached Speed Lightning observed on Active"
+        }
+      ],
+      "error": null
+    },
+    {
+      "seed": 3630824723,
+      "sourceActuallyFirst": true,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 3926667284,
+      "sourceActuallyFirst": false,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 3363653013,
+      "sourceActuallyFirst": true,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": true,
+      "speedStageConfirmed": true,
+      "speedActionEvents": [
+        {
+          "turn": 1,
+          "phase": "idle",
+          "action": "Opt-in T1 attached Speed Lightning"
+        },
+        {
+          "turn": 1,
+          "phase": "speed-staged",
+          "action": "Native attached Speed Lightning observed on Active"
+        }
+      ],
+      "error": null
+    },
+    {
+      "seed": 1688274966,
+      "sourceActuallyFirst": false,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 1317665561,
+      "sourceActuallyFirst": true,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 2983279258,
+      "sourceActuallyFirst": true,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 1,
+      "speedStageSelected": true,
+      "speedStageConfirmed": true,
+      "speedActionEvents": [
+        {
+          "turn": 1,
+          "phase": "idle",
+          "action": "Opt-in T1 attached Speed Lightning"
+        },
+        {
+          "turn": 1,
+          "phase": "speed-staged",
+          "action": "Native attached Speed Lightning observed on Active"
+        }
+      ],
+      "error": null
+    },
+    {
+      "seed": 1562033310,
+      "sourceActuallyFirst": true,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 2453589280,
+      "sourceActuallyFirst": true,
+      "controlAttack": 0,
+      "oldPolicyAttack": 1,
+      "speedPolicyAttack": 1,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 234408354,
+      "sourceActuallyFirst": false,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 2295572518,
+      "sourceActuallyFirst": true,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 2841708335,
+      "sourceActuallyFirst": false,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 4039283122,
+      "sourceActuallyFirst": false,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 2768991803,
+      "sourceActuallyFirst": false,
+      "controlAttack": 0,
+      "oldPolicyAttack": 1,
+      "speedPolicyAttack": 1,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 2920412741,
+      "sourceActuallyFirst": false,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 2616902997,
+      "sourceActuallyFirst": false,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 2968731990,
+      "sourceActuallyFirst": false,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 455209561,
+      "sourceActuallyFirst": false,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 710041562,
+      "sourceActuallyFirst": true,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 584842862,
+      "sourceActuallyFirst": false,
+      "controlAttack": 0,
+      "oldPolicyAttack": 1,
+      "speedPolicyAttack": 1,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 1086900982,
+      "sourceActuallyFirst": true,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": false,
+      "speedStageConfirmed": false,
+      "speedActionEvents": [],
+      "error": null
+    },
+    {
+      "seed": 213782398,
+      "sourceActuallyFirst": true,
+      "controlAttack": 0,
+      "oldPolicyAttack": 0,
+      "speedPolicyAttack": 0,
+      "speedStageSelected": true,
+      "speedStageConfirmed": true,
+      "speedActionEvents": [
+        {
+          "turn": 1,
+          "phase": "idle",
+          "action": "Opt-in T1 attached Speed Lightning"
+        },
+        {
+          "turn": 1,
+          "phase": "speed-staged",
+          "action": "Native attached Speed Lightning observed on Active"
+        }
+      ],
+      "error": null
+    }
+  ],
+  "qualifiedCompetitiveGames": 0,
+  "experimentType": "retrospective original 2026-10-19 registered 24 seeds reused in new 2026-10-29 pre-dispatch third-arm source-policy test",
+  "sourceNativeRun": 40932388519,
+  "runStatus": "success",
+  "artifactId": 12923592557,
+  "artifactSha256": "4af676d02b6ee4e410b365a1bd43fb6eedea1f5ec1de17ba0345b54cee6afc48",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "physicalSourceSeat": 1,
+  "actionCap": 125,
+  "competitiveQualifiedGames": 0
+}
