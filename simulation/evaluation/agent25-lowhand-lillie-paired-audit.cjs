@@ -28,6 +28,10 @@ function auditLowHandLilliePair(control,treatment){
     const root0=original.actorOnlyDecisionCoverage?.detailedComponentAudits?.root;
     if(root)assert.equal(root.lowHandLillieRootOptIn,true);
     if(root0)assert.equal(root0.lowHandLillieRootOptIn,false);
+    const controlOpportunity=root0?.lowHandLillieCensusOptIn===true?
+      root0.lowHandLillieRootCensus:null;
+    const treatmentOpportunity=root?.lowHandLillieCensusOptIn===true?
+      root.lowHandLillieRootCensus:null;
     const proposals=root?.typedIntentCounts?.['play-lowhand-lillie']??0;
     const physical=root?.nativePhysicalConfirmedByIntent?.['play-lowhand-lillie']??0;
     const unconfirmed=root?.nativePhysicalUnconfirmedByIntent?.['play-lowhand-lillie']??0;
@@ -50,6 +54,22 @@ function auditLowHandLilliePair(control,treatment){
       lowHandLillie:{proposals,physical,unconfirmed,
         nativeSettled:supporterEvents.filter(e=>e.settled===true).length,
         nativeEvents:supporterEvents},
+      ownerOpportunityCensus:{
+        control:controlOpportunity?{
+          roots:controlOpportunity.ownerRoots,
+          held:controlOpportunity.heldRoots,
+          eligible:controlOpportunity.eligibleRoots,
+          heldReasons:controlOpportunity.heldReasonCounts,
+          heldSamples:controlOpportunity.heldSamples
+        }:null,
+        treatment:treatmentOpportunity?{
+          roots:treatmentOpportunity.ownerRoots,
+          held:treatmentOpportunity.heldRoots,
+          eligible:treatmentOpportunity.eligibleRoots,
+          heldReasons:treatmentOpportunity.heldReasonCounts,
+          heldSamples:treatmentOpportunity.heldSamples
+        }:null
+      },
       originalWinner:original.finished?original.winner:null,
       treatmentWinner:row.finished?row.winner:null,
       originalError:original.error??null,
@@ -61,6 +81,14 @@ function auditLowHandLilliePair(control,treatment){
     schema:SCHEMA,pairs:rows.length,competitiveQualifiedGames:0,
     matchingSourceDeals:rows.filter(row=>row.sourceDealMatch).length,
     matchingFirstPlayers:rows.filter(row=>row.firstPlayerMatch).length,
+    controlHeldLillieRootReads:rows.reduce((n,row)=>
+      n+(row.ownerOpportunityCensus.control?.held??0),0),
+    treatmentHeldLillieRootReads:rows.reduce((n,row)=>
+      n+(row.ownerOpportunityCensus.treatment?.held??0),0),
+    controlOpportunityRootReads:rows.reduce((n,row)=>
+      n+(row.ownerOpportunityCensus.control?.eligible??0),0),
+    treatmentOpportunityRootReads:rows.reduce((n,row)=>
+      n+(row.ownerOpportunityCensus.treatment?.eligible??0),0),
     proposed:rows.reduce((n,row)=>n+row.lowHandLillie.proposals,0),
     physicallyConfirmed:rows.reduce((n,row)=>n+row.lowHandLillie.physical,0),
     nativeSettled:rows.reduce((n,row)=>n+row.lowHandLillie.nativeSettled,0),
