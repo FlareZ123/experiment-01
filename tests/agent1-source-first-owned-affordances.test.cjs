@@ -66,3 +66,22 @@ test('reject invalid physical source seats and unverified starting-status type',
   assert.throws(()=>sourceFirstOwnedAffordances([],0,null));
   assert.equal(new Set(NAMES).size,NAMES.length);
 });
+
+
+test('successful Boost Shake turn-ending effect has observed first hand but no separate Pass',()=>{
+  const trace=[
+    row(1,2,12,'PlayCardAction',['Trubbish FST','Boost Shake EVS',
+      'Float Stone PLF'],'Trubbish'),
+    row(1,2,13,'PlayCardAction',['Boost Shake EVS',
+      'Float Stone PLF'],'Float Stone'),
+    row(1,2,14,'PlayCardAction',['Boost Shake EVS'],
+      'Boost Shake')
+  ];
+  const a=sourceFirstOwnedAffordances(trace,1,false);
+  assert.equal(a.status,'incomplete');
+  assert.equal(a.firstRootAction,'PlayCardAction');
+  assert.equal(a.firstOwnHand.resources['Boost Shake'],1);
+  assert.equal(a.firstOwnHand.resources['Trubbish'],1);
+  assert.equal(a.terminalPassOwnHand,null);
+  assert.equal(a.sourceFirstOwnTurn,2);
+});
