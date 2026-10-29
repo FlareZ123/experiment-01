@@ -28,6 +28,7 @@ function gameplayProjection(report){
 function preexistingActorAudit(audit){
   const {
     version,genericFallbackAttributionOptIn,
+    ownerSupporterOpportunityOptIn,ownerSupporterOpportunityAudit,
     componentVersions,nativeDecisionCounts,detailedComponentAudits,...rest
   }=audit;
   const {genericFallback:ignoredVersion,...versions}=componentVersions;
@@ -37,8 +38,11 @@ function preexistingActorAudit(audit){
     nativeDistinctOwnerPromptObjects:ignoredDistinct,
     nativeDistinctOwnerPromptBySeat:ignoredDistinctSeat,
     nativeDistinctOwnerPromptTypesBySeat:ignoredDistinctType,
+    ownerSupporterOpportunitiesBySeat:ignoredOwnerOpportunity,
     ...decisions}=nativeDecisionCounts;
-  const {genericFallback:ignoredAudit,...components}=detailedComponentAudits;
+  const {genericFallback:ignoredAudit,
+    ownerSupporterOpportunity:ignoredOwnerOpportunityAudit,
+    ...components}=detailedComponentAudits;
   return {...rest,componentVersions:versions,nativeDecisionCounts:decisions,
     detailedComponentAudits:components};
 }
