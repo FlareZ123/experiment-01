@@ -55,9 +55,22 @@ function verifySeat(seat){
     assert.deepStrictEqual(alternate,{kind:'attach-special-energy',
       printing:DD,handIndex:0,slot:'bench',index:1});
     const settled=nativeAttack(x);
+    const physical={
+      ownerDeckTop:x.owner.deck.cards[0].fullName,
+      ownerPrizeFirst:x.owner.prizes[0].cards[0].fullName,
+      opponentHandFirst:x.opponent.hand.cards[0].fullName,
+      opponentDeckTop:x.opponent.deck.cards[0].fullName
+    };
     rows.push({world,view,chosen,alternate,inventory:inventories(x),
-      damage:settled.damageAfter});
+      physical,damage:settled.damageAfter});
   }
+  assert.notDeepStrictEqual(rows[0].physical,rows[1].physical,
+    'The two concealed worlds must really be physically different');
+  const publicChange=stage(seat);
+  conceal(publicChange,0);
+  publicChange.owner.active.damage=10;
+  assert.notDeepStrictEqual(actorObservation(publicChange.state,seat),
+    rows[0].view,'Public damage perturbation must change the actor view');
   assert.deepStrictEqual(rows[0].view,rows[1].view,
     'Owner observation changed across unseen K0 card arrangements');
   assert.deepStrictEqual(rows[0].inventory,rows[1].inventory,
