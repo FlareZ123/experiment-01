@@ -580,6 +580,21 @@ function executeDevelopment(trial,candidates,{
   assert.equal(game.engine,'twinleafgg/'+registration.enginePin);
   assert.equal(game.verifiedByDrawLog,true);
   assert.equal(game.promptValidationMode,'predispatch-prompt-validate');
+  if(nativeAcceptedTargets){
+    // A completed native witness must contain genuine root-linked accepted
+    // Store dispatches and a two-seat physical deal. Empty prompt effects
+    // remain explicitly observable as zero, never inferred as a certified
+    // destination. Engine errors preserve separately typed abort sidecars.
+    assert.equal(nativeAcceptedTargetAudit?.observedLiveStore,true);
+    assert.equal(nativeAcceptedTargetAudit?.rootOrdinalLinked,true);
+    assert.equal(nativeAcceptedEnergyPromptAudit?.observedLiveStore,true);
+    assert.equal(nativeAcceptedEnergyPromptAudit?.schema,
+      'accepted-attach-energy-prompt-public-delta-v1');
+    assert.equal(game.initialFullPhysicalDealFingerprint?.schema,
+      'initial-full-physical-deal-sha256-v1');
+    assert.equal(typeof game.initialFullPhysicalDealFingerprint.digestSha256,
+      'string');
+  }
   const declared=game.attackDeclarationTrace||[];
   // Full, actor-filtered, prompt-closed public consequence packet.
   // This is observational only and cannot certify a legal competitive game.
