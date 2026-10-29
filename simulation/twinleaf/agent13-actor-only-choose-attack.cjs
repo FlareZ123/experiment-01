@@ -2,7 +2,18 @@
 const assert=require('node:assert/strict'),path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
-const VERSION='agent13-actor-only-copied-attack-choice-v2-live-state';
+const VERSION='agent13-actor-only-copied-attack-choice-v3-printed-gx';
+
+/**
+ * Printed GX attack names identify the once-per-game mechanic even when a
+ * pinned card definition omits its gxAttack flag. This is a public property.
+ * @param {{name?:string,gxAttack?:boolean}} attack
+ * @returns {boolean}
+ */
+function isPrintedGxAttack(attack){
+  return attack.gxAttack===true||
+    (typeof attack.name==='string'&&attack.name.endsWith('-GX'));
+}
 /**
  * Read only genuine actor-offered ChooseAttackPrompt contents and detached
  * acting-owner observation. Preserve individual printing and attack indices.
@@ -22,7 +33,7 @@ function actorChooseAttackInput(state,seat,observe=actorObservation){
   const offered=pending.cards.map((card,index)=>Object.freeze({
     index,printing:card.fullName,
     attacks:Object.freeze(card.attacks.map((attack,j)=>Object.freeze({
-      index:j,name:attack.name,gxAttack:attack.gxAttack===true,
+      index:j,name:attack.name,gxAttack:isPrintedGxAttack(attack),
       // Printed attack characteristics are public and remain unmodified.
       damage:attack.damage??null,
       damageCalculation:attack.damageCalculation??null,
@@ -47,12 +58,14 @@ function chooseActorCopiedAttack(input,options={}){
   const gxUsed=input.actor.ownPublic?.publicTurnRestrictions?.gxUsed===true;
   const eligible=[];
   for(const source of input.prompt.offered)
-    for(const attack of source.attacks)
-      if(!attack.blocked&&!(gxUsed&&attack.gxAttack))
+    for(const attack of source.attacks){
+      const gxAttack=isPrintedGxAttack(attack);
+      if(!attack.blocked&&!(gxUsed&&gxAttack))
         eligible.push({sourceIndex:source.index,attackIndex:attack.index,
           printing:source.printing,attackName:attack.name,
-          gxAttack:attack.gxAttack,damage:attack.damage??null,
+          gxAttack,damage:attack.damage??null,
           damageCalculation:attack.damageCalculation??null});
+    }
   // An opt-in Poltergeist hypothesis can prefer the printed donor. The
   // opponent hand *count* is public; the identities of its cards are not.
   let picked=eligible[0]??null;
@@ -178,5 +191,5 @@ function withActorOnlyChooseAttack(run,deps={}){
     Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',original);
   }
 }
-module.exports={VERSION,actorChooseAttackInput,chooseActorCopiedAttack,
+module.exports={VERSION,isPrintedGxAttack,actorChooseAttackInput,chooseActorCopiedAttack,
   withActorOnlyChooseAttack};
