@@ -167,3 +167,6 @@ test('generic first-Pokemon prompt choice can violate a preceding public Guzma B
     input.prompt.offered[choice.index].benchIndex,intendedBenchIndex
   );
 });
+
+// Cross-step owner-target tests extend the existing ChoosePokemon prompt gate.
+require('./agent43-guzma-prompt-continuation.test.cjs');
