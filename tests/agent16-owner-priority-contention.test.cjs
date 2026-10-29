@@ -15,26 +15,26 @@ const offering=(flag,order,name,returned)=>({
   flag,order,name,load:()=>()=>returned
 });
 
-test('printed Arceus V attack-first masks same-root DCE funding',()=>{
+test('rank3 printed Girafarig Get Lost shadows Capture Energy progress',()=>{
   const {chooseActorRootIntent}=require(
     '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
   const catalog={
     basics:new Set(),abilityBasics:new Set(),
     basicEnergies:new Set(),
-    specialEnergies:new Set(['Double Colorless Energy SUM']),
+    specialEnergies:new Set(['Capture Energy RCL']),
     basicEnergyTypes:{Psychic:5,Lightning:4},colorlessEnergyType:9,
     specialConditions:{ASLEEP:2,PARALYZED:0}
   };
   const v={decisionKind:'owner-root',globalTurn:4,
-    ownHand:['Double Colorless Energy SUM'],
+    ownHand:['Capture Energy RCL'],
     ownTurnResources:{energyPlayedTurn:0,energyPlayLocked:false,
       specialEnergyPlayLocked:false,pokemonPlayLocked:false},
     ownPublic:{
-      active:{name:'Arceus V',printing:'Arceus V BRS',
-        energies:['Double Colorless Energy SUM'],
+      active:{name:'Girafarig',printing:'Girafarig LOT',
+        energies:['Capture Energy RCL'],
         attacks:[
-          {name:'Trinity Charge',cost:[9,9],gxAttack:false},
-          {name:'Power Edge',cost:[9,9,9],gxAttack:false}
+          {name:'Get Lost',cost:[9],gxAttack:false},
+          {name:'Mind Shock',cost:[9,9,9],gxAttack:false}
         ],specialConditions:[],publicRestrictions:{}},
       bench:[null,null,null,null,null],stadium:[],
       publicTurnRestrictions:{attackLockTurnsRemaining:0,gxUsed:false}
@@ -42,11 +42,11 @@ test('printed Arceus V attack-first masks same-root DCE funding',()=>{
   };
   const options={specialEnergyRoot:true};
   const selected=chooseActorRootIntent(v,catalog,options);
-  assert.deepEqual(selected,{kind:'attack',attackName:'Trinity Charge'});
+  assert.deepEqual(selected,{kind:'attack',attackName:'Get Lost'});
   const receipt=collectOwnerContention(v,catalog,options,selected);
   assert.equal(receipt.alternatives.length,1);
   assert.deepEqual(receipt.alternatives.map(a=>[a.kind,a.printing,a.reason]),[
-    ['attach-special-energy','Double Colorless Energy SUM',
+    ['attach-special-energy','Capture Energy RCL',
       'turn-ending-selection']
   ]);
 });
