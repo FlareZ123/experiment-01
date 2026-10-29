@@ -880,6 +880,7 @@ function runDevelopment({
   rank11SourceSupporterPassRescue=false,
   sourceScopedSpecialEnergyRoot=false,
   candidateScopedSpecialEnergyRoot=false,
+  candidateOnlyKnownDeadRoot=false,
   registeredTrials=null,registeredFrameName=null
 }={}){
   assertManifest();
@@ -967,7 +968,8 @@ function runDevelopment({
           sourceScopedSpecialEnergyRoot?'source':
             candidateScopedSpecialEnergyRoot?'candidate':'none',
           trial.candidateSlot);
-        const scopedRoot=(targetSeat===null&&!sourceFloatStoneMobility)?{}:
+        const scopedRoot=(targetSeat===null&&!sourceFloatStoneMobility&&
+          !candidateOnlyKnownDeadRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
               ...(targetSeat!==null?{
@@ -977,6 +979,10 @@ function runDevelopment({
               ...(sourceFloatStoneMobility?{
                 floatStoneMobility:true,
                 floatStoneMobilityOwnerSeat:1-(trial.candidateSlot==='A'?0:1)
+              }:{}),
+              ...(candidateOnlyKnownDeadRoot?{
+                knownDeadAttackRoot:true,
+                knownDeadAttackRootOwnerSeat:trial.candidateSlot==='A'?0:1
               }:{})
             })};
         const chargedPokemon=actorChargedPromotion?{
