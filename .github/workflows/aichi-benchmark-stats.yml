@@ -56,6 +56,8 @@ jobs:
         run: node --test tests/aichi-source-incidence.test.cjs
       - name: Check exact Basic-valid natural Special Energy opening exposure
         run: node --test tests/agent17-special-only-opening-exposure.test.cjs
+      - name: Check implemented Special Energy numeric vocabulary across 29 originals
+        run: node --test tests/agent17-special-energy-vocabulary.test.cjs
       - name: Audit printed source 60 mobility inventory and recovery channels
         run: node --test tests/agent7-source-mobility-roster.test.cjs
       - name: Compare exact source card Abilities across mixed printings
