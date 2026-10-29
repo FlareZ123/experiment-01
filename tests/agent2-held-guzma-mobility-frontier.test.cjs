@@ -118,3 +118,34 @@ test('opponent concealed card identities cannot affect mobility choice',()=>{
   assert.deepEqual(chooseHeldGuzmaMobility(a,catalog),
     chooseHeldGuzmaMobility(b,catalog));
 });
+
+
+test('source-first rank11 observed T9 pivot is within the generic held-Guzma vocabulary',()=>{
+  // A source-owned original-Store T9 hand held Guzma BUS after a real T7
+  // Marnie. This synthetic owner-only test uses the printed attack costs
+  // of Garbodor BKP57 and Oranguru V ASR133, with the actual one-Darkness
+  // attachment observed on each. The historical native Store separately
+  // accepted Guzma and switched to Oranguru in CI 39686792051.
+  const v=view();
+  const sourceCatalog={...catalog,
+    basicEnergies:new Set([...catalog.basicEnergies,'Darkness Energy MEE'])};
+  v.ownHand=['Guzma BUS','Marnie SSH','Temple of Sinnoh ASR',
+    'Dark Patch ASR'];
+  v.ownPublic.active=pokemon('Garbodor',
+    [P,C,C,C],['Darkness Energy MEE']);
+  v.ownPublic.bench=[
+    pokemon('Oranguru V',[C,C,C],['Darkness Energy MEE']),
+    pokemon('Crobat V',[D,C],[]),null,null,null
+  ];
+  const chosen=chooseHeldGuzmaMobility(v,sourceCatalog);
+  assert.deepEqual(chosen,{
+    kind:'play-held-guzma-mobility',handIndex:0,
+    printing:'Guzma BUS',benchIndex:0,anticipatedMissing:2
+  });
+  const usedSupporter=structuredClone(v);
+  usedSupporter.ownTurnResources.supporterPlayedTurn=1;
+  assert.equal(chooseHeldGuzmaMobility(usedSupporter,sourceCatalog),null);
+  const noOpponentBench=structuredClone(v);
+  noOpponentBench.opponentPublic.bench=[null,null,null,null,null];
+  assert.equal(chooseHeldGuzmaMobility(noOpponentBench,sourceCatalog),null);
+});
