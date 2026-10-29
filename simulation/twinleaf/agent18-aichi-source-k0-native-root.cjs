@@ -6,6 +6,8 @@ const {resolveManifestFile} = require('./resolve-field.cjs');
 const {actorObservation} = require('./actor-observation-contract.cjs');
 const {buildActorCardCatalog,chooseActorRootIntent} =
   require('./agent34-actor-only-root-policy.cjs');
+const {actorToolPrintingCatalog,enumerateActorToolCandidates}=
+  require('./agent18-actor-tool-candidate-frontier.cjs');
 const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const native=p=>require(path.join(root,p));
 const SEED=4246551499;
@@ -21,11 +23,16 @@ function observeSourceK0(execute){
   const {CardManager}=native('game/cards/card-manager');
   const {PokemonCard}=native('game/store/card/pokemon-card');
   const {EnergyCard}=native('game/store/card/energy-card');
+  const {TrainerCard}=native('game/store/card/trainer-card');
   const types=native('game/store/card/card-types');
   const {PowerType}=native('game/store/card/pokemon-types');
   const catalog=buildActorCardCatalog(CardManager.getInstance().getAllCards(),{
     ...types,PokemonCard,EnergyCard,PowerType
   });
+  const toolCatalog=actorToolPrintingCatalog(
+    CardManager.getInstance().getAllCards(),{
+      TrainerCard,TrainerType:types.TrainerType
+    });
   const oldDispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   const oldDecode=Object.getOwnPropertyDescriptor(SimpleTacticsAi.prototype,'decodeNextAction');
   assert.equal(typeof oldDispatch?.value,'function');
@@ -125,6 +132,7 @@ function observeSourceK0(execute){
         row.originalDeckTop=first.fullName;
         row.originalPrizePrinting=prized.fullName;
         row.chosenOwnerOnlyIntent=choice;
+        row.ownerToolCandidates=enumerateActorToolCandidates(before,toolCatalog);
         row.ownerKnownHand=[...before.ownHand];
         row.ownActivePublicPrinting=before.ownPublic.active?.printing??null;
         row.ownBenchPublicPrintings=before.ownPublic.bench
@@ -212,7 +220,7 @@ function run(){
       sourceNativeRoots:observed.rows,
       sameOutcomeWithObserver:true,outcome:outcome(unobserved)});
   }
-  return {schema:'agent18-aichi-source-K0-native-root-v4',
+  return {schema:'agent18-aichi-source-K0-native-root-v5',
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     arms,originalFullSixties:true,competitiveQualifiedGames:0,
     caveat:'First owner roots in real 60-card source games, temporary hidden permutation restored before original bot decision; no opponent policy qualification or win-rate evidence.'};
