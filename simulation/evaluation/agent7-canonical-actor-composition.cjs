@@ -83,18 +83,28 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   let pokemonAudit = null;
   let ownerDonorAudit = null;
   let ownerSupporterOpportunityAudit = null;
+  let ownerShuffleSupporterAudit = null;
+  const shuffleSupporterOptIn=options.ownerShuffleSupporterRoot===true||
+    process.env.AGENT2_SHUFFLE_SUPPORTER_DEV==='true';
+  const runWithShuffleSupporter=()=>{
+    if(!shuffleSupporterOptIn)return execute();
+    const selected=require('../twinleaf/agent2-actor-only-shuffle-supporter-after-pass.cjs')
+      .withActorOnlyShuffleSupporterAfterPass(execute);
+    ownerShuffleSupporterAudit=selected.audit;
+    return selected.result;
+  };
   const supporterOpportunityOptIn=options.ownerSupporterOpportunity===true||
     process.env.AGENT7_OWNER_SUPPORTER_AUDIT_DEV==='true';
   // Installed after all decision adapters, so real owner-root observation
   // precedes the very first policy proposal, with all choices unchanged.
   const runWithOwnerSupporterAudit=()=>{
-    if(!supporterOpportunityOptIn)return execute();
+    if(!supporterOpportunityOptIn)return runWithShuffleSupporter();
     const observer=adapters.supporterOpportunity??
       require('../twinleaf/agent7-owner-supporter-opportunity.cjs')
         .withOwnerSupporterOpportunity;
     // Experimental native card.canPlay(null) probe is independently gated:
     // no-target legality is only a diagnostic, never a paper legal proof.
-    const observed=observer(execute,{nativeCanPlay:
+    const observed=observer(runWithShuffleSupporter,{nativeCanPlay:
       options.ownerSupporterNativeCanPlay===true||
       process.env.AGENT7_NATIVE_SUPPORTER_CANPLAY_DEV==='true'});
     ownerSupporterOpportunityAudit=observed.audit;
@@ -137,6 +147,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     'Enabled owner donor root must return its actual canonical audit');
   if(supporterOpportunityOptIn)assert.ok(ownerSupporterOpportunityAudit,
     'Enabled owner Supporter audit must have observed the live executor');
+  if(shuffleSupporterOptIn)assert.ok(ownerShuffleSupporterAudit,
+    'Enabled actor-only shuffle Supporter must expose native audit');
   const searchOrFog = rooted.result;
   const fogged = ownerSingleSearch?searchOrFog.result:searchOrFog;
   const ownerSearchAudit = ownerSingleSearch?searchOrFog.audit:null;
@@ -167,6 +179,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     sparseOwnerSearchOptIn:sparseOwnerSearch,
     actorHandDiscardOptIn:Boolean(handDiscard),
     ownerSupporterOpportunityOptIn:supporterOpportunityOptIn,
+    ownerShuffleSupporterRootOptIn:shuffleSupporterOptIn,
     actorChoosePokemonOptIn:actorChoosePokemon,
     genericFallbackAttributionOptIn:genericFallbackAttribution,
     selectedHandlerPriority: [
@@ -222,6 +235,11 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       ...(supporterOpportunityOptIn?{
         ownerSupporterOpportunitiesBySeat:ownerSupporterOpportunityAudit.bySeat
       }:{}),
+      ...(shuffleSupporterOptIn?{
+        shuffleSupporterAcceptedRoots:ownerShuffleSupporterAudit.acceptedRoots,
+        shuffleSupporterAcceptedByFamily:ownerShuffleSupporterAudit.acceptedByFamily,
+        shuffleSupporterRejectedRoots:ownerShuffleSupporterAudit.rejectedRoots
+      }:{}),
       ...(ownerDonorAudit?{
         ownerDonorEligible:ownerDonorAudit.eligibleRoots,
         ownerDonorChosen:ownerDonorAudit.chosenRoots,
@@ -257,6 +275,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       root: rootAudit,
       ...(supporterOpportunityOptIn?{
         ownerSupporterOpportunity:ownerSupporterOpportunityAudit
+      }:{}),
+      ...(shuffleSupporterOptIn?{
+        ownerShuffleSupporter:ownerShuffleSupporterAudit
       }:{}),
       ...(genericFallbackAttribution?{genericFallback:genericFallbackAudit}:{}),
       fog: fogAudit,
