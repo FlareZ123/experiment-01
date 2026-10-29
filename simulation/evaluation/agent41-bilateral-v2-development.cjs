@@ -361,6 +361,7 @@ function executeDevelopment(trial,candidates,{
   mandatoryOptionFallback=false,paperSupporterQuota=false,
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
   paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
+  nativeOwnerSupporterOpportunity=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
@@ -432,6 +433,7 @@ function executeDevelopment(trial,candidates,{
   let garbotoxinWindowAudit=null;
   let initializationWindowAudit=null;
   let paperSupporterAudit=null;
+  let ownerSupporterOpportunityAudit=null;
   let fullBenchTrubbishAudit=null;
   let supporterProposalIntegrity=null;
   let nativeValidationAudit=null;
@@ -552,8 +554,15 @@ function executeDevelopment(trial,candidates,{
     nativeValidationAudit=observed.audit;
     return observed.result;
   };
+  const runWithOwnerSupporterOpportunity=()=>{
+    if(!nativeOwnerSupporterOpportunity)return runWithNativeValidationAudit();
+    const observed=require('../twinleaf/agent2-native-owner-supporter-opportunity.cjs')
+      .withNativeOwnerSupporterOpportunity(runWithNativeValidationAudit);
+    ownerSupporterOpportunityAudit=observed.audit;
+    return observed.result;
+  };
   const common=()=>withBilateralCommonCandidatePolicy(candidateSeat,
-    runWithNativeValidationAudit);
+    runWithOwnerSupporterOpportunity);
   let game,sourceAudit,commonAudit;
   let sourceSupporterRescueAudit=null;
   let sourceExclusiveOpeningAudit=null;
@@ -750,6 +759,7 @@ function executeDevelopment(trial,candidates,{
     nativeSupporterQuotaQualified:paperSupporterQuota?
       paperSupporterAudit?.nativeSupporterQuotaQualified===true:'unverified',
     paperSupporterDiscipline:paperSupporterQuota?paperSupporterAudit:null,
+    ...(nativeOwnerSupporterOpportunity?{ownerSupporterOpportunityAudit}:{}),
     ...(proposalStateAudit?{supporterProposalIntegrity}:{}),
     ...(nativeProposalValidationAudit?{nativeValidationAudit}:{}),
     ...(nativeOpponentHiddenReadAudit?{
@@ -887,6 +897,7 @@ function runDevelopment({
   sourceFirstRetrospective=false,paperSupporterQuota=false,
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
   paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
+  nativeOwnerSupporterOpportunity=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
@@ -964,7 +975,7 @@ function runDevelopment({
         anyTurnCompressorPayload,earlyBenchedCompressorPayload,
         mandatoryOptionFallback,paperSupporterQuota,paperCologneQuota,
         paperFullBenchCallForFamily,paperSameTargetAttachEnergy,
-        paperSupporterComparisonTrace,
+        paperSupporterComparisonTrace,nativeOwnerSupporterOpportunity,
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
         nativeAcceptedTargets,
@@ -1065,6 +1076,9 @@ function runDevelopment({
         paperSupporterDiscipline:veto,
         ...(nativeProposalValidationAudit?{
           nativeValidationAudit:nativeValidation}:{}),
+        ...(nativeOwnerSupporterOpportunity?{
+          ownerSupporterOpportunityAbortEvidence:
+            error?.agent2OwnerSupporterOpportunityEvidence??null}:{}),
         ...(nativeOpponentHiddenReadAudit?{
           nativeOpponentHiddenReadAudit:nativeHiddenRead}:{}),
         ...(nativeActionInputWitness?{
@@ -1125,6 +1139,7 @@ function runDevelopment({
     paperFullBenchCallForFamilyOptIn:paperFullBenchCallForFamily,
     paperSameTargetAttachEnergyOptIn:paperSameTargetAttachEnergy,
     paperSupporterComparisonTraceOptIn:paperSupporterComparisonTrace,
+    nativeOwnerSupporterOpportunityOptIn:nativeOwnerSupporterOpportunity,
     proposalStateAuditOptIn:proposalStateAudit,
     nativeProposalValidationAuditOptIn:nativeProposalValidationAudit,
     nativeOpponentHiddenReadAuditOptIn:nativeOpponentHiddenReadAudit,
@@ -1213,6 +1228,8 @@ if(require.main===module){
       process.env.AGENT12_SAME_TARGET_ATTACH_DEV==='true',
     paperSupporterComparisonTrace:
       process.env.AGENT41_PAPER_SUPPORTER_TRACE_DEV==='true',
+    nativeOwnerSupporterOpportunity:
+      process.env.AGENT2_NATIVE_OWNER_SUPPORTER_OPPORTUNITY_DEV==='true',
     proposalStateAudit:process.env.AGENT22_PROPOSAL_STATE_AUDIT==='true',
     nativeProposalValidationAudit:
       process.env.AGENT41_NATIVE_PROPOSAL_VALIDATION_DEV==='true',
