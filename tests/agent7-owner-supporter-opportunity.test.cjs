@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {ownerSupporterOpportunity,withOwnerSupporterOpportunity}=
+const {publicRootGeometry,ownerSupporterOpportunity,withOwnerSupporterOpportunity}=
   require('../simulation/twinleaf/agent7-owner-supporter-opportunity.cjs');
 
 const SUPPORTER=8;
@@ -23,9 +23,16 @@ function observation(state,seat=0){
       supporterPlayedTurn:owner.supporterTurn,
       supporterPlayLocked:owner.cannotPlaySupporterCards
     },
-    ownPublic:{publicTurnRestrictions:{
-      supporterPlayLocked:owner.cannotPlaySupporterCards
-    }}
+    ownPublic:{
+      active:null,bench:[],prizeCount:6,deckCount:40,
+      publicTurnRestrictions:{
+        supporterPlayLocked:owner.cannotPlaySupporterCards
+      }
+    },
+    opponentPublic:{
+      active:null,bench:[],prizeCount:6,deckCount:40,
+      handCount:state.players[1-seat].hand.cards.length
+    }
   };
 }
 
@@ -116,6 +123,10 @@ test('genuine Store proposal, settlement and Pass are counted without altering p
 
 test('owner-private receipt is unchanged when concealed opponent hand changes',()=>{
   const state=makeState([held('Carmine','Carmine TWM')]);
+  state.players[1].hand.cards=[
+    {name:'Concealed A',fullName:'Concealed A'},
+    {name:'Concealed B',fullName:'Concealed B'}
+  ];
   const before=ownerSupporterOpportunity(state,0,observation(state),SUPPORTER);
   state.players[1].hand.cards=[
     {name:'Secret Box',fullName:'Secret Box TWM'},
@@ -163,4 +174,24 @@ test('repeated speculative Pass proposals count only once after real Store accep
   assert.equal(a.passTurnAdvanced,1);
   assert.deepEqual(result.audit.passSamples.map(s=>
     s.nativePassReceipt.accepted),[false,true]);
+});
+
+
+test('root public target geometry carries only face-up board and card counts',()=>{
+  const state=makeState([held('Guzma','Guzma BUS'),energy]);
+  const view=observation(state);
+  view.ownPublic.active={energies:['Psychic Energy']};
+  view.ownPublic.bench=[{energies:['Double Colorless Energy']},null];
+  view.opponentPublic.active={energies:['Lightning Energy','Lightning Energy']};
+  view.opponentPublic.bench=[null,{energies:[]}];
+  view.ownPublic.prizeCount=4;
+  view.opponentPublic.prizeCount=3;
+  view.ownPublic.deckCount=12;
+  view.opponentPublic.handCount=8;
+  assert.deepEqual(publicRootGeometry(view),{
+    ownerHandCount:2,ownerBenchCount:1,opponentBenchCount:1,
+    ownerAttachedEnergyCards:2,opponentAttachedEnergyCards:2,
+    ownerPrizeCount:4,opponentPrizeCount:3,
+    ownerDeckCount:12,opponentDeckCount:40,opponentHandCount:8
+  });
 });
