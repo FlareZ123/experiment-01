@@ -23,17 +23,20 @@ const OLD_SHA={
 function main(){
   const frame=JSON.parse(fs.readFileSync(path.join(ROOT,REG),'utf8'));
   const registered=plannedTrials(frame).filter(x=>
-    x.rank===6&&x.repeat===2&&x.candidateSlot==='A');
-  assert.equal(registered.length,2);
+    (x.rank===6&&x.repeat===2&&x.candidateSlot==='A')||
+    (x.rank===11&&x.candidateId==='champion-reference'));
+  assert.equal(registered.length,10);
   const cfg={...frame.frozenRunOptions,
     registeredTrials:registered,registeredFrameName:REG};
   delete process.env.AGENT2_SHUFFLE_SUPPORTER_DEV;
   const baseline=runDevelopment(cfg);
-  assert.equal(baseline.rows.length,2);
+  assert.equal(baseline.rows.length,10);
   for(const row of baseline.rows){
-    assert.equal(row.status,undefined);
-    assert.equal(row.rootActionLedgerSha256,OLD_SHA[row.trial.id],
-      'Frozen original historical root hash differs: stop comparison');
+    if(OLD_SHA[row.trial.id]!==undefined){
+      assert.equal(row.status,undefined);
+      assert.equal(row.rootActionLedgerSha256,OLD_SHA[row.trial.id],
+        'Frozen original historical rank6 root hash differs: stop comparison');
+    }
   }
   process.env.AGENT2_SHUFFLE_SUPPORTER_DEV='true';
   let treated;
@@ -42,7 +45,7 @@ function main(){
   }finally{
     delete process.env.AGENT2_SHUFFLE_SUPPORTER_DEV;
   }
-  assert.equal(treated.result.rows.length,2);
+  assert.equal(treated.result.rows.length,10);
   const records=treated.result.rows.map((row,i)=>{
     const original=baseline.rows[i];
     assert.equal(row.trial.id,original.trial.id);
@@ -66,6 +69,17 @@ function main(){
     historicalSelectedNotPreregisteredStrengthExperiment:true,
     qualifiedCompetitiveGames:0,registeredSource:REG,
     bothSeatsPolicyEnabled:true,baselineNoPolicyFlag:true,
+    attemptedHistoricalArms:records.length,
+    treatmentSummary:{
+      accepted:records.reduce((a,b)=>a+(b.shuffleAudit?.acceptedRoots??0),0),
+      rejected:records.reduce((a,b)=>a+(b.shuffleAudit?.rejectedRoots??0),0),
+      eligible:records.reduce((a,b)=>a+(b.shuffleAudit?.eligibleDrawIntents??0),0),
+      resultsByStatus:records.reduce((a,b)=>{
+        a[b.treatmentStatus]=(a[b.treatmentStatus]??0)+1;
+        return a;
+      },{}),
+      nativeLillieDrawSettled:treated.audit.printedDrawConfirmed
+    },
     effects:treated.audit,records,
     interpretation:'An authentic noncompetitive Store action-space probe. No win-rate or source policy competence inference.'};
   process.stdout.write(JSON.stringify(report,null,2)+'\n');
