@@ -4,7 +4,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {chooseOpeningDiscards,planOpeningHand,
   missingTagCallK1Requirements,dceHandAttachmentBlocked,
-  hasLiveRank6SpeedLightning}=
+  hasLiveRank6SpeedLightning,firstTurnRank6SpeedStageOpportunity}=
   require('../simulation/twinleaf/rank6-broad-thorns-policy.cjs');
 
 /** @param {string[]} names */
@@ -340,4 +340,44 @@ test('attached Lightning never bypasses DCE hand lock or a spent attachment',()=
     activeLiveLightningAttached:true,activeDceAttached:true,
     energyAlreadyAttached:true
   }),{channel:'direct',needDce:false,needThunder:false,discardCount:0});
+});
+
+test('original source first-turn paid Speed stage is actor-and-board conditional',()=>{
+  const own={
+    active:{getPokemonCard:()=>({name:'Iron Thorns ex'})},
+    hand:{cards:hand(['Speed Lightning Energy'])},energyPlayedTurn:0
+  };
+  const state={turn:1,activePlayer:0,phase:2};
+  Object.defineProperty(own,'deck',{get(){throw Error('hidden source deck read');}});
+  Object.defineProperty(own,'prizes',{get(){throw Error('hidden prizes read');}});
+  Object.defineProperty(state,'opponentHand',{get(){throw Error('opponent hidden hand read');}});
+  assert.equal(firstTurnRank6SpeedStageOpportunity(state,own,0,2),true);
+  assert.equal(firstTurnRank6SpeedStageOpportunity(state,own,1,2),false);
+  state.turn=2;
+  assert.equal(firstTurnRank6SpeedStageOpportunity(state,own,0,2),false);
+  state.turn=1;state.phase=3;
+  assert.equal(firstTurnRank6SpeedStageOpportunity(state,own,0,2),false);
+  state.phase=2;own.energyPlayedTurn=1;
+  assert.equal(firstTurnRank6SpeedStageOpportunity(state,own,0,2),false);
+});
+
+test('no staging when source lacks proper Iron Thorns, Speed, or hand attachment permission',()=>{
+  const player={
+    active:{getPokemonCard:()=>({name:'Iron Thorns ex'})},
+    hand:{cards:hand(['Speed Lightning Energy'])},energyPlayedTurn:0
+  };
+  const state={turn:1,activePlayer:1,phase:2};
+  assert.equal(firstTurnRank6SpeedStageOpportunity(state,player,1,2),true);
+  player.cannotPlayEnergyCards=true;
+  assert.equal(firstTurnRank6SpeedStageOpportunity(state,player,1,2),false);
+  player.cannotPlayEnergyCards=false;player.cannotPlaySpecialEnergyCards=true;
+  assert.equal(firstTurnRank6SpeedStageOpportunity(state,player,1,2),false);
+  player.cannotPlaySpecialEnergyCards=false;
+  player.hand.cards=[];
+  assert.equal(firstTurnRank6SpeedStageOpportunity(state,player,1,2),false);
+  player.hand.cards=hand(['Speed Lightning Energy']);
+  player.active.getPokemonCard=()=>({name:'Iron Thorns ex'});
+  assert.equal(firstTurnRank6SpeedStageOpportunity(state,player,1,2),true);
+  player.active.getPokemonCard=()=>({name:'Oranguru V'});
+  assert.equal(firstTurnRank6SpeedStageOpportunity(state,player,1,2),false);
 });
