@@ -147,3 +147,29 @@ test('held Shake evolves an already-Tooled Active or Bench Trubbish', () => {
     assert.equal(directBoostShakeOpportunity(state,player,0,7),null);
   }
 });
+
+test('attack-sourced Item play lock vetoes all direct Shake routes',()=>{
+  for(const route of ['active','bench','hand','vip']){
+    const {state,player}=deal(route);
+    player.cannotPlayItemCards=true;
+    assert.equal(directBoostShakeOpportunity(state,player,0,7,false,true),
+      null,route);
+    if(route==='active'){
+      player.active.tools=[{name:'Float Stone'}];
+      assert.equal(directBoostShakeOpportunity(state,player,0,7,false,true),
+        null,'An attached Tool cannot bypass Item lock');
+    }
+  }
+});
+
+test('Tool play lock preserves only already-equipped Trubbish routes',()=>{
+  const {state,player}=deal('active');
+  player.cannotPlayToolCards=true;
+  assert.equal(directBoostShakeOpportunity(state,player,0,7,false,true),
+    null,'No new Tool may be played under Tool lock');
+  player.active.tools=[{name:'Float Stone'}];
+  assert.deepEqual(directBoostShakeOpportunity(state,player,0,7,false,true),
+    {route:'active-equipped',tool:'Float Stone'});
+  player.cannotPlayItemCards=true;
+  assert.equal(directBoostShakeOpportunity(state,player,0,7,false,true),null);
+});
