@@ -39,3 +39,9 @@ The [rank-1 Shadow Rider reference mirror bound](../aichi-2026/mirror-ceiling.md
 Reproduction arithmetic (Python `math`): `ceil(log(0.05)/log(0.995))` gives 598, and `32*ceil(log(0.05/32)/log(0.995))` gives 41280. The formulas require no Monte Carlo approximation.
 
 **Research conclusion:** Short and policy-incomplete native experiments can invalidate assumptions and reveal game defects. Their observed terminal records cannot support a field-level 99.5% victory claim. The immediate highest-value work remains engine/policy validation, exact original field coverage and informative matched-policy comparisons.
+
+## Exact impact of the three absent original opponent lists
+
+If the 29 currently known exact original 60s were hypothetically beaten **with certainty**, the three unresolved rank23,25,28 opponent probabilities are still unconstrained by source evidence. Under uniform 32-rank weights, the field win probability could be as low as **29/32 = 90.625%** if all three unknowns were certain losses, or as high as 100% if they were certain wins. To reach the **99.5% field threshold** with those 29 imagined perfect matchups, the **unknown three opponents would need an average win probability of at least 94.66667%**: solving `(29+3*x)/32 >= 0.995` gives `x >= 0.9466666667`.
+
+This is a **hypothetical arithmetic bound** for missing field coverage; it provides no evidence that any candidate beats the 29 known lists with certainty. It reinforces that exact field recovery or explicitly justified conditional interval assumptions are necessary before claiming 99.5% against the *entire* original Top32. Even a flawlessly measured 29-rank subset cannot establish the absent three's matchups.
