@@ -66,3 +66,23 @@ test('the setup audit rejects ungrounded seed, seat and chosen Basic',()=>{
   assert.throws(()=>firstOwnTurnHand(replay(2307728896,1),
     ['Trubbish FST']));
 });
+
+test('already implemented owner-visible held-Seal predicate detects the missed native hand',()=>{
+  const {heldSealOpportunity}=
+    require('../simulation/twinleaf/rank11-held-seal-opportunity.cjs');
+  const hand=firstOwnTurnHand(replay(2307728896,1),
+    ['Oranguru V ASR','Mega Absol ex M1L']);
+  const player={
+    usedVSTAR:false,
+    hand:{cards:hand.map(printing=>({name:printing.split(' ').slice(0,-1).join(' ')}))},
+    active:{getPokemonCard:()=>({name:'Oranguru V'}),tools:[]},
+    bench:[{getPokemonCard:()=>({name:'Mega Absol ex'}),tools:[]}]
+  };
+  Object.defineProperty(player,'deck',{get(){throw Error('K0 hidden deck leak');}});
+  Object.defineProperty(player,'prizes',{get(){throw Error('K0 hidden Prize leak');}});
+  const classified=heldSealOpportunity(
+    {turn:2,activePlayer:1,phase:7},player,1,7,true);
+  assert.deepEqual(classified,{
+    route:'vip',tool:'Float Stone',vTarget:{slot:'active',index:0}
+  });
+});
