@@ -4,7 +4,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {COMMON_OPTIONS,FIXED_ROOT_ENV,summarizeRecipientABA,
   describeRootTargetDivergence,sameDealRepeatStability,
-  executeRecipientABA}=require('../simulation/evaluation/agent41-native-recipient-aba.cjs');
+  executeRecipientABA,executePaidRetreatABA,PAID_RETREAT_VERSION}=
+    require('../simulation/evaluation/agent41-native-recipient-aba.cjs');
 
 /** @param {number} rank @param {string} candidateId */
 function row(rank,candidateId){
@@ -167,4 +168,34 @@ test('repeat stability requires actual Store roots and prompt hash parity',()=>{
   assert.equal(sameDealRepeatStability(base,repeated,{
     ...observed,root:{status:'different'}
   }).status,'not-reproduced-or-unverified');
+});
+
+test('second A/B/A changes only owner paid retreat and restores root env',()=>{
+  const keys=[...Object.keys(FIXED_ROOT_ENV),
+    'AGENT44_ACTOR_ENERGY_RECIPIENT_DEV'];
+  const original=new Map(keys.map(k=>[k,process.env[k]]));
+  const seen=[];
+  try{
+    process.env.AGENT44_ACTOR_ENERGY_RECIPIENT_DEV='external';
+    const value=executePaidRetreatABA(options=>{
+      assert.deepEqual(options,COMMON_OPTIONS);
+      seen.push({
+        paid:process.env.AGENT6_PAID_RETREAT_ROOT_DEV,
+        recipient:process.env.AGENT44_ACTOR_ENERGY_RECIPIENT_DEV
+      });
+      return report('false');
+    });
+    assert.equal(value.schema,PAID_RETREAT_VERSION);
+    assert.equal(value.attempts,12);
+    assert.deepEqual(seen.map(x=>x.paid),['false','true','false']);
+    assert.deepEqual(seen.map(x=>x.recipient),['false','false','false']);
+    assert.equal(value.registration.treatmentProfile,
+      'AGENT6_PAID_RETREAT_ROOT_DEV=true');
+    assert.equal(process.env.AGENT44_ACTOR_ENERGY_RECIPIENT_DEV,'external');
+  }finally{
+    for(const [k,v] of original){
+      if(v===undefined)delete process.env[k];
+      else process.env[k]=v;
+    }
+  }
 });
