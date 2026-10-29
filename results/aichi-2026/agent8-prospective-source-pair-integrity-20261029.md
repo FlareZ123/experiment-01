@@ -36,3 +36,24 @@ The original engine execution census remains **20 natural terminals, 12 action c
 Preserve this separation in all future comparisons: 32 game attempts, 16 registered source seed cells, **15 physically authenticated source-deal pairs**, 1 mismatched pair, and 12 action caps. Source-policy opportunity percentages must use the appropriate physically verified source opening unit; engine terminal percentages require their own uncensored and failure-inclusive accounting. A row-level `sameSourcePhysicalDeal` plus real starting-seat check is a prerequisite to source-opening pairing, and cannot establish full candidate physical-deal equality.
 
 No candidate list was changed, no new game result or winner was generated, no win-rate inference was warranted. Overall status is unchanged: **29/32 exact Aichi Top 32 printed 60s, zero competitively-qualified games, and no demonstrated fixed 60 with 99.5% wins**.
+
+## The one mismatch's setup-prompt mechanism (new native trace diagnosis)
+
+A second, bounded read of the **same archived** `6:3:B` pair compared the entire `turnBefore=0` accepted setup ledger, identified each physical seat and counted true `ShuffleDeckPrompt` and `ShowMulliganPrompt` events, rather than counting all prompt roots as turns. It found:
+
+| Actual setup observation | Champion reference arm | New Moon arm |
+| --- | ---: | ---: |
+| Original source seat | 0 | 0 |
+| Original source `ShuffleDeckPrompt` | **3** | **3** |
+| Candidate seat `ShuffleDeckPrompt` | **2** | **1** |
+| Source `ShowMulliganPrompt` | **2** | **1** |
+| Candidate `ShowMulliganPrompt` | **2** | **1** |
+| Setup roots before global turn 1 | **14** | **12** |
+| Actual first player | source seat 0 | source seat 0 |
+| Original source's initial hand SHA256 matches across arms | **No** | **No** |
+
+Among the other **15** candidate pairs, both arms had the **same counts of setup shuffle prompts for the source and candidate seats** and the **same original source first-hand SHA256**, in addition to the already-verified full source physical-deal SHA. Hence the lone source-deal mismatch coincides exactly with a changed opponent setup shuffle count, despite identical registered seed and actual first-player seat. No different original opponent 60, seat swap, script exception or first-player attribution error is needed to explain this observation.
+
+The pinned [`headless.cjs`](../../simulation/twinleaf/headless.cjs) creates one **seeded game RNG** `random=seededRandom(request.seed)`, then invokes `deckPermutation(owner.deck.cards.length, random)` for *each* native `ShuffleDeckPrompt`; its optional policy RNG isolation separates bot decision randomness only. An additional candidate setup shuffle is therefore mechanically capable of shifting the subsequent shared game-RNG sequence, even when the source's own shuffle *count* remains unchanged. The same engine's [setup compensation observer](../../simulation/evaluation/setup-compensation-observer.cjs) describes how unequal mulligan counts can create real, rule-mandated bonus-draw differences. The archived setup signatures support this **specific coupling mechanism**; they do not identify which individual RNG draw determined every different physical position, and they must not be interpreted as a complete causal random-stream trace.
+
+**Design consequence:** same seed and same starting player alone cannot guarantee a physically matched opponent deck across candidate 60s with different mulligan patterns. The audit must retain `6:3:B` as a genuine unpaired cell, record setup shuffle/mulligan event counts alongside any future mismatch, and include naturally induced opponent mulligan compensation in unconditional competitive experiments. For a future true common-physical-deal experiment, separately register a verified setup-coupling design rather than silently discarding such cells or forcing hidden-card equality after setup.
