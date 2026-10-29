@@ -27,6 +27,8 @@ jobs:
       - name: Compile upstream server without modifying vendor
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify guarded source-print last-Bench Dedenne versus Regidrago native forks in both seats
+        run: node simulation/twinleaf/agent11-native-last-bench-locked-dedenne.cjs
       - name: Enforce native Energy recipient legality under printed type filters
         run: node --test tests/agent11-pinned-attach-energy-geometry.test.cjs tests/agent11-attach-energy-geometry.test.cjs
       - name: Regress optional actor-only typed Energy frontier and unchanged root
@@ -67,8 +69,6 @@ jobs:
         run: node --test tests/twinleaf-policy-rng-isolation.test.cjs
       - name: Execute bounded deterministic smoke game
         run: node simulation/twinleaf/smoke-test.cjs
-      - name: Verify guarded source-print last-Bench Dedenne versus Regidrago native forks in both seats
-        run: node simulation/twinleaf/agent11-native-last-bench-locked-dedenne.cjs
       - name: Audit all published Aichi printings against Twinleaf card implementations
         run: node simulation/twinleaf/card-coverage.cjs
       - name: Resolve Aichi opponent decks with explicit, tracked substitutions
