@@ -367,6 +367,7 @@ function executeDevelopment(trial,candidates,{
   paperTerminalAttackKo=false,
   rank6K1AlternativeEnergy=false,
   rank11SourceSupporterPassRescue=false,
+  rank11ExclusiveOpening=false,
   registeredTrial=false
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
@@ -376,6 +377,8 @@ function executeDevelopment(trial,candidates,{
   const {runMatch}=require('../twinleaf/headless.cjs');
   const {withRank11DirectBoostShake}=
     require('../twinleaf/rank11-direct-boostshake.cjs');
+  const {withRank11ExclusiveOpeners}=
+    require('../twinleaf/rank11-exclusive-openers.cjs');
   const {withBroadThornsSourceAttack,discardOrder}=
     require('../twinleaf/rank6-broad-thorns-policy.cjs');
   const prepared=candidates.get(trial.candidateId);
@@ -553,6 +556,7 @@ function executeDevelopment(trial,candidates,{
     runWithNativeValidationAudit);
   let game,sourceAudit,commonAudit;
   let sourceSupporterRescueAudit=null;
+  let sourceExclusiveOpeningAudit=null;
   if(trial.rank===11){
     const runSource=rank11SourceSupporterPassRescue?()=>{
       const r=require('../twinleaf/agent41-rank11-source-pass-supporter.cjs')
@@ -560,9 +564,15 @@ function executeDevelopment(trial,candidates,{
       sourceSupporterRescueAudit=r.audit;
       return r.result;
     }:common;
-    const played=withRank11DirectBoostShake(sourceSeat,runSource,
-      {k0AvoidAllGarbodorHeld:true,k1AvoidMissingGarbodor:true});
-    sourceAudit=played.policyAudit;
+    const played=rank11ExclusiveOpening?
+      withRank11ExclusiveOpeners(sourceSeat,runSource):
+      withRank11DirectBoostShake(sourceSeat,runSource,
+        {k0AvoidAllGarbodorHeld:true,k1AvoidMissingGarbodor:true});
+    sourceExclusiveOpeningAudit=rank11ExclusiveOpening?played.policyAudit:null;
+    sourceAudit=rank11ExclusiveOpening&&
+      played.policyAudit.selected?.kind==='held-seal'?
+      played.policyAudit.held:
+      (rank11ExclusiveOpening?played.policyAudit.direct:played.policyAudit);
     game=played.result.result;
     commonAudit=played.result.policyAudit;
   }else{
@@ -686,7 +696,10 @@ function executeDevelopment(trial,candidates,{
     trial,qualifiesForCompetitiveInference:false,
     rank11SourceSupporterPassRescueOptIn:rank11SourceSupporterPassRescue,
     rank11SourceSupporterRescueAudit:sourceSupporterRescueAudit,
+    rank11ExclusiveOpeningOptIn:rank11ExclusiveOpening,
+    rank11ExclusiveOpeningAudit:sourceExclusiveOpeningAudit,
     policyVersion:POLICY_VERSION+
+      (rank11ExclusiveOpening?'+rank11-exclusive-openers-v1':'')+
       (paperSupporterQuota?'+'+PAPER_SUPPORTER_VERSION:'')+
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
       (paperFullBenchCallForFamily?'+agent38-paper-fullbench-trubbish-fst-v1':'')+
@@ -878,6 +891,7 @@ function runDevelopment({
   paperTerminalAttackKo=false,
   rank6K1AlternativeEnergy=false,
   rank11SourceSupporterPassRescue=false,
+  rank11ExclusiveOpening=false,
   sourceScopedSpecialEnergyRoot=false,
   candidateScopedSpecialEnergyRoot=false,
   candidateOnlyKnownDeadRoot=false,
@@ -951,6 +965,7 @@ function runDevelopment({
         nativeActionInputTapeOrdinal,paperTerminalAttackKo,
         rank6K1AlternativeEnergy,
         rank11SourceSupporterPassRescue,
+        rank11ExclusiveOpening,
         registeredTrial:registeredTrials!==null,
         // An opt-in observational package, with each native Store observer
         // applicable to its own opposing source archetype only.
@@ -1081,6 +1096,7 @@ function runDevelopment({
       'historical v1 selection; not v2 preregistration'),
     enginePin:registration.enginePin,
     candidatePolicy:POLICY_VERSION+
+      (rank11ExclusiveOpening?'+rank11-exclusive-openers-v1':'')+
       (paperSupporterQuota?'+'+PAPER_SUPPORTER_VERSION:'')+
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
       (paperFullBenchCallForFamily?'+agent38-paper-fullbench-trubbish-fst-v1':'')+
@@ -1116,6 +1132,7 @@ function runDevelopment({
     actorChoosePokemonOptIn:actorOnlyComposition&&actorChoosePokemon,
     actorChargedPromotionOptIn:actorOnlyComposition&&actorChargedPromotion,
     sourceFloatStoneMobilityOptIn:actorOnlyComposition&&sourceFloatStoneMobility,
+    rank11ExclusiveOpeningOptIn:rank11ExclusiveOpening,
     actorNativeFallbackAttributionOptIn:
       actorOnlyComposition&&actorGenericFallbackAttribution,
     actorOnlyCompositionVersion:actorOnlyComposition?
