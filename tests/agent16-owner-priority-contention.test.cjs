@@ -15,6 +15,41 @@ const offering=(flag,order,name,returned)=>({
   flag,order,name,load:()=>()=>returned
 });
 
+test('real chooser first-return masks a later numeric-energy heuristic',()=>{
+  const {chooseActorRootIntent}=require(
+    '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const catalog={
+    basics:new Set(),abilityBasics:new Set(),
+    basicEnergies:new Set(['Psychic Energy SVE']),
+    specialEnergies:new Set(['Double Colorless Energy SUM']),
+    basicEnergyTypes:{Psychic:5,Lightning:4},colorlessEnergyType:9,
+    specialConditions:{ASLEEP:2,PARALYZED:0}
+  };
+  const v={decisionKind:'owner-root',globalTurn:4,
+    ownHand:['Double Colorless Energy SUM'],
+    ownTurnResources:{energyPlayedTurn:0,energyPlayLocked:false,
+      specialEnergyPlayLocked:false,pokemonPlayLocked:false},
+    ownPublic:{
+      active:{name:'synthetic two-attack Basic',energies:['Psychic Energy SVE'],
+        attacks:[
+          {name:'Ready Attack',cost:[5],gxAttack:false},
+          {name:'Higher-Cost Attack',cost:[5,9,9],gxAttack:false}
+        ],specialConditions:[],publicRestrictions:{}},
+      bench:[null,null,null,null,null],stadium:[],
+      publicTurnRestrictions:{attackLockTurnsRemaining:0,gxUsed:false}
+    },opponentPublic:{stadium:[]}
+  };
+  const options={specialEnergyRoot:true};
+  const selected=chooseActorRootIntent(v,catalog,options);
+  assert.deepEqual(selected,{kind:'attack',attackName:'Ready Attack'});
+  const receipt=collectOwnerContention(v,catalog,options,selected);
+  assert.equal(receipt.alternatives.length,1);
+  assert.deepEqual(receipt.alternatives.map(a=>[a.kind,a.printing,a.reason]),[
+    ['attach-special-energy','Double Colorless Energy SUM',
+      'turn-ending-selection']
+  ]);
+});
+
 test('same-root attack shadows later Energy and Supporter proposals only',()=>{
   const probes=[
     offering('specialEnergyRoot',16,'energy',{
