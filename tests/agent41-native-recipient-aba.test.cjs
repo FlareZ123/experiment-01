@@ -38,7 +38,11 @@ function report(active){
     rows:[6,11].flatMap(rank=>ids.map(candidateId=>({
       ...row(rank,candidateId),
       actorOnlyDecisionCoverage:{detailedComponentAudits:{
-        root:{energyRecipientFrontierOptIn:active==='true'}}}
+        root:{energyRecipientFrontierOptIn:active==='true',
+          paidRetreatRootOptIn:active==='paid',
+          typedIntentCounts:active==='paid'?{'paid-retreat':2}:{},
+          nativePhysicalConfirmedByIntent:active==='paid'?{'paid-retreat':1}:{},
+          nativePhysicalUnconfirmedByIntent:active==='paid'?{'paid-retreat':1}:{}}}}
     })))
   };
 }
@@ -198,4 +202,15 @@ test('second A/B/A changes only owner paid retreat and restores root env',()=>{
       else process.env[k]=v;
     }
   }
+});
+
+test('typed paid retreat decision counts distinguish no-exposure from accepted effects',()=>{
+  const out=summarizeRecipientABA(report('false'),report('paid'),
+    report('false'));
+  assert.equal(out.summary.selectedPaidRetreats,8);
+  assert.equal(out.summary.nativePaidRetreatConfirmed,4);
+  assert.equal(out.summary.trialsWithPaidRetreatAudit,4);
+  assert.ok(out.pairs.every(p=>p.nominalPaidRetreatOptIn===true));
+  assert.ok(out.pairs.every(p=>p.selectedPaidRetreats===2));
+  assert.ok(out.pairs.every(p=>p.nativePaidRetreatUnconfirmed===1));
 });
