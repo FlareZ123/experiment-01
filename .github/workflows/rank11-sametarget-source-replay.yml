@@ -100,7 +100,7 @@ jobs:
         run: |
           node --test tests/agent41-native-recipient-aba.test.cjs
           node simulation/evaluation/agent41-native-recipient-aba.cjs > agent41-native-recipient-aba.json
-          node -e "const a=require('node:assert/strict');const r=require('./agent41-native-recipient-aba.json');a.equal(r.attempts,12);a.equal(r.uniqueOriginalTrials,4);a.equal(r.pairs.length,4);a.equal(r.summary.competitiveQualifiedGames,0);a.equal(r.registration.treatmentProfile,'AGENT44_ACTOR_ENERGY_RECIPIENT_DEV=true');console.log(JSON.stringify({schema:r.schema,runOrder:['A','B','A-repeat'],counts:r.summary,pairs:r.pairs.map(p=>({trial:p.trialId,AB:p.physicalAB.status,root:p.physicalAB.root?.status,prompt:p.physicalAB.energyPrompt?.status,AA:p.physicalARepeat.status,firstOutcome:p.original.winner,treatmentOutcome:p.recipient.winner}))},null,2))"
+          node -e "const a=require('node:assert/strict');const r=require('./agent41-native-recipient-aba.json');a.equal(r.attempts,12);a.equal(r.uniqueOriginalTrials,4);a.equal(r.pairs.length,4);a.equal(r.summary.competitiveQualifiedGames,0);a.equal(r.registration.treatmentProfile,'AGENT44_ACTOR_ENERGY_RECIPIENT_DEV=true');console.log(JSON.stringify({schema:r.schema,runOrder:['A','B','A-repeat'],counts:r.summary,pairs:r.pairs.map(p=>({trial:p.trialId,AB:p.physicalAB.status,root:p.physicalAB.root?.status,prompt:p.physicalAB.energyPrompt?.status,AA:p.physicalARepeat.status,repeatStatus:p.repeatStability.status,firstNativeRoot:p.firstABRootDivergence,firstOutcome:p.original.winner,treatmentOutcome:p.recipient.winner}))},null,2))"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
