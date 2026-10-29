@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure actor-root intent tests
-        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-special-energy-bench-witness.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs
+        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-special-energy-bench-witness.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-owner-root-arbitration.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs
       - run: git submodule update --init --depth=1 vendor/twinleaf
       - working-directory: vendor/twinleaf/ptcg-server
         run: |
@@ -41,6 +41,10 @@ jobs:
         run: node simulation/twinleaf/agent5-special-energy-bench-native-gate.cjs > agent5-special-energy-bench-native-result.json
       - name: Native matched first-return attack versus Bench Special fork in both seats
         run: node simulation/twinleaf/agent5-attack-special-arbitration-native.cjs > agent5-attack-special-arbitration-native.json
+      - name: Native original Store two-seat bounded owner-root arbitration positive and hold
+        run: node simulation/twinleaf/agent41-owner-arbitration-native.cjs > agent41-owner-arbitration-native.json
+      - name: Verify both-seat Store outcomes retained without strength inference
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent41-owner-arbitration-native.json');a.equal(r.rows.length,2);a.ok(r.rows.every(x=>x.nativeAttachmentConfirmed&&x.nativeSameAttackSettled&&x.nativeHoldAttackSettled));a.equal(r.competitiveQualifiedGames,0);console.log(JSON.stringify({schema:r.schema,version:r.policyVersion,rows:r.rows.map(x=>({seat:x.seat,selected:x.arbitratedRoot.kind,held:x.conservativeHold.reason}))}))"
       - name: Native bilateral historical and source-first development
         if: ${{ ! inputs.native_search_only }}
         run: node simulation/evaluation/agent5-owner-root-bilateral-native.cjs > agent5-owner-root-result.json
@@ -74,6 +78,7 @@ jobs:
             agent5-thunder-mountain-native-gate.json
             agent5-special-energy-bench-native-result.json
             agent5-attack-special-arbitration-native.json
+            agent41-owner-arbitration-native.json
             agent5-owner-root-result.json
             agent22-steven-native-store-result.json
             agent5-thorns-baseline-sourcefirst.json
