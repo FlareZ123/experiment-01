@@ -24,13 +24,13 @@ function main(){
   const frame=JSON.parse(fs.readFileSync(path.join(ROOT,REG),'utf8'));
   const registered=plannedTrials(frame).filter(x=>
     (x.rank===6&&x.repeat===2&&x.candidateSlot==='A')||
-    (x.rank===11&&x.candidateId==='champion-reference'));
-  assert.equal(registered.length,10);
+    (x.rank===11));
+  assert.equal(registered.length,18);
   const cfg={...frame.frozenRunOptions,
     registeredTrials:registered,registeredFrameName:REG};
   delete process.env.AGENT2_SHUFFLE_SUPPORTER_DEV;
   const baseline=runDevelopment(cfg);
-  assert.equal(baseline.rows.length,10);
+  assert.equal(baseline.rows.length,18);
   for(const row of baseline.rows){
     if(OLD_SHA[row.trial.id]!==undefined){
       assert.equal(row.status,undefined);
@@ -45,7 +45,7 @@ function main(){
   }finally{
     delete process.env.AGENT2_SHUFFLE_SUPPORTER_DEV;
   }
-  assert.equal(treated.result.rows.length,10);
+  assert.equal(treated.result.rows.length,18);
   const records=treated.result.rows.map((row,i)=>{
     const original=baseline.rows[i];
     assert.equal(row.trial.id,original.trial.id);
