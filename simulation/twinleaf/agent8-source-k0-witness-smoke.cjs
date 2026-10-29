@@ -14,6 +14,11 @@ function smoke(){
  }));
  assert.ok(witness.audit);
  assert.equal(witness.audit.rank11.backOrderNarrow,true);
+ const other=runMatch({deckA:source.cards,deckB:plan.candidate.cards,
+  seed:1244180408,maxActions:48,strictPromptValidation:true,
+  forestSealSearchCorrection:true,supporterDecisionCorrection:true,
+  isolatePolicyRandomness:true,captureDecisionTrace:true});
+ assert.deepEqual(witness.result.decisionTrace,other.decisionTrace);
  return {audit:witness.audit,qualified:false};
 }
 if(require.main===module)console.log(JSON.stringify(smoke(),null,2));
