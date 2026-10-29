@@ -106,6 +106,12 @@ jobs:
         run: |
           node simulation/evaluation/agent41-native-recipient-aba.cjs --paid-retreat > agent41-native-paid-retreat-aba.json
           node -e "const a=require('node:assert/strict');const r=require('./agent41-native-paid-retreat-aba.json');a.equal(r.schema,'agent41-same-60-native-paid-retreat-aba-v1');a.equal(r.attempts,12);a.equal(r.uniqueOriginalTrials,4);a.equal(r.summary.competitiveQualifiedGames,0);console.log(JSON.stringify({schema:r.schema,counts:r.summary,pairs:r.pairs.map(p=>({trial:p.trialId,AB:p.physicalAB.status,root:p.physicalAB.root?.status,repeatStatus:p.repeatStability.status,firstNativeRoot:p.firstABRootDivergence,paidRetreatEnabled:p.nominalPaidRetreatOptIn,firstOutcome:p.original.winner,treatmentOutcome:p.recipient.winner}))},null,2))"
+      - name: Preregistered fresh 32-arm canonical source policy scout
+        if: ${{ inputs.canonical_v2_only }}
+        run: |
+          node --test tests/agent41-prospective-canonical-scout.test.cjs
+          node simulation/evaluation/agent41-prospective-canonical-scout.cjs > agent41-prospective-canonical-32.json
+          node -e "const a=require('node:assert/strict'); const r=require('./agent41-prospective-canonical-32.json'); a.equal(r.summary.attempts,32); a.equal(r.summary.competitiveQualifiedGames,0); a.equal(r.summary.exceptions+r.summary.censored+r.summary.engineTerminals,32); console.log(JSON.stringify({schema:r.schema,attempts:r.summary.attempts,errors:r.summary.exceptions,censored:r.summary.censored,terminals:r.summary.engineTerminals,actualSourceFirst:r.summary.cells.map(c=>({rank:c.rank,slot:c.candidateSlot,candidate:c.candidateId,sourceFirst:c.actualSourceFirst,failed:c.exceptions,cap:c.capped,finished:c.terminals,sourceAttacks:c.sourceAttackDeclarations,candidateAttacks:c.candidateAttackDeclarations}))},null,2))"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -118,5 +124,6 @@ jobs:
             agent1-rank11-energy-prompt-native.json
             agent41-native-recipient-aba.json
             agent41-native-paid-retreat-aba.json
+            agent41-prospective-canonical-32.json
           if-no-files-found: warn
           retention-days: 14
