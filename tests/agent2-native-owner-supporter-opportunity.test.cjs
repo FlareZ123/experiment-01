@@ -48,6 +48,13 @@ test('owner-only engine affordability distinguishes held, quota, locks',()=>{
   const opportunity=ownerSupporterOpportunity(state,0,SUPPORTER);
   assert.equal(opportunity.heldCount,2);
   assert.equal(opportunity.nativeNullTrueCount,1);
+  assert.equal(opportunity.nativeNullTrueBeyondFirstGlobalTurn,1);
+  state.turn=1;
+  const firstGlobal=ownerSupporterOpportunity(state,0,SUPPORTER);
+  assert.equal(firstGlobal.nativeNullTrueCount,1);
+  assert.equal(firstGlobal.nativeNullTrueBeyondFirstGlobalTurn,0);
+  assert.equal(firstGlobal.firstTurnPaperExceptionStillUnverified,true);
+  state.turn=2;
   assert.deepEqual(opportunity.supporters.map(s=>s.nativeNullCanPlay),
     ['true','false']);
   assert.equal(JSON.stringify(state),before);
