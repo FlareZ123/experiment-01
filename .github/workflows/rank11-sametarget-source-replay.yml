@@ -101,6 +101,11 @@ jobs:
           node --test tests/agent41-native-recipient-aba.test.cjs
           node simulation/evaluation/agent41-native-recipient-aba.cjs > agent41-native-recipient-aba.json
           node -e "const a=require('node:assert/strict');const r=require('./agent41-native-recipient-aba.json');a.equal(r.attempts,12);a.equal(r.uniqueOriginalTrials,4);a.equal(r.pairs.length,4);a.equal(r.summary.competitiveQualifiedGames,0);a.equal(r.registration.treatmentProfile,'AGENT44_ACTOR_ENERGY_RECIPIENT_DEV=true');console.log(JSON.stringify({schema:r.schema,runOrder:['A','B','A-repeat'],counts:r.summary,pairs:r.pairs.map(p=>({trial:p.trialId,AB:p.physicalAB.status,root:p.physicalAB.root?.status,prompt:p.physicalAB.energyPrompt?.status,AA:p.physicalARepeat.status,repeatStatus:p.repeatStability.status,firstNativeRoot:p.firstABRootDivergence,firstOutcome:p.original.winner,treatmentOutcome:p.recipient.winner}))},null,2))"
+      - name: Preregistered exact-60 paid retreat A/B/A physical root test
+        if: ${{ inputs.canonical_v2_only }}
+        run: |
+          node simulation/evaluation/agent41-native-recipient-aba.cjs --paid-retreat > agent41-native-paid-retreat-aba.json
+          node -e "const a=require('node:assert/strict');const r=require('./agent41-native-paid-retreat-aba.json');a.equal(r.schema,'agent41-same-60-native-paid-retreat-aba-v1');a.equal(r.attempts,12);a.equal(r.uniqueOriginalTrials,4);a.equal(r.summary.competitiveQualifiedGames,0);console.log(JSON.stringify({schema:r.schema,counts:r.summary,pairs:r.pairs.map(p=>({trial:p.trialId,AB:p.physicalAB.status,root:p.physicalAB.root?.status,repeatStatus:p.repeatStability.status,firstNativeRoot:p.firstABRootDivergence,paidRetreatEnabled:p.nominalPaidRetreatOptIn,firstOutcome:p.original.winner,treatmentOutcome:p.recipient.winner}))},null,2))"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -112,5 +117,6 @@ jobs:
             canonical-v2-sametarget-sourcefirst-control.json
             agent1-rank11-energy-prompt-native.json
             agent41-native-recipient-aba.json
+            agent41-native-paid-retreat-aba.json
           if-no-files-found: warn
           retention-days: 14
