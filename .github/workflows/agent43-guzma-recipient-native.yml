@@ -1,0 +1,29 @@
+name: Agent 43 pinned Guzma physical recipient regression
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-owner-choice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore pinned Twinleaf source
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install exact pinned dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile exact pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Prove both-seat native Store Guzma recipient continuation
+        run: node --test tests/agent43-guzma-prompt-native.test.cjs tests/agent43-guzma-prompt-continuation.test.cjs tests/agent2-held-guzma-mobility-frontier.test.cjs
