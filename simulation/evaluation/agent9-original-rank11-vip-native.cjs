@@ -45,12 +45,26 @@ function executeOwnerVip(fixture){
   const roots=row.rootActionLedger??[];
   const vipRoots=roots.filter(root=>
     root.action==='PlayCardAction'&&root.playerSlot===sourceSeat&&
-    root.card==='Battle VIP Pass FST');
+    String(root.card??'').includes('Battle VIP Pass'));
+  const sourceEarlyRoots=roots.filter(root=>
+    root.playerSlot===sourceSeat&&root.turnBefore<=2)
+    .slice(0,24).map(root=>({
+      ordinal:root.actionOrdinal,turn:root.turnBefore,
+      action:root.action,card:root.card??null,
+      prompt:root.pendingPrompt??null
+    }));
+  const nextTurnCandidateRoots=roots.filter(root=>
+    root.playerSlot===candidateSeat&&root.turnBefore===2)
+    .slice(0,12).map(root=>({
+      ordinal:root.actionOrdinal,turn:root.turnBefore,
+      action:root.action,card:root.card??null,
+      prompt:root.pendingPrompt??null
+    }));
   const first=vipRoots[0]??null;
-  const opponentReply=first?roots.find(root=>
+  const opponentReply=roots.find(root=>
     root.playerSlot===candidateSeat&&
-    root.turnBefore===first.turnBefore+1&&
-    root.pendingPrompt===null&&root.action!=='ResolvePromptAction'):null;
+    root.turnBefore===2&&root.action!=='ResolvePromptAction'&&
+    !root.pendingPrompt)??null;
   return {
     schema:'agent9-source-rank11-native-vip-integration-v1',
     trial:row.trial.id,sourceSeat,candidateSeat,
@@ -61,7 +75,7 @@ function executeOwnerVip(fixture){
     actorPolicyVersion:canonical.audit.version,
     rootActionLedgerSha256:row.rootActionLedgerSha256,
     rootActionCount:row.rootActionCount,
-    sourceVipRoots:vipRoots,
+    sourceVipRoots:vipRoots,sourceEarlyRoots,nextTurnCandidateRoots,
     sourceVipFirstTurnRoot:first,
     nativeVipAudit:audit,
     firstCandidateReplyAfterVip:opponentReply?{
@@ -127,7 +141,9 @@ if(require.main===module){
     firstReply:output.treatment.firstCandidateReplyAfterVip,
     sourceStarter:output.treatment.actualStarterSeat,
     controlRoots:output.baseline.rootActionCount,
-    treatmentRoots:output.treatment.rootActionCount
+    treatmentRoots:output.treatment.rootActionCount,
+    sourceEarlyRoots:output.treatment.sourceEarlyRoots,
+    nextTurnCandidateRoots:output.treatment.nextTurnCandidateRoots
   })+'\n');
   if(!output.gatePassed)process.exitCode=1;
 }
