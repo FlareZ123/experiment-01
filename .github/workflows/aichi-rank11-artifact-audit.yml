@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch reproducible prior-run artifact
-        if: ${{ inputs.audit_mode != 'prospective-exposure-complete-v1' }}
+        if: ${{ inputs.audit_mode != 'prospective-exposure-complete-v1' && inputs.audit_mode != 'canonical-20261029-source-pairs' }}
         env:
           GH_TOKEN: ${{ github.token }}
           SOURCE_RUN_ID: ${{ inputs.archived_run }}
