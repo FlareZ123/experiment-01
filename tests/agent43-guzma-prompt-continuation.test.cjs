@@ -139,6 +139,8 @@ test('both genuine physical seats preserve a planned second Bench recipient',()=
   assert.deepEqual(run.result.map(x=>x.fullName),
     ['Funded Attacker','Funded Attacker']);
   assert.equal(run.audit.acceptedGuzmaRoots,2);
+  assert.equal(run.audit.guzmaHandConsumptionConfirmed,2);
+  assert.equal(run.audit.guzmaHandConsumptionUnconfirmed,0);
   assert.equal(run.audit.matchedMobilityPlans,2);
   assert.equal(run.audit.ownTargetProposals,2);
   assert.equal(run.audit.ownTargetAcceptances,2);
