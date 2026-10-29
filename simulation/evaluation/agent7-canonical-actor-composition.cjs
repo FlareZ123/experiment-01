@@ -82,10 +82,22 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   let handDiscardAudit = null;
   let pokemonAudit = null;
   let ownerDonorAudit = null;
+  let ownerSupporterOpportunityAudit = null;
+  const supporterOpportunityOptIn=options.ownerSupporterOpportunity===true||
+    process.env.AGENT7_OWNER_SUPPORTER_AUDIT_DEV==='true';
+  // Installed after all decision adapters, so real owner-root observation
+  // precedes the very first policy proposal, with all choices unchanged.
+  const runWithOwnerSupporterAudit=()=>{
+    if(!supporterOpportunityOptIn)return execute();
+    const observed=require('../twinleaf/agent7-owner-supporter-opportunity.cjs')
+      .withOwnerSupporterOpportunity(execute);
+    ownerSupporterOpportunityAudit=observed.audit;
+    return observed.result;
+  };
   const runOwnerDonor=()=>{
-    if(!options.ownerDonorSetup)return execute();
+    if(!options.ownerDonorSetup)return runWithOwnerSupporterAudit();
     const selected=require('../twinleaf/agent32-canonical-owner-donor-root.cjs')
-      .withCanonicalOwnerDonorRoot(execute,options.ownerDonorSetup);
+      .withCanonicalOwnerDonorRoot(runWithOwnerSupporterAudit,options.ownerDonorSetup);
     ownerDonorAudit=selected.audit;
     return selected.result;
   };
@@ -117,6 +129,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     'Actor hand-discard option requires an executed adapter');
   if(options.ownerDonorSetup)assert.ok(ownerDonorAudit,
     'Enabled owner donor root must return its actual canonical audit');
+  if(supporterOpportunityOptIn)assert.ok(ownerSupporterOpportunityAudit,
+    'Enabled owner Supporter audit must have observed the live executor');
   const searchOrFog = rooted.result;
   const fogged = ownerSingleSearch?searchOrFog.result:searchOrFog;
   const ownerSearchAudit = ownerSingleSearch?searchOrFog.audit:null;
@@ -146,6 +160,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       (actorChoosePokemon?'+'+POKEMON_PROMPT_VERSION:''),
     sparseOwnerSearchOptIn:sparseOwnerSearch,
     actorHandDiscardOptIn:Boolean(handDiscard),
+    ownerSupporterOpportunityOptIn:supporterOpportunityOptIn,
     actorChoosePokemonOptIn:actorChoosePokemon,
     genericFallbackAttributionOptIn:genericFallbackAttribution,
     selectedHandlerPriority: [
@@ -198,6 +213,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
         choosePokemonBySeat:pokemonAudit.bySeat??null
       }:{}),
       lastChanceGenericPromptFallbacks: finalGenericPromptFallbacks,
+      ...(supporterOpportunityOptIn?{
+        ownerSupporterOpportunitiesBySeat:ownerSupporterOpportunityAudit.bySeat
+      }:{}),
       ...(ownerDonorAudit?{
         ownerDonorEligible:ownerDonorAudit.eligibleRoots,
         ownerDonorChosen:ownerDonorAudit.chosenRoots,
@@ -215,6 +233,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       }:{})
     },
     ownerDonorAudit,
+    ownerSupporterOpportunityAudit,
     // Every upstream interceptor also counts events it delegates downstream.
     // These counters overlap and cannot be added into a decision denominator.
     overlappingDelegationObservations: {
@@ -230,6 +249,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     },
     detailedComponentAudits: {
       root: rootAudit,
+      ...(supporterOpportunityOptIn?{
+        ownerSupporterOpportunity:ownerSupporterOpportunityAudit
+      }:{}),
       ...(genericFallbackAttribution?{genericFallback:genericFallbackAudit}:{}),
       fog: fogAudit,
       ...(ownerSingleSearch?{ownerSearch:ownerSearchAudit}:{}),
