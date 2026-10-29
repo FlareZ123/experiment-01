@@ -98,5 +98,5 @@ test('bounded samples carry exact monotone root ordinal for native join',()=>{
   assert.equal(audit.samples[0].seat,1);
   assert.equal(audit.samples[0].selectedKind,'attach-special-energy');
   assert.throws(()=>recordOwnerArbitration(audit,0,4,result.receipt,-1),
-    /false/);
+    {name:'AssertionError'});
 });
