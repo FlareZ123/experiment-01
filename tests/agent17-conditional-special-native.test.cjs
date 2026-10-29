@@ -15,8 +15,8 @@ const {energyUnits}=
 const output=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 const native=p=>require(path.join(output,p));
 
-/** @param {string} pokemonPrinting @param {string} energyPrinting */
-function staged(pokemonPrinting,energyPrinting){
+/** @param {string} pokemonPrinting @param {string} energyPrinting @param {0|1} [seat] */
+function staged(pokemonPrinting,energyPrinting,seat=0){
   const manager=initializeCards();
   const {Store}=native('game/store/store');
   const {Player}=native('game/store/state/player');
@@ -43,10 +43,10 @@ function staged(pokemonPrinting,energyPrinting){
   const owner=new Player(),opponent=new Player();
   owner.id=103;opponent.id=204;
   const state=store.state;
-  state.players=[owner,opponent];
+  state.players=seat===0?[owner,opponent]:[opponent,owner];
   state.phase=GamePhase.PLAYER_TURN;
   state.turn=3;
-  state.activePlayer=0;
+  state.activePlayer=seat;
   state.gameSettings.format=Format.EXPANDED;
   owner.active.cards.push(card(pokemonPrinting));
   owner.hand.cards.push(card(energyPrinting));
@@ -60,13 +60,13 @@ function staged(pokemonPrinting,energyPrinting){
       player.prizes.push(prize);
     }
   }
-  return {store,state,owner,catalog};
+  return {store,state,owner,catalog,seat};
 }
 
-/** @param {string} pokemon @param {string} energy */
-function accepted(pokemon,energy){
-  const {store,state,owner,catalog}=staged(pokemon,energy);
-  const v=actorObservation(state,0);
+/** @param {string} pokemon @param {string} energy @param {0|1} [seat] */
+function accepted(pokemon,energy,seat=0){
+  const {store,state,owner,catalog}=staged(pokemon,energy,seat);
+  const v=actorObservation(state,seat);
   const intent=chooseActorRootIntent(v,catalog,{
     publicContextSpecialEnergy:true
   });
@@ -83,7 +83,7 @@ function accepted(pokemon,energy){
   assert.equal(owner.hand.cards.length,handBefore-1);
   assert.ok(owner.active.energies.cards.some(c=>c.fullName===energy));
   assert.equal(state.prompts.filter(p=>p.result===undefined).length,0);
-  return {state,owner,catalog};
+  return {state,owner,catalog,seat};
 }
 
 test('pinned Store accepts actor-selected DDE on a real Dragon',()=>{
@@ -123,4 +123,18 @@ test('rank4 UPR Unit Energy is gated by actual pinned CardManager printing',()=>
   const after=actorObservation(state,0);
   assert.ok(after.ownPublic.active.energies.includes(present));
   assert.equal(catalog.specialEnergies.has(present),true);
+});
+
+test('genuine Store accepts owner-only Double Dragon in physical seat B',()=>{
+  const {state,owner,catalog,seat}=accepted('Regidrago V SIT',
+    'Double Dragon Energy ROS',1);
+  assert.equal(seat,1);
+  assert.equal(state.players[1],owner);
+  const after=actorObservation(state,1);
+  assert.ok(after.ownPublic.active.energies.includes('Double Dragon Energy ROS'));
+  assert.equal(after.opponentPublic.active.name,'Bunnelby');
+  const celery=after.ownPublic.active.attacks.find(x=>x.name==='Celestial Roar');
+  assert.ok(celery);
+  assert.equal(publicSpecialAttackPayable(after,catalog,
+    after.ownPublic.active,celery),true);
 });
