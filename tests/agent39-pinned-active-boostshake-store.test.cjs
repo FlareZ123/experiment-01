@@ -54,7 +54,7 @@ function verifyActiveEvolution(sourceSeat) {
   opponent.active.cards.push(candidate);
   for (let i = 0; i < 5; i++) {
     const slot = new PokemonCardList();
-    slot.cards.push(card('Oranguru V SSH'));
+    slot.cards.push(card('Oranguru V ASR'));
     owner.bench.push(slot);
   }
   for (const player of state.players) {
