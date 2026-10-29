@@ -63,6 +63,11 @@ function analyze(baseline,treatment,registration){
     const source=audit?.bySeat?.[sourceSeat]??null;
     const candidate=audit?.bySeat?.[candidateSeat]??null;
     const firstPasses=audit?.passOpportunities??[];
+    const structuralContentions=audit?.firstTurnRootContentions??[];
+    const sourceContentions=structuralContentions.filter(row=>
+      row.seat===sourceSeat);
+    const candidateContentions=structuralContentions.filter(row=>
+      row.seat===candidateSeat);
     const actualSourceFirst=treated.actualStarterSeat===sourceSeat;
     attempts.push({
       id:trial.id,seed:trial.seed,rank:trial.rank,
@@ -87,6 +92,26 @@ function analyze(baseline,treatment,registration){
         item.seat===sourceSeat&&item.heldVip&&item.turn<=2),
       attemptedSourceVipFirstPass:firstPasses.some(item=>
         item.seat===sourceSeat&&item.selected&&item.turn<=2),
+      sourceVipStructurallyOpenNonPassRoots:sourceContentions.length,
+      sourceVipStructurallyOpenAcceptedAttackRoots:
+        sourceContentions.filter(row=>row.otherAction==='AttackAction'&&
+          row.alternativeAccepted===true).length,
+      candidateVipStructurallyOpenNonPassRoots:candidateContentions.length,
+      candidateVipStructurallyOpenAcceptedAttackRoots:
+        candidateContentions.filter(row=>row.otherAction==='AttackAction'&&
+          row.alternativeAccepted===true).length,
+      sourceContendedNativeRoots:sourceContentions.map(row=>({
+        turn:row.turn,otherAction:row.otherAction,
+        otherCard:row.otherCard??null,otherAttack:row.otherAttack??null,
+        originalAccepted:row.alternativeAccepted,
+        structuralVipOnly:true
+      })),
+      candidateContendedNativeRoots:candidateContentions.map(row=>({
+        turn:row.turn,otherAction:row.otherAction,
+        otherCard:row.otherCard??null,otherAttack:row.otherAttack??null,
+        originalAccepted:row.alternativeAccepted,
+        structuralVipOnly:true
+      })),
       unresolvedOwnerSearches:audit?.unresolvedOwnerSearches??null,
       unconfirmedNativeBench:audit?.nativeBenchUnconfirmed??null,
       nativeRejectedItems:audit?.rejectedItems??null,
@@ -143,6 +168,13 @@ function analyze(baseline,treatment,registration){
       row.actualSourceFirst&&row.actualSourceHeldVipFirstPass).length,
     sourceFirstAttemptedVipPassArms:attempts.filter(row=>
       row.actualSourceFirst&&row.attemptedSourceVipFirstPass).length,
+    sourcePotentialVipPriorityContentions:sum('sourceVipStructurallyOpenNonPassRoots'),
+    sourcePotentialVipPriorityAcceptedAttacks:
+      sum('sourceVipStructurallyOpenAcceptedAttackRoots'),
+    candidatePotentialVipPriorityContentions:
+      sum('candidateVipStructurallyOpenNonPassRoots'),
+    candidatePotentialVipPriorityAcceptedAttacks:
+      sum('candidateVipStructurallyOpenAcceptedAttackRoots'),
     sourceItemWithoutNativeOwnerPrompt:sourceMissingPrompt.map(row=>row.id),
     candidateItemWithoutNativeOwnerPrompt:candidateMissingPrompt.map(row=>row.id),
     nativeRejectedItemAttempts:sum('nativeRejectedItems'),
@@ -171,6 +203,12 @@ if(require.main===module){
     sourceItems:result.sourceVipAcceptedItems,
     physicalBenches:result.sourceVipPhysicalBenchConfirmed,
     candidateItems:result.candidateVipAcceptedItems,
+    structuralContentions:{
+      source:result.sourcePotentialVipPriorityContentions,
+      sourceNativeAttacks:result.sourcePotentialVipPriorityAcceptedAttacks,
+      candidate:result.candidatePotentialVipPriorityContentions,
+      candidateNativeAttacks:result.candidatePotentialVipPriorityAcceptedAttacks
+    },
     errors:[result.baselineNativeErrors,result.treatmentNativeErrors],
     censored:[result.baselineCapped,result.treatmentCapped],
     gatePassed:result.gatePassed,
