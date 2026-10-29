@@ -50,3 +50,5 @@ The Crobat forced-Active cases are excluded from direct alternative play; switch
 - Pinned game-engine revision and native policy: **not used**; no compiled Twinleaf game or CI job claimed.
 
 **Next empirical gate:** On genuinely dealt rank-11 source-first hands, record the owner's Bench-eligible Crobat status and actual paid Quick Ball discard **before** a legal Boost Shake; compare mutually exclusive Quick target uses and a complete subsequent opponent reply under the shared policy. This avoids converting an access graph into an assumed game line. Still **29/32 exact source lists**, **zero competitively qualified games**, no verified fixed 99.5% deck.
+
+**Compiled pure-test verification:** [Existing manual global field gate, run 40954227754](https://github.com/FlareZ123/experiment-01/actions/runs/40954227754) completed successfully on main at `0429398da2b565ef8d47d342c08c7b8822639f7e` after adding these four tests to `.github/workflows/aichi-global-field-gate.yml`. This checks frozen source arithmetic and partition regressions with GitHub Actions Node 20, without a pinned Twinleaf game execution or win-rate qualification.
