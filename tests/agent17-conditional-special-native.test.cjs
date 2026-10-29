@@ -140,3 +140,46 @@ test('genuine Store accepts owner-only Double Dragon in physical seat B',()=>{
   assert.equal(publicSpecialAttackPayable(after,catalog,
     after.ownPublic.active,celery),true);
 });
+
+
+for(const energy of ['Reversal Energy PAL','Counter Energy CIN']){
+  test('rank4 exact source attached '+energy+' behind on Prizes',()=>{
+    const manager=initializeCards();
+    if(!manager.getCardByName(energy)){
+      console.log('NATIVE_UNSUPPORTED_ORIGINAL_SPECIAL',energy);
+      return;
+    }
+    const {store,state,owner,catalog}=staged(
+      'Alolan Raichu UNM',energy);
+    state.players[1].prizes.splice(4);
+    const {buildPublicPokemonProfileIndex}=
+      require('../simulation/twinleaf/agent10-original-printing-energy-flags.cjs');
+    catalog.publicPokemonProfileIndex=buildPublicPokemonProfileIndex(
+      path.resolve(__dirname,'..'));
+    const v=actorObservation(state,0);
+    assert.equal(v.ownPublic.active.name,'Alolan Raichu');
+    assert.equal(v.ownPublic.active.evolutionPrintings.length,2);
+    assert.equal(v.ownPublic.prizeCount,6);
+    assert.equal(v.opponentPublic.prizeCount,4);
+    const intent=chooseActorRootIntent(v,catalog,{
+      publicContextSpecialEnergy:true
+    });
+    assert.deepEqual(intent,{
+      kind:'attach-special-energy',printing:energy,handIndex:0,
+      slot:'active',index:0
+    });
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    store.dispatch(new PlayCardAction(owner.id,intent.handIndex,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    assert.ok(owner.active.energies.cards.some(c=>c.fullName===energy));
+    const after=actorObservation(state,0);
+    const electric=after.ownPublic.active.attacks.find(a=>
+      a.name==='Electric Ball');
+    assert.ok(electric);
+    assert.equal(publicSpecialAttackPayable(after,catalog,
+      after.ownPublic.active,electric),
+    energy==='Reversal Energy PAL');
+  });
+}
