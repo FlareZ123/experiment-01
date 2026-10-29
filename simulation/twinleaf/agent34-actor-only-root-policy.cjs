@@ -378,6 +378,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT1_THORNS_DIRECT_ROOT_DEV==='true'),
     specialEnergyRootOptIn:deps.specialEnergyRoot??
       (process.env.AGENT3_SPECIAL_ENERGY_ROOT_DEV==='true'),
+    publicContextSpecialEnergyOptIn:deps.publicContextSpecialEnergy??
+      (process.env.AGENT17_PUBLIC_CONTEXT_SPECIAL_DEV==='true'),
     specialEnergyRootOwnerSeat:deps.specialEnergyRootOwnerSeat??null,
     naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
       (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
@@ -431,6 +433,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent1-owner-public-floatstone-mobility-v1';
   if(audit.specialEnergyRootOwnerSeat!==null)
     audit.version+='+agent49-source-seat-special-v1';
+  if(audit.publicContextSpecialEnergyOptIn)
+    audit.version+='+'+
+      require('./agent17-public-context-special-energy.cjs').VERSION;
   if(audit.quickBallRootOptIn)
     audit.version=VERSION+'+'+
       require('./agent8-actor-quick-ball-frontier.cjs').VERSION;
@@ -513,6 +518,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       thornsDirectLine:audit.thornsDirectLineOptIn,
       specialEnergyRoot:actorSpecialEnergyEnabled(
         audit.specialEnergyRootOptIn,audit.specialEnergyRootOwnerSeat,seat),
+      publicContextSpecialEnergy:actorSpecialEnergyEnabled(
+        audit.publicContextSpecialEnergyOptIn,
+        audit.specialEnergyRootOwnerSeat,seat),
       printedGxRoot:audit.printedGxRootOptIn,
       potentialKoRoot:audit.potentialKoRootOptIn,
       knownDeadAttackRoot:actorSpecialEnergyEnabled(
