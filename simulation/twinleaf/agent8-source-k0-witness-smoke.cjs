@@ -7,8 +7,10 @@ function smoke(){
  const plan=planAichi(1,{allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true});
  const source=plan.opponents.find(x=>x.rank===11);
  const witness=withSourceK0OpportunityWitness(11,0,()=>runMatch({
-  deckA:source.cards,deckB:plan.candidate.cards,seed:235261702,
-  maxActions:120,strictPromptValidation:true
+  deckA:source.cards,deckB:plan.candidate.cards,seed:1244180408,
+  maxActions:48,strictPromptValidation:true,
+  forestSealSearchCorrection:true,supporterDecisionCorrection:true,
+  isolatePolicyRandomness:true
  }));
  assert.ok(witness.audit);
  return {audit:witness.audit,qualified:false};
