@@ -8,11 +8,6 @@ on:
         required: false
         type: boolean
         default: false
-      low_hand_lillie_pair:
-        description: Native same-seed low-hand Lillie Supporter pre-attack policy contrast, development only
-        required: false
-        type: boolean
-        default: false
       source_first_retrospective:
         description: Also execute previously selected native source-first four-arm stress panel
         required: false
@@ -218,7 +213,6 @@ jobs:
       - name: Execute unchanged canonical four-arm historical bilateral runner
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
-          AGENT25_LOWHAND_LILLIE_DEV: ${{ inputs.low_hand_lillie_pair && 'true' || 'false' }}
           AGENT7_OWNER_SUPPORTER_AUDIT_DEV: ${{ inputs.owner_supporter_opportunity && 'true' || 'false' }}
           AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
           AGENT32_COMPR_ANYTURN_DEV: ${{ inputs.owner_anyturn_compressor_pair && 'true' || 'false' }}
@@ -242,50 +236,6 @@ jobs:
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-actor-fourarm.json
-      - name: Repeat unchanged canonical four-arm with Lillie pre-attack OFF
-        if: ${{ inputs.low_hand_lillie_pair }}
-        env:
-          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
-          AGENT25_LOWHAND_LILLIE_DEV: 'false'
-          AGENT7_OWNER_SUPPORTER_AUDIT_DEV: ${{ inputs.owner_supporter_opportunity && 'true' || 'false' }}
-          AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
-          AGENT32_COMPR_ANYTURN_DEV: ${{ inputs.owner_anyturn_compressor_pair && 'true' || 'false' }}
-          AGENT32_COMPR_BENCHED_DEV: ${{ inputs.owner_early_bench_compressor_pair && 'true' || 'false' }}
-          AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
-          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
-          AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
-          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: ${{ inputs.native_generic_fallback && 'true' || 'false' }}
-          AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
-          AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
-          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
-          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
-          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
-          AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
-          AGENT30_PERFECTION_ROOT_DEV: ${{ inputs.actor_perfection_root && 'true' || 'false' }}
-          AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
-          AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
-          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
-          AGENT41_PAPER_SUPPORTER_DEV: 'true'
-          AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
-          AGENT41_MANDATORY_OPTION_DEV: 'true'
-          AGENT41_NATIVE_PRESSURE_DEV: 'true'
-        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent25-lowhand-lillie-control-fourarm.json
-      - name: Audit same-deal Lillie policy intervention and retain all failures
-        if: ${{ inputs.low_hand_lillie_pair }}
-        run: |
-          node simulation/evaluation/agent25-lowhand-lillie-paired-audit.cjs agent25-lowhand-lillie-control-fourarm.json agent7-canonical-actor-fourarm.json > agent25-lowhand-lillie-paired-audit.json
-          node -e "const a=require('./agent25-lowhand-lillie-paired-audit.json');const assert=require('node:assert/strict');assert.equal(a.pairs,4);assert.equal(a.matchingSourceDeals,4);assert.equal(a.matchingFirstPlayers,4);assert.equal(a.competitiveQualifiedGames,0);console.log('AGENT25_LILLIE_DEVELOPMENT',JSON.stringify({proposed:a.proposed,physicallyConfirmed:a.physicallyConfirmed,nativeSettled:a.nativeSettled,statuses:a.rows.map(x=>({id:x.id,control:x.controlStatus,treatment:x.treatmentStatus}))}))"
-      - name: Archive every historical Lillie arm even when the paired audit fails
-        if: ${{ always() && inputs.low_hand_lillie_pair }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: agent25-lowhand-lillie-native-pair
-          path: |
-            agent7-canonical-actor-fourarm.json
-            agent25-lowhand-lillie-control-fourarm.json
-            agent25-lowhand-lillie-paired-audit.json
-          if-no-files-found: warn
-          retention-days: 10
       - name: Repeat frozen four-arm Store with owner Supporter observer disabled
         if: ${{ inputs.owner_supporter_opportunity }}
         env:
