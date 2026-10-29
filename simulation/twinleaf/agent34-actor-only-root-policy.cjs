@@ -627,7 +627,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     if(arbitration){
       require('./agent41-owner-root-arbitration.cjs')
         .recordOwnerArbitration(audit.terminalArbitration,
-          seat,view.globalTurn,arbitration.receipt);
+          seat,view.globalTurn,arbitration.receipt,
+          audit.selectedRootDecisions+1);
     }
     const intent=arbitration?.intent??firstIntent;
     if(audit.ownerArbitrationCensusOptIn){
@@ -706,6 +707,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     audit.selectedRootDecisions++;
     typedDecisions.set(action,{globalTurn:view.globalTurn,seat,kind:intent.kind,
+      ...(audit.terminalArbitrationOptIn?{
+        policyDecisionOrdinal:audit.selectedRootDecisions}:{}),
       intent:{...intent,benchSlot:intent.benchIndex}});
     audit.typedIntentCounts[intent.kind]=(audit.typedIntentCounts[intent.kind]??0)+1;
     if(audit.ownerRootIntents.length<40)audit.ownerRootIntents.push({
