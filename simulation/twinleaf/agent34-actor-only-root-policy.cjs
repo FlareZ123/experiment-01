@@ -501,7 +501,15 @@ function withActorOnlyRootPolicy(run,deps={}){
       }else audit.nonOwnerNativeDelegations++;
       return original.value.call(this,state);
     }
-    if(catalog===null)catalog=getCatalog();
+    if(catalog===null){
+      catalog=getCatalog();
+      if(audit.publicContextSpecialEnergyOptIn&&
+          !(catalog.publicPokemonProfileIndex instanceof Map)){
+        catalog.publicPokemonProfileIndex=
+          require('./agent10-original-printing-energy-flags.cjs')
+            .buildPublicPokemonProfileIndex(path.resolve(__dirname,'../..'));
+      }
+    }
     const view=observe(state,seat);
     if(audit.lowHandLillieCensusOptIn){
       const {LILLIE}=require('./agent12-actor-only-lillie-after-pass.cjs');
