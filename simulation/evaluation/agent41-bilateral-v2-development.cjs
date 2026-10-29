@@ -414,6 +414,9 @@ function executeDevelopment(trial,candidates,{
     capturePerfectionPassProbeSeat:candidateSeat,
     captureHeldTelepathPassProbeSeat:candidateSeat,
     captureInitialSourceDealFingerprintSeat:sourceSeat,
+    // Existing opaque two-seat setup fingerprint authenticates the complete
+    // physical deal. It is postdecision evidence and never reaches policy.
+    captureInitialFullPhysicalDeal:true,
     // Preserve the actual failed Store root, pre-dispatch public board,
     // accepted label ledger, and source physical-deal digest on abort.
     // This post-choice observer cannot affect either player's bot policy.
@@ -722,6 +725,10 @@ function executeDevelopment(trial,candidates,{
     firstTurnPlayerName:game.firstTurnPlayerName,
     firstDrawLogName:game.firstDrawLogName,
     sourceDealFingerprint:sourceDeal.digestSha256,
+    fullPhysicalDealFingerprint:
+      game.initialFullPhysicalDealFingerprint?.digestSha256??null,
+    fullPhysicalDealProtocol:
+      game.initialFullPhysicalDealFingerprint?.schema??null,
     sourceFirstOwnHandSha256:ownerFirst?sha256(ownerFirst):null,
     // Read-only owner K1 deck-search choices, for all historical arms.
     // Never give the real deck membership to a pre-search K0 policy.
