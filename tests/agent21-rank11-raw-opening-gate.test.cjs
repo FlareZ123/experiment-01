@@ -117,9 +117,10 @@ test('holding Forest Seal Stone or Boost Shake removes direct v1 opportunities',
  * and disregards the legality/availability of Quick Ball's discard and the
  * searched Pokémon, so this is a card-location screen, not a playable line.
  * @param {boolean} requireOtherBasicInOpeningSeven
+ * @param {boolean} [includeQuickBall] Whether to count the route NOT implemented in the existing direct policy.
  * @returns {bigint}
  */
-function directBoostToolLocations(requireOtherBasicInOpeningSeven) {
+function directBoostToolLocations(requireOtherBasicInOpeningSeven, includeQuickBall = true) {
   const raw = [copies('Trubbish'), basicCount - copies('Trubbish'),
     copies('Battle VIP Pass'), copies('Quick Ball'), copies('Boost Shake'),
     copies('Float Stone') + copies('Forest Seal Stone') + copies('Muscle Band')];
@@ -145,7 +146,8 @@ function directBoostToolLocations(requireOtherBasicInOpeningSeven) {
       if (remainingCopies === 0) continue;
       const eight = [...first];
       eight[i] += 1;
-      if (eight[4] && eight[5] && (eight[0] || eight[2] || eight[3])) {
+      if (eight[4] && eight[5] &&
+          (eight[0] || eight[2] || (includeQuickBall && eight[3]))) {
         favorable += firstWays * BigInt(remainingCopies);
       }
     }
@@ -161,6 +163,19 @@ test('direct held-Boost, Tool and Trubbish access are wider raw locations', () =
     0.08940244761168846) < 1e-14);
   assert.ok(Math.abs(probability(directBoostToolLocations(true), basicValid) -
     0.07495336154798442) < 1e-14);
+});
+
+test('canonical direct policy omits only Quick-Ball-only raw access', () => {
+  // The canonical bilateral runner already wraps rank11-direct-boostshake,
+  // whose plain direct predicate handles hand Trubbish and VIP, not Quick Ball.
+  assert.equal(directBoostToolLocations(false, false), 1070319020n);
+  assert.equal(directBoostToolLocations(true, false), 840343959n);
+  assert.equal(directBoostToolLocations(false, true) -
+    directBoostToolLocations(false, false), 352631418n);
+  assert.ok(Math.abs(probability(directBoostToolLocations(false, false), basicValid) -
+    0.06724699438431442) < 1e-14);
+  assert.ok(Math.abs(probability(directBoostToolLocations(true, false), basicValid) -
+    0.052797908320610376) < 1e-14);
 });
 
 console.log(JSON.stringify({
