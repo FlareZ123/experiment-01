@@ -110,7 +110,7 @@ function withActorOnlyLillieAfterPass(run,deps={}){
     return action;
   }
   function nativeObserved(action,...args){
-    if(!firstStore&&action?.constructor?.name==='AddPlayerAction')
+    if(action?.constructor?.name==='AddPlayerAction'&&this!==firstStore)
       firstStore=this;
     const attempt=this===firstStore?suggestions.get(action):null;
     try{
