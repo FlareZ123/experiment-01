@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent9_registered_vip_32_census:
+        description: Original same-physical 32-arm both-seat VIP source coverage, failure-inclusive development only
+        required: false
+        type: boolean
+        default: false
       agent22_native_proposal_state:
         description: 'Run canonical both-seat pre-dispatch Supporter State-purity audit and control'
         required: false
@@ -63,7 +68,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Validate Supporter proposal and field provenance
-        run: node --test tests/supporter-decision-hook.test.cjs tests/test-aichi-field-benchmark.cjs tests/aichi-supporter-census.test.cjs tests/mandatory-option-policy.test.cjs tests/expanded-policy-profile.test.cjs tests/lost-vacuum-modal-choice.test.cjs tests/bunnelby-guzma-hala-mode.test.cjs tests/bunnelby-tm-target-selection.test.cjs tests/bunnelby-k0-source-inventory.test.cjs tests/expanded-source-profile-pair.test.cjs tests/bunnelby-gh-discard-policy-probe.test.cjs tests/bunnelby-gh-search-policy.test.cjs tests/expanded-gh-search-pair.test.cjs tests/newmoon-proactive-lowhand-lillie-opportunity.test.cjs tests/agent25-lowhand-lillie-root.test.cjs tests/agent25-lowhand-lillie-paired-audit.test.cjs tests/agent25-registered-scout-owner-census.test.cjs tests/agent25-original-32-lillie-contrast.test.cjs tests/agent25-29-source-supporter-vocabulary.test.cjs tests/agent50-stranded-marnie-frontier.test.cjs tests/agent9-battle-vip-owner-after-pass.test.cjs tests/agent7-canonical-actor-composition.test.cjs
+        run: node --test tests/supporter-decision-hook.test.cjs tests/test-aichi-field-benchmark.cjs tests/aichi-supporter-census.test.cjs tests/mandatory-option-policy.test.cjs tests/expanded-policy-profile.test.cjs tests/lost-vacuum-modal-choice.test.cjs tests/bunnelby-guzma-hala-mode.test.cjs tests/bunnelby-tm-target-selection.test.cjs tests/bunnelby-k0-source-inventory.test.cjs tests/expanded-source-profile-pair.test.cjs tests/bunnelby-gh-discard-policy-probe.test.cjs tests/bunnelby-gh-search-policy.test.cjs tests/expanded-gh-search-pair.test.cjs tests/newmoon-proactive-lowhand-lillie-opportunity.test.cjs tests/agent25-lowhand-lillie-root.test.cjs tests/agent25-lowhand-lillie-paired-audit.test.cjs tests/agent25-registered-scout-owner-census.test.cjs tests/agent25-original-32-lillie-contrast.test.cjs tests/agent25-29-source-supporter-vocabulary.test.cjs tests/agent50-stranded-marnie-frontier.test.cjs tests/agent9-battle-vip-owner-after-pass.test.cjs tests/agent7-canonical-actor-composition.test.cjs tests/agent9-registered-original-32-vip-census.test.cjs
       - name: Original four-arm native Store with Lillie selector disabled
         if: ${{ inputs.agent25_lowhand_lillie_pair }}
         env:
@@ -165,6 +170,30 @@ jobs:
           path: |
             agent9-rank11-vip-original-deal.json
             agent9-rank11-vip-original-deal-seat0.json
+          if-no-files-found: warn
+          retention-days: 12
+      - name: Existing original 32-arm physical-deal control, VIP disabled
+        if: ${{ inputs.agent9_registered_vip_32_census }}
+        env:
+          AGENT9_BATTLE_VIP_AFTER_PASS_DEV: 'false'
+        run: node simulation/evaluation/agent41-prospective-canonical-scout.cjs > agent9-original-32-vip-control.json
+      - name: Identical original 32-arm physical-deal treatment, VIP enabled
+        if: ${{ inputs.agent9_registered_vip_32_census }}
+        env:
+          AGENT9_BATTLE_VIP_AFTER_PASS_DEV: 'true'
+        run: node simulation/evaluation/agent41-prospective-canonical-scout.cjs > agent9-original-32-vip-treatment.json
+      - name: Fail-closed native owner VIP physical-Bench and all-attempt analysis
+        if: ${{ inputs.agent9_registered_vip_32_census }}
+        run: node simulation/evaluation/agent9-registered-original-32-vip-census.cjs agent9-original-32-vip-control.json agent9-original-32-vip-treatment.json results/aichi-2026/registrations/agent9-existing-32-vip-coverage-20261029.json > agent9-original-32-vip-census.json
+      - name: Archive complete both policy runs and failure-inclusive native VIP census
+        if: ${{ always() && inputs.agent9_registered_vip_32_census }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-retrospective-original-32-vip-policy-census
+          path: |
+            agent9-original-32-vip-control.json
+            agent9-original-32-vip-treatment.json
+            agent9-original-32-vip-census.json
           if-no-files-found: warn
           retention-days: 12
       - name: Optional published-list policy feasibility probe
