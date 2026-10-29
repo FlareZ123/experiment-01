@@ -10,6 +10,8 @@ const {auditRegisteredSourceDeals}=
   require('../simulation/evaluation/agent8-prospective-source-deal-audit.cjs');
 const {auditSourceOpeningRecipients}=
   require('../simulation/evaluation/agent8-source-firstturn-physical-recipients.cjs');
+const {originalSourcePlayCoverage}=
+  require('../simulation/evaluation/agent8-original-source-control-play-coverage.cjs');
 
 const root=path.resolve(__dirname,'..');
 const registrationPath=path.join(root,
@@ -35,8 +37,11 @@ function auditOriginalScout(archive){
     trials,archive.developmentResult);
   const sourceFirstTurnAudit=auditSourceOpeningRecipients(
     trials,archive.developmentResult);
+  const sourcePlayCoverage=originalSourcePlayCoverage(
+    archive.developmentResult.rows);
   return {registrationBlob:blob,enginePin:plan.enginePin,
-    sourceDealAudit,sourceFirstTurnAudit,competitiveQualifiedGames:0,
+    sourceDealAudit,sourceFirstTurnAudit,sourcePlayCoverage,
+    competitiveQualifiedGames:0,
     provenance:'Read-only registered source-deal alignment; not an additional native experiment'};
 }
 
