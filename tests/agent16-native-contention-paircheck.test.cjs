@@ -84,5 +84,5 @@ test('source arms without genuine owner-root observations are rejected',()=>{
   observed.rows[2].actorOnlyDecisionCoverage.detailedComponentAudits.root
     .ownerArbitration.ownerRoots=0;
   assert.throws(()=>compareOwnerArbitrationPair(control,observed),
-    /ownerRoots > 0/);
+    /No genuine owner-root decisions/);
 });
