@@ -5,6 +5,7 @@ const {createHash}=require('node:crypto');
 const path=require('node:path');
 const {runMatch,initializeCards}=require('../twinleaf/headless.cjs');
 const {planAichi}=require('./aichi-pilot.cjs');
+const {observedFirstTurn}=require('./aichi-campaign-execute.cjs');
 const {withCanonicalActorOnlyPolicy}=
   require('./agent7-canonical-actor-composition.cjs');
 const {withActorOnlyRootPolicy}=
@@ -102,6 +103,7 @@ function executeOne(trial,cards){
       },{ownerSingleSearch:true,genericFallbackAttribution:true}));
     const observed=guarded.result;
     const game=observed.result;
+    const verifiedStart=observedFirstTurn(game);
     const root=observed.audit.detailedComponentAudits?.root;
     assert.equal(root?.terminalArbitrationOptIn===true,enabled);
     assert.equal(root?.publicContextSpecialEnergyOptIn,true);
@@ -113,8 +115,10 @@ function executeOne(trial,cards){
         game.initialFullPhysicalDealFingerprint?.digestSha256??null,
       sourceDealFingerprint:
         game.initialSourceDealFingerprint?.digestSha256??null,
-      actualStarterSeat:game.firstTurnSlot??null,
-      sourceActuallyFirst:game.firstTurnSlot===sourceSeat,
+      actualStarterSeat:verifiedStart?.firstTurnSlot??null,
+      sourceActuallyFirst:verifiedStart?
+        verifiedStart.firstTurnSlot===sourceSeat:null,
+      firstStartVerified:verifiedStart!==null,
       status:game.finished?'engine-terminal':'capped-or-unresolved',
       winner:game.winner??null,actionCount:game.actionCount??null,
       engineEndReason:game.endReason??null,
