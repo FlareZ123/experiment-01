@@ -86,9 +86,12 @@ function comparePairedAcceptedTargets(control,treatment){
     return {...prefix,status:'incomplete-native-pair',
       controlStatus:control.status??'complete',
       treatmentStatus:treatment.status??'complete'};
-  const root=firstPhysicalTargetDifference(
-    control.nativeAcceptedTargetSidecar,
-    treatment.nativeAcceptedTargetSidecar);
+  const root=control.nativeAcceptedTargetSidecar?.observedLiveStore===true&&
+    treatment.nativeAcceptedTargetSidecar?.observedLiveStore===true?
+    firstPhysicalTargetDifference(
+      control.nativeAcceptedTargetSidecar,
+      treatment.nativeAcceptedTargetSidecar):
+    {status:'target-unobserved',reason:'missing-actual-native-Store-observation'};
   const energyPrompt=firstAcceptedEnergyPromptDifference(
     control.nativeAcceptedEnergyPromptSidecar,
     treatment.nativeAcceptedEnergyPromptSidecar);
