@@ -139,6 +139,46 @@ test('equivalent physical proposals are deduplicated',()=>{
   assert.equal(r.alternatives[0].probe,'flexible');
 });
 
+test('opponent concealed hand and Prize truth cannot alter the numeric contender',()=>{
+  const {chooseActorRootIntent}=require(
+    '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const catalog={
+    basics:new Set(),abilityBasics:new Set(),basicEnergies:new Set(),
+    specialEnergies:new Set(['Capture Energy RCL']),
+    basicEnergyTypes:{Psychic:5,Lightning:4},colorlessEnergyType:9,
+    specialConditions:{ASLEEP:2,PARALYZED:0}
+  };
+  const base={
+    decisionKind:'owner-root',globalTurn:4,
+    ownHand:['Capture Energy RCL'],
+    ownTurnResources:{energyPlayedTurn:0,energyPlayLocked:false,
+      specialEnergyPlayLocked:false,pokemonPlayLocked:false},
+    ownPublic:{
+      active:{name:'Girafarig',printing:'Girafarig LOT',
+        energies:['Capture Energy RCL'],
+        attacks:[
+          {name:'Get Lost',cost:[9],gxAttack:false},
+          {name:'Mind Shock',cost:[9,9,9],gxAttack:false}
+        ],specialConditions:[],publicRestrictions:{}},
+      bench:[null,null,null,null,null],stadium:[],
+      publicTurnRestrictions:{attackLockTurnsRemaining:0,gxUsed:false}
+    },opponentPublic:{stadium:[]},
+    opponentPrivate:{hand:['Hidden Control'],prizes:['Known only to us']},
+    unseenOwnedDeckOrder:['Unseen A']
+  };
+  const hiddenAlternate=structuredClone(base);
+  hiddenAlternate.opponentPrivate={
+    hand:['Completely different'],prizes:['Hidden opposite']
+  };
+  hiddenAlternate.unseenOwnedDeckOrder=['Unseen X'];
+  const options={specialEnergyRoot:true};
+  const outcome=view=>{
+    const selected=chooseActorRootIntent(view,catalog,options);
+    return collectOwnerContention(view,catalog,options,selected);
+  };
+  assert.deepStrictEqual(outcome(base),outcome(hiddenAlternate));
+});
+
 test('unknown selected intent is fail-closed',()=>{
   const r=collectOwnerContention(view,{},{
     specialEnergyRoot:true
