@@ -122,3 +122,15 @@ test('Active Trubbish remains actor-visible and respects phase and owner', () =>
   state.activePlayer=1;
   assert.equal(directBoostShakeOpportunity(state,player,0,7,false,true),null);
 });
+
+test('later-turn reachability excludes first-turn-only Battle VIP Pass', () => {
+  const {state,player}=deal('vip');
+  state.turn=3;
+  assert.equal(directBoostShakeOpportunity(state,player,0,7,false,true),null);
+  player.hand.cards.push({name:'Trubbish'});
+  assert.deepEqual(directBoostShakeOpportunity(state,player,0,7,false,true),
+    {route:'hand',tool:'Muscle Band'});
+  player.bench.push(slot('Trubbish'));
+  assert.deepEqual(directBoostShakeOpportunity(state,player,0,7,false,true),
+    {route:'bench',tool:'Muscle Band'});
+});
