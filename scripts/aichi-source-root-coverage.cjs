@@ -9,7 +9,8 @@ const BASIC_ENERGIES=new Set([
 ]);
 const FEATURE_NAMES=Object.freeze([
   'Battle VIP Pass','Quick Ball','Carmine','Boost Shake',
-  'Tag Call','Guzma & Hala','Speed Lightning Energy'
+  'Tag Call','Guzma & Hala','Speed Lightning Energy',
+  'Guzma','VS Seeker','Battle Compressor',"Lillie's Determination"
 ]);
 
 /** @param {object} corpus Exact printed Aichi source corpus.
