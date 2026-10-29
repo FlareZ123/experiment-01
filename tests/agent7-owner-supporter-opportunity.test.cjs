@@ -42,14 +42,16 @@ test('opening player first turn recognizes all printed exception Supporters',()=
     held('Carmine','Carmine TWM'),
     held('Beauty','Beauty VIV'),
     held("Team Rocket's Proton","Team Rocket's Proton DRI"),
+    held('Wally','Wally ROS'),
     energy
   ],1);
   const result=ownerSupporterOpportunity(state,0,observation(state),SUPPORTER);
   assert.deepEqual(result.held.map(c=>c.structurallyOpen),
-    [false,true,true,true]);
+    [false,true,true,true,false]);
   assert.deepEqual(result.held.map(c=>c.firstTurnScreen),[
     'ordinary-supporter-restricted','printed-go-first-exception',
-    'printed-go-first-exception','printed-go-first-exception'
+    'printed-go-first-exception','printed-go-first-exception',
+    'ordinary-supporter-restricted'
   ]);
   assert.equal(result.structurallyOpenCount,3);
   assert.equal(result.nativeNullTargetPositiveCount,0);
