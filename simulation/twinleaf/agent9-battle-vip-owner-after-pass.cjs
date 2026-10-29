@@ -103,11 +103,13 @@ function withActorBattleVipAfterPass(execute,deps={}){
   assert.equal(typeof beforeDecode?.value,'function');
   assert.equal(typeof beforeDispatch?.value,'function');
 
-  const proposed=new WeakMap(),awaiting=new Map();
+  const proposed=new WeakMap(),contendedOriginal=new WeakMap(),awaiting=new Map();
   let liveStore=null;
   const audit={
     version:VERSION,bothPhysicalSeats:true,originalPassRoots:0,
     originalPassBySeat:{0:0,1:0},passOpportunities:[],
+    structurallyOpenNonPassRoots:0,originalAlternativesAccepted:0,
+    originalAlternativesRejected:0,firstTurnRootContentions:[],
     eligiblePassRoots:0,proposedItems:0,acceptedItems:0,rejectedItems:0,
     proposedSearches:0,acceptedSearches:0,rejectedSearches:0,
     nativeBenchConfirmed:0,nativeBenchUnconfirmed:0,
@@ -153,7 +155,31 @@ function withActorBattleVipAfterPass(execute,deps={}){
     if(pending||state.activePlayer!==seat)
       return beforeDecode.value.call(this,state);
     const original=beforeDecode.value.call(this,state);
-    if(original?.constructor?.name!=='PassTurnAction')return original;
+    if(original?.constructor?.name!=='PassTurnAction'){
+      // Passive owner-visible priority-conflict census. Neither the original
+      // selected root nor any native dispatch is changed by observing this.
+      if(state.turn===1||state.turn===2){
+        const view=observe(state,seat);
+        const rival=chooseVipAfterPass(view);
+        if(rival){
+          const item=original?.constructor?.name==='PlayCardAction'?
+            owner.hand.cards[original.handIndex]??null:null;
+          const witness={seat,turn:state.turn,
+            structuralOnlyVipCandidate:true,heldPrinting:rival.printing,
+            otherAction:original?.constructor?.name??null,
+            otherCard:item?.fullName??null,
+            otherAttack:original?.constructor?.name==='AttackAction'?
+              original.name??null:null,
+            alternativeAccepted:null,
+            alternativeError:null};
+          audit.structurallyOpenNonPassRoots++;
+          if(audit.firstTurnRootContentions.length<64)
+            audit.firstTurnRootContentions.push(witness);
+          contendedOriginal.set(original,witness);
+        }
+      }
+      return original;
+    }
     audit.originalPassRoots++;
     audit.originalPassBySeat[seat]++;
     const view=observe(state,seat);
@@ -187,7 +213,21 @@ function withActorBattleVipAfterPass(execute,deps={}){
       audit.nativeStoreSeen=true;
     }
     const event=this===liveStore?proposed.get(action):null;
-    if(!event)return beforeDispatch.value.apply(this,[action,...rest]);
+    if(!event){
+      const competing=this===liveStore?contendedOriginal.get(action):null;
+      if(!competing)return beforeDispatch.value.apply(this,[action,...rest]);
+      try{
+        const result=beforeDispatch.value.apply(this,[action,...rest]);
+        competing.alternativeAccepted=true;
+        audit.originalAlternativesAccepted++;
+        return result;
+      }catch(error){
+        competing.alternativeAccepted=false;
+        competing.alternativeError=String(error?.message??error);
+        audit.originalAlternativesRejected++;
+        throw error;
+      }
+    }
     const owner=this.state.players[event.seat];
     const benchBefore=owner.bench.filter(slot=>slot.cards.length>0).length;
     const deckBefore=owner.deck.cards.length;
