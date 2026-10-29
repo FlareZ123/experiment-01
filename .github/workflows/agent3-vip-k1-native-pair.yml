@@ -1,0 +1,39 @@
+name: Agent3 original rank11 VIP owner-K1 native comparison
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-owner-vip:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out the pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Check standalone owner-only and exact-card-location regressions
+        run: node --test tests/agent3-owner-evolution-vip-search.test.cjs tests/agent3-source-rank11-vip-role-selector.test.cjs tests/agent3-rank11-vip-k1-combinatorics.test.cjs tests/agent3-rank11-vip-role-location-census.test.cjs tests/aichi-first-player-supporter-exceptions.test.cjs
+      - name: Install pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run registered three-arm original rank11 VIP policy comparison
+        run: node simulation/evaluation/agent3-source-vip-k1-native-pair.cjs > agent3-vip-k1-native-actual.json
+      - name: Archive exact native action receipts, including failed and censored arms
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-vip-k1-native-actual
+          path: agent3-vip-k1-native-actual.json
+          if-no-files-found: warn
+          retention-days: 15
