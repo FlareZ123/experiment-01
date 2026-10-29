@@ -132,3 +132,21 @@ test('an actual drawn game invokes a fresh six-Prize bracket tiebreaker',()=>{
   }));
   assert.equal(swissTie.status,'swiss-native-draw-rule-unverified');
 });
+
+test('authentic game-ending win or draw before unused final turn ends immediately',()=>{
+  const early=adjudicateAfterTimeCall(row({
+    stage:'bracket',bracketRound:'final',normalGameWinningSeat:0,
+    prizesNeededToWinBySeat:[0,4],
+    finalSecondPlayerTurnCompleted:false,
+    finalPokemonCheckupExcluded:false
+  }));
+  assert.equal(early.status,'normal-game-win-after-time-call');
+  assert.equal(early.winningSeat,0);
+  const tied=adjudicateAfterTimeCall(row({
+    stage:'bracket',bracketRound:'semifinal',observedNativeDraw:true,
+    prizesNeededToWinBySeat:[0,0],
+    finalSecondPlayerTurnCompleted:false,
+    finalPokemonCheckupExcluded:false
+  }));
+  assert.equal(tied.status,'bracket-fresh-six-prize-tiebreak-required');
+});
