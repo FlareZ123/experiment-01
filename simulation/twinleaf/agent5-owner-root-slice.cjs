@@ -5,7 +5,7 @@ const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {BASIC_ENERGY_TYPE}=require('./printed-basic-energy-audit.cjs');
 
-const VERSION='agent5-owner-root-slice-v3-special-bench-witness-development-unqualified';
+const VERSION='agent5-owner-root-slice-v4-floatstone-mobility-witness-development-unqualified';
 
 /**
  * Determine whether one attached Basic Energy per type covers a printed
@@ -141,7 +141,7 @@ function rootPhysicalSnapshot(state,seat,intent){
     stadiumPrintings:owner.stadium?.cards?.map(c=>c.fullName)??[],
     activeEnergies:owner.active.energies.cards.map(c=>c.fullName),
     activeToolPrintings:owner.active.tools?.map(c=>c.fullName)??[],
-    ...(intent.kind==='paid-retreat'?{
+    ...(['paid-retreat','retreat-emergency-floatstone'].includes(intent.kind)?{
       activePokemonPrinting:owner.active.getPokemonCard()?.fullName??null,
       targetPokemonPrinting:
         owner.bench[intent.benchIndex]?.getPokemonCard()?.fullName??null,
@@ -192,6 +192,29 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
     return before.benchPrinting===null&&
       after.benchPrinting===intent.printing&&
       after.handCount===before.handCount-1?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='attach-emergency-floatstone'){
+    // The intent's printing names the desired Benched replacement, not the
+    // Tool. Verify the exact held Float Stone reached the Active's Tool zone.
+    const stone=require('./agent1-owner-float-stone-mobility.cjs').FLOAT_STONE;
+    const count=cards=>cards.filter(c=>c===stone).length;
+    return Array.isArray(before.activeToolPrintings)&&
+      Array.isArray(after.activeToolPrintings)&&
+      count(before.activeToolPrintings)===0&&
+      count(after.activeToolPrintings)===1&&
+      after.handCount===before.handCount-1?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='retreat-emergency-floatstone'){
+    // A zero-cost Float Stone retreat must move the exact selected Benched
+    // Pokemon, while the former Active occupies the vacated Bench slot.
+    return before.activePokemonPrinting!==null&&
+      before.targetPokemonPrinting===intent.printing&&
+      before.activePokemonPrinting!==intent.printing&&
+      after.activePokemonPrinting===intent.printing&&
+      after.targetPokemonPrinting===before.activePokemonPrinting&&
+      after.retreatedTurn===before.turn?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(intent.kind==='equip-powerglass'){
