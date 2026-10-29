@@ -19,14 +19,17 @@ function outcome(result){
 /**
  * Complete preserved original source printing inputs and unchanged native
  * bot decisions; the owner-only policy is observed, never substituted.
- * @returns {object} Failure-inclusive fixed six-rank public summary.
+ * @param {readonly number[]} ranks Preregistered full-source opponent ranks.
+ * @param {string} registration Registration document.
+ * @param {string} schema Versioned summary label.
+ * @returns {object} Failure-inclusive fixed-sample public summary.
  */
-function run(){
+function runRanks(ranks,registration,schema){
   const originals=sourceDecks();
   const champion=originals.get(1);
   assert.equal(champion?.playableUnderEngine,true);
   const rows=[];
-  for(const rank of SOURCE_RANKS){
+  for(const rank of ranks){
     const opposing=originals.get(rank);
     const entry={rank,sourceArchetype:opposing?.archetype??null,
       seed:SEED,maxActions:MAX_ACTIONS};
@@ -70,18 +73,23 @@ function run(){
     }
     rows.push(entry);
   }
-  return {schema:'agent18-aichi-original-source-K0-six-rank-survey-v2',
-    registration:'agents/agent18/20261029-aichi-k0-stratified-native-protocol.md',
+  return {schema,registration,
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    fixedChampionOriginalRank:1,rankSet:SOURCE_RANKS,
+    fixedChampionOriginalRank:1,rankSet:[...ranks],
     passed:rows.filter(row=>row.status.includes('passed')).length,
     blocked:rows.filter(row=>row.status==='blocked').length,
     rows,competitiveQualifiedGames:0,
     caveat:'48-action source-openers only, owner-only selection observer and weak original bot, no finished matchup or win-rate estimate.'};
+}
+/** @returns {object} Original six-rank study, frozen and reproducible. */
+function run(){
+  return runRanks(SOURCE_RANKS,
+    'agents/agent18/20261029-aichi-k0-stratified-native-protocol.md',
+    'agent18-aichi-original-source-K0-six-rank-survey-v2');
 }
 if(require.main===module){
   const audit=run();
   process.stdout.write(JSON.stringify(audit,null,2)+'\n');
   if(audit.blocked>0)process.exitCode=1;
 }
-module.exports={SOURCE_RANKS,outcome,run};
+module.exports={SOURCE_RANKS,outcome,runRanks,run};
