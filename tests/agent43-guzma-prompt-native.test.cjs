@@ -103,7 +103,7 @@ function check(seat){
     const action=bot.decodeNextAction(state);
     assert.ok(action instanceof ResolvePromptAction);
     assert.equal(action.id,pending.id);
-    assert.equal(action.result[0],owner.bench[1],
+    assert.equal(action.result[0]?.getPokemonCard?.()?.fullName,'Oranguru V ASR',
       'Actor bridge should choose the funded second Bench slot');
     store.dispatch(action);
     return {
