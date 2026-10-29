@@ -87,3 +87,16 @@ test('bounded both-seat arbitration diagnostic counts alternatives and holds',()
   assert.equal(audit.samples.length,40);
   assert.equal(audit.reasons['potential-last-prize-attack'],2);
 });
+
+test('bounded samples carry exact monotone root ordinal for native join',()=>{
+  const audit=newOwnerArbitrationAudit();
+  const result=arbitrateOwnerRootIntent(view(),{},FIRST,
+    {publicContextSpecialEnergy:true},collect);
+  recordOwnerArbitration(audit,1,4,result.receipt,17);
+  assert.equal(audit.samples.length,1);
+  assert.equal(audit.samples[0].rootOrdinal,17);
+  assert.equal(audit.samples[0].seat,1);
+  assert.equal(audit.samples[0].selectedKind,'attach-special-energy');
+  assert.throws(()=>recordOwnerArbitration(audit,0,4,result.receipt,-1),
+    /false/);
+});
