@@ -159,6 +159,14 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
     const currentPrompt=reply?state.prompts?.find(p=>
       p.id===reply.promptId&&p.result===undefined):null;
     let candidate=null;
+    if(real&&action?.constructor?.name==='PlayCardAction'){
+      trace({step:'play-root-probe',actionKeys:Object.keys(action),
+        actionPlayerId:action.playerId,handIndex:action.handIndex,
+        ownerId:state.players?.[state.activePlayer]?.id,
+        ownPrinting:state.players?.[state.activePlayer]
+          ?.hand.cards[action.handIndex]?.fullName,
+        openPrompts:state.prompts?.filter(p=>p.result===undefined).length});
+    }
     if(real && action?.constructor?.name==='PlayCardAction'&&
        Number.isInteger(action.handIndex)&&
        !state.prompts?.some(p=>p.result===undefined)){
