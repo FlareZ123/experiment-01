@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
-const VERSION='agent13-actor-only-copied-attack-choice-v3-printed-gx';
+const VERSION='agent13-actor-only-copied-attack-choice-v4-public-gx-lock';
 
 /**
  * Printed GX attack names identify the once-per-game mechanic even when a
@@ -55,12 +55,14 @@ function actorChooseAttackInput(state,seat,observe=actorObservation){
 function chooseActorCopiedAttack(input,options={}){
   assert.equal(input.actor.decisionKind,'owner-prompt');
   assert.equal(input.prompt.kind,'ChooseAttackPrompt');
-  const gxUsed=input.actor.ownPublic?.publicTurnRestrictions?.gxUsed===true;
+  const restrictions=input.actor.ownPublic?.publicTurnRestrictions;
+  const gxForbidden=restrictions?.gxUsed===true||
+    restrictions?.cannotUseGXAttacks===true;
   const eligible=[];
   for(const source of input.prompt.offered)
     for(const attack of source.attacks){
       const gxAttack=isPrintedGxAttack(attack);
-      if(!attack.blocked&&!(gxUsed&&gxAttack))
+      if(!attack.blocked&&!(gxForbidden&&gxAttack))
         eligible.push({sourceIndex:source.index,attackIndex:attack.index,
           printing:source.printing,attackName:attack.name,
           gxAttack,damage:attack.damage??null,
