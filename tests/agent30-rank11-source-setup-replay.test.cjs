@@ -45,8 +45,8 @@ test('seed 2307728896 has a pregame held-Seal + VIP + Float route',()=>{
   ]);
   assert.equal(deal.firstNaturalDraw,'Forest Seal Stone SIT');
   assert.deepEqual(deal.prizeSix,[
-    'Darkness Energy MEE','Darkness Energy MEE','Mega Absol ex M1L',
-    'Battle VIP Pass FST','Latias ex SSP','Muscle Band XY'
+    'Darkness Energy MEE','Mega Absol ex M1L','Battle VIP Pass FST',
+    'Darkness Energy MEE','Latias ex SSP','Muscle Band XY'
   ]);
   const hand=firstOwnTurnHand(deal,['Oranguru V ASR','Mega Absol ex M1L']);
   for(const name of ['Battle VIP Pass FST','Float Stone BKT','Forest Seal Stone SIT'])
