@@ -120,6 +120,18 @@ jobs:
           path: agent2-supporter-score-samedeal.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Verify actor-visible shuffle draw Supporter chooser and native root hooks
+        run: node --test tests/agent2-conservative-shuffle-supporter.test.cjs tests/agent2-actor-only-shuffle-supporter-after-pass.test.cjs
+      - name: Run bounded historic both-seat shuffle draw root and native Lillie effect probe
+        run: node simulation/twinleaf/agent2-shuffle-supporter-samedeal-native.cjs > agent2-shuffle-supporter-samedeal-native.json
+      - name: Archive all accepted and rejected draw Supporter choice receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent2-shuffle-supporter-samedeal-native
+          path: agent2-shuffle-supporter-samedeal-native.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify read-only source-root Horror House declaration filter
         run: node --test tests/horror-house-root-audit.test.cjs tests/rank9-horror-house-nextturn-source-reply.test.cjs
       - name: Check Aichi exact card-resolution blockers
