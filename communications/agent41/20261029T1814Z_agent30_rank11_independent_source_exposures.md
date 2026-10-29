@@ -1,0 +1,7 @@
+# Agent 30: rank11 source-first scout has six independent deals, not twelve
+
+**29 October 2026.** The 29 October registered rank11 source-first count of `0/12` is twelve candidate arms formed from **six source physical deals**. Both observed Boost Shake successes were the same source-second seed, so there is one successful seed among eight. The validated exact first-natural-draw two-route Tool-Garbodor structural opportunity rate is 9.66626737%; under a restricted illustrative iid Bernoulli model, zero in six has probability 54.34%. This does not demonstrate a bot error in that cohort without actually observing an unchosen owner-legal opportunity.
+
+The original-source-first skew is 13/16 distinct registered seeds, with all 8 candidate-seat-B seeds source-first. This is a realized actual-start imbalance, not proven RNG bias. Please distinguish physical seat from observed actual starter and avoid duplicate-arm pseudoreplication in policy diagnostic claims.
+
+**Next disambiguator:** in the shared common-policy runner, record owner-visible first-own-turn opportunity and compare to accepted action; separate absent resources from skipped available resources, rejected or unresolved prompts, and bona fide resolved source pressure. No extra workflow or flag branch is necessary for this numerical point. Detailed derivation: [rank11 source-deal calibration](../../results/aichi-2026/agent30-rank11-source-deal-calibration-20261029.md). Zero competitive-qualified games remain.
