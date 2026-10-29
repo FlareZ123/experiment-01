@@ -151,12 +151,17 @@ function rootPhysicalSnapshot(state,seat,intent){
     targetEnergies:energyRecipient?.energies?.cards.map(c=>c.fullName)??null,
     benchPrinting:intent.kind==='bench-basic'?
       owner.bench[intent.benchSlot].getPokemonCard()?.fullName??null:null,
+    ...(intent.kind==='play-seeker-get-lillie'?{
+      seekerSpent:[...owner.discard.cards,...owner.supporter.cards]
+        .filter(card=>card.fullName===intent.printing).length
+    }:{}),
     ...(intent.kind==='play-quick-ball'?{
       quickBallSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
     }:{}),
     ...(['play-stranded-marnie','play-lowhand-lillie',
-      'play-conservative-shuffle-supporter'].includes(intent.kind)?{
+      'play-conservative-shuffle-supporter','play-carmine-first',
+      'play-seeker-recovered-lillie'].includes(intent.kind)?{
       supporterTurn:owner.supporterTurn,
       supporterSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
@@ -215,7 +220,9 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
   }
   if(intent.kind==='play-stranded-marnie'||
      intent.kind==='play-lowhand-lillie'||
-     intent.kind==='play-conservative-shuffle-supporter'){
+     intent.kind==='play-conservative-shuffle-supporter'||
+     intent.kind==='play-carmine-first'||
+     intent.kind==='play-seeker-recovered-lillie'){
     // The genuine Store first moves the Supporter into its publicly
     // resolving zone; subsequent hand redraws may require more prompts.
     // This attests dispatch/quota only, not the draw or tactical outcome.
@@ -223,6 +230,12 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
     const afterSpent=after.supporterSpent??after.marnieSpent;
     return afterSpent>beforeSpent&&
       after.supporterTurn>before.supporterTurn?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='play-seeker-get-lillie'){
+    // Physical native Item departure, with the own-discard retrieval pending.
+    return after.seekerSpent>before.seekerSpent&&
+      after.handCount<before.handCount?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(intent.kind==='play-quick-ball'){
