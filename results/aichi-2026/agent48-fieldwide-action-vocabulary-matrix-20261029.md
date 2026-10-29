@@ -14,7 +14,7 @@ No inferred card-location event is treated as a legal action. No native effect c
 | --- | ---: | ---: | --- |
 | Battle VIP Pass | 15 | 42 | absent |
 | Quick Ball | 21 | 72 | narrow opt-in |
-| Carmine | 12 | 15 | absent in pre-29-Oct reference; new first-turn conservative opt-in proposed |
+| Carmine | 12 | 15 | narrow, conservative first-turn opt-in implemented (default off) |
 | Boost Shake | 3 | 5 | separate source-specific adapter |
 | Tag Call | 5 | 14 | absent |
 | Guzma & Hala | 5 | 13 | absent |
@@ -34,7 +34,7 @@ No inferred card-location event is treated as a legal action. No native effect c
 | Special Energy, all printings | 24 | 118 | partial, optional actor model |
 | Basic Energy, all printings | Source-dependent | Source-dependent | baseline actor attachment |
 
-The statuses describe the **generic actor-root chooser**, not every simulator adapter, card-specific experiment or the underlying upstream engine's entire card support. In particular, a separately forced genuine VS Seeker retrieval and a conservative opt-in Quick Ball planner exist; neither makes the canonical default actor automatically choose that card. The labels reflect the implementation observed when the matrix was authored, and should be revised when new common-policy support is proved.
+The statuses describe the **generic actor-root chooser**, not every simulator adapter, card-specific experiment or the underlying upstream engine's entire card support. In particular, a separately forced genuine VS Seeker retrieval and a conservative opt-in Quick Ball planner exist; neither makes the canonical default actor automatically choose that card. The labels reflect the current implemented common actor-only root and should be revised when opt-in support has native positive and negative controls. The [Carmine first-turn root](../../simulation/twinleaf/agent48-conservative-first-carmine.cjs) is now implemented as an explicit optional branch, with pure tests; native source positive controls remain separate.
 
 The number of source ranks plus card copies is a reusable prioritization metric. It is insufficient for an action opportunity: own hand, card's original printing, current phase, prior Supporter use, Bench occupancy, discard targets, card costs and timing, Item/Supporter lock, and alternative uses must still be modeled.
 
