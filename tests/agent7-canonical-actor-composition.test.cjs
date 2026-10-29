@@ -270,3 +270,5 @@ test('optional read-only Plumeria observer preserves canonical composition and n
   assert.equal(observed.audit.ownerPlumeriaOpportunityAudit.version,'plumeria');
   assert.equal(observed.audit.qualification.competitiveGames,0);
 });
+
+require('./agent4-plumeria-opportunity.test.cjs');
