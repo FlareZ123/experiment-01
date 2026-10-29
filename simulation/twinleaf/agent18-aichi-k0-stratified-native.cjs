@@ -55,6 +55,11 @@ function run(){
         ownerRoots:observed.rows.map(row=>({
           physicalSeat:row.seat,globalTurn:row.turn,
           chosenIntent:row.chosenOwnerOnlyIntent,
+          nativeBotProposedActionClass:row.nativeBotProposedActionClass,
+          ownerKnownHand:row.ownerKnownHand,
+          ownActive:row.ownActivePublicPrinting,
+          ownBench:row.ownBenchPublicPrintings,
+          opponentActive:row.opponentActivePublicPrinting,
           sourceDeckSize:row.sourceDeckCards,
           secretPrizes:row.faceDownPrizeCount
         })),outcome:outcome(original),observerOutcomeParity:true
@@ -65,7 +70,7 @@ function run(){
     }
     rows.push(entry);
   }
-  return {schema:'agent18-aichi-original-source-K0-six-rank-survey-v1',
+  return {schema:'agent18-aichi-original-source-K0-six-rank-survey-v2',
     registration:'agents/agent18/20261029-aichi-k0-stratified-native-protocol.md',
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     fixedChampionOriginalRank:1,rankSet:SOURCE_RANKS,
