@@ -37,6 +37,8 @@ jobs:
         run: node simulation/twinleaf/agent5-thunder-mountain-native-gate.cjs > agent5-thunder-mountain-native-gate.json
       - name: Native staged rank-7 Steven three-card owner search both seats
         run: node simulation/twinleaf/agent22-steven-native-store-gate.cjs > agent22-steven-native-store-result.json
+      - name: Native staged Bench Special Energy root in both seats
+        run: node simulation/twinleaf/agent5-special-energy-bench-native-gate.cjs > agent5-special-energy-bench-native-result.json
       - name: Native bilateral historical and source-first development
         if: ${{ ! inputs.native_search_only }}
         run: node simulation/evaluation/agent5-owner-root-bilateral-native.cjs > agent5-owner-root-result.json
@@ -68,6 +70,7 @@ jobs:
           name: actor-only-root-native-retrospective-rank11
           path: |
             agent5-thunder-mountain-native-gate.json
+            agent5-special-energy-bench-native-result.json
             agent5-owner-root-result.json
             agent22-steven-native-store-result.json
             agent5-thorns-baseline-sourcefirst.json
