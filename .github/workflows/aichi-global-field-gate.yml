@@ -30,6 +30,8 @@ jobs:
           node-version: '20'
       - name: Audit source deck fingerprints and missing-rank seal
         run: node --test tests/aichi_source_fingerprint_map.test.cjs
+      - name: Preserve source-print rank10 versus rank6 last-Bench actor hold counterexample
+        run: node --test tests/agent11-rank10-thorns-bench-hold.test.cjs
       - name: Validate native Store public clock binding to portable action trace
         run: node --test tests/native-clock-trace-adapter.test.cjs tests/native-clock-episodes.test.cjs tests/native-clock-python-bridge.test.cjs
       - name: Distinguish physical recipient witness from nonboard PlayCard target coordinates
