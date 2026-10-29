@@ -86,9 +86,12 @@ function newOwnerArbitrationAudit(){
  * @param {0|1} seat Real physical actor seat.
  * @param {number} turn Current turn.
  * @param {object} receipt Pure chooser receipt.
+ * @param {number|null} [rootOrdinal] Monotone root-selection identity, if known.
  */
-function recordOwnerArbitration(audit,seat,turn,receipt){
+function recordOwnerArbitration(audit,seat,turn,receipt,rootOrdinal=null){
   assert.ok(seat===0||seat===1);
+  assert.ok(rootOrdinal===null||
+    (Number.isSafeInteger(rootOrdinal)&&rootOrdinal>=1));
   const changed=receipt.baselineKind!==receipt.selectedKind;
   audit.ownerRoots++;
   audit.bySeat[seat].ownerRoots++;
@@ -97,6 +100,7 @@ function recordOwnerArbitration(audit,seat,turn,receipt){
   if(audit.samples.length<MAX_SAMPLES&&
       (changed||receipt.candidateCount>0)){
     audit.samples.push({seat,globalTurn:turn,
+      ...(rootOrdinal===null?{}:{rootOrdinal}),
       baselineKind:receipt.baselineKind,selectedKind:receipt.selectedKind,
       reason:receipt.reason,offerCount:receipt.candidateCount,
       selectedPrinting:receipt.selectedPrinting,
