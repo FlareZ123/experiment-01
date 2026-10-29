@@ -57,8 +57,9 @@ function publicEnergyContext(view,pokemon,catalog){
     behindOnPrizes:typeof view.ownPublic?.prizeCount==='number'&&
       typeof view.opponentPublic?.prizeCount==='number'&&
       view.ownPublic.prizeCount>view.opponentPublic.prizeCount,
-    isPokemonGXorEX:profile===null?
-      /(?:-GX|-EX)$/.test(pokemon.name??''):
+    // Counter's expanded value requires a confirmed non-GX/non-EX
+    // printing; ordinary card names do not certify the exact rules box.
+    isPokemonGXorEX:profile===null?undefined:
       profile.isPokemonGX||profile.isPokemonEX
   };
 }
