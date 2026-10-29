@@ -6,6 +6,12 @@ const {LILLIE,lillieExclusionReason,
   chooseLillieAfterPass,withActorOnlyLillieAfterPass}=
   require('../simulation/twinleaf/agent12-actor-only-lillie-after-pass.cjs');
 
+test('matches actual pinned engine card fullName printing',()=>{
+  const {LilliesDetermination}=require('../vendor/twinleaf/ptcg-server/output/sets/11-mega-evolution/set-mega-evolution/lillies-determination');
+  assert.equal(new LilliesDetermination().fullName,LILLIE);
+  assert.equal(LILLIE,"Lillie's Determination M1L");
+});
+
 function observed(seat=0){
   return {decisionKind:'owner-root',actorSeat:seat,globalTurn:3,
     ownHand:['Mewtwo & Mew-GX UNM',LILLIE],
