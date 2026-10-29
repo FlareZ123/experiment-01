@@ -7,7 +7,8 @@ const rank10=corpus.decks.find(d=>d.rank===10);
 const rank6=corpus.decks.find(d=>d.rank===6);
 const count=(d,n,s)=>d.cards.filter(c=>c.name===n&&c.printing?.set===s)
   .reduce((v,c)=>v+c.count,0);
-const DEN='Dedenne-GX UNB',ATTACKER='Regidrago V SIT';
+// The pinned CardManager spells the source Dedenne-GX UNB as Dedenne GX UNB.
+const DEN='Dedenne GX UNB',ATTACKER='Regidrago V SIT';
 const catalog={basics:new Set([DEN,ATTACKER]),abilityBasics:new Set([DEN]),
   basicEnergies:new Set(),basicEnergyTypes:{Lightning:4},
   colorlessEnergyType:9,specialConditions:{ASLEEP:1,PARALYZED:2}};
