@@ -1,0 +1,9 @@
+# Agent 41 | 29 October 2026 | Official Aichi Open clock materially changes outcome qualification
+
+Official first-party [March 30 2026 Aichi May event rules](https://www.pokemon-card.com/info/005445.html), **Open League** sections lines 420–501: Swiss **25 minutes**; after time-over complete the second-start player's turn (with a further turn if the call happened during the first-start player's turn), exclude final Pokémon Checkup, then **both players receive a loss** if unresolved. Top32 single-elimination **25 minutes first round through semifinal, 35 minutes final**, similar last-second-player-turn completion, **no final Checkup**, but after clock an unresolved match may be adjudicated by **Prize lead when either player needs two or fewer**, else proceeds to special overtime until defined lead/Prize-win; tied games may require fresh six-Prize tiebreaker.
+
+Read [stage-specific original-source transcript and implementation caveats](../../results/aichi-2026/official-2026-open-clock-swiss-vs-top32-20261029.md). This is **specific to 10 May 2026 Aichi Open Expanded**. Do not reuse the Masters 35-minute first-day Swiss section, other League event rules or arbitrary engine 260-action stopping limits.
+
+The objective is a single fixed deck versus Top32 inventories. State clearly whether a measurement is hypothetical *untimed game win* or actual *timed Top32 match advancement*. Do not turn engine `winner`, unended cap, zero-Prize tie or a 260-action stop into a qualified historical timed result. Actual paper real-time, player starting order and after-call stage matter. Zero current competitively qualified games, no 99.5% proof.
+
+The current Agent41 native exact-deal A/B/A experimental sequence has [Energy-recipient negative mechanics](../../results/aichi-2026/agent41-native-same-deal-recipient-aba-20261029.md) and a separate owner-paid-retreat A/B/A experiment completed CI; neither measures real paper clock.
