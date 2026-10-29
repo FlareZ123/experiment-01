@@ -6,6 +6,7 @@ const {comparePairedAcceptedTargets,VERSION:TARGET_AUDIT_VERSION}=
 const {isDeepStrictEqual}=require('node:util');
 
 const VERSION='agent41-same-60-native-energy-recipient-aba-v1';
+const PAID_RETREAT_VERSION='agent41-same-60-native-paid-retreat-aba-v1';
 const COMMON_OPTIONS=Object.freeze({
   sourceFirstRetrospective:true,
   actorOnlyComposition:true,
@@ -169,6 +170,8 @@ function summarizeRecipientABA(baseline,treatment,repeat){
       repeatStability:sameDealRepeatStability(original,replay,aa),
       nominalPolicyExposureEvidence:newRecipient.actorOnlyDecisionCoverage?.
         detailedComponentAudits?.root?.energyRecipientFrontierOptIn===true,
+      nominalPaidRetreatOptIn:newRecipient.actorOnlyDecisionCoverage?.
+        detailedComponentAudits?.root?.paidRetreatRootOptIn===true,
       sameLegacyLedgerAB:Boolean(original.rootActionLedgerSha256&&
         original.rootActionLedgerSha256===newRecipient.rootActionLedgerSha256),
       sameLegacyLedgerARepeat:Boolean(original.rootActionLedgerSha256&&
@@ -251,10 +254,60 @@ function executeRecipientABA(execute){
   }
 }
 
-if(require.main===module){
-  process.stdout.write(JSON.stringify(executeRecipientABA(),null,2)+'\n');
+/**
+ * Predeclared identical-physical-deal A/B/A test of the existing owner-visible
+ * funded paid retreat planner. Reuse the read-only identical-card/native
+ * physical comparison and hold the Energy recipient intervention disabled.
+ *
+ * @param {(options:object)=>object} [execute] Synthetic test seam.
+ * @returns {object}
+ */
+function executePaidRetreatABA(execute){
+  const runDevelopment=execute??
+    require('./agent41-bilateral-v2-development.cjs').runDevelopment;
+  assert.equal(typeof runDevelopment,'function');
+  const vars={...FIXED_ROOT_ENV,
+    AGENT44_ACTOR_ENERGY_RECIPIENT_DEV:'false',
+    AGENT6_PAID_RETREAT_ROOT_DEV:'false'};
+  const prior=new Map(Object.keys(vars).map(k=>[k,process.env[k]]));
+  try{
+    Object.assign(process.env,vars);
+    const baseline=runDevelopment(COMMON_OPTIONS);
+    process.env.AGENT6_PAID_RETREAT_ROOT_DEV='true';
+    const treatment=runDevelopment(COMMON_OPTIONS);
+    process.env.AGENT6_PAID_RETREAT_ROOT_DEV='false';
+    const repeat=runDevelopment(COMMON_OPTIONS);
+    const audit=summarizeRecipientABA(baseline,treatment,repeat);
+    return {
+      ...audit,schema:PAID_RETREAT_VERSION,
+      registration:{
+        retrospective:true,controlProfile:'AGENT6_PAID_RETREAT_ROOT_DEV=false',
+        treatmentProfile:'AGENT6_PAID_RETREAT_ROOT_DEV=true',
+        fixedRootEnv:{...FIXED_ROOT_ENV,
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV:'false'},
+        commonOptions:COMMON_OPTIONS,
+        checkedOutSourceRevision:process.env.GITHUB_SHA??null,
+        originalSourceSeedByRank:{6:407516727,11:482443328},
+        candidatePhysicalSeat:'B',enginePin:baseline.enginePin,
+        commonActorPolicyVersion:baseline.actorOnlyCompositionVersion??null,
+        compiledNativeGameEnvironment:true
+      },
+      rawDevelopment:{baseline,treatment,repeat}
+    };
+  }finally{
+    for(const [key,value] of prior){
+      if(value===undefined)delete process.env[key];
+      else process.env[key]=value;
+    }
+  }
 }
 
-module.exports={VERSION,COMMON_OPTIONS,FIXED_ROOT_ENV,
+if(require.main===module){
+  const chosen=process.argv[2]==='--paid-retreat'?
+    executePaidRetreatABA:executeRecipientABA;
+  process.stdout.write(JSON.stringify(chosen(),null,2)+'\\n');
+}
+
+module.exports={VERSION,PAID_RETREAT_VERSION,COMMON_OPTIONS,FIXED_ROOT_ENV,
   describeRootTargetDivergence,sameDealRepeatStability,
-  summarizeRecipientABA,executeRecipientABA};
+  summarizeRecipientABA,executeRecipientABA,executePaidRetreatABA};
