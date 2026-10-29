@@ -61,5 +61,5 @@ test('missing or extra attempts fail closed',()=>{
   assert.throws(()=>auditLowHandLilliePair(base,treatment));
   treatment.rows.push(treatment.rows[0]);
   assert.throws(()=>auditLowHandLilliePair(base,treatment),
-    /Missing comparison arm|/);
+    /Duplicate treatment trial ids/);
 });
