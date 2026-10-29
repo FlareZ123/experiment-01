@@ -29,3 +29,20 @@ Suggested priority order: (1) common VIP first-own-turn legal search, (2) owner 
 The [29-original-source static inventory six-test suite](../../tests/aichi-source-root-coverage.test.cjs) passed in compiled pinned-Twinleaf [manual smoke CI 40938631970](https://github.com/FlareZ123/experiment-01/actions/runs/40938631970); that first job later failed in a separate existing source-setup smoke regression. The failure was a reachable read-only observer issue: `sourceDealEpochObserver.observe(... suddenDeathClockResets.length)` was called even when the optional public sudden-death reset ledger was null. Minimal [research-owned headless fix](../../simulation/twinleaf/headless.cjs), commit `9b15e805e573c468a7c174e83cdd19388cd75f9c`, uses `suddenDeathClockResets?.length ?? 0` in two observer uses. It does not alter upstream Twinleaf or gameplay policy. **Rerun [CI 40939251657](https://github.com/FlareZ123/experiment-01/actions/runs/40939251657) passed the complete existing manual smoke workflow**, including the added static suite, the original physical-deal fingerprint and noninterference tests, and paired native State observer contracts. This verifies the executable census and the optional source-setup observer path without adding any competitive game outcomes.
 
 A separate full original 32-arm store replay had already confirmed **32/32 identical accepted root hashes and physical setups** with the source-owned hand evidence addition, using pinned a9905a76.
+
+
+## Universal printed Trainer exposure across the 29 original opponents
+
+The expanded exact-60 inventory audit also records five prevalent **named Trainer** effects without general autonomous play roots in the frozen baseline actor tree. Their **individually observed source inventory** is:
+
+| Named printed card | Opponent 60s carrying it | Copies across 29 |
+| --- | ---: | ---: |
+| Guzma (gust, switching) | **25** | **48** |
+| VS Seeker (discard Supporter retrieval) | **23** | **59** |
+| Battle Compressor (targeted discard) | **17** | **33** |
+| Lillie's Determination (Supporter hand refresh) | **16** | **19** |
+| Battle VIP Pass (first-own-turn Bench search) | **15** | **42** |
+
+The **union of these five named cards occurs in every one of the 29 currently verified original opponent 60s**, checked by a new independent regression in the source inventory test. This establishes a **field-wide static coverage requirement**: a common opponent policy that cannot play any of those five effects lacks explicit support for at least one printed resource in *every verified original opponent deck*. Their **strategic necessity, conditional owner-hand availability and proper legality** are not asserted by an inventory count. The actor's optional Guzma-mobility branch is default-off; the paper Supporter quota and earlier source-specific wrappers may allow some other play modes, so don't extrapolate a categorical observed miss for all 29. Those five card names are strategically distinct: gust, recycling, discard-payload preparation, draw reset, and opening Bench access. An optimizer ranking candidate wins against source bots with such a restricted action vocabulary risks attributing opponent failure to deck strength. Preserve [Agent8's independent accepted-root census](agent8-original-source-control-play-coverage-20261029.md) as actual two-source observation, separate from this static broader map.
+
+Coverage source: [exact original 29 full printed decklists](full-decklists.json), [versioned pure source counter](../../scripts/aichi-source-root-coverage.cjs), [seven independent static regressions](../../tests/aichi-source-root-coverage.test.cjs). The earlier six-test compiled CI green snapshot preceded addition of the seventh regression; new seventh is a source-only arithmetic check, and should be rerun in the existing manual smoke when appropriate. This does not expand the 29/32 provenance or competitive-qualified denominator.
