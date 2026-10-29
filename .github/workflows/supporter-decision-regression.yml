@@ -54,6 +54,7 @@ jobs:
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT25_LOWHAND_LILLIE_DEV: 'false'
+          AGENT25_LOWHAND_LILLIE_CENSUS_DEV: 'true'
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
@@ -63,6 +64,7 @@ jobs:
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT25_LOWHAND_LILLIE_DEV: 'true'
+          AGENT25_LOWHAND_LILLIE_CENSUS_DEV: 'true'
           AGENT41_PAPER_SUPPORTER_DEV: 'true'
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
@@ -71,7 +73,7 @@ jobs:
         if: ${{ inputs.agent25_lowhand_lillie_pair }}
         run: |
           node simulation/evaluation/agent25-lowhand-lillie-paired-audit.cjs agent25-lillie-control-fourarm.json agent25-lillie-treated-fourarm.json > agent25-lillie-native-pair-audit.json
-          node -e "const assert=require('node:assert/strict');const a=require('./agent25-lillie-native-pair-audit.json');assert.equal(a.pairs,4);assert.equal(a.matchingSourceDeals,4);assert.equal(a.matchingFirstPlayers,4);assert.equal(a.competitiveQualifiedGames,0);console.log('LILLIE_NATIVE_PAIR',JSON.stringify({proposed:a.proposed,physicallyConfirmed:a.physicallyConfirmed,nativeSettled:a.nativeSettled,rows:a.rows.map(x=>({id:x.id,control:x.controlStatus,treatment:x.treatmentStatus}))}))"
+          node -e "const assert=require('node:assert/strict');const a=require('./agent25-lillie-native-pair-audit.json');assert.equal(a.pairs,4);assert.equal(a.matchingSourceDeals,4);assert.equal(a.matchingFirstPlayers,4);assert.equal(a.competitiveQualifiedGames,0);console.log('LILLIE_NATIVE_PAIR',JSON.stringify({heldControl:a.controlHeldLillieRootReads,heldTreatment:a.treatmentHeldLillieRootReads,eligibleControl:a.controlOpportunityRootReads,eligibleTreatment:a.treatmentOpportunityRootReads,proposed:a.proposed,physicallyConfirmed:a.physicallyConfirmed,nativeSettled:a.nativeSettled,rows:a.rows.map(x=>({id:x.id,control:x.controlStatus,treatment:x.treatmentStatus}))}))"
       - name: Archive both original Store treatments and any native errors
         if: ${{ always() && inputs.agent25_lowhand_lillie_pair }}
         uses: actions/upload-artifact@v4
