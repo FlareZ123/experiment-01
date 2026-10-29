@@ -161,12 +161,32 @@ function hasLiveRank6SpeedLightning(state,player){
 }
 
 /**
+ * Optional first-own-turn setup action for the original rank6 source.
+ * A legal first-player Speed attachment can fund the printed Lightning
+ * symbol next turn, allowing later DCE without needing Thunder Mountain.
+ * This observes only the actor's own hand/Active and public turn restrictions.
+ * @param {object} state
+ * @param {object} player
+ * @param {0|1} seat
+ * @param {number} playerTurnPhase
+ * @returns {boolean}
+ */
+function firstTurnRank6SpeedStageOpportunity(state,player,seat,playerTurnPhase){
+  return state.turn===1 && state.activePlayer===seat &&
+    state.phase===playerTurnPhase &&
+    player.active.getPokemonCard()?.name==='Iron Thorns ex' &&
+    !player.cannotPlayEnergyCards && !player.cannotPlaySpecialEnergyCards &&
+    player.energyPlayedTurn!==state.turn &&
+    player.hand.cards.some(card=>card.name==='Speed Lightning Energy');
+}
+
+/**
  * Opt-in broad source-opponent attack tactic, still deliberately simple.
  * Selects using own hand, public stadium and legal search prompts only;
  * reading deck cards is restricted to actual ChooseCardsPrompt resolution.
  * @template T
  * @param {()=>T} work
- * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean,k1AlternativeEnergy?:boolean,liveSpeedLightningAlternative?:boolean,k1TagCallAlternative?:'none'|'append-bellelba'|'replace-bellelba'}} [options]
+ * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean,k1AlternativeEnergy?:boolean,liveSpeedLightningAlternative?:boolean,stageSpeedLightningFirstTurn?:boolean,k1TagCallAlternative?:'none'|'append-bellelba'|'replace-bellelba'}} [options]
  * @returns {{result:T,started:boolean,completed:boolean,events:object[],abortReason:string|null,openingPlan:object|null}}
  */
 function withBroadThornsSourceAttack(work,options={}) {
@@ -180,6 +200,9 @@ function withBroadThornsSourceAttack(work,options={}) {
   const k1ReplanAfterTagCall=options.k1ReplanAfterTagCall===true;
   const k1AlternativeEnergy=options.k1AlternativeEnergy===true;
   const liveSpeedLightningAlternative=options.liveSpeedLightningAlternative===true;
+  const stageSpeedLightningFirstTurn=options.stageSpeedLightningFirstTurn===true;
+  assert.ok(!stageSpeedLightningFirstTurn || liveSpeedLightningAlternative,
+    'T1 Speed staging requires enabled T3 attached-Lightning continuation');
   const k1TagCallAlternative=options.k1TagCallAlternative??'none';
   assert.ok(['none','append-bellelba','replace-bellelba']
     .includes(k1TagCallAlternative));
@@ -203,6 +226,7 @@ function withBroadThornsSourceAttack(work,options={}) {
   let openingPlan=null,abortReason=null,backupDeployed=false;
   let missingAfterTagCall=[];
   let backupEnergyName=null;
+  let speedStagingSelected=false,speedStagingConfirmed=false;
   const events=[];
 
   /** @param {object} state @param {string} action @param {object} result */
@@ -286,6 +310,22 @@ function withBroadThornsSourceAttack(work,options={}) {
     const p=state.players[seat];
     if(!p || this.client?.id!==p.id) return original.call(this,state);
     const prompt=state.prompts.find(x=>x.playerId===p.id&&x.result===undefined);
+    // First player cannot attack on global turn 1. Spend the otherwise idle
+    // manual attachment when an actual source-hand Speed Lightning is held.
+    // The native Store alone validates payment and applies the printed draw.
+    if(speedStagingSelected && !speedStagingConfirmed &&
+       p.active.energies.cards.some(c=>c.name==='Speed Lightning Energy')){
+      speedStagingConfirmed=true;
+      events.push({turn:state.turn,phase:'speed-staged',
+        action:'Native attached Speed Lightning observed on Active'});
+    }
+    if(phase==='idle' && stageSpeedLightningFirstTurn &&
+       !speedStagingSelected && !prompt &&
+       firstTurnRank6SpeedStageOpportunity(state,p,seat,GamePhase.PLAYER_TURN)){
+      speedStagingSelected=true;
+      return select(state,'Opt-in T1 attached Speed Lightning',
+        play(p,'Speed Lightning Energy',active));
+    }
     if(phase==='idle') {
       const eligibleTurn=turn==='first-eligible' ?
         (state.turn===2||state.turn===3) : state.turn===turn;
@@ -488,13 +528,14 @@ function withBroadThornsSourceAttack(work,options={}) {
   try {
     const result=work();
     return {result,started,completed,events,abortReason,openingPlan,
-      backupEnergyName};
+      backupEnergyName,speedStagingSelected,speedStagingConfirmed};
   } catch(error) {
     // Preserve the local decision witness when the Store rejects an action.
     // This is a diagnostic property on the already-thrown error, not a
     // substitute for a legal result.
     error.rank6PolicyEvidence={started,completed,abortReason,
-      openingPlan,backupEnergyName,events:events.slice()};
+      openingPlan,backupEnergyName,speedStagingSelected,
+      speedStagingConfirmed,events:events.slice()};
     throw error;
   } finally {
     SimpleTacticsAi.prototype.decodeNextAction=original;
@@ -504,4 +545,4 @@ function withBroadThornsSourceAttack(work,options={}) {
 module.exports={discardOrder,chooseOpeningDiscards,planOpeningHand,
   missingTagCallK1Requirements,dceHandAttachmentBlocked,
   chooseK1AlternateSpecialEnergy,hasLiveRank6SpeedLightning,
-  withBroadThornsSourceAttack};
+  firstTurnRank6SpeedStageOpportunity,withBroadThornsSourceAttack};
