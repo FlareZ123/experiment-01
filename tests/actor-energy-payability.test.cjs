@@ -86,3 +86,39 @@ test('published Iron Thorns source Speed, Capture and Spiky provide one typed un
     'Double Colorless Energy SUM','Capture Energy RCL'
   ]).payable,false);
 });
+
+test('published Aichi Unit Energy LPM is one flexible physical unit',()=>{
+  assert.deepEqual(energyUnits('Unit Energy LPM UPR',basic),[['L','P','M']]);
+  assert.equal(readiness(['P'],['Unit Energy LPM UPR']).payable,true);
+  assert.equal(readiness(['P','M'],['Unit Energy LPM UPR']).payable,false);
+  assert.equal(readiness(['P','M'],[
+    'Unit Energy LPM UPR','Psychic Energy MEE'
+  ]).payable,true);
+});
+
+test('Counter Energy prize and GX-EX eligibility needs explicit public condition',()=>{
+  const counter='Counter Energy CIN';
+  assert.deepEqual(energyUnits(counter,basic),[['C']]);
+  const behind={...basic,behindOnPrizes:true};
+  assert.equal(energyUnits(counter,behind),null);
+  assert.equal(readiness(['P'],[counter],behind).payable,null);
+  const eligible={...behind,isPokemonGXorEX:false};
+  assert.equal(energyUnits(counter,eligible).length,2);
+  assert.equal(readiness(['P','M'],[counter],eligible).payable,true);
+  assert.equal(readiness(['P','M','F'],[counter],eligible).payable,false);
+  const excluded={...behind,isPokemonGXorEX:true};
+  assert.deepEqual(energyUnits(counter,excluded),[['C']]);
+  assert.equal(readiness(['P'],[counter],excluded).payable,false);
+});
+
+test('original source Colorless and typed attached Special numerics',()=>{
+  for(const energy of ['Jet Energy PAL','Recycle Energy UNM',
+    'Memory Energy LOT','Powerful Colorless Energy DAA']){
+    assert.deepEqual(energyUnits(energy,basic),[['C']]);
+  }
+  assert.deepEqual(energyUnits('Telepathic Psychic Energy POR',basic),[['P']]);
+  assert.deepEqual(energyUnits('Telepath [P] Energy M3',basic),[['P']]);
+  assert.equal(readiness(['P'],['Telepathic Psychic Energy POR']).payable,true);
+  assert.equal(readiness(['P','C'],['Telepathic Psychic Energy POR']).payable,
+    false);
+});
