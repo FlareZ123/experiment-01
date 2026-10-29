@@ -7,6 +7,8 @@ const {directBoostShakeOpportunity}=
  require('./rank11-direct-opportunity.cjs');
 const {heldSealOpportunity}=
  require('./rank11-held-seal-opportunity.cjs');
+const {openingOpportunity}=
+ require('./rank11-autonomous-opener.cjs');
 const {planOpeningHand,discardOrder}=
  require('./rank6-broad-thorns-policy.cjs');
 const VERSION='agent8-original-source-first-own-decision-k0-v1';
@@ -47,7 +49,9 @@ function withSourceK0OpportunityWitness(rank,sourceSeat,execute){
      bench:p.bench.map(s=>s.getPokemonCard()?.name??null),
      rank11:rank===11?{
        direct:directBoostShakeOpportunity(state,p,sourceSeat,GamePhase.PLAYER_TURN,true),
-       heldSeal:heldSealOpportunity(state,p,sourceSeat,GamePhase.PLAYER_TURN,true)
+       heldSeal:heldSealOpportunity(state,p,sourceSeat,GamePhase.PLAYER_TURN,true),
+       backOrderNarrow:openingOpportunity(state,p,sourceSeat,
+         GamePhase.PLAYER_TURN,true,true)
      }:null,
      rank6:rank===6?{
        dceAttached:dce,thunderInPlay:stadium,
