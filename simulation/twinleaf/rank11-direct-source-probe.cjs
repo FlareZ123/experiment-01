@@ -5,6 +5,7 @@ const {planAichi} = require('../evaluation/aichi-pilot.cjs');
 const {runMatch} = require('./headless.cjs');
 const {withRank11DirectBoostShake} = require('./rank11-direct-boostshake.cjs');
 const {seedFrame} = require('./rank11-source-seeds.cjs');
+const {verifyActiveEvolution} = require('./agent39-active-boostshake-store-control.cjs');
 
 /**
  * Prospectively fixed, original-deal search. Every seed is retained, including
@@ -49,7 +50,11 @@ function run(count = 32, seedProtocol = 'legacy-consecutive-v1', sourceSeat = 0)
       qualifiedForCompetitiveInference:false
     });
   }
+  // Prove the missing Active target in the real Store after the sampled games,
+  // without consuming or modifying the original game RNG and seed frame.
+  const nativeActiveControls = [verifyActiveEvolution(0),verifyActiveEvolution(1)];
   return {
+    nativeActiveControls,
     study:'source-first-or-second authentic rank11 direct Boost Shake coverage',
     sourceRank:11,candidateRank:1,sourcePhysicalSeat:sourceSeat,
     actualEnginePin:plan.engineRevision,
