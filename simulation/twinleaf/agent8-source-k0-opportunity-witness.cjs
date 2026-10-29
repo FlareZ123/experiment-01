@@ -55,7 +55,16 @@ function withSourceK0OpportunityWitness(rank,sourceSeat,execute){
          names.includes('Double Colorless Energy'),
        speedAttached:p.active.energies.cards.some(c=>c.name==='Speed Lightning Energy'),
        scripted:planOpeningHand(p.hand.cards,stadium,
-         discardOrder.slice(0,-5),false,{activeDceAttached:dce})
+         discardOrder.slice(0,-5),false,{
+           activeDceAttached:dce,
+           supporterLocked:state.turn===1 || p.cannotPlaySupporterCards===true,
+           itemLocked:p.cannotPlayItemCards===true,
+           stadiumLocked:p.cannotPlayStadiumCards===true,
+           specialEnergyLocked:p.cannotPlaySpecialEnergyCards===true,
+           energyLocked:p.cannotPlayEnergyCards===true,
+           energyAlreadyAttached:p.energyPlayedTurn===state.turn,
+           stadiumAlreadyPlayed:p.stadiumPlayedTurn===state.turn
+         })
      }:null,
      sourcePolicyUnmodified:true,hiddenSearchZonesRead:false,
      qualifiesCompetitiveGame:false};
