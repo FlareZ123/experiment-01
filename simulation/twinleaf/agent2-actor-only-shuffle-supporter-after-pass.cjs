@@ -40,7 +40,7 @@ function withActorOnlyShuffleSupporterAfterPass(execute,deps={}){
     passRootsObserved:0,eligibleDrawIntents:0,
     attemptedRoots:0,acceptedRoots:0,rejectedRoots:0,
     acceptedByFamily:{},passExclusionCounts:{},
-    selected:[],nativeRootOutcomes:[],
+    passExclusionExamples:[],selected:[],nativeRootOutcomes:[],
     promptSettlementsCertified:false,
     policyEffectOnWinsNotQualified:true,competitiveGameQualified:false};
   function decode(state){
@@ -54,10 +54,25 @@ function withActorOnlyShuffleSupporterAfterPass(execute,deps={}){
     audit.passRootsObserved++;
     const intent=choose(view);
     if(!intent){
+      const familyHeld=view.ownHand.filter(p=>
+        p.startsWith("Lillie's Determination ")||
+        p.startsWith('Marnie ')||p.startsWith('Iono '));
       const key=view.globalTurn===1?'opening-turn-excluded':
-        (view.ownTurnResources.supporterPlayedTurn!==0?
-          'quota-spent':'no-qualifying-shuffle-supporter');
+        view.ownTurnResources.supporterPlayedTurn!==0?'quota-spent':
+        view.ownTurnResources.supporterPlayLocked?'supporter-locked':
+        view.ownHand.length>3?'hand-size-over-three':
+        familyHeld.length===0?'no-shuffle-family-held':
+        'public-draw-capacity-or-net-benefit-insufficient';
       audit.passExclusionCounts[key]=(audit.passExclusionCounts[key]??0)+1;
+      if(audit.passExclusionExamples.length<128)
+        audit.passExclusionExamples.push({
+          seat,turn:view.globalTurn,reason:key,ownHandCount:view.ownHand.length,
+          ownDeckCount:view.ownPublic.deckCount,
+          ownPrizeCount:view.ownPublic.prizeCount,
+          opponentHandCount:view.opponentPublic.handCount,
+          opponentPrizeCount:view.opponentPublic.prizeCount,
+          heldShuffleFamilies:familyHeld
+        });
       return proposed;
     }
     assert.equal(view.ownHand[intent.handIndex],intent.printing);
