@@ -2,12 +2,19 @@ name: Rank11 exclusive opening prospective mechanical census
 
 on:
   workflow_dispatch:
+    inputs:
+      agent30_canonical_selected_seed:
+        description: Postobserved rank11 two-candidate source-only native development fork
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   registered-source-frame:
+    if: ${{ !inputs.agent30_canonical_selected_seed }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -36,5 +43,37 @@ jobs:
         with:
           name: rank11-exclusive-prospective-v1-unqualified
           path: rank11-exclusive-prospective-v1.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  canonical-selected-seed:
+    if: ${{ inputs.agent30_canonical_selected_seed }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Regress authentic source deal, first player and selected trial identities
+        run: node --test tests/agent30-rank11-source-setup-replay.test.cjs tests/agent30-rank11-eight-card-source-opportunity.test.cjs tests/agent30-pinned-starter-strata.test.cjs tests/agent30-rank11-canonical-exclusive-fork.test.cjs
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run both native source policies against both frozen candidates
+        run: node simulation/evaluation/agent30-rank11-canonical-exclusive-fork.cjs > agent30-canonical-rank11-exclusive-fork.json
+      - name: Summarize physical deal and policy evidence without competitive inference
+        run: node -e "const r=require('./agent30-canonical-rank11-exclusive-fork.json');console.log(JSON.stringify({schema:r.schema,seed:r.seed,pairs:r.pairs,qualifiedCompetitiveGames:0},null,2))"
+      - name: Archive full source-locked native control and treatment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent30-canonical-rank11-selected-seed-unqualified
+          path: agent30-canonical-rank11-exclusive-fork.json
           if-no-files-found: warn
           retention-days: 14
