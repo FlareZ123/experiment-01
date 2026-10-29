@@ -107,6 +107,7 @@ function withActorBattleVipAfterPass(execute,deps={}){
   let liveStore=null;
   const audit={
     version:VERSION,bothPhysicalSeats:true,originalPassRoots:0,
+    originalPassBySeat:{0:0,1:0},passOpportunities:[],
     eligiblePassRoots:0,proposedItems:0,acceptedItems:0,rejectedItems:0,
     proposedSearches:0,acceptedSearches:0,rejectedSearches:0,
     nativeBenchConfirmed:0,nativeBenchUnconfirmed:0,
@@ -154,7 +155,17 @@ function withActorBattleVipAfterPass(execute,deps={}){
     const original=beforeDecode.value.call(this,state);
     if(original?.constructor?.name!=='PassTurnAction')return original;
     audit.originalPassRoots++;
-    const intent=chooseVipAfterPass(observe(state,seat));
+    audit.originalPassBySeat[seat]++;
+    const view=observe(state,seat);
+    const intent=chooseVipAfterPass(view);
+    if(audit.passOpportunities.length<60)audit.passOpportunities.push({
+      seat,turn:state.turn,heldVip:view.ownHand.includes(PRINTING),
+      deckCount:view.ownPublic.deckCount,
+      openBench:view.ownPublic.bench.filter(slot=>slot===null).length,
+      itemLocked:view.ownTurnResources.itemPlayLocked===true||
+        view.ownPublic.publicTurnRestrictions?.itemPlayLocked===true,
+      selected:Boolean(intent)
+    });
     if(!intent)return original;
     const card=owner.hand.cards[intent.handIndex];
     assert.equal(card.fullName,intent.printing);
