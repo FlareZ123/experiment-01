@@ -62,6 +62,8 @@ jobs:
         run: node --test tests/agent17-special-energy-vocabulary.test.cjs
       - name: Test reusable conditional Energy model coverage over all source sixties
         run: node --test tests/agent17-energy-model-bridge-coverage.test.cjs
+      - name: Test reversible owner-public conditional Energy actor root
+        run: node --test tests/agent17-public-context-special-energy.test.cjs
       - name: Audit printed source 60 mobility inventory and recovery channels
         run: node --test tests/agent7-source-mobility-roster.test.cjs
       - name: Compare exact source card Abilities across mixed printings
