@@ -88,21 +88,12 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   let ownerVipAfterPassAudit = null;
   const vipAfterPassOptIn=options.ownerVipAfterPass===true||
     process.env.AGENT9_BATTLE_VIP_AFTER_PASS_DEV==='true';
-  const runWithVipAfterPass=()=>{
-    if(!vipAfterPassOptIn)return execute();
-    const adapter=adapters.vipAfterPass??
-      require('../twinleaf/agent9-battle-vip-owner-after-pass.cjs')
-        .withActorBattleVipAfterPass;
-    const observed=adapter(execute);
-    ownerVipAfterPassAudit=observed.audit;
-    return observed.result;
-  };
   const shuffleSupporterOptIn=options.ownerShuffleSupporterRoot===true||
     process.env.AGENT2_SHUFFLE_SUPPORTER_DEV==='true';
   const runWithShuffleSupporter=()=>{
-    if(!shuffleSupporterOptIn)return runWithVipAfterPass();
+    if(!shuffleSupporterOptIn)return execute();
     const selected=require('../twinleaf/agent2-actor-only-shuffle-supporter-after-pass.cjs')
-      .withActorOnlyShuffleSupporterAfterPass(runWithVipAfterPass);
+      .withActorOnlyShuffleSupporterAfterPass(execute);
     ownerShuffleSupporterAudit=selected.audit;
     return selected.result;
   };
@@ -148,7 +139,19 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   };
   const runFog = () => fog(() => select(() => option(() => attack(runPokemon))));
   // Fog's already-owned deck search is the higher-priority actor handler.
-  const runRoot = () => root(() => ownerSingleSearch?ownerSearch(runFog):runFog());
+  const runVip = () => {
+    const runRemaining=()=>ownerSingleSearch?ownerSearch(runFog):runFog();
+    if(!vipAfterPassOptIn)return runRemaining();
+    const adapter=adapters.vipAfterPass??
+      require('../twinleaf/agent9-battle-vip-owner-after-pass.cjs')
+        .withActorBattleVipAfterPass;
+    const observed=adapter(runRemaining);
+    ownerVipAfterPassAudit=observed.audit;
+    return observed;
+  };
+  // Install after the root policy so the VIP bridge can inspect its Pass
+  // and optionally resolve the genuine owner-deck prompt before generic.
+  const runRoot = () => root(runVip);
   const genericWrapped = genericFallbackAttribution?genericFallback(runRoot):null;
   const rooted = genericFallbackAttribution?genericWrapped.result:runRoot();
   const genericFallbackAudit = genericFallbackAttribution?genericWrapped.audit:null;
@@ -164,7 +167,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     'Enabled actor-only shuffle Supporter must expose native audit');
   if(vipAfterPassOptIn)assert.ok(ownerVipAfterPassAudit,
     'Enabled actor-only Battle VIP Pass must expose native audit');
-  const searchOrFog = rooted.result;
+  const vipOrSearch = rooted.result;
+  const searchOrFog = vipAfterPassOptIn?vipOrSearch.result:vipOrSearch;
   const fogged = ownerSingleSearch?searchOrFog.result:searchOrFog;
   const ownerSearchAudit = ownerSingleSearch?searchOrFog.audit:null;
   const selected = fogged.result;
