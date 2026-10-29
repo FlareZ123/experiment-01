@@ -19,7 +19,7 @@ No inferred card-location event is treated as a legal action. No native effect c
 | Tag Call | 5 | 14 | absent |
 | Guzma & Hala | 5 | 13 | absent |
 | Guzma | 25 | 48 | narrow opt-in |
-| VS Seeker | 23 | 59 | absent |
+| VS Seeker | 23 | 59 | narrow owner-only Lillie recovery opt-in (default off) |
 | Battle Compressor | 17 | 33 | separate source-specific adapter |
 | Lillie's Determination | 16 | 19 | narrow opt-in |
 | Marnie | 13 | 16 | narrow opt-in |
