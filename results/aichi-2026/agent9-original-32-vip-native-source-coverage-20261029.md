@@ -65,6 +65,27 @@ A separate compiled re-execution of the **same 32 original registered game arms*
 The audit recorded **12 source-player** and **9 candidate-player** structurally open VIP-versus-other-action root observations. Of those, **zero source** and **zero candidate** original alternatives were native accepted `AttackAction` roots. Consequently, this exact two-rank panel supplies a positive **non-turn-ending action followed by VIP recovery** witness and a bounded negative **no actual attack-versus-VIP conflict observed** result. It cannot certify that an attack conflict is absent across all 29 published source lists or demonstrate native legality of the **unchosen** VIP at a contended root without a same-snapshot Store fork.
 
 All 12 source and nine candidate VIP Items remained accepted and physically settled as in the v1 study. The native action caps remained 12 control versus 13 treatment and no competitive inference is made. The complete v2 JSON archive, with owner-root structural conflict and accepted original action receipts, is attached to that CI; its uploaded ZIP SHA256 is `b4972ac26f6c7a12ed21091c9038fa8016aef90eea33fbea4ebd03e23b681f21`. Detailed action-family attribution from that immutable artifact is being independently reviewed before concluding whether root priority missed a feasible and strategically preferable alternative.
+## Physical action families recovered before native VIP, full first-match arbitration slice
+
+The independent frozen artifact review [CI 40962618862](https://github.com/FlareZ123/experiment-01/actions/runs/40962618862) compiled **102/102** pure tests, including the new native-Store mock regression which refuses to count a legal zero-Basic search as a physical Bench addition. It downloaded and checksum-verified the v2 original matched 32-arm artifact (`b4972ac26f6c7a12ed21091c9038fa8016aef90eea33fbea4ebd03e23b681f21`) and independently reproduced **32/32** same-deal parity, 0 engine errors, **12 source** and **9 candidate** native Item/search/Bench effects, 12/13 unchanged native control/treatment cap counts, and zero qualified games. Its new ranked actor action-family output is preserved as immutable JSON artifact.
+
+All **21** owner-visible, structurally open VIP-versus-prior-root opportunities observed in that cohort involved a real native-accepted **PlayCardAction**. The 21 earlier actions, with their exact pinned native printed names, were:
+
+| Acting owner | Earlier native accepted alternative | Game-arm occurrences |
+| --- | --- | ---: |
+| Original rank-11 source | Darkness Energy MEE | 8 |
+| Original rank-11 source | Tapu Lele-GX GRI | 2 |
+| Original rank-11 source | Crobat V DAA | 2 |
+| Candidate, across rank-6/11 source arms | Duskull VIV | 4 |
+| Candidate, across rank-6/11 source arms | Squawkabilly ex PAL | 2 |
+| Candidate, across rank-6/11 source arms | Psychic Energy MEE | 2 |
+| Candidate, across rank-6/11 source arms | Mewtwo & Mew-GX UNM | 1 |
+
+Each earlier root has `originalAccepted=true` in the actual Store dispatch audit and a non-Pass owner-root snapshot with held VIP, deck+Bench room and no observed Item lock. Each was followed on the **same turn** by an accepted native VIP Item and genuine original owner search-to-Bench prompt. This demonstrates actual **recovery after earlier non-turn-ending plays**, including attachments and normal Basic Pokémon placements, under the pinned simulator and incomplete existing actor policy.
+
+The audit found **zero native accepted AttackAction alternatives**, hence **no real attack-versus-setup priority fork is established** by these 32 original two-rank game attempts. The `structuralOnlyVipCandidate` flag truthfully remains a **structural potential opportunity**, since the unchosen VIP was not itself dispatched at the earlier exact same root state. Confirmed later-turn action acceptance after the earlier action is distinct from same-state simultaneous native legality. No claim about a better decision, tournament win rate, wider field or source-counterplay completeness follows.
+
+The v3 version `agent9-battle-vip-owner-after-pass-v3-positive-bench-witness` deliberately separates zero-Basic searches as accepted native resolutions with **zero positive Bench placement count**; the versioned pure test passes. All 12 source searches in the original frozen source cohort explicitly selected **two printed physical Basics each**, with no empty source search.
 ## Owner information and methodology
 
 The common hook `simulation/twinleaf/agent9-battle-vip-owner-after-pass.cjs` is **default OFF**. On either actual player's owner-root after the canonical policy otherwise Passes during opening turns, it inspects only that player's permitted own hand, public deck count, Bench space and item-lock attributes. Once the pinned native engine issues the original **owner-deck** `ChooseCardsPrompt`, it may inspect eligible Basics within that search as authorized. It returns exact original physical native card objects and uses the original prompt validator; the Store's accepted native Item and prompt dispatch are captured with physical Bench/deck postconditions. The generic fallback and all other action families remain incompletely qualified. Search target selection is an explicit heuristic and has not been optimized.
