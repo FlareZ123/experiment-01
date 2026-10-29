@@ -38,6 +38,8 @@ jobs:
         run: node --test tests/agent10-original-printing-energy-flags.test.cjs
       - name: Check paper Raichu Electro Rain discard units
         run: node --test tests/agent10-raichu-electro-rain-energy-count.test.cjs
+      - name: Check Electro Rain printed knockout Energy priority
+        run: node --test tests/agent10-raichu-damage-breakpoint-before-attack.test.cjs
       - name: Verify conditional three-family Special Energy cost matching
         run: node --test tests/agent10-conditional-special-energy-cost.test.cjs
       - name: Check exact rank11 Crobat recipient frontier
