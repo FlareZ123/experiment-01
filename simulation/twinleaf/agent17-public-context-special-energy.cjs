@@ -73,6 +73,38 @@ function futureOneUnitDeficit(cost,units){
 }
 
 /**
+ * Check visible printed attack costs using flexible attached Energy units.
+ * Native Store remains the final legality authority.
+ * @param {object} view
+ * @param {object} catalog
+ * @param {object} pokemon
+ * @param {object} attack
+ * @returns {boolean}
+ */
+function publicSpecialAttackPayable(view,catalog,pokemon,attack){
+  const cost=publicCostSymbols(attack.cost,catalog);
+  if(cost===null)return false;
+  const stadium=[...(view.ownPublic.stadium??[]),
+    ...(view.opponentPublic?.stadium??[])];
+  const thunder=stadium.some(p=>p.startsWith('Thunder Mountain Prism Star '))&&
+    pokemon.printed?.types?.includes(catalog.basicEnergyTypes.Lightning);
+  if(thunder){
+    const i=cost.indexOf('L');
+    if(i>=0)cost.splice(i,1);
+  }
+  const temple=stadium.some(p=>p.startsWith('Temple of Sinnoh '));
+  const context=publicEnergyContext(view,pokemon,catalog);
+  const attached=[];
+  for(const printing of pokemon.energies??[]){
+    const units=temple&&catalog.specialEnergies.has(printing)?
+      [['C']]:energyUnits(printing,context);
+    if(units===null)return false;
+    attached.push(...units);
+  }
+  return canPaySymbols(cost,attached);
+}
+
+/**
  * Choose one owner-hand Special Energy and legal-looking public recipient.
  * Native Store remains the only authority on target validity and effects.
  * This opt-in does not use any deck identities, Prize identities or
@@ -138,4 +170,5 @@ function choosePublicContextSpecialEnergy(view,catalog){
 }
 
 module.exports={VERSION,publicCostSymbols,publicEnergyContext,
-  futureOneUnitDeficit,choosePublicContextSpecialEnergy};
+  futureOneUnitDeficit,choosePublicContextSpecialEnergy,
+  publicSpecialAttackPayable};
