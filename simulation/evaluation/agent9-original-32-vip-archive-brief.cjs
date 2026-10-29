@@ -148,6 +148,13 @@ if(require.main===module){
   const summary=summarize(JSON.parse(fs.readFileSync(process.argv[2],'utf8')));
   process.stdout.write(JSON.stringify(summary,null,2)+'\n');
   process.stderr.write('AGENT9_32_NATIVE_ARCHIVE '+JSON.stringify({
+    sourceCrobatPriorToVip:JSON.parse(fs.readFileSync(process.argv[2],'utf8'))
+      .attemptRows.filter(row=>(row.sourceContendedNativeRoots??[])
+        .some(root=>root.otherCard==='Crobat V DAA'))
+      .map(row=>({trial:row.id,seed:row.seed,sourceSeat:row.sourceSeat,
+        sourceFirst:row.actualSourceFirst,
+        sourceDeal:row.controlSourceFingerprint,
+        nativeSelectedBasics:row.selectedCards})),
     overall:summary.summary,
     byRank:summary.byRank.map(x=>({
       rank:x.rank,gameArms:x.gameArms,
