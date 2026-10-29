@@ -9,7 +9,7 @@ const {rootPhysicalWitness}=
 
 const PRINT="Lillie's Determination M1L";
 const catalog={
-  basics:new Set(),abilityBasics:new Set(),basicEnergies:new Set(),
+  basics:new Set(),abilityBasics:new Set(),basicEnergies:new Set(['Psychic Energy SVE']),
   basicEnergyTypes:{Psychic:5},colorlessEnergyType:0,
   specialConditions:{ASLEEP:8,PARALYZED:9}
 };
