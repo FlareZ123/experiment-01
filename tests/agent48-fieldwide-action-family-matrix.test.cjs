@@ -57,7 +57,7 @@ test('all published special-only source ranks retain distinct Energy group',()=>
   assert.deepEqual(specialOnly,[4,5,6,7,17,24,29]);
   assert.equal(family('basic').route,'baseline');
   assert.equal(family('special').route,'opt-in-partial');
-  assert.equal(family('seeker').route,'absent');
+  assert.equal(family('seeker').route,'opt-in-narrow');
   assert.equal(family('guzma').route,'opt-in-narrow');
   assert.equal(family('compressor').route,'separate-source-adapter');
 });
