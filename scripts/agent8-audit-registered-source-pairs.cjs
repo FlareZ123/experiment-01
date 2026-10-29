@@ -8,6 +8,8 @@ const {plannedTrials,REGISTRATION_BLOB}=
   require('../simulation/evaluation/agent41-prospective-canonical-scout.cjs');
 const {auditRegisteredSourceDeals}=
   require('../simulation/evaluation/agent8-prospective-source-deal-audit.cjs');
+const {auditSourceOpeningRecipients}=
+  require('../simulation/evaluation/agent8-source-firstturn-physical-recipients.cjs');
 
 const root=path.resolve(__dirname,'..');
 const registrationPath=path.join(root,
@@ -28,10 +30,13 @@ function auditOriginalScout(archive){
   assert.equal(archive.schema,'agent41-preregistered-32-arm-canonical-scout-v1');
   assert.equal(archive.registrationBlob,blob);
   assert.equal(archive.developmentResult?.enginePin,plan.enginePin);
+  const trials=plannedTrials(plan);
   const sourceDealAudit=auditRegisteredSourceDeals(
-    plannedTrials(plan),archive.developmentResult);
+    trials,archive.developmentResult);
+  const sourceFirstTurnAudit=auditSourceOpeningRecipients(
+    trials,archive.developmentResult);
   return {registrationBlob:blob,enginePin:plan.enginePin,
-    sourceDealAudit,competitiveQualifiedGames:0,
+    sourceDealAudit,sourceFirstTurnAudit,competitiveQualifiedGames:0,
     provenance:'Read-only registered source-deal alignment; not an additional native experiment'};
 }
 
