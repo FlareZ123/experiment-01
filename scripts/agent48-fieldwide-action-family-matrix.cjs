@@ -26,7 +26,7 @@ const FAMILIES=Object.freeze([
   {id:'guzma',name:'Guzma',kind:'Supporter mobility/gust',
     route:'opt-in-narrow',nativeWitness:null},
   {id:'seeker',name:'VS Seeker',kind:'Item discard Supporter recovery',
-    route:'absent',nativeWitness:'rank1/2 selected native Item recovery'},
+    route:'opt-in-narrow',nativeWitness:'rank1/2 selected native Item recovery; new owner prompt adapter needs authentic field trial'},
   {id:'compressor',name:'Battle Compressor',kind:'Item deck-to-discard payload',
     route:'separate-source-adapter',nativeWitness:'selected source payload tests'},
   {id:'lillie',name:"Lillie's Determination",kind:'Supporter hand shuffle/draw',
