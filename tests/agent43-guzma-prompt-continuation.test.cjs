@@ -184,7 +184,9 @@ test('only the owner-accessible accepted Guzma root can start a prompt plan',()=
 test('the post-root prompt plan cannot observe opponent private-hand identities',()=>{
   const a=scenario(0);
   const b=scenario(0);
-  b.players[1].hand.cards=[{fullName:'another concealed source card'}];
+  Object.defineProperty(b.players[1],'hand',{
+    get(){throw new Error('Forbidden opponent concealed-hand access');}
+  });
   const run=withGuzmaOwnerPromptContinuation(()=>{
     const results=[];
     for(const state of [a,b]){
