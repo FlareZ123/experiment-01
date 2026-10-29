@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {VERSION,actorChooseAttackInput,chooseActorCopiedAttack,
+const {VERSION,isPrintedGxAttack,actorChooseAttackInput,chooseActorCopiedAttack,
   withActorOnlyChooseAttack}=
   require('../simulation/twinleaf/agent13-actor-only-choose-attack.cjs');
 
@@ -204,4 +204,47 @@ test('opt-in printed Poltergeist priority changes only eligible donor ordering',
   input.actor.ownPublic.publicTurnRestrictions.gxUsed=true;
   assert.deepEqual(chooseActorCopiedAttack(input,{preferGengarPoltergeist:true}),
     {sourceIndex:1,attackIndex:0});
+});
+
+test('printed GX suffix is authoritative when the pinned metadata flag is absent',()=>{
+  assert.equal(isPrintedGxAttack({name:'Miraculous Duo-GX'}),true);
+  assert.equal(isPrintedGxAttack({name:'Horror House-GX',gxAttack:false}),true);
+  assert.equal(isPrintedGxAttack({name:'Poltergeist',gxAttack:false}),false);
+
+  const attacks=[
+    {index:0,name:'Miraculous Duo-GX',gxAttack:false,blocked:false},
+    {index:1,name:'Poltergeist',gxAttack:false,blocked:false}
+  ];
+  assert.deepEqual(chooseActorCopiedAttack(view({attacks,gxUsed:false})),
+    {sourceIndex:0,attackIndex:0});
+  assert.deepEqual(chooseActorCopiedAttack(view({attacks,gxUsed:true})),
+    {sourceIndex:0,attackIndex:1});
+  assert.deepEqual(chooseActorCopiedAttack(view({
+    attacks:attacks.slice(0,1),gxUsed:true,allowCancel:true
+  })),{sourceIndex:null,attackIndex:null});
+  assert.throws(()=>chooseActorCopiedAttack(view({
+    attacks:attacks.slice(0,1),gxUsed:true,allowCancel:false
+  })),/no permitted printed attack/);
+});
+
+test('genuine owner prompt translation preserves suffix alias and card identity',()=>{
+  class ChooseAttackPrompt{}
+  const gx={name:'Miraculous Duo-GX',gxAttack:false};
+  const ordinary={name:'Poltergeist',gxAttack:false};
+  const prompt=new ChooseAttackPrompt();
+  Object.assign(prompt,{id:42,playerId:101,result:undefined,
+    cards:[{fullName:'Mewtwo & Mew-GX UNM',attacks:[gx,ordinary]}],
+    options:{blocked:[],allowCancel:false}});
+  const state={players:[{id:101},{id:202}],prompts:[prompt],
+    opposingPrivateHand:['HIDDEN_CARD']};
+  const actor=()=>({decisionKind:'owner-prompt',
+    ownPublic:{publicTurnRestrictions:{gxUsed:true}}});
+  const input=actorChooseAttackInput(state,0,actor);
+  assert.equal(input.prompt.offered[0].attacks[0].gxAttack,true);
+  assert.equal(input.prompt.offered[0].attacks[1].gxAttack,false);
+  assert.deepEqual(chooseActorCopiedAttack(input),
+    {sourceIndex:0,attackIndex:1});
+  assert.equal(gx.gxAttack,false,'Printed alias cannot mutate source card');
+  assert.equal(JSON.stringify(input).includes('HIDDEN_CARD'),false);
+  assert.equal(actorChooseAttackInput(state,1,actor),null);
 });
