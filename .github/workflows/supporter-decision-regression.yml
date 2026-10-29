@@ -184,7 +184,8 @@ jobs:
         with:
           name: agent9-retrospective-original-32-vip-policy-census
           repository: FlareZ123/experiment-01
-          run-id: 40959290027
+          # v2 owner-only competing-root observation on exactly the same original deals.
+          run-id: 40961656751
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Independently apply latest strict physical-source and prompt parity gates
         if: ${{ inputs.agent9_archive_vip_readonly }}
