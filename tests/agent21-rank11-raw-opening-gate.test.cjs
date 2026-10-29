@@ -110,6 +110,59 @@ test('holding Forest Seal Stone or Boost Shake removes direct v1 opportunities',
     0.01113730772390934) < 1e-14);
 });
 
+/**
+ * Necessary raw eight-card locations for the simpler direct Boost Shake line:
+ * held Boost Shake, any generic attachable Tool, and Trubbish or a Basic search
+ * Item. The opening seven contains a Basic. This assumes unblocked Item plays
+ * and disregards the legality/availability of Quick Ball's discard and the
+ * searched Pokémon, so this is a card-location screen, not a playable line.
+ * @param {boolean} requireOtherBasicInOpeningSeven
+ * @returns {bigint}
+ */
+function directBoostToolLocations(requireOtherBasicInOpeningSeven) {
+  const raw = [copies('Trubbish'), basicCount - copies('Trubbish'),
+    copies('Battle VIP Pass'), copies('Quick Ball'), copies('Boost Shake'),
+    copies('Float Stone') + copies('Forest Seal Stone') + copies('Muscle Band')];
+  raw.push(60 - raw.reduce((sum, n) => sum + n, 0));
+  let favorable = 0n;
+
+  /** @param {number} index @param {number} remaining @param {bigint} ways @param {number[]} seven */
+  function accumulate(index, remaining, ways, seven) {
+    if (index < raw.length - 1) {
+      for (let drawn = 0; drawn <= Math.min(remaining, raw[index]); drawn++) {
+        accumulate(index + 1, remaining - drawn,
+          ways * choose(raw[index], drawn), [...seven, drawn]);
+      }
+      return;
+    }
+    if (remaining > raw[index]) return;
+    const first = [...seven, remaining];
+    if (first[0] + first[1] === 0 ||
+        (requireOtherBasicInOpeningSeven && first[1] === 0)) return;
+    const firstWays = ways * choose(raw[index], remaining);
+    for (let i = 0; i < raw.length; i++) {
+      const remainingCopies = raw[i] - first[i];
+      if (remainingCopies === 0) continue;
+      const eight = [...first];
+      eight[i] += 1;
+      if (eight[4] && eight[5] && (eight[0] || eight[2] || eight[3])) {
+        favorable += firstWays * BigInt(remainingCopies);
+      }
+    }
+  }
+  accumulate(0, 7, 1n, []);
+  return favorable;
+}
+
+test('direct held-Boost, Tool and Trubbish access are wider raw locations', () => {
+  assert.equal(directBoostToolLocations(false), 1422950438n);
+  assert.equal(directBoostToolLocations(true), 1192975377n);
+  assert.ok(Math.abs(probability(directBoostToolLocations(false), basicValid) -
+    0.08940244761168846) < 1e-14);
+  assert.ok(Math.abs(probability(directBoostToolLocations(true), basicValid) -
+    0.07495336154798442) < 1e-14);
+});
+
 console.log(JSON.stringify({
   sourceRank: rank11.rank,
   categoryCounts: counts,
