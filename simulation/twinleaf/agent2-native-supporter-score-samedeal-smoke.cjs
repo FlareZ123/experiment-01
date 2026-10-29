@@ -71,10 +71,10 @@ function main(){
   const result={schema:'agent2-native-supporter-score-disposition-samedeal-v1',
     sourceRegistration:REG,enginePin:plan.enginePin,
     historicalOnly:true,qualifiedCompetitiveGames:0,
-    control:audit.events.length?control.rows.map(x=>({
+    control:control.rows.map(x=>({
       id:x.trial.id,sourceDeal:x.sourceDealFingerprint,
       rootSha:x.rootActionLedgerSha256,actions:x.actionCount,
-      finished:x.finished,winner:x.winner})):[],
+      finished:x.finished,winner:x.winner})),
     observerAudit:{nativeDecisions:audit.nativeDecisions,
       supporterTacticCalls:audit.supporterTacticCalls,
       storedTacticDecisionEvents:audit.storedTacticDecisionEvents,
