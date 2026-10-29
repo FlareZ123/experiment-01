@@ -5,7 +5,7 @@ const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {BASIC_ENERGY_TYPE}=require('./printed-basic-energy-audit.cjs');
 
-const VERSION='agent5-owner-root-slice-v2-numeric-statuses-development-unqualified';
+const VERSION='agent5-owner-root-slice-v3-special-bench-witness-development-unqualified';
 
 /**
  * Determine whether one attached Basic Energy per type covers a printed
@@ -129,8 +129,10 @@ function rootPhysicalSnapshot(state,seat,intent){
   const owner=state.players[seat];
   const target=intent.kind==='evolve-pokemon'?(intent.slot==='bench'?owner.bench[intent.index]:owner.active):null;
   const energyRecipient=intent.kind==='paid-retreat'?
-    owner.bench[intent.benchIndex]:intent.kind==='attach-basic-energy'&&
-    intent.slot==='bench'?owner.bench[intent.index]:owner.active;
+    owner.bench[intent.benchIndex]:
+    (intent.kind==='attach-basic-energy'||
+     intent.kind==='attach-special-energy')&&intent.slot==='bench'?
+      owner.bench[intent.index]:owner.active;
   return {
     evolutionTop:target?.getPokemonCard()?.fullName??null,
     evolutionLayers:target?.getPokemons().length??null,
@@ -214,8 +216,15 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
     // Confirm the actual visible attached physical card rather than assuming
     // a one-card hand decrease after any triggered effect or new prompt.
     const count=cards=>cards.filter(c=>c===intent.printing).length;
-    return after.activeEnergies.length===before.activeEnergies.length+1&&
-      count(after.activeEnergies)===count(before.activeEnergies)+1?
+    // Public-context Special Energy may target a Benched attacker. Confirm
+    // the actual recipient, not a different Active Pokemon's Energy zone.
+    const beforeEnergies=intent.slot==='bench'?
+      before.targetEnergies:before.activeEnergies;
+    const afterEnergies=intent.slot==='bench'?
+      after.targetEnergies:after.activeEnergies;
+    return Array.isArray(beforeEnergies)&&Array.isArray(afterEnergies)&&
+      afterEnergies.length===beforeEnergies.length+1&&
+      count(afterEnergies)===count(beforeEnergies)+1?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(intent.kind==='play-stranded-marnie'||
