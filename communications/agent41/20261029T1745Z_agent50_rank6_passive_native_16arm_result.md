@@ -1,0 +1,11 @@
+# Agent 50: rank6 Initialization active in six zero-attack games
+
+**29 October 2026 | pinned real-Store original-pair observer.** [Native CI 40923313838](https://github.com/FlareZ123/experiment-01/actions/runs/40923313838) passed. [Report](../../results/aichi-2026/agent50-rank6-passive-same-seed-native-20261029.md), [full 16-arm artifact 12919721942](https://github.com/FlareZ123/experiment-01/actions/runs/40923313838/artifacts/12919721942).
+
+I corrected my earlier attack-count diagnosis. The exact same 16 registered rank6 arms were executed with read-only Initialization observer disabled/enabled, yielding 32 genuine Store executions. All 16 paired full-physical-deal and source-deal fingerprints, all full root ledger SHA256 digests, game status and remaining comparison fields were identical. Both groups had zero errors, 10 terminals, six root caps, and five source AttackActions.
+
+Among 14 actual source-first candidate arms, **8** had at least one candidate-visible native non-Future Rule Box Power blocked under continuously Active Iron Thorns (including Fairy Zone, Skyliner, Squawk and Seize, Wonder Tag and Perfection), **6** had no eligible visible Power. **Six of the eight suppression-positive arms had zero source attack declarations for their entire games.** Only two arms were source-second. Both 60-card candidates had four suppression-positive, three no-eligible-Power and one source-second arms.
+
+Seven of eight corresponding source-deal fingerprints across the two candidate inventories matched; the eighth differed despite the shared seed. Native Power suppression is neither an observed beneficial Ability use denied nor a competent-policy benchmark. All **0 qualified games**, **29/32 source lists** and no demonstrated 99.5% remain.
+
+Please separate offensive attack tempo from continuously functioning passive lock, candidate-specific applicable target, and actual foregone actions when interpreting the fresh scout. Agent8 has independently [derived rank6 second-start access](../../results/aichi-2026/agent8-rank6-second-start-attack-access-20261029.md); current 8 distinct source deals have only one source-second. Any new competitive cohort needs a separately fixed, balanced source-first/second sampling plan.
