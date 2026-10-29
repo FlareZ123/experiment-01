@@ -713,6 +713,9 @@ function executeDevelopment(trial,candidates,{
       nativeAcceptedEnergyPromptSidecar:nativeAcceptedEnergyPromptAudit,
       physicalTargetCertification:'selective-public-evidence-only'}:{}),
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
+    enginePin:registration.enginePin,
+    candidateDeckFingerprint:sha256(candidateCards),
+    sourceDeckFingerprint:sha256(opponent.cards),
     verifiedFirstTurn:game.verifiedByDrawLog,
     actualStarterSeat:game.firstTurnSlot,
     firstTurnPlayerId:game.firstTurnPlayerId,
@@ -1073,6 +1076,11 @@ function runDevelopment({
           first.actualStarterSeat===second.actualStarterSeat),
         candidateFollowupStatuses:[first.candidateFollowupStatus??null,
           second.candidateFollowupStatus??null],
+        // Different fixed 60s are not a same-deck policy A/B, irrespective
+        // of matching source start or legacy root-label coincidence.
+        pairedPhysicalTargetEvidence:
+          require('./agent41-native-paired-target-audit.cjs')
+            .comparePairedAcceptedTargets(first,second),
         comparativeStrengthQualified:false
       };
     }),
