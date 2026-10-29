@@ -460,6 +460,14 @@ function withActorOnlyRootPolicy(run,deps={}){
     ownerRootIntents:[],competitiveGameQualified:false,
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
   };
+  // The opt-in diagnostic must leave the default JSON audit shape intact.
+  if(audit.ownerArbitrationCensusOptIn){
+    audit.version+='+'+
+      require('./agent16-owner-priority-contention.cjs').VERSION;
+  }else{
+    delete audit.ownerArbitrationCensusOptIn;
+    delete audit.ownerArbitration;
+  }
   assert.ok([null,0,1].includes(audit.specialEnergyRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.knownDeadAttackRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.floatStoneMobilityOwnerSeat));
