@@ -35,3 +35,5 @@ The [third pinned Store smoke, CI 40928055075](https://github.com/FlareZ123/expe
 ## Matched native observer control
 
 The [compiled CI 40928763490](https://github.com/FlareZ123/experiment-01/actions/runs/40928763490) witness step **PASSED** an exact ordered `decisionTrace` comparison between the uninstrumented original pinned game and a passive K0-observed replay, with the same 60s, seed `1244180408`, source seat and 48-action bound. This is a **single selected rank11 positive-control deal**. It verifies action-level noninterference there, while retaining zero qualified game results and no cross-seed noninterference claim.
+
+[Manual compiled CI 40929621645](https://github.com/FlareZ123/experiment-01/actions/runs/40929621645) **PASSED** the [rank6 same-seed owner K0 witness](../../simulation/twinleaf/agent8-rank6-k0-paired-smoke.cjs) comparing recorded `decisionTrace` with an uninstrumented original Store control, on historical source-first seed `407516727` with 48-root bound. Both priority source ranks now have one native bounded same-deal noninterference positive control, with no competitive inference.
