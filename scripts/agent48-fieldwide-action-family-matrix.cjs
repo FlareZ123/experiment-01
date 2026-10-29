@@ -16,7 +16,7 @@ const FAMILIES=Object.freeze([
   {id:'quick',name:'Quick Ball',kind:'Item Basic search/discard',
     route:'opt-in-narrow',nativeWitness:'rank11 selected native Item root'},
   {id:'carmine',name:'Carmine',kind:'Supporter first-player draw',
-    route:'absent',nativeWitness:null},
+    route:'opt-in-narrow',nativeWitness:null},
   {id:'shake',name:'Boost Shake',kind:'Item accelerated evolution',
     route:'separate-source-adapter',nativeWitness:'rank11 selected source boost'},
   {id:'tag',name:'Tag Call',kind:'Item TAG TEAM access',
