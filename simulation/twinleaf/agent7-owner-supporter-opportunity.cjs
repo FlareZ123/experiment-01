@@ -2,8 +2,37 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent7-live-owner-supporter-opportunity-v2-native-pass-acceptance';
+const VERSION='agent7-live-owner-supporter-opportunity-v3-public-target-geometry';
 const MAX_SAMPLES=96;
+
+/**
+ * Public target geometry and visible resource counts for later independent
+ * checks of printed Supporter requirements. This information is permitted
+ * to the acting player, and is never sent into the native action policy.
+ *
+ * @param {object} view Detached actorObservation owner root.
+ * @returns {object}
+ */
+function publicRootGeometry(view){
+  const our=view.ownPublic,opp=view.opponentPublic;
+  const benchCount=player=>player.bench.filter(Boolean).length;
+  const energyCards=player=>
+    (player.active?.energies.length??0)+
+    player.bench.reduce((sum,pokemon)=>
+      sum+(pokemon?.energies.length??0),0);
+  return {
+    ownerHandCount:view.ownHand.length,
+    ownerBenchCount:benchCount(our),
+    opponentBenchCount:benchCount(opp),
+    ownerAttachedEnergyCards:energyCards(our),
+    opponentAttachedEnergyCards:energyCards(opp),
+    ownerPrizeCount:our.prizeCount,
+    opponentPrizeCount:opp.prizeCount,
+    ownerDeckCount:our.deckCount,
+    opponentDeckCount:opp.deckCount,
+    opponentHandCount:opp.handCount
+  };
+}
 
 /**
  * Count printed Supporters in the ACTOR'S hand at a genuine root. A structural
@@ -48,7 +77,7 @@ function ownerSupporterOpportunity(state,seat,view,supporterType,options={}){
   }
   return {
     seat,globalTurn:view.globalTurn,held,quotaOpen,playUnlocked,
-    firstPlayerFirstTurn,
+    firstPlayerFirstTurn,publicGeometry:publicRootGeometry(view),
     structurallyOpenCount:held.filter(c=>c.structurallyOpen).length,
     nativeNullTargetPositiveCount:held.filter(c=>c.nativeNullTargetCanPlay===true).length,
     caveat:'CanPlay(null) and quota/lock screening are diagnostics, not an actual printed-paper legality, native target or benefit certificate.'
@@ -210,4 +239,4 @@ function withOwnerSupporterOpportunity(execute,deps={}){
     Object.defineProperty(Store.prototype,'dispatch',beforeDispatch);
   }
 }
-module.exports={VERSION,ownerSupporterOpportunity,withOwnerSupporterOpportunity};
+module.exports={VERSION,publicRootGeometry,ownerSupporterOpportunity,withOwnerSupporterOpportunity};
