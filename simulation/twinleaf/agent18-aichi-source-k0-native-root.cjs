@@ -37,7 +37,8 @@ function observeSourceK0(execute){
     const receipt=this===live&&action&&typeof action==='object'?
       pendingFirstRoots.get(action):null;
     const beforeOwner=receipt?this.state.players[receipt.seat]:null;
-    const beforeHandCard=receipt?.nativeBotProposedHandIndex!==null?
+    const beforeHandCard=receipt&&
+      Number.isInteger(receipt.nativeBotProposedHandIndex)?
       beforeOwner.hand.cards[receipt.nativeBotProposedHandIndex]:null;
     const beforeBoard=receipt?{
       ownerHandCount:beforeOwner.hand.cards.length,
