@@ -22,6 +22,27 @@ Exact chosen native card objects were `Trubbish FST` and `Crobat V DAA`; the sam
 
 All **91** compiled regression tests passed in this run, including the new default-off canonical hook priority and owner-safe mock tests. The workflow was intentionally marked **failed** because an additional report-level check expected a source-side root ledger record with `card === 'Battle VIP Pass FST'`, yet that strict filter returned empty; the next actor reply was thereby also absent from its derived check. The item and physical prompt succeeded independently. The follow-on ledger and next-opponent-root diagnostics were added to the same canonical test runner in a later revision; **do not erase this initial ledger-observation discrepancy**. A third manual run is pending for that additional audit.
 
+## Independent native action-ledger and genuine opponent response: resolved
+
+**Follow-up compiled manual CI [40958043166](https://github.com/FlareZ123/experiment-01/actions/runs/40958043166) PASSED (91/91 tests, both native same-deal gates positive).** The first report's false-negative filter was diagnosed against actual `simulation/twinleaf/headless.cjs`: an accepted `PlayCardAction` ledger row records the native card **`name`** (`Battle VIP Pass`), while the policy's legitimate owner-hand uses **`fullName`** (`Battle VIP Pass FST`). The matcher now uses the exact native name, with the exact printing separately witnessed by the adapter.
+
+The independent original Store `rootActionLedger` contains these source events in the accepted action sequence:
+
+| Native ordinal | Global turn | Physical seat | Accepted root |
+| ---: | ---: | ---: | --- |
+| 7 | 1 | 1 | PlayCardAction: Darkness Energy |
+| **8** | **1** | **1** | **PlayCardAction: Battle VIP Pass** |
+| 9 | 1 | 1 | ResolvePromptAction: ChooseCardsPrompt |
+| 10 | 1 | 1 | ResolvePromptAction: ShuffleDeckPrompt |
+| 11 | 1 | 1 | ResolvePromptAction: WaitPrompt |
+| 12 | 1 | 1 | PassTurnAction |
+| **15** | **2** | **0** | **PlayCardAction: Fog Crystal (candidate's first normal root)** |
+
+The candidate then accepted the native ChooseCardsPrompt for Fog Crystal (ordinal 16), followed by further regular plays including Dialga-GX (ordinal 20), Girafarig (21), Psychic Energy (22), and Pass (23). This is a **real next-actor response**, beyond merely recognizing the source Item or search prompt. The matched baseline and treatment source/full setup fingerprints and actual starting player are checked by the native runner; no other candidate or source list edits were made. The accepted root ledger is complete for the recorded game; it captures engine events rather than full human player policy competence.
+
+The same native audit confirmed the held root before Item play (`seat=1`, `turn=1`, `heldVip=true`, `deckCount=46`, four open Bench slots, no Item lock), exactly **one** eligible after-Pass Item action, one selected native prompt, and `unresolvedOwnerSearches=0`. Its source Item control had **129** accepted root events versus **90** for the treatment; this count difference has no intrinsic strength meaning. All reports retain `competitiveQualifiedGames=0`.
+
+The first CI failure **40957484916** remains retained as the provenance of the diagnostic mismatch; the succeeding **40958043166** resolves the ledger and next-root checks. A physically reversed rank-11 source-seat-0 replication is separately scheduled and should be linked only after its own native success.
 ## Limitations and reuse
 
 - Only a **retrospectively selected held-VIP physical source deal**, so effect opportunity is enriched by prior observation, not sampled prospectively.
