@@ -2,6 +2,12 @@ name: Twinleaf hidden-deck information-set audit
 
 on:
   workflow_dispatch:
+    inputs:
+      source_k0_survey:
+        description: Run bounded original Aichi 60-card K0 survey on six fixed ranks
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -31,6 +37,16 @@ jobs:
         run: node simulation/twinleaf/agent18-k0-root-invariance-native.cjs
       - name: Original Aichi full-60 native K0 owner-root permutation noninterference
         run: node simulation/twinleaf/agent18-aichi-source-k0-native-root.cjs
+      - name: Optional six-rank original Aichi source K0 observer survey
+        if: ${{ inputs.source_k0_survey }}
+        run: node simulation/twinleaf/agent18-aichi-k0-stratified-native.cjs > agent18-source-k0-survey.json
+      - name: Preserve K0 survey evidence including blocked registered ranks
+        if: ${{ always() && inputs.source_k0_survey }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent18-original-aichi-k0-six-rank-survey
+          path: agent18-source-k0-survey.json
+          retention-days: 30
       - name: Compare information-identical deck states
         run: node simulation/twinleaf/hidden-deck-order-audit.cjs
       - name: Compare field-used Trainers Mail hidden-order decisions
