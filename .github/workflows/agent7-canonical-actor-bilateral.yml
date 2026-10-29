@@ -128,6 +128,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank6_passive_same_seed_replay:
+        description: Recheck 16 frozen rank6 arms with and without passive lock observer
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -142,7 +147,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure adapter-composition order and qualification tests
-        run: node --test tests/agent50-stranded-marnie-frontier.test.cjs tests/agent7-canonical-actor-composition.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent8-canonical-quickball-paircheck.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent7-known-dead-attack-root.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent30-telepathic-known-energy.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent41-actor-powerglass-root.test.cjs tests/agent41-owner-powerglass-attach-prompt.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent3-native-epoch-partition-error.test.cjs tests/agent3-native-reset-prestate.test.cjs tests/agent3-terminal-attack-ko-before-endturn-hook.test.cjs tests/source-deal-epoch-observer.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent49-discrete-attack-gate.test.cjs tests/agent49-rank6-k1-alternate.test.cjs tests/agent32-canonical-owner-donor-root.test.cjs tests/agent41-native-abort-classification.test.cjs tests/same-target-attach-energy-hook.test.cjs
+        run: node --test tests/agent50-rank6-passive-32same-seed-replay.test.cjs tests/agent50-stranded-marnie-frontier.test.cjs tests/agent7-canonical-actor-composition.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent8-canonical-quickball-paircheck.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent7-known-dead-attack-root.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent30-telepathic-known-energy.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent41-actor-powerglass-root.test.cjs tests/agent41-owner-powerglass-attach-prompt.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent3-native-epoch-partition-error.test.cjs tests/agent3-native-reset-prestate.test.cjs tests/agent3-terminal-attack-ko-before-endturn-hook.test.cjs tests/source-deal-epoch-observer.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent49-discrete-attack-gate.test.cjs tests/agent49-rank6-k1-alternate.test.cjs tests/agent32-canonical-owner-donor-root.test.cjs tests/agent41-native-abort-classification.test.cjs tests/same-target-attach-energy-hook.test.cjs
       - name: Validate owner-visible donor funding and paid retreat planner
         run: node --test tests/agent35-perfection-transition-frontier.test.cjs
       - name: Regress owner-visible paid retreat and native physical receipt
@@ -436,6 +441,9 @@ jobs:
         if: ${{ inputs.rank6_source_k1 }}
         run: |
           node -e "const assert=require('node:assert/strict');const x=require('./agent7-rank6-source-k1.json');assert.equal(x.competitiveQualifiedGames,0);assert.equal(x.changedPolicyChoices,false);assert.equal(x.rows.length,4);assert.ok(x.observation.authenticPromptsSeen>0);assert.ok(x.observation.expectedGuzmaHalaSearches>0);assert.equal(x.observation.decisionChanges,0);assert.equal(x.observation.storeDispatchChanges,0);assert.equal(x.nativeRootLedgerParityAllArms,true);assert.equal(x.publicAttackDeclarationParityAllArms,true);console.log('K1_AUTHENTIC_OWNER_SEARCH',JSON.stringify(x.observation))"
+      - name: Read-only rank6 passive lock, same-seed native noninterference replay
+        if: ${{ inputs.rank6_passive_same_seed_replay }}
+        run: node simulation/evaluation/agent50-rank6-passive-32same-seed-replay.cjs > agent50-rank6-passive-same-seed.json
       - name: Preserve every observed and censored development arm
         if: always()
         uses: actions/upload-artifact@v4
@@ -450,6 +458,7 @@ jobs:
             agent7-canonical-actor-fourarm-control.json
             agent7-canonical-sourcefirst-control.json
             agent7-rank6-source-k1.json
+            agent50-rank6-passive-same-seed.json
             agent48-cologne-native-gate.json
             agent1-evolution-pass-baseline.json
             agent1-evolution-pass-optin.json
