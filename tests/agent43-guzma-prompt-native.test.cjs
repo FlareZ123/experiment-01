@@ -92,7 +92,14 @@ function check(seat){
     assert.equal(opponent.active.getPokemonCard()?.fullName,'Lunatone OBF');
     pending=state.prompts.find(p=>p.result===undefined);
     assert.equal(pending?.constructor?.name,'ChoosePokemonPrompt');
-    const bot=new SimpleTacticsAi({id:owner.id},undefined,null);
+    const definitions=native('simple-bot/simple-bot-definitions');
+    const botOptions={
+      tactics:definitions.allSimpleTactics,
+      promptResolvers:definitions.allPromptResolvers,
+      scores:definitions.defaultStateScores,
+      arbiter:definitions.defaultArbiterOptions
+    };
+    const bot=new SimpleTacticsAi({id:owner.id},botOptions,null);
     const action=bot.decodeNextAction(state);
     assert.ok(action instanceof ResolvePromptAction);
     assert.equal(action.id,pending.id);
