@@ -99,6 +99,8 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
     }
     const ownerId=this.client?.id;
     const plan=plans.get(ownerId);
+    trace({step:'decode',ownerId,turn:state.turn,
+      activePlayer:state.activePlayer,plan:plan??null});
     if(!plan)return botOriginal.value.apply(this,[state,...rest]);
     if(state.turn!==plan.turn || state.activePlayer!==plan.seat){
       plans.delete(ownerId);
