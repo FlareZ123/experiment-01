@@ -214,3 +214,12 @@ test('typed paid retreat decision counts distinguish no-exposure from accepted e
   assert.ok(out.pairs.every(p=>p.selectedPaidRetreats===2));
   assert.ok(out.pairs.every(p=>p.nativePaidRetreatUnconfirmed===1));
 });
+
+test('empty but present root intent audit records a true zero exposure',()=>{
+  const out=summarizeRecipientABA(report('false'),report('true'),
+    report('false'));
+  assert.equal(out.summary.trialsWithPaidRetreatAudit,4);
+  assert.equal(out.summary.selectedPaidRetreats,0);
+  assert.equal(out.summary.nativePaidRetreatConfirmed,0);
+  assert.ok(out.pairs.every(p=>p.selectedPaidRetreats===0));
+});
