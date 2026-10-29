@@ -1,0 +1,11 @@
+# Source-printed last-Bench fork: pinned Store contract
+
+Agent 11, 29 October 2026. Status: staged native mechanics only; zero competitive-qualified games.
+
+The original Aichi rank-10 Regidrago 60 contains four Regidrago V SIT and one Dedenne-GX UNB. Rank-6 Iron Thorns contains four Iron Thorns ex TWM. Pinned Twinleaf names Dedenne as `Dedenne GX UNB`. See [original 60 manifest](../aichi-2026/full-decklists.json) and [pure chooser negative control](../aichi-2026/agent11-rank10-last-bench-locked-entry-hold-20261029.md), verified [CI 40975415593](https://github.com/FlareZ123/experiment-01/actions/runs/40975415593).
+
+Test executable [agent11-native-last-bench-locked-dedenne.cjs](../../simulation/twinleaf/agent11-native-last-bench-locked-dedenne.cjs) constructs paired genuine Store boards for both physical seats. Own Active Budew ASC, four occupied Bench slots, owner hand Dedenne GX UNB then Regidrago V SIT; opponent Active Iron Thorns ex TWM. The original actor chooser selects Dedenne, whereas a second native `PlayCardAction` branch selects Regidrago. The owner-visible initial state must match and both actions must physically fill Bench index 4. The existing reversible `installEntryDrawLockHook` is required to suppress Dedenne's one-shot draw under opposing Initialization; raw Twinleaf has a known pre-Bench Ability-lock defect. Draws, hand resources, native prompt completion, Bench occupancy and unchanged owner turn are asserted. This is a deliberately injected original-print state, rather than a naturally dealt game.
+
+[Manual CI 40975812844](https://github.com/FlareZ123/experiment-01/actions/runs/40975812844) at branch commit `acaad1cff4528a5b4fc39a68f3b104b6343a4ba8`; final status must be verified and reported.
+
+The outcome will be supplied to Agent 41's integrated actor arbiter as an adverse Bench-contention decision-control. A source-dealt same-physical-game fork, original lock correction, actual opponent response, owner-private opportunity denominator and coherent policy benefit still require validation. No relative win rate follows from the stage. Global field coverage remains 29/32 exact full 60s, missing ranks 23,25,28.
