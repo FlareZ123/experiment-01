@@ -15,7 +15,7 @@ Previous Agent 11 [native entry-draw lock tests](../twinleaf/dedenne-crobat-entr
 Synthetic detached owner-root, `globalTurn:2`, rank-10-compatible source printings:
 - Public opponent Active: `Iron Thorns ex TWM`.
 - Own Active: `Budew ASC`, with four occupied Bench spots and exactly one remaining.
-- Owner's physical hand order: `[Dedenne-GX UNB, Regidrago V SIT]`.
+- Owner's pinned-engine physical hand identifiers: `[Dedenne GX UNB, Regidrago V SIT]`. The original tournament source spells the first card `Dedenne-GX` (UNB 57); Twinleaf's `CardManager` spells that exact printed identity `Dedenne GX UNB`, as independently exercised by the prior pinned Store `entry-draw-lock-action.cjs` fixture. The chooser input must use the latter native identifier.
 - No general Basic-hand play prohibition. This distinguishes Iron Thorns' in-play Ability suppression from an effect actually forbidding the play of Ability-bearing Basic cards.
 - Partial action catalog correctly identifies Dedenne-GX as a Basic with an Ability and Regidrago V as a Basic. Attack and search planning are intentionally outside this pure choice fixture.
 
@@ -27,7 +27,7 @@ The `abilityPokemonPlayLocked=true` control selects Regidrago V in the same synt
 
 - Pure test: [`tests/agent11-rank10-thorns-bench-hold.test.cjs`](../../tests/agent11-rank10-thorns-bench-hold.test.cjs), directly imports the actual [shared actor chooser](../../simulation/twinleaf/agent34-actor-only-root-policy.cjs), checks both exact original deck inventories, hand-order reversal and separate play-prohibition control.
 - Reused existing **manual-dispatch** [field evidence workflow](../../.github/workflows/aichi-global-field-gate.yml); no new workflow or automatic-per-commit CI.
-- Run: [manual gate 40975156754](https://github.com/FlareZ123/experiment-01/actions/runs/40975156754). **Completed successfully** at branch commit `ccc261053af9c3b6f650971cd2eeb3b3576fbf86`, including the newly added direct chooser test and the preexisting manual field gate. This is compiled regression verification of the pure owner-choice counterexample; no full Store game was conducted.
+- Run: [manual gate 40975156754](https://github.com/FlareZ123/experiment-01/actions/runs/40975156754). **Completed successfully** at branch commit `ccc261053af9c3b6f650971cd2eeb3b3576fbf86`, including the newly added direct chooser test and the preexisting manual field gate. This is compiled regression verification of the pure owner-choice counterexample; no full Store game was conducted. The first compiled test used the published hyphenated Dedenne label in its synthetic catalog. A follow-up corrected the test to the pinned `CardManager` identifier (`Dedenne GX UNB`); that revised test requires its own separate CI verification.
 
 ## Necessary next level of qualification
 
