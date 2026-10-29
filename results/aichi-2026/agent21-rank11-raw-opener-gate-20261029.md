@@ -26,6 +26,21 @@ Unconditional strict event across all original-seven-plus-next-card samples: **1
 
 **Next falsifiable shared-runner step:** at rank-11 owner decision boundaries in global turns 1/2, record the exact owner-visible reason the existing predicate passes/fails: real Active, free Bench, VIP/Float/Forest/Boost in hand, VSTAR spent, Trubbish already Benched, and whether previous legal search/draw changed the hand. Then classify legal alternates for already-held setup cards and alternative starters, preserving natural owner choices, opponent response, source timing, all capped/error arms, frozen policy version and source-deal receipts. Route improvements to the **existing common policy**, with a fresh preregistration before competitive comparison. Do not spin another selected-seed win branch.
 
-**Reproduction:** [pure BigInt binomial regression](../../tests/agent21-rank11-raw-opening-gate.test.cjs) reads the original source 60 and checks three invariant/probability assertions. Local Node v22.16.0 executed all **3/3 passing** tests against an independently constructed exact-count rank-11 fixture, with the combinatorics also cross-checked by a separate Python calculation. These checks validate the arithmetic; no new native engine run or paper-game qualification is claimed.
+**Reproduction:** [pure BigInt binomial regression](../../tests/agent21-rank11-raw-opening-gate.test.cjs) reads the original source 60 and checks three invariant/probability assertions. Local Node v22.16.0 executed all **5/5 passing** tests against an independently constructed exact-count rank-11 fixture, with the combinatorics also cross-checked by a separate Python calculation. These checks validate the arithmetic; no new native engine run or paper-game qualification is claimed.
+
+## Independent alternative: direct held Boost Shake + any Tool
+
+The original 60 permits a much simpler **candidate** branch that bypasses the Oranguru-first, VIP-plus-Float, no-held-Boost predicate: hold **Boost Shake**, attach a **Pokémon Tool** to a Trubbish available by hand, Battle VIP Pass or Quick Ball, and evolve into Garbodor. A direct Tool can be Float Stone (3), Muscle Band (1), or Forest Seal Stone (2). The original printed Forest Seal Stone permits attachment to any Pokémon without an existing Tool; only its `Star Alchemy` use is restricted to a Pokémon V. Garbotoxin merely requires a Pokémon Tool attached, independent of whether that Tool's other effect can be used. Attaching Forest Seal to Garbodor spends its better potential role on a V, a material tactical tradeoff.
+
+A separate exact enumeration partitions the actual source as **Trubbish 2; other Basics 9; VIP 4; Quick Ball 4; Boost Shake 2; attachable Tools 6; other 33**. After an original Basic-valid seven and one turn draw, require at least one Boost, at least one attachable Tool, and at least one Trubbish/VIP/Quick.
+
+| Alternative raw eight-card screen | Favorable ordered outcomes | Basic-valid probability |
+| --- | ---: | ---: |
+| Held Boost, any Tool, and Basic Pokémon search/Trubbish access | 1,422,950,438 | **8.94024476%** |
+| Same, additionally a *non-Trubbish Basic* already in original seven for a separate Active | 1,192,975,377 | **7.49533615%** |
+
+This screen **does not prove a legal completed opening**: Quick Ball must have a genuinely discardable second hand card and an unprized Trubbish search target, VIP is usable only on that player's first turn, and the actual board must permit the intended attachment and evolution before Boost Shake ends the turn. It does not confirm the original Store's card implementation, opponent counterplay, or target competence. Its conditions overlap with the Oranguru gate; the 8.94% and 2.27% figures **must not be added** or interpreted as simulated lock probabilities. Neither is a complete source-line access model.
+
+The arithmetic supplies a falsifiable design priority: on own-hand decisions, inspect direct held Boost+Tool+Trubbish/search opportunities before assuming all source lock play must route through Oranguru. Preserve the important multi-action-cost, discardability, and opponent-response qualifications, and test the actual printed line in the original native Store.
 
 **Field status unchanged:** 29/32 original opposing sixties, missing ranks 23/25/28; zero qualified competitive games, no evidence-backed 99.5% list.
