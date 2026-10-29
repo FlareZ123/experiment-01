@@ -46,29 +46,38 @@ function originalPrintedPokemon(root,sourceCard,cache={}){
   const number=sourceCard.printing?.number;
   assert.equal(sourceCard.printing?.language,'en');
   assert.ok(typeof code==='string'&&typeof number==='string');
-  if(!cache.setCodeToId){
+  if(!cache.setCodeToIds){
     const setEntries=JSON.parse(fs.readFileSync(
       path.resolve(root,'resources/sets/en.json'),'utf8'));
-    cache.setCodeToId=new Map(setEntries
-      .filter(item=>item.ptcgoCode)
-      .map(item=>[item.ptcgoCode,item.id]));
+    cache.setCodeToIds=new Map();
+    for(const item of setEntries){
+      if(!item.ptcgoCode)continue;
+      const ids=cache.setCodeToIds.get(item.ptcgoCode)??[];
+      ids.push(item.id);
+      cache.setCodeToIds.set(item.ptcgoCode,ids);
+    }
   }
-  const setId=cache.setCodeToId.get(code);
-  assert.ok(setId,'No exact English source set for '+code);
+  const setIds=cache.setCodeToIds.get(code)??[];
+  assert.ok(setIds.length>0,'No exact English source set for '+code);
   if(!cache.cardsBySet)cache.cardsBySet=new Map();
-  if(!cache.cardsBySet.has(setId)){
-    const entries=JSON.parse(fs.readFileSync(
-      path.resolve(root,'resources/cards/en',setId+'.json'),'utf8'));
-    cache.cardsBySet.set(setId,
-      new Map(entries.map(card=>[card.id,card])));
+  const candidates=[];
+  const normalize=name=>name.replaceAll('♢','◇');
+  for(const setId of setIds){
+    if(!cache.cardsBySet.has(setId)){
+      const filename=path.resolve(root,'resources/cards/en',setId+'.json');
+      const entries=JSON.parse(fs.readFileSync(filename,'utf8'));
+      cache.cardsBySet.set(setId,
+        new Map(entries.map(card=>[card.id,card])));
+    }
+    const id=setId+'-'+number;
+    const card=cache.cardsBySet.get(setId).get(id);
+    if(card&&normalize(card.name)===normalize(sourceCard.name))
+      candidates.push(card);
   }
-  const id=setId+'-'+number;
-  const card=cache.cardsBySet.get(setId).get(id);
-  assert.ok(card,'No original printed card '+id);
-  // Some cosmetic English database names use a different diamond glyph.
-  // The immutable source set-number pair, plus the required Pokémon type,
-  // is stronger provenance than a string-normalized name.
-  return classifyPrintedPokemon(card);
+  assert.equal(candidates.length,1,
+    'Printed identity must resolve uniquely: '+sourceCard.name+
+      ' '+code+' '+number+', matches='+candidates.length);
+  return classifyPrintedPokemon(candidates[0]);
 }
 
 /**
