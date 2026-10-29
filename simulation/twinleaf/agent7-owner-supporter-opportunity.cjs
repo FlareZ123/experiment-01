@@ -2,7 +2,10 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent7-live-owner-supporter-opportunity-v3-public-target-geometry';
+const VERSION='agent7-live-owner-supporter-opportunity-v4-first-turn-exceptions';
+const FIRST_PLAYER_SUPPORTER_EXCEPTIONS=new Set([
+  'Carmine','Beauty',"Team Rocket's Proton"
+]);
 const MAX_SAMPLES=96;
 
 /**
@@ -60,7 +63,8 @@ function ownerSupporterOpportunity(state,seat,view,supporterType,options={}){
     const card=owner.hand.cards[handIndex];
     if(card?.trainerType!==supporterType)continue;
     assert.equal(card.fullName,view.ownHand[handIndex]);
-    const firstTurnRestricted=firstPlayerFirstTurn&&card.name!=='Carmine';
+    const firstTurnRestricted=firstPlayerFirstTurn&&
+      !FIRST_PLAYER_SUPPORTER_EXCEPTIONS.has(card.name);
     const structurallyOpen=quotaOpen&&playUnlocked&&!firstTurnRestricted;
     let nativeNullTargetCanPlay=null,nativeProbeError=null;
     if(options.nativeCanPlay===true&&structurallyOpen&&
@@ -71,7 +75,7 @@ function ownerSupporterOpportunity(state,seat,view,supporterType,options={}){
     held.push({
       handIndex,printing:card.fullName,
       firstTurnScreen:firstTurnRestricted?'ordinary-supporter-restricted':
-        (firstPlayerFirstTurn?'known-Carmine-exception':'later-turn'),
+        (firstPlayerFirstTurn?'printed-go-first-exception':'later-turn'),
       structurallyOpen,nativeNullTargetCanPlay,nativeProbeError
     });
   }
@@ -239,4 +243,4 @@ function withOwnerSupporterOpportunity(execute,deps={}){
     Object.defineProperty(Store.prototype,'dispatch',beforeDispatch);
   }
 }
-module.exports={VERSION,publicRootGeometry,ownerSupporterOpportunity,withOwnerSupporterOpportunity};
+module.exports={VERSION,FIRST_PLAYER_SUPPORTER_EXCEPTIONS,publicRootGeometry,ownerSupporterOpportunity,withOwnerSupporterOpportunity};
