@@ -48,18 +48,25 @@ test('Double Dragon is selected only for public Dragon recipient',()=>{
     ['Double Dragon Energy ROS']);
   assert.equal(choosePublicContextSpecialEnergy(notDragon,catalog),null);
 });
-test('Counter behind-on-Prizes respects GX-EX exclusion',()=>{
+test('Counter behind-on-Prizes respects verified GX-EX exclusion',()=>{
+  const profiled={...catalog,publicPokemonProfileIndex:new Map([
+    ['Pikachu UPR',{isEvolution:false,hasRuleBox:false,
+      isPokemonGX:false,isPokemonEX:false}],
+    ['Dedenne-GX UNB',{isEvolution:false,hasRuleBox:true,
+      isPokemonGX:true,isPokemonEX:false}]
+  ])};
   const normal=view(slot('Pikachu','Pikachu UPR',[4]),
     ['Counter Energy CIN']);
   normal.ownPublic.prizeCount=5;
   normal.opponentPublic.prizeCount=3;
-  assert.equal(choosePublicContextSpecialEnergy(normal,catalog)?.printing,
+  assert.equal(choosePublicContextSpecialEnergy(normal,catalog),null);
+  assert.equal(choosePublicContextSpecialEnergy(normal,profiled)?.printing,
     'Counter Energy CIN');
   const gx=view(slot('Dedenne-GX','Dedenne-GX UNB',[4]),
     ['Counter Energy CIN']);
   gx.ownPublic.prizeCount=5;
   gx.opponentPublic.prizeCount=3;
-  assert.equal(choosePublicContextSpecialEnergy(gx,catalog),null);
+  assert.equal(choosePublicContextSpecialEnergy(gx,profiled),null);
 });
 test('unknown Rule Box classification cannot invent three Reversal units',()=>{
   const evolution=view(slot('Alolan Raichu','Alolan Raichu UPR',[5],2),
