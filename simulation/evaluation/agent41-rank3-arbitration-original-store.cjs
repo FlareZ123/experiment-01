@@ -109,8 +109,10 @@ function executeOne(trial,cards){
     return {trial,enginePin:PIN,
       sourceDeckPrintingsSha256:digest(cards.source),
       candidateDeckPrintingsSha256:digest(cards.candidate),
-      fullPhysicalDealFingerprint:game.fullPhysicalDealFingerprint??null,
-      sourceDealFingerprint:game.sourceDealFingerprint??null,
+      fullPhysicalDealFingerprint:
+        game.initialFullPhysicalDealFingerprint?.digestSha256??null,
+      sourceDealFingerprint:
+        game.initialSourceDealFingerprint?.digestSha256??null,
       actualStarterSeat:game.firstTurnSlot??null,
       sourceActuallyFirst:game.firstTurnSlot===sourceSeat,
       status:game.finished?'engine-terminal':'capped-or-unresolved',
