@@ -5,7 +5,8 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const fs=require('node:fs');
 const {classifyPrintedPokemon,originalPrintedPokemon,
-  energyContextFromPublic}=require(
+  energyContextFromPublic,buildPublicPokemonProfileIndex,
+  visiblePrintedProfile}=require(
     '../simulation/twinleaf/agent10-original-printing-energy-flags.cjs'
   );
 const {energySupply}=require(
@@ -79,4 +80,33 @@ test('print classifiers reject non-Pokemon records',()=>{
   assert.throws(()=>classifyPrintedPokemon({
     id:'sm4-100',supertype:'Energy',subtypes:['Special']
   }),/Pokémon/);
+});
+
+
+test('public full-card print map supplies actor-safe no-Rule-Box evidence',()=>{
+  const index=buildPublicPokemonProfileIndex(ROOT);
+  assert.ok(index.size>1000,'Unexpectedly small public printed card catalog');
+  const raichu=visiblePrintedProfile(index,'Alolan Raichu UNM');
+  assert.equal(raichu?.printingId,'sm11-57');
+  assert.equal(raichu.hasRuleBox,false);
+  assert.equal(raichu.isEvolution,true);
+  const electrode=visiblePrintedProfile(index,'Electrode-GX CES');
+  assert.equal(electrode?.hasRuleBox,true);
+  assert.equal(electrode?.isPokemonGX,true);
+  const v=visiblePrintedProfile(index,'Crobat V DAA');
+  assert.equal(v?.hasRuleBox,true);
+  assert.equal(v?.isPokemonGX,false);
+  assert.equal(visiblePrintedProfile(index,'Forged Secret Pokemon BAD'),null);
+  const source=SOURCE.decks.filter(deck=>deck.rank===4||deck.rank===17);
+  for(const deck of source){
+    for(const card of deck.cards.filter(card=>card.category==='Pokémon')){
+      const byPublicName=visiblePrintedProfile(index,
+        card.name+' '+card.printing.set);
+      const byExactID=originalPrintedPokemon(ROOT,card);
+      assert.ok(byPublicName,'Unrecognized public Pokémon '+card.name);
+      for(const flag of ['isEvolution','hasRuleBox','isPokemonGX','isPokemonEX'])
+        assert.equal(byPublicName[flag],byExactID[flag],
+          'Mismatched '+flag+' for '+card.name);
+    }
+  }
 });
