@@ -21,7 +21,8 @@ const named=(printing,name)=>printing.startsWith(name+' ');
  * excluding global cost modifiers, special-condition locks and suppressed text.
  * @param {string} printing Full engine printing.
  * @param {{isBasic:boolean,isEvolution:boolean,isDragon:boolean,
- *   hasRuleBox:boolean,behindOnPrizes:boolean}} context Public board/Prize facts.
+ *   hasRuleBox:boolean,behindOnPrizes:boolean,
+ *   isPokemonGXorEX?:boolean}} context Public board/Prize facts.
  * @returns {string[][]|null}
  */
 function energyUnits(printing,context){
@@ -45,6 +46,14 @@ function energyUnits(printing,context){
       !context.hasRuleBox&&context.behindOnPrizes?[ANY,ANY,ANY]:[['C']];
   if(named(printing,'Ignition Energy'))return context.isEvolution?
     [['C'],['C'],['C']]:[['C']];
+  // Counter's double unit condition excludes GX and EX specifically.
+  // A Rule Box test would incorrectly exclude other eligible Pokemon.
+  if(named(printing,'Counter Energy')){
+    if(context.behindOnPrizes!==true)return [['C']];
+    if(context.isPokemonGXorEX===true)return [['C']];
+    if(context.isPokemonGXorEX===false)return [ANY,ANY];
+    return null;
+  }
   for(const [name,types] of Object.entries(UNIT_SETS)){
     if(named(printing,name))return [types];
   }
