@@ -25,7 +25,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Validate same-target correction, seed and classification tests
-        run: node --test tests/same-target-attach-energy-hook.test.cjs tests/rank11-exclusive-prospective-seeds.test.cjs tests/rank11-exclusive-trial-classification.test.cjs tests/native-accepted-target-sidecar.test.cjs tests/native-accepted-target-store-observer.test.cjs tests/accepted-energy-prompt-public-witness.test.cjs
+        run: node --test tests/same-target-attach-energy-hook.test.cjs tests/rank11-exclusive-prospective-seeds.test.cjs tests/rank11-exclusive-trial-classification.test.cjs tests/native-accepted-target-sidecar.test.cjs tests/native-accepted-target-store-observer.test.cjs tests/accepted-energy-prompt-public-witness.test.cjs tests/aichi-open-time-adjudication.test.cjs
       - name: Install simulator pinned dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
