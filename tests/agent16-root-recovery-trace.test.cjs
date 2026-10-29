@@ -16,11 +16,11 @@ const root=(seat,turn,kind,printing,alts=[],extra={})=>({
 test('later native-accepted same-printing action is recorded as recovered',()=>{
   const rows=[
     root(0,3,'bench-basic','Girafarig LOT',[special]),
-    root(1,4,'attack',null),
     root(0,3,'attach-special-energy','Capture Energy RCL',[],{
       nativePhysicalEffect:'confirmed-public-effect'
     }),
-    root(0,3,'attack','Get Lost')
+    root(0,3,'attack','Get Lost'),
+    root(1,4,'attack',null)
   ];
   const result=traceAcceptedOwnerRootRecoveries(rows);
   assert.equal(result.distinctDeferrableOffers,1);
@@ -29,7 +29,7 @@ test('later native-accepted same-printing action is recorded as recovered',()=>{
   assert.equal(result.expiredAtTurnEnd,0);
   assert.equal(result.censoredAfterLastRoot,0);
   assert.equal(result.samples.recovered[0].originOrdinal,0);
-  assert.equal(result.samples.recovered[0].selectedOrdinal,2);
+  assert.equal(result.samples.recovered[0].selectedOrdinal,1);
 });
 
 test('terminal attack expires deferrable prior opportunity without claim of legality',()=>{
@@ -126,15 +126,23 @@ test('rejected rather than native-accepted roots are never counted as recovered'
   ]),/Store-accepted owner roots/);
 });
 
-test('two physical seats keep independent pending obligations',()=>{
+test('two physical seats retain correct turn-separated classifications',()=>{
   const result=traceAcceptedOwnerRootRecoveries([
     root(0,3,'bench-basic','Girafarig LOT',[special]),
-    root(1,4,'bench-basic','Other Basic',[special]),
     root(0,3,'attach-special-energy','Capture Energy RCL'),
     root(0,3,'attack','Get Lost'),
+    root(1,4,'bench-basic','Other Basic',[special]),
     root(1,4,'attack','Opponent Attack')
   ]);
   assert.equal(result.distinctDeferrableOffers,2);
   assert.equal(result.recoveredInSameTurn,1);
   assert.equal(result.expiredAtTurnEnd,1);
+});
+
+test('physical clock rewind cannot manufacture same-turn recovery',()=>{
+  assert.throws(()=>traceAcceptedOwnerRootRecoveries([
+    root(0,3,'bench-basic','Girafarig LOT',[special]),
+    root(1,4,'attack','Opponent Attack'),
+    root(0,3,'attach-special-energy','Capture Energy RCL')
+  ]),/Split native clock resets/);
 });
