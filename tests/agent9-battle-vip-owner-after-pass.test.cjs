@@ -238,3 +238,53 @@ test('held VIP opportunity beside actual accepted Attack is logged without chang
   assert.equal(AttackingBot.prototype.decodeNextAction.name,'decodeNextAction');
   assert.equal(AcceptingStore.prototype.dispatch.name,'dispatch');
 });
+
+
+test('genuine native legal zero-Basic VIP prompt never masquerades as Bench placement',()=>{
+  const own={
+    id:'zero-basic-owner',hand:{cards:[vip]},
+    deck:{cards:[evolution('Garbodor','Trubbish')]},
+    bench:Array.from({length:5},()=>({cards:[]})),
+    active:{cards:[basic('Active Basic')]}
+  };
+  const opponent={id:'opponent',hand:{cards:[]},
+    deck:{cards:[]},bench:[],active:{cards:[]}};
+  const state={phase:2,turn:1,activePlayer:0,
+    players:[own,opponent],prompts:[]};
+  const bot=new MockBot(own.id);
+  const observed=withActorBattleVipAfterPass(()=>{
+    const store=new MockStore(state);
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(bot.decodeNextAction(state));
+    const action=bot.decodeNextAction(state);
+    assert.ok(action instanceof ResolvePromptAction);
+    assert.deepEqual(action.selection,[]);
+    store.dispatch(action);
+    return {
+      occupiedBench:own.bench.filter(slot=>slot.cards.length).length,
+      deckCount:own.deck.cards.length
+    };
+  },{
+    SimpleTacticsAi:MockBot,Store:MockStore,
+    cardActions:{PlayCardAction,PlayerType:{ANY:0},SlotType:{BOARD:0}},
+    ResolvePromptAction,types:{Stage:STAGE,SuperType:TYPES},
+    GamePhase:{PLAYER_TURN:2},
+    observe:(s,seat)=>{
+      assert.equal(seat,0);
+      const out=view(0,s.turn,own.hand.cards.map(card=>card.fullName));
+      out.decisionKind=s.prompts.length?'owner-prompt':'owner-root';
+      out.pendingOwnerDeckSearch=s.prompts.length>0;
+      out.ownPublic.deckCount=own.deck.cards.length;
+      out.ownPublic.bench=own.bench.map(slot=>
+        slot.cards.length?{name:slot.cards[0].name}:null);
+      return out;
+    }
+  });
+  assert.deepEqual(observed.result,{occupiedBench:0,deckCount:1});
+  assert.equal(observed.audit.acceptedItems,1);
+  assert.equal(observed.audit.acceptedSearches,1);
+  assert.equal(observed.audit.selectedEmpty,1);
+  assert.equal(observed.audit.nativeEmptySearchConfirmed,1);
+  assert.equal(observed.audit.nativeBenchConfirmed,0);
+  assert.equal(observed.audit.nativeBenchUnconfirmed,0);
+});
