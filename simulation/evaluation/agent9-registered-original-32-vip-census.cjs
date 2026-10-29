@@ -111,8 +111,17 @@ function analyze(baseline,treatment,registration){
     row.sourceVipSearches===row.sourceVipItems&&
     row.sourceVipBenchConfirmed===row.sourceVipItems);
   const sourceMissingPrompt=attempts.filter(row=>
-    row.sourceVipItems!==null&&row.sourceVipSearches!==row.sourceVipItems);
+    row.sourceVipItems!==null&&(
+      row.sourceVipSearches!==row.sourceVipItems||
+      row.sourceVipBenchConfirmed!==row.sourceVipSearches));
+  const candidateMissingPrompt=attempts.filter(row=>
+    row.candidateVipItems!==null&&(
+      row.candidateVipSearches!==row.candidateVipItems||
+      row.candidateVipBenchConfirmed!==row.candidateVipSearches));
   const gatePassed=incomplete.length===0&&
+    baseline.developmentResult.errors===0&&
+    treatment.developmentResult.errors===0&&
+    sourceMissingPrompt.length===0&&candidateMissingPrompt.length===0&&
     attempts.every(row=>row.nativeRejectedItems===0&&
       row.nativeRejectedSearches===0&&row.unconfirmedNativeBench===0&&
       row.unresolvedOwnerSearches===0);
@@ -135,6 +144,7 @@ function analyze(baseline,treatment,registration){
     sourceFirstAttemptedVipPassArms:attempts.filter(row=>
       row.actualSourceFirst&&row.attemptedSourceVipFirstPass).length,
     sourceItemWithoutNativeOwnerPrompt:sourceMissingPrompt.map(row=>row.id),
+    candidateItemWithoutNativeOwnerPrompt:candidateMissingPrompt.map(row=>row.id),
     nativeRejectedItemAttempts:sum('nativeRejectedItems'),
     nativeRejectedPromptAttempts:sum('nativeRejectedSearches'),
     nativeBenchUnconfirmed:sum('unconfirmedNativeBench'),
