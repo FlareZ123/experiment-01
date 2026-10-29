@@ -213,3 +213,32 @@ test('read-only owner Supporter audit sits closest to native action source',()=>
     .ownerSupporterOpportunityAudit.actualStoreSeen,true);
   assert.equal(observed.audit.qualification.competitiveGames,0);
 });
+
+
+test('opt-in VIP bridge intercepts root Pass while preserving both-seat audit',()=>{
+  const order=[],make=(name,audit)=>fakeAdapter(name,audit,order);
+  const observed=withCanonicalActorOnlyPolicy(()=>73,{
+    root:make('root',{selectedRootDecisions:1,acceptedActorRoots:1}),
+    vipAfterPass:make('vip',{
+      acceptedItems:2,acceptedSearches:2,nativeBenchConfirmed:2,
+      bySeat:{0:{items:1,searches:1,benchConfirmed:1},
+        1:{items:1,searches:1,benchConfirmed:1}}
+    }),
+    fog:make('fog',{}),select:make('select',{}),
+    option:make('option',{}),attack:make('attack',{})
+  },{ownerVipAfterPass:true});
+  assert.equal(observed.result,73);
+  assert.deepEqual(order,[
+    'install:root','install:vip','install:fog','install:select',
+    'install:option','install:attack','native:canonical',
+    'restore:attack','restore:option','restore:select',
+    'restore:fog','restore:vip','restore:root'
+  ].filter(x=>x!=='native:canonical').map(x=>x==='restore:attack'?x:x));
+  assert.equal(observed.audit.ownerVipAfterPassOptIn,true);
+  assert.equal(observed.audit.nativeDecisionCounts.vipItemAccepted,2);
+  assert.equal(observed.audit.nativeDecisionCounts.vipSearchAccepted,2);
+  assert.equal(observed.audit.nativeDecisionCounts.vipBenchConfirmed,2);
+  assert.equal(observed.audit.nativeDecisionCounts.vipBySeat[1].benchConfirmed,1);
+  assert.equal(observed.audit.componentVersions.vipAfterPass,'vip');
+  assert.equal(observed.audit.qualification.competitiveGames,0);
+});
