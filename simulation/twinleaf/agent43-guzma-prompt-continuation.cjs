@@ -76,6 +76,7 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
   const audit={
     version:VERSION,ownerOnly:true,bothSeats:true,
     nativeStores:0,acceptedGuzmaRoots:0,matchedMobilityPlans:0,
+    guzmaHandConsumptionConfirmed:0,guzmaHandConsumptionUnconfirmed:0,
     mismatchedOrUnplannedGuzma:0,opponentTargetDelegations:0,
     ownTargetProposals:0,ownTargetAcceptances:0,ownTargetRejections:0,
     ownTargetPhysicalConfirmations:0,ownTargetPhysicalMismatches:0,
@@ -165,6 +166,7 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
         catalog??=getCatalog();
         const choice=choosePlan(view,catalog);
         candidate={seat,ownerId:owner.id,turn:state.turn,
+          handCountBefore:owner.hand.cards.length,
           plan:choice?.kind==='play-held-guzma-mobility'&&
             choice.handIndex===action.handIndex?choice:null};
       }
@@ -182,7 +184,11 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
     }
     if(candidate){
       audit.acceptedGuzmaRoots++;
-      if(candidate.plan){
+      const handCountAfter=this.state.players[candidate.seat].hand.cards.length;
+      const consumed=handCountAfter===candidate.handCountBefore-1;
+      if(consumed)audit.guzmaHandConsumptionConfirmed++;
+      else audit.guzmaHandConsumptionUnconfirmed++;
+      if(consumed&&candidate.plan){
         plans.set(candidate.ownerId,{
           seat:candidate.seat,turn:candidate.turn,
           benchIndex:candidate.plan.benchIndex,
@@ -197,7 +203,8 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
       plans.delete(state.players[reply.seat].id);
       const active=state.players[reply.seat].active.getPokemonCard?.();
       const actualPhysicalId=active?.id??null;
-      const confirmed=actualPhysicalId===reply.expectedPhysicalId&&
+      const confirmed=Number.isSafeInteger(reply.expectedPhysicalId)&&
+        actualPhysicalId===reply.expectedPhysicalId&&
         active?.fullName===reply.expectedPrinting;
       if(confirmed)audit.ownTargetPhysicalConfirmations++;
       else audit.ownTargetPhysicalMismatches++;
