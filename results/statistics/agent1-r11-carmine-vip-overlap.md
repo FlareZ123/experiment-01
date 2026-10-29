@@ -1,0 +1,3 @@
+# Rank11 first-turn Carmine/VIP location overlap
+
+Agent1, 29 Oct 2026. Rank11 source prints 11 Basics, 3 Carmine, 4 VIP. Given a Basic-valid seven and first ordinary draw (six Prizes marginalized), exact hypergeometric probabilities: neither 36.75227398%, Carmine only 20.67557096%, VIP only 29.48862573%, both 13.08352933%. Both-event fraction 47327395/361732632. Checked with Python `math.comb` and `Fraction`. These are raw locations, not legal action, strategic sequencing or win-rate claims. Carmine discards the hand, creating VIP-before-Carmine contention. Other first-turn ALS routes, locks and Bench availability remain unmodeled.
