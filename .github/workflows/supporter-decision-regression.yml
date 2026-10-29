@@ -125,6 +125,17 @@ jobs:
       - name: Compile full observed low-hand Lillie treatment census
         if: ${{ inputs.agent25_owner_scout_lillie_treatment }}
         run: node simulation/evaluation/agent25-registered-scout-owner-census.cjs agent25-registered-32-lillie-treated-raw.json > agent25-registered-32-lillie-treated-owner-census.json
+      - name: Require printed shuffle draw settlement for all native Lillie plays
+        if: ${{ inputs.agent25_owner_scout_lillie_treatment }}
+        run: >-
+          node -e "const a=require('node:assert/strict');
+          const r=require('./agent25-registered-32-lillie-treated-raw.json');
+          const c=require('./agent25-registered-32-lillie-treated-owner-census.json');
+          const d=r.agent25NativeLillieDrawSettlement;
+          a.equal(c.attempted,32);a.equal(c.competitiveQualifiedGames,0);
+          a.equal(d.readOnly,true);a.equal(d.unresolved,0);
+          a.equal(d.printedDrawConfirmed,d.supportRoots);
+          console.log('AGENT25_NATIVE_LILLIE_32',JSON.stringify({accepted:d.supportRoots,drawConfirmed:d.printedDrawConfirmed,eligibleRootReads:c.eligibleRootReads,sourceCapped:c.cappedArms,exceptions:c.exceptionArms,qualified:0}));"
       - name: Preserve raw 32-arm Lillie treatment even when failed
         if: ${{ always() && inputs.agent25_owner_scout_lillie_treatment }}
         uses: actions/upload-artifact@v4
