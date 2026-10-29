@@ -38,7 +38,9 @@ function row(overrides={}){
       candidateId:'new-moon-lockbreaker-v1'},
     sourceSeat:0,candidateSeat:1,enginePin:'a9905a76',
     candidateDeckFingerprint:'candidate-60',sourceDeckFingerprint:'source-60',
-    sourceDealFingerprint:'real-physical-deal',actualStarterSeat:0,
+    sourceDealFingerprint:'real-physical-deal',
+    fullPhysicalDealProtocol:'initial-full-physical-deal-sha256-v1',
+    fullPhysicalDealFingerprint:'both-seat-physical-deal',actualStarterSeat:0,
     verifiedFirstTurn:true,rootActionLedgerSha256:'legacy-root-sha',
     nativeAcceptedTargetSidecar:root(0),
     nativeAcceptedEnergyPromptSidecar:prompt(0),...overrides};
@@ -96,6 +98,11 @@ test('different fixed lists, actual deals, engine and errors veto causal compari
   assert.equal(comparePairedAcceptedTargets(base,row({
     sourceDealFingerprint:'another-physical-deal'})).reason,
     'different-or-missing-source-deal');
+  assert.equal(comparePairedAcceptedTargets(base,row({
+    fullPhysicalDealFingerprint:'different-candidate-hand-or-prizes'})).reason,
+    'different-or-missing-both-player-physical-deal');
+  assert.equal(comparePairedAcceptedTargets(base,row({
+    fullPhysicalDealFingerprint:null})).status,'incomparable');
   assert.equal(comparePairedAcceptedTargets(base,row({
     enginePin:'different-engine'})).reason,'unverified-engine-pin');
   assert.equal(comparePairedAcceptedTargets(base,row({
