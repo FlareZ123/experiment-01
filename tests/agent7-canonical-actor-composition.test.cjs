@@ -242,3 +242,31 @@ test('opt-in VIP bridge intercepts root Pass while preserving both-seat audit',(
   assert.equal(observed.audit.componentVersions.vipAfterPass,'vip');
   assert.equal(observed.audit.qualification.competitiveGames,0);
 });
+
+test('optional read-only Plumeria observer preserves canonical composition and native audit ownership',()=>{
+  const order=[],make=(name,audit)=>fakeAdapter(name,audit,order);
+  const observed=withCanonicalActorOnlyPolicy(()=>61,{
+    root:make('root',{selectedRootDecisions:1,acceptedActorRoots:1}),
+    fog:make('fog',{}),select:make('select',{}),
+    option:make('option',{}),attack:make('attack',{}),
+    plumeriaOpportunity:make('plumeria',{
+      firstTurnNativePlayable:3,acceptedPassWithPlayable:2,
+      acceptedPlumeria:1,settledEnergyDiscards:1
+    }),
+    supporterOpportunity:make('supporter',{bySeat:{0:{},1:{}}})
+  },{ownerPlumeriaOpportunity:true,ownerSupporterOpportunity:true});
+  assert.equal(observed.result,61);
+  assert.deepEqual(order,[
+    'install:root','install:fog','install:select','install:option',
+    'install:attack','install:supporter','install:plumeria',
+    'restore:plumeria','restore:supporter','restore:attack',
+    'restore:option','restore:select','restore:fog','restore:root'
+  ]);
+  assert.equal(observed.audit.ownerPlumeriaOpportunityOptIn,true);
+  assert.equal(observed.audit.nativeDecisionCounts.plumeriaNativePlayableFirstOwnerTurns,3);
+  assert.equal(observed.audit.nativeDecisionCounts.plumeriaAcceptedPassWithPlayable,2);
+  assert.equal(observed.audit.nativeDecisionCounts.plumeriaNativeRootAccepted,1);
+  assert.equal(observed.audit.nativeDecisionCounts.plumeriaSettledEnergyDiscards,1);
+  assert.equal(observed.audit.ownerPlumeriaOpportunityAudit.version,'plumeria');
+  assert.equal(observed.audit.qualification.competitiveGames,0);
+});
