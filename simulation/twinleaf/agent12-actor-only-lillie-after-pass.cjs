@@ -5,7 +5,7 @@ const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 
 const VERSION='agent12-actor-only-lillie-after-pass-v1';
-const LILLIE='Lillie\'s Determination MEG';
+const LILLIE='Lillie\'s Determination M1L';
 
 /**
  * A narrow printed-identity policy for an actor-only Pass decision.
