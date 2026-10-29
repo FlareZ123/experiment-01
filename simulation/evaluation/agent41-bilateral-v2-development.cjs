@@ -431,6 +431,7 @@ function executeDevelopment(trial,candidates,{
   let nativeActionInputAudit=null;
   let sameTargetAttachEnergyAudit=null;
   let nativeAcceptedTargetAudit=null;
+  let nativeAcceptedEnergyPromptAudit=null;
   // Development-only, both-seat correction for the original bot's split
   // AttachEnergyPrompt selection when the printed prompt requires sameTarget.
   // A native Store or strict prompt failure still aborts the trial.
@@ -445,8 +446,17 @@ function executeDevelopment(trial,candidates,{
     if(!nativeAcceptedTargets)return runWithSameTargetAttachEnergy();
     const Store=require(path.join(root,
       'vendor/twinleaf/ptcg-server/output/game/store/store')).Store;
+    // Capture both accepted root target geometry and typed Energy-prompt
+    // public destinations. The latter may be deferred or unobservable, so
+    // these separate read-only receipts cannot certify every physical choice.
+    const runWithEnergyPromptWitness=()=>{
+      const witnessed=require('../twinleaf/accepted-energy-prompt-public-witness.cjs')
+        .withAcceptedEnergyPromptPublicWitness(runWithSameTargetAttachEnergy,{Store});
+      nativeAcceptedEnergyPromptAudit=witnessed.audit;
+      return witnessed.result;
+    };
     const observed=require('../twinleaf/native-accepted-target-store-observer.cjs')
-      .withAcceptedTargetWitness(runWithSameTargetAttachEnergy,{Store});
+      .withAcceptedTargetWitness(runWithEnergyPromptWitness,{Store});
     nativeAcceptedTargetAudit=observed.audit;
     return observed.result;
   };
@@ -699,7 +709,9 @@ function executeDevelopment(trial,candidates,{
       nativeOpponentHiddenReadAudit:nativeHiddenReadAudit}:{}),
     ...(nativeActionInputWitness?{nativeActionInputAudit}:{}),
     ...(nativeAcceptedTargets?{
-      nativeAcceptedTargetSidecar:nativeAcceptedTargetAudit}:{}),
+      nativeAcceptedTargetSidecar:nativeAcceptedTargetAudit,
+      nativeAcceptedEnergyPromptSidecar:nativeAcceptedEnergyPromptAudit,
+      physicalTargetCertification:'selective-public-evidence-only'}:{}),
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
     verifiedFirstTurn:game.verifiedByDrawLog,
     actualStarterSeat:game.firstTurnSlot,
@@ -959,7 +971,10 @@ function runDevelopment({
         ...(nativeAcceptedTargets?{
           nativeAcceptedTargetSidecarAbort:
             require('../twinleaf/native-accepted-target-store-observer.cjs')
-              .acceptedTargetAbortEvidence(error)}:{}),
+              .acceptedTargetAbortEvidence(error),
+          nativeAcceptedEnergyPromptSidecarAbort:
+            require('../twinleaf/accepted-energy-prompt-public-witness.cjs')
+              .acceptedEnergyPromptPublicAbortEvidence(error)}:{}),
         ...(paperSameTargetAttachEnergy?{
           paperSameTargetAttachEnergyAbortEvidence:sameTargetAbort}:{}),
         ...(actorOnlyComposition&&actorGenericFallbackAttribution?{
