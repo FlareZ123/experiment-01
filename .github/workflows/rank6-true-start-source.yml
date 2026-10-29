@@ -27,6 +27,11 @@ jobs:
       - name: Build pinned game engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Validate Agent8 exact opening resource and prepared native Energy fixture
+        run: |
+          node scripts/agent8-rank6-second-start-access.cjs
+          node scripts/agent8-rank6-speed-dce-without-stadium.cjs
+          node simulation/twinleaf/agent8-rank6-speed-dce-store-fixture.cjs
       - name: Run all frozen both-start source trial pairs
         run: node simulation/twinleaf/rank6-true-start-opportunity-source.cjs > rank6-true-start-source.json
       - name: Preserve source results including every error and action cap
