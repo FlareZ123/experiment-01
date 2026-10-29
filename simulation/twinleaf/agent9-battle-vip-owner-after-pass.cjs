@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 
-const VERSION='agent9-battle-vip-owner-after-pass-v1';
+const VERSION='agent9-battle-vip-owner-after-pass-v2-priority-contention-audit';
 const PRINTING='Battle VIP Pass FST';
 const PROMPT_MESSAGE='CHOOSE_CARD_TO_PUT_ONTO_BENCH';
 
