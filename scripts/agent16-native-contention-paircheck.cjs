@@ -61,7 +61,8 @@ function compareOwnerArbitrationPair(control,observed){
     const root=b.actorOnlyDecisionCoverage.detailedComponentAudits.root;
     const census=root.ownerArbitration;
     assert.ok(census?.version===VERSION);
-    assert.ok(census.ownerRoots>0);
+    assert.ok(census.ownerRoots>0,
+      'No genuine owner-root decisions in native sample');
     assert.ok(census.contentionRoots>=0&&
       census.contentionRoots<=census.ownerRoots);
     ownerRoots+=census.ownerRoots;
