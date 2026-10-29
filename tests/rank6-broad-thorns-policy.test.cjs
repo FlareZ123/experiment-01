@@ -3,7 +3,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {chooseOpeningDiscards,planOpeningHand,
-  missingTagCallK1Requirements,dceHandAttachmentBlocked}=
+  missingTagCallK1Requirements,dceHandAttachmentBlocked,
+  hasLiveRank6SpeedLightning}=
   require('../simulation/twinleaf/rank6-broad-thorns-policy.cjs');
 
 /** @param {string[]} names */
@@ -284,4 +285,59 @@ test('K1 check preserves a viable Tag Call target and needed-only scope',()=>{
   assert.deepEqual(missingTagCallK1Requirements({
     needThunder:false,needDce:false
   },[],[]),[]);
+});
+
+test('opt-in live Speed Lightning plus held DCE pays printed LCC without Stadium',()=>{
+  const resources=hand(['Iron Thorns ex','Double Colorless Energy']);
+  assert.deepEqual(planOpeningHand(resources,false,undefined,false,{
+    activeLiveLightningAttached:true,stadiumLocked:true
+  }),{channel:'direct',needDce:false,needThunder:false,discardCount:0});
+  assert.equal(planOpeningHand(resources,false,undefined,false,{
+    stadiumLocked:true
+  }),null,'published default requires Thunder Mountain');
+});
+
+test('attached live Lightning lets held Guzma & Hala search only missing DCE',()=>{
+  const resources=hand(['Guzma & Hala','Camping Gear','Crushing Hammer']);
+  assert.deepEqual(planOpeningHand(resources,false,undefined,false,{
+    activeLiveLightningAttached:true
+  }),{channel:'held-guzma-hala',needDce:true,
+    needThunder:false,discardCount:2});
+  assert.deepEqual(planOpeningHand(resources,false,undefined,false,{}),{
+    channel:'held-guzma-hala',needDce:true,needThunder:true,
+    discardCount:2
+  });
+});
+
+test('only genuine attached Speed Lightning on Active under no Temple pays L',()=>{
+  const make=(energy,stadium)=>({
+    players:[{stadium:{cards:stadium?[{name:stadium}]:[]}},
+      {stadium:{cards:[]}}],
+    source:{active:{energies:{cards:energy?[{name:energy}]:[]}}}
+  });
+  for(const [name,expected] of [
+    ['Speed Lightning Energy',true],
+    ['Capture Energy',false],
+    ['Spiky Energy',false],
+    ['Double Colorless Energy',false]
+  ]){
+    const scene=make(name,null);
+    Object.defineProperty(scene.source,'deck',{get(){throw Error('hidden deck');}});
+    assert.equal(hasLiveRank6SpeedLightning(scene,scene.source),expected);
+  }
+  const neutralized=make('Speed Lightning Energy','Temple of Sinnoh');
+  assert.equal(hasLiveRank6SpeedLightning(neutralized,neutralized.source),false);
+});
+
+test('attached Lightning never bypasses DCE hand lock or a spent attachment',()=>{
+  assert.equal(planOpeningHand(hand(['Double Colorless Energy']),false,
+    undefined,false,{activeLiveLightningAttached:true,
+      specialEnergyLocked:true}),null);
+  assert.equal(planOpeningHand(hand(['Double Colorless Energy']),false,
+    undefined,false,{activeLiveLightningAttached:true,
+      energyAlreadyAttached:true}),null);
+  assert.deepEqual(planOpeningHand(hand([]),false,undefined,false,{
+    activeLiveLightningAttached:true,activeDceAttached:true,
+    energyAlreadyAttached:true
+  }),{channel:'direct',needDce:false,needThunder:false,discardCount:0});
 });
