@@ -182,6 +182,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseConservativeShuffleSupporter(view);
     if(draw)return {...draw,kind:'play-conservative-shuffle-supporter'};
   }
+  if(options.carmineFirstRoot===true){
+    const first=require('./agent48-conservative-first-carmine.cjs')
+      .chooseConservativeFirstCarmine(view);
+    if(first)return first;
+  }
   if(options.paidRetreatRoot===true){
     const retreat=require('./agent6-actor-paid-retreat-frontier.cjs')
       .choosePaidRetreatToDamagingBench(view,catalog);
@@ -404,6 +409,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV==='true'),
     lowHandLillieRootOptIn:deps.lowHandLillieRoot??
       (process.env.AGENT25_LOWHAND_LILLIE_DEV==='true'),
+    carmineFirstRootOptIn:deps.carmineFirstRoot??
+      (process.env.AGENT48_CARMINE_FIRST_ROOT_DEV==='true'),
     conservativeShuffleBeforeAttackOptIn:deps.conservativeShuffleBeforeAttack??
       (process.env.AGENT2_SHUFFLE_PREATTACK_DEV==='true'),
     lowHandLillieCensusOptIn:deps.lowHandLillieCensus??
@@ -463,6 +470,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.lowHandLillieRootOptIn)
     audit.version+='+'+
       require('./agent25-lowhand-lillie-frontier.cjs').VERSION;
+  if(audit.carmineFirstRootOptIn)
+    audit.version+='+'+
+      require('./agent48-conservative-first-carmine.cjs').VERSION;
   if(audit.lowHandLillieCensusOptIn)
     audit.version+='+agent25-owner-lowhand-lillie-census-v1';
   if(audit.strandedMarnieRootOptIn)
@@ -538,6 +548,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       heldGuzmaMobility:audit.heldGuzmaMobilityOptIn,
       strandedMarnieRoot:audit.strandedMarnieRootOptIn,
       lowHandLillieRoot:audit.lowHandLillieRootOptIn,
+      carmineFirstRoot:audit.carmineFirstRootOptIn,
       conservativeShuffleBeforeAttack:audit.conservativeShuffleBeforeAttackOptIn
     });
     const ownerId=state.players[seat].id;
@@ -572,6 +583,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
+      case 'play-carmine-first':
       case 'play-lowhand-lillie':
       case 'play-stranded-marnie':
       case 'play-conservative-shuffle-supporter':
