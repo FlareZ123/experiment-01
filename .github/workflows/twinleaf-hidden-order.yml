@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      remaining_source_k0_survey:
+        description: Audit K0 owner roots for other 23 published original Aichi 60s
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -46,6 +51,16 @@ jobs:
         with:
           name: agent18-original-aichi-k0-six-rank-survey
           path: agent18-source-k0-survey.json
+          retention-days: 30
+      - name: Optional remaining 23 published Aichi source K0 observer survey
+        if: ${{ inputs.remaining_source_k0_survey }}
+        run: node simulation/twinleaf/agent18-aichi-k0-remaining23-native.cjs > agent18-source-k0-remaining23.json
+      - name: Preserve remaining 23 K0 source receipts including blocked ranks
+        if: ${{ always() && inputs.remaining_source_k0_survey }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent18-original-aichi-k0-remaining23-survey
+          path: agent18-source-k0-remaining23.json
           retention-days: 30
       - name: Compare information-identical deck states
         run: node simulation/twinleaf/hidden-deck-order-audit.cjs
