@@ -59,6 +59,7 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
   const choosePlan=deps.choosePlan??chooseHeldGuzmaMobility;
   const getCatalog=deps.getCatalog??publicCatalog;
   const getChoices=deps.getChoices??nativeSinglePokemonChoices;
+  const trace=deps.trace??(()=>{});
   const botOriginal=Object.getOwnPropertyDescriptor(
     Bot.prototype,'decodeNextAction');
   const dispatchOriginal=Object.getOwnPropertyDescriptor(
