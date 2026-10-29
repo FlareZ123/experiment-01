@@ -28,6 +28,7 @@ const POKEMON_PROMPT_VERSION = 'agent8-canonical-actor-choose-pokemon-v7';
  *   Test injection only. Real components have their own pinned-Store tests.
  * @param {{ownerSingleSearch?:boolean,genericFallbackAttribution?:boolean,
  *   actorChoosePokemon?:boolean,ownerVipAfterPass?:boolean,
+ *   ownerPlumeriaOpportunity?:boolean,
  *   ownerDonorSetup?:{seat:0|1,setup?:object}}} [options]
  * Default preserves v2.
  * @returns {{result:T,audit:object}}
@@ -86,6 +87,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   let ownerSupporterOpportunityAudit = null;
   let ownerShuffleSupporterAudit = null;
   let ownerVipAfterPassAudit = null;
+  let ownerPlumeriaOpportunityAudit = null;
   const vipAfterPassOptIn=options.ownerVipAfterPass===true||
     process.env.AGENT9_BATTLE_VIP_AFTER_PASS_DEV==='true';
   const shuffleSupporterOptIn=options.ownerShuffleSupporterRoot===true||
@@ -97,18 +99,29 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerShuffleSupporterAudit=selected.audit;
     return selected.result;
   };
+  const plumeriaOpportunityOptIn=options.ownerPlumeriaOpportunity===true||
+    process.env.AGENT4_PLUMERIA_OPPORTUNITY_DEV==='true';
+  const runWithPlumeriaOpportunity=()=>{
+    if(!plumeriaOpportunityOptIn)return runWithShuffleSupporter();
+    const observer=adapters.plumeriaOpportunity??
+      require('../twinleaf/agent4-plumeria-opportunity.cjs')
+        .withPlumeriaOwnerOpportunity;
+    const observed=observer(runWithShuffleSupporter);
+    ownerPlumeriaOpportunityAudit=observed.audit;
+    return observed.result;
+  };
   const supporterOpportunityOptIn=options.ownerSupporterOpportunity===true||
     process.env.AGENT7_OWNER_SUPPORTER_AUDIT_DEV==='true';
   // Installed after all decision adapters, so real owner-root observation
   // precedes the very first policy proposal, with all choices unchanged.
   const runWithOwnerSupporterAudit=()=>{
-    if(!supporterOpportunityOptIn)return runWithShuffleSupporter();
+    if(!supporterOpportunityOptIn)return runWithPlumeriaOpportunity();
     const observer=adapters.supporterOpportunity??
       require('../twinleaf/agent7-owner-supporter-opportunity.cjs')
         .withOwnerSupporterOpportunity;
     // Experimental native card.canPlay(null) probe is independently gated:
     // no-target legality is only a diagnostic, never a paper legal proof.
-    const observed=observer(runWithShuffleSupporter,{nativeCanPlay:
+    const observed=observer(runWithPlumeriaOpportunity,{nativeCanPlay:
       options.ownerSupporterNativeCanPlay===true||
       process.env.AGENT7_NATIVE_SUPPORTER_CANPLAY_DEV==='true'});
     ownerSupporterOpportunityAudit=observed.audit;
@@ -163,6 +176,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     'Enabled owner donor root must return its actual canonical audit');
   if(supporterOpportunityOptIn)assert.ok(ownerSupporterOpportunityAudit,
     'Enabled owner Supporter audit must have observed the live executor');
+  if(plumeriaOpportunityOptIn)assert.ok(ownerPlumeriaOpportunityAudit,
+    'Enabled Plumeria observer must have executed');
   if(shuffleSupporterOptIn)assert.ok(ownerShuffleSupporterAudit,
     'Enabled actor-only shuffle Supporter must expose native audit');
   if(vipAfterPassOptIn)assert.ok(ownerVipAfterPassAudit,
@@ -195,10 +210,12 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       sparseOwnerSearch?SPARSE_OWNER_SEARCH_VERSION:
       ownerSingleSearch?OWNER_SEARCH_VERSION:VERSION)+
       (actorChoosePokemon?'+'+POKEMON_PROMPT_VERSION:'')+
-      (vipAfterPassOptIn?'+'+require('../twinleaf/agent9-battle-vip-owner-after-pass.cjs').VERSION:''),
+      (vipAfterPassOptIn?'+'+require('../twinleaf/agent9-battle-vip-owner-after-pass.cjs').VERSION:'')+
+      (plumeriaOpportunityOptIn?'+agent4-plumeria-owner-opportunity-v1':''),
     sparseOwnerSearchOptIn:sparseOwnerSearch,
     actorHandDiscardOptIn:Boolean(handDiscard),
     ownerSupporterOpportunityOptIn:supporterOpportunityOptIn,
+    ownerPlumeriaOpportunityOptIn:plumeriaOpportunityOptIn,
     ownerShuffleSupporterRootOptIn:shuffleSupporterOptIn,
     ownerVipAfterPassOptIn:vipAfterPassOptIn,
     actorChoosePokemonOptIn:actorChoosePokemon,
@@ -257,6 +274,16 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       ...(supporterOpportunityOptIn?{
         ownerSupporterOpportunitiesBySeat:ownerSupporterOpportunityAudit.bySeat
       }:{}),
+      ...(plumeriaOpportunityOptIn?{
+        plumeriaNativePlayableFirstOwnerTurns:
+          ownerPlumeriaOpportunityAudit.firstTurnNativePlayable,
+        plumeriaAcceptedPassWithPlayable:
+          ownerPlumeriaOpportunityAudit.acceptedPassWithPlayable,
+        plumeriaNativeRootAccepted:
+          ownerPlumeriaOpportunityAudit.acceptedPlumeria,
+        plumeriaSettledEnergyDiscards:
+          ownerPlumeriaOpportunityAudit.settledEnergyDiscards
+      }:{}),
       ...(vipAfterPassOptIn?{
         vipItemAccepted:ownerVipAfterPassAudit.acceptedItems,
         vipSearchAccepted:ownerVipAfterPassAudit.acceptedSearches,
@@ -286,6 +313,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     },
     ownerDonorAudit,
     ownerSupporterOpportunityAudit,
+    ownerPlumeriaOpportunityAudit,
     // Every upstream interceptor also counts events it delegates downstream.
     // These counters overlap and cannot be added into a decision denominator.
     overlappingDelegationObservations: {
@@ -303,6 +331,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       root: rootAudit,
       ...(supporterOpportunityOptIn?{
         ownerSupporterOpportunity:ownerSupporterOpportunityAudit
+      }:{}),
+      ...(plumeriaOpportunityOptIn?{
+        ownerPlumeriaOpportunity:ownerPlumeriaOpportunityAudit
       }:{}),
       ...(shuffleSupporterOptIn?{
         ownerShuffleSupporter:ownerShuffleSupporterAudit
