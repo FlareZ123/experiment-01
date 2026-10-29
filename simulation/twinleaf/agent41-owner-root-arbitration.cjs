@@ -67,7 +67,10 @@ function arbitrateOwnerRootIntent(view,catalog,first,options={},collect){
     slot:'bench',index:good.index};
   receipt.selectedKind=intent.kind;
   receipt.selectedPrinting=intent.printing;
-  receipt.selectedTarget={slot:intent.slot,index:intent.index};
+  const target=view.ownPublic.bench[intent.index];
+  receipt.selectedTarget={slot:intent.slot,index:intent.index,
+    pokemonPrinting:typeof target.printing==='string'?target.printing:null,
+    pokemonName:typeof target.name==='string'?target.name:null};
   receipt.reason='fund-public-bench-attack-before-turn-ending-root';
   return {intent,receipt};
 }
