@@ -46,7 +46,10 @@ function directBoostShakeOpportunity(state, player, seat, playerTurnPhase,
   if (untooledTrubbish(player) >= 0) return {route:'bench', tool};
   if (freeBenchIndex(player) < 0) return null;
   if (hand.includes('Trubbish')) return {route:'hand', tool};
-  if (hand.includes('Battle VIP Pass')) return {route:'vip', tool};
+  // Battle VIP Pass can only be played during the player's first turn.
+  if (state.turn <= 2 && hand.includes('Battle VIP Pass')) {
+    return {route:'vip', tool};
+  }
   return null;
 }
 
