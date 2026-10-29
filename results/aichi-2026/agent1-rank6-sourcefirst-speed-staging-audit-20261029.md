@@ -12,12 +12,12 @@ The 14 arms represent **eight distinct original source-deal fingerprints**: six 
 
 | Seed | Candidate physical slot | Source-deal identity | Actual T1 nonprompt action |
 | --- | --- | --- | --- |
-| 1381639830 | A | Paired | Pass |
-| 4100082105 | A | Paired | Pass |
-| 4131648268 | A | Paired | Pass |
-| 1000360377 | B | Paired | Pass |
-| 969345603 | B | Paired | Pass |
-| 1792986153 | B | Paired | Pass |
+| 1460221882 | A | Paired | Pass |
+| 2906058002 | A | Paired | Pass |
+| 1492669092 | A | Paired | Pass |
+| 651983417 | B | Paired | Pass |
+| 1954526372 | B | Paired | Pass |
+| 3622671892 | B | Paired | Pass |
 | 861838028 | B | Champion-only source original deal | Pass |
 | 861838028 | B | New Moon-only, different source original deal | Pass |
 
