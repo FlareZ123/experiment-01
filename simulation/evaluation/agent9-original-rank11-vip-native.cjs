@@ -43,9 +43,11 @@ function executeOwnerVip(fixture){
   const audit=canonical.audit.detailedComponentAudits.ownerVipAfterPass;
   assert.ok(audit,'Executed canonical policy omitted VIP audit');
   const roots=row.rootActionLedger??[];
+  // Pinned headless.rootActionLedger stores native Card.name, not fullName.
+  // Exact printing is independently audited at the owner-root proposal.
   const vipRoots=roots.filter(root=>
     root.action==='PlayCardAction'&&root.playerSlot===sourceSeat&&
-    String(root.card??'').includes('Battle VIP Pass'));
+    root.card==='Battle VIP Pass');
   const sourceEarlyRoots=roots.filter(root=>
     root.playerSlot===sourceSeat&&root.turnBefore<=2)
     .slice(0,24).map(root=>({
