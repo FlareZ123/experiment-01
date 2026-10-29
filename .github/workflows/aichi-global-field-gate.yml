@@ -42,5 +42,7 @@ jobs:
         run: node --test tests/aichi-event-era-proxy-audit.test.cjs
       - name: Count all bilateral v2 attempts independently of observed pressure
         run: node --test tests/agent2-bilateral-unconditional-census.test.cjs tests/agent2-pressure-ledger-alignment.test.cjs
+      - name: Verify registered 32-arm denominator and rank11 direct triple combinatorics
+        run: node --test tests/agent41-prospective-canonical-scout.test.cjs tests/agent41-rank11-direct-triple-probability.test.cjs
       - name: Verify exact familywise allocation across future candidate attempts
         run: python -m unittest discover -s tests -p 'test_aichi_familywise_evidence.py' -v
