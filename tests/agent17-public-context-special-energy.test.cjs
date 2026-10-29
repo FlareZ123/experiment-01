@@ -113,3 +113,24 @@ test('shared default root unchanged, opt-in physically typed attach and next att
   });
   assert.equal(chooseActorRootIntent(v,c).kind,'pass');
 });
+
+
+test('verified public Alolan Raichu profile unlocks real Reversal potential',()=>{
+  const candidate=slot('Alolan Raichu','Alolan Raichu UNM',[5,5,5],2);
+  const x=view(candidate,['Reversal Energy PAL']);
+  x.ownPublic.prizeCount=6;
+  x.opponentPublic.prizeCount=4;
+  const profiled={...catalog,publicPokemonProfileIndex:new Map([
+    ['Alolan Raichu UNM',{isEvolution:true,hasRuleBox:false,
+      isPokemonGX:false,isPokemonEX:false}]
+  ])};
+  assert.deepEqual(publicEnergyContext(x,candidate,profiled),{
+    isBasic:false,isEvolution:true,isDragon:false,hasRuleBox:false,
+    behindOnPrizes:true,isPokemonGXorEX:false
+  });
+  assert.equal(choosePublicContextSpecialEnergy(x,catalog),null);
+  assert.equal(choosePublicContextSpecialEnergy(x,profiled)?.printing,
+    'Reversal Energy PAL');
+  x.opponentPublic.prizeCount=6;
+  assert.equal(choosePublicContextSpecialEnergy(x,profiled),null);
+});
