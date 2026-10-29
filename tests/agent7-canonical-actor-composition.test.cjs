@@ -272,3 +272,5 @@ test('optional read-only Plumeria observer preserves canonical composition and n
 });
 
 require('./agent4-plumeria-opportunity.test.cjs');
+
+require('./agent4-plumeria-after-pass.test.cjs');
