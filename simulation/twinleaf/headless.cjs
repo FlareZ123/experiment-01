@@ -953,7 +953,7 @@ function runMatch(request) {
       // Its private card inventory is never provided to a policy.
       if (sourceDealObserver) sourceDealObserver.observe(state);
       if (sourceDealEpochObserver)
-        sourceDealEpochObserver.observe(state,actions,suddenDeathClockResets.length);
+        sourceDealEpochObserver.observe(state,actions,suddenDeathClockResets?.length ?? 0);
       if (fullDealObserver) fullDealObserver.observe(state);
       const rootedSoloSetup = rootSoloSetupSelections && pending &&
           pending.message === GameMessage.CHOOSE_STARTING_POKEMONS &&
@@ -1661,7 +1661,7 @@ function runMatch(request) {
         initialSourceDealFingerprint:sourceDealObserver.result()
       } : {}),
       ...(sourceDealEpochObserver ? {
-        sourceDealEpochs:sourceDealEpochObserver.result(suddenDeathClockResets.length)
+        sourceDealEpochs:sourceDealEpochObserver.result(suddenDeathClockResets?.length ?? 0)
       } : {}),
       ...(fullDealObserver ? {
         initialFullPhysicalDealFingerprint:fullDealObserver.result()
