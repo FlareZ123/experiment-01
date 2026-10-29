@@ -10,7 +10,7 @@ function smoke(){
   deckA:source.cards,deckB:plan.candidate.cards,seed:1244180408,
   maxActions:48,strictPromptValidation:true,
   forestSealSearchCorrection:true,supporterDecisionCorrection:true,
-  isolatePolicyRandomness:true
+  isolatePolicyRandomness:true,captureDecisionTrace:true
  }));
  assert.ok(witness.audit);
  assert.equal(witness.audit.rank11.backOrderNarrow,true);
