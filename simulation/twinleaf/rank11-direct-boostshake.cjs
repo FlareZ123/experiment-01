@@ -12,12 +12,12 @@ const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  * @template T
  * @param {0|1} sourceSeat
  * @param {()=>T} execute
- * @param {{k1AvoidMissingGarbodor?:boolean,k0AvoidAllGarbodorHeld?:boolean,claimOpportunity?:(kind:string,state:object,player:object,opportunity:object)=>boolean}} [configuration]
+ * @param {{k1AvoidMissingGarbodor?:boolean,k0AvoidAllGarbodorHeld?:boolean,allowLaterTurns?:boolean,claimOpportunity?:(kind:string,state:object,player:object,opportunity:object)=>boolean}} [configuration]
  * @returns {{result:T,policyAudit:object}}
  */
 function withRank11DirectBoostShake(sourceSeat, execute,
   {k1AvoidMissingGarbodor = false, k0AvoidAllGarbodorHeld = false,
-    claimOpportunity = null} = {}) {
+    allowLaterTurns = false, claimOpportunity = null} = {}) {
   if (![0, 1].includes(sourceSeat) || typeof execute !== 'function') {
     throw new TypeError('Known rank11 seat and synchronous game required.');
   }
@@ -55,6 +55,12 @@ function withRank11DirectBoostShake(sourceSeat, execute,
       slot.getPokemonCard()?.name === 'Trubbish' &&
       slot.tools.some(item => item.name === tool));
   }
+  /** @param {object} player @param {string} tool @returns {object|null} */
+  function tooledActiveTrubbish(player, tool) {
+    return player.active.getPokemonCard()?.name === 'Trubbish' &&
+      player.active.tools.some(item => item.name === tool) ?
+      player.active : null;
+  }
 
   SimpleTacticsAi.prototype.decodeNextAction = function rank11Direct(state) {
     const player = state.players.find(side => side.id === this.client?.id);
@@ -64,7 +70,7 @@ function withRank11DirectBoostShake(sourceSeat, execute,
         const source = state.players[sourceSeat];
         witness = {
           turn: state.turn,
-          equippedGarbodor: source.bench.some(slot =>
+          equippedGarbodor: [source.active, ...source.bench].some(slot =>
             slot.getPokemonCard()?.name === 'Garbodor' &&
             slot.tools.some(tool => TOOLS.includes(tool.name)))
         };
@@ -75,7 +81,7 @@ function withRank11DirectBoostShake(sourceSeat, execute,
     if (!line && !pending) {
       const found = directBoostShakeOpportunity(
         state, player, sourceSeat, GamePhase.PLAYER_TURN,
-        k0AvoidAllGarbodorHeld);
+        k0AvoidAllGarbodorHeld, allowLaterTurns);
       if (found && (!claimOpportunity ||
           claimOpportunity('direct',state,player,found))) {
         const prefix = found.route === 'vip' ? ['vip', 'trubbish-search'] :
@@ -113,18 +119,29 @@ function withRank11DirectBoostShake(sourceSeat, execute,
       }
     }
     if (step === 'attach-tool') {
-      const index = untooledTrubbish(player);
-      if (index >= 0) action = play(player, line.tool,
-        {player:PlayerType.BOTTOM_PLAYER, slot:SlotType.BENCH, index});
+      if (line.route === 'active' &&
+          player.active.getPokemonCard()?.name === 'Trubbish' &&
+          player.active.tools.length === 0) {
+        action = play(player, line.tool,
+          {player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+      } else if (line.route !== 'active') {
+        const index = untooledTrubbish(player);
+        if (index >= 0) action = play(player, line.tool,
+          {player:PlayerType.BOTTOM_PLAYER, slot:SlotType.BENCH, index});
+      }
     }
-    if (step === 'boost-shake' && tooledTrubbish(player, line.tool)) {
+    if (step === 'boost-shake' &&
+        (line.route === 'active' ? tooledActiveTrubbish(player, line.tool) :
+          tooledTrubbish(player, line.tool))) {
       action = play(player, 'Boost Shake', board);
     }
     if (step === 'garbodor-search') {
       action = deckChoice(state, player, pending, 'Garbodor');
     }
     if (step === 'garbodor-target') {
-      const target = tooledTrubbish(player, line.tool);
+      const target = line.route === 'active' ?
+        tooledActiveTrubbish(player, line.tool) :
+        tooledTrubbish(player, line.tool);
       if (target && pending?.constructor.name === 'ChoosePokemonPrompt' &&
           pending.validate([target], state)) {
         action = new ResolvePromptAction(pending.id, [target]);
@@ -152,10 +169,8 @@ function withRank11DirectBoostShake(sourceSeat, execute,
   try {
     const result = execute();
     return {result, policyAudit:{
-      version:k0AvoidAllGarbodorHeld && k1AvoidMissingGarbodor ?
-        'rank11-direct-boostshake-k0-k1-v3' :
-        k1AvoidMissingGarbodor ? 'rank11-direct-boostshake-k1-v2' :
-        'rank11-direct-boostshake-v1', sourceSeat,
+      version:'rank11-direct-boostshake-active-v2'+
+        (allowLaterTurns?'-later':''), sourceSeat, allowLaterTurns,
       opportunityTurn:line?.turn ?? null, route:line?.route ?? null,
       selectedTool:line?.tool ?? null,
       k1AvoidMissingGarbodor, k0AvoidAllGarbodorHeld, actions, aborted,
