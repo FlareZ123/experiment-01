@@ -53,6 +53,16 @@ function observeSourceK0(execute){
         receipt.nativeStoreFirstActionAccepted=true;
         receipt.nativeStoreFirstActionCardLeftHand=beforeHandCard?
           !afterOwner.hand.cards.includes(beforeHandCard):null;
+        const targets=[{slot:'active',index:0,pokemon:afterOwner.active},
+          ...afterOwner.bench.map((pokemon,index)=>({
+            slot:'bench',index,pokemon
+          }))];
+        const attached=beforeHandCard?targets.find(target=>
+          target.pokemon.tools.includes(beforeHandCard)):null;
+        receipt.nativeStoreFirstActionAttachedToolTarget=attached?{
+          slot:attached.slot,index:attached.index,
+          printing:beforeHandCard.fullName
+        }:null;
         receipt.nativeStoreFirstActionPublicBefore=beforeBoard;
         receipt.nativeStoreFirstActionPublicAfter={
           ownerHandCount:afterOwner.hand.cards.length,
@@ -202,7 +212,7 @@ function run(){
       sourceNativeRoots:observed.rows,
       sameOutcomeWithObserver:true,outcome:outcome(unobserved)});
   }
-  return {schema:'agent18-aichi-source-K0-native-root-v3',
+  return {schema:'agent18-aichi-source-K0-native-root-v4',
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     arms,originalFullSixties:true,competitiveQualifiedGames:0,
     caveat:'First owner roots in real 60-card source games, temporary hidden permutation restored before original bot decision; no opponent policy qualification or win-rate evidence.'};
