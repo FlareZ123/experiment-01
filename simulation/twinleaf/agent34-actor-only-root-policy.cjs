@@ -64,6 +64,9 @@ function buildActorCardCatalog(all,types){
       c.energyType===EnergyType.BASIC).map(c=>c.fullName)),
     specialEnergies:new Set(all.filter(c=>c instanceof EnergyCard&&
       c.energyType===EnergyType.SPECIAL).map(c=>c.fullName)),
+    dragonPokemonPrintings:new Set(all.filter(c=>c instanceof PokemonCard&&
+      Array.isArray(c.cardType)&&c.cardType.includes(CardType.DRAGON))
+      .map(c=>c.fullName)),
     basicEnergyTypes:{
       Grass:CardType.GRASS,Fire:CardType.FIRE,Water:CardType.WATER,
       Lightning:CardType.LIGHTNING,Psychic:CardType.PSYCHIC,
