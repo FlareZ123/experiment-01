@@ -101,7 +101,7 @@ test('real native typed root dispatch uses only actor view and restores hooks',(
   },deps);
   assert.equal(result.result,4);
   assert.equal(result.audit.passRootObservations,2);
-  assert.equal(result.audit.passRootReasonCounts.eligible,1);
+  assert.equal(result.audit.passRootReasonCounts.eligible,2);
   assert.equal(result.audit.attemptedLillieRoots,2);
   assert.equal(result.audit.acceptedLillieRoots,2);
   assert.equal(result.audit.rejectedLillieRoots,0);
