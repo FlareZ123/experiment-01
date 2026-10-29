@@ -120,6 +120,9 @@ function analyze(baseline,treatment,registration){
       selectedCards:audit?.examples?.filter(row=>
         row.kind==='vip-search'&&row.seat===sourceSeat).flatMap(row=>
           row.printings??[])??[],
+      candidateSelectedCards:audit?.examples?.filter(row=>
+        row.kind==='vip-search'&&row.seat===candidateSeat).flatMap(row=>
+          row.printings??[])??[],
       nativeError:treated.nativeAbortEvidence?.errorMessage??
         treated.errorMessage??null,
       competitiveQualified:false
@@ -183,6 +186,16 @@ function analyze(baseline,treatment,registration){
     nativeBenchUnconfirmed:sum('unconfirmedNativeBench'),
     unresolvedOwnerSearches:sum('unresolvedOwnerSearches'),
     nativeEmptyBasicSearchSelections:sum('nativeEmptyBasicSearchSelections'),
+    namedSourcePhysicalBasics:attempts.reduce((a,x)=>
+      a+(x.selectedCards?.length??0),0),
+    namedCandidatePhysicalBasics:attempts.reduce((a,x)=>
+      a+(x.candidateSelectedCards?.length??0),0),
+    sourceNativeZeroSelectionArms:attempts.filter(row=>
+      row.sourceVipItems>0&&(row.selectedCards?.length??0)===0)
+      .map(x=>x.id),
+    candidateNativeZeroSelectionArms:attempts.filter(row=>
+      row.candidateVipItems>0&&(row.candidateSelectedCards?.length??0)===0)
+      .map(x=>x.id),
     baselineNativeErrors:baseline.developmentResult.errors,
     treatmentNativeErrors:treatment.developmentResult.errors,
     baselineCapped:baseline.summary.censored,
@@ -215,6 +228,10 @@ if(require.main===module){
     censored:[result.baselineCapped,result.treatmentCapped],
     gatePassed:result.gatePassed,
     zeroBasicSearches:result.nativeEmptyBasicSearchSelections,
+    namedBasics:{source:result.namedSourcePhysicalBasics,
+      candidate:result.namedCandidatePhysicalBasics},
+    nativeZeroSelectionArms:{source:result.sourceNativeZeroSelectionArms,
+      candidate:result.candidateNativeZeroSelectionArms},
     competitive:result.competitiveQualifiedGames
   })+'\n');
   if(!result.gatePassed)process.exitCode=1;
