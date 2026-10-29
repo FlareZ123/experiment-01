@@ -37,6 +37,7 @@ function observeSourceK0(execute){
     return oldDispatch.value.apply(this,[action,...args]);
   }
   function decode(state){
+    let annotatedRow=null;
     const seat=state?.players?.findIndex(p=>p.id===this.client?.id)??-1;
     if(state===live?.state&&state.phase===GamePhase.PLAYER_TURN&&
        seat>=0&&seat<2&&state.activePlayer===seat&&
@@ -75,11 +76,21 @@ function observeSourceK0(execute){
         row.originalDeckTop=first.fullName;
         row.originalPrizePrinting=prized.fullName;
         row.chosenOwnerOnlyIntent=choice;
+        row.ownerKnownHand=[...before.ownHand];
+        row.ownActivePublicPrinting=before.ownPublic.active?.printing??null;
+        row.ownBenchPublicPrintings=before.ownPublic.bench
+          .map(slot=>slot?.printing).filter(Boolean);
+        row.opponentActivePublicPrinting=
+          before.opponentPublic.active?.printing??null;
         row.physicalObjectsRestored=true;
       }
       rows.push(row);
+      annotatedRow=row;
     }
-    return oldDecode.value.call(this,state);
+    const nativeBotAction=oldDecode.value.call(this,state);
+    if(annotatedRow)annotatedRow.nativeBotProposedActionClass=
+      nativeBotAction?.constructor?.name??null;
+    return nativeBotAction;
   }
   Object.defineProperty(Store.prototype,'dispatch',{...oldDispatch,value:dispatch});
   Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',
@@ -138,7 +149,7 @@ function run(){
       sourceNativeRoots:observed.rows,
       sameOutcomeWithObserver:true,outcome:outcome(unobserved)});
   }
-  return {schema:'agent18-aichi-source-K0-native-root-v1',
+  return {schema:'agent18-aichi-source-K0-native-root-v2',
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     arms,originalFullSixties:true,competitiveQualifiedGames:0,
     caveat:'First owner roots in real 60-card source games, temporary hidden permutation restored before original bot decision; no opponent policy qualification or win-rate evidence.'};
