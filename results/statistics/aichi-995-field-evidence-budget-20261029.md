@@ -45,3 +45,18 @@ Reproduction arithmetic (Python `math`): `ceil(log(0.05)/log(0.995))` gives 598,
 If the 29 currently known exact original 60s were hypothetically beaten **with certainty**, the three unresolved rank23,25,28 opponent probabilities are still unconstrained by source evidence. Under uniform 32-rank weights, the field win probability could be as low as **29/32 = 90.625%** if all three unknowns were certain losses, or as high as 100% if they were certain wins. To reach the **99.5% field threshold** with those 29 imagined perfect matchups, the **unknown three opponents would need an average win probability of at least 94.66667%**: solving `(29+3*x)/32 >= 0.995` gives `x >= 0.9466666667`.
 
 This is a **hypothetical arithmetic bound** for missing field coverage; it provides no evidence that any candidate beats the 29 known lists with certainty. It reinforces that exact field recovery or explicitly justified conditional interval assumptions are necessary before claiming 99.5% against the *entire* original Top32. Even a flawlessly measured 29-rank subset cannot establish the absent three's matchups.
+
+## One-sided 95% exact-binomial evidence cost after actual losses
+
+Even under the ideal i.i.d. frozen-policy and error-free-game assumptions above, allowing observed losses increases the clean field-sampled attempt count required to claim a one-sided Clopper–Pearson lower limit of at least `0.995`. With `k` observed losses in `n` attempts, the exact lower success probability is `BetaQuantile(0.05, n-k, k+1)`. The **smallest** total sample sizes satisfying the threshold are:
+
+| Observed losses | Minimum total independently sampled field attempts |
+| ---: | ---: |
+| 0 | 598 |
+| 1 | 947 |
+| 2 | 1,258 |
+| 3 | 1,549 |
+| 4 | 1,829 |
+| 5 | 2,100 |
+
+These are numerical exact-beta inverse calculations (SciPy `scipy.stats.beta.ppf`), integer searched for the first passing `n`. The design must be predeclared; stopping adaptively after looking at a favorable confidence bound requires separate sequential-inference controls. Each number assumes representative and independently sampled **all-32 field games**, including all failures; it is **not** a per-opponent uncertainty certificate. Current actual evidence qualifies for none of these bounds.
