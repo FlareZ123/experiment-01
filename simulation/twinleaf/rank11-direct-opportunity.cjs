@@ -43,22 +43,24 @@ function directBoostShakeOpportunity(state, player, seat, playerTurnPhase,
         hand.filter(name => name === 'Garbodor').length >= 2)) return null;
   // An already attached Tool makes another hand Tool unnecessary. This also
   // permits the actual owner's later-turn held-Shake follow-through.
-  if (player.active?.getPokemonCard()?.name === 'Trubbish') {
-    const equipped = player.active.tools.find(card => TOOLS.includes(card.name));
-    if (equipped) return {route:'active-equipped',tool:equipped.name};
-  }
+  // Prefer an already-Tooled Bench Trubbish: same future Garbotoxin lock
+  // without occupying the Active attacker slot. Active remains the fallback.
   for (const slot of player.bench) {
     if (slot.getPokemonCard()?.name !== 'Trubbish') continue;
     const equipped = slot.tools.find(card => TOOLS.includes(card.name));
     if (equipped) return {route:'bench-equipped',tool:equipped.name};
+  }
+  if (player.active?.getPokemonCard()?.name === 'Trubbish') {
+    const equipped = player.active.tools.find(card => TOOLS.includes(card.name));
+    if (equipped) return {route:'active-equipped',tool:equipped.name};
   }
   // A standalone Tool-play lock prevents the unpaid new-Tool routes, while
   // an already-attached Tool above may still enable a legal held Shake.
   if (player.cannotPlayToolCards) return null;
   const tool = TOOLS.find(name => hand.includes(name));
   if (!tool) return null;
-  if (untooledActiveTrubbish(player)) return {route:'active', tool};
   if (untooledTrubbish(player) >= 0) return {route:'bench', tool};
+  if (untooledActiveTrubbish(player)) return {route:'active', tool};
   if (freeBenchIndex(player) < 0) return null;
   if (hand.includes('Trubbish')) return {route:'hand', tool};
   // Battle VIP Pass can only be played during the player's first turn.
