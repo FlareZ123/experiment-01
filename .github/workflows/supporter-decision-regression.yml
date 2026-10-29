@@ -154,12 +154,17 @@ jobs:
       - name: Same-physical-source-deal native Battle VIP Pass effect and opponent response
         if: ${{ inputs.agent9_native_vip_pair }}
         run: node simulation/evaluation/agent9-original-rank11-vip-native.cjs > agent9-rank11-vip-original-deal.json
+      - name: Source-seat-zero original VIP mechanism replication
+        if: ${{ inputs.agent9_native_vip_pair }}
+        run: node simulation/evaluation/agent9-original-rank11-vip-native-seat0.cjs > agent9-rank11-vip-original-deal-seat0.json
       - name: Archive both native outcomes and physical VIP witnesses
         if: ${{ always() && inputs.agent9_native_vip_pair }}
         uses: actions/upload-artifact@v4
         with:
           name: agent9-native-bothseat-original-rank11-vip
-          path: agent9-rank11-vip-original-deal.json
+          path: |
+            agent9-rank11-vip-original-deal.json
+            agent9-rank11-vip-original-deal-seat0.json
           if-no-files-found: warn
           retention-days: 12
       - name: Optional published-list policy feasibility probe
