@@ -15,7 +15,7 @@ const {withNativePaperSupporterDiscipline}=
 const {withSameTargetAttachEnergySelection}=
   require('../twinleaf/same-target-attach-energy-hook.cjs');
 
-const VERSION='agent41-rank3-printed-original-aba-v1-development';
+const VERSION='agent41-rank3-printed-original-aba-v2-native-continuation';
 const SEEDS=Object.freeze([290126,290127]);
 const SOURCE_RANK=3, CANDIDATE_RANK=1;
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -108,6 +108,36 @@ function executeOne(trial,cards){
     assert.equal(root?.terminalArbitrationOptIn===true,enabled);
     assert.equal(root?.publicContextSpecialEnergyOptIn,true);
     const candidates=root?.terminalArbitration?.samples??[];
+    const conflicts=candidates.filter(sample=>
+      sample.baselineKind!==sample.selectedKind).map(sample=>{
+      const rootOrdinal=sample.rootOrdinal;
+      const roots=root?.nativeRootAcceptances??[];
+      const selected=roots.find(r=>r.policyDecisionOrdinal===rootOrdinal);
+      const sameTurnFollowups=roots.filter(r=>
+        r.seat===sample.seat&&r.globalTurn===sample.globalTurn&&
+        r.policyDecisionOrdinal>rootOrdinal).slice(0,4);
+      const opponentReplies=roots.filter(r=>
+        r.seat!==sample.seat&&r.globalTurn>sample.globalTurn)
+        .slice(0,4);
+      const declarations=(game.attackDeclarationTrace??[]).filter(d=>
+        d.playerSlot===sample.seat&&
+        d.turnBefore===sample.globalTurn).slice(0,4);
+      const sourceTurnLedger=(game.rootActionLedger??[]).filter(event=>
+        event.playerSlot===sample.seat&&
+        event.turnBefore===sample.globalTurn).slice(0,12);
+      const replyLedger=(game.rootActionLedger??[]).filter(event=>
+        event.playerSlot!==sample.seat&&
+        event.turnBefore>sample.globalTurn).slice(0,8);
+      return {
+        sample,selectedRoot: selected??null,
+        nativeSameTurnFollowupRoots:sameTurnFollowups,
+        nativeOpponentFollowingRoots:opponentReplies,
+        nativePrintedAttackDeclarations:declarations,
+        realStoreOwnTurnLedger:sourceTurnLedger,
+        realStoreOpponentReplyLedger:replyLedger,
+        postgameOnly:true
+      };
+    });
     return {trial,enginePin:PIN,
       sourceDeckPrintingsSha256:digest(cards.source),
       candidateDeckPrintingsSha256:digest(cards.candidate),
@@ -120,8 +150,12 @@ function executeOne(trial,cards){
         verifiedStart.firstTurnSlot===sourceSeat:null,
       firstStartVerified:verifiedStart!==null,
       status:game.finished?'engine-terminal':'capped-or-unresolved',
-      winner:game.winner??null,actionCount:game.actionCount??null,
+      winner:game.winner??null,actionCount:game.actions??null,
       engineEndReason:game.endReason??null,
+      rootActionLedgerSha256:game.rootActionLedger?
+        digest(game.rootActionLedger):null,
+      rootActionCount:game.rootActionLedger?.length??null,
+      attackDeclarationCount:game.attackDeclarationTrace?.length??null,
       actorPolicyVersion:observed.audit.version,
       rootPolicyVersion:root?.version??null,
       arbitrationEnabled:enabled,
@@ -130,6 +164,7 @@ function executeOne(trial,cards){
       arbitrationBySeat:root?.terminalArbitration?.bySeat??null,
       arbitrationReasons:root?.terminalArbitration?.reasons??null,
       arbitrationSamples:candidates,
+      arbitratedNativeContinuationWindows:conflicts,
       nativeAccepted:root?.acceptedActorRoots??0,
       nativeRejected:root?.rejectedActorRoots??0,
       nativeRootAcceptances:root?.nativeRootAcceptances??[],
@@ -164,7 +199,9 @@ function compare(rows){
     const repeatIdentical=fullDealMatches&&
       a.status===rep.status&&a.winner===rep.winner&&
       a.actionCount===rep.actionCount&&
-      digest(a.nativeRootAcceptances)===digest(rep.nativeRootAcceptances);
+      digest(a.nativeRootAcceptances)===digest(rep.nativeRootAcceptances)&&
+      a.rootActionLedgerSha256!==null&&
+      a.rootActionLedgerSha256===rep.rootActionLedgerSha256;
     return {candidateSeat:seat,sourceSeat:1-seat,seed,
       status:fullDealMatches?'same-full-physical-start':'unverified-or-different',
       repeatStatus:repeatIdentical?'identical-observed-repeat':'unverified-or-different',
