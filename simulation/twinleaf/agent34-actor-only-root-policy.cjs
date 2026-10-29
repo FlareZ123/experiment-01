@@ -174,6 +174,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseLowHandLillieBeforeAttack(view);
     if(draw)return draw;
   }
+  if(options.conservativeShuffleBeforeAttack===true){
+    const draw=require('./agent2-conservative-shuffle-supporter.cjs')
+      .chooseConservativeShuffleSupporter(view);
+    if(draw)return {...draw,kind:'play-conservative-shuffle-supporter'};
+  }
   if(options.paidRetreatRoot===true){
     const retreat=require('./agent6-actor-paid-retreat-frontier.cjs')
       .choosePaidRetreatToDamagingBench(view,catalog);
@@ -381,6 +386,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV==='true'),
     lowHandLillieRootOptIn:deps.lowHandLillieRoot??
       (process.env.AGENT25_LOWHAND_LILLIE_DEV==='true'),
+    conservativeShuffleBeforeAttackOptIn:deps.conservativeShuffleBeforeAttack??
+      (process.env.AGENT2_SHUFFLE_PREATTACK_DEV==='true'),
     lowHandLillieCensusOptIn:deps.lowHandLillieCensus??
       (process.env.AGENT25_LOWHAND_LILLIE_CENSUS_DEV==='true'),
     strandedMarnieRootOptIn:deps.strandedMarnieRoot??
@@ -506,7 +513,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.floatStoneMobilityOwnerSeat,seat),
       heldGuzmaMobility:audit.heldGuzmaMobilityOptIn,
       strandedMarnieRoot:audit.strandedMarnieRootOptIn,
-      lowHandLillieRoot:audit.lowHandLillieRootOptIn
+      lowHandLillieRoot:audit.lowHandLillieRootOptIn,
+      conservativeShuffleBeforeAttack:audit.conservativeShuffleBeforeAttackOptIn
     });
     const ownerId=state.players[seat].id;
     let action;
@@ -542,6 +550,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         break;
       case 'play-lowhand-lillie':
       case 'play-stranded-marnie':
+      case 'play-conservative-shuffle-supporter':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
