@@ -339,6 +339,9 @@ jobs:
           path: agent34-actor-root-native.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Verify native Lillie prompt-complete hand/deck draw receipt
+        if: ${{ inputs.agent12_lillie_fallback }}
+        run: node --test tests/agent24-native-lillie-settlement-audit.test.cjs
       - name: Test exact actor-only Lillie decision and native typed Store dispatch
         if: ${{ inputs.agent12_lillie_fallback }}
         run: node --test tests/agent12-actor-only-lillie-after-pass.test.cjs
