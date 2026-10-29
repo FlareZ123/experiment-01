@@ -70,12 +70,14 @@ function afterCallTurnWindow(firstStartedSeat,callOnSeat){
  * @param {boolean} row.finalPokemonCheckupExcluded
  * @param {[number,number]} row.prizesNeededToWinBySeat
  * @param {0|1|null} [row.normalGameWinningSeat]
+ * @param {boolean} [row.observedNativeDraw] Authenticated ordinary game tie after call.
  * @returns {object} Stage-specific post-clock adjudication status.
  */
 function adjudicateAfterTimeCall(row){
   const {stage,bracketRound=null,verifiedRealClockCall,
     finalSecondPlayerTurnCompleted,finalPokemonCheckupExcluded,
-    prizesNeededToWinBySeat,normalGameWinningSeat=null}=row;
+    prizesNeededToWinBySeat,normalGameWinningSeat=null,
+    observedNativeDraw=false}=row;
   const limit=timeLimitMinutes(stage,bracketRound);
   assert.ok(Array.isArray(prizesNeededToWinBySeat)&&
     prizesNeededToWinBySeat.length===2);
@@ -94,6 +96,10 @@ function adjudicateAfterTimeCall(row){
   if(normalGameWinningSeat!==null)
     return {...base,status:'normal-game-win-after-time-call',
       winningSeat:normalGameWinningSeat};
+  if(observedNativeDraw===true)
+    return {...base,status:stage==='bracket'?
+      'bracket-fresh-six-prize-tiebreak-required':
+      'swiss-native-draw-rule-unverified',winningSeat:null};
   assert.ok(prizesNeededToWinBySeat.every(n=>n>0),
     'No natural winner reported despite no remaining Prize cards');
   if(stage==='swiss')
