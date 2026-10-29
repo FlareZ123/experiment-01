@@ -29,6 +29,8 @@ jobs:
         run: npm run compile
       - name: Native K0 actor action invariance across concealed worlds in both seats
         run: node simulation/twinleaf/agent18-k0-root-invariance-native.cjs
+      - name: Original Aichi full-60 native K0 owner-root permutation noninterference
+        run: node simulation/twinleaf/agent18-aichi-source-k0-native-root.cjs
       - name: Compare information-identical deck states
         run: node simulation/twinleaf/hidden-deck-order-audit.cjs
       - name: Compare field-used Trainers Mail hidden-order decisions
