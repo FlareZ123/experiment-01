@@ -16,7 +16,7 @@ function sourceFirstOwnedAffordances(trace,seat,sourceActuallyFirst){
   const roots=trace.filter(e=>e.playerSlot===seat&&e.turnBefore===turn&&
     ROOTS.has(e.action)&&Number.isSafeInteger(e.actionOrdinal));
   const first=roots[0]??null;
-  const pass=roots.filter(e=>e.action==='PassTurnAction').at(-1)??null;
+  const pass=roots.find(e=>e.action==='PassTurnAction')??null;
   /** @param {object|null} row */
   function summarize(row){
     const s=row?.decisionHandBefore;
