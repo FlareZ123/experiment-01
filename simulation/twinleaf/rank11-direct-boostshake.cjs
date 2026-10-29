@@ -87,7 +87,8 @@ function withRank11DirectBoostShake(sourceSeat, execute,
         const prefix = found.route === 'vip' ? ['vip', 'trubbish-search'] :
           found.route === 'hand' ? ['trubbish-hand'] : [];
         line = {...found, turn:state.turn,
-          steps:[...prefix, 'attach-tool', 'boost-shake', 'garbodor-search', 'garbodor-target']};
+          steps:[...prefix, ...(found.route.endsWith('-equipped') ? [] :
+            ['attach-tool']), 'boost-shake', 'garbodor-search', 'garbodor-target']};
       }
     }
     if (!line || aborted || stepIndex >= line.steps.length) return prior.call(this, state);
@@ -119,19 +120,19 @@ function withRank11DirectBoostShake(sourceSeat, execute,
       }
     }
     if (step === 'attach-tool') {
-      if (line.route === 'active' &&
+      if (line.route.startsWith('active') &&
           player.active.getPokemonCard()?.name === 'Trubbish' &&
           player.active.tools.length === 0) {
         action = play(player, line.tool,
           {player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
-      } else if (line.route !== 'active') {
+      } else if (!line.route.startsWith('active')) {
         const index = untooledTrubbish(player);
         if (index >= 0) action = play(player, line.tool,
           {player:PlayerType.BOTTOM_PLAYER, slot:SlotType.BENCH, index});
       }
     }
     if (step === 'boost-shake' &&
-        (line.route === 'active' ? tooledActiveTrubbish(player, line.tool) :
+        (line.route.startsWith('active') ? tooledActiveTrubbish(player, line.tool) :
           tooledTrubbish(player, line.tool))) {
       action = play(player, 'Boost Shake', board);
     }
@@ -139,7 +140,7 @@ function withRank11DirectBoostShake(sourceSeat, execute,
       action = deckChoice(state, player, pending, 'Garbodor');
     }
     if (step === 'garbodor-target') {
-      const target = line.route === 'active' ?
+      const target = line.route.startsWith('active') ?
         tooledActiveTrubbish(player, line.tool) :
         tooledTrubbish(player, line.tool);
       if (target && pending?.constructor.name === 'ChoosePokemonPrompt' &&
