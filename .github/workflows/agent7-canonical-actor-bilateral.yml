@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      low_hand_lillie_pair:
+        description: Native same-seed low-hand Lillie Supporter pre-attack policy contrast, development only
+        required: false
+        type: boolean
+        default: false
       source_first_retrospective:
         description: Also execute previously selected native source-first four-arm stress panel
         required: false
@@ -147,7 +152,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure adapter-composition order and qualification tests
-        run: node --test tests/agent50-candidate-only-dead-getlost-native-pair.test.cjs tests/agent50-rank6-passive-32same-seed-replay.test.cjs tests/agent50-stranded-marnie-frontier.test.cjs tests/agent7-canonical-actor-composition.test.cjs tests/agent7-owner-supporter-opportunity.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent8-canonical-quickball-paircheck.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent7-known-dead-attack-root.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent30-telepathic-known-energy.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent41-actor-powerglass-root.test.cjs tests/agent41-owner-powerglass-attach-prompt.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent3-native-epoch-partition-error.test.cjs tests/agent3-native-reset-prestate.test.cjs tests/agent3-terminal-attack-ko-before-endturn-hook.test.cjs tests/source-deal-epoch-observer.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent49-discrete-attack-gate.test.cjs tests/agent49-rank6-k1-alternate.test.cjs tests/agent32-canonical-owner-donor-root.test.cjs tests/agent41-native-abort-classification.test.cjs tests/same-target-attach-energy-hook.test.cjs
+        run: node --test tests/agent50-candidate-only-dead-getlost-native-pair.test.cjs tests/agent50-rank6-passive-32same-seed-replay.test.cjs tests/agent50-stranded-marnie-frontier.test.cjs tests/agent25-lowhand-lillie-root.test.cjs tests/agent25-lowhand-lillie-paired-audit.test.cjs tests/agent7-canonical-actor-composition.test.cjs tests/agent7-owner-supporter-opportunity.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent8-canonical-quickball-paircheck.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent7-known-dead-attack-root.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent30-telepathic-known-energy.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent41-actor-powerglass-root.test.cjs tests/agent41-owner-powerglass-attach-prompt.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent3-native-epoch-partition-error.test.cjs tests/agent3-native-reset-prestate.test.cjs tests/agent3-terminal-attack-ko-before-endturn-hook.test.cjs tests/source-deal-epoch-observer.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent49-discrete-attack-gate.test.cjs tests/agent49-rank6-k1-alternate.test.cjs tests/agent32-canonical-owner-donor-root.test.cjs tests/agent41-native-abort-classification.test.cjs tests/same-target-attach-energy-hook.test.cjs
       - name: Validate owner-visible donor funding and paid retreat planner
         run: node --test tests/agent35-perfection-transition-frontier.test.cjs
       - name: Regress owner-visible paid retreat and native physical receipt
@@ -213,6 +218,7 @@ jobs:
       - name: Execute unchanged canonical four-arm historical bilateral runner
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT25_LOWHAND_LILLIE_DEV: ${{ inputs.low_hand_lillie_pair && 'true' || 'false' }}
           AGENT7_OWNER_SUPPORTER_AUDIT_DEV: ${{ inputs.owner_supporter_opportunity && 'true' || 'false' }}
           AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
           AGENT32_COMPR_ANYTURN_DEV: ${{ inputs.owner_anyturn_compressor_pair && 'true' || 'false' }}
@@ -236,6 +242,50 @@ jobs:
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-actor-fourarm.json
+      - name: Repeat unchanged canonical four-arm with Lillie pre-attack OFF
+        if: ${{ inputs.low_hand_lillie_pair }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT25_LOWHAND_LILLIE_DEV: 'false'
+          AGENT7_OWNER_SUPPORTER_AUDIT_DEV: ${{ inputs.owner_supporter_opportunity && 'true' || 'false' }}
+          AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
+          AGENT32_COMPR_ANYTURN_DEV: ${{ inputs.owner_anyturn_compressor_pair && 'true' || 'false' }}
+          AGENT32_COMPR_BENCHED_DEV: ${{ inputs.owner_early_bench_compressor_pair && 'true' || 'false' }}
+          AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
+          AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: ${{ inputs.native_generic_fallback && 'true' || 'false' }}
+          AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
+          AGENT30_PERFECTION_ROOT_DEV: ${{ inputs.actor_perfection_root && 'true' || 'false' }}
+          AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
+          AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent25-lowhand-lillie-control-fourarm.json
+      - name: Audit same-deal Lillie policy intervention and retain all failures
+        if: ${{ inputs.low_hand_lillie_pair }}
+        run: |
+          node simulation/evaluation/agent25-lowhand-lillie-paired-audit.cjs agent25-lowhand-lillie-control-fourarm.json agent7-canonical-actor-fourarm.json > agent25-lowhand-lillie-paired-audit.json
+          node -e "const a=require('./agent25-lowhand-lillie-paired-audit.json');const assert=require('node:assert/strict');assert.equal(a.pairs,4);assert.equal(a.matchingSourceDeals,4);assert.equal(a.matchingFirstPlayers,4);assert.equal(a.competitiveQualifiedGames,0);console.log('AGENT25_LILLIE_DEVELOPMENT',JSON.stringify({proposed:a.proposed,physicallyConfirmed:a.physicallyConfirmed,nativeSettled:a.nativeSettled,statuses:a.rows.map(x=>({id:x.id,control:x.controlStatus,treatment:x.treatmentStatus}))}))"
+      - name: Archive every historical Lillie arm even when the paired audit fails
+        if: ${{ always() && inputs.low_hand_lillie_pair }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-lowhand-lillie-native-pair
+          path: |
+            agent7-canonical-actor-fourarm.json
+            agent25-lowhand-lillie-control-fourarm.json
+            agent25-lowhand-lillie-paired-audit.json
+          if-no-files-found: warn
+          retention-days: 10
       - name: Repeat frozen four-arm Store with owner Supporter observer disabled
         if: ${{ inputs.owner_supporter_opportunity }}
         env:
