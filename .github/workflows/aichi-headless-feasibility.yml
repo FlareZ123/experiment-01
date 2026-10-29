@@ -108,6 +108,18 @@ jobs:
           path: agent2-owner-supporter-historical-native.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Validate native Supporter score disposition instrumentation (pure)
+        run: node --test tests/agent2-native-supporter-score-disposition.test.cjs
+      - name: Compare pinned native Supporter evaluation before live same-deal Passes
+        run: node simulation/twinleaf/agent2-native-supporter-score-samedeal-smoke.cjs > agent2-supporter-score-samedeal.json
+      - name: Archive actual owner-pass score dispositions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent2-supporter-score-samedeal-native
+          path: agent2-supporter-score-samedeal.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify read-only source-root Horror House declaration filter
         run: node --test tests/horror-house-root-audit.test.cjs tests/rank9-horror-house-nextturn-source-reply.test.cjs
       - name: Check Aichi exact card-resolution blockers
