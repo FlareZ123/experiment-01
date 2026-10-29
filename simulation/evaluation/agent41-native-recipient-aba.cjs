@@ -305,7 +305,7 @@ function executePaidRetreatABA(execute){
 if(require.main===module){
   const chosen=process.argv[2]==='--paid-retreat'?
     executePaidRetreatABA:executeRecipientABA;
-  process.stdout.write(JSON.stringify(chosen(),null,2)+'\\n');
+  process.stdout.write(JSON.stringify(chosen(),null,2)+'\n');
 }
 
 module.exports={VERSION,PAID_RETREAT_VERSION,COMMON_OPTIONS,FIXED_ROOT_ENV,
