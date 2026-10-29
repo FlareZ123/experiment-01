@@ -117,3 +117,18 @@ test('missing exact rule inputs and unsupported stages fail closed',()=>{
     prizesNeededToWinBySeat:[7,3]
   })),/assert/);
 });
+
+test('an actual drawn game invokes a fresh six-Prize bracket tiebreaker',()=>{
+  const knockOutTie=adjudicateAfterTimeCall(row({
+    stage:'bracket',bracketRound:'round32',
+    prizesNeededToWinBySeat:[0,0],observedNativeDraw:true
+  }));
+  assert.equal(knockOutTie.status,'bracket-fresh-six-prize-tiebreak-required');
+  assert.equal(knockOutTie.winningSeat,null);
+  // This first-party event page gives the Swiss rule for unresolved timeout,
+  // not a comprehensive independent ordinary-game simultaneous-draw ruling.
+  const swissTie=adjudicateAfterTimeCall(row({
+    prizesNeededToWinBySeat:[0,0],observedNativeDraw:true
+  }));
+  assert.equal(swissTie.status,'swiss-native-draw-rule-unverified');
+});
