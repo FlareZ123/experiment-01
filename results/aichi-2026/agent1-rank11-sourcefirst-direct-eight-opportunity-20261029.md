@@ -23,7 +23,7 @@ The *bare direct event* requires, among the observed eight, **at least one Boost
 | Permissive expansion allowing Quick Ball as alternate Basic access, conditional valid seven, prior to Prize check | **8.94024476%** |
 | Same permissive Quick Ball expansion with post-Prize living target(s), conditional valid seven | **8.56673504%** |
 
-The Quick Ball variant deliberately treats *having Quick Ball* as potential Trubbish access and makes **no** claim that the player has an acceptably discardable card or that the search is actionable at its real Store root. In particular, the +2.11122992 percentage-point difference from strict live direct hand access is only a **candidate connector opportunity**, not an estimated native policy improvement.
+The Quick Ball variant deliberately treats *having Quick Ball* as potential Trubbish access and makes **no** claim that the player has an acceptably discardable card or that the search is actionable at its real Store root. In particular, the +2.11122892 percentage-point difference from strict live direct hand access is only a **candidate connector opportunity**, not an estimated native policy improvement.
 
 For illustration, if six independent Basic-valid source openings each had this model's identical 6.45550612% live direct event probability, the chance of seeing no direct event in all six would be **67.00533418%**. The scout's actual source-first arms are paired across different candidate 60s, not 12 independent chances. This 67% is a **counterfactual random-location benchmark only**: actual source-first selection, evolving game states, policy choices, native shuffle coupling, opponent mulligans and extra draw/search make an observed completion-frequency calculation different.
 
