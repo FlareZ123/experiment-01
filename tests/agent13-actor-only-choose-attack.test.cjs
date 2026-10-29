@@ -248,3 +248,16 @@ test('genuine owner prompt translation preserves suffix alias and card identity'
   assert.equal(JSON.stringify(input).includes('HIDDEN_CARD'),false);
   assert.equal(actorChooseAttackInput(state,1,actor),null);
 });
+
+test('public GX attack lock excludes printed GX even without prior GX use',()=>{
+  const input=view({gxUsed:false,attacks:[
+    {index:0,name:'Miraculous Duo-GX',gxAttack:false,blocked:false},
+    {index:1,name:'Poltergeist',gxAttack:false,blocked:false}
+  ]});
+  input.actor.ownPublic.publicTurnRestrictions.cannotUseGXAttacks=true;
+  assert.deepEqual(chooseActorCopiedAttack(input),
+    {sourceIndex:0,attackIndex:1});
+  input.actor.ownPublic.publicTurnRestrictions.cannotUseGXAttacks=false;
+  assert.deepEqual(chooseActorCopiedAttack(input),
+    {sourceIndex:0,attackIndex:0});
+});
