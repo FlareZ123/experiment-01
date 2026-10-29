@@ -247,13 +247,17 @@ function chooseActorRootIntent(view,catalog,options={}){
       }
       const left=attached.slice(),
         colored=payableCost.filter(t=>t!==catalog.colorlessEnergyType);
-      if(colored.some(type=>{
+      const missingColored=colored.some(type=>{
         const index=left.indexOf(type);
         if(index<0)return true;
         left.splice(index,1);
         return false;
-      }))continue;
-      if(left.length>=payableCost.length-colored.length){
+      });
+      if(!missingColored&&left.length>=payableCost.length-colored.length){
+        payable.push(attack);
+      }else if(options.publicContextSpecialEnergy===true&&
+        require('./agent17-public-context-special-energy.cjs')
+          .publicSpecialAttackPayable(view,catalog,active,attack)){
         payable.push(attack);
       }
     }
