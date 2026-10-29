@@ -128,6 +128,11 @@ on:
         required: false
         type: boolean
         default: false
+      vip_k1_target_paircheck:
+        description: Retrospective rank11 source VIP alphabetical-versus-evolution K1 target native comparison
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -143,6 +148,8 @@ jobs:
           node-version: '22'
       - name: Pure adapter-composition order and qualification tests
         run: node --test tests/agent50-candidate-only-dead-getlost-native-pair.test.cjs tests/agent50-rank6-passive-32same-seed-replay.test.cjs tests/agent50-stranded-marnie-frontier.test.cjs tests/agent7-canonical-actor-composition.test.cjs tests/agent7-owner-supporter-opportunity.test.cjs tests/agent7-pass-next-root-postgame.test.cjs tests/agent7-supporter-public-prereqs.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent8-canonical-quickball-paircheck.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent7-known-dead-attack-root.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent30-telepathic-known-energy.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent41-actor-powerglass-root.test.cjs tests/agent41-owner-powerglass-attach-prompt.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent3-native-epoch-partition-error.test.cjs tests/agent3-native-reset-prestate.test.cjs tests/agent3-terminal-attack-ko-before-endturn-hook.test.cjs tests/source-deal-epoch-observer.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent49-discrete-attack-gate.test.cjs tests/agent49-rank6-k1-alternate.test.cjs tests/agent32-canonical-owner-donor-root.test.cjs tests/agent41-native-abort-classification.test.cjs tests/same-target-attach-energy-hook.test.cjs
+      - name: Verify Agent3 owner-only VIP target scorer and printed first-player Supporter exceptions
+        run: node --test tests/agent3-owner-evolution-vip-search.test.cjs tests/aichi-first-player-supporter-exceptions.test.cjs
       - name: Validate owner-visible donor funding and paid retreat planner
         run: node --test tests/agent35-perfection-transition-frontier.test.cjs
       - name: Regress owner-visible paid retreat and native physical receipt
@@ -157,6 +164,17 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Agent3 original rank11 source VIP alphabetical-versus-evolution Store comparison
+        if: ${{ inputs.vip_k1_target_paircheck }}
+        run: node simulation/evaluation/agent3-source-vip-k1-native-pair.cjs > agent3-source-vip-k1-native-pair.json
+      - name: Archive Agent3 original rank11 source VIP K1 native three-arm comparison
+        if: ${{ always() && inputs.vip_k1_target_paircheck }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-source-vip-k1-native-pair
+          path: agent3-source-vip-k1-native-pair.json
+          if-no-files-found: warn
+          retention-days: 15
       - name: Native sudden-death Prize threshold audit
         run: node --test tests/agent3-paper-tiebreak-native-check.test.cjs tests/agent3-paper-attack-self-terminal-native.test.cjs
       - name: Verify printed Telepath M3 cost on genuine pinned Store
