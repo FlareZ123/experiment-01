@@ -34,6 +34,8 @@ jobs:
         run: node --test tests/native-clock-trace-adapter.test.cjs tests/native-clock-episodes.test.cjs tests/native-clock-python-bridge.test.cjs
       - name: Distinguish physical recipient witness from nonboard PlayCard target coordinates
         run: node --test tests/agent10-native-declared-target-census.test.cjs
+      - name: Check exact rank11 Crobat recipient frontier
+        run: node --test tests/agent10-rank11-crobat-darkpatch-route.test.cjs
       - name: Reject seat-confounded zero-loss evidence under a four-cell estimand
         run: node --test tests/aichi-physical-seat-imbalance.test.cjs
       - name: Verify source-deck positioning census and corner cases
