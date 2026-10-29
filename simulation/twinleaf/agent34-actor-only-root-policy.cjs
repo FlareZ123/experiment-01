@@ -192,6 +192,12 @@ function chooseActorRootIntent(view,catalog,options={}){
       .choosePaidRetreatToDamagingBench(view,catalog);
     if(retreat)return retreat;
   }
+  if(options.raichuKoBreakpointBeforeAttack===true&&
+      options.publicContextSpecialEnergy===true){
+    const proposed=require('./agent10-raichu-damage-breakpoint-before-attack.cjs')
+      .chooseRaichuPrintedKnockoutAttachment(view,catalog);
+    if(proposed)return proposed;
+  }
   const active=own.active,restrictions=active?.publicRestrictions;
   const locked=own.publicTurnRestrictions?.attackLockTurnsRemaining>0||
     restrictions?.cannotAttackNextTurn===true||
@@ -389,6 +395,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT3_SPECIAL_ENERGY_ROOT_DEV==='true'),
     publicContextSpecialEnergyOptIn:deps.publicContextSpecialEnergy??
       (process.env.AGENT17_PUBLIC_CONTEXT_SPECIAL_DEV==='true'),
+    raichuKoBreakpointBeforeAttackOptIn:deps.raichuKoBreakpointBeforeAttack??
+      (process.env.AGENT10_RAICHU_KO_BREAKPOINT_DEV==='true'),
     specialEnergyRootOwnerSeat:deps.specialEnergyRootOwnerSeat??null,
     naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
       (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
@@ -447,6 +455,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.publicContextSpecialEnergyOptIn)
     audit.version+='+'+
       require('./agent17-public-context-special-energy.cjs').VERSION;
+  if(audit.raichuKoBreakpointBeforeAttackOptIn)
+    audit.version+='+'+
+      require('./agent10-raichu-damage-breakpoint-before-attack.cjs').VERSION;
   if(audit.quickBallRootOptIn)
     audit.version=VERSION+'+'+
       require('./agent8-actor-quick-ball-frontier.cjs').VERSION;
@@ -543,6 +554,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       publicContextSpecialEnergy:actorSpecialEnergyEnabled(
         audit.publicContextSpecialEnergyOptIn,
         audit.specialEnergyRootOwnerSeat,seat),
+      raichuKoBreakpointBeforeAttack:audit.raichuKoBreakpointBeforeAttackOptIn,
       printedGxRoot:audit.printedGxRootOptIn,
       potentialKoRoot:audit.potentialKoRootOptIn,
       knownDeadAttackRoot:actorSpecialEnergyEnabled(
