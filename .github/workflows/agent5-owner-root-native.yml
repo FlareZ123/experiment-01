@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      owner_terminal_arbitration_rank3:
+        description: Fixed two-seed rank3 original 60 vs rank1 both-seat A/B/A original Store development only
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -59,8 +64,14 @@ jobs:
       - name: Verify every original registered historical physical deal is retained
         if: ${{ inputs.owner_terminal_arbitration_aba }}
         run: node -e "const a=require('node:assert/strict');const r=require('./agent41-owner-arbitration-historical-aba.json');a.equal(r.attempted,12);a.equal(r.pairs.length,4);a.equal(r.outcomeSummary.competitiveQualifiedGames,0);console.log(JSON.stringify({schema:r.schema,attempted:r.attempted,summary:r.outcomeSummary,pairs:r.pairs.map(p=>({id:p.trialId,comparison:p.physicalAB.status,repeat:p.repeatStability.status,firstActions:[p.original.actions,p.recipient.actions],winner:[p.original.winner,p.recipient.winner]}))},null,2))"
+      - name: Rank3 original exact-60 fixed two-seat original Store A/B/A
+        if: ${{ inputs.owner_terminal_arbitration_rank3 }}
+        run: node simulation/evaluation/agent41-rank3-arbitration-original-store.cjs > agent41-rank3-arbitration-original-store.json
+      - name: Preserve all rank3 native starts and outcomes without rating winners
+        if: ${{ inputs.owner_terminal_arbitration_rank3 }}
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent41-rank3-arbitration-original-store.json');a.equal(r.attempted,12);a.equal(r.pairs.length,4);a.equal(r.summary.competitiveQualifiedGames,0);console.log(JSON.stringify({schema:r.schema,summary:r.summary,pairs:r.pairs.map(p=>({seat:p.candidateSeat,seed:p.seed,first:p.sourceFirst,initial:p.status,repeat:p.repeatStatus,changed:p.treatmentChangedRoots,steps:[p.baselineActions,p.treatmentActions],statuses:p.results}))},null,2))"
       - name: Native bilateral historical and source-first development
-        if: ${{ ! inputs.native_search_only && ! inputs.owner_terminal_arbitration_aba }}
+        if: ${{ ! inputs.native_search_only && ! inputs.owner_terminal_arbitration_aba && ! inputs.owner_terminal_arbitration_rank3 }}
         run: node simulation/evaluation/agent5-owner-root-bilateral-native.cjs > agent5-owner-root-result.json
       - name: Fixed source-first development baseline without Thorns direct-line
         if: ${{ inputs.rank6_directline_paired }}
@@ -94,6 +105,7 @@ jobs:
             agent5-attack-special-arbitration-native.json
             agent41-owner-arbitration-native.json
             agent41-owner-arbitration-historical-aba.json
+            agent41-rank3-arbitration-original-store.json
             agent5-owner-root-result.json
             agent22-steven-native-store-result.json
             agent5-thorns-baseline-sourcefirst.json
