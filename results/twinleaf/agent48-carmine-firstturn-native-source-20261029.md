@@ -41,6 +41,22 @@ The [pure policy tests](../../tests/agent48-conservative-first-carmine.test.cjs)
 
 **Important gap:** the native test deliberately forced the card *when it was actually held and native-legal*, regardless of other held cards. It therefore validates the card's physical effect and native adapter vocabulary, **not the likely activation rate of the conservative actor chooser**. The choosers' harsh DCI threshold can make natural activation rare. A field-wide owner-safe opportunity census, optional real policy execution and actual opposing responses are required before claiming practical setup improvement.
 
+## Actual actor-option activation countercheck
+
+A separate, prospective **owner-only autonomous-policy comparison** used the same 24 original rank1-versus-rank11 physical seeds and 48-root caps, with the same existing actor-only baseline in both branches except `carmineFirstRoot=false` versus `true`. This is materially different from the forced native card-mechanics control above. [Manual GitHub Actions run 40959969698](https://github.com/FlareZ123/experiment-01/actions/runs/40959969698) succeeded with:
+
+| Result in actual actor-decision countercheck | Observed |
+| --- | ---: |
+| Matched source-dealt pairs | 24 |
+| Opt-in actor roots that selected `play-carmine-first` | **0** |
+| Rejected opt-in actor roots | **0** |
+| Failed simulation arms (both policies across all pairs) | **0** |
+| Qualified competitive games | **0** |
+
+This verifies a **real active-move-realism limitation** under these source hands and short decisions. The source-positive four first-owner native-playable Carmine opportunities do **not** translate into any selected Carmine under the present conservative all-other-hand-protected choice rule. No competitive setup benefit has been demonstrated.
+
+Raw all-positive-and-negative actor control artifact: `agent48-carmine-actor-source-census` ID **12935756465**, ZIP SHA-256 `e5ba61b1a66d05ceeadef0647a91e6dc9e3599f691fd66a7d1aeab59f03120c1`. Reproduction: [actor option census](../../simulation/twinleaf/agent48-carmine-owner-policy-census.cjs). A follow-up owner-visible held-hand affordability ledger has been dispatched separately to identify what the residual discardable/protected cards actually are; it must be read before relaxing DCI safeguards or claiming a useful new gameplay line.
+
 ## Reproduction and limitations
 
 - [Native paired-run program](../../simulation/twinleaf/agent48-firstturn-carmine-native-probe.cjs) contains exact seeds, requested original source ranks, fixed 48-root cap and fail-closed Store assertions.
