@@ -107,6 +107,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent48_carmine_first_native:
+        description: '24 fixed first-player source-deal Store Carmine rule controls, no competitive games'
+        required: false
+        type: boolean
+        default: false
       rank8_preregistered_start_panel:
         description: 'Eight source rank-8 decorrelated v3 starts (repeats 1-4, both seats)'
         required: false
@@ -132,6 +137,20 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Probe original source first-player Carmine with native settled effect
+        if: inputs.agent48_carmine_first_native
+        run: node simulation/twinleaf/agent48-firstturn-carmine-native-probe.cjs > agent48-carmine-first-native.json
+      - name: Summarize physical first-turn Carmine opportunity and effect count
+        if: inputs.agent48_carmine_first_native
+        run: >-
+          node -e "const r=require('./agent48-carmine-first-native.json');console.log(JSON.stringify({schema:r.schema,total:r.totalAttempts,held:r.naturalFirstTurnHeld,nativePlayable:r.nativeCanPlay,accepted:r.nativeAccepted,failedRuns:r.failedRuns,qualified:r.policyWinEvidenceQualified}));"
+      - name: Archive every fixed first-turn native Carmine positive and negative
+        if: inputs.agent48_carmine_first_native && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent48-native-firstturn-carmine-source
+          path: agent48-carmine-first-native.json
+          if-no-files-found: warn
       - name: Prove owner-hand public-board-only Garbotoxin Tool retarget
         if: inputs.agent37_rank11_tool_maintenance
         run: node --test tests/rank11-garbodor-tool-maintenance-policy.test.cjs
