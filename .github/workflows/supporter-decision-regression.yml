@@ -192,6 +192,9 @@ jobs:
       - name: Distinguish independent source physical deals from paired game arms
         if: ${{ inputs.agent9_archive_vip_readonly }}
         run: node simulation/evaluation/agent9-original-32-vip-archive-brief.cjs agent9-reverified-vip-census.json > agent9-reverified-vip-rank-physical.json
+      - name: Explain original native VIP terminal-to-cap root divergence from frozen artifact
+        if: ${{ inputs.agent9_archive_vip_readonly }}
+        run: node simulation/evaluation/agent9-original-vip-capchange-ledger.cjs agent9-original-32-vip-control.json agent9-original-32-vip-treatment.json > agent9-original-vip-cap-shift-native-ledger.json
       - name: Preserve reviewed frozen source-deal rank distributions
         if: ${{ always() && inputs.agent9_archive_vip_readonly }}
         uses: actions/upload-artifact@v4
@@ -200,6 +203,7 @@ jobs:
           path: |
             agent9-reverified-vip-census.json
             agent9-reverified-vip-rank-physical.json
+            agent9-original-vip-cap-shift-native-ledger.json
           if-no-files-found: warn
           retention-days: 12
       - name: Existing original 32-arm physical-deal control, VIP disabled
