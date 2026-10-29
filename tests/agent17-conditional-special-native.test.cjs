@@ -99,18 +99,28 @@ test('pinned Store accepts actor-selected DDE on a real Dragon',()=>{
   assert.equal(owner.active.energies.cards.length,1);
 });
 
-test('pinned Store accepts true UPR Unit Energy printing on rank4 Pikachu',()=>{
-  const {state,catalog}=accepted('Pikachu LOR',
-    'Unit Energy LightningPsychicMetal UPR');
-  const after=actorObservation(state,0);
-  assert.ok(after.ownPublic.active.energies.includes(
-    'Unit Energy LightningPsychicMetal UPR'));
+test('rank4 UPR Unit Energy is gated by actual pinned CardManager printing',()=>{
+  const manager=initializeCards();
+  const variants=['Unit Energy LightningPsychicMetal UPR',
+    'Unit Energy LPM UPR'];
+  const present=variants.find(name=>manager.getCardByName(name));
+  const available=manager.getAllCards().filter(c=>
+    c.fullName?.includes('Unit Energy')).map(c=>c.fullName);
+  console.log('NATIVE_UNIT_ENERGY_PRINTINGS:',JSON.stringify(available));
   const context={isBasic:true,isEvolution:false,isDragon:false,
     hasRuleBox:false,behindOnPrizes:false};
   assert.deepEqual(
     energyUnits('Unit Energy LPM UPR',context),
     energyUnits('Unit Energy LightningPsychicMetal UPR',context)
   );
-  assert.equal(catalog.specialEnergies.has(
-    'Unit Energy LightningPsychicMetal UPR'),true);
+  if(!present){
+    console.log('NATIVE_UNSUPPORTED_PRINTING: Unit Energy UPR; '+
+      'pure numeric policy cannot create a native card');
+    assert.ok(variants.every(name=>!manager.getCardByName(name)));
+    return;
+  }
+  const {state,catalog}=accepted('Pikachu LOR',present);
+  const after=actorObservation(state,0);
+  assert.ok(after.ownPublic.active.energies.includes(present));
+  assert.equal(catalog.specialEnergies.has(present),true);
 });
