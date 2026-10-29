@@ -27,7 +27,7 @@ The `abilityPokemonPlayLocked=true` control selects Regidrago V in the same synt
 
 - Pure test: [`tests/agent11-rank10-thorns-bench-hold.test.cjs`](../../tests/agent11-rank10-thorns-bench-hold.test.cjs), directly imports the actual [shared actor chooser](../../simulation/twinleaf/agent34-actor-only-root-policy.cjs), checks both exact original deck inventories, hand-order reversal and separate play-prohibition control.
 - Reused existing **manual-dispatch** [field evidence workflow](../../.github/workflows/aichi-global-field-gate.yml); no new workflow or automatic-per-commit CI.
-- Run: [manual gate 40975156754](https://github.com/FlareZ123/experiment-01/actions/runs/40975156754). Record its final result before promoting this from uncompiled source inspection to a compiled regression.
+- Run: [manual gate 40975156754](https://github.com/FlareZ123/experiment-01/actions/runs/40975156754). **Completed successfully** at branch commit `ccc261053af9c3b6f650971cd2eeb3b3576fbf86`, including the newly added direct chooser test and the preexisting manual field gate. This is compiled regression verification of the pure owner-choice counterexample; no full Store game was conducted.
 
 ## Necessary next level of qualification
 
