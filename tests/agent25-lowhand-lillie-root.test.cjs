@@ -3,7 +3,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {LILLIE}=require('../simulation/twinleaf/agent12-actor-only-lillie-after-pass.cjs');
-const {chooseLowHandLillieBeforeAttack}=require('../simulation/twinleaf/agent25-lowhand-lillie-frontier.cjs');
+const {chooseLowHandLillieBeforeAttack,lowHandLillieExclusionReason}=require('../simulation/twinleaf/agent25-lowhand-lillie-frontier.cjs');
 const {chooseActorRootIntent}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 const {rootPhysicalSnapshot,rootPhysicalWitness}=
@@ -111,4 +111,22 @@ test('existing Marnie witness retains its original field after extension',()=>{
     0,{kind:'play-stranded-marnie',printing:card.fullName});
   assert.equal(snap.marnieSpent,0);
   assert.equal(snap.supporterSpent,0);
+});
+
+test('owner-only read audit separates held, spent, locked and hand-too-large',()=>{
+  const scenarios=[
+    [v=>{v.ownHand=['Iono PAL'];},'lillie-not-held'],
+    [v=>{v.ownHand.push('A','B','C');},'hand-too-large'],
+    [v=>{v.ownPublic.deckCount=7;},'deck-below-eight'],
+    [v=>{v.ownTurnResources.supporterPlayedTurn=1;},'supporter-already-spent'],
+    [v=>{v.ownTurnResources.supporterPlayedTurn=undefined;},'supporter-quota-unconfirmed'],
+    [v=>{v.ownPublic.active=null;},'no-active'],
+    [v=>{v.globalTurn=1;},'first-player-first-turn'],
+    [v=>{v.ownTurnResources.supporterPlayLocked=true;},'supporter-locked']
+  ];
+  for(const [change,reason] of scenarios){
+    const view=ownerView();change(view);
+    assert.equal(lowHandLillieExclusionReason(view),reason);
+  }
+  assert.equal(lowHandLillieExclusionReason(ownerView()),null);
 });
