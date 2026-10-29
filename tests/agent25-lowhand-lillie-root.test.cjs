@@ -56,7 +56,7 @@ test('paper first turn, quota, locks, deck floor and higher hand preserve attack
     view=>{view.ownPublic.deckCount=7;},
     view=>{view.ownPublic.resolvingSupporter=['Iono PAL'];},
     view=>{view.ownHand.push('A','B','C');},
-    view=>{view.ownHand=[\"Lillie's Determination OTHER\"];},
+    view=>{view.ownHand=["Lillie's Determination OTHER"];},
     view=>{view.ownTurnResources.supporterPlayedTurn=undefined;}
   ];
   for(const modify of modifications){
