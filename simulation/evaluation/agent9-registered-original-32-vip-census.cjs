@@ -113,6 +113,7 @@ function analyze(baseline,treatment,registration){
         structuralVipOnly:true
       })),
       unresolvedOwnerSearches:audit?.unresolvedOwnerSearches??null,
+      nativeEmptyBasicSearchSelections:audit?.selectedEmpty??null,
       unconfirmedNativeBench:audit?.nativeBenchUnconfirmed??null,
       nativeRejectedItems:audit?.rejectedItems??null,
       nativeRejectedSearches:audit?.rejectedSearches??null,
@@ -181,6 +182,7 @@ function analyze(baseline,treatment,registration){
     nativeRejectedPromptAttempts:sum('nativeRejectedSearches'),
     nativeBenchUnconfirmed:sum('unconfirmedNativeBench'),
     unresolvedOwnerSearches:sum('unresolvedOwnerSearches'),
+    nativeEmptyBasicSearchSelections:sum('nativeEmptyBasicSearchSelections'),
     baselineNativeErrors:baseline.developmentResult.errors,
     treatmentNativeErrors:treatment.developmentResult.errors,
     baselineCapped:baseline.summary.censored,
@@ -212,6 +214,7 @@ if(require.main===module){
     errors:[result.baselineNativeErrors,result.treatmentNativeErrors],
     censored:[result.baselineCapped,result.treatmentCapped],
     gatePassed:result.gatePassed,
+    zeroBasicSearches:result.nativeEmptyBasicSearchSelections,
     competitive:result.competitiveQualifiedGames
   })+'\n');
   if(!result.gatePassed)process.exitCode=1;
