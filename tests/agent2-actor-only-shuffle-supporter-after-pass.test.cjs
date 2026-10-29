@@ -103,3 +103,18 @@ test('previous choice wins and open Pass is preserved when chooser abstains',()=
  assert.equal(x.audit.acceptedRoots,0);
  assert.equal(x.audit.passRootsObserved,1);
 });
+
+test('hypothetical detached Store States preserve their original Pass decisions',()=>{
+ const store=new Store();
+ const observed=withActorOnlyShuffleSupporterAfterPass(()=>{
+   store.dispatch(new AddPlayerAction(101));
+   const speculative={...store.state,players:store.state.players.slice()};
+   const action=new SimpleTacticsAi(101).decodeNextAction(speculative);
+   assert.equal(action.constructor.name,'PassTurnAction');
+   return 'ok';
+ },deps);
+ assert.equal(observed.result,'ok');
+ assert.equal(observed.audit.speculativeFallbacks,1);
+ assert.equal(observed.audit.passRootsObserved,0);
+ assert.equal(observed.audit.attemptedRoots,0);
+});
