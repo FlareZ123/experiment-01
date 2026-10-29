@@ -92,7 +92,11 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     const observer=adapters.supporterOpportunity??
       require('../twinleaf/agent7-owner-supporter-opportunity.cjs')
         .withOwnerSupporterOpportunity;
-    const observed=observer(execute);
+    // Experimental native card.canPlay(null) probe is independently gated:
+    // no-target legality is only a diagnostic, never a paper legal proof.
+    const observed=observer(execute,{nativeCanPlay:
+      options.ownerSupporterNativeCanPlay===true||
+      process.env.AGENT7_NATIVE_SUPPORTER_CANPLAY_DEV==='true'});
     ownerSupporterOpportunityAudit=observed.audit;
     return observed.result;
   };
