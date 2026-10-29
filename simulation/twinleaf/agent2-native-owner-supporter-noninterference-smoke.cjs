@@ -51,6 +51,28 @@ function main(){
       rootSha:b.rootActionLedgerSha256,
       baselineRootCount:a.actionCount,auditedRootCount:b.actionCount,
       counts:audit.counts,
+      roleTotals:[0,1].map(seat=>{
+        const root=audit.firstRoots.filter(x=>x.ownerSeat===seat);
+        const passes=audit.passes.filter(x=>x.ownerSeat===seat);
+        return {role:seat===b.candidateSeat?'candidate':'source',
+          seat,firstRoots:root.length,firstRootsWithHeld:root.filter(x=>
+            x.heldCount>0).length,
+          passRoots:passes.length,passesWithHeld:passes.filter(x=>
+            x.heldCount>0).length,
+          passesBeyondFirstGlobalWithNativeNullTrue:passes.filter(x=>
+            x.nativeNullTrueBeyondFirstGlobalTurn>0).length};
+      }),
+      nativeAcceptedSupporterRoots:audit.supporterRoots.map(x=>({
+        ...x,role:x.seat===b.candidateSeat?'candidate':'source'
+      })),
+      meaningfulPassExamples:audit.passes.filter(x=>
+        x.turn>1&&x.nativeNullTrueCount>0).slice(0,12).map(x=>({
+        role:x.ownerSeat===b.candidateSeat?'candidate':'source',
+        seat:x.ownerSeat,turn:x.turn,heldCount:x.heldCount,
+        quota:x.supporterQuota,lock:x.ownerSupporterLock,
+        nativeCanPlayPrintings:x.supporters.filter(s=>
+          s.nativeNullCanPlay==='true').map(s=>s.printing)
+      })),
       firstOwnerSupporters:audit.firstRoots.map(x=>({
         seat:x.ownerSeat,turn:x.turn,
         held:x.heldCount,nativeNullTrue:x.nativeNullTrueCount
