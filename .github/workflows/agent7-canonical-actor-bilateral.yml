@@ -138,6 +138,9 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+      - name: Reject fallback pairchecks without their enabled observer
+        if: ${{ inputs.native_fallback_paircheck && !inputs.native_generic_fallback }}
+        run: node -e "throw new Error('native_fallback_paircheck requires native_generic_fallback=true; enable both for observer OFF/ON parity')"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
