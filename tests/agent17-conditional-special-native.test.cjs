@@ -48,6 +48,8 @@ function staged(pokemonPrinting,energyPrinting,seat=0){
   state.turn=3;
   state.activePlayer=seat;
   state.gameSettings.format=Format.EXPANDED;
+  if(pokemonPrinting==='Alolan Raichu UNM')
+    owner.active.cards.push(card('Pikachu LOR'));
   owner.active.cards.push(card(pokemonPrinting));
   owner.hand.cards.push(card(energyPrinting));
   opponent.active.cards.push(card('Bunnelby PRC'));
