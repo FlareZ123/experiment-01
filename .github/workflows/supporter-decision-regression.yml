@@ -29,6 +29,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent25_owner_scout_lillie_treatment:
+        description: Original 32-arm Lillie response and physical draw settlement
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
