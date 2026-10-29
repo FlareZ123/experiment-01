@@ -110,7 +110,8 @@ function runNativeBreakpointCase(enableBreakpoint){
   }
   const afterView=actorObservation(f.state,0);
   const attackIntent=chooseActorRootIntent(afterView,catalog,{
-    publicContextSpecialEnergy:true,raichuKoBreakpointBeforeAttack:true
+    publicContextSpecialEnergy:true,
+    raichuKoBreakpointBeforeAttack:enableBreakpoint
   });
   assert.deepEqual(attackIntent,{kind:'attack',attackName:'Electro Rain'});
   const initialPrizes=f.a.getPrizeLeft();
