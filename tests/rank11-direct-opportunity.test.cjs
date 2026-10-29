@@ -173,3 +173,20 @@ test('Tool play lock preserves only already-equipped Trubbish routes',()=>{
   player.cannotPlayItemCards=true;
   assert.equal(directBoostShakeOpportunity(state,player,0,7,false,true),null);
 });
+
+test('existing Bench Trubbish line outranks a redundant Active evolution',()=>{
+  const {state,player}=deal('active');
+  player.bench.push(slot('Trubbish'));
+  assert.deepEqual(directBoostShakeOpportunity(state,player,0,7),{
+    route:'bench',tool:'Muscle Band'
+  });
+  player.active.tools=[{name:'Float Stone'}];
+  player.bench[1].tools=[{name:'Float Stone'}];
+  assert.deepEqual(directBoostShakeOpportunity(state,player,0,7),{
+    route:'bench-equipped',tool:'Float Stone'
+  });
+  player.bench[1].tools=[];
+  assert.deepEqual(directBoostShakeOpportunity(state,player,0,7),{
+    route:'active-equipped',tool:'Float Stone'
+  },'already-equipped Active requires no additional held Tool');
+});
