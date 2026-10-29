@@ -208,6 +208,7 @@ jobs:
       - name: Execute unchanged canonical four-arm historical bilateral runner
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT7_NATIVE_SUPPORTER_CANPLAY_DEV: ${{ inputs.native_fallback_paircheck && 'true' || 'false' }}
           AGENT7_OWNER_SUPPORTER_AUDIT_DEV: ${{ inputs.native_fallback_paircheck && 'true' || 'false' }}
           AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
           AGENT32_COMPR_ANYTURN_DEV: ${{ inputs.owner_anyturn_compressor_pair && 'true' || 'false' }}
@@ -343,6 +344,7 @@ jobs:
         if: ${{ inputs.native_fallback_paircheck }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT7_NATIVE_SUPPORTER_CANPLAY_DEV: 'false'
           AGENT7_OWNER_SUPPORTER_AUDIT_DEV: 'false'
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
           AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
@@ -370,13 +372,15 @@ jobs:
       - name: Require passive owner Supporter census and four-arm outcome parity
         if: ${{ inputs.native_fallback_paircheck }}
         run: |
-          node -e "const assert=require('node:assert/strict');const {gameplayProjection}=require('./scripts/agent7-native-fallback-paircheck.cjs');const baseline=require('./agent7-canonical-actor-fourarm-control.json');const observed=require('./agent7-canonical-actor-fourarm.json');assert.deepStrictEqual(gameplayProjection(observed),gameplayProjection(baseline),'Read-only owner Supporter observer changed gameplay');const stats={0:{},1:{}};for(const seat of [0,1])for(const field of ['firstTurnRoots','firstTurnHeld','firstTurnStructurallyOpen','proposedSupporters','acceptedSupporters','passWithStructurallyOpen'])stats[seat][field]=0;for(let i=0;i<4;i++){const a=observed.rows[i].actorOnlyDecisionCoverage?.ownerSupporterOpportunityAudit;assert.ok(a&&a.actualStoreSeen,'Missing live owner Supporter audit');assert.equal(a.competitiveQualified,false);assert.equal(baseline.rows[i].actorOnlyDecisionCoverage?.ownerSupporterOpportunityAudit,null);for(const seat of [0,1])for(const field of Object.keys(stats[seat]))stats[seat][field]+=a.bySeat[seat][field];}console.log('OWNER_SUPPORTER_EVIDENCE',JSON.stringify({pairedArms:4,unchangedGame:true,bySeat:stats,competitiveQualifiedGames:0}))"
+          node -e "const assert=require('node:assert/strict');const {gameplayProjection}=require('./scripts/agent7-native-fallback-paircheck.cjs');const baseline=require('./agent7-canonical-actor-fourarm-control.json');const observed=require('./agent7-canonical-actor-fourarm.json');assert.deepStrictEqual(gameplayProjection(observed),gameplayProjection(baseline),'Read-only owner Supporter observer changed gameplay');const stats={0:{},1:{}};for(const seat of [0,1])for(const field of ['firstTurnRoots','firstTurnHeld','firstTurnStructurallyOpen','proposedSupporters','acceptedSupporters','passWithStructurallyOpen'])stats[seat][field]=0;for(let i=0;i<4;i++){const a=observed.rows[i].actorOnlyDecisionCoverage?.ownerSupporterOpportunityAudit;assert.ok(a&&a.actualStoreSeen,'Missing live owner Supporter audit');assert.equal(a.nativeNullTargetProbeOptIn,true);assert.equal(a.competitiveQualified,false);assert.equal(baseline.rows[i].actorOnlyDecisionCoverage?.ownerSupporterOpportunityAudit,null);for(const seat of [0,1])for(const field of Object.keys(stats[seat]))stats[seat][field]+=a.bySeat[seat][field];}console.log('OWNER_SUPPORTER_EVIDENCE',JSON.stringify({pairedArms:4,unchangedGame:true,bySeat:stats,competitiveQualifiedGames:0}))"
       - name: Run four retrospective source-first stress arms with same composition
         # Preserve independent source-first evidence despite an earlier strict
         # original-panel audit failure. Do not run after cancellation.
         if: ${{ !cancelled() && inputs.source_first_retrospective }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT7_OWNER_SUPPORTER_AUDIT_DEV: ${{ inputs.native_fallback_paircheck && 'true' || 'false' }}
+          AGENT7_NATIVE_SUPPORTER_CANPLAY_DEV: ${{ inputs.native_fallback_paircheck && 'true' || 'false' }}
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
           AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
           AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
@@ -411,6 +415,8 @@ jobs:
         if: ${{ inputs.native_fallback_paircheck && inputs.source_first_retrospective }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT7_OWNER_SUPPORTER_AUDIT_DEV: 'false'
+          AGENT7_NATIVE_SUPPORTER_CANPLAY_DEV: 'false'
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
           AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
           AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
