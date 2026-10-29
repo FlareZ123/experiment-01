@@ -123,11 +123,6 @@ on:
         required: false
         type: boolean
         default: false
-      agent16_owner_contention_paircheck:
-        description: Read-only same-game original Store arbitration audit off/on, no policy changes
-        required: false
-        type: boolean
-        default: false
       rank6_source_k1:
         description: Read-only rank6 source K1 search plus paired passive lock witness
         required: false
@@ -218,7 +213,7 @@ jobs:
         run: node -e "throw new Error('Only one donor treatment may run per paired experiment')"
       - name: Execute unchanged canonical four-arm historical bilateral runner
         env:
-          AGENT16_OWNER_ARBITRATION_CENSUS_DEV: ${{ inputs.agent16_owner_contention_paircheck && 'true' || 'false' }}
+          AGENT16_OWNER_ARBITRATION_CENSUS_DEV: ${{ inputs.native_fallback_paircheck && inputs.special_energy_root && 'true' || 'false' }}
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT7_NATIVE_SUPPORTER_CANPLAY_DEV: ${{ inputs.native_fallback_paircheck && 'true' || 'false' }}
           AGENT7_OWNER_SUPPORTER_AUDIT_DEV: ${{ inputs.native_fallback_paircheck && 'true' || 'false' }}
@@ -245,7 +240,7 @@ jobs:
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-actor-fourarm.json
       - name: Same-checkout genuine Store observer-off original four-arm control
-        if: ${{ inputs.agent16_owner_contention_paircheck }}
+        if: ${{ inputs.native_fallback_paircheck && inputs.special_energy_root }}
         env:
           AGENT16_OWNER_ARBITRATION_CENSUS_DEV: 'false'
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
@@ -274,7 +269,7 @@ jobs:
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent16-arbitration-original-off.json
       - name: Require full original Store gameplay and root/physical decision noninterference
-        if: ${{ inputs.agent16_owner_contention_paircheck }}
+        if: ${{ inputs.native_fallback_paircheck && inputs.special_energy_root }}
         run: node scripts/agent16-native-contention-paircheck.cjs agent16-arbitration-original-off.json agent7-canonical-actor-fourarm.json > agent16-arbitration-native-pair.json
       - name: Same-deal donor recovery control under identical real-game policies
         if: ${{ inputs.owner_anyturn_compressor_pair || inputs.owner_early_bench_compressor_pair }}
