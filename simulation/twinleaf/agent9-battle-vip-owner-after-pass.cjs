@@ -110,6 +110,7 @@ function withActorBattleVipAfterPass(execute,deps={}){
     eligiblePassRoots:0,proposedItems:0,acceptedItems:0,rejectedItems:0,
     proposedSearches:0,acceptedSearches:0,rejectedSearches:0,
     nativeBenchConfirmed:0,nativeBenchUnconfirmed:0,
+    unresolvedOwnerSearches:0,
     selectedBasics:0,selectedEmpty:0,
     bySeat:{0:{items:0,searches:0,benchConfirmed:0},
       1:{items:0,searches:0,benchConfirmed:0}},
@@ -223,8 +224,15 @@ function withActorBattleVipAfterPass(execute,deps={}){
   Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',
     {...beforeDecode,value:decode});
   Object.defineProperty(Store.prototype,'dispatch',{...beforeDispatch,value:dispatch});
-  try{return {result:execute(),audit};}
-  catch(error){error.agent9VipAudit=audit;throw error;}
+  try{
+    const result=execute();
+    audit.unresolvedOwnerSearches=awaiting.size;
+    return {result,audit};
+  }catch(error){
+    audit.unresolvedOwnerSearches=awaiting.size;
+    error.agent9VipAudit=audit;
+    throw error;
+  }
   finally{
     assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,decode);
     assert.strictEqual(Store.prototype.dispatch,dispatch);
