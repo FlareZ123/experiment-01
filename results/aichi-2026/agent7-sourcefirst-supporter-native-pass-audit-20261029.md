@@ -60,3 +60,29 @@ Pure tests in [owner opportunity tests](../../tests/agent7-owner-supporter-oppor
 - **Next meaningful evidence:** Implement a conservative owner-visible, printed-card legal Supporter action selector, then validate actual root action, prompts, native effect settlement and source reply on both starting orders, with same-deal controls and all censored arms. Agent 25 is independently developing a Lillie's Determination positive control and has been notified; avoid parallel conflicting Supporter implementations.
 
 **Qualification unchanged:** 29 of the Aichi 2026 Top 32 exact source sixties authenticated; ranks 23/25/28 missing; **zero competitively qualified games**; no verified single fixed deck attaining or approaching the target 99.5% paper Expanded field win rate. This is a simulator policy fidelity finding and methodological gate, with no win-rate inference.
+
+
+## Independent owner-public necessary-condition screens (compiled follow-up)
+
+The fifth manual compiled native run, [40945500643](https://github.com/FlareZ123/experiment-01/actions/runs/40945500643), completed **successfully** at repository commit cb69f63aa6464e10ca21e59f078a41dc2fc91547, pinned Twinleaf unchanged. Its archived [original Store artifact 12929995391](https://github.com/FlareZ123/experiment-01/actions/runs/40945500643/artifacts/12929995391) has SHA-256 15c52f7f63431399fc631e76782cf82f35b586d2fc4bf06a72a94a59c1d95604. The read-only audit now records both visible Bench counts, attached Energy-card counts, Prize counts, deck counts and public opponent hand count at each actual owner Pass. Postgame public condition screens run only where that owner held the exact printed Supporter, the structural quota/first-turn/lock screen was open, and the pinned native card.canPlay(null) returned true. All native observer ON/OFF gameplay and postgame original-root Pass successor controls passed.
+
+**Exact card-name screens at native Store-accepted Passes, aggregated over the selected 8 historical arms:**
+
+| Actor | Printed Supporter | Held/native-positive accepted Pass observations | Owner-public necessary-condition passes |
+| --- | --- | ---: | ---: |
+| Source rank 6/11, candidate-first | Plumeria BUS | 25 | **25**, with owner hand size at least 3 and at least one opponent attached Energy card |
+| Source rank 6/11, source-first | Plumeria BUS | 24 | **24**, same public tests |
+| Source rank 6/11, candidate-first | Guzma BUS | 14 | **10**, opponent Bench and own Bench both occupied |
+| Source rank 6/11, source-first | Guzma BUS | 37 | **15**, both Benches occupied |
+| Candidate, source-first | Ace Trainer AOR | 16 | **16**, own Prize count greater than opponent's |
+| Source, source-first | Lillie's Determination M1L | 33 | **33**, owner has exactly 6 Prize cards remaining (printed draw-eight mode) |
+| Candidate, candidate-first | Carmine TWM | 2 | **1**, owner playing its first turn going first |
+| Source, candidate-first | Carmine TWM | 13 | **0**, no first-player-first-turn exception window |
+
+One source-first candidate-held Lillie's Determination native-positive Pass had fewer than six Prize cards, so it was excluded **only** from the optional draw-eight mode screen; normal draw-six can remain available. The table describes repeated turn-level **opportunities**, not independent games, free disposable hand cards or confirmed useful tactical lines. A source may retain a Plumeria in a game where using it is unattractive despite the resource and target counts. The printed Plumeria requirement to discard two actual cards creates discard-capable-index (DCI) value contention; counting them does not prove low-cost discards. Guzma's full two-switch line is similarly subject to realistic target selection. Printed individual conditions come from the supplied card database; the native canPlay output was treated strictly as an experimental diagnostic. No counterfactual legal root was attempted in these observational arms.
+
+The historical runs still show **zero Supporter actions proposed by the bot** in any of the eight selected games. Future candidate/source Supporter positive controls should report the actual native accepted PlayCardAction, prompt target, resolved discard/draw/switch/Energy effects and opponent reply, rather than only the table above.
+
+### First-player Supporter screen correction
+
+The complete supplied English card pool identifies **three printed Supporters** explicitly permitting use on the first turn going first: Carmine TWM, Beauty VIV, and Team Rocket's Proton DRI (including alternative printings). The initial v1-v3 owner structural screen had treated only Carmine as an exception. The corrected v4 observer explicitly recognizes all three and regresses them while continuing to restrict ordinary opening-player Supporters. None of the selected eight historical lists contains Beauty or Team Rocket's Proton, so retrospective historical counts are unaffected. This correction is about scope expansion to the full paper Expanded pool; printed-paper or native acceptance for any particular opening play is still a separate question.
