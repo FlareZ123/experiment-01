@@ -154,12 +154,12 @@ function summarizeRecipientABA(baseline,treatment,repeat){
     const aa=comparePairedAcceptedTargets(original,replay);
     const rootAudit=newRecipient.actorOnlyDecisionCoverage?.
       detailedComponentAudits?.root??null;
-    const selectedPaidRetreats=rootAudit?.
-      typedIntentCounts?.['paid-retreat']??null;
-    const nativePaidRetreatConfirmed=rootAudit?.
-      nativePhysicalConfirmedByIntent?.['paid-retreat']??null;
-    const nativePaidRetreatUnconfirmed=rootAudit?.
-      nativePhysicalUnconfirmedByIntent?.['paid-retreat']??null;
+    const selectedPaidRetreats=rootAudit?.typedIntentCounts?
+      (rootAudit.typedIntentCounts['paid-retreat']??0):null;
+    const nativePaidRetreatConfirmed=rootAudit?.nativePhysicalConfirmedByIntent?
+      (rootAudit.nativePhysicalConfirmedByIntent['paid-retreat']??0):null;
+    const nativePaidRetreatUnconfirmed=rootAudit?.nativePhysicalUnconfirmedByIntent?
+      (rootAudit.nativePhysicalUnconfirmedByIntent['paid-retreat']??0):null;
     return {
       trialId:id,rank:original.trial.rank,
       candidateId:original.trial.candidateId,
