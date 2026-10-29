@@ -3,6 +3,11 @@ name: Aichi benchmark statistical tests
 on:
   workflow_dispatch:
     inputs:
+      agent48_seeker_native_census:
+        description: '12 preregistered native original-source owner-only VS Seeker and Lillie 120-root audits, no competitive games'
+        required: false
+        type: boolean
+        default: false
       rank11_source_census:
         description: 'Run original rank11 frozen-source tests; requires the pinned research revision'
         required: false
@@ -343,3 +348,38 @@ jobs:
             agent4-k1-candidate-special-pair.json
           if-no-files-found: warn
           retention-days: 10
+
+  agent48-seeker-native-census:
+    if: inputs.agent48_seeker_native_census
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute 12 fixed original-source VS Seeker owner policy contrasts
+        run: node simulation/twinleaf/agent48-vs-seeker-native-owner-census.cjs > agent48-seeker-lillie-native.json
+      - name: Summarize actual owner-native VS Seeker roots without performance claims
+        run: >-
+          node -e "const r=require('./agent48-seeker-lillie-native.json');
+          console.log(JSON.stringify({pairs:r.pairs,
+          seekerProposed:r.seekerProposed,nativeItems:r.seekerNativeConfirmed,
+          ownerPrompts:r.seekerPromptsAccepted,
+          supporterReplies:r.recoveredLillieNativeConfirmed,
+          rejected:r.rejectedActorRoots,failed:r.failedArms,
+          qualified:r.competitiveGameQualified}));"
+      - name: Archive all 12 original-source VS Seeker root and no-root trials
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent48-seeker-original-source-native-census
+          path: agent48-seeker-lillie-native.json
+          if-no-files-found: warn
