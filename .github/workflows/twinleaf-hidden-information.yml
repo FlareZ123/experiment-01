@@ -360,7 +360,7 @@ jobs:
           attacks:x.attackDeclarations,supporterGate:x.nativeSupporterQuotaQualified}))},
           competitiveQualifiedGames:0}));"
       - name: Preserve bounded Lillie after Pass native development data
-        if: ${{ inputs.agent12_lillie_fallback }}
+        if: ${{ always() && inputs.agent12_lillie_fallback }}
         uses: actions/upload-artifact@v4
         with:
           name: agent12-actor-lillie-fourarm
