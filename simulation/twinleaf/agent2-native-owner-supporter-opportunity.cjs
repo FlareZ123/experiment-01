@@ -58,6 +58,9 @@ function ownerSupporterOpportunity(state,seat,supporterType){
     heldCount:supporters.length,
     nativeNullTrueCount:supporters.filter(s=>
       s.nativeNullCanPlay==='true').length,
+    nativeNullTrueBeyondFirstGlobalTurn:state.turn>1?
+      supporters.filter(s=>s.nativeNullCanPlay==='true').length:0,
+    firstTurnPaperExceptionStillUnverified:state.turn===1,
     supporters,
     evidenceBoundary:'Only actor-owned hand. Native canPlay(null) is bounded engine-side evidence, not full target legality, paper legality, tactical value or settled Supporter use.'
   };
@@ -89,6 +92,8 @@ function withNativeOwnerSupporterOpportunity(execute,deps={}){
       firstWithHeld:first.filter(e=>e.heldCount>0).length,
       passesWithHeld:passes.filter(e=>e.heldCount>0).length,
       passesWithNativeNullTrue:passes.filter(e=>e.nativeNullTrueCount>0).length,
+      passesBeyondOpeningWithNativeNullTrue:passes.filter(e=>
+        e.nativeNullTrueBeyondFirstGlobalTurn>0).length,
       acceptedSupporterRoots:supporterRoots.length,
       rejectedRootActions:rejected.length};
     return {version:VERSION,observedLiveStore:liveStore!==null,
