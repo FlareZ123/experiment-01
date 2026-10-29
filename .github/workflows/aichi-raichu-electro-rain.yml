@@ -36,6 +36,8 @@ jobs:
         run: node simulation/twinleaf/raichu-manual-plus-bomb-setup.cjs
       - name: Verify 14 versus 16 Lightning-unit mixed-Bench five-Prize frontier
         run: node simulation/twinleaf/raichu-six-energy-prize-regression.cjs
+      - name: Verify actor-readable Reversal attachment before Electro Rain damage breakpoint
+        run: node simulation/twinleaf/agent10-raichu-breakpoint-native-action.cjs
       - name: Verify continuous Raichu Energy attachment and attack sequence
         run: node simulation/twinleaf/raichu-manual-bomb-attack-sequence.cjs
       - name: Verify source Electro Rain Prize-aware target allocation versus generic bot
