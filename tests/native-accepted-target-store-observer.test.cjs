@@ -166,3 +166,6 @@ test('alias matching rejects different printings and approximate spellings',()=>
 
 // Existing manual native-target CI also exercises both nested public witnesses.
 require('./agent41-bilateral-dual-target-evidence.test.cjs');
+
+// Shared CI also enforces the identical-deck/physical-deal pair contract.
+require('./agent41-native-paired-target-audit.test.cjs');
