@@ -16,6 +16,7 @@ on:
           - crossrank-partition0-disposition
           - crossrank-rejected-one-root
           - newmoon-first-vip-archive-16
+          - canonical-20261029-source-pairs
       archived_run:
         description: GitHub Actions run containing rank11 source regression and campaign reports
         required: true
@@ -77,6 +78,17 @@ jobs:
         run: |
           node --test tests/agent7-newmoon-vip-archive-audit.test.cjs
           node scripts/agent7-newmoon-vip-archive-audit.cjs newmoon-first-own-vip-prospective.json
+      - name: Download immutable original 32-arm prospective Store archive
+        if: ${{ inputs.audit_mode == 'canonical-20261029-source-pairs' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download 40918541683 --repo "$GITHUB_REPOSITORY" --name "rank11-exclusive-prospective-v1-sametarget-corrected-unqualified" --dir .
+      - name: Test and authenticate 16 registered source deals and first-turn targets
+        if: ${{ inputs.audit_mode == 'canonical-20261029-source-pairs' }}
+        run: |
+          node --test tests/aichi-rank11-direct-opening-probability.test.cjs tests/agent8-prospective-source-deal-audit.test.cjs tests/agent8-source-firstturn-physical-recipients.test.cjs
+          node scripts/agent8-audit-registered-source-pairs.cjs agent41-prospective-canonical-32.json > /tmp/agent8-original-prospective-source-audit.json
+          node -e "const assert=require('node:assert/strict');const a=require('/tmp/agent8-original-prospective-source-audit.json');const x=a.sourceDealAudit,y=a.sourceFirstTurnAudit;assert.equal(x.registeredSeedCells,16);assert.equal(x.alignedSourceDealCells,15);assert.equal(x.mismatchedSourceDealCells,1);assert.equal(y.sourceDealPairsAligned,15);assert.equal(y.sameObservedFirstTurnActions,15);assert.equal(y.differentObservedFirstTurnActions,0);assert.equal(y.observedFirstTurnTargetActions,11);console.log('AGENT8_ORIGINAL_SOURCE_PAIR_AUDIT_PASS',JSON.stringify({registered:x.registeredSeedCells,matched:x.alignedSourceDealCells,unmatched:x.mismatchedSourceDealCells,sameNativeFirstTurn:y.sameObservedFirstTurnActions,observedTargetActions:y.observedFirstTurnTargetActions,competitiveQualified:a.competitiveQualifiedGames}))"
       - name: Print authentic first-turn VIP selection evidence
         if: ${{ inputs.audit_mode == 'first-vip-source-v1' }}
         run: node -e "const x=require('./rank11-newmoon-first-vip-counterfactual.json');console.log(JSON.stringify({seed:x.seed,originalOpening:x.baseline.audit.opening,control:x.baseline.audit.events,counterfactual:x.alternative.audit.events,firstActions:x.alternative.firstActions.map(a=>({turn:a.turnBefore,action:a.action,card:a.card}))},null,2))"
