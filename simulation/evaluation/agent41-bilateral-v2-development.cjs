@@ -365,7 +365,8 @@ function executeDevelopment(trial,candidates,{
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
   paperTerminalAttackKo=false,
-  rank6K1AlternativeEnergy=false
+  rank6K1AlternativeEnergy=false,
+  registeredTrial=false
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
     'Initialization passive window belongs only to rank 6');
@@ -815,7 +816,9 @@ function executeDevelopment(trial,candidates,{
         card:row.card??null,attack:row.attack??null
       }))
     }:{}),
-    caveat:'Retrospectively selected development deal; common policy is not hidden-information safe or clock-calibrated'
+    caveat:registeredTrial?
+      'Prospectively prespecified development deal; common policy is not hidden-information safe or clock-calibrated':
+      'Retrospectively selected development deal; common policy is not hidden-information safe or clock-calibrated'
   };
 }
 
@@ -865,7 +868,8 @@ function runDevelopment({
   paperTerminalAttackKo=false,
   rank6K1AlternativeEnergy=false,
   sourceScopedSpecialEnergyRoot=false,
-  candidateScopedSpecialEnergyRoot=false
+  candidateScopedSpecialEnergyRoot=false,
+  registeredTrials=null,registeredFrameName=null
 }={}){
   assertManifest();
   assert.ok(!actorChargedPromotion||(actorOnlyComposition&&actorChoosePokemon),
@@ -887,8 +891,40 @@ function runDevelopment({
     [id,{plan:planAichi(manifest,{allowEquivalentBasicEnergies:true,
       allowBasicEnergyMirrorPrintings:true,allowJapanesePromoHooks:true})}]));
   const rows=[];
-  const scheduled=sourceFirstRetrospective?
-    sourceFirstPressureTrials():developmentTrials();
+  if(registeredTrials!==null){
+    assert.equal(sourceFirstRetrospective,false,
+      'Prospective trials cannot activate selected historical source-first seeds');
+    assert.ok(typeof registeredFrameName==='string' &&
+      registeredFrameName.length>0);
+    assert.ok(Array.isArray(registeredTrials)&&registeredTrials.length>0);
+    const groups=new Map();
+    const ids=new Set();
+    for(const trial of registeredTrials){
+      assert.ok([6,11].includes(trial.rank));
+      assert.ok(['A','B'].includes(trial.candidateSlot));
+      assert.ok(['champion-reference','new-moon-lockbreaker-v1']
+        .includes(trial.candidateId));
+      assert.ok(Number.isSafeInteger(trial.repeat)&&trial.repeat>=0);
+      assert.ok(Number.isSafeInteger(trial.seed)&&trial.seed>=0&&
+        trial.seed<=0xffffffff);
+      assert.equal(trial.id,[trial.rank,trial.repeat,trial.candidateSlot,
+        trial.candidateId].join(':'));
+      assert.ok(!ids.has(trial.id),'Duplicate preregistered arm');
+      ids.add(trial.id);
+      const group=trial.id.slice(0,trial.id.lastIndexOf(':'));
+      const existing=groups.get(group)||{seed:trial.seed,ids:[]};
+      assert.equal(existing.seed,trial.seed,
+        'Candidate pair must use identical preregistered integer seed');
+      existing.ids.push(trial.candidateId);
+      groups.set(group,existing);
+    }
+    for(const group of groups.values()){
+      assert.deepEqual(group.ids.slice().sort(),
+        ['champion-reference','new-moon-lockbreaker-v1']);
+    }
+  }
+  const scheduled=registeredTrials??(sourceFirstRetrospective?
+    sourceFirstPressureTrials():developmentTrials());
   for(const trial of scheduled){
     try {
       const execute=()=>executeDevelopment(trial,prepared,{
@@ -902,6 +938,7 @@ function runDevelopment({
         nativeAcceptedTargets,
         nativeActionInputTapeOrdinal,paperTerminalAttackKo,
         rank6K1AlternativeEnergy,
+        registeredTrial:registeredTrials!==null,
         // An opt-in observational package, with each native Store observer
         // applicable to its own opposing source archetype only.
         initializationWindow:nativePressureWindows&&trial.rank===6,
@@ -1020,9 +1057,10 @@ function runDevelopment({
       (compressorPayload?
         'agent5-bilateral-common-policy-development-v0c-owner-compressor-v1':
         'agent41-bilateral-common-policy-development-v0c-live-lock-guard')))),
-    sourceRegistration:sourceFirstRetrospective?
+    sourceRegistration:registeredTrials!==null?
+      registeredFrameName:(sourceFirstRetrospective?
       'Retrospective source-first selected exposure; rank11 chosen after source Tool-Garbodor success; not preregistered':
-      'historical v1 selection; not v2 preregistration',
+      'historical v1 selection; not v2 preregistration'),
     enginePin:registration.enginePin,
     candidatePolicy:POLICY_VERSION+
       (paperSupporterQuota?'+'+PAPER_SUPPORTER_VERSION:'')+
@@ -1072,6 +1110,7 @@ function runDevelopment({
     nativeSupporterQuotaQualified:paperSupporterQuota?
       rows.every(row=>row.nativeSupporterQuotaQualified===true):'unverified',
     sourceFirstRetrospective,
+    registeredTrialFrame:registeredTrials!==null?registeredFrameName:null,
     rank6K1AlternativeEnergyOptIn:rank6K1AlternativeEnergy,
     sourceScopedSpecialEnergyRootOptIn:sourceScopedSpecialEnergyRoot,
     candidateScopedSpecialEnergyRootOptIn:candidateScopedSpecialEnergyRoot,
@@ -1080,9 +1119,8 @@ function runDevelopment({
       11:{seed:482443328,seat:'B',selection:'post-observed source success'}
     }:null,
     rows,attempted:rows.length,
-    sourcePairs:(sourceFirstRetrospective?
-      ['6:retrospective-sourcefirst:0:B','11:retrospective-sourcefirst:2:B']:
-      ['6:0:A','11:2:B']).map(key=>{
+    sourcePairs:[...new Set(scheduled.map(row=>
+      row.id.slice(0,row.id.lastIndexOf(':'))))].map(key=>{
       const here=rows.filter(row=>row.trial?.id.startsWith(key+':'));
       const first=here.find(row=>row.trial.candidateId==='champion-reference');
       const second=here.find(row=>row.trial.candidateId==='new-moon-lockbreaker-v1');
