@@ -17,19 +17,25 @@ const DD='Double Dragon Energy ROS';
 const P='Psychic Energy SVE';
 const options={publicContextSpecialEnergy:true};
 
-/** @param {object} x @param {number} world */
+/**
+ * @param {object} x Native staged position.
+ * @param {0|1|2|3} world Bits independently encode owner's Prize
+ *   membership and opponent's concealed hand ownership.
+ */
 function conceal(x,world){
+  assert.ok(Number.isInteger(world)&&world>=0&&world<4);
   const cards=initializeCards();
   let id=900000+world*100;
   const fresh=name=>{
     const card=cards.getCardByName(name);
     assert.ok(card,name);card.id=id++;return card;
   };
-  if(world===0){
-    x.owner.deck.cards[0]=fresh(DD);
-    x.opponent.hand.cards.push(fresh(DD));
-  }else{
-    x.owner.prizes[0].cards[0]=fresh(DD);
+  const ownerPrized=(world&1)!==0;
+  const opponentHeld=(world&2)!==0;
+  if(ownerPrized)x.owner.prizes[0].cards[0]=fresh(DD);
+  else x.owner.deck.cards[0]=fresh(DD);
+  if(opponentHeld)x.opponent.hand.cards.push(fresh(DD));
+  else{
     x.opponent.deck.cards[0]=fresh(DD);
     x.opponent.hand.cards.push(fresh(P));
   }
@@ -50,7 +56,7 @@ function inventories(x){
 /** @param {0|1} seat */
 function verifySeat(seat){
   const rows=[];
-  for(let world=0;world<2;world++){
+  for(let world=0;world<4;world++){
     const x=stage(seat);
     conceal(x,world);
     const view=actorObservation(x.state,seat);
@@ -91,29 +97,34 @@ function verifySeat(seat){
       attachThenAttackDamage:settledAfterAttach.damageAfter});
   }
   assert.notDeepStrictEqual(rows[0].physical,rows[1].physical,
-    'The two concealed worlds must really be physically different');
+    'Changing only own hidden Prize membership must change physical State');
+  assert.notDeepStrictEqual(rows[0].physical,rows[2].physical,
+    'Changing only opponent hidden hand/deck must change physical State');
   const publicChange=stage(seat);
   conceal(publicChange,0);
   publicChange.owner.active.damage=10;
   assert.notDeepStrictEqual(actorObservation(publicChange.state,seat),
     rows[0].view,'Public damage perturbation must change the actor view');
-  assert.deepStrictEqual(rows[0].view,rows[1].view,
-    'Owner observation changed across unseen K0 card arrangements');
-  assert.deepStrictEqual(rows[0].inventory,rows[1].inventory,
-    'Physical card multiset must remain fixed across worlds');
-  assert.deepStrictEqual(rows[0].chosen,rows[1].chosen);
-  assert.deepStrictEqual(rows[0].alternate,rows[1].alternate);
-  assert.equal(rows[0].damage,rows[1].damage);
-  assert.equal(rows[0].attachThenAttackDamage,
-    rows[1].attachThenAttackDamage);
-  return {seat,ownerViewInvariant:true,physicalInventoryPreserved:true,
+  for(const row of rows.slice(1)){
+    assert.deepStrictEqual(rows[0].view,row.view,
+      'Concealed factors changed the K0 actor information set');
+    assert.deepStrictEqual(rows[0].inventory,row.inventory,
+      'Concealed factors changed the original physical card inventory');
+    assert.deepStrictEqual(rows[0].chosen,row.chosen);
+    assert.deepStrictEqual(rows[0].alternate,row.alternate);
+    assert.equal(rows[0].damage,row.damage);
+    assert.equal(rows[0].attachThenAttackDamage,row.attachThenAttackDamage);
+  }
+  return {seat,factorialConcealedWorlds:rows.length,
+    nativeSettledSequences:rows.length*2,
+    ownerViewInvariant:true,physicalInventoryPreserved:true,
     chosen:rows[0].chosen,alternative:rows[0].alternate,
     genuineNativeAttackSettledInBothWorlds:true,
     nativeAlternativeAttachmentAndAttackSettledInBothWorlds:true,
     actualDamage:rows[0].damage};
 }
 function run(){
-  return {schema:'agent18-k0-root-native-invariance-v2',
+  return {schema:'agent18-k0-root-native-invariance-v3',
     pin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     records:[verifySeat(0),verifySeat(1)],
     competitiveQualifiedGames:0,
