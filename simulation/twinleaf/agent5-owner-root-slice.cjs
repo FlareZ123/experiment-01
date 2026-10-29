@@ -155,8 +155,13 @@ function rootPhysicalSnapshot(state,seat,intent){
       quickBallSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
     }:{}),
-    ...(intent.kind==='play-stranded-marnie'?{
+    ...(['play-stranded-marnie','play-lowhand-lillie'].includes(intent.kind)?{
       supporterTurn:owner.supporterTurn,
+      supporterSpent:[...owner.discard.cards,...owner.supporter.cards]
+        .filter(card=>card.fullName===intent.printing).length
+    }:{}),
+    // Preserve the existing observable field for downstream Marnie fixtures.
+    ...(intent.kind==='play-stranded-marnie'?{
       marnieSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
     }:{})
@@ -207,10 +212,14 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
       count(after.activeEnergies)===count(before.activeEnergies)+1?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
-  if(intent.kind==='play-stranded-marnie'){
+  if(intent.kind==='play-stranded-marnie'||
+     intent.kind==='play-lowhand-lillie'){
     // The genuine Store first moves the Supporter into its publicly
     // resolving zone; subsequent hand redraws may require more prompts.
-    return after.marnieSpent>before.marnieSpent&&
+    // This attests dispatch/quota only, not the draw or tactical outcome.
+    const beforeSpent=before.supporterSpent??before.marnieSpent;
+    const afterSpent=after.supporterSpent??after.marnieSpent;
+    return afterSpent>beforeSpent&&
       after.supporterTurn>before.supporterTurn?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }

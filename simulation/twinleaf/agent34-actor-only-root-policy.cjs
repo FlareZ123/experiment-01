@@ -167,6 +167,13 @@ function chooseActorRootIntent(view,catalog,options={}){
       }
     }
   }
+  // Opt-in, both-seat low-hand Supporter choice before an otherwise
+  // immediately payable attack. Keep benchmark root decisions unchanged.
+  if(options.lowHandLillieRoot===true){
+    const draw=require('./agent25-lowhand-lillie-frontier.cjs')
+      .chooseLowHandLillieBeforeAttack(view);
+    if(draw)return draw;
+  }
   if(options.paidRetreatRoot===true){
     const retreat=require('./agent6-actor-paid-retreat-frontier.cjs')
       .choosePaidRetreatToDamagingBench(view,catalog);
@@ -372,8 +379,19 @@ function withActorOnlyRootPolicy(run,deps={}){
     floatStoneMobilityOwnerSeat:deps.floatStoneMobilityOwnerSeat??null,
     heldGuzmaMobilityOptIn:deps.heldGuzmaMobility??
       (process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV==='true'),
+    lowHandLillieRootOptIn:deps.lowHandLillieRoot??
+      (process.env.AGENT25_LOWHAND_LILLIE_DEV==='true'),
+    lowHandLillieCensusOptIn:deps.lowHandLillieCensus??
+      (process.env.AGENT25_LOWHAND_LILLIE_CENSUS_DEV==='true'),
     strandedMarnieRootOptIn:deps.strandedMarnieRoot??
       (process.env.AGENT50_STRANDED_MARNIE_DEV==='true'),
+    lowHandLillieRootCensus:{
+      ownerRoots:0,heldRoots:0,eligibleRoots:0,
+      reasonCounts:{},heldReasonCounts:{},
+      bySeat:{0:{ownerRoots:0,heldRoots:0,eligibleRoots:0},
+        1:{ownerRoots:0,heldRoots:0,eligibleRoots:0}},
+      heldSamples:[],sampleLimit:40
+    },
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
     typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
     publicTransitionWitnesses:0,publicTransitionChanges:0,
@@ -414,6 +432,11 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent35-public-donor-funding-pivot-v1';
   if(audit.powerglassRootOptIn)
     audit.version+='+agent41-owner-visible-powerglass-root-v1';
+  if(audit.lowHandLillieRootOptIn)
+    audit.version+='+'+
+      require('./agent25-lowhand-lillie-frontier.cjs').VERSION;
+  if(audit.lowHandLillieCensusOptIn)
+    audit.version+='+agent25-owner-lowhand-lillie-census-v1';
   if(audit.strandedMarnieRootOptIn)
     audit.version+='+'+
       require('./agent50-stranded-marnie-frontier.cjs').VERSION;
@@ -442,6 +465,25 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     if(catalog===null)catalog=getCatalog();
     const view=observe(state,seat);
+    if(audit.lowHandLillieCensusOptIn){
+      const {LILLIE}=require('./agent12-actor-only-lillie-after-pass.cjs');
+      const reason=require('./agent25-lowhand-lillie-frontier.cjs')
+        .lowHandLillieExclusionReason(view)??'eligible';
+      const c=audit.lowHandLillieRootCensus;
+      const bySeat=c.bySeat[seat];
+      const held=view.ownHand.includes(LILLIE);
+      c.ownerRoots++;bySeat.ownerRoots++;
+      c.reasonCounts[reason]=(c.reasonCounts[reason]??0)+1;
+      if(held){
+        c.heldRoots++;bySeat.heldRoots++;
+        c.heldReasonCounts[reason]=(c.heldReasonCounts[reason]??0)+1;
+        if(c.heldSamples.length<c.sampleLimit)c.heldSamples.push({
+          seat,globalTurn:view.globalTurn,handCount:view.ownHand.length,
+          deckCount:view.ownPublic.deckCount,reason
+        });
+      }
+      if(reason==='eligible'){c.eligibleRoots++;bySeat.eligibleRoots++;}
+    }
     const intent=chooseActorRootIntent(view,catalog,{
       energyFrontier:audit.energyFrontierOptIn,
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
@@ -463,7 +505,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.floatStoneMobilityOptIn,
         audit.floatStoneMobilityOwnerSeat,seat),
       heldGuzmaMobility:audit.heldGuzmaMobilityOptIn,
-      strandedMarnieRoot:audit.strandedMarnieRootOptIn
+      strandedMarnieRoot:audit.strandedMarnieRootOptIn,
+      lowHandLillieRoot:audit.lowHandLillieRootOptIn
     });
     const ownerId=state.players[seat].id;
     let action;
@@ -497,6 +540,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
+      case 'play-lowhand-lillie':
       case 'play-stranded-marnie':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
