@@ -77,6 +77,12 @@ function comparePairedAcceptedTargets(control,treatment){
   if(!control.sourceDealFingerprint||
      control.sourceDealFingerprint!==treatment.sourceDealFingerprint)
     return {...prefix,status:'incomparable',reason:'different-or-missing-source-deal'};
+  if(control.fullPhysicalDealProtocol!=='initial-full-physical-deal-sha256-v1'||
+     treatment.fullPhysicalDealProtocol!=='initial-full-physical-deal-sha256-v1'||
+     !control.fullPhysicalDealFingerprint||
+     control.fullPhysicalDealFingerprint!==treatment.fullPhysicalDealFingerprint)
+    return {...prefix,status:'incomparable',
+      reason:'different-or-missing-both-player-physical-deal'};
   if(!Number.isSafeInteger(control.actualStarterSeat)||
      control.actualStarterSeat!==treatment.actualStarterSeat||
      control.verifiedFirstTurn!==true||
