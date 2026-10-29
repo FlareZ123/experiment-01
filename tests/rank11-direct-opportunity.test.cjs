@@ -16,14 +16,14 @@ function deal(route = 'vip') {
   if (route === 'bench') bench.push(slot('Trubbish'));
   if (route === 'hand') hand.push({name:'Trubbish'});
   if (route === 'vip') hand.push({name:'Battle VIP Pass'});
-  const player = {hand:{cards:hand},bench};
+  const player = {hand:{cards:hand},bench,active:slot(route === 'active' ? 'Trubbish' : 'Oranguru V')};
   Object.defineProperty(player,'deck',{get(){throw new Error('K0 deck peek');}});
   Object.defineProperty(player,'prizes',{get(){throw new Error('Prize peek');}});
   return {state:{turn:1,activePlayer:0,phase:7},player};
 }
 
 test('direct rank11 predicate selects each paper-visible route', () => {
-  for (const route of ['bench','hand','vip']) {
+  for (const route of ['active','bench','hand','vip']) {
     const {state,player}=deal(route);
     assert.deepEqual(directBoostShakeOpportunity(state,player,0,7),
       {route,tool:'Muscle Band'});
@@ -66,6 +66,11 @@ test('legal first personal turn accepts actual second, rejects later turns', () 
     {route:'hand',tool:'Muscle Band'});
   state.turn=3;
   assert.equal(directBoostShakeOpportunity(state,player,1,7),null);
+  assert.deepEqual(directBoostShakeOpportunity(state,player,1,7,false,true),
+    {route:'hand',tool:'Muscle Band'});
+  state.turn=13;
+  assert.deepEqual(directBoostShakeOpportunity(state,player,1,7,false,true),
+    {route:'hand',tool:'Muscle Band'});
   state.turn=1;
   state.phase=5;
   assert.equal(directBoostShakeOpportunity(state,player,1,7),null);
@@ -94,4 +99,26 @@ test('opt-in K0 guard conserves held resources for all direct routes', () => {
     assert.deepEqual(directBoostShakeOpportunity(state, player, 0, 7, true),
       {route, tool: 'Muscle Band'});
   }
+});
+
+test('Active Trubbish route wins priority and never needs a Bench slot', () => {
+  const {state,player}=deal('active');
+  player.bench=[slot('Crobat V'),slot('Darkrai V'),slot('Regidrago V'),
+    slot('Moltres V'),slot('Pidgey')];
+  assert.deepEqual(directBoostShakeOpportunity(state,player,0,7),
+    {route:'active',tool:'Muscle Band'});
+  player.active.tools=[{name:'Float Stone'}];
+  assert.equal(directBoostShakeOpportunity(state,player,0,7),null);
+});
+
+test('Active Trubbish remains actor-visible and respects phase and owner', () => {
+  const {state,player}=deal('active');
+  Object.defineProperty(player,'opponentHand',{get(){throw Error('opponent hidden read');}});
+  assert.deepEqual(directBoostShakeOpportunity(state,player,0,7,false,true),
+    {route:'active',tool:'Muscle Band'});
+  state.phase=4;
+  assert.equal(directBoostShakeOpportunity(state,player,0,7,false,true),null);
+  state.phase=7;
+  state.activePlayer=1;
+  assert.equal(directBoostShakeOpportunity(state,player,0,7,false,true),null);
 });
