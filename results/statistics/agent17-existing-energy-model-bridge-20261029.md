@@ -91,3 +91,41 @@ are **not legal action certificates, gameplay trials or performance
 estimates**. The primary 29/32 opposing 60s remain incomplete at
 ranks 23/25/28; zero competitively qualified games; no established
 single fixed 60 with 99.5% field win rate.
+
+
+## Same-day implementation follow-up: numeric model expanded
+
+The **88/118** figure above describes the pre-expansion state of the
+existing attached-Energy helper at the time this comparison was written.
+Agent 17 subsequently made a source-grounded, reusable update to
+`simulation/twinleaf/actor-energy-payability.cjs`, preserving its
+tri-state conservative payability interface:
+
+- `Unit Energy LPM UPR` source-display alias provides one flexible
+  Lightning/Psychic/Metal unit, corresponding to the Ultra Prism card
+  identified in the supplied snapshot.
+- `Counter Energy CIN` provides one Colorless when the opponent is
+  not ahead on Prizes or the recipient is GX/EX, and two flexible
+  units when behind on Prizes with an explicitly confirmed non-GX/EX
+  recipient. If Prize-behind but the GX/EX recipient flag is unknown,
+  the helper returns `null` to preserve uncertainty.
+- Jet, Recycle, Memory, and Powerful Colorless provide one
+  Colorless for **attached-Energy payability**; their extra effects
+  are outside the helper.
+- Telepathic Psychic provides one Psychic for **attached payability**;
+  on-attachment Basic Psychic search remains a separate effect.
+
+Under the same abstract **some public-context condition** recognition
+criterion, the updated helper's coverage becomes **118/118**, with
+**24/24 Special-bearing original decks having all exact source names
+recognized**. This proves numeric source-vocabulary completeness
+within the frozen 29 manifest only. It does not prove full attack
+readiness, recipient legality, attached-card effect fidelity,
+native Store acceptance, autonomous play, or any game win.
+
+The comparison module and tests were updated to expect this new
+snapshot. The original 38/118 *canonical actor numeric selector*
+remains unchanged and is still the central policy-integration
+gap. The longer English `Unit Energy LightningPsychicMetal` and
+shorter Aichi display `Unit Energy LPM` continue to require careful
+mapping at actual native source resolution.
