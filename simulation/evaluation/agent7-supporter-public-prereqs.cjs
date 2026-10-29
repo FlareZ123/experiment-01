@@ -33,6 +33,12 @@ function auditSupporterPublicPrerequisites(report){
     const audit=row.actorOnlyDecisionCoverage?.ownerSupporterOpportunityAudit;
     assert.ok(audit?.actualStoreSeen&&audit.nativeNullTargetProbeOptIn===true);
     assert.ok(Array.isArray(audit.passSamples));
+    const acceptedAuditCount=[0,1].reduce((sum,seat)=>
+      sum+audit.bySeat[seat].acceptedPassRoots,0);
+    const acceptedSampleCount=audit.passSamples.filter(sample=>
+      sample.nativePassReceipt?.accepted===true).length;
+    assert.equal(acceptedSampleCount,acceptedAuditCount,
+      'Accepted Pass sample was truncated or failed to join live native Store');
     for(const sample of audit.passSamples){
       if(sample.nativePassReceipt?.accepted!==true)continue;
       acceptedPassSamples++;
