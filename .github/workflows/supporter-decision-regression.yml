@@ -116,6 +116,25 @@ jobs:
             agent25-registered-32-owner-census.json
           if-no-files-found: warn
           retention-days: 12
+      - name: Original 32-arm Store replay with low-hand Lillie treatment
+        if: ${{ inputs.agent25_owner_scout_lillie_treatment }}
+        env:
+          AGENT25_LOWHAND_LILLIE_DEV: 'true'
+          AGENT25_LOWHAND_LILLIE_CENSUS_DEV: 'true'
+        run: node simulation/evaluation/agent25-original-32-lillie-treatment.cjs > agent25-registered-32-lillie-treated-raw.json
+      - name: Compile full observed low-hand Lillie treatment census
+        if: ${{ inputs.agent25_owner_scout_lillie_treatment }}
+        run: node simulation/evaluation/agent25-registered-scout-owner-census.cjs agent25-registered-32-lillie-treated-raw.json > agent25-registered-32-lillie-treated-owner-census.json
+      - name: Preserve raw 32-arm Lillie treatment even when failed
+        if: ${{ always() && inputs.agent25_owner_scout_lillie_treatment }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-original-32-same-deal-lillie-treatment
+          path: |
+            agent25-registered-32-lillie-treated-raw.json
+            agent25-registered-32-lillie-treated-owner-census.json
+          if-no-files-found: warn
+          retention-days: 12
       - name: Optional published-list policy feasibility probe
         if: ${{ inputs.run_aichi_fixture }}
         run: node simulation/twinleaf/supporter-aichi-smoke.cjs
