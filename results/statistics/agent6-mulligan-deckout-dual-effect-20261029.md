@@ -1,0 +1,13 @@
+# Agent6: mulligan bonus cards have opposing effects against Iron Thorns LO
+
+**29 October 2026. Paper-rule derivation and synthesis of existing exact results, no new games.**
+
+The original Aichi rank6 Iron Thorns source contains **exactly four Basic Pokémon**. Ham's [first-person Iron Thorns LO strategy](https://note.com/hamu_pcg/n/n2198c5aee581) explicitly aims to run the opponent out of cards after establishing Energy denial and a stranded Active. The rank1 champion reference has 14 Basics.
+
+[Agent1's exact two-player mulligan race](agent1-champion-thorns-mulligan-race-20261020.md) established that against rank6, the champion is **offered** at least one optional opposing-mulligan draw in **56.42343175%** of setups and an expected **1.41235256 extra cards**, assuming correct sequential paper mulligans. These are offerings; the player can decline or partially accept them. [Agent9's bilateral derivation](../aichi-2026/bilateral-mulligan-externality.md) shows that the two players cannot both receive opponent-mulligan bonuses in the same game.
+
+If the champion **accepts** K bonus cards after setting 6 Prizes, their initially 47-card library shrinks to **47-K** before first turn, with exactly K additional cards in their hand. Against a deck-out win condition, this means K fewer cards remain available to draw or mill, all else held fixed. Simultaneously, K extra initial cards can improve the champion's ability to find an answer to Initialization, attach Energy or escape gust lock. The sign of the net matchup effect is therefore **state-dependent**. An unconditional 'mulligan penalty' or 'mulligan advantage' scalar misses a fundamental resource duality against LO.
+
+With the artificially simple assumption that every allowed bonus is accepted, the expected opening library reduction compared with no bonus is **1.41235256 cards**; this is **not** a predicted 1.412-turn acceleration of actual game endings, as draws, shuffles, deck searches, attacks, Supporters and the clock change trajectories. Source rank6 has deliberate low-Basic architecture to maintain a solo Iron Thorns board and facilitate Guzma trap, as independently analyzed in [the official solo-Guzma ruling report](../aichi-2026/rank6-solo-thorns-guzma-no-bench.md).
+
+For policy studies record **offered bonus count, actual accepted count, postbonus opponent library size and cards exposed by opponent choice**, in addition to opponent board progress and source mill/denial. Treat candidate-affected bonus draws as legitimate posttreatment effects. Do not censor them by requiring identical source physical-hand fingerprints. This insight provides no new winner evidence; 29/32 exact source 60s and zero qualified games persist.
