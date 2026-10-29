@@ -434,6 +434,10 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT2_SHUFFLE_PREATTACK_DEV==='true'),
     lowHandLillieCensusOptIn:deps.lowHandLillieCensus??
       (process.env.AGENT25_LOWHAND_LILLIE_CENSUS_DEV==='true'),
+    ownerArbitrationCensusOptIn:deps.ownerArbitrationCensus??
+      (process.env.AGENT16_OWNER_ARBITRATION_CENSUS_DEV==='true'),
+    ownerArbitration:require('./agent16-owner-priority-contention.cjs')
+      .newOwnerContentionAudit(),
     strandedMarnieRootOptIn:deps.strandedMarnieRoot??
       (process.env.AGENT50_STRANDED_MARNIE_DEV==='true'),
     lowHandLillieRootCensus:{
@@ -566,7 +570,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       }
       if(reason==='eligible'){c.eligibleRoots++;bySeat.eligibleRoots++;}
     }
-    const intent=chooseActorRootIntent(view,catalog,{
+    const rootOptions={
       energyFrontier:audit.energyFrontierOptIn,
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
       mobilityAwareRecipient:audit.mobilityAwareRecipientOptIn,
@@ -596,7 +600,15 @@ function withActorOnlyRootPolicy(run,deps={}){
       carmineFirstRoot:audit.carmineFirstRootOptIn,
       seekerLillieRoot:audit.seekerLillieRootOptIn,
       conservativeShuffleBeforeAttack:audit.conservativeShuffleBeforeAttackOptIn
-    });
+    };
+    const intent=chooseActorRootIntent(view,catalog,rootOptions);
+    if(audit.ownerArbitrationCensusOptIn){
+      const diagnostics=require('./agent16-owner-priority-contention.cjs');
+      const receipt=diagnostics.collectOwnerContention(
+        view,catalog,rootOptions,intent);
+      diagnostics.recordOwnerContention(audit.ownerArbitration,
+        seat,view.globalTurn,receipt);
+    }
     const ownerId=state.players[seat].id;
     let action;
     switch(intent.kind){
