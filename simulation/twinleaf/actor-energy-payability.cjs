@@ -36,6 +36,11 @@ function energyUnits(printing,context){
   if(named(printing,'Prism Energy'))return [context.isBasic?ANY:['C']];
   if(named(printing,'Aurora Energy')||named(printing,'Rainbow Energy')||
      named(printing,'Legacy Energy'))return [ANY];
+  if(named(printing,'Telepathic Psychic Energy')||
+     named(printing,'Telepath [P] Energy'))return [['P']];
+  if(named(printing,'Jet Energy')||named(printing,'Recycle Energy')||
+     named(printing,'Memory Energy')||
+     named(printing,'Powerful Colorless Energy'))return [['C']];
   if(named(printing,'Reversal Energy'))return context.isEvolution&&
       !context.hasRuleBox&&context.behindOnPrizes?[ANY,ANY,ANY]:[['C']];
   if(named(printing,'Ignition Energy'))return context.isEvolution?
