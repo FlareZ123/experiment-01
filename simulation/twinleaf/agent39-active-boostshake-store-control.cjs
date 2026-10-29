@@ -52,7 +52,7 @@ function verifyActiveEvolution(sourceSeat) {
   const candidate = card('Mewtwo & Mew-GX UNM');
   opponent.active.cards.push(candidate);
   for (const printing of ['Oranguru V ASR', 'Oranguru V ASR',
-    'Crobat V DAA', 'Squawkabilly ex PAL', 'Mega Absol ex MEG']) {
+    'Crobat V DAA', 'Squawkabilly ex PAL', 'Tapu Lele-GX GRI']) {
     const slot = new PokemonCardList();
     slot.cards.push(card(printing));
     owner.bench.push(slot);
