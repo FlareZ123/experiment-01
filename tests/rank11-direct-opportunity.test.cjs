@@ -107,7 +107,8 @@ test('Active Trubbish route wins priority and never needs a Bench slot', () => {
   assert.deepEqual(directBoostShakeOpportunity(state,player,0,7),
     {route:'active',tool:'Muscle Band'});
   player.active.tools=[{name:'Float Stone'}];
-  assert.equal(directBoostShakeOpportunity(state,player,0,7),null);
+  assert.deepEqual(directBoostShakeOpportunity(state,player,0,7),
+    {route:'active-equipped',tool:'Float Stone'});
 });
 
 test('Active Trubbish remains actor-visible and respects phase and owner', () => {
