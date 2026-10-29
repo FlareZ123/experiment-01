@@ -90,9 +90,9 @@ function adjudicateAfterTimeCall(row){
     paperClockCertified:false};
   if(verifiedRealClockCall!==true)
     return {...base,status:'no-real-time-call-witness'};
-  if(finalSecondPlayerTurnCompleted!==true||
-     finalPokemonCheckupExcluded!==true)
-    return {...base,status:'after-call-final-turn-unverified'};
+  // A real game win or drawn game can end the match before the otherwise
+  // available after-call turns expire. Only unresolved games need the full
+  // final-turn window before the event's time-adjudication rules can apply.
   if(normalGameWinningSeat!==null)
     return {...base,status:'normal-game-win-after-time-call',
       winningSeat:normalGameWinningSeat};
@@ -100,6 +100,9 @@ function adjudicateAfterTimeCall(row){
     return {...base,status:stage==='bracket'?
       'bracket-fresh-six-prize-tiebreak-required':
       'swiss-native-draw-rule-unverified',winningSeat:null};
+  if(finalSecondPlayerTurnCompleted!==true||
+     finalPokemonCheckupExcluded!==true)
+    return {...base,status:'after-call-final-turn-unverified'};
   assert.ok(prizesNeededToWinBySeat.every(n=>n>0),
     'No natural winner reported despite no remaining Prize cards');
   if(stage==='swiss')
