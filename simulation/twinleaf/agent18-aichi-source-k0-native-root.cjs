@@ -117,7 +117,6 @@ function run(){
       seed:SEED,maxActions:MAX_ACTIONS,
       label:'agent18-source-K0-rank'+first+'-versus-'+second,
       strictPromptValidation:true,isolatePolicyRandomness:true,
-      prototypeSafeSimulatorIsolation:true,
       postSuperAliasRepairIsolation:true,
       supporterDecisionCorrection:true};
     const unobserved=runMatch(request);
