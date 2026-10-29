@@ -9,7 +9,7 @@ const {withActorOnlyRootPolicy}=
   require('./agent34-actor-only-root-policy.cjs');
 
 const SEEDS=Object.freeze(Array.from({length:12},
-  (_,i)=>20261029101+i));
+  (_,i)=>2026102921+i));
 const MAX_ACTIONS=120;
 
 /**
