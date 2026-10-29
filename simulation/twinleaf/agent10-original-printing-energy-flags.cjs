@@ -106,5 +106,54 @@ function energyContextFromPublic(ownPublic,opponentPublic,printedProfile){
   };
 }
 
+
+/**
+ * Global public *card database* lookup usable by either actor without knowing
+ * which source sixty or concealed cards an opponent has. Duplicate printings
+ * with the same native-style name+set are admitted only when their relevant
+ * Rule Box/Evolution/GX/EX attributes agree. Ambiguous names are withheld.
+ *
+ * @param {string} root Research repo root.
+ * @returns {Map<string,ReturnType<typeof classifyPrintedPokemon>|null>}
+ */
+function buildPublicPokemonProfileIndex(root){
+  const setEntries=JSON.parse(fs.readFileSync(
+    path.resolve(root,'resources/sets/en.json'),'utf8'));
+  const result=new Map();
+  const fields=['isEvolution','hasRuleBox','isPokemonGX','isPokemonEX'];
+  for(const set of setEntries){
+    if(!set.ptcgoCode)continue;
+    const filename=path.resolve(root,'resources/cards/en',set.id+'.json');
+    const entries=JSON.parse(fs.readFileSync(filename,'utf8'));
+    for(const card of entries){
+      if(card.supertype!=='Pokémon')continue;
+      const key=card.name.replaceAll('♢','◇')+' '+set.ptcgoCode;
+      const profile=classifyPrintedPokemon(card);
+      if(result.has(key)){
+        const prior=result.get(key);
+        if(prior!==null&&fields.some(field=>prior[field]!==profile[field]))
+          result.set(key,null);
+      }else result.set(key,profile);
+    }
+  }
+  return result;
+}
+
+/**
+ * Return only explicitly classified public original printing attributes.
+ * Missing or ambiguous printings are unknown; callers should preserve a
+ * conservative policy instead of inventing no-Rule-Box status.
+ *
+ * @param {Map<string,object|null>} index Public print index.
+ * @param {string} printing Public visible full printing.
+ * @returns {object|null}
+ */
+function visiblePrintedProfile(index,printing){
+  assert.ok(index instanceof Map);
+  assert.equal(typeof printing,'string');
+  return index.get(printing.replaceAll('♢','◇'))??null;
+}
+
 module.exports={VERSION,classifyPrintedPokemon,originalPrintedPokemon,
-  energyContextFromPublic};
+  energyContextFromPublic,buildPublicPokemonProfileIndex,
+  visiblePrintedProfile};
