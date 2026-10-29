@@ -124,7 +124,8 @@ function check(seat){
       handCount:owner.hand.cards.length,
       originalActiveId:beforeOwn
     };
-  },{initialLiveStore:store});
+  },{initialLiveStore:store,
+    trace:event=>console.log('AG43_HANDOFF',JSON.stringify(event))});
   assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,botOriginal);
   assert.strictEqual(Store.prototype.dispatch,dispatchOriginal);
   assert.equal(result.result.actualActivePhysicalId,intended);
