@@ -185,3 +185,31 @@ test('opt-in actor ChoosePokemon runs inside the one existing canonical composit
   assert.equal(observed.audit.selectedHandlerPriority[0],'ChoosePokemonPrompt');
   assert.equal(observed.audit.qualification.competitiveGames,0);
 });
+
+
+test('read-only owner Supporter audit sits closest to native action source',()=>{
+  const order=[],make=(name,audit)=>fakeAdapter(name,audit,order);
+  const observed=withCanonicalActorOnlyPolicy(()=>37,{
+    root:make('root',{selectedRootDecisions:1,acceptedActorRoots:1}),
+    fog:make('fog',{}),select:make('select',{}),
+    option:make('option',{}),attack:make('attack',{}),
+    supporterOpportunity:make('supporter',{
+      bySeat:{0:{firstTurnHeld:2,firstTurnStructurallyOpen:1},
+        1:{firstTurnHeld:1,firstTurnStructurallyOpen:0}},
+      actualStoreSeen:true,decisionsSeen:8
+    })
+  },{ownerSupporterOpportunity:true});
+  assert.equal(observed.result,37);
+  assert.deepEqual(order,[
+    'install:root','install:fog','install:select','install:option',
+    'install:attack','install:supporter',
+    'restore:supporter','restore:attack','restore:option',
+    'restore:select','restore:fog','restore:root'
+  ]);
+  assert.equal(observed.audit.ownerSupporterOpportunityOptIn,true);
+  assert.equal(observed.audit.nativeDecisionCounts
+    .ownerSupporterOpportunitiesBySeat[0].firstTurnHeld,2);
+  assert.equal(observed.audit
+    .ownerSupporterOpportunityAudit.actualStoreSeen,true);
+  assert.equal(observed.audit.qualification.competitiveGames,0);
+});
