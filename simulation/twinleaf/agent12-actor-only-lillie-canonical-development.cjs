@@ -7,6 +7,8 @@ const {withActorOnlyLillieAfterPass,VERSION:ADDON_VERSION}=
   require('./agent12-actor-only-lillie-after-pass.cjs');
 const {runDevelopment}=
   require('../evaluation/agent41-bilateral-v2-development.cjs');
+const {withNativeLillieDrawSettlementAudit}=
+  require('./agent24-native-lillie-settlement-audit.cjs');
 
 /**
  * Same four historical rank6/rank11 frozen physical arms as Agent34's pure
@@ -16,13 +18,15 @@ const {runDevelopment}=
  */
 function main(){
   let addonAudit=null;
-  const wrapped=withActorOnlyRootPolicy(()=>{
-    const added=withActorOnlyLillieAfterPass(()=>runDevelopment({
-      paperSupporterQuota:true,mandatoryOptionFallback:true
+  const settle=withNativeLillieDrawSettlementAudit(()=>
+    withActorOnlyRootPolicy(()=>{
+      const added=withActorOnlyLillieAfterPass(()=>runDevelopment({
+        paperSupporterQuota:true,mandatoryOptionFallback:true
+      }));
+      addonAudit=added.audit;
+      return added.result;
     }));
-    addonAudit=added.audit;
-    return added.result;
-  });
+  const wrapped=settle.result;
   const dev=wrapped.result;
   const baseAudit=wrapped.audit;
   assert.equal(dev.rows.length,4,'Retain all historical source-dealt arms');
@@ -40,6 +44,7 @@ function main(){
       unsupportedPromptTypes:baseAudit.unsupportedPromptTypes
     },
     addon:addonAudit,
+    nativeLillieDrawSettlement:settle.audit,
     nativeTreatmentOpportunity:addonAudit.attemptedLillieRoots>0?
       'at-least-one-eligible-owned-lillie':
       'no-eligible-held-lillie-on-four-historical-arms',
@@ -75,6 +80,10 @@ function main(){
     'Every proposed native Lillie must produce a Store result');
   assert.equal(addonAudit.rejectedLillieRoots,0,
     'Invalid scripted Lillie proposals must fail closed');
+  assert.equal(settle.audit.supportRoots,addonAudit.acceptedLillieRoots,
+    'Accepted Lillie must appear on a physical native Store root');
+  assert.equal(settle.audit.printedDrawConfirmed,settle.audit.supportRoots,
+    'Every native Lillie must settle its full printed shuffle-draw prompts');
   assert.equal(report.competitiveQualifiedGames,0);
   return report;
 }
