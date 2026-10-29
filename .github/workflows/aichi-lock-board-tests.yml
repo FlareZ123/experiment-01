@@ -156,6 +156,20 @@ jobs:
           name: agent48-carmine-actor-source-census
           path: agent48-carmine-actor-census.json
           if-no-files-found: warn
+      - name: Audit original owner-hand Carmine discard affordability after baseline root actions
+        if: inputs.agent48_carmine_policy_census
+        run: node simulation/twinleaf/agent48-carmine-firstturn-amr-ledger.cjs > agent48-carmine-amr.json
+      - name: Surface first-turn actor-held Carmine residual resource blockers
+        if: inputs.agent48_carmine_policy_census
+        run: >-
+          node -e "const r=require('./agent48-carmine-amr.json');console.log(JSON.stringify({schema:r.schema,runs:r.originalRuns,heldAtActorRoot:r.originalFirstTurnHeldAtObservedActorRoot,chosen:r.actualChosenCarmineRoots,otherHandDistribution:r.residualOtherHandSizeDistribution,commonResidual:r.residualCardFrequencyAtMinimum.slice(0,10),errors:r.errors,qualified:r.qualifiedCompetitiveGames}));"
+      - name: Archive every source owner-hand Carmine discard affordability observation
+        if: inputs.agent48_carmine_policy_census && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent48-carmine-original-source-amr-ledger
+          path: agent48-carmine-amr.json
+          if-no-files-found: warn
       - name: Probe original source first-player Carmine with native settled effect
         if: inputs.agent48_carmine_first_native
         run: node simulation/twinleaf/agent48-firstturn-carmine-native-probe.cjs > agent48-carmine-first-native.json
