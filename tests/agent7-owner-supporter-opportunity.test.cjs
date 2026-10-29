@@ -55,6 +55,9 @@ test('opening player first turn recognizes all printed exception Supporters',()=
   ]);
   assert.equal(result.structurallyOpenCount,3);
   assert.equal(result.nativeNullTargetPositiveCount,0);
+  assert.deepEqual(result.ownerHandPrintings,state.players[0].hand.cards.map(x=>x.fullName));
+  assert.equal(result.informationScope,'acting-owner-private-postgame-audit-only');
+  assert.notStrictEqual(result.ownerHandPrintings,state.players[0].hand.cards);
   state.turn=3;
   state.players[0].supporterTurn=1;
   assert.equal(ownerSupporterOpportunity(state,0,observation(state),SUPPORTER)
