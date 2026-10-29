@@ -8,7 +8,9 @@ const {
 
 const view={decisionKind:'owner-root',globalTurn:4,
   ownHand:['Guzma BUS','Speed Lightning Energy RCL'],
-  ownPublic:{active:null,bench:[]},opponentPublic:{bench:[]}};
+  ownTurnResources:{energyPlayLocked:false,specialEnergyPlayLocked:false,
+    energyPlayedTurn:0},
+  ownPublic:{active:{},bench:[]},opponentPublic:{bench:[]}};
 const offering=(flag,order,name,returned)=>({
   flag,order,name,load:()=>()=>returned
 });
@@ -47,6 +49,21 @@ test('one normal attachment consumes the Energy-per-turn opportunity',()=>{
     })
   ]);
   assert.equal(r.alternatives[0].reason,'same-turn-energy-attachment');
+});
+
+test('energy already attached this turn cannot be misreported as displaced',()=>{
+  const v={...view,ownTurnResources:{
+    ...view.ownTurnResources,energyPlayedTurn:4
+  }};
+  const r=collectOwnerContention(v,{},{
+    specialEnergyRoot:true
+  },{kind:'attack'},[
+    offering('specialEnergyRoot',16,'special',{
+      kind:'attach-special-energy',printing:'Speed Lightning Energy RCL',
+      handIndex:1,slot:'active',index:0
+    })
+  ]);
+  assert.deepEqual(r.alternatives,[]);
 });
 
 test('a chosen Supporter disputes a later Supporter quota',()=>{
