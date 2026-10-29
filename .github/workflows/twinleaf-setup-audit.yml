@@ -2,6 +2,11 @@ name: Twinleaf Aichi mulligan calibration
 
 on:
   workflow_dispatch:
+    inputs:
+      agent6_go_first:
+        description: 'Optional native starting-player choice polarity control'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -52,9 +57,10 @@ jobs:
       - name: Test explicit first-player opening choice policy
         run: node --test tests/agent6-go-first-choice.test.cjs
       - name: Positive-control actual first-player choice in pinned Store
+        if: inputs.agent6_go_first
         run: node simulation/evaluation/agent6-go-first-native-setup.cjs > agent6-go-first-native.json
       - name: Archive source-side first-player choice control
-        if: always()
+        if: always() && inputs.agent6_go_first
         uses: actions/upload-artifact@v4
         with:
           name: agent6-go-first-native-setup
