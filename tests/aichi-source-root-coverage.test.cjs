@@ -39,6 +39,19 @@ test('first-turn search card omission affects multiple exact sources',()=>{
   assert.equal(result.featureCopyTotals['Quick Ball'],72);
   assert.equal(result.twoSourceGates.vipAndQuickBall.length,13);
 });
+test('every exact printed opponent 60 exposes at least one high-use Trainer family outside default actor roots',()=>{
+  const names=['Guzma','VS Seeker','Battle VIP Pass',
+    'Battle Compressor',"Lillie's Determination"];
+  const expected={Guzma:[25,48],'VS Seeker':[23,59],
+    'Battle VIP Pass':[15,42],'Battle Compressor':[17,33],
+    "Lillie's Determination":[16,19]};
+  for(const name of names){
+    assert.equal(result.featurePresent[name].length,expected[name][0]);
+    assert.equal(result.featureCopyTotals[name],expected[name][1]);
+  }
+  assert.equal(result.decks.filter(d=>
+    names.some(name=>d.featureCopies[name]>0)).length,29);
+});
 test('pinned rank6/rank11 source opportunity counts are unchanged',()=>{
   const six=result.decks.find(d=>d.rank===6);
   const eleven=result.decks.find(d=>d.rank===11);
