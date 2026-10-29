@@ -119,7 +119,7 @@ function census(result,plan){
 /** @returns {object} */
 function runScout(){
   const bytes=fs.readFileSync(path.join(root,registrationPath));
-  const blob=createHash('sha1').update('blob '+bytes.length+'\\0')
+  const blob=createHash('sha1').update('blob '+bytes.length+'\0')
     .update(bytes).digest('hex');
   assert.equal(blob,REGISTRATION_BLOB,'Preregistered plan was modified');
   const plan=JSON.parse(bytes.toString('utf8'));
@@ -135,6 +135,6 @@ function runScout(){
 }
 
 if(require.main===module)
-  process.stdout.write(JSON.stringify(runScout(),null,2)+'\\n');
+  process.stdout.write(JSON.stringify(runScout(),null,2)+'\n');
 
 module.exports={SCHEMA,REGISTRATION_BLOB,plannedTrials,census,runScout};
