@@ -172,7 +172,7 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
        !state.prompts?.some(p=>p.result===undefined)){
       const seat=state.activePlayer;
       const owner=state.players?.[seat];
-      if(owner?.id===action.playerId &&
+      if(owner?.id===action.id &&
          isGuzma(owner.hand.cards[action.handIndex]?.fullName??'')){
         const view=observe(state,seat);
         assert.equal(view.decisionKind,'owner-root');
