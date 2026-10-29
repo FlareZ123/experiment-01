@@ -64,6 +64,13 @@ function runRanks(ranks,registration,schema){
         assert.equal(sourceOpponentRoot.nativeStoreFirstActionAttachedToolTarget
           ?.printing,expected,
           'Native first-root Tool must physically attach to original source owner');
+        const nativeTarget=sourceOpponentRoot.nativeStoreFirstActionAttachedToolTarget;
+        assert.ok(sourceOpponentRoot.ownerToolCandidates.some(candidate=>
+          candidate.printing===expected&&
+          candidate.handIndex===sourceOpponentRoot.nativeBotProposedHandIndex&&
+          candidate.slot===nativeTarget.slot&&
+          candidate.index===nativeTarget.index),
+          'Owner-only Tool candidates must include actual Store-positive source target');
       }
       Object.assign(entry,{
         status:'native-source-K0-both-owner-roots-passed',
@@ -79,6 +86,7 @@ function runRanks(ranks,registration,schema){
             row.nativeStoreFirstActionCardLeftHand,
           nativeStoreFirstActionAttachedToolTarget:
             row.nativeStoreFirstActionAttachedToolTarget,
+          ownerToolCandidates:row.ownerToolCandidates,
           nativeStoreFirstActionPublicBefore:
             row.nativeStoreFirstActionPublicBefore,
           nativeStoreFirstActionPublicAfter:
@@ -109,7 +117,7 @@ function runRanks(ranks,registration,schema){
 function run(){
   return runRanks(SOURCE_RANKS,
     'agents/agent18/20261029-aichi-k0-stratified-native-protocol.md',
-    'agent18-aichi-original-source-K0-six-rank-survey-v4');
+    'agent18-aichi-original-source-K0-six-rank-survey-v5');
 }
 if(require.main===module){
   const audit=run();
