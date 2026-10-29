@@ -19,13 +19,15 @@ const BLOCKED_CARMINE_COMPANIONS=new Set([
  * @param {object} state Actual native Store state.
  * @param {object} source Acting source-side native Player.
  * @param {0|1} sourceSeat Known source physical seat.
+ * @param {number|null} [playerTurnPhase] Pure testing seam for game phase.
  * @returns {{handIndex:number,card:string,reason:string}|null}
  */
-function choosePassSupporter(state,source,sourceSeat){
+function choosePassSupporter(state,source,sourceSeat,playerTurnPhase=null){
   assert.ok(sourceSeat===0||sourceSeat===1);
-  const {GamePhase}=require(path.join(output,'game/store/state/state'));
+  const phase=playerTurnPhase??require(path.join(output,
+    'game/store/state/state')).GamePhase.PLAYER_TURN;
   if(state.activePlayer!==sourceSeat||
-      state.phase!==GamePhase.PLAYER_TURN||
+      state.phase!==phase||
       state.prompts.some(p=>p.result===undefined)||
       source.supporterTurn!==0||
       source.cannotPlaySupporterCards||
