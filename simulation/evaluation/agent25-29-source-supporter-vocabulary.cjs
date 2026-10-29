@@ -30,7 +30,8 @@ const FAMILIES=Object.freeze({
   'Team Skull Grunt':'opponent-hand-energy-denial',
   'Roxanne':'late-prize-hand-disruption',
   'Wally':'evolution-search',
-  'Gladion':'face-down-prize-recovery'
+  'Gladion':'face-down-prize-recovery',
+  'Roxie':'nongx-nonex-pokemon-discard-to-draw'
 });
 
 /**
