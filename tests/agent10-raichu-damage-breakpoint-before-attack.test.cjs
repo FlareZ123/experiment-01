@@ -1,7 +1,8 @@
 'use strict';
 const assert=require('node:assert/strict');
 const test=require('node:test');
-const {chooseRaichuPrintedKnockoutAttachment,lightningUnitCount}=
+const {chooseRaichuPrintedKnockoutAttachment,lightningUnitCount,
+ maximumRawKnockouts}=
  require('../simulation/twinleaf/agent10-raichu-damage-breakpoint-before-attack.cjs');
 const {chooseActorRootIntent}=
  require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
@@ -106,4 +107,27 @@ test('Energy unit counting fails closed for unknown attached printing',()=>{
   catalog.specialEnergies),0);
  assert.equal(lightningUnitCount(['Alien Energy TEST'],context,false,
   catalog.specialEnergies),null);
+});
+
+test('second printed KO reachable only after more packets',()=>{
+ assert.equal(maximumRawKnockouts([100,100],6),1);
+ assert.equal(maximumRawKnockouts([100,100],8),2);
+ const x=fixture();
+ x.ownPublic.active.energies=['Reversal Energy PAL','Reversal Energy PAL'];
+ x.ownHand=['Counter Energy CIN'];
+ x.opponentPublic.active={name:'A',printing:'A TEST',hp:100,damage:0};
+ x.opponentPublic.bench[0]={name:'B',printing:'B TEST',hp:100,damage:0};
+ assert.deepEqual(chooseRaichuPrintedKnockoutAttachment(x,catalog),{
+  kind:'attach-special-energy',handIndex:0,
+  printing:'Counter Energy CIN',slot:'active',index:0});
+ x.opponentPublic.bench[0]=null;
+ assert.equal(chooseRaichuPrintedKnockoutAttachment(x,catalog),null);
+});
+test('nonnegative printed packet bounds',()=>{
+ assert.equal(maximumRawKnockouts([31,61,91],6),2);
+ assert.equal(maximumRawKnockouts([0,-10,90],3),1);
+ assert.equal(maximumRawKnockouts([100,100,100],8),2);
+ assert.equal(maximumRawKnockouts([100,100,100],12),3);
+ assert.equal(maximumRawKnockouts([],4),0);
+ assert.throws(()=>maximumRawKnockouts([50],-1));
 });
