@@ -7,6 +7,7 @@ const ANY=TYPES;
 const UNIT_SETS=Object.freeze({
   'Unit Energy GrassFireWater':['G','R','W'],
   'Unit Energy LightningPsychicMetal':['L','P','M'],
+  'Unit Energy LPM':['L','P','M'],
   'Unit Energy FightingDarknessFairy':['F','D','Y']
 });
 /** @param {string} printing @param {string} name @returns {boolean} */
