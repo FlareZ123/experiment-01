@@ -51,7 +51,7 @@ jobs:
       - name: Regress rank19 direct ADP Altered Creation resources
         run: node --test tests/rank19-adp-direct-gx-opening.test.cjs
       - name: Regress original native generic fallback prompt stage and owner accounting
-        run: node --test tests/agent50-generic-prompt-fallback-census.test.cjs
+        run: node --test tests/agent50-empty-discard-getlost-causal-census.test.cjs tests/agent50-generic-prompt-fallback-census.test.cjs
       - name: Audit deck-name incidence without merging printing mechanics
         run: node --test tests/aichi-source-incidence.test.cjs
       - name: Audit printed source 60 mobility inventory and recovery channels
