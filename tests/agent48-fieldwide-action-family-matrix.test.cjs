@@ -55,6 +55,7 @@ test('all published special-only source ranks retain distinct Energy group',()=>
   const specialOnly=snapshot.decks.filter(row=>
     row.families.basic===0&&row.families.special>0).map(row=>row.rank);
   assert.deepEqual(specialOnly,[4,5,6,7,17,24,29]);
+  assert.equal(family('vip').route,'separate-shared-adapter');
   assert.equal(family('basic').route,'baseline');
   assert.equal(family('special').route,'opt-in-partial');
   assert.equal(family('seeker').route,'opt-in-narrow');
