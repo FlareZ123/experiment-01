@@ -36,14 +36,22 @@ function observation(state,seat=0){
   };
 }
 
-test('opening player first turn screens ordinary Supporters, preserving Carmine',()=>{
+test('opening player first turn recognizes all printed exception Supporters',()=>{
   const state=makeState([
     held("Lillie's Determination","Lillie's Determination MEG"),
-    held('Carmine','Carmine TWM'),energy
+    held('Carmine','Carmine TWM'),
+    held('Beauty','Beauty VIV'),
+    held("Team Rocket's Proton","Team Rocket's Proton DRI"),
+    energy
   ],1);
   const result=ownerSupporterOpportunity(state,0,observation(state),SUPPORTER);
-  assert.deepEqual(result.held.map(c=>c.structurallyOpen),[false,true]);
-  assert.equal(result.structurallyOpenCount,1);
+  assert.deepEqual(result.held.map(c=>c.structurallyOpen),
+    [false,true,true,true]);
+  assert.deepEqual(result.held.map(c=>c.firstTurnScreen),[
+    'ordinary-supporter-restricted','printed-go-first-exception',
+    'printed-go-first-exception','printed-go-first-exception'
+  ]);
+  assert.equal(result.structurallyOpenCount,3);
   assert.equal(result.nativeNullTargetPositiveCount,0);
   state.turn=3;
   state.players[0].supporterTurn=1;
