@@ -7,7 +7,7 @@ function run(){
  const p=planAichi(1,{allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true});
  const o=p.opponents.find(x=>x.rank===6);
  const request={deckA:o.cards,deckB:p.candidate.cards,
-  seed:24941728,maxActions:48,strictPromptValidation:true,
+  seed:407516727,maxActions:48,strictPromptValidation:true,
   forestSealSearchCorrection:true,supporterDecisionCorrection:true,
   isolatePolicyRandomness:true,captureDecisionTrace:true};
  const control=runMatch(request);
