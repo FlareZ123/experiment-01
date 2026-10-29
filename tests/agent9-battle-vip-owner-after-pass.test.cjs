@@ -180,3 +180,61 @@ test('both physical seats produce genuine accepted search and physical Bench set
     assert.equal(MockStore.prototype.dispatch.name,'dispatch');
   }
 });
+
+
+test('held VIP opportunity beside actual accepted Attack is logged without changing that root',()=>{
+  class AttackAction {constructor(id,name){this.id=id;this.name=name;}}
+  class AttackingBot extends MockBot {
+    decodeNextAction(){return new AttackAction(this.client.id,'Natural Attack');}
+  }
+  class AcceptingStore {
+    constructor(state){this.state=state;}
+    dispatch(action){
+      if(action instanceof AttackAction){
+        assert.equal(action.name,'Natural Attack');
+        this.state.attackAccepted=true;
+      }
+      return this.state;
+    }
+  }
+  const own={
+    id:'attack-owner',hand:{cards:[vip]},
+    deck:{cards:[basic('Trubbish')]},
+    bench:Array.from({length:5},()=>({cards:[]})),
+    active:{cards:[basic('Active Basic')]}
+  };
+  const opponent={id:'opponent',hand:{cards:[]},
+    deck:{cards:[]},bench:[],active:{cards:[]}};
+  const state={phase:2,turn:2,activePlayer:0,
+    players:[own,opponent],prompts:[]};
+  const bot=new AttackingBot(own.id);
+  const response=withActorBattleVipAfterPass(()=>{
+    const store=new AcceptingStore(state);
+    store.dispatch(new AddPlayerAction());
+    const original=bot.decodeNextAction(state);
+    assert.ok(original instanceof AttackAction,
+      'Non-Pass action must remain completely unchanged');
+    store.dispatch(original);
+    return {attackAccepted:state.attackAccepted,remainingHand:own.hand.cards.length};
+  },{
+    SimpleTacticsAi:AttackingBot,Store:AcceptingStore,
+    cardActions:{PlayCardAction,PlayerType:{ANY:0},SlotType:{BOARD:0}},
+    ResolvePromptAction,types:{Stage:STAGE,SuperType:TYPES},
+    GamePhase:{PLAYER_TURN:2},
+    observe:(actual,seat)=>{
+      assert.equal(actual,state);
+      assert.equal(seat,0);
+      return view(0,actual.turn,own.hand.cards.map(card=>card.fullName));
+    }
+  });
+  assert.deepEqual(response.result,{attackAccepted:true,remainingHand:1});
+  assert.equal(response.audit.structurallyOpenNonPassRoots,1);
+  assert.equal(response.audit.originalAlternativesAccepted,1);
+  assert.equal(response.audit.originalAlternativesRejected,0);
+  assert.equal(response.audit.firstTurnRootContentions[0].otherAction,'AttackAction');
+  assert.equal(response.audit.firstTurnRootContentions[0].alternativeAccepted,true);
+  assert.equal(response.audit.firstTurnRootContentions[0].structuralOnlyVipCandidate,true);
+  assert.equal(response.audit.acceptedItems,0);
+  assert.equal(AttackingBot.prototype.decodeNextAction.name,'decodeNextAction');
+  assert.equal(AcceptingStore.prototype.dispatch.name,'dispatch');
+});
