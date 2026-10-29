@@ -35,7 +35,8 @@ function directBoostShakeOpportunity(state, player, seat, playerTurnPhase,
   avoidAllGarbodorHeld = false, allowLaterTurns = false) {
   if ((!allowLaterTurns && ![1,2].includes(state.turn)) ||
       state.activePlayer !== seat ||
-      state.phase !== playerTurnPhase) return null;
+      state.phase !== playerTurnPhase ||
+      player.cannotPlayItemCards) return null;
   const hand = player.hand.cards.map(card => card.name);
   if (!hand.includes('Boost Shake') ||
       (avoidAllGarbodorHeld &&
@@ -51,6 +52,9 @@ function directBoostShakeOpportunity(state, player, seat, playerTurnPhase,
     const equipped = slot.tools.find(card => TOOLS.includes(card.name));
     if (equipped) return {route:'bench-equipped',tool:equipped.name};
   }
+  // A standalone Tool-play lock prevents the unpaid new-Tool routes, while
+  // an already-attached Tool above may still enable a legal held Shake.
+  if (player.cannotPlayToolCards) return null;
   const tool = TOOLS.find(name => hand.includes(name));
   if (!tool) return null;
   if (untooledActiveTrubbish(player)) return {route:'active', tool};
