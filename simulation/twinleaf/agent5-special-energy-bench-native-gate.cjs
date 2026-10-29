@@ -35,6 +35,7 @@ function verifyNativeBenchSpecial(seat){
   const {Store}=native('game/store/store');
   const {Player}=native('game/store/state/player');
   const {CardList}=native('game/store/state/card-list');
+  const {PokemonCardList}=native('game/store/state/pokemon-card-list');
   const {GamePhase}=native('game/store/state/state');
   const {Format}=native('game/store/card/card-types');
   const {PlayCardAction,PlayerType,SlotType}=
@@ -42,11 +43,13 @@ function verifyNativeBenchSpecial(seat){
   const owner=new Player();
   owner.id=101;owner.name='staged Special Energy owner';
   owner.active.cards.push(card('Mewtwo & Mew-GX UNM'));
+  for(let j=0;j<5;j++)owner.bench.push(new PokemonCardList());
   owner.bench[1].cards.push(card(TARGET));
   owner.hand.cards.push(card(SPECIAL));
   const opponent=new Player();
   opponent.id=202;opponent.name='staged public opponent';
   opponent.active.cards.push(card('Pidgey MEW'));
+  for(let j=0;j<5;j++)opponent.bench.push(new PokemonCardList());
   for(const p of [owner,opponent]){
     p.deck.cards.push(card('Psychic Energy SVE'));
     for(let j=0;j<6;j++){
