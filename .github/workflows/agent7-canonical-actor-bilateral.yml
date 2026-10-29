@@ -3,6 +3,11 @@ name: Canonical bilateral actor-only decision composition
 on:
   workflow_dispatch:
     inputs:
+      owner_supporter_opportunity:
+        description: Read-only both-seat owner Supporter windows and observer-OFF paired control
+        required: false
+        type: boolean
+        default: false
       source_first_retrospective:
         description: Also execute previously selected native source-first four-arm stress panel
         required: false
@@ -142,7 +147,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure adapter-composition order and qualification tests
-        run: node --test tests/agent50-candidate-only-dead-getlost-native-pair.test.cjs tests/agent50-rank6-passive-32same-seed-replay.test.cjs tests/agent50-stranded-marnie-frontier.test.cjs tests/agent7-canonical-actor-composition.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent8-canonical-quickball-paircheck.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent7-known-dead-attack-root.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent30-telepathic-known-energy.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent41-actor-powerglass-root.test.cjs tests/agent41-owner-powerglass-attach-prompt.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent3-native-epoch-partition-error.test.cjs tests/agent3-native-reset-prestate.test.cjs tests/agent3-terminal-attack-ko-before-endturn-hook.test.cjs tests/source-deal-epoch-observer.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent49-discrete-attack-gate.test.cjs tests/agent49-rank6-k1-alternate.test.cjs tests/agent32-canonical-owner-donor-root.test.cjs tests/agent41-native-abort-classification.test.cjs tests/same-target-attach-energy-hook.test.cjs
+        run: node --test tests/agent50-candidate-only-dead-getlost-native-pair.test.cjs tests/agent50-rank6-passive-32same-seed-replay.test.cjs tests/agent50-stranded-marnie-frontier.test.cjs tests/agent7-canonical-actor-composition.test.cjs tests/agent7-owner-supporter-opportunity.test.cjs tests/agent7-native-generic-fallback-attribution.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent7-rank6-source-k1-search-observer.test.cjs tests/agent8-native-select-prompt-index.test.cjs tests/agent8-actor-only-select-prompt.test.cjs tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent8-actor-quick-ball-root.test.cjs tests/agent8-canonical-quickball-paircheck.test.cjs tests/agent9-fog-actor-prompt.test.cjs tests/agent13-actor-only-select-option.test.cjs tests/agent13-actor-only-choose-attack.test.cjs tests/agent41-actor-owner-single-search.test.cjs tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent1-actor-evolution-frontier.test.cjs tests/agent1-girafarig-dead-attack-frontier.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent7-known-dead-attack-root.test.cjs tests/agent1-native-evolution-opportunity-audit.test.cjs tests/agent44-actor-energy-recipient.test.cjs tests/agent30-telepathic-known-energy.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent41-actor-powerglass-root.test.cjs tests/agent41-owner-powerglass-attach-prompt.test.cjs tests/agent44-native-epoch-boundary-audit.test.cjs tests/agent3-native-epoch-partition-error.test.cjs tests/agent3-native-reset-prestate.test.cjs tests/agent3-terminal-attack-ko-before-endturn-hook.test.cjs tests/source-deal-epoch-observer.test.cjs tests/agent48-paper-cologne-scoped.test.cjs tests/agent48-cologne-native-ledger-audit.test.cjs tests/agent48-native-public-map-arity.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent49-discrete-attack-gate.test.cjs tests/agent49-rank6-k1-alternate.test.cjs tests/agent32-canonical-owner-donor-root.test.cjs tests/agent41-native-abort-classification.test.cjs tests/same-target-attach-energy-hook.test.cjs
       - name: Validate owner-visible donor funding and paid retreat planner
         run: node --test tests/agent35-perfection-transition-frontier.test.cjs
       - name: Regress owner-visible paid retreat and native physical receipt
@@ -208,6 +213,7 @@ jobs:
       - name: Execute unchanged canonical four-arm historical bilateral runner
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT7_OWNER_SUPPORTER_AUDIT_DEV: ${{ inputs.owner_supporter_opportunity && 'true' || 'false' }}
           AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
           AGENT32_COMPR_ANYTURN_DEV: ${{ inputs.owner_anyturn_compressor_pair && 'true' || 'false' }}
           AGENT32_COMPR_BENCHED_DEV: ${{ inputs.owner_early_bench_compressor_pair && 'true' || 'false' }}
@@ -230,6 +236,37 @@ jobs:
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-actor-fourarm.json
+      - name: Repeat frozen four-arm Store with owner Supporter observer disabled
+        if: ${{ inputs.owner_supporter_opportunity }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT7_OWNER_SUPPORTER_AUDIT_DEV: 'false'
+          AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
+          AGENT32_COMPR_ANYTURN_DEV: ${{ inputs.owner_anyturn_compressor_pair && 'true' || 'false' }}
+          AGENT32_COMPR_BENCHED_DEV: ${{ inputs.owner_early_bench_compressor_pair && 'true' || 'false' }}
+          AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
+          AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: ${{ inputs.native_generic_fallback && 'true' || 'false' }}
+          AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
+          AGENT30_PERFECTION_ROOT_DEV: ${{ inputs.actor_perfection_root && 'true' || 'false' }}
+          AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
+          AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-owner-supporter-control-fourarm.json
+      - name: Verify four-arm Supporter opportunity receipt and native no-op parity
+        if: ${{ inputs.owner_supporter_opportunity }}
+        run: |
+          node -e "const assert=require('node:assert/strict');const {gameplayProjection}=require('./scripts/agent7-native-fallback-paircheck.cjs');const control=require('./agent7-owner-supporter-control-fourarm.json');const observed=require('./agent7-canonical-actor-fourarm.json');assert.equal(control.attempted,4);assert.equal(observed.attempted,4);assert.deepStrictEqual(gameplayProjection(observed),gameplayProjection(control),'Passive Supporter observer changed gameplay');const stats={};for(const seat of [0,1])stats[seat]={firstOwnerTurns:0,held:0,structurallyOpen:0,proposed:0,accepted:0,passesOpen:0};for(let i=0;i<4;i++){const a=observed.rows[i].actorOnlyDecisionCoverage?.ownerSupporterOpportunityAudit;assert.ok(a,'Missing live owner Supporter audit');assert.equal(a.actualStoreSeen,true);assert.equal(a.competitiveQualified,false);assert.equal(control.rows[i].actorOnlyDecisionCoverage?.ownerSupporterOpportunityAudit,null);for(const seat of [0,1]){const x=a.bySeat[seat];stats[seat].firstOwnerTurns+=x.firstTurnRoots;stats[seat].held+=x.firstTurnHeld;stats[seat].structurallyOpen+=x.firstTurnStructurallyOpen;stats[seat].proposed+=x.proposedSupporters;stats[seat].accepted+=x.acceptedSupporters;stats[seat].passesOpen+=x.passWithStructurallyOpen;}}console.log('OWNER_SUPPORTER_NONINTERFERENCE',JSON.stringify({sameGameProjections:true,observedArms:4,bySeat:stats,qualifiedGames:0}))"
       - name: Same-deal donor recovery control under identical real-game policies
         if: ${{ inputs.owner_anyturn_compressor_pair || inputs.owner_early_bench_compressor_pair }}
         env:
@@ -452,6 +489,7 @@ jobs:
           name: agent7-canonical-actor-fourarm-development
           path: |
             agent7-canonical-actor-fourarm.json
+            agent7-owner-supporter-control-fourarm.json
             agent32-anyturn-compressor-control.json
             agent8-quick-ball-off.json
             agent8-quick-ball-paircheck.json
