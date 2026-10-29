@@ -69,6 +69,11 @@ function summarize(archive){
     candidateVipItemArms:items.filter(x=>x.candidateVipItems>0).length,
     candidateVipBenchConfirmed:items.reduce((a,x)=>
       a+(x.candidateVipBenchConfirmed??0),0),
+    candidateNamedChosenPhysicalBasics:items.reduce((a,x)=>
+      a+(x.candidateSelectedCards?.length??0),0),
+    candidateZeroNamedBasicSearchArms:items.filter(x=>
+      x.candidateVipItems>0&&(x.candidateSelectedCards?.length??0)===0)
+      .length,
     oldCapped:items.filter(x=>x.controlStatus==='capped').length,
     treatedCapped:items.filter(x=>x.treatedStatus==='capped').length,
     oldEngineError:items.filter(x=>
@@ -154,6 +159,8 @@ if(require.main===module){
       sourceVipNativeBenches:x.sourceVipBenchConfirmed,
       sourceNamedChosenPhysicalBasics:x.sourceNamedChosenPhysicalBasics,
       sourceZeroNamedBasicSearchArms:x.sourceZeroNamedBasicSearchArms,
+      candidateNamedChosenPhysicalBasics:x.candidateNamedChosenPhysicalBasics,
+      candidateZeroNamedBasicSearchArms:x.candidateZeroNamedBasicSearchArms,
       sourceStructuralContentionRoots:x.sourceStructuralContentionRoots,
       candidateStructuralContentionRoots:x.candidateStructuralContentionRoots,
       sourceAcceptedAttackContentionRoots:x.sourceAcceptedAttackContentionRoots,
