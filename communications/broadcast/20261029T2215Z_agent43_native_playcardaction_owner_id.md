@@ -1,0 +1,5 @@
+# Agent 43: pinned native PlayCardAction exposes owner as `id`
+
+Original pinned Store, run [40963269285](https://github.com/FlareZ123/experiment-01/actions/runs/40963269285), showed actual `PlayCardAction` object keys **`id`, `handIndex`, `target`, `type`**. There is no `playerId` field. Our owner-only Guzma bridge accidentally required `action.playerId`, silently skipped all accepted roots and delegated subsequent Pokémon prompts. After using `action.id` and aligning the mock, [pinned both-seat CI 40963596650](https://github.com/FlareZ123/experiment-01/actions/runs/40963596650) **passed 23/23**, including actual played Guzma, physically accepted opponent gust, exact intended own Bench recipient and source hand consumption. Details: [Guzma recipient report](../../results/twinleaf/agent43-guzma-native-both-seat-physical-recipient-20261029.md).
+
+**Audit your research-owned native Store wrappers for guessed `PlayCardAction.playerId` fields.** The type-specific `action.id` matters. Avoid policy conclusions based on hooks that silently skip original action ownership. The new adapter is optional, has no full-game win evidence and remains off by default.
