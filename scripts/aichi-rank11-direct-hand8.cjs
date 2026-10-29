@@ -24,6 +24,34 @@ function choose(n, k) {
 }
 
 /**
+ * Marginal first-eight appearance of a non-Basic card, conditioned on at
+ * least one Basic in the initial seven. This ignores all added draw/search.
+ * @param {number} copies
+ * @param {number} basicCount
+ * @param {number} independentDeals
+ * @returns {object}
+ */
+function namedFirstEight(copies, basicCount, independentDeals) {
+  assert.ok(Number.isSafeInteger(copies) && copies >= 0 &&
+    Number.isSafeInteger(basicCount) && basicCount >= 1 &&
+    Number.isSafeInteger(independentDeals) && independentDeals >= 1);
+  assert.ok(copies + basicCount <= 60);
+  const validSevenWays = choose(60, 7) - choose(60 - basicCount, 7);
+  const avoidNamedSeven = choose(60 - copies, 7) -
+    choose(60 - copies - basicCount, 7);
+  const noNamedNumerator = avoidNamedSeven * BigInt(53 - copies);
+  const denominator = validSevenWays * 53n;
+  const noNamed = Number(noNamedNumerator) / Number(denominator);
+  return {
+    copies, basicCount,
+    noNamedConditionalValidSeven: noNamed,
+    namedConditionalValidSeven: 1 - noNamed,
+    noNamedAcrossIndependentDeals: noNamed ** independentDeals,
+    independentDeals
+  };
+}
+
+/**
  * Assert exact source inventory and partition into disjoint card classes.
  * @param {object} document The pinned exact-printed Aichi source corpus.
  * @returns {number[]}
@@ -35,6 +63,7 @@ function rank11Counts(document) {
   const total = deck.cards.reduce((s, card) => s + card.count, 0);
   assert.equal(total, 60);
   assert.equal(byName.get('Boost Shake'), 2);
+  assert.equal(byName.get('Carmine'), 3);
   assert.equal(byName.get('Battle VIP Pass'), 4);
   assert.equal(byName.get('Quick Ball'), 4);
   assert.equal(byName.get('Trubbish'), 2);
@@ -157,7 +186,9 @@ function enumerate(counts) {
 if (require.main === module) {
   const corpus = require(path.resolve(__dirname,
     '../results/aichi-2026/full-decklists.json'));
-  process.stdout.write(JSON.stringify(enumerate(rank11Counts(corpus)), null, 2) + '\n');
+  const result = enumerate(rank11Counts(corpus));
+  result.carmineFirstEight = namedFirstEight(3, 11, 6);
+  process.stdout.write(JSON.stringify(result, null, 2) + '\n');
 }
 
-module.exports = {SOURCE_RANK, BASICS, KEY, choose, rank11Counts, enumerate};
+module.exports = {SOURCE_RANK, BASICS, KEY, choose, namedFirstEight, rank11Counts, enumerate};
