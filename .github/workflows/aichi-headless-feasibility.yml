@@ -96,6 +96,18 @@ jobs:
       - name: Compile upstream engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Validate actor-only native Supporter opportunity observer (pure)
+        run: node --test tests/agent2-native-owner-supporter-opportunity.test.cjs
+      - name: Verify canonical original-Store Supporter observation is noninterfering
+        run: node simulation/twinleaf/agent2-native-owner-supporter-noninterference-smoke.cjs > agent2-owner-supporter-historical-native.json
+      - name: Archive bounded real-Store owner Supporter affordances and negative evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent2-owner-supporter-historical-native
+          path: agent2-owner-supporter-historical-native.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify read-only source-root Horror House declaration filter
         run: node --test tests/horror-house-root-audit.test.cjs tests/rank9-horror-house-nextturn-source-reply.test.cjs
       - name: Check Aichi exact card-resolution blockers
