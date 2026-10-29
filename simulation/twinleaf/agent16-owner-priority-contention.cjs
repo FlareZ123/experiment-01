@@ -24,8 +24,11 @@ const PROBES=Object.freeze([
     load:()=>require('./agent25-lowhand-lillie-frontier.cjs')
       .chooseLowHandLillieBeforeAttack},
   {flag:'conservativeShuffleBeforeAttack',order:9,name:'shuffle-supporter',
-    load:()=>require('./agent2-conservative-shuffle-supporter.cjs')
-      .chooseConservativeShuffleSupporter},
+    load:()=>view=>{
+      const choice=require('./agent2-conservative-shuffle-supporter.cjs')
+        .chooseConservativeShuffleSupporter(view);
+      return choice?{...choice,kind:'play-conservative-shuffle-supporter'}:null;
+    }},
   {flag:'seekerLillieRoot',order:10,name:'vs-seeker-lillie',
     load:()=>require('./agent48-owner-vs-seeker-lillie.cjs')
       .chooseSeekerLillieRoot},
@@ -86,6 +89,13 @@ function collectOwnerContention(view,catalog,options,selected,probes=PROBES){
   const alternatives=[];
   for(const p of probes){
     if(options[p.flag]!==true||p.order<=selectedPriority)continue;
+    if((p.flag==='specialEnergyRoot'||
+        p.flag==='publicContextSpecialEnergy')&&(
+      !view.ownPublic?.active||
+      view.ownTurnResources?.energyPlayLocked!==false||
+      view.ownTurnResources?.specialEnergyPlayLocked===true||
+      view.ownTurnResources?.energyPlayedTurn===view.globalTurn
+    ))continue;
     const proposed=p.load()(view,catalog);
     if(!proposed)continue;
     // Some selectors share one intent kind. Do not double-count a physical
