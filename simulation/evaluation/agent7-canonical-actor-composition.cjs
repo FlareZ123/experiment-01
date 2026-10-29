@@ -27,7 +27,8 @@ const POKEMON_PROMPT_VERSION = 'agent8-canonical-actor-choose-pokemon-v7';
  * @param {{root?:Function,fog?:Function,select?:Function,option?:Function,attack?:Function,ownerSearch?:Function,pokemon?:Function}} [adapters]
  *   Test injection only. Real components have their own pinned-Store tests.
  * @param {{ownerSingleSearch?:boolean,genericFallbackAttribution?:boolean,
- *   actorChoosePokemon?:boolean,ownerDonorSetup?:{seat:0|1,setup?:object}}} [options]
+ *   actorChoosePokemon?:boolean,ownerVipAfterPass?:boolean,
+ *   ownerDonorSetup?:{seat:0|1,setup?:object}}} [options]
  * Default preserves v2.
  * @returns {{result:T,audit:object}}
  */
@@ -84,12 +85,24 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   let ownerDonorAudit = null;
   let ownerSupporterOpportunityAudit = null;
   let ownerShuffleSupporterAudit = null;
+  let ownerVipAfterPassAudit = null;
+  const vipAfterPassOptIn=options.ownerVipAfterPass===true||
+    process.env.AGENT9_BATTLE_VIP_AFTER_PASS_DEV==='true';
+  const runWithVipAfterPass=()=>{
+    if(!vipAfterPassOptIn)return execute();
+    const adapter=adapters.vipAfterPass??
+      require('../twinleaf/agent9-battle-vip-owner-after-pass.cjs')
+        .withActorBattleVipAfterPass;
+    const observed=adapter(execute);
+    ownerVipAfterPassAudit=observed.audit;
+    return observed.result;
+  };
   const shuffleSupporterOptIn=options.ownerShuffleSupporterRoot===true||
     process.env.AGENT2_SHUFFLE_SUPPORTER_DEV==='true';
   const runWithShuffleSupporter=()=>{
-    if(!shuffleSupporterOptIn)return execute();
+    if(!shuffleSupporterOptIn)return runWithVipAfterPass();
     const selected=require('../twinleaf/agent2-actor-only-shuffle-supporter-after-pass.cjs')
-      .withActorOnlyShuffleSupporterAfterPass(execute);
+      .withActorOnlyShuffleSupporterAfterPass(runWithVipAfterPass);
     ownerShuffleSupporterAudit=selected.audit;
     return selected.result;
   };
@@ -149,6 +162,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     'Enabled owner Supporter audit must have observed the live executor');
   if(shuffleSupporterOptIn)assert.ok(ownerShuffleSupporterAudit,
     'Enabled actor-only shuffle Supporter must expose native audit');
+  if(vipAfterPassOptIn)assert.ok(ownerVipAfterPassAudit,
+    'Enabled actor-only Battle VIP Pass must expose native audit');
   const searchOrFog = rooted.result;
   const fogged = ownerSingleSearch?searchOrFog.result:searchOrFog;
   const ownerSearchAudit = ownerSingleSearch?searchOrFog.audit:null;
@@ -175,11 +190,13 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       genericFallbackAttribution?GENERIC_FALLBACK_VERSION:
       sparseOwnerSearch?SPARSE_OWNER_SEARCH_VERSION:
       ownerSingleSearch?OWNER_SEARCH_VERSION:VERSION)+
-      (actorChoosePokemon?'+'+POKEMON_PROMPT_VERSION:''),
+      (actorChoosePokemon?'+'+POKEMON_PROMPT_VERSION:'')+
+      (vipAfterPassOptIn?'+'+require('../twinleaf/agent9-battle-vip-owner-after-pass.cjs').VERSION:''),
     sparseOwnerSearchOptIn:sparseOwnerSearch,
     actorHandDiscardOptIn:Boolean(handDiscard),
     ownerSupporterOpportunityOptIn:supporterOpportunityOptIn,
     ownerShuffleSupporterRootOptIn:shuffleSupporterOptIn,
+    ownerVipAfterPassOptIn:vipAfterPassOptIn,
     actorChoosePokemonOptIn:actorChoosePokemon,
     genericFallbackAttributionOptIn:genericFallbackAttribution,
     selectedHandlerPriority: [
@@ -192,6 +209,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ],
     componentVersions: {
       root: rootAudit.version ?? null,
+      ...(vipAfterPassOptIn?{vipAfterPass:ownerVipAfterPassAudit.version??null}:{}),
       ...(genericFallbackAttribution?{
         genericFallback:genericFallbackAudit.version??null}:{}),
       fog: fogAudit.version ?? null,
@@ -234,6 +252,12 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       lastChanceGenericPromptFallbacks: finalGenericPromptFallbacks,
       ...(supporterOpportunityOptIn?{
         ownerSupporterOpportunitiesBySeat:ownerSupporterOpportunityAudit.bySeat
+      }:{}),
+      ...(vipAfterPassOptIn?{
+        vipItemAccepted:ownerVipAfterPassAudit.acceptedItems,
+        vipSearchAccepted:ownerVipAfterPassAudit.acceptedSearches,
+        vipBenchConfirmed:ownerVipAfterPassAudit.nativeBenchConfirmed,
+        vipBySeat:ownerVipAfterPassAudit.bySeat
       }:{}),
       ...(shuffleSupporterOptIn?{
         shuffleSupporterAcceptedRoots:ownerShuffleSupporterAudit.acceptedRoots,
@@ -278,6 +302,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       }:{}),
       ...(shuffleSupporterOptIn?{
         ownerShuffleSupporter:ownerShuffleSupporterAudit
+      }:{}),
+      ...(vipAfterPassOptIn?{
+        ownerVipAfterPass:ownerVipAfterPassAudit
       }:{}),
       ...(genericFallbackAttribution?{genericFallback:genericFallbackAudit}:{}),
       fog: fogAudit,
