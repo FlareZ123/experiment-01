@@ -1,0 +1,85 @@
+{
+  "schema": "agent41-prospective-common-actor-scout-v1",
+  "registeredUtc": "2026-10-29T17:03:31Z",
+  "purpose": "Fresh failure-inclusive feasibility scout of the unchanged champion-reference and new-moon-lockbreaker-v1 against exact rank6 and rank11 original 60s, both physical candidate seats, four independent seed draws per rank/seat. Development only; no competitive wins certified.",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRosterBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "newMoon60BlobSha": "0edaa9ee651ae9724bb0ea9b46b6431adb12760b",
+  "ranks": [
+    6,
+    11
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "candidateSlots": [
+    "A",
+    "B"
+  ],
+  "repeats": 4,
+  "maxRootActions": 260,
+  "seedMethod": "16 independent uniform integers from local Python secrets.randbelow(2**32) drawn before any pilot Store execution; shared same seed within candidate pair, but candidate-specific deck shuffles make entire physical deals non-identical.",
+  "seeds": {
+    "6": {
+      "A": [
+        1460221882,
+        2906058002,
+        1492669092,
+        1023786573
+      ],
+      "B": [
+        651983417,
+        1954526372,
+        3622671892,
+        861838028
+      ]
+    },
+    "11": {
+      "A": [
+        3149897025,
+        24941728,
+        340754762,
+        2307728896
+      ],
+      "B": [
+        2246176619,
+        3403930699,
+        2147808079,
+        1254634394
+      ]
+    }
+  },
+  "frozenRunOptions": {
+    "actorOnlyComposition": true,
+    "actorOnlySingleSearch": true,
+    "actorGenericFallbackAttribution": true,
+    "actorHandDiscard": true,
+    "actorChoosePokemon": true,
+    "actorChargedPromotion": true,
+    "mandatoryOptionFallback": true,
+    "paperSupporterQuota": true,
+    "paperCologneQuota": false,
+    "paperFullBenchCallForFamily": true,
+    "paperSameTargetAttachEnergy": true,
+    "nativeAcceptedTargets": true,
+    "paperTerminalAttackKo": false,
+    "sourceFirstRetrospective": false,
+    "nativePressureWindows": false
+  },
+  "frozenInput": "Existing agent41-bilateral-v2-development executeDevelopment and existing v1 rank6/rank11 source lines with registration.frozenFlags, original pinned Twinleaf and exact printed source/candidate decks. Native actor opt-ins are experimental and not a human-quality policy.",
+  "attempts": 32,
+  "pairs": 16,
+  "expectedFrame": "2 ranks x 2 physical candidate seats x 4 independent seeds x 2 candidate printed-60s",
+  "outcomes": "Keep all 32 successes, Store exceptions, prompt failures, caps, KO, invalid choices; inspect actual starter and both-player first physical deal. Neither engine winner nor exact seat balance is prespecified or guaranteed.",
+  "qualification": "Zero games eligible for 99.5% or tournament-clock claims; use pilot only to diagnose frozen policy and rank/start coverage before any larger study. Incomplete source-opening pressure and missing original 60s are vetoes.",
+  "knownFailuresToTrack": [
+    "NO_BENCH_SLOTS_AVAILABLE",
+    "LABEL_GX_USED",
+    "AttachEnergyPrompt sameTarget:true",
+    "native prompt fallback",
+    "no attack",
+    "260-root censored"
+  ],
+  "acceptance": "Do not replace seeds, selectively exclude failures, or retune flags after seeing a result. If a repair is needed, publish a new cohort with new independently drawn seeds."
+}
