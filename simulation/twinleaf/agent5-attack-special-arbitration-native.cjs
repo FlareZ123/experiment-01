@@ -53,14 +53,28 @@ function stage(seat){
 /** @param {object} x @returns {object} Native attack with settled damage. */
 function nativeAttack(x){
   const {AttackAction}=native('game/store/actions/game-actions');
+  const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
   const damage=x.opponent.active.damage;
   x.store.dispatch(new AttackAction(x.owner.id,ATTACK));
+  const nativePromptSequence=[];
+  for(let i=0;i<16;i++){
+    const pending=x.store.state.prompts.find(p=>p.result===undefined);
+    if(!pending)break;
+    const kind=pending.constructor.name;
+    assert.equal(kind,'WaitPrompt',
+      'Pure Gnaw must not request a hidden card or discretionary choice');
+    nativePromptSequence.push(kind);
+    x.store.dispatch(new ResolvePromptAction(pending.id,null));
+  }
+  assert.equal(x.store.hasPrompts(),false,
+    'Native attack may not have unresolved animation prompts');
   assert.ok(x.opponent.active.damage>damage,'Attack must settle real damage');
-  assert.ok(x.state.turn>2||x.state.activePlayer!==x.seat||
-    x.state.phase!==x.GamePhase.PLAYER_TURN,
+  assert.ok(x.store.state.turn>2||x.store.state.activePlayer!==x.seat||
+    x.store.state.phase!==x.GamePhase.PLAYER_TURN,
     'Attack must end the current owner root');
   return {damageBefore:damage,damageAfter:x.opponent.active.damage,
-    turn:x.state.turn,phase:x.state.phase,activeSeat:x.state.activePlayer};
+    turn:x.store.state.turn,phase:x.store.state.phase,
+    activeSeat:x.store.state.activePlayer,nativePromptSequence};
 }
 
 /** @param {0|1} seat @returns {object} Two forks from same owner-visible root. */
