@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent9_archive_vip_readonly:
+        description: Re-read frozen 40959290027 artifact without replaying games; native source physical-deal denominator
+        required: false
+        type: boolean
+        default: false
       agent9_registered_vip_32_census:
         description: Original same-physical 32-arm both-seat VIP source coverage, failure-inclusive development only
         required: false
@@ -47,6 +52,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   supporter-policy:
@@ -170,6 +176,30 @@ jobs:
           path: |
             agent9-rank11-vip-original-deal.json
             agent9-rank11-vip-original-deal-seat0.json
+          if-no-files-found: warn
+          retention-days: 12
+      - name: Fetch immutable original 32-arm native VIP artifact
+        if: ${{ inputs.agent9_archive_vip_readonly }}
+        uses: actions/download-artifact@v4
+        with:
+          name: agent9-retrospective-original-32-vip-policy-census
+          repository: FlareZ123/experiment-01
+          run-id: 40959290027
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Independently apply latest strict physical-source and prompt parity gates
+        if: ${{ inputs.agent9_archive_vip_readonly }}
+        run: node simulation/evaluation/agent9-registered-original-32-vip-census.cjs agent9-original-32-vip-control.json agent9-original-32-vip-treatment.json results/aichi-2026/registrations/agent9-existing-32-vip-coverage-20261029.json > agent9-reverified-vip-census.json
+      - name: Distinguish independent source physical deals from paired game arms
+        if: ${{ inputs.agent9_archive_vip_readonly }}
+        run: node simulation/evaluation/agent9-original-32-vip-archive-brief.cjs agent9-reverified-vip-census.json > agent9-reverified-vip-rank-physical.json
+      - name: Preserve reviewed frozen source-deal rank distributions
+        if: ${{ always() && inputs.agent9_archive_vip_readonly }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-independent-frozen-32-vip-deal-review
+          path: |
+            agent9-reverified-vip-census.json
+            agent9-reverified-vip-rank-physical.json
           if-no-files-found: warn
           retention-days: 12
       - name: Existing original 32-arm physical-deal control, VIP disabled
