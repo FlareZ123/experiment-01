@@ -112,6 +112,12 @@ jobs:
           node --test tests/agent41-prospective-canonical-scout.test.cjs
           node simulation/evaluation/agent41-prospective-canonical-scout.cjs > agent41-prospective-canonical-32.json
           node -e "const a=require('node:assert/strict'); const r=require('./agent41-prospective-canonical-32.json'); a.equal(r.summary.attempts,32); a.equal(r.summary.competitiveQualifiedGames,0); a.equal(r.summary.exceptions+r.summary.censored+r.summary.engineTerminals,32); console.log(JSON.stringify({schema:r.schema,attempts:r.summary.attempts,errors:r.summary.exceptions,censored:r.summary.censored,terminals:r.summary.engineTerminals,actualSourceFirst:r.summary.cells.map(c=>({rank:c.rank,slot:c.candidateSlot,candidate:c.candidateId,sourceFirst:c.actualSourceFirst,failed:c.exceptions,cap:c.capped,finished:c.terminals,sourceAttacks:c.sourceAttackDeclarations,candidateAttacks:c.candidateAttackDeclarations}))},null,2))"
+      - name: Fresh paired rank11 source-only Supporter fallback study
+        if: ${{ inputs.canonical_v2_only }}
+        run: |
+          node --test tests/agent41-rank11-source-pass-supporter.test.cjs
+          node simulation/evaluation/agent41-rank11-source-supporter-paired-native.cjs > agent41-rank11-source-supporter-paired.json
+          node -e "const a=require('node:assert/strict');const r=require('./agent41-rank11-source-supporter-paired.json');const s=r.audit.aggregate;a.equal(s.observedArms,32);a.equal(s.competitiveQualifiedGames,0);a.equal(s.controlTerminals+s.controlCaps+s.controlErrors,16);a.equal(s.treatmentTerminals+s.treatmentCaps+s.treatmentErrors,16);console.log(JSON.stringify(s,null,2))"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -125,5 +131,6 @@ jobs:
             agent41-native-recipient-aba.json
             agent41-native-paid-retreat-aba.json
             agent41-prospective-canonical-32.json
+            agent41-rank11-source-supporter-paired.json
           if-no-files-found: warn
           retention-days: 14
