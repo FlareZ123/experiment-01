@@ -41,3 +41,22 @@ For illustration, if six independent Basic-valid source openings each had this m
 - Source Mega Absol ex MEG86's **Basic** stage independently checked in [Bulbapedia card record](https://bulbapedia.bulbagarden.net/wiki/Mega_Absol_ex_%28Mega_Evolution_176%29); the 11-Basic assumption and full exact source category counts are asserted in the executable.
 
 **Decision:** treat the 29 October rank-11 first-turn zero as a *source-pressure qualification veto* with a missing opportunity denominator. Prioritize actual initial-owner-hand source audit and Carmine/Quick Ball line decision fidelity, then prospective completed-game comparisons under the frozen common policy.
+
+## Same-archive native source-first root audit (additional evidence)
+
+Independently downloaded the **existing** prospective [compiled CI 40918541683 archive](https://github.com/FlareZ123/experiment-01/actions/runs/40918541683/artifacts/12917901362), matching the report's published ZIP SHA256 exactly: `55ef8029bce341803da3f895246509cc61480e42a840d35fe34d6ab12f294ad2`. Inspected all **16 rank-11 rows** and filtered by `sourceActuallyFirst=true`, `rootActionLedger.turnBefore=1`, and `playerSlot=sourceSeat`. All **12 source-first arms** formed six exact source-deal-fingerprint-matched champion/New Moon pairs; each pair had identical source first-turn root action sequences. Per distinct original source deal (no simulated opening added):
+
+| Rank-11 scout seed | Physical candidate slot | Source first-turn played card(s), ignoring prompt resolutions and Pass |
+| --- | --- | --- |
+| 3149897025 | A | Darkness Energy |
+| 340754762 | A | Tapu Lele-GX; Darkness Energy |
+| 2246176619 | B | Darkness Energy |
+| 3403930699 | B | None |
+| 2147808079 | B | Crobat V; Darkness Energy |
+| 1254634394 | B | Crobat V; Darkness Energy |
+
+**All six genuinely sourced first-turn sequences contain zero plays of Carmine, Quick Ball, Battle VIP Pass, Boost Shake, or any other setup Item.** The two Crobat V and one Tapu Lele-GX were actually played, but this ledger alone does not establish their effect resolutions. It also does not expose the original owner hand card identities, so a zero-play count cannot prove the player held any omitted card. No Store engine modification or independent new trial was used for this audit.
+
+The exact source has **3 Carmine**. With 11 Basics in the source 60, conditioning on an initial legal Basic in seven, the purely random location probability of at least one Carmine in the initial seven plus first ordinary draw is **33.75910028%**; without any intervening search/draw, the probability of *zero Carmine in all six independent Basic-valid physical openings* is **8.44806673%**. This is a deliberately narrow physical-location null model, **not a p-value for bot competence**: the native bot could have held Carmine and chosen not to play it, physical seed/seat conditioning might affect draws, and hand-preserving actions and additional draws can change later choices. These numbers are independently checked with `namedFirstEight(3,11,6)` in the source enumerator.
+
+**Specific falsification next:** for each source's first legal decision and last root before its T1 Pass, record a read-only **source-owner-visible** Boolean census (`CarmineHeld`, `BoostShakeHeld`, `ToolHeld`, `TrubbishHeldOrPlayed`, `BattleVIPHeld`, `QuickBallHeld`, legal action affordances and named resource conflicts). Make observations unavailable to the bot's decision function and use the same existing canonical runner. Only then distinguish lack of physical availability from missed legal opportunities. Preserve all six source-deal digests, 12 original arms, and the unchanged two candidate 60s.
