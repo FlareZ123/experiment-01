@@ -123,6 +123,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent16_owner_contention_paircheck:
+        description: Read-only same-game original Store arbitration audit off/on, no policy changes
+        required: false
+        type: boolean
+        default: false
       rank6_source_k1:
         description: Read-only rank6 source K1 search plus paired passive lock witness
         required: false
@@ -150,7 +155,7 @@ jobs:
       - name: Regress owner-visible paid retreat and native physical receipt
         run: node --test tests/agent6-actor-paid-retreat-frontier.test.cjs tests/agent6-paid-retreat-physical-witness.test.cjs
       - name: Verify optional frontier and default root parity
-        run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs tests/agent3-special-energy-root.test.cjs
+        run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs tests/agent3-special-energy-root.test.cjs tests/agent16-owner-priority-contention.test.cjs tests/agent16-native-contention-paircheck.test.cjs
       - name: Check out exact pinned upstream engine
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned server dependencies
@@ -213,6 +218,7 @@ jobs:
         run: node -e "throw new Error('Only one donor treatment may run per paired experiment')"
       - name: Execute unchanged canonical four-arm historical bilateral runner
         env:
+          AGENT16_OWNER_ARBITRATION_CENSUS_DEV: ${{ inputs.agent16_owner_contention_paircheck && 'true' || 'false' }}
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
           AGENT7_NATIVE_SUPPORTER_CANPLAY_DEV: ${{ inputs.native_fallback_paircheck && 'true' || 'false' }}
           AGENT7_OWNER_SUPPORTER_AUDIT_DEV: ${{ inputs.native_fallback_paircheck && 'true' || 'false' }}
@@ -238,6 +244,38 @@ jobs:
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-actor-fourarm.json
+      - name: Same-checkout genuine Store observer-off original four-arm control
+        if: ${{ inputs.agent16_owner_contention_paircheck }}
+        env:
+          AGENT16_OWNER_ARBITRATION_CENSUS_DEV: 'false'
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT7_NATIVE_SUPPORTER_CANPLAY_DEV: ${{ inputs.native_fallback_paircheck && 'true' || 'false' }}
+          AGENT7_OWNER_SUPPORTER_AUDIT_DEV: ${{ inputs.native_fallback_paircheck && 'true' || 'false' }}
+          AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
+          AGENT32_COMPR_ANYTURN_DEV: ${{ inputs.owner_anyturn_compressor_pair && 'true' || 'false' }}
+          AGENT32_COMPR_BENCHED_DEV: ${{ inputs.owner_early_bench_compressor_pair && 'true' || 'false' }}
+          AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
+          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
+          AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
+          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: ${{ inputs.native_generic_fallback && 'true' || 'false' }}
+          AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
+          AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
+          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
+          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
+          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
+          AGENT30_PERFECTION_ROOT_DEV: ${{ inputs.actor_perfection_root && 'true' || 'false' }}
+          AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
+          AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent16-arbitration-original-off.json
+      - name: Require full original Store gameplay and root/physical decision noninterference
+        if: ${{ inputs.agent16_owner_contention_paircheck }}
+        run: node scripts/agent16-native-contention-paircheck.cjs agent16-arbitration-original-off.json agent7-canonical-actor-fourarm.json > agent16-arbitration-native-pair.json
       - name: Same-deal donor recovery control under identical real-game policies
         if: ${{ inputs.owner_anyturn_compressor_pair || inputs.owner_early_bench_compressor_pair }}
         env:
@@ -486,6 +524,8 @@ jobs:
           name: agent7-canonical-actor-fourarm-development
           path: |
             agent7-canonical-actor-fourarm.json
+            agent16-arbitration-original-off.json
+            agent16-arbitration-native-pair.json
             agent32-anyturn-compressor-control.json
             agent8-quick-ball-off.json
             agent8-quick-ball-paircheck.json
