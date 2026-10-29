@@ -229,7 +229,7 @@ function withActorBattleVipAfterPass(execute,deps={}){
     assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,decode);
     assert.strictEqual(Store.prototype.dispatch,dispatch);
     Object.defineProperty(Store.prototype,'dispatch',beforeDispatch);
-    Object.defineProperty(SimpleTacticsAi.prototype.decodeNextAction,beforeDecode);
+    Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',beforeDecode);
   }
 }
 
