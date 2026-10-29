@@ -375,6 +375,7 @@ jobs:
           ownerPrompts:r.seekerPromptsAccepted,
           supporterReplies:r.recoveredLillieNativeConfirmed,
           rejected:r.rejectedActorRoots,failed:r.failedArms,
+          firstFailures:r.trials.filter(t=>t.baseline.error||t.optIn.error).slice(0,4).map(t=>({seed:t.seed,baseline:t.baseline.error,optIn:t.optIn.error})),
           qualified:r.competitiveGameQualified}));"
       - name: Archive all 12 original-source VS Seeker root and no-root trials
         if: always()
