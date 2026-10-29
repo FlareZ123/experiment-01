@@ -1,0 +1,69 @@
+{
+  "schema": "agent9-preregistered-actual-source-crobat-vip-root-priority-fork-v1",
+  "registeredAtUtc": "2026-10-29T22:11:00Z",
+  "studyType": "historically selected natural source Crobat-VIP simultaneous availability, controlled native action-order fork; no deck-win inference",
+  "evidenceSourceRun": 40961656751,
+  "evidenceReadOnlyRun": 40963489284,
+  "sourceRank": 11,
+  "exactSourcePrinted60": "Original Aichi 2026 rank11, unchanged",
+  "sourcePhysicalSeat": 0,
+  "physicallyCoupledSeed": 1254634394,
+  "sourceFingerprint": "b0a7b753221ecfb60cdf182f2801799f4c43f097ef29f035d54ddb191c72b495",
+  "trialIds": [
+    "11:3:B:champion-reference",
+    "11:3:B:new-moon-lockbreaker-v1"
+  ],
+  "candidatePhysicalSeat": 1,
+  "candidatesUnchanged": true,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "researchRevisionAtRegistration": "0b2005910fa754a361906293401e9d1c2b07ba5f",
+  "observedNativeSequence": {
+    "actorOwner": "source (seat0)",
+    "originalSelectedCompetingRoot": "PlayCardAction Crobat V DAA",
+    "structurallyHeldAlternative": "Battle VIP Pass FST",
+    "nativeOriginalRootAccepted": true,
+    "subsequentNativeVIPRootAccepted": true,
+    "subsequentNativeSelectedBasics": [
+      "Trubbish FST",
+      "Latias ex SSP"
+    ],
+    "sourcePhysicalDealMatchesAcrossCandidateArms": true
+  },
+  "arms": [
+    {
+      "id": "native-order-current",
+      "policy": "current opt-in owner-VIP-after-Pass plus original chosen Crobat root"
+    },
+    {
+      "id": "native-order-vip-before-crobat",
+      "policy": "replace ONLY first natural original source-seat0 Crobat V DAA root when held VIP and first turn with actual native VIP PlayCardAction, resolve owner-authorized original native search and let unchanged canonical actor resume subsequent roots"
+    }
+  ],
+  "pairGate": {
+    "sourceFullPhysicalDealAndActualStarterEqual": true,
+    "originalPrintedSourceAndCandidate60Unchanged": true,
+    "sameInitialNativeHandAndBenchState": true,
+    "acceptNativeItemWithPrintedPhysicalCard": true,
+    "useExactRealOwnerDeckPrompt": true,
+    "validateNativeSearchTargetsAndBenchCounts": true,
+    "evidenceOfCrobatPlayedOrDisplacedAfterVIP": true,
+    "observeRealCrobatDrawAndNextPlayerResponse": true,
+    "retainAllCapsAndStoreErrors": true,
+    "noHiddenOpponentInfo": true,
+    "noCompetitiveWinClaims": true
+  },
+  "preanalysisQuestions": [
+    "Does selecting VIP before Crobat still permit native Crobat from the hand that same turn given Bench and hand targets?",
+    "How does the original native Crobat V Dark Asset draw result change if VIP reduces hand first?",
+    "Does the alternative reorder selected Basics or consume a Bench slot that blocks Crobat?",
+    "What is the first changed subsequent turn-ending action and following opponent response?",
+    "Do two candidate-sixty arms built on the same source physical fingerprint react differently, and are later states genuinely incomparable?"
+  ],
+  "cautions": [
+    "Natural Crobat+VIP source opportunity was identified from previous 32-arm data, so this is retrospective selected-seed causal mechanics, not prospective randomization.",
+    "Same-snapshot native alternative legality and strategic value are unproven until both physical Store arms execute and pass.",
+    "A PlayCardAction alternative structurally available by owner hand is not sufficient to assert it is native playable before Crobat.",
+    "Do not equate changed draw count or terminal/cap classification to winning strength."
+  ],
+  "competitiveQualifiedGames": 0
+}
