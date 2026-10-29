@@ -217,7 +217,9 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
     // The genuine Store first moves the Supporter into its publicly
     // resolving zone; subsequent hand redraws may require more prompts.
     // This attests dispatch/quota only, not the draw or tactical outcome.
-    return after.supporterSpent>before.supporterSpent&&
+    const beforeSpent=before.supporterSpent??before.marnieSpent;
+    const afterSpent=after.supporterSpent??after.marnieSpent;
+    return afterSpent>beforeSpent&&
       after.supporterTurn>before.supporterTurn?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
