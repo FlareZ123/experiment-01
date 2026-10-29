@@ -12,7 +12,7 @@ const {VERSION:ACTOR_POLICY_VERSION}=
 // "unverified" is deliberately distinct from "unimplemented".
 const FAMILIES=Object.freeze([
   {id:'vip',name:'Battle VIP Pass',kind:'Item bench search',
-    route:'absent',nativeWitness:'source rank11 specific intervention only'},
+    route:'separate-shared-adapter',nativeWitness:'Agent9 native both-seat source item, two Basics and T2 opponent reply; default off'},
   {id:'quick',name:'Quick Ball',kind:'Item Basic search/discard',
     route:'opt-in-narrow',nativeWitness:'rank11 selected native Item root'},
   {id:'carmine',name:'Carmine',kind:'Supporter first-player draw',
@@ -55,7 +55,8 @@ const FAMILIES=Object.freeze([
     route:'baseline',nativeWitness:'physical Basic Energy root in frozen native games'}
 ]);
 const ROUTES=new Set(['absent','opt-in-narrow','opt-in-partial',
-  'separate-source-adapter','separate-candidate-adapter','baseline']);
+  'separate-source-adapter','separate-candidate-adapter',
+  'separate-shared-adapter','baseline']);
 
 /** @param {object} card @param {string} familyId @returns {boolean} */
 function belongs(card,familyId){
