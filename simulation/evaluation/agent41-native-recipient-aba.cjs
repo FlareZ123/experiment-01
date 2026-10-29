@@ -152,6 +152,14 @@ function summarizeRecipientABA(baseline,treatment,repeat){
     const original=a.get(id),newRecipient=b.get(id),replay=aRepeat.get(id);
     const ab=comparePairedAcceptedTargets(original,newRecipient);
     const aa=comparePairedAcceptedTargets(original,replay);
+    const rootAudit=newRecipient.actorOnlyDecisionCoverage?.
+      detailedComponentAudits?.root??null;
+    const selectedPaidRetreats=rootAudit?.
+      typedIntentCounts?.['paid-retreat']??null;
+    const nativePaidRetreatConfirmed=rootAudit?.
+      nativePhysicalConfirmedByIntent?.['paid-retreat']??null;
+    const nativePaidRetreatUnconfirmed=rootAudit?.
+      nativePhysicalUnconfirmedByIntent?.['paid-retreat']??null;
     return {
       trialId:id,rank:original.trial.rank,
       candidateId:original.trial.candidateId,
@@ -170,8 +178,9 @@ function summarizeRecipientABA(baseline,treatment,repeat){
       repeatStability:sameDealRepeatStability(original,replay,aa),
       nominalPolicyExposureEvidence:newRecipient.actorOnlyDecisionCoverage?.
         detailedComponentAudits?.root?.energyRecipientFrontierOptIn===true,
-      nominalPaidRetreatOptIn:newRecipient.actorOnlyDecisionCoverage?.
-        detailedComponentAudits?.root?.paidRetreatRootOptIn===true,
+      nominalPaidRetreatOptIn:rootAudit?.paidRetreatRootOptIn===true,
+      selectedPaidRetreats,nativePaidRetreatConfirmed,
+      nativePaidRetreatUnconfirmed,
       sameLegacyLedgerAB:Boolean(original.rootActionLedgerSha256&&
         original.rootActionLedgerSha256===newRecipient.rootActionLedgerSha256),
       sameLegacyLedgerARepeat:Boolean(original.rootActionLedgerSha256&&
@@ -197,6 +206,12 @@ function summarizeRecipientABA(baseline,treatment,repeat){
         p.physicalAB.root?.status==='different').length,
       observedPromptTargetDifferences:pairs.filter(p=>
         p.physicalAB.energyPrompt?.status==='different').length,
+      selectedPaidRetreats:pairs.reduce((sum,p)=>sum+
+        (p.selectedPaidRetreats??0),0),
+      nativePaidRetreatConfirmed:pairs.reduce((sum,p)=>sum+
+        (p.nativePaidRetreatConfirmed??0),0),
+      trialsWithPaidRetreatAudit:pairs.filter(p=>
+        p.selectedPaidRetreats!==null).length,
       failuresAndCaps:reports.flatMap(r=>r.rows).filter(row=>
         row.status||row.finished!==true).length,
       competitiveQualifiedGames:0
