@@ -38,7 +38,14 @@ function main(){
    sourceDeal:r.sourceDealFingerprint,actions:r.actionCount,finished:r.finished,
    winner:r.winner,endReason:r.endReason,rootSha:r.rootActionLedgerSha256,
    supporterRoots:r.rootActionLedger.filter(e=>e.action==='PlayCardAction'&&
-     String(e.card).startsWith("Lillie's Determination")).map(e=>({ordinal:e.actionOrdinal,seat:e.playerSlot,turn:e.turnBefore}))});
+     String(e.card).startsWith("Lillie's Determination")).map(e=>{
+       const reply=r.rootActionLedger.find(next=>next.playerSlot===r.sourceSeat&&
+         next.turnBefore>e.turnBefore&&next.actionOrdinal>e.actionOrdinal);
+       return {ordinal:e.actionOrdinal,seat:e.playerSlot,turn:e.turnBefore,
+         nextSourceRoot:reply?{ordinal:reply.actionOrdinal,
+           globalTurn:reply.turnBefore,action:reply.action,
+           card:reply.card??null,attack:reply.attack??null}:null};
+     })});
  const before=base.rows.map(slim),after=treated.rows.map(slim);
  const report={schema:'agent24-posthoc-rank6-original-sourcefirst-candidate-lillie-v1',
    inputRegistration:REG,originalSixtiesPreserved:true,originalSeed:trials[0].seed,
