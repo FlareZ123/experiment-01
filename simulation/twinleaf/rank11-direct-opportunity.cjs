@@ -29,7 +29,7 @@ function freeBenchIndex(player) {
  * @param {number} playerTurnPhase
  * @param {boolean} [avoidAllGarbodorHeld] Optional information-set K0 guard
  * @param {boolean} [allowLaterTurns] Later-turn ordinary Boost Shake is legal.
- * @returns {{route:'active'|'bench'|'hand'|'vip',tool:string}|null}
+ * @returns {{route:'active-equipped'|'bench-equipped'|'active'|'bench'|'hand'|'vip',tool:string}|null}
  */
 function directBoostShakeOpportunity(state, player, seat, playerTurnPhase,
   avoidAllGarbodorHeld = false, allowLaterTurns = false) {
@@ -40,6 +40,17 @@ function directBoostShakeOpportunity(state, player, seat, playerTurnPhase,
   if (!hand.includes('Boost Shake') ||
       (avoidAllGarbodorHeld &&
         hand.filter(name => name === 'Garbodor').length >= 2)) return null;
+  // An already attached Tool makes another hand Tool unnecessary. This also
+  // permits the actual owner's later-turn held-Shake follow-through.
+  if (player.active?.getPokemonCard()?.name === 'Trubbish') {
+    const equipped = player.active.tools.find(card => TOOLS.includes(card.name));
+    if (equipped) return {route:'active-equipped',tool:equipped.name};
+  }
+  for (const slot of player.bench) {
+    if (slot.getPokemonCard()?.name !== 'Trubbish') continue;
+    const equipped = slot.tools.find(card => TOOLS.includes(card.name));
+    if (equipped) return {route:'bench-equipped',tool:equipped.name};
+  }
   const tool = TOOLS.find(name => hand.includes(name));
   if (!tool) return null;
   if (untooledActiveTrubbish(player)) return {route:'active', tool};
