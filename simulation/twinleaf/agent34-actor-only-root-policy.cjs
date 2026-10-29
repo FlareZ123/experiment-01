@@ -182,6 +182,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseConservativeShuffleSupporter(view);
     if(draw)return {...draw,kind:'play-conservative-shuffle-supporter'};
   }
+  if(options.seekerLillieRoot===true){
+    const follow=require('./agent48-owner-vs-seeker-lillie.cjs')
+      .chooseSeekerLillieRoot(view);
+    if(follow)return follow;
+  }
   if(options.carmineFirstRoot===true){
     const first=require('./agent48-conservative-first-carmine.cjs')
       .chooseConservativeFirstCarmine(view);
@@ -372,6 +377,8 @@ function withActorOnlyRootPolicy(run,deps={}){
   const original=Object.getOwnPropertyDescriptor(SimpleTacticsAi.prototype,'decodeNextAction');
   assert.equal(typeof original?.value,'function');
   const typedDecisions=new WeakMap();
+  const typedSeekerReplies=new WeakMap();
+  const ownerSeekerPending=new Map();
   const engineGamePhase=()=>deps.GamePhase??
     require(path.join(base,'game/store/state/state')).GamePhase;
   let nativeStore=null,catalog=null,actualGamesSeen=0;
@@ -419,6 +426,10 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT25_LOWHAND_LILLIE_DEV==='true'),
     carmineFirstRootOptIn:deps.carmineFirstRoot??
       (process.env.AGENT48_CARMINE_FIRST_ROOT_DEV==='true'),
+    seekerLillieRootOptIn:deps.seekerLillieRoot??
+      (process.env.AGENT48_VS_SEEKER_LILLIE_DEV==='true'),
+    seekerLilliePromptsProposed:0,
+    seekerLilliePromptsAccepted:0,
     conservativeShuffleBeforeAttackOptIn:deps.conservativeShuffleBeforeAttack??
       (process.env.AGENT2_SHUFFLE_PREATTACK_DEV==='true'),
     lowHandLillieCensusOptIn:deps.lowHandLillieCensus??
@@ -484,6 +495,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.carmineFirstRootOptIn)
     audit.version+='+'+
       require('./agent48-conservative-first-carmine.cjs').VERSION;
+  if(audit.seekerLillieRootOptIn)
+    audit.version+='+'+
+      require('./agent48-owner-vs-seeker-lillie.cjs').VERSION;
   if(audit.lowHandLillieCensusOptIn)
     audit.version+='+agent25-owner-lowhand-lillie-census-v1';
   if(audit.strandedMarnieRootOptIn)
@@ -503,6 +517,17 @@ function withActorOnlyRootPolicy(run,deps={}){
     if(!pending&&state.phase!==engineGamePhase().PLAYER_TURN){
       audit.nonTurnPhaseFallbacks++;
       return original.value.call(this,state);
+    }
+    if(seat!==-1&&pending&&audit.seekerLillieRootOptIn&&
+       pending.playerId===playerId&&ownerSeekerPending.has(playerId)){
+      const {ResolvePromptAction}=deps.promptActions??
+        require(path.join(base,'game/store/actions/resolve-prompt-action'));
+      const planned=require('./agent48-owner-vs-seeker-lillie.cjs')
+        .chooseSeekerLilliePrompt(state,seat,pending,ResolvePromptAction);
+      typedSeekerReplies.set(planned,{seat,ownerId:playerId,
+        printing:ownerSeekerPending.get(playerId).target});
+      audit.seekerLilliePromptsProposed++;
+      return planned;
     }
     if(seat===-1||pending||state.activePlayer!==seat){
       if(pending&&state.players?.[seat]?.id===pending.playerId){
@@ -569,6 +594,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       strandedMarnieRoot:audit.strandedMarnieRootOptIn,
       lowHandLillieRoot:audit.lowHandLillieRootOptIn,
       carmineFirstRoot:audit.carmineFirstRootOptIn,
+      seekerLillieRoot:audit.seekerLillieRootOptIn,
       conservativeShuffleBeforeAttack:audit.conservativeShuffleBeforeAttackOptIn
     });
     const ownerId=state.players[seat].id;
@@ -603,6 +629,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
+      case 'play-seeker-get-lillie':
+      case 'play-seeker-recovered-lillie':
       case 'play-carmine-first':
       case 'play-lowhand-lillie':
       case 'play-stranded-marnie':
@@ -649,6 +677,28 @@ function withActorOnlyRootPolicy(run,deps={}){
     if(action?.constructor?.name==='AddPlayerAction'&&this!==nativeStore){
       nativeStore=this;actualGamesSeen++;audit.actualGamesSeen=actualGamesSeen;
     }
+    const seekerReply=this===nativeStore?typedSeekerReplies.get(action):undefined;
+    if(seekerReply){
+      const owner=this.state.players[seekerReply.seat];
+      assert.equal(owner?.id,seekerReply.ownerId);
+      const beforeHand=owner.hand.cards.filter(x=>
+        x.fullName===seekerReply.printing).length;
+      const beforeDiscard=owner.discard.cards.filter(x=>
+        x.fullName===seekerReply.printing).length;
+      const result=beforeDispatch.value.apply(this,[action,...args]);
+      const afterward=this.state.players[seekerReply.seat];
+      const afterHand=afterward.hand.cards.filter(x=>
+        x.fullName===seekerReply.printing).length;
+      const afterDiscard=afterward.discard.cards.filter(x=>
+        x.fullName===seekerReply.printing).length;
+      assert.equal(afterHand,beforeHand+1,
+        'VS Seeker live owner prompt failed to physically recover Lillie');
+      assert.equal(afterDiscard,beforeDiscard-1,
+        'VS Seeker live owner prompt did not remove exact own-discard Lillie');
+      ownerSeekerPending.delete(seekerReply.ownerId);
+      audit.seekerLilliePromptsAccepted++;
+      return result;
+    }
     const choice=this===nativeStore?typedDecisions.get(action):undefined;
     if(!choice)return beforeDispatch.value.apply(this,[action,...args]);
     const before=publicDispatchState(this);
@@ -656,6 +706,18 @@ function withActorOnlyRootPolicy(run,deps={}){
       rootPhysicalSnapshot(this.state,choice.seat,choice.intent);
     try{
       const result=beforeDispatch.value.apply(this,[action,...args]);
+      if(choice.kind==='play-seeker-get-lillie'){
+        const owner=this.state.players[choice.seat];
+        const pending=this.state.prompts?.find(p=>p.result===undefined);
+        assert.ok(owner&&pending&&
+          pending.constructor?.name==='ChooseCardsPrompt'&&
+          pending.playerId===owner.id&&
+          pending.cards===owner.discard,
+          'Native VS Seeker root did not create its authenticated own-discard prompt');
+        assert.ok(!ownerSeekerPending.has(owner.id));
+        ownerSeekerPending.set(owner.id,{seat:choice.seat,
+          target:choice.intent.target,globalTurn:choice.globalTurn});
+      }
       const after=publicDispatchState(this);
       const physical=ownerBefore===null||after===null?null:
         rootPhysicalWitness(choice.intent,ownerBefore,
