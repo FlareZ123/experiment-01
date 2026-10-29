@@ -12,6 +12,7 @@ const {
 class AddPlayerAction{}
 class PlayCardAction{
   constructor(playerId,handIndex){
+    this.id=playerId;
     this.playerId=playerId;
     this.handIndex=handIndex;
   }
