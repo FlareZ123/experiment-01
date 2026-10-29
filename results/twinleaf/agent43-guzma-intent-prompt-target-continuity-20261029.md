@@ -18,4 +18,4 @@ A robust both-seat actor must carry the owner-authorized root intent across a **
 
 Simply accepting a Supporter card action does not certify that its intended two-step tactical effect occurred. The root/prompt contract is a qualification prerequisite for meaningful both-seat opponent-pressure evidence.
 
-**Unresolved:** no general target-handoff bridge has been enabled or native-qualified. 29/32 exact original opponent 60s, zero competitively qualified games, no demonstrated 99.5% winner.
+**Update, 29 October:** an opt-in both-seat target-handoff bridge has now **passed a genuine staged native Store regression** in [CI 40963596650](https://github.com/FlareZ123/experiment-01/actions/runs/40963596650), with two physical recipient ID confirmations; see the [follow-up report](agent43-guzma-native-both-seat-physical-recipient-20261029.md). It remains disabled in the canonical full-game runner and has no win-rate evidence. 29/32 exact original opponent 60s, zero competitively qualified games, no demonstrated 99.5% winner.
