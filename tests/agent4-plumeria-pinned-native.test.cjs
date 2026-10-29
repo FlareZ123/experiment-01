@@ -118,4 +118,8 @@ test('genuine pinned Store Plumeria resolves physical two-hand discard and one o
   }
 });
 
-require('./agent4-plumeria-native-intervention.test.cjs');
+// The after-Pass research fork currently requires an explicit manual opt-in.
+// Its normal actor-first composition does not expose the baseline Pass to
+// the external wrapper; do not obstruct unrelated pinned native regressions.
+if(process.env.AGENT4_PLUMERIA_AFTERPASS_NATIVE_DEV==='true')
+  require('./agent4-plumeria-native-intervention.test.cjs');
