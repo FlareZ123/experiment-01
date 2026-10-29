@@ -39,7 +39,9 @@ function executeOwnerVip(fixture){
     actorChoosePokemon:options.actorChoosePokemon,
     ownerVipAfterPass:true
   });
-  const row=canonical.result,sourceSeat=1,candidateSeat=0;
+  const row=canonical.result;
+  const candidateSeat=trial.candidateSlot==='A'?0:1;
+  const sourceSeat=1-candidateSeat;
   const audit=canonical.audit.detailedComponentAudits.ownerVipAfterPass;
   assert.ok(audit,'Executed canonical policy omitted VIP audit');
   const roots=row.rootActionLedger??[];
