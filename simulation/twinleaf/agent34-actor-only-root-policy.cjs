@@ -493,7 +493,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+'+
       require('./agent10-raichu-damage-breakpoint-before-attack.cjs').VERSION;
   if(audit.quickBallRootOptIn)
-    audit.version=VERSION+'+'+
+    audit.version+='+'+
       require('./agent8-actor-quick-ball-frontier.cjs').VERSION;
   if(audit.potentialKoRootOptIn)
     audit.version+='+agent49-public-potential-ko-v2';
