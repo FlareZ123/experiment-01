@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      owner_terminal_arbitration_aba:
+        description: Bounded 12-arm historical A/B/A original Store common owner-action arbiter, all outcomes unqualified
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -45,8 +50,17 @@ jobs:
         run: node simulation/twinleaf/agent41-owner-arbitration-native.cjs > agent41-owner-arbitration-native.json
       - name: Verify both-seat Store outcomes retained without strength inference
         run: node -e "const a=require('node:assert/strict');const r=require('./agent41-owner-arbitration-native.json');a.equal(r.rows.length,2);a.ok(r.rows.every(x=>x.nativeAttachmentConfirmed&&x.nativeSameAttackSettled&&x.nativeHoldAttackSettled));a.equal(r.competitiveQualifiedGames,0);console.log(JSON.stringify({schema:r.schema,version:r.policyVersion,rows:r.rows.map(x=>({seat:x.seat,selected:x.arbitratedRoot.kind,held:x.conservativeHold.reason}))}))"
+      - name: Historical action arbiter A/B/A pure registration regression
+        if: ${{ inputs.owner_terminal_arbitration_aba }}
+        run: node --test tests/agent41-owner-arbitration-aba-development.test.cjs
+      - name: Historical same-deal original Store baseline, opt-in arbiter and repeat
+        if: ${{ inputs.owner_terminal_arbitration_aba }}
+        run: node simulation/evaluation/agent41-owner-arbitration-aba-development.cjs > agent41-owner-arbitration-historical-aba.json
+      - name: Verify every original registered historical physical deal is retained
+        if: ${{ inputs.owner_terminal_arbitration_aba }}
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent41-owner-arbitration-historical-aba.json');a.equal(r.attempted,12);a.equal(r.pairs.length,4);a.equal(r.outcomeSummary.competitiveQualifiedGames,0);console.log(JSON.stringify({schema:r.schema,attempted:r.attempted,summary:r.outcomeSummary,pairs:r.pairs.map(p=>({id:p.trialId,comparison:p.physicalAB.status,repeat:p.repeatStability.status,firstActions:[p.original.actions,p.recipient.actions],winner:[p.original.winner,p.recipient.winner]}))},null,2))"
       - name: Native bilateral historical and source-first development
-        if: ${{ ! inputs.native_search_only }}
+        if: ${{ ! inputs.native_search_only && ! inputs.owner_terminal_arbitration_aba }}
         run: node simulation/evaluation/agent5-owner-root-bilateral-native.cjs > agent5-owner-root-result.json
       - name: Fixed source-first development baseline without Thorns direct-line
         if: ${{ inputs.rank6_directline_paired }}
@@ -79,6 +93,7 @@ jobs:
             agent5-special-energy-bench-native-result.json
             agent5-attack-special-arbitration-native.json
             agent41-owner-arbitration-native.json
+            agent41-owner-arbitration-historical-aba.json
             agent5-owner-root-result.json
             agent22-steven-native-store-result.json
             agent5-thorns-baseline-sourcefirst.json
