@@ -365,6 +365,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT49_POTENTIAL_KO_ROOT_DEV==='true'),
     knownDeadAttackRootOptIn:deps.knownDeadAttackRoot??
       (process.env.AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV==='true'),
+    knownDeadAttackRootOwnerSeat:deps.knownDeadAttackRootOwnerSeat??null,
     powerglassRootOptIn:deps.powerglassRoot??
       (process.env.AGENT41_ACTOR_POWERGLASS_ROOT_DEV==='true'),
     floatStoneMobilityOptIn:deps.floatStoneMobility===true,
@@ -387,6 +388,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
   };
   assert.ok([null,0,1].includes(audit.specialEnergyRootOwnerSeat));
+  assert.ok([null,0,1].includes(audit.knownDeadAttackRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.floatStoneMobilityOwnerSeat));
   if(audit.floatStoneMobilityOptIn)
     audit.version+='+agent1-owner-public-floatstone-mobility-v1';
@@ -399,6 +401,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent49-public-potential-ko-v2';
   if(audit.knownDeadAttackRootOptIn)
     audit.version+='+agent1-known-dead-leading-attack-v1';
+  if(audit.knownDeadAttackRootOwnerSeat!==null)
+    audit.version+='+candidate-only-seat-'+audit.knownDeadAttackRootOwnerSeat;
   if(audit.perfectionRootOptIn)
     audit.version+='+agent30-known-perfection-root-v1';
   if(audit.heldGuzmaMobilityOptIn)
@@ -450,7 +454,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.specialEnergyRootOptIn,audit.specialEnergyRootOwnerSeat,seat),
       printedGxRoot:audit.printedGxRootOptIn,
       potentialKoRoot:audit.potentialKoRootOptIn,
-      knownDeadAttackRoot:audit.knownDeadAttackRootOptIn,
+      knownDeadAttackRoot:actorSpecialEnergyEnabled(
+        audit.knownDeadAttackRootOptIn,audit.knownDeadAttackRootOwnerSeat,seat),
       naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
       quickBallRoot:audit.quickBallRootOptIn,
       powerglassRoot:audit.powerglassRootOptIn,
