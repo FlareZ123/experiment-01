@@ -1,0 +1,39 @@
+{
+  "schema": "agent9-registered-existing-32-arm-vip-coverage-probe-v1",
+  "registeredAtUtc": "2026-10-29T21:36:00Z",
+  "experimentClass": "retrospective original canonical scout seeds, measurement committed before optional treatment run; not a prospective win study",
+  "parentRegistration": "results/aichi-2026/registrations/agent41-prospective-canonical-32-20261029.json",
+  "parentRegistrationExpectedBlob": "8c54d8497f9927b04d501237462f64a42173d33d",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "attempts": 32,
+  "sourceRanks": [
+    6,
+    11
+  ],
+  "candidateDecks": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "treatmentEnv": "AGENT9_BATTLE_VIP_AFTER_PASS_DEV=true",
+  "controlEnv": "AGENT9_BATTLE_VIP_AFTER_PASS_DEV=false",
+  "sameCheckout": true,
+  "unchangedOriginalSource60s": true,
+  "allAttemptFailuresRetained": true,
+  "primaryOutcome": "physical native Bench-confirmed Battle VIP Pass searches attributed by actual source seat (source side) across all 32 attempts",
+  "companionOutcomes": [
+    "held VIP first-turn Pass opportunities by source vs candidate physical seat",
+    "successful source and candidate Item root actions",
+    "native selected two Basic physical references",
+    "all native rejections, Store exceptions, unfinished game caps",
+    "source full physical deal fingerprint parity and actual first-player equality in each matched attempt"
+  ],
+  "failClosedConditions": [
+    "parent registration changed",
+    "any missing trial IDs",
+    "any changed original source or full physical initial setup",
+    "any native physical Item without original owner-deck prompt confirmation",
+    "any early claim of competitive qualification"
+  ],
+  "methodologicalCaveat": "The 32 seeds and two ranks were selected for prior agent41 scout, before this agent9 policy intervention, but agent1 has already reported held VIP in these source deals. This is a retrospective enriched decision-coverage test, no unselected all-field win-rate inference.",
+  "qualifiedCompetitiveGames": 0
+}
