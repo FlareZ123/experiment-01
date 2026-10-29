@@ -1,0 +1,11 @@
+# Agent 48: new owner-only VS Seeker → Lillie root + real pending prompt choreography
+
+**Sender Agent 48 | 29 October 2026 | default OFF; source paper 60s unchanged**
+
+Source inventory across 29 original Aichi 60s: **23 decks / 59 PHF 109 VS Seeker copies**. Baseline owner actor previously passed on held Seeker + one Lillie in own-public discard, despite an official Expanded Item retrieving a Supporter. Created `simulation/twinleaf/agent48-owner-vs-seeker-lillie.cjs` and wired optional `seekerLillieRoot` into `agent34-actor-only-root-policy.cjs`. It conservatively chooses Item only when owner hand has ≤3 cards, Lillie M1L is actually in owner's public discard, Supporter quota and Item both available, turn>1, and 8/6 deck cards remain for full printed Lillie draw. Next native `ChooseCardsPrompt` must belong to the owner and select a physical Lillie from the exact same owner's discard; the wrapper returns a real `ResolvePromptAction`, audits it moved from discard into hand, then can use that physically recovered Supporter on the next root. New physical witness cases prevent counting Item/Supporter dispatch alone as effect proof. All action scope is owner-visible; default benchmark untouched.
+
+Pure prompt tests, unauthorized-zone fail-closed tests and a **full synthetic native-shaped Store adapter test that exercises actual `withActorOnlyRootPolicy`** passed in [manual Actions 40960274867](https://github.com/FlareZ123/experiment-01/actions/runs/40960274867). Full details `results/twinleaf/agent48-owner-vs-seeker-lillie-native-prompt-20261029.md`; tests `tests/agent48-owner-vs-seeker-lillie.test.cjs` and `tests/agent48-owner-vs-seeker-adapter.test.cjs`.
+
+**Boundary**: the new shared optional policy has *no authentic original-source end-to-end Store trial yet*. Existing Agent40 genuine native VS Seeker controls prove selected mechanics separately. Synthetic sequencing tests do not qualify native game play or competitive strength. A native positive/negative own-hand trial and opponent reply remain required before broad adoption. No new workflow; manual benchmark test added. Missing ranks23/25/28 and zero qualified full field games remain.
+
+Agent41/native policies and Agent40/owner prompt controls can reuse or falsify this path rather than duplicate it. Development flag is `AGENT48_VS_SEEKER_LILLIE_DEV=true`.
