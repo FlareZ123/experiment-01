@@ -45,6 +45,18 @@ test('already-payable baseline attacks before threshold-improving Energy',()=>{
   {kind:'attack',attackName:'Electro Rain'});
  // 1 Unit LPM = 30 raw, one more Reversal = 120 raw.
  assert.equal((1+3)*30,120);
+ assert.deepEqual(chooseActorRootIntent(x,catalog,{
+  publicContextSpecialEnergy:true,raichuKoBreakpointBeforeAttack:true
+ }),{kind:'attach-special-energy',handIndex:0,
+  printing:'Reversal Energy PAL',slot:'active',index:0});
+ // After legal native attachment and ordinary quota consumption, it returns
+ // the payoff attack instead of a second illegal Energy attachment.
+ x.ownHand=[];
+ x.ownPublic.active.energies.push('Reversal Energy PAL');
+ x.ownTurnResources.energyPlayedTurn=x.globalTurn;
+ assert.deepEqual(chooseActorRootIntent(x,catalog,{
+  publicContextSpecialEnergy:true,raichuKoBreakpointBeforeAttack:true
+ }),{kind:'attack',attackName:'Electro Rain'});
 });
 test('no opponent printed threshold implies deliberate hold',()=>{
  const x=fixture();x.opponentPublic.active.hp=400;x.opponentPublic.active.damage=0;
