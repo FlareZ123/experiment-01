@@ -40,6 +40,22 @@ Crucially, the 32 game arms are only **17 independent source physical deals** af
 The source rank-11 T1 opportunities and native accepted Item search-to-Bench effects occurred in all **12 actual source-first game arms**; these collapse to **six distinct original source physical deal** events after paired candidate repetitions. The pilot's opt-in policy remained default-off otherwise. Only eight of 32 candidate game arms played VIP (one arm played more than one, giving **nine** candidate Item instances). All such effects were native-verified. There were no source rank6 VIP Item plays, consistent with the source deck's printed inventory and restricted action channel.
 
 One paired arm's game-cap classification changed: `11:3:A:new-moon-lockbreaker-v1` was a native terminal under the original basic actor policy and became action-capped after both source and candidate VIP actions. This is evidence of materially changed game rollout and the importance of **policy arbitration and terminal/cap accounting**; it establishes neither an improved deck nor a harmful VIP tactic. The other 31 paired game arms retained their terminal/cap classification, although their internal actions may still have diverged.
+## Archived cap shift: first divergence and recovered setup action
+
+[Native read-only first-divergent-root audit 40960970571](https://github.com/FlareZ123/experiment-01/actions/runs/40960970571) downloaded the same immutable 32-arm artifact, checked exact setup and full source fingerprints for `11:3:A:new-moon-lockbreaker-v1`, and found both original and treatment root sequences identical through accepted native ordinal **12**. The first difference is actual **candidate seat 0, global turn 1, ordinal 13**:
+
+| Actual native sequence | Original policy, VIP off | Treatment policy, VIP on |
+| --- | --- | --- |
+| Candidate turn1 root #12 | **Play Duskull** | **Play Duskull**, unchanged |
+| Candidate turn1 root #13 | **Pass**, end turn | **Play Battle VIP Pass** |
+| Candidate follow-up | Source seat1 T2 **Pass** (control ordinal16) | Native VIP owner search (ordinal14), shuffle (15), subsequent candidate **Pass** (17) |
+| Source turn2 | **Pass** | **Play Battle VIP Pass** (treatment ordinal20), native owner search (21), shuffle (22), then **Pass** (24) |
+| Next candidate T3 | **Play Unown** (control ordinal19) | **Play Trevenant & Dusknoir-GX** (treatment ordinal27) |
+| Recorded end classification | **Native terminal** | **Action-cap**, 260 roots |
+
+Both original physical owners' real native VIP Item roots were accepted, resolved original owner-deck search prompts and had physically confirmed Basic Bench placements; zero rejected Items or prompts in that matched treatment. The observed later candidate play is an actual opposing response, with its own different game state after the selected early setup interactions.
+
+**Arbitration interpretation:** This specific pair establishes a **non-turn-ending action followed by a recovered Item opportunity**: playing Duskull on the same turn did not permanently mask the candidate's held VIP, and its future owner-root replaced the otherwise terminal Pass with a real Item. The earlier policy then chose Pass for the source on turn two, whereas the treatment legally chose VIP and continued. It does **not** show a missed concurrent attack, prove a superior Trainer target, or make the extra Bench Pokémon causally responsible for a particular game winner. The terminal→cap category change remains **a policy-rollout change of unknown strategic sign**, with full trial retained and no win-rate inference. Agent41 was informed for the shared first-match arbitration matrix.
 ## Owner information and methodology
 
 The common hook `simulation/twinleaf/agent9-battle-vip-owner-after-pass.cjs` is **default OFF**. On either actual player's owner-root after the canonical policy otherwise Passes during opening turns, it inspects only that player's permitted own hand, public deck count, Bench space and item-lock attributes. Once the pinned native engine issues the original **owner-deck** `ChooseCardsPrompt`, it may inspect eligible Basics within that search as authorized. It returns exact original physical native card objects and uses the original prompt validator; the Store's accepted native Item and prompt dispatch are captured with physical Bench/deck postconditions. The generic fallback and all other action families remain incompletely qualified. Search target selection is an explicit heuristic and has not been optimized.
