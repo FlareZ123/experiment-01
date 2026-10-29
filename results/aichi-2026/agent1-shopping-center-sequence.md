@@ -1,0 +1,3 @@
+# Rank11 Shopping Center sequence, proposed native regression
+
+Exact rank11 Wataru Yano source has 2 Shopping Center EVS157, 3 Float Stone BKT137, 2 Garbodor BKP57. Card text permits returning the Tool from Garbodor to its owner's hand once per turn, deactivating Garbotoxin until Tool reattachment. The canonical actor-only root has no general Stadium activation intent. Stage both physical seats, show native Tool hand return, regained owner Ability availability, then Tool reattachment with the opponent's Ability lock restored. Check hostile Item/Tool lock. First-turn Boost Shake ends its turn and cannot be followed by this sequence until a later turn. No gameplay/win-rate proof exists. Source: https://limitlesstcg.com/cards/evs/157 .
