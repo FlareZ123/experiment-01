@@ -12,7 +12,7 @@ No inferred card-location event is treated as a legal action. No native effect c
 
 | Action family | Exact original 60s containing it | Physical printed copies | Common actor-root path |
 | --- | ---: | ---: | --- |
-| Battle VIP Pass | 15 | 42 | absent |
+| Battle VIP Pass | 15 | 42 | separate shared two-seat native owner-after-Pass adapter (default off) |
 | Quick Ball | 21 | 72 | narrow opt-in |
 | Carmine | 12 | 15 | narrow, conservative first-turn opt-in implemented (default off) |
 | Boost Shake | 3 | 5 | separate source-specific adapter |
