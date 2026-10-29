@@ -1,0 +1,76 @@
+{
+  "schema": "agent41-rank11-owner-pass-supporter-randomized-control-v1",
+  "registeredAtUTC": "2026-10-29T17:36:20Z",
+  "purpose": "Independent preregistered fresh native negative-control and reversible rank11 low-hand legal Marnie/Carmine source policy. This tests source choice competence only, not a deck or win rate. Every game, cap, abort and zero-opportunity persists.",
+  "sourceRank": 11,
+  "referenceCandidatePrints": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "candidateSlots": [
+    "A",
+    "B"
+  ],
+  "repeats": 4,
+  "seedsByCandidateSlot": {
+    "A": [
+      657207441,
+      4078595151,
+      3646138438,
+      2838575296
+    ],
+    "B": [
+      2938249484,
+      3463500459,
+      1432066850,
+      1651168378
+    ]
+  },
+  "pairedPolicies": [
+    "source-pass-supporter-off",
+    "source-pass-supporter-on"
+  ],
+  "triggerPolicy": "On source low-hand native PassTurnAction (never before the existing root policy). Turn 1 going first Carmine if hand <=2 no protected companion. Marnie on other turns if hand <=4. Native canPlay, opponent-hidden-zone abstention, paper first-turn quota.",
+  "sourceCandidateArms": 16,
+  "attempts": 32,
+  "distinctPRNGSeeds": 8,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "priorFrozenNativeManifest": {
+    "actorOnlyComposition": true,
+    "actorOnlySingleSearch": true,
+    "actorGenericFallbackAttribution": true,
+    "actorHandDiscard": true,
+    "actorChoosePokemon": true,
+    "actorChargedPromotion": true,
+    "mandatoryOptionFallback": true,
+    "paperSupporterQuota": true,
+    "paperCologneQuota": false,
+    "paperFullBenchCallForFamily": true,
+    "paperSameTargetAttachEnergy": true,
+    "nativeAcceptedTargets": true,
+    "paperTerminalAttackKo": false,
+    "sourceFirstRetrospective": false,
+    "nativePressureWindows": false
+  },
+  "maxRootActions": 260,
+  "fixedFiles": {
+    "baselineRegistration": "8c54d8497f9927b04d501237462f64a42173d33d",
+    "sourceList": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "newMoon60": "0edaa9ee651ae9724bb0ea9b46b6431adb12760b",
+    "nativeRunner": "64ad19f6b33be8c760a6ea526e6cfd3bd43f56c0",
+    "sourcePassSupporter": "af124e1b4181040ec56336d74e16f87ccc48a7a0"
+  },
+  "seedMethod": "Eight uniformly sampled 32-bit secrets via Python secrets.randbelow(2**32), no resampling, drawn before any new native trial; shared physical seed per candidate-policy pair; same seed also paired by candidate inventory but inventory changes make source opening not guaranteed identical.",
+  "frozenResearchRevision": "df5d469a8b5f4961a20af0355be917e3f21d70be",
+  "metrics": [
+    "both-arm native terminal/cap/exception outcome census",
+    "source own-hand Supporter Pass opportunities and accepted Marnie/Carmine roots",
+    "actual native source first player and physical source opening digest",
+    "root-ledger equality until first proposed source Supporter",
+    "source rank11 early Boost Shake+Tool Garbodor line receipts",
+    "source turns, action caps and source AttackAction counts",
+    "native-prompt and paper-rule failure caveats"
+  ],
+  "qualification": "All attempted observations remain development-only. No policy paper-fidelity or clock qualification; neither terminal winner nor guessed win-rate signifies competitive win.",
+  "acceptance": "No altered seeds or suppressions after seeing outcomes. Do not reinterpret no-supporter attempts as baseline strength. Keep every failed, censored and actual-first arm. If new repairs needed, precommit new cohort."
+}
