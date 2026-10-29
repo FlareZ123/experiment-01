@@ -48,7 +48,6 @@ test('source held route avoids unavailable cards and Bench positions', () => {
     p => p.hand.cards.shift(),
     p => p.hand.cards.splice(1,1),
     p => p.bench.splice(1,1),
-    p => {p.bench[1]=slot('Trubbish',['Float Stone']);},
     p => {p.bench=[slot('Crobat V'),slot('Darkrai V'),
       slot('Zoroark V'),slot('Regidrago V'),slot('Galarian Moltres V')];}
   ]) {
@@ -133,4 +132,17 @@ test('later-turn reachability excludes first-turn-only Battle VIP Pass', () => {
   player.bench.push(slot('Trubbish'));
   assert.deepEqual(directBoostShakeOpportunity(state,player,0,7,false,true),
     {route:'bench',tool:'Muscle Band'});
+});
+
+test('held Shake evolves an already-Tooled Active or Bench Trubbish', () => {
+  for (const route of ['active','bench']) {
+    const {state,player}=deal(route);
+    const target=route==='active'?player.active:player.bench[1];
+    target.tools=[{name:'Float Stone'}];
+    player.hand.cards=player.hand.cards.filter(card=>card.name!=='Muscle Band');
+    state.turn=5;
+    assert.deepEqual(directBoostShakeOpportunity(state,player,0,7,false,true),
+      {route:route+'-equipped',tool:'Float Stone'});
+    assert.equal(directBoostShakeOpportunity(state,player,0,7),null);
+  }
 });
