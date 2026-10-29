@@ -6,6 +6,13 @@ const {auditPublicField}=require(
   '../scripts/agent43-field-basic-only-cost-census.cjs');
 
 const census=auditPublicField();
+console.log('AG43_FIELD_CENSUS',JSON.stringify({
+  deckCount:census.deckCount,basicOnlyCount:census.basicOnlyCount,
+  shortfallRanks:census.observedShortfallRanks,
+  resolvedShortfalls:census.rows.filter(row=>row.shortfalls.length)
+    .map(row=>({rank:row.rank,archetype:row.archetype,
+      pokemonAttacks:row.shortfalls.map(x=>x.pokemon+':'+x.attack)}))
+}));
 
 test('source-input census keeps exact 29 published original sixties',()=>{
   assert.equal(census.deckCount,29);
