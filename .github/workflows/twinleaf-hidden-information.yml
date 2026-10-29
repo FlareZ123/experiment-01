@@ -11,6 +11,10 @@ on:
         description: Compare actor-only Lillie draw after Pass against same historical four-arm baseline (requires agent34 flag)
         type: boolean
         default: false
+      agent24_rank6_candidate_lillie:
+        description: Original rank6 historical source-first candidate Lillie (requires actor root)
+        type: boolean
+        default: false
       archival_prefix_only:
         description: Run only compiled archival rank-10 prefix falsification
         type: boolean
@@ -370,3 +374,15 @@ jobs:
           path: agent12-actor-lillie-native.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Posthoc candidate-only Lillie on original rank6 source-first deal
+        if: ${{ inputs.agent24_rank6_candidate_lillie }}
+        run: node simulation/twinleaf/agent24-rank6-original-candidate-lillie-pair.cjs > agent24-rank6-lillie-native.json
+      - name: Save rank6 candidate Lillie trial including assertion failures
+        if: ${{ always() && inputs.agent24_rank6_candidate_lillie }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent24-rank6-candidate-lillie-pair
+          path: agent24-rank6-lillie-native.json
+          if-no-files-found: warn
+          retention-days: 14
+
