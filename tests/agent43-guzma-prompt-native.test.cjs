@@ -78,6 +78,14 @@ function check(seat){
   assert.ok(Number.isSafeInteger(intended));
   const botOriginal=SimpleTacticsAi.prototype.decodeNextAction;
   const dispatchOriginal=Store.prototype.dispatch;
+  const observation=require('../simulation/twinleaf/actor-observation-contract.cjs').actorObservation(state,seat);
+  const publicCatalog=require('../simulation/twinleaf/agent43-guzma-prompt-continuation.cjs').publicCatalog();
+  const planned=require('../simulation/twinleaf/agent2-held-guzma-mobility-frontier.cjs').chooseHeldGuzmaMobility(observation,publicCatalog);
+  console.log('AG43_PREFLIGHT',JSON.stringify({seat,plan:planned,
+    hand:observation.ownHand,
+    active:observation.ownPublic.active,
+    bench:observation.ownPublic.bench,
+    resources:observation.ownTurnResources}));
   const result=withGuzmaOwnerPromptContinuation(()=>{
     store.dispatch(new PlayCardAction(owner.id,0,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
