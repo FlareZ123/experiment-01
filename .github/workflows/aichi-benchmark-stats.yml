@@ -370,6 +370,7 @@ jobs:
       - name: Execute 12 fixed original-source VS Seeker owner policy contrasts
         run: node simulation/twinleaf/agent48-vs-seeker-native-owner-census.cjs > agent48-seeker-lillie-native.json
       - name: Summarize actual owner-native VS Seeker roots without performance claims
+        if: always()
         run: >-
           node -e "const r=require('./agent48-seeker-lillie-native.json');
           console.log(JSON.stringify({pairs:r.pairs,
