@@ -62,6 +62,9 @@ function chooseConservativeShuffleSupporter(view){
       const counts=printedShuffleDrawCounts(view,family.kind);
       if(!counts||counts.ownDraw<=0||counts.ownDraw>own.deckCount)
         continue;
+      if(family.kind!=='lillie'&&
+        (counts.opponentDraw>opponent.deckCount||
+         opponent.prizeCount<=0))continue;
       if(family.kind==='iono'&&counts.ownDraw<4)continue;
       // Marnie and Iono can increase the opponent's hand. Penalize that
       // public opportunity; do not reward purely speculative disruption.
