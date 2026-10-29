@@ -51,14 +51,26 @@ function runRanks(ranks,registration,schema){
         'Expected one first original native owner root per actual seat');
       assert.ok(observed.rows.every(row=>
         row.status==='K0-native-source-owner-invariant'&&
-        row.physicalObjectsRestored===true),
-        'Both owner roots must pass authentic K0 source invariance');
+        row.physicalObjectsRestored===true&&
+        row.nativeStoreFirstActionDispatched===true&&
+        row.nativeStoreFirstActionAccepted===true),
+        'Both original source roots must have accepted native Store actions');
       Object.assign(entry,{
         status:'native-source-K0-both-owner-roots-passed',
         ownerRoots:observed.rows.map(row=>({
           physicalSeat:row.seat,globalTurn:row.turn,
           chosenIntent:row.chosenOwnerOnlyIntent,
           nativeBotProposedActionClass:row.nativeBotProposedActionClass,
+          nativeBotProposedHandIndex:row.nativeBotProposedHandIndex,
+          nativeBotProposedHandPrinting:row.nativeBotProposedHandPrinting,
+          nativeStoreFirstActionDispatched:row.nativeStoreFirstActionDispatched,
+          nativeStoreFirstActionAccepted:row.nativeStoreFirstActionAccepted,
+          nativeStoreFirstActionCardLeftHand:
+            row.nativeStoreFirstActionCardLeftHand,
+          nativeStoreFirstActionPublicBefore:
+            row.nativeStoreFirstActionPublicBefore,
+          nativeStoreFirstActionPublicAfter:
+            row.nativeStoreFirstActionPublicAfter,
           ownerKnownHand:row.ownerKnownHand,
           ownActive:row.ownActivePublicPrinting,
           ownBench:row.ownBenchPublicPrintings,
@@ -85,7 +97,7 @@ function runRanks(ranks,registration,schema){
 function run(){
   return runRanks(SOURCE_RANKS,
     'agents/agent18/20261029-aichi-k0-stratified-native-protocol.md',
-    'agent18-aichi-original-source-K0-six-rank-survey-v2');
+    'agent18-aichi-original-source-K0-six-rank-survey-v3');
 }
 if(require.main===module){
   const audit=run();
