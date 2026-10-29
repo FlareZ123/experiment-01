@@ -11,6 +11,8 @@ const {withActorOnlyRootPolicy}=
 const SEEDS=Object.freeze(Array.from({length:12},
   (_,i)=>2026102921+i));
 const MAX_ACTIONS=120;
+assert.ok(SEEDS.every(n=>Number.isSafeInteger(n)&&n>=0&&n<=0xffffffff),
+  'Pinned engine accepts unsigned 32-bit random seeds');
 
 /**
  * Original rank1 versus original rank22 both contain physical VS Seeker
