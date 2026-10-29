@@ -15,7 +15,7 @@ const {withNativePaperSupporterDiscipline}=
 const {withSameTargetAttachEnergySelection}=
   require('../twinleaf/same-target-attach-energy-hook.cjs');
 
-const VERSION='agent41-rank3-printed-original-aba-v2-native-continuation';
+const VERSION='agent41-rank3-printed-original-aba-v3-settled-public-attack';
 const SEEDS=Object.freeze([290126,290127]);
 const SOURCE_RANK=3, CANDIDATE_RANK=1;
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -122,6 +122,9 @@ function executeOne(trial,cards){
       const declarations=(game.attackDeclarationTrace??[]).filter(d=>
         d.playerSlot===sample.seat&&
         d.turnBefore===sample.globalTurn).slice(0,4);
+      const publicSettlements=(game.publicAttackTransitions??[]).filter(d=>
+        d.triggerPlayerSlot===sample.seat&&
+        d.turnBefore===sample.globalTurn).slice(0,4);
       const sourceTurnLedger=(game.rootActionLedger??[]).filter(event=>
         event.playerSlot===sample.seat&&
         event.turnBefore===sample.globalTurn).slice(0,12);
@@ -133,6 +136,7 @@ function executeOne(trial,cards){
         nativeSameTurnFollowupRoots:sameTurnFollowups,
         nativeOpponentFollowingRoots:opponentReplies,
         nativePrintedAttackDeclarations:declarations,
+        nativePublicAttackSettlements:publicSettlements,
         realStoreOwnTurnLedger:sourceTurnLedger,
         realStoreOpponentReplyLedger:replyLedger,
         postgameOnly:true
@@ -202,7 +206,22 @@ function compare(rows){
       digest(a.nativeRootAcceptances)===digest(rep.nativeRootAcceptances)&&
       a.rootActionLedgerSha256!==null&&
       a.rootActionLedgerSha256===rep.rootActionLedgerSha256;
+    const firstDifferentRootIndex=fullDealMatches?
+      Array.from({length:Math.min(a.nativeRootAcceptances.length,
+        b.nativeRootAcceptances.length)},(_,i)=>i).find(i=>{
+        const x=a.nativeRootAcceptances[i],y=b.nativeRootAcceptances[i];
+        return x.kind!==y.kind||x.seat!==y.seat||
+          x.globalTurn!==y.globalTurn||
+          JSON.stringify(x.intent)!==JSON.stringify(y.intent);
+      })??null:null;
+    const firstDifferentRoot=firstDifferentRootIndex===null?null:{
+      ordinalZeroBased:firstDifferentRootIndex,
+      control:a.nativeRootAcceptances[firstDifferentRootIndex],
+      treatment:b.nativeRootAcceptances[firstDifferentRootIndex],
+      verifiedCommonPreviousRoots:firstDifferentRootIndex
+    };
     return {candidateSeat:seat,sourceSeat:1-seat,seed,
+      firstDifferentRoot,
       status:fullDealMatches?'same-full-physical-start':'unverified-or-different',
       repeatStatus:repeatIdentical?'identical-observed-repeat':'unverified-or-different',
       sourceFirst:[a.sourceActuallyFirst,b.sourceActuallyFirst,rep.sourceActuallyFirst],
