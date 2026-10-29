@@ -83,18 +83,19 @@ function withActorOnlyShuffleSupporterAfterPass(execute,deps={}){
     if(action?.constructor?.name==='AddPlayerAction'&&realStore===null)
       realStore=this;
     const proposed=this===realStore?attempts.get(action):null;
+    const playedCard=proposed?
+      this.state.players[proposed.seat].hand.cards[proposed.handIndex]:null;
     try{
       const result=priorDispatch.value.call(this,action,...args);
       if(proposed){
         const owner=this.state.players[proposed.seat];
-        const physical=owner.hand.cards.some(c=>
-          c.fullName===proposed.printing);
         const receipt={...proposed,StoreAccepted:true,
           nativeSupporterQuotaAfter:owner.supporterTurn,
-          printingRemainsInOwnerHandAfter:physical,
+          playedPhysicalCardRemainsInHandAfter:
+            owner.hand.cards.includes(playedCard),
           pendingPromptCount:this.state.prompts.filter(p=>
             p.result===undefined).length,
-          effectSettledInSameDispatch:false};
+          effectSettlement:'not-certifiable-at-root-dispatch'};
         audit.acceptedRoots++;
         audit.acceptedByFamily[proposed.family]=
           (audit.acceptedByFamily[proposed.family]??0)+1;
