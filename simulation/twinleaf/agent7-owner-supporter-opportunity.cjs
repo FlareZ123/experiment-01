@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent7-live-owner-supporter-opportunity-v4-first-turn-exceptions';
+const VERSION='agent7-live-owner-supporter-opportunity-v5-private-hand-discard-evidence';
 const FIRST_PLAYER_SUPPORTER_EXCEPTIONS=new Set([
   'Carmine','Beauty',"Team Rocket's Proton"
 ]);
@@ -82,6 +82,10 @@ function ownerSupporterOpportunity(state,seat,view,supporterType,options={}){
   return {
     seat,globalTurn:view.globalTurn,held,quotaOpen,playUnlocked,
     firstPlayerFirstTurn,publicGeometry:publicRootGeometry(view),
+    // Retained only for owner-private retrospective DCI inspection.
+    // Never pass this snapshot to an opponent policy or public board ledger.
+    ownerHandPrintings:[...view.ownHand],
+    informationScope:'acting-owner-private-postgame-audit-only',
     structurallyOpenCount:held.filter(c=>c.structurallyOpen).length,
     nativeNullTargetPositiveCount:held.filter(c=>c.nativeNullTargetCanPlay===true).length,
     caveat:'CanPlay(null) and quota/lock screening are diagnostics, not an actual printed-paper legality, native target or benefit certificate.'
