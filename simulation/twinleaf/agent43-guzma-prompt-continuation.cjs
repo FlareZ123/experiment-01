@@ -70,7 +70,9 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
   assert.equal(typeof getCatalog,'function');
   assert.equal(typeof getChoices,'function');
 
-  let liveStore=null,catalog=null;
+  // A staged native Store can be supplied by a test without dispatching
+  // its normal AddPlayerAction ceremony against an already staged board.
+  let liveStore=deps.initialLiveStore??null,catalog=null;
   const plans=new Map();
   const ownedReplies=new WeakMap();
   const audit={
