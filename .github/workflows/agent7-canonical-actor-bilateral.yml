@@ -3,11 +3,6 @@ name: Canonical bilateral actor-only decision composition
 on:
   workflow_dispatch:
     inputs:
-      owner_supporter_opportunity:
-        description: Read-only both-seat owner Supporter windows and observer-OFF paired control
-        required: false
-        type: boolean
-        default: false
       source_first_retrospective:
         description: Also execute previously selected native source-first four-arm stress panel
         required: false
@@ -119,7 +114,7 @@ on:
         type: boolean
         default: false
       native_fallback_paircheck:
-        description: Run identical historical arms with native observer disabled to check no game mutation
+        description: Same-seed generic fallback and owner Supporter read-only audit with observer-disabled control
         required: false
         type: boolean
         default: false
@@ -213,7 +208,7 @@ jobs:
       - name: Execute unchanged canonical four-arm historical bilateral runner
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
-          AGENT7_OWNER_SUPPORTER_AUDIT_DEV: ${{ inputs.owner_supporter_opportunity && 'true' || 'false' }}
+          AGENT7_OWNER_SUPPORTER_AUDIT_DEV: ${{ inputs.native_fallback_paircheck && 'true' || 'false' }}
           AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
           AGENT32_COMPR_ANYTURN_DEV: ${{ inputs.owner_anyturn_compressor_pair && 'true' || 'false' }}
           AGENT32_COMPR_BENCHED_DEV: ${{ inputs.owner_early_bench_compressor_pair && 'true' || 'false' }}
@@ -236,37 +231,6 @@ jobs:
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-actor-fourarm.json
-      - name: Repeat frozen four-arm Store with owner Supporter observer disabled
-        if: ${{ inputs.owner_supporter_opportunity }}
-        env:
-          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
-          AGENT7_OWNER_SUPPORTER_AUDIT_DEV: 'false'
-          AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
-          AGENT32_COMPR_ANYTURN_DEV: ${{ inputs.owner_anyturn_compressor_pair && 'true' || 'false' }}
-          AGENT32_COMPR_BENCHED_DEV: ${{ inputs.owner_early_bench_compressor_pair && 'true' || 'false' }}
-          AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
-          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
-          AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
-          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: ${{ inputs.native_generic_fallback && 'true' || 'false' }}
-          AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
-          AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
-          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
-          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
-          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
-          AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
-          AGENT30_PERFECTION_ROOT_DEV: ${{ inputs.actor_perfection_root && 'true' || 'false' }}
-          AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
-          AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
-          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
-          AGENT41_PAPER_SUPPORTER_DEV: 'true'
-          AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
-          AGENT41_MANDATORY_OPTION_DEV: 'true'
-          AGENT41_NATIVE_PRESSURE_DEV: 'true'
-        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-owner-supporter-control-fourarm.json
-      - name: Verify four-arm Supporter opportunity receipt and native no-op parity
-        if: ${{ inputs.owner_supporter_opportunity }}
-        run: |
-          node -e "const assert=require('node:assert/strict');const {gameplayProjection}=require('./scripts/agent7-native-fallback-paircheck.cjs');const control=require('./agent7-owner-supporter-control-fourarm.json');const observed=require('./agent7-canonical-actor-fourarm.json');assert.equal(control.attempted,4);assert.equal(observed.attempted,4);assert.deepStrictEqual(gameplayProjection(observed),gameplayProjection(control),'Passive Supporter observer changed gameplay');const stats={};for(const seat of [0,1])stats[seat]={firstOwnerTurns:0,held:0,structurallyOpen:0,proposed:0,accepted:0,passesOpen:0};for(let i=0;i<4;i++){const a=observed.rows[i].actorOnlyDecisionCoverage?.ownerSupporterOpportunityAudit;assert.ok(a,'Missing live owner Supporter audit');assert.equal(a.actualStoreSeen,true);assert.equal(a.competitiveQualified,false);assert.equal(control.rows[i].actorOnlyDecisionCoverage?.ownerSupporterOpportunityAudit,null);for(const seat of [0,1]){const x=a.bySeat[seat];stats[seat].firstOwnerTurns+=x.firstTurnRoots;stats[seat].held+=x.firstTurnHeld;stats[seat].structurallyOpen+=x.firstTurnStructurallyOpen;stats[seat].proposed+=x.proposedSupporters;stats[seat].accepted+=x.acceptedSupporters;stats[seat].passesOpen+=x.passWithStructurallyOpen;}}console.log('OWNER_SUPPORTER_NONINTERFERENCE',JSON.stringify({sameGameProjections:true,observedArms:4,bySeat:stats,qualifiedGames:0}))"
       - name: Same-deal donor recovery control under identical real-game policies
         if: ${{ inputs.owner_anyturn_compressor_pair || inputs.owner_early_bench_compressor_pair }}
         env:
@@ -379,6 +343,7 @@ jobs:
         if: ${{ inputs.native_fallback_paircheck }}
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT7_OWNER_SUPPORTER_AUDIT_DEV: 'false'
           AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
           AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
           AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
@@ -402,6 +367,10 @@ jobs:
       - name: Verify original four-arm gameplay and native-seat ledger invariance
         if: ${{ inputs.native_fallback_paircheck }}
         run: node scripts/agent7-native-fallback-paircheck.cjs agent7-canonical-actor-fourarm-control.json agent7-canonical-actor-fourarm.json
+      - name: Require passive owner Supporter census and four-arm outcome parity
+        if: ${{ inputs.native_fallback_paircheck }}
+        run: |
+          node -e "const assert=require('node:assert/strict');const {gameplayProjection}=require('./scripts/agent7-native-fallback-paircheck.cjs');const baseline=require('./agent7-canonical-actor-fourarm-control.json');const observed=require('./agent7-canonical-actor-fourarm.json');assert.deepStrictEqual(gameplayProjection(observed),gameplayProjection(baseline),'Read-only owner Supporter observer changed gameplay');const stats={0:{},1:{}};for(const seat of [0,1])for(const field of ['firstTurnRoots','firstTurnHeld','firstTurnStructurallyOpen','proposedSupporters','acceptedSupporters','passWithStructurallyOpen'])stats[seat][field]=0;for(let i=0;i<4;i++){const a=observed.rows[i].actorOnlyDecisionCoverage?.ownerSupporterOpportunityAudit;assert.ok(a&&a.actualStoreSeen,'Missing live owner Supporter audit');assert.equal(a.competitiveQualified,false);assert.equal(baseline.rows[i].actorOnlyDecisionCoverage?.ownerSupporterOpportunityAudit,null);for(const seat of [0,1])for(const field of Object.keys(stats[seat]))stats[seat][field]+=a.bySeat[seat][field];}console.log('OWNER_SUPPORTER_EVIDENCE',JSON.stringify({pairedArms:4,unchangedGame:true,bySeat:stats,competitiveQualifiedGames:0}))"
       - name: Run four retrospective source-first stress arms with same composition
         # Preserve independent source-first evidence despite an earlier strict
         # original-panel audit failure. Do not run after cancellation.
@@ -489,7 +458,6 @@ jobs:
           name: agent7-canonical-actor-fourarm-development
           path: |
             agent7-canonical-actor-fourarm.json
-            agent7-owner-supporter-control-fourarm.json
             agent32-anyturn-compressor-control.json
             agent8-quick-ball-off.json
             agent8-quick-ball-paircheck.json
