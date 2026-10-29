@@ -55,6 +55,16 @@ function runRanks(ranks,registration,schema){
         row.nativeStoreFirstActionDispatched===true&&
         row.nativeStoreFirstActionAccepted===true),
         'Both original source roots must have accepted native Store actions');
+      if(rank===2||rank===10){
+        const sourceOpponentRoot=observed.rows.find(row=>row.seat===1);
+        const expected=rank===2?'Stealthy Hood UNB':'Muscle Band XY';
+        assert.equal(sourceOpponentRoot?.nativeBotProposedHandPrinting,
+          expected,'Expected actual original source-native held Tool printing');
+        assert.equal(sourceOpponentRoot.nativeStoreFirstActionCardLeftHand,true);
+        assert.equal(sourceOpponentRoot.nativeStoreFirstActionAttachedToolTarget
+          ?.printing,expected,
+          'Native first-root Tool must physically attach to original source owner');
+      }
       Object.assign(entry,{
         status:'native-source-K0-both-owner-roots-passed',
         ownerRoots:observed.rows.map(row=>({
@@ -67,6 +77,8 @@ function runRanks(ranks,registration,schema){
           nativeStoreFirstActionAccepted:row.nativeStoreFirstActionAccepted,
           nativeStoreFirstActionCardLeftHand:
             row.nativeStoreFirstActionCardLeftHand,
+          nativeStoreFirstActionAttachedToolTarget:
+            row.nativeStoreFirstActionAttachedToolTarget,
           nativeStoreFirstActionPublicBefore:
             row.nativeStoreFirstActionPublicBefore,
           nativeStoreFirstActionPublicAfter:
@@ -97,7 +109,7 @@ function runRanks(ranks,registration,schema){
 function run(){
   return runRanks(SOURCE_RANKS,
     'agents/agent18/20261029-aichi-k0-stratified-native-protocol.md',
-    'agent18-aichi-original-source-K0-six-rank-survey-v3');
+    'agent18-aichi-original-source-K0-six-rank-survey-v4');
 }
 if(require.main===module){
   const audit=run();
