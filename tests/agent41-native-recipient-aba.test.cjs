@@ -3,6 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {COMMON_OPTIONS,FIXED_ROOT_ENV,summarizeRecipientABA,
+  describeRootTargetDivergence,sameDealRepeatStability,
   executeRecipientABA}=require('../simulation/evaluation/agent41-native-recipient-aba.cjs');
 
 /** @param {number} rank @param {string} candidateId */
@@ -122,4 +123,48 @@ test('runner restores root options even if native policy crashes',()=>{
     if(old===undefined)delete process.env[key];
     else process.env[key]=old;
   }
+});
+
+test('physically changed same printed Energy target is distinguished from root-path drift',()=>{
+  const left=row(11,'champion-reference');
+  const right=row(11,'champion-reference');
+  const original={rootActionOrdinal:49,playerSlot:0,action:'PlayCardAction',
+    declared:{kind:'play-card',ownerHandPrinting:'Darkness Energy SVE 7',
+      handIndex:2,target:{player:2,slot:0,index:0}}};
+  left.nativeAcceptedTargetSidecar={events:[original]};
+  right.nativeAcceptedTargetSidecar={events:[{
+    ...original,declared:{...original.declared,
+      target:{player:2,slot:1,index:1}}
+  }]};
+  const audit={root:{status:'different',index:0}};
+  const difference=describeRootTargetDivergence(left,right,audit);
+  assert.equal(difference.causalAttribution,
+    'same-accepted-card-different-declared-target');
+  assert.equal(difference.originalRootOrdinal,49);
+  assert.equal(difference.treatmentRootOrdinal,49);
+  assert.deepEqual(difference.originalDeclaredTarget,
+    {player:2,slot:0,index:0});
+  right.nativeAcceptedTargetSidecar.events[0].rootActionOrdinal=50;
+  assert.equal(describeRootTargetDivergence(left,right,audit).causalAttribution,
+    'different-root-or-card-path');
+  assert.equal(describeRootTargetDivergence(left,right,{
+    root:{status:'same-observed-targets'}}),null);
+});
+
+test('repeat stability requires actual Store roots and prompt hash parity',()=>{
+  const base=row(11,'champion-reference');
+  base.nativeAcceptedTargetSidecar={sha256:'root-physical-sha'};
+  base.nativeAcceptedEnergyPromptSidecar={sha256:'energy-prompt-sha'};
+  const repeated={...base};
+  const observed={status:'selective-physical-evidence',
+    root:{status:'same-observed-targets'},
+    energyPrompt:{status:'same-observed-prompt-effects'}};
+  assert.equal(sameDealRepeatStability(base,repeated,observed).status,
+    'identical-accepted-physical-repeat');
+  assert.equal(sameDealRepeatStability(base,{
+    ...repeated,nativeAcceptedEnergyPromptSidecar:{sha256:'changed-physical'}
+  },observed).status,'not-reproduced-or-unverified');
+  assert.equal(sameDealRepeatStability(base,repeated,{
+    ...observed,root:{status:'different'}
+  }).status,'not-reproduced-or-unverified');
 });
