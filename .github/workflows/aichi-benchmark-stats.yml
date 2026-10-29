@@ -62,6 +62,8 @@ jobs:
         run: node --test tests/agent48-conservative-first-carmine.test.cjs
       - name: Regress owner-only VS Seeker to Lillie chain, actual prompt and physical Store witnesses
         run: node --test tests/agent48-owner-vs-seeker-lillie.test.cjs
+      - name: Regress full VS Seeker to Lillie typed root prompt and native-shaped Store adapter
+        run: node --test tests/agent48-owner-vs-seeker-adapter.test.cjs
       - name: Check exact Basic-valid natural Special Energy opening exposure
         run: node --test tests/agent17-special-only-opening-exposure.test.cjs
       - name: Check implemented Special Energy numeric vocabulary across 29 originals
