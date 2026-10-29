@@ -117,3 +117,5 @@ test('genuine pinned Store Plumeria resolves physical two-hand discard and one o
     assert.equal(state.prompts.some(p=>p.result===undefined),false);
   }
 });
+
+require('./agent4-plumeria-native-intervention.test.cjs');
