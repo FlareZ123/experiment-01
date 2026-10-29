@@ -48,7 +48,7 @@ function chooseOpeningDiscards(
  * @param {boolean} [thunderInPlay]
  * @param {string[]} [priorities]
  * @param {boolean} [conditionalTagCallPayment]
- * @param {{stadiumLocked?:boolean,specialEnergyLocked?:boolean,itemLocked?:boolean,supporterLocked?:boolean,stadiumAlreadyPlayed?:boolean,activeDceAttached?:boolean,energyAlreadyAttached?:boolean,energyLocked?:boolean}} [constraints]
+ * @param {{stadiumLocked?:boolean,specialEnergyLocked?:boolean,itemLocked?:boolean,supporterLocked?:boolean,stadiumAlreadyPlayed?:boolean,activeDceAttached?:boolean,activeLiveLightningAttached?:boolean,energyAlreadyAttached?:boolean,energyLocked?:boolean}} [constraints]
  * @returns {{channel:string,needDce:boolean,needThunder:boolean,discardCount:number}|null}
  */
 function planOpeningHand(
@@ -60,12 +60,15 @@ function planOpeningHand(
   // otherwise reachable Tag Call/G&H path impossible on the current turn.
   if (((constraints.specialEnergyLocked || constraints.energyLocked ||
        constraints.energyAlreadyAttached) && !constraints.activeDceAttached) ||
-      (constraints.stadiumLocked && !thunderInPlay) ||
-      (constraints.stadiumAlreadyPlayed && !thunderInPlay)) return null;
+      (constraints.stadiumLocked && !thunderInPlay &&
+        !constraints.activeLiveLightningAttached) ||
+      (constraints.stadiumAlreadyPlayed && !thunderInPlay &&
+        !constraints.activeLiveLightningAttached)) return null;
   const held = name=>hand.some(c=>c.name===name);
   const needDce=!held('Double Colorless Energy') &&
     constraints.activeDceAttached!==true;
-  const needThunder=!thunderInPlay && !held('Thunder Mountain Prism Star');
+  const needThunder=!thunderInPlay && !held('Thunder Mountain Prism Star') &&
+    !constraints.activeLiveLightningAttached;
   if(!needDce && !needThunder) {
     return {channel:'direct',needDce:false,needThunder:false,discardCount:0};
   }
@@ -141,12 +144,29 @@ function chooseK1AlternateSpecialEnergy(searchableOwnDeck){
 }
 
 /**
+ * The source has four Speed Lightning Energy; an attached live copy can pay
+ * Iron Thorns ex's printed Lightning attack symbol even without Stadium.
+ * Temple of Sinnoh neutralizes this Special Energy's Lightning provision.
+ * This deliberately narrow source-only witness does not represent a general
+ * Energy legality oracle for arbitrary Expanded effects.
+ * @param {object} state
+ * @param {object} player
+ * @returns {boolean}
+ */
+function hasLiveRank6SpeedLightning(state,player){
+  return player.active.energies.cards.some(c=>
+    c.name==='Speed Lightning Energy') &&
+    !state.players.some(side=>side.stadium.cards.some(c=>
+      c.name==='Temple of Sinnoh'));
+}
+
+/**
  * Opt-in broad source-opponent attack tactic, still deliberately simple.
  * Selects using own hand, public stadium and legal search prompts only;
  * reading deck cards is restricted to actual ChooseCardsPrompt resolution.
  * @template T
  * @param {()=>T} work
- * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean,k1AlternativeEnergy?:boolean,k1TagCallAlternative?:'none'|'append-bellelba'|'replace-bellelba'}} [options]
+ * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean,k1AlternativeEnergy?:boolean,liveSpeedLightningAlternative?:boolean,k1TagCallAlternative?:'none'|'append-bellelba'|'replace-bellelba'}} [options]
  * @returns {{result:T,started:boolean,completed:boolean,events:object[],abortReason:string|null,openingPlan:object|null}}
  */
 function withBroadThornsSourceAttack(work,options={}) {
@@ -159,6 +179,7 @@ function withBroadThornsSourceAttack(work,options={}) {
   const playLockAwareOpening=options.playLockAwareOpening===true;
   const k1ReplanAfterTagCall=options.k1ReplanAfterTagCall===true;
   const k1AlternativeEnergy=options.k1AlternativeEnergy===true;
+  const liveSpeedLightningAlternative=options.liveSpeedLightningAlternative===true;
   const k1TagCallAlternative=options.k1TagCallAlternative??'none';
   assert.ok(['none','append-bellelba','replace-bellelba']
     .includes(k1TagCallAlternative));
@@ -209,7 +230,9 @@ function withBroadThornsSourceAttack(work,options={}) {
   /** @param {object} state @param {object} p */
   function continueAfterSearch(state,p) {
     const thunder=p.stadium.cards.some(c=>c.name==='Thunder Mountain Prism Star');
-    if(!thunder) {
+    const attachedLightning=liveSpeedLightningAlternative &&
+      hasLiveRank6SpeedLightning(state,p);
+    if(!thunder && !attachedLightning) {
       if(!p.hand.cards.some(c=>c.name==='Thunder Mountain Prism Star')) {
         abort(state,'Required Stadium unavailable after search');
         return null;
@@ -288,8 +311,12 @@ function withBroadThornsSourceAttack(work,options={}) {
         supporterLocked:Boolean(p.cannotPlaySupporterCards) ||
           p.supporterTurn>0,
         stadiumAlreadyPlayed:p.stadiumPlayedTurn===state.turn,
-        activeDceAttached:attached
-      } : {activeDceAttached:attached};
+        activeDceAttached:attached,
+        activeLiveLightningAttached:liveSpeedLightningAlternative &&
+          hasLiveRank6SpeedLightning(state,p)
+      } : {activeDceAttached:attached,
+        activeLiveLightningAttached:liveSpeedLightningAlternative &&
+          hasLiveRank6SpeedLightning(state,p)};
       const plan=planOpeningHand(
         p.hand.cards,inPlay,priorities,conditionalTagCallPayment,constraints
       );
@@ -434,15 +461,19 @@ function withBroadThornsSourceAttack(work,options={}) {
       // Re-enter the shared post-Stadium path so opt-in backup Benching
       // happens before attachment even when Thunder was fetched this turn.
       // Previously this stage skipped backup entirely.
-      if(!p.stadium.cards.some(c=>c.name==='Thunder Mountain Prism Star')) {
-        abort(state,'Thunder Mountain not in play after Stadium action');
+      if(!p.stadium.cards.some(c=>c.name==='Thunder Mountain Prism Star') &&
+          !(liveSpeedLightningAlternative &&
+            hasLiveRank6SpeedLightning(state,p))) {
+        abort(state,'Neither Thunder Mountain nor attached live Lightning after Stadium action');
         return original.call(this,state);
       }
       return continueAfterSearch(state,p)??original.call(this,state);
     }
     if(phase==='attack' && !prompt &&
         state.phase===GamePhase.PLAYER_TURN) {
-      if(!p.stadium.cards.some(c=>c.name==='Thunder Mountain Prism Star') ||
+      if((!p.stadium.cards.some(c=>c.name==='Thunder Mountain Prism Star') &&
+           !(liveSpeedLightningAlternative &&
+             hasLiveRank6SpeedLightning(state,p))) ||
          !p.active.energies.cards.some(c=>c.name==='Double Colorless Energy')) {
         abort(state,'Attack prerequisites missing after actual Store actions');
         return original.call(this,state);
@@ -472,4 +503,5 @@ function withBroadThornsSourceAttack(work,options={}) {
 
 module.exports={discardOrder,chooseOpeningDiscards,planOpeningHand,
   missingTagCallK1Requirements,dceHandAttachmentBlocked,
-  chooseK1AlternateSpecialEnergy,withBroadThornsSourceAttack};
+  chooseK1AlternateSpecialEnergy,hasLiveRank6SpeedLightning,
+  withBroadThornsSourceAttack};
