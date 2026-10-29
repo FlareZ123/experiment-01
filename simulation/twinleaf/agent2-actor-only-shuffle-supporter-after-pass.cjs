@@ -38,6 +38,7 @@ function withActorOnlyShuffleSupporterAfterPass(execute,deps={}){
   const audit={version:VERSION,chooserVersion:CHOOSER_VERSION,
     bothSeats:true,ownerInformationSetOnly:true,
     passRootsObserved:0,eligibleDrawIntents:0,
+    speculativeFallbacks:0,
     attemptedRoots:0,acceptedRoots:0,rejectedRoots:0,
     acceptedByFamily:{},passExclusionCounts:{},
     passExclusionExamples:[],selected:[],nativeRootOutcomes:[],
@@ -45,6 +46,10 @@ function withActorOnlyShuffleSupporterAfterPass(execute,deps={}){
     policyEffectOnWinsNotQualified:true,competitiveGameQualified:false};
   function decode(state){
     const proposed=priorDecode.value.call(this,state);
+    if(state!==realStore?.state){
+      audit.speculativeFallbacks++;
+      return proposed;
+    }
     if(proposed?.constructor?.name!=='PassTurnAction')return proposed;
     const seat=state.players?.findIndex(p=>p.id===this.client?.id);
     if((seat!==0&&seat!==1)||state.activePlayer!==seat||
