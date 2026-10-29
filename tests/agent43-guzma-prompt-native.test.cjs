@@ -81,11 +81,7 @@ function check(seat){
   const observation=require('../simulation/twinleaf/actor-observation-contract.cjs').actorObservation(state,seat);
   const publicCatalog=require('../simulation/twinleaf/agent43-guzma-prompt-continuation.cjs').publicCatalog();
   const planned=require('../simulation/twinleaf/agent2-held-guzma-mobility-frontier.cjs').chooseHeldGuzmaMobility(observation,publicCatalog);
-  console.log('AG43_PREFLIGHT',JSON.stringify({seat,plan:planned,
-    hand:observation.ownHand,
-    active:observation.ownPublic.active,
-    bench:observation.ownPublic.bench,
-    resources:observation.ownTurnResources}));
+  console.log('AG43_PREFLIGHT',JSON.stringify({seat,plan:planned}));
   const result=withGuzmaOwnerPromptContinuation(()=>{
     store.dispatch(new PlayCardAction(owner.id,0,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
@@ -107,6 +103,13 @@ function check(seat){
       scores:definitions.defaultStateScores,
       arbiter:definitions.defaultArbiterOptions
     };
+    const menu=nativeSinglePokemonChoices(state,pending).map(x=>({
+      seat:x.seat,zone:x.zone,index:x.index,
+      printing:x.physical.getPokemonCard()?.fullName
+    }));
+    console.log('AG43_SECOND_PROMPT',JSON.stringify({seat,
+      type:pending.playerType,message:pending.message,
+      perspectiveId:pending.getPerspectivePlayerId(),menu}));
     const bot=new SimpleTacticsAi({id:owner.id},botOptions,null);
     const action=bot.decodeNextAction(state);
     assert.ok(action instanceof ResolvePromptAction);
