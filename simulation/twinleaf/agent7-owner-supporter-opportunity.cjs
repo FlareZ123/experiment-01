@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent7-live-owner-supporter-opportunity-v1';
+const VERSION='agent7-live-owner-supporter-opportunity-v2-native-pass-acceptance';
 const MAX_SAMPLES=96;
 
 /**
@@ -84,11 +84,15 @@ function withOwnerSupporterOpportunity(execute,deps={}){
   assert.equal(typeof beforeDecode?.value,'function');
   assert.equal(typeof beforeDispatch?.value,'function');
   let liveStore=null,generation=0;
-  const firstTurns=new Set(),proposals=new WeakMap();
+  const firstTurns=new Set(),proposals=new WeakMap(),
+    passProposals=new WeakMap();
   const newCounts=()=>({
     roots:0,firstTurnRoots:0,firstTurnHeld:0,firstTurnStructurallyOpen:0,
     proposedSupporters:0,acceptedSupporters:0,rejectedSupporters:0,
-    passWithHeld:0,passWithStructurallyOpen:0
+    passWithHeld:0,passWithStructurallyOpen:0,
+    acceptedPassRoots:0,acceptedPassWithHeld:0,
+    acceptedPassWithStructurallyOpen:0,rejectedPassRoots:0,
+    passTurnAdvanced:0
   });
   const audit={
     version:VERSION,actualStoreSeen:false,decisionsSeen:0,
@@ -135,7 +139,14 @@ function withOwnerSupporterOpportunity(execute,deps={}){
     if(action?.constructor?.name==='PassTurnAction'){
       if(own.held.length)counts.passWithHeld++;
       if(own.structurallyOpenCount)counts.passWithStructurallyOpen++;
-      if(audit.passSamples.length<MAX_SAMPLES)audit.passSamples.push(own);
+      const passReceipt={
+        seat,globalTurn:state.turn,proposed:true,accepted:false,
+        held:own.held.length>0,structurallyOpen:own.structurallyOpenCount>0,
+        turnAdvanced:false
+      };
+      passProposals.set(action,passReceipt);
+      if(audit.passSamples.length<MAX_SAMPLES)
+        audit.passSamples.push({...own,nativePassReceipt:passReceipt});
     }
     return action;
   }
@@ -144,11 +155,25 @@ function withOwnerSupporterOpportunity(execute,deps={}){
       liveStore=this;generation++;audit.actualStoreSeen=true;
     }
     const receipt=this===liveStore?proposals.get(action):null;
+    const passReceipt=this===liveStore?passProposals.get(action):null;
+    const passTurnBefore=passReceipt?this.state.turn:null;
+    const passActiveBefore=passReceipt?this.state.activePlayer:null;
     const beforeOwner=receipt?this.state.players[receipt.seat]:null;
     const card=receipt?beforeOwner.hand.cards[action.handIndex]:null;
     const beforeQuota=receipt?beforeOwner.supporterTurn:null;
     try{
       const result=beforeDispatch.value.apply(this,[action,...args]);
+      if(passReceipt){
+        const counts=audit.bySeat[passReceipt.seat];
+        passReceipt.accepted=true;
+        passReceipt.turnAdvanced=this.state.turn!==passTurnBefore||
+          this.state.activePlayer!==passActiveBefore;
+        counts.acceptedPassRoots++;
+        if(passReceipt.held)counts.acceptedPassWithHeld++;
+        if(passReceipt.structurallyOpen)
+          counts.acceptedPassWithStructurallyOpen++;
+        if(passReceipt.turnAdvanced)counts.passTurnAdvanced++;
+      }
       if(receipt){
         receipt.accepted=true;
         const after=this.state.players[receipt.seat];
@@ -162,6 +187,10 @@ function withOwnerSupporterOpportunity(execute,deps={}){
       }
       return result;
     }catch(error){
+      if(passReceipt){
+        audit.bySeat[passReceipt.seat].rejectedPassRoots++;
+        passReceipt.error=String(error?.message??error);
+      }
       if(receipt){
         audit.bySeat[receipt.seat].rejectedSupporters++;
         receipt.error=String(error?.message??error);
