@@ -22,6 +22,25 @@ function summarize(archive){
   assert.equal(archive.gatePassed,true);
   assert.equal(archive.competitiveQualifiedGames,0);
   const rows=archive.attemptRows;
+  const byAlternative=(items,field)=>{
+    const tally=new Map();
+    for(const row of items)for(const root of row[field]??[]){
+      const id=[root.otherAction,root.otherCard??'',root.otherAttack??'']
+        .join('|');
+      const existing=tally.get(id)??{
+        otherAction:root.otherAction,
+        otherCard:root.otherCard??null,
+        otherAttack:root.otherAttack??null,
+        physicallyAcceptedOriginal:0,notAcceptedOriginal:0,
+        structuralVipOnly:true};
+      if(root.originalAccepted===true)existing.physicallyAcceptedOriginal++;
+      else existing.notAcceptedOriginal++;
+      tally.set(id,existing);
+    }
+    return [...tally.values()].sort((a,b)=>
+      b.physicallyAcceptedOriginal-a.physicallyAcceptedOriginal||
+      String(a.otherAction).localeCompare(String(b.otherAction)));
+  };
   const group=(items)=>({
     gameArms:items.length,
     independentSourcePhysicalDeals:new Set(items.map(x=>
@@ -37,6 +56,16 @@ function summarize(archive){
       a+(x.selectedCards?.length??0),0),
     sourceZeroNamedBasicSearchArms:items.filter(x=>
       x.sourceVipItems>0&&(x.selectedCards?.length??0)===0).length,
+    sourceStructuralContentionRoots:items.reduce((a,x)=>
+      a+(x.sourceVipStructurallyOpenNonPassRoots??0),0),
+    candidateStructuralContentionRoots:items.reduce((a,x)=>
+      a+(x.candidateVipStructurallyOpenNonPassRoots??0),0),
+    sourceAcceptedAttackContentionRoots:items.reduce((a,x)=>
+      a+(x.sourceVipStructurallyOpenAcceptedAttackRoots??0),0),
+    candidateAcceptedAttackContentionRoots:items.reduce((a,x)=>
+      a+(x.candidateVipStructurallyOpenAcceptedAttackRoots??0),0),
+    sourceCompetingRootFamilies:byAlternative(items,'sourceContendedNativeRoots'),
+    candidateCompetingRootFamilies:byAlternative(items,'candidateContendedNativeRoots'),
     candidateVipItemArms:items.filter(x=>x.candidateVipItems>0).length,
     candidateVipBenchConfirmed:items.reduce((a,x)=>
       a+(x.candidateVipBenchConfirmed??0),0),
@@ -125,6 +154,12 @@ if(require.main===module){
       sourceVipNativeBenches:x.sourceVipBenchConfirmed,
       sourceNamedChosenPhysicalBasics:x.sourceNamedChosenPhysicalBasics,
       sourceZeroNamedBasicSearchArms:x.sourceZeroNamedBasicSearchArms,
+      sourceStructuralContentionRoots:x.sourceStructuralContentionRoots,
+      candidateStructuralContentionRoots:x.candidateStructuralContentionRoots,
+      sourceAcceptedAttackContentionRoots:x.sourceAcceptedAttackContentionRoots,
+      candidateAcceptedAttackContentionRoots:x.candidateAcceptedAttackContentionRoots,
+      sourceCompetingRootFamilies:x.sourceCompetingRootFamilies,
+      candidateCompetingRootFamilies:x.candidateCompetingRootFamilies,
       sourceDealPositive:x.sourceDeals.filter(d=>
         d.sourceVipAccepted).length
     })),
