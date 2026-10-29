@@ -56,6 +56,7 @@ function traceAcceptedOwnerRootRecoveries(events){
   assert.ok(Array.isArray(events));
   const open={0:new Map(),1:new Map()};
   const lastTurn={0:null,1:null};
+  let previousGlobalTurn=0,previousSeat=null;
   const evidence=[];
   const counts={acceptedRoots:0,alternativeOffers:0,
     distinctDeferrableOffers:0,repeatedOffers:0,
@@ -88,6 +89,13 @@ function traceAcceptedOwnerRootRecoveries(events){
       'Only Store-accepted owner roots enter sequential recovery analysis');
     assert.ok(typeof e.kind==='string'&&e.kind.length>0);
     assert.ok(Array.isArray(e.alternatives));
+    assert.ok(e.globalTurn>=previousGlobalTurn,
+      'Split native clock resets into distinct episodes before recovery analysis');
+    assert.ok(e.globalTurn!==previousGlobalTurn||
+      previousSeat===null||e.seat===previousSeat,
+      'Two actors cannot take independent roots on the same global turn');
+    previousGlobalTurn=e.globalTurn;
+    previousSeat=e.seat;
     const seat=e.seat;
     if(lastTurn[seat]!==null&&lastTurn[seat]!==e.globalTurn)
       close(seat,'next-owner-turn');
