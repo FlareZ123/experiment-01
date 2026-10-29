@@ -167,6 +167,13 @@ function chooseActorRootIntent(view,catalog,options={}){
       }
     }
   }
+  // Opt-in, both-seat low-hand Supporter choice before an otherwise
+  // immediately payable attack. Keep benchmark root decisions unchanged.
+  if(options.lowHandLillieRoot===true){
+    const draw=require('./agent25-lowhand-lillie-frontier.cjs')
+      .chooseLowHandLillieBeforeAttack(view);
+    if(draw)return draw;
+  }
   if(options.paidRetreatRoot===true){
     const retreat=require('./agent6-actor-paid-retreat-frontier.cjs')
       .choosePaidRetreatToDamagingBench(view,catalog);
@@ -372,6 +379,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     floatStoneMobilityOwnerSeat:deps.floatStoneMobilityOwnerSeat??null,
     heldGuzmaMobilityOptIn:deps.heldGuzmaMobility??
       (process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV==='true'),
+    lowHandLillieRootOptIn:deps.lowHandLillieRoot??
+      (process.env.AGENT25_LOWHAND_LILLIE_DEV==='true'),
     strandedMarnieRootOptIn:deps.strandedMarnieRoot??
       (process.env.AGENT50_STRANDED_MARNIE_DEV==='true'),
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
@@ -414,6 +423,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent35-public-donor-funding-pivot-v1';
   if(audit.powerglassRootOptIn)
     audit.version+='+agent41-owner-visible-powerglass-root-v1';
+  if(audit.lowHandLillieRootOptIn)
+    audit.version+='+'+
+      require('./agent25-lowhand-lillie-frontier.cjs').VERSION;
   if(audit.strandedMarnieRootOptIn)
     audit.version+='+'+
       require('./agent50-stranded-marnie-frontier.cjs').VERSION;
@@ -463,7 +475,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.floatStoneMobilityOptIn,
         audit.floatStoneMobilityOwnerSeat,seat),
       heldGuzmaMobility:audit.heldGuzmaMobilityOptIn,
-      strandedMarnieRoot:audit.strandedMarnieRootOptIn
+      strandedMarnieRoot:audit.strandedMarnieRootOptIn,
+      lowHandLillieRoot:audit.lowHandLillieRootOptIn
     });
     const ownerId=state.players[seat].id;
     let action;
@@ -497,6 +510,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
+      case 'play-lowhand-lillie':
       case 'play-stranded-marnie':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
