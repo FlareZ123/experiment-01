@@ -28,14 +28,27 @@ function run(count = 32, seedProtocol = 'legacy-consecutive-v1', sourceSeat = 0)
   const seeds = seedFrame(count, seedProtocol);
   for (let i=0;i<count;i+=1) {
     const seed=seeds[i];
-    const game=withRank11DirectBoostShake(sourceSeat,() => runMatch({
+    let game;
+    try {
+      game=withRank11DirectBoostShake(sourceSeat,() => runMatch({
       deckA:sourceSeat===0 ? opponent.cards : plan.candidate.cards,
       deckB:sourceSeat===1 ? opponent.cards : plan.candidate.cards,seed,
       label:'rank11-direct-source-probe-v1',maxActions:48,
       strictPromptValidation:true,forestSealSearchCorrection:true,
       battleCompressorPositiveSelectionCorrection:true,
       isolatePolicyRandomness:true
-    }));
+      }));
+    } catch(error) {
+      // Preserve every originally registered deal even if the native Store
+      // rejects a prompt or the generic bot fails. Do not replace its seed.
+      trials.push({seed,firstTurnSlot:null,sourceActuallyFirst:null,
+        sourceOpportunity:null,selectedRoute:null,selectedTool:null,
+        selectedActions:[],aborted:null,nextTurnLockWitness:null,
+        completed:false,engineFinished:false,
+        engineError:{name:error.name,message:error.message},
+        qualifiedForCompetitiveInference:false});
+      continue;
+    }
     trials.push({
       seed,firstTurnSlot:game.result.firstTurnSlot,
       sourceActuallyFirst:game.result.firstTurnSlot===sourceSeat,
@@ -68,6 +81,7 @@ function run(count = 32, seedProtocol = 'legacy-consecutive-v1', sourceSeat = 0)
     },
     sourceActualFirstCount:trials.filter(t=>t.sourceActuallyFirst).length,
     opportunities:trials.filter(t=>t.sourceOpportunity!==null).length,
+    nativeExceptions:trials.filter(t=>t.engineError).length,
     completed:trials.filter(t=>t.completed).length,
     aborts:trials.filter(t=>t.aborted).length,
     trials,qualifiedForCompetitiveInference:false
