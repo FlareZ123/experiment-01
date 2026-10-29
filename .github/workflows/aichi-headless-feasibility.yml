@@ -134,6 +134,18 @@ jobs:
           path: agent2-shuffle-supporter-samedeal-native.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Validate actor-only preattack shuffle Supporter printed intent and public receipt
+        run: node --test tests/agent2-actor-conservative-shuffle-pre-attack.test.cjs
+      - name: Compare 18 historical both-seat preattack shuffle Supporter decisions
+        run: node simulation/twinleaf/agent2-shuffle-supporter-pre-attack-native.cjs > agent2-shuffle-supporter-preattack-native.json
+      - name: Archive owner-root preattack Supporter and native prompt outcomes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent2-shuffle-supporter-preattack-native
+          path: agent2-shuffle-supporter-preattack-native.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify read-only source-root Horror House declaration filter
         run: node --test tests/horror-house-root-audit.test.cjs tests/rank9-horror-house-nextturn-source-reply.test.cjs
       - name: Check Aichi exact card-resolution blockers
